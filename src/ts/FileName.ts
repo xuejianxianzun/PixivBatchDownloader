@@ -38,7 +38,8 @@ class FileName {
       if (index === 0 && settings.noSerialNo) {
         if (data.pageCount === 1 && settings.noSerialNoForSingleImg) {
           return ''
-        } else if (settings.noSerialNoForMultiImg) {
+        }
+        if (data.pageCount > 1 && settings.noSerialNoForMultiImg) {
           return ''
         }
       }
@@ -322,6 +323,11 @@ class FileName {
       },
       '{series_order}': {
         value: data.seriesOrder === null ? '' : '#' + data.seriesOrder,
+        prefix: '',
+        safe: true,
+      },
+      '{series_id}': {
+        value: data.seriesId,
         prefix: '',
         safe: true,
       },

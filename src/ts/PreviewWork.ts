@@ -33,9 +33,21 @@ class PreviewWork {
   // 显示作品中的第几张图片
   private index = 0
 
-  // 使用定时器延迟显示预览区域
+  // 延迟显示预览区域的定时器
   // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片，这是为了避免浪费网络资源
-  private showTimer = 0
+  private delayShowTimer: number | undefined = undefined
+
+  // 延迟隐藏预览区域的定时器
+  private delayHiddenTimer: number | undefined = undefined
+
+  // 当用户点击预览图使预览图隐藏时，不再显示这个作品的预览图（切换作品可以解除限制）
+  private dontShowAgain = false
+
+  // 是否允许预览区域遮挡作品缩略图
+  private allowOverThumb = true
+
+  // 当前预览图是否遮挡了作品缩略图
+  private overThumb = false
 
   private _show = false
 
@@ -54,12 +66,16 @@ class PreviewWork {
         if (settings.PreviewWork) {
           this._show = true
           this.showWrap()
+          window.clearTimeout(this.delayHiddenTimer)
         }
       }
     } else {
       // 隐藏时重置一些变量
-      window.clearTimeout(this.showTimer)
+      window.clearTimeout(this.delayShowTimer)
+      window.clearTimeout(this.delayHiddenTimer)
+      this.overThumb = false
       this._show = false
+      this.dontShowAgain = false
       this.wrap.style.display = 'none'
       // 隐藏 wrap 时，把 img 的 src 设置为空
       // 这样图片会停止加载，避免浪费网络资源
@@ -80,9 +96,14 @@ class PreviewWork {
 
   private bindEvents() {
     mouseOverThumbnail.onEnter((el: HTMLElement, id: string) => {
-      this.show = false
+      if (this.dontShowAgain) {
+        return
+      }
+      // 当鼠标进入到不同作品时
+      // 隐藏之前的预览图
+      // 重置 index
       if (this.workId !== id) {
-        // 切换到不同作品时，重置 index
+        this.show = false
         this.index = 0
       }
       this.workId = id
@@ -100,8 +121,18 @@ class PreviewWork {
     })
 
     mouseOverThumbnail.onLeave((el: HTMLElement) => {
-      this.show = false
-      el.removeEventListener('mousewheel', this.onWheelScroll)
+      if (this.overThumb) {
+        // 如果预览图遮挡了作品缩略图，就需要延迟隐藏预览图。
+        // 因为预览图显示之后，鼠标可能处于预览图上，这会触发此事件。
+        // 如果不延迟隐藏，预览图就会马上消失，无法查看
+        this.delayHiddenTimer = window.setTimeout(() => {
+          this.show = false
+          el.removeEventListener('mousewheel', this.onWheelScroll)
+        }, 100)
+      } else {
+        this.show = false
+        el.removeEventListener('mousewheel', this.onWheelScroll)
+      }
     })
 
     // 可以使用 Alt + P 快捷键来启用/禁用此功能
@@ -122,9 +153,40 @@ class PreviewWork {
       })
     })
 
-    this.wrap.addEventListener('click', () => {
-      this.show = false
+    this.wrap.addEventListener('mouseenter', () => {
+      window.clearTimeout(this.delayHiddenTimer)
     })
+
+    this.wrap.addEventListener('mousemove', (ev) => {
+      // 鼠标在预览图上移动出缩略图区域时，隐藏预览图
+      if (
+        this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY) === false
+      ) {
+        this.show = false
+      }
+    })
+
+    this.wrap.addEventListener('click', (ev) => {
+      this.show = false
+      // 点击预览图使预览图消失时，如果鼠标仍处于缩略图区域内，则不再显示这个作品的预览图
+      // 当鼠标移出这个作品的缩略图之后取消此限制
+      if (this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY)) {
+        this.dontShowAgain = true
+      }
+    })
+
+    this.wrap.addEventListener('mousewheel', (ev) => {
+      this.overThumb && this.onWheelScroll(ev)
+    })
+  }
+
+  // 判断鼠标是否处于某个元素的范围内
+  private mouseInElementArea(el: Element | undefined, x: number, y: number) {
+    if (!el) {
+      return false
+    }
+    const rect = el.getBoundingClientRect()
+    return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom
   }
 
   private preload() {
@@ -177,7 +239,11 @@ class PreviewWork {
   }, 100)
 
   private onWheelScroll = (ev: Event) => {
-    if (this.show && this.workData!.body.pageCount > 1) {
+    if (
+      this.show &&
+      settings.wheelScrollSwitchImageOnPreviewWork &&
+      this.workData!.body.pageCount > 1
+    ) {
       ev.preventDefault()
       this.wheelEvent = ev as WheelEvent
       this.swicthImage()
@@ -190,7 +256,7 @@ class PreviewWork {
   }
 
   private readyShow() {
-    this.showTimer = window.setTimeout(() => {
+    this.delayShowTimer = window.setTimeout(() => {
       this.show = true
     }, settings.previewWorkWait)
   }
@@ -306,7 +372,16 @@ class PreviewWork {
       }
     } else if (w > h) {
       // 横图
-      cfg.width = Math.min(xSpace, w)
+      if (this.allowOverThumb) {
+        // 如果允许预览图覆盖在作品缩略图上，则预览图的最大宽度可以等于视口宽度
+        if (w > innerWidth) {
+          cfg.width = innerWidth
+        }
+      } else {
+        // 否则，预览图的宽度不可以超过图片两侧的空白区域的宽度
+        cfg.width = Math.min(xSpace, w)
+      }
+
       cfg.height = (cfg.width / w) * h
       // 此时高度可能会超过垂直方向上的可用区域，则需要再次调整宽高
       if (cfg.height > ySpace) {
@@ -325,9 +400,23 @@ class PreviewWork {
     // 2. 计算位置
     // 在页面可视区域内，比较缩略图左侧和右侧空间，把 wrap 显示在空间比较大的那一侧
     if (leftSpace >= rightSpace) {
+      // 左侧空间大
+      // 先让预览图的右侧贴着图片左侧边缘显示
       cfg.left = rect.left - cfg.width - this.border + window.scrollX
+      // 如果预览图超出可视范围，则向右移动
+      if (cfg.left < 0) {
+        this.overThumb = true
+        cfg.left = 0
+      }
     } else {
+      // 右侧空间大
+      // 先让预览图的左侧贴着图片右侧边缘显示
       cfg.left = rect.right + window.scrollX
+      // 如果预览图超出可视范围，则向左移动
+      if (cfg.width > rightSpace) {
+        this.overThumb = true
+        cfg.left = cfg.left - (cfg.left + cfg.width - innerWidth) - this.border
+      }
     }
 
     // 然后设置 top

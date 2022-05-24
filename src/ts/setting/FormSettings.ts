@@ -103,6 +103,7 @@ class FormSettings {
       'showPreviewWorkTip',
       'showLargerThumbnails',
       'doubleWidthThumb',
+      'wheelScrollSwitchImageOnPreviewWork',
     ],
     text: [
       'setWantPage',

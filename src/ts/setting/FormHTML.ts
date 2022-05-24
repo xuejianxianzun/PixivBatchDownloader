@@ -292,6 +292,7 @@ export const formHtml = `<form class="settingForm">
       <option value="{px}">{px}</option>
       <option value="{series_title}">{series_title}</option>
       <option value="{series_order}">{series_order}</option>
+      <option value="{series_id}">{series_id}</option>
       <option value="{id_num}">{id_num}</option>
       <option value="{p_num}">{p_num}</option>
       </select>
@@ -377,6 +378,9 @@ export const formHtml = `<form class="settingForm">
     <br>
     <span class="blue">{series_order}</span>
     <span data-xztext="_命名标记seriesOrder"></span>
+    <br>
+    <span class="blue">{series_id}</span>
+    <span data-xztext="_命名标记seriesId"></span>
     <br>
     <span class="blue">{id_num}</span>
     <span data-xztext="_命名标记id_num"></span>
@@ -743,9 +747,9 @@ export const formHtml = `<form class="settingForm">
     <span class="beautify_switch"></span>
 
     <span class="subOptionWrap" data-show="showLargerThumbnails">
+    <label for="doubleWidthThumb" data-xztext="_横图占用二倍宽度"></label>
     <input type="checkbox" name="doubleWidthThumb" id="doubleWidthThumb" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
-    <label for="doubleWidthThumb" data-xztext="_横图占用二倍宽度"></label>
     </span>
     </p>
     
@@ -756,23 +760,29 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="55">
-    <span class="has_tip settingNameStyle1" data-xztip="_鼠标滚轮切换图片">
+    <span class="settingNameStyle1 has_tip" data-xztip="_快捷键AltP">
     <span data-xztext="_预览作品"></span>
-    <span class="gray1"> ? </span>
     </span>
     <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
 
     <span class="subOptionWrap" data-show="PreviewWork">
+
+    <label for="wheelScrollSwitchImageOnPreviewWork" class="has_tip" data-xztext="_使用鼠标滚轮切换作品里的图片" data-xztip="_这可能会阻止页面滚动"></label>
+    <input type="checkbox" name="wheelScrollSwitchImageOnPreviewWork" id="wheelScrollSwitchImageOnPreviewWork" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+
+    <span class="verticalSplit"></span>
+
     <span data-xztext="_等待时间"></span>&nbsp;
     <input type="text" name="previewWorkWait" class="setinput_style1 blue" value="400" style="width:40px;min-width: 40px;">
     <span>&nbsp;ms</span>
 
     <span class="verticalSplit"></span>
 
+    <label for="showPreviewWorkTip" data-xztext="_显示摘要信息"></label>
     <input type="checkbox" name="showPreviewWorkTip" id="showPreviewWorkTip" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
-    <label for="showPreviewWorkTip" data-xztext="_显示摘要信息"></label>
 
     <span class="verticalSplit"></span>
 
