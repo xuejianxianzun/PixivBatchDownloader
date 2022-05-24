@@ -1342,6 +1342,9 @@
 .logContent br {
   display: inline;
 }
+.logContent a {
+  color: #0ea8ef;
+}
 .theme-dark#logWrap {
   background: #222;
   color: #fff;
@@ -1376,6 +1379,9 @@
 }
 .xz_msg_box .title {
   font-size: 16px;
+  color: #0ea8ef;
+}
+.xz_msg_box .blue {
   color: #0ea8ef;
 }
 .xz_msg_box .content {

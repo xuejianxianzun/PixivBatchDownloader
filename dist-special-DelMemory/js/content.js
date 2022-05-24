@@ -1800,7 +1800,7 @@ class FileName {
                 if (data.pageCount === 1 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].noSerialNoForSingleImg) {
                     return '';
                 }
-                else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].noSerialNoForMultiImg) {
+                if (data.pageCount > 1 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].noSerialNoForMultiImg) {
                     return '';
                 }
             }
@@ -2064,6 +2064,11 @@ class FileName {
             },
             '{series_order}': {
                 value: data.seriesOrder === null ? '' : '#' + data.seriesOrder,
+                prefix: '',
+                safe: true,
+            },
+            '{series_id}': {
+                value: data.seriesId,
                 prefix: '',
                 safe: true,
             },
@@ -3425,22 +3430,22 @@ const langText = {
         '{} のアクセス権限がありません、作品を無視する。',
     ],
     _作品页状态码0: [
-        '请求的url不可访问',
-        '要求的 url 無法存取',
-        'The requested url is not accessible',
-        '要求された URL にアクセスできません',
+        '请求的url不可访问 (0)',
+        '要求的 url 無法存取 (0)',
+        'The requested url is not accessible (0)',
+        '要求された URL にアクセスできません (0)',
     ],
     _作品页状态码400: [
-        '该作品已被删除',
-        '該作品已被刪除',
-        'The work has been deleted',
-        '作品は削除されました',
+        '该作品已被删除 (400)',
+        '該作品已被刪除 (400)',
+        'The work has been deleted (400)',
+        '作品は削除されました (400)',
     ],
     _作品页状态码403: [
-        '无权访问请求的url 403',
-        '沒有權限存取要求的 url 403',
-        'Have no access to the requested url 403',
-        'リクエストされた url にアクセスできない 403',
+        '无权访问请求的url (403)',
+        '沒有權限存取要求的 url (403)',
+        'Have no access to the requested url (403',
+        'リクエストされた url にアクセスできない (403)',
     ],
     _作品页状态码404: [
         '404 not found',
@@ -3650,6 +3655,7 @@ const langText = {
         'The number of the work in the series, such as #1 #2',
         'シリーズの中の作品の番号，例え #1 #2',
     ],
+    _命名标记seriesId: ['系列 ID', '系列 ID', 'Series ID', 'シリーズ ID'],
     _文件夹标记PTitle: [
         '当前页面的标题',
         '目前頁面的標題',
@@ -3695,7 +3701,7 @@ const langText = {
         'ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
     ],
     _常见问题说明: [
-        '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br><br>QQ群：675174717<br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
+        '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br><br>QQ群：675174717<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
         '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。',
         'The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.',
         'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
@@ -4435,10 +4441,10 @@ const langText = {
         'ダウンロード後、作品は自動的にブックマークされます。',
     ],
     _收藏设置: [
-        '<span class="key">收藏</span>设置',
-        '<span class="key">收藏</span>設定',
-        '<span class="key">Bookmark</span> settings',
-        'ブックマーク設定 ',
+        '下载器的<span class="key">收藏</span>按钮 ✩',
+        '下載器的<span class="key">收藏</span>按鈕 ✩',
+        `Downloader's <span class="key">bookmark</span> button ✩`,
+        'ダウンローダーの<span class="key">ブックマーク</span>ボタン ✩',
     ],
     _添加tag: ['添加标签', '加入標籤', 'Add tag', 'タグを追加'],
     _不添加tag: ['不添加标签', '不加入標籤', "Don't add tag", 'タグなし'],
@@ -4771,7 +4777,7 @@ const langText = {
         '隠していた設定がそのまま機能する',
     ],
     _状态码为0的错误提示: [
-        '下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。',
+        '下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。如果你使用 Nginx 或者 Apache 反代理访问 pixiv，请换成梯子。',
         '下載時發生錯誤，狀態碼為 0，請求未成功。可能的原因：<br><br>1. 系統磁碟的剩餘空間可能不足（建議剩餘空間大於 4GB）。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>2. 網路錯誤。可能是網路代理導致的問題。',
         'An error occurred while downloading, the status code is 0, and the request was unsuccessful. Possible reasons: <br><br>1. The remaining space of the system disk may be insufficient (it is recommended that the remaining space be greater than 4GB). Please try to clear the system disk space, and then restart the browser to continue the unfinished download. <br><br>2. Network error. It may be a problem caused by a network proxy.',
         'ダウンロード中にエラーが発生し、ステータスコードは0で、リクエストは失敗しました。 考えられる理由：<br> <br> 1。 システムディスクの残りのスペースが不足している可能性があります（残りのスペースは4GBを超えることをお勧めします）。 システムのディスク領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。 <br> <br> 2。 ネットワークエラー。 ネットワークプロキシが原因の問題である可能性があります。',
@@ -5083,10 +5089,58 @@ const langText = {
         '水平方向の画像は幅の2倍を占めます',
     ],
     _该功能默认开启: [
-        '这个功能默认启用。你可以在“其他”选项卡 → “增强”分类里找到它。（可能需要先启用“显示高级设置”）',
-        '這個功能預設啟用。你可以在“其他”選項卡 → “增強”分類裡找到它。（可能需要先啟用“顯示進階設定”）',
-        'This feature is enabled by default. You can find it in the "Other" tab → "Enhancements" category. (May need to enable "Show advanced settings" first)',
-        'この機能はデフォルトで有効になっています。 [その他]タブ→[強化機能]カテゴリにあります。 （最初に[詳細設定を表示する]を有効にする必要がある場合があります）',
+        '这个功能默认启用。',
+        '這個功能預設啟用。',
+        'This feature is enabled by default.',
+        'この機能はデフォルトで有効になっています。',
+    ],
+    _你可以在其他选项卡的增强分类里找到它: [
+        '你可以在“其他”选项卡 → “增强”分类里找到它。（可能需要先启用“显示高级设置”）',
+        '你可以在“其他”選項卡 → “增強”分類裡找到它。（可能需要先啟用“顯示進階設定”）',
+        'You can find it in the "Other" tab → "Enhancements" category. (May need to enable "Show advanced settings" first)',
+        '[その他]タブ→[強化機能]カテゴリにあります。 （最初に[詳細設定を表示する]を有効にする必要がある場合があります）',
+    ],
+    _使用鼠标滚轮切换作品里的图片: [
+        '使用鼠标滚轮切换多图作品里的图片',
+        '使用滑鼠滾輪切換多圖作品裡的圖片',
+        'Use the mouse wheel to switch images in multi-image works',
+        'マウスホイールを使用して、マルチイメージ作品のイメージを切り替えます',
+    ],
+    _这可能会阻止页面滚动: [
+        '这可能会阻止页面滚动',
+        '這可能會阻止頁面滾動',
+        '这可能会阻止页面滚动',
+        'ページのスクロールを妨げる可能性があります',
+    ],
+    _动图转换失败的提示: [
+        '动图转换失败，id：{}',
+        '動圖轉換失敗，id：{}',
+        'Ugoira(animation) conversion failed, id: {}',
+        'うごイラの変換に失敗しました、id：{}',
+    ],
+    _作品id无法下载带状态码: [
+        '{} 无法下载，状态码：{}',
+        '{} 無法下載，狀態碼：{}',
+        '{} failed to download, status code: {}',
+        '{} ダウンロードに失敗しました、ステータスコード：{}',
+    ],
+    _作品总数为0: [
+        '作品总数为 0，Pixiv 可能拒绝了此次抓取。请稍后重试。',
+        '作品總數為 0，Pixiv 可能拒絕了此次抓取。請稍後重試。',
+        'The total number of works is 0, Pixiv may have refused this crawl. Please try again later.',
+        '作品の総数は 0 です。 Pixivがこのクロールを拒否した可能性があります。 後でもう一度やり直してください。',
+    ],
+    _快捷键AltP: [
+        '快捷键 Alt + P',
+        '快捷鍵 Alt + P',
+        'Hot key: Alt + P',
+        'ホットキー Alt + P',
+    ],
+    _优化预览作品功能: [
+        '优化“预览作品”功能',
+        '最佳化“預覽作品”功能',
+        'Optimize the "Preview Works" function',
+        '「作品のプレビュー」機能を最適化する',
     ],
 };
 
@@ -5365,12 +5419,29 @@ class MouseOverThumbnail {
         // 遍历所有的选择器，为找到的元素绑定事件
         // 注意：有时候一个节点里会含有多种尺寸的缩略图，为了全部查找到它们，必须遍历所有的选择器。
         // 如果在查找到某个选择器之后，不再查找剩余的选择器，就会遗漏一部分缩略图。
+        // 但是，这有可能会导致事件的重复绑定
+        // 例如，画师主页顶部的“精选”作品会被两个选择器查找到：'li>div>div:first-child' 'div[width="288"]'
         for (const selector of this.selectors) {
             const elements = parent.querySelectorAll(selector);
             for (const el of elements) {
                 const id = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].findIllustIdFromElement(el);
                 // 只有查找到作品 id 时才会执行回调函数
                 if (id) {
+                    // 如果这个缩略图元素、或者它的直接父元素、或者它的直接子元素已经有标记，就跳过它
+                    if (el.dataset.mouseover) {
+                        return;
+                    }
+                    if (el.parentElement && el.parentElement.dataset.mouseover) {
+                        return;
+                    }
+                    if (el.firstElementChild &&
+                        el.firstElementChild.dataset.mouseover) {
+                        return;
+                    }
+                    // 当对一个缩略图元素绑定事件时，在它上面添加标记
+                    // 添加标记的目的是为了减少事件重复绑定的情况发生
+                    ;
+                    el.dataset.mouseover = '1';
                     el.addEventListener('mouseenter', (ev) => {
                         this.enterCallback.forEach((cb) => cb(el, id, ev));
                     });
@@ -5749,9 +5820,17 @@ class PreviewWork {
         this.workId = '';
         // 显示作品中的第几张图片
         this.index = 0;
-        // 使用定时器延迟显示预览区域
+        // 延迟显示预览区域的定时器
         // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片，这是为了避免浪费网络资源
-        this.showTimer = 0;
+        this.delayShowTimer = undefined;
+        // 延迟隐藏预览区域的定时器
+        this.delayHiddenTimer = undefined;
+        // 当用户点击预览图使预览图隐藏时，不再显示这个作品的预览图（切换作品可以解除限制）
+        this.dontShowAgain = false;
+        // 是否允许预览区域遮挡作品缩略图
+        this.allowOverThumb = true;
+        // 当前预览图是否遮挡了作品缩略图
+        this.overThumb = false;
         this._show = false;
         // 当鼠标滚轮滚动时，切换显示的图片
         // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
@@ -5777,7 +5856,9 @@ class PreviewWork {
             this.showWrap();
         }, 100);
         this.onWheelScroll = (ev) => {
-            if (this.show && this.workData.body.pageCount > 1) {
+            if (this.show &&
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].wheelScrollSwitchImageOnPreviewWork &&
+                this.workData.body.pageCount > 1) {
                 ev.preventDefault();
                 this.wheelEvent = ev;
                 this.swicthImage();
@@ -5801,13 +5882,17 @@ class PreviewWork {
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork) {
                     this._show = true;
                     this.showWrap();
+                    window.clearTimeout(this.delayHiddenTimer);
                 }
             }
         }
         else {
             // 隐藏时重置一些变量
-            window.clearTimeout(this.showTimer);
+            window.clearTimeout(this.delayShowTimer);
+            window.clearTimeout(this.delayHiddenTimer);
+            this.overThumb = false;
             this._show = false;
+            this.dontShowAgain = false;
             this.wrap.style.display = 'none';
             // 隐藏 wrap 时，把 img 的 src 设置为空
             // 这样图片会停止加载，避免浪费网络资源
@@ -5824,9 +5909,14 @@ class PreviewWork {
     }
     bindEvents() {
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onEnter((el, id) => {
-            this.show = false;
+            if (this.dontShowAgain) {
+                return;
+            }
+            // 当鼠标进入到不同作品时
+            // 隐藏之前的预览图
+            // 重置 index
             if (this.workId !== id) {
-                // 切换到不同作品时，重置 index
+                this.show = false;
                 this.index = 0;
             }
             this.workId = id;
@@ -5842,8 +5932,19 @@ class PreviewWork {
             el.addEventListener('mousewheel', this.onWheelScroll);
         });
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave((el) => {
-            this.show = false;
-            el.removeEventListener('mousewheel', this.onWheelScroll);
+            if (this.overThumb) {
+                // 如果预览图遮挡了作品缩略图，就需要延迟隐藏预览图。
+                // 因为预览图显示之后，鼠标可能处于预览图上，这会触发此事件。
+                // 如果不延迟隐藏，预览图就会马上消失，无法查看
+                this.delayHiddenTimer = window.setTimeout(() => {
+                    this.show = false;
+                    el.removeEventListener('mousewheel', this.onWheelScroll);
+                }, 100);
+            }
+            else {
+                this.show = false;
+                el.removeEventListener('mousewheel', this.onWheelScroll);
+            }
         });
         // 可以使用 Alt + P 快捷键来启用/禁用此功能
         window.addEventListener('keydown', (ev) => {
@@ -5861,9 +5962,34 @@ class PreviewWork {
                 this.show = false;
             });
         });
-        this.wrap.addEventListener('click', () => {
-            this.show = false;
+        this.wrap.addEventListener('mouseenter', () => {
+            window.clearTimeout(this.delayHiddenTimer);
         });
+        this.wrap.addEventListener('mousemove', (ev) => {
+            // 鼠标在预览图上移动出缩略图区域时，隐藏预览图
+            if (this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY) === false) {
+                this.show = false;
+            }
+        });
+        this.wrap.addEventListener('click', (ev) => {
+            this.show = false;
+            // 点击预览图使预览图消失时，如果鼠标仍处于缩略图区域内，则不再显示这个作品的预览图
+            // 当鼠标移出这个作品的缩略图之后取消此限制
+            if (this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY)) {
+                this.dontShowAgain = true;
+            }
+        });
+        this.wrap.addEventListener('mousewheel', (ev) => {
+            this.overThumb && this.onWheelScroll(ev);
+        });
+    }
+    // 判断鼠标是否处于某个元素的范围内
+    mouseInElementArea(el, x, y) {
+        if (!el) {
+            return false;
+        }
+        const rect = el.getBoundingClientRect();
+        return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom;
     }
     preload() {
         // 如果下载器正在下载文件，则不预加载
@@ -5895,7 +6021,7 @@ class PreviewWork {
         _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__["cacheWorkData"].set(data);
     }
     readyShow() {
-        this.showTimer = window.setTimeout(() => {
+        this.delayShowTimer = window.setTimeout(() => {
             this.show = true;
         }, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].previewWorkWait);
     }
@@ -5996,7 +6122,16 @@ class PreviewWork {
         }
         else if (w > h) {
             // 横图
-            cfg.width = Math.min(xSpace, w);
+            if (this.allowOverThumb) {
+                // 如果允许预览图覆盖在作品缩略图上，则预览图的最大宽度可以等于视口宽度
+                if (w > innerWidth) {
+                    cfg.width = innerWidth;
+                }
+            }
+            else {
+                // 否则，预览图的宽度不可以超过图片两侧的空白区域的宽度
+                cfg.width = Math.min(xSpace, w);
+            }
             cfg.height = (cfg.width / w) * h;
             // 此时高度可能会超过垂直方向上的可用区域，则需要再次调整宽高
             if (cfg.height > ySpace) {
@@ -6014,10 +6149,24 @@ class PreviewWork {
         // 2. 计算位置
         // 在页面可视区域内，比较缩略图左侧和右侧空间，把 wrap 显示在空间比较大的那一侧
         if (leftSpace >= rightSpace) {
+            // 左侧空间大
+            // 先让预览图的右侧贴着图片左侧边缘显示
             cfg.left = rect.left - cfg.width - this.border + window.scrollX;
+            // 如果预览图超出可视范围，则向右移动
+            if (cfg.left < 0) {
+                this.overThumb = true;
+                cfg.left = 0;
+            }
         }
         else {
+            // 右侧空间大
+            // 先让预览图的左侧贴着图片右侧边缘显示
             cfg.left = rect.right + window.scrollX;
+            // 如果预览图超出可视范围，则向左移动
+            if (cfg.width > rightSpace) {
+                this.overThumb = true;
+                cfg.left = cfg.left - (cfg.left + cfg.width - innerWidth) - this.border;
+            }
         }
         // 然后设置 top
         // 让 wrap 和缩略图在垂直方向上居中对齐
@@ -7505,18 +7654,22 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '12.0.0';
-        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}
-  <br>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_显示更大的缩略图')}
-  <br>
-  <br>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')}
-  `;
+        this.flag = '12.2.00';
+        this.msg = '';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
+            // 消息文本要写在 settingInitialized 之后，否则它们可能会被翻译成错误的语言
+            this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增命名标记')}
+      <br>
+      <span class="blue">{series_id}</span>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记seriesId')}
+      <br>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_优化预览作品功能')}
+      `;
             this.show();
         });
     }
@@ -8482,6 +8635,18 @@ class Tools {
         }
         return false;
     }
+    // 传入作品 id，生成作品页面的超链接
+    /**
+     *
+     * @param id 作品 id
+     * @param artwork true 图像作品； false 小说作品。默认为图像作品
+     * @returns 超链接（A 标签）
+     */
+    static createWorkLink(id, artwork = true) {
+        const idNum = typeof id === 'number' ? id : Number.parseInt(id);
+        const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}`;
+        return `<a href="${href}" target="_blank">${id}</a>`;
+    }
 }
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
 
@@ -8995,21 +9160,22 @@ class InitPageBase {
     }
     // 网络请求状态异常时输出提示
     logErrorStatus(status, id) {
+        const workLink = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].createWorkLink(id);
         switch (status) {
             case 0:
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码0'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码0'));
                 break;
             case 400:
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码400'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码400'));
                 break;
             case 403:
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码403'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码403'));
                 break;
             case 404:
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码404'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码404'));
                 break;
             default:
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_无权访问', id));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_无权访问', workLink) + `status: ${status}`);
                 break;
         }
     }
@@ -10567,6 +10733,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         if (this.startpageNo > pageCount) {
             _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('crawlFinish');
             _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('crawlEmpty');
+            if (data.total === 0) {
+                return _MsgBox__WEBPACK_IMPORTED_MODULE_18__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_作品总数为0'));
+            }
             return _MsgBox__WEBPACK_IMPORTED_MODULE_18__["msgBox"].error(`${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_超出最大页码')} ${pageCount}`);
         }
         if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
@@ -13106,6 +13275,9 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         if (this.startpageNo > pageCount) {
             _EVT__WEBPACK_IMPORTED_MODULE_13__["EVT"].fire('crawlFinish');
             _EVT__WEBPACK_IMPORTED_MODULE_13__["EVT"].fire('crawlEmpty');
+            if (data.total === 0) {
+                return _MsgBox__WEBPACK_IMPORTED_MODULE_14__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_作品总数为0'));
+            }
             return _MsgBox__WEBPACK_IMPORTED_MODULE_14__["msgBox"].error(`${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_超出最大页码')} ${pageCount}`);
         }
         if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
@@ -13695,7 +13867,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 // 下载文件，然后发送给浏览器进行保存
+
 
 
 
@@ -13742,7 +13916,7 @@ class Download {
             return this.skipDownload({
                 id: arg.id,
                 reason: 'duplicate',
-            }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_跳过下载因为重复文件', arg.id));
+            }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_跳过下载因为重复文件', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id, arg.data.type !== 3)));
         }
         // 如果是动图，再次检查是否排除了动图
         // 因为有时候用户在抓取时没有排除动图，但是在下载时排除了动图。所以下载时需要再次检查
@@ -13766,7 +13940,8 @@ class Download {
             }
             // 如果获取宽高失败，图片会被视为通过宽高检查
             if (wh.width === 0 || wh.height === 0) {
-                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_获取图片的宽高时出现错误') + arg.id);
+                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_获取图片的宽高时出现错误') +
+                    _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id));
                 // 图片加载失败可能是请求超时，或者图片不存在。这里无法获取到具体原因，所以不直接返回。
                 // 如果是 404 错误，在 download 方法中可以处理这个问题
                 // 如果是请求超时，则有可能错误的通过了这个图片
@@ -13776,7 +13951,7 @@ class Download {
                 return this.skipDownload({
                     id: arg.id,
                     reason: 'widthHeight',
-                }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为宽高', arg.id));
+                }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为宽高', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id)));
             }
         }
         this.download(arg);
@@ -13791,23 +13966,25 @@ class Download {
     }
     // 当重试达到最大次数时
     afterReTryMax(status, fileId) {
+        const errorMsg = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_作品id无法下载带状态码', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(fileId), status.toString());
         // 404, 500 错误，跳过，不会再尝试下载这个文件（因为没有触发 downloadError 事件，所以不会重试下载）
         if (status === 404 || status === 500) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(`Error: ${fileId} Code: ${status}`);
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(errorMsg);
             return this.skipDownload({
                 id: fileId,
                 reason: status.toString(),
             });
         }
-        // 状态码为 0 ，可能是系统磁盘空间不足导致的错误，也可能是超时等错误
+        // 状态码为 0，可能是系统磁盘空间不足导致的错误，也可能是代理软件导致的网络错误
+        // 超时也会返回状态码 0
         if (status === 0) {
             // 判断是否是磁盘空间不足。特征是每次重试之间的间隔时间比较短。
-            // 超时的特征是等待时间比较长，可能超过 20 秒
+            // 如果是超时，那么等待时间会比较长，可能超过 20 秒
             const timeLimit = 10000; // 如果从发起请求到进入重试的时间间隔小于这个值，则视为磁盘空间不足的情况
             const result = this.retryInterval.filter((val) => val <= timeLimit);
             // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就认为是磁盘空间不足。
             if (result.length > 9) {
-                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(`Error: ${fileId} Code: ${status}`);
+                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(errorMsg);
                 const tip = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_状态码为0的错误提示');
                 _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(tip);
                 _MsgBox__WEBPACK_IMPORTED_MODULE_12__["msgBox"].error(tip);
@@ -13855,7 +14032,7 @@ class Download {
                     this.skipDownload({
                         id: arg.id,
                         reason: 'size',
-                    }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为体积', arg.id));
+                    }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为体积', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id)));
                 }
             }
             if (this.cancel) {
@@ -13865,7 +14042,7 @@ class Download {
             }
             this.setProgressBar(_fileName, event.loaded, event.total);
         });
-        // 文件记载完毕，或者加载出错
+        // 文件加载完毕，或者加载出错
         xhr.addEventListener('loadend', async () => {
             if (this.cancel) {
                 xhr = null;
@@ -13910,8 +14087,8 @@ class Download {
                         }
                     }
                     catch (error) {
-                        const msg = `Convert ugoira error, id ${arg.data.idNum}.`;
-                        // 因为会重试所以不再日志上显示
+                        const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_动图转换失败的提示', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.data.idNum));
+                        // 因为会重试所以不在日志上显示
                         // log.error(msg, 1)
                         console.error(msg);
                         this.error = true;
@@ -13935,7 +14112,7 @@ class Download {
                     return this.skipDownload({
                         id: arg.id,
                         reason: 'color',
-                    }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为颜色', arg.id));
+                    }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为颜色', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id)));
                 }
             }
             // 向浏览器发送下载任务
@@ -14094,7 +14271,7 @@ class DownloadControl {
             }
             else if (msg.msg === 'download_err') {
                 // 浏览器把文件保存到本地时出错
-                _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_save_file_failed_tip', msg.data.id, msg.err || 'unknown'));
+                _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_save_file_failed_tip', _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].createWorkLink(msg.data.id), msg.err || 'unknown'));
                 if (msg.err === 'FILE_FAILED') {
                     _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_FILE_FAILED_tip'));
                 }
@@ -19114,6 +19291,7 @@ const formHtml = `<form class="settingForm">
       <option value="{px}">{px}</option>
       <option value="{series_title}">{series_title}</option>
       <option value="{series_order}">{series_order}</option>
+      <option value="{series_id}">{series_id}</option>
       <option value="{id_num}">{id_num}</option>
       <option value="{p_num}">{p_num}</option>
       </select>
@@ -19199,6 +19377,9 @@ const formHtml = `<form class="settingForm">
     <br>
     <span class="blue">{series_order}</span>
     <span data-xztext="_命名标记seriesOrder"></span>
+    <br>
+    <span class="blue">{series_id}</span>
+    <span data-xztext="_命名标记seriesId"></span>
     <br>
     <span class="blue">{id_num}</span>
     <span data-xztext="_命名标记id_num"></span>
@@ -19565,9 +19746,9 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_switch"></span>
 
     <span class="subOptionWrap" data-show="showLargerThumbnails">
+    <label for="doubleWidthThumb" data-xztext="_横图占用二倍宽度"></label>
     <input type="checkbox" name="doubleWidthThumb" id="doubleWidthThumb" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
-    <label for="doubleWidthThumb" data-xztext="_横图占用二倍宽度"></label>
     </span>
     </p>
     
@@ -19578,23 +19759,29 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="55">
-    <span class="has_tip settingNameStyle1" data-xztip="_鼠标滚轮切换图片">
+    <span class="settingNameStyle1 has_tip" data-xztip="_快捷键AltP">
     <span data-xztext="_预览作品"></span>
-    <span class="gray1"> ? </span>
     </span>
     <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
 
     <span class="subOptionWrap" data-show="PreviewWork">
+
+    <label for="wheelScrollSwitchImageOnPreviewWork" class="has_tip" data-xztext="_使用鼠标滚轮切换作品里的图片" data-xztip="_这可能会阻止页面滚动"></label>
+    <input type="checkbox" name="wheelScrollSwitchImageOnPreviewWork" id="wheelScrollSwitchImageOnPreviewWork" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+
+    <span class="verticalSplit"></span>
+
     <span data-xztext="_等待时间"></span>&nbsp;
     <input type="text" name="previewWorkWait" class="setinput_style1 blue" value="400" style="width:40px;min-width: 40px;">
     <span>&nbsp;ms</span>
 
     <span class="verticalSplit"></span>
 
+    <label for="showPreviewWorkTip" data-xztext="_显示摘要信息"></label>
     <input type="checkbox" name="showPreviewWorkTip" id="showPreviewWorkTip" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
-    <label for="showPreviewWorkTip" data-xztext="_显示摘要信息"></label>
 
     <span class="verticalSplit"></span>
 
@@ -19905,6 +20092,7 @@ class FormSettings {
                 'showPreviewWorkTip',
                 'showLargerThumbnails',
                 'doubleWidthThumb',
+                'wheelScrollSwitchImageOnPreviewWork',
             ],
             text: [
                 'setWantPage',
@@ -20825,8 +21013,9 @@ class Settings {
             setUserNameShow: true,
             setUserNameList: {},
             removeAtFromUsername: false,
-            showLargerThumbnails: true,
+            showLargerThumbnails: false,
             doubleWidthThumb: true,
+            wheelScrollSwitchImageOnPreviewWork: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
