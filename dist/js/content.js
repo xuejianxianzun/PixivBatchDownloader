@@ -5891,6 +5891,9 @@ class PreviewWork {
                 this.dontShowAgain = true;
             }
         });
+        this.wrap.addEventListener('mousewheel', (ev) => {
+            this.overThumb && this.onWheelScroll(ev);
+        });
     }
     // 判断鼠标是否处于某个元素的范围内
     mouseInElementArea(el, x, y) {
