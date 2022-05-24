@@ -17,14 +17,16 @@ class ShowWhatIsNew {
     })
   }
 
-  private flag = '12.0.0'
+  private flag = '12.2.0'
 
-  private msg = `${lang.transl('_新增设置项')}
+  private msg = `${lang.transl('_新增命名标记')}
   <br>
-  ${lang.transl('_显示更大的缩略图')}
+  <span class="blue">{series_id}</span>
+  <br>
+  ${lang.transl('_命名标记seriesId')}
   <br>
   <br>
-  ${lang.transl('_你可以在其他选项卡的增强分类里找到它')}
+  ${lang.transl('_优化预览作品功能')}
   `
 
   private show() {

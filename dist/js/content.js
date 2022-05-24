@@ -5053,6 +5053,12 @@ const langText = {
         'Hot key: Alt + P',
         'ホットキー Alt + P',
     ],
+    _优化预览作品功能: [
+        '优化“预览作品”功能',
+        '最佳化“預覽作品”功能',
+        'Optimize the "Preview Works" function',
+        '「作品のプレビュー」機能を最適化する',
+    ],
 };
 
 
@@ -5900,7 +5906,7 @@ class PreviewWork {
             return false;
         }
         const rect = el.getBoundingClientRect();
-        return (x > rect.left && x < rect.right && y > rect.top && y < rect.bottom);
+        return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom;
     }
     preload() {
         // 如果下载器正在下载文件，则不预加载
@@ -7565,13 +7571,15 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '12.0.0';
-        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}
+        this.flag = '12.2.0';
+        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增命名标记')}
   <br>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_显示更大的缩略图')}
+  <span class="blue">{series_id}</span>
+  <br>
+  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记seriesId')}
   <br>
   <br>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在其他选项卡的增强分类里找到它')}
+  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_优化预览作品功能')}
   `;
         this.bindEvents();
     }

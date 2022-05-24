@@ -2087,6 +2087,12 @@ const langText = {
     'Hot key: Alt + P',
     'ホットキー Alt + P',
   ],
+  _优化预览作品功能: [
+    '优化“预览作品”功能',
+    '最佳化“預覽作品”功能',
+    'Optimize the "Preview Works" function',
+    '「作品のプレビュー」機能を最適化する',
+  ],
 }
 
 export { langText }
