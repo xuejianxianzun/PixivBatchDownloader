@@ -157,10 +157,9 @@ class PreviewWork {
       window.clearTimeout(this.delayHiddenTimer)
     })
 
-    this.wrap.addEventListener('mouseleave', (ev) => {
-      // 鼠标移出预览图时，判断鼠标是否处于缩略图区域内
-      // 如果鼠标移出了缩略图，则隐藏预览图
-      if (this.workEL && this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY) === false) {
+    this.wrap.addEventListener('mousemove', (ev) => {
+      // 鼠标在预览图上移动出缩略图区域时，隐藏预览图
+      if (this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY) === false) {
         this.show = false
       }
     })
@@ -169,7 +168,7 @@ class PreviewWork {
       this.show = false
       // 点击预览图使预览图消失时，如果鼠标仍处于缩略图区域内，则不再显示这个作品的预览图
       // 当鼠标移出这个作品的缩略图之后取消此限制
-      if (this.workEL && this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY)) {
+      if (this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY)) {
         this.dontShowAgain = true
       }
     })
@@ -180,7 +179,10 @@ class PreviewWork {
   }
 
   // 判断鼠标是否处于某个元素的范围内
-  private mouseInElementArea(el: Element, x: number, y: number) {
+  private mouseInElementArea(el: Element | undefined, x: number, y: number) {
+    if(!el){
+      return false
+    }
     const rect = el.getBoundingClientRect()
     return (x > rect.left && x < rect.right && y > rect.top && y < rect.bottom)
   }
