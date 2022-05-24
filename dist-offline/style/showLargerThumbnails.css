@@ -165,7 +165,7 @@ nav .cYUezH {
 }
 /* 作品页面 */
 /* 作品详情部分和相关作品的共同父元素，取消它的宽度限制 */
-.bIxTnE {
+.dljKTo {
   max-width: unset !important;
 }
 /* 对作品详情部分应用宽度限制 */
@@ -176,7 +176,7 @@ nav .cYUezH {
 }
 /* 这样相关作品部分就没有宽度限制了，缩略图可以放大 */
 /* 相关作品的 li */
-.bvpQYM {
+.fDaNEv {
   width: 15% !important;
   max-width: 540px;
   max-height: 600px;

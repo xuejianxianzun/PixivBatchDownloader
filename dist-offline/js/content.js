@@ -2060,6 +2060,11 @@ class FileName {
                 prefix: '',
                 safe: true,
             },
+            '{series_id}': {
+                value: data.seriesId,
+                prefix: '',
+                safe: true,
+            },
             '{sl}': {
                 value: (_a = data.sl) !== null && _a !== void 0 ? _a : 0,
                 prefix: '',
@@ -3642,6 +3647,7 @@ const langText = {
         'The number of the work in the series, such as #1 #2',
         'シリーズの中の作品の番号，例え #1 #2',
     ],
+    _命名标记seriesId: ['系列 ID', '系列 ID', 'Series ID', 'シリーズ ID'],
     _文件夹标记PTitle: [
         '当前页面的标题',
         '目前頁面的標題',
@@ -3687,7 +3693,7 @@ const langText = {
         'ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
     ],
     _常见问题说明: [
-        '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br><br>QQ群：675174717<br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
+        '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br><br>QQ群：675174717<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
         '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。',
         'The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.',
         'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
@@ -5116,6 +5122,18 @@ const langText = {
         'The total number of works is 0, Pixiv may have refused this crawl. Please try again later.',
         '作品の総数は 0 です。 Pixivがこのクロールを拒否した可能性があります。 後でもう一度やり直してください。',
     ],
+    _快捷键AltP: [
+        '快捷键 Alt + P',
+        '快捷鍵 Alt + P',
+        'Hot key: Alt + P',
+        'ホットキー Alt + P',
+    ],
+    _优化预览作品功能: [
+        '优化“预览作品”功能',
+        '最佳化“預覽作品”功能',
+        'Optimize the "Preview Works" function',
+        '「作品のプレビュー」機能を最適化する',
+    ],
 };
 
 
@@ -5393,12 +5411,29 @@ class MouseOverThumbnail {
         // 遍历所有的选择器，为找到的元素绑定事件
         // 注意：有时候一个节点里会含有多种尺寸的缩略图，为了全部查找到它们，必须遍历所有的选择器。
         // 如果在查找到某个选择器之后，不再查找剩余的选择器，就会遗漏一部分缩略图。
+        // 但是，这有可能会导致事件的重复绑定
+        // 例如，画师主页顶部的“精选”作品会被两个选择器查找到：'li>div>div:first-child' 'div[width="288"]'
         for (const selector of this.selectors) {
             const elements = parent.querySelectorAll(selector);
             for (const el of elements) {
                 const id = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].findIllustIdFromElement(el);
                 // 只有查找到作品 id 时才会执行回调函数
                 if (id) {
+                    // 如果这个缩略图元素、或者它的直接父元素、或者它的直接子元素已经有标记，就跳过它
+                    if (el.dataset.mouseover) {
+                        return;
+                    }
+                    if (el.parentElement && el.parentElement.dataset.mouseover) {
+                        return;
+                    }
+                    if (el.firstElementChild &&
+                        el.firstElementChild.dataset.mouseover) {
+                        return;
+                    }
+                    // 当对一个缩略图元素绑定事件时，在它上面添加标记
+                    // 添加标记的目的是为了减少事件重复绑定的情况发生
+                    ;
+                    el.dataset.mouseover = '1';
                     el.addEventListener('mouseenter', (ev) => {
                         this.enterCallback.forEach((cb) => cb(el, id, ev));
                     });
@@ -5777,9 +5812,17 @@ class PreviewWork {
         this.workId = '';
         // 显示作品中的第几张图片
         this.index = 0;
-        // 使用定时器延迟显示预览区域
+        // 延迟显示预览区域的定时器
         // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片，这是为了避免浪费网络资源
-        this.showTimer = 0;
+        this.delayShowTimer = undefined;
+        // 延迟隐藏预览区域的定时器
+        this.delayHiddenTimer = undefined;
+        // 当用户点击预览图使预览图隐藏时，不再显示这个作品的预览图（切换作品可以解除限制）
+        this.dontShowAgain = false;
+        // 是否允许预览区域遮挡作品缩略图
+        this.allowOverThumb = true;
+        // 当前预览图是否遮挡了作品缩略图
+        this.overThumb = false;
         this._show = false;
         // 当鼠标滚轮滚动时，切换显示的图片
         // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
@@ -5831,13 +5874,17 @@ class PreviewWork {
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork) {
                     this._show = true;
                     this.showWrap();
+                    window.clearTimeout(this.delayHiddenTimer);
                 }
             }
         }
         else {
             // 隐藏时重置一些变量
-            window.clearTimeout(this.showTimer);
+            window.clearTimeout(this.delayShowTimer);
+            window.clearTimeout(this.delayHiddenTimer);
+            this.overThumb = false;
             this._show = false;
+            this.dontShowAgain = false;
             this.wrap.style.display = 'none';
             // 隐藏 wrap 时，把 img 的 src 设置为空
             // 这样图片会停止加载，避免浪费网络资源
@@ -5854,9 +5901,14 @@ class PreviewWork {
     }
     bindEvents() {
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onEnter((el, id) => {
-            this.show = false;
+            if (this.dontShowAgain) {
+                return;
+            }
+            // 当鼠标进入到不同作品时
+            // 隐藏之前的预览图
+            // 重置 index
             if (this.workId !== id) {
-                // 切换到不同作品时，重置 index
+                this.show = false;
                 this.index = 0;
             }
             this.workId = id;
@@ -5872,8 +5924,19 @@ class PreviewWork {
             el.addEventListener('mousewheel', this.onWheelScroll);
         });
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave((el) => {
-            this.show = false;
-            el.removeEventListener('mousewheel', this.onWheelScroll);
+            if (this.overThumb) {
+                // 如果预览图遮挡了作品缩略图，就需要延迟隐藏预览图。
+                // 因为预览图显示之后，鼠标可能处于预览图上，这会触发此事件。
+                // 如果不延迟隐藏，预览图就会马上消失，无法查看
+                this.delayHiddenTimer = window.setTimeout(() => {
+                    this.show = false;
+                    el.removeEventListener('mousewheel', this.onWheelScroll);
+                }, 100);
+            }
+            else {
+                this.show = false;
+                el.removeEventListener('mousewheel', this.onWheelScroll);
+            }
         });
         // 可以使用 Alt + P 快捷键来启用/禁用此功能
         window.addEventListener('keydown', (ev) => {
@@ -5891,9 +5954,34 @@ class PreviewWork {
                 this.show = false;
             });
         });
-        this.wrap.addEventListener('click', () => {
-            this.show = false;
+        this.wrap.addEventListener('mouseenter', () => {
+            window.clearTimeout(this.delayHiddenTimer);
         });
+        this.wrap.addEventListener('mousemove', (ev) => {
+            // 鼠标在预览图上移动出缩略图区域时，隐藏预览图
+            if (this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY) === false) {
+                this.show = false;
+            }
+        });
+        this.wrap.addEventListener('click', (ev) => {
+            this.show = false;
+            // 点击预览图使预览图消失时，如果鼠标仍处于缩略图区域内，则不再显示这个作品的预览图
+            // 当鼠标移出这个作品的缩略图之后取消此限制
+            if (this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY)) {
+                this.dontShowAgain = true;
+            }
+        });
+        this.wrap.addEventListener('mousewheel', (ev) => {
+            this.overThumb && this.onWheelScroll(ev);
+        });
+    }
+    // 判断鼠标是否处于某个元素的范围内
+    mouseInElementArea(el, x, y) {
+        if (!el) {
+            return false;
+        }
+        const rect = el.getBoundingClientRect();
+        return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom;
     }
     preload() {
         // 如果下载器正在下载文件，则不预加载
@@ -5925,7 +6013,7 @@ class PreviewWork {
         _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__["cacheWorkData"].set(data);
     }
     readyShow() {
-        this.showTimer = window.setTimeout(() => {
+        this.delayShowTimer = window.setTimeout(() => {
             this.show = true;
         }, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].previewWorkWait);
     }
@@ -6026,7 +6114,16 @@ class PreviewWork {
         }
         else if (w > h) {
             // 横图
-            cfg.width = Math.min(xSpace, w);
+            if (this.allowOverThumb) {
+                // 如果允许预览图覆盖在作品缩略图上，则预览图的最大宽度可以等于视口宽度
+                if (w > innerWidth) {
+                    cfg.width = innerWidth;
+                }
+            }
+            else {
+                // 否则，预览图的宽度不可以超过图片两侧的空白区域的宽度
+                cfg.width = Math.min(xSpace, w);
+            }
             cfg.height = (cfg.width / w) * h;
             // 此时高度可能会超过垂直方向上的可用区域，则需要再次调整宽高
             if (cfg.height > ySpace) {
@@ -6044,10 +6141,24 @@ class PreviewWork {
         // 2. 计算位置
         // 在页面可视区域内，比较缩略图左侧和右侧空间，把 wrap 显示在空间比较大的那一侧
         if (leftSpace >= rightSpace) {
+            // 左侧空间大
+            // 先让预览图的右侧贴着图片左侧边缘显示
             cfg.left = rect.left - cfg.width - this.border + window.scrollX;
+            // 如果预览图超出可视范围，则向右移动
+            if (cfg.left < 0) {
+                this.overThumb = true;
+                cfg.left = 0;
+            }
         }
         else {
+            // 右侧空间大
+            // 先让预览图的左侧贴着图片右侧边缘显示
             cfg.left = rect.right + window.scrollX;
+            // 如果预览图超出可视范围，则向左移动
+            if (cfg.width > rightSpace) {
+                this.overThumb = true;
+                cfg.left = cfg.left - (cfg.left + cfg.width - innerWidth) - this.border;
+            }
         }
         // 然后设置 top
         // 让 wrap 和缩略图在垂直方向上居中对齐
@@ -7535,18 +7646,22 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '12.0.0';
-        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}
-  <br>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_显示更大的缩略图')}
-  <br>
-  <br>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在其他选项卡的增强分类里找到它')}
-  `;
+        this.flag = '12.2.00';
+        this.msg = '';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
+            // 消息文本要写在 settingInitialized 之后，否则它们可能会被翻译成错误的语言
+            this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增命名标记')}
+      <br>
+      <span class="blue">{series_id}</span>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记seriesId')}
+      <br>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_优化预览作品功能')}
+      `;
             this.show();
         });
     }
@@ -19176,6 +19291,7 @@ const formHtml = `<form class="settingForm">
       <option value="{px}">{px}</option>
       <option value="{series_title}">{series_title}</option>
       <option value="{series_order}">{series_order}</option>
+      <option value="{series_id}">{series_id}</option>
       <option value="{id_num}">{id_num}</option>
       <option value="{p_num}">{p_num}</option>
       </select>
@@ -19261,6 +19377,9 @@ const formHtml = `<form class="settingForm">
     <br>
     <span class="blue">{series_order}</span>
     <span data-xztext="_命名标记seriesOrder"></span>
+    <br>
+    <span class="blue">{series_id}</span>
+    <span data-xztext="_命名标记seriesId"></span>
     <br>
     <span class="blue">{id_num}</span>
     <span data-xztext="_命名标记id_num"></span>
@@ -19640,7 +19759,7 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="55">
-    <span class="settingNameStyle1">
+    <span class="settingNameStyle1 has_tip" data-xztip="_快捷键AltP">
     <span data-xztext="_预览作品"></span>
     </span>
     <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>

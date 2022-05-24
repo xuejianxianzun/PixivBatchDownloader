@@ -1381,6 +1381,9 @@
   font-size: 16px;
   color: #0ea8ef;
 }
+.xz_msg_box .blue {
+  color: #0ea8ef;
+}
 .xz_msg_box .content {
   padding: 20px 10px;
   font-size: 14px;

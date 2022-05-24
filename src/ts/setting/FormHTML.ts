@@ -292,6 +292,7 @@ export const formHtml = `<form class="settingForm">
       <option value="{px}">{px}</option>
       <option value="{series_title}">{series_title}</option>
       <option value="{series_order}">{series_order}</option>
+      <option value="{series_id}">{series_id}</option>
       <option value="{id_num}">{id_num}</option>
       <option value="{p_num}">{p_num}</option>
       </select>
@@ -377,6 +378,9 @@ export const formHtml = `<form class="settingForm">
     <br>
     <span class="blue">{series_order}</span>
     <span data-xztext="_命名标记seriesOrder"></span>
+    <br>
+    <span class="blue">{series_id}</span>
+    <span data-xztext="_命名标记seriesId"></span>
     <br>
     <span class="blue">{id_num}</span>
     <span data-xztext="_命名标记id_num"></span>
@@ -756,7 +760,7 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="55">
-    <span class="settingNameStyle1">
+    <span class="settingNameStyle1 has_tip" data-xztip="_快捷键AltP">
     <span data-xztext="_预览作品"></span>
     </span>
     <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
