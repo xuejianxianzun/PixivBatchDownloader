@@ -606,12 +606,7 @@ const langText = {
     'The number of the work in the series, such as #1 #2',
     'シリーズの中の作品の番号，例え #1 #2',
   ],
-  _命名标记seriesId:[
-    '系列 ID',
-    '系列 ID',
-    'Series ID',
-    'シリーズ ID',
-  ],
+  _命名标记seriesId: ['系列 ID', '系列 ID', 'Series ID', 'シリーズ ID'],
   _文件夹标记PTitle: [
     '当前页面的标题',
     '目前頁面的標題',
@@ -2085,6 +2080,12 @@ const langText = {
     '作品總數為 0，Pixiv 可能拒絕了此次抓取。請稍後重試。',
     'The total number of works is 0, Pixiv may have refused this crawl. Please try again later.',
     '作品の総数は 0 です。 Pixivがこのクロールを拒否した可能性があります。 後でもう一度やり直してください。',
+  ],
+  _快捷键AltP: [
+    '快捷键 Alt + P',
+    '快捷鍵 Alt + P',
+    'Hot key: Alt + P',
+    'ホットキー Alt + P',
   ],
 }
 

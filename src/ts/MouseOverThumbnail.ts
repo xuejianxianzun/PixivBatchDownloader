@@ -36,12 +36,34 @@ class MouseOverThumbnail {
     // 遍历所有的选择器，为找到的元素绑定事件
     // 注意：有时候一个节点里会含有多种尺寸的缩略图，为了全部查找到它们，必须遍历所有的选择器。
     // 如果在查找到某个选择器之后，不再查找剩余的选择器，就会遗漏一部分缩略图。
+    // 但是，这有可能会导致事件的重复绑定
+    // 例如，画师主页顶部的“精选”作品会被两个选择器查找到：'li>div>div:first-child' 'div[width="288"]'
     for (const selector of this.selectors) {
       const elements = parent.querySelectorAll(selector)
       for (const el of elements) {
         const id = Tools.findIllustIdFromElement(el as HTMLElement)
         // 只有查找到作品 id 时才会执行回调函数
         if (id) {
+          // 如果这个缩略图元素、或者它的直接父元素、或者它的直接子元素已经有标记，就跳过它
+          if ((el as HTMLElement).dataset.mouseover) {
+            return
+          }
+
+          if (el.parentElement && el.parentElement.dataset.mouseover) {
+            return
+          }
+
+          if (
+            el.firstElementChild &&
+            (el.firstElementChild as HTMLElement).dataset.mouseover
+          ) {
+            return
+          }
+
+          // 当对一个缩略图元素绑定事件时，在它上面添加标记
+          // 添加标记的目的是为了减少事件重复绑定的情况发生
+          ;(el as HTMLElement).dataset.mouseover = '1'
+
           el.addEventListener('mouseenter', (ev) => {
             this.enterCallback.forEach((cb) => cb(el, id, ev))
           })
