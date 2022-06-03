@@ -381,9 +381,9 @@ const langText = {
     '{} のアクセス権限がありません、作品を無視する。',
   ],
   _作品页状态码0: [
-    '请求的url不可访问 (0)',
-    '要求的 url 無法存取 (0)',
-    'The requested url is not accessible (0)',
+    '请求的 URL 不可访问 (0)',
+    '要求的 URL 無法存取 (0)',
+    'The requested URL is not accessible (0)',
     '要求された URL にアクセスできません (0)',
   ],
   _作品页状态码400: [
@@ -393,10 +393,10 @@ const langText = {
     '作品は削除されました (400)',
   ],
   _作品页状态码403: [
-    '无权访问请求的url (403)',
-    '沒有權限存取要求的 url (403)',
-    'Have no access to the requested url (403',
-    'リクエストされた url にアクセスできない (403)',
+    '无权访问请求的 URL (403)',
+    '沒有權限存取要求的 URL (403)',
+    'Have no access to the requested URL (403',
+    'リクエストされた URL にアクセスできない (403)',
   ],
   _作品页状态码404: [
     '404 not found',
@@ -634,7 +634,7 @@ const langText = {
   _开始下载: ['开始下载', '開始下載', 'Start download', '開始'],
   _暂停下载: ['暂停下载', '暫停下載', 'Pause download', '一時停止'],
   _停止下载: ['停止下载', '停止下載', 'Stop download', '停止'],
-  _复制url: ['复制 url', '複製下載網址', 'Copy urls', 'URL をコピー'],
+  _复制url: ['复制 URL', '複製下載網址', 'Copy URLs', 'URL をコピー'],
   _当前状态: ['当前状态 ', '目前狀態：', 'State ', '現在の状態 '],
   _未开始下载: [
     '未开始下载',
@@ -1145,7 +1145,7 @@ const langText = {
   _在小说里保存元数据提示: [
     '把作者、网址等信息保存到小说里',
     '將作者、網址等資訊儲存到小說裡',
-    'Save the author, url and other information in the file',
+    'Save the author, URL and other information in the file',
     '作者やURLなどの情報をファイルの中に保存します。',
   ],
   _收藏本页面的所有作品: [

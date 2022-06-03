@@ -75,6 +75,8 @@ class DownloadControl {
 
   private pause = false // 是否已经暂停下载
 
+  private waitingTimer: undefined | number = undefined
+
   private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
       this.hideDownloadArea()
@@ -152,7 +154,19 @@ class DownloadControl {
 
     window.addEventListener(EVT.list.downloadComplete, () => {
       log.success(lang.transl('_下载完毕'), 2)
-      toast.success(lang.transl('_下载完毕2'))
+
+      // 如果有等待中的下载任务，则开始下载等待中的任务
+      if (store.waitingIdList.length === 0) {
+        toast.success(lang.transl('_下载完毕2'))
+      } else {
+        window.clearTimeout(this.waitingTimer)
+        this.waitingTimer = window.setTimeout(() => {
+          states.quickCrawl = true // 下载等待的任务时，不显示下载器面板
+          const idList = store.waitingIdList
+          store.waitingIdList = []
+          EVT.fire('crawlIdList', idList)
+        }, 0)
+      }
     })
   }
 
@@ -467,6 +481,7 @@ class DownloadControl {
     this.pause = false
     this.stop = false
     this.errorIdList = []
+    this.downloaded = 0
   }
 
   private showDownloadArea() {

@@ -11,6 +11,8 @@ class Store {
 
   public idList: IDData[] = [] // 储存从列表中抓取到的作品的 id
 
+  public waitingIdList: IDData[] = [] // 下载器尚未完成本次下载时，如果有新的下载请求，则添加到这里，下载完成后再处理
+
   public resultMeta: Result[] = [] // 储存抓取结果的元数据。
   // 当用于图片作品时，它可以根据每个作品需要下载多少张，生成每一张图片的信息
 
@@ -146,6 +148,7 @@ class Store {
     this.novelIDList = []
     this.result = []
     this.idList = []
+    this.waitingIdList = []
     this.rankList = {}
     this.tag = Tools.getTagFromURL()
     this.title = Tools.getPageTitle()
@@ -154,6 +157,11 @@ class Store {
   private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
       this.reset()
+    })
+
+    // 停止下载时，清空等待下载的任务
+    window.addEventListener(EVT.list.downloadStop, () => {
+      this.waitingIdList = []
     })
 
     window.addEventListener(EVT.list.resume, () => {
