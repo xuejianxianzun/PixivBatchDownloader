@@ -5055,6 +5055,24 @@ const langText = {
         'Optimize the "Preview Works" function',
         '「作品のプレビュー」機能を最適化する',
     ],
+    _1230更新说明: [
+        `1. 在网页标题上显示剩余下载数量<br>
+    下载时，网页标题上会显示还有多少个文件尚未下载。<br>
+    这样，用户不需要打开下载面板就能够知道下载进度。<br><br>
+    2. 用户可以在下载时添加一些新的下载任务。`,
+        `1. 在網頁標題上顯示剩餘下載數量<br>
+    下載時，網頁標題上會顯示還有多少個檔案尚未下載。<br>
+    這樣，使用者不需要開啟下載面板就能夠知道下載進度。<br><br>
+    2. 使用者可以在下載時新增一些新的下載任務。`,
+        `1. Show remaining downloads on page title<br>
+    While downloading, the page title will show how many files are not yet downloaded. <br>
+    In this way, the user can know the download progress without opening the download panel.<br><br>
+    2. Users can add some new download tasks while downloading.`,
+        `1. ページタイトルに残りのダウンロードを表示する<br>
+    ダウンロード中、ページタイトルにはまだダウンロードされていないファイルの数が表示されます。 <br>
+    このようにして、ユーザーはダウンロードパネルを開かなくてもダウンロードの進行状況を知ることができます。<br><br>
+    2. ユーザーは、ダウンロード中にいくつかの新しいダウンロードタスクを追加できます。`,
+    ]
 };
 
 
@@ -7582,21 +7600,15 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '12.2.00';
+        this.flag = '12.3.0';
         this.msg = '';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
-            // 消息文本要写在 settingInitialized 之后，否则它们可能会被翻译成错误的语言
-            this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增命名标记')}
-      <br>
-      <span class="blue">{series_id}</span>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记seriesId')}
-      <br>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_优化预览作品功能')}
+            // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
+            this.msg = `
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_1230更新说明')}
       `;
             this.show();
         });
