@@ -21,6 +21,8 @@ class Store {
 
   public result: Result[] = [] // 储存抓取结果
 
+  public remainingDownload = 0 // 剩余多少个等待下载和保存的文件
+
   private rankList: RankList = {} // 储存作品在排行榜中的排名
 
   public tag = '' // 开始抓取时，储存页面此时的 tag
@@ -150,6 +152,7 @@ class Store {
     this.idList = []
     this.waitingIdList = []
     this.rankList = {}
+    this.remainingDownload = 0
     this.tag = Tools.getTagFromURL()
     this.title = Tools.getPageTitle()
   }

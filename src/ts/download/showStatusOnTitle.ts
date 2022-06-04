@@ -22,7 +22,7 @@ enum Flags {
 }
 
 // 把下载器运行中的状态添加到页面标题前面
-class showStatusOnTitle {
+class ShowStatusOnTitle {
   constructor() {
     this.bindEvents()
   }
@@ -152,4 +152,4 @@ class showStatusOnTitle {
   }
 }
 
-new showStatusOnTitle()
+new ShowStatusOnTitle()

@@ -451,6 +451,8 @@ class DownloadControl {
     // 设置总下载进度条
     progressBar.setTotalProgress(this.downloaded)
 
+    store.remainingDownload = store.result.length - this.downloaded
+
     // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
     if (this.downloaded === store.result.length) {
       window.setTimeout(() => {

@@ -6567,6 +6567,7 @@ class SelectWork {
             _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].fire('crawlIdList', Array.from(this.idList));
             this.sendCrawl = true;
             this.crawled = false;
+            _store_States__WEBPACK_IMPORTED_MODULE_4__["states"].quickCrawl = true;
             _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已发送下载请求'), {
                 bgColor: _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue,
                 position: 'mouse',
@@ -8450,9 +8451,14 @@ class Tools {
     }
     /**获取页面标题，并且删除 TitleBar 的标记和未读消息的计数（现在 p 站似乎没有消息计数了） */
     static getPageTitle() {
-        return document.title
-            .replace(/\[(↑|→|▶|↓|║|■|✓| )\] /, '')
+        let result = document.title
+            .replace(/\[(↑|→|▶|↓|║|■|✓| )\]/, '')
             .replace(/^\(\d.*\) /, '');
+        // 如果开头有空格则去掉空格
+        if (result.startsWith(' ')) {
+            result = result.replace(/ */, '');
+        }
+        return result;
     }
     // 自定义的类型保护
     static isArtworkTags(data) {
@@ -8676,27 +8682,28 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
 /* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
 /* harmony import */ var _download_Resume__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./download/Resume */ "./src/ts/download/Resume.ts");
-/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_13__);
-/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
-/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
-/* harmony import */ var _DoubleWidthThumb__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./DoubleWidthThumb */ "./src/ts/DoubleWidthThumb.ts");
-/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
-/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
-/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
-/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
-/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
-/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
-/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
-/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
-/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
+/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_12__);
+/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
+/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
+/* harmony import */ var _DoubleWidthThumb__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./DoubleWidthThumb */ "./src/ts/DoubleWidthThumb.ts");
+/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
+/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
+/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
+/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
+/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
+/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
+/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
+/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
+/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
+/* harmony import */ var _download_ShowStatusOnTitle__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/ShowStatusOnTitle */ "./src/ts/download/ShowStatusOnTitle.ts");
+/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -8707,6 +8714,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 
@@ -14462,6 +14470,7 @@ class DownloadControl {
         _Log__WEBPACK_IMPORTED_MODULE_3__["log"].log(text, 2, false);
         // 设置总下载进度条
         _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].setTotalProgress(this.downloaded);
+        _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].remainingDownload = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded;
         // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
         if (this.downloaded === _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
             window.setTimeout(() => {
@@ -15961,6 +15970,84 @@ class ShowDownloadStates {
 
 /***/ }),
 
+/***/ "./src/ts/download/ShowRemainingDownloadOnTitle.ts":
+/*!*********************************************************!*\
+  !*** ./src/ts/download/ShowRemainingDownloadOnTitle.ts ***!
+  \*********************************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+
+
+
+// 在网页标题上显示剩余下载数量
+class ShowRemainingDownloadOnTitle {
+    constructor() {
+        // 保存缓存的字符串，后面会需要在标题中查找缓存的字符串
+        this.str = this.createStr();
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.setInterval(() => {
+            this.show();
+        }, 500);
+        const removeStrEvents = [
+            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.downloadStop,
+            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.downloadComplete,
+            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.crawlStart,
+        ];
+        for (const evt of removeStrEvents) {
+            window.addEventListener(evt, () => {
+                this.removeStr();
+            });
+        }
+    }
+    // 生成新的字符串
+    createStr() {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].remainingDownload > 0) {
+            return ` ${_store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].remainingDownload} `;
+        }
+        return '';
+    }
+    // 检查标题中是否有下载状态的 flag
+    // 如果没有，就不会显示剩余数量
+    checkStatusFlag() {
+        return document.title.indexOf(']') > 0;
+    }
+    show() {
+        if (!_store_States__WEBPACK_IMPORTED_MODULE_1__["states"].downloading || !this.checkStatusFlag()) {
+            return;
+        }
+        // 先移除旧的字符串，然后添加新的字符串
+        const title = this.removeStr(document.title);
+        this.str = this.createStr();
+        if (!this.str || !title) {
+            return;
+        }
+        document.title = title.replace(']', ']' + this.str);
+    }
+    removeStr(titleStr) {
+        if (!this.str) {
+            return;
+        }
+        if (titleStr) {
+            return titleStr.replace(this.str, '');
+        }
+        else {
+            document.title = document.title.replace(this.str, '');
+        }
+    }
+}
+new ShowRemainingDownloadOnTitle();
+
+
+/***/ }),
+
 /***/ "./src/ts/download/ShowSkipCount.ts":
 /*!******************************************!*\
   !*** ./src/ts/download/ShowSkipCount.ts ***!
@@ -16021,9 +16108,9 @@ class ShowSkipCount {
 
 /***/ }),
 
-/***/ "./src/ts/download/showStatusOnTitle.ts":
+/***/ "./src/ts/download/ShowStatusOnTitle.ts":
 /*!**********************************************!*\
-  !*** ./src/ts/download/showStatusOnTitle.ts ***!
+  !*** ./src/ts/download/ShowStatusOnTitle.ts ***!
   \**********************************************/
 /*! no exports provided */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
@@ -16055,7 +16142,7 @@ var Flags;
     Flags["space"] = " ";
 })(Flags || (Flags = {}));
 // 把下载器运行中的状态添加到页面标题前面
-class showStatusOnTitle {
+class ShowStatusOnTitle {
     constructor() {
         this.timer = 0; // title 闪烁时，使用的定时器
         this.bindEvents();
@@ -16172,7 +16259,7 @@ class showStatusOnTitle {
         }, 500);
     }
 }
-new showStatusOnTitle();
+new ShowStatusOnTitle();
 
 
 /***/ }),
@@ -21781,6 +21868,7 @@ class Store {
         this.artworkIDList = []; // 储存抓取到的图片作品的 id 列表，用来避免重复添加
         this.novelIDList = []; // 储存抓取到的小说作品的 id 列表，用来避免重复添加
         this.result = []; // 储存抓取结果
+        this.remainingDownload = 0; // 剩余多少个等待下载和保存的文件
         this.rankList = {}; // 储存作品在排行榜中的排名
         this.tag = ''; // 开始抓取时，储存页面此时的 tag
         this.title = ''; // 开始抓取时，储存页面此时的 title
@@ -21900,6 +21988,7 @@ class Store {
         this.idList = [];
         this.waitingIdList = [];
         this.rankList = {};
+        this.remainingDownload = 0;
         this.tag = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getTagFromURL();
         this.title = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getPageTitle();
     }
