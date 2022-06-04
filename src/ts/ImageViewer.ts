@@ -193,6 +193,7 @@ class ImageViewer {
     this.viewerWarpper = document.createElement('div')
     this.viewerWarpper.classList.add(this.viewerWarpperFlag)
     this.viewerUl = document.createElement('ul')
+    this.viewerUl.classList.add('beautify_scrollbar')
     this.viewerWarpper.appendChild(this.viewerUl)
     this.viewerWarpper.style.display = 'none'
 

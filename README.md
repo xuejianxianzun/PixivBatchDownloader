@@ -219,6 +219,8 @@ English（韩语设置下也使用英语文本）
 
 20 [关注](https://www.pixiv.net/users/9460149/following)
 
+21 [约稿](https://www.pixiv.net/request)
+
 # 友情链接
 
 [PixivUserBatchDownload](https://github.com/Mapaler/PixivUserBatchDownload/)

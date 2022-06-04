@@ -2413,6 +2413,7 @@ class ImageViewer {
         this.viewerWarpper = document.createElement('div');
         this.viewerWarpper.classList.add(this.viewerWarpperFlag);
         this.viewerUl = document.createElement('ul');
+        this.viewerUl.classList.add('beautify_scrollbar');
         this.viewerWarpper.appendChild(this.viewerUl);
         this.viewerWarpper.style.display = 'none';
         if (this.cfg.imageListId) {
@@ -5296,8 +5297,10 @@ const log = new Log();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mouseOverThumbnail", function() { return mouseOverThumbnail; });
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
 // 查找（图像）作品的缩略图，当鼠标进入、移出时触发回调
+
 
 class MouseOverThumbnail {
     constructor() {
@@ -5312,7 +5315,6 @@ class MouseOverThumbnail {
             'div[width="90"]',
             'div[width="118"]',
             '._work',
-            'figure > div',
             '._work.item',
             'li>div>div:first-child',
         ];
@@ -5334,9 +5336,14 @@ class MouseOverThumbnail {
         // 但是，这有可能会导致事件的重复绑定
         // 例如，画师主页顶部的“精选”作品会被两个选择器查找到：'li>div>div:first-child' 'div[width="288"]'
         for (const selector of this.selectors) {
+            // 现在 'li>div>div:first-child' 只在投稿页面使用
+            if (selector === 'li>div>div:first-child' &&
+                _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type !== _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.Request) {
+                return;
+            }
             const elements = parent.querySelectorAll(selector);
             for (const el of elements) {
-                const id = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].findIllustIdFromElement(el);
+                const id = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].findIllustIdFromElement(el);
                 // 只有查找到作品 id 时才会执行回调函数
                 if (id) {
                     // 如果这个缩略图元素、或者它的直接父元素、或者它的直接子元素已经有标记，就跳过它
@@ -5583,6 +5590,7 @@ var PageName;
     PageName[PageName["NewNovel"] = 18] = "NewNovel";
     PageName[PageName["ArtworkSeries"] = 19] = "ArtworkSeries";
     PageName[PageName["Following"] = 20] = "Following";
+    PageName[PageName["Request"] = 21] = "Request";
 })(PageName || (PageName = {}));
 // 获取页面类型
 class PageType {
@@ -5670,6 +5678,9 @@ class PageType {
         }
         else if (pathname.startsWith('/user/') && pathname.includes('/series/')) {
             return PageName.ArtworkSeries;
+        }
+        else if (pathname.startsWith('/request')) {
+            return PageName.Request;
         }
         else {
             // 没有匹配到可用的页面类型

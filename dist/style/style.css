@@ -1470,7 +1470,7 @@ iframe[name='expandedFooter'] {
 #viewerWarpper ul {
   max-width: 568px;
   margin: 24px auto;
-  padding: 0 16px;
+  padding: 0 16px 3px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
