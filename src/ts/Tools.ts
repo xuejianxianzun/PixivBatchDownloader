@@ -271,11 +271,12 @@ class Tools {
     return e
   }
 
-  /**获取页面标题，并且删除 TitleBar 的标记和未读消息的计数（现在 p 站似乎没有消息计数了） */
+  /**获取页面标题 */
+  // 删除了下载器在标题上添加的状态
   static getPageTitle() {
     let result = document.title
       .replace(/\[(↑|→|▶|↓|║|■|✓| )\]/, '')
-      .replace(/^\(\d.*\) /, '')
+      .replace(/^ (\d+) /, '')
 
     // 如果开头有空格则去掉空格
     if (result.startsWith(' ')) {

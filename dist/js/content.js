@@ -8461,11 +8461,12 @@ class Tools {
         _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].register(e);
         return e;
     }
-    /**获取页面标题，并且删除 TitleBar 的标记和未读消息的计数（现在 p 站似乎没有消息计数了） */
+    /**获取页面标题 */
+    // 删除了下载器在标题上添加的状态
     static getPageTitle() {
         let result = document.title
             .replace(/\[(↑|→|▶|↓|║|■|✓| )\]/, '')
-            .replace(/^\(\d.*\) /, '');
+            .replace(/^ (\d+) /, '');
         // 如果开头有空格则去掉空格
         if (result.startsWith(' ')) {
             result = result.replace(/ */, '');
@@ -16131,6 +16132,10 @@ class ShowSkipCount {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
+
 
 
 /**
@@ -16156,7 +16161,6 @@ var Flags;
 // 把下载器运行中的状态添加到页面标题前面
 class ShowStatusOnTitle {
     constructor() {
-        this.timer = 0; // title 闪烁时，使用的定时器
         this.bindEvents();
     }
     bindEvents() {
@@ -16177,6 +16181,24 @@ class ShowStatusOnTitle {
         }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadStart, () => {
             this.set(Flags.downloading);
+        });
+        // 切换了页面之后，标题可能会被 pixiv 修改，这样就没有标记了
+        // 在这里监听页面切换的事件，如果切换后下载器仍在下载中，则重新添加标记
+        // 回调函数应该在 pixiv 修改标题之后执行
+        // 但是 pageSwitch 触发时，标题尚未被 pixiv 修改。pixiv 是在 pageSwitch 之后修改标题的。
+        // 所以我使用定时器来检查标题是否被 pixiv 修改了
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, () => {
+            window.clearInterval(this.pageSwitchTimer);
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_2__["states"].downloading) {
+                return;
+            }
+            const nowTitle = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getPageTitle();
+            this.pageSwitchTimer = window.setInterval(() => {
+                if (_Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getPageTitle() !== nowTitle) {
+                    this.set(Flags.downloading);
+                    window.clearInterval(this.pageSwitchTimer);
+                }
+            }, 500);
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadComplete, () => {
             this.set(Flags.completed);
@@ -16211,7 +16233,7 @@ class ShowStatusOnTitle {
     }
     // 重设 title
     reset() {
-        clearInterval(this.timer);
+        window.clearInterval(this.flashingTimer);
         const metaTagPage = [
             _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.Artwork,
             _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.UserHome,
@@ -16245,15 +16267,15 @@ class ShowStatusOnTitle {
             this.flashing(flag);
         }
         else {
-            clearInterval(this.timer);
+            window.clearInterval(this.flashingTimer);
         }
     }
     // 闪烁提醒，把给定的标记替换成空白，来回切换
     flashing(flag) {
-        clearInterval(this.timer);
+        window.clearInterval(this.flashingTimer);
         const str = `[${flag}]`;
         const whiteSpace = `[${Flags.space}]`;
-        this.timer = window.setInterval(() => {
+        this.flashingTimer = window.setInterval(() => {
             if (this.includeFlag(flag)) {
                 // 如果含有标记，就替换成空白
                 document.title = document.title.replace(str, whiteSpace);
@@ -16265,7 +16287,7 @@ class ShowStatusOnTitle {
                 }
                 else {
                     // 如果都没有，一般是页面切换了，标题被重置了，取消闪烁
-                    clearInterval(this.timer);
+                    window.clearInterval(this.flashingTimer);
                 }
             }
         }, 500);
@@ -21035,6 +21057,7 @@ class Settings {
                 '18': '{p_title}/{id}-{title}',
                 '19': '{user}/{series_title}/{series_order} {title} {id}',
                 '20': '{p_title}/{id}',
+                '21': '{p_title}/{id}-{title}',
             },
             showAdvancedSettings: false,
             showNotificationAfterDownloadComplete: false,

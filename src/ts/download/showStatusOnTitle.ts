@@ -1,5 +1,7 @@
 import { pageType } from '../PageType'
 import { EVT } from '../EVT'
+import { states } from '../store/States'
+import { Tools } from '../Tools'
 
 /**
 ↑ 抓取中
@@ -27,7 +29,9 @@ class ShowStatusOnTitle {
     this.bindEvents()
   }
 
-  private timer: number = 0 // title 闪烁时，使用的定时器
+  private flashingTimer: undefined | number // title 闪烁时，使用的定时器
+
+  private pageSwitchTimer: undefined | number // 页面切换后，检查页面标题是否变化了的定时器
 
   private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
@@ -52,6 +56,25 @@ class ShowStatusOnTitle {
       this.set(Flags.downloading)
     })
 
+    // 切换了页面之后，标题可能会被 pixiv 修改，这样就没有标记了
+    // 在这里监听页面切换的事件，如果切换后下载器仍在下载中，则重新添加标记
+    // 回调函数应该在 pixiv 修改标题之后执行
+    // 但是 pageSwitch 触发时，标题尚未被 pixiv 修改。pixiv 是在 pageSwitch 之后修改标题的。
+    // 所以我使用定时器来检查标题是否被 pixiv 修改了
+    window.addEventListener(EVT.list.pageSwitch, () => {
+      window.clearInterval(this.pageSwitchTimer)
+      if (!states.downloading) {
+        return
+      }
+      const nowTitle = Tools.getPageTitle()
+      this.pageSwitchTimer = window.setInterval(() => {
+        if (Tools.getPageTitle() !== nowTitle) {
+          this.set(Flags.downloading)
+          window.clearInterval(this.pageSwitchTimer)
+        }
+      }, 500)
+    })
+
     window.addEventListener(EVT.list.downloadComplete, () => {
       this.set(Flags.completed)
     })
@@ -63,6 +86,7 @@ class ShowStatusOnTitle {
     window.addEventListener(EVT.list.downloadStop, () => {
       this.set(Flags.stopped)
     })
+
     window.addEventListener(EVT.list.crawlEmpty, () => {
       this.reset()
     })
@@ -88,7 +112,7 @@ class ShowStatusOnTitle {
 
   // 重设 title
   private reset() {
-    clearInterval(this.timer)
+    window.clearInterval(this.flashingTimer)
 
     const metaTagPage = [
       pageType.list.Artwork,
@@ -126,16 +150,16 @@ class ShowStatusOnTitle {
     if (flag === Flags.readyDownload || flag === Flags.waiting) {
       this.flashing(flag)
     } else {
-      clearInterval(this.timer)
+      window.clearInterval(this.flashingTimer)
     }
   }
 
   // 闪烁提醒，把给定的标记替换成空白，来回切换
   private flashing(flag: Flags.readyDownload | Flags.waiting) {
-    clearInterval(this.timer)
+    window.clearInterval(this.flashingTimer)
     const str = `[${flag}]`
     const whiteSpace = `[${Flags.space}]`
-    this.timer = window.setInterval(() => {
+    this.flashingTimer = window.setInterval(() => {
       if (this.includeFlag(flag)) {
         // 如果含有标记，就替换成空白
         document.title = document.title.replace(str, whiteSpace)
@@ -145,7 +169,7 @@ class ShowStatusOnTitle {
           document.title = document.title.replace(whiteSpace, str)
         } else {
           // 如果都没有，一般是页面切换了，标题被重置了，取消闪烁
-          clearInterval(this.timer)
+          window.clearInterval(this.flashingTimer)
         }
       }
     }, 500)
