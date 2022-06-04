@@ -1,3 +1,4 @@
+import { Colors } from '../config/Colors'
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { pageType } from '../PageType'
@@ -62,14 +63,7 @@ class QuickCrawl {
   }
 
   private sendDownload() {
-    // 因为 quickCrawl 状态会影响后续下载行为，所以必须先判断 busy 状态
-    if (states.busy) {
-      toast.error(lang.transl('_当前任务尚未完成'))
-      return
-    }
-
     states.quickCrawl = true
-    EVT.fire('quickCrawl')
 
     const isNovel = window.location.href.includes('/novel')
 
@@ -88,6 +82,10 @@ class QuickCrawl {
     }
 
     EVT.fire('crawlIdList', [idData])
+
+    toast.show(lang.transl('_已发送下载请求'), {
+      bgColor: Colors.bgBlue,
+    })
   }
 
   private setVisible() {

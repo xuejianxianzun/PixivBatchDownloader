@@ -2,6 +2,7 @@ import { EVT } from './EVT'
 import { lang } from './Lang'
 import { settings } from './setting/Settings'
 import { states } from './store/States'
+import { store } from './store/Store'
 import { Tools } from './Tools'
 
 class ShowNotification {
@@ -26,13 +27,15 @@ class ShowNotification {
       window.setTimeout(() => {
         // 如果抓取标签列表没有完成，则不显示通知
         // 在一次抓取多个标签时，当最后一个标签下载完之后会解除 crawlTagList 状态，这时可以显示一条通知
+        // 如果有等待下载的任务，则不显示通知
         if (
+          settings.showNotificationAfterDownloadComplete &&
           !states.crawlTagList &&
-          settings.showNotificationAfterDownloadComplete
+          store.waitingIdList.length === 0
         ) {
           this.show(lang.transl('_下载完毕2'), Tools.getPageTitle())
         }
-      }, 300)
+      }, 0)
     })
   }
 

@@ -172,6 +172,8 @@ abstract class InitPageBase {
       return
     }
 
+    EVT.fire('crawlStart')
+
     log.clear()
 
     log.success(lang.transl('_任务开始0'))
@@ -188,8 +190,6 @@ abstract class InitPageBase {
 
     this.crawlStopped = false
 
-    EVT.fire('crawlStart')
-
     // 进入第一个抓取流程
     this.nextStep()
   }
@@ -199,30 +199,30 @@ abstract class InitPageBase {
   // 这个类的子类没有必要使用这个方法。当子类需要直接指定 id 列表时，修改自己的 getIdList 方法即可。
   protected async crawlIdList(idList: IDData[]) {
     // 检查是否可以开始抓取
+    // 如果不能抓取则把 id 列表添加到等待队列中
     if (states.busy) {
-      toast.error(lang.transl('_当前任务尚未完成'))
-      return
+      store.waitingIdList.push(...idList)
+    } else {
+      EVT.fire('crawlStart')
+
+      log.clear()
+
+      log.success(lang.transl('_任务开始0'))
+
+      if (Utils.isPixiv()) {
+        await mute.getMuteSettings()
+      }
+
+      this.getMultipleSetting()
+
+      this.finishedRequest = 0
+
+      this.crawlStopped = false
+
+      store.idList = idList
+
+      this.getIdListFinished()
     }
-
-    log.clear()
-
-    log.success(lang.transl('_任务开始0'))
-
-    if (Utils.isPixiv()) {
-      await mute.getMuteSettings()
-    }
-
-    this.getMultipleSetting()
-
-    this.finishedRequest = 0
-
-    this.crawlStopped = false
-
-    EVT.fire('crawlStart')
-
-    store.idList = idList
-
-    this.getIdListFinished()
   }
 
   // 当可以开始抓取时，进入下一个流程。默认情况下，开始获取作品列表。如有不同，由子类具体定义
