@@ -381,9 +381,9 @@ const langText = {
     '{} のアクセス権限がありません、作品を無視する。',
   ],
   _作品页状态码0: [
-    '请求的url不可访问 (0)',
-    '要求的 url 無法存取 (0)',
-    'The requested url is not accessible (0)',
+    '请求的 URL 不可访问 (0)',
+    '要求的 URL 無法存取 (0)',
+    'The requested URL is not accessible (0)',
     '要求された URL にアクセスできません (0)',
   ],
   _作品页状态码400: [
@@ -393,10 +393,10 @@ const langText = {
     '作品は削除されました (400)',
   ],
   _作品页状态码403: [
-    '无权访问请求的url (403)',
-    '沒有權限存取要求的 url (403)',
-    'Have no access to the requested url (403',
-    'リクエストされた url にアクセスできない (403)',
+    '无权访问请求的 URL (403)',
+    '沒有權限存取要求的 URL (403)',
+    'Have no access to the requested URL (403',
+    'リクエストされた URL にアクセスできない (403)',
   ],
   _作品页状态码404: [
     '404 not found',
@@ -634,7 +634,7 @@ const langText = {
   _开始下载: ['开始下载', '開始下載', 'Start download', '開始'],
   _暂停下载: ['暂停下载', '暫停下載', 'Pause download', '一時停止'],
   _停止下载: ['停止下载', '停止下載', 'Stop download', '停止'],
-  _复制url: ['复制 url', '複製下載網址', 'Copy urls', 'URL をコピー'],
+  _复制url: ['复制 URL', '複製下載網址', 'Copy URLs', 'URL をコピー'],
   _当前状态: ['当前状态 ', '目前狀態：', 'State ', '現在の状態 '],
   _未开始下载: [
     '未开始下载',
@@ -1145,7 +1145,7 @@ const langText = {
   _在小说里保存元数据提示: [
     '把作者、网址等信息保存到小说里',
     '將作者、網址等資訊儲存到小說裡',
-    'Save the author, url and other information in the file',
+    'Save the author, URL and other information in the file',
     '作者やURLなどの情報をファイルの中に保存します。',
   ],
   _收藏本页面的所有作品: [
@@ -2092,6 +2092,24 @@ const langText = {
     '最佳化“預覽作品”功能',
     'Optimize the "Preview Works" function',
     '「作品のプレビュー」機能を最適化する',
+  ],
+  _1230更新说明: [
+    `1. 在网页标题上显示剩余下载数量<br>
+    下载时，网页标题上会显示还有多少个文件尚未下载。<br>
+    这样，用户不需要打开下载面板就能够知道下载进度。<br><br>
+    2. 用户可以在下载时添加一些新的下载任务。`,
+    `1. 在網頁標題上顯示剩餘下載數量<br>
+    下載時，網頁標題上會顯示還有多少個檔案尚未下載。<br>
+    這樣，使用者不需要開啟下載面板就能夠知道下載進度。<br><br>
+    2. 使用者可以在下載時新增一些新的下載任務。`,
+    `1. Show remaining downloads on page title<br>
+    While downloading, the page title will show how many files are not yet downloaded. <br>
+    In this way, the user can know the download progress without opening the download panel.<br><br>
+    2. Users can add some new download tasks while downloading.`,
+    `1. ページタイトルに残りのダウンロードを表示する<br>
+    ダウンロード中、ページタイトルにはまだダウンロードされていないファイルの数が表示されます。 <br>
+    このようにして、ユーザーはダウンロードパネルを開かなくてもダウンロードの進行状況を知ることができます。<br><br>
+    2. ユーザーは、ダウンロード中にいくつかの新しいダウンロードタスクを追加できます。`,
   ],
 }
 

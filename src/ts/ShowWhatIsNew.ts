@@ -11,20 +11,14 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '12.2.00'
+  private flag = '12.3.0'
   private msg = ''
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
-      // 消息文本要写在 settingInitialized 之后，否则它们可能会被翻译成错误的语言
-      this.msg = `${lang.transl('_新增命名标记')}
-      <br>
-      <span class="blue">{series_id}</span>
-      <br>
-      ${lang.transl('_命名标记seriesId')}
-      <br>
-      <br>
-      ${lang.transl('_优化预览作品功能')}
+      // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
+      this.msg = `
+      ${lang.transl('_1230更新说明')}
       `
       this.show()
     })

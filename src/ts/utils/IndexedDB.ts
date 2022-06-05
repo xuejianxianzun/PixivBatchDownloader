@@ -44,7 +44,7 @@ class IndexedDB {
         resolve(ev)
       }
       r.onerror = (ev) => {
-        console.error('add failed')
+        console.error(`add failed in ${storeNames}`, data)
         console.trace()
         reject(ev)
       }

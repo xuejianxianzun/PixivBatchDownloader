@@ -212,6 +212,7 @@ class Resume {
           id: this.taskId,
           states: downloadStates.states,
         }
+
         this.IDB.add(this.statesName, statesData)
 
         log.success(lang.transl('_已保存抓取结果'), 2)
