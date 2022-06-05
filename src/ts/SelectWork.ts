@@ -487,21 +487,22 @@ class SelectWork {
       document.removeEventListener('keyup', this.bindEscEvent)
   }
 
-  // 抓取选择的作品，这会暂停选择
+  // 抓取选择的作品，这会自动暂停手动选择作品
   private downloadSelect() {
-    if (states.busy) {
-      toast.error(lang.transl('_当前任务尚未完成'))
-      return
-    }
-
     this.pauseSelect()
 
     if (this.idList.length > 0) {
-      // 传递 id 列表时，将其转换成一个新的数组。否则传递的是引用，外部操作会影响到内部的 id 列表
+      // 传递 id 列表时，将其转换成一个新的数组。否则传递的是引用，外部的一些操作可能会影响内部的 id 列表
       EVT.fire('crawlIdList', Array.from(this.idList))
 
       this.sendCrawl = true
       this.crawled = false
+      states.quickCrawl = true
+
+      toast.show(lang.transl('_已发送下载请求'), {
+        bgColor: Colors.bgBlue,
+        position: 'mouse',
+      })
     } else {
       toast.error(lang.transl('_没有数据可供使用'))
     }

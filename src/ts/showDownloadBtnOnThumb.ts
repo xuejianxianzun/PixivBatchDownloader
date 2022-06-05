@@ -67,7 +67,7 @@ class ShowDownloadBtnOnThumb {
         }
         EVT.fire('crawlIdList', [IDData])
 
-        // 点击 wrap 建立下载任务，下载时不显示下载面板
+        // 下载时不显示下载面板
         states.quickCrawl = true
         toast.show(lang.transl('_已发送下载请求'), {
           bgColor: Colors.bgBlue,

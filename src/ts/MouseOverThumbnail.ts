@@ -1,4 +1,5 @@
 // 查找（图像）作品的缩略图，当鼠标进入、移出时触发回调
+import { pageType } from './PageType'
 import { Tools } from './Tools'
 
 class MouseOverThumbnail {
@@ -20,7 +21,6 @@ class MouseOverThumbnail {
     'div[width="90"]',
     'div[width="118"]',
     '._work',
-    'figure > div',
     '._work.item',
     'li>div>div:first-child',
   ]
@@ -39,6 +39,14 @@ class MouseOverThumbnail {
     // 但是，这有可能会导致事件的重复绑定
     // 例如，画师主页顶部的“精选”作品会被两个选择器查找到：'li>div>div:first-child' 'div[width="288"]'
     for (const selector of this.selectors) {
+      // 现在 'li>div>div:first-child' 只在投稿页面使用
+      if (
+        selector === 'li>div>div:first-child' &&
+        pageType.type !== pageType.list.Request
+      ) {
+        return
+      }
+
       const elements = parent.querySelectorAll(selector)
       for (const el of elements) {
         const id = Tools.findIllustIdFromElement(el as HTMLElement)

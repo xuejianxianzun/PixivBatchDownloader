@@ -356,6 +356,7 @@ class Settings {
       '18': '{p_title}/{id}-{title}',
       '19': '{user}/{series_title}/{series_order} {title} {id}',
       '20': '{p_title}/{id}',
+      '21': '{p_title}/{id}-{title}',
     },
     showAdvancedSettings: false,
     showNotificationAfterDownloadComplete: false,

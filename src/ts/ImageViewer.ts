@@ -193,6 +193,7 @@ class ImageViewer {
     this.viewerWarpper = document.createElement('div')
     this.viewerWarpper.classList.add(this.viewerWarpperFlag)
     this.viewerUl = document.createElement('ul')
+    this.viewerUl.classList.add('beautify_scrollbar')
     this.viewerWarpper.appendChild(this.viewerUl)
     this.viewerWarpper.style.display = 'none'
 
@@ -484,12 +485,6 @@ class ImageViewer {
 
   // 下载当前查看的作品
   private download() {
-    // 因为 downloadFromViewer 状态会影响后续下载行为，所以必须先判断 busy 状态
-    if (states.busy) {
-      toast.error(lang.transl('_当前任务尚未完成'))
-      return
-    }
-
     states.downloadFromViewer = true
 
     // 发送要下载的作品 id

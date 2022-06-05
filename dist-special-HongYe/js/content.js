@@ -2488,6 +2488,7 @@ class ImageViewer {
         this.viewerWarpper = document.createElement('div');
         this.viewerWarpper.classList.add(this.viewerWarpperFlag);
         this.viewerUl = document.createElement('ul');
+        this.viewerUl.classList.add('beautify_scrollbar');
         this.viewerWarpper.appendChild(this.viewerUl);
         this.viewerWarpper.style.display = 'none';
         if (this.cfg.imageListId) {
@@ -2733,11 +2734,6 @@ class ImageViewer {
     }
     // 下载当前查看的作品
     download() {
-        // 因为 downloadFromViewer 状态会影响后续下载行为，所以必须先判断 busy 状态
-        if (_store_States__WEBPACK_IMPORTED_MODULE_5__["states"].busy) {
-            _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_当前任务尚未完成'));
-            return;
-        }
         _store_States__WEBPACK_IMPORTED_MODULE_5__["states"].downloadFromViewer = true;
         // 发送要下载的作品 id
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('crawlIdList', [
@@ -3422,9 +3418,9 @@ const langText = {
         '{} のアクセス権限がありません、作品を無視する。',
     ],
     _作品页状态码0: [
-        '请求的url不可访问 (0)',
-        '要求的 url 無法存取 (0)',
-        'The requested url is not accessible (0)',
+        '请求的 URL 不可访问 (0)',
+        '要求的 URL 無法存取 (0)',
+        'The requested URL is not accessible (0)',
         '要求された URL にアクセスできません (0)',
     ],
     _作品页状态码400: [
@@ -3434,10 +3430,10 @@ const langText = {
         '作品は削除されました (400)',
     ],
     _作品页状态码403: [
-        '无权访问请求的url (403)',
-        '沒有權限存取要求的 url (403)',
-        'Have no access to the requested url (403',
-        'リクエストされた url にアクセスできない (403)',
+        '无权访问请求的 URL (403)',
+        '沒有權限存取要求的 URL (403)',
+        'Have no access to the requested URL (403',
+        'リクエストされた URL にアクセスできない (403)',
     ],
     _作品页状态码404: [
         '404 not found',
@@ -3675,7 +3671,7 @@ const langText = {
     _开始下载: ['开始下载', '開始下載', 'Start download', '開始'],
     _暂停下载: ['暂停下载', '暫停下載', 'Pause download', '一時停止'],
     _停止下载: ['停止下载', '停止下載', 'Stop download', '停止'],
-    _复制url: ['复制 url', '複製下載網址', 'Copy urls', 'URL をコピー'],
+    _复制url: ['复制 URL', '複製下載網址', 'Copy URLs', 'URL をコピー'],
     _当前状态: ['当前状态 ', '目前狀態：', 'State ', '現在の状態 '],
     _未开始下载: [
         '未开始下载',
@@ -4186,7 +4182,7 @@ const langText = {
     _在小说里保存元数据提示: [
         '把作者、网址等信息保存到小说里',
         '將作者、網址等資訊儲存到小說裡',
-        'Save the author, url and other information in the file',
+        'Save the author, URL and other information in the file',
         '作者やURLなどの情報をファイルの中に保存します。',
     ],
     _收藏本页面的所有作品: [
@@ -5134,6 +5130,24 @@ const langText = {
         'Optimize the "Preview Works" function',
         '「作品のプレビュー」機能を最適化する',
     ],
+    _1230更新说明: [
+        `1. 在网页标题上显示剩余下载数量<br>
+    下载时，网页标题上会显示还有多少个文件尚未下载。<br>
+    这样，用户不需要打开下载面板就能够知道下载进度。<br><br>
+    2. 用户可以在下载时添加一些新的下载任务。`,
+        `1. 在網頁標題上顯示剩餘下載數量<br>
+    下載時，網頁標題上會顯示還有多少個檔案尚未下載。<br>
+    這樣，使用者不需要開啟下載面板就能夠知道下載進度。<br><br>
+    2. 使用者可以在下載時新增一些新的下載任務。`,
+        `1. Show remaining downloads on page title<br>
+    While downloading, the page title will show how many files are not yet downloaded. <br>
+    In this way, the user can know the download progress without opening the download panel.<br><br>
+    2. Users can add some new download tasks while downloading.`,
+        `1. ページタイトルに残りのダウンロードを表示する<br>
+    ダウンロード中、ページタイトルにはまだダウンロードされていないファイルの数が表示されます。 <br>
+    このようにして、ユーザーはダウンロードパネルを開かなくてもダウンロードの進行状況を知ることができます。<br><br>
+    2. ユーザーは、ダウンロード中にいくつかの新しいダウンロードタスクを追加できます。`,
+    ],
 };
 
 
@@ -5377,8 +5391,10 @@ const log = new Log();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mouseOverThumbnail", function() { return mouseOverThumbnail; });
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
 // 查找（图像）作品的缩略图，当鼠标进入、移出时触发回调
+
 
 class MouseOverThumbnail {
     constructor() {
@@ -5393,7 +5409,6 @@ class MouseOverThumbnail {
             'div[width="90"]',
             'div[width="118"]',
             '._work',
-            'figure > div',
             '._work.item',
             'li>div>div:first-child',
         ];
@@ -5415,9 +5430,14 @@ class MouseOverThumbnail {
         // 但是，这有可能会导致事件的重复绑定
         // 例如，画师主页顶部的“精选”作品会被两个选择器查找到：'li>div>div:first-child' 'div[width="288"]'
         for (const selector of this.selectors) {
+            // 现在 'li>div>div:first-child' 只在投稿页面使用
+            if (selector === 'li>div>div:first-child' &&
+                _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type !== _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.Request) {
+                return;
+            }
             const elements = parent.querySelectorAll(selector);
             for (const el of elements) {
-                const id = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].findIllustIdFromElement(el);
+                const id = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].findIllustIdFromElement(el);
                 // 只有查找到作品 id 时才会执行回调函数
                 if (id) {
                     // 如果这个缩略图元素、或者它的直接父元素、或者它的直接子元素已经有标记，就跳过它
@@ -5664,6 +5684,7 @@ var PageName;
     PageName[PageName["NewNovel"] = 18] = "NewNovel";
     PageName[PageName["ArtworkSeries"] = 19] = "ArtworkSeries";
     PageName[PageName["Following"] = 20] = "Following";
+    PageName[PageName["Request"] = 21] = "Request";
 })(PageName || (PageName = {}));
 // 获取页面类型
 class PageType {
@@ -5751,6 +5772,9 @@ class PageType {
         }
         else if (pathname.startsWith('/user/') && pathname.includes('/series/')) {
             return PageName.ArtworkSeries;
+        }
+        else if (pathname.startsWith('/request')) {
+            return PageName.Request;
         }
         else {
             // 没有匹配到可用的页面类型
@@ -6740,18 +6764,19 @@ class SelectWork {
         this.bindEscEvent &&
             document.removeEventListener('keyup', this.bindEscEvent);
     }
-    // 抓取选择的作品，这会暂停选择
+    // 抓取选择的作品，这会自动暂停手动选择作品
     downloadSelect() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
-            _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_当前任务尚未完成'));
-            return;
-        }
         this.pauseSelect();
         if (this.idList.length > 0) {
-            // 传递 id 列表时，将其转换成一个新的数组。否则传递的是引用，外部操作会影响到内部的 id 列表
+            // 传递 id 列表时，将其转换成一个新的数组。否则传递的是引用，外部的一些操作可能会影响内部的 id 列表
             _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].fire('crawlIdList', Array.from(this.idList));
             this.sendCrawl = true;
             this.crawled = false;
+            _store_States__WEBPACK_IMPORTED_MODULE_4__["states"].quickCrawl = true;
+            _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已发送下载请求'), {
+                bgColor: _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue,
+                position: 'mouse',
+            });
         }
         else {
             _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'));
@@ -7174,7 +7199,7 @@ class ShowDownloadBtnOnThumb {
                     id: this.currentWorkId,
                 };
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlIdList', [IDData]);
-                // 点击 wrap 建立下载任务，下载时不显示下载面板
+                // 下载时不显示下载面板
                 _store_States__WEBPACK_IMPORTED_MODULE_3__["states"].quickCrawl = true;
                 _Toast__WEBPACK_IMPORTED_MODULE_4__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_5__["lang"].transl('_已发送下载请求'), {
                     bgColor: _config_Colors__WEBPACK_IMPORTED_MODULE_6__["Colors"].bgBlue,
@@ -7358,7 +7383,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+
 
 
 
@@ -7383,11 +7410,13 @@ class ShowNotification {
             window.setTimeout(() => {
                 // 如果抓取标签列表没有完成，则不显示通知
                 // 在一次抓取多个标签时，当最后一个标签下载完之后会解除 crawlTagList 状态，这时可以显示一条通知
-                if (!_store_States__WEBPACK_IMPORTED_MODULE_3__["states"].crawlTagList &&
-                    _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].showNotificationAfterDownloadComplete) {
-                    this.show(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载完毕2'), _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].getPageTitle());
+                // 如果有等待下载的任务，则不显示通知
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].showNotificationAfterDownloadComplete &&
+                    !_store_States__WEBPACK_IMPORTED_MODULE_3__["states"].crawlTagList &&
+                    _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].waitingIdList.length === 0) {
+                    this.show(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载完毕2'), _Tools__WEBPACK_IMPORTED_MODULE_5__["Tools"].getPageTitle());
                 }
-            }, 300);
+            }, 0);
         });
     }
     async show(title, text) {
@@ -7758,21 +7787,15 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '12.2.00';
+        this.flag = '12.3.0';
         this.msg = '';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
-            // 消息文本要写在 settingInitialized 之后，否则它们可能会被翻译成错误的语言
-            this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增命名标记')}
-      <br>
-      <span class="blue">{series_id}</span>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记seriesId')}
-      <br>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_优化预览作品功能')}
+            // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
+            this.msg = `
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_1230更新说明')}
       `;
             this.show();
         });
@@ -8625,11 +8648,17 @@ class Tools {
         _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].register(e);
         return e;
     }
-    /**获取页面标题，并且删除 TitleBar 的标记和未读消息的计数（现在 p 站似乎没有消息计数了） */
+    /**获取页面标题 */
+    // 删除了下载器在标题上添加的状态
     static getPageTitle() {
-        return document.title
-            .replace(/\[(↑|→|▶|↓|║|■|✓| )\] /, '')
-            .replace(/^\(\d.*\) /, '');
+        let result = document.title
+            .replace(/\[(↑|→|▶|↓|║|■|✓| )\]/, '')
+            .replace(/^ (\d+) /, '');
+        // 如果开头有空格则去掉空格
+        if (result.startsWith(' ')) {
+            result = result.replace(/ */, '');
+        }
+        return result;
     }
     // 自定义的类型保护
     static isArtworkTags(data) {
@@ -8854,28 +8883,29 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
 /* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
 /* harmony import */ var _download_Resume__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./download/Resume */ "./src/ts/download/Resume.ts");
-/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_13__);
-/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
-/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
-/* harmony import */ var _DoubleWidthThumb__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./DoubleWidthThumb */ "./src/ts/DoubleWidthThumb.ts");
-/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
-/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
-/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
-/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
-/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
-/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
-/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
-/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
-/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
+/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_12__);
+/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
+/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
+/* harmony import */ var _DoubleWidthThumb__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./DoubleWidthThumb */ "./src/ts/DoubleWidthThumb.ts");
+/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
+/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
+/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
+/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
+/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
+/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
+/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
+/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
+/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
+/* harmony import */ var _download_ShowStatusOnTitle__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/ShowStatusOnTitle */ "./src/ts/download/ShowStatusOnTitle.ts");
+/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
+/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -8886,6 +8916,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 
@@ -9095,6 +9126,7 @@ class InitPageBase {
             _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前任务尚未完成'));
             return;
         }
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
         if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].isPixiv()) {
@@ -9104,7 +9136,6 @@ class InitPageBase {
         this.getMultipleSetting();
         this.finishedRequest = 0;
         this.crawlStopped = false;
-        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
         // 进入第一个抓取流程
         this.nextStep();
     }
@@ -9113,21 +9144,23 @@ class InitPageBase {
     // 这个类的子类没有必要使用这个方法。当子类需要直接指定 id 列表时，修改自己的 getIdList 方法即可。
     async crawlIdList(idList) {
         // 检查是否可以开始抓取
+        // 如果不能抓取则把 id 列表添加到等待队列中
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__["states"].busy) {
-            _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前任务尚未完成'));
-            return;
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].waitingIdList.push(...idList);
         }
-        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
-        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
-        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].isPixiv()) {
-            await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__["mute"].getMuteSettings();
+        else {
+            _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
+            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
+            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
+            if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].isPixiv()) {
+                await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__["mute"].getMuteSettings();
+            }
+            this.getMultipleSetting();
+            this.finishedRequest = 0;
+            this.crawlStopped = false;
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList = idList;
+            this.getIdListFinished();
         }
-        this.getMultipleSetting();
-        this.finishedRequest = 0;
-        this.crawlStopped = false;
-        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
-        _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList = idList;
-        this.getIdListFinished();
     }
     // 当可以开始抓取时，进入下一个流程。默认情况下，开始获取作品列表。如有不同，由子类具体定义
     nextStep() {
@@ -12658,12 +12691,14 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
 
 
 
@@ -12675,7 +12710,7 @@ class QuickCrawl {
     constructor() {
         this.show = true; // 是否显示
         // 指定在哪些页面类型里启用
-        this.enablePageType = [_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Artwork, _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Novel];
+        this.enablePageType = [_PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].list.Artwork, _PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].list.Novel];
         this.addBtn();
         this.setVisible();
         this.bindEvents();
@@ -12690,7 +12725,7 @@ class QuickCrawl {
   <use xlink:href="#icon-download"></use>
 </svg>`;
         document.body.append(this.btn);
-        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].register(this.btn);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.btn);
     }
     bindEvents() {
         // 点击按钮启动快速抓取
@@ -12704,36 +12739,33 @@ class QuickCrawl {
             }
         }, false);
         // 页面类型改变时设置按钮的显示隐藏
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, () => {
             this.setVisible();
         });
     }
     sendDownload() {
-        // 因为 quickCrawl 状态会影响后续下载行为，所以必须先判断 busy 状态
-        if (_store_States__WEBPACK_IMPORTED_MODULE_3__["states"].busy) {
-            _Toast__WEBPACK_IMPORTED_MODULE_4__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'));
-            return;
-        }
-        _store_States__WEBPACK_IMPORTED_MODULE_3__["states"].quickCrawl = true;
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('quickCrawl');
+        _store_States__WEBPACK_IMPORTED_MODULE_4__["states"].quickCrawl = true;
         const isNovel = window.location.href.includes('/novel');
         let idData;
         if (isNovel) {
             idData = {
                 type: 'novels',
-                id: _Tools__WEBPACK_IMPORTED_MODULE_5__["Tools"].getNovelId(window.location.href),
+                id: _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].getNovelId(window.location.href),
             };
         }
         else {
             idData = {
                 type: 'unknown',
-                id: _Tools__WEBPACK_IMPORTED_MODULE_5__["Tools"].getIllustId(window.location.href),
+                id: _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].getIllustId(window.location.href),
             };
         }
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlIdList', [idData]);
+        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('crawlIdList', [idData]);
+        _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已发送下载请求'), {
+            bgColor: _config_Colors__WEBPACK_IMPORTED_MODULE_0__["Colors"].bgBlue,
+        });
     }
     setVisible() {
-        this.show = this.enablePageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type);
+        this.show = this.enablePageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].type);
         this.btn.style.display = this.show ? 'flex' : 'none';
     }
 }
@@ -14313,6 +14345,7 @@ class DownloadControl {
         this.wrapper = document.createElement('div');
         this.stop = false; // 是否已经停止下载
         this.pause = false; // 是否已经暂停下载
+        this.waitingTimer = undefined;
         this.createDownloadArea();
         this.bindEvents();
         const statusTipWrap = this.wrapper.querySelector('.down_status');
@@ -14391,7 +14424,19 @@ class DownloadControl {
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete, () => {
             _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕'), 2);
-            _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕2'));
+            // 如果有等待中的下载任务，则开始下载等待中的任务
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].waitingIdList.length === 0) {
+                _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕2'));
+            }
+            else {
+                window.clearTimeout(this.waitingTimer);
+                this.waitingTimer = window.setTimeout(() => {
+                    _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].quickCrawl = true; // 下载等待的任务时，不显示下载器面板
+                    const idList = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].waitingIdList;
+                    _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].waitingIdList = [];
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlIdList', idList);
+                }, 0);
+            }
         });
     }
     createDownloadArea() {
@@ -14627,6 +14672,7 @@ class DownloadControl {
         _Log__WEBPACK_IMPORTED_MODULE_3__["log"].log(text, 2, false);
         // 设置总下载进度条
         _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].setTotalProgress(this.downloaded);
+        _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].remainingDownload = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded;
         // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
         if (this.downloaded === _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
             window.setTimeout(() => {
@@ -14652,6 +14698,7 @@ class DownloadControl {
         this.pause = false;
         this.stop = false;
         this.errorIdList = [];
+        this.downloaded = 0;
     }
     showDownloadArea() {
         this.wrapper.style.display = 'block';
@@ -16125,6 +16172,84 @@ class ShowDownloadStates {
 
 /***/ }),
 
+/***/ "./src/ts/download/ShowRemainingDownloadOnTitle.ts":
+/*!*********************************************************!*\
+  !*** ./src/ts/download/ShowRemainingDownloadOnTitle.ts ***!
+  \*********************************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+
+
+
+// 在网页标题上显示剩余下载数量
+class ShowRemainingDownloadOnTitle {
+    constructor() {
+        // 保存缓存的字符串，后面会需要在标题中查找缓存的字符串
+        this.str = this.createStr();
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.setInterval(() => {
+            this.show();
+        }, 500);
+        const removeStrEvents = [
+            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.downloadStop,
+            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.downloadComplete,
+            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.crawlStart,
+        ];
+        for (const evt of removeStrEvents) {
+            window.addEventListener(evt, () => {
+                this.removeStr();
+            });
+        }
+    }
+    // 生成新的字符串
+    createStr() {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].remainingDownload > 0) {
+            return ` ${_store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].remainingDownload} `;
+        }
+        return '';
+    }
+    // 检查标题中是否有下载状态的 flag
+    // 如果没有，就不会显示剩余数量
+    checkStatusFlag() {
+        return document.title.indexOf(']') > 0;
+    }
+    show() {
+        if (!_store_States__WEBPACK_IMPORTED_MODULE_1__["states"].downloading || !this.checkStatusFlag()) {
+            return;
+        }
+        // 先移除旧的字符串，然后添加新的字符串
+        const title = this.removeStr(document.title);
+        this.str = this.createStr();
+        if (!this.str || !title) {
+            return;
+        }
+        document.title = title.replace(']', ']' + this.str);
+    }
+    removeStr(titleStr) {
+        if (!this.str) {
+            return;
+        }
+        if (titleStr) {
+            return titleStr.replace(this.str, '');
+        }
+        else {
+            document.title = document.title.replace(this.str, '');
+        }
+    }
+}
+new ShowRemainingDownloadOnTitle();
+
+
+/***/ }),
+
 /***/ "./src/ts/download/ShowSkipCount.ts":
 /*!******************************************!*\
   !*** ./src/ts/download/ShowSkipCount.ts ***!
@@ -16185,9 +16310,9 @@ class ShowSkipCount {
 
 /***/ }),
 
-/***/ "./src/ts/download/showStatusOnTitle.ts":
+/***/ "./src/ts/download/ShowStatusOnTitle.ts":
 /*!**********************************************!*\
-  !*** ./src/ts/download/showStatusOnTitle.ts ***!
+  !*** ./src/ts/download/ShowStatusOnTitle.ts ***!
   \**********************************************/
 /*! no exports provided */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
@@ -16196,6 +16321,10 @@ class ShowSkipCount {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
+
 
 
 /**
@@ -16219,9 +16348,8 @@ var Flags;
     Flags["space"] = " ";
 })(Flags || (Flags = {}));
 // 把下载器运行中的状态添加到页面标题前面
-class showStatusOnTitle {
+class ShowStatusOnTitle {
     constructor() {
-        this.timer = 0; // title 闪烁时，使用的定时器
         this.bindEvents();
     }
     bindEvents() {
@@ -16242,6 +16370,24 @@ class showStatusOnTitle {
         }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadStart, () => {
             this.set(Flags.downloading);
+        });
+        // 切换了页面之后，标题可能会被 pixiv 修改，这样就没有标记了
+        // 在这里监听页面切换的事件，如果切换后下载器仍在下载中，则重新添加标记
+        // 回调函数应该在 pixiv 修改标题之后执行
+        // 但是 pageSwitch 触发时，标题尚未被 pixiv 修改。pixiv 是在 pageSwitch 之后修改标题的。
+        // 所以我使用定时器来检查标题是否被 pixiv 修改了
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, () => {
+            window.clearInterval(this.pageSwitchTimer);
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_2__["states"].downloading) {
+                return;
+            }
+            const nowTitle = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getPageTitle();
+            this.pageSwitchTimer = window.setInterval(() => {
+                if (_Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getPageTitle() !== nowTitle) {
+                    this.set(Flags.downloading);
+                    window.clearInterval(this.pageSwitchTimer);
+                }
+            }, 500);
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadComplete, () => {
             this.set(Flags.completed);
@@ -16276,7 +16422,7 @@ class showStatusOnTitle {
     }
     // 重设 title
     reset() {
-        clearInterval(this.timer);
+        window.clearInterval(this.flashingTimer);
         const metaTagPage = [
             _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.Artwork,
             _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.UserHome,
@@ -16310,15 +16456,15 @@ class showStatusOnTitle {
             this.flashing(flag);
         }
         else {
-            clearInterval(this.timer);
+            window.clearInterval(this.flashingTimer);
         }
     }
     // 闪烁提醒，把给定的标记替换成空白，来回切换
     flashing(flag) {
-        clearInterval(this.timer);
+        window.clearInterval(this.flashingTimer);
         const str = `[${flag}]`;
         const whiteSpace = `[${Flags.space}]`;
-        this.timer = window.setInterval(() => {
+        this.flashingTimer = window.setInterval(() => {
             if (this.includeFlag(flag)) {
                 // 如果含有标记，就替换成空白
                 document.title = document.title.replace(str, whiteSpace);
@@ -16330,13 +16476,13 @@ class showStatusOnTitle {
                 }
                 else {
                     // 如果都没有，一般是页面切换了，标题被重置了，取消闪烁
-                    clearInterval(this.timer);
+                    window.clearInterval(this.flashingTimer);
                 }
             }
         }, 500);
     }
 }
-new showStatusOnTitle();
+new ShowStatusOnTitle();
 
 
 /***/ }),
@@ -21121,6 +21267,7 @@ class Settings {
                 '18': '{p_title}/{id}-{title}',
                 '19': '{user}/{series_title}/{series_order} {title} {id}',
                 '20': '{p_title}/{id}',
+                '21': '{p_title}/{id}-{title}',
             },
             showAdvancedSettings: false,
             showNotificationAfterDownloadComplete: false,
@@ -21960,11 +22107,13 @@ __webpack_require__.r(__webpack_exports__);
 class Store {
     constructor() {
         this.idList = []; // 储存从列表中抓取到的作品的 id
+        this.waitingIdList = []; // 下载器尚未完成本次下载时，如果有新的下载请求，则添加到这里，下载完成后再处理
         this.resultMeta = []; // 储存抓取结果的元数据。
         // 当用于图片作品时，它可以根据每个作品需要下载多少张，生成每一张图片的信息
         this.artworkIDList = []; // 储存抓取到的图片作品的 id 列表，用来避免重复添加
         this.novelIDList = []; // 储存抓取到的小说作品的 id 列表，用来避免重复添加
         this.result = []; // 储存抓取结果
+        this.remainingDownload = 0; // 剩余多少个等待下载和保存的文件
         this.rankList = {}; // 储存作品在排行榜中的排名
         this.tag = ''; // 开始抓取时，储存页面此时的 tag
         this.title = ''; // 开始抓取时，储存页面此时的 title
@@ -22082,13 +22231,19 @@ class Store {
         this.novelIDList = [];
         this.result = [];
         this.idList = [];
+        this.waitingIdList = [];
         this.rankList = {};
+        this.remainingDownload = 0;
         this.tag = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getTagFromURL();
         this.title = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getPageTitle();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlStart, () => {
             this.reset();
+        });
+        // 停止下载时，清空等待下载的任务
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop, () => {
+            this.waitingIdList = [];
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resume, () => {
             this.tag = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getTagFromURL();
@@ -22346,7 +22501,7 @@ class IndexedDB {
                 resolve(ev);
             };
             r.onerror = (ev) => {
-                console.error('add failed');
+                console.error(`add failed in ${storeNames}`, data);
                 console.trace();
                 reject(ev);
             };
