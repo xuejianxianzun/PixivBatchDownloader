@@ -5326,6 +5326,7 @@ class MouseOverThumbnail {
         // 选择器的元素必须含有作品的超链接（超链接可以在这个元素上，也可以在这个元素的子元素上）
         this.selectors = [
             'div[width="136"]',
+            'div[width="131"]',
             'div[width="288"]',
             'div[width="184"]',
             'div[width="112"]',
