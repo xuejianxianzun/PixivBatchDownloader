@@ -61,18 +61,18 @@ nav .cYUezH {
 /* 最底部 本站的最新作品 列表 */
 /* 首页还有不少地方的列表也都是这个 class */
 /* max-height 需要比 max-width 更大一些，因为图片的下方还要显示标题等信息，也要占据空间 */
-.bgeGyS {
+.aFEFH {
   display: flex !important;
   width: auto;
   max-width: 540px;
   max-height: 600px;
   flex-shrink: 0;
 }
-.bgeGyS .jDiQFZ {
+.aFEFH div:first-child {
   display: flex !important;
   flex-direction: column !important;
 }
-.bgeGyS .jDiQFZ .hYfnPb {
+.aFEFH div:first-child div:first-child {
   display: flex !important;
 }
 /* 推荐作品 li */
