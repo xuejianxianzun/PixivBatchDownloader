@@ -72,9 +72,9 @@ nav .cYUezH {
 
 /* 最顶部 关注用户・好P友的作品 列表 缩略图 li */
 /* 最底部 本站的最新作品 列表 */
-/* 首页还有不少地方的列表也都是这个 class */
+/* 首页还有不少地方的作品缩略图容器列表也都是这个 class */
 /* max-height 需要比 max-width 更大一些，因为图片的下方还要显示标题等信息，也要占据空间 */
-.aFEFH {
+.bgeGyS {
   display: flex !important;
   width: auto;
   max-width: 540px;
@@ -82,15 +82,34 @@ nav .cYUezH {
   flex-shrink: 0;
 }
 
-.aFEFH .jDiQFZ {
+.bgeGyS .jDiQFZ {
   display: flex !important;
   flex-direction: column !important;
 }
 
-.aFEFH .jDiQFZ .hYfnPb {
+.bgeGyS .jDiQFZ .hYfnPb {
   display: flex !important;
 }
-// 注意：上面不能改成 .aFEFH  div:first-child div:first-child 的形式，因为这样会导致错误的匹配，导致其他某些部分乱版（例如首页的 推荐用户 区域）
+
+// 注意：上面不能改成 .bgeGyS  div:first-child div:first-child 的形式，因为这样会导致错误的匹配，导致其他某些部分乱版（例如首页的 推荐用户 区域）
+
+/* 下载器会尝试给“关注用户・好P友的作品”的容器添加自定义的 class，避免其频繁改版而失效 */
+.homeFriendsNewWorks ul > div {
+  display: flex !important;
+  width: auto;
+  max-width: 540px;
+  max-height: 600px;
+  flex-shrink: 0;
+}
+
+.homeFriendsNewWorks ul > div > div {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.homeFriendsNewWorks ul > div > div > div {
+  display: flex !important;
+}
 
 /* 推荐作品 li */
 /* 很多新版页面的作品列表都要把 margin 改小一些，从 12 改为 10，否则在 125% 缩放时，因为宽度不够，一排原本能显示 6 个的，变得只能显示 5 个*/

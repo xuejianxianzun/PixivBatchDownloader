@@ -7127,8 +7127,10 @@ new ShowHowToUse();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+
 
 
 
@@ -7137,8 +7139,10 @@ class ShowLargerThumbnails {
         // css 内容来自 style/showLargerThumbnails.css
         this.css = '';
         this.styleId = 'ShowLargerThumbnails';
+        this.findFriendsWrap = false;
         this.loadCssText();
         this.bindEvents();
+        this.findFriendsWrapEl();
     }
     async loadCssText() {
         const css = await fetch(chrome.runtime.getURL('style/showLargerThumbnails.css'));
@@ -7154,16 +7158,20 @@ class ShowLargerThumbnails {
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
             this.setCss();
+            this.findFriendsWrap = false;
         });
+        window.setInterval(() => {
+            this.findFriendsWrapEl();
+        }, 1000);
     }
     setCss() {
         if (!this.css) {
             return;
         }
-        if (_Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].notEnabledShowLargerThumb()) {
+        if (_Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].notEnabledShowLargerThumb()) {
             return this.removeStyle();
         }
-        _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showLargerThumbnails ? this.addStyle() : this.removeStyle();
+        _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].showLargerThumbnails ? this.addStyle() : this.removeStyle();
     }
     addStyle() {
         if (document.querySelector('#' + this.styleId)) {
@@ -7177,6 +7185,18 @@ class ShowLargerThumbnails {
     removeStyle() {
         const el = document.querySelector('#' + this.styleId);
         el && el.remove();
+    }
+    // 在首页查找“关注用户・好P友的作品”列表容器，为其添加自定义的 className
+    findFriendsWrapEl() {
+        if (this.findFriendsWrap || _PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type !== _PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].list.Home) {
+            return;
+        }
+        const query = document.evaluate(`//*[@id="root"]/div[2]/div[2]/div[4]/div/section/div[2]/div`, document, null, XPathResult.ANY_TYPE, null);
+        const el = query.iterateNext();
+        if (el && el.childElementCount === 2) {
+            el.classList.add('homeFriendsNewWorks');
+            this.findFriendsWrap = true;
+        }
     }
 }
 new ShowLargerThumbnails();
