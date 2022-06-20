@@ -4267,13 +4267,13 @@ const langText = {
     _导出抓取结果: [
         '导出抓取结果',
         '匯出擷取結果',
-        'Export crawl results',
+        'Export results',
         'クロール結果をエクスポート',
     ],
     _导入抓取结果: [
         '导入抓取结果',
         '匯入擷取結果',
-        'Import crawl results',
+        'Import results',
         'クロール結果をインポート',
     ],
     _导入成功: ['导入成功', '匯入成功', 'Import successfully', 'インポート成功'],
@@ -4414,7 +4414,7 @@ const langText = {
     _手动选择作品: [
         '手动选择作品',
         '手動選擇作品',
-        'Manually select works',
+        'Manually select',
         '手動で作品を選ぶ',
     ],
     _抓取选择的作品: [
