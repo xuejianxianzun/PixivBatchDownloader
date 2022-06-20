@@ -448,11 +448,6 @@ export const formHtml = `<form class="settingForm">
     </span>
     </p>
 
-    <div class="centerWrap_btns">
-      <slot data-name="namingBtns"></slot>
-      <slot data-name="exportResult"></slot>
-    </div>
-
     <p class="option" data-no="16">
     <span class="has_tip settingNameStyle1" data-xztip="_线程数字">
     <span data-xztext="_设置下载线程"></span>
@@ -481,6 +476,11 @@ export const formHtml = `<form class="settingForm">
     <input type="checkbox" name="showNotificationAfterDownloadComplete" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
     </p>
+
+    <div class="centerWrap_btns">
+    <slot data-name="exportResult"></slot>
+    <slot data-name="namingBtns"></slot>
+    </div>
 
     <slot data-name="downloadArea"></slot>
     <slot data-name="progressBar"></slot>

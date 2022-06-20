@@ -29,6 +29,8 @@ import { pageType } from '../PageType'
 
 class DownloadControl {
   constructor() {
+    this.createResultBtns()
+    
     this.createDownloadArea()
 
     this.bindEvents()
@@ -57,6 +59,19 @@ class DownloadControl {
     }
   }
 
+  private wrapper: HTMLDivElement = document.createElement('div')
+
+  /**在插槽里添加的操作抓取结果的按钮 */
+  private resultBtns: {
+    exportCSV: HTMLButtonElement
+    exportJSON: HTMLButtonElement
+    importJSON: HTMLButtonElement
+  } = {
+      exportCSV: document.createElement('button'),
+      exportJSON: document.createElement('button'),
+      importJSON: document.createElement('button'),
+    }
+
   private thread = 5 // 同时下载的线程数的默认值
   // 这里默认设置为 5，是因为国内一些用户的下载速度比较慢，所以不应该同时下载很多文件。
   // 最大值由 Config.downloadThreadMax 定义
@@ -69,8 +84,6 @@ class DownloadControl {
 
   private downloaded = 0 // 已下载的任务数量
 
-  private wrapper: HTMLDivElement = document.createElement('div')
-
   private stop = false // 是否已经停止下载
 
   private pause = false // 是否已经暂停下载
@@ -79,6 +92,7 @@ class DownloadControl {
 
   private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
+      this.hideResultBtns()
       this.hideDownloadArea()
       this.reset()
     })
@@ -213,6 +227,56 @@ class DownloadControl {
     })
   }
 
+  private createResultBtns() {
+    // 只在 pixiv 上添加这些按钮
+    if (Utils.isPixiv()) {
+      // 导入抓取结果
+      this.resultBtns.importJSON = Tools.addBtn(
+        'exportResult',
+        Colors.bgGreen,
+        '_导入抓取结果'
+      )
+      // 导入抓取结果的按钮始终显示，因为它需要始终可用。
+      // 导出抓取结果的按钮只有在可以准备下载时才显示
+
+      this.resultBtns.importJSON.addEventListener(
+        'click',
+        () => {
+          EVT.fire('importResult')
+        },
+        false
+      )
+
+      // 导出抓取结果
+      this.resultBtns.exportJSON = Tools.addBtn(
+        'exportResult',
+        Colors.bgGreen,
+        '_导出抓取结果'
+      )
+      this.resultBtns.exportJSON.style.display = 'none'
+
+      this.resultBtns.exportJSON.addEventListener(
+        'click',
+        () => {
+          EVT.fire('exportResult')
+        },
+        false
+      )
+
+      // 导出 csv
+      this.resultBtns.exportCSV = Tools.addBtn('exportResult', Colors.bgGreen, '_导出csv')
+      this.resultBtns.exportCSV.style.display = 'none'
+
+      this.resultBtns.exportCSV.addEventListener(
+        'click',
+        () => {
+          EVT.fire('exportCSV')
+        },
+        false
+      )
+    }
+  }
+
   // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
   private readyDownload() {
     if (states.busy || states.mergeNovel) {
@@ -223,6 +287,10 @@ class DownloadControl {
       return progressBar.reset(0)
     }
 
+    EVT.fire('readyDownload')
+
+    this.showResultBtns()
+    
     this.showDownloadArea()
 
     this.setDownloaded()
@@ -492,6 +560,16 @@ class DownloadControl {
 
   private hideDownloadArea() {
     this.wrapper.style.display = 'none'
+  }
+
+  private showResultBtns() {
+    this.resultBtns.exportJSON.style.display = 'flex'
+    this.resultBtns.exportCSV.style.display = 'flex'
+  }
+
+  private hideResultBtns() {
+    this.resultBtns.exportJSON.style.display = 'none'
+    this.resultBtns.exportCSV.style.display = 'none'
   }
 }
 

@@ -4,6 +4,8 @@ import { fileName } from '../FileName'
 import { lang } from '../Lang'
 import { Config } from '../config/Config'
 import { toast } from '../Toast'
+import { Tools } from '../Tools'
+import { Colors } from '../config/Colors'
 
 // 预览文件名
 class PreviewFileName {
@@ -14,6 +16,26 @@ class PreviewFileName {
   private bindEvents() {
     window.addEventListener(EVT.list.previewFileName, () => {
       this.previewFileName()
+    })
+
+    const prevBtn = Tools.addBtn('namingBtns', Colors.bgGreen, '_预览文件名')
+
+    prevBtn.addEventListener(
+      'click',
+      () => {
+        EVT.fire('previewFileName')
+      },
+      false
+    )
+
+    prevBtn.style.display = 'none'
+
+    window.addEventListener(EVT.list.crawlStart, () => {
+      prevBtn.style.display = 'none'
+    })
+
+    window.addEventListener(EVT.list.readyDownload, () => {
+      prevBtn.style.display = 'flex'
     })
   }
 

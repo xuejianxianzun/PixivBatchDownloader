@@ -44,6 +44,9 @@ class EVENT {
     resultChange: 'resultChange',
     // 当进行快速抓取时触发
     quickCrawl: 'quickCrawl',
+    // 抓取完毕后，可以准备开始下载时触发
+    // 它是一个派生事件，可以由多个其他事件触发
+    readyDownload: 'readyDownload',
     // 下载被取消（取消是在尚未开始下载前触发的，它不同于下载停止）
     downloadCancel: 'downloadCancel',
     // 开始下载时触发
@@ -214,6 +217,7 @@ class EVENT {
       | 'showOriginSizeImage'
       | 'langChange'
       | 'settingInitialized'
+      | 'readyDownload'
   ): void
 
   // 对于需要携带数据的事件进行重载
