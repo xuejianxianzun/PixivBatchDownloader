@@ -19529,30 +19529,6 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_switch"></span>
     </p>
     
-    <p class="option" data-no="42">
-    <span class="settingNameStyle1" data-xztext="_根据作品类型自动建立文件夹"></span>
-    <input type="checkbox" name="createFolderByType" class="need_beautify checkbox_switch" >
-    <span class="beautify_switch"></span>
-
-    <span class="subOptionWrap" data-show="createFolderByType">
-    <input type="checkbox" name="createFolderByTypeIllust" id="createFolderByTypeIllust" class="need_beautify checkbox_common">
-    <span class="beautify_checkbox"></span>
-    <label for="createFolderByTypeIllust" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[0]}">
-    <span data-xztext="_插画"></span></label>
-    <input type="checkbox" name="createFolderByTypeManga" id="createFolderByTypeManga" class="need_beautify checkbox_common">
-    <span class="beautify_checkbox"></span>
-    <label for="createFolderByTypeManga" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[1]}">
-    <span data-xztext="_漫画"></span></label>
-    <input type="checkbox" name="createFolderByTypeUgoira" id="createFolderByTypeUgoira" class="need_beautify checkbox_common">
-    <span class="beautify_checkbox"></span>
-    <label for="createFolderByTypeUgoira" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[2]}">
-    <span data-xztext="_动图"></span></label>
-    <input type="checkbox" name="createFolderByTypeNovel" id="createFolderByTypeNovel" class="need_beautify checkbox_common">
-    <span class="beautify_checkbox"></span>
-    <label for="createFolderByTypeNovel" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[3]}">
-    <span data-xztext="_小说"></span></label>
-    </p>
-
     <p class="option" data-no="38">
     <span class="settingNameStyle1" data-xztext="_把r18作品存入指定的文件夹里"></span>
     <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch" >
@@ -19560,19 +19536,6 @@ const formHtml = `<form class="settingForm">
     <span class="subOptionWrap" data-show="r18Folder">
     <span data-xztext="_目录名"></span>
     <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
-    </span>
-    </p>
-
-    <p class="option" data-no="19">
-    <span class="settingNameStyle1" data-xztext="_为作品建立单独的文件夹"></span>
-    <input type="checkbox" name="workDir" class="need_beautify checkbox_switch" >
-    <span class="beautify_switch"></span>
-    <span class="subOptionWrap" data-show="workDir">
-    <span data-xztext="_文件数量大于"></span>
-    <input type="text" name="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
-    <span>&nbsp;</span>
-    <span data-xztext="_目录名"></span>
-    <input type="text" name="workDirNameRule" class="setinput_style1 blue" value="{id_num}">
     </span>
     </p>
 
@@ -19656,12 +19619,41 @@ const formHtml = `<form class="settingForm">
       <span data-xztext="_命名"></span>
     </p>
 
-    <p class="option" data-no="14">
-    <span class="has_tip settingNameStyle1" data-xztip="_添加字段名称提示">
-    <span data-xztext="_添加命名标记前缀"></span>
-    <span class="gray1"> ? </span></span>
-    <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch">
+    <p class="option" data-no="42">
+    <span class="settingNameStyle1" data-xztext="_根据作品类型自动建立文件夹"></span>
+    <input type="checkbox" name="createFolderByType" class="need_beautify checkbox_switch" >
     <span class="beautify_switch"></span>
+
+    <span class="subOptionWrap" data-show="createFolderByType">
+    <input type="checkbox" name="createFolderByTypeIllust" id="createFolderByTypeIllust" class="need_beautify checkbox_common">
+    <span class="beautify_checkbox"></span>
+    <label for="createFolderByTypeIllust" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[0]}">
+    <span data-xztext="_插画"></span></label>
+    <input type="checkbox" name="createFolderByTypeManga" id="createFolderByTypeManga" class="need_beautify checkbox_common">
+    <span class="beautify_checkbox"></span>
+    <label for="createFolderByTypeManga" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[1]}">
+    <span data-xztext="_漫画"></span></label>
+    <input type="checkbox" name="createFolderByTypeUgoira" id="createFolderByTypeUgoira" class="need_beautify checkbox_common">
+    <span class="beautify_checkbox"></span>
+    <label for="createFolderByTypeUgoira" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[2]}">
+    <span data-xztext="_动图"></span></label>
+    <input type="checkbox" name="createFolderByTypeNovel" id="createFolderByTypeNovel" class="need_beautify checkbox_common">
+    <span class="beautify_checkbox"></span>
+    <label for="createFolderByTypeNovel" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[3]}">
+    <span data-xztext="_小说"></span></label>
+    </p>
+
+    <p class="option" data-no="19">
+    <span class="settingNameStyle1" data-xztext="_为作品建立单独的文件夹"></span>
+    <input type="checkbox" name="workDir" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch"></span>
+    <span class="subOptionWrap" data-show="workDir">
+    <span data-xztext="_文件数量大于"></span>
+    <input type="text" name="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
+    <span>&nbsp;</span>
+    <span data-xztext="_目录名"></span>
+    <input type="text" name="workDirNameRule" class="setinput_style1 blue" value="{id_num}">
+    </span>
     </p>
 
     <p class="option" data-no="43">
@@ -19702,6 +19694,14 @@ const formHtml = `<form class="settingForm">
     <span data-xztext="_序号总长度"></span>
     <input type="text" name="zeroPaddingLength" class="setinput_style1 blue" value="3" style="width:30px;min-width: 30px;">
     </span>
+    </p>
+
+    <p class="option" data-no="14">
+    <span class="has_tip settingNameStyle1" data-xztip="_添加字段名称提示">
+    <span data-xztext="_添加命名标记前缀"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
     </p>
 
     <p class="option" data-no="29">
