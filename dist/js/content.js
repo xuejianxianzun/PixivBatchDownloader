@@ -5633,7 +5633,8 @@ class PageType {
             ['/', '/manga', '/novel/', '/en/'].includes(pathname)) {
             return PageName.Home;
         }
-        else if (location.pathname.startsWith('/artworks') && /\/artworks\/\d{1,10}/.test(url)) {
+        else if (location.pathname.startsWith('/artworks') &&
+            /\/artworks\/\d{1,10}/.test(url)) {
             return PageName.Artwork;
         }
         else if (/\/users\/\d+/.test(url) && !url.includes('/bookmarks')) {

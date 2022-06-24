@@ -30,7 +30,7 @@ import { pageType } from '../PageType'
 class DownloadControl {
   constructor() {
     this.createResultBtns()
-    
+
     this.createDownloadArea()
 
     this.bindEvents()
@@ -67,10 +67,10 @@ class DownloadControl {
     exportJSON: HTMLButtonElement
     importJSON: HTMLButtonElement
   } = {
-      exportCSV: document.createElement('button'),
-      exportJSON: document.createElement('button'),
-      importJSON: document.createElement('button'),
-    }
+    exportCSV: document.createElement('button'),
+    exportJSON: document.createElement('button'),
+    importJSON: document.createElement('button'),
+  }
 
   private thread = 5 // 同时下载的线程数的默认值
   // 这里默认设置为 5，是因为国内一些用户的下载速度比较慢，所以不应该同时下载很多文件。
@@ -264,7 +264,11 @@ class DownloadControl {
       )
 
       // 导出 csv
-      this.resultBtns.exportCSV = Tools.addBtn('exportResult', Colors.bgGreen, '_导出csv')
+      this.resultBtns.exportCSV = Tools.addBtn(
+        'exportResult',
+        Colors.bgGreen,
+        '_导出csv'
+      )
       this.resultBtns.exportCSV.style.display = 'none'
 
       this.resultBtns.exportCSV.addEventListener(
@@ -290,7 +294,7 @@ class DownloadControl {
     EVT.fire('readyDownload')
 
     this.showResultBtns()
-    
+
     this.showDownloadArea()
 
     this.setDownloaded()
