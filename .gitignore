@@ -23,7 +23,7 @@ package-lock.json
 # build file
 *.zip
 /dist-offline
-/dist-special-wolun
-/dist-special-wolun
+/dist-special-DelMemory
+/dist-special-Hongye
 /dist-special-wolun
 *special*
