@@ -1598,6 +1598,9 @@ class EVENT {
             resultChange: 'resultChange',
             // 当进行快速抓取时触发
             quickCrawl: 'quickCrawl',
+            // 抓取完毕后，可以准备开始下载时触发
+            // 它是一个派生事件，可以由多个其他事件触发
+            readyDownload: 'readyDownload',
             // 下载被取消（取消是在尚未开始下载前触发的，它不同于下载停止）
             downloadCancel: 'downloadCancel',
             // 开始下载时触发
@@ -1769,7 +1772,7 @@ __webpack_require__.r(__webpack_exports__);
 // 生成文件名
 class FileName {
     constructor() {
-        // 下载器所有的动图文件名后缀
+        // 下载器所有的动图格式后缀名
         this.ugoiraExt = ['zip', 'webm', 'gif', 'png'];
         this.addStr = '[downloader_add]';
         // 不能出现在文件名开头的一些特定字符
@@ -4339,13 +4342,13 @@ const langText = {
     _导出抓取结果: [
         '导出抓取结果',
         '匯出擷取結果',
-        'Export crawl results',
+        'Export results',
         'クロール結果をエクスポート',
     ],
     _导入抓取结果: [
         '导入抓取结果',
         '匯入擷取結果',
-        'Import crawl results',
+        'Import results',
         'クロール結果をインポート',
     ],
     _导入成功: ['导入成功', '匯入成功', 'Import successfully', 'インポート成功'],
@@ -4486,7 +4489,7 @@ const langText = {
     _手动选择作品: [
         '手动选择作品',
         '手動選擇作品',
-        'Manually select works',
+        'Manually select',
         '手動で作品を選ぶ',
     ],
     _抓取选择的作品: [
@@ -5705,7 +5708,8 @@ class PageType {
             ['/', '/manga', '/novel/', '/en/'].includes(pathname)) {
             return PageName.Home;
         }
-        else if (/\/artworks\/\d{1,10}/.test(url)) {
+        else if (location.pathname.startsWith('/artworks') &&
+            /\/artworks\/\d{1,10}/.test(url)) {
             return PageName.Artwork;
         }
         else if (/\/users\/\d+/.test(url) && !url.includes('/bookmarks')) {
@@ -14243,6 +14247,13 @@ __webpack_require__.r(__webpack_exports__);
 
 class DownloadControl {
     constructor() {
+        this.wrapper = document.createElement('div');
+        /**在插槽里添加的操作抓取结果的按钮 */
+        this.resultBtns = {
+            exportCSV: document.createElement('button'),
+            exportJSON: document.createElement('button'),
+            importJSON: document.createElement('button'),
+        };
         this.thread = 5; // 同时下载的线程数的默认值
         // 这里默认设置为 5，是因为国内一些用户的下载速度比较慢，所以不应该同时下载很多文件。
         // 最大值由 Config.downloadThreadMax 定义
@@ -14250,10 +14261,10 @@ class DownloadControl {
         this.taskList = {}; // 下载任务列表，使用下载的文件的 id 做 key，保存下载栏编号和它在下载状态列表中的索引
         this.errorIdList = []; // 有任务下载失败时，保存 id
         this.downloaded = 0; // 已下载的任务数量
-        this.wrapper = document.createElement('div');
         this.stop = false; // 是否已经停止下载
         this.pause = false; // 是否已经暂停下载
         this.waitingTimer = undefined;
+        this.createResultBtns();
         this.createDownloadArea();
         this.bindEvents();
         const statusTipWrap = this.wrapper.querySelector('.down_status');
@@ -14270,6 +14281,7 @@ class DownloadControl {
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlStart, () => {
+            this.hideResultBtns();
             this.hideDownloadArea();
             this.reset();
         });
@@ -14384,6 +14396,30 @@ class DownloadControl {
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('showURLs');
         });
     }
+    createResultBtns() {
+        // 只在 pixiv 上添加这些按钮
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_17__["Utils"].isPixiv()) {
+            // 导入抓取结果
+            this.resultBtns.importJSON = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgGreen, '_导入抓取结果');
+            // 导入抓取结果的按钮始终显示，因为它需要始终可用。
+            // 导出抓取结果的按钮只有在可以准备下载时才显示
+            this.resultBtns.importJSON.addEventListener('click', () => {
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('importResult');
+            }, false);
+            // 导出抓取结果
+            this.resultBtns.exportJSON = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgGreen, '_导出抓取结果');
+            this.resultBtns.exportJSON.style.display = 'none';
+            this.resultBtns.exportJSON.addEventListener('click', () => {
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('exportResult');
+            }, false);
+            // 导出 csv
+            this.resultBtns.exportCSV = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgGreen, '_导出csv');
+            this.resultBtns.exportCSV.style.display = 'none';
+            this.resultBtns.exportCSV.addEventListener('click', () => {
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('exportCSV');
+            }, false);
+        }
+    }
     // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
     readyDownload() {
         if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].busy || _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].mergeNovel) {
@@ -14392,6 +14428,8 @@ class DownloadControl {
         if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0) {
             return _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].reset(0);
         }
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('readyDownload');
+        this.showResultBtns();
         this.showDownloadArea();
         this.setDownloaded();
         this.setDownloadThread();
@@ -14613,6 +14651,14 @@ class DownloadControl {
     }
     hideDownloadArea() {
         this.wrapper.style.display = 'none';
+    }
+    showResultBtns() {
+        this.resultBtns.exportJSON.style.display = 'flex';
+        this.resultBtns.exportCSV.style.display = 'flex';
+    }
+    hideResultBtns() {
+        this.resultBtns.exportJSON.style.display = 'none';
+        this.resultBtns.exportCSV.style.display = 'none';
     }
 }
 new DownloadControl();
@@ -17743,6 +17789,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
+
+
 
 
 
@@ -17757,6 +17807,17 @@ class PreviewFileName {
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.previewFileName, () => {
             this.previewFileName();
+        });
+        const prevBtn = _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].addBtn('namingBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_7__["Colors"].bgGreen, '_预览文件名');
+        prevBtn.addEventListener('click', () => {
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('previewFileName');
+        }, false);
+        prevBtn.style.display = 'none';
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlStart, () => {
+            prevBtn.style.display = 'none';
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.readyDownload, () => {
+            prevBtn.style.display = 'flex';
         });
     }
     previewFileName() {
@@ -18935,15 +18996,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "form", function() { return form; });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _FormHTML__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./FormHTML */ "./src/ts/setting/FormHTML.ts");
-/* harmony import */ var _SaveNamingRule__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./SaveNamingRule */ "./src/ts/setting/SaveNamingRule.ts");
-/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
-/* harmony import */ var _FormSettings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./FormSettings */ "./src/ts/setting/FormSettings.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _FormHTML__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./FormHTML */ "./src/ts/setting/FormHTML.ts");
+/* harmony import */ var _SaveNamingRule__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./SaveNamingRule */ "./src/ts/setting/SaveNamingRule.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
+/* harmony import */ var _FormSettings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./FormSettings */ "./src/ts/setting/FormSettings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 
 
 
@@ -18957,16 +19016,15 @@ __webpack_require__.r(__webpack_exports__);
 class Form {
     constructor() {
         this.chooseKeys = ['Enter', 'NumpadEnter']; // 让回车键可以控制复选框（浏览器默认只支持空格键）
-        this.bueatifulTimer = 0;
-        this.form = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_4__["formHtml"]);
-        _Theme__WEBPACK_IMPORTED_MODULE_6__["theme"].register(this.form);
-        _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].register(this.form);
+        this.form = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_3__["formHtml"]);
+        _Theme__WEBPACK_IMPORTED_MODULE_5__["theme"].register(this.form);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.form);
         this.allCheckBox = this.form.querySelectorAll('input[type="checkbox"]');
         this.allRadio = this.form.querySelectorAll('input[type="radio"]');
         this.allSwitch = this.form.querySelectorAll('.checkbox_switch');
         this.createFolderTipEl = this.form.querySelector('#tipCreateFolder');
-        new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_5__["SaveNamingRule"](this.form.userSetName);
-        new _FormSettings__WEBPACK_IMPORTED_MODULE_7__["FormSettings"](this.form);
+        new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_4__["SaveNamingRule"](this.form.userSetName);
+        new _FormSettings__WEBPACK_IMPORTED_MODULE_6__["FormSettings"](this.form);
         this.bindEvents();
     }
     // 设置表单上美化元素的状态
@@ -18992,34 +19050,15 @@ class Form {
             this.bindBeautifyEvent(radio);
         }
         // 设置变化或者重置时，重新设置美化状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, _utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].debounce(() => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].debounce(() => {
             this.initFormBueatiful();
             this.showCreateFolderTip();
         }, 50));
         // 用户点击“我知道了”按钮之后不再显示提示
         const btn = this.createFolderTipEl.querySelector('button');
         btn.addEventListener('click', () => {
-            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_9__["setSetting"])('tipCreateFolder', false);
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["setSetting"])('tipCreateFolder', false);
         });
-        // 预览文件名
-        _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('namingBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_预览文件名').addEventListener('click', () => {
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('previewFileName');
-        }, false);
-        // 添加只在 pixiv 上使用的按钮
-        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].isPixiv()) {
-            // 导出 csv
-            _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_导出csv').addEventListener('click', () => {
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('exportCSV');
-            }, false);
-            // 导出抓取结果
-            _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_导出抓取结果').addEventListener('click', () => {
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('exportResult');
-            }, false);
-            // 导入抓取结果
-            _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_导入抓取结果').addEventListener('click', () => {
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('importResult');
-            }, false);
-        }
         // 选择背景图片
         {
             const el = this.form.querySelector('#selectBG');
@@ -19043,7 +19082,7 @@ class Form {
             const el = this.form.querySelector('#resetSettings');
             if (el) {
                 el.addEventListener('click', () => {
-                    const result = window.confirm(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_是否重置设置'));
+                    const result = window.confirm(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_是否重置设置'));
                     if (result) {
                         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('resetSettings');
                     }
@@ -19071,11 +19110,11 @@ class Form {
         // 显示命名字段提示
         this.form
             .querySelector('.showFileNameTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].toggleEl(document.querySelector('.fileNameTip')));
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].toggleEl(document.querySelector('.fileNameTip')));
         // 显示日期格式提示
         this.form
             .querySelector('.showDateTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].toggleEl(document.querySelector('.dateFormatTip')));
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].toggleEl(document.querySelector('.dateFormatTip')));
         // 输入框获得焦点时自动选择文本（文件名输入框例外）
         const centerInputs = this.form.querySelectorAll('input[type=text]');
         for (const el of centerInputs) {
@@ -19140,10 +19179,10 @@ class Form {
     }
     // 是否显示创建文件夹的提示
     showCreateFolderTip() {
-        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].isPixiv()) {
+        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].isPixiv()) {
             return (this.createFolderTipEl.style.display = 'none');
         }
-        this.createFolderTipEl.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__["settings"].tipCreateFolder
+        this.createFolderTipEl.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].tipCreateFolder
             ? 'block'
             : 'none';
     }
@@ -19567,30 +19606,6 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_switch"></span>
     </p>
     
-    <p class="option" data-no="42">
-    <span class="settingNameStyle1" data-xztext="_根据作品类型自动建立文件夹"></span>
-    <input type="checkbox" name="createFolderByType" class="need_beautify checkbox_switch" >
-    <span class="beautify_switch"></span>
-
-    <span class="subOptionWrap" data-show="createFolderByType">
-    <input type="checkbox" name="createFolderByTypeIllust" id="createFolderByTypeIllust" class="need_beautify checkbox_common">
-    <span class="beautify_checkbox"></span>
-    <label for="createFolderByTypeIllust" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[0]}">
-    <span data-xztext="_插画"></span></label>
-    <input type="checkbox" name="createFolderByTypeManga" id="createFolderByTypeManga" class="need_beautify checkbox_common">
-    <span class="beautify_checkbox"></span>
-    <label for="createFolderByTypeManga" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[1]}">
-    <span data-xztext="_漫画"></span></label>
-    <input type="checkbox" name="createFolderByTypeUgoira" id="createFolderByTypeUgoira" class="need_beautify checkbox_common">
-    <span class="beautify_checkbox"></span>
-    <label for="createFolderByTypeUgoira" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[2]}">
-    <span data-xztext="_动图"></span></label>
-    <input type="checkbox" name="createFolderByTypeNovel" id="createFolderByTypeNovel" class="need_beautify checkbox_common">
-    <span class="beautify_checkbox"></span>
-    <label for="createFolderByTypeNovel" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[3]}">
-    <span data-xztext="_小说"></span></label>
-    </p>
-
     <p class="option" data-no="38">
     <span class="settingNameStyle1" data-xztext="_把r18作品存入指定的文件夹里"></span>
     <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch" >
@@ -19600,24 +19615,6 @@ const formHtml = `<form class="settingForm">
     <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
     </span>
     </p>
-
-    <p class="option" data-no="19">
-    <span class="settingNameStyle1" data-xztext="_为作品建立单独的文件夹"></span>
-    <input type="checkbox" name="workDir" class="need_beautify checkbox_switch" >
-    <span class="beautify_switch"></span>
-    <span class="subOptionWrap" data-show="workDir">
-    <span data-xztext="_文件数量大于"></span>
-    <input type="text" name="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
-    <span>&nbsp;</span>
-    <span data-xztext="_目录名"></span>
-    <input type="text" name="workDirNameRule" class="setinput_style1 blue" value="{id_num}">
-    </span>
-    </p>
-
-    <div class="centerWrap_btns">
-      <slot data-name="namingBtns"></slot>
-      <slot data-name="exportResult"></slot>
-    </div>
 
     <p class="option" data-no="16">
     <span class="has_tip settingNameStyle1" data-xztip="_线程数字">
@@ -19647,6 +19644,11 @@ const formHtml = `<form class="settingForm">
     <input type="checkbox" name="showNotificationAfterDownloadComplete" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
     </p>
+
+    <div class="centerWrap_btns">
+    <slot data-name="exportResult"></slot>
+    <slot data-name="namingBtns"></slot>
+    </div>
 
     <slot data-name="downloadArea"></slot>
     <slot data-name="progressBar"></slot>
@@ -19694,12 +19696,41 @@ const formHtml = `<form class="settingForm">
       <span data-xztext="_命名"></span>
     </p>
 
-    <p class="option" data-no="14">
-    <span class="has_tip settingNameStyle1" data-xztip="_添加字段名称提示">
-    <span data-xztext="_添加命名标记前缀"></span>
-    <span class="gray1"> ? </span></span>
-    <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch">
+    <p class="option" data-no="42">
+    <span class="settingNameStyle1" data-xztext="_根据作品类型自动建立文件夹"></span>
+    <input type="checkbox" name="createFolderByType" class="need_beautify checkbox_switch" >
     <span class="beautify_switch"></span>
+
+    <span class="subOptionWrap" data-show="createFolderByType">
+    <input type="checkbox" name="createFolderByTypeIllust" id="createFolderByTypeIllust" class="need_beautify checkbox_common">
+    <span class="beautify_checkbox"></span>
+    <label for="createFolderByTypeIllust" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[0]}">
+    <span data-xztext="_插画"></span></label>
+    <input type="checkbox" name="createFolderByTypeManga" id="createFolderByTypeManga" class="need_beautify checkbox_common">
+    <span class="beautify_checkbox"></span>
+    <label for="createFolderByTypeManga" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[1]}">
+    <span data-xztext="_漫画"></span></label>
+    <input type="checkbox" name="createFolderByTypeUgoira" id="createFolderByTypeUgoira" class="need_beautify checkbox_common">
+    <span class="beautify_checkbox"></span>
+    <label for="createFolderByTypeUgoira" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[2]}">
+    <span data-xztext="_动图"></span></label>
+    <input type="checkbox" name="createFolderByTypeNovel" id="createFolderByTypeNovel" class="need_beautify checkbox_common">
+    <span class="beautify_checkbox"></span>
+    <label for="createFolderByTypeNovel" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[3]}">
+    <span data-xztext="_小说"></span></label>
+    </p>
+
+    <p class="option" data-no="19">
+    <span class="settingNameStyle1" data-xztext="_为作品建立单独的文件夹"></span>
+    <input type="checkbox" name="workDir" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch"></span>
+    <span class="subOptionWrap" data-show="workDir">
+    <span data-xztext="_文件数量大于"></span>
+    <input type="text" name="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
+    <span>&nbsp;</span>
+    <span data-xztext="_目录名"></span>
+    <input type="text" name="workDirNameRule" class="setinput_style1 blue" value="{id_num}">
+    </span>
     </p>
 
     <p class="option" data-no="43">
@@ -19740,6 +19771,14 @@ const formHtml = `<form class="settingForm">
     <span data-xztext="_序号总长度"></span>
     <input type="text" name="zeroPaddingLength" class="setinput_style1 blue" value="3" style="width:30px;min-width: 30px;">
     </span>
+    </p>
+
+    <p class="option" data-no="14">
+    <span class="has_tip settingNameStyle1" data-xztip="_添加字段名称提示">
+    <span data-xztext="_添加命名标记前缀"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
     </p>
 
     <p class="option" data-no="29">

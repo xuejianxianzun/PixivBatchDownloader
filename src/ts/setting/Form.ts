@@ -55,7 +55,6 @@ class Form {
   private allRadio: NodeListOf<HTMLInputElement> // 单选按钮
 
   private readonly chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
-  private bueatifulTimer = 0
 
   private bindEvents() {
     // 给美化的复选框绑定功能
@@ -89,53 +88,6 @@ class Form {
     btn.addEventListener('click', () => {
       setSetting('tipCreateFolder', false)
     })
-
-    // 预览文件名
-    Tools.addBtn('namingBtns', Colors.bgGreen, '_预览文件名').addEventListener(
-      'click',
-      () => {
-        EVT.fire('previewFileName')
-      },
-      false
-    )
-
-    // 添加只在 pixiv 上使用的按钮
-    if (Utils.isPixiv()) {
-      // 导出 csv
-      Tools.addBtn('exportResult', Colors.bgGreen, '_导出csv').addEventListener(
-        'click',
-        () => {
-          EVT.fire('exportCSV')
-        },
-        false
-      )
-
-      // 导出抓取结果
-      Tools.addBtn(
-        'exportResult',
-        Colors.bgGreen,
-        '_导出抓取结果'
-      ).addEventListener(
-        'click',
-        () => {
-          EVT.fire('exportResult')
-        },
-        false
-      )
-
-      // 导入抓取结果
-      Tools.addBtn(
-        'exportResult',
-        Colors.bgGreen,
-        '_导入抓取结果'
-      ).addEventListener(
-        'click',
-        () => {
-          EVT.fire('importResult')
-        },
-        false
-      )
-    }
 
     // 选择背景图片
     {

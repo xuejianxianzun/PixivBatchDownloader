@@ -24,3 +24,5 @@ package-lock.json
 *.zip
 /dist/**
 /dist-special*
+/dist-special-wolun
+*special*
