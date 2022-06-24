@@ -165,6 +165,12 @@
     max-height: 76vh;
     padding-left: @sidePadding;
     // 主要内容区域只设置左 padding，不设置右 padding，因为右边要显示滚动条，所以要多留出可用区域
+
+    slot[data-name='namingBtns'] button,
+    slot[data-name='exportResult'] button {
+      display: none;
+    }
+
     .settingForm {
       position: relative;
       // 表单区域设置最大宽度，使其与右侧滚动条保持距离，否则里面的内容会紧贴着滚动条，很难看

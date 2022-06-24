@@ -25,3 +25,5 @@ package-lock.json
 /dist/**
 /dist-offline/**
 /dist-special-HongYe/**
+/dist-special-wolun
+*special*
