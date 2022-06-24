@@ -59,7 +59,7 @@ nav .cYUezH {
 }
 /* 最顶部 关注用户・好P友的作品 列表 缩略图 li */
 /* 最底部 本站的最新作品 列表 */
-/* 首页还有不少地方的列表也都是这个 class */
+/* 首页还有不少地方的作品缩略图容器列表也都是这个 class */
 /* max-height 需要比 max-width 更大一些，因为图片的下方还要显示标题等信息，也要占据空间 */
 .bgeGyS {
   display: flex !important;
@@ -73,6 +73,21 @@ nav .cYUezH {
   flex-direction: column !important;
 }
 .bgeGyS .jDiQFZ .hYfnPb {
+  display: flex !important;
+}
+/* 下载器会尝试给“关注用户・好P友的作品”的容器添加自定义的 class，避免其频繁改版而失效 */
+.homeFriendsNewWorks ul > div {
+  display: flex !important;
+  width: auto;
+  max-width: 540px;
+  max-height: 600px;
+  flex-shrink: 0;
+}
+.homeFriendsNewWorks ul > div > div {
+  display: flex !important;
+  flex-direction: column !important;
+}
+.homeFriendsNewWorks ul > div > div > div {
   display: flex !important;
 }
 /* 推荐作品 li */

@@ -605,6 +605,10 @@
   max-height: 76vh;
   padding-left: 25px;
 }
+.centerWrap .centerWrap_con slot[data-name='namingBtns'] button,
+.centerWrap .centerWrap_con slot[data-name='exportResult'] button {
+  display: none;
+}
 .centerWrap .centerWrap_con .settingForm {
   position: relative;
   max-width: 650px;

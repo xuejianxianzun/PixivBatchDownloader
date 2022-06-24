@@ -10,7 +10,7 @@ import { Tools } from './Tools'
 
 // 生成文件名
 class FileName {
-  // 下载器所有的动图文件名后缀
+  // 下载器所有的动图格式后缀名
   private readonly ugoiraExt = ['zip', 'webm', 'gif', 'png']
 
   private readonly addStr = '[downloader_add]'

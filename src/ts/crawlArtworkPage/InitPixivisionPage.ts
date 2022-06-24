@@ -1,7 +1,6 @@
 // 初始化 pixivision 页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../config/Colors'
-import { lang } from '../Lang'
 import { Tools } from '../Tools'
 import { options } from '../setting/Options'
 import { store } from '../store/Store'
