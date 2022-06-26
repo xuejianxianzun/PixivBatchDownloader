@@ -4984,6 +4984,12 @@ const langText = {
         `{} save failed, code: {}. The downloader will retry to download the file.`,
         `{} 保存に失敗しました。code：{}。ダウンローダーはファイルのダウンロードを再試行します。`,
     ],
+    _user_canceled_tip: [
+        `{} 未保存，code：{}。`,
+        `{} 未儲存，code：{}。`,
+        `{} not saved, code: {}.`,
+        `{} 保存されていません。code：{}。`,
+    ],
     _FILE_FAILED_tip: [
         '可能是文件名太长，或是其他原因导致文件保存失败。你可以尝试启用高级设置里的“文件名长度限制”。',
         '可能是檔名太長，或是其他原因導致檔案儲存失敗。你可以嘗試啟用高階設定裡的“檔案名稱長度限制”。',
@@ -13990,7 +13996,7 @@ class Download {
             // 如果是超时，那么等待时间会比较长，可能超过 20 秒
             const timeLimit = 10000; // 如果从发起请求到进入重试的时间间隔小于这个值，则视为磁盘空间不足的情况
             const result = this.retryInterval.filter((val) => val <= timeLimit);
-            // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就认为是磁盘空间不足。
+            // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就有可能是磁盘空间不足。
             if (result.length > 9) {
                 _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(errorMsg);
                 const tip = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_状态码为0的错误提示');
@@ -14287,7 +14293,15 @@ class DownloadControl {
                 this.downloadOrSkipAFile(msg.data);
             }
             else if (msg.msg === 'download_err') {
-                // 浏览器把文件保存到本地时出错
+                // 浏览器把文件保存到本地失败
+                // 用户在浏览器弹出“另存为”对话框时取消保存
+                // 跳过这个文件，不再重试保存它
+                if (msg.err === 'USER_CANCELED') {
+                    _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_user_canceled_tip', _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].createWorkLink(msg.data.id), msg.err || 'unknown'));
+                    this.downloadOrSkipAFile(msg.data);
+                    return;
+                }
+                // 其他原因，下载器会重试保存这个文件
                 _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_save_file_failed_tip', _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].createWorkLink(msg.data.id), msg.err || 'unknown'));
                 if (msg.err === 'FILE_FAILED') {
                     _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_FILE_FAILED_tip'));

@@ -148,7 +148,7 @@ class Download {
       // 如果是超时，那么等待时间会比较长，可能超过 20 秒
       const timeLimit = 10000 // 如果从发起请求到进入重试的时间间隔小于这个值，则视为磁盘空间不足的情况
       const result = this.retryInterval.filter((val) => val <= timeLimit)
-      // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就认为是磁盘空间不足。
+      // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就有可能是磁盘空间不足。
       if (result.length > 9) {
         log.error(errorMsg)
         const tip = lang.transl('_状态码为0的错误提示')
