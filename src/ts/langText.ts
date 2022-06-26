@@ -2015,6 +2015,12 @@ const langText = {
     `{} save failed, code: {}. The downloader will retry to download the file.`,
     `{} 保存に失敗しました。code：{}。ダウンローダーはファイルのダウンロードを再試行します。`,
   ],
+  _user_canceled_tip: [
+    `{} 未保存，code：{}。`,
+    `{} 未儲存，code：{}。`,
+    `{} not saved, code: {}.`,
+    `{} 保存されていません。code：{}。`,
+  ],
   _FILE_FAILED_tip: [
     '可能是文件名太长，或是其他原因导致文件保存失败。你可以尝试启用高级设置里的“文件名长度限制”。',
     '可能是檔名太長，或是其他原因導致檔案儲存失敗。你可以嘗試啟用高階設定裡的“檔案名稱長度限制”。',
