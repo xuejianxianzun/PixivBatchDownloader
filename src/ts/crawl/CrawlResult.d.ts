@@ -1018,3 +1018,53 @@ export interface muteData {
     mute_items: muteItemUser[] | muteItemTag[]
   }
 }
+
+export interface NovelSeriesGlossary {
+  error: boolean
+  message: string
+  body: {
+    categories: {
+      id: string
+      seriesId: string
+      name: string
+      items: {
+        id: string
+        seriesId: string
+        categoryId: string
+        name: string
+        overview: string
+        coverImage: null
+        detail: null
+      }[]
+    }[]
+    replaceeItemIds: []
+    extraData: {
+      meta: {
+        title: string
+        description: string
+        canonical: string
+        ogp: {
+          type: string
+          title: string
+          description: string
+          image: string
+        }
+        twitter: {
+          card: string
+          site: string
+          title: string
+          description: string
+          image: string
+        }
+      }
+    }
+    zoneConfig: {
+      header: {
+        url: string
+      }
+      footer: {
+        url: string
+      }
+    }
+  }
+}

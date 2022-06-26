@@ -1,12 +1,13 @@
 //初始化小说系列作品页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../config/Colors'
-import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { store } from '../store/Store'
 import { Tools } from '../Tools'
 import { API } from '../API'
 import { states } from '../store/States'
+import { NovelSeriesGlossary } from '../crawl/CrawlResult'
+import { settings } from '../setting/Settings'
 
 class InitNovelSeriesPage extends InitPageBase {
   constructor() {
@@ -46,10 +47,33 @@ class InitNovelSeriesPage extends InitPageBase {
 
   protected getWantPage() {}
 
-  protected nextStep() {
+  protected async nextStep() {
     this.seriesId = API.getURLPathField('series')
 
+    if (settings.saveNovelMeta) {
+      const data = await API.getNovelSeriesGlossary(this.seriesId)
+      this.storeGlossaryText(data)
+    }
+
     this.getIdList()
+  }
+
+  private storeGlossaryText(data: NovelSeriesGlossary) {
+    let array: string[] = []
+    for (const categorie of data.body.categories) {
+      array.push(categorie.name)
+      array.push('\n\n')
+
+      for (const item of categorie.items) {
+        array.push(item.name)
+        array.push('\n')
+        array.push(item.overview)
+        array.push('\n\n')
+      }
+    }
+    if (array.length > 0) {
+      store.novelSeriesGlossary = array.join('') + '\n\n'
+    }
   }
 
   protected async getIdList() {

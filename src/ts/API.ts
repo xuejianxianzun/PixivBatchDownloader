@@ -19,6 +19,7 @@ import {
   FollowingResponse,
   SeriesData,
   muteData,
+  NovelSeriesGlossary,
 } from './crawl/CrawlResult'
 
 import {
@@ -453,6 +454,15 @@ class API {
   static async getMuteSettings(): Promise<muteData> {
     return this.sendGetRequest(
       `https://www.pixiv.net/ajax/mute/items?context=setting`
+    )
+  }
+
+  /**获取系列小说的设定资料 */
+  static async getNovelSeriesGlossary(
+    seriesId: string | number
+  ): Promise<NovelSeriesGlossary> {
+    return this.sendGetRequest(
+      `https://www.pixiv.net/ajax/novel/series/${seriesId}/glossary`
     )
   }
 }

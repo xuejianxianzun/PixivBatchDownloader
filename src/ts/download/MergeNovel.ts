@@ -23,6 +23,9 @@ class MergeNovel {
 
   private readonly CRLF = '\n' // pixiv 小说的换行符
 
+  /**在文件开头添加的元数据 */
+  private meta = ''
+
   private init() {
     window.addEventListener(EVT.list.crawlFinish, () => {
       window.setTimeout(() => {
@@ -59,6 +62,23 @@ class MergeNovel {
       })
     }
 
+    // 生成 meta 文本
+    this.meta = ''
+    if (settings.saveNovelMeta) {
+      const metaArray: string[] = []
+      // 系列标题
+      metaArray.push(firstResult.seriesTitle!)
+      // 作者
+      metaArray.push(firstResult.user)
+      // 网址链接
+      const link = `https://www.pixiv.net/novel/series/${firstResult.seriesId}`
+      metaArray.push(link)
+      // 设定资料
+      metaArray.push(store.novelSeriesGlossary)
+
+      this.meta = metaArray.join('\n\n')
+    }
+
     // 生成小说文件并下载
     let file: Blob | null = null
     if (settings.novelSaveAs === 'txt') {
@@ -78,6 +98,7 @@ class MergeNovel {
 
   private makeTXT(novelDataArray: NovelData[]) {
     const result: string[] = []
+    result.push(this.meta)
 
     for (const data of novelDataArray) {
       // 添加章节名
@@ -129,6 +150,21 @@ class MergeNovel {
       //   )
       // }
       // epubData = epubData.withSection(Section)
+
+      if (settings.saveNovelMeta) {
+        epubData.withSection(
+          new EpubMaker.Section(
+            'chapter',
+            'reference',
+            {
+              title: 'Reference',
+              content: this.meta.replace(/\n/g, '<br/>'),
+            },
+            true,
+            true
+          )
+        )
+      }
 
       // 为每一篇小说创建一个章节
       for (const data of novelDataArray) {
