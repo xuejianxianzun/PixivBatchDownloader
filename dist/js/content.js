@@ -13678,13 +13678,21 @@ class Deduplication {
             d: this.getDateString(result),
         };
     }
-    // 从文件 URL 里取出日期字符串。例如
-    // 'https://i.pximg.net/img-original/img/2021/10/11/00/00/06/93364702_p0.png'
-    // 返回
-    // '2021/10/11/00/00/06'
+    /**返回作品的修改日期字符串 */
     getDateString(result) {
+        // 图像作品不使用 uploadDate，这是历史遗留原因，因为以前下载器的内部数据里没有 uploadDate 数据
+        // 而是从文件 URL 里取出日期字符串。例如
+        // 'https://i.pximg.net/img-original/img/2021/10/11/00/00/06/93364702_p0.png'
+        // 返回
+        // '2021/10/11/00/00/06'
+        // 为了保持向后兼容，这里不做修改
         if (result.type !== 3) {
             return result.original.match(this.dateRegExp)[1];
+        }
+        else {
+            // 小说作品使用 uploadDate，返回值如
+            // '2021-09-03T14:31:03+00:00'
+            return result.uploadDate;
         }
     }
     // 添加一条下载记录
@@ -13720,13 +13728,9 @@ class Deduplication {
             // 有记录，说明这个文件下载过
             this.existedIdList.push(data.id);
             // 首先检查日期字符串是否发生了变化
-            let dateChange = false;
-            if (data.d) {
-                dateChange = data.d !== this.getDateString(result);
-                // 如果日期字符串变化了，则不视为重复文件
-                if (dateChange) {
-                    return resolve(false);
-                }
+            // 如果日期字符串变化了，则不视为重复文件
+            if (data.d !== this.getDateString(result)) {
+                return resolve(false);
             }
             // 如果日期字符串没有变化，再根据策略进行判断
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].dupliStrategy === 'loose') {
@@ -21641,6 +21645,7 @@ class SaveArtworkData {
                     bmkId: body.bookmarkData ? body.bookmarkData.id : '',
                     bookmarked: bookmarked,
                     date: body.createDate,
+                    uploadDate: body.uploadDate,
                     type: body.illustType,
                     rank: rank,
                     seriesTitle: seriesTitle,
@@ -21691,6 +21696,7 @@ class SaveArtworkData {
                     bmkId: body.bookmarkData ? body.bookmarkData.id : '',
                     bookmarked: bookmarked,
                     date: body.createDate,
+                    uploadDate: body.uploadDate,
                     type: body.illustType,
                     rank: rank,
                     ugoiraInfo: ugoiraInfo,
@@ -21792,6 +21798,7 @@ class SaveNovelData {
                 bmkId: body.bookmarkData ? body.bookmarkData.id : '',
                 bookmarked: bookmarked,
                 date: body.createDate,
+                uploadDate: body.uploadDate,
                 type: illustType,
                 rank: rank,
                 seriesTitle: seriesTitle,
@@ -22050,6 +22057,7 @@ class Store {
             bookmarked: false,
             bmkId: '',
             date: '',
+            uploadDate: '',
             type: 0,
             rank: null,
             ugoiraInfo: null,

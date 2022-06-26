@@ -43,7 +43,10 @@ export interface Result {
   bmk: number
   bmkId: string
   bookmarked: boolean
+  /**创建日期 */
   date: string
+  /**最后上传（修改）日期 */
+  uploadDate: string
   /** 0 插画
    * 1 漫画
    * 2 动图
@@ -86,6 +89,7 @@ export interface ResultOptional {
   bmkId?: string
   bookmarked?: boolean
   date?: string
+  uploadDate?: string
   type?: 0 | 1 | 2 | 3
   rank?: number | null
   ugoiraInfo?: UgoiraInfo | null

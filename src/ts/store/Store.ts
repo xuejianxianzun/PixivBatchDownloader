@@ -58,6 +58,7 @@ class Store {
     bookmarked: false,
     bmkId: '',
     date: '',
+    uploadDate: '',
     type: 0,
     rank: null,
     ugoiraInfo: null,

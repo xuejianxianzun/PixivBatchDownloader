@@ -75,6 +75,7 @@ class SaveNovelData {
         bmkId: body.bookmarkData ? body.bookmarkData.id : '',
         bookmarked: bookmarked,
         date: body.createDate,
+        uploadDate: body.uploadDate,
         type: illustType,
         rank: rank,
         seriesTitle: seriesTitle,
