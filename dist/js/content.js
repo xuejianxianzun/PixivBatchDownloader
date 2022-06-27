@@ -5649,7 +5649,8 @@ class PageType {
             ['/', '/manga', '/novel/', '/en/'].includes(pathname)) {
             return PageName.Home;
         }
-        else if (location.pathname.startsWith('/artworks') &&
+        else if ((pathname.startsWith('/artworks') ||
+            pathname.startsWith('/en/artworks')) &&
             /\/artworks\/\d{1,10}/.test(url)) {
             return PageName.Artwork;
         }
