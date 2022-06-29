@@ -384,6 +384,10 @@ class API {
     static async getNovelSeriesGlossary(seriesId) {
         return this.sendGetRequest(`https://www.pixiv.net/ajax/novel/series/${seriesId}/glossary`);
     }
+    /**获取系列小说某条设定资料的详细信息 */
+    static async getNovelSeriesGlossaryItem(seriesId, itemId) {
+        return this.sendGetRequest(`https://www.pixiv.net/ajax/novel/series/${seriesId}/glossary/item/${itemId}`);
+    }
 }
 
 
@@ -5086,12 +5090,7 @@ const langText = {
     このようにして、ユーザーはダウンロードパネルを開かなくてもダウンロードの進行状況を知ることができます。<br><br>
     2. ユーザーは、ダウンロード中にいくつかの新しいダウンロードタスクを追加できます。`,
     ],
-    _保存设定资料: [
-        '保存设定资料',
-        '儲存設定資料',
-        'Save reference materials',
-        '設定資料を保存',
-    ],
+    _设定资料: ['设定资料', '設定資料', 'Reference materials', '設定資料'],
 };
 
 
@@ -12627,6 +12626,103 @@ new QuickCrawl();
 
 /***/ }),
 
+/***/ "./src/ts/crawlNovelPage/GetNovelGlossarys.ts":
+/*!****************************************************!*\
+  !*** ./src/ts/crawlNovelPage/GetNovelGlossarys.ts ***!
+  \****************************************************/
+/*! exports provided: getNovelGlossarys */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getNovelGlossarys", function() { return getNovelGlossarys; });
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+var __asyncValues = (undefined && undefined.__asyncValues) || function (o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+};
+
+class GetNovelGlossarys {
+    /**获取系列小说的设定资料 */
+    async getGlossarys(seriesId) {
+        return new Promise(async (resolve, reject) => {
+            var e_1, _a;
+            // 先获取设定资料的分类、每条设定资料的简略数据
+            // 注意此时每条设定资料缺少 detail 数据（此时为 null）
+            const glossaryData = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelSeriesGlossary(seriesId);
+            const result = glossaryData.body.categories;
+            if (result.length === 0) {
+                return resolve(result);
+            }
+            // 请求每条设定资料的详细数据
+            const promiseList = [];
+            // 发起请求
+            for (const categorie of result) {
+                for (const item of categorie.items) {
+                    promiseList.push(_API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelSeriesGlossaryItem(item.seriesId, item.id));
+                }
+            }
+            try {
+                // 把每条请求结果里的 detail 数据填充到 result 里
+                for (var promiseList_1 = __asyncValues(promiseList), promiseList_1_1; promiseList_1_1 = await promiseList_1.next(), !promiseList_1_1.done;) {
+                    const itemData = promiseList_1_1.value;
+                    const data = itemData.body.item;
+                    for (const categorie of result) {
+                        if (categorie.id === data.categoryId) {
+                            for (const item of categorie.items) {
+                                if (item.id === data.id) {
+                                    item.detail = data.detail;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (promiseList_1_1 && !promiseList_1_1.done && (_a = promiseList_1.return)) await _a.call(promiseList_1);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            return resolve(result);
+        });
+    }
+    /**把设定资料用特定格式存储起来 */
+    storeGlossaryText(data) {
+        const array = [];
+        for (const categorie of data) {
+            array.push(categorie.name);
+            array.push('\n\n');
+            for (const item of categorie.items) {
+                array.push(item.name);
+                array.push('\n');
+                array.push(item.overview);
+                array.push('\n\n');
+                if (item.detail) {
+                    array.push(item.detail);
+                    array.push('\n\n');
+                }
+                array.push('----------------------------------------');
+                array.push('\n\n');
+            }
+        }
+        if (array.length > 0) {
+            return array.join('') + '\n\n';
+        }
+        return '';
+    }
+}
+const getNovelGlossarys = new GetNovelGlossarys();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/crawlNovelPage/InitNewNovelPage.ts":
 /*!***************************************************!*\
   !*** ./src/ts/crawlNovelPage/InitNewNovelPage.ts ***!
@@ -12897,7 +12993,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./GetNovelGlossarys */ "./src/ts/crawlNovelPage/GetNovelGlossarys.ts");
 //初始化小说系列作品页面
+
 
 
 
@@ -12933,27 +13031,11 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     getWantPage() { }
     async nextStep() {
         this.seriesId = _API__WEBPACK_IMPORTED_MODULE_5__["API"].getURLPathField('series');
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__["settings"].saveNovelMeta) {
-            const data = await _API__WEBPACK_IMPORTED_MODULE_5__["API"].getNovelSeriesGlossary(this.seriesId);
-            this.storeGlossaryText(data);
+        if (_store_States__WEBPACK_IMPORTED_MODULE_6__["states"].mergeNovel && _setting_Settings__WEBPACK_IMPORTED_MODULE_7__["settings"].saveNovelMeta) {
+            const data = await _GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_8__["getNovelGlossarys"].getGlossarys(this.seriesId);
+            _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].novelSeriesGlossary = _GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_8__["getNovelGlossarys"].storeGlossaryText(data);
         }
         this.getIdList();
-    }
-    storeGlossaryText(data) {
-        let array = [];
-        for (const categorie of data.body.categories) {
-            array.push(categorie.name);
-            array.push('\n\n');
-            for (const item of categorie.items) {
-                array.push(item.name);
-                array.push('\n');
-                array.push(item.overview);
-                array.push('\n\n');
-            }
-        }
-        if (array.length > 0) {
-            _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].novelSeriesGlossary = array.join('') + '\n\n';
-        }
     }
     async getIdList() {
         const seriesData = await _API__WEBPACK_IMPORTED_MODULE_5__["API"].getNovelSeriesData(this.seriesId, this.limit, this.last, 'asc');
@@ -15155,13 +15237,7 @@ class MakeEPUB {
     // epub 内部会使用标题 title 建立一个文件夹，把一些文件存放进去，所以这里要替换掉标题的特殊字符，特殊字符会导致这个文件夹名被截断，结果就是这个 epub 文件无法被解析。
     make(data, saveMeta = true) {
         return new Promise((resolve, reject) => {
-            let content = data.content;
-            // 附带小说元数据
-            if (saveMeta) {
-                content = data.meta + content;
-            }
-            // 把换行符替换成 br 标签
-            content = content.replace(/\n/g, '<br/>');
+            const content = saveMeta ? data.meta + data.content : data.content;
             new EpubMaker()
                 .withTemplate('idpf-wasteland')
                 .withAuthor(_utils_Utils__WEBPACK_IMPORTED_MODULE_0__["Utils"].replaceUnsafeStr(data.userName))
@@ -15176,7 +15252,10 @@ class MakeEPUB {
                 attributionUrl: '',
             })
                 .withTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_0__["Utils"].replaceUnsafeStr(data.title))
-                .withSection(new EpubMaker.Section('chapter', null, { content: content }, false, true))
+                .withSection(new EpubMaker.Section('chapter', null, {
+                title: data.title,
+                content: content.replace(/\n/g, '<br/>'),
+            }, true, true))
                 .makeEpub()
                 .then((blob) => {
                 resolve(blob);
@@ -15212,11 +15291,7 @@ class MakeNovelFile {
         return _MakeEPUB__WEBPACK_IMPORTED_MODULE_1__["makeEPUB"].make(data, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].saveNovelMeta);
     }
     static makeTXT(data, saveMeta = true) {
-        let content = data.content;
-        // 附带小说元数据
-        if (saveMeta) {
-            content = data.meta + content;
-        }
+        let content = saveMeta ? data.meta + data.content : data.content;
         // 替换换行标签，移除 html 标签
         content = content.replace(/<br \/>/g, '\n').replace(/<\/?.+?>/g, '');
         return new Blob([content], {
@@ -15296,7 +15371,9 @@ class MergeNovel {
             const link = `https://www.pixiv.net/novel/series/${firstResult.seriesId}`;
             metaArray.push(link);
             // 设定资料
-            metaArray.push(_store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].novelSeriesGlossary);
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].novelSeriesGlossary) {
+                metaArray.push(_store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].novelSeriesGlossary);
+            }
             this.meta = metaArray.join('\n\n');
         }
         // 生成小说文件并下载
@@ -15316,7 +15393,9 @@ class MergeNovel {
     }
     makeTXT(novelDataArray) {
         const result = [];
-        result.push(this.meta);
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].saveNovelMeta) {
+            result.push(this.meta);
+        }
         for (const data of novelDataArray) {
             // 添加章节名
             result.push(`${this.chapterNo(data.no)} ${data.title}`);
@@ -15358,8 +15437,8 @@ class MergeNovel {
             // }
             // epubData = epubData.withSection(Section)
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].saveNovelMeta) {
-                epubData.withSection(new EpubMaker.Section('chapter', 'reference', {
-                    title: 'Reference',
+                epubData.withSection(new EpubMaker.Section('chapter', 0, {
+                    title: _Lang__WEBPACK_IMPORTED_MODULE_5__["lang"].transl('_设定资料'),
                     content: this.meta.replace(/\n/g, '<br/>'),
                 }, true, true));
             }

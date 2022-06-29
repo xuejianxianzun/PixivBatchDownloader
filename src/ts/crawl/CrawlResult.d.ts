@@ -1019,25 +1019,75 @@ export interface muteData {
   }
 }
 
+export interface GlossaryItem {
+  id: string
+  seriesId: string
+  categoryId: string
+  name: string
+  overview: string
+  coverImage: null
+  /**这条设定的详细说明，如果未设置，则为空字符串 */
+  detail: string | ''
+}
+
+export interface GlossaryCategorie {
+  id: string
+  seriesId: string
+  name: string
+  items: {
+    id: string
+    seriesId: string
+    categoryId: string
+    name: string
+    overview: string
+    coverImage: null
+    /**这里并没有包含设定的详细说明，即始终为 null */
+    detail: null
+  }[]
+}
+
 export interface NovelSeriesGlossary {
   error: boolean
   message: string
   body: {
-    categories: {
-      id: string
-      seriesId: string
-      name: string
-      items: {
-        id: string
-        seriesId: string
-        categoryId: string
-        name: string
-        overview: string
-        coverImage: null
-        detail: null
-      }[]
-    }[]
+    categories: GlossaryCategorie[]
     replaceeItemIds: []
+    extraData: {
+      meta: {
+        title: string
+        description: string
+        canonical: string
+        ogp: {
+          type: string
+          title: string
+          description: string
+          image: string
+        }
+        twitter: {
+          card: string
+          site: string
+          title: string
+          description: string
+          image: string
+        }
+      }
+    }
+    zoneConfig: {
+      header: {
+        url: string
+      }
+      footer: {
+        url: string
+      }
+    }
+  }
+}
+
+export interface NovelSeriesGlossaryItem {
+  error: boolean
+  message: string
+  body: {
+    item: GlossaryItem
     extraData: {
       meta: {
         title: string

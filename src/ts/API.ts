@@ -20,6 +20,7 @@ import {
   SeriesData,
   muteData,
   NovelSeriesGlossary,
+  NovelSeriesGlossaryItem,
 } from './crawl/CrawlResult'
 
 import {
@@ -463,6 +464,16 @@ class API {
   ): Promise<NovelSeriesGlossary> {
     return this.sendGetRequest(
       `https://www.pixiv.net/ajax/novel/series/${seriesId}/glossary`
+    )
+  }
+
+  /**获取系列小说某条设定资料的详细信息 */
+  static async getNovelSeriesGlossaryItem(
+    seriesId: string | number,
+    itemId: string | number
+  ): Promise<NovelSeriesGlossaryItem> {
+    return this.sendGetRequest(
+      `https://www.pixiv.net/ajax/novel/series/${seriesId}/glossary/item/${itemId}`
     )
   }
 }

@@ -8,6 +8,7 @@ import { lang } from '../Lang'
 
 // 单个小说的数据
 interface NovelData {
+  /**小说在系列中的排序，是从 1 开始的数字 */
   no: number
   title: string
   content: string
@@ -74,7 +75,9 @@ class MergeNovel {
       const link = `https://www.pixiv.net/novel/series/${firstResult.seriesId}`
       metaArray.push(link)
       // 设定资料
-      metaArray.push(store.novelSeriesGlossary)
+      if (store.novelSeriesGlossary) {
+        metaArray.push(store.novelSeriesGlossary)
+      }
 
       this.meta = metaArray.join('\n\n')
     }
@@ -98,7 +101,10 @@ class MergeNovel {
 
   private makeTXT(novelDataArray: NovelData[]) {
     const result: string[] = []
-    result.push(this.meta)
+
+    if (settings.saveNovelMeta) {
+      result.push(this.meta)
+    }
 
     for (const data of novelDataArray) {
       // 添加章节名
@@ -155,9 +161,9 @@ class MergeNovel {
         epubData.withSection(
           new EpubMaker.Section(
             'chapter',
-            'reference',
+            0,
             {
-              title: 'Reference',
+              title: lang.transl('_设定资料'),
               content: this.meta.replace(/\n/g, '<br/>'),
             },
             true,
