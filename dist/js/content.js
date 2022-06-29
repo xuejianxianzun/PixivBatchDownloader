@@ -8634,6 +8634,14 @@ class Tools {
         const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}`;
         return `<a href="${href}" target="_blank">${id}</a>`;
     }
+    /**替换 EPUB 文本里的特殊字符和换行符 */
+    // 换行符必须放在最后处理，以免其 < 符号被错误的替换
+    static replaceEPUBText(str) {
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/\n/g, '<br/>');
+    }
 }
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
 
@@ -15197,7 +15205,9 @@ new ImportResult();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "makeEPUB", function() { return makeEPUB; });
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 class MakeEPUB {
     constructor() { }
@@ -15207,7 +15217,7 @@ class MakeEPUB {
             const content = saveMeta ? data.meta + data.content : data.content;
             new EpubMaker()
                 .withTemplate('idpf-wasteland')
-                .withAuthor(_utils_Utils__WEBPACK_IMPORTED_MODULE_0__["Utils"].replaceUnsafeStr(data.userName))
+                .withAuthor(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].replaceUnsafeStr(data.userName))
                 .withModificationDate(new Date(data.createDate))
                 .withRights({
                 description: data.description,
@@ -15218,10 +15228,10 @@ class MakeEPUB {
                 license: '',
                 attributionUrl: '',
             })
-                .withTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_0__["Utils"].replaceUnsafeStr(data.title))
+                .withTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].replaceUnsafeStr(data.title))
                 .withSection(new EpubMaker.Section('chapter', null, {
                 title: data.title,
-                content: content.replace(/\n/g, '<br/>'),
+                content: _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].replaceEPUBText(content),
             }, true, true))
                 .makeEpub()
                 .then((blob) => {
@@ -15286,6 +15296,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
 
 
 
@@ -15406,7 +15418,7 @@ class MergeNovel {
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].saveNovelMeta) {
                 epubData.withSection(new EpubMaker.Section('chapter', 0, {
                     title: _Lang__WEBPACK_IMPORTED_MODULE_5__["lang"].transl('_设定资料'),
-                    content: this.meta.replace(/\n/g, '<br/>'),
+                    content: _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].replaceEPUBText(this.meta),
                 }, true, true));
             }
             // 为每一篇小说创建一个章节
@@ -15414,8 +15426,7 @@ class MergeNovel {
                 // 创建 epub 文件时不需要在标题和正文后面添加换行符
                 epubData.withSection(new EpubMaker.Section('chapter', data.no, {
                     title: `${this.chapterNo(data.no)} ${data.title}`,
-                    // 把换行符替换成 br 标签
-                    content: data.content.replace(/\n/g, '<br/>'),
+                    content: _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].replaceEPUBText(data.content),
                 }, true, true)
                 // 倒数第二个参数是 includeInToc，必须为 true，否则某些小说阅读软件无法读取章节信息
                 // includeInToc 的作用是在 .ncx 文件和 nav.xhtml 文件里添加导航信息
