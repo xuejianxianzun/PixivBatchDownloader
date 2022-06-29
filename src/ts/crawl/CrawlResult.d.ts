@@ -1019,13 +1019,25 @@ export interface muteData {
   }
 }
 
+type GlossaryCover = null | {
+  novelImageId: string
+  sl: string
+  urls: {
+    '240mw': string
+    '480mw': string
+    '1200x1200': string
+    '128x128': string
+    original: string
+  }
+}
+
 export interface GlossaryItem {
   id: string
   seriesId: string
   categoryId: string
   name: string
   overview: string
-  coverImage: null
+  coverImage: GlossaryCover
   /**这条设定的详细说明，如果未设置，则为空字符串 */
   detail: string | ''
 }
@@ -1040,7 +1052,7 @@ export interface GlossaryCategorie {
     categoryId: string
     name: string
     overview: string
-    coverImage: null
+    coverImage: GlossaryCover
     /**这里并没有包含设定的详细说明，即始终为 null */
     detail: null
   }[]

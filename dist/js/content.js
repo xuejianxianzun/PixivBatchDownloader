@@ -12637,19 +12637,11 @@ new QuickCrawl();
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getNovelGlossarys", function() { return getNovelGlossarys; });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-var __asyncValues = (undefined && undefined.__asyncValues) || function (o) {
-    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-    var m = o[Symbol.asyncIterator], i;
-    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
-    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
-    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
-};
 
 class GetNovelGlossarys {
     /**获取系列小说的设定资料 */
     async getGlossarys(seriesId) {
         return new Promise(async (resolve, reject) => {
-            var e_1, _a;
             // 先获取设定资料的分类、每条设定资料的简略数据
             // 注意此时每条设定资料缺少 detail 数据（此时为 null）
             const glossaryData = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelSeriesGlossary(seriesId);
@@ -12658,36 +12650,11 @@ class GetNovelGlossarys {
                 return resolve(result);
             }
             // 请求每条设定资料的详细数据
-            const promiseList = [];
-            // 发起请求
             for (const categorie of result) {
                 for (const item of categorie.items) {
-                    promiseList.push(_API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelSeriesGlossaryItem(item.seriesId, item.id));
+                    const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelSeriesGlossaryItem(item.seriesId, item.id);
+                    item.detail = data.body.item.detail;
                 }
-            }
-            try {
-                // 把每条请求结果里的 detail 数据填充到 result 里
-                for (var promiseList_1 = __asyncValues(promiseList), promiseList_1_1; promiseList_1_1 = await promiseList_1.next(), !promiseList_1_1.done;) {
-                    const itemData = promiseList_1_1.value;
-                    const data = itemData.body.item;
-                    for (const categorie of result) {
-                        if (categorie.id === data.categoryId) {
-                            for (const item of categorie.items) {
-                                if (item.id === data.id) {
-                                    item.detail = data.detail;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (promiseList_1_1 && !promiseList_1_1.done && (_a = promiseList_1.return)) await _a.call(promiseList_1);
-                }
-                finally { if (e_1) throw e_1.error; }
             }
             return resolve(result);
         });

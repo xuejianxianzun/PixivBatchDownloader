@@ -24,29 +24,13 @@ class GetNovelGlossarys {
       }
 
       // 请求每条设定资料的详细数据
-      const promiseList: Promise<NovelSeriesGlossaryItem>[] = []
-
-      // 发起请求
       for (const categorie of result) {
         for (const item of categorie.items) {
-          promiseList.push(
-            API.getNovelSeriesGlossaryItem(item.seriesId, item.id)
+          const data = await API.getNovelSeriesGlossaryItem(
+            item.seriesId,
+            item.id
           )
-        }
-      }
-
-      // 把每条请求结果里的 detail 数据填充到 result 里
-      for await (const itemData of promiseList) {
-        const data = itemData.body.item
-        for (const categorie of result) {
-          if (categorie.id === data.categoryId) {
-            for (const item of categorie.items) {
-              if (item.id === data.id) {
-                item.detail = data.detail
-                break
-              }
-            }
-          }
+          item.detail = data.body.item.detail
         }
       }
 
