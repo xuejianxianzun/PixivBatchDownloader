@@ -5,6 +5,7 @@ import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
 import { settings } from '../setting/Settings'
 import { lang } from '../Lang'
+import { Tools } from '../Tools'
 
 // 单个小说的数据
 interface NovelData {
@@ -164,7 +165,7 @@ class MergeNovel {
             0,
             {
               title: lang.transl('_设定资料'),
-              content: this.meta.replace(/\n/g, '<br/>'),
+              content: Tools.replaceEPUBText(this.meta),
             },
             true,
             true
@@ -181,8 +182,7 @@ class MergeNovel {
             data.no,
             {
               title: `${this.chapterNo(data.no)} ${data.title}`,
-              // 把换行符替换成 br 标签
-              content: data.content.replace(/\n/g, '<br/>'),
+              content: Tools.replaceEPUBText(data.content),
             },
             true,
             true

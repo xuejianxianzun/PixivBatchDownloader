@@ -423,6 +423,15 @@ class Tools {
     const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}`
     return `<a href="${href}" target="_blank">${id}</a>`
   }
+
+  /**替换 EPUB 文本里的特殊字符和换行符 */
+  // 换行符必须放在最后处理，以免其 < 符号被错误的替换
+  static replaceEPUBText(str: string) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/\n/g, '<br/>')
+  }
 }
 
 export { Tools }

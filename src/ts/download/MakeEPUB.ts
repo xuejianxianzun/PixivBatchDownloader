@@ -1,4 +1,5 @@
 import { NovelMeta } from '../store/StoreType'
+import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
 
 declare const EpubMaker: any
@@ -33,7 +34,7 @@ class MakeEPUB {
             null,
             {
               title: data.title,
-              content: content.replace(/\n/g, '<br/>'),
+              content: Tools.replaceEPUBText(content),
             },
             true,
             true

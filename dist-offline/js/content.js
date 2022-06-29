@@ -8709,6 +8709,14 @@ class Tools {
         const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}`;
         return `<a href="${href}" target="_blank">${id}</a>`;
     }
+    /**替换 EPUB 文本里的特殊字符和换行符 */
+    // 换行符必须放在最后处理，以免其 < 符号被错误的替换
+    static replaceEPUBText(str) {
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/\n/g, '<br/>');
+    }
 }
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
 
@@ -12713,19 +12721,11 @@ new QuickCrawl();
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getNovelGlossarys", function() { return getNovelGlossarys; });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-var __asyncValues = (undefined && undefined.__asyncValues) || function (o) {
-    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-    var m = o[Symbol.asyncIterator], i;
-    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
-    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
-    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
-};
 
 class GetNovelGlossarys {
     /**获取系列小说的设定资料 */
     async getGlossarys(seriesId) {
         return new Promise(async (resolve, reject) => {
-            var e_1, _a;
             // 先获取设定资料的分类、每条设定资料的简略数据
             // 注意此时每条设定资料缺少 detail 数据（此时为 null）
             const glossaryData = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelSeriesGlossary(seriesId);
@@ -12734,36 +12734,11 @@ class GetNovelGlossarys {
                 return resolve(result);
             }
             // 请求每条设定资料的详细数据
-            const promiseList = [];
-            // 发起请求
             for (const categorie of result) {
                 for (const item of categorie.items) {
-                    promiseList.push(_API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelSeriesGlossaryItem(item.seriesId, item.id));
+                    const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelSeriesGlossaryItem(item.seriesId, item.id);
+                    item.detail = data.body.item.detail;
                 }
-            }
-            try {
-                // 把每条请求结果里的 detail 数据填充到 result 里
-                for (var promiseList_1 = __asyncValues(promiseList), promiseList_1_1; promiseList_1_1 = await promiseList_1.next(), !promiseList_1_1.done;) {
-                    const itemData = promiseList_1_1.value;
-                    const data = itemData.body.item;
-                    for (const categorie of result) {
-                        if (categorie.id === data.categoryId) {
-                            for (const item of categorie.items) {
-                                if (item.id === data.id) {
-                                    item.detail = data.detail;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (promiseList_1_1 && !promiseList_1_1.done && (_a = promiseList_1.return)) await _a.call(promiseList_1);
-                }
-                finally { if (e_1) throw e_1.error; }
             }
             return resolve(result);
         });
@@ -15306,7 +15281,9 @@ new ImportResult();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "makeEPUB", function() { return makeEPUB; });
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 class MakeEPUB {
     constructor() { }
@@ -15316,7 +15293,7 @@ class MakeEPUB {
             const content = saveMeta ? data.meta + data.content : data.content;
             new EpubMaker()
                 .withTemplate('idpf-wasteland')
-                .withAuthor(_utils_Utils__WEBPACK_IMPORTED_MODULE_0__["Utils"].replaceUnsafeStr(data.userName))
+                .withAuthor(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].replaceUnsafeStr(data.userName))
                 .withModificationDate(new Date(data.createDate))
                 .withRights({
                 description: data.description,
@@ -15327,10 +15304,10 @@ class MakeEPUB {
                 license: '',
                 attributionUrl: '',
             })
-                .withTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_0__["Utils"].replaceUnsafeStr(data.title))
+                .withTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].replaceUnsafeStr(data.title))
                 .withSection(new EpubMaker.Section('chapter', null, {
                 title: data.title,
-                content: content.replace(/\n/g, '<br/>'),
+                content: _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].replaceEPUBText(content),
             }, true, true))
                 .makeEpub()
                 .then((blob) => {
@@ -15395,6 +15372,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
 
 
 
@@ -15515,7 +15494,7 @@ class MergeNovel {
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].saveNovelMeta) {
                 epubData.withSection(new EpubMaker.Section('chapter', 0, {
                     title: _Lang__WEBPACK_IMPORTED_MODULE_5__["lang"].transl('_设定资料'),
-                    content: this.meta.replace(/\n/g, '<br/>'),
+                    content: _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].replaceEPUBText(this.meta),
                 }, true, true));
             }
             // 为每一篇小说创建一个章节
@@ -15523,8 +15502,7 @@ class MergeNovel {
                 // 创建 epub 文件时不需要在标题和正文后面添加换行符
                 epubData.withSection(new EpubMaker.Section('chapter', data.no, {
                     title: `${this.chapterNo(data.no)} ${data.title}`,
-                    // 把换行符替换成 br 标签
-                    content: data.content.replace(/\n/g, '<br/>'),
+                    content: _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].replaceEPUBText(data.content),
                 }, true, true)
                 // 倒数第二个参数是 includeInToc，必须为 true，否则某些小说阅读软件无法读取章节信息
                 // includeInToc 的作用是在 .ncx 文件和 nav.xhtml 文件里添加导航信息
