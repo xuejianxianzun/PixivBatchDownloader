@@ -15424,12 +15424,12 @@ class MergeNovel {
             metaArray.push(firstResult.user);
             // 网址链接
             const link = `https://www.pixiv.net/novel/series/${firstResult.seriesId}`;
-            metaArray.push(link);
+            metaArray.push(link + this.CRLF.repeat(2));
             // 设定资料
             if (_store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].novelSeriesGlossary) {
                 metaArray.push(_store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].novelSeriesGlossary);
             }
-            this.meta = metaArray.join('\n\n');
+            this.meta = metaArray.join(this.CRLF.repeat(2));
         }
         // 生成小说文件并下载
         let file = null;
