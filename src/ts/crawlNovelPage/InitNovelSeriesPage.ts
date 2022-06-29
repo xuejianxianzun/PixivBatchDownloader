@@ -6,8 +6,8 @@ import { store } from '../store/Store'
 import { Tools } from '../Tools'
 import { API } from '../API'
 import { states } from '../store/States'
-import { NovelSeriesGlossary } from '../crawl/CrawlResult'
 import { settings } from '../setting/Settings'
+import { getNovelGlossarys } from './GetNovelGlossarys'
 
 class InitNovelSeriesPage extends InitPageBase {
   constructor() {
@@ -50,30 +50,12 @@ class InitNovelSeriesPage extends InitPageBase {
   protected async nextStep() {
     this.seriesId = API.getURLPathField('series')
 
-    if (settings.saveNovelMeta) {
-      const data = await API.getNovelSeriesGlossary(this.seriesId)
-      this.storeGlossaryText(data)
+    if (states.mergeNovel && settings.saveNovelMeta) {
+      const data = await getNovelGlossarys.getGlossarys(this.seriesId)
+      store.novelSeriesGlossary = getNovelGlossarys.storeGlossaryText(data)
     }
 
     this.getIdList()
-  }
-
-  private storeGlossaryText(data: NovelSeriesGlossary) {
-    let array: string[] = []
-    for (const categorie of data.body.categories) {
-      array.push(categorie.name)
-      array.push('\n\n')
-
-      for (const item of categorie.items) {
-        array.push(item.name)
-        array.push('\n')
-        array.push(item.overview)
-        array.push('\n\n')
-      }
-    }
-    if (array.length > 0) {
-      store.novelSeriesGlossary = array.join('') + '\n\n'
-    }
   }
 
   protected async getIdList() {
