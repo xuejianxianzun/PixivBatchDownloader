@@ -445,9 +445,16 @@ class PreviewWork {
     if (settings.showPreviewWorkTip) {
       const text = []
       const body = this.workData.body
+
       if (body.pageCount > 1) {
         text.push(`${this.index + 1}/${body.pageCount}`)
       }
+
+      // 草 特供版本 在预览作品时，顶部信息最前面显示作品 id 和收藏数量
+      text.push(body.id)
+      text.push(body.bookmarkCount)
+
+      // 显示图片尺寸
       // 加载原图时，可以获取到每张图片的真实尺寸
       if (settings.prevWorkSize === 'original') {
         text.push(`${w}x${h}`)

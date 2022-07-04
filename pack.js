@@ -4,8 +4,8 @@ const path = require('path')
 const copy = require('recursive-copy')
 const archiver = require('archiver')
 
-const packName = 'powerfulpixivdownloader-online'
-const distPath = './dist'
+const packName = 'powerfulpixivdownloader-special-cao'
+const distPath = './dist-special-cao'
 
 // 复制一些文件到发布目录
 async function copys() {
