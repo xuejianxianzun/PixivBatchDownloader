@@ -920,6 +920,81 @@ new CenterPanel();
 
 /***/ }),
 
+/***/ "./src/ts/CheckNewVersion.ts":
+/*!***********************************!*\
+  !*** ./src/ts/CheckNewVersion.ts ***!
+  \***********************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
+// 检查新版本
+class CheckNewVersion {
+    constructor() {
+        this.checkNew();
+    }
+    async checkNew() {
+        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].isPixiv()) {
+            return;
+        }
+        // 读取上一次检查的时间，如果超过指定的时间，则检查 GitHub 上的信息
+        const timeName = 'xzUpdateTime';
+        const verName = 'xzGithubVer';
+        const interval = 1000 * 60 * 30; // 30 分钟检查一次
+        const lastTime = localStorage.getItem(timeName);
+        if (!lastTime || new Date().getTime() - parseInt(lastTime) > interval) {
+            // 获取最新的 releases 信息
+            const latest = await fetch('https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest');
+            const latestJson = await latest.json();
+            const latestVer = latestJson.name;
+            // 保存 GitHub 上的版本信息
+            localStorage.setItem(verName, latestVer);
+            // 保存本次检查的时间戳
+            localStorage.setItem(timeName, new Date().getTime().toString());
+        }
+        // 获取本地扩展的版本号
+        const manifest = await fetch(chrome.runtime.getURL('manifest.json'));
+        const manifestJson = await manifest.json();
+        const manifestVer = manifestJson.version;
+        // 比较大小
+        const latestVer = localStorage.getItem(verName);
+        if (!latestVer) {
+            return;
+        }
+        if (this.bigger(latestVer, manifestVer)) {
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('hasNewVer');
+        }
+    }
+    // 传入两个版本号字符串，比较第一个是否比第二个大
+    bigger(a, b) {
+        const _a = a.split('.');
+        const _b = b.split('.');
+        // 分别比较每一个版本号字段，从主版本号比较到子版本号
+        for (let i = 0; i < _a.length; i++) {
+            if (_b[i] === undefined) {
+                break;
+            }
+            // 一旦某个版本号不相等，就立即返回结果
+            if (Number.parseInt(_a[i]) > Number.parseInt(_b[i])) {
+                return true;
+            }
+            else if (Number.parseInt(_a[i]) < Number.parseInt(_b[i])) {
+                return false;
+            }
+        }
+        return false;
+    }
+}
+new CheckNewVersion();
+
+
+/***/ }),
+
 /***/ "./src/ts/CheckUnsupportBrowser.ts":
 /*!*****************************************!*\
   !*** ./src/ts/CheckUnsupportBrowser.ts ***!
@@ -8766,10 +8841,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
 /* harmony import */ var _download_ShowStatusOnTitle__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/ShowStatusOnTitle */ "./src/ts/download/ShowStatusOnTitle.ts");
 /* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -8809,7 +8885,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// import './CheckNewVersion'
+
 
 
 
