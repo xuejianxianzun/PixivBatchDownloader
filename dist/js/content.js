@@ -20584,6 +20584,7 @@ class InvisibleSettings {
         this.cfg = {
             createFolderBySl: ['ppdss1', 'switchsl', 'kaiguansl',],
             downloadUgoiraFirst: ['ppdss2', 'dlugoirafirst', 'qw111',],
+            DoNotDownloadLastImageOfMultiImageWork: ['ppdss3']
         };
         this.register();
     }
@@ -21267,6 +21268,7 @@ class Settings {
             showLargerThumbnails: false,
             doubleWidthThumb: true,
             wheelScrollSwitchImageOnPreviewWork: true,
+            DoNotDownloadLastImageOfMultiImageWork: false,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -22176,6 +22178,10 @@ class Store {
             // 循环生成每一个图片文件的数据
             const p0 = 'p0';
             for (let i = 0; i < workData.dlCount; i++) {
+                // 不下载多图作品的最后一张图片
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].DoNotDownloadLastImageOfMultiImageWork && i === workData.pageCount - 1) {
+                    continue;
+                }
                 const fileData = Object.assign({}, workData);
                 const pi = 'p' + i;
                 fileData.index = i;
