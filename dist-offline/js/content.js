@@ -17454,7 +17454,6 @@ class Filter {
         }
         const day = (nowTime - createTime) / this.oneDayTime; // 计算作品发表以来的天数
         const average = bmk / day;
-        // const average = bmk / Math.log(1+ day)  // 草 使用的计算日均收藏数量的方式
         const checkAverage = average >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumAverage;
         // 返回结果。收藏数量和日均收藏并不互斥，两者只要有一个满足条件就会保留这个作品
         return checkNumber || checkAverage;
@@ -20657,31 +20656,21 @@ __webpack_require__.r(__webpack_exports__);
 // 管理不可见的设置。通过预设的按键，切换其开关状态
 class InvisibleSettings {
     constructor() {
-        this.list = [
-            {
-                name: 'createFolderBySl',
-                code: 'switchsl',
-            },
-            {
-                name: 'createFolderBySl',
-                code: 'kaiguansl',
-            },
-            {
-                name: 'downloadUgoiraFirst',
-                code: 'dlugoirafirst',
-            },
-            {
-                name: 'downloadUgoiraFirst',
-                code: 'qw111',
-            },
-        ];
+        // ppdss: Powerful Pixiv Downloader Secret Settings
+        this.cfg = {
+            createFolderBySl: ['ppdss1', 'switchsl', 'kaiguansl'],
+            downloadUgoiraFirst: ['ppdss2', 'dlugoirafirst', 'qw111'],
+            DoNotDownloadLastImageOfMultiImageWork: ['ppdss3'],
+        };
         this.register();
     }
     register() {
-        for (const item of this.list) {
-            _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register(item.code, () => {
-                this.onChange(item.name);
-            });
+        for (const [name, codes] of Object.entries(this.cfg)) {
+            for (const code of codes) {
+                _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register(code, () => {
+                    this.onChange(name);
+                });
+            }
         }
     }
     onChange(name) {
@@ -21355,6 +21344,7 @@ class Settings {
             showLargerThumbnails: false,
             doubleWidthThumb: true,
             wheelScrollSwitchImageOnPreviewWork: true,
+            DoNotDownloadLastImageOfMultiImageWork: false,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -22264,6 +22254,12 @@ class Store {
             // 循环生成每一个图片文件的数据
             const p0 = 'p0';
             for (let i = 0; i < workData.dlCount; i++) {
+                // 不下载多图作品的最后一张图片
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].DoNotDownloadLastImageOfMultiImageWork &&
+                    i > 0 &&
+                    i === workData.pageCount - 1) {
+                    continue;
+                }
                 const fileData = Object.assign({}, workData);
                 const pi = 'p' + i;
                 fileData.index = i;
