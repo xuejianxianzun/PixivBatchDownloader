@@ -20580,31 +20580,20 @@ __webpack_require__.r(__webpack_exports__);
 // 管理不可见的设置。通过预设的按键，切换其开关状态
 class InvisibleSettings {
     constructor() {
-        this.list = [
-            {
-                name: 'createFolderBySl',
-                code: 'switchsl',
-            },
-            {
-                name: 'createFolderBySl',
-                code: 'kaiguansl',
-            },
-            {
-                name: 'downloadUgoiraFirst',
-                code: 'dlugoirafirst',
-            },
-            {
-                name: 'downloadUgoiraFirst',
-                code: 'qw111',
-            },
-        ];
+        // ppdss: Powerful Pixiv Downloader Secret Settings
+        this.cfg = {
+            createFolderBySl: ['ppdss1', 'switchsl', 'kaiguansl',],
+            downloadUgoiraFirst: ['ppdss2', 'dlugoirafirst', 'qw111',],
+        };
         this.register();
     }
     register() {
-        for (const item of this.list) {
-            _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register(item.code, () => {
-                this.onChange(item.name);
-            });
+        for (const [name, codes] of Object.entries(this.cfg)) {
+            for (const code of codes) {
+                _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register(code, () => {
+                    this.onChange(name);
+                });
+            }
         }
     }
     onChange(name) {
