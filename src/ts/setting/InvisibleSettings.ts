@@ -15,9 +15,9 @@ class InvisibleSettings {
 
   // ppdss: Powerful Pixiv Downloader Secret Settings
   private readonly cfg: Cfg = {
-    createFolderBySl: ['ppdss1', 'switchsl', 'kaiguansl',],
-    downloadUgoiraFirst: ['ppdss2', 'dlugoirafirst', 'qw111',],
-    DoNotDownloadLastImageOfMultiImageWork: ['ppdss3']
+    createFolderBySl: ['ppdss1', 'switchsl', 'kaiguansl'],
+    downloadUgoiraFirst: ['ppdss2', 'dlugoirafirst', 'qw111'],
+    DoNotDownloadLastImageOfMultiImageWork: ['ppdss3'],
   }
 
   private register() {

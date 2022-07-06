@@ -120,7 +120,11 @@ class Store {
       const p0 = 'p0'
       for (let i = 0; i < workData.dlCount; i++) {
         // 不下载多图作品的最后一张图片
-        if (settings.DoNotDownloadLastImageOfMultiImageWork && i === workData.pageCount - 1) {
+        if (
+          settings.DoNotDownloadLastImageOfMultiImageWork &&
+          i > 0 &&
+          i === workData.pageCount - 1
+        ) {
           continue
         }
         const fileData = Object.assign({}, workData)
