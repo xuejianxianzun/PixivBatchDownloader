@@ -1802,7 +1802,14 @@ const langText = {
     'Automatically <span class="key">export</span> crawl results',
     'クロール結果の自動エクスポート',
   ],
+  _抓取结果: [
+    '抓取结果',
+    '擷取結果',
+    'Crawl results',
+    'クロール結果',
+  ],
   _文件格式: ['文件格式', '檔案格式', 'File format', 'ファイル形式'],
+  _格式: ['格式', '格式', 'Format', '形式'],
   _预览作品: [
     '<span class="key">预览</span>作品',
     '<span class="key">預覽</span>作品',

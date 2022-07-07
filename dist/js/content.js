@@ -4775,7 +4775,14 @@ const langText = {
         'Automatically <span class="key">export</span> crawl results',
         'クロール結果の自動エクスポート',
     ],
+    _抓取结果: [
+        '抓取结果',
+        '擷取結果',
+        'Crawl results',
+        'クロール結果',
+    ],
     _文件格式: ['文件格式', '檔案格式', 'File format', 'ファイル形式'],
+    _格式: ['格式', '格式', 'Format', '形式'],
     _预览作品: [
         '<span class="key">预览</span>作品',
         '<span class="key">預覽</span>作品',
@@ -19773,6 +19780,26 @@ const formHtml = `<form class="settingForm">
     <slot data-name="blockTagsForSpecificUser"></slot>
     </span>
     </p>
+    
+    <p class="option" data-no="54">
+    <span class="settingNameStyle1" data-xztext="_自动导出抓取结果"></span>
+    <input type="checkbox" name="autoExportResult" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+
+    <span class="subOptionWrap" data-show="autoExportResult">
+    <span data-xztext="_抓取结果"></span>
+    <span>&gt;</span>
+    <input type="text" name="autoExportResultNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
+    <span>&nbsp;</span>
+    <span class="settingNameStyle1" data-xztext="_文件格式"> </span>
+    <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox"></span>
+    <label for="autoExportResultCSV"> CSV </label>
+    <input type="checkbox" name="autoExportResultJSON" id="autoExportResultJSON" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox"></span>
+    <label for="autoExportResultJSON"> JSON </label>
+    </span>
+    </p>
 
     <p class="option settingCategoryName" data-no="65">
       <span data-xztext="_命名"></span>
@@ -20002,25 +20029,6 @@ const formHtml = `<form class="settingForm">
     <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
     <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
     <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
-    </span>
-    </p>
-
-    <p class="option" data-no="54">
-    <span class="settingNameStyle1" data-xztext="_自动导出抓取结果"></span>
-    <input type="checkbox" name="autoExportResult" class="need_beautify checkbox_switch">
-    <span class="beautify_switch"></span>
-
-    <span class="subOptionWrap" data-show="autoExportResult">
-    <span data-xztext="_文件数量大于"></span>
-    <input type="text" name="autoExportResultNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
-    <span>&nbsp;</span>
-    <span class="settingNameStyle1" data-xztext="_文件格式"> </span>
-    <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
-    <span class="beautify_checkbox"></span>
-    <label for="autoExportResultCSV"> CSV </label>
-    <input type="checkbox" name="autoExportResultJSON" id="autoExportResultJSON" class="need_beautify checkbox_common" checked>
-    <span class="beautify_checkbox"></span>
-    <label for="autoExportResultJSON"> JSON </label>
     </span>
     </p>
 
