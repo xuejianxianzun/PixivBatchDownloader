@@ -622,9 +622,9 @@ const langText = {
     'Download <span class="key">thread</span>',
     '同時ダウンロード数',
   ],
-  _线程数字: [
-    `可以输入 1-${Config.downloadThreadMax} 之间的数字，设置同时下载的数量`,
-    `可以輸入 1-${Config.downloadThreadMax} 之間的數字，設定同時下載的數量。`,
+  _下载线程的说明: [
+    `你可以输入 1-${Config.downloadThreadMax} 之间的数字，设置同时下载的数量`,
+    `你可以輸入 1-${Config.downloadThreadMax} 之間的數字，設定同時下載的數量。`,
     `You can type a number between 1-${Config.downloadThreadMax} to set the number of concurrent downloads`,
     `同時ダウンロード数を設定、1-${Config.downloadThreadMax} の数値を入力してください`,
   ],
@@ -1042,6 +1042,7 @@ const langText = {
   _抓取: ['抓取', '擷取', 'Crawl', 'クロール'],
   _下载: ['下载', '下載', 'Download', 'ダウンロード'],
   _其他: ['其他', '其他', 'Other', 'その他'],
+  _更多: ['更多', '其他', 'More', 'もっと'],
   _第一张图不带序号: [
     '第一张图不带<span class="key">序号</span>',
     '第一張圖片不包含<span class="key">序號</span>',
@@ -1388,10 +1389,10 @@ const langText = {
     'ダウンロード後、作品は自動的にブックマークされます。',
   ],
   _收藏设置: [
-    '下载器的<span class="key">收藏</span>按钮 ✩',
-    '下載器的<span class="key">收藏</span>按鈕 ✩',
-    `Downloader's <span class="key">bookmark</span> button ✩`,
-    'ダウンローダーの<span class="key">ブックマーク</span>ボタン ✩',
+    '下载器的<span class="key">收藏</span>按钮 (✩)',
+    '下載器的<span class="key">收藏</span>按鈕 (✩)',
+    `Downloader's <span class="key">bookmark</span> button (✩)`,
+    'ダウンローダーの<span class="key">ブックマーク</span>ボタン (✩)',
   ],
   _添加tag: ['添加标签', '加入標籤', 'Add tag', 'タグを追加'],
   _不添加tag: ['不添加标签', '不加入標籤', "Don't add tag", 'タグなし'],
@@ -1486,6 +1487,12 @@ const langText = {
     'Create a separate folder for <span class="key">each</span> work',
     '作品ごとに別フォルダを作成',
   ],
+  _为作品建立单独的文件夹说明: [
+    '这里应该使用 {id_num} 代替 {id}',
+    '這裡應該使用 {id_num} 代替 {id}',
+    'Here {id_num} should be used instead of {id}',
+    'ここでは、{id} の代わりに {id_num} を使用する必要があります',
+  ],
   _文件数量大于: [
     '文件数量 >',
     '檔案數量 >',
@@ -1556,11 +1563,11 @@ const langText = {
   _删除: ['删除', '刪除', 'Delete', '削除'],
   _添加成功: ['添加成功', '新增成功', 'Added successfully', '追加されました'],
   _更新成功: ['更新成功', '更新成功', 'update completed', '更新成功'],
-  _在作品缩略图上显示放大图标: [
-    '在作品缩略图上显示<span class="key">放大</span>图标',
-    '在作品縮圖上顯示<span class="key">放大</span>圖示',
-    'Show <span class="key">zoom</span> icon on thumbnail',
-    '作品のサムネイルに<span class="key">拡大</span>アイコンを表示する',
+  _在作品缩略图上显示放大按钮: [
+    '在作品缩略图上显示<span class="key">放大</span>按钮',
+    '在作品縮圖上顯示<span class="key">放大</span>按鈕',
+    'Show <span class="key">zoom</span> button on thumbnail',
+    '作品のサムネイルに<span class="key">拡大</span>ボタンを表示',
   ],
   _在作品缩略图上显示下载按钮: [
     '在作品缩略图上显示<span class="key">下载</span>按钮',
@@ -1741,11 +1748,11 @@ const langText = {
     'Show <span class="key">notification</span> after download is complete',
     'ダウンロードが完了した後に通知を表示する',
   ],
-  _以粗体显示关键字: [
-    '用<span class="key">粗体</span>显示关键字',
-    '用<span class="key">粗體</span>顯示關鍵字',
-    'Show keywords in <span class="key">bold</span>',
-    'キーワードを太字で表示',
+  _高亮显示关键字: [
+    '<span class="key">高亮</span>显示关键字',
+    '<span class="key">標明</span>顯示關鍵字',
+    '<span class="key">Highlight</span> keywords',
+    'キーワードを強調表示',
   ],
   _抓取标签列表: [
     '抓取标签列表',
@@ -1904,11 +1911,11 @@ const langText = {
     'Replace square <span class="key">thumbnails</span> to show image ratio',
     '正方形のサムネイルを置き換えて、画像のスケールを表示。',
   ],
-  _只有一个文件时不建立文件夹: [
-    '只有一个文件时<span class="key">不建立</span>文件夹',
-    '只有一個檔案時<span class="key">不建立</span>資料夾',
-    '<span class="key">Do not create</span> a folder when there is only one file',
-    'ファイルが１つのみの場合、フォルダを作成しない',
+  _只有一个抓取结果时不建立文件夹: [
+    '只有一个抓取结果时<span class="key">不建立</span>文件夹',
+    '只有一個擷取結果時<span class="key">不建立</span>資料夾',
+    '<span class="key">Do not create</span> a folder when there is only one crawl result',
+    'クロール結果が１つのみの場合、フォルダを作成しない',
   ],
   _搜索页面页数限制: [
     '由于 pixiv 的限制，下载器最多只能抓取到第 {} 页。',

@@ -396,7 +396,7 @@ export const formHtml = `<form class="settingForm">
     </p>
     
     <p class="option" data-no="64">
-    <span class="settingNameStyle1" data-xztext="_只有一个文件时不建立文件夹"></span>
+    <span class="settingNameStyle1" data-xztext="_只有一个抓取结果时不建立文件夹"></span>
     <input type="checkbox" name="notFolderWhenOneFile" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
     </p>
@@ -412,10 +412,10 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="16">
-    <span class="has_tip settingNameStyle1" data-xztip="_线程数字">
+    <span class="settingNameStyle1"">
     <span data-xztext="_下载线程"></span>
-    <span class="gray1"> ? </span></span>
-    <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
+    </span>
+    <input type="text" name="downloadThread" class="has_tip setinput_style1 blue" data-xztip="_下载线程的说明" value="5">
     </p>
 
     <p class="option" data-no="17">
@@ -520,11 +520,11 @@ export const formHtml = `<form class="settingForm">
     <input type="checkbox" name="workDir" class="need_beautify checkbox_switch" >
     <span class="beautify_switch"></span>
     <span class="subOptionWrap" data-show="workDir">
-    <span data-xztext="_文件数量大于"></span>
-    <input type="text" name="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
+    <label for="workDirFileNumber" data-xztext="_文件数量大于"></label>
+    <input type="text" name="workDirFileNumber" id="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
     <span>&nbsp;</span>
-    <span data-xztext="_目录名"></span>
-    <input type="text" name="workDirNameRule" class="setinput_style1 blue" value="{id_num}">
+    <label for="workDirNameRule" data-xztext="_目录名"></label>
+    <input class="has_tip setinput_style1 blue" type="text"  data-xztip="_为作品建立单独的文件夹说明" name="workDirNameRule" id="workDirNameRule" value="{id_num}">
     </span>
     </p>
 
@@ -625,9 +625,9 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="24">
-    <span class="has_tip settingNameStyle1" data-xztip="_同时转换多少个动图警告" data-xztext="_同时转换多少个动图"></span>
-    <input type="text" name="convertUgoiraThread" class="setinput_style1 blue" value="1">
-    <span class="has_tip gray1" data-xztip="_同时转换多少个动图警告" data-xztext="_提示"></span>
+    <span class="settingNameStyle1" data-xztext="_同时转换多少个动图"></span>
+    <input type="text" name="convertUgoiraThread" class="has_tip setinput_style1 blue" data-xztip="_同时转换多少个动图警告" value="1">
+    </span>
     </p>
 
     <p class="option" data-no="26">
@@ -813,7 +813,7 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="40">
-    <span class="settingNameStyle1" data-xztext="_在作品缩略图上显示放大图标"></span>
+    <span class="settingNameStyle1" data-xztext="_在作品缩略图上显示放大按钮"></span>
     <input type="checkbox" name="magnifier" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
 
@@ -963,6 +963,12 @@ export const formHtml = `<form class="settingForm">
     <label for="switchTabBar2" data-xztext="_鼠标点击"></label>
     </p>
 
+    <p class="option" data-no="53">
+    <span class="settingNameStyle1" data-xztext="_高亮显示关键字"></span>
+    <input type="checkbox" name="boldKeywords" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    </p>
+
     <p class="option" data-no="32">
     <span class="settingNameStyle1"><span class="key">Language</span></span>
     <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="auto" checked>
@@ -980,12 +986,6 @@ export const formHtml = `<form class="settingForm">
     <input type="radio" name="userSetLang" id="userSetLang5" class="need_beautify radio" value="en">
     <span class="beautify_radio"></span>
     <label for="userSetLang5">English</label>
-    </p>
-
-    <p class="option" data-no="53">
-    <span class="settingNameStyle1" data-xztext="_以粗体显示关键字"></span>
-    <input type="checkbox" name="boldKeywords" class="need_beautify checkbox_switch">
-    <span class="beautify_switch"></span>
     </p>
 
     <p class="option" data-no="37">

@@ -753,7 +753,7 @@ class CenterPanel {
       <div class="centerWrap_tabs tabsTitle">
         <div class="title" data-xztext="_抓取"></div>
         <div class="title" data-xztext="_下载"></div>
-        <div class="title" data-xztext="_其他"></div>
+        <div class="title" data-xztext="_更多"></div>
       </div>
 
       <div class="centerWrap_con beautify_scrollbar">
@@ -3595,9 +3595,9 @@ const langText = {
         'Download <span class="key">thread</span>',
         '同時ダウンロード数',
     ],
-    _线程数字: [
-        `可以输入 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} 之间的数字，设置同时下载的数量`,
-        `可以輸入 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} 之間的數字，設定同時下載的數量。`,
+    _下载线程的说明: [
+        `你可以输入 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} 之间的数字，设置同时下载的数量`,
+        `你可以輸入 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} 之間的數字，設定同時下載的數量。`,
         `You can type a number between 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} to set the number of concurrent downloads`,
         `同時ダウンロード数を設定、1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} の数値を入力してください`,
     ],
@@ -4015,6 +4015,7 @@ const langText = {
     _抓取: ['抓取', '擷取', 'Crawl', 'クロール'],
     _下载: ['下载', '下載', 'Download', 'ダウンロード'],
     _其他: ['其他', '其他', 'Other', 'その他'],
+    _更多: ['更多', '其他', 'More', 'もっと'],
     _第一张图不带序号: [
         '第一张图不带<span class="key">序号</span>',
         '第一張圖片不包含<span class="key">序號</span>',
@@ -4361,10 +4362,10 @@ const langText = {
         'ダウンロード後、作品は自動的にブックマークされます。',
     ],
     _收藏设置: [
-        '下载器的<span class="key">收藏</span>按钮 ✩',
-        '下載器的<span class="key">收藏</span>按鈕 ✩',
-        `Downloader's <span class="key">bookmark</span> button ✩`,
-        'ダウンローダーの<span class="key">ブックマーク</span>ボタン ✩',
+        '下载器的<span class="key">收藏</span>按钮 (✩)',
+        '下載器的<span class="key">收藏</span>按鈕 (✩)',
+        `Downloader's <span class="key">bookmark</span> button (✩)`,
+        'ダウンローダーの<span class="key">ブックマーク</span>ボタン (✩)',
     ],
     _添加tag: ['添加标签', '加入標籤', 'Add tag', 'タグを追加'],
     _不添加tag: ['不添加标签', '不加入標籤', "Don't add tag", 'タグなし'],
@@ -4459,6 +4460,12 @@ const langText = {
         'Create a separate folder for <span class="key">each</span> work',
         '作品ごとに別フォルダを作成',
     ],
+    _为作品建立单独的文件夹说明: [
+        '这里应该使用 {id_num} 代替 {id}',
+        '這裡應該使用 {id_num} 代替 {id}',
+        'Here {id_num} should be used instead of {id}',
+        'ここでは、{id} の代わりに {id_num} を使用する必要があります',
+    ],
     _文件数量大于: [
         '文件数量 >',
         '檔案數量 >',
@@ -4529,11 +4536,11 @@ const langText = {
     _删除: ['删除', '刪除', 'Delete', '削除'],
     _添加成功: ['添加成功', '新增成功', 'Added successfully', '追加されました'],
     _更新成功: ['更新成功', '更新成功', 'update completed', '更新成功'],
-    _在作品缩略图上显示放大图标: [
-        '在作品缩略图上显示<span class="key">放大</span>图标',
-        '在作品縮圖上顯示<span class="key">放大</span>圖示',
-        'Show <span class="key">zoom</span> icon on thumbnail',
-        '作品のサムネイルに<span class="key">拡大</span>アイコンを表示する',
+    _在作品缩略图上显示放大按钮: [
+        '在作品缩略图上显示<span class="key">放大</span>按钮',
+        '在作品縮圖上顯示<span class="key">放大</span>按鈕',
+        'Show <span class="key">zoom</span> button on thumbnail',
+        '作品のサムネイルに<span class="key">拡大</span>ボタンを表示',
     ],
     _在作品缩略图上显示下载按钮: [
         '在作品缩略图上显示<span class="key">下载</span>按钮',
@@ -4714,11 +4721,11 @@ const langText = {
         'Show <span class="key">notification</span> after download is complete',
         'ダウンロードが完了した後に通知を表示する',
     ],
-    _以粗体显示关键字: [
-        '用<span class="key">粗体</span>显示关键字',
-        '用<span class="key">粗體</span>顯示關鍵字',
-        'Show keywords in <span class="key">bold</span>',
-        'キーワードを太字で表示',
+    _高亮显示关键字: [
+        '<span class="key">高亮</span>显示关键字',
+        '<span class="key">標明</span>顯示關鍵字',
+        '<span class="key">Highlight</span> keywords',
+        'キーワードを強調表示',
     ],
     _抓取标签列表: [
         '抓取标签列表',
@@ -4877,11 +4884,11 @@ const langText = {
         'Replace square <span class="key">thumbnails</span> to show image ratio',
         '正方形のサムネイルを置き換えて、画像のスケールを表示。',
     ],
-    _只有一个文件时不建立文件夹: [
-        '只有一个文件时<span class="key">不建立</span>文件夹',
-        '只有一個檔案時<span class="key">不建立</span>資料夾',
-        '<span class="key">Do not create</span> a folder when there is only one file',
-        'ファイルが１つのみの場合、フォルダを作成しない',
+    _只有一个抓取结果时不建立文件夹: [
+        '只有一个抓取结果时<span class="key">不建立</span>文件夹',
+        '只有一個擷取結果時<span class="key">不建立</span>資料夾',
+        '<span class="key">Do not create</span> a folder when there is only one crawl result',
+        'クロール結果が１つのみの場合、フォルダを作成しない',
     ],
     _搜索页面页数限制: [
         '由于 pixiv 的限制，下载器最多只能抓取到第 {} 页。',
@@ -10066,7 +10073,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].hideOption([
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
-            49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67,
+            49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,
         ]);
     }
     nextStep() {
@@ -19676,7 +19683,7 @@ const formHtml = `<form class="settingForm">
     </p>
     
     <p class="option" data-no="64">
-    <span class="settingNameStyle1" data-xztext="_只有一个文件时不建立文件夹"></span>
+    <span class="settingNameStyle1" data-xztext="_只有一个抓取结果时不建立文件夹"></span>
     <input type="checkbox" name="notFolderWhenOneFile" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
     </p>
@@ -19692,10 +19699,10 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="16">
-    <span class="has_tip settingNameStyle1" data-xztip="_线程数字">
+    <span class="settingNameStyle1"">
     <span data-xztext="_下载线程"></span>
-    <span class="gray1"> ? </span></span>
-    <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
+    </span>
+    <input type="text" name="downloadThread" class="has_tip setinput_style1 blue" data-xztip="_下载线程的说明" value="5">
     </p>
 
     <p class="option" data-no="17">
@@ -19800,11 +19807,11 @@ const formHtml = `<form class="settingForm">
     <input type="checkbox" name="workDir" class="need_beautify checkbox_switch" >
     <span class="beautify_switch"></span>
     <span class="subOptionWrap" data-show="workDir">
-    <span data-xztext="_文件数量大于"></span>
-    <input type="text" name="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
+    <label for="workDirFileNumber" data-xztext="_文件数量大于"></label>
+    <input type="text" name="workDirFileNumber" id="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
     <span>&nbsp;</span>
-    <span data-xztext="_目录名"></span>
-    <input type="text" name="workDirNameRule" class="setinput_style1 blue" value="{id_num}">
+    <label for="workDirNameRule" data-xztext="_目录名"></label>
+    <input class="has_tip setinput_style1 blue" type="text"  data-xztip="_为作品建立单独的文件夹说明" name="workDirNameRule" id="workDirNameRule" value="{id_num}">
     </span>
     </p>
 
@@ -19905,9 +19912,9 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="24">
-    <span class="has_tip settingNameStyle1" data-xztip="_同时转换多少个动图警告" data-xztext="_同时转换多少个动图"></span>
-    <input type="text" name="convertUgoiraThread" class="setinput_style1 blue" value="1">
-    <span class="has_tip gray1" data-xztip="_同时转换多少个动图警告" data-xztext="_提示"></span>
+    <span class="settingNameStyle1" data-xztext="_同时转换多少个动图"></span>
+    <input type="text" name="convertUgoiraThread" class="has_tip setinput_style1 blue" data-xztip="_同时转换多少个动图警告" value="1">
+    </span>
     </p>
 
     <p class="option" data-no="26">
@@ -20093,7 +20100,7 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="40">
-    <span class="settingNameStyle1" data-xztext="_在作品缩略图上显示放大图标"></span>
+    <span class="settingNameStyle1" data-xztext="_在作品缩略图上显示放大按钮"></span>
     <input type="checkbox" name="magnifier" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
 
@@ -20243,6 +20250,12 @@ const formHtml = `<form class="settingForm">
     <label for="switchTabBar2" data-xztext="_鼠标点击"></label>
     </p>
 
+    <p class="option" data-no="53">
+    <span class="settingNameStyle1" data-xztext="_高亮显示关键字"></span>
+    <input type="checkbox" name="boldKeywords" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    </p>
+
     <p class="option" data-no="32">
     <span class="settingNameStyle1"><span class="key">Language</span></span>
     <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="auto" checked>
@@ -20260,12 +20273,6 @@ const formHtml = `<form class="settingForm">
     <input type="radio" name="userSetLang" id="userSetLang5" class="need_beautify radio" value="en">
     <span class="beautify_radio"></span>
     <label for="userSetLang5">English</label>
-    </p>
-
-    <p class="option" data-no="53">
-    <span class="settingNameStyle1" data-xztext="_以粗体显示关键字"></span>
-    <input type="checkbox" name="boldKeywords" class="need_beautify checkbox_switch">
-    <span class="beautify_switch"></span>
     </p>
 
     <p class="option" data-no="37">
@@ -20821,7 +20828,7 @@ class Options {
     constructor() {
         // 保持显示的选项的 id
         this.whiteList = [
-            1, 2, 4, 13, 17, 32, 44, 23, 50, 51, 57, 64,
+            1, 2, 4, 13, 17, 32, 44, 50, 51, 57, 64,
         ];
         // 某些页面类型需要隐藏某些选项。当调用 hideOption 方法时，把选项 id 保存起来
         // 优先级高于 whiteList
