@@ -29,14 +29,14 @@ class InitArtworkSeriesPage extends InitPageBase {
     })
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected setFormOption() {
     // 个数/页数选项的提示
     this.maxCount = 100
 
     options.setWantPageTip({
-      text: '_下载多少页面',
+      text: '_抓取多少页面',
       tip: '_从本页开始下载提示',
       rangTip: `1 - ${this.maxCount}`,
     })

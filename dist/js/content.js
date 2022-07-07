@@ -2991,11 +2991,11 @@ const langText = {
         'Download work type',
         'ダウンロード作品の種類',
     ],
-    _下载作品类型的提示: [
-        '下载哪些类型的作品',
-        '下載哪些類型的作品。',
-        'Which types of works to download',
-        'どの種類の作品をダウンロードしますか',
+    _作品类型: [
+        '作品<span class="key">类型</span>',
+        '作品<span class="key">類型</span>',
+        '<span class="key">Type</span> of work',
+        '作品の<span class="key">種類</span>',
     ],
     _不能含有tag: [
         '<span class="key">不能</span>含有标签',
@@ -3033,17 +3033,11 @@ const langText = {
         'Include tag: ',
         '以下の タグ を含める：',
     ],
-    _筛选宽高的按钮文字: [
-        '设置<span class="key">宽高</span>条件',
-        '設定<span class="key">寬高</span>條件',
-        'Set the <span class="key">width and height</span>',
-        '幅と高さの条件を設定する',
-    ],
-    _设置宽高比例: [
-        '设置宽高<span class="key">比例</span>',
-        '設定寬高<span class="key">比例</span>',
-        'Set the aspect <span class="key">ratio</span>',
-        '縦横比を設定する',
+    _图片的宽高比例: [
+        '图片的宽高<span class="key">比例</span>',
+        '圖片的寬高<span class="key">比例</span>',
+        'Aspect <span class="key">ratio</span>',
+        '画像の縦横比',
     ],
     _设置宽高比例Title: [
         '设置宽高比例，也可以手动输入宽高比',
@@ -3068,6 +3062,12 @@ const langText = {
         'The aspect ratio must be a number',
         '縦横比は数値でなければなりません',
     ],
+    _图片的宽高: [
+        '图片的<span class="key">宽高</span>',
+        '圖片的<span class="key">寬高</span>',
+        '<span class="key">width</span> and height',
+        '画像の幅と高さ',
+    ],
     _筛选宽高的提示文字: [
         '请输入最小宽度和最小高度，不会下载不符合要求的图片。',
         '請輸入最小寬度和最小高度，只會下載符合要求的圖片。',
@@ -3084,29 +3084,23 @@ const langText = {
     _或者: [' 或者 ', ' 或是 ', ' or ', ' または '],
     _并且: [' 并且 ', ' 並且 ', ' and ', ' そして '],
     _高度: ['高度', '高度', 'height', '高さ'],
-    _下载多少作品: [
-        '下载多少作品',
-        '下載多少作品',
-        'How many works to download',
-        'ダウンロードする作品の数',
+    _抓取多少作品: [
+        '抓取<span class="key">多少</span>作品',
+        '擷取<span class="key">多少</span>作品',
+        'How <span class="key">many</span> works to crawl',
+        'クロールする作品の数',
     ],
-    _下载多少页面: [
-        '下载多少页面',
-        '下載多少頁面',
-        'How many pages to download',
-        'ダウンロードするページ数',
+    _抓取多少页面: [
+        '抓取<span class="key">多少</span>页面',
+        '擷取<span class="key">多少</span>頁面',
+        'How <span class="key">many</span> pages to crawl',
+        'クロールするページ数',
     ],
-    _筛选收藏数的按钮Title: [
-        '在下载前，您可以设置对收藏数量的要求。',
-        '下載前可以設定對收藏數量的要求。',
-        'Before downloading, You can set the requirements for the number of bookmarks.',
-        'ダウンロードする前に、ブックマークされた数の条件を設定することができます。',
-    ],
-    _设置收藏数量: [
-        '设置<span class="key">收藏</span>数量',
-        '設定<span class="key">收藏</span>數量',
-        'Set the number of <span class="key">bookmarks</span>',
-        'ブックマークされた数を設定する',
+    _收藏数量: [
+        '<span class="key">收藏</span>数量',
+        '<span class="key">收藏</span>數量',
+        'Number of <span class="key">bookmarks</span>',
+        'ブックマークの数',
     ],
     _设置收藏数量的提示: [
         '如果作品的收藏数小于设置的数字，作品不会被下载。',
@@ -3242,8 +3236,8 @@ const langText = {
         'うごイラをダウンロードするとき、動画に変換することができます。',
     ],
     _webmVideo: ['WebM 视频', '影片（WebM）', 'WebM video', 'WebM ビデオ'],
-    _gif: ['GIF 图片', '圖片（GIF）', 'GIF picture', 'GIF 画像'],
-    _apng: ['APNG 图片', '圖片（APNG）', 'APNG picture', 'APNG 画像'],
+    _gif: ['GIF 图片', '圖片（GIF）', 'GIF image', 'GIF 画像'],
+    _apng: ['APNG 图片', '圖片（APNG）', 'APNG image', 'APNG 画像'],
     _zipFile: ['Zip 文件', '壓縮檔（Zip）', 'Zip file', 'ZIP ファイル'],
     _当前作品个数: [
         '当前有 {} 个作品 ',
@@ -3442,7 +3436,10 @@ const langText = {
         'Crawl a total of {} works',
         '合計 {} つの作品があります',
     ],
-    _命名规则: ['命名规则', '命名規則', 'Naming rule', '命名規則'],
+    _命名规则: [' <span class="key">命名</span>规则',
+        '<span class="key">命名</span>規則',
+        '<span class="key">Naming</span> rule',
+        '<span class="key">命名</span>規則'],
     _设置文件夹名的提示: [
         "可以使用 '/' 建立文件夹。示例：",
         '可以使用斜線（/）建立資料夾。範例：',
@@ -3516,7 +3513,7 @@ const langText = {
     _命名标记p_num: [
         '图片在作品内的序号，如 0、1、2 …… 每个作品都会重新计数。',
         '圖片在作品內的序號，例如：0、1、2……每個作品都將重新計數。',
-        'The serial number of the picture in the work, such as 0, 1, 2 ... Each work will be recounted.',
+        'The serial number of the image in the work, such as 0, 1, 2 ... Each work will be recounted.',
         '0、1、2 など、作品の画像のシリアル番号。各ピースは再集計されます。',
     ],
     _命名标记tags_trans: [
@@ -3592,11 +3589,11 @@ const langText = {
         'Preview file name',
         'ファイル名のプレビュー',
     ],
-    _设置下载线程: [
-        '设置下载<span class="key">线程</span>',
-        '設定下載<span class="key">執行緒</span>',
-        'Set the download <span class="key">thread</span>',
-        'ダンロードスレッドの設定',
+    _下载线程: [
+        '下载<span class="key">线程</span>',
+        '下載<span class="key">執行緒</span>',
+        'Download <span class="key">thread</span>',
+        '同時ダウンロード数',
     ],
     _线程数字: [
         `可以输入 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} 之间的数字，设置同时下载的数量`,
@@ -3616,7 +3613,6 @@ const langText = {
         'まだダウンロードを開始していません',
     ],
     _下载进度: ['下载进度', '下載進度', 'Total progress', '概要'],
-    _下载线程: ['下载线程：', '下載執行緒：', 'Thread: ', 'スレッド：'],
     _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問'],
     _uuid: [
         '如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。',
@@ -3803,7 +3799,7 @@ const langText = {
     _抓取该页面的图片: [
         '抓取该页面的图片',
         '擷取該頁面的圖片',
-        'Crawl the picture of the page',
+        'Crawl the image of the page',
         'ページの画像をクロールする',
     ],
     _抓取相似图片: [
@@ -3909,11 +3905,11 @@ const langText = {
         'Always create folder when downloading quickly',
         'クイックダウンロード時、常にフォルダを作成します',
     ],
-    _设置id范围: [
-        '设置 <span class="key">ID</span> 范围',
-        '設定 <span class="key">ID</span> 範圍',
-        'Set <span class="key">ID</span> range',
-        '<span class="key">ID</span> 範囲を設定',
+    _id范围: [
+        '<span class="key">ID</span> 范围',
+        '<span class="key">ID</span> 範圍',
+        '<span class="key">ID</span> range',
+        '<span class="key">ID</span> 範囲',
     ],
     _设置id范围提示: [
         '您可以输入一个作品 id，抓取比它新或者比它旧的作品',
@@ -3923,11 +3919,11 @@ const langText = {
     ],
     _大于: ['大于', '大於', 'Bigger than', 'より大きい'],
     _小于: ['小于', '小於', 'Less than', 'より小さい'],
-    _设置投稿时间: [
-        '设置投稿<span class="key">时间</span>',
-        '設定投稿<span class="key">時間</span>',
-        'Set posting <span class="key">date</span>',
-        '投稿日時を設定する',
+    _投稿时间: [
+        '投稿<span class="key">时间</span>',
+        '投稿<span class="key">時間</span>',
+        'Posting <span class="key">date</span>',
+        '投稿日時',
     ],
     _设置投稿时间提示: [
         '您可以下载指定时间内发布的作品',
@@ -4022,13 +4018,13 @@ const langText = {
     _第一张图不带序号: [
         '第一张图不带<span class="key">序号</span>',
         '第一張圖片不包含<span class="key">序號</span>',
-        'The first picture without a <span class="key">serial number</span>',
+        'The first image without a <span class="key">serial number</span>',
         '最初のイメージの番号を削除',
     ],
     _第一张图不带序号说明: [
         '去掉每个作品第一张图的序号。例如 80036479_p0 变成 80036479',
         '去掉每個作品第一張圖的序號。例如：80036479_p0 變成 80036479。',
-        'Remove the serial number of the first picture of each work. For example 80036479_p0 becomes 80036479.',
+        'Remove the serial number of the first image of each work. For example 80036479_p0 becomes 80036479.',
         '作品ごとの最初のイメージの番号を削除します。例えば 80036479_p0 は 80036479 になります。',
     ],
     _最小值: ['最小值', '最小值', 'Minimum', '最小値'],
@@ -4039,11 +4035,11 @@ const langText = {
         'Single image works',
         'シングルイメージ作品',
     ],
-    _彩色图片: ['彩色图片', '彩色圖片', 'Color picture', 'カラーイメージ'],
+    _彩色图片: ['彩色图片', '彩色圖片', 'Color images', 'カラーイメージ'],
     _黑白图片: [
         '黑白图片',
         '黑白圖片',
-        'Black and white pictures',
+        'Black and white images',
         '白黒イメージ',
     ],
     _不保存图片因为颜色: [
@@ -4149,16 +4145,16 @@ const langText = {
     _严格: ['严格', '嚴格', 'Strict', '厳格'],
     _宽松: ['宽松', '寬鬆', 'Loose', '緩い'],
     _严格模式说明: [
-        '当文件的 id 和文件名都相同时，认为是重复文件',
-        '當檔案 id 和檔名都相同時，認為是重複檔案',
-        'When the file id and file name are the same, it is considered a duplicate file',
-        'ファイルの ID とファイル名が同じ場合、重複ファイルとみなされます',
+        '判断条件：作品的 id、上传日期、文件名',
+        '判斷條件：作品的 id、上傳日期、檔名',
+        'Judgment conditions: id, upload date, file name of the work',
+        '審査条件：作品のID、アップロード日、ファイル名',
     ],
     _宽松模式说明: [
-        '只要文件的 id 相同，就认为是重复文件',
-        '只要檔案 id 相同，就認為是重複檔案',
-        'As long as the id of the file is the same, it is considered a duplicate file',
-        'ファイルの ID が同じである限り、重複ファイルと見なされます',
+        '判断条件：作品的 id、上传日期',
+        '判斷條件：作品的 id、上傳日期',
+        'Judgment conditions: id, upload date of the work',
+        '審査条件：作品のID、アップロード日',
     ],
     _清除下载记录: [
         '清除下载记录',
@@ -4649,14 +4645,14 @@ const langText = {
     _多图作品只下载前几张图片: [
         '多图作品只下载<span class="key">前几张</span>图片',
         '多圖作品只下載<span class="key">前幾張</span>圖片',
-        'Multi-picture works only download the <span class="key">first few</span> pictures',
+        'Multi-image works only download the <span class="key">first few</span> images',
         'マルチ作品は最初の何枚の画像のみをダウンロードする',
     ],
-    _多图作品的图片数量限制: [
-        '多图作品的图片<span class="key">数量</span>限制',
-        '多圖作品的圖片<span class="key">數量</span>限制',
-        'Limits on the <span class="key">number</span> of images for multi-picture works',
-        'マルチ作品の画像数の制限',
+    _多图作品的图片数量上限: [
+        '多图作品的图片<span class="key">数量</span>上限',
+        '多圖作品的圖片<span class="key">數量</span>上限',
+        '<span class="key">Maximum number</span> of images for multi-image works',
+        'マルチ作品の最大画像数',
     ],
     _超出此限制的多图作品不会被下载: [
         '超出此限制的多图作品不会被下载',
@@ -4815,7 +4811,7 @@ const langText = {
     _鼠标滚轮切换图片: [
         '预览多图作品时，可以使用鼠标滚轮切换图片。',
         '預覽多圖作品時，可以使用滑鼠滾輪切換圖片。',
-        'When previewing multi-picture works, you can use the mouse wheel to switch images.',
+        'When previewing multi-image works, you can use the mouse wheel to switch images.',
         '複数画像をプレビューする際に、マウスホイールを使って画像を切り替えることができます。',
     ],
     _whatisnew: [
@@ -5091,6 +5087,30 @@ const langText = {
     2. ユーザーは、ダウンロード中にいくつかの新しいダウンロードタスクを追加できます。`,
     ],
     _设定资料: ['设定资料', '設定資料', 'Reference materials', '設定資料'],
+    _年龄限制: [
+        '<span class="key">年龄</span>限制',
+        '<span class="key">年齡</span>限制',
+        '<span class="key">Age</span> limit',
+        '<span class="key">年齢</span>制限',
+    ],
+    _收藏状态: [
+        '<span class="key">收藏</span>状态',
+        '<span class="key">收藏</span>狀態',
+        '<span class="key">Bookmark</span> status',
+        'ブックマークステータス',
+    ],
+    _图片色彩: [
+        '图片<span class="key">色彩</span>',
+        '圖片<span class="key">色彩</span>',
+        'Image <span class="key">color</span>',
+        '画像の<span class="key">色</span>',
+    ],
+    _图片数量: [
+        '图片<span class="key">数量</span>',
+        '圖片<span class="key">數量</span>',
+        '<span class="key">Number</span> of images',
+        '画像の<span class="key">数</span>',
+    ],
 };
 
 
@@ -8905,7 +8925,7 @@ class InitPageBase {
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_7__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
         });
@@ -9501,7 +9521,7 @@ class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: '_下载多少作品',
+            text: '_抓取多少作品',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
         });
@@ -9648,7 +9668,7 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         // 个数/页数选项的提示
         this.maxCount = 100;
         _setting_Options__WEBPACK_IMPORTED_MODULE_5__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -9763,7 +9783,7 @@ class InitBookmarkDetailPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: '_下载多少作品',
+            text: '_抓取多少作品',
             tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -9907,7 +9927,7 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: '_下载多少作品',
+            text: '_抓取多少作品',
             tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -10195,7 +10215,7 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         // 个数/页数选项的提示
         this.maxCount = 500;
         _setting_Options__WEBPACK_IMPORTED_MODULE_6__["options"].setWantPageTip({
-            text: '_下载多少作品',
+            text: '_抓取多少作品',
             tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -10630,7 +10650,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         const isPremium = _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].isPremium();
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: `1 - ${isPremium ? 5000 : 1000}`,
         });
@@ -11328,7 +11348,7 @@ class InitBookmarkLegacyPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_5__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
         });
@@ -11539,7 +11559,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         // 个数/页数选项的提示
         this.maxCount = 100;
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -11735,7 +11755,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
         });
@@ -11929,7 +11949,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
         });
@@ -12368,7 +12388,7 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
         });
@@ -12744,7 +12764,7 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: '_下载多少作品',
+            text: '_抓取多少作品',
             tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -12894,7 +12914,7 @@ class InitNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: '_下载多少作品',
+            text: '_抓取多少作品',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
         });
@@ -13083,7 +13103,7 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
         // 个数/页数选项的提示
         this.maxCount = 100;
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: '_下载多少作品',
+            text: '_抓取多少作品',
             tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -13304,7 +13324,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         const isPremium = _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].isPremium();
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: `1 - ${isPremium ? 5000 : 1000}`,
         });
@@ -17153,7 +17173,7 @@ class Filter {
             return;
         }
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].multiImageWorkImageLimit > 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品的图片数量限制') +
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品的图片数量上限') +
                 '：' +
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].multiImageWorkImageLimit);
         }
@@ -19264,7 +19284,7 @@ const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
     <span class="setWantPageWrap">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载多少页面"><span class="setWantPageTip1" data-xztext="_下载多少页面"></span><span class="gray1"> ? </span></span>
+    <span class="has_tip settingNameStyle1" data-xztip="_抓取多少页面"><span class="setWantPageTip1" data-xztext="_抓取多少页面"></span><span class="gray1"> ? </span></span>
     <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
     value = '-1'>&nbsp;
     <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
@@ -19272,9 +19292,9 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="2">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_作品类型"></span>
+    </span>
     <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="setWorkType0" data-xztext="_插画"></label>
@@ -19290,9 +19310,9 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="44">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_年龄限制"></span>
+    </span>
     <input type="checkbox" name="downAllAges" id="downAllAges" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="downAllAges" data-xztext="_全年龄"></label>
@@ -19305,9 +19325,9 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="6">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_收藏状态"></span>
+    </span>
     <input type="checkbox" name="downNotBookmarked" id="setDownNotBookmarked" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="setDownNotBookmarked" data-xztext="_未收藏"></label>
@@ -19317,9 +19337,9 @@ const formHtml = `<form class="settingForm">
     </p>
     
     <p class="option" data-no="23">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_图片色彩"></span>
+    </span>
     <input type="checkbox" name="downColorImg" id="setDownColorImg" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="setDownColorImg" data-xztext="_彩色图片"></label>
@@ -19329,9 +19349,9 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="21">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_图片数量"></span>
+    </span>
     <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="setDownSingleImg" data-xztext="_单图作品"></label>
@@ -19361,7 +19381,7 @@ const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="47">
     <span class="has_tip settingNameStyle1" data-xztip="_超出此限制的多图作品不会被下载">
-    <span data-xztext="_多图作品的图片数量限制"></span>
+    <span data-xztext="_多图作品的图片数量上限"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="multiImageWorkImageLimitSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
@@ -19373,7 +19393,7 @@ const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="5">
     <span class="has_tip settingNameStyle1" data-xztip="_设置收藏数量的提示">
-    <span data-xztext="_设置收藏数量"></span>
+    <span data-xztext="_收藏数量"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="BMKNumSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
@@ -19394,35 +19414,9 @@ const formHtml = `<form class="settingForm">
     </span>
     </p>
 
-    <p class="option" data-no="8">
-    <span class="has_tip settingNameStyle1" data-xztip="_设置宽高比例Title">
-    <span data-xztext="_设置宽高比例"></span>
-    <span class="gray1"> ? </span></span>
-    <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
-    <span class="beautify_switch"></span>
-    <span class="subOptionWrap" data-show="ratioSwitch">
-    <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="horizontal">
-    <span class="beautify_radio"></span>
-    <label for="ratio1" data-xztext="_横图"></label>
-
-    <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="vertical">
-    <span class="beautify_radio"></span>
-    <label for="ratio2" data-xztext="_竖图"></label>
-    
-    <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="square">
-    <span class="beautify_radio"></span>
-    <label for="ratio0" data-xztext="_正方形"></label>
-
-    <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
-    <span class="beautify_radio"></span>
-    <label for="ratio3" data-xztext="_输入宽高比"></label>
-    <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
-    </span>
-    </p>
-
     <p class="option" data-no="7">
     <span class="has_tip settingNameStyle1" data-xztip="_筛选宽高的提示文字">
-    <span data-xztext="_筛选宽高的按钮文字"></span>
+    <span data-xztext="_图片的宽高"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="setWHSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
@@ -19453,10 +19447,36 @@ const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="8">
+    <span class="has_tip settingNameStyle1" data-xztip="_设置宽高比例Title">
+    <span data-xztext="_图片的宽高比例"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    <span class="subOptionWrap" data-show="ratioSwitch">
+    <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="horizontal">
+    <span class="beautify_radio"></span>
+    <label for="ratio1" data-xztext="_横图"></label>
+
+    <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="vertical">
+    <span class="beautify_radio"></span>
+    <label for="ratio2" data-xztext="_竖图"></label>
+    
+    <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="square">
+    <span class="beautify_radio"></span>
+    <label for="ratio0" data-xztext="_正方形"></label>
+
+    <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
+    <span class="beautify_radio"></span>
+    <label for="ratio3" data-xztext="_输入宽高比"></label>
+    <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
+    </span>
+    </p>
+
     <p class="option" data-no="9">
     <span class="has_tip settingNameStyle1" data-xztip="_设置id范围提示">
-    <span data-xztext="_设置id范围"></span>
-    &nbsp; <span class="gray1"> ? </span></span>
+    <span data-xztext="_id范围"></span>
+    <span class="gray1"> ? </span></span>
     <input type="checkbox" name="idRangeSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
     <span class="subOptionWrap" data-show="idRangeSwitch">
@@ -19472,7 +19492,7 @@ const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="10">
     <span class="has_tip settingNameStyle1" data-xztip="_设置投稿时间提示">
-    <span data-xztext="_设置投稿时间"></span>
+    <span data-xztext="_投稿时间"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="postDate" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
@@ -19673,7 +19693,7 @@ const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="16">
     <span class="has_tip settingNameStyle1" data-xztip="_线程数字">
-    <span data-xztext="_设置下载线程"></span>
+    <span data-xztext="_下载线程"></span>
     <span class="gray1"> ? </span></span>
     <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
     </p>

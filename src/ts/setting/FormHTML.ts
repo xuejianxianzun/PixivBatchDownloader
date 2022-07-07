@@ -4,7 +4,7 @@ export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
     <span class="setWantPageWrap">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载多少页面"><span class="setWantPageTip1" data-xztext="_下载多少页面"></span><span class="gray1"> ? </span></span>
+    <span class="has_tip settingNameStyle1" data-xztip="_抓取多少页面"><span class="setWantPageTip1" data-xztext="_抓取多少页面"></span><span class="gray1"> ? </span></span>
     <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
     value = '-1'>&nbsp;
     <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
@@ -12,9 +12,9 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="2">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_作品类型"></span>
+    </span>
     <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="setWorkType0" data-xztext="_插画"></label>
@@ -30,9 +30,9 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="44">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_年龄限制"></span>
+    </span>
     <input type="checkbox" name="downAllAges" id="downAllAges" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="downAllAges" data-xztext="_全年龄"></label>
@@ -45,9 +45,9 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="6">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_收藏状态"></span>
+    </span>
     <input type="checkbox" name="downNotBookmarked" id="setDownNotBookmarked" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="setDownNotBookmarked" data-xztext="_未收藏"></label>
@@ -57,9 +57,9 @@ export const formHtml = `<form class="settingForm">
     </p>
     
     <p class="option" data-no="23">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_图片色彩"></span>
+    </span>
     <input type="checkbox" name="downColorImg" id="setDownColorImg" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="setDownColorImg" data-xztext="_彩色图片"></label>
@@ -69,9 +69,9 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="21">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_图片数量"></span>
+    </span>
     <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="setDownSingleImg" data-xztext="_单图作品"></label>
@@ -101,7 +101,7 @@ export const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="47">
     <span class="has_tip settingNameStyle1" data-xztip="_超出此限制的多图作品不会被下载">
-    <span data-xztext="_多图作品的图片数量限制"></span>
+    <span data-xztext="_多图作品的图片数量上限"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="multiImageWorkImageLimitSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
@@ -113,7 +113,7 @@ export const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="5">
     <span class="has_tip settingNameStyle1" data-xztip="_设置收藏数量的提示">
-    <span data-xztext="_设置收藏数量"></span>
+    <span data-xztext="_收藏数量"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="BMKNumSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
@@ -134,35 +134,9 @@ export const formHtml = `<form class="settingForm">
     </span>
     </p>
 
-    <p class="option" data-no="8">
-    <span class="has_tip settingNameStyle1" data-xztip="_设置宽高比例Title">
-    <span data-xztext="_设置宽高比例"></span>
-    <span class="gray1"> ? </span></span>
-    <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
-    <span class="beautify_switch"></span>
-    <span class="subOptionWrap" data-show="ratioSwitch">
-    <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="horizontal">
-    <span class="beautify_radio"></span>
-    <label for="ratio1" data-xztext="_横图"></label>
-
-    <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="vertical">
-    <span class="beautify_radio"></span>
-    <label for="ratio2" data-xztext="_竖图"></label>
-    
-    <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="square">
-    <span class="beautify_radio"></span>
-    <label for="ratio0" data-xztext="_正方形"></label>
-
-    <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
-    <span class="beautify_radio"></span>
-    <label for="ratio3" data-xztext="_输入宽高比"></label>
-    <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
-    </span>
-    </p>
-
     <p class="option" data-no="7">
     <span class="has_tip settingNameStyle1" data-xztip="_筛选宽高的提示文字">
-    <span data-xztext="_筛选宽高的按钮文字"></span>
+    <span data-xztext="_图片的宽高"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="setWHSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
@@ -193,10 +167,36 @@ export const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="8">
+    <span class="has_tip settingNameStyle1" data-xztip="_设置宽高比例Title">
+    <span data-xztext="_图片的宽高比例"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    <span class="subOptionWrap" data-show="ratioSwitch">
+    <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="horizontal">
+    <span class="beautify_radio"></span>
+    <label for="ratio1" data-xztext="_横图"></label>
+
+    <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="vertical">
+    <span class="beautify_radio"></span>
+    <label for="ratio2" data-xztext="_竖图"></label>
+    
+    <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="square">
+    <span class="beautify_radio"></span>
+    <label for="ratio0" data-xztext="_正方形"></label>
+
+    <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
+    <span class="beautify_radio"></span>
+    <label for="ratio3" data-xztext="_输入宽高比"></label>
+    <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
+    </span>
+    </p>
+
     <p class="option" data-no="9">
     <span class="has_tip settingNameStyle1" data-xztip="_设置id范围提示">
-    <span data-xztext="_设置id范围"></span>
-    &nbsp; <span class="gray1"> ? </span></span>
+    <span data-xztext="_id范围"></span>
+    <span class="gray1"> ? </span></span>
     <input type="checkbox" name="idRangeSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
     <span class="subOptionWrap" data-show="idRangeSwitch">
@@ -212,7 +212,7 @@ export const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="10">
     <span class="has_tip settingNameStyle1" data-xztip="_设置投稿时间提示">
-    <span data-xztext="_设置投稿时间"></span>
+    <span data-xztext="_投稿时间"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="postDate" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
@@ -413,7 +413,7 @@ export const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="16">
     <span class="has_tip settingNameStyle1" data-xztip="_线程数字">
-    <span data-xztext="_设置下载线程"></span>
+    <span data-xztext="_下载线程"></span>
     <span class="gray1"> ? </span></span>
     <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
     </p>
