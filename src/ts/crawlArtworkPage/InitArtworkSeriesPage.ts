@@ -29,7 +29,7 @@ class InitArtworkSeriesPage extends InitPageBase {
     })
   }
 
-  protected initAny() { }
+  protected initAny() {}
 
   protected setFormOption() {
     // 个数/页数选项的提示

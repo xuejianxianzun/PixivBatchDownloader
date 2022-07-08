@@ -467,6 +467,12 @@ export const formHtml = `<form class="settingForm">
       <span data-xztext="_抓取"></span>
     </p>
 
+    <p class="option" data-no="69">
+    <span class="settingNameStyle1" data-xztext="_不抓取多图作品的最后一张图片"></span>
+    <input type="checkbox" name="DoNotDownloadLastImageOfMultiImageWork" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    </p>
+
     <p class="option" data-no="35">
     <span class="has_tip settingNameStyle1" data-xztip="_用户阻止名单的说明">
     <span data-xztext="_用户阻止名单"></span>

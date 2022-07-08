@@ -463,10 +463,12 @@ const langText = {
     'Crawl a total of {} works',
     '合計 {} つの作品があります',
   ],
-  _命名规则: [' <span class="key">命名</span>规则',
+  _命名规则: [
+    ' <span class="key">命名</span>规则',
     '<span class="key">命名</span>規則',
     '<span class="key">Naming</span> rule',
-    '<span class="key">命名</span>規則'],
+    '<span class="key">命名</span>規則',
+  ],
   _设置文件夹名的提示: [
     "可以使用 '/' 建立文件夹。示例：",
     '可以使用斜線（/）建立資料夾。範例：',
@@ -1064,12 +1066,7 @@ const langText = {
     'シングルイメージ作品',
   ],
   _彩色图片: ['彩色图片', '彩色圖片', 'Color images', 'カラーイメージ'],
-  _黑白图片: [
-    '黑白图片',
-    '黑白圖片',
-    'Black and white images',
-    '白黒イメージ',
-  ],
+  _黑白图片: ['黑白图片', '黑白圖片', 'Black and white images', '白黒イメージ'],
   _不保存图片因为颜色: [
     '{} 没有被保存，因为它的颜色不符合设定。',
     '{} 並未儲存，因為它的色彩不符合設定。',
@@ -1802,12 +1799,7 @@ const langText = {
     'Automatically <span class="key">export</span> crawl results',
     'クロール結果の自動エクスポート',
   ],
-  _抓取结果: [
-    '抓取结果',
-    '擷取結果',
-    'Crawl results',
-    'クロール結果',
-  ],
+  _抓取结果: ['抓取结果', '擷取結果', 'Crawl results', 'クロール結果'],
   _文件格式: ['文件格式', '檔案格式', 'File format', 'ファイル形式'],
   _格式: ['格式', '格式', 'Format', '形式'],
   _预览作品: [
@@ -2151,6 +2143,12 @@ const langText = {
     '圖片<span class="key">數量</span>',
     '<span class="key">Number</span> of images',
     '画像の<span class="key">数</span>',
+  ],
+  _不抓取多图作品的最后一张图片: [
+    '不抓取多图作品的<span class="key">最后一张</span>图片',
+    '不抓取多圖作品的<span class="key">最後一張</span>圖片',
+    'Do not crawl the <span class="key">last image</span> of multi-image works',
+    'マルチ画像作品の<span class="key">最後の画像</span>をつかまないでください',
   ],
 }
 
