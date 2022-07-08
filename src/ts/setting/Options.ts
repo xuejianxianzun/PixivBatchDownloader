@@ -43,7 +43,7 @@ class Options {
 
   // 保持显示的选项的 id
   private readonly whiteList: number[] = [
-    1, 2, 4, 13, 17, 32, 44, 23, 50, 51, 57, 64,
+    1, 2, 4, 13, 17, 32, 44, 50, 51, 57, 64,
   ]
 
   // 某些页面类型需要隐藏某些选项。当调用 hideOption 方法时，把选项 id 保存起来

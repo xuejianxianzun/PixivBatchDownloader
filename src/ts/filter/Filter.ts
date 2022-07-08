@@ -260,7 +260,7 @@ class Filter {
 
     if (settings.multiImageWorkImageLimit > 0) {
       log.warning(
-        lang.transl('_多图作品的图片数量限制') +
+        lang.transl('_多图作品的图片数量上限') +
           '：' +
           settings.multiImageWorkImageLimit
       )
