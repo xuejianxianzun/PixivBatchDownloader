@@ -4092,7 +4092,7 @@ const langText = {
     _抓取: ['抓取', '擷取', 'Crawl', 'クロール'],
     _下载: ['下载', '下載', 'Download', 'ダウンロード'],
     _其他: ['其他', '其他', 'Other', 'その他'],
-    _更多: ['更多', '其他', 'More', 'もっと'],
+    _更多: ['更多', '更多', 'More', 'もっと'],
     _第一张图不带序号: [
         '第一张图不带<span class="key">序号</span>',
         '第一張圖片不包含<span class="key">序號</span>',
@@ -5101,11 +5101,11 @@ const langText = {
         'This feature is enabled by default.',
         'この機能はデフォルトで有効になっています。',
     ],
-    _你可以在其他选项卡的增强分类里找到它: [
-        '你可以在“其他”选项卡 → “增强”分类里找到它。（可能需要先启用“显示高级设置”）',
-        '你可以在“其他”選項卡 → “增強”分類裡找到它。（可能需要先啟用“顯示進階設定”）',
-        'You can find it in the "Other" tab → "Enhancements" category. (May need to enable "Show advanced settings" first)',
-        '[その他]タブ→[強化機能]カテゴリにあります。 （最初に[詳細設定を表示する]を有効にする必要がある場合があります）',
+    _你可以在更多他选项卡的下载分类里找到它: [
+        '你可以在“更多”选项卡 → “下载”分类里找到它。（需要先启用“显示高级设置”）',
+        '你可以在“更多”選項卡 → “下載”分類裡找到它。（需要先啟用“顯示進階設定”）',
+        'You can find it in the "More" tab → "Download" category. ("Show advanced settings" needs to be enabled first)',
+        '[もっと]タブ→[ダウンロード]カテゴリにあります。 （最初に「詳細設定を表示」を有効にする必要があります）',
     ],
     _使用鼠标滚轮切换作品里的图片: [
         '使用鼠标滚轮切换多图作品里的图片',
@@ -5197,6 +5197,12 @@ const langText = {
         '不抓取多圖作品的<span class="key">最後一張</span>圖片',
         'Do not crawl the <span class="key">last image</span> of multi-image works',
         'マルチ画像作品の<span class="key">最後の画像</span>をつかまないでください',
+    ],
+    _下载小说的封面图片: [
+        '下载小说的<span class="key">封面图片</span>',
+        '下載小說的<span class="key">封面圖片</span>',
+        '小説の<span class="key">表紙画像</span>をダウンロード',
+        'Download the <span class="key">cover image</span> of the novel',
     ],
 };
 
@@ -7752,7 +7758,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '12.3.0';
+        this.flag = '12.6.0';
         this.msg = '';
         this.bindEvents();
     }
@@ -7760,7 +7766,13 @@ class ShowWhatIsNew {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             this.msg = `
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_1230更新说明')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载小说的封面图片')}
+      <br>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')}
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多他选项卡的下载分类里找到它')}
+
       `;
             this.show();
         });
@@ -10158,7 +10170,8 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].hideOption([
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
-            49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,
+            49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+            70,
         ]);
     }
     nextStep() {
@@ -14076,6 +14089,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+// 处理下载队列里的任务
+// 不显示在进度条上的下载任务，不在这里处理
 class Download {
     constructor(progressBarIndex, data) {
         this.retry = 0; // 重试次数
@@ -14103,32 +14118,33 @@ class Download {
     // 在开始下载前进行检查
     async beforeDownload(arg) {
         // 检查是否是重复文件
-        const duplicate = await _Deduplication__WEBPACK_IMPORTED_MODULE_7__["deduplication"].check(arg.data);
+        const duplicate = await _Deduplication__WEBPACK_IMPORTED_MODULE_7__["deduplication"].check(arg.result);
         if (duplicate) {
             return this.skipDownload({
                 id: arg.id,
                 reason: 'duplicate',
-            }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_跳过下载因为重复文件', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id, arg.data.type !== 3)));
+            }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_跳过下载因为重复文件', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id, arg.result.type !== 3)));
         }
         // 如果是动图，再次检查是否排除了动图
         // 因为有时候用户在抓取时没有排除动图，但是在下载时排除了动图。所以下载时需要再次检查
-        if (arg.data.type === 2 && !_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downType2) {
+        if (arg.result.type === 2 && !_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downType2) {
             return this.skipDownload({
                 id: arg.id,
                 reason: 'excludedType',
             });
         }
         // 检查宽高条件和宽高比
-        if ((_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].setWHSwitch || _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].ratioSwitch) && arg.data.type !== 3) {
+        if ((_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].setWHSwitch || _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].ratioSwitch) &&
+            arg.result.type !== 3) {
             // 默认使用当前作品中第一张图片的宽高
             let wh = {
-                width: arg.data.fullWidth,
-                height: arg.data.fullHeight,
+                width: arg.result.fullWidth,
+                height: arg.result.fullHeight,
             };
             // 如果不是第一张图片，则加载图片以获取宽高
-            if (arg.data.index > 0) {
+            if (arg.result.index > 0) {
                 // 始终获取原图的尺寸
-                wh = await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__["Utils"].getImageSize(arg.data.original);
+                wh = await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__["Utils"].getImageSize(arg.result.original);
             }
             // 如果获取宽高失败，图片会被视为通过宽高检查
             if (wh.width === 0 || wh.height === 0) {
@@ -14190,15 +14206,15 @@ class Download {
     // 下载文件
     async download(arg) {
         // 获取文件名
-        const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_3__["fileName"].getFileName(arg.data);
+        const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_3__["fileName"].getFileName(arg.result);
         // 重设当前下载栏的信息
         this.setProgressBar(_fileName, 0, 0);
         // 下载文件
         let url;
-        if (arg.data.type === 3) {
+        if (arg.result.type === 3) {
             // 生成小说的文件
-            if (arg.data.novelMeta) {
-                let blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_9__["MakeNovelFile"].make(arg.data.novelMeta);
+            if (arg.result.novelMeta) {
+                let blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_9__["MakeNovelFile"].make(arg.result.novelMeta);
                 url = URL.createObjectURL(blob);
             }
             else {
@@ -14207,7 +14223,7 @@ class Download {
         }
         else {
             // 对于图像作品，如果设置了图片尺寸就使用指定的 url，否则使用原图 url
-            url = arg.data[_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].imageSize] || arg.data.original;
+            url = arg.result[_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].imageSize] || arg.result.original;
         }
         let xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
@@ -14264,22 +14280,22 @@ class Download {
                 const convertExt = ['webm', 'gif', 'png'];
                 const ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].ugoiraSaveAs;
                 if (convertExt.includes(ext) &&
-                    arg.data.ugoiraInfo &&
+                    arg.result.ugoiraInfo &&
                     _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].imageSize !== 'thumb') {
                     // 当下载图片的方形缩略图时，不转换动图，因为此时下载的是作品的静态缩略图，无法进行转换
                     try {
                         if (ext === 'webm') {
-                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__["convertUgoira"].webm(file, arg.data.ugoiraInfo);
+                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__["convertUgoira"].webm(file, arg.result.ugoiraInfo);
                         }
                         if (ext === 'gif') {
-                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__["convertUgoira"].gif(file, arg.data.ugoiraInfo);
+                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__["convertUgoira"].gif(file, arg.result.ugoiraInfo);
                         }
                         if (ext === 'png') {
-                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__["convertUgoira"].apng(file, arg.data.ugoiraInfo);
+                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__["convertUgoira"].apng(file, arg.result.ugoiraInfo);
                         }
                     }
                     catch (error) {
-                        const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_动图转换失败的提示', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.data.idNum));
+                        const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_动图转换失败的提示', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.result.idNum));
                         // 因为会重试所以不在日志上显示
                         // log.error(msg, 1)
                         console.error(msg);
@@ -14296,7 +14312,7 @@ class Download {
             // 对插画、漫画进行颜色检查
             // 在这里进行检查的主要原因：抓取时只能检测第一张的缩略图，并没有检查后面的图片。所以这里需要对后面的图片进行检查。
             // 另一个原因：如果抓取时没有设置不下载某种颜色的图片，下载时又开启了设置，那么就在这里进行检查
-            if (arg.data.type === 0 || arg.data.type === 1) {
+            if (arg.result.type === 0 || arg.result.type === 1) {
                 const result = await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check({
                     mini: blobUrl,
                 });
@@ -14356,19 +14372,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _download_Download__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../download/Download */ "./src/ts/download/Download.ts");
-/* harmony import */ var _ProgressBar__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ProgressBar */ "./src/ts/download/ProgressBar.ts");
-/* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/download/DownloadStates.ts");
-/* harmony import */ var _ShowDownloadStates__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ShowDownloadStates */ "./src/ts/download/ShowDownloadStates.ts");
-/* harmony import */ var _ShowSkipCount__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowSkipCount */ "./src/ts/download/ShowSkipCount.ts");
-/* harmony import */ var _ShowConvertCount__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ShowConvertCount */ "./src/ts/download/ShowConvertCount.ts");
-/* harmony import */ var _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./BookmarkAfterDL */ "./src/ts/download/BookmarkAfterDL.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Help__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../Help */ "./src/ts/Help.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../download/DownloadNovelCover */ "./src/ts/download/DownloadNovelCover.ts");
+/* harmony import */ var _ProgressBar__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ProgressBar */ "./src/ts/download/ProgressBar.ts");
+/* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/download/DownloadStates.ts");
+/* harmony import */ var _ShowDownloadStates__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowDownloadStates */ "./src/ts/download/ShowDownloadStates.ts");
+/* harmony import */ var _ShowSkipCount__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ShowSkipCount */ "./src/ts/download/ShowSkipCount.ts");
+/* harmony import */ var _ShowConvertCount__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowConvertCount */ "./src/ts/download/ShowConvertCount.ts");
+/* harmony import */ var _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./BookmarkAfterDL */ "./src/ts/download/BookmarkAfterDL.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Help__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../Help */ "./src/ts/Help.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 // 下载控制
+
 
 
 
@@ -14412,15 +14430,15 @@ class DownloadControl {
         this.createDownloadArea();
         this.bindEvents();
         const statusTipWrap = this.wrapper.querySelector('.down_status');
-        new _ShowDownloadStates__WEBPACK_IMPORTED_MODULE_10__["ShowDownloadStates"](statusTipWrap);
+        new _ShowDownloadStates__WEBPACK_IMPORTED_MODULE_11__["ShowDownloadStates"](statusTipWrap);
         const skipTipWrap = this.wrapper.querySelector('.skip_tip');
-        new _ShowSkipCount__WEBPACK_IMPORTED_MODULE_11__["ShowSkipCount"](skipTipWrap);
+        new _ShowSkipCount__WEBPACK_IMPORTED_MODULE_12__["ShowSkipCount"](skipTipWrap);
         const convertTipWrap = this.wrapper.querySelector('.convert_tip');
-        new _ShowConvertCount__WEBPACK_IMPORTED_MODULE_12__["ShowConvertCount"](convertTipWrap);
+        new _ShowConvertCount__WEBPACK_IMPORTED_MODULE_13__["ShowConvertCount"](convertTipWrap);
         // 只在 p 站内启用下载后收藏的功能
-        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_17__["Utils"].isPixiv()) {
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].isPixiv()) {
             const bmkAfterDLTipWrap = this.wrapper.querySelector('.bmkAfterDL_tip');
-            new _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_13__["BookmarkAfterDL"](bmkAfterDLTipWrap);
+            new _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_14__["BookmarkAfterDL"](bmkAfterDLTipWrap);
         }
     }
     bindEvents() {
@@ -14498,12 +14516,12 @@ class DownloadControl {
             _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕'), 2);
             // 如果有等待中的下载任务，则开始下载等待中的任务
             if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].waitingIdList.length === 0) {
-                _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕2'));
+                _Toast__WEBPACK_IMPORTED_MODULE_17__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕2'));
             }
             else {
                 window.clearTimeout(this.waitingTimer);
                 this.waitingTimer = window.setTimeout(() => {
-                    _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].quickCrawl = true; // 下载等待的任务时，不显示下载器面板
+                    _store_States__WEBPACK_IMPORTED_MODULE_15__["states"].quickCrawl = true; // 下载等待的任务时，不显示下载器面板
                     const idList = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].waitingIdList;
                     _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].waitingIdList = [];
                     _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlIdList', idList);
@@ -14550,7 +14568,7 @@ class DownloadControl {
     }
     createResultBtns() {
         // 只在 pixiv 上添加这些按钮
-        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_17__["Utils"].isPixiv()) {
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].isPixiv()) {
             // 导入抓取结果
             this.resultBtns.importJSON = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgGreen, '_导入抓取结果');
             // 导入抓取结果的按钮始终显示，因为它需要始终可用。
@@ -14574,52 +14592,52 @@ class DownloadControl {
     }
     // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
     readyDownload() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].busy || _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].mergeNovel) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_15__["states"].busy || _store_States__WEBPACK_IMPORTED_MODULE_15__["states"].mergeNovel) {
             return;
         }
         if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0) {
-            return _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].reset(0);
+            return _ProgressBar__WEBPACK_IMPORTED_MODULE_9__["progressBar"].reset(0);
         }
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('readyDownload');
         this.showResultBtns();
         this.showDownloadArea();
         this.setDownloaded();
         this.setDownloadThread();
-        _Help__WEBPACK_IMPORTED_MODULE_18__["help"].showDownloadTip();
+        _Help__WEBPACK_IMPORTED_MODULE_19__["help"].showDownloadTip();
         // 在插画漫画搜索页面里，如果启用了“预览搜索页面的筛选结果”
-        if (_PageType__WEBPACK_IMPORTED_MODULE_19__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_19__["pageType"].list.ArtworkSearch &&
+        if (_PageType__WEBPACK_IMPORTED_MODULE_20__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_20__["pageType"].list.ArtworkSearch &&
             _setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].previewResult) {
             // “预览搜索页面的筛选结果”会阻止自动开始下载。但是一些情况例外
             // 允许由图片查看器发起的下载请求自动开始下载
             // 允许由抓取标签列表功能发起的下载请求自动开始下载
-            if (!_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].downloadFromViewer &&
-                !_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].quickCrawl &&
-                !_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_15__["states"].downloadFromViewer &&
+                !_store_States__WEBPACK_IMPORTED_MODULE_15__["states"].quickCrawl &&
+                !_store_States__WEBPACK_IMPORTED_MODULE_15__["states"].crawlTagList) {
                 return;
             }
         }
         // 自动开始下载的情况
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].quietDownload ||
-            _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].quickCrawl ||
-            _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].downloadFromViewer ||
-            _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
+            _store_States__WEBPACK_IMPORTED_MODULE_15__["states"].quickCrawl ||
+            _store_States__WEBPACK_IMPORTED_MODULE_15__["states"].downloadFromViewer ||
+            _store_States__WEBPACK_IMPORTED_MODULE_15__["states"].crawlTagList) {
             this.startDownload();
         }
     }
     // 开始下载
     startDownload() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].busy) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_15__["states"].busy) {
             return;
         }
         if (this.pause) {
             // 从上次中断的位置继续下载
             // 把“使用中”的下载状态重置为“未使用”
-            _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].resume();
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].resume();
         }
         else {
             // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
             // 初始化下载状态列表
-            _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].init();
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].init();
         }
         this.reset();
         this.setDownloaded();
@@ -14643,7 +14661,7 @@ class DownloadControl {
         }
         if (this.pause === false) {
             // 如果正在下载中
-            if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].busy) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_15__["states"].busy) {
                 this.pause = true;
                 _Log__WEBPACK_IMPORTED_MODULE_3__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_已暂停'), 2);
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('downloadPause');
@@ -14682,14 +14700,14 @@ class DownloadControl {
         }
         const task = this.taskList[data.id];
         // 复位这个任务的状态
-        _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].setState(task.index, -1);
+        _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].setState(task.index, -1);
         // 建立下载任务，再次下载它
         this.createDownload(task.progressBarIndex);
     }
     downloadOrSkipAFile(data) {
         const task = this.taskList[data.id];
         // 更改这个任务状态为“已完成”
-        _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].setState(task.index, 1);
+        _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].setState(task.index, 1);
         // 统计已下载数量
         this.setDownloaded();
         // 是否继续下载
@@ -14722,11 +14740,11 @@ class DownloadControl {
     setDownloadThread() {
         const setThread = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].downloadThread;
         if (setThread < 1 ||
-            setThread > _config_Config__WEBPACK_IMPORTED_MODULE_15__["Config"].downloadThreadMax ||
+            setThread > _config_Config__WEBPACK_IMPORTED_MODULE_16__["Config"].downloadThreadMax ||
             isNaN(setThread)) {
             // 如果数值非法，则重设为默认值
-            this.thread = _config_Config__WEBPACK_IMPORTED_MODULE_15__["Config"].downloadThreadMax;
-            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["setSetting"])('downloadThread', _config_Config__WEBPACK_IMPORTED_MODULE_15__["Config"].downloadThreadMax);
+            this.thread = _config_Config__WEBPACK_IMPORTED_MODULE_16__["Config"].downloadThreadMax;
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["setSetting"])('downloadThread', _config_Config__WEBPACK_IMPORTED_MODULE_16__["Config"].downloadThreadMax);
         }
         else {
             this.thread = setThread; // 设置为用户输入的值
@@ -14736,11 +14754,11 @@ class DownloadControl {
             this.thread = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded;
         }
         // 重设下载进度条
-        _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].reset(this.thread, this.downloaded);
+        _ProgressBar__WEBPACK_IMPORTED_MODULE_9__["progressBar"].reset(this.thread, this.downloaded);
     }
     // 查找需要进行下载的作品，建立下载
     createDownload(progressBarIndex) {
-        const index = _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].getFirstDownloadItem();
+        const index = _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].getFirstDownloadItem();
         if (index === undefined) {
             // 当已经没有需要下载的作品时，检查是否带着错误完成了下载
             // 如果下载过程中没有出错，就不会执行到这个分支
@@ -14748,9 +14766,9 @@ class DownloadControl {
         }
         else {
             const workData = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result[index];
-            const data = {
+            const argument = {
                 id: workData.id,
-                data: workData,
+                result: workData,
                 index: index,
                 progressBarIndex: progressBarIndex,
                 taskBatch: this.taskBatch,
@@ -14761,15 +14779,16 @@ class DownloadControl {
                 progressBarIndex: progressBarIndex,
             };
             // 建立下载
-            new _download_Download__WEBPACK_IMPORTED_MODULE_7__["Download"](progressBarIndex, data);
+            new _download_Download__WEBPACK_IMPORTED_MODULE_7__["Download"](progressBarIndex, argument);
+            _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_8__["downloadNovelCover"].download(argument.result);
         }
     }
     setDownloaded() {
-        this.downloaded = _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].downloadedCount();
+        this.downloaded = _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].downloadedCount();
         const text = `${this.downloaded} / ${_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length}`;
         _Log__WEBPACK_IMPORTED_MODULE_3__["log"].log(text, 2, false);
         // 设置总下载进度条
-        _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].setTotalProgress(this.downloaded);
+        _ProgressBar__WEBPACK_IMPORTED_MODULE_9__["progressBar"].setTotalProgress(this.downloaded);
         _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].remainingDownload = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded;
         // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
         if (this.downloaded === _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
@@ -14814,6 +14833,76 @@ class DownloadControl {
     }
 }
 new DownloadControl();
+
+
+/***/ }),
+
+/***/ "./src/ts/download/DownloadNovelCover.ts":
+/*!***********************************************!*\
+  !*** ./src/ts/download/DownloadNovelCover.ts ***!
+  \***********************************************/
+/*! exports provided: downloadNovelCover */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "downloadNovelCover", function() { return downloadNovelCover; });
+/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../FileName */ "./src/ts/FileName.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
+// 下载小说的封面图片
+class DownloadNovelCover {
+    async download(result) {
+        var _a;
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].downloadNovelCoverImage ||
+            result.type !== 3 ||
+            !((_a = result.novelMeta) === null || _a === void 0 ? void 0 : _a.coverUrl)) {
+            return;
+        }
+        const url = await this.getCoverBolbURL(result.novelMeta.coverUrl);
+        const novelName = _FileName__WEBPACK_IMPORTED_MODULE_0__["fileName"].getFileName(result);
+        const coverName = this.createCoverFileName(novelName, result.novelMeta.coverUrl);
+        this.sendDownload(url, coverName);
+    }
+    async downloadOnMergeNovel(coverURL, novelName) {
+        const url = await this.getCoverBolbURL(coverURL);
+        const coverName = this.createCoverFileName(novelName, coverURL);
+        this.sendDownload(url, coverName);
+    }
+    // 下载封面图片，返回其 Blob URL
+    async getCoverBolbURL(coverURL) {
+        return new Promise(async (resolve, reject) => {
+            const res = await fetch(coverURL, {
+                method: 'get',
+                credentials: 'same-origin',
+            });
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            return resolve(url);
+        });
+    }
+    // 生成封面的文件名
+    createCoverFileName(novelName, coverURL) {
+        // 用小说的文件名修改，把后缀名改成图片的后缀名
+        // 目前来看封面图片的后缀都是 jpg，不过严谨起见还是手动获取其后缀名
+        const novelNameArray = novelName.split('.');
+        const coverArray = coverURL.split('.');
+        novelNameArray[novelNameArray.length - 1] =
+            coverArray[coverArray.length - 1];
+        const coverName = novelNameArray.join('.');
+        return coverName;
+    }
+    sendDownload(url, name) {
+        chrome.runtime.sendMessage({
+            msg: 'save_novel_cover_file',
+            fileUrl: url,
+            fileName: name,
+        });
+    }
+}
+const downloadNovelCover = new DownloadNovelCover();
+
 
 
 /***/ }),
@@ -15417,6 +15506,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../download/DownloadNovelCover */ "./src/ts/download/DownloadNovelCover.ts");
+
 
 
 
@@ -15488,6 +15579,9 @@ class MergeNovel {
         _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].downloadFile(url, fileName);
         _store_States__WEBPACK_IMPORTED_MODULE_3__["states"].mergeNovel = false;
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('downloadComplete');
+        // 保存第一个小说的封面图片
+        // 实际上系列的封面不一定是第一个小说的封面，这里用第一个小说的封面凑合一下
+        _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_7__["downloadNovelCover"].downloadOnMergeNovel(firstResult.novelMeta.coverUrl, fileName);
         _store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].reset();
     }
     makeTXT(novelDataArray) {
@@ -19849,7 +19943,7 @@ const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="69">
     <span class="settingNameStyle1" data-xztext="_不抓取多图作品的最后一张图片"></span>
-    <input type="checkbox" name="DoNotDownloadLastImageOfMultiImageWork" class="need_beautify checkbox_switch">
+    <input type="checkbox" name="doNotDownloadLastImageOfMultiImageWork" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
     </p>
 
@@ -20051,6 +20145,12 @@ const formHtml = `<form class="settingForm">
     <span data-xztext="_在小说里保存元数据"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch"></span>
+    </p>
+
+    <p class="option" data-no="70">
+    <span class="settingNameStyle1" data-xztext="_下载小说的封面图片"></span>
+    <input type="checkbox" name="downloadNovelCoverImage" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
     </p>
 
@@ -20481,7 +20581,8 @@ class FormSettings {
                 'showLargerThumbnails',
                 'doubleWidthThumb',
                 'wheelScrollSwitchImageOnPreviewWork',
-                'DoNotDownloadLastImageOfMultiImageWork',
+                'doNotDownloadLastImageOfMultiImageWork',
+                'downloadNovelCoverImage',
             ],
             text: [
                 'setWantPage',
@@ -21395,7 +21496,8 @@ class Settings {
             showLargerThumbnails: false,
             doubleWidthThumb: true,
             wheelScrollSwitchImageOnPreviewWork: true,
-            DoNotDownloadLastImageOfMultiImageWork: false,
+            doNotDownloadLastImageOfMultiImageWork: false,
+            downloadNovelCoverImage: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -22306,7 +22408,7 @@ class Store {
             const p0 = 'p0';
             for (let i = 0; i < workData.dlCount; i++) {
                 // 不下载多图作品的最后一张图片
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].DoNotDownloadLastImageOfMultiImageWork &&
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doNotDownloadLastImageOfMultiImageWork &&
                     i > 0 &&
                     i === workData.pageCount - 1) {
                     continue;

@@ -469,7 +469,7 @@ export const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="69">
     <span class="settingNameStyle1" data-xztext="_不抓取多图作品的最后一张图片"></span>
-    <input type="checkbox" name="DoNotDownloadLastImageOfMultiImageWork" class="need_beautify checkbox_switch">
+    <input type="checkbox" name="doNotDownloadLastImageOfMultiImageWork" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
     </p>
 
@@ -671,6 +671,12 @@ export const formHtml = `<form class="settingForm">
     <span data-xztext="_在小说里保存元数据"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch"></span>
+    </p>
+
+    <p class="option" data-no="70">
+    <span class="settingNameStyle1" data-xztext="_下载小说的封面图片"></span>
+    <input type="checkbox" name="downloadNovelCoverImage" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
     </p>
 
