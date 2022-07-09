@@ -4017,7 +4017,7 @@ const langText = {
     _抓取: ['抓取', '擷取', 'Crawl', 'クロール'],
     _下载: ['下载', '下載', 'Download', 'ダウンロード'],
     _其他: ['其他', '其他', 'Other', 'その他'],
-    _更多: ['更多', '其他', 'More', 'もっと'],
+    _更多: ['更多', '更多', 'More', 'もっと'],
     _第一张图不带序号: [
         '第一张图不带<span class="key">序号</span>',
         '第一張圖片不包含<span class="key">序號</span>',
@@ -5026,11 +5026,11 @@ const langText = {
         'This feature is enabled by default.',
         'この機能はデフォルトで有効になっています。',
     ],
-    _你可以在其他选项卡的增强分类里找到它: [
-        '你可以在“其他”选项卡 → “增强”分类里找到它。（可能需要先启用“显示高级设置”）',
-        '你可以在“其他”選項卡 → “增強”分類裡找到它。（可能需要先啟用“顯示進階設定”）',
-        'You can find it in the "Other" tab → "Enhancements" category. (May need to enable "Show advanced settings" first)',
-        '[その他]タブ→[強化機能]カテゴリにあります。 （最初に[詳細設定を表示する]を有効にする必要がある場合があります）',
+    _你可以在更多他选项卡的下载分类里找到它: [
+        '你可以在“更多”选项卡 → “下载”分类里找到它。（需要先启用“显示高级设置”）',
+        '你可以在“更多”選項卡 → “下載”分類裡找到它。（需要先啟用“顯示進階設定”）',
+        'You can find it in the "More" tab → "Download" category. ("Show advanced settings" needs to be enabled first)',
+        '[もっと]タブ→[ダウンロード]カテゴリにあります。 （最初に「詳細設定を表示」を有効にする必要があります）',
     ],
     _使用鼠标滚轮切换作品里的图片: [
         '使用鼠标滚轮切换多图作品里的图片',
@@ -7679,7 +7679,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '12.3.0';
+        this.flag = '12.6.0';
         this.msg = '';
         this.bindEvents();
     }
@@ -7687,7 +7687,13 @@ class ShowWhatIsNew {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             this.msg = `
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_1230更新说明')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载小说的封面图片')}
+      <br>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')}
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多他选项卡的下载分类里找到它')}
+
       `;
             this.show();
         });
