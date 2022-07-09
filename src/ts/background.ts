@@ -89,7 +89,11 @@ chrome.runtime.onMessage.addListener(function (msg: SendToBackEndData, sender) {
   }
 
   // save_description_file 下载作品的简介文件，不需要返回下载状态
-  if (msg.msg === 'save_description_file') {
+  // save_novel_cover_file 下载小说的封面图片
+  if (
+    msg.msg === 'save_description_file' ||
+    msg.msg === 'save_novel_cover_file'
+  ) {
     chrome.downloads.download({
       url: msg.fileUrl,
       filename: msg.fileName,

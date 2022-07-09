@@ -14,7 +14,15 @@ export interface ArtworkData {
     illustType: 0 | 1 | 2
     createDate: string
     uploadDate: string
-    restrict: number
+    /**公开范围
+     *
+     * 0 公开
+     *
+     * 1 仅好P友可见
+     *
+     * 2 不公开
+     */
+    restrict: 0 | 1 | 2
     xRestrict: 0 | 1 | 2
     sl: 0 | 2 | 4 | 6
     urls: {
@@ -50,7 +58,7 @@ export interface ArtworkData {
         title: string
         illustType: number
         xRestrict: 0 | 1 | 2
-        restrict: number
+        restrict: 0 | 1 | 2
         sl: 0 | 2 | 4 | 6
         url: string
         description: string
@@ -141,7 +149,7 @@ export interface ArtworkCommonData {
   title: string
   illustType: 0 | 1 | 2
   xRestrict: 0 | 1 | 2
-  restrict: number
+  restrict: 0 | 1 | 2
   sl: 0 | 2 | 4 | 6
   url: string
   description: string
@@ -641,7 +649,15 @@ export interface NovelCommonData {
   isOriginal: boolean
   marker: null
   profileImageUrl: string
-  restrict: number
+  /**公开范围
+   *
+   * 0 公开
+   *
+   * 1 仅好P友可见
+   *
+   * 2 不公开
+   */
+  restrict: 0 | 1 | 2
   tags: string[]
   textCount: number
   title: string
@@ -706,7 +722,7 @@ export interface NovelData {
     isUnlisted: boolean
     language: string
     xRestrict: 0 | 1 | 2
-    restrict: number
+    restrict: 0 | 1 | 2
     content: string
     coverUrl: string
     suggestedSettings: {
@@ -835,7 +851,7 @@ export interface NovelSeriesData {
       title: string
       commentHtml: string
       tags: string[]
-      restrict: number
+      restrict: 0 | 1 | 2
       xRestrict: 0 | 1 | 2
       isOriginal: boolean
       textLength: number

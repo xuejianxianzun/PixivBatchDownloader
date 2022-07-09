@@ -121,7 +121,7 @@ class Store {
       for (let i = 0; i < workData.dlCount; i++) {
         // 不下载多图作品的最后一张图片
         if (
-          settings.DoNotDownloadLastImageOfMultiImageWork &&
+          settings.doNotDownloadLastImageOfMultiImageWork &&
           i > 0 &&
           i === workData.pageCount - 1
         ) {

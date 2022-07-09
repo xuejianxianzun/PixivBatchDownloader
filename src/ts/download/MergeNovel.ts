@@ -6,6 +6,7 @@ import { states } from '../store/States'
 import { settings } from '../setting/Settings'
 import { lang } from '../Lang'
 import { Tools } from '../Tools'
+import { downloadNovelCover } from '../download/DownloadNovelCover'
 
 // 单个小说的数据
 interface NovelData {
@@ -97,6 +98,14 @@ class MergeNovel {
 
     states.mergeNovel = false
     EVT.fire('downloadComplete')
+
+    // 保存第一个小说的封面图片
+    // 实际上系列的封面不一定是第一个小说的封面，这里用第一个小说的封面凑合一下
+    downloadNovelCover.downloadOnMergeNovel(
+      firstResult.novelMeta!.coverUrl,
+      fileName
+    )
+
     store.reset()
   }
 

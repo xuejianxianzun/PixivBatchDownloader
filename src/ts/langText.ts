@@ -2150,6 +2150,12 @@ const langText = {
     'Do not crawl the <span class="key">last image</span> of multi-image works',
     'マルチ画像作品の<span class="key">最後の画像</span>をつかまないでください',
   ],
+  _下载小说的封面图片: [
+    '下载小说的<span class="key">封面图片</span>',
+    '下載小說的<span class="key">封面圖片</span>',
+    '小説の<span class="key">表紙画像</span>をダウンロード',
+    'Download the <span class="key">cover image</span> of the novel',
+  ],
 }
 
 export { langText }

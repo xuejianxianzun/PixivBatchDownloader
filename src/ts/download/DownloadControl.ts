@@ -14,6 +14,7 @@ import { lang } from '../Lang'
 import { Colors } from '../config/Colors'
 import { setSetting, settings } from '../setting/Settings'
 import { Download } from '../download/Download'
+import { downloadNovelCover } from '../download/DownloadNovelCover'
 import { progressBar } from './ProgressBar'
 import { downloadStates } from './DownloadStates'
 import { ShowDownloadStates } from './ShowDownloadStates'
@@ -514,9 +515,9 @@ class DownloadControl {
       return this.checkCompleteWithError()
     } else {
       const workData = store.result[index]
-      const data: downloadArgument = {
+      const argument: downloadArgument = {
         id: workData.id,
-        data: workData,
+        result: workData,
         index: index,
         progressBarIndex: progressBarIndex,
         taskBatch: this.taskBatch,
@@ -529,7 +530,9 @@ class DownloadControl {
       }
 
       // 建立下载
-      new Download(progressBarIndex, data)
+      new Download(progressBarIndex, argument)
+
+      downloadNovelCover.download(argument.result)
     }
   }
 
