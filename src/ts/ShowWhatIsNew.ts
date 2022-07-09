@@ -11,14 +11,20 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '12.3.0'
+  private flag = '12.6.0'
   private msg = ''
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
       this.msg = `
-      ${lang.transl('_1230更新说明')}
+      ${lang.transl('_新增设置项')}: ${lang.transl('_下载小说的封面图片')}
+      <br>
+      <br>
+      ${lang.transl('_该功能默认开启')}
+      <br>
+      ${lang.transl('_你可以在更多他选项卡的下载分类里找到它')}
+
       `
       this.show()
     })

@@ -9,7 +9,7 @@ export interface TaskList {
 
 export interface downloadArgument {
   id: string
-  data: Result
+  result: Result
   index: number
   progressBarIndex: number
   taskBatch: number

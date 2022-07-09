@@ -119,4 +119,6 @@ export interface SettingsForm extends HTMLFormElement {
   showLargerThumbnails: HTMLInputElement
   doubleWidthThumb: HTMLInputElement
   wheelScrollSwitchImageOnPreviewWork: HTMLInputElement
+  doNotDownloadLastImageOfMultiImageWork: HTMLInputElement
+  downloadNovelCoverImage: HTMLInputElement
 }

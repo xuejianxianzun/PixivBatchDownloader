@@ -4,7 +4,7 @@ export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
     <span class="setWantPageWrap">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载多少页面"><span class="setWantPageTip1" data-xztext="_下载多少页面"></span><span class="gray1"> ? </span></span>
+    <span class="has_tip settingNameStyle1" data-xztip="_抓取多少页面"><span class="setWantPageTip1" data-xztext="_抓取多少页面"></span><span class="gray1"> ? </span></span>
     <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
     value = '-1'>&nbsp;
     <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
@@ -12,9 +12,9 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="2">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_作品类型"></span>
+    </span>
     <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="setWorkType0" data-xztext="_插画"></label>
@@ -30,9 +30,9 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="44">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_年龄限制"></span>
+    </span>
     <input type="checkbox" name="downAllAges" id="downAllAges" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="downAllAges" data-xztext="_全年龄"></label>
@@ -45,9 +45,9 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="6">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_收藏状态"></span>
+    </span>
     <input type="checkbox" name="downNotBookmarked" id="setDownNotBookmarked" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="setDownNotBookmarked" data-xztext="_未收藏"></label>
@@ -57,9 +57,9 @@ export const formHtml = `<form class="settingForm">
     </p>
     
     <p class="option" data-no="23">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_图片色彩"></span>
+    </span>
     <input type="checkbox" name="downColorImg" id="setDownColorImg" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="setDownColorImg" data-xztext="_彩色图片"></label>
@@ -69,9 +69,9 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="21">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_图片数量"></span>
+    </span>
     <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="setDownSingleImg" data-xztext="_单图作品"></label>
@@ -101,7 +101,7 @@ export const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="47">
     <span class="has_tip settingNameStyle1" data-xztip="_超出此限制的多图作品不会被下载">
-    <span data-xztext="_多图作品的图片数量限制"></span>
+    <span data-xztext="_多图作品的图片数量上限"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="multiImageWorkImageLimitSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
@@ -113,7 +113,7 @@ export const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="5">
     <span class="has_tip settingNameStyle1" data-xztip="_设置收藏数量的提示">
-    <span data-xztext="_设置收藏数量"></span>
+    <span data-xztext="_收藏数量"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="BMKNumSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
@@ -134,35 +134,9 @@ export const formHtml = `<form class="settingForm">
     </span>
     </p>
 
-    <p class="option" data-no="8">
-    <span class="has_tip settingNameStyle1" data-xztip="_设置宽高比例Title">
-    <span data-xztext="_设置宽高比例"></span>
-    <span class="gray1"> ? </span></span>
-    <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
-    <span class="beautify_switch"></span>
-    <span class="subOptionWrap" data-show="ratioSwitch">
-    <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="horizontal">
-    <span class="beautify_radio"></span>
-    <label for="ratio1" data-xztext="_横图"></label>
-
-    <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="vertical">
-    <span class="beautify_radio"></span>
-    <label for="ratio2" data-xztext="_竖图"></label>
-    
-    <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="square">
-    <span class="beautify_radio"></span>
-    <label for="ratio0" data-xztext="_正方形"></label>
-
-    <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
-    <span class="beautify_radio"></span>
-    <label for="ratio3" data-xztext="_输入宽高比"></label>
-    <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
-    </span>
-    </p>
-
     <p class="option" data-no="7">
     <span class="has_tip settingNameStyle1" data-xztip="_筛选宽高的提示文字">
-    <span data-xztext="_筛选宽高的按钮文字"></span>
+    <span data-xztext="_图片的宽高"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="setWHSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
@@ -193,10 +167,36 @@ export const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="8">
+    <span class="has_tip settingNameStyle1" data-xztip="_设置宽高比例Title">
+    <span data-xztext="_图片的宽高比例"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    <span class="subOptionWrap" data-show="ratioSwitch">
+    <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="horizontal">
+    <span class="beautify_radio"></span>
+    <label for="ratio1" data-xztext="_横图"></label>
+
+    <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="vertical">
+    <span class="beautify_radio"></span>
+    <label for="ratio2" data-xztext="_竖图"></label>
+    
+    <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="square">
+    <span class="beautify_radio"></span>
+    <label for="ratio0" data-xztext="_正方形"></label>
+
+    <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
+    <span class="beautify_radio"></span>
+    <label for="ratio3" data-xztext="_输入宽高比"></label>
+    <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
+    </span>
+    </p>
+
     <p class="option" data-no="9">
     <span class="has_tip settingNameStyle1" data-xztip="_设置id范围提示">
-    <span data-xztext="_设置id范围"></span>
-    &nbsp; <span class="gray1"> ? </span></span>
+    <span data-xztext="_id范围"></span>
+    <span class="gray1"> ? </span></span>
     <input type="checkbox" name="idRangeSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
     <span class="subOptionWrap" data-show="idRangeSwitch">
@@ -212,7 +212,7 @@ export const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="10">
     <span class="has_tip settingNameStyle1" data-xztip="_设置投稿时间提示">
-    <span data-xztext="_设置投稿时间"></span>
+    <span data-xztext="_投稿时间"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="postDate" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
@@ -396,7 +396,7 @@ export const formHtml = `<form class="settingForm">
     </p>
     
     <p class="option" data-no="64">
-    <span class="settingNameStyle1" data-xztext="_只有一个文件时不建立文件夹"></span>
+    <span class="settingNameStyle1" data-xztext="_只有一个抓取结果时不建立文件夹"></span>
     <input type="checkbox" name="notFolderWhenOneFile" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
     </p>
@@ -412,10 +412,10 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="16">
-    <span class="has_tip settingNameStyle1" data-xztip="_线程数字">
-    <span data-xztext="_设置下载线程"></span>
-    <span class="gray1"> ? </span></span>
-    <input type="text" name="downloadThread" class="setinput_style1 blue" value="24">
+    <span class="settingNameStyle1"">
+    <span data-xztext="_下载线程"></span>
+    </span>
+    <input type="text" name="downloadThread" class="has_tip setinput_style1 blue" data-xztip="_下载线程的说明" value="24">
     </p>
 
     <p class="option" data-no="17">
@@ -467,6 +467,12 @@ export const formHtml = `<form class="settingForm">
       <span data-xztext="_抓取"></span>
     </p>
 
+    <p class="option" data-no="69">
+    <span class="settingNameStyle1" data-xztext="_不抓取多图作品的最后一张图片"></span>
+    <input type="checkbox" name="doNotDownloadLastImageOfMultiImageWork" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    </p>
+
     <p class="option" data-no="35">
     <span class="has_tip settingNameStyle1" data-xztip="_用户阻止名单的说明">
     <span data-xztext="_用户阻止名单"></span>
@@ -484,6 +490,26 @@ export const formHtml = `<form class="settingForm">
     <span class="beautify_switch"></span>
     <span class="subOptionWrap" data-show="blockTagsForSpecificUser">
     <slot data-name="blockTagsForSpecificUser"></slot>
+    </span>
+    </p>
+    
+    <p class="option" data-no="54">
+    <span class="settingNameStyle1" data-xztext="_自动导出抓取结果"></span>
+    <input type="checkbox" name="autoExportResult" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+
+    <span class="subOptionWrap" data-show="autoExportResult">
+    <span data-xztext="_抓取结果"></span>
+    <span>&gt;</span>
+    <input type="text" name="autoExportResultNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
+    <span>&nbsp;</span>
+    <span class="settingNameStyle1" data-xztext="_文件格式"> </span>
+    <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox"></span>
+    <label for="autoExportResultCSV"> CSV </label>
+    <input type="checkbox" name="autoExportResultJSON" id="autoExportResultJSON" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox"></span>
+    <label for="autoExportResultJSON"> JSON </label>
     </span>
     </p>
 
@@ -520,11 +546,11 @@ export const formHtml = `<form class="settingForm">
     <input type="checkbox" name="workDir" class="need_beautify checkbox_switch" >
     <span class="beautify_switch"></span>
     <span class="subOptionWrap" data-show="workDir">
-    <span data-xztext="_文件数量大于"></span>
-    <input type="text" name="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
+    <label for="workDirFileNumber" data-xztext="_文件数量大于"></label>
+    <input type="text" name="workDirFileNumber" id="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
     <span>&nbsp;</span>
-    <span data-xztext="_目录名"></span>
-    <input type="text" name="workDirNameRule" class="setinput_style1 blue" value="{id_num}">
+    <label for="workDirNameRule" data-xztext="_目录名"></label>
+    <input class="has_tip setinput_style1 blue" type="text"  data-xztip="_为作品建立单独的文件夹说明" name="workDirNameRule" id="workDirNameRule" value="{id_num}">
     </span>
     </p>
 
@@ -625,9 +651,9 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="24">
-    <span class="has_tip settingNameStyle1" data-xztip="_同时转换多少个动图警告" data-xztext="_同时转换多少个动图"></span>
-    <input type="text" name="convertUgoiraThread" class="setinput_style1 blue" value="1">
-    <span class="has_tip gray1" data-xztip="_同时转换多少个动图警告" data-xztext="_提示"></span>
+    <span class="settingNameStyle1" data-xztext="_同时转换多少个动图"></span>
+    <input type="text" name="convertUgoiraThread" class="has_tip setinput_style1 blue" data-xztip="_同时转换多少个动图警告" value="1">
+    </span>
     </p>
 
     <p class="option" data-no="26">
@@ -645,6 +671,12 @@ export const formHtml = `<form class="settingForm">
     <span data-xztext="_在小说里保存元数据"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch"></span>
+    </p>
+
+    <p class="option" data-no="70">
+    <span class="settingNameStyle1" data-xztext="_下载小说的封面图片"></span>
+    <input type="checkbox" name="downloadNovelCoverImage" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
     </p>
 
@@ -715,25 +747,6 @@ export const formHtml = `<form class="settingForm">
     <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
     <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
     <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
-    </span>
-    </p>
-
-    <p class="option" data-no="54">
-    <span class="settingNameStyle1" data-xztext="_自动导出抓取结果"></span>
-    <input type="checkbox" name="autoExportResult" class="need_beautify checkbox_switch">
-    <span class="beautify_switch"></span>
-
-    <span class="subOptionWrap" data-show="autoExportResult">
-    <span data-xztext="_文件数量大于"></span>
-    <input type="text" name="autoExportResultNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
-    <span>&nbsp;</span>
-    <span class="settingNameStyle1" data-xztext="_文件格式"> </span>
-    <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
-    <span class="beautify_checkbox"></span>
-    <label for="autoExportResultCSV"> CSV </label>
-    <input type="checkbox" name="autoExportResultJSON" id="autoExportResultJSON" class="need_beautify checkbox_common" checked>
-    <span class="beautify_checkbox"></span>
-    <label for="autoExportResultJSON"> JSON </label>
     </span>
     </p>
 
@@ -813,7 +826,7 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="40">
-    <span class="settingNameStyle1" data-xztext="_在作品缩略图上显示放大图标"></span>
+    <span class="settingNameStyle1" data-xztext="_在作品缩略图上显示放大按钮"></span>
     <input type="checkbox" name="magnifier" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
 
@@ -963,6 +976,12 @@ export const formHtml = `<form class="settingForm">
     <label for="switchTabBar2" data-xztext="_鼠标点击"></label>
     </p>
 
+    <p class="option" data-no="53">
+    <span class="settingNameStyle1" data-xztext="_高亮显示关键字"></span>
+    <input type="checkbox" name="boldKeywords" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    </p>
+
     <p class="option" data-no="32">
     <span class="settingNameStyle1"><span class="key">Language</span></span>
     <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="auto" checked>
@@ -980,12 +999,6 @@ export const formHtml = `<form class="settingForm">
     <input type="radio" name="userSetLang" id="userSetLang5" class="need_beautify radio" value="en">
     <span class="beautify_radio"></span>
     <label for="userSetLang5">English</label>
-    </p>
-
-    <p class="option" data-no="53">
-    <span class="settingNameStyle1" data-xztext="_以粗体显示关键字"></span>
-    <input type="checkbox" name="boldKeywords" class="need_beautify checkbox_switch">
-    <span class="beautify_switch"></span>
     </p>
 
     <p class="option" data-no="37">

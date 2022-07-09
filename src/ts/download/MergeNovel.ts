@@ -5,9 +5,12 @@ import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
 import { settings } from '../setting/Settings'
 import { lang } from '../Lang'
+import { Tools } from '../Tools'
+import { downloadNovelCover } from '../download/DownloadNovelCover'
 
 // 单个小说的数据
 interface NovelData {
+  /**小说在系列中的排序，是从 1 开始的数字 */
   no: number
   title: string
   content: string
@@ -22,6 +25,9 @@ class MergeNovel {
   }
 
   private readonly CRLF = '\n' // pixiv 小说的换行符
+
+  /**在文件开头添加的元数据 */
+  private meta = ''
 
   private init() {
     window.addEventListener(EVT.list.crawlFinish, () => {
@@ -59,6 +65,25 @@ class MergeNovel {
       })
     }
 
+    // 生成 meta 文本
+    this.meta = ''
+    if (settings.saveNovelMeta) {
+      const metaArray: string[] = []
+      // 系列标题
+      metaArray.push(firstResult.seriesTitle!)
+      // 作者
+      metaArray.push(firstResult.user)
+      // 网址链接
+      const link = `https://www.pixiv.net/novel/series/${firstResult.seriesId}`
+      metaArray.push(link + this.CRLF.repeat(2))
+      // 设定资料
+      if (store.novelSeriesGlossary) {
+        metaArray.push(store.novelSeriesGlossary)
+      }
+
+      this.meta = metaArray.join(this.CRLF.repeat(2))
+    }
+
     // 生成小说文件并下载
     let file: Blob | null = null
     if (settings.novelSaveAs === 'txt') {
@@ -73,11 +98,23 @@ class MergeNovel {
 
     states.mergeNovel = false
     EVT.fire('downloadComplete')
+
+    // 保存第一个小说的封面图片
+    // 实际上系列的封面不一定是第一个小说的封面，这里用第一个小说的封面凑合一下
+    downloadNovelCover.downloadOnMergeNovel(
+      firstResult.novelMeta!.coverUrl,
+      fileName
+    )
+
     store.reset()
   }
 
   private makeTXT(novelDataArray: NovelData[]) {
     const result: string[] = []
+
+    if (settings.saveNovelMeta) {
+      result.push(this.meta)
+    }
 
     for (const data of novelDataArray) {
       // 添加章节名
@@ -130,6 +167,21 @@ class MergeNovel {
       // }
       // epubData = epubData.withSection(Section)
 
+      if (settings.saveNovelMeta) {
+        epubData.withSection(
+          new EpubMaker.Section(
+            'chapter',
+            0,
+            {
+              title: lang.transl('_设定资料'),
+              content: Tools.replaceEPUBText(this.meta),
+            },
+            true,
+            true
+          )
+        )
+      }
+
       // 为每一篇小说创建一个章节
       for (const data of novelDataArray) {
         // 创建 epub 文件时不需要在标题和正文后面添加换行符
@@ -139,8 +191,7 @@ class MergeNovel {
             data.no,
             {
               title: `${this.chapterNo(data.no)} ${data.title}`,
-              // 把换行符替换成 br 标签
-              content: data.content.replace(/\n/g, '<br/>'),
+              content: Tools.replaceEPUBText(data.content),
             },
             true,
             true

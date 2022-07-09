@@ -14,7 +14,15 @@ export interface ArtworkData {
     illustType: 0 | 1 | 2
     createDate: string
     uploadDate: string
-    restrict: number
+    /**公开范围
+     *
+     * 0 公开
+     *
+     * 1 仅好P友可见
+     *
+     * 2 不公开
+     */
+    restrict: 0 | 1 | 2
     xRestrict: 0 | 1 | 2
     sl: 0 | 2 | 4 | 6
     urls: {
@@ -50,7 +58,7 @@ export interface ArtworkData {
         title: string
         illustType: number
         xRestrict: 0 | 1 | 2
-        restrict: number
+        restrict: 0 | 1 | 2
         sl: 0 | 2 | 4 | 6
         url: string
         description: string
@@ -141,7 +149,7 @@ export interface ArtworkCommonData {
   title: string
   illustType: 0 | 1 | 2
   xRestrict: 0 | 1 | 2
-  restrict: number
+  restrict: 0 | 1 | 2
   sl: 0 | 2 | 4 | 6
   url: string
   description: string
@@ -641,7 +649,15 @@ export interface NovelCommonData {
   isOriginal: boolean
   marker: null
   profileImageUrl: string
-  restrict: number
+  /**公开范围
+   *
+   * 0 公开
+   *
+   * 1 仅好P友可见
+   *
+   * 2 不公开
+   */
+  restrict: 0 | 1 | 2
   tags: string[]
   textCount: number
   title: string
@@ -706,7 +722,7 @@ export interface NovelData {
     isUnlisted: boolean
     language: string
     xRestrict: 0 | 1 | 2
-    restrict: number
+    restrict: 0 | 1 | 2
     content: string
     coverUrl: string
     suggestedSettings: {
@@ -835,7 +851,7 @@ export interface NovelSeriesData {
       title: string
       commentHtml: string
       tags: string[]
-      restrict: number
+      restrict: 0 | 1 | 2
       xRestrict: 0 | 1 | 2
       isOriginal: boolean
       textLength: number
@@ -1016,5 +1032,117 @@ export interface muteData {
   message: string
   body: {
     mute_items: muteItemUser[] | muteItemTag[]
+  }
+}
+
+type GlossaryCover = null | {
+  novelImageId: string
+  sl: string
+  urls: {
+    '240mw': string
+    '480mw': string
+    '1200x1200': string
+    '128x128': string
+    original: string
+  }
+}
+
+export interface GlossaryItem {
+  id: string
+  seriesId: string
+  categoryId: string
+  name: string
+  overview: string
+  coverImage: GlossaryCover
+  /**这条设定的详细说明，如果未设置，则为空字符串 */
+  detail: string | ''
+}
+
+export interface GlossaryCategorie {
+  id: string
+  seriesId: string
+  name: string
+  items: {
+    id: string
+    seriesId: string
+    categoryId: string
+    name: string
+    overview: string
+    coverImage: GlossaryCover
+    /**这里并没有包含设定的详细说明，即始终为 null */
+    detail: null
+  }[]
+}
+
+export interface NovelSeriesGlossary {
+  error: boolean
+  message: string
+  body: {
+    categories: GlossaryCategorie[]
+    replaceeItemIds: []
+    extraData: {
+      meta: {
+        title: string
+        description: string
+        canonical: string
+        ogp: {
+          type: string
+          title: string
+          description: string
+          image: string
+        }
+        twitter: {
+          card: string
+          site: string
+          title: string
+          description: string
+          image: string
+        }
+      }
+    }
+    zoneConfig: {
+      header: {
+        url: string
+      }
+      footer: {
+        url: string
+      }
+    }
+  }
+}
+
+export interface NovelSeriesGlossaryItem {
+  error: boolean
+  message: string
+  body: {
+    item: GlossaryItem
+    extraData: {
+      meta: {
+        title: string
+        description: string
+        canonical: string
+        ogp: {
+          type: string
+          title: string
+          description: string
+          image: string
+        }
+        twitter: {
+          card: string
+          site: string
+          title: string
+          description: string
+          image: string
+        }
+      }
+    }
+    zoneConfig: {
+      header: {
+        url: string
+      }
+      footer: {
+        url: string
+      }
+    }
   }
 }
