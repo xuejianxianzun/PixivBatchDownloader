@@ -13780,7 +13780,8 @@ class Deduplication {
         // 当有文件下载完成时，存储这个任务的记录
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadSuccess, (ev) => {
             const successData = ev.detail.data;
-            this.add(successData.id);
+            const result = _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].findResult(successData.id);
+            result && this.addRecord(result);
         });
         // 导入含有 id 列表的 txt 文件
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_10__["secretSignal"].register('recordtxt', () => {
@@ -13868,20 +13869,22 @@ class Deduplication {
         }
     }
     // 添加一条下载记录
-    async add(resultId) {
-        const storeName = this.getStoreName(resultId);
-        const data = this.createRecord(resultId);
-        if (this.existedIdList.includes(resultId)) {
-            this.IDB.put(storeName, data);
+    async addRecord(result) {
+        const storeName = this.getStoreName(result.id);
+        const record = this.createRecord(result);
+        if (this.existedIdList.includes(result.id)) {
+            this.IDB.put(storeName, record);
         }
         else {
             // 先查询有没有这个记录
-            const result = await this.IDB.get(storeName, data.id);
-            this.IDB[result ? 'put' : 'add'](storeName, data);
+            const result = await this.IDB.get(storeName, record.id);
+            this.IDB[result ? 'put' : 'add'](storeName, record);
         }
     }
-    // 检查一个作品是否是重复下载
-    // 返回值 true 表示重复，false 表示不重复
+    /** 检查一个作品是否是重复下载
+     *
+     * 返回值 true 表示重复，false 表示不重复
+     */
     async check(result) {
         if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].isPixiv()) {
             return false;
@@ -13901,8 +13904,13 @@ class Deduplication {
             this.existedIdList.push(data.id);
             // 首先检查日期字符串是否发生了变化
             // 如果日期字符串变化了，则不视为重复文件
-            if (data.d !== this.getDateString(result)) {
+            if (data.d !== undefined && data.d !== this.getDateString(result)) {
                 return resolve(false);
+            }
+            // 如果之前的下载记录里没有日期，说明是早期的下载记录，那么就不检查日期
+            // 同时，更新这个作品的下载记录，为其添加日期
+            if (data.d === undefined) {
+                this.addRecord(result);
             }
             // 如果日期字符串没有变化，再根据策略进行判断
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].dupliStrategy === 'loose') {
