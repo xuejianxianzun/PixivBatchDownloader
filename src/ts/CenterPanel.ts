@@ -77,7 +77,7 @@ class CenterPanel {
       <div class="centerWrap_tabs tabsTitle">
         <div class="title" data-xztext="_抓取"></div>
         <div class="title" data-xztext="_下载"></div>
-        <div class="title" data-xztext="_其他"></div>
+        <div class="title" data-xztext="_更多"></div>
       </div>
 
       <div class="centerWrap_con beautify_scrollbar">
