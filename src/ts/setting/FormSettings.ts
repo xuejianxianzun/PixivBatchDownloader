@@ -104,7 +104,8 @@ class FormSettings {
       'showLargerThumbnails',
       'doubleWidthThumb',
       'wheelScrollSwitchImageOnPreviewWork',
-      'DoNotDownloadLastImageOfMultiImageWork',
+      'doNotDownloadLastImageOfMultiImageWork',
+      'downloadNovelCoverImage',
     ],
     text: [
       'setWantPage',

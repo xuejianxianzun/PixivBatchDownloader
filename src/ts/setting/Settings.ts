@@ -210,7 +210,8 @@ interface XzSetting {
   doubleWidthThumb: boolean
   wheelScrollSwitchImageOnPreviewWork: boolean
   /**不下载多图作品的最后一张图片 */
-  DoNotDownloadLastImageOfMultiImageWork: boolean
+  doNotDownloadLastImageOfMultiImageWork: boolean
+  downloadNovelCoverImage: boolean
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -388,7 +389,8 @@ class Settings {
     showLargerThumbnails: false,
     doubleWidthThumb: true,
     wheelScrollSwitchImageOnPreviewWork: true,
-    DoNotDownloadLastImageOfMultiImageWork: false,
+    doNotDownloadLastImageOfMultiImageWork: false,
+    downloadNovelCoverImage: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
