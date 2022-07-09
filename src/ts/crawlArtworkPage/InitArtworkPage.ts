@@ -94,7 +94,7 @@ class InitArtworkPage extends InitPageBase {
   protected setFormOption() {
     // 个数/页数选项的提示
     options.setWantPageTip({
-      text: '_下载多少作品',
+      text: '_抓取多少作品',
       tip: '_从本页开始下载提示',
       rangTip: '_数字提示1',
     })

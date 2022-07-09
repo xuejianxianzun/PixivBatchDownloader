@@ -3,9 +3,8 @@ import { secretSignal } from '../utils/SecretSignal'
 import { log } from '../Log'
 import { toast } from '../Toast'
 
-interface List {
-  name: SettingKeys
-  code: string
+type Cfg = {
+  [key in SettingKeys]?: string[]
 }
 
 // 管理不可见的设置。通过预设的按键，切换其开关状态
@@ -14,30 +13,19 @@ class InvisibleSettings {
     this.register()
   }
 
-  private readonly list: List[] = [
-    {
-      name: 'createFolderBySl',
-      code: 'switchsl',
-    },
-    {
-      name: 'createFolderBySl',
-      code: 'kaiguansl',
-    },
-    {
-      name: 'downloadUgoiraFirst',
-      code: 'dlugoirafirst',
-    },
-    {
-      name: 'downloadUgoiraFirst',
-      code: 'qw111',
-    },
-  ]
+  // ppdss: Powerful Pixiv Downloader Secret Settings
+  private readonly cfg: Cfg = {
+    createFolderBySl: ['ppdss1', 'switchsl', 'kaiguansl'],
+    downloadUgoiraFirst: ['ppdss2', 'dlugoirafirst', 'qw111'],
+  }
 
   private register() {
-    for (const item of this.list) {
-      secretSignal.register(item.code, () => {
-        this.onChange(item.name)
-      })
+    for (const [name, codes] of Object.entries(this.cfg)) {
+      for (const code of codes!) {
+        secretSignal.register(code, () => {
+          this.onChange(name as SettingKeys)
+        })
+      }
     }
   }
 

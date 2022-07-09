@@ -380,6 +380,14 @@ class API {
     static async getMuteSettings() {
         return this.sendGetRequest(`https://www.pixiv.net/ajax/mute/items?context=setting`);
     }
+    /**获取系列小说的设定资料 */
+    static async getNovelSeriesGlossary(seriesId) {
+        return this.sendGetRequest(`https://www.pixiv.net/ajax/novel/series/${seriesId}/glossary`);
+    }
+    /**获取系列小说某条设定资料的详细信息 */
+    static async getNovelSeriesGlossaryItem(seriesId, itemId) {
+        return this.sendGetRequest(`https://www.pixiv.net/ajax/novel/series/${seriesId}/glossary/item/${itemId}`);
+    }
 }
 
 
@@ -745,7 +753,7 @@ class CenterPanel {
       <div class="centerWrap_tabs tabsTitle">
         <div class="title" data-xztext="_抓取"></div>
         <div class="title" data-xztext="_下载"></div>
-        <div class="title" data-xztext="_其他"></div>
+        <div class="title" data-xztext="_更多"></div>
       </div>
 
       <div class="centerWrap_con beautify_scrollbar">
@@ -3066,11 +3074,11 @@ const langText = {
         'Download work type',
         'ダウンロード作品の種類',
     ],
-    _下载作品类型的提示: [
-        '下载哪些类型的作品',
-        '下載哪些類型的作品。',
-        'Which types of works to download',
-        'どの種類の作品をダウンロードしますか',
+    _作品类型: [
+        '作品<span class="key">类型</span>',
+        '作品<span class="key">類型</span>',
+        '<span class="key">Type</span> of work',
+        '作品の<span class="key">種類</span>',
     ],
     _不能含有tag: [
         '<span class="key">不能</span>含有标签',
@@ -3108,17 +3116,11 @@ const langText = {
         'Include tag: ',
         '以下の タグ を含める：',
     ],
-    _筛选宽高的按钮文字: [
-        '设置<span class="key">宽高</span>条件',
-        '設定<span class="key">寬高</span>條件',
-        'Set the <span class="key">width and height</span>',
-        '幅と高さの条件を設定する',
-    ],
-    _设置宽高比例: [
-        '设置宽高<span class="key">比例</span>',
-        '設定寬高<span class="key">比例</span>',
-        'Set the aspect <span class="key">ratio</span>',
-        '縦横比を設定する',
+    _图片的宽高比例: [
+        '图片的宽高<span class="key">比例</span>',
+        '圖片的寬高<span class="key">比例</span>',
+        'Aspect <span class="key">ratio</span>',
+        '画像の縦横比',
     ],
     _设置宽高比例Title: [
         '设置宽高比例，也可以手动输入宽高比',
@@ -3143,6 +3145,12 @@ const langText = {
         'The aspect ratio must be a number',
         '縦横比は数値でなければなりません',
     ],
+    _图片的宽高: [
+        '图片的<span class="key">宽高</span>',
+        '圖片的<span class="key">寬高</span>',
+        '<span class="key">width</span> and height',
+        '画像の幅と高さ',
+    ],
     _筛选宽高的提示文字: [
         '请输入最小宽度和最小高度，不会下载不符合要求的图片。',
         '請輸入最小寬度和最小高度，只會下載符合要求的圖片。',
@@ -3159,29 +3167,23 @@ const langText = {
     _或者: [' 或者 ', ' 或是 ', ' or ', ' または '],
     _并且: [' 并且 ', ' 並且 ', ' and ', ' そして '],
     _高度: ['高度', '高度', 'height', '高さ'],
-    _下载多少作品: [
-        '下载多少作品',
-        '下載多少作品',
-        'How many works to download',
-        'ダウンロードする作品の数',
+    _抓取多少作品: [
+        '抓取<span class="key">多少</span>作品',
+        '擷取<span class="key">多少</span>作品',
+        'How <span class="key">many</span> works to crawl',
+        'クロールする作品の数',
     ],
-    _下载多少页面: [
-        '下载多少页面',
-        '下載多少頁面',
-        'How many pages to download',
-        'ダウンロードするページ数',
+    _抓取多少页面: [
+        '抓取<span class="key">多少</span>页面',
+        '擷取<span class="key">多少</span>頁面',
+        'How <span class="key">many</span> pages to crawl',
+        'クロールするページ数',
     ],
-    _筛选收藏数的按钮Title: [
-        '在下载前，您可以设置对收藏数量的要求。',
-        '下載前可以設定對收藏數量的要求。',
-        'Before downloading, You can set the requirements for the number of bookmarks.',
-        'ダウンロードする前に、ブックマークされた数の条件を設定することができます。',
-    ],
-    _设置收藏数量: [
-        '设置<span class="key">收藏</span>数量',
-        '設定<span class="key">收藏</span>數量',
-        'Set the number of <span class="key">bookmarks</span>',
-        'ブックマークされた数を設定する',
+    _收藏数量: [
+        '<span class="key">收藏</span>数量',
+        '<span class="key">收藏</span>數量',
+        'Number of <span class="key">bookmarks</span>',
+        'ブックマークの数',
     ],
     _设置收藏数量的提示: [
         '如果作品的收藏数小于设置的数字，作品不会被下载。',
@@ -3317,8 +3319,8 @@ const langText = {
         'うごイラをダウンロードするとき、動画に変換することができます。',
     ],
     _webmVideo: ['WebM 视频', '影片（WebM）', 'WebM video', 'WebM ビデオ'],
-    _gif: ['GIF 图片', '圖片（GIF）', 'GIF picture', 'GIF 画像'],
-    _apng: ['APNG 图片', '圖片（APNG）', 'APNG picture', 'APNG 画像'],
+    _gif: ['GIF 图片', '圖片（GIF）', 'GIF image', 'GIF 画像'],
+    _apng: ['APNG 图片', '圖片（APNG）', 'APNG image', 'APNG 画像'],
     _zipFile: ['Zip 文件', '壓縮檔（Zip）', 'Zip file', 'ZIP ファイル'],
     _当前作品个数: [
         '当前有 {} 个作品 ',
@@ -3517,7 +3519,12 @@ const langText = {
         'Crawl a total of {} works',
         '合計 {} つの作品があります',
     ],
-    _命名规则: ['命名规则', '命名規則', 'Naming rule', '命名規則'],
+    _命名规则: [
+        ' <span class="key">命名</span>规则',
+        '<span class="key">命名</span>規則',
+        '<span class="key">Naming</span> rule',
+        '<span class="key">命名</span>規則',
+    ],
     _设置文件夹名的提示: [
         "可以使用 '/' 建立文件夹。示例：",
         '可以使用斜線（/）建立資料夾。範例：',
@@ -3591,7 +3598,7 @@ const langText = {
     _命名标记p_num: [
         '图片在作品内的序号，如 0、1、2 …… 每个作品都会重新计数。',
         '圖片在作品內的序號，例如：0、1、2……每個作品都將重新計數。',
-        'The serial number of the picture in the work, such as 0, 1, 2 ... Each work will be recounted.',
+        'The serial number of the image in the work, such as 0, 1, 2 ... Each work will be recounted.',
         '0、1、2 など、作品の画像のシリアル番号。各ピースは再集計されます。',
     ],
     _命名标记tags_trans: [
@@ -3667,15 +3674,15 @@ const langText = {
         'Preview file name',
         'ファイル名のプレビュー',
     ],
-    _设置下载线程: [
-        '设置下载<span class="key">线程</span>',
-        '設定下載<span class="key">執行緒</span>',
-        'Set the download <span class="key">thread</span>',
-        'ダンロードスレッドの設定',
+    _下载线程: [
+        '下载<span class="key">线程</span>',
+        '下載<span class="key">執行緒</span>',
+        'Download <span class="key">thread</span>',
+        '同時ダウンロード数',
     ],
-    _线程数字: [
-        `可以输入 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} 之间的数字，设置同时下载的数量`,
-        `可以輸入 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} 之間的數字，設定同時下載的數量。`,
+    _下载线程的说明: [
+        `你可以输入 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} 之间的数字，设置同时下载的数量`,
+        `你可以輸入 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} 之間的數字，設定同時下載的數量。`,
         `You can type a number between 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} to set the number of concurrent downloads`,
         `同時ダウンロード数を設定、1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} の数値を入力してください`,
     ],
@@ -3691,7 +3698,6 @@ const langText = {
         'まだダウンロードを開始していません',
     ],
     _下载进度: ['下载进度', '下載進度', 'Total progress', '概要'],
-    _下载线程: ['下载线程：', '下載執行緒：', 'Thread: ', 'スレッド：'],
     _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問'],
     _uuid: [
         '如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。',
@@ -3878,7 +3884,7 @@ const langText = {
     _抓取该页面的图片: [
         '抓取该页面的图片',
         '擷取該頁面的圖片',
-        'Crawl the picture of the page',
+        'Crawl the image of the page',
         'ページの画像をクロールする',
     ],
     _抓取相似图片: [
@@ -3984,11 +3990,11 @@ const langText = {
         'Always create folder when downloading quickly',
         'クイックダウンロード時、常にフォルダを作成します',
     ],
-    _设置id范围: [
-        '设置 <span class="key">ID</span> 范围',
-        '設定 <span class="key">ID</span> 範圍',
-        'Set <span class="key">ID</span> range',
-        '<span class="key">ID</span> 範囲を設定',
+    _id范围: [
+        '<span class="key">ID</span> 范围',
+        '<span class="key">ID</span> 範圍',
+        '<span class="key">ID</span> range',
+        '<span class="key">ID</span> 範囲',
     ],
     _设置id范围提示: [
         '您可以输入一个作品 id，抓取比它新或者比它旧的作品',
@@ -3998,11 +4004,11 @@ const langText = {
     ],
     _大于: ['大于', '大於', 'Bigger than', 'より大きい'],
     _小于: ['小于', '小於', 'Less than', 'より小さい'],
-    _设置投稿时间: [
-        '设置投稿<span class="key">时间</span>',
-        '設定投稿<span class="key">時間</span>',
-        'Set posting <span class="key">date</span>',
-        '投稿日時を設定する',
+    _投稿时间: [
+        '投稿<span class="key">时间</span>',
+        '投稿<span class="key">時間</span>',
+        'Posting <span class="key">date</span>',
+        '投稿日時',
     ],
     _设置投稿时间提示: [
         '您可以下载指定时间内发布的作品',
@@ -4094,16 +4100,17 @@ const langText = {
     _抓取: ['抓取', '擷取', 'Crawl', 'クロール'],
     _下载: ['下载', '下載', 'Download', 'ダウンロード'],
     _其他: ['其他', '其他', 'Other', 'その他'],
+    _更多: ['更多', '更多', 'More', 'もっと'],
     _第一张图不带序号: [
         '第一张图不带<span class="key">序号</span>',
         '第一張圖片不包含<span class="key">序號</span>',
-        'The first picture without a <span class="key">serial number</span>',
+        'The first image without a <span class="key">serial number</span>',
         '最初のイメージの番号を削除',
     ],
     _第一张图不带序号说明: [
         '去掉每个作品第一张图的序号。例如 80036479_p0 变成 80036479',
         '去掉每個作品第一張圖的序號。例如：80036479_p0 變成 80036479。',
-        'Remove the serial number of the first picture of each work. For example 80036479_p0 becomes 80036479.',
+        'Remove the serial number of the first image of each work. For example 80036479_p0 becomes 80036479.',
         '作品ごとの最初のイメージの番号を削除します。例えば 80036479_p0 は 80036479 になります。',
     ],
     _最小值: ['最小值', '最小值', 'Minimum', '最小値'],
@@ -4114,13 +4121,8 @@ const langText = {
         'Single image works',
         'シングルイメージ作品',
     ],
-    _彩色图片: ['彩色图片', '彩色圖片', 'Color picture', 'カラーイメージ'],
-    _黑白图片: [
-        '黑白图片',
-        '黑白圖片',
-        'Black and white pictures',
-        '白黒イメージ',
-    ],
+    _彩色图片: ['彩色图片', '彩色圖片', 'Color images', 'カラーイメージ'],
+    _黑白图片: ['黑白图片', '黑白圖片', 'Black and white images', '白黒イメージ'],
     _不保存图片因为颜色: [
         '{} 没有被保存，因为它的颜色不符合设定。',
         '{} 並未儲存，因為它的色彩不符合設定。',
@@ -4224,16 +4226,16 @@ const langText = {
     _严格: ['严格', '嚴格', 'Strict', '厳格'],
     _宽松: ['宽松', '寬鬆', 'Loose', '緩い'],
     _严格模式说明: [
-        '当文件的 id 和文件名都相同时，认为是重复文件',
-        '當檔案 id 和檔名都相同時，認為是重複檔案',
-        'When the file id and file name are the same, it is considered a duplicate file',
-        'ファイルの ID とファイル名が同じ場合、重複ファイルとみなされます',
+        '判断条件：作品的 id、上传日期、文件名',
+        '判斷條件：作品的 id、上傳日期、檔名',
+        'Judgment conditions: id, upload date, file name of the work',
+        '審査条件：作品のID、アップロード日、ファイル名',
     ],
     _宽松模式说明: [
-        '只要文件的 id 相同，就认为是重复文件',
-        '只要檔案 id 相同，就認為是重複檔案',
-        'As long as the id of the file is the same, it is considered a duplicate file',
-        'ファイルの ID が同じである限り、重複ファイルと見なされます',
+        '判断条件：作品的 id、上传日期',
+        '判斷條件：作品的 id、上傳日期',
+        'Judgment conditions: id, upload date of the work',
+        '審査条件：作品のID、アップロード日',
     ],
     _清除下载记录: [
         '清除下载记录',
@@ -4440,10 +4442,10 @@ const langText = {
         'ダウンロード後、作品は自動的にブックマークされます。',
     ],
     _收藏设置: [
-        '下载器的<span class="key">收藏</span>按钮 ✩',
-        '下載器的<span class="key">收藏</span>按鈕 ✩',
-        `Downloader's <span class="key">bookmark</span> button ✩`,
-        'ダウンローダーの<span class="key">ブックマーク</span>ボタン ✩',
+        '下载器的<span class="key">收藏</span>按钮 (✩)',
+        '下載器的<span class="key">收藏</span>按鈕 (✩)',
+        `Downloader's <span class="key">bookmark</span> button (✩)`,
+        'ダウンローダーの<span class="key">ブックマーク</span>ボタン (✩)',
     ],
     _添加tag: ['添加标签', '加入標籤', 'Add tag', 'タグを追加'],
     _不添加tag: ['不添加标签', '不加入標籤', "Don't add tag", 'タグなし'],
@@ -4538,6 +4540,12 @@ const langText = {
         'Create a separate folder for <span class="key">each</span> work',
         '作品ごとに別フォルダを作成',
     ],
+    _为作品建立单独的文件夹说明: [
+        '这里应该使用 {id_num} 代替 {id}',
+        '這裡應該使用 {id_num} 代替 {id}',
+        'Here {id_num} should be used instead of {id}',
+        'ここでは、{id} の代わりに {id_num} を使用する必要があります',
+    ],
     _文件数量大于: [
         '文件数量 >',
         '檔案數量 >',
@@ -4608,11 +4616,11 @@ const langText = {
     _删除: ['删除', '刪除', 'Delete', '削除'],
     _添加成功: ['添加成功', '新增成功', 'Added successfully', '追加されました'],
     _更新成功: ['更新成功', '更新成功', 'update completed', '更新成功'],
-    _在作品缩略图上显示放大图标: [
-        '在作品缩略图上显示<span class="key">放大</span>图标',
-        '在作品縮圖上顯示<span class="key">放大</span>圖示',
-        'Show <span class="key">zoom</span> icon on thumbnail',
-        '作品のサムネイルに<span class="key">拡大</span>アイコンを表示する',
+    _在作品缩略图上显示放大按钮: [
+        '在作品缩略图上显示<span class="key">放大</span>按钮',
+        '在作品縮圖上顯示<span class="key">放大</span>按鈕',
+        'Show <span class="key">zoom</span> button on thumbnail',
+        '作品のサムネイルに<span class="key">拡大</span>ボタンを表示',
     ],
     _在作品缩略图上显示下载按钮: [
         '在作品缩略图上显示<span class="key">下载</span>按钮',
@@ -4724,14 +4732,14 @@ const langText = {
     _多图作品只下载前几张图片: [
         '多图作品只下载<span class="key">前几张</span>图片',
         '多圖作品只下載<span class="key">前幾張</span>圖片',
-        'Multi-picture works only download the <span class="key">first few</span> pictures',
+        'Multi-image works only download the <span class="key">first few</span> images',
         'マルチ作品は最初の何枚の画像のみをダウンロードする',
     ],
-    _多图作品的图片数量限制: [
-        '多图作品的图片<span class="key">数量</span>限制',
-        '多圖作品的圖片<span class="key">數量</span>限制',
-        'Limits on the <span class="key">number</span> of images for multi-picture works',
-        'マルチ作品の画像数の制限',
+    _多图作品的图片数量上限: [
+        '多图作品的图片<span class="key">数量</span>上限',
+        '多圖作品的圖片<span class="key">數量</span>上限',
+        '<span class="key">Maximum number</span> of images for multi-image works',
+        'マルチ作品の最大画像数',
     ],
     _超出此限制的多图作品不会被下载: [
         '超出此限制的多图作品不会被下载',
@@ -4793,11 +4801,11 @@ const langText = {
         'Show <span class="key">notification</span> after download is complete',
         'ダウンロードが完了した後に通知を表示する',
     ],
-    _以粗体显示关键字: [
-        '用<span class="key">粗体</span>显示关键字',
-        '用<span class="key">粗體</span>顯示關鍵字',
-        'Show keywords in <span class="key">bold</span>',
-        'キーワードを太字で表示',
+    _高亮显示关键字: [
+        '<span class="key">高亮</span>显示关键字',
+        '<span class="key">標明</span>顯示關鍵字',
+        '<span class="key">Highlight</span> keywords',
+        'キーワードを強調表示',
     ],
     _抓取标签列表: [
         '抓取标签列表',
@@ -4847,7 +4855,9 @@ const langText = {
         'Automatically <span class="key">export</span> crawl results',
         'クロール結果の自動エクスポート',
     ],
+    _抓取结果: ['抓取结果', '擷取結果', 'Crawl results', 'クロール結果'],
     _文件格式: ['文件格式', '檔案格式', 'File format', 'ファイル形式'],
+    _格式: ['格式', '格式', 'Format', '形式'],
     _预览作品: [
         '<span class="key">预览</span>作品',
         '<span class="key">預覽</span>作品',
@@ -4890,7 +4900,7 @@ const langText = {
     _鼠标滚轮切换图片: [
         '预览多图作品时，可以使用鼠标滚轮切换图片。',
         '預覽多圖作品時，可以使用滑鼠滾輪切換圖片。',
-        'When previewing multi-picture works, you can use the mouse wheel to switch images.',
+        'When previewing multi-image works, you can use the mouse wheel to switch images.',
         '複数画像をプレビューする際に、マウスホイールを使って画像を切り替えることができます。',
     ],
     _whatisnew: [
@@ -4956,11 +4966,11 @@ const langText = {
         'Replace square <span class="key">thumbnails</span> to show image ratio',
         '正方形のサムネイルを置き換えて、画像のスケールを表示。',
     ],
-    _只有一个文件时不建立文件夹: [
-        '只有一个文件时<span class="key">不建立</span>文件夹',
-        '只有一個檔案時<span class="key">不建立</span>資料夾',
-        '<span class="key">Do not create</span> a folder when there is only one file',
-        'ファイルが１つのみの場合、フォルダを作成しない',
+    _只有一个抓取结果时不建立文件夹: [
+        '只有一个抓取结果时<span class="key">不建立</span>文件夹',
+        '只有一個擷取結果時<span class="key">不建立</span>資料夾',
+        '<span class="key">Do not create</span> a folder when there is only one crawl result',
+        'クロール結果が１つのみの場合、フォルダを作成しない',
     ],
     _搜索页面页数限制: [
         '由于 pixiv 的限制，下载器最多只能抓取到第 {} 页。',
@@ -5063,6 +5073,12 @@ const langText = {
         `{} save failed, code: {}. The downloader will retry to download the file.`,
         `{} 保存に失敗しました。code：{}。ダウンローダーはファイルのダウンロードを再試行します。`,
     ],
+    _user_canceled_tip: [
+        `{} 未保存，code：{}。`,
+        `{} 未儲存，code：{}。`,
+        `{} not saved, code: {}.`,
+        `{} 保存されていません。code：{}。`,
+    ],
     _FILE_FAILED_tip: [
         '可能是文件名太长，或是其他原因导致文件保存失败。你可以尝试启用高级设置里的“文件名长度限制”。',
         '可能是檔名太長，或是其他原因導致檔案儲存失敗。你可以嘗試啟用高階設定裡的“檔案名稱長度限制”。',
@@ -5093,11 +5109,11 @@ const langText = {
         'This feature is enabled by default.',
         'この機能はデフォルトで有効になっています。',
     ],
-    _你可以在其他选项卡的增强分类里找到它: [
-        '你可以在“其他”选项卡 → “增强”分类里找到它。（可能需要先启用“显示高级设置”）',
-        '你可以在“其他”選項卡 → “增強”分類裡找到它。（可能需要先啟用“顯示進階設定”）',
-        'You can find it in the "Other" tab → "Enhancements" category. (May need to enable "Show advanced settings" first)',
-        '[その他]タブ→[強化機能]カテゴリにあります。 （最初に[詳細設定を表示する]を有効にする必要がある場合があります）',
+    _你可以在更多他选项卡的下载分类里找到它: [
+        '你可以在“更多”选项卡 → “下载”分类里找到它。（需要先启用“显示高级设置”）',
+        '你可以在“更多”選項卡 → “下載”分類裡找到它。（需要先啟用“顯示進階設定”）',
+        'You can find it in the "More" tab → "Download" category. ("Show advanced settings" needs to be enabled first)',
+        '[もっと]タブ→[ダウンロード]カテゴリにあります。 （最初に「詳細設定を表示」を有効にする必要があります）',
     ],
     _使用鼠标滚轮切换作品里的图片: [
         '使用鼠标滚轮切换多图作品里的图片',
@@ -5158,6 +5174,43 @@ const langText = {
     ダウンロード中、ページタイトルにはまだダウンロードされていないファイルの数が表示されます。 <br>
     このようにして、ユーザーはダウンロードパネルを開かなくてもダウンロードの進行状況を知ることができます。<br><br>
     2. ユーザーは、ダウンロード中にいくつかの新しいダウンロードタスクを追加できます。`,
+    ],
+    _设定资料: ['设定资料', '設定資料', 'Reference materials', '設定資料'],
+    _年龄限制: [
+        '<span class="key">年龄</span>限制',
+        '<span class="key">年齡</span>限制',
+        '<span class="key">Age</span> limit',
+        '<span class="key">年齢</span>制限',
+    ],
+    _收藏状态: [
+        '<span class="key">收藏</span>状态',
+        '<span class="key">收藏</span>狀態',
+        '<span class="key">Bookmark</span> status',
+        'ブックマークステータス',
+    ],
+    _图片色彩: [
+        '图片<span class="key">色彩</span>',
+        '圖片<span class="key">色彩</span>',
+        'Image <span class="key">color</span>',
+        '画像の<span class="key">色</span>',
+    ],
+    _图片数量: [
+        '图片<span class="key">数量</span>',
+        '圖片<span class="key">數量</span>',
+        '<span class="key">Number</span> of images',
+        '画像の<span class="key">数</span>',
+    ],
+    _不抓取多图作品的最后一张图片: [
+        '不抓取多图作品的<span class="key">最后一张</span>图片',
+        '不抓取多圖作品的<span class="key">最後一張</span>圖片',
+        'Do not crawl the <span class="key">last image</span> of multi-image works',
+        'マルチ画像作品の<span class="key">最後の画像</span>をつかまないでください',
+    ],
+    _下载小说的封面图片: [
+        '下载小说的<span class="key">封面图片</span>',
+        '下載小說的<span class="key">封面圖片</span>',
+        '小説の<span class="key">表紙画像</span>をダウンロード',
+        'Download the <span class="key">cover image</span> of the novel',
     ],
 };
 
@@ -5716,7 +5769,8 @@ class PageType {
             ['/', '/manga', '/novel/', '/en/'].includes(pathname)) {
             return PageName.Home;
         }
-        else if (location.pathname.startsWith('/artworks') &&
+        else if ((pathname.startsWith('/artworks') ||
+            pathname.startsWith('/en/artworks')) &&
             /\/artworks\/\d{1,10}/.test(url)) {
             return PageName.Artwork;
         }
@@ -7708,7 +7762,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '12.3.0';
+        this.flag = '12.6.0';
         this.msg = '';
         this.bindEvents();
     }
@@ -7716,7 +7770,13 @@ class ShowWhatIsNew {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             this.msg = `
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_1230更新说明')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载小说的封面图片')}
+      <br>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')}
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多他选项卡的下载分类里找到它')}
+
       `;
             this.show();
         });
@@ -8701,6 +8761,14 @@ class Tools {
         const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}`;
         return `<a href="${href}" target="_blank">${id}</a>`;
     }
+    /**替换 EPUB 文本里的特殊字符和换行符 */
+    // 换行符必须放在最后处理，以免其 < 符号被错误的替换
+    static replaceEPUBText(str) {
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/\n/g, '<br/>');
+    }
 }
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
 
@@ -8966,7 +9034,7 @@ class InitPageBase {
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_7__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
         });
@@ -9562,7 +9630,7 @@ class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: '_下载多少作品',
+            text: '_抓取多少作品',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
         });
@@ -9709,7 +9777,7 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         // 个数/页数选项的提示
         this.maxCount = 100;
         _setting_Options__WEBPACK_IMPORTED_MODULE_5__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -9824,7 +9892,7 @@ class InitBookmarkDetailPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: '_下载多少作品',
+            text: '_抓取多少作品',
             tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -9968,7 +10036,7 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: '_下载多少作品',
+            text: '_抓取多少作品',
             tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -10107,7 +10175,8 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].hideOption([
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
-            49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67,
+            49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+            70,
         ]);
     }
     nextStep() {
@@ -10256,7 +10325,7 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         // 个数/页数选项的提示
         this.maxCount = 500;
         _setting_Options__WEBPACK_IMPORTED_MODULE_6__["options"].setWantPageTip({
-            text: '_下载多少作品',
+            text: '_抓取多少作品',
             tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -10691,7 +10760,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         const isPremium = _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].isPremium();
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: `1 - ${isPremium ? 5000 : 1000}`,
         });
@@ -11389,7 +11458,7 @@ class InitBookmarkLegacyPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_5__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
         });
@@ -11600,7 +11669,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         // 个数/页数选项的提示
         this.maxCount = 100;
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -11796,7 +11865,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
         });
@@ -11990,7 +12059,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
         });
@@ -12429,7 +12498,7 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
         });
@@ -12695,6 +12764,70 @@ new QuickCrawl();
 
 /***/ }),
 
+/***/ "./src/ts/crawlNovelPage/GetNovelGlossarys.ts":
+/*!****************************************************!*\
+  !*** ./src/ts/crawlNovelPage/GetNovelGlossarys.ts ***!
+  \****************************************************/
+/*! exports provided: getNovelGlossarys */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getNovelGlossarys", function() { return getNovelGlossarys; });
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+
+class GetNovelGlossarys {
+    /**获取系列小说的设定资料 */
+    async getGlossarys(seriesId) {
+        return new Promise(async (resolve, reject) => {
+            // 先获取设定资料的分类、每条设定资料的简略数据
+            // 注意此时每条设定资料缺少 detail 数据（此时为 null）
+            const glossaryData = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelSeriesGlossary(seriesId);
+            const result = glossaryData.body.categories;
+            if (result.length === 0) {
+                return resolve(result);
+            }
+            // 请求每条设定资料的详细数据
+            for (const categorie of result) {
+                for (const item of categorie.items) {
+                    const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelSeriesGlossaryItem(item.seriesId, item.id);
+                    item.detail = data.body.item.detail;
+                }
+            }
+            return resolve(result);
+        });
+    }
+    /**把设定资料用特定格式存储起来 */
+    storeGlossaryText(data) {
+        const array = [];
+        for (const categorie of data) {
+            array.push(categorie.name);
+            array.push('\n\n');
+            for (const item of categorie.items) {
+                array.push(item.name);
+                array.push('\n');
+                array.push(item.overview);
+                array.push('\n\n');
+                if (item.detail) {
+                    array.push(item.detail);
+                    array.push('\n\n');
+                }
+                array.push('----------------------------------------');
+                array.push('\n\n');
+            }
+        }
+        if (array.length > 0) {
+            return array.join('') + '\n\n';
+        }
+        return '';
+    }
+}
+const getNovelGlossarys = new GetNovelGlossarys();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/crawlNovelPage/InitNewNovelPage.ts":
 /*!***************************************************!*\
   !*** ./src/ts/crawlNovelPage/InitNewNovelPage.ts ***!
@@ -12741,7 +12874,7 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: '_下载多少作品',
+            text: '_抓取多少作品',
             tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -12891,7 +13024,7 @@ class InitNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: '_下载多少作品',
+            text: '_抓取多少作品',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
         });
@@ -12964,7 +13097,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./GetNovelGlossarys */ "./src/ts/crawlNovelPage/GetNovelGlossarys.ts");
 //初始化小说系列作品页面
+
+
 
 
 
@@ -12997,8 +13134,12 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         _setting_Options__WEBPACK_IMPORTED_MODULE_2__["options"].hideOption([1]);
     }
     getWantPage() { }
-    nextStep() {
+    async nextStep() {
         this.seriesId = _API__WEBPACK_IMPORTED_MODULE_5__["API"].getURLPathField('series');
+        if (_store_States__WEBPACK_IMPORTED_MODULE_6__["states"].mergeNovel && _setting_Settings__WEBPACK_IMPORTED_MODULE_7__["settings"].saveNovelMeta) {
+            const data = await _GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_8__["getNovelGlossarys"].getGlossarys(this.seriesId);
+            _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].novelSeriesGlossary = _GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_8__["getNovelGlossarys"].storeGlossaryText(data);
+        }
         this.getIdList();
     }
     async getIdList() {
@@ -13072,7 +13213,7 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
         // 个数/页数选项的提示
         this.maxCount = 100;
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: '_下载多少作品',
+            text: '_抓取多少作品',
             tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -13293,7 +13434,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         const isPremium = _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].isPremium();
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: '_下载多少页面',
+            text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: `1 - ${isPremium ? 5000 : 1000}`,
         });
@@ -13661,7 +13802,8 @@ class Deduplication {
         // 当有文件下载完成时，存储这个任务的记录
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadSuccess, (ev) => {
             const successData = ev.detail.data;
-            this.add(successData.id);
+            const result = _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].findResult(successData.id);
+            result && this.addRecord(result);
         });
         // 导入含有 id 列表的 txt 文件
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_10__["secretSignal"].register('recordtxt', () => {
@@ -13731,30 +13873,40 @@ class Deduplication {
             d: this.getDateString(result),
         };
     }
-    // 从文件 URL 里取出日期字符串。例如
-    // 'https://i.pximg.net/img-original/img/2021/10/11/00/00/06/93364702_p0.png'
-    // 返回
-    // '2021/10/11/00/00/06'
+    /**返回作品的修改日期字符串 */
     getDateString(result) {
+        // 图像作品不使用 uploadDate，这是历史遗留原因，因为以前下载器的内部数据里没有 uploadDate 数据
+        // 而是从文件 URL 里取出日期字符串。例如
+        // 'https://i.pximg.net/img-original/img/2021/10/11/00/00/06/93364702_p0.png'
+        // 返回
+        // '2021/10/11/00/00/06'
+        // 为了保持向后兼容，这里不做修改
         if (result.type !== 3) {
             return result.original.match(this.dateRegExp)[1];
         }
+        else {
+            // 小说作品使用 uploadDate，返回值如
+            // '2021-09-03T14:31:03+00:00'
+            return result.uploadDate;
+        }
     }
     // 添加一条下载记录
-    async add(resultId) {
-        const storeName = this.getStoreName(resultId);
-        const data = this.createRecord(resultId);
-        if (this.existedIdList.includes(resultId)) {
-            this.IDB.put(storeName, data);
+    async addRecord(result) {
+        const storeName = this.getStoreName(result.id);
+        const record = this.createRecord(result);
+        if (this.existedIdList.includes(result.id)) {
+            this.IDB.put(storeName, record);
         }
         else {
             // 先查询有没有这个记录
-            const result = await this.IDB.get(storeName, data.id);
-            this.IDB[result ? 'put' : 'add'](storeName, data);
+            const result = await this.IDB.get(storeName, record.id);
+            this.IDB[result ? 'put' : 'add'](storeName, record);
         }
     }
-    // 检查一个作品是否是重复下载
-    // 返回值 true 表示重复，false 表示不重复
+    /** 检查一个作品是否是重复下载
+     *
+     * 返回值 true 表示重复，false 表示不重复
+     */
     async check(result) {
         if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].isPixiv()) {
             return false;
@@ -13773,13 +13925,14 @@ class Deduplication {
             // 有记录，说明这个文件下载过
             this.existedIdList.push(data.id);
             // 首先检查日期字符串是否发生了变化
-            let dateChange = false;
-            if (data.d) {
-                dateChange = data.d !== this.getDateString(result);
-                // 如果日期字符串变化了，则不视为重复文件
-                if (dateChange) {
-                    return resolve(false);
-                }
+            // 如果日期字符串变化了，则不视为重复文件
+            if (data.d !== undefined && data.d !== this.getDateString(result)) {
+                return resolve(false);
+            }
+            // 如果之前的下载记录里没有日期，说明是早期的下载记录，那么就不检查日期
+            // 同时，更新这个作品的下载记录，为其添加日期
+            if (data.d === undefined) {
+                this.addRecord(result);
             }
             // 如果日期字符串没有变化，再根据策略进行判断
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].dupliStrategy === 'loose') {
@@ -13941,6 +14094,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+// 处理下载队列里的任务
+// 不显示在进度条上的下载任务，不在这里处理
 class Download {
     constructor(progressBarIndex, data) {
         this.retry = 0; // 重试次数
@@ -13968,32 +14123,33 @@ class Download {
     // 在开始下载前进行检查
     async beforeDownload(arg) {
         // 检查是否是重复文件
-        const duplicate = await _Deduplication__WEBPACK_IMPORTED_MODULE_7__["deduplication"].check(arg.data);
+        const duplicate = await _Deduplication__WEBPACK_IMPORTED_MODULE_7__["deduplication"].check(arg.result);
         if (duplicate) {
             return this.skipDownload({
                 id: arg.id,
                 reason: 'duplicate',
-            }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_跳过下载因为重复文件', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id, arg.data.type !== 3)));
+            }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_跳过下载因为重复文件', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id, arg.result.type !== 3)));
         }
         // 如果是动图，再次检查是否排除了动图
         // 因为有时候用户在抓取时没有排除动图，但是在下载时排除了动图。所以下载时需要再次检查
-        if (arg.data.type === 2 && !_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downType2) {
+        if (arg.result.type === 2 && !_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downType2) {
             return this.skipDownload({
                 id: arg.id,
                 reason: 'excludedType',
             });
         }
         // 检查宽高条件和宽高比
-        if ((_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].setWHSwitch || _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].ratioSwitch) && arg.data.type !== 3) {
+        if ((_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].setWHSwitch || _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].ratioSwitch) &&
+            arg.result.type !== 3) {
             // 默认使用当前作品中第一张图片的宽高
             let wh = {
-                width: arg.data.fullWidth,
-                height: arg.data.fullHeight,
+                width: arg.result.fullWidth,
+                height: arg.result.fullHeight,
             };
             // 如果不是第一张图片，则加载图片以获取宽高
-            if (arg.data.index > 0) {
+            if (arg.result.index > 0) {
                 // 始终获取原图的尺寸
-                wh = await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__["Utils"].getImageSize(arg.data.original);
+                wh = await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__["Utils"].getImageSize(arg.result.original);
             }
             // 如果获取宽高失败，图片会被视为通过宽高检查
             if (wh.width === 0 || wh.height === 0) {
@@ -14039,7 +14195,7 @@ class Download {
             // 如果是超时，那么等待时间会比较长，可能超过 20 秒
             const timeLimit = 10000; // 如果从发起请求到进入重试的时间间隔小于这个值，则视为磁盘空间不足的情况
             const result = this.retryInterval.filter((val) => val <= timeLimit);
-            // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就认为是磁盘空间不足。
+            // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就有可能是磁盘空间不足。
             if (result.length > 9) {
                 _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(errorMsg);
                 const tip = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_状态码为0的错误提示');
@@ -14055,15 +14211,15 @@ class Download {
     // 下载文件
     async download(arg) {
         // 获取文件名
-        const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_3__["fileName"].getFileName(arg.data);
+        const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_3__["fileName"].getFileName(arg.result);
         // 重设当前下载栏的信息
         this.setProgressBar(_fileName, 0, 0);
         // 下载文件
         let url;
-        if (arg.data.type === 3) {
+        if (arg.result.type === 3) {
             // 生成小说的文件
-            if (arg.data.novelMeta) {
-                let blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_9__["MakeNovelFile"].make(arg.data.novelMeta);
+            if (arg.result.novelMeta) {
+                let blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_9__["MakeNovelFile"].make(arg.result.novelMeta);
                 url = URL.createObjectURL(blob);
             }
             else {
@@ -14072,7 +14228,7 @@ class Download {
         }
         else {
             // 对于图像作品，如果设置了图片尺寸就使用指定的 url，否则使用原图 url
-            url = arg.data[_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].imageSize] || arg.data.original;
+            url = arg.result[_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].imageSize] || arg.result.original;
         }
         let xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
@@ -14129,22 +14285,22 @@ class Download {
                 const convertExt = ['webm', 'gif', 'png'];
                 const ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].ugoiraSaveAs;
                 if (convertExt.includes(ext) &&
-                    arg.data.ugoiraInfo &&
+                    arg.result.ugoiraInfo &&
                     _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].imageSize !== 'thumb') {
                     // 当下载图片的方形缩略图时，不转换动图，因为此时下载的是作品的静态缩略图，无法进行转换
                     try {
                         if (ext === 'webm') {
-                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__["convertUgoira"].webm(file, arg.data.ugoiraInfo);
+                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__["convertUgoira"].webm(file, arg.result.ugoiraInfo);
                         }
                         if (ext === 'gif') {
-                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__["convertUgoira"].gif(file, arg.data.ugoiraInfo);
+                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__["convertUgoira"].gif(file, arg.result.ugoiraInfo);
                         }
                         if (ext === 'png') {
-                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__["convertUgoira"].apng(file, arg.data.ugoiraInfo);
+                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__["convertUgoira"].apng(file, arg.result.ugoiraInfo);
                         }
                     }
                     catch (error) {
-                        const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_动图转换失败的提示', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.data.idNum));
+                        const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_动图转换失败的提示', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.result.idNum));
                         // 因为会重试所以不在日志上显示
                         // log.error(msg, 1)
                         console.error(msg);
@@ -14161,7 +14317,7 @@ class Download {
             // 对插画、漫画进行颜色检查
             // 在这里进行检查的主要原因：抓取时只能检测第一张的缩略图，并没有检查后面的图片。所以这里需要对后面的图片进行检查。
             // 另一个原因：如果抓取时没有设置不下载某种颜色的图片，下载时又开启了设置，那么就在这里进行检查
-            if (arg.data.type === 0 || arg.data.type === 1) {
+            if (arg.result.type === 0 || arg.result.type === 1) {
                 const result = await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check({
                     mini: blobUrl,
                 });
@@ -14221,19 +14377,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _download_Download__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../download/Download */ "./src/ts/download/Download.ts");
-/* harmony import */ var _ProgressBar__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ProgressBar */ "./src/ts/download/ProgressBar.ts");
-/* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/download/DownloadStates.ts");
-/* harmony import */ var _ShowDownloadStates__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ShowDownloadStates */ "./src/ts/download/ShowDownloadStates.ts");
-/* harmony import */ var _ShowSkipCount__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowSkipCount */ "./src/ts/download/ShowSkipCount.ts");
-/* harmony import */ var _ShowConvertCount__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ShowConvertCount */ "./src/ts/download/ShowConvertCount.ts");
-/* harmony import */ var _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./BookmarkAfterDL */ "./src/ts/download/BookmarkAfterDL.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Help__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../Help */ "./src/ts/Help.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../download/DownloadNovelCover */ "./src/ts/download/DownloadNovelCover.ts");
+/* harmony import */ var _ProgressBar__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ProgressBar */ "./src/ts/download/ProgressBar.ts");
+/* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/download/DownloadStates.ts");
+/* harmony import */ var _ShowDownloadStates__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowDownloadStates */ "./src/ts/download/ShowDownloadStates.ts");
+/* harmony import */ var _ShowSkipCount__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ShowSkipCount */ "./src/ts/download/ShowSkipCount.ts");
+/* harmony import */ var _ShowConvertCount__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowConvertCount */ "./src/ts/download/ShowConvertCount.ts");
+/* harmony import */ var _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./BookmarkAfterDL */ "./src/ts/download/BookmarkAfterDL.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Help__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../Help */ "./src/ts/Help.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 // 下载控制
+
 
 
 
@@ -14277,15 +14435,15 @@ class DownloadControl {
         this.createDownloadArea();
         this.bindEvents();
         const statusTipWrap = this.wrapper.querySelector('.down_status');
-        new _ShowDownloadStates__WEBPACK_IMPORTED_MODULE_10__["ShowDownloadStates"](statusTipWrap);
+        new _ShowDownloadStates__WEBPACK_IMPORTED_MODULE_11__["ShowDownloadStates"](statusTipWrap);
         const skipTipWrap = this.wrapper.querySelector('.skip_tip');
-        new _ShowSkipCount__WEBPACK_IMPORTED_MODULE_11__["ShowSkipCount"](skipTipWrap);
+        new _ShowSkipCount__WEBPACK_IMPORTED_MODULE_12__["ShowSkipCount"](skipTipWrap);
         const convertTipWrap = this.wrapper.querySelector('.convert_tip');
-        new _ShowConvertCount__WEBPACK_IMPORTED_MODULE_12__["ShowConvertCount"](convertTipWrap);
+        new _ShowConvertCount__WEBPACK_IMPORTED_MODULE_13__["ShowConvertCount"](convertTipWrap);
         // 只在 p 站内启用下载后收藏的功能
-        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_17__["Utils"].isPixiv()) {
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].isPixiv()) {
             const bmkAfterDLTipWrap = this.wrapper.querySelector('.bmkAfterDL_tip');
-            new _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_13__["BookmarkAfterDL"](bmkAfterDLTipWrap);
+            new _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_14__["BookmarkAfterDL"](bmkAfterDLTipWrap);
         }
     }
     bindEvents() {
@@ -14336,7 +14494,15 @@ class DownloadControl {
                 this.downloadOrSkipAFile(msg.data);
             }
             else if (msg.msg === 'download_err') {
-                // 浏览器把文件保存到本地时出错
+                // 浏览器把文件保存到本地失败
+                // 用户在浏览器弹出“另存为”对话框时取消保存
+                // 跳过这个文件，不再重试保存它
+                if (msg.err === 'USER_CANCELED') {
+                    _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_user_canceled_tip', _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].createWorkLink(msg.data.id), msg.err || 'unknown'));
+                    this.downloadOrSkipAFile(msg.data);
+                    return;
+                }
+                // 其他原因，下载器会重试保存这个文件
                 _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_save_file_failed_tip', _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].createWorkLink(msg.data.id), msg.err || 'unknown'));
                 if (msg.err === 'FILE_FAILED') {
                     _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_FILE_FAILED_tip'));
@@ -14355,12 +14521,12 @@ class DownloadControl {
             _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕'), 2);
             // 如果有等待中的下载任务，则开始下载等待中的任务
             if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].waitingIdList.length === 0) {
-                _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕2'));
+                _Toast__WEBPACK_IMPORTED_MODULE_17__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕2'));
             }
             else {
                 window.clearTimeout(this.waitingTimer);
                 this.waitingTimer = window.setTimeout(() => {
-                    _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].quickCrawl = true; // 下载等待的任务时，不显示下载器面板
+                    _store_States__WEBPACK_IMPORTED_MODULE_15__["states"].quickCrawl = true; // 下载等待的任务时，不显示下载器面板
                     const idList = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].waitingIdList;
                     _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].waitingIdList = [];
                     _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlIdList', idList);
@@ -14407,7 +14573,7 @@ class DownloadControl {
     }
     createResultBtns() {
         // 只在 pixiv 上添加这些按钮
-        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_17__["Utils"].isPixiv()) {
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].isPixiv()) {
             // 导入抓取结果
             this.resultBtns.importJSON = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgGreen, '_导入抓取结果');
             // 导入抓取结果的按钮始终显示，因为它需要始终可用。
@@ -14431,52 +14597,52 @@ class DownloadControl {
     }
     // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
     readyDownload() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].busy || _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].mergeNovel) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_15__["states"].busy || _store_States__WEBPACK_IMPORTED_MODULE_15__["states"].mergeNovel) {
             return;
         }
         if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0) {
-            return _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].reset(0);
+            return _ProgressBar__WEBPACK_IMPORTED_MODULE_9__["progressBar"].reset(0);
         }
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('readyDownload');
         this.showResultBtns();
         this.showDownloadArea();
         this.setDownloaded();
         this.setDownloadThread();
-        _Help__WEBPACK_IMPORTED_MODULE_18__["help"].showDownloadTip();
+        _Help__WEBPACK_IMPORTED_MODULE_19__["help"].showDownloadTip();
         // 在插画漫画搜索页面里，如果启用了“预览搜索页面的筛选结果”
-        if (_PageType__WEBPACK_IMPORTED_MODULE_19__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_19__["pageType"].list.ArtworkSearch &&
+        if (_PageType__WEBPACK_IMPORTED_MODULE_20__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_20__["pageType"].list.ArtworkSearch &&
             _setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].previewResult) {
             // “预览搜索页面的筛选结果”会阻止自动开始下载。但是一些情况例外
             // 允许由图片查看器发起的下载请求自动开始下载
             // 允许由抓取标签列表功能发起的下载请求自动开始下载
-            if (!_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].downloadFromViewer &&
-                !_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].quickCrawl &&
-                !_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_15__["states"].downloadFromViewer &&
+                !_store_States__WEBPACK_IMPORTED_MODULE_15__["states"].quickCrawl &&
+                !_store_States__WEBPACK_IMPORTED_MODULE_15__["states"].crawlTagList) {
                 return;
             }
         }
         // 自动开始下载的情况
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].quietDownload ||
-            _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].quickCrawl ||
-            _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].downloadFromViewer ||
-            _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
+            _store_States__WEBPACK_IMPORTED_MODULE_15__["states"].quickCrawl ||
+            _store_States__WEBPACK_IMPORTED_MODULE_15__["states"].downloadFromViewer ||
+            _store_States__WEBPACK_IMPORTED_MODULE_15__["states"].crawlTagList) {
             this.startDownload();
         }
     }
     // 开始下载
     startDownload() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].busy) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_15__["states"].busy) {
             return;
         }
         if (this.pause) {
             // 从上次中断的位置继续下载
             // 把“使用中”的下载状态重置为“未使用”
-            _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].resume();
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].resume();
         }
         else {
             // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
             // 初始化下载状态列表
-            _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].init();
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].init();
         }
         this.reset();
         this.setDownloaded();
@@ -14500,7 +14666,7 @@ class DownloadControl {
         }
         if (this.pause === false) {
             // 如果正在下载中
-            if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].busy) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_15__["states"].busy) {
                 this.pause = true;
                 _Log__WEBPACK_IMPORTED_MODULE_3__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_已暂停'), 2);
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('downloadPause');
@@ -14539,14 +14705,14 @@ class DownloadControl {
         }
         const task = this.taskList[data.id];
         // 复位这个任务的状态
-        _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].setState(task.index, -1);
+        _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].setState(task.index, -1);
         // 建立下载任务，再次下载它
         this.createDownload(task.progressBarIndex);
     }
     downloadOrSkipAFile(data) {
         const task = this.taskList[data.id];
         // 更改这个任务状态为“已完成”
-        _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].setState(task.index, 1);
+        _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].setState(task.index, 1);
         // 统计已下载数量
         this.setDownloaded();
         // 是否继续下载
@@ -14579,11 +14745,11 @@ class DownloadControl {
     setDownloadThread() {
         const setThread = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].downloadThread;
         if (setThread < 1 ||
-            setThread > _config_Config__WEBPACK_IMPORTED_MODULE_15__["Config"].downloadThreadMax ||
+            setThread > _config_Config__WEBPACK_IMPORTED_MODULE_16__["Config"].downloadThreadMax ||
             isNaN(setThread)) {
             // 如果数值非法，则重设为默认值
-            this.thread = _config_Config__WEBPACK_IMPORTED_MODULE_15__["Config"].downloadThreadMax;
-            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["setSetting"])('downloadThread', _config_Config__WEBPACK_IMPORTED_MODULE_15__["Config"].downloadThreadMax);
+            this.thread = _config_Config__WEBPACK_IMPORTED_MODULE_16__["Config"].downloadThreadMax;
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["setSetting"])('downloadThread', _config_Config__WEBPACK_IMPORTED_MODULE_16__["Config"].downloadThreadMax);
         }
         else {
             this.thread = setThread; // 设置为用户输入的值
@@ -14593,11 +14759,11 @@ class DownloadControl {
             this.thread = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded;
         }
         // 重设下载进度条
-        _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].reset(this.thread, this.downloaded);
+        _ProgressBar__WEBPACK_IMPORTED_MODULE_9__["progressBar"].reset(this.thread, this.downloaded);
     }
     // 查找需要进行下载的作品，建立下载
     createDownload(progressBarIndex) {
-        const index = _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].getFirstDownloadItem();
+        const index = _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].getFirstDownloadItem();
         if (index === undefined) {
             // 当已经没有需要下载的作品时，检查是否带着错误完成了下载
             // 如果下载过程中没有出错，就不会执行到这个分支
@@ -14605,9 +14771,9 @@ class DownloadControl {
         }
         else {
             const workData = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result[index];
-            const data = {
+            const argument = {
                 id: workData.id,
-                data: workData,
+                result: workData,
                 index: index,
                 progressBarIndex: progressBarIndex,
                 taskBatch: this.taskBatch,
@@ -14618,15 +14784,16 @@ class DownloadControl {
                 progressBarIndex: progressBarIndex,
             };
             // 建立下载
-            new _download_Download__WEBPACK_IMPORTED_MODULE_7__["Download"](progressBarIndex, data);
+            new _download_Download__WEBPACK_IMPORTED_MODULE_7__["Download"](progressBarIndex, argument);
+            _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_8__["downloadNovelCover"].download(argument.result);
         }
     }
     setDownloaded() {
-        this.downloaded = _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].downloadedCount();
+        this.downloaded = _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].downloadedCount();
         const text = `${this.downloaded} / ${_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length}`;
         _Log__WEBPACK_IMPORTED_MODULE_3__["log"].log(text, 2, false);
         // 设置总下载进度条
-        _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].setTotalProgress(this.downloaded);
+        _ProgressBar__WEBPACK_IMPORTED_MODULE_9__["progressBar"].setTotalProgress(this.downloaded);
         _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].remainingDownload = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded;
         // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
         if (this.downloaded === _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
@@ -14671,6 +14838,76 @@ class DownloadControl {
     }
 }
 new DownloadControl();
+
+
+/***/ }),
+
+/***/ "./src/ts/download/DownloadNovelCover.ts":
+/*!***********************************************!*\
+  !*** ./src/ts/download/DownloadNovelCover.ts ***!
+  \***********************************************/
+/*! exports provided: downloadNovelCover */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "downloadNovelCover", function() { return downloadNovelCover; });
+/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../FileName */ "./src/ts/FileName.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
+// 下载小说的封面图片
+class DownloadNovelCover {
+    async download(result) {
+        var _a;
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].downloadNovelCoverImage ||
+            result.type !== 3 ||
+            !((_a = result.novelMeta) === null || _a === void 0 ? void 0 : _a.coverUrl)) {
+            return;
+        }
+        const url = await this.getCoverBolbURL(result.novelMeta.coverUrl);
+        const novelName = _FileName__WEBPACK_IMPORTED_MODULE_0__["fileName"].getFileName(result);
+        const coverName = this.createCoverFileName(novelName, result.novelMeta.coverUrl);
+        this.sendDownload(url, coverName);
+    }
+    async downloadOnMergeNovel(coverURL, novelName) {
+        const url = await this.getCoverBolbURL(coverURL);
+        const coverName = this.createCoverFileName(novelName, coverURL);
+        this.sendDownload(url, coverName);
+    }
+    // 下载封面图片，返回其 Blob URL
+    async getCoverBolbURL(coverURL) {
+        return new Promise(async (resolve, reject) => {
+            const res = await fetch(coverURL, {
+                method: 'get',
+                credentials: 'same-origin',
+            });
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            return resolve(url);
+        });
+    }
+    // 生成封面的文件名
+    createCoverFileName(novelName, coverURL) {
+        // 用小说的文件名修改，把后缀名改成图片的后缀名
+        // 目前来看封面图片的后缀都是 jpg，不过严谨起见还是手动获取其后缀名
+        const novelNameArray = novelName.split('.');
+        const coverArray = coverURL.split('.');
+        novelNameArray[novelNameArray.length - 1] =
+            coverArray[coverArray.length - 1];
+        const coverName = novelNameArray.join('.');
+        return coverName;
+    }
+    sendDownload(url, name) {
+        chrome.runtime.sendMessage({
+            msg: 'save_novel_cover_file',
+            fileUrl: url,
+            fileName: name,
+        });
+    }
+}
+const downloadNovelCover = new DownloadNovelCover();
+
 
 
 /***/ }),
@@ -15183,23 +15420,19 @@ new ImportResult();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "makeEPUB", function() { return makeEPUB; });
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 class MakeEPUB {
     constructor() { }
     // epub 内部会使用标题 title 建立一个文件夹，把一些文件存放进去，所以这里要替换掉标题的特殊字符，特殊字符会导致这个文件夹名被截断，结果就是这个 epub 文件无法被解析。
     make(data, saveMeta = true) {
         return new Promise((resolve, reject) => {
-            let content = data.content;
-            // 附带小说元数据
-            if (saveMeta) {
-                content = data.meta + content;
-            }
-            // 把换行符替换成 br 标签
-            content = content.replace(/\n/g, '<br/>');
+            const content = saveMeta ? data.meta + data.content : data.content;
             new EpubMaker()
                 .withTemplate('idpf-wasteland')
-                .withAuthor(_utils_Utils__WEBPACK_IMPORTED_MODULE_0__["Utils"].replaceUnsafeStr(data.userName))
+                .withAuthor(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].replaceUnsafeStr(data.userName))
                 .withModificationDate(new Date(data.createDate))
                 .withRights({
                 description: data.description,
@@ -15210,8 +15443,11 @@ class MakeEPUB {
                 license: '',
                 attributionUrl: '',
             })
-                .withTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_0__["Utils"].replaceUnsafeStr(data.title))
-                .withSection(new EpubMaker.Section('chapter', null, { content: content }, false, true))
+                .withTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].replaceUnsafeStr(data.title))
+                .withSection(new EpubMaker.Section('chapter', null, {
+                title: data.title,
+                content: _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].replaceEPUBText(content),
+            }, true, true))
                 .makeEpub()
                 .then((blob) => {
                 resolve(blob);
@@ -15247,11 +15483,7 @@ class MakeNovelFile {
         return _MakeEPUB__WEBPACK_IMPORTED_MODULE_1__["makeEPUB"].make(data, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].saveNovelMeta);
     }
     static makeTXT(data, saveMeta = true) {
-        let content = data.content;
-        // 附带小说元数据
-        if (saveMeta) {
-            content = data.meta + content;
-        }
+        let content = saveMeta ? data.meta + data.content : data.content;
         // 替换换行标签，移除 html 标签
         content = content.replace(/<br \/>/g, '\n').replace(/<\/?.+?>/g, '');
         return new Blob([content], {
@@ -15279,6 +15511,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../download/DownloadNovelCover */ "./src/ts/download/DownloadNovelCover.ts");
+
+
 
 
 
@@ -15288,6 +15524,8 @@ __webpack_require__.r(__webpack_exports__);
 class MergeNovel {
     constructor() {
         this.CRLF = '\n'; // pixiv 小说的换行符
+        /**在文件开头添加的元数据 */
+        this.meta = '';
         this.init();
     }
     init() {
@@ -15317,6 +15555,23 @@ class MergeNovel {
                 content: result.novelMeta.content,
             });
         }
+        // 生成 meta 文本
+        this.meta = '';
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].saveNovelMeta) {
+            const metaArray = [];
+            // 系列标题
+            metaArray.push(firstResult.seriesTitle);
+            // 作者
+            metaArray.push(firstResult.user);
+            // 网址链接
+            const link = `https://www.pixiv.net/novel/series/${firstResult.seriesId}`;
+            metaArray.push(link + this.CRLF.repeat(2));
+            // 设定资料
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].novelSeriesGlossary) {
+                metaArray.push(_store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].novelSeriesGlossary);
+            }
+            this.meta = metaArray.join(this.CRLF.repeat(2));
+        }
         // 生成小说文件并下载
         let file = null;
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].novelSaveAs === 'txt') {
@@ -15330,10 +15585,16 @@ class MergeNovel {
         _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].downloadFile(url, fileName);
         _store_States__WEBPACK_IMPORTED_MODULE_3__["states"].mergeNovel = false;
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('downloadComplete');
+        // 保存第一个小说的封面图片
+        // 实际上系列的封面不一定是第一个小说的封面，这里用第一个小说的封面凑合一下
+        _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_7__["downloadNovelCover"].downloadOnMergeNovel(firstResult.novelMeta.coverUrl, fileName);
         _store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].reset();
     }
     makeTXT(novelDataArray) {
         const result = [];
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].saveNovelMeta) {
+            result.push(this.meta);
+        }
         for (const data of novelDataArray) {
             // 添加章节名
             result.push(`${this.chapterNo(data.no)} ${data.title}`);
@@ -15374,13 +15635,18 @@ class MergeNovel {
             //   )
             // }
             // epubData = epubData.withSection(Section)
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].saveNovelMeta) {
+                epubData.withSection(new EpubMaker.Section('chapter', 0, {
+                    title: _Lang__WEBPACK_IMPORTED_MODULE_5__["lang"].transl('_设定资料'),
+                    content: _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].replaceEPUBText(this.meta),
+                }, true, true));
+            }
             // 为每一篇小说创建一个章节
             for (const data of novelDataArray) {
                 // 创建 epub 文件时不需要在标题和正文后面添加换行符
                 epubData.withSection(new EpubMaker.Section('chapter', data.no, {
                     title: `${this.chapterNo(data.no)} ${data.title}`,
-                    // 把换行符替换成 br 标签
-                    content: data.content.replace(/\n/g, '<br/>'),
+                    content: _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].replaceEPUBText(data.content),
                 }, true, true)
                 // 倒数第二个参数是 includeInToc，必须为 true，否则某些小说阅读软件无法读取章节信息
                 // includeInToc 的作用是在 .ncx 文件和 nav.xhtml 文件里添加导航信息
@@ -17097,7 +17363,7 @@ class Filter {
             return;
         }
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].multiImageWorkImageLimit > 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品的图片数量限制') +
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品的图片数量上限') +
                 '：' +
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].multiImageWorkImageLimit);
         }
@@ -17322,7 +17588,6 @@ class Filter {
         }
         const day = (nowTime - createTime) / this.oneDayTime; // 计算作品发表以来的天数
         const average = bmk / day;
-        // const average = bmk / Math.log(1+ day)  // 草 使用的计算日均收藏数量的方式
         const checkAverage = average >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumAverage;
         // 返回结果。收藏数量和日均收藏并不互斥，两者只要有一个满足条件就会保留这个作品
         return checkNumber || checkAverage;
@@ -19209,7 +19474,7 @@ const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
     <span class="setWantPageWrap">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载多少页面"><span class="setWantPageTip1" data-xztext="_下载多少页面"></span><span class="gray1"> ? </span></span>
+    <span class="has_tip settingNameStyle1" data-xztip="_抓取多少页面"><span class="setWantPageTip1" data-xztext="_抓取多少页面"></span><span class="gray1"> ? </span></span>
     <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
     value = '-1'>&nbsp;
     <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
@@ -19217,9 +19482,9 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="2">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_作品类型"></span>
+    </span>
     <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="setWorkType0" data-xztext="_插画"></label>
@@ -19235,9 +19500,9 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="44">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_年龄限制"></span>
+    </span>
     <input type="checkbox" name="downAllAges" id="downAllAges" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="downAllAges" data-xztext="_全年龄"></label>
@@ -19250,9 +19515,9 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="6">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_收藏状态"></span>
+    </span>
     <input type="checkbox" name="downNotBookmarked" id="setDownNotBookmarked" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="setDownNotBookmarked" data-xztext="_未收藏"></label>
@@ -19262,9 +19527,9 @@ const formHtml = `<form class="settingForm">
     </p>
     
     <p class="option" data-no="23">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_图片色彩"></span>
+    </span>
     <input type="checkbox" name="downColorImg" id="setDownColorImg" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="setDownColorImg" data-xztext="_彩色图片"></label>
@@ -19274,9 +19539,9 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="21">
-    <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
-    <span data-xztext="_下载作品类型"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1">
+    <span data-xztext="_图片数量"></span>
+    </span>
     <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="setDownSingleImg" data-xztext="_单图作品"></label>
@@ -19306,7 +19571,7 @@ const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="47">
     <span class="has_tip settingNameStyle1" data-xztip="_超出此限制的多图作品不会被下载">
-    <span data-xztext="_多图作品的图片数量限制"></span>
+    <span data-xztext="_多图作品的图片数量上限"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="multiImageWorkImageLimitSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
@@ -19318,7 +19583,7 @@ const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="5">
     <span class="has_tip settingNameStyle1" data-xztip="_设置收藏数量的提示">
-    <span data-xztext="_设置收藏数量"></span>
+    <span data-xztext="_收藏数量"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="BMKNumSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
@@ -19339,35 +19604,9 @@ const formHtml = `<form class="settingForm">
     </span>
     </p>
 
-    <p class="option" data-no="8">
-    <span class="has_tip settingNameStyle1" data-xztip="_设置宽高比例Title">
-    <span data-xztext="_设置宽高比例"></span>
-    <span class="gray1"> ? </span></span>
-    <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
-    <span class="beautify_switch"></span>
-    <span class="subOptionWrap" data-show="ratioSwitch">
-    <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="horizontal">
-    <span class="beautify_radio"></span>
-    <label for="ratio1" data-xztext="_横图"></label>
-
-    <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="vertical">
-    <span class="beautify_radio"></span>
-    <label for="ratio2" data-xztext="_竖图"></label>
-    
-    <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="square">
-    <span class="beautify_radio"></span>
-    <label for="ratio0" data-xztext="_正方形"></label>
-
-    <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
-    <span class="beautify_radio"></span>
-    <label for="ratio3" data-xztext="_输入宽高比"></label>
-    <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
-    </span>
-    </p>
-
     <p class="option" data-no="7">
     <span class="has_tip settingNameStyle1" data-xztip="_筛选宽高的提示文字">
-    <span data-xztext="_筛选宽高的按钮文字"></span>
+    <span data-xztext="_图片的宽高"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="setWHSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
@@ -19398,10 +19637,36 @@ const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="8">
+    <span class="has_tip settingNameStyle1" data-xztip="_设置宽高比例Title">
+    <span data-xztext="_图片的宽高比例"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    <span class="subOptionWrap" data-show="ratioSwitch">
+    <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="horizontal">
+    <span class="beautify_radio"></span>
+    <label for="ratio1" data-xztext="_横图"></label>
+
+    <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="vertical">
+    <span class="beautify_radio"></span>
+    <label for="ratio2" data-xztext="_竖图"></label>
+    
+    <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="square">
+    <span class="beautify_radio"></span>
+    <label for="ratio0" data-xztext="_正方形"></label>
+
+    <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
+    <span class="beautify_radio"></span>
+    <label for="ratio3" data-xztext="_输入宽高比"></label>
+    <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
+    </span>
+    </p>
+
     <p class="option" data-no="9">
     <span class="has_tip settingNameStyle1" data-xztip="_设置id范围提示">
-    <span data-xztext="_设置id范围"></span>
-    &nbsp; <span class="gray1"> ? </span></span>
+    <span data-xztext="_id范围"></span>
+    <span class="gray1"> ? </span></span>
     <input type="checkbox" name="idRangeSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
     <span class="subOptionWrap" data-show="idRangeSwitch">
@@ -19417,7 +19682,7 @@ const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="10">
     <span class="has_tip settingNameStyle1" data-xztip="_设置投稿时间提示">
-    <span data-xztext="_设置投稿时间"></span>
+    <span data-xztext="_投稿时间"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="postDate" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
@@ -19601,7 +19866,7 @@ const formHtml = `<form class="settingForm">
     </p>
     
     <p class="option" data-no="64">
-    <span class="settingNameStyle1" data-xztext="_只有一个文件时不建立文件夹"></span>
+    <span class="settingNameStyle1" data-xztext="_只有一个抓取结果时不建立文件夹"></span>
     <input type="checkbox" name="notFolderWhenOneFile" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
     </p>
@@ -19617,10 +19882,10 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="16">
-    <span class="has_tip settingNameStyle1" data-xztip="_线程数字">
-    <span data-xztext="_设置下载线程"></span>
-    <span class="gray1"> ? </span></span>
-    <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
+    <span class="settingNameStyle1"">
+    <span data-xztext="_下载线程"></span>
+    </span>
+    <input type="text" name="downloadThread" class="has_tip setinput_style1 blue" data-xztip="_下载线程的说明" value="5">
     </p>
 
     <p class="option" data-no="17">
@@ -19672,6 +19937,12 @@ const formHtml = `<form class="settingForm">
       <span data-xztext="_抓取"></span>
     </p>
 
+    <p class="option" data-no="69">
+    <span class="settingNameStyle1" data-xztext="_不抓取多图作品的最后一张图片"></span>
+    <input type="checkbox" name="doNotDownloadLastImageOfMultiImageWork" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    </p>
+
     <p class="option" data-no="35">
     <span class="has_tip settingNameStyle1" data-xztip="_用户阻止名单的说明">
     <span data-xztext="_用户阻止名单"></span>
@@ -19689,6 +19960,26 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_switch"></span>
     <span class="subOptionWrap" data-show="blockTagsForSpecificUser">
     <slot data-name="blockTagsForSpecificUser"></slot>
+    </span>
+    </p>
+    
+    <p class="option" data-no="54">
+    <span class="settingNameStyle1" data-xztext="_自动导出抓取结果"></span>
+    <input type="checkbox" name="autoExportResult" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+
+    <span class="subOptionWrap" data-show="autoExportResult">
+    <span data-xztext="_抓取结果"></span>
+    <span>&gt;</span>
+    <input type="text" name="autoExportResultNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
+    <span>&nbsp;</span>
+    <span class="settingNameStyle1" data-xztext="_文件格式"> </span>
+    <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox"></span>
+    <label for="autoExportResultCSV"> CSV </label>
+    <input type="checkbox" name="autoExportResultJSON" id="autoExportResultJSON" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox"></span>
+    <label for="autoExportResultJSON"> JSON </label>
     </span>
     </p>
 
@@ -19725,11 +20016,11 @@ const formHtml = `<form class="settingForm">
     <input type="checkbox" name="workDir" class="need_beautify checkbox_switch" >
     <span class="beautify_switch"></span>
     <span class="subOptionWrap" data-show="workDir">
-    <span data-xztext="_文件数量大于"></span>
-    <input type="text" name="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
+    <label for="workDirFileNumber" data-xztext="_文件数量大于"></label>
+    <input type="text" name="workDirFileNumber" id="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
     <span>&nbsp;</span>
-    <span data-xztext="_目录名"></span>
-    <input type="text" name="workDirNameRule" class="setinput_style1 blue" value="{id_num}">
+    <label for="workDirNameRule" data-xztext="_目录名"></label>
+    <input class="has_tip setinput_style1 blue" type="text"  data-xztip="_为作品建立单独的文件夹说明" name="workDirNameRule" id="workDirNameRule" value="{id_num}">
     </span>
     </p>
 
@@ -19830,9 +20121,9 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="24">
-    <span class="has_tip settingNameStyle1" data-xztip="_同时转换多少个动图警告" data-xztext="_同时转换多少个动图"></span>
-    <input type="text" name="convertUgoiraThread" class="setinput_style1 blue" value="1">
-    <span class="has_tip gray1" data-xztip="_同时转换多少个动图警告" data-xztext="_提示"></span>
+    <span class="settingNameStyle1" data-xztext="_同时转换多少个动图"></span>
+    <input type="text" name="convertUgoiraThread" class="has_tip setinput_style1 blue" data-xztip="_同时转换多少个动图警告" value="1">
+    </span>
     </p>
 
     <p class="option" data-no="26">
@@ -19850,6 +20141,12 @@ const formHtml = `<form class="settingForm">
     <span data-xztext="_在小说里保存元数据"></span>
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch"></span>
+    </p>
+
+    <p class="option" data-no="70">
+    <span class="settingNameStyle1" data-xztext="_下载小说的封面图片"></span>
+    <input type="checkbox" name="downloadNovelCoverImage" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
     </p>
 
@@ -19920,25 +20217,6 @@ const formHtml = `<form class="settingForm">
     <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
     <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
     <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
-    </span>
-    </p>
-
-    <p class="option" data-no="54">
-    <span class="settingNameStyle1" data-xztext="_自动导出抓取结果"></span>
-    <input type="checkbox" name="autoExportResult" class="need_beautify checkbox_switch">
-    <span class="beautify_switch"></span>
-
-    <span class="subOptionWrap" data-show="autoExportResult">
-    <span data-xztext="_文件数量大于"></span>
-    <input type="text" name="autoExportResultNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
-    <span>&nbsp;</span>
-    <span class="settingNameStyle1" data-xztext="_文件格式"> </span>
-    <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
-    <span class="beautify_checkbox"></span>
-    <label for="autoExportResultCSV"> CSV </label>
-    <input type="checkbox" name="autoExportResultJSON" id="autoExportResultJSON" class="need_beautify checkbox_common" checked>
-    <span class="beautify_checkbox"></span>
-    <label for="autoExportResultJSON"> JSON </label>
     </span>
     </p>
 
@@ -20018,7 +20296,7 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="40">
-    <span class="settingNameStyle1" data-xztext="_在作品缩略图上显示放大图标"></span>
+    <span class="settingNameStyle1" data-xztext="_在作品缩略图上显示放大按钮"></span>
     <input type="checkbox" name="magnifier" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
 
@@ -20168,6 +20446,12 @@ const formHtml = `<form class="settingForm">
     <label for="switchTabBar2" data-xztext="_鼠标点击"></label>
     </p>
 
+    <p class="option" data-no="53">
+    <span class="settingNameStyle1" data-xztext="_高亮显示关键字"></span>
+    <input type="checkbox" name="boldKeywords" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    </p>
+
     <p class="option" data-no="32">
     <span class="settingNameStyle1"><span class="key">Language</span></span>
     <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="auto" checked>
@@ -20185,12 +20469,6 @@ const formHtml = `<form class="settingForm">
     <input type="radio" name="userSetLang" id="userSetLang5" class="need_beautify radio" value="en">
     <span class="beautify_radio"></span>
     <label for="userSetLang5">English</label>
-    </p>
-
-    <p class="option" data-no="53">
-    <span class="settingNameStyle1" data-xztext="_以粗体显示关键字"></span>
-    <input type="checkbox" name="boldKeywords" class="need_beautify checkbox_switch">
-    <span class="beautify_switch"></span>
     </p>
 
     <p class="option" data-no="37">
@@ -20299,6 +20577,8 @@ class FormSettings {
                 'showLargerThumbnails',
                 'doubleWidthThumb',
                 'wheelScrollSwitchImageOnPreviewWork',
+                'doNotDownloadLastImageOfMultiImageWork',
+                'downloadNovelCoverImage',
             ],
             text: [
                 'setWantPage',
@@ -20525,31 +20805,20 @@ __webpack_require__.r(__webpack_exports__);
 // 管理不可见的设置。通过预设的按键，切换其开关状态
 class InvisibleSettings {
     constructor() {
-        this.list = [
-            {
-                name: 'createFolderBySl',
-                code: 'switchsl',
-            },
-            {
-                name: 'createFolderBySl',
-                code: 'kaiguansl',
-            },
-            {
-                name: 'downloadUgoiraFirst',
-                code: 'dlugoirafirst',
-            },
-            {
-                name: 'downloadUgoiraFirst',
-                code: 'qw111',
-            },
-        ];
+        // ppdss: Powerful Pixiv Downloader Secret Settings
+        this.cfg = {
+            createFolderBySl: ['ppdss1', 'switchsl', 'kaiguansl'],
+            downloadUgoiraFirst: ['ppdss2', 'dlugoirafirst', 'qw111'],
+        };
         this.register();
     }
     register() {
-        for (const item of this.list) {
-            _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register(item.code, () => {
-                this.onChange(item.name);
-            });
+        for (const [name, codes] of Object.entries(this.cfg)) {
+            for (const code of codes) {
+                _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register(code, () => {
+                    this.onChange(name);
+                });
+            }
         }
     }
     onChange(name) {
@@ -20756,7 +21025,7 @@ class Options {
     constructor() {
         // 保持显示的选项的 id
         this.whiteList = [
-            1, 2, 4, 13, 17, 32, 44, 23, 50, 51, 57, 64,
+            1, 2, 4, 13, 17, 32, 44, 50, 51, 57, 64,
         ];
         // 某些页面类型需要隐藏某些选项。当调用 hideOption 方法时，把选项 id 保存起来
         // 优先级高于 whiteList
@@ -21223,6 +21492,8 @@ class Settings {
             showLargerThumbnails: false,
             doubleWidthThumb: true,
             wheelScrollSwitchImageOnPreviewWork: true,
+            doNotDownloadLastImageOfMultiImageWork: false,
+            downloadNovelCoverImage: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -21661,6 +21932,7 @@ class SaveArtworkData {
                     bmkId: body.bookmarkData ? body.bookmarkData.id : '',
                     bookmarked: bookmarked,
                     date: body.createDate,
+                    uploadDate: body.uploadDate,
                     type: body.illustType,
                     rank: rank,
                     seriesTitle: seriesTitle,
@@ -21711,6 +21983,7 @@ class SaveArtworkData {
                     bmkId: body.bookmarkData ? body.bookmarkData.id : '',
                     bookmarked: bookmarked,
                     date: body.createDate,
+                    uploadDate: body.uploadDate,
                     type: body.illustType,
                     rank: rank,
                     ugoiraInfo: ugoiraInfo,
@@ -21812,6 +22085,7 @@ class SaveNovelData {
                 bmkId: body.bookmarkData ? body.bookmarkData.id : '',
                 bookmarked: bookmarked,
                 date: body.createDate,
+                uploadDate: body.uploadDate,
                 type: illustType,
                 rank: rank,
                 seriesTitle: seriesTitle,
@@ -22036,6 +22310,8 @@ class Store {
         this.waitingIdList = []; // 下载器尚未完成本次下载时，如果有新的下载请求，则添加到这里，下载完成后再处理
         this.resultMeta = []; // 储存抓取结果的元数据。
         // 当用于图片作品时，它可以根据每个作品需要下载多少张，生成每一张图片的信息
+        /**系列小说的设定资料 */
+        this.novelSeriesGlossary = '';
         this.artworkIDList = []; // 储存抓取到的图片作品的 id 列表，用来避免重复添加
         this.novelIDList = []; // 储存抓取到的小说作品的 id 列表，用来避免重复添加
         this.result = []; // 储存抓取结果
@@ -22068,6 +22344,7 @@ class Store {
             bookmarked: false,
             bmkId: '',
             date: '',
+            uploadDate: '',
             type: 0,
             rank: null,
             ugoiraInfo: null,
@@ -22126,6 +22403,12 @@ class Store {
             // 循环生成每一个图片文件的数据
             const p0 = 'p0';
             for (let i = 0; i < workData.dlCount; i++) {
+                // 不下载多图作品的最后一张图片
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doNotDownloadLastImageOfMultiImageWork &&
+                    i > 0 &&
+                    i === workData.pageCount - 1) {
+                    continue;
+                }
                 const fileData = Object.assign({}, workData);
                 const pi = 'p' + i;
                 fileData.index = i;
@@ -22160,6 +22443,7 @@ class Store {
         this.waitingIdList = [];
         this.rankList = {};
         this.remainingDownload = 0;
+        this.novelSeriesGlossary = '';
         this.tag = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getTagFromURL();
         this.title = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getPageTitle();
     }

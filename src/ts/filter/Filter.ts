@@ -260,7 +260,7 @@ class Filter {
 
     if (settings.multiImageWorkImageLimit > 0) {
       log.warning(
-        lang.transl('_多图作品的图片数量限制') +
+        lang.transl('_多图作品的图片数量上限') +
           '：' +
           settings.multiImageWorkImageLimit
       )
@@ -556,7 +556,6 @@ class Filter {
 
     const day = (nowTime - createTime) / this.oneDayTime // 计算作品发表以来的天数
     const average = bmk / day
-    // const average = bmk / Math.log(1+ day)  // 草 使用的计算日均收藏数量的方式
     const checkAverage = average >= settings.BMKNumAverage
 
     // 返回结果。收藏数量和日均收藏并不互斥，两者只要有一个满足条件就会保留这个作品

@@ -1,12 +1,13 @@
 //初始化小说系列作品页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../config/Colors'
-import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { store } from '../store/Store'
 import { Tools } from '../Tools'
 import { API } from '../API'
 import { states } from '../store/States'
+import { settings } from '../setting/Settings'
+import { getNovelGlossarys } from './GetNovelGlossarys'
 
 class InitNovelSeriesPage extends InitPageBase {
   constructor() {
@@ -46,8 +47,13 @@ class InitNovelSeriesPage extends InitPageBase {
 
   protected getWantPage() {}
 
-  protected nextStep() {
+  protected async nextStep() {
     this.seriesId = API.getURLPathField('series')
+
+    if (states.mergeNovel && settings.saveNovelMeta) {
+      const data = await getNovelGlossarys.getGlossarys(this.seriesId)
+      store.novelSeriesGlossary = getNovelGlossarys.storeGlossaryText(data)
+    }
 
     this.getIdList()
   }

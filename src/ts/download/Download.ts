@@ -20,6 +20,8 @@ import { msgBox } from '../MsgBox'
 import { states } from '../store/States'
 import { Tools } from '../Tools'
 
+// 处理下载队列里的任务
+// 不显示在进度条上的下载任务，不在这里处理
 class Download {
   constructor(progressBarIndex: number, data: downloadArgument) {
     this.progressBarIndex = progressBarIndex
@@ -54,7 +56,7 @@ class Download {
   // 在开始下载前进行检查
   private async beforeDownload(arg: downloadArgument) {
     // 检查是否是重复文件
-    const duplicate = await deduplication.check(arg.data)
+    const duplicate = await deduplication.check(arg.result)
     if (duplicate) {
       return this.skipDownload(
         {
@@ -63,14 +65,14 @@ class Download {
         },
         lang.transl(
           '_跳过下载因为重复文件',
-          Tools.createWorkLink(arg.id, arg.data.type !== 3)
+          Tools.createWorkLink(arg.id, arg.result.type !== 3)
         )
       )
     }
 
     // 如果是动图，再次检查是否排除了动图
     // 因为有时候用户在抓取时没有排除动图，但是在下载时排除了动图。所以下载时需要再次检查
-    if (arg.data.type === 2 && !settings.downType2) {
+    if (arg.result.type === 2 && !settings.downType2) {
       return this.skipDownload({
         id: arg.id,
         reason: 'excludedType',
@@ -78,16 +80,19 @@ class Download {
     }
 
     // 检查宽高条件和宽高比
-    if ((settings.setWHSwitch || settings.ratioSwitch) && arg.data.type !== 3) {
+    if (
+      (settings.setWHSwitch || settings.ratioSwitch) &&
+      arg.result.type !== 3
+    ) {
       // 默认使用当前作品中第一张图片的宽高
       let wh = {
-        width: arg.data.fullWidth,
-        height: arg.data.fullHeight,
+        width: arg.result.fullWidth,
+        height: arg.result.fullHeight,
       }
       // 如果不是第一张图片，则加载图片以获取宽高
-      if (arg.data.index > 0) {
+      if (arg.result.index > 0) {
         // 始终获取原图的尺寸
-        wh = await Utils.getImageSize(arg.data.original)
+        wh = await Utils.getImageSize(arg.result.original)
       }
 
       // 如果获取宽高失败，图片会被视为通过宽高检查
@@ -148,7 +153,7 @@ class Download {
       // 如果是超时，那么等待时间会比较长，可能超过 20 秒
       const timeLimit = 10000 // 如果从发起请求到进入重试的时间间隔小于这个值，则视为磁盘空间不足的情况
       const result = this.retryInterval.filter((val) => val <= timeLimit)
-      // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就认为是磁盘空间不足。
+      // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就有可能是磁盘空间不足。
       if (result.length > 9) {
         log.error(errorMsg)
         const tip = lang.transl('_状态码为0的错误提示')
@@ -166,24 +171,24 @@ class Download {
   // 下载文件
   private async download(arg: downloadArgument) {
     // 获取文件名
-    const _fileName = fileName.getFileName(arg.data)
+    const _fileName = fileName.getFileName(arg.result)
 
     // 重设当前下载栏的信息
     this.setProgressBar(_fileName, 0, 0)
 
     // 下载文件
     let url: string
-    if (arg.data.type === 3) {
+    if (arg.result.type === 3) {
       // 生成小说的文件
-      if (arg.data.novelMeta) {
-        let blob: Blob = await MakeNovelFile.make(arg.data.novelMeta)
+      if (arg.result.novelMeta) {
+        let blob: Blob = await MakeNovelFile.make(arg.result.novelMeta)
         url = URL.createObjectURL(blob)
       } else {
         throw new Error('Not found novelMeta')
       }
     } else {
       // 对于图像作品，如果设置了图片尺寸就使用指定的 url，否则使用原图 url
-      url = arg.data[settings.imageSize] || arg.data.original
+      url = arg.result[settings.imageSize] || arg.result.original
     }
 
     let xhr = new XMLHttpRequest()
@@ -250,26 +255,26 @@ class Download {
         const ext = settings.ugoiraSaveAs
         if (
           convertExt.includes(ext) &&
-          arg.data.ugoiraInfo &&
+          arg.result.ugoiraInfo &&
           settings.imageSize !== 'thumb'
         ) {
           // 当下载图片的方形缩略图时，不转换动图，因为此时下载的是作品的静态缩略图，无法进行转换
           try {
             if (ext === 'webm') {
-              file = await convertUgoira.webm(file, arg.data.ugoiraInfo)
+              file = await convertUgoira.webm(file, arg.result.ugoiraInfo)
             }
 
             if (ext === 'gif') {
-              file = await convertUgoira.gif(file, arg.data.ugoiraInfo)
+              file = await convertUgoira.gif(file, arg.result.ugoiraInfo)
             }
 
             if (ext === 'png') {
-              file = await convertUgoira.apng(file, arg.data.ugoiraInfo)
+              file = await convertUgoira.apng(file, arg.result.ugoiraInfo)
             }
           } catch (error) {
             const msg = lang.transl(
               '_动图转换失败的提示',
-              Tools.createWorkLink(arg.data.idNum)
+              Tools.createWorkLink(arg.result.idNum)
             )
             // 因为会重试所以不在日志上显示
             // log.error(msg, 1)
@@ -291,7 +296,7 @@ class Download {
       // 对插画、漫画进行颜色检查
       // 在这里进行检查的主要原因：抓取时只能检测第一张的缩略图，并没有检查后面的图片。所以这里需要对后面的图片进行检查。
       // 另一个原因：如果抓取时没有设置不下载某种颜色的图片，下载时又开启了设置，那么就在这里进行检查
-      if (arg.data.type === 0 || arg.data.type === 1) {
+      if (arg.result.type === 0 || arg.result.type === 1) {
         const result = await filter.check({
           mini: blobUrl,
         })

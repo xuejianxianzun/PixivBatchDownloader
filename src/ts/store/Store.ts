@@ -16,6 +16,9 @@ class Store {
   public resultMeta: Result[] = [] // 储存抓取结果的元数据。
   // 当用于图片作品时，它可以根据每个作品需要下载多少张，生成每一张图片的信息
 
+  /**系列小说的设定资料 */
+  public novelSeriesGlossary = ''
+
   private artworkIDList: number[] = [] // 储存抓取到的图片作品的 id 列表，用来避免重复添加
   private novelIDList: number[] = [] // 储存抓取到的小说作品的 id 列表，用来避免重复添加
 
@@ -55,6 +58,7 @@ class Store {
     bookmarked: false,
     bmkId: '',
     date: '',
+    uploadDate: '',
     type: 0,
     rank: null,
     ugoiraInfo: null,
@@ -115,6 +119,14 @@ class Store {
       // 循环生成每一个图片文件的数据
       const p0 = 'p0'
       for (let i = 0; i < workData.dlCount; i++) {
+        // 不下载多图作品的最后一张图片
+        if (
+          settings.doNotDownloadLastImageOfMultiImageWork &&
+          i > 0 &&
+          i === workData.pageCount - 1
+        ) {
+          continue
+        }
         const fileData = Object.assign({}, workData)
         const pi = 'p' + i
         fileData.index = i
@@ -153,6 +165,7 @@ class Store {
     this.waitingIdList = []
     this.rankList = {}
     this.remainingDownload = 0
+    this.novelSeriesGlossary = ''
     this.tag = Tools.getTagFromURL()
     this.title = Tools.getPageTitle()
   }

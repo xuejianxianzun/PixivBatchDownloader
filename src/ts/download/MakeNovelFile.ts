@@ -11,11 +11,7 @@ class MakeNovelFile {
   }
 
   static makeTXT(data: NovelMeta, saveMeta = true) {
-    let content = data.content
-    // 附带小说元数据
-    if (saveMeta) {
-      content = data.meta + content
-    }
+    let content = saveMeta ? data.meta + data.content : data.content
 
     // 替换换行标签，移除 html 标签
     content = content.replace(/<br \/>/g, '\n').replace(/<\/?.+?>/g, '')

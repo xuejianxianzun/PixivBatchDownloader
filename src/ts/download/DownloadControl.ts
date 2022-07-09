@@ -14,6 +14,7 @@ import { lang } from '../Lang'
 import { Colors } from '../config/Colors'
 import { setSetting, settings } from '../setting/Settings'
 import { Download } from '../download/Download'
+import { downloadNovelCover } from '../download/DownloadNovelCover'
 import { progressBar } from './ProgressBar'
 import { downloadStates } from './DownloadStates'
 import { ShowDownloadStates } from './ShowDownloadStates'
@@ -143,7 +144,24 @@ class DownloadControl {
 
         this.downloadOrSkipAFile(msg.data)
       } else if (msg.msg === 'download_err') {
-        // 浏览器把文件保存到本地时出错
+        // 浏览器把文件保存到本地失败
+
+        // 用户在浏览器弹出“另存为”对话框时取消保存
+        // 跳过这个文件，不再重试保存它
+        if (msg.err === 'USER_CANCELED') {
+          log.error(
+            lang.transl(
+              '_user_canceled_tip',
+              Tools.createWorkLink(msg.data.id),
+              msg.err || 'unknown'
+            )
+          )
+
+          this.downloadOrSkipAFile(msg.data)
+          return
+        }
+
+        // 其他原因，下载器会重试保存这个文件
         log.error(
           lang.transl(
             '_save_file_failed_tip',
@@ -151,9 +169,11 @@ class DownloadControl {
             msg.err || 'unknown'
           )
         )
+
         if (msg.err === 'FILE_FAILED') {
           log.error(lang.transl('_FILE_FAILED_tip'))
         }
+
         EVT.fire('saveFileError')
         // 重新下载这个文件
         // 但并不确定能否如预期一样重新下载这个文件
@@ -495,9 +515,9 @@ class DownloadControl {
       return this.checkCompleteWithError()
     } else {
       const workData = store.result[index]
-      const data: downloadArgument = {
+      const argument: downloadArgument = {
         id: workData.id,
-        data: workData,
+        result: workData,
         index: index,
         progressBarIndex: progressBarIndex,
         taskBatch: this.taskBatch,
@@ -510,7 +530,9 @@ class DownloadControl {
       }
 
       // 建立下载
-      new Download(progressBarIndex, data)
+      new Download(progressBarIndex, argument)
+
+      downloadNovelCover.download(argument.result)
     }
   }
 

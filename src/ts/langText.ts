@@ -18,11 +18,11 @@ const langText = {
     'Download work type',
     'ダウンロード作品の種類',
   ],
-  _下载作品类型的提示: [
-    '下载哪些类型的作品',
-    '下載哪些類型的作品。',
-    'Which types of works to download',
-    'どの種類の作品をダウンロードしますか',
+  _作品类型: [
+    '作品<span class="key">类型</span>',
+    '作品<span class="key">類型</span>',
+    '<span class="key">Type</span> of work',
+    '作品の<span class="key">種類</span>',
   ],
   _不能含有tag: [
     '<span class="key">不能</span>含有标签',
@@ -60,17 +60,11 @@ const langText = {
     'Include tag: ',
     '以下の タグ を含める：',
   ],
-  _筛选宽高的按钮文字: [
-    '设置<span class="key">宽高</span>条件',
-    '設定<span class="key">寬高</span>條件',
-    'Set the <span class="key">width and height</span>',
-    '幅と高さの条件を設定する',
-  ],
-  _设置宽高比例: [
-    '设置宽高<span class="key">比例</span>',
-    '設定寬高<span class="key">比例</span>',
-    'Set the aspect <span class="key">ratio</span>',
-    '縦横比を設定する',
+  _图片的宽高比例: [
+    '图片的宽高<span class="key">比例</span>',
+    '圖片的寬高<span class="key">比例</span>',
+    'Aspect <span class="key">ratio</span>',
+    '画像の縦横比',
   ],
   _设置宽高比例Title: [
     '设置宽高比例，也可以手动输入宽高比',
@@ -95,6 +89,12 @@ const langText = {
     'The aspect ratio must be a number',
     '縦横比は数値でなければなりません',
   ],
+  _图片的宽高: [
+    '图片的<span class="key">宽高</span>',
+    '圖片的<span class="key">寬高</span>',
+    '<span class="key">width</span> and height',
+    '画像の幅と高さ',
+  ],
   _筛选宽高的提示文字: [
     '请输入最小宽度和最小高度，不会下载不符合要求的图片。',
     '請輸入最小寬度和最小高度，只會下載符合要求的圖片。',
@@ -111,29 +111,23 @@ const langText = {
   _或者: [' 或者 ', ' 或是 ', ' or ', ' または '],
   _并且: [' 并且 ', ' 並且 ', ' and ', ' そして '],
   _高度: ['高度', '高度', 'height', '高さ'],
-  _下载多少作品: [
-    '下载多少作品',
-    '下載多少作品',
-    'How many works to download',
-    'ダウンロードする作品の数',
+  _抓取多少作品: [
+    '抓取<span class="key">多少</span>作品',
+    '擷取<span class="key">多少</span>作品',
+    'How <span class="key">many</span> works to crawl',
+    'クロールする作品の数',
   ],
-  _下载多少页面: [
-    '下载多少页面',
-    '下載多少頁面',
-    'How many pages to download',
-    'ダウンロードするページ数',
+  _抓取多少页面: [
+    '抓取<span class="key">多少</span>页面',
+    '擷取<span class="key">多少</span>頁面',
+    'How <span class="key">many</span> pages to crawl',
+    'クロールするページ数',
   ],
-  _筛选收藏数的按钮Title: [
-    '在下载前，您可以设置对收藏数量的要求。',
-    '下載前可以設定對收藏數量的要求。',
-    'Before downloading, You can set the requirements for the number of bookmarks.',
-    'ダウンロードする前に、ブックマークされた数の条件を設定することができます。',
-  ],
-  _设置收藏数量: [
-    '设置<span class="key">收藏</span>数量',
-    '設定<span class="key">收藏</span>數量',
-    'Set the number of <span class="key">bookmarks</span>',
-    'ブックマークされた数を設定する',
+  _收藏数量: [
+    '<span class="key">收藏</span>数量',
+    '<span class="key">收藏</span>數量',
+    'Number of <span class="key">bookmarks</span>',
+    'ブックマークの数',
   ],
   _设置收藏数量的提示: [
     '如果作品的收藏数小于设置的数字，作品不会被下载。',
@@ -269,8 +263,8 @@ const langText = {
     'うごイラをダウンロードするとき、動画に変換することができます。',
   ],
   _webmVideo: ['WebM 视频', '影片（WebM）', 'WebM video', 'WebM ビデオ'],
-  _gif: ['GIF 图片', '圖片（GIF）', 'GIF picture', 'GIF 画像'],
-  _apng: ['APNG 图片', '圖片（APNG）', 'APNG picture', 'APNG 画像'],
+  _gif: ['GIF 图片', '圖片（GIF）', 'GIF image', 'GIF 画像'],
+  _apng: ['APNG 图片', '圖片（APNG）', 'APNG image', 'APNG 画像'],
   _zipFile: ['Zip 文件', '壓縮檔（Zip）', 'Zip file', 'ZIP ファイル'],
   _当前作品个数: [
     '当前有 {} 个作品 ',
@@ -469,7 +463,12 @@ const langText = {
     'Crawl a total of {} works',
     '合計 {} つの作品があります',
   ],
-  _命名规则: ['命名规则', '命名規則', 'Naming rule', '命名規則'],
+  _命名规则: [
+    ' <span class="key">命名</span>规则',
+    '<span class="key">命名</span>規則',
+    '<span class="key">Naming</span> rule',
+    '<span class="key">命名</span>規則',
+  ],
   _设置文件夹名的提示: [
     "可以使用 '/' 建立文件夹。示例：",
     '可以使用斜線（/）建立資料夾。範例：',
@@ -543,7 +542,7 @@ const langText = {
   _命名标记p_num: [
     '图片在作品内的序号，如 0、1、2 …… 每个作品都会重新计数。',
     '圖片在作品內的序號，例如：0、1、2……每個作品都將重新計數。',
-    'The serial number of the picture in the work, such as 0, 1, 2 ... Each work will be recounted.',
+    'The serial number of the image in the work, such as 0, 1, 2 ... Each work will be recounted.',
     '0、1、2 など、作品の画像のシリアル番号。各ピースは再集計されます。',
   ],
   _命名标记tags_trans: [
@@ -619,15 +618,15 @@ const langText = {
     'Preview file name',
     'ファイル名のプレビュー',
   ],
-  _设置下载线程: [
-    '设置下载<span class="key">线程</span>',
-    '設定下載<span class="key">執行緒</span>',
-    'Set the download <span class="key">thread</span>',
-    'ダンロードスレッドの設定',
+  _下载线程: [
+    '下载<span class="key">线程</span>',
+    '下載<span class="key">執行緒</span>',
+    'Download <span class="key">thread</span>',
+    '同時ダウンロード数',
   ],
-  _线程数字: [
-    `可以输入 1-${Config.downloadThreadMax} 之间的数字，设置同时下载的数量`,
-    `可以輸入 1-${Config.downloadThreadMax} 之間的數字，設定同時下載的數量。`,
+  _下载线程的说明: [
+    `你可以输入 1-${Config.downloadThreadMax} 之间的数字，设置同时下载的数量`,
+    `你可以輸入 1-${Config.downloadThreadMax} 之間的數字，設定同時下載的數量。`,
     `You can type a number between 1-${Config.downloadThreadMax} to set the number of concurrent downloads`,
     `同時ダウンロード数を設定、1-${Config.downloadThreadMax} の数値を入力してください`,
   ],
@@ -643,7 +642,6 @@ const langText = {
     'まだダウンロードを開始していません',
   ],
   _下载进度: ['下载进度', '下載進度', 'Total progress', '概要'],
-  _下载线程: ['下载线程：', '下載執行緒：', 'Thread: ', 'スレッド：'],
   _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問'],
   _uuid: [
     '如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。',
@@ -830,7 +828,7 @@ const langText = {
   _抓取该页面的图片: [
     '抓取该页面的图片',
     '擷取該頁面的圖片',
-    'Crawl the picture of the page',
+    'Crawl the image of the page',
     'ページの画像をクロールする',
   ],
   _抓取相似图片: [
@@ -936,11 +934,11 @@ const langText = {
     'Always create folder when downloading quickly',
     'クイックダウンロード時、常にフォルダを作成します',
   ],
-  _设置id范围: [
-    '设置 <span class="key">ID</span> 范围',
-    '設定 <span class="key">ID</span> 範圍',
-    'Set <span class="key">ID</span> range',
-    '<span class="key">ID</span> 範囲を設定',
+  _id范围: [
+    '<span class="key">ID</span> 范围',
+    '<span class="key">ID</span> 範圍',
+    '<span class="key">ID</span> range',
+    '<span class="key">ID</span> 範囲',
   ],
   _设置id范围提示: [
     '您可以输入一个作品 id，抓取比它新或者比它旧的作品',
@@ -950,11 +948,11 @@ const langText = {
   ],
   _大于: ['大于', '大於', 'Bigger than', 'より大きい'],
   _小于: ['小于', '小於', 'Less than', 'より小さい'],
-  _设置投稿时间: [
-    '设置投稿<span class="key">时间</span>',
-    '設定投稿<span class="key">時間</span>',
-    'Set posting <span class="key">date</span>',
-    '投稿日時を設定する',
+  _投稿时间: [
+    '投稿<span class="key">时间</span>',
+    '投稿<span class="key">時間</span>',
+    'Posting <span class="key">date</span>',
+    '投稿日時',
   ],
   _设置投稿时间提示: [
     '您可以下载指定时间内发布的作品',
@@ -1046,16 +1044,17 @@ const langText = {
   _抓取: ['抓取', '擷取', 'Crawl', 'クロール'],
   _下载: ['下载', '下載', 'Download', 'ダウンロード'],
   _其他: ['其他', '其他', 'Other', 'その他'],
+  _更多: ['更多', '更多', 'More', 'もっと'],
   _第一张图不带序号: [
     '第一张图不带<span class="key">序号</span>',
     '第一張圖片不包含<span class="key">序號</span>',
-    'The first picture without a <span class="key">serial number</span>',
+    'The first image without a <span class="key">serial number</span>',
     '最初のイメージの番号を削除',
   ],
   _第一张图不带序号说明: [
     '去掉每个作品第一张图的序号。例如 80036479_p0 变成 80036479',
     '去掉每個作品第一張圖的序號。例如：80036479_p0 變成 80036479。',
-    'Remove the serial number of the first picture of each work. For example 80036479_p0 becomes 80036479.',
+    'Remove the serial number of the first image of each work. For example 80036479_p0 becomes 80036479.',
     '作品ごとの最初のイメージの番号を削除します。例えば 80036479_p0 は 80036479 になります。',
   ],
   _最小值: ['最小值', '最小值', 'Minimum', '最小値'],
@@ -1066,13 +1065,8 @@ const langText = {
     'Single image works',
     'シングルイメージ作品',
   ],
-  _彩色图片: ['彩色图片', '彩色圖片', 'Color picture', 'カラーイメージ'],
-  _黑白图片: [
-    '黑白图片',
-    '黑白圖片',
-    'Black and white pictures',
-    '白黒イメージ',
-  ],
+  _彩色图片: ['彩色图片', '彩色圖片', 'Color images', 'カラーイメージ'],
+  _黑白图片: ['黑白图片', '黑白圖片', 'Black and white images', '白黒イメージ'],
   _不保存图片因为颜色: [
     '{} 没有被保存，因为它的颜色不符合设定。',
     '{} 並未儲存，因為它的色彩不符合設定。',
@@ -1176,16 +1170,16 @@ const langText = {
   _严格: ['严格', '嚴格', 'Strict', '厳格'],
   _宽松: ['宽松', '寬鬆', 'Loose', '緩い'],
   _严格模式说明: [
-    '当文件的 id 和文件名都相同时，认为是重复文件',
-    '當檔案 id 和檔名都相同時，認為是重複檔案',
-    'When the file id and file name are the same, it is considered a duplicate file',
-    'ファイルの ID とファイル名が同じ場合、重複ファイルとみなされます',
+    '判断条件：作品的 id、上传日期、文件名',
+    '判斷條件：作品的 id、上傳日期、檔名',
+    'Judgment conditions: id, upload date, file name of the work',
+    '審査条件：作品のID、アップロード日、ファイル名',
   ],
   _宽松模式说明: [
-    '只要文件的 id 相同，就认为是重复文件',
-    '只要檔案 id 相同，就認為是重複檔案',
-    'As long as the id of the file is the same, it is considered a duplicate file',
-    'ファイルの ID が同じである限り、重複ファイルと見なされます',
+    '判断条件：作品的 id、上传日期',
+    '判斷條件：作品的 id、上傳日期',
+    'Judgment conditions: id, upload date of the work',
+    '審査条件：作品のID、アップロード日',
   ],
   _清除下载记录: [
     '清除下载记录',
@@ -1392,10 +1386,10 @@ const langText = {
     'ダウンロード後、作品は自動的にブックマークされます。',
   ],
   _收藏设置: [
-    '下载器的<span class="key">收藏</span>按钮 ✩',
-    '下載器的<span class="key">收藏</span>按鈕 ✩',
-    `Downloader's <span class="key">bookmark</span> button ✩`,
-    'ダウンローダーの<span class="key">ブックマーク</span>ボタン ✩',
+    '下载器的<span class="key">收藏</span>按钮 (✩)',
+    '下載器的<span class="key">收藏</span>按鈕 (✩)',
+    `Downloader's <span class="key">bookmark</span> button (✩)`,
+    'ダウンローダーの<span class="key">ブックマーク</span>ボタン (✩)',
   ],
   _添加tag: ['添加标签', '加入標籤', 'Add tag', 'タグを追加'],
   _不添加tag: ['不添加标签', '不加入標籤', "Don't add tag", 'タグなし'],
@@ -1490,6 +1484,12 @@ const langText = {
     'Create a separate folder for <span class="key">each</span> work',
     '作品ごとに別フォルダを作成',
   ],
+  _为作品建立单独的文件夹说明: [
+    '这里应该使用 {id_num} 代替 {id}',
+    '這裡應該使用 {id_num} 代替 {id}',
+    'Here {id_num} should be used instead of {id}',
+    'ここでは、{id} の代わりに {id_num} を使用する必要があります',
+  ],
   _文件数量大于: [
     '文件数量 >',
     '檔案數量 >',
@@ -1560,11 +1560,11 @@ const langText = {
   _删除: ['删除', '刪除', 'Delete', '削除'],
   _添加成功: ['添加成功', '新增成功', 'Added successfully', '追加されました'],
   _更新成功: ['更新成功', '更新成功', 'update completed', '更新成功'],
-  _在作品缩略图上显示放大图标: [
-    '在作品缩略图上显示<span class="key">放大</span>图标',
-    '在作品縮圖上顯示<span class="key">放大</span>圖示',
-    'Show <span class="key">zoom</span> icon on thumbnail',
-    '作品のサムネイルに<span class="key">拡大</span>アイコンを表示する',
+  _在作品缩略图上显示放大按钮: [
+    '在作品缩略图上显示<span class="key">放大</span>按钮',
+    '在作品縮圖上顯示<span class="key">放大</span>按鈕',
+    'Show <span class="key">zoom</span> button on thumbnail',
+    '作品のサムネイルに<span class="key">拡大</span>ボタンを表示',
   ],
   _在作品缩略图上显示下载按钮: [
     '在作品缩略图上显示<span class="key">下载</span>按钮',
@@ -1676,14 +1676,14 @@ const langText = {
   _多图作品只下载前几张图片: [
     '多图作品只下载<span class="key">前几张</span>图片',
     '多圖作品只下載<span class="key">前幾張</span>圖片',
-    'Multi-picture works only download the <span class="key">first few</span> pictures',
+    'Multi-image works only download the <span class="key">first few</span> images',
     'マルチ作品は最初の何枚の画像のみをダウンロードする',
   ],
-  _多图作品的图片数量限制: [
-    '多图作品的图片<span class="key">数量</span>限制',
-    '多圖作品的圖片<span class="key">數量</span>限制',
-    'Limits on the <span class="key">number</span> of images for multi-picture works',
-    'マルチ作品の画像数の制限',
+  _多图作品的图片数量上限: [
+    '多图作品的图片<span class="key">数量</span>上限',
+    '多圖作品的圖片<span class="key">數量</span>上限',
+    '<span class="key">Maximum number</span> of images for multi-image works',
+    'マルチ作品の最大画像数',
   ],
   _超出此限制的多图作品不会被下载: [
     '超出此限制的多图作品不会被下载',
@@ -1745,11 +1745,11 @@ const langText = {
     'Show <span class="key">notification</span> after download is complete',
     'ダウンロードが完了した後に通知を表示する',
   ],
-  _以粗体显示关键字: [
-    '用<span class="key">粗体</span>显示关键字',
-    '用<span class="key">粗體</span>顯示關鍵字',
-    'Show keywords in <span class="key">bold</span>',
-    'キーワードを太字で表示',
+  _高亮显示关键字: [
+    '<span class="key">高亮</span>显示关键字',
+    '<span class="key">標明</span>顯示關鍵字',
+    '<span class="key">Highlight</span> keywords',
+    'キーワードを強調表示',
   ],
   _抓取标签列表: [
     '抓取标签列表',
@@ -1799,7 +1799,9 @@ const langText = {
     'Automatically <span class="key">export</span> crawl results',
     'クロール結果の自動エクスポート',
   ],
+  _抓取结果: ['抓取结果', '擷取結果', 'Crawl results', 'クロール結果'],
   _文件格式: ['文件格式', '檔案格式', 'File format', 'ファイル形式'],
+  _格式: ['格式', '格式', 'Format', '形式'],
   _预览作品: [
     '<span class="key">预览</span>作品',
     '<span class="key">預覽</span>作品',
@@ -1842,7 +1844,7 @@ const langText = {
   _鼠标滚轮切换图片: [
     '预览多图作品时，可以使用鼠标滚轮切换图片。',
     '預覽多圖作品時，可以使用滑鼠滾輪切換圖片。',
-    'When previewing multi-picture works, you can use the mouse wheel to switch images.',
+    'When previewing multi-image works, you can use the mouse wheel to switch images.',
     '複数画像をプレビューする際に、マウスホイールを使って画像を切り替えることができます。',
   ],
   _whatisnew: [
@@ -1908,11 +1910,11 @@ const langText = {
     'Replace square <span class="key">thumbnails</span> to show image ratio',
     '正方形のサムネイルを置き換えて、画像のスケールを表示。',
   ],
-  _只有一个文件时不建立文件夹: [
-    '只有一个文件时<span class="key">不建立</span>文件夹',
-    '只有一個檔案時<span class="key">不建立</span>資料夾',
-    '<span class="key">Do not create</span> a folder when there is only one file',
-    'ファイルが１つのみの場合、フォルダを作成しない',
+  _只有一个抓取结果时不建立文件夹: [
+    '只有一个抓取结果时<span class="key">不建立</span>文件夹',
+    '只有一個擷取結果時<span class="key">不建立</span>資料夾',
+    '<span class="key">Do not create</span> a folder when there is only one crawl result',
+    'クロール結果が１つのみの場合、フォルダを作成しない',
   ],
   _搜索页面页数限制: [
     '由于 pixiv 的限制，下载器最多只能抓取到第 {} 页。',
@@ -2015,6 +2017,12 @@ const langText = {
     `{} save failed, code: {}. The downloader will retry to download the file.`,
     `{} 保存に失敗しました。code：{}。ダウンローダーはファイルのダウンロードを再試行します。`,
   ],
+  _user_canceled_tip: [
+    `{} 未保存，code：{}。`,
+    `{} 未儲存，code：{}。`,
+    `{} not saved, code: {}.`,
+    `{} 保存されていません。code：{}。`,
+  ],
   _FILE_FAILED_tip: [
     '可能是文件名太长，或是其他原因导致文件保存失败。你可以尝试启用高级设置里的“文件名长度限制”。',
     '可能是檔名太長，或是其他原因導致檔案儲存失敗。你可以嘗試啟用高階設定裡的“檔案名稱長度限制”。',
@@ -2045,11 +2053,11 @@ const langText = {
     'This feature is enabled by default.',
     'この機能はデフォルトで有効になっています。',
   ],
-  _你可以在其他选项卡的增强分类里找到它: [
-    '你可以在“其他”选项卡 → “增强”分类里找到它。（可能需要先启用“显示高级设置”）',
-    '你可以在“其他”選項卡 → “增強”分類裡找到它。（可能需要先啟用“顯示進階設定”）',
-    'You can find it in the "Other" tab → "Enhancements" category. (May need to enable "Show advanced settings" first)',
-    '[その他]タブ→[強化機能]カテゴリにあります。 （最初に[詳細設定を表示する]を有効にする必要がある場合があります）',
+  _你可以在更多他选项卡的下载分类里找到它: [
+    '你可以在“更多”选项卡 → “下载”分类里找到它。（需要先启用“显示高级设置”）',
+    '你可以在“更多”選項卡 → “下載”分類裡找到它。（需要先啟用“顯示進階設定”）',
+    'You can find it in the "More" tab → "Download" category. ("Show advanced settings" needs to be enabled first)',
+    '[もっと]タブ→[ダウンロード]カテゴリにあります。 （最初に「詳細設定を表示」を有効にする必要があります）',
   ],
   _使用鼠标滚轮切换作品里的图片: [
     '使用鼠标滚轮切换多图作品里的图片',
@@ -2110,6 +2118,43 @@ const langText = {
     ダウンロード中、ページタイトルにはまだダウンロードされていないファイルの数が表示されます。 <br>
     このようにして、ユーザーはダウンロードパネルを開かなくてもダウンロードの進行状況を知ることができます。<br><br>
     2. ユーザーは、ダウンロード中にいくつかの新しいダウンロードタスクを追加できます。`,
+  ],
+  _设定资料: ['设定资料', '設定資料', 'Reference materials', '設定資料'],
+  _年龄限制: [
+    '<span class="key">年龄</span>限制',
+    '<span class="key">年齡</span>限制',
+    '<span class="key">Age</span> limit',
+    '<span class="key">年齢</span>制限',
+  ],
+  _收藏状态: [
+    '<span class="key">收藏</span>状态',
+    '<span class="key">收藏</span>狀態',
+    '<span class="key">Bookmark</span> status',
+    'ブックマークステータス',
+  ],
+  _图片色彩: [
+    '图片<span class="key">色彩</span>',
+    '圖片<span class="key">色彩</span>',
+    'Image <span class="key">color</span>',
+    '画像の<span class="key">色</span>',
+  ],
+  _图片数量: [
+    '图片<span class="key">数量</span>',
+    '圖片<span class="key">數量</span>',
+    '<span class="key">Number</span> of images',
+    '画像の<span class="key">数</span>',
+  ],
+  _不抓取多图作品的最后一张图片: [
+    '不抓取多图作品的<span class="key">最后一张</span>图片',
+    '不抓取多圖作品的<span class="key">最後一張</span>圖片',
+    'Do not crawl the <span class="key">last image</span> of multi-image works',
+    'マルチ画像作品の<span class="key">最後の画像</span>をつかまないでください',
+  ],
+  _下载小说的封面图片: [
+    '下载小说的<span class="key">封面图片</span>',
+    '下載小說的<span class="key">封面圖片</span>',
+    '小説の<span class="key">表紙画像</span>をダウンロード',
+    'Download the <span class="key">cover image</span> of the novel',
   ],
 }
 

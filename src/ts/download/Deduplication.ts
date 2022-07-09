@@ -73,7 +73,8 @@ class Deduplication {
     // 当有文件下载完成时，存储这个任务的记录
     window.addEventListener(EVT.list.downloadSuccess, (ev: CustomEventInit) => {
       const successData = ev.detail.data as DonwloadSuccessData
-      this.add(successData.id)
+      const result = store.findResult(successData.id)
+      result && this.addRecord(result)
     })
 
     // 导入含有 id 列表的 txt 文件
@@ -153,32 +154,41 @@ class Deduplication {
     }
   }
 
-  // 从文件 URL 里取出日期字符串。例如
-  // 'https://i.pximg.net/img-original/img/2021/10/11/00/00/06/93364702_p0.png'
-  // 返回
-  // '2021/10/11/00/00/06'
+  /**返回作品的修改日期字符串 */
   private getDateString(result: Result) {
+    // 图像作品不使用 uploadDate，这是历史遗留原因，因为以前下载器的内部数据里没有 uploadDate 数据
+    // 而是从文件 URL 里取出日期字符串。例如
+    // 'https://i.pximg.net/img-original/img/2021/10/11/00/00/06/93364702_p0.png'
+    // 返回
+    // '2021/10/11/00/00/06'
+    // 为了保持向后兼容，这里不做修改
     if (result.type !== 3) {
       return result.original.match(this.dateRegExp)![1]
+    } else {
+      // 小说作品使用 uploadDate，返回值如
+      // '2021-09-03T14:31:03+00:00'
+      return result.uploadDate
     }
   }
 
   // 添加一条下载记录
-  private async add(resultId: string) {
-    const storeName = this.getStoreName(resultId)
-    const data = this.createRecord(resultId)
+  private async addRecord(result: Result) {
+    const storeName = this.getStoreName(result.id)
+    const record = this.createRecord(result)
 
-    if (this.existedIdList.includes(resultId)) {
-      this.IDB.put(storeName, data)
+    if (this.existedIdList.includes(result.id)) {
+      this.IDB.put(storeName, record)
     } else {
       // 先查询有没有这个记录
-      const result = await this.IDB.get(storeName, data.id)
-      this.IDB[result ? 'put' : 'add'](storeName, data)
+      const result = await this.IDB.get(storeName, record.id)
+      this.IDB[result ? 'put' : 'add'](storeName, record)
     }
   }
 
-  // 检查一个作品是否是重复下载
-  // 返回值 true 表示重复，false 表示不重复
+  /** 检查一个作品是否是重复下载
+   *
+   * 返回值 true 表示重复，false 表示不重复
+   */
   public async check(result: Result) {
     if (!Utils.isPixiv()) {
       return false
@@ -198,14 +208,16 @@ class Deduplication {
 
       // 有记录，说明这个文件下载过
       this.existedIdList.push(data.id)
+
       // 首先检查日期字符串是否发生了变化
-      let dateChange = false
-      if (data.d) {
-        dateChange = data.d !== this.getDateString(result)
-        // 如果日期字符串变化了，则不视为重复文件
-        if (dateChange) {
-          return resolve(false)
-        }
+      // 如果日期字符串变化了，则不视为重复文件
+      if (data.d !== undefined && data.d !== this.getDateString(result)) {
+        return resolve(false)
+      }
+      // 如果之前的下载记录里没有日期，说明是早期的下载记录，那么就不检查日期
+      // 同时，更新这个作品的下载记录，为其添加日期
+      if (data.d === undefined) {
+        this.addRecord(result)
       }
       // 如果日期字符串没有变化，再根据策略进行判断
       if (settings.dupliStrategy === 'loose') {

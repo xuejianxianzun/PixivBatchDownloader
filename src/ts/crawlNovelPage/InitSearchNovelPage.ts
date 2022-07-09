@@ -101,7 +101,7 @@ class InitSearchNovelPage extends InitPageBase {
     const isPremium = Tools.isPremium()
     // 个数/页数选项的提示
     options.setWantPageTip({
-      text: '_下载多少页面',
+      text: '_抓取多少页面',
       tip: '_从本页开始下载提示',
       rangTip: `1 - ${isPremium ? 5000 : 1000}`,
     })
