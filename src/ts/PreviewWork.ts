@@ -7,6 +7,7 @@ import { showOriginSizeImage } from './ShowOriginSizeImage'
 import { cacheWorkData } from './store/CacheWorkData'
 import { states } from './store/States'
 import { Utils } from './utils/Utils'
+import {PreviewUgoira} from './PreviewUgoira'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -49,6 +50,8 @@ class PreviewWork {
   // 当前预览图是否遮挡了作品缩略图
   private overThumb = false
 
+  private previewUgoira?:PreviewUgoira
+
   private _show = false
 
   private get show() {
@@ -80,6 +83,12 @@ class PreviewWork {
       // 隐藏 wrap 时，把 img 的 src 设置为空
       // 这样图片会停止加载，避免浪费网络资源
       this.img.src = ''
+
+      // 销毁预览动图的模块
+      if(this.previewUgoira){
+        this.previewUgoira.destroy()
+        this.previewUgoira = null as unknown as PreviewUgoira
+      }
     }
   }
 
@@ -487,6 +496,12 @@ class PreviewWork {
 
     // 每次显示图片后，传递图片的 url
     this.sendUrls()
+
+    // 预览动图
+    console.log('settings.previewUgoira',settings.previewUgoira)
+    if(settings.previewUgoira && this.workData.body.illustType === 2){
+      this.previewUgoira = new PreviewUgoira(this.workData.body.id)
+    }
   }
 
   private replaceUrl(url: string) {
