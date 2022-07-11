@@ -2,19 +2,22 @@ import { UgoiraMetaBody } from './crawl/CrawlResult'
 import { API } from "./API"
 import { log } from './Log'
 import { Utils } from './utils/Utils'
-import { settings } from './setting/Settings'
 
 // 预览动图
 // 需要依赖其他模块来初始化
 class PreviewUgoira {
-  constructor(id: string | number, canvasWrap: HTMLElement) {
-    this.init(id, canvasWrap)
+  constructor(id: string | number, canvasWrap: HTMLElement, prevSize: 'original' | 'regular') {
+    this.canvasWrap = canvasWrap
+    this.id = id
+    this.prevSize = prevSize
+    this.start()
   }
 
   /**作品 id */
   private id!: string | number
   /**这个动图的 meta 数据 */
   private meta!: UgoiraMetaBody
+  private prevSize: 'original' | 'regular' = 'regular'
   /**要使用的动图压缩包的 URL */
   private zipURL!: string
   /**完整的 zip 文件的字节数 */
@@ -51,11 +54,8 @@ class PreviewUgoira {
 
   private destroyed = false
 
-  private async init(id: string | number, canvasWrap: HTMLElement) {
-    this.canvasWrap = canvasWrap
-
+  private async start() {
     // 获取这个动图的 meta 数据
-    this.id = id
     this.meta = await this.getMeta(this.id)
 
     // 目前只支持提取 jpg 图片
@@ -67,7 +67,7 @@ class PreviewUgoira {
     }
 
     // 设置要使用的 URL
-    if (settings.prevWorkSize === 'regular') {
+    if (this.prevSize === 'regular') {
       this.zipURL = this.meta.src
     } else {
       this.zipURL = this.meta.originalSrc

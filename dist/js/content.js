@@ -5795,15 +5795,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-
 
 
 
 // 预览动图
 // 需要依赖其他模块来初始化
 class PreviewUgoira {
-    constructor(id, canvasWrap) {
+    constructor(id, canvasWrap, prevSize) {
+        this.prevSize = 'regular';
         /**完整的 zip 文件的字节数 */
         this.zipLength = 0;
         /** 用固定的字节数分割出多个文件片段 */
@@ -5830,12 +5829,13 @@ class PreviewUgoira {
         this.destroyed = false;
         this.playIndex = 0;
         this.playDelay = 0;
-        this.init(id, canvasWrap);
-    }
-    async init(id, canvasWrap) {
         this.canvasWrap = canvasWrap;
-        // 获取这个动图的 meta 数据
         this.id = id;
+        this.prevSize = prevSize;
+        this.init();
+    }
+    async init() {
+        // 获取这个动图的 meta 数据
         this.meta = await this.getMeta(this.id);
         // 目前只支持提取 jpg 图片
         if (this.meta.mime_type !== 'image/jpeg') {
@@ -5845,7 +5845,7 @@ class PreviewUgoira {
             return;
         }
         // 设置要使用的 URL
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize === 'regular') {
+        if (this.prevSize === 'regular') {
             this.zipURL = this.meta.src;
         }
         else {
@@ -5904,7 +5904,7 @@ class PreviewUgoira {
         let offset = 0;
         // 循环的次数
         let loopTimes = 0;
-        console.time('findJPGFlagIndex');
+        // console.time('findJPGFlagIndex')
         while (true) {
             // 如果当前偏移量的后面有已经查找到的索引，就不必重复查找了
             // 跳过这次循环，下次直接从已有的索引后面开始查找
@@ -5935,8 +5935,8 @@ class PreviewUgoira {
                 break;
             }
         }
-        console.timeEnd('findJPGFlagIndex');
-        // 经过上面的性能优化措施，现在每对 zip 文件进行一次查找，花费的时间在 20ms 以内
+        // console.timeEnd('findJPGFlagIndex')
+        // 经过上面的性能优化措施，现在每对 zip 文件进行一次查找，花费的时间基本都在 20ms 以内
     }
     /** 从 zip 文件里提取出所有 jpg 图片的数据 */
     extractJPGData(file, indexList) {
@@ -6562,7 +6562,7 @@ class PreviewWork {
         this.sendUrls();
         // 预览动图
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].previewUgoira && this.workData.body.illustType === 2) {
-            this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_8__["PreviewUgoira"](this.workData.body.id, this.wrap);
+            this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_8__["PreviewUgoira"](this.workData.body.id, this.wrap, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize);
         }
     }
     replaceUrl(url) {
@@ -6576,10 +6576,10 @@ class PreviewWork {
         // 传递图片的 url，但是不传递尺寸。
         // 因为预览图片默认加载“普通”尺寸的图片，但是 showOriginSizeImage 默认显示“原图”尺寸。
         // 而且对于第一张之后的图片，加载“普通”尺寸的图片时，无法获取“原图”的尺寸。
-        _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__["showOriginSizeImage"].setUrls({
+        _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__["showOriginSizeImage"].setData({
             original: this.replaceUrl(data.body.urls.original),
             regular: this.replaceUrl(data.body.urls.regular),
-        });
+        }, data);
     }
 }
 new PreviewWork();
@@ -7679,12 +7679,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./MouseOverThumbnail */ "./src/ts/MouseOverThumbnail.ts");
+/* harmony import */ var _PreviewUgoira__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./PreviewUgoira */ "./src/ts/PreviewUgoira.ts");
+
 
 
 
 
 class ShowOriginSizeImage {
     constructor() {
+        this.urls = {
+            original: '',
+            regular: '',
+        };
         // 原比例查看图片的容器的元素
         this.wrapId = 'originSizeWrap';
         this.defaultSize = 1200;
@@ -7715,10 +7721,6 @@ class ShowOriginSizeImage {
         this._show = false;
         this.showTimer = 0;
         this.rightClickBeforeShow = false;
-        this.urls = {
-            original: '',
-            regular: '',
-        };
         this.readyShow = (ev) => {
             window.clearTimeout(this.showTimer);
             // 当预览区域显示之后，在作品缩略图上长按鼠标右键，显示原尺寸图片
@@ -7740,14 +7742,25 @@ class ShowOriginSizeImage {
         return this._show;
     }
     set show(val) {
+        var _a;
         this._show = val;
         if (val) {
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('showOriginSizeImage');
             this.wrap.style.display = 'block';
+            // 预览动图
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].previewUgoira && ((_a = this.workData) === null || _a === void 0 ? void 0 : _a.body.illustType) === 2) {
+                this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_4__["PreviewUgoira"](this.workData.body.id, this.wrap, _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImageSize);
+            }
         }
         else {
             this.img.src = '';
             this.wrap.style.display = 'none';
+            // 销毁预览动图的模块
+            if (this.previewUgoira) {
+                console.log('销毁预览动图的模块');
+                this.previewUgoira.destroy();
+                this.previewUgoira = null;
+            }
         }
     }
     createElements() {
@@ -7979,8 +7992,9 @@ class ShowOriginSizeImage {
         this.wrap.style.marginTop = this.style.mt + 'px';
         this.wrap.style.marginLeft = this.style.ml + 'px';
     }
-    setUrls(data) {
-        this.urls = data;
+    setData(urls, data) {
+        this.urls = urls;
+        this.workData = data;
     }
 }
 const showOriginSizeImage = new ShowOriginSizeImage();
