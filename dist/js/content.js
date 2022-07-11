@@ -5032,6 +5032,12 @@ const langText = {
         'You can find it in the "More" tab → "Download" category. ("Show advanced settings" needs to be enabled first)',
         '[もっと]タブ→[ダウンロード]カテゴリにあります。 （最初に「詳細設定を表示」を有効にする必要があります）',
     ],
+    _你可以在更多他选项卡的增强分类里找到它: [
+        '你可以在“更多”选项卡 → “增强”分类里找到它。（需要先启用“显示高级设置”）',
+        '你可以在“更多”選項卡 → “增強”分類裡找到它。（需要先啟用“顯示進階設定”）',
+        'You can find it in the "More" tab → "Enhance" category. ("Show advanced settings" needs to be enabled first)',
+        '[もっと]タブ→[強化機能]カテゴリにあります。 （最初に「詳細設定を表示」を有効にする必要があります）',
+    ],
     _使用鼠标滚轮切换作品里的图片: [
         '使用鼠标滚轮切换多图作品里的图片',
         '使用滑鼠滾輪切換多圖作品裡的圖片',
@@ -5817,7 +5823,7 @@ class PreviewUgoira {
         this.rangeSize = 500000;
         /**保存每个文件片段的请求头的值
          * 字符串格式如 'bytes=0-499999'
-        */
+         */
         this.rangeList = [];
         /**把分段加载的 zip 文件合并，保存到这个容器 */
         this.zipContent = new ArrayBuffer(0);
@@ -5919,7 +5925,8 @@ class PreviewUgoira {
         while (true) {
             // 如果当前偏移量的后面有已经查找到的索引，就不必重复查找了
             // 跳过这次循环，下次直接从已有的索引后面开始查找
-            if (this.jpgContentIndexList[loopTimes] !== undefined && offset < this.jpgContentIndexList[loopTimes]) {
+            if (this.jpgContentIndexList[loopTimes] !== undefined &&
+                offset < this.jpgContentIndexList[loopTimes]) {
                 offset = this.jpgContentIndexList[loopTimes];
                 ++loopTimes;
                 continue;
@@ -5932,13 +5939,18 @@ class PreviewUgoira {
             }
             const index = data.findIndex((val, index, array) => {
                 // 0 j p g P
-                if (val === 48 && array[index + 7] === 106 && array[index + 8] === 112 && array[index + 9] === 103 && array[index + 10] !== 80) {
+                if (val === 48 &&
+                    array[index + 7] === 106 &&
+                    array[index + 8] === 112 &&
+                    array[index + 9] === 103 &&
+                    array[index + 10] !== 80) {
                     return true;
                 }
                 return false;
             });
             if (index !== -1) {
-                this.jpgContentIndexList[loopTimes] = offset + index + this.jpgNameLength;
+                this.jpgContentIndexList[loopTimes] =
+                    offset + index + this.jpgNameLength;
                 offset = offset + index + this.jpgNameLength;
                 ++loopTimes;
             }
@@ -5977,7 +5989,7 @@ class PreviewUgoira {
                 // slice 方法的 end 不会包含在结果里
                 const buffer = uint8.slice(start, end).buffer;
                 const blob = new Blob([buffer], {
-                    type: 'image/jpeg'
+                    type: 'image/jpeg',
                 });
                 const url = URL.createObjectURL(blob);
                 // 下载这张图片（debug 用）
@@ -5988,7 +6000,7 @@ class PreviewUgoira {
                     buffer: buffer,
                     blobURL: url,
                     img: img,
-                    delay: this.meta.frames[index].delay
+                    delay: this.meta.frames[index].delay,
                 };
             }
         });
@@ -6008,7 +6020,7 @@ class PreviewUgoira {
         return new Promise(async (resolve, reject) => {
             const response = await fetch(this.zipURL, {
                 method: 'head',
-                credentials: 'same-origin'
+                credentials: 'same-origin',
             });
             const length = response.headers.get('content-length');
             if (!length) {
@@ -6044,7 +6056,7 @@ class PreviewUgoira {
                 method: 'get',
                 headers: {
                     range: range,
-                }
+                },
             });
             const buff = await res.arrayBuffer();
             resolve(buff);
@@ -8037,7 +8049,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '12.6.0';
+        this.flag = '12.7.0';
         this.msg = '';
         this.bindEvents();
     }
@@ -8047,11 +8059,17 @@ class ShowWhatIsNew {
             this.msg = `
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载小说的封面图片')}
       <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')}
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多他选项卡的下载分类里找到它')}
+      <br>
+      <br>
+
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览动图')}
       <br>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')}
       <br>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多他选项卡的下载分类里找到它')}
-
       `;
             this.show();
         });

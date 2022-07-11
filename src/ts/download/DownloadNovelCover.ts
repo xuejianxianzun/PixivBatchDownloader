@@ -23,7 +23,7 @@ class DownloadNovelCover {
   }
 
   public async downloadOnMergeNovel(coverURL: string, novelName: string) {
-    if(!settings.downloadNovelCoverImage){
+    if (!settings.downloadNovelCoverImage) {
       return
     }
     const url = await this.getCoverBolbURL(coverURL)

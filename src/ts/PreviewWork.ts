@@ -499,7 +499,11 @@ class PreviewWork {
 
     // 预览动图
     if (settings.previewUgoira && this.workData.body.illustType === 2) {
-      this.previewUgoira = new PreviewUgoira(this.workData.body.id, this.wrap, settings.prevWorkSize)
+      this.previewUgoira = new PreviewUgoira(
+        this.workData.body.id,
+        this.wrap,
+        settings.prevWorkSize
+      )
     }
   }
 
@@ -515,10 +519,13 @@ class PreviewWork {
     // 传递图片的 url，但是不传递尺寸。
     // 因为预览图片默认加载“普通”尺寸的图片，但是 showOriginSizeImage 默认显示“原图”尺寸。
     // 而且对于第一张之后的图片，加载“普通”尺寸的图片时，无法获取“原图”的尺寸。
-    showOriginSizeImage.setData({
-      original: this.replaceUrl(data.body.urls.original),
-      regular: this.replaceUrl(data.body.urls.regular),
-    }, data)
+    showOriginSizeImage.setData(
+      {
+        original: this.replaceUrl(data.body.urls.original),
+        regular: this.replaceUrl(data.body.urls.regular),
+      },
+      data
+    )
   }
 }
 

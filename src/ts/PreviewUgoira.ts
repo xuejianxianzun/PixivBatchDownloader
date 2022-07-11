@@ -1,5 +1,5 @@
 import { UgoiraMetaBody } from './crawl/CrawlResult'
-import { API } from "./API"
+import { API } from './API'
 import { log } from './Log'
 import { Utils } from './utils/Utils'
 import { settings } from './setting/Settings'
@@ -7,8 +7,12 @@ import { settings } from './setting/Settings'
 // 预览动图
 // 需要依赖其他模块来初始化
 class PreviewUgoira {
-  constructor(id: string | number, canvasWrap: HTMLElement, prevSize: 'original' | 'regular') {
-    if(!settings.previewUgoira){
+  constructor(
+    id: string | number,
+    canvasWrap: HTMLElement,
+    prevSize: 'original' | 'regular'
+  ) {
+    if (!settings.previewUgoira) {
       return
     }
     this.canvasWrap = canvasWrap
@@ -30,7 +34,7 @@ class PreviewUgoira {
   private readonly rangeSize = 500000
   /**保存每个文件片段的请求头的值
    * 字符串格式如 'bytes=0-499999'
-  */
+   */
   private rangeList: string[] = []
   /**把分段加载的 zip 文件合并，保存到这个容器 */
   private zipContent: ArrayBuffer = new ArrayBuffer(0)
@@ -40,9 +44,9 @@ class PreviewUgoira {
   private jpgContentIndexList: number[] = []
   /**每个 jpg 文件的数据。按照图片在压缩包里的顺序，储存对应的数据 */
   private jpgFileList: {
-    buffer: ArrayBuffer,
-    blobURL: string,
-    img: HTMLImageElement,
+    buffer: ArrayBuffer
+    blobURL: string
+    img: HTMLImageElement
     delay: number
   }[] = []
 
@@ -64,7 +68,8 @@ class PreviewUgoira {
 
     // 目前只支持提取 jpg 图片
     if (this.meta.mime_type !== 'image/jpeg') {
-      const msg = 'Preview ugoira error: mime type unsupport: ' + this.meta.mime_type
+      const msg =
+        'Preview ugoira error: mime type unsupport: ' + this.meta.mime_type
       log.warning(msg)
       console.warn(msg)
       return
@@ -148,7 +153,10 @@ class PreviewUgoira {
     while (true) {
       // 如果当前偏移量的后面有已经查找到的索引，就不必重复查找了
       // 跳过这次循环，下次直接从已有的索引后面开始查找
-      if (this.jpgContentIndexList[loopTimes] !== undefined && offset < this.jpgContentIndexList[loopTimes]) {
+      if (
+        this.jpgContentIndexList[loopTimes] !== undefined &&
+        offset < this.jpgContentIndexList[loopTimes]
+      ) {
         offset = this.jpgContentIndexList[loopTimes]
         ++loopTimes
         continue
@@ -162,14 +170,21 @@ class PreviewUgoira {
       }
       const index = data.findIndex((val, index, array) => {
         // 0 j p g P
-        if (val === 48 && array[index + 7] === 106 && array[index + 8] === 112 && array[index + 9] === 103 && array[index + 10] !== 80) {
+        if (
+          val === 48 &&
+          array[index + 7] === 106 &&
+          array[index + 8] === 112 &&
+          array[index + 9] === 103 &&
+          array[index + 10] !== 80
+        ) {
           return true
         }
         return false
       })
 
       if (index !== -1) {
-        this.jpgContentIndexList[loopTimes] = offset + index + this.jpgNameLength
+        this.jpgContentIndexList[loopTimes] =
+          offset + index + this.jpgNameLength
         offset = offset + index + this.jpgNameLength
         ++loopTimes
       } else {
@@ -210,7 +225,7 @@ class PreviewUgoira {
         // slice 方法的 end 不会包含在结果里
         const buffer = uint8.slice(start, end).buffer
         const blob = new Blob([buffer], {
-          type: 'image/jpeg'
+          type: 'image/jpeg',
         })
         const url = URL.createObjectURL(blob)
 
@@ -223,7 +238,7 @@ class PreviewUgoira {
           buffer: buffer,
           blobURL: url,
           img: img,
-          delay: this.meta.frames[index].delay
+          delay: this.meta.frames[index].delay,
         }
       }
     })
@@ -246,7 +261,7 @@ class PreviewUgoira {
     return new Promise(async (resolve, reject) => {
       const response = await fetch(this.zipURL, {
         method: 'head',
-        credentials: 'same-origin'
+        credentials: 'same-origin',
       })
 
       const length = response.headers.get('content-length')
@@ -291,7 +306,7 @@ class PreviewUgoira {
         method: 'get',
         headers: {
           range: range,
-        }
+        },
       })
       const buff = await res.arrayBuffer()
       resolve(buff)

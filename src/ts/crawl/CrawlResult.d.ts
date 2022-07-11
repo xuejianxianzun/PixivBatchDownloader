@@ -290,12 +290,12 @@ export interface UserProfile {
     }
     official: boolean
     group:
-    | null
-    | {
-      id: string
-      title: string
-      iconUrl: string
-    }[]
+      | null
+      | {
+          id: string
+          title: string
+          iconUrl: string
+        }[]
   }
 }
 
@@ -316,17 +316,17 @@ export interface BookmarkResult {
 // 动图元数据
 export interface UgoiraMetaBody {
   /**原图尺寸
-   * 
+   *
    * ugoira1920x1080.zip
    */
   originalSrc: string
   /**较小的尺寸
-   * 
+   *
    * ugoira600x600.zip
    */
   src: string
   /**"image/jpeg"
-   * 
+   *
    * 或许还有其他类型
    */
   mime_type: string
@@ -407,20 +407,20 @@ export interface UserProfileAllData {
   message: string
   body: {
     illusts:
-    | []
-    | {
-      [key: string]: null
-    }
+      | []
+      | {
+          [key: string]: null
+        }
     manga:
-    | []
-    | {
-      [key: string]: null
-    }
+      | []
+      | {
+          [key: string]: null
+        }
     novels:
-    | []
-    | {
-      [key: string]: null
-    }
+      | []
+      | {
+          [key: string]: null
+        }
     mangaSeries: [] | {}
     novelSeries: [] | {}
     pickup: object
@@ -482,12 +482,12 @@ export interface RecommendData {
     details: {
       [key: string]: {
         methods:
-        | ['illust_by_illust_table_bq_recommendation_c']
-        | ['illust_by_illust_table_mf_tda']
-        | [
-          'illust_by_illust_table_bq_recommendation_c',
-          'illust_by_illust_table_mf_tda'
-        ]
+          | ['illust_by_illust_table_bq_recommendation_c']
+          | ['illust_by_illust_table_mf_tda']
+          | [
+              'illust_by_illust_table_bq_recommendation_c',
+              'illust_by_illust_table_mf_tda'
+            ]
         score: number
         seedIllustIds: string[]
       }

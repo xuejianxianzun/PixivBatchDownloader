@@ -38,10 +38,10 @@ interface LikeResponse {
   error: boolean
   message: '' | string
   body:
-  | []
-  | {
-    is_liked: boolean
-  }
+    | []
+    | {
+        is_liked: boolean
+      }
 }
 
 class API {
@@ -112,8 +112,9 @@ class API {
     offset: number,
     hide: boolean = false
   ): Promise<BookmarkData> {
-    const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${hide ? 'hide' : 'show'
-      }&rdm=${Math.random()}`
+    const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
+      hide ? 'hide' : 'show'
+    }&rdm=${Math.random()}`
 
     return this.sendGetRequest(url)
   }
@@ -360,8 +361,9 @@ class API {
     r18: boolean,
     lang = 'zh'
   ): Promise<BookMarkNewData> {
-    const url = `https://www.pixiv.net/ajax/follow_latest/${type}?p=${p}&mode=${r18 ? 'r18' : 'all'
-      }&lang=${lang}`
+    const url = `https://www.pixiv.net/ajax/follow_latest/${type}?p=${p}&mode=${
+      r18 ? 'r18' : 'all'
+    }&lang=${lang}`
     return this.sendGetRequest(url)
   }
 

@@ -79,7 +79,11 @@ class ShowOriginSizeImage {
 
       // 预览动图
       if (settings.previewUgoira && this.workData?.body.illustType === 2) {
-        this.previewUgoira = new PreviewUgoira(this.workData.body.id, this.wrap, settings.showOriginImageSize)
+        this.previewUgoira = new PreviewUgoira(
+          this.workData.body.id,
+          this.wrap,
+          settings.showOriginImageSize
+        )
       }
     } else {
       this.img.src = ''
