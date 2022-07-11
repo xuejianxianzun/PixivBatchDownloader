@@ -2156,6 +2156,12 @@ const langText = {
     '小説の<span class="key">表紙画像</span>をダウンロード',
     'Download the <span class="key">cover image</span> of the novel',
   ],
+  _预览动图: [
+    '<span class="key">预览</span>动图',
+    '<span class="key">預覽</span>動圖',
+    '<span class="key">Preview</span> Ugoira',
+    'うごイラのプレビュー',
+  ],
 }
 
 export { langText }

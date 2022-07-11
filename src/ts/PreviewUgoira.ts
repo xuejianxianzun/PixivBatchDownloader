@@ -2,11 +2,15 @@ import { UgoiraMetaBody } from './crawl/CrawlResult'
 import { API } from "./API"
 import { log } from './Log'
 import { Utils } from './utils/Utils'
+import { settings } from './setting/Settings'
 
 // 预览动图
 // 需要依赖其他模块来初始化
 class PreviewUgoira {
   constructor(id: string | number, canvasWrap: HTMLElement, prevSize: 'original' | 'regular') {
+    if(!settings.previewUgoira){
+      return
+    }
     this.canvasWrap = canvasWrap
     this.id = id
     this.prevSize = prevSize

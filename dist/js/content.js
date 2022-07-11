@@ -5129,6 +5129,12 @@ const langText = {
         '小説の<span class="key">表紙画像</span>をダウンロード',
         'Download the <span class="key">cover image</span> of the novel',
     ],
+    _预览动图: [
+        '<span class="key">预览</span>动图',
+        '<span class="key">預覽</span>動圖',
+        '<span class="key">Preview</span> Ugoira',
+        'うごイラのプレビュー',
+    ],
 };
 
 
@@ -5795,6 +5801,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
 
 
 
@@ -5829,12 +5837,15 @@ class PreviewUgoira {
         this.destroyed = false;
         this.playIndex = 0;
         this.playDelay = 0;
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].previewUgoira) {
+            return;
+        }
         this.canvasWrap = canvasWrap;
         this.id = id;
         this.prevSize = prevSize;
-        this.init();
+        this.start();
     }
-    async init() {
+    async start() {
         // 获取这个动图的 meta 数据
         this.meta = await this.getMeta(this.id);
         // 目前只支持提取 jpg 图片
@@ -7757,7 +7768,6 @@ class ShowOriginSizeImage {
             this.wrap.style.display = 'none';
             // 销毁预览动图的模块
             if (this.previewUgoira) {
-                console.log('销毁预览动图的模块');
                 this.previewUgoira.destroy();
                 this.previewUgoira = null;
             }
@@ -10439,7 +10449,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
             49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-            70,
+            70, 71,
         ]);
     }
     nextStep() {
@@ -20554,6 +20564,12 @@ const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="71">
+    <span class="settingNameStyle1" data-xztext="_预览动图"></span>
+    <input type="checkbox" name="previewUgoira" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    </p>
+
     <p class="option" data-no="62">
     <span class="settingNameStyle1" data-xztext="_长按右键显示大图"></span>
     <input type="checkbox" name="showOriginImage" class="need_beautify checkbox_switch" checked>
@@ -20854,6 +20870,7 @@ class FormSettings {
                 'wheelScrollSwitchImageOnPreviewWork',
                 'doNotDownloadLastImageOfMultiImageWork',
                 'downloadNovelCoverImage',
+                'previewUgoira',
             ],
             text: [
                 'setWantPage',
