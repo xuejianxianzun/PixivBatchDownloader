@@ -1871,6 +1871,7 @@ iframe[name='expandedFooter'] {
   left: 200px;
   top: 500px;
   padding: 0;
+  overflow: hidden;
   border: 2px solid #29b3f3;
   background-color: rgba(41, 179, 243, 0.1);
   box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;

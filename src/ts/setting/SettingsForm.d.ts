@@ -121,4 +121,5 @@ export interface SettingsForm extends HTMLFormElement {
   wheelScrollSwitchImageOnPreviewWork: HTMLInputElement
   doNotDownloadLastImageOfMultiImageWork: HTMLInputElement
   downloadNovelCoverImage: HTMLInputElement
+  previewUgoira: HTMLInputElement
 }
