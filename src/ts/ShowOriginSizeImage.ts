@@ -2,6 +2,8 @@ import { EVT } from './EVT'
 import { settings } from './setting/Settings'
 import { Utils } from './utils/Utils'
 import { mouseOverThumbnail } from './MouseOverThumbnail'
+import { PreviewUgoira } from './PreviewUgoira'
+import { ArtworkData } from './crawl/CrawlResult'
 
 interface Style {
   imgW: number
@@ -22,6 +24,13 @@ class ShowOriginSizeImage {
     this.createElements()
     this.bindEvents()
   }
+
+  private urls = {
+    original: '',
+    regular: '',
+  }
+
+  private workData?: ArtworkData
 
   // 原比例查看图片的容器的元素
   private wrapId = 'originSizeWrap'
@@ -54,6 +63,8 @@ class ShowOriginSizeImage {
   private moveX = 0
   private moveY = 0
 
+  private previewUgoira?: PreviewUgoira
+
   private _show = false
 
   private get show() {
@@ -65,19 +76,29 @@ class ShowOriginSizeImage {
     if (val) {
       EVT.fire('showOriginSizeImage')
       this.wrap.style.display = 'block'
+
+      // 预览动图
+      if (settings.previewUgoira && this.workData?.body.illustType === 2) {
+        this.previewUgoira = new PreviewUgoira(
+          this.workData.body.id,
+          this.wrap,
+          settings.showOriginImageSize
+        )
+      }
     } else {
       this.img.src = ''
       this.wrap.style.display = 'none'
+
+      // 销毁预览动图的模块
+      if (this.previewUgoira) {
+        this.previewUgoira.destroy()
+        this.previewUgoira = null as unknown as PreviewUgoira
+      }
     }
   }
 
   private showTimer = 0
   private rightClickBeforeShow = false
-
-  private urls = {
-    original: '',
-    regular: '',
-  }
 
   private createElements() {
     this.wrap = document.createElement('div')
@@ -363,8 +384,9 @@ class ShowOriginSizeImage {
     this.wrap.style.marginLeft = this.style.ml + 'px'
   }
 
-  public setUrls(data: Urls) {
-    this.urls = data
+  public setData(urls: Urls, data: ArtworkData) {
+    this.urls = urls
+    this.workData = data
   }
 }
 

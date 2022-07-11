@@ -23,6 +23,9 @@ class DownloadNovelCover {
   }
 
   public async downloadOnMergeNovel(coverURL: string, novelName: string) {
+    if (!settings.downloadNovelCoverImage) {
+      return
+    }
     const url = await this.getCoverBolbURL(coverURL)
     const coverName = this.createCoverFileName(novelName, coverURL)
     this.sendDownload(url, coverName)

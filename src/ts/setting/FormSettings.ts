@@ -106,6 +106,7 @@ class FormSettings {
       'wheelScrollSwitchImageOnPreviewWork',
       'doNotDownloadLastImageOfMultiImageWork',
       'downloadNovelCoverImage',
+      'previewUgoira',
     ],
     text: [
       'setWantPage',

@@ -2059,6 +2059,12 @@ const langText = {
     'You can find it in the "More" tab → "Download" category. ("Show advanced settings" needs to be enabled first)',
     '[もっと]タブ→[ダウンロード]カテゴリにあります。 （最初に「詳細設定を表示」を有効にする必要があります）',
   ],
+  _你可以在更多他选项卡的增强分类里找到它: [
+    '你可以在“更多”选项卡 → “增强”分类里找到它。（需要先启用“显示高级设置”）',
+    '你可以在“更多”選項卡 → “增強”分類裡找到它。（需要先啟用“顯示進階設定”）',
+    'You can find it in the "More" tab → "Enhance" category. ("Show advanced settings" needs to be enabled first)',
+    '[もっと]タブ→[強化機能]カテゴリにあります。 （最初に「詳細設定を表示」を有効にする必要があります）',
+  ],
   _使用鼠标滚轮切换作品里的图片: [
     '使用鼠标滚轮切换多图作品里的图片',
     '使用滑鼠滾輪切換多圖作品裡的圖片',
@@ -2155,6 +2161,12 @@ const langText = {
     '下載小說的<span class="key">封面圖片</span>',
     '小説の<span class="key">表紙画像</span>をダウンロード',
     'Download the <span class="key">cover image</span> of the novel',
+  ],
+  _预览动图: [
+    '<span class="key">预览</span>动图',
+    '<span class="key">預覽</span>動圖',
+    '<span class="key">Preview</span> Ugoira',
+    'うごイラのプレビュー',
   ],
 }
 

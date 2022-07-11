@@ -7,6 +7,7 @@ import { showOriginSizeImage } from './ShowOriginSizeImage'
 import { cacheWorkData } from './store/CacheWorkData'
 import { states } from './store/States'
 import { Utils } from './utils/Utils'
+import { PreviewUgoira } from './PreviewUgoira'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -49,6 +50,8 @@ class PreviewWork {
   // 当前预览图是否遮挡了作品缩略图
   private overThumb = false
 
+  private previewUgoira?: PreviewUgoira
+
   private _show = false
 
   private get show() {
@@ -80,6 +83,12 @@ class PreviewWork {
       // 隐藏 wrap 时，把 img 的 src 设置为空
       // 这样图片会停止加载，避免浪费网络资源
       this.img.src = ''
+
+      // 销毁预览动图的模块
+      if (this.previewUgoira) {
+        this.previewUgoira.destroy()
+        this.previewUgoira = null as unknown as PreviewUgoira
+      }
     }
   }
 
@@ -487,6 +496,15 @@ class PreviewWork {
 
     // 每次显示图片后，传递图片的 url
     this.sendUrls()
+
+    // 预览动图
+    if (settings.previewUgoira && this.workData.body.illustType === 2) {
+      this.previewUgoira = new PreviewUgoira(
+        this.workData.body.id,
+        this.wrap,
+        settings.prevWorkSize
+      )
+    }
   }
 
   private replaceUrl(url: string) {
@@ -501,10 +519,13 @@ class PreviewWork {
     // 传递图片的 url，但是不传递尺寸。
     // 因为预览图片默认加载“普通”尺寸的图片，但是 showOriginSizeImage 默认显示“原图”尺寸。
     // 而且对于第一张之后的图片，加载“普通”尺寸的图片时，无法获取“原图”的尺寸。
-    showOriginSizeImage.setUrls({
-      original: this.replaceUrl(data.body.urls.original),
-      regular: this.replaceUrl(data.body.urls.regular),
-    })
+    showOriginSizeImage.setData(
+      {
+        original: this.replaceUrl(data.body.urls.original),
+        regular: this.replaceUrl(data.body.urls.regular),
+      },
+      data
+    )
   }
 }
 
