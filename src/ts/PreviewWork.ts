@@ -498,9 +498,8 @@ class PreviewWork {
     this.sendUrls()
 
     // 预览动图
-    console.log('settings.previewUgoira',settings.previewUgoira)
     if(settings.previewUgoira && this.workData.body.illustType === 2){
-      this.previewUgoira = new PreviewUgoira(this.workData.body.id)
+      this.previewUgoira = new PreviewUgoira(this.workData.body.id,this.wrap)
     }
   }
 
