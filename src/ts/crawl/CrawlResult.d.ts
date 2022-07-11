@@ -313,16 +313,34 @@ export interface BookmarkResult {
   type?: 'illusts' | 'novels'
 }
 
-// 动图信息
-export interface UgoiraData {
+// 动图元数据
+export interface UgoiraMetaBody {
+  /**原图尺寸
+   *
+   * ugoira1920x1080.zip
+   */
+  originalSrc: string
+  /**较小的尺寸
+   *
+   * ugoira600x600.zip
+   */
+  src: string
+  /**"image/jpeg"
+   *
+   * 或许还有其他类型
+   */
+  mime_type: string
+  /**{
+    "file": "000000.jpg",
+    "delay": 60
+  } */
+  frames: { file: string; delay: number }[]
+}
+
+export interface UgoiraMetaData {
   error: boolean
   message: string
-  body: {
-    originalSrc: string
-    src: string
-    mime_type: string
-    frames: { file: string; delay: number }[]
-  }
+  body: UgoiraMetaBody
 }
 
 export type BookMarkNewIllustData = ArtworkCommonData & {

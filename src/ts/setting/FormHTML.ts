@@ -809,6 +809,12 @@ export const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="71">
+    <span class="settingNameStyle1" data-xztext="_预览动图"></span>
+    <input type="checkbox" name="previewUgoira" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    </p>
+
     <p class="option" data-no="62">
     <span class="settingNameStyle1" data-xztext="_长按右键显示大图"></span>
     <input type="checkbox" name="showOriginImage" class="need_beautify checkbox_switch" checked>

@@ -11,7 +11,7 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '12.6.0'
+  private flag = '12.7.0'
   private msg = ''
 
   private bindEvents() {
@@ -20,11 +20,17 @@ class ShowWhatIsNew {
       this.msg = `
       ${lang.transl('_新增设置项')}: ${lang.transl('_下载小说的封面图片')}
       <br>
+      ${lang.transl('_该功能默认开启')}
+      <br>
+      ${lang.transl('_你可以在更多他选项卡的下载分类里找到它')}
+      <br>
+      <br>
+
+      ${lang.transl('_新增设置项')}: ${lang.transl('_预览动图')}
       <br>
       ${lang.transl('_该功能默认开启')}
       <br>
       ${lang.transl('_你可以在更多他选项卡的下载分类里找到它')}
-
       `
       this.show()
     })
