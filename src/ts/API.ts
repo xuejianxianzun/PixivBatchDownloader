@@ -4,7 +4,7 @@ import {
   UserProfile,
   UserProfileAllData,
   ArtworkData,
-  UgoiraData,
+  UgoiraMetaData,
   RecommendData,
   RankingData,
   RecommenderData,
@@ -247,7 +247,7 @@ class API {
   }
 
   // 获取动图的元数据
-  static getUgoiraMeta(id: string): Promise<UgoiraData> {
+  static getUgoiraMeta(id: string): Promise<UgoiraMetaData> {
     const url = `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`
     return this.sendGetRequest(url)
   }
