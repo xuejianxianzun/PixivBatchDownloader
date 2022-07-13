@@ -5916,12 +5916,11 @@ class PreviewUgoira {
     /** 查找类似于 000000.jpg 的标记，返回它后面的位置的下标  */
     // zip 文件结尾有 000000.jpgPK 这样的标记，需要排除，因为这是 zip 的文件目录，不是图片
     findJPGContentIndex(buff) {
-        const uint8 = new Uint8Array(buff);
         // 每次查找时，开始的位置
         let offset = 0;
         // 循环的次数
         let loopTimes = 0;
-        // console.time('findJPGFlagIndex')
+        console.time('findJPGFlagIndex');
         while (true) {
             // 如果当前偏移量的后面有已经查找到的索引，就不必重复查找了
             // 跳过这次循环，下次直接从已有的索引后面开始查找
@@ -5931,39 +5930,43 @@ class PreviewUgoira {
                 ++loopTimes;
                 continue;
             }
-            // 每次查找后，从上次查找结束的位置开始拷贝一份数据，然后查找拷贝的数据
-            // 这样可以避免重复查找前面的数据
-            let data = uint8;
-            if (offset > 0) {
-                data = uint8.slice(offset);
+            let data;
+            if (offset === 0) {
+                // 一开始从数据开头查找
+                data = new Uint8Array(buff);
             }
-            const index = data.findIndex((val, index, array) => {
+            else {
+                // 每次查找之后，从上次查找结束的位置开始查找
+                // 这样可以避免重复查找前面的数据
+                data = new Uint8Array(buff, offset);
+            }
+            // 查找以 0 开头，长度为 10，以 jpg 结束的值的索引
+            const index = data.findIndex((val, index2, array) => {
                 // 0 j p g P
                 if (val === 48 &&
-                    array[index + 7] === 106 &&
-                    array[index + 8] === 112 &&
-                    array[index + 9] === 103 &&
-                    array[index + 10] !== 80) {
+                    array[index2 + 7] === 106 &&
+                    array[index2 + 8] === 112 &&
+                    array[index2 + 9] === 103 &&
+                    array[index2 + 10] !== 80) {
                     return true;
                 }
                 return false;
             });
             if (index !== -1) {
-                this.jpgContentIndexList[loopTimes] =
-                    offset + index + this.jpgNameLength;
-                offset = offset + index + this.jpgNameLength;
+                const fileContentStart = offset + index + this.jpgNameLength;
+                this.jpgContentIndexList[loopTimes] = fileContentStart;
+                offset = fileContentStart;
                 ++loopTimes;
             }
             else {
                 break;
             }
         }
-        // console.timeEnd('findJPGFlagIndex')
+        console.timeEnd('findJPGFlagIndex');
         // 经过上面的性能优化措施，现在每对 zip 文件进行一次查找，花费的时间基本都在 20ms 以内
     }
     /** 从 zip 文件里提取出所有 jpg 图片的数据 */
     extractJPGData(file, indexList) {
-        const uint8 = new Uint8Array(file);
         indexList.forEach((number, index, array) => {
             // 如果这是最后一个标记，并且压缩包没有整个加载完成，则不提取最后一个文件的数据
             // 因为此时最后一个文件的数据很可能是破损的
@@ -5987,7 +5990,7 @@ class PreviewUgoira {
                     end = file.byteLength;
                 }
                 // slice 方法的 end 不会包含在结果里
-                const buffer = uint8.slice(start, end).buffer;
+                const buffer = file.slice(start, end);
                 const blob = new Blob([buffer], {
                     type: 'image/jpeg',
                 });
