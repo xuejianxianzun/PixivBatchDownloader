@@ -44,8 +44,6 @@ class PreviewUgoira {
   private jpgContentIndexList: number[] = []
   /**每个 jpg 文件的数据。按照图片在压缩包里的顺序，储存对应的数据 */
   private jpgFileList: {
-    buffer: ArrayBuffer
-    blobURL: string
     img: HTMLImageElement
     delay: number
   }[] = []
@@ -125,11 +123,17 @@ class PreviewUgoira {
         this.height = wrapHeight
       }
 
-      // 添加画布并开始播放动画
-      if (this.jpgFileList.length > 0 && !this.canvasIsAppend) {
-        this.addCanvas()
-        this.canvasIsAppend = true
-        this.play()
+      // 检查是否应该开始播放动画
+      // 如果动画的图片总量达到了 30 帧，则等到至少加载了 10 帧之后再开始播放
+      // 这样可以减少在刚开始播放时，因可用帧数太少而导致画面看起来抖动（快速循环）的诡异情况
+      if (this.meta.frames.length >= 30) {
+        this.jpgFileList.length >= 10 && this.startPlay()
+      } else if (this.meta.frames.length >= 20) {
+        this.jpgFileList.length >= 5 && this.startPlay()
+      } else if (this.meta.frames.length >= 10) {
+        this.jpgFileList.length >= 4 && this.startPlay()
+      } else {
+        this.jpgFileList.length >= 1 && this.startPlay()
       }
     }
 
@@ -137,6 +141,84 @@ class PreviewUgoira {
     // const newFile = new Blob([this.zipContent])
     // const url = URL.createObjectURL(newFile)
     // Utils.downloadFile(url, `${this.id}.zip`)
+  }
+
+  /**获取该作品的 meta 数据 */
+  private getMeta(id: string | number): Promise<UgoiraMetaBody> {
+    return new Promise(async (resolve, reject) => {
+      const meta = await API.getUgoiraMeta(id as string)
+      if (meta.error) {
+        throw reject(meta.message)
+      }
+
+      resolve(meta.body)
+    })
+  }
+
+  /** 发送 HEAD 请求，获取 zip 压缩包的体积 */
+  private getFileLength(): Promise<number> {
+    return new Promise(async (resolve, reject) => {
+      const response = await fetch(this.zipURL, {
+        method: 'head',
+        credentials: 'same-origin',
+      })
+
+      const length = response.headers.get('content-length')
+      if (!length) {
+        throw reject('getFileLength error: get length failed')
+      }
+
+      resolve(Number.parseInt(length))
+    })
+  }
+
+  /** 根据 zip 文件的体积分割出数个区间，生成对应的标记文本 */
+  private setRangeList(total: number, rangeSize: number) {
+    const result: string[] = []
+
+    // total 是 length，但 start 和 end 是下标
+    let start = 0
+    let end = 0
+    const max = total - 1
+    while (end < max) {
+      if (start > 0) {
+        start++
+      }
+
+      end = start + rangeSize - 1
+      if (end > max) {
+        end = max
+      }
+      const str = `bytes=${start}-${end}`
+
+      result.push(str)
+
+      start = end
+    }
+
+    return result
+  }
+
+  private loadRangeFileAsBuff(range: string): Promise<ArrayBuffer> {
+    return new Promise(async (resolve, reject) => {
+      const res = await fetch(this.zipURL, {
+        method: 'get',
+        headers: {
+          range: range,
+        },
+      })
+      const buff = await res.arrayBuffer()
+      resolve(buff)
+    })
+  }
+
+  /**把 ArrayBuffer 追加到已存在的 ArrayBuffer 容器里  */
+  private appendBuff(target: ArrayBuffer, newBuff: ArrayBuffer) {
+    const totalLength = target.byteLength + newBuff.byteLength
+    const uint8 = new Uint8Array(totalLength)
+    uint8.set(new Uint8Array(target))
+    uint8.set(new Uint8Array(newBuff), target.byteLength)
+    return uint8.buffer
   }
 
   /** 查找类似于 000000.jpg 的标记，返回它后面的位置的下标  */
@@ -236,8 +318,6 @@ class PreviewUgoira {
         const img = new Image(this.width, this.height)
         img.src = url
         this.jpgFileList[index] = {
-          buffer: buffer,
-          blobURL: url,
           img: img,
           delay: this.meta.frames[index].delay,
         }
@@ -245,96 +325,13 @@ class PreviewUgoira {
     })
   }
 
-  /**获取该作品的 meta 数据 */
-  private getMeta(id: string | number): Promise<UgoiraMetaBody> {
-    return new Promise(async (resolve, reject) => {
-      const meta = await API.getUgoiraMeta(id as string)
-      if (meta.error) {
-        throw reject(meta.message)
-      }
-
-      resolve(meta.body)
-    })
-  }
-
-  /** 发送 HEAD 请求，获取 zip 压缩包的体积 */
-  private getFileLength(): Promise<number> {
-    return new Promise(async (resolve, reject) => {
-      const response = await fetch(this.zipURL, {
-        method: 'head',
-        credentials: 'same-origin',
-      })
-
-      const length = response.headers.get('content-length')
-      if (!length) {
-        throw reject('getFileLength error: get length failed')
-      }
-
-      resolve(Number.parseInt(length))
-    })
-  }
-
-  /** 根据 zip 文件的体积分割出数个区间，生成对应的标记文本 */
-  private setRangeList(total: number, rangeSize: number) {
-    const result: string[] = []
-
-    // total 是 length，但 start 和 end 是下标
-    let start = 0
-    let end = 0
-    const max = total - 1
-    while (end < max) {
-      if (start > 0) {
-        start++
-      }
-
-      end = start + rangeSize - 1
-      if (end > max) {
-        end = max
-      }
-      const str = `bytes=${start}-${end}`
-
-      result.push(str)
-
-      start = end
+  private startPlay() {
+    if (this.jpgFileList.length > 0 && !this.canvasIsAppend) {
+      this.addCanvas()
+      this.canvasIsAppend = true
+      console.log(this.jpgFileList.length)
+      this.animationID = window.requestAnimationFrame(this.play)
     }
-
-    return result
-  }
-
-  private loadRangeFileAsBuff(range: string): Promise<ArrayBuffer> {
-    return new Promise(async (resolve, reject) => {
-      const res = await fetch(this.zipURL, {
-        method: 'get',
-        headers: {
-          range: range,
-        },
-      })
-      const buff = await res.arrayBuffer()
-      resolve(buff)
-    })
-  }
-
-  /**把 ArrayBuffer 追加到已存在的 ArrayBuffer 容器里  */
-  private appendBuff(target: ArrayBuffer, newBuff: ArrayBuffer) {
-    const totalLength = target.byteLength + newBuff.byteLength
-    const uint8 = new Uint8Array(totalLength)
-    uint8.set(new Uint8Array(target))
-    uint8.set(new Uint8Array(newBuff), target.byteLength)
-    return uint8.buffer
-  }
-
-  /**获取图片的宽高 */
-  private async getImageSize(url: string): Promise<{
-    width: number
-    height: number
-  }> {
-    return new Promise(async (resolve, reject) => {
-      const img = await Utils.loadImg(url)
-      resolve({
-        width: img.naturalWidth,
-        height: img.naturalHeight,
-      })
-    })
   }
 
   private addCanvas() {
@@ -350,15 +347,22 @@ class PreviewUgoira {
 
   private playIndex = 0
   private playDelay = 0
-  private playTimer?: number
+  private lastPlayTime = 0
+  private animationID = 0
+  private play = (timestamp: number) => {
+    if (this.lastPlayTime === 0) {
+      this.lastPlayTime = timestamp
+    }
 
-  private play() {
-    this.playTimer = window.setTimeout(() => {
-      // 只播放加载完成的图片，忽略未加载完成的图片
+    // 计算自上次执行之后，是否到了该执行下一次动画的时间
+    if (timestamp - this.lastPlayTime >= this.playDelay) {
+      // 如果要播放的图片尚未加载完成，则等到下一次动画帧再执行
       const img = this.jpgFileList[this.playIndex].img
-      if (img.complete) {
-        this.canvasCon!.drawImage(img, 0, 0, this.width, this.height)
+      if (!img.complete) {
+        return (this.animationID = window.requestAnimationFrame(this.play))
       }
+
+      this.canvasCon!.drawImage(img, 0, 0, this.width, this.height)
 
       // 绘制出第一张图片之后，才能显示 canvas 并隐藏之前的 img
       // 如果过早的隐藏 img 并显示 canvas，会导致闪烁（因为 img 先隐藏，此时 canvas 还没有绘制图像）
@@ -375,13 +379,17 @@ class PreviewUgoira {
       if (this.playIndex > this.jpgFileList.length - 1) {
         this.playIndex = 0
       }
-      this.play()
-    }, this.playDelay)
+
+      // 记录最后一次执行动画的时间
+      this.lastPlayTime = timestamp
+    }
+
+    this.animationID = window.requestAnimationFrame(this.play)
   }
 
   public destroy() {
     this.destroyed = true
-    window.clearTimeout(this.playTimer)
+    window.cancelAnimationFrame(this.animationID)
     this.canvas.remove()
     this.zipContent = new ArrayBuffer(0)
     this.jpgFileList = []

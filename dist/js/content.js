@@ -5806,9 +5806,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PreviewUgoira", function() { return PreviewUgoira; });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 
 
 
@@ -5843,7 +5841,40 @@ class PreviewUgoira {
         this.destroyed = false;
         this.playIndex = 0;
         this.playDelay = 0;
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].previewUgoira) {
+        this.lastPlayTime = 0;
+        this.animationID = 0;
+        this.play = (timestamp) => {
+            if (this.lastPlayTime === 0) {
+                this.lastPlayTime = timestamp;
+            }
+            // 计算自上次执行之后，是否到了该执行下一次动画的时间
+            if (timestamp - this.lastPlayTime >= this.playDelay) {
+                // 如果要播放的图片尚未加载完成，则等到下一次动画帧再执行
+                const img = this.jpgFileList[this.playIndex].img;
+                if (!img.complete) {
+                    return (this.animationID = window.requestAnimationFrame(this.play));
+                }
+                this.canvasCon.drawImage(img, 0, 0, this.width, this.height);
+                // 绘制出第一张图片之后，才能显示 canvas 并隐藏之前的 img
+                // 如果过早的隐藏 img 并显示 canvas，会导致闪烁（因为 img 先隐藏，此时 canvas 还没有绘制图像）
+                if (this.playIndex === 0) {
+                    this.canvas.style.display = 'inline-block';
+                    const img = this.canvasWrap.querySelector('img');
+                    if (img) {
+                        img.style.display = 'none';
+                    }
+                }
+                this.playDelay = this.jpgFileList[this.playIndex].delay;
+                this.playIndex++;
+                if (this.playIndex > this.jpgFileList.length - 1) {
+                    this.playIndex = 0;
+                }
+                // 记录最后一次执行动画的时间
+                this.lastPlayTime = timestamp;
+            }
+            this.animationID = window.requestAnimationFrame(this.play);
+        };
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].previewUgoira) {
             return;
         }
         this.canvasWrap = canvasWrap;
@@ -5901,112 +5932,26 @@ class PreviewUgoira {
                 this.width = wrapWidth;
                 this.height = wrapHeight;
             }
-            // 添加画布并开始播放动画
-            if (this.jpgFileList.length > 0 && !this.canvasIsAppend) {
-                this.addCanvas();
-                this.canvasIsAppend = true;
-                this.play();
+            // 检查是否应该开始播放动画
+            // 如果动画的图片总量达到了 30 帧，则等到至少加载了 10 帧之后再开始播放
+            // 这样可以减少在刚开始播放时，因可用帧数太少而导致画面看起来抖动（快速循环）的诡异情况
+            if (this.meta.frames.length >= 30) {
+                this.jpgFileList.length >= 10 && this.startPlay();
+            }
+            else if (this.meta.frames.length >= 20) {
+                this.jpgFileList.length >= 5 && this.startPlay();
+            }
+            else if (this.meta.frames.length >= 10) {
+                this.jpgFileList.length >= 4 && this.startPlay();
+            }
+            else {
+                this.jpgFileList.length >= 1 && this.startPlay();
             }
         }
         // 保存整个压缩包（debug 用）
         // const newFile = new Blob([this.zipContent])
         // const url = URL.createObjectURL(newFile)
         // Utils.downloadFile(url, `${this.id}.zip`)
-    }
-    /** 查找类似于 000000.jpg 的标记，返回它后面的位置的下标  */
-    // zip 文件结尾有 000000.jpgPK 这样的标记，需要排除，因为这是 zip 的文件目录，不是图片
-    findJPGContentIndex(buff) {
-        // 每次查找时，开始的位置
-        let offset = 0;
-        // 循环的次数
-        let loopTimes = 0;
-        console.time('findJPGFlagIndex');
-        while (true) {
-            // 如果当前偏移量的后面有已经查找到的索引，就不必重复查找了
-            // 跳过这次循环，下次直接从已有的索引后面开始查找
-            if (this.jpgContentIndexList[loopTimes] !== undefined &&
-                offset < this.jpgContentIndexList[loopTimes]) {
-                offset = this.jpgContentIndexList[loopTimes];
-                ++loopTimes;
-                continue;
-            }
-            let data;
-            if (offset === 0) {
-                // 一开始从数据开头查找
-                data = new Uint8Array(buff);
-            }
-            else {
-                // 每次查找之后，从上次查找结束的位置开始查找
-                // 这样可以避免重复查找前面的数据
-                data = new Uint8Array(buff, offset);
-            }
-            // 查找以 0 开头，长度为 10，以 jpg 结束的值的索引
-            const index = data.findIndex((val, index2, array) => {
-                // 0 j p g P
-                if (val === 48 &&
-                    array[index2 + 7] === 106 &&
-                    array[index2 + 8] === 112 &&
-                    array[index2 + 9] === 103 &&
-                    array[index2 + 10] !== 80) {
-                    return true;
-                }
-                return false;
-            });
-            if (index !== -1) {
-                const fileContentStart = offset + index + this.jpgNameLength;
-                this.jpgContentIndexList[loopTimes] = fileContentStart;
-                offset = fileContentStart;
-                ++loopTimes;
-            }
-            else {
-                break;
-            }
-        }
-        console.timeEnd('findJPGFlagIndex');
-        // 经过上面的性能优化措施，现在每对 zip 文件进行一次查找，花费的时间基本都在 20ms 以内
-    }
-    /** 从 zip 文件里提取出所有 jpg 图片的数据 */
-    extractJPGData(file, indexList) {
-        indexList.forEach((number, index, array) => {
-            // 如果这是最后一个标记，并且压缩包没有整个加载完成，则不提取最后一个文件的数据
-            // 因为此时最后一个文件的数据很可能是破损的
-            if (index === array.length - 1 && !this.loadend) {
-                return;
-            }
-            // 如果这张图片没有被保存，才会提取它
-            // 如果已经有这个图片的数据，就不再提取它，以提高性能
-            if (this.jpgFileList[index] === undefined) {
-                // 确定要提取的文件的起始位置
-                // 从当前文件名之后开始
-                const start = number;
-                // 截止下一个文件名之前
-                // 删除不需要的数据：
-                // 30 字节的是 zip 文件的数据，虽然没有实际影响，但还是去掉
-                // 10 字节的是下一个 jpg 的文件名
-                let end = array[index + 1] - 30 - this.jpgNameLength;
-                if (index === array.length - 1) {
-                    // 如果是最后一个 jpg 文件，则截止到 zip 文件的结尾
-                    // 这导致它会包含 zip 的目录数据，但是不会影响图片的显示
-                    end = file.byteLength;
-                }
-                // slice 方法的 end 不会包含在结果里
-                const buffer = file.slice(start, end);
-                const blob = new Blob([buffer], {
-                    type: 'image/jpeg',
-                });
-                const url = URL.createObjectURL(blob);
-                // 下载这张图片（debug 用）
-                // Utils.downloadFile(url, `${index}.jpg`)
-                const img = new Image(this.width, this.height);
-                img.src = url;
-                this.jpgFileList[index] = {
-                    buffer: buffer,
-                    blobURL: url,
-                    img: img,
-                    delay: this.meta.frames[index].delay,
-                };
-            }
-        });
     }
     /**获取该作品的 meta 数据 */
     getMeta(id) {
@@ -6073,15 +6018,106 @@ class PreviewUgoira {
         uint8.set(new Uint8Array(newBuff), target.byteLength);
         return uint8.buffer;
     }
-    /**获取图片的宽高 */
-    async getImageSize(url) {
-        return new Promise(async (resolve, reject) => {
-            const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].loadImg(url);
-            resolve({
-                width: img.naturalWidth,
-                height: img.naturalHeight,
+    /** 查找类似于 000000.jpg 的标记，返回它后面的位置的下标  */
+    // zip 文件结尾有 000000.jpgPK 这样的标记，需要排除，因为这是 zip 的文件目录，不是图片
+    findJPGContentIndex(buff) {
+        // 每次查找时，开始的位置
+        let offset = 0;
+        // 循环的次数
+        let loopTimes = 0;
+        // console.time('findJPGContentIndex')
+        while (true) {
+            // 如果当前偏移量的后面有已经查找到的索引，就不必重复查找了
+            // 跳过这次循环，下次直接从已有的索引后面开始查找
+            if (this.jpgContentIndexList[loopTimes] !== undefined &&
+                offset < this.jpgContentIndexList[loopTimes]) {
+                offset = this.jpgContentIndexList[loopTimes];
+                ++loopTimes;
+                continue;
+            }
+            let data;
+            if (offset === 0) {
+                // 一开始从数据开头查找
+                data = new Uint8Array(buff);
+            }
+            else {
+                // 每次查找之后，从上次查找结束的位置开始查找
+                // 这样可以避免重复查找前面的数据
+                data = new Uint8Array(buff, offset);
+            }
+            // 查找以 0 开头，长度为 10，以 jpg 结束的值的索引
+            const index = data.findIndex((val, index2, array) => {
+                // 0 j p g P
+                if (val === 48 &&
+                    array[index2 + 7] === 106 &&
+                    array[index2 + 8] === 112 &&
+                    array[index2 + 9] === 103 &&
+                    array[index2 + 10] !== 80) {
+                    return true;
+                }
+                return false;
             });
+            if (index !== -1) {
+                const fileContentStart = offset + index + this.jpgNameLength;
+                this.jpgContentIndexList[loopTimes] = fileContentStart;
+                offset = fileContentStart;
+                ++loopTimes;
+            }
+            else {
+                break;
+            }
+        }
+        // console.timeEnd('findJPGContentIndex')
+        // 经过上面的性能优化措施，现在每对 zip 文件新增的部分进行一次查找，花费的时间基本都在 20ms 以内
+    }
+    /** 从 zip 文件里提取出所有 jpg 图片的数据 */
+    extractJPGData(file, indexList) {
+        indexList.forEach((number, index, array) => {
+            // 如果这是最后一个标记，并且压缩包没有整个加载完成，则不提取最后一个文件的数据
+            // 因为此时最后一个文件的数据很可能是破损的
+            if (index === array.length - 1 && !this.loadend) {
+                return;
+            }
+            // 如果这张图片没有被保存，才会提取它
+            // 如果已经有这个图片的数据，就不再提取它，以提高性能
+            if (this.jpgFileList[index] === undefined) {
+                // 确定要提取的文件的起始位置
+                // 从当前文件名之后开始
+                const start = number;
+                // 截止下一个文件名之前
+                // 删除不需要的数据：
+                // 30 字节的是 zip 文件的数据，虽然没有实际影响，但还是去掉
+                // 10 字节的是下一个 jpg 的文件名
+                let end = array[index + 1] - 30 - this.jpgNameLength;
+                if (index === array.length - 1) {
+                    // 如果是最后一个 jpg 文件，则截止到 zip 文件的结尾
+                    // 这导致它会包含 zip 的目录数据，但是不会影响图片的显示
+                    end = file.byteLength;
+                }
+                // slice 方法的 end 不会包含在结果里
+                const buffer = file.slice(start, end);
+                const blob = new Blob([buffer], {
+                    type: 'image/jpeg',
+                });
+                const url = URL.createObjectURL(blob);
+                // 下载这张图片（debug 用）
+                // Utils.downloadFile(url, `${index}.jpg`)
+                const img = new Image(this.width, this.height);
+                img.src = url;
+                this.jpgFileList[index] = {
+                    img: img,
+                    delay: this.meta.frames[index].delay,
+                };
+            }
         });
+    }
+    startPlay() {
+        if (this.jpgFileList.length > 0 && !this.canvasIsAppend) {
+            this.addCanvas();
+            this.canvasIsAppend = true;
+            console.log(this.jpgFileList.length);
+            this.animationID = window.requestAnimationFrame(this.play);
+        }
     }
     addCanvas() {
         const oldCanvas = this.canvasWrap.querySelector('canvas');
@@ -6093,33 +6129,9 @@ class PreviewUgoira {
         this.canvas.width = this.width;
         this.canvas.height = this.height;
     }
-    play() {
-        this.playTimer = window.setTimeout(() => {
-            // 只播放加载完成的图片，忽略未加载完成的图片
-            const img = this.jpgFileList[this.playIndex].img;
-            if (img.complete) {
-                this.canvasCon.drawImage(img, 0, 0, this.width, this.height);
-            }
-            // 绘制出第一张图片之后，才能显示 canvas 并隐藏之前的 img
-            // 如果过早的隐藏 img 并显示 canvas，会导致闪烁（因为 img 先隐藏，此时 canvas 还没有绘制图像）
-            if (this.playIndex === 0) {
-                this.canvas.style.display = 'inline-block';
-                const img = this.canvasWrap.querySelector('img');
-                if (img) {
-                    img.style.display = 'none';
-                }
-            }
-            this.playDelay = this.jpgFileList[this.playIndex].delay;
-            this.playIndex++;
-            if (this.playIndex > this.jpgFileList.length - 1) {
-                this.playIndex = 0;
-            }
-            this.play();
-        }, this.playDelay);
-    }
     destroy() {
         this.destroyed = true;
-        window.clearTimeout(this.playTimer);
+        window.cancelAnimationFrame(this.animationID);
         this.canvas.remove();
         this.zipContent = new ArrayBuffer(0);
         this.jpgFileList = [];
