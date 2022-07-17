@@ -62,7 +62,7 @@ The main function:
 
 ## Offline installation
 
-1. Download the latest version of the installation package from [release page](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/) and unzip it to a folder.
+1. Download the latest version of the installation package from [Releases page](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/) and unzip it to a folder.
 2. Enter the extension management. Chrome clicks "More Tools" - "Extensions Management" in the menu; Edge clicks "Extensions" in the menu.
 3. On the extension management page, enable "Developer Mode".
 4. Click the button "Load unpacked" and select the folder where the installation package is unzipped.
@@ -141,9 +141,11 @@ Simplified Chinese
 
 Traditional Chinese
 
-English(also used in Korean settings)
+English
 
 Japanese
+
+Korean
 
 You can also optimize the translation, thank you very much :)
 

@@ -64,7 +64,7 @@
 
 ## 離線安裝
 
-如果您不能從線上安裝，您可以從 [releases 頁面](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest) 離線安裝。
+如果您不能從線上安裝，您可以從 [Releases 頁面](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest) 離線安裝。
 
 [離線安裝指南](https://xuejianxianzun.github.io/PBDWiki/#/zh-tw/%E9%9B%A2%E7%B7%9A%E5%AE%89%E8%A3%9D)
 
@@ -158,9 +158,11 @@ npm run build // 執行 fmt、ts、less 命令，並把打包所需的其他檔�
 
 繁體中文
 
-English（韓語設定下也使用英語文件）
+English
 
 日本語
+
+韓國語
 
 歡迎您對翻譯做出改進，謝謝~
 
