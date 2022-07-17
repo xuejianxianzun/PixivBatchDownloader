@@ -1231,6 +1231,12 @@
   font-weight: normal !important;
   color: inherit !important;
 }
+.lang_ko input[name='workDirNameRule'] {
+  width: 240px !important;
+}
+.lang_ko button[type='button'] {
+  word-break: keep-all;
+}
 .outputWrap {
   padding: 20px 30px;
   width: 520px;
