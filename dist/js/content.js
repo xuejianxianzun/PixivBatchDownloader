@@ -1115,6 +1115,8 @@ const convertUgoira = new ConvertUgoira();
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "extractImage", function() { return extractImage; });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 // 从 zip 提取图片数据
 class ExtractImage {
@@ -1165,6 +1167,100 @@ class ExtractImage {
                 reject(new Error('ReadZIP error: ' + message));
             });
         });
+    }
+    async extractImage(zipFile, indexList) {
+        return new Promise(async (resolve, reject) => {
+            const result = [];
+            let i = 0;
+            for (const index of indexList) {
+                // 起始位置
+                const start = index;
+                // 截止下一个文件名之前
+                // 删除不需要的数据：
+                // 30 字节的是 zip 文件添加的数据，虽然没有实际影响，但还是去掉
+                // 10 字节的是下一个 jpg 的文件名
+                let end = indexList[i + 1] - 30 - 10;
+                if (i === indexList.length - 1) {
+                    // 如果是最后一个 jpg 文件，则截止到 zip 文件的结尾
+                    // 这导致它会包含 zip 的目录数据，但是不会影响图片的显示
+                    end = zipFile.byteLength;
+                }
+                // slice 方法的 end 不会包含在结果里
+                const buffer = zipFile.slice(start, end);
+                const blob = new Blob([buffer], {
+                    type: 'image/jpeg',
+                });
+                const url = URL.createObjectURL(blob);
+                const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].loadImg(url);
+                result.push({
+                    buffer: buffer,
+                    img: img,
+                });
+                ++i;
+            }
+            resolve(result);
+        });
+    }
+    /** 查找类似于 000000.jpg 的标记，返回它后面的位置的下标
+     *
+     * @param zipFile  Zip 文件的内容
+     * @param existingIndexList  可选传入一个已存在的索引列表。如果传入，那么这个方法在搜索 zip 文件里的图片时，不会查找已有索引的部分（也就是不会重复查找文件的前半部分），只会查找没有索引的部分
+     * @returns number[] 返回一个索引列表的数组
+     *
+    */
+    // zip 文件结尾有 000000.jpgPK 这样的标记，需要排除，因为这是 zip 的文件目录，不是图片
+    getJPGContentIndex(zipFile, existingIndexList) {
+        let indexList = [];
+        if (existingIndexList && existingIndexList.length > 0) {
+            indexList = existingIndexList;
+        }
+        // 每次查找时，开始的位置
+        let offset = 0;
+        // 循环的次数
+        let loopTimes = 0;
+        // console.time('getJPGContentIndex')
+        while (true) {
+            // 如果当前偏移量的后面有已经查找到的索引，就不必重复查找了
+            // 跳过这次循环，下次直接从已有的索引后面开始查找
+            if (indexList[loopTimes] !== undefined &&
+                offset < indexList[loopTimes]) {
+                offset = indexList[loopTimes];
+                ++loopTimes;
+                continue;
+            }
+            let data;
+            if (offset === 0) {
+                // 一开始从数据开头查找
+                data = new Uint8Array(zipFile);
+            }
+            else {
+                // 每次查找之后，从上次查找结束的位置开始查找
+                // 这样可以避免重复查找前面的数据
+                data = new Uint8Array(zipFile, offset);
+            }
+            // 查找以 0 开头，长度为 10，以 jpg 结束的值的索引
+            const index = data.findIndex((val, index2, array) => {
+                // 0 j p g P
+                if (val === 48 &&
+                    array[index2 + 7] === 106 &&
+                    array[index2 + 8] === 112 &&
+                    array[index2 + 9] === 103 &&
+                    array[index2 + 10] !== 80) {
+                    return true;
+                }
+                return false;
+            });
+            if (index !== -1) {
+                const fileContentStart = offset + index + 10;
+                indexList[loopTimes] = fileContentStart;
+                offset = fileContentStart;
+                ++loopTimes;
+            }
+            else {
+                return indexList;
+            }
+        }
+        // console.timeEnd('getJPGContentIndex')
     }
 }
 const extractImage = new ExtractImage();
@@ -1340,8 +1436,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toWebM", function() { return toWebM; });
 /* harmony import */ var _ExtractImage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ExtractImage */ "./src/ts/ConvertUgoira/ExtractImage.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-
 
 
 class ToWebM {
@@ -1349,44 +1443,32 @@ class ToWebM {
         return new Promise(async (resolve, reject) => {
             // 创建视频编码器
             const encoder = new Whammy.Video();
-            // 获取解压后的图片数据
-            let base64Arr = await _ExtractImage__WEBPACK_IMPORTED_MODULE_0__["extractImage"]
-                .extractImageAsDataURL(file, info)
-                .catch(() => {
-                reject(new Error('Start error'));
-            });
-            if (!base64Arr) {
-                return;
-            }
-            // 生成每一帧的数据
-            let canvasList = await this.getFrameData(base64Arr);
+            // 提取图片数据
+            console.time('new extractImage');
+            const zipFileBuffer = await file.arrayBuffer();
+            const indexList = _ExtractImage__WEBPACK_IMPORTED_MODULE_0__["extractImage"].getJPGContentIndex(zipFileBuffer);
+            let imgData = await _ExtractImage__WEBPACK_IMPORTED_MODULE_0__["extractImage"].extractImage(zipFileBuffer, indexList);
+            console.log(indexList, imgData);
+            console.timeEnd('new extractImage');
             // 添加帧数据
-            for (let index = 0; index < canvasList.length; index++) {
-                encoder.add(canvasList[index], info.frames[index].delay);
-            }
-            base64Arr = null;
-            canvasList = null;
-            // 获取生成的视频
+            imgData.forEach((data, index) => {
+                encoder.add(this.getFrameData(data.img), info.frames[index].delay);
+            });
+            imgData = null;
+            // 生成的视频
             file = await this.encodeVideo(encoder);
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('convertSuccess');
             resolve(file);
         });
     }
     // 获取每一帧的数据，传递给编码器使用
-    async getFrameData(imgFile) {
-        const resultList = [];
-        return new Promise(async (resolve, reject) => {
-            for (const base64 of imgFile) {
-                const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].loadImg(base64);
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                resultList.push(canvas);
-            }
-            resolve(resultList);
-        });
+    getFrameData(img) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        return canvas.toDataURL('image/webp', 0.9);
     }
     // 编码视频
     async encodeVideo(encoder) {
@@ -5807,6 +5889,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _ConvertUgoira_ExtractImage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ConvertUgoira/ExtractImage */ "./src/ts/ConvertUgoira/ExtractImage.ts");
+
 
 
 
@@ -5915,7 +5999,7 @@ class PreviewUgoira {
             this.loadend = this.zipContent.byteLength === this.zipLength;
             // 提取出每个 jpg 图片的数据
             // 由于我之前使用的 zip 库无法解析不完整的 zip 文件，所以我需要自己提取 jpg 图片的数据
-            this.findJPGContentIndex(this.zipContent);
+            this.jpgContentIndexList = _ConvertUgoira_ExtractImage__WEBPACK_IMPORTED_MODULE_3__["extractImage"].getJPGContentIndex(this.zipContent, this.jpgContentIndexList);
             this.extractJPGData(this.zipContent, this.jpgContentIndexList);
             // 设置画布的宽高
             if (this.jpgFileList.length > 0 && this.width === 0) {
@@ -6018,58 +6102,6 @@ class PreviewUgoira {
         uint8.set(new Uint8Array(newBuff), target.byteLength);
         return uint8.buffer;
     }
-    /** 查找类似于 000000.jpg 的标记，返回它后面的位置的下标  */
-    // zip 文件结尾有 000000.jpgPK 这样的标记，需要排除，因为这是 zip 的文件目录，不是图片
-    findJPGContentIndex(buff) {
-        // 每次查找时，开始的位置
-        let offset = 0;
-        // 循环的次数
-        let loopTimes = 0;
-        // console.time('findJPGContentIndex')
-        while (true) {
-            // 如果当前偏移量的后面有已经查找到的索引，就不必重复查找了
-            // 跳过这次循环，下次直接从已有的索引后面开始查找
-            if (this.jpgContentIndexList[loopTimes] !== undefined &&
-                offset < this.jpgContentIndexList[loopTimes]) {
-                offset = this.jpgContentIndexList[loopTimes];
-                ++loopTimes;
-                continue;
-            }
-            let data;
-            if (offset === 0) {
-                // 一开始从数据开头查找
-                data = new Uint8Array(buff);
-            }
-            else {
-                // 每次查找之后，从上次查找结束的位置开始查找
-                // 这样可以避免重复查找前面的数据
-                data = new Uint8Array(buff, offset);
-            }
-            // 查找以 0 开头，长度为 10，以 jpg 结束的值的索引
-            const index = data.findIndex((val, index2, array) => {
-                // 0 j p g P
-                if (val === 48 &&
-                    array[index2 + 7] === 106 &&
-                    array[index2 + 8] === 112 &&
-                    array[index2 + 9] === 103 &&
-                    array[index2 + 10] !== 80) {
-                    return true;
-                }
-                return false;
-            });
-            if (index !== -1) {
-                const fileContentStart = offset + index + this.jpgNameLength;
-                this.jpgContentIndexList[loopTimes] = fileContentStart;
-                offset = fileContentStart;
-                ++loopTimes;
-            }
-            else {
-                break;
-            }
-        }
-        // console.timeEnd('findJPGContentIndex')
-        // 经过上面的性能优化措施，现在每对 zip 文件新增的部分进行一次查找，花费的时间基本都在 20ms 以内
-    }
     /** 从 zip 文件里提取出所有 jpg 图片的数据 */
     extractJPGData(file, indexList) {
         indexList.forEach((number, index, array) => {
@@ -6115,7 +6147,6 @@ class PreviewUgoira {
         if (this.jpgFileList.length > 0 && !this.canvasIsAppend) {
             this.addCanvas();
             this.canvasIsAppend = true;
-            console.log(this.jpgFileList.length);
             this.animationID = window.requestAnimationFrame(this.play);
         }
     }
