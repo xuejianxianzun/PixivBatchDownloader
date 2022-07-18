@@ -5,19 +5,23 @@ import { settings } from './setting/Settings'
 import { Tools } from './Tools'
 
 // 预览动图
-// 需要依赖其他模块来初始化
 class PreviewUgoira {
   constructor(
     id: string | number,
     canvasWrap: HTMLElement,
-    prevSize: 'original' | 'regular'
+    prevSize: 'original' | 'regular',
+    wrapWidth?: number,
+    wrapHeight?: number,
   ) {
     if (!settings.previewUgoira) {
       return
     }
-    this.canvasWrap = canvasWrap
     this.id = id
+    this.canvasWrap = canvasWrap
     this.prevSize = prevSize
+    wrapWidth && (this.wrapWidth = wrapWidth)
+    wrapHeight && (this.wrapHeight = wrapHeight)
+
     this.start()
   }
 
@@ -52,6 +56,8 @@ class PreviewUgoira {
   private readonly jpgNameLength = 10
 
   private canvasWrap!: HTMLElement
+  private wrapWidth = 0
+  private wrapHeight = 0
   private canvas = document.createElement('canvas')
   private canvasCon = this.canvas.getContext('2d')
   private canvasIsAppend = false
@@ -111,9 +117,6 @@ class PreviewUgoira {
       // 设置画布的宽高
       if (this.jpgFileList.length > 0 && this.width === 0) {
         // 画布的宽高不能超过外部 wrap 的宽高
-        const wrapWidth = Number.parseInt(this.canvasWrap.style.width)
-        const wrapHeight = Number.parseInt(this.canvasWrap.style.height)
-
         // 本来我是打算从 wrap 宽度和动图宽度中取比较小的值
         // const size = await this.getImageSize(this.jpgFileList[0].blobURL)
         // this.width = Math.min(size.width, wrapWidth)
@@ -122,8 +125,8 @@ class PreviewUgoira {
         // 但是当预览作品的尺寸为“普通”时，动图的尺寸可能比 wrap 的尺寸小
         // 因为 wrap 显示的普通尺寸是 1200px，但是动图的普通尺寸是 600px
         // 所以我直接让画布使用 wrap 的尺寸了。如果动图比 wrap 小，就会放大到 wrap 的尺寸
-        this.width = wrapWidth
-        this.height = wrapHeight
+        this.width = this.wrapWidth || Number.parseInt(this.canvasWrap.style.width)
+        this.height = this.wrapHeight || Number.parseInt(this.canvasWrap.style.height)
       }
 
       // 检查是否应该开始播放动画

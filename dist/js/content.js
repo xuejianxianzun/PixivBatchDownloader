@@ -5689,9 +5689,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 // 预览动图
-// 需要依赖其他模块来初始化
 class PreviewUgoira {
-    constructor(id, canvasWrap, prevSize) {
+    constructor(id, canvasWrap, prevSize, wrapWidth, wrapHeight) {
         this.prevSize = 'regular';
         /**完整的 zip 文件的字节数 */
         this.zipLength = 0;
@@ -5711,6 +5710,8 @@ class PreviewUgoira {
         this.jpgFileList = [];
         // jpg 文件名的长度固定为 10 个字节 000000.jpg
         this.jpgNameLength = 10;
+        this.wrapWidth = 0;
+        this.wrapHeight = 0;
         this.canvas = document.createElement('canvas');
         this.canvasCon = this.canvas.getContext('2d');
         this.canvasIsAppend = false;
@@ -5755,9 +5756,11 @@ class PreviewUgoira {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].previewUgoira) {
             return;
         }
-        this.canvasWrap = canvasWrap;
         this.id = id;
+        this.canvasWrap = canvasWrap;
         this.prevSize = prevSize;
+        wrapWidth && (this.wrapWidth = wrapWidth);
+        wrapHeight && (this.wrapHeight = wrapHeight);
         this.start();
     }
     async start() {
@@ -5798,8 +5801,6 @@ class PreviewUgoira {
             // 设置画布的宽高
             if (this.jpgFileList.length > 0 && this.width === 0) {
                 // 画布的宽高不能超过外部 wrap 的宽高
-                const wrapWidth = Number.parseInt(this.canvasWrap.style.width);
-                const wrapHeight = Number.parseInt(this.canvasWrap.style.height);
                 // 本来我是打算从 wrap 宽度和动图宽度中取比较小的值
                 // const size = await this.getImageSize(this.jpgFileList[0].blobURL)
                 // this.width = Math.min(size.width, wrapWidth)
@@ -5807,8 +5808,8 @@ class PreviewUgoira {
                 // 但是当预览作品的尺寸为“普通”时，动图的尺寸可能比 wrap 的尺寸小
                 // 因为 wrap 显示的普通尺寸是 1200px，但是动图的普通尺寸是 600px
                 // 所以我直接让画布使用 wrap 的尺寸了。如果动图比 wrap 小，就会放大到 wrap 的尺寸
-                this.width = wrapWidth;
-                this.height = wrapHeight;
+                this.width = this.wrapWidth || Number.parseInt(this.canvasWrap.style.width);
+                this.height = this.wrapHeight || Number.parseInt(this.canvasWrap.style.height);
             }
             // 检查是否应该开始播放动画
             // 如果动画的图片总量达到了 30 帧，则等到至少加载了 10 帧之后再开始播放
@@ -6425,7 +6426,8 @@ class PreviewWork {
         this.sendUrls();
         // 预览动图
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].previewUgoira && this.workData.body.illustType === 2) {
-            this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_8__["PreviewUgoira"](this.workData.body.id, this.wrap, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize);
+            this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_8__["PreviewUgoira"](this.workData.body.id, this.wrap, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize, cfg.width, cfg.height - tipHeight);
+            // 需要显式传递 wrap 的宽高，特别是高度。因为需要减去顶部提示区域的高度
         }
     }
     replaceUrl(url) {
