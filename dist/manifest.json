@@ -23,7 +23,6 @@
       "css": ["style/viewer.min.css", "style/style.css"],
       "js": [
         "lib/viewer.min.js",
-        "lib/zip.js",
         "lib/whammy.js",
         "lib/gif.js",
         "lib/handlebars.min.js",
