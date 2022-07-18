@@ -1118,7 +1118,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 
 
-// 从 zip 提取图片数据
+// 从 zip 文件中提取图片数据
 class ExtractImage {
     constructor() {
         this.loadWorkerJS();
@@ -1185,17 +1185,12 @@ class ExtractImage {
                     // 这导致它会包含 zip 的目录数据，但是不会影响图片的显示
                     end = zipFile.byteLength;
                 }
-                // slice 方法的 end 不会包含在结果里
-                const buffer = zipFile.slice(start, end);
-                const blob = new Blob([buffer], {
+                const blob = new Blob([zipFile.slice(start, end)], {
                     type: 'image/jpeg',
                 });
                 const url = URL.createObjectURL(blob);
                 const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].loadImg(url);
-                result.push({
-                    buffer: buffer,
-                    img: img,
-                });
+                result.push(img);
                 ++i;
             }
             resolve(result);
@@ -1289,14 +1284,14 @@ class ToAPNG {
             // 提取图片数据
             const zipFileBuffer = await file.arrayBuffer();
             const indexList = _ExtractImage__WEBPACK_IMPORTED_MODULE_0__["extractImage"].getJPGContentIndex(zipFileBuffer);
-            let imgData = await _ExtractImage__WEBPACK_IMPORTED_MODULE_0__["extractImage"].extractImage(zipFileBuffer, indexList);
+            let imgs = await _ExtractImage__WEBPACK_IMPORTED_MODULE_0__["extractImage"].extractImage(zipFileBuffer, indexList);
             // 添加帧数据
-            let arrayBuffList = imgData.map(data => this.getPNGBuffer(data.img));
+            let arrayBuffList = imgs.map(img => this.getPNGBuffer(img));
             const delayList = info.frames.map(frame => frame.delay);
             // 编码
             // https://github.com/photopea/UPNG.js/#encoder
-            const pngFile = UPNG.encode(arrayBuffList, imgData[0].img.width, imgData[0].img.height, 0, delayList);
-            imgData = null;
+            const pngFile = UPNG.encode(arrayBuffList, imgs[0].width, imgs[0].height, 0, delayList);
+            imgs = null;
             arrayBuffList = null;
             const blob = new Blob([pngFile], {
                 type: 'image/vnd.mozilla.apng',
@@ -1334,8 +1329,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toGIF", function() { return toGIF; });
 /* harmony import */ var _ExtractImage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ExtractImage */ "./src/ts/ConvertUgoira/ExtractImage.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-
 
 
 class ToGIF {
@@ -1359,43 +1352,23 @@ class ToGIF {
                 workerScript: this.gifWorkerUrl,
             });
             // 绑定渲染完成事件
-            gif.on('finished', (file, data) => {
-                data = null;
+            gif.on('finished', (file) => {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('convertSuccess');
                 resolve(file);
             });
-            // 获取解压后的图片数据
-            let base64Arr = await _ExtractImage__WEBPACK_IMPORTED_MODULE_0__["extractImage"]
-                .extractImageAsDataURL(file, info)
-                .catch(() => {
-                reject(new Error('Start error'));
-            });
-            if (!base64Arr) {
-                return;
-            }
-            // 生成每一帧的数据
-            let imgList = await this.getFrameData(base64Arr);
+            // 提取图片数据
+            const zipFileBuffer = await file.arrayBuffer();
+            const indexList = _ExtractImage__WEBPACK_IMPORTED_MODULE_0__["extractImage"].getJPGContentIndex(zipFileBuffer);
+            let imgs = await _ExtractImage__WEBPACK_IMPORTED_MODULE_0__["extractImage"].extractImage(zipFileBuffer, indexList);
             // 添加帧数据
-            for (let index = 0; index < imgList.length; index++) {
-                gif.addFrame(imgList[index], {
+            imgs.forEach((img, index) => {
+                gif.addFrame(img, {
                     delay: info.frames[index].delay,
                 });
-            }
-            base64Arr = null;
-            imgList = null;
+            });
+            imgs = null;
             // 渲染 gif
             gif.render();
-        });
-    }
-    // 添加每一帧的数据
-    async getFrameData(imgFile) {
-        const resultList = [];
-        return new Promise(async (resolve, reject) => {
-            for (const base64 of imgFile) {
-                const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].loadImg(base64);
-                resultList.push(img);
-            }
-            resolve(resultList);
         });
     }
 }
@@ -1427,13 +1400,13 @@ class ToWebM {
             // 提取图片数据
             const zipFileBuffer = await file.arrayBuffer();
             const indexList = _ExtractImage__WEBPACK_IMPORTED_MODULE_0__["extractImage"].getJPGContentIndex(zipFileBuffer);
-            let imgData = await _ExtractImage__WEBPACK_IMPORTED_MODULE_0__["extractImage"].extractImage(zipFileBuffer, indexList);
+            let imgs = await _ExtractImage__WEBPACK_IMPORTED_MODULE_0__["extractImage"].extractImage(zipFileBuffer, indexList);
             // 添加帧数据
-            imgData.forEach((data, index) => {
+            imgs.forEach((img, index) => {
                 // https://github.com/antimatter15/whammy#basic-usage
-                encoder.add(this.getImgDataURL(data.img), info.frames[index].delay);
+                encoder.add(this.getImgDataURL(img), info.frames[index].delay);
             });
-            imgData = null;
+            imgs = null;
             // 生成的视频
             file = await this.encodeVideo(encoder);
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('convertSuccess');
