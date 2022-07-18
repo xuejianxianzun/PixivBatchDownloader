@@ -1281,36 +1281,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toAPNG", function() { return toAPNG; });
 /* harmony import */ var _ExtractImage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ExtractImage */ "./src/ts/ConvertUgoira/ExtractImage.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-
 
 
 class ToAPNG {
     async convert(file, info) {
         return new Promise(async (resolve, reject) => {
-            // 获取解压后的图片数据
-            let base64Arr = await _ExtractImage__WEBPACK_IMPORTED_MODULE_0__["extractImage"]
-                .extractImageAsDataURL(file, info)
-                .catch(() => {
-                reject(new Error('Start error'));
-            });
-            if (!base64Arr) {
-                return;
-            }
-            // 每一帧的数据
-            let arrayBuffList = await this.getFrameData(base64Arr);
-            // 延迟数据
-            const delayList = [];
-            for (const d of info.frames) {
-                delayList.push(d.delay);
-            }
-            // 获取宽高
-            const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].loadImg(base64Arr[0]);
+            // 提取图片数据
+            const zipFileBuffer = await file.arrayBuffer();
+            const indexList = _ExtractImage__WEBPACK_IMPORTED_MODULE_0__["extractImage"].getJPGContentIndex(zipFileBuffer);
+            let imgData = await _ExtractImage__WEBPACK_IMPORTED_MODULE_0__["extractImage"].extractImage(zipFileBuffer, indexList);
+            // 添加帧数据
+            let arrayBuffList = imgData.map(data => this.getPNGBuffer(data.img));
+            const delayList = info.frames.map(frame => frame.delay);
             // 编码
-            const png = UPNG.encode(arrayBuffList, img.width, img.height, 0, delayList);
-            base64Arr = null;
+            // https://github.com/photopea/UPNG.js/#encoder
+            const pngFile = UPNG.encode(arrayBuffList, imgData[0].img.width, imgData[0].img.height, 0, delayList);
+            imgData = null;
             arrayBuffList = null;
-            const blob = new Blob([png], {
+            const blob = new Blob([pngFile], {
                 type: 'image/vnd.mozilla.apng',
             });
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('convertSuccess');
@@ -1318,21 +1306,14 @@ class ToAPNG {
         });
     }
     // 获取每一帧的数据，传递给编码器使用
-    async getFrameData(imgFile) {
-        const resultList = [];
-        return new Promise(async (resolve, reject) => {
-            for (const base64 of imgFile) {
-                const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].loadImg(base64);
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                const buff = ctx.getImageData(0, 0, img.width, img.height).data.buffer;
-                resultList.push(buff);
-            }
-            resolve(resultList);
-        });
+    getPNGBuffer(img) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        // 从画布获取图像绘制后的 Uint8ClampedArray buffer
+        return ctx.getImageData(0, 0, img.width, img.height).data.buffer;
     }
 }
 const toAPNG = new ToAPNG();
@@ -1444,15 +1425,13 @@ class ToWebM {
             // 创建视频编码器
             const encoder = new Whammy.Video();
             // 提取图片数据
-            console.time('new extractImage');
             const zipFileBuffer = await file.arrayBuffer();
             const indexList = _ExtractImage__WEBPACK_IMPORTED_MODULE_0__["extractImage"].getJPGContentIndex(zipFileBuffer);
             let imgData = await _ExtractImage__WEBPACK_IMPORTED_MODULE_0__["extractImage"].extractImage(zipFileBuffer, indexList);
-            console.log(indexList, imgData);
-            console.timeEnd('new extractImage');
             // 添加帧数据
             imgData.forEach((data, index) => {
-                encoder.add(this.getFrameData(data.img), info.frames[index].delay);
+                // https://github.com/antimatter15/whammy#basic-usage
+                encoder.add(this.getImgDataURL(data.img), info.frames[index].delay);
             });
             imgData = null;
             // 生成的视频
@@ -1462,7 +1441,9 @@ class ToWebM {
         });
     }
     // 获取每一帧的数据，传递给编码器使用
-    getFrameData(img) {
+    // 把图像转换为 webp 格式的 DataURL，这样 webm 编码器内部可以直接使用，不需要进行一些重复的操作
+    // 这样的转换速度是最快的
+    getImgDataURL(img) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = img.width;

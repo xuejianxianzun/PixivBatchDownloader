@@ -4,12 +4,7 @@ import { Utils } from '../utils/Utils'
 
 declare const zip: any
 
-interface ExtractImageData {
-  buffer: ArrayBuffer
-  img: HTMLImageElement
-}
-
-// 从 zip 提取图片数据
+// 从 zip 文件中提取图片数据
 class ExtractImage {
   constructor() {
     this.loadWorkerJS()
@@ -73,9 +68,9 @@ class ExtractImage {
     })
   }
 
-  public async extractImage(zipFile: ArrayBuffer, indexList: number[]): Promise<ExtractImageData[]> {
+  public async extractImage(zipFile: ArrayBuffer, indexList: number[]): Promise<HTMLImageElement[]> {
     return new Promise(async (resolve, reject) => {
-      const result: ExtractImageData[] = []
+      const result: HTMLImageElement[] = []
       let i = 0
       for (const index of indexList) {
         // 起始位置
@@ -90,17 +85,13 @@ class ExtractImage {
           // 这导致它会包含 zip 的目录数据，但是不会影响图片的显示
           end = zipFile.byteLength
         }
-        // slice 方法的 end 不会包含在结果里
-        const buffer = zipFile.slice(start, end)
-        const blob = new Blob([buffer], {
+
+        const blob = new Blob([zipFile.slice(start, end)], {
           type: 'image/jpeg',
         })
         const url = URL.createObjectURL(blob)
         const img = await Utils.loadImg(url)
-        result.push({
-          buffer: buffer,
-          img: img,
-        })
+        result.push(img)
         ++i
       }
       resolve(result)

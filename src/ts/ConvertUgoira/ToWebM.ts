@@ -1,7 +1,6 @@
 import { extractImage } from './ExtractImage'
 import { EVT } from '../EVT'
 import { UgoiraInfo } from '../crawl/CrawlResult'
-import { Utils } from '../utils/Utils'
 
 declare const Whammy: any
 
@@ -12,19 +11,17 @@ class ToWebM {
       const encoder = new Whammy.Video()
 
       // 提取图片数据
-      console.time('new extractImage')
       const zipFileBuffer = await file.arrayBuffer()
       const indexList = extractImage.getJPGContentIndex(zipFileBuffer)
-      let imgData = await extractImage.extractImage(zipFileBuffer, indexList)
-      console.log(indexList, imgData)
-      console.timeEnd('new extractImage')
+      let imgs = await extractImage.extractImage(zipFileBuffer, indexList)
 
       // 添加帧数据
-      imgData.forEach((data, index) => {
-        encoder.add(this.getImgDataURL(data.img), info.frames![index].delay)
+      imgs.forEach((img, index) => {
+        // https://github.com/antimatter15/whammy#basic-usage
+        encoder.add(this.getImgDataURL(img), info.frames![index].delay)
       })
 
-      imgData = null as any
+      imgs = null as any
 
       // 生成的视频
       file = await this.encodeVideo(encoder)
