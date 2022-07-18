@@ -60,7 +60,6 @@
     "webRequestBlocking"
   ],
   "web_accessible_resources": [
-    "lib/z-worker.js",
     "lib/gif.worker.js",
     "lib/listen_history_change.js",
     "manifest.json",

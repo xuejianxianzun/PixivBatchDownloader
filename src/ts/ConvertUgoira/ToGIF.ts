@@ -1,4 +1,4 @@
-import { extractImage } from './ExtractImage'
+import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { UgoiraInfo } from '../crawl/CrawlResult'
 
@@ -36,8 +36,8 @@ class ToGIF {
 
       // 提取图片数据
       const zipFileBuffer = await file.arrayBuffer()
-      const indexList = extractImage.getJPGContentIndex(zipFileBuffer)
-      let imgs = await extractImage.extractImage(zipFileBuffer, indexList)
+      const indexList = Tools.getJPGContentIndex(zipFileBuffer)
+      let imgs = await Tools.extractImage(zipFileBuffer, indexList)
 
       // 添加帧数据
       imgs.forEach((img, index) => {

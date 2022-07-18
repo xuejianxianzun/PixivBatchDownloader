@@ -1,9 +1,8 @@
 import { UgoiraMetaBody } from './crawl/CrawlResult'
 import { API } from './API'
 import { log } from './Log'
-import { Utils } from './utils/Utils'
 import { settings } from './setting/Settings'
-import { extractImage } from './ConvertUgoira/ExtractImage'
+import { Tools } from './Tools'
 
 // 预览动图
 // 需要依赖其他模块来初始化
@@ -103,7 +102,10 @@ class PreviewUgoira {
 
       // 提取出每个 jpg 图片的数据
       // 由于我之前使用的 zip 库无法解析不完整的 zip 文件，所以我需要自己提取 jpg 图片的数据
-      this.jpgContentIndexList = extractImage.getJPGContentIndex(this.zipContent, this.jpgContentIndexList)
+      this.jpgContentIndexList = Tools.getJPGContentIndex(
+        this.zipContent,
+        this.jpgContentIndexList
+      )
       this.extractJPGData(this.zipContent, this.jpgContentIndexList)
 
       // 设置画布的宽高
