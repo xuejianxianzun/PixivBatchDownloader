@@ -33,6 +33,7 @@ class ConvertOldSettings {
       '1': 'ja',
       '2': 'en',
       '3': 'zh-tw',
+      '4': 'ko',
     },
   }
 
