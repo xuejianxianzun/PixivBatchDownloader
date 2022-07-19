@@ -2,6 +2,8 @@
 
 [繁體中文](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-ZH-TW.md)
 
+[韩国语](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-KO.md)
+
 [Discord channel](https://discord.gg/eW9JtTK)
 
 ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
@@ -62,7 +64,7 @@ The main function:
 
 ## Offline installation
 
-1. Download the latest version of the installation package from [release page](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/) and unzip it to a folder.
+1. Download the latest version of the installation package from [Releases page](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/) and unzip it to a folder.
 2. Enter the extension management. Chrome clicks "More Tools" - "Extensions Management" in the menu; Edge clicks "Extensions" in the menu.
 3. On the extension management page, enable "Developer Mode".
 4. Click the button "Load unpacked" and select the folder where the installation package is unzipped.
@@ -85,9 +87,13 @@ Note: Currently only available in Chinese. Welcome to translate!
 
 <a href='https://www.patreon.com/xuejianxianzun'><img src='https://c5.patreon.com/external/logo/become_a_patron_button.png' alt='Become a patron' width='140px' /></a>
 
+Thank you for your support!
+
 # Thanks
 
 - Thanks [道滿](https://zhtw.me/) , [VHlqg](https://github.com/VHlqg) for translating traditional Chinese.
+
+- Thanks [KOZ39](https://github.com/KOZ39) for translating traditional Korean.
 
 - Thanks [光の軌跡](https://github.com/jiaer24) for translating traditional Japanese.
 
@@ -141,9 +147,11 @@ Simplified Chinese
 
 Traditional Chinese
 
-English(also used in Korean settings)
+English
 
 Japanese
+
+Korean
 
 You can also optimize the translation, thank you very much :)
 

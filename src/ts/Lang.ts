@@ -1,7 +1,7 @@
 import { langText } from './LangText'
 import { EVT } from './EVT'
 
-type LangTypes = 'zh-cn' | 'zh-tw' | 'en' | 'ja'
+type LangTypes = 'zh-cn' | 'zh-tw' | 'en' | 'ja' | 'ko'
 
 // 语言类
 class Lang {
@@ -12,13 +12,14 @@ class Lang {
 
   public type!: LangTypes
 
-  public readonly langTypes = ['zh-cn', 'zh-tw', 'en', 'ja']
+  public readonly langTypes = ['zh-cn', 'zh-tw', 'en', 'ja', 'ko']
 
   private readonly flagIndex: Map<LangTypes, number> = new Map([
     ['zh-cn', 0],
     ['zh-tw', 1],
     ['en', 2],
     ['ja', 3],
+    ['ko', 4],
   ])
 
   private bindEvents() {
@@ -54,6 +55,9 @@ class Lang {
       case 'zh-tw':
       case 'zh-TW':
         return 'zh-tw' // 繁體中文
+
+      case 'ko':
+        return 'ko' // 한국어
 
       default:
         return 'en' // English
