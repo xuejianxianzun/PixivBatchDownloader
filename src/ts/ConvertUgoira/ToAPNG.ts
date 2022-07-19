@@ -1,45 +1,35 @@
-import { extractImage } from './ExtractImage'
+import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { UgoiraInfo } from '../crawl/CrawlResult'
-import { Utils } from '../utils/Utils'
 
 declare const UPNG: any
 
 class ToAPNG {
   public async convert(file: Blob, info: UgoiraInfo): Promise<Blob> {
     return new Promise(async (resolve, reject) => {
-      // 获取解压后的图片数据
-      let base64Arr = await extractImage
-        .extractImageAsDataURL(file, info)
-        .catch(() => {
-          reject(new Error('Start error'))
-        })
+      // 提取图片数据
+      const zipFileBuffer = await file.arrayBuffer()
+      const indexList = Tools.getJPGContentIndex(zipFileBuffer)
+      let imgs = await Tools.extractImage(zipFileBuffer, indexList)
 
-      if (!base64Arr) {
-        return
-      }
-      // 每一帧的数据
-      let arrayBuffList = await this.getFrameData(base64Arr)
-      // 延迟数据
-      const delayList = []
-      for (const d of info.frames) {
-        delayList.push(d.delay)
-      }
-      // 获取宽高
-      const img = await Utils.loadImg(base64Arr[0])
+      // 添加帧数据
+      let arrayBuffList = imgs.map((img) => this.getPNGBuffer(img))
+      const delayList = info.frames.map((frame) => frame.delay)
+
       // 编码
-      const png = UPNG.encode(
+      // https://github.com/photopea/UPNG.js/#encoder
+      const pngFile = UPNG.encode(
         arrayBuffList,
-        img.width,
-        img.height,
+        imgs[0].width,
+        imgs[0].height,
         0,
         delayList
-      ) as Uint8Array
+      ) as ArrayBuffer
 
-      base64Arr = null as any
+      imgs = null as any
       arrayBuffList = null as any
 
-      const blob = new Blob([png], {
+      const blob = new Blob([pngFile], {
         type: 'image/vnd.mozilla.apng',
       })
 
@@ -50,22 +40,15 @@ class ToAPNG {
   }
 
   // 获取每一帧的数据，传递给编码器使用
-  private async getFrameData(imgFile: string[]): Promise<ArrayBuffer[]> {
-    const resultList: ArrayBuffer[] = []
-    return new Promise(async (resolve, reject) => {
-      for (const base64 of imgFile) {
-        const img = await Utils.loadImg(base64)
-        const canvas = document.createElement('canvas')
-        const ctx = canvas.getContext('2d')!
-        canvas.width = img.width
-        canvas.height = img.height
-        ctx.drawImage(img, 0, 0)
+  private getPNGBuffer(img: HTMLImageElement): ArrayBuffer {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')!
+    canvas.width = img.width
+    canvas.height = img.height
+    ctx.drawImage(img, 0, 0)
 
-        const buff = ctx.getImageData(0, 0, img.width, img.height).data.buffer
-        resultList.push(buff)
-      }
-      resolve(resultList)
-    })
+    // 从画布获取图像绘制后的 Uint8ClampedArray buffer
+    return ctx.getImageData(0, 0, img.width, img.height).data.buffer
   }
 }
 

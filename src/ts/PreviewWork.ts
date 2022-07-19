@@ -502,8 +502,11 @@ class PreviewWork {
       this.previewUgoira = new PreviewUgoira(
         this.workData.body.id,
         this.wrap,
-        settings.prevWorkSize
+        settings.prevWorkSize,
+        cfg.width,
+        cfg.height - tipHeight
       )
+      // 需要显式传递 wrap 的宽高，特别是高度。因为需要减去顶部提示区域的高度
     }
   }
 
