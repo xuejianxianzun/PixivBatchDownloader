@@ -11,7 +11,7 @@ class PreviewUgoira {
     canvasWrap: HTMLElement,
     prevSize: 'original' | 'regular',
     wrapWidth?: number,
-    wrapHeight?: number,
+    wrapHeight?: number
   ) {
     if (!settings.previewUgoira) {
       return
@@ -125,8 +125,10 @@ class PreviewUgoira {
         // 但是当预览作品的尺寸为“普通”时，动图的尺寸可能比 wrap 的尺寸小
         // 因为 wrap 显示的普通尺寸是 1200px，但是动图的普通尺寸是 600px
         // 所以我直接让画布使用 wrap 的尺寸了。如果动图比 wrap 小，就会放大到 wrap 的尺寸
-        this.width = this.wrapWidth || Number.parseInt(this.canvasWrap.style.width)
-        this.height = this.wrapHeight || Number.parseInt(this.canvasWrap.style.height)
+        this.width =
+          this.wrapWidth || Number.parseInt(this.canvasWrap.style.width)
+        this.height =
+          this.wrapHeight || Number.parseInt(this.canvasWrap.style.height)
       }
 
       // 检查是否应该开始播放动画
