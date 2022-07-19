@@ -2,6 +2,8 @@
 
 [简体中文](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README.md)
 
+[韩国语](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-KO.md)
+
 [Discord 頻道](https://discord.gg/eW9JtTK)
 
 ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
@@ -64,7 +66,7 @@
 
 ## 離線安裝
 
-如果您不能從線上安裝，您可以從 [releases 頁面](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest) 離線安裝。
+如果您不能從線上安裝，您可以從 [Releases 頁面](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest) 離線安裝。
 
 [離線安裝指南](https://xuejianxianzun.github.io/PBDWiki/#/zh-tw/%E9%9B%A2%E7%B7%9A%E5%AE%89%E8%A3%9D)
 
@@ -83,6 +85,8 @@
 - 感謝 [道滿](https://zhtw.me/) 、 [VHlqg](https://github.com/VHlqg) 翻譯繁體中文。
 
 - 感謝 [光の軌跡](https://github.com/jiaer24) 翻譯日語。
+
+- 感謝 [KOZ39](https://github.com/KOZ39) 翻译韩語。
 
 - 感謝 [Reinford0](https://github.com/Reinford0) 對本工具的測試和改進。
 
@@ -158,9 +162,11 @@ npm run build // 執行 fmt、ts、less 命令，並把打包所需的其他檔�
 
 繁體中文
 
-English（韓語設定下也使用英語文件）
+English
 
 日本語
+
+韓國語
 
 歡迎您對翻譯做出改進，謝謝~
 
