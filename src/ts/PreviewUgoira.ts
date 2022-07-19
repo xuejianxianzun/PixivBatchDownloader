@@ -1,23 +1,27 @@
 import { UgoiraMetaBody } from './crawl/CrawlResult'
 import { API } from './API'
 import { log } from './Log'
-import { Utils } from './utils/Utils'
 import { settings } from './setting/Settings'
+import { Tools } from './Tools'
 
 // 预览动图
-// 需要依赖其他模块来初始化
 class PreviewUgoira {
   constructor(
     id: string | number,
     canvasWrap: HTMLElement,
-    prevSize: 'original' | 'regular'
+    prevSize: 'original' | 'regular',
+    wrapWidth?: number,
+    wrapHeight?: number
   ) {
     if (!settings.previewUgoira) {
       return
     }
-    this.canvasWrap = canvasWrap
     this.id = id
+    this.canvasWrap = canvasWrap
     this.prevSize = prevSize
+    wrapWidth && (this.wrapWidth = wrapWidth)
+    wrapHeight && (this.wrapHeight = wrapHeight)
+
     this.start()
   }
 
@@ -52,6 +56,8 @@ class PreviewUgoira {
   private readonly jpgNameLength = 10
 
   private canvasWrap!: HTMLElement
+  private wrapWidth = 0
+  private wrapHeight = 0
   private canvas = document.createElement('canvas')
   private canvasCon = this.canvas.getContext('2d')
   private canvasIsAppend = false
@@ -102,15 +108,15 @@ class PreviewUgoira {
 
       // 提取出每个 jpg 图片的数据
       // 由于我之前使用的 zip 库无法解析不完整的 zip 文件，所以我需要自己提取 jpg 图片的数据
-      this.findJPGContentIndex(this.zipContent)
+      this.jpgContentIndexList = Tools.getJPGContentIndex(
+        this.zipContent,
+        this.jpgContentIndexList
+      )
       this.extractJPGData(this.zipContent, this.jpgContentIndexList)
 
       // 设置画布的宽高
       if (this.jpgFileList.length > 0 && this.width === 0) {
         // 画布的宽高不能超过外部 wrap 的宽高
-        const wrapWidth = Number.parseInt(this.canvasWrap.style.width)
-        const wrapHeight = Number.parseInt(this.canvasWrap.style.height)
-
         // 本来我是打算从 wrap 宽度和动图宽度中取比较小的值
         // const size = await this.getImageSize(this.jpgFileList[0].blobURL)
         // this.width = Math.min(size.width, wrapWidth)
@@ -119,8 +125,10 @@ class PreviewUgoira {
         // 但是当预览作品的尺寸为“普通”时，动图的尺寸可能比 wrap 的尺寸小
         // 因为 wrap 显示的普通尺寸是 1200px，但是动图的普通尺寸是 600px
         // 所以我直接让画布使用 wrap 的尺寸了。如果动图比 wrap 小，就会放大到 wrap 的尺寸
-        this.width = wrapWidth
-        this.height = wrapHeight
+        this.width =
+          this.wrapWidth || Number.parseInt(this.canvasWrap.style.width)
+        this.height =
+          this.wrapHeight || Number.parseInt(this.canvasWrap.style.height)
       }
 
       // 检查是否应该开始播放动画
@@ -221,65 +229,6 @@ class PreviewUgoira {
     return uint8.buffer
   }
 
-  /** 查找类似于 000000.jpg 的标记，返回它后面的位置的下标  */
-  // zip 文件结尾有 000000.jpgPK 这样的标记，需要排除，因为这是 zip 的文件目录，不是图片
-  private findJPGContentIndex(buff: ArrayBuffer) {
-    // 每次查找时，开始的位置
-    let offset = 0
-    // 循环的次数
-    let loopTimes = 0
-
-    // console.time('findJPGContentIndex')
-    while (true) {
-      // 如果当前偏移量的后面有已经查找到的索引，就不必重复查找了
-      // 跳过这次循环，下次直接从已有的索引后面开始查找
-      if (
-        this.jpgContentIndexList[loopTimes] !== undefined &&
-        offset < this.jpgContentIndexList[loopTimes]
-      ) {
-        offset = this.jpgContentIndexList[loopTimes]
-        ++loopTimes
-        continue
-      }
-
-      let data: Uint8Array
-      if (offset === 0) {
-        // 一开始从数据开头查找
-        data = new Uint8Array(buff)
-      } else {
-        // 每次查找之后，从上次查找结束的位置开始查找
-        // 这样可以避免重复查找前面的数据
-        data = new Uint8Array(buff, offset)
-      }
-
-      // 查找以 0 开头，长度为 10，以 jpg 结束的值的索引
-      const index = data.findIndex((val, index2, array) => {
-        // 0 j p g P
-        if (
-          val === 48 &&
-          array[index2 + 7] === 106 &&
-          array[index2 + 8] === 112 &&
-          array[index2 + 9] === 103 &&
-          array[index2 + 10] !== 80
-        ) {
-          return true
-        }
-        return false
-      })
-
-      if (index !== -1) {
-        const fileContentStart = offset + index + this.jpgNameLength
-        this.jpgContentIndexList[loopTimes] = fileContentStart
-        offset = fileContentStart
-        ++loopTimes
-      } else {
-        break
-      }
-    }
-    // console.timeEnd('findJPGContentIndex')
-    // 经过上面的性能优化措施，现在每对 zip 文件新增的部分进行一次查找，花费的时间基本都在 20ms 以内
-  }
-
   /** 从 zip 文件里提取出所有 jpg 图片的数据 */
   private extractJPGData(file: ArrayBuffer, indexList: number[]) {
     indexList.forEach((number, index, array) => {
@@ -329,7 +278,6 @@ class PreviewUgoira {
     if (this.jpgFileList.length > 0 && !this.canvasIsAppend) {
       this.addCanvas()
       this.canvasIsAppend = true
-      console.log(this.jpgFileList.length)
       this.animationID = window.requestAnimationFrame(this.play)
     }
   }

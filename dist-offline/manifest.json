@@ -1,6 +1,6 @@
 {
   "name": "Powerful Pixiv Downloader",
-  "version": "12.7.1",
+  "version": "12.8.0",
   "manifest_version": 2,
   "description": "强大的 Pixiv 批量下载器。Powerful Pixiv batch downloader. 強力な Pixiv ダウンローダー。",
   "icons": {
@@ -23,7 +23,6 @@
       "css": ["style/viewer.min.css", "style/style.css"],
       "js": [
         "lib/viewer.min.js",
-        "lib/zip.js",
         "lib/whammy.js",
         "lib/gif.js",
         "lib/handlebars.min.js",
@@ -60,7 +59,6 @@
     "webRequestBlocking"
   ],
   "web_accessible_resources": [
-    "lib/z-worker.js",
     "lib/gif.worker.js",
     "lib/listen_history_change.js",
     "manifest.json",
