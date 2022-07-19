@@ -1,7 +1,6 @@
-import { extractImage } from './ExtractImage'
+import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { UgoiraInfo } from '../crawl/CrawlResult'
-import { Utils } from '../utils/Utils'
 
 declare const GIF: any
 
@@ -30,49 +29,27 @@ class ToGIF {
       })
 
       // 绑定渲染完成事件
-      gif.on('finished', (file: Blob, data: Uint8Array) => {
-        data = null as any
+      gif.on('finished', (file: Blob) => {
         EVT.fire('convertSuccess')
         resolve(file)
       })
 
-      // 获取解压后的图片数据
-      let base64Arr = await extractImage
-        .extractImageAsDataURL(file, info)
-        .catch(() => {
-          reject(new Error('Start error'))
-        })
+      // 提取图片数据
+      const zipFileBuffer = await file.arrayBuffer()
+      const indexList = Tools.getJPGContentIndex(zipFileBuffer)
+      let imgs = await Tools.extractImage(zipFileBuffer, indexList)
 
-      if (!base64Arr) {
-        return
-      }
-
-      // 生成每一帧的数据
-      let imgList = await this.getFrameData(base64Arr)
       // 添加帧数据
-      for (let index = 0; index < imgList.length; index++) {
-        gif.addFrame(imgList[index], {
+      imgs.forEach((img, index) => {
+        gif.addFrame(img, {
           delay: info.frames![index].delay,
         })
-      }
+      })
 
-      base64Arr = null as any
-      imgList = null as any
+      imgs = null as any
 
       // 渲染 gif
       gif.render()
-    })
-  }
-
-  // 添加每一帧的数据
-  private async getFrameData(imgFile: string[]): Promise<HTMLImageElement[]> {
-    const resultList: HTMLImageElement[] = []
-    return new Promise(async (resolve, reject) => {
-      for (const base64 of imgFile) {
-        const img = await Utils.loadImg(base64)
-        resultList.push(img)
-      }
-      resolve(resultList)
     })
   }
 }

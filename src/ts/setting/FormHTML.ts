@@ -7,7 +7,7 @@ export const formHtml = `<form class="settingForm">
     <span class="has_tip settingNameStyle1" data-xztip="_抓取多少页面"><span class="setWantPageTip1" data-xztext="_抓取多少页面"></span><span class="gray1"> ? </span></span>
     <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
     value = '-1'>&nbsp;
-    <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
+    <span class="setWantPageTip2 gray1" data-xztext="_数字提示1"></span>
     </span>
     </p>
 
@@ -158,10 +158,10 @@ export const formHtml = `<form class="settingForm">
     <input type="text" name="setWidth" class="setinput_style1 blue" value="0">
     <input type="radio" name="setWidthAndOr" id="setWidth_AndOr1" class="need_beautify radio" value="&" checked>
     <span class="beautify_radio"></span>
-    <label for="setWidth_AndOr1">and</label>
+    <label for="setWidth_AndOr1" data-xztext="_并且"></label>
     <input type="radio" name="setWidthAndOr" id="setWidth_AndOr2" class="need_beautify radio" value="|">
     <span class="beautify_radio"></span>
-    <label for="setWidth_AndOr2">or</label>
+    <label for="setWidth_AndOr2" data-xztext="_或者"></label>
     <span data-xztext="_高度"></span>
     <input type="text" name="setHeight" class="setinput_style1 blue" value="0">
     </span>
@@ -1005,6 +1005,9 @@ export const formHtml = `<form class="settingForm">
     <input type="radio" name="userSetLang" id="userSetLang5" class="need_beautify radio" value="en">
     <span class="beautify_radio"></span>
     <label for="userSetLang5">English</label>
+    <input type="radio" name="userSetLang" id="userSetLang6" class="need_beautify radio" value="ko">
+    <span class="beautify_radio"></span>
+    <label for="userSetLang6">한국어</label>
     </p>
 
     <p class="option" data-no="37">
