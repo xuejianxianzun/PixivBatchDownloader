@@ -56,9 +56,9 @@
 
 ## 온라인 설치
 
-1. **Chromium 기반** 브라우저는 **[Chrome 웹 스토어](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**에서 이 확장 프로그램을 설치할 수 있습니다.
+1. Chromium 기반 브라우저는 **[Chrome 웹 스토어](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**에서 이 확장 프로그램을 설치할 수 있습니다.
 
-2. **Microsoft Edge** 브라우저는 **[Microsoft Edge 추가 기능](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)**에서 이 확장 프로그램을 설치할 수 있습니다.
+2. Microsoft Edge 브라우저는 **[Microsoft Edge 추가 기능](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)**에서 이 확장 프로그램을 설치할 수 있습니다.
 
 **참고:** 경우에 따라 Chrome 웹 스토어의 확장 버전이 최신 버전이 아닐 수 있습니다. 필요한 경우 오프라인으로 설치할 수 있습니다.
 
@@ -93,7 +93,7 @@
 
 - [道滿](https://zhtw.me/) , [VHlqg](https://github.com/VHlqg) 중국어 번체로 번역해 주셔서 감사합니다.
 
-- [KOZ39](https://github.com/KOZ39) 한국어를 번역해주셔서 감사합니다.
+- [KOZ39](https://github.com/KOZ39) 한국어로 번역해 주셔서 감사합니다.
 
 - [光の軌跡](https://github.com/jiaer24) 일본어로 번역해 주셔서 감사합니다.
 
@@ -137,7 +137,7 @@ npm run pre-build // fmt, ts, less 명령을 실행합니다(모든 코드를 �
 npm run build // fmt, ts, less 명령을 실행하고 패키징에 필요한 다른 파일을 dist 디렉토리에 복사한 다음 dist 디렉토리를 zip 파일로 압축합니다.
 ```
 
-When you modify the code and compile it, the code will be compiled to the `dist` folder. You need to refresh the offline loaded extension in the browser's extension management, and then refresh the pixiv page to apply the new code.
+코드를 수정하여 컴파일하면 코드는 dist 디렉토리에 컴파일됩니다. 브라우저의 확장 프로그램에서 오프라인으로 로드된 확장 프로그램을 업데이트한 다음 pixiv 페이지를 새로고침하여 새 코드를 적용해야 합니다.
 
 # 도움말
 
@@ -153,7 +153,7 @@ When you modify the code and compile it, the code will be compiled to the `dist`
 
 한국어
 
-당신은 또한 번역을 개선할 수 있습니다. 감사합니다:)
+당신은 또한 번역을 개선할 수 있습니다. 감사합니다 :)
 
 ## 팁
 

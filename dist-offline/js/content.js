@@ -5172,6 +5172,7 @@ const langText = {
         '下載時發生錯誤，狀態碼為 0，請求未成功。可能的原因：<br><br>1. 系統磁碟的剩餘空間可能不足（建議剩餘空間大於 4GB）。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>2. 網路錯誤。可能是網路代理導致的問題。',
         'An error occurred while downloading, the status code is 0, and the request was unsuccessful. Possible reasons: <br><br>1. The remaining space of the system disk may be insufficient (it is recommended that the remaining space be greater than 4GB). Please try to clear the system disk space, and then restart the browser to continue the unfinished download. <br><br>2. Network error. It may be a problem caused by a network proxy.',
         'ダウンロード中にエラーが発生し、ステータスコードは0で、リクエストは失敗しました。 考えられる理由：<br> <br> 1。 システムディスクの残りのスペースが不足している可能性があります（残りのスペースは4GBを超えることをお勧めします）。 システムのディスク領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。 <br> <br> 2。 ネットワークエラー。 ネットワークプロキシが原因の問題である可能性があります。',
+        '다운로드 중 오류가 발생했으며, 상태 코드가 0이고 요청에 실패했습니다. 가능한 원인: <br><br>1. 시스템 디스크의 남은 공간이 부족할 수 있습니다(남은 공간은 4GB보다 큰 것이 좋습니다). 시스템 디스크 공간을 비운 다음 브라우저를 다시 시작하여 완료되지 않은 다운로드를 계속해주세요. <br><br>2. 네트워크 오류. 네트워크 프록시로 인한 문제일 수 있습니다.',
     ],
     _提示登录pixiv账号: [
         '请您登录 Pixiv 账号然后重试。',
