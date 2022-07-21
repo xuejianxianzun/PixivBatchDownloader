@@ -72,7 +72,9 @@ class MsgBox {
     }
   }
 
-  // 清除某个 once 标记，使其对应的消息可以再次显示
+  /**
+   * 清除某个 once 标记，使其对应的消息可以再次显示
+   */
   public resetOnce(flag: string) {
     const index = this.onceFlags.findIndex((str) => str === flag)
     if (index > -1) {
