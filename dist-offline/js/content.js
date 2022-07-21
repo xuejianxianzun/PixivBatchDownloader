@@ -1085,12 +1085,14 @@ class ConvertUgoira {
         this.downloading = true; // 是否在下载。如果下载停止了则不继续转换后续任务，避免浪费资源
         this._count = 0; // 统计有几个转换任务
         this.maxCount = 1; // 允许同时运行多少个转换任务
+        this.msgFlag = 'tipConvertUgoira';
         this.setMaxCount();
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStart, () => {
             this.downloading = true;
+            _MsgBox__WEBPACK_IMPORTED_MODULE_5__["msgBox"].resetOnce(this.msgFlag);
         });
         [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadPause, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop].forEach((event) => {
             window.addEventListener(event, () => {
@@ -1110,7 +1112,7 @@ class ConvertUgoira {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.readZipError, () => {
             this.complete();
         });
-        // 如果转换动图时页面被隐藏了，则显示一次提示
+        // 如果转换动图时页面被隐藏了，则显示提示
         document.addEventListener('visibilitychange', () => {
             this.checkHidden();
         });
@@ -1164,12 +1166,7 @@ class ConvertUgoira {
     }
     checkHidden() {
         if (this._count > 0 && document.visibilityState === 'hidden') {
-            const name = 'tipConvertUgoira';
-            const test = sessionStorage.getItem(name);
-            if (test === null) {
-                _MsgBox__WEBPACK_IMPORTED_MODULE_5__["msgBox"].warning(_Lang__WEBPACK_IMPORTED_MODULE_6__["lang"].transl('_转换动图时页面被隐藏的提示'));
-                sessionStorage.setItem(name, '1');
-            }
+            _MsgBox__WEBPACK_IMPORTED_MODULE_5__["msgBox"].once(this.msgFlag, _Lang__WEBPACK_IMPORTED_MODULE_6__["lang"].transl('_转换动图时页面被隐藏的提示'), 'warning');
         }
     }
 }
@@ -3767,11 +3764,11 @@ const langText = {
     ],
     _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問', '도움말'],
     _uuid: [
-        '如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。',
-        '如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。',
-        'If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.',
-        'ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
-        '다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.',
+        '如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>例如：Chrono 下载管理器、free Download Manager、Image Downloader、DownThemAll! 等。',
+        '如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。<br>例如：Chrono 下载管理器、free Download Manager、Image Downloader、DownThemAll! 等。',
+        'If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.<br>For example: Chrono Download Manager, free Download Manager, Image Downloader, DownThemAll! and more.',
+        'ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br>例：Chrono Download Manager, free Download Manager, Image Downloader, DownThemAll! など。',
+        '다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.예: Chrono Download Manager, free Download Manager、Image Downloader、DownThemAll! 등.',
     ],
     _常见问题说明: [
         '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br><br>QQ群：675174717<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
@@ -5373,7 +5370,7 @@ const langText = {
     中国大陆用户可以在“爱发电”上赞助我：<br>
     <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
     也可以扫描二维码：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 675174717 查看二维码。
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 675174717，在群文件里查看二维码。
     `,
         `非常感謝您的支持！<br>
     您可以在 Patreon 上贊助我：<br>
@@ -5711,6 +5708,13 @@ const langText = {
         '<span class="key">Preview</span> Ugoira',
         'うごイラのプレビュー',
         '움직이는 일러스트 <span class="key">미리보기</span>',
+    ],
+    _1282更新说明: [
+        `加快转换动图的速度；<br>优化预览作品的体验；<br>添加了韩语文本。`,
+        `加快轉換動圖的速度；<br>最佳化預覽作品的體驗；<br>添加了韓語文字。`,
+        `Speed up the conversion of Ugoira;<br>Optimize the experience of previewing works;<br>Add Korean text.`,
+        `うごイラの変換を高速化します;<br>作品のプレビュー体験を最適化します;<br>韓国語のテキストを追加します。`,
+        `움직이는 일러스트 변환 속도 향상,<br>优化预览图片的体验,<br>한국어 텍스트 추가.`,
     ],
 };
 
@@ -6091,6 +6095,7 @@ class MsgBox {
             warning: _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].textWarning,
             error: _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].textError,
         };
+        this.onceFlags = [];
         this.bindEvents();
     }
     bindEvents() {
@@ -6098,6 +6103,40 @@ class MsgBox {
             const msg = ev.detail.data;
             this.create(msg);
         });
+    }
+    /** 在当前标签页中只会显示一次的消息
+     */
+    once(flag, msg, type = 'show', arg) {
+        if (this.onceFlags.includes(flag)) {
+            return;
+        }
+        this.onceFlags.push(flag);
+        switch (type) {
+            case 'show':
+                this.show(msg, arg);
+                break;
+            case 'warning':
+                this.warning(msg, arg);
+                break;
+            case 'success':
+                this.success(msg, arg);
+                break;
+            case 'error':
+                this.error(msg, arg);
+                break;
+            default:
+                this.show(msg, arg);
+                break;
+        }
+    }
+    /**
+     * 清除某个 once 标记，使其对应的消息可以再次显示
+     */
+    resetOnce(flag) {
+        const index = this.onceFlags.findIndex((str) => str === flag);
+        if (index > -1) {
+            this.onceFlags.splice(index);
+        }
     }
     show(msg, arg) {
         this.create(Object.assign({}, arg, { msg: msg }));
@@ -7085,6 +7124,7 @@ class PreviewWork {
             if (body.pageCount > 1) {
                 text.push(`${this.index + 1}/${body.pageCount}`);
             }
+            text.push(body.bookmarkCount);
             // 加载原图时，可以获取到每张图片的真实尺寸
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize === 'original') {
                 text.push(`${w}x${h}`);
@@ -8588,7 +8628,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '12.7.0';
+        this.flag = '12.8.2';
         this.msg = '';
         this.bindEvents();
     }
@@ -8596,20 +8636,13 @@ class ShowWhatIsNew {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             this.msg = `
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载小说的封面图片')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多他选项卡的下载分类里找到它')}
-      <br>
-      <br>
-
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览动图')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多他选项卡的下载分类里找到它')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_1282更新说明')}
       `;
+            // 在更新说明的下方显示赞助提示
+            this.msg += `
+      <br>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_赞助方式提示')}`;
             this.show();
         });
     }
@@ -15310,7 +15343,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _Help__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../Help */ "./src/ts/Help.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 // 下载控制
+
 
 
 
@@ -15351,6 +15386,7 @@ class DownloadControl {
         this.stop = false; // 是否已经停止下载
         this.pause = false; // 是否已经暂停下载
         this.waitingTimer = undefined;
+        this.msgFlag = 'uuidTip';
         this.createResultBtns();
         this.createDownloadArea();
         this.bindEvents();
@@ -15388,7 +15424,7 @@ class DownloadControl {
         }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.skipDownload, (ev) => {
             const data = ev.detail.data;
-            // 跳过下载的文件不会触发下载成功事件
+            // 跳过下载的文件不会触发 downloadSuccess 事件
             this.downloadOrSkipAFile(data);
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadError, (ev) => {
@@ -15404,6 +15440,11 @@ class DownloadControl {
             var _a;
             if (!this.taskBatch) {
                 return;
+            }
+            // UUID 的情况
+            if ((_a = msg.data) === null || _a === void 0 ? void 0 : _a.uuid) {
+                _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_uuid'));
+                _MsgBox__WEBPACK_IMPORTED_MODULE_21__["msgBox"].once(this.msgFlag, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_uuid'), 'error');
             }
             // 文件下载成功
             if (msg.msg === 'downloaded') {
@@ -15431,10 +15472,6 @@ class DownloadControl {
                 // 重新下载这个文件
                 // 但并不确定能否如预期一样重新下载这个文件
                 this.saveFileError(msg.data);
-            }
-            // UUID 的情况
-            if ((_a = msg.data) === null || _a === void 0 ? void 0 : _a.uuid) {
-                _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_uuid'));
             }
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete, () => {
@@ -15565,6 +15602,7 @@ class DownloadControl {
             _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].init();
         }
         this.reset();
+        _MsgBox__WEBPACK_IMPORTED_MODULE_21__["msgBox"].resetOnce(this.msgFlag);
         this.setDownloaded();
         this.taskBatch = new Date().getTime(); // 修改本批下载任务的标记
         this.setDownloadThread();

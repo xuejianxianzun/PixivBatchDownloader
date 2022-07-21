@@ -17,7 +17,7 @@ https://www.pixiv.net/tags/%E5%B0%BC%E7%A6%84/artworks?s_mode=s_tag
 
 https://www.pixiv.net/ajax/search/artworks/%E5%B0%BC%E7%A6%84?word=%E5%B0%BC%E7%A6%84&p=603&s_mode=s_tag
 
-![](./20220322083238.png)
+![](./images/20220322083238.png)
 
 ## 被限制时的特征
 
@@ -25,11 +25,11 @@ https://www.pixiv.net/ajax/search/artworks/%E5%B0%BC%E7%A6%84?word=%E5%B0%BC%E7%
 
 一旦遇到限制，后面的每一页的数据都是空的，无法获取到作品数据。
 
-![](./20220322083057.png)
+![](./images/20220322083057.png)
 
 此时刷新前台页面，也显示作品数量为 0。
 
-![](./20220322083130.png)
+![](./images/20220322083130.png)
 
 ## 被限制时的页数
 
@@ -69,5 +69,5 @@ https://www.pixiv.net/tags/R-18/novels?s_mode=s_tag
 
 从目前的测试结果来看是有效的，作品一个不漏的抓取完成了。
 
-![](./20220322102908.png)
+![](./images/20220322102908.png)
 

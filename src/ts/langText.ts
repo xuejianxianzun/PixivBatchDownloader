@@ -840,11 +840,11 @@ const langText = {
   ],
   _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問', '도움말'],
   _uuid: [
-    '如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。',
-    '如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。',
-    'If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.',
-    'ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
-    '다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.',
+    '如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>例如：Chrono 下载管理器、free Download Manager、Image Downloader、DownThemAll! 等。',
+    '如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。<br>例如：Chrono 下载管理器、free Download Manager、Image Downloader、DownThemAll! 等。',
+    'If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.<br>For example: Chrono Download Manager, free Download Manager, Image Downloader, DownThemAll! and more.',
+    'ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br>例：Chrono Download Manager, free Download Manager, Image Downloader, DownThemAll! など。',
+    '다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.예: Chrono Download Manager, free Download Manager、Image Downloader、DownThemAll! 등.',
   ],
   _常见问题说明: [
     '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br><br>QQ群：675174717<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
@@ -2446,7 +2446,7 @@ const langText = {
     中国大陆用户可以在“爱发电”上赞助我：<br>
     <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
     也可以扫描二维码：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 675174717 查看二维码。
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 675174717，在群文件里查看二维码。
     `,
     `非常感謝您的支持！<br>
     您可以在 Patreon 上贊助我：<br>
@@ -2784,6 +2784,13 @@ const langText = {
     '<span class="key">Preview</span> Ugoira',
     'うごイラのプレビュー',
     '움직이는 일러스트 <span class="key">미리보기</span>',
+  ],
+  _1282更新说明: [
+    `加快转换动图的速度；<br>优化预览作品的体验；<br>添加了韩语文本。`,
+    `加快轉換動圖的速度；<br>最佳化預覽作品的體驗；<br>添加了韓語文字。`,
+    `Speed up the conversion of Ugoira;<br>Optimize the experience of previewing works;<br>Add Korean text.`,
+    `うごイラの変換を高速化します;<br>作品のプレビュー体験を最適化します;<br>韓国語のテキストを追加します。`,
+    `움직이는 일러스트 변환 속도 향상,<br>优化预览图片的体验,<br>한국어 텍스트 추가.`,
   ],
 }
 

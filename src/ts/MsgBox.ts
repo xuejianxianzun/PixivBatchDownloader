@@ -38,6 +38,50 @@ class MsgBox {
     })
   }
 
+  private onceFlags: string[] = []
+
+  /** 在当前标签页中只会显示一次的消息
+   */
+  public once(
+    flag: string,
+    msg: string,
+    type: 'show' | 'warning' | 'success' | 'error' = 'show',
+    arg?: MsgOptional
+  ) {
+    if (this.onceFlags.includes(flag)) {
+      return
+    }
+    this.onceFlags.push(flag)
+
+    switch (type) {
+      case 'show':
+        this.show(msg, arg)
+        break
+      case 'warning':
+        this.warning(msg, arg)
+        break
+      case 'success':
+        this.success(msg, arg)
+        break
+      case 'error':
+        this.error(msg, arg)
+        break
+      default:
+        this.show(msg, arg)
+        break
+    }
+  }
+
+  /**
+   * 清除某个 once 标记，使其对应的消息可以再次显示
+   */
+  public resetOnce(flag: string) {
+    const index = this.onceFlags.findIndex((str) => str === flag)
+    if (index > -1) {
+      this.onceFlags.splice(index)
+    }
+  }
+
   public show(msg: string, arg?: MsgOptional) {
     this.create(Object.assign({}, arg, { msg: msg }))
   }
