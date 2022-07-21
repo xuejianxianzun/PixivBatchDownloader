@@ -5295,7 +5295,7 @@ const langText = {
     中国大陆用户可以在“爱发电”上赞助我：<br>
     <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
     也可以扫描二维码：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 675174717 查看二维码。
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 675174717，在群文件里查看二维码。
     `,
         `非常感謝您的支持！<br>
     您可以在 Patreon 上贊助我：<br>
@@ -5633,6 +5633,13 @@ const langText = {
         '<span class="key">Preview</span> Ugoira',
         'うごイラのプレビュー',
         '움직이는 일러스트 <span class="key">미리보기</span>',
+    ],
+    _1282更新说明: [
+        `加快转换动图的速度；<br>优化预览作品的体验；<br>添加了韩语文本。`,
+        `加快轉換動圖的速度；<br>最佳化預覽作品的體驗；<br>添加了韓語文字。`,
+        `Speed up the conversion of Ugoira;<br>Optimize the experience of previewing works;<br>Add Korean text.`,
+        `うごイラの変換を高速化します;<br>作品のプレビュー体験を最適化します;<br>韓国語のテキストを追加します。`,
+        `움직이는 일러스트 변환 속도 향상,<br>优化预览图片的体验,<br>한국어 텍스트 추가.`,
     ],
 };
 
@@ -8554,20 +8561,13 @@ class ShowWhatIsNew {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             this.msg = `
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载小说的封面图片')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多他选项卡的下载分类里找到它')}
-      <br>
-      <br>
-
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览动图')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多他选项卡的下载分类里找到它')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_1282更新说明')}
       `;
+            // 在更新说明的下方显示赞助提示
+            this.msg += `
+      <br>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_赞助方式提示')}`;
             this.show();
         });
     }
