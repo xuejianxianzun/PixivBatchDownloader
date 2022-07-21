@@ -52,9 +52,9 @@ The main function:
 - Collect works in batches;
 - add tags to uncategorized works in your bookmarks;
 
-![PixivBatchDownloader screenshot](./notes/ui-en-0.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-en-0.png)
 
-![PixivBatchDownloader screenshot](./notes/ui-en-1.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-en-1.png)
 
 # Install
 

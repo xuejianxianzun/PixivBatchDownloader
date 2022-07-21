@@ -47,7 +47,7 @@ chrome.downloads.onDeterminingFilename.addListener(function (
 1. `001.png` 扩展 B 使用自己的规则设置的文件名
 2. `7060589a-a7c7-4064-a7a8-774736b005b2.png` 浏览器设置的默认文件名
 
-![](./20211112162142.jpg)
+![](./images/20211112162142.jpg)
 
 *事实上大部分有冲突的扩展都会导致第二种名字，对用户来说体验极差。*
 
@@ -82,7 +82,7 @@ chrome.downloads.download({
 
 一开始我以为，即使 filename 被忽略了，但是 `onDeterminingFilename` 事件的 `downloadItem` 参数里也应该有我设置的文件名，但其实没有。`downloadItem` 里的 `filename` 就是默认文件名。
 
-![](./2021-11-12_143201.png)
+![](./images/2021-11-12_143201.png)
 
 其他扩展程序根本不会知道我设置了 `我的名字.png` 这个名字，自然也不会将此名字纳入考虑。
 
@@ -118,7 +118,7 @@ chrome.downloads.onDeterminingFilename.addListener(function (
 
 如果扩展 B 先修改文件名，我后修改，扩展 B 就会显示一条错误信息。扩展程序之间的战斗就是这么残酷！
 
-![](./2021-11-12_155844.png)
+![](./images/2021-11-12_155844.png)
 
 执行顺序是个不稳定因素，我无法控制我的扩展是最后执行（安装）的。
 

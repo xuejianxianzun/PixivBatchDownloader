@@ -52,9 +52,9 @@
 - 북마크는 일괄적으로 작동합니다;
 - 북마크에서 분류되지 않은 작품에 태그를 추가합니다;
 
-![PixivBatchDownloader screenshot](./notes/ui-ko-0.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-ko-0.png)
 
-![PixivBatchDownloader screenshot](./notes/ui-ko-1.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-ko-1.png)
 
 # 설치
 

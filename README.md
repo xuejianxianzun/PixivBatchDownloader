@@ -55,9 +55,9 @@
 - 批次收藏作品；
 - 為你收藏裡的未分類作品新增標籤；
 
-![PixivBatchDownloader screenshot](./notes/ui-zh-0.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-zh-0.png)
 
-![PixivBatchDownloader screenshot](./notes/ui-zh-1.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-zh-1.png)
 
 [访问官网](https://pixiv.download/)
 

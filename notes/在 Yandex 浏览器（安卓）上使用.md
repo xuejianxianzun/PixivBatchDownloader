@@ -12,4 +12,4 @@
 
 Yandex 浏览器 22.7.0 仍然不支持 Manifest version 3 的扩展程序。加载 V3 的扩展程序会出现错误：
 
-![](./Screenshot_2022-06-27-10-28-34-210_com.yandex.bro.jpg)
+![](./images/Screenshot_2022-06-27-10-28-34-210_com.yandex.bro.jpg)
