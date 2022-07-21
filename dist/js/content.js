@@ -8553,7 +8553,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '12.7.0';
+        this.flag = '12.8.2';
         this.msg = '';
         this.bindEvents();
     }

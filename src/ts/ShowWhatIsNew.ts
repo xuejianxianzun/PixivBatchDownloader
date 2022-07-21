@@ -11,7 +11,7 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '12.7.0'
+  private flag = '12.8.2'
   private msg = ''
 
   private bindEvents() {
