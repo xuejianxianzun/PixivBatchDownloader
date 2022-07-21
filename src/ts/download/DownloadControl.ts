@@ -27,6 +27,7 @@ import { toast } from '../Toast'
 import { Utils } from '../utils/Utils'
 import { help } from '../Help'
 import { pageType } from '../PageType'
+import { msgBox } from '../MsgBox'
 
 class DownloadControl {
   constructor() {
@@ -91,6 +92,8 @@ class DownloadControl {
 
   private waitingTimer: undefined | number = undefined
 
+  private readonly msgFlag = 'uuidTip'
+
   private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
       this.hideResultBtns()
@@ -115,7 +118,7 @@ class DownloadControl {
 
     window.addEventListener(EVT.list.skipDownload, (ev: CustomEventInit) => {
       const data = ev.detail.data as DonwloadSkipData
-      // 跳过下载的文件不会触发下载成功事件
+      // 跳过下载的文件不会触发 downloadSuccess 事件
       this.downloadOrSkipAFile(data)
     })
 
@@ -134,6 +137,13 @@ class DownloadControl {
       if (!this.taskBatch) {
         return
       }
+
+      // UUID 的情况
+      if (msg.data?.uuid) {
+        log.error(lang.transl('_uuid'))
+        msgBox.once(this.msgFlag, lang.transl('_uuid'), 'error')
+      }
+
       // 文件下载成功
       if (msg.msg === 'downloaded') {
         // 释放 BLOBURL
@@ -178,11 +188,6 @@ class DownloadControl {
         // 重新下载这个文件
         // 但并不确定能否如预期一样重新下载这个文件
         this.saveFileError(msg.data)
-      }
-
-      // UUID 的情况
-      if (msg.data?.uuid) {
-        log.error(lang.transl('_uuid'))
       }
     })
 
@@ -368,6 +373,8 @@ class DownloadControl {
     }
 
     this.reset()
+
+    msgBox.resetOnce(this.msgFlag)
 
     this.setDownloaded()
 

@@ -29,28 +29,32 @@
 
 這是一個 Chrome 瀏覽器擴充功能，用於批次下載 Pixiv 上的圖片和小說。
 
+可選擇介面語言：简体中文、繁體中文、日本語、English、한국어。
+
 主要功能：
 
 - 批次下載畫師的所有作品、你的收藏、你的關注、排行榜、搜尋結果等；
 - 一鍵下載你看到的任何作品；
-- 手動選擇（多選）要下載的作品；
+- 在頁面上手動選擇你要下載的作品；
 - 設定過濾條件，篩選你要下載的作品；
-- 儲存畫師的頭像、封面圖；
-- 建立資料夾儲存檔案；
-- 設定檔案的命名規則；
-- 轉換動圖為 GIF、WebM、APNG 格式；
+- 下載插畫、漫畫、動圖、小說；
+- 儲存動圖為 GIF、WebM、APNG、ZIP 格式；
 - 儲存小說為 TXT、EPUB 格式；
+- 使用畫師名字、日期、標題等多種資料建立資料夾；
+- 自定義檔名，並進行排序；
+- 在序號前面補 0，使排序不會混亂；
+- 儲存使用者頭像和封面圖片；
+- 顯示更大的縮圖，檢視起來更為輕鬆；
+- 在縮圖上預覽作品大圖，檢視原圖；
+- 儲存下載記錄，避免重複下載；
 - 儲存下載進度，恢復未完成的下載；
 - 匯出作品資料；
 - 批次收藏作品；
-- 為你收藏的未分類作品新增 tag；
-- 內建圖片檢視器，檢視多圖作品；
-- 無需進入作品頁面即可預覽作品，檢視作品原圖；
-- 可選擇介面語言：简体中文、繁體中文、日本語、English；
+- 為你收藏裡的未分類作品新增標籤；
 
-![PixivBatchDownloader screenshot](./notes/ui-tw-0.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-tw-0.png)
 
-![PixivBatchDownloader screenshot](./notes/ui-tw-1.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-tw-1.png)
 
 [瀏覽官網](https://pixiv.download/)
 
