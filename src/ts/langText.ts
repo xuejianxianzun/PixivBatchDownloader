@@ -2792,6 +2792,13 @@ const langText = {
     `うごイラの変換を高速化します;<br>作品のプレビュー体験を最適化します;<br>韓国語のテキストを追加します。`,
     `움직이는 일러스트 변환 속도 향상,<br>优化预览图片的体验,<br>한국어 텍스트 추가.`,
   ],
+  _过度访问警告警告: [
+    '下载器检测到你可能收到了 pixiv 的警告消息，这通常是因为过度下载导致的。<br>请等待一段时间再继续下载。',
+    '下載器檢測到你可能收到了 pixiv 的警告訊息，這通常是因為過度下載導致的。<br>請等待一段時間再繼續下載。',
+    'The downloader has detected that you may have received a warning message from pixiv, usually due to excessive downloads.<br>Please wait for a while before continuing the download.',
+    'ダウンロードが多すぎるため、pixivから警告メッセージが届いた可能性があることをダウンローダーが検出しました。<br>ダウンロードを続行する前に、しばらくお待ちください。',
+    '다운로더는 일반적으로 과도한 다운로드로 인해 pixiv에서 경고 메시지를 수신했을 수 있음을 감지했습니다.<br>다운로드를 계속하기 전에 잠시 기다려 주십시오.',
+  ],
 }
 
 export { langText }

@@ -1164,3 +1164,40 @@ export interface NovelSeriesGlossaryItem {
     }
   }
 }
+
+export interface LatestMessageData {
+  error: boolean
+  message: '' | string
+  body: {
+    /**本次返回的数据里的消息总数。不是历史消息总数。可能为 0 */
+    total: number
+    /**消息列表数组，如果没有消息则是空数组 */
+    message_threads: [
+      {
+        /**消息 id */
+        thread_id: string
+        /**修改时间
+         *
+         * 值如 "1657999204"，这不是有效的时间戳，需要在后面加上 3 个 0 再解析
+         */
+        modified_at: string
+        unread_num: string
+        member_num: string
+        /**这个对话里的最后一条消息的内容 */
+        latest_content: string
+        is_pair: boolean
+        thread_name: string
+        icon_url: {
+          '100x100': string
+        }
+        followed: boolean
+        is_official: boolean
+        is_mendako: boolean
+        is_active_thread: boolean
+        is_fanbox_subscriber: boolean
+      }
+    ]
+    /**获取后续消息的 URL，如果没有后续消息，则为 null */
+    next_url: string | null
+  }
+}

@@ -28,6 +28,7 @@ import { Utils } from '../utils/Utils'
 import { help } from '../Help'
 import { pageType } from '../PageType'
 import { msgBox } from '../MsgBox'
+import './CheckWarningMessage'
 
 class DownloadControl {
   constructor() {
