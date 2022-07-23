@@ -18,7 +18,7 @@ class Token {
   public token!: string
 
   private bindEvents() {
-    // 重置设置时清除保存的 token，因为用户切换账号时，登录上新账号后可能 token 还是之前账号的，就会出错。清除设置时清除 token，就可以解决这个问题。
+    // 重置设置时重新获取一次 token
     window.addEventListener(EVT.list.resetSettingsEnd, () => {
       this.reset()
     })
@@ -29,21 +29,21 @@ class Token {
     return token ? token : ''
   }
 
-  private updateToken() {
-    const interval = 300000 // 两次更新之间的最小时间间隔。目前设置为 5 分钟
+  private interval = 300000 // 两次更新之间的最小时间间隔。目前设置为 5 分钟
+  private async updateToken() {
     const nowTime = new Date().getTime()
     const lastTimeStr = localStorage.getItem(this.timeStore)
 
     if (
       this.token &&
       lastTimeStr &&
-      nowTime - Number.parseInt(lastTimeStr) < interval
+      nowTime - Number.parseInt(lastTimeStr) < this.interval
     ) {
       return
     }
 
     // 从网页源码里获取用户 token 并储存
-    fetch(this.updateURL)
+    return fetch(this.updateURL)
       .then((response) => {
         return response.text()
       })
@@ -62,11 +62,11 @@ class Token {
       })
   }
 
-  private reset() {
+  public async reset() {
     this.token = ''
     localStorage.removeItem(this.tokenStore)
     localStorage.removeItem(this.timeStore)
-    this.updateToken()
+    return this.updateToken()
   }
 }
 

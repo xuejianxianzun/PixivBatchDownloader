@@ -102,18 +102,7 @@ class BookmarkAfterDL {
         id.toString(),
         data.type !== 3 ? 'illusts' : 'novels',
         data.tags
-      ).catch((err) => {
-        // 如果添加收藏失败，则从 id 列表里删除它，重新开始添加收藏
-        console.error(err)
-        const len = this.savedIds.length
-        for (let index = 0; index < len; index++) {
-          if (this.savedIds[index] === id) {
-            delete this.savedIds[index]
-            break
-          }
-        }
-        return resolve(this.send(id))
-      })
+      )
 
       this.successCount++
       this.showProgress()

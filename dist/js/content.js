@@ -661,7 +661,17 @@ class Bookmark {
             tags = [];
         }
         const _restrict = restrict === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].restrictBoolean : !!restrict;
-        return _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(id, type, tags, _restrict, _Token__WEBPACK_IMPORTED_MODULE_2__["token"].token);
+        const request = _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(id, type, tags, _restrict, _Token__WEBPACK_IMPORTED_MODULE_2__["token"].token);
+        // 如果状态码为 400，则表示当前 token 无效，需要重新获取 token，然后重新添加收藏
+        let status = 0;
+        await request.then(res => {
+            console.log(res.status);
+            status = res.status;
+        });
+        if (status === 400) {
+            await _Token__WEBPACK_IMPORTED_MODULE_2__["token"].reset();
+            return _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(id, type, tags, _restrict, _Token__WEBPACK_IMPORTED_MODULE_2__["token"].token);
+        }
     }
 }
 
@@ -9142,6 +9152,7 @@ class Token {
         this.tokenStore = 'xzToken';
         this.timeStore = 'xzTokenTime';
         this.updateURL = 'https://www.pixiv.net/artworks/62751951';
+        this.interval = 300000; // 两次更新之间的最小时间间隔。目前设置为 5 分钟
         if (_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].isPixiv()) {
             this.token = this.getToken();
             this.updateToken();
@@ -9158,17 +9169,16 @@ class Token {
         const token = localStorage.getItem(this.tokenStore);
         return token ? token : '';
     }
-    updateToken() {
-        const interval = 300000; // 两次更新之间的最小时间间隔。目前设置为 5 分钟
+    async updateToken() {
         const nowTime = new Date().getTime();
         const lastTimeStr = localStorage.getItem(this.timeStore);
         if (this.token &&
             lastTimeStr &&
-            nowTime - Number.parseInt(lastTimeStr) < interval) {
+            nowTime - Number.parseInt(lastTimeStr) < this.interval) {
             return;
         }
         // 从网页源码里获取用户 token 并储存
-        fetch(this.updateURL)
+        return fetch(this.updateURL)
             .then((response) => {
             return response.text();
         })
@@ -9187,11 +9197,11 @@ class Token {
             }
         });
     }
-    reset() {
+    async reset() {
         this.token = '';
         localStorage.removeItem(this.tokenStore);
         localStorage.removeItem(this.timeStore);
-        this.updateToken();
+        return this.updateToken();
     }
 }
 const token = new Token();
@@ -14587,18 +14597,7 @@ class BookmarkAfterDL {
             if (data === undefined) {
                 return reject(new Error(`Not find ${id} in result`));
             }
-            await _Bookmark__WEBPACK_IMPORTED_MODULE_4__["Bookmark"].add(id.toString(), data.type !== 3 ? 'illusts' : 'novels', data.tags).catch((err) => {
-                // 如果添加收藏失败，则从 id 列表里删除它，重新开始添加收藏
-                console.error(err);
-                const len = this.savedIds.length;
-                for (let index = 0; index < len; index++) {
-                    if (this.savedIds[index] === id) {
-                        delete this.savedIds[index];
-                        break;
-                    }
-                }
-                return resolve(this.send(id));
-            });
+            await _Bookmark__WEBPACK_IMPORTED_MODULE_4__["Bookmark"].add(id.toString(), data.type !== 3 ? 'illusts' : 'novels', data.tags);
             this.successCount++;
             this.showProgress();
             resolve();
