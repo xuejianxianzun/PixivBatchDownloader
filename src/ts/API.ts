@@ -21,6 +21,7 @@ import {
   muteData,
   NovelSeriesGlossary,
   NovelSeriesGlossaryItem,
+  LatestMessageData,
 } from './crawl/CrawlResult'
 
 import {
@@ -474,6 +475,13 @@ class API {
   ): Promise<NovelSeriesGlossaryItem> {
     return this.sendGetRequest(
       `https://www.pixiv.net/ajax/novel/series/${seriesId}/glossary/item/${itemId}`
+    )
+  }
+
+  /**获取用户最近的几条消息 */
+  static async getLatestMessage(number: number): Promise<LatestMessageData> {
+    return this.sendGetRequest(
+      `https://www.pixiv.net/rpc/index.php?mode=latest_message_threads2&num=${number}&offset=0`
     )
   }
 }

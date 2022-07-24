@@ -92,7 +92,8 @@ chrome.runtime.onMessage.addListener(function (msg: SendToBackEndData, sender) {
   // save_novel_cover_file 下载小说的封面图片
   if (
     msg.msg === 'save_description_file' ||
-    msg.msg === 'save_novel_cover_file'
+    msg.msg === 'save_novel_cover_file' ||
+    msg.msg === 'save_novel_embedded_image'
   ) {
     chrome.downloads.download({
       url: msg.fileUrl,

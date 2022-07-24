@@ -38,7 +38,11 @@ GET https://i.pximg.net/img-original/img/2021/09/03/00/00/03/92462137_p0.jpg net
 
 ## 下载器的表现
 
-在发生这种情况时，下载器发出的 XHR 请求的 `loadend` 事件里的 `xhr.status` 为 `0`。（status 为 `0` 的原因可能是请求的状态被浏览器直接设置为失败）
+在发生这种情况时，下载器发出的 XHR 请求的 `loadend` 事件里的 `xhr.status` 为 `0`。
+
+status 为 `0` 的原因可能是请求的状态被浏览器直接设置为失败。
+
+>在请求完成前，status 的值为 0。值得注意的是，如果 XMLHttpRequest 出错，浏览器返回的 status 也为 0。
 
 下载器在下载文件的请求失败时，会把这个文件的进度条变成红色。
 

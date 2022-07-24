@@ -28,6 +28,7 @@ import { Utils } from '../utils/Utils'
 import { help } from '../Help'
 import { pageType } from '../PageType'
 import { msgBox } from '../MsgBox'
+import './CheckWarningMessage'
 
 class DownloadControl {
   constructor() {
@@ -538,8 +539,6 @@ class DownloadControl {
 
       // 建立下载
       new Download(progressBarIndex, argument)
-
-      downloadNovelCover.download(argument.result)
     }
   }
 

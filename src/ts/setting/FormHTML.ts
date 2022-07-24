@@ -676,7 +676,13 @@ export const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="70">
     <span class="settingNameStyle1" data-xztext="_下载小说的封面图片"></span>
-    <input type="checkbox" name="downloadNovelCoverImage" class="need_beautify checkbox_switch">
+    <input type="checkbox" name="downloadNovelCoverImage" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    </p>
+
+    <p class="option" data-no="72">
+    <span class="settingNameStyle1" data-xztext="_下载小说里的内嵌图片"></span>
+    <input type="checkbox" name="downloadNovelEmbeddedImage" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
     </p>
 
