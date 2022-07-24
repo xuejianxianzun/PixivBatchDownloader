@@ -2641,7 +2641,7 @@ const langText = {
     '這個功能預設啟用。',
     'This feature is enabled by default.',
     'この機能はデフォルトで有効になっています。',
-    '이 기능은 기본적으로 활성화됩니다',
+    '이 기능은 기본적으로 활성화됩니다.',
   ],
   _你可以在更多他选项卡的下载分类里找到它: [
     '你可以在“更多”选项卡 → “下载”分类里找到它。（需要先启用“显示高级设置”）',
@@ -2772,11 +2772,11 @@ const langText = {
     '여러 이미지의 <span class="key">마지막 이미지</span> 긁어오지 않기',
   ],
   _下载小说的封面图片: [
-    '下载小说的<span class="key">封面图片</span>',
-    '下載小說的<span class="key">封面圖片</span>',
-    'Download the <span class="key">cover image</span> of the novel',
+    '下载小说的<span class="key">封面</span>图片',
+    '下載小說的<span class="key">封面</span>圖片',
+    'Download the <span class="key">cover</span> image of the novel',
     '小説の<span class="key">表紙画像</span>をダウンロード',
-    '소설 <span class="key">커버 이미지</span> 다운로드',
+    '소설 <span class="key">커버</span> 이미지 다운로드',
   ],
   _预览动图: [
     '<span class="key">预览</span>动图',
@@ -2800,11 +2800,11 @@ const langText = {
     '다운로더는 일반적으로 과도한 다운로드로 인해 pixiv에서 경고 메시지를 수신했을 수 있음을 감지했습니다.<br>다운로드를 계속하기 전에 잠시 기다려 주십시오.',
   ],
   _下载小说里的内嵌图片: [
-    '下载小说里的内嵌图片',
-    '下載小說裡的內嵌圖片',
-    'Download embedded images in novels',
+    '下载小说里的<span class="key">内嵌</span>图片',
+    '下載小說裡的<span class="key">內嵌</span>圖片',
+    'Download <span class="key">embedded</span> images in novels',
     '小説に埋め込まれた画像をダウンロードする',
-    '소설에 삽입된 이미지 다운로드',
+    '소설에서 <span class="key">인라인</span> 이미지 다운로드',
   ],
   _其他优化: [
     '其他优化',

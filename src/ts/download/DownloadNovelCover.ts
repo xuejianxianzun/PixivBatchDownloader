@@ -11,7 +11,7 @@ class DownloadNovelCover {
     novelName: string,
     action: 'downloadNovel' | 'mergeNovel' = 'downloadNovel'
   ) {
-    if (!settings.downloadNovelCoverImage) {
+    if (!settings.downloadNovelCoverImage || !coverURL) {
       return
     }
 

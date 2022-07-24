@@ -1,5 +1,4 @@
 import { API } from '../API'
-import { Result } from '../store/StoreType'
 import { settings } from '../setting/Settings'
 import { Utils } from '../utils/Utils'
 
@@ -57,6 +56,10 @@ class DownloadNovelEmbeddedImage {
     embeddedImages: EmbeddedImages
   ): Promise<string> {
     return new Promise(async (resolve) => {
+      if (!settings.downloadNovelEmbeddedImage) {
+        return resolve(content)
+      }
+
       let idList = await this.getIdList(content, embeddedImages)
       idList = await this.getImageBolbURL(idList)
 

@@ -115,11 +115,13 @@ class MergeNovel {
 
     // 保存第一个小说的封面图片
     // 实际上系列的封面不一定是第一个小说的封面，这里用第一个小说的封面凑合一下
-    downloadNovelCover.download(
-      firstResult.novelMeta!.coverUrl,
-      novelName,
-      'mergeNovel'
-    )
+    if (firstResult.novelMeta?.coverUrl) {
+      downloadNovelCover.download(
+        firstResult.novelMeta.coverUrl,
+        novelName,
+        'mergeNovel'
+      )
+    }
 
     store.reset()
   }
@@ -204,12 +206,10 @@ class MergeNovel {
         let content = Tools.replaceEPUBText(data.content)
 
         // 添加小说里内嵌的图片。这部分必须放在 replaceEPUBText 后面，否则 <img> 标签的左尖括号会被转义
-        if (settings.downloadNovelEmbeddedImage) {
-          content = await downloadNovelEmbeddedImage.EPUB(
-            content,
-            data.embeddedImages
-          )
-        }
+        content = await downloadNovelEmbeddedImage.EPUB(
+          content,
+          data.embeddedImages
+        )
 
         // 创建 epub 文件时不需要在标题和正文后面添加换行符
         epubData.withSection(

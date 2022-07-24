@@ -32,12 +32,10 @@ class MakeNovelFile {
       content = Tools.replaceEPUBText(content)
 
       // 添加小说里内嵌的图片。这部分必须放在 replaceEPUBText 后面，否则 <img> 标签的左尖括号会被转义
-      if (settings.downloadNovelEmbeddedImage) {
-        content = await downloadNovelEmbeddedImage.EPUB(
-          content,
-          data.embeddedImages
-        )
-      }
+      content = await downloadNovelEmbeddedImage.EPUB(
+        content,
+        data.embeddedImages
+      )
 
       // epub 内部会使用标题 title 建立一个文件夹，把一些文件存放进去，所以要替换掉标题的特殊字符。特殊字符会导致这个文件夹名被截断，结果就是这个 epub 文件无法被解析。
       new EpubMaker()

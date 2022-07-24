@@ -5501,7 +5501,7 @@ const langText = {
         '這個功能預設啟用。',
         'This feature is enabled by default.',
         'この機能はデフォルトで有効になっています。',
-        '이 기능은 기본적으로 활성화됩니다',
+        '이 기능은 기본적으로 활성화됩니다.',
     ],
     _你可以在更多他选项卡的下载分类里找到它: [
         '你可以在“更多”选项卡 → “下载”分类里找到它。（需要先启用“显示高级设置”）',
@@ -5632,11 +5632,11 @@ const langText = {
         '여러 이미지의 <span class="key">마지막 이미지</span> 긁어오지 않기',
     ],
     _下载小说的封面图片: [
-        '下载小说的<span class="key">封面图片</span>',
-        '下載小說的<span class="key">封面圖片</span>',
-        'Download the <span class="key">cover image</span> of the novel',
+        '下载小说的<span class="key">封面</span>图片',
+        '下載小說的<span class="key">封面</span>圖片',
+        'Download the <span class="key">cover</span> image of the novel',
         '小説の<span class="key">表紙画像</span>をダウンロード',
-        '소설 <span class="key">커버 이미지</span> 다운로드',
+        '소설 <span class="key">커버</span> 이미지 다운로드',
     ],
     _预览动图: [
         '<span class="key">预览</span>动图',
@@ -5660,11 +5660,11 @@ const langText = {
         '다운로더는 일반적으로 과도한 다운로드로 인해 pixiv에서 경고 메시지를 수신했을 수 있음을 감지했습니다.<br>다운로드를 계속하기 전에 잠시 기다려 주십시오.',
     ],
     _下载小说里的内嵌图片: [
-        '下载小说里的内嵌图片',
-        '下載小說裡的內嵌圖片',
-        'Download embedded images in novels',
+        '下载小说里的<span class="key">内嵌</span>图片',
+        '下載小說裡的<span class="key">內嵌</span>圖片',
+        'Download <span class="key">embedded</span> images in novels',
         '小説に埋め込まれた画像をダウンロードする',
-        '소설에 삽입된 이미지 다운로드',
+        '소설에서 <span class="key">인라인</span> 이미지 다운로드',
     ],
     _其他优化: [
         '其他优化',
@@ -8585,27 +8585,31 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '12.8.2';
-        this.msg = '';
+        this.flag = '12.9.00';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            this.msg = `
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_1282更新说明')}
+            let msg = `
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载小说里的内嵌图片')}
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')} ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多他选项卡的下载分类里找到它')}
+      <br>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_其他优化')}
       `;
             // 在更新说明的下方显示赞助提示
-            this.msg += `
+            msg += `
       <br>
       <br>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_赞助方式提示')}`;
-            this.show();
+            this.show(msg);
         });
     }
-    show() {
+    show(msg) {
         if (_utils_Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].isPixiv() && _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].whatIsNewFlag !== this.flag) {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].show(this.msg, {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].show(msg, {
                 title: _config_Config__WEBPACK_IMPORTED_MODULE_1__["Config"].appName + ` ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_最近更新')}`,
                 btn: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_我知道了'),
             });
@@ -15863,7 +15867,7 @@ class DownloadNovelCover {
      * 默认是正常下载小说的情况，可以设置为合并系列小说的情况
      */
     async download(coverURL, novelName, action = 'downloadNovel') {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].downloadNovelCoverImage) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].downloadNovelCoverImage || !coverURL) {
             return;
         }
         const url = await this.getCoverBolbURL(coverURL);
@@ -15947,6 +15951,9 @@ class DownloadNovelEmbeddedImage {
     /**下载小说为 EPUB 时，替换内嵌图片标记，把图片用 img 标签保存到正文里 */
     async EPUB(content, embeddedImages) {
         return new Promise(async (resolve) => {
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].downloadNovelEmbeddedImage) {
+                return resolve(content);
+            }
             let idList = await this.getIdList(content, embeddedImages);
             idList = await this.getImageBolbURL(idList);
             for (const data of idList) {
@@ -16575,9 +16582,7 @@ class MakeNovelFile {
             let content = saveMeta ? data.meta + data.content : data.content;
             content = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].replaceEPUBText(content);
             // 添加小说里内嵌的图片。这部分必须放在 replaceEPUBText 后面，否则 <img> 标签的左尖括号会被转义
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].downloadNovelEmbeddedImage) {
-                content = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_3__["downloadNovelEmbeddedImage"].EPUB(content, data.embeddedImages);
-            }
+            content = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_3__["downloadNovelEmbeddedImage"].EPUB(content, data.embeddedImages);
             // epub 内部会使用标题 title 建立一个文件夹，把一些文件存放进去，所以要替换掉标题的特殊字符。特殊字符会导致这个文件夹名被截断，结果就是这个 epub 文件无法被解析。
             new EpubMaker()
                 .withTemplate('idpf-wasteland')
@@ -16653,6 +16658,7 @@ class MergeNovel {
         });
     }
     async merge() {
+        var _a;
         if (_store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].resultMeta.length === 0 ||
             _store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].resultMeta[0].novelMeta === null) {
             _store_States__WEBPACK_IMPORTED_MODULE_3__["states"].mergeNovel = false;
@@ -16707,7 +16713,9 @@ class MergeNovel {
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('downloadComplete');
         // 保存第一个小说的封面图片
         // 实际上系列的封面不一定是第一个小说的封面，这里用第一个小说的封面凑合一下
-        _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_7__["downloadNovelCover"].download(firstResult.novelMeta.coverUrl, novelName, 'mergeNovel');
+        if ((_a = firstResult.novelMeta) === null || _a === void 0 ? void 0 : _a.coverUrl) {
+            _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_7__["downloadNovelCover"].download(firstResult.novelMeta.coverUrl, novelName, 'mergeNovel');
+        }
         _store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].reset();
     }
     async makeTXT(novelDataArray) {
@@ -16768,9 +16776,7 @@ class MergeNovel {
             for (const data of novelDataArray) {
                 let content = _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].replaceEPUBText(data.content);
                 // 添加小说里内嵌的图片。这部分必须放在 replaceEPUBText 后面，否则 <img> 标签的左尖括号会被转义
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downloadNovelEmbeddedImage) {
-                    content = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_8__["downloadNovelEmbeddedImage"].EPUB(content, data.embeddedImages);
-                }
+                content = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_8__["downloadNovelEmbeddedImage"].EPUB(content, data.embeddedImages);
                 // 创建 epub 文件时不需要在标题和正文后面添加换行符
                 epubData.withSection(new EpubMaker.Section('chapter', data.no, {
                     title: `${this.chapterNo(data.no)} ${data.title}`,
