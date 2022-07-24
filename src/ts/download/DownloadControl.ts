@@ -539,8 +539,6 @@ class DownloadControl {
 
       // 建立下载
       new Download(progressBarIndex, argument)
-
-      downloadNovelCover.download(argument.result)
     }
   }
 

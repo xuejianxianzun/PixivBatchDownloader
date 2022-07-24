@@ -50,10 +50,10 @@ class Bookmark {
 
     // 如果状态码为 400，则表示当前 token 无效，需要重新获取 token，然后重新添加收藏
     let status = 0
-    await request.then(res => {
+    await request.then((res) => {
       status = res.status
     })
-    if(status===400){
+    if (status === 400) {
       await token.reset()
       return API.addBookmark(id, type, tags, _restrict, token.token)
     }

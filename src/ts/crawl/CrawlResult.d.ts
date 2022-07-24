@@ -850,6 +850,21 @@ export interface NovelData {
       workTitle: null
       workCaption: null
     }
+    /**小说正文里嵌入的图片资源。如果小说里没有嵌入的图片则为 null */
+    textEmbeddedImages: null | {
+      /**key 就是 novelImageId，图片的 id（小说正文里的图片标记里的数字 [uploadedimage:12136542] */
+      [key: string]: {
+        novelImageId: string
+        sl: '0' | '2' | '4' | '6'
+        urls: {
+          '240mw': string
+          '480mw': string
+          '1200x1200': string
+          '128x128': string
+          original: string
+        }
+      }
+    }
   }
 }
 
