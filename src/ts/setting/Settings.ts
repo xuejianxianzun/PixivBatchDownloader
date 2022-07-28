@@ -214,6 +214,7 @@ interface XzSetting {
   downloadNovelCoverImage: boolean
   downloadNovelEmbeddedImage: boolean
   previewUgoira: boolean
+  hiddenBrowserDownloadBar: boolean
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -395,6 +396,7 @@ class Settings {
     downloadNovelCoverImage: true,
     downloadNovelEmbeddedImage: true,
     previewUgoira: true,
+    hiddenBrowserDownloadBar: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

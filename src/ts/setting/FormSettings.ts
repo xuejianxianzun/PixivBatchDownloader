@@ -108,6 +108,7 @@ class FormSettings {
       'downloadNovelCoverImage',
       'downloadNovelEmbeddedImage',
       'previewUgoira',
+      'hiddenBrowserDownloadBar',
     ],
     text: [
       'setWantPage',

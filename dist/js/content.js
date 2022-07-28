@@ -2179,6 +2179,38 @@ const help = new Help();
 
 /***/ }),
 
+/***/ "./src/ts/HiddenBrowserDownloadBar.ts":
+/*!********************************************!*\
+  !*** ./src/ts/HiddenBrowserDownloadBar.ts ***!
+  \********************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+
+class HiddenBrowserDownloadBar {
+    constructor() {
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'hiddenBrowserDownloadBar') {
+                chrome.runtime.sendMessage({
+                    msg: 'setShelfEnabled',
+                    value: !data.value
+                });
+            }
+        });
+    }
+}
+new HiddenBrowserDownloadBar();
+
+
+/***/ }),
+
 /***/ "./src/ts/ImageViewer.ts":
 /*!*******************************!*\
   !*** ./src/ts/ImageViewer.ts ***!
@@ -5673,6 +5705,13 @@ const langText = {
         'Other optimizations',
         'その他の最適化',
         '기타 최적화',
+    ],
+    _隐藏浏览器底部的下载栏: [
+        '隐藏浏览器底部的<span class="key">下载栏</span>',
+        '隱藏瀏覽器底部的<span class="key">下載欄</span>',
+        `Hide the <span class="key">download bar</span> at the bottom of the browser`,
+        'ブラウザの下部にあるダウンロードバーを非表示にします',
+        '브라우저 하단의 <span class="key">다운로드 바</span> 숨기기',
     ],
 };
 
@@ -9819,6 +9858,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
 /* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
 /* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -9859,6 +9899,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 // import './CheckNewVersion'
+
 
 
 
@@ -21416,6 +21457,12 @@ const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="73">
+    <span class="settingNameStyle1" data-xztext="_隐藏浏览器底部的下载栏"></span>
+    <input type="checkbox" name="hiddenBrowserDownloadBar" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    </p>
+
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </p>
@@ -21786,6 +21833,7 @@ class FormSettings {
                 'downloadNovelCoverImage',
                 'downloadNovelEmbeddedImage',
                 'previewUgoira',
+                'hiddenBrowserDownloadBar',
             ],
             text: [
                 'setWantPage',
@@ -22703,6 +22751,7 @@ class Settings {
             downloadNovelCoverImage: true,
             downloadNovelEmbeddedImage: true,
             previewUgoira: true,
+            hiddenBrowserDownloadBar: false,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
