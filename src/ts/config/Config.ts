@@ -17,6 +17,8 @@ class Config {
   static readonly BookmarkCountLimit = 9999999
   /**作品总数量限制 */
   static readonly worksNumberLimit = 999999999
+  /**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
+  static retryTimer = 200000
 }
 
 export { Config }
