@@ -33,6 +33,7 @@ import {
 } from './crawl/CrawlArgument'
 
 import { IDData } from './store/StoreType'
+import { EVT } from './EVT'
 
 /** 点击 like 按钮的返回数据 */
 interface LikeResponse {
@@ -54,10 +55,11 @@ class API {
         credentials: 'same-origin',
       })
         .then((response) => {
+          // response.ok 的状态码范围是 200-299
           if (response.ok) {
             return response.json()
           } else {
-            // 请求成功但状态不对
+            // 请求成功但状态码异常
             reject({
               status: response.status,
               statusText: response.statusText,

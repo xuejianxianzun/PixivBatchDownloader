@@ -105,11 +105,12 @@ class API {
                 credentials: 'same-origin',
             })
                 .then((response) => {
+                // response.ok 的状态码范围是 200-299
                 if (response.ok) {
                     return response.json();
                 }
                 else {
-                    // 请求成功但状态不对
+                    // 请求成功但状态码异常
                     reject({
                         status: response.status,
                         statusText: response.statusText,
@@ -9761,6 +9762,8 @@ Config.settingStoreName = 'xzSetting';
 Config.BookmarkCountLimit = 9999999;
 /**作品总数量限制 */
 Config.worksNumberLimit = 999999999;
+/**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
+Config.retryTimer = 200000;
 
 
 
@@ -9888,7 +9891,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
 // 初始化所有页面抓取流程的基类
+
 
 
 
@@ -10120,7 +10125,7 @@ class InitPageBase {
                 this.afterGetWorksData(data);
             }
             else {
-                // 这里不能使用 cacheWorkData中的缓存数据，因为某些数据可能已经发生变化
+                // 这里不能使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
                 let data;
                 data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getArtworkData(id);
                 await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__["saveArtworkData"].save(data);
@@ -10128,10 +10133,24 @@ class InitPageBase {
             }
         }
         catch (error) {
+            // 当 API 里的网络请求的状态码异常时，会 reject，被这里捕获
+            // error: {
+            //   status: response.status,
+            //   statusText: response.statusText,
+            // }
             if (error.status) {
-                // 请求成功，但状态码不正常，不再重试
+                // 请求成功，但状态码不正常
                 this.logErrorStatus(error.status, id);
-                this.afterGetWorksData();
+                if (error.status === 500) {
+                    // 如果状态码 500，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
+                    _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_列表页被限制时返回空结果的提示'));
+                    return window.setTimeout(() => {
+                        this.getWorksData(idData);
+                    }, _config_Config__WEBPACK_IMPORTED_MODULE_21__["Config"].retryTimer);
+                }
+                else {
+                    this.afterGetWorksData();
+                }
             }
             else {
                 // 请求失败，没有获得服务器的返回数据，一般都是
@@ -10139,7 +10158,7 @@ class InitPageBase {
                 // 此外这里也会捕获到 save 作品数据时的错误（如果有）
                 console.error(error);
                 // 再次发送这个请求
-                setTimeout(() => {
+                window.setTimeout(() => {
                     this.getWorksData(idData);
                 }, 2000);
             }
@@ -10200,7 +10219,8 @@ class InitPageBase {
     }
     // 网络请求状态异常时输出提示
     logErrorStatus(status, id) {
-        const workLink = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].createWorkLink(id);
+        const novelPage = window.location.href.includes('/novel');
+        const workLink = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].createWorkLink(id, !novelPage);
         switch (status) {
             case 0:
                 _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码0'));
@@ -11376,7 +11396,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../crawlMixedPage/CrawlTagList */ "./src/ts/crawlMixedPage/CrawlTagList.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
 // 初始化 artwork 搜索页
+
 
 
 
@@ -11871,7 +11893,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     delayReTry(p) {
         window.setTimeout(() => {
             this.getIdList(p);
-        }, 200000);
+        }, _config_Config__WEBPACK_IMPORTED_MODULE_22__["Config"].retryTimer);
         // 限制时间大约是 3 分钟，这里为了保险起见，设置了更大的延迟时间。
     }
     // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
@@ -14260,7 +14282,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../crawlMixedPage/CrawlTagList */ "./src/ts/crawlMixedPage/CrawlTagList.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
 // 初始化小说搜索页
+
 
 
 
@@ -14307,6 +14331,9 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             'original_only',
             'work_lang',
         ];
+        this.tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__["Utils"].debounce(() => {
+            _Log__WEBPACK_IMPORTED_MODULE_7__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页被限制时返回空结果的提示'));
+        }, 1000);
         this.crawlTag = () => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_16__["states"].crawlTagList) {
                 this.readyCrawl();
@@ -14459,6 +14486,12 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             this.getIdList();
         }
     }
+    delayReTry(p) {
+        window.setTimeout(() => {
+            this.getIdList(p);
+        }, _config_Config__WEBPACK_IMPORTED_MODULE_18__["Config"].retryTimer);
+        // 限制时间大约是 3 分钟，这里为了保险起见，设置了更大的延迟时间。
+    }
     // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
     async getIdList(p) {
         if (p === undefined) {
@@ -14469,6 +14502,11 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         let data;
         try {
             data = await this.getSearchData(p);
+            if (data.total === 0) {
+                console.log(`page ${p}: total 0`);
+                this.tipEmptyResult();
+                return this.delayReTry(p);
+            }
         }
         catch (_a) {
             return this.getIdList(p);
