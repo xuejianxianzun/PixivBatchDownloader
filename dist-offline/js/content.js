@@ -9679,7 +9679,6 @@ class Tools {
      * @returns number[] 返回一个索引列表的数组
      *
      */
-    // zip 文件结尾有 000000.jpgPK 这样的标记，需要排除，因为这是 zip 的文件目录，不是图片
     static getJPGContentIndex(zipFile, existingIndexList) {
         let indexList = [];
         if (existingIndexList && existingIndexList.length > 0) {
@@ -9708,14 +9707,22 @@ class Tools {
                 // 这样可以避免重复查找前面的数据
                 data = new Uint8Array(zipFile, offset);
             }
-            // 查找以 0 开头，长度为 10，以 jpg 结束的值的索引
+            // 查找以 jpg 文件名的标记，如 000000.jpg
+            // 其实文件内容里也可能会出现符合条件的数据，只是概率很小
+            // 有些文件名后面有 PK 标记，如 000000.jpgPK，需要排除，因为这是 zip 的文件目录，不是图片
             const index = data.findIndex((val, index2, array) => {
-                // 0 j p g P
+                // 0 0 0 . j p g P
                 if (val === 48 &&
+                    array[index2 + 1] === 48 &&
+                    array[index2 + 2] === 48 &&
+                    array[index2 + 6] === 46 &&
                     array[index2 + 7] === 106 &&
                     array[index2 + 8] === 112 &&
                     array[index2 + 9] === 103 &&
                     array[index2 + 10] !== 80) {
+                    // const enc = new TextDecoder('utf-8')
+                    // const buff = data.slice(index2, index2 + 10)
+                    // console.log(enc.decode(buff))
                     return true;
                 }
                 return false;
@@ -9727,10 +9734,10 @@ class Tools {
                 ++loopTimes;
             }
             else {
+                // console.timeEnd('getJPGContentIndex')
                 return indexList;
             }
         }
-        // console.timeEnd('getJPGContentIndex')
     }
     /**从 zip 压缩包里提取出图像数据，转换成 img 标签列表 */
     static async extractImage(zipFile, indexList) {

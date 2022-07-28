@@ -33,7 +33,6 @@ import {
 } from './crawl/CrawlArgument'
 
 import { IDData } from './store/StoreType'
-import { EVT } from './EVT'
 
 /** 点击 like 按钮的返回数据 */
 interface LikeResponse {
