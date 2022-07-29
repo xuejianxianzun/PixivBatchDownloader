@@ -2200,8 +2200,9 @@ class HiddenBrowserDownloadBar {
             if (data.name === 'hiddenBrowserDownloadBar') {
                 chrome.runtime.sendMessage({
                     msg: 'setShelfEnabled',
-                    value: !data.value
+                    value: !data.value,
                 });
+                // 如果这个设置为 true，则应该向后台传递 false
             }
         });
     }
@@ -2980,13 +2981,7 @@ const langText = {
     _横图: ['横图', '橫圖', 'Horizontal', '横長', '가로'],
     _竖图: ['竖图', '豎圖', 'Vertical', '縦長', '세로'],
     _正方形: ['正方形', '正方形', 'Square', '正方形', '정사각형'],
-    _输入宽高比: [
-        '宽高比 >=',
-        '寬高比 >=',
-        'Aspect ratio >=',
-        '縦横比 >=',
-        '종횡비 >= ',
-    ],
+    _宽高比: ['宽高比', '寬高比', 'Ratio', '縦横比', '종횡비 '],
     _设置了宽高比之后的提示: [
         '宽高比：{}',
         '寬高比：{}',
@@ -10082,9 +10077,9 @@ class InitPageBase {
             _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前任务尚未完成'));
             return;
         }
-        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
         if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].isPixiv()) {
             await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__["mute"].getMuteSettings();
         }
@@ -10105,9 +10100,9 @@ class InitPageBase {
             _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].waitingIdList.push(...idList);
         }
         else {
-            _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
             _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
             _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
+            _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
             if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].isPixiv()) {
                 await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__["mute"].getMuteSettings();
             }
@@ -18650,23 +18645,24 @@ class Filter {
     // 提示宽高比设置
     getRatio() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratioSwitch) {
-            return '0';
+            return;
         }
-        let result = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio;
-        if (result === 'square') {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_正方形')));
+        switch (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio) {
+            case 'square':
+                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_正方形')));
+                break;
+            case 'horizontal':
+                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_横图')));
+                break;
+            case 'vertical':
+                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_竖图')));
+                break;
+            case 'userSet':
+                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽高比') +
+                    ` ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatioLimit} ` +
+                    _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio);
+                break;
         }
-        else if (result === 'horizontal') {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_横图')));
-        }
-        else if (result === 'vertical') {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_竖图')));
-        }
-        else if (result === 'userSet') {
-            // 由用户输入
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_输入宽高比') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio);
-        }
-        return result;
     }
     // 提示 id 范围设置
     getIdRange() {
@@ -18965,17 +18961,22 @@ class Filter {
             height === 0) {
             return true;
         }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === 'square') {
-            return width === height;
-        }
-        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === 'horizontal') {
-            return width / height > 1;
-        }
-        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === 'vertical') {
-            return width / height < 1;
-        }
-        else {
-            return width / height >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio;
+        switch (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio) {
+            case 'square':
+                return width === height;
+            case 'horizontal':
+                return width / height > 1;
+            case 'vertical':
+                return width / height < 1;
+            case 'userSet':
+                switch (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatioLimit) {
+                    case '>=':
+                        return width / height >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio;
+                    case '=':
+                        return width / height === _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio;
+                    case '<=':
+                        return width / height <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio;
+                }
         }
     }
     // 检查 id 范围设置
@@ -20887,10 +20888,25 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_radio"></span>
     <label for="ratio0" data-xztext="_正方形"></label>
 
+    <span class="verticalSplit"></span>
     <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
     <span class="beautify_radio"></span>
-    <label for="ratio3" data-xztext="_输入宽高比"></label>
+    <label for="ratio3" data-xztext="_宽高比"></label>
+    
+    <input type="radio" name="userRatioLimit" id="userRatioLimit1" class="need_beautify radio" value=">=" checked>
+    <span class="beautify_radio"></span>
+    <label for="userRatioLimit1">&gt;=</label>
+
+    <input type="radio" name="userRatioLimit" id="userRatioLimit2" class="need_beautify radio" value="=">
+    <span class="beautify_radio"></span>
+    <label for="userRatioLimit2">=</label>
+    
+    <input type="radio" name="userRatioLimit" id="userRatioLimit3" class="need_beautify radio" value="<=">
+    <span class="beautify_radio"></span>
+    <label for="userRatioLimit3">&lt;=</label>
+
     <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
+
     </span>
     </p>
 
@@ -21868,6 +21884,7 @@ class FormSettings {
                 'ugoiraSaveAs',
                 'novelSaveAs',
                 'widthHeightLimit',
+                'userRatioLimit',
                 'setWidthAndOr',
                 'ratio',
                 'idRange',
@@ -22636,6 +22653,7 @@ class Settings {
             ratioSwitch: false,
             ratio: 'horizontal',
             userRatio: 1.4,
+            userRatioLimit: '>=',
             idRangeSwitch: false,
             idRangeInput: 0,
             idRange: '>',

@@ -143,6 +143,7 @@ class FormSettings {
       'ugoiraSaveAs',
       'novelSaveAs',
       'widthHeightLimit',
+      'userRatioLimit',
       'setWidthAndOr',
       'ratio',
       'idRange',

@@ -186,10 +186,25 @@ export const formHtml = `<form class="settingForm">
     <span class="beautify_radio"></span>
     <label for="ratio0" data-xztext="_正方形"></label>
 
+    <span class="verticalSplit"></span>
     <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
     <span class="beautify_radio"></span>
-    <label for="ratio3" data-xztext="_输入宽高比"></label>
+    <label for="ratio3" data-xztext="_宽高比"></label>
+    
+    <input type="radio" name="userRatioLimit" id="userRatioLimit1" class="need_beautify radio" value=">=" checked>
+    <span class="beautify_radio"></span>
+    <label for="userRatioLimit1">&gt;=</label>
+
+    <input type="radio" name="userRatioLimit" id="userRatioLimit2" class="need_beautify radio" value="=">
+    <span class="beautify_radio"></span>
+    <label for="userRatioLimit2">=</label>
+    
+    <input type="radio" name="userRatioLimit" id="userRatioLimit3" class="need_beautify radio" value="<=">
+    <span class="beautify_radio"></span>
+    <label for="userRatioLimit3">&lt;=</label>
+
     <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
+
     </span>
     </p>
 

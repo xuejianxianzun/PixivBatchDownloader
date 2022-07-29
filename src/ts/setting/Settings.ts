@@ -107,6 +107,7 @@ interface XzSetting {
   ratioSwitch: boolean
   ratio: 'square' | 'horizontal' | 'vertical' | 'userSet'
   userRatio: number
+  userRatioLimit: '>=' | '=' | '<='
   idRangeSwitch: boolean
   idRangeInput: number
   idRange: '>' | '<'
@@ -281,6 +282,7 @@ class Settings {
     ratioSwitch: false,
     ratio: 'horizontal',
     userRatio: 1.4,
+    userRatioLimit: '>=',
     idRangeSwitch: false,
     idRangeInput: 0,
     idRange: '>',

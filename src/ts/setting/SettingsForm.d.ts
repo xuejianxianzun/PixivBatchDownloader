@@ -124,4 +124,5 @@ export interface SettingsForm extends HTMLFormElement {
   downloadNovelEmbeddedImage: HTMLInputElement
   previewUgoira: HTMLInputElement
   hiddenBrowserDownloadBar: HTMLInputElement
+  userRatioLimit: HTMLInputElement
 }
