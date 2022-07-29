@@ -322,6 +322,25 @@ class Utils {
       }
     }
   }
+
+  /**用 URL 里的后缀名替换 originName 的后缀名
+   *
+   * 例如传入参数 123.txt, https://.../123.jpg
+   *
+   * 返回 123.jpg
+   */
+  static replaceSuffix(originName: string, url: string) {
+    const nameArray = originName.split('.')
+    const urlArray = url.split('.')
+    nameArray[nameArray.length - 1] = urlArray[urlArray.length - 1]
+    return nameArray.join('.')
+  }
+
+  /**获取后缀名 */
+  static getSuffix(name: string) {
+    const nameArray = name.split('.')
+    return nameArray[nameArray.length - 1]
+  }
 }
 
 export { Utils }

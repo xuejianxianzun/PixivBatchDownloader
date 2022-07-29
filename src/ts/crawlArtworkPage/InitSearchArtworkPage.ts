@@ -23,6 +23,7 @@ import { msgBox } from '../MsgBox'
 import { Bookmark } from '../Bookmark'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { pageType } from '../PageType'
+import { Config } from '../config/Config'
 
 type AddBMKData = {
   id: number
@@ -358,7 +359,7 @@ class InitSearchArtworkPage extends InitPageBase {
   private delayReTry(p: number) {
     window.setTimeout(() => {
       this.getIdList(p)
-    }, 200000)
+    }, Config.retryTimer)
     // 限制时间大约是 3 分钟，这里为了保险起见，设置了更大的延迟时间。
   }
 

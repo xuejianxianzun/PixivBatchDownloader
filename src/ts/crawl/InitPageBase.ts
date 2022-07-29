@@ -22,6 +22,7 @@ import { msgBox } from '../MsgBox'
 import { Utils } from '../utils/Utils'
 import { pageType } from '../PageType'
 import { filter } from '../filter/Filter'
+import { Config } from '../config/Config'
 
 abstract class InitPageBase {
   protected crawlNumber = 0 // 要抓取的个数/页数
@@ -172,11 +173,11 @@ abstract class InitPageBase {
       return
     }
 
-    EVT.fire('crawlStart')
-
     log.clear()
 
     log.success(lang.transl('_任务开始0'))
+
+    EVT.fire('crawlStart')
 
     if (Utils.isPixiv()) {
       await mute.getMuteSettings()
@@ -203,11 +204,11 @@ abstract class InitPageBase {
     if (states.busy) {
       store.waitingIdList.push(...idList)
     } else {
-      EVT.fire('crawlStart')
-
       log.clear()
 
       log.success(lang.transl('_任务开始0'))
+
+      EVT.fire('crawlStart')
 
       if (Utils.isPixiv()) {
         await mute.getMuteSettings()
@@ -292,17 +293,30 @@ abstract class InitPageBase {
         await saveNovelData.save(data)
         this.afterGetWorksData(data)
       } else {
-        // 这里不能使用 cacheWorkData中的缓存数据，因为某些数据可能已经发生变化
+        // 这里不能使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
         let data: ArtworkData
         data = await API.getArtworkData(id)
         await saveArtworkData.save(data)
         this.afterGetWorksData(data)
       }
     } catch (error) {
+      // 当 API 里的网络请求的状态码异常时，会 reject，被这里捕获
+      // error: {
+      //   status: response.status,
+      //   statusText: response.statusText,
+      // }
       if (error.status) {
-        // 请求成功，但状态码不正常，不再重试
+        // 请求成功，但状态码不正常
         this.logErrorStatus(error.status, id)
-        this.afterGetWorksData()
+        if (error.status === 500) {
+          // 如果状态码 500，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
+          log.error(lang.transl('_列表页被限制时返回空结果的提示'))
+          return window.setTimeout(() => {
+            this.getWorksData(idData)
+          }, Config.retryTimer)
+        } else {
+          this.afterGetWorksData()
+        }
       } else {
         // 请求失败，没有获得服务器的返回数据，一般都是
         // TypeError: Failed to fetch
@@ -310,7 +324,7 @@ abstract class InitPageBase {
         console.error(error)
 
         // 再次发送这个请求
-        setTimeout(() => {
+        window.setTimeout(() => {
           this.getWorksData(idData)
         }, 2000)
       }
@@ -386,7 +400,8 @@ abstract class InitPageBase {
 
   // 网络请求状态异常时输出提示
   private logErrorStatus(status: number, id: string) {
-    const workLink = Tools.createWorkLink(id)
+    const novelPage = window.location.href.includes('/novel')
+    const workLink = Tools.createWorkLink(id, !novelPage)
     switch (status) {
       case 0:
         log.error(workLink + ' ' + lang.transl('_作品页状态码0'))

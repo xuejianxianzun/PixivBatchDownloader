@@ -4,6 +4,8 @@
 
 [韩国语](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-KO.md)
 
+*日本語 No translation yet*
+
 [Discord 频道](https://discord.gg/eW9JtTK)
 
 ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
@@ -30,28 +32,32 @@
 
 这是一个 Chrome 浏览器扩展程序，用于批量下载 Pixiv 上的图片和小说。
 
+支持的语言：简体中文、繁體中文、日本語、English、한국어。
+
 主要功能：
 
 - 批量下载画师的所有作品、你的收藏、你的关注、排行榜、搜索结果等；
 - 一键下载你看到的任何作品；
-- 手动选择（多选）要下载的作品；
+- 在页面上手动选择你要下载的作品；
 - 设置过滤条件，筛选你要下载的作品；
-- 保存画师的头像、封面图；
-- 创建文件夹保存文件；
-- 设置文件的命名规则；
-- 转换动图为 GIF、WebM、APNG 格式；
+- 下载插画、漫画、动图、小说；
+- 保存动图为 GIF、WebM、APNG、ZIP 格式；
 - 保存小说为 TXT、EPUB 格式；
+- 使用画师名字、日期、标题等多种数据建立文件夹；
+- 自定义文件名，并进行排序；
+- 在序号前面补 0，使排序不会混乱；
+- 保存用户头像和封面图片；
+- 显示更大的缩略图，查看起来更为轻松；
+- 在缩略图上预览作品大图，查看原图；
+- 保存下载记录，避免重复下载；
 - 保存下载进度，恢复未完成的下载；
 - 导出作品数据；
 - 批量收藏作品；
-- 为你收藏的未分类作品添加 tag；
-- 内置图片查看器，查看多图作品；
-- 无需进入作品页面即可预览图像，查看图像原图；
-- 可选择界面语言：简体中文、繁體中文、日本語、English；
+- 为你收藏里的未分类作品添加标签；
 
-![PixivBatchDownloader screenshot](./notes/ui-zh-0.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-zh-0.png)
 
-![PixivBatchDownloader screenshot](./notes/ui-zh-1.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-zh-1.png)
 
 [访问官网](https://pixiv.download/)
 

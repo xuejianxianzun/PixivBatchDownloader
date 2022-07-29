@@ -20,9 +20,12 @@ class ConvertUgoira {
 
   private maxCount = 1 // 允许同时运行多少个转换任务
 
+  private readonly msgFlag = 'tipConvertUgoira'
+
   private bindEvents() {
     window.addEventListener(EVT.list.downloadStart, () => {
       this.downloading = true
+      msgBox.resetOnce(this.msgFlag)
     })
     ;[EVT.list.downloadPause, EVT.list.downloadStop].forEach((event) => {
       window.addEventListener(event, () => {
@@ -46,7 +49,7 @@ class ConvertUgoira {
       this.complete()
     })
 
-    // 如果转换动图时页面被隐藏了，则显示一次提示
+    // 如果转换动图时页面被隐藏了，则显示提示
     document.addEventListener('visibilitychange', () => {
       this.checkHidden()
     })
@@ -111,12 +114,11 @@ class ConvertUgoira {
 
   private checkHidden() {
     if (this._count > 0 && document.visibilityState === 'hidden') {
-      const name = 'tipConvertUgoira'
-      const test = sessionStorage.getItem(name)
-      if (test === null) {
-        msgBox.warning(lang.transl('_转换动图时页面被隐藏的提示'))
-        sessionStorage.setItem(name, '1')
-      }
+      msgBox.once(
+        this.msgFlag,
+        lang.transl('_转换动图时页面被隐藏的提示'),
+        'warning'
+      )
     }
   }
 }

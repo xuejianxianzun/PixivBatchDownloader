@@ -186,10 +186,25 @@ export const formHtml = `<form class="settingForm">
     <span class="beautify_radio"></span>
     <label for="ratio0" data-xztext="_正方形"></label>
 
+    <span class="verticalSplit"></span>
     <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
     <span class="beautify_radio"></span>
-    <label for="ratio3" data-xztext="_输入宽高比"></label>
+    <label for="ratio3" data-xztext="_宽高比"></label>
+    
+    <input type="radio" name="userRatioLimit" id="userRatioLimit1" class="need_beautify radio" value=">=" checked>
+    <span class="beautify_radio"></span>
+    <label for="userRatioLimit1">&gt;=</label>
+
+    <input type="radio" name="userRatioLimit" id="userRatioLimit2" class="need_beautify radio" value="=">
+    <span class="beautify_radio"></span>
+    <label for="userRatioLimit2">=</label>
+    
+    <input type="radio" name="userRatioLimit" id="userRatioLimit3" class="need_beautify radio" value="<=">
+    <span class="beautify_radio"></span>
+    <label for="userRatioLimit3">&lt;=</label>
+
     <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
+
     </span>
     </p>
 
@@ -676,7 +691,13 @@ export const formHtml = `<form class="settingForm">
 
     <p class="option" data-no="70">
     <span class="settingNameStyle1" data-xztext="_下载小说的封面图片"></span>
-    <input type="checkbox" name="downloadNovelCoverImage" class="need_beautify checkbox_switch">
+    <input type="checkbox" name="downloadNovelCoverImage" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    </p>
+
+    <p class="option" data-no="72">
+    <span class="settingNameStyle1" data-xztext="_下载小说里的内嵌图片"></span>
+    <input type="checkbox" name="downloadNovelEmbeddedImage" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
     </p>
 
@@ -748,6 +769,12 @@ export const formHtml = `<form class="settingForm">
     <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
     <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
     </span>
+    </p>
+
+    <p class="option" data-no="73">
+    <span class="settingNameStyle1" data-xztext="_隐藏浏览器底部的下载栏"></span>
+    <input type="checkbox" name="hiddenBrowserDownloadBar" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
     </p>
 
     <p class="option settingCategoryName" data-no="60">

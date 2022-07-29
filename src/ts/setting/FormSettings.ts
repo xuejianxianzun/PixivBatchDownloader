@@ -106,7 +106,9 @@ class FormSettings {
       'wheelScrollSwitchImageOnPreviewWork',
       'doNotDownloadLastImageOfMultiImageWork',
       'downloadNovelCoverImage',
+      'downloadNovelEmbeddedImage',
       'previewUgoira',
+      'hiddenBrowserDownloadBar',
     ],
     text: [
       'setWantPage',
@@ -141,6 +143,7 @@ class FormSettings {
       'ugoiraSaveAs',
       'novelSaveAs',
       'widthHeightLimit',
+      'userRatioLimit',
       'setWidthAndOr',
       'ratio',
       'idRange',
