@@ -5531,12 +5531,12 @@ const langText = {
         'この機能はデフォルトで有効になっています。',
         '이 기능은 기본적으로 활성화됩니다.',
     ],
-    _你可以在更多他选项卡的下载分类里找到它: [
-        '你可以在“更多”选项卡 → “下载”分类里找到它。（需要先启用“显示高级设置”）',
-        '你可以在“更多”選項卡 → “下載”分類裡找到它。（需要先啟用“顯示進階設定”）',
-        'You can find it in the "More" tab → "Download" category. ("Show advanced settings" needs to be enabled first)',
-        '[もっと]タブ→[ダウンロード]カテゴリにあります。 （最初に「詳細設定を表示」を有効にする必要があります）',
-        '"더보기" 탭 → "다운로드" 카테고리에서 찾을 수 있습니다. ("고급 설정 보기"를 먼저 활성화해야 합니다.)',
+    _你可以在更多他选项卡的xx分类里找到它: [
+        '你可以在“更多”选项卡 → “{}”分类里找到它。（需要先启用“显示高级设置”）',
+        '你可以在“更多”選項卡 → “{}”分類裡找到它。（需要先啟用“顯示進階設定”）',
+        'You can find it in the "More" tab → "{}" category. ("Show advanced settings" needs to be enabled first)',
+        '[もっと]タブ→[{}]カテゴリにあります。 （最初に「詳細設定を表示」を有効にする必要があります）',
+        '"더보기" 탭 → "{}" 카테고리에서 찾을 수 있습니다. ("고급 설정 보기"를 먼저 활성화해야 합니다.)',
     ],
     _你可以在更多他选项卡的增强分类里找到它: [
         '你可以在“更多”选项卡 → “增强”分类里找到它。（需要先启用“显示高级设置”）',
@@ -8620,16 +8620,16 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '12.9.00';
+        this.flag = '13.0.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载小说里的内嵌图片')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_隐藏浏览器底部的下载栏')}
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')} ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多他选项卡的下载分类里找到它')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多他选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载'))}
       <br>
       <br>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_其他优化')}
