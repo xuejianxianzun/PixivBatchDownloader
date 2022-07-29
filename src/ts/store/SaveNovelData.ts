@@ -57,6 +57,17 @@ class SaveNovelData {
       metaArr.push(title, user, pageUrl, body.description, tagsA.join('\n'))
       meta = metaArr.join('\n\n') + '\n\n\n'
 
+      // 提取嵌入的图片资源
+      let embeddedImages: null | {
+        [key: string]: string
+      } = null
+      if (body.textEmbeddedImages) {
+        embeddedImages = {}
+        for (const [id, value] of Object.entries(body.textEmbeddedImages)) {
+          embeddedImages[id] = value.urls.original
+        }
+      }
+
       // 添加作品信息
       store.addResult({
         id: id,
@@ -92,6 +103,7 @@ class SaveNovelData {
           coverUrl: body.coverUrl,
           createDate: body.createDate,
           userName: body.userName,
+          embeddedImages: embeddedImages,
           meta: meta,
         },
         xRestrict: body.xRestrict,
@@ -139,23 +151,6 @@ class SaveNovelData {
     return str
   }
 
-  // [pixivimage:70551567]
-  // 替换成
-  // [pixiv image link: <a href="http://pixiv.net/i/70551567" target="_blank">http://pixiv.net/i/70551567</a>]
-  private replacePixivImage(str: string) {
-    let reg = /\[pixivimage:(\d*?)\]/g
-    let temp
-    while ((temp = reg.exec(str))) {
-      const url = `http://pixiv.net/i/${temp[1].trim()}`
-      str = str.replace(
-        temp[0],
-        `[pixiv image link: <a href="${url}" target="_blank">${url}</a>]`
-      )
-      reg.lastIndex = 0
-    }
-    return str
-  }
-
   // 对小说里的一些标记进行替换
   private replaceFlag(str: string) {
     str = str.replace(/\[newpage\]/g, '')
@@ -167,8 +162,6 @@ class SaveNovelData {
     str = this.replaceRb(str)
 
     str = this.replaceChapter(str)
-
-    str = this.replacePixivImage(str)
 
     return str
   }

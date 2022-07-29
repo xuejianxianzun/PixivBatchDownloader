@@ -21,6 +21,7 @@ import {
   muteData,
   NovelSeriesGlossary,
   NovelSeriesGlossaryItem,
+  LatestMessageData,
 } from './crawl/CrawlResult'
 
 import {
@@ -53,10 +54,11 @@ class API {
         credentials: 'same-origin',
       })
         .then((response) => {
+          // response.ok 的状态码范围是 200-299
           if (response.ok) {
             return response.json()
           } else {
-            // 请求成功但状态不对
+            // 请求成功但状态码异常
             reject({
               status: response.status,
               statusText: response.statusText,
@@ -474,6 +476,13 @@ class API {
   ): Promise<NovelSeriesGlossaryItem> {
     return this.sendGetRequest(
       `https://www.pixiv.net/ajax/novel/series/${seriesId}/glossary/item/${itemId}`
+    )
+  }
+
+  /**获取用户最近的几条消息 */
+  static async getLatestMessage(number: number): Promise<LatestMessageData> {
+    return this.sendGetRequest(
+      `https://www.pixiv.net/rpc/index.php?mode=latest_message_threads2&num=${number}&offset=0`
     )
   }
 }

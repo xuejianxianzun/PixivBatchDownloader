@@ -93,6 +93,12 @@
 /*! no static exports found */
 /***/ (function(module, exports) {
 
+// 隐藏或显示浏览器底部的下载栏
+chrome.runtime.onMessage.addListener((data, sender) => {
+    if (data.msg === 'setShelfEnabled') {
+        chrome.downloads.setShelfEnabled(data.value);
+    }
+});
 // 修改 responseHeaders 开始
 const regex = /access-control-allow-origin/i;
 function removeMatchingHeaders(headers, regex) {
@@ -162,7 +168,8 @@ chrome.runtime.onMessage.addListener(function (msg, sender) {
     // save_description_file 下载作品的简介文件，不需要返回下载状态
     // save_novel_cover_file 下载小说的封面图片
     if (msg.msg === 'save_description_file' ||
-        msg.msg === 'save_novel_cover_file') {
+        msg.msg === 'save_novel_cover_file' ||
+        msg.msg === 'save_novel_embedded_image') {
         chrome.downloads.download({
             url: msg.fileUrl,
             filename: msg.fileName,
