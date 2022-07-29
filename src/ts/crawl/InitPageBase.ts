@@ -173,11 +173,11 @@ abstract class InitPageBase {
       return
     }
 
-    EVT.fire('crawlStart')
-
     log.clear()
 
     log.success(lang.transl('_任务开始0'))
+
+    EVT.fire('crawlStart')
 
     if (Utils.isPixiv()) {
       await mute.getMuteSettings()
@@ -204,11 +204,11 @@ abstract class InitPageBase {
     if (states.busy) {
       store.waitingIdList.push(...idList)
     } else {
-      EVT.fire('crawlStart')
-
       log.clear()
 
       log.success(lang.transl('_任务开始0'))
+
+      EVT.fire('crawlStart')
 
       if (Utils.isPixiv()) {
         await mute.getMuteSettings()

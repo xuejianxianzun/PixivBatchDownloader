@@ -2254,6 +2254,39 @@ const help = new Help();
 
 /***/ }),
 
+/***/ "./src/ts/HiddenBrowserDownloadBar.ts":
+/*!********************************************!*\
+  !*** ./src/ts/HiddenBrowserDownloadBar.ts ***!
+  \********************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+
+class HiddenBrowserDownloadBar {
+    constructor() {
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'hiddenBrowserDownloadBar') {
+                chrome.runtime.sendMessage({
+                    msg: 'setShelfEnabled',
+                    value: !data.value,
+                });
+                // 如果这个设置为 true，则应该向后台传递 false
+            }
+        });
+    }
+}
+new HiddenBrowserDownloadBar();
+
+
+/***/ }),
+
 /***/ "./src/ts/ImageViewer.ts":
 /*!*******************************!*\
   !*** ./src/ts/ImageViewer.ts ***!
@@ -3023,13 +3056,7 @@ const langText = {
     _横图: ['横图', '橫圖', 'Horizontal', '横長', '가로'],
     _竖图: ['竖图', '豎圖', 'Vertical', '縦長', '세로'],
     _正方形: ['正方形', '正方形', 'Square', '正方形', '정사각형'],
-    _输入宽高比: [
-        '宽高比 >=',
-        '寬高比 >=',
-        'Aspect ratio >=',
-        '縦横比 >=',
-        '종횡비 >= ',
-    ],
+    _宽高比: ['宽高比', '寬高比', 'Ratio', '縦横比', '종횡비 '],
     _设置了宽高比之后的提示: [
         '宽高比：{}',
         '寬高比：{}',
@@ -5579,12 +5606,12 @@ const langText = {
         'この機能はデフォルトで有効になっています。',
         '이 기능은 기본적으로 활성화됩니다.',
     ],
-    _你可以在更多他选项卡的下载分类里找到它: [
-        '你可以在“更多”选项卡 → “下载”分类里找到它。（需要先启用“显示高级设置”）',
-        '你可以在“更多”選項卡 → “下載”分類裡找到它。（需要先啟用“顯示進階設定”）',
-        'You can find it in the "More" tab → "Download" category. ("Show advanced settings" needs to be enabled first)',
-        '[もっと]タブ→[ダウンロード]カテゴリにあります。 （最初に「詳細設定を表示」を有効にする必要があります）',
-        '"더보기" 탭 → "다운로드" 카테고리에서 찾을 수 있습니다. ("고급 설정 보기"를 먼저 활성화해야 합니다.)',
+    _你可以在更多他选项卡的xx分类里找到它: [
+        '你可以在“更多”选项卡 → “{}”分类里找到它。（需要先启用“显示高级设置”）',
+        '你可以在“更多”選項卡 → “{}”分類裡找到它。（需要先啟用“顯示進階設定”）',
+        'You can find it in the "More" tab → "{}" category. ("Show advanced settings" needs to be enabled first)',
+        '[もっと]タブ→[{}]カテゴリにあります。 （最初に「詳細設定を表示」を有効にする必要があります）',
+        '"더보기" 탭 → "{}" 카테고리에서 찾을 수 있습니다. ("고급 설정 보기"를 먼저 활성화해야 합니다.)',
     ],
     _你可以在更多他选项卡的增强分类里找到它: [
         '你可以在“更多”选项卡 → “增强”分类里找到它。（需要先启用“显示高级设置”）',
@@ -5748,6 +5775,13 @@ const langText = {
         'Other optimizations',
         'その他の最適化',
         '기타 최적화',
+    ],
+    _隐藏浏览器底部的下载栏: [
+        '隐藏浏览器底部的<span class="key">下载栏</span>',
+        '隱藏瀏覽器底部的<span class="key">下載欄</span>',
+        `Hide the <span class="key">download bar</span> at the bottom of the browser`,
+        'ブラウザの下部にあるダウンロードバーを非表示にします',
+        '브라우저 하단의 <span class="key">다운로드 바</span> 숨기기',
     ],
 };
 
@@ -8661,16 +8695,16 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '12.9.00';
+        this.flag = '13.0.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载小说里的内嵌图片')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_隐藏浏览器底部的下载栏')}
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')} ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多他选项卡的下载分类里找到它')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多他选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载'))}
       <br>
       <br>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_其他优化')}
@@ -9895,6 +9929,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
 /* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
 /* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -9905,6 +9940,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 
@@ -10117,9 +10153,9 @@ class InitPageBase {
             _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前任务尚未完成'));
             return;
         }
-        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
         if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].isPixiv()) {
             await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__["mute"].getMuteSettings();
         }
@@ -10140,9 +10176,9 @@ class InitPageBase {
             _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].waitingIdList.push(...idList);
         }
         else {
-            _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
             _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
             _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
+            _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
             if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].isPixiv()) {
                 await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__["mute"].getMuteSettings();
             }
@@ -18685,23 +18721,24 @@ class Filter {
     // 提示宽高比设置
     getRatio() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratioSwitch) {
-            return '0';
+            return;
         }
-        let result = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio;
-        if (result === 'square') {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_正方形')));
+        switch (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio) {
+            case 'square':
+                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_正方形')));
+                break;
+            case 'horizontal':
+                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_横图')));
+                break;
+            case 'vertical':
+                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_竖图')));
+                break;
+            case 'userSet':
+                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽高比') +
+                    ` ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatioLimit} ` +
+                    _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio);
+                break;
         }
-        else if (result === 'horizontal') {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_横图')));
-        }
-        else if (result === 'vertical') {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_竖图')));
-        }
-        else if (result === 'userSet') {
-            // 由用户输入
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_输入宽高比') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio);
-        }
-        return result;
     }
     // 提示 id 范围设置
     getIdRange() {
@@ -19000,17 +19037,22 @@ class Filter {
             height === 0) {
             return true;
         }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === 'square') {
-            return width === height;
-        }
-        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === 'horizontal') {
-            return width / height > 1;
-        }
-        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === 'vertical') {
-            return width / height < 1;
-        }
-        else {
-            return width / height >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio;
+        switch (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio) {
+            case 'square':
+                return width === height;
+            case 'horizontal':
+                return width / height > 1;
+            case 'vertical':
+                return width / height < 1;
+            case 'userSet':
+                switch (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatioLimit) {
+                    case '>=':
+                        return width / height >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio;
+                    case '=':
+                        return width / height === _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio;
+                    case '<=':
+                        return width / height <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio;
+                }
         }
     }
     // 检查 id 范围设置
@@ -20922,10 +20964,25 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_radio"></span>
     <label for="ratio0" data-xztext="_正方形"></label>
 
+    <span class="verticalSplit"></span>
     <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
     <span class="beautify_radio"></span>
-    <label for="ratio3" data-xztext="_输入宽高比"></label>
+    <label for="ratio3" data-xztext="_宽高比"></label>
+    
+    <input type="radio" name="userRatioLimit" id="userRatioLimit1" class="need_beautify radio" value=">=" checked>
+    <span class="beautify_radio"></span>
+    <label for="userRatioLimit1">&gt;=</label>
+
+    <input type="radio" name="userRatioLimit" id="userRatioLimit2" class="need_beautify radio" value="=">
+    <span class="beautify_radio"></span>
+    <label for="userRatioLimit2">=</label>
+    
+    <input type="radio" name="userRatioLimit" id="userRatioLimit3" class="need_beautify radio" value="<=">
+    <span class="beautify_radio"></span>
+    <label for="userRatioLimit3">&lt;=</label>
+
     <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
+
     </span>
     </p>
 
@@ -21492,6 +21549,12 @@ const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="73">
+    <span class="settingNameStyle1" data-xztext="_隐藏浏览器底部的下载栏"></span>
+    <input type="checkbox" name="hiddenBrowserDownloadBar" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    </p>
+
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </p>
@@ -21862,6 +21925,7 @@ class FormSettings {
                 'downloadNovelCoverImage',
                 'downloadNovelEmbeddedImage',
                 'previewUgoira',
+                'hiddenBrowserDownloadBar',
             ],
             text: [
                 'setWantPage',
@@ -21896,6 +21960,7 @@ class FormSettings {
                 'ugoiraSaveAs',
                 'novelSaveAs',
                 'widthHeightLimit',
+                'userRatioLimit',
                 'setWidthAndOr',
                 'ratio',
                 'idRange',
@@ -22664,6 +22729,7 @@ class Settings {
             ratioSwitch: false,
             ratio: 'horizontal',
             userRatio: 1.4,
+            userRatioLimit: '>=',
             idRangeSwitch: false,
             idRangeInput: 0,
             idRange: '>',
@@ -22779,6 +22845,7 @@ class Settings {
             downloadNovelCoverImage: true,
             downloadNovelEmbeddedImage: true,
             previewUgoira: true,
+            hiddenBrowserDownloadBar: false,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项

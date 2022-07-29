@@ -93,6 +93,12 @@
 /*! no static exports found */
 /***/ (function(module, exports) {
 
+// 隐藏或显示浏览器底部的下载栏
+chrome.runtime.onMessage.addListener((data, sender) => {
+    if (data.msg === 'setShelfEnabled') {
+        chrome.downloads.setShelfEnabled(data.value);
+    }
+});
 // 修改 responseHeaders 开始
 const regex = /access-control-allow-origin/i;
 function removeMatchingHeaders(headers, regex) {

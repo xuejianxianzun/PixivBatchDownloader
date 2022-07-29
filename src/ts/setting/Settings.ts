@@ -107,6 +107,7 @@ interface XzSetting {
   ratioSwitch: boolean
   ratio: 'square' | 'horizontal' | 'vertical' | 'userSet'
   userRatio: number
+  userRatioLimit: '>=' | '=' | '<='
   idRangeSwitch: boolean
   idRangeInput: number
   idRange: '>' | '<'
@@ -214,6 +215,7 @@ interface XzSetting {
   downloadNovelCoverImage: boolean
   downloadNovelEmbeddedImage: boolean
   previewUgoira: boolean
+  hiddenBrowserDownloadBar: boolean
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -280,6 +282,7 @@ class Settings {
     ratioSwitch: false,
     ratio: 'horizontal',
     userRatio: 1.4,
+    userRatioLimit: '>=',
     idRangeSwitch: false,
     idRangeInput: 0,
     idRange: '>',
@@ -395,6 +398,7 @@ class Settings {
     downloadNovelCoverImage: true,
     downloadNovelEmbeddedImage: true,
     previewUgoira: true,
+    hiddenBrowserDownloadBar: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

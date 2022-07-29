@@ -108,6 +108,7 @@ class FormSettings {
       'downloadNovelCoverImage',
       'downloadNovelEmbeddedImage',
       'previewUgoira',
+      'hiddenBrowserDownloadBar',
     ],
     text: [
       'setWantPage',
@@ -142,6 +143,7 @@ class FormSettings {
       'ugoiraSaveAs',
       'novelSaveAs',
       'widthHeightLimit',
+      'userRatioLimit',
       'setWidthAndOr',
       'ratio',
       'idRange',
