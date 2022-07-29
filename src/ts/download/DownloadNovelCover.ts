@@ -1,37 +1,32 @@
-import { Result } from '../store/StoreType'
-import { fileName } from '../FileName'
 import { settings } from '../setting/Settings'
+import { Utils } from '../utils/Utils'
 
-// 下载小说的封面图片
 class DownloadNovelCover {
-  public async download(result: Result) {
-    if (
-      !settings.downloadNovelCoverImage ||
-      result.type !== 3 ||
-      !result.novelMeta?.coverUrl
-    ) {
+  /**下载小说的封面图片
+   *
+   * 默认是正常下载小说的情况，可以设置为合并系列小说的情况
+   */
+  public async download(
+    coverURL: string,
+    novelName: string,
+    action: 'downloadNovel' | 'mergeNovel' = 'downloadNovel'
+  ) {
+    if (!settings.downloadNovelCoverImage || !coverURL) {
       return
     }
 
-    const url = await this.getCoverBolbURL(result.novelMeta!.coverUrl)
-    const novelName = fileName.getFileName(result)
-    const coverName = this.createCoverFileName(
-      novelName,
-      result.novelMeta!.coverUrl
-    )
-    this.sendDownload(url, coverName)
-  }
-
-  public async downloadOnMergeNovel(coverURL: string, novelName: string) {
-    if (!settings.downloadNovelCoverImage) {
-      return
-    }
     const url = await this.getCoverBolbURL(coverURL)
-    const coverName = this.createCoverFileName(novelName, coverURL)
+    let coverName = Utils.replaceSuffix(novelName, coverURL)
+
+    // 合并系列小说时，文件直接保存在下载目录里，封面图片也保存在下载目录里
+    // 所以要替换掉封面图路径里的斜线
+    if (action === 'mergeNovel') {
+      coverName = Utils.replaceUnsafeStr(coverName)
+    }
     this.sendDownload(url, coverName)
   }
 
-  // 下载封面图片，返回其 Blob URL
+  // 生成封面图片的 Blob URL
   private async getCoverBolbURL(coverURL: string): Promise<string> {
     return new Promise(async (resolve, reject) => {
       const res = await fetch(coverURL, {
@@ -42,18 +37,6 @@ class DownloadNovelCover {
       const url = URL.createObjectURL(blob)
       return resolve(url)
     })
-  }
-
-  // 生成封面的文件名
-  private createCoverFileName(novelName: string, coverURL: string) {
-    // 用小说的文件名修改，把后缀名改成图片的后缀名
-    // 目前来看封面图片的后缀都是 jpg，不过严谨起见还是手动获取其后缀名
-    const novelNameArray = novelName.split('.')
-    const coverArray = coverURL.split('.')
-    novelNameArray[novelNameArray.length - 1] =
-      coverArray[coverArray.length - 1]
-    const coverName = novelNameArray.join('.')
-    return coverName
   }
 
   private sendDownload(url: string, name: string) {

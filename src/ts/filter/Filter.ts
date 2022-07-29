@@ -338,25 +338,33 @@ class Filter {
   // 提示宽高比设置
   private getRatio() {
     if (!settings.ratioSwitch) {
-      return '0'
+      return
     }
 
-    let result = settings.ratio
-
-    if (result === 'square') {
-      log.warning(
-        lang.transl('_设置了宽高比之后的提示', lang.transl('_正方形'))
-      )
-    } else if (result === 'horizontal') {
-      log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_横图')))
-    } else if (result === 'vertical') {
-      log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_竖图')))
-    } else if (result === 'userSet') {
-      // 由用户输入
-      log.warning(lang.transl('_输入宽高比') + settings.userRatio)
+    switch (settings.ratio) {
+      case 'square':
+        log.warning(
+          lang.transl('_设置了宽高比之后的提示', lang.transl('_正方形'))
+        )
+        break
+      case 'horizontal':
+        log.warning(
+          lang.transl('_设置了宽高比之后的提示', lang.transl('_横图'))
+        )
+        break
+      case 'vertical':
+        log.warning(
+          lang.transl('_设置了宽高比之后的提示', lang.transl('_竖图'))
+        )
+        break
+      case 'userSet':
+        log.warning(
+          lang.transl('_宽高比') +
+            ` ${settings.userRatioLimit} ` +
+            settings.userRatio
+        )
+        break
     }
-
-    return result
   }
 
   // 提示 id 范围设置
@@ -726,14 +734,22 @@ class Filter {
       return true
     }
 
-    if (settings.ratio === 'square') {
-      return width === height
-    } else if (settings.ratio === 'horizontal') {
-      return width / height > 1
-    } else if (settings.ratio === 'vertical') {
-      return width / height < 1
-    } else {
-      return width / height >= settings.userRatio
+    switch (settings.ratio) {
+      case 'square':
+        return width === height
+      case 'horizontal':
+        return width / height > 1
+      case 'vertical':
+        return width / height < 1
+      case 'userSet':
+        switch (settings.userRatioLimit) {
+          case '>=':
+            return width / height >= settings.userRatio
+          case '=':
+            return width / height === settings.userRatio
+          case '<=':
+            return width / height <= settings.userRatio
+        }
     }
   }
 

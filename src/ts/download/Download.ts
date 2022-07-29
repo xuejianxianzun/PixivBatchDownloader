@@ -19,6 +19,8 @@ import { Config } from '../config/Config'
 import { msgBox } from '../MsgBox'
 import { states } from '../store/States'
 import { Tools } from '../Tools'
+import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
+import { downloadNovelCover } from './DownloadNovelCover'
 
 // 处理下载队列里的任务
 // 不显示在进度条上的下载任务，不在这里处理
@@ -181,8 +183,24 @@ class Download {
     if (arg.result.type === 3) {
       // 生成小说的文件
       if (arg.result.novelMeta) {
+        if (arg.result.novelMeta?.coverUrl) {
+          downloadNovelCover.download(
+            arg.result.novelMeta.coverUrl,
+            _fileName,
+            'downloadNovel'
+          )
+        }
+
         let blob: Blob = await MakeNovelFile.make(arg.result.novelMeta)
         url = URL.createObjectURL(blob)
+
+        if (settings.novelSaveAs === 'txt') {
+          await downloadNovelEmbeddedImage.TXT(
+            arg.result.novelMeta.content,
+            arg.result.novelMeta.embeddedImages,
+            _fileName
+          )
+        }
       } else {
         throw new Error('Not found novelMeta')
       }

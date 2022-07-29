@@ -87,13 +87,7 @@ const langText = {
   _横图: ['横图', '橫圖', 'Horizontal', '横長', '가로'],
   _竖图: ['竖图', '豎圖', 'Vertical', '縦長', '세로'],
   _正方形: ['正方形', '正方形', 'Square', '正方形', '정사각형'],
-  _输入宽高比: [
-    '宽高比 >=',
-    '寬高比 >=',
-    'Aspect ratio >=',
-    '縦横比 >=',
-    '종횡비 >= ',
-  ],
+  _宽高比: ['宽高比', '寬高比', 'Ratio', '縦横比', '종횡비 '],
   _设置了宽高比之后的提示: [
     '宽高比：{}',
     '寬高比：{}',
@@ -840,11 +834,11 @@ const langText = {
   ],
   _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問', '도움말'],
   _uuid: [
-    '如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。',
-    '如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。',
-    'If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.',
-    'ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
-    '다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.',
+    '如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>例如：Chrono 下载管理器、free Download Manager、Image Downloader、DownThemAll! 等。',
+    '如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。<br>例如：Chrono 下载管理器、free Download Manager、Image Downloader、DownThemAll! 等。',
+    'If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.<br>For example: Chrono Download Manager, free Download Manager, Image Downloader, DownThemAll! and more.',
+    'ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br>例：Chrono Download Manager, free Download Manager, Image Downloader, DownThemAll! など。',
+    '다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.예: Chrono Download Manager, free Download Manager、Image Downloader、DownThemAll! 등.',
   ],
   _常见问题说明: [
     '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br><br>QQ群：675174717<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
@@ -2245,6 +2239,7 @@ const langText = {
     '下載時發生錯誤，狀態碼為 0，請求未成功。可能的原因：<br><br>1. 系統磁碟的剩餘空間可能不足（建議剩餘空間大於 4GB）。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>2. 網路錯誤。可能是網路代理導致的問題。',
     'An error occurred while downloading, the status code is 0, and the request was unsuccessful. Possible reasons: <br><br>1. The remaining space of the system disk may be insufficient (it is recommended that the remaining space be greater than 4GB). Please try to clear the system disk space, and then restart the browser to continue the unfinished download. <br><br>2. Network error. It may be a problem caused by a network proxy.',
     'ダウンロード中にエラーが発生し、ステータスコードは0で、リクエストは失敗しました。 考えられる理由：<br> <br> 1。 システムディスクの残りのスペースが不足している可能性があります（残りのスペースは4GBを超えることをお勧めします）。 システムのディスク領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。 <br> <br> 2。 ネットワークエラー。 ネットワークプロキシが原因の問題である可能性があります。',
+    '다운로드 중 오류가 발생했으며, 상태 코드가 0이고 요청에 실패했습니다. 가능한 원인: <br><br>1. 시스템 디스크의 남은 공간이 부족할 수 있습니다(남은 공간은 4GB보다 큰 것이 좋습니다). 시스템 디스크 공간을 비운 다음 브라우저를 다시 시작하여 완료되지 않은 다운로드를 계속해주세요. <br><br>2. 네트워크 오류. 네트워크 프록시로 인한 문제일 수 있습니다.',
   ],
   _提示登录pixiv账号: [
     '请您登录 Pixiv 账号然后重试。',
@@ -2445,7 +2440,7 @@ const langText = {
     中国大陆用户可以在“爱发电”上赞助我：<br>
     <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
     也可以扫描二维码：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 675174717 查看二维码。
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 675174717，在群文件里查看二维码。
     `,
     `非常感謝您的支持！<br>
     您可以在 Patreon 上贊助我：<br>
@@ -2640,14 +2635,14 @@ const langText = {
     '這個功能預設啟用。',
     'This feature is enabled by default.',
     'この機能はデフォルトで有効になっています。',
-    '이 기능은 기본적으로 활성화됩니다',
+    '이 기능은 기본적으로 활성화됩니다.',
   ],
-  _你可以在更多他选项卡的下载分类里找到它: [
-    '你可以在“更多”选项卡 → “下载”分类里找到它。（需要先启用“显示高级设置”）',
-    '你可以在“更多”選項卡 → “下載”分類裡找到它。（需要先啟用“顯示進階設定”）',
-    'You can find it in the "More" tab → "Download" category. ("Show advanced settings" needs to be enabled first)',
-    '[もっと]タブ→[ダウンロード]カテゴリにあります。 （最初に「詳細設定を表示」を有効にする必要があります）',
-    '"더보기" 탭 → "다운로드" 카테고리에서 찾을 수 있습니다. ("고급 설정 보기"를 먼저 활성화해야 합니다.)',
+  _你可以在更多他选项卡的xx分类里找到它: [
+    '你可以在“更多”选项卡 → “{}”分类里找到它。（需要先启用“显示高级设置”）',
+    '你可以在“更多”選項卡 → “{}”分類裡找到它。（需要先啟用“顯示進階設定”）',
+    'You can find it in the "More" tab → "{}" category. ("Show advanced settings" needs to be enabled first)',
+    '[もっと]タブ→[{}]カテゴリにあります。 （最初に「詳細設定を表示」を有効にする必要があります）',
+    '"더보기" 탭 → "{}" 카테고리에서 찾을 수 있습니다. ("고급 설정 보기"를 먼저 활성화해야 합니다.)',
   ],
   _你可以在更多他选项卡的增强分类里找到它: [
     '你可以在“更多”选项卡 → “增强”分类里找到它。（需要先启用“显示高级设置”）',
@@ -2771,11 +2766,11 @@ const langText = {
     '여러 이미지의 <span class="key">마지막 이미지</span> 긁어오지 않기',
   ],
   _下载小说的封面图片: [
-    '下载小说的<span class="key">封面图片</span>',
-    '下載小說的<span class="key">封面圖片</span>',
-    'Download the <span class="key">cover image</span> of the novel',
+    '下载小说的<span class="key">封面</span>图片',
+    '下載小說的<span class="key">封面</span>圖片',
+    'Download the <span class="key">cover</span> image of the novel',
     '小説の<span class="key">表紙画像</span>をダウンロード',
-    '소설 <span class="key">커버 이미지</span> 다운로드',
+    '소설 <span class="key">커버</span> 이미지 다운로드',
   ],
   _预览动图: [
     '<span class="key">预览</span>动图',
@@ -2783,6 +2778,41 @@ const langText = {
     '<span class="key">Preview</span> Ugoira',
     'うごイラのプレビュー',
     '움직이는 일러스트 <span class="key">미리보기</span>',
+  ],
+  _1282更新说明: [
+    `加快转换动图的速度；<br>优化预览作品的体验；<br>添加了韩语文本。`,
+    `加快轉換動圖的速度；<br>最佳化預覽作品的體驗；<br>添加了韓語文字。`,
+    `Speed up the conversion of Ugoira;<br>Optimize the experience of previewing works;<br>Add Korean text.`,
+    `うごイラの変換を高速化します;<br>作品のプレビュー体験を最適化します;<br>韓国語のテキストを追加します。`,
+    `움직이는 일러스트 변환 속도 향상,<br>优化预览图片的体验,<br>한국어 텍스트 추가.`,
+  ],
+  _过度访问警告警告: [
+    '下载器检测到你可能收到了 pixiv 的警告消息，这通常是因为过度下载导致的。<br>请等待一段时间再继续下载。',
+    '下載器檢測到你可能收到了 pixiv 的警告訊息，這通常是因為過度下載導致的。<br>請等待一段時間再繼續下載。',
+    'The downloader has detected that you may have received a warning message from pixiv, usually due to excessive downloads.<br>Please wait for a while before continuing the download.',
+    'ダウンロードが多すぎるため、pixivから警告メッセージが届いた可能性があることをダウンローダーが検出しました。<br>ダウンロードを続行する前に、しばらくお待ちください。',
+    '다운로더는 일반적으로 과도한 다운로드로 인해 pixiv에서 경고 메시지를 수신했을 수 있음을 감지했습니다.<br>다운로드를 계속하기 전에 잠시 기다려 주십시오.',
+  ],
+  _下载小说里的内嵌图片: [
+    '下载小说里的<span class="key">内嵌</span>图片',
+    '下載小說裡的<span class="key">內嵌</span>圖片',
+    'Download <span class="key">embedded</span> images in novels',
+    '小説に埋め込まれた画像をダウンロードする',
+    '소설에서 <span class="key">인라인</span> 이미지 다운로드',
+  ],
+  _其他优化: [
+    '其他优化',
+    '其他最佳化',
+    'Other optimizations',
+    'その他の最適化',
+    '기타 최적화',
+  ],
+  _隐藏浏览器底部的下载栏: [
+    '隐藏浏览器底部的<span class="key">下载栏</span>',
+    '隱藏瀏覽器底部的<span class="key">下載欄</span>',
+    `Hide the <span class="key">download bar</span> at the bottom of the browser`,
+    'ブラウザの下部にあるダウンロードバーを非表示にします',
+    '브라우저 하단의 <span class="key">다운로드 바</span> 숨기기',
   ],
 }
 

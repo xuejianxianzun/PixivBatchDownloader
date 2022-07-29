@@ -18,6 +18,7 @@ import { msgBox } from '../MsgBox'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { states } from '../store/States'
 import { pageType } from '../PageType'
+import { Config } from '../config/Config'
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {
@@ -236,6 +237,17 @@ class InitSearchNovelPage extends InitPageBase {
     }
   }
 
+  private delayReTry(p: number) {
+    window.setTimeout(() => {
+      this.getIdList(p)
+    }, Config.retryTimer)
+    // 限制时间大约是 3 分钟，这里为了保险起见，设置了更大的延迟时间。
+  }
+
+  private tipEmptyResult = Utils.debounce(() => {
+    log.error(lang.transl('_列表页被限制时返回空结果的提示'))
+  }, 1000)
+
   // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
   protected async getIdList(p?: number): Promise<void> {
     if (p === undefined) {
@@ -247,6 +259,12 @@ class InitSearchNovelPage extends InitPageBase {
     let data
     try {
       data = await this.getSearchData(p)
+
+      if (data.total === 0) {
+        console.log(`page ${p}: total 0`)
+        this.tipEmptyResult()
+        return this.delayReTry(p)
+      }
     } catch {
       return this.getIdList(p)
     }

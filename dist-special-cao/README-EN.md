@@ -29,28 +29,32 @@
 
 This is a browser extension for **Chrome** that lets you download images and novels from Pixiv in batch. 
 
+Available languages: Simplified Chinese, Traditional Chinese, Japanese, English、Korean.
+
 The main function:
 
-- Batch download all the works of the artist, your bookmark, your following, rankings, search results, etc.;
+- Batch download all the artist's works, your bookmarks, your following, rankings, search results, etc.;
 - One-click download of any work you see;
-- Manually select (multiple choice) the works to be downloaded;
+- Manually select the work you want to download on the page;
 - Set filter conditions to filter the works you want to download;
-- Save the avatar and cover image of the artist;
-- Create a folder to save files;
-- Set file naming rules;
-- Convert animated images to GIF, WebM, APNG formats;
-- Save the novel in TXT, EPUB format;
-- Save download progress and resume unfinished downloads;
-- Export work data;
-- Bookmark works in batch;
-- Add tags to uncategorized works in your bookmark;
-- Built-in image viewer to view multi-image works;
-- You can preview the image and view the original image without entering the work page;
-- Available languages: Simplified Chinese, Traditional Chinese, Japanese, English;
+- Download illustrations, manga, ugoira(animations), novels;
+- Save ugoira in GIF, WebM, APNG, ZIP formats;
+- Save novels in TXT, EPUB format;
+- Create folders with various data such as artist name, date, title, etc.;
+- Customize file names and sort them;
+- Add 0 in front of the serial number, so that the sorting will not be confused;
+- Save user avatar and cover image;
+- display larger thumbnails for easier viewing;
+- Preview the image on the thumbnail, and view the original image;
+- Save download records to avoid repeated downloads;
+- Save download progress, resume unfinished downloads;
+- export work data;
+- Collect works in batches;
+- add tags to uncategorized works in your bookmarks;
 
-![PixivBatchDownloader screenshot](./notes/ui-en-0.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-en-0.png)
 
-![PixivBatchDownloader screenshot](./notes/ui-en-1.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-en-1.png)
 
 # Install
 

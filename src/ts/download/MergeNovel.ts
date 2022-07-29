@@ -7,6 +7,7 @@ import { settings } from '../setting/Settings'
 import { lang } from '../Lang'
 import { Tools } from '../Tools'
 import { downloadNovelCover } from '../download/DownloadNovelCover'
+import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
 
 // 单个小说的数据
 interface NovelData {
@@ -14,6 +15,9 @@ interface NovelData {
   no: number
   title: string
   content: string
+  embeddedImages: null | {
+    [key: string]: string
+  }
 }
 
 // https://github.com/bbottema/js-epub-maker
@@ -60,8 +64,9 @@ class MergeNovel {
     for (const result of allResult) {
       allNovelData.push({
         no: result.seriesOrder!,
-        title: result.title,
+        title: Utils.replaceUnsafeStr(result.title),
         content: result.novelMeta!.content,
+        embeddedImages: result.novelMeta!.embeddedImages,
       })
     }
 
@@ -86,52 +91,66 @@ class MergeNovel {
 
     // 生成小说文件并下载
     let file: Blob | null = null
+    const novelName = `${firstResult.seriesTitle}-tags_${firstResult.tags}-user_${firstResult.user}-seriesId_${firstResult.seriesId}.${settings.novelSaveAs}`
     if (settings.novelSaveAs === 'txt') {
-      file = this.makeTXT(allNovelData)
+      file = await this.makeTXT(allNovelData)
+      // 保存为 txt 格式时，在这里下载小说内嵌的图片
+      for (const result of allResult) {
+        await downloadNovelEmbeddedImage.TXT(
+          result.novelMeta!.content,
+          result.novelMeta!.embeddedImages,
+          novelName,
+          'mergeNovel'
+        )
+      }
     } else {
       file = await this.makeEPUB(allNovelData, firstResult)
     }
 
     const url = URL.createObjectURL(file)
-    const fileName = `${firstResult.seriesTitle}-tags_${firstResult.tags}-user_${firstResult.user}-seriesId_${firstResult.seriesId}.${settings.novelSaveAs}`
-    Utils.downloadFile(url, fileName)
+    Utils.downloadFile(url, Utils.replaceUnsafeStr(novelName))
 
     states.mergeNovel = false
     EVT.fire('downloadComplete')
 
     // 保存第一个小说的封面图片
     // 实际上系列的封面不一定是第一个小说的封面，这里用第一个小说的封面凑合一下
-    downloadNovelCover.downloadOnMergeNovel(
-      firstResult.novelMeta!.coverUrl,
-      fileName
-    )
+    if (firstResult.novelMeta?.coverUrl) {
+      downloadNovelCover.download(
+        firstResult.novelMeta.coverUrl,
+        novelName,
+        'mergeNovel'
+      )
+    }
 
     store.reset()
   }
 
-  private makeTXT(novelDataArray: NovelData[]) {
-    const result: string[] = []
+  private async makeTXT(novelDataArray: NovelData[]): Promise<Blob> {
+    return new Promise(async (resolve, reject) => {
+      const result: string[] = []
+      if (settings.saveNovelMeta) {
+        result.push(this.meta)
+      }
 
-    if (settings.saveNovelMeta) {
-      result.push(this.meta)
-    }
+      for (const data of novelDataArray) {
+        // 添加章节名
+        result.push(`${this.chapterNo(data.no)} ${data.title}`)
+        // 在章节名与正文之间添加换行
+        result.push(this.CRLF.repeat(2))
+        // 添加正文
+        // 替换换行标签，移除 html 标签
+        result.push(
+          data.content.replace(/<br \/>/g, this.CRLF).replace(/<\/?.+?>/g, '')
+        )
+        // 在正文结尾添加换行标记，使得不同章节之间区分开来
+        result.push(this.CRLF.repeat(4))
+      }
 
-    for (const data of novelDataArray) {
-      // 添加章节名
-      result.push(`${this.chapterNo(data.no)} ${data.title}`)
-      // 在章节名与正文之间添加换行
-      result.push(this.CRLF.repeat(2))
-      // 添加正文
-      // 替换换行标签，移除 html 标签
-      result.push(
-        data.content.replace(/<br \/>/g, this.CRLF).replace(/<\/?.+?>/g, '')
-      )
-      // 在正文结尾添加换行标记，使得不同章节之间区分开来
-      result.push(this.CRLF.repeat(4))
-    }
-
-    return new Blob(result, {
-      type: 'text/plain',
+      const blob = new Blob(result, {
+        type: 'text/plain',
+      })
+      return resolve(blob)
     })
   }
 
@@ -139,7 +158,7 @@ class MergeNovel {
     novelDataArray: NovelData[],
     firstResult: Result
   ): Promise<Blob> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       // 添加一些元数据
       let epubData = new EpubMaker()
         .withTemplate('idpf-wasteland')
@@ -184,6 +203,14 @@ class MergeNovel {
 
       // 为每一篇小说创建一个章节
       for (const data of novelDataArray) {
+        let content = Tools.replaceEPUBText(data.content)
+
+        // 添加小说里内嵌的图片。这部分必须放在 replaceEPUBText 后面，否则 <img> 标签的左尖括号会被转义
+        content = await downloadNovelEmbeddedImage.EPUB(
+          content,
+          data.embeddedImages
+        )
+
         // 创建 epub 文件时不需要在标题和正文后面添加换行符
         epubData.withSection(
           new EpubMaker.Section(
@@ -191,7 +218,7 @@ class MergeNovel {
             data.no,
             {
               title: `${this.chapterNo(data.no)} ${data.title}`,
-              content: Tools.replaceEPUBText(data.content),
+              content: content,
             },
             true,
             true
@@ -218,7 +245,7 @@ class MergeNovel {
       // 对于其他地区，返回 `Chapter N`。但是由于我没有使用过国外的小说阅读软件，所以并不清楚是否能够起到分章作用
       return `Chapter ${number}`
     }
-    // 我还尝试过使用 #1 这样的编号，但是这种方式并不可靠，有的小说可以分章有的小说不可以，我也不知道怎么回事
+    // 我还尝试过使用 #1 这样的编号，但是这种方式并不可靠，有的小说可以分章有的小说不可以
   }
 }
 
