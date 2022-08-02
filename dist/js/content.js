@@ -13455,11 +13455,11 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
         _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_保存用户头像').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('saveAvatarImage');
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_保存用户封面').addEventListener('click', () => {
-            _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('saveUserCover');
-        });
         _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_保存用户头像为图标', '_保存用户头像为图标说明').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('saveAvatarIcon');
+        });
+        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_保存用户封面').addEventListener('click', () => {
+            _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('saveUserCover');
         });
         // 添加收藏本页所有作品的功能
         const bookmarkAllBtn = _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_收藏本页面的所有作品');
@@ -20231,6 +20231,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _utils_imageToIcon__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/imageToIcon */ "./src/ts/utils/imageToIcon.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+
 
 
 
@@ -20265,7 +20267,9 @@ class SaveAvatarIcon {
         const url = URL.createObjectURL(blob);
         const name = `${userProfile.body.name}_${userId}_icon.ico`;
         _utils_Utils__WEBPACK_IMPORTED_MODULE_6__["Utils"].downloadFile(url, name);
-        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success('✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_保存用户头像为图标'));
+        const msg = '✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_保存用户头像为图标');
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].success(msg);
         _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].fire('closeCenterPanel');
     }
 }
@@ -20289,6 +20293,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+
 
 
 
@@ -20323,7 +20329,9 @@ class SaveAvatarImage {
         const url = URL.createObjectURL(blob);
         const name = `${userProfile.body.name}_${userId}_avatar.${ext}`;
         _utils_Utils__WEBPACK_IMPORTED_MODULE_5__["Utils"].downloadFile(url, name);
-        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success('✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_保存用户头像'));
+        const msg = '✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_保存用户头像');
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].success(msg);
         _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].fire('closeCenterPanel');
     }
 }
@@ -20386,7 +20394,9 @@ class SaveUserCover {
         const url = URL.createObjectURL(blob);
         const name = `${userProfile.body.name}_${userId}_cover.${ext}`;
         _utils_Utils__WEBPACK_IMPORTED_MODULE_5__["Utils"].downloadFile(url, name);
-        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success('✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_保存用户封面'));
+        const msg = '✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_保存用户封面');
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].success(msg);
         _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].fire('closeCenterPanel');
     }
 }
