@@ -15031,7 +15031,7 @@ class Deduplication {
             const r = (await this.IDB.getAll(name));
             record = record.concat(r);
         }
-        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].json2Blob(record);
+        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].json2BlobSafe(record);
         const url = URL.createObjectURL(blob);
         _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].downloadFile(url, `record-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].replaceUnsafeStr(new Date().toLocaleString())}.json`);
         _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导出成功'));
@@ -15113,7 +15113,7 @@ class Deduplication {
                 n: index.toString(),
             });
         }
-        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].json2Blob(r);
+        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].json2BlobSafe(r);
         const url = URL.createObjectURL(blob);
         _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].downloadFile(url, `record-test-${number}.json`);
     }
@@ -16299,29 +16299,11 @@ class ExportResult {
         });
     }
     output() {
-        // 如果没有数据则不执行
         if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0) {
             _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_没有数据可供使用'));
             return;
         }
-        // 使用数组储存文件数据
-        let resultArray = [];
-        // 定义数组项的分隔字符
-        const split = ',';
-        // 在数组开头添加数组的开始符号
-        resultArray.push('[');
-        // 循环添加每一个结果，以及分割字符
-        for (const result of _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result) {
-            resultArray.push(JSON.stringify(result));
-            resultArray.push(split);
-        }
-        // 删除最后一个分隔符（不去掉的话会导致格式错误）
-        resultArray.pop();
-        // 在数组末尾添加数组的结束符号
-        resultArray.push(']');
-        // 创建 blob 对象
-        const blob = new Blob(resultArray, { type: 'application/json' });
-        resultArray = [];
+        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__["Utils"].json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result);
         const url = URL.createObjectURL(blob);
         _utils_Utils__WEBPACK_IMPORTED_MODULE_4__["Utils"].downloadFile(url, `result-${_utils_Utils__WEBPACK_IMPORTED_MODULE_4__["Utils"].replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getPageTitle())}-${_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].crawlCompleteTime.getTime()}.json`);
         _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导出成功'));
@@ -24497,10 +24479,30 @@ class Utils {
             }, 50);
         });
     }
-    /**如果数据量多大，不应该使用这个方法 */
+    /**JSON 转换到 Blob 对象。如果数据量太大，不应该使用这个方法 */
     static json2Blob(data) {
         const str = JSON.stringify(data, null, 2);
         const blob = new Blob([str], { type: 'application/json' });
+        return blob;
+    }
+    /**JSON 转换到 Blob 对象，可以处理更大的数据量 */
+    static json2BlobSafe(data) {
+        // 储存数组字面量
+        let result = [];
+        // 在数组开头添加数组的开始符号
+        result.push('[');
+        // 循环添加每一项数据
+        for (const item of data) {
+            result.push(JSON.stringify(item));
+            result.push(',');
+        }
+        // 删除最后一个分隔符，否则会导致格式错误
+        result.pop();
+        // 在数组末尾添加数组的结束符号
+        result.push(']');
+        // 创建 blob 对象
+        const blob = new Blob(result, { type: 'application/json' });
+        result = [];
         return blob;
     }
     /**防抖 */
