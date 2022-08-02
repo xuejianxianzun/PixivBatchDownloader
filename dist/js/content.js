@@ -3099,11 +3099,11 @@ const langText = {
         '모든 작품 다운로드',
     ],
     _从本页开始下载提示: [
-        '从本页开始下载<br>如果要限制下载的页数，请输入从1开始的数字。<br>1为仅下载本页。',
-        '從本頁開始下載。<br>如果要限制下載的頁數，請輸入從 1 開始的數字。<br>1 為僅下載本頁。',
-        'Download from this page<br>If you want to set the number of pages to download, type a number starting at 1. <br>1 is to download only this page.',
-        'このページからダウンロードする<br>ダウンロードするページを設定する場合は、1から始まる数字を入力してください。<br>1 は現在のページのみをダウンロードする。',
-        '이 페이지부터 다운로드<br>다운로드할 페이지 수를 설정하려면 1로 시작하는 숫자를 입력해주세요.<br>1은 이 페이지만 다운로드합니다.',
+        '从当前页面开始下载。<br>如果要限制下载的页数，请输入从 1 开始的数字。<br>1 为仅下载本页。',
+        '從當前頁面開始下載。<br>如果要限制下載的頁數，請輸入從 1 開始的數字。<br>1 為僅下載本頁。',
+        'Download from the current page.<br>If you want to set the number of pages to download, type a number starting at 1. <br>1 is to download only this page.',
+        '現在のページからダウンロードしてください。<br>ダウンロードするページを設定する場合は、1から始まる数字を入力してください。<br>1 は現在のページのみをダウンロードする。',
+        '현재 페이지에서 다운로드합니다.<br>다운로드할 페이지 수를 설정하려면 1로 시작하는 숫자를 입력해주세요.<br>1은 이 페이지만 다운로드합니다.',
     ],
     _下载所有页面: [
         '下载所有页面',
@@ -11153,7 +11153,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
             49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-            70, 71,
+            70, 71, 72,
         ]);
     }
     nextStep() {
@@ -20687,8 +20687,8 @@ __webpack_require__.r(__webpack_exports__);
 const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
-    <span class="setWantPageWrap">
-    <span class="has_tip settingNameStyle1" data-xztip="_抓取多少页面"><span class="setWantPageTip1" data-xztext="_抓取多少页面"></span><span class="gray1"> ? </span></span>
+    <span class="setWantPageWrap has_tip" data-xztip="_抓取多少页面">
+    <span class="settingNameStyle1"><span class="setWantPageTip1" data-xztext="_抓取多少页面"></span><span class="gray1"> ? </span></span>
     <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
     value = '-1'>&nbsp;
     <span class="setWantPageTip2 gray1" data-xztext="_数字提示1"></span>
@@ -22288,6 +22288,7 @@ class Options {
         // 获取“页数/个数”设置的元素
         const wantPageOption = this.getOption(1);
         this.wantPageEls = {
+            wrap: wantPageOption.querySelector('.setWantPageWrap'),
             text: wantPageOption.querySelector('.setWantPageTip1'),
             rangTip: wantPageOption.querySelector('.setWantPageTip2'),
             input: wantPageOption.querySelector('.setWantPage'),
@@ -22376,11 +22377,11 @@ class Options {
     showOption(no) {
         this.setOptionDisplay(no, 'block');
     }
-    // 设置 “设置页面/作品数量” 选项的提示和预设值
+    // 设置 “抓取多少作品/页面” 选项的提示和预设值
     setWantPageTip(arg) {
         _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.wantPageEls.text, arg.text);
-        this.wantPageEls.text.parentElement.dataset.xztip = arg.tip;
-        this.wantPageEls.text.parentElement.dataset.tip = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl(arg.tip);
+        this.wantPageEls.wrap.dataset.xztip = arg.tip;
+        this.wantPageEls.wrap.dataset.tip = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl(arg.tip);
         // rangTip 可能需要翻译
         if (arg.rangTip.startsWith('_')) {
             _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.wantPageEls.rangTip, arg.rangTip);
@@ -24479,17 +24480,17 @@ class Utils {
             }, 50);
         });
     }
-    /**JSON 转换到 Blob 对象。如果数据量太大，不应该使用这个方法 */
+    /**JSON 转换成 Blob 对象。如果数据量可能比较大，则不应该使用这个方法 */
     static json2Blob(data) {
         const str = JSON.stringify(data, null, 2);
         const blob = new Blob([str], { type: 'application/json' });
         return blob;
     }
-    /**JSON 转换到 Blob 对象，可以处理更大的数据量 */
+    /**JSON 转换成 Blob 对象。可以处理更大的数据量 */
     static json2BlobSafe(data) {
-        // 储存数组字面量
+        // 在这个数组里储存数组字面量
         let result = [];
-        // 在数组开头添加数组的开始符号
+        // 添加数组的开始符号
         result.push('[');
         // 循环添加每一项数据
         for (const item of data) {
@@ -24498,7 +24499,7 @@ class Utils {
         }
         // 删除最后一个分隔符，否则会导致格式错误
         result.pop();
-        // 在数组末尾添加数组的结束符号
+        // 添加数组的结束符号
         result.push(']');
         // 创建 blob 对象
         const blob = new Blob(result, { type: 'application/json' });
