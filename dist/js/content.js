@@ -14749,10 +14749,7 @@ class CheckWarningMessage {
         this.downloaded++;
         if (this.downloaded >= this.lastCheckDownloaded + this.unitNumber) {
             this.lastCheckDownloaded = this.downloaded;
-            console.log('check');
-            console.log(this.downloaded);
             const result = await this.check();
-            console.log(result);
             if (result) {
                 _MsgBox__WEBPACK_IMPORTED_MODULE_3__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_过度访问警告警告') + '<br>' + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已暂停'));
                 return _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('requestPauseDownload');
