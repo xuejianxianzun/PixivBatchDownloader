@@ -10,6 +10,7 @@ interface WantPageArg {
 }
 
 interface WantPageEls {
+  wrap: HTMLSpanElement
   text: HTMLSpanElement
   rangTip: HTMLSpanElement
   input: HTMLInputElement
@@ -24,6 +25,9 @@ class Options {
     // 获取“页数/个数”设置的元素
     const wantPageOption = this.getOption(1)!
     this.wantPageEls = {
+      wrap: wantPageOption.querySelector(
+        '.setWantPageWrap'
+      )! as HTMLSpanElement,
       text: wantPageOption.querySelector(
         '.setWantPageTip1'
       )! as HTMLSpanElement,
@@ -140,14 +144,12 @@ class Options {
     this.setOptionDisplay(no, 'block')
   }
 
-  // 设置 “设置页面/作品数量” 选项的提示和预设值
+  // 设置 “抓取多少作品/页面” 选项的提示和预设值
   public setWantPageTip(arg: WantPageArg) {
     lang.updateText(this.wantPageEls.text, arg.text)
 
-    this.wantPageEls.text.parentElement!.dataset.xztip = arg.tip
-    this.wantPageEls.text.parentElement!.dataset.tip = lang.transl(
-      arg.tip as any
-    )
+    this.wantPageEls.wrap.dataset.xztip = arg.tip
+    this.wantPageEls.wrap.dataset.tip = lang.transl(arg.tip as any)
 
     // rangTip 可能需要翻译
     if (arg.rangTip.startsWith('_')) {

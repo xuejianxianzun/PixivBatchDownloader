@@ -248,7 +248,7 @@ class Deduplication {
       record = record.concat(r)
     }
 
-    const blob = Utils.json2Blob(record)
+    const blob = Utils.json2BlobSafe(record)
     const url = URL.createObjectURL(blob)
     Utils.downloadFile(
       url,
@@ -352,7 +352,7 @@ class Deduplication {
       })
     }
 
-    const blob = Utils.json2Blob(r)
+    const blob = Utils.json2BlobSafe(r)
     const url = URL.createObjectURL(blob)
     Utils.downloadFile(url, `record-test-${number}.json`)
   }

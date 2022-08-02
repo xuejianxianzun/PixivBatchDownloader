@@ -205,11 +205,11 @@ const langText = {
     '모든 작품 다운로드',
   ],
   _从本页开始下载提示: [
-    '从本页开始下载<br>如果要限制下载的页数，请输入从1开始的数字。<br>1为仅下载本页。',
-    '從本頁開始下載。<br>如果要限制下載的頁數，請輸入從 1 開始的數字。<br>1 為僅下載本頁。',
-    'Download from this page<br>If you want to set the number of pages to download, type a number starting at 1. <br>1 is to download only this page.',
-    'このページからダウンロードする<br>ダウンロードするページを設定する場合は、1から始まる数字を入力してください。<br>1 は現在のページのみをダウンロードする。',
-    '이 페이지부터 다운로드<br>다운로드할 페이지 수를 설정하려면 1로 시작하는 숫자를 입력해주세요.<br>1은 이 페이지만 다운로드합니다.',
+    '从当前页面开始下载。<br>如果要限制下载的页数，请输入从 1 开始的数字。<br>1 为仅下载本页。',
+    '從當前頁面開始下載。<br>如果要限制下載的頁數，請輸入從 1 開始的數字。<br>1 為僅下載本頁。',
+    'Download from the current page.<br>If you want to set the number of pages to download, type a number starting at 1. <br>1 is to download only this page.',
+    '現在のページからダウンロードしてください。<br>ダウンロードするページを設定する場合は、1から始まる数字を入力してください。<br>1 は現在のページのみをダウンロードする。',
+    '현재 페이지에서 다운로드합니다.<br>다운로드할 페이지 수를 설정하려면 1로 시작하는 숫자를 입력해주세요.<br>1은 이 페이지만 다운로드합니다.',
   ],
   _下载所有页面: [
     '下载所有页面',
