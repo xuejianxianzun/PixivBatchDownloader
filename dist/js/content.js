@@ -877,7 +877,7 @@ class CenterPanel {
         // 当可以开始下载时，切换到“下载”选项卡
         for (const ev of [
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish,
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resultChange,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.importResultSuccess,
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume,
         ]) {
             window.addEventListener(ev, () => {
@@ -1495,8 +1495,10 @@ class EVENT {
             exportCSV: 'exportCSV',
             /** 当需要导出抓取结果时触发 */
             exportResult: 'exportResult',
-            /** 当需要导出抓取结果时触发 */
+            /** 当需要导入抓取结果时触发 */
             importResult: 'importResult',
+            /** 当需要导入抓取结果成功时触发 */
+            importResultSuccess: 'importResultSuccess',
             /** 当需要保存用户头像时触发 */
             saveAvatarImage: 'saveAvatarImage',
             /** 当需要保存用户头像为图标时触发 */
@@ -5708,6 +5710,13 @@ const langText = {
         'ブラウザの下部にあるダウンロードバーを非表示にします',
         '브라우저 하단의 <span class="key">다운로드 바</span> 숨기기',
     ],
+    _没有可用的抓取结果: [
+        '没有可用的抓取结果',
+        '沒有可用的抓取結果',
+        'No crawl results available',
+        'クロール結果がありません',
+        '사용 가능한 크롤링 결과가 없습니다.',
+    ]
 };
 
 
@@ -12052,11 +12061,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     // 在抓取完成之后，所有会从结果合集中删除某些结果的操作都要经过这里
     async filterResult(callback) {
         if (this.resultMeta.length === 0) {
-            _Toast__WEBPACK_IMPORTED_MODULE_17__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'));
+            _Toast__WEBPACK_IMPORTED_MODULE_17__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有可用的抓取结果'));
             return;
         }
-        _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('closeCenterPanel');
-        _Log__WEBPACK_IMPORTED_MODULE_9__["log"].clear();
         const beforeLength = this.resultMeta.length; // 储存过滤前的结果数量
         const resultMetaTemp = [];
         const resultMetaRemoved = [];
@@ -12100,7 +12107,6 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             _Toast__WEBPACK_IMPORTED_MODULE_17__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_当前任务尚未完成'));
             return;
         }
-        _Log__WEBPACK_IMPORTED_MODULE_9__["log"].clear();
         this.getMultipleSetting();
         this.filterResult((data) => {
             const filterOpt = {
@@ -15715,7 +15721,10 @@ class DownloadControl {
     // 开始下载
     startDownload() {
         if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].busy) {
-            return;
+            return _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_当前任务尚未完成'));
+        }
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_没有可用的抓取结果'));
         }
         if (this.pause) {
             // 从上次中断的位置继续下载
@@ -16246,7 +16255,7 @@ class ExportLST {
     }
     createLst() {
         if (_store_Store__WEBPACK_IMPORTED_MODULE_1__["store"].result.length === 0) {
-            _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_没有数据可供使用'));
+            _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_没有可用的抓取结果'));
             return;
         }
         const array = [];
@@ -16297,7 +16306,7 @@ class ExportResult {
     }
     output() {
         if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0) {
-            _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_没有数据可供使用'));
+            _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_没有可用的抓取结果'));
             return;
         }
         const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__["Utils"].json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result);
@@ -16595,7 +16604,7 @@ class ImportResult {
             _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].addResult(r);
         }
         // 发送通知
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('resultChange');
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('importResultSuccess');
         _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入成功'));
     }
 }
@@ -19297,7 +19306,7 @@ class PreviewFileName {
     }
     previewFileName() {
         if (_store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].result.length === 0) {
-            return _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_没有数据可供使用'));
+            return _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_没有可用的抓取结果'));
         }
         // 使用数组储存和拼接字符串，提高性能
         const resultArr = [];
@@ -19408,7 +19417,7 @@ class ShowURLs {
             }
         }
         if (_store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].result.length === 0 || urls.length === 0) {
-            return _Toast__WEBPACK_IMPORTED_MODULE_4__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'));
+            return _Toast__WEBPACK_IMPORTED_MODULE_4__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有可用的抓取结果'));
         }
         let result = '';
         if (_store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].result.length < _config_Config__WEBPACK_IMPORTED_MODULE_5__["Config"].outputMax) {
@@ -19684,7 +19693,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 // 删除页面上的作品
+
+
 
 
 
@@ -19758,7 +19771,10 @@ class DeleteWorks {
                 _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'));
                 return;
             }
-            _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('closeCenterPanel');
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_8__["store"].resultMeta.length === 0) {
+                _Toast__WEBPACK_IMPORTED_MODULE_9__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_没有可用的抓取结果'));
+                return;
+            }
             this.clearMultiple();
             callback();
         }, false);
@@ -19771,7 +19787,10 @@ class DeleteWorks {
                 _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'));
                 return;
             }
-            _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('closeCenterPanel');
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_8__["store"].resultMeta.length === 0) {
+                _Toast__WEBPACK_IMPORTED_MODULE_9__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_没有可用的抓取结果'));
+                return;
+            }
             this.ClearUgoira();
             callback();
         }, false);
@@ -19786,12 +19805,16 @@ class DeleteWorks {
     }
     // 切换删除模式
     toggleDeleteMode() {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_8__["store"].resultMeta.length === 0) {
+            _Toast__WEBPACK_IMPORTED_MODULE_9__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_没有可用的抓取结果'));
+            return;
+        }
         this.delMode = !this.delMode;
         this.bindDeleteEvent();
         this.updateDeleteIcon();
         if (this.delMode) {
             _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.delBtn, '_退出手动删除');
-            setTimeout(() => {
+            window.setTimeout(() => {
                 _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('closeCenterPanel');
             }, 100);
         }
