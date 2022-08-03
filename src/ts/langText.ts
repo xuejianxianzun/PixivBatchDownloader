@@ -585,11 +585,11 @@ const langText = {
     '<span class="key">명명</span> 규칙',
   ],
   _设置文件夹名的提示: [
-    "可以使用 '/' 建立文件夹。示例：",
-    '可以使用斜線（/）建立資料夾。範例：',
-    "You can create a directory with '/'. Example：",
-    "フォルダーは '/' で作成できます。例：",
-    "'/'을 사용하여 디렉토리를 생성할 수 있습니다.<br>예:",
+    `可以使用 '<span class="key">/</span>' 建立文件夹。示例：`,
+    `可以使用斜線（<span class="key">/</span>）建立資料夾。範例：`,
+    `You can create a directory with '<span class="key">/</span>'. Example：`,
+    `フォルダーは '<span class="key">/</span>' で作成できます。例：`,
+    `'<span class="key">/</span>'을 사용하여 디렉토리를 생성할 수 있습니다.<br>예:`,
   ],
   _添加命名标记前缀: [
     '添加命名标记<span class="key">前缀</span>',
@@ -2820,6 +2820,13 @@ const langText = {
     'No crawl results available',
     'クロール結果がありません',
     '사용 가능한 크롤링 결과가 없습니다.',
+  ],
+  _预览作品时按快捷键D可以下载这个作品: [
+    '预览作品时，按快捷键 <span class="key">D</span> 可以下载这个作品。',
+    '預覽作品時，按快捷鍵 <span class="key">D</span> 可以下載這個作品。',
+    'When previewing a work, press the shortcut key <span class="key">D</span> to download the work.',
+    '作品をプレビューしているときに、ショートカット キー <span class="key">D</span> を押すと、作品をダウンロードできます。',
+    '이미지를 미리 보는 동안 바로 가기 <span class="key">D</span>를 눌러 다운로드하세요.',
   ],
 }
 

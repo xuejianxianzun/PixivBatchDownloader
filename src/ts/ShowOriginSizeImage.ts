@@ -4,6 +4,10 @@ import { Utils } from './utils/Utils'
 import { mouseOverThumbnail } from './MouseOverThumbnail'
 import { PreviewUgoira } from './PreviewUgoira'
 import { ArtworkData } from './crawl/CrawlResult'
+import { states } from './store/States'
+import { toast } from './Toast'
+import { lang } from './Lang'
+import { Colors } from './config/Colors'
 
 interface Style {
   imgW: number
@@ -158,6 +162,25 @@ class ShowOriginSizeImage {
         this.rightClickBeforeShow = false
         this.moveX = ev.clientX
         this.moveY = ev.clientY
+      }
+    })
+
+    // 预览大图时，可以使用快捷键 D 下载这个作品
+    window.addEventListener('keydown', (ev) => {
+      if (ev.code === 'KeyD' && this.show) {
+        EVT.fire('crawlIdList', [
+          {
+            type: 'illusts',
+            id: this.workData!.body.id,
+          },
+        ])
+
+        // 下载时不显示下载面板
+        states.quickCrawl = true
+        toast.show(lang.transl('_已发送下载请求'), {
+          bgColor: Colors.bgBlue,
+          position: 'center',
+        })
       }
     })
   }

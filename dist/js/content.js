@@ -3481,11 +3481,11 @@ const langText = {
         '<span class="key">명명</span> 규칙',
     ],
     _设置文件夹名的提示: [
-        "可以使用 '/' 建立文件夹。示例：",
-        '可以使用斜線（/）建立資料夾。範例：',
-        "You can create a directory with '/'. Example：",
-        "フォルダーは '/' で作成できます。例：",
-        "'/'을 사용하여 디렉토리를 생성할 수 있습니다.<br>예:",
+        `可以使用 '<span class="key">/</span>' 建立文件夹。示例：`,
+        `可以使用斜線（<span class="key">/</span>）建立資料夾。範例：`,
+        `You can create a directory with '<span class="key">/</span>'. Example：`,
+        `フォルダーは '<span class="key">/</span>' で作成できます。例：`,
+        `'<span class="key">/</span>'을 사용하여 디렉토리를 생성할 수 있습니다.<br>예:`,
     ],
     _添加命名标记前缀: [
         '添加命名标记<span class="key">前缀</span>',
@@ -5716,6 +5716,13 @@ const langText = {
         'No crawl results available',
         'クロール結果がありません',
         '사용 가능한 크롤링 결과가 없습니다.',
+    ],
+    _预览作品时按快捷键D可以下载这个作品: [
+        '预览作品时，按快捷键 <span class="key">D</span> 可以下载这个作品。',
+        '預覽作品時，按快捷鍵 <span class="key">D</span> 可以下載這個作品。',
+        'When previewing a work, press the shortcut key <span class="key">D</span> to download the work.',
+        '作品をプレビューしているときに、ショートカット キー <span class="key">D</span> を押すと、作品をダウンロードできます。',
+        '이미지를 미리 보는 동안 바로 가기 <span class="key">D</span>를 눌러 다운로드하세요.',
     ]
 };
 
@@ -6724,6 +6731,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _PreviewUgoira__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./PreviewUgoira */ "./src/ts/PreviewUgoira.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./config/Colors */ "./src/ts/config/Colors.ts");
+
+
+
 
 
 
@@ -6878,9 +6891,22 @@ class PreviewWork {
             }
         });
         // 可以使用 Alt + P 快捷键来启用/禁用此功能
+        // 预览作品时，可以使用快捷键 D 下载这个作品
         window.addEventListener('keydown', (ev) => {
             if (ev.altKey && ev.code === 'KeyP') {
                 Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('PreviewWork', !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork);
+            }
+            if (ev.code === 'KeyD' && this.show) {
+                _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('crawlIdList', [{
+                        type: 'illusts',
+                        id: this.workData.body.id,
+                    }]);
+                // 下载时不显示下载面板
+                _store_States__WEBPACK_IMPORTED_MODULE_6__["states"].quickCrawl = true;
+                _Toast__WEBPACK_IMPORTED_MODULE_9__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_10__["lang"].transl('_已发送下载请求'), {
+                    bgColor: _config_Colors__WEBPACK_IMPORTED_MODULE_11__["Colors"].bgBlue,
+                    position: 'center',
+                });
             }
         });
         const hiddenEvtList = [
@@ -8283,6 +8309,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./MouseOverThumbnail */ "./src/ts/MouseOverThumbnail.ts");
 /* harmony import */ var _PreviewUgoira__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./PreviewUgoira */ "./src/ts/PreviewUgoira.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./config/Colors */ "./src/ts/config/Colors.ts");
+
+
+
+
 
 
 
@@ -8415,6 +8449,21 @@ class ShowOriginSizeImage {
                 this.rightClickBeforeShow = false;
                 this.moveX = ev.clientX;
                 this.moveY = ev.clientY;
+            }
+        });
+        // 预览大图时，可以使用快捷键 D 下载这个作品
+        window.addEventListener('keydown', (ev) => {
+            if (ev.code === 'KeyD' && this.show) {
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlIdList', [{
+                        type: 'illusts',
+                        id: this.workData.body.id,
+                    }]);
+                // 下载时不显示下载面板
+                _store_States__WEBPACK_IMPORTED_MODULE_5__["states"].quickCrawl = true;
+                _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_7__["lang"].transl('_已发送下载请求'), {
+                    bgColor: _config_Colors__WEBPACK_IMPORTED_MODULE_8__["Colors"].bgBlue,
+                    position: 'center',
+                });
             }
         });
     }
@@ -9109,7 +9158,10 @@ class Toast {
         if (arg.position === 'topCenter') {
             lastTop = this.minTop;
         }
-        else if (arg.position === 'mouse') {
+        if (arg.position === 'center') {
+            lastTop = window.innerHeight / 2 - this.minTop;
+        }
+        if (arg.position === 'mouse') {
             // 跟随鼠标位置
             // top 值减去一点高度，使文字出现在鼠标上方
             let y = this.mousePosition.y - 40;
@@ -15400,8 +15452,8 @@ class Download {
             // 生成下载链接
             const blobUrl = URL.createObjectURL(file);
             // 对插画、漫画进行颜色检查
-            // 在这里进行检查的主要原因：抓取时只能检测第一张的缩略图，并没有检查后面的图片。所以这里需要对后面的图片进行检查。
-            // 另一个原因：如果抓取时没有设置不下载某种颜色的图片，下载时又开启了设置，那么就在这里进行检查
+            // 在这里进行检查的主要原因：抓取时只会检查单图作品的颜色，不会检查多图作品的颜色。所以多图作品需要在这里进行检查。
+            // 另一个原因：如果抓取时没有设置图片的颜色条件，下载时才设置颜色条件，那么就必须在这里进行检查。
             if (arg.result.type === 0 || arg.result.type === 1) {
                 const result = await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check({
                     mini: blobUrl,
@@ -20541,13 +20593,31 @@ __webpack_require__.r(__webpack_exports__);
 class Form {
     constructor() {
         this.chooseKeys = ['Enter', 'NumpadEnter']; // 让回车键可以控制复选框（浏览器默认只支持空格键）
+        // 管理一些固定格式的帮助元素
+        this.tips = [
+            {
+                wrapID: 'tipCreateFolder',
+                wrap: document.createElement('span'),
+                settingName: 'tipCreateFolder',
+            },
+            {
+                wrapID: 'tipPressDToDownload',
+                wrap: document.createElement('span'),
+                settingName: 'tipPressDToDownload',
+            },
+        ];
         this.form = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_3__["formHtml"]);
         _Theme__WEBPACK_IMPORTED_MODULE_5__["theme"].register(this.form);
         _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.form);
         this.allCheckBox = this.form.querySelectorAll('input[type="checkbox"]');
         this.allRadio = this.form.querySelectorAll('input[type="radio"]');
         this.allSwitch = this.form.querySelectorAll('.checkbox_switch');
-        this.createFolderTipEl = this.form.querySelector('#tipCreateFolder');
+        for (const item of this.tips) {
+            const wrap = this.form.querySelector('#' + item.wrapID);
+            if (wrap) {
+                item.wrap = wrap;
+            }
+        }
         new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_4__["SaveNamingRule"](this.form.userSetName);
         new _FormSettings__WEBPACK_IMPORTED_MODULE_6__["FormSettings"](this.form);
         this.bindEvents();
@@ -20577,13 +20647,17 @@ class Form {
         // 设置变化或者重置时，重新设置美化状态
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].debounce(() => {
             this.initFormBueatiful();
-            this.showCreateFolderTip();
+            this.showTips();
         }, 50));
-        // 用户点击“我知道了”按钮之后不再显示提示
-        const btn = this.createFolderTipEl.querySelector('button');
-        btn.addEventListener('click', () => {
-            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["setSetting"])('tipCreateFolder', false);
-        });
+        // 用户点击“我知道了”按钮之后不再显示对应的提示
+        for (const item of this.tips) {
+            if (item.wrap) {
+                const btn = item.wrap.querySelector('button');
+                btn.addEventListener('click', () => {
+                    Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["setSetting"])(item.settingName, false);
+                });
+            }
+        }
         // 选择背景图片
         {
             const el = this.form.querySelector('#selectBG');
@@ -20702,14 +20776,18 @@ class Form {
             }
         }
     }
-    // 是否显示创建文件夹的提示
-    showCreateFolderTip() {
-        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].isPixiv()) {
-            return (this.createFolderTipEl.style.display = 'none');
+    // 是否显示提示
+    showTips() {
+        for (const item of this.tips) {
+            if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].isPixiv()) {
+                item.wrap.style.display = 'none';
+            }
+            else {
+                item.wrap.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"][item.settingName]
+                    ? 'block'
+                    : 'none';
+            }
         }
-        this.createFolderTipEl.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].tipCreateFolder
-            ? 'block'
-            : 'none';
     }
 }
 const form = new Form().form;
@@ -21570,6 +21648,16 @@ const formHtml = `<form class="settingForm">
     <span class="settingNameStyle1" data-xztext="_预览动图"></span>
     <input type="checkbox" name="previewUgoira" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
+    </p>
+    
+    <p class="tip tipWithBtn" id="tipPressDToDownload">
+      <span class="left">
+      <span data-xztext="_预览作品时按快捷键D可以下载这个作品"></span>
+      </span>
+      <span class="right">
+        <button type="button" class="textButton gray1" id="tipPressDToDownloadBtn" data-xztext="_我知道了">
+        </button>
+      </span>
     </p>
 
     <p class="option" data-no="62">
@@ -22799,6 +22887,7 @@ class Settings {
             downloadNovelEmbeddedImage: true,
             previewUgoira: true,
             hiddenBrowserDownloadBar: false,
+            tipPressDToDownload: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -22900,6 +22989,7 @@ class Settings {
         const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].json2Blob(this.settings);
         const url = URL.createObjectURL(blob);
         _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].downloadFile(url, _config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].appName + ` Settings.json`);
+        _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_7__["lang"].transl('_导出成功'));
     }
     async importSettings() {
         const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].loadJSONFile().catch((err) => {

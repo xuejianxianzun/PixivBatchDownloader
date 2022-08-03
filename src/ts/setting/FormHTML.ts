@@ -841,6 +841,16 @@ export const formHtml = `<form class="settingForm">
     <input type="checkbox" name="previewUgoira" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
     </p>
+    
+    <p class="tip tipWithBtn" id="tipPressDToDownload">
+      <span class="left">
+      <span data-xztext="_预览作品时按快捷键D可以下载这个作品"></span>
+      </span>
+      <span class="right">
+        <button type="button" class="textButton gray1" id="tipPressDToDownloadBtn" data-xztext="_我知道了">
+        </button>
+      </span>
+    </p>
 
     <p class="option" data-no="62">
     <span class="settingNameStyle1" data-xztext="_长按右键显示大图"></span>

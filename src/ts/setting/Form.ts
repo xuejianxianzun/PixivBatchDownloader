@@ -1,6 +1,5 @@
 import { EVT } from '../EVT'
 import { Tools } from '../Tools'
-import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
 import { formHtml } from './FormHTML'
 import { SettingsForm } from './SettingsForm'
@@ -8,7 +7,7 @@ import { SaveNamingRule } from './SaveNamingRule'
 import { theme } from '../Theme'
 import { FormSettings } from './FormSettings'
 import { Utils } from '../utils/Utils'
-import { settings, setSetting } from '../setting/Settings'
+import { settings, setSetting, SettingKeys } from '../setting/Settings'
 
 // 设置表单
 class Form {
@@ -27,9 +26,14 @@ class Form {
 
     this.allSwitch = this.form.querySelectorAll('.checkbox_switch')
 
-    this.createFolderTipEl = this.form.querySelector(
-      '#tipCreateFolder'
-    )! as HTMLElement
+    for (const item of this.tips) {
+      const wrap: HTMLSpanElement = this.form.querySelector(
+        '#' + item.wrapID
+      ) as HTMLSpanElement
+      if (wrap) {
+        item.wrap = wrap
+      }
+    }
 
     new SaveNamingRule(this.form.userSetName)
 
@@ -48,13 +52,30 @@ class Form {
   }
 
   public form: SettingsForm
-  private createFolderTipEl!: HTMLElement
 
   private allSwitch: NodeListOf<HTMLInputElement> // 所有开关（同时也是复选框）
   private allCheckBox: NodeListOf<HTMLInputElement> // 所有复选框
   private allRadio: NodeListOf<HTMLInputElement> // 单选按钮
 
   private readonly chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
+
+  // 管理一些固定格式的帮助元素
+  private tips: {
+    wrapID: string
+    wrap: HTMLSpanElement
+    settingName: SettingKeys
+  }[] = [
+    {
+      wrapID: 'tipCreateFolder',
+      wrap: document.createElement('span'),
+      settingName: 'tipCreateFolder',
+    },
+    {
+      wrapID: 'tipPressDToDownload',
+      wrap: document.createElement('span'),
+      settingName: 'tipPressDToDownload',
+    },
+  ]
 
   private bindEvents() {
     // 给美化的复选框绑定功能
@@ -79,15 +100,19 @@ class Form {
       EVT.list.settingChange,
       Utils.debounce(() => {
         this.initFormBueatiful()
-        this.showCreateFolderTip()
+        this.showTips()
       }, 50)
     )
 
-    // 用户点击“我知道了”按钮之后不再显示提示
-    const btn = this.createFolderTipEl.querySelector('button')!
-    btn.addEventListener('click', () => {
-      setSetting('tipCreateFolder', false)
-    })
+    // 用户点击“我知道了”按钮之后不再显示对应的提示
+    for (const item of this.tips) {
+      if (item.wrap) {
+        const btn = item.wrap.querySelector('button')!
+        btn.addEventListener('click', () => {
+          setSetting(item.settingName, false)
+        })
+      }
+    }
 
     // 选择背景图片
     {
@@ -229,14 +254,15 @@ class Form {
     }
   }
 
-  // 是否显示创建文件夹的提示
-  private showCreateFolderTip() {
-    if (!Utils.isPixiv()) {
-      return (this.createFolderTipEl.style.display = 'none')
+  // 是否显示提示
+  private showTips() {
+    for (const item of this.tips) {
+      if (!Utils.isPixiv()) {
+        item.wrap.style.display = 'none'
+      } else {
+        item.wrap.style.display = settings[item.settingName] ? 'block' : 'none'
+      }
     }
-    this.createFolderTipEl.style.display = settings.tipCreateFolder
-      ? 'block'
-      : 'none'
   }
 }
 
