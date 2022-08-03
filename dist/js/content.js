@@ -3643,25 +3643,25 @@ const langText = {
         '현재 페이지 태그. 태그가 없는 경우 사용할 수 없습니다.',
     ],
     _命名标记seriesTitle: [
-        '系列标题（可能为空）',
-        '系列標題（可能為空）',
-        'Series title (may be empty)',
-        'シリーズタイトル（あれば）',
-        '시리즈 제목 (비어있을 수 있음)',
+        '系列标题，只在系列页面中可用（小说系列、漫画系列）。',
+        '系列標題，只在系列頁面中可用（小說系列、漫畫系列）。',
+        'Series title, only available in series pages (Novel series, Manga series).',
+        'シリーズタイトル，シリーズページのみ（小説連載、漫画連載）。',
+        '시리즈 제목, 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
     ],
     _命名标记seriesOrder: [
-        '作品在系列中的序号，如 #1 #2',
-        '作品在系列中的編號，如 #1 #2',
-        'The number of the work in the series, such as #1 #2',
-        'シリーズの中の作品の番号，例え #1 #2',
-        '시리즈 내 작품 번호. 예: #1 #2',
+        '作品在系列中的序号，如 #1 #2。只在系列页面中可用（小说系列、漫画系列）。',
+        '作品在系列中的編號，如 #1 #2。只在系列頁面中可用（小說系列、漫畫系列）。',
+        'The number of the work in the series, such as #1 #2. only available in series pages (Novel series, Manga series).',
+        'シリーズの中の作品の番号，例え #1 #2。シリーズページのみ（小説連載、漫画連載）。',
+        '시리즈 내 작품 번호. 예: #1 #2. 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
     ],
     _命名标记seriesId: [
-        '系列 ID',
-        '系列 ID',
-        'Series ID',
-        'シリーズ ID',
-        '시리즈 ID',
+        '系列 ID，只在系列页面中可用（小说系列、漫画系列）。',
+        '系列 ID，只在系列頁面中可用（小說系列、漫畫系列）。',
+        'Series ID, only available in series pages (Novel series, Manga series).',
+        'シリーズ ID，シリーズページのみ（小説連載、漫画連載）。',
+        '시리즈 ID, 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
     ],
     _文件夹标记PTitle: [
         '当前页面的标题',
@@ -5723,7 +5723,7 @@ const langText = {
         'When previewing a work, press the shortcut key <span class="key">D</span> to download the work.',
         '作品をプレビューしているときに、ショートカット キー <span class="key">D</span> を押すと、作品をダウンロードできます。',
         '이미지를 미리 보는 동안 바로 가기 <span class="key">D</span>를 눌러 다운로드하세요.',
-    ]
+    ],
 };
 
 
@@ -6897,10 +6897,12 @@ class PreviewWork {
                 Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('PreviewWork', !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork);
             }
             if (ev.code === 'KeyD' && this.show) {
-                _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('crawlIdList', [{
+                _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('crawlIdList', [
+                    {
                         type: 'illusts',
                         id: this.workData.body.id,
-                    }]);
+                    },
+                ]);
                 // 下载时不显示下载面板
                 _store_States__WEBPACK_IMPORTED_MODULE_6__["states"].quickCrawl = true;
                 _Toast__WEBPACK_IMPORTED_MODULE_9__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_10__["lang"].transl('_已发送下载请求'), {
@@ -8454,10 +8456,12 @@ class ShowOriginSizeImage {
         // 预览大图时，可以使用快捷键 D 下载这个作品
         window.addEventListener('keydown', (ev) => {
             if (ev.code === 'KeyD' && this.show) {
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlIdList', [{
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlIdList', [
+                    {
                         type: 'illusts',
                         id: this.workData.body.id,
-                    }]);
+                    },
+                ]);
                 // 下载时不显示下载面板
                 _store_States__WEBPACK_IMPORTED_MODULE_5__["states"].quickCrawl = true;
                 _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_7__["lang"].transl('_已发送下载请求'), {
@@ -20783,9 +20787,7 @@ class Form {
                 item.wrap.style.display = 'none';
             }
             else {
-                item.wrap.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"][item.settingName]
-                    ? 'block'
-                    : 'none';
+                item.wrap.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"][item.settingName] ? 'block' : 'none';
             }
         }
     }
