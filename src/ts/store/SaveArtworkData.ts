@@ -28,11 +28,12 @@ class SaveArtworkData {
       bookmarkData: body.bookmarkData,
       width: body.pageCount === 1 ? fullWidth : 0,
       height: body.pageCount === 1 ? fullHeight : 0,
-      mini: body.urls.mini,
+      mini: body.pageCount === 1 ? body.urls.mini : undefined,
       userId: body.userId,
       xRestrict: body.xRestrict,
     }
-    // 这里检查颜色设置是有一个隐患的：因为有些多图作品第一张图的颜色和后面的图片的颜色不一样，但这里检查时只检查第一张的缩略图。如果第一张被排除掉了，那么它后面的图片也就不会被加入抓取结果。
+    // 对于多图作品，其宽高和颜色不在这里进行检查。也就是只会在下载时检查。
+    // 这是因为在多图作品里，第一张图片的宽高和颜色不能代表剩余的图片。
 
     // 检查通过
     if (await filter.check(filterOpt)) {

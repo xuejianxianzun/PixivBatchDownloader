@@ -2820,7 +2820,7 @@ const langText = {
     'No crawl results available',
     'クロール結果がありません',
     '사용 가능한 크롤링 결과가 없습니다.',
-  ]
+  ],
 }
 
 export { langText }
