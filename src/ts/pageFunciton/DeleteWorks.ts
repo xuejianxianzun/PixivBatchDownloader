@@ -7,6 +7,8 @@ import { states } from '../store/States'
 import { EVT } from '../EVT'
 import { msgBox } from '../MsgBox'
 import { Utils } from '../utils/Utils'
+import { store } from '../store/Store'
+import { toast } from '../Toast'
 
 class DeleteWorks {
   constructor(worksSelectors: string) {
@@ -104,7 +106,12 @@ class DeleteWorks {
           msgBox.error(lang.transl('_当前任务尚未完成'))
           return
         }
-        EVT.fire('closeCenterPanel')
+
+        if (store.resultMeta.length === 0) {
+          toast.error(lang.transl('_没有可用的抓取结果'))
+          return
+        }
+
         this.clearMultiple()
         callback()
       },
@@ -128,7 +135,12 @@ class DeleteWorks {
           msgBox.error(lang.transl('_当前任务尚未完成'))
           return
         }
-        EVT.fire('closeCenterPanel')
+
+        if (store.resultMeta.length === 0) {
+          toast.error(lang.transl('_没有可用的抓取结果'))
+          return
+        }
+
         this.ClearUgoira()
         callback()
       },
@@ -153,6 +165,10 @@ class DeleteWorks {
 
   // 切换删除模式
   private toggleDeleteMode() {
+    if (store.resultMeta.length === 0) {
+      toast.error(lang.transl('_没有可用的抓取结果'))
+      return
+    }
     this.delMode = !this.delMode
 
     this.bindDeleteEvent()
@@ -161,7 +177,7 @@ class DeleteWorks {
 
     if (this.delMode) {
       lang.updateText(this.delBtn, '_退出手动删除')
-      setTimeout(() => {
+      window.setTimeout(() => {
         EVT.fire('closeCenterPanel')
       }, 100)
     } else {

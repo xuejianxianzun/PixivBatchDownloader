@@ -216,7 +216,7 @@ class CenterPanel {
     // 当可以开始下载时，切换到“下载”选项卡
     for (const ev of [
       EVT.list.crawlFinish,
-      EVT.list.resultChange,
+      EVT.list.importResultSuccess,
       EVT.list.resume,
     ]) {
       window.addEventListener(ev, () => {

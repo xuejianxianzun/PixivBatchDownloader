@@ -359,7 +359,11 @@ class DownloadControl {
   // 开始下载
   private startDownload() {
     if (states.busy) {
-      return
+      return toast.error(lang.transl('_当前任务尚未完成'))
+    }
+
+    if (store.result.length === 0) {
+      return toast.error(lang.transl('_没有可用的抓取结果'))
     }
 
     if (this.pause) {

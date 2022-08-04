@@ -7,18 +7,40 @@ class BlackAndWhiteImage {
   private readonly latitude = 1 // 宽容度
 
   public async check(imgUrl: string): Promise<boolean> {
+    // 加载图片
+    let img: HTMLImageElement
     try {
-      const img = await this.loadImg(imgUrl)
-      const first = this.getResult(this.getColor(img))
-      return first
+      img = await this.loadImg(imgUrl)
     } catch (error) {
       // loadImg 失败时返回的 reject 会在这里被捕获
       // 直接把这个图片视为彩色图片
       return false
     }
+
+    const imgData = this.getImageData(img)
+    // 把图片的像素分为 4 份，依次检查它们的色彩
+    const pixel = img.width * img.height
+    const part = 4
+    // 计算每一份有多少字节。由于像素数量可能不是 4 的整数倍，所以向下舍入
+    let eachLength = Math.floor(pixel / part) * 4
+    let times = 0
+
+    while (times < part) {
+      const start = times * eachLength
+      times++
+      const end = times * eachLength
+      const bool = this.getResult(imgData, start, end)
+      // 如果某一部分是彩色图片，就直接返回结果，把整个图片视为彩色图片
+      // 如果这一部分是黑白图片，则继续检查下一部分
+      if (!bool) {
+        return false
+      }
+    }
+
+    // 因为彩色图片会短路返回，所以执行到这里意味着所有部分都是黑白图片
+    return true
   }
 
-  // 加载图片
   private async loadImg(url: string): Promise<HTMLImageElement> {
     return new Promise(async (resolve, reject) => {
       // 如果传递的是 blobURL 就直接使用
@@ -41,8 +63,7 @@ class BlackAndWhiteImage {
     })
   }
 
-  // 获取图片中 rgb 三色的平均值
-  private getColor(img: HTMLImageElement) {
+  private getImageData(img: HTMLImageElement) {
     const width = img.width
     const height = img.height
 
@@ -53,46 +74,42 @@ class BlackAndWhiteImage {
     con.drawImage(img, 0, 0)
     const imageData = con.getImageData(0, 0, width, height)
 
-    const data = imageData.data
+    return imageData.data
+  }
 
+  /**计算 r g b 三种颜色的平均值，判断是否是黑白图片
+   *
+   * 返回值 true 为黑白图片，false 为彩色图片
+   */
+  private getResult(imgData: Uint8ClampedArray, start: number, end: number) {
+    // 把 R G B 值分别相加
     let r = 0
     let g = 0
     let b = 0
 
-    // 取所有像素的平均值
-    for (let row = 0; row < height; row++) {
-      for (let col = 0; col < width; col++) {
-        r += data[(width * row + col) * 4]
-        g += data[(width * row + col) * 4 + 1]
-        b += data[(width * row + col) * 4 + 2]
-      }
+    const totalLength = end - start
+    while (start < end) {
+      r += imgData[start]
+      g += imgData[start + 1]
+      b += imgData[start + 2]
+      start = start + 4
     }
 
-    // 求取平均值
-    r /= width * height
-    g /= width * height
-    b /= width * height
+    // 求平均值，并取整
+    const pixel = totalLength / 4
+    r = Math.round(r / pixel)
+    g = Math.round(g / pixel)
+    b = Math.round(b / pixel)
 
-    // 将最终的值取整
-    r = Math.round(r)
-    g = Math.round(g)
-    b = Math.round(b)
-
-    return [r, g, b]
-  }
-
-  // 根据 rgb 的值，判断是否是黑白图片
-  private getResult(rgb: number[]) {
-    const [r, g, b] = rgb
     // 如果 rgb 值相同则是黑白图片
     if (r === g && g === b) {
       return true
     } else {
-      // 如果 rgb 值不相同，则根据宽容度判断是否近似为黑白图片
-      // 这是因为获取 rgb 的结果时，进行了四舍五入，即使 rgb 非常接近，也可能会相差 1（未论证）
+      // 如果 rgb 值不相同，则根据宽容度判断是否为黑白图片
+      // 因为获取 rgb 的结果时，进行了四舍五入，即使 rgb 非常接近，也可能会相差 1，所以我设置了一个宽容度
       const max = Math.max(r, g, b) // 取出 rgb 中的最大值
       const min = max - this.latitude // 允许的最小值
-      // 如果 rgb 三个数值与最大的数值相比，差距在宽容度之内，则检查通过
+      // 如果 rgb 三个数值与最小的数值相比，差距都在宽容度之内，则视为黑白图片
       return [r, g, b].every((number) => {
         return number >= min
       })

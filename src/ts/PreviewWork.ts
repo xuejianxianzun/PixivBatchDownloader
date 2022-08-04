@@ -8,6 +8,9 @@ import { cacheWorkData } from './store/CacheWorkData'
 import { states } from './store/States'
 import { Utils } from './utils/Utils'
 import { PreviewUgoira } from './PreviewUgoira'
+import { toast } from './Toast'
+import { lang } from './Lang'
+import { Colors } from './config/Colors'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -145,9 +148,26 @@ class PreviewWork {
     })
 
     // 可以使用 Alt + P 快捷键来启用/禁用此功能
+    // 预览作品时，可以使用快捷键 D 下载这个作品
     window.addEventListener('keydown', (ev) => {
       if (ev.altKey && ev.code === 'KeyP') {
         setSetting('PreviewWork', !settings.PreviewWork)
+      }
+
+      if (ev.code === 'KeyD' && this.show) {
+        EVT.fire('crawlIdList', [
+          {
+            type: 'illusts',
+            id: this.workData!.body.id,
+          },
+        ])
+
+        // 下载时不显示下载面板
+        states.quickCrawl = true
+        toast.show(lang.transl('_已发送下载请求'), {
+          bgColor: Colors.bgBlue,
+          position: 'center',
+        })
       }
     })
 

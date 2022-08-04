@@ -121,8 +121,10 @@ class EVENT {
     exportCSV: 'exportCSV',
     /** 当需要导出抓取结果时触发 */
     exportResult: 'exportResult',
-    /** 当需要导出抓取结果时触发 */
+    /** 当需要导入抓取结果时触发 */
     importResult: 'importResult',
+    /** 当需要导入抓取结果成功时触发 */
+    importResultSuccess: 'importResultSuccess',
     /** 当需要保存用户头像时触发 */
     saveAvatarImage: 'saveAvatarImage',
     /** 当需要保存用户头像为图标时触发 */
@@ -204,6 +206,7 @@ class EVENT {
       | 'exportCSV'
       | 'exportResult'
       | 'importResult'
+      | 'importResultSuccess'
       | 'saveAvatarImage'
       | 'saveAvatarIcon'
       | 'saveUserCover'
