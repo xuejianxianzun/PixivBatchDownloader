@@ -8682,16 +8682,14 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '13.0.0';
+        this.flag = '13.1.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_隐藏浏览器底部的下载栏')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多他选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载'))}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览作品时按快捷键D可以下载这个作品')}
       <br>
       <br>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_其他优化')}
