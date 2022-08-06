@@ -7303,8 +7303,10 @@ new PreviewWork();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+
 
 
 
@@ -7327,7 +7329,8 @@ class ReplaceSquareThumb {
         });
     }
     replaceAllImage() {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].replaceSquareThumb) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].replaceSquareThumb ||
+            _PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type == _PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].list.ArtworkRanking) {
             const allImage = document.querySelectorAll('img');
             allImage.forEach((img) => this.replace(img));
         }
@@ -7338,15 +7341,30 @@ class ReplaceSquareThumb {
         }
         const src = img.src;
         if (!src.endsWith('square1200.jpg') && !src.endsWith('custom1200.jpg')) {
-            return;
+            if (_PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].list.ArtworkRanking &&
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].showLargerThumbnails) {
+                // 排行榜里的缩略图本来就是保持了比例的，不需要替换其缩略图。
+                // 但是排行榜里的缩略图原本尺寸较小，当用户启用了“显示更大的缩略图”之后，缩略图被放大后显得模糊，此时需要替换成更大尺寸的缩略图。
+                // 排行榜页面的图片 URL 比较特别，末尾是 master1200，如下：
+                // 'https://i.pximg.net/c/240x480/img-master/img/2022/08/01/17/59/39/100156836_p0_master1200.jpg'
+                if (!src.includes('240x480')) {
+                    return;
+                }
+            }
+            else {
+                return;
+            }
         }
-        img.src = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].convertThumbURLTo540px(src);
+        img.src = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].convertThumbURLTo540px(src);
         img.style.objectFit = 'contain';
     }
     observer() {
         const observer = new MutationObserver((records) => {
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].replaceSquareThumb) {
-                return;
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].replaceSquareThumb) {
+                if (_PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type !== _PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].list.ArtworkRanking) {
+                    // 在排行榜页面里，即使用户未启用“替换方形缩略图以显示图片比例”功能，也依然执行替换缩略图的动作
+                    return;
+                }
             }
             records.forEach((record) => {
                 if (record.type === 'childList') {
@@ -9707,6 +9725,8 @@ class Tools {
     static convertThumbURLTo540px(url) {
         // 'https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2021/10/26/00/00/08/93686259_p0_custom1200.jpg'
         // 'https://i.pximg.net/c/250x250_80_a2/img-master/img/2019/06/23/17/29/27/75369283_square1200.jpg'
+        // 排行榜页面的图片 URL 如：
+        // 'https://i.pximg.net/c/240x480/img-master/img/2022/08/01/17/59/39/100156836_p0_master1200.jpg'
         const test = url.match(this.convertThumbURLReg);
         if (!test || !test[1]) {
             return url;
