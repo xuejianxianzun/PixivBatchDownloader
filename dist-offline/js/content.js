@@ -875,11 +875,7 @@ class CenterPanel {
             });
         }
         // 当可以开始下载时，切换到“下载”选项卡
-        for (const ev of [
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish,
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.importResultSuccess,
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume,
-        ]) {
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume]) {
             window.addEventListener(ev, () => {
                 if (_store_States__WEBPACK_IMPORTED_MODULE_2__["states"].mergeNovel) {
                     return;
@@ -1572,8 +1568,6 @@ class EVENT {
             exportResult: 'exportResult',
             /** 当需要导入抓取结果时触发 */
             importResult: 'importResult',
-            /** 当需要导入抓取结果成功时触发 */
-            importResultSuccess: 'importResultSuccess',
             /** 当需要保存用户头像时触发 */
             saveAvatarImage: 'saveAvatarImage',
             /** 当需要保存用户头像为图标时触发 */
@@ -16754,7 +16748,7 @@ class ImportResult {
             _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].addResult(r);
         }
         // 发送通知
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('importResultSuccess');
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlFinish');
         _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入成功'));
     }
 }
