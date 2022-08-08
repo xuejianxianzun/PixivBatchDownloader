@@ -1,6 +1,5 @@
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
-import { form } from './Form'
 import { settings } from './Settings'
 
 interface WantPageArg {
@@ -16,11 +15,11 @@ interface WantPageEls {
   input: HTMLInputElement
 }
 
-// 可以控制每个设置的隐藏、显示
-// 可以设置页数/个数的提示内容
+// 控制每个设置的隐藏、显示
+// 设置页数/个数的提示文本
 class Options {
-  constructor() {
-    this.allOption = form.querySelectorAll('.option')
+  public init(allOption:NodeListOf<HTMLElement>) {
+    this.allOption = allOption
 
     // 获取“页数/个数”设置的元素
     const wantPageOption = this.getOption(1)!
@@ -41,9 +40,9 @@ class Options {
     this.bindEvents()
   }
 
-  private allOption: NodeListOf<HTMLElement>
+  private allOption!: NodeListOf<HTMLElement>
 
-  private wantPageEls: WantPageEls
+  private wantPageEls!: WantPageEls
 
   // 保持显示的选项的 id
   private readonly whiteList: number[] = [

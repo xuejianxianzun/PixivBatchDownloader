@@ -1,4 +1,4 @@
-// 根据不同的页面，初始化下载器的功能
+// 根据页面类型来初始化抓取流程和一些特定的功能
 import { EVT } from './EVT'
 import { pageType } from './PageType'
 

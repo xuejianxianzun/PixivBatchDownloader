@@ -8,16 +8,20 @@ import { theme } from '../Theme'
 import { FormSettings } from './FormSettings'
 import { Utils } from '../utils/Utils'
 import { settings, setSetting, SettingKeys } from '../setting/Settings'
+import { options } from '../setting/Options'
 
 // 设置表单
 class Form {
   constructor() {
     this.form = Tools.useSlot('form', formHtml) as SettingsForm
 
-    this.getElements()
-
     theme.register(this.form)
     lang.register(this.form)
+
+    this.getElements()
+
+    const allOptions = this.form.querySelectorAll('.option') as NodeListOf<HTMLElement>
+    options.init(allOptions)
 
     new SaveNamingRule(this.form.userSetName)
 
@@ -29,6 +33,8 @@ class Form {
   public form: SettingsForm
 
   /**所有的美化表单元素 */
+  // 每个美化的 input 控件后面必定有一个 span 元素
+  // label 和 子选项区域则不一定有
   private allBeautifyInput: {
     input: HTMLInputElement
     span: HTMLSpanElement
@@ -92,7 +98,7 @@ class Form {
   }
 
   private bindEvents() {
-    // 给美化的表单控件绑定事件
+    // 为美化的表单控件绑定事件
     for (const item of this.allBeautifyInput) {
       const { input, span } = item
 
@@ -229,7 +235,7 @@ class Form {
     })
   }
 
-  // 设置表单上美化元素的状态
+  // 设置表单里的美化元素的状态
   private initFormBeautify() {
     for (const item of this.allBeautifyInput) {
       const { input, span, label, subOption } = item
@@ -258,6 +264,4 @@ class Form {
   }
 }
 
-const form = new Form().form
-
-export { form }
+new Form()
