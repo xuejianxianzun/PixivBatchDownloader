@@ -561,6 +561,7 @@
   padding: 0;
   border-bottom: 1px solid #eee;
   margin-bottom: 8px;
+  position: relative;
 }
 .centerWrap .centerWrap_tabs .title {
   text-align: center;
@@ -575,18 +576,27 @@
 .centerWrap .centerWrap_tabs .title.active {
   color: #0ea8ef;
 }
-.centerWrap .centerWrap_tabs .title.active::after {
-  content: '';
-  width: 100%;
-  height: 2px;
-  background: #0ea8ef;
-  position: absolute;
-  top: 36px;
-  left: 0;
-  z-index: 1001;
-}
 .centerWrap .centerWrap_tabs .title:hover {
   color: #0ea8ef;
+}
+.centerWrap .centerWrap_tabs .title_active {
+  position: absolute;
+  width: 33.3%;
+  height: 2px;
+  background: #29b3f3;
+  top: 36px;
+  left: 0%;
+  z-index: 1001;
+  transition: left 0.2s;
+}
+.centerWrap .centerWrap_tabs .title_active.tab1 {
+  left: 0%;
+}
+.centerWrap .centerWrap_tabs .title_active.tab2 {
+  left: 33.3%;
+}
+.centerWrap .centerWrap_tabs .title_active.tab3 {
+  left: 66.6%;
 }
 .centerWrap .centerWrap_con {
   overflow: auto;

@@ -39,7 +39,9 @@ class CenterPanel {
   private updateActiveClass = 'updateActiveClass'
 
   private allTabTitle!: NodeListOf<HTMLDivElement> // 选项卡的标题区域
-  private readonly activeClass = 'active'
+  private readonly TitleActiveClass = 'active'
+  private titleAnimationEl!: HTMLElement
+  private readonly titleAnimationElClassList = ['tab1', 'tab2', 'tab3']
 
   // 添加中间面板
   private addCenterPanel() {
@@ -78,6 +80,7 @@ class CenterPanel {
         <div class="title" data-xztext="_抓取"></div>
         <div class="title" data-xztext="_下载"></div>
         <div class="title" data-xztext="_更多"></div>
+        <div class="title_active"></div>
       </div>
 
       <div class="centerWrap_con beautify_scrollbar">
@@ -106,6 +109,10 @@ class CenterPanel {
     )! as HTMLAnchorElement
 
     this.allTabTitle = this.centerPanel.querySelectorAll('.tabsTitle .title')
+
+    this.titleAnimationEl = this.centerPanel.querySelector(
+      '.title_active'
+    )! as HTMLElement
   }
 
   private allLangFlag: string[] = []
@@ -234,17 +241,29 @@ class CenterPanel {
 
   // 设置激活的选项卡
   private activeTab(no = 0) {
-    for (const title of this.allTabTitle) {
-      title.classList.remove(this.activeClass)
-    }
-    this.allTabTitle[no].classList.add(this.activeClass)
-
+    // 显示选项卡的内容
     const allTabCon = this.centerPanel.querySelectorAll(
       '.tabsContnet'
     ) as NodeListOf<HTMLElement>
     for (let index = 0; index < allTabCon.length; index++) {
       allTabCon[index].style.display = index === no ? 'block' : 'none'
     }
+
+    // 高亮选项卡的标题
+    for (const title of this.allTabTitle) {
+      title.classList.remove(this.TitleActiveClass)
+    }
+    this.allTabTitle[no].classList.add(this.TitleActiveClass)
+
+    // 设置动画效果
+    const useClass = this.titleAnimationElClassList[no]
+    if (this.titleAnimationEl.classList.contains(useClass)) {
+      return
+    }
+    this.titleAnimationElClassList.forEach((str) => {
+      this.titleAnimationEl.classList.remove(str)
+    })
+    this.titleAnimationEl.classList.add(useClass)
   }
 
   // 显示中间区域

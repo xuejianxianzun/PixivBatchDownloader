@@ -719,7 +719,8 @@ var Tabbar;
 class CenterPanel {
     constructor() {
         this.updateActiveClass = 'updateActiveClass';
-        this.activeClass = 'active';
+        this.TitleActiveClass = 'active';
+        this.titleAnimationElClassList = ['tab1', 'tab2', 'tab3'];
         this.allLangFlag = [];
         this.addCenterPanel();
         _Theme__WEBPACK_IMPORTED_MODULE_3__["theme"].register(this.centerPanel);
@@ -768,6 +769,7 @@ class CenterPanel {
         <div class="title" data-xztext="_抓取"></div>
         <div class="title" data-xztext="_下载"></div>
         <div class="title" data-xztext="_更多"></div>
+        <div class="title_active"></div>
       </div>
 
       <div class="centerWrap_con beautify_scrollbar">
@@ -791,6 +793,7 @@ class CenterPanel {
         this.centerPanel = document.querySelector('.centerWrap');
         this.updateLink = this.centerPanel.querySelector('.update');
         this.allTabTitle = this.centerPanel.querySelectorAll('.tabsTitle .title');
+        this.titleAnimationEl = this.centerPanel.querySelector('.title_active');
     }
     setLangFlag() {
         this.allLangFlag.forEach((flag) => {
@@ -892,14 +895,25 @@ class CenterPanel {
     }
     // 设置激活的选项卡
     activeTab(no = 0) {
-        for (const title of this.allTabTitle) {
-            title.classList.remove(this.activeClass);
-        }
-        this.allTabTitle[no].classList.add(this.activeClass);
+        // 显示选项卡的内容
         const allTabCon = this.centerPanel.querySelectorAll('.tabsContnet');
         for (let index = 0; index < allTabCon.length; index++) {
             allTabCon[index].style.display = index === no ? 'block' : 'none';
         }
+        // 高亮选项卡的标题
+        for (const title of this.allTabTitle) {
+            title.classList.remove(this.TitleActiveClass);
+        }
+        this.allTabTitle[no].classList.add(this.TitleActiveClass);
+        // 设置动画效果
+        const useClass = this.titleAnimationElClassList[no];
+        if (this.titleAnimationEl.classList.contains(useClass)) {
+            return;
+        }
+        this.titleAnimationElClassList.forEach(str => {
+            this.titleAnimationEl.classList.remove(str);
+        });
+        this.titleAnimationEl.classList.add(useClass);
     }
     // 显示中间区域
     show() {
