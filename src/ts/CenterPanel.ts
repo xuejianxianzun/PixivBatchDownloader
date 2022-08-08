@@ -67,19 +67,19 @@ class CenterPanel {
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
-        <div class="has_tip centerWrap_top_btn centerWrap_close" data-xztip="_隐藏下载面板">
+        <button class="textButton has_tip centerWrap_top_btn centerWrap_close" data-xztip="_隐藏下载面板">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
         </svg>
-        </div>
+        </button>
       </div>
       </div>
       </div>
 
       <div class="centerWrap_tabs tabsTitle">
-        <div class="title" data-xztext="_抓取"></div>
-        <div class="title" data-xztext="_下载"></div>
-        <div class="title" data-xztext="_更多"></div>
+        <div class="title" data-xztext="_抓取" tabindex="0"></div>
+        <div class="title" data-xztext="_下载" tabindex="0"></div>
+        <div class="title" data-xztext="_更多" tabindex="0"></div>
         <div class="title_active"></div>
       </div>
 
@@ -208,15 +208,28 @@ class CenterPanel {
     // 在选项卡的标题上触发事件时，激活对应的选项卡
     const eventList = ['click', 'mouseenter']
     for (let index = 0; index < this.allTabTitle.length; index++) {
+      const title = this.allTabTitle[index]
       eventList.forEach((eventName) => {
-        this.allTabTitle[index].addEventListener(eventName, () => {
-          // 触发 mouseenter 时，如果用户设置了通过点击切换选项卡，则直接返回
+        title.addEventListener(eventName, () => {
+          // 触发 mouseenter 时，如果用户设置的是通过点击来切换选项卡，则直接返回
           // 触发 click 时无需检测，始终可以切换
           if (eventName === 'mouseenter' && settings.switchTabBar === 'click') {
             return
           }
           this.activeTab(index)
         })
+      })
+
+      // 当标题获得焦点，并且用户按下了回车或空格键时，激活对应的选项卡
+      title.addEventListener('keydown', (event) => {
+        if (
+          (event.code === 'Enter' || event.code === 'Space') &&
+          event.target === title
+        ) {
+          event.stopPropagation()
+          event.preventDefault()
+          this.activeTab(index)
+        }
       })
     }
 
