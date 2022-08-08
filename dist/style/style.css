@@ -607,6 +607,15 @@
 .centerWrap .centerWrap_con slot[data-name='exportResult'] button {
   display: none;
 }
+.centerWrap .centerWrap_con .centerWrap_top_btn:hover,
+.centerWrap .centerWrap_con .showFileNameTip:hover,
+.centerWrap .centerWrap_con .textButton:hover,
+.centerWrap .centerWrap_con .textButton:focus,
+.centerWrap .centerWrap_con .showFileNameResult:hover,
+.centerWrap .centerWrap_con .updateActiveClass {
+  color: #0ea8ef !important;
+  fill: #0ea8ef !important;
+}
 .centerWrap .centerWrap_con .settingForm {
   position: relative;
   max-width: 650px;
@@ -790,16 +799,6 @@
 }
 .centerWrap .centerWrap_con .settingForm .radio:checked + .beautify_radio::after {
   transform: translate(-50%, -50%) scale(1);
-}
-.centerWrap .centerWrap_con .settingForm .centerWrap_top_btn:hover,
-.centerWrap .centerWrap_con .settingForm .showFileNameTip:hover,
-.centerWrap .centerWrap_con .settingForm .textButton:hover,
-.centerWrap .centerWrap_con .settingForm .textButton:focus,
-.centerWrap .centerWrap_con .settingForm .showFileNameResult:hover,
-.centerWrap .centerWrap_con .settingForm .help_bar > *:hover,
-.centerWrap .centerWrap_con .settingForm .updateActiveClass {
-  color: #0ea8ef !important;
-  fill: #0ea8ef !important;
 }
 .centerWrap .centerWrap_con .settingForm li {
   list-style: none;
@@ -1063,6 +1062,9 @@
 }
 .centerWrap .centerWrap_con .help_bar > * {
   padding: 0 3px;
+}
+.centerWrap .centerWrap_con .help_bar > *:hover {
+  color: #0ea8ef !important;
 }
 .centerWrap .settingCategoryName {
   position: relative;

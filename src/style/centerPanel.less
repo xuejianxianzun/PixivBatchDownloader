@@ -139,9 +139,11 @@
       height: 36px;
       line-height: 36px;
       position: relative;
+
       &.active {
         color: @themeBlue;
       }
+
       &:hover {
         color: @themeBlue;
       }
@@ -180,6 +182,16 @@
     slot[data-name='namingBtns'] button,
     slot[data-name='exportResult'] button {
       display: none;
+    }
+
+    .centerWrap_top_btn:hover,
+    .showFileNameTip:hover,
+    .textButton:hover,
+    .textButton:focus,
+    .showFileNameResult:hover,
+    .updateActiveClass {
+      color: @themeBlue !important;
+      fill: @themeBlue !important;
     }
 
     .settingForm {
@@ -400,17 +412,6 @@
 
       .radio:checked + .beautify_radio::after {
         transform: translate(-50%, -50%) scale(1);
-      }
-
-      .centerWrap_top_btn:hover,
-      .showFileNameTip:hover,
-      .textButton:hover,
-      .textButton:focus,
-      .showFileNameResult:hover,
-      .help_bar > *:hover,
-      .updateActiveClass {
-        color: @themeBlue !important;
-        fill: @themeBlue !important;
       }
 
       li {
@@ -726,11 +727,14 @@
     }
 
     .help_bar {
-      // padding:0 @sidePadding;
       line-height: 24px;
 
       & > * {
         padding: 0 3px;
+      }
+
+      & > *:hover {
+        color: @themeBlue !important;
       }
     }
   }
@@ -891,8 +895,6 @@
     .showFileNameResult:hover,
     .help_bar > *:hover,
     .updateActiveClass {
-      // color: @beautifyBlue !important;
-      // fill: @beautifyBlue !important;
       color: #fff !important;
       fill: #fff !important;
     }
