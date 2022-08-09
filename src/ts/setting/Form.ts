@@ -20,7 +20,9 @@ class Form {
 
     this.getElements()
 
-    const allOptions = this.form.querySelectorAll('.option') as NodeListOf<HTMLElement>
+    const allOptions = this.form.querySelectorAll(
+      '.option'
+    ) as NodeListOf<HTMLElement>
     options.init(allOptions)
 
     new SaveNamingRule(this.form.userSetName)

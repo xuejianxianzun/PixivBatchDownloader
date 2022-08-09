@@ -18,7 +18,7 @@ interface WantPageEls {
 // 控制每个设置的隐藏、显示
 // 设置页数/个数的提示文本
 class Options {
-  public init(allOption:NodeListOf<HTMLElement>) {
+  public init(allOption: NodeListOf<HTMLElement>) {
     this.allOption = allOption
 
     // 获取“页数/个数”设置的元素

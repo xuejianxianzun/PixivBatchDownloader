@@ -58,7 +58,7 @@ class Mute {
         return resolve(items)
       } catch (error) {
         if (error.status === 401) {
-          msgBox.error(lang.transl('_提示登录pixiv账号'))
+          msgBox.error(lang.transl('_作品页状态码401'))
         }
         return reject(error.status)
       }

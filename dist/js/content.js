@@ -3390,10 +3390,17 @@ const langText = {
         '作品は削除されました (400)',
         '이 작품은 삭제되었습니다 (400)',
     ],
+    _作品页状态码401: [
+        '请您登录 Pixiv 账号然后重试。(401)',
+        '請您登入 Pixiv 帳號後重試。(401)',
+        'Please log in to your Pixiv account and try again. (401)',
+        'Pixiv アカウントにログインして、もう一度お試しください。(401)',
+        'Pixiv 계정에 로그인 후 다시 시도해주세요. (401)',
+    ],
     _作品页状态码403: [
         '无权访问请求的 URL (403)',
         '沒有權限存取要求的 URL (403)',
-        'Have no access to the requested URL (403',
+        'Have no access to the requested URL (403)',
         'リクエストされた URL にアクセスできない (403)',
         '요청한 URL에 접근 권한이 없습니다 (403)',
     ],
@@ -3403,6 +3410,13 @@ const langText = {
         '404 not found',
         '404 not found',
         '404 not found',
+    ],
+    _作品页状态码500: [
+        'Pixiv 拒绝返回数据 (500)',
+        'Pixiv 拒絕返回資料 (500)',
+        'Pixiv refuses to return data (500)',
+        'ピクシブはデータの返却を拒否します (500)',
+        'pixiv는 데이터 반환을 거부합니다 (500)',
     ],
     _正在抓取: [
         '正在抓取，请等待……',
@@ -5155,13 +5169,6 @@ const langText = {
         'ダウンロード中にエラーが発生し、ステータスコードは0で、リクエストは失敗しました。 考えられる理由：<br> <br> 1。 システムディスクの残りのスペースが不足している可能性があります（残りのスペースは4GBを超えることをお勧めします）。 システムのディスク領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。 <br> <br> 2。 ネットワークエラー。 ネットワークプロキシが原因の問題である可能性があります。',
         '다운로드 중 오류가 발생했으며, 상태 코드가 0이고 요청에 실패했습니다. 가능한 원인: <br><br>1. 시스템 디스크의 남은 공간이 부족할 수 있습니다(남은 공간은 4GB보다 큰 것이 좋습니다). 시스템 디스크 공간을 비운 다음 브라우저를 다시 시작하여 완료되지 않은 다운로드를 계속해주세요. <br><br>2. 네트워크 오류. 네트워크 프록시로 인한 문제일 수 있습니다.',
     ],
-    _提示登录pixiv账号: [
-        '请您登录 Pixiv 账号然后重试。',
-        '請您登入 Pixiv 帳號後重試。',
-        'Please log in to your Pixiv account and try again.',
-        'Pixiv アカウントにログインして、もう一度お試しください。',
-        'Pixiv 계정에 로그인 후 다시 시도해주세요.',
-    ],
     _下载完成后显示通知: [
         '下载完成后显示<span class="key">通知</span>',
         '下載完成後顯示<span class="key">通知</span>',
@@ -5458,7 +5465,7 @@ const langText = {
         '例：Anmi@画集発売中 → Anmi',
         '예: Anmi@画集発売中 → Anmi',
     ],
-    _列表页被限制时返回空结果的提示: [
+    _抓取被限制时返回空结果的提示: [
         'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。',
         'Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。',
         'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes.',
@@ -10286,10 +10293,10 @@ class InitPageBase {
             // }
             if (error.status) {
                 // 请求成功，但状态码不正常
-                this.logErrorStatus(error.status, id);
+                this.logErrorStatus(error.status, idData);
                 if (error.status === 500) {
                     // 如果状态码 500，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
-                    _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_列表页被限制时返回空结果的提示'));
+                    _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取被限制时返回空结果的提示'));
                     return window.setTimeout(() => {
                         this.getWorksData(idData);
                     }, _config_Config__WEBPACK_IMPORTED_MODULE_21__["Config"].retryTimer);
@@ -10364,9 +10371,9 @@ class InitPageBase {
         }
     }
     // 网络请求状态异常时输出提示
-    logErrorStatus(status, id) {
-        const novelPage = window.location.href.includes('/novel');
-        const workLink = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].createWorkLink(id, !novelPage);
+    logErrorStatus(status, idData) {
+        const isNovel = idData.type === 'novels';
+        const workLink = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].createWorkLink(idData.id, !isNovel);
         switch (status) {
             case 0:
                 _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码0'));
@@ -10374,11 +10381,17 @@ class InitPageBase {
             case 400:
                 _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码400'));
                 break;
+            case 401:
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码401'));
+                break;
             case 403:
                 _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码403'));
                 break;
             case 404:
                 _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码404'));
+                break;
+            case 500:
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码500'));
                 break;
             default:
                 _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_无权访问', workLink) + `status: ${status}`);
@@ -11609,7 +11622,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         // 储存预览搜索结果的元素
         this.workPreviewBuffer = document.createDocumentFragment();
         this.tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_15__["Utils"].debounce(() => {
-            _Log__WEBPACK_IMPORTED_MODULE_9__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页被限制时返回空结果的提示'));
+            _Log__WEBPACK_IMPORTED_MODULE_9__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取被限制时返回空结果的提示'));
         }, 1000);
         this.onSettingChange = (event) => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
@@ -14475,7 +14488,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             'work_lang',
         ];
         this.tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__["Utils"].debounce(() => {
-            _Log__WEBPACK_IMPORTED_MODULE_7__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页被限制时返回空结果的提示'));
+            _Log__WEBPACK_IMPORTED_MODULE_7__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取被限制时返回空结果的提示'));
         }, 1000);
         this.crawlTag = () => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_16__["states"].crawlTagList) {
@@ -19240,7 +19253,7 @@ class Mute {
             }
             catch (error) {
                 if (error.status === 401) {
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_提示登录pixiv账号'));
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_作品页状态码401'));
                 }
                 return reject(error.status);
             }
@@ -20653,11 +20666,11 @@ class Form {
             },
         ];
         this.form = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_3__["formHtml"]);
+        _Theme__WEBPACK_IMPORTED_MODULE_5__["theme"].register(this.form);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.form);
         this.getElements();
         const allOptions = this.form.querySelectorAll('.option');
         _setting_Options__WEBPACK_IMPORTED_MODULE_9__["options"].init(allOptions);
-        _Theme__WEBPACK_IMPORTED_MODULE_5__["theme"].register(this.form);
-        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.form);
         new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_4__["SaveNamingRule"](this.form.userSetName);
         new _FormSettings__WEBPACK_IMPORTED_MODULE_6__["FormSettings"](this.form);
         this.bindEvents();
@@ -22444,8 +22457,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 可以控制每个设置的隐藏、显示
-// 可以设置页数/个数的提示内容
+// 控制每个设置的隐藏、显示
+// 设置页数/个数的提示文本
 class Options {
     constructor() {
         // 保持显示的选项的 id
