@@ -245,7 +245,7 @@ class InitSearchNovelPage extends InitPageBase {
   }
 
   private tipEmptyResult = Utils.debounce(() => {
-    log.error(lang.transl('_列表页被限制时返回空结果的提示'))
+    log.error(lang.transl('_抓取被限制时返回空结果的提示'))
   }, 1000)
 
   // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加

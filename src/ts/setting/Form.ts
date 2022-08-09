@@ -8,32 +8,22 @@ import { theme } from '../Theme'
 import { FormSettings } from './FormSettings'
 import { Utils } from '../utils/Utils'
 import { settings, setSetting, SettingKeys } from '../setting/Settings'
+import { options } from '../setting/Options'
 
 // 设置表单
 class Form {
   constructor() {
     this.form = Tools.useSlot('form', formHtml) as SettingsForm
+
     theme.register(this.form)
     lang.register(this.form)
 
-    this.allCheckBox = this.form.querySelectorAll(
-      'input[type="checkbox"]'
-    ) as NodeListOf<HTMLInputElement>
+    this.getElements()
 
-    this.allRadio = this.form.querySelectorAll(
-      'input[type="radio"]'
-    ) as NodeListOf<HTMLInputElement>
-
-    this.allSwitch = this.form.querySelectorAll('.checkbox_switch')
-
-    for (const item of this.tips) {
-      const wrap: HTMLSpanElement = this.form.querySelector(
-        '#' + item.wrapID
-      ) as HTMLSpanElement
-      if (wrap) {
-        item.wrap = wrap
-      }
-    }
+    const allOptions = this.form.querySelectorAll(
+      '.option'
+    ) as NodeListOf<HTMLElement>
+    options.init(allOptions)
 
     new SaveNamingRule(this.form.userSetName)
 
@@ -42,24 +32,19 @@ class Form {
     this.bindEvents()
   }
 
-  // 设置表单上美化元素的状态
-  private initFormBueatiful() {
-    // 重设 label 激活状态
-    this.resetLabelActive()
-
-    // 重设该选项的子选项的显示/隐藏
-    this.resetSubOptionDisplay()
-  }
-
   public form: SettingsForm
 
-  private allSwitch: NodeListOf<HTMLInputElement> // 所有开关（同时也是复选框）
-  private allCheckBox: NodeListOf<HTMLInputElement> // 所有复选框
-  private allRadio: NodeListOf<HTMLInputElement> // 单选按钮
+  /**所有的美化表单元素 */
+  // 每个美化的 input 控件后面必定有一个 span 元素
+  // label 和 子选项区域则不一定有
+  private allBeautifyInput: {
+    input: HTMLInputElement
+    span: HTMLSpanElement
+    label: HTMLLabelElement | null
+    subOption: HTMLSpanElement | null
+  }[] = []
 
-  private readonly chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
-
-  // 管理一些固定格式的帮助元素
+  /**一些固定格式的帮助元素 */
   private tips: {
     wrapID: string
     wrap: HTMLSpanElement
@@ -77,29 +62,71 @@ class Form {
     },
   ]
 
-  private bindEvents() {
-    // 给美化的复选框绑定功能
-    for (const checkbox of this.allCheckBox) {
-      this.bindBeautifyEvent(checkbox)
-
-      // 让复选框支持用回车键选择
-      checkbox.addEventListener('keydown', (event: KeyboardEvent) => {
-        if (this.chooseKeys.includes(event.code)) {
-          checkbox.click()
+  private getElements() {
+    // 获取所有的美化控件和它们对应的 span 元素
+    const allCheckBox = this.form.querySelectorAll(
+      'input[type="checkbox"]'
+    ) as NodeListOf<HTMLInputElement>
+    const allRadio = this.form.querySelectorAll(
+      'input[type="radio"]'
+    ) as NodeListOf<HTMLInputElement>
+    const checkboxAndRadio = [allCheckBox, allRadio]
+    for (const arr of checkboxAndRadio) {
+      arr.forEach((input) => {
+        let subOption = null
+        if (input.classList.contains('checkbox_switch')) {
+          subOption = this.form.querySelector(
+            `.subOptionWrap[data-show="${input.name}"]`
+          ) as HTMLSpanElement
         }
+        this.allBeautifyInput.push({
+          input: input,
+          span: input.nextElementSibling! as HTMLSpanElement,
+          label: this.form.querySelector(`label[for="${input.id}"]`),
+          subOption: subOption,
+        })
       })
     }
 
-    // 给美化的单选按钮绑定功能
-    for (const radio of this.allRadio) {
-      this.bindBeautifyEvent(radio)
+    // 获取所有在表单上直接显示的提示元素
+    for (const item of this.tips) {
+      const wrap: HTMLSpanElement = this.form.querySelector(
+        '#' + item.wrapID
+      ) as HTMLSpanElement
+      if (wrap) {
+        item.wrap = wrap
+      }
+    }
+  }
+
+  private bindEvents() {
+    // 为美化的表单控件绑定事件
+    for (const item of this.allBeautifyInput) {
+      const { input, span } = item
+
+      // 点击美化元素时，点击真实的 input 控件
+      span.addEventListener('click', () => {
+        input.click()
+      })
+
+      // 当美化元素获得焦点，并且用户按下了回车或空格键时，点击真实的 input 控件
+      span.addEventListener('keydown', (event) => {
+        if (
+          (event.code === 'Enter' || event.code === 'Space') &&
+          event.target === span
+        ) {
+          event.stopPropagation()
+          event.preventDefault()
+          input.click()
+        }
+      })
     }
 
     // 设置变化或者重置时，重新设置美化状态
     window.addEventListener(
       EVT.list.settingChange,
       Utils.debounce(() => {
-        this.initFormBueatiful()
+        this.initFormBeautify()
         this.showTips()
       }, 50)
     )
@@ -134,7 +161,7 @@ class Form {
       }
     }
 
-    // 重置设置按钮
+    // 重置设置
     {
       const el = this.form.querySelector('#resetSettings')
       if (el) {
@@ -147,7 +174,7 @@ class Form {
       }
     }
 
-    // 导出设置按钮
+    // 导出设置
     {
       const el = this.form.querySelector('#exportSettings')
       if (el) {
@@ -157,7 +184,7 @@ class Form {
       }
     }
 
-    // 导入设置按钮
+    // 导入设置
     {
       const el = this.form.querySelector('#importSettings')
       if (el) {
@@ -193,11 +220,8 @@ class Form {
     }
 
     // 把下拉框的选择项插入到文本框里
-    this.insertValueToInput(this.form.fileNameSelect, this.form.userSetName)
-  }
-
-  // 把下拉框的选择项插入到文本框里
-  private insertValueToInput(from: HTMLSelectElement, to: HTMLInputElement) {
+    const from = this.form.fileNameSelect
+    const to = this.form.userSetName
     from.addEventListener('change', () => {
       if (from.value !== 'default') {
         // 把选择项插入到光标位置,并设置新的光标位置
@@ -213,43 +237,19 @@ class Form {
     })
   }
 
-  // 点击美化按钮时，点击对应的 input 控件
-  private bindBeautifyEvent(el: HTMLInputElement) {
-    el.nextElementSibling!.addEventListener('click', () => {
-      el.click()
-    })
-  }
+  // 设置表单里的美化元素的状态
+  private initFormBeautify() {
+    for (const item of this.allBeautifyInput) {
+      const { input, span, label, subOption } = item
+      // 重设 label 的高亮状态
+      if (label) {
+        const method = input.checked ? 'add' : 'remove'
+        label.classList[method]('active')
+      }
 
-  // 重设 label 的激活状态
-  private resetLabelActive() {
-    // 设置复选框的 label 的激活状态
-    for (const checkbox of this.allCheckBox) {
-      this.setLabelActive(checkbox)
-    }
-
-    // 设置单选按钮的 label 的激活状态
-    for (const radio of this.allRadio) {
-      this.setLabelActive(radio)
-    }
-  }
-
-  // 设置 input 元素对应的 label 的激活状态
-  private setLabelActive(input: HTMLInputElement) {
-    const label = this.form.querySelector(`label[for="${input.id}"]`)
-    if (label) {
-      const method = input.checked ? 'add' : 'remove'
-      label.classList[method]('active')
-    }
-  }
-
-  // 重设子选项的显示/隐藏
-  private resetSubOptionDisplay() {
-    for (const _switch of this.allSwitch) {
-      const subOption = this.form.querySelector(
-        `.subOptionWrap[data-show="${_switch.name}"]`
-      ) as HTMLSpanElement
+      // 重设子选项区域的显示/隐藏状态
       if (subOption) {
-        subOption.style.display = _switch.checked ? 'inline' : 'none'
+        subOption.style.display = input.checked ? 'inline' : 'none'
       }
     }
   }
@@ -266,6 +266,4 @@ class Form {
   }
 }
 
-const form = new Form().form
-
-export { form }
+new Form()

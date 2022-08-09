@@ -70,7 +70,6 @@
   .textButton {
     border: none;
     background: none;
-    outline: none;
     padding: 1px 6px;
     cursor: pointer;
   }
@@ -128,6 +127,7 @@
     padding: 0;
     border-bottom: 1px solid #eee;
     margin-bottom: 8px;
+    position: relative;
 
     .title {
       text-align: center;
@@ -138,25 +138,37 @@
       height: 36px;
       line-height: 36px;
       position: relative;
-    }
 
-    .title.active {
-      color: @themeBlue;
+      &.active {
+        color: @themeBlue;
+      }
 
-      &::after {
-        content: '';
-        width: 100%;
-        height: 2px;
-        background: @themeBlue;
-        position: absolute;
-        top: 36px;
-        left: 0;
-        z-index: 1001;
+      &:hover {
+        color: @themeBlue;
       }
     }
 
-    .title:hover {
-      color: @themeBlue;
+    .title_active {
+      position: absolute;
+      width: 33.3%;
+      height: 2px;
+      background: @beautifyBlue;
+      top: 36px;
+      left: 0%;
+      z-index: 1001;
+      transition: left 0.2s;
+
+      &.tab1 {
+        left: 0%;
+      }
+
+      &.tab2 {
+        left: 33.3%;
+      }
+
+      &.tab3 {
+        left: 66.6%;
+      }
     }
   }
 
@@ -169,6 +181,18 @@
     slot[data-name='namingBtns'] button,
     slot[data-name='exportResult'] button {
       display: none;
+    }
+
+    .centerWrap_top_btn:hover,
+    .centerWrap_top_btn:focus,
+    .showFileNameTip:hover,
+    .showFileNameTip:focus,
+    .textButton:hover,
+    .textButton:focus,
+    .help_bar > *:hover,
+    .updateActiveClass {
+      color: @themeBlue !important;
+      fill: @themeBlue !important;
     }
 
     .settingForm {
@@ -226,6 +250,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+
         .right {
           flex-grow: 0;
           flex-shrink: 0;
@@ -237,6 +262,7 @@
         .left {
           display: inline-block;
         }
+
         .right {
           display: inline-block;
           margin-left: 20px;
@@ -244,10 +270,11 @@
       }
 
       .need_beautify {
-        position: absolute;
-        width: 0;
-        height: 0;
-        opacity: 0;
+        // position: absolute;
+        // width: 0;
+        // height: 0;
+        // opacity: 0;
+        display: none;
       }
 
       label {
@@ -257,6 +284,7 @@
 
       .tabsContnet {
         display: none;
+
         &:first-child {
           display: block;
         }
@@ -388,17 +416,6 @@
         transform: translate(-50%, -50%) scale(1);
       }
 
-      .centerWrap_top_btn:hover,
-      .showFileNameTip:hover,
-      .textButton:hover,
-      .textButton:focus,
-      .showFileNameResult:hover,
-      .help_bar > *:hover,
-      .updateActiveClass {
-        color: @themeBlue !important;
-        fill: @themeBlue !important;
-      }
-
       li {
         list-style: none;
       }
@@ -453,7 +470,6 @@
         min-width: 300px;
       }
 
-      .showFileNameResult,
       .showFileNameTip {
         cursor: pointer;
       }
@@ -561,6 +577,7 @@
           color: #fff;
           width: 100%;
           text-align: center;
+
           span {
             position: initial;
           }
@@ -611,6 +628,7 @@
 
       .download_area {
         display: none;
+
         .download_status_text_wrap {
           line-height: 26px;
           margin-bottom: 4px;
@@ -710,7 +728,6 @@
     }
 
     .help_bar {
-      // padding:0 @sidePadding;
       line-height: 24px;
 
       & > * {
@@ -723,6 +740,7 @@
     position: relative;
     text-align: center;
     margin: 6px auto;
+
     span {
       display: inline-block;
       height: 26px;
@@ -734,6 +752,7 @@
       background-color: #fff;
       border-radius: 4px;
     }
+
     &::after {
       display: block;
       content: '';
@@ -772,10 +791,11 @@
     }
 
     .centerWrap_top_btn:hover,
+    .centerWrap_top_btn:focus,
     .showFileNameTip:hover,
+    .showFileNameTip:focus,
     .textButton:hover,
     .textButton:focus,
-    .showFileNameResult:hover,
     .help_bar > *:hover,
     .updateActiveClass {
       color: @beautifyBlue !important;
@@ -802,6 +822,7 @@
         }
       }
     }
+
     .centerWrap_btns {
       & button {
         box-shadow: none !important;
@@ -866,14 +887,13 @@
     }
 
     .centerWrap_top_btn:hover,
+    .centerWrap_top_btn:focus,
     .showFileNameTip:hover,
+    .showFileNameTip:focus,
     .textButton:hover,
     .textButton:focus,
-    .showFileNameResult:hover,
     .help_bar > *:hover,
     .updateActiveClass {
-      // color: @beautifyBlue !important;
-      // fill: @beautifyBlue !important;
       color: #fff !important;
       fill: #fff !important;
     }
@@ -968,6 +988,7 @@
   input[name='workDirNameRule'] {
     width: 170px !important;
   }
+
   &.showBlobKeywords {
     .key {
       font-weight: normal !important;
