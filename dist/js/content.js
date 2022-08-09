@@ -741,22 +741,22 @@ class CenterPanel {
       <div class="centerWrap_title blue">
       ${_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].appName}
       <div class="btns">
-      <a class="has_tip centerWrap_top_btn update" data-xztip="_newver" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
+      <a class="has_tip centerWrap_top_btn update" data-xztip="_newver" data-xztitle="_newver" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-gengxin"></use>
         </svg>
       </a>
-      <a class="has_tip centerWrap_top_btn github_icon" data-xztip="_github" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
+      <a class="has_tip centerWrap_top_btn github_icon" data-xztip="_github" data-xztitle="_github" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-github"></use>
       </svg>
       </a>
-      <a class="has_tip centerWrap_top_btn wiki_url" data-xztip="_wiki" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
+      <a class="has_tip centerWrap_top_btn wiki_url" data-xztip="_wiki" data-xztitle="_wiki" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
-        <button class="textButton has_tip centerWrap_top_btn centerWrap_close" data-xztip="_隐藏下载面板">
+        <button class="textButton has_tip centerWrap_top_btn centerWrap_close" data-xztip="_隐藏下载面板" data-xztitle="_隐藏下载面板">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
         </svg>
@@ -14905,335 +14905,6 @@ new CheckWarningMessage();
 
 /***/ }),
 
-/***/ "./src/ts/download/Deduplication.ts":
-/*!******************************************!*\
-  !*** ./src/ts/download/Deduplication.ts ***!
-  \******************************************/
-/*! exports provided: deduplication */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deduplication", function() { return deduplication; });
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/IndexedDB */ "./src/ts/utils/IndexedDB.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../FileName */ "./src/ts/FileName.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/SecretSignal */ "./src/ts/utils/SecretSignal.ts");
-
-
-
-
-
-
-
-
-
-
-
-// 通过保存和查询下载记录，判断重复文件
-class Deduplication {
-    constructor() {
-        this.DBName = 'DLRecord';
-        this.DBVer = 1;
-        this.storeNameList = [
-            'record1',
-            'record2',
-            'record3',
-            'record4',
-            'record5',
-            'record6',
-            'record7',
-            'record8',
-            'record9',
-        ]; // 表名的列表
-        this.existedIdList = []; // 检查文件是否重复时，会查询数据库。查询到的数据的 id 会保存到这个列表里。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
-        // 从图片 url 里取出日期字符串的正则表达式
-        this.dateRegExp = /img\/(.*)\//;
-        this.IDB = new _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_4__["IndexedDB"]();
-        this.init();
-    }
-    async init() {
-        await this.initDB();
-        this.bindEvents();
-        // this.exportTestFile(10)
-    }
-    // 初始化数据库，获取数据库对象
-    async initDB() {
-        // 在升级事件里创建表和索引
-        const onUpdate = (db) => {
-            for (const name of this.storeNameList) {
-                if (!db.objectStoreNames.contains(name)) {
-                    const store = db.createObjectStore(name, { keyPath: 'id' });
-                    store.createIndex('id', 'id', { unique: true });
-                }
-            }
-        };
-        return new Promise(async (resolve, reject) => {
-            resolve(await this.IDB.open(this.DBName, this.DBVer, onUpdate));
-        });
-    }
-    bindEvents() {
-        // 当有文件下载完成时，存储这个任务的记录
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadSuccess, (ev) => {
-            const successData = ev.detail.data;
-            const result = _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].findResult(successData.id);
-            result && this.addRecord(result);
-        });
-        // 导入含有 id 列表的 txt 文件
-        _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_10__["secretSignal"].register('recordtxt', () => {
-            this.importRecordFromTxt();
-        });
-        // 导入下载记录的按钮
-        {
-            const btn = document.querySelector('#importDownloadRecord');
-            if (btn) {
-                btn.addEventListener('click', () => {
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('importDownloadRecord');
-                });
-            }
-        }
-        // 监听导入下载记录的事件
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.importDownloadRecord, () => {
-            this.importRecordFromJSON();
-        });
-        // 导出下载记录的按钮
-        {
-            const btn = document.querySelector('#exportDownloadRecord');
-            if (btn) {
-                btn.addEventListener('click', () => {
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('exportDownloadRecord');
-                });
-            }
-        }
-        // 监听导出下载记录的事件
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.exportDownloadRecord, () => {
-            this.exportRecord();
-        });
-        // 清空下载记录的按钮
-        {
-            const btn = document.querySelector('#clearDownloadRecord');
-            if (btn) {
-                btn.addEventListener('click', () => {
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('clearDownloadRecord');
-                });
-            }
-        }
-        // 监听清空下载记录的事件
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearDownloadRecord, () => {
-            this.clearRecords();
-            this.existedIdList = [];
-        });
-    }
-    // 当要查找或存储一个 id 时，返回它所对应的 storeName
-    getStoreName(id) {
-        const firstNum = parseInt(id[0]);
-        return this.storeNameList[firstNum - 1];
-    }
-    // 生成一个下载记录
-    createRecord(data) {
-        let result = undefined;
-        if (typeof data === 'string') {
-            result = _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].findResult(data);
-        }
-        else {
-            result = data;
-        }
-        if (result === undefined) {
-            throw new Error('createRecord failed');
-        }
-        return {
-            id: result.id,
-            n: _FileName__WEBPACK_IMPORTED_MODULE_6__["fileName"].getFileName(result),
-            d: this.getDateString(result),
-        };
-    }
-    /**返回作品的修改日期字符串 */
-    getDateString(result) {
-        // 图像作品不使用 uploadDate，这是历史遗留原因，因为以前下载器的内部数据里没有 uploadDate 数据
-        // 而是从文件 URL 里取出日期字符串。例如
-        // 'https://i.pximg.net/img-original/img/2021/10/11/00/00/06/93364702_p0.png'
-        // 返回
-        // '2021/10/11/00/00/06'
-        // 为了保持向后兼容，这里不做修改
-        if (result.type !== 3) {
-            return result.original.match(this.dateRegExp)[1];
-        }
-        else {
-            // 小说作品使用 uploadDate，返回值如
-            // '2021-09-03T14:31:03+00:00'
-            return result.uploadDate;
-        }
-    }
-    // 添加一条下载记录
-    async addRecord(result) {
-        const storeName = this.getStoreName(result.id);
-        const record = this.createRecord(result);
-        if (this.existedIdList.includes(result.id)) {
-            this.IDB.put(storeName, record);
-        }
-        else {
-            // 先查询有没有这个记录
-            const result = await this.IDB.get(storeName, record.id);
-            this.IDB[result ? 'put' : 'add'](storeName, record);
-        }
-    }
-    /** 检查一个作品是否是重复下载
-     *
-     * 返回值 true 表示重复，false 表示不重复
-     */
-    async check(result) {
-        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].isPixiv()) {
-            return false;
-        }
-        return new Promise(async (resolve, reject) => {
-            // 如果未启用去重，直接返回不重复
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].deduplication) {
-                return resolve(false);
-            }
-            // 在数据库进行查找
-            const storeName = this.getStoreName(result.id);
-            const data = (await this.IDB.get(storeName, result.id));
-            if (data === null) {
-                return resolve(false);
-            }
-            // 有记录，说明这个文件下载过
-            this.existedIdList.push(data.id);
-            // 首先检查日期字符串是否发生了变化
-            // 如果日期字符串变化了，则不视为重复文件
-            if (data.d !== undefined && data.d !== this.getDateString(result)) {
-                return resolve(false);
-            }
-            // 如果之前的下载记录里没有日期，说明是早期的下载记录，那么就不检查日期
-            // 同时，更新这个作品的下载记录，为其添加日期
-            if (data.d === undefined) {
-                this.addRecord(result);
-            }
-            // 如果日期字符串没有变化，再根据策略进行判断
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].dupliStrategy === 'loose') {
-                // 如果是宽松策略（不比较文件名）
-                return resolve(true);
-            }
-            else {
-                // 如果是严格策略（考虑文件名）
-                const name = _FileName__WEBPACK_IMPORTED_MODULE_6__["fileName"].getFileName(result);
-                return resolve(name === data.n);
-            }
-        });
-    }
-    // 清空下载记录
-    clearRecords() {
-        for (const name of this.storeNameList) {
-            this.IDB.clear(name);
-        }
-        _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载记录已清除'));
-    }
-    // 导出下载记录
-    async exportRecord() {
-        let record = [];
-        for (const name of this.storeNameList) {
-            const r = (await this.IDB.getAll(name));
-            record = record.concat(r);
-        }
-        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].json2BlobSafe(record);
-        const url = URL.createObjectURL(blob);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].downloadFile(url, `record-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].replaceUnsafeStr(new Date().toLocaleString())}.json`);
-        _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导出成功'));
-    }
-    // 导入下载记录
-    async importRecord(record) {
-        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入下载记录'));
-        // 器显示导入进度
-        let stored = 0;
-        let total = record.length;
-        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${stored}/${total}`, 1, false);
-        // 依次处理每个存储库
-        for (let index = 0; index < this.storeNameList.length; index++) {
-            // 提取出要存入这个存储库的数据
-            const data = [];
-            for (const r of record) {
-                if (parseInt(r.id[0]) - 1 === index) {
-                    data.push(r);
-                }
-            }
-            // 批量添加数据
-            await this.IDB.batchAddData(this.storeNameList[index], data, 'id');
-            stored += data.length;
-            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${stored}/${total}`, 1, false);
-        }
-        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入成功'));
-        _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入成功'));
-        _MsgBox__WEBPACK_IMPORTED_MODULE_9__["msgBox"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入成功'), {
-            title: _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入下载记录'),
-        });
-        // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。
-    }
-    // 从 json 文件导入
-    async importRecordFromJSON() {
-        const record = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].loadJSONFile().catch((err) => {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_9__["msgBox"].error(err);
-            return;
-        }));
-        if (!record) {
-            return;
-        }
-        // 判断格式是否符合要求
-        if (Array.isArray(record) === false ||
-            record[0].id === undefined ||
-            record[0].n === undefined) {
-            return _MsgBox__WEBPACK_IMPORTED_MODULE_9__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_格式错误'));
-        }
-        this.importRecord(record);
-    }
-    // 从 txt 文件导入
-    // 每行一个文件 id（带序号），以换行分割
-    async importRecordFromTxt() {
-        const file = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].selectFile('.txt'))[0];
-        const text = await file.text();
-        // 以换行分割
-        let split = '\r\n';
-        if (!text.includes(split)) {
-            split = '\n';
-        }
-        const arr = text.split(split);
-        // 把每一行视为一个 id，进行导入
-        const record = [];
-        for (const str of arr) {
-            if (str) {
-                record.push({
-                    id: str,
-                    n: str,
-                });
-            }
-        }
-        this.importRecord(record);
-    }
-    // 创建一个文件，模拟导出的下载记录
-    exportTestFile(number) {
-        let r = [];
-        for (let index = 1; index <= number; index++) {
-            r.push({
-                id: index.toString(),
-                n: index.toString(),
-            });
-        }
-        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].json2BlobSafe(r);
-        const url = URL.createObjectURL(blob);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].downloadFile(url, `record-test-${number}.json`);
-    }
-}
-const deduplication = new Deduplication();
-
-
-
-/***/ }),
-
 /***/ "./src/ts/download/Download.ts":
 /*!*************************************!*\
   !*** ./src/ts/download/Download.ts ***!
@@ -15251,7 +14922,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../ConvertUgoira/ConvertUgoira */ "./src/ts/ConvertUgoira/ConvertUgoira.ts");
 /* harmony import */ var _ProgressBar__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ProgressBar */ "./src/ts/download/ProgressBar.ts");
 /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
-/* harmony import */ var _Deduplication__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Deduplication */ "./src/ts/download/Deduplication.ts");
+/* harmony import */ var _DownloadRecord__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./DownloadRecord */ "./src/ts/download/DownloadRecord.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _MakeNovelFile__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./MakeNovelFile */ "./src/ts/download/MakeNovelFile.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
@@ -15308,7 +14979,7 @@ class Download {
     // 在开始下载前进行检查
     async beforeDownload(arg) {
         // 检查是否是重复文件
-        const duplicate = await _Deduplication__WEBPACK_IMPORTED_MODULE_7__["deduplication"].check(arg.result);
+        const duplicate = await _DownloadRecord__WEBPACK_IMPORTED_MODULE_7__["downloadRecord"].checkDeduplication(arg.result);
         if (duplicate) {
             return this.skipDownload({
                 id: arg.id,
@@ -16236,6 +15907,321 @@ class DownloadNovelEmbeddedImage {
     }
 }
 const downloadNovelEmbeddedImage = new DownloadNovelEmbeddedImage();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/download/DownloadRecord.ts":
+/*!*******************************************!*\
+  !*** ./src/ts/download/DownloadRecord.ts ***!
+  \*******************************************/
+/*! exports provided: downloadRecord */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "downloadRecord", function() { return downloadRecord; });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/IndexedDB */ "./src/ts/utils/IndexedDB.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../FileName */ "./src/ts/FileName.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/SecretSignal */ "./src/ts/utils/SecretSignal.ts");
+
+
+
+
+
+
+
+
+
+
+
+// 保存下载记录，用来判断重复下载的文件
+class DownloadRecord {
+    constructor() {
+        this.DBName = 'DLRecord';
+        this.DBVer = 1;
+        this.storeNameList = [
+            'record1',
+            'record2',
+            'record3',
+            'record4',
+            'record5',
+            'record6',
+            'record7',
+            'record8',
+            'record9',
+        ]; // 表名的列表
+        this.existedIdList = []; // 检查文件是否重复时，会查询数据库。查询到的数据的 id 会保存到这个列表里。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
+        // 从图片 url 里取出日期字符串的正则表达式
+        this.dateRegExp = /img\/(.*)\//;
+        this.IDB = new _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_4__["IndexedDB"]();
+        this.init();
+    }
+    async init() {
+        await this.initDB();
+        this.bindEvents();
+    }
+    // 初始化数据库，获取数据库对象
+    async initDB() {
+        // 在升级事件里创建表和索引
+        const onUpdate = (db) => {
+            for (const name of this.storeNameList) {
+                if (!db.objectStoreNames.contains(name)) {
+                    const store = db.createObjectStore(name, { keyPath: 'id' });
+                    store.createIndex('id', 'id', { unique: true });
+                }
+            }
+        };
+        return new Promise(async (resolve, reject) => {
+            resolve(await this.IDB.open(this.DBName, this.DBVer, onUpdate));
+        });
+    }
+    bindEvents() {
+        // 当有文件下载完成时，存储这个任务的记录
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadSuccess, (ev) => {
+            const successData = ev.detail.data;
+            const result = _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].findResult(successData.id);
+            result && this.addRecord(result);
+        });
+        // 导入含有 id 列表的 txt 文件
+        _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_10__["secretSignal"].register('recordtxt', () => {
+            this.importRecordFromTxt();
+        });
+        // 导入下载记录的按钮
+        {
+            const btn = document.querySelector('#importDownloadRecord');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('importDownloadRecord');
+                });
+            }
+        }
+        // 监听导入下载记录的事件
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.importDownloadRecord, () => {
+            this.importRecordFromJSON();
+        });
+        // 导出下载记录的按钮
+        {
+            const btn = document.querySelector('#exportDownloadRecord');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('exportDownloadRecord');
+                });
+            }
+        }
+        // 监听导出下载记录的事件
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.exportDownloadRecord, () => {
+            this.exportRecord();
+        });
+        // 清空下载记录的按钮
+        {
+            const btn = document.querySelector('#clearDownloadRecord');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('clearDownloadRecord');
+                });
+            }
+        }
+        // 监听清空下载记录的事件
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearDownloadRecord, () => {
+            this.clearRecords();
+            this.existedIdList = [];
+        });
+    }
+    // 当要查找或存储一个 id 时，返回它所对应的 storeName
+    getStoreName(id) {
+        const firstNum = parseInt(id[0]);
+        return this.storeNameList[firstNum - 1];
+    }
+    // 生成一个下载记录
+    createRecord(data) {
+        let result = undefined;
+        if (typeof data === 'string') {
+            result = _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].findResult(data);
+        }
+        else {
+            result = data;
+        }
+        if (result === undefined) {
+            throw new Error('createRecord failed');
+        }
+        return {
+            id: result.id,
+            n: _FileName__WEBPACK_IMPORTED_MODULE_6__["fileName"].getFileName(result),
+            d: this.getDateString(result),
+        };
+    }
+    /**返回作品的修改日期字符串 */
+    getDateString(result) {
+        // 图像作品不使用 uploadDate，这是历史遗留原因，因为以前下载器的内部数据里没有 uploadDate 数据
+        // 而是从文件 URL 里取出日期字符串。例如
+        // 'https://i.pximg.net/img-original/img/2021/10/11/00/00/06/93364702_p0.png'
+        // 返回
+        // '2021/10/11/00/00/06'
+        // 为了保持向后兼容，这里不做修改
+        if (result.type !== 3) {
+            return result.original.match(this.dateRegExp)[1];
+        }
+        else {
+            // 小说作品使用 uploadDate，返回值如
+            // '2021-09-03T14:31:03+00:00'
+            return result.uploadDate;
+        }
+    }
+    // 添加一条下载记录
+    async addRecord(result) {
+        const storeName = this.getStoreName(result.id);
+        const record = this.createRecord(result);
+        if (this.existedIdList.includes(result.id)) {
+            this.IDB.put(storeName, record);
+        }
+        else {
+            // 先查询有没有这个记录
+            const result = await this.IDB.get(storeName, record.id);
+            this.IDB[result ? 'put' : 'add'](storeName, record);
+        }
+    }
+    /** 检查一个作品是否是重复下载
+     *
+     * 返回值 true 表示重复，false 表示不重复
+     */
+    async checkDeduplication(result) {
+        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].isPixiv()) {
+            return false;
+        }
+        return new Promise(async (resolve, reject) => {
+            // 如果未启用去重，直接返回不重复
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].deduplication) {
+                return resolve(false);
+            }
+            // 在数据库进行查找
+            const storeName = this.getStoreName(result.id);
+            const data = (await this.IDB.get(storeName, result.id));
+            if (data === null) {
+                return resolve(false);
+            }
+            // 有记录，说明这个文件下载过
+            this.existedIdList.push(data.id);
+            // 首先检查日期字符串是否发生了变化
+            // 如果日期字符串变化了，则不视为重复文件
+            if (data.d !== undefined && data.d !== this.getDateString(result)) {
+                return resolve(false);
+            }
+            // 如果之前的下载记录里没有日期，说明是早期的下载记录，那么就不检查日期
+            // 同时，更新这个作品的下载记录，为其添加日期
+            if (data.d === undefined) {
+                this.addRecord(result);
+            }
+            // 如果日期字符串没有变化，再根据策略进行判断
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].dupliStrategy === 'loose') {
+                // 如果是宽松策略（不比较文件名）
+                return resolve(true);
+            }
+            else {
+                // 如果是严格策略（考虑文件名）
+                const name = _FileName__WEBPACK_IMPORTED_MODULE_6__["fileName"].getFileName(result);
+                return resolve(name === data.n);
+            }
+        });
+    }
+    // 清空下载记录
+    clearRecords() {
+        for (const name of this.storeNameList) {
+            this.IDB.clear(name);
+        }
+        _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载记录已清除'));
+    }
+    // 导出下载记录
+    async exportRecord() {
+        let record = [];
+        for (const name of this.storeNameList) {
+            const r = (await this.IDB.getAll(name));
+            record = record.concat(r);
+        }
+        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].json2BlobSafe(record);
+        const url = URL.createObjectURL(blob);
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].downloadFile(url, `record-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].replaceUnsafeStr(new Date().toLocaleString())}.json`);
+        _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导出成功'));
+    }
+    // 导入下载记录
+    async importRecord(record) {
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入下载记录'));
+        // 器显示导入进度
+        let stored = 0;
+        let total = record.length;
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${stored}/${total}`, 1, false);
+        // 依次处理每个存储库
+        for (let index = 0; index < this.storeNameList.length; index++) {
+            // 提取出要存入这个存储库的数据
+            const data = [];
+            for (const r of record) {
+                if (parseInt(r.id[0]) - 1 === index) {
+                    data.push(r);
+                }
+            }
+            // 批量添加数据
+            await this.IDB.batchAddData(this.storeNameList[index], data, 'id');
+            stored += data.length;
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${stored}/${total}`, 1, false);
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入成功'));
+        _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入成功'));
+        _MsgBox__WEBPACK_IMPORTED_MODULE_9__["msgBox"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入成功'), {
+            title: _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入下载记录'),
+        });
+        // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。
+    }
+    // 从 json 文件导入
+    async importRecordFromJSON() {
+        const record = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].loadJSONFile().catch((err) => {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_9__["msgBox"].error(err);
+            return;
+        }));
+        if (!record) {
+            return;
+        }
+        // 判断格式是否符合要求
+        if (Array.isArray(record) === false ||
+            record[0].id === undefined ||
+            record[0].n === undefined) {
+            return _MsgBox__WEBPACK_IMPORTED_MODULE_9__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_格式错误'));
+        }
+        this.importRecord(record);
+    }
+    // 从 txt 文件导入
+    // 每行一个文件 id（带序号），以换行分割
+    async importRecordFromTxt() {
+        const file = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].selectFile('.txt'))[0];
+        const text = await file.text();
+        // 以换行分割
+        let split = '\r\n';
+        if (!text.includes(split)) {
+            split = '\n';
+        }
+        const arr = text.split(split);
+        // 把每一行视为一个 id，进行导入
+        const record = [];
+        for (const str of arr) {
+            if (str) {
+                record.push({
+                    id: str,
+                    n: str,
+                });
+            }
+        }
+        this.importRecord(record);
+    }
+}
+const downloadRecord = new DownloadRecord();
 
 
 
@@ -20876,10 +20862,10 @@ const formHtml = `<form class="settingForm">
     <span data-xztext="_作品类型"></span>
     </span>
     <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
-    <span class="beautify_checkbox" tabindex="0"></span>
+    <span class="beautify_checkbox" tabindex="0" aria-labelledby="setWorkType0"></span>
     <label for="setWorkType0" data-xztext="_插画"></label>
     <input type="checkbox" name="downType1" id="setWorkType1" class="need_beautify checkbox_common" checked>
-    <span class="beautify_checkbox" tabindex="0"></span>
+    <span class="beautify_checkbox" tabindex="0" data-xztitle="_漫画"></span>
     <label for="setWorkType1" data-xztext="_漫画"></label>
     <input type="checkbox" name="downType2" id="setWorkType2" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox" tabindex="0"></span>

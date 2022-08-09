@@ -16,10 +16,10 @@ export const formHtml = `<form class="settingForm">
     <span data-xztext="_作品类型"></span>
     </span>
     <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
-    <span class="beautify_checkbox" tabindex="0"></span>
+    <span class="beautify_checkbox" tabindex="0" aria-labelledby="setWorkType0"></span>
     <label for="setWorkType0" data-xztext="_插画"></label>
     <input type="checkbox" name="downType1" id="setWorkType1" class="need_beautify checkbox_common" checked>
-    <span class="beautify_checkbox" tabindex="0"></span>
+    <span class="beautify_checkbox" tabindex="0" data-xztitle="_漫画"></span>
     <label for="setWorkType1" data-xztext="_漫画"></label>
     <input type="checkbox" name="downType2" id="setWorkType2" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox" tabindex="0"></span>
