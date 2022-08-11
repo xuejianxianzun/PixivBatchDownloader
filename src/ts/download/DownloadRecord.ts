@@ -19,8 +19,8 @@ interface Record {
   d?: string
 }
 
-// 通过保存和查询下载记录，判断重复文件
-class Deduplication {
+// 保存下载记录，用来判断重复下载的文件
+class DownloadRecord {
   constructor() {
     this.IDB = new IndexedDB()
     this.init()
@@ -49,7 +49,6 @@ class Deduplication {
   private async init() {
     await this.initDB()
     this.bindEvents()
-    // this.exportTestFile(10)
   }
 
   // 初始化数据库，获取数据库对象
@@ -189,7 +188,7 @@ class Deduplication {
    *
    * 返回值 true 表示重复，false 表示不重复
    */
-  public async check(result: Result) {
+  public async checkDeduplication(result: Result) {
     if (!Utils.isPixiv()) {
       return false
     }
@@ -248,7 +247,7 @@ class Deduplication {
       record = record.concat(r)
     }
 
-    const blob = Utils.json2Blob(record)
+    const blob = Utils.json2BlobSafe(record)
     const url = URL.createObjectURL(blob)
     Utils.downloadFile(
       url,
@@ -341,22 +340,7 @@ class Deduplication {
     }
     this.importRecord(record)
   }
-
-  // 创建一个文件，模拟导出的下载记录
-  private exportTestFile(number: number) {
-    let r: Record[] = []
-    for (let index = 1; index <= number; index++) {
-      r.push({
-        id: index.toString(),
-        n: index.toString(),
-      })
-    }
-
-    const blob = Utils.json2Blob(r)
-    const url = URL.createObjectURL(blob)
-    Utils.downloadFile(url, `record-test-${number}.json`)
-  }
 }
 
-const deduplication = new Deduplication()
-export { deduplication }
+const downloadRecord = new DownloadRecord()
+export { downloadRecord }

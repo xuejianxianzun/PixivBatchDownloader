@@ -17,37 +17,12 @@ class ExportResult {
   }
 
   private output() {
-    // 如果没有数据则不执行
     if (store.result.length === 0) {
-      toast.error(lang.transl('_没有数据可供使用'))
+      toast.error(lang.transl('_没有可用的抓取结果'))
       return
     }
 
-    // 使用数组储存文件数据
-    let resultArray: string[] = []
-
-    // 定义数组项的分隔字符
-    const split = ','
-
-    // 在数组开头添加数组的开始符号
-    resultArray.push('[')
-
-    // 循环添加每一个结果，以及分割字符
-    for (const result of store.result) {
-      resultArray.push(JSON.stringify(result))
-      resultArray.push(split)
-    }
-
-    // 删除最后一个分隔符（不去掉的话会导致格式错误）
-    resultArray.pop()
-
-    // 在数组末尾添加数组的结束符号
-    resultArray.push(']')
-
-    // 创建 blob 对象
-    const blob = new Blob(resultArray, { type: 'application/json' })
-    resultArray = []
-
+    const blob = Utils.json2BlobSafe(store.result)
     const url = URL.createObjectURL(blob)
     Utils.downloadFile(
       url,

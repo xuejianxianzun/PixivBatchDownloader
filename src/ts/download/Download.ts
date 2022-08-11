@@ -11,7 +11,7 @@ import {
 } from './DownloadType'
 import { progressBar } from './ProgressBar'
 import { filter } from '../filter/Filter'
-import { deduplication } from './Deduplication'
+import { downloadRecord } from './DownloadRecord'
 import { settings } from '../setting/Settings'
 import { MakeNovelFile } from './MakeNovelFile'
 import { Utils } from '../utils/Utils'
@@ -58,7 +58,7 @@ class Download {
   // 在开始下载前进行检查
   private async beforeDownload(arg: downloadArgument) {
     // 检查是否是重复文件
-    const duplicate = await deduplication.check(arg.result)
+    const duplicate = await downloadRecord.checkDeduplication(arg.result)
     if (duplicate) {
       return this.skipDownload(
         {
@@ -312,8 +312,8 @@ class Download {
       const blobUrl = URL.createObjectURL(file)
 
       // 对插画、漫画进行颜色检查
-      // 在这里进行检查的主要原因：抓取时只能检测第一张的缩略图，并没有检查后面的图片。所以这里需要对后面的图片进行检查。
-      // 另一个原因：如果抓取时没有设置不下载某种颜色的图片，下载时又开启了设置，那么就在这里进行检查
+      // 在这里进行检查的主要原因：抓取时只会检查单图作品的颜色，不会检查多图作品的颜色。所以多图作品需要在这里进行检查。
+      // 另一个原因：如果抓取时没有设置图片的颜色条件，下载时才设置颜色条件，那么就必须在这里进行检查。
       if (arg.result.type === 0 || arg.result.type === 1) {
         const result = await filter.check({
           mini: blobUrl,

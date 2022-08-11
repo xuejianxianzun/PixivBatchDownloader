@@ -53,10 +53,10 @@ abstract class InitPageBase {
     // 注册当前页面的 destroy 函数
     destroyManager.register(this.destroy.bind(this))
 
-    // 切换页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
+    // 切换页面时，如果任务已经完成，则移除日志区域
     EVT.bindOnce('clearLogAfterPageSwitch', EVT.list.pageSwitch, () => {
       if (!states.busy) {
-        EVT.fire('clearLog')
+        log.remove()
       }
     })
 
@@ -307,10 +307,10 @@ abstract class InitPageBase {
       // }
       if (error.status) {
         // 请求成功，但状态码不正常
-        this.logErrorStatus(error.status, id)
+        this.logErrorStatus(error.status, idData)
         if (error.status === 500) {
           // 如果状态码 500，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
-          log.error(lang.transl('_列表页被限制时返回空结果的提示'))
+          log.error(lang.transl('_抓取被限制时返回空结果的提示'))
           return window.setTimeout(() => {
             this.getWorksData(idData)
           }, Config.retryTimer)
@@ -399,9 +399,9 @@ abstract class InitPageBase {
   }
 
   // 网络请求状态异常时输出提示
-  private logErrorStatus(status: number, id: string) {
-    const novelPage = window.location.href.includes('/novel')
-    const workLink = Tools.createWorkLink(id, !novelPage)
+  private logErrorStatus(status: number, idData: IDData) {
+    const isNovel = idData.type === 'novels'
+    const workLink = Tools.createWorkLink(idData.id, !isNovel)
     switch (status) {
       case 0:
         log.error(workLink + ' ' + lang.transl('_作品页状态码0'))
@@ -411,12 +411,20 @@ abstract class InitPageBase {
         log.error(workLink + ' ' + lang.transl('_作品页状态码400'))
         break
 
+      case 401:
+        log.error(workLink + ' ' + lang.transl('_作品页状态码401'))
+        break
+
       case 403:
         log.error(workLink + ' ' + lang.transl('_作品页状态码403'))
         break
 
       case 404:
         log.error(workLink + ' ' + lang.transl('_作品页状态码404'))
+        break
+
+      case 500:
+        log.error(workLink + ' ' + lang.transl('_作品页状态码500'))
         break
 
       default:

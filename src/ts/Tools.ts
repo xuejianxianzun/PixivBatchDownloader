@@ -364,6 +364,8 @@ class Tools {
   static convertThumbURLTo540px(url: string) {
     // 'https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2021/10/26/00/00/08/93686259_p0_custom1200.jpg'
     // 'https://i.pximg.net/c/250x250_80_a2/img-master/img/2019/06/23/17/29/27/75369283_square1200.jpg'
+    // 排行榜页面的图片 URL 如：
+    // 'https://i.pximg.net/c/240x480/img-master/img/2022/08/01/17/59/39/100156836_p0_master1200.jpg'
     const test = url.match(this.convertThumbURLReg)
     if (!test || !test[1]) {
       return url

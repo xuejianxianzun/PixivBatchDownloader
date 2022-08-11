@@ -39,7 +39,9 @@ class CenterPanel {
   private updateActiveClass = 'updateActiveClass'
 
   private allTabTitle!: NodeListOf<HTMLDivElement> // 选项卡的标题区域
-  private readonly activeClass = 'active'
+  private readonly TitleActiveClass = 'active'
+  private titleAnimationEl!: HTMLElement
+  private readonly titleAnimationElClassList = ['tab1', 'tab2', 'tab3']
 
   // 添加中间面板
   private addCenterPanel() {
@@ -50,34 +52,35 @@ class CenterPanel {
       <div class="centerWrap_title blue">
       ${Config.appName}
       <div class="btns">
-      <a class="has_tip centerWrap_top_btn update" data-xztip="_newver" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
+      <a class="has_tip centerWrap_top_btn update" data-xztip="_newver" data-xztitle="_newver" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-gengxin"></use>
         </svg>
       </a>
-      <a class="has_tip centerWrap_top_btn github_icon" data-xztip="_github" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
+      <a class="has_tip centerWrap_top_btn github_icon" data-xztip="_github" data-xztitle="_github" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-github"></use>
       </svg>
       </a>
-      <a class="has_tip centerWrap_top_btn wiki_url" data-xztip="_wiki" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
+      <a class="has_tip centerWrap_top_btn wiki_url" data-xztip="_wiki" data-xztitle="_wiki" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
-        <div class="has_tip centerWrap_top_btn centerWrap_close" data-xztip="_隐藏下载面板">
+        <button class="textButton has_tip centerWrap_top_btn centerWrap_close" data-xztip="_隐藏下载面板" data-xztitle="_隐藏下载面板">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
         </svg>
-        </div>
+        </button>
       </div>
       </div>
       </div>
 
       <div class="centerWrap_tabs tabsTitle">
-        <div class="title" data-xztext="_抓取"></div>
-        <div class="title" data-xztext="_下载"></div>
-        <div class="title" data-xztext="_更多"></div>
+        <div class="title" data-xztext="_抓取" tabindex="0"></div>
+        <div class="title" data-xztext="_下载" tabindex="0"></div>
+        <div class="title" data-xztext="_更多" tabindex="0"></div>
+        <div class="title_active"></div>
       </div>
 
       <div class="centerWrap_con beautify_scrollbar">
@@ -106,6 +109,10 @@ class CenterPanel {
     )! as HTMLAnchorElement
 
     this.allTabTitle = this.centerPanel.querySelectorAll('.tabsTitle .title')
+
+    this.titleAnimationEl = this.centerPanel.querySelector(
+      '.title_active'
+    )! as HTMLElement
   }
 
   private allLangFlag: string[] = []
@@ -201,9 +208,10 @@ class CenterPanel {
     // 在选项卡的标题上触发事件时，激活对应的选项卡
     const eventList = ['click', 'mouseenter']
     for (let index = 0; index < this.allTabTitle.length; index++) {
+      const title = this.allTabTitle[index]
       eventList.forEach((eventName) => {
-        this.allTabTitle[index].addEventListener(eventName, () => {
-          // 触发 mouseenter 时，如果用户设置了通过点击切换选项卡，则直接返回
+        title.addEventListener(eventName, () => {
+          // 触发 mouseenter 时，如果用户设置的是通过点击来切换选项卡，则直接返回
           // 触发 click 时无需检测，始终可以切换
           if (eventName === 'mouseenter' && settings.switchTabBar === 'click') {
             return
@@ -211,14 +219,22 @@ class CenterPanel {
           this.activeTab(index)
         })
       })
+
+      // 当标题获得焦点，并且用户按下了回车或空格键时，激活对应的选项卡
+      title.addEventListener('keydown', (event) => {
+        if (
+          (event.code === 'Enter' || event.code === 'Space') &&
+          event.target === title
+        ) {
+          event.stopPropagation()
+          event.preventDefault()
+          this.activeTab(index)
+        }
+      })
     }
 
     // 当可以开始下载时，切换到“下载”选项卡
-    for (const ev of [
-      EVT.list.crawlFinish,
-      EVT.list.resultChange,
-      EVT.list.resume,
-    ]) {
+    for (const ev of [EVT.list.crawlFinish, EVT.list.resume]) {
       window.addEventListener(ev, () => {
         if (states.mergeNovel) {
           return
@@ -238,17 +254,29 @@ class CenterPanel {
 
   // 设置激活的选项卡
   private activeTab(no = 0) {
-    for (const title of this.allTabTitle) {
-      title.classList.remove(this.activeClass)
-    }
-    this.allTabTitle[no].classList.add(this.activeClass)
-
+    // 显示选项卡的内容
     const allTabCon = this.centerPanel.querySelectorAll(
       '.tabsContnet'
     ) as NodeListOf<HTMLElement>
     for (let index = 0; index < allTabCon.length; index++) {
       allTabCon[index].style.display = index === no ? 'block' : 'none'
     }
+
+    // 高亮选项卡的标题
+    for (const title of this.allTabTitle) {
+      title.classList.remove(this.TitleActiveClass)
+    }
+    this.allTabTitle[no].classList.add(this.TitleActiveClass)
+
+    // 设置动画效果
+    const useClass = this.titleAnimationElClassList[no]
+    if (this.titleAnimationEl.classList.contains(useClass)) {
+      return
+    }
+    this.titleAnimationElClassList.forEach((str) => {
+      this.titleAnimationEl.classList.remove(str)
+    })
+    this.titleAnimationEl.classList.add(useClass)
   }
 
   // 显示中间区域

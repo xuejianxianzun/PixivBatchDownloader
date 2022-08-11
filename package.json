@@ -1,6 +1,6 @@
 {
   "name": "powerful-pixiv-downloader",
-  "version": "13.0.0",
+  "version": "13.2.0",
   "description": "强大的 Pixiv 下载器，支持批量下载。一括ダウンロードをサポートする強力な Pixiv ダウンローダー。The powerful Pixiv downloader supports batch downloading.",
   "repository": "https://github.com/xuejianxianzun/PixivBatchDownloader",
   "author": "xuejianxianzun",

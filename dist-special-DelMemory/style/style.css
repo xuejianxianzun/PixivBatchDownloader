@@ -512,7 +512,6 @@
 .centerWrap .textButton {
   border: none;
   background: none;
-  outline: none;
   padding: 1px 6px;
   cursor: pointer;
 }
@@ -561,6 +560,7 @@
   padding: 0;
   border-bottom: 1px solid #eee;
   margin-bottom: 8px;
+  position: relative;
 }
 .centerWrap .centerWrap_tabs .title {
   text-align: center;
@@ -575,18 +575,27 @@
 .centerWrap .centerWrap_tabs .title.active {
   color: #0ea8ef;
 }
-.centerWrap .centerWrap_tabs .title.active::after {
-  content: '';
-  width: 100%;
-  height: 2px;
-  background: #0ea8ef;
-  position: absolute;
-  top: 36px;
-  left: 0;
-  z-index: 1001;
-}
 .centerWrap .centerWrap_tabs .title:hover {
   color: #0ea8ef;
+}
+.centerWrap .centerWrap_tabs .title_active {
+  position: absolute;
+  width: 33.3%;
+  height: 2px;
+  background: #29b3f3;
+  top: 36px;
+  left: 0%;
+  z-index: 1001;
+  transition: left 0.2s;
+}
+.centerWrap .centerWrap_tabs .title_active.tab1 {
+  left: 0%;
+}
+.centerWrap .centerWrap_tabs .title_active.tab2 {
+  left: 33.3%;
+}
+.centerWrap .centerWrap_tabs .title_active.tab3 {
+  left: 66.6%;
 }
 .centerWrap .centerWrap_con {
   overflow: auto;
@@ -596,6 +605,17 @@
 .centerWrap .centerWrap_con slot[data-name='namingBtns'] button,
 .centerWrap .centerWrap_con slot[data-name='exportResult'] button {
   display: none;
+}
+.centerWrap .centerWrap_con .centerWrap_top_btn:hover,
+.centerWrap .centerWrap_con .centerWrap_top_btn:focus,
+.centerWrap .centerWrap_con .showFileNameTip:hover,
+.centerWrap .centerWrap_con .showFileNameTip:focus,
+.centerWrap .centerWrap_con .textButton:hover,
+.centerWrap .centerWrap_con .textButton:focus,
+.centerWrap .centerWrap_con .help_bar > *:hover,
+.centerWrap .centerWrap_con .updateActiveClass {
+  color: #0ea8ef !important;
+  fill: #0ea8ef !important;
 }
 .centerWrap .centerWrap_con .settingForm {
   position: relative;
@@ -661,10 +681,7 @@
   margin-left: 20px;
 }
 .centerWrap .centerWrap_con .settingForm .need_beautify {
-  position: absolute;
-  width: 0;
-  height: 0;
-  opacity: 0;
+  display: none;
 }
 .centerWrap .centerWrap_con .settingForm label {
   cursor: pointer;
@@ -781,16 +798,6 @@
 .centerWrap .centerWrap_con .settingForm .radio:checked + .beautify_radio::after {
   transform: translate(-50%, -50%) scale(1);
 }
-.centerWrap .centerWrap_con .settingForm .centerWrap_top_btn:hover,
-.centerWrap .centerWrap_con .settingForm .showFileNameTip:hover,
-.centerWrap .centerWrap_con .settingForm .textButton:hover,
-.centerWrap .centerWrap_con .settingForm .textButton:focus,
-.centerWrap .centerWrap_con .settingForm .showFileNameResult:hover,
-.centerWrap .centerWrap_con .settingForm .help_bar > *:hover,
-.centerWrap .centerWrap_con .settingForm .updateActiveClass {
-  color: #0ea8ef !important;
-  fill: #0ea8ef !important;
-}
 .centerWrap .centerWrap_con .settingForm li {
   list-style: none;
 }
@@ -835,7 +842,6 @@
 .centerWrap .centerWrap_con .settingForm .setinput_tag {
   min-width: 300px;
 }
-.centerWrap .centerWrap_con .settingForm .showFileNameResult,
 .centerWrap .centerWrap_con .settingForm .showFileNameTip {
   cursor: pointer;
 }
@@ -1101,10 +1107,11 @@
   color: #29b3f3 !important;
 }
 .theme-dark.centerWrap .centerWrap_top_btn:hover,
+.theme-dark.centerWrap .centerWrap_top_btn:focus,
 .theme-dark.centerWrap .showFileNameTip:hover,
+.theme-dark.centerWrap .showFileNameTip:focus,
 .theme-dark.centerWrap .textButton:hover,
 .theme-dark.centerWrap .textButton:focus,
-.theme-dark.centerWrap .showFileNameResult:hover,
 .theme-dark.centerWrap .help_bar > *:hover,
 .theme-dark.centerWrap .updateActiveClass {
   color: #29b3f3 !important;
@@ -1166,10 +1173,11 @@
   color: #fff !important;
 }
 .xzBG.centerWrap .centerWrap_top_btn:hover,
+.xzBG.centerWrap .centerWrap_top_btn:focus,
 .xzBG.centerWrap .showFileNameTip:hover,
+.xzBG.centerWrap .showFileNameTip:focus,
 .xzBG.centerWrap .textButton:hover,
 .xzBG.centerWrap .textButton:focus,
-.xzBG.centerWrap .showFileNameResult:hover,
 .xzBG.centerWrap .help_bar > *:hover,
 .xzBG.centerWrap .updateActiveClass {
   color: #fff !important;
@@ -1438,6 +1446,7 @@
 }
 .xzBG.xz_msg_box .xzBGLayer {
   filter: blur(1px);
+  border-radius: 12px;
 }
 #header-banner.ad,
 ._2vNejsc,

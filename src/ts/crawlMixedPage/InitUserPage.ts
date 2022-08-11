@@ -18,6 +18,7 @@ import '../pageFunciton/SaveUserCover'
 import { BookmarkAllWorks, IDList } from '../pageFunciton/BookmarkAllWorks'
 import { Utils } from '../utils/Utils'
 import { Config } from '../config/Config'
+import { timedCrawl } from '../crawl/TimedCrawl'
 
 enum ListType {
   UserHome,
@@ -49,6 +50,15 @@ class InitUserPage extends InitPageBase {
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
+
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_定时抓取',
+      '_定时抓取说明'
+    ).addEventListener('click', () => {
+      timedCrawl.start(this.readyCrawl.bind(this))
+    })
   }
 
   protected addAnyElement() {
@@ -56,13 +66,6 @@ class InitUserPage extends InitPageBase {
       'click',
       () => {
         EVT.fire('saveAvatarImage')
-      }
-    )
-
-    Tools.addBtn('otherBtns', Colors.bgGreen, '_保存用户封面').addEventListener(
-      'click',
-      () => {
-        EVT.fire('saveUserCover')
       }
     )
 
@@ -74,6 +77,13 @@ class InitUserPage extends InitPageBase {
     ).addEventListener('click', () => {
       EVT.fire('saveAvatarIcon')
     })
+
+    Tools.addBtn('otherBtns', Colors.bgGreen, '_保存用户封面').addEventListener(
+      'click',
+      () => {
+        EVT.fire('saveUserCover')
+      }
+    )
 
     // 添加收藏本页所有作品的功能
     const bookmarkAllBtn = Tools.addBtn(
