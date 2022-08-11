@@ -495,7 +495,7 @@ export const formHtml = `<form class="settingForm">
     <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
     <span class="subOptionWrap" data-show="userBlockList">
-    <input type="text" name="blockList" class="setinput_style1 blue setinput_tag" data-xzplaceholder="_用户ID必须是数字">
+    <input type="text" name="blockList" class="has_tip setinput_style1 blue setinput_tag" data-xztip="_用户阻止名单的说明" data-xzplaceholder="_用户ID必须是数字">
     </span>
     </p>
 
@@ -505,6 +505,13 @@ export const formHtml = `<form class="settingForm">
     <span class="beautify_switch" tabindex="0"></span>
     <span class="subOptionWrap" data-show="blockTagsForSpecificUser">
     <slot data-name="blockTagsForSpecificUser"></slot>
+    </span>
+    </p>
+    
+    <p class="option" data-no="74">
+    <span class="has_tip settingNameStyle1" data-xztext="_定时抓取的间隔时间" data-xztip="_定时抓取说明"></span>
+    <input type="text" name="timedCrawlInterval" class="setinput_style1 blue" value="120">
+    <span class="settingNameStyle1" data-xztext="_分钟"></span>
     </span>
     </p>
     

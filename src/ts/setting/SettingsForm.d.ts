@@ -125,4 +125,5 @@ export interface SettingsForm extends HTMLFormElement {
   previewUgoira: HTMLInputElement
   hiddenBrowserDownloadBar: HTMLInputElement
   userRatioLimit: HTMLInputElement
+  timedCrawlInterval: HTMLInputElement
 }
