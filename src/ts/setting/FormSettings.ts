@@ -138,6 +138,7 @@ class FormSettings {
       'autoExportResultNumber',
       'previewWorkWait',
       'previewResultLimit',
+      'timedCrawlInterval',
     ],
     radio: [
       'ugoiraSaveAs',

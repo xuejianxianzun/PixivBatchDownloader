@@ -53,10 +53,10 @@ abstract class InitPageBase {
     // 注册当前页面的 destroy 函数
     destroyManager.register(this.destroy.bind(this))
 
-    // 切换页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
+    // 切换页面时，如果任务已经完成，则移除日志区域
     EVT.bindOnce('clearLogAfterPageSwitch', EVT.list.pageSwitch, () => {
       if (!states.busy) {
-        EVT.fire('clearLog')
+        log.remove()
       }
     })
 

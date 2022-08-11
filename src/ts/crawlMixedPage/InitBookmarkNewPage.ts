@@ -13,6 +13,7 @@ import {
   BookMarkNewIllustData,
   BookMarkNewNovelData,
 } from '../crawl/CrawlResult'
+import { timedCrawl } from '../crawl/TimedCrawl'
 
 class InitBookmarkNewPage extends InitPageBase {
   constructor() {
@@ -41,6 +42,15 @@ class InitBookmarkNewPage extends InitPageBase {
       '_默认下载多页'
     ).addEventListener('click', () => {
       this.readyCrawl()
+    })
+
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_定时抓取',
+      '_定时抓取说明'
+    ).addEventListener('click', () => {
+      timedCrawl.start(this.readyCrawl.bind(this))
     })
   }
 
