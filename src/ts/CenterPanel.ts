@@ -52,22 +52,22 @@ class CenterPanel {
       <div class="centerWrap_title blue">
       ${Config.appName}
       <div class="btns">
-      <a class="has_tip centerWrap_top_btn update" data-xztip="_newver" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
+      <a class="has_tip centerWrap_top_btn update" data-xztip="_newver" data-xztitle="_newver" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-gengxin"></use>
         </svg>
       </a>
-      <a class="has_tip centerWrap_top_btn github_icon" data-xztip="_github" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
+      <a class="has_tip centerWrap_top_btn github_icon" data-xztip="_github" data-xztitle="_github" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-github"></use>
       </svg>
       </a>
-      <a class="has_tip centerWrap_top_btn wiki_url" data-xztip="_wiki" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
+      <a class="has_tip centerWrap_top_btn wiki_url" data-xztip="_wiki" data-xztitle="_wiki" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
-        <button class="textButton has_tip centerWrap_top_btn centerWrap_close" data-xztip="_隐藏下载面板">
+        <button class="textButton has_tip centerWrap_top_btn centerWrap_close" data-xztip="_隐藏下载面板" data-xztitle="_隐藏下载面板">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
         </svg>

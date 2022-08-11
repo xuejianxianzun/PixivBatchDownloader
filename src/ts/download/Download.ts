@@ -11,7 +11,7 @@ import {
 } from './DownloadType'
 import { progressBar } from './ProgressBar'
 import { filter } from '../filter/Filter'
-import { deduplication } from './Deduplication'
+import { downloadRecord } from './DownloadRecord'
 import { settings } from '../setting/Settings'
 import { MakeNovelFile } from './MakeNovelFile'
 import { Utils } from '../utils/Utils'
@@ -58,7 +58,7 @@ class Download {
   // 在开始下载前进行检查
   private async beforeDownload(arg: downloadArgument) {
     // 检查是否是重复文件
-    const duplicate = await deduplication.check(arg.result)
+    const duplicate = await downloadRecord.checkDeduplication(arg.result)
     if (duplicate) {
       return this.skipDownload(
         {

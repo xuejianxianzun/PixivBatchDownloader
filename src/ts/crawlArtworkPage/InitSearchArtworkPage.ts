@@ -24,6 +24,7 @@ import { Bookmark } from '../Bookmark'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { pageType } from '../PageType'
 import { Config } from '../config/Config'
+import { timedCrawl } from '../crawl/TimedCrawl'
 
 type AddBMKData = {
   id: number
@@ -110,6 +111,15 @@ class InitSearchArtworkPage extends InitPageBase {
 
       window.addEventListener(EVT.list.addResult, this.createPreview)
       this.readyCrawl()
+    })
+
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_定时抓取',
+      '_定时抓取说明'
+    ).addEventListener('click', () => {
+      timedCrawl.start(this.readyCrawl.bind(this))
     })
 
     Tools.addBtn(
@@ -842,26 +852,16 @@ class InitSearchArtworkPage extends InitPageBase {
     }
   }
 
-  // 去除热门作品上面的遮挡
+  // 去除覆盖在热门作品上面的会员购买链接
   private removeBlockOnHotBar() {
-    // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
-    const hotWorkAsideSelector = 'section aside'
-    const timer = window.setInterval(() => {
-      const hotWorkAside = document.querySelector(hotWorkAsideSelector)
-      if (hotWorkAside) {
-        window.clearInterval(timer)
-
-        // 去掉遮挡作品的元素
-        const premiumLink = hotWorkAside.nextSibling
-        premiumLink && premiumLink.remove()
-
-        // 去掉遮挡后两个作品的 after。因为是伪元素，所以要通过 css 控制
-        const style = `
-        section aside ul::after{
-          display:none !important;
-        }
-        `
-        Utils.addStyle(style)
+    // 需要重复执行，因为这个链接会生成不止一次
+    window.setInterval(() => {
+      if (pageType.type !== pageType.list.ArtworkSearch) {
+        return
+      }
+      const hotWorksLink = document.querySelector('section a[href^="/premium"]')
+      if (hotWorksLink) {
+        hotWorksLink.remove()
       }
     }, 300)
   }

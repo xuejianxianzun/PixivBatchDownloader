@@ -99,14 +99,20 @@ class Log {
     // 如果页面上的日志条数超过指定数量，则清空
     // 因为日志数量太多的话会占用很大的内存。同时显示 8000 条日志可能占用接近 1 GB 的内存
     if (this.count > this.max) {
-      this.logArea.innerHTML = ''
-      this.count = 0
+      this.clear()
     }
   }
 
-  // 清空日志
-  public clear() {
+  /**移除日志区域 */
+  public remove() {
+    this.count = 0
     this.wrap.remove()
+  }
+
+  /**清空日志内容 */
+  public clear() {
+    this.count = 0
+    this.logArea.innerHTML = ''
   }
 
   // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部
