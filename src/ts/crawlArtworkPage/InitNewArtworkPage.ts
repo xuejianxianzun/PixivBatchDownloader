@@ -11,6 +11,7 @@ import { store } from '../store/Store'
 import { log } from '../Log'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
+import { timedCrawl } from '../crawl/TimedCrawl'
 
 class InitNewArtworkPage extends InitPageBase {
   constructor() {
@@ -32,6 +33,15 @@ class InitNewArtworkPage extends InitPageBase {
       '_下载大家的新作品'
     ).addEventListener('click', () => {
       this.readyCrawl()
+    })
+
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_定时抓取',
+      '_定时抓取说明'
+    ).addEventListener('click', () => {
+      timedCrawl.start(this.readyCrawl.bind(this))
     })
   }
 

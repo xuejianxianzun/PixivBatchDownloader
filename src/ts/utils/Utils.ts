@@ -290,10 +290,37 @@ class Utils {
     })
   }
 
-  /**如果数据量多大，不应该使用这个方法 */
+  /**JSON 转换成 Blob 对象。如果数据量可能比较大，则不应该使用这个方法 */
   static json2Blob(data: any) {
     const str = JSON.stringify(data, null, 2)
     const blob = new Blob([str], { type: 'application/json' })
+    return blob
+  }
+
+  /**JSON 转换成 Blob 对象。可以处理更大的数据量 */
+  static json2BlobSafe(data: any[]): Blob {
+    // 在这个数组里储存数组字面量
+    let result: string[] = []
+
+    // 添加数组的开始符号
+    result.push('[')
+
+    // 循环添加每一项数据
+    for (const item of data) {
+      result.push(JSON.stringify(item))
+      result.push(',')
+    }
+
+    // 删除最后一个分隔符，否则会导致格式错误
+    result.pop()
+
+    // 添加数组的结束符号
+    result.push(']')
+
+    // 创建 blob 对象
+    const blob = new Blob(result, { type: 'application/json' })
+    result = []
+
     return blob
   }
 

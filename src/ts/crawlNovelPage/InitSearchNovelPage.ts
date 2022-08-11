@@ -19,6 +19,7 @@ import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { states } from '../store/States'
 import { pageType } from '../PageType'
 import { Config } from '../config/Config'
+import { timedCrawl } from '../crawl/TimedCrawl'
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {
@@ -63,6 +64,15 @@ class InitSearchNovelPage extends InitPageBase {
       '_默认下载多页'
     ).addEventListener('click', () => {
       this.readyCrawl()
+    })
+
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_定时抓取',
+      '_定时抓取说明'
+    ).addEventListener('click', () => {
+      timedCrawl.start(this.readyCrawl.bind(this))
     })
   }
 
@@ -245,7 +255,7 @@ class InitSearchNovelPage extends InitPageBase {
   }
 
   private tipEmptyResult = Utils.debounce(() => {
-    log.error(lang.transl('_列表页被限制时返回空结果的提示'))
+    log.error(lang.transl('_抓取被限制时返回空结果的提示'))
   }, 1000)
 
   // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加

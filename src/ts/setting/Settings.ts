@@ -216,6 +216,9 @@ interface XzSetting {
   downloadNovelEmbeddedImage: boolean
   previewUgoira: boolean
   hiddenBrowserDownloadBar: boolean
+  tipPressDToDownload: boolean
+  /**定时抓取的间隔时间，注意单位是分钟而不是毫秒 */
+  timedCrawlInterval: number
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -399,6 +402,8 @@ class Settings {
     downloadNovelEmbeddedImage: true,
     previewUgoira: true,
     hiddenBrowserDownloadBar: false,
+    tipPressDToDownload: true,
+    timedCrawlInterval: 120,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -512,6 +517,7 @@ class Settings {
     const blob = Utils.json2Blob(this.settings)
     const url = URL.createObjectURL(blob)
     Utils.downloadFile(url, Config.appName + ` Settings.json`)
+    toast.success(lang.transl('_导出成功'))
   }
 
   private async importSettings() {
