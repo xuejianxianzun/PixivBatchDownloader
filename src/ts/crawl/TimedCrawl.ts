@@ -68,24 +68,52 @@ class TimedCrawl {
   }
 
   private bindEvents() {
+    // 当抓取结果为空，或者下载中止、完成时复位标记
+    const resetCrawlBySelf = [
+      EVT.list.crawlEmpty,
+      EVT.list.downloadStop,
+      EVT.list.downloadPause,
+      EVT.list.downloadComplete,
+      EVT.list.downloadCancel,
+    ]
+
+    for (const ev of resetCrawlBySelf) {
+      window.addEventListener(ev, () => {
+        window.setTimeout(() => {
+          // 需要延迟执行，在日志提示显示之后再复位状态
+          this.crawlBySelf = false
+        }, 50)
+      })
+    }
+
+    // 显示一些提示
+    window.addEventListener(EVT.list.crawlStart, () => {
+      if (!this.crawlBySelf) {
+        return
+      }
+      log.success(lang.transl('_开始定时抓取'))
+      log.log(lang.transl('_当前时间') + new Date().toLocaleString())
+    })
+
+    const tipWaitNextCrawl = [EVT.list.crawlEmpty, EVT.list.downloadComplete]
+
+    for (const ev of tipWaitNextCrawl) {
+      window.addEventListener(ev, () => {
+        window.setTimeout(() => {
+          if (this.crawlBySelf) {
+            log.log(lang.transl('_当前时间') + new Date().toLocaleString())
+            log.success(lang.transl('_等待下一次定时抓取'))
+          }
+        }, 0)
+      })
+    }
+
     window.addEventListener(EVT.list.pageSwitch, () => {
       if (!this.callback) {
         return
       }
       this.reset()
       msgBox.error(lang.transl('_因为URL变化取消定时抓取任务'))
-    })
-
-    window.addEventListener(EVT.list.crawlStart, () => {
-      if (!this.crawlBySelf) {
-        return
-      }
-      log.success(lang.transl('_定时抓取'))
-      log.log(lang.transl('_当前时间') + new Date().toLocaleString())
-    })
-
-    window.addEventListener(EVT.list.crawlFinish, () => {
-      this.crawlBySelf = false
     })
   }
 }

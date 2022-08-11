@@ -5800,6 +5800,20 @@ const langText = {
         'URL が変更されたため、時間指定クロール タスクがキャンセルされました。',
         'URL 변경으로 인해 시간이 지정된 크롤링 작업이 취소되었습니다.',
     ],
+    _开始定时抓取: [
+        '开始定时抓取',
+        '開始定時抓取',
+        'Start timed crawling',
+        '時間指定クロールを開始する',
+        '시간 지정 크롤링 시작',
+    ],
+    _等待下一次定时抓取: [
+        '等待下一次定时抓取',
+        '等待下一次定時抓取',
+        'Wait for the next timed crawl',
+        '次回の時限クロールを待つ',
+        '다음 시간 크롤링을 기다립니다.',
+    ],
     _当前时间: [
         '当前时间：',
         '當前時間：',
@@ -10598,22 +10612,47 @@ class TimedCrawl {
         _store_States__WEBPACK_IMPORTED_MODULE_5__["states"].quickCrawl = false;
     }
     bindEvents() {
+        // 当抓取结果为空，或者下载中止、完成时复位标记
+        const resetCrawlBySelf = [
+            _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.crawlEmpty,
+            _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.downloadStop,
+            _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.downloadPause,
+            _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.downloadComplete,
+            _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.downloadCancel,
+        ];
+        for (const ev of resetCrawlBySelf) {
+            window.addEventListener(ev, () => {
+                window.setTimeout(() => {
+                    // 需要延迟执行，在日志提示显示之后再复位状态
+                    this.crawlBySelf = false;
+                }, 50);
+            });
+        }
+        // 显示一些提示
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.crawlStart, () => {
+            if (!this.crawlBySelf) {
+                return;
+            }
+            _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_开始定时抓取'));
+            _Log__WEBPACK_IMPORTED_MODULE_3__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前时间') + new Date().toLocaleString());
+        });
+        const tipWaitNextCrawl = [_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.crawlEmpty, _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.downloadComplete];
+        for (const ev of tipWaitNextCrawl) {
+            window.addEventListener(ev, () => {
+                window.setTimeout(() => {
+                    if (this.crawlBySelf) {
+                        _Log__WEBPACK_IMPORTED_MODULE_3__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前时间') + new Date().toLocaleString());
+                        _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_等待下一次定时抓取'));
+                    }
+                }, 0);
+            });
+        }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.pageSwitch, () => {
             if (!this.callback) {
                 return;
             }
             this.reset();
             _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_因为URL变化取消定时抓取任务'));
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.crawlStart, () => {
-            if (!this.crawlBySelf) {
-                return;
-            }
-            _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_定时抓取'));
-            _Log__WEBPACK_IMPORTED_MODULE_3__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前时间') + new Date().toLocaleString());
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.crawlFinish, () => {
-            this.crawlBySelf = false;
         });
     }
 }
