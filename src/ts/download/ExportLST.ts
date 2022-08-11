@@ -28,7 +28,7 @@ class ExportLST {
 
   private createLst() {
     if (store.result.length === 0) {
-      toast.error(lang.transl('_没有数据可供使用'))
+      toast.error(lang.transl('_没有可用的抓取结果'))
       return
     }
 

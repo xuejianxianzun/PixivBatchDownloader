@@ -29,7 +29,7 @@ class ShowURLs {
     }
 
     if (store.result.length === 0 || urls.length === 0) {
-      return toast.error(lang.transl('_没有数据可供使用'))
+      return toast.error(lang.transl('_没有可用的抓取结果'))
     }
 
     let result = ''

@@ -59,13 +59,6 @@ class InitUserPage extends InitPageBase {
       }
     )
 
-    Tools.addBtn('otherBtns', Colors.bgGreen, '_保存用户封面').addEventListener(
-      'click',
-      () => {
-        EVT.fire('saveUserCover')
-      }
-    )
-
     Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
@@ -74,6 +67,13 @@ class InitUserPage extends InitPageBase {
     ).addEventListener('click', () => {
       EVT.fire('saveAvatarIcon')
     })
+
+    Tools.addBtn('otherBtns', Colors.bgGreen, '_保存用户封面').addEventListener(
+      'click',
+      () => {
+        EVT.fire('saveUserCover')
+      }
+    )
 
     // 添加收藏本页所有作品的功能
     const bookmarkAllBtn = Tools.addBtn(

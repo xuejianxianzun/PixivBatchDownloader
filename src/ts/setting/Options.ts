@@ -1,6 +1,5 @@
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
-import { form } from './Form'
 import { settings } from './Settings'
 
 interface WantPageArg {
@@ -10,20 +9,24 @@ interface WantPageArg {
 }
 
 interface WantPageEls {
+  wrap: HTMLSpanElement
   text: HTMLSpanElement
   rangTip: HTMLSpanElement
   input: HTMLInputElement
 }
 
-// 可以控制每个设置的隐藏、显示
-// 可以设置页数/个数的提示内容
+// 控制每个设置的隐藏、显示
+// 设置页数/个数的提示文本
 class Options {
-  constructor() {
-    this.allOption = form.querySelectorAll('.option')
+  public init(allOption: NodeListOf<HTMLElement>) {
+    this.allOption = allOption
 
     // 获取“页数/个数”设置的元素
     const wantPageOption = this.getOption(1)!
     this.wantPageEls = {
+      wrap: wantPageOption.querySelector(
+        '.setWantPageWrap'
+      )! as HTMLSpanElement,
       text: wantPageOption.querySelector(
         '.setWantPageTip1'
       )! as HTMLSpanElement,
@@ -37,9 +40,9 @@ class Options {
     this.bindEvents()
   }
 
-  private allOption: NodeListOf<HTMLElement>
+  private allOption!: NodeListOf<HTMLElement>
 
-  private wantPageEls: WantPageEls
+  private wantPageEls!: WantPageEls
 
   // 保持显示的选项的 id
   private readonly whiteList: number[] = [
@@ -140,14 +143,12 @@ class Options {
     this.setOptionDisplay(no, 'block')
   }
 
-  // 设置 “设置页面/作品数量” 选项的提示和预设值
+  // 设置 “抓取多少作品/页面” 选项的提示和预设值
   public setWantPageTip(arg: WantPageArg) {
     lang.updateText(this.wantPageEls.text, arg.text)
 
-    this.wantPageEls.text.parentElement!.dataset.xztip = arg.tip
-    this.wantPageEls.text.parentElement!.dataset.tip = lang.transl(
-      arg.tip as any
-    )
+    this.wantPageEls.wrap.dataset.xztip = arg.tip
+    this.wantPageEls.wrap.dataset.tip = lang.transl(arg.tip as any)
 
     // rangTip 可能需要翻译
     if (arg.rangTip.startsWith('_')) {

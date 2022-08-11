@@ -534,7 +534,6 @@ class Filter {
 
   // 检查收藏数要求
   private readonly oneDayTime = 24 * 60 * 60 * 1000 // 一天的毫秒数
-  private readonly minimumTime = 4 * 60 * 60 * 1000 // 检查日均收藏数量时，要求作品发表之后经过的时间大于这个值。因为发表之后经过时间很短的作品，其日均收藏数量非常不可靠，所以对于小于这个值的作品不进行日均收藏数量的检查。
   private checkBMK(
     bmk: FilterOption['bookmarkCount'],
     date: FilterOption['createDate']
@@ -555,10 +554,10 @@ class Filter {
     const createTime = new Date(date).getTime()
     const nowTime = new Date().getTime()
 
-    // 如果作品发表时间太短（小于 4 小时）
-    if (nowTime - createTime < this.minimumTime) {
-      // 如果 4 小时里的收藏数量已经达到要求，则保留这个作品
-      // 如果 4 小时里的收藏数量没有达到要求，则不检查继续它的日均收藏数量，返回收藏数量的检查结果
+    // 如果作品发表时间太短（小于一天）
+    if (nowTime - createTime < this.oneDayTime) {
+      // 如果一天里的收藏数量已经达到要求，则保留这个作品
+      // 如果一天里的收藏数量没有达到要求，则不检查继续它的日均收藏数量，返回收藏数量的检查结果
       return bmk >= settings.BMKNumAverage ? true : checkNumber
     }
 

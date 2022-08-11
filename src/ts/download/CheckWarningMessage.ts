@@ -30,10 +30,7 @@ class CheckWarningMessage {
     this.downloaded++
     if (this.downloaded >= this.lastCheckDownloaded + this.unitNumber) {
       this.lastCheckDownloaded = this.downloaded
-      console.log('check')
-      console.log(this.downloaded)
       const result = await this.check()
-      console.log(result)
       if (result) {
         msgBox.error(
           lang.transl('_过度访问警告警告') + '<br>' + lang.transl('_已暂停')

@@ -5,6 +5,7 @@ import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { img2ico } from '../utils/imageToIcon'
 import { Utils } from '../utils/Utils'
+import { toast } from '../Toast'
 
 // 保存用户头像为图标
 class SaveAvatarIcon {
@@ -38,7 +39,9 @@ class SaveAvatarIcon {
     const name = `${userProfile.body.name}_${userId}_icon.ico`
     Utils.downloadFile(url, name)
 
-    log.success('✓ ' + lang.transl('_保存用户头像为图标'))
+    const msg = '✓ ' + lang.transl('_保存用户头像为图标')
+    log.success(msg)
+    toast.success(msg)
     EVT.fire('closeCenterPanel')
   }
 }

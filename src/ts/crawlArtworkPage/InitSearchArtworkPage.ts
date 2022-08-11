@@ -364,7 +364,7 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   private tipEmptyResult = Utils.debounce(() => {
-    log.error(lang.transl('_列表页被限制时返回空结果的提示'))
+    log.error(lang.transl('_抓取被限制时返回空结果的提示'))
   }, 1000)
 
   // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
@@ -721,16 +721,11 @@ class InitSearchArtworkPage extends InitPageBase {
   // 在抓取完成之后，所有会从结果合集中删除某些结果的操作都要经过这里
   private async filterResult(callback: FilterCB) {
     if (this.resultMeta.length === 0) {
-      toast.error(lang.transl('_没有数据可供使用'))
+      toast.error(lang.transl('_没有可用的抓取结果'))
       return
     }
 
-    EVT.fire('closeCenterPanel')
-
-    log.clear()
-
     const beforeLength = this.resultMeta.length // 储存过滤前的结果数量
-
     const resultMetaTemp: Result[] = []
     const resultMetaRemoved: Result[] = []
 
@@ -780,8 +775,6 @@ class InitSearchArtworkPage extends InitPageBase {
       toast.error(lang.transl('_当前任务尚未完成'))
       return
     }
-
-    log.clear()
 
     this.getMultipleSetting()
 

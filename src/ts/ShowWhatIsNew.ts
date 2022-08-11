@@ -11,18 +11,13 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '13.0.0'
+  private flag = '13.1.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
       let msg = `
-      ${lang.transl('_新增设置项')}: ${lang.transl('_隐藏浏览器底部的下载栏')}
-      <br>
-      ${lang.transl(
-        '_你可以在更多他选项卡的xx分类里找到它',
-        lang.transl('_下载')
-      )}
+      ${lang.transl('_预览作品时按快捷键D可以下载这个作品')}
       <br>
       <br>
       ${lang.transl('_其他优化')}

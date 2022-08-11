@@ -20,8 +20,8 @@ export interface ToastArgOptional {
   // none 立即消失
   leave?: 'up' | 'fade' | 'none'
   // 提示出现的位置，默认是 topCenter
-  // 如果为 mouse 则提示会出现在鼠标所处位置附近。使用 mouse 时请确保这个提示是由鼠标点击触发的
-  position?: 'topCenter' | 'mouse'
+  // 如果为 mouse 则提示会出现在鼠标光标附近
+  position?: 'topCenter' | 'center' | 'mouse'
 }
 
 // 完整的参数
@@ -32,7 +32,7 @@ interface ToastArg {
   dealy: number
   enter: 'up' | 'fade' | 'none'
   leave: 'up' | 'fade' | 'none'
-  position: 'topCenter' | 'mouse'
+  position: 'topCenter' | 'center' | 'mouse'
 }
 
 // 轻提示，只显示文字和背景颜色
@@ -156,7 +156,11 @@ class Toast {
 
     if (arg.position === 'topCenter') {
       lastTop = this.minTop
-    } else if (arg.position === 'mouse') {
+    }
+    if (arg.position === 'center') {
+      lastTop = window.innerHeight / 2 - this.minTop
+    }
+    if (arg.position === 'mouse') {
       // 跟随鼠标位置
       // top 值减去一点高度，使文字出现在鼠标上方
       let y = this.mousePosition.y - 40
