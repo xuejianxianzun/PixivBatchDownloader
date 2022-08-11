@@ -554,7 +554,7 @@ class Filter {
     const createTime = new Date(date).getTime()
     const nowTime = new Date().getTime()
 
-    // 如果作品发表时间太短（小于一天）
+    // 如果作品发表时间太短（小于一天）（草 使用的时间）
     if (nowTime - createTime < this.oneDayTime) {
       // 如果一天里的收藏数量已经达到要求，则保留这个作品
       // 如果一天里的收藏数量没有达到要求，则不检查继续它的日均收藏数量，返回收藏数量的检查结果
