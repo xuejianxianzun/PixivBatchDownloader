@@ -12452,24 +12452,16 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             return _filter_Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check(filterOpt);
         });
     }
-    // 去除热门作品上面的遮挡
+    // 去除覆盖在热门作品上面的会员购买链接
     removeBlockOnHotBar() {
-        // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
-        const hotWorkAsideSelector = 'section aside';
-        const timer = window.setInterval(() => {
-            const hotWorkAside = document.querySelector(hotWorkAsideSelector);
-            if (hotWorkAside) {
-                window.clearInterval(timer);
-                // 去掉遮挡作品的元素
-                const premiumLink = hotWorkAside.nextSibling;
-                premiumLink && premiumLink.remove();
-                // 去掉遮挡后两个作品的 after。因为是伪元素，所以要通过 css 控制
-                const style = `
-        section aside ul::after{
-          display:none !important;
-        }
-        `;
-                _utils_Utils__WEBPACK_IMPORTED_MODULE_15__["Utils"].addStyle(style);
+        // 需要重复执行，因为这个链接会生成不止一次
+        window.setInterval(() => {
+            if (_PageType__WEBPACK_IMPORTED_MODULE_21__["pageType"].type !== _PageType__WEBPACK_IMPORTED_MODULE_21__["pageType"].list.ArtworkSearch) {
+                return;
+            }
+            const hotWorksLink = document.querySelector('section a[href^="/premium"]');
+            if (hotWorksLink) {
+                hotWorksLink.remove();
             }
         }, 300);
     }

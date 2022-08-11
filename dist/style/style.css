@@ -1446,6 +1446,7 @@
 }
 .xzBG.xz_msg_box .xzBGLayer {
   filter: blur(1px);
+  border-radius: 12px;
 }
 #header-banner.ad,
 ._2vNejsc,
