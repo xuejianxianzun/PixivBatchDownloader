@@ -461,7 +461,7 @@
   font-size: 14px;
   display: none;
   width: 700px;
-  left: -340px;
+  left: -350px;
   margin-left: 50%;
   top: 4vh;
   color: #444;
@@ -1384,7 +1384,7 @@
   position: fixed;
   z-index: 9999;
   min-width: 500px;
-  max-width: 800px;
+  max-width: 700px;
   padding: 20px;
   border-radius: 12px;
   top: 15%;
@@ -1439,7 +1439,13 @@
   transition: none;
 }
 .xzBG.xz_msg_box * {
+  color: #fff;
+}
+.xzBG.xz_msg_box p {
   color: #fff !important;
+}
+.xzBG.xz_msg_box a {
+  color: #c7e9ff !important;
 }
 .xzBG.xz_msg_box .content {
   text-shadow: #003247 0px 0px 2px;

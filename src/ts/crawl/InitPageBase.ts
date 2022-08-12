@@ -23,6 +23,7 @@ import { Utils } from '../utils/Utils'
 import { pageType } from '../PageType'
 import { filter } from '../filter/Filter'
 import { Config } from '../config/Config'
+import { timedCrawl } from './TimedCrawl'
 
 abstract class InitPageBase {
   protected crawlNumber = 0 // 要抓取的个数/页数
@@ -39,7 +40,8 @@ abstract class InitPageBase {
 
   protected finishedRequest = 0 // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
 
-  protected crawlStopped = false // 抓取是否已停止
+  /**抓取是否已停止 */
+  protected crawlStopped = false
 
   // 子组件不可以修改 init 方法
   protected init() {
@@ -458,6 +460,34 @@ abstract class InitPageBase {
 
   // 抓取完成后，对结果进行排序
   protected sortResult() {}
+
+  /**定时抓取的按钮 */
+  protected addStartTimedCrawlBtn(cb: Function) {
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_定时抓取',
+      '_定时抓取说明'
+    ).addEventListener('click', () => {
+      timedCrawl.start(cb)
+    })
+  }
+
+  /**取消定时抓取的按钮 */
+  protected addCancelTimedCrawlBtn() {
+    const btn = Tools.addBtn('crawlBtns', Colors.bgWarning, '_取消定时抓取')
+    btn.style.display = 'none'
+
+    btn.addEventListener('click', () => {
+      EVT.fire('cancelTimedCrawl')
+      btn.style.display = 'none'
+    })
+
+    // 启动定时抓取之后，显示取消定时抓取的按钮
+    window.addEventListener(EVT.list.startTimedCrawl, () => {
+      btn.style.display = 'flex'
+    })
+  }
 }
 
 export { InitPageBase }

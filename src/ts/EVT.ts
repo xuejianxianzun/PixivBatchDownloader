@@ -160,6 +160,10 @@ class EVENT {
     showOriginSizeImage: 'showOriginSizeImage',
     /** 语言类型改变时触发 */
     langChange: 'langChange',
+    /** 开始定时抓取时触发 */
+    startTimedCrawl: 'startTimedCrawl',
+    /** 请求取消定时抓取时触发*/
+    cancelTimedCrawl: 'cancelTimedCrawl',
   }
 
   /** 触发自定义事件，大部分事件都不需要携带数据
@@ -221,6 +225,8 @@ class EVENT {
       | 'langChange'
       | 'settingInitialized'
       | 'readyDownload'
+      | 'startTimedCrawl'
+      | 'cancelTimedCrawl'
   ): void
 
   // 对于需要携带数据的事件进行重载

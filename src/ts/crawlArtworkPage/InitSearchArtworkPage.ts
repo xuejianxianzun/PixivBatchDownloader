@@ -24,7 +24,6 @@ import { Bookmark } from '../Bookmark'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { pageType } from '../PageType'
 import { Config } from '../config/Config'
-import { timedCrawl } from '../crawl/TimedCrawl'
 
 type AddBMKData = {
   id: number
@@ -37,8 +36,6 @@ class InitSearchArtworkPage extends InitPageBase {
   constructor() {
     super()
     this.init()
-    new FastScreen()
-    crawlTagList.init()
   }
 
   private readonly worksWrapSelector = '#root section ul'
@@ -113,14 +110,10 @@ class InitSearchArtworkPage extends InitPageBase {
       this.readyCrawl()
     })
 
-    Tools.addBtn(
-      'crawlBtns',
-      Colors.bgBlue,
-      '_定时抓取',
-      '_定时抓取说明'
-    ).addEventListener('click', () => {
-      timedCrawl.start(this.readyCrawl.bind(this))
-    })
+    this.addStartTimedCrawlBtn(this.readyCrawl.bind(this))
+    this.addCancelTimedCrawlBtn()
+
+    crawlTagList.init()
 
     Tools.addBtn(
       'crawlBtns',
@@ -170,6 +163,8 @@ class InitSearchArtworkPage extends InitPageBase {
 
   protected initAny() {
     this.removeBlockOnHotBar()
+
+    new FastScreen()
 
     window.addEventListener(
       EVT.list.pageSwitchedTypeNotChange,
@@ -485,8 +480,8 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 抓取完成后，保存结果的元数据，并重新添加抓取结果
   private onCrawlFinish = () => {
-    // 当从图片查看器发起下载时，也会触发抓取完毕的事件，但此时不应该调整搜索页面的结果。
-    if (states.downloadFromViewer || states.crawlTagList || states.quickCrawl) {
+    // 有些操作也会触发抓取完毕的事件，但不应该调整搜索页面的结果。
+    if (states.crawlTagList || states.quickCrawl) {
       return
     }
     if (!this.crawlStartBySelf) {
