@@ -827,7 +827,7 @@ class CenterPanel {
         // 抓取完作品详细数据时，显示
         for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume]) {
             window.addEventListener(ev, () => {
-                if (!_store_States__WEBPACK_IMPORTED_MODULE_2__["states"].quickCrawl && !_store_States__WEBPACK_IMPORTED_MODULE_2__["states"].downloadFromViewer) {
+                if (!_store_States__WEBPACK_IMPORTED_MODULE_2__["states"].quickCrawl) {
                     this.show();
                 }
             });
@@ -2608,7 +2608,7 @@ class ImageViewer {
     }
     // 下载当前查看的作品
     download() {
-        _store_States__WEBPACK_IMPORTED_MODULE_5__["states"].downloadFromViewer = true;
+        _store_States__WEBPACK_IMPORTED_MODULE_5__["states"].quickCrawl = true;
         // 发送要下载的作品 id
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('crawlIdList', [
             {
@@ -4072,7 +4072,7 @@ const langText = {
         'ダウンロードは自動的に開始されます',
         '<span class="key">자동으로</span> 다운로드 시작',
     ],
-    _快速下载的提示: [
+    _自动开始下载的提示: [
         '当“开始下载”状态可用时，自动开始下载，不需要点击下载按钮。',
         '當可下載時自動開始下載，不需要點選下載按鈕。',
         'When the &quot;Start Downloa&quot; status is available, the download starts automatically and no need to click the download button.',
@@ -11883,8 +11883,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         };
         // 抓取完成后，保存结果的元数据，并重新添加抓取结果
         this.onCrawlFinish = () => {
-            // 当从图片查看器发起下载时，也会触发抓取完毕的事件，但此时不应该调整搜索页面的结果。
-            if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].downloadFromViewer || _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList || _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].quickCrawl) {
+            // 有些操作也会触发抓取完毕的事件，但不应该调整搜索页面的结果。
+            if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList || _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].quickCrawl) {
                 return;
             }
             if (!this.crawlStartBySelf) {
@@ -15756,18 +15756,15 @@ class DownloadControl {
         if (_PageType__WEBPACK_IMPORTED_MODULE_19__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_19__["pageType"].list.ArtworkSearch &&
             _setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].previewResult) {
             // “预览搜索页面的筛选结果”会阻止自动开始下载。但是一些情况例外
-            // 允许由图片查看器发起的下载请求自动开始下载
+            // 允许快速抓取发起的下载请求自动开始下载
             // 允许由抓取标签列表功能发起的下载请求自动开始下载
-            if (!_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].downloadFromViewer &&
-                !_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].quickCrawl &&
-                !_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].quickCrawl && !_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
                 return;
             }
         }
         // 自动开始下载的情况
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].quietDownload ||
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].autoStartDownload ||
             _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].quickCrawl ||
-            _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].downloadFromViewer ||
             _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
             this.startDownload();
         }
@@ -21556,10 +21553,10 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="17">
-    <span class="has_tip settingNameStyle1" data-xztip="_快速下载的提示">
+    <span class="has_tip settingNameStyle1" data-xztip="_自动开始下载的提示">
     <span data-xztext="_自动开始下载"></span>
     <span class="gray1"> ? </span></span>
-    <input type="checkbox" name="quietDownload" id="setQuietDownload" class="need_beautify checkbox_switch" checked>
+    <input type="checkbox" name="autoStartDownload" id="setQuietDownload" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch" tabindex="0"></span>
     </p>
 
@@ -22244,7 +22241,7 @@ class FormSettings {
                 'workDir',
                 'r18Folder',
                 'sizeSwitch',
-                'quietDownload',
+                'autoStartDownload',
                 'previewResult',
                 'deduplication',
                 'fileNameLengthLimitSwitch',
@@ -23065,7 +23062,7 @@ class Settings {
             convertUgoiraThread: 1,
             needTag: [],
             notNeedTag: [],
-            quietDownload: true,
+            autoStartDownload: true,
             downloadThread: 5,
             userSetName: '{p_title}/{id}',
             namingRuleList: [],
@@ -23905,32 +23902,33 @@ __webpack_require__.r(__webpack_exports__);
 // 状态的值通常只由单一的模块修改
 class States {
     constructor() {
-        // 指示 settings 是否初始化完毕
+        /**指示 settings 是否初始化完毕 */
         this.settingInitialized = false;
-        // 表示下载器是否处于繁忙状态
-        // 繁忙：下载器正在抓取作品，或者正在下载文件，或者正在批量添加收藏
+        /**表示下载器是否处于繁忙状态
+         *
+         * 繁忙：下载器正在抓取作品，或者正在下载文件，或者正在批量添加收藏
+         */
         this.busy = false;
-        // 快速下载标记
-        // 快速下载模式中不会显示下载面板，并且会自动开始下载
-        // 启动快速下载时设为 true，下载完成或中止时复位到 false
+        /**快速下载标记
+         *
+         * 快速下载模式中不会显示下载面板，并且总是会自动开始下载
+         *
+         * 启动快速下载时设为 true，下载完成或中止时复位到 false
+         */
         this.quickCrawl = false;
-        // 这次下载是否是从图片查看器建立的
-        // 如果是，那么下载途中不会显示下载面板，并且会自动开始下载
-        // 作用同 quickCrawl，只是触发方式不同
-        this.downloadFromViewer = false;
-        // 在排行榜抓取时，是否只抓取“首次登场”的作品
+        /**在排行榜抓取时，是否只抓取“首次登场”的作品 */
         // 修改者：InitRankingArtworkPage 模块修改这个状态
         this.debut = false;
-        // 收藏模式的标记
+        /**收藏模式的标记 */
         // 开始批量收藏时设为 true，收藏完成之后复位到 false
         this.bookmarkMode = false;
-        // 合并系列小说时使用的标记
+        /**合并系列小说时使用的标记 */
         this.mergeNovel = false;
-        // 抓取标签列表时使用的标记
+        /**抓取标签列表时使用的标记 */
         this.crawlTagList = false;
-        // 是否处于手动选择作品状态
+        /**是否处于手动选择作品状态 */
         this.selectWork = false;
-        // 是否处于下载中
+        /**是否处于下载中 */
         this.downloading = false;
         this.bindEvents();
     }
@@ -23977,7 +23975,6 @@ class States {
         for (const ev of resetQuickState) {
             window.addEventListener(ev, () => {
                 this.quickCrawl = false;
-                this.downloadFromViewer = false;
             });
         }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStart, () => {

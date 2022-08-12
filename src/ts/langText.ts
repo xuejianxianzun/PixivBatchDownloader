@@ -1158,7 +1158,7 @@ const langText = {
     'ダウンロードは自動的に開始されます',
     '<span class="key">자동으로</span> 다운로드 시작',
   ],
-  _快速下载的提示: [
+  _自动开始下载的提示: [
     '当“开始下载”状态可用时，自动开始下载，不需要点击下载按钮。',
     '當可下載時自動開始下載，不需要點選下載按鈕。',
     'When the &quot;Start Downloa&quot; status is available, the download starts automatically and no need to click the download button.',

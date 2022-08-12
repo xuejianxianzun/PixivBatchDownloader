@@ -1439,7 +1439,10 @@
   transition: none;
 }
 .xzBG.xz_msg_box * {
-  color: #fff !important;
+  color: #fff;
+}
+.xzBG.xz_msg_box a {
+  color: #c7e9ff;
 }
 .xzBG.xz_msg_box .content {
   text-shadow: #003247 0px 0px 2px;
