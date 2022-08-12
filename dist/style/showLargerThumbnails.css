@@ -263,25 +263,26 @@ nav .cYUezH {
 }
 /* 约稿页面 */
 /* 取消容器的宽度限制 */
-.kBWrTb,
-.kBWrTb > div,
-.kTNbgL,
-.ghTPXN {
+.hHwhak,
+.hHwhak > div,
+.iSHgSV,
+.kCIgXV,
+.eDubME {
   width: auto !important;
   min-width: 1224px;
 }
 /* ul */
-.kiAlIk {
+.jsLfYP {
   align-items: center;
 }
-.kiAlIk li {
+.jsLfYP li {
   width: 15% !important;
   margin: 10px !important;
   max-width: 540px;
   max-height: 600px;
 }
 /* 取消 img 的绝对定位 */
-.bGXiIQ {
+.zdawJ {
   position: unset !important;
 }
 /* 发现页面 */
