@@ -11620,7 +11620,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
             49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-            70, 71, 72,
+            70, 71, 72, 74,
         ]);
     }
     nextStep() {
@@ -22675,10 +22675,10 @@ __webpack_require__.r(__webpack_exports__);
 // 其他类必须使用 nameRuleManager.rule 存取器来存取命名规则
 class NameRuleManager {
     constructor() {
+        // 所有页面通用的命名规则
+        this.generalRule = '{p_title}/{id}';
         // 命名规则输入框的集合
         this.inputList = [];
-        // 可以在所有页面使用的通用命名规则
-        this.generalRule = '{p_title}/{id}';
         this.bindEvents();
     }
     bindEvents() {
@@ -22702,6 +22702,43 @@ class NameRuleManager {
                 }
             }
         });
+    }
+    saveCurrentPageRule(rule) {
+        _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].type] = rule;
+        Object(_Settings__WEBPACK_IMPORTED_MODULE_5__["setSetting"])('nameRuleForEachPageType', _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].nameRuleForEachPageType);
+    }
+    get rule() {
+        if (_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setNameRuleForEachPageType) {
+            let rule = _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].type];
+            if (rule === undefined) {
+                rule = this.generalRule;
+                this.saveCurrentPageRule(rule);
+            }
+            return rule;
+        }
+        else {
+            return _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].userSetName;
+        }
+    }
+    set rule(str) {
+        // 检查传递的命名规则的合法性
+        // 为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}
+        const check = str.includes('{id}') ||
+            (str.includes('{id_num}') && str.includes('{p_num}'));
+        if (!check) {
+            window.setTimeout(() => {
+                _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名规则一定要包含id'));
+            }, 300);
+        }
+        else {
+            // 替换特殊字符
+            str = this.handleUserSetName(str) || this.generalRule;
+            Object(_Settings__WEBPACK_IMPORTED_MODULE_5__["setSetting"])('userSetName', str);
+            if (_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setNameRuleForEachPageType) {
+                this.saveCurrentPageRule(str);
+            }
+            this.setInputValue();
+        }
     }
     // 注册命名规则输入框
     registerInput(input) {
@@ -22732,47 +22769,13 @@ class NameRuleManager {
     }
     // 设置输入框的值为当前命名规则
     setInputValue() {
+        // 如果 settings.nameRuleForEachPageType 里面没有当前页面的 key，值就是 undefined，需要设置为默认值
         const rule = this.rule;
         this.inputList.forEach((input) => {
             input.value = rule;
         });
         if (rule !== _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].userSetName) {
-            Object(_Settings__WEBPACK_IMPORTED_MODULE_5__["setSetting"])('userSetName', this.rule);
-        }
-    }
-    get rule() {
-        if (_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setNameRuleForEachPageType) {
-            return _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].type];
-        }
-        else {
-            return _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].userSetName;
-        }
-    }
-    set rule(str) {
-        // 检查传递的命名规则的合法性
-        // 为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}
-        const check = str.includes('{id}') ||
-            (str.includes('{id_num}') && str.includes('{p_num}'));
-        if (!check) {
-            window.setTimeout(() => {
-                _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名规则一定要包含id'));
-            }, 300);
-        }
-        else {
-            // 检查合法性通过
-            if (str) {
-                // 替换特殊字符
-                str = this.handleUserSetName(str);
-            }
-            else {
-                str = this.generalRule;
-            }
-            Object(_Settings__WEBPACK_IMPORTED_MODULE_5__["setSetting"])('userSetName', str);
-            if (_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setNameRuleForEachPageType) {
-                _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].type] = str;
-                Object(_Settings__WEBPACK_IMPORTED_MODULE_5__["setSetting"])('nameRuleForEachPageType', _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].nameRuleForEachPageType);
-            }
-            this.setInputValue();
+            Object(_Settings__WEBPACK_IMPORTED_MODULE_5__["setSetting"])('userSetName', rule);
         }
     }
     // 处理用命名规则的非法字符和非法规则
