@@ -5828,6 +5828,34 @@ const langText = {
         '一部のページのみ利用可能です。',
         '일부 페이지에서만 사용할 수 있습니다.',
     ],
+    _发生错误原因: [
+        '发生错误，原因：',
+        '發生錯誤，原因：',
+        'An error occurred due to:',
+        '次の理由でエラーが発生しました:',
+        '다음으로 인해 오류가 발생했습니다.',
+    ],
+    _扩展程序已更新: [
+        '扩展程序已更新。',
+        '擴充套件程式已更新。',
+        'The extension has been updated.',
+        '拡張機能が更新されました。',
+        '확장이 업데이트되었습니다.',
+    ],
+    _未知错误: [
+        '未知错误。',
+        '未知錯誤。',
+        'unknown mistake.',
+        '未知の間違い。',
+        '알 수 없는 실수.',
+    ],
+    _请刷新页面: [
+        '请刷新页面。',
+        '請重新整理頁面。',
+        'Please refresh the page.',
+        'ページを更新してください。',
+        '페이지를 새로고침하세요.',
+    ],
 };
 
 
@@ -15452,7 +15480,18 @@ class Download {
             id,
             taskBatch,
         };
-        chrome.runtime.sendMessage(sendData);
+        try {
+            chrome.runtime.sendMessage(sendData);
+        }
+        catch (error) {
+            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_发生错误原因')}<br>{}${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_请刷新页面')}`;
+            if (error.message.includes('Extension context invalidated')) {
+                _MsgBox__WEBPACK_IMPORTED_MODULE_12__["msgBox"].error(msg.replace('{}', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_扩展程序已更新')));
+                return;
+            }
+            console.error(error);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_12__["msgBox"].error(msg.replace('{}', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_未知错误')));
+        }
     }
 }
 

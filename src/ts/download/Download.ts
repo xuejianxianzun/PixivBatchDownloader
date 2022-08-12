@@ -362,7 +362,20 @@ class Download {
       taskBatch,
     }
 
-    chrome.runtime.sendMessage(sendData)
+    try {
+      chrome.runtime.sendMessage(sendData)
+    } catch (error) {
+      let msg = `${lang.transl('_发生错误原因')}<br>{}${lang.transl(
+        '_请刷新页面'
+      )}`
+      if ((error as Error).message.includes('Extension context invalidated')) {
+        msgBox.error(msg.replace('{}', lang.transl('_扩展程序已更新')))
+        return
+      }
+
+      console.error(error)
+      msgBox.error(msg.replace('{}', lang.transl('_未知错误')))
+    }
   }
 }
 
