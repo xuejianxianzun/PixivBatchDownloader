@@ -1554,6 +1554,10 @@ class EVENT {
             showOriginSizeImage: 'showOriginSizeImage',
             /** 语言类型改变时触发 */
             langChange: 'langChange',
+            /** 开始定时抓取时触发 */
+            startTimedCrawl: 'startTimedCrawl',
+            /** 请求取消定时抓取时触发*/
+            cancelTimedCrawl: 'cancelTimedCrawl',
         };
     }
     // 只绑定某个事件一次，用于防止事件重复绑定
@@ -3891,16 +3895,9 @@ const langText = {
     _清除多图作品: [
         '清除多图作品',
         '清除多圖作品',
-        'Remove multi-drawing works',
+        'Remove multi-image works',
         '複数画像をクリア',
         '여러 이미지 작품 지우기',
-    ],
-    _清除多图作品Title: [
-        '如果不需要可以清除多图作品',
-        '如果不需要可以清除多圖作品。',
-        'If you do not need it, you can delete multiple graphs',
-        '必要がない場合は、複数のグラフを削除することができます',
-        '필요하지 않으면 여러 이미지 작품을 지울 수 있습니다.',
     ],
     _清除动图作品: [
         '清除动图作品',
@@ -3908,13 +3905,6 @@ const langText = {
         'Remove ugoira work',
         'うごイラ作品を削除する',
         '움직이는 일러스트 작품 지우기',
-    ],
-    _清除动图作品Title: [
-        '如果不需要可以清除动图作品',
-        '如果不需要可以清除動圖作品。',
-        'If you do not need it, you can delete the ugoira work',
-        '必要がない場合は、うごイラを削除することができます',
-        '필요하지 않으면 움직이는 일러스트 작품을 지울 수 있습니다.',
     ],
     _手动删除作品: [
         '手动删除作品',
@@ -5765,11 +5755,11 @@ const langText = {
         '시간 제한 크롤링이 시작되었습니다. 간격: {}분. ',
     ],
     _定时抓取已启动的提示2: [
-        '请不要关闭这个标签页，也不要改变这个标签页的 URL。<br>如果你想取消定时抓取任务，可以刷新或者关闭这个标签页。<br>建议启用“不下载重复文件”功能，以避免下载重复的文件。',
-        '請不要關閉這個標籤頁，也不要改變這個標籤頁的 URL。<br>如果你想取消定時抓取任務，可以重新整理或者關閉這個標籤頁。<br>建議啟用“不下載重複檔案”功能，以避免下載重複的檔案。',
-        'Please do not close this tab or change the URL of this tab. <br>If you want to cancel the timed crawling task, you can refresh or close this tab.<br>It is recommended to enable the "Do not download duplicate files" feature to avoid downloading duplicate files.',
-        'このタブを閉じたり、このタブの URL を変更したりしないでください。 <br>時限クロール タスクをキャンセルする場合は、このタブを更新するか閉じることができます。<br>重複ファイルのダウンロードを避けるために、「重複ファイルをダウンロードしない」機能を有効にすることをお勧めします。',
-        '이 탭을 닫거나 이 탭의 URL을 변경하지 마십시오. <br>지정된 크롤링 작업을 취소하려면 이 탭을 새로 고치거나 닫을 수 있습니다.<br>중복 파일 다운로드를 방지하기 위해 "중복 파일 다운로드 금지" 기능을 활성화하는 것이 좋습니다.',
+        '请不要关闭这个标签页，也不要改变这个标签页的 URL。<br>建议启用“不下载重复文件”功能，以避免下载重复的文件。<br><br>如果这个扩展程序自动更新了，那么这个页面将不能正常下载文件（需要刷新页面来恢复正常）。 如果你想长期执行定时抓取任务，建议安装下载器的离线版本，以免因为自动更新而导致问题。<br>你可以在这里下载离线安装包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        '請不要關閉這個標籤頁，也不要改變這個標籤頁的 URL。<br>建議啟用“不下載重複檔案”功能，以避免下載重複的檔案。<br><br>如果這個擴充套件程式自動更新了，那麼這個頁面將不能正常下載檔案（需要重新整理頁面來恢復正常）。 如果你想長期執行定時抓取任務，建議安裝下載器的離線版本，以免因為自動更新而導致問題。<br>你可以在這裡下載離線安裝包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        'Please do not close this tab or change the URL of this tab. <br>It is recommended to enable the "Do not download duplicate files" feature to avoid downloading duplicate files.<br><br>If the extension is automatically updated, the page will not be able to download files normally (refresh the page to restore normal). If you want to perform scheduled crawling tasks for a long time, it is recommended to install the offline version of the downloader to avoid problems caused by automatic updates.<br>You can download the offline installation package here: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        'このタブを閉じたり、このタブの URL を変更したりしないでください。<br>重複ファイルのダウンロードを避けるために、「重複ファイルをダウンロードしない」機能を有効にすることをお勧めします。<br><br>拡張機能が自動的に更新されると、ページはファイルを正常にダウンロードできなくなります (ページを更新して正常に戻します)。 スケジュールされたクロール タスクを長時間実行する場合は、自動更新による問題を回避するために、ダウンローダのオフライン バージョンをインストールすることをお勧めします。<br>オフライン インストール パッケージは、次の場所からダウンロードできます。<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        '이 탭을 닫거나 이 탭의 URL을 변경하지 마십시오.<br>중복 파일 다운로드를 방지하기 위해 "중복 파일 다운로드 금지" 기능을 활성화하는 것이 좋습니다.<br><br>확장자가 자동으로 업데이트되면 페이지에서 파일을 정상적으로 다운로드할 수 없습니다(페이지를 새로고침하여 정상으로 복원). 예약된 크롤링 작업을 장기간 수행하려면 자동 업데이트로 인한 문제를 방지하기 위해 다운로더의 오프라인 버전을 설치하는 것이 좋습니다.<br>여기에서 오프라인 설치 패키지를 다운로드할 수 있습니다. <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
     ],
     _定时抓取的间隔时间: [
         '定时抓取的间隔时间',
@@ -5792,6 +5782,20 @@ const langText = {
         'The minimum interval for timed crawls is 1 minute.',
         '時間指定クロールの最小間隔は 1 分です。',
         '시간 지정 크롤링의 최소 간격은 1분입니다.',
+    ],
+    _取消定时抓取: [
+        '取消定时抓取',
+        '取消定時抓取',
+        'Cancel timed crawl',
+        '時間指定クロールをキャンセル',
+        '시간 지정 크롤링 취소',
+    ],
+    _已取消定时抓取: [
+        '已取消定时抓取',
+        '已取消定時抓取',
+        'Timed crawl canceled',
+        '時間指定クロールがキャンセルされました',
+        '예약된 크롤링이 취소되었습니다.',
     ],
     _因为URL变化取消定时抓取任务: [
         '因为 URL 变化，定时抓取任务已被取消。',
@@ -10163,7 +10167,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
+/* harmony import */ var _TimedCrawl__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
 // 初始化所有页面抓取流程的基类
+
 
 
 
@@ -10195,7 +10201,8 @@ class InitPageBase {
         this.ajaxThreadsDefault = 10; // 抓取时的并发连接数默认值，也是最大值
         this.ajaxThread = this.ajaxThreadsDefault; // 抓取时的并发请求数
         this.finishedRequest = 0; // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
-        this.crawlStopped = false; // 抓取是否已停止
+        /**抓取是否已停止 */
+        this.crawlStopped = false;
     }
     // 子组件不可以修改 init 方法
     init() {
@@ -10532,6 +10539,25 @@ class InitPageBase {
     }
     // 抓取完成后，对结果进行排序
     sortResult() { }
+    /**定时抓取的按钮 */
+    addStartTimedCrawlBtn(cb) {
+        _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_定时抓取', '_定时抓取说明').addEventListener('click', () => {
+            _TimedCrawl__WEBPACK_IMPORTED_MODULE_22__["timedCrawl"].start(cb);
+        });
+    }
+    /**取消定时抓取的按钮 */
+    addCancelTimedCrawlBtn() {
+        const btn = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgWarning, '_取消定时抓取');
+        btn.style.display = 'none';
+        btn.addEventListener('click', () => {
+            _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('cancelTimedCrawl');
+            btn.style.display = 'none';
+        });
+        // 启动定时抓取之后，显示取消定时抓取的按钮
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.startTimedCrawl, () => {
+            btn.style.display = 'flex';
+        });
+    }
 }
 
 
@@ -10623,14 +10649,15 @@ class TimedCrawl {
         this.time = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].timedCrawlInterval * 60 * 1000;
         this.timer = window.setInterval(() => {
             if (!this.callback) {
-                return this.reset();
+                return;
             }
             this.crawlBySelf = true;
             _store_States__WEBPACK_IMPORTED_MODULE_5__["states"].quickCrawl = true;
             this.callback();
         }, this.time);
+        _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].fire('startTimedCrawl');
         const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_定时抓取已启动的提示', _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].timedCrawlInterval.toString());
-        _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].show(msg + '<br>' + _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_定时抓取已启动的提示2'));
+        _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].show(msg + '<br><br>' + _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_定时抓取已启动的提示2'));
         _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(msg);
     }
     reset() {
@@ -10675,12 +10702,20 @@ class TimedCrawl {
                 }, 0);
             });
         }
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.cancelTimedCrawl, () => {
+            this.reset();
+            const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_已取消定时抓取');
+            _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].success(msg);
+        });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.pageSwitch, () => {
             if (!this.callback) {
                 return;
             }
             this.reset();
-            _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_因为URL变化取消定时抓取任务'));
+            const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_因为URL变化取消定时抓取任务');
+            _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].error(msg);
         });
     }
 }
@@ -11339,9 +11374,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _crawl_TimedCrawl__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../crawl/TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
 // 初始化 本站的最新作品 artwork 页面
-
 
 
 
@@ -11364,9 +11397,8 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
         _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_下载大家的新作品').addEventListener('click', () => {
             this.readyCrawl();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_定时抓取', '_定时抓取说明').addEventListener('click', () => {
-            _crawl_TimedCrawl__WEBPACK_IMPORTED_MODULE_10__["timedCrawl"].start(this.readyCrawl.bind(this));
-        });
+        this.addStartTimedCrawlBtn(this.readyCrawl.bind(this));
+        this.addCancelTimedCrawlBtn();
     }
     initAny() { }
     setFormOption() {
@@ -11799,9 +11831,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../crawlMixedPage/CrawlTagList */ "./src/ts/crawlMixedPage/CrawlTagList.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
-/* harmony import */ var _crawl_TimedCrawl__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../crawl/TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
 // 初始化 artwork 搜索页
-
 
 
 
@@ -12093,8 +12123,6 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             }
         };
         this.init();
-        new _pageFunciton_FastScreen__WEBPACK_IMPORTED_MODULE_11__["FastScreen"]();
-        _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_20__["crawlTagList"].init();
     }
     setFormOption() {
         const isPremium = _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].isPremium();
@@ -12112,9 +12140,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.createPreview);
             this.readyCrawl();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_定时抓取', '_定时抓取说明').addEventListener('click', () => {
-            _crawl_TimedCrawl__WEBPACK_IMPORTED_MODULE_23__["timedCrawl"].start(this.readyCrawl.bind(this));
-        });
+        this.addStartTimedCrawlBtn(this.readyCrawl.bind(this));
+        this.addCancelTimedCrawlBtn();
+        _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_20__["crawlTagList"].init();
         _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_在结果中筛选', '_在结果中筛选说明').addEventListener('click', () => {
             this.screenInResult();
         });
@@ -12147,6 +12175,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     }
     initAny() {
         this.removeBlockOnHotBar();
+        new _pageFunciton_FastScreen__WEBPACK_IMPORTED_MODULE_11__["FastScreen"]();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.pageSwitchedTypeNotChange, this.removeBlockOnHotBar);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.showCount);
         window.addEventListener('addBMK', this.addBookmark);
@@ -12963,9 +12992,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _crawl_TimedCrawl__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../crawl/TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
 // 初始化 关注的用户的新作品页面
-
 
 
 
@@ -12997,9 +13024,8 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_定时抓取', '_定时抓取说明').addEventListener('click', () => {
-            _crawl_TimedCrawl__WEBPACK_IMPORTED_MODULE_10__["timedCrawl"].start(this.readyCrawl.bind(this));
-        });
+        this.addStartTimedCrawlBtn(this.readyCrawl.bind(this));
+        this.addCancelTimedCrawlBtn();
     }
     initAny() { }
     setFormOption() {
@@ -13168,9 +13194,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
-/* harmony import */ var _crawl_TimedCrawl__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../crawl/TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
 // 初始化新版收藏页面
-
 
 
 
@@ -13200,9 +13224,8 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgBlue, '_定时抓取', '_定时抓取说明').addEventListener('click', () => {
-            _crawl_TimedCrawl__WEBPACK_IMPORTED_MODULE_13__["timedCrawl"].start(this.readyCrawl.bind(this));
-        });
+        this.addStartTimedCrawlBtn(this.readyCrawl.bind(this));
+        this.addCancelTimedCrawlBtn();
     }
     setFormOption() {
         // 个数/页数选项的提示
@@ -13756,9 +13779,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _pageFunciton_BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../pageFunciton/BookmarkAllWorks */ "./src/ts/pageFunciton/BookmarkAllWorks.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
-/* harmony import */ var _crawl_TimedCrawl__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../crawl/TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
 // 初始化用户页面
-
 
 
 
@@ -13815,9 +13836,8 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
         _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_定时抓取', '_定时抓取说明').addEventListener('click', () => {
-            _crawl_TimedCrawl__WEBPACK_IMPORTED_MODULE_16__["timedCrawl"].start(this.readyCrawl.bind(this));
-        });
+        this.addStartTimedCrawlBtn(this.readyCrawl.bind(this));
+        this.addCancelTimedCrawlBtn();
     }
     addAnyElement() {
         _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_保存用户头像').addEventListener('click', () => {
@@ -14194,9 +14214,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _crawl_TimedCrawl__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../crawl/TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
 // 初始化 本站的最新作品 小说页面
-
 
 
 
@@ -14218,9 +14236,8 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_下载大家的新作品').addEventListener('click', () => {
             this.readyCrawl();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_定时抓取', '_定时抓取说明').addEventListener('click', () => {
-            _crawl_TimedCrawl__WEBPACK_IMPORTED_MODULE_9__["timedCrawl"].start(this.readyCrawl.bind(this));
-        });
+        this.addStartTimedCrawlBtn(this.readyCrawl.bind(this));
+        this.addCancelTimedCrawlBtn();
     }
     initAny() { }
     setFormOption() {
@@ -14699,9 +14716,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
-/* harmony import */ var _crawl_TimedCrawl__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../crawl/TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
 // 初始化小说搜索页
-
 
 
 
@@ -14765,9 +14780,8 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_定时抓取', '_定时抓取说明').addEventListener('click', () => {
-            _crawl_TimedCrawl__WEBPACK_IMPORTED_MODULE_19__["timedCrawl"].start(this.readyCrawl.bind(this));
-        });
+        this.addStartTimedCrawlBtn(this.readyCrawl.bind(this));
+        this.addCancelTimedCrawlBtn();
     }
     getWorksWrap() {
         const test = document.querySelectorAll(this.worksWrapSelector);
@@ -15486,11 +15500,15 @@ class Download {
         catch (error) {
             let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_发生错误原因')}<br>{}${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_请刷新页面')}`;
             if (error.message.includes('Extension context invalidated')) {
-                _MsgBox__WEBPACK_IMPORTED_MODULE_12__["msgBox"].error(msg.replace('{}', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_扩展程序已更新')));
+                msg = msg.replace('{}', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_扩展程序已更新'));
+                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(msg);
+                _MsgBox__WEBPACK_IMPORTED_MODULE_12__["msgBox"].error(msg);
                 return;
             }
             console.error(error);
-            _MsgBox__WEBPACK_IMPORTED_MODULE_12__["msgBox"].error(msg.replace('{}', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_未知错误')));
+            msg = msg.replace('{}', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_未知错误'));
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_12__["msgBox"].error(msg);
         }
     }
 }
@@ -20148,7 +20166,7 @@ class DeleteWorks {
     // 清除多图作品的按钮
     addClearMultipleBtn(selector, callback = () => { }) {
         this.multipleSelector = selector;
-        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgRed, '_清除多图作品', '_清除多图作品Title').addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgRed, '_清除多图作品').addEventListener('click', () => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
                 _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'));
                 return;
@@ -20164,7 +20182,7 @@ class DeleteWorks {
     // 清除动图作品的按钮
     addClearUgoiraBtn(selector, callback = () => { }) {
         this.ugoiraSelector = selector;
-        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgRed, '_清除动图作品', '_清除动图作品Title').addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgRed, '_清除动图作品').addEventListener('click', () => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
                 _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'));
                 return;

@@ -94,12 +94,7 @@ class DeleteWorks {
   public addClearMultipleBtn(selector: string, callback: Function = () => {}) {
     this.multipleSelector = selector
 
-    Tools.addBtn(
-      'crawlBtns',
-      Colors.bgRed,
-      '_清除多图作品',
-      '_清除多图作品Title'
-    ).addEventListener(
+    Tools.addBtn('crawlBtns', Colors.bgRed, '_清除多图作品').addEventListener(
       'click',
       () => {
         if (states.busy) {
@@ -123,12 +118,7 @@ class DeleteWorks {
   public addClearUgoiraBtn(selector: string, callback: Function = () => {}) {
     this.ugoiraSelector = selector
 
-    Tools.addBtn(
-      'crawlBtns',
-      Colors.bgRed,
-      '_清除动图作品',
-      '_清除动图作品Title'
-    ).addEventListener(
+    Tools.addBtn('crawlBtns', Colors.bgRed, '_清除动图作品').addEventListener(
       'click',
       () => {
         if (states.busy) {

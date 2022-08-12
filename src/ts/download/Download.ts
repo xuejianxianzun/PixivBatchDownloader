@@ -369,12 +369,16 @@ class Download {
         '_请刷新页面'
       )}`
       if ((error as Error).message.includes('Extension context invalidated')) {
-        msgBox.error(msg.replace('{}', lang.transl('_扩展程序已更新')))
+        msg = msg.replace('{}', lang.transl('_扩展程序已更新'))
+        log.error(msg)
+        msgBox.error(msg)
         return
       }
 
       console.error(error)
-      msgBox.error(msg.replace('{}', lang.transl('_未知错误')))
+      msg = msg.replace('{}', lang.transl('_未知错误'))
+      log.error(msg)
+      msgBox.error(msg)
     }
   }
 }

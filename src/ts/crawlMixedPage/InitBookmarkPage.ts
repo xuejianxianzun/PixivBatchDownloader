@@ -14,7 +14,6 @@ import { BookmarksAddTag } from '../pageFunciton/BookmarksAddTag'
 import { filter, FilterOption } from '../filter/Filter'
 import { Utils } from '../utils/Utils'
 import { Config } from '../config/Config'
-import { timedCrawl } from '../crawl/TimedCrawl'
 
 class InitBookmarkPage extends InitPageBase {
   constructor() {
@@ -46,14 +45,8 @@ class InitBookmarkPage extends InitPageBase {
       this.readyCrawl()
     })
 
-    Tools.addBtn(
-      'crawlBtns',
-      Colors.bgBlue,
-      '_定时抓取',
-      '_定时抓取说明'
-    ).addEventListener('click', () => {
-      timedCrawl.start(this.readyCrawl.bind(this))
-    })
+    this.addStartTimedCrawlBtn(this.readyCrawl.bind(this))
+    this.addCancelTimedCrawlBtn()
   }
 
   protected setFormOption() {
