@@ -53,6 +53,7 @@
 - 匯出作品資料；
 - 批次收藏作品；
 - 為你收藏裡的未分類作品新增標籤；
+- 定時抓取；
 
 ![PixivBatchDownloader screenshot](./notes/images/ui-tw-0.png)
 
