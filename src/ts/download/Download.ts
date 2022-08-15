@@ -173,7 +173,7 @@ class Download {
   // 下载文件
   private async download(arg: downloadArgument) {
     // 获取文件名
-    const _fileName = fileName.getFileName(arg.result)
+    const _fileName = fileName.createFileName(arg.result)
 
     // 重设当前下载栏的信息
     this.setProgressBar(_fileName, 0, 0)

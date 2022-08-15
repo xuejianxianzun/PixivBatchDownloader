@@ -53,6 +53,7 @@ The main function:
 - export work data;
 - Collect works in batches;
 - add tags to uncategorized works in your bookmarks;
+- Timed crawl;
 
 ![PixivBatchDownloader screenshot](./notes/images/ui-en-0.png)
 

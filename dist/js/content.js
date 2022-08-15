@@ -1756,8 +1756,8 @@ class FileName {
         result = result.replace(/\/{2,100}/g, '/');
         return result;
     }
-    // 传入一个抓取结果，获取其文件名
-    getFileName(data) {
+    /**传入一个抓取结果，生成其文件名 */
+    createFileName(data) {
         var _a;
         // 命名规则
         const userSetName = _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_1__["nameRuleManager"].rule;
@@ -3414,6 +3414,13 @@ const langText = {
         '404 not found',
         '404 not found',
         '404 not found',
+    ],
+    _作品页状态码429: [
+        '错误代码：429（请求数量过多）。下载器会重新抓取它。',
+        '錯誤程式碼：429（請求數量過多）。下载器会重新抓取它。',
+        'Error code: 429 (Too many requests). The downloader will re-crawl it.',
+        'エラー コード: 429 (要求が多すぎます)。ダウンローダーはそれを再クロールします。',
+        '오류 코드: 429(요청이 너무 많음). 다운로더가 다시 크롤링합니다.',
     ],
     _作品页状态码500: [
         'Pixiv 拒绝返回数据 (500)。下载器会重新抓取它。',
@@ -5304,16 +5311,11 @@ const langText = {
         '여러 이미지 작품을 미리 볼 때, 마우스 휠을 사용하여 이미지를 전환할 수 있습니다.',
     ],
     _whatisnew: [
-        `提高对多图作品进行宽高检查时的准确性。<br>
-    如果你设置了宽高条件，下载时可能会花费更多的时间用于进行宽高检查。`,
-        `提高對多圖作品進行寬高檢查時的準確性。<br>
-    如果你設定了寬高條件，下載時可能會花費更多的時間用於寬高檢查。`,
-        `Improve the accuracy when checking the width and height of multi-image works. <br>
-    If you set the width and height conditions, it may take more time to check the width and height when downloading.`,
-        `マルチイメージ作品の幅と高さをチェックする際の精度を向上させます。 <br>
-    幅と高さの条件を設定すると、ダウンロード時に幅と高さの確認に時間がかかる場合があります。`,
-        `여러 이미지 작품에 대한 너비와 높이 검사의 정확성을 높입니다.<br>
-    만약 너비와 높이 조건을 설정한다면, 다운로드 시 너비와 높이를 확인하는 데 시간이 더 걸릴 수 있습니다.`,
+        `当抓取作品发生429 错误时，下载器会重新抓取这个作品。`,
+        `當抓取作品發生429 錯誤時，下載器會重新抓取這個作品。`,
+        `When a 429 error occurs when crawling a work, the downloader will re-crawl the work.`,
+        `作品のクロール時に429エラーが発生した場合、ダウンローダは作品を再クロールします。`,
+        `작품을 크롤링할 때 429 오류가 발생하면 다운로더가 작품을 다시 크롤링합니다.`,
     ],
     _等待时间: ['等待时间', '等待時間', 'Waiting time', '待ち時間', '대기 시간'],
     _格式错误: [
@@ -8841,24 +8843,13 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '13.2.0';
+        this.flag = '13.3.1';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `
-      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增功能')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_定时抓取')}</strong>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_定时抓取说明')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_仅在部分页面中可用')}
-      <br>
-      <br>
-      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_定时抓取的间隔时间')}</strong>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取'))}
-      `;
+            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_whatisnew')}`;
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -10419,7 +10410,7 @@ class InitPageBase {
             if (error.status) {
                 // 请求成功，但状态码不正常
                 this.logErrorStatus(error.status, idData);
-                if (error.status === 500) {
+                if (error.status === 500 || error.status === 429) {
                     // 如果状态码 500，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
                     _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取被限制时返回空结果的提示'));
                     return window.setTimeout(() => {
@@ -10515,11 +10506,14 @@ class InitPageBase {
             case 404:
                 _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码404'));
                 break;
+            case 429:
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码429'));
+                break;
             case 500:
                 _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码500'));
                 break;
             default:
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_无权访问', workLink) + `status: ${status}`);
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_无权访问', workLink) + `HTTP status code: ${status}`);
                 break;
         }
     }
@@ -15347,7 +15341,7 @@ class Download {
     async download(arg) {
         var _a;
         // 获取文件名
-        const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_3__["fileName"].getFileName(arg.result);
+        const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_3__["fileName"].createFileName(arg.result);
         // 重设当前下载栏的信息
         this.setProgressBar(_fileName, 0, 0);
         // 下载文件
@@ -16347,7 +16341,7 @@ class DownloadRecord {
         }
         return {
             id: result.id,
-            n: _FileName__WEBPACK_IMPORTED_MODULE_6__["fileName"].getFileName(result),
+            n: _FileName__WEBPACK_IMPORTED_MODULE_6__["fileName"].createFileName(result),
             d: this.getDateString(result),
         };
     }
@@ -16419,7 +16413,7 @@ class DownloadRecord {
             }
             else {
                 // 如果是严格策略（考虑文件名）
-                const name = _FileName__WEBPACK_IMPORTED_MODULE_6__["fileName"].getFileName(result);
+                const name = _FileName__WEBPACK_IMPORTED_MODULE_6__["fileName"].createFileName(result);
                 return resolve(name === data.n);
             }
         });
@@ -16644,7 +16638,7 @@ class ExportLST {
         }
         const array = [];
         for (const data of _store_Store__WEBPACK_IMPORTED_MODULE_1__["store"].result) {
-            array.push(data.original + this.separate + _FileName__WEBPACK_IMPORTED_MODULE_2__["fileName"].getFileName(data));
+            array.push(data.original + this.separate + _FileName__WEBPACK_IMPORTED_MODULE_2__["fileName"].createFileName(data));
         }
         const result = array.join(this.CRLF);
         const blob = new Blob([result]);
@@ -16866,7 +16860,7 @@ class ExportResult2CSV {
             // 生成每个字段的结果
             for (const field of this.fieldCfg) {
                 if (field.name === 'fileName') {
-                    bodyItem.push(_FileName__WEBPACK_IMPORTED_MODULE_5__["fileName"].getFileName(d));
+                    bodyItem.push(_FileName__WEBPACK_IMPORTED_MODULE_5__["fileName"].createFileName(d));
                 }
                 else {
                     let result = (_b = d[field.index]) !== null && _b !== void 0 ? _b : '';
@@ -17871,7 +17865,7 @@ class SaveWorkMeta {
         // 生成文件名
         // 元数据文件需要和它对应的图片/小说文件的路径相同，文件名相似，这样它们才能在资源管理器里排在一起，便于查看
         // 生成这个数据的路径和文件名
-        const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_2__["fileName"].getFileName(data);
+        const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_2__["fileName"].createFileName(data);
         // 取出后缀名之前的部分
         const index = _fileName.lastIndexOf('.');
         // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
@@ -19718,7 +19712,7 @@ class PreviewFileName {
                 const data = _store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].result[i];
                 // 生成文件名，并为文件名添加颜色显示
                 // 只有当文件数量少于限制值时才添加颜色。这是因为添加颜色会导致生成的 HTML 元素数量增多，渲染和复制时的资源占用增多
-                const part = _FileName__WEBPACK_IMPORTED_MODULE_2__["fileName"].getFileName(data).split('/');
+                const part = _FileName__WEBPACK_IMPORTED_MODULE_2__["fileName"].createFileName(data).split('/');
                 const length = part.length;
                 for (let i = 0; i < length; i++) {
                     const str = part[i];
@@ -19751,7 +19745,7 @@ class PreviewFileName {
             // 不生成 html 标签，只生成纯文本，保存为 txt 文件
             for (let i = 0; i < length; i++) {
                 const data = _store_Store__WEBPACK_IMPORTED_MODULE_0__["store"].result[i];
-                const fullName = _FileName__WEBPACK_IMPORTED_MODULE_2__["fileName"].getFileName(data);
+                const fullName = _FileName__WEBPACK_IMPORTED_MODULE_2__["fileName"].createFileName(data);
                 if (data.type !== 3) {
                     // 图片作品，在文件名前面显示文件 url 里的文件名
                     let defaultName = data.original.replace(/.*\//, '');
