@@ -45,18 +45,19 @@ class TimedCrawl {
     this.time = settings.timedCrawlInterval * 60 * 1000
     this.timer = window.setInterval(() => {
       if (!this.callback) {
-        return this.reset()
+        return
       }
       this.crawlBySelf = true
       states.quickCrawl = true
       this.callback()
     }, this.time)
 
+    EVT.fire('startTimedCrawl')
     const msg = lang.transl(
       '_定时抓取已启动的提示',
       settings.timedCrawlInterval.toString()
     )
-    msgBox.show(msg + '<br>' + lang.transl('_定时抓取已启动的提示2'))
+    msgBox.show(msg + '<br><br>' + lang.transl('_定时抓取已启动的提示2'))
     log.success(msg)
   }
 
@@ -108,12 +109,21 @@ class TimedCrawl {
       })
     }
 
+    window.addEventListener(EVT.list.cancelTimedCrawl, () => {
+      this.reset()
+      const msg = lang.transl('_已取消定时抓取')
+      log.success(msg)
+      msgBox.success(msg)
+    })
+
     window.addEventListener(EVT.list.pageSwitch, () => {
       if (!this.callback) {
         return
       }
       this.reset()
-      msgBox.error(lang.transl('_因为URL变化取消定时抓取任务'))
+      const msg = lang.transl('_因为URL变化取消定时抓取任务')
+      log.error(msg)
+      msgBox.error(msg)
     })
   }
 }

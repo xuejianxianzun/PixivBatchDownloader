@@ -497,6 +497,13 @@ const langText = {
     '404 not found',
     '404 not found',
   ],
+  _作品页状态码429: [
+    '错误代码：429（请求数量过多）。下载器会重新抓取它。',
+    '錯誤程式碼：429（請求數量過多）。下载器会重新抓取它。',
+    'Error code: 429 (Too many requests). The downloader will re-crawl it.',
+    'エラー コード: 429 (要求が多すぎます)。ダウンローダーはそれを再クロールします。',
+    '오류 코드: 429(요청이 너무 많음). 다운로더가 다시 크롤링합니다.',
+  ],
   _作品页状态码500: [
     'Pixiv 拒绝返回数据 (500)。下载器会重新抓取它。',
     'Pixiv 拒絕返回資料 (500)。下载器会重新抓取它。',
@@ -977,16 +984,9 @@ const langText = {
   _清除多图作品: [
     '清除多图作品',
     '清除多圖作品',
-    'Remove multi-drawing works',
+    'Remove multi-image works',
     '複数画像をクリア',
     '여러 이미지 작품 지우기',
-  ],
-  _清除多图作品Title: [
-    '如果不需要可以清除多图作品',
-    '如果不需要可以清除多圖作品。',
-    'If you do not need it, you can delete multiple graphs',
-    '必要がない場合は、複数のグラフを削除することができます',
-    '필요하지 않으면 여러 이미지 작품을 지울 수 있습니다.',
   ],
   _清除动图作品: [
     '清除动图作品',
@@ -994,13 +994,6 @@ const langText = {
     'Remove ugoira work',
     'うごイラ作品を削除する',
     '움직이는 일러스트 작품 지우기',
-  ],
-  _清除动图作品Title: [
-    '如果不需要可以清除动图作品',
-    '如果不需要可以清除動圖作品。',
-    'If you do not need it, you can delete the ugoira work',
-    '必要がない場合は、うごイラを削除することができます',
-    '필요하지 않으면 움직이는 일러스트 작품을 지울 수 있습니다.',
   ],
   _手动删除作品: [
     '手动删除作品',
@@ -1158,7 +1151,7 @@ const langText = {
     'ダウンロードは自動的に開始されます',
     '<span class="key">자동으로</span> 다운로드 시작',
   ],
-  _快速下载的提示: [
+  _自动开始下载的提示: [
     '当“开始下载”状态可用时，自动开始下载，不需要点击下载按钮。',
     '當可下載時自動開始下載，不需要點選下載按鈕。',
     'When the &quot;Start Downloa&quot; status is available, the download starts automatically and no need to click the download button.',
@@ -2400,16 +2393,11 @@ const langText = {
     '여러 이미지 작품을 미리 볼 때, 마우스 휠을 사용하여 이미지를 전환할 수 있습니다.',
   ],
   _whatisnew: [
-    `提高对多图作品进行宽高检查时的准确性。<br>
-    如果你设置了宽高条件，下载时可能会花费更多的时间用于进行宽高检查。`,
-    `提高對多圖作品進行寬高檢查時的準確性。<br>
-    如果你設定了寬高條件，下載時可能會花費更多的時間用於寬高檢查。`,
-    `Improve the accuracy when checking the width and height of multi-image works. <br>
-    If you set the width and height conditions, it may take more time to check the width and height when downloading.`,
-    `マルチイメージ作品の幅と高さをチェックする際の精度を向上させます。 <br>
-    幅と高さの条件を設定すると、ダウンロード時に幅と高さの確認に時間がかかる場合があります。`,
-    `여러 이미지 작품에 대한 너비와 높이 검사의 정확성을 높입니다.<br>
-    만약 너비와 높이 조건을 설정한다면, 다운로드 시 너비와 높이를 확인하는 데 시간이 더 걸릴 수 있습니다.`,
+    `当抓取作品发生429 错误时，下载器会重新抓取这个作品。`,
+    `當抓取作品發生429 錯誤時，下載器會重新抓取這個作品。`,
+    `When a 429 error occurs when crawling a work, the downloader will re-crawl the work.`,
+    `作品のクロール時に429エラーが発生した場合、ダウンローダは作品を再クロールします。`,
+    `작품을 크롤링할 때 429 오류가 발생하면 다운로더가 작품을 다시 크롤링합니다.`,
   ],
   _等待时间: ['等待时间', '等待時間', 'Waiting time', '待ち時間', '대기 시간'],
   _格式错误: [
@@ -2851,11 +2839,11 @@ const langText = {
     '시간 제한 크롤링이 시작되었습니다. 간격: {}분. ',
   ],
   _定时抓取已启动的提示2: [
-    '请不要关闭这个标签页，也不要改变这个标签页的 URL。<br>如果你想取消定时抓取任务，可以刷新或者关闭这个标签页。<br>建议启用“不下载重复文件”功能，以避免下载重复的文件。',
-    '請不要關閉這個標籤頁，也不要改變這個標籤頁的 URL。<br>如果你想取消定時抓取任務，可以重新整理或者關閉這個標籤頁。<br>建議啟用“不下載重複檔案”功能，以避免下載重複的檔案。',
-    'Please do not close this tab or change the URL of this tab. <br>If you want to cancel the timed crawling task, you can refresh or close this tab.<br>It is recommended to enable the "Do not download duplicate files" feature to avoid downloading duplicate files.',
-    'このタブを閉じたり、このタブの URL を変更したりしないでください。 <br>時限クロール タスクをキャンセルする場合は、このタブを更新するか閉じることができます。<br>重複ファイルのダウンロードを避けるために、「重複ファイルをダウンロードしない」機能を有効にすることをお勧めします。',
-    '이 탭을 닫거나 이 탭의 URL을 변경하지 마십시오. <br>지정된 크롤링 작업을 취소하려면 이 탭을 새로 고치거나 닫을 수 있습니다.<br>중복 파일 다운로드를 방지하기 위해 "중복 파일 다운로드 금지" 기능을 활성화하는 것이 좋습니다.',
+    '请不要关闭这个标签页，也不要改变这个标签页的 URL。<br>建议启用“不下载重复文件”功能，以避免下载重复的文件。<br><br>如果这个扩展程序自动更新了，那么这个页面将不能正常下载文件（需要刷新页面来恢复正常）。 如果你想长期执行定时抓取任务，建议安装下载器的离线版本，以免因为自动更新而导致问题。<br>你可以在这里下载离线安装包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+    '請不要關閉這個標籤頁，也不要改變這個標籤頁的 URL。<br>建議啟用“不下載重複檔案”功能，以避免下載重複的檔案。<br><br>如果這個擴充套件程式自動更新了，那麼這個頁面將不能正常下載檔案（需要重新整理頁面來恢復正常）。 如果你想長期執行定時抓取任務，建議安裝下載器的離線版本，以免因為自動更新而導致問題。<br>你可以在這裡下載離線安裝包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+    'Please do not close this tab or change the URL of this tab. <br>It is recommended to enable the "Do not download duplicate files" feature to avoid downloading duplicate files.<br><br>If the extension is automatically updated, the page will not be able to download files normally (refresh the page to restore normal). If you want to perform scheduled crawling tasks for a long time, it is recommended to install the offline version of the downloader to avoid problems caused by automatic updates.<br>You can download the offline installation package here: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+    'このタブを閉じたり、このタブの URL を変更したりしないでください。<br>重複ファイルのダウンロードを避けるために、「重複ファイルをダウンロードしない」機能を有効にすることをお勧めします。<br><br>拡張機能が自動的に更新されると、ページはファイルを正常にダウンロードできなくなります (ページを更新して正常に戻します)。 スケジュールされたクロール タスクを長時間実行する場合は、自動更新による問題を回避するために、ダウンローダのオフライン バージョンをインストールすることをお勧めします。<br>オフライン インストール パッケージは、次の場所からダウンロードできます。<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+    '이 탭을 닫거나 이 탭의 URL을 변경하지 마십시오.<br>중복 파일 다운로드를 방지하기 위해 "중복 파일 다운로드 금지" 기능을 활성화하는 것이 좋습니다.<br><br>확장자가 자동으로 업데이트되면 페이지에서 파일을 정상적으로 다운로드할 수 없습니다(페이지를 새로고침하여 정상으로 복원). 예약된 크롤링 작업을 장기간 수행하려면 자동 업데이트로 인한 문제를 방지하기 위해 다운로더의 오프라인 버전을 설치하는 것이 좋습니다.<br>여기에서 오프라인 설치 패키지를 다운로드할 수 있습니다. <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
   ],
   _定时抓取的间隔时间: [
     '定时抓取的间隔时间',
@@ -2878,6 +2866,20 @@ const langText = {
     'The minimum interval for timed crawls is 1 minute.',
     '時間指定クロールの最小間隔は 1 分です。',
     '시간 지정 크롤링의 최소 간격은 1분입니다.',
+  ],
+  _取消定时抓取: [
+    '取消定时抓取',
+    '取消定時抓取',
+    'Cancel timed crawl',
+    '時間指定クロールをキャンセル',
+    '시간 지정 크롤링 취소',
+  ],
+  _已取消定时抓取: [
+    '已取消定时抓取',
+    '已取消定時抓取',
+    'Timed crawl canceled',
+    '時間指定クロールがキャンセルされました',
+    '예약된 크롤링이 취소되었습니다.',
   ],
   _因为URL变化取消定时抓取任务: [
     '因为 URL 变化，定时抓取任务已被取消。',
@@ -2913,6 +2915,34 @@ const langText = {
     'Only available on some pages.',
     '一部のページのみ利用可能です。',
     '일부 페이지에서만 사용할 수 있습니다.',
+  ],
+  _发生错误原因: [
+    '发生错误，原因：',
+    '發生錯誤，原因：',
+    'An error occurred due to:',
+    '次の理由でエラーが発生しました:',
+    '다음으로 인해 오류가 발생했습니다.',
+  ],
+  _扩展程序已更新: [
+    '扩展程序已更新。',
+    '擴充套件程式已更新。',
+    'The extension has been updated.',
+    '拡張機能が更新されました。',
+    '확장이 업데이트되었습니다.',
+  ],
+  _未知错误: [
+    '未知错误。',
+    '未知錯誤。',
+    'unknown mistake.',
+    '未知の間違い。',
+    '알 수 없는 실수.',
+  ],
+  _请刷新页面: [
+    '请刷新页面。',
+    '請重新整理頁面。',
+    'Please refresh the page.',
+    'ページを更新してください。',
+    '페이지를 새로고침하세요.',
   ],
 }
 

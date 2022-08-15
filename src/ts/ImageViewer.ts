@@ -485,7 +485,7 @@ class ImageViewer {
 
   // 下载当前查看的作品
   private download() {
-    states.downloadFromViewer = true
+    states.quickCrawl = true
 
     // 发送要下载的作品 id
     EVT.fire('crawlIdList', [

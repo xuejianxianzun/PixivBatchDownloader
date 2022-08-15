@@ -10,7 +10,6 @@ import { API } from '../API'
 import { store } from '../store/Store'
 import { log } from '../Log'
 import { Tools } from '../Tools'
-import { timedCrawl } from '../crawl/TimedCrawl'
 
 class InitNewNovelPage extends InitPageBase {
   constructor() {
@@ -34,14 +33,8 @@ class InitNewNovelPage extends InitPageBase {
       this.readyCrawl()
     })
 
-    Tools.addBtn(
-      'crawlBtns',
-      Colors.bgBlue,
-      '_定时抓取',
-      '_定时抓取说明'
-    ).addEventListener('click', () => {
-      timedCrawl.start(this.readyCrawl.bind(this))
-    })
+    this.addStartTimedCrawlBtn(this.readyCrawl.bind(this))
+    this.addCancelTimedCrawlBtn()
   }
 
   protected initAny() {}

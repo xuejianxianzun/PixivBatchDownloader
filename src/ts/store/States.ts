@@ -8,41 +8,41 @@ class States {
     this.bindEvents()
   }
 
-  // 指示 settings 是否初始化完毕
+  /**指示 settings 是否初始化完毕 */
   public settingInitialized = false
 
-  // 表示下载器是否处于繁忙状态
-  // 繁忙：下载器正在抓取作品，或者正在下载文件，或者正在批量添加收藏
+  /**表示下载器是否处于繁忙状态
+   *
+   * 繁忙：下载器正在抓取作品，或者正在下载文件，或者正在批量添加收藏
+   */
   public busy = false
 
-  // 快速下载标记
-  // 快速下载模式中不会显示下载面板，并且会自动开始下载
-  // 启动快速下载时设为 true，下载完成或中止时复位到 false
+  /**快速下载标记
+   *
+   * 快速下载模式中不会显示下载面板，并且总是会自动开始下载
+   *
+   * 启动快速下载时设为 true，下载完成或中止时复位到 false
+   */
   public quickCrawl = false
 
-  // 这次下载是否是从图片查看器建立的
-  // 如果是，那么下载途中不会显示下载面板，并且会自动开始下载
-  // 作用同 quickCrawl，只是触发方式不同
-  public downloadFromViewer = false
-
-  // 在排行榜抓取时，是否只抓取“首次登场”的作品
+  /**在排行榜抓取时，是否只抓取“首次登场”的作品 */
   // 修改者：InitRankingArtworkPage 模块修改这个状态
   public debut = false
 
-  // 收藏模式的标记
+  /**收藏模式的标记 */
   // 开始批量收藏时设为 true，收藏完成之后复位到 false
   public bookmarkMode = false
 
-  // 合并系列小说时使用的标记
+  /**合并系列小说时使用的标记 */
   public mergeNovel = false
 
-  // 抓取标签列表时使用的标记
+  /**抓取标签列表时使用的标记 */
   public crawlTagList = false
 
-  // 是否处于手动选择作品状态
+  /**是否处于手动选择作品状态 */
   public selectWork = false
 
-  // 是否处于下载中
+  /**是否处于下载中 */
   public downloading = false
 
   private bindEvents() {
@@ -96,7 +96,6 @@ class States {
     for (const ev of resetQuickState) {
       window.addEventListener(ev, () => {
         this.quickCrawl = false
-        this.downloadFromViewer = false
       })
     }
 

@@ -32,7 +32,7 @@ export interface SettingsForm extends HTMLFormElement {
   postDateEnd: HTMLInputElement
   needTag: HTMLInputElement
   notNeedTag: HTMLInputElement
-  quietDownload: HTMLInputElement
+  autoStartDownload: HTMLInputElement
   downloadThread: HTMLInputElement
   userSetName: HTMLInputElement
   fileNameSelect: HTMLSelectElement

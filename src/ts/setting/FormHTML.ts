@@ -434,10 +434,10 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="17">
-    <span class="has_tip settingNameStyle1" data-xztip="_快速下载的提示">
+    <span class="has_tip settingNameStyle1" data-xztip="_自动开始下载的提示">
     <span data-xztext="_自动开始下载"></span>
     <span class="gray1"> ? </span></span>
-    <input type="checkbox" name="quietDownload" id="setQuietDownload" class="need_beautify checkbox_switch" checked>
+    <input type="checkbox" name="autoStartDownload" id="setQuietDownload" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch" tabindex="0"></span>
     </p>
 

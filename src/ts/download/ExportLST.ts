@@ -34,7 +34,7 @@ class ExportLST {
 
     const array: string[] = []
     for (const data of store.result) {
-      array.push(data.original + this.separate + fileName.getFileName(data))
+      array.push(data.original + this.separate + fileName.createFileName(data))
     }
 
     const result = array.join(this.CRLF)
