@@ -334,22 +334,17 @@ class DownloadControl {
       settings.previewResult
     ) {
       // “预览搜索页面的筛选结果”会阻止自动开始下载。但是一些情况例外
-      // 允许由图片查看器发起的下载请求自动开始下载
+      // 允许快速抓取发起的下载请求自动开始下载
       // 允许由抓取标签列表功能发起的下载请求自动开始下载
-      if (
-        !states.downloadFromViewer &&
-        !states.quickCrawl &&
-        !states.crawlTagList
-      ) {
+      if (!states.quickCrawl && !states.crawlTagList) {
         return
       }
     }
 
     // 自动开始下载的情况
     if (
-      settings.quietDownload ||
+      settings.autoStartDownload ||
       states.quickCrawl ||
-      states.downloadFromViewer ||
       states.crawlTagList
     ) {
       this.startDownload()

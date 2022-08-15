@@ -39,6 +39,50 @@ class NameRuleManager {
     })
   }
 
+  private saveCurrentPageRule(rule: string) {
+    settings.nameRuleForEachPageType[pageType.type] = rule
+    setSetting('nameRuleForEachPageType', settings.nameRuleForEachPageType)
+  }
+
+  // 所有页面通用的命名规则
+  private readonly generalRule = '{p_title}/{id}'
+
+  public get rule() {
+    if (settings.setNameRuleForEachPageType) {
+      let rule = settings.nameRuleForEachPageType[pageType.type]
+      if (rule === undefined) {
+        rule = this.generalRule
+        this.saveCurrentPageRule(rule)
+      }
+      return rule
+    } else {
+      return settings.userSetName
+    }
+  }
+
+  public set rule(str: string) {
+    // 检查传递的命名规则的合法性
+    // 为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}
+    const check =
+      str.includes('{id}') ||
+      (str.includes('{id_num}') && str.includes('{p_num}'))
+    if (!check) {
+      window.setTimeout(() => {
+        msgBox.error(lang.transl('_命名规则一定要包含id'))
+      }, 300)
+    } else {
+      // 替换特殊字符
+      str = this.handleUserSetName(str) || this.generalRule
+      setSetting('userSetName', str)
+
+      if (settings.setNameRuleForEachPageType) {
+        this.saveCurrentPageRule(str)
+      }
+
+      this.setInputValue()
+    }
+  }
+
   // 命名规则输入框的集合
   private inputList: HTMLInputElement[] = []
 
@@ -74,54 +118,14 @@ class NameRuleManager {
 
   // 设置输入框的值为当前命名规则
   private setInputValue() {
+    // 如果 settings.nameRuleForEachPageType 里面没有当前页面的 key，值就是 undefined，需要设置为默认值
     const rule = this.rule
     this.inputList.forEach((input) => {
       input.value = rule
     })
 
     if (rule !== settings.userSetName) {
-      setSetting('userSetName', this.rule)
-    }
-  }
-
-  // 可以在所有页面使用的通用命名规则
-  private readonly generalRule = '{p_title}/{id}'
-
-  public get rule() {
-    if (settings.setNameRuleForEachPageType) {
-      return settings.nameRuleForEachPageType[pageType.type]
-    } else {
-      return settings.userSetName
-    }
-  }
-
-  public set rule(str: string) {
-    // 检查传递的命名规则的合法性
-    // 为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}
-    const check =
-      str.includes('{id}') ||
-      (str.includes('{id_num}') && str.includes('{p_num}'))
-    if (!check) {
-      window.setTimeout(() => {
-        msgBox.error(lang.transl('_命名规则一定要包含id'))
-      }, 300)
-    } else {
-      // 检查合法性通过
-      if (str) {
-        // 替换特殊字符
-        str = this.handleUserSetName(str)
-      } else {
-        str = this.generalRule
-      }
-
-      setSetting('userSetName', str)
-
-      if (settings.setNameRuleForEachPageType) {
-        settings.nameRuleForEachPageType[pageType.type] = str
-        setSetting('nameRuleForEachPageType', settings.nameRuleForEachPageType)
-      }
-
-      this.setInputValue()
+      setSetting('userSetName', rule)
     }
   }
 

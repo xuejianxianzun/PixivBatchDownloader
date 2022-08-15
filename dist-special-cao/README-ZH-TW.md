@@ -27,6 +27,8 @@
 
 # 簡介
 
+**Powerful Pixiv Downloader**
+
 這是一個 Chrome 瀏覽器擴充功能，用於批次下載 Pixiv 上的圖片和小說。
 
 可選擇介面語言：简体中文、繁體中文、日本語、English、한국어。
@@ -51,6 +53,7 @@
 - 匯出作品資料；
 - 批次收藏作品；
 - 為你收藏裡的未分類作品新增標籤；
+- 定時抓取；
 
 ![PixivBatchDownloader screenshot](./notes/images/ui-tw-0.png)
 

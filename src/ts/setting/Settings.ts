@@ -80,7 +80,7 @@ interface XzSetting {
   notNeedTagSwitch: boolean
   needTag: string[]
   notNeedTag: string[]
-  quietDownload: boolean
+  autoStartDownload: boolean
   downloadThread: number
   userSetName: string
   namingRuleList: string[]
@@ -258,7 +258,7 @@ class Settings {
     convertUgoiraThread: 1,
     needTag: [],
     notNeedTag: [],
-    quietDownload: true,
+    autoStartDownload: true,
     downloadThread: 5,
     userSetName: '{p_title}/{id}',
     namingRuleList: [],

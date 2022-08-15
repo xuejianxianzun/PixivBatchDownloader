@@ -19,7 +19,6 @@ import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { states } from '../store/States'
 import { pageType } from '../PageType'
 import { Config } from '../config/Config'
-import { timedCrawl } from '../crawl/TimedCrawl'
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {
@@ -66,14 +65,8 @@ class InitSearchNovelPage extends InitPageBase {
       this.readyCrawl()
     })
 
-    Tools.addBtn(
-      'crawlBtns',
-      Colors.bgBlue,
-      '_定时抓取',
-      '_定时抓取说明'
-    ).addEventListener('click', () => {
-      timedCrawl.start(this.readyCrawl.bind(this))
-    })
+    this.addStartTimedCrawlBtn(this.readyCrawl.bind(this))
+    this.addCancelTimedCrawlBtn()
   }
 
   private getWorksWrap() {

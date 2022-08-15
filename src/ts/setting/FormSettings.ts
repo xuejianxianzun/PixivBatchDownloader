@@ -66,7 +66,7 @@ class FormSettings {
       'workDir',
       'r18Folder',
       'sizeSwitch',
-      'quietDownload',
+      'autoStartDownload',
       'previewResult',
       'deduplication',
       'fileNameLengthLimitSwitch',

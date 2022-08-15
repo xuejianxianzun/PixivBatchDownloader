@@ -27,6 +27,8 @@
 
 # Introduction
 
+**Powerful Pixiv Downloader**
+
 This is a browser extension for **Chrome** that lets you download images and novels from Pixiv in batch. 
 
 Available languages: Simplified Chinese, Traditional Chinese, Japanese, English、Korean.
@@ -51,6 +53,7 @@ The main function:
 - export work data;
 - Collect works in batches;
 - add tags to uncategorized works in your bookmarks;
+- Timed crawl;
 
 ![PixivBatchDownloader screenshot](./notes/images/ui-en-0.png)
 
