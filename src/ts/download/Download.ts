@@ -173,7 +173,7 @@ class Download {
   // 下载文件
   private async download(arg: downloadArgument) {
     // 获取文件名
-    const _fileName = fileName.getFileName(arg.result)
+    const _fileName = fileName.createFileName(arg.result)
 
     // 重设当前下载栏的信息
     this.setProgressBar(_fileName, 0, 0)
@@ -362,7 +362,24 @@ class Download {
       taskBatch,
     }
 
-    chrome.runtime.sendMessage(sendData)
+    try {
+      chrome.runtime.sendMessage(sendData)
+    } catch (error) {
+      let msg = `${lang.transl('_发生错误原因')}<br>{}${lang.transl(
+        '_请刷新页面'
+      )}`
+      if ((error as Error).message.includes('Extension context invalidated')) {
+        msg = msg.replace('{}', lang.transl('_扩展程序已更新'))
+        log.error(msg)
+        msgBox.error(msg)
+        return
+      }
+
+      console.error(error)
+      msg = msg.replace('{}', lang.transl('_未知错误'))
+      log.error(msg)
+      msgBox.error(msg)
+    }
   }
 }
 

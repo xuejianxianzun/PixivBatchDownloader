@@ -30,6 +30,8 @@
 
 # 简介
 
+**Powerful Pixiv Downloader**
+
 这是一个 Chrome 浏览器扩展程序，用于批量下载 Pixiv 上的图片和小说。
 
 支持的语言：简体中文、繁體中文、日本語、English、한국어。
@@ -54,6 +56,7 @@
 - 导出作品数据；
 - 批量收藏作品；
 - 为你收藏里的未分类作品添加标签；
+- 定时抓取；
 
 ![PixivBatchDownloader screenshot](./notes/images/ui-zh-0.png)
 

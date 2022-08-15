@@ -56,7 +56,7 @@ class PreviewFileName {
 
         // 生成文件名，并为文件名添加颜色显示
         // 只有当文件数量少于限制值时才添加颜色。这是因为添加颜色会导致生成的 HTML 元素数量增多，渲染和复制时的资源占用增多
-        const part = fileName.getFileName(data).split('/')
+        const part = fileName.createFileName(data).split('/')
         const length = part.length
         for (let i = 0; i < length; i++) {
           const str = part[i]
@@ -88,7 +88,7 @@ class PreviewFileName {
       // 不生成 html 标签，只生成纯文本，保存为 txt 文件
       for (let i = 0; i < length; i++) {
         const data = store.result[i]
-        const fullName = fileName.getFileName(data)
+        const fullName = fileName.createFileName(data)
 
         if (data.type !== 3) {
           // 图片作品，在文件名前面显示文件 url 里的文件名

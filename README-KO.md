@@ -27,6 +27,8 @@
 
 # 소개
 
+**Powerful Pixiv Downloader**
+
 이것은 **Chrome** 브라우저의 확장 프로그램으로 Pixiv에서 일러스트 및 소설을 일괄 다운로드할 수 있습니다.
 
 사용 가능한 언어: 중국어 간체, 중국어 번체, 일본어, 영어, 한국어입니다.
@@ -51,6 +53,7 @@
 - 작업 데이터를 내보냅니다;
 - 북마크는 일괄적으로 작동합니다;
 - 북마크에서 분류되지 않은 작품에 태그를 추가합니다;
+- 시간 제한 크롤링;
 
 ![PixivBatchDownloader screenshot](./notes/images/ui-ko-0.png)
 
