@@ -56,6 +56,7 @@
 - 导出作品数据；
 - 批量收藏作品；
 - 为你收藏里的未分类作品添加标签；
+- 定时抓取；
 
 ![PixivBatchDownloader screenshot](./notes/images/ui-zh-0.png)
 

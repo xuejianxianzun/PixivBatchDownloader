@@ -157,7 +157,7 @@ class ExportResult2CSV {
       // 生成每个字段的结果
       for (const field of this.fieldCfg) {
         if (field.name === 'fileName') {
-          bodyItem.push(fileName.getFileName(d))
+          bodyItem.push(fileName.createFileName(d))
         } else {
           let result = d[field.index] ?? ''
 

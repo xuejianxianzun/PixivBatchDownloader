@@ -53,6 +53,7 @@
 - 작업 데이터를 내보냅니다;
 - 북마크는 일괄적으로 작동합니다;
 - 북마크에서 분류되지 않은 작품에 태그를 추가합니다;
+- 시간 제한 크롤링;
 
 ![PixivBatchDownloader screenshot](./notes/images/ui-ko-0.png)
 

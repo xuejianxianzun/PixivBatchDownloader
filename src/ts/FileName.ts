@@ -170,8 +170,8 @@ class FileName {
     return result
   }
 
-  // 传入一个抓取结果，获取其文件名
-  public getFileName(data: Result) {
+  /**传入一个抓取结果，生成其文件名 */
+  public createFileName(data: Result) {
     // 命名规则
     const userSetName = nameRuleManager.rule
 

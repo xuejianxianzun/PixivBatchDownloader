@@ -148,7 +148,7 @@ class DownloadRecord {
 
     return {
       id: result.id,
-      n: fileName.getFileName(result),
+      n: fileName.createFileName(result),
       d: this.getDateString(result),
     }
   }
@@ -224,7 +224,7 @@ class DownloadRecord {
         return resolve(true)
       } else {
         // 如果是严格策略（考虑文件名）
-        const name = fileName.getFileName(result)
+        const name = fileName.createFileName(result)
         return resolve(name === data.n)
       }
     })
