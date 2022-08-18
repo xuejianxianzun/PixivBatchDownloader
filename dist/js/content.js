@@ -10189,7 +10189,7 @@ class InitPageBase {
         this.maxCount = 1000; // 当前页面类型最多有多少个页面/作品
         this.startpageNo = 1; // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、新作品页、系列页面使用。
         this.listPageFinished = 0; // 记录一共抓取了多少个列表页。使用范围同上。
-        this.ajaxThreadsDefault = 10; // 抓取时的并发连接数默认值，也是最大值
+        this.ajaxThreadsDefault = 1; // 抓取时的并发连接数默认值，也是最大值
         this.ajaxThread = this.ajaxThreadsDefault; // 抓取时的并发请求数
         this.finishedRequest = 0; // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
         /**抓取是否已停止 */
@@ -10303,6 +10303,9 @@ class InitPageBase {
             _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前任务尚未完成'));
             return;
         }
+        console.log('startCrawl');
+        console.time('crawlAndDownloadTime');
+        console.time('crawlTime');
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
@@ -10413,6 +10416,7 @@ class InitPageBase {
                 if (error.status === 500 || error.status === 429) {
                     // 如果状态码 500，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
                     _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取被限制时返回空结果的提示'));
+                    console.log('429 error on ' + _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].resultMeta.length);
                     return window.setTimeout(() => {
                         this.getWorksData(idData);
                     }, _config_Config__WEBPACK_IMPORTED_MODULE_21__["Config"].retryTimer);
@@ -10461,6 +10465,7 @@ class InitPageBase {
     }
     // 抓取完毕
     crawlFinished() {
+        console.timeEnd('crawlTime');
         if (_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length === 0) {
             return this.noResult();
         }
@@ -11947,7 +11952,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             // 检查显示的预览数量是否达到上限
             if (this.previewCount >= _setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResultLimit) {
                 if (!this.showPreviewLimitTip) {
-                    _Log__WEBPACK_IMPORTED_MODULE_9__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_预览搜索结果的数量达到上限的提示'));
+                    const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_预览搜索结果的数量达到上限的提示');
+                    _Log__WEBPACK_IMPORTED_MODULE_9__["log"].warning(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_18__["msgBox"].warning(msg);
                     this.showPreviewLimitTip = true;
                 }
                 return;
@@ -15855,6 +15862,44 @@ class DownloadControl {
             this.checkCompleteWithError();
         }
     }
+    setDownloaded() {
+        this.downloaded = _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].downloadedCount();
+        const text = `${this.downloaded} / ${_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length}`;
+        _Log__WEBPACK_IMPORTED_MODULE_3__["log"].log(text, 2, false);
+        // 设置总下载进度条
+        _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].setTotalProgress(this.downloaded);
+        _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].remainingDownload = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded;
+        // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
+        if (this.downloaded === _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
+            window.setTimeout(() => {
+                // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('downloadComplete');
+                console.timeEnd('crawlAndDownloadTime');
+            }, 0);
+            this.reset();
+        }
+        this.checkCompleteWithError();
+    }
+    // 设置下载线程数量
+    setDownloadThread() {
+        const setThread = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].downloadThread;
+        if (setThread < 1 ||
+            setThread > _config_Config__WEBPACK_IMPORTED_MODULE_15__["Config"].downloadThreadMax ||
+            isNaN(setThread)) {
+            // 如果数值非法，则重设为默认值
+            this.thread = _config_Config__WEBPACK_IMPORTED_MODULE_15__["Config"].downloadThreadMax;
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["setSetting"])('downloadThread', _config_Config__WEBPACK_IMPORTED_MODULE_15__["Config"].downloadThreadMax);
+        }
+        else {
+            this.thread = setThread; // 设置为用户输入的值
+        }
+        // 如果剩余任务数量少于下载线程数
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded < this.thread) {
+            this.thread = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded;
+        }
+        // 重设下载进度条
+        _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].reset(this.thread, this.downloaded);
+    }
     saveFileError(data) {
         if (this.pause || this.stop) {
             return false;
@@ -15897,26 +15942,6 @@ class DownloadControl {
             return false;
         }
     }
-    // 设置下载线程数量
-    setDownloadThread() {
-        const setThread = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].downloadThread;
-        if (setThread < 1 ||
-            setThread > _config_Config__WEBPACK_IMPORTED_MODULE_15__["Config"].downloadThreadMax ||
-            isNaN(setThread)) {
-            // 如果数值非法，则重设为默认值
-            this.thread = _config_Config__WEBPACK_IMPORTED_MODULE_15__["Config"].downloadThreadMax;
-            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["setSetting"])('downloadThread', _config_Config__WEBPACK_IMPORTED_MODULE_15__["Config"].downloadThreadMax);
-        }
-        else {
-            this.thread = setThread; // 设置为用户输入的值
-        }
-        // 如果剩余任务数量少于下载线程数
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded < this.thread) {
-            this.thread = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded;
-        }
-        // 重设下载进度条
-        _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].reset(this.thread, this.downloaded);
-    }
     // 查找需要进行下载的作品，建立下载
     createDownload(progressBarIndex) {
         const index = _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].getFirstDownloadItem();
@@ -15942,23 +15967,6 @@ class DownloadControl {
             // 建立下载
             new _download_Download__WEBPACK_IMPORTED_MODULE_7__["Download"](progressBarIndex, argument);
         }
-    }
-    setDownloaded() {
-        this.downloaded = _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].downloadedCount();
-        const text = `${this.downloaded} / ${_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length}`;
-        _Log__WEBPACK_IMPORTED_MODULE_3__["log"].log(text, 2, false);
-        // 设置总下载进度条
-        _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].setTotalProgress(this.downloaded);
-        _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].remainingDownload = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded;
-        // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
-        if (this.downloaded === _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
-            window.setTimeout(() => {
-                // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('downloadComplete');
-            }, 0);
-            this.reset();
-        }
-        this.checkCompleteWithError();
     }
     // 在有下载出错的情况下，是否已经完成了下载
     checkCompleteWithError() {

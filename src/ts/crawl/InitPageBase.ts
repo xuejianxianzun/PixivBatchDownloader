@@ -34,7 +34,7 @@ abstract class InitPageBase {
 
   protected listPageFinished = 0 // 记录一共抓取了多少个列表页。使用范围同上。
 
-  protected readonly ajaxThreadsDefault = 10 // 抓取时的并发连接数默认值，也是最大值
+  protected readonly ajaxThreadsDefault = 1 // 抓取时的并发连接数默认值，也是最大值
 
   protected ajaxThread = this.ajaxThreadsDefault // 抓取时的并发请求数
 
@@ -175,6 +175,9 @@ abstract class InitPageBase {
       return
     }
 
+    console.log('startCrawl')
+    console.time('crawlAndDownloadTime')
+    console.time('crawlTime')
     log.clear()
 
     log.success(lang.transl('_任务开始0'))
@@ -313,6 +316,7 @@ abstract class InitPageBase {
         if (error.status === 500 || error.status === 429) {
           // 如果状态码 500，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
           log.error(lang.transl('_抓取被限制时返回空结果的提示'))
+          console.log('429 error on ' + store.resultMeta.length)
           return window.setTimeout(() => {
             this.getWorksData(idData)
           }, Config.retryTimer)
@@ -364,6 +368,7 @@ abstract class InitPageBase {
 
   // 抓取完毕
   protected crawlFinished() {
+    console.timeEnd('crawlTime')
     if (store.result.length === 0) {
       return this.noResult()
     }

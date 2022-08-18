@@ -544,7 +544,9 @@ class InitSearchArtworkPage extends InitPageBase {
     // 检查显示的预览数量是否达到上限
     if (this.previewCount >= settings.previewResultLimit) {
       if (!this.showPreviewLimitTip) {
-        log.warning(lang.transl('_预览搜索结果的数量达到上限的提示'))
+        const msg = lang.transl('_预览搜索结果的数量达到上限的提示')
+        log.warning(msg)
+        msgBox.warning(msg)
         this.showPreviewLimitTip = true
       }
       return
