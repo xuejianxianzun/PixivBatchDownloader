@@ -180,7 +180,7 @@ class API {
         });
     }
     // 获取关注的用户列表
-    static getFollowingList(id, rest = 'show', offset = 0, limit = 100, tag = '', lang = 'zh') {
+    static getFollowingList(id, rest = 'show', tag = '', offset = 0, limit = 100, lang = 'zh') {
         const url = `https://www.pixiv.net/ajax/user/${id}/following?offset=${offset}&limit=${limit}&rest=${rest}&tag=${tag}&lang=${lang}`;
         return this.sendGetRequest(url);
     }
@@ -308,8 +308,8 @@ class API {
         return this.sendGetRequest(url);
     }
     // 获取关注的用户的新作品的数据
-    static getBookmarkNewWorkData(type, p, r18, lang = 'zh') {
-        const url = `https://www.pixiv.net/ajax/follow_latest/${type}?p=${p}&mode=${r18 ? 'r18' : 'all'}&lang=${lang}`;
+    static getBookmarkNewWorkData(type, p, tag = '', r18, lang = 'zh') {
+        const url = `https://www.pixiv.net/ajax/follow_latest/${type}?p=${p}&tag=${tag}&mode=${r18 ? 'r18' : 'all'}&lang=${lang}`;
         return this.sendGetRequest(url);
     }
     // 根据 illustType，返回作品类型的描述
@@ -327,17 +327,6 @@ class API {
             default:
                 return 'unknown';
         }
-    }
-    // 从 URL 中获取指定路径名的值，适用于符合 RESTful API 风格的路径
-    // 如 https://www.pixiv.net/novel/series/1090654
-    // 把路径用 / 分割，查找 key 所在的位置，后面一项就是它的 value
-    static getURLPathField(query) {
-        const pathArr = location.pathname.split('/');
-        const index = pathArr.indexOf(query);
-        if (index > 0) {
-            return pathArr[index + 1];
-        }
-        throw new Error(`getURLPathField ${query} failed!`);
     }
     // 获取小说的系列作品信息
     // 这个 api 目前一批最多只能返回 30 个作品的数据，所以可能需要多次获取
@@ -11207,7 +11196,7 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         const p = _utils_Utils__WEBPACK_IMPORTED_MODULE_9__["Utils"].getURLSearchField(location.href, 'p');
         this.startpageNo = parseInt(p) || 1;
         // 获取系列 id
-        this.seriesId = _API__WEBPACK_IMPORTED_MODULE_2__["API"].getURLPathField('series');
+        this.seriesId = _utils_Utils__WEBPACK_IMPORTED_MODULE_9__["Utils"].getURLPathField(window.location.pathname, 'series');
         this.getIdList();
     }
     async getIdList() {
@@ -12877,6 +12866,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     constructor() {
         super();
         this.type = 'illust';
+        this.tag = '';
         this.r18 = false;
         this.newVer = false;
         // 这次抓取任务最多可以抓取到多少个作品
@@ -12913,6 +12903,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     nextStep() {
         this.setSlowCrawl();
         this.type = window.location.pathname.includes('/novel') ? 'novel' : 'illust';
+        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_9__["Utils"].getURLSearchField(window.location.href, 'tag');
         this.r18 = location.pathname.includes('r18');
         this.newVer = !document.querySelector('h1');
         // 根据页数计算最多抓取多少个作品。新版一页 60 个作品，旧版一页 20 个作品
@@ -12940,7 +12931,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         let p = this.startpageNo + this.listPageFinished;
         let data;
         try {
-            data = await _API__WEBPACK_IMPORTED_MODULE_6__["API"].getBookmarkNewWorkData(this.type, p, this.r18);
+            data = await _API__WEBPACK_IMPORTED_MODULE_6__["API"].getBookmarkNewWorkData(this.type, p, this.tag, this.r18);
         }
         catch (error) {
             this.getIdList();
@@ -13284,6 +13275,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         this.totalNeed = Number.MAX_SAFE_INTEGER;
         this.myId = '';
         this.rest = 'show';
+        this.tag = '';
         this.userList = [];
         this.index = 0; // getIdList 时，对 userList 的索引
         this.userInfoList = []; // 储存用户列表，包含 id 和用户名
@@ -13333,6 +13325,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     }
     readyGet() {
         this.rest = location.href.includes('rest=hide') ? 'hide' : 'show';
+        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_9__["Utils"].getURLPathField(window.location.pathname, 'following');
         // 获取抓取开始时的页码
         const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_9__["Utils"].getURLSearchField(location.href, 'p');
         // 计算开始抓取时的偏移量
@@ -13365,7 +13358,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         try {
             switch (this.pageType) {
                 case 0:
-                    res = await _API__WEBPACK_IMPORTED_MODULE_4__["API"].getFollowingList(this.myId, this.rest, offset);
+                    res = await _API__WEBPACK_IMPORTED_MODULE_4__["API"].getFollowingList(this.myId, this.rest, this.tag, offset);
                     break;
                 case 1:
                     res = await _API__WEBPACK_IMPORTED_MODULE_4__["API"].getMyPixivList(this.myId, offset);
@@ -14380,7 +14373,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./GetNovelGlossarys */ "./src/ts/crawlNovelPage/GetNovelGlossarys.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 //初始化小说系列作品页面
+
 
 
 
@@ -14416,7 +14411,7 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     }
     getWantPage() { }
     async nextStep() {
-        this.seriesId = _API__WEBPACK_IMPORTED_MODULE_5__["API"].getURLPathField('series');
+        this.seriesId = _utils_Utils__WEBPACK_IMPORTED_MODULE_9__["Utils"].getURLPathField(window.location.pathname, 'series');
         if (_store_States__WEBPACK_IMPORTED_MODULE_6__["states"].mergeNovel && _setting_Settings__WEBPACK_IMPORTED_MODULE_7__["settings"].saveNovelMeta) {
             const data = await _GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_8__["getNovelGlossarys"].getGlossarys(this.seriesId);
             _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].novelSeriesGlossary = _GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_8__["getNovelGlossarys"].storeGlossaryText(data);
@@ -24804,6 +24799,22 @@ class Utils {
         else {
             return '';
         }
+    }
+    /**获取 URL path 中，某个路径名称后面的字符串。适用于符合 RESTful API 风格的路径
+     *
+     * 注意：传入的是 path，而不是整个 URL
+     */
+    // 例如：
+    // https://www.pixiv.net/users/27482064/following/%E9%83%A8%E5%88%86%E5%96%9C%E6%AC%A2
+    // 查询 'users' 返回 '27482064'
+    // 因为 location.pathname 传入的字符串是浏览器自动编码过的，所以返回的字符串也是编码过的
+    static getURLPathField(path, query) {
+        const array = path.split('/');
+        const index = array.findIndex((str) => str === query);
+        if (index === -1) {
+            return '';
+        }
+        return array[index + 1] || '';
     }
     // 获取指定元素里，可见的结果
     static getVisibleEl(selector) {

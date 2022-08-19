@@ -8,6 +8,7 @@ import { API } from '../API'
 import { states } from '../store/States'
 import { settings } from '../setting/Settings'
 import { getNovelGlossarys } from './GetNovelGlossarys'
+import { Utils } from '../utils/Utils'
 
 class InitNovelSeriesPage extends InitPageBase {
   constructor() {
@@ -48,7 +49,7 @@ class InitNovelSeriesPage extends InitPageBase {
   protected getWantPage() {}
 
   protected async nextStep() {
-    this.seriesId = API.getURLPathField('series')
+    this.seriesId = Utils.getURLPathField(window.location.pathname, 'series')
 
     if (states.mergeNovel && settings.saveNovelMeta) {
       const data = await getNovelGlossarys.getGlossarys(this.seriesId)
