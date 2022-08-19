@@ -482,6 +482,20 @@ export const formHtml = `<form class="settingForm">
       <span data-xztext="_抓取"></span>
     </p>
 
+    <p class="option" data-no="75">
+    <span class="has_tip settingNameStyle1" data-xztip="_减慢抓取速度的说明">
+    <span data-xztext="_减慢抓取速度"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="slowCrawl" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+    
+    <span class="subOptionWrap" data-show="slowCrawl">
+    <span data-xztext="_作品数量"></span>
+    <span>&gt;</span>
+    <input type="text" name="slowCrawlOnWorksNumber" class="setinput_style1 blue" value="100" style="width:60px;min-width: 60px;">
+    </span>
+    </p>
+
     <p class="option" data-no="69">
     <span class="settingNameStyle1" data-xztext="_不抓取多图作品的最后一张图片"></span>
     <input type="checkbox" name="doNotDownloadLastImageOfMultiImageWork" class="need_beautify checkbox_switch">

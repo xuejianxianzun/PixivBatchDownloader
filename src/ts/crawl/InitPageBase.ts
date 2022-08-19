@@ -34,7 +34,7 @@ abstract class InitPageBase {
 
   protected listPageFinished = 0 // 记录一共抓取了多少个列表页。使用范围同上。
 
-  protected readonly ajaxThreadsDefault = 10 // 抓取时的并发连接数默认值，也是最大值
+  protected readonly ajaxThreadsDefault = 10 // 抓取作品数据时的并发请求数量默认值，也是最大值
 
   protected ajaxThread = this.ajaxThreadsDefault // 抓取时的并发请求数
 
@@ -167,6 +167,13 @@ abstract class InitPageBase {
     }
   }
 
+  protected setSlowCrawl() {
+    states.slowCrawlMode = settings.slowCrawl
+    if (states.slowCrawlMode) {
+      log.warning(lang.transl('_慢速抓取'))
+    }
+  }
+
   // 准备正常进行抓取，执行一些检查
   protected async readyCrawl() {
     // 检查是否可以开始抓取
@@ -238,6 +245,7 @@ abstract class InitPageBase {
 
   // id 列表获取完毕，开始抓取作品内容页
   protected getIdListFinished() {
+    states.slowCrawlMode = false
     this.resetGetIdListStatus()
 
     EVT.fire('getIdListFinished')
@@ -252,14 +260,27 @@ abstract class InitPageBase {
     log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
 
     // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
-    // return states.allWork = false
+    // return states.busy = false
 
     log.log(lang.transl('_开始获取作品信息'))
 
-    if (store.idList.length <= this.ajaxThreadsDefault) {
-      this.ajaxThread = store.idList.length
+    if (
+      settings.slowCrawl &&
+      store.idList.length > settings.slowCrawlOnWorksNumber
+    ) {
+      // 慢速抓取
+      log.warning(lang.transl('_慢速抓取'))
+      states.slowCrawlMode = true
+      this.ajaxThread = 1
     } else {
-      this.ajaxThread = this.ajaxThreadsDefault
+      // 全速抓取
+      states.slowCrawlMode = false
+
+      if (store.idList.length <= this.ajaxThreadsDefault) {
+        this.ajaxThread = store.idList.length
+      } else {
+        this.ajaxThread = this.ajaxThreadsDefault
+      }
     }
 
     for (let i = 0; i < this.ajaxThread; i++) {
@@ -313,6 +334,7 @@ abstract class InitPageBase {
         if (error.status === 500 || error.status === 429) {
           // 如果状态码 500，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
           log.error(lang.transl('_抓取被限制时返回空结果的提示'))
+          console.log('429 error on ' + store.resultMeta.length)
           return window.setTimeout(() => {
             this.getWorksData(idData)
           }, Config.retryTimer)
@@ -350,8 +372,14 @@ abstract class InitPageBase {
     }
 
     if (store.idList.length > 0) {
-      // 如果存在下一个作品，则
-      this.getWorksData()
+      // 如果存在下一个作品，则继续抓取
+      if (states.slowCrawlMode) {
+        window.setTimeout(() => {
+          this.getWorksData()
+        }, Config.slowCrawlDealy)
+      } else {
+        this.getWorksData()
+      }
     } else {
       // 没有剩余作品，统计此后有多少个完成的请求
       this.finishedRequest++
