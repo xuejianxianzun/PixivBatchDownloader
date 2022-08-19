@@ -9,6 +9,8 @@ import { log } from '../Log'
 import { Tools } from '../Tools'
 import { createCSV } from '../utils/CreateCSV'
 import { Utils } from '../utils/Utils'
+import { states } from '../store/States'
+import { Config } from '../config/Config'
 
 interface UserInfo {
   userId: string
@@ -99,6 +101,7 @@ class InitFollowingPage extends InitPageBase {
   }
 
   protected nextStep() {
+    this.setSlowCrawl()
     this.readyGet()
     log.log(lang.transl('_正在抓取'))
     this.getPageType()
@@ -254,7 +257,13 @@ class InitFollowingPage extends InitPageBase {
       return this.getIdListFinished()
     }
 
-    this.getIdList()
+    if (states.slowCrawlMode) {
+      window.setTimeout(() => {
+        this.getIdList()
+      }, Config.slowCrawlDealy)
+    } else {
+      this.getIdList()
+    }
   }
 
   protected resetGetIdListStatus() {

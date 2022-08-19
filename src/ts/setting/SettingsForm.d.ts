@@ -126,4 +126,6 @@ export interface SettingsForm extends HTMLFormElement {
   hiddenBrowserDownloadBar: HTMLInputElement
   userRatioLimit: HTMLInputElement
   timedCrawlInterval: HTMLInputElement
+  slowCrawl: HTMLInputElement
+  slowCrawlOnWorksNumber: HTMLInputElement
 }

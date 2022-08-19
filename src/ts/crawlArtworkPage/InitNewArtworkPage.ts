@@ -11,6 +11,8 @@ import { store } from '../store/Store'
 import { log } from '../Log'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
+import { states } from '../store/States'
+import { Config } from '../config/Config'
 
 class InitNewArtworkPage extends InitPageBase {
   constructor() {
@@ -54,6 +56,7 @@ class InitNewArtworkPage extends InitPageBase {
   }
 
   protected nextStep() {
+    this.setSlowCrawl()
     this.initFetchURL()
     this.getIdList()
   }
@@ -143,7 +146,13 @@ class InitNewArtworkPage extends InitPageBase {
 
     // 继续抓取
     this.option.lastId = data.body.lastId
-    this.getIdList()
+    if (states.slowCrawlMode) {
+      window.setTimeout(() => {
+        this.getIdList()
+      }, Config.slowCrawlDealy)
+    } else {
+      this.getIdList()
+    }
   }
 
   protected resetGetIdListStatus() {
