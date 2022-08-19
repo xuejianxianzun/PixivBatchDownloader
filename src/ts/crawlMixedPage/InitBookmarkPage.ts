@@ -14,6 +14,7 @@ import { BookmarksAddTag } from '../pageFunciton/BookmarksAddTag'
 import { filter, FilterOption } from '../filter/Filter'
 import { Utils } from '../utils/Utils'
 import { Config } from '../config/Config'
+import { states } from '../store/States'
 
 class InitBookmarkPage extends InitPageBase {
   constructor() {
@@ -79,6 +80,8 @@ class InitBookmarkPage extends InitPageBase {
   }
 
   protected nextStep() {
+    this.setSlowCrawl()
+
     if (window.location.pathname.includes('/novel')) {
       this.type = 'novels'
     }
@@ -176,7 +179,13 @@ class InitBookmarkPage extends InitPageBase {
       )
 
       // 继续抓取
-      this.getIdList()
+      if (states.slowCrawlMode) {
+        window.setTimeout(() => {
+          this.getIdList()
+        }, Config.slowCrawlDealy)
+      } else {
+        this.getIdList()
+      }
     }
   }
 

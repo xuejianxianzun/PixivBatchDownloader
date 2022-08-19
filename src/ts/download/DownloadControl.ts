@@ -442,6 +442,53 @@ class DownloadControl {
     }
   }
 
+  private setDownloaded() {
+    this.downloaded = downloadStates.downloadedCount()
+
+    const text = `${this.downloaded} / ${store.result.length}`
+    log.log(text, 2, false)
+
+    // 设置总下载进度条
+    progressBar.setTotalProgress(this.downloaded)
+
+    store.remainingDownload = store.result.length - this.downloaded
+
+    // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
+    if (this.downloaded === store.result.length) {
+      window.setTimeout(() => {
+        // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
+        EVT.fire('downloadComplete')
+      }, 0)
+      this.reset()
+    }
+
+    this.checkCompleteWithError()
+  }
+
+  // 设置下载线程数量
+  private setDownloadThread() {
+    const setThread = settings.downloadThread
+    if (
+      setThread < 1 ||
+      setThread > Config.downloadThreadMax ||
+      isNaN(setThread)
+    ) {
+      // 如果数值非法，则重设为默认值
+      this.thread = Config.downloadThreadMax
+      setSetting('downloadThread', Config.downloadThreadMax)
+    } else {
+      this.thread = setThread // 设置为用户输入的值
+    }
+
+    // 如果剩余任务数量少于下载线程数
+    if (store.result.length - this.downloaded < this.thread) {
+      this.thread = store.result.length - this.downloaded
+    }
+
+    // 重设下载进度条
+    progressBar.reset(this.thread, this.downloaded)
+  }
+
   private saveFileError(data: DonwloadSuccessData) {
     if (this.pause || this.stop) {
       return false
@@ -488,30 +535,6 @@ class DownloadControl {
     }
   }
 
-  // 设置下载线程数量
-  private setDownloadThread() {
-    const setThread = settings.downloadThread
-    if (
-      setThread < 1 ||
-      setThread > Config.downloadThreadMax ||
-      isNaN(setThread)
-    ) {
-      // 如果数值非法，则重设为默认值
-      this.thread = Config.downloadThreadMax
-      setSetting('downloadThread', Config.downloadThreadMax)
-    } else {
-      this.thread = setThread // 设置为用户输入的值
-    }
-
-    // 如果剩余任务数量少于下载线程数
-    if (store.result.length - this.downloaded < this.thread) {
-      this.thread = store.result.length - this.downloaded
-    }
-
-    // 重设下载进度条
-    progressBar.reset(this.thread, this.downloaded)
-  }
-
   // 查找需要进行下载的作品，建立下载
   private createDownload(progressBarIndex: number) {
     const index = downloadStates.getFirstDownloadItem()
@@ -538,29 +561,6 @@ class DownloadControl {
       // 建立下载
       new Download(progressBarIndex, argument)
     }
-  }
-
-  private setDownloaded() {
-    this.downloaded = downloadStates.downloadedCount()
-
-    const text = `${this.downloaded} / ${store.result.length}`
-    log.log(text, 2, false)
-
-    // 设置总下载进度条
-    progressBar.setTotalProgress(this.downloaded)
-
-    store.remainingDownload = store.result.length - this.downloaded
-
-    // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
-    if (this.downloaded === store.result.length) {
-      window.setTimeout(() => {
-        // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
-        EVT.fire('downloadComplete')
-      }, 0)
-      this.reset()
-    }
-
-    this.checkCompleteWithError()
   }
 
   // 在有下载出错的情况下，是否已经完成了下载

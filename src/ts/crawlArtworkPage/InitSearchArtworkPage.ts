@@ -217,6 +217,7 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   protected async nextStep() {
+    this.setSlowCrawl()
     this.initFetchURL()
 
     // 计算应该抓取多少页
@@ -263,7 +264,7 @@ class InitSearchArtworkPage extends InitPageBase {
       return this.noResult()
     }
 
-    this.startGetIdList()
+    this.getIdList()
 
     this.clearPreview()
 
@@ -348,19 +349,6 @@ class InitSearchArtworkPage extends InitPageBase {
     return data.body.illust || data.body.illustManga || data.body.manga
   }
 
-  // 建立并发抓取线程
-  private startGetIdList() {
-    if (this.needCrawlPageCount <= this.ajaxThreadsDefault) {
-      this.ajaxThread = this.needCrawlPageCount
-    } else {
-      this.ajaxThread = this.ajaxThreadsDefault
-    }
-
-    for (let i = 0; i < this.ajaxThread; i++) {
-      this.getIdList()
-    }
-  }
-
   private delayReTry(p: number) {
     window.setTimeout(() => {
       this.getIdList(p)
@@ -440,7 +428,13 @@ class InitSearchArtworkPage extends InitPageBase {
 
     if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
       // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
-      this.getIdList()
+      if (states.slowCrawlMode) {
+        window.setTimeout(() => {
+          this.getIdList()
+        }, Config.slowCrawlDealy)
+      } else {
+        this.getIdList()
+      }
     } else {
       // 抓取任务已经全部发送
       if (this.listPageFinished === this.needCrawlPageCount) {
@@ -544,7 +538,9 @@ class InitSearchArtworkPage extends InitPageBase {
     // 检查显示的预览数量是否达到上限
     if (this.previewCount >= settings.previewResultLimit) {
       if (!this.showPreviewLimitTip) {
-        log.warning(lang.transl('_预览搜索结果的数量达到上限的提示'))
+        const msg = lang.transl('_预览搜索结果的数量达到上限的提示')
+        log.warning(msg)
+        msgBox.warning(msg)
         this.showPreviewLimitTip = true
       }
       return

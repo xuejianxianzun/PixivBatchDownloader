@@ -10,6 +10,8 @@ import { API } from '../API'
 import { store } from '../store/Store'
 import { log } from '../Log'
 import { Tools } from '../Tools'
+import { states } from '../store/States'
+import { Config } from '../config/Config'
 
 class InitNewNovelPage extends InitPageBase {
   constructor() {
@@ -53,6 +55,7 @@ class InitNewNovelPage extends InitPageBase {
   }
 
   protected nextStep() {
+    this.setSlowCrawl()
     this.initFetchURL()
     this.getIdList()
   }
@@ -132,7 +135,13 @@ class InitNewNovelPage extends InitPageBase {
 
     // 继续抓取
     this.option.lastId = data.body.lastId
-    this.getIdList()
+    if (states.slowCrawlMode) {
+      window.setTimeout(() => {
+        this.getIdList()
+      }, Config.slowCrawlDealy)
+    } else {
+      this.getIdList()
+    }
   }
 
   protected resetGetIdListStatus() {
