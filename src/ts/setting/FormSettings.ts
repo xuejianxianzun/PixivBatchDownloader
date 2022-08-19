@@ -109,6 +109,7 @@ class FormSettings {
       'downloadNovelEmbeddedImage',
       'previewUgoira',
       'hiddenBrowserDownloadBar',
+      'slowCrawl',
     ],
     text: [
       'setWantPage',
@@ -139,6 +140,7 @@ class FormSettings {
       'previewWorkWait',
       'previewResultLimit',
       'timedCrawlInterval',
+      'slowCrawlOnWorksNumber',
     ],
     radio: [
       'ugoiraSaveAs',

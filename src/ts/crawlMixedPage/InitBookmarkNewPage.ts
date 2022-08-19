@@ -13,6 +13,8 @@ import {
   BookMarkNewIllustData,
   BookMarkNewNovelData,
 } from '../crawl/CrawlResult'
+import { states } from '../store/States'
+import { Config } from '../config/Config'
 
 class InitBookmarkNewPage extends InitPageBase {
   constructor() {
@@ -65,6 +67,8 @@ class InitBookmarkNewPage extends InitPageBase {
   }
 
   protected nextStep() {
+    this.setSlowCrawl()
+
     this.type = window.location.pathname.includes('/novel') ? 'novel' : 'illust'
     this.r18 = location.pathname.includes('r18')
     this.newVer = !document.querySelector('h1')
@@ -196,7 +200,13 @@ class InitBookmarkNewPage extends InitPageBase {
       this.getIdListFinished()
     } else {
       // 继续抓取
-      this.getIdList()
+      if (states.slowCrawlMode) {
+        window.setTimeout(() => {
+          this.getIdList()
+        }, Config.slowCrawlDealy)
+      } else {
+        this.getIdList()
+      }
     }
   }
 

@@ -45,6 +45,10 @@ class States {
   /**是否处于下载中 */
   public downloading = false
 
+  /**是否应用慢速抓取模式 */
+  // 由 InitPageBase 修改它的值
+  public slowCrawlMode = false
+
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       this.settingInitialized = true
