@@ -5862,6 +5862,28 @@ const langText = {
         'ページを更新してください。',
         '페이지를 새로고침하세요.',
     ],
+    _减慢抓取速度: [
+        '减慢抓取速度',
+        '減慢抓取速度',
+        'Slow down crawl',
+        'クロールを遅くする',
+        '천천히 크롤링',
+    ],
+    _减慢抓取速度的说明: [
+        '减慢抓取速度可以避免在抓取时被 Pixiv 临时限制。但这会增加抓取时间。',
+        '減慢抓取速度可以避免在抓取時被 Pixiv 臨時限制。但這會增加抓取時間。',
+        'Slow down the crawl to avoid being temporarily restricted by Pixiv while crawling. But this will increase the crawl time.',
+        'クロール中にPixivによって一時的に制限されないように、クロールを遅くします。 ただし、これによりクロール時間が長くなります。',
+        '크롤링하는 동안 Pixiv에 의해 일시적으로 제한되지 않도록 크롤링 속도를 늦춥니다. 그러나 이것은 크롤링 시간을 증가시킵니다.',
+    ],
+    _作品数量: ['作品数量', '作品數量', 'Number of works', '作品数', '작품 수'],
+    _慢速抓取: [
+        '慢速抓取',
+        '慢速抓取',
+        'slow crawl',
+        'クロールが遅い',
+        '느린 크롤링',
+    ],
 };
 
 
@@ -8843,7 +8865,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '13.3.1';
+        this.flag = '13.4.0';
         this.bindEvents();
     }
     bindEvents() {
@@ -8852,6 +8874,14 @@ class ShowWhatIsNew {
             let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_whatisnew')}`;
             // 在更新说明的下方显示赞助提示
             msg += `
+      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}</strong>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_减慢抓取速度')}
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_减慢抓取速度的说明')}
+      <br>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取'))}
       <br>
       <br>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_赞助方式提示')}`;
@@ -10026,6 +10056,8 @@ Config.BookmarkCountLimit = 9999999;
 Config.worksNumberLimit = 999999999;
 /**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
 Config.retryTimer = 200000;
+/**慢速抓取模式下，每个抓取请求之间的间隔时间 */
+Config.slowCrawlDealy = 1200;
 
 
 
@@ -10189,7 +10221,7 @@ class InitPageBase {
         this.maxCount = 1000; // 当前页面类型最多有多少个页面/作品
         this.startpageNo = 1; // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、新作品页、系列页面使用。
         this.listPageFinished = 0; // 记录一共抓取了多少个列表页。使用范围同上。
-        this.ajaxThreadsDefault = 1; // 抓取时的并发连接数默认值，也是最大值
+        this.ajaxThreadsDefault = 10; // 抓取作品数据时的并发请求数量默认值，也是最大值
         this.ajaxThread = this.ajaxThreadsDefault; // 抓取时的并发请求数
         this.finishedRequest = 0; // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
         /**抓取是否已停止 */
@@ -10296,6 +10328,12 @@ class InitPageBase {
             _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(`${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品只下载前几张图片')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].firstFewImages}`);
         }
     }
+    setSlowCrawl() {
+        _store_States__WEBPACK_IMPORTED_MODULE_9__["states"].slowCrawlMode = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].slowCrawl;
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__["states"].slowCrawlMode) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_慢速抓取'));
+        }
+    }
     // 准备正常进行抓取，执行一些检查
     async readyCrawl() {
         // 检查是否可以开始抓取
@@ -10303,7 +10341,6 @@ class InitPageBase {
             _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前任务尚未完成'));
             return;
         }
-        console.log('startCrawl');
         console.time('crawlAndDownloadTime');
         console.time('crawlTime');
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
@@ -10350,6 +10387,7 @@ class InitPageBase {
     getIdList() { }
     // id 列表获取完毕，开始抓取作品内容页
     getIdListFinished() {
+        _store_States__WEBPACK_IMPORTED_MODULE_9__["states"].slowCrawlMode = false;
         this.resetGetIdListStatus();
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('getIdListFinished');
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__["states"].bookmarkMode) {
@@ -10360,13 +10398,24 @@ class InitPageBase {
         }
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前作品个数', _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length.toString()));
         // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
-        // return states.allWork = false
+        // return states.busy = false
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始获取作品信息'));
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length <= this.ajaxThreadsDefault) {
-            this.ajaxThread = _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length;
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].slowCrawl &&
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].slowCrawlOnWorksNumber) {
+            // 慢速抓取
+            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_慢速抓取'));
+            _store_States__WEBPACK_IMPORTED_MODULE_9__["states"].slowCrawlMode = true;
+            this.ajaxThread = 1;
         }
         else {
-            this.ajaxThread = this.ajaxThreadsDefault;
+            // 全速抓取
+            _store_States__WEBPACK_IMPORTED_MODULE_9__["states"].slowCrawlMode = false;
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length <= this.ajaxThreadsDefault) {
+                this.ajaxThread = _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length;
+            }
+            else {
+                this.ajaxThread = this.ajaxThreadsDefault;
+            }
         }
         for (let i = 0; i < this.ajaxThread; i++) {
             this.getWorksData();
@@ -10451,8 +10500,15 @@ class InitPageBase {
             this.crawlFinished();
         }
         if (_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length > 0) {
-            // 如果存在下一个作品，则
-            this.getWorksData();
+            // 如果存在下一个作品，则继续抓取
+            if (_store_States__WEBPACK_IMPORTED_MODULE_9__["states"].slowCrawlMode) {
+                window.setTimeout(() => {
+                    this.getWorksData();
+                }, _config_Config__WEBPACK_IMPORTED_MODULE_21__["Config"].slowCrawlDealy);
+            }
+            else {
+                this.getWorksData();
+            }
         }
         else {
             // 没有剩余作品，统计此后有多少个完成的请求
@@ -11373,7 +11429,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
 // 初始化 本站的最新作品 artwork 页面
+
+
 
 
 
@@ -11412,6 +11472,7 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
         this.crawlNumber = this.checkWantPageInputGreater0(this.maxCount, false);
     }
     nextStep() {
+        this.setSlowCrawl();
         this.initFetchURL();
         this.getIdList();
     }
@@ -11489,7 +11550,14 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
         }
         // 继续抓取
         this.option.lastId = data.body.lastId;
-        this.getIdList();
+        if (_store_States__WEBPACK_IMPORTED_MODULE_10__["states"].slowCrawlMode) {
+            window.setTimeout(() => {
+                this.getIdList();
+            }, _config_Config__WEBPACK_IMPORTED_MODULE_11__["Config"].slowCrawlDealy);
+        }
+        else {
+            this.getIdList();
+        }
     }
     resetGetIdListStatus() {
         this.fetchCount = 0;
@@ -11543,7 +11611,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
             49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-            70, 71, 72, 74,
+            70, 71, 72, 74, 75,
         ]);
     }
     nextStep() {
@@ -12208,6 +12276,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.crawlNumber = this.checkWantPageInput(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载x页'), _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载所有页面'));
     }
     async nextStep() {
+        this.setSlowCrawl();
         this.initFetchURL();
         // 计算应该抓取多少页
         const data = await this.getSearchData(1);
@@ -12248,7 +12317,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         if (this.needCrawlPageCount === 0) {
             return this.noResult();
         }
-        this.startGetIdList();
+        this.getIdList();
         this.clearPreview();
         this.countEl = document.querySelector(this.countSelector);
     }
@@ -12315,18 +12384,6 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         let data = await _API__WEBPACK_IMPORTED_MODULE_7__["API"].getSearchData(_store_Store__WEBPACK_IMPORTED_MODULE_8__["store"].tag, this.worksType, p, this.option);
         return data.body.illust || data.body.illustManga || data.body.manga;
     }
-    // 建立并发抓取线程
-    startGetIdList() {
-        if (this.needCrawlPageCount <= this.ajaxThreadsDefault) {
-            this.ajaxThread = this.needCrawlPageCount;
-        }
-        else {
-            this.ajaxThread = this.ajaxThreadsDefault;
-        }
-        for (let i = 0; i < this.ajaxThread; i++) {
-            this.getIdList();
-        }
-    }
     delayReTry(p) {
         window.setTimeout(() => {
             this.getIdList(p);
@@ -12381,7 +12438,14 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         _Log__WEBPACK_IMPORTED_MODULE_9__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页抓取进度2', this.listPageFinished.toString(), this.needCrawlPageCount.toString()), 1, false);
         if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
             // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
-            this.getIdList();
+            if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].slowCrawlMode) {
+                window.setTimeout(() => {
+                    this.getIdList();
+                }, _config_Config__WEBPACK_IMPORTED_MODULE_22__["Config"].slowCrawlDealy);
+            }
+            else {
+                this.getIdList();
+            }
         }
         else {
             // 抓取任务已经全部发送
@@ -12993,7 +13057,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
 // 初始化 关注的用户的新作品页面
+
+
 
 
 
@@ -13042,6 +13110,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         this.crawlNumber = this.checkWantPageInputGreater0(this.maxCount, true);
     }
     nextStep() {
+        this.setSlowCrawl();
         this.type = window.location.pathname.includes('/novel') ? 'novel' : 'illust';
         this.r18 = location.pathname.includes('r18');
         this.newVer = !document.querySelector('h1');
@@ -13157,7 +13226,14 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         }
         else {
             // 继续抓取
-            this.getIdList();
+            if (_store_States__WEBPACK_IMPORTED_MODULE_10__["states"].slowCrawlMode) {
+                window.setTimeout(() => {
+                    this.getIdList();
+                }, _config_Config__WEBPACK_IMPORTED_MODULE_11__["Config"].slowCrawlDealy);
+            }
+            else {
+                this.getIdList();
+            }
         }
     }
     resetGetIdListStatus() {
@@ -13195,7 +13271,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 // 初始化新版收藏页面
+
 
 
 
@@ -13247,6 +13325,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         }
     }
     nextStep() {
+        this.setSlowCrawl();
         if (window.location.pathname.includes('/novel')) {
             this.type = 'novels';
         }
@@ -13321,7 +13400,14 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
             this.offset += this.onceRequest; // 每次增加偏移量
             _Log__WEBPACK_IMPORTED_MODULE_6__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_当前作品个数', this.idList.length.toString()), 1, false);
             // 继续抓取
-            this.getIdList();
+            if (_store_States__WEBPACK_IMPORTED_MODULE_13__["states"].slowCrawlMode) {
+                window.setTimeout(() => {
+                    this.getIdList();
+                }, _config_Config__WEBPACK_IMPORTED_MODULE_12__["Config"].slowCrawlDealy);
+            }
+            else {
+                this.getIdList();
+            }
         }
     }
     // 获取作品 id 列表完毕之后
@@ -13368,7 +13454,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/CreateCSV */ "./src/ts/utils/CreateCSV.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
 // 初始化关注页面、好 P 友页面、粉丝页面
+
+
 
 
 
@@ -13434,6 +13524,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         this.crawlNumber = this.checkWantPageInput(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载x页'), _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载所有页面'));
     }
     nextStep() {
+        this.setSlowCrawl();
         this.readyGet();
         _Log__WEBPACK_IMPORTED_MODULE_6__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_正在抓取'));
         this.getPageType();
@@ -13554,7 +13645,14 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         if (this.index >= this.userList.length) {
             return this.getIdListFinished();
         }
-        this.getIdList();
+        if (_store_States__WEBPACK_IMPORTED_MODULE_10__["states"].slowCrawlMode) {
+            window.setTimeout(() => {
+                this.getIdList();
+            }, _config_Config__WEBPACK_IMPORTED_MODULE_11__["Config"].slowCrawlDealy);
+        }
+        else {
+            this.getIdList();
+        }
     }
     resetGetIdListStatus() {
         this.userList = [];
@@ -14215,7 +14313,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
 // 初始化 本站的最新作品 小说页面
+
+
 
 
 
@@ -14253,6 +14355,7 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         this.crawlNumber = this.checkWantPageInputGreater0(this.maxCount, false);
     }
     nextStep() {
+        this.setSlowCrawl();
         this.initFetchURL();
         this.getIdList();
     }
@@ -14321,7 +14424,14 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         }
         // 继续抓取
         this.option.lastId = data.body.lastId;
-        this.getIdList();
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__["states"].slowCrawlMode) {
+            window.setTimeout(() => {
+                this.getIdList();
+            }, _config_Config__WEBPACK_IMPORTED_MODULE_10__["Config"].slowCrawlDealy);
+        }
+        else {
+            this.getIdList();
+        }
     }
     resetGetIdListStatus() {
         this.fetchCount = 0;
@@ -14825,6 +14935,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_13__["EVT"].list.crawlTag, this.crawlTag);
     }
     async nextStep() {
+        this.setSlowCrawl();
         this.initFetchURL();
         // 计算应该抓取多少页
         const data = await this.getSearchData(1);
@@ -14865,7 +14976,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         if (this.needCrawlPageCount === 0) {
             return this.noResult();
         }
-        this.startGetIdList();
+        this.getIdList();
     }
     getWantPage() {
         this.crawlNumber = this.checkWantPageInput(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载x页'), _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载所有页面'));
@@ -14908,18 +15019,6 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                 return _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_标签标题说明文字');
             default:
                 return mode;
-        }
-    }
-    // 计算页数之后，准备建立并发抓取线程
-    startGetIdList() {
-        if (this.needCrawlPageCount <= this.ajaxThreadsDefault) {
-            this.ajaxThread = this.needCrawlPageCount;
-        }
-        else {
-            this.ajaxThread = this.ajaxThreadsDefault;
-        }
-        for (let i = 0; i < this.ajaxThread; i++) {
-            this.getIdList();
         }
     }
     delayReTry(p) {
@@ -14970,7 +15069,14 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         _Log__WEBPACK_IMPORTED_MODULE_7__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页抓取进度2', this.listPageFinished.toString(), this.needCrawlPageCount.toString()), 1, false);
         if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
             // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
-            this.getIdList();
+            if (_store_States__WEBPACK_IMPORTED_MODULE_16__["states"].slowCrawlMode) {
+                window.setTimeout(() => {
+                    this.getIdList();
+                }, _config_Config__WEBPACK_IMPORTED_MODULE_18__["Config"].slowCrawlDealy);
+            }
+            else {
+                this.getIdList();
+            }
         }
         else {
             // 抓取任务已经全部发送
@@ -21621,6 +21727,20 @@ const formHtml = `<form class="settingForm">
       <span data-xztext="_抓取"></span>
     </p>
 
+    <p class="option" data-no="75">
+    <span class="has_tip settingNameStyle1" data-xztip="_减慢抓取速度的说明">
+    <span data-xztext="_减慢抓取速度"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="slowCrawl" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+    
+    <span class="subOptionWrap" data-show="slowCrawl">
+    <span data-xztext="_作品数量"></span>
+    <span>&gt;</span>
+    <input type="text" name="slowCrawlOnWorksNumber" class="setinput_style1 blue" value="100" style="width:60px;min-width: 60px;">
+    </span>
+    </p>
+
     <p class="option" data-no="69">
     <span class="settingNameStyle1" data-xztext="_不抓取多图作品的最后一张图片"></span>
     <input type="checkbox" name="doNotDownloadLastImageOfMultiImageWork" class="need_beautify checkbox_switch">
@@ -22304,6 +22424,7 @@ class FormSettings {
                 'downloadNovelEmbeddedImage',
                 'previewUgoira',
                 'hiddenBrowserDownloadBar',
+                'slowCrawl',
             ],
             text: [
                 'setWantPage',
@@ -22334,6 +22455,7 @@ class FormSettings {
                 'previewWorkWait',
                 'previewResultLimit',
                 'timedCrawlInterval',
+                'slowCrawlOnWorksNumber',
             ],
             radio: [
                 'ugoiraSaveAs',
@@ -23231,6 +23353,8 @@ class Settings {
             hiddenBrowserDownloadBar: false,
             tipPressDToDownload: true,
             timedCrawlInterval: 120,
+            slowCrawl: false,
+            slowCrawlOnWorksNumber: 100,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -23953,6 +24077,9 @@ class States {
         this.selectWork = false;
         /**是否处于下载中 */
         this.downloading = false;
+        /**是否应用慢速抓取模式 */
+        // 由 InitPageBase 修改它的值
+        this.slowCrawlMode = false;
         this.bindEvents();
     }
     bindEvents() {

@@ -2944,6 +2944,28 @@ const langText = {
     'ページを更新してください。',
     '페이지를 새로고침하세요.',
   ],
+  _减慢抓取速度: [
+    '减慢抓取速度',
+    '減慢抓取速度',
+    'Slow down crawl',
+    'クロールを遅くする',
+    '천천히 크롤링',
+  ],
+  _减慢抓取速度的说明: [
+    '减慢抓取速度可以避免在抓取时被 Pixiv 临时限制。但这会增加抓取时间。',
+    '減慢抓取速度可以避免在抓取時被 Pixiv 臨時限制。但這會增加抓取時間。',
+    'Slow down the crawl to avoid being temporarily restricted by Pixiv while crawling. But this will increase the crawl time.',
+    'クロール中にPixivによって一時的に制限されないように、クロールを遅くします。 ただし、これによりクロール時間が長くなります。',
+    '크롤링하는 동안 Pixiv에 의해 일시적으로 제한되지 않도록 크롤링 속도를 늦춥니다. 그러나 이것은 크롤링 시간을 증가시킵니다.',
+  ],
+  _作品数量: ['作品数量', '作品數量', 'Number of works', '作品数', '작품 수'],
+  _慢速抓取: [
+    '慢速抓取',
+    '慢速抓取',
+    'slow crawl',
+    'クロールが遅い',
+    '느린 크롤링',
+  ],
 }
 
 export { langText }

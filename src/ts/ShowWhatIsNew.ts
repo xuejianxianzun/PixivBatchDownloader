@@ -11,7 +11,7 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '13.3.1'
+  private flag = '13.4.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
@@ -20,6 +20,17 @@ class ShowWhatIsNew {
 
       // 在更新说明的下方显示赞助提示
       msg += `
+      <strong>${lang.transl('_新增设置项')}</strong>
+      <br>
+      ${lang.transl('_减慢抓取速度')}
+      <br>
+      ${lang.transl('_减慢抓取速度的说明')}
+      <br>
+      <br>
+      ${lang.transl(
+        '_你可以在更多选项卡的xx分类里找到它',
+        lang.transl('_抓取')
+      )}
       <br>
       <br>
       ${lang.transl('_赞助方式提示')}`
