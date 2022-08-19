@@ -458,7 +458,6 @@ class DownloadControl {
       window.setTimeout(() => {
         // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
         EVT.fire('downloadComplete')
-        console.timeEnd('crawlAndDownloadTime')
       }, 0)
       this.reset()
     }

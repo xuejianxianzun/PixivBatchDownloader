@@ -6425,13 +6425,12 @@ new OpenCenterPanel();
 /*!****************************!*\
   !*** ./src/ts/PageType.ts ***!
   \****************************/
-/*! exports provided: pageType, PageName */
+/*! exports provided: pageType */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "pageType", function() { return pageType; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PageName", function() { return PageName; });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 
 // 所有页面类型及对应的数字编号
@@ -8871,17 +8870,17 @@ class ShowWhatIsNew {
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_whatisnew')}`;
+            let msg = `
+      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}：</strong>
+      <br>
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_减慢抓取速度')}</span>
+      <br>
+      <i>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_减慢抓取速度的说明')}</i>
+      <br>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取'))}`;
             // 在更新说明的下方显示赞助提示
             msg += `
-      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}</strong>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_减慢抓取速度')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_减慢抓取速度的说明')}
-      <br>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取'))}
       <br>
       <br>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_赞助方式提示')}`;
@@ -10341,8 +10340,6 @@ class InitPageBase {
             _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前任务尚未完成'));
             return;
         }
-        console.time('crawlAndDownloadTime');
-        console.time('crawlTime');
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
@@ -10521,7 +10518,6 @@ class InitPageBase {
     }
     // 抓取完毕
     crawlFinished() {
-        console.timeEnd('crawlTime');
         if (_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length === 0) {
             return this.noResult();
         }
@@ -12825,211 +12821,16 @@ const crawlTagList = new CrawlTagList();
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InitBookmarkLegacyPage", function() { return InitBookmarkLegacyPage; });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
-/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Token */ "./src/ts/Token.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _pageFunciton_BookmarksAddTag__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../pageFunciton/BookmarksAddTag */ "./src/ts/pageFunciton/BookmarksAddTag.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
 // 初始化旧版收藏页面
-
-
-
-
-
-
-
-
-
-
-
-
+// 该页面类型已不复存在，这个类仅做占位之用。
+// 在 PageType 里不能删除 BookmarkLegacy 枚举成员，因为有些代码里硬编码了它的枚举值 3
+// 例如：settings.wantPageArr[pageType.type]
+// settings.nameRuleForEachPageType[pageType.type]
 
 class InitBookmarkLegacyPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPageBase"] {
     constructor() {
         super();
-        this.idList = []; // 储存从列表页获取到的 id
-        this.type = 'illusts'; // 页面是图片还是小说
-        this.isHide = false; // 当前页面是否显示的是非公开收藏
-        this.requsetNumber = 0; // 根据页数，计算要抓取的作品个数
-        this.filteredNumber = 0; // 记录检查了多少作品（不论结果是否通过都计入）
-        this.onceRequest = 100; // 每次请求多少个数量
-        this.offset = 0; // 要去掉的作品数量
-        this.crawlRecommended = false; // 是否抓取推荐作品（收藏页面下方）
         this.init();
-    }
-    addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
-            this.readyCrawl();
-        });
-        // 添加下载推荐作品的按钮
-        _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgBlue, '_抓取推荐作品', '_抓取推荐作品Title').addEventListener('click', () => {
-            this.crawlRecommended = true;
-            this.readyCrawl();
-        }, false);
-    }
-    addAnyElement() {
-        // 如果存在 token，则添加“添加 tag”按钮
-        if (_Token__WEBPACK_IMPORTED_MODULE_3__["token"].token) {
-            const btn = _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_给未分类作品添加添加tag');
-            new _pageFunciton_BookmarksAddTag__WEBPACK_IMPORTED_MODULE_6__["BookmarksAddTag"](btn);
-        }
-    }
-    setFormOption() {
-        // 个数/页数选项的提示
-        _setting_Options__WEBPACK_IMPORTED_MODULE_5__["options"].setWantPageTip({
-            text: '_抓取多少页面',
-            tip: '_从本页开始下载提示',
-            rangTip: '_数字提示1',
-        });
-    }
-    getWantPage() {
-        let pageTip = '';
-        if (this.crawlRecommended) {
-            pageTip = _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载推荐作品');
-        }
-        else {
-            pageTip = _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载所有页面');
-        }
-        this.crawlNumber = this.checkWantPageInput(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_从本页开始下载x页'), pageTip);
-    }
-    nextStep() {
-        if (window.location.pathname.includes('/novel')) {
-            this.type = 'novels';
-        }
-        if (this.crawlRecommended) {
-            // 下载推荐作品
-            this.getRecommendedList();
-        }
-        else {
-            this.readyGetIdList();
-            this.getIdList();
-        }
-    }
-    readyGetIdList() {
-        // 每页个数
-        const onceNumber = 20;
-        // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
-        const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__["Utils"].getURLSearchField(location.href, 'p'); // 判断当前处于第几页，页码从 1 开始。也可能没有页码
-        if (nowPage) {
-            this.offset = (parseInt(nowPage) - 1) * onceNumber;
-        }
-        if (this.offset < 0) {
-            this.offset = 0;
-        }
-        // 根据页数设置，计算要下载的个数
-        this.requsetNumber = 0;
-        if (this.crawlNumber === -1) {
-            this.requsetNumber = _config_Config__WEBPACK_IMPORTED_MODULE_12__["Config"].worksNumberLimit;
-        }
-        else {
-            this.requsetNumber = onceNumber * this.crawlNumber;
-        }
-        // 判断是公开收藏还是非公开收藏
-        // 在新旧版 url 里，rest 都是在查询字符串里的
-        this.isHide = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__["Utils"].getURLSearchField(location.href, 'rest') === 'hide';
-        _Log__WEBPACK_IMPORTED_MODULE_8__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_正在抓取'));
-        if (this.crawlNumber === -1) {
-            _Log__WEBPACK_IMPORTED_MODULE_8__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_获取全部书签作品'));
-        }
-    }
-    // 获取用户的收藏作品列表
-    async getIdList() {
-        let data;
-        try {
-            data = await _API__WEBPACK_IMPORTED_MODULE_1__["API"].getBookmarkData(_Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].getUserId(), this.type, _store_Store__WEBPACK_IMPORTED_MODULE_7__["store"].tag, this.offset, this.isHide);
-        }
-        catch (error) {
-            this.getIdList();
-            return;
-        }
-        if (data.body.works.length === 0 ||
-            this.idList.length >= this.requsetNumber ||
-            this.filteredNumber >= this.requsetNumber) {
-            // 书签页获取完毕
-            return this.afterGetIdList();
-        }
-        else {
-            // 没有抓取完毕时，添加数据
-            const idType = this.type === 'illusts' ? 'unknown' : 'novels';
-            for (const workData of data.body.works) {
-                if (this.filteredNumber >= this.requsetNumber) {
-                    return this.afterGetIdList();
-                }
-                const filterOpt = {
-                    id: workData.id,
-                    tags: workData.tags,
-                    bookmarkData: workData.bookmarkData,
-                    createDate: workData.createDate,
-                    userId: workData.userId,
-                };
-                this.filteredNumber++;
-                if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_10__["filter"].check(filterOpt)) {
-                    this.idList.push({
-                        type: idType,
-                        id: workData.id,
-                    });
-                }
-            }
-            this.offset += this.onceRequest; // 每次增加偏移量
-            _Log__WEBPACK_IMPORTED_MODULE_8__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_当前作品个数', this.idList.length.toString()), 1, false);
-            // 继续抓取
-            this.getIdList();
-        }
-    }
-    // 获取作品 id 列表完毕之后
-    afterGetIdList() {
-        // 因为书签页面一次获取 100 个作品，大于一页的数量。所以可能会抓取多了，需要删除多余的作品
-        if (this.idList.length > this.requsetNumber) {
-            // 删除后面部分（较早收藏的），留下近期收藏的
-            this.idList.splice(this.requsetNumber, this.idList.length);
-            // 书签页面的 api 没有考虑页面上的排序顺序，获取到的 id 列表始终是按收藏顺序由近期到早期排列的
-        }
-        _store_Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList = _store_Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.concat(this.idList);
-        this.getIdListFinished();
-    }
-    // 获取书签页面下方的推荐作品列表
-    getRecommendedList() {
-        const selector = this.type === 'illusts'
-            ? '#illust-recommend .image-item'
-            : '.novel-items>li';
-        const idType = this.type === 'illusts' ? 'unknown' : 'novels';
-        const getId = this.type === 'illusts' ? _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].getIllustId : _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].getNovelId;
-        // 获取下方已经加载出来的作品
-        const elements = document.querySelectorAll(selector);
-        if (elements.length === 0) {
-            this.crawlRecommended = false;
-            return this.noResult();
-        }
-        // 添加作品列表
-        for (const li of elements) {
-            const a = li.querySelector('a');
-            if (_store_Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.length === this.crawlNumber) {
-                break;
-            }
-            _store_Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.push({
-                type: idType,
-                id: getId(a.href),
-            });
-        }
-        this.getIdListFinished();
-    }
-    resetGetIdListStatus() {
-        this.type = 'illusts';
-        this.idList = [];
-        this.offset = 0;
-        this.filteredNumber = 0;
-        this.crawlRecommended = false; // 解除下载推荐作品的标记
-    }
-    sortResult() {
-        // 把作品数据反转，这样可以先下载收藏时间早的，后下载收藏时间近的
-        !this.crawlRecommended && _store_Store__WEBPACK_IMPORTED_MODULE_7__["store"].result.reverse();
     }
 }
 
@@ -15980,7 +15781,6 @@ class DownloadControl {
             window.setTimeout(() => {
                 // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('downloadComplete');
-                console.timeEnd('crawlAndDownloadTime');
             }, 0);
             this.reset();
         }

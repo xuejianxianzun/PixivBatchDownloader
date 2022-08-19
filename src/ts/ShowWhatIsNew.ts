@@ -16,21 +16,21 @@ class ShowWhatIsNew {
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-      let msg = `${lang.transl('_whatisnew')}`
-
-      // 在更新说明的下方显示赞助提示
-      msg += `
-      <strong>${lang.transl('_新增设置项')}</strong>
+      let msg = `
+      <strong>${lang.transl('_新增设置项')}：</strong>
       <br>
-      ${lang.transl('_减慢抓取速度')}
+      <span class="blue">${lang.transl('_减慢抓取速度')}</span>
       <br>
-      ${lang.transl('_减慢抓取速度的说明')}
+      <i>${lang.transl('_减慢抓取速度的说明')}</i>
       <br>
       <br>
       ${lang.transl(
         '_你可以在更多选项卡的xx分类里找到它',
         lang.transl('_抓取')
-      )}
+      )}`
+
+      // 在更新说明的下方显示赞助提示
+      msg += `
       <br>
       <br>
       ${lang.transl('_赞助方式提示')}`

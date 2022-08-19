@@ -182,8 +182,6 @@ abstract class InitPageBase {
       return
     }
 
-    console.time('crawlAndDownloadTime')
-    console.time('crawlTime')
     log.clear()
 
     log.success(lang.transl('_任务开始0'))
@@ -394,7 +392,6 @@ abstract class InitPageBase {
 
   // 抓取完毕
   protected crawlFinished() {
-    console.timeEnd('crawlTime')
     if (store.result.length === 0) {
       return this.noResult()
     }
