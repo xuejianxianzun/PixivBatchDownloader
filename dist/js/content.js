@@ -10045,7 +10045,7 @@ Config.worksNumberLimit = 999999999;
 /**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
 Config.retryTimer = 200000;
 /**慢速抓取模式下，每个抓取请求之间的间隔时间 */
-Config.slowCrawlDealy = 1200;
+Config.slowCrawlDealy = 1300;
 
 
 
@@ -10512,10 +10512,6 @@ class InitPageBase {
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].crawlCompleteTime = new Date();
         this.sortResult();
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downloadUgoiraFirst) {
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].resultMeta.sort(_Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].sortUgoiraFirst);
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.sort(_Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].sortUgoiraFirst);
-        }
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].resultMeta.length.toString()));
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个文件', _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length.toString()));
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取完毕'), 2);
@@ -12527,6 +12523,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     // 3 修改了“多图下载设置”，导致作品数据变化
     reAddResult() {
         _store_Store__WEBPACK_IMPORTED_MODULE_8__["store"].reset();
+        // store.addResult 会触发 addResult 事件，让本模块生成对应作品的预览，并显示作品数量
         for (let data of this.resultMeta) {
             _store_Store__WEBPACK_IMPORTED_MODULE_8__["store"].addResult(data);
         }
@@ -15666,6 +15663,10 @@ class DownloadControl {
         }
         if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0) {
             return _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].reset(0);
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].downloadUgoiraFirst) {
+            _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].resultMeta.sort(_Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].sortUgoiraFirst);
+            _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.sort(_Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].sortUgoiraFirst);
         }
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('readyDownload');
         this.showResultBtns();

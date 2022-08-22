@@ -20,7 +20,7 @@ class Config {
   /**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
   static retryTimer = 200000
   /**慢速抓取模式下，每个抓取请求之间的间隔时间 */
-  static slowCrawlDealy = 1200
+  static slowCrawlDealy = 1300
 }
 
 export { Config }

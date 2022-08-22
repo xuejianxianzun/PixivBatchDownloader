@@ -400,11 +400,6 @@ abstract class InitPageBase {
 
     this.sortResult()
 
-    if (settings.downloadUgoiraFirst) {
-      store.resultMeta.sort(Tools.sortUgoiraFirst)
-      store.result.sort(Tools.sortUgoiraFirst)
-    }
-
     log.log(lang.transl('_共抓取到n个作品', store.resultMeta.length.toString()))
 
     log.log(lang.transl('_共抓取到n个文件', store.result.length.toString()))

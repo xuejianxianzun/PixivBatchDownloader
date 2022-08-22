@@ -760,6 +760,7 @@ class InitSearchArtworkPage extends InitPageBase {
   private reAddResult() {
     store.reset()
 
+    // store.addResult 会触发 addResult 事件，让本模块生成对应作品的预览，并显示作品数量
     for (let data of this.resultMeta) {
       store.addResult(data)
     }
