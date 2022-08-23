@@ -726,11 +726,18 @@ const langText = {
     '번역된 태그',
   ],
   _命名标记date: [
-    '作品的创建时间。如 2019-08-29',
+    '作品的创建时间。如 2019-08-29。',
     '作品的建立時間。例如：2019-08-29。',
     'The time the creation of the work. Such as 2019-08-29',
     '作品の作成時間。例 2019-08-29',
     '작품 생성 날짜. 예: 2019-08-29',
+  ],
+  _命名标记upload_date: [
+    '作品内容最后一次被修改的时间。如 2019-08-30。',
+    '作品內容最後一次被修改的時間。如 2019-08-30。',
+    'The time when the content of the work was last modified. Such as 2019-08-30.',
+    '作品の内容が最後に変更された時刻。例 2019-08-30',
+    '저작물의 내용이 마지막으로 수정된 시간입니다. 예: 2019-08-30',
   ],
   _命名标记rank: [
     '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜页面中使用。',
@@ -1713,11 +1720,11 @@ const langText = {
     '날짜 및 시간 <span class="key">형식</span>',
   ],
   _日期格式提示: [
-    '你可以使用以下标记来设置日期和时间格式。这会影响命名规则里的 {date} 和 {task_date}。<br>对于时间如 2021-04-30T06:40:08',
-    '你可以使用以下標記來設定日期和時間格式。這會影響命名規則裡的 {date} 和 {task_date}。<br>對於資料如：2021-04-30T06:40:08。',
-    'You can use the following notation to set the date and time format. This will affect {date} and {task_date} in the naming rules. <br>For time such as 2021-04-30T06:40:08',
-    '以下のタグを使用して日時と時刻の書式を設定することができます。 これは命名規則の {date} と {task_date} に影響します。 <br> 例：2021-04-30T06:40:08',
-    '다음 표기법을 사용하여 날짜 및 시간 형식을 설정할 수 있습니다.<br>이것은 명명 규칙에 있는 {date}와 {task_date}에 영향을 미칩니다.<br>예: 2021-04-30T06:40:08',
+    '你可以使用以下标记来设置日期和时间格式。这会影响命名规则里的 {date} 和 {upload_date} 和 {task_date}。<br>对于时间如 2021-04-30T06:40:08',
+    '你可以使用以下標記來設定日期和時間格式。這會影響命名規則裡的 {date} 和 {upload_date} 和 {task_date}。<br>對於資料如：2021-04-30T06:40:08。',
+    'You can use the following notation to set the date and time format. This will affect {date} and {upload_date} and {task_date} in the naming rules. <br>For time such as 2021-04-30T06:40:08',
+    '以下のタグを使用して日時と時刻の書式を設定することができます。 これは命名規則の {date} と {upload_date} と {task_date} に影響します。 <br> 例：2021-04-30T06:40:08',
+    '다음 표기법을 사용하여 날짜 및 시간 형식을 설정할 수 있습니다.<br>이것은 명명 규칙에 있는 {date}와 {upload_date}와 {task_date}에 영향을 미칩니다.<br>예: 2021-04-30T06:40:08',
   ],
   _命名标记taskDate: [
     '本次任务抓取完成时的时间。例如：2020-10-21',

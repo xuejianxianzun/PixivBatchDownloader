@@ -303,6 +303,7 @@ export const formHtml = `<form class="settingForm">
       <option value="{view}">{view}</option>
       <option value="{rank}">{rank}</option>
       <option value="{date}">{date}</option>
+      <option value="{upload_date}">{upload_date}</option>
       <option value="{task_date}">{task_date}</option>
       <option value="{px}">{px}</option>
       <option value="{series_title}">{series_title}</option>
@@ -381,6 +382,9 @@ export const formHtml = `<form class="settingForm">
     <br>
     <span class="blue">{date}</span>
     <span data-xztext="_命名标记date"></span>
+    <br>
+    <span class="blue">{upload_date}</span>
+    <span data-xztext="_命名标记upload_date"></span>
     <br>
     <span class="blue">{task_date}</span>
     <span data-xztext="_命名标记taskDate"></span>
