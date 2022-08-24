@@ -24,6 +24,7 @@ import { pageType } from '../PageType'
 import { filter } from '../filter/Filter'
 import { Config } from '../config/Config'
 import { timedCrawl } from './TimedCrawl'
+import '../pageFunciton/QuickBookmark'
 
 abstract class InitPageBase {
   protected crawlNumber = 0 // 要抓取的个数/页数

@@ -5,7 +5,6 @@ import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { store } from '../store/Store'
-import { QuickBookmark } from '../pageFunciton/QuickBookmark'
 import { ImageViewer } from '../ImageViewer'
 import { userWorksType } from '../crawl/CrawlArgument'
 import { Tools } from '../Tools'
@@ -29,15 +28,8 @@ class InitArtworkPage extends InitPageBase {
   private crawlRelated: boolean = false // 是否下载相关作品
 
   protected initAny() {
-    // 初始化快速收藏功能和图片查看器
-    this.initQuickBookmark()
     this.initImgViewer()
 
-    // 页面切换再次初始化
-    window.addEventListener(
-      EVT.list.pageSwitchedTypeNotChange,
-      this.initQuickBookmark
-    )
     window.addEventListener(
       EVT.list.pageSwitchedTypeNotChange,
       this.initImgViewer
@@ -51,10 +43,6 @@ class InitArtworkPage extends InitPageBase {
       insertTarget: 'main figcaption',
       insertPostion: 'beforebegin',
     })
-  }
-
-  private initQuickBookmark() {
-    new QuickBookmark()
   }
 
   protected addCrawlBtns() {
@@ -103,12 +91,6 @@ class InitArtworkPage extends InitPageBase {
   protected destroy() {
     Tools.clearSlot('crawlBtns')
     Tools.clearSlot('otherBtns')
-
-    // 解除切换页面时绑定的事件
-    window.removeEventListener(
-      EVT.list.pageSwitchedTypeNotChange,
-      this.initQuickBookmark
-    )
 
     window.removeEventListener(
       EVT.list.pageSwitchedTypeNotChange,

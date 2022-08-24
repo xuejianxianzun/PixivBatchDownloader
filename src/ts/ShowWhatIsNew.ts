@@ -19,7 +19,9 @@ class ShowWhatIsNew {
       let msg = `
       <strong>${lang.transl('_新增命名标记')}：</strong>
       <br>
-      <span class="blue">{upload_date}</span> ${lang.transl('_命名标记upload_date')}`
+      <span class="blue">{upload_date}</span> ${lang.transl(
+        '_命名标记upload_date'
+      )}`
 
       // 在更新说明的下方显示赞助提示
       msg += `
