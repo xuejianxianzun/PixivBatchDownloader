@@ -671,6 +671,22 @@ export const formHtml = `<form class="settingForm">
     <p class="option settingCategoryName" data-no="58">
       <span data-xztext="_下载"></span>
     </p>
+    
+    <p class="option" data-no="76">
+    <span class="settingNameStyle1">
+    <span data-xztext="_点击收藏按钮时下载作品"></span>
+    </span>
+    <input type="checkbox" name="downloadOnClickBookmark" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
+    <p class="option" data-no="77">
+    <span class="settingNameStyle1">
+    <span data-xztext="_点击点赞按钮时下载作品"></span>
+    </span>
+    <input type="checkbox" name="downloadOnClickLike" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
 
     <p class="option" data-no="4">
     <span class="has_tip settingNameStyle1" data-xztip="_动图保存格式title">

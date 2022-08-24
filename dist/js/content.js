@@ -312,22 +312,6 @@ class API {
         const url = `https://www.pixiv.net/ajax/follow_latest/${type}?p=${p}&tag=${tag}&mode=${r18 ? 'r18' : 'all'}&lang=${lang}`;
         return this.sendGetRequest(url);
     }
-    // 根据 illustType，返回作品类型的描述
-    // 主要用于储存进 idList
-    static getWorkType(illustType) {
-        switch (parseInt(illustType.toString())) {
-            case 0:
-                return 'illusts';
-            case 1:
-                return 'manga';
-            case 2:
-                return 'ugoira';
-            case 3:
-                return 'novels';
-            default:
-                return 'unknown';
-        }
-    }
     // 获取小说的系列作品信息
     // 这个 api 目前一批最多只能返回 30 个作品的数据，所以可能需要多次获取
     static getNovelSeriesData(series_id, limit = 30, last_order, order_by = 'asc') {
@@ -2252,8 +2236,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./config/Colors */ "./src/ts/config/Colors.ts");
+/* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
 // 图片查看器
 /// <reference path = "./ImageViewer.d.ts" />
+
+
 
 
 
@@ -2585,22 +2573,25 @@ class ImageViewer {
     }
     // 在图片查看器里添加收藏按钮
     addBookmarkBtn() {
-        const li = document.createElement('li');
-        li.setAttribute('role', 'button');
-        li.setAttribute('title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏') + ' (Alt + B)');
-        li.classList.add(this.addBtnClass);
-        li.style.fontSize = '14px';
-        li.textContent = '✩';
-        li.id = 'imageViewerBookmarkBtn';
-        this.addBtn(li);
-        li.addEventListener('click', async () => {
+        const btn = document.createElement('li');
+        btn.setAttribute('role', 'button');
+        btn.setAttribute('title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏') + ' (Alt + B)');
+        btn.classList.add(this.addBtnClass);
+        btn.style.fontSize = '14px';
+        btn.textContent = '✩';
+        btn.id = 'imageViewerBookmarkBtn';
+        this.addBtn(btn);
+        btn.addEventListener('click', async () => {
+            // 添加收藏
             this.addBookmark();
+            // 下载这个作品
+            _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_11__["DownloadOnClickBookmark"].send(this.workData.body.illustId);
         });
     }
     async addBookmark() {
         // 显示提示
         _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏'), {
-            bgColor: '#333',
+            bgColor: _config_Colors__WEBPACK_IMPORTED_MODULE_10__["Colors"].bgBlue,
             position: 'mouse',
         });
         await _Bookmark__WEBPACK_IMPORTED_MODULE_8__["Bookmark"].add(this.cfg.workId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].extractTags(this.workData));
@@ -2613,12 +2604,12 @@ class ImageViewer {
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('crawlIdList', [
             {
                 id: this.cfg.workId,
-                type: 'unknown',
+                type: 'illusts',
             },
         ]);
         // 显示提示
         _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已发送下载请求'), {
-            bgColor: '#333',
+            bgColor: _config_Colors__WEBPACK_IMPORTED_MODULE_10__["Colors"].bgBlue,
             position: 'mouse',
         });
     }
@@ -5651,7 +5642,7 @@ const langText = {
         '<span class="key">收藏</span>状态',
         '<span class="key">收藏</span>狀態',
         '<span class="key">Bookmark</span> status',
-        'ブックマークステータス',
+        '<span class="key">ブックマーク</span>ステータス',
         '<span class="key">북마크</span> 상태',
     ],
     _图片色彩: [
@@ -5866,11 +5857,11 @@ const langText = {
         '페이지를 새로고침하세요.',
     ],
     _减慢抓取速度: [
-        '减慢抓取速度',
-        '減慢抓取速度',
-        'Slow down crawl',
-        'クロールを遅くする',
-        '천천히 크롤링',
+        '<span class="key">减慢</span>抓取速度',
+        '<span class="key">減慢</span>抓取速度',
+        '<span class="key">Slow down</span> crawl',
+        'クロールを<span class="key">遅くする</span>',
+        '<span class="key">천천히</span> 크롤링',
     ],
     _减慢抓取速度的说明: [
         '减慢抓取速度可以避免在抓取时被 Pixiv 临时限制。但这会增加抓取时间。',
@@ -5886,6 +5877,20 @@ const langText = {
         'slow crawl',
         'クロールが遅い',
         '느린 크롤링',
+    ],
+    _点击收藏按钮时下载作品: [
+        '点击<span class="key">收藏</span>按钮时下载作品',
+        '點選<span class="key">收藏</span>按鈕時下載作品',
+        'Download a work when you click the <span class="key">bookmark</span> button',
+        '<span class="key">ブックマーク</span>ボタンをクリックすると作品をダウンロード',
+        '<span class="key">북마크</span> 버튼 클릭 시 작품 다운로드',
+    ],
+    _点击点赞按钮时下载作品: [
+        '点击<span class="key">点赞</span>按钮时下载作品',
+        '點選<span class="key">點贊</span>按鈕時下載作品',
+        'Download a work when you click the <span class="key">like</span> button',
+        '<span class="key">いいね</span> ボタンをクリックすると作品がダウンロードされます',
+        '<span class="key">좋아요</span> 버튼 클릭 시 작품 다운로드',
     ],
 };
 
@@ -8876,7 +8881,16 @@ class ShowWhatIsNew {
             let msg = `
       <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增命名标记')}：</strong>
       <br>
-      <span class="blue">{upload_date}</span> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记upload_date')}`;
+      <span class="blue">{upload_date}</span> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记upload_date')}
+      <br>
+      <br>
+      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}：</strong>
+      <br>
+      1. ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_点击收藏按钮时下载作品')}
+      <br>
+      2. ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_点击点赞按钮时下载作品')}
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载'))}`;
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -9749,8 +9763,13 @@ class Tools {
         return result;
     }
     // 自定义的类型保护
+    /**判断 Tags 类型 */
     static isArtworkTags(data) {
         return data.translation !== undefined;
+    }
+    /**判断作品数据是图像作品还是小说作品 */
+    static isArtworkData(data) {
+        return data.body.illustType !== undefined;
     }
     /**从作品数据里提取出 tag 列表
      *
@@ -9974,6 +9993,22 @@ class Tools {
             }
             resolve(result);
         });
+    }
+    /**根据 illustType，返回作品类型的描述字符串 */
+    // 主要用于储存进 idList
+    static getWorkTypeString(illustType) {
+        switch (parseInt(illustType.toString())) {
+            case 0:
+                return 'illusts';
+            case 1:
+                return 'manga';
+            case 2:
+                return 'ugoira';
+            case 3:
+                return 'novels';
+            default:
+                return 'unknown';
+        }
     }
 }
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
@@ -11516,7 +11551,7 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             };
             if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__["filter"].check(filterOpt)) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_6__["store"].idList.push({
-                    type: _API__WEBPACK_IMPORTED_MODULE_5__["API"].getWorkType(nowData.illustType),
+                    type: _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].getWorkTypeString(nowData.illustType),
                     id: nowData.id,
                 });
             }
@@ -11592,7 +11627,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
             49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-            70, 71, 72, 74, 75,
+            70, 71, 72, 74, 75, 76, 77,
         ]);
     }
     nextStep() {
@@ -11822,7 +11857,7 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
             if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check(filterOpt)) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_8__["store"].setRankList(data.illust_id.toString(), data.rank);
                 _store_Store__WEBPACK_IMPORTED_MODULE_8__["store"].idList.push({
-                    type: _API__WEBPACK_IMPORTED_MODULE_2__["API"].getWorkType(data.illust_type),
+                    type: _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].getWorkTypeString(data.illust_type),
                     id: data.illust_id.toString(),
                 });
             }
@@ -11879,7 +11914,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../crawlMixedPage/CrawlTagList */ "./src/ts/crawlMixedPage/CrawlTagList.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
+/* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
 // 初始化 artwork 搜索页
+
 
 
 
@@ -12122,11 +12159,14 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             const addBMKBtn = li.querySelector(`.${this.addBMKBtnClass}`);
             const bookmarkedClass = this.bookmarkedClass;
             addBMKBtn.addEventListener('click', function () {
+                // 添加收藏
                 const e = new CustomEvent('addBMK', {
                     detail: { data: { id: data.idNum, tags: data.tags } },
                 });
                 window.dispatchEvent(e);
                 this.classList.add(bookmarkedClass);
+                // 下载这个作品
+                _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_23__["DownloadOnClickBookmark"].send(data.idNum.toString());
             });
             // 添加到缓冲中
             this.workPreviewBuffer.append(li);
@@ -12410,7 +12450,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             };
             if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check(filterOpt)) {
                 _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_16__["idListWithPageNo"].add(_PageType__WEBPACK_IMPORTED_MODULE_21__["pageType"].type, {
-                    type: _API__WEBPACK_IMPORTED_MODULE_7__["API"].getWorkType(nowData.illustType),
+                    type: _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].getWorkTypeString(nowData.illustType),
                     id: nowData.id,
                 }, p);
             }
@@ -12978,7 +13018,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                 };
                 if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_5__["filter"].check(filterOpt)) {
                     _store_Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.push({
-                        type: _API__WEBPACK_IMPORTED_MODULE_6__["API"].getWorkType(data.illustType),
+                        type: _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getWorkTypeString(data.illustType),
                         id: data.id,
                     });
                 }
@@ -16091,6 +16131,53 @@ class DownloadNovelEmbeddedImage {
     }
 }
 const downloadNovelEmbeddedImage = new DownloadNovelEmbeddedImage();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/download/DownloadOnClickBookmark.ts":
+/*!****************************************************!*\
+  !*** ./src/ts/download/DownloadOnClickBookmark.ts ***!
+  \****************************************************/
+/*! exports provided: DownloadOnClickBookmark */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DownloadOnClickBookmark", function() { return DownloadOnClickBookmark; });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+
+
+
+
+
+
+// 点击作品的收藏按钮时，下载这个作品
+class DownloadOnClickBookmark {
+    /**发送作品的 id 和类型，抓取并下载这个作品
+     *
+     * type 默认值是 'illusts'
+     */
+    static send(id, type = 'illusts') {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].downloadOnClickBookmark) {
+            _store_States__WEBPACK_IMPORTED_MODULE_2__["states"].quickCrawl = true;
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlIdList', [{
+                    id,
+                    type,
+                }]);
+            _Toast__WEBPACK_IMPORTED_MODULE_3__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_5__["lang"].transl('_已发送下载请求'), {
+                bgColor: _config_Colors__WEBPACK_IMPORTED_MODULE_4__["Colors"].bgBlue,
+                position: 'mouse',
+            });
+        }
+    }
+}
 
 
 
@@ -20327,7 +20414,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./WorkToolBar */ "./src/ts/pageFunciton/WorkToolBar.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
 // 作品页面内的快速收藏功能
+
 
 
 
@@ -20391,7 +20480,15 @@ class QuickBookmark {
         }
         else {
             this.btn.addEventListener('click', () => {
+                // 添加收藏
                 this.addBookmark(pixivBMKDiv, likeBtn);
+                // 下载这个作品
+                if (_Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].isArtworkData(this.workData)) {
+                    _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_8__["DownloadOnClickBookmark"].send(this.workData.body.illustId);
+                }
+                else {
+                    _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_8__["DownloadOnClickBookmark"].send(this.workData.body.id, 'novels');
+                }
             });
         }
     }
@@ -20719,7 +20816,6 @@ class WorkToolBar {
             if (test) {
                 const toolbar = test;
                 if (!toolbar.classList.contains(this.flag)) {
-                    console.log(toolbar);
                     this.toolbar = toolbar;
                     toolbar.classList.add(this.flag);
                     break;
@@ -20737,8 +20833,6 @@ class WorkToolBar {
         this.likeBtn = btnList[btnList.length - 1] || undefined;
         // 全部获取完毕
         if (this.pixivBMKDiv && this.likeBtn) {
-            console.log(this.pixivBMKDiv);
-            console.log(this.likeBtn);
             window.clearInterval(this.timer);
             this.executionCB();
         }
@@ -21741,6 +21835,22 @@ const formHtml = `<form class="settingForm">
     <p class="option settingCategoryName" data-no="58">
       <span data-xztext="_下载"></span>
     </p>
+    
+    <p class="option" data-no="76">
+    <span class="settingNameStyle1">
+    <span data-xztext="_点击收藏按钮时下载作品"></span>
+    </span>
+    <input type="checkbox" name="downloadOnClickBookmark" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
+    <p class="option" data-no="77">
+    <span class="settingNameStyle1">
+    <span data-xztext="_点击点赞按钮时下载作品"></span>
+    </span>
+    <input type="checkbox" name="downloadOnClickLike" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
 
     <p class="option" data-no="4">
     <span class="has_tip settingNameStyle1" data-xztip="_动图保存格式title">
@@ -22254,6 +22364,8 @@ class FormSettings {
                 'previewUgoira',
                 'hiddenBrowserDownloadBar',
                 'slowCrawl',
+                'downloadOnClickBookmark',
+                'downloadOnClickLike',
             ],
             text: [
                 'setWantPage',
@@ -23184,6 +23296,8 @@ class Settings {
             timedCrawlInterval: 120,
             slowCrawl: false,
             slowCrawlOnWorksNumber: 100,
+            downloadOnClickBookmark: false,
+            downloadOnClickLike: false,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项

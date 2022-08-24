@@ -21,6 +21,18 @@ class ShowWhatIsNew {
       <br>
       <span class="blue">{upload_date}</span> ${lang.transl(
         '_命名标记upload_date'
+      )}
+      <br>
+      <br>
+      <strong>${lang.transl('_新增设置项')}：</strong>
+      <br>
+      1. ${lang.transl('_点击收藏按钮时下载作品')}
+      <br>
+      2. ${lang.transl('_点击点赞按钮时下载作品')}
+      <br>
+      ${lang.transl(
+        '_你可以在更多选项卡的xx分类里找到它',
+        lang.transl('_下载')
       )}`
 
       // 在更新说明的下方显示赞助提示

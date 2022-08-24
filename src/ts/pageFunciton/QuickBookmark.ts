@@ -8,6 +8,7 @@ import { Bookmark } from '../Bookmark'
 import { ArtworkData, NovelData } from '../crawl/CrawlResult'
 import { workToolBar } from './WorkToolBar'
 import { pageType } from '../PageType'
+import { DownloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
 
 type WorkType = 'illusts' | 'novels'
 
@@ -91,7 +92,15 @@ class QuickBookmark {
       this.redQuickBookmarkBtn()
     } else {
       this.btn.addEventListener('click', () => {
+        // 添加收藏
         this.addBookmark(pixivBMKDiv, likeBtn)
+
+        // 下载这个作品
+        if (Tools.isArtworkData(this.workData!)) {
+          DownloadOnClickBookmark.send(this.workData!.body.illustId)
+        } else {
+          DownloadOnClickBookmark.send(this.workData!.body.id, 'novels')
+        }
       })
     }
   }

@@ -370,25 +370,6 @@ class API {
     return this.sendGetRequest(url)
   }
 
-  // 根据 illustType，返回作品类型的描述
-  // 主要用于储存进 idList
-  static getWorkType(
-    illustType: 0 | 1 | 2 | 3 | '0' | '1' | '2' | '3'
-  ): 'illusts' | 'manga' | 'ugoira' | 'novels' | 'unknown' {
-    switch (parseInt(illustType.toString())) {
-      case 0:
-        return 'illusts'
-      case 1:
-        return 'manga'
-      case 2:
-        return 'ugoira'
-      case 3:
-        return 'novels'
-      default:
-        return 'unknown'
-    }
-  }
-
   // 获取小说的系列作品信息
   // 这个 api 目前一批最多只能返回 30 个作品的数据，所以可能需要多次获取
   static getNovelSeriesData(

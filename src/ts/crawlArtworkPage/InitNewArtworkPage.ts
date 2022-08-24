@@ -126,7 +126,7 @@ class InitNewArtworkPage extends InitPageBase {
 
       if (await filter.check(filterOpt)) {
         store.idList.push({
-          type: API.getWorkType(nowData.illustType),
+          type: Tools.getWorkTypeString(nowData.illustType),
           id: nowData.id,
         })
       }

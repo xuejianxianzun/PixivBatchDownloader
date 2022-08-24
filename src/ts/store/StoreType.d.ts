@@ -1,9 +1,14 @@
 import { UgoiraInfo } from '../crawl/CrawlResult'
-export type IDListType = 'illusts' | 'manga' | 'novels' | 'ugoira' | 'unknown'
+export type WorkTypeString =
+  | 'illusts'
+  | 'manga'
+  | 'ugoira'
+  | 'novels'
+  | 'unknown'
 
 export interface IDData {
-  type: IDListType
   id: string
+  type: WorkTypeString
 }
 
 export interface NovelMeta {

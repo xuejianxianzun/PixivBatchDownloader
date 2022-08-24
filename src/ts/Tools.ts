@@ -1,6 +1,6 @@
 import { ArtworkData, NovelData } from './crawl/CrawlResult'
 import { lang } from './Lang'
-import { Result } from './store/StoreType'
+import { WorkTypeString, Result } from './store/StoreType'
 import { Utils } from './utils/Utils'
 
 type artworkDataTagsItem = {
@@ -287,10 +287,16 @@ class Tools {
   }
 
   // 自定义的类型保护
+  /**判断 Tags 类型 */
   static isArtworkTags(
     data: artworkDataTagsItem | novelDataTagsItem
   ): data is artworkDataTagsItem {
     return (<artworkDataTagsItem>data).translation !== undefined
+  }
+
+  /**判断作品数据是图像作品还是小说作品 */
+  static isArtworkData(data: ArtworkData | NovelData): data is ArtworkData {
+    return (<ArtworkData>data).body.illustType !== undefined
   }
 
   /**从作品数据里提取出 tag 列表
@@ -543,6 +549,25 @@ class Tools {
       }
       resolve(result)
     })
+  }
+
+  /**根据 illustType，返回作品类型的描述字符串 */
+  // 主要用于储存进 idList
+  static getWorkTypeString(
+    illustType: 0 | 1 | 2 | 3 | '0' | '1' | '2' | '3'
+  ): WorkTypeString {
+    switch (parseInt(illustType.toString())) {
+      case 0:
+        return 'illusts'
+      case 1:
+        return 'manga'
+      case 2:
+        return 'ugoira'
+      case 3:
+        return 'novels'
+      default:
+        return 'unknown'
+    }
   }
 }
 

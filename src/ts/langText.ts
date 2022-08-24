@@ -2737,7 +2737,7 @@ const langText = {
     '<span class="key">收藏</span>状态',
     '<span class="key">收藏</span>狀態',
     '<span class="key">Bookmark</span> status',
-    'ブックマークステータス',
+    '<span class="key">ブックマーク</span>ステータス',
     '<span class="key">북마크</span> 상태',
   ],
   _图片色彩: [
@@ -2952,11 +2952,11 @@ const langText = {
     '페이지를 새로고침하세요.',
   ],
   _减慢抓取速度: [
-    '减慢抓取速度',
-    '減慢抓取速度',
-    'Slow down crawl',
-    'クロールを遅くする',
-    '천천히 크롤링',
+    '<span class="key">减慢</span>抓取速度',
+    '<span class="key">減慢</span>抓取速度',
+    '<span class="key">Slow down</span> crawl',
+    'クロールを<span class="key">遅くする</span>',
+    '<span class="key">천천히</span> 크롤링',
   ],
   _减慢抓取速度的说明: [
     '减慢抓取速度可以避免在抓取时被 Pixiv 临时限制。但这会增加抓取时间。',
@@ -2972,6 +2972,20 @@ const langText = {
     'slow crawl',
     'クロールが遅い',
     '느린 크롤링',
+  ],
+  _点击收藏按钮时下载作品: [
+    '点击<span class="key">收藏</span>按钮时下载作品',
+    '點選<span class="key">收藏</span>按鈕時下載作品',
+    'Download a work when you click the <span class="key">bookmark</span> button',
+    '<span class="key">ブックマーク</span>ボタンをクリックすると作品をダウンロード',
+    '<span class="key">북마크</span> 버튼 클릭 시 작품 다운로드',
+  ],
+  _点击点赞按钮时下载作品: [
+    '点击<span class="key">点赞</span>按钮时下载作品',
+    '點選<span class="key">點贊</span>按鈕時下載作品',
+    'Download a work when you click the <span class="key">like</span> button',
+    '<span class="key">いいね</span> ボタンをクリックすると作品がダウンロードされます',
+    '<span class="key">좋아요</span> 버튼 클릭 시 작품 다운로드',
   ],
 }
 

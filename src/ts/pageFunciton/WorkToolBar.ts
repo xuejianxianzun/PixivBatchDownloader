@@ -48,7 +48,6 @@ class WorkToolBar {
       if (test) {
         const toolbar = test as HTMLDivElement
         if (!toolbar.classList.contains(this.flag)) {
-          console.log(toolbar)
           this.toolbar = toolbar
           toolbar.classList.add(this.flag)
           break
@@ -70,8 +69,6 @@ class WorkToolBar {
 
     // 全部获取完毕
     if (this.pixivBMKDiv && this.likeBtn) {
-      console.log(this.pixivBMKDiv)
-      console.log(this.likeBtn)
       window.clearInterval(this.timer)
       this.executionCB()
     }

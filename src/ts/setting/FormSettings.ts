@@ -110,6 +110,8 @@ class FormSettings {
       'previewUgoira',
       'hiddenBrowserDownloadBar',
       'slowCrawl',
+      'downloadOnClickBookmark',
+      'downloadOnClickLike',
     ],
     text: [
       'setWantPage',

@@ -157,7 +157,7 @@ class InitBookmarkNewPage extends InitPageBase {
 
         if (await filter.check(filterOpt)) {
           store.idList.push({
-            type: API.getWorkType(data.illustType),
+            type: Tools.getWorkTypeString(data.illustType),
             id: data.id,
           })
         }
