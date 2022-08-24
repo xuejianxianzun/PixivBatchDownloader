@@ -24,7 +24,7 @@ import { Bookmark } from '../Bookmark'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { pageType } from '../PageType'
 import { Config } from '../config/Config'
-import { DownloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
+import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
 
 type AddBMKData = {
   id: number
@@ -685,7 +685,7 @@ class InitSearchArtworkPage extends InitPageBase {
       this.classList.add(bookmarkedClass)
 
       // 下载这个作品
-      DownloadOnClickBookmark.send(data.idNum.toString())
+      downloadOnClickBookmark.send(data.idNum.toString())
     })
 
     // 添加到缓冲中

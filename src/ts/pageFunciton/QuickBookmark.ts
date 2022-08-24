@@ -4,11 +4,11 @@ import { Tools } from '../Tools'
 import { lang } from '../Lang'
 import { token } from '../Token'
 import { Utils } from '../utils/Utils'
-import { Bookmark } from '../Bookmark'
-import { ArtworkData, NovelData } from '../crawl/CrawlResult'
-import { workToolBar } from './WorkToolBar'
 import { pageType } from '../PageType'
-import { DownloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
+import { ArtworkData, NovelData } from '../crawl/CrawlResult'
+import { Bookmark } from '../Bookmark'
+import { workToolBar } from '../WorkToolBar'
+import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
 
 type WorkType = 'illusts' | 'novels'
 
@@ -96,12 +96,16 @@ class QuickBookmark {
         this.addBookmark(pixivBMKDiv, likeBtn)
 
         // 下载这个作品
-        if (Tools.isArtworkData(this.workData!)) {
-          DownloadOnClickBookmark.send(this.workData!.body.illustId)
-        } else {
-          DownloadOnClickBookmark.send(this.workData!.body.id, 'novels')
-        }
+        this.sendDownload()
       })
+    }
+  }
+
+  private sendDownload(){
+    if (Tools.isArtworkData(this.workData!)) {
+      downloadOnClickBookmark.send(this.workData!.body.illustId)
+    } else {
+      downloadOnClickBookmark.send(this.workData!.body.id, 'novels')
     }
   }
 

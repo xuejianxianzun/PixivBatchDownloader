@@ -1,7 +1,7 @@
 import { API } from './API'
 import { ArtworkData } from './crawl/CrawlResult'
 import { EVT } from './EVT'
-import { mouseOverThumbnail } from './MouseOverThumbnail'
+import { artworkThumbnail } from './ArtworkThumbnail'
 import { settings, setSetting } from './setting/Settings'
 import { showOriginSizeImage } from './ShowOriginSizeImage'
 import { cacheWorkData } from './store/CacheWorkData'
@@ -107,7 +107,7 @@ class PreviewWork {
   }
 
   private bindEvents() {
-    mouseOverThumbnail.onEnter((el: HTMLElement, id: string) => {
+    artworkThumbnail.onEnter((el: HTMLElement, id: string) => {
       if (this.dontShowAgain) {
         return
       }
@@ -132,7 +132,7 @@ class PreviewWork {
       el.addEventListener('mousewheel', this.onWheelScroll)
     })
 
-    mouseOverThumbnail.onLeave((el: HTMLElement) => {
+    artworkThumbnail.onLeave((el: HTMLElement) => {
       if (this.overThumb) {
         // 如果预览图遮挡了作品缩略图，就需要延迟隐藏预览图。
         // 因为预览图显示之后，鼠标可能处于预览图上，这会触发此事件。

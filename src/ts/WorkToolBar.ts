@@ -1,5 +1,5 @@
-import { EVT } from '../EVT'
-import { pageType } from '../PageType'
+import { EVT } from './EVT'
+import { pageType } from './PageType'
 
 // 在作品页面里，获取作品内容下方包含点赞、收藏、分享等按钮的工具栏元素
 // 注意：处于自己的作品页面里的时候，是没有收藏和点赞按钮的
@@ -78,7 +78,7 @@ class WorkToolBar {
 
   /**注册回调函数。
    *
-   * 当 WorkToolBar 模块获取到了所有需要的元素时，会执行回调函数，并把元素作为参数传入：
+   * 当 WorkToolBar 模块获取到了所有需要的元素时，会执行回调函数，并把以下元素作为参数传入：
    *
    * toolbar, pixivBMKDiv, likeBtn */
   public register(cb: Function) {

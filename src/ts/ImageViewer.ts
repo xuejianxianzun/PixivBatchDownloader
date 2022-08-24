@@ -12,7 +12,7 @@ import { ArtworkData } from './crawl/CrawlResult'
 import { Bookmark } from './Bookmark'
 import { cacheWorkData } from './store/CacheWorkData'
 import { Colors } from './config/Colors'
-import { DownloadOnClickBookmark } from './download/DownloadOnClickBookmark'
+import { downloadOnClickBookmark } from './download/DownloadOnClickBookmark'
 
 // 所有参数
 interface Config {
@@ -470,7 +470,7 @@ class ImageViewer {
       this.addBookmark()
 
       // 下载这个作品
-      DownloadOnClickBookmark.send(this.workData!.body.illustId)
+      downloadOnClickBookmark.send(this.workData!.body.illustId)
     })
   }
 
