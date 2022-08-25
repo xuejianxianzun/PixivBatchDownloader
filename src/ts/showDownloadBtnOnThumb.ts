@@ -1,6 +1,6 @@
 import { EVT } from './EVT'
 import { settings } from './setting/Settings'
-import { mouseOverThumbnail } from './MouseOverThumbnail'
+import { artworkThumbnail } from './ArtworkThumbnail'
 import { states } from './store/States'
 import { toast } from './Toast'
 import { lang } from './Lang'
@@ -76,12 +76,12 @@ class ShowDownloadBtnOnThumb {
       }
     })
 
-    mouseOverThumbnail.onEnter((el: HTMLElement, id: string) => {
+    artworkThumbnail.onEnter((el: HTMLElement, id: string) => {
       this.currentWorkId = id
       this.showBtn(el)
     })
 
-    mouseOverThumbnail.onLeave(() => {
+    artworkThumbnail.onLeave(() => {
       this.hiddenBtn()
     })
   }

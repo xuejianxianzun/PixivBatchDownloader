@@ -90,7 +90,7 @@ class Log {
       this.logArea = document.createElement('div')
       this.logArea.classList.add('beautify_scrollbar', 'logContent')
       this.wrap.append(this.logArea)
-      Tools.insertToHead(this.wrap)
+      document.body.insertAdjacentElement('beforebegin', this.wrap)
       theme.register(this.wrap)
       // 虽然可以应用背景图片，但是由于日志区域比较狭长，背景图片的视觉效果不佳，看起来比较粗糙，所以还是不应用背景图片了
       // bg.useBG(this.wrap, 0.9)
