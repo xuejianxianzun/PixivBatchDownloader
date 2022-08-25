@@ -76,7 +76,7 @@ class WorkToolBar {
 
   private callbackList: Function[] = []
 
-  /**注册回调函数。
+  /**注册回调函数
    *
    * 当 WorkToolBar 模块获取到了所有需要的元素时，会执行回调函数，并把以下元素作为参数传入：
    *

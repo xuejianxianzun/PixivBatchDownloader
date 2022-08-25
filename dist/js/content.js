@@ -10342,7 +10342,7 @@ class WorkToolBar {
             this.executionCB();
         }
     }
-    /**注册回调函数。
+    /**注册回调函数
      *
      * 当 WorkToolBar 模块获取到了所有需要的元素时，会执行回调函数，并把以下元素作为参数传入：
      *
@@ -10478,11 +10478,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
 /* harmony import */ var _download_ShowStatusOnTitle__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/ShowStatusOnTitle */ "./src/ts/download/ShowStatusOnTitle.ts");
 /* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -10493,6 +10494,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 
@@ -16558,6 +16560,75 @@ class DownloadOnClickBookmark {
 }
 const downloadOnClickBookmark = new DownloadOnClickBookmark();
 
+
+
+/***/ }),
+
+/***/ "./src/ts/download/DownloadOnClickLike.ts":
+/*!************************************************!*\
+  !*** ./src/ts/download/DownloadOnClickLike.ts ***!
+  \************************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
+
+
+
+
+
+
+
+
+
+// 在作品页面里点赞时，下载这个作品
+class DownloadOnClickLike {
+    constructor() {
+        this.bindEvents();
+    }
+    bindEvents() {
+        _WorkToolBar__WEBPACK_IMPORTED_MODULE_8__["workToolBar"].register((toolbar, pixivBMKDiv, likeBtn) => {
+            likeBtn.addEventListener('click', () => {
+                if (_PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].list.Artwork) {
+                    this.send(_Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].getIllustId(window.location.href));
+                }
+                if (_PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].list.Novel) {
+                    this.send(_Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].getNovelId(window.location.href), 'novels');
+                }
+            });
+        });
+    }
+    /**发送作品的 id 和类型，抓取并下载这个作品
+     *
+     * @type 默认值是 'illusts'
+     */
+    send(id, type = 'illusts') {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downloadOnClickLike) {
+            _store_States__WEBPACK_IMPORTED_MODULE_5__["states"].quickCrawl = true;
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('crawlIdList', [
+                {
+                    id,
+                    type,
+                },
+            ]);
+            _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已发送下载请求'), {
+                bgColor: _config_Colors__WEBPACK_IMPORTED_MODULE_0__["Colors"].bgBlue,
+                position: 'mouse',
+            });
+        }
+    }
+}
+new DownloadOnClickLike();
 
 
 /***/ }),
