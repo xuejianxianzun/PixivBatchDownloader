@@ -11,6 +11,8 @@ import { Tools } from './Tools'
 import { ArtworkData } from './crawl/CrawlResult'
 import { Bookmark } from './Bookmark'
 import { cacheWorkData } from './store/CacheWorkData'
+import { Colors } from './config/Colors'
+import { downloadOnClickBookmark } from './download/DownloadOnClickBookmark'
 
 // 所有参数
 interface Config {
@@ -454,24 +456,28 @@ class ImageViewer {
 
   // 在图片查看器里添加收藏按钮
   private addBookmarkBtn() {
-    const li = document.createElement('li')
-    li.setAttribute('role', 'button')
-    li.setAttribute('title', lang.transl('_收藏') + ' (Alt + B)')
-    li.classList.add(this.addBtnClass)
-    li.style.fontSize = '14px'
-    li.textContent = '✩'
-    li.id = 'imageViewerBookmarkBtn'
-    this.addBtn(li)
+    const btn = document.createElement('li')
+    btn.setAttribute('role', 'button')
+    btn.setAttribute('title', lang.transl('_收藏') + ' (Alt + B)')
+    btn.classList.add(this.addBtnClass)
+    btn.style.fontSize = '14px'
+    btn.textContent = '✩'
+    btn.id = 'imageViewerBookmarkBtn'
+    this.addBtn(btn)
 
-    li.addEventListener('click', async () => {
+    btn.addEventListener('click', async () => {
+      // 添加收藏
       this.addBookmark()
+
+      // 下载这个作品
+      downloadOnClickBookmark.send(this.workData!.body.illustId)
     })
   }
 
   private async addBookmark() {
     // 显示提示
     toast.show(lang.transl('_收藏'), {
-      bgColor: '#333',
+      bgColor: Colors.bgBlue,
       position: 'mouse',
     })
 
@@ -491,13 +497,13 @@ class ImageViewer {
     EVT.fire('crawlIdList', [
       {
         id: this.cfg.workId,
-        type: 'unknown',
+        type: 'illusts',
       },
     ])
 
     // 显示提示
     toast.show(lang.transl('_已发送下载请求'), {
-      bgColor: '#333',
+      bgColor: Colors.bgBlue,
       position: 'mouse',
     })
   }

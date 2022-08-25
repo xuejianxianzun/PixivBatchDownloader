@@ -43,6 +43,7 @@ class InitFollowingPage extends InitPageBase {
   private totalNeed = Number.MAX_SAFE_INTEGER
   private myId = ''
   private rest: 'show' | 'hide' = 'show'
+  private tag = ''
 
   private userList: string[] = []
 
@@ -110,6 +111,7 @@ class InitFollowingPage extends InitPageBase {
 
   protected readyGet() {
     this.rest = location.href.includes('rest=hide') ? 'hide' : 'show'
+    this.tag = Utils.getURLPathField(window.location.pathname, 'following')
 
     // 获取抓取开始时的页码
     const nowPage = Utils.getURLSearchField(location.href, 'p')
@@ -145,7 +147,12 @@ class InitFollowingPage extends InitPageBase {
     try {
       switch (this.pageType) {
         case 0:
-          res = await API.getFollowingList(this.myId, this.rest, offset)
+          res = await API.getFollowingList(
+            this.myId,
+            this.rest,
+            this.tag,
+            offset
+          )
           break
         case 1:
           res = await API.getMyPixivList(this.myId, offset)

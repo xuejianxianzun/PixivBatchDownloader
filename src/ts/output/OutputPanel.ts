@@ -79,7 +79,7 @@ class OutputPanel {
     </div>
     </div>
     `
-    document.body.insertAdjacentHTML('beforeend', html)
+    document.body.insertAdjacentHTML('beforebegin', html)
 
     this.outputPanel = document.querySelector('.outputWrap')! as HTMLDivElement
 

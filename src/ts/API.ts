@@ -164,9 +164,9 @@ class API {
   static getFollowingList(
     id: string,
     rest: 'show' | 'hide' = 'show',
+    tag = '',
     offset = 0,
     limit = 100,
-    tag = '',
     lang = 'zh'
   ): Promise<FollowingResponse> {
     const url = `https://www.pixiv.net/ajax/user/${id}/following?offset=${offset}&limit=${limit}&rest=${rest}&tag=${tag}&lang=${lang}`
@@ -360,45 +360,14 @@ class API {
   static getBookmarkNewWorkData(
     type: 'illust' | 'novel',
     p: number,
+    tag: string = '',
     r18: boolean,
     lang = 'zh'
   ): Promise<BookMarkNewData> {
-    const url = `https://www.pixiv.net/ajax/follow_latest/${type}?p=${p}&mode=${
+    const url = `https://www.pixiv.net/ajax/follow_latest/${type}?p=${p}&tag=${tag}&mode=${
       r18 ? 'r18' : 'all'
     }&lang=${lang}`
     return this.sendGetRequest(url)
-  }
-
-  // 根据 illustType，返回作品类型的描述
-  // 主要用于储存进 idList
-  static getWorkType(
-    illustType: 0 | 1 | 2 | 3 | '0' | '1' | '2' | '3'
-  ): 'illusts' | 'manga' | 'ugoira' | 'novels' | 'unknown' {
-    switch (parseInt(illustType.toString())) {
-      case 0:
-        return 'illusts'
-      case 1:
-        return 'manga'
-      case 2:
-        return 'ugoira'
-      case 3:
-        return 'novels'
-      default:
-        return 'unknown'
-    }
-  }
-
-  // 从 URL 中获取指定路径名的值，适用于符合 RESTful API 风格的路径
-  // 如 https://www.pixiv.net/novel/series/1090654
-  // 把路径用 / 分割，查找 key 所在的位置，后面一项就是它的 value
-  static getURLPathField(query: string) {
-    const pathArr = location.pathname.split('/')
-    const index = pathArr.indexOf(query)
-    if (index > 0) {
-      return pathArr[index + 1]
-    }
-
-    throw new Error(`getURLPathField ${query} failed!`)
   }
 
   // 获取小说的系列作品信息

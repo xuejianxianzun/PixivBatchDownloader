@@ -304,6 +304,13 @@ class FileName {
         prefix: '',
         safe: false,
       },
+      '{upload_date}': {
+        value: !allNameRule.includes('{upload_date}')
+          ? null
+          : DateFormat.format(data.uploadDate, settings.dateFormat),
+        prefix: '',
+        safe: false,
+      },
       '{task_date}': {
         value: !allNameRule.includes('{task_date}')
           ? null

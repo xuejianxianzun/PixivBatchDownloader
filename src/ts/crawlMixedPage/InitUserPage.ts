@@ -10,7 +10,7 @@ import { log } from '../Log'
 import { Tools } from '../Tools'
 import { userWorksType, tagPageFlag } from '../crawl/CrawlArgument'
 import { UserImageWorksWithTag, UserNovelsWithTag } from '../crawl/CrawlResult'
-import { IDListType } from '../store/StoreType'
+import { WorkTypeString } from '../store/StoreType'
 import { states } from '../store/States'
 import '../pageFunciton/SaveAvatarIcon'
 import '../pageFunciton/SaveAvatarImage'
@@ -285,7 +285,7 @@ class InitUserPage extends InitPageBase {
     } else {
       const d = data as UserImageWorksWithTag
       d.body.works.forEach((data) => {
-        let type: IDListType = 'illusts'
+        let type: WorkTypeString = 'illusts'
         switch (data.illustType) {
           case 0:
             type = 'illusts'
