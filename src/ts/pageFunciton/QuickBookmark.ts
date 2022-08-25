@@ -101,7 +101,7 @@ class QuickBookmark {
     }
   }
 
-  private sendDownload(){
+  private sendDownload() {
     if (Tools.isArtworkData(this.workData!)) {
       downloadOnClickBookmark.send(this.workData!.body.illustId)
     } else {

@@ -5,10 +5,11 @@ import { states } from '../store/States'
 import { toast } from '../Toast'
 import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
-import { artworkThumbnail } from '../ArtworkThumbnail'
 import { workToolBar } from '../WorkToolBar'
 import { pageType } from '../PageType'
 import { Tools } from '../Tools'
+import { artworkThumbnail } from '../ArtworkThumbnail'
+import { novelThumbnail } from '../NovelThumbnail'
 
 // 点击作品的收藏按钮时，下载这个作品
 class DownloadOnClickBookmark {
@@ -20,6 +21,9 @@ class DownloadOnClickBookmark {
     // 在作品缩略图上点击收藏按钮时，下载这个作品
     artworkThumbnail.onClickBookmarkBtn((id: string) => {
       this.send(id)
+    })
+    novelThumbnail.onClickBookmarkBtn((id: string) => {
+      this.send(id, 'novels')
     })
 
     // 在作品页面里点击收藏按钮时，下载这个作品

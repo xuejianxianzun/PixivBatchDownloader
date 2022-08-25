@@ -419,9 +419,10 @@ class ArtworkThumbnail {
         }
         // 遍历所有的选择器，为找到的元素绑定事件
         // 注意：有时候一个节点里会含有多种尺寸的缩略图，为了全部查找到它们，必须遍历所有的选择器。
-        // 如果在查找到某个选择器之后，不再查找剩余的选择器，就会遗漏一部分缩略图。
+        // 如果在查找到某个选择器之后，不再查找剩余的选择器，就可能会遗漏一部分缩略图。
         // 但是，这有可能会导致事件的重复绑定
         // 例如，画师主页顶部的“精选”作品会被两个选择器查找到：'li>div>div:first-child' 'div[width="288"]'
+        // 但是，这有可能会导致事件的重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
         for (const selector of this.selectors) {
             // 现在 'li>div>div:first-child' 只在投稿页面使用
             if (selector === 'li>div>div:first-child' &&
@@ -430,7 +431,7 @@ class ArtworkThumbnail {
             }
             const elements = parent.querySelectorAll(selector);
             for (const el of elements) {
-                const id = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].findIllustIdFromElement(el);
+                const id = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].findWorkIdFromElement(el, 'illusts');
                 // 只有查找到作品 id 时才会执行回调函数
                 if (id) {
                     // 如果这个缩略图元素、或者它的直接父元素、或者它的直接子元素已经有标记，就跳过它
@@ -446,6 +447,8 @@ class ArtworkThumbnail {
                     }
                     // 当对一个缩略图元素绑定事件时，在它上面添加标记
                     // 添加标记的目的是为了减少事件重复绑定的情况发生
+                    // mouseover 这个标记名称不可以修改，因为它在 Pixiv Previewer 里被硬编码了
+                    // https://github.com/xuejianxianzun/PixivBatchDownloader/issues/212
                     ;
                     el.dataset.mouseover = '1';
                     el.addEventListener('mouseenter', (ev) => {
@@ -470,7 +473,9 @@ class ArtworkThumbnail {
                     // 目前我没有观察到同一个收藏按钮会被重复绑定事件的情况，所以没必要添加特殊标记
                     if (bmkBtn) {
                         bmkBtn.addEventListener('click', (ev) => {
-                            this.bookmarkBtnCallback.forEach(cb => { cb(id, bmkBtn, ev); });
+                            this.bookmarkBtnCallback.forEach((cb) => {
+                                cb(id, bmkBtn, ev);
+                            });
                         });
                     }
                 }
@@ -502,20 +507,20 @@ class ArtworkThumbnail {
      * @id 作品 id
      *
      * @ev 鼠标进入或者移出 el 时的 Event 对象
-    */
+     */
     onEnter(cb) {
         this.enterCallback.push(cb);
     }
     /**添加鼠标进入作品缩略图时的回调。
-   *
-   * 回调函数会接收到 2 个参数：
-   *
-   * @el 作品缩略图的元素
-   *
-   * @ev 鼠标进入或者移出 el 时的 Event 对象
-   *
-   * 没有 id 参数，因为鼠标离开时的 id 就是鼠标进入时的 id
-  */
+     *
+     * 回调函数会接收到 2 个参数：
+     *
+     * @el 作品缩略图的元素
+     *
+     * @ev 鼠标进入或者移出 el 时的 Event 对象
+     *
+     * 没有 id 参数，因为鼠标离开时的 id 就是鼠标进入时的 id
+     */
     onLeave(cb) {
         this.leaveCallback.push(cb);
     }
@@ -528,7 +533,7 @@ class ArtworkThumbnail {
      * @btn 收藏按钮
      *
      * @ev 鼠标点击收藏按钮时的 Event 对象
-    */
+     */
     onClickBookmarkBtn(cb) {
         this.bookmarkBtnCallback.push(cb);
     }
@@ -929,7 +934,7 @@ class CenterPanel {
 
       </div>
       `;
-        document.body.insertAdjacentHTML('beforeend', centerPanelHTML);
+        document.body.insertAdjacentHTML('beforebegin', centerPanelHTML);
         this.centerPanel = document.querySelector('.centerWrap');
         this.updateLink = this.centerPanel.querySelector('.update');
         this.allTabTitle = this.centerPanel.querySelectorAll('.tabsTitle .title');
@@ -6178,11 +6183,9 @@ const loading = new Loading();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "log", function() { return log; });
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
-/* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./config/Colors */ "./src/ts/config/Colors.ts");
-
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
+/* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./config/Colors */ "./src/ts/config/Colors.ts");
 
 
 
@@ -6195,15 +6198,15 @@ class Log {
         this.refresh = document.createElement('span'); // 刷新时使用的元素
         this.levelColor = [
             'inherit',
-            _config_Colors__WEBPACK_IMPORTED_MODULE_3__["Colors"].textSuccess,
-            _config_Colors__WEBPACK_IMPORTED_MODULE_3__["Colors"].textWarning,
-            _config_Colors__WEBPACK_IMPORTED_MODULE_3__["Colors"].textError,
+            _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].textSuccess,
+            _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].textWarning,
+            _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].textError,
         ];
         this.max = 100;
         this.count = 0;
         this.toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
         this.scrollToBottom();
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.clearLog, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearLog, () => {
             this.clear();
         });
     }
@@ -6259,8 +6262,8 @@ class Log {
             this.logArea = document.createElement('div');
             this.logArea.classList.add('beautify_scrollbar', 'logContent');
             this.wrap.append(this.logArea);
-            _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].insertToHead(this.wrap);
-            _Theme__WEBPACK_IMPORTED_MODULE_2__["theme"].register(this.wrap);
+            document.body.insertAdjacentElement('beforebegin', this.wrap);
+            _Theme__WEBPACK_IMPORTED_MODULE_1__["theme"].register(this.wrap);
             // 虽然可以应用背景图片，但是由于日志区域比较狭长，背景图片的视觉效果不佳，看起来比较粗糙，所以还是不应用背景图片了
             // bg.useBG(this.wrap, 0.9)
         }
@@ -6414,6 +6417,194 @@ class MsgBox {
     }
 }
 const msgBox = new MsgBox();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/NovelThumbnail.ts":
+/*!**********************************!*\
+  !*** ./src/ts/NovelThumbnail.ts ***!
+  \**********************************/
+/*! exports provided: novelThumbnail */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "novelThumbnail", function() { return novelThumbnail; });
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+
+
+// 查找小说作品的缩略图，当鼠标进入、移出时等动作触发时执行回调函数
+class NovelThumbnail {
+    constructor() {
+        // 小说缩略图的选择器
+        // 选择器的元素必须含有作品的超链接（超链接可以在这个元素上，也可以在这个元素的子元素上）
+        this.selectors = [
+            'li[size="1"]>div',
+            'section li>div',
+            'nav>div>div',
+            'div.gtm-novel-work-recommend-link',
+            'section ul>div',
+            'section ul>li',
+            'div._ranking-item',
+            'div[size="496"]',
+            'li',
+        ];
+        this.enterCallback = [];
+        this.leaveCallback = [];
+        this.bookmarkBtnCallback = [];
+        // 立即对小说缩略图绑定事件
+        this.handleThumbnail(document.body);
+        // 使用监视器，让未来出现的小说缩略图也绑定上事件
+        this.createObserver(document.body);
+    }
+    // 判断元素是否含有小说缩略图，如果找到了缩略图则为其绑定事件
+    handleThumbnail(parent) {
+        if (!parent.querySelectorAll) {
+            return;
+        }
+        // 遍历所有的选择器，为找到的元素绑定事件
+        // 注意：有时候一个节点里会含有多种尺寸的缩略图，为了全部查找到它们，必须遍历所有的选择器。
+        // 如果在查找到某个选择器之后，不再查找剩余的选择器，就可能会遗漏一部分缩略图。
+        // 但是，这有可能会导致事件的重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
+        for (const selector of this.selectors) {
+            // 处理特殊的选择器
+            // 在小说排行榜里只使用 div._ranking-item
+            if (_PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.NovelRanking &&
+                selector !== 'div._ranking-item') {
+                continue;
+            }
+            // 在小说系列页面里只使用 section ul>li
+            if (_PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.NovelSeries &&
+                selector !== 'section ul>li') {
+                continue;
+            }
+            // div.gtm-novel-work-recommend-link 只能在小说页面里使用
+            if (selector === 'div.gtm-novel-work-recommend-link' &&
+                _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type !== _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.Novel) {
+                continue;
+            }
+            let elements = parent.querySelectorAll(selector);
+            // 处理特殊的动态添加的元素
+            // 有些动态添加的元素不能被选择器选中
+            // 小说系列页面里动态添加的就是 li 元素，并且这个 li 元素必须整个使用，不能再细分
+            if (_PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.NovelSeries &&
+                parent.nodeName === 'LI') {
+                elements = [parent];
+            }
+            for (const el of elements) {
+                // console.log(selector)
+                // console.log(el)
+                const id = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].findWorkIdFromElement(el, 'novels');
+                // 只有查找到作品 id 时才会执行回调函数
+                if (id) {
+                    // 如果这个缩略图元素、或者它的直接父元素、或者它的直接子元素已经有标记，就跳过它
+                    if (el.dataset.mouseover) {
+                        continue;
+                    }
+                    if (el.parentElement && el.parentElement.dataset.mouseover) {
+                        continue;
+                    }
+                    if (el.firstElementChild &&
+                        el.firstElementChild.dataset.mouseover) {
+                        continue;
+                    }
+                    // 当对一个缩略图元素绑定事件时，在它上面添加标记
+                    // 添加标记的目的是为了减少事件重复绑定的情况发生
+                    ;
+                    el.dataset.mouseover = '1';
+                    el.addEventListener('mouseenter', (ev) => {
+                        this.enterCallback.forEach((cb) => cb(el, id, ev));
+                    });
+                    el.addEventListener('mouseleave', (ev) => {
+                        this.leaveCallback.forEach((cb) => cb(el, ev));
+                    });
+                    // 查找小说缩略图右下角的收藏按钮
+                    // 缩略图容器里只有 1 个 button，就是收藏按钮。目前还没有发现有多个 button 的情况
+                    // 旧版缩略图里，缩略图元素是 div._one-click-bookmark （例如：各种排行榜页面）
+                    let bmkBtn;
+                    if (el.querySelector('button svg[width="32"]')) {
+                        bmkBtn = el.querySelector('button');
+                    }
+                    if (!bmkBtn) {
+                        const test2 = el.querySelector('div._one-click-bookmark');
+                        if (test2) {
+                            bmkBtn = test2;
+                        }
+                    }
+                    // 目前我没有观察到同一个收藏按钮会被重复绑定事件的情况，所以没必要添加特殊标记
+                    if (bmkBtn) {
+                        console.log('bmkBtn', bmkBtn);
+                        bmkBtn.addEventListener('click', (ev) => {
+                            this.bookmarkBtnCallback.forEach((cb) => {
+                                cb(id, bmkBtn, ev);
+                            });
+                        });
+                    }
+                }
+            }
+        }
+    }
+    createObserver(target) {
+        const observer = new MutationObserver((records) => {
+            for (const record of records) {
+                if (record.addedNodes.length > 0) {
+                    // 遍历被添加的元素
+                    for (const newEl of record.addedNodes) {
+                        // console.log(newEl)
+                        this.handleThumbnail(newEl);
+                    }
+                }
+            }
+        });
+        observer.observe(target, {
+            childList: true,
+            subtree: true,
+        });
+    }
+    /**添加鼠标进入小说缩略图时的回调。
+     *
+     * 回调函数会接收到 3 个参数：
+     *
+     * @el 小说缩略图的元素
+     *
+     * @id 作品 id
+     *
+     * @ev 鼠标进入或者移出 el 时的 Event 对象
+     */
+    onEnter(cb) {
+        this.enterCallback.push(cb);
+    }
+    /**添加鼠标进入小说缩略图时的回调。
+     *
+     * 回调函数会接收到 2 个参数：
+     *
+     * @el 小说缩略图的元素
+     *
+     * @ev 鼠标进入或者移出 el 时的 Event 对象
+     *
+     * 没有 id 参数，因为鼠标离开时的 id 就是鼠标进入时的 id
+     */
+    onLeave(cb) {
+        this.leaveCallback.push(cb);
+    }
+    /**添加用户点击缩略图里的收藏按钮时的回调
+     *
+     * 回调函数会接收到 3 个参数：
+     *
+     * @id 作品 id
+     *
+     * @btn 收藏按钮
+     *
+     * @ev 鼠标点击收藏按钮时的 Event 对象
+     */
+    onClickBookmarkBtn(cb) {
+        this.bookmarkBtnCallback.push(cb);
+    }
+}
+const novelThumbnail = new NovelThumbnail();
 
 
 
@@ -9670,18 +9861,6 @@ class Tools {
             return '';
         }
     }
-    // 从 DOM 元素中获取 artworks id
-    // 如果查找不到 id 会返回空字符串
-    static findIllustIdFromElement(el) {
-        let a;
-        if (el.nodeName === 'A') {
-            a = el;
-        }
-        else {
-            a = el.querySelector('a');
-        }
-        return a === null ? '' : this.getIllustId(a.href);
-    }
     // 从 url 里获取 novel id
     // 可以传入作品页面的 url（推荐）。如果未传入 url 则使用当前页面的 url（此时可能获取不到 id）
     // 如果查找不到 id 会返回空字符串
@@ -9694,6 +9873,33 @@ class Tools {
             result = test[1];
         }
         return result;
+    }
+    /**从 DOM 元素中获取作品的 id
+     *
+     * 如果查找不到 id 会返回空字符串
+     */
+    static findWorkIdFromElement(el, type = 'illusts') {
+        let a;
+        if (el.nodeName === 'A') {
+            a = el;
+        }
+        else {
+            if (type === 'illusts') {
+                a = el.querySelector('a[href^="/artworks/"]');
+            }
+            else {
+                a = el.querySelector('a[href^="/novel/show"]');
+            }
+        }
+        if (!a) {
+            return '';
+        }
+        if (type === 'illusts') {
+            return this.getIllustId(a.href);
+        }
+        else {
+            return this.getNovelId(a.href);
+        }
     }
     // 获取当前页面的用户 id
     // 这是一个不够可靠的 api
@@ -13690,7 +13896,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
         this.downIdInput.id = 'down_id_input';
         this.downIdInput.style.display = 'none';
         this.downIdInput.setAttribute('data-xzplaceholder', '_输入id进行抓取的提示文字');
-        _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].insertToHead(this.downIdInput);
+        document.body.insertAdjacentElement('beforebegin', this.downIdInput);
         _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.downIdInput);
         _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_清空已保存的抓取结果').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('clearSavedCrawl');
@@ -13733,7 +13939,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
         const div = document.createElement('div');
         div.classList.add('id_range_tip', 'beautify_scrollbar', 'logWrap');
         _Theme__WEBPACK_IMPORTED_MODULE_8__["theme"].register(div);
-        return _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].insertToHead(div);
+        return document.body.insertAdjacentElement('beforebegin', div);
     }
     // 把合法的 id 添加到数组里
     checkIdList() {
@@ -16289,10 +16495,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
-/* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
+/* harmony import */ var _NovelThumbnail__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../NovelThumbnail */ "./src/ts/NovelThumbnail.ts");
+
 
 
 
@@ -16310,17 +16518,20 @@ class DownloadOnClickBookmark {
     }
     bindEvents() {
         // 在作品缩略图上点击收藏按钮时，下载这个作品
-        _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_6__["artworkThumbnail"].onClickBookmarkBtn((id) => {
+        _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_9__["artworkThumbnail"].onClickBookmarkBtn((id) => {
             this.send(id);
         });
+        _NovelThumbnail__WEBPACK_IMPORTED_MODULE_10__["novelThumbnail"].onClickBookmarkBtn((id) => {
+            this.send(id, 'novels');
+        });
         // 在作品页面里点击收藏按钮时，下载这个作品
-        _WorkToolBar__WEBPACK_IMPORTED_MODULE_7__["workToolBar"].register((toolbar, pixivBMKDiv, likeBtn) => {
+        _WorkToolBar__WEBPACK_IMPORTED_MODULE_6__["workToolBar"].register((toolbar, pixivBMKDiv, likeBtn) => {
             pixivBMKDiv.addEventListener('click', () => {
-                if (_PageType__WEBPACK_IMPORTED_MODULE_8__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_8__["pageType"].list.Artwork) {
-                    this.send(_Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].getIllustId(window.location.href));
+                if (_PageType__WEBPACK_IMPORTED_MODULE_7__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_7__["pageType"].list.Artwork) {
+                    this.send(_Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].getIllustId(window.location.href));
                 }
-                if (_PageType__WEBPACK_IMPORTED_MODULE_8__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_8__["pageType"].list.Novel) {
-                    this.send(_Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].getNovelId(window.location.href), 'novels');
+                if (_PageType__WEBPACK_IMPORTED_MODULE_7__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_7__["pageType"].list.Novel) {
+                    this.send(_Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].getNovelId(window.location.href), 'novels');
                 }
             });
         });
@@ -19764,7 +19975,7 @@ class OutputPanel {
     </div>
     </div>
     `;
-        document.body.insertAdjacentHTML('beforeend', html);
+        document.body.insertAdjacentHTML('beforebegin', html);
         this.outputPanel = document.querySelector('.outputWrap');
         this.outputTitle = this.outputPanel.querySelector('.outputTitle');
         this.outputContent = this.outputPanel.querySelector('.outputContent');
