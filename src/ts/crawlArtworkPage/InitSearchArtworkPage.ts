@@ -24,6 +24,7 @@ import { Bookmark } from '../Bookmark'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { pageType } from '../PageType'
 import { Config } from '../config/Config'
+import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
 
 type AddBMKData = {
   id: number
@@ -406,7 +407,7 @@ class InitSearchArtworkPage extends InitPageBase {
         idListWithPageNo.add(
           pageType.type,
           {
-            type: API.getWorkType(nowData.illustType),
+            type: Tools.getWorkTypeString(nowData.illustType),
             id: nowData.id,
           },
           p
@@ -676,11 +677,15 @@ class InitSearchArtworkPage extends InitPageBase {
     ) as HTMLButtonElement
     const bookmarkedClass = this.bookmarkedClass
     addBMKBtn.addEventListener('click', function () {
+      // 添加收藏
       const e = new CustomEvent('addBMK', {
         detail: { data: { id: data.idNum, tags: data.tags } },
       })
       window.dispatchEvent(e)
       this.classList.add(bookmarkedClass)
+
+      // 下载这个作品
+      downloadOnClickBookmark.send(data.idNum.toString())
     })
 
     // 添加到缓冲中
@@ -760,6 +765,7 @@ class InitSearchArtworkPage extends InitPageBase {
   private reAddResult() {
     store.reset()
 
+    // store.addResult 会触发 addResult 事件，让本模块生成对应作品的预览，并显示作品数量
     for (let data of this.resultMeta) {
       store.addResult(data)
     }

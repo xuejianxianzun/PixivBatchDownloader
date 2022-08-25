@@ -45,7 +45,8 @@ class InitHomePage extends InitPageBase {
       'data-xzplaceholder',
       '_输入id进行抓取的提示文字'
     )
-    Tools.insertToHead<HTMLTextAreaElement>(this.downIdInput)
+    document.body.insertAdjacentElement('beforebegin', this.downIdInput)
+
     lang.register(this.downIdInput)
 
     Tools.addBtn(
@@ -95,11 +96,14 @@ class InitHomePage extends InitPageBase {
   }
 
   // 单独添加一个用于提示 id 范围的元素，因为上面的日志显示在日志区域的顶端，不便于查看
-  private createidRangeTip() {
+  private createidRangeTip(): HTMLDivElement {
     const div = document.createElement('div')
     div.classList.add('id_range_tip', 'beautify_scrollbar', 'logWrap')
     theme.register(div)
-    return Tools.insertToHead(div)
+    return document.body.insertAdjacentElement(
+      'beforebegin',
+      div
+    )! as HTMLDivElement
   }
 
   // 把合法的 id 添加到数组里

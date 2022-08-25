@@ -23,6 +23,7 @@ class InitBookmarkNewPage extends InitPageBase {
   }
 
   protected type: 'illust' | 'novel' = 'illust'
+  protected tag = ''
   protected r18 = false
   protected newVer = false
   // 这次抓取任务最多可以抓取到多少个作品
@@ -70,6 +71,7 @@ class InitBookmarkNewPage extends InitPageBase {
     this.setSlowCrawl()
 
     this.type = window.location.pathname.includes('/novel') ? 'novel' : 'illust'
+    this.tag = Utils.getURLSearchField(window.location.href, 'tag')
     this.r18 = location.pathname.includes('r18')
     this.newVer = !document.querySelector('h1')
     // 根据页数计算最多抓取多少个作品。新版一页 60 个作品，旧版一页 20 个作品
@@ -100,7 +102,7 @@ class InitBookmarkNewPage extends InitPageBase {
 
     let data
     try {
-      data = await API.getBookmarkNewWorkData(this.type, p, this.r18)
+      data = await API.getBookmarkNewWorkData(this.type, p, this.tag, this.r18)
     } catch (error) {
       this.getIdList()
       return
@@ -155,7 +157,7 @@ class InitBookmarkNewPage extends InitPageBase {
 
         if (await filter.check(filterOpt)) {
           store.idList.push({
-            type: API.getWorkType(data.illustType),
+            type: Tools.getWorkTypeString(data.illustType),
             id: data.id,
           })
         }

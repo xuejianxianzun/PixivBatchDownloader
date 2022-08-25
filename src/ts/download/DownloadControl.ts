@@ -316,6 +316,11 @@ class DownloadControl {
       return progressBar.reset(0)
     }
 
+    if (settings.downloadUgoiraFirst) {
+      store.resultMeta.sort(Tools.sortUgoiraFirst)
+      store.result.sort(Tools.sortUgoiraFirst)
+    }
+
     EVT.fire('readyDownload')
 
     this.showResultBtns()
