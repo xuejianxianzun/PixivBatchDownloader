@@ -303,6 +303,7 @@ export const formHtml = `<form class="settingForm">
       <option value="{view}">{view}</option>
       <option value="{rank}">{rank}</option>
       <option value="{date}">{date}</option>
+      <option value="{upload_date}">{upload_date}</option>
       <option value="{task_date}">{task_date}</option>
       <option value="{px}">{px}</option>
       <option value="{series_title}">{series_title}</option>
@@ -381,6 +382,9 @@ export const formHtml = `<form class="settingForm">
     <br>
     <span class="blue">{date}</span>
     <span data-xztext="_命名标记date"></span>
+    <br>
+    <span class="blue">{upload_date}</span>
+    <span data-xztext="_命名标记upload_date"></span>
     <br>
     <span class="blue">{task_date}</span>
     <span data-xztext="_命名标记taskDate"></span>
@@ -666,6 +670,22 @@ export const formHtml = `<form class="settingForm">
 
     <p class="option settingCategoryName" data-no="58">
       <span data-xztext="_下载"></span>
+    </p>
+    
+    <p class="option" data-no="76">
+    <span class="settingNameStyle1">
+    <span data-xztext="_点击收藏按钮时下载作品"></span>
+    </span>
+    <input type="checkbox" name="downloadOnClickBookmark" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
+    <p class="option" data-no="77">
+    <span class="settingNameStyle1">
+    <span data-xztext="_点击点赞按钮时下载作品"></span>
+    </span>
+    <input type="checkbox" name="downloadOnClickLike" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch" tabindex="0"></span>
     </p>
 
     <p class="option" data-no="4">

@@ -4,11 +4,9 @@ import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { store } from '../store/Store'
-import { QuickBookmark } from '../pageFunciton/QuickBookmark'
 import { userWorksType } from '../crawl/CrawlArgument'
 import { Tools } from '../Tools'
 import { API } from '../API'
-import { EVT } from '../EVT'
 import { Utils } from '../utils/Utils'
 
 class InitNovelPage extends InitPageBase {
@@ -24,18 +22,7 @@ class InitNovelPage extends InitPageBase {
   1 抓取旧作品
   */
 
-  protected initAny() {
-    this.initQuickBookmark()
-
-    window.addEventListener(
-      EVT.list.pageSwitchedTypeNotChange,
-      this.initQuickBookmark
-    )
-  }
-
-  private initQuickBookmark() {
-    new QuickBookmark()
-  }
+  protected initAny() {}
 
   protected addCrawlBtns() {
     Tools.addBtn(
@@ -69,11 +56,6 @@ class InitNovelPage extends InitPageBase {
   protected destroy() {
     Tools.clearSlot('crawlBtns')
     Tools.clearSlot('otherBtns')
-
-    window.removeEventListener(
-      EVT.list.pageSwitchedTypeNotChange,
-      this.initQuickBookmark
-    )
   }
 
   protected getWantPage() {

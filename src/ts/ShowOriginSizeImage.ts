@@ -1,7 +1,7 @@
 import { EVT } from './EVT'
 import { settings } from './setting/Settings'
 import { Utils } from './utils/Utils'
-import { mouseOverThumbnail } from './MouseOverThumbnail'
+import { artworkThumbnail } from './ArtworkThumbnail'
 import { PreviewUgoira } from './PreviewUgoira'
 import { ArtworkData } from './crawl/CrawlResult'
 import { states } from './store/States'
@@ -113,7 +113,7 @@ class ShowOriginSizeImage {
   }
 
   private bindEvents() {
-    mouseOverThumbnail.onEnter((el: HTMLElement) => {
+    artworkThumbnail.onEnter((el: HTMLElement) => {
       if (settings.showOriginImage) {
         // 这里测试在 CentBrowser（内核版本 86）中存在问题，因为 CentBrowser 里鼠标右键松开时才会触发 mousedown 事件，导致根本没法做鼠标长按的效果
         el.addEventListener('mousedown', this.readyShow)
@@ -121,7 +121,7 @@ class ShowOriginSizeImage {
       }
     })
 
-    mouseOverThumbnail.onLeave((el: HTMLElement) => {
+    artworkThumbnail.onLeave((el: HTMLElement) => {
       el.removeEventListener('mousedown', this.readyShow)
       el.removeEventListener('mouseup', this.cancelReadyShow)
     })

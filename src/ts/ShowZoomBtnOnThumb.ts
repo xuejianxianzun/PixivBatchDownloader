@@ -1,7 +1,7 @@
 import { EVT } from './EVT'
 import { ImageViewer } from './ImageViewer'
 import { settings } from './setting/Settings'
-import { mouseOverThumbnail } from './MouseOverThumbnail'
+import { artworkThumbnail } from './ArtworkThumbnail'
 
 // 在作品缩略图上显示放大按钮，点击按钮会调用图片查看器来查看大图
 class ShowZoomBtnOnThumb {
@@ -72,12 +72,12 @@ class ShowZoomBtnOnThumb {
       }
     })
 
-    mouseOverThumbnail.onEnter((el: HTMLElement, id: string) => {
+    artworkThumbnail.onEnter((el: HTMLElement, id: string) => {
       this.currentWorkId = id
       this.showBtn(el)
     })
 
-    mouseOverThumbnail.onLeave(() => {
+    artworkThumbnail.onLeave(() => {
       this.hiddenBtn()
     })
   }

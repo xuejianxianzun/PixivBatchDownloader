@@ -100,7 +100,7 @@ class CenterPanel {
 
       </div>
       `
-    document.body.insertAdjacentHTML('beforeend', centerPanelHTML)
+    document.body.insertAdjacentHTML('beforebegin', centerPanelHTML)
 
     this.centerPanel = document.querySelector('.centerWrap') as HTMLDivElement
 

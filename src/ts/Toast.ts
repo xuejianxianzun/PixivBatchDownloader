@@ -2,25 +2,38 @@ import { Colors } from './config/Colors'
 
 // 可选参数
 export interface ToastArgOptional {
-  // 可选，设置字体颜色，默认为白色
+  /**设置字体颜色，默认为白色 */
   color?: string
-  // 可选，设置背景颜色，默认为浅蓝色，或者是语义所对应的颜色
+  /**设置背景颜色。默认为浅蓝色，或者是语义所对应的颜色 */
   bgColor?: string
-  // 设置提示出现后的停留时间（毫秒）
-  // 默认 1500 ms
+  /**设置提示出现后的停留时间（毫秒），默认 1500 ms */
   stay?: number
-  // 出现时的动画效果
-  // top 默认,向上移动一段距离并逐渐显示
-  // fade 逐渐显示
-  // none 立即显示
+  /**出现时的动画效果
+   *
+   * fade 默认值逐渐消失
+   *
+   * up 向上移动一段距离并逐渐消失
+   *
+   * none 立即消失
+   */
   enter?: 'up' | 'fade' | 'none'
-  // 消失时的动画效果
-  // top 向上移动一段距离并逐渐消失
-  // fade 默认，逐渐消失
-  // none 立即消失
+  /**消失时的动画效果
+   *
+   * fade 默认值逐渐消失
+   *
+   * up 向上移动一段距离并逐渐消失
+   *
+   * none 立即消失
+   */
   leave?: 'up' | 'fade' | 'none'
-  // 提示出现的位置，默认是 topCenter
-  // 如果为 mouse 则提示会出现在鼠标光标附近
+  /**提示出现的位置
+   *
+   * topCenter 默认值，出现在屏幕上方，水平居中
+   *
+   * center 出现在屏幕正中央（实际上会稍微偏上一点点）
+   *
+   * mouse 提示出现在鼠标光标附近
+   */
   position?: 'topCenter' | 'center' | 'mouse'
 }
 

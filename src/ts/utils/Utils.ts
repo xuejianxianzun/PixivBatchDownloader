@@ -199,6 +199,23 @@ class Utils {
     }
   }
 
+  /**获取 URL path 中，某个路径名称后面的字符串。适用于符合 RESTful API 风格的路径
+   *
+   * 注意：传入的是 path，而不是整个 URL
+   */
+  // 例如：
+  // https://www.pixiv.net/users/27482064/following/%E9%83%A8%E5%88%86%E5%96%9C%E6%AC%A2
+  // 查询 'users' 返回 '27482064'
+  // 因为 location.pathname 传入的字符串是浏览器自动编码过的，所以返回的字符串也是编码过的
+  static getURLPathField(path: string, query: string) {
+    const array = path.split('/')
+    const index = array.findIndex((str) => str === query)
+    if (index === -1) {
+      return ''
+    }
+    return array[index + 1] || ''
+  }
+
   // 获取指定元素里，可见的结果
   static getVisibleEl(selector: string) {
     const list: NodeListOf<HTMLElement> = document.querySelectorAll(selector)

@@ -1,6 +1,6 @@
 import { ArtworkData, NovelData } from './crawl/CrawlResult'
 import { lang } from './Lang'
-import { Result } from './store/StoreType'
+import { WorkTypeString, Result } from './store/StoreType'
 import { Utils } from './utils/Utils'
 
 type artworkDataTagsItem = {
@@ -121,18 +121,6 @@ class Tools {
     }
   }
 
-  // 从 DOM 元素中获取 artworks id
-  // 如果查找不到 id 会返回空字符串
-  static findIllustIdFromElement(el: HTMLElement): string | '' {
-    let a: HTMLAnchorElement
-    if (el.nodeName === 'A') {
-      a = el as HTMLAnchorElement
-    } else {
-      a = el.querySelector('a') as HTMLAnchorElement
-    }
-    return a === null ? '' : this.getIllustId(a.href)
-  }
-
   // 从 url 里获取 novel id
   // 可以传入作品页面的 url（推荐）。如果未传入 url 则使用当前页面的 url（此时可能获取不到 id）
   // 如果查找不到 id 会返回空字符串
@@ -147,6 +135,34 @@ class Tools {
     }
 
     return result
+  }
+
+  /**从 DOM 元素中获取作品的 id
+   *
+   * 如果查找不到 id 会返回空字符串
+   */
+  static findWorkIdFromElement(
+    el: HTMLElement,
+    type: 'illusts' | 'novels' = 'illusts'
+  ): string {
+    let a: HTMLAnchorElement
+    if (el.nodeName === 'A') {
+      a = el as HTMLAnchorElement
+    } else {
+      if (type === 'illusts') {
+        a = el.querySelector('a[href^="/artworks/"]') as HTMLAnchorElement
+      } else {
+        a = el.querySelector('a[href^="/novel/show"]') as HTMLAnchorElement
+      }
+    }
+    if (!a) {
+      return ''
+    }
+    if (type === 'illusts') {
+      return this.getIllustId(a.href)
+    } else {
+      return this.getNovelId(a.href)
+    }
   }
 
   // 获取当前页面的用户 id
@@ -287,10 +303,16 @@ class Tools {
   }
 
   // 自定义的类型保护
+  /**判断 Tags 类型 */
   static isArtworkTags(
     data: artworkDataTagsItem | novelDataTagsItem
   ): data is artworkDataTagsItem {
     return (<artworkDataTagsItem>data).translation !== undefined
+  }
+
+  /**判断作品数据是图像作品还是小说作品 */
+  static isArtworkData(data: ArtworkData | NovelData): data is ArtworkData {
+    return (<ArtworkData>data).body.illustType !== undefined
   }
 
   /**从作品数据里提取出 tag 列表
@@ -543,6 +565,25 @@ class Tools {
       }
       resolve(result)
     })
+  }
+
+  /**根据 illustType，返回作品类型的描述字符串 */
+  // 主要用于储存进 idList
+  static getWorkTypeString(
+    illustType: 0 | 1 | 2 | 3 | '0' | '1' | '2' | '3'
+  ): WorkTypeString {
+    switch (parseInt(illustType.toString())) {
+      case 0:
+        return 'illusts'
+      case 1:
+        return 'manga'
+      case 2:
+        return 'ugoira'
+      case 3:
+        return 'novels'
+      default:
+        return 'unknown'
+    }
   }
 }
 

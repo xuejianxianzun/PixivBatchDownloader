@@ -128,4 +128,6 @@ export interface SettingsForm extends HTMLFormElement {
   timedCrawlInterval: HTMLInputElement
   slowCrawl: HTMLInputElement
   slowCrawlOnWorksNumber: HTMLInputElement
+  downloadOnClickBookmark: HTMLInputElement
+  downloadOnClickLike: HTMLInputElement
 }
