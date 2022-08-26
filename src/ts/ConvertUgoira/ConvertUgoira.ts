@@ -45,10 +45,6 @@ class ConvertUgoira {
       this.complete()
     })
 
-    window.addEventListener(EVT.list.readZipError, () => {
-      this.complete()
-    })
-
     // 如果转换动图时页面被隐藏了，则显示提示
     document.addEventListener('visibilitychange', () => {
       this.checkHidden()
