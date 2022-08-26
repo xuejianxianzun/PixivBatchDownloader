@@ -1213,9 +1213,6 @@ class ConvertUgoira {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.convertSuccess, () => {
             this.complete();
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.readZipError, () => {
-            this.complete();
-        });
         // 如果转换动图时页面被隐藏了，则显示提示
         document.addEventListener('visibilitychange', () => {
             this.checkHidden();
@@ -1626,8 +1623,6 @@ class EVENT {
             importSettings: 'importSettings',
             /** 当动图转换数量发生变化时触发 */
             convertChange: 'convertChange',
-            /** 当读取/解压 zip 文件出错时触发 */
-            readZipError: 'readZipError',
             /** 当动图转换成功时触发 */
             convertSuccess: 'convertSuccess',
             /** 指示打开中间面板 */
@@ -9885,10 +9880,10 @@ class Tools {
         }
         else {
             if (type === 'illusts') {
-                a = el.querySelector('a[href^="/artworks/"]');
+                a = el.querySelector('a[href*="/artworks/"]');
             }
             else {
-                a = el.querySelector('a[href^="/novel/show"]');
+                a = el.querySelector('a[href*="/novel/show"]');
             }
         }
         if (!a) {
