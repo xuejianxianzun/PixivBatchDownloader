@@ -200,6 +200,9 @@ class InitSearchNovelPage extends InitPageBase {
       }
     })
 
+    // 抓取时始终关闭“以系列为单位显示”
+    this.option.gs = '0'
+
     // 如果 url 里没有显式指定标签匹配模式，则使用 完全一致 模式
     // 因为在这种情况下，pixiv 默认使用的就是 完全一致
     if (!this.option.s_mode) {
