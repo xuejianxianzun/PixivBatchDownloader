@@ -282,7 +282,7 @@ export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
   <p class="option" data-no="13">
     <span class="settingNameStyle1" data-xztext="_命名规则"></span>
-    <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{p_title}/{id}">
+    <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{page_title}/{id}">
     &nbsp;
     <select name="fileNameSelect" class="beautify_scrollbar">
       <option value="default">…</option>
@@ -290,11 +290,11 @@ export const formHtml = `<form class="settingForm">
       <option value="{user}">{user}</option>
       <option value="{user_id}">{user_id}</option>
       <option value="{title}">{title}</option>
-      <option value="{p_title}">{p_title}</option>
+      <option value="{page_title}">{page_title}</option>
       <option value="{tags}">{tags}</option>
       <option value="{tags_translate}">{tags_translate}</option>
       <option value="{tags_transl_only}">{tags_transl_only}</option>
-      <option value="{p_tag}">{p_tag}</option>
+      <option value="{page_tag}">{page_tag}</option>
       <option value="{type}">{type}</option>
       <option value="{like}">{like}</option>
       <option value="{bmk}">{bmk}</option>
@@ -344,7 +344,7 @@ export const formHtml = `<form class="settingForm">
     <span class="blue">{title}</span>
     <span data-xztext="_命名标记title"></span>
     <br>
-    <span class="blue">{p_title}</span>
+    <span class="blue">{page_title}</span>
     <span data-xztext="_文件夹标记PTitle"></span>
     <br>
     <span class="blue">{tags}</span>
@@ -356,7 +356,7 @@ export const formHtml = `<form class="settingForm">
     <span class="blue">{tags_transl_only}</span>
     <span data-xztext="_命名标记tags_transl_only"></span>
     <br>
-    <span class="blue">{p_tag}</span>
+    <span class="blue">{page_tag}</span>
     <span data-xztext="_文件夹标记PTag"></span>
     <br>
     <span class="blue">{type}</span>

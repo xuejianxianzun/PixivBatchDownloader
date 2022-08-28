@@ -1886,7 +1886,7 @@ class FileName {
         // 如果文件名开头不可用的特殊字符
         result = this.removeStartChar(result);
         // 测试用例
-        // const testStr = ' / / {p_tag} / {p_title} /{id}-{user}'
+        // const testStr = ' / / {page_tag} / {page_title} /{id}-{user}'
         // console.log(this.removeStartChar(testStr))
         // 如果文件名的尾部是 / 则去掉
         if (result.endsWith('/')) {
@@ -1916,7 +1916,17 @@ class FileName {
                 prefix: '',
                 safe: false,
             },
+            '{page_title}': {
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].title,
+                prefix: '',
+                safe: false,
+            },
             '{p_tag}': {
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].tag,
+                prefix: '',
+                safe: false,
+            },
+            '{page_tag}': {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].tag,
                 prefix: '',
                 safe: false,
@@ -5357,11 +5367,11 @@ const langText = {
         '긁어올 태그를 입력해주세요. 여러 태그는 줄 바꿈 사용',
     ],
     _抓取标签列表的文件夹提示: [
-        '在抓取标签列表时，你可以使用 {p_tag} 或者 {p_title} 标记获取当前抓取的标签，并用来建立文件夹。例如：{p_tag}/{id}',
-        '在擷取標籤列表時，你可以使用 {p_tag} 或者 {p_title} 標記獲取目前擷取的標籤，並用來建立資料夾。例如：{p_tag}/{id}',
-        'When crawling the tag list, you can use {p_tag} or {p_title} tags to get the tags currently crawled and use them to create folders. For example: {p_tag}/{id}',
-        'タグリストをクロールする時に、 {p_tag} や {p_title}を使用すると、現在クロールされているタグを取得し、それらを使ってフォルダを作成することができます。例：{p_tag}/{id}',
-        '태그를 긁어올 때 {p_tag} 또는 {p_title} 태그를 사용하여, 긁어온 태그로 디렉토리를 생성할 수 있습니다. 예: {p_tag}/{id}',
+        '在抓取标签列表时，你可以使用 {page_tag} 或者 {page_title} 标记获取当前抓取的标签，并用来建立文件夹。例如：{page_tag}/{id}',
+        '在擷取標籤列表時，你可以使用 {page_tag} 或者 {page_title} 標記獲取目前擷取的標籤，並用來建立資料夾。例如：{page_tag}/{id}',
+        'When crawling the tag list, you can use {page_tag} or {page_title} tags to get the tags currently crawled and use them to create folders. For example: {page_tag}/{id}',
+        'タグリストをクロールする時に、 {page_tag} や {page_title}を使用すると、現在クロールされているタグを取得し、それらを使ってフォルダを作成することができます。例：{page_tag}/{id}',
+        '태그를 긁어올 때 {page_tag} 또는 {page_title} 태그를 사용하여, 긁어온 태그로 디렉토리를 생성할 수 있습니다. 예: {page_tag}/{id}',
     ],
     _停止抓取标签列表: [
         '停止抓取标签列表',
@@ -21806,7 +21816,7 @@ const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
   <p class="option" data-no="13">
     <span class="settingNameStyle1" data-xztext="_命名规则"></span>
-    <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{p_title}/{id}">
+    <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{page_title}/{id}">
     &nbsp;
     <select name="fileNameSelect" class="beautify_scrollbar">
       <option value="default">…</option>
@@ -21814,11 +21824,11 @@ const formHtml = `<form class="settingForm">
       <option value="{user}">{user}</option>
       <option value="{user_id}">{user_id}</option>
       <option value="{title}">{title}</option>
-      <option value="{p_title}">{p_title}</option>
+      <option value="{page_title}">{page_title}</option>
       <option value="{tags}">{tags}</option>
       <option value="{tags_translate}">{tags_translate}</option>
       <option value="{tags_transl_only}">{tags_transl_only}</option>
-      <option value="{p_tag}">{p_tag}</option>
+      <option value="{page_tag}">{page_tag}</option>
       <option value="{type}">{type}</option>
       <option value="{like}">{like}</option>
       <option value="{bmk}">{bmk}</option>
@@ -21868,7 +21878,7 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{title}</span>
     <span data-xztext="_命名标记title"></span>
     <br>
-    <span class="blue">{p_title}</span>
+    <span class="blue">{page_title}</span>
     <span data-xztext="_文件夹标记PTitle"></span>
     <br>
     <span class="blue">{tags}</span>
@@ -21880,7 +21890,7 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{tags_transl_only}</span>
     <span data-xztext="_命名标记tags_transl_only"></span>
     <br>
-    <span class="blue">{p_tag}</span>
+    <span class="blue">{page_tag}</span>
     <span data-xztext="_文件夹标记PTag"></span>
     <br>
     <span class="blue">{type}</span>
@@ -23025,7 +23035,7 @@ __webpack_require__.r(__webpack_exports__);
 class NameRuleManager {
     constructor() {
         // 所有页面通用的命名规则
-        this.generalRule = '{p_title}/{id}';
+        this.generalRule = '{page_title}/{id}';
         // 命名规则输入框的集合
         this.inputList = [];
         this.bindEvents();
@@ -23130,7 +23140,7 @@ class NameRuleManager {
     // 处理用命名规则的非法字符和非法规则
     // 这里不必处理得非常详尽，因为在生成文件名时，还会对结果进行处理
     // 测试用例：在作品页面内设置下面的命名规则，下载器会自动进行更正
-    // /{p_tag}/|/{user}////<//{rank}/{px}/{sl}/{p_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
+    // /{page_tag}/|/{user}////<//{rank}/{px}/{sl}/{page_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
     handleUserSetName(str) {
         // 替换命名规则里可能存在的非法字符
         str = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__["Utils"].replaceUnsafeStr(str);
@@ -23510,7 +23520,7 @@ class Settings {
             notNeedTag: [],
             autoStartDownload: true,
             downloadThread: 5,
-            userSetName: '{p_title}/{id}',
+            userSetName: '{page_title}/{id}',
             namingRuleList: [],
             tagNameToFileName: false,
             workDir: false,
@@ -23595,29 +23605,29 @@ class Settings {
             saveMetaType3: false,
             setNameRuleForEachPageType: false,
             nameRuleForEachPageType: {
-                '-1': '{p_title}/{id}',
-                '0': '{p_title}/{id}',
-                '1': '{p_title}/{id}',
+                '-1': '{page_title}/{id}',
+                '0': '{page_title}/{id}',
+                '1': '{page_title}/{id}',
                 '2': '{user}/{id}',
-                '3': '{p_title}/{id}',
-                '4': '{p_title}/{id}',
-                '5': '{p_tag}/{id}',
-                '6': '{p_title}/{id}',
-                '7': '{p_title}/{rank}-{id}',
-                '8': '{p_title}/{id}',
-                '9': '{p_title}/{id}',
-                '10': '{p_title}/{id}',
-                '11': '{p_title}/{id}',
-                '12': '{p_title}/{id}',
-                '13': '{p_title}/{id}-{title}',
+                '3': '{page_title}/{id}',
+                '4': '{page_title}/{id}',
+                '5': '{page_tag}/{id}',
+                '6': '{page_title}/{id}',
+                '7': '{page_title}/{rank}-{id}',
+                '8': '{page_title}/{id}',
+                '9': '{page_title}/{id}',
+                '10': '{page_title}/{id}',
+                '11': '{page_title}/{id}',
+                '12': '{page_title}/{id}',
+                '13': '{page_title}/{id}-{title}',
                 '14': '{user}/{series_title}/{series_order} {title} {id}',
-                '15': '{p_tag}/{id}-{title}',
-                '16': '{p_title}/{rank}-{id}-{title}',
-                '17': '{p_title}/{id}-{title}',
-                '18': '{p_title}/{id}-{title}',
+                '15': '{page_tag}/{id}-{title}',
+                '16': '{page_title}/{rank}-{id}-{title}',
+                '17': '{page_title}/{id}-{title}',
+                '18': '{page_title}/{id}-{title}',
                 '19': '{user}/{series_title}/{series_order} {title} {id}',
-                '20': '{p_title}/{id}',
-                '21': '{p_title}/{id}-{title}',
+                '20': '{page_title}/{id}',
+                '21': '{page_title}/{id}-{title}',
             },
             showAdvancedSettings: false,
             showNotificationAfterDownloadComplete: false,
