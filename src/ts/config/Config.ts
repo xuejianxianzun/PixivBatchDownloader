@@ -15,11 +15,11 @@ class Config {
   static readonly settingStoreName = 'xzSetting'
   /**按收藏数量过滤作品时，预设的最大收藏数量 */
   static readonly BookmarkCountLimit = 9999999
-  /**作品总数量限制 */
-  static readonly worksNumberLimit = 999999999
+  /**Pixiv 作品总数量上限 */
+  static readonly worksNumberLimit = 9999999999
   /**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
   static retryTimer = 200000
-  /**慢速抓取模式下，每个抓取请求之间的间隔时间 */
+  /**慢速抓取模式下，每个抓取请求之间的间隔时间（ms） */
   static slowCrawlDealy = 1300
 }
 

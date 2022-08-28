@@ -222,8 +222,8 @@ class API {
     // 获取用户指定类型、并且指定 tag 的作品列表
     // 返回整个请求的结果，里面包含作品的详细信息
     // 必须带 tag 使用。不带 tag 虽然也能获得数据，但是获得的并不全，很奇怪。
-    static getUserWorksByTypeWithTag(id, type, tag, offset = 0, limit = 999999) {
-        // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=9999999
+    static getUserWorksByTypeWithTag(id, type, tag, offset = 0, limit = 100) {
+        // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=100
         const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${limit}`;
         return this.sendGetRequest(url);
     }
@@ -5557,11 +5557,11 @@ const langText = {
         '여러 이미지 작품을 미리 볼 때, 마우스 휠을 사용하여 이미지를 전환할 수 있습니다.',
     ],
     _whatisnew: [
-        `当抓取作品发生429 错误时，下载器会重新抓取这个作品。`,
-        `當抓取作品發生429 錯誤時，下載器會重新抓取這個作品。`,
-        `When a 429 error occurs when crawling a work, the downloader will re-crawl the work.`,
-        `作品のクロール時に429エラーが発生した場合、ダウンローダは作品を再クロールします。`,
-        `작품을 크롤링할 때 429 오류가 발생하면 다운로더가 작품을 다시 크롤링합니다.`,
+        `修复因为 Pixiv 的变化而导致的抓取失败的问题。`,
+        `修復因為 Pixiv 的變化而導致的抓取失敗的問題。`,
+        `Fixed crawl failures due to Pixiv changes.`,
+        `Pixiv の変更によるクロールの失敗を修正しました。`,
+        `Pixiv 변경으로 인한 크롤링 실패를 수정했습니다.`,
     ],
     _等待时间: ['等待时间', '等待時間', 'Waiting time', '待ち時間', '대기 시간'],
     _格式错误: [
@@ -9190,25 +9190,13 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '13.5.0';
+        this.flag = '13.5.3';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `
-      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增命名标记')}：</strong>
-      <br>
-      <span class="blue">{upload_date}</span> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记upload_date')}
-      <br>
-      <br>
-      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}：</strong>
-      <br>
-      1. ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_点击收藏按钮时下载作品')}
-      <br>
-      2. ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_点击点赞按钮时下载作品')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载'))}`;
+            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_whatisnew')}`;
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -10506,11 +10494,11 @@ Config.appName = 'Powerful Pixiv Downloader';
 Config.settingStoreName = 'xzSetting';
 /**按收藏数量过滤作品时，预设的最大收藏数量 */
 Config.BookmarkCountLimit = 9999999;
-/**作品总数量限制 */
-Config.worksNumberLimit = 999999999;
+/**Pixiv 作品总数量上限 */
+Config.worksNumberLimit = 9999999999;
 /**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
 Config.retryTimer = 200000;
-/**慢速抓取模式下，每个抓取请求之间的间隔时间 */
+/**慢速抓取模式下，每个抓取请求之间的间隔时间（ms） */
 Config.slowCrawlDealy = 1300;
 
 
@@ -14326,55 +14314,66 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
     // 获取用户某些类型的作品的 id 列表（附带 tag）
     async getIdListByTag() {
         // 这里不用判断用户主页的情况，因为用户主页不会带 tag
-        let flag = 'illustmanga';
+        let type = 'illustmanga';
         switch (this.listType) {
             case ListType.Artworks:
-                flag = 'illustmanga';
+                type = 'illustmanga';
                 break;
             case ListType.Illustrations:
-                flag = 'illusts';
+                type = 'illusts';
                 break;
             case ListType.Manga:
-                flag = 'manga';
+                type = 'manga';
                 break;
             case ListType.Novels:
-                flag = 'novels';
+                type = 'novels';
                 break;
         }
-        // 计算偏移量和需要保留的作品个数
-        const offset = this.getOffset();
+        // 计算初始偏移量
+        let offset = this.getOffset();
+        // 计算需要获取多少个作品
         const requsetNumber = this.getRequsetNumber();
-        let data = await _API__WEBPACK_IMPORTED_MODULE_4__["API"].getUserWorksByTypeWithTag(_Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].getUserId(), flag, _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].tag, offset, requsetNumber);
-        // 图片和小说返回的数据是不同的，小说并没有 illustType 标记
-        if (this.listType === ListType.Novels) {
-            const d = data;
-            d.body.works.forEach((data) => _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
-                type: 'novels',
-                id: data.id,
-            }));
-        }
-        else {
-            const d = data;
-            d.body.works.forEach((data) => {
-                let type = 'illusts';
-                switch (data.illustType) {
-                    case 0:
-                        type = 'illusts';
-                        break;
-                    case 1:
-                        type = 'manga';
-                        break;
-                    case 2:
-                        type = 'ugoira';
-                        break;
-                }
-                _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
-                    type,
+        // 循环请求作品
+        const maxRequest = 100;
+        for (const iterator of new Array(maxRequest)) {
+            let data = await _API__WEBPACK_IMPORTED_MODULE_4__["API"].getUserWorksByTypeWithTag(_Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].getUserId(), type, _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].tag, offset, this.onceNumber);
+            // 图片和小说返回的数据是不同的，小说没有 illustType 标记
+            if (this.listType === ListType.Novels) {
+                const d = data;
+                d.body.works.forEach((data) => _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
+                    type: 'novels',
                     id: data.id,
+                }));
+            }
+            else {
+                const d = data;
+                d.body.works.forEach((data) => {
+                    let type = 'illusts';
+                    switch (data.illustType) {
+                        case 0:
+                            type = 'illusts';
+                            break;
+                        case 1:
+                            type = 'manga';
+                            break;
+                        case 2:
+                            type = 'ugoira';
+                            break;
+                    }
+                    _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
+                        type,
+                        id: data.id,
+                    });
                 });
-            });
+            }
+            offset += data.body.works.length;
+            // 如果已经抓取到了预定的数量
+            // 或者 API 返回的作品数量不足一页的数量，则认为抓取完毕
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.length >= requsetNumber ||
+                data.body.works.length < this.onceNumber) {
+                return this.getIdListFinished();
+            }
         }
-        this.getIdListFinished();
     }
     resetGetIdListStatus() {
         this.listType = ListType.UserHome;
