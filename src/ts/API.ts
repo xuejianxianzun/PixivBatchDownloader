@@ -235,9 +235,9 @@ class API {
     type: tagPageFlag,
     tag: string,
     offset: number = 0,
-    limit: number = 999999
+    limit: number = 100
   ): Promise<UserImageWorksWithTag | UserNovelsWithTag> {
-    // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=9999999
+    // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=100
     const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${limit}`
     return this.sendGetRequest(url)
   }
