@@ -150,9 +150,9 @@ class Tools {
       a = el as HTMLAnchorElement
     } else {
       if (type === 'illusts') {
-        a = el.querySelector('a[href^="/artworks/"]') as HTMLAnchorElement
+        a = el.querySelector('a[href*="/artworks/"]') as HTMLAnchorElement
       } else {
-        a = el.querySelector('a[href^="/novel/show"]') as HTMLAnchorElement
+        a = el.querySelector('a[href*="/novel/show"]') as HTMLAnchorElement
       }
     }
     if (!a) {
