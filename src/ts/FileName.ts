@@ -156,7 +156,7 @@ class FileName {
     // 如果文件名开头不可用的特殊字符
     result = this.removeStartChar(result)
     // 测试用例
-    // const testStr = ' / / {p_tag} / {p_title} /{id}-{user}'
+    // const testStr = ' / / {page_tag} / {page_title} /{id}-{user}'
     // console.log(this.removeStartChar(testStr))
 
     // 如果文件名的尾部是 / 则去掉
@@ -195,7 +195,17 @@ class FileName {
         prefix: '',
         safe: false,
       },
+      '{page_title}': {
+        value: store.title,
+        prefix: '',
+        safe: false,
+      },
       '{p_tag}': {
+        value: store.tag,
+        prefix: '',
+        safe: false,
+      },
+      '{page_tag}': {
         value: store.tag,
         prefix: '',
         safe: false,

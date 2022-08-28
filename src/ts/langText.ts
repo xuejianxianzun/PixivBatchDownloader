@@ -2285,11 +2285,11 @@ const langText = {
     '긁어올 태그를 입력해주세요. 여러 태그는 줄 바꿈 사용',
   ],
   _抓取标签列表的文件夹提示: [
-    '在抓取标签列表时，你可以使用 {p_tag} 或者 {p_title} 标记获取当前抓取的标签，并用来建立文件夹。例如：{p_tag}/{id}',
-    '在擷取標籤列表時，你可以使用 {p_tag} 或者 {p_title} 標記獲取目前擷取的標籤，並用來建立資料夾。例如：{p_tag}/{id}',
-    'When crawling the tag list, you can use {p_tag} or {p_title} tags to get the tags currently crawled and use them to create folders. For example: {p_tag}/{id}',
-    'タグリストをクロールする時に、 {p_tag} や {p_title}を使用すると、現在クロールされているタグを取得し、それらを使ってフォルダを作成することができます。例：{p_tag}/{id}',
-    '태그를 긁어올 때 {p_tag} 또는 {p_title} 태그를 사용하여, 긁어온 태그로 디렉토리를 생성할 수 있습니다. 예: {p_tag}/{id}',
+    '在抓取标签列表时，你可以使用 {page_tag} 或者 {page_title} 标记获取当前抓取的标签，并用来建立文件夹。例如：{page_tag}/{id}',
+    '在擷取標籤列表時，你可以使用 {page_tag} 或者 {page_title} 標記獲取目前擷取的標籤，並用來建立資料夾。例如：{page_tag}/{id}',
+    'When crawling the tag list, you can use {page_tag} or {page_title} tags to get the tags currently crawled and use them to create folders. For example: {page_tag}/{id}',
+    'タグリストをクロールする時に、 {page_tag} や {page_title}を使用すると、現在クロールされているタグを取得し、それらを使ってフォルダを作成することができます。例：{page_tag}/{id}',
+    '태그를 긁어올 때 {page_tag} 또는 {page_title} 태그를 사용하여, 긁어온 태그로 디렉토리를 생성할 수 있습니다. 예: {page_tag}/{id}',
   ],
   _停止抓取标签列表: [
     '停止抓取标签列表',

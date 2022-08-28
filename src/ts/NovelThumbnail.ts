@@ -125,7 +125,6 @@ class NovelThumbnail {
           }
           // 目前我没有观察到同一个收藏按钮会被重复绑定事件的情况，所以没必要添加特殊标记
           if (bmkBtn) {
-            console.log('bmkBtn', bmkBtn)
             bmkBtn.addEventListener('click', (ev) => {
               this.bookmarkBtnCallback.forEach((cb) => {
                 cb(id, bmkBtn, ev)
