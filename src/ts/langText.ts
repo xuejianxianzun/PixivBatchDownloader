@@ -2285,11 +2285,11 @@ const langText = {
     '긁어올 태그를 입력해주세요. 여러 태그는 줄 바꿈 사용',
   ],
   _抓取标签列表的文件夹提示: [
-    '在抓取标签列表时，你可以使用 {p_tag} 或者 {p_title} 标记获取当前抓取的标签，并用来建立文件夹。例如：{p_tag}/{id}',
-    '在擷取標籤列表時，你可以使用 {p_tag} 或者 {p_title} 標記獲取目前擷取的標籤，並用來建立資料夾。例如：{p_tag}/{id}',
-    'When crawling the tag list, you can use {p_tag} or {p_title} tags to get the tags currently crawled and use them to create folders. For example: {p_tag}/{id}',
-    'タグリストをクロールする時に、 {p_tag} や {p_title}を使用すると、現在クロールされているタグを取得し、それらを使ってフォルダを作成することができます。例：{p_tag}/{id}',
-    '태그를 긁어올 때 {p_tag} 또는 {p_title} 태그를 사용하여, 긁어온 태그로 디렉토리를 생성할 수 있습니다. 예: {p_tag}/{id}',
+    '在抓取标签列表时，你可以使用 {page_tag} 或者 {page_title} 标记获取当前抓取的标签，并用来建立文件夹。例如：{page_tag}/{id}',
+    '在擷取標籤列表時，你可以使用 {page_tag} 或者 {page_title} 標記獲取目前擷取的標籤，並用來建立資料夾。例如：{page_tag}/{id}',
+    'When crawling the tag list, you can use {page_tag} or {page_title} tags to get the tags currently crawled and use them to create folders. For example: {page_tag}/{id}',
+    'タグリストをクロールする時に、 {page_tag} や {page_title}を使用すると、現在クロールされているタグを取得し、それらを使ってフォルダを作成することができます。例：{page_tag}/{id}',
+    '태그를 긁어올 때 {page_tag} 또는 {page_title} 태그를 사용하여, 긁어온 태그로 디렉토리를 생성할 수 있습니다. 예: {page_tag}/{id}',
   ],
   _停止抓取标签列表: [
     '停止抓取标签列表',
@@ -2400,11 +2400,11 @@ const langText = {
     '여러 이미지 작품을 미리 볼 때, 마우스 휠을 사용하여 이미지를 전환할 수 있습니다.',
   ],
   _whatisnew: [
-    `当抓取作品发生429 错误时，下载器会重新抓取这个作品。`,
-    `當抓取作品發生429 錯誤時，下載器會重新抓取這個作品。`,
-    `When a 429 error occurs when crawling a work, the downloader will re-crawl the work.`,
-    `作品のクロール時に429エラーが発生した場合、ダウンローダは作品を再クロールします。`,
-    `작품을 크롤링할 때 429 오류가 발생하면 다운로더가 작품을 다시 크롤링합니다.`,
+    `修复因为 Pixiv 的变化而导致的抓取失败的问题。`,
+    `修復因為 Pixiv 的變化而導致的抓取失敗的問題。`,
+    `Fixed crawl failures due to Pixiv changes.`,
+    `Pixiv の変更によるクロールの失敗を修正しました。`,
+    `Pixiv 변경으로 인한 크롤링 실패를 수정했습니다.`,
   ],
   _等待时间: ['等待时间', '等待時間', 'Waiting time', '待ち時間', '대기 시간'],
   _格式错误: [

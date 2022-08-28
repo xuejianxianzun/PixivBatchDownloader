@@ -222,8 +222,8 @@ class API {
     // 获取用户指定类型、并且指定 tag 的作品列表
     // 返回整个请求的结果，里面包含作品的详细信息
     // 必须带 tag 使用。不带 tag 虽然也能获得数据，但是获得的并不全，很奇怪。
-    static getUserWorksByTypeWithTag(id, type, tag, offset = 0, limit = 999999) {
-        // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=9999999
+    static getUserWorksByTypeWithTag(id, type, tag, offset = 0, limit = 100) {
+        // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=100
         const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${limit}`;
         return this.sendGetRequest(url);
     }
@@ -1099,6 +1099,81 @@ new CenterPanel();
 
 /***/ }),
 
+/***/ "./src/ts/CheckNewVersion.ts":
+/*!***********************************!*\
+  !*** ./src/ts/CheckNewVersion.ts ***!
+  \***********************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
+// 检查新版本
+class CheckNewVersion {
+    constructor() {
+        this.checkNew();
+    }
+    async checkNew() {
+        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].isPixiv()) {
+            return;
+        }
+        // 读取上一次检查的时间，如果超过指定的时间，则检查 GitHub 上的信息
+        const timeName = 'xzUpdateTime';
+        const verName = 'xzGithubVer';
+        const interval = 1000 * 60 * 30; // 30 分钟检查一次
+        const lastTime = localStorage.getItem(timeName);
+        if (!lastTime || new Date().getTime() - parseInt(lastTime) > interval) {
+            // 获取最新的 releases 信息
+            const latest = await fetch('https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest');
+            const latestJson = await latest.json();
+            const latestVer = latestJson.name;
+            // 保存 GitHub 上的版本信息
+            localStorage.setItem(verName, latestVer);
+            // 保存本次检查的时间戳
+            localStorage.setItem(timeName, new Date().getTime().toString());
+        }
+        // 获取本地扩展的版本号
+        const manifest = await fetch(chrome.runtime.getURL('manifest.json'));
+        const manifestJson = await manifest.json();
+        const manifestVer = manifestJson.version;
+        // 比较大小
+        const latestVer = localStorage.getItem(verName);
+        if (!latestVer) {
+            return;
+        }
+        if (this.bigger(latestVer, manifestVer)) {
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('hasNewVer');
+        }
+    }
+    // 传入两个版本号字符串，比较第一个是否比第二个大
+    bigger(a, b) {
+        const _a = a.split('.');
+        const _b = b.split('.');
+        // 分别比较每一个版本号字段，从主版本号比较到子版本号
+        for (let i = 0; i < _a.length; i++) {
+            if (_b[i] === undefined) {
+                break;
+            }
+            // 一旦某个版本号不相等，就立即返回结果
+            if (Number.parseInt(_a[i]) > Number.parseInt(_b[i])) {
+                return true;
+            }
+            else if (Number.parseInt(_a[i]) < Number.parseInt(_b[i])) {
+                return false;
+            }
+        }
+        return false;
+    }
+}
+new CheckNewVersion();
+
+
+/***/ }),
+
 /***/ "./src/ts/CheckUnsupportBrowser.ts":
 /*!*****************************************!*\
   !*** ./src/ts/CheckUnsupportBrowser.ts ***!
@@ -1211,9 +1286,6 @@ class ConvertUgoira {
             }
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.convertSuccess, () => {
-            this.complete();
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.readZipError, () => {
             this.complete();
         });
         // 如果转换动图时页面被隐藏了，则显示提示
@@ -1626,8 +1698,6 @@ class EVENT {
             importSettings: 'importSettings',
             /** 当动图转换数量发生变化时触发 */
             convertChange: 'convertChange',
-            /** 当读取/解压 zip 文件出错时触发 */
-            readZipError: 'readZipError',
             /** 当动图转换成功时触发 */
             convertSuccess: 'convertSuccess',
             /** 指示打开中间面板 */
@@ -1891,7 +1961,7 @@ class FileName {
         // 如果文件名开头不可用的特殊字符
         result = this.removeStartChar(result);
         // 测试用例
-        // const testStr = ' / / {p_tag} / {p_title} /{id}-{user}'
+        // const testStr = ' / / {page_tag} / {page_title} /{id}-{user}'
         // console.log(this.removeStartChar(testStr))
         // 如果文件名的尾部是 / 则去掉
         if (result.endsWith('/')) {
@@ -1921,7 +1991,17 @@ class FileName {
                 prefix: '',
                 safe: false,
             },
+            '{page_title}': {
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].title,
+                prefix: '',
+                safe: false,
+            },
             '{p_tag}': {
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].tag,
+                prefix: '',
+                safe: false,
+            },
+            '{page_tag}': {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].tag,
                 prefix: '',
                 safe: false,
@@ -5362,11 +5442,11 @@ const langText = {
         '긁어올 태그를 입력해주세요. 여러 태그는 줄 바꿈 사용',
     ],
     _抓取标签列表的文件夹提示: [
-        '在抓取标签列表时，你可以使用 {p_tag} 或者 {p_title} 标记获取当前抓取的标签，并用来建立文件夹。例如：{p_tag}/{id}',
-        '在擷取標籤列表時，你可以使用 {p_tag} 或者 {p_title} 標記獲取目前擷取的標籤，並用來建立資料夾。例如：{p_tag}/{id}',
-        'When crawling the tag list, you can use {p_tag} or {p_title} tags to get the tags currently crawled and use them to create folders. For example: {p_tag}/{id}',
-        'タグリストをクロールする時に、 {p_tag} や {p_title}を使用すると、現在クロールされているタグを取得し、それらを使ってフォルダを作成することができます。例：{p_tag}/{id}',
-        '태그를 긁어올 때 {p_tag} 또는 {p_title} 태그를 사용하여, 긁어온 태그로 디렉토리를 생성할 수 있습니다. 예: {p_tag}/{id}',
+        '在抓取标签列表时，你可以使用 {page_tag} 或者 {page_title} 标记获取当前抓取的标签，并用来建立文件夹。例如：{page_tag}/{id}',
+        '在擷取標籤列表時，你可以使用 {page_tag} 或者 {page_title} 標記獲取目前擷取的標籤，並用來建立資料夾。例如：{page_tag}/{id}',
+        'When crawling the tag list, you can use {page_tag} or {page_title} tags to get the tags currently crawled and use them to create folders. For example: {page_tag}/{id}',
+        'タグリストをクロールする時に、 {page_tag} や {page_title}を使用すると、現在クロールされているタグを取得し、それらを使ってフォルダを作成することができます。例：{page_tag}/{id}',
+        '태그를 긁어올 때 {page_tag} 또는 {page_title} 태그를 사용하여, 긁어온 태그로 디렉토리를 생성할 수 있습니다. 예: {page_tag}/{id}',
     ],
     _停止抓取标签列表: [
         '停止抓取标签列表',
@@ -5477,11 +5557,11 @@ const langText = {
         '여러 이미지 작품을 미리 볼 때, 마우스 휠을 사용하여 이미지를 전환할 수 있습니다.',
     ],
     _whatisnew: [
-        `当抓取作品发生429 错误时，下载器会重新抓取这个作品。`,
-        `當抓取作品發生429 錯誤時，下載器會重新抓取這個作品。`,
-        `When a 429 error occurs when crawling a work, the downloader will re-crawl the work.`,
-        `作品のクロール時に429エラーが発生した場合、ダウンローダは作品を再クロールします。`,
-        `작품을 크롤링할 때 429 오류가 발생하면 다운로더가 작품을 다시 크롤링합니다.`,
+        `修复因为 Pixiv 的变化而导致的抓取失败的问题。`,
+        `修復因為 Pixiv 的變化而導致的抓取失敗的問題。`,
+        `Fixed crawl failures due to Pixiv changes.`,
+        `Pixiv の変更によるクロールの失敗を修正しました。`,
+        `Pixiv 변경으로 인한 크롤링 실패를 수정했습니다.`,
     ],
     _等待时间: ['等待时间', '等待時間', 'Waiting time', '待ち時間', '대기 시간'],
     _格式错误: [
@@ -6537,7 +6617,6 @@ class NovelThumbnail {
                     }
                     // 目前我没有观察到同一个收藏按钮会被重复绑定事件的情况，所以没必要添加特殊标记
                     if (bmkBtn) {
-                        console.log('bmkBtn', bmkBtn);
                         bmkBtn.addEventListener('click', (ev) => {
                             this.bookmarkBtnCallback.forEach((cb) => {
                                 cb(id, bmkBtn, ev);
@@ -9223,25 +9302,13 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '13.5.0';
+        this.flag = '13.5.3';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `
-      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增命名标记')}：</strong>
-      <br>
-      <span class="blue">{upload_date}</span> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记upload_date')}
-      <br>
-      <br>
-      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}：</strong>
-      <br>
-      1. ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_点击收藏按钮时下载作品')}
-      <br>
-      2. ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_点击点赞按钮时下载作品')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载'))}`;
+            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_whatisnew')}`;
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -9997,10 +10064,10 @@ class Tools {
         }
         else {
             if (type === 'illusts') {
-                a = el.querySelector('a[href^="/artworks/"]');
+                a = el.querySelector('a[href*="/artworks/"]');
             }
             else {
-                a = el.querySelector('a[href^="/novel/show"]');
+                a = el.querySelector('a[href*="/novel/show"]');
             }
         }
         if (!a) {
@@ -10540,11 +10607,11 @@ Config.appName = 'Powerful Pixiv Downloader HongYe';
 Config.settingStoreName = 'xzSetting';
 /**按收藏数量过滤作品时，预设的最大收藏数量 */
 Config.BookmarkCountLimit = 9999999;
-/**作品总数量限制 */
-Config.worksNumberLimit = 999999999;
+/**Pixiv 作品总数量上限 */
+Config.worksNumberLimit = 9999999999;
 /**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
 Config.retryTimer = 200000;
-/**慢速抓取模式下，每个抓取请求之间的间隔时间 */
+/**慢速抓取模式下，每个抓取请求之间的间隔时间（ms） */
 Config.slowCrawlDealy = 1300;
 
 
@@ -10592,11 +10659,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_ShowStatusOnTitle__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/ShowStatusOnTitle */ "./src/ts/download/ShowStatusOnTitle.ts");
 /* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
 /* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -10638,7 +10706,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// import './CheckNewVersion'
+
 
 
 
@@ -14359,55 +14427,66 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
     // 获取用户某些类型的作品的 id 列表（附带 tag）
     async getIdListByTag() {
         // 这里不用判断用户主页的情况，因为用户主页不会带 tag
-        let flag = 'illustmanga';
+        let type = 'illustmanga';
         switch (this.listType) {
             case ListType.Artworks:
-                flag = 'illustmanga';
+                type = 'illustmanga';
                 break;
             case ListType.Illustrations:
-                flag = 'illusts';
+                type = 'illusts';
                 break;
             case ListType.Manga:
-                flag = 'manga';
+                type = 'manga';
                 break;
             case ListType.Novels:
-                flag = 'novels';
+                type = 'novels';
                 break;
         }
-        // 计算偏移量和需要保留的作品个数
-        const offset = this.getOffset();
+        // 计算初始偏移量
+        let offset = this.getOffset();
+        // 计算需要获取多少个作品
         const requsetNumber = this.getRequsetNumber();
-        let data = await _API__WEBPACK_IMPORTED_MODULE_4__["API"].getUserWorksByTypeWithTag(_Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].getUserId(), flag, _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].tag, offset, requsetNumber);
-        // 图片和小说返回的数据是不同的，小说并没有 illustType 标记
-        if (this.listType === ListType.Novels) {
-            const d = data;
-            d.body.works.forEach((data) => _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
-                type: 'novels',
-                id: data.id,
-            }));
-        }
-        else {
-            const d = data;
-            d.body.works.forEach((data) => {
-                let type = 'illusts';
-                switch (data.illustType) {
-                    case 0:
-                        type = 'illusts';
-                        break;
-                    case 1:
-                        type = 'manga';
-                        break;
-                    case 2:
-                        type = 'ugoira';
-                        break;
-                }
-                _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
-                    type,
+        // 循环请求作品
+        const maxRequest = 100;
+        for (const iterator of new Array(maxRequest)) {
+            let data = await _API__WEBPACK_IMPORTED_MODULE_4__["API"].getUserWorksByTypeWithTag(_Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].getUserId(), type, _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].tag, offset, this.onceNumber);
+            // 图片和小说返回的数据是不同的，小说没有 illustType 标记
+            if (this.listType === ListType.Novels) {
+                const d = data;
+                d.body.works.forEach((data) => _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
+                    type: 'novels',
                     id: data.id,
+                }));
+            }
+            else {
+                const d = data;
+                d.body.works.forEach((data) => {
+                    let type = 'illusts';
+                    switch (data.illustType) {
+                        case 0:
+                            type = 'illusts';
+                            break;
+                        case 1:
+                            type = 'manga';
+                            break;
+                        case 2:
+                            type = 'ugoira';
+                            break;
+                    }
+                    _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
+                        type,
+                        id: data.id,
+                    });
                 });
-            });
+            }
+            offset += data.body.works.length;
+            // 如果已经抓取到了预定的数量
+            // 或者 API 返回的作品数量不足一页的数量，则认为抓取完毕
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.length >= requsetNumber ||
+                data.body.works.length < this.onceNumber) {
+                return this.getIdListFinished();
+            }
         }
-        this.getIdListFinished();
     }
     resetGetIdListStatus() {
         this.listType = ListType.UserHome;
@@ -15278,6 +15357,8 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                 this.option[param] = value;
             }
         });
+        // 抓取时始终关闭“以系列为单位显示”
+        this.option.gs = '0';
         // 如果 url 里没有显式指定标签匹配模式，则使用 完全一致 模式
         // 因为在这种情况下，pixiv 默认使用的就是 完全一致
         if (!this.option.s_mode) {
@@ -21944,7 +22025,7 @@ const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
   <p class="option" data-no="13">
     <span class="settingNameStyle1" data-xztext="_命名规则"></span>
-    <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{p_title}/{id}">
+    <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{page_title}/{id}">
     &nbsp;
     <select name="fileNameSelect" class="beautify_scrollbar">
       <option value="default">…</option>
@@ -21952,11 +22033,11 @@ const formHtml = `<form class="settingForm">
       <option value="{user}">{user}</option>
       <option value="{user_id}">{user_id}</option>
       <option value="{title}">{title}</option>
-      <option value="{p_title}">{p_title}</option>
+      <option value="{page_title}">{page_title}</option>
       <option value="{tags}">{tags}</option>
       <option value="{tags_translate}">{tags_translate}</option>
       <option value="{tags_transl_only}">{tags_transl_only}</option>
-      <option value="{p_tag}">{p_tag}</option>
+      <option value="{page_tag}">{page_tag}</option>
       <option value="{type}">{type}</option>
       <option value="{like}">{like}</option>
       <option value="{bmk}">{bmk}</option>
@@ -22006,7 +22087,7 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{title}</span>
     <span data-xztext="_命名标记title"></span>
     <br>
-    <span class="blue">{p_title}</span>
+    <span class="blue">{page_title}</span>
     <span data-xztext="_文件夹标记PTitle"></span>
     <br>
     <span class="blue">{tags}</span>
@@ -22018,7 +22099,7 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{tags_transl_only}</span>
     <span data-xztext="_命名标记tags_transl_only"></span>
     <br>
-    <span class="blue">{p_tag}</span>
+    <span class="blue">{page_tag}</span>
     <span data-xztext="_文件夹标记PTag"></span>
     <br>
     <span class="blue">{type}</span>
@@ -23163,7 +23244,7 @@ __webpack_require__.r(__webpack_exports__);
 class NameRuleManager {
     constructor() {
         // 所有页面通用的命名规则
-        this.generalRule = '{p_title}/{id}';
+        this.generalRule = '{page_title}/{id}';
         // 命名规则输入框的集合
         this.inputList = [];
         this.bindEvents();
@@ -23268,7 +23349,7 @@ class NameRuleManager {
     // 处理用命名规则的非法字符和非法规则
     // 这里不必处理得非常详尽，因为在生成文件名时，还会对结果进行处理
     // 测试用例：在作品页面内设置下面的命名规则，下载器会自动进行更正
-    // /{p_tag}/|/{user}////<//{rank}/{px}/{sl}/{p_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
+    // /{page_tag}/|/{user}////<//{rank}/{px}/{sl}/{page_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
     handleUserSetName(str) {
         // 替换命名规则里可能存在的非法字符
         str = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__["Utils"].replaceUnsafeStr(str);
@@ -23648,7 +23729,7 @@ class Settings {
             notNeedTag: [],
             autoStartDownload: true,
             downloadThread: 5,
-            userSetName: '{p_title}/{id}',
+            userSetName: '{page_title}/{id}',
             namingRuleList: [],
             tagNameToFileName: false,
             workDir: false,
@@ -23733,29 +23814,29 @@ class Settings {
             saveMetaType3: false,
             setNameRuleForEachPageType: false,
             nameRuleForEachPageType: {
-                '-1': '{p_title}/{id}',
-                '0': '{p_title}/{id}',
-                '1': '{p_title}/{id}',
+                '-1': '{page_title}/{id}',
+                '0': '{page_title}/{id}',
+                '1': '{page_title}/{id}',
                 '2': '{user}/{id}',
-                '3': '{p_title}/{id}',
-                '4': '{p_title}/{id}',
-                '5': '{p_tag}/{id}',
-                '6': '{p_title}/{id}',
-                '7': '{p_title}/{rank}-{id}',
-                '8': '{p_title}/{id}',
-                '9': '{p_title}/{id}',
-                '10': '{p_title}/{id}',
-                '11': '{p_title}/{id}',
-                '12': '{p_title}/{id}',
-                '13': '{p_title}/{id}-{title}',
+                '3': '{page_title}/{id}',
+                '4': '{page_title}/{id}',
+                '5': '{page_tag}/{id}',
+                '6': '{page_title}/{id}',
+                '7': '{page_title}/{rank}-{id}',
+                '8': '{page_title}/{id}',
+                '9': '{page_title}/{id}',
+                '10': '{page_title}/{id}',
+                '11': '{page_title}/{id}',
+                '12': '{page_title}/{id}',
+                '13': '{page_title}/{id}-{title}',
                 '14': '{user}/{series_title}/{series_order} {title} {id}',
-                '15': '{p_tag}/{id}-{title}',
-                '16': '{p_title}/{rank}-{id}-{title}',
-                '17': '{p_title}/{id}-{title}',
-                '18': '{p_title}/{id}-{title}',
+                '15': '{page_tag}/{id}-{title}',
+                '16': '{page_title}/{rank}-{id}-{title}',
+                '17': '{page_title}/{id}-{title}',
+                '18': '{page_title}/{id}-{title}',
                 '19': '{user}/{series_title}/{series_order} {title} {id}',
-                '20': '{p_title}/{id}',
-                '21': '{p_title}/{id}-{title}',
+                '20': '{page_title}/{id}',
+                '21': '{page_title}/{id}-{title}',
             },
             showAdvancedSettings: false,
             showNotificationAfterDownloadComplete: false,

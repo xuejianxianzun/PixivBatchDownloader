@@ -87,8 +87,6 @@ class EVENT {
     importSettings: 'importSettings',
     /** 当动图转换数量发生变化时触发 */
     convertChange: 'convertChange',
-    /** 当读取/解压 zip 文件出错时触发 */
-    readZipError: 'readZipError',
     /** 当动图转换成功时触发 */
     convertSuccess: 'convertSuccess',
     /** 指示打开中间面板 */
@@ -191,7 +189,6 @@ class EVENT {
       | 'resetSettingsEnd'
       | 'exportSettings'
       | 'importSettings'
-      | 'readZipError'
       | 'convertSuccess'
       | 'openCenterPanel'
       | 'closeCenterPanel'
