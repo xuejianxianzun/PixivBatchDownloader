@@ -28,6 +28,10 @@
 
 <!-- /TOC -->
 
+offline 分支是用来打包为离线安装包的。
+
+offline 分支会检查 github 上是否发布了新版本；master 分支上不会检查 github 上是否有新版本。
+
 # 简介
 
 **Powerful Pixiv Downloader**

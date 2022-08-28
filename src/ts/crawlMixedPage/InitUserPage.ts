@@ -245,66 +245,80 @@ class InitUserPage extends InitPageBase {
   // 获取用户某些类型的作品的 id 列表（附带 tag）
   private async getIdListByTag() {
     // 这里不用判断用户主页的情况，因为用户主页不会带 tag
-    let flag: tagPageFlag = 'illustmanga'
+    let type: tagPageFlag = 'illustmanga'
     switch (this.listType) {
       case ListType.Artworks:
-        flag = 'illustmanga'
+        type = 'illustmanga'
         break
       case ListType.Illustrations:
-        flag = 'illusts'
+        type = 'illusts'
         break
       case ListType.Manga:
-        flag = 'manga'
+        type = 'manga'
         break
       case ListType.Novels:
-        flag = 'novels'
+        type = 'novels'
         break
     }
 
-    // 计算偏移量和需要保留的作品个数
-    const offset = this.getOffset()
+    // 计算初始偏移量
+    let offset = this.getOffset()
+    // 计算需要获取多少个作品
     const requsetNumber = this.getRequsetNumber()
 
-    let data = await API.getUserWorksByTypeWithTag(
-      Tools.getUserId(),
-      flag,
-      store.tag,
-      offset,
-      requsetNumber
-    )
-
-    // 图片和小说返回的数据是不同的，小说并没有 illustType 标记
-    if (this.listType === ListType.Novels) {
-      const d = data as UserNovelsWithTag
-      d.body.works.forEach((data) =>
-        store.idList.push({
-          type: 'novels',
-          id: data.id,
-        })
+    // 循环请求作品
+    const maxRequest = 100
+    for (const iterator of new Array(maxRequest)) {
+      let data = await API.getUserWorksByTypeWithTag(
+        Tools.getUserId(),
+        type,
+        store.tag,
+        offset,
+        this.onceNumber
       )
-    } else {
-      const d = data as UserImageWorksWithTag
-      d.body.works.forEach((data) => {
-        let type: WorkTypeString = 'illusts'
-        switch (data.illustType) {
-          case 0:
-            type = 'illusts'
-            break
-          case 1:
-            type = 'manga'
-            break
-          case 2:
-            type = 'ugoira'
-            break
-        }
-        store.idList.push({
-          type,
-          id: data.id,
-        })
-      })
-    }
 
-    this.getIdListFinished()
+      // 图片和小说返回的数据是不同的，小说没有 illustType 标记
+      if (this.listType === ListType.Novels) {
+        const d = data as UserNovelsWithTag
+        d.body.works.forEach((data) =>
+          store.idList.push({
+            type: 'novels',
+            id: data.id,
+          })
+        )
+      } else {
+        const d = data as UserImageWorksWithTag
+        d.body.works.forEach((data) => {
+          let type: WorkTypeString = 'illusts'
+          switch (data.illustType) {
+            case 0:
+              type = 'illusts'
+              break
+            case 1:
+              type = 'manga'
+              break
+            case 2:
+              type = 'ugoira'
+              break
+          }
+          store.idList.push({
+            type,
+            id: data.id,
+          })
+        })
+      }
+
+      offset += data.body.works.length
+
+      // 如果已经抓取到了预定的数量
+      // 或者 API 返回的作品数量不足一页的数量，则认为抓取完毕
+      if (
+        store.idList.length >= requsetNumber ||
+        data.body.works.length < this.onceNumber
+      ) {
+        return this.getIdListFinished()
+      }
+    }
   }
 
   protected resetGetIdListStatus() {

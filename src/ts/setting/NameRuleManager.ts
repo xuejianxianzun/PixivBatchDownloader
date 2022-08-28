@@ -45,7 +45,7 @@ class NameRuleManager {
   }
 
   // 所有页面通用的命名规则
-  private readonly generalRule = '{p_title}/{id}'
+  private readonly generalRule = '{page_title}/{id}'
 
   public get rule() {
     if (settings.setNameRuleForEachPageType) {
@@ -132,7 +132,7 @@ class NameRuleManager {
   // 处理用命名规则的非法字符和非法规则
   // 这里不必处理得非常详尽，因为在生成文件名时，还会对结果进行处理
   // 测试用例：在作品页面内设置下面的命名规则，下载器会自动进行更正
-  // /{p_tag}/|/{user}////<//{rank}/{px}/{sl}/{p_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
+  // /{page_tag}/|/{user}////<//{rank}/{px}/{sl}/{page_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
   private handleUserSetName(str: string) {
     // 替换命名规则里可能存在的非法字符
     str = Utils.replaceUnsafeStr(str)
