@@ -95,12 +95,12 @@ abstract class InitPageBase {
   }
 
   // 添加其他任意元素（如果有）
-  protected addAnyElement(): void {}
+  protected addAnyElement(): void { }
 
   // 初始化任意内容
   // 如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里
   // 通常用来初始化特有的组件、功能、事件、状态等
-  protected initAny() {}
+  protected initAny() { }
 
   // 销毁初始化页面时添加的元素和事件，恢复设置项等
   protected destroy(): void {
@@ -156,7 +156,7 @@ abstract class InitPageBase {
   }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
-  protected getWantPage() {}
+  protected getWantPage() { }
 
   // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
   protected getMultipleSetting() {
@@ -242,7 +242,7 @@ abstract class InitPageBase {
   }
 
   // 获取 id 列表，由各个子类具体定义
-  protected getIdList() {}
+  protected getIdList() { }
 
   // id 列表获取完毕，开始抓取作品内容页
   protected getIdListFinished() {
@@ -290,7 +290,7 @@ abstract class InitPageBase {
   }
 
   // 重设抓取作品列表时使用的变量或标记
-  protected resetGetIdListStatus() {}
+  protected resetGetIdListStatus() { }
 
   // 获取作品的数据
   protected async getWorksData(idData?: IDData) {
@@ -363,7 +363,7 @@ abstract class InitPageBase {
       return
     }
 
-    this.logResultTotal()
+    this.logResultNumber()
 
     // 如果会员搜索优化策略指示停止抓取，则立即进入完成状态
     if (data && (await vipSearchOptimize.stopCrawl(data))) {
@@ -375,7 +375,9 @@ abstract class InitPageBase {
     if (store.idList.length > 0) {
       // 如果存在下一个作品，则继续抓取
       if (states.slowCrawlMode) {
+        console.time('test')
         window.setTimeout(() => {
+          console.timeEnd('test')
           this.getWorksData()
         }, Config.slowCrawlDealy)
       } else {
@@ -466,7 +468,7 @@ abstract class InitPageBase {
   }
 
   // 每当抓取了一个作品之后，输出提示
-  protected logResultTotal() {
+  protected logResultNumber() {
     log.log(
       `${lang.transl('_待处理')} ${store.idList.length}, ${lang.transl(
         '_共抓取到n个作品',
@@ -489,7 +491,7 @@ abstract class InitPageBase {
   }
 
   // 抓取完成后，对结果进行排序
-  protected sortResult() {}
+  protected sortResult() { }
 
   /**定时抓取的按钮 */
   protected addStartTimedCrawlBtn(cb: Function) {

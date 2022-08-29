@@ -126,7 +126,7 @@ class InitPixivisionPage extends InitPageBase {
 
     this.addResult(id, url, ext)
 
-    this.logResultTotal()
+    this.logResultNumber()
   }
 }
 export { InitPixivisionPage }
