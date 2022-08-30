@@ -11,6 +11,7 @@ import { createCSV } from '../utils/CreateCSV'
 import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
 import { Config } from '../config/Config'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 interface UserInfo {
   userId: string
@@ -265,7 +266,7 @@ class InitFollowingPage extends InitPageBase {
     }
 
     if (states.slowCrawlMode) {
-      window.setTimeout(() => {
+      setTimeoutWorker.set(() => {
         this.getIdList()
       }, Config.slowCrawlDealy)
     } else {

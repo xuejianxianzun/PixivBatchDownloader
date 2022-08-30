@@ -15,6 +15,7 @@ import { filter, FilterOption } from '../filter/Filter'
 import { Utils } from '../utils/Utils'
 import { Config } from '../config/Config'
 import { states } from '../store/States'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 class InitBookmarkPage extends InitPageBase {
   constructor() {
@@ -180,7 +181,7 @@ class InitBookmarkPage extends InitPageBase {
 
       // 继续抓取
       if (states.slowCrawlMode) {
-        window.setTimeout(() => {
+        setTimeoutWorker.set(() => {
           this.getIdList()
         }, Config.slowCrawlDealy)
       } else {
