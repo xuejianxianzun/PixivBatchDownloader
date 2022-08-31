@@ -210,7 +210,7 @@ interface XzSetting {
   showLargerThumbnails: boolean
   doubleWidthThumb: boolean
   wheelScrollSwitchImageOnPreviewWork: boolean
-  /**不下载多图作品的最后一张图片 */
+  /**不抓取多图作品的最后一张图片 */
   doNotDownloadLastImageOfMultiImageWork: boolean
   downloadNovelCoverImage: boolean
   downloadNovelEmbeddedImage: boolean

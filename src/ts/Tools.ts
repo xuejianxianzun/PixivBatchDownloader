@@ -129,7 +129,7 @@ class Tools {
     const str = url || window.location.search || location.href
     let result = ''
 
-    const test = str.match(/\?id=(\d*)?/)
+    const test = str.match(/novel\/show.php\?id=(\d*)?/)
     if (test && test.length > 1) {
       result = test[1]
     }

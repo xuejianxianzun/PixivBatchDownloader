@@ -28,6 +28,8 @@ class ArtworkThumbnail {
 
   private enterCallback: Function[] = []
   private leaveCallback: Function[] = []
+  private clickCallback: Function[] = []
+  private bookmarkBtnCallback: Function[] = []
 
   // 判断元素是否含有作品缩略图，如果找到了缩略图则为其绑定事件
   private handleThumbnail(parent: HTMLElement) {
@@ -84,8 +86,12 @@ class ArtworkThumbnail {
             this.leaveCallback.forEach((cb) => cb(el, ev))
           })
 
+          el.addEventListener('click', (ev) => {
+            this.clickCallback.forEach((cb) => cb(el, id, ev))
+          })
+
           // 查找作品缩略图右下角的收藏按钮
-          // 新版缩略图里，缩略图容器里只有 1 个 button，就是收藏按钮。目前还没有发现有多个 button 的情况
+          // 缩略图容器里只有 1 个 button，就是收藏按钮。目前还没有发现有多个 button 的情况
           // 旧版缩略图里，缩略图元素是 div._one-click-bookmark （例如：各种排行榜页面）
           let bmkBtn: HTMLElement | undefined
           if (el.querySelector('button svg[width="32"]')) {
@@ -155,7 +161,19 @@ class ArtworkThumbnail {
     this.leaveCallback.push(cb)
   }
 
-  private bookmarkBtnCallback: Function[] = []
+  /**添加鼠标点击作品缩略图时的回调
+   *
+   * 回调函数会接收到 3 个参数：
+   *
+   * @el 作品缩略图的元素
+   *
+   * @id 作品 id
+   *
+   * @ev 鼠标进入或者移出 el 时的 Event 对象
+   */
+  public onClick(cb: Function) {
+    this.clickCallback.push(cb)
+  }
 
   /**添加用户点击缩略图里的收藏按钮时的回调
    *

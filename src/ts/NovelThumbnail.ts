@@ -26,6 +26,8 @@ class NovelThumbnail {
 
   private enterCallback: Function[] = []
   private leaveCallback: Function[] = []
+  private clickCallback: Function[] = []
+  private bookmarkBtnCallback: Function[] = []
 
   // 判断元素是否含有小说缩略图，如果找到了缩略图则为其绑定事件
   private handleThumbnail(parent: HTMLElement) {
@@ -38,6 +40,15 @@ class NovelThumbnail {
     // 但是，这有可能会导致事件的重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
     for (const selector of this.selectors) {
       // 处理特殊的选择器
+
+      // 在用户主页只使用指定的选择器，避免其他选择器导致精选的小说作品被重复绑定事件
+      if (
+        pageType.type === pageType.list.UserHome &&
+        selector !== 'section ul>li' &&
+        selector !== 'li[size="1"]>div'
+      ) {
+        continue
+      }
 
       // 在小说排行榜里只使用 div._ranking-item
       if (
@@ -77,8 +88,6 @@ class NovelThumbnail {
       }
 
       for (const el of elements) {
-        // console.log(selector)
-        // console.log(el)
         const id = Tools.findWorkIdFromElement(el as HTMLElement, 'novels')
         // 只有查找到作品 id 时才会执行回调函数
         if (id) {
@@ -100,6 +109,8 @@ class NovelThumbnail {
 
           // 当对一个缩略图元素绑定事件时，在它上面添加标记
           // 添加标记的目的是为了减少事件重复绑定的情况发生
+          // mouseover 这个标记名称不可以修改，因为它在 Pixiv Previewer 里被硬编码了
+          // https://github.com/xuejianxianzun/PixivBatchDownloader/issues/212
           ;(el as HTMLElement).dataset.mouseover = '1'
 
           el.addEventListener('mouseenter', (ev) => {
@@ -108,6 +119,10 @@ class NovelThumbnail {
 
           el.addEventListener('mouseleave', (ev) => {
             this.leaveCallback.forEach((cb) => cb(el, ev))
+          })
+
+          el.addEventListener('click', (ev) => {
+            this.clickCallback.forEach((cb) => cb(el, id, ev))
           })
 
           // 查找小说缩略图右下角的收藏按钮
@@ -142,7 +157,6 @@ class NovelThumbnail {
         if (record.addedNodes.length > 0) {
           // 遍历被添加的元素
           for (const newEl of record.addedNodes) {
-            // console.log(newEl)
             this.handleThumbnail(newEl as HTMLElement)
           }
         }
@@ -182,7 +196,19 @@ class NovelThumbnail {
     this.leaveCallback.push(cb)
   }
 
-  private bookmarkBtnCallback: Function[] = []
+  /**添加鼠标点击作品缩略图时的回调
+   *
+   * 回调函数会接收到 3 个参数：
+   *
+   * @el 作品缩略图的元素
+   *
+   * @id 作品 id
+   *
+   * @ev 鼠标进入或者移出 el 时的 Event 对象
+   */
+  public onClick(cb: Function) {
+    this.clickCallback.push(cb)
+  }
 
   /**添加用户点击缩略图里的收藏按钮时的回调
    *

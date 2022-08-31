@@ -406,6 +406,7 @@ class ArtworkThumbnail {
         ];
         this.enterCallback = [];
         this.leaveCallback = [];
+        this.clickCallback = [];
         this.bookmarkBtnCallback = [];
         // 立即对作品缩略图绑定事件
         this.handleThumbnail(document.body);
@@ -457,8 +458,11 @@ class ArtworkThumbnail {
                     el.addEventListener('mouseleave', (ev) => {
                         this.leaveCallback.forEach((cb) => cb(el, ev));
                     });
+                    el.addEventListener('click', (ev) => {
+                        this.clickCallback.forEach((cb) => cb(el, id, ev));
+                    });
                     // 查找作品缩略图右下角的收藏按钮
-                    // 新版缩略图里，缩略图容器里只有 1 个 button，就是收藏按钮。目前还没有发现有多个 button 的情况
+                    // 缩略图容器里只有 1 个 button，就是收藏按钮。目前还没有发现有多个 button 的情况
                     // 旧版缩略图里，缩略图元素是 div._one-click-bookmark （例如：各种排行榜页面）
                     let bmkBtn;
                     if (el.querySelector('button svg[width="32"]')) {
@@ -523,6 +527,19 @@ class ArtworkThumbnail {
      */
     onLeave(cb) {
         this.leaveCallback.push(cb);
+    }
+    /**添加鼠标点击作品缩略图时的回调
+     *
+     * 回调函数会接收到 3 个参数：
+     *
+     * @el 作品缩略图的元素
+     *
+     * @id 作品 id
+     *
+     * @ev 鼠标进入或者移出 el 时的 Event 对象
+     */
+    onClick(cb) {
+        this.clickCallback.push(cb);
     }
     /**添加用户点击缩略图里的收藏按钮时的回调
      *
@@ -6445,6 +6462,7 @@ class NovelThumbnail {
         ];
         this.enterCallback = [];
         this.leaveCallback = [];
+        this.clickCallback = [];
         this.bookmarkBtnCallback = [];
         // 立即对小说缩略图绑定事件
         this.handleThumbnail(document.body);
@@ -6462,6 +6480,12 @@ class NovelThumbnail {
         // 但是，这有可能会导致事件的重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
         for (const selector of this.selectors) {
             // 处理特殊的选择器
+            // 在用户主页只使用指定的选择器，避免其他选择器导致精选的小说作品被重复绑定事件
+            if (_PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.UserHome &&
+                selector !== 'section ul>li' &&
+                selector !== 'li[size="1"]>div') {
+                continue;
+            }
             // 在小说排行榜里只使用 div._ranking-item
             if (_PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.NovelRanking &&
                 selector !== 'div._ranking-item') {
@@ -6486,8 +6510,6 @@ class NovelThumbnail {
                 elements = [parent];
             }
             for (const el of elements) {
-                // console.log(selector)
-                // console.log(el)
                 const id = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].findWorkIdFromElement(el, 'novels');
                 // 只有查找到作品 id 时才会执行回调函数
                 if (id) {
@@ -6504,6 +6526,8 @@ class NovelThumbnail {
                     }
                     // 当对一个缩略图元素绑定事件时，在它上面添加标记
                     // 添加标记的目的是为了减少事件重复绑定的情况发生
+                    // mouseover 这个标记名称不可以修改，因为它在 Pixiv Previewer 里被硬编码了
+                    // https://github.com/xuejianxianzun/PixivBatchDownloader/issues/212
                     ;
                     el.dataset.mouseover = '1';
                     el.addEventListener('mouseenter', (ev) => {
@@ -6511,6 +6535,9 @@ class NovelThumbnail {
                     });
                     el.addEventListener('mouseleave', (ev) => {
                         this.leaveCallback.forEach((cb) => cb(el, ev));
+                    });
+                    el.addEventListener('click', (ev) => {
+                        this.clickCallback.forEach((cb) => cb(el, id, ev));
                     });
                     // 查找小说缩略图右下角的收藏按钮
                     // 缩略图容器里只有 1 个 button，就是收藏按钮。目前还没有发现有多个 button 的情况
@@ -6543,7 +6570,6 @@ class NovelThumbnail {
                 if (record.addedNodes.length > 0) {
                     // 遍历被添加的元素
                     for (const newEl of record.addedNodes) {
-                        // console.log(newEl)
                         this.handleThumbnail(newEl);
                     }
                 }
@@ -6579,6 +6605,19 @@ class NovelThumbnail {
      */
     onLeave(cb) {
         this.leaveCallback.push(cb);
+    }
+    /**添加鼠标点击作品缩略图时的回调
+     *
+     * 回调函数会接收到 3 个参数：
+     *
+     * @el 作品缩略图的元素
+     *
+     * @id 作品 id
+     *
+     * @ev 鼠标进入或者移出 el 时的 Event 对象
+     */
+    onClick(cb) {
+        this.clickCallback.push(cb);
     }
     /**添加用户点击缩略图里的收藏按钮时的回调
      *
@@ -7737,6 +7776,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
+/* harmony import */ var _NovelThumbnail__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./NovelThumbnail */ "./src/ts/NovelThumbnail.ts");
+
+
 
 
 
@@ -7761,9 +7804,6 @@ class SelectWork {
         this.clearBtn = document.createElement('button'); // 清空选择的作品的按钮
         this.selectedWorkFlagClass = 'selectedWorkFlag'; // 给已选择的作品添加标记时使用的 class
         this.positionValue = ['relative', 'absolute', 'fixed']; // 标记元素需要父元素拥有这些定位属性
-        this.needSetPosition = true; // 是否需要给父元素设置定位属性
-        this.artworkReg = /artworks\/(\d{2,15})/;
-        this.novelReg = /novel\/show\.php\?id=(\d{2,15})/;
         // 不同页面里的作品列表容器的选择器可能不同，这里储存所有页面里会使用到的的选择器
         // root 是大部分页面通用的; js-mount-point-discovery 是发现页面使用的
         this.worksWrapperSelectorList = [
@@ -7781,12 +7821,11 @@ class SelectWork {
         this.svg = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-select"></use>
 </svg>`;
-        if (!this.created && location.hostname.endsWith('.pixiv.net')) {
+        if (!this.created && _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].isPixiv()) {
             this.created = true;
             this.selector = this.createSelectorEl();
             this.addBtn();
             this.bindEvents();
-            this.checkNeedSetPosition();
         }
     }
     get start() {
@@ -7817,6 +7856,15 @@ class SelectWork {
         this.updateSelectorEl();
     }
     bindEvents() {
+        _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_8__["artworkThumbnail"].onClick((el, id, ev) => {
+            this.clickThumbnail(el, id, ev, 'illusts');
+        });
+        _NovelThumbnail__WEBPACK_IMPORTED_MODULE_9__["novelThumbnail"].onClick((el, id, ev) => {
+            this.clickThumbnail(el, id, ev, 'novels');
+        });
+        document.body.addEventListener('click', (ev) => {
+            this.clickElement(ev.target, ev);
+        }, true);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.openCenterPanel, () => {
             this.tempHide = true;
         });
@@ -7828,9 +7876,6 @@ class SelectWork {
                 this.sendCrawl = false;
                 this.crawled = true;
             }
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.pageSwitch, () => {
-            this.checkNeedSetPosition();
         });
         // 可以使用 Alt + S 快捷键来模拟点击控制按钮
         window.addEventListener('keydown', (ev) => {
@@ -7879,12 +7924,6 @@ class SelectWork {
             });
         });
     }
-    checkNeedSetPosition() {
-        // 进入某些特定页面时，不需要给父元素添加定位属性
-        // 在投稿页面内不能添加定位，否则作品的缩略图会不显示
-        const requestPage = window.location.pathname.startsWith('/request');
-        this.needSetPosition = !requestPage;
-    }
     clearIdList() {
         // 清空标记需要使用 id 数据，所以需要执行之后才能清空 id
         this.removeAllSelectedFlag();
@@ -7901,7 +7940,7 @@ class SelectWork {
         if (!this.selector) {
             return;
         }
-        const show = this.start && !this.pause && !this.tempHide;
+        const show = this.canSelect() && !this.tempHide;
         this.selector.style.display = show ? 'block' : 'none';
         // 设置元素的 style 时，如果新的值和旧的值相同（例如：每次都设置 display 为 none），Chrome 会自动优化，此时不会导致节点发生变化。
         // 如果选择器处于隐藏状态，就不会更新其坐标。这样可以优化性能
@@ -7922,7 +7961,7 @@ class SelectWork {
         this.crawlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取选择的作品');
         this.crawlBtn.style.display = 'none';
         this.crawlBtn.addEventListener('click', (ev) => {
-            this.downloadSelect();
+            this.sendDownload();
         });
     }
     // 切换控制按钮的文字和点击事件
@@ -7959,32 +7998,60 @@ class SelectWork {
             _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.crawlBtn, '_抓取选择的作品');
         }
     }
-    // 监听点击事件
-    clickEvent(ev) {
-        const workId = this.findWork(ev.path || ev.composedPath());
-        if (workId) {
-            // 如果点击的元素是作品元素，就阻止默认事件。否则会进入作品页面，导致无法在当前页面继续选择
-            ev.preventDefault();
-            // 如果点击的元素不是作品元素，就不做任何处理，以免影响用户体验
-            const index = this.idList.findIndex((item) => {
-                return item.id === workId.id && item.type === workId.type;
+    addId(el, id, type) {
+        const index = this.idList.findIndex((item) => {
+            return item.id === id && item.type === type;
+        });
+        // 添加这个 id
+        if (index === -1) {
+            this.idList.push({
+                id,
+                type,
             });
-            // 这个 id 不存在于 idList 里
-            if (index === -1) {
-                this.idList.push(workId);
-                this.crawled = false;
-                this.addSelectedFlag(ev.target, workId.id);
-            }
-            else {
-                // id 已存在，则删除
-                this.idList.splice(index, 1);
-                this.removeSelectedFlag(workId.id);
-            }
-            this.updateCrawlBtn();
+            this.crawled = false;
+            this.addSelectedFlag(el, id);
+        }
+        else {
+            // id 已存在，则删除
+            this.idList.splice(index, 1);
+            this.removeSelectedFlag(id);
+        }
+        this.updateCrawlBtn();
+    }
+    clickThumbnail(el, id, ev, type) {
+        if (!this.canSelect()) {
+            return;
+        }
+        // 阻止默认事件，否则会进入作品页面，导致无法在当前页面继续选择
+        ev.preventDefault();
+        this.addId(el, id, type);
+    }
+    clickElement(el, ev) {
+        if (!this.canSelect()) {
+            return;
+        }
+        if (!el || el.nodeName !== 'A') {
+            return;
+        }
+        const href = el.href;
+        const artworkId = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].getIllustId(href);
+        if (artworkId) {
+            ev.preventDefault();
+            // 如果查找到了作品 id，必须阻止冒泡，否则会执行 clickThumbnail
+            ev.stopPropagation();
+            this.addId(el.parentElement, artworkId, 'illusts');
+            return;
+        }
+        const novelId = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].getNovelId(href);
+        if (novelId) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            this.addId(el.parentElement, novelId, 'novels');
+            return;
         }
     }
     // 监听鼠标移动
-    // 鼠标移动时，由于事件触发频率很高，所以这里的代码也会执行很多次，但是这没有导致明显的性能问题，所以没有加以限制（如：使用节流）
+    // 鼠标移动时，由于事件触发频率很高，所以这里的代码也会执行很多次，但是这没有导致明显的性能问题，所以没有使用节流等加以限制
     moveEvent(ev) {
         this.left = ev.x;
         this.top = ev.y;
@@ -8007,21 +8074,20 @@ class SelectWork {
             // 如果是全新开始的选择，则清空之前的结果
             this.clearIdList();
         }
-        this.bindClickEvent = this.clickEvent.bind(this);
         this.bindEscEvent = this.escEvent.bind(this);
-        window.addEventListener('click', this.bindClickEvent, true);
         document.addEventListener('keyup', this.bindEscEvent);
         _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].fire('closeCenterPanel');
     }
     pauseSelect() {
         this.pause = true;
-        this.bindClickEvent &&
-            window.removeEventListener('click', this.bindClickEvent, true);
         this.bindEscEvent &&
             document.removeEventListener('keyup', this.bindEscEvent);
     }
+    canSelect() {
+        return this.start && !this.pause;
+    }
     // 抓取选择的作品，这会自动暂停手动选择作品
-    downloadSelect() {
+    sendDownload() {
         this.pauseSelect();
         if (this.idList.length > 0) {
             // 传递 id 列表时，将其转换成一个新的数组。否则传递的是引用，外部的一些操作可能会影响内部的 id 列表
@@ -8038,51 +8104,17 @@ class SelectWork {
             _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'));
         }
     }
-    // 从传递的元素中查找第一个作品 id
-    findWork(arr) {
-        for (const el of arr) {
-            // 查找所有 a 标签
-            if (el.nodeName === 'A') {
-                const href = el.href;
-                // 测试图片作品链接
-                const test = this.artworkReg.exec(href);
-                if (test && test[1]) {
-                    return {
-                        type: 'unknown',
-                        id: test[1],
-                    };
-                }
-                // 测试小说作品链接
-                const test2 = this.novelReg.exec(href);
-                if (test2 && test2[1]) {
-                    return {
-                        type: 'novels',
-                        id: test2[1],
-                    };
-                }
-            }
-        }
-    }
-    // 当点击事件查找到一个作品时，给这个作品添加标记
-    addSelectedFlag(el, id) {
-        var _a;
+    // 给这个作品添加标记
+    addSelectedFlag(wrap, id) {
         const i = document.createElement('i');
         i.classList.add(this.selectedWorkFlagClass);
         i.dataset.id = id;
         i.innerHTML = this.svg;
-        let target = el;
-        // 如果点击的元素处于 svg 里，则添加到 svg 外面。因为 svg 里面不会显示添加的标记
-        // 这里的代码只能应对 svg 内只有一层子元素的情况。目前 pixiv 的作品列表都是这样
-        if (el.nodeName === 'svg' || ((_a = el.parentElement) === null || _a === void 0 ? void 0 : _a.nodeName) === 'svg') {
-            target = el.parentElement;
-        }
-        target.insertAdjacentElement('beforebegin', i);
-        // 如果父元素没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
-        if (this.needSetPosition && target.parentElement) {
-            const position = window.getComputedStyle(target.parentElement)['position'];
-            if (!this.positionValue.includes(position)) {
-                target.parentElement.style.position = 'relative';
-            }
+        wrap.insertAdjacentElement('afterbegin', i);
+        // 如果容器没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
+        const position = window.getComputedStyle(wrap)['position'];
+        if (!this.positionValue.includes(position)) {
+            wrap.style.position = 'relative';
         }
     }
     // 重新添加被选择的作品上的标记
@@ -9904,7 +9936,7 @@ class Tools {
     static getNovelId(url) {
         const str = url || window.location.search || location.href;
         let result = '';
-        const test = str.match(/\?id=(\d*)?/);
+        const test = str.match(/novel\/show.php\?id=(\d*)?/);
         if (test && test.length > 1) {
             result = test[1];
         }
@@ -24639,7 +24671,7 @@ class Store {
             // 循环生成每一个图片文件的数据
             const p0 = 'p0';
             for (let i = 0; i < workData.dlCount; i++) {
-                // 不下载多图作品的最后一张图片
+                // 不抓取多图作品的最后一张图片
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doNotDownloadLastImageOfMultiImageWork &&
                     i > 0 &&
                     i === workData.pageCount - 1) {
