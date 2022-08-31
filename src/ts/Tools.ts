@@ -478,7 +478,6 @@ class Tools {
     let offset = 0
     // 循环的次数
     let loopTimes = 0
-    // console.time('getJPGContentIndex')
     while (true) {
       // 如果当前偏移量的后面有已经查找到的索引，就不必重复查找了
       // 跳过这次循环，下次直接从已有的索引后面开始查找
@@ -527,19 +526,31 @@ class Tools {
         offset = fileContentStart
         ++loopTimes
       } else {
-        // console.timeEnd('getJPGContentIndex')
         return indexList
       }
     }
   }
 
-  /**从 zip 压缩包里提取出图像数据，转换成 img 标签列表 */
+  /**从 zip 压缩包里提取出图像数据 */
   static async extractImage(
     zipFile: ArrayBuffer,
-    indexList: number[]
-  ): Promise<HTMLImageElement[]> {
+    indexList: number[],
+    target: 'ImageBitmap'
+  ): Promise<ImageBitmap[]>
+
+  static async extractImage(
+    zipFile: ArrayBuffer,
+    indexList: number[],
+    target: 'img'
+  ): Promise<HTMLImageElement[]>
+
+  static async extractImage(
+    zipFile: ArrayBuffer,
+    indexList: number[],
+    target: 'img' | 'ImageBitmap'
+  ) {
     return new Promise(async (resolve, reject) => {
-      const result: HTMLImageElement[] = []
+      const result: HTMLImageElement[] | ImageBitmap[] = []
       let i = 0
       for (const index of indexList) {
         // 起始位置
@@ -558,9 +569,14 @@ class Tools {
         const blob = new Blob([zipFile.slice(start, end)], {
           type: 'image/jpeg',
         })
-        const url = URL.createObjectURL(blob)
-        const img = await Utils.loadImg(url)
-        result.push(img)
+        if (target === 'ImageBitmap') {
+          const map = await createImageBitmap(blob)
+          ;(result as ImageBitmap[]).push(map)
+        } else if (target === 'img') {
+          const url = URL.createObjectURL(blob)
+          const img = await Utils.loadImg(url)
+          ;(result as HTMLImageElement[]).push(img)
+        }
         ++i
       }
       resolve(result)

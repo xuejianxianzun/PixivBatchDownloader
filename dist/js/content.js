@@ -1176,6 +1176,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ToAPNG__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ToAPNG */ "./src/ts/ConvertUgoira/ToAPNG.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
 
 
 
@@ -1214,9 +1216,9 @@ class ConvertUgoira {
             this.complete();
         });
         // 如果转换动图时页面被隐藏了，则显示提示
-        document.addEventListener('visibilitychange', () => {
-            this.checkHidden();
-        });
+        // document.addEventListener('visibilitychange', () => {
+        //   this.checkHidden()
+        // })
     }
     setMaxCount() {
         this.maxCount =
@@ -1225,7 +1227,7 @@ class ConvertUgoira {
     set count(num) {
         this._count = num;
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('convertChange', this._count);
-        this.checkHidden();
+        // this.checkHidden()
     }
     async start(file, info, type) {
         return new Promise(async (resolve, reject) => {
@@ -1236,15 +1238,19 @@ class ConvertUgoira {
                         return;
                     }
                     this.count = this._count + 1;
+                    // 提取每一张图片
+                    const zipFileBuffer = await file.arrayBuffer();
+                    const indexList = _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].getJPGContentIndex(zipFileBuffer);
+                    const ImageBitmapList = await _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].extractImage(zipFileBuffer, indexList, 'ImageBitmap');
                     if (type === 'gif') {
-                        resolve(_ToGIF__WEBPACK_IMPORTED_MODULE_3__["toGIF"].convert(file, info));
+                        resolve(_ToGIF__WEBPACK_IMPORTED_MODULE_3__["toGIF"].convert(ImageBitmapList, info));
                     }
                     else if (type === 'png') {
-                        resolve(_ToAPNG__WEBPACK_IMPORTED_MODULE_4__["toAPNG"].convert(file, info));
+                        resolve(_ToAPNG__WEBPACK_IMPORTED_MODULE_4__["toAPNG"].convert(ImageBitmapList, info));
                     }
                     else {
                         // 如果没有 type 则默认使用 webm
-                        resolve(_ToWebM__WEBPACK_IMPORTED_MODULE_2__["toWebM"].convert(file, info));
+                        resolve(_ToWebM__WEBPACK_IMPORTED_MODULE_2__["toWebM"].convert(ImageBitmapList, info));
                     }
                 }
             }, 200);
@@ -1287,41 +1293,36 @@ const convertUgoira = new ConvertUgoira();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toAPNG", function() { return toAPNG; });
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 
 class ToAPNG {
-    async convert(file, info) {
+    async convert(ImageBitmapList, info) {
         return new Promise(async (resolve, reject) => {
-            // 提取图片数据
-            const zipFileBuffer = await file.arrayBuffer();
-            const indexList = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].getJPGContentIndex(zipFileBuffer);
-            let imgs = await _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].extractImage(zipFileBuffer, indexList);
+            const width = ImageBitmapList[0].width;
+            const height = ImageBitmapList[0].height;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = width;
+            canvas.height = height;
             // 添加帧数据
-            let arrayBuffList = imgs.map((img) => this.getPNGBuffer(img));
+            let arrayBuffList = [];
+            ImageBitmapList.forEach((imageBitmap) => {
+                ctx.drawImage(imageBitmap, 0, 0);
+                // 从画布获取图像绘制后的 Uint8ClampedArray buffer
+                const buff = ctx.getImageData(0, 0, width, height).data.buffer;
+                arrayBuffList.push(buff);
+            });
             const delayList = info.frames.map((frame) => frame.delay);
             // 编码
             // https://github.com/photopea/UPNG.js/#encoder
-            const pngFile = UPNG.encode(arrayBuffList, imgs[0].width, imgs[0].height, 0, delayList);
-            imgs = null;
+            const pngFile = UPNG.encode(arrayBuffList, width, height, 0, delayList);
             arrayBuffList = null;
             const blob = new Blob([pngFile], {
                 type: 'image/vnd.mozilla.apng',
             });
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('convertSuccess');
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('convertSuccess');
             resolve(blob);
         });
-    }
-    // 获取每一帧的数据，传递给编码器使用
-    getPNGBuffer(img) {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        // 从画布获取图像绘制后的 Uint8ClampedArray buffer
-        return ctx.getImageData(0, 0, img.width, img.height).data.buffer;
     }
 }
 const toAPNG = new ToAPNG();
@@ -1340,9 +1341,7 @@ const toAPNG = new ToAPNG();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toGIF", function() { return toGIF; });
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 
 class ToGIF {
     constructor() {
@@ -1356,7 +1355,7 @@ class ToGIF {
         this.gifWorkerUrl = URL.createObjectURL(gifWorkerBolb);
     }
     // 转换成 GIF
-    async convert(file, info) {
+    async convert(ImageBitmapList, info) {
         return new Promise(async (resolve, reject) => {
             // 配置 gif.js
             let gif = new GIF({
@@ -1366,20 +1365,23 @@ class ToGIF {
             });
             // 绑定渲染完成事件
             gif.on('finished', (file) => {
-                _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('convertSuccess');
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('convertSuccess');
                 resolve(file);
             });
-            // 提取图片数据
-            const zipFileBuffer = await file.arrayBuffer();
-            const indexList = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].getJPGContentIndex(zipFileBuffer);
-            let imgs = await _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].extractImage(zipFileBuffer, indexList);
+            const width = ImageBitmapList[0].width;
+            const height = ImageBitmapList[0].height;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = width;
+            canvas.height = height;
             // 添加帧数据
-            imgs.forEach((img, index) => {
-                gif.addFrame(img, {
+            ImageBitmapList.forEach((imageBitmap, index) => {
+                ctx.drawImage(imageBitmap, 0, 0);
+                const ImageData = ctx.getImageData(0, 0, width, height);
+                gif.addFrame(ImageData, {
                     delay: info.frames[index].delay,
                 });
             });
-            imgs = null;
             // 渲染 gif
             gif.render();
         });
@@ -1401,41 +1403,32 @@ const toGIF = new ToGIF();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toWebM", function() { return toWebM; });
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 
 class ToWebM {
-    async convert(file, info) {
+    async convert(ImageBitmapList, info) {
         return new Promise(async (resolve, reject) => {
+            const width = ImageBitmapList[0].width;
+            const height = ImageBitmapList[0].height;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = width;
+            canvas.height = height;
             // 创建视频编码器
             const encoder = new Whammy.Video();
-            // 提取图片数据
-            const zipFileBuffer = await file.arrayBuffer();
-            const indexList = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].getJPGContentIndex(zipFileBuffer);
-            let imgs = await _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].extractImage(zipFileBuffer, indexList);
             // 添加帧数据
-            imgs.forEach((img, index) => {
+            ImageBitmapList.forEach((imageBitmap, index) => {
+                ctx.drawImage(imageBitmap, 0, 0);
+                // 把图像转换为 webp 格式的 DataURL，这样 webm 编码器内部可以直接使用，不需要进行一些重复的操作
                 // https://github.com/antimatter15/whammy#basic-usage
-                encoder.add(this.getImgDataURL(img), info.frames[index].delay);
+                const url = canvas.toDataURL('image/webp', 0.9);
+                encoder.add(url, info.frames[index].delay);
             });
-            imgs = null;
-            // 生成的视频
-            file = await this.encodeVideo(encoder);
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('convertSuccess');
+            // 生成视频
+            const file = await this.encodeVideo(encoder);
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('convertSuccess');
             resolve(file);
         });
-    }
-    // 获取每一帧的数据，传递给编码器使用
-    // 把图像转换为 webp 格式的 DataURL，这样 webm 编码器内部可以直接使用，不需要进行一些重复的操作
-    // 这样的转换速度是最快的
-    getImgDataURL(img) {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        return canvas.toDataURL('image/webp', 0.9);
     }
     // 编码视频
     async encodeVideo(encoder) {
@@ -4484,11 +4477,11 @@ const langText = {
         '동시에 <span class="key">변환할</span> 움직이는 일러스트 수',
     ],
     _同时转换多少个动图警告: [
-        '同时转换多个动图会增加资源占用。<br>转换动图时，请保持该标签页激活，否则浏览器会降低转换速度。',
-        '同時轉換多個動圖會增加資源占用。<br>轉換動圖時，請保持這個分頁啟動，否則瀏覽器會降低轉換速度。',
-        'Converting multiple animations at the same time will increase resource consumption. <br> Please keep the tab active when converting animation, otherwise the browser will reduce the conversion speed.',
-        '複数の動画を同時に変換すると、リソースの占有が増加します。<br>うごイラを変換するときは、このタブを有効にしてください。そうしないと、ブラウザは変換速度を下げます。',
-        '여러 움직이는 일러스트를 동시에 변환하면 리소스가 더 많이 사용됩니다.<br>움직이는 일러스트를 변환할 때 이 탭을 활성화하지 않으면 브라우저에서 변환 속도를 줄일 수 있습니다.',
+        '同时转换多个动图会增加资源占用。',
+        '同時轉換多個動圖會增加資源占用。',
+        'Converting multiple animations at the same time will increase resource consumption. ',
+        '複数の動画を同時に変換すると、リソースの占有が増加します。',
+        '여러 움직이는 일러스트를 동시에 변환하면 리소스가 더 많이 사용됩니다.',
     ],
     _提示: ['提示', '提示', 'Tip', 'ヒント', '팁'],
     _提示2: ['提示', '提示', 'Tip', '？', '팁'],
@@ -5856,13 +5849,6 @@ const langText = {
         '<span class="key">Preview</span> Ugoira',
         'うごイラのプレビュー',
         '움직이는 일러스트 <span class="key">미리보기</span>',
-    ],
-    _1282更新说明: [
-        `加快转换动图的速度；<br>优化预览作品的体验；<br>添加了韩语文本。`,
-        `加快轉換動圖的速度；<br>最佳化預覽作品的體驗；<br>添加了韓語文字。`,
-        `Speed up the conversion of Ugoira;<br>Optimize the experience of previewing works;<br>Add Korean text.`,
-        `うごイラの変換を高速化します;<br>作品のプレビュー体験を最適化します;<br>韓国語のテキストを追加します。`,
-        `움직이는 일러스트 변환 속도 향상,<br>优化预览图片的体验,<br>한국어 텍스트 추가.`,
     ],
     _过度访问警告警告: [
         '下载器检测到你可能收到了 pixiv 的警告消息，这通常是因为过度下载导致的。<br>请等待一段时间再继续下载。',
@@ -7568,7 +7554,7 @@ class PreviewWork {
             if (body.pageCount > 1) {
                 text.push(`${this.index + 1}/${body.pageCount}`);
             }
-            text.push(body.bookmarkCount);
+            text.push(body.bookmarkCount.toString());
             // 加载原图时，可以获取到每张图片的真实尺寸
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize === 'original') {
                 text.push(`${w}x${h}`);
@@ -10218,7 +10204,6 @@ class Tools {
         let offset = 0;
         // 循环的次数
         let loopTimes = 0;
-        // console.time('getJPGContentIndex')
         while (true) {
             // 如果当前偏移量的后面有已经查找到的索引，就不必重复查找了
             // 跳过这次循环，下次直接从已有的索引后面开始查找
@@ -10264,13 +10249,11 @@ class Tools {
                 ++loopTimes;
             }
             else {
-                // console.timeEnd('getJPGContentIndex')
                 return indexList;
             }
         }
     }
-    /**从 zip 压缩包里提取出图像数据，转换成 img 标签列表 */
-    static async extractImage(zipFile, indexList) {
+    static async extractImage(zipFile, indexList, target) {
         return new Promise(async (resolve, reject) => {
             const result = [];
             let i = 0;
@@ -10290,9 +10273,15 @@ class Tools {
                 const blob = new Blob([zipFile.slice(start, end)], {
                     type: 'image/jpeg',
                 });
-                const url = URL.createObjectURL(blob);
-                const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].loadImg(url);
-                result.push(img);
+                if (target === 'ImageBitmap') {
+                    const map = await createImageBitmap(blob);
+                    result.push(map);
+                }
+                else if (target === 'img') {
+                    const url = URL.createObjectURL(blob);
+                    const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].loadImg(url);
+                    result.push(img);
+                }
                 ++i;
             }
             resolve(result);
