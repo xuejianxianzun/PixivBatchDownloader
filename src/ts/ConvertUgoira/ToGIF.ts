@@ -1,4 +1,3 @@
-import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { UgoiraInfo } from '../crawl/CrawlResult'
 
@@ -11,8 +10,8 @@ class ToGIF {
 
   private gifWorkerUrl: string = ''
 
+  // 添加转换 GIF 的 worker 文件
   private async loadWorkerJS() {
-    // 添加 gif 的 worker 文件
     let gifWorker = await fetch(chrome.runtime.getURL('lib/gif.worker.js'))
     const gifWorkerBolb = await gifWorker.blob()
     this.gifWorkerUrl = URL.createObjectURL(gifWorkerBolb)

@@ -1244,8 +1244,8 @@ class ToGIF {
         this.gifWorkerUrl = '';
         this.loadWorkerJS();
     }
+    // 添加转换 GIF 的 worker 文件
     async loadWorkerJS() {
-        // 添加 gif 的 worker 文件
         let gifWorker = await fetch(chrome.runtime.getURL('lib/gif.worker.js'));
         const gifWorkerBolb = await gifWorker.blob();
         this.gifWorkerUrl = URL.createObjectURL(gifWorkerBolb);
@@ -1320,16 +1320,9 @@ class ToWebM {
                 const url = canvas.toDataURL('image/webp', 0.9);
                 encoder.add(url, info.frames[index].delay);
             });
-            // 生成视频
-            const file = await this.encodeVideo(encoder);
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('convertSuccess');
-            resolve(file);
-        });
-    }
-    // 编码视频
-    async encodeVideo(encoder) {
-        return new Promise(function (resolve, reject) {
-            encoder.compile(false, function (video) {
+            // 编码视频
+            encoder.compile(false, (video) => {
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('convertSuccess');
                 resolve(video);
             });
         });
@@ -5951,6 +5944,13 @@ const langText = {
         '<span class="key">いいね</span> ボタンをクリックすると作品がダウンロードされます',
         '<span class="key">좋아요</span> 버튼 클릭 시 작품 다운로드',
     ],
+    _优化性能和用户体验: [
+        '优化性能和用户体验。',
+        '最佳化效能和使用者體驗。',
+        'Optimize performance and user experience.',
+        'パフォーマンスとユーザー エクスペリエンスを最適化します。',
+        '성능과 사용자 경험을 최적화합니다.',
+    ],
 };
 
 
@@ -8951,13 +8951,13 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '13.5.3';
+        this.flag = '13.6.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_whatisnew')}`;
+            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_优化性能和用户体验')}`;
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -10400,7 +10400,7 @@ Config.worksNumberLimit = 9999999999;
 /**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
 Config.retryTimer = 200000;
 /**慢速抓取模式下，每个抓取请求之间的间隔时间（ms） */
-Config.slowCrawlDealy = 1300;
+Config.slowCrawlDealy = 1400;
 
 
 

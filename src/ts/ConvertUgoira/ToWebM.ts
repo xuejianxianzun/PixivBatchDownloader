@@ -28,19 +28,9 @@ class ToWebM {
         encoder.add(url, info.frames![index].delay)
       })
 
-      // 生成视频
-      const file = await this.encodeVideo(encoder)
-
-      EVT.fire('convertSuccess')
-
-      resolve(file)
-    })
-  }
-
-  // 编码视频
-  private async encodeVideo(encoder: any) {
-    return new Promise<Blob>(function (resolve, reject) {
-      encoder.compile(false, function (video: Blob) {
+      // 编码视频
+      encoder.compile(false, (video: Blob) => {
+        EVT.fire('convertSuccess')
         resolve(video)
       })
     })

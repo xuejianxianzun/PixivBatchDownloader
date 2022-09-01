@@ -2980,6 +2980,13 @@ const langText = {
     '<span class="key">いいね</span> ボタンをクリックすると作品がダウンロードされます',
     '<span class="key">좋아요</span> 버튼 클릭 시 작품 다운로드',
   ],
+  _优化性能和用户体验: [
+    '优化性能和用户体验。',
+    '最佳化效能和使用者體驗。',
+    'Optimize performance and user experience.',
+    'パフォーマンスとユーザー エクスペリエンスを最適化します。',
+    '성능과 사용자 경험을 최적화합니다.',
+  ],
 }
 
 export { langText }
