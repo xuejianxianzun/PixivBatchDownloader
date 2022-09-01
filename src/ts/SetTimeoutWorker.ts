@@ -9,25 +9,27 @@ class SetTimeoutWorker {
     this.createWorker()
   }
 
-  private worker?: Worker
-
-  private async createWorker() {
-    return new Promise(async (resolve) => {
-      const jsURL = chrome.runtime.getURL('js/setTimeout.worker.js')
-      const req = await fetch(jsURL)
-      const blob = await req.blob()
-      const blobURL = URL.createObjectURL(blob)
-      this.worker = new Worker(blobURL)
-
-      this.worker.addEventListener('message', (ev) => {
-        const id = ev.data.id as number
-        if (this.list[id].callback !== null) {
-          this.list[id].callback!()
-          this.clear(id)
-        }
+  // 因为 worker 的代码很短，所以直接储存在这里，避免从网络加载导致的延迟问题
+  private readonly workerCode = `onmessage = (ev) => {
+    setTimeout(() => {
+      postMessage({
+        id: ev.data.id
       })
+    }, ev.data.time)
+  }`
 
-      resolve(this.worker)
+  private worker!: Worker
+
+  private createWorker() {
+    const blob = new Blob([this.workerCode])
+    this.worker = new Worker(URL.createObjectURL(blob))
+
+    this.worker.addEventListener('message', (ev) => {
+      const id = ev.data.id as number
+      if (this.list[id].callback !== null) {
+        this.list[id].callback!()
+        this.clear(id)
+      }
     })
   }
 
@@ -44,7 +46,7 @@ class SetTimeoutWorker {
     this.list.push(data)
     this.timerId++
 
-    this.worker?.postMessage({
+    this.worker.postMessage({
       id: data.id,
       time,
     })

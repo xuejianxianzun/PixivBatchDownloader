@@ -21,7 +21,7 @@ async function copys() {
     // 复制 src 目录里需要的文件
     await copy('./src', distPath, {
       overwrite: true,
-      filter: ['manifest.json','js/*'],
+      filter: ['manifest.json'],
     })
 
     // 复制根目录一些文件

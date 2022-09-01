@@ -7936,29 +7936,30 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setTimeoutWorker", function() { return setTimeoutWorker; });
 class SetTimeoutWorker {
     constructor() {
+        // 因为 worker 的代码很短，所以直接储存在这里，避免从网络加载导致的延迟问题
+        this.workerCode = `onmessage = (ev) => {
+    setTimeout(() => {
+      postMessage({
+        id: ev.data.id
+      })
+    }, ev.data.time)
+  }`;
         this.list = [];
         this.timerId = 0;
         this.createWorker();
     }
-    async createWorker() {
-        return new Promise(async (resolve) => {
-            const jsURL = chrome.runtime.getURL('js/setTimeout.worker.js');
-            const req = await fetch(jsURL);
-            const blob = await req.blob();
-            const blobURL = URL.createObjectURL(blob);
-            this.worker = new Worker(blobURL);
-            this.worker.addEventListener('message', (ev) => {
-                const id = ev.data.id;
-                if (this.list[id].callback !== null) {
-                    this.list[id].callback();
-                    this.clear(id);
-                }
-            });
-            resolve(this.worker);
+    createWorker() {
+        const blob = new Blob([this.workerCode]);
+        this.worker = new Worker(URL.createObjectURL(blob));
+        this.worker.addEventListener('message', (ev) => {
+            const id = ev.data.id;
+            if (this.list[id].callback !== null) {
+                this.list[id].callback();
+                this.clear(id);
+            }
         });
     }
     set(callback, time) {
-        var _a;
         const data = {
             id: this.timerId,
             time,
@@ -7966,7 +7967,7 @@ class SetTimeoutWorker {
         };
         this.list.push(data);
         this.timerId++;
-        (_a = this.worker) === null || _a === void 0 ? void 0 : _a.postMessage({
+        this.worker.postMessage({
             id: data.id,
             time,
         });
