@@ -11,12 +11,12 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '13.5.3'
+  private flag = '13.6.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-      let msg = `${lang.transl('_whatisnew')}`
+      let msg = `${lang.transl('_优化性能和用户体验')}`
 
       // 在更新说明的下方显示赞助提示
       msg += `

@@ -18,7 +18,7 @@ async function copys() {
       reject()
     })
 
-    // 复制 manifest
+    // 复制 src 目录里需要的文件
     await copy('./src', distPath, {
       overwrite: true,
       filter: ['manifest.json'],

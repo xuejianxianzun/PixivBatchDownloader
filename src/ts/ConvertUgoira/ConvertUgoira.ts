@@ -6,6 +6,7 @@ import { toGIF } from './ToGIF'
 import { toAPNG } from './ToAPNG'
 import { msgBox } from '../MsgBox'
 import { lang } from '../Lang'
+import { Tools } from '../Tools'
 
 // 控制动图转换
 class ConvertUgoira {
@@ -46,9 +47,9 @@ class ConvertUgoira {
     })
 
     // 如果转换动图时页面被隐藏了，则显示提示
-    document.addEventListener('visibilitychange', () => {
-      this.checkHidden()
-    })
+    // document.addEventListener('visibilitychange', () => {
+    //   this.checkHidden()
+    // })
   }
 
   private setMaxCount() {
@@ -59,7 +60,7 @@ class ConvertUgoira {
   private set count(num: number) {
     this._count = num
     EVT.fire('convertChange', this._count)
-    this.checkHidden()
+    // this.checkHidden()
   }
 
   private async start(
@@ -76,13 +77,22 @@ class ConvertUgoira {
           }
           this.count = this._count + 1
 
+          // 提取每一张图片
+          const zipFileBuffer = await file.arrayBuffer()
+          const indexList = Tools.getJPGContentIndex(zipFileBuffer)
+          const ImageBitmapList = await Tools.extractImage(
+            zipFileBuffer,
+            indexList,
+            'ImageBitmap'
+          )
+
           if (type === 'gif') {
-            resolve(toGIF.convert(file, info))
+            resolve(toGIF.convert(ImageBitmapList, info))
           } else if (type === 'png') {
-            resolve(toAPNG.convert(file, info))
+            resolve(toAPNG.convert(ImageBitmapList, info))
           } else {
             // 如果没有 type 则默认使用 webm
-            resolve(toWebM.convert(file, info))
+            resolve(toWebM.convert(ImageBitmapList, info))
           }
         }
       }, 200)

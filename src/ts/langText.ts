@@ -869,7 +869,7 @@ const langText = {
     '다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.예: Chrono Download Manager, free Download Manager、Image Downloader、DownThemAll! 등.',
   ],
   _常见问题说明: [
-    '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br><br>QQ群：675174717<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
+    '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>如果你需要一个梯子（机场）,可以试试 <a href="https://www.ttkcloud.net/#/register?code=6m4hMaPu" title="https://www.ttkcloud.net/">www.ttkcloud.net</a>，价格便宜，百兆带宽，无倍率。先购买订阅，然后在仪盘表复制订阅链接使用。<br><br>下载器 QQ 群：675174717<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
     '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。',
     'The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.',
     'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
@@ -1402,11 +1402,11 @@ const langText = {
     '동시에 <span class="key">변환할</span> 움직이는 일러스트 수',
   ],
   _同时转换多少个动图警告: [
-    '同时转换多个动图会增加资源占用。<br>转换动图时，请保持该标签页激活，否则浏览器会降低转换速度。',
-    '同時轉換多個動圖會增加資源占用。<br>轉換動圖時，請保持這個分頁啟動，否則瀏覽器會降低轉換速度。',
-    'Converting multiple animations at the same time will increase resource consumption. <br> Please keep the tab active when converting animation, otherwise the browser will reduce the conversion speed.',
-    '複数の動画を同時に変換すると、リソースの占有が増加します。<br>うごイラを変換するときは、このタブを有効にしてください。そうしないと、ブラウザは変換速度を下げます。',
-    '여러 움직이는 일러스트를 동시에 변환하면 리소스가 더 많이 사용됩니다.<br>움직이는 일러스트를 변환할 때 이 탭을 활성화하지 않으면 브라우저에서 변환 속도를 줄일 수 있습니다.',
+    '同时转换多个动图会增加资源占用。',
+    '同時轉換多個動圖會增加資源占用。',
+    'Converting multiple animations at the same time will increase resource consumption. ',
+    '複数の動画を同時に変換すると、リソースの占有が増加します。',
+    '여러 움직이는 일러스트를 동시에 변환하면 리소스가 더 많이 사용됩니다.',
   ],
   _提示: ['提示', '提示', 'Tip', 'ヒント', '팁'],
   _提示2: ['提示', '提示', 'Tip', '？', '팁'],
@@ -2775,13 +2775,6 @@ const langText = {
     'うごイラのプレビュー',
     '움직이는 일러스트 <span class="key">미리보기</span>',
   ],
-  _1282更新说明: [
-    `加快转换动图的速度；<br>优化预览作品的体验；<br>添加了韩语文本。`,
-    `加快轉換動圖的速度；<br>最佳化預覽作品的體驗；<br>添加了韓語文字。`,
-    `Speed up the conversion of Ugoira;<br>Optimize the experience of previewing works;<br>Add Korean text.`,
-    `うごイラの変換を高速化します;<br>作品のプレビュー体験を最適化します;<br>韓国語のテキストを追加します。`,
-    `움직이는 일러스트 변환 속도 향상,<br>优化预览图片的体验,<br>한국어 텍스트 추가.`,
-  ],
   _过度访问警告警告: [
     '下载器检测到你可能收到了 pixiv 的警告消息，这通常是因为过度下载导致的。<br>请等待一段时间再继续下载。',
     '下載器檢測到你可能收到了 pixiv 的警告訊息，這通常是因為過度下載導致的。<br>請等待一段時間再繼續下載。',
@@ -2986,6 +2979,13 @@ const langText = {
     'Download a work when you click the <span class="key">like</span> button',
     '<span class="key">いいね</span> ボタンをクリックすると作品がダウンロードされます',
     '<span class="key">좋아요</span> 버튼 클릭 시 작품 다운로드',
+  ],
+  _优化性能和用户体验: [
+    '优化性能和用户体验。',
+    '最佳化效能和使用者體驗。',
+    'Optimize performance and user experience.',
+    'パフォーマンスとユーザー エクスペリエンスを最適化します。',
+    '성능과 사용자 경험을 최적화합니다.',
   ],
 }
 

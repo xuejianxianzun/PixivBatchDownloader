@@ -12,6 +12,7 @@ import { log } from '../Log'
 import { Tools } from '../Tools'
 import { states } from '../store/States'
 import { Config } from '../config/Config'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 class InitNewNovelPage extends InitPageBase {
   constructor() {
@@ -136,7 +137,7 @@ class InitNewNovelPage extends InitPageBase {
     // 继续抓取
     this.option.lastId = data.body.lastId
     if (states.slowCrawlMode) {
-      window.setTimeout(() => {
+      setTimeoutWorker.set(() => {
         this.getIdList()
       }, Config.slowCrawlDealy)
     } else {

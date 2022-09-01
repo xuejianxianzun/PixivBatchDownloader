@@ -99,11 +99,9 @@ class Tools {
     return decodeURIComponent(Utils.getURLSearchField(nowURL.href, 'tag'))
   }
 
-  // 从 url 里获取 artworks id
-  // 可以传入作品页面的 url（推荐）。如果未传入 url 则使用当前页面的 url（此时可能获取不到 id）
-  // 如果查找不到 id 会返回空字符串
+  /**从 url 里获取 artworks id。如果查找不到 id 会返回空字符串 */
   static getIllustId(url?: string) {
-    const str = url || window.location.search || location.href
+    const str = url || window.location.href
     let test: RegExpExecArray | null = null
 
     if (str.includes('/artworks/')) {
@@ -121,15 +119,13 @@ class Tools {
     }
   }
 
-  // 从 url 里获取 novel id
-  // 可以传入作品页面的 url（推荐）。如果未传入 url 则使用当前页面的 url（此时可能获取不到 id）
-  // 如果查找不到 id 会返回空字符串
+  /**从 url 里获取 novel id。如果查找不到 id 会返回空字符串 */
   // https://www.pixiv.net/novel/show.php?id=12771688
   static getNovelId(url?: string) {
-    const str = url || window.location.search || location.href
+    const str = url || window.location.href
     let result = ''
 
-    const test = str.match(/\?id=(\d*)?/)
+    const test = str.match(/novel\/show.php\?id=(\d*)?/)
     if (test && test.length > 1) {
       result = test[1]
     }
@@ -478,7 +474,6 @@ class Tools {
     let offset = 0
     // 循环的次数
     let loopTimes = 0
-    // console.time('getJPGContentIndex')
     while (true) {
       // 如果当前偏移量的后面有已经查找到的索引，就不必重复查找了
       // 跳过这次循环，下次直接从已有的索引后面开始查找
@@ -527,19 +522,31 @@ class Tools {
         offset = fileContentStart
         ++loopTimes
       } else {
-        // console.timeEnd('getJPGContentIndex')
         return indexList
       }
     }
   }
 
-  /**从 zip 压缩包里提取出图像数据，转换成 img 标签列表 */
+  /**从 zip 压缩包里提取出图像数据 */
   static async extractImage(
     zipFile: ArrayBuffer,
-    indexList: number[]
-  ): Promise<HTMLImageElement[]> {
+    indexList: number[],
+    target: 'ImageBitmap'
+  ): Promise<ImageBitmap[]>
+
+  static async extractImage(
+    zipFile: ArrayBuffer,
+    indexList: number[],
+    target: 'img'
+  ): Promise<HTMLImageElement[]>
+
+  static async extractImage(
+    zipFile: ArrayBuffer,
+    indexList: number[],
+    target: 'img' | 'ImageBitmap'
+  ) {
     return new Promise(async (resolve, reject) => {
-      const result: HTMLImageElement[] = []
+      const result: HTMLImageElement[] | ImageBitmap[] = []
       let i = 0
       for (const index of indexList) {
         // 起始位置
@@ -558,9 +565,14 @@ class Tools {
         const blob = new Blob([zipFile.slice(start, end)], {
           type: 'image/jpeg',
         })
-        const url = URL.createObjectURL(blob)
-        const img = await Utils.loadImg(url)
-        result.push(img)
+        if (target === 'ImageBitmap') {
+          const map = await createImageBitmap(blob)
+          ;(result as ImageBitmap[]).push(map)
+        } else if (target === 'img') {
+          const url = URL.createObjectURL(blob)
+          const img = await Utils.loadImg(url)
+          ;(result as HTMLImageElement[]).push(img)
+        }
         ++i
       }
       resolve(result)
