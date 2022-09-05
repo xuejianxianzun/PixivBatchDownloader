@@ -25,6 +25,7 @@ import { filter } from '../filter/Filter'
 import { Config } from '../config/Config'
 import { timedCrawl } from './TimedCrawl'
 import '../pageFunciton/QuickBookmark'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 abstract class InitPageBase {
   protected crawlNumber = 0 // 要抓取的个数/页数
@@ -170,7 +171,7 @@ abstract class InitPageBase {
 
   protected setSlowCrawl() {
     states.slowCrawlMode = settings.slowCrawl
-    if (states.slowCrawlMode) {
+    if (settings.slowCrawl) {
       log.warning(lang.transl('_慢速抓取'))
     }
   }
@@ -363,7 +364,7 @@ abstract class InitPageBase {
       return
     }
 
-    this.logResultTotal()
+    this.logResultNumber()
 
     // 如果会员搜索优化策略指示停止抓取，则立即进入完成状态
     if (data && (await vipSearchOptimize.stopCrawl(data))) {
@@ -375,7 +376,7 @@ abstract class InitPageBase {
     if (store.idList.length > 0) {
       // 如果存在下一个作品，则继续抓取
       if (states.slowCrawlMode) {
-        window.setTimeout(() => {
+        setTimeoutWorker.set(() => {
           this.getWorksData()
         }, Config.slowCrawlDealy)
       } else {
@@ -466,7 +467,7 @@ abstract class InitPageBase {
   }
 
   // 每当抓取了一个作品之后，输出提示
-  protected logResultTotal() {
+  protected logResultNumber() {
     log.log(
       `${lang.transl('_待处理')} ${store.idList.length}, ${lang.transl(
         '_共抓取到n个作品',

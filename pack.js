@@ -5,27 +5,27 @@ const copy = require('recursive-copy')
 const archiver = require('archiver')
 
 const packName = 'powerfulpixivdownloader-special-DelMemory'
-const dir = './dist-special-DelMemory'
+const distPath = './dist-special-DelMemory'
 
 // 复制一些文件到发布目录
-async function copys() {
+async function copys () {
   return new Promise(async (resolve, reject) => {
     // 复制 static 文件夹的内容
-    await copy('./src/static', dir, {
+    await copy('./src/static', distPath, {
       overwrite: true,
     }).catch(function (error) {
       console.error('Copy failed: ' + error)
       reject()
     })
 
-    // 复制 manifest
-    await copy('./src', dir, {
+    // 复制 src 目录里需要的文件
+    await copy('./src', distPath, {
       overwrite: true,
       filter: ['manifest.json'],
     })
 
     // 复制根目录一些文件
-    await copy('./', dir, {
+    await copy('./', distPath, {
       overwrite: true,
       filter: ['README.md', 'README-EN.md', 'README-KO.md', 'README-ZH-TW.md', 'LICENSE'],
     }).then(function (results) {
@@ -36,7 +36,7 @@ async function copys() {
 }
 
 // 打包发布目录
-function pack() {
+function pack () {
   const zipName = path.resolve(__dirname, packName + '.zip')
   const output = fs.createWriteStream(zipName)
 
@@ -56,13 +56,13 @@ function pack() {
   archive.pipe(output)
 
   // 添加文件夹
-  archive.directory(dir, packName)
+  archive.directory(distPath, packName)
 
   archive.finalize()
 }
 
 // 构建
-async function build() {
+async function build () {
   await copys()
   pack()
 }

@@ -472,13 +472,13 @@ class PreviewWork {
 
     // 3. 设置顶部提示区域的内容
     if (settings.showPreviewWorkTip) {
-      const text = []
+      const text: string[] = []
       const body = this.workData.body
       if (body.pageCount > 1) {
         text.push(`${this.index + 1}/${body.pageCount}`)
       }
 
-      text.push(body.bookmarkCount)
+      text.push(body.bookmarkCount.toString())
 
       // 加载原图时，可以获取到每张图片的真实尺寸
       if (settings.prevWorkSize === 'original') {

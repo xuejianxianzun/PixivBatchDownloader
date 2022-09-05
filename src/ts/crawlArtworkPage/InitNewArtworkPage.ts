@@ -13,6 +13,7 @@ import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
 import { Config } from '../config/Config'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 class InitNewArtworkPage extends InitPageBase {
   constructor() {
@@ -147,7 +148,7 @@ class InitNewArtworkPage extends InitPageBase {
     // 继续抓取
     this.option.lastId = data.body.lastId
     if (states.slowCrawlMode) {
-      window.setTimeout(() => {
+      setTimeoutWorker.set(() => {
         this.getIdList()
       }, Config.slowCrawlDealy)
     } else {
