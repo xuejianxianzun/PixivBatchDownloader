@@ -1,12 +1,12 @@
 // 初始化首页
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { IDData } from '../store/StoreType'
-import { Config } from '../config/Config'
+import { Config } from '../Config'
 import { toast } from '../Toast'
 import { theme } from '../Theme'
 

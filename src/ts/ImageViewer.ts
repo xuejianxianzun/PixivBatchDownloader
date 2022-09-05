@@ -11,7 +11,7 @@ import { Tools } from './Tools'
 import { ArtworkData } from './crawl/CrawlResult'
 import { Bookmark } from './Bookmark'
 import { cacheWorkData } from './store/CacheWorkData'
-import { Colors } from './config/Colors'
+import { Colors } from './Colors'
 import { downloadOnClickBookmark } from './download/DownloadOnClickBookmark'
 
 // 所有参数

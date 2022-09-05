@@ -1,4 +1,4 @@
-import { Config } from '../config/Config'
+import { Config } from '../Config'
 
 export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">

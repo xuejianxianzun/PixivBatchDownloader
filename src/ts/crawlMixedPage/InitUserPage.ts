@@ -1,6 +1,6 @@
 // 初始化用户页面
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { API } from '../API'
@@ -17,7 +17,7 @@ import '../pageFunciton/SaveAvatarImage'
 import '../pageFunciton/SaveUserCover'
 import { BookmarkAllWorks, IDList } from '../pageFunciton/BookmarkAllWorks'
 import { Utils } from '../utils/Utils'
-import { Config } from '../config/Config'
+import { Config } from '../Config'
 
 enum ListType {
   UserHome,

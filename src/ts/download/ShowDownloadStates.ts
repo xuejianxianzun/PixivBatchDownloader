@@ -1,4 +1,4 @@
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
 

@@ -1,5 +1,5 @@
 import { Tools } from './Tools'
-import { Colors } from './config/Colors'
+import { Colors } from './Colors'
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import { states } from './store/States'

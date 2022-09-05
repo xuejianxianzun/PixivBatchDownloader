@@ -1,7 +1,7 @@
 import { Tools } from './Tools'
 import { EVT } from './EVT'
 import { theme } from './Theme'
-import { Colors } from './config/Colors'
+import { Colors } from './Colors'
 import { bg } from './BG'
 
 // 日志

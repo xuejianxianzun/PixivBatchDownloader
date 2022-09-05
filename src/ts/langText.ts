@@ -1,4 +1,4 @@
-import { Config } from './config/Config'
+import { Config } from './Config'
 
 // 储存下载器使用的多语言文本
 // 在属性名前面加上下划线，和文本内容做出区别

@@ -5,7 +5,7 @@ import { states } from './store/States'
 import { toast } from './Toast'
 import { lang } from './Lang'
 import { IDData } from './store/StoreType'
-import { Colors } from './config/Colors'
+import { Colors } from './Colors'
 
 // 在图片作品的缩略图上显示下载按钮，点击按钮会直接下载这个作品
 class ShowDownloadBtnOnThumb {

@@ -1,6 +1,6 @@
 // 初始化 artwork 搜索页
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { DeleteWorks } from '../pageFunciton/DeleteWorks'
@@ -23,7 +23,7 @@ import { msgBox } from '../MsgBox'
 import { Bookmark } from '../Bookmark'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { pageType } from '../PageType'
-import { Config } from '../config/Config'
+import { Config } from '../Config'
 import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 

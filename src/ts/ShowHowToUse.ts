@@ -1,5 +1,5 @@
 import { lang } from './Lang'
-import { Config } from './config/Config'
+import { Config } from './Config'
 import { msgBox } from './MsgBox'
 import { EVT } from './EVT'
 import { settings, setSetting } from './setting/Settings'

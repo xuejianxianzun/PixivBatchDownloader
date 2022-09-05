@@ -1,7 +1,7 @@
 // 删除页面上的作品
 import { log } from '../Log'
 import { lang } from '../Lang'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { Tools } from '../Tools'
 import { states } from '../store/States'
 import { EVT } from '../EVT'

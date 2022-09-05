@@ -10,7 +10,7 @@ import { Utils } from './utils/Utils'
 import { PreviewUgoira } from './PreviewUgoira'
 import { toast } from './Toast'
 import { lang } from './Lang'
-import { Colors } from './config/Colors'
+import { Colors } from './Colors'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
