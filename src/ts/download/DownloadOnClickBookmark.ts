@@ -63,7 +63,6 @@ class DownloadOnClickBookmark {
 
       toast.show(lang.transl('_已发送下载请求'), {
         bgColor: Colors.bgBlue,
-        position: 'mouse',
       })
     }
   }

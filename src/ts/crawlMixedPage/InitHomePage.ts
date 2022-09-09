@@ -170,8 +170,6 @@ class InitHomePage extends InitPageBase {
     }
 
     this.addIdList(ids)
-
-    toast.success(lang.transl('_开始抓取'))
   }
 
   // 把 id 列表添加到 store 里，然后开始抓取

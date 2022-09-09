@@ -186,7 +186,10 @@ abstract class InitPageBase {
 
     log.clear()
 
-    log.success(lang.transl('_任务开始0'))
+    log.success(lang.transl('_开始抓取'))
+    toast.show(lang.transl('_开始抓取'), {
+      position: 'topCenter',
+    })
 
     EVT.fire('crawlStart')
 
@@ -217,7 +220,10 @@ abstract class InitPageBase {
     } else {
       log.clear()
 
-      log.success(lang.transl('_任务开始0'))
+      log.success(lang.transl('_开始抓取'))
+      toast.show(lang.transl('_开始抓取'), {
+        position: 'topCenter',
+      })
 
       EVT.fire('crawlStart')
 

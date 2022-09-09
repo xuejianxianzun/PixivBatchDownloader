@@ -895,6 +895,7 @@
 }
 .centerWrap .centerWrap_con .settingForm .progressBarWrap .total .text {
   margin-right: 10px;
+  line-height: 22px;
 }
 .centerWrap .centerWrap_con .settingForm .progressBarWrap .total .right1 {
   flex: 1;

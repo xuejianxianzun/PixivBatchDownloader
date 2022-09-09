@@ -522,7 +522,7 @@ class BG {
         this.preload();
     }
     async selectBG() {
-        const file = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].selectFile('.jpg,.jpeg,.png,.bmp'))[0];
+        const file = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].selectFile('.jpg,.jpeg,.png,.bmp,.webp'))[0];
         this.bgUrl = URL.createObjectURL(file);
         this.preload();
         for (const o of this.list) {
@@ -821,7 +821,7 @@ class CenterPanel {
       <button class="textButton gray1" id="showDownTip" type="button" data-xztext="_常见问题"></button>
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank" data-xztext="_wiki"></a>
       <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
-      <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank" data-xztext="_fanboxDownloader"></a>
+      <a class="gray1" href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank" data-xztext="_fanboxDownloader"></a>
       <button class="textButton gray1" id="showPatronTip" type="button" data-xztext="_赞助我"></button>
       <br>
       </div>
@@ -2288,38 +2288,6 @@ const findHorizontalImageWrap = new FindHorizontalImageWrap();
 
 /***/ }),
 
-/***/ "./src/ts/Help.ts":
-/*!************************!*\
-  !*** ./src/ts/Help.ts ***!
-  \************************/
-/*! exports provided: help */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "help", function() { return help; });
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-
-
-
-// 显示帮助信息
-// 在第一次使用某些功能的时候显示一次性的帮助信息
-class Help {
-    showDownloadTip() {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].showDownloadTip) {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_0__["msgBox"].show(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_首次下载显示的提示'));
-            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])('showDownloadTip', false);
-        }
-    }
-}
-const help = new Help();
-
-
-
-/***/ }),
-
 /***/ "./src/ts/HiddenBrowserDownloadBar.ts":
 /*!********************************************!*\
   !*** ./src/ts/HiddenBrowserDownloadBar.ts ***!
@@ -2729,7 +2697,6 @@ class ImageViewer {
         // 显示提示
         _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏'), {
             bgColor: _Colors__WEBPACK_IMPORTED_MODULE_10__["Colors"].bgBlue,
-            position: 'mouse',
         });
         await _Bookmark__WEBPACK_IMPORTED_MODULE_8__["Bookmark"].add(this.cfg.workId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].extractTags(this.workData));
         _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已收藏'));
@@ -2747,7 +2714,6 @@ class ImageViewer {
         // 显示提示
         _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已发送下载请求'), {
             bgColor: _Colors__WEBPACK_IMPORTED_MODULE_10__["Colors"].bgBlue,
-            position: 'mouse',
         });
     }
 }
@@ -3309,7 +3275,7 @@ const langText = {
         'このページから {} 枚の作品をダウンロード。',
         '이 페이지부터 {}개의 작품 다운로드',
     ],
-    _任务开始0: [
+    _任务开始: [
         '任务开始',
         '工作開始',
         'Task starts',
@@ -3848,7 +3814,7 @@ const langText = {
         '预览文件名',
         '預覽檔案名稱',
         'Preview file name',
-        'ファイル名のプレビュー',
+        'ファイル名',
         '파일명 미리보기',
     ],
     _下载线程: [
@@ -3916,13 +3882,6 @@ const langText = {
         'The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.',
         'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
         '다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.',
-    ],
-    _首次下载显示的提示: [
-        '下载的文件保存在浏览器的下载目录里。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。',
-        '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。',
-        'The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.',
-        'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。',
-        '다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.',
     ],
     _正在下载中: [
         '正在下载中',
@@ -5091,11 +5050,11 @@ const langText = {
         '다운로드 요청 전송',
     ],
     _HowToUse: [
-        '点击页面右侧的蓝色按钮可以打开下载器面板。',
-        '點選頁面右側的藍色按鈕可以開啟下載器面板。',
-        'Click the blue button on the right side of the page to open the downloader panel.',
-        'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。',
-        '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.',
+        '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。',
+        '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。',
+        'Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.',
+        'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。',
+        '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.<br><br>다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.',
     ],
     _我知道了: ['我知道了', '我知道了', 'OK', '分かりました', '확인'],
     _背景图片: [
@@ -5216,6 +5175,13 @@ const langText = {
         'シリアル番号の前に 0 を記入',
         '일련번호 앞 <span class="key">0 채우기</span>',
     ],
+    _在序号前面填充0的说明: [
+        '这可以解决一些软件不能正确的按照文件名来排序文件的问题。',
+        '這可以解決一些軟體不能正確的按照檔名來排序檔案的問題。',
+        'This can solve the problem that some software cannot correctly sort files by file name.',
+        'これにより、一部のソフトウェアがファイルをファイル名で正しくソートできないという問題を解決できます。',
+        '이것은 일부 소프트웨어가 파일 이름별로 파일을 올바르게 정렬할 수 없는 문제를 해결할 수 있습니다.',
+    ],
     _序号总长度: [
         '序号总长度',
         '序號總長度',
@@ -5292,11 +5258,11 @@ const langText = {
         '숨겨진 설정은 계속 작동합니다.',
     ],
     _状态码为0的错误提示: [
-        '下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。如果你使用 Nginx 或者 Apache 反代理访问 pixiv，请换成梯子。',
-        '下載時發生錯誤，狀態碼為 0，請求未成功。可能的原因：<br><br>1. 系統磁碟的剩餘空間可能不足（建議剩餘空間大於 4GB）。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>2. 網路錯誤。可能是網路代理導致的問題。',
-        'An error occurred while downloading, the status code is 0, and the request was unsuccessful. Possible reasons: <br><br>1. The remaining space of the system disk may be insufficient (it is recommended that the remaining space be greater than 4GB). Please try to clear the system disk space, and then restart the browser to continue the unfinished download. <br><br>2. Network error. It may be a problem caused by a network proxy.',
-        'ダウンロード中にエラーが発生し、ステータスコードは0で、リクエストは失敗しました。 考えられる理由：<br> <br> 1。 システムディスクの残りのスペースが不足している可能性があります（残りのスペースは4GBを超えることをお勧めします）。 システムのディスク領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。 <br> <br> 2。 ネットワークエラー。 ネットワークプロキシが原因の問題である可能性があります。',
-        '다운로드 중 오류가 발생했으며, 상태 코드가 0이고 요청에 실패했습니다. 가능한 원인: <br><br>1. 시스템 디스크의 남은 공간이 부족할 수 있습니다(남은 공간은 4GB보다 큰 것이 좋습니다). 시스템 디스크 공간을 비운 다음 브라우저를 다시 시작하여 완료되지 않은 다운로드를 계속해주세요. <br><br>2. 네트워크 오류. 네트워크 프록시로 인한 문제일 수 있습니다.',
+        '下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（通常是 C 盘）（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。如果你使用 Nginx 或者 Apache 反代理访问 pixiv，请换成梯子。',
+        '下載時發生錯誤，狀態碼為 0，請求未成功。可能的原因：<br><br>1. 系統磁碟的剩餘空間可能不足（通常是 C 盤）（建議剩餘空間大於 4GB）。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>2. 網路錯誤。可能是網路代理導致的問題。',
+        'An error occurred while downloading, the status code is 0, and the request was unsuccessful. Possible reasons: <br><br>1. The remaining space of the system disk may be insufficient (usually C drive)(it is recommended that the remaining space be greater than 4GB). Please try to clear the system disk space, and then restart the browser to continue the unfinished download. <br><br>2. Network error. It may be a problem caused by a network proxy.',
+        'ダウンロード中にエラーが発生し、ステータスコードは0で、リクエストは失敗しました。 考えられる理由：<br> <br> 1。 システムディスクの残りのスペースが不足している可能性があります(通常はCドライブ)（残りのスペースは4GBを超えることをお勧めします）。 システムのディスク領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。 <br> <br> 2。 ネットワークエラー。 ネットワークプロキシが原因の問題である可能性があります。',
+        '다운로드 중 오류가 발생했으며, 상태 코드가 0이고 요청에 실패했습니다. 가능한 원인: <br><br>1. 시스템 디스크의 남은 공간이 부족할 수 있습니다(보통 C드라이브)(남은 공간은 4GB보다 큰 것이 좋습니다). 시스템 디스크 공간을 비운 다음 브라우저를 다시 시작하여 완료되지 않은 다운로드를 계속해주세요. <br><br>2. 네트워크 오류. 네트워크 프록시로 인한 문제일 수 있습니다.',
     ],
     _下载完成后显示通知: [
         '下载完成后显示<span class="key">通知</span>',
@@ -5469,13 +5435,6 @@ const langText = {
         'Start crawl, if there are multiple pages, the default will be downloaded.',
         'クロールを開始する、複数のページがある場合、デフォルトですべてをダウンロードされます。',
         '긁어오기를 시작합니다. 여러 페이지가 있으면 기본적으로 모두 다운로드됩니다.',
-    ],
-    _在Patreon赞助我: [
-        '在 Patreon 赞助我',
-        '在 Patreon 贊助我',
-        'Become a patron',
-        'Become a patron',
-        'Become a patron',
     ],
     _赞助我: ['赞助我', '贊助我', 'Sponsor me', '支援する', '후원하기'],
     _赞助方式提示: [
@@ -7934,7 +7893,6 @@ class SelectWork {
             _store_States__WEBPACK_IMPORTED_MODULE_4__["states"].quickCrawl = true;
             _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已发送下载请求'), {
                 bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue,
-                position: 'mouse',
             });
         }
         else {
@@ -8387,7 +8345,6 @@ class ShowDownloadBtnOnThumb {
                 _store_States__WEBPACK_IMPORTED_MODULE_3__["states"].quickCrawl = true;
                 _Toast__WEBPACK_IMPORTED_MODULE_4__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_5__["lang"].transl('_已发送下载请求'), {
                     bgColor: _Colors__WEBPACK_IMPORTED_MODULE_6__["Colors"].bgBlue,
-                    position: 'mouse',
                 });
             }
         });
@@ -9413,7 +9370,7 @@ class Toast {
             dealy: 1500,
             enter: 'up',
             leave: 'fade',
-            position: 'topCenter',
+            position: 'mouse',
         };
         this.successCfg = {
             msg: '',
@@ -9422,7 +9379,7 @@ class Toast {
             dealy: 1500,
             enter: 'up',
             leave: 'fade',
-            position: 'topCenter',
+            position: 'mouse',
         };
         this.warningCfg = {
             msg: '',
@@ -9431,7 +9388,7 @@ class Toast {
             dealy: 1500,
             enter: 'up',
             leave: 'fade',
-            position: 'topCenter',
+            position: 'mouse',
         };
         this.errorCfg = {
             msg: '',
@@ -9440,7 +9397,7 @@ class Toast {
             dealy: 1500,
             enter: 'up',
             leave: 'fade',
-            position: 'topCenter',
+            position: 'mouse',
         };
         this.tipClassName = 'xzToast';
         this.mousePosition = { x: 0, y: 0 };
@@ -10691,7 +10648,10 @@ class InitPageBase {
             return;
         }
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
-        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
+        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'));
+        _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'), {
+            position: 'topCenter',
+        });
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
         if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].isPixiv()) {
             await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__["mute"].getMuteSettings();
@@ -10714,7 +10674,10 @@ class InitPageBase {
         }
         else {
             _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
-            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
+            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'));
+            _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'), {
+                position: 'topCenter',
+            });
             _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
             if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].isPixiv()) {
                 await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__["mute"].getMuteSettings();
@@ -13982,7 +13945,6 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
             start++;
         }
         this.addIdList(ids);
-        _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'));
     }
     // 把 id 列表添加到 store 里，然后开始抓取
     addIdList(ids) {
@@ -14385,6 +14347,7 @@ class QuickCrawl {
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('crawlIdList', [idData]);
         _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已发送下载请求'), {
             bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__["Colors"].bgBlue,
+            position: 'center',
         });
     }
     setVisible() {
@@ -15815,12 +15778,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Help__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../Help */ "./src/ts/Help.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _CheckWarningMessage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./CheckWarningMessage */ "./src/ts/download/CheckWarningMessage.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _CheckWarningMessage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./CheckWarningMessage */ "./src/ts/download/CheckWarningMessage.ts");
 // 下载控制
-
 
 
 
@@ -15898,8 +15859,8 @@ class DownloadControl {
             });
         }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.skipDownload, (ev) => {
-            const data = ev.detail.data;
             // 跳过下载的文件不会触发 downloadSuccess 事件
+            const data = ev.detail.data;
             this.downloadOrSkipAFile(data);
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadError, (ev) => {
@@ -15919,7 +15880,7 @@ class DownloadControl {
             // UUID 的情况
             if ((_a = msg.data) === null || _a === void 0 ? void 0 : _a.uuid) {
                 _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_uuid'));
-                _MsgBox__WEBPACK_IMPORTED_MODULE_20__["msgBox"].once(this.msgFlag, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_uuid'), 'error');
+                _MsgBox__WEBPACK_IMPORTED_MODULE_19__["msgBox"].once(this.msgFlag, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_uuid'), 'error');
             }
             // 文件下载成功
             if (msg.msg === 'downloaded') {
@@ -15953,7 +15914,9 @@ class DownloadControl {
             _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕'), 2);
             // 如果有等待中的下载任务，则开始下载等待中的任务
             if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].waitingIdList.length === 0) {
-                _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕2'));
+                _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕2'), {
+                    position: 'topCenter',
+                });
             }
             else {
                 window.clearTimeout(this.waitingTimer);
@@ -16044,9 +16007,8 @@ class DownloadControl {
         this.showDownloadArea();
         this.setDownloaded();
         this.setDownloadThread();
-        _Help__WEBPACK_IMPORTED_MODULE_18__["help"].showDownloadTip();
         // 在插画漫画搜索页面里，如果启用了“预览搜索页面的筛选结果”
-        if (_PageType__WEBPACK_IMPORTED_MODULE_19__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_19__["pageType"].list.ArtworkSearch &&
+        if (_PageType__WEBPACK_IMPORTED_MODULE_18__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_18__["pageType"].list.ArtworkSearch &&
             _setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].previewResult) {
             // “预览搜索页面的筛选结果”会阻止自动开始下载。但是一些情况例外
             // 允许快速抓取发起的下载请求自动开始下载
@@ -16081,7 +16043,7 @@ class DownloadControl {
             _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].init();
         }
         this.reset();
-        _MsgBox__WEBPACK_IMPORTED_MODULE_20__["msgBox"].resetOnce(this.msgFlag);
+        _MsgBox__WEBPACK_IMPORTED_MODULE_19__["msgBox"].resetOnce(this.msgFlag);
         this.setDownloaded();
         this.taskBatch = new Date().getTime(); // 修改本批下载任务的标记
         this.setDownloadThread();
@@ -16550,7 +16512,6 @@ class DownloadOnClickBookmark {
             ]);
             _Toast__WEBPACK_IMPORTED_MODULE_3__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_5__["lang"].transl('_已发送下载请求'), {
                 bgColor: _Colors__WEBPACK_IMPORTED_MODULE_4__["Colors"].bgBlue,
-                position: 'mouse',
             });
         }
     }
@@ -16620,7 +16581,6 @@ class DownloadOnClickLike {
             ]);
             _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已发送下载请求'), {
                 bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__["Colors"].bgBlue,
-                position: 'mouse',
             });
         }
     }
@@ -22150,7 +22110,9 @@ const formHtml = `<form class="settingForm">
     </p>
     
     <p class="option" data-no="46">
-    <span class="settingNameStyle1" data-xztext="_在序号前面填充0"></span>
+    <span class="has_tip settingNameStyle1" data-xztip="_在序号前面填充0的说明">
+    <span data-xztext="_在序号前面填充0"></span>
+    <span class="gray1"> ? </span></span>
     <input type="checkbox" name="zeroPadding" class="need_beautify checkbox_switch" >
     <span class="beautify_switch" tabindex="0"></span>
     <span class="subOptionWrap" data-show="zeroPadding">
@@ -22614,7 +22576,7 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="37">
-    <span class="settingNameStyle1" data-xztext="_管理设置">$</span>
+    <span class="settingNameStyle1" data-xztext="_管理设置"></span>
     <button class="textButton gray1" type="button" id="exportSettings" data-xztext="_导出设置"></button>
     <button class="textButton gray1" type="button" id="importSettings" data-xztext="_导入设置"></button>
     <button class="textButton gray1" type="button" id="resetSettings" data-xztext="_重置设置"></button>
@@ -23574,7 +23536,7 @@ class Settings {
             magnifierSize: 'original',
             magnifierPosition: 'right',
             bgDisplay: false,
-            bgOpacity: 50,
+            bgOpacity: 60,
             bgPositionY: 'center',
             createFolderByType: false,
             createFolderByTypeIllust: false,
@@ -23637,7 +23599,6 @@ class Settings {
             showHowToUse: true,
             whatIsNewFlag: 'xuejian&saber',
             tipCreateFolder: true,
-            showDownloadTip: true,
             replaceSquareThumb: true,
             notFolderWhenOneFile: false,
             noSerialNoForSingleImg: true,

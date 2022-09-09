@@ -478,7 +478,6 @@ class ImageViewer {
     // 显示提示
     toast.show(lang.transl('_收藏'), {
       bgColor: Colors.bgBlue,
-      position: 'mouse',
     })
 
     await Bookmark.add(
@@ -504,7 +503,6 @@ class ImageViewer {
     // 显示提示
     toast.show(lang.transl('_已发送下载请求'), {
       bgColor: Colors.bgBlue,
-      position: 'mouse',
     })
   }
 }

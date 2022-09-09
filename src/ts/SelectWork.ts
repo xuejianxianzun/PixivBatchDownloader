@@ -407,7 +407,6 @@ class SelectWork {
 
       toast.show(lang.transl('_已发送下载请求'), {
         bgColor: Colors.bgBlue,
-        position: 'mouse',
       })
     } else {
       toast.error(lang.transl('_没有数据可供使用'))

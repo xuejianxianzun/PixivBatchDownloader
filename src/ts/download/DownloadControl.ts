@@ -24,7 +24,6 @@ import { states } from '../store/States'
 import { Config } from '../Config'
 import { toast } from '../Toast'
 import { Utils } from '../utils/Utils'
-import { help } from '../Help'
 import { pageType } from '../PageType'
 import { msgBox } from '../MsgBox'
 import './CheckWarningMessage'
@@ -117,8 +116,8 @@ class DownloadControl {
     }
 
     window.addEventListener(EVT.list.skipDownload, (ev: CustomEventInit) => {
-      const data = ev.detail.data as DonwloadSkipData
       // 跳过下载的文件不会触发 downloadSuccess 事件
+      const data = ev.detail.data as DonwloadSkipData
       this.downloadOrSkipAFile(data)
     })
 
@@ -196,7 +195,9 @@ class DownloadControl {
 
       // 如果有等待中的下载任务，则开始下载等待中的任务
       if (store.waitingIdList.length === 0) {
-        toast.success(lang.transl('_下载完毕2'))
+        toast.success(lang.transl('_下载完毕2'), {
+          position: 'topCenter',
+        })
       } else {
         window.clearTimeout(this.waitingTimer)
         this.waitingTimer = window.setTimeout(() => {
@@ -330,8 +331,6 @@ class DownloadControl {
     this.setDownloaded()
 
     this.setDownloadThread()
-
-    help.showDownloadTip()
 
     // 在插画漫画搜索页面里，如果启用了“预览搜索页面的筛选结果”
     if (
