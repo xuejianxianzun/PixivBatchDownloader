@@ -5988,6 +5988,7 @@ const langText = {
         'パフォーマンスとユーザー エクスペリエンスを最適化します。',
         '성능과 사용자 경험을 최적화합니다.',
     ],
+    _修复bug: ['修复 bug', '修復 bug', 'fix bugs', 'バグを修正', '버그 수정'],
 };
 
 
@@ -8986,13 +8987,13 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '13.6.0';
+        this.flag = '13.6.1';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_优化性能和用户体验')}`;
+            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_修复bug')}`;
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
