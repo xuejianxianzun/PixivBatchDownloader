@@ -1,7 +1,7 @@
 // 初始化新版收藏页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { API } from '../API'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { IDData } from '../store/StoreType'
 import { options } from '../setting/Options'
@@ -13,7 +13,7 @@ import { token } from '../Token'
 import { BookmarksAddTag } from '../pageFunciton/BookmarksAddTag'
 import { filter, FilterOption } from '../filter/Filter'
 import { Utils } from '../utils/Utils'
-import { Config } from '../config/Config'
+import { Config } from '../Config'
 import { states } from '../store/States'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 

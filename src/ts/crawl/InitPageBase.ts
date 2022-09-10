@@ -1,6 +1,6 @@
 // 初始化所有页面抓取流程的基类
 import { lang } from '../Lang'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { Tools } from '../Tools'
 import { API } from '../API'
 import { store } from '../store/Store'
@@ -22,7 +22,7 @@ import { msgBox } from '../MsgBox'
 import { Utils } from '../utils/Utils'
 import { pageType } from '../PageType'
 import { filter } from '../filter/Filter'
-import { Config } from '../config/Config'
+import { Config } from '../Config'
 import { timedCrawl } from './TimedCrawl'
 import '../pageFunciton/QuickBookmark'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
@@ -186,7 +186,10 @@ abstract class InitPageBase {
 
     log.clear()
 
-    log.success(lang.transl('_任务开始0'))
+    log.success(lang.transl('_开始抓取'))
+    toast.show(lang.transl('_开始抓取'), {
+      position: 'topCenter',
+    })
 
     EVT.fire('crawlStart')
 
@@ -217,7 +220,10 @@ abstract class InitPageBase {
     } else {
       log.clear()
 
-      log.success(lang.transl('_任务开始0'))
+      log.success(lang.transl('_开始抓取'))
+      toast.show(lang.transl('_开始抓取'), {
+        position: 'topCenter',
+      })
 
       EVT.fire('crawlStart')
 

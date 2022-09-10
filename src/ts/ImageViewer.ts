@@ -11,7 +11,7 @@ import { Tools } from './Tools'
 import { ArtworkData } from './crawl/CrawlResult'
 import { Bookmark } from './Bookmark'
 import { cacheWorkData } from './store/CacheWorkData'
-import { Colors } from './config/Colors'
+import { Colors } from './Colors'
 import { downloadOnClickBookmark } from './download/DownloadOnClickBookmark'
 
 // 所有参数
@@ -478,7 +478,6 @@ class ImageViewer {
     // 显示提示
     toast.show(lang.transl('_收藏'), {
       bgColor: Colors.bgBlue,
-      position: 'mouse',
     })
 
     await Bookmark.add(
@@ -504,7 +503,6 @@ class ImageViewer {
     // 显示提示
     toast.show(lang.transl('_已发送下载请求'), {
       bgColor: Colors.bgBlue,
-      position: 'mouse',
     })
   }
 }

@@ -96,7 +96,7 @@ class BG {
   }
 
   private async selectBG() {
-    const file = (await Utils.selectFile('.jpg,.jpeg,.png,.bmp'))[0]
+    const file = (await Utils.selectFile('.jpg,.jpeg,.png,.bmp,.webp'))[0]
     this.bgUrl = URL.createObjectURL(file)
     this.preload()
     for (const o of this.list) {

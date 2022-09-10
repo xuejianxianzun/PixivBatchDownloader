@@ -1,4 +1,4 @@
-import { Config } from './config/Config'
+import { Config } from './Config'
 
 // 储存下载器使用的多语言文本
 // 在属性名前面加上下划线，和文本内容做出区别
@@ -267,7 +267,7 @@ const langText = {
     'このページから {} 枚の作品をダウンロード。',
     '이 페이지부터 {}개의 작품 다운로드',
   ],
-  _任务开始0: [
+  _任务开始: [
     '任务开始',
     '工作開始',
     'Task starts',
@@ -806,7 +806,7 @@ const langText = {
     '预览文件名',
     '預覽檔案名稱',
     'Preview file name',
-    'ファイル名のプレビュー',
+    'ファイル名',
     '파일명 미리보기',
   ],
   _下载线程: [
@@ -874,13 +874,6 @@ const langText = {
     'The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.',
     'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
     '다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.',
-  ],
-  _首次下载显示的提示: [
-    '下载的文件保存在浏览器的下载目录里。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。',
-    '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。',
-    'The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.',
-    'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。',
-    '다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.',
   ],
   _正在下载中: [
     '正在下载中',
@@ -2049,11 +2042,11 @@ const langText = {
     '다운로드 요청 전송',
   ],
   _HowToUse: [
-    '点击页面右侧的蓝色按钮可以打开下载器面板。',
-    '點選頁面右側的藍色按鈕可以開啟下載器面板。',
-    'Click the blue button on the right side of the page to open the downloader panel.',
-    'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。',
-    '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.',
+    '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。',
+    '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。',
+    'Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.',
+    'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。',
+    '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.<br><br>다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.',
   ],
   _我知道了: ['我知道了', '我知道了', 'OK', '分かりました', '확인'],
   _背景图片: [
@@ -2174,6 +2167,13 @@ const langText = {
     'シリアル番号の前に 0 を記入',
     '일련번호 앞 <span class="key">0 채우기</span>',
   ],
+  _在序号前面填充0的说明: [
+    '这可以解决一些软件不能正确的按照文件名来排序文件的问题。',
+    '這可以解決一些軟體不能正確的按照檔名來排序檔案的問題。',
+    'This can solve the problem that some software cannot correctly sort files by file name.',
+    'これにより、一部のソフトウェアがファイルをファイル名で正しくソートできないという問題を解決できます。',
+    '이것은 일부 소프트웨어가 파일 이름별로 파일을 올바르게 정렬할 수 없는 문제를 해결할 수 있습니다.',
+  ],
   _序号总长度: [
     '序号总长度',
     '序號總長度',
@@ -2250,11 +2250,11 @@ const langText = {
     '숨겨진 설정은 계속 작동합니다.',
   ],
   _状态码为0的错误提示: [
-    '下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。如果你使用 Nginx 或者 Apache 反代理访问 pixiv，请换成梯子。',
-    '下載時發生錯誤，狀態碼為 0，請求未成功。可能的原因：<br><br>1. 系統磁碟的剩餘空間可能不足（建議剩餘空間大於 4GB）。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>2. 網路錯誤。可能是網路代理導致的問題。',
-    'An error occurred while downloading, the status code is 0, and the request was unsuccessful. Possible reasons: <br><br>1. The remaining space of the system disk may be insufficient (it is recommended that the remaining space be greater than 4GB). Please try to clear the system disk space, and then restart the browser to continue the unfinished download. <br><br>2. Network error. It may be a problem caused by a network proxy.',
-    'ダウンロード中にエラーが発生し、ステータスコードは0で、リクエストは失敗しました。 考えられる理由：<br> <br> 1。 システムディスクの残りのスペースが不足している可能性があります（残りのスペースは4GBを超えることをお勧めします）。 システムのディスク領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。 <br> <br> 2。 ネットワークエラー。 ネットワークプロキシが原因の問題である可能性があります。',
-    '다운로드 중 오류가 발생했으며, 상태 코드가 0이고 요청에 실패했습니다. 가능한 원인: <br><br>1. 시스템 디스크의 남은 공간이 부족할 수 있습니다(남은 공간은 4GB보다 큰 것이 좋습니다). 시스템 디스크 공간을 비운 다음 브라우저를 다시 시작하여 완료되지 않은 다운로드를 계속해주세요. <br><br>2. 네트워크 오류. 네트워크 프록시로 인한 문제일 수 있습니다.',
+    '下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（通常是 C 盘）（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。如果你使用 Nginx 或者 Apache 反代理访问 pixiv，请换成梯子。',
+    '下載時發生錯誤，狀態碼為 0，請求未成功。可能的原因：<br><br>1. 系統磁碟的剩餘空間可能不足（通常是 C 盤）（建議剩餘空間大於 4GB）。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>2. 網路錯誤。可能是網路代理導致的問題。',
+    'An error occurred while downloading, the status code is 0, and the request was unsuccessful. Possible reasons: <br><br>1. The remaining space of the system disk may be insufficient (usually C drive)(it is recommended that the remaining space be greater than 4GB). Please try to clear the system disk space, and then restart the browser to continue the unfinished download. <br><br>2. Network error. It may be a problem caused by a network proxy.',
+    'ダウンロード中にエラーが発生し、ステータスコードは0で、リクエストは失敗しました。 考えられる理由：<br> <br> 1。 システムディスクの残りのスペースが不足している可能性があります(通常はCドライブ)（残りのスペースは4GBを超えることをお勧めします）。 システムのディスク領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。 <br> <br> 2。 ネットワークエラー。 ネットワークプロキシが原因の問題である可能性があります。',
+    '다운로드 중 오류가 발생했으며, 상태 코드가 0이고 요청에 실패했습니다. 가능한 원인: <br><br>1. 시스템 디스크의 남은 공간이 부족할 수 있습니다(보통 C드라이브)(남은 공간은 4GB보다 큰 것이 좋습니다). 시스템 디스크 공간을 비운 다음 브라우저를 다시 시작하여 완료되지 않은 다운로드를 계속해주세요. <br><br>2. 네트워크 오류. 네트워크 프록시로 인한 문제일 수 있습니다.',
   ],
   _下载完成后显示通知: [
     '下载完成后显示<span class="key">通知</span>',
@@ -2427,13 +2427,6 @@ const langText = {
     'Start crawl, if there are multiple pages, the default will be downloaded.',
     'クロールを開始する、複数のページがある場合、デフォルトですべてをダウンロードされます。',
     '긁어오기를 시작합니다. 여러 페이지가 있으면 기본적으로 모두 다운로드됩니다.',
-  ],
-  _在Patreon赞助我: [
-    '在 Patreon 赞助我',
-    '在 Patreon 贊助我',
-    'Become a patron',
-    'Become a patron',
-    'Become a patron',
   ],
   _赞助我: ['赞助我', '贊助我', 'Sponsor me', '支援する', '후원하기'],
   _赞助方式提示: [
@@ -2987,6 +2980,7 @@ const langText = {
     'パフォーマンスとユーザー エクスペリエンスを最適化します。',
     '성능과 사용자 경험을 최적화합니다.',
   ],
+  _修复bug: ['修复 bug', '修復 bug', 'fix bugs', 'バグを修正', '버그 수정'],
 }
 
 export { langText }

@@ -1,6 +1,6 @@
 // 初始化小说搜索页
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { SearchOption } from '../crawl/CrawlArgument'
@@ -18,7 +18,7 @@ import { msgBox } from '../MsgBox'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { states } from '../store/States'
 import { pageType } from '../PageType'
-import { Config } from '../config/Config'
+import { Config } from '../Config'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 class InitSearchNovelPage extends InitPageBase {

@@ -1,12 +1,12 @@
 // 初始化首页
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { IDData } from '../store/StoreType'
-import { Config } from '../config/Config'
+import { Config } from '../Config'
 import { toast } from '../Toast'
 import { theme } from '../Theme'
 
@@ -170,8 +170,6 @@ class InitHomePage extends InitPageBase {
     }
 
     this.addIdList(ids)
-
-    toast.success(lang.transl('_开始抓取'))
   }
 
   // 把 id 列表添加到 store 里，然后开始抓取

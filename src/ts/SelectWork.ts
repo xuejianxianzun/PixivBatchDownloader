@@ -1,5 +1,5 @@
 import { Tools } from './Tools'
-import { Colors } from './config/Colors'
+import { Colors } from './Colors'
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import { states } from './store/States'
@@ -407,7 +407,6 @@ class SelectWork {
 
       toast.show(lang.transl('_已发送下载请求'), {
         bgColor: Colors.bgBlue,
-        position: 'mouse',
       })
     } else {
       toast.error(lang.transl('_没有数据可供使用'))

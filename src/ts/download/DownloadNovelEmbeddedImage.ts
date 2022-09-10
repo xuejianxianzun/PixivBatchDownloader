@@ -108,15 +108,24 @@ class DownloadNovelEmbeddedImage {
         }
       }
 
-      // 引用的图片此时没有 URL，获取其 URL
+      // 引用的图片此时没有 URL
       for (const data of idList) {
         if (data.type === 'pixiv') {
-          const workData = await API.getArtworkData(data.id)
-          data.url = workData.body.urls.original
+          try {
+            // 尝试获取原图作品数据，提取 URL
+            const workData = await API.getArtworkData(data.id)
+            data.url = workData.body.urls.original
+          } catch (error) {
+            // 但是原图作品可能被删除了，404
+            console.log(error)
+            continue
+          }
         }
       }
 
-      return resolve(idList)
+      // 返回数据时，删除没有 url 的数据
+      const result = idList.filter((data) => data.url !== '')
+      return resolve(result)
     })
   }
 
