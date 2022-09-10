@@ -16384,14 +16384,24 @@ class DownloadNovelEmbeddedImage {
                     });
                 }
             }
-            // 引用的图片此时没有 URL，获取其 URL
+            // 引用的图片此时没有 URL
             for (const data of idList) {
                 if (data.type === 'pixiv') {
-                    const workData = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(data.id);
-                    data.url = workData.body.urls.original;
+                    try {
+                        // 尝试获取原图作品数据，提取 URL
+                        const workData = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(data.id);
+                        data.url = workData.body.urls.original;
+                    }
+                    catch (error) {
+                        // 但是原图作品可能被删除了，404
+                        console.log(error);
+                        continue;
+                    }
                 }
             }
-            return resolve(idList);
+            // 返回数据时，删除没有 url 的数据
+            const result = idList.filter((data) => data.url !== '');
+            return resolve(result);
         });
     }
     async getImageBolbURL(idList) {
@@ -17840,7 +17850,7 @@ class Resume {
         // 这有助于减少尝试次数。因为存储的思路是存储失败时改为上次数量的 1/2。例如有 100 w 个结果，存储算法会依次尝试存入 100 w、50 w、25 w、12.5 w 以此类推，直到最后有一次能成功存储一批数据。这样的话就进行了 4 次尝试才成功存入一批数据。但通过直接指定一批数据的大小为 onceMax，理想情况下可以只尝试一次就成功存入一批数据。
         // 非理想情况下，即这个数量的结果已经超过了单次存储上限（目前推测这可能会在大量抓取小说、动图时出现；如果抓取的作品大部分是插画、漫画，这个数量的结果应该不可能超出存储上限），那么这不会减少尝试数量，但因为每次尝试存储的数量不会超过这个数字，这依然有助于减少每次尝试时的资源占用、耗费时间。
         this.onceMax = 150000;
-        this.putStatesTime = 2000; // 每隔指定时间存储一次最新的下载状态
+        this.putStatesTime = 1000; // 每隔指定时间存储一次最新的下载状态
         this.needPutStates = false; // 指示是否需要更新存储的下载状态
         this.IDB = new _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_6__["IndexedDB"]();
         this.init();
@@ -17886,6 +17896,40 @@ class Resume {
             resolve(await this.IDB.open(this.DBName, this.DBVer, onUpdate));
         });
     }
+    bindEvents() {
+        // 切换页面时，重新检查恢复数据
+        const restoreEvt = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingInitialized];
+        restoreEvt.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.restoreData();
+            });
+        });
+        // 抓取完成时，保存这次任务的数据
+        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange];
+        for (const ev of evs) {
+            window.addEventListener(ev, async () => {
+                this.saveData();
+            });
+        }
+        // 当有文件下载完成或者跳过下载时，更新下载状态
+        const saveEv = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadSuccess, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.skipDownload];
+        saveEv.forEach((val) => {
+            window.addEventListener(val, () => {
+                this.needPutStates = true;
+            });
+        });
+        // 任务下载完毕时，以及停止任务时，清除这次任务的数据
+        const clearDataEv = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop];
+        for (const ev of clearDataEv) {
+            window.addEventListener(ev, async () => {
+                this.clearData();
+            });
+        }
+        // 清空已保存的抓取结果
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearSavedCrawl, () => {
+            this.clearSavedCrawl();
+        });
+    }
     // 恢复未完成任务的数据
     async restoreData() {
         // 如果下载器在抓取或者在下载，则不恢复数据
@@ -17928,100 +17972,40 @@ class Resume {
         _Log__WEBPACK_IMPORTED_MODULE_1__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已恢复抓取结果'), 2);
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('resume');
     }
-    bindEvents() {
-        // 抓取完成时，保存这次任务的数据
-        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange];
-        for (const ev of evs) {
-            window.addEventListener(ev, async () => {
-                if (_store_States__WEBPACK_IMPORTED_MODULE_4__["states"].mergeNovel) {
-                    return;
-                }
-                // 首先检查这个网址下是否已经存在数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
-                const taskData = (await this.IDB.get(this.metaName, this.getURL(), 'url'));
-                if (taskData) {
-                    await this.IDB.delete(this.metaName, taskData.id);
-                    await this.IDB.delete(this.statesName, taskData.id);
-                }
-                // 保存本次任务的数据
-                // 如果此时本次任务已经完成，就不进行保存了
-                if (_DownloadStates__WEBPACK_IMPORTED_MODULE_5__["downloadStates"].downloadedCount() === _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].result.length) {
-                    return;
-                }
-                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_正在保存抓取结果'));
-                this.taskId = new Date().getTime();
-                this.part = [];
-                await this.saveTaskData();
-                // 保存 meta 数据
-                const metaData = {
-                    id: this.taskId,
-                    url: this.getURL(),
-                    part: this.part.length,
-                    date: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].crawlCompleteTime,
-                };
-                this.IDB.add(this.metaName, metaData);
-                // 保存 states 数据
-                const statesData = {
-                    id: this.taskId,
-                    states: _DownloadStates__WEBPACK_IMPORTED_MODULE_5__["downloadStates"].states,
-                };
-                this.IDB.add(this.statesName, statesData);
-                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已保存抓取结果'), 2);
-            });
+    async saveData() {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_4__["states"].mergeNovel) {
+            return;
         }
-        // 当有文件下载完成或者跳过下载时，更新下载状态
-        const saveEv = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadSuccess, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.skipDownload];
-        saveEv.forEach((val) => {
-            window.addEventListener(val, () => {
-                this.needPutStates = true;
-            });
-        });
-        // 任务下载完毕时，以及停止任务时，清除这次任务的数据
-        const clearDataEv = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop];
-        for (const ev of clearDataEv) {
-            window.addEventListener(ev, async () => {
-                if (!this.taskId) {
-                    return;
-                }
-                const meta = (await this.IDB.get(this.metaName, this.taskId));
-                if (!meta) {
-                    return;
-                }
-                this.IDB.delete(this.metaName, this.taskId);
-                this.IDB.delete(this.statesName, this.taskId);
-                const dataIdList = this.createIdList(this.taskId, meta.part);
-                for (const id of dataIdList) {
-                    this.IDB.delete(this.dataName, id);
-                }
-            });
+        // 首先检查这个网址下是否已经存在数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
+        const taskData = (await this.IDB.get(this.metaName, this.getURL(), 'url'));
+        if (taskData) {
+            await this.IDB.delete(this.metaName, taskData.id);
+            await this.IDB.delete(this.statesName, taskData.id);
         }
-        // 切换页面时，重新检查恢复数据
-        const restoreEvt = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingInitialized];
-        restoreEvt.forEach((evt) => {
-            window.addEventListener(evt, () => {
-                this.restoreData();
-            });
-        });
-        // 清空已保存的抓取结果
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearSavedCrawl, () => {
-            this.clearSavedCrawl();
-        });
-    }
-    // 定时 put 下载状态
-    async regularPutStates() {
-        window.setInterval(() => {
-            if (this.needPutStates) {
-                const statesData = {
-                    id: this.taskId,
-                    states: _DownloadStates__WEBPACK_IMPORTED_MODULE_5__["downloadStates"].states,
-                };
-                this.needPutStates = false;
-                // 如果此时本次任务已经完成，就不进行保存了
-                if (_DownloadStates__WEBPACK_IMPORTED_MODULE_5__["downloadStates"].downloadedCount() === _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].result.length) {
-                    return;
-                }
-                this.IDB.put(this.statesName, statesData);
-            }
-        }, this.putStatesTime);
+        // 保存本次任务的数据
+        // 如果此时本次任务已经完成，就不进行保存了
+        if (_DownloadStates__WEBPACK_IMPORTED_MODULE_5__["downloadStates"].downloadedCount() === _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].result.length) {
+            return;
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_正在保存抓取结果'));
+        this.taskId = new Date().getTime();
+        this.part = [];
+        await this.saveTaskData();
+        // 保存 meta 数据
+        const metaData = {
+            id: this.taskId,
+            url: this.getURL(),
+            part: this.part.length,
+            date: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].crawlCompleteTime,
+        };
+        this.IDB.add(this.metaName, metaData);
+        // 保存 states 数据
+        const statesData = {
+            id: this.taskId,
+            states: _DownloadStates__WEBPACK_IMPORTED_MODULE_5__["downloadStates"].states,
+        };
+        this.IDB.add(this.statesName, statesData);
+        _Log__WEBPACK_IMPORTED_MODULE_1__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已保存抓取结果'), 2);
     }
     // 存储抓取结果
     async saveTaskData() {
@@ -18070,6 +18054,38 @@ class Resume {
                 }
             }
         });
+    }
+    // 定时 put 下载状态
+    async regularPutStates() {
+        window.setInterval(() => {
+            if (this.needPutStates) {
+                const statesData = {
+                    id: this.taskId,
+                    states: _DownloadStates__WEBPACK_IMPORTED_MODULE_5__["downloadStates"].states,
+                };
+                this.needPutStates = false;
+                // 如果此时本次任务已经完成，就不进行保存了
+                if (_DownloadStates__WEBPACK_IMPORTED_MODULE_5__["downloadStates"].downloadedCount() === _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].result.length) {
+                    return;
+                }
+                this.IDB.put(this.statesName, statesData);
+            }
+        }, this.putStatesTime);
+    }
+    async clearData() {
+        if (!this.taskId) {
+            return;
+        }
+        const meta = (await this.IDB.get(this.metaName, this.taskId));
+        if (!meta) {
+            return;
+        }
+        this.IDB.delete(this.metaName, this.taskId);
+        this.IDB.delete(this.statesName, this.taskId);
+        const dataIdList = this.createIdList(this.taskId, meta.part);
+        for (const id of dataIdList) {
+            this.IDB.delete(this.dataName, id);
+        }
     }
     // 清除过期的数据
     async clearExired() {

@@ -39,7 +39,8 @@ class Resume {
   private metaName = 'taskMeta' // 下载任务元数据的表名
   private dataName = 'taskData' // 下载任务数据的表名
   private statesName = 'taskStates' // 下载状态列表的表名
-  private taskId!: number // 为当前任务创建一个 id，操作数据库时使用
+  // 本模块所操作的下载数据的 id
+  private taskId!: number
 
   private part: number[] = [] // 储存每个分段里的数据的数量
 
@@ -51,7 +52,7 @@ class Resume {
   // 非理想情况下，即这个数量的结果已经超过了单次存储上限（目前推测这可能会在大量抓取小说、动图时出现；如果抓取的作品大部分是插画、漫画，这个数量的结果应该不可能超出存储上限），那么这不会减少尝试数量，但因为每次尝试存储的数量不会超过这个数字，这依然有助于减少每次尝试时的资源占用、耗费时间。
   private readonly onceMax = 150000
 
-  private readonly putStatesTime = 2000 // 每隔指定时间存储一次最新的下载状态
+  private readonly putStatesTime = 1000 // 每隔指定时间存储一次最新的下载状态
 
   private needPutStates = false // 指示是否需要更新存储的下载状态
 
@@ -101,6 +102,45 @@ class Resume {
     // 打开数据库
     return new Promise<IDBDatabase>(async (resolve, reject) => {
       resolve(await this.IDB.open(this.DBName, this.DBVer, onUpdate))
+    })
+  }
+
+  private bindEvents() {
+    // 切换页面时，重新检查恢复数据
+    const restoreEvt = [EVT.list.pageSwitch, EVT.list.settingInitialized]
+    restoreEvt.forEach((evt) => {
+      window.addEventListener(evt, () => {
+        this.restoreData()
+      })
+    })
+
+    // 抓取完成时，保存这次任务的数据
+    const evs = [EVT.list.crawlFinish, EVT.list.resultChange]
+    for (const ev of evs) {
+      window.addEventListener(ev, async () => {
+        this.saveData()
+      })
+    }
+
+    // 当有文件下载完成或者跳过下载时，更新下载状态
+    const saveEv = [EVT.list.downloadSuccess, EVT.list.skipDownload]
+    saveEv.forEach((val) => {
+      window.addEventListener(val, () => {
+        this.needPutStates = true
+      })
+    })
+
+    // 任务下载完毕时，以及停止任务时，清除这次任务的数据
+    const clearDataEv = [EVT.list.downloadComplete, EVT.list.downloadStop]
+    for (const ev of clearDataEv) {
+      window.addEventListener(ev, async () => {
+        this.clearData()
+      })
+    }
+
+    // 清空已保存的抓取结果
+    window.addEventListener(EVT.list.clearSavedCrawl, () => {
+      this.clearSavedCrawl()
     })
   }
 
@@ -164,125 +204,54 @@ class Resume {
     EVT.fire('resume')
   }
 
-  private bindEvents() {
-    // 抓取完成时，保存这次任务的数据
-    const evs = [EVT.list.crawlFinish, EVT.list.resultChange]
-    for (const ev of evs) {
-      window.addEventListener(ev, async () => {
-        if (states.mergeNovel) {
-          return
-        }
-        // 首先检查这个网址下是否已经存在数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
-        const taskData = (await this.IDB.get(
-          this.metaName,
-          this.getURL(),
-          'url'
-        )) as TaskMeta | null
+  private async saveData() {
+    if (states.mergeNovel) {
+      return
+    }
+    // 首先检查这个网址下是否已经存在数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
+    const taskData = (await this.IDB.get(
+      this.metaName,
+      this.getURL(),
+      'url'
+    )) as TaskMeta | null
 
-        if (taskData) {
-          await this.IDB.delete(this.metaName, taskData.id)
-          await this.IDB.delete(this.statesName, taskData.id)
-        }
-
-        // 保存本次任务的数据
-        // 如果此时本次任务已经完成，就不进行保存了
-        if (downloadStates.downloadedCount() === store.result.length) {
-          return
-        }
-
-        log.warning(lang.transl('_正在保存抓取结果'))
-        this.taskId = new Date().getTime()
-
-        this.part = []
-
-        await this.saveTaskData()
-
-        // 保存 meta 数据
-        const metaData = {
-          id: this.taskId,
-          url: this.getURL(),
-          part: this.part.length,
-          date: store.crawlCompleteTime,
-        }
-
-        this.IDB.add(this.metaName, metaData)
-
-        // 保存 states 数据
-        const statesData = {
-          id: this.taskId,
-          states: downloadStates.states,
-        }
-
-        this.IDB.add(this.statesName, statesData)
-
-        log.success(lang.transl('_已保存抓取结果'), 2)
-      })
+    if (taskData) {
+      await this.IDB.delete(this.metaName, taskData.id)
+      await this.IDB.delete(this.statesName, taskData.id)
     }
 
-    // 当有文件下载完成或者跳过下载时，更新下载状态
-    const saveEv = [EVT.list.downloadSuccess, EVT.list.skipDownload]
-    saveEv.forEach((val) => {
-      window.addEventListener(val, () => {
-        this.needPutStates = true
-      })
-    })
-
-    // 任务下载完毕时，以及停止任务时，清除这次任务的数据
-    const clearDataEv = [EVT.list.downloadComplete, EVT.list.downloadStop]
-    for (const ev of clearDataEv) {
-      window.addEventListener(ev, async () => {
-        if (!this.taskId) {
-          return
-        }
-        const meta = (await this.IDB.get(
-          this.metaName,
-          this.taskId
-        )) as TaskMeta
-
-        if (!meta) {
-          return
-        }
-
-        this.IDB.delete(this.metaName, this.taskId)
-        this.IDB.delete(this.statesName, this.taskId)
-
-        const dataIdList = this.createIdList(this.taskId, meta.part)
-        for (const id of dataIdList) {
-          this.IDB.delete(this.dataName, id)
-        }
-      })
+    // 保存本次任务的数据
+    // 如果此时本次任务已经完成，就不进行保存了
+    if (downloadStates.downloadedCount() === store.result.length) {
+      return
     }
 
-    // 切换页面时，重新检查恢复数据
-    const restoreEvt = [EVT.list.pageSwitch, EVT.list.settingInitialized]
-    restoreEvt.forEach((evt) => {
-      window.addEventListener(evt, () => {
-        this.restoreData()
-      })
-    })
+    log.warning(lang.transl('_正在保存抓取结果'))
+    this.taskId = new Date().getTime()
 
-    // 清空已保存的抓取结果
-    window.addEventListener(EVT.list.clearSavedCrawl, () => {
-      this.clearSavedCrawl()
-    })
-  }
+    this.part = []
 
-  // 定时 put 下载状态
-  private async regularPutStates() {
-    window.setInterval(() => {
-      if (this.needPutStates) {
-        const statesData = {
-          id: this.taskId,
-          states: downloadStates.states,
-        }
-        this.needPutStates = false
-        // 如果此时本次任务已经完成，就不进行保存了
-        if (downloadStates.downloadedCount() === store.result.length) {
-          return
-        }
-        this.IDB.put(this.statesName, statesData)
-      }
-    }, this.putStatesTime)
+    await this.saveTaskData()
+
+    // 保存 meta 数据
+    const metaData = {
+      id: this.taskId,
+      url: this.getURL(),
+      part: this.part.length,
+      date: store.crawlCompleteTime,
+    }
+
+    this.IDB.add(this.metaName, metaData)
+
+    // 保存 states 数据
+    const statesData = {
+      id: this.taskId,
+      states: downloadStates.states,
+    }
+
+    this.IDB.add(this.statesName, statesData)
+
+    log.success(lang.transl('_已保存抓取结果'), 2)
   }
 
   // 存储抓取结果
@@ -334,6 +303,43 @@ class Resume {
         }
       }
     })
+  }
+
+  // 定时 put 下载状态
+  private async regularPutStates() {
+    window.setInterval(() => {
+      if (this.needPutStates) {
+        const statesData = {
+          id: this.taskId,
+          states: downloadStates.states,
+        }
+        this.needPutStates = false
+        // 如果此时本次任务已经完成，就不进行保存了
+        if (downloadStates.downloadedCount() === store.result.length) {
+          return
+        }
+        this.IDB.put(this.statesName, statesData)
+      }
+    }, this.putStatesTime)
+  }
+
+  private async clearData() {
+    if (!this.taskId) {
+      return
+    }
+    const meta = (await this.IDB.get(this.metaName, this.taskId)) as TaskMeta
+
+    if (!meta) {
+      return
+    }
+
+    this.IDB.delete(this.metaName, this.taskId)
+    this.IDB.delete(this.statesName, this.taskId)
+
+    const dataIdList = this.createIdList(this.taskId, meta.part)
+    for (const id of dataIdList) {
+      this.IDB.delete(this.dataName, id)
+    }
   }
 
   // 清除过期的数据
