@@ -13,16 +13,16 @@ A clear and concise description of what the bug is.
 
 **To Reproduce**
 How to reproduce this problem?
-*如果重现这个问题？*
+*如何重现这个问题？*
 
 **Diagnostic information**
 1. Screenshot of the problem
 2. The URL of the page when crawling
-3. Export the crawling results and add the results to the attachment.
+3. If needed, export the crawling results and add the results to the attachment.
 *诊断信息*
 1. 问题截图
 2. 抓取时的页面 URL
-3. 导出抓取结果，把结果添加到附件里。
+3. 如果需要，导出抓取结果，把结果添加到附件里。
 
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
