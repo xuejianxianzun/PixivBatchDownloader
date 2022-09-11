@@ -18,12 +18,14 @@ How to reproduce this problem?
 **Diagnostic information**
 1. Screenshot of the problem
 2. The URL of the page when crawling
-3. If needed, export the crawling results and add the results to the attachment.
+3. Export the settings of the downloader and add to the attachment if needed.
+4. Export crawl results and add to attachments if needed.
 
 *诊断信息*
 1. 问题截图
 2. 抓取时的页面 URL
-3. 如果需要，导出抓取结果，把结果添加到附件里。
+3. 如果需要，导出下载器的设置，并添加到附件。
+4. 如果需要，导出抓取结果，并添加到附件。
 
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
