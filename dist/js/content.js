@@ -6007,6 +6007,13 @@ const langText = {
         'お使いのブラウザでは、この拡張機能を正しく使用できません。 主な理由としては、ブラウザのカーネル バージョンが低すぎるか、互換性の問題がある可能性があります。 <br>最新バージョンの Chrome または Edge に切り替えることをお勧めします。',
         '브라우저에서 이 확장 프로그램을 제대로 사용할 수 없습니다. 주된 이유는 브라우저 커널 버전이 너무 낮거나 호환성 문제가 있기 때문일 수 있습니다. <br>최신 버전의 Chrome 또는 Edge로 전환하는 것이 좋습니다.',
     ],
+    _日期时间格式错误: [
+        '日期时间格式错误',
+        '日期時間格式錯誤',
+        'wrong datetime format',
+        '間違った日時形式',
+        '잘못된 날짜/시간 형식',
+    ],
 };
 
 
@@ -10353,8 +10360,10 @@ class WorkToolBar {
             return;
         }
         // 获取心形收藏按钮的 div
+        const total = this.toolbar.childElementCount;
+        // 心形收藏按钮是倒数第二个（从左往右数第二个）
         this.pixivBMKDiv =
-            this.toolbar.childNodes[2] || undefined;
+            this.toolbar.childNodes[total - 2] || undefined;
         // 获取点赞按钮
         const btnList = this.toolbar.querySelectorAll('button');
         this.likeBtn = btnList[btnList.length - 1] || undefined;
@@ -19487,7 +19496,7 @@ class Filter {
             return;
         }
         if (isNaN(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart) || isNaN(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart)) {
-            const msg = 'Date format error!';
+            const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_日期时间格式错误');
             this.showWarning(msg);
         }
         else {
