@@ -242,6 +242,8 @@ English
 
 21 [约稿](https://www.pixiv.net/request)
 
+22 [仅可由链接浏览](https://www.pixiv.net/artworks/unlisted/CbLRCId2sY3ZzQDqnQj6)
+
 # 友情链接
 
 [PixivUserBatchDownload](https://github.com/Mapaler/PixivUserBatchDownload/)

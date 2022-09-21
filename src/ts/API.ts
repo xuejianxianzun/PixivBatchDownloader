@@ -243,8 +243,10 @@ class API {
   }
 
   // 获取插画 漫画 动图 的详细信息
-  static getArtworkData(id: string): Promise<ArtworkData> {
-    const url = `https://www.pixiv.net/ajax/illust/${id}`
+  static getArtworkData(id: string, unlisted = false): Promise<ArtworkData> {
+    const url = `https://www.pixiv.net/ajax/illust/${
+      unlisted ? 'unlisted/' : ''
+    }${id}`
     return this.sendGetRequest(url)
   }
 
@@ -255,8 +257,10 @@ class API {
   }
 
   // 获取小说的详细信息
-  static getNovelData(id: string): Promise<NovelData> {
-    const url = `https://www.pixiv.net/ajax/novel/${id}`
+  static getNovelData(id: string, unlisted = false): Promise<NovelData> {
+    const url = `https://www.pixiv.net/ajax/novel/${
+      unlisted ? 'unlisted/' : ''
+    }${id}`
     return this.sendGetRequest(url)
   }
 

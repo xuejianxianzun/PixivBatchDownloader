@@ -1,5 +1,6 @@
 import { ArtworkData, NovelData } from './crawl/CrawlResult'
 import { lang } from './Lang'
+import { pageType } from './PageType'
 import { WorkTypeString, Result } from './store/StoreType'
 import { Utils } from './utils/Utils'
 
@@ -101,7 +102,12 @@ class Tools {
 
   /**从 url 里获取 artworks id。如果查找不到 id 会返回空字符串 */
   static getIllustId(url?: string) {
+    if (pageType.type === pageType.list.Unlisted) {
+      return Utils.getURLPathField(window.location.pathname, 'unlisted')
+    }
+
     const str = url || window.location.href
+
     let test: RegExpExecArray | null = null
 
     if (str.includes('/artworks/')) {
@@ -122,6 +128,10 @@ class Tools {
   /**从 url 里获取 novel id。如果查找不到 id 会返回空字符串 */
   // https://www.pixiv.net/novel/show.php?id=12771688
   static getNovelId(url?: string) {
+    if (pageType.type === pageType.list.Unlisted) {
+      return Utils.getURLPathField(window.location.pathname, 'unlisted')
+    }
+
     const str = url || window.location.href
     let result = ''
 

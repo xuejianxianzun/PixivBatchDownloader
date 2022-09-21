@@ -14,7 +14,8 @@ import { pageType } from './PageType'
 // 手动选择作品，图片作品和小说都可以选择
 class SelectWork {
   constructor() {
-    if (!this.created && Utils.isPixiv()) {
+    const unlisted = pageType.type === pageType.list.Unlisted
+    if (!this.created && Utils.isPixiv() && !unlisted) {
       this.created = true
       this.selector = this.createSelectorEl()
       this.addBtn()

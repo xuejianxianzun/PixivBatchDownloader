@@ -211,3 +211,7 @@ You can also optimize the translation, thank you very much :)
 19 [Manga series page](https://www.pixiv.net/user/3698796/series/61267)
 
 20 [Following](https://www.pixiv.net/users/9460149/following)
+
+21 [Requests](https://www.pixiv.net/request)
+
+22 [URL restricted](https://www.pixiv.net/artworks/unlisted/CbLRCId2sY3ZzQDqnQj6)

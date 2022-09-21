@@ -60,8 +60,10 @@ class WorkToolBar {
     }
 
     // 获取心形收藏按钮的 div
+    const total = this.toolbar.childElementCount
+    // 心形收藏按钮是倒数第二个（从左往右数第二个）
     this.pixivBMKDiv =
-      (this.toolbar.childNodes[2] as HTMLDivElement) || undefined
+      (this.toolbar.childNodes[total - 2] as HTMLDivElement) || undefined
 
     // 获取点赞按钮
     const btnList = this.toolbar.querySelectorAll('button')

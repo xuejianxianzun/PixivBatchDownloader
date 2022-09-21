@@ -925,6 +925,13 @@ const langText = {
     'この作品をすばやくダウンロードする (Alt + Q)',
     '작품 빠른 다운로드 (Alt + Q)',
   ],
+  _抓取此作品: [
+    '抓取此作品',
+    '抓取此作品',
+    'Crawl this work',
+    'この作品をクロールする',
+    '이 작품을 크롤링',
+  ],
   _从本页开始抓取new: [
     '从本页开始抓取新作品',
     '從本頁開始擷取新作品',
@@ -1200,13 +1207,6 @@ const langText = {
     'A new version is available',
     '新しいバージョンがあります',
     '새 버전이 있습니다',
-  ],
-  _快速下载建立文件夹: [
-    '快速下载时，始终建立文件夹',
-    '快速下載時，始終建立資料夾',
-    'Always create folder when downloading quickly',
-    'クイックダウンロード時、常にフォルダを作成します',
-    '빠른 다운로드 시, 항상 디렉토리 생성',
   ],
   _id范围: [
     '<span class="key">ID</span> 范围',
@@ -2987,6 +2987,27 @@ const langText = {
     'Your browser cannot use this extension properly. The main reason may be that the browser kernel version is too low, or there is a compatibility problem. <br>We recommend that you switch to the latest version of Chrome or Edge.',
     'お使いのブラウザでは、この拡張機能を正しく使用できません。 主な理由としては、ブラウザのカーネル バージョンが低すぎるか、互換性の問題がある可能性があります。 <br>最新バージョンの Chrome または Edge に切り替えることをお勧めします。',
     '브라우저에서 이 확장 프로그램을 제대로 사용할 수 없습니다. 주된 이유는 브라우저 커널 버전이 너무 낮거나 호환성 문제가 있기 때문일 수 있습니다. <br>최신 버전의 Chrome 또는 Edge로 전환하는 것이 좋습니다.',
+  ],
+  _日期时间格式错误: [
+    '日期时间格式错误',
+    '日期時間格式錯誤',
+    'wrong datetime format',
+    '間違った日時形式',
+    '잘못된 날짜/시간 형식',
+  ],
+  _添加了对此页面类型的支持: [
+    '添加了对此页面类型的支持：',
+    '添加了对此页面类型的支持：',
+    'Added support for this page type:',
+    '次のページ タイプのサポートが追加されました：',
+    '이 페이지 유형에 대한 지원이 추가되었습니다：',
+  ],
+  _仅可由链接浏览: [
+    '仅可由链接浏览',
+    '僅可由連結瀏覽',
+    'URL restricted',
+    'URL限定公開',
+    'URL 한정 공개',
   ],
 }
 

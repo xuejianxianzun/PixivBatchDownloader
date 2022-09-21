@@ -383,7 +383,7 @@ class Filter {
     }
 
     if (isNaN(settings.postDateStart) || isNaN(settings.postDateStart)) {
-      const msg = 'Date format error!'
+      const msg = lang.transl('_日期时间格式错误')
       this.showWarning(msg)
     } else {
       const start = new Date(settings.postDateStart).toLocaleString()
