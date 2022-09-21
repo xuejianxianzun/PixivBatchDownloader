@@ -13,6 +13,7 @@ import { Bookmark } from './Bookmark'
 import { cacheWorkData } from './store/CacheWorkData'
 import { Colors } from './Colors'
 import { downloadOnClickBookmark } from './download/DownloadOnClickBookmark'
+import { pageType } from './PageType'
 
 // 所有参数
 interface Config {
@@ -211,7 +212,8 @@ class ImageViewer {
     if (cacheWorkData.has(this.cfg.workId)) {
       this.workData = cacheWorkData.get(this.cfg.workId)
     } else {
-      const data = await API.getArtworkData(this.cfg.workId)
+      const unlisted = pageType.type === pageType.list.Unlisted
+      const data = await API.getArtworkData(this.cfg.workId, unlisted)
       this.workData = data
       cacheWorkData.set(data)
     }

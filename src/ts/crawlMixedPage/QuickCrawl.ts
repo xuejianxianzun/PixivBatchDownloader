@@ -20,7 +20,11 @@ class QuickCrawl {
   private show = true // 是否显示
 
   // 指定在哪些页面类型里启用
-  private readonly enablePageType = [pageType.list.Artwork, pageType.list.Novel]
+  private readonly enablePageType = [
+    pageType.list.Artwork,
+    pageType.list.Novel,
+    pageType.list.Unlisted,
+  ]
 
   private addBtn() {
     // 在右侧添加快速抓取按钮
@@ -85,7 +89,6 @@ class QuickCrawl {
 
     toast.show(lang.transl('_已发送下载请求'), {
       bgColor: Colors.bgBlue,
-      position: 'center',
     })
   }
 

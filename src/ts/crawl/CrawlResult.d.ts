@@ -205,11 +205,11 @@ export interface ArtworkData {
       /**这个作品在系列里的序号。从 1 开始*/
       order: number
       /**当前用户是否把这个系列添加到了追更列表 */
-      isWatched:false
+      isWatched: false
       /**当前用户是否对这个系列开启了系列更新通知 */
-      isNotifying:false
+      isNotifying: false
       /**系列中下一个作品的信息
-       * 
+       *
        * 如果这个作品是系列中的最后一个作品，则没有 next 字段
        */
       next?: {
@@ -218,7 +218,7 @@ export interface ArtworkData {
         id: string
       }
       /**系列中上一个作品的信息
-       * 
+       *
        * 如果这个作品是系列中的第一个作品，则没有 prev 字段
        */
       prev?: {

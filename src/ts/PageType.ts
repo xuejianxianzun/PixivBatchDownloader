@@ -26,6 +26,7 @@ enum PageName {
   ArtworkSeries,
   Following,
   Request,
+  Unlisted,
 }
 
 // 获取页面类型
@@ -120,6 +121,8 @@ class PageType {
       return PageName.ArtworkSeries
     } else if (pathname.startsWith('/request')) {
       return PageName.Request
+    } else if (pathname.includes('/unlisted')) {
+      return PageName.Unlisted
     } else {
       // 没有匹配到可用的页面类型
       return PageName.Unsupported
