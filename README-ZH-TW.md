@@ -4,6 +4,8 @@
 
 [韩国语](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-KO.md)
 
+[Russian](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-RU.md)
+
 [Discord 頻道](https://discord.gg/eW9JtTK)
 
 ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
@@ -108,7 +110,7 @@
 [https://afdian.net/@xuejianxianzun](https://afdian.net/@xuejianxianzun)
 
 2. 國外的贊助網站 Patreon：
- 
+
 [https://www.patreon.com/xuejianxianzun](https://www.patreon.com/xuejianxianzun)
 
 3. 可透過微信和支付寶掃碼轉帳：

@@ -4,6 +4,8 @@
 
 [韩国语](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-KO.md)
 
+[English](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
+
 [Discord channel](https://discord.gg/eW9JtTK)
 
 ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
@@ -219,3 +221,5 @@ npm run build // выполните команды fmt, ts, less и скомпи
 21 [Запрос](https://www.pixiv.net/request)
 
 22 [URL с ограничением](https://www.pixiv.net/artworks/unlisted/CbLRCId2sY3ZzQDqnQj6)
+
+## Перевел на Русский [bropines](https://github.com/bropines)

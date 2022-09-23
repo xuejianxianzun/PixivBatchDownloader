@@ -4,6 +4,8 @@
 
 [韩国语](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-KO.md)
 
+[Russian](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-RU.md)
+
 *日本語 No translation yet*
 
 [Discord 频道](https://discord.gg/eW9JtTK)
@@ -117,7 +119,7 @@
 ![支付宝](https://i.loli.net/2019/04/04/5ca5627614396.png) ![微信](https://i.loli.net/2019/04/04/5ca5627630bb4.png)
 
 3. 国外的赞助网站 Patreon：
- 
+
 [https://www.patreon.com/xuejianxianzun](https://www.patreon.com/xuejianxianzun)
 
 # 开发
