@@ -102,9 +102,11 @@ Thank you for your support!
 
 - Thanks [道滿](https://zhtw.me/) , [VHlqg](https://github.com/VHlqg) for translating traditional Chinese.
 
-- Thanks [KOZ39](https://github.com/KOZ39) for translating traditional Korean.
-
 - Thanks [光の軌跡](https://github.com/jiaer24) for translating traditional Japanese.
+
+- Thanks [bropines](https://github.com/bropines) for translating traditional Russia.
+
+- Thanks [KOZ39](https://github.com/KOZ39) for translating traditional Korean.
 
 - Thanks [z2n](https://github.com/z2n) for improvements to the program.
 
@@ -152,15 +154,12 @@ When you modify the code and compile it, the code will be compiled to the `dist`
 
 ## Supported languages
 
-Simplified Chinese
-
-Traditional Chinese
-
-English
-
-Japanese
-
-Korean
+- 简体中文
+- 繁體中文
+- English
+- 日本語
+- 한국어
+- Русский
 
 You can also optimize the translation, thank you very much :)
 

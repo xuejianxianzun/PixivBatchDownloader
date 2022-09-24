@@ -101,6 +101,8 @@
 - 感谢 [光の軌跡](https://github.com/jiaer24) 翻译日语。
 
 - 感谢 [KOZ39](https://github.com/KOZ39) 翻译韩语。
+- 
+- 感谢 [bropines](https://github.com/bropines) 翻译俄语。
 
 - 感谢 [Reinford0](https://github.com/Reinford0) 对本工具的测试和改进。
 
@@ -176,15 +178,12 @@ npm run build // 执行 fmt、ts、less 命令，并把打包所需的其他文�
 
 ## 支持的语言
 
-简体中文
-
-繁體中文
-
-English
-
-日本語
-
-韩国语
+- 简体中文
+- 繁體中文
+- English
+- 日本語
+- 한국어
+- Русский
 
 欢迎您对翻译做出改进，谢谢~
 
