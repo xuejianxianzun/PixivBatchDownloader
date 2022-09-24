@@ -4,6 +4,8 @@
 
 [韩国语](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-KO.md)
 
+[Russian](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-RU.md)
+
 [Discord channel](https://discord.gg/eW9JtTK)
 
 ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
@@ -29,7 +31,7 @@
 
 **Powerful Pixiv Downloader**
 
-This is a browser extension for **Chrome** that lets you download images and novels from Pixiv in batch. 
+This is a browser extension for **Chrome** that lets you download images and novels from Pixiv in batch.
 
 Available languages: Simplified Chinese, Traditional Chinese, Japanese, English、Korean.
 

@@ -4,6 +4,8 @@
 
 [English](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
 
+[Russian](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-RU.md)
+
 [Discord](https://discord.gg/eW9JtTK)
 
 ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
