@@ -1595,9 +1595,9 @@ const langText = {
     '새로운 기능',
     'Новая фича',
   ],
-  _抓取: ['抓取', '擷取', 'Crawl', 'クロール', '긁어오기', 'Просканировать'],
-  _下载: ['下载', '下載', 'Download', 'ダウンロード', '다운로드', 'Скачать'],
-  _其他: ['其他', '其他', 'Other', 'その他', '그 외', 'Другое'],
+  _抓取: ['抓取', '擷取', 'Crawl', 'クロール', '긁어오기', 'Сканирование'],
+  _下载: ['下载', '下載', 'Download', 'ダウンロード', '다운로드', 'Скачивание'],
+  _其他: ['其他', '其他', 'Other', 'その他', '그 외', 'Другие настройки'],
   _更多: ['更多', '更多', 'More', 'もっと', '더보기', 'Больше'],
   _第一张图不带序号: [
     '第一张图不带<span class="key">序号</span>',
@@ -1746,7 +1746,7 @@ const langText = {
     'Bookmark all works on this page',
     'この頁の全ての作品をブックマークに追加します',
     '이 페이지의 북마크된 모든 작품 다운로드',
-    'Закладка всех работ на этой странице',
+    'Перенести в закладки все работы на этой странице',
   ],
   _输出内容太多已经为你保存到文件: [
     '因为输出内容太多，已经为您保存到文件。',
@@ -3139,7 +3139,7 @@ const langText = {
     'show <span class="key">larger</span> thumbnails',
     '大きなサムネイルを表示する',
     '<span class="key">더 큰</span> 썸네일 표시',
-    'показывать <span class="key">большие</span> миниатюры',
+    'Показывать <span class="key">большие</span> миниатюры',
   ],
   _横图占用二倍宽度: [
     '横图占用二倍宽度',
@@ -3270,7 +3270,7 @@ const langText = {
     '<span class="key">Bookmark</span> status',
     '<span class="key">ブックマーク</span>ステータス',
     '<span class="key">북마크</span> 상태',
-    'Статус<span class="key">закладки</span> ',
+    'Статус <span class="key">закладки</span> ',
   ],
   _图片色彩: [
     '图片<span class="key">色彩</span>',
@@ -3278,7 +3278,7 @@ const langText = {
     'Image <span class="key">color</span>',
     '画像の<span class="key">色</span>',
     '이미지 <span class="key">색채</span>',
-    ' <span class="key">Цвет</span>изображения',
+    '<span class="key">Цвет</span> изображения',
   ],
   _图片数量: [
     '图片<span class="key">数量</span>',
