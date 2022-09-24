@@ -1,7 +1,7 @@
 import { langText } from './LangText'
 import { EVT } from './EVT'
 
-type LangTypes = 'zh-cn' | 'zh-tw' | 'en' | 'ja' | 'ko'
+type LangTypes = 'zh-cn' | 'zh-tw' | 'en' | 'ja' | 'ko' | 'ru'
 
 // 语言类
 class Lang {
@@ -20,6 +20,7 @@ class Lang {
     ['en', 2],
     ['ja', 3],
     ['ko', 4],
+    ['ru', 5],
   ])
 
   private bindEvents() {

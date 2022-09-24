@@ -124,7 +124,7 @@ interface XzSetting {
   fileNameLengthLimit: number
   imageSize: 'original' | 'regular' | 'small' | 'thumb'
   dateFormat: string
-  userSetLang: 'zh-cn' | 'zh-tw' | 'ja' | 'en' | 'ko' | 'auto'
+  userSetLang: 'zh-cn' | 'zh-tw' | 'ja' | 'en' | 'ko' | 'ru' | 'auto'
   bmkAfterDL: boolean
 
   // 选项在表单中的值
