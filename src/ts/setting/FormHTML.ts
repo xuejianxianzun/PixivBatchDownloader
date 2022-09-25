@@ -1088,6 +1088,9 @@ export const formHtml = `<form class="settingForm">
     <input type="radio" name="userSetLang" id="userSetLang6" class="need_beautify radio" value="ko">
     <span class="beautify_radio" tabindex="0"></span>
     <label for="userSetLang6">한국어</label>
+    <input type="radio" name="userSetLang" id="userSetLang7" class="need_beautify radio" value="ru">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="userSetLang7">Русский</label>
     </p>
 
     <p class="option" data-no="37">

@@ -52,7 +52,7 @@ class CheckUnsupportBrowser {
       if (func()) {
         const msg = lang.transl('_不支持的浏览器')
         log.error(msg)
-        msgBox.error(msg)
+        // msgBox.error(msg)
         return
       }
     }
