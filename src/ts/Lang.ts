@@ -12,7 +12,7 @@ class Lang {
 
   public type!: LangTypes
 
-  public readonly langTypes = ['zh-cn', 'zh-tw', 'en', 'ja', 'ko']
+  public readonly langTypes = ['zh-cn', 'zh-tw', 'en', 'ja', 'ko', 'ru']
 
   private readonly flagIndex: Map<LangTypes, number> = new Map([
     ['zh-cn', 0],
