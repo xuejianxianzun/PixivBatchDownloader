@@ -58,9 +58,9 @@
 - добавляйте теги к работам без рубрики в свои закладки;
 - Своевременный обход;
 
-![PixivBatchDownloader скриншот](./notes/images/ui-en-0.png)
+![PixivBatchDownloader скриншот](./notes/images/ui-ru-0.png)
 
-![PixivBatchDownloader скриншот](./notes/images/ui-en-1.png)
+![PixivBatchDownloader скриншот](./notes/images/ui-ru-1.png)
 
 # Установка
 
