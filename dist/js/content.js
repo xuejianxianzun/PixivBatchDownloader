@@ -17056,20 +17056,22 @@ class DownloadNovelEmbeddedImage {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].downloadNovelEmbeddedImage) {
             return;
         }
-        let idList = await this.getIdList(content, embeddedImages);
-        idList = await this.getImageBolbURL(idList);
-        for (const item of idList) {
-            let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].replaceSuffix(novelName, item.url);
+        const idList = await this.getIdList(content, embeddedImages);
+        // 保存为 TXT 格式时，每加载完一个图片，就立即保存这个图片
+        for (let idData of idList) {
+            idData = await this.getImageBolbURL(idData);
+            let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].replaceSuffix(novelName, idData.url);
+            // 在文件名末尾加上内嵌图片的 id 和序号
             const array = imageName.split('.');
-            // 在文件名末尾加上内嵌图片的 id
-            array[array.length - 2] = array[array.length - 2] + '-' + item.id;
+            const addString = `-${idData.id}${idData.p === 0 ? '' : '-' + idData.p}`;
+            array[array.length - 2] = array[array.length - 2] + addString;
             imageName = array.join('.');
             // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
             // 所以要替换掉内嵌图片路径里的斜线
             if (action === 'mergeNovel') {
                 imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].replaceUnsafeStr(imageName);
             }
-            this.sendDownload(item.blobURL, imageName);
+            this.sendDownload(idData.blobURL, imageName);
         }
     }
     /**下载小说为 EPUB 时，替换内嵌图片标记，把图片用 img 标签保存到正文里 */
@@ -17078,13 +17080,12 @@ class DownloadNovelEmbeddedImage {
             if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].downloadNovelEmbeddedImage) {
                 return resolve(content);
             }
-            let idList = await this.getIdList(content, embeddedImages);
-            idList = await this.getImageBolbURL(idList);
-            for (const data of idList) {
-                const dataURL = await this.getImageDataURL(data);
+            const idList = await this.getIdList(content, embeddedImages);
+            for (let idData of idList) {
+                idData = await this.getImageBolbURL(idData);
+                const dataURL = await this.getImageDataURL(idData);
                 const html = `<img src="${dataURL}" />`;
-                const flag = `[${data.type === 'upload' ? 'uploadedimage' : 'pixivimage'}:${data.id}]`;
-                content = content.replace(flag, html);
+                content = content.replace(idData.flag, html);
             }
             return resolve(content);
         });
@@ -17098,36 +17099,62 @@ class DownloadNovelEmbeddedImage {
                 for (const [id, url] of Object.entries(embeddedImages)) {
                     idList.push({
                         id,
+                        p: 0,
                         type: 'upload',
                         url,
+                        flag: `[uploadedimage:${id}]`,
                     });
                 }
             }
             // 获取引用的图片数据
-            const reg = /pixivimage:(\d+)/g;
+            const reg = /\[pixivimage:(.+?)\]/g;
             let test;
             while ((test = reg.exec(content))) {
                 if (test && test.length === 2) {
+                    // 99381250
+                    // 一个图像作品可能有多个被引用的图片，如
+                    // 99760571-1
+                    // 99760571-130
+                    const idInfo = test[1].split('-');
                     idList.push({
-                        id: test[1],
+                        id: idInfo[0],
+                        p: idInfo[1] ? parseInt(idInfo[1]) : 0,
                         type: 'pixiv',
                         url: '',
+                        flag: `[pixivimage:${test[1]}]`,
                     });
                 }
             }
             // 引用的图片此时没有 URL
-            for (const data of idList) {
+            // 统计引用的图像作品的 id （不重复），然后获取每个 id 的数据
+            const artworkIDs = new Set();
+            idList.forEach((data) => {
                 if (data.type === 'pixiv') {
-                    try {
-                        // 尝试获取原图作品数据，提取 URL
-                        const workData = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(data.id);
-                        data.url = workData.body.urls.original;
+                    artworkIDs.add(data.id);
+                }
+            });
+            for (const id of Array.from(artworkIDs)) {
+                try {
+                    // 尝试获取原图作品数据，提取 URL
+                    const workData = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id);
+                    const p0URL = workData.body.urls.original;
+                    for (const idData of idList) {
+                        if (idData.id === id) {
+                            // 如果 p 为 0 则表示未指定图片序号，也就是第一张图片
+                            if (idData.p === 0) {
+                                idData.url = p0URL;
+                            }
+                            else {
+                                // 如果指定了图片序号，则从第一张图片的 URL 生成指定图片的 URL
+                                idData.url = p0URL.replace('p0.', `p${idData.p - 1}.`);
+                            }
+                        }
                     }
-                    catch (error) {
-                        // 但是原图作品可能被删除了，404
-                        console.log(error);
-                        continue;
-                    }
+                }
+                catch (error) {
+                    // 原图作品可能被删除了，404
+                    console.log(error);
+                    continue;
                 }
             }
             // 返回数据时，删除没有 url 的数据
@@ -17135,16 +17162,12 @@ class DownloadNovelEmbeddedImage {
             return resolve(result);
         });
     }
-    async getImageBolbURL(idList) {
+    async getImageBolbURL(idData) {
         return new Promise(async (resolve) => {
-            for (const data of idList) {
-                // epub 里无法直接加载 pixiv 的图片，所以必须保存到本地
-                // 因为图片的域名 i.pximg.net 与 pixiv.net 不同，所以必须先转换为 blobURL，不然会有跨域问题，无法获取 DataURL
-                const res = await fetch(data.url);
-                const blob = await res.blob();
-                data.blobURL = URL.createObjectURL(blob);
-            }
-            resolve(idList);
+            const res = await fetch(idData.url);
+            const blob = await res.blob();
+            idData.blobURL = URL.createObjectURL(blob);
+            resolve(idData);
         });
     }
     async getImageDataURL(data) {
