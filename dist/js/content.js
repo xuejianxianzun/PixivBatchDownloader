@@ -6655,7 +6655,15 @@ const langText = {
         'Unbookmark works',
         '作品のブックマークを解除',
         '작품 북마크 해제',
-        'Unbookmark works',
+        'Снять закладку с работ',
+    ],
+    _取消收藏本页面的所有作品的说明: [
+        '当你在自己的收藏页面时，可以在“更多”选项卡里看到这个按钮。',
+        '當你在自己的收藏頁面時，可以在“更多”選項卡里看到這個按鈕。',
+        `You can see this button in the "More" tab when you're on your bookmarks page.`,
+        'このボタンは、ブックマーク ページの [もっと] タブに表示されます。',
+        '북마크 페이지에 있을 때 "더보기" 탭에서 이 버튼을 볼 수 있습니다.',
+        'Вы можете увидеть эту кнопку на вкладке «Больше», когда находитесь на странице закладок.',
     ],
 };
 
@@ -9662,13 +9670,15 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '13.8.0';
+        this.flag = '13.9.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_添加了俄语翻译')}`;
+            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增功能')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_取消收藏本页面的所有作品')}</strong>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_取消收藏本页面的所有作品的说明')}`;
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
