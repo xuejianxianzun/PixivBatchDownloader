@@ -179,6 +179,21 @@ class API {
             body: JSON.stringify(body),
         });
     }
+    static async deleteBookmark(bookmarkID, type, token) {
+        const bodyStr = type === 'illusts'
+            ? `bookmark_id=${bookmarkID}`
+            : `del=1&book_id=${bookmarkID}`;
+        return fetch(`https://www.pixiv.net/ajax/${type}/bookmarks/delete`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+                'x-csrf-token': token,
+            },
+            body: bodyStr,
+        });
+    }
     // 获取关注的用户列表
     static getFollowingList(id, rest = 'show', tag = '', offset = 0, limit = 100, lang = 'zh') {
         const url = `https://www.pixiv.net/ajax/user/${id}/following?offset=${offset}&limit=${limit}&rest=${rest}&tag=${tag}&lang=${lang}`;
@@ -4138,7 +4153,7 @@ const langText = {
         'Если имя файла после загрузки ненормальное, отключите другие расширения браузера, которые имеют возможность загрузки.<br> Например: Chrono Download Manager, бесплатный менеджер загрузок, загрузчик изображений, DownThemAll! и многое другое.',
     ],
     _常见问题说明: [
-        '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>如果你需要一个梯子（机场）,可以试试 <a href="https://www.ttkcloud.net/#/register?code=6m4hMaPu" title="https://www.ttkcloud.net/">www.ttkcloud.net</a>，价格便宜，百兆带宽，无倍率。先购买订阅，然后在仪盘表复制订阅链接使用。<br><br>下载器 QQ 群：675174717<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
+        '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>如果你需要一个梯子（机场）,可以试试 <a href="https://www.ttkcloud.net/#/register?code=6m4hMaPu" title="https://www.ttkcloud.net/">www.ttkcloud.net</a>，价格便宜，百兆带宽，无倍率。先购买订阅，然后在仪盘表复制订阅链接使用。<br><br>下载器 QQ 群：499873152<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
         '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。',
         'The downloaded file is saved in the browsers download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.<br><br>If your browser stops responding at startup, you can clear your browser`s download history.',
         'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。',
@@ -6016,7 +6031,7 @@ const langText = {
     中国大陆用户可以在“爱发电”上赞助我：<br>
     <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
     也可以扫描二维码：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 675174717，在群文件里查看二维码。
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 499873152，在群文件里查看二维码。
     `,
         `非常感謝您的支持！<br>
     您可以在 Patreon 上贊助我：<br>
@@ -6024,7 +6039,7 @@ const langText = {
     中國大陸使用者可以在“愛發電”上贊助我：<br>
     <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
     也可以掃描行動條碼（QR Code）：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上檢視行動條碼</a> 或者加入 QQ 群 675174717 檢視行動條碼。
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上檢視行動條碼</a>。
     `,
         `Thank you very much for your support!<br>
     You can sponsor me on Patreon: <br>
@@ -6701,6 +6716,30 @@ const langText = {
         '러시아어 번역 추가',
         'Добавлен русский перевод',
     ],
+    _取消收藏本页面的所有作品: [
+        '取消收藏本页面的所有作品',
+        '取消收藏本頁面的所有作品',
+        'Unbookmark all works on this page',
+        'このページのすべての作品のブックマークを解除',
+        '이 페이지의 모든 작품에 대한 북마크 해제',
+        'Удалить из избранного все работы на этой странице',
+    ],
+    _取消收藏作品: [
+        '取消收藏作品',
+        '取消收藏作品',
+        'Unbookmark works',
+        '作品のブックマークを解除',
+        '작품 북마크 해제',
+        'Снять закладку с работ',
+    ],
+    _取消收藏本页面的所有作品的说明: [
+        '当你在自己的收藏页面时，可以在“更多”选项卡里看到这个按钮。',
+        '當你在自己的收藏頁面時，可以在“更多”選項卡里看到這個按鈕。',
+        `You can see this button in the "More" tab when you're on your bookmarks page.`,
+        'このボタンは、ブックマーク ページの [もっと] タブに表示されます。',
+        '북마크 페이지에 있을 때 "더보기" 탭에서 이 버튼을 볼 수 있습니다.',
+        'Вы можете увидеть эту кнопку на вкладке «Больше», когда находитесь на странице закладок.',
+    ],
 };
 
 
@@ -6839,7 +6878,7 @@ class Log {
             _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].textWarning,
             _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].textError,
         ];
-        this.max = 100;
+        this.max = 200;
         this.count = 0;
         this.toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
         this.scrollToBottom();
@@ -9706,13 +9745,15 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '13.8.0';
+        this.flag = '13.9.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_添加了俄语翻译')}`;
+            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增功能')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_取消收藏本页面的所有作品')}</strong>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_取消收藏本页面的所有作品的说明')}`;
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -10499,9 +10540,7 @@ class Tools {
             return test4[1];
         }
         // 获取包含用户 id 的元素，注意这些选择器可能会变，需要进行检查
-        const testA = document.querySelector('.sc-LzOjP a') ||
-            document.querySelector('aside a') ||
-            document.querySelector('nav a');
+        const testA = document.querySelector('aside a') || document.querySelector('nav a');
         // 第一个元素是作品页内，作品下方的作者头像区域的 a 标签
         // 第一个元素是作品页内，页面右侧作者信息区域的 a 标签
         // 第二个元素是用户主页或列表页里，“主页”按钮的 a 标签
@@ -10856,6 +10895,70 @@ class Tools {
     }
 }
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
+
+
+
+/***/ }),
+
+/***/ "./src/ts/UnBookmarkWorks.ts":
+/*!***********************************!*\
+  !*** ./src/ts/UnBookmarkWorks.ts ***!
+  \***********************************/
+/*! exports provided: unBookmarkWorks */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "unBookmarkWorks", function() { return unBookmarkWorks; });
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Token */ "./src/ts/Token.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+
+
+
+
+
+
+class UnBookmarkWorks {
+    async start(idList) {
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_取消收藏作品'));
+        if (idList.length === 0) {
+            _Toast__WEBPACK_IMPORTED_MODULE_3__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_没有数据可供使用'));
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_没有数据可供使用'));
+            return;
+        }
+        _store_States__WEBPACK_IMPORTED_MODULE_5__["states"].busy = true;
+        const total = idList.length.toString();
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前作品个数', total));
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_开始获取作品信息'));
+        let number = 0;
+        for (const idData of idList) {
+            try {
+                const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"][idData.type === 'novels' ? 'getNovelData' : 'getArtworkData'](idData.id);
+                if (data.body.bookmarkData) {
+                    await _API__WEBPACK_IMPORTED_MODULE_0__["API"].deleteBookmark(data.body.bookmarkData.id, idData.type === 'novels' ? 'novels' : 'illusts', _Token__WEBPACK_IMPORTED_MODULE_4__["token"].token);
+                }
+            }
+            catch (error) {
+                // 处理自己收藏的作品时可能遇到错误。最常见的错误就是作品被删除了，获取作品数据时会产生 404 错误
+                // 对于出错的作品直接跳过，不需要对其执行任何操作
+                // 不过这种作品无法被删除，执行完毕后还是会留在收藏里
+            }
+            number++;
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${number} / ${total}`, 1, false);
+        }
+        const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_取消收藏作品') + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_完成');
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_3__["toast"].success(msg, {
+            position: 'topCenter',
+        });
+        _store_States__WEBPACK_IMPORTED_MODULE_5__["states"].busy = false;
+    }
+}
+const unBookmarkWorks = new UnBookmarkWorks();
 
 
 
@@ -11482,15 +11585,14 @@ class InitPageBase {
         }
         try {
             const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_19__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_19__["pageType"].list.Unlisted;
+            // 这里不能使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
             if (idData.type === 'novels') {
                 const data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getNovelData(id, unlisted);
                 await _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_11__["saveNovelData"].save(data);
                 this.afterGetWorksData(data);
             }
             else {
-                // 这里不能使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
-                let data;
-                data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getArtworkData(id, unlisted);
+                const data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getArtworkData(id, unlisted);
                 await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__["saveArtworkData"].save(data);
                 this.afterGetWorksData(data);
             }
@@ -14118,7 +14220,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _UnBookmarkWorks__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../UnBookmarkWorks */ "./src/ts/UnBookmarkWorks.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 // 初始化新版收藏页面
+
+
+
 
 
 
@@ -14144,6 +14252,8 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         this.filteredNumber = 0; // 记录检查了多少作品（不论结果是否通过都计入）
         this.onceRequest = 100; // 每次请求多少个数量
         this.offset = 0; // 要去掉的作品数量
+        // 取消收藏本页面的所有作品
+        this.unBookmarkMode = false;
         this.init();
     }
     addCrawlBtns() {
@@ -14165,21 +14275,70 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         this.crawlNumber = this.checkWantPageInput(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始下载x页'), _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_下载所有页面'));
     }
     addAnyElement() {
-        // 如果存在 token，则添加“添加 tag”按钮
-        if (_Token__WEBPACK_IMPORTED_MODULE_8__["token"].token) {
-            const btn = _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_给未分类作品添加添加tag');
-            new _pageFunciton_BookmarksAddTag__WEBPACK_IMPORTED_MODULE_9__["BookmarksAddTag"](btn);
+        // 如果不存在 token，则不添加与收藏相关的按钮
+        if (!_Token__WEBPACK_IMPORTED_MODULE_8__["token"].token) {
+            return;
         }
+        // 判断这个收藏页面是不是用户自己的页面，如果不是，也不会添加相关按钮
+        let ownPage = false;
+        const URLUserID = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__["Utils"].getURLPathField(window.location.pathname, 'users');
+        if (!URLUserID) {
+            ownPage = true;
+        }
+        else {
+            // 从特定标签中提取用户自己的 userID，与 URL 中的 userID 对比
+            const element = document.querySelector('#qualtrics_user-id');
+            if (!element || !element.textContent) {
+                ownPage = false;
+            }
+            else {
+                ownPage =
+                    element.textContent ===
+                        _utils_Utils__WEBPACK_IMPORTED_MODULE_11__["Utils"].getURLPathField(window.location.pathname, 'users');
+            }
+            // 为防止 pixiv 改版导致上一个标签失效，这里使用第二种方法作为备选项
+            // 在 head 里的某个 script 标签里包含有自己的 userID。使用 URL 里的 userID 去尝试匹配
+            // 'user_id', "1234567"
+            if (!ownPage) {
+                ownPage = document.head.innerHTML.includes(`'user_id', "${URLUserID}"`);
+            }
+        }
+        if (!ownPage) {
+            return;
+        }
+        const btn = _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_给未分类作品添加添加tag');
+        new _pageFunciton_BookmarksAddTag__WEBPACK_IMPORTED_MODULE_9__["BookmarksAddTag"](btn);
+        _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_取消收藏本页面的所有作品').addEventListener('click', () => {
+            this.unBookmarkAllWorksOnThisPage();
+        });
+    }
+    unBookmarkAllWorksOnThisPage() {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_13__["states"].busy || this.unBookmarkMode) {
+            _Toast__WEBPACK_IMPORTED_MODULE_15__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_当前任务尚未完成'));
+            return;
+        }
+        // 走一遍简化的抓取流程
+        this.unBookmarkMode = true;
+        _Log__WEBPACK_IMPORTED_MODULE_6__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_取消收藏本页面的所有作品'));
+        _Toast__WEBPACK_IMPORTED_MODULE_15__["toast"].warning(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_取消收藏本页面的所有作品'), {
+            position: 'topCenter',
+        });
+        _EVT__WEBPACK_IMPORTED_MODULE_17__["EVT"].fire('closeCenterPanel');
+        // 设置抓取页数为 1
+        this.crawlNumber = 1;
+        _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].tag = _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].getTagFromURL();
+        this.readyGetIdList();
+        this.getIdList();
     }
     nextStep() {
         this.setSlowCrawl();
-        if (window.location.pathname.includes('/novel')) {
-            this.type = 'novels';
-        }
         this.readyGetIdList();
         this.getIdList();
     }
     readyGetIdList() {
+        if (window.location.pathname.includes('/novel')) {
+            this.type = 'novels';
+        }
         // 每页个作品数，插画 48 个，小说 24 个
         const onceNumber = window.location.pathname.includes('/novels') ? 24 : 48;
         // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
@@ -14265,8 +14424,19 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
             this.idList.splice(this.requsetNumber, this.idList.length);
             // 书签页面的 api 没有考虑页面上的排序顺序，获取到的 id 列表始终是按收藏顺序由近期到早期排列的
         }
-        _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList = _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.concat(this.idList);
-        this.getIdListFinished();
+        if (!this.unBookmarkMode) {
+            // 正常抓取时
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList = _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.concat(this.idList);
+            this.getIdListFinished();
+        }
+        else {
+            // 取消收藏本页面的书签时
+            // 复制本页作品的 id 列表，传递给指定模块
+            const idList = Array.from(this.idList);
+            this.resetGetIdListStatus();
+            this.unBookmarkMode = false;
+            _UnBookmarkWorks__WEBPACK_IMPORTED_MODULE_16__["unBookmarkWorks"].start(idList);
+        }
     }
     resetGetIdListStatus() {
         this.type = 'illusts';
@@ -17132,20 +17302,22 @@ class DownloadNovelEmbeddedImage {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].downloadNovelEmbeddedImage) {
             return;
         }
-        let idList = await this.getIdList(content, embeddedImages);
-        idList = await this.getImageBolbURL(idList);
-        for (const item of idList) {
-            let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].replaceSuffix(novelName, item.url);
+        const idList = await this.getIdList(content, embeddedImages);
+        // 保存为 TXT 格式时，每加载完一个图片，就立即保存这个图片
+        for (let idData of idList) {
+            idData = await this.getImageBolbURL(idData);
+            let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].replaceSuffix(novelName, idData.url);
+            // 在文件名末尾加上内嵌图片的 id 和序号
             const array = imageName.split('.');
-            // 在文件名末尾加上内嵌图片的 id
-            array[array.length - 2] = array[array.length - 2] + '-' + item.id;
+            const addString = `-${idData.id}${idData.p === 0 ? '' : '-' + idData.p}`;
+            array[array.length - 2] = array[array.length - 2] + addString;
             imageName = array.join('.');
             // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
             // 所以要替换掉内嵌图片路径里的斜线
             if (action === 'mergeNovel') {
                 imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].replaceUnsafeStr(imageName);
             }
-            this.sendDownload(item.blobURL, imageName);
+            this.sendDownload(idData.blobURL, imageName);
         }
     }
     /**下载小说为 EPUB 时，替换内嵌图片标记，把图片用 img 标签保存到正文里 */
@@ -17154,13 +17326,12 @@ class DownloadNovelEmbeddedImage {
             if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].downloadNovelEmbeddedImage) {
                 return resolve(content);
             }
-            let idList = await this.getIdList(content, embeddedImages);
-            idList = await this.getImageBolbURL(idList);
-            for (const data of idList) {
-                const dataURL = await this.getImageDataURL(data);
+            const idList = await this.getIdList(content, embeddedImages);
+            for (let idData of idList) {
+                idData = await this.getImageBolbURL(idData);
+                const dataURL = await this.getImageDataURL(idData);
                 const html = `<img src="${dataURL}" />`;
-                const flag = `[${data.type === 'upload' ? 'uploadedimage' : 'pixivimage'}:${data.id}]`;
-                content = content.replace(flag, html);
+                content = content.replace(idData.flag, html);
             }
             return resolve(content);
         });
@@ -17174,36 +17345,62 @@ class DownloadNovelEmbeddedImage {
                 for (const [id, url] of Object.entries(embeddedImages)) {
                     idList.push({
                         id,
+                        p: 0,
                         type: 'upload',
                         url,
+                        flag: `[uploadedimage:${id}]`,
                     });
                 }
             }
             // 获取引用的图片数据
-            const reg = /pixivimage:(\d+)/g;
+            const reg = /\[pixivimage:(.+?)\]/g;
             let test;
             while ((test = reg.exec(content))) {
                 if (test && test.length === 2) {
+                    // 99381250
+                    // 一个图像作品可能有多个被引用的图片，如
+                    // 99760571-1
+                    // 99760571-130
+                    const idInfo = test[1].split('-');
                     idList.push({
-                        id: test[1],
+                        id: idInfo[0],
+                        p: idInfo[1] ? parseInt(idInfo[1]) : 0,
                         type: 'pixiv',
                         url: '',
+                        flag: `[pixivimage:${test[1]}]`,
                     });
                 }
             }
             // 引用的图片此时没有 URL
-            for (const data of idList) {
+            // 统计引用的图像作品的 id （不重复），然后获取每个 id 的数据
+            const artworkIDs = new Set();
+            idList.forEach((data) => {
                 if (data.type === 'pixiv') {
-                    try {
-                        // 尝试获取原图作品数据，提取 URL
-                        const workData = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(data.id);
-                        data.url = workData.body.urls.original;
+                    artworkIDs.add(data.id);
+                }
+            });
+            for (const id of Array.from(artworkIDs)) {
+                try {
+                    // 尝试获取原图作品数据，提取 URL
+                    const workData = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id);
+                    const p0URL = workData.body.urls.original;
+                    for (const idData of idList) {
+                        if (idData.id === id) {
+                            // 如果 p 为 0 则表示未指定图片序号，也就是第一张图片
+                            if (idData.p === 0) {
+                                idData.url = p0URL;
+                            }
+                            else {
+                                // 如果指定了图片序号，则从第一张图片的 URL 生成指定图片的 URL
+                                idData.url = p0URL.replace('p0.', `p${idData.p - 1}.`);
+                            }
+                        }
                     }
-                    catch (error) {
-                        // 但是原图作品可能被删除了，404
-                        console.log(error);
-                        continue;
-                    }
+                }
+                catch (error) {
+                    // 原图作品可能被删除了，404
+                    console.log(error);
+                    continue;
                 }
             }
             // 返回数据时，删除没有 url 的数据
@@ -17211,16 +17408,12 @@ class DownloadNovelEmbeddedImage {
             return resolve(result);
         });
     }
-    async getImageBolbURL(idList) {
+    async getImageBolbURL(idData) {
         return new Promise(async (resolve) => {
-            for (const data of idList) {
-                // epub 里无法直接加载 pixiv 的图片，所以必须保存到本地
-                // 因为图片的域名 i.pximg.net 与 pixiv.net 不同，所以必须先转换为 blobURL，不然会有跨域问题，无法获取 DataURL
-                const res = await fetch(data.url);
-                const blob = await res.blob();
-                data.blobURL = URL.createObjectURL(blob);
-            }
-            resolve(idList);
+            const res = await fetch(idData.url);
+            const blob = await res.blob();
+            idData.blobURL = URL.createObjectURL(blob);
+            resolve(idData);
         });
     }
     async getImageDataURL(data) {

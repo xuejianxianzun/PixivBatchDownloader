@@ -185,9 +185,7 @@ class Tools {
 
     // 获取包含用户 id 的元素，注意这些选择器可能会变，需要进行检查
     const testA: HTMLAnchorElement | null =
-      document.querySelector('.sc-LzOjP a') ||
-      document.querySelector('aside a') ||
-      document.querySelector('nav a')
+      document.querySelector('aside a') || document.querySelector('nav a')
     // 第一个元素是作品页内，作品下方的作者头像区域的 a 标签
     // 第一个元素是作品页内，页面右侧作者信息区域的 a 标签
     // 第二个元素是用户主页或列表页里，“主页”按钮的 a 标签

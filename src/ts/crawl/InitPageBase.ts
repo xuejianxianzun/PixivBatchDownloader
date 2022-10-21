@@ -320,14 +320,13 @@ abstract class InitPageBase {
 
     try {
       const unlisted = pageType.type === pageType.list.Unlisted
+      // 这里不能使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
       if (idData.type === 'novels') {
         const data = await API.getNovelData(id, unlisted)
         await saveNovelData.save(data)
         this.afterGetWorksData(data)
       } else {
-        // 这里不能使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
-        let data: ArtworkData
-        data = await API.getArtworkData(id, unlisted)
+        const data = await API.getArtworkData(id, unlisted)
         await saveArtworkData.save(data)
         this.afterGetWorksData(data)
       }
