@@ -10,7 +10,7 @@ import { Utils } from './utils/Utils'
 import { PreviewUgoira } from './PreviewUgoira'
 import { toast } from './Toast'
 import { lang } from './Lang'
-import { Colors } from './config/Colors'
+import { Colors } from './Colors'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -472,7 +472,7 @@ class PreviewWork {
 
     // 3. 设置顶部提示区域的内容
     if (settings.showPreviewWorkTip) {
-      const text = []
+      const text: string[] = []
       const body = this.workData.body
 
       if (body.pageCount > 1) {
@@ -483,7 +483,7 @@ class PreviewWork {
       text.push(body.id)
 
       // 显示图片尺寸
-      text.push(body.bookmarkCount)
+      text.push(body.bookmarkCount.toString())
 
       // 加载原图时，可以获取到每张图片的真实尺寸
       if (settings.prevWorkSize === 'original') {

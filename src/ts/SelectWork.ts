@@ -1,22 +1,25 @@
 import { Tools } from './Tools'
-import { Colors } from './config/Colors'
+import { Colors } from './Colors'
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import { states } from './store/States'
-import { IDData } from './store/StoreType'
+import { IDData, WorkTypeString } from './store/StoreType'
 import { toast } from './Toast'
 import { msgBox } from './MsgBox'
 import { Utils } from './utils/Utils'
+import { artworkThumbnail } from './ArtworkThumbnail'
+import { novelThumbnail } from './NovelThumbnail'
+import { pageType } from './PageType'
 
 // 手动选择作品，图片作品和小说都可以选择
 class SelectWork {
   constructor() {
-    if (!this.created && location.hostname.endsWith('.pixiv.net')) {
+    const unlisted = pageType.type === pageType.list.Unlisted
+    if (!this.created && Utils.isPixiv() && !unlisted) {
       this.created = true
       this.selector = this.createSelectorEl()
       this.addBtn()
       this.bindEvents()
-      this.checkNeedSetPosition()
     }
   }
 
@@ -71,10 +74,6 @@ class SelectWork {
 
   private selectedWorkFlagClass = 'selectedWorkFlag' // 给已选择的作品添加标记时使用的 class
   private positionValue = ['relative', 'absolute', 'fixed'] // 标记元素需要父元素拥有这些定位属性
-  private needSetPosition = true // 是否需要给父元素设置定位属性
-
-  private artworkReg = /artworks\/(\d{2,15})/
-  private novelReg = /novel\/show\.php\?id=(\d{2,15})/
 
   // 不同页面里的作品列表容器的选择器可能不同，这里储存所有页面里会使用到的的选择器
   // root 是大部分页面通用的; js-mount-point-discovery 是发现页面使用的
@@ -97,10 +96,25 @@ class SelectWork {
   <use xlink:href="#icon-select"></use>
 </svg>`
 
-  private bindClickEvent!: (ev: MouseEvent) => void | undefined
   private bindEscEvent!: (ev: KeyboardEvent) => void | undefined
 
   private bindEvents() {
+    artworkThumbnail.onClick((el: HTMLElement, id: string, ev: Event) => {
+      this.clickThumbnail(el, id, ev, 'illusts')
+    })
+
+    novelThumbnail.onClick((el: HTMLElement, id: string, ev: Event) => {
+      this.clickThumbnail(el, id, ev, 'novels')
+    })
+
+    document.body.addEventListener(
+      'click',
+      (ev: Event) => {
+        this.clickElement(ev.target as HTMLElement, ev)
+      },
+      true
+    )
+
     window.addEventListener(EVT.list.openCenterPanel, () => {
       this.tempHide = true
     })
@@ -114,10 +128,6 @@ class SelectWork {
         this.sendCrawl = false
         this.crawled = true
       }
-    })
-
-    window.addEventListener(EVT.list.pageSwitch, () => {
-      this.checkNeedSetPosition()
     })
 
     // 可以使用 Alt + S 快捷键来模拟点击控制按钮
@@ -180,13 +190,6 @@ class SelectWork {
     })
   }
 
-  private checkNeedSetPosition() {
-    // 进入某些特定页面时，不需要给父元素添加定位属性
-    // 在投稿页面内不能添加定位，否则作品的缩略图会不显示
-    const requestPage = window.location.pathname.startsWith('/request')
-    this.needSetPosition = !requestPage
-  }
-
   private clearIdList() {
     // 清空标记需要使用 id 数据，所以需要执行之后才能清空 id
     this.removeAllSelectedFlag()
@@ -206,7 +209,7 @@ class SelectWork {
       return
     }
 
-    const show = this.start && !this.pause && !this.tempHide
+    const show = this.canSelect() && !this.tempHide
 
     this.selector.style.display = show ? 'block' : 'none'
     // 设置元素的 style 时，如果新的值和旧的值相同（例如：每次都设置 display 为 none），Chrome 会自动优化，此时不会导致节点发生变化。
@@ -244,7 +247,7 @@ class SelectWork {
     )
     this.crawlBtn.style.display = 'none'
     this.crawlBtn.addEventListener('click', (ev) => {
-      this.downloadSelect()
+      this.sendDownload()
     })
   }
 
@@ -285,37 +288,71 @@ class SelectWork {
     }
   }
 
-  // 监听点击事件
-  private clickEvent(ev: MouseEvent) {
-    const workId = this.findWork((ev as any).path || ev.composedPath())
-
-    if (workId) {
-      // 如果点击的元素是作品元素，就阻止默认事件。否则会进入作品页面，导致无法在当前页面继续选择
-      ev.preventDefault()
-      // 如果点击的元素不是作品元素，就不做任何处理，以免影响用户体验
-
-      const index = this.idList.findIndex((item) => {
-        return item.id === workId.id && item.type === workId.type
+  private addId(el: HTMLElement, id: string, type: WorkTypeString) {
+    const index = this.idList.findIndex((item) => {
+      return item.id === id && item.type === type
+    })
+    // 添加这个 id
+    if (index === -1) {
+      this.idList.push({
+        id,
+        type,
       })
-      // 这个 id 不存在于 idList 里
-      if (index === -1) {
-        this.idList.push(workId)
-        this.crawled = false
+      this.crawled = false
+      this.addSelectedFlag(el, id)
+    } else {
+      // id 已存在，则删除
+      this.idList.splice(index, 1)
+      this.removeSelectedFlag(id)
+    }
+    this.updateCrawlBtn()
+  }
 
-        this.addSelectedFlag(ev.target as HTMLElement, workId.id)
-      } else {
-        // id 已存在，则删除
-        this.idList.splice(index, 1)
+  private clickThumbnail(
+    el: HTMLElement,
+    id: string,
+    ev: Event,
+    type: WorkTypeString
+  ) {
+    if (!this.canSelect()) {
+      return
+    }
 
-        this.removeSelectedFlag(workId.id)
-      }
+    // 阻止默认事件，否则会进入作品页面，导致无法在当前页面继续选择
+    ev.preventDefault()
+    this.addId(el, id, type)
+  }
 
-      this.updateCrawlBtn()
+  private clickElement(el: HTMLElement, ev: Event) {
+    if (!this.canSelect()) {
+      return
+    }
+
+    if (!el || el.nodeName !== 'A') {
+      return
+    }
+
+    const href = (el as HTMLAnchorElement).href
+    const artworkId = Tools.getIllustId(href)
+    if (artworkId) {
+      ev.preventDefault()
+      // 如果查找到了作品 id，必须阻止冒泡，否则会执行 clickThumbnail
+      ev.stopPropagation()
+      this.addId(el.parentElement!, artworkId, 'illusts')
+      return
+    }
+
+    const novelId = Tools.getNovelId(href)
+    if (novelId) {
+      ev.preventDefault()
+      ev.stopPropagation()
+      this.addId(el.parentElement!, novelId, 'novels')
+      return
     }
   }
 
   // 监听鼠标移动
-  // 鼠标移动时，由于事件触发频率很高，所以这里的代码也会执行很多次，但是这没有导致明显的性能问题，所以没有加以限制（如：使用节流）
+  // 鼠标移动时，由于事件触发频率很高，所以这里的代码也会执行很多次，但是这没有导致明显的性能问题，所以没有使用节流等加以限制
   private moveEvent(ev: MouseEvent) {
     this.left = ev.x
     this.top = ev.y
@@ -341,9 +378,7 @@ class SelectWork {
       this.clearIdList()
     }
 
-    this.bindClickEvent = this.clickEvent.bind(this)
     this.bindEscEvent = this.escEvent.bind(this)
-    window.addEventListener('click', this.bindClickEvent, true)
     document.addEventListener('keyup', this.bindEscEvent)
 
     EVT.fire('closeCenterPanel')
@@ -351,14 +386,16 @@ class SelectWork {
 
   private pauseSelect() {
     this.pause = true
-    this.bindClickEvent &&
-      window.removeEventListener('click', this.bindClickEvent, true)
     this.bindEscEvent &&
       document.removeEventListener('keyup', this.bindEscEvent)
   }
 
+  private canSelect() {
+    return this.start && !this.pause
+  }
+
   // 抓取选择的作品，这会自动暂停手动选择作品
-  private downloadSelect() {
+  private sendDownload() {
     this.pauseSelect()
 
     if (this.idList.length > 0) {
@@ -371,62 +408,25 @@ class SelectWork {
 
       toast.show(lang.transl('_已发送下载请求'), {
         bgColor: Colors.bgBlue,
-        position: 'mouse',
       })
     } else {
       toast.error(lang.transl('_没有数据可供使用'))
     }
   }
 
-  // 从传递的元素中查找第一个作品 id
-  private findWork(arr: HTMLElement[]): IDData | undefined {
-    for (const el of arr) {
-      // 查找所有 a 标签
-      if (el.nodeName === 'A') {
-        const href = (el as HTMLAnchorElement).href
-        // 测试图片作品链接
-        const test = this.artworkReg.exec(href)
-        if (test && test[1]) {
-          return {
-            type: 'unknown',
-            id: test[1],
-          }
-        }
-
-        // 测试小说作品链接
-        const test2 = this.novelReg.exec(href)
-        if (test2 && test2[1]) {
-          return {
-            type: 'novels',
-            id: test2[1],
-          }
-        }
-      }
-    }
-  }
-
-  // 当点击事件查找到一个作品时，给这个作品添加标记
-  private addSelectedFlag(el: HTMLElement, id: string) {
+  // 给这个作品添加标记
+  private addSelectedFlag(wrap: HTMLElement, id: string) {
     const i = document.createElement('i')
     i.classList.add(this.selectedWorkFlagClass)
     i.dataset.id = id
     i.innerHTML = this.svg
 
-    let target = el
+    wrap.insertAdjacentElement('afterbegin', i)
 
-    // 如果点击的元素处于 svg 里，则添加到 svg 外面。因为 svg 里面不会显示添加的标记
-    // 这里的代码只能应对 svg 内只有一层子元素的情况。目前 pixiv 的作品列表都是这样
-    if (el.nodeName === 'svg' || el.parentElement?.nodeName === 'svg') {
-      target = el.parentElement as HTMLElement
-    }
-    target.insertAdjacentElement('beforebegin', i)
-
-    // 如果父元素没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
-    if (this.needSetPosition && target.parentElement) {
-      const position = window.getComputedStyle(target.parentElement)['position']
-      if (!this.positionValue.includes(position)) {
-        target.parentElement.style.position = 'relative'
-      }
+    // 如果容器没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
+    const position = window.getComputedStyle(wrap)['position']
+    if (!this.positionValue.includes(position)) {
+      wrap.style.position = 'relative'
     }
   }
 

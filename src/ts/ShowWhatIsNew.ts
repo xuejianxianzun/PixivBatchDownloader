@@ -1,5 +1,5 @@
 import { lang } from './Lang'
-import { Config } from './config/Config'
+import { Config } from './Config'
 import { msgBox } from './MsgBox'
 import { Utils } from './utils/Utils'
 import { EVT } from './EVT'
@@ -11,12 +11,16 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '13.5.3'
+  private flag = '13.9.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-      let msg = `${lang.transl('_whatisnew')}`
+      let msg = `<strong>${lang.transl('_新增功能')}: ${lang.transl(
+        '_取消收藏本页面的所有作品'
+      )}</strong>
+      <br>
+      ${lang.transl('_取消收藏本页面的所有作品的说明')}`
 
       // 在更新说明的下方显示赞助提示
       msg += `

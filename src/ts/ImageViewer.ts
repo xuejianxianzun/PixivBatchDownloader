@@ -11,8 +11,9 @@ import { Tools } from './Tools'
 import { ArtworkData } from './crawl/CrawlResult'
 import { Bookmark } from './Bookmark'
 import { cacheWorkData } from './store/CacheWorkData'
-import { Colors } from './config/Colors'
+import { Colors } from './Colors'
 import { downloadOnClickBookmark } from './download/DownloadOnClickBookmark'
+import { pageType } from './PageType'
 
 // 所有参数
 interface Config {
@@ -211,7 +212,8 @@ class ImageViewer {
     if (cacheWorkData.has(this.cfg.workId)) {
       this.workData = cacheWorkData.get(this.cfg.workId)
     } else {
-      const data = await API.getArtworkData(this.cfg.workId)
+      const unlisted = pageType.type === pageType.list.Unlisted
+      const data = await API.getArtworkData(this.cfg.workId, unlisted)
       this.workData = data
       cacheWorkData.set(data)
     }
@@ -228,7 +230,7 @@ class ImageViewer {
         useBigURL = body.urls[this.cfg.imageSize] || body.urls.original
 
         // 生成缩略图列表
-        let html = []
+        let html: string[] = []
         for (let index = 0; index < body.pageCount; index++) {
           const str = `<li><img src="${Tools.convertThumbURLTo540px(
             body.urls.thumb.replace('p0', 'p' + index)
@@ -478,15 +480,16 @@ class ImageViewer {
     // 显示提示
     toast.show(lang.transl('_收藏'), {
       bgColor: Colors.bgBlue,
-      position: 'mouse',
     })
 
-    await Bookmark.add(
+    const res = await Bookmark.add(
       this.cfg.workId,
       'illusts',
       Tools.extractTags(this.workData!)
     )
-    toast.success(lang.transl('_已收藏'))
+    if (res !== 429) {
+      toast.success(lang.transl('_已收藏'))
+    }
   }
 
   // 下载当前查看的作品
@@ -504,7 +507,6 @@ class ImageViewer {
     // 显示提示
     toast.show(lang.transl('_已发送下载请求'), {
       bgColor: Colors.bgBlue,
-      position: 'mouse',
     })
   }
 }

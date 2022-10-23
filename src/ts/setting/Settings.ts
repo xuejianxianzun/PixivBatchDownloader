@@ -31,7 +31,7 @@ import { EVT } from '../EVT'
 import { Utils } from '../utils/Utils'
 import { convertOldSettings } from './ConvertOldSettings'
 import { msgBox } from '../MsgBox'
-import { Config } from '../config/Config'
+import { Config } from '../Config'
 import { secretSignal } from '../utils/SecretSignal'
 import { toast } from '../Toast'
 import { lang } from '../Lang'
@@ -53,7 +53,7 @@ type SettingValue =
   | Map<string, string>
 
 export interface SettingChangeData {
-  name: SettingsKeys
+  name: SettingKeys
   value: SettingValue
 }
 
@@ -124,7 +124,7 @@ interface XzSetting {
   fileNameLengthLimit: number
   imageSize: 'original' | 'regular' | 'small' | 'thumb'
   dateFormat: string
-  userSetLang: 'zh-cn' | 'zh-tw' | 'ja' | 'en' | 'ko' | 'auto'
+  userSetLang: 'zh-cn' | 'zh-tw' | 'ja' | 'en' | 'ko' | 'ru' | 'auto'
   bmkAfterDL: boolean
 
   // 选项在表单中的值
@@ -197,7 +197,6 @@ interface XzSetting {
   showHowToUse: boolean
   whatIsNewFlag: string
   tipCreateFolder: boolean
-  showDownloadTip: boolean
   replaceSquareThumb: boolean
   notFolderWhenOneFile: boolean
   noSerialNoForSingleImg: boolean
@@ -210,7 +209,7 @@ interface XzSetting {
   showLargerThumbnails: boolean
   doubleWidthThumb: boolean
   wheelScrollSwitchImageOnPreviewWork: boolean
-  /**不下载多图作品的最后一张图片 */
+  /**不抓取多图作品的最后一张图片 */
   doNotDownloadLastImageOfMultiImageWork: boolean
   downloadNovelCoverImage: boolean
   downloadNovelEmbeddedImage: boolean
@@ -226,7 +225,7 @@ interface XzSetting {
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
-type SettingsKeys = keyof XzSetting
+type SettingKeys = keyof XzSetting
 
 class Settings {
   constructor() {
@@ -327,7 +326,7 @@ class Settings {
     magnifierSize: 'original',
     magnifierPosition: 'right',
     bgDisplay: false,
-    bgOpacity: 50,
+    bgOpacity: 60,
     bgPositionY: 'center',
     createFolderByType: false,
     createFolderByTypeIllust: false,
@@ -390,7 +389,6 @@ class Settings {
     showHowToUse: true,
     whatIsNewFlag: 'xuejian&saber',
     tipCreateFolder: true,
-    showDownloadTip: true,
     replaceSquareThumb: true,
     notFolderWhenOneFile: false,
     noSerialNoForSingleImg: true,
@@ -517,7 +515,7 @@ class Settings {
   private assignSettings(data: XzSetting) {
     const origin = Utils.deepCopy(data)
     for (const [key, value] of Object.entries(origin)) {
-      this.setSetting(key as SettingsKeys, value)
+      this.setSetting(key as SettingKeys, value)
     }
   }
 
@@ -560,7 +558,7 @@ class Settings {
   // 这里面有一些类型转换的代码，主要目的：
   // 1. 兼容旧版本的设置。读取旧版本的设置时，将其转换成新版本的设置。例如某个设置在旧版本里是 string 类型，值为 'a,b,c'。新版本里是 string[] 类型，这里会自动将其转换成 ['a','b','c']
   // 2. 减少额外操作。例如某个设置的类型为 string[]，其他模块可以传入 string 类型的值如 'a,b,c'，而不必先把它转换成 string[]
-  public setSetting(key: SettingsKeys, value: SettingValue) {
+  public setSetting(key: SettingKeys, value: SettingValue) {
     if (!this.allSettingKeys.includes(key)) {
       return
     }
@@ -671,4 +669,4 @@ const self = new Settings()
 const settings = self.settings
 const setSetting = self.setSetting.bind(self)
 
-export { settings, setSetting, SettingsKeys as SettingKeys }
+export { settings, setSetting, SettingKeys }

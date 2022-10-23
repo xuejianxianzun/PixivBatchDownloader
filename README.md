@@ -4,6 +4,8 @@
 
 [韩国语](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-KO.md)
 
+[Russian](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-RU.md)
+
 *日本語 No translation yet*
 
 [Discord 频道](https://discord.gg/eW9JtTK)
@@ -108,6 +110,8 @@ offline 分支会检查 github 上是否发布了新版本；master 分支上不
 
 - 感谢 [KOZ39](https://github.com/KOZ39) 翻译韩语。
 
+- 感谢 [bropines](https://github.com/bropines) 翻译俄语。
+
 - 感谢 [Reinford0](https://github.com/Reinford0) 对本工具的测试和改进。
 
 - 感谢 [z2n](https://github.com/z2n) 对本工具项目构建做出的改进。
@@ -125,7 +129,7 @@ offline 分支会检查 github 上是否发布了新版本；master 分支上不
 ![支付宝](https://i.loli.net/2019/04/04/5ca5627614396.png) ![微信](https://i.loli.net/2019/04/04/5ca5627630bb4.png)
 
 3. 国外的赞助网站 Patreon：
- 
+
 [https://www.patreon.com/xuejianxianzun](https://www.patreon.com/xuejianxianzun)
 
 # 开发
@@ -178,19 +182,16 @@ npm run build // 执行 fmt、ts、less 命令，并把打包所需的其他文�
 
 - 如果使用 ssr、v2ray 等工具，下载时开启“全局代理”以提高下载速度。
 
-- 如有其他问题或建议，加欢迎 **QQ 群 675174717** 进行交流。
+- 如有其他问题或建议，加欢迎 **QQ 群 499873152** 进行交流。
 
 ## 支持的语言
 
-简体中文
-
-繁體中文
-
-English
-
-日本語
-
-韩国语
+- 简体中文
+- 繁體中文
+- English
+- 日本語
+- 한국어
+- Русский
 
 欢迎您对翻译做出改进，谢谢~
 
@@ -245,6 +246,8 @@ English
 20 [关注](https://www.pixiv.net/users/9460149/following)
 
 21 [约稿](https://www.pixiv.net/request)
+
+22 [仅可由链接浏览](https://www.pixiv.net/artworks/unlisted/CbLRCId2sY3ZzQDqnQj6)
 
 # 友情链接
 

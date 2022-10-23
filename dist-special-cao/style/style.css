@@ -69,6 +69,11 @@
 .selectedWorkFlag {
   position: absolute;
   z-index: 1000;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   width: 60px;
   height: 60px;
   font-size: 54px;
@@ -890,6 +895,7 @@
 }
 .centerWrap .centerWrap_con .settingForm .progressBarWrap .total .text {
   margin-right: 10px;
+  line-height: 22px;
 }
 .centerWrap .centerWrap_con .settingForm .progressBarWrap .total .right1 {
   flex: 1;
@@ -1244,6 +1250,10 @@
 }
 .lang_ko button[type='button'] {
   word-break: keep-all;
+}
+.lang_ru .namingRuleList {
+  right: auto !important;
+  left: 0px !important;
 }
 .outputWrap {
   padding: 20px 30px;
@@ -1804,11 +1814,13 @@ iframe[name='expandedFooter'] {
   background-color: #3ab8f2;
   border-radius: 10px;
 }
-.cAicGw::-webkit-scrollbar {
+.cAicGw::-webkit-scrollbar,
+main section nav[style]::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
-.cAicGw::-webkit-scrollbar-thumb {
+.cAicGw::-webkit-scrollbar-thumb,
+main section nav[style]::-webkit-scrollbar-thumb {
   background-color: #0096fa;
   border-radius: 10px;
 }

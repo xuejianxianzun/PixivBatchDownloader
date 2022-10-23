@@ -1,4 +1,4 @@
-import { Config } from './config/Config'
+import { Config } from './Config'
 
 // 储存下载器使用的多语言文本
 // 在属性名前面加上下划线，和文本内容做出区别
@@ -12,6 +12,7 @@ const langText = {
     'Download only bookmarked works',
     'ブックマークのみをダウンロードする',
     '북마크된 작품만 다운로드',
+    'Загружайте только работы, сохраненные в закладках',
   ],
   _下载作品类型: [
     '下载作品类型',
@@ -19,6 +20,7 @@ const langText = {
     'Download work type',
     'ダウンロード作品の種類',
     '다운로드할 작품 유형',
+    'Типы контента для загрузки',
   ],
   _作品类型: [
     '作品<span class="key">类型</span>',
@@ -26,6 +28,7 @@ const langText = {
     '<span class="key">Type</span> of work',
     '作品の<span class="key">種類</span>',
     '작품 <span class="key">유형</span>',
+    'Тип <span class="key">работы</span>',
   ],
   _不能含有tag: [
     '<span class="key">不能</span>含有标签',
@@ -33,6 +36,7 @@ const langText = {
     '<span class="key">Exclude</span> tag',
     'タグを除外する',
     '<span class="key">제외</span> 태그',
+    '<span class="key">Исключить</span> tag',
   ],
   _排除tag的提示文字: [
     '您可在下载前设置要排除的标签，这样在下载时将不会下载含有这些标签的作品。不区分大小写；如需排除多个标签，请使用英文逗号分隔。请注意要排除的标签的优先级大于要包含的tag的优先级。',
@@ -40,6 +44,7 @@ const langText = {
     'Before downloading, you can set the tag you want to exclude. Not case sensitive; If you need to set multiple tags, you can use comma (,) separated. The excluded tag takes precedence over the included tag',
     'ダウンロード前に、除外するタグを設定できます。大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、「,」で区切ってください。除外されたタグは、必要なタグよりも優先されます',
     '다운로드하기 전에 제외해야 하는 태그를 설정할 수 있습니다. 대소문자를 구분하지 않습니다. 여러 태그를 설정해야 하는 경우 쉼표(,)로 구분합니다. 제외된 태그가 포함된 태그보다 우선합니다.',
+    'Перед загрузкой можно задать тег, который необходимо исключить. Не чувствителен к регистру; Если вам нужно задать несколько тегов, вы можете использовать разделение запятыми (,). Исключенный тег имеет приоритет над включенным тегом',
   ],
   _设置了排除tag之后的提示: [
     '排除标签：',
@@ -47,6 +52,7 @@ const langText = {
     'Excludes tag: ',
     '以下のタグを除外：',
     '제외 태그: ',
+    'Исключающий тег: ',
   ],
   _必须含有tag: [
     '<span class="key">必须</span>含有标签',
@@ -54,6 +60,7 @@ const langText = {
     '<span class="key">Include</span> tag',
     '<span class="key">必要な</span>タグ',
     '<span class="key">포함</span> 태그',
+    '<span class="key">Включать</span> tag',
   ],
   _必须tag的提示文字: [
     '您可在下载前设置作品里必须包含的标签，不区分大小写；如需包含多个标签，请使用英文逗号分隔。',
@@ -61,6 +68,7 @@ const langText = {
     'Before downloading, you can set the tag that must be included. Not case sensitive; If you need to set multiple tags, you can use comma (,) separated.',
     'ダウンロードする前に、必要なタグを設定することができます。大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、「,」で区切ってください。',
     '다운로드하기 전에 포함해야 하는 태그를 설정할 수 있습니다. 대소문자를 구분하지 않습니다. 여러 태그를 설정해야 하는 경우 쉼표(,)로 구분합니다.',
+    'Перед загрузкой можно задать тег, который должен быть включен. Не чувствителен к регистру; Если вам нужно задать несколько тегов, вы можете использовать разделение запятыми (,).',
   ],
   _设置了必须tag之后的提示: [
     '包含标签：',
@@ -68,6 +76,7 @@ const langText = {
     'Include tag: ',
     '以下の タグ を含める：',
     '포함 태그: ',
+    'Включающий тег: ',
   ],
   _图片的宽高比例: [
     '图片的宽高<span class="key">比例</span>',
@@ -75,6 +84,7 @@ const langText = {
     'Aspect <span class="key">ratio</span>',
     '画像の縦横比',
     '<span class="key">종횡비</span>',
+    'Сотношение <span class="key">сторон</span>',
   ],
   _设置宽高比例Title: [
     '设置宽高比例，也可以手动输入宽高比',
@@ -82,18 +92,27 @@ const langText = {
     'Set the aspect ratio, or manually type the aspect ratio',
     '縦横比を設定する、手動で縦横比を入力することもできる',
     '종횡비를 설정하거나, 값을 수동으로 입력할 수 있습니다.',
+    'Установите соотношение сторон или введите соотношение сторон вручную',
   ],
-  _不限制: ['不限制', '不限制', 'not limited', '無制限', '제한 없음'],
-  _横图: ['横图', '橫圖', 'Horizontal', '横長', '가로'],
-  _竖图: ['竖图', '豎圖', 'Vertical', '縦長', '세로'],
-  _正方形: ['正方形', '正方形', 'Square', '正方形', '정사각형'],
-  _宽高比: ['宽高比', '寬高比', 'Ratio', '縦横比', '종횡비 '],
+  _不限制: [
+    '不限制',
+    '不限制',
+    'not limited',
+    '無制限',
+    '제한 없음',
+    'Без лимитов',
+  ],
+  _横图: ['横图', '橫圖', 'Horizontal', '横長', '가로', 'Горизонтальный'],
+  _竖图: ['竖图', '豎圖', 'Vertical', '縦長', '세로', 'Вертикальный'],
+  _正方形: ['正方形', '正方形', 'Square', '正方形', '정사각형', 'Квадрат(1:1)'],
+  _宽高比: ['宽高比', '寬高比', 'Ratio', '縦横比', '종횡비 ', 'Соотношение'],
   _设置了宽高比之后的提示: [
     '宽高比：{}',
     '寬高比：{}',
     'Aspect ratio: {}',
     '縦横比：{}',
     '종횡비: {}',
+    'Соотношение сторон: {}',
   ],
   _宽高比必须是数字: [
     '宽高比必须是数字',
@@ -101,6 +120,7 @@ const langText = {
     'The aspect ratio must be a number',
     '縦横比は数値でなければなりません',
     '종횡비는 숫자여야 합니다',
+    'Соотношение сторон должно быть числом',
   ],
   _图片的宽高: [
     '图片的<span class="key">宽高</span>',
@@ -108,6 +128,7 @@ const langText = {
     '<span class="key">width</span> and height',
     '画像の幅と高さ',
     '<span class="key">너비</span> 그리고 높이',
+    '<span class="key">Ширина</span> и высота',
   ],
   _筛选宽高的提示文字: [
     '请输入最小宽度和最小高度，不会下载不符合要求的图片。',
@@ -115,6 +136,7 @@ const langText = {
     'Please type the minimum width and minimum height. Will not download images that do not meet the requirements',
     '最小幅と最小高さを入力してください。要件を満たしていない画像はダウンロードされません。',
     '최소 너비와 최소 높이를 입력해주세요, 요구 사항을 충족하지 않는 이미지는 다운로드하지 않습니다.',
+    'Введите минимальную ширину и минимальную высоту. Не соответствующие требованиям изображения, загружаться не будут',
   ],
   _本次输入的数值无效: [
     '本次输入的数值无效',
@@ -122,17 +144,19 @@ const langText = {
     'Invalid input',
     '無効な入力',
     '잘못된 입력',
+    'Недопустимый ввод',
   ],
-  _宽度: ['宽度', '寬度', 'Width', '幅', '너비'],
-  _或者: [' 或者 ', ' 或是 ', ' or ', ' または ', '또는'],
-  _并且: [' 并且 ', ' 並且 ', ' and ', ' そして ', '그리고'],
-  _高度: ['高度', '高度', 'height', '高さ', '높이'],
+  _宽度: ['宽度', '寬度', 'Width', '幅', '너비', 'Ширина'],
+  _或者: [' 或者 ', ' 或是 ', ' or ', ' または ', '또는', 'или'],
+  _并且: [' 并且 ', ' 並且 ', ' and ', ' そして ', '그리고', 'и'],
+  _高度: ['高度', '高度', 'height', '高さ', '높이', 'высота'],
   _抓取多少作品: [
     '抓取<span class="key">多少</span>作品',
     '擷取<span class="key">多少</span>作品',
     'How <span class="key">many</span> works to crawl',
     'クロールする作品の数',
     '긁어올 작품 <span class="key">수</span>',
+    'Какое <span class="key">колличество</span> работ сканировать',
   ],
   _抓取多少页面: [
     '抓取<span class="key">多少</span>页面',
@@ -140,6 +164,7 @@ const langText = {
     'How <span class="key">many</span> pages to crawl',
     'クロールするページ数',
     '긁어올 페이지 <span class="key">수</span>',
+    'Какое <span class="key">колличество</span> страниц сканироватьь',
   ],
   _收藏数量: [
     '<span class="key">收藏</span>数量',
@@ -147,6 +172,7 @@ const langText = {
     'Number of <span class="key">bookmarks</span>',
     'ブックマークの数',
     '<span class="key">북마크</span> 수',
+    'Колличество <span class="key">закладок</span>',
   ],
   _设置收藏数量的提示: [
     '如果作品的收藏数小于设置的数字，作品不会被下载。',
@@ -154,6 +180,7 @@ const langText = {
     'If the number of bookmarks of the work is less than the set number, the work will not be downloaded.',
     '作品のブックマークされた数が設定された数字よりも少ない場合、作品はダウンロードされません。',
     '작품의 북마크 수가 설정된 값보다 적을 경우 작품은 다운로드되지 않습니다.',
+    'Если количество закладок произведения меньше заданного, произведение не будет загружено',
   ],
   _筛选收藏数的提示文字: [
     '请输入一个数字，如果作品的收藏数小于这个数字，作品不会被下载。',
@@ -161,6 +188,7 @@ const langText = {
     'Please type a number. If the number of bookmarks of the work is less than this number, the work will not be downloaded.',
     '数字を入力してください。 作品のブックマークされた数がこの数字より少ない場合、作品はダウンロードされません。',
     '숫자를 입력해주세요. 작품의 북마크 수가 이 수보다 적을 경우 작품은 다운로드되지 않습니다.',
+    'Пожалуйста, введите число. Если количество закладок произведения меньше этого числа, произведение не будет загружено.',
   ],
   _收藏数大于: [
     '收藏数 >= ',
@@ -168,6 +196,7 @@ const langText = {
     'Number of bookmarks >= ',
     'ブックマークの数 >= ',
     '북마크 수 >= ',
+    'Количество закладок >= ',
   ],
   _收藏数小于: [
     '收藏数 <= ',
@@ -175,6 +204,7 @@ const langText = {
     'Number of bookmarks <= ',
     'ブックマークの数 <= ',
     '북마크 수 <=',
+    'Количество закладок <= ',
   ],
   _本次任务已全部完成: [
     '本次任务已全部完成。',
@@ -182,6 +212,7 @@ const langText = {
     'This task has been completed.',
     'この作業は完了しました。',
     '이 작업은 완료되었습니다.',
+    'Эта задача была выполнена.',
   ],
   _本次任务条件: [
     '本次任务条件: ',
@@ -189,6 +220,7 @@ const langText = {
     'This task condition: ',
     'この作業の条件：',
     '이 작업 조건: ',
+    'Это условие задачи: ',
   ],
   _参数不合法: [
     '参数不合法，本次操作已取消。',
@@ -196,6 +228,7 @@ const langText = {
     'Parameter is not legal, this operation has been canceled.',
     'パラメータは有効ではありません。この操作はキャンセルされました。',
     '매개변수가 잘못되었습니다, 이 작업은 취소됩니다.',
+    'Параметр не является разрешенным, операция отменена.',
   ],
   _向下获取所有作品: [
     '向下获取所有作品',
@@ -203,6 +236,7 @@ const langText = {
     'download all the work from this page.',
     'このページからすべての作品をダウンロードする。',
     '모든 작품 다운로드',
+    'загрузить все работы с этой страницы',
   ],
   _从本页开始下载提示: [
     '从当前页面开始下载。<br>如果要限制下载的页数，请输入从 1 开始的数字。<br>1 为仅下载本页。',
@@ -210,6 +244,7 @@ const langText = {
     'Download from the current page.<br>If you want to set the number of pages to download, type a number starting at 1. <br>1 is to download only this page.',
     '現在のページからダウンロードしてください。<br>ダウンロードするページを設定する場合は、1から始まる数字を入力してください。<br>1 は現在のページのみをダウンロードする。',
     '현재 페이지에서 다운로드합니다.<br>다운로드할 페이지 수를 설정하려면 1로 시작하는 숫자를 입력해주세요.<br>1은 이 페이지만 다운로드합니다.',
+    'Загрузка с текущей страницы.<br>Если вы хотите задать количество страниц для загрузки, введите число, начиная с 1. <br>1 - это загрузка только этой страницы.',
   ],
   _下载所有页面: [
     '下载所有页面',
@@ -217,6 +252,7 @@ const langText = {
     'download all pages',
     'すべてのページをダウンロードする',
     '모든 페이지 다운로드',
+    'загрузить все страницы',
   ],
   _下载x个相关作品: [
     '下载 {} 个相关作品',
@@ -224,6 +260,7 @@ const langText = {
     'download {} related works.',
     '関連作品 {} 枚をダウンロードする。',
     '관련 작품 {}개를 다운로드',
+    'скачать {} связанные работы',
   ],
   _下载所有相关作品: [
     '下载所有相关作品',
@@ -231,6 +268,7 @@ const langText = {
     'download all related works.',
     '関連作品をすべてダウンロードする。',
     '모든 관련 작품 다운로드',
+    'скачать все соответствующие работы.',
   ],
   _下载推荐作品: [
     '下载推荐作品',
@@ -238,6 +276,7 @@ const langText = {
     'download recommend works',
     'お勧め作品をダウンロードする',
     '추천 작품 다운로드',
+    'скачать рекомендуемые работы',
   ],
   _下载排行榜前x个作品: [
     '下载排行榜前 {} 个作品',
@@ -245,6 +284,7 @@ const langText = {
     'download the top {} works in the ranking list',
     'ランク前 {} 位の作品をダウンロードする。',
     '랭킹 목록 상위 {}개의 작품 다운로드',
+    'загрузить лучшие {} работы в рейтинговом списке',
   ],
   _输入超过了最大值: [
     '您输入的数字超过了最大值',
@@ -252,6 +292,7 @@ const langText = {
     'The number you set exceeds the maximum',
     '入力した番号が最大値を超えています',
     '설정하신 수가 최대값을 초과합니다',
+    'Заданное вами число превышает максимальное',
   ],
   _从本页开始下载x页: [
     '从本页开始下载 {} 页',
@@ -259,6 +300,7 @@ const langText = {
     'download {} pages from this page',
     'このページから {} ページをダウンロードする',
     '이 페이지부터 {} 페이지 다운로드',
+    'Начать загрузку с страниц этой {} страницы',
   ],
   _从本页开始下载x个: [
     '从本页开始下载 {} 个作品',
@@ -266,13 +308,15 @@ const langText = {
     'Download {} works from this page.',
     'このページから {} 枚の作品をダウンロード。',
     '이 페이지부터 {}개의 작품 다운로드',
+    'Загрузить {} работы с этой страницы.',
   ],
-  _任务开始0: [
+  _任务开始: [
     '任务开始',
     '工作開始',
     'Task starts',
     '作業が開始されます',
     '작업 시작',
+    'Задание начинается',
   ],
   _排除作品类型: [
     '排除作品类型：',
@@ -280,6 +324,7 @@ const langText = {
     'Excludes these types of works: ',
     'これらのタイプの作品を除外：',
     '제외된 작품 유형: ',
+    'Исключает эти виды работ: ',
   ],
   _多图作品: [
     '多图作品',
@@ -287,6 +332,7 @@ const langText = {
     'Multi-image works',
     '複数画像作品',
     '여러 이미지 작품',
+    'Работа с несколькими изображениями',
   ],
   _多图下载设置: [
     '多图下载设置',
@@ -294,18 +340,34 @@ const langText = {
     'Download multi-image works',
     '複数画像設定',
     '여러 이미지 작품 다운로드',
+    'Загрузить работы с несколькими изображениями',
   ],
-  _不下载: ['不下载', '不下載', 'No', '必要なし', '아니요'],
-  _全部下载: ['全部下载', '全部下載', 'Yes', '全部ダウンロード', '네'],
-  _插画: ['插画', '插畫', 'Illustrations', 'イラスト', '일러스트'],
-  _漫画: ['漫画', '漫畫', 'Manga', '漫画', '만화'],
-  _动图: ['动图', '動圖', 'Ugoira', 'うごイラ', '움직이는 일러스트'],
+  _不下载: ['不下载', '不下載', 'No', '必要なし', '아니요', 'Нет'],
+  _全部下载: ['全部下载', '全部下載', 'Yes', '全部ダウンロード', '네', 'Да'],
+  _插画: [
+    '插画',
+    '插畫',
+    'Illustrations',
+    'イラスト',
+    '일러스트',
+    'Иллюстрации',
+  ],
+  _漫画: ['漫画', '漫畫', 'Manga', '漫画', '만화', 'Манга'],
+  _动图: [
+    '动图',
+    '動圖',
+    'Ugoira',
+    'うごイラ',
+    '움직이는 일러스트',
+    'Ugoira(гиф)',
+  ],
   _动图保存格式: [
     '<span class="key">动图</span>保存格式',
     '<span class="key">動圖</span>儲存格式',
     'Save the <span class="key">ugoira</span> work as',
     'うごイラの保存タイプ',
     '<span class="key">움직이는 일러스트</span> 작품 저장 형식',
+    'Сохранить <span class="key">Ugoira</span> как',
   ],
   _动图保存格式title: [
     '下载动图时，可以把它转换成视频文件',
@@ -313,6 +375,7 @@ const langText = {
     'When you download a ugoira work, you can convert it to a video file.',
     'うごイラをダウンロードするとき、動画に変換することができます。',
     '움직이는 일러스트 작품을 다운로드 하면, 동영상 파일로 변환할 수 있습니다.',
+    'Когда вы скачиваете произведение ugoira, вы можете конвертировать его в видеофайл.',
   ],
   _webmVideo: [
     'WebM 视频',
@@ -320,14 +383,23 @@ const langText = {
     'WebM video',
     'WebM ビデオ',
     'WebM 동영상',
+    'WebM видео',
   ],
-  _gif: ['GIF 图片', '圖片（GIF）', 'GIF image', 'GIF 画像', 'GIF 이미지'],
+  _gif: [
+    'GIF 图片',
+    '圖片（GIF）',
+    'GIF image',
+    'GIF 画像',
+    'GIF 이미지',
+    'GIF изображение',
+  ],
   _apng: [
     'APNG 图片',
     '圖片（APNG）',
     'APNG image',
     'APNG 画像',
     'APNG 이미지',
+    'APNG изображение',
   ],
   _zipFile: [
     'Zip 文件',
@@ -335,6 +407,7 @@ const langText = {
     'Zip file',
     'ZIP ファイル',
     'Zip 파일',
+    'Zip файл',
   ],
   _当前作品个数: [
     '当前有 {} 个作品',
@@ -342,6 +415,7 @@ const langText = {
     'There are now {} works',
     '今は　{}　枚の作品があります',
     '현재 {}개의 작품이 있습니다',
+    'В настоящее время существует {} работ',
   ],
   _当前有x个用户: [
     '当前有 {} 个用户',
@@ -349,6 +423,7 @@ const langText = {
     'There are currently {} users',
     '現在 {} 人のユーザーがいます',
     '현재 {}명의 유저가 있습니다',
+    'В настоящее время существует {} пользователей',
   ],
   _已抓取x个用户: [
     '已抓取 {} 个用户',
@@ -356,6 +431,7 @@ const langText = {
     'crawled {} users',
     'クロールされた {} ユーザー',
     '{}명의 유저를 긁어왔습니다',
+    'Сканированные {} пользователи',
   ],
   _排行榜进度: [
     '已抓取本页面第{}部分',
@@ -363,6 +439,7 @@ const langText = {
     'Part {} of this page has been crawled',
     'このページの第　{}　部がクロールされました',
     '이 페이지의 {} 부분을 긁어왔습니다',
+    'Часть {} этой страницы была просмотрена',
   ],
   _新作品进度: [
     '已抓取本页面 {} 个作品',
@@ -370,6 +447,7 @@ const langText = {
     'This page has been crawled {} works',
     'このページの {} つの作品をクロールしました',
     '이 페이지의 {}개의 작품을 긁어왔습니다',
+    'На этой странице было просканированно {} работ',
   ],
   _抓取多少个作品: [
     '抓取本页面 {} 个作品',
@@ -377,6 +455,7 @@ const langText = {
     'Crawl this page {} works',
     'このページの {} つの作品をクロールします',
     '이 페이지의 {}개의 작품 긁어오기',
+    'Сканировать на этой странице {} работ',
   ],
   _相关作品抓取完毕: [
     '相关作品抓取完毕。包含有{}个作品，开始获取作品信息。',
@@ -384,6 +463,7 @@ const langText = {
     'The related works have been crawled. Contains {} works and starts getting information about the work.',
     '関連作品はクロールされました。 {} 作品を含み、その作品に関する情報の取得を開始します。',
     '관련 작품 긁어오기 완료, {}개의 작품이 포함되어 있으며, 작품 정보 가져오기를 시작합니다',
+    'Связанные работы были просканированы. Содержит {} работ и начинает получать информацию о работе(ах).',
   ],
   _排行榜任务完成: [
     '本页面抓取完毕。<br>当前有{}个作品，开始获取作品信息。',
@@ -391,6 +471,7 @@ const langText = {
     'This page is crawled and now has {} works.<br> Start getting the works for more information.',
     'このページのクロール終了。<br>{}枚の作品があります。 作品情報の取得を開始します。',
     '이 페이지 긁어오기 완료되었습니다<br>현재 {}개의 작품이 있으며, 작품 정보 가져오기를 시작합니다',
+    'Эта страница просмотрена и имеет {} работ.<br> Начинаю получать работы для получения дополнительной информации.',
   ],
   _开始获取作品信息: [
     '开始获取作品信息',
@@ -398,6 +479,7 @@ const langText = {
     'Start getting work data',
     '作品情報の取得を開始します',
     '작품 정보 가져오기 시작',
+    'Начинаю получать данные о работе',
   ],
   _列表页抓取进度: [
     '已抓取列表页 {} 个页面',
@@ -405,6 +487,7 @@ const langText = {
     'Has acquired {} list pages',
     '{} のリストページを取得しました',
     '{}개의 목록 페이지를 획득하였습니다',
+    'Получено {} страниц списка',
   ],
   _列表页抓取进度2: [
     '正在抓取列表页 {}/{}',
@@ -412,6 +495,7 @@ const langText = {
     'crawling list page {}/{}',
     'リストページの取得 {}/{}',
     '목록 페이지 긁어오는 중 {}/{}',
+    'Вытаскивание списка страниц {}/{}',
   ],
   _列表页抓取完成: [
     '列表页面抓取完成',
@@ -419,6 +503,7 @@ const langText = {
     'The list page is crawled',
     'リストページがクロールされ',
     '목록 페이지 긁어오기 완료',
+    'Список страниц просканирован',
   ],
   _抓取结果为零: [
     '抓取完毕，但没有找到符合筛选条件的作品。',
@@ -426,6 +511,7 @@ const langText = {
     'Crawl complete but did not find works that match the filter criteria.',
     'クロールは終了しましたが、フィルタ条件に一致する作品が見つかりませんでした。',
     '긁어오기가 완료되었지만 필터 조건과 일치하는 작품을 찾지 못했습니다.',
+    'Вытаскивание завершено, но не найдены работы, соответствующие критериям фильтра.',
   ],
   _当前任务尚未完成: [
     '当前任务尚未完成',
@@ -433,6 +519,7 @@ const langText = {
     'The current task has not yet been completed',
     '現在の作業はまだ完了していません',
     '현재 작업이 아직 완료되지 않았습니다',
+    'Текущее задание еще не выполнено',
   ],
   _当前任务尚未完成2: [
     '当前任务尚未完成，请等待完成后再下载。',
@@ -440,6 +527,7 @@ const langText = {
     'The current task has not yet been completed',
     '現在の作業はまだ完了していません、完了するまでお待ちください',
     '현재 작업이 아직 완료되지 않았습니다, 완료될 때까지 기다려주세요.',
+    'Текущее задание еще не выполнено',
   ],
   _列表抓取完成开始获取作品页: [
     '当前列表中有{}张作品，开始获取作品信息',
@@ -447,6 +535,7 @@ const langText = {
     'Now has {} works. Start getting the works for more information.',
     '{} 枚の作品があります。 作品情報の取得を開始します。',
     '현재 {}개의 작품이 있습니다, 작품 정보 가져오기를 시작합니다',
+    'Сейчас в работе {} работ. Начните получать работы для получения дополнительной информации.',
   ],
   _开始获取作品页面: [
     '开始获取作品页面',
@@ -454,6 +543,7 @@ const langText = {
     'Start getting the works page',
     '作品ページの取得を開始する',
     '작품 페이지 가져오기 시작',
+    'Начинаю получать страницу с работами',
   ],
   _无权访问: [
     '无权访问 {}，跳过该作品。',
@@ -461,6 +551,7 @@ const langText = {
     'No access {}, skip.',
     '{} のアクセス権限がありません、作品を無視する。',
     '{}에 접근 권한이 없습니다, 이 작업을 건너뜁니다.',
+    'Нет доступа {}, пропуск.',
   ],
   _作品页状态码0: [
     '请求的 URL 不可访问 (0)',
@@ -468,6 +559,7 @@ const langText = {
     'The requested URL is not accessible (0)',
     '要求された URL にアクセスできません (0)',
     '요청한 URL에 접근할 수 없습니다 (0)',
+    'Запрашиваемый URL недоступен (0)',
   ],
   _作品页状态码400: [
     '该作品已被删除 (400)',
@@ -475,6 +567,7 @@ const langText = {
     'The work has been deleted (400)',
     '作品は削除されました (400)',
     '이 작품은 삭제되었습니다 (400)',
+    'Работа была удалена (400)',
   ],
   _作品页状态码401: [
     '请您登录 Pixiv 账号然后重试。(401)',
@@ -482,6 +575,7 @@ const langText = {
     'Please log in to your Pixiv account and try again. (401)',
     'Pixiv アカウントにログインして、もう一度お試しください。(401)',
     'Pixiv 계정에 로그인 후 다시 시도해주세요. (401)',
+    'Пожалуйста, войдите в свою учетную запись Pixiv и попробуйте еще раз. (401)',
   ],
   _作品页状态码403: [
     '无权访问请求的 URL (403)',
@@ -489,8 +583,10 @@ const langText = {
     'Have no access to the requested URL (403)',
     'リクエストされた URL にアクセスできない (403)',
     '요청한 URL에 접근 권한이 없습니다 (403)',
+    'Нет доступа к запрашиваемому URL (403)',
   ],
   _作品页状态码404: [
+    '404 not found',
     '404 not found',
     '404 not found',
     '404 not found',
@@ -503,6 +599,15 @@ const langText = {
     'Error code: 429 (Too many requests). The downloader will re-crawl it.',
     'エラー コード: 429 (要求が多すぎます)。ダウンローダーはそれを再クロールします。',
     '오류 코드: 429(요청이 너무 많음). 다운로더가 다시 크롤링합니다.',
+    'Код ошибки: 429 (Слишком много запросов). Загрузчик будет повторять вытаскивание.',
+  ],
+  _错误代码: [
+    '错误代码：',
+    '錯誤程式碼：',
+    'Error code: ',
+    'エラー コード: ',
+    '오류 코드: ',
+    'Код ошибки: ',
   ],
   _作品页状态码500: [
     'Pixiv 拒绝返回数据 (500)。下载器会重新抓取它。',
@@ -510,6 +615,7 @@ const langText = {
     'Pixiv refuses to return data (500). The downloader will re-crawl it.',
     'ピクシブはデータの返却を拒否します (500)。ダウンローダーはそれを再クロールします。',
     'pixiv는 데이터 반환을 거부합니다 (500). 다운로더가 다시 크롤링합니다.',
+    'Pixiv отказывается возвращать данные (500). Загрузчик будет повторять вытаскивание.',
   ],
   _正在抓取: [
     '正在抓取，请等待……',
@@ -517,6 +623,7 @@ const langText = {
     'Getting, please wait...',
     'クロール中、しばらくお待ちください...',
     '얻어오는 중, 잠시만 기다려주세요...',
+    'Получение, пожалуйста, подождите...',
   ],
   _获取全部书签作品: [
     '获取全部书签作品，时间可能比较长，请耐心等待。',
@@ -524,6 +631,7 @@ const langText = {
     'Get all bookmarked works, the time may be longer, please wait.',
     'ブックマークしたすべての作品を取得すると、時間がかかることがあります。お待ちください。',
     '북마크된 작품을 모두 가져오는 것은 시간이 오래 걸릴 수 있으니 기다려주세요.',
+    'Получить все работы из закладок, это может занять время, пожалуйста, подождите',
   ],
   _抓取图片网址遇到中断: [
     '当前任务已中断!',
@@ -531,22 +639,25 @@ const langText = {
     'The current task has been interrupted.',
     '現在の作業が中断されました。',
     '현재 작업이 중단되었습니다!',
+    'Текущая задача была прервана.',
   ],
-  _关闭: ['关闭', '關閉', 'close', 'クローズ', '닫기'],
+  _关闭: ['关闭', '關閉', 'close', 'クローズ', '닫기', 'закрыть'],
   _输出信息: [
     '输出信息',
     '輸出資訊',
     'Output information',
     '出力情報',
     '출력 정보',
+    'Выходная информация',
   ],
-  _复制: ['复制', '複製', 'Copy', 'コピー', '복사'],
+  _复制: ['复制', '複製', 'Copy', 'コピー', '복사', 'Копировать'],
   _已复制到剪贴板: [
     '已复制到剪贴板，可直接粘贴',
     '已複製至剪貼簿，可直接貼上',
     'Has been copied to the clipboard',
     'クリップボードにコピーされました',
     '클립보드에 복사되었습니다.',
+    'Скопировано в буфер обмена',
   ],
   _下载设置: [
     '下载设置',
@@ -554,6 +665,7 @@ const langText = {
     'Download settings',
     'ダウンロード設定',
     '다운로드 설정',
+    'Настройки загрузки',
   ],
   _收起展开设置项: [
     '收起/展开设置项',
@@ -561,6 +673,7 @@ const langText = {
     'Collapse/expand settings',
     '設定の折りたたみ/展開',
     '설정 축소/확장',
+    'Свернуть/развернуть настройки',
   ],
   _github: [
     'Github 页面，欢迎 star',
@@ -568,14 +681,16 @@ const langText = {
     'Github page, if you like, please star it',
     'Github のページ、star をクリックしてください',
     'Github, 유용하셨다면 Star를 주세요.',
+    'Страница на Github, если вам нравится, пожалуйста, поставьте звезду',
   ],
-  _wiki: ['使用手册', 'Wiki', 'Wiki', 'マニュアル', '위키'],
+  _wiki: ['使用手册', 'Wiki', 'Wiki', 'マニュアル', '위키', 'Вики'],
   _快捷键切换显示隐藏: [
     '使用 Alt + X，可以显示和隐藏下载面板',
     'Alt + X 可以顯示或隱藏下載面板。',
     'Use Alt + X to show and hide the download panel',
     'Alt + X てダウンロードパネルを表示および非表示にする',
     'Alt + X를 사용하여 다운로드 패널 보이기 및 숨기기',
+    'Используйте Alt + X, чтобы показывать и скрывать панель загрузки',
   ],
   _隐藏下载面板: [
     '隐藏下载面板（Alt + X）',
@@ -583,6 +698,7 @@ const langText = {
     'Hide the download panel (Alt + X)',
     'ダウンロードパネルを非表示にする（Alt + X）',
     '다운로드 패널 숨기기 (Alt + X)',
+    'Скрыть панель загрузки (Alt + X)',
   ],
   _共抓取到n个文件: [
     '共抓取到 {} 个文件',
@@ -590,6 +706,7 @@ const langText = {
     'Crawl a total of {} files',
     '合計 {} つのファイルがあります',
     '총 {}개의 파일을 긁어왔습니다',
+    'Всего просканированно {} файлов',
   ],
   _共抓取到n个作品: [
     '共抓取到 {} 个作品',
@@ -597,6 +714,7 @@ const langText = {
     'Crawl a total of {} works',
     '合計 {} つの作品があります',
     '총 {}개의 작품을 긁어왔습니다',
+    'Всего просканированно {} работ',
   ],
   _命名规则: [
     ' <span class="key">命名</span>规则',
@@ -604,6 +722,7 @@ const langText = {
     '<span class="key">Naming</span> rule',
     '<span class="key">命名</span>規則',
     '<span class="key">명명</span> 규칙',
+    '<span class="key">Правила</span> названий',
   ],
   _设置文件夹名的提示: [
     `可以使用 '<span class="key">/</span>' 建立文件夹。示例：`,
@@ -611,6 +730,7 @@ const langText = {
     `You can create a directory with '<span class="key">/</span>'. Example：`,
     `フォルダーは '<span class="key">/</span>' で作成できます。例：`,
     `'<span class="key">/</span>'을 사용하여 디렉토리를 생성할 수 있습니다.<br>예:`,
+    `Вы можете создать каталог с помощью '<span class="key">/</span>'. Пример:`,
   ],
   _添加命名标记前缀: [
     '添加命名标记<span class="key">前缀</span>',
@@ -618,6 +738,7 @@ const langText = {
     'Add named tag <span class="key">prefix</span>',
     '前にタグの名前を追加',
     '명명된 태그 추가 <span class="key">접두사</span>',
+    'Добавить именованный тег <span class="key">префикс</span>',
   ],
   _添加字段名称提示: [
     `例如，在用户名前面添加“user_”标记`,
@@ -625,6 +746,7 @@ const langText = {
     `For example, add the 'user_' tag in front of the username`,
     'たとえば、ユーザー名の前に 「user_」タグを追加します。',
     `예: 유저명 앞에 'user_' 태그 추가`,
+    `Например, добавьте тег 'user_' перед именем пользователя`,
   ],
   _命名标记id: [
     '默认文件名，如 44920385_p0',
@@ -632,6 +754,7 @@ const langText = {
     'Default file name, for example 44920385_p0',
     'デフォルトのファイル名，例 44920385_p0',
     '기본 파일명. 예: 44920385_p0',
+    'Имя файла по умолчанию, например 44920385_p0',
   ],
   _命名标记title: [
     '作品标题',
@@ -639,6 +762,7 @@ const langText = {
     'Works title',
     '作品のタイトル',
     '작품 제목',
+    'Название работ',
   ],
   _命名标记tags: [
     '作品的标签列表',
@@ -646,6 +770,7 @@ const langText = {
     'The tags of the work',
     '作品のタグ',
     '작품 태그',
+    'Теги работ',
   ],
   _命名标记user: [
     '用户名字',
@@ -653,14 +778,23 @@ const langText = {
     'User name',
     'ユーザー名',
     '유저명',
+    'Никнейм юзера',
   ],
-  _用户id: ['用户 ID', '使用者 ID', 'User ID', 'ユーザー ID', '유저 ID'],
+  _用户id: [
+    '用户 ID',
+    '使用者 ID',
+    'User ID',
+    'ユーザー ID',
+    '유저 ID',
+    'ID Юзера',
+  ],
   _命名标记px: [
     '宽度和高度',
     '寬度和高度',
     'Width and height',
     '幅と高さ',
     '너비와 높이',
+    'Ширина и высота',
   ],
   _命名标记bmk: [
     'Bookmark count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
@@ -668,6 +802,7 @@ const langText = {
     'Bookmark count, bookmarks number of works.',
     'Bookmark count，作品のボックマークの数、前に追加することでボックマーク数で并べることができます。',
     '북마크 수. 맨 앞에 두면 북마크 수별로 문서를 정렬할 수 있습니다.',
+    'Количество закладок, количество произведений в закладках',
   ],
   _命名标记bmk_id: [
     'Bookmark Id。你收藏的每一个作品都会有一个 Bookmark Id。收藏的时间越晚，Bookmark Id 就越大。当你下载你的收藏时，可以使用 {bmk_id} 作为排序依据。',
@@ -675,6 +810,7 @@ const langText = {
     'Bookmark Id. Every work in your bookmarks will have a Bookmark Id. The later the bookmark is added, the larger the Bookmark Id. When you download your bookmarks, you can use {bmk_id} as a sorting basis.',
     'ブックマークID。 ブックマーク内のすべての作品にはブックマークIDがあります。 ブックマークを後で追加すると、ブックマークIDが大きくなります。 ブックマークをダウンロードするときは、{bmk_id}を並べ替えの基準として使用できます。',
     '북마크 ID. 당신이 북마크하고 있는 작품마다 북마크 ID가 있습니다. 북마크 시간이 늦어질수록 북마크 ID는 커집니다. 북마크를 다운로드할때 {bmk_id}를 기준으로 정렬할 수 있습니다.',
+    'Bookmark Id. Каждая работа в ваших закладках будет иметь идентификатор закладки. Чем позже добавлена закладка, тем больше Id закладки. Когда вы загружаете закладки, вы можете использовать {bmk_id} в качестве основы для сортировки.',
   ],
   _命名标记bmk_1000: [
     '作品收藏数的简化显示。例如：0+、1000+、2000+、3000+ ……',
@@ -682,6 +818,7 @@ const langText = {
     'Simplified number of bookmark, e.g. 0+、1000+、2000+、3000+ ……',
     '作品のボックマークの数の簡略表示。 例：0+、1000+、2000+、3000+ ……',
     '단순화된 북마크 수. 예: 0+, 1000+, 2000+, 3000+ ……',
+    'Упрощенное количество закладок, напр. 0+、1000+、2000+、3000+ ......',
   ],
   _命名标记like: [
     'Like count，作品的点赞数。',
@@ -689,6 +826,7 @@ const langText = {
     'Like count.',
     'Like count。',
     '좋아요 수',
+    'Колличество лайков',
   ],
   _命名标记view: [
     'View count，作品的浏览量。',
@@ -696,6 +834,7 @@ const langText = {
     'View count.',
     'View count。',
     '조회수',
+    'Колличество просмотров',
   ],
   _命名标记id_num: [
     '数字 id，如 44920385',
@@ -703,6 +842,7 @@ const langText = {
     'Number id, for example 44920385',
     '44920385 などの番号 ID',
     '숫자 ID. 예: 44920385',
+    'Идентификатор номера, например 44920385',
   ],
   _命名标记p_num: [
     '图片在作品内的序号，如 0、1、2 …… 每个作品都会重新计数。',
@@ -710,6 +850,7 @@ const langText = {
     'The serial number of the image in the work, such as 0, 1, 2 ... Each work will be recounted.',
     '0、1、2 など、作品の画像のシリアル番号。各ピースは再集計されます。',
     '작품 안에 있는 번호. 예: 0, 1, 2 …… 작품마다 다시 세어봅니다.',
+    'Порядковый номер изображения в работе, например, 0, 1, 2 .... Каждое произведение будет пересказано',
   ],
   _命名标记tags_trans: [
     '作品的标签列表，附带翻译后的标签（如果有）',
@@ -717,6 +858,7 @@ const langText = {
     'The tags of the work, with the translated tag (if any)',
     '作品のタグリスト、翻訳付きタグ(あれば)',
     '작품 태그, 번역된 태그 (있다면)',
+    'Теги произведения, с тегом перевода (если есть)',
   ],
   _命名标记tags_transl_only: [
     '翻译后的标签列表',
@@ -724,6 +866,7 @@ const langText = {
     'Translated tags',
     '翻訳后のタグリスト',
     '번역된 태그',
+    'Теги перевода',
   ],
   _命名标记date: [
     '作品的创建时间。如 2019-08-29。',
@@ -731,6 +874,7 @@ const langText = {
     'The time the creation of the work. Such as 2019-08-29',
     '作品の作成時間。例 2019-08-29',
     '작품 생성 날짜. 예: 2019-08-29',
+    'Время создания произведения. Например, 2019-08-29',
   ],
   _命名标记upload_date: [
     '作品内容最后一次被修改的时间。如 2019-08-30。',
@@ -738,6 +882,7 @@ const langText = {
     'The time when the content of the work was last modified. Such as 2019-08-30.',
     '作品の内容が最後に変更された時刻。例 2019-08-30',
     '저작물의 내용이 마지막으로 수정된 시간입니다. 예: 2019-08-30',
+    'Время, когда содержание работы было изменено в последний раз. Например, 2019-08-30.',
   ],
   _命名标记rank: [
     '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜页面中使用。',
@@ -745,6 +890,7 @@ const langText = {
     'The ranking of the work in the ranking pages. Such as #1, #2 ... Can only be used in ranking pages.',
     '作品のランキング。例え　#1、#2 …… ランキングページのみで使用できます。',
     '작품의 랭킹. 예: #1, #2 …… 랭킹 페이지에서만 사용할 수 있습니다.',
+    'Рейтинг работы на страницах рейтинга. Например, №1, №2 ... Может использоваться только на страницах ранжирования.',
   ],
   _命名标记type: [
     '作品类型，分为：Illustration, Manga, Ugoira, Novel',
@@ -752,6 +898,7 @@ const langText = {
     'The type of work, divided into：Illustration, Manga, Ugoira, Novel',
     '作品分類は：Illustration, Manga, Ugoira, Novel',
     '작품 유형: 일러스트, 만화, 움직이는 일러스트, 소설',
+    'Тип работы, разделенный на：Иллюстрация, Манга, Угоира, Роман',
   ],
   _命名标记提醒: [
     '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{user_id}<br>* 在某些情况下，会有一些标记不可用。',
@@ -759,6 +906,7 @@ const langText = {
     'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{user_id}<br>* In some cases, some tags will not be available.',
     'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{user_id}<br>* 場合によっては、一部のタグが利用できず。',
     '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.<br>여러 태그를 사용할 수 있습니다. 서로 다른 태그 사이에 구분자를 넣는 것을 권장합니다. 예: {id}-{user}<br>* 경우에 따라서는 사용할 수 없는 태그가 있을 수 있습니다.',
+    'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.<br>Вы можете использовать несколько тегов, и вы можете добавить отдельный символ между различными тегами. Пример: {id}-{user_id}<br>* В некоторых случаях некоторые теги будут недоступны.',
   ],
   _命名规则一定要包含id: [
     '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}',
@@ -766,6 +914,7 @@ const langText = {
     'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.',
     'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。',
     '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.',
+    'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.',
   ],
   _文件夹标记PTag: [
     '当前页面的标签。当前页面没有标签时不可用。',
@@ -773,6 +922,7 @@ const langText = {
     'The tag of the current page. Not available if the current page has no tag.',
     '現在のページのタグ。現在のページのタグ がないときは使用できません。',
     '현재 페이지 태그. 태그가 없는 경우 사용할 수 없습니다.',
+    'Тег текущей страницы. Недоступно, если текущая страница не имеет тега.',
   ],
   _命名标记seriesTitle: [
     '系列标题，只在系列页面中可用（小说系列、漫画系列）。',
@@ -780,6 +930,7 @@ const langText = {
     'Series title, only available in series pages (Novel series, Manga series).',
     'シリーズタイトル，シリーズページのみ（小説連載、漫画連載）。',
     '시리즈 제목, 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
+    'Название серии, доступно только на страницах серий (серия романов, серия манги).',
   ],
   _命名标记seriesOrder: [
     '作品在系列中的序号，如 #1 #2。只在系列页面中可用（小说系列、漫画系列）。',
@@ -787,6 +938,7 @@ const langText = {
     'The number of the work in the series, such as #1 #2. only available in series pages (Novel series, Manga series).',
     'シリーズの中の作品の番号，例え #1 #2。シリーズページのみ（小説連載、漫画連載）。',
     '시리즈 내 작품 번호. 예: #1 #2. 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
+    'Номер работы в серии, например, #1 #2. доступны только на страницах серий (серия романов, серия манги).',
   ],
   _命名标记seriesId: [
     '系列 ID，只在系列页面中可用（小说系列、漫画系列）。',
@@ -794,6 +946,7 @@ const langText = {
     'Series ID, only available in series pages (Novel series, Manga series).',
     'シリーズ ID，シリーズページのみ（小説連載、漫画連載）。',
     '시리즈 ID, 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
+    'Идентификатор серии, доступен только на страницах серий (серия романов, серия манги).',
   ],
   _文件夹标记PTitle: [
     '当前页面的标题',
@@ -801,13 +954,15 @@ const langText = {
     'The title of this page',
     'ページのタイトル',
     '현재 페이지 제목',
+    'Заголовок этой страницы',
   ],
   _预览文件名: [
     '预览文件名',
     '預覽檔案名稱',
     'Preview file name',
-    'ファイル名のプレビュー',
+    'ファイル名',
     '파일명 미리보기',
+    'Имя файла предварительного просмотра',
   ],
   _下载线程: [
     '下载<span class="key">线程</span>',
@@ -815,6 +970,7 @@ const langText = {
     'Download <span class="key">thread</span>',
     '同時ダウンロード数',
     '다운로드 <span class="key">쓰레드</span>',
+    'Кол-во <span class="key">потоков</span> на загрузку',
   ],
   _下载线程的说明: [
     `你可以输入 1-${Config.downloadThreadMax} 之间的数字，设置同时下载的数量`,
@@ -822,6 +978,7 @@ const langText = {
     `You can type a number between 1-${Config.downloadThreadMax} to set the number of concurrent downloads`,
     `同時ダウンロード数を設定、1-${Config.downloadThreadMax} の数値を入力してください`,
     `1-${Config.downloadThreadMax} 사이의 숫자를 입력하여 동시 다운로드 수를 설정할 수 있습니다.`,
+    `Вы можете ввести число между 1-${Config.downloadThreadMax} , чтобы установить количество одновременных загрузок`,
   ],
   _开始下载: [
     '开始下载',
@@ -829,6 +986,7 @@ const langText = {
     'Start download',
     '開始',
     '다운로드 시작',
+    'Начать загрузку',
   ],
   _暂停下载: [
     '暂停下载',
@@ -836,22 +994,39 @@ const langText = {
     'Pause download',
     '一時停止',
     '다운로드 일시중지',
+    'Приостановить загрузку',
   ],
-  _停止下载: ['停止下载', '停止下載', 'Stop download', '停止', '다운로드 정지'],
+  _停止下载: [
+    '停止下载',
+    '停止下載',
+    'Stop download',
+    '停止',
+    '다운로드 정지',
+    'Остановить загрузку',
+  ],
   _复制url: [
     '复制 URL',
     '複製下載網址',
     'Copy URLs',
     'URL をコピー',
     'URL 복사',
+    'Копировать URL',
   ],
-  _当前状态: ['当前状态 ', '目前狀態：', 'State ', '現在の状態 ', '현재 상태'],
+  _当前状态: [
+    '当前状态 ',
+    '目前狀態：',
+    'State ',
+    '現在の状態 ',
+    '현재 상태',
+    'Текущее состояние',
+  ],
   _未开始下载: [
     '未开始下载',
     '未開始下載',
     'Not yet started downloading',
     'まだダウンロードを開始していません',
     '아직 다운로드를 시작하지 않았습니다.',
+    'Загрузка еще не началась',
   ],
   _下载进度: [
     '下载进度',
@@ -859,28 +1034,24 @@ const langText = {
     'Total progress',
     '概要',
     '다운로드 진행률',
+    'Полный прогресс',
   ],
-  _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問', '도움말'],
+  _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問', '도움말', 'help'],
   _uuid: [
     '如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>例如：Chrono 下载管理器、free Download Manager、Image Downloader、DownThemAll! 等。',
     '如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。<br>例如：Chrono 下载管理器、free Download Manager、Image Downloader、DownThemAll! 等。',
     'If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.<br>For example: Chrono Download Manager, free Download Manager, Image Downloader, DownThemAll! and more.',
     'ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br>例：Chrono Download Manager, free Download Manager, Image Downloader, DownThemAll! など。',
     '다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.예: Chrono Download Manager, free Download Manager、Image Downloader、DownThemAll! 등.',
+    'Если имя файла после загрузки ненормальное, отключите другие расширения браузера, которые имеют возможность загрузки.<br> Например: Chrono Download Manager, бесплатный менеджер загрузок, загрузчик изображений, DownThemAll! и многое другое.',
   ],
   _常见问题说明: [
-    '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br><br>QQ群：675174717<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
-    '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。',
-    'The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.',
-    'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
-    '다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.',
-  ],
-  _首次下载显示的提示: [
-    '下载的文件保存在浏览器的下载目录里。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。',
-    '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。',
-    'The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.',
-    'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。',
-    '다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.',
+    '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>如果你需要一个梯子（机场）,可以试试 <a href="https://www.ttkcloud.net/#/register?code=6m4hMaPu" title="https://www.ttkcloud.net/">www.ttkcloud.net</a>，价格便宜，百兆带宽，无倍率。先购买订阅，然后在仪盘表复制订阅链接使用。<br><br>下载器 QQ 群：499873152<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
+    '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。',
+    'The downloaded file is saved in the browsers download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.<br><br>If your browser stops responding at startup, you can clear your browser`s download history.',
+    'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。',
+    '다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.<br><br>시작 시 브라우저가 응답하지 않으면 브라우저의 다운로드 기록을 지울 수 있습니다.',
+    'Загруженный файл сохраняется в каталоге загрузки браузеров. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>Если имя файла после загрузки является ненормальным, отключите другие расширения браузера, которые имеют возможности загрузки.<br><br>Если ваш браузер перестает отвечать на запросы при запуске, вы можете очистить историю загрузок вашего браузера.',
   ],
   _正在下载中: [
     '正在下载中',
@@ -888,6 +1059,7 @@ const langText = {
     'Downloading',
     'ダウンロード中',
     '다운로드 중',
+    'Загрузка',
   ],
   _下载完毕: [
     '✓ 下载完毕',
@@ -895,6 +1067,7 @@ const langText = {
     '✓ Download complete',
     '✓ ダウンロードが完了しました',
     '✓ 다운로드 완료',
+    '✓ Загрузка завершена',
   ],
   _下载完毕2: [
     '下载完毕',
@@ -902,6 +1075,7 @@ const langText = {
     'Download complete',
     'ダウンロードが完了しました',
     '다운로드 완료',
+    'Загрузка завершена',
   ],
   _已暂停: [
     '下载已暂停',
@@ -909,6 +1083,7 @@ const langText = {
     'Download is paused',
     'ダウンロードは一時停止中です',
     '다운로드 일시중지',
+    'Загрузка приостановлена',
   ],
   _已停止: [
     '下载已停止',
@@ -916,14 +1091,23 @@ const langText = {
     'Download stopped',
     'ダウンロードが停止しました',
     '다운로드 정지',
+    'Загрузка остановлена',
   ],
-  _已下载: ['已下载', '已下載', 'downloaded', 'downloaded', '다운로드됨'],
+  _已下载: [
+    '已下载',
+    '已下載',
+    'downloaded',
+    'downloaded',
+    '다운로드됨',
+    'загруженно',
+  ],
   _抓取完毕: [
     '抓取完毕！',
     '擷取完畢！',
     'Crawl complete!',
     'クロールが終了しました！',
     '긁어오기 완료!',
+    'Вытаскивание завершено!',
   ],
   _快速下载本页: [
     '快速下载本页作品 (Alt + Q)',
@@ -931,6 +1115,15 @@ const langText = {
     'Download this work quickly (Alt + Q)',
     'この作品をすばやくダウンロードする (Alt + Q)',
     '작품 빠른 다운로드 (Alt + Q)',
+    'Быстро загрузить эту работу (Alt + Q)',
+  ],
+  _抓取此作品: [
+    '抓取此作品',
+    '抓取此作品',
+    'Crawl this work',
+    'この作品をクロールする',
+    '이 작품을 크롤링',
+    'Просканировать эту работу',
   ],
   _从本页开始抓取new: [
     '从本页开始抓取新作品',
@@ -938,6 +1131,7 @@ const langText = {
     'Crawl the new works from this page',
     'このページから新しい作品を入手する',
     '이 페이지부터 새 작품 긁어오기',
+    'Просканировать новые работы с этой страницы',
   ],
   _从本页开始抓取old: [
     '从本页开始抓取旧作品',
@@ -945,6 +1139,7 @@ const langText = {
     'Crawl the old works from this page',
     'このページから古い作品を入手する',
     '이 페이지부터 오래된 작품 긁어오기',
+    'Просканировать старые работы с этой страницы',
   ],
   _抓取推荐作品: [
     '抓取推荐作品',
@@ -952,6 +1147,7 @@ const langText = {
     'Crawl the recommend works',
     '推奨作品をダウンロードする',
     '추천 작품 긁어오기',
+    'Просканировать рекомендуемые работы',
   ],
   _抓取推荐作品Title: [
     '抓取页面底部的的推荐作品',
@@ -959,6 +1155,7 @@ const langText = {
     'Crawl the recommended works at the bottom of the page',
     'ページの下部で推奨作品をクロールします',
     '페이지 하단 추천 작품 긁어오기',
+    'Просканировать рекомендованные работы внизу страницы',
   ],
   _抓取相关作品: [
     '抓取相关作品',
@@ -966,6 +1163,7 @@ const langText = {
     'Crawl the related works',
     '関連作品をダウンロードする',
     '관련 작품 긁어오기',
+    'Просканировать похожие работы',
   ],
   _调整完毕: [
     '调整完毕，当前有{}个作品。',
@@ -973,6 +1171,7 @@ const langText = {
     'The adjustment is complete and now has {} works.',
     '調整が完了し、今、{} の作品があります。',
     '조정이 완료되어, 현재 {}개의 작품이 있습니다.',
+    'Настройка завершена и теперь имеет {} работ',
   ],
   _抓取当前作品: [
     '抓取当前作品',
@@ -980,6 +1179,7 @@ const langText = {
     'Crawl the current work',
     '現在の作品をクロールする',
     '현재 작품 긁어오기',
+    'Просканировать текущую работу',
   ],
   _抓取当前作品Title: [
     '抓取当前列表里的所有作品',
@@ -987,6 +1187,7 @@ const langText = {
     'Crawl all the works in the current list',
     '現在のリスト内のすべての作品をクロールする',
     '현재 목록에 있는 모든 작품 긁어오기',
+    'Просканировать все работы в текущем списке',
   ],
   _清除多图作品: [
     '清除多图作品',
@@ -994,6 +1195,7 @@ const langText = {
     'Remove multi-image works',
     '複数画像をクリア',
     '여러 이미지 작품 지우기',
+    'Удалить работы с несколькими изображениями',
   ],
   _清除动图作品: [
     '清除动图作品',
@@ -1001,6 +1203,7 @@ const langText = {
     'Remove ugoira work',
     'うごイラ作品を削除する',
     '움직이는 일러스트 작품 지우기',
+    'Убрать Ugoira(gif) работы',
   ],
   _手动删除作品: [
     '手动删除作品',
@@ -1008,6 +1211,7 @@ const langText = {
     'Manually delete the work',
     '作品を手動で削除する',
     '수동으로 작품 지우기',
+    'Вручную удалить работу',
   ],
   _手动删除作品Title: [
     '可以在下载前手动删除不需要的作品',
@@ -1015,6 +1219,7 @@ const langText = {
     'You can manually delete unwanted work before downloading',
     'ダウンロードする前に不要な作品を手動で削除することができます',
     '다운로드를 원하지 않는 작품을 수동으로 지울 수 있습니다.',
+    'Вы можете вручную удалить нежелательные работы перед загрузкой',
   ],
   _退出手动删除: [
     '退出手动删除',
@@ -1022,6 +1227,7 @@ const langText = {
     'Exit manually delete',
     '削除モードを終了する',
     '수동 지우기 종료',
+    'Выйти из ручного удаления',
   ],
   _抓取本页作品: [
     '抓取本页作品',
@@ -1029,6 +1235,7 @@ const langText = {
     'Crawl this page works',
     'このページをクロールする',
     '이 페이지의 작품 긁어오기',
+    'Просканировать работы с этой страницы',
   ],
   _抓取本页作品Title: [
     '抓取本页列表中的所有作品',
@@ -1036,6 +1243,7 @@ const langText = {
     'Crawl this page works',
     'このページの全ての作品をクロールする',
     '이 페이지의 모든 작품 긁어오기',
+    'Просканировать работы с этой страницы',
   ],
   _抓取本排行榜作品: [
     '抓取本排行榜作品',
@@ -1043,6 +1251,7 @@ const langText = {
     'Crawl the works in this list',
     'このリストの作品をクロールする',
     '이 목록의 작품 긁어오기',
+    'Просканировать работы из этого списка',
   ],
   _抓取本排行榜作品Title: [
     '抓取本排行榜的所有作品，包括现在尚未加载出来的。',
@@ -1050,6 +1259,7 @@ const langText = {
     'Crawl all of the works in this list, including those that are not yet loaded.',
     'まだ読み込まれていないものを含めて、このリストの作品をダウンロードする',
     '아직 불러오지 않은 작품을 포함하여, 이 목록의 모든 작품을 긁어옵니다.',
+    'Просмотреть все работы в этом списке, включая те, которые еще не загружены.',
   ],
   _抓取首次登场的作品: [
     '抓取首次登场作品',
@@ -1057,6 +1267,7 @@ const langText = {
     'Crawl the debut works',
     '初登場作品をダウンロードする',
     '데뷔작 긁어오기',
+    'Просканировать по дебютные работы',
   ],
   _抓取首次登场的作品Title: [
     '只下载首次登场的作品',
@@ -1064,6 +1275,7 @@ const langText = {
     'Download only debut works',
     '初登場作品のみダウンロードします',
     '데뷔작만 다운로드',
+    'Скачать только дебютные работы',
   ],
   _抓取该页面的图片: [
     '抓取该页面的图片',
@@ -1071,6 +1283,7 @@ const langText = {
     'Crawl the image of the page',
     'ページの画像をクロールする',
     '페이지의 이미지 긁어오기',
+    'Просканировать по изображение страницы',
   ],
   _抓取相似图片: [
     '抓取相似图片',
@@ -1078,6 +1291,7 @@ const langText = {
     'Crawl similar works',
     '類似の作品をクロールする',
     '비슷한 작품 긁어오기',
+    'Просканировать похожие работы',
   ],
   _想要获取多少个作品: [
     '您想要获取多少个作品？',
@@ -1085,6 +1299,7 @@ const langText = {
     'How many works do you want to download?',
     'いくつの作品をダウンロードしたいですか？',
     '몇 개의 작품을 다운로드하시겠습니까?',
+    'Сколько работ вы хотите загрузить?',
   ],
   _数字提示1: [
     '-1, 或者大于 0',
@@ -1092,6 +1307,7 @@ const langText = {
     '-1, or greater than 0',
     '-1、または 0 より大きい',
     '-1, 또는 0보다 크게',
+    '-1, или больше 0',
   ],
   _下载大家的新作品: [
     '下载大家的新作品',
@@ -1099,6 +1315,7 @@ const langText = {
     'Download everyone`s new work',
     'みんなの新作をダウンロードする',
     '모두의 새 작품 다운로드',
+    'Вседа загружать новые работы',
   ],
   _屏蔽设定: [
     '屏蔽設定',
@@ -1106,14 +1323,16 @@ const langText = {
     'Mute settings',
     'ミュート設定',
     '차단 설정',
+    'Настройки защиты',
   ],
-  _举报: ['举报', '回報', 'Report', '報告', '신고'],
+  _举报: ['举报', '回報', 'Report', '報告', '신고', 'Отчет'],
   _输入id进行抓取: [
     '输入 id 进行抓取',
     '輸入 id 進行擷取',
     'Type id to crawl',
     'idを入力してダウンロードする',
     '유형 ID 긁어오기',
+    'Введите ID для вытаскивания',
   ],
   _输入id进行抓取的提示文字: [
     '请输入作品 id。如果有多个 id，则以换行分割（即每行一个id）',
@@ -1121,6 +1340,7 @@ const langText = {
     'Please type the illustration id. If there is more than one id, one id per line.',
     'イラストレーターIDを入力してください。 複数の id がある場合は、1 行に 1 つの id を付けます。',
     '일러스트 작품 ID를 입력해주세요. 여러 개의 ID가 있으면 줄을 바꾸어주세요 (한 줄에 한 개의 ID)',
+    'Пожалуйста, введите идентификатор иллюстрации. Если идентификаторов несколько, то по одному идентификатору на строку.',
   ],
   _开始抓取: [
     '开始抓取',
@@ -1128,6 +1348,7 @@ const langText = {
     'Start crawl',
     'クロールを開始する',
     '긁어오기 시작',
+    'Начать вытаскивание',
   ],
   _给未分类作品添加添加tag: [
     '给未分类作品添加标签',
@@ -1135,6 +1356,7 @@ const langText = {
     'Add tag to unclassified work',
     '未分類の作品にタグを追加',
     '분류되지 않은 작품에 태그 추가',
+    'Добавить метку к неклассифицированной работе',
   ],
   _id不合法: [
     'id不合法',
@@ -1142,6 +1364,7 @@ const langText = {
     'id is illegal',
     'id が不正な',
     '올바르지 않은 ID',
+    'Это ID неверно',
   ],
   _快速收藏: [
     '快速收藏',
@@ -1149,21 +1372,24 @@ const langText = {
     'Quick bookmarks',
     'クイックブックマーク',
     '빠른 북마크',
+    'Быстрые закладки',
   ],
-  _启用: ['启用', '啟用', 'Enable', '有効にする', '활성화'],
+  _启用: ['启用', '啟用', 'Enable', '有効にする', '활성화', 'Включить'],
   _自动开始下载: [
     '<span class="key">自动</span>开始下载',
     '<span class="key">自動</span>開始下載',
     'Download starts <span class="key">automatically</span>',
     'ダウンロードは自動的に開始されます',
     '<span class="key">자동으로</span> 다운로드 시작',
+    'Загрузка начинается <span class="key">автоматически</span>',
   ],
   _自动开始下载的提示: [
     '当“开始下载”状态可用时，自动开始下载，不需要点击下载按钮。',
     '當可下載時自動開始下載，不需要點選下載按鈕。',
-    'When the &quot;Start Downloa&quot; status is available, the download starts automatically and no need to click the download button.',
+    'When the &quot;Start Download &quot; status is available, the download starts automatically and no need to click the download button.',
     '「ダウンロードを開始する」ステータスが利用可能になると、ダウンロードは自動的に開始され、ダウンロードボタンをクリックする必要はありません。',
     '"다운로드 시작" 상태가 활성화되면, 다운로드가 자동으로 시작되고 다운로드 시작 버튼을 클릭할 필요가 없게 됩니다.',
+    'При активации этого тумблера загрузка начнется автоматически, без необходимости нажимать кнопку загрузки',
   ],
   _转换任务提示: [
     '正在转换 {} 个文件',
@@ -1171,6 +1397,7 @@ const langText = {
     'Converting {} files',
     '{} ファイルの変換',
     '{}개의 파일을 변환하는 중',
+    'Преобразование {} файлов',
   ],
   _最近更新: [
     '最近更新',
@@ -1178,14 +1405,16 @@ const langText = {
     'What`s new',
     '最近更新する',
     '새로운 기능',
+    'Что нового',
   ],
-  _确定: ['确定', '確定', 'Ok', '確定', '확인'],
+  _确定: ['确定', '確定', 'Ok', '確定', '확인', 'Ок'],
   _file404: [
     '404 错误：文件 {} 不存在。',
     '404 錯誤：檔案 {} 不存在。',
     '404 error: File {} does not exist.',
     '404 エラー：ファイル {} は存在しません。',
     '404 오류: 파일 {}이 존재하지 않습니다.',
+    '404 ошибка: Файл {} не существует.',
   ],
   _文件下载失败: [
     '文件 {} 下载失败',
@@ -1193,6 +1422,7 @@ const langText = {
     'File {} download failed',
     'ファイル {} のダウンロードを失敗しました',
     '파일 {} 다운로드 실패',
+    'Загрузка файла {} не удалась',
   ],
   _是否重置设置: [
     '是否重置设置？',
@@ -1200,6 +1430,7 @@ const langText = {
     'Do you want to reset the settings?',
     '設定をリセットしますか？',
     '설정을 초기화하시겠습니까?',
+    'Вы хотите сбросить настройки?',
   ],
   _newver: [
     '有新版本可用',
@@ -1207,13 +1438,7 @@ const langText = {
     'A new version is available',
     '新しいバージョンがあります',
     '새 버전이 있습니다',
-  ],
-  _快速下载建立文件夹: [
-    '快速下载时，始终建立文件夹',
-    '快速下載時，始終建立資料夾',
-    'Always create folder when downloading quickly',
-    'クイックダウンロード時、常にフォルダを作成します',
-    '빠른 다운로드 시, 항상 디렉토리 생성',
+    'Доступна новая версия',
   ],
   _id范围: [
     '<span class="key">ID</span> 范围',
@@ -1221,6 +1446,7 @@ const langText = {
     '<span class="key">ID</span> range',
     '<span class="key">ID</span> 範囲',
     '<span class="key">ID</span> 범위',
+    '<span class="key">ID</span> диапазон',
   ],
   _设置id范围提示: [
     '您可以输入一个作品 id，抓取比它新或者比它旧的作品',
@@ -1228,15 +1454,17 @@ const langText = {
     'You can type a work id and crawl works that are newer or older than it',
     '1 つの作品 id を入力することで、それより新しいあるいは古い作品をクロールことができます',
     '작품 ID를 입력하여, 그보다 새로운 혹은 오래된 작품을 긁어올 수 있습니다.',
+    'Вы можете ввести идентификатор работы и просмотреть работы, которые новее или старше его',
   ],
-  _大于: ['大于', '大於', 'Bigger than', 'より大きい', '보다 큼'],
-  _小于: ['小于', '小於', 'Less than', 'より小さい', '보다 작음'],
+  _大于: ['大于', '大於', 'Bigger than', 'より大きい', '보다 큼', 'Больше чем'],
+  _小于: ['小于', '小於', 'Less than', 'より小さい', '보다 작음', 'Меньше чем'],
   _投稿时间: [
     '投稿<span class="key">时间</span>',
     '投稿<span class="key">時間</span>',
     'Posting <span class="key">date</span>',
     '投稿日時',
     '게시 <span class="key">날짜</span>',
+    '<span class="key">Дата</span> публикации',
   ],
   _设置投稿时间提示: [
     '您可以下载指定时间内发布的作品',
@@ -1244,14 +1472,23 @@ const langText = {
     'You can download works posted in a specified period of time',
     '指定された時間内に配信された作品をダウンロードすることができます',
     '지정된 기간 내에 게시된 작품을 다운로드할 수 있습니다.',
+    'Вы можете загружать работы, размещенные за определенный период времени',
   ],
-  _时间范围: ['时间范围', '時間範圍', 'Time range', '時間範囲', '시간 범위'],
+  _时间范围: [
+    '时间范围',
+    '時間範圍',
+    'Time range',
+    '時間範囲',
+    '시간 범위',
+    'Диапазон времени',
+  ],
   _必须大于0: [
     '必须大于 0',
     '必須大於 0',
     'must be greater than 0',
     '0 より大きくなければなりません',
     '0보다 커야합니다',
+    'должно быть больше 0',
   ],
   _开始筛选: [
     '开始筛选',
@@ -1259,6 +1496,7 @@ const langText = {
     'Start screening',
     'スクリーニング開始',
     '선별 시작',
+    'Начать скрининг',
   ],
   _开始筛选Title: [
     '按照设置来筛选当前标签里的作品。',
@@ -1266,6 +1504,7 @@ const langText = {
     'Screen the works in the current tag.',
     '現在のタグにある作品を設定によってスクリーニングする',
     '설정에 따라 현재 태그 내 작품을 선별합니다.',
+    'Отобразить работы в с текущим тегом',
   ],
   _在结果中筛选: [
     '在结果中筛选',
@@ -1273,6 +1512,7 @@ const langText = {
     'Screen in results',
     '結果の中からスクリーニング',
     '결과 중에서 선별',
+    'Экран результатов',
   ],
   _在结果中筛选说明: [
     '您可以改变设置，并在结果中再次筛选。',
@@ -1280,6 +1520,7 @@ const langText = {
     'You can change the settings and screen again in the results.',
     '設定を変えて、結果の中で再びスクリーニングすることができます。',
     '설정을 변경하고, 결과를 다시 선별할 수 있습니다',
+    'Вы можете изменить настройки и снова просмотреть результаты',
   ],
   _抓取筛选结果: [
     '抓取筛选结果',
@@ -1287,6 +1528,7 @@ const langText = {
     'Crawl the screening results',
     'スクリーニングの結果をクロールする',
     '선별 결과 긁어오기',
+    'Просканировать результаты скрининга',
   ],
   _尚未开始筛选: [
     '尚未开始筛选',
@@ -1294,6 +1536,7 @@ const langText = {
     'Screening has not started',
     'まだスクリーニングを開始していない',
     '선별이 시작되지 않았습니다',
+    'Скрининг не начался',
   ],
   _没有数据可供使用: [
     '没有数据可供使用',
@@ -1301,6 +1544,7 @@ const langText = {
     'No data is available.',
     '使用可能なデータはない',
     '사용 가능한 데이터가 없습니다',
+    'Нет данных',
   ],
   _预览搜索结果: [
     '<span class="key">预览</span>搜索页面的筛选结果',
@@ -1308,6 +1552,7 @@ const langText = {
     '<span class="key">Preview</span> filter results on search page',
     '検索ページのフィルタ結果をプレビューします',
     '<span class="key">미리보기</span> 검색 페이지 필터 결과',
+    '<span class="key">Предварительный просмотр</span> результатов фильтрации на странице поиска',
   ],
   _预览搜索结果说明: [
     '下载器可以把符合条件的作品显示在当前页面上。如果抓取结果太多导致页面崩溃，请关闭这个功能。<br>启用预览功能时，下载器不会自动开始下载。',
@@ -1315,6 +1560,7 @@ const langText = {
     'The downloader can display the qualified works on the current page. If too many crawling results cause the page to crash, turn off this feature.<br>When the preview feature is enabled, the downloader does not start downloading automatically.',
     'ローダは、該当する作品を現在のページに表示することができます。クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。<br>プレビュー機能を有効にすると、ダウンロードは自動的に開始されません。',
     '다운로더는 조건에 맞는 작품을 현재 페이지에 표시할 수 있습니다. 긁어오기 결과가 너무 많아서 페이지가 충돌하면 이 기능을 꺼주세요.<br> 미리보기를 사용하면 다운로드가 자동으로 시작되지 않습니다.',
+    'Загрузчик может отображать подходящие работы на текущей странице. Пожалуйста, отключите эту функцию, если слишком большое количество результатов просмотра приводит к сбою страницы.<br>Загрузчик не начинает автоматическую загрузку, если включена функция предварительного просмотра.',
   ],
   _目录名使用: [
     '目录名使用：',
@@ -1322,14 +1568,16 @@ const langText = {
     'Name: ',
     'ディレクトリ名の使用：',
     '이름: ',
+    'Имя: ',
   ],
-  _目录名: ['目录名', '資料夾名稱', 'Name', 'ディレクトリ名', '이름'],
+  _目录名: ['目录名', '資料夾名稱', 'Name', 'ディレクトリ名', '이름', 'Имя'],
   _启用快速收藏: [
     '启用快速收藏',
     '開啟快速收藏',
     'Enable quick bookmark',
     'クイックボックマークを有効にする',
     '빠른 북마크 활성화',
+    'Включить быструю закладку',
   ],
   _启用快速收藏说明: [
     '当你点击下载器添加的收藏按钮(☆)，把作品添加到书签时，自动添加这个作品的标签。',
@@ -1337,6 +1585,7 @@ const langText = {
     'When you click the favorite button (☆) added by the downloader to bookmark a work, the tag of the work is automatically added.',
     'ダウンローダーに追加されたボックマークボタン「☆」をクリックして、作品をブックマークに追加すると、自動的に作品のタグが追加されます。',
     '다운로더에 추가된 북마크 버튼(☆)을 클릭하여 북마크에 작품을 추가하면 자동으로 이 작품의 태그가 추가됩니다.',
+    'Когда вы нажимаете на кнопку Закладка (☆), добавленную загрузчиком, чтобы добавить произведение в закладки, автоматически добавляется тег для этого произведения',
   ],
   _新增设置项: [
     '新增设置项',
@@ -1344,18 +1593,27 @@ const langText = {
     'Added setting items',
     '新たな機能を追加されました',
     '새로운 설정 항목 추가',
+    'Добавить новый элемент настройки',
   ],
-  _新增功能: ['新增功能', '新增功能', 'New feature', '新機能', '새로운 기능'],
-  _抓取: ['抓取', '擷取', 'Crawl', 'クロール', '긁어오기'],
-  _下载: ['下载', '下載', 'Download', 'ダウンロード', '다운로드'],
-  _其他: ['其他', '其他', 'Other', 'その他', '그 외'],
-  _更多: ['更多', '更多', 'More', 'もっと', '더보기'],
+  _新增功能: [
+    '新增功能',
+    '新增功能',
+    'New feature',
+    '新機能',
+    '새로운 기능',
+    'Новая фича',
+  ],
+  _抓取: ['抓取', '擷取', 'Crawl', 'クロール', '긁어오기', 'Сканирование'],
+  _下载: ['下载', '下載', 'Download', 'ダウンロード', '다운로드', 'Скачивание'],
+  _其他: ['其他', '其他', 'Other', 'その他', '그 외', 'Другие настройки'],
+  _更多: ['更多', '更多', 'More', 'もっと', '더보기', 'Больше'],
   _第一张图不带序号: [
     '第一张图不带<span class="key">序号</span>',
     '第一張圖片不包含<span class="key">序號</span>',
     'The first image without a <span class="key">serial number</span>',
     '最初のイメージの番号を削除',
     '<span class="key">일련번호</span>가 없는 첫 번째 이미지',
+    'Первое изображение без <span class="key">серийного номера</span>',
   ],
   _第一张图不带序号说明: [
     '去掉每个作品第一张图的序号。例如 80036479_p0 变成 80036479',
@@ -1363,15 +1621,17 @@ const langText = {
     'Remove the serial number of the first image of each work. For example 80036479_p0 becomes 80036479.',
     '作品ごとの最初のイメージの番号を削除します。例えば 80036479_p0 は 80036479 になります。',
     '작품마다 첫 번째 이미지의 일련번호를 지웁니다.<br>예: 80036479_p0은 80036479가 됩니다.',
+    'Удалите серийный номер с первой фотографии каждой работы. Например, 80036479_p0 становится 80036479',
   ],
-  _最小值: ['最小值', '最小值', 'Minimum', '最小値', '최소'],
-  _最大值: ['最大值', '最大值', 'Maximum', '最大値', '최대'],
+  _最小值: ['最小值', '最小值', 'Minimum', '最小値', '최소', 'Минимум'],
+  _最大值: ['最大值', '最大值', 'Maximum', '最大値', '최대', 'Максимум'],
   _单图作品: [
     '单图作品',
     '單圖作品',
     'Single image works',
     'シングルイメージ作品',
     '단일 이미지 작품',
+    'Работа с одним изображением',
   ],
   _彩色图片: [
     '彩色图片',
@@ -1379,6 +1639,7 @@ const langText = {
     'Color images',
     'カラーイメージ',
     '컬러 이미지',
+    'Цветная картинки',
   ],
   _黑白图片: [
     '黑白图片',
@@ -1386,6 +1647,7 @@ const langText = {
     'Black and white images',
     '白黒イメージ',
     '흑백 이미지',
+    'Черно-белые изображения',
   ],
   _不保存图片因为颜色: [
     '{} 没有被保存，因为它的颜色不符合设定。',
@@ -1393,6 +1655,7 @@ const langText = {
     '{} was not saved because its colors do not match the settings.',
     '{} は色が設定に合わないため、保存されていません。',
     '{} 색상이 설정과 일치하지 않아, 저장되지 않았습니다.',
+    '{} не был(и) сохранен(ы), потому что его цвета не соответствуют настройкам.',
   ],
   _同时转换多少个动图: [
     '同时<span class="key">转换</span>多少个动图',
@@ -1400,22 +1663,25 @@ const langText = {
     'How many animations are <span class="key">converted</span> at the same time',
     '同時変換のうごイラの上限',
     '동시에 <span class="key">변환할</span> 움직이는 일러스트 수',
+    'Сколько анимаций <span class="key">преобразуется</span> одновременно',
   ],
   _同时转换多少个动图警告: [
-    '同时转换多个动图会增加资源占用。<br>转换动图时，请保持该标签页激活，否则浏览器会降低转换速度。',
-    '同時轉換多個動圖會增加資源占用。<br>轉換動圖時，請保持這個分頁啟動，否則瀏覽器會降低轉換速度。',
-    'Converting multiple animations at the same time will increase resource consumption. <br> Please keep the tab active when converting animation, otherwise the browser will reduce the conversion speed.',
-    '複数の動画を同時に変換すると、リソースの占有が増加します。<br>うごイラを変換するときは、このタブを有効にしてください。そうしないと、ブラウザは変換速度を下げます。',
-    '여러 움직이는 일러스트를 동시에 변환하면 리소스가 더 많이 사용됩니다.<br>움직이는 일러스트를 변환할 때 이 탭을 활성화하지 않으면 브라우저에서 변환 속도를 줄일 수 있습니다.',
+    '同时转换多个动图会增加资源占用。',
+    '同時轉換多個動圖會增加資源占用。',
+    'Converting multiple animations at the same time will increase resource consumption. ',
+    '複数の動画を同時に変換すると、リソースの占有が増加します。',
+    '여러 움직이는 일러스트를 동시에 변환하면 리소스가 더 많이 사용됩니다.',
+    'Одновременное преобразование нескольких анимаций увеличит потребление ресурсов. ',
   ],
-  _提示: ['提示', '提示', 'Tip', 'ヒント', '팁'],
-  _提示2: ['提示', '提示', 'Tip', '？', '팁'],
+  _提示: ['提示', '提示', 'Tip', 'ヒント', '팁', 'Совет'],
+  _提示2: ['提示', '提示', 'Tip', '？', '팁', 'Совет'],
   _fanboxDownloader: [
     'Fanbox 下载器',
     'Fanbox 下載器',
     'Fanbox Downloader',
     'Fanbox ダウンロード',
     'Fanbox 다운로더',
+    'Fanbox загрузчик',
   ],
   _不保存图片因为体积: [
     '{} 没有被保存，因为它的体积不符合设定。',
@@ -1423,6 +1689,7 @@ const langText = {
     '{} was not saved because its size do not match the settings.',
     '{} はファイルサイズが設定に合わないため、保存されていません。',
     '{} 크기가 설정에 맞지 않아, 저장되지 않았습니다.',
+    '{} не был(и) сохранен(ы), потому что его размер не соответствует настройкам.',
   ],
   _文件体积限制: [
     '文件<span class="key">体积</span>限制',
@@ -1430,6 +1697,7 @@ const langText = {
     'File <span class="key">size</span> limit',
     'ファイルサイズ制限',
     '파일 <span class="key">크기</span> 제한',
+    'Ограничение <span class="key">размера</span> файла',
   ],
   _不符合要求的文件不会被保存: [
     '不符合要求的文件不会被保存。',
@@ -1437,14 +1705,16 @@ const langText = {
     'Files that do not meet the requirements will not be saved.',
     '設定 に合わないファイルは保存されません。',
     '요구 사항을 충족하지 않는 파일은 저장되지 않습니다.',
+    'Файлы, не соответствующие требованиям, не будут сохранены',
   ],
-  _小说: ['小说', '小說', 'Novel', '小説', '소설'],
+  _小说: ['小说', '小說', 'Novel', '小説', '소설', 'Новеллы'],
   _抓取系列小说: [
     '抓取系列小说',
     '擷取系列小說',
     'Crawl series of novels',
     '小説のシリーズをクロールする',
     '시리즈 소설 긁어오기',
+    'Просканировать серию новелл',
   ],
   _合并系列小说: [
     '合并系列小说',
@@ -1452,6 +1722,7 @@ const langText = {
     'Merge series of novels',
     'シリーズ小説の統合',
     '시리즈 소설 합치기',
+    'Объединить серию новелл',
   ],
   _小说保存格式: [
     '<span class="key">小说</span>保存格式',
@@ -1459,6 +1730,7 @@ const langText = {
     'Save the <span class="key">novel</span> as',
     '<span class="key">小説</span>の保存形式',
     '<span class="key">소설</span>저장 형식',
+    'Сохранить <span class="key">новеллу</span> как',
   ],
   _在小说里保存元数据: [
     '在小说里保存<span class="key">元数据</span>',
@@ -1466,6 +1738,7 @@ const langText = {
     'Save <span class="key">metadata</span> in the novel',
     '小説の中にメタデータを保存する',
     '소설 내 <span class="key">메타데이터</span> 저장',
+    'Сохранить <span class="key">метаданные</span> новеллы',
   ],
   _在小说里保存元数据提示: [
     '把作者、网址等信息保存到小说里',
@@ -1473,6 +1746,7 @@ const langText = {
     'Save the author, URL and other information in the file',
     '作者やURLなどの情報をファイルの中に保存します。',
     '작가, URL, 그 외 정보를 소설 내에 저장합니다.',
+    'Сохранить автора, URL и другую информацию в файле',
   ],
   _收藏本页面的所有作品: [
     '收藏本页面的所有作品',
@@ -1480,6 +1754,7 @@ const langText = {
     'Bookmark all works on this page',
     'この頁の全ての作品をブックマークに追加します',
     '이 페이지의 북마크된 모든 작품 다운로드',
+    'Перенести в закладки все работы на этой странице',
   ],
   _输出内容太多已经为你保存到文件: [
     '因为输出内容太多，已经为您保存到文件。',
@@ -1487,6 +1762,7 @@ const langText = {
     'Because the output is too much, it has been saved to a file.',
     '出力内容が多いため、txt ファイルに保存しました。',
     '출력 내용이 너무 많아, 파일로 저장했습니다.',
+    'Так как выход слишком большой, он был сохранен в файл',
   ],
   _不下载重复文件: [
     '不下载<span class="key">重复</span>文件',
@@ -1494,23 +1770,33 @@ const langText = {
     'Don`t download <span class="key">duplicate</span> files',
     '重複ファイルをダウンロードしない',
     '<span class="key">중복</span>파일 다운로드하지 않기',
+    'Не загружать <span class="key">дубликаты</span> файлов',
   ],
   _不下载重复文件的提示: [
-    '下载器会保存自己的下载记录，以避免下载重复的文件。<br>当你清除 Cookie 和其他站点数据时，下载器的记录也会被清除。',
-    '下載器會儲存自己的下載紀錄，以避免下載重複的檔案。<br>當你清除 Cookie 和其他站點資料時，下載器的紀錄也會被清除。',
-    `The downloader will save its download record to avoid downloading duplicate files.<br>When you clear cookies and other site data, the downloader's records will also be cleared.`,
-    'ダウンローダーは独自のダウンロード履歴を保存して、重複ファイルのダウンロードを回避する。<br>cookie と他のサイトデータを削除すると、ダウンローダーの記録も削除されます。',
-    '다운로더가 중복되는 파일을 다운로드하지 않도록 자신의 다운로드 기록을 저장합니다.<br>쿠키와 다른 사이트 데이터를 지울 때 다운로드 기록도 삭제됩니다.',
+    '下载器会保存自己的下载记录，以避免下载重复的文件。<br>你可以清除浏览器的下载记录，这不会影响下载器的下载记录。<br>当你清除 Cookie 及其他网站数据时，下载器的记录也会被清除。',
+    '下載器會儲存自己的下載紀錄，以避免下載重複的檔案。<br>你可以清除瀏覽器的下載記錄，這不會影響下載器的下載記錄。<br>當你清除 Cookie 及其他網站資料時，下載器的記錄也會被清除。',
+    `The downloader will save its download record to avoid downloading duplicate files.<br>You can clear the browser's download history, which will not affect the downloader's download record.<br>When you clear cookies and other site data, the downloader's records will also be cleared.`,
+    'ダウンローダーは独自のダウンロード履歴を保存して、重複ファイルのダウンロードを回避する。<br>ブラウザのダウンロード履歴をクリアできますが、ダウンローダのダウンロード記録には影響しません。<br>cookie と他のサイトデータを削除すると、ダウンローダーの記録も削除されます。',
+    '다운로더가 중복되는 파일을 다운로드하지 않도록 자신의 다운로드 기록을 저장합니다.<br>브라우저의 다운로드 기록을 지울 수 있으며 이는 다운로더의 다운로드 기록에 영향을 미치지 않습니다.<br>쿠키와 다른 사이트 데이터를 지울 때 다운로드 기록도 삭제됩니다.',
+    'Загрузчик хранит собственную историю загрузок, чтобы избежать загрузки дубликатов файлов.<br> Вы можете очистить историю загрузок вашего браузера, и это не повлияет на историю загрузок загрузчика.<br> Когда вы очищаете cookies и другие данные веб-сайта, история загрузчика также будет очищена.<br>',
   ],
-  _策略: ['策略：', '策略：', 'Strategy:', 'フィルター：', '전략:'],
-  _严格: ['严格', '嚴格', 'Strict', '厳格', '엄격하게'],
-  _宽松: ['宽松', '寬鬆', 'Loose', '緩い', '느슨하게'],
+  _策略: [
+    '策略：',
+    '策略：',
+    'Strategy:',
+    'フィルター：',
+    '전략:',
+    'Стратегия',
+  ],
+  _严格: ['严格', '嚴格', 'Strict', '厳格', '엄격하게', 'Строгий'],
+  _宽松: ['宽松', '寬鬆', 'Loose', '緩い', '느슨하게', 'Свободный'],
   _严格模式说明: [
     '判断条件：作品的 id、上传日期、文件名',
     '判斷條件：作品的 id、上傳日期、檔名',
     'Judgment conditions: id, upload date, file name of the work',
     '審査条件：作品のID、アップロード日、ファイル名',
     '판정 조건: 작품 ID, 업로드 날짜, 파일명',
+    'Условия оценки: идентификатор, дата загрузки, имя файла работы',
   ],
   _宽松模式说明: [
     '判断条件：作品的 id、上传日期',
@@ -1518,6 +1804,7 @@ const langText = {
     'Judgment conditions: id, upload date of the work',
     '審査条件：作品のID、アップロード日',
     '판정 조건: 작품 ID, 업로드 날짜',
+    'Условия оценки: идентификатор, дата загрузки работы',
   ],
   _清除下载记录: [
     '清除下载记录',
@@ -1525,6 +1812,7 @@ const langText = {
     'Clear download record',
     '履歴をクリア',
     '다운로드 기록 비우기',
+    'Очистить запись загрузок',
   ],
   _下载记录已清除: [
     '下载记录已清除',
@@ -1532,6 +1820,7 @@ const langText = {
     'Download record has been cleared',
     'ダウンロード履歴がクリアされました',
     '다운로드 기록이 비워졌습니다',
+    'Запись загрузок была очищена',
   ],
   _跳过下载因为重复文件: [
     '检测到文件 {} 已经下载过，跳过此次下载',
@@ -1539,6 +1828,7 @@ const langText = {
     'Skip downloading duplicate files {}',
     '重複ファイル {} をスキップ',
     '파일 {}이(가) 이미 다운로드되어 있어, 다운로드를 건너뜁니다',
+    'Пропустить загрузку дубликатов файлов {}',
   ],
   _保存用户头像为图标: [
     '保存用户头像为图标',
@@ -1546,6 +1836,7 @@ const langText = {
     'Save user avatar as icon',
     'プロフィール画像をアイコンとして保存',
     '아이콘으로 유저 프로필 이미지 저장',
+    'Сохранить аватар пользователя как иконку',
   ],
   _保存用户头像为图标说明: [
     '把用户头像保存为 ico 文件，可以手动设置成文件夹的图标。',
@@ -1553,6 +1844,7 @@ const langText = {
     'Save user avatar as icon',
     'ユーザーのプロフィール画像を ico ファイルとして保存して、フォルダーアイコンとして設定できます。',
     '유저 프로필 이미지를 ico 파일로 저장하면, 디렉토리 아이콘으로 수동 설정할 수 있습니다.',
+    'Сохранить аватар пользователя как иконку',
   ],
   _正在保存抓取结果: [
     '正在保存抓取结果',
@@ -1560,6 +1852,7 @@ const langText = {
     'Saving crawl results',
     'クロール結果を保存しています',
     '긁어오기 결과 저장 중',
+    'Сохранение результатов вытаскивания',
   ],
   _已保存抓取结果: [
     '已保存抓取结果',
@@ -1567,6 +1860,7 @@ const langText = {
     'Crawl results saved',
     'クロール結果を保存しました',
     '긁어오기 결과가 저장되었습니다',
+    'Сохранение результатов вытаскивания',
   ],
   _正在恢复抓取结果: [
     '正在恢复抓取结果',
@@ -1574,6 +1868,7 @@ const langText = {
     'Restoring crawl results',
     'クロール結果を再開しています',
     '긁어오기 결과 복구 중',
+    'Восстановление результатов вытаскивания',
   ],
   _已恢复抓取结果: [
     '已恢复抓取结果',
@@ -1581,6 +1876,7 @@ const langText = {
     'Crawl results resumed',
     'クロール結果を再開しました',
     '긁어오기 결과가 복구되었습니다',
+    'Результаты вытаскивания восстановлены',
   ],
   _清空已保存的抓取结果: [
     '清空已保存的抓取结果',
@@ -1588,6 +1884,7 @@ const langText = {
     'Clear saved crawl results',
     'セーブしたクロール結果をクリアします',
     '저장된 긁어오기 결과 비우기',
+    'Очистить сохраненные результаты вытаскивания',
   ],
   _数据清除完毕: [
     '数据清除完毕',
@@ -1595,6 +1892,7 @@ const langText = {
     'Data cleared',
     'クリアされたデータ',
     '데이터가 비워졌습니다',
+    'Данные очищены',
   ],
   _已跳过n个文件: [
     '已跳过 {} 个文件',
@@ -1602,6 +1900,7 @@ const langText = {
     '{} files skipped',
     '{} つのファイルをスキップしました',
     '{}개의 파일을 건너뛰었습니다',
+    '{} файл(ов) пропущены',
   ],
   _不保存图片因为宽高: [
     '{} 没有被保存，因为它的宽高不符合设定。',
@@ -1609,6 +1908,7 @@ const langText = {
     '{} was not saved because its width and height do not match the settings.',
     '{} は幅と高さが設定に合わないため、保存されていません。',
     '{} 너비와 높이가 설정에 맞지 않아, 저장되지 않았습니다.',
+    '{} не был(и) сохранен, потому что его ширина и высота не соответствуют настройкам.',
   ],
   _显示下载面板: [
     '显示下载面板 (Alt + X)',
@@ -1616,15 +1916,17 @@ const langText = {
     'Show download panel (Alt + X)',
     'ダウンロードパネルを表示 (Alt + X)',
     '다운로드 패널 보이기 (Alt + X)',
+    'Показать панель загрузки (Alt + X)',
   ],
-  _保存: ['保存', '儲存', 'Save', '保存', '저장'],
-  _加载: ['加载', '載入', 'Load', 'ロード', '불러오기'],
+  _保存: ['保存', '儲存', 'Save', '保存', '저장', 'Сохранить'],
+  _加载: ['加载', '載入', 'Load', 'ロード', '불러오기', 'Загрузить'],
   _保存命名规则提示: [
     '保存命名规则，最多 20 个',
     '儲存命名規則，最多 20 個',
     'Save naming rule, up to 20',
     '命名規則を保存します。最大 20 個まで',
     '명명 규칙 저장, 최대 20개',
+    'Сохранить правило именования, до 20',
   ],
   _已保存命名规则: [
     '已保存命名规则',
@@ -1632,15 +1934,17 @@ const langText = {
     'Naming rule saved',
     '命名規則を保存しました',
     '명명 규칙이 저장되었습니다.',
+    'Правило наименования сохранено',
   ],
-  _命名: ['命名', '命名', 'Name', '命名', '이름'],
-  _无损: ['无损', '無損', 'Lossless', 'ロスレス', '무손실'],
+  _命名: ['命名', '命名', 'Name', '命名', '이름', 'Имя'],
+  _无损: ['无损', '無損', 'Lossless', 'ロスレス', '무손실', 'Без потерь'],
   _文件名长度限制: [
     '文件名<span class="key">长度</span>限制',
     '檔案名稱<span class="key">長度</span>限制',
     'File name <span class="key">length</span> limit',
     'ファイル名の長さ制限',
     '파일명 <span class="key">길이</span> 제한',
+    'Лимит <span class="key">длины</span> имени файла',
   ],
   _导出csv: [
     '导出 CSV 文件',
@@ -1648,6 +1952,7 @@ const langText = {
     'Export CSV file',
     'CSV ファイルをエクスポート',
     'CSV 파일 내보내기',
+    'Экспорт в файл CSV',
   ],
   _导出抓取结果: [
     '导出抓取结果',
@@ -1655,6 +1960,7 @@ const langText = {
     'Export results',
     'クロール結果をエクスポート',
     '결과 내보내기',
+    'Экспорт результатов',
   ],
   _导入抓取结果: [
     '导入抓取结果',
@@ -1662,6 +1968,7 @@ const langText = {
     'Import results',
     'クロール結果をインポート',
     '결과 불러오기',
+    'Импорт результатов',
   ],
   _导入成功: [
     '导入成功',
@@ -1669,6 +1976,7 @@ const langText = {
     'Import successfully',
     'インポート成功',
     '가져오기 성공',
+    'Импорт успешен',
   ],
   _导出成功: [
     '导出成功',
@@ -1676,6 +1984,7 @@ const langText = {
     'Export successfully',
     'エクスポート成功',
     '내보내기 성공',
+    'Импорт успешен',
   ],
   _图片尺寸: [
     '图片<span class="key">尺寸</span>',
@@ -1683,6 +1992,7 @@ const langText = {
     'Image <span class="key">size</span>',
     '画像<span class="key">サイズ</span>',
     '이미지 <span class="key">크기</span>',
+    '<span class="key">Размер</span> изображения',
   ],
   _图片尺寸2: [
     '图片尺寸',
@@ -1690,34 +2000,38 @@ const langText = {
     'Image size',
     '画像サイズ',
     '이미지 크기',
+    'Размер изображения',
   ],
-  _原图: ['原图', '原圖', 'Original', 'Original', '원본'],
-  _普通: ['普通', '普通', 'Regular', 'Regular', '레귤러'],
-  _小图: ['小图', '小圖', 'Small', 'Small', '스몰'],
+  _原图: ['原图', '原圖', 'Original', 'Original', '원본', 'Оригинал'],
+  _普通: ['普通', '普通', 'Regular', 'Regular', '레귤러', 'Обычный'],
+  _小图: ['小图', '小圖', 'Small', 'Small', '스몰', 'Маленький'],
   _方形缩略图: [
     '方形缩略图',
     '方形縮圖',
     'Square thumbnail',
     'Square thumbnail',
     '정사각형 썸네일',
+    'Квадратная миниатюра',
   ],
-  _导出: ['导出', '匯出', 'Export', 'エクスポート', '내보내기'],
-  _导入: ['导入', '匯入', 'Import', 'インポート', '불러오기'],
-  _清除: ['清除', '清除', 'Clear', 'クリア', '비우기'],
+  _导出: ['导出', '匯出', 'Export', 'エクスポート', '내보내기', 'Экспорт'],
+  _导入: ['导入', '匯入', 'Import', 'インポート', '불러오기', 'Импорт'],
+  _清除: ['清除', '清除', 'Clear', 'クリア', '비우기', 'Очистить'],
   _导入下载记录: [
     '导入下载记录',
     '匯入下載紀錄',
     'Import download record',
     'ダウンロード記録をインポート',
     '다운로드 기록 불러오기',
+    'Импорт записи загрузки',
   ],
-  _完成: ['完成', '完成', 'Completed', '完了', '완료됨'],
+  _完成: ['完成', '完成', 'Completed', '完了', '완료됨', 'Готово'],
   _日期格式: [
     '日期和时间<span class="key">格式</span>',
     '日期和時間<span class="key">格式</span>',
     'Date and time <span class="key">format</span>',
     '日付と時刻の書式',
     '날짜 및 시간 <span class="key">형식</span>',
+    '<span class="key">Формат</span> даты и времени',
   ],
   _日期格式提示: [
     '你可以使用以下标记来设置日期和时间格式。这会影响命名规则里的 {date} 和 {upload_date} 和 {task_date}。<br>对于时间如 2021-04-30T06:40:08',
@@ -1725,6 +2039,7 @@ const langText = {
     'You can use the following notation to set the date and time format. This will affect {date} and {upload_date} and {task_date} in the naming rules. <br>For time such as 2021-04-30T06:40:08',
     '以下のタグを使用して日時と時刻の書式を設定することができます。 これは命名規則の {date} と {upload_date} と {task_date} に影響します。 <br> 例：2021-04-30T06:40:08',
     '다음 표기법을 사용하여 날짜 및 시간 형식을 설정할 수 있습니다.<br>이것은 명명 규칙에 있는 {date}와 {upload_date}와 {task_date}에 영향을 미칩니다.<br>예: 2021-04-30T06:40:08',
+    'Для установки формата даты и времени можно использовать следующую нотацию. Это повлияет на {date} и {upload_date} и {task_date} в правилах именования. <br>Для времени, например, 2021-04-30T06:40:08',
   ],
   _命名标记taskDate: [
     '本次任务抓取完成时的时间。例如：2020-10-21',
@@ -1732,24 +2047,33 @@ const langText = {
     'The time when the task was crawl completed. For example: 2020-10-21',
     'この作業のクロールが完了した時刻です。 例：2020-10-21',
     '긁어오기 작업을 완료한 날짜입니다. 예: 2020-10-21',
+    'Время, когда задание было выполнено. Например: 2020-10-21',
   ],
-  _自动检测: ['自动检测', '自動偵測', 'Auto', '自動検出', '자동'],
-  _变更语言后刷新页面的提示: [
-    '更换语言后，请刷新页面。',
-    '變更語言後，請重新整理頁面。',
-    'Please refresh the page after changing the language.',
-    '言語を変更した後は、ページを更新してください。',
-    '언어 변경 후, 페이지를 새로고침 해주세요.',
+  _自动检测: [
+    '自动检测',
+    '自動偵測',
+    'Auto',
+    '自動検出',
+    '자동',
+    'Авто детект',
   ],
-  _公开: ['公开', '公開', 'Public', '公開', '공개'],
-  _不公开: ['不公开', '非公開', 'Private', '非公開', '비공개'],
-  _已收藏: ['已收藏', '已收藏', 'Bookmarked', 'ブックマークした', '북마크됨'],
+  _公开: ['公开', '公開', 'Public', '公開', '공개', 'Публичный'],
+  _不公开: ['不公开', '非公開', 'Private', '非公開', '비공개', 'Приватный'],
+  _已收藏: [
+    '已收藏',
+    '已收藏',
+    'Bookmarked',
+    'ブックマークした',
+    '북마크됨',
+    'В закладках',
+  ],
   _已收藏带参数: [
     '已收藏 {}',
     '已收藏 {}',
     'Bookmarked {}',
     'ブックマークした {}',
     '북마크된 {}',
+    'В закладках {}',
   ],
   _未收藏: [
     '未收藏',
@@ -1757,6 +2081,7 @@ const langText = {
     'Not bookmarked',
     'ブックマークされていない',
     '북마크되지 않음',
+    'Не в закладках',
   ],
   _下载之后收藏作品: [
     '下载之后<span class="key">收藏</span>作品',
@@ -1764,6 +2089,7 @@ const langText = {
     '<span class="key">Bookmark</span> works after downloading',
     'ダウンロードした作品をブックマークする',
     '다운로드 후 작품 <span class="key">북마크</span>',
+    '<span class="key">Закладка</span> работает после загрузки',
   ],
   _下载之后收藏作品的提示: [
     '下载文件之后，自动收藏这个作品。',
@@ -1771,6 +2097,7 @@ const langText = {
     'After you download a file, the downloader will automatically bookmark the work.',
     'ダウンロード後、作品は自動的にブックマークされます。',
     '파일을 다운로드하면, 자동으로 작품을 북마크합니다.',
+    'После загрузки файла загрузчик автоматически делает закладку',
   ],
   _收藏设置: [
     '下载器的<span class="key">收藏</span>按钮 (✩)',
@@ -1778,14 +2105,23 @@ const langText = {
     `Downloader's <span class="key">bookmark</span> button (✩)`,
     'ダウンローダーの<span class="key">ブックマーク</span>ボタン (✩)',
     '다운로더의 <span class="key">북마크</span> 버튼 (☆)',
+    `Кнопка <span class="key">закладок</span> загрузчика (✩)`,
   ],
-  _添加tag: ['添加标签', '加入標籤', 'Add tag', 'タグを追加', '태그 추가'],
+  _添加tag: [
+    '添加标签',
+    '加入標籤',
+    'Add tag',
+    'タグを追加',
+    '태그 추가',
+    'Добавить тег',
+  ],
   _不添加tag: [
     '不添加标签',
     '不加入標籤',
     "Don't add tag",
     'タグなし',
     '태그 추가하지 않기',
+    'Не добавлять тег',
   ],
   _用户阻止名单: [
     '用户<span class="key">阻止</span>名单',
@@ -1793,6 +2129,7 @@ const langText = {
     'User <span class="key">block</span> list',
     'ユーザーブロックリスト',
     '유저 <span class="key">차단</span> 목록',
+    '<span class="key">Блок</span> списка пользователей ',
   ],
   _用户阻止名单的说明: [
     '不下载这些用户的作品。需要输入用户 id。如果有多个用户 id，使用英文逗号,分割。',
@@ -1800,15 +2137,17 @@ const langText = {
     'The works of these users will not be downloaded. Need to type the user ID. If there are multiple user ID, use comma (,) separated.',
     'これらのユーザーの作品はダウンロードしません。ユーザー ID が必要です。複数のユーザ ID は "," で区切ってください。',
     '이 유저들의 작품은 다운로드되지 않습니다. 유저 ID를 입력해야 합니다.<br>여러 유저 ID가 있는 경우 쉼표(,)로 구분합니다.',
+    'Работы этих пользователей не будут загружаться. Необходимо ввести идентификатор пользователя. Если имеется несколько идентификаторов пользователя, используйте разделение запятыми (,).',
   ],
-  _全部: ['全部', '全部', 'All', '全部', '전부'],
-  _任一: ['任一', '任一', 'One', '何れか', '하나만'],
+  _全部: ['全部', '全部', 'All', '全部', '전부', 'Все'],
+  _任一: ['任一', '任一', 'One', '何れか', '하나만', 'Один'],
   _颜色主题: [
     '颜色<span class="key">主题</span>',
     '色彩<span class="key">主題</span>',
     'Color <span class="key">theme</span>',
     'カラーテーマ',
     '<class key="key">테마</span>',
+    'Цветовая <span class="key">тема</span>',
   ],
   _管理设置: [
     '管理<span class="key">设置</span>',
@@ -1816,6 +2155,7 @@ const langText = {
     'Manage <span class="key">settings</span>',
     '<span class="key">設定</span>の管理',
     '<span class="key">설정</span> 관리',
+    'Изменение <span class="key">настроек</span>',
   ],
   _导出设置: [
     '导出设置',
@@ -1823,6 +2163,7 @@ const langText = {
     'Export settings',
     'エクスポート設定',
     '내보내기',
+    'Настройки экспорта',
   ],
   _导入设置: [
     '导入设置',
@@ -1830,6 +2171,7 @@ const langText = {
     'Import settings',
     'インポート設定',
     '불러오기',
+    'Настройки импорта',
   ],
   _重置设置: [
     '重置设置',
@@ -1837,6 +2179,7 @@ const langText = {
     'Reset settings',
     'リセット設定',
     '설정 초기화',
+    'Сброс настроек',
   ],
   _日均收藏数量: [
     '日均收藏数量',
@@ -1844,6 +2187,7 @@ const langText = {
     'Average number of daily bookmarks',
     '1 日の平均ブックマーク数',
     '일일 평균 북마크 수',
+    'Среднее количество ежедневных закладок',
   ],
   _日均收藏数量的提示: [
     '你可以设置作品的平均每日收藏数量。满足条件的作品会被下载。',
@@ -1851,6 +2195,7 @@ const langText = {
     'You can set the average daily bookmarks number of works. Works that meet the conditions will be downloaded.',
     '作品の 1 日の平均ブックマーク数を設定することができます。条件を満した作品はダウンロードされます。',
     '작품의 일일 평균 북마크 수를 설정할 수 있습니다. 조건을 만족한 작품은 다운로드됩니다.',
+    'Вы можете установить среднесуточное количество закладок в работах. Работы, удовлетворяющие условиям, будут загружены.',
   ],
   _下载用户列表: [
     '下载用户列表',
@@ -1858,6 +2203,7 @@ const langText = {
     'Download users list',
     'ユーザーリストのダウンロード',
     '유저 목록 다운로드',
+    'Загрузить список пользователей',
   ],
   _手动选择作品: [
     '手动选择作品',
@@ -1865,6 +2211,7 @@ const langText = {
     'Manually select',
     '手動で作品を選ぶ',
     '수동 선택',
+    'Ручной выбор',
   ],
   _抓取选择的作品: [
     '抓取选择的作品',
@@ -1872,6 +2219,7 @@ const langText = {
     'Crawl selected works',
     '選ばれた作品をクロール',
     '선택된 작품 긁어오기',
+    'Стащить выбранные работы',
   ],
   _抓取选择的作品2: [
     '抓取选择的作品 {}',
@@ -1879,6 +2227,7 @@ const langText = {
     'Crawl selected works {}',
     '選ばれた作品をクロール {}',
     '선택된 작품 긁어오기 {}',
+    'Стащить выбранные работы',
   ],
   _清空选择的作品: [
     '清空选择的作品',
@@ -1886,6 +2235,7 @@ const langText = {
     'Clear selected works',
     '選んだ作品をクリアします',
     '선택된 작품 비우기',
+    'Очистить выбранные работы',
   ],
   _暂停选择: [
     '暂停选择',
@@ -1893,6 +2243,7 @@ const langText = {
     'Pause select',
     '選択を一時停止',
     '선택 일시중지',
+    'Остановить выбора',
   ],
   _继续选择: [
     '继续选择',
@@ -1900,6 +2251,7 @@ const langText = {
     'Continue select',
     '選択を続ける',
     '선택 이어하기',
+    'Продолжить выбор',
   ],
   _离开页面前提示选择的作品未抓取: [
     '选择的作品尚未抓取。现在离开此页面会导致你选择的作品被清空。',
@@ -1907,6 +2259,7 @@ const langText = {
     'The selected work has not been crawled. Leaving this page now will cause your selected work to be cleared.',
     '選ばれた作品はまだクロールしていません。今このページを離れると、選ばれた作品がクリアされます。',
     '선택된 작품을 아직 긁어오지 않았습니다. 지금 현재 페이지를 떠나면 선택된 작품이 비워집니다.',
+    'Выбранная работа не была стащена. Если вы покинете эту страницу, выбранная вами работа будет очищена.',
   ],
   _排除了所有作品类型: [
     '排除了所有作品类型',
@@ -1914,6 +2267,7 @@ const langText = {
     'Excluded all work types',
     'すべての作品種類を除外しました',
     '모든 작품 유형 제외',
+    'Исключены все типы работ',
   ],
   _为作品建立单独的文件夹: [
     '为<span class="key">每个</span>作品建立单独的文件夹',
@@ -1921,6 +2275,7 @@ const langText = {
     'Create a separate folder for <span class="key">each</span> work',
     '作品ごとに別フォルダを作成',
     '작품마다 <span class="key">별도</span>의 디렉토리 생성',
+    'Создайте отдельную папку для <span class="key">каждой</span> работы',
   ],
   _为作品建立单独的文件夹说明: [
     '这里应该使用 {id_num} 代替 {id}',
@@ -1928,6 +2283,7 @@ const langText = {
     'Here {id_num} should be used instead of {id}',
     'ここでは、{id} の代わりに {id_num} を使用する必要があります',
     '여기서는 {id}대신 {id_num}을 사용해야 합니다',
+    'Здесь {id_num} следует использовать вместо {id}',
   ],
   _文件数量大于: [
     '文件数量 >',
@@ -1935,6 +2291,7 @@ const langText = {
     'Number of files >',
     'ファイル数 >',
     '파일 수 >',
+    'Количество файлов >',
   ],
   _保存用户头像: [
     '保存用户头像',
@@ -1942,6 +2299,7 @@ const langText = {
     'Save user avatar',
     'ユーザーアイコンの保存',
     '유저 프로필 이미지 저장',
+    'Сохранить аватар пользователя',
   ],
   _保存用户封面: [
     '保存用户封面',
@@ -1949,14 +2307,23 @@ const langText = {
     'Save user cover',
     'ユーザーカバーの保存',
     '유저 커버 저장',
+    'Сохранить обложку пользователя',
   ],
-  _待处理: ['待处理', '待處理', 'Pending', '処理待ち', '처리 대기'],
+  _待处理: [
+    '待处理',
+    '待處理',
+    'Pending',
+    '処理待ち',
+    '처리 대기',
+    'В ожидании',
+  ],
   _超出最大页码: [
     '超出最大页码：',
     '超出最大頁碼：',
     'Maximum page number exceeded:',
     '最大ページ数を超えました：',
     '최대 페이지 번호 초과:',
+    'Превышен максимальный номер страницы:',
   ],
   _针对特定用户屏蔽tag: [
     '针对特定用户屏蔽<span class="key">标签</span>',
@@ -1964,6 +2331,7 @@ const langText = {
     'Block <span class="key">tags</span> for specific users',
     '特定のユーザーに対して<span class="key">タグ</span>をブロック',
     '특정 유저에 대한 차단 <span class="key">태그</span>',
+    'Блокировать <span class="key">теги</span> для определенных пользователей',
   ],
   _展开收起: [
     '展开/收起',
@@ -1971,15 +2339,17 @@ const langText = {
     'Expand/Collapse',
     '展開/折りたたみ',
     '확장/축소',
+    'Развернуть/Свернуть',
   ],
-  _展开: ['展开', '展開', 'Expand', '展開', '확장'],
-  _收起: ['收起', '摺疊', 'Collapse', '折りたたみ', '축소'],
+  _展开: ['展开', '展開', 'Expand', '展開', '확장', 'Развернуть'],
+  _收起: ['收起', '摺疊', 'Collapse', '折りたたみ', '축소', 'Свернуть'],
   _把r18作品存入指定的文件夹里: [
     '把 <span class="key">R-18(G)</span> 作品存入指定的文件夹里',
     '把 <span class="key">R-18(G)</span> 作品存入指定的資料夾裡',
     'Save the <span class="key">R-18(G)</span> works in the designated folder',
     '<span class="key">R-18(G)</span> の作品を指定のフォルダに入れる',
     '<span class="key">R-18(G)</span> 작품을 지정된 디렉토리에 저장',
+    'Сохраните <span class="key">R-18(G)</span> работы в указанной папке',
   ],
   _必填项不能为空: [
     '必填项不能为空',
@@ -1987,6 +2357,7 @@ const langText = {
     'Required fields cannot be empty',
     '必須フィールドが入力されていません',
     '필수 입력 항목은 비워둘 수 없습니다',
+    'Обязательные поля не могут быть пустыми',
   ],
   _用户ID必须是数字: [
     '用户 ID 必须是数字',
@@ -1994,6 +2365,7 @@ const langText = {
     'User ID must be a number',
     'ユーザー ID は数字です',
     '유저 ID는 숫자만 허용합니다',
+    'Идентификатор пользователя должен быть числом',
   ],
   _必须是数字: [
     '必须是数字',
@@ -2001,6 +2373,7 @@ const langText = {
     'Number',
     '数字でなければなりません',
     '숫자만 허용',
+    'Число',
   ],
   _tag用逗号分割: [
     '多个标签使用英文逗号,分割',
@@ -2008,17 +2381,19 @@ const langText = {
     'Multiple tags use comma (,) split',
     '複数のタグはカンマ「,」で区切ってください',
     '여러 태그는 쉼표(,)로 구분합니다.',
+    'Для нескольких тегов используется разделение запятой (,)',
   ],
-  _添加: ['添加', '新增', 'Add', '追加', '추가'],
-  _取消: ['取消', '取消', 'Cancel', 'キャンセル', '취소'],
-  _更新: ['更新', '更新', 'Update', '更新', '업데이트'],
-  _删除: ['删除', '刪除', 'Delete', '削除', '제거'],
+  _添加: ['添加', '新增', 'Add', '追加', '추가', 'Добавить'],
+  _取消: ['取消', '取消', 'Cancel', 'キャンセル', '취소', 'Отмена'],
+  _更新: ['更新', '更新', 'Update', '更新', '업데이트', 'Обновить'],
+  _删除: ['删除', '刪除', 'Delete', '削除', '제거', 'Удалить'],
   _添加成功: [
     '添加成功',
     '新增成功',
     'Added successfully',
     '追加されました',
     '성공적으로 추가되었습니다.',
+    'Добавлено успешно',
   ],
   _更新成功: [
     '更新成功',
@@ -2026,6 +2401,7 @@ const langText = {
     'update completed',
     '更新成功',
     '업데이트에 성공하였습니다.',
+    'обновление завершено',
   ],
   _在作品缩略图上显示放大按钮: [
     '在作品缩略图上显示<span class="key">放大</span>按钮',
@@ -2033,6 +2409,7 @@ const langText = {
     'Show <span class="key">zoom</span> button on thumbnail',
     '作品のサムネイルに<span class="key">拡大</span>ボタンを表示',
     '썸네일에 <span class="key">확대</span> 버튼 표시',
+    'Показать кнопку <span class="key">увеличить</span> на миниатюре',
   ],
   _在作品缩略图上显示下载按钮: [
     '在作品缩略图上显示<span class="key">下载</span>按钮',
@@ -2040,6 +2417,7 @@ const langText = {
     'Show <span class="key">download</span> button on thumbnail',
     '作品のサムネイルに<span class="key">ダウンロード</span>ボタンを表示',
     '썸네일에 <span class="key">다운로드</span> 버튼 표시',
+    'Показать кнопку <span class="key">загрузить</span> на миниатюре',
   ],
   _已发送下载请求: [
     '已发送下载请求',
@@ -2047,21 +2425,24 @@ const langText = {
     'Download request sent',
     'ダウンロードリクエストを送信しました',
     '다운로드 요청 전송',
+    'Запрос на скачивание отправлен',
   ],
   _HowToUse: [
-    '点击页面右侧的蓝色按钮可以打开下载器面板。',
-    '點選頁面右側的藍色按鈕可以開啟下載器面板。',
-    'Click the blue button on the right side of the page to open the downloader panel.',
-    'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。',
-    '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.',
+    '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。',
+    '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。',
+    'Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.',
+    'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。',
+    '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.<br><br>다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.',
+    'Нажмите синюю кнопку в правой части страницы, чтобы открыть панель загрузчика.<br><br>Загруженный файл сохраняется в каталоге загрузки браузера. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.',
   ],
-  _我知道了: ['我知道了', '我知道了', 'OK', '分かりました', '확인'],
+  _我知道了: ['我知道了', '我知道了', 'OK', '分かりました', '확인', 'Ок'],
   _背景图片: [
     '<span class="key">背景</span>图片',
     '<span class="key">背景</span>圖片',
     '<span class="key">Background</span> image',
     '<span class="key">背景</span>画像',
     '<span class="key">배경</span> 이미지',
+    '<span class="key">Фоновое</span> изображение',
   ],
   _选择文件: [
     '选择文件',
@@ -2069,17 +2450,33 @@ const langText = {
     'Select a file',
     'ファイルを選択',
     '파일 선택',
+    'Выберите файл',
   ],
-  _不透明度: ['不透明度', '不透明度', 'Opacity', '不透明度', '투명도'],
-  _对齐方式: ['对齐方式', '對齊方式', 'Alignment', '揃え方式', '정렬'],
-  _顶部: ['顶部', '頂部', 'top', '上揃え', '상단'],
-  _居中: ['居中', '居中', 'center', '中央揃え', '중앙'],
+  _不透明度: [
+    '不透明度',
+    '不透明度',
+    'Opacity',
+    '不透明度',
+    '투명도',
+    'Непрозрачность',
+  ],
+  _对齐方式: [
+    '对齐方式',
+    '對齊方式',
+    'Alignment',
+    '揃え方式',
+    '정렬',
+    'Выравнивание',
+  ],
+  _顶部: ['顶部', '頂部', 'top', '上揃え', '상단', 'топ'],
+  _居中: ['居中', '居中', 'center', '中央揃え', '중앙', 'центр'],
   _根据作品类型自动建立文件夹: [
     '根据作品<span class="key">类型</span>自动建立文件夹',
     '根據作品<span class="key">類型</span>自動建立資料夾',
     'Create folders based on the <span class="key">type</span> of work',
     '作品種類に応じてフォルダを自動作成',
     '작품 <span class="key">유형</span>에 따라 자동으로 디렉토리 생성',
+    'Создание папок на основе <span class="key">вида</span> работы',
   ],
   _使用第一个匹配的tag建立文件夹: [
     '使用第一个匹配的<span class="key">标签</span>建立文件夹',
@@ -2087,6 +2484,7 @@ const langText = {
     'Create a folder with the first matched <span class="key">tag</span>',
     '最初の一致するタグにフォルダを作成',
     '첫 번째 일치하는 <span class="key">태그</span>로 디렉토리 생성',
+    'Создать папку с первым совпавшим <span class="key">тегом</span>',
   ],
   _使用匹配的tag建立文件夹的说明: [
     '如果作品的标签列表里含有用户设置的标签，就会使用这个标签建立文件夹（仅限第一个）',
@@ -2094,22 +2492,32 @@ const langText = {
     'If the tag list of the work contains a tag set by the user, this tag will be used to create a folder (only the first one)',
     '作品のタグリストにユーザーが設定したタグが含まれている場合、そのタグを使用してフォルダが作成されます。(最初の1つだけ)',
     '작품의 태그에 유저가 설정한 태그가 포함되어 있다면, 태그를 사용하여 디렉토리를 생성합니다. (첫 번째 태그만 해당)',
+    'Если в списке тегов работы есть тег, заданный пользователем, этот тег будет использован для создания папки (только первой)',
   ],
-  _全年龄: ['全年龄', '全年齡', 'All ages', '全年齢', '전체 연령'],
+  _全年龄: [
+    '全年龄',
+    '全年齡',
+    'All ages',
+    '全年齢',
+    '전체 연령',
+    'Все возраста',
+  ],
   _没有符合条件的结果: [
     '没有符合条件的结果',
     '沒有符合條件的結果',
     'There are no eligible results',
     '対象となる結果はありません',
     '조건에 부합하는 결과가 없습니다',
+    'Нет результатов, отвечающих требованиям',
   ],
-  _收藏: ['收藏', '收藏', 'Bookmark', 'ブックマーク', '북마크'],
+  _收藏: ['收藏', '收藏', 'Bookmark', 'ブックマーク', '북마크', 'Закладка'],
   _已加入收藏: [
     '已加入收藏',
     '已加入收藏',
     'Bookmarked',
     'ブックマークした',
     '북마크됨',
+    'В закладках',
   ],
   _全屏查看: [
     '全屏',
@@ -2117,6 +2525,7 @@ const langText = {
     'Full screen view',
     '全画面表示',
     '전체 화면 보기',
+    'Просмотр на весь экран',
   ],
   _抓取id区间: [
     '抓取 id 区间',
@@ -2124,6 +2533,7 @@ const langText = {
     'Crawl id range',
     'id 範囲をクロール',
     'ID 범위 긁어오기',
+    'Стащить диапазон идентификаторов',
   ],
   _抓取id区间说明: [
     '你可以设置一个作品 id 范围，抓取此范围内的所有作品（包含开始和结束的 id）。\n注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。',
@@ -2131,6 +2541,7 @@ const langText = {
     'You can set a range of work id and grab all works in this range (including the begin and end id). \nNote: If the number of crawling results in a task is too much, it may cause the page to crash.',
     '作品 id の範囲を設定し、その範囲内のすべての作品をクロールすることができます。「開始 id と終了 id を含む」\n注意：1 つのタスクであまりにも多くのクロール結果を生成すると、ページがクラッシュする可能性があります。',
     '작품 ID 범위를 설정할 수 있습니다. 이 범위 내의 모든 작품 (시작과 끝 ID 포함).\n참고: 작업의 긁어오기 결과가 너무 많으면 페이지가 충돌할 수 있습니다.',
+    'Вы можете задать диапазон идентификаторов работ и захватить все работы в этом диапазоне (включая идентификаторы начала и конца). \nПримечание: Если в задании слишком большое количество результатов стаскивания, это может привести к сбою страницы.',
   ],
   _抓取id区间起点: [
     '请输入开始的 id',
@@ -2138,6 +2549,7 @@ const langText = {
     'Please type in the beginning id',
     '開始 id を入力してください',
     '시작 ID를 입력해주세요',
+    'Пожалуйста, введите начальный идентификатор',
   ],
   _抓取id区间终点: [
     '请输入结束的 id',
@@ -2145,6 +2557,7 @@ const langText = {
     'Please type  in the ending id',
     '終了 id を入力してください',
     '끝 ID를 입력해주세요',
+    'Пожалуйста, введите конечный идентификатор',
   ],
   _选项卡切换方式: [
     '<span class="key">选项卡</span>切换方式',
@@ -2152,6 +2565,7 @@ const langText = {
     'How to switch <span class="key">tabs</span>',
     'タブ切り替え方式',
     '<span class="key">탭</span> 전환 방식',
+    'Как переключать <span class="key">вкладки</span>',
   ],
   _鼠标经过: [
     '鼠标经过',
@@ -2159,6 +2573,7 @@ const langText = {
     'Mouse over',
     'マウスオーバー',
     '마우스 올리기',
+    'Наведите мышь',
   ],
   _鼠标点击: [
     '鼠标点击',
@@ -2166,6 +2581,7 @@ const langText = {
     'Mouse click',
     'マウスクリック',
     '마우스 클릭',
+    'Кликнуть мышкой',
   ],
   _在序号前面填充0: [
     '在序号前面<span class="key">填充 0</span>',
@@ -2173,6 +2589,15 @@ const langText = {
     '<span class="key">Add 0</span> in front of the serial number',
     'シリアル番号の前に 0 を記入',
     '일련번호 앞 <span class="key">0 채우기</span>',
+    '<span class="key">Добавьте 0</span> перед серийным номером',
+  ],
+  _在序号前面填充0的说明: [
+    '这可以解决一些软件不能正确的按照文件名来排序文件的问题。',
+    '這可以解決一些軟體不能正確的按照檔名來排序檔案的問題。',
+    'This can solve the problem that some software cannot correctly sort files by file name.',
+    'これにより、一部のソフトウェアがファイルをファイル名で正しくソートできないという問題を解決できます。',
+    '이것은 일부 소프트웨어가 파일 이름별로 파일을 올바르게 정렬할 수 없는 문제를 해결할 수 있습니다.',
+    'Это может решить проблему того, что некоторые программы не могут правильно сортировать файлы по имени файла.',
   ],
   _序号总长度: [
     '序号总长度',
@@ -2180,25 +2605,42 @@ const langText = {
     'Total length of serial number',
     'シリアル番号の全長',
     '일련번호 전체 길이',
+    'Общая длина серийного номера',
   ],
-  _完全一致: ['完全一致', '完全一致', 'Perfect match', '完全一致', '완전 일치'],
-  _部分一致: ['部分一致', '部分一致', 'Partial match', '部分一致', '부분 일치'],
-  _位置: ['位置', '位置', 'Position', '位置', '위치'],
-  _左: ['左', '左', 'Left', '左', '왼쪽'],
-  _右: ['右', '右', 'Right', '右', '오른쪽'],
+  _完全一致: [
+    '完全一致',
+    '完全一致',
+    'Perfect match',
+    '完全一致',
+    '완전 일치',
+    'Идеальное совпадение',
+  ],
+  _部分一致: [
+    '部分一致',
+    '部分一致',
+    'Partial match',
+    '部分一致',
+    '부분 일치',
+    'Частичное совпадение',
+  ],
+  _位置: ['位置', '位置', 'Position', '位置', '위치', 'Позиция'],
+  _左: ['左', '左', 'Left', '左', '왼쪽', 'Слева'],
+  _右: ['右', '右', 'Right', '右', '오른쪽', 'Справа'],
   _多图作品只下载前几张图片: [
     '多图作品只下载<span class="key">前几张</span>图片',
     '多圖作品只下載<span class="key">前幾張</span>圖片',
     'Multi-image works only download the <span class="key">first few</span> images',
     'マルチ作品は最初の何枚の画像のみをダウンロードする',
     '여러 이미지 작품은 <span class="key">처음 몇 개</span>의 이미지만 다운로드합니까',
+    'При работе с несколькими изображениями загружаются только <span class="key">первые несколько</span> изображений',
   ],
   _多图作品的图片数量上限: [
     '多图作品的图片<span class="key">数量</span>上限',
     '多圖作品的圖片<span class="key">數量</span>上限',
     '<span class="key">Maximum number</span> of images for multi-image works',
     'マルチ作品の最大画像数',
-    '여러 이미지 작품의 <span class="key">최대 수</sapn>',
+    '여러 이미지 작품의 <span class="key">최대 수</span>',
+    '<span class="key">Максимальное количество</span> изображений для работ с несколькими изображениями',
   ],
   _超出此限制的多图作品不会被下载: [
     '超出此限制的多图作品不会被下载',
@@ -2206,6 +2648,7 @@ const langText = {
     'Multi-image works exceeding this limit will not be downloaded',
     'この制限を超えたマルチ作品はダウンロードされません',
     '이 제한을 초과하는 여러 이미지 작품은 다운로드되지 않습니다.',
+    'Работы с несколькими изображениями, превышающие этот лимит, не будут загружены',
   ],
   _在搜索页面添加快捷搜索区域: [
     '在搜索页面添加快捷<span class="key">搜索</span>区域',
@@ -2213,6 +2656,7 @@ const langText = {
     'Add a quick <span class="key">search</span> area on the search page',
     '検索ページにクイック検索領域を追加します',
     '검색 페이지에 빠른 <span class="key">검색</span> 영역 추가',
+    'Добавить область быстрого <span class="key">поиска</span> на странице поиска',
   ],
   _保存作品的元数据: [
     '保存作品的<span class="key">元数据</span>',
@@ -2220,6 +2664,7 @@ const langText = {
     'Save the <span class="key">metadata</span> of the work',
     '作品のメタデータを保存する',
     '작품 <span class="key">메타데이터</span> 저장',
+    'Сохранить <span class="key">метаданные</span> работы',
   ],
   _保存作品的元数据说明: [
     '为每个作品建立一个 txt 文件保存它的元数据',
@@ -2227,6 +2672,7 @@ const langText = {
     'Create a txt file for each work to save its metadata',
     '作品ごとに txt ファイルを作成して、メタデータを保存します',
     '각 작품에 대한 메타데이터를 저장하는 txt 파일 생성',
+    'Создайте txt-файл для каждой работы, чтобы сохранить ее метаданные',
   ],
   _在不同的页面类型中使用不同的命名规则: [
     '在不同的页面类型中使用<span class="key">不同</span>的命名规则',
@@ -2234,6 +2680,7 @@ const langText = {
     'Use <span class="key">different</span> naming rules in different page types',
     'ページの種類によって異なる命名規則を使用',
     '페이지 유형에 따라 <span class="key">다른</span> 명명 규칙 사용',
+    'Использовать <span class="key">различные</span> правила именования в разных типах страниц',
   ],
   _显示高级设置: [
     '显示<span class="key">高级</span>设置',
@@ -2241,6 +2688,7 @@ const langText = {
     'Show <span class="key">advanced</span> settings',
     '詳細設定を表示する',
     '<span class="key">고급</span> 설정 보기',
+    'Показать <span class="key">расширенные</span> настройки',
   ],
   _显示高级设置说明: [
     '被隐藏的设置仍然会发挥作用',
@@ -2248,13 +2696,15 @@ const langText = {
     'Hidden settings will still work',
     '隠していた設定がそのまま機能する',
     '숨겨진 설정은 계속 작동합니다.',
+    'Скрытые настройки будут работать',
   ],
   _状态码为0的错误提示: [
-    '下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。如果你使用 Nginx 或者 Apache 反代理访问 pixiv，请换成梯子。',
-    '下載時發生錯誤，狀態碼為 0，請求未成功。可能的原因：<br><br>1. 系統磁碟的剩餘空間可能不足（建議剩餘空間大於 4GB）。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>2. 網路錯誤。可能是網路代理導致的問題。',
-    'An error occurred while downloading, the status code is 0, and the request was unsuccessful. Possible reasons: <br><br>1. The remaining space of the system disk may be insufficient (it is recommended that the remaining space be greater than 4GB). Please try to clear the system disk space, and then restart the browser to continue the unfinished download. <br><br>2. Network error. It may be a problem caused by a network proxy.',
-    'ダウンロード中にエラーが発生し、ステータスコードは0で、リクエストは失敗しました。 考えられる理由：<br> <br> 1。 システムディスクの残りのスペースが不足している可能性があります（残りのスペースは4GBを超えることをお勧めします）。 システムのディスク領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。 <br> <br> 2。 ネットワークエラー。 ネットワークプロキシが原因の問題である可能性があります。',
-    '다운로드 중 오류가 발생했으며, 상태 코드가 0이고 요청에 실패했습니다. 가능한 원인: <br><br>1. 시스템 디스크의 남은 공간이 부족할 수 있습니다(남은 공간은 4GB보다 큰 것이 좋습니다). 시스템 디스크 공간을 비운 다음 브라우저를 다시 시작하여 완료되지 않은 다운로드를 계속해주세요. <br><br>2. 네트워크 오류. 네트워크 프록시로 인한 문제일 수 있습니다.',
+    '下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（通常是 C 盘）（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。如果你使用 Nginx 或者 Apache 反代理访问 pixiv，请换成梯子。',
+    '下載時發生錯誤，狀態碼為 0，請求未成功。可能的原因：<br><br>1. 系統磁碟的剩餘空間可能不足（通常是 C 盤）（建議剩餘空間大於 4GB）。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>2. 網路錯誤。可能是網路代理導致的問題。',
+    'An error occurred while downloading, the status code is 0, and the request was unsuccessful. Possible reasons: <br><br>1. The remaining space of the system disk may be insufficient (usually C drive)(it is recommended that the remaining space be greater than 4GB). Please try to clear the system disk space, and then restart the browser to continue the unfinished download. <br><br>2. Network error. It may be a problem caused by a network proxy.',
+    'ダウンロード中にエラーが発生し、ステータスコードは0で、リクエストは失敗しました。 考えられる理由：<br> <br> 1。 システムディスクの残りのスペースが不足している可能性があります(通常はCドライブ)（残りのスペースは4GBを超えることをお勧めします）。 システムのディスク領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。 <br> <br> 2。 ネットワークエラー。 ネットワークプロキシが原因の問題である可能性があります。',
+    '다운로드 중 오류가 발생했으며, 상태 코드가 0이고 요청에 실패했습니다. 가능한 원인: <br><br>1. 시스템 디스크의 남은 공간이 부족할 수 있습니다(보통 C드라이브)(남은 공간은 4GB보다 큰 것이 좋습니다). 시스템 디스크 공간을 비운 다음 브라우저를 다시 시작하여 완료되지 않은 다운로드를 계속해주세요. <br><br>2. 네트워크 오류. 네트워크 프록시로 인한 문제일 수 있습니다.',
+    'Во время загрузки произошла ошибка, код состояния равен 0, и запрос был выполнен неудачно. Возможные причины: <br><br>1. Оставшегося места на системном диске может быть недостаточно (обычно это диск C) (рекомендуется, чтобы оставшееся место было больше 4 ГБ). Пожалуйста, попробуйте освободить место на системном диске, а затем перезапустите браузер, чтобы продолжить незаконченную загрузку. <br><br>2. Ошибка сети. Это может быть проблема, вызванная сетевым прокси-сервером.',
   ],
   _下载完成后显示通知: [
     '下载完成后显示<span class="key">通知</span>',
@@ -2262,6 +2712,7 @@ const langText = {
     'Show <span class="key">notification</span> after download is complete',
     'ダウンロードが完了した後に通知を表示する',
     '다운로드가 완료되면 <span class="key">알림</span> 표시',
+    'Показать <span class="key">уведомление</span> после завершения загрузки',
   ],
   _高亮显示关键字: [
     '<span class="key">高亮</span>显示关键字',
@@ -2269,6 +2720,7 @@ const langText = {
     '<span class="key">Highlight</span> keywords',
     'キーワードを強調表示',
     '<span class="key">강조</span> 키워드 표시',
+    '<span class="key">Выделить</span> ключевые слова',
   ],
   _抓取标签列表: [
     '抓取标签列表',
@@ -2276,6 +2728,7 @@ const langText = {
     'Crawl a list of tags',
     'タグのリストをクロール',
     '태그 긁어오기',
+    'Сканировать список тегов',
   ],
   _抓取标签列表的输入框提示: [
     '请输入你要抓取的标签列表。多个标签之间使用换行分割',
@@ -2283,6 +2736,7 @@ const langText = {
     'Please type the list of tags you want to crawl. Use line breaks between multiple tags',
     'クロールしたいタグのリストを入力してください。 複数のタグを改行で分割',
     '긁어올 태그를 입력해주세요. 여러 태그는 줄 바꿈 사용',
+    'Пожалуйста, введите список тегов, которые вы хотите просмотреть. Используйте разрывы строк между несколькими тегами',
   ],
   _抓取标签列表的文件夹提示: [
     '在抓取标签列表时，你可以使用 {page_tag} 或者 {page_title} 标记获取当前抓取的标签，并用来建立文件夹。例如：{page_tag}/{id}',
@@ -2290,6 +2744,7 @@ const langText = {
     'When crawling the tag list, you can use {page_tag} or {page_title} tags to get the tags currently crawled and use them to create folders. For example: {page_tag}/{id}',
     'タグリストをクロールする時に、 {page_tag} や {page_title}を使用すると、現在クロールされているタグを取得し、それらを使ってフォルダを作成することができます。例：{page_tag}/{id}',
     '태그를 긁어올 때 {page_tag} 또는 {page_title} 태그를 사용하여, 긁어온 태그로 디렉토리를 생성할 수 있습니다. 예: {page_tag}/{id}',
+    'При сканировании списка тегов вы можете использовать теги {page_tag} или {page_title}, чтобы получить теги, которые в данный момент просматриваются, и использовать их для создания папок. Например: {page_tag}/{id}',
   ],
   _停止抓取标签列表: [
     '停止抓取标签列表',
@@ -2297,6 +2752,7 @@ const langText = {
     'Stop crawling the list of tags',
     'タグリストのクロールを停止',
     '태그 긁어오기 정지',
+    'Прекратить сканирование списка тегов',
   ],
   _等待下载的标签: [
     '等待下载的标签',
@@ -2304,6 +2760,7 @@ const langText = {
     'Tags waiting to be downloaded',
     'ダウンロード待ちのタグ',
     '다운로드 대기 중인 태그',
+    'Теги, ожидающие загрузки',
   ],
   _你确定要停止抓取吗: [
     '你确定要停止抓取吗？',
@@ -2311,6 +2768,7 @@ const langText = {
     'Are you sure you want to stop crawling?',
     '本当にクロールをやめたいのか',
     '긁어오기를 중지하시겠습니까?',
+    'Ты уверен, что хочешь перестать сканировать?',
   ],
   _只能在搜索页面使用: [
     '只能在搜索页面使用',
@@ -2318,6 +2776,7 @@ const langText = {
     'Can only be used on the search page',
     '検索ページでのみ使用できます',
     '검색 페이지에서만 사용 가능',
+    'Можно использовать только на странице поиска',
   ],
   _自动导出抓取结果: [
     '自动<span class="key">导出</span>抓取结果',
@@ -2325,6 +2784,7 @@ const langText = {
     'Automatically <span class="key">export</span> crawl results',
     'クロール結果の自動エクスポート',
     '자동으로 긁어오기 결과 <span class="key">내보내기</span>',
+    'Автоматически <span class="key">экспортировать</span> результаты сканирования',
   ],
   _抓取结果: [
     '抓取结果',
@@ -2332,6 +2792,7 @@ const langText = {
     'Crawl results',
     'クロール結果',
     '긁어오기 결과',
+    'Сканировать результаты',
   ],
   _文件格式: [
     '文件格式',
@@ -2339,14 +2800,16 @@ const langText = {
     'File format',
     'ファイル形式',
     '파일 형식',
+    'Формат файла',
   ],
-  _格式: ['格式', '格式', 'Format', '形式', '형식'],
+  _格式: ['格式', '格式', 'Format', '形式', '형식', 'Формат'],
   _预览作品: [
     '<span class="key">预览</span>作品',
     '<span class="key">預覽</span>作品',
     '<span class="key">Preview</span> works',
     '作品のプレビュー',
     '작품 <span class="key">미리보기</span>',
+    '<span class="key">Превью</span> работает',
   ],
   _点击鼠标左键可以关闭预览图: [
     '点击鼠标左键可以关闭预览图',
@@ -2354,14 +2817,16 @@ const langText = {
     'Click the left mouse button to close the preview',
     'マウスの左クリックでプレビュー画像を閉じる',
     '마우스 왼쪽 버튼을 클릭하면 미리보기를 닫습니다',
+    'Нажмите левую кнопку мыши, чтобы закрыть предварительный просмотр',
   ],
-  _尺寸: ['尺寸', '尺寸', 'Size', 'サイズ', '크기'],
+  _尺寸: ['尺寸', '尺寸', 'Size', 'サイズ', '크기', 'Размер'],
   _允许鼠标停留在预览图上: [
     '允许鼠标停留在预览图上',
     '允許滑鼠停留在預覽圖上',
     'Allow the mouse to stay on the preview image',
     'プレビュー画像の上にマウスを置くことができます',
     '마우스가 미리보기 이미지 위에서 유지되도록 허용',
+    'Разрешить мыши оставаться на изображении предварительного просмотра',
   ],
   _点击预览图时下载作品: [
     '点击预览图时下载作品',
@@ -2369,6 +2834,7 @@ const langText = {
     'Download the work when you click on the preview',
     'プレビュー画像をクリックするとその作品がダウンロードされます',
     '미리보기 이미지를 클릭하면 작품 다운로드',
+    'Загружать работу при нажатии на предварительный просмотр',
   ],
   _转换动图时页面被隐藏的提示: [
     '这个标签页正在转换动图。如果这个标签页被隐藏了，转换速度可能会变慢。',
@@ -2376,6 +2842,7 @@ const langText = {
     'This tab page is converting ugoira. If this tab page is hidden, the conversion speed may slow down.',
     'このタブページはうごイラを変換しています。 このタブを非表示にすると、変換速度が低下する場合があります。',
     '이 탭은 움직이는 일러스트를 변환하는 중입니다.이 탭이 숨겨지면 변환 속도가 느려질 수 있습니다.',
+    'Эта страница вкладки преобразует ugoira. Если эта страница вкладки скрыта, скорость конвертации может замедлиться.',
   ],
   _原始尺寸: [
     '原始尺寸',
@@ -2383,14 +2850,16 @@ const langText = {
     'Original size',
     'オリジナルサイズ',
     '원본 크기',
+    'Оригинальный размер',
   ],
-  _增强: ['增强', '增強', 'Enhance', '強化機能', '향상'],
+  _增强: ['增强', '增強', 'Enhance', '強化機能', '향상', 'Улучшение'],
   _长按右键显示大图: [
     '在缩略图上长按鼠标右键时显示<span class="key">大图</span>',
     '在縮圖上長按滑鼠右鍵時顯示<span class="key">大圖</span>',
     'Long press the right mouse button on the thumbnail to display the <span class="key">large image</span>',
     'サムネイルでマウスの右ボタンを長押しすると、大きな画像が表示されます。',
     '썸네일을 마우스 오른쪽 버튼으로 클릭했을 때 <span class="key">큰 이미지</span> 표시',
+    'Длительное нажатие правой кнопки мыши на миниатюре для отображения <span class="key">большого изображения</span>',
   ],
   _鼠标滚轮切换图片: [
     '预览多图作品时，可以使用鼠标滚轮切换图片。',
@@ -2398,6 +2867,7 @@ const langText = {
     'When previewing multi-image works, you can use the mouse wheel to switch images.',
     '複数画像をプレビューする際に、マウスホイールを使って画像を切り替えることができます。',
     '여러 이미지 작품을 미리 볼 때, 마우스 휠을 사용하여 이미지를 전환할 수 있습니다.',
+    'При предварительном просмотре работ с несколькими изображениями можно использовать колесико мыши для переключения изображений',
   ],
   _whatisnew: [
     `修复因为 Pixiv 的变化而导致的抓取失败的问题。`,
@@ -2405,14 +2875,23 @@ const langText = {
     `Fixed crawl failures due to Pixiv changes.`,
     `Pixiv の変更によるクロールの失敗を修正しました。`,
     `Pixiv 변경으로 인한 크롤링 실패를 수정했습니다.`,
+    'Исправлены сбои в сканировании из-за изменений в Pixiv',
   ],
-  _等待时间: ['等待时间', '等待時間', 'Waiting time', '待ち時間', '대기 시간'],
+  _等待时间: [
+    '等待时间',
+    '等待時間',
+    'Waiting time',
+    '待ち時間',
+    '대기 시간',
+    'Время ожидания',
+  ],
   _格式错误: [
     '格式错误',
     '格式錯誤',
     'Format error',
     'フォーマットエラー',
     '형식 오류',
+    'Ошибка форматантирования',
   ],
   _下载数量错误: [
     '下载的页数（作品）数量设置错误',
@@ -2420,6 +2899,7 @@ const langText = {
     'The number of downloaded pages (works) is set incorrectly',
     '下载页数（作品）设置不正确',
     '다운로드할 페이지 수(작품) 설정 오류',
+    'Количество загруженных страниц (работ) установлено неверно',
   ],
   _默认下载多页: [
     '开始抓取, 如有多页，默认会下载全部。',
@@ -2427,15 +2907,16 @@ const langText = {
     'Start crawl, if there are multiple pages, the default will be downloaded.',
     'クロールを開始する、複数のページがある場合、デフォルトですべてをダウンロードされます。',
     '긁어오기를 시작합니다. 여러 페이지가 있으면 기본적으로 모두 다운로드됩니다.',
+    'Начать сканирование, если есть несколько страниц, все будут загружены по умолчанию.',
   ],
-  _在Patreon赞助我: [
-    '在 Patreon 赞助我',
-    '在 Patreon 贊助我',
-    'Become a patron',
-    'Become a patron',
-    'Become a patron',
+  _赞助我: [
+    '赞助我',
+    '贊助我',
+    'Sponsor me',
+    '支援する',
+    '후원하기',
+    'Поддержать меня',
   ],
-  _赞助我: ['赞助我', '贊助我', 'Sponsor me', '支援する', '후원하기'],
   _赞助方式提示: [
     `非常感谢您的支持！<br>
     您可以在 Patreon 上赞助我：<br>
@@ -2443,7 +2924,7 @@ const langText = {
     中国大陆用户可以在“爱发电”上赞助我：<br>
     <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
     也可以扫描二维码：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 675174717，在群文件里查看二维码。
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 499873152，在群文件里查看二维码。
     `,
     `非常感謝您的支持！<br>
     您可以在 Patreon 上贊助我：<br>
@@ -2451,7 +2932,7 @@ const langText = {
     中國大陸使用者可以在“愛發電”上贊助我：<br>
     <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
     也可以掃描行動條碼（QR Code）：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上檢視行動條碼</a> 或者加入 QQ 群 675174717 檢視行動條碼。
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上檢視行動條碼</a>。
     `,
     `Thank you very much for your support!<br>
     You can sponsor me on Patreon: <br>
@@ -2465,6 +2946,10 @@ const langText = {
     Patreon에서 저를 후원해주세요<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a>
     `,
+    `Большое вам спасибо за вашу поддержку!<br>
+    Вы можете спонсировать меня на Patreon: <br>
+    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a>
+    `,
   ],
   _替换方形缩略图以显示图片比例: [
     '替换方形<span class="key">缩略图</span>以显示图片比例',
@@ -2472,6 +2957,7 @@ const langText = {
     'Replace square <span class="key">thumbnails</span> to show image ratio',
     '正方形のサムネイルを置き換えて、画像のスケールを表示。',
     '이미지 종횡비를 표시하기 위해 정사각형 <span class="key">썸네일</span> 교체',
+    'Замените квадратные <span class="key">миниатюры</span>, чтобы показать соотношение сторон изображения',
   ],
   _只有一个抓取结果时不建立文件夹: [
     '只有一个抓取结果时<span class="key">不建立</span>文件夹',
@@ -2479,6 +2965,7 @@ const langText = {
     '<span class="key">Do not create</span> a folder when there is only one crawl result',
     'クロール結果が１つのみの場合、フォルダを作成しない',
     '긁어오기 결과가 하나일 때 디렉토리 <span class="key">생성하지 않기</span>',
+    'Когда есть только один результат сканирования, <span class="key">никакая</span> папка не создается',
   ],
   _搜索页面页数限制: [
     '由于 pixiv 的限制，下载器最多只能抓取到第 {} 页。',
@@ -2486,6 +2973,7 @@ const langText = {
     'Due to the limitation of pixiv, the downloader can only crawl up to the {}th page.',
     'pixiv の制限により、ダウンローダーは {} ページ目までしかクロールできません。',
     'pixiv 제한으로 인해 최대 {} 페이지까지만 다운로드 받을 수 있습니다.',
+    'Из-за ограничений pixiv загрузчик может сканировать только до {}-й страницы',
   ],
   _获取图片的宽高时出现错误: [
     '获取图片的宽高时出现错误：',
@@ -2493,14 +2981,16 @@ const langText = {
     'An error occurred while getting the width and height of the image:',
     '画像の幅と高さの取得中にエラーが発生しました：',
     '이미지의 너비를 가져오는 도중 오류가 발생했습니다:',
+    'Произошла ошибка при получении ширины и высоты изображения:',
   ],
-  _上限: ['上限', '上限', 'Upper limit', '上限', '상한'],
+  _上限: ['上限', '上限', 'Upper limit', '上限', '상한', 'Верхний предел'],
   _预览搜索结果的数量达到上限的提示: [
     '预览搜索结果的数量已经达到上限，剩余的结果不会显示。',
     '預覽搜尋結果的數量已經達到上限，剩餘的結果不會顯示。',
     'The number of preview search results has reached the upper limit, and the remaining results will not be displayed.',
     'プレビュー検索結果の数が上限に達し、残りの結果は表示されません。',
     '미리보기 검색 결과 수가 상한에 도달하여, 남은 결과는 표시되지 않습니다.',
+    'Количество результатов предварительного поиска достигло верхнего предела, и оставшиеся результаты не будут отображаться.',
   ],
   _新增命名标记: [
     '新增命名标记',
@@ -2508,6 +2998,7 @@ const langText = {
     'Add named tag',
     '名前付きタグを追加',
     '명명된 태그 추가',
+    'Добавить именованный тег',
   ],
   _自定义用户名: [
     '自定义<span class="key">用户名</span>',
@@ -2515,6 +3006,7 @@ const langText = {
     'Customize <span class="key">username</span>',
     'カスタムユーザー名',
     '사용자 정의 <span class="key">유저명</span>',
+    'Настроить <span class="key">имя пользователя</span>',
   ],
   _自定义用户名的说明: [
     `有些用户可能会改名，如果你想使用他原来的名字，你可以在这里手动设置他的名字。<br>
@@ -2532,6 +3024,9 @@ const langText = {
     `일부 유저는 이름을 바꿀 수 있습니다. 만약 당신이 그의 원래 이름을 사용하고 싶다면, 당신은 여기에서 그의 이름을 수동으로 설정할 수 있습니다.<br>
     사용자의 별칭을 설정할 수도 있습니다. <br>
     명명 규칙에 {user} 태그를 사용할 때 다운로드더가 사용자 정의 유저명을 우선시합니다.`,
+    `Некоторые пользователи могут изменить свое имя. Если вы хотите использовать его оригинальное имя, вы можете вручную задать его имя здесь. <br>
+    Вы также можете задать псевдонимы для пользователей. <br>
+    Когда вы используете тег {user} в правиле именования, загрузчик будет отдавать приоритет имени, которое вы задали.`,
   ],
   _移除用户名中的at和后续字符: [
     '移除用户名中的 <span class="key">@</span> 和后续字符',
@@ -2539,6 +3034,7 @@ const langText = {
     'Remove <span class="key">@</span> and subsequent characters in username',
     'ユーザー名から <span class="key">@</span> 以降の文字を削除する',
     '유저명에서 @와 후속 문자 제거',
+    'Удалить <span class="key">@</span> и последующие символы в имени пользователя',
   ],
   _移除用户名中的at和后续字符的说明: [
     '例如：Anmi@画集発売中 → Anmi',
@@ -2546,6 +3042,7 @@ const langText = {
     'For example：Anmi@画集発売中 → Anmi',
     '例：Anmi@画集発売中 → Anmi',
     '예: Anmi@画集発売中 → Anmi',
+    'Например: Anmi@画集発売中 → Anmi',
   ],
   _抓取被限制时返回空结果的提示: [
     'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。',
@@ -2553,6 +3050,7 @@ const langText = {
     'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes.',
     'Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。',
     'Pixiv가 빈 데이터를 반환했습니다. 다운로더가 긁어오기를 일시 중지하고 몇 분 동안 기다린 후 긁어오기를 계속합니다.',
+    'Pixiv вернул пустые данные. Загрузчик приостановил загрузку и возобновит ее через несколько минут.',
   ],
   _解决了抓取搜索页面时被限制的问题的说明: [
     '解决了抓取搜索页面时可能会被 Pixiv 限制的问题。',
@@ -2560,14 +3058,23 @@ const langText = {
     'Fixed an issue where crawling search pages could be restricted by Pixiv.',
     'Pixivで検索ページのクロールが制限される問題を修正しました。',
     '검색 페이지를 긁어올 때 Pixiv에 의해 제한될 수 있는 문제를 해결했습니다.',
+    'Исправлена проблема, при которой просмотр страниц поиска мог быть ограничен компанией Pixiv.',
   ],
-  _搜索模式: ['搜索模式', '搜尋模式', 'Search mode', '検索モード', '검색 모드'],
+  _搜索模式: [
+    '搜索模式',
+    '搜尋模式',
+    'Search mode',
+    '検索モード',
+    '검색 모드',
+    'Режим поиска',
+  ],
   _标签部分一致: [
     '标签（部分一致）',
     '標籤（部分一致）',
     'Tags (partial match)',
     'タグ（部分一致）',
     '태그 (부분 일치)',
+    'Теги (частичное совпадение)',
   ],
   _标签完全一致: [
     '标签（完全一致）',
@@ -2575,6 +3082,7 @@ const langText = {
     'Tags (perfect match)',
     'タグ（完全一致）',
     '태그 (완전 일치)',
+    'Теги (идеальное совпадение)',
   ],
   _标题说明文字: [
     '标题、说明文字',
@@ -2582,14 +3090,16 @@ const langText = {
     'Title, Caption',
     'タイトル・キャプション',
     '제목, 설명',
+    'Название, Подпись',
   ],
-  _正文: ['正文', '本文', 'Text', '本文', '본문'],
+  _正文: ['正文', '本文', 'Text', '本文', '본문', 'Текст'],
   _标签标题说明文字: [
     '标签、标题、说明文字',
     '標籤、標題、說明文字',
     'Tags, Titles, Captions',
     'タグ・タイトル・キャプション',
     '태그, 제목, 설명',
+    'Теги, Заголовки, Подписи',
   ],
   _save_file_failed_tip: [
     `{} 保存失败，code：{}。下载器将会重试下载这个文件。`,
@@ -2597,6 +3107,7 @@ const langText = {
     `{} save failed, code: {}. The downloader will retry to download the file.`,
     `{} 保存に失敗しました。code：{}。ダウンローダーはファイルのダウンロードを再試行します。`,
     `{} 저장에 실패했습니다. 코드: {}. 다운로드더가 파일 다운로드를 다시 시도합니다.`,
+    `{} сохранение не удалось, код: {}. Загрузчик повторит попытку загрузить файл.`,
   ],
   _user_canceled_tip: [
     `{} 未保存，code：{}。`,
@@ -2604,6 +3115,7 @@ const langText = {
     `{} not saved, code: {}.`,
     `{} 保存されていません。code：{}。`,
     `{} 저장되지 않음, 코드: {}.`,
+    `{} не сохранено, код: {}.`,
   ],
   _FILE_FAILED_tip: [
     '可能是文件名太长，或是其他原因导致文件保存失败。你可以尝试启用高级设置里的“文件名长度限制”。',
@@ -2611,6 +3123,7 @@ const langText = {
     'Maybe the file name is too long, or other reasons cause the file to fail to save. You can try enabling "File name length limit" in advanced settings.',
     'ファイル名が長すぎるか、他の理由でファイルの保存に失敗した可能性があります。 詳細設定で「ファイル名の長さ制限」を有効にしてみてください。',
     '파일명이 너무 길거나 다른 이유로 저장에 실패한 것 같습니다. 고급 설정에서 "파일명 길이 제한"을 사용하도록 설정할 수 있습니다.',
+    'Возможно, имя файла слишком длинное, или по другим причинам файл не удается сохранить. Вы можете попробовать включить "Ограничение длины имени файла". в расширенных настройках.',
   ],
   _显示摘要信息: [
     '显示摘要信息',
@@ -2618,6 +3131,7 @@ const langText = {
     'Show summary',
     '要約情報を表示する',
     '요약 정보 표시',
+    'Показать сводку',
   ],
   _显示更大的缩略图: [
     '显示<span class="key">更大</span>的缩略图',
@@ -2625,6 +3139,7 @@ const langText = {
     'show <span class="key">larger</span> thumbnails',
     '大きなサムネイルを表示する',
     '<span class="key">더 큰</span> 썸네일 표시',
+    'Показывать <span class="key">большие</span> миниатюры',
   ],
   _横图占用二倍宽度: [
     '横图占用二倍宽度',
@@ -2632,6 +3147,7 @@ const langText = {
     'Horizontal image takes up double the width',
     '水平方向の画像は幅の2倍を占めます',
     '가로 그림은 두 배의 너비를 차지',
+    'Горизонтальное изображение занимает вдвое большую ширину',
   ],
   _该功能默认开启: [
     '这个功能默认启用。',
@@ -2639,6 +3155,7 @@ const langText = {
     'This feature is enabled by default.',
     'この機能はデフォルトで有効になっています。',
     '이 기능은 기본적으로 활성화됩니다.',
+    'Эта функция включена по умолчанию.',
   ],
   _你可以在更多选项卡的xx分类里找到它: [
     '你可以在“更多”选项卡 → “{}”分类里找到它。（需要先启用“显示高级设置”）',
@@ -2646,6 +3163,7 @@ const langText = {
     'You can find it in the "More" tab → "{}" category. ("Show advanced settings" needs to be enabled first)',
     '[もっと]タブ→[{}]カテゴリにあります。 （最初に「詳細設定を表示」を有効にする必要があります）',
     '"더보기" 탭 → "{}" 카테고리에서 찾을 수 있습니다. ("고급 설정 보기"를 먼저 활성화해야 합니다.)',
+    'Вы можете найти его в разделе "Еще". вкладка → "{}" категория. ("Показать расширенные настройки" необходимо сначала включить)',
   ],
   _使用鼠标滚轮切换作品里的图片: [
     '使用鼠标滚轮切换多图作品里的图片',
@@ -2653,6 +3171,7 @@ const langText = {
     'Use the mouse wheel to switch images in multi-image works',
     'マウスホイールを使用して、マルチイメージ作品のイメージを切り替えます',
     '마우스 휠을 사용하여 여러 이미지 작품에서 이미지 전환',
+    'Используйте колесико мыши для переключения изображений в работах с несколькими изображениями',
   ],
   _这可能会阻止页面滚动: [
     '这可能会阻止页面滚动',
@@ -2660,6 +3179,7 @@ const langText = {
     'This might stop the page from scrolling',
     'ページのスクロールを妨げる可能性があります',
     '이 기능은 페이지를 스크롤하지 못하게 할 수 있습니다.',
+    'Это может остановить прокрутку страницы',
   ],
   _动图转换失败的提示: [
     '动图转换失败，id：{}',
@@ -2667,6 +3187,7 @@ const langText = {
     'Ugoira(animation) conversion failed, id: {}',
     'うごイラの変換に失敗しました、id：{}',
     '움직이는 일러스트 변환에 실패했습니다, ID: {}',
+    'Не удалось преобразовать Ugoira(анимацию), идентификатор: {}',
   ],
   _作品id无法下载带状态码: [
     '{} 无法下载，状态码：{}',
@@ -2674,6 +3195,7 @@ const langText = {
     '{} failed to download, status code: {}',
     '{} ダウンロードに失敗しました、ステータスコード：{}',
     '{} 다운로드할 수 없습니다, 상태 코드: {}',
+    '{} не удалось загрузить, код состояния: {}',
   ],
   _作品总数为0: [
     '作品总数为 0，Pixiv 可能拒绝了此次抓取。请稍后重试。',
@@ -2681,6 +3203,7 @@ const langText = {
     'The total number of works is 0, Pixiv may have refused this crawl. Please try again later.',
     '作品の総数は 0 です。 Pixivがこのクロールを拒否した可能性があります。 後でもう一度やり直してください。',
     '총 작품 수가 0개입니다, Pixiv가 이번 긁어오기를 거부한 것으로 보입니다. 잠시 후에 다시 시도해주세요.',
+    'Общее количество работ равно 0, возможно, Pixiv блокирует сканирование. Пожалуйста, повторите попытку позже.',
   ],
   _快捷键AltP: [
     '快捷键 Alt + P',
@@ -2688,6 +3211,7 @@ const langText = {
     'Hot key: Alt + P',
     'ホットキー Alt + P',
     '단축키: Alt + P',
+    'Горячая клавиша: Alt + P',
   ],
   _优化预览作品功能: [
     '优化“预览作品”功能',
@@ -2695,6 +3219,7 @@ const langText = {
     'Optimize the "Preview Works" function',
     '「作品のプレビュー」機能を最適化する',
     '"작품 미리보기" 기능 최적화',
+    'Оптимизация "Предварительного просмотра работ" функция',
   ],
   _1230更新说明: [
     `1. 在网页标题上显示剩余下载数量<br>
@@ -2718,6 +3243,10 @@ const langText = {
     이렇게 하면 사용자는 다운로드 패널을 열지 않고도 다운로드 진행 상황을 알 수 있습니다.<br><br>
     2.사용자는 다운로드 중 새 다운로드 작업을 추가할 수 있습니다.
     `,
+    `1. Показать оставшиеся загрузки в заголовке страницы<br>
+    Во время загрузки в заголовке страницы будет показано, сколько файлов еще не загружено. <br>
+    Таким образом, пользователь может узнать о ходе загрузки, не открывая панель загрузки.<br><br>
+    2. Пользователи могут добавлять некоторые новые задачи загрузки во время загрузки.`,
   ],
   _设定资料: [
     '设定资料',
@@ -2725,6 +3254,7 @@ const langText = {
     'Reference materials',
     '設定資料',
     '설정 자료',
+    'Справочные материалы',
   ],
   _年龄限制: [
     '<span class="key">年龄</span>限制',
@@ -2732,6 +3262,7 @@ const langText = {
     '<span class="key">Age</span> limit',
     '<span class="key">年齢</span>制限',
     '<span class="key">연령</span> 제한',
+    '<span class="key">Возраст</span> limit',
   ],
   _收藏状态: [
     '<span class="key">收藏</span>状态',
@@ -2739,6 +3270,7 @@ const langText = {
     '<span class="key">Bookmark</span> status',
     '<span class="key">ブックマーク</span>ステータス',
     '<span class="key">북마크</span> 상태',
+    'Статус <span class="key">закладки</span> ',
   ],
   _图片色彩: [
     '图片<span class="key">色彩</span>',
@@ -2746,6 +3278,7 @@ const langText = {
     'Image <span class="key">color</span>',
     '画像の<span class="key">色</span>',
     '이미지 <span class="key">색채</span>',
+    '<span class="key">Цвет</span> изображения',
   ],
   _图片数量: [
     '图片<span class="key">数量</span>',
@@ -2753,6 +3286,7 @@ const langText = {
     '<span class="key">Number</span> of images',
     '画像の<span class="key">数</span>',
     '이미지 <span class="key">수</span>',
+    '<span class="key">Количество</span> изображений',
   ],
   _不抓取多图作品的最后一张图片: [
     '不抓取多图作品的<span class="key">最后一张</span>图片',
@@ -2760,6 +3294,7 @@ const langText = {
     'Do not crawl the <span class="key">last image</span> of multi-image works',
     'マルチ画像作品の<span class="key">最後の画像</span>をつかまないでください',
     '여러 이미지의 <span class="key">마지막 이미지</span> 긁어오지 않기',
+    'Не сканировать по <span class="key">последние изображения</span> в много картинных работах',
   ],
   _下载小说的封面图片: [
     '下载小说的<span class="key">封面</span>图片',
@@ -2767,6 +3302,7 @@ const langText = {
     'Download the <span class="key">cover</span> image of the novel',
     '小説の<span class="key">表紙画像</span>をダウンロード',
     '소설 <span class="key">커버</span> 이미지 다운로드',
+    'Скачать изображение <span class="key">обложки</span> новеллы',
   ],
   _预览动图: [
     '<span class="key">预览</span>动图',
@@ -2774,13 +3310,7 @@ const langText = {
     '<span class="key">Preview</span> Ugoira',
     'うごイラのプレビュー',
     '움직이는 일러스트 <span class="key">미리보기</span>',
-  ],
-  _1282更新说明: [
-    `加快转换动图的速度；<br>优化预览作品的体验；<br>添加了韩语文本。`,
-    `加快轉換動圖的速度；<br>最佳化預覽作品的體驗；<br>添加了韓語文字。`,
-    `Speed up the conversion of Ugoira;<br>Optimize the experience of previewing works;<br>Add Korean text.`,
-    `うごイラの変換を高速化します;<br>作品のプレビュー体験を最適化します;<br>韓国語のテキストを追加します。`,
-    `움직이는 일러스트 변환 속도 향상,<br>优化预览图片的体验,<br>한국어 텍스트 추가.`,
+    '<span class="key">Превью</span> Ugoira(анимации)',
   ],
   _过度访问警告警告: [
     '下载器检测到你可能收到了 pixiv 的警告消息，这通常是因为过度下载导致的。<br>请等待一段时间再继续下载。',
@@ -2788,6 +3318,7 @@ const langText = {
     'The downloader has detected that you may have received a warning message from pixiv, usually due to excessive downloads.<br>Please wait for a while before continuing the download.',
     'ダウンロードが多すぎるため、pixivから警告メッセージが届いた可能性があることをダウンローダーが検出しました。<br>ダウンロードを続行する前に、しばらくお待ちください。',
     '다운로더는 일반적으로 과도한 다운로드로 인해 pixiv에서 경고 메시지를 수신했을 수 있음을 감지했습니다.<br>다운로드를 계속하기 전에 잠시 기다려 주십시오.',
+    'Программа загрузки обнаружила, что вы могли получить предупреждающее сообщение от pixiv, обычно из-за чрезмерной загрузки.<br> Пожалуйста, подождите некоторое время, прежде чем продолжить загрузку.',
   ],
   _下载小说里的内嵌图片: [
     '下载小说里的<span class="key">内嵌</span>图片',
@@ -2795,6 +3326,7 @@ const langText = {
     'Download <span class="key">embedded</span> images in novels',
     '小説に埋め込まれた画像をダウンロードする',
     '소설에서 <span class="key">인라인</span> 이미지 다운로드',
+    'Загрузка <span class="key">вложенных</span> изображений в новеллах',
   ],
   _其他优化: [
     '其他优化',
@@ -2802,6 +3334,7 @@ const langText = {
     'Other optimizations',
     'その他の最適化',
     '기타 최적화',
+    'Другие оптимизации',
   ],
   _隐藏浏览器底部的下载栏: [
     '隐藏浏览器底部的<span class="key">下载栏</span>',
@@ -2809,6 +3342,7 @@ const langText = {
     `Hide the <span class="key">download bar</span> at the bottom of the browser`,
     'ブラウザの下部にあるダウンロードバーを非表示にします',
     '브라우저 하단의 <span class="key">다운로드 바</span> 숨기기',
+    `Скрыть <span class="key">панель загрузки</span> в нижней части браузера`,
   ],
   _没有可用的抓取结果: [
     '没有可用的抓取结果',
@@ -2816,6 +3350,7 @@ const langText = {
     'No crawl results available',
     'クロール結果がありません',
     '사용 가능한 크롤링 결과가 없습니다.',
+    'Результаты сканирования недоступны',
   ],
   _预览作品时按快捷键D可以下载这个作品: [
     '预览作品时，按快捷键 <span class="key">D</span> 可以下载这个作品。',
@@ -2823,6 +3358,7 @@ const langText = {
     'When previewing a work, press the shortcut key <span class="key">D</span> to download the work.',
     '作品をプレビューしているときに、ショートカット キー <span class="key">D</span> を押すと、作品をダウンロードできます。',
     '이미지를 미리 보는 동안 바로 가기 <span class="key">D</span>를 눌러 다운로드하세요.',
+    'При предварительном просмотре произведения нажмите клавишу <span class="key">D</span>, чтобы загрузить произведение',
   ],
   _定时抓取: [
     '定时抓取',
@@ -2830,6 +3366,7 @@ const langText = {
     'Timed crawl',
     '時限クロール',
     '시간 제한 크롤링',
+    'Сканирование по таймеру',
   ],
   _定时抓取说明: [
     '每隔一定时间，自动开始抓取和下载。',
@@ -2837,6 +3374,7 @@ const langText = {
     'Automatically start crawling and downloading at regular intervals.',
     '定期的にクロールとダウンロードを自動的に開始します。',
     '정기적으로 자동으로 크롤링 및 다운로드를 시작합니다.',
+    'Автоматически запускать сканирование и загрузку через регулярные промежутки времени',
   ],
   _定时抓取已启动的提示: [
     '定时抓取已启动，间隔时间：{} 分钟。',
@@ -2844,6 +3382,7 @@ const langText = {
     'Timed crawl started, interval: {} minutes.',
     '時限クロールが開始されました。間隔: {} 分。',
     '시간 제한 크롤링이 시작되었습니다. 간격: {}분. ',
+    'Таймер сканирования запущен, интервал: {} минут.',
   ],
   _定时抓取已启动的提示2: [
     '请不要关闭这个标签页，也不要改变这个标签页的 URL。<br>建议启用“不下载重复文件”功能，以避免下载重复的文件。<br><br>如果这个扩展程序自动更新了，那么这个页面将不能正常下载文件（需要刷新页面来恢复正常）。 如果你想长期执行定时抓取任务，建议安装下载器的离线版本，以免因为自动更新而导致问题。<br>你可以在这里下载离线安装包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
@@ -2851,6 +3390,7 @@ const langText = {
     'Please do not close this tab or change the URL of this tab. <br>It is recommended to enable the "Do not download duplicate files" feature to avoid downloading duplicate files.<br><br>If the extension is automatically updated, the page will not be able to download files normally (refresh the page to restore normal). If you want to perform scheduled crawling tasks for a long time, it is recommended to install the offline version of the downloader to avoid problems caused by automatic updates.<br>You can download the offline installation package here: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
     'このタブを閉じたり、このタブの URL を変更したりしないでください。<br>重複ファイルのダウンロードを避けるために、「重複ファイルをダウンロードしない」機能を有効にすることをお勧めします。<br><br>拡張機能が自動的に更新されると、ページはファイルを正常にダウンロードできなくなります (ページを更新して正常に戻します)。 スケジュールされたクロール タスクを長時間実行する場合は、自動更新による問題を回避するために、ダウンローダのオフライン バージョンをインストールすることをお勧めします。<br>オフライン インストール パッケージは、次の場所からダウンロードできます。<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
     '이 탭을 닫거나 이 탭의 URL을 변경하지 마십시오.<br>중복 파일 다운로드를 방지하기 위해 "중복 파일 다운로드 금지" 기능을 활성화하는 것이 좋습니다.<br><br>확장자가 자동으로 업데이트되면 페이지에서 파일을 정상적으로 다운로드할 수 없습니다(페이지를 새로고침하여 정상으로 복원). 예약된 크롤링 작업을 장기간 수행하려면 자동 업데이트로 인한 문제를 방지하기 위해 다운로더의 오프라인 버전을 설치하는 것이 좋습니다.<br>여기에서 오프라인 설치 패키지를 다운로드할 수 있습니다. <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+    'Пожалуйста, не закрывайте эту вкладку и не меняйте URL этой вкладки. <br> Рекомендуется включить функцию "Не загружать дубликаты файлов", чтобы избежать загрузки дубликатов файлов.<br><br>Если расширение автоматически обновляется, страница не сможет загружать файлы в обычном режиме (обновите страницу, чтобы восстановить нормальный режим). Если вы хотите выполнять запланированные задачи обхода в течение длительного времени, рекомендуется установить автономную версию загрузчика, чтобы избежать проблем, вызванных автоматическими обновлениями.<br>Вы можете скачать автономный установочный пакет здесь: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Страница релизов</a>',
   ],
   _定时抓取的间隔时间: [
     '定时抓取的间隔时间',
@@ -2858,14 +3398,16 @@ const langText = {
     'The interval time of timed crawl',
     '時間指定クロールの間隔時間',
     '정기 크롤링 간격 시간',
+    'Интервальное время сканирования с таймером',
   ],
-  _分钟: ['分钟', '分鐘', 'Minute', '分', '분'],
+  _分钟: ['分钟', '分鐘', 'Minute', '分', '분', 'Минут'],
   _定时抓取的时间超过最大值: [
     '定时抓取的间隔时间超过最大值：',
     '定時抓取的間隔時間超過最大值：',
     'The interval of timed crawl exceeds the maximum value: ',
     '時間指定クロールの間隔が最大値を超えています: ',
     '시간 지정 크롤링 간격이 최대값을 초과합니다: ',
+    'Интервал сканирования по таймеру превышает максимальное значение: ',
   ],
   _定时抓取的时间最小值: [
     '定时抓取的间隔时间最小值为 1 分钟。',
@@ -2873,6 +3415,7 @@ const langText = {
     'The minimum interval for timed crawls is 1 minute.',
     '時間指定クロールの最小間隔は 1 分です。',
     '시간 지정 크롤링의 최소 간격은 1분입니다.',
+    'Минимальный интервал для сканирования по таймеру составляет 1 минуту.',
   ],
   _取消定时抓取: [
     '取消定时抓取',
@@ -2880,6 +3423,7 @@ const langText = {
     'Cancel timed crawl',
     '時間指定クロールをキャンセル',
     '시간 지정 크롤링 취소',
+    'Отменить сканирование по таймеру',
   ],
   _已取消定时抓取: [
     '已取消定时抓取',
@@ -2887,6 +3431,7 @@ const langText = {
     'Timed crawl canceled',
     '時間指定クロールがキャンセルされました',
     '예약된 크롤링이 취소되었습니다.',
+    'Сканирование по таймеру отменено',
   ],
   _因为URL变化取消定时抓取任务: [
     '因为 URL 变化，定时抓取任务已被取消。',
@@ -2894,6 +3439,7 @@ const langText = {
     'The timed crawl task has been canceled due to URL changes.',
     'URL が変更されたため、時間指定クロール タスクがキャンセルされました。',
     'URL 변경으로 인해 시간이 지정된 크롤링 작업이 취소되었습니다.',
+    'Задание на сканирование по времени было отменено из-за изменений URL.',
   ],
   _开始定时抓取: [
     '开始定时抓取',
@@ -2901,6 +3447,7 @@ const langText = {
     'Start timed crawling',
     '時間指定クロールを開始する',
     '시간 지정 크롤링 시작',
+    'Начать сканирование по таймеру',
   ],
   _等待下一次定时抓取: [
     '等待下一次定时抓取',
@@ -2908,6 +3455,7 @@ const langText = {
     'Wait for the next timed crawl',
     '次回の時限クロールを待つ',
     '다음 시간 크롤링을 기다립니다.',
+    'Подождите следующего сканирования с таймером',
   ],
   _当前时间: [
     '当前时间：',
@@ -2915,6 +3463,7 @@ const langText = {
     'Current time: ',
     '現在の時刻：',
     '현재 시간: ',
+    'Текущее время: ',
   ],
   _仅在部分页面中可用: [
     '仅在部分页面中可用。',
@@ -2922,6 +3471,7 @@ const langText = {
     'Only available on some pages.',
     '一部のページのみ利用可能です。',
     '일부 페이지에서만 사용할 수 있습니다.',
+    'Доступно только на некоторых страницах',
   ],
   _发生错误原因: [
     '发生错误，原因：',
@@ -2929,6 +3479,7 @@ const langText = {
     'An error occurred due to:',
     '次の理由でエラーが発生しました:',
     '다음으로 인해 오류가 발생했습니다.',
+    'Произошла ошибка по причине:',
   ],
   _扩展程序已更新: [
     '扩展程序已更新。',
@@ -2936,6 +3487,7 @@ const langText = {
     'The extension has been updated.',
     '拡張機能が更新されました。',
     '확장이 업데이트되었습니다.',
+    'Расширение было обновлено.',
   ],
   _未知错误: [
     '未知错误。',
@@ -2943,6 +3495,7 @@ const langText = {
     'unknown mistake.',
     '未知の間違い。',
     '알 수 없는 실수.',
+    'неизвестная ошибка',
   ],
   _请刷新页面: [
     '请刷新页面。',
@@ -2950,6 +3503,7 @@ const langText = {
     'Please refresh the page.',
     'ページを更新してください。',
     '페이지를 새로고침하세요.',
+    'Пожалуйста, обновите страницу.',
   ],
   _减慢抓取速度: [
     '<span class="key">减慢</span>抓取速度',
@@ -2957,6 +3511,7 @@ const langText = {
     '<span class="key">Slow down</span> crawl',
     'クロールを<span class="key">遅くする</span>',
     '<span class="key">천천히</span> 크롤링',
+    '<span class="key">Замедлить</span> сканирование',
   ],
   _减慢抓取速度的说明: [
     '减慢抓取速度可以避免在抓取时被 Pixiv 临时限制。但这会增加抓取时间。',
@@ -2964,14 +3519,23 @@ const langText = {
     'Slow down the crawl to avoid being temporarily restricted by Pixiv while crawling. But this will increase the crawl time.',
     'クロール中にPixivによって一時的に制限されないように、クロールを遅くします。 ただし、これによりクロール時間が長くなります。',
     '크롤링하는 동안 Pixiv에 의해 일시적으로 제한되지 않도록 크롤링 속도를 늦춥니다. 그러나 이것은 크롤링 시간을 증가시킵니다.',
+    'Замедлить сканирование, чтобы избежать временного ограничения Pixiv во время сканирования. Это увеличит время сканирования.',
   ],
-  _作品数量: ['作品数量', '作品數量', 'Number of works', '作品数', '작품 수'],
+  _作品数量: [
+    '作品数量',
+    '作品數量',
+    'Number of works',
+    '作品数',
+    '작품 수',
+    'Количество работ',
+  ],
   _慢速抓取: [
     '慢速抓取',
     '慢速抓取',
     'slow crawl',
     'クロールが遅い',
     '느린 크롤링',
+    'медленное сканирование',
   ],
   _点击收藏按钮时下载作品: [
     '点击<span class="key">收藏</span>按钮时下载作品',
@@ -2979,6 +3543,7 @@ const langText = {
     'Download a work when you click the <span class="key">bookmark</span> button',
     '<span class="key">ブックマーク</span>ボタンをクリックすると作品をダウンロード',
     '<span class="key">북마크</span> 버튼 클릭 시 작품 다운로드',
+    'Загрузка произведения при нажатии кнопки <span class="key">закладка</span>',
   ],
   _点击点赞按钮时下载作品: [
     '点击<span class="key">点赞</span>按钮时下载作品',
@@ -2986,6 +3551,95 @@ const langText = {
     'Download a work when you click the <span class="key">like</span> button',
     '<span class="key">いいね</span> ボタンをクリックすると作品がダウンロードされます',
     '<span class="key">좋아요</span> 버튼 클릭 시 작품 다운로드',
+    'Загрузка произведения при нажатии на кнопку <span class="key">лайк</span>',
+  ],
+  _优化性能和用户体验: [
+    '优化性能和用户体验。',
+    '最佳化效能和使用者體驗。',
+    'Optimize performance and user experience.',
+    'パフォーマンスとユーザー エクスペリエンスを最適化します。',
+    '성능과 사용자 경험을 최적화합니다.',
+    'Оптимизация производительности и пользовательского опыта',
+  ],
+  _修复bug: [
+    '修复 bug',
+    '修復 bug',
+    'fix bugs',
+    'バグを修正',
+    '버그 수정',
+    'Баг фикс',
+  ],
+  _不支持的浏览器: [
+    '你的浏览器不能正常使用这个扩展程序，主要原因可能是浏览器内核版本太低，或者存在兼容性问题。<br>建议您更换成最新版本的 Chrome 或 Edge 浏览器。',
+    '你的瀏覽器不能正常使用這個擴充套件程式，主要原因可能是瀏覽器核心版本太低，或者存在相容性問題。<br>建議您更換成最新版本的 Chrome 或 Edge 瀏覽器。',
+    'Your browser cannot use this extension properly. The main reason may be that the browser kernel version is too low, or there is a compatibility problem. <br>We recommend that you switch to the latest version of Chrome or Edge.',
+    'お使いのブラウザでは、この拡張機能を正しく使用できません。 主な理由としては、ブラウザのカーネル バージョンが低すぎるか、互換性の問題がある可能性があります。 <br>最新バージョンの Chrome または Edge に切り替えることをお勧めします。',
+    '브라우저에서 이 확장 프로그램을 제대로 사용할 수 없습니다. 주된 이유는 브라우저 커널 버전이 너무 낮거나 호환성 문제가 있기 때문일 수 있습니다. <br>최신 버전의 Chrome 또는 Edge로 전환하는 것이 좋습니다.',
+    'Ваш браузер не может правильно использовать это расширение. Основной причиной может быть слишком низкая версия ядра браузера или проблема совместимости. <br>Мы рекомендуем вам перейти на последнюю версию Chrome или Edge.',
+  ],
+  _日期时间格式错误: [
+    '日期时间格式错误',
+    '日期時間格式錯誤',
+    'wrong datetime format',
+    '間違った日時形式',
+    '잘못된 날짜/시간 형식',
+    'неправильный формат даты',
+  ],
+  _添加了对此页面类型的支持: [
+    '添加了对此页面类型的支持：',
+    '添加了对此页面类型的支持：',
+    'Added support for this page type:',
+    '次のページ タイプのサポートが追加されました：',
+    '이 페이지 유형에 대한 지원이 추가되었습니다：',
+    'Добавлена поддержка этого типа страницы:',
+  ],
+  _仅可由链接浏览: [
+    '仅可由链接浏览',
+    '僅可由連結瀏覽',
+    'URL restricted',
+    'URL限定公開',
+    'URL 한정 공개',
+    'URL ограничен',
+  ],
+  _添加了俄语翻译: [
+    '添加了俄语翻译',
+    '添加了俄語翻譯',
+    'Added Russian translation',
+    'ロシア語の翻訳を追加',
+    '러시아어 번역 추가',
+    'Добавлен русский перевод',
+  ],
+  _取消收藏本页面的所有作品: [
+    '取消收藏本页面的所有作品',
+    '取消收藏本頁面的所有作品',
+    'Unbookmark all works on this page',
+    'このページのすべての作品のブックマークを解除',
+    '이 페이지의 모든 작품에 대한 북마크 해제',
+    'Удалить из избранного все работы на этой странице',
+  ],
+  _取消收藏作品: [
+    '取消收藏作品',
+    '取消收藏作品',
+    'Unbookmark works',
+    '作品のブックマークを解除',
+    '작품 북마크 해제',
+    'Снять закладку с работ',
+  ],
+  _取消收藏本页面的所有作品的说明: [
+    '当你在自己的收藏页面时，可以在“更多”选项卡里看到这个按钮。',
+    '當你在自己的收藏頁面時，可以在“更多”選項卡里看到這個按鈕。',
+    `You can see this button in the "More" tab when you're on your bookmarks page.`,
+    'このボタンは、ブックマーク ページの [もっと] タブに表示されます。',
+    '북마크 페이지에 있을 때 "더보기" 탭에서 이 버튼을 볼 수 있습니다.',
+    'Вы можете увидеть эту кнопку на вкладке «Больше», когда находитесь на странице закладок.',
+  ],
+  _添加收藏失败: [
+    '添加收藏失败',
+    '新增收藏失敗',
+    'Failed to add bookmark',
+    'ブックマークを追加できませんでした',
+    '북마크 추가 실패',
+    'Не удалось добавить закладку',
   ],
 }
 

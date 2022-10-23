@@ -18,7 +18,7 @@ async function copys() {
       reject()
     })
 
-    // 复制 manifest
+    // 复制 src 目录里需要的文件
     await copy('./src', distPath, {
       overwrite: true,
       filter: ['manifest.json'],
@@ -27,7 +27,7 @@ async function copys() {
     // 复制根目录一些文件
     await copy('./', distPath, {
       overwrite: true,
-      filter: ['README.md', 'README-EN.md', 'README-KO.md', 'README-ZH-TW.md', 'LICENSE'],
+      filter: ['README*.md', 'LICENSE'],
     }).then(function (results) {
       resolve()
       console.log('Copy success')

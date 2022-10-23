@@ -4,6 +4,8 @@
 
 [韩国语](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-KO.md)
 
+[Russian](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-RU.md)
+
 [Discord channel](https://discord.gg/eW9JtTK)
 
 ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
@@ -29,7 +31,7 @@
 
 **Powerful Pixiv Downloader**
 
-This is a browser extension for **Chrome** that lets you download images and novels from Pixiv in batch. 
+This is a browser extension for **Chrome** that lets you download images and novels from Pixiv in batch.
 
 Available languages: Simplified Chinese, Traditional Chinese, Japanese, English、Korean.
 
@@ -100,9 +102,11 @@ Thank you for your support!
 
 - Thanks [道滿](https://zhtw.me/) , [VHlqg](https://github.com/VHlqg) for translating traditional Chinese.
 
-- Thanks [KOZ39](https://github.com/KOZ39) for translating traditional Korean.
-
 - Thanks [光の軌跡](https://github.com/jiaer24) for translating traditional Japanese.
+
+- Thanks [bropines](https://github.com/bropines) for translating traditional Russia.
+
+- Thanks [KOZ39](https://github.com/KOZ39) for translating traditional Korean.
 
 - Thanks [z2n](https://github.com/z2n) for improvements to the program.
 
@@ -150,15 +154,12 @@ When you modify the code and compile it, the code will be compiled to the `dist`
 
 ## Supported languages
 
-Simplified Chinese
-
-Traditional Chinese
-
-English
-
-Japanese
-
-Korean
+- 简体中文
+- 繁體中文
+- English
+- 日本語
+- 한국어
+- Русский
 
 You can also optimize the translation, thank you very much :)
 
@@ -211,3 +212,7 @@ You can also optimize the translation, thank you very much :)
 19 [Manga series page](https://www.pixiv.net/user/3698796/series/61267)
 
 20 [Following](https://www.pixiv.net/users/9460149/following)
+
+21 [Requests](https://www.pixiv.net/request)
+
+22 [URL restricted](https://www.pixiv.net/artworks/unlisted/CbLRCId2sY3ZzQDqnQj6)

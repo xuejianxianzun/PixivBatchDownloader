@@ -1,6 +1,6 @@
 // 初始化关注页面、好 P 友页面、粉丝页面
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { API } from '../API'
@@ -10,7 +10,8 @@ import { Tools } from '../Tools'
 import { createCSV } from '../utils/CreateCSV'
 import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
-import { Config } from '../config/Config'
+import { Config } from '../Config'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 interface UserInfo {
   userId: string
@@ -265,7 +266,7 @@ class InitFollowingPage extends InitPageBase {
     }
 
     if (states.slowCrawlMode) {
-      window.setTimeout(() => {
+      setTimeoutWorker.set(() => {
         this.getIdList()
       }, Config.slowCrawlDealy)
     } else {

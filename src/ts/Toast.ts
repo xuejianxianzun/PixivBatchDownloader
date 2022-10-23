@@ -1,4 +1,4 @@
-import { Colors } from './config/Colors'
+import { Colors } from './Colors'
 
 // 可选参数
 export interface ToastArgOptional {
@@ -10,16 +10,16 @@ export interface ToastArgOptional {
   stay?: number
   /**出现时的动画效果
    *
-   * fade 默认值逐渐消失
+   * up 默认值，向上移动一段距离并逐渐显示
    *
-   * up 向上移动一段距离并逐渐消失
+   * fade 逐渐显示
    *
-   * none 立即消失
+   * none 立即显示
    */
   enter?: 'up' | 'fade' | 'none'
   /**消失时的动画效果
    *
-   * fade 默认值逐渐消失
+   * fade 默认值，逐渐消失
    *
    * up 向上移动一段距离并逐渐消失
    *
@@ -32,7 +32,7 @@ export interface ToastArgOptional {
    *
    * center 出现在屏幕正中央（实际上会稍微偏上一点点）
    *
-   * mouse 提示出现在鼠标光标附近
+   * mouse 默认值，提示出现在鼠标光标附近
    */
   position?: 'topCenter' | 'center' | 'mouse'
 }
@@ -62,7 +62,7 @@ class Toast {
     dealy: 1500,
     enter: 'up',
     leave: 'fade',
-    position: 'topCenter',
+    position: 'mouse',
   }
 
   private readonly successCfg: ToastArg = {
@@ -72,7 +72,7 @@ class Toast {
     dealy: 1500,
     enter: 'up',
     leave: 'fade',
-    position: 'topCenter',
+    position: 'mouse',
   }
 
   private readonly warningCfg: ToastArg = {
@@ -82,7 +82,7 @@ class Toast {
     dealy: 1500,
     enter: 'up',
     leave: 'fade',
-    position: 'topCenter',
+    position: 'mouse',
   }
 
   private readonly errorCfg: ToastArg = {
@@ -92,7 +92,7 @@ class Toast {
     dealy: 1500,
     enter: 'up',
     leave: 'fade',
-    position: 'topCenter',
+    position: 'mouse',
   }
 
   private readonly tipClassName = 'xzToast'

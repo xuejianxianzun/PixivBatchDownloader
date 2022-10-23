@@ -1,5 +1,8 @@
 import { API } from './API'
+import { lang } from './Lang'
+import { log } from './Log'
 import { settings } from './setting/Settings'
+import { toast } from './Toast'
 import { token } from './Token'
 import { Tools } from './Tools'
 
@@ -48,15 +51,29 @@ class Bookmark {
 
     const request = API.addBookmark(id, type, tags, _restrict, token.token)
 
-    // 如果状态码为 400，则表示当前 token 无效，需要重新获取 token，然后重新添加收藏
     let status = 0
     await request.then((res) => {
       status = res.status
     })
+    // 如果状态码为 400，则表示当前 token 无效，需要重新获取 token，然后重新添加收藏
     if (status === 400) {
       await token.reset()
-      return API.addBookmark(id, type, tags, _restrict, token.token)
+      return await API.addBookmark(id, type, tags, _restrict, token.token)
     }
+
+    if (status === 429) {
+      toast.error(lang.transl('_添加收藏失败'), {
+        position: 'topCenter',
+      })
+      log.error(
+        `${Tools.createWorkLink(id, type === 'illusts')} ${lang.transl(
+          '_添加收藏失败'
+        )}. ${lang.transl('_错误代码')}${status}.`
+      )
+    }
+
+    // 返回状态码
+    return status
   }
 }
 

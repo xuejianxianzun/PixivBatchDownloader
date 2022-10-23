@@ -1,6 +1,6 @@
 // 初始化小说搜索页
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { SearchOption } from '../crawl/CrawlArgument'
@@ -18,7 +18,8 @@ import { msgBox } from '../MsgBox'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { states } from '../store/States'
 import { pageType } from '../PageType'
-import { Config } from '../config/Config'
+import { Config } from '../Config'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {
@@ -303,7 +304,7 @@ class InitSearchNovelPage extends InitPageBase {
     if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
       // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
       if (states.slowCrawlMode) {
-        window.setTimeout(() => {
+        setTimeoutWorker.set(() => {
           this.getIdList()
         }, Config.slowCrawlDealy)
       } else {

@@ -1,6 +1,6 @@
 // 初始化 artwork 排行榜页面
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { API } from '../API'
 import { lang } from '../Lang'
 import { Tools } from '../Tools'

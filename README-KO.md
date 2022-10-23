@@ -4,6 +4,8 @@
 
 [English](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
 
+[Russian](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-RU.md)
+
 [Discord](https://discord.gg/eW9JtTK)
 
 ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
@@ -102,6 +104,8 @@
 
 - [KOZ39](https://github.com/KOZ39) 한국어로 번역해 주셔서 감사합니다.
 
+- 러시아 번역에 대해 [bropines](https://github.com/bropines)에게 감사드립니다.
+
 - [光の軌跡](https://github.com/jiaer24) 일본어로 번역해 주셔서 감사합니다.
 
 - [z2n](https://github.com/z2n) 프로그램을 개선해 주셔서 감사합니다.
@@ -150,15 +154,12 @@ npm run build // fmt, ts, less 명령을 실행하고 패키징에 필요한 다
 
 ## 지원하는 언어
 
-중국어 간체
-
-중국어 번체
-
-영어
-
-일본어
-
-한국어
+- 简体中文
+- 繁體中文
+- English
+- 日本語
+- 한국어
+- Русский
 
 당신은 또한 번역을 개선할 수 있습니다. 감사합니다 :)
 
@@ -211,3 +212,7 @@ npm run build // fmt, ts, less 명령을 실행하고 패키징에 필요한 다
 19 [만화 시리즈 페이지](https://www.pixiv.net/user/3698796/series/61267)
 
 20 [팔로우 중](https://www.pixiv.net/users/9460149/following)
+
+21 [리퀘스트](https://www.pixiv.net/request)
+
+22 [URL 한정 공개](https://www.pixiv.net/artworks/unlisted/CbLRCId2sY3ZzQDqnQj6)

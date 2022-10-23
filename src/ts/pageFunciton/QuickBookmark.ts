@@ -141,12 +141,13 @@ class QuickBookmark {
       return
     }
 
-    await Bookmark.add(id, type, Tools.extractTags(this.workData!))
-
-    // 收藏成功之后
-    this.isBookmarked = true
-    this.redQuickBookmarkBtn()
-    this.redPixivBMKDiv(pixivBMKDiv)
+    const res = await Bookmark.add(id, type, Tools.extractTags(this.workData!))
+    if (res !== 429) {
+      // 收藏成功之后
+      this.isBookmarked = true
+      this.redQuickBookmarkBtn()
+      this.redPixivBMKDiv(pixivBMKDiv)
+    }
   }
 
   // 点赞这个作品

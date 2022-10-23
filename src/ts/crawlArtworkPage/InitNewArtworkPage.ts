@@ -1,6 +1,6 @@
 // 初始化 本站的最新作品 artwork 页面
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { NewIllustOption } from '../crawl/CrawlArgument'
@@ -12,7 +12,8 @@ import { log } from '../Log'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
-import { Config } from '../config/Config'
+import { Config } from '../Config'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 class InitNewArtworkPage extends InitPageBase {
   constructor() {
@@ -147,7 +148,7 @@ class InitNewArtworkPage extends InitPageBase {
     // 继续抓取
     this.option.lastId = data.body.lastId
     if (states.slowCrawlMode) {
-      window.setTimeout(() => {
+      setTimeoutWorker.set(() => {
         this.getIdList()
       }, Config.slowCrawlDealy)
     } else {
