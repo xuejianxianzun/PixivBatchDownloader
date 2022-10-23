@@ -1,6 +1,6 @@
 // 初始化发现页面
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { Tools } from '../Tools'
 import { options } from '../setting/Options'

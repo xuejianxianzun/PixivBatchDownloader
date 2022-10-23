@@ -1,6 +1,6 @@
 // 初始化 关注的用户的新作品页面
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { Tools } from '../Tools'
 import { options } from '../setting/Options'
@@ -14,7 +14,7 @@ import {
   BookMarkNewNovelData,
 } from '../crawl/CrawlResult'
 import { states } from '../store/States'
-import { Config } from '../config/Config'
+import { Config } from '../Config'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 class InitBookmarkNewPage extends InitPageBase {

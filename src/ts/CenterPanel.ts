@@ -2,7 +2,7 @@ import { lang } from './Lang'
 import { EVT } from './EVT'
 import { states } from './store/States'
 import { theme } from './Theme'
-import { Config } from './config/Config'
+import { Config } from './Config'
 import { msgBox } from './MsgBox'
 import { bg } from './BG'
 import './OpenCenterPanel'
@@ -91,7 +91,7 @@ class CenterPanel {
       <button class="textButton gray1" id="showDownTip" type="button" data-xztext="_常见问题"></button>
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank" data-xztext="_wiki"></a>
       <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
-      <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank" data-xztext="_fanboxDownloader"></a>
+      <a class="gray1" href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank" data-xztext="_fanboxDownloader"></a>
       <button class="textButton gray1" id="showPatronTip" type="button" data-xztext="_赞助我"></button>
       <br>
       </div>

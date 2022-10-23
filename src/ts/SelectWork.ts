@@ -1,5 +1,5 @@
 import { Tools } from './Tools'
-import { Colors } from './config/Colors'
+import { Colors } from './Colors'
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import { states } from './store/States'
@@ -14,7 +14,8 @@ import { pageType } from './PageType'
 // 手动选择作品，图片作品和小说都可以选择
 class SelectWork {
   constructor() {
-    if (!this.created && Utils.isPixiv()) {
+    const unlisted = pageType.type === pageType.list.Unlisted
+    if (!this.created && Utils.isPixiv() && !unlisted) {
       this.created = true
       this.selector = this.createSelectorEl()
       this.addBtn()
@@ -407,7 +408,6 @@ class SelectWork {
 
       toast.show(lang.transl('_已发送下载请求'), {
         bgColor: Colors.bgBlue,
-        position: 'mouse',
       })
     } else {
       toast.error(lang.transl('_没有数据可供使用'))

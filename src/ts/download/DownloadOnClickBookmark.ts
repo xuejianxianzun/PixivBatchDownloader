@@ -3,7 +3,7 @@ import { EVT } from '../EVT'
 import { settings } from '../setting/Settings'
 import { states } from '../store/States'
 import { toast } from '../Toast'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { workToolBar } from '../WorkToolBar'
 import { pageType } from '../PageType'
@@ -63,7 +63,6 @@ class DownloadOnClickBookmark {
 
       toast.show(lang.transl('_已发送下载请求'), {
         bgColor: Colors.bgBlue,
-        position: 'mouse',
       })
     }
   }

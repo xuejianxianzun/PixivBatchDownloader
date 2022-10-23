@@ -3,7 +3,7 @@ import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { settings } from '../setting/Settings'
 import { toast } from '../Toast'
-import { Config } from '../config/Config'
+import { Config } from '../Config'
 
 // 显示 url
 class ShowURLs {

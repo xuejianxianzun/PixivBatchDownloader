@@ -1,6 +1,6 @@
 //初始化 artwork 作品页
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'

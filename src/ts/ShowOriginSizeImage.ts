@@ -7,7 +7,7 @@ import { ArtworkData } from './crawl/CrawlResult'
 import { states } from './store/States'
 import { toast } from './Toast'
 import { lang } from './Lang'
-import { Colors } from './config/Colors'
+import { Colors } from './Colors'
 
 interface Style {
   imgW: number

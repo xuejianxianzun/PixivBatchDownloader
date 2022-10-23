@@ -1,4 +1,4 @@
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { pageType } from '../PageType'
@@ -52,7 +52,6 @@ class DownloadOnClickLike {
 
       toast.show(lang.transl('_已发送下载请求'), {
         bgColor: Colors.bgBlue,
-        position: 'mouse',
       })
     }
   }

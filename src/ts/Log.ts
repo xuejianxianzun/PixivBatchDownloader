@@ -1,7 +1,6 @@
-import { Tools } from './Tools'
 import { EVT } from './EVT'
 import { theme } from './Theme'
-import { Colors } from './config/Colors'
+import { Colors } from './Colors'
 import { bg } from './BG'
 
 // 日志
@@ -25,7 +24,7 @@ class Log {
     Colors.textError,
   ]
 
-  private max = 100
+  private max = 200
   private count = 0
 
   private toBottom = false // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
