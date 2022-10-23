@@ -24,6 +24,9 @@ class BookmarkAfterDL {
 
   private tipEl: HTMLElement = document.createElement('span')
 
+  // 如果之前的下载已完成，那么当下一次开始下载时（也就是新的下载，而不是暂停后继续的下载），则重置状态
+  private delayReset = false
+
   // 可选传入一个元素，显示收藏的数量和总数
   private bindEvents() {
     // 当有文件下载完成时，提取 id 进行收藏
@@ -45,7 +48,17 @@ class BookmarkAfterDL {
     // 当开始新的抓取时重置状态和提示
     window.addEventListener(EVT.list.crawlStart, (ev: CustomEventInit) => {
       this.reset()
-      this.showProgress()
+    })
+
+    window.addEventListener(EVT.list.downloadComplete, () => {
+      this.delayReset = true
+    })
+
+    window.addEventListener(EVT.list.downloadStart, () => {
+      if (this.delayReset) {
+        this.reset()
+        this.delayReset = false
+      }
     })
   }
 
@@ -64,6 +77,9 @@ class BookmarkAfterDL {
   private reset() {
     this.savedIds = []
     this.successCount = 0
+    this.tipEl.classList.remove('red')
+    this.tipEl.classList.add('green')
+    this.showProgress()
   }
 
   // 接收作品 id，开始收藏
@@ -98,13 +114,19 @@ class BookmarkAfterDL {
         return reject(new Error(`Not find ${id} in result`))
       }
 
-      await Bookmark.add(
+      const res = await Bookmark.add(
         id.toString(),
         data.type !== 3 ? 'illusts' : 'novels',
         data.tags
       )
+      if (res === 429) {
+        // 有错误发生
+        this.tipEl.classList.remove('green')
+        this.tipEl.classList.add('red')
+      } else {
+        this.successCount++
+      }
 
-      this.successCount++
       this.showProgress()
 
       resolve()

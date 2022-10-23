@@ -678,9 +678,15 @@ class BoldKeywords {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Bookmark", function() { return Bookmark; });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Token */ "./src/ts/Token.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Token */ "./src/ts/Token.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+
+
+
 
 
 
@@ -704,30 +710,38 @@ class Bookmark {
      *
      */
     static async add(id, type, tags, needAddTag, restrict) {
-        const _needAddTag = needAddTag === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].widthTagBoolean : !!needAddTag;
+        const _needAddTag = needAddTag === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].widthTagBoolean : !!needAddTag;
         if (_needAddTag) {
             // 需要添加 tags
             if (tags === undefined) {
                 // 如果未传递 tags，则请求作品数据来获取 tags
                 const data = await this.getWorkData(type, id);
-                tags = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].extractTags(data);
+                tags = _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].extractTags(data);
             }
         }
         else {
             // 不需要添加 tags
             tags = [];
         }
-        const _restrict = restrict === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].restrictBoolean : !!restrict;
-        const request = _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(id, type, tags, _restrict, _Token__WEBPACK_IMPORTED_MODULE_2__["token"].token);
-        // 如果状态码为 400，则表示当前 token 无效，需要重新获取 token，然后重新添加收藏
+        const _restrict = restrict === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].restrictBoolean : !!restrict;
+        const request = _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(id, type, tags, _restrict, _Token__WEBPACK_IMPORTED_MODULE_5__["token"].token);
         let status = 0;
         await request.then((res) => {
             status = res.status;
         });
+        // 如果状态码为 400，则表示当前 token 无效，需要重新获取 token，然后重新添加收藏
         if (status === 400) {
-            await _Token__WEBPACK_IMPORTED_MODULE_2__["token"].reset();
-            return _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(id, type, tags, _restrict, _Token__WEBPACK_IMPORTED_MODULE_2__["token"].token);
+            await _Token__WEBPACK_IMPORTED_MODULE_5__["token"].reset();
+            return await _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(id, type, tags, _restrict, _Token__WEBPACK_IMPORTED_MODULE_5__["token"].token);
         }
+        if (status === 429) {
+            _Toast__WEBPACK_IMPORTED_MODULE_4__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_添加收藏失败'), {
+                position: 'topCenter',
+            });
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].error(`${_Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].createWorkLink(id, type === 'illusts')} ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_添加收藏失败')}. ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_错误代码')}${status}.`);
+        }
+        // 返回状态码
+        return status;
     }
 }
 
@@ -2800,8 +2814,10 @@ class ImageViewer {
         _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏'), {
             bgColor: _Colors__WEBPACK_IMPORTED_MODULE_10__["Colors"].bgBlue,
         });
-        await _Bookmark__WEBPACK_IMPORTED_MODULE_8__["Bookmark"].add(this.cfg.workId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].extractTags(this.workData));
-        _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已收藏'));
+        const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_8__["Bookmark"].add(this.cfg.workId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].extractTags(this.workData));
+        if (res !== 429) {
+            _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已收藏'));
+        }
     }
     // 下载当前查看的作品
     download() {
@@ -3715,6 +3731,14 @@ const langText = {
         'エラー コード: 429 (要求が多すぎます)。ダウンローダーはそれを再クロールします。',
         '오류 코드: 429(요청이 너무 많음). 다운로더가 다시 크롤링합니다.',
         'Код ошибки: 429 (Слишком много запросов). Загрузчик будет повторять вытаскивание.',
+    ],
+    _错误代码: [
+        '错误代码：',
+        '錯誤程式碼：',
+        'Error code: ',
+        'エラー コード: ',
+        '오류 코드: ',
+        'Код ошибки: ',
     ],
     _作品页状态码500: [
         'Pixiv 拒绝返回数据 (500)。下载器会重新抓取它。',
@@ -5180,7 +5204,7 @@ const langText = {
         'Bookmarked {}',
         'ブックマークした {}',
         '북마크된 {}',
-        'В закладках',
+        'В закладках {}',
     ],
     _未收藏: [
         '未收藏',
@@ -6739,6 +6763,14 @@ const langText = {
         'このボタンは、ブックマーク ページの [もっと] タブに表示されます。',
         '북마크 페이지에 있을 때 "더보기" 탭에서 이 버튼을 볼 수 있습니다.',
         'Вы можете увидеть эту кнопку на вкладке «Больше», когда находитесь на странице закладок.',
+    ],
+    _添加收藏失败: [
+        '添加收藏失败',
+        '新增收藏失敗',
+        'Failed to add bookmark',
+        'ブックマークを追加できませんでした',
+        '북마크 추가 실패',
+        'Не удалось добавить закладку',
     ],
 };
 
@@ -13307,18 +13339,20 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 return data.idNum !== this.deleteId;
             });
         };
-        this.addBookmark = (event) => {
+        this.addBookmark = async (event) => {
             const data = event.detail.data;
             for (const r of _store_Store__WEBPACK_IMPORTED_MODULE_8__["store"].result) {
                 if (r.idNum === data.id) {
-                    _Bookmark__WEBPACK_IMPORTED_MODULE_19__["Bookmark"].add(data.id.toString(), 'illusts', data.tags);
-                    // 同步数据
-                    r.bookmarked = true;
-                    this.resultMeta.forEach((result) => {
-                        if (result.idNum === data.id) {
-                            result.bookmarked = true;
-                        }
-                    });
+                    const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_19__["Bookmark"].add(data.id.toString(), 'illusts', data.tags);
+                    if (res !== 429) {
+                        // 同步数据
+                        r.bookmarked = true;
+                        this.resultMeta.forEach((result) => {
+                            if (result.idNum === data.id) {
+                                result.bookmarked = true;
+                            }
+                        });
+                    }
                     break;
                 }
             }
@@ -16235,6 +16269,8 @@ class BookmarkAfterDL {
         this.savedIds = [];
         this.successCount = 0;
         this.tipEl = document.createElement('span');
+        // 如果之前的下载已完成，那么当下一次开始下载时（也就是新的下载，而不是暂停后继续的下载），则重置状态
+        this.delayReset = false;
         if (tipEl) {
             this.tipEl = tipEl;
             _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.tipEl);
@@ -16260,7 +16296,15 @@ class BookmarkAfterDL {
         // 当开始新的抓取时重置状态和提示
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.crawlStart, (ev) => {
             this.reset();
-            this.showProgress();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.downloadComplete, () => {
+            this.delayReset = true;
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.downloadStart, () => {
+            if (this.delayReset) {
+                this.reset();
+                this.delayReset = false;
+            }
         });
     }
     showProgress() {
@@ -16273,6 +16317,9 @@ class BookmarkAfterDL {
     reset() {
         this.savedIds = [];
         this.successCount = 0;
+        this.tipEl.classList.remove('red');
+        this.tipEl.classList.add('green');
+        this.showProgress();
     }
     // 接收作品 id，开始收藏
     send(id) {
@@ -16299,8 +16346,15 @@ class BookmarkAfterDL {
             if (data === undefined) {
                 return reject(new Error(`Not find ${id} in result`));
             }
-            await _Bookmark__WEBPACK_IMPORTED_MODULE_4__["Bookmark"].add(id.toString(), data.type !== 3 ? 'illusts' : 'novels', data.tags);
-            this.successCount++;
+            const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__["Bookmark"].add(id.toString(), data.type !== 3 ? 'illusts' : 'novels', data.tags);
+            if (res === 429) {
+                // 有错误发生
+                this.tipEl.classList.remove('green');
+                this.tipEl.classList.add('red');
+            }
+            else {
+                this.successCount++;
+            }
             this.showProgress();
             resolve();
         });
@@ -21943,11 +21997,13 @@ class QuickBookmark {
         if (this.isBookmarked) {
             return;
         }
-        await _Bookmark__WEBPACK_IMPORTED_MODULE_6__["Bookmark"].add(id, type, _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].extractTags(this.workData));
-        // 收藏成功之后
-        this.isBookmarked = true;
-        this.redQuickBookmarkBtn();
-        this.redPixivBMKDiv(pixivBMKDiv);
+        const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_6__["Bookmark"].add(id, type, _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].extractTags(this.workData));
+        if (res !== 429) {
+            // 收藏成功之后
+            this.isBookmarked = true;
+            this.redQuickBookmarkBtn();
+            this.redPixivBMKDiv(pixivBMKDiv);
+        }
     }
     // 点赞这个作品
     like(type, id, likeBtn) {

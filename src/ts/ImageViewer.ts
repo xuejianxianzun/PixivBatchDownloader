@@ -482,12 +482,14 @@ class ImageViewer {
       bgColor: Colors.bgBlue,
     })
 
-    await Bookmark.add(
+    const res = await Bookmark.add(
       this.cfg.workId,
       'illusts',
       Tools.extractTags(this.workData!)
     )
-    toast.success(lang.transl('_已收藏'))
+    if (res !== 429) {
+      toast.success(lang.transl('_已收藏'))
+    }
   }
 
   // 下载当前查看的作品

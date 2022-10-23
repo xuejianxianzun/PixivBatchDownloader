@@ -829,21 +829,21 @@ class InitSearchArtworkPage extends InitPageBase {
     })
   }
 
-  private addBookmark = (event: CustomEventInit) => {
+  private addBookmark = async (event: CustomEventInit) => {
     const data = event.detail.data as AddBMKData
 
     for (const r of store.result) {
       if (r.idNum === data.id) {
-        Bookmark.add(data.id.toString(), 'illusts', data.tags)
-
-        // 同步数据
-        r.bookmarked = true
-
-        this.resultMeta.forEach((result) => {
-          if (result.idNum === data.id) {
-            result.bookmarked = true
-          }
-        })
+        const res = await Bookmark.add(data.id.toString(), 'illusts', data.tags)
+        if (res !== 429) {
+          // 同步数据
+          r.bookmarked = true
+          this.resultMeta.forEach((result) => {
+            if (result.idNum === data.id) {
+              result.bookmarked = true
+            }
+          })
+        }
 
         break
       }
