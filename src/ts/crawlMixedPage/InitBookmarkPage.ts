@@ -1,7 +1,7 @@
 // 初始化新版收藏页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { API } from '../API'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { IDData } from '../store/StoreType'
 import { options } from '../setting/Options'
@@ -13,8 +13,12 @@ import { token } from '../Token'
 import { BookmarksAddTag } from '../pageFunciton/BookmarksAddTag'
 import { filter, FilterOption } from '../filter/Filter'
 import { Utils } from '../utils/Utils'
-import { Config } from '../config/Config'
+import { Config } from '../Config'
 import { states } from '../store/States'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
+import { toast } from '../Toast'
+import { unBookmarkWorks } from '../UnBookmarkWorks'
+import { EVT } from '../EVT'
 
 class InitBookmarkPage extends InitPageBase {
   constructor() {
@@ -67,30 +71,88 @@ class InitBookmarkPage extends InitPageBase {
   }
 
   protected addAnyElement() {
-    // 如果存在 token，则添加“添加 tag”按钮
-    if (token.token) {
-      const btn = Tools.addBtn(
-        'otherBtns',
-        Colors.bgGreen,
-        '_给未分类作品添加添加tag'
-      )
-
-      new BookmarksAddTag(btn)
+    // 如果不存在 token，则不添加与收藏相关的按钮
+    if (!token.token) {
+      return
     }
+
+    // 判断这个收藏页面是不是用户自己的页面，如果不是，也不会添加相关按钮
+    let ownPage = false
+    const URLUserID = Utils.getURLPathField(window.location.pathname, 'users')
+    if (!URLUserID) {
+      ownPage = true
+    } else {
+      // 从特定标签中提取用户自己的 userID，与 URL 中的 userID 对比
+      const element = document.querySelector('#qualtrics_user-id')
+      if (!element || !element.textContent) {
+        ownPage = false
+      } else {
+        ownPage =
+          element.textContent ===
+          Utils.getURLPathField(window.location.pathname, 'users')
+      }
+
+      // 为防止 pixiv 改版导致上一个标签失效，这里使用第二种方法作为备选项
+      // 在 head 里的某个 script 标签里包含有自己的 userID。使用 URL 里的 userID 去尝试匹配
+      // 'user_id', "1234567"
+      if (!ownPage) {
+        ownPage = document.head.innerHTML.includes(`'user_id', "${URLUserID}"`)
+      }
+    }
+
+    if (!ownPage) {
+      return
+    }
+
+    const btn = Tools.addBtn(
+      'otherBtns',
+      Colors.bgGreen,
+      '_给未分类作品添加添加tag'
+    )
+    new BookmarksAddTag(btn)
+
+    Tools.addBtn(
+      'otherBtns',
+      Colors.bgGreen,
+      '_取消收藏本页面的所有作品'
+    ).addEventListener('click', () => {
+      this.unBookmarkAllWorksOnThisPage()
+    })
+  }
+
+  // 取消收藏本页面的所有作品
+  private unBookmarkMode = false
+  private unBookmarkAllWorksOnThisPage() {
+    if (states.busy || this.unBookmarkMode) {
+      toast.error(lang.transl('_当前任务尚未完成'))
+      return
+    }
+
+    // 走一遍简化的抓取流程
+    this.unBookmarkMode = true
+    log.warning(lang.transl('_取消收藏本页面的所有作品'))
+    toast.warning(lang.transl('_取消收藏本页面的所有作品'), {
+      position: 'topCenter',
+    })
+    EVT.fire('closeCenterPanel')
+    // 设置抓取页数为 1
+    this.crawlNumber = 1
+    store.tag = Tools.getTagFromURL()
+    this.readyGetIdList()
+    this.getIdList()
   }
 
   protected nextStep() {
     this.setSlowCrawl()
-
-    if (window.location.pathname.includes('/novel')) {
-      this.type = 'novels'
-    }
-
     this.readyGetIdList()
     this.getIdList()
   }
 
   protected readyGetIdList() {
+    if (window.location.pathname.includes('/novel')) {
+      this.type = 'novels'
+    }
+
     // 每页个作品数，插画 48 个，小说 24 个
     const onceNumber = window.location.pathname.includes('/novels') ? 24 : 48
 
@@ -180,7 +242,7 @@ class InitBookmarkPage extends InitPageBase {
 
       // 继续抓取
       if (states.slowCrawlMode) {
-        window.setTimeout(() => {
+        setTimeoutWorker.set(() => {
           this.getIdList()
         }, Config.slowCrawlDealy)
       } else {
@@ -198,9 +260,18 @@ class InitBookmarkPage extends InitPageBase {
       // 书签页面的 api 没有考虑页面上的排序顺序，获取到的 id 列表始终是按收藏顺序由近期到早期排列的
     }
 
-    store.idList = store.idList.concat(this.idList)
-
-    this.getIdListFinished()
+    if (!this.unBookmarkMode) {
+      // 正常抓取时
+      store.idList = store.idList.concat(this.idList)
+      this.getIdListFinished()
+    } else {
+      // 取消收藏本页面的书签时
+      // 复制本页作品的 id 列表，传递给指定模块
+      const idList = Array.from(this.idList)
+      this.resetGetIdListStatus()
+      this.unBookmarkMode = false
+      unBookmarkWorks.start(idList)
+    }
   }
 
   protected resetGetIdListStatus() {

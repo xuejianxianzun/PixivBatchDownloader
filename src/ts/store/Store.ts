@@ -119,7 +119,7 @@ class Store {
       // 循环生成每一个图片文件的数据
       const p0 = 'p0'
       for (let i = 0; i < workData.dlCount; i++) {
-        // 不下载多图作品的最后一张图片
+        // 不抓取多图作品的最后一张图片
         if (
           settings.doNotDownloadLastImageOfMultiImageWork &&
           i > 0 &&

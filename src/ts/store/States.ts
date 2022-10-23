@@ -117,6 +117,15 @@ class States {
         this.downloading = false
       })
     }
+
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      const data = ev.detail.data as any
+      // 当用户关闭设置里的慢速抓取时，在这里把慢速抓取模式的标记设为 false
+      // 但是当用户开启慢速抓取时，不应该在这里把标记设为 true
+      if (data.name === 'slowCrawl' && data.value === false) {
+        this.slowCrawlMode = false
+      }
+    })
   }
 }
 

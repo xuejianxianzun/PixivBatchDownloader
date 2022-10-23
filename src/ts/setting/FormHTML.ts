@@ -1,4 +1,4 @@
-import { Config } from '../config/Config'
+import { Config } from '../Config'
 
 export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
@@ -625,7 +625,9 @@ export const formHtml = `<form class="settingForm">
     </p>
     
     <p class="option" data-no="46">
-    <span class="settingNameStyle1" data-xztext="_在序号前面填充0"></span>
+    <span class="has_tip settingNameStyle1" data-xztip="_在序号前面填充0的说明">
+    <span data-xztext="_在序号前面填充0"></span>
+    <span class="gray1"> ? </span></span>
     <input type="checkbox" name="zeroPadding" class="need_beautify checkbox_switch" >
     <span class="beautify_switch" tabindex="0"></span>
     <span class="subOptionWrap" data-show="zeroPadding">
@@ -1086,10 +1088,13 @@ export const formHtml = `<form class="settingForm">
     <input type="radio" name="userSetLang" id="userSetLang6" class="need_beautify radio" value="ko">
     <span class="beautify_radio" tabindex="0"></span>
     <label for="userSetLang6">한국어</label>
+    <input type="radio" name="userSetLang" id="userSetLang7" class="need_beautify radio" value="ru">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="userSetLang7">Русский</label>
     </p>
 
     <p class="option" data-no="37">
-    <span class="settingNameStyle1" data-xztext="_管理设置">$</span>
+    <span class="settingNameStyle1" data-xztext="_管理设置"></span>
     <button class="textButton gray1" type="button" id="exportSettings" data-xztext="_导出设置"></button>
     <button class="textButton gray1" type="button" id="importSettings" data-xztext="_导入设置"></button>
     <button class="textButton gray1" type="button" id="resetSettings" data-xztext="_重置设置"></button>

@@ -1,7 +1,7 @@
 // 在搜索页面抓取 tag 列表，抓取完一个 tag 就立即开始下载。下载完毕后再抓取下一个 tag
 // 这是个单例类，为了控制其执行时机，需要手动执行 init 方法来进行一部分初始化
 import { Tools } from '../Tools'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { msgBox } from '../MsgBox'
 import { states } from '../store/States'

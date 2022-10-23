@@ -1,4 +1,7 @@
+import { EVT } from './EVT'
+import { lang } from './Lang'
 import { log } from './Log'
+import { msgBox } from './MsgBox'
 
 interface Rules {
   [key: string]: () => boolean
@@ -8,7 +11,9 @@ interface Rules {
 // 相关文档： notes/一些国产套壳浏览器使用本程序的情况.md
 class CheckUnsupportBrowser {
   constructor() {
-    this.check()
+    window.addEventListener(EVT.list.settingInitialized, () => {
+      this.check()
+    })
   }
 
   private rules: Rules = {
@@ -26,10 +31,11 @@ class CheckUnsupportBrowser {
     },
     All: function () {
       // 如果这个浏览器的 Chrome 内核的版本号较低，也会显示提示
-      // 为什么设置为 80：
-      // 1. 下载器使用的浏览器 API 需要浏览器的内核版本最低为 79
-      // 2. 猎豹浏览器内核版本是 79，符合上一个条件，但是它存在问题，所以要排除它，于是 79 也不可用
-      const minChromeVer = 80
+      // 为什么设置为 88：
+      // 1. 下载器使用的 Manifest V2 需要的内核版本最低为 79
+      // 2. Cent 浏览器的内核版本是 86，但它即使使用 V2，仍然会在转换 GIF 时出现问题，所以需要提高版本号
+      // 3. 未来升级到 Manifest V3 需要的内核版本最低为 88
+      const minChromeVer = 88
       const test = navigator.userAgent.match(/Chrome\/(\d*)/)
       if (test && test[1]) {
         const ver = Number.parseInt(test[1])
@@ -41,13 +47,13 @@ class CheckUnsupportBrowser {
     },
   }
 
-  private readonly tipText =
-    '你的浏览器可能不能正常使用这个扩展程序。<br>如果你在使用中遇到问题，请安装最新版本的 Chrome 浏览器，然后在 Chrome 浏览器上使用这个扩展。'
-
   private check() {
     for (const func of Object.values(this.rules)) {
       if (func()) {
-        return log.warning(this.tipText)
+        const msg = lang.transl('_不支持的浏览器')
+        log.error(msg)
+        // msgBox.error(msg)
+        return
       }
     }
   }

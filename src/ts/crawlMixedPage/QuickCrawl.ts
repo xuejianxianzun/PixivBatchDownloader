@@ -1,4 +1,4 @@
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { pageType } from '../PageType'
@@ -20,7 +20,11 @@ class QuickCrawl {
   private show = true // 是否显示
 
   // 指定在哪些页面类型里启用
-  private readonly enablePageType = [pageType.list.Artwork, pageType.list.Novel]
+  private readonly enablePageType = [
+    pageType.list.Artwork,
+    pageType.list.Novel,
+    pageType.list.Unlisted,
+  ]
 
   private addBtn() {
     // 在右侧添加快速抓取按钮

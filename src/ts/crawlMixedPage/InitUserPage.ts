@@ -1,6 +1,6 @@
 // 初始化用户页面
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { API } from '../API'
@@ -17,7 +17,7 @@ import '../pageFunciton/SaveAvatarImage'
 import '../pageFunciton/SaveUserCover'
 import { BookmarkAllWorks, IDList } from '../pageFunciton/BookmarkAllWorks'
 import { Utils } from '../utils/Utils'
-import { Config } from '../config/Config'
+import { Config } from '../Config'
 
 enum ListType {
   UserHome,
@@ -266,8 +266,8 @@ class InitUserPage extends InitPageBase {
     // 计算需要获取多少个作品
     const requsetNumber = this.getRequsetNumber()
 
-    // 循环请求作品
-    const maxRequest = 100
+    // 循环请求作品，一次请求一页。假设用户的标签页面最大页数不会超过这个数字
+    const maxRequest = 1000
     for (const iterator of new Array(maxRequest)) {
       let data = await API.getUserWorksByTypeWithTag(
         Tools.getUserId(),

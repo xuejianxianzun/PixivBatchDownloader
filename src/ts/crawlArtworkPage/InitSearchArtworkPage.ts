@@ -1,6 +1,6 @@
 // 初始化 artwork 搜索页
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { DeleteWorks } from '../pageFunciton/DeleteWorks'
@@ -23,8 +23,9 @@ import { msgBox } from '../MsgBox'
 import { Bookmark } from '../Bookmark'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { pageType } from '../PageType'
-import { Config } from '../config/Config'
+import { Config } from '../Config'
 import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 type AddBMKData = {
   id: number
@@ -430,7 +431,7 @@ class InitSearchArtworkPage extends InitPageBase {
     if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
       // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
       if (states.slowCrawlMode) {
-        window.setTimeout(() => {
+        setTimeoutWorker.set(() => {
           this.getIdList()
         }, Config.slowCrawlDealy)
       } else {
@@ -828,21 +829,21 @@ class InitSearchArtworkPage extends InitPageBase {
     })
   }
 
-  private addBookmark = (event: CustomEventInit) => {
+  private addBookmark = async (event: CustomEventInit) => {
     const data = event.detail.data as AddBMKData
 
     for (const r of store.result) {
       if (r.idNum === data.id) {
-        Bookmark.add(data.id.toString(), 'illusts', data.tags)
-
-        // 同步数据
-        r.bookmarked = true
-
-        this.resultMeta.forEach((result) => {
-          if (result.idNum === data.id) {
-            result.bookmarked = true
-          }
-        })
+        const res = await Bookmark.add(data.id.toString(), 'illusts', data.tags)
+        if (res !== 429) {
+          // 同步数据
+          r.bookmarked = true
+          this.resultMeta.forEach((result) => {
+            if (result.idNum === data.id) {
+              result.bookmarked = true
+            }
+          })
+        }
 
         break
       }

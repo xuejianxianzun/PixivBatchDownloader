@@ -160,6 +160,28 @@ class API {
     })
   }
 
+  static async deleteBookmark(
+    bookmarkID: number | string,
+    type: 'illusts' | 'novels',
+    token: string
+  ) {
+    const bodyStr =
+      type === 'illusts'
+        ? `bookmark_id=${bookmarkID}`
+        : `del=1&book_id=${bookmarkID}`
+
+    return fetch(`https://www.pixiv.net/ajax/${type}/bookmarks/delete`, {
+      method: 'POST',
+      credentials: 'same-origin', // 附带 cookie
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+        'x-csrf-token': token,
+      },
+      body: bodyStr,
+    })
+  }
+
   // 获取关注的用户列表
   static getFollowingList(
     id: string,
@@ -243,8 +265,10 @@ class API {
   }
 
   // 获取插画 漫画 动图 的详细信息
-  static getArtworkData(id: string): Promise<ArtworkData> {
-    const url = `https://www.pixiv.net/ajax/illust/${id}`
+  static getArtworkData(id: string, unlisted = false): Promise<ArtworkData> {
+    const url = `https://www.pixiv.net/ajax/illust/${
+      unlisted ? 'unlisted/' : ''
+    }${id}`
     return this.sendGetRequest(url)
   }
 
@@ -255,8 +279,10 @@ class API {
   }
 
   // 获取小说的详细信息
-  static getNovelData(id: string): Promise<NovelData> {
-    const url = `https://www.pixiv.net/ajax/novel/${id}`
+  static getNovelData(id: string, unlisted = false): Promise<NovelData> {
+    const url = `https://www.pixiv.net/ajax/novel/${
+      unlisted ? 'unlisted/' : ''
+    }${id}`
     return this.sendGetRequest(url)
   }
 

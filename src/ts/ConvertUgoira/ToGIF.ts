@@ -1,4 +1,3 @@
-import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { UgoiraInfo } from '../crawl/CrawlResult'
 
@@ -11,15 +10,18 @@ class ToGIF {
 
   private gifWorkerUrl: string = ''
 
+  // 添加转换 GIF 的 worker 文件
   private async loadWorkerJS() {
-    // 添加 gif 的 worker 文件
     let gifWorker = await fetch(chrome.runtime.getURL('lib/gif.worker.js'))
     const gifWorkerBolb = await gifWorker.blob()
     this.gifWorkerUrl = URL.createObjectURL(gifWorkerBolb)
   }
 
   // 转换成 GIF
-  public async convert(file: Blob, info: UgoiraInfo): Promise<Blob> {
+  public async convert(
+    ImageBitmapList: ImageBitmap[],
+    info: UgoiraInfo
+  ): Promise<Blob> {
     return new Promise(async (resolve, reject) => {
       // 配置 gif.js
       let gif: any = new GIF({
@@ -34,19 +36,21 @@ class ToGIF {
         resolve(file)
       })
 
-      // 提取图片数据
-      const zipFileBuffer = await file.arrayBuffer()
-      const indexList = Tools.getJPGContentIndex(zipFileBuffer)
-      let imgs = await Tools.extractImage(zipFileBuffer, indexList)
+      const width = ImageBitmapList[0].width
+      const height = ImageBitmapList[0].height
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')!
+      canvas.width = width
+      canvas.height = height
 
       // 添加帧数据
-      imgs.forEach((img, index) => {
-        gif.addFrame(img, {
+      ImageBitmapList.forEach((imageBitmap, index) => {
+        ctx.drawImage(imageBitmap, 0, 0)
+        const ImageData = ctx.getImageData(0, 0, width, height)
+        gif.addFrame(ImageData, {
           delay: info.frames![index].delay,
         })
       })
-
-      imgs = null as any
 
       // 渲染 gif
       gif.render()

@@ -1,6 +1,6 @@
 // 初始化 本站的最新作品 小说页面
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { NewIllustOption } from '../crawl/CrawlArgument.d'
@@ -11,7 +11,8 @@ import { store } from '../store/Store'
 import { log } from '../Log'
 import { Tools } from '../Tools'
 import { states } from '../store/States'
-import { Config } from '../config/Config'
+import { Config } from '../Config'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 class InitNewNovelPage extends InitPageBase {
   constructor() {
@@ -136,7 +137,7 @@ class InitNewNovelPage extends InitPageBase {
     // 继续抓取
     this.option.lastId = data.body.lastId
     if (states.slowCrawlMode) {
-      window.setTimeout(() => {
+      setTimeoutWorker.set(() => {
         this.getIdList()
       }, Config.slowCrawlDealy)
     } else {

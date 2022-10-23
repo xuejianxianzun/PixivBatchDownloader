@@ -4,6 +4,8 @@
 
 [韩国语](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-KO.md)
 
+[Russian](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-RU.md)
+
 [Discord 頻道](https://discord.gg/eW9JtTK)
 
 ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
@@ -95,6 +97,8 @@
 
 - 感謝 [KOZ39](https://github.com/KOZ39) 翻译韩語。
 
+- 感谢 [bropines](https://github.com/bropines) 翻译俄语。
+
 - 感謝 [Reinford0](https://github.com/Reinford0) 對本工具的測試和改進。
 
 - 感謝 [z2n](https://github.com/z2n) 對本工具專案構建做出的改進。
@@ -108,7 +112,7 @@
 [https://afdian.net/@xuejianxianzun](https://afdian.net/@xuejianxianzun)
 
 2. 國外的贊助網站 Patreon：
- 
+
 [https://www.patreon.com/xuejianxianzun](https://www.patreon.com/xuejianxianzun)
 
 3. 可透過微信和支付寶掃碼轉帳：
@@ -165,15 +169,12 @@ npm run build // 執行 fmt、ts、less 命令，並把打包所需的其他檔�
 
 ## 支援的語言
 
-簡體中文
-
-繁體中文
-
-English
-
-日本語
-
-韓國語
+- 简体中文
+- 繁體中文
+- English
+- 日本語
+- 한국어
+- Русский
 
 歡迎您對翻譯做出改進，謝謝~
 
@@ -227,4 +228,6 @@ English
 
 20 [關注](https://www.pixiv.net/users/9460149/following)
 
-[測試動圖轉換](https://www.pixiv.net/member.php?id=16274829)
+21 [約稿](https://www.pixiv.net/request)
+
+22 [僅可由連結瀏覽](https://www.pixiv.net/artworks/unlisted/CbLRCId2sY3ZzQDqnQj6)

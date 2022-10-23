@@ -1,6 +1,6 @@
 // 初始化 pixivision 页面
 import { InitPageBase } from '../crawl/InitPageBase'
-import { Colors } from '../config/Colors'
+import { Colors } from '../Colors'
 import { Tools } from '../Tools'
 import { options } from '../setting/Options'
 import { store } from '../store/Store'
@@ -126,7 +126,7 @@ class InitPixivisionPage extends InitPageBase {
 
     this.addResult(id, url, ext)
 
-    this.logResultTotal()
+    this.logResultNumber()
   }
 }
 export { InitPixivisionPage }
