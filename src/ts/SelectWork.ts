@@ -21,6 +21,7 @@ class SelectWork {
       this.addBtn()
       this.addRightBtn()
       this.bindEvents()
+      this.toggleRightBtn()
     }
   }
 
@@ -282,34 +283,40 @@ class SelectWork {
       )
     }
 
-    // 获取了作品元素之后
     this.startSelect()
     this.clearBtn.style.display = 'block'
-    // 把这些作品元素设置为已选择。这里基本是 copy 了 clickEvent 的代码
-    // 但是它们的参数和一些处理逻辑不同
+    // 查找每个作品的 id 数据
     for (const el of works) {
-      // findWork 需要查找元素里的 a 标签来获取作品 id，所以这里直接传递作品元素里的 a 标签
       const a = el.querySelector('a') as HTMLAnchorElement
-      if(!a||!a.href){
+      if (!a || !a.href) {
         continue
       }
-      
-      const workId = this.findWork(Array.from())
 
-      if (workId) {
-        const index = this.idList.findIndex((item) => {
-          return item.id === workId.id && item.type === workId.type
-        })
-        // 这个 id 不存在于 idList 里，则添加
-        if (index === -1) {
-          this.idList.push(workId)
-          this.crawled = false
-
-          this.addSelectedFlag(el.querySelector('*')! as HTMLElement, workId.id)
-
-          this.updateCrawlBtn()
+      const idData: IDData = {
+        id: '',
+        type: 'illusts',
+      }
+      if (a.href.includes('/artworks/')) {
+        const id = Tools.getIllustId(a.href)
+        if (id) {
+          idData.id = id
         }
       }
+      if (a.href.includes('/novel/')) {
+        const id = Tools.getNovelId(a.href)
+        if (id) {
+          console.log(id)
+          idData.id = id
+          idData.type = 'novels'
+        }
+      }
+
+      if (!idData.id) {
+        continue
+      }
+
+      this.crawled = false
+      this.addId(el, idData.id, idData.type)
     }
   }
 

@@ -1224,13 +1224,14 @@ class Config {
 /**使用输出面板显示内容时，如果文件数量大于这个值，就不再显示内容，而是保存到 txt 文件 */
 Config.outputMax = 5000;
 /**同时下载的文件数量的最大值 */
-Config.downloadThreadMax = 6;
+// 定制：最大下载数量改为 24
+Config.downloadThreadMax = 24;
 /**下载某个文件出错时，最大重试次数 */
 Config.retryMax = 10;
 /**作品类型所对应的字符串名称 */
 Config.worksTypeName = ['Illustration', 'Manga', 'Ugoira', 'Novel'];
 /**程序名 */
-Config.appName = 'Powerful Pixiv Downloader';
+Config.appName = 'Powerful Pixiv Downloader HongYe';
 /**下载器设置在 localStorage 里储存时的 name */
 Config.settingStoreName = 'xzSetting';
 /**按收藏数量过滤作品时，预设的最大收藏数量 */
@@ -6906,16 +6907,10 @@ class Log {
         this.refresh = document.createElement('span'); // 刷新时使用的元素
         this.levelColor = [
             'inherit',
-<<<<<<< HEAD:dist-special-HongYe/js/content.js
-            _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].textSuccess,
+            _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].textSuccess,
             // Colors.textWarning,
             '#E95701',
-            _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].textError,
-=======
-            _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].textSuccess,
-            _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].textWarning,
             _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].textError,
->>>>>>> offline:dist-offline/js/content.js
         ];
         this.max = 200;
         this.count = 0;
@@ -8366,17 +8361,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
-<<<<<<< HEAD:dist-special-HongYe/js/content.js
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
-=======
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
 /* harmony import */ var _NovelThumbnail__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./NovelThumbnail */ "./src/ts/NovelThumbnail.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
 
 
->>>>>>> offline:dist-offline/js/content.js
 
 
 
@@ -8418,9 +8408,9 @@ class SelectWork {
         this.crawled = false; // 是否已经抓取了选择的作品
         // 定制：在一些页面类型上启用“全选”、“退出选择”功能
         this.selectAllPageType = [
-            _PageType__WEBPACK_IMPORTED_MODULE_7__["pageType"].list.UserHome,
-            _PageType__WEBPACK_IMPORTED_MODULE_7__["pageType"].list.NewNovelBookmark,
-            _PageType__WEBPACK_IMPORTED_MODULE_7__["pageType"].list.NewArtworkBookmark,
+            _PageType__WEBPACK_IMPORTED_MODULE_10__["pageType"].list.UserHome,
+            _PageType__WEBPACK_IMPORTED_MODULE_10__["pageType"].list.NewNovelBookmark,
+            _PageType__WEBPACK_IMPORTED_MODULE_10__["pageType"].list.NewArtworkBookmark,
         ];
         this.svg = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-select"></use>
@@ -8432,11 +8422,7 @@ class SelectWork {
             this.addBtn();
             this.addRightBtn();
             this.bindEvents();
-<<<<<<< HEAD:dist-special-HongYe/js/content.js
             this.toggleRightBtn();
-            this.checkNeedSetPosition();
-=======
->>>>>>> offline:dist-offline/js/content.js
         }
     }
     get start() {
@@ -8552,7 +8538,7 @@ class SelectWork {
             // 每次触发时都要断开之前绑定的观察器，否则会导致事件重复绑定
             // 因为 pageSwitch 事件可能会触发多次，如果不断开之前的观察器，那么每切换一次页面就会多绑定和执行一个回调
             this.ob && this.ob.disconnect();
-            this.ob = new MutationObserver(_utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].debounce(() => {
+            this.ob = new MutationObserver(_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].debounce(() => {
                 this.reAddAllFlag();
             }, 300));
             this.ob.observe(this.worksWrapper, {
@@ -8568,30 +8554,28 @@ class SelectWork {
         });
         // 退出手动选择模式，并取消所有选择的作品
         this.exitSelectBtn.addEventListener('click', () => {
-            // 解绑一些事件的回调函数
-            this.removeEventListener();
             this.clearIdList();
             this.start = false;
         });
     }
     toggleRightBtn() {
-        const enable = this.selectAllPageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_7__["pageType"].type);
+        const enable = this.selectAllPageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_10__["pageType"].type);
         this.selectAllBtn.style.display = enable ? 'flex' : 'none';
         this.exitSelectBtn.style.display = enable ? 'flex' : 'none';
     }
     // 选择当前页面上所有作品
     selectAll() {
-        if (!this.selectAllPageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_7__["pageType"].type)) {
+        if (!this.selectAllPageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_10__["pageType"].type)) {
             return _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].error('全选功能不支持当前页面类型');
         }
         // 根据页面类型，获取页面上所有作品的缩略图元素
         let works = [];
         // 在画师主页里
-        if (_PageType__WEBPACK_IMPORTED_MODULE_7__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_7__["pageType"].list.UserHome) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_10__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_10__["pageType"].list.UserHome) {
             works = document.querySelectorAll('li[size="1"]');
         }
         // 在已关注用户的最新作品-插画里
-        if (_PageType__WEBPACK_IMPORTED_MODULE_7__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_7__["pageType"].list.NewArtworkBookmark) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_10__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_10__["pageType"].list.NewArtworkBookmark) {
             const newPage = !document.querySelector('h1');
             const selector = newPage
                 ? 'li[size="1"]'
@@ -8599,7 +8583,7 @@ class SelectWork {
             works = document.querySelectorAll(selector);
         }
         // 在已关注用户的最新作品-小说里
-        if (_PageType__WEBPACK_IMPORTED_MODULE_7__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_7__["pageType"].list.NewNovelBookmark) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_10__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_10__["pageType"].list.NewNovelBookmark) {
             const newPage = !document.querySelector('h1');
             const selector = newPage
                 ? 'li[size="1"]'
@@ -8609,27 +8593,37 @@ class SelectWork {
         if (works.length === 0) {
             return _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].error('没有找到作品，可能是没有作品，或者页面改版过，请联系开发人员。');
         }
-        // 获取了作品元素之后
         this.startSelect();
         this.clearBtn.style.display = 'block';
-        // 把这些作品元素设置为已选择。这里基本是 copy 了 clickEvent 的代码
-        // 但是它们的参数和一些处理逻辑不同
+        // 查找每个作品的 id 数据
         for (const el of works) {
-            // findWork 需要查找元素里的 a 标签来获取作品 id，所以这里直接传递作品元素里的 a 标签
-            const workId = this.findWork(Array.from(el.querySelectorAll('a')));
-            if (workId) {
-                const index = this.idList.findIndex((item) => {
-                    return item.id === workId.id && item.type === workId.type;
-                });
-                // 这个 id 不存在于 idList 里，则添加
-                if (index === -1) {
-                    this.idList.push(workId);
-                    this.crawled = false;
-                    // 由于选择标记的添加位置是 beforebegin，所以这里需要传递作品元素的子元素
-                    this.addSelectedFlag(el.querySelector('*'), workId.id);
-                    this.updateCrawlBtn();
+            const a = el.querySelector('a');
+            if (!a || !a.href) {
+                continue;
+            }
+            const idData = {
+                id: '',
+                type: 'illusts',
+            };
+            if (a.href.includes('/artworks/')) {
+                const id = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].getIllustId(a.href);
+                if (id) {
+                    idData.id = id;
                 }
             }
+            if (a.href.includes('/novel/')) {
+                const id = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].getNovelId(a.href);
+                if (id) {
+                    console.log(id);
+                    idData.id = id;
+                    idData.type = 'novels';
+                }
+            }
+            if (!idData.id) {
+                continue;
+            }
+            this.crawled = false;
+            this.addId(el, idData.id, idData.type);
         }
     }
     clearIdList() {
@@ -8782,25 +8776,12 @@ class SelectWork {
             // 如果是全新开始的选择，则清空之前的结果
             this.clearIdList();
         }
-<<<<<<< HEAD:dist-special-HongYe/js/content.js
-        this.removeEventListener();
-        this.bindClickEvent = this.clickEvent.bind(this);
-=======
->>>>>>> offline:dist-offline/js/content.js
         this.bindEscEvent = this.escEvent.bind(this);
         document.addEventListener('keyup', this.bindEscEvent);
         _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].fire('closeCenterPanel');
     }
     pauseSelect() {
         this.pause = true;
-<<<<<<< HEAD:dist-special-HongYe/js/content.js
-        this.removeEventListener();
-    }
-    removeEventListener() {
-        this.bindClickEvent &&
-            window.removeEventListener('click', this.bindClickEvent, true);
-=======
->>>>>>> offline:dist-offline/js/content.js
         this.bindEscEvent &&
             document.removeEventListener('keyup', this.bindEscEvent);
     }
@@ -11362,88 +11343,6 @@ const workToolBar = new WorkToolBar();
 
 /***/ }),
 
-<<<<<<< HEAD:dist-special-HongYe/js/content.js
-/***/ "./src/ts/config/Colors.ts":
-/*!*********************************!*\
-  !*** ./src/ts/config/Colors.ts ***!
-  \*********************************/
-/*! exports provided: Colors */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Colors", function() { return Colors; });
-var Colors;
-(function (Colors) {
-    // 通用颜色
-    Colors["white"] = "#fff";
-    Colors["black"] = "#000";
-    Colors["red"] = "#f00";
-    Colors["theme"] = "#0ea8ef";
-    // 带有语义的字体颜色
-    Colors["textSuccess"] = "#00BD17";
-    Colors["textWarning"] = "#d27e00";
-    Colors["textError"] = "#f00";
-    // 背景颜色
-    // 稍暗，适合在颜色区域的面积较大时使用
-    Colors["bgBlue"] = "#0ea8ef";
-    Colors["bgGreen"] = "#14ad27";
-    Colors["bgYellow"] = "#e49d00";
-    Colors["bgRed"] = "#f33939";
-    // 带有语义的背景颜色
-    // 稍亮，适合在小区域使用
-    Colors["bgBrightBlue"] = "#29b3f3";
-    Colors["bgSuccess"] = "#00BD17";
-    Colors["bgWarning"] = "#e49d00";
-    Colors["bgError"] = "#f00";
-})(Colors || (Colors = {}));
-
-
-
-/***/ }),
-
-/***/ "./src/ts/config/Config.ts":
-/*!*********************************!*\
-  !*** ./src/ts/config/Config.ts ***!
-  \*********************************/
-/*! exports provided: Config */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Config", function() { return Config; });
-// 储存一些配置
-// 用户不可以修改这里的配置
-class Config {
-}
-/**使用输出面板显示内容时，如果文件数量大于这个值，就不再显示内容，而是保存到 txt 文件 */
-Config.outputMax = 5000;
-/**同时下载的文件数量的最大值 */
-// 定制：最大下载数量改为 24
-Config.downloadThreadMax = 24;
-/**下载某个文件出错时，最大重试次数 */
-Config.retryMax = 10;
-/**作品类型所对应的字符串名称 */
-Config.worksTypeName = ['Illustration', 'Manga', 'Ugoira', 'Novel'];
-/**程序名 */
-Config.appName = 'Powerful Pixiv Downloader HongYe';
-/**下载器设置在 localStorage 里储存时的 name */
-Config.settingStoreName = 'xzSetting';
-/**按收藏数量过滤作品时，预设的最大收藏数量 */
-Config.BookmarkCountLimit = 9999999;
-/**Pixiv 作品总数量上限 */
-Config.worksNumberLimit = 9999999999;
-/**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
-Config.retryTimer = 200000;
-/**慢速抓取模式下，每个抓取请求之间的间隔时间（ms） */
-Config.slowCrawlDealy = 1300;
-
-
-
-/***/ }),
-
-=======
->>>>>>> offline:dist-offline/js/content.js
 /***/ "./src/ts/content.ts":
 /*!***************************!*\
   !*** ./src/ts/content.ts ***!
