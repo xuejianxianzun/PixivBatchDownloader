@@ -235,7 +235,7 @@ class InitSearchNovelPage extends InitPageBase {
   private delayReTry(p: number) {
     window.setTimeout(() => {
       this.getIdList(p)
-    }, Config.retryTimer)
+    }, Config.retryTime)
     // 限制时间大约是 3 分钟，这里为了保险起见，设置了更大的延迟时间。
   }
 

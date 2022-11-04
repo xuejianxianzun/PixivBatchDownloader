@@ -3,7 +3,7 @@ import { settings } from '../setting/Settings'
 import { lang } from '../Lang'
 import { EVT } from '../EVT'
 import { DonwloadSuccessData, DonwloadSkipData } from './DownloadType'
-import { Bookmark } from '../Bookmark'
+import { bookmark } from '../Bookmark'
 
 // 当文件下载成功后，收藏这个作品
 class BookmarkAfterDL {
@@ -114,7 +114,7 @@ class BookmarkAfterDL {
         return reject(new Error(`Not find ${id} in result`))
       }
 
-      const res = await Bookmark.add(
+      const res = await bookmark.add(
         id.toString(),
         data.type !== 3 ? 'illusts' : 'novels',
         data.tags

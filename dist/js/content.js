@@ -671,19 +671,25 @@ class BoldKeywords {
 /*!****************************!*\
   !*** ./src/ts/Bookmark.ts ***!
   \****************************/
-/*! exports provided: Bookmark */
+/*! exports provided: bookmark */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Bookmark", function() { return Bookmark; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "bookmark", function() { return bookmark; });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Token */ "./src/ts/Token.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Token */ "./src/ts/Token.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
+
 
 
 
@@ -693,7 +699,47 @@ __webpack_require__.r(__webpack_exports__);
 
 // 对 API.addBookmark 进行封装
 class Bookmark {
-    static async getWorkData(type, id) {
+    constructor() {
+        // 保存重试收藏的数据的队列
+        // 现在没有做去重处理，因为一般不会有重复的，而且即使有重复的也没有什么影响
+        this.retryList = [];
+        // 当前是否可以重试收藏
+        // 当出现 429 错误时，设置为不可重试
+        this.canRetry = true;
+        // 每隔指定时间，尝试重试收藏
+        this.retryInterval = 1000;
+        // 429 错误过去一段时间后，把重试标记设置为可以重试
+        this.delayRetry = _utils_Utils__WEBPACK_IMPORTED_MODULE_9__["Utils"].debounce(() => {
+            this.canRetry = true;
+        }, _Config__WEBPACK_IMPORTED_MODULE_1__["Config"].retryTime);
+        window.setTimeout(() => {
+            this.retry();
+        }, this.retryInterval);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.downloadComplete, () => {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].bmkAfterDL && this.retryList.length > 0) {
+                const msg = `${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_有一些作品未能成功收藏')} ${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_下载器会在几分钟后重试')} `;
+                _Log__WEBPACK_IMPORTED_MODULE_4__["log"].error(msg);
+            }
+        });
+        // 如果用户在离开页面时还有等待重试的收藏任务，就提示用户
+        // 使用 window.onbeforeunload 事件
+        // 但是这会导致 SelectWork 里的该事件出现问题，或者两个模块里都会出现问题，所以就不提示了
+    }
+    // 不间断运行的函数，每次运行会检查是否可以重试，如果可以重试，则取出队列中的一条数据进行重试
+    retry() {
+        if (this.canRetry !== false) {
+            const args = this.retryList.shift();
+            if (args) {
+                _Log__WEBPACK_IMPORTED_MODULE_4__["log"].warning(`${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_重试收藏')} ${_Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].createWorkLink(args[0], args[1] === 'illusts')}`);
+                this.add(...args);
+            }
+        }
+        // 不管是否能够重试，都会继续下一次运行
+        window.setTimeout(() => {
+            this.retry();
+        }, this.retryInterval);
+    }
+    async getWorkData(type, id) {
         return type === 'illusts'
             ? await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id)
             : await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelData(id);
@@ -709,41 +755,59 @@ class Bookmark {
      * 可选参数 restrict：指示这个收藏是否为非公开收藏。缺省时使用 settings.restrictBoolean
      *
      */
-    static async add(id, type, tags, needAddTag, restrict) {
-        const _needAddTag = needAddTag === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].widthTagBoolean : !!needAddTag;
+    async add(id, type, tags, needAddTag, restrict, retry) {
+        const _needAddTag = needAddTag === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].widthTagBoolean : !!needAddTag;
         if (_needAddTag) {
             // 需要添加 tags
             if (tags === undefined) {
                 // 如果未传递 tags，则请求作品数据来获取 tags
                 const data = await this.getWorkData(type, id);
-                tags = _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].extractTags(data);
+                tags = _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].extractTags(data);
             }
         }
         else {
             // 不需要添加 tags
             tags = [];
         }
-        const _restrict = restrict === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].restrictBoolean : !!restrict;
-        const request = _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(id, type, tags, _restrict, _Token__WEBPACK_IMPORTED_MODULE_5__["token"].token);
+        const _restrict = restrict === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].restrictBoolean : !!restrict;
+        const request = _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(id, type, tags, _restrict, _Token__WEBPACK_IMPORTED_MODULE_7__["token"].token);
         let status = 0;
         await request.then((res) => {
             status = res.status;
         });
         // 如果状态码为 400，则表示当前 token 无效，需要重新获取 token，然后重新添加收藏
         if (status === 400) {
-            await _Token__WEBPACK_IMPORTED_MODULE_5__["token"].reset();
-            return await _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(id, type, tags, _restrict, _Token__WEBPACK_IMPORTED_MODULE_5__["token"].token);
+            await _Token__WEBPACK_IMPORTED_MODULE_7__["token"].reset();
+            return await _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(id, type, tags, _restrict, _Token__WEBPACK_IMPORTED_MODULE_7__["token"].token);
         }
         if (status === 429) {
-            _Toast__WEBPACK_IMPORTED_MODULE_4__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_添加收藏失败'), {
+            _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_添加收藏失败'), {
                 position: 'topCenter',
             });
-            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].error(`${_Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].createWorkLink(id, type === 'illusts')} ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_添加收藏失败')}. ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_错误代码')}${status}.`);
+            _Log__WEBPACK_IMPORTED_MODULE_4__["log"].error(`${_Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].createWorkLink(id, type === 'illusts')} ${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_添加收藏失败')}. ${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_错误代码')}${status}. ${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_下载器会在几分钟后重试')}`);
+            // 将参数添加到重试队列，并且把 retry 标记设为 true
+            this.retryList.push([id, type, tags, needAddTag, restrict, true]);
+            // 在一定时间后重试收藏
+            this.canRetry = false;
+            this.delayRetry();
+        }
+        // 其他状态码视为收藏成功
+        // 显示重试收藏的进度信息
+        if (retry) {
+            _Log__WEBPACK_IMPORTED_MODULE_4__["log"].success(`${_Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].createWorkLink(id, type === 'illusts')} ${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_重试收藏成功')} ${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_剩余xx个', this.retryList.length.toString())}`);
+            if (this.retryList.length === 0) {
+                const msg = `${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_重试收藏')} ${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_完成')}.`;
+                _Log__WEBPACK_IMPORTED_MODULE_4__["log"].success(msg);
+                _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].success(msg, {
+                    position: 'center',
+                });
+            }
         }
         // 返回状态码
         return status;
     }
 }
+const bookmark = new Bookmark();
 
 
 
@@ -1163,7 +1227,7 @@ Config.BookmarkCountLimit = 9999999;
 /**Pixiv 作品总数量上限 */
 Config.worksNumberLimit = 9999999999;
 /**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
-Config.retryTimer = 200000;
+Config.retryTime = 200000;
 /**慢速抓取模式下，每个抓取请求之间的间隔时间（ms） */
 Config.slowCrawlDealy = 1400;
 
@@ -2739,7 +2803,7 @@ class ImageViewer {
         _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏'), {
             bgColor: _Colors__WEBPACK_IMPORTED_MODULE_10__["Colors"].bgBlue,
         });
-        const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_8__["Bookmark"].add(this.cfg.workId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].extractTags(this.workData));
+        const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_8__["bookmark"].add(this.cfg.workId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].extractTags(this.workData));
         if (res !== 429) {
             _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已收藏'));
         }
@@ -6108,14 +6172,6 @@ const langText = {
         'Pixiv가 빈 데이터를 반환했습니다. 다운로더가 긁어오기를 일시 중지하고 몇 분 동안 기다린 후 긁어오기를 계속합니다.',
         'Pixiv вернул пустые данные. Загрузчик приостановил загрузку и возобновит ее через несколько минут.',
     ],
-    _解决了抓取搜索页面时被限制的问题的说明: [
-        '解决了抓取搜索页面时可能会被 Pixiv 限制的问题。',
-        '解決了抓取搜尋頁面時可能會被 Pixiv 限制的問題。',
-        'Fixed an issue where crawling search pages could be restricted by Pixiv.',
-        'Pixivで検索ページのクロールが制限される問題を修正しました。',
-        '검색 페이지를 긁어올 때 Pixiv에 의해 제한될 수 있는 문제를 해결했습니다.',
-        'Исправлена проблема, при которой просмотр страниц поиска мог быть ограничен компанией Pixiv.',
-    ],
     _搜索模式: [
         '搜索模式',
         '搜尋模式',
@@ -6276,33 +6332,6 @@ const langText = {
         '「作品のプレビュー」機能を最適化する',
         '"작품 미리보기" 기능 최적화',
         'Оптимизация "Предварительного просмотра работ" функция',
-    ],
-    _1230更新说明: [
-        `1. 在网页标题上显示剩余下载数量<br>
-    下载时，网页标题上会显示还有多少个文件尚未下载。<br>
-    这样，用户不需要打开下载面板就能够知道下载进度。<br><br>
-    2. 用户可以在下载时添加一些新的下载任务。`,
-        `1. 在網頁標題上顯示剩餘下載數量<br>
-    下載時，網頁標題上會顯示還有多少個檔案尚未下載。<br>
-    這樣，使用者不需要開啟下載面板就能夠知道下載進度。<br><br>
-    2. 使用者可以在下載時新增一些新的下載任務。`,
-        `1. Show remaining downloads on page title<br>
-    While downloading, the page title will show how many files are not yet downloaded. <br>
-    In this way, the user can know the download progress without opening the download panel.<br><br>
-    2. Users can add some new download tasks while downloading.`,
-        `1. ページタイトルに残りのダウンロードを表示する<br>
-    ダウンロード中、ページタイトルにはまだダウンロードされていないファイルの数が表示されます。 <br>
-    このようにして、ユーザーはダウンロードパネルを開かなくてもダウンロードの進行状況を知ることができます。<br><br>
-    2. ユーザーは、ダウンロード中にいくつかの新しいダウンロードタスクを追加できます。`,
-        `1. 페이지 제목에 남은 다운로드 수를 표시합니다<br>
-    다운로드하는 동안, 페이지 제목에 아직 다운로드하지 않은 파일이 몇 개 더 있는지 표시됩니다.<br>
-    이렇게 하면 사용자는 다운로드 패널을 열지 않고도 다운로드 진행 상황을 알 수 있습니다.<br><br>
-    2.사용자는 다운로드 중 새 다운로드 작업을 추가할 수 있습니다.
-    `,
-        `1. Показать оставшиеся загрузки в заголовке страницы<br>
-    Во время загрузки в заголовке страницы будет показано, сколько файлов еще не загружено. <br>
-    Таким образом, пользователь может узнать о ходе загрузки, не открывая панель загрузки.<br><br>
-    2. Пользователи могут добавлять некоторые новые задачи загрузки во время загрузки.`,
     ],
     _设定资料: [
         '设定资料',
@@ -6696,6 +6725,84 @@ const langText = {
         'ブックマークを追加できませんでした',
         '북마크 추가 실패',
         'Не удалось добавить закладку',
+    ],
+    _有一些作品未能成功收藏: [
+        '有一些作品未能成功收藏。',
+        '有一些作品未能成功收藏。',
+        'Some works were not successfully bookmarked.',
+        '一部の作品がブックマークに失敗しました。',
+        '일부 작품은 성공적으로 북마크되지 않았습니다.',
+        'Некоторые работы не были успешно добавлены в закладки.',
+    ],
+    _下载器会在几分钟后重试: [
+        '下载器会在几分钟后重试。',
+        '下載器會在幾分鐘後重試。',
+        'The downloader will try again in a few minutes.',
+        'ダウンローダーは数分後に再試行します。',
+        '다운로더는 몇 분 후에 다시 시도합니다.',
+        'Загрузчик повторит попытку через несколько минут.',
+    ],
+    _重试收藏: [
+        '重试收藏',
+        '重試收藏',
+        'Retry bookmark',
+        'ブックマークを再試行',
+        '북마크 다시 시도',
+        'Повторить закладку',
+    ],
+    _剩余xx个: [
+        '剩余 {} 个。',
+        '剩餘 {} 個。',
+        '{} remaining.',
+        '{} 残り。',
+        '{} 남음.',
+        '{} осталось.',
+    ],
+    _重试收藏成功: [
+        '重试收藏成功。',
+        '重試收藏成功。',
+        'Retry bookmark successfully.',
+        'ブックマークを再試行します。',
+        '북마크를 다시 시도하십시오.',
+        'Повторите попытку закладки.',
+    ],
+    _出现错误请稍后重试: [
+        '出现错误，请稍后重试。',
+        '出現錯誤，請稍後重試。',
+        'An error occurred, please try again later.',
+        'エラーが発生しました。しばらくしてからもう一度お試しください。',
+        '오류가 발생했습니다. 잠시 후 다시 시도 해주세요.',
+        'Произошла ошибка. Пожалуйста, повторите попытку позже.',
+    ],
+    _请稍后重试: [
+        '请稍后重试。',
+        '請稍後重試。',
+        'Please try again later.',
+        '後でもう一度やり直してください。',
+        '잠시 후에 다시 시도해주세요.',
+        'Пожалуйста, повторите попытку позже.',
+    ],
+    _确定要离开吗: [
+        '确定要离开吗？',
+        '確定要離開嗎？',
+        'Are you sure you want to leave?',
+        '退会してもよろしいですか？',
+        '떠나시겠습니까?',
+        'Вы уверены, что хотите оставить?',
+    ],
+    _1400更新: [
+        `1. 优化了特定情况下的抓取效率（当用户设置了投稿时间时）。<br><br>
+    2. 添加收藏失败时，下载器将会重试。`,
+        `1. 優化了特定情況下的抓取效率（當用戶設定了投稿時間時）。<br><br>
+    2. 新增收藏失敗時，下載器將會重試。`,
+        `1. Optimized the crawling efficiency in certain situations (when the user has set the posting date).<br><br>
+    2. When adding bookmark fails, the downloader will try again.`,
+        `1.特定の状況（ユーザーが投稿日を設定した場合）でのクローリング効率を最適化しました。<br><br>
+    2. ブックマークの追加に失敗すると、ダウンローダーは再試行します。`,
+        `1. 특정 상황(사용자가 게시 날짜를 설정한 경우)에서 크롤링 효율성을 최적화했습니다.<br><br>
+    2. 북마크 추가에 실패하면 다운로더가 다시 시도합니다.`,
+        `1. Оптимизирована эффективность сканирования в определенных ситуациях (когда пользователь установил дату публикации).<br><br>
+    2. Если добавить закладку не удается, загрузчик попытается еще раз.`,
     ],
 };
 
@@ -8400,6 +8507,8 @@ class SelectWork {
             this.moveEvent(ev);
         }, true);
         // 离开页面前提示用户
+        // 如果把此处的 window.onbeforeunload 换成 window.addEventListener('beforeunload') 会出现问题
+        // 浏览器不会弹出询问对话框，而是直接关闭页面
         window.onbeforeunload = () => {
             // 如果存在选择的作品，并且选择的作品（全部或部分）没有被抓取，则进行提示
             if (this.idList.length > 0 && !this.crawled) {
@@ -9702,15 +9811,13 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '13.9.0';
+        this.flag = '14.0.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增功能')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_取消收藏本页面的所有作品')}</strong>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_取消收藏本页面的所有作品的说明')}`;
+            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_1400更新')}`;
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -11572,7 +11679,7 @@ class InitPageBase {
                     console.log('429 error on ' + _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].resultMeta.length);
                     return window.setTimeout(() => {
                         this.getWorksData(idData);
-                    }, _Config__WEBPACK_IMPORTED_MODULE_21__["Config"].retryTimer);
+                    }, _Config__WEBPACK_IMPORTED_MODULE_21__["Config"].retryTime);
                 }
                 else {
                     this.afterGetWorksData();
@@ -13237,10 +13344,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             addBMKBtn.addEventListener('click', function () {
                 // 添加收藏
                 const e = new CustomEvent('addBMK', {
-                    detail: { data: { id: data.idNum, tags: data.tags } },
+                    detail: { data: { id: data.idNum, tags: data.tags, el: addBMKBtn } },
                 });
                 window.dispatchEvent(e);
-                this.classList.add(bookmarkedClass);
                 // 下载这个作品
                 _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_23__["downloadOnClickBookmark"].send(data.idNum.toString());
             });
@@ -13271,7 +13377,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             const data = event.detail.data;
             for (const r of _store_Store__WEBPACK_IMPORTED_MODULE_8__["store"].result) {
                 if (r.idNum === data.id) {
-                    const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_19__["Bookmark"].add(data.id.toString(), 'illusts', data.tags);
+                    const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_19__["bookmark"].add(data.id.toString(), 'illusts', data.tags);
                     if (res !== 429) {
                         // 同步数据
                         r.bookmarked = true;
@@ -13280,6 +13386,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                                 result.bookmarked = true;
                             }
                         });
+                        data.el.classList.add(this.bookmarkedClass);
                     }
                     break;
                 }
@@ -13486,7 +13593,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     delayReTry(p) {
         window.setTimeout(() => {
             this.getIdList(p);
-        }, _Config__WEBPACK_IMPORTED_MODULE_22__["Config"].retryTimer);
+        }, _Config__WEBPACK_IMPORTED_MODULE_22__["Config"].retryTime);
         // 限制时间大约是 3 分钟，这里为了保险起见，设置了更大的延迟时间。
     }
     // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
@@ -16090,7 +16197,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     delayReTry(p) {
         window.setTimeout(() => {
             this.getIdList(p);
-        }, _Config__WEBPACK_IMPORTED_MODULE_18__["Config"].retryTimer);
+        }, _Config__WEBPACK_IMPORTED_MODULE_18__["Config"].retryTime);
         // 限制时间大约是 3 分钟，这里为了保险起见，设置了更大的延迟时间。
     }
     // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
@@ -16274,7 +16381,7 @@ class BookmarkAfterDL {
             if (data === undefined) {
                 return reject(new Error(`Not find ${id} in result`));
             }
-            const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__["Bookmark"].add(id.toString(), data.type !== 3 ? 'illusts' : 'novels', data.tags);
+            const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__["bookmark"].add(id.toString(), data.type !== 3 ? 'illusts' : 'novels', data.tags);
             if (res === 429) {
                 // 有错误发生
                 this.tipEl.classList.remove('green');
@@ -21388,6 +21495,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+
+
 
 
 
@@ -21450,22 +21561,43 @@ class BookmarkAllWorks {
     }
     // 获取每个作品的 tag 数据
     async getTagData() {
-        return new Promise(async (resolve) => {
+        return new Promise(async (resolve, reject) => {
             for (const id of this.idList) {
                 this.tipWrap.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`;
-                let data;
-                if (id.type === 'novels') {
-                    data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelData(id.id);
+                try {
+                    let data;
+                    if (id.type === 'novels') {
+                        data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelData(id.id);
+                    }
+                    else {
+                        data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id.id);
+                    }
+                    this.bookmarKData.push({
+                        type: id.type,
+                        id: data.body.id,
+                        tags: _Tools__WEBPACK_IMPORTED_MODULE_5__["Tools"].extractTags(data),
+                        restrict: false,
+                    });
                 }
-                else {
-                    data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id.id);
+                catch (error) {
+                    // 捕获错误，主要是为了处理 429 错误
+                    const e = error;
+                    let msg = '';
+                    if (e.status) {
+                        msg = `${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_发生错误原因')}${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_错误代码')}${e.status}. ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_请稍后重试')}`;
+                    }
+                    else {
+                        msg = `${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_发生错误原因')}${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_未知错误')}${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_请稍后重试')}`;
+                    }
+                    // 对于 429 错误，过一段时间之后（等 429 状态解除），是可以重试的
+                    // 显示提示，并中止执行
+                    _Log__WEBPACK_IMPORTED_MODULE_6__["log"].error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_7__["msgBox"].error(msg);
+                    this.tipWrap.textContent = `× Error`;
+                    this.tipWrap.removeAttribute('disabled');
+                    _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire('bookmarkModeEnd');
+                    return reject();
                 }
-                this.bookmarKData.push({
-                    type: id.type,
-                    id: data.body.id,
-                    tags: _Tools__WEBPACK_IMPORTED_MODULE_5__["Tools"].extractTags(data),
-                    restrict: false,
-                });
             }
             resolve();
         });
@@ -21476,7 +21608,7 @@ class BookmarkAllWorks {
             let index = 0;
             for (const data of this.bookmarKData) {
                 this.tipWrap.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`;
-                await _Bookmark__WEBPACK_IMPORTED_MODULE_4__["Bookmark"].add(data.id, data.type, data.tags);
+                await _Bookmark__WEBPACK_IMPORTED_MODULE_4__["bookmark"].add(data.id, data.type, data.tags);
                 index++;
             }
             resolve();
@@ -21590,7 +21722,7 @@ class BookmarksAddTag {
     // 给未分类作品添加 tag
     async addTag() {
         const item = this.addTagList[this.addIndex];
-        await _Bookmark__WEBPACK_IMPORTED_MODULE_3__["Bookmark"].add(item.id, this.type, item.tags, true, item.restrict);
+        await _Bookmark__WEBPACK_IMPORTED_MODULE_3__["bookmark"].add(item.id, this.type, item.tags, true, item.restrict);
         if (this.addIndex < this.addTagList.length - 1) {
             this.addIndex++;
             this.btn.textContent = `${this.addIndex} / ${this.addTagList.length}`;
@@ -22075,7 +22207,7 @@ class QuickBookmark {
         if (this.isBookmarked) {
             return;
         }
-        const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_6__["Bookmark"].add(id, type, _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].extractTags(this.workData));
+        const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_6__["bookmark"].add(id, type, _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].extractTags(this.workData));
         if (res !== 429) {
             // 收藏成功之后
             this.isBookmarked = true;

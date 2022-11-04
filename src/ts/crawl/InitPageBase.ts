@@ -349,7 +349,7 @@ abstract class InitPageBase {
           console.log('429 error on ' + store.resultMeta.length)
           return window.setTimeout(() => {
             this.getWorksData(idData)
-          }, Config.retryTimer)
+          }, Config.retryTime)
         } else {
           this.afterGetWorksData()
         }

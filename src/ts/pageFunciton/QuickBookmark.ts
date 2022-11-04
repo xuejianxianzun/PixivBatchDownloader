@@ -6,7 +6,7 @@ import { token } from '../Token'
 import { Utils } from '../utils/Utils'
 import { pageType } from '../PageType'
 import { ArtworkData, NovelData } from '../crawl/CrawlResult'
-import { Bookmark } from '../Bookmark'
+import { bookmark } from '../Bookmark'
 import { workToolBar } from '../WorkToolBar'
 import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
 
@@ -141,7 +141,7 @@ class QuickBookmark {
       return
     }
 
-    const res = await Bookmark.add(id, type, Tools.extractTags(this.workData!))
+    const res = await bookmark.add(id, type, Tools.extractTags(this.workData!))
     if (res !== 429) {
       // 收藏成功之后
       this.isBookmarked = true
