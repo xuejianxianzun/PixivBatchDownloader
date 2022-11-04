@@ -1255,6 +1255,9 @@
   right: auto !important;
   left: 0px !important;
 }
+.lang_ru * {
+  font-family: 'NotoSans', sans-serif;
+}
 .outputWrap {
   padding: 20px 30px;
   width: 520px;

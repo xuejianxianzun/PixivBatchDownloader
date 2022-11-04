@@ -18,7 +18,7 @@ class Config {
   /**Pixiv 作品总数量上限 */
   static readonly worksNumberLimit = 9999999999
   /**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
-  static readonly retryTimer = 200000
+  static readonly retryTime = 200000
   /**慢速抓取模式下，每个抓取请求之间的间隔时间（ms） */
   static readonly slowCrawlDealy = 1400
 }

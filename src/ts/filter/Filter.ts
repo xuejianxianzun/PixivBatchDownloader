@@ -7,11 +7,14 @@ import { blackAndWhiteImage } from './BlackandWhiteImage'
 import { mute } from './Mute'
 import { blockTagsForSpecificUser } from './BlockTagsForSpecificUser'
 import { msgBox } from '../MsgBox'
+import { workPublishTime } from './WorkPublishTime'
+import { WorkTypeString } from '../store/StoreType'
 
 /** 过滤选项，其中所有字段都是可选的 */
 export interface FilterOption {
   id?: number | string
   workType?: 0 | 1 | 2 | 3
+  workTypeString?: WorkTypeString
   pageCount?: number
   tags?: string[]
   bookmarkCount?: number
@@ -147,6 +150,11 @@ class Filter {
 
     // 检查投稿时间设置
     if (!this.checkPostDate(option.createDate)) {
+      return false
+    }
+
+    // 检查投稿时间设置
+    if (!this.checkIdPublishTime(option.id, option.workTypeString)) {
       return false
     }
 
@@ -781,10 +789,27 @@ class Filter {
       return true
     }
 
-    const nowDate = new Date(date)
+    const _date = new Date(date)
     return (
-      nowDate.getTime() >= settings.postDateStart &&
-      nowDate.getTime() <= settings.postDateEnd
+      _date.getTime() >= settings.postDateStart &&
+      _date.getTime() <= settings.postDateEnd
+    )
+  }
+
+  private checkIdPublishTime(
+    id: FilterOption['id'],
+    type: FilterOption['workTypeString']
+  ) {
+    if (id === undefined || !settings.postDate || !type) {
+      return true
+    }
+
+    const _id = Number.parseInt(id as string)
+    const _type = type === 'novels' ? 'novels' : 'illusts'
+    const range = workPublishTime.getTimeRange(_id, _type)
+
+    return (
+      range[0] >= settings.postDateStart && range[1] <= settings.postDateEnd
     )
   }
 
