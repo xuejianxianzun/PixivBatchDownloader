@@ -9,7 +9,7 @@ import { states } from './store/States'
 import { toast } from './Toast'
 import { Tools } from './Tools'
 import { ArtworkData } from './crawl/CrawlResult'
-import { Bookmark } from './Bookmark'
+import { bookmark } from './Bookmark'
 import { cacheWorkData } from './store/CacheWorkData'
 import { Colors } from './Colors'
 import { downloadOnClickBookmark } from './download/DownloadOnClickBookmark'
@@ -482,7 +482,7 @@ class ImageViewer {
       bgColor: Colors.bgBlue,
     })
 
-    const res = await Bookmark.add(
+    const res = await bookmark.add(
       this.cfg.workId,
       'illusts',
       Tools.extractTags(this.workData!)

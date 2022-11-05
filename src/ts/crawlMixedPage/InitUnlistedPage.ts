@@ -1,4 +1,4 @@
-//初始化 artwork 作品页
+//初始化 Unlisted 作品页
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
 import { options } from '../setting/Options'
