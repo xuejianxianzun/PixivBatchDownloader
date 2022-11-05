@@ -7,7 +7,7 @@ import {
   ArtworkCommonData,
 } from '../crawl/CrawlResult'
 import { toast } from '../Toast'
-import { Bookmark } from '../Bookmark'
+import { bookmark } from '../Bookmark'
 
 // 给收藏页面里的未分类作品批量添加 tag
 class BookmarksAddTag {
@@ -109,7 +109,7 @@ class BookmarksAddTag {
   private async addTag(): Promise<void> {
     const item = this.addTagList[this.addIndex]
 
-    await Bookmark.add(item.id, this.type, item.tags, true, item.restrict)
+    await bookmark.add(item.id, this.type, item.tags, true, item.restrict)
 
     if (this.addIndex < this.addTagList.length - 1) {
       this.addIndex++
