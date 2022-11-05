@@ -36,7 +36,7 @@ const langText = {
     '<span class="key">Exclude</span> tag',
     'タグを除外する',
     '<span class="key">제외</span> 태그',
-    '<span class="key">Исключить</span> tag',
+    '<span class="key">Исключить</span> ярлык',
   ],
   _排除tag的提示文字: [
     '您可在下载前设置要排除的标签，这样在下载时将不会下载含有这些标签的作品。不区分大小写；如需排除多个标签，请使用英文逗号分隔。请注意要排除的标签的优先级大于要包含的tag的优先级。',
@@ -60,7 +60,7 @@ const langText = {
     '<span class="key">Include</span> tag',
     '<span class="key">必要な</span>タグ',
     '<span class="key">포함</span> 태그',
-    '<span class="key">Включать</span> tag',
+    '<span class="key">Включать</span> ярлык',
   ],
   _必须tag的提示文字: [
     '您可在下载前设置作品里必须包含的标签，不区分大小写；如需包含多个标签，请使用英文逗号分隔。',
@@ -1046,7 +1046,7 @@ const langText = {
     'Если имя файла после загрузки ненормальное, отключите другие расширения браузера, которые имеют возможность загрузки.<br> Например: Chrono Download Manager, бесплатный менеджер загрузок, загрузчик изображений, DownThemAll! и многое другое.',
   ],
   _常见问题说明: [
-    '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>如果你需要一个梯子（机场）,可以试试 <a href="https://www.ttkcloud.net/#/register?code=6m4hMaPu" title="https://www.ttkcloud.net/">www.ttkcloud.net</a>，价格便宜，百兆带宽，无倍率。先购买订阅，然后在仪盘表复制订阅链接使用。<br><br>下载器 QQ 群：499873152<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
+    '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>如果你需要一个梯子（机场）,可以试试 <a href="https://www.ttkcloud.net/#/register?code=6m4hMaPu" title="https://www.ttkcloud.net/">www.ttkcloud.net</a>，价格便宜，百兆带宽，无倍率。先购买订阅，然后在仪表盘复制订阅链接使用。<br><br>下载器 QQ 群：499873152<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
     '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。',
     'The downloaded file is saved in the browsers download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.<br><br>If your browser stops responding at startup, you can clear your browser`s download history.',
     'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。',
@@ -3052,14 +3052,6 @@ const langText = {
     'Pixiv가 빈 데이터를 반환했습니다. 다운로더가 긁어오기를 일시 중지하고 몇 분 동안 기다린 후 긁어오기를 계속합니다.',
     'Pixiv вернул пустые данные. Загрузчик приостановил загрузку и возобновит ее через несколько минут.',
   ],
-  _解决了抓取搜索页面时被限制的问题的说明: [
-    '解决了抓取搜索页面时可能会被 Pixiv 限制的问题。',
-    '解決了抓取搜尋頁面時可能會被 Pixiv 限制的問題。',
-    'Fixed an issue where crawling search pages could be restricted by Pixiv.',
-    'Pixivで検索ページのクロールが制限される問題を修正しました。',
-    '검색 페이지를 긁어올 때 Pixiv에 의해 제한될 수 있는 문제를 해결했습니다.',
-    'Исправлена проблема, при которой просмотр страниц поиска мог быть ограничен компанией Pixiv.',
-  ],
   _搜索模式: [
     '搜索模式',
     '搜尋模式',
@@ -3221,33 +3213,6 @@ const langText = {
     '"작품 미리보기" 기능 최적화',
     'Оптимизация "Предварительного просмотра работ" функция',
   ],
-  _1230更新说明: [
-    `1. 在网页标题上显示剩余下载数量<br>
-    下载时，网页标题上会显示还有多少个文件尚未下载。<br>
-    这样，用户不需要打开下载面板就能够知道下载进度。<br><br>
-    2. 用户可以在下载时添加一些新的下载任务。`,
-    `1. 在網頁標題上顯示剩餘下載數量<br>
-    下載時，網頁標題上會顯示還有多少個檔案尚未下載。<br>
-    這樣，使用者不需要開啟下載面板就能夠知道下載進度。<br><br>
-    2. 使用者可以在下載時新增一些新的下載任務。`,
-    `1. Show remaining downloads on page title<br>
-    While downloading, the page title will show how many files are not yet downloaded. <br>
-    In this way, the user can know the download progress without opening the download panel.<br><br>
-    2. Users can add some new download tasks while downloading.`,
-    `1. ページタイトルに残りのダウンロードを表示する<br>
-    ダウンロード中、ページタイトルにはまだダウンロードされていないファイルの数が表示されます。 <br>
-    このようにして、ユーザーはダウンロードパネルを開かなくてもダウンロードの進行状況を知ることができます。<br><br>
-    2. ユーザーは、ダウンロード中にいくつかの新しいダウンロードタスクを追加できます。`,
-    `1. 페이지 제목에 남은 다운로드 수를 표시합니다<br>
-    다운로드하는 동안, 페이지 제목에 아직 다운로드하지 않은 파일이 몇 개 더 있는지 표시됩니다.<br>
-    이렇게 하면 사용자는 다운로드 패널을 열지 않고도 다운로드 진행 상황을 알 수 있습니다.<br><br>
-    2.사용자는 다운로드 중 새 다운로드 작업을 추가할 수 있습니다.
-    `,
-    `1. Показать оставшиеся загрузки в заголовке страницы<br>
-    Во время загрузки в заголовке страницы будет показано, сколько файлов еще не загружено. <br>
-    Таким образом, пользователь может узнать о ходе загрузки, не открывая панель загрузки.<br><br>
-    2. Пользователи могут добавлять некоторые новые задачи загрузки во время загрузки.`,
-  ],
   _设定资料: [
     '设定资料',
     '設定資料',
@@ -3262,7 +3227,7 @@ const langText = {
     '<span class="key">Age</span> limit',
     '<span class="key">年齢</span>制限',
     '<span class="key">연령</span> 제한',
-    '<span class="key">Возраст</span> limit',
+    '<span class="key">Возраст</span> ограничение',
   ],
   _收藏状态: [
     '<span class="key">收藏</span>状态',
@@ -3640,6 +3605,84 @@ const langText = {
     'ブックマークを追加できませんでした',
     '북마크 추가 실패',
     'Не удалось добавить закладку',
+  ],
+  _有一些作品未能成功收藏: [
+    '有一些作品未能成功收藏。',
+    '有一些作品未能成功收藏。',
+    'Some works were not successfully bookmarked.',
+    '一部の作品がブックマークに失敗しました。',
+    '일부 작품은 성공적으로 북마크되지 않았습니다.',
+    'Некоторые работы не были успешно добавлены в закладки.',
+  ],
+  _下载器会在几分钟后重试: [
+    '下载器会在几分钟后重试。',
+    '下載器會在幾分鐘後重試。',
+    'The downloader will try again in a few minutes.',
+    'ダウンローダーは数分後に再試行します。',
+    '다운로더는 몇 분 후에 다시 시도합니다.',
+    'Загрузчик повторит попытку через несколько минут.',
+  ],
+  _重试收藏: [
+    '重试收藏',
+    '重試收藏',
+    'Retry bookmark',
+    'ブックマークを再試行',
+    '북마크 다시 시도',
+    'Повторить закладку',
+  ],
+  _剩余xx个: [
+    '剩余 {} 个。',
+    '剩餘 {} 個。',
+    '{} remaining.',
+    '{} 残り。',
+    '{} 남음.',
+    '{} осталось.',
+  ],
+  _重试收藏成功: [
+    '重试收藏成功。',
+    '重試收藏成功。',
+    'Retry bookmark successfully.',
+    'ブックマークを再試行します。',
+    '북마크를 다시 시도하십시오.',
+    'Повторите попытку закладки.',
+  ],
+  _出现错误请稍后重试: [
+    '出现错误，请稍后重试。',
+    '出現錯誤，請稍後重試。',
+    'An error occurred, please try again later.',
+    'エラーが発生しました。しばらくしてからもう一度お試しください。',
+    '오류가 발생했습니다. 잠시 후 다시 시도 해주세요.',
+    'Произошла ошибка. Пожалуйста, повторите попытку позже.',
+  ],
+  _请稍后重试: [
+    '请稍后重试。',
+    '請稍後重試。',
+    'Please try again later.',
+    '後でもう一度やり直してください。',
+    '잠시 후에 다시 시도해주세요.',
+    'Пожалуйста, повторите попытку позже.',
+  ],
+  _确定要离开吗: [
+    '确定要离开吗？',
+    '確定要離開嗎？',
+    'Are you sure you want to leave?',
+    '退会してもよろしいですか？',
+    '떠나시겠습니까?',
+    'Вы уверены, что хотите оставить?',
+  ],
+  _1400更新: [
+    `1. 优化了特定情况下的抓取效率（当用户设置了投稿时间时）。<br><br>
+    2. 添加收藏失败时，下载器将会重试。`,
+    `1. 優化了特定情況下的抓取效率（當用戶設定了投稿時間時）。<br><br>
+    2. 新增收藏失敗時，下載器將會重試。`,
+    `1. Optimized the crawling efficiency in certain situations (when the user has set the posting date).<br><br>
+    2. When adding bookmark fails, the downloader will try again.`,
+    `1.特定の状況（ユーザーが投稿日を設定した場合）でのクローリング効率を最適化しました。<br><br>
+    2. ブックマークの追加に失敗すると、ダウンローダーは再試行します。`,
+    `1. 특정 상황(사용자가 게시 날짜를 설정한 경우)에서 크롤링 효율성을 최적화했습니다.<br><br>
+    2. 북마크 추가에 실패하면 다운로더가 다시 시도합니다.`,
+    `1. Оптимизирована эффективность сканирования в определенных ситуациях (когда пользователь установил дату публикации).<br><br>
+    2. Если добавить закладку не удается, загрузчик попытается еще раз.`,
   ],
 }
 

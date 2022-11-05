@@ -310,11 +310,15 @@ abstract class InitPageBase {
       throw new Error(msg)
     }
 
-    // 检查 id 是否符合 id 范围条件，如果不符合则不发送这个请求，直接跳过它
-    const checkId = await filter.check({
+    // 在抓取之前，预先对 id 进行检查，如果不符合要求则不发送这个请求，直接跳过它
+    // 现在这里能够检查 2 种设置条件：
+    // 1. 检查 id 是否符合 id 范围条件
+    // 2. 检查 id 的发布时间是否符合时间范围条件
+    const check = await filter.check({
       id,
+      workTypeString: idData.type,
     })
-    if (!checkId) {
+    if (!check) {
       return this.afterGetWorksData()
     }
 
@@ -345,7 +349,7 @@ abstract class InitPageBase {
           console.log('429 error on ' + store.resultMeta.length)
           return window.setTimeout(() => {
             this.getWorksData(idData)
-          }, Config.retryTimer)
+          }, Config.retryTime)
         } else {
           this.afterGetWorksData()
         }

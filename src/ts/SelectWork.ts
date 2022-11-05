@@ -147,6 +147,8 @@ class SelectWork {
     )
 
     // 离开页面前提示用户
+    // 如果把此处的 window.onbeforeunload 换成 window.addEventListener('beforeunload') 会出现问题
+    // 浏览器不会弹出询问对话框，而是直接关闭页面
     window.onbeforeunload = () => {
       // 如果存在选择的作品，并且选择的作品（全部或部分）没有被抓取，则进行提示
       if (this.idList.length > 0 && !this.crawled) {

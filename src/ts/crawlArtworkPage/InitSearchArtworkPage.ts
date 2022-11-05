@@ -20,7 +20,7 @@ import { Utils } from '../utils/Utils'
 import { idListWithPageNo } from '../store/IdListWithPageNo'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
-import { Bookmark } from '../Bookmark'
+import { bookmark } from '../Bookmark'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { pageType } from '../PageType'
 import { Config } from '../Config'
@@ -30,6 +30,7 @@ import { setTimeoutWorker } from '../SetTimeoutWorker'
 type AddBMKData = {
   id: number
   tags: string[]
+  el: Element
 }
 
 type FilterCB = (value: Result) => unknown
@@ -354,7 +355,7 @@ class InitSearchArtworkPage extends InitPageBase {
   private delayReTry(p: number) {
     window.setTimeout(() => {
       this.getIdList(p)
-    }, Config.retryTimer)
+    }, Config.retryTime)
     // 限制时间大约是 3 分钟，这里为了保险起见，设置了更大的延迟时间。
   }
 
@@ -680,10 +681,9 @@ class InitSearchArtworkPage extends InitPageBase {
     addBMKBtn.addEventListener('click', function () {
       // 添加收藏
       const e = new CustomEvent('addBMK', {
-        detail: { data: { id: data.idNum, tags: data.tags } },
+        detail: { data: { id: data.idNum, tags: data.tags, el: addBMKBtn } },
       })
       window.dispatchEvent(e)
-      this.classList.add(bookmarkedClass)
 
       // 下载这个作品
       downloadOnClickBookmark.send(data.idNum.toString())
@@ -834,7 +834,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
     for (const r of store.result) {
       if (r.idNum === data.id) {
-        const res = await Bookmark.add(data.id.toString(), 'illusts', data.tags)
+        const res = await bookmark.add(data.id.toString(), 'illusts', data.tags)
         if (res !== 429) {
           // 同步数据
           r.bookmarked = true
@@ -843,6 +843,7 @@ class InitSearchArtworkPage extends InitPageBase {
               result.bookmarked = true
             }
           })
+          data.el.classList.add(this.bookmarkedClass)
         }
 
         break
