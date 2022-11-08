@@ -6398,12 +6398,12 @@ const langText = {
         '<span class="key">Превью</span> Ugoira(анимации)',
     ],
     _过度访问警告警告: [
-        '下载器检测到你可能收到了 pixiv 的警告消息，这通常是因为过度下载导致的。<br>请等待一段时间再继续下载。',
-        '下載器檢測到你可能收到了 pixiv 的警告訊息，這通常是因為過度下載導致的。<br>請等待一段時間再繼續下載。',
-        'The downloader has detected that you may have received a warning message from pixiv, usually due to excessive downloads.<br>Please wait for a while before continuing the download.',
-        'ダウンロードが多すぎるため、pixivから警告メッセージが届いた可能性があることをダウンローダーが検出しました。<br>ダウンロードを続行する前に、しばらくお待ちください。',
-        '다운로더는 일반적으로 과도한 다운로드로 인해 pixiv에서 경고 메시지를 수신했을 수 있음을 감지했습니다.<br>다운로드를 계속하기 전에 잠시 기다려 주십시오.',
-        'Программа загрузки обнаружила, что вы могли получить предупреждающее сообщение от pixiv, обычно из-за чрезмерной загрузки.<br> Пожалуйста, подождите некоторое время, прежде чем продолжить загрузку.',
+        '下载器检测到你可能收到了 pixiv 的警告消息，这通常是因为过度下载导致的。<br><strong>当你再次被警告时，你会被 Pixiv 封号。</strong><br>我建议你减少下载数量，或者使用新的账号进行下载。',
+        '下載器檢測到你可能收到了 pixiv 的警告訊息，這通常是因為過度下載導致的。<br><strong>當你再次被警告時，你會被 Pixiv 封號。</strong><br>我建議你減少下載數量，或者使用新的賬號進行下載。',
+        'The downloader has detected that you may have received a warning message from pixiv, usually due to excessive downloads.<br><strong>When you are warned again, you will be banned from Pixiv. </strong><br>I suggest you reduce your downloads, or use a new account to download.',
+        'ダウンロードが多すぎるため、pixivから警告メッセージが届いた可能性があることをダウンローダーが検出しました。<br><strong>再度警告を受けた場合、Pixivから追放されます。 </strong><br>ダウンロード数を減らすか、新しいアカウントを使用してダウンロードすることをお勧めします。',
+        '다운로더는 일반적으로 과도한 다운로드로 인해 pixiv에서 경고 메시지를 수신했을 수 있음을 감지했습니다.<br><strong>다시 경고를 받으면 Pixiv에서 차단됩니다. </strong><br>다운로드를 줄이거나 새 계정을 사용하여 다운로드하는 것이 좋습니다.',
+        'Программа загрузки обнаружила, что вы могли получить предупреждающее сообщение от pixiv, обычно из-за чрезмерной загрузки.<br><strong>Когда вы снова получите предупреждение, вы будете заблокированы в Pixiv. </strong><br>Я предлагаю вам сократить количество загрузок или использовать новую учетную запись для загрузки.',
     ],
     _下载小说里的内嵌图片: [
         '下载小说里的<span class="key">内嵌</span>图片',
@@ -7790,6 +7790,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+
 
 
 
@@ -8219,6 +8221,7 @@ class PreviewWork {
                 // 因为此时获取不到后续图片的原始尺寸
                 text.push(`${this.workData.body.width}x${this.workData.body.height}`);
             }
+            text.push(_utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__["DateFormat"].format(body.uploadDate));
             text.push(body.title);
             text.push(body.description);
             this.tip.innerHTML = text
