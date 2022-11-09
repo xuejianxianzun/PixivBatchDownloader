@@ -8221,7 +8221,7 @@ class PreviewWork {
                 // 因为此时获取不到后续图片的原始尺寸
                 text.push(`${this.workData.body.width}x${this.workData.body.height}`);
             }
-            text.push(_utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__["DateFormat"].format(body.uploadDate));
+            text.push(_utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__["DateFormat"].format(body.uploadDate, 'YYYY/MM/DD'));
             text.push(body.title);
             text.push(body.description);
             this.tip.innerHTML = text
@@ -20893,9 +20893,8 @@ class Filter {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDate || date === undefined) {
             return true;
         }
-        const _date = new Date(date);
-        return (_date.getTime() >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart &&
-            _date.getTime() <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd);
+        const time = new Date(date).getTime();
+        return time >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart && time <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd;
     }
     checkIdPublishTime(id, type) {
         if (id === undefined || !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDate || !type) {
@@ -20904,6 +20903,29 @@ class Filter {
         const _id = Number.parseInt(id);
         const _type = type === 'novels' ? 'novels' : 'illusts';
         const range = _WorkPublishTime__WEBPACK_IMPORTED_MODULE_9__["workPublishTime"].getTimeRange(_id, _type);
+        // console.log(new Date(range[0]).toLocaleString())
+        // console.log(new Date(range[1]).toLocaleString())
+        // 如果返回的数据中的开始时间大于用户设置的结束时间，则检查不通过
+        // 如果返回的数据中的结束时间小于用户设置的开始时间，则检查不通过
+        if (range[0] > _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd || range[1] < _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart) {
+            return false;
+        }
+        // 如果两条记录的时间差大于用户设置的时间差，此时的数据不可采信。将其通过
+        if (range[1] - range[0] >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd - _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart) {
+            return true;
+        }
+        // 如果两条记录的时间范围与用户设置的时间范围只有部分重叠，此时的数据不可采信。将其通过
+        if (range[0] < _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart &&
+            range[1] > _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart &&
+            range[1] < _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd) {
+            return true;
+        }
+        if (range[0] > _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart &&
+            range[0] < _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd &&
+            range[1] > _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd) {
+            return true;
+        }
+        // 达到这里的数据是可信的，不会发生误判
         return (range[0] >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart && range[1] <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd);
     }
     // 检查首次登场设置
@@ -21090,34 +21112,32 @@ class WorkPublishTime {
      *
      * 返回值是一个包含 2 个数字的数组，第一个数字是开始时间，第二个数字是结束时间。 */
     getTimeRange(id, type = 'illusts') {
-        let start = 0;
-        let end = 0;
         const data = type === 'illusts' ? _store_workPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__["illustsData"] : _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__["novelData"];
         const length = type === 'illusts' ? this.illustsLength : this.novelsLength;
         const index = Math.floor(id / this.gap);
-        // 如果传入的 id 比最后一条数据更大，则有可能没有与之匹配的记录，此时使用最后一条记录作为其开始时间
-        let record1 = data[index];
-        if (!record1) {
-            start = data[length - 1][1];
-            end = new Date().getTime();
-            return [start, end];
+        // 如果传入的 id 匹配到最后一条记录，则将结束时间设置为现在
+        if (index >= length - 1) {
+            return [data[length - 1][1], new Date().getTime()];
         }
-        // 如果有与传入 id 相匹配的记录，则判断这个记录的 id 传入的 id 哪个大
-        // 如果记录的 id 小于等于传入的 id，则此记录的时间作为开始时间，下一条记录的时间作为结束时间
-        if (record1[0] <= id) {
-            start = record1[1];
-            const next = data[index + 1];
-            // 如果没有下一条记录，则使用现在的时间作为结束时间
-            end = next ? next[1] : new Date().getTime();
-            return [start, end];
+        // 如果传入的 id 匹配到第一条记录，则直接返回数据
+        if (index === 0) {
+            return [data[0][1], data[1][1]];
+        }
+        const record = data[index];
+        // 如果有与传入 id 相匹配的记录，则判断这个记录的 id 与传入的 id 哪个大
+        // 如果记录的 id 等于传入的 id，则直接返回其时间戳
+        if (record[0] === id) {
+            return [record[1], record[1]];
+        }
+        else if (record[0] < id) {
+            // 如果记录的 id 小于传入的 id，则此记录的时间作为开始时间，下一条记录的时间作为结束时间
+            // 此时必然有下一条记录，因为前面已经处理了没有下一条记录的情况
+            return [record[1], data[index + 1][1]];
         }
         else {
             // 如果记录的 id 大于传入的 id，则此记录的时间作为结束时间，上一条记录的时间作为开始时间
-            end = record1[1];
-            const prev = data[index - 1];
-            // 如果没有上一条记录，则把开始时间设为 0
-            start = prev ? prev[1] : 0;
-            return [start, end];
+            // 此时必然有上一条记录，因为前面已经处理了没有上一条记录的情况
+            return [data[index - 1][1], record[1]];
         }
     }
     bindEvents() {
