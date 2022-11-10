@@ -489,7 +489,7 @@ class PreviewWork {
         // 因为此时获取不到后续图片的原始尺寸
         text.push(`${this.workData.body.width}x${this.workData.body.height}`)
       }
-      text.push(DateFormat.format(body.uploadDate, 'YYYY/MM/DD'))
+      text.push(DateFormat.format(body.createDate, 'YYYY/MM/DD'))
       text.push(body.title)
       text.push(body.description)
 

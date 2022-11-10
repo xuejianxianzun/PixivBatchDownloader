@@ -8221,7 +8221,7 @@ class PreviewWork {
                 // 因为此时获取不到后续图片的原始尺寸
                 text.push(`${this.workData.body.width}x${this.workData.body.height}`);
             }
-            text.push(_utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__["DateFormat"].format(body.uploadDate, 'YYYY/MM/DD'));
+            text.push(_utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__["DateFormat"].format(body.createDate, 'YYYY/MM/DD'));
             text.push(body.title);
             text.push(body.description);
             this.tip.innerHTML = text
@@ -9814,13 +9814,13 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '14.0.0';
+        this.flag = '14.0.1';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_1400更新')}`;
+            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_修复bug')}`;
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -21098,7 +21098,7 @@ __webpack_require__.r(__webpack_exports__);
 // 获取指定 id 的发布时间范围
 class WorkPublishTime {
     constructor() {
-        // 数据源是数组结构，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
+        // 数据源是二维数组，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
         // [[20, 1189343647000], [10000, 1190285376000], [20006, 1190613767000]]
         /**每隔 10000 个作品采集一次数据 */
         this.gap = 10000;
@@ -21142,12 +21142,10 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask1', () => {
-            // 当前最新数据截止到 2022 年 10 月 29 日，最后一个作品 id 是 102324813
-            this.crawlData(1, 102324813);
+            this.crawlData(102330000, 102668905);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask2', () => {
-            // 当前最新数据截止到 2022 年 10 月 30 日，最后一个作品 id 是 18628857
-            this.crawlData(1, 18628857, 'novels');
+            this.crawlData(18630000, 18697162, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -27783,6 +27781,13 @@ const novelData = [
     [18600000, 1666683378000],
     [18610001, 1666856198000],
     [18620000, 1667012932000],
+    [18630001, 1667130397000],
+    [18640000, 1667227842000],
+    [18650000, 1667391437000],
+    [18660000, 1667537375000],
+    [18670000, 1667659115000],
+    [18680000, 1667778232000],
+    [18690000, 1667928642000],
 ];
 
 
@@ -38032,6 +38037,40 @@ const illustsData = [
     [102300000, 1666959138000],
     [102310001, 1666985187000],
     [102320000, 1667026497000],
+    [102330000, 1667049301000],
+    [102340000, 1667074375000],
+    [102350000, 1667110331000],
+    [102360000, 1667130422000],
+    [102370000, 1667143380000],
+    [102380000, 1667177656000],
+    [102390001, 1667206886000],
+    [102400000, 1667221135000],
+    [102410000, 1667232357000],
+    [102420000, 1667272246000],
+    [102430000, 1667301644000],
+    [102440000, 1667320439000],
+    [102450000, 1667367598000],
+    [102460000, 1667394858000],
+    [102470000, 1667427666000],
+    [102480000, 1667464915000],
+    [102490000, 1667485160000],
+    [102500000, 1667524862000],
+    [102510000, 1667560354000],
+    [102520000, 1667580817000],
+    [102530000, 1667624234000],
+    [102540000, 1667649179000],
+    [102550001, 1667668772000],
+    [102560000, 1667710692000],
+    [102570000, 1667734400000],
+    [102580000, 1667750824000],
+    [102590000, 1667797645000],
+    [102600000, 1667825493000],
+    [102610000, 1667852133000],
+    [102620000, 1667897579000],
+    [102630000, 1667919378000],
+    [102640000, 1667962893000],
+    [102650000, 1667995549000],
+    [102660000, 1668020437000],
 ];
 
 

@@ -12,7 +12,7 @@ class WorkPublishTime {
     this.bindEvents()
   }
 
-  // 数据源是数组结构，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
+  // 数据源是二维数组，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
   // [[20, 1189343647000], [10000, 1190285376000], [20006, 1190613767000]]
 
   /**每隔 10000 个作品采集一次数据 */
@@ -60,13 +60,11 @@ class WorkPublishTime {
 
   private bindEvents() {
     secretSignal.register('ppdtask1', () => {
-      // 当前最新数据截止到 2022 年 10 月 29 日，最后一个作品 id 是 102324813
-      this.crawlData(1, 102324813)
+      this.crawlData(102330000, 102668905)
     })
 
     secretSignal.register('ppdtask2', () => {
-      // 当前最新数据截止到 2022 年 10 月 30 日，最后一个作品 id 是 18628857
-      this.crawlData(1, 18628857, 'novels')
+      this.crawlData(18630000, 18697162, 'novels')
     })
   }
 
