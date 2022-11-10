@@ -6473,12 +6473,12 @@ const langText = {
         '<span class="key">Превью</span> Ugoira(анимации)',
     ],
     _过度访问警告警告: [
-        '下载器检测到你可能收到了 pixiv 的警告消息，这通常是因为过度下载导致的。<br>请等待一段时间再继续下载。',
-        '下載器檢測到你可能收到了 pixiv 的警告訊息，這通常是因為過度下載導致的。<br>請等待一段時間再繼續下載。',
-        'The downloader has detected that you may have received a warning message from pixiv, usually due to excessive downloads.<br>Please wait for a while before continuing the download.',
-        'ダウンロードが多すぎるため、pixivから警告メッセージが届いた可能性があることをダウンローダーが検出しました。<br>ダウンロードを続行する前に、しばらくお待ちください。',
-        '다운로더는 일반적으로 과도한 다운로드로 인해 pixiv에서 경고 메시지를 수신했을 수 있음을 감지했습니다.<br>다운로드를 계속하기 전에 잠시 기다려 주십시오.',
-        'Программа загрузки обнаружила, что вы могли получить предупреждающее сообщение от pixiv, обычно из-за чрезмерной загрузки.<br> Пожалуйста, подождите некоторое время, прежде чем продолжить загрузку.',
+        '下载器检测到你可能收到了 pixiv 的警告消息，这通常是因为过度下载导致的。<br><strong>当你再次被警告时，你会被 Pixiv 封号。</strong><br>我建议你减少下载数量，或者使用新的账号进行下载。',
+        '下載器檢測到你可能收到了 pixiv 的警告訊息，這通常是因為過度下載導致的。<br><strong>當你再次被警告時，你會被 Pixiv 封號。</strong><br>我建議你減少下載數量，或者使用新的賬號進行下載。',
+        'The downloader has detected that you may have received a warning message from pixiv, usually due to excessive downloads.<br><strong>When you are warned again, you will be banned from Pixiv. </strong><br>I suggest you reduce your downloads, or use a new account to download.',
+        'ダウンロードが多すぎるため、pixivから警告メッセージが届いた可能性があることをダウンローダーが検出しました。<br><strong>再度警告を受けた場合、Pixivから追放されます。 </strong><br>ダウンロード数を減らすか、新しいアカウントを使用してダウンロードすることをお勧めします。',
+        '다운로더는 일반적으로 과도한 다운로드로 인해 pixiv에서 경고 메시지를 수신했을 수 있음을 감지했습니다.<br><strong>다시 경고를 받으면 Pixiv에서 차단됩니다. </strong><br>다운로드를 줄이거나 새 계정을 사용하여 다운로드하는 것이 좋습니다.',
+        'Программа загрузки обнаружила, что вы могли получить предупреждающее сообщение от pixiv, обычно из-за чрезмерной загрузки.<br><strong>Когда вы снова получите предупреждение, вы будете заблокированы в Pixiv. </strong><br>Я предлагаю вам сократить количество загрузок или использовать новую учетную запись для загрузки.',
     ],
     _下载小说里的内嵌图片: [
         '下载小说里的<span class="key">内嵌</span>图片',
@@ -7865,6 +7865,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+
 
 
 
@@ -8294,6 +8296,7 @@ class PreviewWork {
                 // 因为此时获取不到后续图片的原始尺寸
                 text.push(`${this.workData.body.width}x${this.workData.body.height}`);
             }
+            text.push(_utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__["DateFormat"].format(body.createDate, 'YYYY/MM/DD'));
             text.push(body.title);
             text.push(body.description);
             this.tip.innerHTML = text
@@ -9886,13 +9889,13 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '14.0.0';
+        this.flag = '14.0.1';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_1400更新')}`;
+            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_修复bug')}`;
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -20966,9 +20969,8 @@ class Filter {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDate || date === undefined) {
             return true;
         }
-        const _date = new Date(date);
-        return (_date.getTime() >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart &&
-            _date.getTime() <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd);
+        const time = new Date(date).getTime();
+        return time >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart && time <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd;
     }
     checkIdPublishTime(id, type) {
         if (id === undefined || !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDate || !type) {
@@ -20977,6 +20979,29 @@ class Filter {
         const _id = Number.parseInt(id);
         const _type = type === 'novels' ? 'novels' : 'illusts';
         const range = _WorkPublishTime__WEBPACK_IMPORTED_MODULE_9__["workPublishTime"].getTimeRange(_id, _type);
+        // console.log(new Date(range[0]).toLocaleString())
+        // console.log(new Date(range[1]).toLocaleString())
+        // 如果返回的数据中的开始时间大于用户设置的结束时间，则检查不通过
+        // 如果返回的数据中的结束时间小于用户设置的开始时间，则检查不通过
+        if (range[0] > _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd || range[1] < _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart) {
+            return false;
+        }
+        // 如果两条记录的时间差大于用户设置的时间差，此时的数据不可采信。将其通过
+        if (range[1] - range[0] >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd - _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart) {
+            return true;
+        }
+        // 如果两条记录的时间范围与用户设置的时间范围只有部分重叠，此时的数据不可采信。将其通过
+        if (range[0] < _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart &&
+            range[1] > _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart &&
+            range[1] < _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd) {
+            return true;
+        }
+        if (range[0] > _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart &&
+            range[0] < _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd &&
+            range[1] > _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd) {
+            return true;
+        }
+        // 达到这里的数据是可信的，不会发生误判
         return (range[0] >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart && range[1] <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd);
     }
     // 检查首次登场设置
@@ -21149,7 +21174,7 @@ __webpack_require__.r(__webpack_exports__);
 // 获取指定 id 的发布时间范围
 class WorkPublishTime {
     constructor() {
-        // 数据源是数组结构，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
+        // 数据源是二维数组，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
         // [[20, 1189343647000], [10000, 1190285376000], [20006, 1190613767000]]
         /**每隔 10000 个作品采集一次数据 */
         this.gap = 10000;
@@ -21163,44 +21188,40 @@ class WorkPublishTime {
      *
      * 返回值是一个包含 2 个数字的数组，第一个数字是开始时间，第二个数字是结束时间。 */
     getTimeRange(id, type = 'illusts') {
-        let start = 0;
-        let end = 0;
         const data = type === 'illusts' ? _store_workPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__["illustsData"] : _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__["novelData"];
         const length = type === 'illusts' ? this.illustsLength : this.novelsLength;
         const index = Math.floor(id / this.gap);
-        // 如果传入的 id 比最后一条数据更大，则有可能没有与之匹配的记录，此时使用最后一条记录作为其开始时间
-        let record1 = data[index];
-        if (!record1) {
-            start = data[length - 1][1];
-            end = new Date().getTime();
-            return [start, end];
+        // 如果传入的 id 匹配到最后一条记录，则将结束时间设置为现在
+        if (index >= length - 1) {
+            return [data[length - 1][1], new Date().getTime()];
         }
-        // 如果有与传入 id 相匹配的记录，则判断这个记录的 id 传入的 id 哪个大
-        // 如果记录的 id 小于等于传入的 id，则此记录的时间作为开始时间，下一条记录的时间作为结束时间
-        if (record1[0] <= id) {
-            start = record1[1];
-            const next = data[index + 1];
-            // 如果没有下一条记录，则使用现在的时间作为结束时间
-            end = next ? next[1] : new Date().getTime();
-            return [start, end];
+        // 如果传入的 id 匹配到第一条记录，则直接返回数据
+        if (index === 0) {
+            return [data[0][1], data[1][1]];
+        }
+        const record = data[index];
+        // 如果有与传入 id 相匹配的记录，则判断这个记录的 id 与传入的 id 哪个大
+        // 如果记录的 id 等于传入的 id，则直接返回其时间戳
+        if (record[0] === id) {
+            return [record[1], record[1]];
+        }
+        else if (record[0] < id) {
+            // 如果记录的 id 小于传入的 id，则此记录的时间作为开始时间，下一条记录的时间作为结束时间
+            // 此时必然有下一条记录，因为前面已经处理了没有下一条记录的情况
+            return [record[1], data[index + 1][1]];
         }
         else {
             // 如果记录的 id 大于传入的 id，则此记录的时间作为结束时间，上一条记录的时间作为开始时间
-            end = record1[1];
-            const prev = data[index - 1];
-            // 如果没有上一条记录，则把开始时间设为 0
-            start = prev ? prev[1] : 0;
-            return [start, end];
+            // 此时必然有上一条记录，因为前面已经处理了没有上一条记录的情况
+            return [data[index - 1][1], record[1]];
         }
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask1', () => {
-            // 当前最新数据截止到 2022 年 10 月 29 日，最后一个作品 id 是 102324813
-            this.crawlData(1, 102324813);
+            this.crawlData(102330000, 102668905);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask2', () => {
-            // 当前最新数据截止到 2022 年 10 月 30 日，最后一个作品 id 是 18628857
-            this.crawlData(1, 18628857, 'novels');
+            this.crawlData(18630000, 18697162, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -27836,6 +27857,13 @@ const novelData = [
     [18600000, 1666683378000],
     [18610001, 1666856198000],
     [18620000, 1667012932000],
+    [18630001, 1667130397000],
+    [18640000, 1667227842000],
+    [18650000, 1667391437000],
+    [18660000, 1667537375000],
+    [18670000, 1667659115000],
+    [18680000, 1667778232000],
+    [18690000, 1667928642000],
 ];
 
 
@@ -38085,6 +38113,40 @@ const illustsData = [
     [102300000, 1666959138000],
     [102310001, 1666985187000],
     [102320000, 1667026497000],
+    [102330000, 1667049301000],
+    [102340000, 1667074375000],
+    [102350000, 1667110331000],
+    [102360000, 1667130422000],
+    [102370000, 1667143380000],
+    [102380000, 1667177656000],
+    [102390001, 1667206886000],
+    [102400000, 1667221135000],
+    [102410000, 1667232357000],
+    [102420000, 1667272246000],
+    [102430000, 1667301644000],
+    [102440000, 1667320439000],
+    [102450000, 1667367598000],
+    [102460000, 1667394858000],
+    [102470000, 1667427666000],
+    [102480000, 1667464915000],
+    [102490000, 1667485160000],
+    [102500000, 1667524862000],
+    [102510000, 1667560354000],
+    [102520000, 1667580817000],
+    [102530000, 1667624234000],
+    [102540000, 1667649179000],
+    [102550001, 1667668772000],
+    [102560000, 1667710692000],
+    [102570000, 1667734400000],
+    [102580000, 1667750824000],
+    [102590000, 1667797645000],
+    [102600000, 1667825493000],
+    [102610000, 1667852133000],
+    [102620000, 1667897579000],
+    [102630000, 1667919378000],
+    [102640000, 1667962893000],
+    [102650000, 1667995549000],
+    [102660000, 1668020437000],
 ];
 
 
