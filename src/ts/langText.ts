@@ -595,7 +595,7 @@ const langText = {
   ],
   _作品页状态码429: [
     '错误代码：429（请求数量过多）。下载器会重新抓取它。',
-    '錯誤程式碼：429（請求數量過多）。下载器会重新抓取它。',
+    '錯誤程式碼：429（請求數量過多）。下載器会重新抓取它。',
     'Error code: 429 (Too many requests). The downloader will re-crawl it.',
     'エラー コード: 429 (要求が多すぎます)。ダウンローダーはそれを再クロールします。',
     '오류 코드: 429(요청이 너무 많음). 다운로더가 다시 크롤링합니다.',
@@ -611,7 +611,7 @@ const langText = {
   ],
   _作品页状态码500: [
     'Pixiv 拒绝返回数据 (500)。下载器会重新抓取它。',
-    'Pixiv 拒絕返回資料 (500)。下载器会重新抓取它。',
+    'Pixiv 拒絕返回資料 (500)。下載器会重新抓取它。',
     'Pixiv refuses to return data (500). The downloader will re-crawl it.',
     'ピクシブはデータの返却を拒否します (500)。ダウンローダーはそれを再クロールします。',
     'pixiv는 데이터 반환을 거부합니다 (500). 다운로더가 다시 크롤링합니다.',
@@ -3670,19 +3670,19 @@ const langText = {
     '떠나시겠습니까?',
     'Вы уверены, что хотите оставить?',
   ],
-  _1400更新: [
-    `1. 优化了特定情况下的抓取效率（当用户设置了投稿时间时）。<br><br>
-    2. 添加收藏失败时，下载器将会重试。`,
-    `1. 優化了特定情況下的抓取效率（當用戶設定了投稿時間時）。<br><br>
-    2. 新增收藏失敗時，下載器將會重試。`,
-    `1. Optimized the crawling efficiency in certain situations (when the user has set the posting date).<br><br>
-    2. When adding bookmark fails, the downloader will try again.`,
-    `1.特定の状況（ユーザーが投稿日を設定した場合）でのクローリング効率を最適化しました。<br><br>
-    2. ブックマークの追加に失敗すると、ダウンローダーは再試行します。`,
-    `1. 특정 상황(사용자가 게시 날짜를 설정한 경우)에서 크롤링 효율성을 최적화했습니다.<br><br>
-    2. 북마크 추가에 실패하면 다운로더가 다시 시도합니다.`,
-    `1. Оптимизирована эффективность сканирования в определенных ситуациях (когда пользователь установил дату публикации).<br><br>
-    2. Если добавить закладку не удается, загрузчик попытается еще раз.`,
+  _yandex浏览器的警告: [
+    `如果你在 Yandex 浏览器（Android）上使用 Powerful Pixiv Downloader，请换成 Kiwi 浏览器。<br>
+    因为下载器在最近将会升级到 Manifest version 3，但是 Yandex 浏览器不支持  Manifest version 3， 所以它不能使用新版本的下载器。`,
+    `如果你在 Yandex 瀏覽器（Android）上使用 Powerful Pixiv Downloader，請換成 Kiwi 瀏覽器。<br>
+    因為下載器在最近將會升級到 Manifest version 3，但是 Yandex 瀏覽器不支援  Manifest version 3， 所以它不能使用新版本的下載器。`,
+    `If you are using Powerful Pixiv Downloader on Yandex browser（Android）, please switch to Kiwi browser. <br>
+    Because the downloader will be upgraded to Manifest version 3 in the near future, but Yandex browser does not support Manifest version 3, so it cannot use the new version of the downloader.`,
+    `Yandex（Android） ブラウザで強力な Pixiv Downloader を使用している場合は、Kiwi ブラウザに切り替えてください。 <br>
+    ダウンローダは近いうちにマニフェスト バージョン 3 にアップグレードされますが、Yandex ブラウザはマニフェスト バージョン 3 をサポートしていないため、新しいバージョンのダウンローダを使用することはできません。`,
+    `Yandex（Android） 브라우저에서 강력한 Pixiv Downloader를 사용하는 경우 Kiwi 브라우저로 전환하십시오. <br>
+    다운로더는 가까운 시일 내에 Manifest 버전 3으로 업그레이드되지만 Yandex 브라우저는 Manifest 버전 3을 지원하지 않으므로 새 버전의 다운로더를 사용할 수 없습니다.`,
+    `Если вы используете Powerful Pixiv Downloader в браузере Yandex（Android）, перейдите на браузер Kiwi. <br>
+    Потому что в ближайшее время загрузчик будет обновлен до Манифеста версии 3, но Yandex браузер не поддерживает Манифест версии 3, поэтому он не может использовать новую версию загрузчика.`,
   ],
 }
 

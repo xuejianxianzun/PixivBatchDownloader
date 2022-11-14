@@ -155,8 +155,9 @@ class DownloadControl {
       } else if (msg.msg === 'download_err') {
         // 浏览器把文件保存到本地失败
 
+        // 用户操作导致下载取消的情况，跳过这个文件，不再重试保存它。触发条件如：
         // 用户在浏览器弹出“另存为”对话框时取消保存
-        // 跳过这个文件，不再重试保存它
+        // 用户让 IDM 转接这个下载时
         if (msg.err === 'USER_CANCELED') {
           log.error(
             lang.transl(
