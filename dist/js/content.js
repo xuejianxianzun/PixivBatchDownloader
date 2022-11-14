@@ -3717,7 +3717,7 @@ const langText = {
     ],
     _作品页状态码429: [
         '错误代码：429（请求数量过多）。下载器会重新抓取它。',
-        '錯誤程式碼：429（請求數量過多）。下载器会重新抓取它。',
+        '錯誤程式碼：429（請求數量過多）。下載器会重新抓取它。',
         'Error code: 429 (Too many requests). The downloader will re-crawl it.',
         'エラー コード: 429 (要求が多すぎます)。ダウンローダーはそれを再クロールします。',
         '오류 코드: 429(요청이 너무 많음). 다운로더가 다시 크롤링합니다.',
@@ -3733,7 +3733,7 @@ const langText = {
     ],
     _作品页状态码500: [
         'Pixiv 拒绝返回数据 (500)。下载器会重新抓取它。',
-        'Pixiv 拒絕返回資料 (500)。下载器会重新抓取它。',
+        'Pixiv 拒絕返回資料 (500)。下載器会重新抓取它。',
         'Pixiv refuses to return data (500). The downloader will re-crawl it.',
         'ピクシブはデータの返却を拒否します (500)。ダウンローダーはそれを再クロールします。',
         'pixiv는 데이터 반환을 거부합니다 (500). 다운로더가 다시 크롤링합니다.',
@@ -11679,9 +11679,9 @@ class InitPageBase {
                 // 请求成功，但状态码不正常
                 this.logErrorStatus(error.status, idData);
                 if (error.status === 500 || error.status === 429) {
-                    // 如果状态码 500，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
+                    // 如果状态码 500 或 429，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
                     _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取被限制时返回空结果的提示'));
-                    console.log('429 error on ' + _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].resultMeta.length);
+                    console.log(error.status + ' error on ' + _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].resultMeta.length);
                     return window.setTimeout(() => {
                         this.getWorksData(idData);
                     }, _Config__WEBPACK_IMPORTED_MODULE_21__["Config"].retryTime);
@@ -16963,8 +16963,9 @@ class DownloadControl {
             }
             else if (msg.msg === 'download_err') {
                 // 浏览器把文件保存到本地失败
+                // 用户操作导致下载取消的情况，跳过这个文件，不再重试保存它。触发条件如：
                 // 用户在浏览器弹出“另存为”对话框时取消保存
-                // 跳过这个文件，不再重试保存它
+                // 用户让 IDM 转接这个下载时
                 if (msg.err === 'USER_CANCELED') {
                     _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_user_canceled_tip', _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].createWorkLink(msg.data.id), msg.err || 'unknown'));
                     this.downloadOrSkipAFile(msg.data);

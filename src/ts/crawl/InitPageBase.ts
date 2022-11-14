@@ -344,9 +344,9 @@ abstract class InitPageBase {
         // 请求成功，但状态码不正常
         this.logErrorStatus(error.status, idData)
         if (error.status === 500 || error.status === 429) {
-          // 如果状态码 500，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
+          // 如果状态码 500 或 429，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
           log.error(lang.transl('_抓取被限制时返回空结果的提示'))
-          console.log('429 error on ' + store.resultMeta.length)
+          console.log(error.status + ' error on ' + store.resultMeta.length)
           return window.setTimeout(() => {
             this.getWorksData(idData)
           }, Config.retryTime)
