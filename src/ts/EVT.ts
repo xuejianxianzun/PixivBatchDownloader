@@ -35,8 +35,8 @@ class EVENT {
     /** 获取了作品的 id 列表，需要下载这些 id 列表时使用 */
     crawlIdList: 'crawlIdList',
     /** 当抓取完成时触发。不管结果是否为空都会触发 */
-    crawlFinish: 'crawlFinish',
-    /** 当抓取结果为空时触发。触发时机晚于 crawlFinish */
+    crawlComplete: 'crawlComplete',
+    /** 当抓取结果为空时触发。触发时机晚于 crawlComplete */
     crawlEmpty: 'crawlEmpty',
     /** store 里每存储一个作品的元数据，就触发一次。如果一个元数据产生了多个结果（多图作品），只触发一次 */
     addResult: 'addResult',
@@ -173,7 +173,7 @@ class EVENT {
       | 'crawlStart'
       | 'wrongSetting'
       | 'getIdListFinished'
-      | 'crawlFinish'
+      | 'crawlComplete'
       | 'crawlEmpty'
       | 'resultChange'
       | 'quickCrawl'

@@ -55,7 +55,7 @@ class States {
     })
 
     const idle = [
-      EVT.list.crawlFinish,
+      EVT.list.crawlComplete,
       EVT.list.downloadPause,
       EVT.list.downloadStop,
       EVT.list.downloadComplete,

@@ -184,7 +184,7 @@ abstract class InitPageBase {
       return
     }
 
-    log.clear()
+    EVT.fire('clearLog')
 
     log.success(lang.transl('_开始抓取'))
     toast.show(lang.transl('_开始抓取'), {
@@ -218,7 +218,7 @@ abstract class InitPageBase {
     if (states.busy) {
       store.waitingIdList.push(...idList)
     } else {
-      log.clear()
+      EVT.fire('clearLog')
 
       log.success(lang.transl('_开始抓取'))
       toast.show(lang.transl('_开始抓取'), {
@@ -346,7 +346,6 @@ abstract class InitPageBase {
         if (error.status === 500 || error.status === 429) {
           // 如果状态码 500 或 429，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
           log.error(lang.transl('_抓取被限制时返回空结果的提示'))
-          console.log(error.status + ' error on ' + store.resultMeta.length)
           return window.setTimeout(() => {
             this.getWorksData(idData)
           }, Config.retryTime)
@@ -419,7 +418,7 @@ abstract class InitPageBase {
     log.success(lang.transl('_抓取完毕'), 2)
 
     // 发出抓取完毕的信号
-    EVT.fire('crawlFinish')
+    EVT.fire('crawlComplete')
 
     // 自动导出抓取结果
     if (
@@ -490,9 +489,9 @@ abstract class InitPageBase {
 
   // 抓取结果为 0 时输出提示
   protected noResult() {
-    // 先触发 crawlFinish，后触发 crawlEmpty。这样便于其他组件处理 crawlEmpty 这个例外情况
-    // 如果触发顺序反过来，那么最后执行的都是 crawlFinish，可能会覆盖对 crawlEmpty 的处理
-    EVT.fire('crawlFinish')
+    // 先触发 crawlComplete，后触发 crawlEmpty。这样便于其他组件处理 crawlEmpty 这个例外情况
+    // 如果触发顺序反过来，那么最后执行的都是 crawlComplete，可能会覆盖对 crawlEmpty 的处理
+    EVT.fire('crawlComplete')
     EVT.fire('crawlEmpty')
     const msg = lang.transl('_抓取结果为零')
     log.error(msg, 2)

@@ -959,7 +959,7 @@ class CenterPanel {
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('closeCenterPanel');
         });
         // 抓取完作品详细数据时，显示
-        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume]) {
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume]) {
             window.addEventListener(ev, () => {
                 if (!_store_States__WEBPACK_IMPORTED_MODULE_2__["states"].quickCrawl) {
                     this.show();
@@ -1022,7 +1022,7 @@ class CenterPanel {
             });
         }
         // 当可以开始下载时，切换到“下载”选项卡
-        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume]) {
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume]) {
             window.addEventListener(ev, () => {
                 if (_store_States__WEBPACK_IMPORTED_MODULE_2__["states"].mergeNovel) {
                     return;
@@ -1635,8 +1635,8 @@ class EVENT {
             /** 获取了作品的 id 列表，需要下载这些 id 列表时使用 */
             crawlIdList: 'crawlIdList',
             /** 当抓取完成时触发。不管结果是否为空都会触发 */
-            crawlFinish: 'crawlFinish',
-            /** 当抓取结果为空时触发。触发时机晚于 crawlFinish */
+            crawlComplete: 'crawlComplete',
+            /** 当抓取结果为空时触发。触发时机晚于 crawlComplete */
             crawlEmpty: 'crawlEmpty',
             /** store 里每存储一个作品的元数据，就触发一次。如果一个元数据产生了多个结果（多图作品），只触发一次 */
             addResult: 'addResult',
@@ -4231,6 +4231,14 @@ const langText = {
         '긁어오기 완료!',
         'Вытаскивание завершено!',
     ],
+    _抓取完毕2: [
+        '抓取完毕',
+        '擷取完畢',
+        'Crawl complete',
+        'クロールが終了しました',
+        '긁어오기 완료',
+        'Вытаскивание завершено',
+    ],
     _快速下载本页: [
         '快速下载本页作品 (Alt + Q)',
         '快速下載本頁作品 (Alt + Q)',
@@ -6167,12 +6175,12 @@ const langText = {
         'Например: Anmi@画集発売中 → Anmi',
     ],
     _抓取被限制时返回空结果的提示: [
-        'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。',
-        'Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。',
-        'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes.',
-        'Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。',
-        'Pixiv가 빈 데이터를 반환했습니다. 다운로더가 긁어오기를 일시 중지하고 몇 분 동안 기다린 후 긁어오기를 계속합니다.',
-        'Pixiv вернул пустые данные. Загрузчик приостановил загрузку и возобновит ее через несколько минут.',
+        'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。(429)',
+        'Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。(429)',
+        'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes. (429)',
+        'Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。(429)',
+        'Pixiv가 빈 데이터를 반환했습니다. 다운로더가 긁어오기를 일시 중지하고 몇 분 동안 기다린 후 긁어오기를 계속합니다. (429)',
+        'Pixiv вернул пустые данные. Загрузчик приостановил загрузку и возобновит ее через несколько минут. (429)',
     ],
     _搜索模式: [
         '搜索模式',
@@ -6806,6 +6814,48 @@ const langText = {
         `Если вы используете Powerful Pixiv Downloader в браузере Yandex（Android）, перейдите на браузер Kiwi. <br>
     Потому что в ближайшее время загрузчик будет обновлен до Манифеста версии 3, но Yandex браузер не поддерживает Манифест версии 3, поэтому он не может использовать новую версию загрузчика.`,
     ],
+    _导出日志: [
+        '导出<span class="key">日志</span>',
+        '匯出<span class="key">日誌</span>',
+        'Export <span class="key">log</span>',
+        '<span class="key">ログ</span>のエクスポート',
+        '내보내기 로그',
+        'Экспорт <span class="key">журнала</span>',
+    ],
+    _导出日志成功: [
+        '✓ 导出日志',
+        '✓ 匯出日誌',
+        '✓ Export log',
+        '✓ ログのエクスポート',
+        '✓ 내보내기 로그',
+        '✓ Экспорт журнала',
+    ],
+    _导出时机: [
+        '导出时机',
+        '匯出時機',
+        'Export timing',
+        'エクスポートのタイミング',
+        '내보내기 타이밍',
+        'Время экспорта',
+    ],
+    _日志类型: [
+        '日志类型',
+        '日誌型別',
+        'Log type',
+        'ログの種類',
+        '로그 유형',
+        'Тип журнала',
+    ],
+    _正常: ['正常', '正常', 'Normal', '普通', '정상', 'Обычный'],
+    _错误: ['错误', '錯誤', 'Error', 'エラー', '오류', 'Ошибка'],
+    _排除关键字: [
+        '排除关键字',
+        '排除關鍵字',
+        'Exclude keywords',
+        'キーワードを除外',
+        '키워드 제외',
+        'Исключить ключевые слова',
+    ],
 };
 
 
@@ -6928,6 +6978,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+
+
+
+
+
+
+
 
 
 
@@ -6944,12 +7008,30 @@ class Log {
             _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].textWarning,
             _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].textError,
         ];
-        this.max = 200;
+        this.max = 300;
         this.count = 0;
+        this.record = [];
         this.toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
         this.scrollToBottom();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearLog, () => {
             this.clear();
+        });
+        const clearRecordEvents = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearLog, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop];
+        clearRecordEvents.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.record = [];
+            });
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlComplete, () => {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].exportLog && _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].exportLogTiming === 'crawlComplete') {
+                this.export();
+            }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete, () => {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].exportLog &&
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].exportLogTiming === 'downloadComplete') {
+                this.export();
+            }
         });
     }
     // 添加日志
@@ -6982,6 +7064,10 @@ class Log {
         }
         this.logArea.appendChild(span);
         this.toBottom = true; // 需要把日志滚动到底部
+        // 把持久日志保存到记录里
+        if (keepShow) {
+            this.record.push({ html: span.outerHTML, level });
+        }
     }
     log(str, br = 1, keepShow = true) {
         this.add(str, 0, br, keepShow);
@@ -7020,7 +7106,7 @@ class Log {
         this.count = 0;
         this.wrap.remove();
     }
-    /**清空日志内容 */
+    /**清空显示的日志内容 */
     clear() {
         this.count = 0;
         this.logArea.innerHTML = '';
@@ -7033,6 +7119,55 @@ class Log {
                 this.toBottom = false;
             }
         }, 800);
+    }
+    export() {
+        const data = [];
+        for (const record of this.record) {
+            let html = '';
+            if (record.level !== 3 && _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].exportLogNormal) {
+                html = record.html;
+            }
+            if (record.level === 3 && _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].exportLogError) {
+                html = record.html;
+            }
+            // 检查排除的关键字
+            if (html && _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].exportLogExclude.length > 0) {
+                let checkStr = html;
+                // 如果含有作品链接，则只检查链接后面的部分。这是为了避免因作品 id 中包含要排除的关键字而导致错误的排除
+                if (html.includes('<a href')) {
+                    const array = html.split('</a>');
+                    checkStr = array[array.length - 1];
+                }
+                const index = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].exportLogExclude.findIndex((val) => {
+                    return checkStr.includes(val);
+                });
+                if (index === -1) {
+                    data.push(html);
+                }
+            }
+        }
+        if (data.length === 0) {
+            return;
+        }
+        const fileName = `log-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].getPageTitle())}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].replaceUnsafeStr(_utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__["DateFormat"].format(_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].crawlCompleteTime, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].dateFormat))}.html`;
+        const content = `<!DOCTYPE html>
+<html>
+<body>
+<div id="logWrap">
+${data.join('\n')}
+</div>
+</body>
+</html>`;
+        const blob = new Blob([content], {
+            type: 'text/html',
+        });
+        const url = URL.createObjectURL(blob);
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].downloadFile(url, fileName);
+        const msg = _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导出日志成功');
+        log.success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].success(msg, {
+            position: 'topCenter',
+        });
     }
 }
 const log = new Log();
@@ -8495,7 +8630,7 @@ class SelectWork {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.closeCenterPanel, () => {
             this.tempHide = false;
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.crawlFinish, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.crawlComplete, () => {
             if (this.sendCrawl) {
                 this.sendCrawl = false;
                 this.crawled = true;
@@ -9816,13 +9951,16 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '14.0.1';
+        this.flag = '14.1.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_修复bug')}`;
+            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增功能')}：${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_导出日志')}</strong>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_其他'))}
+      `;
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -11549,7 +11687,7 @@ class InitPageBase {
             _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前任务尚未完成'));
             return;
         }
-        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('clearLog');
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'));
         _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'), {
             position: 'topCenter',
@@ -11575,7 +11713,7 @@ class InitPageBase {
             _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].waitingIdList.push(...idList);
         }
         else {
-            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
+            _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('clearLog');
             _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'));
             _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'), {
                 position: 'topCenter',
@@ -11681,7 +11819,6 @@ class InitPageBase {
                 if (error.status === 500 || error.status === 429) {
                     // 如果状态码 500 或 429，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
                     _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取被限制时返回空结果的提示'));
-                    console.log(error.status + ' error on ' + _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].resultMeta.length);
                     return window.setTimeout(() => {
                         this.getWorksData(idData);
                     }, _Config__WEBPACK_IMPORTED_MODULE_21__["Config"].retryTime);
@@ -11746,7 +11883,7 @@ class InitPageBase {
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个文件', _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length.toString()));
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取完毕'), 2);
         // 发出抓取完毕的信号
-        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlFinish');
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlComplete');
         // 自动导出抓取结果
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].autoExportResult &&
             _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].autoExportResultNumber) {
@@ -11795,9 +11932,9 @@ class InitPageBase {
     }
     // 抓取结果为 0 时输出提示
     noResult() {
-        // 先触发 crawlFinish，后触发 crawlEmpty。这样便于其他组件处理 crawlEmpty 这个例外情况
-        // 如果触发顺序反过来，那么最后执行的都是 crawlFinish，可能会覆盖对 crawlEmpty 的处理
-        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlFinish');
+        // 先触发 crawlComplete，后触发 crawlEmpty。这样便于其他组件处理 crawlEmpty 这个例外情况
+        // 如果触发顺序反过来，那么最后执行的都是 crawlComplete，可能会覆盖对 crawlEmpty 的处理
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlComplete');
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlEmpty');
         const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取结果为零');
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(msg, 2);
@@ -12043,7 +12180,7 @@ class VipSearchOptimize {
             this.vipSearchOptimize = this.setVipOptimize();
         });
         // 抓取完毕时重置状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlComplete, () => {
             this.reset();
         });
     }
@@ -12954,7 +13091,7 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
     initAny() {
         // 抓取完成后，复位 debut 标记
         // 因为 debut 只在抓取阶段被过滤器使用，所以抓取完成后就可以复位
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlFinish, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlComplete, () => {
             _store_States__WEBPACK_IMPORTED_MODULE_10__["states"].debut = false;
         });
     }
@@ -13459,7 +13596,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.pageSwitchedTypeNotChange, this.removeBlockOnHotBar);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.showCount);
         window.addEventListener('addBMK', this.addBookmark);
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlFinish, this.onCrawlFinish);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlComplete, this.onCrawlFinish);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.clearMultiple, this.clearMultiple);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.clearUgoira, this.clearUgoira);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.deleteWork, this.deleteWork);
@@ -13479,7 +13616,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].clearSlot('crawlBtns');
         _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].clearSlot('otherBtns');
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.showCount);
-        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlFinish, this.onCrawlFinish);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlComplete, this.onCrawlFinish);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.settingChange, this.onSettingChange);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlTag, this.crawlTag);
     }
@@ -13511,7 +13648,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }
         // 如果当前页面的页码大于有效页码，则不进行抓取
         if (this.startpageNo > pageCount) {
-            _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('crawlFinish');
+            _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('crawlComplete');
             _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('crawlEmpty');
             if (data.total === 0) {
                 return _MsgBox__WEBPACK_IMPORTED_MODULE_18__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_作品总数为0'));
@@ -16135,7 +16272,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         }
         // 如果当前页面的页码大于有效页码，则不进行抓取
         if (this.startpageNo > pageCount) {
-            _EVT__WEBPACK_IMPORTED_MODULE_13__["EVT"].fire('crawlFinish');
+            _EVT__WEBPACK_IMPORTED_MODULE_13__["EVT"].fire('crawlComplete');
             _EVT__WEBPACK_IMPORTED_MODULE_13__["EVT"].fire('crawlEmpty');
             if (data.total === 0) {
                 return _MsgBox__WEBPACK_IMPORTED_MODULE_14__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_作品总数为0'));
@@ -16916,7 +17053,7 @@ class DownloadControl {
             this.reset();
         });
         for (const ev of [
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlComplete,
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange,
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resume,
         ]) {
@@ -16983,7 +17120,6 @@ class DownloadControl {
             }
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete, () => {
-            _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕'), 2);
             // 如果有等待中的下载任务，则开始下载等待中的任务
             if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].waitingIdList.length === 0) {
                 _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕2'), {
@@ -17179,6 +17315,7 @@ class DownloadControl {
         _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].remainingDownload = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded;
         // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
         if (this.downloaded === _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
+            _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕'), 2);
             window.setTimeout(() => {
                 // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('downloadComplete');
@@ -18032,7 +18169,7 @@ class DownloadStates {
     }
     bindEvents() {
         // 初始化下载状态
-        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange];
+        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange];
         for (const ev of evs) {
             window.addEventListener(ev, () => {
                 this.init();
@@ -18480,7 +18617,7 @@ class ImportResult {
             _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].addResult(r);
         }
         // 发送通知
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlFinish');
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlComplete');
         _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入成功'));
     }
 }
@@ -18594,7 +18731,7 @@ class MergeNovel {
         this.init();
     }
     init() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlComplete, () => {
             window.setTimeout(() => {
                 if (_store_States__WEBPACK_IMPORTED_MODULE_3__["states"].mergeNovel) {
                     this.merge();
@@ -19000,7 +19137,7 @@ class Resume {
             });
         });
         // 抓取完成时，保存这次任务的数据
-        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange];
+        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange];
         for (const ev of evs) {
             window.addEventListener(ev, async () => {
                 this.saveData();
@@ -19456,7 +19593,7 @@ class ShowDownloadStates {
     }
     bindEvents() {
         for (const ev of [
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlComplete,
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resultChange,
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume,
         ]) {
@@ -19675,7 +19812,7 @@ class ShowStatusOnTitle {
             this.set(Flags.waiting);
         });
         for (const ev of [
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlComplete,
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resultChange,
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume,
         ]) {
@@ -23807,6 +23944,39 @@ const formHtml = `<form class="settingForm">
     <br>
     </p>
 
+    <p class="option" data-no="78">
+    <span class="settingNameStyle1" data-xztext="_导出日志"></span>
+    <input type="checkbox" name="exportLog" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="subOptionWrap" data-show="exportLog">
+
+    <span class="settingNameStyle1" data-xztext="_导出时机"> </span>
+    <input type="radio" name="exportLogTiming" id="exportLogTiming1" class="need_beautify radio" value="crawlComplete">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="exportLogTiming1" data-xztext="_抓取完毕2"></label>
+    <input type="radio" name="exportLogTiming" id="exportLogTiming2" class="need_beautify radio" value="downloadComplete" checked>
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="exportLogTiming2" data-xztext="_下载完毕2"></label>
+
+    <span class="verticalSplit"></span>
+
+    <span class="settingNameStyle1" data-xztext="_日志类型"></span>
+    <input type="checkbox" name="exportLogNormal" id="exportLogNormal" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox" tabindex="0"></span>
+    <label for="exportLogNormal" data-xztext="_正常"></label>
+    <input type="checkbox" name="exportLogError" id="exportLogError" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox" tabindex="0"></span>
+    <label for="exportLogError" data-xztext="_错误"></label>
+
+    <span class="verticalSplit"></span>
+
+    <span data-xztext="_排除关键字"></span>&nbsp;
+    <input type="text" name="exportLogExclude" class="setinput_style1 blue setinput_tag">
+
+    </span>
+    </p>
+
     <p class="option" data-no="36">
     <span class="settingNameStyle1" data-xztext="_颜色主题"></span>
     <input type="radio" name="theme" id="theme1" class="need_beautify radio" value="auto" checked>
@@ -23998,6 +24168,9 @@ class FormSettings {
                 'slowCrawl',
                 'downloadOnClickBookmark',
                 'downloadOnClickLike',
+                'exportLog',
+                'exportLogNormal',
+                'exportLogError',
             ],
             text: [
                 'setWantPage',
@@ -24029,6 +24202,7 @@ class FormSettings {
                 'previewResultLimit',
                 'timedCrawlInterval',
                 'slowCrawlOnWorksNumber',
+                'exportLogExclude',
             ],
             radio: [
                 'ugoiraSaveAs',
@@ -24052,6 +24226,7 @@ class FormSettings {
                 'tagMatchMode',
                 'prevWorkSize',
                 'showOriginImageSize',
+                'exportLogTiming',
             ],
             textarea: ['createFolderTagList'],
             datetime: ['postDateStart', 'postDateEnd'],
@@ -24929,6 +25104,11 @@ class Settings {
             slowCrawlOnWorksNumber: 100,
             downloadOnClickBookmark: false,
             downloadOnClickLike: false,
+            exportLog: false,
+            exportLogTiming: 'downloadComplete',
+            exportLogNormal: false,
+            exportLogError: true,
+            exportLogExclude: ['404', '429', '500'],
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -24943,6 +25123,7 @@ class Settings {
             'needTag',
             'notNeedTag',
             'createFolderTagList',
+            'exportLogExclude',
         ];
         // 以默认设置作为初始设置
         this.settings = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].deepCopy(this.defaultSettings);
@@ -25143,6 +25324,9 @@ class Settings {
         }
         if (key === 'previewResultLimit' && value < 0) {
             value = 999999;
+        }
+        if (key === 'workDirNameRule') {
+            value = value.replace('{id}', '{id_num}');
         }
         // 更改设置
         ;
@@ -25661,7 +25845,7 @@ class States {
             this.settingInitialized = true;
         });
         const idle = [
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlComplete,
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadPause,
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop,
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete,
