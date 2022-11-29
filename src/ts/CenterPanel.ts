@@ -155,7 +155,7 @@ class CenterPanel {
     })
 
     // 抓取完作品详细数据时，显示
-    for (const ev of [EVT.list.crawlFinish, EVT.list.resume]) {
+    for (const ev of [EVT.list.crawlComplete, EVT.list.resume]) {
       window.addEventListener(ev, () => {
         if (!states.quickCrawl) {
           this.show()
@@ -234,7 +234,7 @@ class CenterPanel {
     }
 
     // 当可以开始下载时，切换到“下载”选项卡
-    for (const ev of [EVT.list.crawlFinish, EVT.list.resume]) {
+    for (const ev of [EVT.list.crawlComplete, EVT.list.resume]) {
       window.addEventListener(ev, () => {
         if (states.mergeNovel) {
           return

@@ -149,7 +149,7 @@ class InitSearchNovelPage extends InitPageBase {
 
     // 如果当前页面的页码大于有效页码，则不进行抓取
     if (this.startpageNo > pageCount) {
-      EVT.fire('crawlFinish')
+      EVT.fire('crawlComplete')
       EVT.fire('crawlEmpty')
 
       if (data.total === 0) {

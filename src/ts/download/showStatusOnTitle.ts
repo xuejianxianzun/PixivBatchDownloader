@@ -43,7 +43,7 @@ class ShowStatusOnTitle {
     })
 
     for (const ev of [
-      EVT.list.crawlFinish,
+      EVT.list.crawlComplete,
       EVT.list.resultChange,
       EVT.list.resume,
     ]) {

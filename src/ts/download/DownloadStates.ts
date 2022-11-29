@@ -17,7 +17,7 @@ class DownloadStates {
 
   private bindEvents() {
     // 初始化下载状态
-    const evs = [EVT.list.crawlFinish, EVT.list.resultChange]
+    const evs = [EVT.list.crawlComplete, EVT.list.resultChange]
     for (const ev of evs) {
       window.addEventListener(ev, () => {
         this.init()

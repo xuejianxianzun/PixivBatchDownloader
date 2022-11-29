@@ -1016,6 +1016,39 @@ export const formHtml = `<form class="settingForm">
     <br>
     </p>
 
+    <p class="option" data-no="78">
+    <span class="settingNameStyle1" data-xztext="_导出日志"></span>
+    <input type="checkbox" name="exportLog" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="subOptionWrap" data-show="exportLog">
+
+    <span class="settingNameStyle1" data-xztext="_导出时机"> </span>
+    <input type="radio" name="exportLogTiming" id="exportLogTiming1" class="need_beautify radio" value="crawlComplete">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="exportLogTiming1" data-xztext="_抓取完毕2"></label>
+    <input type="radio" name="exportLogTiming" id="exportLogTiming2" class="need_beautify radio" value="downloadComplete" checked>
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="exportLogTiming2" data-xztext="_下载完毕2"></label>
+
+    <span class="verticalSplit"></span>
+
+    <span class="settingNameStyle1" data-xztext="_日志类型"></span>
+    <input type="checkbox" name="exportLogNormal" id="exportLogNormal" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox" tabindex="0"></span>
+    <label for="exportLogNormal" data-xztext="_正常"></label>
+    <input type="checkbox" name="exportLogError" id="exportLogError" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox" tabindex="0"></span>
+    <label for="exportLogError" data-xztext="_错误"></label>
+
+    <span class="verticalSplit"></span>
+
+    <span data-xztext="_排除关键字"></span>&nbsp;
+    <input type="text" name="exportLogExclude" class="setinput_style1 blue setinput_tag">
+
+    </span>
+    </p>
+
     <p class="option" data-no="36">
     <span class="settingNameStyle1" data-xztext="_颜色主题"></span>
     <input type="radio" name="theme" id="theme1" class="need_beautify radio" value="auto" checked>
