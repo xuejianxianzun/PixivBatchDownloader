@@ -119,10 +119,13 @@ class SaveWorkMeta {
     const _fileName = fileName.createFileName(data)
     // 取出后缀名之前的部分
     const index = _fileName.lastIndexOf('.')
-    // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
-    let part1 = _fileName
-      .substring(0, index)
-      .replace(data.id, data.idNum.toString())
+    let part1 = _fileName.substring(0, index)
+
+    if (!settings.zeroPadding) {
+      // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
+      // 但如果用户启用了在序号前面填充 0，则不替换 id，因为文件名里的 id 后面可能带多个 0，如 p000，用 idNum 去替换的话替换不了后面两个 0
+      part1 = part1.replace(data.id, data.idNum.toString())
+    }
     // 拼接出元数据文件的文件名
     const metaFileName = `${part1}-meta.txt`
 

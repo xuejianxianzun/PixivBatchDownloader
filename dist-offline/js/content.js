@@ -6931,6 +6931,14 @@ const langText = {
         '키워드 제외',
         'Исключить ключевые слова',
     ],
+    _Chrome108版本转换WebM失败的问题: [
+        '从 Chrome 108 版本开始，浏览器的一些变化导致下载器转换 WebM 视频失败。<br>现已修复转换功能。',
+        '從 Chrome 108 版本開始，瀏覽器的一些變化導致下載器轉換 WebM 影片失敗。<br>現已修復轉換功能。',
+        'Starting with Chrome version 108, some changes in the browser caused the downloader to fail to convert WebM videos. <br>The conversion function is now fixed.',
+        'Chrome バージョン 108 以降、ブラウザーの一部の変更により、ダウンローダーが WebM ビデオの変換に失敗しました。 <br>変換機能を修正しました。',
+        '从 Chrome 版本 108 开始，浏览器中的一些更改阻止了下载器转换 WebM 视频。 <br>此问题现已解决。',
+        'Начиная с Chrome версии 108, некоторые изменения в браузере приводили к тому, что загрузчик не мог конвертировать видео WebM. <br>Функция преобразования теперь исправлена.',
+    ],
 };
 
 
@@ -10026,15 +10034,14 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '14.1.0';
+        this.flag = '14.2.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增功能')}：${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_导出日志')}</strong>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_其他'))}
+            let msg = `<strong></strong>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_Chrome108版本转换WebM失败的问题')}
       `;
             // 在更新说明的下方显示赞助提示
             msg += `
@@ -19585,10 +19592,12 @@ class SaveWorkMeta {
         const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_2__["fileName"].createFileName(data);
         // 取出后缀名之前的部分
         const index = _fileName.lastIndexOf('.');
-        // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
-        let part1 = _fileName
-            .substring(0, index)
-            .replace(data.id, data.idNum.toString());
+        let part1 = _fileName.substring(0, index);
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].zeroPadding) {
+            // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
+            // 但如果用户启用了在序号前面填充 0，则不替换 id，因为文件名里的 id 后面可能带多个 0，如 p000，用 idNum 去替换的话替换不了后面两个 0
+            part1 = part1.replace(data.id, data.idNum.toString());
+        }
         // 拼接出元数据文件的文件名
         const metaFileName = `${part1}-meta.txt`;
         // 发送下载请求
@@ -21358,10 +21367,10 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask1', () => {
-            this.crawlData(102810000, 103198088);
+            this.crawlData(103200000, 103321163);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask2', () => {
-            this.crawlData(18710000, 18813977, 'novels');
+            this.crawlData(18820000, 18840745, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -28063,6 +28072,9 @@ const novelData = [
     [18790000, 1669385287000],
     [18800000, 1669521446000],
     [18810000, 1669644488000],
+    [18820000, 1669806609000],
+    [18830000, 1669969123000],
+    [18840000, 1670085906000],
 ];
 
 
@@ -38399,6 +38411,19 @@ const illustsData = [
     [103170000, 1669620905000],
     [103180000, 1669644820000],
     [103190000, 1669685233000],
+    [103200000, 1669720198000],
+    [103210000, 1669740091000],
+    [103220001, 1669787993000],
+    [103230000, 1669813297000],
+    [103240000, 1669837950000],
+    [103250000, 1669883072000],
+    [103260000, 1669905232000],
+    [103270001, 1669948516000],
+    [103280000, 1669981254000],
+    [103290000, 1670003254000],
+    [103300000, 1670048941000],
+    [103310000, 1670072034000],
+    [103320000, 1670093871000],
 ];
 
 

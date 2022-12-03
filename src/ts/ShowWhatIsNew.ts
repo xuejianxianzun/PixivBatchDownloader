@@ -11,19 +11,13 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '14.1.0'
+  private flag = '14.2.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-      let msg = `<strong>${lang.transl('_新增功能')}：${lang.transl(
-        '_导出日志'
-      )}</strong>
-      <br>
-      ${lang.transl(
-        '_你可以在更多选项卡的xx分类里找到它',
-        lang.transl('_其他')
-      )}
+      let msg = `<strong></strong>
+      ${lang.transl('_Chrome108版本转换WebM失败的问题')}
       `
 
       // 在更新说明的下方显示赞助提示
