@@ -6856,6 +6856,14 @@ const langText = {
         '키워드 제외',
         'Исключить ключевые слова',
     ],
+    _Chrome108版本转换WebM失败的问题: [
+        '从 Chrome 108 版本开始，浏览器的一些变化导致下载器转换 WebM 视频失败。<br>现已修复转换功能。',
+        '從 Chrome 108 版本開始，瀏覽器的一些變化導致下載器轉換 WebM 影片失敗。<br>現已修復轉換功能。',
+        'Starting with Chrome version 108, some changes in the browser caused the downloader to fail to convert WebM videos. <br>The conversion function is now fixed.',
+        'Chrome バージョン 108 以降、ブラウザーの一部の変更により、ダウンローダーが WebM ビデオの変換に失敗しました。 <br>変換機能を修正しました。',
+        '从 Chrome 版本 108 开始，浏览器中的一些更改阻止了下载器转换 WebM 视频。 <br>此问题现已解决。',
+        'Начиная с Chrome версии 108, некоторые изменения в браузере приводили к тому, что загрузчик не мог конвертировать видео WebM. <br>Функция преобразования теперь исправлена.',
+    ],
 };
 
 
@@ -9951,15 +9959,14 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '14.1.0';
+        this.flag = '14.2.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增功能')}：${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_导出日志')}</strong>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_其他'))}
+            let msg = `<strong></strong>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_Chrome108版本转换WebM失败的问题')}
       `;
             // 在更新说明的下方显示赞助提示
             msg += `
