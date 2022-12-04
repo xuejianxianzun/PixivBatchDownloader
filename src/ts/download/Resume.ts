@@ -115,7 +115,7 @@ class Resume {
     })
 
     // 抓取完成时，保存这次任务的数据
-    const evs = [EVT.list.crawlFinish, EVT.list.resultChange]
+    const evs = [EVT.list.crawlComplete, EVT.list.resultChange]
     for (const ev of evs) {
       window.addEventListener(ev, async () => {
         this.saveData()

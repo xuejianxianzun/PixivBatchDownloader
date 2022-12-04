@@ -11,6 +11,7 @@ import { PreviewUgoira } from './PreviewUgoira'
 import { toast } from './Toast'
 import { lang } from './Lang'
 import { Colors } from './Colors'
+import { DateFormat } from './utils/DateFormat'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -488,6 +489,7 @@ class PreviewWork {
         // 因为此时获取不到后续图片的原始尺寸
         text.push(`${this.workData.body.width}x${this.workData.body.height}`)
       }
+      text.push(DateFormat.format(body.createDate, 'YYYY/MM/DD'))
       text.push(body.title)
       text.push(body.description)
 

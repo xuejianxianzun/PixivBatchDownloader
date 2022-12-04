@@ -1,7 +1,6 @@
 import { EVT } from './EVT'
 import { lang } from './Lang'
 import { log } from './Log'
-import { msgBox } from './MsgBox'
 
 interface Rules {
   [key: string]: () => boolean
@@ -52,9 +51,12 @@ class CheckUnsupportBrowser {
       if (func()) {
         const msg = lang.transl('_不支持的浏览器')
         log.error(msg)
-        // msgBox.error(msg)
         return
       }
+    }
+
+    if (navigator.userAgent.includes('YaBrowser')) {
+      log.warning(lang.transl('_yandex浏览器的警告'))
     }
   }
 }

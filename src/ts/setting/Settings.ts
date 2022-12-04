@@ -222,6 +222,11 @@ interface XzSetting {
   slowCrawlOnWorksNumber: number
   downloadOnClickBookmark: boolean
   downloadOnClickLike: boolean
+  exportLog: boolean
+  exportLogTiming: 'crawlComplete' | 'downloadComplete'
+  exportLogNormal: boolean
+  exportLogError: boolean
+  exportLogExclude: string[]
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -410,6 +415,11 @@ class Settings {
     slowCrawlOnWorksNumber: 100,
     downloadOnClickBookmark: false,
     downloadOnClickLike: false,
+    exportLog: false,
+    exportLogTiming: 'downloadComplete',
+    exportLogNormal: false,
+    exportLogError: true,
+    exportLogExclude: ['404', '429', '500'],
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -429,6 +439,7 @@ class Settings {
     'needTag',
     'notNeedTag',
     'createFolderTagList',
+    'exportLogExclude',
   ]
 
   // 以默认设置作为初始设置
@@ -647,6 +658,10 @@ class Settings {
 
     if (key === 'previewResultLimit' && value < 0) {
       value = 999999
+    }
+
+    if (key === 'workDirNameRule') {
+      value = (value as string).replace('{id}', '{id_num}')
     }
 
     // 更改设置

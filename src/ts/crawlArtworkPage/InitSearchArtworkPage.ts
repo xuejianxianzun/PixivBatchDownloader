@@ -178,7 +178,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
     window.addEventListener('addBMK', this.addBookmark)
 
-    window.addEventListener(EVT.list.crawlFinish, this.onCrawlFinish)
+    window.addEventListener(EVT.list.crawlComplete, this.onCrawlFinish)
 
     window.addEventListener(EVT.list.clearMultiple, this.clearMultiple)
 
@@ -207,7 +207,7 @@ class InitSearchArtworkPage extends InitPageBase {
     Tools.clearSlot('otherBtns')
 
     window.removeEventListener(EVT.list.addResult, this.showCount)
-    window.removeEventListener(EVT.list.crawlFinish, this.onCrawlFinish)
+    window.removeEventListener(EVT.list.crawlComplete, this.onCrawlFinish)
     window.removeEventListener(EVT.list.settingChange, this.onSettingChange)
     window.removeEventListener(EVT.list.crawlTag, this.crawlTag)
   }
@@ -245,7 +245,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
     // 如果当前页面的页码大于有效页码，则不进行抓取
     if (this.startpageNo > pageCount) {
-      EVT.fire('crawlFinish')
+      EVT.fire('crawlComplete')
       EVT.fire('crawlEmpty')
 
       if (data.total === 0) {
