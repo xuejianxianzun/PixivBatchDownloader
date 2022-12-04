@@ -101,7 +101,7 @@ class DownloadControl {
     })
 
     for (const ev of [
-      EVT.list.crawlFinish,
+      EVT.list.crawlComplete,
       EVT.list.resultChange,
       EVT.list.resume,
     ]) {
@@ -155,8 +155,9 @@ class DownloadControl {
       } else if (msg.msg === 'download_err') {
         // 浏览器把文件保存到本地失败
 
+        // 用户操作导致下载取消的情况，跳过这个文件，不再重试保存它。触发条件如：
         // 用户在浏览器弹出“另存为”对话框时取消保存
-        // 跳过这个文件，不再重试保存它
+        // 用户让 IDM 转接这个下载时
         if (msg.err === 'USER_CANCELED') {
           log.error(
             lang.transl(
@@ -191,8 +192,6 @@ class DownloadControl {
     })
 
     window.addEventListener(EVT.list.downloadComplete, () => {
-      log.success(lang.transl('_下载完毕'), 2)
-
       // 如果有等待中的下载任务，则开始下载等待中的任务
       if (store.waitingIdList.length === 0) {
         toast.success(lang.transl('_下载完毕2'), {
@@ -459,6 +458,7 @@ class DownloadControl {
 
     // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
     if (this.downloaded === store.result.length) {
+      log.success(lang.transl('_下载完毕'), 2)
       window.setTimeout(() => {
         // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
         EVT.fire('downloadComplete')

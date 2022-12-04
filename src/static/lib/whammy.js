@@ -586,6 +586,12 @@ window.Whammy = (function () {
   }
 
   WhammyVideo.prototype.compile = function (outputAsArray, callback) {
+    let ChromeVer = 1
+    const test = navigator.appVersion.match(/.*Chrome\/([0-9]+)/)
+    if(test && test[1]){
+      ChromeVer = parseInt(test[1])
+    }
+
     this.encodeFrames(
       function () {
         var webm = new toWebM(
@@ -598,7 +604,9 @@ window.Whammy = (function () {
               // The length to be removed in the middle is 562 B, which is to remove 16-577
               // save 578-end
               var p1 = str.substr(0, 15)
-              var p2 = str.substr(577)
+              // Since Chrome 108 the 80-byte whitespace is removed,
+              // so the offset of the second part is 577 - 80 = 497
+              var p2 = str.substr(ChromeVer >= 108 ? 497 : 577)
               str = p1 + p2
             }
 

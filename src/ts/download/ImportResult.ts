@@ -81,7 +81,7 @@ class ImportResult {
     }
 
     // 发送通知
-    EVT.fire('crawlFinish')
+    EVT.fire('crawlComplete')
 
     msgBox.success(lang.transl('_导入成功'))
   }

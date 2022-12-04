@@ -112,6 +112,9 @@ class FormSettings {
       'slowCrawl',
       'downloadOnClickBookmark',
       'downloadOnClickLike',
+      'exportLog',
+      'exportLogNormal',
+      'exportLogError',
     ],
     text: [
       'setWantPage',
@@ -143,6 +146,7 @@ class FormSettings {
       'previewResultLimit',
       'timedCrawlInterval',
       'slowCrawlOnWorksNumber',
+      'exportLogExclude',
     ],
     radio: [
       'ugoiraSaveAs',
@@ -166,6 +170,7 @@ class FormSettings {
       'tagMatchMode',
       'prevWorkSize',
       'showOriginImageSize',
+      'exportLogTiming',
     ],
     textarea: ['createFolderTagList'],
     datetime: ['postDateStart', 'postDateEnd'],

@@ -959,7 +959,7 @@ class CenterPanel {
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('closeCenterPanel');
         });
         // 抓取完作品详细数据时，显示
-        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume]) {
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume]) {
             window.addEventListener(ev, () => {
                 if (!_store_States__WEBPACK_IMPORTED_MODULE_2__["states"].quickCrawl) {
                     this.show();
@@ -1022,7 +1022,7 @@ class CenterPanel {
             });
         }
         // 当可以开始下载时，切换到“下载”选项卡
-        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume]) {
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume]) {
             window.addEventListener(ev, () => {
                 if (_store_States__WEBPACK_IMPORTED_MODULE_2__["states"].mergeNovel) {
                     return;
@@ -1221,9 +1221,11 @@ class CheckUnsupportBrowser {
             if (func()) {
                 const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_不支持的浏览器');
                 _Log__WEBPACK_IMPORTED_MODULE_2__["log"].error(msg);
-                // msgBox.error(msg)
                 return;
             }
+        }
+        if (navigator.userAgent.includes('YaBrowser')) {
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_yandex浏览器的警告'));
         }
     }
 }
@@ -1708,8 +1710,8 @@ class EVENT {
             /** 获取了作品的 id 列表，需要下载这些 id 列表时使用 */
             crawlIdList: 'crawlIdList',
             /** 当抓取完成时触发。不管结果是否为空都会触发 */
-            crawlFinish: 'crawlFinish',
-            /** 当抓取结果为空时触发。触发时机晚于 crawlFinish */
+            crawlComplete: 'crawlComplete',
+            /** 当抓取结果为空时触发。触发时机晚于 crawlComplete */
             crawlEmpty: 'crawlEmpty',
             /** store 里每存储一个作品的元数据，就触发一次。如果一个元数据产生了多个结果（多图作品），只触发一次 */
             addResult: 'addResult',
@@ -3790,7 +3792,7 @@ const langText = {
     ],
     _作品页状态码429: [
         '错误代码：429（请求数量过多）。下载器会重新抓取它。',
-        '錯誤程式碼：429（請求數量過多）。下载器会重新抓取它。',
+        '錯誤程式碼：429（請求數量過多）。下載器会重新抓取它。',
         'Error code: 429 (Too many requests). The downloader will re-crawl it.',
         'エラー コード: 429 (要求が多すぎます)。ダウンローダーはそれを再クロールします。',
         '오류 코드: 429(요청이 너무 많음). 다운로더가 다시 크롤링합니다.',
@@ -3806,7 +3808,7 @@ const langText = {
     ],
     _作品页状态码500: [
         'Pixiv 拒绝返回数据 (500)。下载器会重新抓取它。',
-        'Pixiv 拒絕返回資料 (500)。下载器会重新抓取它。',
+        'Pixiv 拒絕返回資料 (500)。下載器会重新抓取它。',
         'Pixiv refuses to return data (500). The downloader will re-crawl it.',
         'ピクシブはデータの返却を拒否します (500)。ダウンローダーはそれを再クロールします。',
         'pixiv는 데이터 반환을 거부합니다 (500). 다운로더가 다시 크롤링합니다.',
@@ -4303,6 +4305,14 @@ const langText = {
         'クロールが終了しました！',
         '긁어오기 완료!',
         'Вытаскивание завершено!',
+    ],
+    _抓取完毕2: [
+        '抓取完毕',
+        '擷取完畢',
+        'Crawl complete',
+        'クロールが終了しました',
+        '긁어오기 완료',
+        'Вытаскивание завершено',
     ],
     _快速下载本页: [
         '快速下载本页作品 (Alt + Q)',
@@ -6240,12 +6250,12 @@ const langText = {
         'Например: Anmi@画集発売中 → Anmi',
     ],
     _抓取被限制时返回空结果的提示: [
-        'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。',
-        'Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。',
-        'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes.',
-        'Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。',
-        'Pixiv가 빈 데이터를 반환했습니다. 다운로더가 긁어오기를 일시 중지하고 몇 분 동안 기다린 후 긁어오기를 계속합니다.',
-        'Pixiv вернул пустые данные. Загрузчик приостановил загрузку и возобновит ее через несколько минут.',
+        'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。(429)',
+        'Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。(429)',
+        'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes. (429)',
+        'Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。(429)',
+        'Pixiv가 빈 데이터를 반환했습니다. 다운로더가 긁어오기를 일시 중지하고 몇 분 동안 기다린 후 긁어오기를 계속합니다. (429)',
+        'Pixiv вернул пустые данные. Загрузчик приостановил загрузку и возобновит ее через несколько минут. (429)',
     ],
     _搜索模式: [
         '搜索模式',
@@ -6473,12 +6483,12 @@ const langText = {
         '<span class="key">Превью</span> Ugoira(анимации)',
     ],
     _过度访问警告警告: [
-        '下载器检测到你可能收到了 pixiv 的警告消息，这通常是因为过度下载导致的。<br>请等待一段时间再继续下载。',
-        '下載器檢測到你可能收到了 pixiv 的警告訊息，這通常是因為過度下載導致的。<br>請等待一段時間再繼續下載。',
-        'The downloader has detected that you may have received a warning message from pixiv, usually due to excessive downloads.<br>Please wait for a while before continuing the download.',
-        'ダウンロードが多すぎるため、pixivから警告メッセージが届いた可能性があることをダウンローダーが検出しました。<br>ダウンロードを続行する前に、しばらくお待ちください。',
-        '다운로더는 일반적으로 과도한 다운로드로 인해 pixiv에서 경고 메시지를 수신했을 수 있음을 감지했습니다.<br>다운로드를 계속하기 전에 잠시 기다려 주십시오.',
-        'Программа загрузки обнаружила, что вы могли получить предупреждающее сообщение от pixiv, обычно из-за чрезмерной загрузки.<br> Пожалуйста, подождите некоторое время, прежде чем продолжить загрузку.',
+        '下载器检测到你可能收到了 pixiv 的警告消息，这通常是因为过度下载导致的。<br><strong>当你再次被警告时，你会被 Pixiv 封号。</strong><br>我建议你减少下载数量，或者使用新的账号进行下载。',
+        '下載器檢測到你可能收到了 pixiv 的警告訊息，這通常是因為過度下載導致的。<br><strong>當你再次被警告時，你會被 Pixiv 封號。</strong><br>我建議你減少下載數量，或者使用新的賬號進行下載。',
+        'The downloader has detected that you may have received a warning message from pixiv, usually due to excessive downloads.<br><strong>When you are warned again, you will be banned from Pixiv. </strong><br>I suggest you reduce your downloads, or use a new account to download.',
+        'ダウンロードが多すぎるため、pixivから警告メッセージが届いた可能性があることをダウンローダーが検出しました。<br><strong>再度警告を受けた場合、Pixivから追放されます。 </strong><br>ダウンロード数を減らすか、新しいアカウントを使用してダウンロードすることをお勧めします。',
+        '다운로더는 일반적으로 과도한 다운로드로 인해 pixiv에서 경고 메시지를 수신했을 수 있음을 감지했습니다.<br><strong>다시 경고를 받으면 Pixiv에서 차단됩니다. </strong><br>다운로드를 줄이거나 새 계정을 사용하여 다운로드하는 것이 좋습니다.',
+        'Программа загрузки обнаружила, что вы могли получить предупреждающее сообщение от pixiv, обычно из-за чрезмерной загрузки.<br><strong>Когда вы снова получите предупреждение, вы будете заблокированы в Pixiv. </strong><br>Я предлагаю вам сократить количество загрузок или использовать новую учетную запись для загрузки.',
     ],
     _下载小说里的内嵌图片: [
         '下载小说里的<span class="key">内嵌</span>图片',
@@ -6865,19 +6875,69 @@ const langText = {
         '떠나시겠습니까?',
         'Вы уверены, что хотите оставить?',
     ],
-    _1400更新: [
-        `1. 优化了特定情况下的抓取效率（当用户设置了投稿时间时）。<br><br>
-    2. 添加收藏失败时，下载器将会重试。`,
-        `1. 優化了特定情況下的抓取效率（當用戶設定了投稿時間時）。<br><br>
-    2. 新增收藏失敗時，下載器將會重試。`,
-        `1. Optimized the crawling efficiency in certain situations (when the user has set the posting date).<br><br>
-    2. When adding bookmark fails, the downloader will try again.`,
-        `1.特定の状況（ユーザーが投稿日を設定した場合）でのクローリング効率を最適化しました。<br><br>
-    2. ブックマークの追加に失敗すると、ダウンローダーは再試行します。`,
-        `1. 특정 상황(사용자가 게시 날짜를 설정한 경우)에서 크롤링 효율성을 최적화했습니다.<br><br>
-    2. 북마크 추가에 실패하면 다운로더가 다시 시도합니다.`,
-        `1. Оптимизирована эффективность сканирования в определенных ситуациях (когда пользователь установил дату публикации).<br><br>
-    2. Если добавить закладку не удается, загрузчик попытается еще раз.`,
+    _yandex浏览器的警告: [
+        `如果你在 Yandex 浏览器（Android）上使用 Powerful Pixiv Downloader，请换成 Kiwi 浏览器。<br>
+    因为下载器在最近将会升级到 Manifest version 3，但是 Yandex 浏览器不支持  Manifest version 3， 所以它不能使用新版本的下载器。`,
+        `如果你在 Yandex 瀏覽器（Android）上使用 Powerful Pixiv Downloader，請換成 Kiwi 瀏覽器。<br>
+    因為下載器在最近將會升級到 Manifest version 3，但是 Yandex 瀏覽器不支援  Manifest version 3， 所以它不能使用新版本的下載器。`,
+        `If you are using Powerful Pixiv Downloader on Yandex browser（Android）, please switch to Kiwi browser. <br>
+    Because the downloader will be upgraded to Manifest version 3 in the near future, but Yandex browser does not support Manifest version 3, so it cannot use the new version of the downloader.`,
+        `Yandex（Android） ブラウザで強力な Pixiv Downloader を使用している場合は、Kiwi ブラウザに切り替えてください。 <br>
+    ダウンローダは近いうちにマニフェスト バージョン 3 にアップグレードされますが、Yandex ブラウザはマニフェスト バージョン 3 をサポートしていないため、新しいバージョンのダウンローダを使用することはできません。`,
+        `Yandex（Android） 브라우저에서 강력한 Pixiv Downloader를 사용하는 경우 Kiwi 브라우저로 전환하십시오. <br>
+    다운로더는 가까운 시일 내에 Manifest 버전 3으로 업그레이드되지만 Yandex 브라우저는 Manifest 버전 3을 지원하지 않으므로 새 버전의 다운로더를 사용할 수 없습니다.`,
+        `Если вы используете Powerful Pixiv Downloader в браузере Yandex（Android）, перейдите на браузер Kiwi. <br>
+    Потому что в ближайшее время загрузчик будет обновлен до Манифеста версии 3, но Yandex браузер не поддерживает Манифест версии 3, поэтому он не может использовать новую версию загрузчика.`,
+    ],
+    _导出日志: [
+        '导出<span class="key">日志</span>',
+        '匯出<span class="key">日誌</span>',
+        'Export <span class="key">log</span>',
+        '<span class="key">ログ</span>のエクスポート',
+        '내보내기 로그',
+        'Экспорт <span class="key">журнала</span>',
+    ],
+    _导出日志成功: [
+        '✓ 导出日志',
+        '✓ 匯出日誌',
+        '✓ Export log',
+        '✓ ログのエクスポート',
+        '✓ 내보내기 로그',
+        '✓ Экспорт журнала',
+    ],
+    _导出时机: [
+        '导出时机',
+        '匯出時機',
+        'Export timing',
+        'エクスポートのタイミング',
+        '내보내기 타이밍',
+        'Время экспорта',
+    ],
+    _日志类型: [
+        '日志类型',
+        '日誌型別',
+        'Log type',
+        'ログの種類',
+        '로그 유형',
+        'Тип журнала',
+    ],
+    _正常: ['正常', '正常', 'Normal', '普通', '정상', 'Обычный'],
+    _错误: ['错误', '錯誤', 'Error', 'エラー', '오류', 'Ошибка'],
+    _排除关键字: [
+        '排除关键字',
+        '排除關鍵字',
+        'Exclude keywords',
+        'キーワードを除外',
+        '키워드 제외',
+        'Исключить ключевые слова',
+    ],
+    _Chrome108版本转换WebM失败的问题: [
+        '从 Chrome 108 版本开始，浏览器的一些变化导致下载器转换 WebM 视频失败。<br>现已修复转换功能。',
+        '從 Chrome 108 版本開始，瀏覽器的一些變化導致下載器轉換 WebM 影片失敗。<br>現已修復轉換功能。',
+        'Starting with Chrome version 108, some changes in the browser caused the downloader to fail to convert WebM videos. <br>The conversion function is now fixed.',
+        'Chrome バージョン 108 以降、ブラウザーの一部の変更により、ダウンローダーが WebM ビデオの変換に失敗しました。 <br>変換機能を修正しました。',
+        '从 Chrome 版本 108 开始，浏览器中的一些更改阻止了下载器转换 WebM 视频。 <br>此问题现已解决。',
+        'Начиная с Chrome версии 108, некоторые изменения в браузере приводили к тому, что загрузчик не мог конвертировать видео WebM. <br>Функция преобразования теперь исправлена.',
     ],
 };
 
@@ -7001,6 +7061,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+
+
+
+
+
+
+
 
 
 
@@ -7017,12 +7091,30 @@ class Log {
             _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].textWarning,
             _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].textError,
         ];
-        this.max = 200;
+        this.max = 300;
         this.count = 0;
+        this.record = [];
         this.toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
         this.scrollToBottom();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearLog, () => {
             this.clear();
+        });
+        const clearRecordEvents = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearLog, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop];
+        clearRecordEvents.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.record = [];
+            });
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlComplete, () => {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].exportLog && _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].exportLogTiming === 'crawlComplete') {
+                this.export();
+            }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete, () => {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].exportLog &&
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].exportLogTiming === 'downloadComplete') {
+                this.export();
+            }
         });
     }
     // 添加日志
@@ -7055,6 +7147,10 @@ class Log {
         }
         this.logArea.appendChild(span);
         this.toBottom = true; // 需要把日志滚动到底部
+        // 把持久日志保存到记录里
+        if (keepShow) {
+            this.record.push({ html: span.outerHTML, level });
+        }
     }
     log(str, br = 1, keepShow = true) {
         this.add(str, 0, br, keepShow);
@@ -7093,7 +7189,7 @@ class Log {
         this.count = 0;
         this.wrap.remove();
     }
-    /**清空日志内容 */
+    /**清空显示的日志内容 */
     clear() {
         this.count = 0;
         this.logArea.innerHTML = '';
@@ -7106,6 +7202,55 @@ class Log {
                 this.toBottom = false;
             }
         }, 800);
+    }
+    export() {
+        const data = [];
+        for (const record of this.record) {
+            let html = '';
+            if (record.level !== 3 && _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].exportLogNormal) {
+                html = record.html;
+            }
+            if (record.level === 3 && _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].exportLogError) {
+                html = record.html;
+            }
+            // 检查排除的关键字
+            if (html && _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].exportLogExclude.length > 0) {
+                let checkStr = html;
+                // 如果含有作品链接，则只检查链接后面的部分。这是为了避免因作品 id 中包含要排除的关键字而导致错误的排除
+                if (html.includes('<a href')) {
+                    const array = html.split('</a>');
+                    checkStr = array[array.length - 1];
+                }
+                const index = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].exportLogExclude.findIndex((val) => {
+                    return checkStr.includes(val);
+                });
+                if (index === -1) {
+                    data.push(html);
+                }
+            }
+        }
+        if (data.length === 0) {
+            return;
+        }
+        const fileName = `log-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].getPageTitle())}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].replaceUnsafeStr(_utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__["DateFormat"].format(_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].crawlCompleteTime, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].dateFormat))}.html`;
+        const content = `<!DOCTYPE html>
+<html>
+<body>
+<div id="logWrap">
+${data.join('\n')}
+</div>
+</body>
+</html>`;
+        const blob = new Blob([content], {
+            type: 'text/html',
+        });
+        const url = URL.createObjectURL(blob);
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].downloadFile(url, fileName);
+        const msg = _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导出日志成功');
+        log.success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].success(msg, {
+            position: 'topCenter',
+        });
     }
 }
 const log = new Log();
@@ -7865,6 +8010,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+
 
 
 
@@ -8297,6 +8444,7 @@ class PreviewWork {
                 // 因为此时获取不到后续图片的原始尺寸
                 text.push(`${this.workData.body.width}x${this.workData.body.height}`);
             }
+            text.push(_utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__["DateFormat"].format(body.createDate, 'YYYY/MM/DD'));
             text.push(body.title);
             text.push(body.description);
             this.tip.innerHTML = text
@@ -8568,7 +8716,7 @@ class SelectWork {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.closeCenterPanel, () => {
             this.tempHide = false;
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.crawlFinish, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.crawlComplete, () => {
             if (this.sendCrawl) {
                 this.sendCrawl = false;
                 this.crawled = true;
@@ -9889,13 +10037,15 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '14.0.0';
+        this.flag = '14.2.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_1400更新')}`;
+            let msg = `<strong></strong>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_Chrome108版本转换WebM失败的问题')}
+      `;
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -11623,7 +11773,7 @@ class InitPageBase {
             _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前任务尚未完成'));
             return;
         }
-        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('clearLog');
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'));
         _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'), {
             position: 'topCenter',
@@ -11649,7 +11799,7 @@ class InitPageBase {
             _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].waitingIdList.push(...idList);
         }
         else {
-            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
+            _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('clearLog');
             _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'));
             _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'), {
                 position: 'topCenter',
@@ -11753,9 +11903,8 @@ class InitPageBase {
                 // 请求成功，但状态码不正常
                 this.logErrorStatus(error.status, idData);
                 if (error.status === 500 || error.status === 429) {
-                    // 如果状态码 500，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
+                    // 如果状态码 500 或 429，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
                     _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取被限制时返回空结果的提示'));
-                    console.log('429 error on ' + _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].resultMeta.length);
                     return window.setTimeout(() => {
                         this.getWorksData(idData);
                     }, _Config__WEBPACK_IMPORTED_MODULE_21__["Config"].retryTime);
@@ -11820,7 +11969,7 @@ class InitPageBase {
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个文件', _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length.toString()));
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取完毕'), 2);
         // 发出抓取完毕的信号
-        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlFinish');
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlComplete');
         // 自动导出抓取结果
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].autoExportResult &&
             _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].autoExportResultNumber) {
@@ -11869,9 +12018,9 @@ class InitPageBase {
     }
     // 抓取结果为 0 时输出提示
     noResult() {
-        // 先触发 crawlFinish，后触发 crawlEmpty。这样便于其他组件处理 crawlEmpty 这个例外情况
-        // 如果触发顺序反过来，那么最后执行的都是 crawlFinish，可能会覆盖对 crawlEmpty 的处理
-        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlFinish');
+        // 先触发 crawlComplete，后触发 crawlEmpty。这样便于其他组件处理 crawlEmpty 这个例外情况
+        // 如果触发顺序反过来，那么最后执行的都是 crawlComplete，可能会覆盖对 crawlEmpty 的处理
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlComplete');
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlEmpty');
         const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取结果为零');
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(msg, 2);
@@ -12117,7 +12266,7 @@ class VipSearchOptimize {
             this.vipSearchOptimize = this.setVipOptimize();
         });
         // 抓取完毕时重置状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlComplete, () => {
             this.reset();
         });
     }
@@ -13028,7 +13177,7 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
     initAny() {
         // 抓取完成后，复位 debut 标记
         // 因为 debut 只在抓取阶段被过滤器使用，所以抓取完成后就可以复位
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlFinish, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlComplete, () => {
             _store_States__WEBPACK_IMPORTED_MODULE_10__["states"].debut = false;
         });
     }
@@ -13533,7 +13682,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.pageSwitchedTypeNotChange, this.removeBlockOnHotBar);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.showCount);
         window.addEventListener('addBMK', this.addBookmark);
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlFinish, this.onCrawlFinish);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlComplete, this.onCrawlFinish);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.clearMultiple, this.clearMultiple);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.clearUgoira, this.clearUgoira);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.deleteWork, this.deleteWork);
@@ -13553,7 +13702,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].clearSlot('crawlBtns');
         _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].clearSlot('otherBtns');
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.showCount);
-        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlFinish, this.onCrawlFinish);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlComplete, this.onCrawlFinish);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.settingChange, this.onSettingChange);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlTag, this.crawlTag);
     }
@@ -13585,7 +13734,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }
         // 如果当前页面的页码大于有效页码，则不进行抓取
         if (this.startpageNo > pageCount) {
-            _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('crawlFinish');
+            _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('crawlComplete');
             _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('crawlEmpty');
             if (data.total === 0) {
                 return _MsgBox__WEBPACK_IMPORTED_MODULE_18__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_作品总数为0'));
@@ -16209,7 +16358,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         }
         // 如果当前页面的页码大于有效页码，则不进行抓取
         if (this.startpageNo > pageCount) {
-            _EVT__WEBPACK_IMPORTED_MODULE_13__["EVT"].fire('crawlFinish');
+            _EVT__WEBPACK_IMPORTED_MODULE_13__["EVT"].fire('crawlComplete');
             _EVT__WEBPACK_IMPORTED_MODULE_13__["EVT"].fire('crawlEmpty');
             if (data.total === 0) {
                 return _MsgBox__WEBPACK_IMPORTED_MODULE_14__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_作品总数为0'));
@@ -16990,7 +17139,7 @@ class DownloadControl {
             this.reset();
         });
         for (const ev of [
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlComplete,
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange,
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resume,
         ]) {
@@ -17037,8 +17186,9 @@ class DownloadControl {
             }
             else if (msg.msg === 'download_err') {
                 // 浏览器把文件保存到本地失败
+                // 用户操作导致下载取消的情况，跳过这个文件，不再重试保存它。触发条件如：
                 // 用户在浏览器弹出“另存为”对话框时取消保存
-                // 跳过这个文件，不再重试保存它
+                // 用户让 IDM 转接这个下载时
                 if (msg.err === 'USER_CANCELED') {
                     _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_user_canceled_tip', _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].createWorkLink(msg.data.id), msg.err || 'unknown'));
                     this.downloadOrSkipAFile(msg.data);
@@ -17056,7 +17206,6 @@ class DownloadControl {
             }
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete, () => {
-            _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕'), 2);
             // 如果有等待中的下载任务，则开始下载等待中的任务
             if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].waitingIdList.length === 0) {
                 _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕2'), {
@@ -17252,6 +17401,7 @@ class DownloadControl {
         _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].remainingDownload = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded;
         // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
         if (this.downloaded === _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
+            _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕'), 2);
             window.setTimeout(() => {
                 // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('downloadComplete');
@@ -18105,7 +18255,7 @@ class DownloadStates {
     }
     bindEvents() {
         // 初始化下载状态
-        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange];
+        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange];
         for (const ev of evs) {
             window.addEventListener(ev, () => {
                 this.init();
@@ -18553,7 +18703,7 @@ class ImportResult {
             _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].addResult(r);
         }
         // 发送通知
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlFinish');
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlComplete');
         _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入成功'));
     }
 }
@@ -18667,7 +18817,7 @@ class MergeNovel {
         this.init();
     }
     init() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlComplete, () => {
             window.setTimeout(() => {
                 if (_store_States__WEBPACK_IMPORTED_MODULE_3__["states"].mergeNovel) {
                     this.merge();
@@ -19073,7 +19223,7 @@ class Resume {
             });
         });
         // 抓取完成时，保存这次任务的数据
-        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange];
+        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange];
         for (const ev of evs) {
             window.addEventListener(ev, async () => {
                 this.saveData();
@@ -19445,10 +19595,12 @@ class SaveWorkMeta {
         const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_2__["fileName"].createFileName(data);
         // 取出后缀名之前的部分
         const index = _fileName.lastIndexOf('.');
-        // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
-        let part1 = _fileName
-            .substring(0, index)
-            .replace(data.id, data.idNum.toString());
+        let part1 = _fileName.substring(0, index);
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].zeroPadding) {
+            // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
+            // 但如果用户启用了在序号前面填充 0，则不替换 id，因为文件名里的 id 后面可能带多个 0，如 p000，用 idNum 去替换的话替换不了后面两个 0
+            part1 = part1.replace(data.id, data.idNum.toString());
+        }
         // 拼接出元数据文件的文件名
         const metaFileName = `${part1}-meta.txt`;
         // 发送下载请求
@@ -19529,7 +19681,7 @@ class ShowDownloadStates {
     }
     bindEvents() {
         for (const ev of [
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlComplete,
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resultChange,
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume,
         ]) {
@@ -19748,7 +19900,7 @@ class ShowStatusOnTitle {
             this.set(Flags.waiting);
         });
         for (const ev of [
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlComplete,
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resultChange,
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume,
         ]) {
@@ -20968,9 +21120,8 @@ class Filter {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDate || date === undefined) {
             return true;
         }
-        const _date = new Date(date);
-        return (_date.getTime() >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart &&
-            _date.getTime() <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd);
+        const time = new Date(date).getTime();
+        return time >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart && time <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd;
     }
     checkIdPublishTime(id, type) {
         if (id === undefined || !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDate || !type) {
@@ -20979,6 +21130,29 @@ class Filter {
         const _id = Number.parseInt(id);
         const _type = type === 'novels' ? 'novels' : 'illusts';
         const range = _WorkPublishTime__WEBPACK_IMPORTED_MODULE_9__["workPublishTime"].getTimeRange(_id, _type);
+        // console.log(new Date(range[0]).toLocaleString())
+        // console.log(new Date(range[1]).toLocaleString())
+        // 如果返回的数据中的开始时间大于用户设置的结束时间，则检查不通过
+        // 如果返回的数据中的结束时间小于用户设置的开始时间，则检查不通过
+        if (range[0] > _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd || range[1] < _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart) {
+            return false;
+        }
+        // 如果两条记录的时间差大于用户设置的时间差，此时的数据不可采信。将其通过
+        if (range[1] - range[0] >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd - _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart) {
+            return true;
+        }
+        // 如果两条记录的时间范围与用户设置的时间范围只有部分重叠，此时的数据不可采信。将其通过
+        if (range[0] < _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart &&
+            range[1] > _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart &&
+            range[1] < _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd) {
+            return true;
+        }
+        if (range[0] > _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart &&
+            range[0] < _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd &&
+            range[1] > _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd) {
+            return true;
+        }
+        // 达到这里的数据是可信的，不会发生误判
         return (range[0] >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart && range[1] <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd);
     }
     // 检查首次登场设置
@@ -21151,7 +21325,7 @@ __webpack_require__.r(__webpack_exports__);
 // 获取指定 id 的发布时间范围
 class WorkPublishTime {
     constructor() {
-        // 数据源是数组结构，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
+        // 数据源是二维数组，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
         // [[20, 1189343647000], [10000, 1190285376000], [20006, 1190613767000]]
         /**每隔 10000 个作品采集一次数据 */
         this.gap = 10000;
@@ -21165,44 +21339,40 @@ class WorkPublishTime {
      *
      * 返回值是一个包含 2 个数字的数组，第一个数字是开始时间，第二个数字是结束时间。 */
     getTimeRange(id, type = 'illusts') {
-        let start = 0;
-        let end = 0;
         const data = type === 'illusts' ? _store_workPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__["illustsData"] : _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__["novelData"];
         const length = type === 'illusts' ? this.illustsLength : this.novelsLength;
         const index = Math.floor(id / this.gap);
-        // 如果传入的 id 比最后一条数据更大，则有可能没有与之匹配的记录，此时使用最后一条记录作为其开始时间
-        let record1 = data[index];
-        if (!record1) {
-            start = data[length - 1][1];
-            end = new Date().getTime();
-            return [start, end];
+        // 如果传入的 id 匹配到最后一条记录，则将结束时间设置为现在
+        if (index >= length - 1) {
+            return [data[length - 1][1], new Date().getTime()];
         }
-        // 如果有与传入 id 相匹配的记录，则判断这个记录的 id 传入的 id 哪个大
-        // 如果记录的 id 小于等于传入的 id，则此记录的时间作为开始时间，下一条记录的时间作为结束时间
-        if (record1[0] <= id) {
-            start = record1[1];
-            const next = data[index + 1];
-            // 如果没有下一条记录，则使用现在的时间作为结束时间
-            end = next ? next[1] : new Date().getTime();
-            return [start, end];
+        // 如果传入的 id 匹配到第一条记录，则直接返回数据
+        if (index === 0) {
+            return [data[0][1], data[1][1]];
+        }
+        const record = data[index];
+        // 如果有与传入 id 相匹配的记录，则判断这个记录的 id 与传入的 id 哪个大
+        // 如果记录的 id 等于传入的 id，则直接返回其时间戳
+        if (record[0] === id) {
+            return [record[1], record[1]];
+        }
+        else if (record[0] < id) {
+            // 如果记录的 id 小于传入的 id，则此记录的时间作为开始时间，下一条记录的时间作为结束时间
+            // 此时必然有下一条记录，因为前面已经处理了没有下一条记录的情况
+            return [record[1], data[index + 1][1]];
         }
         else {
             // 如果记录的 id 大于传入的 id，则此记录的时间作为结束时间，上一条记录的时间作为开始时间
-            end = record1[1];
-            const prev = data[index - 1];
-            // 如果没有上一条记录，则把开始时间设为 0
-            start = prev ? prev[1] : 0;
-            return [start, end];
+            // 此时必然有上一条记录，因为前面已经处理了没有上一条记录的情况
+            return [data[index - 1][1], record[1]];
         }
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask1', () => {
-            // 当前最新数据截止到 2022 年 10 月 29 日，最后一个作品 id 是 102324813
-            this.crawlData(1, 102324813);
+            this.crawlData(103200000, 103321163);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask2', () => {
-            // 当前最新数据截止到 2022 年 10 月 30 日，最后一个作品 id 是 18628857
-            this.crawlData(1, 18628857, 'novels');
+            this.crawlData(18820000, 18840745, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -23861,6 +24031,39 @@ const formHtml = `<form class="settingForm">
     <br>
     </p>
 
+    <p class="option" data-no="78">
+    <span class="settingNameStyle1" data-xztext="_导出日志"></span>
+    <input type="checkbox" name="exportLog" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="subOptionWrap" data-show="exportLog">
+
+    <span class="settingNameStyle1" data-xztext="_导出时机"> </span>
+    <input type="radio" name="exportLogTiming" id="exportLogTiming1" class="need_beautify radio" value="crawlComplete">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="exportLogTiming1" data-xztext="_抓取完毕2"></label>
+    <input type="radio" name="exportLogTiming" id="exportLogTiming2" class="need_beautify radio" value="downloadComplete" checked>
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="exportLogTiming2" data-xztext="_下载完毕2"></label>
+
+    <span class="verticalSplit"></span>
+
+    <span class="settingNameStyle1" data-xztext="_日志类型"></span>
+    <input type="checkbox" name="exportLogNormal" id="exportLogNormal" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox" tabindex="0"></span>
+    <label for="exportLogNormal" data-xztext="_正常"></label>
+    <input type="checkbox" name="exportLogError" id="exportLogError" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox" tabindex="0"></span>
+    <label for="exportLogError" data-xztext="_错误"></label>
+
+    <span class="verticalSplit"></span>
+
+    <span data-xztext="_排除关键字"></span>&nbsp;
+    <input type="text" name="exportLogExclude" class="setinput_style1 blue setinput_tag">
+
+    </span>
+    </p>
+
     <p class="option" data-no="36">
     <span class="settingNameStyle1" data-xztext="_颜色主题"></span>
     <input type="radio" name="theme" id="theme1" class="need_beautify radio" value="auto" checked>
@@ -24052,6 +24255,9 @@ class FormSettings {
                 'slowCrawl',
                 'downloadOnClickBookmark',
                 'downloadOnClickLike',
+                'exportLog',
+                'exportLogNormal',
+                'exportLogError',
             ],
             text: [
                 'setWantPage',
@@ -24083,6 +24289,7 @@ class FormSettings {
                 'previewResultLimit',
                 'timedCrawlInterval',
                 'slowCrawlOnWorksNumber',
+                'exportLogExclude',
             ],
             radio: [
                 'ugoiraSaveAs',
@@ -24106,6 +24313,7 @@ class FormSettings {
                 'tagMatchMode',
                 'prevWorkSize',
                 'showOriginImageSize',
+                'exportLogTiming',
             ],
             textarea: ['createFolderTagList'],
             datetime: ['postDateStart', 'postDateEnd'],
@@ -24983,6 +25191,11 @@ class Settings {
             slowCrawlOnWorksNumber: 100,
             downloadOnClickBookmark: false,
             downloadOnClickLike: false,
+            exportLog: false,
+            exportLogTiming: 'downloadComplete',
+            exportLogNormal: false,
+            exportLogError: true,
+            exportLogExclude: ['404', '429', '500'],
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -24997,6 +25210,7 @@ class Settings {
             'needTag',
             'notNeedTag',
             'createFolderTagList',
+            'exportLogExclude',
         ];
         // 以默认设置作为初始设置
         this.settings = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].deepCopy(this.defaultSettings);
@@ -25197,6 +25411,9 @@ class Settings {
         }
         if (key === 'previewResultLimit' && value < 0) {
             value = 999999;
+        }
+        if (key === 'workDirNameRule') {
+            value = value.replace('{id}', '{id_num}');
         }
         // 更改设置
         ;
@@ -25715,7 +25932,7 @@ class States {
             this.settingInitialized = true;
         });
         const idle = [
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlComplete,
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadPause,
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop,
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete,
@@ -27838,6 +28055,28 @@ const novelData = [
     [18600000, 1666683378000],
     [18610001, 1666856198000],
     [18620000, 1667012932000],
+    [18630001, 1667130397000],
+    [18640000, 1667227842000],
+    [18650000, 1667391437000],
+    [18660000, 1667537375000],
+    [18670000, 1667659115000],
+    [18680000, 1667778232000],
+    [18690000, 1667928642000],
+    [18700000, 1668092558000],
+    [18710000, 1668243412000],
+    [18720000, 1668347270000],
+    [18730000, 1668511156000],
+    [18740000, 1668681913000],
+    [18750000, 1668835345000],
+    [18760000, 1668948613000],
+    [18770000, 1669107023000],
+    [18780001, 1669217357000],
+    [18790000, 1669385287000],
+    [18800000, 1669521446000],
+    [18810000, 1669644488000],
+    [18820000, 1669806609000],
+    [18830000, 1669969123000],
+    [18840000, 1670085906000],
 ];
 
 
@@ -38087,6 +38326,106 @@ const illustsData = [
     [102300000, 1666959138000],
     [102310001, 1666985187000],
     [102320000, 1667026497000],
+    [102330000, 1667049301000],
+    [102340000, 1667074375000],
+    [102350000, 1667110331000],
+    [102360000, 1667130422000],
+    [102370000, 1667143380000],
+    [102380000, 1667177656000],
+    [102390001, 1667206886000],
+    [102400000, 1667221135000],
+    [102410000, 1667232357000],
+    [102420000, 1667272246000],
+    [102430000, 1667301644000],
+    [102440000, 1667320439000],
+    [102450000, 1667367598000],
+    [102460000, 1667394858000],
+    [102470000, 1667427666000],
+    [102480000, 1667464915000],
+    [102490000, 1667485160000],
+    [102500000, 1667524862000],
+    [102510000, 1667560354000],
+    [102520000, 1667580817000],
+    [102530000, 1667624234000],
+    [102540000, 1667649179000],
+    [102550001, 1667668772000],
+    [102560000, 1667710692000],
+    [102570000, 1667734400000],
+    [102580000, 1667750824000],
+    [102590000, 1667797645000],
+    [102600000, 1667825493000],
+    [102610000, 1667852133000],
+    [102620000, 1667897579000],
+    [102630000, 1667919378000],
+    [102640000, 1667962893000],
+    [102650000, 1667995549000],
+    [102660000, 1668020437000],
+    [102670004, 1668068451000],
+    [102680000, 1668090936000],
+    [102690000, 1668129462000],
+    [102700000, 1668162955000],
+    [102710002, 1668179889000],
+    [102720000, 1668219563000],
+    [102730000, 1668247564000],
+    [102740001, 1668265922000],
+    [102750000, 1668303741000],
+    [102760000, 1668329693000],
+    [102770000, 1668346874000],
+    [102780000, 1668375663000],
+    [102790000, 1668418003000],
+    [102800000, 1668438783000],
+    [102810000, 1668484194000],
+    [102820000, 1668514548000],
+    [102830000, 1668539261000],
+    [102840000, 1668587302000],
+    [102850000, 1668609630000],
+    [102860001, 1668653622000],
+    [102870000, 1668686822000],
+    [102880000, 1668713232000],
+    [102890000, 1668756421000],
+    [102900001, 1668779395000],
+    [102910000, 1668811400000],
+    [102920001, 1668844024000],
+    [102930002, 1668865313000],
+    [102940000, 1668896876000],
+    [102950000, 1668928452000],
+    [102960000, 1668948443000],
+    [102970000, 1668971136000],
+    [102980000, 1669018484000],
+    [102990000, 1669041914000],
+    [103000001, 1669085862000],
+    [103010000, 1669119022000],
+    [103020000, 1669143271000],
+    [103030001, 1669186087000],
+    [103040000, 1669207952000],
+    [103050000, 1669233127000],
+    [103060001, 1669279725000],
+    [103070000, 1669301857000],
+    [103080000, 1669347356000],
+    [103090000, 1669378612000],
+    [103100000, 1669404460000],
+    [103110000, 1669445020000],
+    [103120000, 1669467819000],
+    [103130000, 1669492431000],
+    [103140001, 1669530622000],
+    [103150000, 1669551525000],
+    [103160000, 1669570387000],
+    [103170000, 1669620905000],
+    [103180000, 1669644820000],
+    [103190000, 1669685233000],
+    [103200000, 1669720198000],
+    [103210000, 1669740091000],
+    [103220001, 1669787993000],
+    [103230000, 1669813297000],
+    [103240000, 1669837950000],
+    [103250000, 1669883072000],
+    [103260000, 1669905232000],
+    [103270001, 1669948516000],
+    [103280000, 1669981254000],
+    [103290000, 1670003254000],
+    [103300000, 1670048941000],
+    [103310000, 1670072034000],
+    [103320000, 1670093871000],
 ];
 
 

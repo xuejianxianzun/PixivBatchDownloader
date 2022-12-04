@@ -34,7 +34,7 @@ class MergeNovel {
   private meta = ''
 
   private init() {
-    window.addEventListener(EVT.list.crawlFinish, () => {
+    window.addEventListener(EVT.list.crawlComplete, () => {
       window.setTimeout(() => {
         if (states.mergeNovel) {
           this.merge()
