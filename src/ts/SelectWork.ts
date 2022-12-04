@@ -123,7 +123,7 @@ class SelectWork {
       this.tempHide = false
     })
 
-    window.addEventListener(EVT.list.crawlFinish, () => {
+    window.addEventListener(EVT.list.crawlComplete, () => {
       if (this.sendCrawl) {
         this.sendCrawl = false
         this.crawled = true

@@ -12,7 +12,7 @@ class WorkPublishTime {
     this.bindEvents()
   }
 
-  // 数据源是数组结构，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
+  // 数据源是二维数组，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
   // [[20, 1189343647000], [10000, 1190285376000], [20006, 1190613767000]]
 
   /**每隔 10000 个作品采集一次数据 */
@@ -28,48 +28,43 @@ class WorkPublishTime {
     id: number,
     type: 'illusts' | 'novels' = 'illusts'
   ): number[] {
-    let start = 0
-    let end = 0
-
     const data = type === 'illusts' ? illustsData : novelsData
     const length = type === 'illusts' ? this.illustsLength : this.novelsLength
     const index = Math.floor(id / this.gap)
 
-    // 如果传入的 id 比最后一条数据更大，则有可能没有与之匹配的记录，此时使用最后一条记录作为其开始时间
-    let record1 = data[index]
-    if (!record1) {
-      start = data[length - 1][1]
-      end = new Date().getTime()
-      return [start, end]
+    // 如果传入的 id 匹配到最后一条记录，则将结束时间设置为现在
+    if (index >= length - 1) {
+      return [data[length - 1][1], new Date().getTime()]
     }
 
-    // 如果有与传入 id 相匹配的记录，则判断这个记录的 id 传入的 id 哪个大
-    // 如果记录的 id 小于等于传入的 id，则此记录的时间作为开始时间，下一条记录的时间作为结束时间
-    if (record1[0] <= id) {
-      start = record1[1]
-      const next = data[index + 1]
-      // 如果没有下一条记录，则使用现在的时间作为结束时间
-      end = next ? next[1] : new Date().getTime()
-      return [start, end]
+    // 如果传入的 id 匹配到第一条记录，则直接返回数据
+    if (index === 0) {
+      return [data[0][1], data[1][1]]
+    }
+
+    const record = data[index]
+    // 如果有与传入 id 相匹配的记录，则判断这个记录的 id 与传入的 id 哪个大
+    // 如果记录的 id 等于传入的 id，则直接返回其时间戳
+    if (record[0] === id) {
+      return [record[1], record[1]]
+    } else if (record[0] < id) {
+      // 如果记录的 id 小于传入的 id，则此记录的时间作为开始时间，下一条记录的时间作为结束时间
+      // 此时必然有下一条记录，因为前面已经处理了没有下一条记录的情况
+      return [record[1], data[index + 1][1]]
     } else {
       // 如果记录的 id 大于传入的 id，则此记录的时间作为结束时间，上一条记录的时间作为开始时间
-      end = record1[1]
-      const prev = data[index - 1]
-      // 如果没有上一条记录，则把开始时间设为 0
-      start = prev ? prev[1] : 0
-      return [start, end]
+      // 此时必然有上一条记录，因为前面已经处理了没有上一条记录的情况
+      return [data[index - 1][1], record[1]]
     }
   }
 
   private bindEvents() {
     secretSignal.register('ppdtask1', () => {
-      // 当前最新数据截止到 2022 年 10 月 29 日，最后一个作品 id 是 102324813
-      this.crawlData(1, 102324813)
+      this.crawlData(103200000, 103321163)
     })
 
     secretSignal.register('ppdtask2', () => {
-      // 当前最新数据截止到 2022 年 10 月 30 日，最后一个作品 id 是 18628857
-      this.crawlData(1, 18628857, 'novels')
+      this.crawlData(18820000, 18840745, 'novels')
     })
   }
 

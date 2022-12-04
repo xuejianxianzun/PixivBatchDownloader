@@ -2,6 +2,13 @@ import { EVT } from './EVT'
 import { theme } from './Theme'
 import { Colors } from './Colors'
 import { bg } from './BG'
+import { lang } from './Lang'
+import { store } from './store/Store'
+import { toast } from './Toast'
+import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
+import { settings } from './setting/Settings'
+import { DateFormat } from './utils/DateFormat'
 
 // 日志
 class Log {
@@ -10,6 +17,28 @@ class Log {
 
     window.addEventListener(EVT.list.clearLog, () => {
       this.clear()
+    })
+
+    const clearRecordEvents = [EVT.list.clearLog, EVT.list.downloadStop]
+    clearRecordEvents.forEach((evt) => {
+      window.addEventListener(evt, () => {
+        this.record = []
+      })
+    })
+
+    window.addEventListener(EVT.list.crawlComplete, () => {
+      if (settings.exportLog && settings.exportLogTiming === 'crawlComplete') {
+        this.export()
+      }
+    })
+
+    window.addEventListener(EVT.list.downloadComplete, () => {
+      if (
+        settings.exportLog &&
+        settings.exportLogTiming === 'downloadComplete'
+      ) {
+        this.export()
+      }
     })
   }
 
@@ -24,8 +53,10 @@ class Log {
     Colors.textError,
   ]
 
-  private max = 200
+  private max = 300
   private count = 0
+
+  private record: { html: string; level: number }[] = []
 
   private toBottom = false // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
 
@@ -62,6 +93,11 @@ class Log {
 
     this.logArea.appendChild(span)
     this.toBottom = true // 需要把日志滚动到底部
+
+    // 把持久日志保存到记录里
+    if (keepShow) {
+      this.record.push({ html: span.outerHTML, level })
+    }
   }
 
   public log(str: string, br: number = 1, keepShow: boolean = true) {
@@ -108,7 +144,7 @@ class Log {
     this.wrap.remove()
   }
 
-  /**清空日志内容 */
+  /**清空显示的日志内容 */
   public clear() {
     this.count = 0
     this.logArea.innerHTML = ''
@@ -122,6 +158,69 @@ class Log {
         this.toBottom = false
       }
     }, 800)
+  }
+
+  private export() {
+    const data: string[] = []
+
+    for (const record of this.record) {
+      let html = ''
+      if (record.level !== 3 && settings.exportLogNormal) {
+        html = record.html
+      }
+      if (record.level === 3 && settings.exportLogError) {
+        html = record.html
+      }
+
+      // 检查排除的关键字
+      if (html && settings.exportLogExclude.length > 0) {
+        let checkStr = html
+        // 如果含有作品链接，则只检查链接后面的部分。这是为了避免因作品 id 中包含要排除的关键字而导致错误的排除
+        if (html.includes('<a href')) {
+          const array = html.split('</a>')
+          checkStr = array[array.length - 1]
+        }
+        const index = settings.exportLogExclude.findIndex((val) => {
+          return checkStr.includes(val)
+        })
+        if (index === -1) {
+          data.push(html)
+        }
+      }
+    }
+
+    if (data.length === 0) {
+      return
+    }
+
+    const fileName = `log-${Utils.replaceUnsafeStr(
+      Tools.getPageTitle()
+    )}-${Utils.replaceUnsafeStr(
+      DateFormat.format(store.crawlCompleteTime, settings.dateFormat)
+    )}.html`
+
+    const content = `<!DOCTYPE html>
+<html>
+<body>
+<div id="logWrap">
+${data.join('\n')}
+</div>
+</body>
+</html>`
+
+    const blob = new Blob([content], {
+      type: 'text/html',
+    })
+
+    const url = URL.createObjectURL(blob)
+
+    Utils.downloadFile(url, fileName)
+
+    const msg = lang.transl('_导出日志成功')
+    log.success(msg)
+    toast.success(msg, {
+      position: 'topCenter',
+    })
   }
 }
 

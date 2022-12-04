@@ -789,11 +789,8 @@ class Filter {
       return true
     }
 
-    const _date = new Date(date)
-    return (
-      _date.getTime() >= settings.postDateStart &&
-      _date.getTime() <= settings.postDateEnd
-    )
+    const time = new Date(date).getTime()
+    return time >= settings.postDateStart && time <= settings.postDateEnd
   }
 
   private checkIdPublishTime(
@@ -807,7 +804,37 @@ class Filter {
     const _id = Number.parseInt(id as string)
     const _type = type === 'novels' ? 'novels' : 'illusts'
     const range = workPublishTime.getTimeRange(_id, _type)
+    // console.log(new Date(range[0]).toLocaleString())
+    // console.log(new Date(range[1]).toLocaleString())
 
+    // 如果返回的数据中的开始时间大于用户设置的结束时间，则检查不通过
+    // 如果返回的数据中的结束时间小于用户设置的开始时间，则检查不通过
+    if (range[0] > settings.postDateEnd || range[1] < settings.postDateStart) {
+      return false
+    }
+
+    // 如果两条记录的时间差大于用户设置的时间差，此时的数据不可采信。将其通过
+    if (range[1] - range[0] >= settings.postDateEnd - settings.postDateStart) {
+      return true
+    }
+
+    // 如果两条记录的时间范围与用户设置的时间范围只有部分重叠，此时的数据不可采信。将其通过
+    if (
+      range[0] < settings.postDateStart &&
+      range[1] > settings.postDateStart &&
+      range[1] < settings.postDateEnd
+    ) {
+      return true
+    }
+    if (
+      range[0] > settings.postDateStart &&
+      range[0] < settings.postDateEnd &&
+      range[1] > settings.postDateEnd
+    ) {
+      return true
+    }
+
+    // 达到这里的数据是可信的，不会发生误判
     return (
       range[0] >= settings.postDateStart && range[1] <= settings.postDateEnd
     )

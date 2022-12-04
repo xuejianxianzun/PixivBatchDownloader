@@ -42,7 +42,7 @@ class VipSearchOptimize {
     })
 
     // 抓取完毕时重置状态
-    window.addEventListener(EVT.list.crawlFinish, () => {
+    window.addEventListener(EVT.list.crawlComplete, () => {
       this.reset()
     })
   }

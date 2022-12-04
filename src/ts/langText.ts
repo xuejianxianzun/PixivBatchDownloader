@@ -595,7 +595,7 @@ const langText = {
   ],
   _作品页状态码429: [
     '错误代码：429（请求数量过多）。下载器会重新抓取它。',
-    '錯誤程式碼：429（請求數量過多）。下载器会重新抓取它。',
+    '錯誤程式碼：429（請求數量過多）。下載器会重新抓取它。',
     'Error code: 429 (Too many requests). The downloader will re-crawl it.',
     'エラー コード: 429 (要求が多すぎます)。ダウンローダーはそれを再クロールします。',
     '오류 코드: 429(요청이 너무 많음). 다운로더가 다시 크롤링합니다.',
@@ -611,7 +611,7 @@ const langText = {
   ],
   _作品页状态码500: [
     'Pixiv 拒绝返回数据 (500)。下载器会重新抓取它。',
-    'Pixiv 拒絕返回資料 (500)。下载器会重新抓取它。',
+    'Pixiv 拒絕返回資料 (500)。下載器会重新抓取它。',
     'Pixiv refuses to return data (500). The downloader will re-crawl it.',
     'ピクシブはデータの返却を拒否します (500)。ダウンローダーはそれを再クロールします。',
     'pixiv는 데이터 반환을 거부합니다 (500). 다운로더가 다시 크롤링합니다.',
@@ -1108,6 +1108,14 @@ const langText = {
     'クロールが終了しました！',
     '긁어오기 완료!',
     'Вытаскивание завершено!',
+  ],
+  _抓取完毕2: [
+    '抓取完毕',
+    '擷取完畢',
+    'Crawl complete',
+    'クロールが終了しました',
+    '긁어오기 완료',
+    'Вытаскивание завершено',
   ],
   _快速下载本页: [
     '快速下载本页作品 (Alt + Q)',
@@ -3045,12 +3053,12 @@ const langText = {
     'Например: Anmi@画集発売中 → Anmi',
   ],
   _抓取被限制时返回空结果的提示: [
-    'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。',
-    'Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。',
-    'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes.',
-    'Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。',
-    'Pixiv가 빈 데이터를 반환했습니다. 다운로더가 긁어오기를 일시 중지하고 몇 분 동안 기다린 후 긁어오기를 계속합니다.',
-    'Pixiv вернул пустые данные. Загрузчик приостановил загрузку и возобновит ее через несколько минут.',
+    'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。(429)',
+    'Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。(429)',
+    'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes. (429)',
+    'Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。(429)',
+    'Pixiv가 빈 데이터를 반환했습니다. 다운로더가 긁어오기를 일시 중지하고 몇 분 동안 기다린 후 긁어오기를 계속합니다. (429)',
+    'Pixiv вернул пустые данные. Загрузчик приостановил загрузку и возобновит ее через несколько минут. (429)',
   ],
   _搜索模式: [
     '搜索模式',
@@ -3278,12 +3286,12 @@ const langText = {
     '<span class="key">Превью</span> Ugoira(анимации)',
   ],
   _过度访问警告警告: [
-    '下载器检测到你可能收到了 pixiv 的警告消息，这通常是因为过度下载导致的。<br>请等待一段时间再继续下载。',
-    '下載器檢測到你可能收到了 pixiv 的警告訊息，這通常是因為過度下載導致的。<br>請等待一段時間再繼續下載。',
-    'The downloader has detected that you may have received a warning message from pixiv, usually due to excessive downloads.<br>Please wait for a while before continuing the download.',
-    'ダウンロードが多すぎるため、pixivから警告メッセージが届いた可能性があることをダウンローダーが検出しました。<br>ダウンロードを続行する前に、しばらくお待ちください。',
-    '다운로더는 일반적으로 과도한 다운로드로 인해 pixiv에서 경고 메시지를 수신했을 수 있음을 감지했습니다.<br>다운로드를 계속하기 전에 잠시 기다려 주십시오.',
-    'Программа загрузки обнаружила, что вы могли получить предупреждающее сообщение от pixiv, обычно из-за чрезмерной загрузки.<br> Пожалуйста, подождите некоторое время, прежде чем продолжить загрузку.',
+    '下载器检测到你可能收到了 pixiv 的警告消息，这通常是因为过度下载导致的。<br><strong>当你再次被警告时，你会被 Pixiv 封号。</strong><br>我建议你减少下载数量，或者使用新的账号进行下载。',
+    '下載器檢測到你可能收到了 pixiv 的警告訊息，這通常是因為過度下載導致的。<br><strong>當你再次被警告時，你會被 Pixiv 封號。</strong><br>我建議你減少下載數量，或者使用新的賬號進行下載。',
+    'The downloader has detected that you may have received a warning message from pixiv, usually due to excessive downloads.<br><strong>When you are warned again, you will be banned from Pixiv. </strong><br>I suggest you reduce your downloads, or use a new account to download.',
+    'ダウンロードが多すぎるため、pixivから警告メッセージが届いた可能性があることをダウンローダーが検出しました。<br><strong>再度警告を受けた場合、Pixivから追放されます。 </strong><br>ダウンロード数を減らすか、新しいアカウントを使用してダウンロードすることをお勧めします。',
+    '다운로더는 일반적으로 과도한 다운로드로 인해 pixiv에서 경고 메시지를 수신했을 수 있음을 감지했습니다.<br><strong>다시 경고를 받으면 Pixiv에서 차단됩니다. </strong><br>다운로드를 줄이거나 새 계정을 사용하여 다운로드하는 것이 좋습니다.',
+    'Программа загрузки обнаружила, что вы могли получить предупреждающее сообщение от pixiv, обычно из-за чрезмерной загрузки.<br><strong>Когда вы снова получите предупреждение, вы будете заблокированы в Pixiv. </strong><br>Я предлагаю вам сократить количество загрузок или использовать новую учетную запись для загрузки.',
   ],
   _下载小说里的内嵌图片: [
     '下载小说里的<span class="key">内嵌</span>图片',
@@ -3670,19 +3678,69 @@ const langText = {
     '떠나시겠습니까?',
     'Вы уверены, что хотите оставить?',
   ],
-  _1400更新: [
-    `1. 优化了特定情况下的抓取效率（当用户设置了投稿时间时）。<br><br>
-    2. 添加收藏失败时，下载器将会重试。`,
-    `1. 優化了特定情況下的抓取效率（當用戶設定了投稿時間時）。<br><br>
-    2. 新增收藏失敗時，下載器將會重試。`,
-    `1. Optimized the crawling efficiency in certain situations (when the user has set the posting date).<br><br>
-    2. When adding bookmark fails, the downloader will try again.`,
-    `1.特定の状況（ユーザーが投稿日を設定した場合）でのクローリング効率を最適化しました。<br><br>
-    2. ブックマークの追加に失敗すると、ダウンローダーは再試行します。`,
-    `1. 특정 상황(사용자가 게시 날짜를 설정한 경우)에서 크롤링 효율성을 최적화했습니다.<br><br>
-    2. 북마크 추가에 실패하면 다운로더가 다시 시도합니다.`,
-    `1. Оптимизирована эффективность сканирования в определенных ситуациях (когда пользователь установил дату публикации).<br><br>
-    2. Если добавить закладку не удается, загрузчик попытается еще раз.`,
+  _yandex浏览器的警告: [
+    `如果你在 Yandex 浏览器（Android）上使用 Powerful Pixiv Downloader，请换成 Kiwi 浏览器。<br>
+    因为下载器在最近将会升级到 Manifest version 3，但是 Yandex 浏览器不支持  Manifest version 3， 所以它不能使用新版本的下载器。`,
+    `如果你在 Yandex 瀏覽器（Android）上使用 Powerful Pixiv Downloader，請換成 Kiwi 瀏覽器。<br>
+    因為下載器在最近將會升級到 Manifest version 3，但是 Yandex 瀏覽器不支援  Manifest version 3， 所以它不能使用新版本的下載器。`,
+    `If you are using Powerful Pixiv Downloader on Yandex browser（Android）, please switch to Kiwi browser. <br>
+    Because the downloader will be upgraded to Manifest version 3 in the near future, but Yandex browser does not support Manifest version 3, so it cannot use the new version of the downloader.`,
+    `Yandex（Android） ブラウザで強力な Pixiv Downloader を使用している場合は、Kiwi ブラウザに切り替えてください。 <br>
+    ダウンローダは近いうちにマニフェスト バージョン 3 にアップグレードされますが、Yandex ブラウザはマニフェスト バージョン 3 をサポートしていないため、新しいバージョンのダウンローダを使用することはできません。`,
+    `Yandex（Android） 브라우저에서 강력한 Pixiv Downloader를 사용하는 경우 Kiwi 브라우저로 전환하십시오. <br>
+    다운로더는 가까운 시일 내에 Manifest 버전 3으로 업그레이드되지만 Yandex 브라우저는 Manifest 버전 3을 지원하지 않으므로 새 버전의 다운로더를 사용할 수 없습니다.`,
+    `Если вы используете Powerful Pixiv Downloader в браузере Yandex（Android）, перейдите на браузер Kiwi. <br>
+    Потому что в ближайшее время загрузчик будет обновлен до Манифеста версии 3, но Yandex браузер не поддерживает Манифест версии 3, поэтому он не может использовать новую версию загрузчика.`,
+  ],
+  _导出日志: [
+    '导出<span class="key">日志</span>',
+    '匯出<span class="key">日誌</span>',
+    'Export <span class="key">log</span>',
+    '<span class="key">ログ</span>のエクスポート',
+    '내보내기 로그',
+    'Экспорт <span class="key">журнала</span>',
+  ],
+  _导出日志成功: [
+    '✓ 导出日志',
+    '✓ 匯出日誌',
+    '✓ Export log',
+    '✓ ログのエクスポート',
+    '✓ 내보내기 로그',
+    '✓ Экспорт журнала',
+  ],
+  _导出时机: [
+    '导出时机',
+    '匯出時機',
+    'Export timing',
+    'エクスポートのタイミング',
+    '내보내기 타이밍',
+    'Время экспорта',
+  ],
+  _日志类型: [
+    '日志类型',
+    '日誌型別',
+    'Log type',
+    'ログの種類',
+    '로그 유형',
+    'Тип журнала',
+  ],
+  _正常: ['正常', '正常', 'Normal', '普通', '정상', 'Обычный'],
+  _错误: ['错误', '錯誤', 'Error', 'エラー', '오류', 'Ошибка'],
+  _排除关键字: [
+    '排除关键字',
+    '排除關鍵字',
+    'Exclude keywords',
+    'キーワードを除外',
+    '키워드 제외',
+    'Исключить ключевые слова',
+  ],
+  _Chrome108版本转换WebM失败的问题: [
+    '从 Chrome 108 版本开始，浏览器的一些变化导致下载器转换 WebM 视频失败。<br>现已修复转换功能。',
+    '從 Chrome 108 版本開始，瀏覽器的一些變化導致下載器轉換 WebM 影片失敗。<br>現已修復轉換功能。',
+    'Starting with Chrome version 108, some changes in the browser caused the downloader to fail to convert WebM videos. <br>The conversion function is now fixed.',
+    'Chrome バージョン 108 以降、ブラウザーの一部の変更により、ダウンローダーが WebM ビデオの変換に失敗しました。 <br>変換機能を修正しました。',
+    '从 Chrome 版本 108 开始，浏览器中的一些更改阻止了下载器转换 WebM 视频。 <br>此问题现已解决。',
+    'Начиная с Chrome версии 108, некоторые изменения в браузере приводили к тому, что загрузчик не мог конвертировать видео WebM. <br>Функция преобразования теперь исправлена.',
   ],
 }
 

@@ -130,4 +130,9 @@ export interface SettingsForm extends HTMLFormElement {
   slowCrawlOnWorksNumber: HTMLInputElement
   downloadOnClickBookmark: HTMLInputElement
   downloadOnClickLike: HTMLInputElement
+  exportLog: HTMLInputElement
+  exportLogTiming: HTMLInputElement
+  exportLogNormal: HTMLInputElement
+  exportLogError: HTMLInputElement
+  exportLogExclude: HTMLInputElement
 }
