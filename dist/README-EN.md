@@ -67,8 +67,6 @@ The main function:
 
 1. **Chromium kernel** browser can install this extension from the **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**.
 
-2. **Microsoft Edge** browser can install this extension from the **[Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)**.
-
 **Note:** Sometimes the extension on the Chrome Web Store may not be the latest version. If necessary, you can install it offline.
 
 ## Offline installation
