@@ -6861,8 +6861,32 @@ const langText = {
         '從 Chrome 108 版本開始，瀏覽器的一些變化導致下載器轉換 WebM 影片失敗。<br>現已修復轉換功能。',
         'Starting with Chrome version 108, some changes in the browser caused the downloader to fail to convert WebM videos. <br>The conversion function is now fixed.',
         'Chrome バージョン 108 以降、ブラウザーの一部の変更により、ダウンローダーが WebM ビデオの変換に失敗しました。 <br>変換機能を修正しました。',
-        '从 Chrome 版本 108 开始，浏览器中的一些更改阻止了下载器转换 WebM 视频。 <br>此问题现已解决。',
+        'Chrome 버전 108부터 브라우저의 일부 변경으로 인해 다운로더가 WebM 비디오를 변환하지 못했습니다. <br>변환 기능이 수정되었습니다.',
         'Начиная с Chrome версии 108, некоторые изменения в браузере приводили к тому, что загрузчик не мог конвертировать видео WebM. <br>Функция преобразования теперь исправлена.',
+    ],
+    _特定用户的多图作品不下载最后几张图片: [
+        '特定用户的多图作品不下载最后几张图片',
+        '特定使用者的多圖作品不下載最後幾張圖片',
+        `Don't download the last few images for specific user's multi-image works`,
+        '特定のユーザーのマルチイメージ作品の最後のいくつかのイメージをダウンロードしないでください',
+        '특정 사용자의 다중 이미지 작품에 대한 마지막 몇 개의 이미지를 다운로드하지 마십시오.',
+        'Не загружайте несколько последних изображений для работы с несколькими изображениями конкретного пользователя.',
+    ],
+    _不下载最后几张图片: [
+        '不下载最后几张图片',
+        '不下載最後幾張圖片',
+        'Do not download the last few images',
+        '最後の数枚の画像をダウンロードしない',
+        '마지막 몇 개의 이미지를 다운로드하지 마십시오',
+        'Не загружайте последние несколько изображений',
+    ],
+    _提示0表示不生效: [
+        '0 表示不生效',
+        '0 表示不生效',
+        '0 means no effect',
+        '0 は影響なしを意味します',
+        '0은 영향이 없음을 의미합니다.',
+        '0 означает отсутствие эффекта',
     ],
 };
 
@@ -9018,6 +9042,7 @@ __webpack_require__.r(__webpack_exports__);
 // 为某些用户设置固定的用户名，或者别名
 class SetUserName {
     constructor() {
+        this.slotName = 'setUserNameSlot';
         this._addWrapShow = false;
         this.wrapHTML = `
   <span class="setUserNameWrap">
@@ -9083,7 +9108,7 @@ class SetUserName {
     }
     // 创建列表外部的容器，静态 html
     createWrap() {
-        this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].useSlot('setUserNameSlot', this.wrapHTML);
+        this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].useSlot(this.slotName, this.wrapHTML);
         this.expandBtn = this.wrap.querySelector('.expand');
         this.showAddBtn = this.wrap.querySelector('.showAdd');
         this.totalSpan = this.wrap.querySelector('.total');
@@ -11427,35 +11452,36 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ListenPageSwitch__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ListenPageSwitch */ "./src/ts/ListenPageSwitch.ts");
 /* harmony import */ var _CenterPanel__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./CenterPanel */ "./src/ts/CenterPanel.ts");
 /* harmony import */ var _setting_Form__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./setting/Form */ "./src/ts/setting/Form.ts");
-/* harmony import */ var _ReplaceSquareThumb__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ReplaceSquareThumb */ "./src/ts/ReplaceSquareThumb.ts");
-/* harmony import */ var _InitPage__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./InitPage */ "./src/ts/InitPage.ts");
-/* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
-/* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
-/* harmony import */ var _download_Resume__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./download/Resume */ "./src/ts/download/Resume.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_13__);
-/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
-/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
-/* harmony import */ var _DoubleWidthThumb__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./DoubleWidthThumb */ "./src/ts/DoubleWidthThumb.ts");
-/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
-/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
-/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
-/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
-/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
-/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
-/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
-/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
-/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _download_ShowStatusOnTitle__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/ShowStatusOnTitle */ "./src/ts/download/ShowStatusOnTitle.ts");
-/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
-/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _setting_DoNotDownloadLastFewImages__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/DoNotDownloadLastFewImages */ "./src/ts/setting/DoNotDownloadLastFewImages.ts");
+/* harmony import */ var _ReplaceSquareThumb__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ReplaceSquareThumb */ "./src/ts/ReplaceSquareThumb.ts");
+/* harmony import */ var _InitPage__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./InitPage */ "./src/ts/InitPage.ts");
+/* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
+/* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
+/* harmony import */ var _download_Resume__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./download/Resume */ "./src/ts/download/Resume.ts");
+/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
+/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_14___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_14__);
+/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
+/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
+/* harmony import */ var _DoubleWidthThumb__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./DoubleWidthThumb */ "./src/ts/DoubleWidthThumb.ts");
+/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
+/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
+/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
+/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
+/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
+/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
+/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
+/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
+/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
+/* harmony import */ var _download_ShowStatusOnTitle__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/ShowStatusOnTitle */ "./src/ts/download/ShowStatusOnTitle.ts");
+/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
+/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -11466,6 +11492,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 
@@ -12957,7 +12984,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
             49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-            70, 71, 72, 74, 75, 76, 77,
+            70, 71, 72, 74, 75, 76, 77, 78, 79, 80,
         ]);
     }
     nextStep() {
@@ -22693,6 +22720,309 @@ const convertOldSettings = new ConvertOldSettings();
 
 /***/ }),
 
+/***/ "./src/ts/setting/DoNotDownloadLastFewImages.ts":
+/*!******************************************************!*\
+  !*** ./src/ts/setting/DoNotDownloadLastFewImages.ts ***!
+  \******************************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+
+
+
+
+
+
+
+
+// 针对某些用户,不下载他们的多图作品的最后几张图片
+class DoNotDownloadLastFewImages {
+    constructor() {
+        this.slotName = 'DoNotDownloadLastFewImagesSlot';
+        this._addWrapShow = false;
+        this.wrapHTML = `
+  <span class="DoNotDownloadLastFewImagesWarp">
+
+    <span class="controlBar">
+    <span class="total">0</span>
+      <button type="button" class="textButton expand" data-xztext="_收起"></button>
+      <button type="button" class="textButton showAdd" data-xztext="_添加"></button>
+    </span>
+
+    <div class="addWrap">
+      <div class="settingItem addInputWrap" >
+        <div class="inputItem uid">
+          <span class="label uidLabel" data-xztext="_用户id"></span>
+          <input type="text" class="setinput_style1 blue addUidInput" data-xzplaceholder="_必须是数字" />
+        </div>
+
+        <div class="inputItem value">
+          <span class="label nameLabel" data-xztext="_不下载最后几张图片"></span>
+          <input type="text" class="has_tip setinput_style1 blue addValueInput" data-xztip="_提示0表示不生效" />
+        </div>
+
+        <div class="btns">
+          <button type="button" class="textButton add" data-xztitle="_添加">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-wanchengqueding"></use>
+            </svg>
+          </button>
+
+          
+          <button type="button" class="textButton cancel" data-xztitle="_取消">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-guanbiquxiao"></use>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="listWrap">
+    </div>
+  </span>
+  `;
+        this.createWrap();
+        _Theme__WEBPACK_IMPORTED_MODULE_5__["theme"].register(this.wrap);
+        _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].register(this.wrap);
+        this.bindEvents();
+    }
+    set addWrapShow(val) {
+        this._addWrapShow = val;
+        if (val) {
+            this.addWrap.style.display = 'block';
+            this.addInputUid.focus();
+        }
+        else {
+            this.addWrap.style.display = 'none';
+            this.addInputUid.value = '';
+            this.addValueInput.value = '';
+        }
+    }
+    get addWrapShow() {
+        return this._addWrapShow;
+    }
+    // 创建列表外部的容器，静态 html
+    createWrap() {
+        this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].useSlot(this.slotName, this.wrapHTML);
+        this.expandBtn = this.wrap.querySelector('.expand');
+        this.showAddBtn = this.wrap.querySelector('.showAdd');
+        this.totalSpan = this.wrap.querySelector('.total');
+        this.addWrap = this.wrap.querySelector('.addWrap');
+        this.addInputUid = this.wrap.querySelector('.addUidInput');
+        this.addValueInput = this.wrap.querySelector('.addValueInput');
+        this.addBtn = this.wrap.querySelector('.add');
+        this.cancelBtn = this.wrap.querySelector('.cancel');
+        this.listWrap = this.wrap.querySelector('.listWrap');
+        // 展开/折叠按钮
+        this.expandBtn.addEventListener('click', () => {
+            Object(_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('DoNotDownloadLastFewImagesShow', !_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesShow);
+        });
+        // 切换显示添加规则的区域
+        this.showAddBtn.addEventListener('click', () => {
+            this.addWrapShow = !this.addWrapShow;
+        });
+        // 添加规则的按钮
+        this.addBtn.addEventListener('click', () => {
+            this.addRule(this.addInputUid.value, this.addValueInput.value);
+        });
+        // 取消添加的按钮
+        this.cancelBtn.addEventListener('click', () => {
+            this.addWrapShow = false;
+        });
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'DoNotDownloadLastFewImagesShow') {
+                this.showListWrap();
+            }
+            if (data.name === 'DoNotDownloadLastFewImagesList') {
+                this.createAllList();
+            }
+        });
+    }
+    showListWrap() {
+        const show = _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesShow;
+        this.listWrap.style.display = show ? 'flex' : 'none';
+        _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].updateText(this.expandBtn, show ? '_收起' : '_展开');
+    }
+    // 根据规则动态创建 html
+    createAllList() {
+        this.totalSpan.textContent =
+            _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList.length.toString();
+        this.listWrap.innerHTML = '';
+        const df = document.createDocumentFragment();
+        for (const { uid, user, value, } of _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList) {
+            df.append(this.createOneList(uid, user, value));
+        }
+        this.listWrap.append(df);
+    }
+    // 创建规则对应的元素，并绑定事件
+    createOneList(uid, user, value) {
+        const html = `
+      <div class="inputItem user">
+        <span>${user}</span>
+      </div>
+
+      <div class="inputItem uid">
+        <input type="text" class="setinput_style1 blue" data-uidInput="${uid}" value="${uid}" />
+      </div>
+
+      <div class="inputItem value">
+        <input type="text" class="has_tip setinput_style1 blue" data-valueInput="${uid}" value="${value}" data-xztip="_提示0表示不生效" />
+      </div>
+
+      <div class="btns">
+        <button type="button" class="textButton" data-updateRule="${uid}" data-xztitle="_更新">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-gengxin"></use>
+          </svg>
+        </button>
+
+        <button type="button" class="textButton" data-deleteRule="${uid}" data-xztitle="_删除">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-shanchu1"></use>
+          </svg>
+        </button>
+    </div>`;
+        const element = document.createElement('div');
+        element.classList.add('settingItem');
+        element.dataset.key = uid.toString();
+        element.innerHTML = html;
+        const updateRule = element.querySelector(`button[data-updateRule='${uid}']`);
+        const deleteRule = element.querySelector(`button[data-deleteRule='${uid}']`);
+        const uidInput = element.querySelector(`input[data-uidInput='${uid}']`);
+        const valueInput = element.querySelector(`input[data-valueInput='${uid}']`);
+        [uidInput, valueInput].forEach((el) => {
+            el === null || el === void 0 ? void 0 : el.addEventListener('change', () => {
+                if (el.value) {
+                    this.updateRule(uid, uidInput.value, valueInput.value, false);
+                }
+            });
+        });
+        // 更新规则
+        updateRule === null || updateRule === void 0 ? void 0 : updateRule.addEventListener('click', () => {
+            this.updateRule(uid, uidInput.value, valueInput.value);
+        });
+        // 删除规则
+        deleteRule === null || deleteRule === void 0 ? void 0 : deleteRule.addEventListener('click', () => {
+            this.deleteRule(uid);
+        });
+        return element;
+    }
+    // 检查用户输入的值
+    checkValue(uidInput, value) {
+        if (!uidInput || !value) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_7__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_必填项不能为空'));
+            return false;
+        }
+        const uid = Number.parseInt(uidInput);
+        if (!uid || isNaN(uid)) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_7__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_用户ID必须是数字'));
+            return false;
+        }
+        // value 允许为 0
+        const val = Number.parseInt(value);
+        if (isNaN(val) || val < 0) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_7__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_不下载最后几张图片') + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_必须是数字'));
+            return false;
+        }
+        return {
+            uid,
+            val,
+        };
+    }
+    async getUserName(uid) {
+        return new Promise(async (resolve) => {
+            const profile = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getUserProfile(uid.toString()).catch((err) => {
+                console.log(err);
+            });
+            if (profile && profile.body.name) {
+                return resolve(profile.body.name);
+            }
+            return resolve('');
+        });
+    }
+    // 添加规则
+    async addRule(uid, value) {
+        const check = this.checkValue(uid, value);
+        if (!check) {
+            return;
+        }
+        let old = _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList.find((item) => item.uid === check.uid);
+        if (old) {
+            old.value = check.val;
+        }
+        else {
+            const user = await this.getUserName(check.uid);
+            const data = {
+                uid: check.uid,
+                user: user,
+                value: check.val,
+            };
+            _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList.push(data);
+        }
+        Object(_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('DoNotDownloadLastFewImagesList', _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList);
+        this.addWrapShow = false;
+        _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_添加成功'));
+    }
+    // 更新规则
+    // tip 表示是否用显示操作成功的提示。当用户点击了更新按钮时应该显示提示；输入内容变化导致的自动更新可以不显示提示
+    async updateRule(oldUid, uid, value, tip = true) {
+        const check = this.checkValue(uid, value);
+        if (!check) {
+            return;
+        }
+        let old = _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList.find((item) => item.uid === oldUid);
+        if (old) {
+            // 更新时如果 uid 未改变，依然会获取用户名，因为用户名可能更新了
+            const user = await this.getUserName(check.uid);
+            old.uid = check.uid;
+            old.user = user;
+            old.value = check.val;
+        }
+        else {
+            return;
+        }
+        Object(_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('DoNotDownloadLastFewImagesList', _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList);
+        this.addWrapShow = false;
+        if (tip) {
+            _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_更新成功'));
+        }
+    }
+    // 删除规则
+    deleteRule(uid) {
+        let index = _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList.findIndex((item) => item.uid === uid);
+        if (index > -1) {
+            _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList.splice(index, 1);
+        }
+        else {
+            return;
+        }
+        Object(_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('DoNotDownloadLastFewImagesList', _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList);
+        this.removeListElement(uid);
+    }
+    removeListElement(uid) {
+        const listElement = this.listWrap.querySelector(`.settingItem[data-key='${uid}']`);
+        listElement === null || listElement === void 0 ? void 0 : listElement.remove();
+    }
+}
+new DoNotDownloadLastFewImages();
+
+
+/***/ }),
+
 /***/ "./src/ts/setting/Form.ts":
 /*!********************************!*\
   !*** ./src/ts/setting/Form.ts ***!
@@ -22937,6 +23267,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formHtml", function() { return formHtml; });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 
+// 已使用的最大编号是 80
 const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -23441,6 +23772,14 @@ const formHtml = `<form class="settingForm">
     <span class="settingNameStyle1" data-xztext="_不抓取多图作品的最后一张图片"></span>
     <input type="checkbox" name="doNotDownloadLastImageOfMultiImageWork" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
+    </p>
+    
+    <p class="option" data-no="79">
+    <span class="settingNameStyle1">
+    <span data-xztext="_特定用户的多图作品不下载最后几张图片"></span>
+    <span class="gray1"> ? </span>
+    </span>
+    <slot data-name="DoNotDownloadLastFewImagesSlot"></slot>
     </p>
 
     <p class="option" data-no="35">
@@ -24671,6 +25010,11 @@ class Options {
             });
         });
     }
+    // 总是隐藏某些设置
+    alwaysHideSomeOption() {
+        // this.hideOption(79)
+        // this.hideOption(80)
+    }
     handleShowAdvancedSettings() {
         for (const option of this.allOption) {
             if (option.dataset.no === undefined) {
@@ -25118,6 +25462,14 @@ class Settings {
             exportLogNormal: false,
             exportLogError: true,
             exportLogExclude: ['404', '429', '500'],
+            DoNotDownloadLastFewImagesShow: false,
+            DoNotDownloadLastFewImagesList: [
+                {
+                    uid: 17282018,
+                    user: 'gweda',
+                    value: 1,
+                },
+            ],
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -26038,13 +26390,28 @@ class Store {
             // 插画和漫画
             // 循环生成每一个图片文件的数据
             const p0 = 'p0';
-            for (let i = 0; i < workData.dlCount; i++) {
-                // 不抓取多图作品的最后一张图片
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doNotDownloadLastImageOfMultiImageWork &&
-                    i > 0 &&
-                    i === workData.pageCount - 1) {
-                    continue;
+            let dlCount = workData.dlCount;
+            // 不抓取多图作品的最后一张图片
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doNotDownloadLastImageOfMultiImageWork &&
+                workData.pageCount > 1) {
+                const number = workData.pageCount - 1;
+                dlCount = Math.min(dlCount, number);
+            }
+            // 特定用户的多图作品不下载最后几张图片
+            if (workData.pageCount > 1) {
+                const removeLastFew = _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].DoNotDownloadLastFewImagesList.find((item) => item.uid === Number.parseInt(workData.userId));
+                if (removeLastFew && removeLastFew.value > 0) {
+                    const number = workData.pageCount - removeLastFew.value;
+                    if (number > 0) {
+                        dlCount = Math.min(dlCount, number);
+                    }
+                    else {
+                        // 用户设置的值有可能把这个作品的图片全部排除了，此时视为不排除
+                    }
                 }
+            }
+            // 目前总是从第一张开始连续生成，中间不会跳过
+            for (let i = 0; i < dlCount; i++) {
                 const fileData = Object.assign({}, workData);
                 const pi = 'p' + i;
                 fileData.index = i;

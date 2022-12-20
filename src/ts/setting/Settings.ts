@@ -227,6 +227,12 @@ interface XzSetting {
   exportLogNormal: boolean
   exportLogError: boolean
   exportLogExclude: string[]
+  DoNotDownloadLastFewImagesShow: boolean
+  DoNotDownloadLastFewImagesList: {
+    uid: number
+    user: string
+    value: number
+  }[]
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -420,6 +426,8 @@ class Settings {
     exportLogNormal: false,
     exportLogError: true,
     exportLogExclude: ['404', '429', '500'],
+    DoNotDownloadLastFewImagesShow: false,
+    DoNotDownloadLastFewImagesList: [],
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

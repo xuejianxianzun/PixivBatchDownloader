@@ -75,6 +75,12 @@ class Options {
     })
   }
 
+  // 总是隐藏某些设置
+  private alwaysHideSomeOption() {
+    // this.hideOption(79)
+    // this.hideOption(80)
+  }
+
   private handleShowAdvancedSettings() {
     for (const option of this.allOption) {
       if (option.dataset.no === undefined) {

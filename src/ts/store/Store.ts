@@ -118,15 +118,34 @@ class Store {
       // 插画和漫画
       // 循环生成每一个图片文件的数据
       const p0 = 'p0'
-      for (let i = 0; i < workData.dlCount; i++) {
-        // 不抓取多图作品的最后一张图片
-        if (
-          settings.doNotDownloadLastImageOfMultiImageWork &&
-          i > 0 &&
-          i === workData.pageCount - 1
-        ) {
-          continue
+      let dlCount = workData.dlCount
+
+      // 不抓取多图作品的最后一张图片
+      if (
+        settings.doNotDownloadLastImageOfMultiImageWork &&
+        workData.pageCount > 1
+      ) {
+        const number = workData.pageCount - 1
+        dlCount = Math.min(dlCount, number)
+      }
+
+      // 特定用户的多图作品不下载最后几张图片
+      if (workData.pageCount > 1) {
+        const removeLastFew = settings.DoNotDownloadLastFewImagesList.find(
+          (item) => item.uid === Number.parseInt(workData.userId)
+        )
+        if (removeLastFew && removeLastFew.value > 0) {
+          const number = workData.pageCount - removeLastFew.value
+          if (number > 0) {
+            dlCount = Math.min(dlCount, number)
+          } else {
+            // 用户设置的值有可能把这个作品的图片全部排除了，此时视为不排除
+          }
         }
+      }
+
+      // 目前总是从第一张开始连续生成，中间不会跳过
+      for (let i = 0; i < dlCount; i++) {
         const fileData = Object.assign({}, workData)
         const pi = 'p' + i
         fileData.index = i

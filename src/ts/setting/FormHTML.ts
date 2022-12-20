@@ -1,5 +1,6 @@
 import { Config } from '../Config'
 
+// 已使用的最大编号是 80
 export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -504,6 +505,14 @@ export const formHtml = `<form class="settingForm">
     <span class="settingNameStyle1" data-xztext="_不抓取多图作品的最后一张图片"></span>
     <input type="checkbox" name="doNotDownloadLastImageOfMultiImageWork" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
+    </p>
+    
+    <p class="option" data-no="79">
+    <span class="settingNameStyle1">
+    <span data-xztext="_特定用户的多图作品不下载最后几张图片"></span>
+    <span class="gray1"> ? </span>
+    </span>
+    <slot data-name="DoNotDownloadLastFewImagesSlot"></slot>
     </p>
 
     <p class="option" data-no="35">

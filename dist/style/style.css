@@ -1794,6 +1794,93 @@ iframe[name='expandedFooter'] {
 .xzBG .setUserNameWrap textarea::-webkit-input-placeholder {
   color: #ddd;
 }
+.DoNotDownloadLastFewImagesWarp input::-webkit-input-placeholder,
+.DoNotDownloadLastFewImagesWarp textarea::-webkit-input-placeholder {
+  color: #999;
+}
+.DoNotDownloadLastFewImagesWarp .icon {
+  font-size: 1.2em;
+}
+.DoNotDownloadLastFewImagesWarp .textButton {
+  border: none;
+  background: none;
+  outline: none;
+  padding: 1px 3px;
+  cursor: pointer;
+  color: #666;
+}
+.DoNotDownloadLastFewImagesWarp .textButton.add {
+  padding: 1px 8px;
+}
+.DoNotDownloadLastFewImagesWarp .controlBar {
+  display: inline;
+  padding: 5px 0;
+  color: #666;
+}
+.DoNotDownloadLastFewImagesWarp .addWrap {
+  display: none;
+}
+.DoNotDownloadLastFewImagesWarp .addWrap button.cancel .icon {
+  font-size: 1.3em;
+}
+.DoNotDownloadLastFewImagesWarp .settingItem {
+  display: flex;
+  flex-basis: 100%;
+  align-items: center;
+  padding: 5px 0;
+}
+.DoNotDownloadLastFewImagesWarp .settingItem .inputItem {
+  margin-right: 10px;
+}
+.DoNotDownloadLastFewImagesWarp .settingItem .inputItem .label {
+  color: #444;
+}
+.DoNotDownloadLastFewImagesWarp .settingItem .inputItem.uid input {
+  width: auto;
+  max-width: 100px;
+}
+.DoNotDownloadLastFewImagesWarp .settingItem .inputItem.name {
+  flex: 1;
+  display: flex;
+  min-width: 100px;
+  max-width: 220px;
+}
+.DoNotDownloadLastFewImagesWarp .settingItem .inputItem.name input {
+  flex: 1;
+}
+.DoNotDownloadLastFewImagesWarp .settingItem .inputItem span {
+  padding-right: 10px;
+}
+.DoNotDownloadLastFewImagesWarp .settingItem .btns {
+  padding-right: 20px;
+}
+.DoNotDownloadLastFewImagesWarp .settingItem .btns button:first-child {
+  display: inline-block;
+  margin-right: 6px;
+}
+.DoNotDownloadLastFewImagesWarp .settingItem .btns button[data-updaterule] .icon {
+  font-size: 1.4em;
+}
+.DoNotDownloadLastFewImagesWarp .listWrap {
+  display: flex;
+  flex-wrap: wrap;
+}
+.theme-dark.DoNotDownloadLastFewImages div,
+.theme-dark.DoNotDownloadLastFewImages span {
+  color: #fff !important;
+}
+.theme-dark.DoNotDownloadLastFewImages input::-webkit-input-placeholder,
+.theme-dark.DoNotDownloadLastFewImages textarea::-webkit-input-placeholder {
+  color: #ddd;
+}
+.xzBG .DoNotDownloadLastFewImagesWarp div,
+.xzBG .DoNotDownloadLastFewImagesWarp span {
+  color: #fff !important;
+}
+.xzBG .DoNotDownloadLastFewImagesWarp input::-webkit-input-placeholder,
+.xzBG .DoNotDownloadLastFewImagesWarp textarea::-webkit-input-placeholder {
+  color: #ddd;
+}
 .warn {
   color: #d27e00;
 }
