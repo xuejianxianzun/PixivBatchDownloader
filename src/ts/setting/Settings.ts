@@ -233,6 +233,13 @@ interface XzSetting {
     user: string
     value: number
   }[]
+  UseDifferentNameRuleIfWorkHasTagSwitch: boolean
+  UseDifferentNameRuleIfWorkHasTagShow: boolean
+  UseDifferentNameRuleIfWorkHasTagList: {
+    id: number
+    tags: string[]
+    rule: string
+  }[]
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -428,6 +435,9 @@ class Settings {
     exportLogExclude: ['404', '429', '500'],
     DoNotDownloadLastFewImagesShow: false,
     DoNotDownloadLastFewImagesList: [],
+    UseDifferentNameRuleIfWorkHasTagSwitch: false,
+    UseDifferentNameRuleIfWorkHasTagShow: true,
+    UseDifferentNameRuleIfWorkHasTagList: [],
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

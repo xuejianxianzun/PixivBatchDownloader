@@ -616,6 +616,15 @@ export const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="80">
+    <span class="settingNameStyle1" data-xztext="_如果作品含有某些标签则对这个作品使用另一种命名规则"></span>
+    <input type="checkbox" name="UseDifferentNameRuleIfWorkHasTagSwitch" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+    <span class="subOptionWrap" data-show="UseDifferentNameRuleIfWorkHasTagSwitch">
+    <slot data-name="UseDifferentNameRuleIfWorkHasTagSlot"></slot>
+    </span>
+    </p>
+
     <p class="option" data-no="22">
     <span class="has_tip settingNameStyle1" data-xztip="_第一张图不带序号说明">
     <span data-xztext="_第一张图不带序号"></span>

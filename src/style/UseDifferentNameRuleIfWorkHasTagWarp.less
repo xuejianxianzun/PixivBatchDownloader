@@ -1,0 +1,125 @@
+.UseDifferentNameRuleIfWorkHasTagWarp {
+  input::-webkit-input-placeholder,
+  textarea::-webkit-input-placeholder {
+    color: #999;
+  }
+
+  .icon {
+    font-size: 1.2em;
+  }
+
+  .textButton {
+    border: none;
+    background: none;
+    outline: none;
+    padding: 1px 3px;
+    cursor: pointer;
+    color: #666;
+
+    &.add {
+      padding: 1px 8px;
+    }
+  }
+
+  .controlBar {
+    display: inline;
+    padding: 5px 0;
+    color: #666;
+  }
+
+  .addWrap {
+    display: none;
+
+    button.cancel .icon {
+      font-size: 1.3em;
+    }
+  }
+
+  .settingItem {
+    display: flex;
+    flex-basis: 100%;
+    align-items: center;
+    padding: 5px 0;
+
+    .inputItem {
+      display: flex;
+      margin-right: 10px;
+      flex-basis: 40%;
+
+      .label {
+        color: #444;
+      }
+
+      &.id {
+        flex-basis: 5%;
+      }
+
+      &.tags {
+        input {
+          flex: 1;
+        }
+      }
+
+      &.rule {
+        flex: 1;
+        display: flex;
+        min-width: 100px;
+        max-width: 220px;
+
+        input {
+          flex: 1;
+        }
+      }
+
+      span {
+        padding-right: 10px;
+      }
+    }
+
+    .btns {
+      & button:first-child {
+        display: inline-block;
+        margin-right: 6px;
+      }
+
+      button[data-updaterule] .icon {
+        font-size: 1.4em;
+      }
+
+      padding-right: 0px;
+    }
+  }
+
+  .listWrap {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
+
+.theme-dark {
+  &.DoNotDownloadLastFewImages {
+    div,
+    span {
+      color: #fff !important;
+    }
+
+    input::-webkit-input-placeholder,
+    textarea::-webkit-input-placeholder {
+      color: #ddd;
+    }
+  }
+}
+
+.xzBG {
+  .UseDifferentNameRuleIfWorkHasTagWarp {
+    div,
+    span {
+      color: #fff !important;
+    }
+
+    input::-webkit-input-placeholder,
+    textarea::-webkit-input-placeholder {
+      color: #ddd;
+    }
+  }
+}
