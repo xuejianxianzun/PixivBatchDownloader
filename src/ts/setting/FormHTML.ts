@@ -1,5 +1,6 @@
 import { Config } from '../Config'
 
+// 已使用的最大编号是 80
 export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -505,6 +506,14 @@ export const formHtml = `<form class="settingForm">
     <input type="checkbox" name="doNotDownloadLastImageOfMultiImageWork" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
     </p>
+    
+    <p class="option" data-no="79">
+    <span class="settingNameStyle1">
+    <span data-xztext="_特定用户的多图作品不下载最后几张图片"></span>
+    <span class="gray1"> ? </span>
+    </span>
+    <slot data-name="DoNotDownloadLastFewImagesSlot"></slot>
+    </p>
 
     <p class="option" data-no="35">
     <span class="has_tip settingNameStyle1" data-xztip="_用户阻止名单的说明">
@@ -604,6 +613,15 @@ export const formHtml = `<form class="settingForm">
     <span class="gray1" data-xztext="_tag用逗号分割"></span>
     <br>
     <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1"></textarea>
+    </span>
+    </p>
+
+    <p class="option" data-no="80">
+    <span class="settingNameStyle1" data-xztext="_如果作品含有某些标签则对这个作品使用另一种命名规则"></span>
+    <input type="checkbox" name="UseDifferentNameRuleIfWorkHasTagSwitch" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+    <span class="subOptionWrap" data-show="UseDifferentNameRuleIfWorkHasTagSwitch">
+    <slot data-name="UseDifferentNameRuleIfWorkHasTagSlot"></slot>
     </span>
     </p>
 

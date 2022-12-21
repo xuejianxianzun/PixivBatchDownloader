@@ -115,6 +115,7 @@ class FormSettings {
       'exportLog',
       'exportLogNormal',
       'exportLogError',
+      'UseDifferentNameRuleIfWorkHasTagSwitch',
     ],
     text: [
       'setWantPage',

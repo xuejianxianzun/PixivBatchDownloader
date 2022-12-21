@@ -69,8 +69,6 @@
 
 1. **Chromium 核心**的瀏覽器可以從 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**  安裝本擴充功能。
 
-2. **Microsoft Edge** 瀏覽器可以從 **[Microsoft Edge 外掛程式](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)** 安裝本擴充功能。
-
 **注意：** 有時 Chrome Web Store 上的擴充功能可能不是最新版本。如果有需要，你可以離線安裝。
 
 ## 離線安裝
