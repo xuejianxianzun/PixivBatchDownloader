@@ -61,9 +61,7 @@
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
   },
   "include": [
-    "./src/ts/*",
-    "src/ts/filter/WorkPublishTime.ts",
-    "src/ts/setting/UseDifferentNameRuleIfWorkHasTag.ts"
+    "./src/ts/*"
   ],
   "exclude": ["node_modules"]
 }
