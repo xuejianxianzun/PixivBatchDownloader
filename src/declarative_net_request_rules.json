@@ -14,7 +14,7 @@
     },
     "condition": {
       "urlFilter": "||pximg.net",
-      "resourceTypes": ["xmlhttprequest"]
+      "resourceTypes": ["xmlhttprequest", "image"]
     }
   },
   {
@@ -32,7 +32,7 @@
     },
     "condition": {
       "urlFilter": "||pximg.cat",
-      "resourceTypes": ["xmlhttprequest"]
+      "resourceTypes": ["xmlhttprequest", "image"]
     }
   }
 ]

@@ -28,6 +28,7 @@ function initData() {
   setData({ dlIndex: [] })
   setData({ dlBatch: [] })
 }
+
 // 存储每个下载任务的数据，这是因为下载完成的顺序和前台发送的顺序可能不一致，所以需要把数据保存起来以供使用
 const dlData: DonwloadListData = {}
 // 当浏览器开始下载一个由前台传递的文件时，会把一些数据保存到 dlData 里

@@ -1,16 +1,16 @@
-### 扩展迁移到 Manifest V3
+# 扩展迁移到 Manifest V3
 
 这次更新主要修改了 `manifest.json` 文件和 `src/ts/background.ts`。花费的时间比我预想的长很多，主要是 background 脚本转变为 Service worker，因为一些特性的变化，踩了不少坑才适配完成。
 
 迁移时的参考文档： https://developer.chrome.com/docs/extensions/mv3/mv3-migration-checklist/
 
-#### 使用 declarative_net_request 取代了 webRequest
+## 使用 declarative_net_request 取代了 webRequest
 
 以前的 webRequest 是编程式的方法，需要写代码来拦截请求、修改请求。现在的 declarative_net_request 是声明式的方法，只需要在 `manifest.json` 中声明要修改的请求，以及要执行的操作。对于很多常见的场景，使用 declarative_net_request 更加简便。
 
 此外，使用 declarative_net_request 可以更好的保护隐私（因为扩展程序不能获取到请求的内容），同时提高性能（请求没有被扩展程序的代码拦截）。
 
-#### 使用 Service worker 取代了后台脚本
+## 使用 Service worker 取代了后台脚本
 
 Service worker 相比以前的 background script，最重要的区别是它不是持久存在的。也就是说它在空闲时会被销毁。
 
@@ -24,17 +24,15 @@ Service worker 相比以前的 background script，最重要的区别是它不�
 
 现在使用了一些比较曲折的办法。
 
-#### 升级了 @types/chrome 包的版本
+## 升级了 @types/chrome 包的版本
 
 因为之前安装的 @types/chrome 版本不支持 Manifest V3，所以升级了它的版本。
 
-#### 其他修改
+## 其他修改
 
 从 V2 迁移到 V3 的过程中还有其他一些修改。具体情况请查看这次提交与上次提交的差别。
 
-ts 文件的编译位置修改：因为 Service worker 脚本必须处于扩展根目录（以前是放在 js 文件夹里的），所以把它移到根目录了。（之后把 content 脚本也移动到根目录了）
-
-#### 未按照规范修改的地方
+## 未按照规范修改的地方
 
 迁移指南里说：您是否在内容脚本中发出 CORS 请求？将这些请求移至后台 service worker。
 
@@ -42,9 +40,9 @@ ts 文件的编译位置修改：因为 Service worker 脚本必须处于扩展�
 
 此外，Service Workers 不支持 `XMLHttpRequest`，只能使用 `fetch()`，这也导致很难计算下载进度。
 
-### 迁移过程中的踩坑
+# 迁移过程中的踩坑
 
-#### chrome.scripting.executeScript 不能修改页面里的变量 
+## chrome.scripting.executeScript 不能修改页面里的变量 
 
 `chrome.scripting.executeScript` 这个 API 不能可靠的修改扩展所在页面的 JS 变量环境。
 
@@ -105,7 +103,7 @@ document.head.appendChild(s)
 
 参考答案：[stackoverflow](https://stackoverflow.com/questions/9515704/use-a-content-script-to-access-the-page-context-variables-and-functions)
 
-#### 声明 resourceTypes
+## 声明 resourceTypes
 
 下载器发送 xhr 请求来加载一张图片，resourceTypes 是 `xmlhttprequest` 还是 `image`？
 
@@ -138,7 +136,7 @@ document.head.appendChild(s)
 
 文档：[Chrome 扩展里可以使用的 resourceType](https://developer.chrome.com/docs/extensions/reference/declarativeNetRequest/#type-ResourceType)
 
-#### chrome.storage 保存和读取数据时的坑
+## chrome.storage 保存和读取数据时的坑
 
 由于 chrome.storage 保存的数据必须是带有大括号的 Object（可以被 JSON 解析的），所以如果我们有一个对象和数组：
 
