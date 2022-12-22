@@ -78,8 +78,6 @@ offline 分支会检查 github 上是否发布了新版本；master 分支上不
 
 1. **Chromium 内核**的浏览器可以从 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 安装本扩展。
 
-2. **Microsoft Edge** 浏览器可以从 **[Microsoft Edge 外接程序](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)** 安装本扩展。
-
 **注意：** 有时候 Chrome Web Store 上的扩展可能不是最新版本。如果有需要，你可以离线安装。
 
 ## 离线安装

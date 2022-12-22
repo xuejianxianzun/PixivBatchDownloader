@@ -67,7 +67,7 @@ class InitNovelSeriesPage extends InitPageBase {
       'asc'
     )
 
-    const list = seriesData.body.seriesContents
+    const list = seriesData.body.page.seriesContents
     for (const item of list) {
       store.idList.push({
         type: 'novels',

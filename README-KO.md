@@ -67,8 +67,6 @@
 
 1. Chromium 기반 브라우저는 **[Chrome 웹 스토어](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**에서 이 확장 프로그램을 설치할 수 있습니다.
 
-2. Microsoft Edge 브라우저는 **[Microsoft Edge 추가 기능](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)**에서 이 확장 프로그램을 설치할 수 있습니다.
-
 **참고:** 경우에 따라 Chrome 웹 스토어의 확장 버전이 최신 버전이 아닐 수 있습니다. 필요한 경우 오프라인으로 설치할 수 있습니다.
 
 ## 오프라인 설치

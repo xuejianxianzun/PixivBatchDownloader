@@ -1034,31 +1034,33 @@ export interface NovelSeriesData {
   error: boolean
   message: string
   body: {
-    seriesContents: {
-      id: string
-      userId: string
-      series: {
-        id: number
-        viewableType: number
-        contentOrder: number
-      }
-      title: string
-      commentHtml: string
-      tags: string[]
-      restrict: 0 | 1 | 2
-      xRestrict: 0 | 1 | 2
-      isOriginal: boolean
-      textLength: number
-      bookmarkCount: number
-      url: string
-      uploadTimestamp: number
-      reuploadTimestamp: number
-      isBookmarkable: boolean
-      bookmarkData: null | {
+    page: {
+      seriesContents: {
         id: string
-        private: boolean
-      }
-    }[]
+        userId: string
+        series: {
+          id: number
+          viewableType: number
+          contentOrder: number
+        }
+        title: string
+        commentHtml: string
+        tags: string[]
+        restrict: 0 | 1 | 2
+        xRestrict: 0 | 1 | 2
+        isOriginal: boolean
+        textLength: number
+        bookmarkCount: number
+        url: string
+        uploadTimestamp: number
+        reuploadTimestamp: number
+        isBookmarkable: boolean
+        bookmarkData: null | {
+          id: string
+          private: boolean
+        }
+      }[]
+    }
   }
 }
 

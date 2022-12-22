@@ -1,6 +1,6 @@
 {
   "name": "Powerful Pixiv Downloader",
-  "version": "14.2.0",
+  "version": "14.3.0",
   "manifest_version": 2,
   "description": "强大的 Pixiv 批量下载器。Powerful Pixiv batch downloader. 強力な Pixiv ダウンローダー。",
   "icons": {
@@ -53,7 +53,6 @@
     "storage",
     "*://www.pixiv.net/*",
     "*://www.pixivision.net/*",
-    "*://*.techorus-cdn.com/*",
     "*://*.pximg.net/*",
     "*://*.pixiv.cat/*",
     "webRequest",

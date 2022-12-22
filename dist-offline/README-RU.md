@@ -68,8 +68,6 @@
 
 1. В браузере **Chromium kernel** это расширение можно установить из раздела **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**.
 
-2. Браузер **Microsoft Edge** может установить это расширение из раздела **[Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)**.
-
 **Примечание:** Иногда расширение в Chrome Web Store может быть не самой последней версии. При необходимости вы можете установить его в автономном режиме.
 
 ## Автономная установка
