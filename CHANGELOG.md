@@ -48,7 +48,7 @@ https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjd
 
 ### 修复了 Chrome 108 版本导致 WebM 视频转换出错的问题
 
-Chrome 108 版本对 `canvas.toDataURL('image/webp')` 生成的内容就进行了调整，相比之前减少了 80 字节的空白内容，导致转换 WebM 视频失败。
+Chrome 108 版本对 `canvas.toDataURL('image/webp')` 生成的内容进行了调整，相比之前减少了 80 字节的空白内容，导致转换 WebM 视频失败。
 
 现在修复。
 
