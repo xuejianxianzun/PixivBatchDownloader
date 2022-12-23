@@ -14,15 +14,11 @@
 
 Service worker 相比以前的 background script，最重要的区别是它不是持久存在的。也就是说它在空闲时会被销毁。
 
-测试：在 Service worker 停止运行时，点击扩展图标使其激活，之后经过 30 秒又停止活动了。（有的时候
-
 一般会有两种操作激活 Service worker ：1 点击图标 2 向后台发送下载。抓取时是不需要 Service worker 工作的。
 
 以前后台脚本存行过程中使用的数据是保存到 JS 变量里的，但是如果 Service worker 被销毁，数据也就没有了，所以现在我不得不把数据保存到 `chrome.storage.local`。（这使得下载器添加了一项新的权限请求：`storage`）
 
-由于 `chrome.storage.local` 的存取都是异步的，这导致了一些数据同步的问题。例如，当读取一个项目时，有一个对此项目的写入还未完成，那么读取到的数据就不是最新数据。
-
-现在使用了一些比较曲折的办法。
+`chrome.storage.local` 的存取都是异步的，这一点需要注意。
 
 ## 升级了 @types/chrome 包的版本
 
@@ -39,6 +35,18 @@ Service worker 相比以前的 background script，最重要的区别是它不�
 但是，下载器需要在前台下载文件（文件是跨域的）。我不打算把文件的下载移到后台 worker，因为前台需要显示下载进度（下载进度需要高频率刷新），如果把请求放到后台，那么就需要后台**频繁的**向前台发送消息来传递进度。根据我以前的测试，在后台频繁发送多个消息时，传递到前台的延迟时间比较大，甚至有可能达到 1 秒以上。所以这个地方没有修改。
 
 此外，Service Workers 不支持 `XMLHttpRequest`，只能使用 `fetch()`，这也导致很难计算下载进度。
+
+# Service Workers 的回收时间
+
+1. 新安装此扩展，之后什么都不做，等待 30 秒后 Service Workers 被回收。
+
+2. 在 Service worker 停止运行后，点击扩展图标使其激活，之后经过 30 秒又停止活动了。
+
+3. 打开 pixiv，并进行一次简单的下载后，Service Workers 在经过 1 小时后仍然未被回收（不清楚等多久会回收）。
+
+4. 下载一半暂停，表现同上（1 小时后仍然未被回收）。
+
+5. 关闭所有 pixiv 标签页后，大约 6 分钟之后 Service Workers 被回收。
 
 # 迁移过程中的踩坑
 
@@ -136,7 +144,7 @@ document.head.appendChild(s)
 
 文档：[Chrome 扩展里可以使用的 resourceType](https://developer.chrome.com/docs/extensions/reference/declarativeNetRequest/#type-ResourceType)
 
-## chrome.storage 保存和读取数据时的坑
+## chrome.storage 保存和读取数据时的格式是 Map
 
 由于 chrome.storage 保存的数据必须是带有大括号的 Object（可以被 JSON 解析的），所以如果我们有一个对象和数组：
 
@@ -181,3 +189,26 @@ async function getData(key: string) {
 await getData('o')
 await getData('a')
 ```
+
+## chrome.storage 不能用来保存有大量空项目的数组
+
+`background.ts` 里的 `dlBatch` 和 `dlIndex` 变量就是这种数组：
+
+```js
+dlBatch = []
+
+// 用 tab.id 作为索引值，保存时间戳
+dlBatch[1943987908]  = 1671738924825
+
+dlBatch
+// 前面有大量的空数组项
+// (1943987909) [空属性 × 1943987908, 1671738924825]
+```
+
+在去年我刚尝试升级到 Manifest V3 时好像没有问题，但是现在却出现了问题。
+
+一旦用 `chrome.storage.local.set` 来保存这样的数据，Service Worker 里的代码执行到这里时就会发生异常，好像是卡在了这里，不会执行接下来的代码，而且原本已经注册好的事件监听器也不会再产生反应（这就导致下载卡住了）。而且 Service Worker 会很快被回收（通常只需要几秒）。
+
+在这种异常发生时，Chrome 没有产生报错或者任何提示信息。我折腾了许久才发现是数据结构的原因。
+
+解决思路就是把这两个变量改为键值对映射的对象。

@@ -51,7 +51,8 @@
     "downloads",
     "downloads.shelf",
     "storage",
-   "declarativeNetRequest"],
+    "declarativeNetRequest"
+  ],
   "host_permissions": [
     "*://www.pixiv.net/*",
     "*://www.pixivision.net/*",
@@ -71,10 +72,10 @@
     {
       "resources": [
         "lib/gif.worker.js",
-    "lib/listen_history_change.js",
-    "manifest.json",
-    "icon/logo128.png",
-    "style/showLargerThumbnails.css"
+        "lib/listen_history_change.js",
+        "manifest.json",
+        "icon/logo128.png",
+        "style/showLargerThumbnails.css"
       ],
       "matches": ["*://www.pixiv.net/*", "*://www.pixivision.net/*"]
     }
