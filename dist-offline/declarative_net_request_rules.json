@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "responseHeaders": [
+        {
+          "header": "Access-Control-Allow-Origin",
+          "operation": "set",
+          "value": "*"
+        }
+      ]
+    },
+    "condition": {
+      "urlFilter": "||pximg.net",
+      "resourceTypes": ["xmlhttprequest", "image"]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "responseHeaders": [
+        {
+          "header": "Access-Control-Allow-Origin",
+          "operation": "set",
+          "value": "*"
+        }
+      ]
+    },
+    "condition": {
+      "urlFilter": "||pximg.cat",
+      "resourceTypes": ["xmlhttprequest", "image"]
+    }
+  }
+]
