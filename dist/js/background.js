@@ -111,16 +111,16 @@ chrome.action.onClicked.addListener(function (tab) {
 });
 // 当扩展被安装、被更新、或者浏览器升级时，初始化数据
 chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.local.set({ dlBatch: {}, dlIndex: {} });
+    chrome.storage.local.set({ batchNo: {}, idList: {} });
 });
 // 存储每个下载任务的数据，这是因为下载完成的顺序和前台发送的顺序可能不一致，所以需要把数据保存起来以供使用
 const dlData = {};
-// 使用每个页面的 tabId 作为索引，储存此页面的批次编号。用来判断不同批次的下载
-let dlBatch = {};
-// 储存每个标签页所发送的下载请求的作品 id 列表，用来判断重复的任务
-let dlIndex = {};
-// 在前台处于下载阶段时，dlBatch 和 dlIndex 需要持久化存储（但是当浏览器关闭并重新启动时可以清空，因为此时前台的下载任务必然和浏览器关闭之前的不是同一批了，所以旧的数据已经没用了）
-// 如果不进行持久化存储，设想任务下载到了中途，后台 SW 被回收了，那么变量也会被清除。之后前台传递过来的可能还是同一批下载里的任务，但是后台却丢失了记录。这可能会导致下载出现重复文件等异常。
+// 使用每个页面的 tabId 作为索引，储存此页面里当前下载任务的编号。用来判断不同批次的下载
+let batchNo = {};
+// 使用每个页面的 tabId 作为索引，储存此页面里所发送的下载请求的作品 id 列表，用来判断重复的任务
+let idList = {};
+// batchNo 和 idList 需要持久化存储（但是当浏览器关闭并重新启动时可以清空，因为此时前台的下载任务必然和浏览器关闭之前的不是同一批了，所以旧的数据已经没用了）
+// 如果不进行持久化存储，如果前台任务处于下载途中，后台 SW 被回收了，那么变量也会被清除。之后前台传递过来的可能还是同一批下载里的任务，但是后台却丢失了记录。这可能会导致下载出现重复文件等异常。
 // 实际上，下载时后台 SW 会持续存在很长时间，不会轻易被回收的。持久化存储只是为了以防万一
 // 封装 chrome.storage.local.set。不需要等待回调
 async function setData(data) {
@@ -131,24 +131,24 @@ chrome.runtime.onMessage.addListener(async function (msg, sender) {
     if (msg.msg === 'save_work_file') {
         // 当处于初始状态时，或者变量被回收了，就从存储中读取数据储存在变量中
         // 之后每当要使用这两个数据时，从变量读取，而不是从存储中获得。这样就解决了数据不同步的问题，而且性能更高
-        if (Object.keys(dlBatch).length === 0) {
-            const data = await chrome.storage.local.get(['dlBatch', 'dlIndex']);
-            dlBatch = data.dlBatch;
-            dlIndex = data.dlIndex;
+        if (Object.keys(batchNo).length === 0) {
+            const data = await chrome.storage.local.get(['batchNo', 'idList']);
+            batchNo = data.batchNo;
+            idList = data.idList;
         }
         const tabId = sender.tab.id;
         // 如果开始了新一批的下载，重设批次编号，并清空下载索引
-        if (dlBatch[tabId] !== msg.taskBatch) {
-            dlBatch[tabId] = msg.taskBatch;
-            dlIndex[tabId] = [];
-            setData({ dlBatch, dlIndex });
+        if (batchNo[tabId] !== msg.taskBatch) {
+            batchNo[tabId] = msg.taskBatch;
+            idList[tabId] = [];
+            setData({ batchNo, idList });
             // 这里存储数据时不需要使用 await，因为后面使用的是全局变量，所以不需要关心存储数据的同步问题
         }
         // 检查任务是否重复，不重复则下载
-        if (!dlIndex[tabId].includes(msg.id)) {
+        if (!idList[tabId].includes(msg.id)) {
             // 储存该任务的索引
-            dlIndex[tabId].push(msg.id);
-            setData({ dlIndex });
+            idList[tabId].push(msg.id);
+            setData({ idList });
             // 开始下载
             chrome.downloads.download({
                 url: msg.fileUrl,
@@ -206,9 +206,9 @@ chrome.downloads.onChanged.addListener(async function (detail) {
             msg = 'download_err';
             err = detail.error.current;
             // 当保存一个文件出错时，从任务记录列表里删除它，以便前台重试下载
-            const idIndex = dlIndex[data.tabId].findIndex((val) => val === data.id);
-            dlIndex[data.tabId][idIndex] = '';
-            setData({ dlIndex });
+            const idIndex = idList[data.tabId].findIndex((val) => val === data.id);
+            idList[data.tabId][idIndex] = '';
+            setData({ idList });
         }
         // 返回信息
         if (msg) {
@@ -220,7 +220,7 @@ chrome.downloads.onChanged.addListener(async function (detail) {
 });
 // 清除不需要的数据，避免数据体积越来越大
 async function clearData() {
-    for (const key of Object.keys(dlIndex)) {
+    for (const key of Object.keys(idList)) {
         const tabId = parseInt(key);
         try {
             await chrome.tabs.get(tabId);
@@ -229,11 +229,11 @@ async function clearData() {
             // 如果建立下载任务的标签页已经不存在，则会触发错误，如：
             // Unchecked runtime.lastError: No tab with id: 1943988409.
             // 此时删除对应的数据
-            delete dlIndex[tabId];
-            delete dlBatch[tabId];
+            delete idList[tabId];
+            delete batchNo[tabId];
         }
     }
-    setData({ dlBatch, dlIndex });
+    setData({ batchNo, idList });
 }
 setInterval(() => {
     clearData();

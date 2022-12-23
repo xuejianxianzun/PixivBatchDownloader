@@ -1,4 +1,4 @@
-# 扩展迁移到 Manifest V3
+# 扩展升级到 Manifest V3
 
 这次更新主要修改了 `manifest.json` 文件和 `src/ts/background.ts`。花费的时间比我预想的长很多，主要是 background 脚本转变为 Service worker，因为一些特性的变化，踩了不少坑才适配完成。
 
@@ -39,14 +39,12 @@ Service worker 相比以前的 background script，最重要的区别是它不�
 # Service Workers 的回收时间
 
 1. 新安装此扩展，之后什么都不做，等待 30 秒后 Service Workers 被回收。
+2. 点击扩展图标使其激活，存活时间也是 30 秒。
+3. 打开 pixiv 页面使其激活，然后什么都不做（或者关闭 pixiv 页面），大约 5- 6 分钟后 Service Workers 被回收。
+4. 打开 pixiv，并进行一次简单的下载，之后 Service Workers 在经过 1 小时后仍然未被回收（不清楚等多久会回收）。
+5. 下载一半暂停，表现同上（1 小时后仍然未被回收）。
 
-2. 在 Service worker 停止运行后，点击扩展图标使其激活，之后经过 30 秒又停止活动了。
-
-3. 打开 pixiv，并进行一次简单的下载后，Service Workers 在经过 1 小时后仍然未被回收（不清楚等多久会回收）。
-
-4. 下载一半暂停，表现同上（1 小时后仍然未被回收）。
-
-5. 关闭所有 pixiv 标签页后，大约 6 分钟之后 Service Workers 被回收。
+抓取作品时不会唤醒 SW，因为此时没有向后台发送消息。下载时会唤醒 SW。
 
 # 迁移过程中的踩坑
 
