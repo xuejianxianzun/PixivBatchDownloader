@@ -31,7 +31,7 @@
         "lib/js-epub-maker.js",
         "lib/UPNG.js",
         "lib/pako.js",
-        "js/content.js",
+        "content.js",
         "lib/iconfont.js"
       ],
       "matches": ["*://www.pixiv.net/*"],
@@ -39,7 +39,7 @@
     },
     {
       "css": ["style/style.css"],
-      "js": ["js/content.js", "lib/iconfont.js"],
+      "js": ["content.js", "lib/iconfont.js"],
       "matches": ["*://www.pixivision.net/*"],
       "run_at": "document_end"
     }

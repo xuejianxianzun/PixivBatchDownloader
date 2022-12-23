@@ -1027,6 +1027,7 @@ class CenterPanel {
                 if (_store_States__WEBPACK_IMPORTED_MODULE_2__["states"].mergeNovel) {
                     return;
                 }
+<<<<<<< HEAD:dist/js/content.js
                 this.activeTab(Tabbar.Download);
             });
         }
@@ -1239,6 +1240,142 @@ Config.slowCrawlDealy = 1400;
 
 /***/ "./src/ts/ConvertUgoira/ConvertUgoira.ts":
 /*!***********************************************!*\
+=======
+                this.activeTab(Tabbar.Download)
+              })
+            }
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.crawlEmpty,
+              () => {
+                this.activeTab(Tabbar.Crawl)
+              }
+            )
+          }
+          // 设置激活的选项卡
+          activeTab(no = 0) {
+            for (const title of this.allTabTitle) {
+              title.classList.remove(this.activeClass)
+            }
+            this.allTabTitle[no].classList.add(this.activeClass)
+            const allTabCon = this.centerPanel.querySelectorAll('.tabsContnet')
+            for (let index = 0; index < allTabCon.length; index++) {
+              allTabCon[index].style.display = index === no ? 'block' : 'none'
+            }
+          }
+          // 显示中间区域
+          show() {
+            if (
+              _store_States__WEBPACK_IMPORTED_MODULE_2__['states'].mergeNovel
+            ) {
+              return
+            }
+            this.centerPanel.style.display = 'block'
+            _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire('centerPanelOpened')
+          }
+          // 隐藏中间区域
+          close() {
+            this.centerPanel.style.display = 'none'
+            _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire('centerPanelClosed')
+          }
+          toggle() {
+            const nowDisplay = this.centerPanel.style.display
+            nowDisplay === 'block' ? this.close() : this.show()
+            if (nowDisplay === 'block') {
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire('closeCenterPanel')
+            } else {
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire('openCenterPanel')
+            }
+          }
+        }
+        new CenterPanel()
+
+        /***/
+      },
+
+    /***/ './src/ts/CheckNewVersion.ts':
+      /*!***********************************!*\
+  !*** ./src/ts/CheckNewVersion.ts ***!
+  \***********************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./utils/Utils */ './src/ts/utils/Utils.ts'
+        )
+
+        // 检查新版本
+        class CheckNewVersion {
+          constructor() {
+            this.checkNew()
+          }
+          async checkNew() {
+            if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_1__['Utils'].isPixiv()) {
+              return
+            }
+            // 读取上一次检查的时间，如果超过指定的时间，则检查 GitHub 上的信息
+            const timeName = 'xzUpdateTime'
+            const verName = 'xzGithubVer'
+            const interval = 1000 * 60 * 30 // 30 分钟检查一次
+            const lastTime = localStorage.getItem(timeName)
+            if (
+              !lastTime ||
+              new Date().getTime() - parseInt(lastTime) > interval
+            ) {
+              // 获取最新的 releases 信息
+              const latest = await fetch(
+                'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest'
+              )
+              const latestJson = await latest.json()
+              const latestVer = latestJson.name
+              // 保存 GitHub 上的版本信息
+              localStorage.setItem(verName, latestVer)
+              // 保存本次检查的时间戳
+              localStorage.setItem(timeName, new Date().getTime().toString())
+            }
+            // 获取本地扩展的版本号
+            const manifest = await fetch(chrome.runtime.getURL('manifest.json'))
+            const manifestJson = await manifest.json()
+            const manifestVer = manifestJson.version
+            // 比较大小
+            const latestVer = localStorage.getItem(verName)
+            if (!latestVer) {
+              return
+            }
+            if (this.bigger(latestVer, manifestVer)) {
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire('hasNewVer')
+            }
+          }
+          // 传入两个版本号字符串，比较第一个是否比第二个大
+          bigger(a, b) {
+            const _a = a.split('.')
+            const _b = b.split('.')
+            // 分别比较每一个版本号字段，从主版本号比较到子版本号
+            for (let i = 0; i < _a.length; i++) {
+              if (_b[i] === undefined) {
+                break
+              }
+              // 一旦某个版本号不相等，就立即返回结果
+              if (Number.parseInt(_a[i]) > Number.parseInt(_b[i])) {
+                return true
+              } else if (Number.parseInt(_a[i]) < Number.parseInt(_b[i])) {
+                return false
+              }
+            }
+            return false
+          }
+        }
+        new CheckNewVersion()
+
+        /***/
+      },
+
+    /***/ './src/ts/ConvertUgoira/ConvertUgoira.ts':
+      /*!***********************************************!*\
+>>>>>>> 1ee87f50356c8330399ced521feaef95756559c3:dist/content.js
   !*** ./src/ts/ConvertUgoira/ConvertUgoira.ts ***!
   \***********************************************/
 /*! exports provided: convertUgoira */
@@ -1311,6 +1448,7 @@ class ConvertUgoira {
         return new Promise(async (resolve, reject) => {
             const t = window.setInterval(async () => {
                 if (this._count < this.maxCount) {
+<<<<<<< HEAD:dist/js/content.js
                     window.clearInterval(t);
                     if (!this.downloading) {
                         return;
@@ -1330,6 +1468,135 @@ class ConvertUgoira {
                         // 如果没有 type 则默认使用 webm
                         resolve(_ToWebM__WEBPACK_IMPORTED_MODULE_2__["toWebM"].convert(ImageBitmapList, info));
                     }
+=======
+                  window.clearInterval(t)
+                  if (!this.downloading) {
+                    return
+                  }
+                  this.count = this._count + 1
+                  if (type === 'gif') {
+                    resolve(
+                      _ToGIF__WEBPACK_IMPORTED_MODULE_3__['toGIF'].convert(
+                        file,
+                        info
+                      )
+                    )
+                  } else if (type === 'png') {
+                    resolve(
+                      _ToAPNG__WEBPACK_IMPORTED_MODULE_4__['toAPNG'].convert(
+                        file,
+                        info
+                      )
+                    )
+                  } else {
+                    // 如果没有 type 则默认使用 webm
+                    resolve(
+                      _ToWebM__WEBPACK_IMPORTED_MODULE_2__['toWebM'].convert(
+                        file,
+                        info
+                      )
+                    )
+                  }
+                }
+              }, 200)
+            })
+          }
+          complete() {
+            this.count = this._count - 1
+          }
+          // 转换成 WebM
+          async webm(file, info) {
+            return await this.start(file, info, 'webm')
+          }
+          // 转换成 GIF
+          async gif(file, info) {
+            return await this.start(file, info, 'gif')
+          }
+          // 转换成 APNG
+          async apng(file, info) {
+            return await this.start(file, info, 'png')
+          }
+        }
+        const convertUgoira = new ConvertUgoira()
+
+        /***/
+      },
+
+    /***/ './src/ts/ConvertUgoira/ExtractImage.ts':
+      /*!**********************************************!*\
+  !*** ./src/ts/ConvertUgoira/ExtractImage.ts ***!
+  \**********************************************/
+      /*! exports provided: extractImage */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'extractImage',
+          function () {
+            return extractImage
+          }
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+
+        // 从 zip 提取图片数据
+        class ExtractImage {
+          constructor() {
+            this.loadWorkerJS()
+          }
+          async loadWorkerJS() {
+            if ('zip' in window === false) {
+              return
+            }
+            // 添加 zip 的 worker 文件
+            let zipWorker = await fetch(
+              chrome.runtime.getURL('lib/z-worker.js')
+            )
+            const zipWorkerBolb = await zipWorker.blob()
+            const zipWorkerUrl = URL.createObjectURL(zipWorkerBolb)
+            zip.workerScripts = {
+              inflater: [zipWorkerUrl],
+            }
+          }
+          // 解压 zip 文件，把里面的图片转换成 DataURL
+          async extractImageAsDataURL(zipFile, ugoiraInfo) {
+            return new Promise(function (resolve, reject) {
+              zip.createReader(
+                new zip.BlobReader(zipFile),
+                (zipReader) => {
+                  // 读取成功时的回调函数，files 保存了文件列表的信息
+                  zipReader.getEntries((files) => {
+                    // 创建数组，长度与文件数量一致
+                    const imgFile = new Array(files.length)
+                    // 获取每个文件的数据。因为这个操作是异步的，所以必须检查图片数量
+                    files.forEach((file) => {
+                      file.getData(
+                        new zip.Data64URIWriter(ugoiraInfo.mime_type),
+                        (data) => {
+                          const fileNo = parseInt(file.filename)
+                          imgFile[fileNo] = data
+                          // 把图片按原编号存入对应的位置。这是因为我怀疑有时候 zip.Data64URIWriter 的回调顺序不一致，直接 push 可能导致图片的顺序乱掉
+                          for (let i = 0; i < imgFile.length; i++) {
+                            // 检测到空值说明没有添加完毕，退出循环
+                            if (!imgFile[i]) {
+                              break
+                            }
+                            // 如果检查到最后一项，说明添加完毕
+                            if (i === imgFile.length - 1) {
+                              resolve(imgFile)
+                            }
+                          }
+                        }
+                      )
+                    })
+                  })
+                },
+                (message) => {
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire('readZipError')
+                  reject(new Error('ReadZIP error: ' + message))
+>>>>>>> 1ee87f50356c8330399ced521feaef95756559c3:dist/content.js
                 }
             }, 200);
         });
@@ -1413,6 +1680,7 @@ const toAPNG = new ToAPNG();
 /*!***************************************!*\
   !*** ./src/ts/ConvertUgoira/ToGIF.ts ***!
   \***************************************/
+<<<<<<< HEAD:dist/js/content.js
 /*! exports provided: toGIF */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -1437,6 +1705,47 @@ class ToGIF {
         return new Promise(async (resolve, reject) => {
             // 配置 gif.js
             let gif = new GIF({
+=======
+      /*! exports provided: toGIF */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'toGIF',
+          function () {
+            return toGIF
+          }
+        )
+        /* harmony import */ var _ExtractImage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./ExtractImage */ './src/ts/ConvertUgoira/ExtractImage.ts'
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../utils/Utils */ './src/ts/utils/Utils.ts'
+        )
+
+        class ToGIF {
+          constructor() {
+            this.gifWorkerUrl = ''
+            this.loadWorkerJS()
+          }
+          async loadWorkerJS() {
+            // 添加 gif 的 worker 文件
+            let gifWorker = await fetch(
+              chrome.runtime.getURL('lib/gif.worker.js')
+            )
+            const gifWorkerBolb = await gifWorker.blob()
+            this.gifWorkerUrl = URL.createObjectURL(gifWorkerBolb)
+          }
+          // 转换成 GIF
+          async convert(file, info) {
+            return new Promise(async (resolve, reject) => {
+              // 配置 gif.js
+              let gif = new GIF({
+>>>>>>> 1ee87f50356c8330399ced521feaef95756559c3:dist/content.js
                 workers: 4,
                 quality: 10,
                 workerScript: this.gifWorkerUrl,
@@ -2216,6 +2525,7 @@ class FileName {
                 if (path.length > 0) {
                     result = this.appendFolder(result, path);
                 }
+<<<<<<< HEAD:dist/js/content.js
             }
         }
         // 4 文件夹部分和文件名已经全部生成完毕，处理一些边界情况
@@ -2452,6 +2762,128 @@ new HiddenBrowserDownloadBar();
 
 /***/ "./src/ts/ImageViewer.ts":
 /*!*******************************!*\
+=======
+              }
+            }
+            // 5 文件夹部分和文件名已经全部生成完毕，处理一些边界情况
+            // 处理连续的 / 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
+            result = result.replace(/\/{2,100}/g, '/')
+            // 对每一层路径和文件名进行处理
+            const pathArray = result.split('/')
+            for (let i = 0; i < pathArray.length; i++) {
+              let str = pathArray[i]
+              // 去掉每层路径首尾的空格
+              // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
+              str = str.trim().replace(/^\./g, '．').replace(/\.$/g, '．')
+              // 处理路径是 Windows 保留文件名的情况（不需要处理后缀名）
+              str = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__[
+                'Utils'
+              ].handleWindowsReservedName(str, this.addStr)
+              pathArray[i] = str
+            }
+            result = pathArray.join('/')
+            // 6 生成后缀名
+            // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
+            if (
+              this.ugoiraExt.includes(data.ext) &&
+              data.ugoiraInfo &&
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
+                .imageSize !== 'thumb'
+            ) {
+              // 当下载图片的方形缩略图时，不修改其后缀名，因为此时下载的是作品的静态缩略图，不是动图
+              data.ext =
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_0__[
+                  'settings'
+                ].ugoiraSaveAs
+            }
+            // 如果是小说，那么此时根据用户设置的动图保存格式，更新其后缀名
+            if (data.type === 3) {
+              data.ext =
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_0__[
+                  'settings'
+                ].novelSaveAs
+            }
+            const extResult = '.' + data.ext
+            // 7 文件名长度限制
+            // 去掉文件夹部分，只处理 文件名+后缀名 部分
+            // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
+            if (
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
+                .fileNameLengthLimitSwitch
+            ) {
+              let limit =
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
+                  .fileNameLengthLimit
+              const allPart = result.split('/')
+              const lastIndex = allPart.length - 1
+              if (allPart[lastIndex].length + extResult.length > limit) {
+                allPart[lastIndex] = allPart[lastIndex].substr(
+                  0,
+                  limit - extResult.length
+                )
+              }
+              result = allPart.join('/')
+            }
+            // 8 添加后缀名
+            result += extResult
+            // 9 返回结果
+            return result
+          }
+        }
+        const fileName = new FileName()
+
+        /***/
+      },
+
+    /***/ './src/ts/Help.ts':
+      /*!************************!*\
+  !*** ./src/ts/Help.ts ***!
+  \************************/
+      /*! exports provided: help */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'help',
+          function () {
+            return help
+          }
+        )
+        /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./MsgBox */ './src/ts/MsgBox.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./Lang */ './src/ts/Lang.ts'
+        )
+
+        // 显示帮助信息
+        // 在第一次使用某些功能的时候显示一次性的帮助信息
+        class Help {
+          showDownloadTip() {
+            const flag = {
+              name: 'PBDDownloadTip',
+              value: '1',
+            }
+            const getValue = localStorage.getItem(flag.name)
+            if (getValue === null) {
+              _MsgBox__WEBPACK_IMPORTED_MODULE_0__['msgBox'].show(
+                _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                  '_下载说明提示2'
+                )
+              )
+              localStorage.setItem(flag.name, flag.value)
+            }
+          }
+        }
+        const help = new Help()
+
+        /***/
+      },
+
+    /***/ './src/ts/ImageViewer.ts':
+      /*!*******************************!*\
+>>>>>>> 1ee87f50356c8330399ced521feaef95756559c3:dist/content.js
   !*** ./src/ts/ImageViewer.ts ***!
   \*******************************/
 /*! exports provided: ImageViewer */
@@ -2860,8 +3292,2198 @@ class ImageViewer {
 /*!****************************!*\
   !*** ./src/ts/InitPage.ts ***!
   \****************************/
+<<<<<<< HEAD:dist/js/content.js
 /*! no exports provided */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
+=======
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./PageType */ './src/ts/PageType.ts'
+        )
+        /* harmony import */ var _crawlMixedPage_InitHomePage__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./crawlMixedPage/InitHomePage */ './src/ts/crawlMixedPage/InitHomePage.ts'
+        )
+        /* harmony import */ var _crawlArtworkPage_InitArtworkPage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./crawlArtworkPage/InitArtworkPage */ './src/ts/crawlArtworkPage/InitArtworkPage.ts'
+        )
+        /* harmony import */ var _crawlMixedPage_InitUserPage__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./crawlMixedPage/InitUserPage */ './src/ts/crawlMixedPage/InitUserPage.ts'
+        )
+        /* harmony import */ var _crawlMixedPage_InitBookmarkLegacyPage__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ./crawlMixedPage/InitBookmarkLegacyPage */ './src/ts/crawlMixedPage/InitBookmarkLegacyPage.ts'
+        )
+        /* harmony import */ var _crawlMixedPage_InitBookmarkPage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ./crawlMixedPage/InitBookmarkPage */ './src/ts/crawlMixedPage/InitBookmarkPage.ts'
+        )
+        /* harmony import */ var _crawlArtworkPage_InitSearchArtworkPage__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+          /*! ./crawlArtworkPage/InitSearchArtworkPage */ './src/ts/crawlArtworkPage/InitSearchArtworkPage.ts'
+        )
+        /* harmony import */ var _crawlArtworkPage_InitAreaRankingPage__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+          /*! ./crawlArtworkPage/InitAreaRankingPage */ './src/ts/crawlArtworkPage/InitAreaRankingPage.ts'
+        )
+        /* harmony import */ var _crawlArtworkPage_InitRankingArtworkPage__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
+          /*! ./crawlArtworkPage/InitRankingArtworkPage */ './src/ts/crawlArtworkPage/InitRankingArtworkPage.ts'
+        )
+        /* harmony import */ var _crawlArtworkPage_InitPixivisionPage__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
+          /*! ./crawlArtworkPage/InitPixivisionPage */ './src/ts/crawlArtworkPage/InitPixivisionPage.ts'
+        )
+        /* harmony import */ var _crawlArtworkPage_InitBookmarkDetailPage__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
+          /*! ./crawlArtworkPage/InitBookmarkDetailPage */ './src/ts/crawlArtworkPage/InitBookmarkDetailPage.ts'
+        )
+        /* harmony import */ var _crawlArtworkPage_InitBookmarkNewArtworkPage__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
+          /*! ./crawlArtworkPage/InitBookmarkNewArtworkPage */ './src/ts/crawlArtworkPage/InitBookmarkNewArtworkPage.ts'
+        )
+        /* harmony import */ var _crawlArtworkPage_InitDiscoverPage__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
+          /*! ./crawlArtworkPage/InitDiscoverPage */ './src/ts/crawlArtworkPage/InitDiscoverPage.ts'
+        )
+        /* harmony import */ var _crawlArtworkPage_InitNewArtworkPage__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
+          /*! ./crawlArtworkPage/InitNewArtworkPage */ './src/ts/crawlArtworkPage/InitNewArtworkPage.ts'
+        )
+        /* harmony import */ var _crawlNovelPage_InitNovelPage__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
+          /*! ./crawlNovelPage/InitNovelPage */ './src/ts/crawlNovelPage/InitNovelPage.ts'
+        )
+        /* harmony import */ var _crawlNovelPage_InitNovelSeriesPage__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
+          /*! ./crawlNovelPage/InitNovelSeriesPage */ './src/ts/crawlNovelPage/InitNovelSeriesPage.ts'
+        )
+        /* harmony import */ var _crawlNovelPage_InitSearchNovelPage__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(
+          /*! ./crawlNovelPage/InitSearchNovelPage */ './src/ts/crawlNovelPage/InitSearchNovelPage.ts'
+        )
+        /* harmony import */ var _crawlNovelPage_InitRankingNovelPage__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
+          /*! ./crawlNovelPage/InitRankingNovelPage */ './src/ts/crawlNovelPage/InitRankingNovelPage.ts'
+        )
+        /* harmony import */ var _crawlNovelPage_InitBookmarkNewNovelPage__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
+          /*! ./crawlNovelPage/InitBookmarkNewNovelPage */ './src/ts/crawlNovelPage/InitBookmarkNewNovelPage.ts'
+        )
+        /* harmony import */ var _crawlNovelPage_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
+          /*! ./crawlNovelPage/InitNewNovelPage */ './src/ts/crawlNovelPage/InitNewNovelPage.ts'
+        )
+        /* harmony import */ var _crawlArtworkPage_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(
+          /*! ./crawlArtworkPage/InitArtworkSeriesPage */ './src/ts/crawlArtworkPage/InitArtworkSeriesPage.ts'
+        )
+        /* harmony import */ var _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(
+          /*! ./crawlMixedPage/InitFollowingPage */ './src/ts/crawlMixedPage/InitFollowingPage.ts'
+        )
+        // 根据不同的页面，初始化下载器的功能
+
+        class InitPage {
+          constructor() {
+            this.initPage()
+            // 页面类型变化时，初始化抓取流程
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
+                .pageSwitchedTypeChange,
+              () => {
+                setTimeout(() => {
+                  this.initPage()
+                }, 0)
+              }
+            )
+          }
+          initPage() {
+            switch (_PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].type) {
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list.Home:
+                return new _crawlMixedPage_InitHomePage__WEBPACK_IMPORTED_MODULE_2__[
+                  'InitHomePage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .Artwork:
+                return new _crawlArtworkPage_InitArtworkPage__WEBPACK_IMPORTED_MODULE_3__[
+                  'InitArtworkPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .UserHome:
+                return new _crawlMixedPage_InitUserPage__WEBPACK_IMPORTED_MODULE_4__[
+                  'InitUserPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .BookmarkLegacy:
+                return new _crawlMixedPage_InitBookmarkLegacyPage__WEBPACK_IMPORTED_MODULE_5__[
+                  'InitBookmarkLegacyPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .Bookmark:
+                return new _crawlMixedPage_InitBookmarkPage__WEBPACK_IMPORTED_MODULE_6__[
+                  'InitBookmarkPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .ArtworkSearch:
+                return new _crawlArtworkPage_InitSearchArtworkPage__WEBPACK_IMPORTED_MODULE_7__[
+                  'InitSearchArtworkPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .AreaRanking:
+                return new _crawlArtworkPage_InitAreaRankingPage__WEBPACK_IMPORTED_MODULE_8__[
+                  'InitAreaRankingPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .ArtworkRanking:
+                return new _crawlArtworkPage_InitRankingArtworkPage__WEBPACK_IMPORTED_MODULE_9__[
+                  'InitRankingArtworkPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .Pixivision:
+                return new _crawlArtworkPage_InitPixivisionPage__WEBPACK_IMPORTED_MODULE_10__[
+                  'InitPixivisionPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .BookmarkDetail:
+                return new _crawlArtworkPage_InitBookmarkDetailPage__WEBPACK_IMPORTED_MODULE_11__[
+                  'InitBookmarkDetailPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .NewArtworkBookmark:
+                return new _crawlArtworkPage_InitBookmarkNewArtworkPage__WEBPACK_IMPORTED_MODULE_12__[
+                  'InitBookmarkNewArtworkPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .Discover:
+                return new _crawlArtworkPage_InitDiscoverPage__WEBPACK_IMPORTED_MODULE_13__[
+                  'InitDiscoverPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .NewArtwork:
+                return new _crawlArtworkPage_InitNewArtworkPage__WEBPACK_IMPORTED_MODULE_14__[
+                  'InitNewArtworkPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .Novel:
+                return new _crawlNovelPage_InitNovelPage__WEBPACK_IMPORTED_MODULE_15__[
+                  'InitNovelPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .NovelSeries:
+                return new _crawlNovelPage_InitNovelSeriesPage__WEBPACK_IMPORTED_MODULE_16__[
+                  'InitNovelSeriesPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .NovelSearch:
+                return new _crawlNovelPage_InitSearchNovelPage__WEBPACK_IMPORTED_MODULE_17__[
+                  'InitSearchNovelPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .NovelRanking:
+                return new _crawlNovelPage_InitRankingNovelPage__WEBPACK_IMPORTED_MODULE_18__[
+                  'InitRankingNovelPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .NewNovelBookmark:
+                return new _crawlNovelPage_InitBookmarkNewNovelPage__WEBPACK_IMPORTED_MODULE_19__[
+                  'InitBookmarkNewNovelPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .NewNovel:
+                return new _crawlNovelPage_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_20__[
+                  'InitNewNovelPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .ArtworkSeries:
+                return new _crawlArtworkPage_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_21__[
+                  'InitArtworkSeriesPage'
+                ]()
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .Following:
+                return new _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_22__[
+                  'InitFollowingPage'
+                ]()
+              default:
+                return
+            }
+          }
+        }
+        new InitPage()
+
+        /***/
+      },
+
+    /***/ './src/ts/Lang.ts':
+      /*!************************!*\
+  !*** ./src/ts/Lang.ts ***!
+  \************************/
+      /*! exports provided: lang */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'lang',
+          function () {
+            return lang
+          }
+        )
+        /* harmony import */ var _LangText__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./LangText */ './src/ts/LangText.ts'
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./MsgBox */ './src/ts/MsgBox.ts'
+        )
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./config/Config */ './src/ts/config/Config.ts'
+        )
+
+        // 语言类
+        class Lang {
+          constructor() {
+            this.langTypes = ['zh-cn', 'zh-tw', 'en', 'ja']
+            this.flagIndex = new Map([
+              ['zh-cn', 0],
+              ['zh-tw', 1],
+              ['en', 2],
+              ['ja', 3],
+            ])
+            // 读取本地存储的设置
+            const savedSettings = localStorage.getItem(
+              _config_Config__WEBPACK_IMPORTED_MODULE_3__['Config']
+                .settingStoreName
+            )
+            if (savedSettings) {
+              // 有储存的设置
+              const restoreData = JSON.parse(savedSettings)
+              if (this.langTypes.includes(restoreData.userSetLang)) {
+                // 恢复设置里的语言类型
+                this.type = restoreData.userSetLang
+              } else {
+                // 自动获取语言类型
+                this.type = this.getLangType()
+              }
+            } else {
+              // 如果没有储存的设置，则自动获取语言类型
+              this.type = this.getLangType()
+            }
+            this.bindEvents()
+          }
+          bindEvents() {
+            // 因为 Settings 初始化时会触发设置变化事件，所以监听事件即可获取语言设置
+            // 本模块必须在 Settings 之前加载，否则监听不到 Settings 初始化的事件
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.settingChange,
+              (ev) => {
+                const data = ev.detail.data
+                if (data.name !== 'userSetLang') {
+                  return
+                }
+                const old = this.type
+                this.type = this.getType(data.value)
+                if (this.type !== old) {
+                  _MsgBox__WEBPACK_IMPORTED_MODULE_2__['msgBox'].show(
+                    this.transl('_变更语言后刷新页面的提示')
+                  )
+                }
+              }
+            )
+          }
+          getType(flag) {
+            return flag === 'auto' ? this.getLangType() : flag
+          }
+          // 获取页面使用的语言，返回对应的 flag
+          getLangType() {
+            const userLang = document.documentElement.lang
+            switch (userLang) {
+              case 'zh':
+              case 'zh-CN':
+              case 'zh-Hans':
+                return 'zh-cn' // 简体中文
+              case 'ja':
+                return 'ja' // 日本語
+              case 'zh-Hant':
+              case 'zh-tw':
+              case 'zh-TW':
+                return 'zh-tw' // 繁體中文
+              default:
+                return 'en' // English
+            }
+          }
+          // translate 翻译
+          transl(name, ...arg) {
+            let content =
+              _LangText__WEBPACK_IMPORTED_MODULE_0__['langText'][name][
+                this.flagIndex.get(this.type)
+              ]
+            arg.forEach((val) => (content = content.replace('{}', val)))
+            return content
+          }
+        }
+        const lang = new Lang()
+
+        /***/
+      },
+
+    /***/ './src/ts/LangText.ts':
+      /*!****************************!*\
+  !*** ./src/ts/LangText.ts ***!
+  \****************************/
+      /*! exports provided: langText */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'langText',
+          function () {
+            return langText
+          }
+        )
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./config/Config */ './src/ts/config/Config.ts'
+        )
+
+        // 储存下载器使用的多语言文本
+        // 在属性名前面加上下划线，和文本内容做出区别
+        // {} 是占位符
+        // <br> 是换行
+        const langText = {
+          _type: ['cn', 'tw', 'en', 'ja'],
+          _只下载已收藏: [
+            '只下载已收藏',
+            '只下載已收藏',
+            'Download only bookmarked works',
+            'ブックマークのみをダウンロードする',
+          ],
+          _下载作品类型: [
+            '下载作品类型',
+            '下載作品類型',
+            'Download work type',
+            'ダウンロード作品の種類',
+          ],
+          _下载作品类型的提示: [
+            '下载哪些类型的作品',
+            '下載哪些類型的作品。',
+            'Which types of works to download',
+            'どの種類の作品をダウンロードしますか',
+          ],
+          _不能含有tag: [
+            '不能含有 tag&nbsp;',
+            '不能含有 tag&nbsp;',
+            'Exclude specified tag',
+            '指定した tag を除外する',
+          ],
+          _排除tag的提示文字: [
+            '您可在下载前设置要排除的tag，这样在下载时将不会下载含有这些tag的作品。不区分大小写；如需排除多个tag，请使用英文逗号分隔。请注意要排除的tag的优先级大于要包含的tag的优先级。',
+            '可在下載前設定要排除的 tag，下載時將排除含有這些 tag 的作品，不區分大小寫；如需排除多個 tag，請使用半形逗號（,）分隔。請注意，要排除的 tag 優先於要包含的 tag。',
+            'Before downloading, you can set the tag you want to exclude. Not case sensitive; If you need to set multiple tags, you can use comma (,) separated. The excluded tag takes precedence over the included tag',
+            'ダウンロード前に、除外する tag を設定できます。大文字と小文字を区別しない；複数の tag を設定する必要がある場合は、「,」で区切ってください。除外された tag は、必要な tag よりも優先されます',
+          ],
+          _设置了排除tag之后的提示: [
+            '排除 tag：',
+            '排除 tag：',
+            'Excludes tag: ',
+            '以下の tag を除外：',
+          ],
+          _必须含有tag: [
+            '必须含有 tag&nbsp;',
+            '必須含有 tag&nbsp;',
+            'Must contain tag',
+            '必要な tag&nbsp;',
+          ],
+          _必须tag的提示文字: [
+            '您可在下载前设置作品里必须包含的tag，不区分大小写；如需包含多个tag，请使用英文逗号分隔。',
+            '可在下載前設定作品裡必須包含的 tag，不區分大小寫；如需包含多個 tag，請使用半形逗號（,）分隔。',
+            'Before downloading, you can set the tag that must be included. Not case sensitive; If you need to set multiple tags, you can use comma (,) separated. ',
+            'ダウンロードする前に、必要な tag を設定することができます。大文字と小文字を区別しない；複数の tag を設定する必要がある場合は、「,」で区切ってください。',
+          ],
+          _设置了必须tag之后的提示: [
+            '包含 tag：',
+            '包含 tag：',
+            'Include tag: ',
+            '以下の tag を含める：',
+          ],
+          _筛选宽高的按钮文字: [
+            '设置宽高条件',
+            '設定寬高條件',
+            'Set the width and height',
+            '幅と高さの条件を設定する',
+          ],
+          _筛选宽高的按钮Title: [
+            '在下载前，您可以设置要下载的图片的宽高条件。',
+            '在下載前可以設定要下載的圖片的寬高條件。',
+            'Before downloading, you can set the width and height conditions of the images you want to download.',
+            'ダウンロードする前に、画像の幅と高さの条件を設定できます。',
+          ],
+          _设置宽高比例: [
+            '设置宽高比例',
+            '設定寬高比例',
+            'Set the aspect ratio',
+            '縦横比を設定する',
+          ],
+          _设置宽高比例Title: [
+            '设置宽高比例，也可以手动输入宽高比',
+            '設定寬高比，也可以手動輸入寬高比。',
+            'Set the aspect ratio, or manually type the aspect ratio',
+            '縦横比を設定する、手動で縦横比を入力することもできる',
+          ],
+          _不限制: ['不限制', '不限制', 'not limited', '無制限'],
+          _横图: ['横图', '橫圖', 'Horizontal', '横長'],
+          _竖图: ['竖图', '豎圖', 'Vertical', '縦長'],
+          _正方形: ['正方形', '正方形', 'Square', '正方形'],
+          _输入宽高比: [
+            '宽高比 >=',
+            '寬高比 >=',
+            'Aspect ratio >=',
+            '縦横比 >=',
+          ],
+          _设置了宽高比之后的提示: [
+            '宽高比：{}',
+            '寬高比：{}',
+            'Aspect ratio: {}',
+            '縦横比：{}',
+          ],
+          _宽高比必须是数字: [
+            '宽高比必须是数字',
+            '寬高比必須是數字',
+            'The aspect ratio must be a number',
+            '縦横比は数値でなければなりません',
+          ],
+          _筛选宽高的提示文字: [
+            '请输入最小宽度和最小高度，不会下载不符合要求的图片。',
+            '請輸入最小寬度和最小高度，只會下載符合要求的圖片。',
+            'Please type the minimum width and minimum height. Will not download images that do not meet the requirements',
+            '最小幅と最小高さを入力してください。要件を満たしていない画像はダウンロードされません。',
+          ],
+          _本次输入的数值无效: [
+            '本次输入的数值无效',
+            '本次輸入的數值無效',
+            'Invalid input',
+            '無効な入力',
+          ],
+          _宽度: ['宽度', '寬度', 'Width', '幅'],
+          _或者: [' 或者 ', ' 或是 ', ' or ', ' または '],
+          _并且: [' 并且 ', ' 並且 ', ' and ', ' そして '],
+          _高度: ['高度', '高度', 'height', '高さ'],
+          _个数: [
+            '设置作品数量',
+            '設定作品數量',
+            'Set the number of works',
+            '作品数を設定する',
+          ],
+          _页数: [
+            '设置页面数量',
+            '設定頁面數量',
+            'Set the number of pages',
+            'ページ数を設定する',
+          ],
+          _筛选收藏数的按钮文字: [
+            '设置收藏数量',
+            '設定收藏數量',
+            'Set the bookmarkCount conditions',
+            'ブックマークされた数を設定する',
+          ],
+          _筛选收藏数的按钮Title: [
+            '在下载前，您可以设置对收藏数量的要求。',
+            '下載前可以設定對收藏數量的要求。',
+            'Before downloading, You can set the requirements for the number of bookmarks.',
+            'ダウンロードする前に、ブックマークされた数の条件を設定することができます。',
+          ],
+          _设置收藏数量: [
+            '设置收藏数量',
+            '設定收藏數量',
+            'Set the number of bookmarks',
+            'ブックマークされた数を設定する',
+          ],
+          _设置收藏数量的提示: [
+            '如果作品的收藏数小于设置的数字，作品不会被下载。',
+            '只會下載設定收藏數範圍內的作品。',
+            'If the number of bookmarks of the work is less than the set number, the work will not be downloaded.',
+            '作品のブックマークされた数が設定された数字よりも少ない場合、作品はダウンロードされません。',
+          ],
+          _筛选收藏数的提示文字: [
+            '请输入一个数字，如果作品的收藏数小于这个数字，作品不会被下载。',
+            '請輸入數字，只會下載設定收藏數範圍內的作品。',
+            'Please type a number. If the number of bookmarks of the work is less than this number, the work will not be downloaded.',
+            '数字を入力してください。 作品のブックマークされた数がこの数字より少ない場合、作品はダウンロードされません。',
+          ],
+          _收藏数大于: [
+            '收藏数 >= ',
+            '收藏數 >= ',
+            'Number of bookmarks >= ',
+            'ブックマークの数 >= ',
+          ],
+          _收藏数小于: [
+            '收藏数 <= ',
+            '收藏數 <= ',
+            'Number of bookmarks <= ',
+            'ブックマークの数 <= ',
+          ],
+          _本次任务已全部完成: [
+            '本次任务已全部完成。',
+            '本次工作已全部完成',
+            'This task has been completed.',
+            'この作業は完了しました。',
+          ],
+          _本次任务条件: [
+            '本次任务条件: ',
+            '本次工作條件：',
+            'This task condition: ',
+            'この作業の条件：',
+          ],
+          _参数不合法: [
+            '参数不合法，本次操作已取消。',
+            '參數不合法，本次動作已取消。',
+            'Parameter is not legal, this operation has been canceled.',
+            'パラメータは有効ではありません。この操作はキャンセルされました。',
+          ],
+          _向下获取所有作品: [
+            '向下获取所有作品',
+            '向下取得所有作品',
+            'download all the work from this page.',
+            'このページからすべての作品をダウンロードする。',
+          ],
+          _从本页开始下载提示: [
+            '从本页开始下载<br>如果要限制下载的页数，请输入从1开始的数字，1为仅下载本页。',
+            '從本頁開始下載。<br>如果要限制下載的頁數，請輸入從 1 開始的數字，1 為僅下載本頁。',
+            'Download from this page<br>If you want to set the number of pages to download, type a number starting at 1. This page is 1.',
+            'このページからダウンロードする<br>ダウンロードするページを設定する場合は、1から始まる数字を入力してください。 1は現在のページのみをダウンロードする。',
+          ],
+          _下载所有页面: [
+            '下载所有页面',
+            '下載所有頁面',
+            'download all pages',
+            'すべてのページをダウンロードする',
+          ],
+          _下载x个相关作品: [
+            '下载 {} 个相关作品',
+            '下載 {} 個相關作品',
+            'download {} related works.',
+            '関連作品 {} 枚をダウンロードする。',
+          ],
+          _下载所有相关作品: [
+            '下载所有相关作品',
+            '下載所有相關作品',
+            'download all related works.',
+            '関連作品をすべてダウンロードする。',
+          ],
+          _下载推荐作品: [
+            '下载推荐作品',
+            '下載推薦作品',
+            'download recommend works',
+            'お勧め作品をダウンロードする',
+          ],
+          _下载排行榜前x个作品: [
+            '下载排行榜前 {} 个作品',
+            '下載排行榜前 {} 個作品',
+            'download the top {} works in the ranking list',
+            'ランク前 {} 位の作品をダウンロードする。',
+          ],
+          _输入超过了最大值: [
+            '您输入的数字超过了最大值',
+            '輸入的數字超出最大值',
+            'The number you set exceeds the maximum',
+            '入力した番号が最大値を超えています',
+          ],
+          _从本页开始下载x页: [
+            '从本页开始下载 {} 页',
+            '從本頁開始下載 {} 頁',
+            'download {} pages from this page',
+            'このページから {} ページをダウンロードする',
+          ],
+          _从本页开始下载x个: [
+            '从本页开始下载 {} 个作品',
+            '從本頁開始下載 {} 個作品',
+            'Download {} works from this page.',
+            'このページから {} 枚の作品をダウンロード。',
+          ],
+          _任务开始0: [
+            '任务开始',
+            '工作開始',
+            'Task starts',
+            '作業が開始されます',
+          ],
+          _排除作品类型: [
+            '排除作品类型：',
+            '排除作品類型：',
+            'Excludes these types of works: ',
+            'これらのタイプの作品を除外：',
+          ],
+          _多图作品: [
+            '多图作品',
+            '多圖作品',
+            'Multi-image works',
+            'マルチイメージ作品',
+          ],
+          _多图下载设置: [
+            '多图下载设置',
+            '多圖下載設定',
+            'Download multi-image works',
+            'マルチイメージ設定',
+          ],
+          _不下载: ['不下载', '不下載', 'No', '必要なし'],
+          _全部下载: ['全部下载', '全部下載', 'Yes', '全部ダウンロード'],
+          _插画: ['插画', '插畫', 'Illustrations', 'イラスト'],
+          _漫画: ['漫画', '漫畫', 'Manga', '漫画'],
+          _动图: ['动图', '動圖', 'Ugoira', 'うごイラ'],
+          _动图保存格式: [
+            '动图保存格式',
+            '動圖儲存格式',
+            'Save the ugoira work as',
+            'うごイラの保存タイプ',
+          ],
+          _动图保存格式title: [
+            '下载动图时，可以把它转换成视频文件',
+            '下載動圖時，可轉換為影片檔。',
+            'When you download a ugoira work, you can convert it to a video file.',
+            'うごイラをダウンロードするとき、動画に変換することができます。',
+          ],
+          _webmVideo: [
+            'WebM 视频',
+            '影片（WebM）',
+            'WebM video',
+            'WebM ビデオ',
+          ],
+          _gif: ['GIF 图片', '圖片（GIF）', 'GIF picture', 'GIF 画像'],
+          _apng: ['APNG 图片', '圖片（APNG）', 'APNG picture', 'APNG 画像'],
+          _zipFile: ['Zip 文件', '壓縮檔（Zip）', 'Zip file', 'ZIP ファイル'],
+          _当前作品个数: [
+            '当前有 {} 个作品 ',
+            '目前有 {} 個作品 ',
+            'There are now {} works ',
+            '今は　{}　枚の作品があります ',
+          ],
+          _当前有x个用户: [
+            '当前有 {} 个用户 ',
+            '目前有 {} 個使用者 ',
+            'There are currently {} users ',
+            '現在 {} 人のユーザーがいます ',
+          ],
+          _排行榜进度: [
+            '已抓取本页面第{}部分',
+            '已擷取本頁面第 {} 部分',
+            'Part {} of this page has been crawled',
+            'このページの第　{}　部がクロールされました',
+          ],
+          _新作品进度: [
+            '已抓取本页面 {} 个作品',
+            '已擷取本頁面 {} 個作品',
+            'This page has been crawled {} works',
+            'このページの {} つの作品をクロールしました',
+          ],
+          _抓取多少个作品: [
+            '抓取本页面 {} 个作品',
+            '擷取本頁面 {} 個作品',
+            'Crawl this page {} works',
+            'このページの {} つの作品をクロールします',
+          ],
+          _相关作品抓取完毕: [
+            '相关作品抓取完毕。包含有{}个作品，开始获取作品信息。',
+            '相關作品擷取完畢。包含有 {} 個作品，開始取得作品資訊。',
+            'The related works have been crawled. Contains {} works and starts getting information about the work.',
+            '関連作品はクロールされました。 {} 作品を含み、その作品に関する情報の取得を開始します。',
+          ],
+          _排行榜任务完成: [
+            '本页面抓取完毕。<br>当前有{}个作品，开始获取作品信息。',
+            '本頁面擷取完畢。<br>目前有 {} 個作品，開始取得作品資訊。',
+            'This page is crawled and now has {} works.<br> Start getting the works for more information.',
+            'このページのクロール終了。<br>{}枚の作品があります。 作品情報の取得を開始します。',
+          ],
+          _开始获取作品信息: [
+            '开始获取作品信息',
+            '開始取得作品資訊',
+            'Start getting work data',
+            '作品情報の取得を開始します',
+          ],
+          _列表页抓取进度: [
+            '已抓取列表页{}个页面',
+            '已擷取清單頁 {} 個頁面',
+            'Has acquired {} list pages',
+            '{} のリストページを取得しました',
+          ],
+          _列表页抓取完成: [
+            '列表页面抓取完成',
+            '清單頁面擷取完成',
+            'The list page is crawled',
+            'リストページがクロールされ',
+          ],
+          _抓取结果为零: [
+            '抓取完毕，但没有找到符合筛选条件的作品。',
+            '擷取完畢，但沒有找到符合篩選條件的作品。',
+            'Crawl finished but did not find works that match the filter criteria.',
+            'クロールは終了しましたが、フィルタ条件に一致する作品が見つかりませんでした。',
+          ],
+          _当前任务尚未完成: [
+            '当前任务尚未完成',
+            '目前工作尚未完成',
+            'The current task has not yet been completed',
+            '現在の作業はまだ完了していません',
+          ],
+          _当前任务尚未完成2: [
+            '当前任务尚未完成，请等待完成后再下载。',
+            '目前工作尚未完成，請等待完成後再下載。',
+            'The current task has not yet been completed',
+            '現在の作業はまだ完了していません、完了するまでお待ちください',
+          ],
+          _列表抓取完成开始获取作品页: [
+            '当前列表中有{}张作品，开始获取作品信息',
+            '目前清單中有 {} 張作品，開始取得作品資訊',
+            'Now has {} works. Start getting the works for more information.',
+            '{} 枚の作品があります。 作品情報の取得を開始します。',
+          ],
+          _开始获取作品页面: [
+            '开始获取作品页面',
+            '開始取得作品頁面',
+            'Start getting the works page',
+            '作品ページの取得を開始する',
+          ],
+          _无权访问: [
+            '无权访问 {}，跳过该作品。',
+            '沒有權限存取 {}，跳過該作品。',
+            'No access {}, skip.',
+            '{} のアクセス権限がありません、作品を無視する。',
+          ],
+          _作品页状态码0: [
+            '请求的url不可访问',
+            '要求的 url 無法存取',
+            'The requested url is not accessible',
+            '要求された URL にアクセスできません',
+          ],
+          _作品页状态码400: [
+            '该作品已被删除',
+            '該作品已被刪除',
+            'The work has been deleted',
+            '作品は削除されました',
+          ],
+          _作品页状态码403: [
+            '无权访问请求的url 403',
+            '沒有權限存取要求的 url 403',
+            'Have no access to the requested url 403',
+            'リクエストされた url にアクセスできない 403',
+          ],
+          _作品页状态码404: [
+            '404 not found',
+            '404 not found',
+            '404 not found',
+            '404 not found',
+          ],
+          _正在抓取: [
+            '正在抓取，请等待……',
+            '擷取中，請稍後……',
+            'Getting, please wait...',
+            'クロール中、しばらくお待ちください...',
+          ],
+          _获取全部书签作品: [
+            '获取全部书签作品，时间可能比较长，请耐心等待。',
+            '取得全部書籤作品，時間可能比較長，請耐心等待。',
+            'Get all bookmarked works, the time may be longer, please wait.',
+            'ブックマークしたすべての作品を取得すると、時間がかかることがあります。お待ちください。',
+          ],
+          _抓取图片网址遇到中断: [
+            '当前任务已中断!',
+            '目前工作已中斷！',
+            'The current task has been interrupted.',
+            '現在の作業が中断されました。',
+          ],
+          _关闭: ['关闭', '關閉', 'close', 'クローズ'],
+          _输出信息: ['输出信息', '輸出資訊', 'Output information', '出力情報'],
+          _复制: ['复制', '複製', 'Copy', 'コピー'],
+          _已复制到剪贴板: [
+            '已复制到剪贴板，可直接粘贴',
+            '已複製至剪貼簿，可直接貼上',
+            'Has been copied to the clipboard',
+            'クリップボードにコピーされました',
+          ],
+          _下载设置: [
+            '下载设置',
+            '下載設定',
+            'Download settings',
+            'ダウンロード設定',
+          ],
+          _收起展开设置项: [
+            '收起/展开设置项',
+            '摺疊/展開設定項目',
+            'Collapse/expand settings',
+            '設定の折りたたみ/展開',
+          ],
+          _github: [
+            'Github 页面，欢迎 star',
+            'Github 頁面，歡迎 star',
+            'Github page, if you like, please star it',
+            'Github のページ、star をクリックしてください',
+          ],
+          _wiki: ['使用手册', 'Wiki', 'Wiki', 'マニュアル'],
+          _快捷键切换显示隐藏: [
+            '使用 Alt + X，可以显示和隐藏下载面板',
+            'Alt + X 可以顯示或隱藏下載面板。',
+            'Use Alt + X to show and hide the download panel',
+            'Alt + X てダウンロードパネルを表示および非表示にする',
+          ],
+          _隐藏下载面板: [
+            '隐藏下载面板（Alt + X）',
+            '隱藏下載面板（Alt + X）',
+            'Hide the download panel (Alt + X)',
+            'ダウンロードパネルを非表示にする（Alt + X）',
+          ],
+          _共抓取到n个文件: [
+            '共抓取到 {} 个文件',
+            '共擷取到 {} 個檔案',
+            'Crawl a total of {} files',
+            '合計 {} つのファイルがあります',
+          ],
+          _共抓取到n个作品: [
+            '共抓取到 {} 个作品',
+            '共擷取到 {} 個作品',
+            'Crawl a total of {} works',
+            '合計 {} つの作品があります',
+          ],
+          _命名规则: ['命名规则', '命名規則', 'Naming rule', '命名規則'],
+          _设置文件夹名的提示: [
+            "可以使用 '/' 建立文件夹。示例：",
+            '可以使用斜線（/）建立資料夾。範例：',
+            "You can create a directory with '/'. Example：",
+            "フォルダーは '/' で作成できます。例：",
+          ],
+          _添加命名标记前缀: [
+            '添加命名标记前缀',
+            '加入命名標記前綴',
+            'Add named tag prefix',
+            '前に tag の名前を追加',
+          ],
+          _添加字段名称提示: [
+            `例如，在用户名前面添加“user_”标记`,
+            '例如，在使用者名稱前面加入「user_」標記。',
+            `For example, add the 'user_' tag in front of the username`,
+            'たとえば、ユーザー名の前に 「user_」 tag を追加します。',
+          ],
+          _查看标记的含义: [
+            '查看标记的含义',
+            '檢視標記的意義',
+            'View the meaning of the tag',
+            'tag の意味を表示する',
+          ],
+          _命名标记id: [
+            '默认文件名，如 44920385_p0',
+            '預設檔案名稱，例如：44920385_p0。',
+            'Default file name, for example 44920385_p0',
+            'デフォルトのファイル名，例 44920385_p0',
+          ],
+          _命名标记title: [
+            '作品标题',
+            '作品標題',
+            'Works title',
+            '作品のタイトル',
+          ],
+          _命名标记tags: [
+            '作品的 tag 列表',
+            '作品的 tag 清單',
+            'The tags of the work',
+            '作品の tags',
+          ],
+          _命名标记user: ['用户名字', '使用者名稱', 'User name', 'ユーザー名'],
+          _用户id: ['用户 ID', '使用者 ID', 'User ID', 'ユーザー ID'],
+          _命名标记px: [
+            '宽度和高度',
+            '寬度和高度',
+            'Width and height',
+            '幅と高さ',
+          ],
+          _命名标记bmk: [
+            'Bookmark count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
+            'Bookmark count，作品的收藏數。將它放在最前面可以讓檔案依收藏數排序。',
+            'Bookmark count, bookmarks number of works.',
+            'Bookmark count，作品のボックマークの数、前に追加することでボックマーク数で并べることができます。',
+          ],
+          _命名标记like: [
+            'Like count，作品的点赞数。',
+            'Like count，作品的點讚數。',
+            'Like count.',
+            'Like count。',
+          ],
+          _命名标记view: [
+            'View count，作品的浏览量。',
+            'View count，作品的瀏覽量。',
+            'View count.',
+            'View count。',
+          ],
+          _命名标记id_num: [
+            '数字 id，如 44920385',
+            '數字 id，例如：44920385。',
+            'Number id, for example 44920385',
+            '44920385 などの番号 ID',
+          ],
+          _命名标记p_num: [
+            '图片在作品内的序号，如 0、1、2 …… 每个作品都会重新计数。',
+            '圖片在作品內的序號，例如：0、1、2……每個作品都將重新計數。',
+            'The serial number of the picture in the work, such as 0, 1, 2 ... Each work will be recounted.',
+            '0、1、2 など、作品の画像のシリアル番号。各ピースは再集計されます。',
+          ],
+          _命名标记tags_trans: [
+            '作品的 tag 列表，附带翻译后的 tag（如果有）',
+            '作品的 tag 清單，包含翻譯後的 tag（如果有的話）。',
+            'The tags of the work, with the translated tag (if any)',
+            '作品の tag リスト、翻訳付き tag (あれば)',
+          ],
+          _命名标记tags_transl_only: [
+            '翻译后的 tag 列表',
+            '譯後的 tag 清單。',
+            'Translated tags',
+            '翻訳后の tag リスト',
+          ],
+          _命名标记date: [
+            '作品的创建时间。如 2019-08-29',
+            '作品的建立時間。例如：2019-08-29。',
+            'The time the creation of the work. Such as 2019-08-29',
+            '作品の作成時間。例 2019-08-29',
+          ],
+          _命名标记rank: [
+            '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜页面中使用。',
+            '作品在排行榜中的排名。例如：#1、#2……只能在排行榜頁面中使用。',
+            'The ranking of the work in the ranking pages. Such as #1, #2 ... Can only be used in ranking pages.',
+            '作品のランキング。例え　#1、#2 …… ランキングページのみで使用できます。',
+          ],
+          _命名标记type: [
+            '作品类型，分为',
+            '作品類型，分為',
+            'The type of work, divided into',
+            '作品分類は',
+          ],
+          _命名标记提醒: [
+            '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}<br>* 在某些情况下，会有一些标记不可用。',
+            '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{userid}<br><br>＊某些情況下有些標記無法使用。',
+            'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}<br>* In some cases, some tags will not be available.',
+            'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{userid}<br>* 場合によっては、一部の tag が利用できず。',
+          ],
+          _命名规则一定要包含id: [
+            '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}',
+            '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。',
+            'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.',
+            'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。',
+          ],
+          _文件夹标记PTag: [
+            '当前页面的 tag。当前页面没有 tag 时不可用。',
+            '目前頁面的 tag。目前頁面沒有 tag 時無法使用。',
+            'The tag of the current page. Not available if the current page has no tag.',
+            '現在のページの tag。現在のページの tag がないときは使用できません。',
+          ],
+          _命名标记seriesTitle: [
+            '系列标题（可能为空）',
+            '系列標題（可能為空）',
+            'Series title (may be empty)',
+            'シリーズタイトル（あれば）',
+          ],
+          _命名标记seriesOrder: [
+            '作品在系列中的序号，如 #1 #2',
+            '作品在系列中的編號，如 #1 #2',
+            'The number of the work in the series, such as #1 #2',
+            'シリーズの中の作品の番号，例え #1 #2',
+          ],
+          _文件夹标记PTitle: [
+            '当前页面的标题',
+            '目前頁面的標題',
+            'The title of this page',
+            'ページのタイトル',
+          ],
+          _预览文件名: [
+            '预览文件名',
+            '預覽檔案名稱',
+            'Preview file name',
+            'ファイル名のプレビュー',
+          ],
+          _设置下载线程: [
+            '设置下载线程',
+            '設定下載執行緒',
+            'Set the download thread',
+            'ダウンロードスレッドを設定する',
+          ],
+          _线程数字: [
+            `可以输入 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__['Config'].downloadThreadMax} 之间的数字，设置同时下载的数量`,
+            `可以輸入 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__['Config'].downloadThreadMax} 之間的數字，設定同時下載的數量。`,
+            `You can type a number between 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__['Config'].downloadThreadMax} to set the number of concurrent downloads`,
+            `同時ダウンロード数を設定、1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__['Config'].downloadThreadMax} の数値を入力してください`,
+          ],
+          _开始下载: [
+            '开始下载',
+            '開始下載',
+            'start download',
+            'ダウンロードを開始',
+          ],
+          _暂停下载: [
+            '暂停下载',
+            '暫停下載',
+            'pause download',
+            'ダウンロードを一時停止',
+          ],
+          _停止下载: [
+            '停止下载',
+            '停止下載',
+            'stop download',
+            'ダウンロードを停止',
+          ],
+          _复制url: ['复制 url', '複製下載網址', 'copy urls', 'URL をコピー'],
+          _当前状态: ['当前状态 ', '目前狀態：', 'State ', '現在の状態 '],
+          _未开始下载: [
+            '未开始下载',
+            '未開始下載',
+            'Not yet started downloading',
+            'まだダウンロードを開始していません',
+          ],
+          _下载进度: [
+            '下载进度：',
+            '下載進度：',
+            'Total progress: ',
+            'ダウンロードの進行状況：',
+          ],
+          _下载线程: ['下载线程：', '下載執行緒：', 'Thread: ', 'スレッド：'],
+          _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問'],
+          _uuid: [
+            '如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。',
+            '如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。',
+            'If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.',
+            'ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
+          ],
+          _下载说明: [
+            '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br><br>QQ群：1160156511',
+            '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。',
+            'The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.',
+            'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
+          ],
+          _下载说明提示2: [
+            '下载的文件保存在浏览器的下载目录里。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。',
+            '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。',
+            'The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.',
+            'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。',
+          ],
+          _正在下载中: [
+            '正在下载中',
+            '正在下載',
+            'Downloading',
+            'ダウンロード中',
+          ],
+          _下载完毕: [
+            '✓ 下载完毕',
+            '✓ 下載完畢',
+            '✓ Download finished',
+            '✓ ダウンロードが完了しました',
+          ],
+          _下载完毕2: [
+            '下载完毕',
+            '下載完畢',
+            'Download finished',
+            'ダウンロードが完了しました',
+          ],
+          _已暂停: [
+            '下载已暂停',
+            '下載已暫停',
+            'Download is paused',
+            'ダウンロードは一時停止中です',
+          ],
+          _已停止: [
+            '下载已停止',
+            '下載已停止',
+            'Download stopped',
+            'ダウンロードが停止しました',
+          ],
+          _已下载: ['已下载', '已下載', 'downloaded', 'downloaded'],
+          _抓取完毕: [
+            '抓取完毕！',
+            '擷取完畢！',
+            'Crawl finished!',
+            'クロールが終了しました！',
+          ],
+          _快速下载本页: [
+            '快速下载本页作品',
+            '快速下載本頁作品',
+            'Download this work quickly',
+            'この作品をすばやくダウンロードする',
+          ],
+          _从本页开始抓取new: [
+            '从本页开始抓取新作品',
+            '從本頁開始擷取新作品',
+            'Crawl the new works from this page',
+            'このページから新しい作品を入手する',
+          ],
+          _从本页开始抓取old: [
+            '从本页开始抓取旧作品',
+            '從本頁開始擷取舊作品',
+            'Crawl the old works from this page',
+            'このページから古い作品を入手する',
+          ],
+          _抓取推荐作品: [
+            '抓取推荐作品',
+            '擷取推薦作品',
+            'Crawl the recommend works',
+            '推奨作品をダウンロードする',
+          ],
+          _抓取推荐作品Title: [
+            '抓取页面底部的的推荐作品',
+            '擷取頁面底部的推薦作品。',
+            'Crawl the recommended works at the bottom of the page',
+            'ページの下部で推奨作品をクロールします',
+          ],
+          _抓取相关作品: [
+            '抓取相关作品',
+            '擷取相關作品',
+            'Crawl the related works',
+            '関連作品をダウンロードする',
+          ],
+          _相关作品大于0: [
+            ' （下载相关作品必须大于 0）',
+            ' （下載相關作品必須大於 0）',
+            '  (Download related works must be greater than 0)',
+            ' 「ダウンロードする関連作品の数は0より大きくなければならない」',
+          ],
+          _默认下载多页: [
+            ', 如有多页，默认会下载全部。',
+            '，如有多頁，預設會下載全部。',
+            ', If there are multiple pages, the default will be downloaded.',
+            '、複数のページがある場合、デフォルトですべてをダウンロードされます。',
+          ],
+          _调整完毕: [
+            '调整完毕，当前有{}个作品。',
+            '調整完畢，目前有 {} 個作品。',
+            'The adjustment is complete and now has {} works.',
+            '調整が完了し、今、{} の作品があります。',
+          ],
+          _抓取当前作品: [
+            '抓取当前作品',
+            '擷取目前作品',
+            'Crawl the current work',
+            '現在の作品をクロールする',
+          ],
+          _抓取当前作品Title: [
+            '抓取当前列表里的所有作品',
+            '擷取目前清單裡的所有作品',
+            'Crawl all the works in the current list',
+            '現在のリスト内のすべての作品をクロールする',
+          ],
+          _清除多图作品: [
+            '清除多图作品',
+            '清除多圖作品',
+            'Remove multi-drawing works',
+            '複数の作品を削除する',
+          ],
+          _清除多图作品Title: [
+            '如果不需要可以清除多图作品',
+            '如果不需要可以清除多圖作品。',
+            'If you do not need it, you can delete multiple graphs',
+            '必要がない場合は、複数のグラフを削除することができます',
+          ],
+          _清除动图作品: [
+            '清除动图作品',
+            '清除動圖作品',
+            'Remove ugoira work',
+            'うごイラ作品を削除する',
+          ],
+          _清除动图作品Title: [
+            '如果不需要可以清除动图作品',
+            '如果不需要可以清除動圖作品。',
+            'If you do not need it, you can delete the ugoira work',
+            '必要がない場合は、うごイラを削除することができます',
+          ],
+          _手动删除作品: [
+            '手动删除作品',
+            '手動刪除作品',
+            'Manually delete the work',
+            '作品を手動で削除する',
+          ],
+          _手动删除作品Title: [
+            '可以在下载前手动删除不需要的作品',
+            '可以在下載前手動刪除不需要的作品，點擊作品刪除。',
+            'You can manually delete unwanted work before downloading',
+            'ダウンロードする前に不要な作品を手動で削除することができます',
+          ],
+          _退出手动删除: [
+            '退出手动删除',
+            '結束手動刪除',
+            'Exit manually delete',
+            '削除モードを終了する',
+          ],
+          _抓取本页作品: [
+            '抓取本页作品',
+            '擷取本頁作品',
+            'Crawl this page works',
+            'このページをクロールする',
+          ],
+          _抓取本页作品Title: [
+            '抓取本页列表中的所有作品',
+            '擷取本頁清單中的所有作品',
+            'Crawl this page works',
+            'このページの全ての作品をクロールする',
+          ],
+          _抓取本排行榜作品: [
+            '抓取本排行榜作品',
+            '擷取本排行榜作品',
+            'Crawl the works in this list',
+            'このリストの作品をクロールする',
+          ],
+          _抓取本排行榜作品Title: [
+            '抓取本排行榜的所有作品，包括现在尚未加载出来的。',
+            '擷取本排行榜的所有作品，包括現在尚未載入出來的。',
+            'Crawl all of the works in this list, including those that are not yet loaded.',
+            'まだ読み込まれていないものを含めて、このリストの作品をダウンロードする',
+          ],
+          _抓取首次登场的作品: [
+            '抓取首次登场作品',
+            '擷取首次登場作品',
+            'Crawl the debut works',
+            '初登場作品をダウンロードする',
+          ],
+          _抓取首次登场的作品Title: [
+            '只下载首次登场的作品',
+            '只下載首次登場的作品',
+            'Download only debut works',
+            '初登場作品のみダウンロードします',
+          ],
+          _抓取该页面的图片: [
+            '抓取该页面的图片',
+            '擷取該頁面的圖片',
+            'Crawl the picture of the page',
+            'ページの画像をクロールする',
+          ],
+          _抓取相似图片: [
+            '抓取相似图片',
+            '擷取相似圖片',
+            'Crawl similar works',
+            '類似の作品をクロールする',
+          ],
+          _想要获取多少个作品: [
+            '您想要获取多少个作品？',
+            '想要取得多少個作品？',
+            'How many works do you want to download?',
+            'いくつの作品をダウンロードしたいですか？',
+          ],
+          _数字提示1: [
+            '-1, 或者大于 0',
+            '-1 或是大於 0',
+            '-1, or greater than 0',
+            '-1、または 0 より大きい',
+          ],
+          _下载大家的新作品: [
+            '下载大家的新作品',
+            '下載大家的新作品',
+            'Download everyone`s new work',
+            'みんなの新作をダウンロードする',
+          ],
+          _屏蔽设定: ['屏蔽設定', '封鎖設定', 'Mute settings', 'ミュート設定'],
+          _举报: ['举报', '回報', 'Report', '報告'],
+          _输入id进行抓取: [
+            '输入 id 进行抓取',
+            '輸入 id 進行擷取',
+            'Type id to crawl',
+            'idを入力してダウンロードする',
+          ],
+          _输入id进行抓取的提示文字: [
+            '请输入作品 id。如果有多个 id，则以换行分割（即每行一个id）',
+            '請輸入作品 id。如果有多個 id，則以換行分隔（即每行一個 id）。',
+            'Please type the illustration id. If there is more than one id, one id per line.',
+            'イラストレーターIDを入力してください。 複数の id がある場合は、1 行に 1 つの id を付けます。',
+          ],
+          _开始抓取: [
+            '开始抓取',
+            '開始擷取',
+            'Start crawl',
+            'クロールを開始する',
+          ],
+          _给未分类作品添加添加tag: [
+            '给未分类作品添加 tag',
+            '幫未分類的作品加入 tag',
+            'Add tag to unclassified work',
+            '未分類の作品に tag を追加',
+          ],
+          _id不合法: ['id不合法', 'id 不合法', 'id is illegal', 'id が不正な'],
+          _快速收藏: [
+            '快速收藏',
+            '快速收藏',
+            'Quick bookmarks',
+            'クイックブックマーク',
+          ],
+          _启用: ['启用', '啟用', 'Enable', '有効にする'],
+          _自动开始下载: [
+            '自动开始下载',
+            '自動開始下載',
+            'Download starts automatically',
+            'ダウンロードは自動的に開始されます',
+          ],
+          _快速下载的提示: [
+            '当“开始下载”状态可用时，自动开始下载，不需要点击下载按钮。',
+            '當可下載時自動開始下載，不需要點選下載按鈕。',
+            'When the &quot;Start Downloa&quot; status is available, the download starts automatically and no need to click the download button.',
+            '「ダウンロードを開始する」ステータスが利用可能になると、ダウンロードは自動的に開始され、ダウンロードボタンをクリックする必要はありません。',
+          ],
+          _转换任务提示: [
+            '正在转换 {} 个文件',
+            '正在轉換 {} 個檔案',
+            'Converting {} files',
+            '{} ファイルの変換',
+          ],
+          _最近更新: ['最近更新', '最近更新', 'What`s new', '最近更新する'],
+          _确定: ['确定', '確定', 'Ok', '確定'],
+          _file404: [
+            '404 错误：文件 {} 不存在。',
+            '404 錯誤：檔案 {} 不存在。',
+            '404 error: File {} does not exist.',
+            '404 エラー：ファイル {} は存在しません。',
+          ],
+          _文件下载失败: [
+            '文件 {} 下载失败',
+            '檔案 {} 下載失敗',
+            'File {} download failed',
+            'ファイル {} のダウンロードを失敗しました',
+          ],
+          _是否重置设置: [
+            '是否重置设置？',
+            '確定要重設設定嗎？',
+            'Do you want to reset the settings?',
+            '設定をリセットしますか？',
+          ],
+          _newver: [
+            '有新版本可用',
+            '有新版本可更新',
+            'A new version is available',
+            '新しいバージョンがあります',
+          ],
+          _快速下载建立文件夹: [
+            '快速下载时，始终创建文件夹',
+            '快速下載時，始終建立資料夾',
+            'Always create folder when downloading quickly',
+            'クイックダウンロード時、常にフォルダを作成します',
+          ],
+          _快速下载建立文件夹提示: [
+            '快速下载时，如果只有一张图片，也会建立文件夹',
+            '快速下載時，若只有一張圖片，也會建立資料夾',
+            'When downloading quickly, if there is only one picture, a folder is also created',
+            'すばやくダウンロードとき、イラストが一枚だけでも、フォルダも作成されます',
+          ],
+          _设置id范围: [
+            '设置 id 范围',
+            '設定 id 範圍',
+            'Set id range',
+            'id 範囲を設定',
+          ],
+          _设置id范围提示: [
+            '您可以输入一个作品 id，抓取比它新或者比它旧的作品',
+            '可以輸入一個作品 id，擷取比它新或者比它舊的作品。',
+            'You can type a work id and crawl works that are newer or older than it',
+            '1 つの作品 id を入力することで、それより新しいあるいは古い作品をクロールことができます',
+          ],
+          _大于: ['大于', '大於', 'Bigger than', 'より大きい'],
+          _小于: ['小于', '小於', 'Less than', 'より小さい'],
+          _设置投稿时间: [
+            '设置投稿时间',
+            '設定投稿時間',
+            'Set posting date',
+            '投稿日時を設定する',
+          ],
+          _设置投稿时间提示: [
+            '您可以下载指定时间内发布的作品',
+            '可以下載指定時間內發布的作品。',
+            'You can download works posted in a specified period of time',
+            '指定された時間内に配信された作品をダウンロードすることができます',
+          ],
+          _时间范围: ['时间范围', '時間範圍', 'Time range', '時間範囲'],
+          _必须大于0: [
+            '必须大于 0',
+            '必須大於 0',
+            'must be greater than 0',
+            '0 より大きくなければなりません',
+          ],
+          _开始筛选: [
+            '开始筛选',
+            '開始篩選',
+            'Start screening',
+            'スクリーニング開始',
+          ],
+          _开始筛选Title: [
+            '按照设置来筛选当前 tag 里的作品。',
+            '按照設定來篩選目前 tag 裡的作品。',
+            'Screen the works in the current tag.',
+            '現在の tag にある作品を設定によってスクリーニングする',
+          ],
+          _在结果中筛选: [
+            '在结果中筛选',
+            '在結果中篩選',
+            'Screen in results',
+            '結果の中からスクリーニング',
+          ],
+          _在结果中筛选Title: [
+            '您可以改变设置，并在结果中再次筛选。',
+            '可以變更設定，並在結果中再次篩選。',
+            'You can change the settings and screen again in the results.',
+            '設定を変えて、結果の中で再びスクリーニングすることができます。',
+          ],
+          _抓取筛选结果: [
+            '抓取筛选结果',
+            '擷取篩選結果',
+            'Crawl the screening results',
+            'スクリーニングの結果をクロールする',
+          ],
+          _尚未开始筛选: [
+            '尚未开始筛选',
+            '尚未開始篩選',
+            'Screening has not started',
+            'まだスクリーニングを開始していない',
+          ],
+          _没有数据可供使用: [
+            '没有数据可供使用',
+            '沒有資料可供使用',
+            'No data is available.',
+            '使用可能なデータはない',
+          ],
+          _预览搜索结果: [
+            '预览搜索页面的筛选结果',
+            '預覽搜尋頁面的篩選結果',
+            'Preview filter results on search page',
+            '検索ページのフィルタ結果をプレビューします',
+          ],
+          _预览搜索结果说明: [
+            '下载器可以把符合条件的作品显示在当前页面上。如果抓取结果太多导致页面崩溃，请关闭这个功能。<br>启用预览功能时，下载器不会自动开始下载。',
+            '下載器可以將符合條件的作品顯示在目前頁面上。如果擷取結果太多導致頁面當掉，請關閉這個功能。<br>啟用預覽功能時，下載器不會自動開始下載。',
+            'The downloader can display the qualified works on the current page. If too many crawling results cause the page to crash, turn off this feature.<br>When the preview feature is enabled, the downloader does not start downloading automatically.',
+            'ローダは、該当する作品を現在のページに表示することができます。クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。<br>プレビュー機能を有効にすると、ダウンロードは自動的に開始されません。',
+          ],
+          _目录名使用: [
+            '目录名使用：',
+            '資料夾名稱使用：',
+            'Name: ',
+            'ディレクトリ名の使用：',
+          ],
+          _目录名: ['目录名：', '資料夾名稱：', 'Name: ', 'ディレクトリ名：'],
+          _启用快速收藏: [
+            '启用快速收藏',
+            '開啟快速收藏',
+            'Enable quick bookmark',
+            'クイックボックマークを有効にする',
+          ],
+          _启用快速收藏说明: [
+            '当你点击下载器添加的收藏按钮(☆)，把作品添加到书签时，自动添加这个作品的 tag。',
+            '當點選下載器新增的收藏按鈕（☆），將作品加入書籤時，自動新增這個作品的 tag。',
+            'When you click the favorite button (☆) added by the downloader to bookmark a work, the tag of the work is automatically added.',
+            'ダウンローダーに追加されたボックマークボタン「☆」をクリックして、作品をブックマークに追加すると、自動的に作品の tag が追加されます。',
+          ],
+          _新增设置项: [
+            '新增设置项',
+            '新增設定項目',
+            'Added setting items',
+            '新たな機能を追加されました',
+          ],
+          _抓取: ['抓取', '擷取', 'Crawl', 'クロール'],
+          _下载: ['下载', '下載', 'Download', 'ダウンロード'],
+          _其他: ['其他', '其他', 'Other', 'その他'],
+          _第一张图不带序号: [
+            '第一张图不带序号',
+            '第一張圖片不包含序號',
+            'The first picture without a serial number',
+            '最初のイメージの番号を削除します',
+          ],
+          _第一张图不带序号说明: [
+            '去掉每个作品第一张图的序号。例如 80036479_p0 变成 80036479',
+            '去掉每個作品第一張圖的序號。例如：80036479_p0 變成 80036479。',
+            'Remove the serial number of the first picture of each work. For example 80036479_p0 becomes 80036479.',
+            '作品ごとの最初のイメージの番号を削除します。例えば 80036479_p0 は 80036479 になります。',
+          ],
+          _最小值: ['最小值', '最小值', 'Minimum', '最小値'],
+          _最大值: ['最大值', '最大值', 'Maximum', '最大値'],
+          _单图作品: [
+            '单图作品',
+            '單圖作品',
+            'Single image works',
+            'シングルイメージ作品',
+          ],
+          _彩色图片: [
+            '彩色图片',
+            '彩色圖片',
+            'Color picture',
+            'カラーイメージ',
+          ],
+          _黑白图片: [
+            '黑白图片',
+            '黑白圖片',
+            'Black and white pictures',
+            '白黒イメージ',
+          ],
+          _不保存图片因为颜色: [
+            '{} 没有被保存，因为它的颜色不符合设定。',
+            '{} 並未儲存，因為它的色彩不符合設定。',
+            '{} was not saved because its colors do not match the settings.',
+            '{} は色が設定に合わないため、保存されていません。',
+          ],
+          _同时转换多少个动图: [
+            '同时转换多少个动图',
+            '同時轉換多少個動圖',
+            'How many animations are converted at the same time',
+            '同時変換のうごイラの上限',
+          ],
+          _同时转换多少个动图警告: [
+            '同时转换多个动图会增加资源占用。<br>转换动图时，请保持该标签页激活，否则浏览器会降低转换速度。',
+            '同時轉換多個動圖會增加資源占用。<br>轉換動圖時，請保持這個分頁啟動，否則瀏覽器會降低轉換速度。',
+            'Converting multiple animations at the same time will increase resource consumption. <br> Please keep the tab active when converting animation, otherwise the browser will reduce the conversion speed.',
+            '複数の動画を同時に変換すると、リソースの占有が増加します。<br>うごイラを変換するときは、このタブを有効にしてください。そうしないと、ブラウザは変換速度を下げます。',
+          ],
+          _提示: ['提示', '提示', 'tip', 'ヒント'],
+          _fanboxDownloader: [
+            'Fanbox 下载器',
+            'Fanbox 下載器',
+            'Fanbox Downloader',
+            'Fanbox ダウンロード',
+          ],
+          _不保存图片因为体积: [
+            '{} 没有被保存，因为它的体积不符合设定。',
+            '{} 並未儲存，因為它的大小不符合設定。',
+            '{} was not saved because its size do not match the settings.',
+            '{} はファイルサイズが設定に合わないため、保存されていません。',
+          ],
+          _文件体积限制: [
+            '文件体积限制',
+            '檔案體積限制',
+            'File size limit',
+            'ファイルサイズ制限',
+          ],
+          _不符合要求的文件不会被保存: [
+            '不符合要求的文件不会被保存。',
+            '不會儲存不符合要求的檔案。',
+            'Files that do not meet the requirements will not be saved.',
+            '設定 に合わないファイルは保存されません。',
+          ],
+          _小说: ['小说', '小說', 'Novel', '小説'],
+          _抓取系列小说: [
+            '抓取系列小说',
+            '擷取系列小說',
+            'Crawl series of novels',
+            '小説のシリーズをクロールする',
+          ],
+          _合并系列小说: [
+            '合并系列小说',
+            '合併系列小說',
+            'Merge series of novels',
+            'シリーズ小説の統合',
+          ],
+          _小说保存格式: [
+            '小说保存格式',
+            '小說儲存格式',
+            'Save the novel as',
+            '小説の保存形式',
+          ],
+          _在小说里保存元数据: [
+            '在小说里保存元数据',
+            '將元資料（metadata）儲存在小說裡',
+            'Save metadata in the novel',
+            '小説の中にメタデータを保存する',
+          ],
+          _在小说里保存元数据提示: [
+            '把作者、网址等信息保存到小說里',
+            '將作者、網址等資訊儲存到小說裡',
+            'Save the author, url and other information in the file',
+            '作者やURLなどの情報をファイルの中に保存します。',
+          ],
+          _收藏本页面的所有作品: [
+            '收藏本页面的所有作品',
+            '收藏本頁面的所有作品',
+            'Bookmark all works on this page',
+            'この頁の全ての作品をブックマークに追加します',
+          ],
+          _输出内容太多已经为你保存到文件: [
+            '因为输出内容太多，已经为您保存到文件。',
+            '因為輸出內容太多，已經為你儲存到檔案。',
+            'Because the output is too much, it has been saved to a file.',
+            '出力内容が多いため、txt ファイルに保存しました。',
+          ],
+          _不下载重复文件: [
+            '不下载重复文件',
+            '不下載重複檔案',
+            'Don`t download duplicate files',
+            '重複ファイルをダウンロードしない',
+          ],
+          _不下载重复文件的提示: [
+            '下载器会保存自己的下载记录，以避免下载重复的文件。<br>当你清除 Cookie 和其他站点数据时，下载器的记录也会被清除。',
+            '下載器會儲存自己的下載紀錄，以避免下載重複的檔案。<br>當你清除 Cookie 和其他站點資料時，下載器的紀錄也會被清除。',
+            `The downloader will save its download record to avoid downloading duplicate files.<br>When you clear cookies and other site data, the downloader's records will also be cleared.`,
+            'ダウンローダーは独自のダウンロード履歴を保存して、重複ファイルのダウンロードを回避する。<br>cookie と他のサイトデータを削除すると、ダウンローダーの記録も削除されます。',
+          ],
+          _策略: ['策略：', '策略：', 'Strategy:', 'フィルター：'],
+          _严格: ['严格', '嚴格', 'Strict', '厳格'],
+          _宽松: ['宽松', '寬鬆', 'Loose', '緩い'],
+          _严格模式说明: [
+            '当文件的 id 和文件名都相同时，认为是重复文件',
+            '當檔案 id 和檔名都相同時，認為是重複檔案',
+            'When the file id and file name are the same, it is considered a duplicate file',
+            'ファイルの ID とファイル名が同じ場合、重複ファイルとみなされます',
+          ],
+          _宽松模式说明: [
+            '只要文件的 id 相同，就认为是重复文件',
+            '只要檔案 id 相同，就認為是重複檔案',
+            'As long as the id of the file is the same, it is considered a duplicate file',
+            'ファイルの ID が同じである限り、重複ファイルと見なされます',
+          ],
+          _清除下载记录: [
+            '清除下载记录',
+            '清除下載紀錄',
+            'Clear download record',
+            '履歴をクリア',
+          ],
+          _下载记录已清除: [
+            '下载记录已清除',
+            '已清除下載紀錄',
+            'Download record has been cleared',
+            'ダウンロード履歴がクリアされました',
+          ],
+          _跳过下载因为重复文件: [
+            '检测到文件 {} 已经下载过，跳过此次下载',
+            '偵測到檔案 {} 已經下載過，跳過此次下載。',
+            'Skip downloading duplicate files {}',
+            '重複ファイル {} をスキップ',
+          ],
+          _保存用户头像为图标: [
+            '保存用户头像为图标',
+            '將使用者頭像另存為圖示檔案',
+            'Save user avatar as icon',
+            'プロフィール画像をアイコンとして保存',
+          ],
+          _保存用户头像为图标说明: [
+            '把用户头像保存为 ico 文件，可以手动设置成文件夹的图标。',
+            '將使用者頭像儲存為 ico 檔案，可以手動設定成資料夾圖示。',
+            'Save user avatar as icon',
+            'ユーザーのプロフィール画像を ico ファイルとして保存して、フォルダーアイコンとして設定できます。',
+          ],
+          _正在保存抓取结果: [
+            '正在保存抓取结果',
+            '正在儲存擷取結果',
+            'Saving crawl results',
+            'クロール結果を保存しています',
+          ],
+          _已保存抓取结果: [
+            '已保存抓取结果',
+            '已儲存擷取結果',
+            'Crawl results saved',
+            'クロール結果を保存しました',
+          ],
+          _正在恢复抓取结果: [
+            '正在恢复抓取结果',
+            '正在還原擷取結果',
+            'Restoring crawl results',
+            'クロール結果を再開しています',
+          ],
+          _已恢复抓取结果: [
+            '已恢复抓取结果',
+            '已還原擷取結果',
+            'Crawl results resumed',
+            'クロール結果を再開しました',
+          ],
+          _清空已保存的抓取结果: [
+            '清空已保存的抓取结果',
+            '清除已儲存的擷取結果',
+            'Clear saved crawl results',
+            'セーブしたクロール結果をクリアします',
+          ],
+          _数据清除完毕: [
+            '数据清除完毕',
+            '資料清除完畢',
+            'Data cleared',
+            'クリアされたデータ',
+          ],
+          _已跳过n个文件: [
+            '已跳过 {} 个文件',
+            '已跳過 {} 個檔案',
+            '{} files skipped',
+            '{} つのファイルをスキップしました',
+          ],
+          _不保存图片因为宽高: [
+            '{} 没有被保存，因为它的宽高不符合设定。',
+            '{} 並未儲存，因為它的寬高不符合設定。',
+            '{} was not saved because its width and height do not match the settings.',
+            '{} は幅と高さが設定に合わないため、保存されていません。',
+          ],
+          _显示下载面板: [
+            '显示下载面板',
+            '顯示下載面板',
+            'Show download panel',
+            'ダウンロードパネルを表示',
+          ],
+          _保存: ['保存', '儲存', 'Save', '保存'],
+          _加载: ['加载', '載入', 'Load', 'ロード'],
+          _保存命名规则提示: [
+            '保存命名规则，最多 {} 个',
+            '儲存命名規則，最多 {} 個',
+            'Save naming rule, up to {}',
+            'ネームルールを保存します。最大 {} 個まで',
+          ],
+          _已保存命名规则: [
+            '已保存命名规则',
+            '已儲存命名規則',
+            'Naming rule saved',
+            'ネームルールを保存しました',
+          ],
+          _无损: ['无损', '無損', 'Lossless', 'ロスレス'],
+          _文件名长度限制: [
+            '文件名长度限制',
+            '檔案名稱長度限制',
+            'File name length limit',
+            'ファイル名の長さ制限',
+          ],
+          _导出csv: [
+            '导出 CSV 文件',
+            '匯出 CSV 檔',
+            'Export CSV file',
+            'CSV ファイルをエクスポート',
+          ],
+          _导出抓取结果: [
+            '导出抓取结果',
+            '匯出擷取結果',
+            'Export crawl results',
+            'クロール結果をエクスポート',
+          ],
+          _导入抓取结果: [
+            '导入抓取结果',
+            '匯入擷取結果',
+            'Import crawl results',
+            'クロール結果をインポート',
+          ],
+          _导入成功: [
+            '导入成功',
+            '匯入成功',
+            'Import successfully',
+            'インポート成功',
+          ],
+          _导出成功: [
+            '导出成功',
+            '匯出成功',
+            'Export successfully',
+            'エクスポート成功',
+          ],
+          _图片尺寸: ['图片尺寸', '圖片尺寸', 'Image size', '画像サイズ'],
+          _原图: ['原图', '原圖', 'Original', 'Original'],
+          _普通: ['普通', '普通', 'Regular', 'Regular'],
+          _小图: ['小图', '小圖', 'Small', 'Small'],
+          _方形缩略图: [
+            '方形缩略图',
+            '方形縮圖',
+            'Square thumbnail',
+            'Square thumbnail',
+          ],
+          _导出: ['导出', '匯出', 'Export', 'エクスポート'],
+          _导入: ['导入', '匯入', 'Import', 'インポート'],
+          _清除: ['清除', '清除', 'Clear', 'クリア'],
+          _导入下载记录: [
+            '导入下载记录',
+            '匯入下載紀錄',
+            'Import download record',
+            'ダウンロード記録をインポート',
+          ],
+          _完成: ['完成', '完成', 'Completed', '完了'],
+          _日期格式: [
+            '日期和时间格式',
+            '日期和時間格式',
+            'Date and time format',
+            '日付と時刻の書式',
+          ],
+          _日期格式提示: [
+            '你可以使用以下标记来设置日期和时间格式。这会影响命名规则里的 {date} 和 {task_date}。<br>对于时间如 2021-04-30T06:40:08',
+            '你可以使用以下標記來設定日期和時間格式。這會影響命名規則裡的 {date} 和 {task_date}。<br>對於資料如：2021-04-30T06:40:08。',
+            'You can use the following notation to set the date and time format. This will affect {date} and {task_date} in the naming rules. <br>For time such as 2021-04-30T06:40:08',
+            '以下のタグを使用して日時と時刻の書式を設定することができます。 これは命名規則の {date} と {task_date} に影響します。 <br> 例：2021-04-30T06:40:08',
+          ],
+          _命名标记taskDate: [
+            '本次任务抓取完成时的时间。例如：2020-10-21',
+            '本次工作擷取完成時的時間。例如：2020-10-21。',
+            'The time when the task was crawl completed. For example: 2020-10-21',
+            'この作業のクロールが完了した時刻です。 例：2020-10-21',
+          ],
+          _自动检测: ['自动检测', '自動偵測', 'Auto', '自動検出'],
+          _变更语言后刷新页面的提示: [
+            '更换语言后，请刷新页面。',
+            '變更語言後，請重新整理頁面。',
+            'Please refresh the page after changing the language.',
+            '言語を変更した後は、ページを更新してください。',
+          ],
+          _公开: ['公开', '公開', 'Public', '公開'],
+          _不公开: ['不公开', '非公開', 'Private', '非公開'],
+          _已收藏: ['已收藏', '已收藏', 'Bookmarked', 'ブックマークした'],
+          _未收藏: [
+            '未收藏',
+            '未收藏',
+            'Not bookmarked',
+            'ブックマークされていない',
+          ],
+          _下载之后收藏作品: [
+            '下载之后收藏作品',
+            '下載之後收藏作品',
+            'Bookmark works after downloading',
+            'ダウンロードした作品をブックマークする',
+          ],
+          _下载之后收藏作品的提示: [
+            '下载文件之后，自动收藏这个作品。',
+            '下載檔案之後，自動收藏這個作品。',
+            'After you download a file, the downloader will automatically bookmark the work.',
+            'ダウンロード後、作品は自動的にブックマークされます。',
+          ],
+          _收藏设置: [
+            '收藏设置',
+            '收藏設定',
+            'Bookmark settings',
+            'ブックマーク設定 ',
+          ],
+          _添加tag: ['添加 tag', '加入 tag', 'Add tag', 'tag を追加'],
+          _不添加tag: ['不添加 tag', '不加入 tag', "Don't add tag", 'tag なし'],
+          _用户阻止名单: [
+            '用户阻止名单',
+            '使用者阻止名單',
+            'User block list',
+            'ユーザーブロックリスト',
+          ],
+          _用户阻止名单的说明: [
+            '不下载这些用户的作品。需要输入用户 id。如果有多个用户 id，使用英文逗号,分割。',
+            '不下載這些使用者的作品。需要輸入使用者 id。若有多個使用者 id，使用半形逗號（,）分隔。',
+            'The works of these users will not be downloaded. Need to type the user ID. If there are multiple user ID, use comma (,) separated.',
+            'これらのユーザーの作品はダウンロードしません。ユーザー ID が必要です。複数のユーザ ID は "," で区切ってください。',
+          ],
+          _全部: ['全部', '全部', 'All', '全部'],
+          _任一: ['任一', '任一', 'One', '何れか'],
+          _颜色主题: ['颜色主题', '色彩主題', 'Color theme', 'カラーテーマ'],
+          _管理设置: ['管理设置', '管理設定', 'Manage settings', '設定の管理'],
+          _导出设置: [
+            '导出设置',
+            '匯出設定',
+            'Export settings',
+            'エクスポート設定',
+          ],
+          _导入设置: [
+            '导入设置',
+            '匯入設定',
+            'Import settings',
+            'インポート設定',
+          ],
+          _重置设置: ['重置设置', '重設設定', 'Reset settings', 'リセット設定'],
+          _日均收藏数量: [
+            '日均收藏数量',
+            '日均收藏數量',
+            'Average number of daily bookmarks',
+            '1 日の平均ブックマーク数',
+          ],
+          _日均收藏数量的提示: [
+            '你可以设置作品的平均每日收藏数量。满足条件的作品会被下载。',
+            '您可以設定作品的平均每日收藏數量。滿足條件的作品會被下載。',
+            'You can set the average daily bookmarks number of works. Works that meet the conditions will be downloaded.',
+            '作品の 1 日の平均ブックマーク数を設定することができます。条件を満した作品はダウンロードされます。',
+          ],
+          _下载用户列表: [
+            '下载用户列表',
+            '下載使用者列表',
+            'Download users list',
+            'ユーザーリストのダウンロード',
+          ],
+          _手动选择作品: [
+            '手动选择作品',
+            '手動選擇作品',
+            'Manually select works',
+            '手動で作品を選ぶ',
+          ],
+          _抓取选择的作品: [
+            '抓取选择的作品',
+            '擷取選擇的作品',
+            'Crawl selected works',
+            '選ばれた作品をクロール',
+          ],
+          _清空选择的作品: [
+            '清空选择的作品',
+            '清空選擇的作品',
+            'Clear selected works',
+            '選んだ作品をクリアします',
+          ],
+          _暂停选择: ['暂停选择', '暫停選擇', 'Pause select', '選択を一時停止'],
+          _继续选择: [
+            '继续选择',
+            '繼續選擇',
+            'Continue select',
+            '選択を続ける',
+          ],
+          _离开页面前提示选择的作品未抓取: [
+            '选择的作品尚未抓取。现在离开此页面会导致你选择的作品被清空。',
+            '選擇的作品尚未擷取。現在離開此頁面會導致您選擇的作品被清空。',
+            'The selected work has not been crawled. Leaving this page now will cause your selected work to be cleared.',
+            '選ばれた作品はまだクロールしていません。今このページを離れると、選ばれた作品がクリアされます。',
+          ],
+          _排除了所有作品类型: [
+            '排除了所有作品类型',
+            '排除了所有作品類型',
+            'Excluded all work types',
+            'すべての作品種類を除外しました',
+          ],
+          _为作品创建单独的文件夹: [
+            '为每个作品创建单独的文件夹',
+            '為每個作品建立單獨的資料夾',
+            'Create a separate folder for each work',
+            '作品ごとに別フォルダを作成',
+          ],
+          _文件数量大于: [
+            '文件数量大于',
+            '檔案數量大於',
+            'Number of files >',
+            'ファイル数 >',
+          ],
+          _保存用户头像: [
+            '保存用户头像',
+            '儲存使用者頭像',
+            'Save user avatar',
+            'ユーザーアイコンの保存',
+          ],
+          _保存用户封面: [
+            '保存用户封面',
+            '儲存使用者封面',
+            'Save user cover',
+            'ユーザーカバーの保存',
+          ],
+          _待处理: ['待处理', '待處理', 'Pending', '処理待ち'],
+          _超出最大页码: [
+            '超出最大页码：',
+            '超出最大頁碼：',
+            'Maximum page number exceeded:',
+            '最大ページ数を超えました：',
+          ],
+          _针对特定用户屏蔽tag: [
+            '针对特定用户屏蔽 tag',
+            '針對特定使用者排除 tag',
+            'Block tags for specific users',
+            '特定のユーザーに対して tag をブロック',
+          ],
+          _展开收起: [
+            '展开/收起',
+            '展開/摺疊',
+            'Expand/Collapse',
+            '展開/折りたたみ',
+          ],
+          _展开: ['展开', '展開', 'Expand', '展開'],
+          _收起: ['收起', '摺疊', 'Collapse', '折りたたみ'],
+          _把r18作品存入指定的文件夹里: [
+            '把 R-18(G) 作品存入指定的文件夹里',
+            '把 R-18(G) 作品存入指定的資料夾裡',
+            'Save the R-18(G) works in the designated folder',
+            'R-18(G) の作品を指定のフォルダに入れる',
+          ],
+          _必填项不能为空: [
+            '必填项不能为空',
+            '必填項不能為空',
+            'Required fields cannot be empty',
+            '必須フィールドが入力されていません',
+          ],
+          _用户ID必须是数字: [
+            '用户 ID 必须是数字',
+            '使用者 ID 必須是數字',
+            'User ID must be a number',
+            'ユーザー ID は数字です',
+          ],
+          _必须是数字: [
+            '必须是数字',
+            '必須是數字',
+            'Must be a number',
+            '数字でなければなりません',
+          ],
+          _tag用逗号分割: [
+            '多个 tag 使用英文逗号,分割',
+            '多個 tag 使用半形逗號（,）分割',
+            'Multiple tags use comma (,) split',
+            '複数の tag はカンマ「,」で区切ってください',
+          ],
+          _添加: ['添加', '新增', 'Add', '追加'],
+          _取消: ['取消', '取消', 'Cancel', 'キャンセル'],
+          _更新: ['更新', '更新', 'Update', '更新'],
+          _删除: ['删除', '刪除', 'Delete', '削除'],
+          _添加成功: [
+            '添加成功',
+            '新增成功',
+            'Added successfully',
+            '追加されました',
+          ],
+          _更新成功: ['更新成功', '更新成功', 'update completed', '更新成功'],
+          _在作品缩略图上显示放大图标: [
+            '在作品缩略图上显示放大图标',
+            '在作品縮圖上顯示放大圖示',
+            'Show zoom icon on thumbnail',
+            '作品のサムネイルに拡大アイコンを表示する',
+          ],
+          _已发送下载请求: [
+            '已发送下载请求',
+            '已傳送下載請求',
+            'Download request sent',
+            'ダウンロードリクエストを送信しました',
+          ],
+          _HowToUse: [
+            '点击页面右侧的蓝色按钮可以打开下载器面板。',
+            '點選頁面右側的藍色按鈕可以開啟下載器面板。',
+            'Click the blue button on the right side of the page to open the downloader panel.',
+            'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。',
+          ],
+          _我知道了: ['我知道了', '我知道了', 'I know', '分かりました'],
+          _背景图片: ['背景图片', '背景圖片', 'Background image', '背景画像'],
+          _选择文件: [
+            '选择文件',
+            '選擇檔案',
+            'Select a file',
+            'ファイルを選択',
+          ],
+          _不透明度: ['不透明度', '不透明度', 'Opacity', '不透明度'],
+          _对齐方式: ['对齐方式', '對齊方式', 'Alignment', '揃え方式'],
+          _顶部: ['顶部', '頂部', 'top', '上揃え'],
+          _居中: ['居中', '居中', 'center', '中央揃え'],
+          _根据作品类型自动创建文件夹: [
+            '根据作品类型自动创建文件夹',
+            '根據作品類型自動建立資料夾',
+            'Create folders based on the type of work',
+            '作品種類に応じてフォルダを自動作成します',
+          ],
+          _使用第一个匹配的tag建立文件夹: [
+            '使用第一个匹配的 tag 建立文件夹',
+            '使用第一個符合的 tag 建立資料夾',
+            'Create a folder with the first matched tag',
+            '最初の一致する tag にフォルダを作成',
+          ],
+          _使用匹配的tag建立文件夹的说明: [
+            '如果作品的 tag 列表里含有用户设置的 tag，就会使用这个 tag 建立文件夹（仅限第一个）',
+            '如果作品的 tag 列表裡含有使用者設定的 tag，就會使用這個 tag 建立資料夾（僅限第一個）',
+            'If the tag list of the work contains a tag set by the user, this tag will be used to create a folder (only the first one)',
+            '作品の tag リストにユーザーが設定した tag が含まれている場合、その tag を使用してフォルダが作成されます。(最初の1つだけ)',
+          ],
+          _全年龄: ['全年龄', '全年齡', 'All ages', '全年齢'],
+          _没有符合条件的结果: [
+            '没有符合条件的结果',
+            '沒有符合條件的結果',
+            'There are no eligible results',
+            '対象となる結果はありません',
+          ],
+          _收藏: ['收藏', '收藏', 'Bookmark', 'ブックマーク'],
+          _已加入收藏: [
+            '已加入收藏',
+            '已加入收藏',
+            'Bookmarked',
+            'ブックマークした',
+          ],
+          _全屏查看: ['全屏', '全螢幕', 'Full screen view', '全画面表示'],
+          _抓取id区间: [
+            '抓取 id 区间',
+            '擷取 id 區間',
+            'Crawl id range',
+            'id 範囲をクロール',
+          ],
+          _抓取id区间说明: [
+            '你可以设置一个作品 id 范围，抓取此范围内的所有作品（包含开始和结束的 id）。\n注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。',
+            '你可以設定一個作品 id 範圍，擷取此範圍內的所有作品（包含開始和結束的 id）。\n注意：如果一次任務中產生的擷取結果數量太多，可能會導致頁面崩潰。',
+            'You can set a range of work id and grab all works in this range (including the begin and end id). \nNote: If the number of crawling results in a task is too much, it may cause the page to crash.',
+            '作品 id の範囲を設定し、その範囲内のすべての作品をクロールすることができます。「開始 id と終了 id を含む」\n注意：1 つのタスクであまりにも多くのクロール結果を生成すると、ページがクラッシュする可能性があります。',
+          ],
+          _抓取id区间起点: [
+            '请输入开始的 id',
+            '請輸入開始的 id',
+            'Please type in the beginning id',
+            '開始 id を入力してください',
+          ],
+          _抓取id区间终点: [
+            '请输入结束的 id',
+            '請輸入結束的 id',
+            'Please type  in the ending id',
+            '終了 id を入力してください',
+          ],
+          _选项卡切换方式: [
+            '选项卡切换方式',
+            '頁籤切換方式',
+            'How to switch tabs',
+            'タブ切り替え方式',
+          ],
+          _鼠标经过: ['鼠标经过', '滑鼠經過', 'Mouse over', 'マウスオーバー'],
+          _鼠标点击: ['鼠标点击', '滑鼠點選', 'Mouse click', 'マウスクリック'],
+          _在序号前面填充0: [
+            '在序号前面填充 0',
+            '在序號前面填充 0',
+            'Add 0 in front of the serial number',
+            'シリアル番号の前に 0 を記入',
+          ],
+          _序号总长度: [
+            '序号总长度',
+            '序號總長度',
+            'Total length of serial number',
+            'シリアル番号の全長',
+          ],
+          _完全一致: ['完全一致', '完全一致', 'Perfect match', '完全一致'],
+          _部分一致: ['部分一致', '部分一致', 'Partial match', '部分一致'],
+          _位置: ['位置', '位置', 'Position', '位置'],
+          _左: ['左', '左', 'Left', '左'],
+          _右: ['右', '右', 'Right', '右'],
+          _多图作品只下载前几张图片: [
+            '多图作品只下载前几张图片',
+            '多圖作品只下載前幾張圖片',
+            'Multi-picture works only download the first few pictures',
+            'マルチ作品は最初の何枚の画像のみをダウンロードする',
+          ],
+          _多图作品的图片数量限制: [
+            '多图作品的图片数量限制',
+            '多圖作品的圖片數量限制',
+            'Limits on the number of images for multi-picture works',
+            'マルチ作品の画像数の制限',
+          ],
+          _超出此限制的多图作品不会被下载: [
+            '超出此限制的多图作品不会被下载',
+            '超出此限制的多圖作品不會被下載',
+            'Multi-image works exceeding this limit will not be downloaded',
+            'この制限を超えたマルチ作品はダウンロードされません',
+          ],
+          _whatisnew: [
+            '优化设置：为每个作品创建单独的文件夹<br>在这个设置里可以使用命名规则了。<br><br>在系列小说页面添加了新的功能按钮：合并系列小说<br>这个功能可以把系列中的多个小说合并到一个文件中。<br><br>新增选项：保存作品的元数据',
+            '最佳化設定：為每個作品建立單獨的資料夾<br>在這個設定裡可以使用命名規則了。<br><br>在系列小說頁面添加了新的功能按鈕：合併系列小說<br>這個功能可以把系列中的多個小說合併到一個檔案中。<br><br>新增選項：儲存作品的元資料',
+            'Optimized settings: Create a separate folder for each work<br>In this setting, you can use naming rules.<br><br>A new function button has been added to the series novel page: Merge series novels<br>This function can merge multiple novels in the series into one file.<br><br>New option: save the metadata of the work',
+            '最適化された設定：作品ごとに個別のフォルダーを作成します<br>この設定では、命名規則を使用できます。<br><br>シリーズ小説ページに新しい機能ボタンが追加されました。シリーズ小説の統合<br>この機能は、シリーズ内の複数の小説を1つのファイルにマージできます。<br><br>新しいオプション：作品のメタデータを保存する',
+          ],
+          _在搜索页面添加快捷搜索区域: [
+            '在搜索页面添加快捷搜索区域',
+            '在搜尋頁面新增快捷搜尋區域',
+            'Add a quick search area on the search page',
+            '検索ページにクイック検索領域を追加します',
+          ],
+          _保存作品的元数据: [
+            '保存作品的元数据',
+            '儲存作品的元資料',
+            'Save the metadata of the work',
+            '作品のメタデータを保存する',
+          ],
+          _保存作品的元数据说明: [
+            '为每个作品建立一个 txt 文件保存它的元数据',
+            '為每個作品建立一個 txt 檔案儲存它的元資料',
+            'Create a txt file for each work to save its metadata',
+            '作品ごとに txt ファイルを作成して、メタデータを保存します',
+          ],
+        }
+
+        /***/
+      },
+
+    /***/ './src/ts/ListenPageSwitch.ts':
+      /*!************************************!*\
+  !*** ./src/ts/ListenPageSwitch.ts ***!
+  \************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./EVT */ './src/ts/EVT.ts'
+        )
+
+        // 监听页面的无刷新切换
+        class ListenPageSwitch {
+          constructor() {
+            this.supportListenHistory()
+            this.listenPageSwitch()
+          }
+          // 为监听 url 变化的事件提供支持
+          supportListenHistory() {
+            const s = document.createElement('script')
+            const url = chrome.runtime.getURL('lib/listen_history_change.js')
+            s.src = url
+            document.head.appendChild(s)
+          }
+          // 无刷新切换页面时派发事件
+          listenPageSwitch() {
+            // 点击浏览器的前进或后退按钮会触发 popstate 事件
+            // 点击链接进入一个 url 不同的页面是 pushState 操作
+            // 现在还没有遇到 replaceState 操作
+            ;['pushState', 'popstate', 'replaceState'].forEach((item) => {
+              window.addEventListener(item, () => {
+                _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire('pageSwitch')
+              })
+            })
+          }
+        }
+        new ListenPageSwitch()
+>>>>>>> 1ee87f50356c8330399ced521feaef95756559c3:dist/content.js
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -21774,6 +24396,7 @@ class BookmarkAllWorks {
                     });
                 }
             }
+<<<<<<< HEAD:dist/js/content.js
         }
         this.startBookmark();
     }
@@ -21808,6 +24431,553 @@ class BookmarkAllWorks {
                     let data;
                     if (id.type === 'novels') {
                         data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelData(id.id);
+=======
+            return new Promise(async (resolve, reject) => {
+              resolve(await this.IDB.open(this.DBName, this.DBVer, onUpdate))
+            })
+          }
+          bindEvents() {
+            // 当有文件下载完成时，存储这个任务的记录
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadSuccess,
+              (ev) => {
+                const successData = ev.detail.data
+                this.add(successData.id)
+              }
+            )
+            // 导入含有 id 列表的 txt 文件
+            _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_10__[
+              'secretSignal'
+            ].register('recordtxt', () => {
+              this.importRecordFromTxt()
+            })
+            // 导入下载记录的按钮
+            {
+              const btn = document.querySelector('#importDownloadRecord')
+              if (btn) {
+                btn.addEventListener('click', () => {
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+                    'importDownloadRecord'
+                  )
+                })
+              }
+            }
+            // 监听导入下载记录的事件
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
+                .importDownloadRecord,
+              () => {
+                this.importRecordFromJSON()
+              }
+            )
+            // 导出下载记录的按钮
+            {
+              const btn = document.querySelector('#exportDownloadRecord')
+              if (btn) {
+                btn.addEventListener('click', () => {
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+                    'exportDownloadRecord'
+                  )
+                })
+              }
+            }
+            // 监听导出下载记录的事件
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
+                .exportDownloadRecord,
+              () => {
+                this.exportRecord()
+              }
+            )
+            // 清空下载记录的按钮
+            {
+              const btn = document.querySelector('#clearDownloadRecord')
+              if (btn) {
+                btn.addEventListener('click', () => {
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+                    'clearDownloadRecord'
+                  )
+                })
+              }
+            }
+            // 监听清空下载记录的事件
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.clearDownloadRecord,
+              () => {
+                this.clearRecords()
+                this.existedIdList = []
+              }
+            )
+          }
+          // 当要查找或存储一个 id 时，返回它所对应的 storeName
+          getStoreName(id) {
+            const firstNum = parseInt(id[0])
+            return this.storeNameList[firstNum - 1]
+          }
+          // 生成一个下载记录
+          createRecord(resultId) {
+            let name =
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                .userSetName
+            // 查找这个抓取结果，获取其文件名
+            for (const result of _store_Store__WEBPACK_IMPORTED_MODULE_5__[
+              'store'
+            ].result) {
+              if (result.id === resultId) {
+                name = _FileName__WEBPACK_IMPORTED_MODULE_6__[
+                  'fileName'
+                ].getFileName(result)
+                break
+              }
+            }
+            return {
+              id: resultId,
+              n: name,
+            }
+          }
+          // 添加一条下载记录
+          async add(resultId) {
+            const storeName = this.getStoreName(resultId)
+            const data = this.createRecord(resultId)
+            if (this.existedIdList.includes(resultId)) {
+              this.IDB.put(storeName, data)
+            } else {
+              // 先查询有没有这个记录
+              const result = await this.IDB.get(storeName, data.id)
+              const type = result ? 'put' : 'add'
+              this.IDB[type](storeName, data)
+            }
+          }
+          // 检查一个 id 是否是重复下载
+          // 返回值 true 表示重复，false 表示不重复
+          async check(resultId) {
+            if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_7__['Utils'].isPixiv()) {
+              return false
+            }
+            return new Promise(async (resolve, reject) => {
+              // 如果未启用去重，直接返回不重复
+              if (
+                !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                  .deduplication
+              ) {
+                return resolve(false)
+              }
+              // 在数据库进行查找
+              const storeNmae = this.getStoreName(resultId)
+              const data = await this.IDB.get(storeNmae, resultId)
+              // 查询结果为空，返回不重复
+              if (data === null) {
+                return resolve(false)
+              } else {
+                this.existedIdList.push(data.id)
+                // 查询到了对应的记录，根据策略进行判断
+                if (
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                    .dupliStrategy === 'loose'
+                ) {
+                  // 如果是宽松策略（只考虑 id），返回重复
+                  return resolve(true)
+                } else {
+                  // 如果是严格策略（同时考虑 id 和文件名），则比较文件名
+                  const record = this.createRecord(resultId)
+                  return resolve(record.n === data.n)
+                }
+              }
+            })
+          }
+          // 清空下载记录
+          clearRecords() {
+            for (const name of this.storeNameList) {
+              this.IDB.clear(name)
+            }
+            _Toast__WEBPACK_IMPORTED_MODULE_8__['toast'].success(
+              _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                '_下载记录已清除'
+              )
+            )
+          }
+          // 导出下载记录
+          async exportRecord() {
+            let record = []
+            for (const name of this.storeNameList) {
+              const r = await this.IDB.getAll(name)
+              record = record.concat(r)
+            }
+            const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__[
+              'Utils'
+            ].json2Blob(record)
+            const url = URL.createObjectURL(blob)
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_7__['Utils'].downloadFile(
+              url,
+              `record-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__[
+                'Utils'
+              ].replaceUnsafeStr(new Date().toLocaleString())}.json`
+            )
+            _Toast__WEBPACK_IMPORTED_MODULE_8__['toast'].success(
+              _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_导出成功')
+            )
+          }
+          // 导入下载记录
+          async importRecord(record) {
+            _Log__WEBPACK_IMPORTED_MODULE_2__['log'].warning(
+              _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_导入下载记录')
+            )
+            // 器显示导入进度
+            let stored = 0
+            let total = record.length
+            _Log__WEBPACK_IMPORTED_MODULE_2__['log'].log(
+              `${stored}/${total}`,
+              1,
+              false
+            )
+            // 依次处理每个存储库
+            for (let index = 0; index < this.storeNameList.length; index++) {
+              // 提取出要存入这个存储库的数据
+              const data = []
+              for (const r of record) {
+                if (parseInt(r.id[0]) - 1 === index) {
+                  data.push(r)
+                }
+              }
+              // 批量添加数据
+              await this.IDB.batchAddData(this.storeNameList[index], data, 'id')
+              stored += data.length
+              _Log__WEBPACK_IMPORTED_MODULE_2__['log'].log(
+                `${stored}/${total}`,
+                1,
+                false
+              )
+            }
+            _Log__WEBPACK_IMPORTED_MODULE_2__['log'].success(
+              _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_导入成功')
+            )
+            _Toast__WEBPACK_IMPORTED_MODULE_8__['toast'].success(
+              _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_导入成功')
+            )
+            _MsgBox__WEBPACK_IMPORTED_MODULE_9__['msgBox'].success(
+              _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_导入成功'),
+              {
+                title: _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                  '_导入下载记录'
+                ),
+              }
+            )
+            // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。
+          }
+          // 从 json 文件导入
+          async importRecordFromJSON() {
+            const record = await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__[
+              'Utils'
+            ]
+              .loadJSONFile()
+              .catch((err) => {
+                _MsgBox__WEBPACK_IMPORTED_MODULE_9__['msgBox'].error(err)
+                return
+              })
+            if (!record) {
+              return
+            }
+            // 判断格式是否符合要求
+            if (
+              Array.isArray(record) === false ||
+              record[0].id === undefined ||
+              record[0].n === undefined
+            ) {
+              const msg = 'Format error!'
+              return _MsgBox__WEBPACK_IMPORTED_MODULE_9__['msgBox'].error(msg)
+            }
+            this.importRecord(record)
+          }
+          // 从 txt 文件导入
+          // 每行一个文件 id（带序号），以换行分割
+          async importRecordFromTxt() {
+            const file = (
+              await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__[
+                'Utils'
+              ].selectFile('.txt')
+            )[0]
+            const text = await file.text()
+            // 以换行分割
+            let split = '\r\n'
+            if (!text.includes(split)) {
+              split = '\n'
+            }
+            const arr = text.split(split)
+            // 把每一行视为一个 id，进行导入
+            const record = []
+            for (const str of arr) {
+              if (str) {
+                record.push({
+                  id: str,
+                  n: str,
+                })
+              }
+            }
+            this.importRecord(record)
+          }
+          // 创建一个文件，模拟导出的下载记录
+          exportTestFile(number) {
+            let r = []
+            for (let index = 1; index <= number; index++) {
+              r.push({
+                id: index.toString(),
+                n: index.toString(),
+              })
+            }
+            const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__[
+              'Utils'
+            ].json2Blob(r)
+            const url = URL.createObjectURL(blob)
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_7__['Utils'].downloadFile(
+              url,
+              `record-test-${number}.json`
+            )
+          }
+        }
+        const deduplication = new Deduplication()
+
+        /***/
+      },
+
+    /***/ './src/ts/download/Download.ts':
+      /*!*************************************!*\
+  !*** ./src/ts/download/Download.ts ***!
+  \*************************************/
+      /*! exports provided: Download */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'Download',
+          function () {
+            return Download
+          }
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../Log */ './src/ts/Log.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../Lang */ './src/ts/Lang.ts'
+        )
+        /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../FileName */ './src/ts/FileName.ts'
+        )
+        /* harmony import */ var _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../ConvertUgoira/ConvertUgoira */ './src/ts/ConvertUgoira/ConvertUgoira.ts'
+        )
+        /* harmony import */ var _ProgressBar__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ./ProgressBar */ './src/ts/download/ProgressBar.ts'
+        )
+        /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ../filter/Filter */ './src/ts/filter/Filter.ts'
+        )
+        /* harmony import */ var _Deduplication__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+          /*! ./Deduplication */ './src/ts/download/Deduplication.ts'
+        )
+        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+          /*! ../setting/Settings */ './src/ts/setting/Settings.ts'
+        )
+        /* harmony import */ var _MakeNovelFile__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
+          /*! ./MakeNovelFile */ './src/ts/download/MakeNovelFile.ts'
+        )
+        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
+          /*! ../utils/Utils */ './src/ts/utils/Utils.ts'
+        )
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
+          /*! ../config/Config */ './src/ts/config/Config.ts'
+        )
+        // 下载文件，然后发送给浏览器进行保存
+
+        class Download {
+          constructor(progressBarIndex, data) {
+            this.fileName = ''
+            this.retry = 0 // 重试次数
+            this.cancel = false // 这个下载是否被取消（下载被停止，或者这个文件没有通过某个检查）
+            this.sizeChecked = false // 是否对文件体积进行了检查
+            this.progressBarIndex = progressBarIndex
+            this.download(data)
+            this.bindEvents()
+          }
+          bindEvents() {
+            ;[
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadStop,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadPause,
+            ].forEach((event) => {
+              window.addEventListener(event, () => {
+                this.cancel = true
+              })
+            })
+          }
+          // 设置进度条信息
+          setProgressBar(loaded, total) {
+            _ProgressBar__WEBPACK_IMPORTED_MODULE_5__[
+              'progressBar'
+            ].setProgress(this.progressBarIndex, {
+              name: this.fileName,
+              loaded: loaded,
+              total: total,
+            })
+          }
+          // 跳过某个文件的下载，可以传入警告消息
+          skip(data, msg) {
+            this.cancel = true
+            if (msg) {
+              _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(msg)
+            }
+            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire('skipDownload', data)
+          }
+          // 当重试达到最大次数时
+          afterReTryMax(status, fileId) {
+            // 404, 500 错误，跳过，不会再尝试下载这个文件（因为没有触发 downloadError 事件，所以不会重试下载）
+            if (status === 404 || status === 500) {
+              _Log__WEBPACK_IMPORTED_MODULE_1__['log'].error(
+                `Error: ${fileId} Code: ${status}`
+              )
+              return this.skip({
+                id: fileId,
+                reason: status.toString(),
+              })
+            }
+            // 其他状态码，暂时跳过这个任务，但最后还是会尝试重新下载它
+            this.cancel = true
+            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+              'downloadError',
+              fileId
+            )
+          }
+          // 下载文件
+          async download(arg) {
+            // 检查是否是重复文件
+            const duplicate = await _Deduplication__WEBPACK_IMPORTED_MODULE_7__[
+              'deduplication'
+            ].check(arg.id)
+            if (duplicate) {
+              return this.skip(
+                {
+                  id: arg.id,
+                  reason: 'duplicate',
+                },
+                _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                  '_跳过下载因为重复文件',
+                  arg.id
+                )
+              )
+            }
+            // 获取文件名
+            this.fileName = _FileName__WEBPACK_IMPORTED_MODULE_3__[
+              'fileName'
+            ].getFileName(arg.data)
+            // 重设当前下载栏的信息
+            this.setProgressBar(0, 0)
+            // 下载文件
+            let url
+            if (arg.data.type === 3) {
+              // 生成小说的文件
+              if (arg.data.novelMeta) {
+                let blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_9__[
+                  'MakeNovelFile'
+                ].make(arg.data.novelMeta)
+                url = URL.createObjectURL(blob)
+              } else {
+                throw new Error('Not found novelMeta')
+              }
+            } else {
+              // 对于图像作品，如果设置了图片尺寸就使用指定的 url，否则使用原图 url
+              url =
+                arg.data[
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
+                    .imageSize
+                ] || arg.data.original
+            }
+            let xhr = new XMLHttpRequest()
+            xhr.open('GET', url, true)
+            xhr.responseType = 'blob'
+            // 显示下载进度
+            xhr.addEventListener('progress', async (event) => {
+              // 检查体积设置
+              if (!this.sizeChecked) {
+                this.sizeChecked = true
+                const result = await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__[
+                  'filter'
+                ].check({ size: event.total })
+                if (!result) {
+                  // 当因为体积问题跳过下载时，可能这个下载进度还是 0 或者很少，所以这里直接把进度条拉满
+                  this.setProgressBar(1, 1)
+                  this.skip(
+                    {
+                      id: arg.id,
+                      reason: 'size',
+                    },
+                    _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                      '_不保存图片因为体积',
+                      arg.id
+                    )
+                  )
+                }
+              }
+              if (this.cancel) {
+                xhr.abort()
+                xhr = null
+                return
+              }
+              this.setProgressBar(event.loaded, event.total)
+            })
+            // 图片获取完毕（出错时也会进入 loadend）
+            xhr.addEventListener('loadend', async () => {
+              if (this.cancel) {
+                xhr = null
+                return
+              }
+              let file = xhr.response // 要下载的文件
+              if (xhr.status !== 200) {
+                // 状态码错误，进入重试流程
+                // 正常下载完毕的状态码是 200
+                _ProgressBar__WEBPACK_IMPORTED_MODULE_5__[
+                  'progressBar'
+                ].errorColor(this.progressBarIndex, true)
+                this.retry++
+                if (
+                  this.retry >=
+                  _config_Config__WEBPACK_IMPORTED_MODULE_11__['Config']
+                    .retryMax
+                ) {
+                  // 重试达到最大次数依然错误
+                  this.afterReTryMax(xhr.status, arg.id)
+                } else {
+                  return this.download(arg)
+                }
+              } else {
+                // 状态码正常
+                _ProgressBar__WEBPACK_IMPORTED_MODULE_5__[
+                  'progressBar'
+                ].errorColor(this.progressBarIndex, false)
+                // 需要转换动图的情况
+                const convertExt = ['webm', 'gif', 'png']
+                const ext =
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
+                    .ugoiraSaveAs
+                if (
+                  convertExt.includes(ext) &&
+                  arg.data.ugoiraInfo &&
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
+                    .imageSize !== 'thumb'
+                ) {
+                  // 当下载图片的方形缩略图时，不转换动图，因为此时下载的是作品的静态缩略图，无法进行转换
+                  try {
+                    if (ext === 'webm') {
+                      file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__[
+                        'convertUgoira'
+                      ].webm(file, arg.data.ugoiraInfo)
+                    }
+                    if (ext === 'gif') {
+                      file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__[
+                        'convertUgoira'
+                      ].gif(file, arg.data.ugoiraInfo)
+>>>>>>> 1ee87f50356c8330399ced521feaef95756559c3:dist/content.js
                     }
                     else {
                         data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id.id);
@@ -23087,6 +26257,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
 
 
+<<<<<<< HEAD:dist/js/content.js
 
 
 
@@ -23135,6 +26306,1227 @@ class Form {
                 let subOption = null;
                 if (input.classList.contains('checkbox_switch')) {
                     subOption = this.form.querySelector(`.subOptionWrap[data-show="${input.name}"]`);
+=======
+    /***/ './src/ts/pageFunciton/BookmarksAddTag.ts':
+      /*!************************************************!*\
+  !*** ./src/ts/pageFunciton/BookmarksAddTag.ts ***!
+  \************************************************/
+      /*! exports provided: BookmarksAddTag */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'BookmarksAddTag',
+          function () {
+            return BookmarksAddTag
+          }
+        )
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../API */ './src/ts/API.ts'
+        )
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../Tools */ './src/ts/Tools.ts'
+        )
+        /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../Toast */ './src/ts/Toast.ts'
+        )
+        /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../Bookmark */ './src/ts/Bookmark.ts'
+        )
+
+        // 给收藏页面里的未分类作品批量添加 tag
+        class BookmarksAddTag {
+          constructor(btn) {
+            this.type = 'illusts' // 页面是图片还是小说
+            this.addTagList = [] // 需要添加 tag 的作品的数据
+            this.addIndex = 0 // 添加 tag 时的计数
+            this.once = 100 // 一次请求多少个作品的数据
+            this.btn = btn
+            this.bindEvents()
+          }
+          bindEvents() {
+            this.btn.addEventListener('click', () => {
+              // 每次点击重置状态
+              this.addTagList = []
+              this.addIndex = 0
+              this.btn.setAttribute('disabled', 'disabled')
+              this.btn.textContent = `Checking`
+              if (window.location.pathname.includes('/novel')) {
+                this.type = 'novels'
+              }
+              this.readyAddTag()
+            })
+          }
+          // 准备添加 tag。loop 表示这是第几轮循环
+          async readyAddTag(loop = 0) {
+            const offset = loop * this.once // 一次请求只能获取一部分，所以可能有多次请求，要计算偏移量
+            let errorFlag = false
+            // 发起请求
+            const [showData, hideData] = await Promise.all([
+              _API__WEBPACK_IMPORTED_MODULE_0__['API'].getBookmarkData(
+                _Tools__WEBPACK_IMPORTED_MODULE_1__['Tools'].getUserId(),
+                this.type,
+                '未分類',
+                offset,
+                false
+              ),
+              _API__WEBPACK_IMPORTED_MODULE_0__['API'].getBookmarkData(
+                _Tools__WEBPACK_IMPORTED_MODULE_1__['Tools'].getUserId(),
+                this.type,
+                '未分類',
+                offset,
+                true
+              ),
+            ]).catch((error) => {
+              if (error.status && error.status === 403) {
+                this.btn.textContent = `× Permission denied`
+              }
+              errorFlag = true
+              return []
+            })
+            if (errorFlag) {
+              return
+            }
+            // 保存有用的数据
+            for (const data of [showData, hideData]) {
+              const works = data.body.works
+              // 如果作品的 bookmarkData 为假说明没有实际数据，可能是在获取别人的收藏数据。
+              if (works.length > 0 && works[0].bookmarkData) {
+                works.forEach((work) => {
+                  this.addTagList.push({
+                    id: work.id,
+                    tags: work.tags,
+                    restrict: work.bookmarkData.private,
+                  })
+                })
+              }
+            }
+            // 已删除或无法访问的作品不会出现在请求结果里。本来一次请求 100 个，但返回的结果有可能会比 100 个少，甚至极端情况下是 0。所以实际获取到的作品可能比  total 数量少，这是正常的。
+            // 判断是否请求了所有未分类的作品数据
+            const total = offset + this.once
+            if (total >= showData.body.total && total >= hideData.body.total) {
+              if (this.addTagList.length === 0) {
+                // 如果结果为空，不需要处理
+                this.btn.textContent = `✓ No need`
+                this.btn.removeAttribute('disabled')
+                return
+              } else {
+                // 开始添加 tag
+                this.addTag()
+              }
+            } else {
+              // 需要继续获取
+              this.readyAddTag(++loop)
+            }
+          }
+          // 给未分类作品添加 tag
+          async addTag() {
+            const item = this.addTagList[this.addIndex]
+            await _Bookmark__WEBPACK_IMPORTED_MODULE_3__['Bookmark'].add(
+              item.id,
+              this.type,
+              item.tags,
+              true,
+              item.restrict
+            )
+            if (this.addIndex < this.addTagList.length - 1) {
+              this.addIndex++
+              this.btn.textContent = `${this.addIndex} / ${this.addTagList.length}`
+              // 继续添加下一个
+              return this.addTag()
+            } else {
+              // 添加完成
+              this.btn.textContent = `✓ Complete`
+              this.btn.removeAttribute('disabled')
+              _Toast__WEBPACK_IMPORTED_MODULE_2__['toast'].success('✓ Complete')
+            }
+          }
+        }
+
+        /***/
+      },
+
+    /***/ './src/ts/pageFunciton/DeleteWorks.ts':
+      /*!********************************************!*\
+  !*** ./src/ts/pageFunciton/DeleteWorks.ts ***!
+  \********************************************/
+      /*! exports provided: DeleteWorks */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'DeleteWorks',
+          function () {
+            return DeleteWorks
+          }
+        )
+        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../Log */ './src/ts/Log.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../Lang */ './src/ts/Lang.ts'
+        )
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/config/Colors.ts'
+        )
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../Tools */ './src/ts/Tools.ts'
+        )
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../store/States */ './src/ts/store/States.ts'
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ../MsgBox */ './src/ts/MsgBox.ts'
+        )
+        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+          /*! ../utils/Utils */ './src/ts/utils/Utils.ts'
+        )
+        // 删除页面上的作品
+
+        class DeleteWorks {
+          constructor(worksSelectors) {
+            this.worksSelector = '' // 选择页面上所有作品的选择器
+            this.multipleSelector = '' // 多图作品特有的元素的标识
+            this.ugoiraSelector = '' // 动图作品特有的元素的标识
+            this.delMode = false // 是否处于手动删除作品状态
+            this.delBtn = document.createElement('button')
+            this.iconId = 'deleteWorkEl'
+            this.left = 0
+            this.top = 0
+            this.half = 12
+            this.deleteWorkCallback = () => {} // 保存手动删除作品的回调函数，因为可能会多次绑定手动删除事件，所以需要保存传入的 callback 备用
+            this.worksSelector = worksSelectors
+            this.icon = this.createDeleteIcon()
+            this.bindEvents()
+          }
+          createDeleteIcon() {
+            const el = document.createElement('div')
+            el.id = this.iconId
+            document.body.appendChild(el)
+            return el
+          }
+          updateDeleteIcon() {
+            if (!this.icon) {
+              return
+            }
+            this.icon.style.display = this.delMode ? 'block' : 'none'
+            // 如果指示图标处于隐藏状态，就不会更新其坐标。这样可以优化性能
+            if (this.delMode) {
+              this.icon.style.left = this.left - this.half + 'px'
+              this.icon.style.top = this.top - this.half + 'px'
+            }
+          }
+          bindEvents() {
+            // 作品列表更新后，需要重新给作品绑定手动删除事件
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list.worksUpdate,
+              () => {
+                if (this.delMode) {
+                  this.bindDeleteEvent()
+                }
+              }
+            )
+            // 切换页面时，退出手动删除模式
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list.pageSwitch,
+              () => {
+                if (this.delMode) {
+                  this.toggleDeleteMode()
+                }
+              }
+            )
+            // 鼠标移动时保存鼠标的坐标
+            window.addEventListener(
+              'mousemove',
+              (ev) => {
+                this.moveEvent(ev)
+              },
+              true
+            )
+          }
+          // 监听鼠标移动
+          moveEvent(ev) {
+            this.left = ev.x
+            this.top = ev.y
+            this.updateDeleteIcon()
+          }
+          // 清除多图作品的按钮
+          addClearMultipleBtn(selector, callback = () => {}) {
+            this.multipleSelector = selector
+            _Tools__WEBPACK_IMPORTED_MODULE_3__['Tools']
+              .addBtn(
+                'crawlBtns',
+                _config_Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgRed,
+                _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                  '_清除多图作品'
+                ),
+                [
+                  [
+                    'title',
+                    _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                      '_清除多图作品Title'
+                    ),
+                  ],
+                ]
+              )
+              .addEventListener(
+                'click',
+                () => {
+                  if (
+                    _store_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy
+                  ) {
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_6__['msgBox'].error(
+                      _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                        '_当前任务尚未完成'
+                      )
+                    )
+                    return
+                  }
+                  _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].fire(
+                    'closeCenterPanel'
+                  )
+                  this.clearMultiple()
+                  callback()
+                },
+                false
+              )
+          }
+          // 清除动图作品的按钮
+          addClearUgoiraBtn(selector, callback = () => {}) {
+            this.ugoiraSelector = selector
+            _Tools__WEBPACK_IMPORTED_MODULE_3__['Tools']
+              .addBtn(
+                'crawlBtns',
+                _config_Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgRed,
+                _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                  '_清除动图作品'
+                ),
+                [
+                  [
+                    'title',
+                    _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                      '_清除动图作品Title'
+                    ),
+                  ],
+                ]
+              )
+              .addEventListener(
+                'click',
+                () => {
+                  if (
+                    _store_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy
+                  ) {
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_6__['msgBox'].error(
+                      _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                        '_当前任务尚未完成'
+                      )
+                    )
+                    return
+                  }
+                  _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].fire(
+                    'closeCenterPanel'
+                  )
+                  this.ClearUgoira()
+                  callback()
+                },
+                false
+              )
+          }
+          // 手动删除作品的按钮
+          addManuallyDeleteBtn(callback = () => {}) {
+            this.deleteWorkCallback = callback
+            this.delBtn = _Tools__WEBPACK_IMPORTED_MODULE_3__[
+              'Tools'
+            ].addBtn(
+              'crawlBtns',
+              _config_Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgRed,
+              _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                '_手动删除作品'
+              ),
+              [
+                [
+                  'title',
+                  _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                    '_手动删除作品Title'
+                  ),
+                ],
+              ]
+            )
+            this.delBtn.addEventListener('click', () => {
+              this.toggleDeleteMode()
+            })
+          }
+          // 切换删除模式
+          toggleDeleteMode() {
+            this.delMode = !this.delMode
+            this.bindDeleteEvent()
+            this.updateDeleteIcon()
+            if (this.delMode) {
+              this.delBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__[
+                'lang'
+              ].transl('_退出手动删除')
+              setTimeout(() => {
+                _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].fire(
+                  'closeCenterPanel'
+                )
+              }, 100)
+            } else {
+              this.delBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__[
+                'lang'
+              ].transl('_手动删除作品')
+            }
+          }
+          // 清除多图作品
+          clearMultiple() {
+            const allPicArea = document.querySelectorAll(this.worksSelector)
+            allPicArea.forEach((el) => {
+              if (el.querySelector(this.multipleSelector)) {
+                el.remove()
+              }
+            })
+            this.showWorksCount()
+          }
+          // 清除动图作品
+          ClearUgoira() {
+            const allPicArea = document.querySelectorAll(this.worksSelector)
+            allPicArea.forEach((el) => {
+              if (el.querySelector(this.ugoiraSelector)) {
+                el.remove()
+              }
+            })
+            this.showWorksCount()
+          }
+          // 给作品绑定手动删除事件
+          // 删除作品后，回调函数可以接收到被删除的元素
+          bindDeleteEvent() {
+            const listElement = document.querySelectorAll(this.worksSelector)
+            listElement.forEach((el) => {
+              el.onclick = (ev) => {
+                if (this.delMode) {
+                  ev.preventDefault()
+                  if (
+                    _store_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy
+                  ) {
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_6__['msgBox'].error(
+                      _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                        '_当前任务尚未完成'
+                      )
+                    )
+                    return
+                  }
+                  const target = ev.currentTarget
+                  target.remove()
+                  this.showWorksCount()
+                  this.deleteWorkCallback(target)
+                }
+              }
+            })
+          }
+          // 显示调整后，列表里的作品数量
+          showWorksCount() {
+            const selector = this.worksSelector
+            _Log__WEBPACK_IMPORTED_MODULE_0__['log'].success(
+              _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                '_调整完毕',
+                _utils_Utils__WEBPACK_IMPORTED_MODULE_7__['Utils']
+                  .getVisibleEl(selector)
+                  .length.toString()
+              ),
+              2,
+              false
+            )
+          }
+        }
+
+        /***/
+      },
+
+    /***/ './src/ts/pageFunciton/DestroyManager.ts':
+      /*!***********************************************!*\
+  !*** ./src/ts/pageFunciton/DestroyManager.ts ***!
+  \***********************************************/
+      /*! exports provided: destroyManager */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'destroyManager',
+          function () {
+            return destroyManager
+          }
+        )
+        /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../PageType */ './src/ts/PageType.ts'
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+
+        // 管理所有页面的销毁事件
+        // 页面把自己的 destory 函数注册到这个类里，当页面类型变化时会自动执行对应
+        class DestroyManager {
+          constructor() {
+            this.list = new Map()
+            this.lastType =
+              _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].type
+            this.bindEvents()
+          }
+          bindEvents() {
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list
+                .pageSwitchedTypeChange,
+              () => {
+                const fun = this.list.get(this.lastType)
+                fun && fun()
+                this.lastType =
+                  _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].type
+              }
+            )
+          }
+          // 接收 destory 函数，并关联到对应的页面类型
+          register(fun) {
+            this.list.set(
+              _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].type,
+              fun
+            )
+          }
+        }
+        const destroyManager = new DestroyManager()
+
+        /***/
+      },
+
+    /***/ './src/ts/pageFunciton/FastScreen.ts':
+      /*!*******************************************!*\
+  !*** ./src/ts/pageFunciton/FastScreen.ts ***!
+  \*******************************************/
+      /*! exports provided: FastScreen */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'FastScreen',
+          function () {
+            return FastScreen
+          }
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../Tools */ './src/ts/Tools.ts'
+        )
+        /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../Theme */ './src/ts/Theme.ts'
+        )
+        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../setting/Settings */ './src/ts/setting/Settings.ts'
+        )
+
+        // 在搜索页面按收藏数快速筛选
+        class FastScreen {
+          constructor() {
+            this.fastScreenArea = document.createElement('div')
+            this.tagList = [
+              '100users入り',
+              '500users入り',
+              '1000users入り',
+              '5000users入り',
+              '10000users入り',
+              '20000users入り',
+              '30000users入り',
+              '50000users入り',
+              '100000users入り',
+            ]
+            this.create()
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,
+              (ev) => {
+                const data = ev.detail.data
+                if (data.name === 'showFastSearchArea') {
+                  this.setDisplay()
+                }
+              }
+            )
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
+                .pageSwitchedTypeChange,
+              () => {
+                this.destroy()
+              }
+            )
+          }
+          // 添加快速筛选功能
+          create() {
+            // 判断插入点的元素有没有加载出来
+            const target = document.querySelector('#root>div')
+            if (!target) {
+              setTimeout(() => {
+                this.create()
+              }, 300)
+              return
+            }
+            this.fastScreenArea.className = 'fastScreenArea'
+            this.tagList.forEach((tag) => {
+              const btn = document.createElement('button')
+              btn.innerText = tag
+              btn.onclick = () => {
+                this.openFastScreenLink(tag)
+              }
+              this.fastScreenArea.appendChild(btn)
+            })
+            _Theme__WEBPACK_IMPORTED_MODULE_2__['theme'].register(
+              this.fastScreenArea
+            )
+            target.insertAdjacentElement('afterend', this.fastScreenArea)
+            this.setDisplay()
+          }
+          // 设置是否显示快速筛选区域
+          setDisplay() {
+            this.fastScreenArea.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__[
+              'settings'
+            ].showFastSearchArea
+              ? 'block'
+              : 'none'
+          }
+          // 打开快速筛选链接
+          openFastScreenLink(fastTag) {
+            // 拼接 tag。因为搜索页面可以无刷新切换搜索的 tag，所以需要动态获取当前 tag
+            const nowTag = _Tools__WEBPACK_IMPORTED_MODULE_1__[
+              'Tools'
+            ].getTagFromURL()
+            const firstTag = nowTag.split(' ')[0]
+            const fullTag = firstTag + ' ' + fastTag
+            // 用组合后的 tag 替换掉当前网址里的 tag
+            let newURL = location.href.replace(
+              encodeURIComponent(nowTag),
+              encodeURIComponent(fullTag)
+            )
+            // 如果 url 路径的 tags/ 后面没有子路径，代表是在“顶部”分类。
+            // “顶部”分类里始终是严格的搜索模式，即使添加 s_mode=s_tag 也无效，这经常会导致搜索结果为 0。所以如果分类是“顶部”，就自动修改为“插画·漫画”分类以获取更多搜索结果。
+            // “顶部”分类的 url 示例
+            // https://www.pixiv.net/tags/%E9%9B%AA%E8%8A%B1%E3%83%A9%E3%83%9F%E3%82%A3%2010000users%E5%85%A5%E3%82%8A?s_mode=s_tag
+            const str = new URL(newURL).pathname.split('tags/')[1]
+            if (str.includes('/') === false) {
+              // 在 tag 后面添加“插画·漫画”分类的路径
+              newURL = newURL.replace(str, str + '/artworks')
+            }
+            // 设置宽松的搜索模式 s_mode=s_tag
+            const u = new URL(newURL)
+            u.searchParams.set('s_mode', 's_tag')
+            location.href = u.toString()
+          }
+          destroy() {
+            this.fastScreenArea.remove()
+          }
+        }
+
+        /***/
+      },
+
+    /***/ './src/ts/pageFunciton/QuickBookmark.ts':
+      /*!**********************************************!*\
+  !*** ./src/ts/pageFunciton/QuickBookmark.ts ***!
+  \**********************************************/
+      /*! exports provided: QuickBookmark */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'QuickBookmark',
+          function () {
+            return QuickBookmark
+          }
+        )
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../API */ './src/ts/API.ts'
+        )
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../Tools */ './src/ts/Tools.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../Lang */ './src/ts/Lang.ts'
+        )
+        /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../Token */ './src/ts/Token.ts'
+        )
+        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../utils/Utils */ './src/ts/utils/Utils.ts'
+        )
+        /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../Bookmark */ './src/ts/Bookmark.ts'
+        )
+        // 作品页面内的快速收藏功能
+
+        class QuickBookmark {
+          constructor() {
+            this.btn = document.createElement('a') // 快速收藏按钮
+            this.btnId = 'quickBookmarkEl' // 快速收藏按钮的 id
+            this.redClass = 'bookmarkedColor' // 收藏后的红色的颜色值
+            this.likeBtnClass = '_35vRH4a' // 点赞按钮的 class
+            this.isNovel = false
+            this.timer = 0
+            this.flag = 'xzFlag' // 当插入快速下载按钮时，给原本的收藏按钮添加一个标记
+            this.init()
+          }
+          async init() {
+            // 没有 token 就不能进行收藏
+            if (!_Token__WEBPACK_IMPORTED_MODULE_3__['token'].token) {
+              return
+            }
+            this.isNovel = window.location.href.includes('/novel')
+            this.timer = window.setInterval(() => {
+              this.initBtn()
+            }, 300)
+          }
+          // 插入快速收藏按钮
+          async initBtn() {
+            // 从父元素查找作品下方的工具栏
+            const toolbarParent = document.querySelectorAll('main > section')
+            for (const el of toolbarParent) {
+              const test = el.querySelector('div>section')
+              if (test) {
+                this.toolbar = test
+                break
+              }
+            }
+            if (this.toolbar) {
+              // 获取心形收藏按钮的 div
+              this.pixivBMKDiv = this.toolbar.childNodes[2]
+              // 当没有心形收藏按钮时，中止这次执行（可能是尚未添加；或者是用户处于自己的作品页面）
+              if (!this.pixivBMKDiv) {
+                return
+              }
+              if (!this.isNovel) {
+                // 在插画漫画作品页面里，给心形收藏按钮添加标记，标记过的就不再处理
+                // 但是在小说页面里不会给心形收藏按钮添加标记，也不会修改它，因为小说页面里切换作品时，工具栏不会重新生成，也就是说小说页面里的心形收藏按钮用的都是一开始的那一个，如果下载器修改了它，就会导致异常
+                if (this.pixivBMKDiv.classList.contains(this.flag)) {
+                  return
+                } else {
+                  // 给心形收藏按钮添加标记，表示已经对其进行处理
+                  this.pixivBMKDiv.classList.add(this.flag)
+                }
+              }
+              window.clearInterval(this.timer)
+              // 删除可能存在的旧的快速收藏按钮
+              const oldBtn = this.toolbar.querySelector('#' + this.btnId)
+              if (oldBtn) {
+                oldBtn.remove()
+              }
+              // 判断这个作品是否收藏过了
+              this.workData = await this.getWorkData()
+              this.isBookmarked = !!this.workData.body.bookmarkData
+              // 监听心形收藏按钮从未收藏到收藏的变化
+              // 没有收藏时，心形按钮的第一个子元素是 button。收藏之后，button 被移除，然后添加一个 a 标签
+              if (!this.isBookmarked) {
+                this.ob = new MutationObserver((mutations) => {
+                  for (const change of mutations) {
+                    if (change.type === 'childList') {
+                      const added = change.addedNodes
+                      if (added.length > 0 && added[0].nodeName === 'A') {
+                        this.isBookmarked = true
+                        this.bookmarked()
+                      }
+                    }
+                  }
+                })
+                this.ob.observe(this.pixivBMKDiv, {
+                  childList: true,
+                })
+              }
+              // 添加快速收藏按钮
+              this.btn = this.createBtn()
+              this.toolbar.insertBefore(this.btn, this.toolbar.childNodes[3])
+              if (this.isBookmarked) {
+                this.bookmarked()
+              } else {
+                this.btn.addEventListener('click', () => {
+                  this.addBookmark()
+                })
+              }
+            }
+          }
+          //　创建快速收藏按钮
+          createBtn() {
+            const btn = document.createElement('a')
+            btn.id = this.btnId
+            btn.textContent = '✩'
+            btn.href = 'javascript:void(0)'
+            btn.title = _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+              '_快速收藏'
+            )
+            return btn
+          }
+          async getWorkData() {
+            const id = this.isNovel
+              ? _Tools__WEBPACK_IMPORTED_MODULE_1__['Tools'].getNovelId()
+              : _Tools__WEBPACK_IMPORTED_MODULE_1__['Tools'].getIllustId()
+            return this.isNovel
+              ? await _API__WEBPACK_IMPORTED_MODULE_0__['API'].getNovelData(id)
+              : await _API__WEBPACK_IMPORTED_MODULE_0__['API'].getArtworkData(
+                  id
+                )
+          }
+          async addBookmark() {
+            const type = this.isNovel ? 'novels' : 'illusts'
+            const id = this.isNovel
+              ? _Tools__WEBPACK_IMPORTED_MODULE_1__['Tools'].getNovelId()
+              : _Tools__WEBPACK_IMPORTED_MODULE_1__['Tools'].getIllustId()
+            this.like(type, id)
+            if (this.isBookmarked) {
+              return
+            }
+            await _Bookmark__WEBPACK_IMPORTED_MODULE_5__['Bookmark'].add(
+              id,
+              type,
+              _Tools__WEBPACK_IMPORTED_MODULE_1__['Tools'].extractTags(
+                this.workData
+              )
+            )
+            // 收藏成功之后
+            this.isBookmarked = true
+            this.bookmarked()
+            // 让心形收藏按钮也变成收藏后的状态
+            if (!this.isNovel) {
+              this.changePixivBMKDiv()
+            }
+          }
+          // 点赞这个作品
+          like(type, id) {
+            _API__WEBPACK_IMPORTED_MODULE_0__['API'].addLike(
+              id,
+              type,
+              _Token__WEBPACK_IMPORTED_MODULE_3__['token'].token
+            )
+            // 不在小说页面里修改点赞按钮，否则切换到其他小说之后点赞按钮依然是蓝色的
+            if (this.isNovel) {
+              return
+            }
+            // 将点赞按钮的颜色改为蓝色
+            let likeBtn = document.querySelector(`.${this.likeBtnClass}`)
+            if (!likeBtn) {
+              // 上面尝试直接用 class 获取点赞按钮，如果获取不到则从工具栏里选择
+              // 点赞按钮是工具栏里的最后一个 button 元素
+              console.error('likeBtn class is not available')
+              const btnList = this.toolbar.querySelectorAll('button')
+              likeBtn = btnList[btnList.length - 1]
+            }
+            likeBtn.style.color = '#0096fa'
+          }
+          getEditBookmarkLink() {
+            if (this.isNovel) {
+              return `/novel/bookmark_add.php?id=${_Tools__WEBPACK_IMPORTED_MODULE_1__[
+                'Tools'
+              ].getNovelId()}`
+            } else {
+              return `/bookmark_add.php?type=illust&illust_id=${_Tools__WEBPACK_IMPORTED_MODULE_1__[
+                'Tools'
+              ].getIllustId()}`
+            }
+          }
+          // 如果这个作品已收藏，则改变快速收藏按钮
+          bookmarked() {
+            this.btn.classList.add(this.redClass)
+            this.btn.href = this.getEditBookmarkLink()
+          }
+          // 把心形收藏按钮从未收藏变成已收藏
+          changePixivBMKDiv() {
+            if (!this.pixivBMKDiv) {
+              return
+            }
+            // 取消监听心形收藏按钮的变化
+            if (this.ob) {
+              this.ob.disconnect()
+            }
+            const svg = this.pixivBMKDiv.querySelector('svg')
+            if (!svg) {
+              return
+            }
+            // 这条规则让心形的内部填充，显示出来完整的心。缺少这个规则的话，心形只有边框，内部还是空的
+            const redStyle = `
+    .${this.redClass} mask path{
+      fill: white !important;
+    }`
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_4__['Utils'].addStyle(
+              redStyle
+            )
+            // 创建一个 a 标签，用它替换掉 button（模拟心形按钮收藏后的变化）
+            const a = document.createElement('a')
+            a.href = this.getEditBookmarkLink()
+            a.appendChild(svg)
+            // 移除 button，添加 a 标签
+            const btn = this.pixivBMKDiv.querySelector('button')
+            btn && btn.remove()
+            this.pixivBMKDiv.insertAdjacentElement('afterbegin', a)
+            // 给 svg 添加 class，让心形变红
+            svg.classList.add(this.redClass)
+            // 点击 a 标签时阻止事件冒泡。因为不阻止的话，点击这个 a 标签，pixiv 会进行添加收藏的操作。我的目的是让它跳转到编辑 tag 的页面。
+            a.addEventListener(
+              'click',
+              (ev) => {
+                ev.stopPropagation()
+              },
+              true
+            )
+          }
+        }
+
+        /***/
+      },
+
+    /***/ './src/ts/pageFunciton/SaveAvatarIcon.ts':
+      /*!***********************************************!*\
+  !*** ./src/ts/pageFunciton/SaveAvatarIcon.ts ***!
+  \***********************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../Lang */ './src/ts/Lang.ts'
+        )
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../API */ './src/ts/API.ts'
+        )
+        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../Log */ './src/ts/Log.ts'
+        )
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../Tools */ './src/ts/Tools.ts'
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _utils_imageToIcon__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../utils/imageToIcon */ './src/ts/utils/imageToIcon.ts'
+        )
+        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ../utils/Utils */ './src/ts/utils/Utils.ts'
+        )
+
+        // 保存用户头像为图标
+        class SaveAvatarIcon {
+          constructor() {
+            this.bindEvents()
+          }
+          bindEvents() {
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].list.saveAvatarIcon,
+              () => {
+                this.saveAvatarIcon()
+              }
+            )
+          }
+          async saveAvatarIcon() {
+            const userId = _Tools__WEBPACK_IMPORTED_MODULE_3__[
+              'Tools'
+            ].getUserId()
+            const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__[
+              'API'
+            ].getUserProfile(userId)
+            const bigImg = userProfile.body.imageBig // imageBig 并不是头像原图，而是裁剪成 170 px 的尺寸
+            const fullSizeImg = bigImg.replace('_170', '') // 去掉 170 标记，获取头像图片的原图
+            // 生成 ico 文件
+            // 尺寸固定为 256，因为尺寸更小的图标如 128，在 windows 资源管理器里会被缩小到 48 显示
+            const blob = await _utils_imageToIcon__WEBPACK_IMPORTED_MODULE_5__[
+              'img2ico'
+            ].convert({
+              size: [256],
+              source: fullSizeImg,
+              shape: 'fillet',
+              bleed: true,
+            })
+            // 直接保存到下载文件夹
+            const url = URL.createObjectURL(blob)
+            const name = `${userProfile.body.name}_${userId}_icon.ico`
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_6__['Utils'].downloadFile(
+              url,
+              name
+            )
+            _Log__WEBPACK_IMPORTED_MODULE_2__['log'].success(
+              '✓ ' +
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+                  '_保存用户头像为图标'
+                )
+            )
+            _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].fire('closeCenterPanel')
+          }
+        }
+        new SaveAvatarIcon()
+
+        /***/
+      },
+
+    /***/ './src/ts/pageFunciton/SaveAvatarImage.ts':
+      /*!************************************************!*\
+  !*** ./src/ts/pageFunciton/SaveAvatarImage.ts ***!
+  \************************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../Lang */ './src/ts/Lang.ts'
+        )
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../API */ './src/ts/API.ts'
+        )
+        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../Log */ './src/ts/Log.ts'
+        )
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../Tools */ './src/ts/Tools.ts'
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../utils/Utils */ './src/ts/utils/Utils.ts'
+        )
+
+        // 保存用户头像
+        class SaveAvatarImage {
+          constructor() {
+            this.bindEvents()
+          }
+          bindEvents() {
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].list.saveAvatarImage,
+              () => {
+                this.saveAvatarImage()
+              }
+            )
+          }
+          async saveAvatarImage() {
+            const userId = _Tools__WEBPACK_IMPORTED_MODULE_3__[
+              'Tools'
+            ].getUserId()
+            const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__[
+              'API'
+            ].getUserProfile(userId)
+            const imageURL = userProfile.body.imageBig
+            // 提取图片的后缀名
+            const arr = imageURL.split('.')
+            const ext = arr[arr.length - 1]
+            // imageBig 并不是头像原图，而是裁剪成 170 px 的尺寸
+            // 如果是 gif 格式，则不生成其大图 url，因为生成的大图是静态图。不知道 gif 头像是否有大图，以及其 url 是什么样的
+            // 如果是其他格式，则去掉 170 标记，获取头像图片的原图
+            const fullSizeImgURL =
+              ext === 'gif' ? imageURL : imageURL.replace('_170', '')
+            // 加载文件
+            const img = await fetch(fullSizeImgURL)
+            const blob = await img.blob()
+            // 直接保存到下载文件夹
+            const url = URL.createObjectURL(blob)
+            const name = `${userProfile.body.name}_${userId}_avatar.${ext}`
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_5__['Utils'].downloadFile(
+              url,
+              name
+            )
+            _Log__WEBPACK_IMPORTED_MODULE_2__['log'].success(
+              '✓ ' +
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+                  '_保存用户头像'
+                )
+            )
+            _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].fire('closeCenterPanel')
+          }
+        }
+        new SaveAvatarImage()
+
+        /***/
+      },
+
+    /***/ './src/ts/pageFunciton/SaveUserCover.ts':
+      /*!**********************************************!*\
+  !*** ./src/ts/pageFunciton/SaveUserCover.ts ***!
+  \**********************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../Lang */ './src/ts/Lang.ts'
+        )
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../API */ './src/ts/API.ts'
+        )
+        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../Log */ './src/ts/Log.ts'
+        )
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../Tools */ './src/ts/Tools.ts'
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../utils/Utils */ './src/ts/utils/Utils.ts'
+        )
+        /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ../Toast */ './src/ts/Toast.ts'
+        )
+
+        // 保存用户封面图片
+        class SaveUserCover {
+          constructor() {
+            this.bindEvents()
+          }
+          bindEvents() {
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].list.saveUserCover,
+              () => {
+                this.saveUserCover()
+              }
+            )
+          }
+          async saveUserCover() {
+            const userId = _Tools__WEBPACK_IMPORTED_MODULE_3__[
+              'Tools'
+            ].getUserId()
+            const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__[
+              'API'
+            ].getUserProfile(userId)
+            const bgData = userProfile.body.background
+            if (bgData === null) {
+              return _Toast__WEBPACK_IMPORTED_MODULE_6__['toast'].error(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+                  '_没有数据可供使用'
+                )
+              )
+            }
+            const bgUrl = bgData.url
+            if (!bgUrl) {
+              return _Toast__WEBPACK_IMPORTED_MODULE_6__['toast'].error(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+                  '_没有数据可供使用'
+                )
+              )
+            }
+            // 加载文件
+            const img = await fetch(bgUrl)
+            const blob = await img.blob()
+            // 提取后缀名
+            const arr = bgUrl.split('.')
+            const ext = arr[arr.length - 1]
+            // 直接保存到下载文件夹
+            const url = URL.createObjectURL(blob)
+            const name = `${userProfile.body.name}_${userId}_cover.${ext}`
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_5__['Utils'].downloadFile(
+              url,
+              name
+            )
+            _Log__WEBPACK_IMPORTED_MODULE_2__['log'].success(
+              '✓ ' +
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+                  '_保存用户封面'
+                )
+            )
+            _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].fire('closeCenterPanel')
+          }
+        }
+        new SaveUserCover()
+
+        /***/
+      },
+
+    /***/ './src/ts/setting/BG.ts':
+      /*!******************************!*\
+  !*** ./src/ts/setting/BG.ts ***!
+  \******************************/
+      /*! exports provided: BG */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'BG',
+          function () {
+            return BG
+          }
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../utils/Utils */ './src/ts/utils/Utils.ts'
+        )
+        /* harmony import */ var _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../utils/IndexedDB */ './src/ts/utils/IndexedDB.ts'
+        )
+        /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./Settings */ './src/ts/setting/Settings.ts'
+        )
+
+        class BG {
+          constructor(wrap) {
+            this.id = 'xzBG'
+            this.flagClassName = 'xzBG'
+            this.haveImage = false
+            this.DBName = 'PBDBG'
+            this.DBVer = 1
+            this.storeName = 'bg'
+            this.keyName = 'bg'
+            // 在数据库升级事件里创建表
+            this.onUpdate = (db) => {
+              if (!db.objectStoreNames.contains(this.storeName)) {
+                db.createObjectStore(this.storeName, {
+                  keyPath: 'key',
+                })
+              }
+            }
+            this.wrap = wrap
+            this.el = this.createEl()
+            this.IDB = new _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__[
+              'IndexedDB'
+            ]()
+            this.init()
+          }
+          async init() {
+            this.bindEvents()
+            await this.initDB()
+            this.restore()
+          }
+          async initDB() {
+            await this.IDB.open(this.DBName, this.DBVer, this.onUpdate)
+          }
+          createEl() {
+            const div = document.createElement('div')
+            div.id = this.id
+            const el = this.wrap.insertAdjacentElement('afterbegin', div)
+            return el
+          }
+          bindEvents() {
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.selectBG,
+              () => {
+                this.selectBG()
+              }
+            )
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.clearBG,
+              () => {
+                this.clearBG()
+              }
+            )
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,
+              (ev) => {
+                const data = ev.detail.data
+                if (data.name === 'bgDisplay') {
+                  this.setDisplay()
+                }
+                if (data.name === 'bgOpacity') {
+                  this.setOpacity()
+>>>>>>> 1ee87f50356c8330399ced521feaef95756559c3:dist/content.js
                 }
                 this.allBeautifyInput.push({
                     input: input,
@@ -26272,6 +30664,7 @@ class SaveArtworkData {
                     const tempExt = body.urls.thumb.split('.');
                     ext = tempExt[tempExt.length - 1];
                 }
+<<<<<<< HEAD:dist/js/content.js
                 _Store__WEBPACK_IMPORTED_MODULE_3__["store"].addResult({
                     id: body.id,
                     idNum: idNum,
@@ -26318,6 +30711,63 @@ const saveArtworkData = new SaveArtworkData();
 
 /***/ "./src/ts/store/SaveNovelData.ts":
 /*!***************************************!*\
+=======
+                // 当下载图片的方形缩略图时，它的后缀名从 url 中提取。
+                // 此时不应该把它的后缀名设置为动图的保存格式，因为缩略图无法转换成动图
+                let ext =
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
+                    .ugoiraSaveAs
+                if (
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
+                    .imageSize === 'thumb'
+                ) {
+                  const tempExt = body.urls.thumb.split('.')
+                  ext = tempExt[tempExt.length - 1]
+                }
+                _Store__WEBPACK_IMPORTED_MODULE_3__['store'].addResult({
+                  id: body.id,
+                  idNum: idNum,
+                  thumb: body.urls.thumb,
+                  pageCount: pageCount,
+                  original: meta.body.originalSrc,
+                  regular: meta.body.src,
+                  small: meta.body.src,
+                  title: title,
+                  description: body.description,
+                  tags: tags,
+                  tagsWithTransl: tagsWithTransl,
+                  tagsTranslOnly: tagsTranslOnly,
+                  user: user,
+                  userId: userId,
+                  fullWidth: fullWidth,
+                  fullHeight: fullHeight,
+                  ext: ext,
+                  bmk: bmk,
+                  bookmarked: bookmarked,
+                  date: body.createDate,
+                  type: body.illustType,
+                  rank: rank,
+                  ugoiraInfo: ugoiraInfo,
+                  seriesTitle: seriesTitle,
+                  seriesOrder: seriesOrder,
+                  viewCount: body.viewCount,
+                  likeCount: body.likeCount,
+                  commentCount: body.commentCount,
+                  xRestrict: body.xRestrict,
+                  sl: body.sl,
+                })
+              }
+            }
+          }
+        }
+        const saveArtworkData = new SaveArtworkData()
+
+        /***/
+      },
+
+    /***/ './src/ts/store/SaveNovelData.ts':
+      /*!***************************************!*\
+>>>>>>> 1ee87f50356c8330399ced521feaef95756559c3:dist/content.js
   !*** ./src/ts/store/SaveNovelData.ts ***!
   \***************************************/
 /*! exports provided: saveNovelData */
