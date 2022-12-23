@@ -7004,6 +7004,14 @@ const langText = {
         '특정 태그가 있는 경우 작업에 다른 명명 규칙을 사용하십시오.',
         'Используйте другое правило именования для работы, если она имеет определенные теги',
     ],
+    _升级到manifest_v3的提示: [
+        '下载器已升级到 Manifest V3。<br>如果你在下载时遇到问题，请打开扩展管理页面，重新加载本扩展。',
+        '下載器已升級到 Manifest V3。<br>如果你在下載時遇到問題，請開啟擴充套件管理頁面，重新載入本擴充套件。',
+        'Downloader has been upgraded to Manifest V3. <br>If you encounter problems when downloading, please open the extension management page and reload this extension.',
+        'Downloader が Manifest V3 にアップグレードされました。 <br>ダウンロード中に問題が発生した場合は、拡張機能の管理ページを開いて、この拡張機能をリロードしてください。',
+        '다운로더가 Manifest V3로 업그레이드되었습니다. <br>다운로드 시 문제가 발생하면 확장 프로그램 관리 페이지를 열고 이 확장 프로그램을 새로고침하세요.',
+        'Загрузчик обновлен до версии Manifest V3. <br>Если у вас возникли проблемы при загрузке, откройте страницу управления расширением и перезагрузите это расширение.',
+    ],
 };
 
 
@@ -10100,14 +10108,14 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '14.2.0';
+        this.flag = '15.0.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `<strong></strong>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_Chrome108版本转换WebM失败的问题')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_升级到manifest_v3的提示')}
       `;
             // 在更新说明的下方显示赞助提示
             msg += `
