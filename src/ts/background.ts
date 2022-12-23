@@ -32,8 +32,8 @@ const dlData: DonwloadListData = {}
 // 只要在 Service worker 被回收之前，浏览器把传递给它的下载任务全部下载完了，dlData 里保存的数据也就不再需要使用了，所以即使此时被清空了也无所谓。
 // 如果浏览器还没有把传递给它的下载任务全部下载完成，Service worker 就已经被回收，那么会有影响（文件下载完成之后找不到之前保存的数据了）。但是理论上，既然浏览器在下载，这个 Service worker 就不会被回收，所以不会发生下载完成前就被回收的情况。
 
-type dlBatchType = { [key: number]: number }
-type dlIndexType = { [key: number]: string[] }
+type dlBatchType = { [key: string]: number }
+type dlIndexType = { [key: string]: string[] }
 
 // 使用每个页面的 tabId 作为索引，储存此页面的批次编号。用来判断不同批次的下载
 let dlBatch: dlBatchType = {}
@@ -41,22 +41,11 @@ let dlBatch: dlBatchType = {}
 // 储存每个标签页所发送的下载请求的作品 id 列表，用来判断重复的任务
 let dlIndex: dlIndexType = {}
 
-// dlBatch 和 dlIndex 需要持久化存储（但是当浏览器关闭并重新启动时可以清空，因为此时前台的下载任务必然和浏览器关闭之前的不是同一批了（批次编号会变化），所以旧的数据已经没用了）
-// 如果不进行持久化存储，设想一种情况：在任务下载到了中途（先下载了一部分文件的时候），假如前台进行了一些耗时较长的操作（*），长时间没有向后台发送消息，那么后台就可能被回收。当变量的数据被清除之后，前台传递过来的可能还是同一批下载里的任务，但是后台却丢失了记录。这可能会导致下载出现重复文件等异常
-// 耗时较长的操作，例如：文件体积很大，所以下载花费了很长时间；因为转换动图花费了很长时间；因为网络波动一直在重试，花费了很长时间
+// 在前台处于下载阶段时，dlBatch 和 dlIndex 需要持久化存储（但是当浏览器关闭并重新启动时可以清空，因为此时前台的下载任务必然和浏览器关闭之前的不是同一批了，所以旧的数据已经没用了）
+// 如果不进行持久化存储，设想任务下载到了中途，后台 SW 被回收了，那么变量也会被清除。之后前台传递过来的可能还是同一批下载里的任务，但是后台却丢失了记录。这可能会导致下载出现重复文件等异常。
+// 实际上，下载时后台 SW 会持续存在很长时间，不会轻易被回收的。持久化存储只是为了以防万一
 
-// 封装 chrome.storage.local.get
-function getData(key: 'dlBatch'): Promise<dlBatchType>
-function getData(key: 'dlIndex'): Promise<dlIndexType>
-async function getData(key: string) {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(key, (data) => {
-      resolve(data[key])
-    })
-  })
-}
-
-// 封装 chrome.storage.local.set
+// 封装 chrome.storage.local.set。不需要等待回调
 async function setData(data: { [key: string]: any }) {
   return chrome.storage.local.set(data)
 }
@@ -70,8 +59,9 @@ chrome.runtime.onMessage.addListener(async function (
     // 当处于初始状态时，或者变量被回收了，就从存储中读取数据储存在变量中
     // 之后每当要使用这两个数据时，从变量读取，而不是从存储中获得。这样就解决了数据不同步的问题，而且性能更高
     if (Object.keys(dlBatch).length === 0) {
-      dlBatch = await getData('dlBatch')
-      dlIndex = await getData('dlIndex')
+      const data = await chrome.storage.local.get(['dlBatch', 'dlIndex'])
+      dlBatch = data.dlBatch
+      dlIndex = data.dlIndex
     }
 
     const tabId = sender.tab!.id!
@@ -81,15 +71,15 @@ chrome.runtime.onMessage.addListener(async function (
       dlBatch[tabId] = msg.taskBatch
       dlIndex[tabId] = []
       setData({ dlBatch, dlIndex })
-      console.log(dlBatch)
       // 这里存储数据时不需要使用 await，因为后面使用的是全局变量，所以不需要关心存储数据的同步问题
     }
+
     // 检查任务是否重复，不重复则下载
     if (!dlIndex[tabId].includes(msg.id)) {
       // 储存该任务的索引
       dlIndex[tabId].push(msg.id)
       setData({ dlIndex })
-      console.log(dlIndex)
+
       // 开始下载
       chrome.downloads.download(
         {
@@ -172,3 +162,25 @@ chrome.downloads.onChanged.addListener(async function (detail) {
     }
   }
 })
+
+// 清除不需要的数据，避免数据体积越来越大
+async function clearData() {
+  for (const key of Object.keys(dlIndex)) {
+    const tabId = parseInt(key)
+    try {
+      await chrome.tabs.get(tabId)
+    } catch (error) {
+      // 如果建立下载任务的标签页已经不存在，则会触发错误，如：
+      // Unchecked runtime.lastError: No tab with id: 1943988409.
+      // 此时删除对应的数据
+      delete dlIndex[tabId]
+      delete dlBatch[tabId]
+    }
+  }
+
+  setData({ dlBatch, dlIndex })
+}
+
+setInterval(() => {
+  clearData()
+}, 60000)
