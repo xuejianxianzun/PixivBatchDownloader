@@ -101,6 +101,9 @@ chrome.runtime.onMessage.addListener((data, sender) => {
 });
 // 当点击扩展图标时，显示/隐藏下载面板
 chrome.action.onClicked.addListener(function (tab) {
+    if (!tab.url) {
+        return;
+    }
     chrome.tabs.sendMessage(tab.id, {
         msg: 'click_icon',
     });

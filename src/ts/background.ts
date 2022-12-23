@@ -9,6 +9,11 @@ chrome.runtime.onMessage.addListener((data, sender) => {
 
 // 当点击扩展图标时，显示/隐藏下载面板
 chrome.action.onClicked.addListener(function (tab) {
+  // 在本程序没有权限的页面上点击扩展图标时，url 始终是 undefined，此时不发送消息
+  if (!tab.url) {
+    return
+  }
+
   chrome.tabs.sendMessage(tab.id!, {
     msg: 'click_icon',
   })
