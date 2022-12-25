@@ -35,6 +35,7 @@ class Store {
   public crawlCompleteTime: Date = new Date()
 
   private readonly fileDataDefault: Result = {
+    aiType: 0,
     idNum: 0,
     id: '',
     original: '',

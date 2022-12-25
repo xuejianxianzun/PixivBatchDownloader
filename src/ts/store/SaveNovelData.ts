@@ -18,6 +18,7 @@ class SaveNovelData {
     // 小说的标签没有进行翻译，所以没有翻译后的标签
 
     const filterOpt: FilterOption = {
+      aiType: body.aiType,
       createDate: body.createDate,
       id: body.id,
       workType: illustType,
@@ -70,6 +71,7 @@ class SaveNovelData {
 
       // 添加作品信息
       store.addResult({
+        aiType: body.aiType,
         id: id,
         idNum: idNum,
         thumb: body.coverUrl || undefined,

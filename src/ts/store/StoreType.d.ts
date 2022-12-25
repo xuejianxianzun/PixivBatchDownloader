@@ -1,4 +1,5 @@
 import { UgoiraInfo } from '../crawl/CrawlResult'
+
 export type WorkTypeString =
   | 'illusts'
   | 'manga'
@@ -31,6 +32,8 @@ export interface NovelMeta {
 
 /**保存每个要下载的作品的信息。这是下载器内部保存的抓取结果 */
 export interface Result {
+  /**是否为 AI 创作。0 未知 1 否 2 是 */
+  aiType: 0 | 1 | 2
   /**作品的数字 id。这个属性不是唯一的，多图作品会产生多个抓取结果，它们的 idNum 是相同的 */
   idNum: number
   /**这个抓取结果的唯一标志，包含 id 和序号，如 44920385_p0 */
@@ -122,6 +125,7 @@ export interface Result {
 
 /**ResultOptional 里没有 index 属性 */
 export interface ResultOptional {
+  aiType?: 0 | 1 | 2
   idNum?: number
   id?: string
   original?: string

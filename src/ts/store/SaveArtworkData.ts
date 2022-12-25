@@ -19,6 +19,7 @@ class SaveArtworkData {
     let tagsTranslOnly: string[] = Tools.extractTags(data, 'transl') // 保存翻译后的 tag 列表
 
     const filterOpt: FilterOption = {
+      aiType: body.aiType,
       createDate: body.createDate,
       id: body.id,
       workType: body.illustType,
@@ -61,6 +62,7 @@ class SaveArtworkData {
 
         // 添加作品信息
         store.addResult({
+          aiType: body.aiType,
           id: body.id,
           idNum: idNum,
           // 对于插画和漫画的缩略图，当一个作品包含多个图片文件时，需要转换缩略图 url
@@ -117,6 +119,7 @@ class SaveArtworkData {
         }
 
         store.addResult({
+          aiType: body.aiType,
           id: body.id,
           idNum: idNum,
           thumb: body.urls.thumb,

@@ -136,4 +136,7 @@ export interface SettingsForm extends HTMLFormElement {
   exportLogError: HTMLInputElement
   exportLogExclude: HTMLInputElement
   UseDifferentNameRuleIfWorkHasTagSwitch: HTMLInputElement
+  AIGenerated: HTMLInputElement
+  notAIGenerated: HTMLInputElement
+  UnknownAI: HTMLInputElement
 }

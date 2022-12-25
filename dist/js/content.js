@@ -6316,9 +6316,17 @@ const langText = {
         '你可以在“更多”选项卡 → “{}”分类里找到它。（需要先启用“显示高级设置”）',
         '你可以在“更多”選項卡 → “{}”分類裡找到它。（需要先啟用“顯示進階設定”）',
         'You can find it in the "More" tab → "{}" category. ("Show advanced settings" needs to be enabled first)',
-        '[もっと]タブ→[{}]カテゴリにあります。 （最初に「詳細設定を表示」を有効にする必要があります）',
+        '[もっと]タブ→[{}]カテゴリにあります。（最初に「詳細設定を表示」を有効にする必要があります）',
         '"더보기" 탭 → "{}" 카테고리에서 찾을 수 있습니다. ("고급 설정 보기"를 먼저 활성화해야 합니다.)',
         'Вы можете найти его в разделе "Еще". вкладка → "{}" категория. ("Показать расширенные настройки" необходимо сначала включить)',
+    ],
+    _你可以在xx选项卡里找到它: [
+        '你可以在“{}”选项卡里找到它。（需要先启用“显示高级设置”）',
+        '你可以在“{}”選項卡裡找到它。（需要先啟用“顯示進階設定”）',
+        'You can find it in the "{}" tab. ("Show advanced settings" needs to be enabled first)',
+        '「{}」タブにあります。（最初に「詳細設定を表示」を有効にする必要があります）',
+        '"{}" 탭에서 찾을 수 있습니다. ("고급 설정 보기"를 먼저 활성화해야 합니다.)',
+        'Вы можете найти его на вкладке "{}". ("Показать расширенные настройки" необходимо сначала включить)',
     ],
     _使用鼠标滚轮切换作品里的图片: [
         '使用鼠标滚轮切换多图作品里的图片',
@@ -6936,6 +6944,54 @@ const langText = {
         'Downloader が Manifest V3 にアップグレードされました。 <br>ダウンロード中に問題が発生した場合は、拡張機能の管理ページを開いて、この拡張機能をリロードしてください。',
         '다운로더가 Manifest V3로 업그레이드되었습니다. <br>다운로드 시 문제가 발생하면 확장 프로그램 관리 페이지를 열고 이 확장 프로그램을 새로고침하세요.',
         'Загрузчик обновлен до версии Manifest V3. <br>Если у вас возникли проблемы при загрузке, откройте страницу управления расширением и перезагрузите это расширение.',
+    ],
+    _AI作品: [
+        '<span class="key">AI</span> 作品',
+        '<span class="key">AI</span> 作品',
+        '<span class="key">AI</span> works',
+        '<span class="key">AI</span>が働く',
+        '<span class="key">AI</span> 작동',
+        '<span class="key">ИИ</span> работает',
+    ],
+    _AI生成: [
+        'AI 生成',
+        'AI 生成',
+        'AI-generated',
+        'AI 生成',
+        'AI 생성',
+        'сгенерированный ИИ',
+    ],
+    _非AI生成: [
+        '非 AI 生成',
+        '非 AI 生成',
+        'Not AI-generated',
+        'AI生成ではない',
+        'AI 생성 아님',
+        'Не сгенерировано ИИ',
+    ],
+    _未知: [
+        '未知',
+        '未知',
+        'Unknown',
+        '知らない',
+        '알려지지 않은',
+        'Неизвестный',
+    ],
+    _AI未知作品的说明: [
+        '早期作品没有标记，无法判断',
+        '早期作品沒有標記，無法判斷',
+        'Early works are not marked and cannot be judged',
+        '初期の作品は採点せず、審査不可',
+        '초기 작품은 표시되지 않으며 평가할 수 없습니다.',
+        'Ранние работы не отмечены и не могут быть оценены',
+    ],
+    _用户可以选择是否下载AI生成的作品: [
+        '用户可以选择是否下载由 AI 生成的作品。',
+        '使用者可以選擇是否下載由 AI 生成的作品。',
+        'Users can choose whether to download AI-generated works.',
+        'ユーザーは、AI によって生成された作品をダウンロードするかどうかを選択できます。',
+        '사용자는 AI가 생성한 작품을 다운로드할지 여부를 선택할 수 있습니다.',
+        'Пользователи могут выбирать, загружать ли работы, созданные ИИ.',
     ],
 };
 
@@ -10033,14 +10089,17 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '15.0.1';
+        this.flag = '15.1.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong></strong>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_修复bug')}
+            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_AI作品')}</strong>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_用户可以选择是否下载AI生成的作品')}
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在xx选项卡里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取'))}
       `;
             // 在更新说明的下方显示赞助提示
             msg += `
@@ -12656,6 +12715,7 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             }
             // 过滤器进行检查
             const filterOpt = {
+                aiType: work.aiType,
                 id: work.id,
                 tags: work.tags,
                 bookmarkData: !!work.bookmarkData,
@@ -12946,6 +13006,7 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
                 continue;
             }
             const filterOpt = {
+                aiType: nowData.aiType,
                 id: nowData.id,
                 width: nowData.pageCount === 1 ? nowData.width : 0,
                 height: nowData.pageCount === 1 ? nowData.height : 0,
@@ -13849,6 +13910,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 continue;
             }
             const filterOpt = {
+                aiType: nowData.aiType,
                 createDate: nowData.createDate,
                 id: nowData.id,
                 width: nowData.pageCount === 1 ? nowData.width : 0,
@@ -13993,6 +14055,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.getMultipleSetting();
         this.filterResult((data) => {
             const filterOpt = {
+                aiType: data.aiType,
                 id: data.id,
                 workType: data.type,
                 pageCount: data.pageCount,
@@ -14420,6 +14483,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                     continue;
                 }
                 const filterOpt = {
+                    aiType: data.aiType,
                     id: data.id,
                     width: data.pageCount === 1 ? data.width : 0,
                     height: data.pageCount === 1 ? data.height : 0,
@@ -14442,6 +14506,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             // 过滤小说
             for (const data of worksData) {
                 const filterOpt = {
+                    aiType: data.aiType,
                     id: data.id,
                     workType: 3,
                     tags: data.tags,
@@ -14684,6 +14749,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
                     return this.afterGetIdList();
                 }
                 const filterOpt = {
+                    aiType: workData.aiType,
                     id: workData.id,
                     tags: workData.tags,
                     bookmarkData: workData.bookmarkData,
@@ -15803,6 +15869,7 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
                 this.fetchCount++;
             }
             const filterOpt = {
+                aiType: nowData.aiType,
                 id: nowData.id,
                 bookmarkData: nowData.bookmarkData,
                 bookmarkCount: nowData.bookmarkCount,
@@ -16449,6 +16516,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         data = data.data;
         for (const nowData of data) {
             const filterOpt = {
+                aiType: nowData.aiType,
                 createDate: nowData.createDate,
                 id: nowData.id,
                 bookmarkData: nowData.bookmarkData,
@@ -18455,6 +18523,7 @@ class ExportResult2CSV {
             [1, 'R-18'],
             [2, 'R-18G'],
         ]);
+        this.AIType = ['Unknown', 'No', 'Yes'];
         // 定义要保存的字段
         this.fieldCfg = [
             {
@@ -18526,6 +18595,10 @@ class ExportResult2CSV {
                 index: 'xRestrict',
             },
             {
+                name: 'AI',
+                index: 'aiType',
+            },
+            {
                 name: 'date',
                 index: 'date',
             },
@@ -18593,6 +18666,9 @@ class ExportResult2CSV {
                     }
                     if (field.name === 'xRestrict') {
                         result = this.xRestrictMap.get(result) || '';
+                    }
+                    if (field.name === 'AI') {
+                        result = this.AIType[d.aiType || 0];
                     }
                     bodyItem.push(result);
                 }
@@ -18674,6 +18750,7 @@ class ImportResult {
         const temp = [];
         for (const result of loadedJSON) {
             const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check({
+                aiType: result.aiType,
                 id: result.idNum,
                 workType: result.type,
                 pageCount: result.pageCount,
@@ -18751,9 +18828,11 @@ class MakeNovelFile {
             // 添加小说里内嵌的图片。这部分必须放在 replaceEPUBText 后面，否则 <img> 标签的左尖括号会被转义
             content = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_3__["downloadNovelEmbeddedImage"].EPUB(content, data.embeddedImages);
             // epub 内部会使用标题 title 建立一个文件夹，把一些文件存放进去，所以要替换掉标题的特殊字符。特殊字符会导致这个文件夹名被截断，结果就是这个 epub 文件无法被解析。
+            const userName = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].replaceUnsafeStr(data.userName));
+            const title = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].replaceUnsafeStr(data.title));
             new EpubMaker()
                 .withTemplate('idpf-wasteland')
-                .withAuthor(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].replaceUnsafeStr(data.userName))
+                .withAuthor(userName)
                 .withModificationDate(new Date(data.createDate))
                 .withRights({
                 description: _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].replaceEPUBText(data.description),
@@ -18764,9 +18843,9 @@ class MakeNovelFile {
                 license: '',
                 attributionUrl: '',
             })
-                .withTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].replaceUnsafeStr(data.title))
+                .withTitle(title)
                 .withSection(new EpubMaker.Section('chapter', null, {
-                title: data.title,
+                title: title,
                 content: content,
             }, true, true))
                 .makeEpub()
@@ -20528,6 +20607,7 @@ class Filter {
     showTip() {
         this.getDownType();
         this.getDownTypeByAge();
+        this.getAIWorkType();
         this.getDownTypeByImgCount();
         this.getDownTypeByColor();
         this.getDownTypeByBmked();
@@ -20556,6 +20636,9 @@ class Filter {
             return false;
         }
         if (!this.checkDownTypeByAge(option.xRestrict)) {
+            return false;
+        }
+        if (!this.checkAIWorkType(option.aiType)) {
             return false;
         }
         // 检查单图、多图的下载
@@ -20648,7 +20731,7 @@ class Filter {
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType2 && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_动图'));
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType3 && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_小说'));
         if (tips.length > 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.join(', '));
         }
     }
     getDownTypeByAge() {
@@ -20661,7 +20744,16 @@ class Filter {
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downR18 && tips.push('R-18');
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downR18G && tips.push('R-18G');
         if (tips.length > 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.join(', '));
+        }
+    }
+    getAIWorkType() {
+        const tips = [];
+        !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].AIGenerated && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_AI生成'));
+        !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notAIGenerated && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_非AI生成'));
+        !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].UnknownAI && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_未知') + '(AI)');
+        if (tips.length > 0) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.join(', '));
         }
     }
     getDownTypeByImgCount() {
@@ -20669,7 +20761,7 @@ class Filter {
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downSingleImg && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_单图作品'));
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downMultiImg && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品'));
         if (tips.length > 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.join(', '));
         }
     }
     // 提示图像颜色设置
@@ -20682,7 +20774,7 @@ class Filter {
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_彩色图片'));
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBlackWhiteImg && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_黑白图片'));
         if (tips.length > 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.join(', '));
         }
     }
     // 提示下载收藏和未收藏作品的设置
@@ -20695,7 +20787,7 @@ class Filter {
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_未收藏'));
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_已收藏'));
         if (tips.length > 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.join(', '));
         }
     }
     // 提示多图作品的图片数量限制
@@ -20846,6 +20938,18 @@ class Filter {
                 return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downR18;
             case 2:
                 return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downR18G;
+            default:
+                return true;
+        }
+    }
+    checkAIWorkType(aiType) {
+        switch (aiType) {
+            case 0:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].UnknownAI;
+            case 1:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notAIGenerated;
+            case 2:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].AIGenerated;
             default:
                 return true;
         }
@@ -23318,7 +23422,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formHtml", function() { return formHtml; });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 
-// 已使用的最大编号是 80
+// 已使用的最大编号是 81
 const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -23362,6 +23466,21 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_checkbox" tabindex="0"></span>
     <label for="downR18G"> R-18G</label>
     </p>
+    
+    <p class="option" data-no="81">
+    <span class="settingNameStyle1">
+    <span data-xztext="_AI作品"></span>
+    </span>
+    <input type="checkbox" name="AIGenerated" id="AIGenerated" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox" tabindex="0"></span>
+    <label for="AIGenerated" data-xztext="_AI生成"></label>
+    <input type="checkbox" name="notAIGenerated" id="notAIGenerated" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox" tabindex="0"></span>
+    <label for="notAIGenerated" data-xztext="_非AI生成"></label>
+    <input type="checkbox" name="UnknownAI" id="UnknownAI" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox" tabindex="0"></span>
+    <label for="UnknownAI" data-xztext="_未知" class="has_tip" data-xztip="_AI未知作品的说明"></label>
+    </p>
 
     <p class="option" data-no="6">
     <span class="settingNameStyle1">
@@ -23374,7 +23493,7 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_checkbox" tabindex="0"></span>
     <label for="setDownBookmarked" data-xztext="_已收藏"></label>
     </p>
-    
+
     <p class="option" data-no="23">
     <span class="settingNameStyle1">
     <span data-xztext="_图片色彩"></span>
@@ -24580,6 +24699,9 @@ class FormSettings {
                 'exportLogNormal',
                 'exportLogError',
                 'UseDifferentNameRuleIfWorkHasTagSwitch',
+                'AIGenerated',
+                'notAIGenerated',
+                'UnknownAI',
             ],
             text: [
                 'setWantPage',
@@ -25531,6 +25653,9 @@ class Settings {
             UseDifferentNameRuleIfWorkHasTagSwitch: false,
             UseDifferentNameRuleIfWorkHasTagShow: true,
             UseDifferentNameRuleIfWorkHasTagList: [],
+            AIGenerated: true,
+            notAIGenerated: true,
+            UnknownAI: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -26191,6 +26316,7 @@ class SaveArtworkData {
         let tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].extractTags(data, 'both'); // 保存 tag 列表，附带翻译后的 tag
         let tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].extractTags(data, 'transl'); // 保存翻译后的 tag 列表
         const filterOpt = {
+            aiType: body.aiType,
             createDate: body.createDate,
             id: body.id,
             workType: body.illustType,
@@ -26227,6 +26353,7 @@ class SaveArtworkData {
                 const ext = tempExt[tempExt.length - 1];
                 // 添加作品信息
                 _Store__WEBPACK_IMPORTED_MODULE_3__["store"].addResult({
+                    aiType: body.aiType,
                     id: body.id,
                     idNum: idNum,
                     // 对于插画和漫画的缩略图，当一个作品包含多个图片文件时，需要转换缩略图 url
@@ -26281,6 +26408,7 @@ class SaveArtworkData {
                     ext = tempExt[tempExt.length - 1];
                 }
                 _Store__WEBPACK_IMPORTED_MODULE_3__["store"].addResult({
+                    aiType: body.aiType,
                     id: body.id,
                     idNum: idNum,
                     thumb: body.urls.thumb,
@@ -26353,6 +26481,7 @@ class SaveNovelData {
         const tags = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].extractTags(data); // tag 列表
         // 小说的标签没有进行翻译，所以没有翻译后的标签
         const filterOpt = {
+            aiType: body.aiType,
             createDate: body.createDate,
             id: body.id,
             workType: illustType,
@@ -26396,6 +26525,7 @@ class SaveNovelData {
             }
             // 添加作品信息
             _Store__WEBPACK_IMPORTED_MODULE_1__["store"].addResult({
+                aiType: body.aiType,
                 id: id,
                 idNum: idNum,
                 thumb: body.coverUrl || undefined,
@@ -26646,6 +26776,7 @@ class Store {
         this.title = ''; // 开始抓取时，储存页面此时的 title
         this.crawlCompleteTime = new Date();
         this.fileDataDefault = {
+            aiType: 0,
             idNum: 0,
             id: '',
             original: '',
