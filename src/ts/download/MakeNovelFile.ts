@@ -43,7 +43,7 @@ class MakeNovelFile {
         .withAuthor(Utils.replaceUnsafeStr(data.userName))
         .withModificationDate(new Date(data.createDate))
         .withRights({
-          description: data.description,
+          description: Tools.replaceEPUBText(data.description),
           license: '',
         })
         .withAttributionUrl(
