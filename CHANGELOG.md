@@ -4,6 +4,37 @@ TODO:日语文本需要加粗显示关键字，但是我不懂日语，所以现
 
 每次新版本发布时，应该更新作品发布日期时间的数据。根据目前的数据统计，每 10 小时就有 10000 个新的图像作品，这会增加一条数据。每 43 天左右会增加 100 条数据。
 
+排除 AI 作品
+
+aiType: 0 | 1 | 2
+
+0 没有标明是否是 AI（以前的作品）
+1 否
+2 是
+ 
+
+## 15.0.1 2022/12/26
+
+### 修复小说保存为 EPUB 时下载失败的问题
+
+上个版本升级到 Manifest V3 之后，小说保存为 EPUB 时会报错，无法下载，现在修复。
+
+报错信息如下：
+
+```
+Uncaught (in promise) EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'self' 'wasm-unsafe-eval'".
+```
+
+报错的信息指向 `handlebars.min.js`，我以前没注意过它，去搜了下才知道它是一个 HTML 模板编译器（类似于 Vue，用 `{{var}}` 的语法把变量的值插入到 HTML 文本中）。它里面用到了动态构建 Function 的功能，在下载器升级到 Manifest V3 之后，浏览器不允许在扩展脚本使用 eval 功能，就产生了报错。呃呃，第三方库出现问题实在令我猝不及防，平白增加工作量了。
+
+引用 `handlebars.min.js` 的是用于创建 EPUB 文件的库 `js-epub-maker`。
+
+https://github.com/bbottema/js-epub-maker
+
+我有点疑惑，`js-epub-maker` 怎么不用模板字符串来生成 HTML 模板？它引用的 `handlebars.min.js` 不仅使用了 eval，而且体积也有 150KB，太大了些。不过我看了下 `js-epub-maker` 的主要更新时间是 2015-2017 年，可能当时模板字符串的浏览器支持情况还不太乐观，或者作者就是想偷懒，我也管不着。
+
+现在我把 `js-epub-maker.js` 里使用 handlebars 的地方用模板字符串进行了重构，修复了此问题，并删除了 `handlebars.min.js`。
+
 ## 15.0.0 2022/12/24
 
 ### 扩展升级到 Manifest V3

@@ -1,5 +1,5 @@
-;(function e(t, n, r) {
-  function s(o, u) {
+; (function e (t, n, r) {
+  function s (o, u) {
     if (!n[o]) {
       if (!t[o]) {
         var a = typeof require == 'function' && require
@@ -33,7 +33,7 @@
     1: [
       function (require, module, exports) {
         /* global require, module, exports, saveAs */
-        ;(function () {
+        ; (function () {
           'use strict'
 
           var console = require('./js/util/console')()
@@ -224,7 +224,7 @@
               return collectSections(this, 'includeInLandmarks')
             }
 
-            function collectSections(section, prop) {
+            function collectSections (section, prop) {
               var sections = section[prop] ? [section] : []
               for (var i = 0; i < section.subSections.length; i++) {
                 Array.prototype.push.apply(
@@ -274,13 +274,13 @@
         var cachedSetTimeout
         var cachedClearTimeout
 
-        function defaultSetTimout() {
+        function defaultSetTimout () {
           throw new Error('setTimeout has not been defined')
         }
-        function defaultClearTimeout() {
+        function defaultClearTimeout () {
           throw new Error('clearTimeout has not been defined')
         }
-        ;(function () {
+        ; (function () {
           try {
             if (typeof setTimeout === 'function') {
               cachedSetTimeout = setTimeout
@@ -300,7 +300,7 @@
             cachedClearTimeout = defaultClearTimeout
           }
         })()
-        function runTimeout(fun) {
+        function runTimeout (fun) {
           if (cachedSetTimeout === setTimeout) {
             //normal enviroments in sane situations
             return setTimeout(fun, 0)
@@ -326,7 +326,7 @@
             }
           }
         }
-        function runClearTimeout(marker) {
+        function runClearTimeout (marker) {
           if (cachedClearTimeout === clearTimeout) {
             //normal enviroments in sane situations
             return clearTimeout(marker)
@@ -359,7 +359,7 @@
         var currentQueue
         var queueIndex = -1
 
-        function cleanUpNextTick() {
+        function cleanUpNextTick () {
           if (!draining || !currentQueue) {
             return
           }
@@ -374,7 +374,7 @@
           }
         }
 
-        function drainQueue() {
+        function drainQueue () {
           if (draining) {
             return
           }
@@ -412,7 +412,7 @@
         }
 
         // v8 likes predictible objects
-        function Item(fun, array) {
+        function Item (fun, array) {
           this.fun = fun
           this.array = array
         }
@@ -426,7 +426,7 @@
         process.version = '' // empty string to avoid regexp issues
         process.versions = {}
 
-        function noop() {}
+        function noop () { }
 
         process.on = noop
         process.addListener = noop
@@ -460,14 +460,14 @@
     ],
     3: [
       function (require, module, exports) {
-        ;(function (process) {
+        ; (function (process) {
           /**
            * attempt of a simple defer/promise library for mobile development
            * @author Jonathan Gotti < jgotti at jgotti dot net>
            * @since 2012-10
            * @version 0.7.3
            */
-          ;(function (undef) {
+          ; (function (undef) {
             'use strict'
 
             var nextTick,
@@ -505,7 +505,7 @@
                 setTimeout(cb, 0)
               }
             }
-            function rethrow(e) {
+            function rethrow (e) {
               nextTick(function () {
                 throw e
               })
@@ -537,7 +537,7 @@
              * @param {fulfilled} fulfilled callback
              * @returns {promise} a new promise
              */
-            function promise_success(fulfilled) {
+            function promise_success (fulfilled) {
               return this.then(fulfilled, undef)
             }
 
@@ -546,7 +546,7 @@
              * @param {failed} failed callback
              * @returns {promise} a new promise
              */
-            function promise_error(failed) {
+            function promise_error (failed) {
               return this.then(undef, failed)
             }
 
@@ -556,13 +556,13 @@
              * @param {failed} failed callback
              * @returns {promise} a new promise
              */
-            function promise_apply(fulfilled, failed) {
+            function promise_apply (fulfilled, failed) {
               return this.then(function (a) {
                 return isFunc(fulfilled)
                   ? fulfilled.apply(null, isArray(a) ? a : [a])
                   : defer.onlyFuncs
-                  ? a
-                  : fulfilled
+                    ? a
+                    : fulfilled
               }, failed || undef)
             }
 
@@ -572,8 +572,8 @@
              *                      when the promise is not pending anymore
              * @returns {promise} the same promise untouched
              */
-            function promise_ensure(cb) {
-              function _cb() {
+            function promise_ensure (cb) {
+              function _cb () {
                 cb()
               }
               this.then(_cb, _cb)
@@ -587,19 +587,19 @@
              *                      callback. Rest of parameters will be applied as with the apply method.
              * @returns {promise} a new promise
              */
-            function promise_nodify(cb) {
+            function promise_nodify (cb) {
               return this.then(
                 function (a) {
                   return isFunc(cb)
                     ? cb.apply(
-                        null,
-                        isArray(a)
-                          ? a.splice(0, 0, undefined) && a
-                          : [undefined, a]
-                      )
+                      null,
+                      isArray(a)
+                        ? a.splice(0, 0, undefined) && a
+                        : [undefined, a]
+                    )
                     : defer.onlyFuncs
-                    ? a
-                    : cb
+                      ? a
+                      : cb
                 },
                 function (e) {
                   return cb(e)
@@ -613,14 +613,14 @@
              *                            if passed a failed method then will call failed on rejection and throw the error again if failed didn't
              * @returns {promise} a new promise
              */
-            function promise_rethrow(failed) {
+            function promise_rethrow (failed) {
               return this.then(
                 undef,
                 failed
                   ? function (e) {
-                      failed(e)
-                      throw e
-                    }
+                    failed(e)
+                    throw e
+                  }
                   : rethrow
               )
             }
@@ -631,12 +631,12 @@
              */
             var defer = function (alwaysAsync) {
               var alwaysAsyncFn = (
-                  undef !== alwaysAsync ? alwaysAsync : defer.alwaysAsync
-                )
-                  ? nextTick
-                  : function (fn) {
-                      fn()
-                    },
+                undef !== alwaysAsync ? alwaysAsync : defer.alwaysAsync
+              )
+                ? nextTick
+                : function (fn) {
+                  fn()
+                },
                 status = 0, // -1 failed | 1 fulfilled
                 pendings = [],
                 value,
@@ -661,8 +661,8 @@
                               isFunc(fulfilled)
                                 ? fulfilled(value)
                                 : defer.onlyFuncs
-                                ? value
-                                : fulfilled
+                                  ? value
+                                  : fulfilled
                             )
                           }
                         } catch (e) {
@@ -715,7 +715,7 @@
                 return value === undef ? this : value
               }
 
-              function execCallbacks() {
+              function execCallbacks () {
                 /*jshint bitwise:false*/
                 if (status === 0) {
                   return
@@ -727,7 +727,7 @@
                   cb
                 pendings = []
                 for (; i < l; i++) {
-                  ;(cb = cbs[i][cbIndex]) && cb(value)
+                  ; (cb = cbs[i][cbIndex]) && cb(value)
                 }
               }
 
@@ -736,9 +736,9 @@
                * @param {*} val
                * @returns {deferred} this for method chaining
                */
-              function _resolve(val) {
+              function _resolve (val) {
                 var done = false
-                function once(f) {
+                function once (f) {
                   return function (x) {
                     if (done) {
                       return undefined
@@ -778,7 +778,7 @@
                * @param {*} Err
                * @returns {deferred} this for method chaining
                */
-              function _reject(Err) {
+              function _reject (Err) {
                 status ||
                   alwaysAsyncFn(function () {
                     try {
@@ -869,7 +869,7 @@
               return defer.resolved(promise)
             }
 
-            function multiPromiseResolver(callerArguments, returnPromises) {
+            function multiPromiseResolver (callerArguments, returnPromises) {
               var promises = slice(callerArguments)
               if (promises.length === 1 && isArray(promises[0])) {
                 if (!promises[0].length) {
@@ -907,16 +907,16 @@
               return d.promise
             }
 
-            function sequenceZenifier(promise, zenValue) {
+            function sequenceZenifier (promise, zenValue) {
               return promise.then(
                 isFunc(zenValue)
                   ? zenValue
                   : function () {
-                      return zenValue
-                    }
+                    return zenValue
+                  }
               )
             }
-            function sequencePromiseResolver(callerArguments) {
+            function sequencePromiseResolver (callerArguments) {
               var funcs = slice(callerArguments)
               if (funcs.length === 1 && isArray(funcs[0])) {
                 funcs = funcs[0]
@@ -987,8 +987,8 @@
                   err
                     ? d.reject(err)
                     : d.resolve(
-                        arguments.length > 2 ? slice(arguments, 1) : res
-                      )
+                      arguments.length > 2 ? slice(arguments, 1) : res
+                    )
                 })
                 try {
                   fn.apply(subject, args)
@@ -1026,7 +1026,7 @@
     4: [
       function (require, module, exports) {
         /* global module */
-        ;(function () {
+        ; (function () {
           'use strict'
 
           // source: http://www.idpf.org/epub/vocab/structure/epub-vocab-structure-20150826.html
@@ -1126,10 +1126,10 @@
           var groups = {}
           for (var i = 0; i < epubtypes.length; i++) {
             var group = epubtypes[i].group
-            ;(groups[group] || (groups[group] = [])).push(epubtypes[i])
+              ; (groups[group] || (groups[group] = [])).push(epubtypes[i])
           }
 
-          function getGroup(epubtype) {
+          function getGroup (epubtype) {
             return {
               abstract: 'frontmatter',
               foreword: 'frontmatter',
@@ -1161,46 +1161,62 @@
     5: [
       function (require, module, exports) {
         /* global module, require, exports, JSZip, JSZipUtils, Handlebars, html_beautify */
-        ;(function () {
+        ; (function () {
           'use strict'
 
           var D = require('d.js')
           var console = require('../../js/util/console')()
           var ajax = require('../../js/util/ajax')
 
-          var templates = {
-            mimetype: 'application/epub+zip',
-            container:
-              '<?xml version="1.0" encoding="UTF-8"?>\n<container xmlns="urn:oasis:names:tc:opendocument:xmlns:container" version="1.0">\n	<rootfiles>\n		<rootfile full-path="EPUB/{{slug}}.opf" 	\n			media-type="application/oebps-package+xml"/>\n	</rootfiles>\n</container>',
-            opf:
-              '<?xml version="1.0" encoding="UTF-8"?>\n<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid" xml:lang="en-US" prefix="cc: http://creativecommons.org/ns#">\n    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">\n        <dc:identifier id="uid">{{uuid}}</dc:identifier>\n        <dc:title>{{title}}</dc:title>\n        <dc:creator>{{author}}</dc:creator>\n        <dc:language>{{lang}}</dc:language>\n        <dc:date>{{publicationDate}}</dc:date>\n        <meta property="dcterms:modified">{{modificationDate}}</meta>\n        {{#if rights}}\n            <!-- rights expressions for the work as a whole -->\n            {{#if rights.description}}<dc:rights>{{rights.description}}</dc:rights>{{/if}}\n            {{#if rights.license}}<link rel="cc:license" href="{{rights.license}}"/>{{/if}}\n            {{#if rights.attributionUrl}}<meta property="cc:attributionURL">{{attributionUrl}}</meta>{{/if}}\n        {{/if}}\n        {{#if coverUrl}}\n            {{#if coverRights}}\n                <!-- rights expression for the cover image -->       \n                {{#if coverRights.license}}<link rel="cc:license" refines="#cover" href="{{coverRights.license}}" />{{/if}}\n                {{#if coverRights.attributionUrl}}<link rel="cc:attributionURL" refines="#cover" href="{{coverRights.attributionUrl}}" />{{/if}}\n            {{/if}}\n                <!-- cover meta element included for 2.0 reading system compatibility: -->\n                <meta name="cover" content="cover"/>\n        {{/if}}\n    </metadata>\n    <manifest>\n        <item id="t1" href="{{slug}}-content.xhtml" media-type="application/xhtml+xml" />\n        <item id="nav" href="{{slug}}-nav.xhtml" properties="nav" media-type="application/xhtml+xml" />\n        {{#if coverUrl}}\n        <item id="cover" href="{{slug}}-cover.{{extension coverUrl}}" media-type="{{mimetype coverUrl}}" properties="cover-image" />\n        {{/if}}\n        <item id="css" href="{{slug}}.css" media-type="text/css" />\n        <!-- ncx included for 2.0 reading system compatibility: -->\n        <item id="ncx" href="{{slug}}.ncx" media-type="application/x-dtbncx+xml" />\n    </manifest>\n    <spine toc="ncx">\n        <itemref idref="t1" />        \n    </spine>    \n</package>\n',
-            ncx:
-              '<?xml version="1.0" encoding="UTF-8"?>\n<ncx xmlns:ncx="http://www.daisy.org/z3986/2005/ncx/" xmlns="http://www.daisy.org/z3986/2005/ncx/"\n    version="2005-1" xml:lang="en">\n    <head>\n        <meta name="dtb:uid" content="{{uuid}}"/>\n    </head>\n    <docTitle>\n        <text>{{title}}</text>\n    </docTitle>\n    <navMap>\n        <!-- 2.01 NCX: playOrder is optional -->\n		{{#each toc}}\n        <navPoint id="{{id}}">\n            <navLabel>\n                <text>{{content.title}}</text>\n            </navLabel>\n            <content src="{{../slug}}-content.xhtml#{{id}}"/>\n        </navPoint>\n		{{/each}}\n    </navMap>\n</ncx>\n',
-            nav:
-              '<?xml version="1.0" encoding="UTF-8"?>\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"\n	xmlns:epub="http://www.idpf.org/2007/ops">\n	<head>\n		<meta charset="utf-8"></meta>		\n		<link rel="stylesheet" type="text/css" href="{{slug}}.css" class="day" title="day"/> \n	</head>\n	<body>\n		<nav epub:type="toc" id="toc">\n			<ol>\n				{{#each toc}}\n				<li><a href="{{../slug}}-content.xhtml#{{id}}">{{content.title}}</a></li>\n				{{/each}}\n			</ol>			\n		</nav>\n		<nav epub:type="landmarks">\n			<ol>\n				{{#each landmarks}}\n				<li><a epub:type="{{epubType}}" href="{{../slug}}-content.xhtml#{{id}}">{{#if content.title}}{{content.title}}{{else}}{{epubType}}{{/if}}</a></li>\n				{{/each}}\n			</ol>\n		</nav>\n	</body>\n</html>\n',
-            css:
-              '@charset "UTF-8";\n@namespace "http://www.w3.org/1999/xhtml";\n@namespace epub "http://www.idpf.org/2007/ops";\n\nbody {\n    margin-left: 6em;\n    margin-right: 2em;\n    color: black;\n    font-family: times, \'times new roman\', serif;\n    background-color: rgb(255,255,245);\n    line-height: 1.5em;\n}\n\nh2 {\n    margin-top: 5em;\n    margin-bottom: 2em;\n}\n\nh3 {\n    margin-top: 3em;\n}\n\n.linegroup {\n    margin-top: 1.6em;\n}\n\nspan.lnum {\n    float: right;\n    color: gray;\n    font-size : 90%;\n}\n\na.noteref {\n    color: rgb(215,215,195);\n    text-decoration: none;\n    margin-left: 0.5em;\n    margin-right: 0.5em;\n}\n\nsection#rearnotes a {\n    color: black;\n    text-decoration: none;\n    border-bottom : 1px dotted gray;\n    margin-right: 0.8em;\n}\n\n.indent {\n    padding-left: 3em;\n}\n\n.indent2 {\n    padding-left: 5em;\n}\n\n*[epub|type~=\'dedication\'] {\n    padding-left: 2em;\n}\n',
-            content:
-              '<?xml version="1.0" encoding="UTF-8"?>\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" xmlns:epub="http://www.idpf.org/2007/ops">\n	<head>\n		<meta charset="utf-8"></meta>\n		<title>{{title}}</title>\n		<link rel="stylesheet" type="text/css" href="{{slug}}.css" class="day" title="day"/> \n	</head>\n	<body>\n		{{#each sections}}{{> sectionTemplate}}{{/each}}\n	</body>\n</html>\n',
-            sectionsTemplate:
-              '{{!-- strange if-construction, but this is a workaround for gulp-js-html-inject, whose minifier wreaks havoc otherwise --}}\n{{#if epubType}}<section epub:type="{{epubType}}" id="{{id}}">{{else}}<section id="{{id}}">{{/if}}\n\n    {{#if content.renderTitle}}<h2>{{content.title}}</h2>{{/if}} \n    {{#if content.content}}{{{content.content}}}{{/if}}\n    \n    {{#each subSections}} {{> sectionTemplate}} {{/each}}\n    \n{{#if epubType}}</section>{{else}}</section>{{/if}}',
-          }
-
           var Builder = function () {
+            var mimetypes = {
+              jpeg: 'image/jpeg',
+              jpg: 'image/jpeg',
+              bmp: 'image/bmp',
+              png: 'image/png',
+              svg: 'image/svg+xml',
+              gif: 'image/gif',
+            }
+
+            function ext (str) {
+              return str.substr(str.lastIndexOf('.') + 1)
+            }
+
+            function sectionsHTML (sectionList) {
+              return sectionList.map(section => {
+                return `\n<section ${section.epubType ? `epub:type="${section.epubType}"` : ''} id="${section.id || ''}">\n\n    ${section.content.renderTitle && `<h2>${section.content.title}</h2>`} \n    ${section.content.content || ''}\n    \n    \n    \n</section>`
+              }).join('')
+            }
+
             this.make = function (epubConfig) {
-              console.debug('building epub', epubConfig)
+              var templates = {
+                mimetype: 'application/epub+zip',
+                container:
+                  `<?xml version="1.0" encoding="UTF-8"?>\n<container xmlns="urn:oasis:names:tc:opendocument:xmlns:container" version="1.0">\n	<rootfiles>\n		<rootfile full-path="EPUB/${epubConfig.slug}.opf" 	\n			media-type="application/oebps-package+xml"/>\n	</rootfiles>\n</container>`,
+                opf:
+                  `<?xml version="1.0" encoding="UTF-8"?>\n<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid" xml:lang="en-US" prefix="cc: http://creativecommons.org/ns#">\n    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">\n        <dc:identifier id="uid">${epubConfig.uuid || ''}</dc:identifier>\n        <dc:title>${epubConfig.title}</dc:title>\n        <dc:creator>${epubConfig.author}</dc:creator>\n        <dc:language>${epubConfig.lang || ''}</dc:language>\n        <dc:date>${epubConfig.publicationDate}</dc:date>\n        <meta property="dcterms:modified">${epubConfig.modificationDate}</meta>\n        <!-- rights expressions for the work as a whole -->\n            <dc:rights>${epubConfig.rights.description || ''}</dc:rights>\n       <!-- cover meta element included for 2.0 reading system compatibility: -->\n                <meta name="cover" content="cover"/>\n   </metadata>\n    <manifest>\n        <item id="t1" href="${epubConfig.slug}-content.xhtml" media-type="application/xhtml+xml" />\n        <item id="nav" href="${epubConfig.slug}-nav.xhtml" properties="nav" media-type="application/xhtml+xml" />\n        ${epubConfig.coverUrl && `<item id="cover" href="${epubConfig.slug}-cover.${ext(epubConfig.coverUrl)}" media-type="${mimetypes[ext(epubConfig.coverUrl)]}" properties="cover-image" />\n        `}<item id="css" href="${epubConfig.slug}.css" media-type="text/css" />\n        <!-- ncx included for 2.0 reading system compatibility: -->\n        <item id="ncx" href="${epubConfig.slug}.ncx" media-type="application/x-dtbncx+xml" />\n    </manifest>\n    <spine toc="ncx">\n        <itemref idref="t1" />        \n    </spine>    \n</package>\n`,
+                ncx:
+                  `<?xml version="1.0" encoding="UTF-8"?>\n<ncx xmlns:ncx="http://www.daisy.org/z3986/2005/ncx/" xmlns="http://www.daisy.org/z3986/2005/ncx/"\n    version="2005-1" xml:lang="en">\n    <head>\n        <meta name="dtb:uid" content="${epubConfig.uuid || ''}"/>\n    </head>\n    <docTitle>\n        <text>${epubConfig.title}</text>\n    </docTitle>\n    <navMap>\n        <!-- 2.01 NCX: playOrder is optional -->\n		${epubConfig.toc.map(item => { return `\n        <navPoint id="${item.id || ''}">\n            <navLabel>\n                <text>${item.content.title}</text>\n            </navLabel>\n            <content src="${epubConfig.slug}-content.xhtml#${item.id || ''}"/>\n        </navPoint>\n		` }).join('')}\n    </navMap>\n</ncx>\n`,
+                nav:
+                  `<?xml version="1.0" encoding="UTF-8"?>\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"\n	xmlns:epub="http://www.idpf.org/2007/ops">\n	<head>\n		<meta charset="utf-8"></meta>		\n		<link rel="stylesheet" type="text/css" href="${epubConfig.slug}.css" class="day" title="day"/> \n	</head>\n	<body>\n		<nav epub:type="toc" id="toc">\n			<ol>\n				${epubConfig.toc.map(item => { return `<li><a href="${epubConfig.slug}-content.xhtml#${item.id || ''}">${item.content.title}</a></li>` }).join('')}\n			</ol>			\n		</nav>\n		<nav epub:type="landmarks">\n			<ol>\n				${epubConfig.toc.map(item => { return `<li><a epub:type="${item.chapter}" href="${epubConfig.slug}-content.xhtml#${item.id || ''}">${item.content.title}</a></li>` }).join('')}\n			</ol>\n		</nav>\n	</body>\n</html>\n`,
+                css:
+                  `@charset "UTF-8";\n@namespace "http://www.w3.org/1999/xhtml";\n@namespace epub "http://www.idpf.org/2007/ops";\n\nbody {\n    margin-left: 6em;\n    margin-right: 2em;\n    color: black;\n    font-family: times, \'times new roman\', serif;\n    background-color: rgb(255,255,245);\n    line-height: 1.5em;\n}\n\nh2 {\n    margin-top: 5em;\n    margin-bottom: 2em;\n}\n\nh3 {\n    margin-top: 3em;\n}\n\n.linegroup {\n    margin-top: 1.6em;\n}\n\nspan.lnum {\n    float: right;\n    color: gray;\n    font-size : 90%;\n}\n\na.noteref {\n    color: rgb(215,215,195);\n    text-decoration: none;\n    margin-left: 0.5em;\n    margin-right: 0.5em;\n}\n\nsection#rearnotes a {\n    color: black;\n    text-decoration: none;\n    border-bottom : 1px dotted gray;\n    margin-right: 0.8em;\n}\n\n.indent {\n    padding-left: 3em;\n}\n\n.indent2 {\n    padding-left: 5em;\n}\n\n*[epub|type~=\'dedication\'] {\n    padding-left: 2em;\n}\n`,
+                content:
+                  `<?xml version="1.0" encoding="UTF-8"?>\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" xmlns:epub="http://www.idpf.org/2007/ops">\n	<head>\n		<meta charset="utf-8"></meta>\n		<title>${epubConfig.title}</title>\n		<link rel="stylesheet" type="text/css" href="${epubConfig.slug}.css" class="day" title="day"/> \n	</head>\n	<body>\n		${sectionsHTML(epubConfig.sections)}\n	</body>\n</html>\n`,
+              }
+
               var zip = new JSZip()
 
               var deferred = D()
               D.all(
-                addMimetype(zip),
-                addContainerInfo(zip, epubConfig),
-                addManifestOpf(zip, epubConfig),
+                addMimetype(zip, templates),
+                addContainerInfo(zip, templates),
+                addManifestOpf(zip, epubConfig, templates),
                 addCover(zip, epubConfig),
-                addEpub2Nav(zip, epubConfig),
-                addEpub3Nav(zip, epubConfig),
-                addStylesheets(zip, epubConfig),
-                addContent(zip, epubConfig)
+                addEpub2Nav(zip, epubConfig, templates),
+                addEpub3Nav(zip, epubConfig, templates),
+                addStylesheets(zip, epubConfig, templates),
+                addContent(zip, epubConfig, templates)
               ).then(function () {
                 deferred.resolve(zip)
               })
@@ -1208,26 +1224,26 @@
               return deferred.promise
             }
 
-            function addMimetype(zip) {
+            function addMimetype (zip, templates) {
               zip.file('mimetype', templates.mimetype)
             }
 
-            function addContainerInfo(zip, epubConfig) {
+            function addContainerInfo (zip, templates) {
               zip
                 .folder('META-INF')
-                .file('container.xml', compile(templates.container, epubConfig))
+                .file('container.xml', templates.container)
             }
 
-            function addManifestOpf(zip, epubConfig) {
+            function addManifestOpf (zip, epubConfig, templates) {
               zip
                 .folder('EPUB')
                 .file(
                   epubConfig.slug + '.opf',
-                  compile(templates.opf, epubConfig)
+                  templates.opf
                 )
             }
 
-            function addCover(zip, epubConfig) {
+            function addCover (zip, epubConfig) {
               var deferred = D()
 
               if (epubConfig.coverUrl) {
@@ -1255,25 +1271,25 @@
               return deferred.promise
             }
 
-            function addEpub2Nav(zip, epubConfig) {
+            function addEpub2Nav (zip, epubConfig, templates) {
               zip
                 .folder('EPUB')
                 .file(
                   epubConfig.slug + '.ncx',
-                  compile(templates.ncx, epubConfig)
+                  templates.ncx
                 )
             }
 
-            function addEpub3Nav(zip, epubConfig) {
+            function addEpub3Nav (zip, epubConfig, templates) {
               zip
                 .folder('EPUB')
                 .file(
                   epubConfig.slug + '-nav.xhtml',
-                  compile(templates.nav, epubConfig)
+                  templates.nav
                 )
             }
 
-            function addStylesheets(zip, epubConfig) {
+            function addStylesheets (zip, epubConfig, templates) {
               var deferred = D()
               if (epubConfig.stylesheet.url) {
                 return ajax(epubConfig.stylesheet.url).then(function (result) {
@@ -1285,7 +1301,7 @@
               }
               return deferred.promise
 
-              function compileAndAddCss() {
+              function compileAndAddCss () {
                 var styles = {
                   original: epubConfig.stylesheet.replaceOriginal
                     ? ''
@@ -1296,45 +1312,19 @@
                   .folder('EPUB')
                   .file(
                     epubConfig.slug + '.css',
-                    compile('{{{original}}}{{{custom}}}', styles, true)
+                    styles.original
                   )
                 deferred.resolve(true)
               }
             }
 
-            function addContent(zip, epubConfig) {
-              Handlebars.registerPartial(
-                'sectionTemplate',
-                templates.sectionsTemplate
-              )
+            function addContent (zip, epubConfig, templates) {
               zip
                 .folder('EPUB')
                 .file(
                   epubConfig.slug + '-content.xhtml',
-                  compile(templates.content, epubConfig)
+                  templates.content
                 )
-            }
-
-            function compile(template, content, skipFormatting) {
-              return formatHTML(Handlebars.compile(template)(content))
-
-              function formatHTML(htmlstr) {
-                /*jslint camelcase:false*/
-                return skipFormatting || typeof html_beautify === 'undefined'
-                  ? htmlstr
-                  : html_beautify(htmlstr, {
-                      end_with_newline: false,
-                      indent_char: '\t',
-                      indent_inner_html: true,
-                      indent_size: '1',
-                      preserve_newlines: false,
-                      wrap_line_length: '0',
-                      unformatted: [],
-                      selector_separator_newline: false,
-                      newline_between_rules: true,
-                    })
-                /*jslint camelcase:true*/
-              }
             }
           }
 
@@ -1357,311 +1347,19 @@
       { '../../js/util/ajax': 7, '../../js/util/console': 8, 'd.js': 3 },
     ],
     6: [
-      function (require, module, exports) {
-        /* global module, require, exports, JSZip, JSZipUtils, Handlebars, html_beautify */
-        ;(function () {
-          'use strict'
-
-          var D = require('d.js')
-          var console = require('../../js/util/console')()
-          var ajax = require('../../js/util/ajax')
-
-          var templates = {
-            mimetype: 'application/epub+zip',
-            container:
-              '<?xml version="1.0" encoding="UTF-8"?>\n<container xmlns="urn:oasis:names:tc:opendocument:xmlns:container" version="1.0">\n	<rootfiles>\n		<rootfile full-path="EPUB/lightnovel.opf"\n			media-type="application/oebps-package+xml"/>\n	</rootfiles>\n</container>',
-            opf:
-              '<?xml version="1.0" encoding="UTF-8"?>\n<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid" xml:lang="en-US" prefix="cc: http://creativecommons.org/ns#">\n    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">\n        <dc:identifier id="uid">{{uuid}}</dc:identifier>\n        <dc:title>{{title}}</dc:title>\n        <dc:creator>{{author}}</dc:creator>\n        <dc:language>{{lang}}</dc:language>\n        <dc:date>{{publicationDate}}</dc:date>\n        <meta property="dcterms:modified">{{modificationDate}}</meta>\n        {{#if rights}}\n            <!-- rights expressions for the work as a whole -->\n            {{#if rights.description}}<dc:rights>{{rights.description}}</dc:rights>{{/if}}\n            {{#if rights.license}}<link rel="cc:license" href="{{rights.license}}"/>{{/if}}\n            {{#if rights.attributionUrl}}<meta property="cc:attributionURL">{{attributionUrl}}</meta>{{/if}}\n        {{/if}}\n        {{#if coverUrl}}\n            {{#if coverRights}}\n                <!-- rights expression for the cover image -->       \n                {{#if coverRights.license}}<link rel="cc:license" refines="#cover" href="{{coverRights.license}}" />{{/if}}\n                {{#if coverRights.attributionUrl}}<link rel="cc:attributionURL" refines="#cover" href="{{coverRights.attributionUrl}}" />{{/if}}\n            {{/if}}\n                <!-- cover meta element included for 2.0 reading system compatibility: -->\n                <meta name="cover" content="cover"/>\n        {{/if}}\n    </metadata>\n    <manifest>\n        {{#each sections}}{{> sectionsOPFManifestTemplate}}{{/each}}\n        <item id="nav" href="nav.html" properties="nav" media-type="application/xhtml+xml" />\n        {{#each additionalFiles}}\n        <item id="{{filename}}" href="{{folder}}/{{filename}}" media-type="{{mimetype filename}}" />\n        {{/each}}\n        {{#if coverUrl}}\n        <item id="cover" href="images/{{options.coverFilename}}" media-type="{{mimetype options.coverFilename}}" properties="cover-image" />\n        {{/if}}\n        <item id="css" href="css/main.css" media-type="text/css" />\n        <!-- ncx included for 2.0 reading system compatibility: -->\n        <item id="ncx" href="lightnovel.ncx" media-type="application/x-dtbncx+xml" />\n    </manifest>\n    <spine toc="ncx">\n        <itemref idref="nav" />\n        {{#each sections}}{{> sectionsOPFSpineTemplate}}{{/each}}\n    </spine>\n    <guide>\n        <reference type="toc" href="nav.html"/>\n    </guide>\n</package>\n',
-            ncx:
-              '<?xml version="1.0" encoding="UTF-8"?>\n<ncx xmlns:ncx="http://www.daisy.org/z3986/2005/ncx/" xmlns="http://www.daisy.org/z3986/2005/ncx/"\n    version="2005-1" xml:lang="en">\n    <head>\n        <meta name="dtb:uid" content="{{uuid}}"/>\n    </head>\n    <docTitle>\n        <text>{{title}}</text>\n    </docTitle>\n    <docAuthor>\n        <text>{{author}}</text>\n    </docAuthor>\n    <navMap>\n        <!-- 2.01 NCX: playOrder is optional -->\n        {{#each sections}}{{> sectionsNCXTemplate}}{{/each}}\n    </navMap>\n</ncx>\n',
-            nav:
-              '<!DOCTYPE html>\n<html>\n    <head>\n        <meta charset="utf-8">\n        <title>{{options.tocName}}</title>\n        <link rel="stylesheet" type="text/css" href="css/main.css"> \n    </head>\n    <body>\n        <div class="cover divimage">\n            <img src="images/{{options.coverFilename}}" alt="Cover" />\n        </div>\n        <div class="center">\n            <h1>{{title}}</h1>\n            <div>{{author}}</div>\n            <div>{{publisher}}</div>\n            <div>{{modificationDateYMD}}</div>\n        </div>\n\n        <nav epub:type="toc" id="toc">\n            <ol>\n                {{#each sections}}{{> sectionsNavTemplate}}{{/each}}\n            </ol>\n        </nav>\n        <nav class="hidden" epub:type="landmarks">\n            <ol>\n                <li><a epub:type="toc" href="#toc">{{options.tocName}}</a></li>\n            </ol>\n        </nav>\n    </body>\n</html>\n',
-            css:
-              '@charset "UTF-8";\n@namespace "http://www.w3.org/1999/xhtml";\n@namespace epub "http://www.idpf.org/2007/ops";\n\nbody {\n    padding: 0%;\n    margin-top: 0%;\n    margin-bottom: 0%;\n    margin-left: 1%;\n    margin-right: 1%;\n    line-height: 130%;\n    text-align: justify;\n    background-color: rgb(255, 255, 245);\n}\n\ndiv {\n    margin: 0px;\n    padding: 0px;\n    line-height: 130%;\n    text-align: justify;\n}\n\np {\n    text-align: justify;\n    text-indent: 2em;\n    line-height: 130%;\n    margin-bottom: -0.8em;\n}\n\n.divimage {\n    page-break-after: always;\n}\n\n.cover {\n    width: 100%;\n    padding: 0px;\n}\n\n.center {\n    text-align: center;\n    margin-left: 0%;\n    margin-right: 0%;\n}\n\n.left {\n    text-align: center;\n    margin-left: 0%;\n    margin-right: 0%;\n}\n\n.right {\n    text-align: right;\n    margin-left: 0%;\n    margin-right: 0%;\n}\n\n.quote {\n    margin-top: 0%;\n    margin-bottom: 0%;\n    margin-left: 1em;\n    margin-right: 1em;\n    text-align: justify;\n}\n\n.hidden {\n    display: none;\n}\n\nh1 {\n    line-height: 130%;\n    text-align: center;\n    font-weight: bold;\n    font-size: xx-large;\n}\n\nh2 {\n    line-height: 130%;\n    text-align: center;\n    font-weight: bold;\n    font-size: x-large;\n}\n\nh3 {\n    line-height: 130%;\n    text-align: center;\n    font-weight: bold;\n    font-size: large;\n}\n\nh4 {\n    line-height: 130%;\n    text-align: center;\n    font-weight: bold;\n    font-size: medium;\n}\n\nh5 {\n    line-height: 130%;\n    text-align: center;\n    font-weight: bold;\n    font-size: small;\n}\n\nh6 {\n    line-height: 130%;\n    text-align: center;\n    font-weight: bold;\n    font-size: x-small;\n}\n',
-            content:
-              '<!DOCTYPE html>\n<html>\n    <head>\n        <meta charset="utf-8">\n        <title>{{content.fullTitle}}</title>\n        <link rel="stylesheet" type="text/css" href="css/main.css"> \n    </head>\n    <body>\n        {{#if content.renderTitle}}<h2>{{content.title}}</h2>{{/if}} \n        {{#if content.content}}{{{content.content}}}{{/if}}\n    </body>\n</html>\n',
-            autoToc:
-              '<!DOCTYPE html>\n<html>\n    <head>\n        <meta charset="utf-8">\n        <title>{{content.fullTitle}}</title>\n        <link rel="stylesheet" type="text/css" href="css/main.css"> \n    </head>\n    <body>\n        {{#if content.renderTitle}}<h2>{{content.title}}</h2>{{/if}}\n        {{#if subSections}}\n        <ol>\n            {{#each subSections}}{{> sectionsNavTemplate}}{{/each}}\n        </ol>\n        {{/if}}\n    </body>\n</html>\n',
-            sectionsNavTemplate:
-              '\n<li>\n    {{#if needPage}}\n    <a href="{{name}}.html">{{content.title}}</a>\n    {{/if}}\n    {{#if subSections}}\n    <ol>\n        {{#each subSections}}{{> sectionsNavTemplate}}{{/each}}\n    </ol>\n    {{/if}}\n</li>\n',
-            sectionsNCXTemplate:
-              '\n<navPoint id="{{name}}">\n    <navLabel>\n        <text>{{content.title}}</text>\n    </navLabel>\n    {{#if needPage}}\n    <content src="{{name}}.html"/>\n    {{/if}}\n    {{#each subSections}} {{> sectionsNCXTemplate}} {{/each}}\n</navPoint>\n',
-            sectionsOPFManifestTemplate:
-              '{{#if needPage}}\n<item id="{{name}}" href="{{name}}.html" media-type="application/xhtml+xml" />\n{{/if}}\n{{#each subSections}}{{> sectionsOPFManifestTemplate}}{{/each}}\n',
-            sectionsOPFSpineTemplate:
-              '<itemref idref="{{name}}" />\n{{#each subSections}}{{> sectionsOPFSpineTemplate}}{{/each}}\n',
-          }
-
-          var Builder = function () {
-            this.make = function (epubConfig) {
-              console.debug('building epub', epubConfig)
-              var zip = new JSZip()
-
-              var deferred = D()
-              addAditionalInfo(epubConfig)
-              D.all(
-                addMimetype(zip),
-                addContainerInfo(zip, epubConfig),
-                addManifestOpf(zip, epubConfig),
-                addCover(zip, epubConfig),
-                addFiles(zip, epubConfig),
-                addEpub2Nav(zip, epubConfig),
-                addEpub3Nav(zip, epubConfig),
-                addStylesheets(zip, epubConfig),
-                addContent(zip, epubConfig)
-              ).then(
-                function () {
-                  deferred.resolve(zip)
-                },
-                function (err) {
-                  console.log(err)
-                }
-              )
-
-              return deferred.promise
-            }
-
-            function addInfoSection(section, titlePrefix, namePrefix) {
-              if (!section.content) {
-                section.content = {}
-              }
-              if (titlePrefix) {
-                titlePrefix = section.content.fullTitle =
-                  titlePrefix + ' - ' + section.content.title
-                namePrefix = section.name = namePrefix + '-' + section.rank
-              } else {
-                titlePrefix = section.content.fullTitle = section.content.title
-                namePrefix = section.name = '' + section.rank
-              }
-              if (
-                section.content.content ||
-                section.content.renderTitle ||
-                section.epubType == 'auto-toc'
-              ) {
-                section.needPage = true
-              }
-              for (var i = 0; i < section.subSections.length; i++) {
-                section.subSections[i].rank = i
-                addInfoSection(section.subSections[i], titlePrefix, namePrefix)
-              }
-            }
-
-            function addAditionalInfo(epubConfig) {
-              //Default options
-              epubConfig.options.tocName = epubConfig.options.tocName || 'Menu'
-              //Generate name and full title for each section/subsection
-              for (var i = 0; i < epubConfig.sections.length; i++) {
-                epubConfig.sections[i].rank = i
-                addInfoSection(epubConfig.sections[i])
-              }
-            }
-
-            function addMimetype(zip) {
-              zip.file('mimetype', templates.mimetype)
-            }
-
-            function addContainerInfo(zip, epubConfig) {
-              zip
-                .folder('META-INF')
-                .file('container.xml', compile(templates.container, epubConfig))
-            }
-
-            function addManifestOpf(zip, epubConfig) {
-              Handlebars.registerPartial(
-                'sectionsOPFManifestTemplate',
-                templates.sectionsOPFManifestTemplate
-              )
-              Handlebars.registerPartial(
-                'sectionsOPFSpineTemplate',
-                templates.sectionsOPFSpineTemplate
-              )
-              zip
-                .folder('EPUB')
-                .file('lightnovel.opf', compile(templates.opf, epubConfig))
-            }
-
-            function addCover(zip, epubConfig) {
-              var deferred = D()
-
-              if (epubConfig.coverUrl) {
-                JSZipUtils.getBinaryContent(
-                  epubConfig.coverUrl,
-                  function (err, data) {
-                    if (!err) {
-                      zip
-                        .folder('EPUB')
-                        .folder('images')
-                        .file(epubConfig.options.coverFilename, data, {
-                          binary: true,
-                        })
-                      deferred.resolve('')
-                    } else {
-                      deferred.reject(err)
-                    }
-                  }
-                )
-              } else {
-                deferred.resolve(true)
-              }
-              return deferred.promise
-            }
-
-            function addEpub2Nav(zip, epubConfig) {
-              Handlebars.registerPartial(
-                'sectionsNCXTemplate',
-                templates.sectionsNCXTemplate
-              )
-              zip
-                .folder('EPUB')
-                .file('lightnovel.ncx', compile(templates.ncx, epubConfig))
-            }
-
-            function addEpub3Nav(zip, epubConfig) {
-              Handlebars.registerPartial(
-                'sectionsNavTemplate',
-                templates.sectionsNavTemplate
-              )
-              zip
-                .folder('EPUB')
-                .file('nav.html', compile(templates.nav, epubConfig))
-            }
-
-            function addStylesheets(zip, epubConfig) {
-              var deferred = D()
-              if (epubConfig.stylesheet.url) {
-                return ajax(epubConfig.stylesheet.url).then(function (result) {
-                  epubConfig.styles = result.data
-                  compileAndAddCss()
-                })
-              } else {
-                compileAndAddCss()
-              }
-              return deferred.promise
-
-              function compileAndAddCss() {
-                var styles = {
-                  original: epubConfig.stylesheet.replaceOriginal
-                    ? ''
-                    : templates.css,
-                  custom: epubConfig.styles,
-                }
-                zip
-                  .folder('EPUB')
-                  .folder('css')
-                  .file(
-                    'main.css',
-                    compile('{{{original}}}{{{custom}}}', styles, true)
-                  )
-                deferred.resolve(true)
-              }
-            }
-
-            function addFiles(zip, epubConfig) {
-              var deferred_list = []
-              for (var i = 0; i < epubConfig.additionalFiles.length; i++) {
-                var file = epubConfig.additionalFiles[i]
-                var deferred = new D()
-                JSZipUtils.getBinaryContent(
-                  file.url,
-                  (function (file, deferred) {
-                    return function (err, data) {
-                      if (!err) {
-                        zip
-                          .folder('EPUB')
-                          .folder(file.folder)
-                          .file(file.filename, data, { binary: true })
-                        deferred.resolve('')
-                      } else {
-                        deferred.reject(err)
-                      }
-                    }
-                  })(file, deferred)
-                )
-                deferred_list.push(deferred.promise)
-              }
-              return D.all(deferred_list)
-            }
-
-            function addSection(zip, section) {
-              if (section.needPage) {
-                if (section.epubType == 'auto-toc') {
-                  zip
-                    .folder('EPUB')
-                    .file(
-                      section.name + '.html',
-                      compile(templates.autoToc, section)
-                    )
-                } else {
-                  zip
-                    .folder('EPUB')
-                    .file(
-                      section.name + '.html',
-                      compile(templates.content, section)
-                    )
-                }
-              }
-              for (var i = 0; i < section.subSections.length; i++) {
-                addSection(zip, section.subSections[i])
-              }
-            }
-
-            function addContent(zip, epubConfig) {
-              for (var i = 0; i < epubConfig.sections.length; i++) {
-                addSection(zip, epubConfig.sections[i])
-              }
-            }
-
-            function compile(template, content, skipFormatting) {
-              return formatHTML(Handlebars.compile(template)(content))
-
-              function formatHTML(htmlstr) {
-                /*jslint camelcase:false*/
-                return skipFormatting || typeof html_beautify === 'undefined'
-                  ? htmlstr
-                  : html_beautify(htmlstr, {
-                      end_with_newline: false,
-                      indent_char: '\t',
-                      indent_inner_html: true,
-                      indent_size: '1',
-                      preserve_newlines: false,
-                      wrap_line_length: '0',
-                      unformatted: [],
-                      selector_separator_newline: false,
-                      newline_between_rules: true,
-                    })
-                /*jslint camelcase:true*/
-              }
-            }
-          }
-
-          // manage dependency exports
-          if (typeof module !== 'undefined') {
-            module.exports.builder = new Builder()
-          } else if (typeof exports !== 'undefined') {
-            exports.builder = new Builder()
-          } else if (typeof window === 'undefined') {
-            throw new Error(
-              'unable to expose module: no module, exports object and no global window detected'
-            )
-          }
-
-          if (typeof window !== 'undefined') {
-            window.epubMaker = new Builder()
-          }
-        })()
-      },
+      function (require, module, exports) {},
       { '../../js/util/ajax': 7, '../../js/util/console': 8, 'd.js': 3 },
     ],
     7: [
       function (require, module, exports) {
         /* global module, ActiveXObject */
-        ;(function () {
+        ; (function () {
           'use strict'
 
           var D = require('d.js')
           var console = require('../../js/util/console')()
 
-          module.exports = function ajax(url, data) {
+          module.exports = function ajax (url, data) {
             var deferred = D()
             try {
               var x = new (XMLHttpRequest || ActiveXObject)(
@@ -1691,7 +1389,7 @@
     8: [
       function (require, module, exports) {
         /* global module, console */
-        ;(function () {
+        ; (function () {
           'use strict'
 
           module.exports = function () {
@@ -1699,45 +1397,19 @@
               ? console
               : { log: f, info: f, debug: f, warn: f, error: f }
           }
-          function f() {}
+          function f () { }
         })()
       },
       {},
     ],
     9: [
-      function (require, module, exports) {
-        /* global Handlebars */
-        ;(function () {
-          'use strict'
-
-          var mimetypes = {
-            jpeg: 'image/jpeg',
-            jpg: 'image/jpeg',
-            bmp: 'image/bmp',
-            png: 'image/png',
-            svg: 'image/svg+xml',
-            gif: 'image/gif',
-          }
-
-          Handlebars.registerHelper('extension', function (str) {
-            return ext(str)
-          })
-
-          Handlebars.registerHelper('mimetype', function (str) {
-            return mimetypes[ext(str)]
-          })
-
-          function ext(str) {
-            return str.substr(str.lastIndexOf('.') + 1)
-          }
-        })()
-      },
+      function (require, module, exports) {},
       {},
     ],
     10: [
       function (require, module, exports) {
         /* global module, s, console */
-        ;(function () {
+        ; (function () {
           'use strict'
 
           module.exports =
@@ -1747,14 +1419,14 @@
             var log =
               typeof console !== 'undefined' && console.debug
                 ? console.debug
-                : function () {}
+                : function () { }
             log.call(
               console,
               'underscore.string not found, falling back on (very) simple slugify..'
             )
           }
 
-          function simpleSlugify(str) {
+          function simpleSlugify (str) {
             return str.toLowerCase().replace(/\s\W/g, '-')
           }
         })()
