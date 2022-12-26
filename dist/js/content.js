@@ -26876,7 +26876,8 @@ class Store {
                         dlCount = Math.min(dlCount, number);
                     }
                     else {
-                        // 用户设置的值有可能把这个作品的图片全部排除了，此时视为不排除
+                        // 用户设置的值有可能把这个作品的图片全部排除了，此时只跳过最后一张
+                        dlCount = Math.min(dlCount, workData.pageCount - 1);
                     }
                 }
             }
