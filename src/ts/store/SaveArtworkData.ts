@@ -15,8 +15,15 @@ class SaveArtworkData {
     const bmk = body.bookmarkCount // 收藏数
 
     const tags: string[] = Tools.extractTags(data) // tag 列表
-    let tagsWithTransl: string[] = Tools.extractTags(data, 'both') // 保存 tag 列表，附带翻译后的 tag
-    let tagsTranslOnly: string[] = Tools.extractTags(data, 'transl') // 保存翻译后的 tag 列表
+    const tagsWithTransl: string[] = Tools.extractTags(data, 'both') // 保存 tag 列表，附带翻译后的 tag
+    const tagsTranslOnly: string[] = Tools.extractTags(data, 'transl') // 保存翻译后的 tag 列表
+
+    const aiMarkString = Tools.getAIGeneratedMark(body.aiType)
+    if (aiMarkString) {
+      tags.unshift(aiMarkString)
+      tagsWithTransl.unshift(aiMarkString)
+      tagsTranslOnly.unshift(aiMarkString)
+    }
 
     const filterOpt: FilterOption = {
       aiType: body.aiType,

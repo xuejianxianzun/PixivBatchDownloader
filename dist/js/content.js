@@ -1982,7 +1982,7 @@ class FileName {
                     if (workTags.includes(setTag.toLowerCase())) {
                         diffNames.push(item.rule);
                         // 一条规则里的 tag 可能会有多个存在于同一个作品的标签列表里
-                        // 如果匹配到就跳过这条规则以，避免重复添加规则对应的命名规则
+                        // 如果匹配到就跳过这条规则，以避免重复添加规则对应的命名规则
                         break;
                     }
                 }
@@ -3014,7 +3014,8 @@ class Lang {
         // 保存注册的元素
         // 在注册的元素里设置特殊的标记，让本模块可以动态更新其文本
         this.elList = [];
-        this.type = this.getHtmlLangType();
+        this.htmlLangType = this.getHtmlLangType();
+        this.type = this.htmlLangType;
         this.bindEvents();
     }
     bindEvents() {
@@ -3024,7 +3025,7 @@ class Lang {
                 return;
             }
             const old = this.type;
-            this.type = data.value === 'auto' ? this.getHtmlLangType() : data.value;
+            this.type = data.value === 'auto' ? this.htmlLangType : data.value;
             if (this.type !== old) {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('langChange');
                 this.elList.forEach((el) => {
@@ -11245,8 +11246,26 @@ class Tools {
                 return 'unknown';
         }
     }
+    /**如果一个作品是 AI 生成的，则返回特定的字符串标记
+     *
+     * 这个标记就是作品页面里和标签列表显示在一起的字符串
+     */
+    static getAIGeneratedMark(aiType) {
+        if (aiType === 2) {
+            return this.AIMark.get(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].htmlLangType);
+        }
+        return '';
+    }
 }
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
+Tools.AIMark = new Map([
+    ['zh-cn', 'AI生成'],
+    ['zh-tw', 'AI生成'],
+    ['en', 'AI-generated'],
+    ['ja', 'AI生成'],
+    ['ko', 'AI 생성'],
+    ['ru', 'сгенерированный ИИ'],
+]);
 
 
 
@@ -26318,8 +26337,14 @@ class SaveArtworkData {
         const fullHeight = body.height; // 原图高度
         const bmk = body.bookmarkCount; // 收藏数
         const tags = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].extractTags(data); // tag 列表
-        let tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].extractTags(data, 'both'); // 保存 tag 列表，附带翻译后的 tag
-        let tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].extractTags(data, 'transl'); // 保存翻译后的 tag 列表
+        const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].extractTags(data, 'both'); // 保存 tag 列表，附带翻译后的 tag
+        const tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].extractTags(data, 'transl'); // 保存翻译后的 tag 列表
+        const aiMarkString = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].getAIGeneratedMark(body.aiType);
+        if (aiMarkString) {
+            tags.unshift(aiMarkString);
+            tagsWithTransl.unshift(aiMarkString);
+            tagsTranslOnly.unshift(aiMarkString);
+        }
         const filterOpt = {
             aiType: body.aiType,
             createDate: body.createDate,
@@ -26485,6 +26510,10 @@ class SaveNovelData {
         const bmk = body.bookmarkCount; // 收藏数
         const tags = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].extractTags(data); // tag 列表
         // 小说的标签没有进行翻译，所以没有翻译后的标签
+        const aiMarkString = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getAIGeneratedMark(body.aiType);
+        if (aiMarkString) {
+            tags.unshift(aiMarkString);
+        }
         const filterOpt = {
             aiType: body.aiType,
             createDate: body.createDate,
