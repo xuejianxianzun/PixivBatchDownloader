@@ -4075,12 +4075,20 @@ const langText = {
         'Если работа создана с помощью ИИ, выведите <span class="blue">AI</span>',
     ],
     _命名标记提醒: [
-        '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{user_id}<br>* 在某些情况下，会有一些标记不可用。',
-        '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{user_id}<br>＊某些情況下有些標記無法使用。',
-        'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{user_id}<br>* In some cases, some tags will not be available.',
-        'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{user_id}<br>* 場合によっては、一部のタグが利用できず。',
-        '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.<br>여러 태그를 사용할 수 있습니다. 서로 다른 태그 사이에 구분자를 넣는 것을 권장합니다. 예: {id}-{user}<br>* 경우에 따라서는 사용할 수 없는 태그가 있을 수 있습니다.',
-        'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.<br>Вы можете использовать несколько тегов, и вы можете добавить отдельный символ между различными тегами. Пример: {id}-{user_id}<br>* В некоторых случаях некоторые теги будут недоступны.',
+        '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{user_id}',
+        '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{user_id}',
+        'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{user_id}',
+        'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{user_id}',
+        '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.<br>여러 태그를 사용할 수 있습니다. 서로 다른 태그 사이에 구분자를 넣는 것을 권장합니다. 예: {id}-{user}',
+        'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.<br>Вы можете использовать несколько тегов, и вы можете добавить отдельный символ между различными тегами. Пример: {id}-{user_id}',
+    ],
+    _有些标记并不总是可用的提醒: [
+        '有些标记并不总是可用，有时它们可能什么都不输出。',
+        '有些標記並不總是可用，有時它們可能什麼都不輸出。',
+        'Some tags are not always available, and sometimes they may output nothing.',
+        '一部のタグは常に使用できるとは限らず、何も出力しない場合もあります。',
+        '일부 태그는 항상 사용할 수 있는 것은 아니며 때로는 아무 것도 출력하지 않을 수도 있습니다.',
+        'Некоторые теги не всегда доступны, а иногда могут ничего не выводить.',
     ],
     _命名规则一定要包含id: [
         '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}',
@@ -23809,9 +23817,11 @@ const formHtml = `<form class="settingForm">
     </p>
     <p class="fileNameTip tip">
     <span data-xztext="_设置文件夹名的提示"></span>
-    <strong>{user}/{id}</strong>
+    <span>{user}<span class="key">/</span>{id}</span>
     <br>
     <span data-xztext="_命名标记提醒"></span>
+    <br>
+    * <span data-xztext="_有些标记并不总是可用的提醒"></span>
     <br>
     <span class="blue">{id}</span>
     <span data-xztext="_命名标记id"></span>
@@ -23837,13 +23847,13 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{tags_transl_only}</span>
     <span data-xztext="_命名标记tags_transl_only"></span>
     <br>
-    <span class="blue">{page_tag}</span>
+    * <span class="blue">{page_tag}</span>
     <span data-xztext="_文件夹标记PTag"></span>
     <br>
     <span class="blue">{type}</span>
     <span data-xztext="_命名标记type"></span>
     <br>
-    <span class="blue">{AI}</span>
+    * <span class="blue">{AI}</span>
     <span data-xztext="_命名标记AI"></span>
     <br>
     <span class="blue">{like}</span>
@@ -23861,7 +23871,7 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{view}</span>
     <span data-xztext="_命名标记view"></span>
     <br>
-    <span class="blue">{rank}</span>
+    * <span class="blue">{rank}</span>
     <span data-xztext="_命名标记rank"></span>
     <br>
     <span class="blue">{date}</span>
@@ -23876,13 +23886,13 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{px}</span>
     <span data-xztext="_命名标记px"></span>
     <br>
-    <span class="blue">{series_title}</span>
+    * <span class="blue">{series_title}</span>
     <span data-xztext="_命名标记seriesTitle"></span>
     <br>
-    <span class="blue">{series_order}</span>
+    * <span class="blue">{series_order}</span>
     <span data-xztext="_命名标记seriesOrder"></span>
     <br>
-    <span class="blue">{series_id}</span>
+    * <span class="blue">{series_id}</span>
     <span data-xztext="_命名标记seriesId"></span>
     <br>
     <span class="blue">{id_num}</span>
