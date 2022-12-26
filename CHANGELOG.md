@@ -4,14 +4,121 @@ TODO:日语文本需要加粗显示关键字，但是我不懂日语，所以现
 
 每次新版本发布时，应该更新作品发布日期时间的数据。根据目前的数据统计，每 10 小时就有 10000 个新的图像作品，这会增加一条数据。每 43 天左右会增加 100 条数据。
 
-排除 AI 作品
+## 15.1.0 2022/12/26
 
+### 新增设置项：AI 作品
+
+用户可以选择是否下载由 AI 生成的作品。
+
+你可以在“抓取”选项卡里找到它。（需要先启用“显示高级设置”）
+
+提示：这个设置项比使用标签来排除 AI 作品的方式更准确，因为有些作品可能没有添加 AI 相关的标签。不过你也可以把这两种方式结合起来使用。
+
+----------
+
+现在新投稿作品时，插画、漫画、动图必须选择是否为 AI 生成。小说投稿可选是否为 AI 生成。
+
+最近 Pixiv 给所有作品的数据都添加了 `aiType` 字段，标明是否为 AI 生成。早期作品也有此字段，但值为 `0`。
+
+```json
 aiType: 0 | 1 | 2
+```
 
-0 没有标明是否是 AI（以前的作品）
-1 否
-2 是
- 
+值的含义：
+
+- 0 未知（未标明是否为 AI 生成的作品）（主要是早期作品）
+- 1 否，不是 AI 生成
+- 2 是 AI 生成
+
+### 对于 AI 生成的作品，下载器会在抓取结果的标签列表里添加特定标记
+
+在 AI 生成的作品页面里，标签列表处会显示 `AI生成` 的标记。实际上这个 `AI生成` 并不是作品的标签，只是 pixiv 显示的一个标记。但是因为它和作品的标签显示在一起，所以很多人以为这是作品的标签里的，进而疑惑为什么下载器抓取不到这个“标签”。
+
+所以现在下载器干脆把这个标记添加到了作品的标签列表里。
+
+**提示：**根据用户在 pixiv 使用的不同语言，`AI生成` 这个标记也字会随语言变化。下载器会根据语言来添加对应的标记，比如英文时添加的标记是 `AI-generated`。
+
+### 修复 bug：某些小说标题中含有特殊字符导致 XML 解析出错的问题
+
+https://www.pixiv.net/novel/show.php?id=17968738
+
+【JPN & ENG】 ユイ vs 桃香　激闘！ 空手対決！！ 【Karate Combat】
+
+标题中的 `&` 会导致 XML 解析出错，现在修复。
+
+### 替换第三方库 pako.js 为 UZIP.js
+
+这项措施提升了动图转换为 APNG 图像的速度。
+
+--------------
+
+创建 APNG 图像的库 UPNG.js 需要使用其他库来压缩数据，之前我引用的库是 pako.js，不过它的体积太大了（282KB），但只用到了压缩数据这一个功能，我觉得太浪费空间了。
+
+现在我把压缩库替换成了 UZIP.js，它的体积很小，只有 29KB。
+
+UZIP.js 的压缩率没有 pako.js 高，但是相差不大。而且它的压缩速度比 pako.js 更快。
+
+#### 体积差别
+
+我使用了两个动图转换为 APNG 来比较它们的体积差别。
+
+| 编号 | pako 生成的体积 (byte) | UZIP 生成的体积 (byte) | UZIP 增加的体积比例 |
+| ---- | ---------------------- | ---------------------- | ------------------- |
+| 1    | 2098919                | 2116220                | 0.00824             |
+| 2    | 53275917               | 53795392               | 0.00975             |
+
+可以看到，相比 pako，UZIP 会增加不到 1％ 的体积，我觉得这是可以接受的。
+
+#### 压缩速度差别
+
+测试步骤：
+
+打开这个画师的 [动图页面](https://www.pixiv.net/users/1319940/artworks/%E3%81%86%E3%81%94%E3%82%A4%E3%83%A9)，下载同一个动图 79551391（中间的那个）。这个动图的源文件大小是 9MB，有 105 张 640x360 分辨率的 jpg 图像，在 pixiv 的动图里算中等大小。
+
+先保存为 zip，使源文件压缩包有缓存，然后再改为保存为 APNG。
+
+当下载器显示正在转换动图时开始计时，转换完毕时结束计时。
+
+- 使用 UZIP 时，转换时间为 9.38s。
+- 使用 pako 时，转换时间为 11.42s。
+
+经过多次测试，都符合这个结果。
+
+在这个例子中，UZIP 比 pako 快了 2s，节约了将近 18% 的时间。
+
+### 修复了转换 APNG 时的一处警告信息
+
+在转换 APNG 时，下载器会创建一个 CanvasRenderingContext2D，并在上面依次绘制每个图像 `drawImage` 和获取绘制后的数据 `getImageData`。
+
+Chrome 会显示一条警告消息：
+
+```log
+Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently
+```
+
+意思是设置 `willReadFrequently` 属性为 `true` 可以加快读取速度，提高效率。于是我加上了这个属性，来避免出现这个警告：
+
+```js
+const ctx = canvas.getContext('2d', { willReadFrequently: true })
+```
+
+我看了上面链接中的说明，默认情况下浏览器可能会把画布的输出内容存放在 GPU 上（使用硬件加速）。如果设置 `willReadFrequently` 为 `true`，则输出内容会存放在 CPU 上，这在回读图像数据时会更快。这些回读操作包括：`getImageData()`, `toDataURL()`, or `toBlob()`。
+
+我使用上面测试过的动图进行对比（有 105 张 640x360 分辨率的 jpg 图像），输出了绘制和读取全部 105 张图像的总时间：
+
+未设置 `willReadFrequently` 时的典型时间：
+
+- 128 ms
+- 131 ms
+- 129 ms
+
+设置 `willReadFrequently` 之后的典型时间：
+
+- 116 ms
+- 123 ms
+- 116 ms
+
+速度有提升，但是幅度小于 10%，聊胜于吧。
 
 ## 15.0.1 2022/12/26
 
@@ -21,7 +128,7 @@ aiType: 0 | 1 | 2
 
 报错信息如下：
 
-```
+```log
 Uncaught (in promise) EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'self' 'wasm-unsafe-eval'".
 ```
 

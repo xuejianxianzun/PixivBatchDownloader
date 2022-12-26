@@ -15,10 +15,18 @@ class SaveArtworkData {
     const bmk = body.bookmarkCount // 收藏数
 
     const tags: string[] = Tools.extractTags(data) // tag 列表
-    let tagsWithTransl: string[] = Tools.extractTags(data, 'both') // 保存 tag 列表，附带翻译后的 tag
-    let tagsTranslOnly: string[] = Tools.extractTags(data, 'transl') // 保存翻译后的 tag 列表
+    const tagsWithTransl: string[] = Tools.extractTags(data, 'both') // 保存 tag 列表，附带翻译后的 tag
+    const tagsTranslOnly: string[] = Tools.extractTags(data, 'transl') // 保存翻译后的 tag 列表
+
+    const aiMarkString = Tools.getAIGeneratedMark(body.aiType)
+    if (aiMarkString) {
+      tags.unshift(aiMarkString)
+      tagsWithTransl.unshift(aiMarkString)
+      tagsTranslOnly.unshift(aiMarkString)
+    }
 
     const filterOpt: FilterOption = {
+      aiType: body.aiType,
       createDate: body.createDate,
       id: body.id,
       workType: body.illustType,
@@ -61,6 +69,7 @@ class SaveArtworkData {
 
         // 添加作品信息
         store.addResult({
+          aiType: body.aiType,
           id: body.id,
           idNum: idNum,
           // 对于插画和漫画的缩略图，当一个作品包含多个图片文件时，需要转换缩略图 url
@@ -117,6 +126,7 @@ class SaveArtworkData {
         }
 
         store.addResult({
+          aiType: body.aiType,
           id: body.id,
           idNum: idNum,
           thumb: body.urls.thumb,

@@ -1,6 +1,6 @@
 import { Config } from '../Config'
 
-// 已使用的最大编号是 80
+// 已使用的最大编号是 81
 export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -44,6 +44,21 @@ export const formHtml = `<form class="settingForm">
     <span class="beautify_checkbox" tabindex="0"></span>
     <label for="downR18G"> R-18G</label>
     </p>
+    
+    <p class="option" data-no="81">
+    <span class="settingNameStyle1">
+    <span data-xztext="_AI作品"></span>
+    </span>
+    <input type="checkbox" name="AIGenerated" id="AIGenerated" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox" tabindex="0"></span>
+    <label for="AIGenerated" data-xztext="_AI生成"></label>
+    <input type="checkbox" name="notAIGenerated" id="notAIGenerated" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox" tabindex="0"></span>
+    <label for="notAIGenerated" data-xztext="_非AI生成"></label>
+    <input type="checkbox" name="UnknownAI" id="UnknownAI" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox" tabindex="0"></span>
+    <label for="UnknownAI" data-xztext="_未知" class="has_tip" data-xztip="_AI未知作品的说明"></label>
+    </p>
 
     <p class="option" data-no="6">
     <span class="settingNameStyle1">
@@ -56,7 +71,7 @@ export const formHtml = `<form class="settingForm">
     <span class="beautify_checkbox" tabindex="0"></span>
     <label for="setDownBookmarked" data-xztext="_已收藏"></label>
     </p>
-    
+
     <p class="option" data-no="23">
     <span class="settingNameStyle1">
     <span data-xztext="_图片色彩"></span>

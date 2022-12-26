@@ -189,6 +189,9 @@ class FileName {
         for (const setTag of item.tags) {
           if (workTags.includes(setTag.toLowerCase())) {
             diffNames.push(item.rule)
+            // 一条规则里的 tag 可能会有多个存在于同一个作品的标签列表里
+            // 如果匹配到就跳过这条规则，以避免重复添加规则对应的命名规则
+            break
           }
         }
       }

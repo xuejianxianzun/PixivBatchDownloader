@@ -31,6 +31,8 @@ class ExportResult2CSV {
     [2, 'R-18G'],
   ])
 
+  private readonly AIType = ['Unknown', 'No', 'Yes']
+
   // 定义要保存的字段
   private readonly fieldCfg: Field[] = [
     {
@@ -100,6 +102,10 @@ class ExportResult2CSV {
     {
       name: 'xRestrict',
       index: 'xRestrict',
+    },
+    {
+      name: 'AI',
+      index: 'aiType',
     },
     {
       name: 'date',
@@ -172,6 +178,10 @@ class ExportResult2CSV {
 
           if (field.name === 'xRestrict') {
             result = this.xRestrictMap.get(result as number) || ''
+          }
+
+          if (field.name === 'AI') {
+            result = this.AIType[d.aiType || 0]
           }
 
           bodyItem.push(result)

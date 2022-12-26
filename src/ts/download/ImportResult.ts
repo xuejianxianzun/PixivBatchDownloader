@@ -50,6 +50,7 @@ class ImportResult {
     const temp: Result[] = []
     for (const result of loadedJSON) {
       const check = await filter.check({
+        aiType: result.aiType,
         id: result.idNum,
         workType: result.type,
         pageCount: result.pageCount,

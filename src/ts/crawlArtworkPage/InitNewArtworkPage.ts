@@ -113,6 +113,7 @@ class InitNewArtworkPage extends InitPageBase {
       }
 
       const filterOpt: FilterOption = {
+        aiType: nowData.aiType,
         id: nowData.id,
         width: nowData.pageCount === 1 ? nowData.width : 0,
         height: nowData.pageCount === 1 ? nowData.height : 0,
