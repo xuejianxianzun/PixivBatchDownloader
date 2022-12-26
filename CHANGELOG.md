@@ -78,6 +78,40 @@ UZIP.js 的压缩率没有 pako.js 高，但是相差不大。而且它的压缩
 
 在这个例子中，UZIP 比 pako 快了 2s，节约了将近 18% 的时间。
 
+### 修复了转换 APNG 时的一处警告信息
+
+在转换 APNG 时，下载器会创建一个 CanvasRenderingContext2D，并在上面依次绘制每个图像 `drawImage` 和获取绘制后的数据 `getImageData`。
+
+Chrome 会显示一条警告消息：
+
+```log
+Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently
+```
+
+意思是设置 `willReadFrequently` 属性为 `true` 可以加快读取速度，提高效率。于是我加上了这个属性，来避免出现这个警告：
+
+```js
+const ctx = canvas.getContext('2d', { willReadFrequently: true })
+```
+
+我看了上面链接中的说明，默认情况下浏览器可能会把画布的输出内容存放在 GPU 上（使用硬件加速）。如果设置 `willReadFrequently` 为 `true`，则输出内容会存放在 CPU 上，这在回读图像数据时会更快。这些回读操作包括：`getImageData()`, `toDataURL()`, or `toBlob()`。
+
+我使用上面测试过的动图进行对比（有 105 张 640x360 分辨率的 jpg 图像），输出了绘制和读取全部 105 张图像的总时间：
+
+未设置 `willReadFrequently` 时的典型时间：
+
+- 128 ms
+- 131 ms
+- 129 ms
+
+设置 `willReadFrequently` 之后的典型时间：
+
+- 116 ms
+- 123 ms
+- 116 ms
+
+速度有提升，但是幅度小于 10%，聊胜于吧。
+
 ## 15.0.1 2022/12/26
 
 ### 修复小说保存为 EPUB 时下载失败的问题
@@ -86,7 +120,7 @@ UZIP.js 的压缩率没有 pako.js 高，但是相差不大。而且它的压缩
 
 报错信息如下：
 
-```
+```log
 Uncaught (in promise) EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'self' 'wasm-unsafe-eval'".
 ```
 
