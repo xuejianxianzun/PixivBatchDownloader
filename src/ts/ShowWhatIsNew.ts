@@ -11,7 +11,7 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '15.1.0'
+  private flag = '15.1.00'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
@@ -23,6 +23,11 @@ class ShowWhatIsNew {
       ${lang.transl('_用户可以选择是否下载AI生成的作品')}
       <br>
       ${lang.transl('_你可以在xx选项卡里找到它', lang.transl('_抓取'))}
+      <br>
+      <br>
+      <strong>${lang.transl('_新增命名标记')}: {AI}</strong>
+      <br>
+      ${lang.transl('_命名标记AI')}
       `
 
       // 在更新说明的下方显示赞助提示

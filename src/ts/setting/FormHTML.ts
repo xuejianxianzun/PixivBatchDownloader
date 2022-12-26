@@ -312,6 +312,7 @@ export const formHtml = `<form class="settingForm">
       <option value="{tags_transl_only}">{tags_transl_only}</option>
       <option value="{page_tag}">{page_tag}</option>
       <option value="{type}">{type}</option>
+      <option value="{AI}">{AI}</option>
       <option value="{like}">{like}</option>
       <option value="{bmk}">{bmk}</option>
       <option value="{bmk_id}">{bmk_id}</option>
@@ -377,6 +378,9 @@ export const formHtml = `<form class="settingForm">
     <br>
     <span class="blue">{type}</span>
     <span data-xztext="_命名标记type"></span>
+    <br>
+    <span class="blue">{AI}</span>
+    <span data-xztext="_命名标记AI"></span>
     <br>
     <span class="blue">{like}</span>
     <span data-xztext="_命名标记like"></span>
