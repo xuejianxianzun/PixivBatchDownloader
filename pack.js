@@ -21,7 +21,7 @@ async function copys() {
     // 复制 manifest
     await copy('./src', dir, {
       overwrite: true,
-      filter: ['manifest.json'],
+      filter: ['manifest.json', 'declarative_net_request_rules.json'],
     })
 
     // 复制根目录一些文件

@@ -240,6 +240,9 @@ interface XzSetting {
     tags: string[]
     rule: string
   }[]
+  AIGenerated: boolean
+  notAIGenerated: boolean
+  UnknownAI: boolean
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -438,6 +441,9 @@ class Settings {
     UseDifferentNameRuleIfWorkHasTagSwitch: false,
     UseDifferentNameRuleIfWorkHasTagShow: true,
     UseDifferentNameRuleIfWorkHasTagList: [],
+    AIGenerated: true,
+    notAIGenerated: true,
+    UnknownAI: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

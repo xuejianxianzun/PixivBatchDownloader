@@ -12,6 +12,8 @@ import { WorkTypeString } from '../store/StoreType'
 
 /** 过滤选项，其中所有字段都是可选的 */
 export interface FilterOption {
+  /**是否为 AI 创作。0 未知 1 否 2 是 */
+  aiType?: 0 | 1 | 2
   id?: number | string
   workType?: 0 | 1 | 2 | 3
   workTypeString?: WorkTypeString
@@ -39,6 +41,7 @@ class Filter {
   private showTip() {
     this.getDownType()
     this.getDownTypeByAge()
+    this.getAIWorkType()
     this.getDownTypeByImgCount()
     this.getDownTypeByColor()
     this.getDownTypeByBmked()
@@ -80,6 +83,10 @@ class Filter {
     }
 
     if (!this.checkDownTypeByAge(option.xRestrict)) {
+      return false
+    }
+
+    if (!this.checkAIWorkType(option.aiType)) {
       return false
     }
 
@@ -200,7 +207,7 @@ class Filter {
     !settings.downType3 && tips.push(lang.transl('_小说'))
 
     if (tips.length > 0) {
-      log.warning(lang.transl('_排除作品类型') + tips.toString())
+      log.warning(lang.transl('_排除作品类型') + tips.join(', '))
     }
   }
 
@@ -216,7 +223,18 @@ class Filter {
     !settings.downR18G && tips.push('R-18G')
 
     if (tips.length > 0) {
-      log.warning(lang.transl('_排除作品类型') + tips.toString())
+      log.warning(lang.transl('_排除作品类型') + tips.join(', '))
+    }
+  }
+
+  private getAIWorkType() {
+    const tips = []
+    !settings.AIGenerated && tips.push(lang.transl('_AI生成'))
+    !settings.notAIGenerated && tips.push(lang.transl('_非AI生成'))
+    !settings.UnknownAI && tips.push(lang.transl('_未知') + '(AI)')
+
+    if (tips.length > 0) {
+      log.warning(lang.transl('_排除作品类型') + tips.join(', '))
     }
   }
 
@@ -226,7 +244,7 @@ class Filter {
     !settings.downMultiImg && tips.push(lang.transl('_多图作品'))
 
     if (tips.length > 0) {
-      log.warning(lang.transl('_排除作品类型') + tips.toString())
+      log.warning(lang.transl('_排除作品类型') + tips.join(', '))
     }
   }
 
@@ -242,7 +260,7 @@ class Filter {
     !settings.downBlackWhiteImg && tips.push(lang.transl('_黑白图片'))
 
     if (tips.length > 0) {
-      log.warning(lang.transl('_排除作品类型') + tips.toString())
+      log.warning(lang.transl('_排除作品类型') + tips.join(', '))
     }
   }
 
@@ -258,7 +276,7 @@ class Filter {
     !settings.downBookmarked && tips.push(lang.transl('_已收藏'))
 
     if (tips.length > 0) {
-      log.warning(lang.transl('_排除作品类型') + tips.toString())
+      log.warning(lang.transl('_排除作品类型') + tips.join(', '))
     }
   }
 
@@ -455,6 +473,19 @@ class Filter {
         return settings.downR18
       case 2:
         return settings.downR18G
+      default:
+        return true
+    }
+  }
+
+  private checkAIWorkType(aiType?: FilterOption['aiType']) {
+    switch (aiType) {
+      case 0:
+        return settings.UnknownAI
+      case 1:
+        return settings.notAIGenerated
+      case 2:
+        return settings.AIGenerated
       default:
         return true
     }

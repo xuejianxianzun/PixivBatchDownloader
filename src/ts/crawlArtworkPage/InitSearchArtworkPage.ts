@@ -393,6 +393,7 @@ class InitSearchArtworkPage extends InitPageBase {
       }
 
       const filterOpt: FilterOption = {
+        aiType: nowData.aiType,
         createDate: nowData.createDate,
         id: nowData.id,
         width: nowData.pageCount === 1 ? nowData.width : 0,
@@ -788,6 +789,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
     this.filterResult((data) => {
       const filterOpt: FilterOption = {
+        aiType: data.aiType,
         id: data.id,
         workType: data.type,
         pageCount: data.pageCount,

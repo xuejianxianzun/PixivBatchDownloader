@@ -214,6 +214,7 @@ class InitBookmarkPage extends InitPageBase {
           return this.afterGetIdList()
         }
         const filterOpt: FilterOption = {
+          aiType: workData.aiType,
           id: workData.id,
           tags: workData.tags,
           bookmarkData: workData.bookmarkData,

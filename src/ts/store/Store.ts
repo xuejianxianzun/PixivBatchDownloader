@@ -35,6 +35,7 @@ class Store {
   public crawlCompleteTime: Date = new Date()
 
   private readonly fileDataDefault: Result = {
+    aiType: 0,
     idNum: 0,
     id: '',
     original: '',
@@ -139,7 +140,8 @@ class Store {
           if (number > 0) {
             dlCount = Math.min(dlCount, number)
           } else {
-            // 用户设置的值有可能把这个作品的图片全部排除了，此时视为不排除
+            // 用户设置的值有可能把这个作品的图片全部排除了，此时只跳过最后一张
+            dlCount = Math.min(dlCount, workData.pageCount - 1)
           }
         }
       }

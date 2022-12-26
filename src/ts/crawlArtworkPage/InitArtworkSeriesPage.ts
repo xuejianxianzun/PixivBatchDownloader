@@ -81,6 +81,7 @@ class InitArtworkSeriesPage extends InitPageBase {
 
       // 过滤器进行检查
       const filterOpt: FilterOption = {
+        aiType: work.aiType,
         id: work.id,
         tags: work.tags,
         bookmarkData: !!work.bookmarkData,
