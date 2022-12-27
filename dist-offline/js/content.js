@@ -2221,6 +2221,11 @@ class FileName {
                 prefix: '',
                 safe: true,
             },
+            '{AI}': {
+                value: data.aiType === 2 ? 'AI' : '',
+                prefix: '',
+                safe: true,
+            },
             '{series_title}': {
                 value: data.seriesTitle || '',
                 prefix: '',
@@ -3985,12 +3990,12 @@ const langText = {
         `Например, добавьте тег 'user_' перед именем пользователя`,
     ],
     _命名标记id: [
-        '默认文件名，如 44920385_p0',
-        '預設檔案名稱，例如：44920385_p0。',
-        'Default file name, for example 44920385_p0',
-        'デフォルトのファイル名，例 44920385_p0',
-        '기본 파일명. 예: 44920385_p0',
-        'Имя файла по умолчанию, например 44920385_p0',
+        '默认文件名，如 <span class="blue">44920385_p0</span>',
+        '預設檔案名稱，例如：<span class="blue">44920385_p0</span>。',
+        'Default file name, for example <span class="blue">44920385_p0</span>',
+        'デフォルトのファイル名，例 <span class="blue">44920385_p0</span>',
+        '기본 파일명. 예: <span class="blue">44920385_p0</span>',
+        'Имя файла по умолчанию, например <span class="blue">44920385_p0</span>',
     ],
     _命名标记title: [
         '作品标题',
@@ -4017,20 +4022,20 @@ const langText = {
         'Никнейм юзера',
     ],
     _用户id: [
-        '用户 ID',
-        '使用者 ID',
-        'User ID',
-        'ユーザー ID',
-        '유저 ID',
-        'ID Юзера',
+        '用户 ID（数字）',
+        '使用者 ID（數字）',
+        'User ID (Number)',
+        'ユーザー ID (Number)',
+        '유저 ID (숫자)',
+        'ID Юзера (Число)',
     ],
     _命名标记px: [
-        '宽度和高度',
-        '寬度和高度',
-        'Width and height',
-        '幅と高さ',
-        '너비와 높이',
-        'Ширина и высота',
+        '宽度和高度。例如：<span class="blue">600x900</span>',
+        '寬度和高度。例如：<span class="blue">600x900</span>',
+        'Width and height, e.g. <span class="blue">600x900</span>',
+        '幅と高さ。例：<span class="blue">600x900</span>',
+        '너비와 높이. 예: <span class="blue">600x900</span>',
+        'Ширина и высота, напр. <span class="blue">600x900</span>',
     ],
     _命名标记bmk: [
         'Bookmark count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
@@ -4049,12 +4054,12 @@ const langText = {
         'Bookmark Id. Каждая работа в ваших закладках будет иметь идентификатор закладки. Чем позже добавлена закладка, тем больше Id закладки. Когда вы загружаете закладки, вы можете использовать {bmk_id} в качестве основы для сортировки.',
     ],
     _命名标记bmk_1000: [
-        '作品收藏数的简化显示。例如：0+、1000+、2000+、3000+ ……',
-        '作品收藏數的簡化顯示。例如：0+、1000+、2000+、3000+ ……',
-        'Simplified number of bookmark, e.g. 0+、1000+、2000+、3000+ ……',
-        '作品のボックマークの数の簡略表示。 例：0+、1000+、2000+、3000+ ……',
-        '단순화된 북마크 수. 예: 0+, 1000+, 2000+, 3000+ ……',
-        'Упрощенное количество закладок, напр. 0+、1000+、2000+、3000+ ......',
+        '作品收藏数的简化显示。例如：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
+        '作品收藏數的簡化顯示。例如：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
+        'Simplified number of bookmark, e.g. <span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
+        '作品のボックマークの数の簡略表示。例：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
+        '단순화된 북마크 수. 예: <span class="blue">0+</span>, <span class="blue">1000+</span>, <span class="blue">2000+</span>, <span class="blue">3000+</span> ……',
+        'Упрощенное количество закладок, напр. <span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ......',
     ],
     _命名标记like: [
         'Like count，作品的点赞数。',
@@ -4073,20 +4078,20 @@ const langText = {
         'Колличество просмотров',
     ],
     _命名标记id_num: [
-        '数字 id，如 44920385',
-        '數字 id，例如：44920385。',
-        'Number id, for example 44920385',
-        '44920385 などの番号 ID',
-        '숫자 ID. 예: 44920385',
-        'Идентификатор номера, например 44920385',
+        '数字 ID，如 <span class="blue">44920385</span>',
+        '數字 ID，例如：<span class="blue">44920385</span>。',
+        'Number ID, for example <span class="blue">44920385</span>',
+        '<span class="blue">44920385</span> などの番号 ID',
+        '숫자 ID. 예: <span class="blue">44920385</span>',
+        'Идентификатор номера, например <span class="blue">44920385</span>',
     ],
     _命名标记p_num: [
-        '图片在作品内的序号，如 0、1、2 …… 每个作品都会重新计数。',
-        '圖片在作品內的序號，例如：0、1、2……每個作品都將重新計數。',
-        'The serial number of the image in the work, such as 0, 1, 2 ... Each work will be recounted.',
-        '0、1、2 など、作品の画像のシリアル番号。各ピースは再集計されます。',
-        '작품 안에 있는 번호. 예: 0, 1, 2 …… 작품마다 다시 세어봅니다.',
-        'Порядковый номер изображения в работе, например, 0, 1, 2 .... Каждое произведение будет пересказано',
+        '图片在作品内的序号，如 <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 每个作品都会重新计数。',
+        '圖片在作品內的序號，例如：<span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span>……每個作品都將重新計數。',
+        'The serial number of the image in the work, such as <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Each work will be recounted.',
+        '<span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> など、作品の画像のシリアル番号。各ピースは再集計されます。',
+        '작품 안에 있는 번호. 예: <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> …… 작품마다 다시 세어봅니다.',
+        'Порядковый номер изображения в работе, например, <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> .... Каждое произведение будет пересказано',
     ],
     _命名标记tags_trans: [
         '作品的标签列表，附带翻译后的标签（如果有）',
@@ -4105,44 +4110,60 @@ const langText = {
         'Теги перевода',
     ],
     _命名标记date: [
-        '作品的创建时间。如 2019-08-29。',
-        '作品的建立時間。例如：2019-08-29。',
-        'The time the creation of the work. Such as 2019-08-29',
-        '作品の作成時間。例 2019-08-29',
-        '작품 생성 날짜. 예: 2019-08-29',
-        'Время создания произведения. Например, 2019-08-29',
+        '作品的创建时间。如 <span class="blue">2019-08-29</span>。',
+        '作品的建立時間。例如：<span class="blue">2019-08-29</span>。',
+        'The time the creation of the work. Such as <span class="blue">2019-08-29</span>',
+        '作品の作成時間。例 <span class="blue">2019-08-29</span>',
+        '작품 생성 날짜. 예: <span class="blue">2019-08-29</span>',
+        'Время создания произведения. Например, <span class="blue">2019-08-29</span>',
     ],
     _命名标记upload_date: [
-        '作品内容最后一次被修改的时间。如 2019-08-30。',
-        '作品內容最後一次被修改的時間。如 2019-08-30。',
-        'The time when the content of the work was last modified. Such as 2019-08-30.',
-        '作品の内容が最後に変更された時刻。例 2019-08-30',
-        '저작물의 내용이 마지막으로 수정된 시간입니다. 예: 2019-08-30',
-        'Время, когда содержание работы было изменено в последний раз. Например, 2019-08-30.',
+        '作品内容最后一次被修改的时间。如 <span class="blue">2019-08-30</span>。',
+        '作品內容最後一次被修改的時間。如 <span class="blue">2019-08-30</span>。',
+        'The time when the content of the work was last modified. Such as <span class="blue">2019-08-30</span>.',
+        '作品の内容が最後に変更された時刻。例 <span class="blue">2019-08-30</span>',
+        '저작물의 내용이 마지막으로 수정된 시간입니다. 예: <span class="blue">2019-08-30</span>',
+        'Время, когда содержание работы было изменено в последний раз. Например, <span class="blue">2019-08-30</span>.',
     ],
     _命名标记rank: [
-        '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜页面中使用。',
-        '作品在排行榜中的排名。例如：#1、#2……只能在排行榜頁面中使用。',
-        'The ranking of the work in the ranking pages. Such as #1, #2 ... Can only be used in ranking pages.',
-        '作品のランキング。例え　#1、#2 …… ランキングページのみで使用できます。',
-        '작품의 랭킹. 예: #1, #2 …… 랭킹 페이지에서만 사용할 수 있습니다.',
-        'Рейтинг работы на страницах рейтинга. Например, №1, №2 ... Может использоваться только на страницах ранжирования.',
+        '作品在排行榜中的排名。如 <span class="blue">#1</span>、<span class="blue">#2</span> …… 只能在排行榜页面中使用。',
+        '作品在排行榜中的排名。例如：<span class="blue">#1</span>、<span class="blue">#2</span>……只能在排行榜頁面中使用。',
+        'The ranking of the work in the ranking pages. Such as <span class="blue">#1</span>, <span class="blue">#2</span> ... Can only be used in ranking pages.',
+        '作品のランキング。例え　<span class="blue">#1</span>、<span class="blue">#2</span> …… ランキングページのみで使用できます。',
+        '작품의 랭킹. 예: <span class="blue">#1</span>, <span class="blue">#2</span> …… 랭킹 페이지에서만 사용할 수 있습니다.',
+        'Рейтинг работы на страницах рейтинга. Например, <span class="blue">#1</span>, <span class="blue">#2</span> ... Может использоваться только на страницах ранжирования.',
     ],
     _命名标记type: [
-        '作品类型，分为：Illustration, Manga, Ugoira, Novel',
-        '作品類型，分為：Illustration, Manga, Ugoira, Novel',
-        'The type of work, divided into：Illustration, Manga, Ugoira, Novel',
-        '作品分類は：Illustration, Manga, Ugoira, Novel',
-        '작품 유형: 일러스트, 만화, 움직이는 일러스트, 소설',
-        'Тип работы, разделенный на：Иллюстрация, Манга, Угоира, Роман',
+        '作品类型，分为：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        '作品類型，分為：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        'The type of work, divided into：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        '作品分類は：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        '작품 유형: <span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        'Тип работы, разделенный на：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+    ],
+    _命名标记AI: [
+        '如果作品是由 AI 生成的，则输出 <span class="blue">AI</span>',
+        '如果作品是由 AI 生成的，則輸出 <span class="blue">AI</span>',
+        'If the work is generated by AI, output <span class="blue">AI</span>',
+        '作品がAIで生成された場合、<span class="blue">AI</span>を出力',
+        '작업이 AI로 생성된 경우 <span class="blue">AI</span> 출력',
+        'Если работа создана с помощью ИИ, выведите <span class="blue">AI</span>',
     ],
     _命名标记提醒: [
-        '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{user_id}<br>* 在某些情况下，会有一些标记不可用。',
-        '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{user_id}<br>＊某些情況下有些標記無法使用。',
-        'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{user_id}<br>* In some cases, some tags will not be available.',
-        'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{user_id}<br>* 場合によっては、一部のタグが利用できず。',
-        '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.<br>여러 태그를 사용할 수 있습니다. 서로 다른 태그 사이에 구분자를 넣는 것을 권장합니다. 예: {id}-{user}<br>* 경우에 따라서는 사용할 수 없는 태그가 있을 수 있습니다.',
-        'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.<br>Вы можете использовать несколько тегов, и вы можете добавить отдельный символ между различными тегами. Пример: {id}-{user_id}<br>* В некоторых случаях некоторые теги будут недоступны.',
+        '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{user_id}',
+        '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{user_id}',
+        'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{user_id}',
+        'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{user_id}',
+        '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.<br>여러 태그를 사용할 수 있습니다. 서로 다른 태그 사이에 구분자를 넣는 것을 권장합니다. 예: {id}-{user}',
+        'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.<br>Вы можете использовать несколько тегов, и вы можете добавить отдельный символ между различными тегами. Пример: {id}-{user_id}',
+    ],
+    _有些标记并不总是可用的提醒: [
+        '有些标记并不总是可用，有时它们可能什么都不输出。',
+        '有些標記並不總是可用，有時它們可能什麼都不輸出。',
+        'Some tags are not always available, and sometimes they may output nothing.',
+        '一部のタグは常に使用できるとは限らず、何も出力しない場合もあります。',
+        '일부 태그는 항상 사용할 수 있는 것은 아니며 때로는 아무 것도 출력하지 않을 수도 있습니다.',
+        'Некоторые теги не всегда доступны, а иногда могут ничего не выводить.',
     ],
     _命名规则一定要包含id: [
         '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}',
@@ -4169,12 +4190,12 @@ const langText = {
         'Название серии, доступно только на страницах серий (серия романов, серия манги).',
     ],
     _命名标记seriesOrder: [
-        '作品在系列中的序号，如 #1 #2。只在系列页面中可用（小说系列、漫画系列）。',
-        '作品在系列中的編號，如 #1 #2。只在系列頁面中可用（小說系列、漫畫系列）。',
-        'The number of the work in the series, such as #1 #2. only available in series pages (Novel series, Manga series).',
-        'シリーズの中の作品の番号，例え #1 #2。シリーズページのみ（小説連載、漫画連載）。',
-        '시리즈 내 작품 번호. 예: #1 #2. 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
-        'Номер работы в серии, например, #1 #2. доступны только на страницах серий (серия романов, серия манги).',
+        '作品在系列中的序号，如 <span class="blue">#1</span> <span class="blue">#2</span>。只在系列页面中可用（小说系列、漫画系列）。',
+        '作品在系列中的編號，如 <span class="blue">#1</span> <span class="blue">#2</span>。只在系列頁面中可用（小說系列、漫畫系列）。',
+        'The number of the work in the series, such as <span class="blue">#1</span> <span class="blue">#2</span>. only available in series pages (Novel series, Manga series).',
+        'シリーズの中の作品の番号，例え <span class="blue">#1</span> <span class="blue">#2</span>。シリーズページのみ（小説連載、漫画連載）。',
+        '시리즈 내 작품 번호. 예: <span class="blue">#1</span> <span class="blue">#2</span>. 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
+        'Номер работы в серии, например, <span class="blue">#1</span> <span class="blue">#2</span>. доступны только на страницах серий (серия романов, серия манги).',
     ],
     _命名标记seriesId: [
         '系列 ID，只在系列页面中可用（小说系列、漫画系列）。',
@@ -5286,12 +5307,12 @@ const langText = {
         'Для установки формата даты и времени можно использовать следующую нотацию. Это повлияет на {date} и {upload_date} и {task_date} в правилах именования. <br>Для времени, например, 2021-04-30T06:40:08',
     ],
     _命名标记taskDate: [
-        '本次任务抓取完成时的时间。例如：2020-10-21',
-        '本次工作擷取完成時的時間。例如：2020-10-21。',
-        'The time when the task was crawl completed. For example: 2020-10-21',
-        'この作業のクロールが完了した時刻です。 例：2020-10-21',
-        '긁어오기 작업을 완료한 날짜입니다. 예: 2020-10-21',
-        'Время, когда задание было выполнено. Например: 2020-10-21',
+        '本次任务抓取完成时的时间。例如：<span class="blue">2020-10-21</span>',
+        '本次工作擷取完成時的時間。例如：<span class="blue">2020-10-21</span>。',
+        'The time when the task was crawl completed. For example: <span class="blue">2020-10-21</span>',
+        'この作業のクロールが完了した時刻です。 例：<span class="blue">2020-10-21</span>',
+        '긁어오기 작업을 완료한 날짜입니다. 예: <span class="blue">2020-10-21</span>',
+        'Время, когда задание было выполнено. Например: <span class="blue">2020-10-21</span>',
     ],
     _自动检测: [
         '自动检测',
@@ -10170,7 +10191,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '15.1.0';
+        this.flag = '15.1.00';
         this.bindEvents();
     }
     bindEvents() {
@@ -10181,6 +10202,11 @@ class ShowWhatIsNew {
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_用户可以选择是否下载AI生成的作品')}
       <br>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在xx选项卡里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取'))}
+      <br>
+      <br>
+      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增命名标记')}: {AI}</strong>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记AI')}
       `;
             // 在更新说明的下方显示赞助提示
             msg += `
@@ -21573,10 +21599,10 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask1', () => {
-            this.crawlData(103330000, 103846098);
+            this.crawlData(103850000, 103963596);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask2', () => {
-            this.crawlData(18850000, 18957219, 'novels');
+            this.crawlData(18960000, 18983794, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -23834,6 +23860,7 @@ const formHtml = `<form class="settingForm">
       <option value="{tags_transl_only}">{tags_transl_only}</option>
       <option value="{page_tag}">{page_tag}</option>
       <option value="{type}">{type}</option>
+      <option value="{AI}">{AI}</option>
       <option value="{like}">{like}</option>
       <option value="{bmk}">{bmk}</option>
       <option value="{bmk_id}">{bmk_id}</option>
@@ -23866,9 +23893,11 @@ const formHtml = `<form class="settingForm">
     </p>
     <p class="fileNameTip tip">
     <span data-xztext="_设置文件夹名的提示"></span>
-    <strong>{user}/{id}</strong>
+    <span>{user}<span class="key">/</span>{id}</span>
     <br>
     <span data-xztext="_命名标记提醒"></span>
+    <br>
+    * <span data-xztext="_有些标记并不总是可用的提醒"></span>
     <br>
     <span class="blue">{id}</span>
     <span data-xztext="_命名标记id"></span>
@@ -23894,11 +23923,14 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{tags_transl_only}</span>
     <span data-xztext="_命名标记tags_transl_only"></span>
     <br>
-    <span class="blue">{page_tag}</span>
+    * <span class="blue">{page_tag}</span>
     <span data-xztext="_文件夹标记PTag"></span>
     <br>
     <span class="blue">{type}</span>
     <span data-xztext="_命名标记type"></span>
+    <br>
+    * <span class="blue">{AI}</span>
+    <span data-xztext="_命名标记AI"></span>
     <br>
     <span class="blue">{like}</span>
     <span data-xztext="_命名标记like"></span>
@@ -23915,7 +23947,7 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{view}</span>
     <span data-xztext="_命名标记view"></span>
     <br>
-    <span class="blue">{rank}</span>
+    * <span class="blue">{rank}</span>
     <span data-xztext="_命名标记rank"></span>
     <br>
     <span class="blue">{date}</span>
@@ -23930,13 +23962,13 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{px}</span>
     <span data-xztext="_命名标记px"></span>
     <br>
-    <span class="blue">{series_title}</span>
+    * <span class="blue">{series_title}</span>
     <span data-xztext="_命名标记seriesTitle"></span>
     <br>
-    <span class="blue">{series_order}</span>
+    * <span class="blue">{series_order}</span>
     <span data-xztext="_命名标记seriesOrder"></span>
     <br>
-    <span class="blue">{series_id}</span>
+    * <span class="blue">{series_id}</span>
     <span data-xztext="_命名标记seriesId"></span>
     <br>
     <span class="blue">{id_num}</span>
@@ -28956,6 +28988,9 @@ const novelData = [
     [18930000, 1671409195000],
     [18940000, 1671567402000],
     [18950000, 1671721208000],
+    [18960000, 1671861312000],
+    [18970000, 1671954612000],
+    [18980000, 1672061020000],
 ];
 
 
@@ -39357,6 +39392,18 @@ const illustsData = [
     [103820000, 1671729660000],
     [103830000, 1671779400000],
     [103840000, 1671802980000],
+    [103850000, 1671830220000],
+    [103860000, 1671863040000],
+    [103870000, 1671882180000],
+    [103880000, 1671894900000],
+    [103890000, 1671923820000],
+    [103900000, 1671949680000],
+    [103910002, 1671967260000],
+    [103920000, 1671979860000],
+    [103930000, 1672016040000],
+    [103940000, 1672049280000],
+    [103950000, 1672068720000],
+    [103960001, 1672113420000],
 ];
 
 
