@@ -60,11 +60,11 @@ class WorkPublishTime {
 
   private bindEvents() {
     secretSignal.register('ppdtask1', () => {
-      this.crawlData(103330000, 103846098)
+      this.crawlData(103850000, 103963596)
     })
 
     secretSignal.register('ppdtask2', () => {
-      this.crawlData(18850000, 18957219, 'novels')
+      this.crawlData(18960000, 18983794, 'novels')
     })
   }
 

@@ -124,6 +124,8 @@ const ctx = canvas.getContext('2d', { willReadFrequently: true })
 
 速度有提升，但是幅度小于 10%，聊胜于吧。
 
+### 更新了作品发布时间数据
+
 ## 15.0.1 2022/12/26
 
 ### 修复小说保存为 EPUB 时下载失败的问题
