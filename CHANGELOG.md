@@ -4,6 +4,16 @@ TODO:日语文本需要加粗显示关键字，但是我不懂日语，所以现
 
 每次新版本发布时，应该更新作品发布日期时间的数据。根据目前的数据统计，每 10 小时就有 10000 个新的图像作品，这会增加一条数据。每 43 天左右会增加 100 条数据。
 
+## 15.1.1 2022/12/30
+
+### 权限变更
+
+`declarativeNetRequest` 变为 `declarativeNetRequestWithHostAccess`。
+
+后者不会导致扩展被禁用，也不会显示额外的警告，如“阻止你访问的所有页面内容”。
+
+https://developer.chrome.com/docs/extensions/reference/declarativeNetRequest/
+
 ## 15.1.0 2022/12/26
 
 ### 新增设置项：AI 作品
