@@ -2,15 +2,223 @@
 
 TODO:日语文本需要加粗显示关键字，但是我不懂日语，所以现在下载器的语言设置为日语时，不会显示加粗的关键字。
 
-年底前升级到 Manifest version 3
-
 每次新版本发布时，应该更新作品发布日期时间的数据。根据目前的数据统计，每 10 小时就有 10000 个新的图像作品，这会增加一条数据。每 43 天左右会增加 100 条数据。
+
+## 15.1.1 2022/12/30
+
+### 权限变更
+
+`declarativeNetRequest` 变为 `declarativeNetRequestWithHostAccess`。
+
+后者不会导致扩展被禁用，也不会显示额外的警告，如“阻止你访问的所有页面内容”。
+
+https://developer.chrome.com/docs/extensions/reference/declarativeNetRequest/
+
+## 15.1.0 2022/12/26
+
+### 新增设置项：AI 作品
+
+用户可以选择是否下载由 AI 生成的作品。
+
+你可以在“抓取”选项卡里找到它。（需要先启用“显示高级设置”）
+
+提示：这个设置项比使用标签来排除 AI 作品的方式更准确，因为有些作品可能没有添加 AI 相关的标签。不过你也可以把这两种方式结合起来使用。
+
+----------
+
+现在新投稿作品时，插画、漫画、动图必须选择是否为 AI 生成。小说投稿可选是否为 AI 生成。
+
+最近 Pixiv 给所有作品的数据都添加了 `aiType` 字段，标明是否为 AI 生成。早期作品也有此字段，但值为 `0`。
+
+```json
+aiType: 0 | 1 | 2
+```
+
+值的含义：
+
+- 0 未知（未标明是否为 AI 生成的作品）（主要是早期作品）
+- 1 否，不是 AI 生成
+- 2 是 AI 生成
+
+### 新增命名标记：{AI}
+
+如果作品是由 AI 生成的，则输出 `AI`。
+
+### 对于 AI 生成的作品，下载器会在抓取结果的标签列表里添加特定标记
+
+在 AI 生成的作品页面里，标签列表处会显示 `AI生成` 的标记。实际上这个 `AI生成` 并不是作品的标签，只是 pixiv 显示的一个标记。但是因为它和作品的标签显示在一起，所以很多人以为这是作品的标签里的，进而疑惑为什么下载器抓取不到这个“标签”。
+
+所以现在下载器干脆把这个标记添加到了作品的标签列表里。
+
+**提示：**根据用户在 pixiv 使用的不同语言，`AI生成` 这个标记也字会随语言变化。下载器会根据语言来添加对应的标记，比如英文时添加的标记是 `AI-generated`。
+
+### 修复 bug：某些小说标题中含有特殊字符导致 XML 解析出错的问题
+
+https://www.pixiv.net/novel/show.php?id=17968738
+
+【JPN & ENG】 ユイ vs 桃香　激闘！ 空手対決！！ 【Karate Combat】
+
+标题中的 `&` 会导致 XML 解析出错，现在修复。
+
+### 替换第三方库 pako.js 为 UZIP.js
+
+这项措施提升了动图转换为 APNG 图像的速度。
+
+--------------
+
+创建 APNG 图像的库 UPNG.js 需要使用其他库来压缩数据，之前我引用的库是 pako.js，不过它的体积太大了（282KB），但只用到了压缩数据这一个功能，我觉得太浪费空间了。
+
+现在我把压缩库替换成了 UZIP.js，它的体积很小，只有 29KB。
+
+UZIP.js 的压缩率没有 pako.js 高，但是相差不大。而且它的压缩速度比 pako.js 更快。
+
+#### 体积差别
+
+我使用了两个动图转换为 APNG 来比较它们的体积差别。
+
+| 编号 | pako 生成的体积 (byte) | UZIP 生成的体积 (byte) | UZIP 增加的体积比例 |
+| ---- | ---------------------- | ---------------------- | ------------------- |
+| 1    | 2098919                | 2116220                | 0.00824             |
+| 2    | 53275917               | 53795392               | 0.00975             |
+
+可以看到，相比 pako，UZIP 会增加不到 1％ 的体积，我觉得这是可以接受的。
+
+#### 压缩速度差别
+
+测试步骤：
+
+打开这个画师的 [动图页面](https://www.pixiv.net/users/1319940/artworks/%E3%81%86%E3%81%94%E3%82%A4%E3%83%A9)，下载同一个动图 79551391（中间的那个）。这个动图的源文件大小是 9MB，有 105 张 640x360 分辨率的 jpg 图像，在 pixiv 的动图里算中等大小。
+
+先保存为 zip，使源文件压缩包有缓存，然后再改为保存为 APNG。
+
+当下载器显示正在转换动图时开始计时，转换完毕时结束计时。
+
+- 使用 UZIP 时，转换时间为 9.38s。
+- 使用 pako 时，转换时间为 11.42s。
+
+经过多次测试，都符合这个结果。
+
+在这个例子中，UZIP 比 pako 快了 2s，节约了将近 18% 的时间。
+
+### 修复了转换 APNG 时的一处警告信息
+
+在转换 APNG 时，下载器会创建一个 CanvasRenderingContext2D，并在上面依次绘制每个图像 `drawImage` 和获取绘制后的数据 `getImageData`。
+
+Chrome 会显示一条警告消息：
+
+```log
+Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently
+```
+
+意思是设置 `willReadFrequently` 属性为 `true` 可以加快读取速度，提高效率。于是我加上了这个属性，来避免出现这个警告：
+
+```js
+const ctx = canvas.getContext('2d', { willReadFrequently: true })
+```
+
+我看了上面链接中的说明，默认情况下浏览器可能会把画布的输出内容存放在 GPU 上（使用硬件加速）。如果设置 `willReadFrequently` 为 `true`，则输出内容会存放在 CPU 上，这在回读图像数据时会更快。这些回读操作包括：`getImageData()`, `toDataURL()`, or `toBlob()`。
+
+我使用上面测试过的动图进行对比（有 105 张 640x360 分辨率的 jpg 图像），输出了绘制和读取全部 105 张图像的总时间：
+
+未设置 `willReadFrequently` 时的典型时间：
+
+- 128 ms
+- 131 ms
+- 129 ms
+
+设置 `willReadFrequently` 之后的典型时间：
+
+- 116 ms
+- 123 ms
+- 116 ms
+
+速度有提升，但是幅度小于 10%，聊胜于吧。
+
+### 更新了作品发布时间数据
+
+## 15.0.1 2022/12/26
+
+### 修复小说保存为 EPUB 时下载失败的问题
+
+上个版本升级到 Manifest V3 之后，小说保存为 EPUB 时会报错，无法下载，现在修复。
+
+报错信息如下：
+
+```log
+Uncaught (in promise) EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'self' 'wasm-unsafe-eval'".
+```
+
+报错的信息指向 `handlebars.min.js`，我以前没注意过它，去搜了下才知道它是一个 HTML 模板编译器（类似于 Vue，用 `{{var}}` 的语法把变量的值插入到 HTML 文本中）。它里面用到了动态构建 Function 的功能，在下载器升级到 Manifest V3 之后，浏览器不允许在扩展脚本使用 eval 功能，就产生了报错。呃呃，第三方库出现问题实在令我猝不及防，平白增加工作量了。
+
+引用 `handlebars.min.js` 的是用于创建 EPUB 文件的库 `js-epub-maker`。
+
+https://github.com/bbottema/js-epub-maker
+
+我有点疑惑，`js-epub-maker` 怎么不用模板字符串来生成 HTML 模板？它引用的 `handlebars.min.js` 不仅使用了 eval，而且体积也有 150KB，太大了些。不过我看了下 `js-epub-maker` 的主要更新时间是 2015-2017 年，可能当时模板字符串的浏览器支持情况还不太乐观，或者作者就是想偷懒，我也管不着。
+
+现在我把 `js-epub-maker.js` 里使用 handlebars 的地方用模板字符串进行了重构，修复了此问题，并删除了 `handlebars.min.js`。
+
+## 15.0.0 2022/12/24
+
+### 扩展升级到 Manifest V3
+
+### 更新了作品发布时间数据
+
+### 修复点击扩展图标时可能产生的一处错误
+
+如果在本扩展权限之外的其他页面（也就是非 Pixiv 页面），点击扩展图标会产生一条错误：
+
+```
+Uncaught (in promise) Error: Could not establish connection. Receiving end does not exist.
+```
+
+原因是点击图标时，后台脚本会向前台脚本发送消息，但是在没有权限的页面里，不存在本扩展的前台脚本，于是产生了这个错误。
+
+现在修复此问题。
+
+## 14.3.0 2022/12/22
+
+### 修复 Bug：抓取系列小说失败的问题
+
+由于 Pixiv API 返回的数据格式变化，导致最近下载器抓取系列小说失败。
+
+现在修复了此问题。
+
+### 从主机权限中移除 techorus-cdn.com
+
+现在 pixiv 应该没有使用 techorus-cdn.com 了吧，所以我就去掉了。
+
+### 新增功能：如果作品含有某些特定标签，则对这个作品使用另一种命名规则
+
+此功能为特供版添加，将会在正式版中移除。
+
+注意：由于是定制功能，所以本程序假定了用户在此功能内只会设置文件名部分，而不会设置文件夹部分。
+
+### 新增功能：特定用户的多图作品不下载最后几张图片
+
+此功能为特供版添加，将会在正式版中移除。
+
+### 从 Edge 外接程序商店下架
+
+由于 Edge 审核速度太慢（通常需要一周以上），并且这次重要更新（14.2.0版本）审核失败了，所以我已将这个扩展程序从 Edge 扩展商店下架。
+
+如果你的 Powerful Pixiv Downloader 是从 Edge 外接程序安装的，你可以先卸载它，然后从 Chrome Web Store 安装：
+https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh
+
+如果你需要备份 Powerful Pixiv Downloader 的一些数据，请参照以下步骤。（非必须，如果你不需要备份数据请忽略）
+
+在卸载它之前打开下载器的“更多”选项卡，并启用“显示高级设置”：
+
+1. 下载器的设置：点击“导出设置”按钮（它位于“更多”选项卡的底部），下载器会把设置项保存为一个 JSON 文件。当你重新安装扩展之后，可以点击“导入设置”按钮，选择这个文件来恢复你的设置。
+2. 下载器的下载记录（用于避免下载重复文件）：启用“不下载重复文件”，然后点击它后面的“导出”按钮，下载器会把下载记录保存为一个 JSON 文件。当你重新安装扩展之后，可以点击“导入”按钮，选择这个文件来恢复下载器的下载记录。
+
+全文：https://afdian.net/p/55d1f13c7e0b11ed8eba52540025c377
 
 ## 14.2.0 2022/12/04
 
 ### 修复了 Chrome 108 版本导致 WebM 视频转换出错的问题
 
-Chrome 108 版本对 `canvas.toDataURL('image/webp')` 生成的内容就进行了调整，相比之前减少了 80 字节的空白内容，导致转换 WebM 视频失败。
+Chrome 108 版本对 `canvas.toDataURL('image/webp')` 生成的内容进行了调整，相比之前减少了 80 字节的空白内容，导致转换 WebM 视频失败。
 
 现在修复。
 
@@ -2111,6 +2319,7 @@ incognito 的默认值是 `spanning`，这个模式意味着无痕模式里，�
 ### 修复了保存 gif 格式的用户头像时，保存的是静态图的问题
 
 今天看到 [HEIJUN・玉田平準](https://www.pixiv.net/users/10427188) 的头像是 gif 图，以前下载器没遇到过这种情况，会保存成静态图片，现在进行了修复。
+
 但是这还不够完美，作为头像的 gif 图的尺寸是 170px（可能是经过裁剪的），我不知道最大能上传多大的 gif 头像图，以及如果有更大的尺寸，该如何获取其 url。
 
 ### 修复了下载动图的方形缩略图时出现错误的问题
@@ -5627,7 +5836,7 @@ https://afdian.net/@xuejianxianzun
 https://tc-pximg01.techorus-cdn.com/img-original/img/2020/02/18/02/59/21/79568084_p0.png
 ```
 
-如果以后 p 站继续增加新的域名，则考虑吧 permission 里的网址匹配规则改为 `<all_urls>`。
+如果以后 p 站继续增加新的域名，则考虑把 permission 里的网址匹配规则改为 `<all_urls>`。
 
 ## 4.0.3 2020-02-18
 

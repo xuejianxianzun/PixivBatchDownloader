@@ -1,7 +1,7 @@
 {
   "name": "Powerful Pixiv Downloader DelMemory",
-  "version": "14.2.0",
-  "manifest_version": 2,
+  "version": "15.1.1",
+  "manifest_version": 3,
   "description": "强大的 Pixiv 批量下载器。Powerful Pixiv batch downloader. 強力な Pixiv ダウンローダー。",
   "icons": {
     "16": "icon/logo16.png",
@@ -9,7 +9,7 @@
     "48": "icon/logo48.png",
     "128": "icon/logo128.png"
   },
-  "browser_action": {
+  "action": {
     "default_icon": {
       "16": "icon/logo16.png",
       "32": "icon/logo32.png",
@@ -25,12 +25,11 @@
         "lib/viewer.min.js",
         "lib/whammy.js",
         "lib/gif.js",
-        "lib/handlebars.min.js",
         "lib/jszip-utils.min.js",
         "lib/jszip.min.js",
         "lib/js-epub-maker.js",
+        "lib/UZIP.js",
         "lib/UPNG.js",
-        "lib/pako.js",
         "js/content.js",
         "lib/iconfont.js"
       ],
@@ -45,26 +44,40 @@
     }
   ],
   "background": {
-    "scripts": ["js/background.js"]
+    "service_worker": "js/background.js"
   },
   "permissions": [
     "downloads",
     "downloads.shelf",
     "storage",
+    "declarativeNetRequestWithHostAccess"
+  ],
+  "host_permissions": [
     "*://www.pixiv.net/*",
     "*://www.pixivision.net/*",
-    "*://*.techorus-cdn.com/*",
     "*://*.pximg.net/*",
-    "*://*.pixiv.cat/*",
-    "webRequest",
-    "webRequestBlocking"
+    "*://*.pixiv.cat/*"
   ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ruleset_1",
+        "enabled": true,
+        "path": "declarative_net_request_rules.json"
+      }
+    ]
+  },
   "web_accessible_resources": [
-    "lib/gif.worker.js",
-    "lib/listen_history_change.js",
-    "manifest.json",
-    "icon/logo128.png",
-    "style/showLargerThumbnails.css"
+    {
+      "resources": [
+        "lib/gif.worker.js",
+        "lib/listen_history_change.js",
+        "manifest.json",
+        "icon/logo128.png",
+        "style/showLargerThumbnails.css"
+      ],
+      "matches": ["*://www.pixiv.net/*", "*://www.pixivision.net/*"]
+    }
   ],
   "incognito": "split",
   "homepage_url": "https://github.com/xuejianxianzun/PixivBatchDownloader"

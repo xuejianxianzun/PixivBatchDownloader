@@ -38,12 +38,16 @@ class MakeNovelFile {
       )
 
       // epub 内部会使用标题 title 建立一个文件夹，把一些文件存放进去，所以要替换掉标题的特殊字符。特殊字符会导致这个文件夹名被截断，结果就是这个 epub 文件无法被解析。
+      const userName = Tools.replaceEPUBText(
+        Utils.replaceUnsafeStr(data.userName)
+      )
+      const title = Tools.replaceEPUBText(Utils.replaceUnsafeStr(data.title))
       new EpubMaker()
         .withTemplate('idpf-wasteland')
-        .withAuthor(Utils.replaceUnsafeStr(data.userName))
+        .withAuthor(userName)
         .withModificationDate(new Date(data.createDate))
         .withRights({
-          description: data.description,
+          description: Tools.replaceEPUBText(data.description),
           license: '',
         })
         .withAttributionUrl(
@@ -53,13 +57,13 @@ class MakeNovelFile {
           license: '',
           attributionUrl: '',
         })
-        .withTitle(Utils.replaceUnsafeStr(data.title))
+        .withTitle(title)
         .withSection(
           new EpubMaker.Section(
             'chapter',
             null,
             {
-              title: data.title,
+              title: title,
               content: content,
             },
             true,

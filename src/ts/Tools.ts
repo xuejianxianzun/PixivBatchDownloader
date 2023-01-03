@@ -605,6 +605,26 @@ class Tools {
         return 'unknown'
     }
   }
+
+  static readonly AIMark: Map<string, string> = new Map([
+    ['zh-cn', 'AI生成'],
+    ['zh-tw', 'AI生成'],
+    ['en', 'AI-generated'],
+    ['ja', 'AI生成'],
+    ['ko', 'AI 생성'],
+    ['ru', 'сгенерированный ИИ'],
+  ])
+
+  /**如果一个作品是 AI 生成的，则返回特定的字符串标记
+   *
+   * 这个标记就是作品页面里和标签列表显示在一起的字符串
+   */
+  static getAIGeneratedMark(aiType?: 0 | 1 | 2) {
+    if (aiType === 2) {
+      return this.AIMark.get(lang.htmlLangType)
+    }
+    return ''
+  }
 }
 
 export { Tools }

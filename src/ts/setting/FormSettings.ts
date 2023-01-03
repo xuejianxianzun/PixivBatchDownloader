@@ -115,6 +115,10 @@ class FormSettings {
       'exportLog',
       'exportLogNormal',
       'exportLogError',
+      'UseDifferentNameRuleIfWorkHasTagSwitch',
+      'AIGenerated',
+      'notAIGenerated',
+      'UnknownAI',
     ],
     text: [
       'setWantPage',

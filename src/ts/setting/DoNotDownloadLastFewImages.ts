@@ -1,13 +1,14 @@
-import { Tools } from './Tools'
-import { EVT } from './EVT'
-import { lang } from './Lang'
-import { settings, setSetting } from './setting/Settings'
-import { theme } from './Theme'
-import { toast } from './Toast'
-import { msgBox } from './MsgBox'
+import { API } from '../API'
+import { Tools } from '../Tools'
+import { EVT } from '../EVT'
+import { lang } from '../Lang'
+import { settings, setSetting } from './Settings'
+import { theme } from '../Theme'
+import { toast } from '../Toast'
+import { msgBox } from '../MsgBox'
 
-// 为某些用户设置固定的用户名，或者别名
-class SetUserName {
+// 针对某些用户,不下载他们的多图作品的最后几张图片
+class DoNotDownloadLastFewImages {
   constructor() {
     this.createWrap()
     theme.register(this.wrap)
@@ -15,7 +16,7 @@ class SetUserName {
     this.bindEvents()
   }
 
-  private readonly slotName = 'setUserNameSlot'
+  private readonly slotName = 'DoNotDownloadLastFewImagesSlot'
   private wrap!: HTMLDivElement // 最外层元素
 
   private expandBtn!: HTMLButtonElement // 展开/折叠 按钮
@@ -24,7 +25,7 @@ class SetUserName {
 
   private addWrap!: HTMLDivElement // 用于添加新项目的区域
   private addInputUid!: HTMLInputElement // 用于添加新项目的 uid 的输入框
-  private addInputName!: HTMLInputElement // 用于添加新项目的 name 的输入框
+  private addValueInput!: HTMLInputElement // 用于添加新项目的 name 的输入框
   private addBtn!: HTMLButtonElement // 添加 按钮
   private cancelBtn!: HTMLButtonElement // 取消 按钮
 
@@ -41,7 +42,7 @@ class SetUserName {
     } else {
       this.addWrap.style.display = 'none'
       this.addInputUid.value = ''
-      this.addInputName.value = ''
+      this.addValueInput.value = ''
     }
   }
 
@@ -50,7 +51,7 @@ class SetUserName {
   }
 
   private wrapHTML = `
-  <span class="setUserNameWrap">
+  <span class="DoNotDownloadLastFewImagesWarp">
 
     <span class="controlBar">
     <span class="total">0</span>
@@ -65,9 +66,9 @@ class SetUserName {
           <input type="text" class="setinput_style1 blue addUidInput" data-xzplaceholder="_必须是数字" />
         </div>
 
-        <div class="inputItem name">
-          <span class="label nameLabel" data-xztext="_命名标记user"></span>
-          <input type="text" class="setinput_style1 blue addNameInput" />
+        <div class="inputItem value">
+          <span class="label nameLabel" data-xztext="_不下载最后几张图片"></span>
+          <input type="text" class="has_tip setinput_style1 blue addValueInput" data-xztip="_提示0表示不生效" />
         </div>
 
         <div class="btns">
@@ -102,8 +103,8 @@ class SetUserName {
     this.addInputUid = this.wrap.querySelector(
       '.addUidInput'
     )! as HTMLInputElement
-    this.addInputName = this.wrap.querySelector(
-      '.addNameInput'
+    this.addValueInput = this.wrap.querySelector(
+      '.addValueInput'
     )! as HTMLInputElement
     this.addBtn = this.wrap.querySelector('.add')! as HTMLButtonElement
     this.cancelBtn = this.wrap.querySelector('.cancel')! as HTMLButtonElement
@@ -111,7 +112,10 @@ class SetUserName {
 
     // 展开/折叠按钮
     this.expandBtn.addEventListener('click', () => {
-      setSetting('setUserNameShow', !settings.setUserNameShow)
+      setSetting(
+        'DoNotDownloadLastFewImagesShow',
+        !settings.DoNotDownloadLastFewImagesShow
+      )
     })
 
     // 切换显示添加规则的区域
@@ -121,7 +125,7 @@ class SetUserName {
 
     // 添加规则的按钮
     this.addBtn.addEventListener('click', () => {
-      this.addRule(this.addInputUid.value, this.addInputName.value)
+      this.addRule(this.addInputUid.value, this.addValueInput.value)
     })
 
     // 取消添加的按钮
@@ -133,43 +137,50 @@ class SetUserName {
   private bindEvents() {
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data as any
-      if (data.name === 'setUserNameShow') {
+      if (data.name === 'DoNotDownloadLastFewImagesShow') {
         this.showListWrap()
       }
-      if (data.name === 'setUserNameList') {
+      if (data.name === 'DoNotDownloadLastFewImagesList') {
         this.createAllList()
       }
     })
   }
 
   private showListWrap() {
-    const show = settings.setUserNameShow
+    const show = settings.DoNotDownloadLastFewImagesShow
     this.listWrap.style.display = show ? 'flex' : 'none'
     lang.updateText(this.expandBtn, show ? '_收起' : '_展开')
   }
 
   // 根据规则动态创建 html
   private createAllList() {
-    this.totalSpan.textContent = Object.keys(
-      settings.setUserNameList
-    ).length.toString()
+    this.totalSpan.textContent =
+      settings.DoNotDownloadLastFewImagesList.length.toString()
     this.listWrap.innerHTML = ''
     const df = document.createDocumentFragment()
-    for (const [uid, name] of Object.entries(settings.setUserNameList)) {
-      df.append(this.createOneList(uid, name))
+    for (const {
+      uid,
+      user,
+      value,
+    } of settings.DoNotDownloadLastFewImagesList) {
+      df.append(this.createOneList(uid, user, value))
     }
     this.listWrap.append(df)
   }
 
   // 创建规则对应的元素，并绑定事件
-  private createOneList(uid: string, name: string) {
+  private createOneList(uid: number, user: string, value: number) {
     const html = `
+      <div class="inputItem user">
+        <span>${user}</span>
+      </div>
+
       <div class="inputItem uid">
         <input type="text" class="setinput_style1 blue" data-uidInput="${uid}" value="${uid}" />
       </div>
 
-      <div class="inputItem name">
-        <input type="text" class="setinput_style1 blue" data-nameInput="${uid}" value="${name}" />
+      <div class="inputItem value">
+        <input type="text" class="has_tip setinput_style1 blue" data-valueInput="${uid}" value="${value}" data-xztip="_提示0表示不生效" />
       </div>
 
       <div class="btns">
@@ -188,7 +199,7 @@ class SetUserName {
 
     const element = document.createElement('div')
     element.classList.add('settingItem')
-    element.dataset.key = uid
+    element.dataset.key = uid.toString()
     element.innerHTML = html
 
     const updateRule = element.querySelector(`button[data-updateRule='${uid}']`)
@@ -196,22 +207,22 @@ class SetUserName {
     const uidInput = element.querySelector(
       `input[data-uidInput='${uid}']`
     )! as HTMLInputElement
-    const nameInput = element.querySelector(
-      `input[data-nameInput='${uid}']`
+    const valueInput = element.querySelector(
+      `input[data-valueInput='${uid}']`
     )! as HTMLInputElement
 
     // 当输入框发生变化时，进行更新
-    ;[uidInput, nameInput].forEach((el) => {
+    ;[uidInput, valueInput].forEach((el) => {
       el?.addEventListener('change', () => {
         if (el.value) {
-          this.updateRule(uid, uidInput.value, nameInput.value, false)
+          this.updateRule(uid, uidInput.value, valueInput.value, false)
         }
       })
     })
 
     // 更新规则
     updateRule?.addEventListener('click', () => {
-      this.updateRule(uid, uidInput.value, nameInput.value)
+      this.updateRule(uid, uidInput.value, valueInput.value)
     })
 
     // 删除规则
@@ -223,8 +234,8 @@ class SetUserName {
   }
 
   // 检查用户输入的值
-  private checkValue(uidInput: string, nameInput: string) {
-    if (!uidInput || !nameInput) {
+  private checkValue(uidInput: string, value: string) {
+    if (!uidInput || !value) {
       msgBox.error(lang.transl('_必填项不能为空'))
       return false
     }
@@ -235,21 +246,59 @@ class SetUserName {
       return false
     }
 
+    // value 允许为 0
+    const val = Number.parseInt(value)
+    if (isNaN(val) || val < 0) {
+      msgBox.error(
+        lang.transl('_不下载最后几张图片') + ' ' + lang.transl('_必须是数字')
+      )
+      return false
+    }
+
     return {
-      uidInput,
-      nameInput,
+      uid,
+      val,
     }
   }
 
+  private async getUserName(uid: number): Promise<string> {
+    return new Promise(async (resolve) => {
+      const profile = await API.getUserProfile(uid.toString()).catch((err) => {
+        console.log(err)
+      })
+      if (profile && profile.body.name) {
+        return resolve(profile.body.name)
+      }
+      return resolve('')
+    })
+  }
+
   // 添加规则
-  private addRule(uid: string, name: string) {
-    const check = this.checkValue(uid, name)
+  private async addRule(uid: string, value: string) {
+    const check = this.checkValue(uid, value)
     if (!check) {
       return
     }
 
-    settings.setUserNameList[uid] = name
-    setSetting('setUserNameList', settings.setUserNameList)
+    let old = settings.DoNotDownloadLastFewImagesList.find(
+      (item) => item.uid === check.uid
+    )
+    if (old) {
+      old.value = check.val
+    } else {
+      const user = await this.getUserName(check.uid)
+      const data = {
+        uid: check.uid,
+        user: user,
+        value: check.val,
+      }
+      settings.DoNotDownloadLastFewImagesList.push(data)
+    }
+
+    setSetting(
+      'DoNotDownloadLastFewImagesList',
+      settings.DoNotDownloadLastFewImagesList
+    )
 
     this.addWrapShow = false
 
@@ -258,15 +307,34 @@ class SetUserName {
 
   // 更新规则
   // tip 表示是否用显示操作成功的提示。当用户点击了更新按钮时应该显示提示；输入内容变化导致的自动更新可以不显示提示
-  private updateRule(oldUid: string, uid: string, name: string, tip = true) {
-    const check = this.checkValue(uid, name)
+  private async updateRule(
+    oldUid: number,
+    uid: string,
+    value: string,
+    tip = true
+  ) {
+    const check = this.checkValue(uid, value)
     if (!check) {
       return
     }
 
-    delete settings.setUserNameList[oldUid]
-    settings.setUserNameList[uid] = name
-    setSetting('setUserNameList', settings.setUserNameList)
+    let old = settings.DoNotDownloadLastFewImagesList.find(
+      (item) => item.uid === oldUid
+    )
+    if (old) {
+      // 更新时如果 uid 未改变，依然会获取用户名，因为用户名可能更新了
+      const user = await this.getUserName(check.uid)
+      old.uid = check.uid
+      old.user = user
+      old.value = check.val
+    } else {
+      return
+    }
+
+    setSetting(
+      'DoNotDownloadLastFewImagesList',
+      settings.DoNotDownloadLastFewImagesList
+    )
 
     this.addWrapShow = false
 
@@ -276,14 +344,25 @@ class SetUserName {
   }
 
   // 删除规则
-  private deleteRule(uid: string) {
-    delete settings.setUserNameList[uid]
-    setSetting('setUserNameList', settings.setUserNameList)
+  private deleteRule(uid: number) {
+    let index = settings.DoNotDownloadLastFewImagesList.findIndex(
+      (item) => item.uid === uid
+    )
+    if (index > -1) {
+      settings.DoNotDownloadLastFewImagesList.splice(index, 1)
+    } else {
+      return
+    }
+
+    setSetting(
+      'DoNotDownloadLastFewImagesList',
+      settings.DoNotDownloadLastFewImagesList
+    )
 
     this.removeListElement(uid)
   }
 
-  private removeListElement(uid: string) {
+  private removeListElement(uid: number) {
     const listElement = this.listWrap.querySelector(
       `.settingItem[data-key='${uid}']`
     )
@@ -291,4 +370,4 @@ class SetUserName {
   }
 }
 
-new SetUserName()
+new DoNotDownloadLastFewImages()

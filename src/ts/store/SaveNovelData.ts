@@ -17,7 +17,13 @@ class SaveNovelData {
     const tags: string[] = Tools.extractTags(data) // tag 列表
     // 小说的标签没有进行翻译，所以没有翻译后的标签
 
+    const aiMarkString = Tools.getAIGeneratedMark(body.aiType)
+    if (aiMarkString) {
+      tags.unshift(aiMarkString)
+    }
+
     const filterOpt: FilterOption = {
+      aiType: body.aiType,
       createDate: body.createDate,
       id: body.id,
       workType: illustType,
@@ -70,6 +76,7 @@ class SaveNovelData {
 
       // 添加作品信息
       store.addResult({
+        aiType: body.aiType,
         id: id,
         idNum: idNum,
         thumb: body.coverUrl || undefined,

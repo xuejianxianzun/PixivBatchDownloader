@@ -6,11 +6,16 @@ type LangTypes = 'zh-cn' | 'zh-tw' | 'en' | 'ja' | 'ko' | 'ru'
 // 语言类
 class Lang {
   constructor() {
-    this.type = this.getHtmlLangType()
+    this.htmlLangType = this.getHtmlLangType()
+    this.type = this.htmlLangType
     this.bindEvents()
   }
 
+  // 用户在下载器设置里选择的语言
   public type!: LangTypes
+
+  // 用户在 Pixiv 使用的语言。不会动态变化
+  public htmlLangType!: LangTypes
 
   public readonly langTypes = ['zh-cn', 'zh-tw', 'en', 'ja', 'ko', 'ru']
 
@@ -30,7 +35,7 @@ class Lang {
         return
       }
       const old = this.type
-      this.type = data.value === 'auto' ? this.getHtmlLangType() : data.value
+      this.type = data.value === 'auto' ? this.htmlLangType : data.value
       if (this.type !== old) {
         EVT.fire('langChange')
         this.elList.forEach((el) => {

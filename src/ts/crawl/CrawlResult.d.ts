@@ -5,6 +5,8 @@ export interface ArtworkData {
   error: boolean
   message: string
   body: {
+    /**是否为 AI 创作。0 未知 1 否 2 是 */
+    aiType: 0 | 1 | 2
     /**作品 id */
     illustId: string
     /**作品标题*/
@@ -306,6 +308,8 @@ export interface ArtworkData {
 
 // 插画、漫画的通用数据
 export interface ArtworkCommonData {
+  /**是否为 AI 创作。0 未知 1 否 2 是 */
+  aiType: 0 | 1 | 2
   id: string
   title: string
   illustType: 0 | 1 | 2
@@ -815,6 +819,8 @@ export interface UserImageWorksWithTag {
 }
 
 export interface NovelCommonData {
+  /**是否为 AI 创作。0 未知 1 否 2 是 */
+  aiType: 0 | 1 | 2
   bookmarkCount: number
   bookmarkData: null | {
     id: string
@@ -879,6 +885,8 @@ export interface NovelData {
   error: boolean
   message: string
   body: {
+    /**是否为 AI 创作。0 未知 1 否 2 是 */
+    aiType: 0 | 1 | 2
     bookmarkCount: number
     bookmarkData: null | {
       id: string
@@ -1034,31 +1042,33 @@ export interface NovelSeriesData {
   error: boolean
   message: string
   body: {
-    seriesContents: {
-      id: string
-      userId: string
-      series: {
-        id: number
-        viewableType: number
-        contentOrder: number
-      }
-      title: string
-      commentHtml: string
-      tags: string[]
-      restrict: 0 | 1 | 2
-      xRestrict: 0 | 1 | 2
-      isOriginal: boolean
-      textLength: number
-      bookmarkCount: number
-      url: string
-      uploadTimestamp: number
-      reuploadTimestamp: number
-      isBookmarkable: boolean
-      bookmarkData: null | {
+    page: {
+      seriesContents: {
         id: string
-        private: boolean
-      }
-    }[]
+        userId: string
+        series: {
+          id: number
+          viewableType: number
+          contentOrder: number
+        }
+        title: string
+        commentHtml: string
+        tags: string[]
+        restrict: 0 | 1 | 2
+        xRestrict: 0 | 1 | 2
+        isOriginal: boolean
+        textLength: number
+        bookmarkCount: number
+        url: string
+        uploadTimestamp: number
+        reuploadTimestamp: number
+        isBookmarkable: boolean
+        bookmarkData: null | {
+          id: string
+          private: boolean
+        }
+      }[]
+    }
   }
 }
 
