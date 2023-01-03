@@ -27,3 +27,8 @@ package-lock.json
 /dist-special-HongYe/**
 /dist-special-DelMemory/**
 /dist-special-wolun/**
+
+# 当把 dist 目录离线安装为浏览器扩展时，浏览器会自动创建 _metadata 目录。这个目录不需要上传和打包
+_metadata
+
+.eslintcache

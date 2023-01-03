@@ -145,6 +145,7 @@ class InitBookmarkNewPage extends InitPageBase {
         }
 
         const filterOpt: FilterOption = {
+          aiType: data.aiType,
           id: data.id,
           width: data.pageCount === 1 ? data.width : 0,
           height: data.pageCount === 1 ? data.height : 0,
@@ -167,6 +168,7 @@ class InitBookmarkNewPage extends InitPageBase {
       // 过滤小说
       for (const data of <BookMarkNewNovelData[]>worksData) {
         const filterOpt: FilterOption = {
+          aiType: data.aiType,
           id: data.id,
           workType: 3,
           tags: data.tags,

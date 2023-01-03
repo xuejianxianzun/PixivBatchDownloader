@@ -1,6 +1,6 @@
 {
   "name": "powerful-pixiv-downloader",
-  "version": "14.2.0",
+  "version": "15.1.1",
   "description": "强大的 Pixiv 批量下载器。Powerful Pixiv batch downloader. 強力な Pixiv ダウンローダー。",
   "repository": "https://github.com/xuejianxianzun/PixivBatchDownloader",
   "author": "xuejianxianzun",
@@ -13,7 +13,8 @@
     "build": "npm run pre-build && node ./pack.js"
   },
   "devDependencies": {
-    "@types/chrome": "^0.0.91",
+    "@types/chrome": "0.0.154",
+    "@types/node": "^13.13.5",
     "@typescript-eslint/eslint-plugin": "^2.7.0",
     "@typescript-eslint/parser": "^2.7.0",
     "archiver": "^3.1.1",
@@ -26,8 +27,7 @@
     "typescript": "^3.7.5",
     "viewerjs": "^1.4.0",
     "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.10",
-    "@types/node": "^13.13.5"
+    "webpack-cli": "^3.3.10"
   },
   "dependencies": {}
 }

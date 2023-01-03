@@ -267,6 +267,7 @@ class InitSearchNovelPage extends InitPageBase {
     data = data.data
     for (const nowData of data) {
       const filterOpt: FilterOption = {
+        aiType: nowData.aiType,
         createDate: nowData.createDate,
         id: nowData.id,
         bookmarkData: nowData.bookmarkData,

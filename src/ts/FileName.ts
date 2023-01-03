@@ -173,7 +173,38 @@ class FileName {
   /**传入一个抓取结果，生成其文件名 */
   public createFileName(data: Result) {
     // 命名规则
-    const userSetName = nameRuleManager.rule
+    let userSetName = nameRuleManager.rule
+
+    // 检查是否要使用特定的其他命名规则
+    // 这是一个定制功能，所以这里设置的规则只会修改原有的文件名，而不会涉及到文件夹部分
+    // 如果一个作品符合多条规则，则把多条规则合并。例如：
+    // 包含[原神]，命名规则{id}_genshin
+    // 包含[Loli]，命名规则{id}_loli
+    // 包含[AI生成]，命名规则{id}_AI
+    // 比如说有一张ai生成的原神萝莉图例子，以上三个tag都有，那么把文件命名为{id}_genshin_loli_AI
+    let diffNames: string[] = []
+    if (settings.UseDifferentNameRuleIfWorkHasTagSwitch) {
+      const workTags = data.tags.map((tag) => tag.toLowerCase())
+      for (const item of settings.UseDifferentNameRuleIfWorkHasTagList) {
+        for (const setTag of item.tags) {
+          if (workTags.includes(setTag.toLowerCase())) {
+            diffNames.push(item.rule)
+            // 一条规则里的 tag 可能会有多个存在于同一个作品的标签列表里
+            // 如果匹配到就跳过这条规则，以避免重复添加规则对应的命名规则
+            break
+          }
+        }
+      }
+    }
+
+    if (diffNames.length > 0) {
+      let fileName = diffNames.join('').replace(/{id}/g, '')
+      fileName = '{id}' + fileName
+
+      const names = userSetName.split('/')
+      names.splice(names.length - 1, 1, fileName)
+      userSetName = names.join('/')
+    }
 
     // 判断是否要为每个作品创建单独的文件夹
     let createFolderForEachWork =
@@ -330,6 +361,11 @@ class FileName {
       },
       '{type}': {
         value: Config.worksTypeName[data.type],
+        prefix: '',
+        safe: true,
+      },
+      '{AI}': {
+        value: data.aiType === 2 ? 'AI' : '',
         prefix: '',
         safe: true,
       },

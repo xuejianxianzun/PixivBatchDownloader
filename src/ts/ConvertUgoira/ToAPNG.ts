@@ -12,7 +12,9 @@ class ToAPNG {
       const width = ImageBitmapList[0].width
       const height = ImageBitmapList[0].height
       const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')!
+      const ctx = canvas.getContext('2d', {
+        willReadFrequently: true,
+      })! as CanvasRenderingContext2D
       canvas.width = width
       canvas.height = height
 

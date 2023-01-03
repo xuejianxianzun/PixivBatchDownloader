@@ -1454,7 +1454,9 @@ class ToAPNG {
             const width = ImageBitmapList[0].width;
             const height = ImageBitmapList[0].height;
             const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d', {
+                willReadFrequently: true,
+            });
             canvas.width = width;
             canvas.height = height;
             // 添加帧数据
@@ -2039,7 +2041,35 @@ class FileName {
     createFileName(data) {
         var _a;
         // 命名规则
-        const userSetName = _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_1__["nameRuleManager"].rule;
+        let userSetName = _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_1__["nameRuleManager"].rule;
+        // 检查是否要使用特定的其他命名规则
+        // 这是一个定制功能，所以这里设置的规则只会修改原有的文件名，而不会涉及到文件夹部分
+        // 如果一个作品符合多条规则，则把多条规则合并。例如：
+        // 包含[原神]，命名规则{id}_genshin
+        // 包含[Loli]，命名规则{id}_loli
+        // 包含[AI生成]，命名规则{id}_AI
+        // 比如说有一张ai生成的原神萝莉图例子，以上三个tag都有，那么把文件命名为{id}_genshin_loli_AI
+        let diffNames = [];
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].UseDifferentNameRuleIfWorkHasTagSwitch) {
+            const workTags = data.tags.map((tag) => tag.toLowerCase());
+            for (const item of _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].UseDifferentNameRuleIfWorkHasTagList) {
+                for (const setTag of item.tags) {
+                    if (workTags.includes(setTag.toLowerCase())) {
+                        diffNames.push(item.rule);
+                        // 一条规则里的 tag 可能会有多个存在于同一个作品的标签列表里
+                        // 如果匹配到就跳过这条规则，以避免重复添加规则对应的命名规则
+                        break;
+                    }
+                }
+            }
+        }
+        if (diffNames.length > 0) {
+            let fileName = diffNames.join('').replace(/{id}/g, '');
+            fileName = '{id}' + fileName;
+            const names = userSetName.split('/');
+            names.splice(names.length - 1, 1, fileName);
+            userSetName = names.join('/');
+        }
         // 判断是否要为每个作品创建单独的文件夹
         let createFolderForEachWork = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].workDir && data.dlCount > _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].workDirFileNumber;
         let r18FolderName = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].r18Folder ? _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].r18FolderName : '';
@@ -2188,6 +2218,11 @@ class FileName {
             },
             '{type}': {
                 value: _Config__WEBPACK_IMPORTED_MODULE_4__["Config"].worksTypeName[data.type],
+                prefix: '',
+                safe: true,
+            },
+            '{AI}': {
+                value: data.aiType === 2 ? 'AI' : '',
                 prefix: '',
                 safe: true,
             },
@@ -3059,7 +3094,8 @@ class Lang {
         // 保存注册的元素
         // 在注册的元素里设置特殊的标记，让本模块可以动态更新其文本
         this.elList = [];
-        this.type = this.getHtmlLangType();
+        this.htmlLangType = this.getHtmlLangType();
+        this.type = this.htmlLangType;
         this.bindEvents();
     }
     bindEvents() {
@@ -3069,7 +3105,7 @@ class Lang {
                 return;
             }
             const old = this.type;
-            this.type = data.value === 'auto' ? this.getHtmlLangType() : data.value;
+            this.type = data.value === 'auto' ? this.htmlLangType : data.value;
             if (this.type !== old) {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('langChange');
                 this.elList.forEach((el) => {
@@ -3914,12 +3950,20 @@ const langText = {
         'Всего просканированно {} работ',
     ],
     _命名规则: [
-        ' <span class="key">命名</span>规则',
+        '<span class="key">命名</span>规则',
         '<span class="key">命名</span>規則',
         '<span class="key">Naming</span> rule',
         '<span class="key">命名</span>規則',
         '<span class="key">명명</span> 규칙',
         '<span class="key">Правила</span> названий',
+    ],
+    _命名规则2: [
+        '命名规则',
+        '命名規則',
+        'Naming rule',
+        '命名規則',
+        '명명 규칙',
+        'Правила названий',
     ],
     _设置文件夹名的提示: [
         `可以使用 '<span class="key">/</span>' 建立文件夹。示例：`,
@@ -3946,12 +3990,12 @@ const langText = {
         `Например, добавьте тег 'user_' перед именем пользователя`,
     ],
     _命名标记id: [
-        '默认文件名，如 44920385_p0',
-        '預設檔案名稱，例如：44920385_p0。',
-        'Default file name, for example 44920385_p0',
-        'デフォルトのファイル名，例 44920385_p0',
-        '기본 파일명. 예: 44920385_p0',
-        'Имя файла по умолчанию, например 44920385_p0',
+        '默认文件名，如 <span class="blue">44920385_p0</span>',
+        '預設檔案名稱，例如：<span class="blue">44920385_p0</span>。',
+        'Default file name, for example <span class="blue">44920385_p0</span>',
+        'デフォルトのファイル名，例 <span class="blue">44920385_p0</span>',
+        '기본 파일명. 예: <span class="blue">44920385_p0</span>',
+        'Имя файла по умолчанию, например <span class="blue">44920385_p0</span>',
     ],
     _命名标记title: [
         '作品标题',
@@ -3978,20 +4022,20 @@ const langText = {
         'Никнейм юзера',
     ],
     _用户id: [
-        '用户 ID',
-        '使用者 ID',
-        'User ID',
-        'ユーザー ID',
-        '유저 ID',
-        'ID Юзера',
+        '用户 ID（数字）',
+        '使用者 ID（數字）',
+        'User ID (Number)',
+        'ユーザー ID (Number)',
+        '유저 ID (숫자)',
+        'ID Юзера (Число)',
     ],
     _命名标记px: [
-        '宽度和高度',
-        '寬度和高度',
-        'Width and height',
-        '幅と高さ',
-        '너비와 높이',
-        'Ширина и высота',
+        '宽度和高度。例如：<span class="blue">600x900</span>',
+        '寬度和高度。例如：<span class="blue">600x900</span>',
+        'Width and height, e.g. <span class="blue">600x900</span>',
+        '幅と高さ。例：<span class="blue">600x900</span>',
+        '너비와 높이. 예: <span class="blue">600x900</span>',
+        'Ширина и высота, напр. <span class="blue">600x900</span>',
     ],
     _命名标记bmk: [
         'Bookmark count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
@@ -4010,12 +4054,12 @@ const langText = {
         'Bookmark Id. Каждая работа в ваших закладках будет иметь идентификатор закладки. Чем позже добавлена закладка, тем больше Id закладки. Когда вы загружаете закладки, вы можете использовать {bmk_id} в качестве основы для сортировки.',
     ],
     _命名标记bmk_1000: [
-        '作品收藏数的简化显示。例如：0+、1000+、2000+、3000+ ……',
-        '作品收藏數的簡化顯示。例如：0+、1000+、2000+、3000+ ……',
-        'Simplified number of bookmark, e.g. 0+、1000+、2000+、3000+ ……',
-        '作品のボックマークの数の簡略表示。 例：0+、1000+、2000+、3000+ ……',
-        '단순화된 북마크 수. 예: 0+, 1000+, 2000+, 3000+ ……',
-        'Упрощенное количество закладок, напр. 0+、1000+、2000+、3000+ ......',
+        '作品收藏数的简化显示。例如：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
+        '作品收藏數的簡化顯示。例如：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
+        'Simplified number of bookmark, e.g. <span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
+        '作品のボックマークの数の簡略表示。例：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
+        '단순화된 북마크 수. 예: <span class="blue">0+</span>, <span class="blue">1000+</span>, <span class="blue">2000+</span>, <span class="blue">3000+</span> ……',
+        'Упрощенное количество закладок, напр. <span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ......',
     ],
     _命名标记like: [
         'Like count，作品的点赞数。',
@@ -4034,20 +4078,20 @@ const langText = {
         'Колличество просмотров',
     ],
     _命名标记id_num: [
-        '数字 id，如 44920385',
-        '數字 id，例如：44920385。',
-        'Number id, for example 44920385',
-        '44920385 などの番号 ID',
-        '숫자 ID. 예: 44920385',
-        'Идентификатор номера, например 44920385',
+        '数字 ID，如 <span class="blue">44920385</span>',
+        '數字 ID，例如：<span class="blue">44920385</span>。',
+        'Number ID, for example <span class="blue">44920385</span>',
+        '<span class="blue">44920385</span> などの番号 ID',
+        '숫자 ID. 예: <span class="blue">44920385</span>',
+        'Идентификатор номера, например <span class="blue">44920385</span>',
     ],
     _命名标记p_num: [
-        '图片在作品内的序号，如 0、1、2 …… 每个作品都会重新计数。',
-        '圖片在作品內的序號，例如：0、1、2……每個作品都將重新計數。',
-        'The serial number of the image in the work, such as 0, 1, 2 ... Each work will be recounted.',
-        '0、1、2 など、作品の画像のシリアル番号。各ピースは再集計されます。',
-        '작품 안에 있는 번호. 예: 0, 1, 2 …… 작품마다 다시 세어봅니다.',
-        'Порядковый номер изображения в работе, например, 0, 1, 2 .... Каждое произведение будет пересказано',
+        '图片在作品内的序号，如 <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 每个作品都会重新计数。',
+        '圖片在作品內的序號，例如：<span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span>……每個作品都將重新計數。',
+        'The serial number of the image in the work, such as <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Each work will be recounted.',
+        '<span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> など、作品の画像のシリアル番号。各ピースは再集計されます。',
+        '작품 안에 있는 번호. 예: <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> …… 작품마다 다시 세어봅니다.',
+        'Порядковый номер изображения в работе, например, <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> .... Каждое произведение будет пересказано',
     ],
     _命名标记tags_trans: [
         '作品的标签列表，附带翻译后的标签（如果有）',
@@ -4066,44 +4110,60 @@ const langText = {
         'Теги перевода',
     ],
     _命名标记date: [
-        '作品的创建时间。如 2019-08-29。',
-        '作品的建立時間。例如：2019-08-29。',
-        'The time the creation of the work. Such as 2019-08-29',
-        '作品の作成時間。例 2019-08-29',
-        '작품 생성 날짜. 예: 2019-08-29',
-        'Время создания произведения. Например, 2019-08-29',
+        '作品的创建时间。如 <span class="blue">2019-08-29</span>。',
+        '作品的建立時間。例如：<span class="blue">2019-08-29</span>。',
+        'The time the creation of the work. Such as <span class="blue">2019-08-29</span>',
+        '作品の作成時間。例 <span class="blue">2019-08-29</span>',
+        '작품 생성 날짜. 예: <span class="blue">2019-08-29</span>',
+        'Время создания произведения. Например, <span class="blue">2019-08-29</span>',
     ],
     _命名标记upload_date: [
-        '作品内容最后一次被修改的时间。如 2019-08-30。',
-        '作品內容最後一次被修改的時間。如 2019-08-30。',
-        'The time when the content of the work was last modified. Such as 2019-08-30.',
-        '作品の内容が最後に変更された時刻。例 2019-08-30',
-        '저작물의 내용이 마지막으로 수정된 시간입니다. 예: 2019-08-30',
-        'Время, когда содержание работы было изменено в последний раз. Например, 2019-08-30.',
+        '作品内容最后一次被修改的时间。如 <span class="blue">2019-08-30</span>。',
+        '作品內容最後一次被修改的時間。如 <span class="blue">2019-08-30</span>。',
+        'The time when the content of the work was last modified. Such as <span class="blue">2019-08-30</span>.',
+        '作品の内容が最後に変更された時刻。例 <span class="blue">2019-08-30</span>',
+        '저작물의 내용이 마지막으로 수정된 시간입니다. 예: <span class="blue">2019-08-30</span>',
+        'Время, когда содержание работы было изменено в последний раз. Например, <span class="blue">2019-08-30</span>.',
     ],
     _命名标记rank: [
-        '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜页面中使用。',
-        '作品在排行榜中的排名。例如：#1、#2……只能在排行榜頁面中使用。',
-        'The ranking of the work in the ranking pages. Such as #1, #2 ... Can only be used in ranking pages.',
-        '作品のランキング。例え　#1、#2 …… ランキングページのみで使用できます。',
-        '작품의 랭킹. 예: #1, #2 …… 랭킹 페이지에서만 사용할 수 있습니다.',
-        'Рейтинг работы на страницах рейтинга. Например, №1, №2 ... Может использоваться только на страницах ранжирования.',
+        '作品在排行榜中的排名。如 <span class="blue">#1</span>、<span class="blue">#2</span> …… 只能在排行榜页面中使用。',
+        '作品在排行榜中的排名。例如：<span class="blue">#1</span>、<span class="blue">#2</span>……只能在排行榜頁面中使用。',
+        'The ranking of the work in the ranking pages. Such as <span class="blue">#1</span>, <span class="blue">#2</span> ... Can only be used in ranking pages.',
+        '作品のランキング。例え　<span class="blue">#1</span>、<span class="blue">#2</span> …… ランキングページのみで使用できます。',
+        '작품의 랭킹. 예: <span class="blue">#1</span>, <span class="blue">#2</span> …… 랭킹 페이지에서만 사용할 수 있습니다.',
+        'Рейтинг работы на страницах рейтинга. Например, <span class="blue">#1</span>, <span class="blue">#2</span> ... Может использоваться только на страницах ранжирования.',
     ],
     _命名标记type: [
-        '作品类型，分为：Illustration, Manga, Ugoira, Novel',
-        '作品類型，分為：Illustration, Manga, Ugoira, Novel',
-        'The type of work, divided into：Illustration, Manga, Ugoira, Novel',
-        '作品分類は：Illustration, Manga, Ugoira, Novel',
-        '작품 유형: 일러스트, 만화, 움직이는 일러스트, 소설',
-        'Тип работы, разделенный на：Иллюстрация, Манга, Угоира, Роман',
+        '作品类型，分为：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        '作品類型，分為：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        'The type of work, divided into：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        '作品分類は：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        '작품 유형: <span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        'Тип работы, разделенный на：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+    ],
+    _命名标记AI: [
+        '如果作品是由 AI 生成的，则输出 <span class="blue">AI</span>',
+        '如果作品是由 AI 生成的，則輸出 <span class="blue">AI</span>',
+        'If the work is generated by AI, output <span class="blue">AI</span>',
+        '作品がAIで生成された場合、<span class="blue">AI</span>を出力',
+        '작업이 AI로 생성된 경우 <span class="blue">AI</span> 출력',
+        'Если работа создана с помощью ИИ, выведите <span class="blue">AI</span>',
     ],
     _命名标记提醒: [
-        '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{user_id}<br>* 在某些情况下，会有一些标记不可用。',
-        '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{user_id}<br>＊某些情況下有些標記無法使用。',
-        'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{user_id}<br>* In some cases, some tags will not be available.',
-        'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{user_id}<br>* 場合によっては、一部のタグが利用できず。',
-        '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.<br>여러 태그를 사용할 수 있습니다. 서로 다른 태그 사이에 구분자를 넣는 것을 권장합니다. 예: {id}-{user}<br>* 경우에 따라서는 사용할 수 없는 태그가 있을 수 있습니다.',
-        'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.<br>Вы можете использовать несколько тегов, и вы можете добавить отдельный символ между различными тегами. Пример: {id}-{user_id}<br>* В некоторых случаях некоторые теги будут недоступны.',
+        '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{user_id}',
+        '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{user_id}',
+        'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{user_id}',
+        'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{user_id}',
+        '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.<br>여러 태그를 사용할 수 있습니다. 서로 다른 태그 사이에 구분자를 넣는 것을 권장합니다. 예: {id}-{user}',
+        'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.<br>Вы можете использовать несколько тегов, и вы можете добавить отдельный символ между различными тегами. Пример: {id}-{user_id}',
+    ],
+    _有些标记并不总是可用的提醒: [
+        '有些标记并不总是可用，有时它们可能什么都不输出。',
+        '有些標記並不總是可用，有時它們可能什麼都不輸出。',
+        'Some tags are not always available, and sometimes they may output nothing.',
+        '一部のタグは常に使用できるとは限らず、何も出力しない場合もあります。',
+        '일부 태그는 항상 사용할 수 있는 것은 아니며 때로는 아무 것도 출력하지 않을 수도 있습니다.',
+        'Некоторые теги не всегда доступны, а иногда могут ничего не выводить.',
     ],
     _命名规则一定要包含id: [
         '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}',
@@ -4130,12 +4190,12 @@ const langText = {
         'Название серии, доступно только на страницах серий (серия романов, серия манги).',
     ],
     _命名标记seriesOrder: [
-        '作品在系列中的序号，如 #1 #2。只在系列页面中可用（小说系列、漫画系列）。',
-        '作品在系列中的編號，如 #1 #2。只在系列頁面中可用（小說系列、漫畫系列）。',
-        'The number of the work in the series, such as #1 #2. only available in series pages (Novel series, Manga series).',
-        'シリーズの中の作品の番号，例え #1 #2。シリーズページのみ（小説連載、漫画連載）。',
-        '시리즈 내 작품 번호. 예: #1 #2. 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
-        'Номер работы в серии, например, #1 #2. доступны только на страницах серий (серия романов, серия манги).',
+        '作品在系列中的序号，如 <span class="blue">#1</span> <span class="blue">#2</span>。只在系列页面中可用（小说系列、漫画系列）。',
+        '作品在系列中的編號，如 <span class="blue">#1</span> <span class="blue">#2</span>。只在系列頁面中可用（小說系列、漫畫系列）。',
+        'The number of the work in the series, such as <span class="blue">#1</span> <span class="blue">#2</span>. only available in series pages (Novel series, Manga series).',
+        'シリーズの中の作品の番号，例え <span class="blue">#1</span> <span class="blue">#2</span>。シリーズページのみ（小説連載、漫画連載）。',
+        '시리즈 내 작품 번호. 예: <span class="blue">#1</span> <span class="blue">#2</span>. 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
+        'Номер работы в серии, например, <span class="blue">#1</span> <span class="blue">#2</span>. доступны только на страницах серий (серия романов, серия манги).',
     ],
     _命名标记seriesId: [
         '系列 ID，只在系列页面中可用（小说系列、漫画系列）。',
@@ -5247,12 +5307,12 @@ const langText = {
         'Для установки формата даты и времени можно использовать следующую нотацию. Это повлияет на {date} и {upload_date} и {task_date} в правилах именования. <br>Для времени, например, 2021-04-30T06:40:08',
     ],
     _命名标记taskDate: [
-        '本次任务抓取完成时的时间。例如：2020-10-21',
-        '本次工作擷取完成時的時間。例如：2020-10-21。',
-        'The time when the task was crawl completed. For example: 2020-10-21',
-        'この作業のクロールが完了した時刻です。 例：2020-10-21',
-        '긁어오기 작업을 완료한 날짜입니다. 예: 2020-10-21',
-        'Время, когда задание было выполнено. Например: 2020-10-21',
+        '本次任务抓取完成时的时间。例如：<span class="blue">2020-10-21</span>',
+        '本次工作擷取完成時的時間。例如：<span class="blue">2020-10-21</span>。',
+        'The time when the task was crawl completed. For example: <span class="blue">2020-10-21</span>',
+        'この作業のクロールが完了した時刻です。 例：<span class="blue">2020-10-21</span>',
+        '긁어오기 작업을 완료한 날짜입니다. 예: <span class="blue">2020-10-21</span>',
+        'Время, когда задание было выполнено. Например: <span class="blue">2020-10-21</span>',
     ],
     _自动检测: [
         '自动检测',
@@ -6358,9 +6418,17 @@ const langText = {
         '你可以在“更多”选项卡 → “{}”分类里找到它。（需要先启用“显示高级设置”）',
         '你可以在“更多”選項卡 → “{}”分類裡找到它。（需要先啟用“顯示進階設定”）',
         'You can find it in the "More" tab → "{}" category. ("Show advanced settings" needs to be enabled first)',
-        '[もっと]タブ→[{}]カテゴリにあります。 （最初に「詳細設定を表示」を有効にする必要があります）',
+        '[もっと]タブ→[{}]カテゴリにあります。（最初に「詳細設定を表示」を有効にする必要があります）',
         '"더보기" 탭 → "{}" 카테고리에서 찾을 수 있습니다. ("고급 설정 보기"를 먼저 활성화해야 합니다.)',
         'Вы можете найти его в разделе "Еще". вкладка → "{}" категория. ("Показать расширенные настройки" необходимо сначала включить)',
+    ],
+    _你可以在xx选项卡里找到它: [
+        '你可以在“{}”选项卡里找到它。（需要先启用“显示高级设置”）',
+        '你可以在“{}”選項卡裡找到它。（需要先啟用“顯示進階設定”）',
+        'You can find it in the "{}" tab. ("Show advanced settings" needs to be enabled first)',
+        '「{}」タブにあります。（最初に「詳細設定を表示」を有効にする必要があります）',
+        '"{}" 탭에서 찾을 수 있습니다. ("고급 설정 보기"를 먼저 활성화해야 합니다.)',
+        'Вы можете найти его на вкладке "{}". ("Показать расширенные настройки" необходимо сначала включить)',
     ],
     _使用鼠标滚轮切换作品里的图片: [
         '使用鼠标滚轮切换多图作品里的图片',
@@ -6936,8 +7004,96 @@ const langText = {
         '從 Chrome 108 版本開始，瀏覽器的一些變化導致下載器轉換 WebM 影片失敗。<br>現已修復轉換功能。',
         'Starting with Chrome version 108, some changes in the browser caused the downloader to fail to convert WebM videos. <br>The conversion function is now fixed.',
         'Chrome バージョン 108 以降、ブラウザーの一部の変更により、ダウンローダーが WebM ビデオの変換に失敗しました。 <br>変換機能を修正しました。',
-        '从 Chrome 版本 108 开始，浏览器中的一些更改阻止了下载器转换 WebM 视频。 <br>此问题现已解决。',
+        'Chrome 버전 108부터 브라우저의 일부 변경으로 인해 다운로더가 WebM 비디오를 변환하지 못했습니다. <br>변환 기능이 수정되었습니다.',
         'Начиная с Chrome версии 108, некоторые изменения в браузере приводили к тому, что загрузчик не мог конвертировать видео WebM. <br>Функция преобразования теперь исправлена.',
+    ],
+    _特定用户的多图作品不下载最后几张图片: [
+        '特定用户的多图作品不下载<span class="key">最后几张</span>图片',
+        '特定使用者的多圖作品不下載<span class="key">最後幾張</span>圖片',
+        `Don't download the <span class="key">last few</span> images for specific user's multi-image works`,
+        '特定のユーザーのマルチイメージ作品の最後のいくつかのイメージをダウンロードしないでください',
+        '특정 사용자의 다중 이미지 작품에 대한 마지막 몇 개의 이미지를 다운로드하지 마십시오.',
+        'Не загружайте несколько последних изображений для работы с несколькими изображениями конкретного пользователя.',
+    ],
+    _不下载最后几张图片: [
+        '不下载最后几张图片',
+        '不下載最後幾張圖片',
+        'Do not download the last few images',
+        '最後の数枚の画像をダウンロードしない',
+        '마지막 몇 개의 이미지를 다운로드하지 마십시오',
+        'Не загружайте последние несколько изображений',
+    ],
+    _提示0表示不生效: [
+        '0 表示不生效',
+        '0 表示不生效',
+        '0 means no effect',
+        '0 は影響なしを意味します',
+        '0은 영향이 없음을 의미합니다.',
+        '0 означает отсутствие эффекта',
+    ],
+    _如果作品含有某些标签则对这个作品使用另一种命名规则: [
+        '如果作品含有某些<span class="key">特定标签</span>，则对这个作品使用另一种命名规则',
+        '如果作品含有某些<span class="key">特定標籤</span>，則對這個作品使用另一種命名規則',
+        'Use a different naming rule for the work if it has certain tags',
+        '特定のタグがある場合は、作品に別の命名規則を使用する',
+        '특정 태그가 있는 경우 작업에 다른 명명 규칙을 사용하십시오.',
+        'Используйте другое правило именования для работы, если она имеет определенные теги',
+    ],
+    _升级到manifest_v3的提示: [
+        '下载器已升级到 Manifest V3。<br>如果你在下载时遇到问题，请打开扩展管理页面，重新加载本扩展。',
+        '下載器已升級到 Manifest V3。<br>如果你在下載時遇到問題，請開啟擴充套件管理頁面，重新載入本擴充套件。',
+        'Downloader has been upgraded to Manifest V3. <br>If you encounter problems when downloading, please open the extension management page and reload this extension.',
+        'Downloader が Manifest V3 にアップグレードされました。 <br>ダウンロード中に問題が発生した場合は、拡張機能の管理ページを開いて、この拡張機能をリロードしてください。',
+        '다운로더가 Manifest V3로 업그레이드되었습니다. <br>다운로드 시 문제가 발생하면 확장 프로그램 관리 페이지를 열고 이 확장 프로그램을 새로고침하세요.',
+        'Загрузчик обновлен до версии Manifest V3. <br>Если у вас возникли проблемы при загрузке, откройте страницу управления расширением и перезагрузите это расширение.',
+    ],
+    _AI作品: [
+        '<span class="key">AI</span> 作品',
+        '<span class="key">AI</span> 作品',
+        '<span class="key">AI</span> works',
+        '<span class="key">AI</span>が働く',
+        '<span class="key">AI</span> 작동',
+        '<span class="key">ИИ</span> работает',
+    ],
+    _AI生成: [
+        'AI 生成',
+        'AI 生成',
+        'AI-generated',
+        'AI 生成',
+        'AI 생성',
+        'сгенерированный ИИ',
+    ],
+    _非AI生成: [
+        '非 AI 生成',
+        '非 AI 生成',
+        'Not AI-generated',
+        'AI生成ではない',
+        'AI 생성 아님',
+        'Не сгенерировано ИИ',
+    ],
+    _未知: [
+        '未知',
+        '未知',
+        'Unknown',
+        '知らない',
+        '알려지지 않은',
+        'Неизвестный',
+    ],
+    _AI未知作品的说明: [
+        '早期作品没有标记，无法判断',
+        '早期作品沒有標記，無法判斷',
+        'Early works are not marked and cannot be judged',
+        '初期の作品は採点せず、審査不可',
+        '초기 작품은 표시되지 않으며 평가할 수 없습니다.',
+        'Ранние работы не отмечены и не могут быть оценены',
+    ],
+    _用户可以选择是否下载AI生成的作品: [
+        '用户可以选择是否下载由 AI 生成的作品。',
+        '使用者可以選擇是否下載由 AI 生成的作品。',
+        'Users can choose whether to download AI-generated works.',
+        'ユーザーは、AI によって生成された作品をダウンロードするかどうかを選択できます。',
+        '사용자는 AI가 생성한 작품을 다운로드할지 여부를 선택할 수 있습니다.',
+        'Пользователи могут выбирать, загружать ли работы, созданные ИИ.',
     ],
 };
 
@@ -9096,6 +9252,7 @@ __webpack_require__.r(__webpack_exports__);
 // 为某些用户设置固定的用户名，或者别名
 class SetUserName {
     constructor() {
+        this.slotName = 'setUserNameSlot';
         this._addWrapShow = false;
         this.wrapHTML = `
   <span class="setUserNameWrap">
@@ -9161,7 +9318,7 @@ class SetUserName {
     }
     // 创建列表外部的容器，静态 html
     createWrap() {
-        this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].useSlot('setUserNameSlot', this.wrapHTML);
+        this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].useSlot(this.slotName, this.wrapHTML);
         this.expandBtn = this.wrap.querySelector('.expand');
         this.showAddBtn = this.wrap.querySelector('.showAdd');
         this.totalSpan = this.wrap.querySelector('.total');
@@ -10037,14 +10194,22 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '14.2.0';
+        this.flag = '15.1.00';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong></strong>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_Chrome108版本转换WebM失败的问题')}
+            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_AI作品')}</strong>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_用户可以选择是否下载AI生成的作品')}
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在xx选项卡里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取'))}
+      <br>
+      <br>
+      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增命名标记')}: {AI}</strong>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记AI')}
       `;
             // 在更新说明的下方显示赞助提示
             msg += `
@@ -11185,8 +11350,26 @@ class Tools {
                 return 'unknown';
         }
     }
+    /**如果一个作品是 AI 生成的，则返回特定的字符串标记
+     *
+     * 这个标记就是作品页面里和标签列表显示在一起的字符串
+     */
+    static getAIGeneratedMark(aiType) {
+        if (aiType === 2) {
+            return this.AIMark.get(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].htmlLangType);
+        }
+        return '';
+    }
 }
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
+Tools.AIMark = new Map([
+    ['zh-cn', 'AI生成'],
+    ['zh-tw', 'AI生成'],
+    ['en', 'AI-generated'],
+    ['ja', 'AI生成'],
+    ['ko', 'AI 생성'],
+    ['ru', 'сгенерированный ИИ'],
+]);
 
 
 
@@ -11505,36 +11688,38 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ListenPageSwitch__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ListenPageSwitch */ "./src/ts/ListenPageSwitch.ts");
 /* harmony import */ var _CenterPanel__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./CenterPanel */ "./src/ts/CenterPanel.ts");
 /* harmony import */ var _setting_Form__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./setting/Form */ "./src/ts/setting/Form.ts");
-/* harmony import */ var _ReplaceSquareThumb__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ReplaceSquareThumb */ "./src/ts/ReplaceSquareThumb.ts");
-/* harmony import */ var _InitPage__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./InitPage */ "./src/ts/InitPage.ts");
-/* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
-/* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
-/* harmony import */ var _download_Resume__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./download/Resume */ "./src/ts/download/Resume.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_13__);
-/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
-/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
-/* harmony import */ var _DoubleWidthThumb__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./DoubleWidthThumb */ "./src/ts/DoubleWidthThumb.ts");
-/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
-/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
-/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
-/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
-/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
-/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
-/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
-/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
-/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _download_ShowStatusOnTitle__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/ShowStatusOnTitle */ "./src/ts/download/ShowStatusOnTitle.ts");
-/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
-/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
-/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _setting_DoNotDownloadLastFewImages__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/DoNotDownloadLastFewImages */ "./src/ts/setting/DoNotDownloadLastFewImages.ts");
+/* harmony import */ var _setting_UseDifferentNameRuleIfWorkHasTag__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./setting/UseDifferentNameRuleIfWorkHasTag */ "./src/ts/setting/UseDifferentNameRuleIfWorkHasTag.ts");
+/* harmony import */ var _ReplaceSquareThumb__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ReplaceSquareThumb */ "./src/ts/ReplaceSquareThumb.ts");
+/* harmony import */ var _InitPage__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./InitPage */ "./src/ts/InitPage.ts");
+/* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
+/* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
+/* harmony import */ var _download_Resume__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./download/Resume */ "./src/ts/download/Resume.ts");
+/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
+/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_15__);
+/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
+/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
+/* harmony import */ var _DoubleWidthThumb__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./DoubleWidthThumb */ "./src/ts/DoubleWidthThumb.ts");
+/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
+/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
+/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
+/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
+/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
+/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
+/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
+/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
+/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
+/* harmony import */ var _download_ShowStatusOnTitle__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/ShowStatusOnTitle */ "./src/ts/download/ShowStatusOnTitle.ts");
+/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
+/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
+/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -11545,6 +11730,8 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
+
 
 
 
@@ -12657,6 +12844,7 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             }
             // 过滤器进行检查
             const filterOpt = {
+                aiType: work.aiType,
                 id: work.id,
                 tags: work.tags,
                 bookmarkData: !!work.bookmarkData,
@@ -12947,6 +13135,7 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
                 continue;
             }
             const filterOpt = {
+                aiType: nowData.aiType,
                 id: nowData.id,
                 width: nowData.pageCount === 1 ? nowData.width : 0,
                 height: nowData.pageCount === 1 ? nowData.height : 0,
@@ -13036,7 +13225,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
             49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-            70, 71, 72, 74, 75, 76, 77,
+            70, 71, 72, 74, 75, 76, 77, 78, 79, 80,
         ]);
     }
     nextStep() {
@@ -13850,6 +14039,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 continue;
             }
             const filterOpt = {
+                aiType: nowData.aiType,
                 createDate: nowData.createDate,
                 id: nowData.id,
                 width: nowData.pageCount === 1 ? nowData.width : 0,
@@ -13994,6 +14184,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.getMultipleSetting();
         this.filterResult((data) => {
             const filterOpt = {
+                aiType: data.aiType,
                 id: data.id,
                 workType: data.type,
                 pageCount: data.pageCount,
@@ -14421,6 +14612,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                     continue;
                 }
                 const filterOpt = {
+                    aiType: data.aiType,
                     id: data.id,
                     width: data.pageCount === 1 ? data.width : 0,
                     height: data.pageCount === 1 ? data.height : 0,
@@ -14443,6 +14635,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             // 过滤小说
             for (const data of worksData) {
                 const filterOpt = {
+                    aiType: data.aiType,
                     id: data.id,
                     workType: 3,
                     tags: data.tags,
@@ -14685,6 +14878,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
                     return this.afterGetIdList();
                 }
                 const filterOpt = {
+                    aiType: workData.aiType,
                     id: workData.id,
                     tags: workData.tags,
                     bookmarkData: workData.bookmarkData,
@@ -15804,6 +15998,7 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
                 this.fetchCount++;
             }
             const filterOpt = {
+                aiType: nowData.aiType,
                 id: nowData.id,
                 bookmarkData: nowData.bookmarkData,
                 bookmarkCount: nowData.bookmarkCount,
@@ -16021,7 +16216,7 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     }
     async getIdList() {
         const seriesData = await _API__WEBPACK_IMPORTED_MODULE_5__["API"].getNovelSeriesData(this.seriesId, this.limit, this.last, 'asc');
-        const list = seriesData.body.seriesContents;
+        const list = seriesData.body.page.seriesContents;
         for (const item of list) {
             _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].idList.push({
                 type: 'novels',
@@ -16450,6 +16645,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         data = data.data;
         for (const nowData of data) {
             const filterOpt = {
+                aiType: nowData.aiType,
                 createDate: nowData.createDate,
                 id: nowData.id,
                 bookmarkData: nowData.bookmarkData,
@@ -18456,6 +18652,7 @@ class ExportResult2CSV {
             [1, 'R-18'],
             [2, 'R-18G'],
         ]);
+        this.AIType = ['Unknown', 'No', 'Yes'];
         // 定义要保存的字段
         this.fieldCfg = [
             {
@@ -18527,6 +18724,10 @@ class ExportResult2CSV {
                 index: 'xRestrict',
             },
             {
+                name: 'AI',
+                index: 'aiType',
+            },
+            {
                 name: 'date',
                 index: 'date',
             },
@@ -18594,6 +18795,9 @@ class ExportResult2CSV {
                     }
                     if (field.name === 'xRestrict') {
                         result = this.xRestrictMap.get(result) || '';
+                    }
+                    if (field.name === 'AI') {
+                        result = this.AIType[d.aiType || 0];
                     }
                     bodyItem.push(result);
                 }
@@ -18675,6 +18879,7 @@ class ImportResult {
         const temp = [];
         for (const result of loadedJSON) {
             const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check({
+                aiType: result.aiType,
                 id: result.idNum,
                 workType: result.type,
                 pageCount: result.pageCount,
@@ -18752,12 +18957,14 @@ class MakeNovelFile {
             // 添加小说里内嵌的图片。这部分必须放在 replaceEPUBText 后面，否则 <img> 标签的左尖括号会被转义
             content = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_3__["downloadNovelEmbeddedImage"].EPUB(content, data.embeddedImages);
             // epub 内部会使用标题 title 建立一个文件夹，把一些文件存放进去，所以要替换掉标题的特殊字符。特殊字符会导致这个文件夹名被截断，结果就是这个 epub 文件无法被解析。
+            const userName = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].replaceUnsafeStr(data.userName));
+            const title = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].replaceUnsafeStr(data.title));
             new EpubMaker()
                 .withTemplate('idpf-wasteland')
-                .withAuthor(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].replaceUnsafeStr(data.userName))
+                .withAuthor(userName)
                 .withModificationDate(new Date(data.createDate))
                 .withRights({
-                description: data.description,
+                description: _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].replaceEPUBText(data.description),
                 license: '',
             })
                 .withAttributionUrl(`https://www.pixiv.net/novel/show.php?id=${data.id}`)
@@ -18765,9 +18972,9 @@ class MakeNovelFile {
                 license: '',
                 attributionUrl: '',
             })
-                .withTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].replaceUnsafeStr(data.title))
+                .withTitle(title)
                 .withSection(new EpubMaker.Section('chapter', null, {
-                title: data.title,
+                title: title,
                 content: content,
             }, true, true))
                 .makeEpub()
@@ -20528,6 +20735,7 @@ class Filter {
     showTip() {
         this.getDownType();
         this.getDownTypeByAge();
+        this.getAIWorkType();
         this.getDownTypeByImgCount();
         this.getDownTypeByColor();
         this.getDownTypeByBmked();
@@ -20556,6 +20764,9 @@ class Filter {
             return false;
         }
         if (!this.checkDownTypeByAge(option.xRestrict)) {
+            return false;
+        }
+        if (!this.checkAIWorkType(option.aiType)) {
             return false;
         }
         // 检查单图、多图的下载
@@ -20648,7 +20859,7 @@ class Filter {
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType2 && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_动图'));
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType3 && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_小说'));
         if (tips.length > 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.join(', '));
         }
     }
     getDownTypeByAge() {
@@ -20661,7 +20872,16 @@ class Filter {
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downR18 && tips.push('R-18');
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downR18G && tips.push('R-18G');
         if (tips.length > 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.join(', '));
+        }
+    }
+    getAIWorkType() {
+        const tips = [];
+        !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].AIGenerated && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_AI生成'));
+        !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notAIGenerated && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_非AI生成'));
+        !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].UnknownAI && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_未知') + '(AI)');
+        if (tips.length > 0) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.join(', '));
         }
     }
     getDownTypeByImgCount() {
@@ -20669,7 +20889,7 @@ class Filter {
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downSingleImg && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_单图作品'));
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downMultiImg && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品'));
         if (tips.length > 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.join(', '));
         }
     }
     // 提示图像颜色设置
@@ -20682,7 +20902,7 @@ class Filter {
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_彩色图片'));
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBlackWhiteImg && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_黑白图片'));
         if (tips.length > 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.join(', '));
         }
     }
     // 提示下载收藏和未收藏作品的设置
@@ -20695,7 +20915,7 @@ class Filter {
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_未收藏'));
         !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked && tips.push(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_已收藏'));
         if (tips.length > 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + tips.join(', '));
         }
     }
     // 提示多图作品的图片数量限制
@@ -20846,6 +21066,18 @@ class Filter {
                 return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downR18;
             case 2:
                 return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downR18G;
+            default:
+                return true;
+        }
+    }
+    checkAIWorkType(aiType) {
+        switch (aiType) {
+            case 0:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].UnknownAI;
+            case 1:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notAIGenerated;
+            case 2:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].AIGenerated;
             default:
                 return true;
         }
@@ -21369,10 +21601,10 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask1', () => {
-            this.crawlData(103200000, 103321163);
+            this.crawlData(103850000, 103963596);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask2', () => {
-            this.crawlData(18820000, 18840745, 'novels');
+            this.crawlData(18960000, 18983794, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -22771,6 +23003,309 @@ const convertOldSettings = new ConvertOldSettings();
 
 /***/ }),
 
+/***/ "./src/ts/setting/DoNotDownloadLastFewImages.ts":
+/*!******************************************************!*\
+  !*** ./src/ts/setting/DoNotDownloadLastFewImages.ts ***!
+  \******************************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+
+
+
+
+
+
+
+
+// 针对某些用户,不下载他们的多图作品的最后几张图片
+class DoNotDownloadLastFewImages {
+    constructor() {
+        this.slotName = 'DoNotDownloadLastFewImagesSlot';
+        this._addWrapShow = false;
+        this.wrapHTML = `
+  <span class="DoNotDownloadLastFewImagesWarp">
+
+    <span class="controlBar">
+    <span class="total">0</span>
+      <button type="button" class="textButton expand" data-xztext="_收起"></button>
+      <button type="button" class="textButton showAdd" data-xztext="_添加"></button>
+    </span>
+
+    <div class="addWrap">
+      <div class="settingItem addInputWrap" >
+        <div class="inputItem uid">
+          <span class="label uidLabel" data-xztext="_用户id"></span>
+          <input type="text" class="setinput_style1 blue addUidInput" data-xzplaceholder="_必须是数字" />
+        </div>
+
+        <div class="inputItem value">
+          <span class="label nameLabel" data-xztext="_不下载最后几张图片"></span>
+          <input type="text" class="has_tip setinput_style1 blue addValueInput" data-xztip="_提示0表示不生效" />
+        </div>
+
+        <div class="btns">
+          <button type="button" class="textButton add" data-xztitle="_添加">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-wanchengqueding"></use>
+            </svg>
+          </button>
+
+          
+          <button type="button" class="textButton cancel" data-xztitle="_取消">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-guanbiquxiao"></use>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="listWrap">
+    </div>
+  </span>
+  `;
+        this.createWrap();
+        _Theme__WEBPACK_IMPORTED_MODULE_5__["theme"].register(this.wrap);
+        _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].register(this.wrap);
+        this.bindEvents();
+    }
+    set addWrapShow(val) {
+        this._addWrapShow = val;
+        if (val) {
+            this.addWrap.style.display = 'block';
+            this.addInputUid.focus();
+        }
+        else {
+            this.addWrap.style.display = 'none';
+            this.addInputUid.value = '';
+            this.addValueInput.value = '';
+        }
+    }
+    get addWrapShow() {
+        return this._addWrapShow;
+    }
+    // 创建列表外部的容器，静态 html
+    createWrap() {
+        this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].useSlot(this.slotName, this.wrapHTML);
+        this.expandBtn = this.wrap.querySelector('.expand');
+        this.showAddBtn = this.wrap.querySelector('.showAdd');
+        this.totalSpan = this.wrap.querySelector('.total');
+        this.addWrap = this.wrap.querySelector('.addWrap');
+        this.addInputUid = this.wrap.querySelector('.addUidInput');
+        this.addValueInput = this.wrap.querySelector('.addValueInput');
+        this.addBtn = this.wrap.querySelector('.add');
+        this.cancelBtn = this.wrap.querySelector('.cancel');
+        this.listWrap = this.wrap.querySelector('.listWrap');
+        // 展开/折叠按钮
+        this.expandBtn.addEventListener('click', () => {
+            Object(_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('DoNotDownloadLastFewImagesShow', !_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesShow);
+        });
+        // 切换显示添加规则的区域
+        this.showAddBtn.addEventListener('click', () => {
+            this.addWrapShow = !this.addWrapShow;
+        });
+        // 添加规则的按钮
+        this.addBtn.addEventListener('click', () => {
+            this.addRule(this.addInputUid.value, this.addValueInput.value);
+        });
+        // 取消添加的按钮
+        this.cancelBtn.addEventListener('click', () => {
+            this.addWrapShow = false;
+        });
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'DoNotDownloadLastFewImagesShow') {
+                this.showListWrap();
+            }
+            if (data.name === 'DoNotDownloadLastFewImagesList') {
+                this.createAllList();
+            }
+        });
+    }
+    showListWrap() {
+        const show = _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesShow;
+        this.listWrap.style.display = show ? 'flex' : 'none';
+        _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].updateText(this.expandBtn, show ? '_收起' : '_展开');
+    }
+    // 根据规则动态创建 html
+    createAllList() {
+        this.totalSpan.textContent =
+            _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList.length.toString();
+        this.listWrap.innerHTML = '';
+        const df = document.createDocumentFragment();
+        for (const { uid, user, value, } of _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList) {
+            df.append(this.createOneList(uid, user, value));
+        }
+        this.listWrap.append(df);
+    }
+    // 创建规则对应的元素，并绑定事件
+    createOneList(uid, user, value) {
+        const html = `
+      <div class="inputItem user">
+        <span>${user}</span>
+      </div>
+
+      <div class="inputItem uid">
+        <input type="text" class="setinput_style1 blue" data-uidInput="${uid}" value="${uid}" />
+      </div>
+
+      <div class="inputItem value">
+        <input type="text" class="has_tip setinput_style1 blue" data-valueInput="${uid}" value="${value}" data-xztip="_提示0表示不生效" />
+      </div>
+
+      <div class="btns">
+        <button type="button" class="textButton" data-updateRule="${uid}" data-xztitle="_更新">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-gengxin"></use>
+          </svg>
+        </button>
+
+        <button type="button" class="textButton" data-deleteRule="${uid}" data-xztitle="_删除">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-shanchu1"></use>
+          </svg>
+        </button>
+    </div>`;
+        const element = document.createElement('div');
+        element.classList.add('settingItem');
+        element.dataset.key = uid.toString();
+        element.innerHTML = html;
+        const updateRule = element.querySelector(`button[data-updateRule='${uid}']`);
+        const deleteRule = element.querySelector(`button[data-deleteRule='${uid}']`);
+        const uidInput = element.querySelector(`input[data-uidInput='${uid}']`);
+        const valueInput = element.querySelector(`input[data-valueInput='${uid}']`);
+        [uidInput, valueInput].forEach((el) => {
+            el === null || el === void 0 ? void 0 : el.addEventListener('change', () => {
+                if (el.value) {
+                    this.updateRule(uid, uidInput.value, valueInput.value, false);
+                }
+            });
+        });
+        // 更新规则
+        updateRule === null || updateRule === void 0 ? void 0 : updateRule.addEventListener('click', () => {
+            this.updateRule(uid, uidInput.value, valueInput.value);
+        });
+        // 删除规则
+        deleteRule === null || deleteRule === void 0 ? void 0 : deleteRule.addEventListener('click', () => {
+            this.deleteRule(uid);
+        });
+        return element;
+    }
+    // 检查用户输入的值
+    checkValue(uidInput, value) {
+        if (!uidInput || !value) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_7__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_必填项不能为空'));
+            return false;
+        }
+        const uid = Number.parseInt(uidInput);
+        if (!uid || isNaN(uid)) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_7__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_用户ID必须是数字'));
+            return false;
+        }
+        // value 允许为 0
+        const val = Number.parseInt(value);
+        if (isNaN(val) || val < 0) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_7__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_不下载最后几张图片') + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_必须是数字'));
+            return false;
+        }
+        return {
+            uid,
+            val,
+        };
+    }
+    async getUserName(uid) {
+        return new Promise(async (resolve) => {
+            const profile = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getUserProfile(uid.toString()).catch((err) => {
+                console.log(err);
+            });
+            if (profile && profile.body.name) {
+                return resolve(profile.body.name);
+            }
+            return resolve('');
+        });
+    }
+    // 添加规则
+    async addRule(uid, value) {
+        const check = this.checkValue(uid, value);
+        if (!check) {
+            return;
+        }
+        let old = _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList.find((item) => item.uid === check.uid);
+        if (old) {
+            old.value = check.val;
+        }
+        else {
+            const user = await this.getUserName(check.uid);
+            const data = {
+                uid: check.uid,
+                user: user,
+                value: check.val,
+            };
+            _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList.push(data);
+        }
+        Object(_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('DoNotDownloadLastFewImagesList', _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList);
+        this.addWrapShow = false;
+        _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_添加成功'));
+    }
+    // 更新规则
+    // tip 表示是否用显示操作成功的提示。当用户点击了更新按钮时应该显示提示；输入内容变化导致的自动更新可以不显示提示
+    async updateRule(oldUid, uid, value, tip = true) {
+        const check = this.checkValue(uid, value);
+        if (!check) {
+            return;
+        }
+        let old = _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList.find((item) => item.uid === oldUid);
+        if (old) {
+            // 更新时如果 uid 未改变，依然会获取用户名，因为用户名可能更新了
+            const user = await this.getUserName(check.uid);
+            old.uid = check.uid;
+            old.user = user;
+            old.value = check.val;
+        }
+        else {
+            return;
+        }
+        Object(_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('DoNotDownloadLastFewImagesList', _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList);
+        this.addWrapShow = false;
+        if (tip) {
+            _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_更新成功'));
+        }
+    }
+    // 删除规则
+    deleteRule(uid) {
+        let index = _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList.findIndex((item) => item.uid === uid);
+        if (index > -1) {
+            _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList.splice(index, 1);
+        }
+        else {
+            return;
+        }
+        Object(_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('DoNotDownloadLastFewImagesList', _Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].DoNotDownloadLastFewImagesList);
+        this.removeListElement(uid);
+    }
+    removeListElement(uid) {
+        const listElement = this.listWrap.querySelector(`.settingItem[data-key='${uid}']`);
+        listElement === null || listElement === void 0 ? void 0 : listElement.remove();
+    }
+}
+new DoNotDownloadLastFewImages();
+
+
+/***/ }),
+
 /***/ "./src/ts/setting/Form.ts":
 /*!********************************!*\
   !*** ./src/ts/setting/Form.ts ***!
@@ -23015,6 +23550,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formHtml", function() { return formHtml; });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 
+// 已使用的最大编号是 81
 const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -23058,6 +23594,21 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_checkbox" tabindex="0"></span>
     <label for="downR18G"> R-18G</label>
     </p>
+    
+    <p class="option" data-no="81">
+    <span class="settingNameStyle1">
+    <span data-xztext="_AI作品"></span>
+    </span>
+    <input type="checkbox" name="AIGenerated" id="AIGenerated" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox" tabindex="0"></span>
+    <label for="AIGenerated" data-xztext="_AI生成"></label>
+    <input type="checkbox" name="notAIGenerated" id="notAIGenerated" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox" tabindex="0"></span>
+    <label for="notAIGenerated" data-xztext="_非AI生成"></label>
+    <input type="checkbox" name="UnknownAI" id="UnknownAI" class="need_beautify checkbox_common" checked>
+    <span class="beautify_checkbox" tabindex="0"></span>
+    <label for="UnknownAI" data-xztext="_未知" class="has_tip" data-xztip="_AI未知作品的说明"></label>
+    </p>
 
     <p class="option" data-no="6">
     <span class="settingNameStyle1">
@@ -23070,7 +23621,7 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_checkbox" tabindex="0"></span>
     <label for="setDownBookmarked" data-xztext="_已收藏"></label>
     </p>
-    
+
     <p class="option" data-no="23">
     <span class="settingNameStyle1">
     <span data-xztext="_图片色彩"></span>
@@ -23311,6 +23862,7 @@ const formHtml = `<form class="settingForm">
       <option value="{tags_transl_only}">{tags_transl_only}</option>
       <option value="{page_tag}">{page_tag}</option>
       <option value="{type}">{type}</option>
+      <option value="{AI}">{AI}</option>
       <option value="{like}">{like}</option>
       <option value="{bmk}">{bmk}</option>
       <option value="{bmk_id}">{bmk_id}</option>
@@ -23343,9 +23895,11 @@ const formHtml = `<form class="settingForm">
     </p>
     <p class="fileNameTip tip">
     <span data-xztext="_设置文件夹名的提示"></span>
-    <strong>{user}/{id}</strong>
+    <span>{user}<span class="key">/</span>{id}</span>
     <br>
     <span data-xztext="_命名标记提醒"></span>
+    <br>
+    * <span data-xztext="_有些标记并不总是可用的提醒"></span>
     <br>
     <span class="blue">{id}</span>
     <span data-xztext="_命名标记id"></span>
@@ -23371,11 +23925,14 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{tags_transl_only}</span>
     <span data-xztext="_命名标记tags_transl_only"></span>
     <br>
-    <span class="blue">{page_tag}</span>
+    * <span class="blue">{page_tag}</span>
     <span data-xztext="_文件夹标记PTag"></span>
     <br>
     <span class="blue">{type}</span>
     <span data-xztext="_命名标记type"></span>
+    <br>
+    * <span class="blue">{AI}</span>
+    <span data-xztext="_命名标记AI"></span>
     <br>
     <span class="blue">{like}</span>
     <span data-xztext="_命名标记like"></span>
@@ -23392,7 +23949,7 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{view}</span>
     <span data-xztext="_命名标记view"></span>
     <br>
-    <span class="blue">{rank}</span>
+    * <span class="blue">{rank}</span>
     <span data-xztext="_命名标记rank"></span>
     <br>
     <span class="blue">{date}</span>
@@ -23407,13 +23964,13 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{px}</span>
     <span data-xztext="_命名标记px"></span>
     <br>
-    <span class="blue">{series_title}</span>
+    * <span class="blue">{series_title}</span>
     <span data-xztext="_命名标记seriesTitle"></span>
     <br>
-    <span class="blue">{series_order}</span>
+    * <span class="blue">{series_order}</span>
     <span data-xztext="_命名标记seriesOrder"></span>
     <br>
-    <span class="blue">{series_id}</span>
+    * <span class="blue">{series_id}</span>
     <span data-xztext="_命名标记seriesId"></span>
     <br>
     <span class="blue">{id_num}</span>
@@ -23520,6 +24077,14 @@ const formHtml = `<form class="settingForm">
     <input type="checkbox" name="doNotDownloadLastImageOfMultiImageWork" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
     </p>
+    
+    <p class="option" data-no="79">
+    <span class="settingNameStyle1">
+    <span data-xztext="_特定用户的多图作品不下载最后几张图片"></span>
+    <span class="gray1"> ? </span>
+    </span>
+    <slot data-name="DoNotDownloadLastFewImagesSlot"></slot>
+    </p>
 
     <p class="option" data-no="35">
     <span class="has_tip settingNameStyle1" data-xztip="_用户阻止名单的说明">
@@ -23619,6 +24184,15 @@ const formHtml = `<form class="settingForm">
     <span class="gray1" data-xztext="_tag用逗号分割"></span>
     <br>
     <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1"></textarea>
+    </span>
+    </p>
+
+    <p class="option" data-no="80">
+    <span class="settingNameStyle1" data-xztext="_如果作品含有某些标签则对这个作品使用另一种命名规则"></span>
+    <input type="checkbox" name="UseDifferentNameRuleIfWorkHasTagSwitch" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+    <span class="subOptionWrap" data-show="UseDifferentNameRuleIfWorkHasTagSwitch">
+    <slot data-name="UseDifferentNameRuleIfWorkHasTagSlot"></slot>
     </span>
     </p>
 
@@ -24258,6 +24832,10 @@ class FormSettings {
                 'exportLog',
                 'exportLogNormal',
                 'exportLogError',
+                'UseDifferentNameRuleIfWorkHasTagSwitch',
+                'AIGenerated',
+                'notAIGenerated',
+                'UnknownAI',
             ],
             text: [
                 'setWantPage',
@@ -24736,6 +25314,9 @@ class Options {
                 this.handleShowAdvancedSettings();
             }
         });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingInitialized, () => {
+            this.alwaysHideSomeOption();
+        });
         const list = [
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeNotChange,
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange,
@@ -24745,9 +25326,14 @@ class Options {
                 this.hiddenList = [];
                 window.setTimeout(() => {
                     this.handleShowAdvancedSettings();
+                    this.alwaysHideSomeOption();
                 });
             });
         });
+    }
+    // 总是隐藏某些设置
+    alwaysHideSomeOption() {
+        this.hideOption([79, 80]);
     }
     handleShowAdvancedSettings() {
         for (const option of this.allOption) {
@@ -25196,6 +25782,14 @@ class Settings {
             exportLogNormal: false,
             exportLogError: true,
             exportLogExclude: ['404', '429', '500'],
+            DoNotDownloadLastFewImagesShow: false,
+            DoNotDownloadLastFewImagesList: [],
+            UseDifferentNameRuleIfWorkHasTagSwitch: false,
+            UseDifferentNameRuleIfWorkHasTagShow: true,
+            UseDifferentNameRuleIfWorkHasTagList: [],
+            AIGenerated: true,
+            notAIGenerated: true,
+            UnknownAI: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -25437,6 +26031,282 @@ const setSetting = self.setSetting.bind(self);
 
 /***/ }),
 
+/***/ "./src/ts/setting/UseDifferentNameRuleIfWorkHasTag.ts":
+/*!************************************************************!*\
+  !*** ./src/ts/setting/UseDifferentNameRuleIfWorkHasTag.ts ***!
+  \************************************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
+
+
+
+
+
+
+// 如果作品含有某个标签，则对这个作品使用另一种命名规则
+class UseDifferentNameRuleIfWorkHasTag {
+    constructor() {
+        this.slotName = 'UseDifferentNameRuleIfWorkHasTagSlot';
+        this._addWrapShow = false;
+        this.wrapHTML = `
+  <div class="UseDifferentNameRuleIfWorkHasTagWarp">
+
+    <span class="controlBar">
+    <span class="total">0</span>
+      <button type="button" class="textButton expand" data-xztext="_收起"></button>
+      <button type="button" class="textButton showAdd" data-xztext="_添加"></button>
+    </span>
+
+    <div class="addWrap">
+      <div class="settingItem addInputWrap" >
+        <div class="inputItem tags">
+          <span class="label uidLabel">Tags</span>
+          <input type="text" class="setinput_style1 blue addTagsInput" data-xzplaceholder="_tag用逗号分割" />
+        </div>
+
+        <div class="inputItem rule">
+          <span class="label nameLabel" data-xztext="_命名规则2"></span>
+          <input type="text" class="setinput_style1 blue addRuleInput" />
+        </div>
+
+        <div class="btns">
+          <button type="button" class="textButton add" data-xztitle="_添加">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-wanchengqueding"></use>
+            </svg>
+          </button>
+
+          
+          <button type="button" class="textButton cancel" data-xztitle="_取消">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-guanbiquxiao"></use>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="listWrap">
+    </div>
+  </div>
+  `;
+        this.createWrap();
+        _Theme__WEBPACK_IMPORTED_MODULE_4__["theme"].register(this.wrap);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.wrap);
+        this.bindEvents();
+    }
+    set addWrapShow(val) {
+        this._addWrapShow = val;
+        if (val) {
+            this.addWrap.style.display = 'block';
+            this.addTagsInput.focus();
+        }
+        else {
+            this.addWrap.style.display = 'none';
+            this.addTagsInput.value = '';
+            this.addRuleInput.value = '';
+        }
+    }
+    get addWrapShow() {
+        return this._addWrapShow;
+    }
+    // 创建列表外部的容器，静态 html
+    createWrap() {
+        this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].useSlot(this.slotName, this.wrapHTML);
+        this.expandBtn = this.wrap.querySelector('.expand');
+        this.showAddBtn = this.wrap.querySelector('.showAdd');
+        this.totalSpan = this.wrap.querySelector('.total');
+        this.addWrap = this.wrap.querySelector('.addWrap');
+        this.addTagsInput = this.wrap.querySelector('.addTagsInput');
+        this.addRuleInput = this.wrap.querySelector('.addRuleInput');
+        this.addBtn = this.wrap.querySelector('.add');
+        this.cancelBtn = this.wrap.querySelector('.cancel');
+        this.listWrap = this.wrap.querySelector('.listWrap');
+        // 展开/折叠按钮
+        this.expandBtn.addEventListener('click', () => {
+            Object(_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('UseDifferentNameRuleIfWorkHasTagShow', !_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].UseDifferentNameRuleIfWorkHasTagShow);
+        });
+        // 切换显示添加规则的区域
+        this.showAddBtn.addEventListener('click', () => {
+            this.addWrapShow = !this.addWrapShow;
+        });
+        // 添加规则的按钮
+        this.addBtn.addEventListener('click', () => {
+            this.addRule(this.addTagsInput.value, this.addRuleInput.value);
+        });
+        // 取消添加的按钮
+        this.cancelBtn.addEventListener('click', () => {
+            this.addWrapShow = false;
+        });
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'UseDifferentNameRuleIfWorkHasTagShow') {
+                this.showListWrap();
+            }
+            if (data.name === 'UseDifferentNameRuleIfWorkHasTagList') {
+                this.createAllList();
+            }
+        });
+    }
+    showListWrap() {
+        const show = _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].UseDifferentNameRuleIfWorkHasTagShow;
+        this.listWrap.style.display = show ? 'flex' : 'none';
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.expandBtn, show ? '_收起' : '_展开');
+    }
+    // 根据规则动态创建 html
+    createAllList() {
+        this.totalSpan.textContent =
+            _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].UseDifferentNameRuleIfWorkHasTagList.length.toString();
+        this.listWrap.innerHTML = '';
+        const df = document.createDocumentFragment();
+        for (const { id, tags, rule, } of _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].UseDifferentNameRuleIfWorkHasTagList) {
+            df.append(this.createOneList(id, tags, rule));
+        }
+        this.listWrap.append(df);
+    }
+    // 创建规则对应的元素，并绑定事件
+    createOneList(id, tags, rule) {
+        const html = `
+      <div class="inputItem id">
+        <span>${id}</span>
+      </div>
+
+      <div class="inputItem tags">
+        <input type="text" class="setinput_style1 blue" data-tagsInput="${id}" value="${tags}" />
+      </div>
+
+      <div class="inputItem rule">
+        <input type="text" class="has_tip setinput_style1 blue" data-ruleInput="${id}" value="${rule}" />
+      </div>
+
+      <div class="btns">
+        <button type="button" class="textButton" data-updateRule="${id}" data-xztitle="_更新">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-gengxin"></use>
+          </svg>
+        </button>
+
+        <button type="button" class="textButton" data-deleteRule="${id}" data-xztitle="_删除">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-shanchu1"></use>
+          </svg>
+        </button>
+    </div>`;
+        const element = document.createElement('div');
+        element.classList.add('settingItem');
+        element.dataset.key = id.toString();
+        element.innerHTML = html;
+        const updateRule = element.querySelector(`button[data-updateRule='${id}']`);
+        const deleteRule = element.querySelector(`button[data-deleteRule='${id}']`);
+        const tagsInput = element.querySelector(`input[data-tagsInput='${id}']`);
+        const ruleInput = element.querySelector(`input[data-ruleInput='${id}']`);
+        [tagsInput, ruleInput].forEach((el) => {
+            el === null || el === void 0 ? void 0 : el.addEventListener('change', () => {
+                if (el.value) {
+                    this.updateRule(id, tagsInput.value, ruleInput.value, false);
+                }
+            });
+        });
+        // 更新规则
+        updateRule === null || updateRule === void 0 ? void 0 : updateRule.addEventListener('click', () => {
+            this.updateRule(id, tagsInput.value, ruleInput.value);
+        });
+        // 删除规则
+        deleteRule === null || deleteRule === void 0 ? void 0 : deleteRule.addEventListener('click', () => {
+            this.deleteRule(id);
+        });
+        return element;
+    }
+    // 检查用户输入的值
+    checkValue(tagsInput, rule) {
+        if (!tagsInput || !rule) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_必填项不能为空'));
+            return false;
+        }
+        return {
+            tags: _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].string2array(tagsInput),
+            rule,
+        };
+    }
+    // 添加规则
+    async addRule(tagsInput, rule) {
+        const check = this.checkValue(tagsInput, rule);
+        if (!check) {
+            return;
+        }
+        const idList = _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].UseDifferentNameRuleIfWorkHasTagList.map((item) => item.id);
+        const id = idList.length === 0 ? 0 : Math.max(...idList) + 1;
+        const data = {
+            id: id,
+            tags: check.tags,
+            rule: rule,
+        };
+        _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].UseDifferentNameRuleIfWorkHasTagList.push(data);
+        Object(_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('UseDifferentNameRuleIfWorkHasTagList', _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].UseDifferentNameRuleIfWorkHasTagList);
+        console.log(..._Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].UseDifferentNameRuleIfWorkHasTagList);
+        this.addWrapShow = false;
+        _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加成功'));
+    }
+    // 更新规则
+    // tip 表示是否用显示操作成功的提示。当用户点击了更新按钮时应该显示提示；输入内容变化导致的自动更新可以不显示提示
+    async updateRule(id, tagsInput, rule, tip = true) {
+        const check = this.checkValue(tagsInput, rule);
+        if (!check) {
+            return;
+        }
+        let old = _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].UseDifferentNameRuleIfWorkHasTagList.find((item) => item.id === id);
+        if (old) {
+            old.tags = check.tags;
+            old.rule = rule;
+        }
+        else {
+            return;
+        }
+        Object(_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('UseDifferentNameRuleIfWorkHasTagList', _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].UseDifferentNameRuleIfWorkHasTagList);
+        console.log(..._Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].UseDifferentNameRuleIfWorkHasTagList);
+        this.addWrapShow = false;
+        if (tip) {
+            _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_更新成功'));
+        }
+    }
+    // 删除规则
+    deleteRule(id) {
+        let index = _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].UseDifferentNameRuleIfWorkHasTagList.findIndex((item) => item.id === id);
+        if (index > -1) {
+            _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].UseDifferentNameRuleIfWorkHasTagList.splice(index, 1);
+        }
+        else {
+            return;
+        }
+        Object(_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('UseDifferentNameRuleIfWorkHasTagList', _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].UseDifferentNameRuleIfWorkHasTagList);
+        console.log(..._Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].UseDifferentNameRuleIfWorkHasTagList);
+        this.removeListElement(id);
+    }
+    removeListElement(id) {
+        const listElement = this.listWrap.querySelector(`.settingItem[data-key='${id}']`);
+        listElement === null || listElement === void 0 ? void 0 : listElement.remove();
+    }
+}
+new UseDifferentNameRuleIfWorkHasTag();
+
+
+/***/ }),
+
 /***/ "./src/ts/store/CacheWorkData.ts":
 /*!***************************************!*\
   !*** ./src/ts/store/CacheWorkData.ts ***!
@@ -25577,9 +26447,16 @@ class SaveArtworkData {
         const fullHeight = body.height; // 原图高度
         const bmk = body.bookmarkCount; // 收藏数
         const tags = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].extractTags(data); // tag 列表
-        let tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].extractTags(data, 'both'); // 保存 tag 列表，附带翻译后的 tag
-        let tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].extractTags(data, 'transl'); // 保存翻译后的 tag 列表
+        const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].extractTags(data, 'both'); // 保存 tag 列表，附带翻译后的 tag
+        const tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].extractTags(data, 'transl'); // 保存翻译后的 tag 列表
+        const aiMarkString = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].getAIGeneratedMark(body.aiType);
+        if (aiMarkString) {
+            tags.unshift(aiMarkString);
+            tagsWithTransl.unshift(aiMarkString);
+            tagsTranslOnly.unshift(aiMarkString);
+        }
         const filterOpt = {
+            aiType: body.aiType,
             createDate: body.createDate,
             id: body.id,
             workType: body.illustType,
@@ -25616,6 +26493,7 @@ class SaveArtworkData {
                 const ext = tempExt[tempExt.length - 1];
                 // 添加作品信息
                 _Store__WEBPACK_IMPORTED_MODULE_3__["store"].addResult({
+                    aiType: body.aiType,
                     id: body.id,
                     idNum: idNum,
                     // 对于插画和漫画的缩略图，当一个作品包含多个图片文件时，需要转换缩略图 url
@@ -25670,6 +26548,7 @@ class SaveArtworkData {
                     ext = tempExt[tempExt.length - 1];
                 }
                 _Store__WEBPACK_IMPORTED_MODULE_3__["store"].addResult({
+                    aiType: body.aiType,
                     id: body.id,
                     idNum: idNum,
                     thumb: body.urls.thumb,
@@ -25741,7 +26620,12 @@ class SaveNovelData {
         const bmk = body.bookmarkCount; // 收藏数
         const tags = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].extractTags(data); // tag 列表
         // 小说的标签没有进行翻译，所以没有翻译后的标签
+        const aiMarkString = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getAIGeneratedMark(body.aiType);
+        if (aiMarkString) {
+            tags.unshift(aiMarkString);
+        }
         const filterOpt = {
+            aiType: body.aiType,
             createDate: body.createDate,
             id: body.id,
             workType: illustType,
@@ -25785,6 +26669,7 @@ class SaveNovelData {
             }
             // 添加作品信息
             _Store__WEBPACK_IMPORTED_MODULE_1__["store"].addResult({
+                aiType: body.aiType,
                 id: id,
                 idNum: idNum,
                 thumb: body.coverUrl || undefined,
@@ -26035,6 +26920,7 @@ class Store {
         this.title = ''; // 开始抓取时，储存页面此时的 title
         this.crawlCompleteTime = new Date();
         this.fileDataDefault = {
+            aiType: 0,
             idNum: 0,
             id: '',
             original: '',
@@ -26116,13 +27002,29 @@ class Store {
             // 插画和漫画
             // 循环生成每一个图片文件的数据
             const p0 = 'p0';
-            for (let i = 0; i < workData.dlCount; i++) {
-                // 不抓取多图作品的最后一张图片
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doNotDownloadLastImageOfMultiImageWork &&
-                    i > 0 &&
-                    i === workData.pageCount - 1) {
-                    continue;
+            let dlCount = workData.dlCount;
+            // 不抓取多图作品的最后一张图片
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doNotDownloadLastImageOfMultiImageWork &&
+                workData.pageCount > 1) {
+                const number = workData.pageCount - 1;
+                dlCount = Math.min(dlCount, number);
+            }
+            // 特定用户的多图作品不下载最后几张图片
+            if (workData.pageCount > 1) {
+                const removeLastFew = _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].DoNotDownloadLastFewImagesList.find((item) => item.uid === Number.parseInt(workData.userId));
+                if (removeLastFew && removeLastFew.value > 0) {
+                    const number = workData.pageCount - removeLastFew.value;
+                    if (number > 0) {
+                        dlCount = Math.min(dlCount, number);
+                    }
+                    else {
+                        // 用户设置的值有可能把这个作品的图片全部排除了，此时只跳过最后一张
+                        dlCount = Math.min(dlCount, workData.pageCount - 1);
+                    }
                 }
+            }
+            // 目前总是从第一张开始连续生成，中间不会跳过
+            for (let i = 0; i < dlCount; i++) {
                 const fileData = Object.assign({}, workData);
                 const pi = 'p' + i;
                 fileData.index = i;
@@ -28077,6 +28979,20 @@ const novelData = [
     [18820000, 1669806609000],
     [18830000, 1669969123000],
     [18840000, 1670085906000],
+    [18850001, 1670230236000],
+    [18860000, 1670388111000],
+    [18870000, 1670553568000],
+    [18880000, 1670680140000],
+    [18890001, 1670803201000],
+    [18900000, 1670955818000],
+    [18910000, 1671119233000],
+    [18920000, 1671281912000],
+    [18930000, 1671409195000],
+    [18940000, 1671567402000],
+    [18950000, 1671721208000],
+    [18960000, 1671861312000],
+    [18970000, 1671954612000],
+    [18980000, 1672061020000],
 ];
 
 
@@ -38426,6 +39342,70 @@ const illustsData = [
     [103300000, 1670048941000],
     [103310000, 1670072034000],
     [103320000, 1670093871000],
+    [103330000, 1670133300000],
+    [103340000, 1670154660000],
+    [103350000, 1670172240000],
+    [103360001, 1670220480000],
+    [103370000, 1670245740000],
+    [103380000, 1670277480000],
+    [103390000, 1670319000000],
+    [103400000, 1670339280000],
+    [103410000, 1670384520000],
+    [103420000, 1670416800000],
+    [103430000, 1670448720000],
+    [103440002, 1670492880000],
+    [103450000, 1670513040000],
+    [103460000, 1670560200000],
+    [103470000, 1670589120000],
+    [103480000, 1670613240000],
+    [103490000, 1670655000000],
+    [103500000, 1670677320000],
+    [103510000, 1670706120000],
+    [103520000, 1670741520000],
+    [103530002, 1670762040000],
+    [103540000, 1670783700000],
+    [103550000, 1670833980000],
+    [103560000, 1670856420000],
+    [103570000, 1670900760000],
+    [103580000, 1670934000000],
+    [103590000, 1670962320000],
+    [103600000, 1671009780000],
+    [103610000, 1671030900000],
+    [103620000, 1671080700000],
+    [103630000, 1671109800000],
+    [103640000, 1671144180000],
+    [103650000, 1671185160000],
+    [103660000, 1671204600000],
+    [103670000, 1671247980000],
+    [103680000, 1671274620000],
+    [103690000, 1671292800000],
+    [103700000, 1671336000000],
+    [103710000, 1671361620000],
+    [103720000, 1671379740000],
+    [103730001, 1671430260000],
+    [103740000, 1671457140000],
+    [103750000, 1671496200000],
+    [103760000, 1671534780000],
+    [103770000, 1671558060000],
+    [103780001, 1671608340000],
+    [103790000, 1671632100000],
+    [103800000, 1671673020000],
+    [103810000, 1671708240000],
+    [103820000, 1671729660000],
+    [103830000, 1671779400000],
+    [103840000, 1671802980000],
+    [103850000, 1671830220000],
+    [103860000, 1671863040000],
+    [103870000, 1671882180000],
+    [103880000, 1671894900000],
+    [103890000, 1671923820000],
+    [103900000, 1671949680000],
+    [103910002, 1671967260000],
+    [103920000, 1671979860000],
+    [103930000, 1672016040000],
+    [103940000, 1672049280000],
+    [103950000, 1672068720000],
+    [103960001, 1672113420000],
 ];
 
 

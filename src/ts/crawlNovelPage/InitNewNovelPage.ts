@@ -104,6 +104,7 @@ class InitNewNovelPage extends InitPageBase {
       }
 
       const filterOpt: FilterOption = {
+        aiType: nowData.aiType,
         id: nowData.id,
         bookmarkData: nowData.bookmarkData,
         bookmarkCount: nowData.bookmarkCount,

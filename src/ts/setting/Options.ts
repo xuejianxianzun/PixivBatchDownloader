@@ -61,6 +61,10 @@ class Options {
       }
     })
 
+    window.addEventListener(EVT.list.settingInitialized, () => {
+      this.alwaysHideSomeOption()
+    })
+
     const list = [
       EVT.list.pageSwitchedTypeNotChange,
       EVT.list.pageSwitchedTypeChange,
@@ -70,9 +74,15 @@ class Options {
         this.hiddenList = []
         window.setTimeout(() => {
           this.handleShowAdvancedSettings()
+          this.alwaysHideSomeOption()
         })
       })
     })
+  }
+
+  // 总是隐藏某些设置
+  private alwaysHideSomeOption() {
+    this.hideOption([79, 80])
   }
 
   private handleShowAdvancedSettings() {
