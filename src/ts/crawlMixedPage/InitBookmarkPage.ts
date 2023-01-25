@@ -18,6 +18,7 @@ import { states } from '../store/States'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { toast } from '../Toast'
 import { unBookmarkWorks } from '../UnBookmarkWorks'
+import { removeWorksTagsInBookmarks } from '../RemoveWorksTagsInBookmarks'
 import { EVT } from '../EVT'
 
 class InitBookmarkPage extends InitPageBase {
@@ -39,6 +40,9 @@ class InitBookmarkPage extends InitPageBase {
   private readonly onceRequest: number = 100 // 每次请求多少个数量
 
   private offset: number = 0 // 要去掉的作品数量
+
+  // 点击不同的功能按钮时，设定抓取模式
+  private crawlMode: 'normal' | 'unBookmark' | 'removeTags' = 'normal'
 
   protected addCrawlBtns() {
     Tools.addBtn(
@@ -114,6 +118,14 @@ class InitBookmarkPage extends InitPageBase {
     Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
+      '_移除本页面中所有作品的标签'
+    ).addEventListener('click', () => {
+      this.removeWorksTagsOnThisPage()
+    })
+
+    Tools.addBtn(
+      'otherBtns',
+      Colors.bgGreen,
       '_取消收藏本页面的所有作品'
     ).addEventListener('click', () => {
       this.unBookmarkAllWorksOnThisPage()
@@ -121,15 +133,18 @@ class InitBookmarkPage extends InitPageBase {
   }
 
   // 取消收藏本页面的所有作品
-  private unBookmarkMode = false
   private unBookmarkAllWorksOnThisPage() {
-    if (states.busy || this.unBookmarkMode) {
+    if (
+      states.busy ||
+      this.crawlMode === 'removeTags' ||
+      this.crawlMode === 'unBookmark'
+    ) {
       toast.error(lang.transl('_当前任务尚未完成'))
       return
     }
 
     // 走一遍简化的抓取流程
-    this.unBookmarkMode = true
+    this.crawlMode = 'unBookmark'
     log.warning(lang.transl('_取消收藏本页面的所有作品'))
     toast.warning(lang.transl('_取消收藏本页面的所有作品'), {
       position: 'topCenter',
@@ -142,7 +157,34 @@ class InitBookmarkPage extends InitPageBase {
     this.getIdList()
   }
 
+  // 移除本页面中所有作品的标签
+  private removeWorksTagsOnThisPage() {
+    if (
+      states.busy ||
+      this.crawlMode === 'removeTags' ||
+      this.crawlMode === 'unBookmark'
+    ) {
+      toast.error(lang.transl('_当前任务尚未完成'))
+      return
+    }
+
+    // 走一遍简化的抓取流程
+    this.crawlMode = 'removeTags'
+    log.warning(lang.transl('_移除本页面中所有作品的标签'))
+    log.warning(lang.transl('_它们会变成未分类状态'))
+    toast.warning(lang.transl('_移除本页面中所有作品的标签'), {
+      position: 'topCenter',
+    })
+    EVT.fire('closeCenterPanel')
+    // 设置抓取页数为 1
+    this.crawlNumber = 1
+    store.tag = Tools.getTagFromURL()
+    this.readyGetIdList()
+    this.getIdList()
+  }
+
   protected nextStep() {
+    this.crawlMode = 'normal'
     this.setSlowCrawl()
     this.readyGetIdList()
     this.getIdList()
@@ -261,26 +303,33 @@ class InitBookmarkPage extends InitPageBase {
       // 书签页面的 api 没有考虑页面上的排序顺序，获取到的 id 列表始终是按收藏顺序由近期到早期排列的
     }
 
-    if (!this.unBookmarkMode) {
+    if (this.crawlMode === 'normal') {
       // 正常抓取时
       store.idList = store.idList.concat(this.idList)
       this.getIdListFinished()
-    } else {
+    } else if (this.crawlMode === 'unBookmark') {
       // 取消收藏本页面的书签时
       // 复制本页作品的 id 列表，传递给指定模块
       const idList = Array.from(this.idList)
       this.resetGetIdListStatus()
-      this.unBookmarkMode = false
       unBookmarkWorks.start(idList)
+    } else if (this.crawlMode === 'removeTags') {
+      // 移除本页面作品的标签
+      // 复制本页作品的 id 列表，传递给指定模块
+      const idList = Array.from(this.idList)
+      this.resetGetIdListStatus()
+      removeWorksTagsInBookmarks.start(idList)
     }
   }
 
   protected resetGetIdListStatus() {
     this.type = 'illusts'
+    this.crawlMode = 'normal'
     this.idList = []
     this.offset = 0
     this.requsetNumber = 0
     this.filteredNumber = 0
   }
 }
+
 export { InitBookmarkPage }
