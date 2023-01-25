@@ -299,7 +299,7 @@ abstract class InitPageBase {
   // 重设抓取作品列表时使用的变量或标记
   protected resetGetIdListStatus() {}
 
-  protected log429ErrorTip = Utils.debounce(()=>{
+  protected log429ErrorTip = Utils.debounce(() => {
     log.error(lang.transl('_抓取被限制时返回空结果的提示'))
   }, 500)
 

@@ -8982,7 +8982,7 @@ class SelectWork {
         this.top = ev.y;
         this.updateSelectorEl();
     }
-    // esc 暂停选择
+    // 按 Esc 键时暂停选择
     escEvent(ev) {
         if (ev.code === 'Escape') {
             this.pauseSelect();
@@ -9902,6 +9902,11 @@ class ShowOriginSizeImage {
                     bgColor: _Colors__WEBPACK_IMPORTED_MODULE_8__["Colors"].bgBlue,
                     position: 'center',
                 });
+            }
+            // 按 Esc 键时取消预览
+            if (ev.code === 'Escape' && this.show) {
+                this.show = false;
+                ev.stopPropagation();
             }
         });
     }
