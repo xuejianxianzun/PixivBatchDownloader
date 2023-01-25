@@ -427,7 +427,7 @@ class Settings {
     hiddenBrowserDownloadBar: false,
     tipPressDToDownload: true,
     timedCrawlInterval: 120,
-    slowCrawl: false,
+    slowCrawl: true,
     slowCrawlOnWorksNumber: 100,
     downloadOnClickBookmark: false,
     downloadOnClickLike: false,

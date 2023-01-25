@@ -299,6 +299,10 @@ abstract class InitPageBase {
   // 重设抓取作品列表时使用的变量或标记
   protected resetGetIdListStatus() {}
 
+  protected log429ErrorTip = Utils.debounce(()=>{
+    log.error(lang.transl('_抓取被限制时返回空结果的提示'))
+  }, 500)
+
   // 获取作品的数据
   protected async getWorksData(idData?: IDData) {
     idData = idData || (store.idList.shift()! as IDData)
@@ -345,7 +349,7 @@ abstract class InitPageBase {
         this.logErrorStatus(error.status, idData)
         if (error.status === 500 || error.status === 429) {
           // 如果状态码 500 或 429，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
-          log.error(lang.transl('_抓取被限制时返回空结果的提示'))
+          this.log429ErrorTip()
           return window.setTimeout(() => {
             this.getWorksData(idData)
           }, Config.retryTime)
