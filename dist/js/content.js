@@ -3332,14 +3332,6 @@ const langText = {
         '<span class="key">북마크</span> 수',
         'Колличество <span class="key">закладок</span>',
     ],
-    _收藏数量2: [
-        '收藏数量',
-        '收藏數量',
-        'Number of bookmarks',
-        'ブックマークの数',
-        '북마크 수',
-        'Колличество закладок',
-    ],
     _设置收藏数量的提示: [
         '如果作品的收藏数小于设置的数字，作品不会被下载。',
         '只會下載設定收藏數範圍內的作品。',
@@ -3374,7 +3366,7 @@ const langText = {
     ],
     _本次任务已全部完成: [
         '本次任务已全部完成。',
-        '本次工作已全部完成',
+        '本次工作已全部完成。',
         'This task has been completed.',
         'この作業は完了しました。',
         '이 작업은 완료되었습니다.',
@@ -6789,12 +6781,12 @@ const langText = {
         'Удалить теги со всех работ на этой странице',
     ],
     _它们会变成未分类状态: [
-        '它们会变成未分类状态',
-        '它們會變成未分類狀態',
-        'They become uncategorized',
-        'それらは未分類になります',
-        '분류되지 않습니다',
-        'Они становятся некатегоризированными',
+        '它们会变成未分类状态。',
+        '它們會變成未分類狀態。',
+        'They become uncategorized.',
+        'それらは未分類になります。',
+        '분류되지 않습니다.',
+        'Они становятся некатегоризированными.',
     ],
     _取消收藏本页面的所有作品: [
         '取消收藏本页面中的所有作品',
@@ -7043,6 +7035,62 @@ const langText = {
         'ユーザーは、AI によって生成された作品をダウンロードするかどうかを選択できます。',
         '사용자는 AI가 생성한 작품을 다운로드할지 여부를 선택할 수 있습니다.',
         'Пользователи могут выбирать, загружать ли работы, созданные ИИ.',
+    ],
+    _文件下载顺序: [
+        '文件下载<span class="key">顺序</span>',
+        '檔案下載<span class="key">順序</span>',
+        'File download <span class="key">order</span>',
+        'ファイルのダウンロード<span class="key">順序</span>',
+        '파일 다운로드 순서',
+        'Порядок загрузки файлов',
+    ],
+    _降序: [
+        '降序',
+        '降序',
+        'Descending',
+        '降順',
+        '내림차순',
+        'в порядке убывания',
+    ],
+    _升序: [
+        '升序',
+        '升序',
+        'Ascending',
+        '昇順',
+        '오름차순',
+        'возрастающий порядок',
+    ],
+    _排序依据: [
+        '排序依据',
+        '排序依據',
+        'Sort by',
+        'ソート基準',
+        '정렬 기준',
+        'Сортировать по',
+    ],
+    _作品ID: [
+        '作品 ID',
+        '作品 ID',
+        'Work ID',
+        '作品ID',
+        'ID 아이디',
+        'РРабочий идентификатор',
+    ],
+    _收藏时间: [
+        '收藏时间',
+        '收藏時間',
+        'Bookmark time',
+        'ブックマーク時間',
+        '북마크 시간',
+        'время сбора',
+    ],
+    _收藏数量2: [
+        '收藏数量',
+        '收藏數量',
+        'Number of bookmarks',
+        'ブックマークの数',
+        '북마크 수',
+        'Колличество закладок',
     ],
 };
 
@@ -10207,7 +10255,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '15.2.0';
+        this.flag = '15.2.00';
         this.bindEvents();
     }
     bindEvents() {
@@ -10218,6 +10266,11 @@ class ShowWhatIsNew {
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_它们会变成未分类状态')}
       <br>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_收藏页面里的按钮')}
+      <br>
+      <br>
+      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_文件下载顺序')}</strong>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载'))}
       `;
             // 在更新说明的下方显示赞助提示
             msg += `
@@ -12161,7 +12214,23 @@ class InitPageBase {
             return this.noResult();
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].crawlCompleteTime = new Date();
-        this.sortResult();
+        // 对文件进行排序
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].setFileDownloadOrder) {
+            // 按照用户设置的规则进行排序
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downloadOrderSortBy === 'ID') {
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].sortByProperty('id', _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downloadOrder));
+            }
+            else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downloadOrderSortBy === 'bookmarkCount') {
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].sortByProperty('bmk', _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downloadOrder));
+            }
+            else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downloadOrderSortBy === 'bookmarkID') {
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].sortByProperty('bmkId', _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downloadOrder));
+            }
+        }
+        else {
+            // 如果用户未设置排序规则，则每个页面自行处理排序逻辑
+            this.sortResult();
+        }
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].resultMeta.length.toString()));
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个文件', _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length.toString()));
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取完毕'), 2);
@@ -17248,7 +17317,9 @@ class Download {
                 }
             }
             // 向浏览器发送下载任务
-            await this.waitPreviousFileDownload();
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].setFileDownloadOrder) {
+                await this.waitPreviousFileDownload();
+            }
             this.browserDownload(blobUrl, _fileName, arg.id, arg.taskBatch);
             xhr = null;
             file = null;
@@ -17257,7 +17328,7 @@ class Download {
         // 没有设置 timeout，默认值是 0，不会超时
         xhr.send();
     }
-    // 等待上一个文件完成下载（浏览器将文件保存到硬盘上），之后再保存这个文件。这样可以保证文件的下载顺序不会错乱
+    // 等待上一个文件下载成功之后（浏览器将文件保存到硬盘上），再保存这个文件。这是为了保证文件的保存顺序不会错乱
     waitPreviousFileDownload() {
         return new Promise(async (resolve) => {
             if (this.downloadStatesIndex === 0) {
@@ -17268,10 +17339,10 @@ class Download {
                 return resolve(true);
             }
             else {
-                return resolve(new Promise(resolve => {
+                return resolve(new Promise((resolve) => {
                     _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_17__["setTimeoutWorker"].set(() => {
                         resolve(this.waitPreviousFileDownload());
-                    }, 200);
+                    }, 50);
                 }));
             }
         });
@@ -24457,6 +24528,36 @@ const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="82">
+    <span class="settingNameStyle1" data-xztext="_文件下载顺序"></span>
+    <input type="checkbox" name="setFileDownloadOrder" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="subOptionWrap" data-show="setFileDownloadOrder">
+    
+    <span class="settingNameStyle1" data-xztext="_排序依据"></span>
+    <input type="radio" name="downloadOrderSortBy" id="downloadOrderSortBy1" class="need_beautify radio" value="ID" checked>
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrderSortBy1" data-xztext="_作品ID"></label>
+    <input type="radio" name="downloadOrderSortBy" id="downloadOrderSortBy2" class="need_beautify radio" value="bookmarkCount">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrderSortBy2" data-xztext="_收藏数量2"></label>
+    <input type="radio" name="downloadOrderSortBy" id="downloadOrderSortBy3" class="need_beautify radio" value="bookmarkID">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrderSortBy3" data-xztext="_收藏时间"></label>
+
+    <span class="verticalSplit"></span>
+
+    <input type="radio" name="downloadOrder" id="downloadOrder1" class="need_beautify radio" value="desc" checked>
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrder1" data-xztext="_降序"></label>
+    <input type="radio" name="downloadOrder" id="downloadOrder2" class="need_beautify radio" value="asc">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrder2" data-xztext="_升序"></label>
+
+    </span>
+    </p>
+
     <p class="option" data-no="28">
     <span class="has_tip settingNameStyle1" data-xztip="_不下载重复文件的提示">
     <span data-xztext="_不下载重复文件"></span>
@@ -24910,6 +25011,7 @@ class FormSettings {
                 'AIGenerated',
                 'notAIGenerated',
                 'UnknownAI',
+                'setFileDownloadOrder',
             ],
             text: [
                 'setWantPage',
@@ -24966,6 +25068,8 @@ class FormSettings {
                 'prevWorkSize',
                 'showOriginImageSize',
                 'exportLogTiming',
+                'downloadOrder',
+                'downloadOrderSortBy',
             ],
             textarea: ['createFolderTagList'],
             datetime: ['postDateStart', 'postDateEnd'],
@@ -25864,6 +25968,9 @@ class Settings {
             AIGenerated: true,
             notAIGenerated: true,
             UnknownAI: true,
+            setFileDownloadOrder: false,
+            downloadOrder: 'desc',
+            downloadOrderSortBy: 'ID',
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -40074,8 +40181,9 @@ class Utils {
     static sortByProperty(key, order = 'desc') {
         return function (a, b) {
             // 排序的内容有时可能是字符串，需要转换成数字排序
-            const value1 = typeof a[key] === 'number' ? a[key] : parseFloat(a[key]);
-            const value2 = typeof b[key] === 'number' ? b[key] : parseFloat(b[key]);
+            // 有些空字符串或者特殊字符可能转换后是 NaN，将其替换为 0
+            const value1 = (typeof a[key] === 'number' ? a[key] : parseFloat(a[key])) || 0;
+            const value2 = (typeof b[key] === 'number' ? b[key] : parseFloat(b[key])) || 0;
             if (value2 < value1) {
                 return order === 'desc' ? -1 : 1;
             }

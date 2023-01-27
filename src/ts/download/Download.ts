@@ -27,7 +27,11 @@ import { downloadStates } from './DownloadStates'
 // 处理下载队列里的任务
 // 不显示在进度条上的下载任务，不在这里处理
 class Download {
-  constructor(progressBarIndex: number, data: downloadArgument, downloadStatesIndex: number) {
+  constructor(
+    progressBarIndex: number,
+    data: downloadArgument,
+    downloadStatesIndex: number
+  ) {
     this.progressBarIndex = progressBarIndex
     this.downloadStatesIndex = downloadStatesIndex
     this.beforeDownload(data)
@@ -334,7 +338,9 @@ class Download {
       }
 
       // 向浏览器发送下载任务
-      await this.waitPreviousFileDownload()
+      if (settings.setFileDownloadOrder) {
+        await this.waitPreviousFileDownload()
+      }
       this.browserDownload(blobUrl, _fileName, arg.id, arg.taskBatch)
       xhr = null as any
       file = null as any
@@ -345,22 +351,24 @@ class Download {
     xhr.send()
   }
 
-  // 等待上一个文件完成下载（浏览器将文件保存到硬盘上），之后再保存这个文件。这样可以保证文件的下载顺序不会错乱
-  private waitPreviousFileDownload(){
-    return new Promise(async(resolve)=>{
-      if(this.downloadStatesIndex===0){
+  // 等待上一个文件下载成功之后（浏览器将文件保存到硬盘上），再保存这个文件。这是为了保证文件的保存顺序不会错乱
+  private waitPreviousFileDownload() {
+    return new Promise(async (resolve) => {
+      if (this.downloadStatesIndex === 0) {
         return resolve(true)
       }
 
-      if(downloadStates.states[this.downloadStatesIndex-1]===1){
-        console.log('d '+ this.downloadStatesIndex)
+      if (downloadStates.states[this.downloadStatesIndex - 1] === 1) {
+        console.log('d ' + this.downloadStatesIndex)
         return resolve(true)
-      }else{
-        return resolve(new Promise(resolve=>{
-          setTimeoutWorker.set(()=>{
-            resolve(this.waitPreviousFileDownload())
-          }, 200)
-        }))
+      } else {
+        return resolve(
+          new Promise((resolve) => {
+            setTimeoutWorker.set(() => {
+              resolve(this.waitPreviousFileDownload())
+            }, 50)
+          })
+        )
       }
     })
   }

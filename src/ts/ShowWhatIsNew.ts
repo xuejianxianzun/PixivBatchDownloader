@@ -11,7 +11,7 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '15.2.0'
+  private flag = '15.2.00'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
@@ -23,6 +23,16 @@ class ShowWhatIsNew {
       ${lang.transl('_它们会变成未分类状态')}
       <br>
       ${lang.transl('_收藏页面里的按钮')}
+      <br>
+      <br>
+      <strong>${lang.transl('_新增设置项')}: ${lang.transl(
+        '_文件下载顺序'
+      )}</strong>
+      <br>
+      ${lang.transl(
+        '_你可以在更多选项卡的xx分类里找到它',
+        lang.transl('_下载')
+      )}
       `
 
       // 在更新说明的下方显示赞助提示

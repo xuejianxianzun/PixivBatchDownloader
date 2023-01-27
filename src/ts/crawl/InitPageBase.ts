@@ -413,7 +413,20 @@ abstract class InitPageBase {
 
     store.crawlCompleteTime = new Date()
 
-    this.sortResult()
+    // 对文件进行排序
+    if (settings.setFileDownloadOrder) {
+      // 按照用户设置的规则进行排序
+      if (settings.downloadOrderSortBy === 'ID') {
+        store.result.sort(Utils.sortByProperty('id', settings.downloadOrder))
+      } else if (settings.downloadOrderSortBy === 'bookmarkCount') {
+        store.result.sort(Utils.sortByProperty('bmk', settings.downloadOrder))
+      } else if (settings.downloadOrderSortBy === 'bookmarkID') {
+        store.result.sort(Utils.sortByProperty('bmkId', settings.downloadOrder))
+      }
+    } else {
+      // 如果用户未设置排序规则，则每个页面自行处理排序逻辑
+      this.sortResult()
+    }
 
     log.log(lang.transl('_共抓取到n个作品', store.resultMeta.length.toString()))
 
