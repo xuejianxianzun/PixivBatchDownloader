@@ -3332,6 +3332,14 @@ const langText = {
         '<span class="key">북마크</span> 수',
         'Колличество <span class="key">закладок</span>',
     ],
+    _收藏数量2: [
+        '收藏数量',
+        '收藏數量',
+        'Number of bookmarks',
+        'ブックマークの数',
+        '북마크 수',
+        'Колличество закладок',
+    ],
     _设置收藏数量的提示: [
         '如果作品的收藏数小于设置的数字，作品不会被下载。',
         '只會下載設定收藏數範圍內的作品。',
@@ -16975,7 +16983,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./DownloadNovelEmbeddedImage */ "./src/ts/download/DownloadNovelEmbeddedImage.ts");
 /* harmony import */ var _DownloadNovelCover__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./DownloadNovelCover */ "./src/ts/download/DownloadNovelCover.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/download/DownloadStates.ts");
 // 下载文件，然后发送给浏览器进行保存
+
+
 
 
 
@@ -16996,7 +17008,7 @@ __webpack_require__.r(__webpack_exports__);
 // 处理下载队列里的任务
 // 不显示在进度条上的下载任务，不在这里处理
 class Download {
-    constructor(progressBarIndex, data) {
+    constructor(progressBarIndex, data, downloadStatesIndex) {
         this.retry = 0; // 重试次数
         this.lastRequestTime = 0; // 最后一次发起请求的时间戳
         this.retryInterval = []; // 保存每次到达重试环节时，距离上一次请求的时间差
@@ -17004,6 +17016,7 @@ class Download {
         this.skip = false; // 这个下载是否应该被跳过。如果这个文件不符合某些过滤条件就应该跳过它
         this.error = false; // 在下载过程中是否出现了无法解决的错误
         this.progressBarIndex = progressBarIndex;
+        this.downloadStatesIndex = downloadStatesIndex;
         this.beforeDownload(data);
     }
     get cancel() {
@@ -17235,6 +17248,7 @@ class Download {
                 }
             }
             // 向浏览器发送下载任务
+            await this.waitPreviousFileDownload();
             this.browserDownload(blobUrl, _fileName, arg.id, arg.taskBatch);
             xhr = null;
             file = null;
@@ -17242,6 +17256,25 @@ class Download {
         this.lastRequestTime = new Date().getTime();
         // 没有设置 timeout，默认值是 0，不会超时
         xhr.send();
+    }
+    // 等待上一个文件完成下载（浏览器将文件保存到硬盘上），之后再保存这个文件。这样可以保证文件的下载顺序不会错乱
+    waitPreviousFileDownload() {
+        return new Promise(async (resolve) => {
+            if (this.downloadStatesIndex === 0) {
+                return resolve(true);
+            }
+            if (_DownloadStates__WEBPACK_IMPORTED_MODULE_18__["downloadStates"].states[this.downloadStatesIndex - 1] === 1) {
+                console.log('d ' + this.downloadStatesIndex);
+                return resolve(true);
+            }
+            else {
+                return resolve(new Promise(resolve => {
+                    _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_17__["setTimeoutWorker"].set(() => {
+                        resolve(this.waitPreviousFileDownload());
+                    }, 200);
+                }));
+            }
+        });
     }
     // 向浏览器发送下载任务
     browserDownload(blobUrl, fileName, id, taskBatch) {
@@ -17731,7 +17764,7 @@ class DownloadControl {
                 progressBarIndex: progressBarIndex,
             };
             // 建立下载
-            new _download_Download__WEBPACK_IMPORTED_MODULE_7__["Download"](progressBarIndex, argument);
+            new _download_Download__WEBPACK_IMPORTED_MODULE_7__["Download"](progressBarIndex, argument, index);
         }
     }
     // 在有下载出错的情况下，是否已经完成了下载
