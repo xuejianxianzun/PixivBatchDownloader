@@ -563,7 +563,7 @@ class DownloadControl {
       }
 
       // 建立下载
-      new Download(progressBarIndex, argument)
+      new Download(progressBarIndex, argument, index)
     }
   }
 

@@ -243,6 +243,9 @@ interface XzSetting {
   AIGenerated: boolean
   notAIGenerated: boolean
   UnknownAI: boolean
+  setFileDownloadOrder: boolean
+  downloadOrder: 'desc' | 'asc'
+  downloadOrderSortBy: 'ID' | 'bookmarkCount' | 'bookmarkID'
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -427,7 +430,7 @@ class Settings {
     hiddenBrowserDownloadBar: false,
     tipPressDToDownload: true,
     timedCrawlInterval: 120,
-    slowCrawl: false,
+    slowCrawl: true,
     slowCrawlOnWorksNumber: 100,
     downloadOnClickBookmark: false,
     downloadOnClickLike: false,
@@ -444,6 +447,9 @@ class Settings {
     AIGenerated: true,
     notAIGenerated: true,
     UnknownAI: true,
+    setFileDownloadOrder: false,
+    downloadOrder: 'desc',
+    downloadOrderSortBy: 'ID',
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

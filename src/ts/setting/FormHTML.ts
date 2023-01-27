@@ -833,6 +833,36 @@ export const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="82">
+    <span class="settingNameStyle1" data-xztext="_文件下载顺序"></span>
+    <input type="checkbox" name="setFileDownloadOrder" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="subOptionWrap" data-show="setFileDownloadOrder">
+    
+    <span class="settingNameStyle1" data-xztext="_排序依据"></span>
+    <input type="radio" name="downloadOrderSortBy" id="downloadOrderSortBy1" class="need_beautify radio" value="ID" checked>
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrderSortBy1" data-xztext="_作品ID"></label>
+    <input type="radio" name="downloadOrderSortBy" id="downloadOrderSortBy2" class="need_beautify radio" value="bookmarkCount">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrderSortBy2" data-xztext="_收藏数量2"></label>
+    <input type="radio" name="downloadOrderSortBy" id="downloadOrderSortBy3" class="need_beautify radio" value="bookmarkID">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrderSortBy3" data-xztext="_收藏时间"></label>
+
+    <span class="verticalSplit"></span>
+
+    <input type="radio" name="downloadOrder" id="downloadOrder1" class="need_beautify radio" value="desc" checked>
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrder1" data-xztext="_降序"></label>
+    <input type="radio" name="downloadOrder" id="downloadOrder2" class="need_beautify radio" value="asc">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrder2" data-xztext="_升序"></label>
+
+    </span>
+    </p>
+
     <p class="option" data-no="28">
     <span class="has_tip settingNameStyle1" data-xztip="_不下载重复文件的提示">
     <span data-xztext="_不下载重复文件"></span>

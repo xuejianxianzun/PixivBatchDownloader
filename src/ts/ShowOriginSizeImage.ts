@@ -182,6 +182,12 @@ class ShowOriginSizeImage {
           position: 'center',
         })
       }
+
+      // 按 Esc 键时取消预览
+      if (ev.code === 'Escape' && this.show) {
+        this.show = false
+        ev.stopPropagation()
+      }
     })
   }
 
