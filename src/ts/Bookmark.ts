@@ -92,7 +92,7 @@ class Bookmark {
    *
    * 可选参数 needAddTag：控制是否添加 tag。缺省时使用 settings.widthTagBoolean
    *
-   * 可选参数 restrict：指示这个收藏是否为非公开收藏。缺省时使用 settings.restrictBoolean
+   * 可选参数 restrict：指示这个收藏是否为非公开收藏。false 为公开收藏，true 为非公开收藏。缺省时使用 settings.restrictBoolean
    *
    */
   public async add(

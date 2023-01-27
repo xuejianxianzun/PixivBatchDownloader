@@ -361,7 +361,7 @@ class SelectWork {
     this.updateSelectorEl()
   }
 
-  // esc 暂停选择
+  // 按 Esc 键时暂停选择
   private escEvent(ev: KeyboardEvent) {
     if (ev.code === 'Escape') {
       this.pauseSelect()
