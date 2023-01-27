@@ -364,6 +364,11 @@ class FileName {
         prefix: '',
         safe: true,
       },
+      '{AI}': {
+        value: data.aiType === 2 ? 'AI' : '',
+        prefix: '',
+        safe: true,
+      },
       '{series_title}': {
         value: data.seriesTitle || '',
         prefix: '',

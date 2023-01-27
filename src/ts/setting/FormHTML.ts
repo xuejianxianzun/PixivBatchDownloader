@@ -312,6 +312,7 @@ export const formHtml = `<form class="settingForm">
       <option value="{tags_transl_only}">{tags_transl_only}</option>
       <option value="{page_tag}">{page_tag}</option>
       <option value="{type}">{type}</option>
+      <option value="{AI}">{AI}</option>
       <option value="{like}">{like}</option>
       <option value="{bmk}">{bmk}</option>
       <option value="{bmk_id}">{bmk_id}</option>
@@ -344,9 +345,11 @@ export const formHtml = `<form class="settingForm">
     </p>
     <p class="fileNameTip tip">
     <span data-xztext="_设置文件夹名的提示"></span>
-    <strong>{user}/{id}</strong>
+    <span>{user}<span class="key">/</span>{id}</span>
     <br>
     <span data-xztext="_命名标记提醒"></span>
+    <br>
+    * <span data-xztext="_有些标记并不总是可用的提醒"></span>
     <br>
     <span class="blue">{id}</span>
     <span data-xztext="_命名标记id"></span>
@@ -372,11 +375,14 @@ export const formHtml = `<form class="settingForm">
     <span class="blue">{tags_transl_only}</span>
     <span data-xztext="_命名标记tags_transl_only"></span>
     <br>
-    <span class="blue">{page_tag}</span>
+    * <span class="blue">{page_tag}</span>
     <span data-xztext="_文件夹标记PTag"></span>
     <br>
     <span class="blue">{type}</span>
     <span data-xztext="_命名标记type"></span>
+    <br>
+    * <span class="blue">{AI}</span>
+    <span data-xztext="_命名标记AI"></span>
     <br>
     <span class="blue">{like}</span>
     <span data-xztext="_命名标记like"></span>
@@ -393,7 +399,7 @@ export const formHtml = `<form class="settingForm">
     <span class="blue">{view}</span>
     <span data-xztext="_命名标记view"></span>
     <br>
-    <span class="blue">{rank}</span>
+    * <span class="blue">{rank}</span>
     <span data-xztext="_命名标记rank"></span>
     <br>
     <span class="blue">{date}</span>
@@ -408,13 +414,13 @@ export const formHtml = `<form class="settingForm">
     <span class="blue">{px}</span>
     <span data-xztext="_命名标记px"></span>
     <br>
-    <span class="blue">{series_title}</span>
+    * <span class="blue">{series_title}</span>
     <span data-xztext="_命名标记seriesTitle"></span>
     <br>
-    <span class="blue">{series_order}</span>
+    * <span class="blue">{series_order}</span>
     <span data-xztext="_命名标记seriesOrder"></span>
     <br>
-    <span class="blue">{series_id}</span>
+    * <span class="blue">{series_id}</span>
     <span data-xztext="_命名标记seriesId"></span>
     <br>
     <span class="blue">{id_num}</span>
@@ -824,6 +830,36 @@ export const formHtml = `<form class="settingForm">
     <input type="text" name="sizeMin" class="setinput_style1 blue" value="0">MiB
     &nbsp;-&nbsp;
     <input type="text" name="sizeMax" class="setinput_style1 blue" value="100">MiB
+    </span>
+    </p>
+
+    <p class="option" data-no="82">
+    <span class="settingNameStyle1" data-xztext="_文件下载顺序"></span>
+    <input type="checkbox" name="setFileDownloadOrder" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="subOptionWrap" data-show="setFileDownloadOrder">
+    
+    <span class="settingNameStyle1" data-xztext="_排序依据"></span>
+    <input type="radio" name="downloadOrderSortBy" id="downloadOrderSortBy1" class="need_beautify radio" value="ID" checked>
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrderSortBy1" data-xztext="_作品ID"></label>
+    <input type="radio" name="downloadOrderSortBy" id="downloadOrderSortBy2" class="need_beautify radio" value="bookmarkCount">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrderSortBy2" data-xztext="_收藏数量2"></label>
+    <input type="radio" name="downloadOrderSortBy" id="downloadOrderSortBy3" class="need_beautify radio" value="bookmarkID">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrderSortBy3" data-xztext="_收藏时间"></label>
+
+    <span class="verticalSplit"></span>
+
+    <input type="radio" name="downloadOrder" id="downloadOrder1" class="need_beautify radio" value="desc" checked>
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrder1" data-xztext="_降序"></label>
+    <input type="radio" name="downloadOrder" id="downloadOrder2" class="need_beautify radio" value="asc">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrder2" data-xztext="_升序"></label>
+
     </span>
     </p>
 

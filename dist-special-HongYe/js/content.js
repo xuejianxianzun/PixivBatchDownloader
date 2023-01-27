@@ -752,7 +752,7 @@ class Bookmark {
      *
      * 可选参数 needAddTag：控制是否添加 tag。缺省时使用 settings.widthTagBoolean
      *
-     * 可选参数 restrict：指示这个收藏是否为非公开收藏。缺省时使用 settings.restrictBoolean
+     * 可选参数 restrict：指示这个收藏是否为非公开收藏。false 为公开收藏，true 为非公开收藏。缺省时使用 settings.restrictBoolean
      *
      */
     async add(id, type, tags, needAddTag, restrict, retry) {
@@ -2222,6 +2222,11 @@ class FileName {
                 prefix: '',
                 safe: true,
             },
+            '{AI}': {
+                value: data.aiType === 2 ? 'AI' : '',
+                prefix: '',
+                safe: true,
+            },
             '{series_title}': {
                 value: data.seriesTitle || '',
                 prefix: '',
@@ -3437,7 +3442,7 @@ const langText = {
     ],
     _本次任务已全部完成: [
         '本次任务已全部完成。',
-        '本次工作已全部完成',
+        '本次工作已全部完成。',
         'This task has been completed.',
         'この作業は完了しました。',
         '이 작업은 완료되었습니다.',
@@ -3986,12 +3991,12 @@ const langText = {
         `Например, добавьте тег 'user_' перед именем пользователя`,
     ],
     _命名标记id: [
-        '默认文件名，如 44920385_p0',
-        '預設檔案名稱，例如：44920385_p0。',
-        'Default file name, for example 44920385_p0',
-        'デフォルトのファイル名，例 44920385_p0',
-        '기본 파일명. 예: 44920385_p0',
-        'Имя файла по умолчанию, например 44920385_p0',
+        '默认文件名，如 <span class="blue">44920385_p0</span>',
+        '預設檔案名稱，例如：<span class="blue">44920385_p0</span>。',
+        'Default file name, for example <span class="blue">44920385_p0</span>',
+        'デフォルトのファイル名，例 <span class="blue">44920385_p0</span>',
+        '기본 파일명. 예: <span class="blue">44920385_p0</span>',
+        'Имя файла по умолчанию, например <span class="blue">44920385_p0</span>',
     ],
     _命名标记title: [
         '作品标题',
@@ -4018,20 +4023,20 @@ const langText = {
         'Никнейм юзера',
     ],
     _用户id: [
-        '用户 ID',
-        '使用者 ID',
-        'User ID',
-        'ユーザー ID',
-        '유저 ID',
-        'ID Юзера',
+        '用户 ID（数字）',
+        '使用者 ID（數字）',
+        'User ID (Number)',
+        'ユーザー ID (Number)',
+        '유저 ID (숫자)',
+        'ID Юзера (Число)',
     ],
     _命名标记px: [
-        '宽度和高度',
-        '寬度和高度',
-        'Width and height',
-        '幅と高さ',
-        '너비와 높이',
-        'Ширина и высота',
+        '宽度和高度。例如：<span class="blue">600x900</span>',
+        '寬度和高度。例如：<span class="blue">600x900</span>',
+        'Width and height, e.g. <span class="blue">600x900</span>',
+        '幅と高さ。例：<span class="blue">600x900</span>',
+        '너비와 높이. 예: <span class="blue">600x900</span>',
+        'Ширина и высота, напр. <span class="blue">600x900</span>',
     ],
     _命名标记bmk: [
         'Bookmark count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
@@ -4050,12 +4055,12 @@ const langText = {
         'Bookmark Id. Каждая работа в ваших закладках будет иметь идентификатор закладки. Чем позже добавлена закладка, тем больше Id закладки. Когда вы загружаете закладки, вы можете использовать {bmk_id} в качестве основы для сортировки.',
     ],
     _命名标记bmk_1000: [
-        '作品收藏数的简化显示。例如：0+、1000+、2000+、3000+ ……',
-        '作品收藏數的簡化顯示。例如：0+、1000+、2000+、3000+ ……',
-        'Simplified number of bookmark, e.g. 0+、1000+、2000+、3000+ ……',
-        '作品のボックマークの数の簡略表示。 例：0+、1000+、2000+、3000+ ……',
-        '단순화된 북마크 수. 예: 0+, 1000+, 2000+, 3000+ ……',
-        'Упрощенное количество закладок, напр. 0+、1000+、2000+、3000+ ......',
+        '作品收藏数的简化显示。例如：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
+        '作品收藏數的簡化顯示。例如：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
+        'Simplified number of bookmark, e.g. <span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
+        '作品のボックマークの数の簡略表示。例：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
+        '단순화된 북마크 수. 예: <span class="blue">0+</span>, <span class="blue">1000+</span>, <span class="blue">2000+</span>, <span class="blue">3000+</span> ……',
+        'Упрощенное количество закладок, напр. <span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ......',
     ],
     _命名标记like: [
         'Like count，作品的点赞数。',
@@ -4074,20 +4079,20 @@ const langText = {
         'Колличество просмотров',
     ],
     _命名标记id_num: [
-        '数字 id，如 44920385',
-        '數字 id，例如：44920385。',
-        'Number id, for example 44920385',
-        '44920385 などの番号 ID',
-        '숫자 ID. 예: 44920385',
-        'Идентификатор номера, например 44920385',
+        '数字 ID，如 <span class="blue">44920385</span>',
+        '數字 ID，例如：<span class="blue">44920385</span>。',
+        'Number ID, for example <span class="blue">44920385</span>',
+        '<span class="blue">44920385</span> などの番号 ID',
+        '숫자 ID. 예: <span class="blue">44920385</span>',
+        'Идентификатор номера, например <span class="blue">44920385</span>',
     ],
     _命名标记p_num: [
-        '图片在作品内的序号，如 0、1、2 …… 每个作品都会重新计数。',
-        '圖片在作品內的序號，例如：0、1、2……每個作品都將重新計數。',
-        'The serial number of the image in the work, such as 0, 1, 2 ... Each work will be recounted.',
-        '0、1、2 など、作品の画像のシリアル番号。各ピースは再集計されます。',
-        '작품 안에 있는 번호. 예: 0, 1, 2 …… 작품마다 다시 세어봅니다.',
-        'Порядковый номер изображения в работе, например, 0, 1, 2 .... Каждое произведение будет пересказано',
+        '图片在作品内的序号，如 <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 每个作品都会重新计数。',
+        '圖片在作品內的序號，例如：<span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span>……每個作品都將重新計數。',
+        'The serial number of the image in the work, such as <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Each work will be recounted.',
+        '<span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> など、作品の画像のシリアル番号。各ピースは再集計されます。',
+        '작품 안에 있는 번호. 예: <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> …… 작품마다 다시 세어봅니다.',
+        'Порядковый номер изображения в работе, например, <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> .... Каждое произведение будет пересказано',
     ],
     _命名标记tags_trans: [
         '作品的标签列表，附带翻译后的标签（如果有）',
@@ -4106,44 +4111,60 @@ const langText = {
         'Теги перевода',
     ],
     _命名标记date: [
-        '作品的创建时间。如 2019-08-29。',
-        '作品的建立時間。例如：2019-08-29。',
-        'The time the creation of the work. Such as 2019-08-29',
-        '作品の作成時間。例 2019-08-29',
-        '작품 생성 날짜. 예: 2019-08-29',
-        'Время создания произведения. Например, 2019-08-29',
+        '作品的创建时间。如 <span class="blue">2019-08-29</span>。',
+        '作品的建立時間。例如：<span class="blue">2019-08-29</span>。',
+        'The time the creation of the work. Such as <span class="blue">2019-08-29</span>',
+        '作品の作成時間。例 <span class="blue">2019-08-29</span>',
+        '작품 생성 날짜. 예: <span class="blue">2019-08-29</span>',
+        'Время создания произведения. Например, <span class="blue">2019-08-29</span>',
     ],
     _命名标记upload_date: [
-        '作品内容最后一次被修改的时间。如 2019-08-30。',
-        '作品內容最後一次被修改的時間。如 2019-08-30。',
-        'The time when the content of the work was last modified. Such as 2019-08-30.',
-        '作品の内容が最後に変更された時刻。例 2019-08-30',
-        '저작물의 내용이 마지막으로 수정된 시간입니다. 예: 2019-08-30',
-        'Время, когда содержание работы было изменено в последний раз. Например, 2019-08-30.',
+        '作品内容最后一次被修改的时间。如 <span class="blue">2019-08-30</span>。',
+        '作品內容最後一次被修改的時間。如 <span class="blue">2019-08-30</span>。',
+        'The time when the content of the work was last modified. Such as <span class="blue">2019-08-30</span>.',
+        '作品の内容が最後に変更された時刻。例 <span class="blue">2019-08-30</span>',
+        '저작물의 내용이 마지막으로 수정된 시간입니다. 예: <span class="blue">2019-08-30</span>',
+        'Время, когда содержание работы было изменено в последний раз. Например, <span class="blue">2019-08-30</span>.',
     ],
     _命名标记rank: [
-        '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜页面中使用。',
-        '作品在排行榜中的排名。例如：#1、#2……只能在排行榜頁面中使用。',
-        'The ranking of the work in the ranking pages. Such as #1, #2 ... Can only be used in ranking pages.',
-        '作品のランキング。例え　#1、#2 …… ランキングページのみで使用できます。',
-        '작품의 랭킹. 예: #1, #2 …… 랭킹 페이지에서만 사용할 수 있습니다.',
-        'Рейтинг работы на страницах рейтинга. Например, №1, №2 ... Может использоваться только на страницах ранжирования.',
+        '作品在排行榜中的排名。如 <span class="blue">#1</span>、<span class="blue">#2</span> …… 只能在排行榜页面中使用。',
+        '作品在排行榜中的排名。例如：<span class="blue">#1</span>、<span class="blue">#2</span>……只能在排行榜頁面中使用。',
+        'The ranking of the work in the ranking pages. Such as <span class="blue">#1</span>, <span class="blue">#2</span> ... Can only be used in ranking pages.',
+        '作品のランキング。例え　<span class="blue">#1</span>、<span class="blue">#2</span> …… ランキングページのみで使用できます。',
+        '작품의 랭킹. 예: <span class="blue">#1</span>, <span class="blue">#2</span> …… 랭킹 페이지에서만 사용할 수 있습니다.',
+        'Рейтинг работы на страницах рейтинга. Например, <span class="blue">#1</span>, <span class="blue">#2</span> ... Может использоваться только на страницах ранжирования.',
     ],
     _命名标记type: [
-        '作品类型，分为：Illustration, Manga, Ugoira, Novel',
-        '作品類型，分為：Illustration, Manga, Ugoira, Novel',
-        'The type of work, divided into：Illustration, Manga, Ugoira, Novel',
-        '作品分類は：Illustration, Manga, Ugoira, Novel',
-        '작품 유형: 일러스트, 만화, 움직이는 일러스트, 소설',
-        'Тип работы, разделенный на：Иллюстрация, Манга, Угоира, Роман',
+        '作品类型，分为：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        '作品類型，分為：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        'The type of work, divided into：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        '作品分類は：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        '작품 유형: <span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        'Тип работы, разделенный на：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+    ],
+    _命名标记AI: [
+        '如果作品是由 AI 生成的，则输出 <span class="blue">AI</span>',
+        '如果作品是由 AI 生成的，則輸出 <span class="blue">AI</span>',
+        'If the work is generated by AI, output <span class="blue">AI</span>',
+        '作品がAIで生成された場合、<span class="blue">AI</span>を出力',
+        '작업이 AI로 생성된 경우 <span class="blue">AI</span> 출력',
+        'Если работа создана с помощью ИИ, выведите <span class="blue">AI</span>',
     ],
     _命名标记提醒: [
-        '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{user_id}<br>* 在某些情况下，会有一些标记不可用。',
-        '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{user_id}<br>＊某些情況下有些標記無法使用。',
-        'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{user_id}<br>* In some cases, some tags will not be available.',
-        'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{user_id}<br>* 場合によっては、一部のタグが利用できず。',
-        '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.<br>여러 태그를 사용할 수 있습니다. 서로 다른 태그 사이에 구분자를 넣는 것을 권장합니다. 예: {id}-{user}<br>* 경우에 따라서는 사용할 수 없는 태그가 있을 수 있습니다.',
-        'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.<br>Вы можете использовать несколько тегов, и вы можете добавить отдельный символ между различными тегами. Пример: {id}-{user_id}<br>* В некоторых случаях некоторые теги будут недоступны.',
+        '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{user_id}',
+        '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{user_id}',
+        'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{user_id}',
+        'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{user_id}',
+        '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.<br>여러 태그를 사용할 수 있습니다. 서로 다른 태그 사이에 구분자를 넣는 것을 권장합니다. 예: {id}-{user}',
+        'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.<br>Вы можете использовать несколько тегов, и вы можете добавить отдельный символ между различными тегами. Пример: {id}-{user_id}',
+    ],
+    _有些标记并不总是可用的提醒: [
+        '有些标记并不总是可用，有时它们可能什么都不输出。',
+        '有些標記並不總是可用，有時它們可能什麼都不輸出。',
+        'Some tags are not always available, and sometimes they may output nothing.',
+        '一部のタグは常に使用できるとは限らず、何も出力しない場合もあります。',
+        '일부 태그는 항상 사용할 수 있는 것은 아니며 때로는 아무 것도 출력하지 않을 수도 있습니다.',
+        'Некоторые теги не всегда доступны, а иногда могут ничего не выводить.',
     ],
     _命名规则一定要包含id: [
         '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}',
@@ -4170,12 +4191,12 @@ const langText = {
         'Название серии, доступно только на страницах серий (серия романов, серия манги).',
     ],
     _命名标记seriesOrder: [
-        '作品在系列中的序号，如 #1 #2。只在系列页面中可用（小说系列、漫画系列）。',
-        '作品在系列中的編號，如 #1 #2。只在系列頁面中可用（小說系列、漫畫系列）。',
-        'The number of the work in the series, such as #1 #2. only available in series pages (Novel series, Manga series).',
-        'シリーズの中の作品の番号，例え #1 #2。シリーズページのみ（小説連載、漫画連載）。',
-        '시리즈 내 작품 번호. 예: #1 #2. 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
-        'Номер работы в серии, например, #1 #2. доступны только на страницах серий (серия романов, серия манги).',
+        '作品在系列中的序号，如 <span class="blue">#1</span> <span class="blue">#2</span>。只在系列页面中可用（小说系列、漫画系列）。',
+        '作品在系列中的編號，如 <span class="blue">#1</span> <span class="blue">#2</span>。只在系列頁面中可用（小說系列、漫畫系列）。',
+        'The number of the work in the series, such as <span class="blue">#1</span> <span class="blue">#2</span>. only available in series pages (Novel series, Manga series).',
+        'シリーズの中の作品の番号，例え <span class="blue">#1</span> <span class="blue">#2</span>。シリーズページのみ（小説連載、漫画連載）。',
+        '시리즈 내 작품 번호. 예: <span class="blue">#1</span> <span class="blue">#2</span>. 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
+        'Номер работы в серии, например, <span class="blue">#1</span> <span class="blue">#2</span>. доступны только на страницах серий (серия романов, серия манги).',
     ],
     _命名标记seriesId: [
         '系列 ID，只在系列页面中可用（小说系列、漫画系列）。',
@@ -4596,9 +4617,9 @@ const langText = {
         'Начать вытаскивание',
     ],
     _给未分类作品添加添加tag: [
-        '给未分类作品添加标签',
+        '给未分类的作品添加标签',
         '幫未分類的作品加入標籤',
-        'Add tag to unclassified work',
+        'Add tag to uncategorized work',
         '未分類の作品にタグを追加',
         '분류되지 않은 작품에 태그 추가',
         'Добавить метку к неклассифицированной работе',
@@ -5287,12 +5308,12 @@ const langText = {
         'Для установки формата даты и времени можно использовать следующую нотацию. Это повлияет на {date} и {upload_date} и {task_date} в правилах именования. <br>Для времени, например, 2021-04-30T06:40:08',
     ],
     _命名标记taskDate: [
-        '本次任务抓取完成时的时间。例如：2020-10-21',
-        '本次工作擷取完成時的時間。例如：2020-10-21。',
-        'The time when the task was crawl completed. For example: 2020-10-21',
-        'この作業のクロールが完了した時刻です。 例：2020-10-21',
-        '긁어오기 작업을 완료한 날짜입니다. 예: 2020-10-21',
-        'Время, когда задание было выполнено. Например: 2020-10-21',
+        '本次任务抓取完成时的时间。例如：<span class="blue">2020-10-21</span>',
+        '本次工作擷取完成時的時間。例如：<span class="blue">2020-10-21</span>。',
+        'The time when the task was crawl completed. For example: <span class="blue">2020-10-21</span>',
+        'この作業のクロールが完了した時刻です。 例：<span class="blue">2020-10-21</span>',
+        '긁어오기 작업을 완료한 날짜입니다. 예: <span class="blue">2020-10-21</span>',
+        'Время, когда задание было выполнено. Например: <span class="blue">2020-10-21</span>',
     ],
     _自动检测: [
         '自动检测',
@@ -6290,12 +6311,12 @@ const langText = {
         'Например: Anmi@画集発売中 → Anmi',
     ],
     _抓取被限制时返回空结果的提示: [
-        'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。(429)',
-        'Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。(429)',
-        'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes. (429)',
-        'Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。(429)',
-        'Pixiv가 빈 데이터를 반환했습니다. 다운로더가 긁어오기를 일시 중지하고 몇 분 동안 기다린 후 긁어오기를 계속합니다. (429)',
-        'Pixiv вернул пустые данные. Загрузчик приостановил загрузку и возобновит ее через несколько минут. (429)',
+        'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。(429)<br>这说明您的账号被 Pixiv 限制访问了，等待几分钟即可恢复正常。<br>您可以启用“减慢抓取速度”功能来减少 429 问题出现的概率。',
+        'Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。(429)<br>這說明您的賬號被 Pixiv 限制訪問了，等待幾分鐘即可恢復正常。<br>您可以啟用“減慢抓取速度”功能來減少 429 問題出現的機率。',
+        'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes. (429)<br>This means that your account has been restricted by Pixiv, please wait for a few minutes for it to return to normal.<br>You can reduce the chances of 429 issues by enabling the "Slow down crawl" feature.',
+        'Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。(429)<br>これは、あなたのアカウントが Pixiv によって制限されていることを意味します。通常の状態に戻るまで数分お待ちください。<br>"クロールを遅くする" 機能を有効にすると、429 の問題が発生する可能性を減らすことができます。',
+        'Pixiv가 빈 데이터를 반환했습니다. 다운로더가 긁어오기를 일시 중지하고 몇 분 동안 기다린 후 긁어오기를 계속합니다. (429)<br>이것은 귀하의 계정이 Pixiv에 의해 제한되었음을 의미합니다. 정상으로 돌아갈 때까지 몇 분 정도 기다리십시오.<br>"천천히 크롤링" 기능을 활성화하면 429 문제 발생 가능성을 줄일 수 있습니다.',
+        'Pixiv вернул пустые данные. Загрузчик приостановил загрузку и возобновит ее через несколько минут. (429)<br>Это означает, что ваша учетная запись была ограничена Pixiv, подождите несколько минут, пока она вернется в нормальное состояние.<br>Вы можете снизить вероятность возникновения ошибок 429, включив функцию «Замедлить сканирование».',
     ],
     _搜索模式: [
         '搜索模式',
@@ -6732,8 +6753,8 @@ const langText = {
         '<span class="key">Замедлить</span> сканирование',
     ],
     _减慢抓取速度的说明: [
-        '减慢抓取速度可以避免在抓取时被 Pixiv 临时限制。但这会增加抓取时间。',
-        '減慢抓取速度可以避免在抓取時被 Pixiv 臨時限制。但這會增加抓取時間。',
+        '减慢抓取速度可以避免在抓取时被 Pixiv 临时限制。但是会增加抓取时间。',
+        '減慢抓取速度可以避免在抓取時被 Pixiv 臨時限制。但是會增加抓取時間。',
         'Slow down the crawl to avoid being temporarily restricted by Pixiv while crawling. But this will increase the crawl time.',
         'クロール中にPixivによって一時的に制限されないように、クロールを遅くします。 ただし、これによりクロール時間が長くなります。',
         '크롤링하는 동안 Pixiv에 의해 일시적으로 제한되지 않도록 크롤링 속도를 늦춥니다. 그러나 이것은 크롤링 시간을 증가시킵니다.',
@@ -6827,9 +6848,25 @@ const langText = {
         '러시아어 번역 추가',
         'Добавлен русский перевод',
     ],
+    _移除本页面中所有作品的标签: [
+        '移除本页面中所有作品的标签',
+        '移除本頁面中所有作品的標籤',
+        'Remove tags from all works on this page',
+        'このページのすべての作品からタグを削除します',
+        '이 페이지의 모든 작품에서 태그 제거',
+        'Удалить теги со всех работ на этой странице',
+    ],
+    _它们会变成未分类状态: [
+        '它们会变成未分类状态。',
+        '它們會變成未分類狀態。',
+        'They become uncategorized.',
+        'それらは未分類になります。',
+        '분류되지 않습니다.',
+        'Они становятся некатегоризированными.',
+    ],
     _取消收藏本页面的所有作品: [
-        '取消收藏本页面的所有作品',
-        '取消收藏本頁面的所有作品',
+        '取消收藏本页面中的所有作品',
+        '取消收藏本頁面中的所有作品',
         'Unbookmark all works on this page',
         'このページのすべての作品のブックマークを解除',
         '이 페이지의 모든 작품에 대한 북마크 해제',
@@ -6843,7 +6880,7 @@ const langText = {
         '작품 북마크 해제',
         'Снять закладку с работ',
     ],
-    _取消收藏本页面的所有作品的说明: [
+    _收藏页面里的按钮: [
         '当你在自己的收藏页面时，可以在“更多”选项卡里看到这个按钮。',
         '當你在自己的收藏頁面時，可以在“更多”選項卡里看到這個按鈕。',
         `You can see this button in the "More" tab when you're on your bookmarks page.`,
@@ -7074,6 +7111,62 @@ const langText = {
         'ユーザーは、AI によって生成された作品をダウンロードするかどうかを選択できます。',
         '사용자는 AI가 생성한 작품을 다운로드할지 여부를 선택할 수 있습니다.',
         'Пользователи могут выбирать, загружать ли работы, созданные ИИ.',
+    ],
+    _文件下载顺序: [
+        '文件下载<span class="key">顺序</span>',
+        '檔案下載<span class="key">順序</span>',
+        'File download <span class="key">order</span>',
+        'ファイルのダウンロード<span class="key">順序</span>',
+        '파일 다운로드 순서',
+        'Порядок загрузки файлов',
+    ],
+    _降序: [
+        '降序',
+        '降序',
+        'Descending',
+        '降順',
+        '내림차순',
+        'в порядке убывания',
+    ],
+    _升序: [
+        '升序',
+        '升序',
+        'Ascending',
+        '昇順',
+        '오름차순',
+        'возрастающий порядок',
+    ],
+    _排序依据: [
+        '排序依据',
+        '排序依據',
+        'Sort by',
+        'ソート基準',
+        '정렬 기준',
+        'Сортировать по',
+    ],
+    _作品ID: [
+        '作品 ID',
+        '作品 ID',
+        'Work ID',
+        '作品ID',
+        'ID 아이디',
+        'РРабочий идентификатор',
+    ],
+    _收藏时间: [
+        '收藏时间',
+        '收藏時間',
+        'Bookmark time',
+        'ブックマーク時間',
+        '북마크 시간',
+        'время сбора',
+    ],
+    _收藏数量2: [
+        '收藏数量',
+        '收藏數量',
+        'Number of bookmarks',
+        'ブックマークの数',
+        '북마크 수',
+        'Колличество закладок',
     ],
 };
 
@@ -8634,6 +8727,68 @@ new PreviewWork();
 
 /***/ }),
 
+/***/ "./src/ts/RemoveWorksTagsInBookmarks.ts":
+/*!**********************************************!*\
+  !*** ./src/ts/RemoveWorksTagsInBookmarks.ts ***!
+  \**********************************************/
+/*! exports provided: removeWorksTagsInBookmarks */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removeWorksTagsInBookmarks", function() { return removeWorksTagsInBookmarks; });
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
+
+
+
+
+
+
+class RemoveWorksTagsInBookmarks {
+    async start(idList) {
+        if (idList.length === 0) {
+            _Toast__WEBPACK_IMPORTED_MODULE_3__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_没有数据可供使用'));
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_没有数据可供使用'));
+            return;
+        }
+        _store_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy = true;
+        const total = idList.length.toString();
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前作品个数', total));
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_开始获取作品信息'));
+        let number = 0;
+        for (const idData of idList) {
+            try {
+                const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"][idData.type === 'novels' ? 'getNovelData' : 'getArtworkData'](idData.id);
+                if (data.body.bookmarkData) {
+                    await _Bookmark__WEBPACK_IMPORTED_MODULE_5__["bookmark"].add(idData.id, idData.type === 'novels' ? 'novels' : 'illusts', [], false, data.body.bookmarkData.private);
+                }
+            }
+            catch (error) {
+                // 处理自己收藏的作品时可能遇到错误。最常见的错误就是作品被删除了，获取作品数据时会产生 404 错误
+                // 但是也可能出现其他错误，比如因为请求太多而出现 429 错误。因为 429 错误需要等待几分钟后才能重试，这里偷懒不再重试
+            }
+            number++;
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${number} / ${total}`, 1, false);
+        }
+        const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_移除本页面中所有作品的标签') + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_完成');
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_3__["toast"].success(msg, {
+            position: 'topCenter',
+        });
+        _store_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy = false;
+    }
+}
+const removeWorksTagsInBookmarks = new RemoveWorksTagsInBookmarks();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/ReplaceSquareThumb.ts":
 /*!**************************************!*\
   !*** ./src/ts/ReplaceSquareThumb.ts ***!
@@ -9151,7 +9306,7 @@ class SelectWork {
         this.top = ev.y;
         this.updateSelectorEl();
     }
-    // esc 暂停选择
+    // 按 Esc 键时暂停选择
     escEvent(ev) {
         if (ev.code === 'Escape') {
             this.pauseSelect();
@@ -10072,6 +10227,11 @@ class ShowOriginSizeImage {
                     position: 'center',
                 });
             }
+            // 按 Esc 键时取消预览
+            if (ev.code === 'Escape' && this.show) {
+                this.show = false;
+                ev.stopPropagation();
+            }
         });
     }
     async getImage(url) {
@@ -10285,17 +10445,22 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '15.1.0';
+        this.flag = '15.2.00';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_AI作品')}</strong>
+            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增功能')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_移除本页面中所有作品的标签')}</strong>
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_用户可以选择是否下载AI生成的作品')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_它们会变成未分类状态')}
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在xx选项卡里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取'))}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_收藏页面里的按钮')}
+      <br>
+      <br>
+      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_文件下载顺序')}</strong>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载'))}
       `;
             // 在更新说明的下方显示赞助提示
             msg += `
@@ -11931,6 +12096,9 @@ class InitPageBase {
         this.finishedRequest = 0; // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
         /**抓取是否已停止 */
         this.crawlStopped = false;
+        this.log429ErrorTip = _utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].debounce(() => {
+            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取被限制时返回空结果的提示'));
+        }, 500);
     }
     // 子组件不可以修改 init 方法
     init() {
@@ -12177,7 +12345,7 @@ class InitPageBase {
                 this.logErrorStatus(error.status, idData);
                 if (error.status === 500 || error.status === 429) {
                     // 如果状态码 500 或 429，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
-                    _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取被限制时返回空结果的提示'));
+                    this.log429ErrorTip();
                     return window.setTimeout(() => {
                         this.getWorksData(idData);
                     }, _Config__WEBPACK_IMPORTED_MODULE_21__["Config"].retryTime);
@@ -12237,7 +12405,23 @@ class InitPageBase {
             return this.noResult();
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].crawlCompleteTime = new Date();
-        this.sortResult();
+        // 对文件进行排序
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].setFileDownloadOrder) {
+            // 按照用户设置的规则进行排序
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downloadOrderSortBy === 'ID') {
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].sortByProperty('id', _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downloadOrder));
+            }
+            else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downloadOrderSortBy === 'bookmarkCount') {
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].sortByProperty('bmk', _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downloadOrder));
+            }
+            else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downloadOrderSortBy === 'bookmarkID') {
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].sortByProperty('bmkId', _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downloadOrder));
+            }
+        }
+        else {
+            // 如果用户未设置排序规则，则每个页面自行处理排序逻辑
+            this.sortResult();
+        }
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].resultMeta.length.toString()));
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个文件', _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length.toString()));
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取完毕'), 2);
@@ -14798,8 +14982,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _UnBookmarkWorks__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../UnBookmarkWorks */ "./src/ts/UnBookmarkWorks.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _RemoveWorksTagsInBookmarks__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../RemoveWorksTagsInBookmarks */ "./src/ts/RemoveWorksTagsInBookmarks.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 // 初始化新版收藏页面
+
 
 
 
@@ -14828,8 +15014,8 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         this.filteredNumber = 0; // 记录检查了多少作品（不论结果是否通过都计入）
         this.onceRequest = 100; // 每次请求多少个数量
         this.offset = 0; // 要去掉的作品数量
-        // 取消收藏本页面的所有作品
-        this.unBookmarkMode = false;
+        // 点击不同的功能按钮时，设定抓取模式
+        this.crawlMode = 'normal';
         this.init();
     }
     addCrawlBtns() {
@@ -14884,22 +15070,50 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         }
         const btn = _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_给未分类作品添加添加tag');
         new _pageFunciton_BookmarksAddTag__WEBPACK_IMPORTED_MODULE_9__["BookmarksAddTag"](btn);
+        _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_移除本页面中所有作品的标签').addEventListener('click', () => {
+            this.removeWorksTagsOnThisPage();
+        });
         _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_取消收藏本页面的所有作品').addEventListener('click', () => {
             this.unBookmarkAllWorksOnThisPage();
         });
     }
+    // 取消收藏本页面的所有作品
     unBookmarkAllWorksOnThisPage() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_13__["states"].busy || this.unBookmarkMode) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_13__["states"].busy ||
+            this.crawlMode === 'removeTags' ||
+            this.crawlMode === 'unBookmark') {
             _Toast__WEBPACK_IMPORTED_MODULE_15__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_当前任务尚未完成'));
             return;
         }
         // 走一遍简化的抓取流程
-        this.unBookmarkMode = true;
+        this.crawlMode = 'unBookmark';
         _Log__WEBPACK_IMPORTED_MODULE_6__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_取消收藏本页面的所有作品'));
         _Toast__WEBPACK_IMPORTED_MODULE_15__["toast"].warning(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_取消收藏本页面的所有作品'), {
             position: 'topCenter',
         });
-        _EVT__WEBPACK_IMPORTED_MODULE_17__["EVT"].fire('closeCenterPanel');
+        _EVT__WEBPACK_IMPORTED_MODULE_18__["EVT"].fire('closeCenterPanel');
+        // 设置抓取页数为 1
+        this.crawlNumber = 1;
+        _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].tag = _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].getTagFromURL();
+        this.readyGetIdList();
+        this.getIdList();
+    }
+    // 移除本页面中所有作品的标签
+    removeWorksTagsOnThisPage() {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_13__["states"].busy ||
+            this.crawlMode === 'removeTags' ||
+            this.crawlMode === 'unBookmark') {
+            _Toast__WEBPACK_IMPORTED_MODULE_15__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_当前任务尚未完成'));
+            return;
+        }
+        // 走一遍简化的抓取流程
+        this.crawlMode = 'removeTags';
+        _Log__WEBPACK_IMPORTED_MODULE_6__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_移除本页面中所有作品的标签'));
+        _Log__WEBPACK_IMPORTED_MODULE_6__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_它们会变成未分类状态'));
+        _Toast__WEBPACK_IMPORTED_MODULE_15__["toast"].warning(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_移除本页面中所有作品的标签'), {
+            position: 'topCenter',
+        });
+        _EVT__WEBPACK_IMPORTED_MODULE_18__["EVT"].fire('closeCenterPanel');
         // 设置抓取页数为 1
         this.crawlNumber = 1;
         _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].tag = _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].getTagFromURL();
@@ -14907,6 +15121,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         this.getIdList();
     }
     nextStep() {
+        this.crawlMode = 'normal';
         this.setSlowCrawl();
         this.readyGetIdList();
         this.getIdList();
@@ -15001,22 +15216,29 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
             this.idList.splice(this.requsetNumber, this.idList.length);
             // 书签页面的 api 没有考虑页面上的排序顺序，获取到的 id 列表始终是按收藏顺序由近期到早期排列的
         }
-        if (!this.unBookmarkMode) {
+        if (this.crawlMode === 'normal') {
             // 正常抓取时
             _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList = _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.concat(this.idList);
             this.getIdListFinished();
         }
-        else {
+        else if (this.crawlMode === 'unBookmark') {
             // 取消收藏本页面的书签时
             // 复制本页作品的 id 列表，传递给指定模块
             const idList = Array.from(this.idList);
             this.resetGetIdListStatus();
-            this.unBookmarkMode = false;
             _UnBookmarkWorks__WEBPACK_IMPORTED_MODULE_16__["unBookmarkWorks"].start(idList);
+        }
+        else if (this.crawlMode === 'removeTags') {
+            // 移除本页面作品的标签
+            // 复制本页作品的 id 列表，传递给指定模块
+            const idList = Array.from(this.idList);
+            this.resetGetIdListStatus();
+            _RemoveWorksTagsInBookmarks__WEBPACK_IMPORTED_MODULE_17__["removeWorksTagsInBookmarks"].start(idList);
         }
     }
     resetGetIdListStatus() {
         this.type = 'illusts';
+        this.crawlMode = 'normal';
         this.idList = [];
         this.offset = 0;
         this.requsetNumber = 0;
@@ -17021,7 +17243,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./DownloadNovelEmbeddedImage */ "./src/ts/download/DownloadNovelEmbeddedImage.ts");
 /* harmony import */ var _DownloadNovelCover__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./DownloadNovelCover */ "./src/ts/download/DownloadNovelCover.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/download/DownloadStates.ts");
 // 下载文件，然后发送给浏览器进行保存
+
+
 
 
 
@@ -17042,7 +17268,7 @@ __webpack_require__.r(__webpack_exports__);
 // 处理下载队列里的任务
 // 不显示在进度条上的下载任务，不在这里处理
 class Download {
-    constructor(progressBarIndex, data) {
+    constructor(progressBarIndex, data, downloadStatesIndex) {
         this.retry = 0; // 重试次数
         this.lastRequestTime = 0; // 最后一次发起请求的时间戳
         this.retryInterval = []; // 保存每次到达重试环节时，距离上一次请求的时间差
@@ -17050,6 +17276,7 @@ class Download {
         this.skip = false; // 这个下载是否应该被跳过。如果这个文件不符合某些过滤条件就应该跳过它
         this.error = false; // 在下载过程中是否出现了无法解决的错误
         this.progressBarIndex = progressBarIndex;
+        this.downloadStatesIndex = downloadStatesIndex;
         this.beforeDownload(data);
     }
     get cancel() {
@@ -17281,6 +17508,9 @@ class Download {
                 }
             }
             // 向浏览器发送下载任务
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].setFileDownloadOrder) {
+                await this.waitPreviousFileDownload();
+            }
             this.browserDownload(blobUrl, _fileName, arg.id, arg.taskBatch);
             xhr = null;
             file = null;
@@ -17288,6 +17518,25 @@ class Download {
         this.lastRequestTime = new Date().getTime();
         // 没有设置 timeout，默认值是 0，不会超时
         xhr.send();
+    }
+    // 等待上一个文件下载成功之后（浏览器将文件保存到硬盘上），再保存这个文件。这是为了保证文件的保存顺序不会错乱
+    waitPreviousFileDownload() {
+        return new Promise(async (resolve) => {
+            if (this.downloadStatesIndex === 0) {
+                return resolve(true);
+            }
+            if (_DownloadStates__WEBPACK_IMPORTED_MODULE_18__["downloadStates"].states[this.downloadStatesIndex - 1] === 1) {
+                console.log('d ' + this.downloadStatesIndex);
+                return resolve(true);
+            }
+            else {
+                return resolve(new Promise((resolve) => {
+                    _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_17__["setTimeoutWorker"].set(() => {
+                        resolve(this.waitPreviousFileDownload());
+                    }, 50);
+                }));
+            }
+        });
     }
     // 向浏览器发送下载任务
     browserDownload(blobUrl, fileName, id, taskBatch) {
@@ -17777,7 +18026,7 @@ class DownloadControl {
                 progressBarIndex: progressBarIndex,
             };
             // 建立下载
-            new _download_Download__WEBPACK_IMPORTED_MODULE_7__["Download"](progressBarIndex, argument);
+            new _download_Download__WEBPACK_IMPORTED_MODULE_7__["Download"](progressBarIndex, argument, index);
         }
     }
     // 在有下载出错的情况下，是否已经完成了下载
@@ -21709,10 +21958,10 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask1', () => {
-            this.crawlData(103330000, 103846098);
+            this.crawlData(103850000, 103963596);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask2', () => {
-            this.crawlData(18850000, 18957219, 'novels');
+            this.crawlData(18960000, 18983794, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -23970,6 +24219,7 @@ const formHtml = `<form class="settingForm">
       <option value="{tags_transl_only}">{tags_transl_only}</option>
       <option value="{page_tag}">{page_tag}</option>
       <option value="{type}">{type}</option>
+      <option value="{AI}">{AI}</option>
       <option value="{like}">{like}</option>
       <option value="{bmk}">{bmk}</option>
       <option value="{bmk_id}">{bmk_id}</option>
@@ -24002,9 +24252,11 @@ const formHtml = `<form class="settingForm">
     </p>
     <p class="fileNameTip tip">
     <span data-xztext="_设置文件夹名的提示"></span>
-    <strong>{user}/{id}</strong>
+    <span>{user}<span class="key">/</span>{id}</span>
     <br>
     <span data-xztext="_命名标记提醒"></span>
+    <br>
+    * <span data-xztext="_有些标记并不总是可用的提醒"></span>
     <br>
     <span class="blue">{id}</span>
     <span data-xztext="_命名标记id"></span>
@@ -24030,11 +24282,14 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{tags_transl_only}</span>
     <span data-xztext="_命名标记tags_transl_only"></span>
     <br>
-    <span class="blue">{page_tag}</span>
+    * <span class="blue">{page_tag}</span>
     <span data-xztext="_文件夹标记PTag"></span>
     <br>
     <span class="blue">{type}</span>
     <span data-xztext="_命名标记type"></span>
+    <br>
+    * <span class="blue">{AI}</span>
+    <span data-xztext="_命名标记AI"></span>
     <br>
     <span class="blue">{like}</span>
     <span data-xztext="_命名标记like"></span>
@@ -24051,7 +24306,7 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{view}</span>
     <span data-xztext="_命名标记view"></span>
     <br>
-    <span class="blue">{rank}</span>
+    * <span class="blue">{rank}</span>
     <span data-xztext="_命名标记rank"></span>
     <br>
     <span class="blue">{date}</span>
@@ -24066,13 +24321,13 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{px}</span>
     <span data-xztext="_命名标记px"></span>
     <br>
-    <span class="blue">{series_title}</span>
+    * <span class="blue">{series_title}</span>
     <span data-xztext="_命名标记seriesTitle"></span>
     <br>
-    <span class="blue">{series_order}</span>
+    * <span class="blue">{series_order}</span>
     <span data-xztext="_命名标记seriesOrder"></span>
     <br>
-    <span class="blue">{series_id}</span>
+    * <span class="blue">{series_id}</span>
     <span data-xztext="_命名标记seriesId"></span>
     <br>
     <span class="blue">{id_num}</span>
@@ -24482,6 +24737,36 @@ const formHtml = `<form class="settingForm">
     <input type="text" name="sizeMin" class="setinput_style1 blue" value="0">MiB
     &nbsp;-&nbsp;
     <input type="text" name="sizeMax" class="setinput_style1 blue" value="100">MiB
+    </span>
+    </p>
+
+    <p class="option" data-no="82">
+    <span class="settingNameStyle1" data-xztext="_文件下载顺序"></span>
+    <input type="checkbox" name="setFileDownloadOrder" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="subOptionWrap" data-show="setFileDownloadOrder">
+    
+    <span class="settingNameStyle1" data-xztext="_排序依据"></span>
+    <input type="radio" name="downloadOrderSortBy" id="downloadOrderSortBy1" class="need_beautify radio" value="ID" checked>
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrderSortBy1" data-xztext="_作品ID"></label>
+    <input type="radio" name="downloadOrderSortBy" id="downloadOrderSortBy2" class="need_beautify radio" value="bookmarkCount">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrderSortBy2" data-xztext="_收藏数量2"></label>
+    <input type="radio" name="downloadOrderSortBy" id="downloadOrderSortBy3" class="need_beautify radio" value="bookmarkID">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrderSortBy3" data-xztext="_收藏时间"></label>
+
+    <span class="verticalSplit"></span>
+
+    <input type="radio" name="downloadOrder" id="downloadOrder1" class="need_beautify radio" value="desc" checked>
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrder1" data-xztext="_降序"></label>
+    <input type="radio" name="downloadOrder" id="downloadOrder2" class="need_beautify radio" value="asc">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrder2" data-xztext="_升序"></label>
+
     </span>
     </p>
 
@@ -24938,6 +25223,7 @@ class FormSettings {
                 'AIGenerated',
                 'notAIGenerated',
                 'UnknownAI',
+                'setFileDownloadOrder',
             ],
             text: [
                 'setWantPage',
@@ -24994,6 +25280,8 @@ class FormSettings {
                 'prevWorkSize',
                 'showOriginImageSize',
                 'exportLogTiming',
+                'downloadOrder',
+                'downloadOrderSortBy',
             ],
             textarea: ['createFolderTagList'],
             datetime: ['postDateStart', 'postDateEnd'],
@@ -25875,7 +26163,7 @@ class Settings {
             hiddenBrowserDownloadBar: false,
             tipPressDToDownload: true,
             timedCrawlInterval: 120,
-            slowCrawl: false,
+            slowCrawl: true,
             slowCrawlOnWorksNumber: 100,
             downloadOnClickBookmark: false,
             downloadOnClickLike: false,
@@ -25892,6 +26180,9 @@ class Settings {
             AIGenerated: true,
             notAIGenerated: true,
             UnknownAI: true,
+            setFileDownloadOrder: false,
+            downloadOrder: 'desc',
+            downloadOrderSortBy: 'ID',
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -29092,6 +29383,9 @@ const novelData = [
     [18930000, 1671409195000],
     [18940000, 1671567402000],
     [18950000, 1671721208000],
+    [18960000, 1671861312000],
+    [18970000, 1671954612000],
+    [18980000, 1672061020000],
 ];
 
 
@@ -39493,6 +39787,18 @@ const illustsData = [
     [103820000, 1671729660000],
     [103830000, 1671779400000],
     [103840000, 1671802980000],
+    [103850000, 1671830220000],
+    [103860000, 1671863040000],
+    [103870000, 1671882180000],
+    [103880000, 1671894900000],
+    [103890000, 1671923820000],
+    [103900000, 1671949680000],
+    [103910002, 1671967260000],
+    [103920000, 1671979860000],
+    [103930000, 1672016040000],
+    [103940000, 1672049280000],
+    [103950000, 1672068720000],
+    [103960001, 1672113420000],
 ];
 
 
@@ -40087,8 +40393,9 @@ class Utils {
     static sortByProperty(key, order = 'desc') {
         return function (a, b) {
             // 排序的内容有时可能是字符串，需要转换成数字排序
-            const value1 = typeof a[key] === 'number' ? a[key] : parseFloat(a[key]);
-            const value2 = typeof b[key] === 'number' ? b[key] : parseFloat(b[key]);
+            // 有些空字符串或者特殊字符可能转换后是 NaN，将其替换为 0
+            const value1 = (typeof a[key] === 'number' ? a[key] : parseFloat(a[key])) || 0;
+            const value2 = (typeof b[key] === 'number' ? b[key] : parseFloat(b[key])) || 0;
             if (value2 < value1) {
                 return order === 'desc' ? -1 : 1;
             }

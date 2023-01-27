@@ -107,8 +107,11 @@ class Utils {
   static sortByProperty(key: string, order: 'desc' | 'asc' = 'desc') {
     return function (a: any, b: any) {
       // 排序的内容有时可能是字符串，需要转换成数字排序
-      const value1 = typeof a[key] === 'number' ? a[key] : parseFloat(a[key])
-      const value2 = typeof b[key] === 'number' ? b[key] : parseFloat(b[key])
+      // 有些空字符串或者特殊字符可能转换后是 NaN，将其替换为 0
+      const value1 =
+        (typeof a[key] === 'number' ? a[key] : parseFloat(a[key])) || 0
+      const value2 =
+        (typeof b[key] === 'number' ? b[key] : parseFloat(b[key])) || 0
 
       if (value2 < value1) {
         return order === 'desc' ? -1 : 1

@@ -139,4 +139,7 @@ export interface SettingsForm extends HTMLFormElement {
   AIGenerated: HTMLInputElement
   notAIGenerated: HTMLInputElement
   UnknownAI: HTMLInputElement
+  setFileDownloadOrder: HTMLInputElement
+  downloadOrder: HTMLInputElement
+  downloadOrderSortBy: HTMLInputElement
 }

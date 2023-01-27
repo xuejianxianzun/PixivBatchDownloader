@@ -299,6 +299,10 @@ abstract class InitPageBase {
   // 重设抓取作品列表时使用的变量或标记
   protected resetGetIdListStatus() {}
 
+  protected log429ErrorTip = Utils.debounce(() => {
+    log.error(lang.transl('_抓取被限制时返回空结果的提示'))
+  }, 500)
+
   // 获取作品的数据
   protected async getWorksData(idData?: IDData) {
     idData = idData || (store.idList.shift()! as IDData)
@@ -345,7 +349,7 @@ abstract class InitPageBase {
         this.logErrorStatus(error.status, idData)
         if (error.status === 500 || error.status === 429) {
           // 如果状态码 500 或 429，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
-          log.error(lang.transl('_抓取被限制时返回空结果的提示'))
+          this.log429ErrorTip()
           return window.setTimeout(() => {
             this.getWorksData(idData)
           }, Config.retryTime)
@@ -409,7 +413,20 @@ abstract class InitPageBase {
 
     store.crawlCompleteTime = new Date()
 
-    this.sortResult()
+    // 对文件进行排序
+    if (settings.setFileDownloadOrder) {
+      // 按照用户设置的规则进行排序
+      if (settings.downloadOrderSortBy === 'ID') {
+        store.result.sort(Utils.sortByProperty('id', settings.downloadOrder))
+      } else if (settings.downloadOrderSortBy === 'bookmarkCount') {
+        store.result.sort(Utils.sortByProperty('bmk', settings.downloadOrder))
+      } else if (settings.downloadOrderSortBy === 'bookmarkID') {
+        store.result.sort(Utils.sortByProperty('bmkId', settings.downloadOrder))
+      }
+    } else {
+      // 如果用户未设置排序规则，则每个页面自行处理排序逻辑
+      this.sortResult()
+    }
 
     log.log(lang.transl('_共抓取到n个作品', store.resultMeta.length.toString()))
 
