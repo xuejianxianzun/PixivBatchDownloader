@@ -2,11 +2,11 @@
 
 [繁體中文](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-ZH-TW.md)
 
+[日本語](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-JA.md)
+
 [韩国语](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-KO.md)
 
 [Russian](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-RU.md)
-
-*日本語 No translation yet*
 
 [Discord 频道](https://discord.gg/eW9JtTK)
 
