@@ -48,9 +48,9 @@ Powerful Pixiv Downloaderは画像や小説を一括ダウンロード出来る*
 - 小説をTXT、EPUBの各形式で保存可能。
 - アーティスト名、日付、タイトルなど、様々なデータごとにフォルダを作成可能。
 
-![PixivBatchDownloader screenshot](./notes/images/ui-en-0.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-ja-0.png)
 
-![PixivBatchDownloader screenshot](./notes/images/ui-en-1.png)
+![PixivBatchDownloader screenshot](./notes/images/ui-ja-1.png)
 
 # インストール
 
