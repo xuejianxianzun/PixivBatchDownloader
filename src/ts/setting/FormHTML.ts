@@ -516,8 +516,7 @@ export const formHtml = `<form class="settingForm">
     <span class="beautify_switch" tabindex="0"></span>
     
     <span class="subOptionWrap" data-show="slowCrawl">
-    <span data-xztext="_作品数量"></span>
-    <span>&gt;</span>
+    <span data-xztext="_当作品数量大于"></span>
     <input type="text" name="slowCrawlOnWorksNumber" class="setinput_style1 blue" value="100" style="width:60px;min-width: 60px;">
     </span>
     </p>
