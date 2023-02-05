@@ -11157,10 +11157,10 @@ class Tools {
         return e;
     }
     /**获取页面标题 */
-    // 删除了下载器在标题上添加的状态
     static getPageTitle() {
+        // 删除下载器在标题上添加的状态，以及剩余文件数量的数字
         let result = document.title
-            .replace(/\[(↑|→|▶|↓|║|■|✓| )\]/, '')
+            .replace(/\[(↑|→|▶|↓|║|■|✓|☑| )\]/, '')
             .replace(/^ (\d+) /, '');
         // 如果开头有空格则去掉空格
         if (result.startsWith(' ')) {
@@ -20221,6 +20221,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+
 
 
 
@@ -20233,6 +20235,7 @@ __webpack_require__.r(__webpack_exports__);
 ║ 下载暂停
 ■ 下载停止
 ✓ 下载完毕
+☑ 下载完毕，并且此时的页面不是开始抓取时的页面（页面网址发生了变化）
 */
 var Flags;
 (function (Flags) {
@@ -20243,6 +20246,7 @@ var Flags;
     Flags["paused"] = "\u2551";
     Flags["stopped"] = "\u25A0";
     Flags["completed"] = "\u2713";
+    Flags["completedAndPageURLChange"] = "\u2611";
     Flags["space"] = " ";
 })(Flags || (Flags = {}));
 // 把下载器运行中的状态添加到页面标题前面
@@ -20287,8 +20291,14 @@ class ShowStatusOnTitle {
                 }
             }, 500);
         });
+        // 切换同类型页面时，如果切换之前已经有了正常下载完成的标记，则将其修改为另一个标记
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitchedTypeNotChange, () => {
+            if (this.includeFlag(Flags.completed) || this.includeFlag(Flags.completedAndPageURLChange)) {
+                this.setCompleteFlag();
+            }
+        });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadComplete, () => {
-            this.set(Flags.completed);
+            this.setCompleteFlag();
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadPause, () => {
             this.set(Flags.paused);
@@ -20356,6 +20366,14 @@ class ShowStatusOnTitle {
         else {
             window.clearInterval(this.flashingTimer);
         }
+    }
+    setCompleteFlag() {
+        let flag = Flags.completed;
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].URLWhenCrawlStart !== '' &&
+            window.location.href !== _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].URLWhenCrawlStart) {
+            flag = Flags.completedAndPageURLChange;
+        }
+        this.set(flag);
     }
     // 闪烁提醒，把给定的标记替换成空白，来回切换
     flashing(flag) {
@@ -27105,6 +27123,7 @@ class Store {
         this.rankList = {}; // 储存作品在排行榜中的排名
         this.tag = ''; // 开始抓取时，储存页面此时的 tag
         this.title = ''; // 开始抓取时，储存页面此时的 title
+        this.URLWhenCrawlStart = ''; // 开始抓取时，储存页面此时的 URL
         this.crawlCompleteTime = new Date();
         this.fileDataDefault = {
             aiType: 0,
@@ -27249,6 +27268,7 @@ class Store {
         this.novelSeriesGlossary = '';
         this.tag = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getTagFromURL();
         this.title = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getPageTitle();
+        this.URLWhenCrawlStart = window.location.href;
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlStart, () => {
