@@ -49,18 +49,7 @@ class Form {
     wrapID: string
     wrap: HTMLSpanElement
     settingName: SettingKeys
-  }[] = [
-    {
-      wrapID: 'tipCreateFolder',
-      wrap: document.createElement('span'),
-      settingName: 'tipCreateFolder',
-    },
-    {
-      wrapID: 'tipPressDToDownload',
-      wrap: document.createElement('span'),
-      settingName: 'tipPressDToDownload',
-    },
-  ]
+  }[] = []
 
   private getElements() {
     // 获取所有的美化控件和它们对应的 span 元素
