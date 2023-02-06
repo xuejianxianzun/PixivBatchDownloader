@@ -12,6 +12,7 @@ import { toast } from './Toast'
 import { lang } from './Lang'
 import { Colors } from './Colors'
 import { DateFormat } from './utils/DateFormat'
+import { showHelp } from './ShowHelp'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -74,6 +75,10 @@ class PreviewWork {
           this._show = true
           this.showWrap()
           window.clearTimeout(this.delayHiddenTimer)
+          showHelp.show(
+            'tipPressDToQuickDownload',
+            lang.transl('_预览作品时按快捷键D可以下载这个作品')
+          )
         }
       }
     } else {

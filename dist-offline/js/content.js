@@ -832,6 +832,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _OpenCenterPanel__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./OpenCenterPanel */ "./src/ts/OpenCenterPanel.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _BoldKeywords__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./BoldKeywords */ "./src/ts/BoldKeywords.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ShowHelp */ "./src/ts/ShowHelp.ts");
+
 
 
 
@@ -890,7 +892,7 @@ class CenterPanel {
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
-        <button class="textButton has_tip centerWrap_top_btn centerWrap_close" data-xztip="_隐藏下载面板" data-xztitle="_隐藏下载面板">
+        <button class="textButton has_tip centerWrap_top_btn centerWrap_close" data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
         </svg>
@@ -942,6 +944,9 @@ class CenterPanel {
                 this.toggle();
             }
         });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingInitialized, () => {
+            _ShowHelp__WEBPACK_IMPORTED_MODULE_10__["showHelp"].show('tipHowToUse', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_HowToUse'));
+        });
         // 使用快捷键 Alt + x 切换中间面板显示隐藏
         window.addEventListener('keydown', (ev) => {
             if (ev.altKey && ev.code === 'KeyX') {
@@ -953,6 +958,7 @@ class CenterPanel {
             .querySelector('.centerWrap_close')
             .addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('closeCenterPanel');
+            _ShowHelp__WEBPACK_IMPORTED_MODULE_10__["showHelp"].show('tipAltXToShowControlPanel', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_快捷键ALTX显示隐藏控制面板'));
         });
         // 开始抓取作品时，隐藏
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlStart, () => {
@@ -3739,12 +3745,12 @@ const langText = {
         'Список страниц просканирован',
     ],
     _抓取结果为零: [
-        '抓取完毕，但没有找到符合筛选条件的作品。',
-        '擷取完畢，但沒有找到符合篩選條件的作品。',
-        'Crawl complete but did not find works that match the filter criteria.',
-        'クロールは終了しましたが、フィルタ条件に一致する作品が見つかりませんでした。',
-        '긁어오기가 완료되었지만 필터 조건과 일치하는 작품을 찾지 못했습니다.',
-        'Вытаскивание завершено, но не найдены работы, соответствующие критериям фильтра.',
+        '抓取完毕，但没有找到符合筛选条件的作品。<br>请检查“抓取”相关的设置。',
+        '擷取完畢，但沒有找到符合篩選條件的作品。<br>請檢查“抓取”相關的設定。',
+        'Crawl complete but did not find works that match the filter criteria.<br>Please check the settings related to Crawl.',
+        'クロールは終了しましたが、フィルタ条件に一致する作品が見つかりませんでした。<br>クロールに関する設定を確認してください。',
+        '긁어오기가 완료되었지만 필터 조건과 일치하는 작품을 찾지 못했습니다.<br>크롤링 관련 설정을 확인하세요.',
+        'Вытаскивание завершено, но не найдены работы, соответствующие критериям фильтра.<br>Пожалуйста, проверьте настройки, связанные со сканированием.',
     ],
     _当前任务尚未完成: [
         '当前任务尚未完成',
@@ -3917,21 +3923,29 @@ const langText = {
         'Страница на Github, если вам нравится, пожалуйста, поставьте звезду',
     ],
     _wiki: ['使用手册', 'Wiki', 'Wiki', 'マニュアル', '위키', 'Вики'],
-    _快捷键切换显示隐藏: [
-        '使用 Alt + X，可以显示和隐藏下载面板',
-        'Alt + X 可以顯示或隱藏下載面板。',
-        'Use Alt + X to show and hide the download panel',
-        'Alt + X てダウンロードパネルを表示および非表示にする',
-        'Alt + X를 사용하여 다운로드 패널 보이기 및 숨기기',
-        'Используйте Alt + X, чтобы показывать и скрывать панель загрузки',
+    _快捷键ALTX显示隐藏控制面板: [
+        '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">X</span> 显示或隐藏控制面板。',
+        '你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">X</span> 顯示或隱藏控制面板。',
+        'You can use the shortcut keys <span class="blue">Alt</span> + <span class="blue">X</span> to show or hide the control panel.',
+        'ショートカット キー <span class="blue">Alt</span> + <span class="blue">X</span> を使用して、コントロール パネルを表示または非表示にできます。',
+        '단축키 <span class="blue">Alt</span> + <span class="blue">X</span>를 사용하여 제어판을 표시하거나 숨길 수 있습니다.',
+        'Вы можете использовать сочетания клавиш <span class="blue">Alt</span> + <span class="blue">X</span>, чтобы отобразить или скрыть панель управления.',
     ],
-    _隐藏下载面板: [
-        '隐藏下载面板（Alt + X）',
-        '隱藏下載面板（Alt + X）',
-        'Hide the download panel (Alt + X)',
-        'ダウンロードパネルを非表示にする（Alt + X）',
-        '다운로드 패널 숨기기 (Alt + X)',
-        'Скрыть панель загрузки (Alt + X)',
+    _隐藏控制面板: [
+        '隐藏控制面板（Alt + X）',
+        '隱藏控制面板（Alt + X）',
+        'hide control panel (Alt + X)',
+        'コントロールパネルを隠す（Alt + X）',
+        '제어판 숨기기 (Alt + X)',
+        'скрыть панель управления (Alt + X)',
+    ],
+    _显示控制面板: [
+        '显示控制面板 (Alt + X)',
+        '顯示控制面板 (Alt + X)',
+        'Show control panel (Alt + X)',
+        'コントロールパネルを表示 (Alt + X)',
+        '제어판 표시 (Alt + X)',
+        'показать панель управления (Alt + X)',
     ],
     _共抓取到n个文件: [
         '共抓取到 {} 个文件',
@@ -4174,12 +4188,12 @@ const langText = {
         'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.',
     ],
     _文件夹标记PTag: [
-        '当前页面的标签。当前页面没有标签时不可用。',
-        '目前頁面的標籤。目前頁面沒有標籤時無法使用。',
-        'The tag of the current page. Not available if the current page has no tag.',
-        '現在のページのタグ。現在のページのタグ がないときは使用できません。',
-        '현재 페이지 태그. 태그가 없는 경우 사용할 수 없습니다.',
-        'Тег текущей страницы. Недоступно, если текущая страница не имеет тега.',
+        '如果页面里的作品属于同一个标签，则输出这个标签。',
+        '如果頁面裡的作品屬於同一個標籤，則輸出這個標籤。',
+        'If the works on the page belong to the same tag, then output this tag.',
+        'ページ上の作品が同じタグに属している場合は、このタグを出力します。',
+        '페이지의 작품이 같은 태그에 속하는 경우 이 태그를 출력합니다.',
+        'Если работы на странице относятся к одному и тому же тегу, то выводить этот тег.',
     ],
     _命名标记seriesTitle: [
         '系列标题，只在系列页面中可用（小说系列、漫画系列）。',
@@ -4206,12 +4220,12 @@ const langText = {
         'Идентификатор серии, доступен только на страницах серий (серия романов, серия манги).',
     ],
     _文件夹标记PTitle: [
-        '当前页面的标题',
-        '目前頁面的標題',
-        'The title of this page',
-        'ページのタイトル',
-        '현재 페이지 제목',
-        'Заголовок этой страницы',
+        '页面标题',
+        '頁面標題',
+        'Page title',
+        'ページタイトル',
+        '페이지 제목',
+        'Заголовок страницы',
     ],
     _预览文件名: [
         '预览文件名',
@@ -4381,6 +4395,14 @@ const langText = {
         'この作品をすばやくダウンロードする (Alt + Q)',
         '작품 빠른 다운로드 (Alt + Q)',
         'Быстро загрузить эту работу (Alt + Q)',
+    ],
+    _快捷键ALTQ快速下载本页作品: [
+        '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">Q</span> 快速下载本页作品。',
+        '你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">Q</span> 快速下載本頁作品。',
+        'You can use the shortcut keys <span class="blue">Alt</span> + <span class="blue">Q</span> to quickly download works on this page.',
+        'ショートカット キー <span class="blue">Alt</span> + <span class="blue">Q</span> を使用して、このページの作品をすばやくダウンロードできます。',
+        '단축키 <span class="blue">Alt</span> + <span class="blue">Q</span>를 사용하여 이 페이지에서 작품을 빠르게 다운로드할 수 있습니다.',
+        'Вы можете использовать сочетания клавиш <span class="blue">Alt</span> + <span class="blue">Q</span> для быстрой загрузки работ на этой странице.',
     ],
     _抓取此作品: [
         '抓取此作品',
@@ -5071,13 +5093,13 @@ const langText = {
         '판정 조건: 작품 ID, 업로드 날짜',
         'Условия оценки: идентификатор, дата загрузки работы',
     ],
-    _清除下载记录: [
-        '清除下载记录',
-        '清除下載紀錄',
-        'Clear download record',
-        '履歴をクリア',
-        '다운로드 기록 비우기',
-        'Очистить запись загрузок',
+    确定要清除下载记录吗: [
+        '确定要清除下载记录吗？',
+        '確定要清除下載記錄嗎？',
+        'Are you sure you want to clear download record?',
+        'ダウンロード記録を消去してもよろしいですか?',
+        '다운로드 기록을 지우시겠습니까?',
+        'Вы уверены, что хотите очистить запись загрузки?',
     ],
     _下载记录已清除: [
         '下载记录已清除',
@@ -5174,14 +5196,6 @@ const langText = {
         '{} は幅と高さが設定に合わないため、保存されていません。',
         '{} 너비와 높이가 설정에 맞지 않아, 저장되지 않았습니다.',
         '{} не был(и) сохранен, потому что его ширина и высота не соответствуют настройкам.',
-    ],
-    _显示下载面板: [
-        '显示下载面板 (Alt + X)',
-        '顯示下載面板 (Alt + X)',
-        'Show download panel (Alt + X)',
-        'ダウンロードパネルを表示 (Alt + X)',
-        '다운로드 패널 보이기 (Alt + X)',
-        'Показать панель загрузки (Alt + X)',
     ],
     _保存: ['保存', '儲存', 'Save', '保存', '저장', 'Сохранить'],
     _加载: ['加载', '載入', 'Load', 'ロード', '불러오기', 'Загрузить'],
@@ -5307,7 +5321,7 @@ const langText = {
         'Для установки формата даты и времени можно использовать следующую нотацию. Это повлияет на {date} и {upload_date} и {task_date} в правилах именования. <br>Для времени, например, 2021-04-30T06:40:08',
     ],
     _命名标记taskDate: [
-        '本次任务抓取完成时的时间。例如：<span class="blue">2020-10-21</span>',
+        '本次任务抓取完成时的时间。例如：<span class="blue">2020-10-21</span>。',
         '本次工作擷取完成時的時間。例如：<span class="blue">2020-10-21</span>。',
         'The time when the task was crawl completed. For example: <span class="blue">2020-10-21</span>',
         'この作業のクロールが完了した時刻です。 例：<span class="blue">2020-10-21</span>',
@@ -5371,6 +5385,14 @@ const langText = {
         'ダウンローダーの<span class="key">ブックマーク</span>ボタン (✩)',
         '다운로더의 <span class="key">북마크</span> 버튼 (☆)',
         `Кнопка <span class="key">закладок</span> загрузчика (✩)`,
+    ],
+    _下载器的收藏按钮默认会添加作品的标签: [
+        '点击 <span class="blue">✩</span> 按钮时，下载器会收藏这个作品并且附带它的标签。',
+        '點選 <span class="blue">✩</span> 按鈕時，下載器會收藏這個作品並且附帶它的標籤。',
+        'When the <span class="blue">✩</span> button is clicked, the downloader bookmarks this work and attaches its tag.',
+        '<span class="blue">✩</span> ボタンをクリックすると、ダウンローダはこの作品をブックマークし、タグを付けます。',
+        '<span class="blue">✩</span> 버튼을 클릭하면 다운로더는 이 작품을 북마크하고 태그를 붙입니다.',
+        'При нажатии кнопки <span class="blue">✩</span> загрузчик добавляет эту работу в закладки и прикрепляет свой тег.',
     ],
     _添加tag: [
         '添加标签',
@@ -5477,6 +5499,14 @@ const langText = {
         '手動で作品を選ぶ',
         '수동 선택',
         'Ручной выбор',
+    ],
+    _快捷键ALTS手动选择作品: [
+        '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">S</span> 开始或暂停手动选择作品。',
+        '你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">S</span> 開始或暫停手動選擇作品。',
+        'You can use the shortcut keys <span class="blue">Alt</span> + <span class="blue">S</span> to start or pause manual selection of works.',
+        'ショートカット キー <span class="blue">Alt</span> + <span class="blue">S</span> を使用して、作品の手動選択を開始または一時停止できます。',
+        '바로 가기 키 <span class="blue">Alt</span> + <span class="blue">S</span>를 사용하여 작품 수동 선택을 시작하거나 일시 중지할 수 있습니다.',
+        'Вы можете использовать сочетания клавиш <span class="blue">Alt</span> + <span class="blue">S</span>, чтобы начать или приостановить ручной выбор произведений.',
     ],
     _抓取选择的作品: [
         '抓取选择的作品',
@@ -5693,7 +5723,7 @@ const langText = {
         'Запрос на скачивание отправлен',
     ],
     _HowToUse: [
-        '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。',
+        '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。',
         '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。',
         'Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.',
         'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。',
@@ -6591,12 +6621,12 @@ const langText = {
         'Результаты сканирования недоступны',
     ],
     _预览作品时按快捷键D可以下载这个作品: [
-        '预览作品时，按快捷键 <span class="key">D</span> 可以下载这个作品。',
-        '預覽作品時，按快捷鍵 <span class="key">D</span> 可以下載這個作品。',
-        'When previewing a work, press the shortcut key <span class="key">D</span> to download the work.',
-        '作品をプレビューしているときに、ショートカット キー <span class="key">D</span> を押すと、作品をダウンロードできます。',
-        '이미지를 미리 보는 동안 바로 가기 <span class="key">D</span>를 눌러 다운로드하세요.',
-        'При предварительном просмотре произведения нажмите клавишу <span class="key">D</span>, чтобы загрузить произведение',
+        '预览作品时，按快捷键 <span class="blue">D</span> 可以下载这个作品。',
+        '預覽作品時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。',
+        'When previewing a work, press the shortcut blue <span class="blue">D</span> to download the work.',
+        '作品をプレビューしているときに、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。',
+        '이미지를 미리 보는 동안 바로 가기 <span class="blue">D</span>를 눌러 다운로드하세요.',
+        'При предварительном просмотре произведения нажмите клавишу <span class="blue">D</span>, чтобы загрузить произведение',
     ],
     _定时抓取: [
         '定时抓取',
@@ -6631,10 +6661,10 @@ const langText = {
         'Пожалуйста, не закрывайте эту вкладку и не меняйте URL этой вкладки. <br> Рекомендуется включить функцию "Не загружать дубликаты файлов", чтобы избежать загрузки дубликатов файлов.<br><br>Если расширение автоматически обновляется, страница не сможет загружать файлы в обычном режиме (обновите страницу, чтобы восстановить нормальный режим). Если вы хотите выполнять запланированные задачи обхода в течение длительного времени, рекомендуется установить автономную версию загрузчика, чтобы избежать проблем, вызванных автоматическими обновлениями.<br>Вы можете скачать автономный установочный пакет здесь: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Страница релизов</a>',
     ],
     _定时抓取的间隔时间: [
-        '定时抓取的间隔时间',
-        '定時抓取的間隔時間',
-        'The interval time of timed crawl',
-        '時間指定クロールの間隔時間',
+        '<span class="key">定时</span>抓取的间隔时间',
+        '<span class="key">定時</span>抓取的間隔時間',
+        'The interval time of <span class="key">timed crawl</span>',
+        '<span class="key">時間指定</span>クロールの間隔時間',
         '정기 크롤링 간격 시간',
         'Интервальное время сканирования с таймером',
     ],
@@ -6766,6 +6796,14 @@ const langText = {
         '作品数',
         '작품 수',
         'Количество работ',
+    ],
+    _当作品数量大于: [
+        '当作品数量 >',
+        '當作品數量 >',
+        'When the number of works >',
+        '作品数 >',
+        '작품 수 >',
+        'При количестве работ >',
     ],
     _慢速抓取: [
         '慢速抓取',
@@ -7724,7 +7762,7 @@ class OpenCenterPanel {
         this.btn = document.createElement('button');
         this.btn.classList.add('rightButton');
         this.btn.id = 'openCenterPanelBtn';
-        this.btn.setAttribute('data-xztitle', '_显示下载面板');
+        this.btn.setAttribute('data-xztitle', '_显示控制面板');
         this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-dakai"></use>
 </svg>`;
@@ -8239,6 +8277,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowHelp */ "./src/ts/ShowHelp.ts");
+
 
 
 
@@ -8328,6 +8368,7 @@ class PreviewWork {
                     this._show = true;
                     this.showWrap();
                     window.clearTimeout(this.delayHiddenTimer);
+                    _ShowHelp__WEBPACK_IMPORTED_MODULE_13__["showHelp"].show('tipPressDToQuickDownload', _Lang__WEBPACK_IMPORTED_MODULE_10__["lang"].transl('_预览作品时按快捷键D可以下载这个作品'));
                 }
             }
         }
@@ -8908,6 +8949,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
 /* harmony import */ var _NovelThumbnail__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./NovelThumbnail */ "./src/ts/NovelThumbnail.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowHelp */ "./src/ts/ShowHelp.ts");
+
 
 
 
@@ -9091,6 +9134,8 @@ class SelectWork {
         this.clearBtn.style.display = 'none';
         this.clearBtn.addEventListener('click', () => {
             this.clearIdList();
+            this.clearBtn.style.display = 'none';
+            this.crawlBtn.style.display = 'none';
         });
         this.crawlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取选择的作品');
         this.crawlBtn.style.display = 'none';
@@ -9105,6 +9150,7 @@ class SelectWork {
             this.controlBtn.onclick = (ev) => {
                 this.startSelect(ev);
                 this.clearBtn.style.display = 'block';
+                _ShowHelp__WEBPACK_IMPORTED_MODULE_11__["showHelp"].show('tipAltSToSelectWork', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_快捷键ALTS手动选择作品'));
             };
         }
         else {
@@ -9127,6 +9173,7 @@ class SelectWork {
         this.crawlBtn.style.display = this.start ? 'block' : 'none';
         if (this.idList.length > 0) {
             _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.crawlBtn, '_抓取选择的作品2', this.idList.length.toString());
+            this.clearBtn.style.display = 'block';
         }
         else {
             _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.crawlBtn, '_抓取选择的作品');
@@ -9737,48 +9784,38 @@ new ShowDownloadBtnOnThumb();
 
 /***/ }),
 
-/***/ "./src/ts/ShowHowToUse.ts":
-/*!********************************!*\
-  !*** ./src/ts/ShowHowToUse.ts ***!
-  \********************************/
-/*! no exports provided */
+/***/ "./src/ts/ShowHelp.ts":
+/*!****************************!*\
+  !*** ./src/ts/ShowHelp.ts ***!
+  \****************************/
+/*! exports provided: showHelp */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "showHelp", function() { return showHelp; });
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 
 
 
 
-
-class ShowHowToUse {
-    constructor() {
-        this.bindEvents();
-    }
-    bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.settingInitialized, () => {
-            this.check();
-        });
-    }
-    check() {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].showHowToUse) {
-            this.show();
-            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('showHowToUse', false);
+// 用消息框显示一次性的提示
+class ShowHelp {
+    show(settingKey, msg) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"][settingKey] === true) {
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])(settingKey, false);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].show(msg, {
+                title: _Config__WEBPACK_IMPORTED_MODULE_1__["Config"].appName + ' Help',
+                btn: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_我知道了'),
+            });
         }
     }
-    show() {
-        _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].show(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_HowToUse'), {
-            title: _Config__WEBPACK_IMPORTED_MODULE_1__["Config"].appName,
-            btn: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_我知道了'),
-        });
-    }
 }
-new ShowHowToUse();
+const showHelp = new ShowHelp();
+
 
 
 /***/ }),
@@ -9958,6 +9995,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ShowHelp */ "./src/ts/ShowHelp.ts");
+
 
 
 
@@ -10029,6 +10068,7 @@ class ShowOriginSizeImage {
         if (val) {
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('showOriginSizeImage');
             this.wrap.style.display = 'block';
+            _ShowHelp__WEBPACK_IMPORTED_MODULE_9__["showHelp"].show('tipPressDToQuickDownload', _Lang__WEBPACK_IMPORTED_MODULE_7__["lang"].transl('_预览作品时按快捷键D可以下载这个作品'));
             // 预览动图
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].previewUgoira && ((_a = this.workData) === null || _a === void 0 ? void 0 : _a.body.illustType) === 2) {
                 this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_4__["PreviewUgoira"](this.workData.body.id, this.wrap, _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImageSize);
@@ -11224,10 +11264,10 @@ class Tools {
         return e;
     }
     /**获取页面标题 */
-    // 删除了下载器在标题上添加的状态
     static getPageTitle() {
+        // 删除下载器在标题上添加的状态，以及剩余文件数量的数字
         let result = document.title
-            .replace(/\[(↑|→|▶|↓|║|■|✓| )\]/, '')
+            .replace(/\[(↑|→|▶|↓|║|■|✓|☑| )\]/, '')
             .replace(/^ (\d+) /, '');
         // 如果开头有空格则去掉空格
         if (result.startsWith(' ')) {
@@ -11852,10 +11892,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
 /* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
 /* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -11866,7 +11905,6 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
-
 
 
 
@@ -15938,9 +15976,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
 
 
 
@@ -15978,8 +16018,9 @@ class QuickCrawl {
         // 点击按钮启动快速抓取
         this.btn.addEventListener('click', () => {
             this.sendDownload();
+            _ShowHelp__WEBPACK_IMPORTED_MODULE_4__["showHelp"].show('tipAltQToQuickDownload', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_快捷键ALTQ快速下载本页作品'));
         }, false);
-        // 使用快捷键 Alt + q 启动快速抓取
+        // 使用快捷键 Alt + Q 启动快速抓取
         window.addEventListener('keydown', (ev) => {
             if (this.show && ev.altKey && ev.code === 'KeyQ') {
                 this.sendDownload();
@@ -15991,23 +16032,23 @@ class QuickCrawl {
         });
     }
     sendDownload() {
-        _store_States__WEBPACK_IMPORTED_MODULE_4__["states"].quickCrawl = true;
+        _store_States__WEBPACK_IMPORTED_MODULE_5__["states"].quickCrawl = true;
         const isNovel = window.location.href.includes('/novel');
         let idData;
         if (isNovel) {
             idData = {
                 type: 'novels',
-                id: _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].getNovelId(window.location.href),
+                id: _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].getNovelId(window.location.href),
             };
         }
         else {
             idData = {
                 type: 'unknown',
-                id: _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].getIllustId(window.location.href),
+                id: _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].getIllustId(window.location.href),
             };
         }
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('crawlIdList', [idData]);
-        _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已发送下载请求'), {
+        _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已发送下载请求'), {
             bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__["Colors"].bgBlue,
         });
     }
@@ -17411,7 +17452,6 @@ class Download {
                 return resolve(true);
             }
             if (_DownloadStates__WEBPACK_IMPORTED_MODULE_18__["downloadStates"].states[this.downloadStatesIndex - 1] === 1) {
-                console.log('d ' + this.downloadStatesIndex);
                 return resolve(true);
             }
             else {
@@ -18557,6 +18597,9 @@ class DownloadRecord {
     }
     // 清空下载记录
     clearRecords() {
+        if (window.confirm(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('确定要清除下载记录吗')) === false) {
+            return;
+        }
         for (const name of this.storeNameList) {
             this.IDB.clear(name);
         }
@@ -19713,6 +19756,7 @@ class Resume {
             _DownloadStates__WEBPACK_IMPORTED_MODULE_5__["downloadStates"].replace(data.states);
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].crawlCompleteTime = meta.date;
+        _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].URLWhenCrawlStart = meta.URLWhenCrawlStart || '';
         // 恢复模式就绪
         _Log__WEBPACK_IMPORTED_MODULE_1__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已恢复抓取结果'), 2);
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('resume');
@@ -19740,6 +19784,7 @@ class Resume {
         const metaData = {
             id: this.taskId,
             url: this.getURL(),
+            URLWhenCrawlStart: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].URLWhenCrawlStart,
             part: this.part.length,
             date: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].crawlCompleteTime,
         };
@@ -20290,6 +20335,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+
 
 
 
@@ -20302,6 +20349,7 @@ __webpack_require__.r(__webpack_exports__);
 ║ 下载暂停
 ■ 下载停止
 ✓ 下载完毕
+☑ 下载完毕，并且此时的页面不是开始抓取时的页面（页面网址发生了变化）
 */
 var Flags;
 (function (Flags) {
@@ -20312,6 +20360,7 @@ var Flags;
     Flags["paused"] = "\u2551";
     Flags["stopped"] = "\u25A0";
     Flags["completed"] = "\u2713";
+    Flags["completedAndPageURLChange"] = "\u2611";
     Flags["space"] = " ";
 })(Flags || (Flags = {}));
 // 把下载器运行中的状态添加到页面标题前面
@@ -20356,8 +20405,15 @@ class ShowStatusOnTitle {
                 }
             }, 500);
         });
+        // 切换同类型页面时，如果切换之前已经有了正常下载完成的标记，则将其修改为另一个标记
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitchedTypeNotChange, () => {
+            if (this.includeFlag(Flags.completed) ||
+                this.includeFlag(Flags.completedAndPageURLChange)) {
+                this.setCompleteFlag();
+            }
+        });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadComplete, () => {
-            this.set(Flags.completed);
+            this.setCompleteFlag();
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadPause, () => {
             this.set(Flags.paused);
@@ -20425,6 +20481,14 @@ class ShowStatusOnTitle {
         else {
             window.clearInterval(this.flashingTimer);
         }
+    }
+    setCompleteFlag() {
+        let flag = Flags.completed;
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].URLWhenCrawlStart !== '' &&
+            window.location.href !== _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].URLWhenCrawlStart) {
+            flag = Flags.completedAndPageURLChange;
+        }
+        this.set(flag);
     }
     // 闪烁提醒，把给定的标记替换成空白，来回切换
     flashing(flag) {
@@ -21822,10 +21886,10 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask1', () => {
-            this.crawlData(103850000, 103963596);
+            this.crawlData(103960000, 105156572);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask2', () => {
-            this.crawlData(18960000, 18983794, 'novels');
+            this.crawlData(18980000, 19251497, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -22803,7 +22867,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
 /* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
 // 作品页面内的快速收藏功能
+
 
 
 
@@ -22872,6 +22938,7 @@ class QuickBookmark {
                 this.addBookmark(pixivBMKDiv, likeBtn);
                 // 下载这个作品
                 this.sendDownload();
+                _ShowHelp__WEBPACK_IMPORTED_MODULE_9__["showHelp"].show('tipBookmarkButton', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载器的收藏按钮默认会添加作品的标签'));
             });
         }
     }
@@ -23564,18 +23631,7 @@ class Form {
         // label 和 子选项区域则不一定有
         this.allBeautifyInput = [];
         /**一些固定格式的帮助元素 */
-        this.tips = [
-            {
-                wrapID: 'tipCreateFolder',
-                wrap: document.createElement('span'),
-                settingName: 'tipCreateFolder',
-            },
-            {
-                wrapID: 'tipPressDToDownload',
-                wrap: document.createElement('span'),
-                settingName: 'tipPressDToDownload',
-            },
-        ];
+        this.tips = [];
         this.form = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_3__["formHtml"]);
         _Theme__WEBPACK_IMPORTED_MODULE_5__["theme"].register(this.form);
         _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.form);
@@ -24104,16 +24160,6 @@ const formHtml = `<form class="settingForm">
     <slot data-name="saveNamingRule"></slot>
     <button class="showFileNameTip textButton" type="button" data-xztext="_提示2"></button>
     </p>
-    <p class="tip tipWithBtn" id="tipCreateFolder">
-      <span class="left">
-      <span data-xztext="_设置文件夹名的提示"></span>
-      <strong>{user}/{id}</strong>
-      </span>
-      <span class="right">
-        <button type="button" class="textButton gray1" id="tipCreateFolderBtn" data-xztext="_我知道了">
-        </button>
-      </span>
-    </p>
     <p class="fileNameTip tip">
     <span data-xztext="_设置文件夹名的提示"></span>
     <span>{user}<span class="key">/</span>{id}</span>
@@ -24134,9 +24180,6 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{title}</span>
     <span data-xztext="_命名标记title"></span>
     <br>
-    <span class="blue">{page_title}</span>
-    <span data-xztext="_文件夹标记PTitle"></span>
-    <br>
     <span class="blue">{tags}</span>
     <span data-xztext="_命名标记tags"></span>
     <br>
@@ -24145,6 +24188,9 @@ const formHtml = `<form class="settingForm">
     <br>
     <span class="blue">{tags_transl_only}</span>
     <span data-xztext="_命名标记tags_transl_only"></span>
+    <br>
+    <span class="blue">{page_title}</span>
+    <span data-xztext="_文件夹标记PTitle"></span>
     <br>
     * <span class="blue">{page_tag}</span>
     <span data-xztext="_文件夹标记PTag"></span>
@@ -24287,8 +24333,7 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_switch" tabindex="0"></span>
     
     <span class="subOptionWrap" data-show="slowCrawl">
-    <span data-xztext="_作品数量"></span>
-    <span>&gt;</span>
+    <span data-xztext="_当作品数量大于"></span>
     <input type="text" name="slowCrawlOnWorksNumber" class="setinput_style1 blue" value="100" style="width:60px;min-width: 60px;">
     </span>
     </p>
@@ -24723,16 +24768,6 @@ const formHtml = `<form class="settingForm">
     <span class="settingNameStyle1" data-xztext="_预览动图"></span>
     <input type="checkbox" name="previewUgoira" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch" tabindex="0"></span>
-    </p>
-    
-    <p class="tip tipWithBtn" id="tipPressDToDownload">
-      <span class="left">
-      <span data-xztext="_预览作品时按快捷键D可以下载这个作品"></span>
-      </span>
-      <span class="right">
-        <button type="button" class="textButton gray1" id="tipPressDToDownloadBtn" data-xztext="_我知道了">
-        </button>
-      </span>
     </p>
 
     <p class="option" data-no="62">
@@ -25830,20 +25865,20 @@ __webpack_require__.r(__webpack_exports__);
 // setSetting(name, value)
 // 本模块会触发 3 个事件：
 // EVT.list.settingChange
-// 当任意一个设置项被赋值时触发（本模块不会区分值是否发生了变化）。这是最常用的事件。
+// 当任意一个设置项被赋值时触发（不会区分值是否发生了变化）。这是最常用的事件。
 // 事件的参数里会传递这个设置项的名称和值，格式如：
 // {name: string, value: any}
 // 如果某个模块要监听特定的设置项，应该使用参数的 name 来判断触发事件的设置项是否是自己需要的设置项
-// 如果不依赖于特定设置项，则应该考虑使用节流或者防抖来限制事件监听器的执行频率，防止造成严重的性能问题
+// 如果不依赖于特定设置项，则应该考虑使用节流或者防抖来限制事件监听器的执行频率，防止造成性能问题
 // EVT.list.settingInitialized
-// 当设置初始化完毕后（恢复保存的设置之后）触发。这个事件在生命周期里只会触发一次。
+// 当设置初始化完毕（以及恢复本地储存的设置）之后触发。这个事件在生命周期里只会触发一次。
 // 过程中，每个设置项都会触发一次 settingChange 事件
 // EVT.list.resetSettingsEnd
 // 重置设置之后触发
 // 导入设置之后触发
 // 过程中，每个设置项都会触发一次 settingChange 事件
-// 如果打开了多个标签页，每个页面的 settings 数据是互相独立的，在一个页面里修改设置不会影响另一个页面里的设置。
-// 但是持久化保存的数据只有一份：最后一次设置变更是在哪个页面发生的，就保存哪个页面的 settings 数据。
+// 如果打开了多个标签页，每个页面的 settings 数据是相互独立的，在一个页面里修改设置不会影响另一个页面里的设置。
+// 但是持久化保存的数据只有一份：最后一次的设置变化是在哪个页面发生的，就保存哪个页面的 settings 数据。
 
 
 
@@ -26007,9 +26042,8 @@ class Settings {
             showPreviewWorkTip: true,
             showOriginImage: true,
             showOriginImageSize: 'original',
-            showHowToUse: true,
+            tipHowToUse: true,
             whatIsNewFlag: 'xuejian&saber',
-            tipCreateFolder: true,
             replaceSquareThumb: true,
             notFolderWhenOneFile: false,
             noSerialNoForSingleImg: true,
@@ -26025,7 +26059,7 @@ class Settings {
             downloadNovelEmbeddedImage: true,
             previewUgoira: true,
             hiddenBrowserDownloadBar: false,
-            tipPressDToDownload: true,
+            tipPressDToQuickDownload: true,
             timedCrawlInterval: 120,
             slowCrawl: true,
             slowCrawlOnWorksNumber: 100,
@@ -26047,6 +26081,10 @@ class Settings {
             setFileDownloadOrder: false,
             downloadOrder: 'desc',
             downloadOrderSortBy: 'ID',
+            tipAltXToShowControlPanel: true,
+            tipAltSToSelectWork: true,
+            tipAltQToQuickDownload: true,
+            tipBookmarkButton: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -27175,6 +27213,7 @@ class Store {
         this.rankList = {}; // 储存作品在排行榜中的排名
         this.tag = ''; // 开始抓取时，储存页面此时的 tag
         this.title = ''; // 开始抓取时，储存页面此时的 title
+        this.URLWhenCrawlStart = ''; // 开始抓取时，储存页面此时的 URL
         this.crawlCompleteTime = new Date();
         this.fileDataDefault = {
             aiType: 0,
@@ -27322,6 +27361,7 @@ class Store {
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlStart, () => {
+            this.URLWhenCrawlStart = window.location.href;
             this.reset();
         });
         // 停止下载时，清空等待下载的任务
@@ -29250,6 +29290,33 @@ const novelData = [
     [18960000, 1671861312000],
     [18970000, 1671954612000],
     [18980000, 1672061020000],
+    [18990001, 1672222393000],
+    [19000000, 1672353531000],
+    [19010000, 1672467100000],
+    [19020000, 1672553764000],
+    [19030000, 1672671491000],
+    [19040000, 1672808932000],
+    [19050000, 1672932463000],
+    [19060000, 1673087550000],
+    [19070000, 1673193657000],
+    [19080000, 1673334059000],
+    [19090000, 1673495777000],
+    [19100000, 1673631095000],
+    [19110000, 1673768998000],
+    [19120000, 1673885155000],
+    [19130000, 1674054006000],
+    [19140000, 1674222465000],
+    [19150000, 1674353315000],
+    [19160000, 1674473730000],
+    [19170001, 1674632979000],
+    [19180000, 1674785242000],
+    [19190000, 1674912941000],
+    [19200000, 1675017226000],
+    [19210000, 1675171526000],
+    [19220000, 1675332469000],
+    [19230000, 1675444750000],
+    [19240000, 1675578816000],
+    [19250000, 1675692430000],
 ];
 
 
@@ -39663,6 +39730,125 @@ const illustsData = [
     [103940000, 1672049280000],
     [103950000, 1672068720000],
     [103960001, 1672113420000],
+    [103970000, 1672143420000],
+    [103980000, 1672170420000],
+    [103990001, 1672215780000],
+    [104000002, 1672237620000],
+    [104010000, 1672277580000],
+    [104020000, 1672308120000],
+    [104030000, 1672327620000],
+    [104040001, 1672369020000],
+    [104050000, 1672396500000],
+    [104060002, 1672414380000],
+    [104070000, 1672451820000],
+    [104080001, 1672474140000],
+    [104090000, 1672489980000],
+    [104100000, 1672499040000],
+    [104110000, 1672506000000],
+    [104120000, 1672535640000],
+    [104130000, 1672556220000],
+    [104140000, 1672573980000],
+    [104150000, 1672587900000],
+    [104160000, 1672627680000],
+    [104170000, 1672652520000],
+    [104180000, 1672671420000],
+    [104190001, 1672707180000],
+    [104200000, 1672735260000],
+    [104210000, 1672753800000],
+    [104220000, 1672785120000],
+    [104230000, 1672820400000],
+    [104240000, 1672840680000],
+    [104250001, 1672873500000],
+    [104260001, 1672910940000],
+    [104270000, 1672930620000],
+    [104280000, 1672973160000],
+    [104290000, 1673003400000],
+    [104300000, 1673021340000],
+    [104310000, 1673064360000],
+    [104320000, 1673089800000],
+    [104330000, 1673107200000],
+    [104340000, 1673147580000],
+    [104350000, 1673173320000],
+    [104360000, 1673190720000],
+    [104370003, 1673229120000],
+    [104380001, 1673256120000],
+    [104390000, 1673274420000],
+    [104400000, 1673311620000],
+    [104410000, 1673348880000],
+    [104420001, 1673368980000],
+    [104430000, 1673420820000],
+    [104440000, 1673445180000],
+    [104450000, 1673485080000],
+    [104460000, 1673522160000],
+    [104470000, 1673545560000],
+    [104480000, 1673596860000],
+    [104490002, 1673619300000],
+    [104500000, 1673657220000],
+    [104510000, 1673688540000],
+    [104520000, 1673708040000],
+    [104530000, 1673745120000],
+    [104540000, 1673773260000],
+    [104550000, 1673791200000],
+    [104560000, 1673825220000],
+    [104570000, 1673864820000],
+    [104580000, 1673885040000],
+    [104590000, 1673934000000],
+    [104600000, 1673962200000],
+    [104610000, 1673999460000],
+    [104620000, 1674039420000],
+    [104630000, 1674061140000],
+    [104640000, 1674113160000],
+    [104650000, 1674138060000],
+    [104660000, 1674181200000],
+    [104670000, 1674214680000],
+    [104680000, 1674236760000],
+    [104690000, 1674280920000],
+    [104700000, 1674304680000],
+    [104710000, 1674326040000],
+    [104720001, 1674367080000],
+    [104730000, 1674389700000],
+    [104740000, 1674409380000],
+    [104750000, 1674459780000],
+    [104760000, 1674483000000],
+    [104770000, 1674523860000],
+    [104780000, 1674559440000],
+    [104790000, 1674583860000],
+    [104800000, 1674634020000],
+    [104810000, 1674656880000],
+    [104820000, 1674698640000],
+    [104830000, 1674733980000],
+    [104840000, 1674756420000],
+    [104850000, 1674807060000],
+    [104860000, 1674828660000],
+    [104870000, 1674865320000],
+    [104880000, 1674896700000],
+    [104890000, 1674916080000],
+    [104900000, 1674951780000],
+    [104910000, 1674981120000],
+    [104920000, 1674999360000],
+    [104930000, 1675029120000],
+    [104940000, 1675071180000],
+    [104950000, 1675090860000],
+    [104960000, 1675134780000],
+    [104970000, 1675165980000],
+    [104980000, 1675184040000],
+    [104990000, 1675233960000],
+    [105000000, 1675257900000],
+    [105010000, 1675291800000],
+    [105020000, 1675331520000],
+    [105030000, 1675350300000],
+    [105040000, 1675392780000],
+    [105050000, 1675420440000],
+    [105060000, 1675436520000],
+    [105070000, 1675474320000],
+    [105080000, 1675503360000],
+    [105090000, 1675522200000],
+    [105100000, 1675558380000],
+    [105110000, 1675585200000],
+    [105120002, 1675602960000],
+    [105130000, 1675627260000],
+    [105140000, 1675672260000],
+    [105150000, 1675693560000],
 ];
 
 

@@ -32,6 +32,8 @@ class Store {
 
   public title = '' // 开始抓取时，储存页面此时的 title
 
+  public URLWhenCrawlStart = '' // 开始抓取时，储存页面此时的 URL
+
   public crawlCompleteTime: Date = new Date()
 
   private readonly fileDataDefault: Result = {
@@ -193,6 +195,7 @@ class Store {
 
   private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
+      this.URLWhenCrawlStart = window.location.href
       this.reset()
     })
 

@@ -8,6 +8,7 @@ import { states } from './store/States'
 import { toast } from './Toast'
 import { lang } from './Lang'
 import { Colors } from './Colors'
+import { showHelp } from './ShowHelp'
 
 interface Style {
   imgW: number
@@ -80,6 +81,10 @@ class ShowOriginSizeImage {
     if (val) {
       EVT.fire('showOriginSizeImage')
       this.wrap.style.display = 'block'
+      showHelp.show(
+        'tipPressDToQuickDownload',
+        lang.transl('_预览作品时按快捷键D可以下载这个作品')
+      )
 
       // 预览动图
       if (settings.previewUgoira && this.workData?.body.illustType === 2) {
