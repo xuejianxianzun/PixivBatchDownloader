@@ -19644,6 +19644,7 @@ class Resume {
             _DownloadStates__WEBPACK_IMPORTED_MODULE_5__["downloadStates"].replace(data.states);
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].crawlCompleteTime = meta.date;
+        _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].URLWhenCrawlStart = meta.URLWhenCrawlStart || '';
         // 恢复模式就绪
         _Log__WEBPACK_IMPORTED_MODULE_1__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已恢复抓取结果'), 2);
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('resume');
@@ -19671,6 +19672,7 @@ class Resume {
         const metaData = {
             id: this.taskId,
             url: this.getURL(),
+            URLWhenCrawlStart: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].URLWhenCrawlStart,
             part: this.part.length,
             date: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].crawlCompleteTime,
         };
@@ -20293,7 +20295,8 @@ class ShowStatusOnTitle {
         });
         // 切换同类型页面时，如果切换之前已经有了正常下载完成的标记，则将其修改为另一个标记
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitchedTypeNotChange, () => {
-            if (this.includeFlag(Flags.completed) || this.includeFlag(Flags.completedAndPageURLChange)) {
+            if (this.includeFlag(Flags.completed) ||
+                this.includeFlag(Flags.completedAndPageURLChange)) {
                 this.setCompleteFlag();
             }
         });
@@ -27268,10 +27271,10 @@ class Store {
         this.novelSeriesGlossary = '';
         this.tag = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getTagFromURL();
         this.title = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getPageTitle();
-        this.URLWhenCrawlStart = window.location.href;
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlStart, () => {
+            this.URLWhenCrawlStart = window.location.href;
             this.reset();
         });
         // 停止下载时，清空等待下载的任务

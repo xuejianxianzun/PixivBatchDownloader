@@ -191,11 +191,11 @@ class Store {
     this.novelSeriesGlossary = ''
     this.tag = Tools.getTagFromURL()
     this.title = Tools.getPageTitle()
-    this.URLWhenCrawlStart = window.location.href
   }
 
   private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
+      this.URLWhenCrawlStart = window.location.href
       this.reset()
     })
 
