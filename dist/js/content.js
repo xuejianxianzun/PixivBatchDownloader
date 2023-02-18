@@ -40367,10 +40367,10 @@ class Utils {
      * 如果传递了可选参数，则在其后添加传递的可选参数的值 */
     static handleWindowsReservedName(str, addStr) {
         for (const name of this.windowsReservedNames) {
-            if (str === name) {
+            if (str.toUpperCase() === name) {
                 return addStr ? str + addStr : '';
             }
-            if (str.startsWith(name + '.')) {
+            if (str.toUpperCase().startsWith(name + '.')) {
                 return str.replace(/\./g, '．');
             }
         }
@@ -40675,7 +40675,6 @@ Utils.fullWidthDict = [
     ['~', '～'],
 ];
 /** Windows 保留文件名，不可单独作为文件名，不区分大小写 */
-// 为了效率，这里把大写和小写都直接列出，避免在使用时进行转换
 Utils.windowsReservedNames = [
     'CON',
     'PRN',
@@ -40688,17 +40687,6 @@ Utils.windowsReservedNames = [
     'COM2',
     'COM3',
     'COM4',
-    'con',
-    'prn',
-    'aux',
-    'nul',
-    'com1',
-    'lpt1',
-    'lpt2',
-    'lpt3',
-    'com2',
-    'com3',
-    'com4',
 ];
 
 
