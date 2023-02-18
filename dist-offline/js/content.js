@@ -2313,17 +2313,15 @@ class FileName {
         // 处理连续的 / 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
         result = result.replace(/\/{2,100}/g, '/');
         // 对每一层路径和文件名进行处理
-        const pathArray = result.split('/');
-        for (let i = 0; i < pathArray.length; i++) {
-            let str = pathArray[i];
+        const paths = result.split('/');
+        for (let i = 0; i < paths.length; i++) {
             // 去掉每层路径首尾的空格
             // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
-            str = str.trim().replace(/^\./g, '．').replace(/\.$/g, '．');
+            paths[i] = paths[i].trim().replace(/^\./g, '．').replace(/\.$/g, '．');
             // 处理路径是 Windows 保留文件名的情况（不需要处理后缀名）
-            str = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__["Utils"].handleWindowsReservedName(str, this.addStr);
-            pathArray[i] = str;
+            paths[i] = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__["Utils"].handleWindowsReservedName(paths[i], this.addStr);
         }
-        result = pathArray.join('/');
+        result = paths.join('/');
         // 5 生成后缀名
         // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
         if (this.ugoiraExt.includes(data.ext) &&
@@ -21886,10 +21884,10 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask1', () => {
-            this.crawlData(103960000, 105156572);
+            this.crawlData(105160000, 105494610);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask2', () => {
-            this.crawlData(18980000, 19251497, 'novels');
+            this.crawlData(19260000, 19328605, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -29317,6 +29315,13 @@ const novelData = [
     [19230000, 1675444750000],
     [19240000, 1675578816000],
     [19250000, 1675692430000],
+    [19260000, 1675852157000],
+    [19270000, 1675999035000],
+    [19280000, 1676117630000],
+    [19290000, 1676213750000],
+    [19300000, 1676339631000],
+    [19310001, 1676450914000],
+    [19320000, 1676596485000],
 ];
 
 
@@ -39849,6 +39854,40 @@ const illustsData = [
     [105130000, 1675627260000],
     [105140000, 1675672260000],
     [105150000, 1675693560000],
+    [105160000, 1675731060000],
+    [105170000, 1675766760000],
+    [105180000, 1675785300000],
+    [105190000, 1675833960000],
+    [105200000, 1675860600000],
+    [105210000, 1675885440000],
+    [105220000, 1675932240000],
+    [105230000, 1675953420000],
+    [105240000, 1675992780000],
+    [105250002, 1676024520000],
+    [105260000, 1676041800000],
+    [105270002, 1676079780000],
+    [105280000, 1676107800000],
+    [105290002, 1676126580000],
+    [105300000, 1676160780000],
+    [105310000, 1676188440000],
+    [105320000, 1676206560000],
+    [105330000, 1676225340000],
+    [105340000, 1676272800000],
+    [105350000, 1676294880000],
+    [105360000, 1676311260000],
+    [105370000, 1676348580000],
+    [105380001, 1676371620000],
+    [105390000, 1676384640000],
+    [105400000, 1676409600000],
+    [105410000, 1676449440000],
+    [105420000, 1676470320000],
+    [105430000, 1676508780000],
+    [105440000, 1676545200000],
+    [105450000, 1676564940000],
+    [105460000, 1676612940000],
+    [105470000, 1676639400000],
+    [105480000, 1676666880000],
+    [105490000, 1676704980000],
 ];
 
 
@@ -40403,17 +40442,15 @@ class Utils {
      * 如果不传递可选参数，则将其替换为空字符串。
      * 如果传递了可选参数，则在其后添加传递的可选参数的值 */
     static handleWindowsReservedName(str, addStr) {
-        if (this.windowsReservedNames.includes(str)) {
-            if (addStr) {
-                return str + addStr;
+        for (const name of this.windowsReservedNames) {
+            if (str === name) {
+                return addStr ? str + addStr : '';
             }
-            else {
-                return '';
+            if (str.startsWith(name + '.')) {
+                return str.replace(/\./g, '．');
             }
         }
-        else {
-            return str;
-        }
+        return str;
     }
     // 对象深拷贝
     static deepCopy(data) {

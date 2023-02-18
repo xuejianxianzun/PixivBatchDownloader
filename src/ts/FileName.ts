@@ -464,22 +464,18 @@ class FileName {
     result = result.replace(/\/{2,100}/g, '/')
 
     // 对每一层路径和文件名进行处理
-    const pathArray = result.split('/')
+    const paths = result.split('/')
 
-    for (let i = 0; i < pathArray.length; i++) {
-      let str = pathArray[i]
-
+    for (let i = 0; i < paths.length; i++) {
       // 去掉每层路径首尾的空格
       // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
-      str = str.trim().replace(/^\./g, '．').replace(/\.$/g, '．')
+      paths[i] = paths[i].trim().replace(/^\./g, '．').replace(/\.$/g, '．')
 
       // 处理路径是 Windows 保留文件名的情况（不需要处理后缀名）
-      str = Utils.handleWindowsReservedName(str, this.addStr)
-
-      pathArray[i] = str
+      paths[i] = Utils.handleWindowsReservedName(paths[i], this.addStr)
     }
 
-    result = pathArray.join('/')
+    result = paths.join('/')
 
     // 5 生成后缀名
     // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名

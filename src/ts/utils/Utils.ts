@@ -63,15 +63,16 @@ class Utils {
    * 如果不传递可选参数，则将其替换为空字符串。
    * 如果传递了可选参数，则在其后添加传递的可选参数的值 */
   static handleWindowsReservedName(str: string, addStr?: string) {
-    if (this.windowsReservedNames.includes(str)) {
-      if (addStr) {
-        return str + addStr
-      } else {
-        return ''
+    for (const name of this.windowsReservedNames) {
+      if (str === name) {
+        return addStr ? str + addStr : ''
       }
-    } else {
-      return str
+      if (str.startsWith(name + '.')) {
+        return str.replace(/\./g, '．')
+      }
     }
+
+    return str
   }
 
   // 对象深拷贝
