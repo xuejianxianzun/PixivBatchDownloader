@@ -2262,12 +2262,12 @@ const langText = {
     'Ручной выбор',
   ],
   _快捷键ALTS手动选择作品: [
-    '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">S</span> 开始或暂停手动选择作品。',
-    '你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">S</span> 開始或暫停手動選擇作品。',
-    'You can use the shortcut keys <span class="blue">Alt</span> + <span class="blue">S</span> to start or pause manual selection of works.',
-    'ショートカット キー <span class="blue">Alt</span> + <span class="blue">S</span> を使用して、作品の手動選択を開始または一時停止できます。',
-    '바로 가기 키 <span class="blue">Alt</span> + <span class="blue">S</span>를 사용하여 작품 수동 선택을 시작하거나 일시 중지할 수 있습니다.',
-    'Вы можете использовать сочетания клавиш <span class="blue">Alt</span> + <span class="blue">S</span>, чтобы начать или приостановить ручной выбор произведений.',
+    '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">S</span> 开始或暂停手动选择作品。<br>选择完毕之后，打开下载器面板，点击“抓取选择的作品”。',
+    '你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">S</span> 開始或暫停手動選擇作品。<br>選擇完畢之後，開啟下載器面板，點選“抓取選擇的作品”。',
+    'You can use the shortcut keys <span class="blue">Alt</span> + <span class="blue">S</span> to start or pause manual selection of works.<br>After selecting, open the downloader panel and click "Crawl selected works".',
+    'ショートカット キー <span class="blue">Alt</span> + <span class="blue">S</span> を使用して、作品の手動選択を開始または一時停止できます。<br>選択後、ダウンローダパネルを開いて「選ばれた作品をクロール」をクリック。',
+    '바로 가기 키 <span class="blue">Alt</span> + <span class="blue">S</span>를 사용하여 작품 수동 선택을 시작하거나 일시 중지할 수 있습니다.<br>선택한 후 다운로더 패널을 열고 "선택된 작품 긁어오기"를 클릭합니다.',
+    'Вы можете использовать сочетания клавиш <span class="blue">Alt</span> + <span class="blue">S</span>, чтобы начать или приостановить ручной выбор произведений.<br>После выбора откройте панель загрузчика и нажмите «Стащить выбранные работы».',
   ],
   _抓取选择的作品: [
     '抓取选择的作品',
@@ -3965,6 +3965,14 @@ const langText = {
     'ブックマークの数',
     '북마크 수',
     'Колличество закладок',
+  ],
+  _重新显示帮助: [
+    '重新显示帮助',
+    '重新顯示幫助',
+    'Redisplay help',
+    'ヘルプを再表示',
+    '도움말 다시 표시',
+    'Повторно отобразить справку',
   ],
 }
 

@@ -1693,6 +1693,8 @@ class EVENT {
             exportSettings: 'exportSettings',
             /** 请求导入设置 */
             importSettings: 'importSettings',
+            /** 重新显示帮助 */
+            resetHelpTip: 'resetHelpTip',
             /** 当动图转换数量发生变化时触发 */
             convertChange: 'convertChange',
             /** 当动图转换成功时触发 */
@@ -5424,12 +5426,12 @@ const langText = {
         'Ручной выбор',
     ],
     _快捷键ALTS手动选择作品: [
-        '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">S</span> 开始或暂停手动选择作品。',
-        '你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">S</span> 開始或暫停手動選擇作品。',
-        'You can use the shortcut keys <span class="blue">Alt</span> + <span class="blue">S</span> to start or pause manual selection of works.',
-        'ショートカット キー <span class="blue">Alt</span> + <span class="blue">S</span> を使用して、作品の手動選択を開始または一時停止できます。',
-        '바로 가기 키 <span class="blue">Alt</span> + <span class="blue">S</span>를 사용하여 작품 수동 선택을 시작하거나 일시 중지할 수 있습니다.',
-        'Вы можете использовать сочетания клавиш <span class="blue">Alt</span> + <span class="blue">S</span>, чтобы начать или приостановить ручной выбор произведений.',
+        '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">S</span> 开始或暂停手动选择作品。<br>选择完毕之后，打开下载器面板，点击“抓取选择的作品”。',
+        '你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">S</span> 開始或暫停手動選擇作品。<br>選擇完畢之後，開啟下載器面板，點選“抓取選擇的作品”。',
+        'You can use the shortcut keys <span class="blue">Alt</span> + <span class="blue">S</span> to start or pause manual selection of works.<br>After selecting, open the downloader panel and click "Crawl selected works".',
+        'ショートカット キー <span class="blue">Alt</span> + <span class="blue">S</span> を使用して、作品の手動選択を開始または一時停止できます。<br>選択後、ダウンローダパネルを開いて「選ばれた作品をクロール」をクリック。',
+        '바로 가기 키 <span class="blue">Alt</span> + <span class="blue">S</span>를 사용하여 작품 수동 선택을 시작하거나 일시 중지할 수 있습니다.<br>선택한 후 다운로더 패널을 열고 "선택된 작품 긁어오기"를 클릭합니다.',
+        'Вы можете использовать сочетания клавиш <span class="blue">Alt</span> + <span class="blue">S</span>, чтобы начать или приостановить ручной выбор произведений.<br>После выбора откройте панель загрузчика и нажмите «Стащить выбранные работы».',
     ],
     _抓取选择的作品: [
         '抓取选择的作品',
@@ -7127,6 +7129,14 @@ const langText = {
         'ブックマークの数',
         '북마크 수',
         'Колличество закладок',
+    ],
+    _重新显示帮助: [
+        '重新显示帮助',
+        '重新顯示幫助',
+        'Redisplay help',
+        'ヘルプを再表示',
+        '도움말 다시 표시',
+        'Повторно отобразить справку',
     ],
 };
 
@@ -23671,6 +23681,15 @@ class Form {
                 });
             }
         }
+        // 重新显示帮助
+        {
+            const el = this.form.querySelector('#resetHelpTip');
+            if (el) {
+                el.addEventListener('click', () => {
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('resetHelpTip');
+                });
+            }
+        }
         // 显示命名字段提示
         this.form
             .querySelector('.showFileNameTip')
@@ -24928,6 +24947,7 @@ const formHtml = `<form class="settingForm">
     <button class="textButton gray1" type="button" id="exportSettings" data-xztext="_导出设置"></button>
     <button class="textButton gray1" type="button" id="importSettings" data-xztext="_导入设置"></button>
     <button class="textButton gray1" type="button" id="resetSettings" data-xztext="_重置设置"></button>
+    <button class="textButton gray1" type="button" id="resetHelpTip" data-xztext="_重新显示帮助"></button>
     </p>
   </div>
 </form>`;
@@ -26048,6 +26068,9 @@ class Settings {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.importSettings, () => {
             this.importSettings();
         });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetHelpTip, () => {
+            this.resetHelpTip();
+        });
         // 切换只选择动图/选择全部作品类型
         const codes = ['onlyugoira', 'qw222'];
         for (const code of codes) {
@@ -26125,6 +26148,18 @@ class Settings {
         // 开始恢复导入的设置
         this.reset(loadedJSON);
         _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_7__["lang"].transl('_导入成功'));
+    }
+    // 有些帮助信息是只显示一次的，这里可以让它们再次显示
+    // 主要是通过 showHelp.show 显示的帮助
+    resetHelpTip() {
+        this.setSetting('tipHowToUse', true);
+        this.setSetting('tipAltXToShowControlPanel', true);
+        this.setSetting('tipPressDToQuickDownload', true);
+        this.setSetting('tipAltSToSelectWork', true);
+        this.setSetting('tipPressDToQuickDownload', true);
+        this.setSetting('tipAltQToQuickDownload', true);
+        this.setSetting('tipBookmarkButton', true);
+        _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].success('✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_7__["lang"].transl('_重新显示帮助'));
     }
     // 重置设置 或者 导入设置
     // 可选参数：传递一份设置数据，用于从配置文件导入，恢复设置

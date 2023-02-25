@@ -183,6 +183,16 @@ class Form {
       }
     }
 
+    // 重新显示帮助
+    {
+      const el = this.form.querySelector('#resetHelpTip')
+      if (el) {
+        el.addEventListener('click', () => {
+          EVT.fire('resetHelpTip')
+        })
+      }
+    }
+
     // 显示命名字段提示
     this.form
       .querySelector('.showFileNameTip')!

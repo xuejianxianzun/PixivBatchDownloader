@@ -28,7 +28,7 @@ export interface ToastArgOptional {
   leave?: 'up' | 'fade' | 'none'
   /**提示出现的位置
    *
-   * topCenter 默认值，出现在屏幕上方，水平居中
+   * topCenter 出现在屏幕上方，水平居中
    *
    * center 出现在屏幕正中央（实际上会稍微偏上一点点）
    *
