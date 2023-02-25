@@ -1,6 +1,6 @@
 {
   "name": "Powerful Pixiv Downloader",
-  "version": "15.3.1",
+  "version": "15.3.2",
   "manifest_version": 3,
   "description": "强大的 Pixiv 批量下载器。Powerful Pixiv batch downloader. 強力な Pixiv ダウンローダー。",
   "icons": {
@@ -28,7 +28,7 @@
         "lib/jszip-utils.min.js",
         "lib/jszip.min.js",
         "lib/js-epub-maker.js",
-        "lib/UZIP.js",
+        "lib/pako.min.js",
         "lib/UPNG.js",
         "js/content.js",
         "lib/iconfont.js"
