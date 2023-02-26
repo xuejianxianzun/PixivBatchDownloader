@@ -119,6 +119,7 @@ class FormSettings {
       'AIGenerated',
       'notAIGenerated',
       'UnknownAI',
+      'setFileDownloadOrder',
     ],
     text: [
       'setWantPage',
@@ -175,6 +176,8 @@ class FormSettings {
       'prevWorkSize',
       'showOriginImageSize',
       'exportLogTiming',
+      'downloadOrder',
+      'downloadOrderSortBy',
     ],
     textarea: ['createFolderTagList'],
     datetime: ['postDateStart', 'postDateEnd'],

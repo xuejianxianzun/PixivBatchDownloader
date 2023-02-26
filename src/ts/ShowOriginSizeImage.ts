@@ -8,6 +8,8 @@ import { states } from './store/States'
 import { toast } from './Toast'
 import { lang } from './Lang'
 import { Colors } from './Colors'
+import { showHelp } from './ShowHelp'
+import { store } from './store/Store'
 
 interface Style {
   imgW: number
@@ -35,6 +37,9 @@ class ShowOriginSizeImage {
   }
 
   private workData?: ArtworkData
+
+  // 显示作品中的第几张图片
+  private index = 0
 
   // 原比例查看图片的容器的元素
   private wrapId = 'originSizeWrap'
@@ -80,6 +85,10 @@ class ShowOriginSizeImage {
     if (val) {
       EVT.fire('showOriginSizeImage')
       this.wrap.style.display = 'block'
+      showHelp.show(
+        'tipPressDToQuickDownload',
+        lang.transl('_预览作品时按快捷键可以下载这个作品')
+      )
 
       // 预览动图
       if (settings.previewUgoira && this.workData?.body.illustType === 2) {
@@ -165,24 +174,59 @@ class ShowOriginSizeImage {
       }
     })
 
-    // 预览大图时，可以使用快捷键 D 下载这个作品
-    window.addEventListener('keydown', (ev) => {
-      if (ev.code === 'KeyD' && this.show) {
-        EVT.fire('crawlIdList', [
-          {
-            type: 'illusts',
-            id: this.workData!.body.id,
-          },
-        ])
+    window.addEventListener(
+      'keydown',
+      (ev) => {
+        // 预览大图时，可以使用快捷键 D 下载这个作品
+        if (ev.code === 'KeyD' && this.show) {
+          EVT.fire('crawlIdList', [
+            {
+              type: 'illusts',
+              id: this.workData!.body.id,
+            },
+          ])
 
-        // 下载时不显示下载面板
-        states.quickCrawl = true
-        toast.show(lang.transl('_已发送下载请求'), {
-          bgColor: Colors.bgBlue,
-          position: 'center',
-        })
-      }
-    })
+          // 下载时不显示下载面板
+          states.quickCrawl = true
+          toast.show(lang.transl('_已发送下载请求'), {
+            bgColor: Colors.bgBlue,
+            position: 'center',
+          })
+        }
+
+        // 预览作品时，可以使用快捷键 C 仅下载当前显示的图片
+        if (ev.code === 'KeyC' && this.show) {
+          ev.stopPropagation()
+
+          if (this.workData!.body.pageCount > 1) {
+            store.setDownloadOnlyPart(Number.parseInt(this.workData!.body.id), [
+              this.index,
+            ])
+          }
+
+          EVT.fire('crawlIdList', [
+            {
+              type: 'illusts',
+              id: this.workData!.body.id,
+            },
+          ])
+
+          // 下载时不显示下载面板
+          states.quickCrawl = true
+          toast.show(lang.transl('_已发送下载请求'), {
+            bgColor: Colors.bgBlue,
+            position: 'center',
+          })
+        }
+
+        // 按 Esc 键时取消预览
+        if (ev.code === 'Escape' && this.show) {
+          this.show = false
+          ev.stopPropagation()
+        }
+      },
+      true
+    )
   }
 
   private readyShow = (ev: MouseEvent) => {
@@ -407,9 +451,14 @@ class ShowOriginSizeImage {
     this.wrap.style.marginLeft = this.style.ml + 'px'
   }
 
-  public setData(urls: Urls, data: ArtworkData) {
+  public setData(urls: Urls, data: ArtworkData, index: number) {
     this.urls = urls
     this.workData = data
+    this.index = index
+  }
+
+  public hide() {
+    this.show = false
   }
 }
 

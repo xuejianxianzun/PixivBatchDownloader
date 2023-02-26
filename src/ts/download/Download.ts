@@ -21,16 +21,24 @@ import { states } from '../store/States'
 import { Tools } from '../Tools'
 import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
 import { downloadNovelCover } from './DownloadNovelCover'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
+import { downloadStates } from './DownloadStates'
 
 // 处理下载队列里的任务
 // 不显示在进度条上的下载任务，不在这里处理
 class Download {
-  constructor(progressBarIndex: number, data: downloadArgument) {
+  constructor(
+    progressBarIndex: number,
+    data: downloadArgument,
+    downloadStatesIndex: number
+  ) {
     this.progressBarIndex = progressBarIndex
+    this.downloadStatesIndex = downloadStatesIndex
     this.beforeDownload(data)
   }
 
   private progressBarIndex: number
+  private downloadStatesIndex: number
 
   private retry = 0 // 重试次数
   private lastRequestTime = 0 // 最后一次发起请求的时间戳
@@ -330,6 +338,9 @@ class Download {
       }
 
       // 向浏览器发送下载任务
+      if (settings.setFileDownloadOrder) {
+        await this.waitPreviousFileDownload()
+      }
       this.browserDownload(blobUrl, _fileName, arg.id, arg.taskBatch)
       xhr = null as any
       file = null as any
@@ -338,6 +349,27 @@ class Download {
     this.lastRequestTime = new Date().getTime()
     // 没有设置 timeout，默认值是 0，不会超时
     xhr.send()
+  }
+
+  // 等待上一个文件下载成功之后（浏览器将文件保存到硬盘上），再保存这个文件。这是为了保证文件的保存顺序不会错乱
+  private waitPreviousFileDownload() {
+    return new Promise(async (resolve) => {
+      if (this.downloadStatesIndex === 0) {
+        return resolve(true)
+      }
+
+      if (downloadStates.states[this.downloadStatesIndex - 1] === 1) {
+        return resolve(true)
+      } else {
+        return resolve(
+          new Promise((resolve) => {
+            setTimeoutWorker.set(() => {
+              resolve(this.waitPreviousFileDownload())
+            }, 50)
+          })
+        )
+      }
+    })
   }
 
   // 向浏览器发送下载任务

@@ -11,23 +11,14 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '15.1.00'
+  private flag = '15.4.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-      let msg = `<strong>${lang.transl('_新增设置项')}: ${lang.transl(
-        '_AI作品'
-      )}</strong>
+      let msg = `<strong>${lang.transl('_新增功能')}:</strong>
       <br>
-      ${lang.transl('_用户可以选择是否下载AI生成的作品')}
-      <br>
-      ${lang.transl('_你可以在xx选项卡里找到它', lang.transl('_抓取'))}
-      <br>
-      <br>
-      <strong>${lang.transl('_新增命名标记')}: {AI}</strong>
-      <br>
-      ${lang.transl('_命名标记AI')}
+      ${lang.transl('_预览作品时按快捷键C仅下载当前图片')}
       `
 
       // 在更新说明的下方显示赞助提示

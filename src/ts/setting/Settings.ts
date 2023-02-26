@@ -9,14 +9,14 @@
 // 本模块会触发 3 个事件：
 
 // EVT.list.settingChange
-// 当任意一个设置项被赋值时触发（本模块不会区分值是否发生了变化）。这是最常用的事件。
+// 当任意一个设置项被赋值时触发（不会区分值是否发生了变化）。这是最常用的事件。
 // 事件的参数里会传递这个设置项的名称和值，格式如：
 // {name: string, value: any}
 // 如果某个模块要监听特定的设置项，应该使用参数的 name 来判断触发事件的设置项是否是自己需要的设置项
-// 如果不依赖于特定设置项，则应该考虑使用节流或者防抖来限制事件监听器的执行频率，防止造成严重的性能问题
+// 如果不依赖于特定设置项，则应该考虑使用节流或者防抖来限制事件监听器的执行频率，防止造成性能问题
 
 // EVT.list.settingInitialized
-// 当设置初始化完毕后（恢复保存的设置之后）触发。这个事件在生命周期里只会触发一次。
+// 当设置初始化完毕（以及恢复本地储存的设置）之后触发。这个事件在生命周期里只会触发一次。
 // 过程中，每个设置项都会触发一次 settingChange 事件
 
 // EVT.list.resetSettingsEnd
@@ -24,8 +24,8 @@
 // 导入设置之后触发
 // 过程中，每个设置项都会触发一次 settingChange 事件
 
-// 如果打开了多个标签页，每个页面的 settings 数据是互相独立的，在一个页面里修改设置不会影响另一个页面里的设置。
-// 但是持久化保存的数据只有一份：最后一次设置变更是在哪个页面发生的，就保存哪个页面的 settings 数据。
+// 如果打开了多个标签页，每个页面的 settings 数据是相互独立的，在一个页面里修改设置不会影响另一个页面里的设置。
+// 但是持久化保存的数据只有一份：最后一次的设置变化是在哪个页面发生的，就保存哪个页面的 settings 数据。
 
 import { EVT } from '../EVT'
 import { Utils } from '../utils/Utils'
@@ -194,9 +194,8 @@ interface XzSetting {
   showPreviewWorkTip: boolean
   showOriginImage: boolean
   showOriginImageSize: 'original' | 'regular'
-  showHowToUse: boolean
+  tipHowToUse: boolean
   whatIsNewFlag: string
-  tipCreateFolder: boolean
   replaceSquareThumb: boolean
   notFolderWhenOneFile: boolean
   noSerialNoForSingleImg: boolean
@@ -215,7 +214,7 @@ interface XzSetting {
   downloadNovelEmbeddedImage: boolean
   previewUgoira: boolean
   hiddenBrowserDownloadBar: boolean
-  tipPressDToDownload: boolean
+  tipPressDToQuickDownload: boolean
   /**定时抓取的间隔时间，注意单位是分钟而不是毫秒 */
   timedCrawlInterval: number
   slowCrawl: boolean
@@ -243,6 +242,13 @@ interface XzSetting {
   AIGenerated: boolean
   notAIGenerated: boolean
   UnknownAI: boolean
+  setFileDownloadOrder: boolean
+  downloadOrder: 'desc' | 'asc'
+  downloadOrderSortBy: 'ID' | 'bookmarkCount' | 'bookmarkID'
+  tipAltXToShowControlPanel: boolean
+  tipAltSToSelectWork: boolean
+  tipAltQToQuickDownload: boolean
+  tipBookmarkButton: boolean
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -407,9 +413,8 @@ class Settings {
     showPreviewWorkTip: true,
     showOriginImage: true,
     showOriginImageSize: 'original',
-    showHowToUse: true,
+    tipHowToUse: true,
     whatIsNewFlag: 'xuejian&saber',
-    tipCreateFolder: true,
     replaceSquareThumb: true,
     notFolderWhenOneFile: false,
     noSerialNoForSingleImg: true,
@@ -425,9 +430,9 @@ class Settings {
     downloadNovelEmbeddedImage: true,
     previewUgoira: true,
     hiddenBrowserDownloadBar: false,
-    tipPressDToDownload: true,
+    tipPressDToQuickDownload: true,
     timedCrawlInterval: 120,
-    slowCrawl: false,
+    slowCrawl: true,
     slowCrawlOnWorksNumber: 100,
     downloadOnClickBookmark: false,
     downloadOnClickLike: false,
@@ -444,6 +449,13 @@ class Settings {
     AIGenerated: true,
     notAIGenerated: true,
     UnknownAI: true,
+    setFileDownloadOrder: false,
+    downloadOrder: 'desc',
+    downloadOrderSortBy: 'ID',
+    tipAltXToShowControlPanel: true,
+    tipAltSToSelectWork: true,
+    tipAltQToQuickDownload: true,
+    tipBookmarkButton: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -485,6 +497,10 @@ class Settings {
 
     window.addEventListener(EVT.list.importSettings, () => {
       this.importSettings()
+    })
+
+    window.addEventListener(EVT.list.resetHelpTip, () => {
+      this.resetHelpTip()
     })
 
     // 切换只选择动图/选择全部作品类型
@@ -575,6 +591,20 @@ class Settings {
     // 开始恢复导入的设置
     this.reset(loadedJSON)
     toast.success(lang.transl('_导入成功'))
+  }
+
+  // 有些帮助信息是只显示一次的，这里可以让它们再次显示
+  // 主要是通过 showHelp.show 显示的帮助
+  private resetHelpTip() {
+    this.setSetting('tipHowToUse', true)
+    this.setSetting('tipAltXToShowControlPanel', true)
+    this.setSetting('tipPressDToQuickDownload', true)
+    this.setSetting('tipAltSToSelectWork', true)
+    this.setSetting('tipPressDToQuickDownload', true)
+    this.setSetting('tipAltQToQuickDownload', true)
+    this.setSetting('tipBookmarkButton', true)
+
+    toast.success('✓ ' + lang.transl('_重新显示帮助'))
   }
 
   // 重置设置 或者 导入设置

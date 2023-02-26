@@ -333,16 +333,6 @@ export const formHtml = `<form class="settingForm">
     <slot data-name="saveNamingRule"></slot>
     <button class="showFileNameTip textButton" type="button" data-xztext="_提示2"></button>
     </p>
-    <p class="tip tipWithBtn" id="tipCreateFolder">
-      <span class="left">
-      <span data-xztext="_设置文件夹名的提示"></span>
-      <strong>{user}/{id}</strong>
-      </span>
-      <span class="right">
-        <button type="button" class="textButton gray1" id="tipCreateFolderBtn" data-xztext="_我知道了">
-        </button>
-      </span>
-    </p>
     <p class="fileNameTip tip">
     <span data-xztext="_设置文件夹名的提示"></span>
     <span>{user}<span class="key">/</span>{id}</span>
@@ -363,9 +353,6 @@ export const formHtml = `<form class="settingForm">
     <span class="blue">{title}</span>
     <span data-xztext="_命名标记title"></span>
     <br>
-    <span class="blue">{page_title}</span>
-    <span data-xztext="_文件夹标记PTitle"></span>
-    <br>
     <span class="blue">{tags}</span>
     <span data-xztext="_命名标记tags"></span>
     <br>
@@ -374,6 +361,9 @@ export const formHtml = `<form class="settingForm">
     <br>
     <span class="blue">{tags_transl_only}</span>
     <span data-xztext="_命名标记tags_transl_only"></span>
+    <br>
+    <span class="blue">{page_title}</span>
+    <span data-xztext="_文件夹标记PTitle"></span>
     <br>
     * <span class="blue">{page_tag}</span>
     <span data-xztext="_文件夹标记PTag"></span>
@@ -516,8 +506,7 @@ export const formHtml = `<form class="settingForm">
     <span class="beautify_switch" tabindex="0"></span>
     
     <span class="subOptionWrap" data-show="slowCrawl">
-    <span data-xztext="_作品数量"></span>
-    <span>&gt;</span>
+    <span data-xztext="_当作品数量大于"></span>
     <input type="text" name="slowCrawlOnWorksNumber" class="setinput_style1 blue" value="100" style="width:60px;min-width: 60px;">
     </span>
     </p>
@@ -833,6 +822,36 @@ export const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="82">
+    <span class="settingNameStyle1" data-xztext="_文件下载顺序"></span>
+    <input type="checkbox" name="setFileDownloadOrder" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="subOptionWrap" data-show="setFileDownloadOrder">
+    
+    <span class="settingNameStyle1" data-xztext="_排序依据"></span>
+    <input type="radio" name="downloadOrderSortBy" id="downloadOrderSortBy1" class="need_beautify radio" value="ID" checked>
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrderSortBy1" data-xztext="_作品ID"></label>
+    <input type="radio" name="downloadOrderSortBy" id="downloadOrderSortBy2" class="need_beautify radio" value="bookmarkCount">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrderSortBy2" data-xztext="_收藏数量2"></label>
+    <input type="radio" name="downloadOrderSortBy" id="downloadOrderSortBy3" class="need_beautify radio" value="bookmarkID">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrderSortBy3" data-xztext="_收藏时间"></label>
+
+    <span class="verticalSplit"></span>
+
+    <input type="radio" name="downloadOrder" id="downloadOrder1" class="need_beautify radio" value="desc" checked>
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrder1" data-xztext="_降序"></label>
+    <input type="radio" name="downloadOrder" id="downloadOrder2" class="need_beautify radio" value="asc">
+    <span class="beautify_radio" tabindex="0"></span>
+    <label for="downloadOrder2" data-xztext="_升序"></label>
+
+    </span>
+    </p>
+
     <p class="option" data-no="28">
     <span class="has_tip settingNameStyle1" data-xztip="_不下载重复文件的提示">
     <span data-xztext="_不下载重复文件"></span>
@@ -922,16 +941,6 @@ export const formHtml = `<form class="settingForm">
     <span class="settingNameStyle1" data-xztext="_预览动图"></span>
     <input type="checkbox" name="previewUgoira" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch" tabindex="0"></span>
-    </p>
-    
-    <p class="tip tipWithBtn" id="tipPressDToDownload">
-      <span class="left">
-      <span data-xztext="_预览作品时按快捷键D可以下载这个作品"></span>
-      </span>
-      <span class="right">
-        <button type="button" class="textButton gray1" id="tipPressDToDownloadBtn" data-xztext="_我知道了">
-        </button>
-      </span>
     </p>
 
     <p class="option" data-no="62">
@@ -1170,6 +1179,7 @@ export const formHtml = `<form class="settingForm">
     <button class="textButton gray1" type="button" id="exportSettings" data-xztext="_导出设置"></button>
     <button class="textButton gray1" type="button" id="importSettings" data-xztext="_导入设置"></button>
     <button class="textButton gray1" type="button" id="resetSettings" data-xztext="_重置设置"></button>
+    <button class="textButton gray1" type="button" id="resetHelpTip" data-xztext="_重新显示帮助"></button>
     </p>
   </div>
 </form>`

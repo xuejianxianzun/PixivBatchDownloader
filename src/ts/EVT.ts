@@ -85,6 +85,8 @@ class EVENT {
     exportSettings: 'exportSettings',
     /** 请求导入设置 */
     importSettings: 'importSettings',
+    /** 重新显示帮助 */
+    resetHelpTip: 'resetHelpTip',
     /** 当动图转换数量发生变化时触发 */
     convertChange: 'convertChange',
     /** 当动图转换成功时触发 */
@@ -189,6 +191,7 @@ class EVENT {
       | 'resetSettingsEnd'
       | 'exportSettings'
       | 'importSettings'
+      | 'resetHelpTip'
       | 'convertSuccess'
       | 'openCenterPanel'
       | 'closeCenterPanel'

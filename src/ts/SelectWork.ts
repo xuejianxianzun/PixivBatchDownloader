@@ -10,6 +10,7 @@ import { Utils } from './utils/Utils'
 import { artworkThumbnail } from './ArtworkThumbnail'
 import { novelThumbnail } from './NovelThumbnail'
 import { pageType } from './PageType'
+import { showHelp } from './ShowHelp'
 
 // 手动选择作品，图片作品和小说都可以选择
 class SelectWork {
@@ -240,6 +241,8 @@ class SelectWork {
     this.clearBtn.style.display = 'none'
     this.clearBtn.addEventListener('click', () => {
       this.clearIdList()
+      this.clearBtn.style.display = 'none'
+      this.crawlBtn.style.display = 'none'
     })
 
     this.crawlBtn = Tools.addBtn(
@@ -260,6 +263,10 @@ class SelectWork {
       this.controlBtn.onclick = (ev) => {
         this.startSelect(ev)
         this.clearBtn.style.display = 'block'
+        showHelp.show(
+          'tipAltSToSelectWork',
+          lang.transl('_快捷键ALTS手动选择作品')
+        )
       }
     } else {
       if (!this.pause) {
@@ -285,6 +292,7 @@ class SelectWork {
         '_抓取选择的作品2',
         this.idList.length.toString()
       )
+      this.clearBtn.style.display = 'block'
     } else {
       lang.updateText(this.crawlBtn, '_抓取选择的作品')
     }
@@ -361,7 +369,7 @@ class SelectWork {
     this.updateSelectorEl()
   }
 
-  // esc 暂停选择
+  // 按 Esc 键时暂停选择
   private escEvent(ev: KeyboardEvent) {
     if (ev.code === 'Escape') {
       this.pauseSelect()

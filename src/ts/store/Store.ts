@@ -3,7 +3,7 @@ import { settings } from '../setting/Settings'
 import { Tools } from '../Tools'
 import { Result, ResultOptional, RankList, IDData } from './StoreType'
 
-// 储存抓取结果
+// 生成抓取结果
 class Store {
   constructor() {
     this.bindEvents()
@@ -24,6 +24,20 @@ class Store {
 
   public result: Result[] = [] // 储存抓取结果
 
+  /**记录从每个作品里下载多少个文件 */
+  public downloadCount: {
+    [workID: string]: number
+  } = {}
+
+  // 恢复未完成的下载之后，生成 downloadCount 数据
+  // 因为保存的任务数据里没有 downloadCount，并且恢复数据时也没有生成 downloadCount
+  public resetDownloadCount() {
+    this.downloadCount = {}
+    for (const r of this.result) {
+      this.downloadCount[r.idNum] = (this.downloadCount[r.idNum] || 0) + 1
+    }
+  }
+
   public remainingDownload = 0 // 剩余多少个等待下载和保存的文件
 
   private rankList: RankList = {} // 储存作品在排行榜中的排名
@@ -32,7 +46,24 @@ class Store {
 
   public title = '' // 开始抓取时，储存页面此时的 title
 
+  public URLWhenCrawlStart = '' // 开始抓取时，储存页面此时的 URL
+
   public crawlCompleteTime: Date = new Date()
+
+  /**只下载作品里的一部分图片 */
+  private downloadOnlyPart: {
+    [workID: string]: number[]
+  } = {}
+
+  public setDownloadOnlyPart(workID: number, indexList: number[]) {
+    if (this.downloadOnlyPart[workID]) {
+      this.downloadOnlyPart[workID] = Array.from(
+        new Set(this.downloadOnlyPart[workID].concat(indexList))
+      )
+    } else {
+      this.downloadOnlyPart[workID] = indexList
+    }
+  }
 
   private readonly fileDataDefault: Result = {
     aiType: 0,
@@ -45,7 +76,6 @@ class Store {
     title: '',
     description: '',
     pageCount: 1,
-    dlCount: 1,
     index: 0,
     tags: [],
     tagsWithTransl: [],
@@ -74,15 +104,6 @@ class Store {
     sl: null,
   }
 
-  // 计算要从这个作品里下载几张图片
-  private getDLCount(pageCount: number) {
-    if (settings.firstFewImagesSwitch) {
-      return Math.min(pageCount, settings.firstFewImages)
-    } else {
-      return pageCount
-    }
-  }
-
   // 添加每个作品的信息。只需要传递有值的属性
   // 如果一个作品有多张图片，只需要传递第一张图片的数据。后面的数据会根据设置自动生成
   public addResult(data: ResultOptional) {
@@ -101,7 +122,6 @@ class Store {
     // 可以修改基础类型的数据
 
     if (workData.type === 0 || workData.type === 1) {
-      workData.dlCount = this.getDLCount(workData.pageCount)
       workData.id = workData.idNum + `_p0`
     } else {
       workData.id = workData.idNum.toString()
@@ -111,43 +131,68 @@ class Store {
 
     EVT.fire('addResult', workData)
 
-    // 把该作品里的每个文件的数据添加到结果里
+    // 保存这个作品里每个文件的数据
     if (workData.type === 2 || workData.type === 3) {
       // 动图和小说作品直接添加
       this.result.push(workData)
+
+      this.downloadCount[workData.idNum] = 1
     } else {
       // 插画和漫画
-      // 循环生成每一个图片文件的数据
-      const p0 = 'p0'
-      let dlCount = workData.dlCount
 
-      // 不抓取多图作品的最后一张图片
-      if (
-        settings.doNotDownloadLastImageOfMultiImageWork &&
-        workData.pageCount > 1
-      ) {
-        const number = workData.pageCount - 1
-        dlCount = Math.min(dlCount, number)
-      }
+      // 储存需要下载的图片的索引
+      let fileIndexList: number[] = []
 
-      // 特定用户的多图作品不下载最后几张图片
-      if (workData.pageCount > 1) {
-        const removeLastFew = settings.DoNotDownloadLastFewImagesList.find(
-          (item) => item.uid === Number.parseInt(workData.userId)
-        )
-        if (removeLastFew && removeLastFew.value > 0) {
-          const number = workData.pageCount - removeLastFew.value
-          if (number > 0) {
-            dlCount = Math.min(dlCount, number)
-          } else {
-            // 用户设置的值有可能把这个作品的图片全部排除了，此时只跳过最后一张
-            dlCount = Math.min(dlCount, workData.pageCount - 1)
+      // 只下载部分图片
+      if (this.downloadOnlyPart[workData.idNum]) {
+        fileIndexList = this.downloadOnlyPart[workData.idNum]
+        delete this.downloadOnlyPart[workData.idNum]
+      } else {
+        // 下载全部图片
+        let total = workData.pageCount
+
+        // 如果下载全部图片，则检查一些过滤器
+        // 只下载部分图片时，用户已经手动指定了要下载的图片，所以不要检查这些过滤器
+
+        // 多图作品只下载前几张图片
+        if (settings.firstFewImagesSwitch) {
+          total = Math.min(workData.pageCount, settings.firstFewImages)
+        }
+
+        // 不抓取多图作品的最后一张图片
+        if (
+          settings.doNotDownloadLastImageOfMultiImageWork &&
+          workData.pageCount > 1
+        ) {
+          total = Math.min(total, workData.pageCount - 1)
+        }
+
+        // 特定用户的多图作品不下载最后几张图片
+        if (workData.pageCount > 1) {
+          const removeLastFew = settings.DoNotDownloadLastFewImagesList.find(
+            (item) => item.uid === Number.parseInt(workData.userId)
+          )
+
+          if (removeLastFew && removeLastFew.value > 0) {
+            let number = workData.pageCount - removeLastFew.value
+            if (number < 1) {
+              // 用户设置的值有可能把这个作品的图片全部排除了，此时只跳过最后一张
+              number = workData.pageCount - 1
+            }
+            total = Math.min(total, number)
           }
+        }
+
+        for (let i = 0; i < total; i++) {
+          fileIndexList.push(i)
         }
       }
 
-      // 目前总是从第一张开始连续生成，中间不会跳过
-      for (let i = 0; i < dlCount; i++) {
+      this.downloadCount[workData.idNum] = fileIndexList.length
+
+      // 生成每个图片的数据
+      const p0 = 'p0'
+      for (const i of fileIndexList) {
         const fileData = Object.assign({}, workData)
         const pi = 'p' + i
         fileData.index = i
@@ -193,6 +238,7 @@ class Store {
 
   private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
+      this.URLWhenCrawlStart = window.location.href
       this.reset()
     })
 

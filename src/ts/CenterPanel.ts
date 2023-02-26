@@ -8,6 +8,7 @@ import { bg } from './BG'
 import './OpenCenterPanel'
 import { settings } from './setting/Settings'
 import { BoldKeywords } from './BoldKeywords'
+import { showHelp } from './ShowHelp'
 
 // 选项卡的名称和索引
 enum Tabbar {
@@ -67,7 +68,7 @@ class CenterPanel {
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
-        <button class="textButton has_tip centerWrap_top_btn centerWrap_close" data-xztip="_隐藏下载面板" data-xztitle="_隐藏下载面板">
+        <button class="textButton has_tip centerWrap_top_btn centerWrap_close" data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
         </svg>
@@ -131,6 +132,10 @@ class CenterPanel {
       }
     })
 
+    window.addEventListener(EVT.list.settingInitialized, () => {
+      showHelp.show('tipHowToUse', lang.transl('_HowToUse'))
+    })
+
     // 使用快捷键 Alt + x 切换中间面板显示隐藏
     window.addEventListener(
       'keydown',
@@ -147,6 +152,10 @@ class CenterPanel {
       .querySelector('.centerWrap_close')!
       .addEventListener('click', () => {
         EVT.fire('closeCenterPanel')
+        showHelp.show(
+          'tipAltXToShowControlPanel',
+          lang.transl('_快捷键ALTX显示隐藏控制面板')
+        )
       })
 
     // 开始抓取作品时，隐藏

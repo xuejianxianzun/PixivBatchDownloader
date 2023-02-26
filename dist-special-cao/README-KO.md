@@ -2,6 +2,8 @@
 
 [중국어 번체](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-ZH-TW.md)
 
+[日本語](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-JA.md)
+
 [English](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
 
 [Russian](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-RU.md)

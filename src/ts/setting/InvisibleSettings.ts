@@ -41,11 +41,11 @@ class InvisibleSettings {
 
     // 显示提示信息
     if (settings[name]) {
-      const msg = name + ' on'
+      const msg = name + ' On'
       log.success(msg)
       toast.success(msg)
     } else {
-      const msg = name + ' off'
+      const msg = name + ' Off'
       log.warning(msg)
       toast.warning(msg)
     }
