@@ -2,6 +2,7 @@ import { pageType } from '../PageType'
 import { EVT } from '../EVT'
 import { states } from '../store/States'
 import { Tools } from '../Tools'
+import { store } from '../store/Store'
 
 /**
 ↑ 抓取中
@@ -11,6 +12,7 @@ import { Tools } from '../Tools'
 ║ 下载暂停
 ■ 下载停止
 ✓ 下载完毕
+☑ 下载完毕，并且此时的页面不是开始抓取时的页面（页面网址发生了变化）
 */
 enum Flags {
   crawling = '↑',
@@ -20,6 +22,7 @@ enum Flags {
   paused = '║',
   stopped = '■',
   completed = '✓',
+  completedAndPageURLChange = '☑',
   space = ' ',
 }
 
@@ -75,8 +78,18 @@ class ShowStatusOnTitle {
       }, 500)
     })
 
+    // 切换同类型页面时，如果切换之前已经有了正常下载完成的标记，则将其修改为另一个标记
+    window.addEventListener(EVT.list.pageSwitchedTypeNotChange, () => {
+      if (
+        this.includeFlag(Flags.completed) ||
+        this.includeFlag(Flags.completedAndPageURLChange)
+      ) {
+        this.setCompleteFlag()
+      }
+    })
+
     window.addEventListener(EVT.list.downloadComplete, () => {
-      this.set(Flags.completed)
+      this.setCompleteFlag()
     })
 
     window.addEventListener(EVT.list.downloadPause, () => {
@@ -152,6 +165,17 @@ class ShowStatusOnTitle {
     } else {
       window.clearInterval(this.flashingTimer)
     }
+  }
+
+  private setCompleteFlag() {
+    let flag = Flags.completed
+    if (
+      store.URLWhenCrawlStart !== '' &&
+      window.location.href !== store.URLWhenCrawlStart
+    ) {
+      flag = Flags.completedAndPageURLChange
+    }
+    this.set(flag)
   }
 
   // 闪烁提醒，把给定的标记替换成空白，来回切换

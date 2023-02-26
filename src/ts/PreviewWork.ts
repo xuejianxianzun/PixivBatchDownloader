@@ -12,6 +12,8 @@ import { toast } from './Toast'
 import { lang } from './Lang'
 import { Colors } from './Colors'
 import { DateFormat } from './utils/DateFormat'
+import { showHelp } from './ShowHelp'
+import { store } from './store/Store'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -72,8 +74,13 @@ class PreviewWork {
         this.sendUrls()
         if (settings.PreviewWork) {
           this._show = true
+          showOriginSizeImage.hide()
           this.showWrap()
           window.clearTimeout(this.delayHiddenTimer)
+          showHelp.show(
+            'tipPressDToQuickDownload',
+            lang.transl('_预览作品时按快捷键可以下载这个作品')
+          )
         }
       }
     } else {
@@ -148,29 +155,67 @@ class PreviewWork {
       }
     })
 
-    // 可以使用 Alt + P 快捷键来启用/禁用此功能
-    // 预览作品时，可以使用快捷键 D 下载这个作品
-    window.addEventListener('keydown', (ev) => {
-      if (ev.altKey && ev.code === 'KeyP') {
-        setSetting('PreviewWork', !settings.PreviewWork)
-      }
+    window.addEventListener(
+      'keydown',
+      (ev) => {
+        // 可以使用 Alt + P 快捷键来启用/禁用此功能
+        if (ev.altKey && ev.code === 'KeyP') {
+          setSetting('PreviewWork', !settings.PreviewWork)
+          // 显示提示信息
+          if (settings.PreviewWork) {
+            const msg = 'Preview work - On'
+            toast.success(msg)
+          } else {
+            const msg = 'Preview work - Off'
+            toast.warning(msg)
+          }
+        }
 
-      if (ev.code === 'KeyD' && this.show) {
-        EVT.fire('crawlIdList', [
-          {
-            type: 'illusts',
-            id: this.workData!.body.id,
-          },
-        ])
+        // 预览作品时，可以使用快捷键 D 下载这个作品
+        if (ev.code === 'KeyD' && this.show) {
+          EVT.fire('crawlIdList', [
+            {
+              type: 'illusts',
+              id: this.workData!.body.id,
+            },
+          ])
 
-        // 下载时不显示下载面板
-        states.quickCrawl = true
-        toast.show(lang.transl('_已发送下载请求'), {
-          bgColor: Colors.bgBlue,
-          position: 'center',
-        })
-      }
-    })
+          // 下载时不显示下载面板
+          states.quickCrawl = true
+          toast.show(lang.transl('_已发送下载请求'), {
+            bgColor: Colors.bgBlue,
+            position: 'center',
+          })
+        }
+
+        // 预览作品时，可以使用快捷键 C 仅下载当前显示的图片
+        if (ev.code === 'KeyC' && this.show) {
+          // 在作品页面内按 C 时，Pixiv 会把焦点定位到评论输入框里，这里阻止此行为
+          ev.stopPropagation()
+
+          if (this.workData!.body.pageCount > 1) {
+            store.setDownloadOnlyPart(Number.parseInt(this.workData!.body.id), [
+              this.index,
+            ])
+          }
+
+          EVT.fire('crawlIdList', [
+            {
+              type: 'illusts',
+              id: this.workData!.body.id,
+            },
+          ])
+
+          // 下载时不显示下载面板
+          states.quickCrawl = true
+          toast.show(lang.transl('_已发送下载请求'), {
+            bgColor: Colors.bgBlue,
+            position: 'center',
+          })
+        }
+      },
+      true
+    )
 
     const hiddenEvtList = [
       EVT.list.pageSwitch,
@@ -552,7 +597,8 @@ class PreviewWork {
         original: this.replaceUrl(data.body.urls.original),
         regular: this.replaceUrl(data.body.urls.regular),
       },
-      data
+      data,
+      this.index
     )
   }
 }

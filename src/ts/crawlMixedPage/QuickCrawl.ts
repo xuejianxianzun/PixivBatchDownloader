@@ -2,6 +2,7 @@ import { Colors } from '../Colors'
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { pageType } from '../PageType'
+import { showHelp } from '../ShowHelp'
 import { states } from '../store/States'
 import { IDData } from '../store/StoreType'
 import { toast } from '../Toast'
@@ -45,11 +46,15 @@ class QuickCrawl {
       'click',
       () => {
         this.sendDownload()
+        showHelp.show(
+          'tipAltQToQuickDownload',
+          lang.transl('_快捷键ALTQ快速下载本页作品')
+        )
       },
       false
     )
 
-    // 使用快捷键 Alt + q 启动快速抓取
+    // 使用快捷键 Alt + Q 启动快速抓取
     window.addEventListener(
       'keydown',
       (ev) => {
