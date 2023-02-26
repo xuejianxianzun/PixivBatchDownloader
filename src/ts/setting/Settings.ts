@@ -499,6 +499,10 @@ class Settings {
       this.importSettings()
     })
 
+    window.addEventListener(EVT.list.resetHelpTip, () => {
+      this.resetHelpTip()
+    })
+
     // 切换只选择动图/选择全部作品类型
     const codes = ['onlyugoira', 'qw222']
     for (const code of codes) {
@@ -587,6 +591,20 @@ class Settings {
     // 开始恢复导入的设置
     this.reset(loadedJSON)
     toast.success(lang.transl('_导入成功'))
+  }
+
+  // 有些帮助信息是只显示一次的，这里可以让它们再次显示
+  // 主要是通过 showHelp.show 显示的帮助
+  private resetHelpTip() {
+    this.setSetting('tipHowToUse', true)
+    this.setSetting('tipAltXToShowControlPanel', true)
+    this.setSetting('tipPressDToQuickDownload', true)
+    this.setSetting('tipAltSToSelectWork', true)
+    this.setSetting('tipPressDToQuickDownload', true)
+    this.setSetting('tipAltQToQuickDownload', true)
+    this.setSetting('tipBookmarkButton', true)
+
+    toast.success('✓ ' + lang.transl('_重新显示帮助'))
   }
 
   // 重置设置 或者 导入设置

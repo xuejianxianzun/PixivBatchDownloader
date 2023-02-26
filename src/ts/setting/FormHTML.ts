@@ -1179,6 +1179,7 @@ export const formHtml = `<form class="settingForm">
     <button class="textButton gray1" type="button" id="exportSettings" data-xztext="_导出设置"></button>
     <button class="textButton gray1" type="button" id="importSettings" data-xztext="_导入设置"></button>
     <button class="textButton gray1" type="button" id="resetSettings" data-xztext="_重置设置"></button>
+    <button class="textButton gray1" type="button" id="resetHelpTip" data-xztext="_重新显示帮助"></button>
     </p>
   </div>
 </form>`

@@ -2262,12 +2262,12 @@ const langText = {
     'Ручной выбор',
   ],
   _快捷键ALTS手动选择作品: [
-    '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">S</span> 开始或暂停手动选择作品。',
-    '你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">S</span> 開始或暫停手動選擇作品。',
-    'You can use the shortcut keys <span class="blue">Alt</span> + <span class="blue">S</span> to start or pause manual selection of works.',
-    'ショートカット キー <span class="blue">Alt</span> + <span class="blue">S</span> を使用して、作品の手動選択を開始または一時停止できます。',
-    '바로 가기 키 <span class="blue">Alt</span> + <span class="blue">S</span>를 사용하여 작품 수동 선택을 시작하거나 일시 중지할 수 있습니다.',
-    'Вы можете использовать сочетания клавиш <span class="blue">Alt</span> + <span class="blue">S</span>, чтобы начать или приостановить ручной выбор произведений.',
+    '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">S</span> 开始或暂停手动选择作品。<br>选择完毕之后，打开下载器面板，点击“抓取选择的作品”。',
+    '你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">S</span> 開始或暫停手動選擇作品。<br>選擇完畢之後，開啟下載器面板，點選“抓取選擇的作品”。',
+    'You can use the shortcut keys <span class="blue">Alt</span> + <span class="blue">S</span> to start or pause manual selection of works.<br>After selecting, open the downloader panel and click "Crawl selected works".',
+    'ショートカット キー <span class="blue">Alt</span> + <span class="blue">S</span> を使用して、作品の手動選択を開始または一時停止できます。<br>選択後、ダウンローダパネルを開いて「選ばれた作品をクロール」をクリック。',
+    '바로 가기 키 <span class="blue">Alt</span> + <span class="blue">S</span>를 사용하여 작품 수동 선택을 시작하거나 일시 중지할 수 있습니다.<br>선택한 후 다운로더 패널을 열고 "선택된 작품 긁어오기"를 클릭합니다.',
+    'Вы можете использовать сочетания клавиш <span class="blue">Alt</span> + <span class="blue">S</span>, чтобы начать или приостановить ручной выбор произведений.<br>После выбора откройте панель загрузчика и нажмите «Стащить выбранные работы».',
   ],
   _抓取选择的作品: [
     '抓取选择的作品',
@@ -3381,13 +3381,21 @@ const langText = {
     '사용 가능한 크롤링 결과가 없습니다.',
     'Результаты сканирования недоступны',
   ],
-  _预览作品时按快捷键D可以下载这个作品: [
-    '预览作品时，按快捷键 <span class="blue">D</span> 可以下载这个作品。',
-    '預覽作品時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。',
-    'When previewing a work, press the shortcut blue <span class="blue">D</span> to download the work.',
-    '作品をプレビューしているときに、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。',
-    '이미지를 미리 보는 동안 바로 가기 <span class="blue">D</span>를 눌러 다운로드하세요.',
-    'При предварительном просмотре произведения нажмите клавишу <span class="blue">D</span>, чтобы загрузить произведение',
+  _预览作品时按快捷键可以下载这个作品: [
+    '预览作品时，按快捷键 <span class="blue">D</span> 可以下载这个作品。<br>按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
+    '預覽作品時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。<br>按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
+    'When previewing a work, press the shortcut key <span class="blue">D</span> to download the work.<br>Press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
+    '作品をプレビューしているときに、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。<br>ショートカット キー <span class="blue">C</span> を押して、現在表示されている画像のみをダウンロードします。',
+    '이미지를 미리 보는 동안 바로 가기 <span class="blue">D</span>를 눌러 다운로드하세요.<br>현재 표시된 이미지만 다운로드하려면 단축키 <span class="blue">C</span>를 누르십시오.',
+    'При предварительном просмотре произведения нажмите клавишу <span class="blue">D</span>, чтобы загрузить произведение.<br>Нажмите клавишу быстрого доступа <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
+  ],
+  _预览作品时按快捷键C仅下载当前图片: [
+    '预览作品时，按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
+    '預覽作品時，按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
+    'When previewing a work, press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
+    '作品のプレビュー中に、ショートカット キー <span class="blue">C</span> を押すと、現在表示されている画像のみをダウンロードできます。',
+    '작품 미리보기 시 단축키 <span class="blue">C</span>를 누르면 현재 표시된 이미지만 다운로드 됩니다.',
+    'При предварительном просмотре работы нажмите клавишу быстрого доступа <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
   ],
   _定时抓取: [
     '定时抓取',
@@ -3965,6 +3973,14 @@ const langText = {
     'ブックマークの数',
     '북마크 수',
     'Колличество закладок',
+  ],
+  _重新显示帮助: [
+    '重新显示帮助',
+    '重新顯示幫助',
+    'Redisplay help',
+    'ヘルプを再表示',
+    '도움말 다시 표시',
+    'Повторно отобразить справку',
   ],
 }
 
