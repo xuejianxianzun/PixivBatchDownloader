@@ -2004,7 +2004,8 @@ class FileName {
             userSetName = names.join('/');
         }
         // 判断是否要为每个作品创建单独的文件夹
-        let createFolderForEachWork = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].workDir && data.dlCount > _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].workDirFileNumber;
+        let createFolderForEachWork = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].workDir &&
+            _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].downloadCount[data.idNum] > _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].workDirFileNumber;
         let r18FolderName = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].r18Folder ? _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].r18FolderName : '';
         const allNameRule = userSetName +
             (createFolderForEachWork ? _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].workDirNameRule : '') +
@@ -6545,13 +6546,21 @@ const langText = {
         '사용 가능한 크롤링 결과가 없습니다.',
         'Результаты сканирования недоступны',
     ],
-    _预览作品时按快捷键D可以下载这个作品: [
-        '预览作品时，按快捷键 <span class="blue">D</span> 可以下载这个作品。',
-        '預覽作品時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。',
-        'When previewing a work, press the shortcut blue <span class="blue">D</span> to download the work.',
-        '作品をプレビューしているときに、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。',
-        '이미지를 미리 보는 동안 바로 가기 <span class="blue">D</span>를 눌러 다운로드하세요.',
-        'При предварительном просмотре произведения нажмите клавишу <span class="blue">D</span>, чтобы загрузить произведение',
+    _预览作品时按快捷键可以下载这个作品: [
+        '预览作品时，按快捷键 <span class="blue">D</span> 可以下载这个作品。<br>按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
+        '預覽作品時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。<br>按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
+        'When previewing a work, press the shortcut key <span class="blue">D</span> to download the work.<br>Press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
+        '作品をプレビューしているときに、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。<br>ショートカット キー <span class="blue">C</span> を押して、現在表示されている画像のみをダウンロードします。',
+        '이미지를 미리 보는 동안 바로 가기 <span class="blue">D</span>를 눌러 다운로드하세요.<br>현재 표시된 이미지만 다운로드하려면 단축키 <span class="blue">C</span>를 누르십시오.',
+        'При предварительном просмотре произведения нажмите клавишу <span class="blue">D</span>, чтобы загрузить произведение.<br>Нажмите клавишу быстрого доступа <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
+    ],
+    _预览作品时按快捷键C仅下载当前图片: [
+        '预览作品时，按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
+        '預覽作品時，按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
+        'When previewing a work, press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
+        '作品のプレビュー中に、ショートカット キー <span class="blue">C</span> を押すと、現在表示されている画像のみをダウンロードできます。',
+        '작품 미리보기 시 단축키 <span class="blue">C</span>를 누르면 현재 표시된 이미지만 다운로드 됩니다.',
+        'При предварительном просмотре работы нажмите клавишу быстрого доступа <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
     ],
     _定时抓取: [
         '定时抓取',
@@ -8211,6 +8220,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
 /* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+
 
 
 
@@ -8299,9 +8310,10 @@ class PreviewWork {
                 this.sendUrls();
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork) {
                     this._show = true;
+                    _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__["showOriginSizeImage"].hide();
                     this.showWrap();
                     window.clearTimeout(this.delayHiddenTimer);
-                    _ShowHelp__WEBPACK_IMPORTED_MODULE_13__["showHelp"].show('tipPressDToQuickDownload', _Lang__WEBPACK_IMPORTED_MODULE_10__["lang"].transl('_预览作品时按快捷键D可以下载这个作品'));
+                    _ShowHelp__WEBPACK_IMPORTED_MODULE_13__["showHelp"].show('tipPressDToQuickDownload', _Lang__WEBPACK_IMPORTED_MODULE_10__["lang"].transl('_预览作品时按快捷键可以下载这个作品'));
                 }
             }
         }
@@ -8370,12 +8382,21 @@ class PreviewWork {
                 el.removeEventListener('mousewheel', this.onWheelScroll);
             }
         });
-        // 可以使用 Alt + P 快捷键来启用/禁用此功能
-        // 预览作品时，可以使用快捷键 D 下载这个作品
         window.addEventListener('keydown', (ev) => {
+            // 可以使用 Alt + P 快捷键来启用/禁用此功能
             if (ev.altKey && ev.code === 'KeyP') {
                 Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('PreviewWork', !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork);
+                // 显示提示信息
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork) {
+                    const msg = 'Preview work - On';
+                    _Toast__WEBPACK_IMPORTED_MODULE_9__["toast"].success(msg);
+                }
+                else {
+                    const msg = 'Preview work - Off';
+                    _Toast__WEBPACK_IMPORTED_MODULE_9__["toast"].warning(msg);
+                }
             }
+            // 预览作品时，可以使用快捷键 D 下载这个作品
             if (ev.code === 'KeyD' && this.show) {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('crawlIdList', [
                     {
@@ -8390,7 +8411,29 @@ class PreviewWork {
                     position: 'center',
                 });
             }
-        });
+            // 预览作品时，可以使用快捷键 C 仅下载当前显示的图片
+            if (ev.code === 'KeyC' && this.show) {
+                // 在作品页面内按 C 时，Pixiv 会把焦点定位到评论输入框里，这里阻止此行为
+                ev.stopPropagation();
+                if (this.workData.body.pageCount > 1) {
+                    _store_Store__WEBPACK_IMPORTED_MODULE_14__["store"].setDownloadOnlyPart(Number.parseInt(this.workData.body.id), [
+                        this.index,
+                    ]);
+                }
+                _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('crawlIdList', [
+                    {
+                        type: 'illusts',
+                        id: this.workData.body.id,
+                    },
+                ]);
+                // 下载时不显示下载面板
+                _store_States__WEBPACK_IMPORTED_MODULE_6__["states"].quickCrawl = true;
+                _Toast__WEBPACK_IMPORTED_MODULE_9__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_10__["lang"].transl('_已发送下载请求'), {
+                    bgColor: _Colors__WEBPACK_IMPORTED_MODULE_11__["Colors"].bgBlue,
+                    position: 'center',
+                });
+            }
+        }, true);
         const hiddenEvtList = [
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch,
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.centerPanelOpened,
@@ -8691,7 +8734,7 @@ class PreviewWork {
         _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__["showOriginSizeImage"].setData({
             original: this.replaceUrl(data.body.urls.original),
             regular: this.replaceUrl(data.body.urls.regular),
-        }, data);
+        }, data, this.index);
     }
 }
 new PreviewWork();
@@ -9929,6 +9972,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
 /* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+
 
 
 
@@ -9945,6 +9990,8 @@ class ShowOriginSizeImage {
             original: '',
             regular: '',
         };
+        // 显示作品中的第几张图片
+        this.index = 0;
         // 原比例查看图片的容器的元素
         this.wrapId = 'originSizeWrap';
         this.defaultSize = 1200;
@@ -10001,7 +10048,7 @@ class ShowOriginSizeImage {
         if (val) {
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('showOriginSizeImage');
             this.wrap.style.display = 'block';
-            _ShowHelp__WEBPACK_IMPORTED_MODULE_9__["showHelp"].show('tipPressDToQuickDownload', _Lang__WEBPACK_IMPORTED_MODULE_7__["lang"].transl('_预览作品时按快捷键D可以下载这个作品'));
+            _ShowHelp__WEBPACK_IMPORTED_MODULE_9__["showHelp"].show('tipPressDToQuickDownload', _Lang__WEBPACK_IMPORTED_MODULE_7__["lang"].transl('_预览作品时按快捷键可以下载这个作品'));
             // 预览动图
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].previewUgoira && ((_a = this.workData) === null || _a === void 0 ? void 0 : _a.body.illustType) === 2) {
                 this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_4__["PreviewUgoira"](this.workData.body.id, this.wrap, _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImageSize);
@@ -10069,9 +10116,30 @@ class ShowOriginSizeImage {
                 this.moveY = ev.clientY;
             }
         });
-        // 预览大图时，可以使用快捷键 D 下载这个作品
         window.addEventListener('keydown', (ev) => {
+            // 预览大图时，可以使用快捷键 D 下载这个作品
             if (ev.code === 'KeyD' && this.show) {
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlIdList', [
+                    {
+                        type: 'illusts',
+                        id: this.workData.body.id,
+                    },
+                ]);
+                // 下载时不显示下载面板
+                _store_States__WEBPACK_IMPORTED_MODULE_5__["states"].quickCrawl = true;
+                _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_7__["lang"].transl('_已发送下载请求'), {
+                    bgColor: _Colors__WEBPACK_IMPORTED_MODULE_8__["Colors"].bgBlue,
+                    position: 'center',
+                });
+            }
+            // 预览作品时，可以使用快捷键 C 仅下载当前显示的图片
+            if (ev.code === 'KeyC' && this.show) {
+                ev.stopPropagation();
+                if (this.workData.body.pageCount > 1) {
+                    _store_Store__WEBPACK_IMPORTED_MODULE_10__["store"].setDownloadOnlyPart(Number.parseInt(this.workData.body.id), [
+                        this.index,
+                    ]);
+                }
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlIdList', [
                     {
                         type: 'illusts',
@@ -10090,7 +10158,7 @@ class ShowOriginSizeImage {
                 this.show = false;
                 ev.stopPropagation();
             }
-        });
+        }, true);
     }
     async getImage(url) {
         window.clearInterval(this.getImageSizeTimer);
@@ -10268,9 +10336,13 @@ class ShowOriginSizeImage {
         this.wrap.style.marginTop = this.style.mt + 'px';
         this.wrap.style.marginLeft = this.style.ml + 'px';
     }
-    setData(urls, data) {
+    setData(urls, data, index) {
         this.urls = urls;
         this.workData = data;
+        this.index = index;
+    }
+    hide() {
+        this.show = false;
     }
 }
 const showOriginSizeImage = new ShowOriginSizeImage();
@@ -10303,22 +10375,15 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '15.2.00';
+        this.flag = '15.4.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增功能')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_移除本页面中所有作品的标签')}</strong>
+            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增功能')}:</strong>
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_它们会变成未分类状态')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_收藏页面里的按钮')}
-      <br>
-      <br>
-      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_文件下载顺序')}</strong>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载'))}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览作品时按快捷键C仅下载当前图片')}
       `;
             // 在更新说明的下方显示赞助提示
             msg += `
@@ -12072,7 +12137,7 @@ class InitPageBase {
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('clearLog');
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'));
         _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'), {
-            position: 'topCenter',
+            position: 'center',
         });
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
         if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].isPixiv()) {
@@ -12098,7 +12163,7 @@ class InitPageBase {
             _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('clearLog');
             _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'));
             _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'), {
-                position: 'topCenter',
+                position: 'center',
             });
             _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('crawlStart');
             if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__["Utils"].isPixiv()) {
@@ -17597,7 +17662,7 @@ class DownloadControl {
             // 如果有等待中的下载任务，则开始下载等待中的任务
             if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].waitingIdList.length === 0) {
                 _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕2'), {
-                    position: 'topCenter',
+                    position: 'center',
                 });
             }
             else {
@@ -19681,6 +19746,7 @@ class Resume {
                     _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].result.push(data);
                 }
             }
+            _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].resetDownloadCount();
         });
         // 3 恢复下载状态
         const data = (await this.IDB.get(this.statesName, this.taskId));
@@ -25324,12 +25390,12 @@ class InvisibleSettings {
         Object(_Settings__WEBPACK_IMPORTED_MODULE_0__["setSetting"])(name, newValue);
         // 显示提示信息
         if (_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"][name]) {
-            const msg = name + ' on';
+            const msg = name + ' On';
             _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success(msg);
             _Toast__WEBPACK_IMPORTED_MODULE_3__["toast"].success(msg);
         }
         else {
-            const msg = name + ' off';
+            const msg = name + ' Off';
             _Log__WEBPACK_IMPORTED_MODULE_2__["log"].warning(msg);
             _Toast__WEBPACK_IMPORTED_MODULE_3__["toast"].warning(msg);
         }
@@ -27154,7 +27220,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 储存抓取结果
+// 生成抓取结果
 class Store {
     constructor() {
         this.idList = []; // 储存从列表中抓取到的作品的 id
@@ -27166,12 +27232,16 @@ class Store {
         this.artworkIDList = []; // 储存抓取到的图片作品的 id 列表，用来避免重复添加
         this.novelIDList = []; // 储存抓取到的小说作品的 id 列表，用来避免重复添加
         this.result = []; // 储存抓取结果
+        /**记录从每个作品里下载多少个文件 */
+        this.downloadCount = {};
         this.remainingDownload = 0; // 剩余多少个等待下载和保存的文件
         this.rankList = {}; // 储存作品在排行榜中的排名
         this.tag = ''; // 开始抓取时，储存页面此时的 tag
         this.title = ''; // 开始抓取时，储存页面此时的 title
         this.URLWhenCrawlStart = ''; // 开始抓取时，储存页面此时的 URL
         this.crawlCompleteTime = new Date();
+        /**只下载作品里的一部分图片 */
+        this.downloadOnlyPart = {};
         this.fileDataDefault = {
             aiType: 0,
             idNum: 0,
@@ -27183,7 +27253,6 @@ class Store {
             title: '',
             description: '',
             pageCount: 1,
-            dlCount: 1,
             index: 0,
             tags: [],
             tagsWithTransl: [],
@@ -27213,13 +27282,20 @@ class Store {
         };
         this.bindEvents();
     }
-    // 计算要从这个作品里下载几张图片
-    getDLCount(pageCount) {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].firstFewImagesSwitch) {
-            return Math.min(pageCount, _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].firstFewImages);
+    // 恢复未完成的下载之后，生成 downloadCount 数据
+    // 因为保存的任务数据里没有 downloadCount，并且恢复数据时也没有生成 downloadCount
+    resetDownloadCount() {
+        this.downloadCount = {};
+        for (const r of this.result) {
+            this.downloadCount[r.idNum] = (this.downloadCount[r.idNum] || 0) + 1;
+        }
+    }
+    setDownloadOnlyPart(workID, indexList) {
+        if (this.downloadOnlyPart[workID]) {
+            this.downloadOnlyPart[workID] = Array.from(new Set(this.downloadOnlyPart[workID].concat(indexList)));
         }
         else {
-            return pageCount;
+            this.downloadOnlyPart[workID] = indexList;
         }
     }
     // 添加每个作品的信息。只需要传递有值的属性
@@ -27238,7 +27314,6 @@ class Store {
         // 注意：由于 Object.assign 不是深拷贝，所以不可以修改 result 的引用类型数据，否则会影响到源对象
         // 可以修改基础类型的数据
         if (workData.type === 0 || workData.type === 1) {
-            workData.dlCount = this.getDLCount(workData.pageCount);
             workData.id = workData.idNum + `_p0`;
         }
         else {
@@ -27246,38 +27321,55 @@ class Store {
         }
         this.resultMeta.push(workData);
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('addResult', workData);
-        // 把该作品里的每个文件的数据添加到结果里
+        // 保存这个作品里每个文件的数据
         if (workData.type === 2 || workData.type === 3) {
             // 动图和小说作品直接添加
             this.result.push(workData);
+            this.downloadCount[workData.idNum] = 1;
         }
         else {
             // 插画和漫画
-            // 循环生成每一个图片文件的数据
-            const p0 = 'p0';
-            let dlCount = workData.dlCount;
-            // 不抓取多图作品的最后一张图片
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doNotDownloadLastImageOfMultiImageWork &&
-                workData.pageCount > 1) {
-                const number = workData.pageCount - 1;
-                dlCount = Math.min(dlCount, number);
+            // 储存需要下载的图片的索引
+            let fileIndexList = [];
+            // 只下载部分图片
+            if (this.downloadOnlyPart[workData.idNum]) {
+                fileIndexList = this.downloadOnlyPart[workData.idNum];
+                delete this.downloadOnlyPart[workData.idNum];
             }
-            // 特定用户的多图作品不下载最后几张图片
-            if (workData.pageCount > 1) {
-                const removeLastFew = _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].DoNotDownloadLastFewImagesList.find((item) => item.uid === Number.parseInt(workData.userId));
-                if (removeLastFew && removeLastFew.value > 0) {
-                    const number = workData.pageCount - removeLastFew.value;
-                    if (number > 0) {
-                        dlCount = Math.min(dlCount, number);
-                    }
-                    else {
-                        // 用户设置的值有可能把这个作品的图片全部排除了，此时只跳过最后一张
-                        dlCount = Math.min(dlCount, workData.pageCount - 1);
+            else {
+                // 下载全部图片
+                let total = workData.pageCount;
+                // 如果下载全部图片，则检查一些过滤器
+                // 只下载部分图片时，用户已经手动指定了要下载的图片，所以不要检查这些过滤器
+                // 多图作品只下载前几张图片
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].firstFewImagesSwitch) {
+                    total = Math.min(workData.pageCount, _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].firstFewImages);
+                }
+                // 不抓取多图作品的最后一张图片
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doNotDownloadLastImageOfMultiImageWork &&
+                    workData.pageCount > 1) {
+                    total = Math.min(total, workData.pageCount - 1);
+                }
+                // 特定用户的多图作品不下载最后几张图片
+                if (workData.pageCount > 1) {
+                    const removeLastFew = _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].DoNotDownloadLastFewImagesList.find((item) => item.uid === Number.parseInt(workData.userId));
+                    if (removeLastFew && removeLastFew.value > 0) {
+                        let number = workData.pageCount - removeLastFew.value;
+                        if (number < 1) {
+                            // 用户设置的值有可能把这个作品的图片全部排除了，此时只跳过最后一张
+                            number = workData.pageCount - 1;
+                        }
+                        total = Math.min(total, number);
                     }
                 }
+                for (let i = 0; i < total; i++) {
+                    fileIndexList.push(i);
+                }
             }
-            // 目前总是从第一张开始连续生成，中间不会跳过
-            for (let i = 0; i < dlCount; i++) {
+            this.downloadCount[workData.idNum] = fileIndexList.length;
+            // 生成每个图片的数据
+            const p0 = 'p0';
+            for (const i of fileIndexList) {
                 const fileData = Object.assign({}, workData);
                 const pi = 'p' + i;
                 fileData.index = i;

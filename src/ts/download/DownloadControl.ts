@@ -195,7 +195,7 @@ class DownloadControl {
       // 如果有等待中的下载任务，则开始下载等待中的任务
       if (store.waitingIdList.length === 0) {
         toast.success(lang.transl('_下载完毕2'), {
-          position: 'topCenter',
+          position: 'center',
         })
       } else {
         window.clearTimeout(this.waitingTimer)

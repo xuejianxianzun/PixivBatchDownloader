@@ -208,7 +208,8 @@ class FileName {
 
     // 判断是否要为每个作品创建单独的文件夹
     let createFolderForEachWork =
-      settings.workDir && data.dlCount > settings.workDirFileNumber
+      settings.workDir &&
+      store.downloadCount[data.idNum] > settings.workDirFileNumber
 
     let r18FolderName = settings.r18Folder ? settings.r18FolderName : ''
 

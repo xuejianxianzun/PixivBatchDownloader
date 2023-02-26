@@ -186,6 +186,8 @@ class Resume {
           store.result.push(data)
         }
       }
+
+      store.resetDownloadCount()
     })
 
     // 3 恢复下载状态

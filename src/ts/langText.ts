@@ -3381,13 +3381,21 @@ const langText = {
     '사용 가능한 크롤링 결과가 없습니다.',
     'Результаты сканирования недоступны',
   ],
-  _预览作品时按快捷键D可以下载这个作品: [
-    '预览作品时，按快捷键 <span class="blue">D</span> 可以下载这个作品。',
-    '預覽作品時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。',
-    'When previewing a work, press the shortcut blue <span class="blue">D</span> to download the work.',
-    '作品をプレビューしているときに、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。',
-    '이미지를 미리 보는 동안 바로 가기 <span class="blue">D</span>를 눌러 다운로드하세요.',
-    'При предварительном просмотре произведения нажмите клавишу <span class="blue">D</span>, чтобы загрузить произведение',
+  _预览作品时按快捷键可以下载这个作品: [
+    '预览作品时，按快捷键 <span class="blue">D</span> 可以下载这个作品。<br>按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
+    '預覽作品時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。<br>按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
+    'When previewing a work, press the shortcut key <span class="blue">D</span> to download the work.<br>Press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
+    '作品をプレビューしているときに、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。<br>ショートカット キー <span class="blue">C</span> を押して、現在表示されている画像のみをダウンロードします。',
+    '이미지를 미리 보는 동안 바로 가기 <span class="blue">D</span>를 눌러 다운로드하세요.<br>현재 표시된 이미지만 다운로드하려면 단축키 <span class="blue">C</span>를 누르십시오.',
+    'При предварительном просмотре произведения нажмите клавишу <span class="blue">D</span>, чтобы загрузить произведение.<br>Нажмите клавишу быстрого доступа <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
+  ],
+  _预览作品时按快捷键C仅下载当前图片: [
+    '预览作品时，按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
+    '預覽作品時，按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
+    'When previewing a work, press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
+    '作品のプレビュー中に、ショートカット キー <span class="blue">C</span> を押すと、現在表示されている画像のみをダウンロードできます。',
+    '작품 미리보기 시 단축키 <span class="blue">C</span>를 누르면 현재 표시된 이미지만 다운로드 됩니다.',
+    'При предварительном просмотре работы нажмите клавишу быстрого доступа <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
   ],
   _定时抓取: [
     '定时抓取',

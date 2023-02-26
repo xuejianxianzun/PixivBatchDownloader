@@ -11,28 +11,14 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '15.2.00'
+  private flag = '15.4.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-      let msg = `<strong>${lang.transl('_新增功能')}: ${lang.transl(
-        '_移除本页面中所有作品的标签'
-      )}</strong>
+      let msg = `<strong>${lang.transl('_新增功能')}:</strong>
       <br>
-      ${lang.transl('_它们会变成未分类状态')}
-      <br>
-      ${lang.transl('_收藏页面里的按钮')}
-      <br>
-      <br>
-      <strong>${lang.transl('_新增设置项')}: ${lang.transl(
-        '_文件下载顺序'
-      )}</strong>
-      <br>
-      ${lang.transl(
-        '_你可以在更多选项卡的xx分类里找到它',
-        lang.transl('_下载')
-      )}
+      ${lang.transl('_预览作品时按快捷键C仅下载当前图片')}
       `
 
       // 在更新说明的下方显示赞助提示
