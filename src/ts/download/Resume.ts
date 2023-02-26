@@ -12,6 +12,7 @@ import { toast } from '../Toast'
 interface TaskMeta {
   id: number
   url: string
+  URLWhenCrawlStart: string
   part: number
   date: Date
 }
@@ -185,6 +186,8 @@ class Resume {
           store.result.push(data)
         }
       }
+
+      store.resetDownloadCount()
     })
 
     // 3 恢复下载状态
@@ -198,6 +201,7 @@ class Resume {
     }
 
     store.crawlCompleteTime = meta.date
+    store.URLWhenCrawlStart = meta.URLWhenCrawlStart || ''
 
     // 恢复模式就绪
     log.success(lang.transl('_已恢复抓取结果'), 2)
@@ -237,6 +241,7 @@ class Resume {
     const metaData = {
       id: this.taskId,
       url: this.getURL(),
+      URLWhenCrawlStart: store.URLWhenCrawlStart,
       part: this.part.length,
       date: store.crawlCompleteTime,
     }

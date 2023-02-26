@@ -359,7 +359,6 @@ class Download {
       }
 
       if (downloadStates.states[this.downloadStatesIndex - 1] === 1) {
-        console.log('d ' + this.downloadStatesIndex)
         return resolve(true)
       } else {
         return resolve(

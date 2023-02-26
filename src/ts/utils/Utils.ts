@@ -33,7 +33,6 @@ class Utils {
   }
 
   /** Windows 保留文件名，不可单独作为文件名，不区分大小写 */
-  // 为了效率，这里把大写和小写都直接列出，避免在使用时进行转换
   static readonly windowsReservedNames = [
     'CON',
     'PRN',
@@ -46,32 +45,22 @@ class Utils {
     'COM2',
     'COM3',
     'COM4',
-    'con',
-    'prn',
-    'aux',
-    'nul',
-    'com1',
-    'lpt1',
-    'lpt2',
-    'lpt3',
-    'com2',
-    'com3',
-    'com4',
   ]
 
   /** 检查并处理 Windows 保留文件名。
    * 如果不传递可选参数，则将其替换为空字符串。
    * 如果传递了可选参数，则在其后添加传递的可选参数的值 */
   static handleWindowsReservedName(str: string, addStr?: string) {
-    if (this.windowsReservedNames.includes(str)) {
-      if (addStr) {
-        return str + addStr
-      } else {
-        return ''
+    for (const name of this.windowsReservedNames) {
+      if (str.toUpperCase() === name) {
+        return addStr ? str + addStr : ''
       }
-    } else {
-      return str
+      if (str.toUpperCase().startsWith(name + '.')) {
+        return str.replace(/\./g, '．')
+      }
     }
+
+    return str
   }
 
   // 对象深拷贝

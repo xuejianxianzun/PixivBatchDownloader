@@ -48,8 +48,6 @@ export interface Result {
   small: string
   /**这个作品共有多少张图片 */
   pageCount: number
-  /**从这个作品中下载多少个图片（文件） */
-  dlCount: number
   /**这个文件在作品中的索引，从 0 开始 */
   index: number
   /**这个作品的标题 */
@@ -133,7 +131,6 @@ export interface ResultOptional {
   regular?: string
   small?: string
   pageCount?: number
-  dlCount?: number
   title?: string
   description?: string
   tags?: string[]

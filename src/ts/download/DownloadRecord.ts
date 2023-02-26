@@ -232,6 +232,10 @@ class DownloadRecord {
 
   // 清空下载记录
   private clearRecords() {
+    if (window.confirm(lang.transl('确定要清除下载记录吗')) === false) {
+      return
+    }
+
     for (const name of this.storeNameList) {
       this.IDB.clear(name)
     }

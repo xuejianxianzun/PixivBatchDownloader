@@ -9,6 +9,7 @@ import { ArtworkData, NovelData } from '../crawl/CrawlResult'
 import { bookmark } from '../Bookmark'
 import { workToolBar } from '../WorkToolBar'
 import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
+import { showHelp } from '../ShowHelp'
 
 type WorkType = 'illusts' | 'novels'
 
@@ -97,6 +98,11 @@ class QuickBookmark {
 
         // 下载这个作品
         this.sendDownload()
+
+        showHelp.show(
+          'tipBookmarkButton',
+          lang.transl('_下载器的收藏按钮默认会添加作品的标签')
+        )
       })
     }
   }
