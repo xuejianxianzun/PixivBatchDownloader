@@ -231,24 +231,49 @@ class DownloadRecord {
   }
 
   // 清空下载记录
-  private clearRecords() {
+  private async clearRecords() {
     if (window.confirm(lang.transl('确定要清除下载记录吗')) === false) {
       return
     }
 
-    for (const name of this.storeNameList) {
-      this.IDB.clear(name)
-    }
+    log.log(lang.transl('_清除下载记录'))
+    toast.show(lang.transl('_清除下载记录'))
 
+    let total = this.storeNameList.length
+    let num = 0
+
+    for (const name of this.storeNameList) {
+      log.log(`${lang.transl('_任务进度')} ${num}/${total}`)
+      num++
+      await this.IDB.clear(name)
+    }
+    log.log(`${lang.transl('_任务进度')} ${num}/${total}`)
+
+    log.success(lang.transl('_下载记录已清除'))
     toast.success(lang.transl('_下载记录已清除'))
   }
 
   // 导出下载记录
   private async exportRecord() {
+    log.log(lang.transl('_导出下载记录'))
+    toast.show(lang.transl('_导出下载记录'))
+
+    let total = this.storeNameList.length
+    let num = 0
+
     let record: Record[] = []
     for (const name of this.storeNameList) {
+      log.log(`${lang.transl('_任务进度')} ${num}/${total}`)
+      num++
       const r = (await this.IDB.getAll(name)) as Record[]
       record = record.concat(r)
+    }
+    log.log(`${lang.transl('_任务进度')} ${num}/${total}`)
+
+    if (record.length === 0) {
+      log.error(lang.transl('_没有数据可供使用'))
+      toast.error(lang.transl('_没有数据可供使用'))
+      return
     }
 
     const blob = Utils.json2BlobSafe(record)
@@ -258,18 +283,25 @@ class DownloadRecord {
       `record-${Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`
     )
 
+    log.success(lang.transl('_导出成功'))
     toast.success(lang.transl('_导出成功'))
   }
 
   // 导入下载记录
   private async importRecord(record: Record[]) {
-    log.warning(lang.transl('_导入下载记录'))
+    log.log(lang.transl('_导入下载记录'))
 
-    // 器显示导入进度
+    // 显示导入进度
     let stored = 0
     let total = record.length
+
+    if (total > 10000) {
+      log.warning(lang.transl('_数据较多需要花费一些时间'))
+    }
+
     log.log(`${stored}/${total}`, 1, false)
 
+    console.time('importRecord')
     // 依次处理每个存储库
     for (let index = 0; index < this.storeNameList.length; index++) {
       // 提取出要存入这个存储库的数据
@@ -279,11 +311,31 @@ class DownloadRecord {
           data.push(r)
         }
       }
-      // 批量添加数据
-      await this.IDB.batchAddData(this.storeNameList[index], data, 'id')
 
-      stored += data.length
-      log.log(`${stored}/${total}`, 1, false)
+      if (data.length === 0) {
+        continue
+      }
+
+      // 添加数据
+      log.log(`${lang.transl('_待处理')} ${data.length}`)
+      try {
+        // console.time('restoreRecord' + (index + 1))
+        await this.IDB.batchAddData(this.storeNameList[index], data, 'id')
+        // console.timeEnd('restoreRecord' + (index + 1))
+
+        stored += data.length
+        log.log(`${stored}/${total}`, 1, false)
+      } catch (error) {
+        const errorMsg = (error as any)?.target?.error
+        const tip = errorMsg ? errorMsg : error
+        log.error(tip)
+        msgBox.error(tip)
+      }
+    }
+    console.timeEnd('importRecord')
+
+    if (stored < total) {
+      return
     }
 
     log.success(lang.transl('_导入成功'))

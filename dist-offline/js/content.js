@@ -4308,6 +4308,14 @@ const langText = {
         '다운로드 진행률',
         'Полный прогресс',
     ],
+    _任务进度: [
+        '任务进度',
+        '任務進度',
+        'Task progress',
+        'タスクの進行状況',
+        '작업 진행',
+        'прогресс',
+    ],
     _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問', '도움말', 'help'],
     _uuid: [
         '如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>例如：Chrono 下载管理器、free Download Manager、Image Downloader、DownThemAll! 等。',
@@ -5094,6 +5102,14 @@ const langText = {
         '판정 조건: 작품 ID, 업로드 날짜',
         'Условия оценки: идентификатор, дата загрузки работы',
     ],
+    _清除下载记录: [
+        '清除下载记录',
+        '清除下載記錄',
+        'Clear download record',
+        'ダウンロード記録をクリア',
+        '다운로드 기록 지우기',
+        'Очистить запись загрузки',
+    ],
     确定要清除下载记录吗: [
         '确定要清除下载记录吗？',
         '確定要清除下載記錄嗎？',
@@ -5303,6 +5319,22 @@ const langText = {
         'ダウンロード記録をインポート',
         '다운로드 기록 불러오기',
         'Импорт записи загрузки',
+    ],
+    _导出下载记录: [
+        '导出下载记录',
+        '匯出下載紀錄',
+        'Export download record',
+        'ダウンロード記録のエクスポート',
+        '다운로드 기록 내보내기',
+        'Экспорт записи загрузки',
+    ],
+    _数据较多需要花费一些时间: [
+        '数据较多，需要花费一些时间',
+        '資料較多，需要花費一些時間',
+        'A lot of data, it will take some time',
+        'データ量が多いので少し時間がかかります',
+        '데이터가 많아 시간이 좀 걸립니다',
+        'Много данных, это займет некоторое время',
     ],
     _完成: ['完成', '完成', 'Completed', '完了', '완료됨', 'Готово'],
     _日期格式: [
@@ -18669,34 +18701,60 @@ class DownloadRecord {
         });
     }
     // 清空下载记录
-    clearRecords() {
+    async clearRecords() {
         if (window.confirm(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('确定要清除下载记录吗')) === false) {
             return;
         }
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除下载记录'));
+        _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除下载记录'));
+        let total = this.storeNameList.length;
+        let num = 0;
         for (const name of this.storeNameList) {
-            this.IDB.clear(name);
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_任务进度')} ${num}/${total}`);
+            num++;
+            await this.IDB.clear(name);
         }
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_任务进度')} ${num}/${total}`);
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载记录已清除'));
         _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载记录已清除'));
     }
     // 导出下载记录
     async exportRecord() {
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导出下载记录'));
+        _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导出下载记录'));
+        let total = this.storeNameList.length;
+        let num = 0;
         let record = [];
         for (const name of this.storeNameList) {
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_任务进度')} ${num}/${total}`);
+            num++;
             const r = (await this.IDB.getAll(name));
             record = record.concat(r);
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_任务进度')} ${num}/${total}`);
+        if (record.length === 0) {
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_没有数据可供使用'));
+            _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_没有数据可供使用'));
+            return;
         }
         const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].json2BlobSafe(record);
         const url = URL.createObjectURL(blob);
         _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].downloadFile(url, `record-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].replaceUnsafeStr(new Date().toLocaleString())}.json`);
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导出成功'));
         _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导出成功'));
     }
     // 导入下载记录
     async importRecord(record) {
-        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入下载记录'));
-        // 器显示导入进度
+        var _a, _b;
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入下载记录'));
+        // 显示导入进度
         let stored = 0;
         let total = record.length;
+        if (total > 10000) {
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_数据较多需要花费一些时间'));
+        }
         _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${stored}/${total}`, 1, false);
+        console.time('importRecord');
         // 依次处理每个存储库
         for (let index = 0; index < this.storeNameList.length; index++) {
             // 提取出要存入这个存储库的数据
@@ -18706,10 +18764,28 @@ class DownloadRecord {
                     data.push(r);
                 }
             }
-            // 批量添加数据
-            await this.IDB.batchAddData(this.storeNameList[index], data, 'id');
-            stored += data.length;
-            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${stored}/${total}`, 1, false);
+            if (data.length === 0) {
+                continue;
+            }
+            // 添加数据
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_待处理')} ${data.length}`);
+            try {
+                // console.time('restoreRecord' + (index + 1))
+                await this.IDB.batchAddData(this.storeNameList[index], data, 'id');
+                // console.timeEnd('restoreRecord' + (index + 1))
+                stored += data.length;
+                _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${stored}/${total}`, 1, false);
+            }
+            catch (error) {
+                const errorMsg = (_b = (_a = error) === null || _a === void 0 ? void 0 : _a.target) === null || _b === void 0 ? void 0 : _b.error;
+                const tip = errorMsg ? errorMsg : error;
+                _Log__WEBPACK_IMPORTED_MODULE_2__["log"].error(tip);
+                _MsgBox__WEBPACK_IMPORTED_MODULE_9__["msgBox"].error(tip);
+            }
+        }
+        console.timeEnd('importRecord');
+        if (stored < total) {
+            return;
         }
         _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入成功'));
         _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入成功'));
@@ -21960,10 +22036,10 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask1', () => {
-            this.crawlData(105500000, 105717364);
+            this.crawlData(105710000, 105778536);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask2', () => {
-            this.crawlData(19330000, 19379190, 'novels');
+            this.crawlData(19380000, 19392908, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -29454,6 +29530,8 @@ const novelData = [
     [19350000, 1676985136000],
     [19360000, 1677125230000],
     [19370001, 1677247234000],
+    [19380000, 1677373760000],
+    [19390000, 1677495165000],
 ];
 
 
@@ -40042,6 +40120,12 @@ const illustsData = [
     [105690000, 1677286440000],
     [105700000, 1677315960000],
     [105710000, 1677334920000],
+    [105720000, 1677367080000],
+    [105730000, 1677396720000],
+    [105740000, 1677415680000],
+    [105750000, 1677433800000],
+    [105760000, 1677480480000],
+    [105770000, 1677503760000],
 ];
 
 
