@@ -21960,10 +21960,10 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask1', () => {
-            this.crawlData(105500000, 105717364);
+            this.crawlData(105710000, 105778536);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask2', () => {
-            this.crawlData(19330000, 19379190, 'novels');
+            this.crawlData(19380000, 19392908, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -29454,6 +29454,8 @@ const novelData = [
     [19350000, 1676985136000],
     [19360000, 1677125230000],
     [19370001, 1677247234000],
+    [19380000, 1677373760000],
+    [19390000, 1677495165000],
 ];
 
 
@@ -40042,6 +40044,12 @@ const illustsData = [
     [105690000, 1677286440000],
     [105700000, 1677315960000],
     [105710000, 1677334920000],
+    [105720000, 1677367080000],
+    [105730000, 1677396720000],
+    [105740000, 1677415680000],
+    [105750000, 1677433800000],
+    [105760000, 1677480480000],
+    [105770000, 1677503760000],
 ];
 
 
