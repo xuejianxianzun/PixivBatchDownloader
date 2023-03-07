@@ -57,6 +57,7 @@ export interface SettingsForm extends HTMLFormElement {
   deduplication: HTMLInputElement
   dupliStrategy: RadioNodeList
   fileNameLengthLimitSwitch: HTMLInputElement
+  tagsSeparator: HTMLInputElement
   fileNameLengthLimit: HTMLInputElement
   imageSize: RadioNodeList
   dateFormat: HTMLInputElement

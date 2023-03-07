@@ -2002,6 +2002,22 @@ const langText = {
     '파일명 <span class="key">길이</span> 제한',
     'Лимит <span class="key">длины</span> имени файла',
   ],
+  _标签分隔符号: [
+    '标签<span class="key">分隔</span>符号',
+    '標簽<span class="key">分隔</span>符號',
+    'Tag <span class="key">separation</span> symbol',
+    'タグ <span class="key">セパレーション</span>シンボル',
+    '태그 <span class="key">분리</span> 기호',
+    'Тег <span class="key">символ разделения</span>',
+  ],
+  _标签分隔符号提示: [
+    '推荐符号<span class="key"> , # ^ & _</span>',
+    '推薦符號<span class="key"> , # ^ & _</span>',
+    'Recommended symbols <span class="key"> , # ^ & _</span>',
+    '推奨記号 <span class="key"> , # ^ & _</span>。',
+    '권장 기호 <span class="key"> , # ^ & _</span>',
+    'Рекомендуемые символы <span class="key"> , # ^ & _</span>',
+  ],
   _导出csv: [
     '导出 CSV 文件',
     '匯出 CSV 檔',

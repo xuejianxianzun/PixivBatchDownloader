@@ -142,6 +142,7 @@ class FormSettings {
       'downloadThread',
       'fileNameLengthLimit',
       'dateFormat',
+      'tagsSeparator',
       'blockList',
       'bgOpacity',
       'zeroPaddingLength',
