@@ -2086,21 +2086,23 @@ class FileName {
                 safe: true,
             },
             '{tags}': {
-                value: !allNameRule.includes('{tags}') ? null : data.tags.join(','),
+                value: !allNameRule.includes('{tags}')
+                    ? null
+                    : data.tags.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].tagsSeparator),
                 prefix: 'tags_',
                 safe: false,
             },
             '{tags_translate}': {
                 value: !allNameRule.includes('{tags_translate}')
                     ? null
-                    : data.tagsWithTransl.join(','),
+                    : data.tagsWithTransl.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].tagsSeparator),
                 prefix: 'tags_',
                 safe: false,
             },
             '{tags_transl_only}': {
                 value: !allNameRule.includes('{tags_transl_only}')
                     ? null
-                    : data.tagsTranslOnly.join(','),
+                    : data.tagsTranslOnly.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].tagsSeparator),
                 prefix: 'tags_',
                 safe: false,
             },
@@ -5166,6 +5168,22 @@ const langText = {
         'ファイル名の長さ制限',
         '파일명 <span class="key">길이</span> 제한',
         'Лимит <span class="key">длины</span> имени файла',
+    ],
+    _标签分隔符号: [
+        '标签<span class="key">分隔</span>符号',
+        '標簽<span class="key">分隔</span>符號',
+        'Tag <span class="key">separation</span> symbol',
+        'タグ <span class="key">セパレーション</span>シンボル',
+        '태그 <span class="key">분리</span> 기호',
+        'Тег <span class="key">символ разделения</span>',
+    ],
+    _标签分隔符号提示: [
+        '推荐符号<span class="key"> , # ^ & _</span>',
+        '推薦符號<span class="key"> , # ^ & _</span>',
+        'Recommended symbols <span class="key"> , # ^ & _</span>',
+        '推奨記号 <span class="key"> , # ^ & _</span>。',
+        '권장 기호 <span class="key"> , # ^ & _</span>',
+        'Рекомендуемые символы <span class="key"> , # ^ & _</span>',
     ],
     _导出csv: [
         '导出 CSV 文件',
@@ -23840,6 +23858,10 @@ class Form {
         this.form
             .querySelector('.showDateTip')
             .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].toggleEl(document.querySelector('.dateFormatTip')));
+        // 显示标签分隔提示
+        this.form
+            .querySelector('.showTagsSeparatorTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].toggleEl(document.querySelector('.tagsSeparatorTip')));
         // 输入框获得焦点时自动选择文本（文件名输入框例外）
         const centerInputs = this.form.querySelectorAll('input[type=text]');
         for (const el of centerInputs) {
@@ -24591,6 +24613,15 @@ const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="83">
+    <span class="has_tip settingNameStyle1" data-xztext="_标签分隔符号"></span>
+    <input type="text" name="tagsSeparator" class="setinput_style1 blue" value=",">
+    <button type="button" class="gray1 textButton showTagsSeparatorTip" data-xztext="_提示"></button>
+    </p>
+    <p class="tagsSeparatorTip tip" style="display:none">
+    <span data-xztext="_标签分隔符号提示"></span>
+    </p>
+    
     <p class="option" data-no="67">
     <span class="has_tip settingNameStyle1" data-xztip="_移除用户名中的at和后续字符的说明">
     <span data-xztext="_移除用户名中的at和后续字符"></span>
@@ -25229,6 +25260,7 @@ class FormSettings {
                 'downloadThread',
                 'fileNameLengthLimit',
                 'dateFormat',
+                'tagsSeparator',
                 'blockList',
                 'bgOpacity',
                 'zeroPaddingLength',
@@ -26044,6 +26076,7 @@ class Settings {
             deduplication: false,
             dupliStrategy: 'loose',
             fileNameLengthLimitSwitch: false,
+            tagsSeparator: ',',
             fileNameLengthLimit: 200,
             imageSize: 'original',
             dateFormat: 'YYYY-MM-DD',

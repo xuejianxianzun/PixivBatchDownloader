@@ -121,6 +121,7 @@ interface XzSetting {
   deduplication: boolean
   dupliStrategy: 'strict' | 'loose'
   fileNameLengthLimitSwitch: boolean
+  tagsSeparator: ',' | '#' | '^' | '&' | '_'
   fileNameLengthLimit: number
   imageSize: 'original' | 'regular' | 'small' | 'thumb'
   dateFormat: string
@@ -331,6 +332,7 @@ class Settings {
     deduplication: false,
     dupliStrategy: 'loose',
     fileNameLengthLimitSwitch: false,
+    tagsSeparator: ',',
     fileNameLengthLimit: 200,
     imageSize: 'original',
     dateFormat: 'YYYY-MM-DD',
