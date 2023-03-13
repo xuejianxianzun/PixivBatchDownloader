@@ -5178,12 +5178,12 @@ const langText = {
         'Тег <span class="key">символ разделения</span>',
     ],
     _标签分隔符号提示: [
-        '推荐符号<span class="key"> , # ^ & _</span>',
-        '推薦符號<span class="key"> , # ^ & _</span>',
-        'Recommended symbols <span class="key"> , # ^ & _</span>',
-        '推奨記号 <span class="key"> , # ^ & _</span>。',
-        '권장 기호 <span class="key"> , # ^ & _</span>',
-        'Рекомендуемые символы <span class="key"> , # ^ & _</span>',
+        '推荐符号<span class="blue"> , # ^ & _</span>',
+        '推薦符號<span class="blue"> , # ^ & _</span>',
+        'Recommended symbols <span class="blue"> , # ^ & _</span>',
+        '推奨記号 <span class="blue"> , # ^ & _</span>。',
+        '권장 기호 <span class="blue"> , # ^ & _</span>',
+        'Рекомендуемые символы <span class="blue"> , # ^ & _</span>',
     ],
     _导出csv: [
         '导出 CSV 文件',
@@ -7196,6 +7196,14 @@ const langText = {
         'ヘルプを再表示',
         '도움말 다시 표시',
         'Повторно отобразить справку',
+    ],
+    _自定义标签分隔符号的提示: [
+        '现在你可以自定义文件名中使用的标签分隔符号，以替换默认的 <span class="blue">,</span>',
+        '現在你可以自定義檔名中使用的標籤分隔符號，以替換預設的 <span class="blue">,</span>',
+        'You can now customize the tag separator used in filenames to replace the default <span class="blue">,</span>',
+        'ファイル名で使用されるタグ区切りをカスタマイズして、デフォルトの <span class="blue">,</span> を置き換えることができるようになりました',
+        '이제 파일 이름에 사용되는 태그 구분 기호를 사용자 지정하여 기본 <span class="blue">,</span>',
+        'Теперь вы можете настроить разделитель тегов, используемый в именах файлов, чтобы заменить используемый по умолчанию <span class="blue">,</span>',
     ],
 };
 
@@ -10425,15 +10433,17 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '15.4.0';
+        this.flag = '15.5.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增功能')}:</strong>
+            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_标签分隔符号')}</strong>
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览作品时按快捷键C仅下载当前图片')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名'))}
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_自定义标签分隔符号的提示')}
       `;
             // 在更新说明的下方显示赞助提示
             msg += `
@@ -13465,7 +13475,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
             49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-            70, 71, 72, 74, 75, 76, 77, 78, 79, 80,
+            70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,
         ]);
     }
     nextStep() {
@@ -23932,7 +23942,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formHtml", function() { return formHtml; });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 
-// 已使用的最大编号是 81
+// 已使用的最大编号是 83
 const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -24614,7 +24624,7 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="83">
-    <span class="has_tip settingNameStyle1" data-xztext="_标签分隔符号"></span>
+    <span class="settingNameStyle1" data-xztext="_标签分隔符号"></span>
     <input type="text" name="tagsSeparator" class="setinput_style1 blue" value=",">
     <button type="button" class="gray1 textButton showTagsSeparatorTip" data-xztext="_提示"></button>
     </p>

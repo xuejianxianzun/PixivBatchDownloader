@@ -2011,12 +2011,12 @@ const langText = {
     'Тег <span class="key">символ разделения</span>',
   ],
   _标签分隔符号提示: [
-    '推荐符号<span class="key"> , # ^ & _</span>',
-    '推薦符號<span class="key"> , # ^ & _</span>',
-    'Recommended symbols <span class="key"> , # ^ & _</span>',
-    '推奨記号 <span class="key"> , # ^ & _</span>。',
-    '권장 기호 <span class="key"> , # ^ & _</span>',
-    'Рекомендуемые символы <span class="key"> , # ^ & _</span>',
+    '推荐符号<span class="blue"> , # ^ & _</span>',
+    '推薦符號<span class="blue"> , # ^ & _</span>',
+    'Recommended symbols <span class="blue"> , # ^ & _</span>',
+    '推奨記号 <span class="blue"> , # ^ & _</span>。',
+    '권장 기호 <span class="blue"> , # ^ & _</span>',
+    'Рекомендуемые символы <span class="blue"> , # ^ & _</span>',
   ],
   _导出csv: [
     '导出 CSV 文件',
@@ -4029,6 +4029,14 @@ const langText = {
     'ヘルプを再表示',
     '도움말 다시 표시',
     'Повторно отобразить справку',
+  ],
+  _自定义标签分隔符号的提示: [
+    '现在你可以自定义文件名中使用的标签分隔符号，以替换默认的 <span class="blue">,</span>。',
+    '現在你可以自定義檔名中使用的標籤分隔符號，以替換預設的 <span class="blue">,</span>。',
+    'You can now customize the tag separator used in filenames to replace the default <span class="blue">,</span>',
+    'ファイル名で使用されるタグ区切りをカスタマイズして、デフォルトの <span class="blue">,</span> を置き換えることができるようになりました',
+    '이제 파일 이름에 사용되는 태그 구분 기호를 사용자 지정하여 기본 <span class="blue">,</span>',
+    'Теперь вы можете настроить разделитель тегов, используемый в именах файлов, чтобы заменить используемый по умолчанию <span class="blue">,</span>',
   ],
 }
 

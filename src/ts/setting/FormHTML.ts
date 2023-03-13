@@ -682,7 +682,7 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="83">
-    <span class="has_tip settingNameStyle1" data-xztext="_标签分隔符号"></span>
+    <span class="settingNameStyle1" data-xztext="_标签分隔符号"></span>
     <input type="text" name="tagsSeparator" class="setinput_style1 blue" value=",">
     <button type="button" class="gray1 textButton showTagsSeparatorTip" data-xztext="_提示"></button>
     </p>
