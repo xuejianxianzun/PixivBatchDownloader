@@ -11,14 +11,21 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '15.4.0'
+  private flag = '15.5.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-      let msg = `<strong>${lang.transl('_新增功能')}:</strong>
+      let msg = `<strong>${lang.transl('_新增设置项')}: ${lang.transl(
+        '_标签分隔符号'
+      )}</strong>
       <br>
-      ${lang.transl('_预览作品时按快捷键C仅下载当前图片')}
+      ${lang.transl(
+        '_你可以在更多选项卡的xx分类里找到它',
+        lang.transl('_命名')
+      )}
+      <br>
+      ${lang.transl('_自定义标签分隔符号的提示')}
       `
 
       // 在更新说明的下方显示赞助提示

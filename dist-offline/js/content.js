@@ -2161,21 +2161,23 @@ class FileName {
                 safe: true,
             },
             '{tags}': {
-                value: !allNameRule.includes('{tags}') ? null : data.tags.join(','),
+                value: !allNameRule.includes('{tags}')
+                    ? null
+                    : data.tags.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].tagsSeparator),
                 prefix: 'tags_',
                 safe: false,
             },
             '{tags_translate}': {
                 value: !allNameRule.includes('{tags_translate}')
                     ? null
-                    : data.tagsWithTransl.join(','),
+                    : data.tagsWithTransl.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].tagsSeparator),
                 prefix: 'tags_',
                 safe: false,
             },
             '{tags_transl_only}': {
                 value: !allNameRule.includes('{tags_transl_only}')
                     ? null
-                    : data.tagsTranslOnly.join(','),
+                    : data.tagsTranslOnly.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].tagsSeparator),
                 prefix: 'tags_',
                 safe: false,
             },
@@ -5242,6 +5244,22 @@ const langText = {
         '파일명 <span class="key">길이</span> 제한',
         'Лимит <span class="key">длины</span> имени файла',
     ],
+    _标签分隔符号: [
+        '标签<span class="key">分隔</span>符号',
+        '標簽<span class="key">分隔</span>符號',
+        'Tag <span class="key">separation</span> symbol',
+        'タグ <span class="key">セパレーション</span>シンボル',
+        '태그 <span class="key">분리</span> 기호',
+        'Тег <span class="key">символ разделения</span>',
+    ],
+    _标签分隔符号提示: [
+        '推荐符号<span class="blue"> , # ^ & _</span>',
+        '推薦符號<span class="blue"> , # ^ & _</span>',
+        'Recommended symbols <span class="blue"> , # ^ & _</span>',
+        '推奨記号 <span class="blue"> , # ^ & _</span>。',
+        '권장 기호 <span class="blue"> , # ^ & _</span>',
+        'Рекомендуемые символы <span class="blue"> , # ^ & _</span>',
+    ],
     _导出csv: [
         '导出 CSV 文件',
         '匯出 CSV 檔',
@@ -7253,6 +7271,14 @@ const langText = {
         'ヘルプを再表示',
         '도움말 다시 표시',
         'Повторно отобразить справку',
+    ],
+    _自定义标签分隔符号的提示: [
+        '现在你可以自定义文件名中使用的标签分隔符号，以替换默认的 <span class="blue">,</span>。',
+        '現在你可以自定義檔名中使用的標籤分隔符號，以替換預設的 <span class="blue">,</span>。',
+        'You can now customize the tag separator used in filenames to replace the default <span class="blue">,</span>',
+        'ファイル名で使用されるタグ区切りをカスタマイズして、デフォルトの <span class="blue">,</span> を置き換えることができるようになりました',
+        '이제 파일 이름에 사용되는 태그 구분 기호를 사용자 지정하여 기본 <span class="blue">,</span>',
+        'Теперь вы можете настроить разделитель тегов, используемый в именах файлов, чтобы заменить используемый по умолчанию <span class="blue">,</span>',
     ],
 };
 
@@ -10482,15 +10508,17 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '15.4.0';
+        this.flag = '15.5.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增功能')}:</strong>
+            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_标签分隔符号')}</strong>
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览作品时按快捷键C仅下载当前图片')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名'))}
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_自定义标签分隔符号的提示')}
       `;
             // 在更新说明的下方显示赞助提示
             msg += `
@@ -13523,7 +13551,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
             49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-            70, 71, 72, 74, 75, 76, 77, 78, 79, 80,
+            70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,
         ]);
     }
     nextStep() {
@@ -23916,6 +23944,10 @@ class Form {
         this.form
             .querySelector('.showDateTip')
             .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].toggleEl(document.querySelector('.dateFormatTip')));
+        // 显示标签分隔提示
+        this.form
+            .querySelector('.showTagsSeparatorTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].toggleEl(document.querySelector('.tagsSeparatorTip')));
         // 输入框获得焦点时自动选择文本（文件名输入框例外）
         const centerInputs = this.form.querySelectorAll('input[type=text]');
         for (const el of centerInputs) {
@@ -23986,7 +24018,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formHtml", function() { return formHtml; });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 
-// 已使用的最大编号是 81
+// 已使用的最大编号是 83
 const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -24667,6 +24699,15 @@ const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="83">
+    <span class="settingNameStyle1" data-xztext="_标签分隔符号"></span>
+    <input type="text" name="tagsSeparator" class="setinput_style1 blue" value=",">
+    <button type="button" class="gray1 textButton showTagsSeparatorTip" data-xztext="_提示"></button>
+    </p>
+    <p class="tagsSeparatorTip tip" style="display:none">
+    <span data-xztext="_标签分隔符号提示"></span>
+    </p>
+    
     <p class="option" data-no="67">
     <span class="has_tip settingNameStyle1" data-xztip="_移除用户名中的at和后续字符的说明">
     <span data-xztext="_移除用户名中的at和后续字符"></span>
@@ -25305,6 +25346,7 @@ class FormSettings {
                 'downloadThread',
                 'fileNameLengthLimit',
                 'dateFormat',
+                'tagsSeparator',
                 'blockList',
                 'bgOpacity',
                 'zeroPaddingLength',
@@ -26120,6 +26162,7 @@ class Settings {
             deduplication: false,
             dupliStrategy: 'loose',
             fileNameLengthLimitSwitch: false,
+            tagsSeparator: ',',
             fileNameLengthLimit: 200,
             imageSize: 'original',
             dateFormat: 'YYYY-MM-DD',
@@ -40974,7 +41017,7 @@ class Utils {
     }
 }
 // 不安全的字符，这里多数是控制字符，需要替换掉
-Utils.unsafeStr = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g);
+Utils.unsafeStr = new RegExp(/[\u0000\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g);
 // 一些需要替换成全角字符的符号，左边是正则表达式的字符
 Utils.fullWidthDict = [
     ['\\\\', '＼'],
