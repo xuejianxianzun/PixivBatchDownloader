@@ -1772,6 +1772,8 @@ class EVENT {
             startTimedCrawl: 'startTimedCrawl',
             /** 请求取消定时抓取时触发*/
             cancelTimedCrawl: 'cancelTimedCrawl',
+            /**当页面的主题变化时触发（注意，下载器的主题变化时不会触发） */
+            pageThemeChange: 'pageThemeChange',
         };
     }
     // 只绑定某个事件一次，用于防止事件重复绑定
@@ -2479,22 +2481,49 @@ new HiddenBrowserDownloadBar();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
+
 
 
 class HighlightFollowingUsers {
     constructor() {
         this.list = [];
+        /**当前登录用户的关注用户列表 */
+        this.following = [];
         this.storeName = 'following';
         this.publicTotal = 0;
         this.privateTotal = 0;
+        this.highlightClassName = 'pbdHighlightFollowing';
+        // 检查包含用户 id 的链接，并且需要以 id 结束
+        // 这是因为 id 之后还有字符的链接是不需要的，例如：
+        // https://www.pixiv.net/en/users/17207914/artworks
+        // 下载器只匹配用户主页的链接，不匹配用户子页面的链接
+        this.checkUserLinkReg = /\/users\/(\d+)$/;
+        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_4__["Utils"].isPixiv()) {
+            return;
+        }
         this.loadData();
         this.regularlyCheckUpdate();
+        window.setTimeout(() => {
+            this.startMutationObserver();
+        }, 0);
+        // 当用户改变页面主题时，页面元素会重新生成，但是目前的代码不能监听到这个变化
+        // 所以借助自定义事件来更新高亮状态
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageThemeChange, () => {
+            window.setTimeout(() => {
+                this.makeHighlight();
+            }, 0);
+        });
     }
     /**全量获取当前用户的所有关注列表 */
     async getList() {
         console.log('全量获取当前用户的所有关注列表');
-        if (!_store_Store__WEBPACK_IMPORTED_MODULE_1__["store"].loggedUserID) {
+        if (!_store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID) {
             throw new Error('store.loggedUserID is empty');
         }
         // 需要获取公开关注和私密关注
@@ -2514,7 +2543,7 @@ class HighlightFollowingUsers {
         // 每次请求 100 个关注用户的数据
         const limit = 100;
         while (ids.length < total) {
-            const res = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_1__["store"].loggedUserID, rest, '', offset, limit);
+            const res = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID, rest, '', offset, limit);
             offset = offset + limit;
             for (const users of res.body.users) {
                 ids.push(users.userId);
@@ -2529,7 +2558,7 @@ class HighlightFollowingUsers {
     }
     /**只发送一次请求，以获取 total */
     async getFollowingTotal(rest) {
-        const res = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_1__["store"].loggedUserID, rest, '', 0, 24);
+        const res = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID, rest, '', 0, 24);
         if (rest === 'show') {
             this.publicTotal = res.body.total;
         }
@@ -2540,7 +2569,7 @@ class HighlightFollowingUsers {
     }
     /**使用给定的 ID 列表作为当前用户的关注用户列表 */
     updateList(IDList) {
-        const index = this.list.findIndex(following => following.user === _store_Store__WEBPACK_IMPORTED_MODULE_1__["store"].loggedUserID);
+        const index = this.list.findIndex(following => following.user === _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID);
         if (index > -1) {
             this.list[index].following = IDList;
             this.list[index].privateTotal = this.privateTotal;
@@ -2549,26 +2578,37 @@ class HighlightFollowingUsers {
         }
         else {
             this.list.push({
-                user: _store_Store__WEBPACK_IMPORTED_MODULE_1__["store"].loggedUserID,
+                user: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID,
                 following: IDList,
                 privateTotal: this.privateTotal,
                 publicTotal: this.publicTotal,
                 time: new Date().getTime()
             });
         }
+        this.following = IDList;
         this.saveFollowlingList();
+        // 每次 updateList 更新的必然是当前登录用户的关注列表
+        // 所以每次更新后重新执行高亮
+        this.makeHighlight();
     }
     saveFollowlingList() {
         console.log('saveFollowlingList');
         console.log(this.list);
         localStorage.setItem(this.storeName, JSON.stringify(this.list));
     }
-    addFollow(userId) { }
-    unfollow(userId) { }
+    addFollow(userID) {
+        this.following.push(userID);
+        this.updateList(this.following);
+    }
+    unfollow(userID) {
+        const index = this.following.findIndex(string => string === userID);
+        this.following.splice(index, 1);
+        this.updateList(this.following);
+    }
     /**定时检查是否需要更新数据 */
     async regularlyCheckUpdate() {
         window.clearTimeout(this.checkUpdateTimer);
-        // 每隔 10 分钟检查一次关注用户的数量，如果数量发生变化则执行全量更新
+        // 每隔一定时间检查一次关注用户的数量，如果数量发生变化则执行全量更新
         this.checkUpdateTimer = window.setTimeout(async () => {
             const cfg = [{
                     old: this.publicTotal,
@@ -2580,12 +2620,13 @@ class HighlightFollowingUsers {
             for (const { old, rest } of cfg) {
                 const newTotal = await this.getFollowingTotal(rest);
                 if (old !== newTotal) {
-                    console.log(`${rest} 数量变化 ${old} => ${newTotal}`);
+                    console.log(`${rest} 数量变化 ${old} -> ${newTotal}`);
                     this.updateList(await this.getList());
                     return this.regularlyCheckUpdate();
                 }
                 console.log(`${rest} 数量没有变化`);
             }
+            return this.regularlyCheckUpdate();
         }, 60000);
     }
     async loadData() {
@@ -2595,10 +2636,15 @@ class HighlightFollowingUsers {
             const data = JSON.parse(str);
             if (data.length > 0) {
                 this.list = data;
-                const index = this.list.findIndex(following => following.user === _store_Store__WEBPACK_IMPORTED_MODULE_1__["store"].loggedUserID);
+                const index = this.list.findIndex(following => following.user === _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID);
                 if (index > -1) {
                     this.privateTotal = this.list[index].privateTotal;
                     this.publicTotal = this.list[index].publicTotal;
+                    this.following = this.list[index].following;
+                    // 已经有数据了，执行高亮
+                    // 在新版页面里，此时页面内容还未生成，所以此时的执行是没有效果的
+                    // 在旧版页面里（页面内容一次性加载），此时执行是有效的，并且是必须的
+                    this.makeHighlight();
                 }
                 else {
                     // 恢复的数据里没有当前用户的数据，全新获取
@@ -2610,6 +2656,65 @@ class HighlightFollowingUsers {
             // 没有已保存的数据，全新获取
             this.updateList(await this.getList());
         }
+    }
+    makeHighlight(aList) {
+        // 这里不需要检查 this.followingList.length === 0 的情况
+        // 因为可能之前的数量是 1，之后用户取消关注，变成了 0，那么下面的代码依然需要执行
+        // 以把之前高亮过的元素取消高亮
+        const allA = aList || document.querySelectorAll('a');
+        for (const a of allA) {
+            let match = false;
+            if (a.href) {
+                // 小说排行榜里的用户链接普遍带有 /novels 后缀，所以不要求以用户 id 结尾
+                const test = a.href.match(_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.NovelRanking ? /\/users\/(\d+)/ : this.checkUserLinkReg);
+                if (test && test.length > 1) {
+                    match = this.following.includes(test[1]);
+                    // 要高亮的元素
+                    let target = a;
+                    // 如果用户链接的 a 标签包含子元素，则将 className 添加到它的某个子元素上
+                    // 这是为了尽量精确的只高亮用户链接，避免高亮区域里包含其他不必要的元素
+                    // 但是有些页面里不适合这样做，例如在排行榜页面里，a 标签的第一个元素是用户头像
+                    // 此时如果只高亮第一个元素，那么效果就很不明显，所以就需要高亮整个 a 标签
+                    // 在多数情况下，高亮第一个子元素
+                    if (a.firstChild && a.firstChild.nodeType === 1) {
+                        target = a.firstChild;
+                    }
+                    // 在某些页面里高亮最后一个子元素
+                    if (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.ArtworkRanking
+                        || _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.AreaRanking) {
+                        if (a.lastChild && a.lastChild.nodeType === 1) {
+                            target = a.lastChild;
+                        }
+                    }
+                    target.classList[match ? 'add' : 'remove'](this.highlightClassName);
+                }
+            }
+        }
+    }
+    startMutationObserver() {
+        const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.addedNodes.length > 0) {
+                    for (const addedNodes of mutation.addedNodes) {
+                        if (addedNodes.nodeName === 'A') {
+                            this.makeHighlight(Array.from([addedNodes]));
+                        }
+                        else {
+                            // addedNodes 也会包含纯文本，所以判断 nodeType 1，只取 Element
+                            // https://developer.mozilla.org/zh-CN/docs/Web/API/Node/nodeType
+                            if (addedNodes.nodeType === 1) {
+                                const allA = addedNodes.querySelectorAll('a');
+                                this.makeHighlight(Array.from(allA));
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
     }
 }
 new HighlightFollowingUsers();
@@ -10804,7 +10909,9 @@ class Theme {
             const ob = new MutationObserver((mutationsList) => {
                 for (const item of mutationsList) {
                     if (item.type === 'characterData') {
-                        this.setTheme(this.getThemeFromHtml());
+                        const flag = this.getThemeFromHtml();
+                        this.setTheme(flag);
+                        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('pageThemeChange', flag);
                         break;
                     }
                 }
@@ -11411,9 +11518,27 @@ class Tools {
         throw new Error('getUserId failed!');
     }
     static getLoggedUserID() {
+        // 在新版页面里，从 head 里的 script 里匹配用户 id
         const match = document.head.innerHTML.match(/'user_id', "(\d*)"/);
         if (match && match.length > 1) {
             return match[1];
+        }
+        {
+            // 在旧版页面里，从 head 里的 script 里匹配用户 id
+            const match2 = document.head.innerHTML.match(/pixiv.user.id = "(\d*)"/);
+            if (match2 && match2.length > 1) {
+                return match2[1];
+            }
+        }
+        {
+            // 在约稿页面里，从 body 里的 script 里匹配用户 id
+            const el = document.querySelector('script#gtm-datalayer');
+            if (el && el.textContent) {
+                const match3 = el.textContent.match(/user_id:'(\d+)'/);
+                if (match3 && match3.length > 1) {
+                    return match3[1];
+                }
+            }
         }
         return '';
     }

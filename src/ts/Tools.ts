@@ -221,10 +221,30 @@ class Tools {
     throw new Error('getUserId failed!')
   }
 
-  static getLoggedUserID(){
+  static getLoggedUserID() {
+    // 在新版页面里，从 head 里的 script 里匹配用户 id
     const match = document.head.innerHTML.match(/'user_id', "(\d*)"/)
-    if(match && match.length>1){
+    if (match && match.length > 1) {
       return match[1]
+    }
+
+    {
+      // 在旧版页面里，从 head 里的 script 里匹配用户 id
+      const match2 = document.head.innerHTML.match(/pixiv.user.id = "(\d*)"/)
+      if (match2 && match2.length > 1) {
+        return match2[1]
+      }
+    }
+
+    {
+      // 在约稿页面里，从 body 里的 script 里匹配用户 id
+      const el = document.querySelector('script#gtm-datalayer')
+      if (el && el.textContent) {
+        const match3 = el.textContent.match(/user_id:'(\d+)'/)
+        if (match3 && match3.length > 1) {
+          return match3[1]
+        }
+      }
     }
 
     return ''
