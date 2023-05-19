@@ -221,6 +221,15 @@ class Tools {
     throw new Error('getUserId failed!')
   }
 
+  static getLoggedUserID(){
+    const match = document.head.innerHTML.match(/'user_id', "(\d*)"/)
+    if(match && match.length>1){
+      return match[1]
+    }
+
+    return ''
+  }
+
   // 将元素插入到 Pixiv 页面顶部
   /*
   newindex-inner 是在未登录时的用户作品列表页面使用的

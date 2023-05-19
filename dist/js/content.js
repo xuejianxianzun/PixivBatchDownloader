@@ -2469,6 +2469,154 @@ new HiddenBrowserDownloadBar();
 
 /***/ }),
 
+/***/ "./src/ts/HighlightFollowingUsers.ts":
+/*!*******************************************!*\
+  !*** ./src/ts/HighlightFollowingUsers.ts ***!
+  \*******************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+
+
+class HighlightFollowingUsers {
+    constructor() {
+        this.list = [];
+        this.storeName = 'following';
+        this.publicTotal = 0;
+        this.privateTotal = 0;
+        this.loadData();
+        this.regularlyCheckUpdate();
+    }
+    /**全量获取当前用户的所有关注列表 */
+    async getList() {
+        console.log('全量获取当前用户的所有关注列表');
+        if (!_store_Store__WEBPACK_IMPORTED_MODULE_1__["store"].loggedUserID) {
+            throw new Error('store.loggedUserID is empty');
+        }
+        // 需要获取公开关注和私密关注
+        const publicList = await this.getFollowingList('show');
+        const privateList = await this.getFollowingList('hide');
+        const followingIDList = publicList.concat(privateList);
+        return followingIDList;
+    }
+    /**获取公开或私密关注的用户 ID 列表 */
+    async getFollowingList(rest) {
+        const ids = [];
+        let offset = 0;
+        let total = await this.getFollowingTotal(rest);
+        if (total === 0) {
+            return ids;
+        }
+        // 每次请求 100 个关注用户的数据
+        const limit = 100;
+        while (ids.length < total) {
+            const res = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_1__["store"].loggedUserID, rest, '', offset, limit);
+            offset = offset + limit;
+            for (const users of res.body.users) {
+                ids.push(users.userId);
+            }
+            if (res.body.users.length === 0) {
+                // 实际获取到的关注用户数量可能比 total 少，这是正常的
+                // 例如 toal 是 3522，实际上获取到的可能是 3483 个，再往后都是空数组了
+                break;
+            }
+        }
+        return ids;
+    }
+    /**只发送一次请求，以获取 total */
+    async getFollowingTotal(rest) {
+        const res = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_1__["store"].loggedUserID, rest, '', 0, 24);
+        if (rest === 'show') {
+            this.publicTotal = res.body.total;
+        }
+        else {
+            this.privateTotal = res.body.total;
+        }
+        return res.body.total;
+    }
+    /**使用给定的 ID 列表作为当前用户的关注用户列表 */
+    updateList(IDList) {
+        const index = this.list.findIndex(following => following.user === _store_Store__WEBPACK_IMPORTED_MODULE_1__["store"].loggedUserID);
+        if (index > -1) {
+            this.list[index].following = IDList;
+            this.list[index].privateTotal = this.privateTotal;
+            this.list[index].publicTotal = this.publicTotal;
+            this.list[index].time = new Date().getTime();
+        }
+        else {
+            this.list.push({
+                user: _store_Store__WEBPACK_IMPORTED_MODULE_1__["store"].loggedUserID,
+                following: IDList,
+                privateTotal: this.privateTotal,
+                publicTotal: this.publicTotal,
+                time: new Date().getTime()
+            });
+        }
+        this.saveFollowlingList();
+    }
+    saveFollowlingList() {
+        console.log('saveFollowlingList');
+        console.log(this.list);
+        localStorage.setItem(this.storeName, JSON.stringify(this.list));
+    }
+    addFollow(userId) { }
+    unfollow(userId) { }
+    /**定时检查是否需要更新数据 */
+    async regularlyCheckUpdate() {
+        window.clearTimeout(this.checkUpdateTimer);
+        // 每隔 10 分钟检查一次关注用户的数量，如果数量发生变化则执行全量更新
+        this.checkUpdateTimer = window.setTimeout(async () => {
+            const cfg = [{
+                    old: this.publicTotal,
+                    rest: 'show'
+                }, {
+                    old: this.privateTotal,
+                    rest: 'hide'
+                }];
+            for (const { old, rest } of cfg) {
+                const newTotal = await this.getFollowingTotal(rest);
+                if (old !== newTotal) {
+                    console.log(`${rest} 数量变化 ${old} => ${newTotal}`);
+                    this.updateList(await this.getList());
+                    return this.regularlyCheckUpdate();
+                }
+                console.log(`${rest} 数量没有变化`);
+            }
+        }, 60000);
+    }
+    async loadData() {
+        // 尝试恢复数据
+        const str = localStorage.getItem(this.storeName);
+        if (str) {
+            const data = JSON.parse(str);
+            if (data.length > 0) {
+                this.list = data;
+                const index = this.list.findIndex(following => following.user === _store_Store__WEBPACK_IMPORTED_MODULE_1__["store"].loggedUserID);
+                if (index > -1) {
+                    this.privateTotal = this.list[index].privateTotal;
+                    this.publicTotal = this.list[index].publicTotal;
+                }
+                else {
+                    // 恢复的数据里没有当前用户的数据，全新获取
+                    this.updateList(await this.getList());
+                }
+            }
+        }
+        else {
+            // 没有已保存的数据，全新获取
+            this.updateList(await this.getList());
+        }
+    }
+}
+new HighlightFollowingUsers();
+
+
+/***/ }),
+
 /***/ "./src/ts/ImageViewer.ts":
 /*!*******************************!*\
   !*** ./src/ts/ImageViewer.ts ***!
@@ -7198,8 +7346,8 @@ const langText = {
         'Повторно отобразить справку',
     ],
     _自定义标签分隔符号的提示: [
-        '现在你可以自定义文件名中使用的标签分隔符号，以替换默认的 <span class="blue">,</span>',
-        '現在你可以自定義檔名中使用的標籤分隔符號，以替換預設的 <span class="blue">,</span>',
+        '现在你可以自定义文件名中使用的标签分隔符号，以替换默认的 <span class="blue">,</span>。',
+        '現在你可以自定義檔名中使用的標籤分隔符號，以替換預設的 <span class="blue">,</span>。',
         'You can now customize the tag separator used in filenames to replace the default <span class="blue">,</span>',
         'ファイル名で使用されるタグ区切りをカスタマイズして、デフォルトの <span class="blue">,</span> を置き換えることができるようになりました',
         '이제 파일 이름에 사용되는 태그 구분 기호를 사용자 지정하여 기본 <span class="blue">,</span>',
@@ -11262,6 +11410,13 @@ class Tools {
         // 如果都没有获取到
         throw new Error('getUserId failed!');
     }
+    static getLoggedUserID() {
+        const match = document.head.innerHTML.match(/'user_id', "(\d*)"/);
+        if (match && match.length > 1) {
+            return match[1];
+        }
+        return '';
+    }
     // 将元素插入到 Pixiv 页面顶部
     /*
     newindex-inner 是在未登录时的用户作品列表页面使用的
@@ -11948,10 +12103,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_ShowStatusOnTitle__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/ShowStatusOnTitle */ "./src/ts/download/ShowStatusOnTitle.ts");
 /* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
 /* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -11962,6 +12118,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 
@@ -27342,6 +27499,7 @@ __webpack_require__.r(__webpack_exports__);
 // 生成抓取结果
 class Store {
     constructor() {
+        this.loggedUserID = '';
         this.idList = []; // 储存从列表中抓取到的作品的 id
         this.waitingIdList = []; // 下载器尚未完成本次下载时，如果有新的下载请求，则添加到这里，下载完成后再处理
         this.resultMeta = []; // 储存抓取结果的元数据。
@@ -27399,6 +27557,7 @@ class Store {
             xRestrict: 0,
             sl: null,
         };
+        this.loggedUserID = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getLoggedUserID();
         this.bindEvents();
     }
     // 恢复未完成的下载之后，生成 downloadCount 数据
