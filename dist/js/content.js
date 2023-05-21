@@ -2507,11 +2507,33 @@ class HighlightFollowingUsers {
         if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_4__["Utils"].isPixiv()) {
             return;
         }
-        this.loadData();
+        // this.loadData()
         this.regularlyCheckUpdate();
         window.setTimeout(() => {
             this.startMutationObserver();
         }, 0);
+        chrome.runtime.onMessage.addListener(async (msg) => {
+            if (msg.msg === 'dispathFollowingData') {
+                console.log('接收到派发的数据', msg.data);
+                this.update(msg.data);
+            }
+            if (msg.msg === 'getFollowingData') {
+                const IDList = await this.getList();
+                chrome.runtime.sendMessage({
+                    msg: 'setFollowingData',
+                    data: {
+                        action: 'set',
+                        user: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID,
+                        IDList: IDList,
+                        privateTotal: this.privateTotal,
+                        publicTotal: this.publicTotal
+                    }
+                });
+            }
+        });
+        chrome.runtime.sendMessage({
+            msg: 'requestFollowingData'
+        });
         // 当用户改变页面主题时，页面元素会重新生成，但是目前的代码不能监听到这个变化
         // 所以借助自定义事件来更新高亮状态
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageThemeChange, () => {
@@ -2519,6 +2541,26 @@ class HighlightFollowingUsers {
                 this.makeHighlight();
             }, 0);
         });
+    }
+    async update(data) {
+        console.log(data);
+        this.list = data;
+        const index = this.list.findIndex((following) => following.user === _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID);
+        if (index > -1) {
+            this.privateTotal = this.list[index].privateTotal;
+            this.publicTotal = this.list[index].publicTotal;
+            this.following = this.list[index].following;
+            // 已经有数据了，执行高亮
+            // 在新版页面里，如果此时页面内容还未生成，执行是没有效果的
+            // 在旧版页面里（页面内容一次性加载），此时执行是有效的，并且是必须的
+            this.makeHighlight();
+        }
+        else {
+            // 恢复的数据里没有当前用户的数据，需要获取
+            chrome.runtime.sendMessage({
+                msg: 'needUpdateFollowingData'
+            });
+        }
     }
     /**全量获取当前用户的所有关注列表 */
     async getList() {
@@ -2556,7 +2598,7 @@ class HighlightFollowingUsers {
         }
         return ids;
     }
-    /**只发送一次请求，以获取 total */
+    /**只请求第一页的数据，以获取 total */
     async getFollowingTotal(rest) {
         const res = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID, rest, '', 0, 24);
         if (rest === 'show') {
@@ -2567,50 +2609,40 @@ class HighlightFollowingUsers {
         }
         return res.body.total;
     }
-    /**使用给定的 ID 列表作为当前用户的关注用户列表 */
-    updateList(IDList) {
-        const index = this.list.findIndex((following) => following.user === _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID);
-        if (index > -1) {
-            this.list[index].following = IDList;
-            this.list[index].privateTotal = this.privateTotal;
-            this.list[index].publicTotal = this.publicTotal;
-            this.list[index].time = new Date().getTime();
-        }
-        else {
-            this.list.push({
-                user: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID,
-                following: IDList,
-                privateTotal: this.privateTotal,
-                publicTotal: this.publicTotal,
-                time: new Date().getTime(),
-            });
-        }
-        this.following = IDList;
-        this.saveFollowlingList();
-        // 每次 updateList 更新的必然是当前登录用户的关注列表
-        // 所以每次更新后重新执行高亮
-        this.makeHighlight();
-    }
-    saveFollowlingList() {
-        console.log('saveFollowlingList');
-        console.log(this.list);
-        localStorage.setItem(this.storeName, JSON.stringify(this.list));
-    }
     addFollow(userID) {
-        this.following.push(userID);
-        this.updateList(this.following);
+        chrome.runtime.sendMessage({
+            msg: 'setFollowingData',
+            data: {
+                action: 'add',
+                user: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID,
+                IDList: [userID],
+                privateTotal: this.privateTotal,
+                publicTotal: this.publicTotal
+            }
+        });
     }
     unfollow(userID) {
-        const index = this.following.findIndex((string) => string === userID);
-        this.following.splice(index, 1);
-        this.updateList(this.following);
+        chrome.runtime.sendMessage({
+            msg: 'setFollowingData',
+            data: {
+                action: 'remove',
+                user: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID,
+                IDList: [userID],
+                privateTotal: this.privateTotal,
+                publicTotal: this.publicTotal
+            }
+        });
     }
     getUpdateTime() {
-        // 每次检查更新的最低时间间隔是 10 分钟
-        const base = 600000;
-        // 产生一个 20 分钟内的随机数
-        const random = Math.random() * 1200000;
-        console.log('getUpdateTime', base + random);
+        // 每次检查更新的最低时间间隔是 5 分钟
+        // 如果用户打开了多个标签页，它们都会加载关注列表的第一页来检查数量
+        // 所以间隔不宜太短
+        const base = 300000;
+        // 产生一个 10 分钟内的随机数
+        const random = Math.random() * 600000;
+        // 通常不需要担心间隔时间太大导致数据更新不及时
+        // 因为多个标签页里只要有一个更新了数据，所有页面都会得到更新
+        console.log('下次检查更新的间隔', base + random);
         return base + random;
     }
     /**定时检查是否需要更新数据 */
@@ -2618,54 +2650,35 @@ class HighlightFollowingUsers {
         window.clearTimeout(this.checkUpdateTimer);
         // 每隔一定时间检查一次关注用户的数量，如果数量发生变化则执行全量更新
         this.checkUpdateTimer = window.setTimeout(async () => {
-            const cfg = [
-                {
-                    old: this.publicTotal,
-                    rest: 'show',
-                },
-                {
-                    old: this.privateTotal,
-                    rest: 'hide',
-                },
-            ];
-            for (const { old, rest } of cfg) {
-                const newTotal = await this.getFollowingTotal(rest);
-                if (old !== newTotal) {
-                    console.log(`${rest} 数量变化 ${old} -> ${newTotal}`);
-                    this.updateList(await this.getList());
-                    return this.regularlyCheckUpdate();
-                }
-                console.log(`${rest} 数量没有变化`);
-            }
+            this.checkNeedUpdate();
             return this.regularlyCheckUpdate();
         }, this.getUpdateTime());
     }
-    async loadData() {
-        // 尝试恢复数据
-        const str = localStorage.getItem(this.storeName);
-        if (str) {
-            const data = JSON.parse(str);
-            if (data.length > 0) {
-                this.list = data;
-                const index = this.list.findIndex((following) => following.user === _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID);
-                if (index > -1) {
-                    this.privateTotal = this.list[index].privateTotal;
-                    this.publicTotal = this.list[index].publicTotal;
-                    this.following = this.list[index].following;
-                    // 已经有数据了，执行高亮
-                    // 在新版页面里，此时页面内容还未生成，所以此时的执行是没有效果的
-                    // 在旧版页面里（页面内容一次性加载），此时执行是有效的，并且是必须的
-                    this.makeHighlight();
-                }
-                else {
-                    // 恢复的数据里没有当前用户的数据，全新获取
-                    this.updateList(await this.getList());
-                }
+    async checkNeedUpdate() {
+        const cfg = [
+            {
+                old: this.publicTotal,
+                rest: 'show',
+            },
+            {
+                old: this.privateTotal,
+                rest: 'hide',
+            },
+        ];
+        for (const { old, rest } of cfg) {
+            const newTotal = await this.getFollowingTotal(rest);
+            if (old !== newTotal) {
+                console.log(`${rest} 数量变化 ${old} -> ${newTotal}`);
+                // 有一个可以优化的地方：
+                // 现在是一旦检查到公开或私密关注中的任意一个有变化，就全部更新（两者）
+                // 可以改为只更新变化的那个
+                // 但是这需要设置更多的标记，并且储存数据时也需要把两种关注数据分开存储
+                // 考虑到绝大部分情况下，变化的都是公开关注，而且私密关注数量通常都很少
+                // 所以一起请求两者,问题也不大,所以我没有做这个优化
+                chrome.runtime.sendMessage({
+                    msg: 'needUpdateFollowingData'
+                });
             }
-        }
-        else {
-            // 没有已保存的数据，全新获取
-            this.updateList(await this.getList());
         }
     }
     makeHighlight(aList) {

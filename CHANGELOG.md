@@ -9,8 +9,9 @@ TODO:日语文本需要加粗显示关键字，但是我不懂日语，所以现
 - 导入作者列表进行抓取
 - 搜索页面的横图没能占据2倍宽度？ https://www.pixiv.net/tags/C.C.%2010000users%E5%85%A5%E3%82%8A/artworks?s_mode=s_tag
 
-- 替换机场链接为 https://ciyy.cc/#/register?code=f3K6Ia8b
+- 替换机场链接为 ??? https://ciyy.cc/#/register?code=f3K6Ia8b
 
+- 获取关注列表的请求失败需要重试
 
 ## 15.5.0 2023/03/14
 

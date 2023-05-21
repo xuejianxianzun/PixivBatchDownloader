@@ -1,4 +1,5 @@
 import { DonwloadListData, SendToBackEndData } from './download/DownloadType.d'
+import './ManageFollowing'
 
 // 隐藏或显示浏览器底部的下载栏
 chrome.runtime.onMessage.addListener((data, sender) => {
