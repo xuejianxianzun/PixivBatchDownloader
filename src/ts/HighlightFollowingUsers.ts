@@ -167,6 +167,17 @@ class HighlightFollowingUsers {
     this.updateList(this.following)
   }
 
+  private getUpdateTime() {
+    // 每次检查更新的最低时间间隔是 10 分钟
+    const base = 600000
+
+    // 产生一个 20 分钟内的随机数
+    const random = Math.random() * 1200000
+
+    console.log('getUpdateTime', base + random)
+    return base + random
+  }
+
   /**定时检查是否需要更新数据 */
   private async regularlyCheckUpdate() {
     window.clearTimeout(this.checkUpdateTimer)
@@ -194,7 +205,7 @@ class HighlightFollowingUsers {
       }
 
       return this.regularlyCheckUpdate()
-    }, 60000)
+    }, this.getUpdateTime())
   }
 
   private async loadData() {

@@ -2569,7 +2569,7 @@ class HighlightFollowingUsers {
     }
     /**使用给定的 ID 列表作为当前用户的关注用户列表 */
     updateList(IDList) {
-        const index = this.list.findIndex(following => following.user === _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID);
+        const index = this.list.findIndex((following) => following.user === _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID);
         if (index > -1) {
             this.list[index].following = IDList;
             this.list[index].privateTotal = this.privateTotal;
@@ -2582,7 +2582,7 @@ class HighlightFollowingUsers {
                 following: IDList,
                 privateTotal: this.privateTotal,
                 publicTotal: this.publicTotal,
-                time: new Date().getTime()
+                time: new Date().getTime(),
             });
         }
         this.following = IDList;
@@ -2601,22 +2601,33 @@ class HighlightFollowingUsers {
         this.updateList(this.following);
     }
     unfollow(userID) {
-        const index = this.following.findIndex(string => string === userID);
+        const index = this.following.findIndex((string) => string === userID);
         this.following.splice(index, 1);
         this.updateList(this.following);
+    }
+    getUpdateTime() {
+        // 每次检查更新的最低时间间隔是 10 分钟
+        const base = 600000;
+        // 产生一个 20 分钟内的随机数
+        const random = Math.random() * 1200000;
+        console.log('getUpdateTime', base + random);
+        return base + random;
     }
     /**定时检查是否需要更新数据 */
     async regularlyCheckUpdate() {
         window.clearTimeout(this.checkUpdateTimer);
         // 每隔一定时间检查一次关注用户的数量，如果数量发生变化则执行全量更新
         this.checkUpdateTimer = window.setTimeout(async () => {
-            const cfg = [{
+            const cfg = [
+                {
                     old: this.publicTotal,
-                    rest: 'show'
-                }, {
+                    rest: 'show',
+                },
+                {
                     old: this.privateTotal,
-                    rest: 'hide'
-                }];
+                    rest: 'hide',
+                },
+            ];
             for (const { old, rest } of cfg) {
                 const newTotal = await this.getFollowingTotal(rest);
                 if (old !== newTotal) {
@@ -2627,7 +2638,7 @@ class HighlightFollowingUsers {
                 console.log(`${rest} 数量没有变化`);
             }
             return this.regularlyCheckUpdate();
-        }, 60000);
+        }, this.getUpdateTime());
     }
     async loadData() {
         // 尝试恢复数据
@@ -2636,7 +2647,7 @@ class HighlightFollowingUsers {
             const data = JSON.parse(str);
             if (data.length > 0) {
                 this.list = data;
-                const index = this.list.findIndex(following => following.user === _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID);
+                const index = this.list.findIndex((following) => following.user === _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID);
                 if (index > -1) {
                     this.privateTotal = this.list[index].privateTotal;
                     this.publicTotal = this.list[index].publicTotal;
@@ -2666,7 +2677,9 @@ class HighlightFollowingUsers {
             let match = false;
             if (a.href) {
                 // 小说排行榜里的用户链接普遍带有 /novels 后缀，所以不要求以用户 id 结尾
-                const test = a.href.match(_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.NovelRanking ? /\/users\/(\d+)/ : this.checkUserLinkReg);
+                const test = a.href.match(_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.NovelRanking
+                    ? /\/users\/(\d+)/
+                    : this.checkUserLinkReg);
                 if (test && test.length > 1) {
                     match = this.following.includes(test[1]);
                     // 要高亮的元素
@@ -2680,8 +2693,8 @@ class HighlightFollowingUsers {
                         target = a.firstChild;
                     }
                     // 在某些页面里高亮最后一个子元素
-                    if (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.ArtworkRanking
-                        || _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.AreaRanking) {
+                    if (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.ArtworkRanking ||
+                        _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.AreaRanking) {
                         if (a.lastChild && a.lastChild.nodeType === 1) {
                             target = a.lastChild;
                         }
