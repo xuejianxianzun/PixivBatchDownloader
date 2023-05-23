@@ -2495,7 +2495,6 @@ class HighlightFollowingUsers {
         this.list = [];
         /**当前登录用户的关注用户列表 */
         this.following = [];
-        this.storeName = 'following';
         this.publicTotal = 0;
         this.privateTotal = 0;
         this.highlightClassName = 'pbdHighlightFollowing';
@@ -2558,7 +2557,8 @@ class HighlightFollowingUsers {
         else {
             // 恢复的数据里没有当前用户的数据，需要获取
             chrome.runtime.sendMessage({
-                msg: 'needUpdateFollowingData'
+                msg: 'needUpdateFollowingData',
+                user: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID,
             });
         }
     }
@@ -2676,7 +2676,8 @@ class HighlightFollowingUsers {
                 // 考虑到绝大部分情况下，变化的都是公开关注，而且私密关注数量通常都很少
                 // 所以一起请求两者,问题也不大,所以我没有做这个优化
                 chrome.runtime.sendMessage({
-                    msg: 'needUpdateFollowingData'
+                    msg: 'needUpdateFollowingData',
+                    user: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID,
                 });
             }
         }

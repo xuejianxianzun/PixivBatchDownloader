@@ -102,7 +102,19 @@ class ManageFollowing {
         this.queue = [];
         this.status = 'idle';
         this.updateTaskTabID = 0;
+        // 当确定由一个标签页执行更新时，保存它的 tab id 和所属用户
+        // 没必要保存 tab 对象，因为经过测试，关闭页面后保存的 tab 对象依然存在，所以判断时还是必须用 tab id
+        this.updateTaskTabs = [];
         this.load();
+        chrome.storage.local.get().then(val => {
+            console.log(val);
+            for (const [key, value] of Object.entries(val)) {
+                console.log(key);
+                if (key.startsWith('xz')) {
+                    console.log(value);
+                }
+            }
+        });
         chrome.runtime.onInstalled.addListener(async () => {
             // 每次更新或刷新扩展时尝试读取数据，如果数据不存在则设置数据
             const data = await chrome.storage.local.get(this.store);
@@ -118,6 +130,9 @@ class ManageFollowing {
                 if (this.status === 'locked') {
                     // 查询上次执行更新任务的标签页还是否存在，如果不存在，
                     // 则改为让这次发起请求的标签页执行更新任务
+                    const lastTabInfo = this.updateTaskTabs.find(data => data.user === msg.user);
+                    if (!lastTabInfo) {
+                    }
                     const tabs = await this.findAllPixivTab();
                     const find = tabs.find(tab => tab.id === this.updateTaskTabID);
                     if (!find) {
@@ -133,6 +148,10 @@ class ManageFollowing {
                 else {
                     this.updateTaskTabID = sender.tab.id;
                 }
+                this.updateTaskTabs.push({
+                    tabID: sender.tab.id,
+                    user: msg.user
+                });
                 this.status = 'locked';
                 console.log('执行更新任务的标签页', this.updateTaskTabID);
                 chrome.tabs.sendMessage(this.updateTaskTabID, {
@@ -146,6 +165,8 @@ class ManageFollowing {
             }
         });
         this.checkDeadlock();
+    }
+    getUpdateTaskTab(user) {
     }
     async load() {
         if (this.status !== 'idle') {
