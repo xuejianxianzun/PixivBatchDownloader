@@ -65,12 +65,16 @@ class ManageFollowing {
             // 这是因为在请求数据的过程中可能产生了其他操作，set 操作的数据可能已经是旧的了
             // 所以需要先应用 set 里的数据，然后再执行其他操作，在旧数据的基础上进行修改
             this.setData(task)
-
-            this.dispath()
-
-            this.storage()
-
             console.log('更新数据完成，解除锁定')
+
+            // 如果队列中没有等待的操作，则立即派发数据并储存数据
+            // 如果有等待的操作，则不派发和储存数据，因为稍后队列执行完毕后也会派发和储存数据
+            // 这是为了避免重复派发和储存数据，避免影响性能
+            if (this.queue.length === 0) {
+              this.dispath()
+              this.storage()
+            }
+
             this.statusToIdle()
             return
           } else {
@@ -153,6 +157,8 @@ class ManageFollowing {
       return
     }
 
+    console.log('队列中的操作数量', this.queue.length)
+    
     while (this.queue.length > 0) {
       // set 操作不会在此处执行
       const queue = this.queue.shift()!

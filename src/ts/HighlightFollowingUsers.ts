@@ -1,6 +1,7 @@
 import { API } from './API'
 import { EVT } from './EVT'
 import { pageType } from './PageType'
+import { Tools } from './Tools'
 import { store } from './store/Store'
 import { Utils } from './utils/Utils'
 
@@ -25,9 +26,7 @@ class HighlightFollowingUsers {
       return
     }
 
-    // this.loadData()
-
-    this.regularlyCheckUpdate()
+    this.delayCheckUpdate()
 
     window.setTimeout(() => {
       this.startMutationObserver()
@@ -67,6 +66,25 @@ class HighlightFollowingUsers {
       }, 0)
     })
 
+
+    // 在作品页内，作品大图下方和右侧的作者名字变化时，监视器无法监测到变化，尤其是右侧的名字
+    // 所以用定时器执行
+    window.addEventListener(EVT.list.pageSwitch, () => {
+      if (pageType.type === pageType.list.Artwork || pageType.type === pageType.list.Novel) {
+        let time = 0
+        let interval = 500
+        let timer = window.setInterval(() => {
+          time = time + interval
+          if (time > 5000) {
+            window.clearInterval(timer)
+          }
+          const leftA = document.querySelectorAll('#root main a[href*=user]')
+          const rightA = document.querySelectorAll('#root main+aside a[href*=user]')
+          const allA = Array.from(leftA).concat(Array.from(rightA))
+          this.makeHighlight(allA as HTMLAnchorElement[])
+        }, interval)
+      }
+    })
   }
 
   private async update(data: List) {
@@ -211,16 +229,15 @@ class HighlightFollowingUsers {
     return base + random
   }
 
-  /**定时检查是否需要更新数据 */
-  private async regularlyCheckUpdate() {
+  private async delayCheckUpdate() {
     window.clearTimeout(this.checkUpdateTimer)
-    // 每隔一定时间检查一次关注用户的数量，如果数量发生变化则执行全量更新
     this.checkUpdateTimer = window.setTimeout(async () => {
       this.checkNeedUpdate()
-      return this.regularlyCheckUpdate()
+      return this.delayCheckUpdate()
     }, this.getUpdateTime())
   }
 
+  /**每隔一定时间检查一次关注用户的数量，如果数量发生变化则执行全量更新 */
   private async checkNeedUpdate() {
     const cfg = [
       {
@@ -303,21 +320,34 @@ class HighlightFollowingUsers {
         }
       }
     }
+
+    this.highlightUserName()
   }
 
   private startMutationObserver() {
     const observer = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
+
         if (mutation.addedNodes.length > 0) {
           for (const addedNodes of mutation.addedNodes) {
             if (addedNodes.nodeName === 'A') {
+              // 直接是 A 标签的情况
               this.makeHighlight(Array.from([addedNodes as HTMLAnchorElement]))
             } else {
-              // addedNodes 也会包含纯文本，所以判断 nodeType 1，只取 Element
+              // addedNodes 也会包含纯文本，所以需要判断 nodeType
               // https://developer.mozilla.org/zh-CN/docs/Web/API/Node/nodeType
               if (addedNodes.nodeType === 1) {
+                // 如果是元素，则查找里面的 A 标签
                 const allA = (addedNodes as HTMLElement).querySelectorAll('a')
                 this.makeHighlight(Array.from(allA))
+              } else {
+                // 如果不是元素，而且它也不是 A 标签，则尝试查找它的父元素是不是 A 标签
+                // 这是因为在作品页内，作品大图下方和右侧的作者名字变化时，上面的代码无法监测到
+                // 但是这段代码只能检测到下方的，右侧的还是监测不到。而且可能拖累性能，所以我注释掉了
+                // const parent = mutation.target.parentElement
+                // if (parent && parent.nodeName === 'A') {
+                //   this.makeHighlight([parent as HTMLAnchorElement])
+                // }
               }
             }
           }
@@ -325,10 +355,24 @@ class HighlightFollowingUsers {
       }
     })
 
+    // 注意：本模块最好不要监听 attributes 变化，因为本模块自己就会修改元素的 attributes
+    // 监听 attributes 并进行处理可能导致一些代码重复执行，或者死循环
     observer.observe(document.body, {
       childList: true,
       subtree: true,
     })
+  }
+
+  /**在用户主页里，高亮用户名（因为用户名没有超链接，需要单独处理） */
+  private highlightUserName() {
+    if (pageType.type === pageType.list.UserHome) {
+      const userID = Tools.getUserId()
+      const flag = this.following.includes(userID)
+      const h1 = document.querySelector('h1') as HTMLHeadingElement
+      if (h1) {
+        h1.classList[flag ? 'add' : 'remove'](this.highlightClassName)
+      }
+    }
   }
 }
 

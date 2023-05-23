@@ -2483,8 +2483,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -2503,11 +2505,10 @@ class HighlightFollowingUsers {
         // https://www.pixiv.net/en/users/17207914/artworks
         // 下载器只匹配用户主页的链接，不匹配用户子页面的链接
         this.checkUserLinkReg = /\/users\/(\d+)$/;
-        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_4__["Utils"].isPixiv()) {
+        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_5__["Utils"].isPixiv()) {
             return;
         }
-        // this.loadData()
-        this.regularlyCheckUpdate();
+        this.delayCheckUpdate();
         window.setTimeout(() => {
             this.startMutationObserver();
         }, 0);
@@ -2522,7 +2523,7 @@ class HighlightFollowingUsers {
                     msg: 'changeFollowingData',
                     data: {
                         action: 'set',
-                        user: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID,
+                        user: _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID,
                         IDList: IDList,
                         privateTotal: this.privateTotal,
                         publicTotal: this.publicTotal
@@ -2540,11 +2541,31 @@ class HighlightFollowingUsers {
                 this.makeHighlight();
             }, 0);
         });
+        // 在作品页内，作品大图下方和右侧的作者名字变化时，监视器无法监测到，尤其是右侧的
+        // 所以用定时器执行
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, () => {
+            if (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Artwork || _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Novel) {
+                let time = 0;
+                let interval = 500;
+                let timer = window.setInterval(() => {
+                    time = time + interval;
+                    if (time > 5000) {
+                        console.log('celar');
+                        window.clearInterval(timer);
+                    }
+                    const leftA = document.querySelectorAll('#root main a[href*=user]');
+                    const rightA = document.querySelectorAll('#root main+aside a[href*=user]');
+                    const allA = Array.from(leftA).concat(Array.from(rightA));
+                    this.makeHighlight(allA);
+                    console.log('check');
+                }, interval);
+            }
+        });
     }
     async update(data) {
         console.log(data);
         this.list = data;
-        const index = this.list.findIndex((following) => following.user === _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID);
+        const index = this.list.findIndex((following) => following.user === _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID);
         if (index > -1) {
             this.privateTotal = this.list[index].privateTotal;
             this.publicTotal = this.list[index].publicTotal;
@@ -2558,14 +2579,14 @@ class HighlightFollowingUsers {
             // 恢复的数据里没有当前用户的数据，需要获取
             chrome.runtime.sendMessage({
                 msg: 'needUpdateFollowingData',
-                user: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID,
+                user: _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID,
             });
         }
     }
     /**全量获取当前用户的所有关注列表 */
     async getList() {
         console.log('全量获取当前用户的所有关注列表');
-        if (!_store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID) {
+        if (!_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID) {
             throw new Error('store.loggedUserID is empty');
         }
         // 需要获取公开关注和私密关注
@@ -2585,7 +2606,7 @@ class HighlightFollowingUsers {
         // 每次请求 100 个关注用户的数据
         const limit = 100;
         while (ids.length < total) {
-            const res = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID, rest, '', offset, limit);
+            const res = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID, rest, '', offset, limit);
             offset = offset + limit;
             for (const users of res.body.users) {
                 ids.push(users.userId);
@@ -2600,7 +2621,7 @@ class HighlightFollowingUsers {
     }
     /**只请求第一页的数据，以获取 total */
     async getFollowingTotal(rest) {
-        const res = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID, rest, '', 0, 24);
+        const res = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID, rest, '', 0, 24);
         if (rest === 'show') {
             this.publicTotal = res.body.total;
         }
@@ -2614,7 +2635,7 @@ class HighlightFollowingUsers {
             msg: 'changeFollowingData',
             data: {
                 action: 'add',
-                user: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID,
+                user: _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID,
                 IDList: [userID],
                 privateTotal: this.privateTotal + 1,
                 publicTotal: this.publicTotal
@@ -2626,7 +2647,7 @@ class HighlightFollowingUsers {
             msg: 'changeFollowingData',
             data: {
                 action: 'remove',
-                user: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID,
+                user: _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID,
                 IDList: [userID],
                 privateTotal: this.privateTotal - 1,
                 publicTotal: this.publicTotal
@@ -2645,15 +2666,14 @@ class HighlightFollowingUsers {
         console.log('下次检查更新的间隔', base + random);
         return base + random;
     }
-    /**定时检查是否需要更新数据 */
-    async regularlyCheckUpdate() {
+    async delayCheckUpdate() {
         window.clearTimeout(this.checkUpdateTimer);
-        // 每隔一定时间检查一次关注用户的数量，如果数量发生变化则执行全量更新
         this.checkUpdateTimer = window.setTimeout(async () => {
             this.checkNeedUpdate();
-            return this.regularlyCheckUpdate();
+            return this.delayCheckUpdate();
         }, this.getUpdateTime());
     }
+    /**每隔一定时间检查一次关注用户的数量，如果数量发生变化则执行全量更新 */
     async checkNeedUpdate() {
         const cfg = [
             {
@@ -2677,7 +2697,7 @@ class HighlightFollowingUsers {
                 // 所以一起请求两者,问题也不大,所以我没有做这个优化
                 chrome.runtime.sendMessage({
                     msg: 'needUpdateFollowingData',
-                    user: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID,
+                    user: _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID,
                 });
             }
         }
@@ -2717,6 +2737,7 @@ class HighlightFollowingUsers {
                 }
             }
         }
+        this.highlightUserName();
     }
     startMutationObserver() {
         const observer = new MutationObserver((mutations) => {
@@ -2724,24 +2745,48 @@ class HighlightFollowingUsers {
                 if (mutation.addedNodes.length > 0) {
                     for (const addedNodes of mutation.addedNodes) {
                         if (addedNodes.nodeName === 'A') {
+                            // 直接是 A 标签的情况
                             this.makeHighlight(Array.from([addedNodes]));
                         }
                         else {
-                            // addedNodes 也会包含纯文本，所以判断 nodeType 1，只取 Element
+                            // addedNodes 也会包含纯文本，所以需要判断 nodeType
                             // https://developer.mozilla.org/zh-CN/docs/Web/API/Node/nodeType
                             if (addedNodes.nodeType === 1) {
+                                // 如果是元素，则查找里面的 A 标签
                                 const allA = addedNodes.querySelectorAll('a');
                                 this.makeHighlight(Array.from(allA));
+                            }
+                            else {
+                                // 如果不是元素，而且它也不是 A 标签，则尝试查找它的父元素是不是 A 标签
+                                // 这是因为在作品页内，作品大图下方和右侧的作者名字变化时，上面的代码无法监测到
+                                // 但是这段代码只能检测到下方的，右侧的还是监测不到。而且可能拖累性能，所以我注释掉了
+                                // const parent = mutation.target.parentElement
+                                // if (parent && parent.nodeName === 'A') {
+                                //   this.makeHighlight([parent as HTMLAnchorElement])
+                                // }
                             }
                         }
                     }
                 }
             }
         });
+        // 注意：本模块最好不要监听 attributes 变化，因为本模块自己就会修改元素的 attributes
+        // 监听 attributes 并进行处理可能导致一些代码重复执行，或者死循环
         observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
+    }
+    /**在用户主页里，高亮用户名（因为用户名没有超链接，需要单独处理） */
+    highlightUserName() {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.UserHome) {
+            const userID = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getUserId();
+            const flag = this.following.includes(userID);
+            const h1 = document.querySelector('h1');
+            if (h1) {
+                h1.classList[flag ? 'add' : 'remove'](this.highlightClassName);
+            }
+        }
     }
 }
 new HighlightFollowingUsers();
@@ -11504,7 +11549,7 @@ class Tools {
     }
     // 获取当前页面的用户 id
     // 这是一个不够可靠的 api
-    // 测试：在 https://www.pixiv.net/artworks/79399027 获取 userId ，正确的结果应该是 13895186
+    // 测试：在作品页内 https://www.pixiv.net/artworks/79399027 获取 userId ，正确结果应该是 13895186
     static getUserId() {
         const newRegExp = /\/users\/(\d+)/; // 获取 /users/ 后面连续的数字部分，也就是用户的 id
         // 列表页里从 url 中获取
