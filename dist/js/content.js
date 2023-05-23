@@ -2519,7 +2519,7 @@ class HighlightFollowingUsers {
             if (msg.msg === 'getFollowingData') {
                 const IDList = await this.getList();
                 chrome.runtime.sendMessage({
-                    msg: 'setFollowingData',
+                    msg: 'changeFollowingData',
                     data: {
                         action: 'set',
                         user: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID,
@@ -2611,24 +2611,24 @@ class HighlightFollowingUsers {
     }
     addFollow(userID) {
         chrome.runtime.sendMessage({
-            msg: 'setFollowingData',
+            msg: 'changeFollowingData',
             data: {
                 action: 'add',
                 user: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID,
                 IDList: [userID],
-                privateTotal: this.privateTotal,
+                privateTotal: this.privateTotal + 1,
                 publicTotal: this.publicTotal
             }
         });
     }
     unfollow(userID) {
         chrome.runtime.sendMessage({
-            msg: 'setFollowingData',
+            msg: 'changeFollowingData',
             data: {
                 action: 'remove',
                 user: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].loggedUserID,
                 IDList: [userID],
-                privateTotal: this.privateTotal,
+                privateTotal: this.privateTotal - 1,
                 publicTotal: this.publicTotal
             }
         });

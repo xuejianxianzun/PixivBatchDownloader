@@ -43,7 +43,7 @@ class HighlightFollowingUsers {
         const IDList = await this.getList()
 
         chrome.runtime.sendMessage({
-          msg: 'setFollowingData',
+          msg: 'changeFollowingData',
           data: {
             action: 'set',
             user: store.loggedUserID,
@@ -172,12 +172,12 @@ class HighlightFollowingUsers {
 
   private addFollow(userID: string) {
     chrome.runtime.sendMessage({
-      msg: 'setFollowingData',
+      msg: 'changeFollowingData',
       data: {
         action: 'add',
         user: store.loggedUserID,
         IDList: [userID],
-        privateTotal: this.privateTotal,
+        privateTotal: this.privateTotal + 1,
         publicTotal: this.publicTotal
       }
     })
@@ -185,12 +185,12 @@ class HighlightFollowingUsers {
 
   private unfollow(userID: string) {
     chrome.runtime.sendMessage({
-      msg: 'setFollowingData',
+      msg: 'changeFollowingData',
       data: {
         action: 'remove',
         user: store.loggedUserID,
         IDList: [userID],
-        privateTotal: this.privateTotal,
+        privateTotal: this.privateTotal - 1,
         publicTotal: this.publicTotal
       }
     })
