@@ -301,21 +301,23 @@ class FileName {
         safe: true,
       },
       '{tags}': {
-        value: !allNameRule.includes('{tags}') ? null : data.tags.join(','),
+        value: !allNameRule.includes('{tags}')
+          ? null
+          : data.tags.join(settings.tagsSeparator),
         prefix: 'tags_',
         safe: false,
       },
       '{tags_translate}': {
         value: !allNameRule.includes('{tags_translate}')
           ? null
-          : data.tagsWithTransl.join(','),
+          : data.tagsWithTransl.join(settings.tagsSeparator),
         prefix: 'tags_',
         safe: false,
       },
       '{tags_transl_only}': {
         value: !allNameRule.includes('{tags_transl_only}')
           ? null
-          : data.tagsTranslOnly.join(','),
+          : data.tagsTranslOnly.join(settings.tagsSeparator),
         prefix: 'tags_',
         safe: false,
       },
