@@ -5,6 +5,9 @@ import { Tools } from './Tools'
 import { store } from './store/Store'
 import { Utils } from './utils/Utils'
 import { List } from './ManageFollowing'
+import { settings } from './setting/Settings'
+import { toast } from './Toast'
+import { lang } from './Lang'
 
 class HighlightFollowingUsers {
   constructor() {
@@ -20,11 +23,10 @@ class HighlightFollowingUsers {
 
     chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
       if (msg.msg === 'dispathFollowingData') {
-        console.log('接收到派发的数据', msg.data)
         this.receiveData(msg.data)
       }
 
-      if (msg.msg === 'getFollowingData') {
+      if (msg.msg === 'updateFollowingData') {
         const following = await this.getList()
 
         chrome.runtime.sendMessage({
@@ -79,6 +81,17 @@ class HighlightFollowingUsers {
         }, interval)
       }
     })
+
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit)=>{
+      const data = ev.detail.data as any
+      if (data.name === 'highlightFollowingUsers') {
+        if(!data.value){
+          this.clearHighlight()
+        }else{
+          this.makeHighlight()
+        }
+      }
+    })
   }
 
   /**当前登录用户的关注用户列表 */
@@ -106,10 +119,7 @@ class HighlightFollowingUsers {
 
   /**全量获取当前用户的所有关注列表 */
   private async getList(): Promise<string[]> {
-    console.log('全量获取当前用户的所有关注列表')
-    if (!store.loggedUserID) {
-      throw new Error('store.loggedUserID is empty')
-    }
+    toast.show(lang.transl('_正在加载关注用户列表'))
 
     // 需要获取公开关注和私密关注
     const publicList = await this.getFollowingList('show')
@@ -174,7 +184,6 @@ class HighlightFollowingUsers {
 
     // 通常不需要担心间隔时间太大导致数据更新不及时
     // 因为多个标签页里只要有一个更新了数据，所有的标签页都会得到新数据
-    console.log('下次检查更新的间隔', base + random)
     return base + random
   }
 
@@ -196,7 +205,7 @@ class HighlightFollowingUsers {
     }
 
     if (newTotal !== this.total) {
-      console.log(`关注用户总数量变化 ${this.total} -> ${newTotal}`)
+      // console.log(`关注用户总数量变化 ${this.total} -> ${newTotal}`)
       this.total = newTotal
       chrome.runtime.sendMessage({
         msg: 'needUpdateFollowingData',
@@ -212,6 +221,10 @@ class HighlightFollowingUsers {
   private readonly checkUserLinkReg = /\/users\/(\d+)$/
 
   private makeHighlight(aList?: HTMLAnchorElement[]) {
+    if(!settings.highlightFollowingUsers)    {
+      return
+    }
+
     // 这里不需要检查 this.followingList.length === 0 的情况
     // 因为可能之前的数量是 1，之后用户取消关注，变成了 0，那么下面的代码依然需要执行
     // 以把之前高亮过的元素取消高亮
@@ -307,6 +320,13 @@ class HighlightFollowingUsers {
       if (h1) {
         h1.classList[flag ? 'add' : 'remove'](this.highlightClassName)
       }
+    }
+  }
+
+  private clearHighlight(){
+    const allElement = document.querySelectorAll('.'+this.highlightClassName)
+    for (const el of allElement) {
+      el.classList.remove(this.highlightClassName)
     }
   }
 }

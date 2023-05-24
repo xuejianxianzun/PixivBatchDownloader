@@ -2486,6 +2486,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+
+
+
 
 
 
@@ -2516,7 +2522,7 @@ class HighlightFollowingUsers {
                 console.log('接收到派发的数据', msg.data);
                 this.receiveData(msg.data);
             }
-            if (msg.msg === 'getFollowingData') {
+            if (msg.msg === 'updateFollowingData') {
                 const following = await this.getList();
                 chrome.runtime.sendMessage({
                     msg: 'setFollowingData',
@@ -2562,6 +2568,17 @@ class HighlightFollowingUsers {
                 }, interval);
             }
         });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'highlightFollowingUsers') {
+                if (!data.value) {
+                    this.clearHighlight();
+                }
+                else {
+                    this.makeHighlight();
+                }
+            }
+        });
     }
     async receiveData(list) {
         const thisUserData = list.find((data) => data.user === _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID);
@@ -2578,9 +2595,7 @@ class HighlightFollowingUsers {
     /**全量获取当前用户的所有关注列表 */
     async getList() {
         console.log('全量获取当前用户的所有关注列表');
-        if (!_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID) {
-            throw new Error('store.loggedUserID is empty');
-        }
+        _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_8__["lang"].transl('_正在加载关注用户列表'));
         // 需要获取公开关注和私密关注
         const publicList = await this.getFollowingList('show');
         const privateList = await this.getFollowingList('hide');
@@ -2653,6 +2668,9 @@ class HighlightFollowingUsers {
         }
     }
     makeHighlight(aList) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].highlightFollowingUsers) {
+            return;
+        }
         // 这里不需要检查 this.followingList.length === 0 的情况
         // 因为可能之前的数量是 1，之后用户取消关注，变成了 0，那么下面的代码依然需要执行
         // 以把之前高亮过的元素取消高亮
@@ -2736,6 +2754,12 @@ class HighlightFollowingUsers {
             if (h1) {
                 h1.classList[flag ? 'add' : 'remove'](this.highlightClassName);
             }
+        }
+    }
+    clearHighlight() {
+        const allElement = document.querySelectorAll('.' + this.highlightClassName);
+        for (const el of allElement) {
+            el.classList.remove(this.highlightClassName);
         }
     }
 }
@@ -7480,6 +7504,30 @@ const langText = {
         '이제 파일 이름에 사용되는 태그 구분 기호를 사용자 지정하여 기본 <span class="blue">,</span>',
         'Теперь вы можете настроить разделитель тегов, используемый в именах файлов, чтобы заменить используемый по умолчанию <span class="blue">,</span>',
     ],
+    _高亮关注的用户: [
+        '高亮关注的用户',
+        '高亮關注的使用者',
+        'Highlight following users',
+        'フォローしているユーザーを強調表示する',
+        '다음 사용자 강조표시',
+        'Выделить следующих пользователей',
+    ],
+    _高亮关注的用户的说明: [
+        '你关注（Following）的用户的名字会具有黄色背景，或者显示为黄色。<br>这便于你确认自己是否关注了某个用户。',
+        '你關注（Following）的使用者的名字會具有黃色背景，或者顯示為黃色。<br>這便於你確認自己是否關注了某個使用者。',
+        'The names of users you are following will have a yellow background, or be displayed in yellow. <br>This is convenient for you to confirm whether you follow a certain user.',
+        'フォローしているユーザーの名前は背景が黄色、または黄色で表示されます。 <br>特定のユーザーをフォローしているかどうかを確認するのに便利です。',
+        '팔로우하는 사용자의 이름은 노란색 배경으로 표시되거나 노란색으로 표시됩니다. <br>특정 사용자를 팔로우하고 있는지 확인할 때 편리합니다.',
+        'Имена пользователей, на которых вы подписаны, будут иметь желтый фон или отображаться желтым цветом. <br>Это удобно для вас, чтобы подтвердить, подписаны ли вы на определенного пользователя',
+    ],
+    _正在加载关注用户列表: [
+        '正在加载关注用户列表',
+        '正在載入關注使用者列表',
+        'Loading list of followed users',
+        'フォローしているユーザーのリストを読み込み中',
+        '팔로우한 사용자 목록 로드 중',
+        'Загрузка списка отслеживаемых пользователей',
+    ],
 };
 
 
@@ -10708,17 +10756,19 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '15.5.0';
+        this.flag = '15.6.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_标签分隔符号')}</strong>
+            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增功能')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_高亮关注的用户')}</strong>
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名'))}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_高亮关注的用户的说明')}
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_自定义标签分隔符号的提示')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')}
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_增强'))}
       `;
             // 在更新说明的下方显示赞助提示
             msg += `
@@ -13779,7 +13829,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
             49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-            70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,
+            70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84,
         ]);
     }
     nextStep() {
@@ -24246,7 +24296,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formHtml", function() { return formHtml; });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 
-// 已使用的最大编号是 83
+// 已使用的最大编号是 84
 const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -25137,6 +25187,14 @@ const formHtml = `<form class="settingForm">
       <span data-xztext="_增强"></span>
     </p>
     
+    <p class="option" data-no="84">
+    <span class="has_tip settingNameStyle1" data-xztip="_高亮关注的用户的说明">
+    <span data-xztext="_高亮关注的用户"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="highlightFollowingUsers" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
+    
     <p class="option" data-no="68">
     <span class="settingNameStyle1" data-xztext="_显示更大的缩略图"></span>
     <input type="checkbox" name="showLargerThumbnails" class="need_beautify checkbox_switch" checked>
@@ -25552,6 +25610,7 @@ class FormSettings {
                 'notAIGenerated',
                 'UnknownAI',
                 'setFileDownloadOrder',
+                'highlightFollowingUsers',
             ],
             text: [
                 'setWantPage',
@@ -26296,10 +26355,10 @@ __webpack_require__.r(__webpack_exports__);
 // 本模块会触发 3 个事件：
 // EVT.list.settingChange
 // 当任意一个设置项被赋值时触发（不会区分值是否发生了变化）。这是最常用的事件。
-// 事件的参数里会传递这个设置项的名称和值，格式如：
+// 事件的参数里会传递这个设置项的名称和值，可以通过 ev.detail.data 获取，格式如：
 // {name: string, value: any}
 // 如果某个模块要监听特定的设置项，应该使用参数的 name 来判断触发事件的设置项是否是自己需要的设置项
-// 如果不依赖于特定设置项，则应该考虑使用节流或者防抖来限制事件监听器的执行频率，防止造成性能问题
+// 如果不依赖于特定设置项，则应该考虑使用节流或者防抖来限制事件的回调函数的执行频率，防止造成性能问题
 // EVT.list.settingInitialized
 // 当设置初始化完毕（以及恢复本地储存的设置）之后触发。这个事件在生命周期里只会触发一次。
 // 过程中，每个设置项都会触发一次 settingChange 事件
@@ -26309,6 +26368,7 @@ __webpack_require__.r(__webpack_exports__);
 // 过程中，每个设置项都会触发一次 settingChange 事件
 // 如果打开了多个标签页，每个页面的 settings 数据是相互独立的，在一个页面里修改设置不会影响另一个页面里的设置。
 // 但是持久化保存的数据只有一份：最后一次的设置变化是在哪个页面发生的，就保存哪个页面的 settings 数据。
+// 所以当页面刷新时，或者打开新的页面时，会加载设置最后一次发生变化的页面里的 settings 数据
 
 
 
@@ -26516,6 +26576,7 @@ class Settings {
             tipAltSToSelectWork: true,
             tipAltQToQuickDownload: true,
             tipBookmarkButton: true,
+            highlightFollowingUsers: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项

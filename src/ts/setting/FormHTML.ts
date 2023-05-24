@@ -1,6 +1,6 @@
 import { Config } from '../Config'
 
-// 已使用的最大编号是 83
+// 已使用的最大编号是 84
 export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -889,6 +889,14 @@ export const formHtml = `<form class="settingForm">
 
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
+    </p>
+    
+    <p class="option" data-no="84">
+    <span class="has_tip settingNameStyle1" data-xztip="_高亮关注的用户的说明">
+    <span data-xztext="_高亮关注的用户"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="highlightFollowingUsers" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch" tabindex="0"></span>
     </p>
     
     <p class="option" data-no="68">

@@ -143,4 +143,5 @@ export interface SettingsForm extends HTMLFormElement {
   setFileDownloadOrder: HTMLInputElement
   downloadOrder: HTMLInputElement
   downloadOrderSortBy: HTMLInputElement
+  highlightFollowingUsers: HTMLInputElement
 }

@@ -120,6 +120,7 @@ class FormSettings {
       'notAIGenerated',
       'UnknownAI',
       'setFileDownloadOrder',
+      'highlightFollowingUsers',
     ],
     text: [
       'setWantPage',

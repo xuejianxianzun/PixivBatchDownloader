@@ -137,7 +137,7 @@ class ManageFollowing {
                 this.status = 'locked';
                 console.log('执行更新任务的标签页', this.updateTaskTabID);
                 chrome.tabs.sendMessage(this.updateTaskTabID, {
-                    msg: 'getFollowingData',
+                    msg: 'updateFollowingData',
                 });
             }
             if (msg.msg === 'setFollowingData') {
