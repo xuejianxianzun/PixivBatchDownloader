@@ -1,6 +1,6 @@
 import { Config } from '../Config'
 
-// 已使用的最大编号是 81
+// 已使用的最大编号是 84
 export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -681,6 +681,15 @@ export const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="83">
+    <span class="settingNameStyle1" data-xztext="_标签分隔符号"></span>
+    <input type="text" name="tagsSeparator" class="setinput_style1 blue" value=",">
+    <button type="button" class="gray1 textButton showTagsSeparatorTip" data-xztext="_提示"></button>
+    </p>
+    <p class="tagsSeparatorTip tip" style="display:none">
+    <span data-xztext="_标签分隔符号提示"></span>
+    </p>
+    
     <p class="option" data-no="67">
     <span class="has_tip settingNameStyle1" data-xztip="_移除用户名中的at和后续字符的说明">
     <span data-xztext="_移除用户名中的at和后续字符"></span>
@@ -880,6 +889,14 @@ export const formHtml = `<form class="settingForm">
 
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
+    </p>
+    
+    <p class="option" data-no="84">
+    <span class="has_tip settingNameStyle1" data-xztip="_高亮关注的用户的说明">
+    <span data-xztext="_高亮关注的用户"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="highlightFollowingUsers" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch" tabindex="0"></span>
     </p>
     
     <p class="option" data-no="68">
