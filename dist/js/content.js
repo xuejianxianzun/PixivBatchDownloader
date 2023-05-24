@@ -2593,7 +2593,9 @@ class HighlightFollowingUsers {
     }
     /**全量获取当前用户的所有关注列表 */
     async getList() {
-        _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_8__["lang"].transl('_正在加载关注用户列表'));
+        _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_8__["lang"].transl('_正在加载关注用户列表'), {
+            position: 'topCenter'
+        });
         // 需要获取公开关注和私密关注
         const publicList = await this.getFollowingList('show');
         const privateList = await this.getFollowingList('hide');
