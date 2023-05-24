@@ -2195,11 +2195,11 @@ main section nav[style]::-webkit-scrollbar-thumb {
   text-align: center;
   margin: 10px auto;
 }
-html[data-theme="default"] body .pbdHighlightFollowing,
-html[data-theme="light"] body .pbdHighlightFollowing {
+html[data-theme='default'] body .pbdHighlightFollowing,
+html[data-theme='light'] body .pbdHighlightFollowing {
   background-color: yellow !important;
 }
-html[data-theme="dark"] body .pbdHighlightFollowing,
-html[data-theme="dark"] body .pbdHighlightFollowing * {
+html[data-theme='dark'] body .pbdHighlightFollowing,
+html[data-theme='dark'] body .pbdHighlightFollowing * {
   color: yellow !important;
 }

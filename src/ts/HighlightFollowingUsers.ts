@@ -4,21 +4,7 @@ import { pageType } from './PageType'
 import { Tools } from './Tools'
 import { store } from './store/Store'
 import { Utils } from './utils/Utils'
-
-export interface Following {
-  /** 指示这个对象属于哪个用户 id **/
-  user: string
-  /** 此用户的关注用户的 id 列表 **/
-  following: string[]
-  /** 此用户公开关注的用户数量。注意，这个数量是 API 返回的 total，实际用户数量可能少于这个值 **/
-  publicTotal: number
-  /** 此用户私密关注的用户数量。注意，这个数量是 API 返回的 total，实际用户数量可能少于这个值 **/
-  privateTotal: number
-  /** 最后一次更新数据的时间戳 **/
-  time: number
-}
-
-export type List = Following[]
+import { List } from './ManageFollowing'
 
 class HighlightFollowingUsers {
   constructor() {
@@ -32,33 +18,37 @@ class HighlightFollowingUsers {
       this.startMutationObserver()
     }, 0)
 
-    chrome.runtime.onMessage.addListener(async (msg) => {
+    chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
       if (msg.msg === 'dispathFollowingData') {
         console.log('接收到派发的数据', msg.data)
-        this.update(msg.data)
+        this.receiveData(msg.data)
       }
 
       if (msg.msg === 'getFollowingData') {
-        const IDList = await this.getList()
+        const following = await this.getList()
 
         chrome.runtime.sendMessage({
-          msg: 'changeFollowingData',
+          msg: 'setFollowingData',
           data: {
-            action: 'set',
             user: store.loggedUserID,
-            IDList: IDList,
-            privateTotal: this.privateTotal,
-            publicTotal: this.publicTotal
-          }
+            following: following,
+            total: this.total,
+          },
         })
+      }
+
+      if (msg.msg === 'getLoggedUserID') {
+        sendResponse({ loggedUserID: store.loggedUserID })
       }
     })
 
-    chrome.runtime.sendMessage({
-      msg: 'requestFollowingData'
-    })
+    if (store.loggedUserID) {
+      chrome.runtime.sendMessage({
+        msg: 'requestFollowingData',
+      })
+    }
 
-    // 当用户改变页面主题时，页面元素会重新生成，但是目前的代码不能监听到这个变化
+    // 当用户改变页面主题时，一些页面元素会重新生成，但是目前的代码不能监听到这个变化
     // 所以借助自定义事件来更新高亮状态
     window.addEventListener(EVT.list.pageThemeChange, () => {
       window.setTimeout(() => {
@@ -66,11 +56,13 @@ class HighlightFollowingUsers {
       }, 0)
     })
 
-
     // 在作品页内，作品大图下方和右侧的作者名字变化时，监视器无法监测到变化，尤其是右侧的名字
     // 所以用定时器执行
     window.addEventListener(EVT.list.pageSwitch, () => {
-      if (pageType.type === pageType.list.Artwork || pageType.type === pageType.list.Novel) {
+      if (
+        pageType.type === pageType.list.Artwork ||
+        pageType.type === pageType.list.Novel
+      ) {
         let time = 0
         let interval = 500
         let timer = window.setInterval(() => {
@@ -79,7 +71,9 @@ class HighlightFollowingUsers {
             window.clearInterval(timer)
           }
           const leftA = document.querySelectorAll('#root main a[href*=user]')
-          const rightA = document.querySelectorAll('#root main+aside a[href*=user]')
+          const rightA = document.querySelectorAll(
+            '#root main+aside a[href*=user]'
+          )
           const allA = Array.from(leftA).concat(Array.from(rightA))
           this.makeHighlight(allA as HTMLAnchorElement[])
         }, interval)
@@ -87,41 +81,28 @@ class HighlightFollowingUsers {
     })
   }
 
-  private async update(data: List) {
-    console.log(data)
-    this.list = data
-    const index = this.list.findIndex(
-      (following) => following.user === store.loggedUserID
-    )
-    if (index > -1) {
-      this.privateTotal = this.list[index].privateTotal
-      this.publicTotal = this.list[index].publicTotal
-      this.following = this.list[index].following
-
-      // 已经有数据了，执行高亮
-      // 在新版页面里，如果此时页面内容还未生成，执行是没有效果的
-      // 在旧版页面里（页面内容一次性加载），此时执行是有效的，并且是必须的
-      this.makeHighlight()
-    } else {
-      // 恢复的数据里没有当前用户的数据，需要获取
-      chrome.runtime.sendMessage({
-        msg: 'needUpdateFollowingData',
-        user: store.loggedUserID,
-      })
-    }
-  }
-
-  private list: List = []
-
   /**当前登录用户的关注用户列表 */
   private following: string[] = []
 
-  private publicTotal = 0
-  private privateTotal = 0
+  /**当前登录用户的关注用户总数 */
+  private total = 0
 
   private checkUpdateTimer?: number
 
   private readonly highlightClassName = 'pbdHighlightFollowing'
+
+  private async receiveData(list: List) {
+    const thisUserData = list.find((data) => data.user === store.loggedUserID)
+    if (thisUserData) {
+      this.following = thisUserData.following
+      this.total = thisUserData.total
+
+      this.makeHighlight()
+    } else {
+      // 恢复的数据里没有当前用户的数据，需要获取
+      this.checkNeedUpdate()
+    }
+  }
 
   /**全量获取当前用户的所有关注列表 */
   private async getList(): Promise<string[]> {
@@ -179,39 +160,7 @@ class HighlightFollowingUsers {
   private async getFollowingTotal(rest: 'show' | 'hide') {
     const res = await API.getFollowingList(store.loggedUserID, rest, '', 0, 24)
 
-    if (rest === 'show') {
-      this.publicTotal = res.body.total
-    } else {
-      this.privateTotal = res.body.total
-    }
-
     return res.body.total
-  }
-
-  private addFollow(userID: string) {
-    chrome.runtime.sendMessage({
-      msg: 'changeFollowingData',
-      data: {
-        action: 'add',
-        user: store.loggedUserID,
-        IDList: [userID],
-        privateTotal: this.privateTotal + 1,
-        publicTotal: this.publicTotal
-      }
-    })
-  }
-
-  private unfollow(userID: string) {
-    chrome.runtime.sendMessage({
-      msg: 'changeFollowingData',
-      data: {
-        action: 'remove',
-        user: store.loggedUserID,
-        IDList: [userID],
-        privateTotal: this.privateTotal - 1,
-        publicTotal: this.publicTotal
-      }
-    })
   }
 
   private getUpdateTime() {
@@ -224,7 +173,7 @@ class HighlightFollowingUsers {
     const random = Math.random() * 600000
 
     // 通常不需要担心间隔时间太大导致数据更新不及时
-    // 因为多个标签页里只要有一个更新了数据，所有页面都会得到更新
+    // 因为多个标签页里只要有一个更新了数据，所有的标签页都会得到新数据
     console.log('下次检查更新的间隔', base + random)
     return base + random
   }
@@ -237,35 +186,22 @@ class HighlightFollowingUsers {
     }, this.getUpdateTime())
   }
 
-  /**每隔一定时间检查一次关注用户的数量，如果数量发生变化则执行全量更新 */
+  /**检查关注用户的数量，如果数量发生变化则执行全量更新 */
   private async checkNeedUpdate() {
-    const cfg = [
-      {
-        old: this.publicTotal,
-        rest: 'show',
-      },
-      {
-        old: this.privateTotal,
-        rest: 'hide',
-      },
-    ]
+    // 因为本程序不区分公开和非公开关注，所以只储存总数
+    let newTotal = 0
+    for (const rest of ['show', 'hide']) {
+      const total = await this.getFollowingTotal(rest as 'show' | 'hide')
+      newTotal = newTotal + total
+    }
 
-    for (const { old, rest } of cfg) {
-      const newTotal = await this.getFollowingTotal(rest as 'show' | 'hide')
-      if (old !== newTotal) {
-        console.log(`${rest} 数量变化 ${old} -> ${newTotal}`)
-
-        // 有一个可以优化的地方：
-        // 现在是一旦检查到公开或私密关注中的任意一个有变化，就全部更新（两者）
-        // 可以改为只更新变化的那个
-        // 但是这需要设置更多的标记，并且储存数据时也需要把两种关注数据分开存储
-        // 考虑到绝大部分情况下，变化的都是公开关注，而且私密关注数量通常都很少
-        // 所以一起请求两者,问题也不大,所以我没有做这个优化
-        chrome.runtime.sendMessage({
-          msg: 'needUpdateFollowingData',
-          user: store.loggedUserID,
-        })
-      }
+    if (newTotal !== this.total) {
+      console.log(`关注用户总数量变化 ${this.total} -> ${newTotal}`)
+      this.total = newTotal
+      chrome.runtime.sendMessage({
+        msg: 'needUpdateFollowingData',
+        user: store.loggedUserID,
+      })
     }
   }
 
@@ -327,7 +263,6 @@ class HighlightFollowingUsers {
   private startMutationObserver() {
     const observer = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
-
         if (mutation.addedNodes.length > 0) {
           for (const addedNodes of mutation.addedNodes) {
             if (addedNodes.nodeName === 'A') {

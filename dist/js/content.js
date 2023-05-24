@@ -2494,11 +2494,10 @@ __webpack_require__.r(__webpack_exports__);
 
 class HighlightFollowingUsers {
     constructor() {
-        this.list = [];
         /**当前登录用户的关注用户列表 */
         this.following = [];
-        this.publicTotal = 0;
-        this.privateTotal = 0;
+        /**当前登录用户的关注用户总数 */
+        this.total = 0;
         this.highlightClassName = 'pbdHighlightFollowing';
         // 检查包含用户 id 的链接，并且需要以 id 结束
         // 这是因为 id 之后还有字符的链接是不需要的，例如：
@@ -2512,75 +2511,68 @@ class HighlightFollowingUsers {
         window.setTimeout(() => {
             this.startMutationObserver();
         }, 0);
-        chrome.runtime.onMessage.addListener(async (msg) => {
+        chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
             if (msg.msg === 'dispathFollowingData') {
                 console.log('接收到派发的数据', msg.data);
-                this.update(msg.data);
+                this.receiveData(msg.data);
             }
             if (msg.msg === 'getFollowingData') {
-                const IDList = await this.getList();
+                const following = await this.getList();
                 chrome.runtime.sendMessage({
-                    msg: 'changeFollowingData',
+                    msg: 'setFollowingData',
                     data: {
-                        action: 'set',
                         user: _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID,
-                        IDList: IDList,
-                        privateTotal: this.privateTotal,
-                        publicTotal: this.publicTotal
-                    }
+                        following: following,
+                        total: this.total,
+                    },
                 });
             }
+            if (msg.msg === 'getLoggedUserID') {
+                sendResponse({ loggedUserID: _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID });
+            }
         });
-        chrome.runtime.sendMessage({
-            msg: 'requestFollowingData'
-        });
-        // 当用户改变页面主题时，页面元素会重新生成，但是目前的代码不能监听到这个变化
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID) {
+            chrome.runtime.sendMessage({
+                msg: 'requestFollowingData',
+            });
+        }
+        // 当用户改变页面主题时，一些页面元素会重新生成，但是目前的代码不能监听到这个变化
         // 所以借助自定义事件来更新高亮状态
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageThemeChange, () => {
             window.setTimeout(() => {
                 this.makeHighlight();
             }, 0);
         });
-        // 在作品页内，作品大图下方和右侧的作者名字变化时，监视器无法监测到，尤其是右侧的
+        // 在作品页内，作品大图下方和右侧的作者名字变化时，监视器无法监测到变化，尤其是右侧的名字
         // 所以用定时器执行
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, () => {
-            if (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Artwork || _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Novel) {
+            if (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Artwork ||
+                _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Novel) {
                 let time = 0;
                 let interval = 500;
                 let timer = window.setInterval(() => {
                     time = time + interval;
                     if (time > 5000) {
-                        console.log('celar');
                         window.clearInterval(timer);
                     }
                     const leftA = document.querySelectorAll('#root main a[href*=user]');
                     const rightA = document.querySelectorAll('#root main+aside a[href*=user]');
                     const allA = Array.from(leftA).concat(Array.from(rightA));
                     this.makeHighlight(allA);
-                    console.log('check');
                 }, interval);
             }
         });
     }
-    async update(data) {
-        console.log(data);
-        this.list = data;
-        const index = this.list.findIndex((following) => following.user === _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID);
-        if (index > -1) {
-            this.privateTotal = this.list[index].privateTotal;
-            this.publicTotal = this.list[index].publicTotal;
-            this.following = this.list[index].following;
-            // 已经有数据了，执行高亮
-            // 在新版页面里，如果此时页面内容还未生成，执行是没有效果的
-            // 在旧版页面里（页面内容一次性加载），此时执行是有效的，并且是必须的
+    async receiveData(list) {
+        const thisUserData = list.find((data) => data.user === _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID);
+        if (thisUserData) {
+            this.following = thisUserData.following;
+            this.total = thisUserData.total;
             this.makeHighlight();
         }
         else {
             // 恢复的数据里没有当前用户的数据，需要获取
-            chrome.runtime.sendMessage({
-                msg: 'needUpdateFollowingData',
-                user: _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID,
-            });
+            this.checkNeedUpdate();
         }
     }
     /**全量获取当前用户的所有关注列表 */
@@ -2622,37 +2614,7 @@ class HighlightFollowingUsers {
     /**只请求第一页的数据，以获取 total */
     async getFollowingTotal(rest) {
         const res = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID, rest, '', 0, 24);
-        if (rest === 'show') {
-            this.publicTotal = res.body.total;
-        }
-        else {
-            this.privateTotal = res.body.total;
-        }
         return res.body.total;
-    }
-    addFollow(userID) {
-        chrome.runtime.sendMessage({
-            msg: 'changeFollowingData',
-            data: {
-                action: 'add',
-                user: _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID,
-                IDList: [userID],
-                privateTotal: this.privateTotal + 1,
-                publicTotal: this.publicTotal
-            }
-        });
-    }
-    unfollow(userID) {
-        chrome.runtime.sendMessage({
-            msg: 'changeFollowingData',
-            data: {
-                action: 'remove',
-                user: _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID,
-                IDList: [userID],
-                privateTotal: this.privateTotal - 1,
-                publicTotal: this.publicTotal
-            }
-        });
     }
     getUpdateTime() {
         // 每次检查更新的最低时间间隔是 5 分钟
@@ -2662,7 +2624,7 @@ class HighlightFollowingUsers {
         // 产生一个 10 分钟内的随机数
         const random = Math.random() * 600000;
         // 通常不需要担心间隔时间太大导致数据更新不及时
-        // 因为多个标签页里只要有一个更新了数据，所有页面都会得到更新
+        // 因为多个标签页里只要有一个更新了数据，所有的标签页都会得到新数据
         console.log('下次检查更新的间隔', base + random);
         return base + random;
     }
@@ -2673,33 +2635,21 @@ class HighlightFollowingUsers {
             return this.delayCheckUpdate();
         }, this.getUpdateTime());
     }
-    /**每隔一定时间检查一次关注用户的数量，如果数量发生变化则执行全量更新 */
+    /**检查关注用户的数量，如果数量发生变化则执行全量更新 */
     async checkNeedUpdate() {
-        const cfg = [
-            {
-                old: this.publicTotal,
-                rest: 'show',
-            },
-            {
-                old: this.privateTotal,
-                rest: 'hide',
-            },
-        ];
-        for (const { old, rest } of cfg) {
-            const newTotal = await this.getFollowingTotal(rest);
-            if (old !== newTotal) {
-                console.log(`${rest} 数量变化 ${old} -> ${newTotal}`);
-                // 有一个可以优化的地方：
-                // 现在是一旦检查到公开或私密关注中的任意一个有变化，就全部更新（两者）
-                // 可以改为只更新变化的那个
-                // 但是这需要设置更多的标记，并且储存数据时也需要把两种关注数据分开存储
-                // 考虑到绝大部分情况下，变化的都是公开关注，而且私密关注数量通常都很少
-                // 所以一起请求两者,问题也不大,所以我没有做这个优化
-                chrome.runtime.sendMessage({
-                    msg: 'needUpdateFollowingData',
-                    user: _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID,
-                });
-            }
+        // 因为本程序不区分公开和非公开关注，所以只储存总数
+        let newTotal = 0;
+        for (const rest of ['show', 'hide']) {
+            const total = await this.getFollowingTotal(rest);
+            newTotal = newTotal + total;
+        }
+        if (newTotal !== this.total) {
+            console.log(`关注用户总数量变化 ${this.total} -> ${newTotal}`);
+            this.total = newTotal;
+            chrome.runtime.sendMessage({
+                msg: 'needUpdateFollowingData',
+                user: _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID,
+            });
         }
     }
     makeHighlight(aList) {
