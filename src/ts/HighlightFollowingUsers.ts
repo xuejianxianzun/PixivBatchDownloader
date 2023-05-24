@@ -82,12 +82,12 @@ class HighlightFollowingUsers {
       }
     })
 
-    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit)=>{
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data as any
       if (data.name === 'highlightFollowingUsers') {
-        if(!data.value){
+        if (!data.value) {
           this.clearHighlight()
-        }else{
+        } else {
           this.makeHighlight()
         }
       }
@@ -221,7 +221,7 @@ class HighlightFollowingUsers {
   private readonly checkUserLinkReg = /\/users\/(\d+)$/
 
   private makeHighlight(aList?: HTMLAnchorElement[]) {
-    if(!settings.highlightFollowingUsers)    {
+    if (!settings.highlightFollowingUsers) {
       return
     }
 
@@ -323,8 +323,8 @@ class HighlightFollowingUsers {
     }
   }
 
-  private clearHighlight(){
-    const allElement = document.querySelectorAll('.'+this.highlightClassName)
+  private clearHighlight() {
+    const allElement = document.querySelectorAll('.' + this.highlightClassName)
     for (const el of allElement) {
       el.classList.remove(this.highlightClassName)
     }

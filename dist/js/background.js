@@ -123,11 +123,9 @@ class ManageFollowing {
                     const find = tabs.find((tab) => tab.id === this.updateTaskTabID);
                     if (!find) {
                         this.updateTaskTabID = sender.tab.id;
-                        console.log('改为让这次发起请求的标签页执行更新任务');
                     }
                     else {
                         // 如果上次执行更新任务的标签页依然存在，且状态锁定，则拒绝这次请求
-                        console.log('上次执行更新任务的标签页依然存在，且状态锁定，拒绝这次请求');
                         return;
                     }
                 }
@@ -135,7 +133,6 @@ class ManageFollowing {
                     this.updateTaskTabID = sender.tab.id;
                 }
                 this.status = 'locked';
-                console.log('执行更新任务的标签页', this.updateTaskTabID);
                 chrome.tabs.sendMessage(this.updateTaskTabID, {
                     msg: 'updateFollowingData',
                 });
@@ -149,7 +146,6 @@ class ManageFollowing {
                     // 这是因为在请求数据的过程中可能产生了其他操作，set 操作的数据可能已经是旧的了
                     // 所以需要先应用 set 里的数据，然后再执行其他操作，在旧数据的基础上进行修改
                     this.setData(data);
-                    console.log('更新数据完成，解除锁定');
                     // 如果队列中没有等待的操作，则立即派发数据并储存数据
                     // 如果有等待的操作，则不派发和储存数据，因为稍后队列执行完毕后也会派发和储存数据
                     // 这是为了避免重复派发和储存数据，避免影响性能
@@ -168,7 +164,6 @@ class ManageFollowing {
         chrome.webRequest.onBeforeRequest.addListener((details) => {
             var _a;
             if (details.method === 'POST') {
-                console.log(details);
                 if ((_a = details === null || details === void 0 ? void 0 : details.requestBody) === null || _a === void 0 ? void 0 : _a.formData) {
                     let operate = {
                         action: '',
@@ -236,7 +231,6 @@ class ManageFollowing {
         }
         this.status = 'loading';
         const data = await chrome.storage.local.get(this.store);
-        console.log(data);
         if (data[this.store] && Array.isArray(data[this.store])) {
             this.data = data[this.store];
             this.status = 'idle';
@@ -246,7 +240,6 @@ class ManageFollowing {
                 this.restore();
             }, 500);
         }
-        console.log('已加载关注用户列表数据', this.data);
     }
     /**向前台脚本派发数据
      * 可以指定向哪个 tab 派发
@@ -260,10 +253,8 @@ class ManageFollowing {
             });
         }
         else {
-            console.log('向所有标签页派发数据');
             const tabs = await this.findAllPixivTab();
             for (const tab of tabs) {
-                console.log(tab);
                 chrome.tabs.sendMessage(tab.id, {
                     msg: 'dispathFollowingData',
                     data: this.data,
@@ -279,7 +270,6 @@ class ManageFollowing {
         if (this.status !== 'idle' || this.queue.length === 0) {
             return;
         }
-        console.log('队列中的操作数量', this.queue.length);
         while (this.queue.length > 0) {
             // set 操作不会在此处执行
             const queue = this.queue.shift();
@@ -342,7 +332,6 @@ class ManageFollowing {
                 const tabs = await this.findAllPixivTab();
                 const find = tabs.find((tab) => tab.id === this.updateTaskTabID);
                 if (!find) {
-                    console.log('解除死锁');
                     this.status = 'idle';
                 }
             }
