@@ -173,7 +173,7 @@ class Tools {
 
   // 获取当前页面的用户 id
   // 这是一个不够可靠的 api
-  // 测试：在 https://www.pixiv.net/artworks/79399027 获取 userId ，正确的结果应该是 13895186
+  // 测试：在作品页内 https://www.pixiv.net/artworks/79399027 获取 userId ，正确结果应该是 13895186
   static getUserId() {
     const newRegExp = /\/users\/(\d+)/ // 获取 /users/ 后面连续的数字部分，也就是用户的 id
 
@@ -219,6 +219,35 @@ class Tools {
 
     // 如果都没有获取到
     throw new Error('getUserId failed!')
+  }
+
+  static getLoggedUserID() {
+    // 在新版页面里，从 head 里的 script 里匹配用户 id
+    const match = document.head.innerHTML.match(/'user_id', "(\d*)"/)
+    if (match && match.length > 1) {
+      return match[1]
+    }
+
+    {
+      // 在旧版页面里，从 head 里的 script 里匹配用户 id
+      const match2 = document.head.innerHTML.match(/pixiv.user.id = "(\d*)"/)
+      if (match2 && match2.length > 1) {
+        return match2[1]
+      }
+    }
+
+    {
+      // 在约稿页面里，从 body 里的 script 里匹配用户 id
+      const el = document.querySelector('script#gtm-datalayer')
+      if (el && el.textContent) {
+        const match3 = el.textContent.match(/user_id:'(\d+)'/)
+        if (match3 && match3.length > 1) {
+          return match3[1]
+        }
+      }
+    }
+
+    return ''
   }
 
   // 将元素插入到 Pixiv 页面顶部

@@ -1086,7 +1086,7 @@ const langText = {
     'Если имя файла после загрузки ненормальное, отключите другие расширения браузера, которые имеют возможность загрузки.<br> Например: Chrono Download Manager, бесплатный менеджер загрузок, загрузчик изображений, DownThemAll! и многое другое.',
   ],
   _常见问题说明: [
-    '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>如果你需要一个梯子（机场）,可以试试 <a href="https://www.ttkcloud.net/#/register?code=6m4hMaPu" title="https://www.ttkcloud.net/">www.ttkcloud.net</a>，价格便宜，百兆带宽，无倍率。先购买订阅，然后在仪表盘复制订阅链接使用。<br><br>下载器 QQ 群：499873152<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
+    '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>如果你需要一个梯子（机场）,可以试试这个机场：<a href="https://v2.hjl772vps.top/#/register?code=KEA3xTT4" title="农家有风小院">农家有风小院</a>，价格实惠，网络稳定。先购买订阅，然后在仪表盘复制订阅链接使用。<br><br>下载器 QQ 群：499873152<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
     '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。',
     'The downloaded file is saved in the browsers download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.<br><br>If your browser stops responding at startup, you can clear your browser`s download history.',
     'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。',
@@ -4037,6 +4037,30 @@ const langText = {
     'ファイル名で使用されるタグ区切りをカスタマイズして、デフォルトの <span class="blue">,</span> を置き換えることができるようになりました',
     '이제 파일 이름에 사용되는 태그 구분 기호를 사용자 지정하여 기본 <span class="blue">,</span>',
     'Теперь вы можете настроить разделитель тегов, используемый в именах файлов, чтобы заменить используемый по умолчанию <span class="blue">,</span>',
+  ],
+  _高亮关注的用户: [
+    '<span class="key">高亮</span>关注的用户',
+    '<span class="key">高亮</span>關注的使用者',
+    '<span class="key">Highlight</span> following users',
+    'フォローしているユーザーを強調表示する',
+    '다음 사용자 <span class="key">강조표시</span>',
+    '<span class="key">Выделить</span> следующих пользователей',
+  ],
+  _高亮关注的用户的说明: [
+    '你关注（Following）的用户的名字会具有黄色背景，或者显示为黄色。<br>这便于你确认自己是否关注了某个用户。',
+    '你關注（Following）的使用者的名字會具有黃色背景，或者顯示為黃色。<br>這便於你確認自己是否關注了某個使用者。',
+    'The names of users you are following will have a yellow background, or be displayed in yellow. <br>This is convenient for you to confirm whether you follow a certain user.',
+    'フォローしているユーザーの名前は背景が黄色、または黄色で表示されます。 <br>特定のユーザーをフォローしているかどうかを確認するのに便利です。',
+    '팔로우하는 사용자의 이름은 노란색 배경으로 표시되거나 노란색으로 표시됩니다. <br>특정 사용자를 팔로우하고 있는지 확인할 때 편리합니다.',
+    'Имена пользователей, на которых вы подписаны, будут иметь желтый фон или отображаться желтым цветом. <br>Это удобно для вас, чтобы подтвердить, подписаны ли вы на определенного пользователя',
+  ],
+  _正在加载关注用户列表: [
+    '正在加载关注用户列表',
+    '正在載入關注使用者列表',
+    'Loading list of followed users',
+    'フォローしているユーザーのリストを読み込み中',
+    '팔로우한 사용자 목록 로드 중',
+    'Загрузка списка отслеживаемых пользователей',
   ],
 }
 
