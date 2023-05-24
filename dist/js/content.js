@@ -22345,10 +22345,10 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask1', () => {
-            this.crawlData(105710000, 105778536);
+            this.crawlData(105780000, 108404581);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask2', () => {
-            this.crawlData(19380000, 19392908, 'novels');
+            this.crawlData(19400000, 19944063, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
