@@ -118,6 +118,16 @@ chrome.runtime.onMessage.addListener(async function (
       saveAs: false,
     })
   }
+
+  if (msg.msg === 'clearDownloadsTempData') {
+    if (sender.tab?.id) {
+      const tabId = sender.tab.id
+      delete idList[tabId]
+      delete batchNo[tabId]
+
+      setData({ batchNo, idList })
+    }
+  }
 })
 
 // 判断文件名是否变成了 UUID 格式。因为文件名处于整个绝对路径的中间，所以没加首尾标记 ^ $

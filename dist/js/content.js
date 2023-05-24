@@ -2594,7 +2594,7 @@ class HighlightFollowingUsers {
     /**全量获取当前用户的所有关注列表 */
     async getList() {
         _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_8__["lang"].transl('_正在加载关注用户列表'), {
-            position: 'topCenter'
+            position: 'topCenter',
         });
         // 需要获取公开关注和私密关注
         const publicList = await this.getFollowingList('show');
@@ -18076,6 +18076,10 @@ class DownloadControl {
             if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].waitingIdList.length === 0) {
                 _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕2'), {
                     position: 'center',
+                });
+                // 通知后台清除保存的此标签页的 idList
+                chrome.runtime.sendMessage({
+                    msg: 'clearDownloadsTempData',
                 });
             }
             else {

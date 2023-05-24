@@ -404,6 +404,7 @@ async function setData(data) {
     return chrome.storage.local.set(data);
 }
 chrome.runtime.onMessage.addListener(async function (msg, sender) {
+    var _a;
     // save_work_file 下载作品的文件
     if (msg.msg === 'save_work_file') {
         // 当处于初始状态时，或者变量被回收了，就从存储中读取数据储存在变量中
@@ -456,6 +457,14 @@ chrome.runtime.onMessage.addListener(async function (msg, sender) {
             conflictAction: 'overwrite',
             saveAs: false,
         });
+    }
+    if (msg.msg === 'clearDownloadsTempData') {
+        if ((_a = sender.tab) === null || _a === void 0 ? void 0 : _a.id) {
+            const tabId = sender.tab.id;
+            delete idList[tabId];
+            delete batchNo[tabId];
+            setData({ batchNo, idList });
+        }
     }
 });
 // 判断文件名是否变成了 UUID 格式。因为文件名处于整个绝对路径的中间，所以没加首尾标记 ^ $

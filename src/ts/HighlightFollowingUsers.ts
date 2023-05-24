@@ -120,7 +120,7 @@ class HighlightFollowingUsers {
   /**全量获取当前用户的所有关注列表 */
   private async getList(): Promise<string[]> {
     toast.show(lang.transl('_正在加载关注用户列表'), {
-      position: 'topCenter'
+      position: 'topCenter',
     })
 
     // 需要获取公开关注和私密关注

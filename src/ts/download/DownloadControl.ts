@@ -197,6 +197,11 @@ class DownloadControl {
         toast.success(lang.transl('_下载完毕2'), {
           position: 'center',
         })
+
+        // 通知后台清除保存的此标签页的 idList
+        chrome.runtime.sendMessage({
+          msg: 'clearDownloadsTempData',
+        })
       } else {
         window.clearTimeout(this.waitingTimer)
         this.waitingTimer = window.setTimeout(() => {
