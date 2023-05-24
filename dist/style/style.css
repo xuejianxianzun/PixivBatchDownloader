@@ -2195,11 +2195,15 @@ main section nav[style]::-webkit-scrollbar-thumb {
   text-align: center;
   margin: 10px auto;
 }
+html body .pbdHighlightFollowing {
+  background-color: yellow;
+}
 html[data-theme='default'] body .pbdHighlightFollowing,
 html[data-theme='light'] body .pbdHighlightFollowing {
-  background-color: yellow !important;
+  background-color: yellow;
 }
 html[data-theme='dark'] body .pbdHighlightFollowing,
 html[data-theme='dark'] body .pbdHighlightFollowing * {
+  background-color: transparent !important;
   color: yellow !important;
 }

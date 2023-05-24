@@ -199,6 +199,10 @@ class HighlightFollowingUsers {
 
   /**检查关注用户的数量，如果数量发生变化则执行全量更新 */
   private async checkNeedUpdate() {
+    if (!settings.highlightFollowingUsers) {
+      return
+    }
+
     // 因为本程序不区分公开和非公开关注，所以只储存总数
     let newTotal = 0
     for (const rest of ['show', 'hide']) {
