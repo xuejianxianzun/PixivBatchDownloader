@@ -1848,6 +1848,8 @@ class EVENT {
             startTimedCrawl: 'startTimedCrawl',
             /** 请求取消定时抓取时触发*/
             cancelTimedCrawl: 'cancelTimedCrawl',
+            /**当页面的主题变化时触发（注意，下载器的主题变化时不会触发） */
+            pageThemeChange: 'pageThemeChange',
         };
     }
     // 只绑定某个事件一次，用于防止事件重复绑定
@@ -2162,21 +2164,23 @@ class FileName {
                 safe: true,
             },
             '{tags}': {
-                value: !allNameRule.includes('{tags}') ? null : data.tags.join(','),
+                value: !allNameRule.includes('{tags}')
+                    ? null
+                    : data.tags.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].tagsSeparator),
                 prefix: 'tags_',
                 safe: false,
             },
             '{tags_translate}': {
                 value: !allNameRule.includes('{tags_translate}')
                     ? null
-                    : data.tagsWithTransl.join(','),
+                    : data.tagsWithTransl.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].tagsSeparator),
                 prefix: 'tags_',
                 safe: false,
             },
             '{tags_transl_only}': {
                 value: !allNameRule.includes('{tags_transl_only}')
                     ? null
-                    : data.tagsTranslOnly.join(','),
+                    : data.tagsTranslOnly.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].tagsSeparator),
                 prefix: 'tags_',
                 safe: false,
             },
@@ -2539,6 +2543,302 @@ class HiddenBrowserDownloadBar {
     }
 }
 new HiddenBrowserDownloadBar();
+
+
+/***/ }),
+
+/***/ "./src/ts/HighlightFollowingUsers.ts":
+/*!*******************************************!*\
+  !*** ./src/ts/HighlightFollowingUsers.ts ***!
+  \*******************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+
+
+
+
+
+
+
+
+
+class HighlightFollowingUsers {
+    constructor() {
+        /**当前登录用户的关注用户列表 */
+        this.following = [];
+        /**当前登录用户的关注用户总数 */
+        this.total = 0;
+        this.highlightClassName = 'pbdHighlightFollowing';
+        // 检查包含用户 id 的链接，并且需要以 id 结束
+        // 这是因为 id 之后还有字符的链接是不需要的，例如：
+        // https://www.pixiv.net/en/users/17207914/artworks
+        // 下载器只匹配用户主页的链接，不匹配用户子页面的链接
+        this.checkUserLinkReg = /\/users\/(\d+)$/;
+        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_5__["Utils"].isPixiv()) {
+            return;
+        }
+        this.delayCheckUpdate();
+        window.setTimeout(() => {
+            this.startMutationObserver();
+        }, 0);
+        chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
+            if (msg.msg === 'dispathFollowingData') {
+                this.receiveData(msg.data);
+            }
+            if (msg.msg === 'updateFollowingData') {
+                const following = await this.getList();
+                chrome.runtime.sendMessage({
+                    msg: 'setFollowingData',
+                    data: {
+                        user: _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID,
+                        following: following,
+                        total: this.total,
+                    },
+                });
+            }
+            if (msg.msg === 'getLoggedUserID') {
+                sendResponse({ loggedUserID: _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID });
+            }
+        });
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID) {
+            chrome.runtime.sendMessage({
+                msg: 'requestFollowingData',
+            });
+        }
+        // 当用户改变页面主题时，一些页面元素会重新生成，但是目前的代码不能监听到这个变化
+        // 所以借助自定义事件来更新高亮状态
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageThemeChange, () => {
+            window.setTimeout(() => {
+                this.makeHighlight();
+            }, 0);
+        });
+        // 在作品页内，作品大图下方和右侧的作者名字变化时，监视器无法监测到变化，尤其是右侧的名字
+        // 所以用定时器执行
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, () => {
+            if (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Artwork ||
+                _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Novel) {
+                let time = 0;
+                let interval = 500;
+                let timer = window.setInterval(() => {
+                    time = time + interval;
+                    if (time > 5000) {
+                        window.clearInterval(timer);
+                    }
+                    const leftA = document.querySelectorAll('#root main a[href*=user]');
+                    const rightA = document.querySelectorAll('#root main+aside a[href*=user]');
+                    const allA = Array.from(leftA).concat(Array.from(rightA));
+                    this.makeHighlight(allA);
+                }, interval);
+            }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'highlightFollowingUsers') {
+                if (!data.value) {
+                    this.clearHighlight();
+                }
+                else {
+                    this.makeHighlight();
+                }
+            }
+        });
+    }
+    async receiveData(list) {
+        const thisUserData = list.find((data) => data.user === _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID);
+        if (thisUserData) {
+            this.following = thisUserData.following;
+            this.total = thisUserData.total;
+            this.makeHighlight();
+        }
+        else {
+            // 恢复的数据里没有当前用户的数据，需要获取
+            this.checkNeedUpdate();
+        }
+    }
+    /**全量获取当前用户的所有关注列表 */
+    async getList() {
+        _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_8__["lang"].transl('_正在加载关注用户列表'), {
+            position: 'topCenter',
+        });
+        // 需要获取公开关注和私密关注
+        const publicList = await this.getFollowingList('show');
+        const privateList = await this.getFollowingList('hide');
+        const followingIDList = publicList.concat(privateList);
+        return followingIDList;
+    }
+    /**获取公开或私密关注的用户 ID 列表 */
+    async getFollowingList(rest) {
+        const ids = [];
+        let offset = 0;
+        let total = await this.getFollowingTotal(rest);
+        if (total === 0) {
+            return ids;
+        }
+        // 每次请求 100 个关注用户的数据
+        const limit = 100;
+        while (ids.length < total) {
+            const res = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID, rest, '', offset, limit);
+            offset = offset + limit;
+            for (const users of res.body.users) {
+                ids.push(users.userId);
+            }
+            if (res.body.users.length === 0) {
+                // 实际获取到的关注用户数量可能比 total 少，这是正常的
+                // 例如 toal 是 3522，实际上获取到的可能是 3483 个，再往后都是空数组了
+                break;
+            }
+        }
+        return ids;
+    }
+    /**只请求第一页的数据，以获取 total */
+    async getFollowingTotal(rest) {
+        const res = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID, rest, '', 0, 24);
+        return res.body.total;
+    }
+    getUpdateTime() {
+        // 每次检查更新的最低时间间隔是 5 分钟
+        // 如果用户打开了多个标签页，它们都会加载关注列表的第一页来检查数量
+        // 所以间隔不宜太短
+        const base = 300000;
+        // 产生一个 10 分钟内的随机数
+        const random = Math.random() * 600000;
+        // 通常不需要担心间隔时间太大导致数据更新不及时
+        // 因为多个标签页里只要有一个更新了数据，所有的标签页都会得到新数据
+        return base + random;
+    }
+    async delayCheckUpdate() {
+        window.clearTimeout(this.checkUpdateTimer);
+        this.checkUpdateTimer = window.setTimeout(async () => {
+            this.checkNeedUpdate();
+            return this.delayCheckUpdate();
+        }, this.getUpdateTime());
+    }
+    /**检查关注用户的数量，如果数量发生变化则执行全量更新 */
+    async checkNeedUpdate() {
+        // 因为本程序不区分公开和非公开关注，所以只储存总数
+        let newTotal = 0;
+        for (const rest of ['show', 'hide']) {
+            const total = await this.getFollowingTotal(rest);
+            newTotal = newTotal + total;
+        }
+        if (newTotal !== this.total) {
+            // console.log(`关注用户总数量变化 ${this.total} -> ${newTotal}`)
+            this.total = newTotal;
+            chrome.runtime.sendMessage({
+                msg: 'needUpdateFollowingData',
+                user: _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].loggedUserID,
+            });
+        }
+    }
+    makeHighlight(aList) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].highlightFollowingUsers) {
+            return;
+        }
+        // 这里不需要检查 this.followingList.length === 0 的情况
+        // 因为可能之前的数量是 1，之后用户取消关注，变成了 0，那么下面的代码依然需要执行
+        // 以把之前高亮过的元素取消高亮
+        const allA = aList || document.querySelectorAll('a');
+        for (const a of allA) {
+            let match = false;
+            if (a.href) {
+                // 小说排行榜里的用户链接普遍带有 /novels 后缀，所以不要求以用户 id 结尾
+                const test = a.href.match(_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.NovelRanking
+                    ? /\/users\/(\d+)/
+                    : this.checkUserLinkReg);
+                if (test && test.length > 1) {
+                    match = this.following.includes(test[1]);
+                    // 要高亮的元素
+                    let target = a;
+                    // 如果用户链接的 a 标签包含子元素，则将 className 添加到它的某个子元素上
+                    // 这是为了尽量精确的只高亮用户链接，避免高亮区域里包含其他不必要的元素
+                    // 但是有些页面里不适合这样做，例如在排行榜页面里，a 标签的第一个元素是用户头像
+                    // 此时如果只高亮第一个元素，那么效果就很不明显，所以就需要高亮整个 a 标签
+                    // 在多数情况下，高亮第一个子元素
+                    if (a.firstChild && a.firstChild.nodeType === 1) {
+                        target = a.firstChild;
+                    }
+                    // 在某些页面里高亮最后一个子元素
+                    if (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.ArtworkRanking ||
+                        _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.AreaRanking) {
+                        if (a.lastChild && a.lastChild.nodeType === 1) {
+                            target = a.lastChild;
+                        }
+                    }
+                    target.classList[match ? 'add' : 'remove'](this.highlightClassName);
+                }
+            }
+        }
+        this.highlightUserName();
+    }
+    startMutationObserver() {
+        const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.addedNodes.length > 0) {
+                    for (const addedNodes of mutation.addedNodes) {
+                        if (addedNodes.nodeName === 'A') {
+                            // 直接是 A 标签的情况
+                            this.makeHighlight(Array.from([addedNodes]));
+                        }
+                        else {
+                            // addedNodes 也会包含纯文本，所以需要判断 nodeType
+                            // https://developer.mozilla.org/zh-CN/docs/Web/API/Node/nodeType
+                            if (addedNodes.nodeType === 1) {
+                                // 如果是元素，则查找里面的 A 标签
+                                const allA = addedNodes.querySelectorAll('a');
+                                this.makeHighlight(Array.from(allA));
+                            }
+                            else {
+                                // 如果不是元素，而且它也不是 A 标签，则尝试查找它的父元素是不是 A 标签
+                                // 这是因为在作品页内，作品大图下方和右侧的作者名字变化时，上面的代码无法监测到
+                                // 但是这段代码只能检测到下方的，右侧的还是监测不到。而且可能拖累性能，所以我注释掉了
+                                // const parent = mutation.target.parentElement
+                                // if (parent && parent.nodeName === 'A') {
+                                //   this.makeHighlight([parent as HTMLAnchorElement])
+                                // }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        // 注意：本模块最好不要监听 attributes 变化，因为本模块自己就会修改元素的 attributes
+        // 监听 attributes 并进行处理可能导致一些代码重复执行，或者死循环
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
+    }
+    /**在用户主页里，高亮用户名（因为用户名没有超链接，需要单独处理） */
+    highlightUserName() {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.UserHome) {
+            const userID = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getUserId();
+            const flag = this.following.includes(userID);
+            const h1 = document.querySelector('h1');
+            if (h1) {
+                h1.classList[flag ? 'add' : 'remove'](this.highlightClassName);
+            }
+        }
+    }
+    clearHighlight() {
+        const allElement = document.querySelectorAll('.' + this.highlightClassName);
+        for (const el of allElement) {
+            el.classList.remove(this.highlightClassName);
+        }
+    }
+}
+new HighlightFollowingUsers();
 
 
 /***/ }),
@@ -4309,6 +4609,14 @@ const langText = {
         '다운로드 진행률',
         'Полный прогресс',
     ],
+    _任务进度: [
+        '任务进度',
+        '任務進度',
+        'Task progress',
+        'タスクの進行状況',
+        '작업 진행',
+        'прогресс',
+    ],
     _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問', '도움말', 'help'],
     _uuid: [
         '如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>例如：Chrono 下载管理器、free Download Manager、Image Downloader、DownThemAll! 等。',
@@ -4319,7 +4627,7 @@ const langText = {
         'Если имя файла после загрузки ненормальное, отключите другие расширения браузера, которые имеют возможность загрузки.<br> Например: Chrono Download Manager, бесплатный менеджер загрузок, загрузчик изображений, DownThemAll! и многое другое.',
     ],
     _常见问题说明: [
-        '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>如果你需要一个梯子（机场）,可以试试 <a href="https://www.ttkcloud.net/#/register?code=6m4hMaPu" title="https://www.ttkcloud.net/">www.ttkcloud.net</a>，价格便宜，百兆带宽，无倍率。先购买订阅，然后在仪表盘复制订阅链接使用。<br><br>下载器 QQ 群：499873152<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
+        '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>如果你需要一个梯子（机场）,可以试试这个机场：<a href="https://v2.hjl772vps.top/#/register?code=KEA3xTT4" title="农家有风小院">农家有风小院</a>，价格实惠，网络稳定。先购买订阅，然后在仪表盘复制订阅链接使用。<br><br>下载器 QQ 群：499873152<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
         '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。',
         'The downloaded file is saved in the browsers download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.<br><br>If your browser stops responding at startup, you can clear your browser`s download history.',
         'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。',
@@ -5095,6 +5403,14 @@ const langText = {
         '판정 조건: 작품 ID, 업로드 날짜',
         'Условия оценки: идентификатор, дата загрузки работы',
     ],
+    _清除下载记录: [
+        '清除下载记录',
+        '清除下載記錄',
+        'Clear download record',
+        'ダウンロード記録をクリア',
+        '다운로드 기록 지우기',
+        'Очистить запись загрузки',
+    ],
     确定要清除下载记录吗: [
         '确定要清除下载记录吗？',
         '確定要清除下載記錄嗎？',
@@ -5227,6 +5543,22 @@ const langText = {
         '파일명 <span class="key">길이</span> 제한',
         'Лимит <span class="key">длины</span> имени файла',
     ],
+    _标签分隔符号: [
+        '标签<span class="key">分隔</span>符号',
+        '標簽<span class="key">分隔</span>符號',
+        'Tag <span class="key">separation</span> symbol',
+        'タグ <span class="key">セパレーション</span>シンボル',
+        '태그 <span class="key">분리</span> 기호',
+        'Тег <span class="key">символ разделения</span>',
+    ],
+    _标签分隔符号提示: [
+        '推荐符号<span class="blue"> , # ^ & _</span>',
+        '推薦符號<span class="blue"> , # ^ & _</span>',
+        'Recommended symbols <span class="blue"> , # ^ & _</span>',
+        '推奨記号 <span class="blue"> , # ^ & _</span>。',
+        '권장 기호 <span class="blue"> , # ^ & _</span>',
+        'Рекомендуемые символы <span class="blue"> , # ^ & _</span>',
+    ],
     _导出csv: [
         '导出 CSV 文件',
         '匯出 CSV 檔',
@@ -5304,6 +5636,22 @@ const langText = {
         'ダウンロード記録をインポート',
         '다운로드 기록 불러오기',
         'Импорт записи загрузки',
+    ],
+    _导出下载记录: [
+        '导出下载记录',
+        '匯出下載紀錄',
+        'Export download record',
+        'ダウンロード記録のエクスポート',
+        '다운로드 기록 내보내기',
+        'Экспорт записи загрузки',
+    ],
+    _数据较多需要花费一些时间: [
+        '数据较多，需要花费一些时间',
+        '資料較多，需要花費一些時間',
+        'A lot of data, it will take some time',
+        'データ量が多いので少し時間がかかります',
+        '데이터가 많아 시간이 좀 걸립니다',
+        'Много данных, это займет некоторое время',
     ],
     _完成: ['完成', '完成', 'Completed', '完了', '완료됨', 'Готово'],
     _日期格式: [
@@ -7222,6 +7570,38 @@ const langText = {
         'ヘルプを再表示',
         '도움말 다시 표시',
         'Повторно отобразить справку',
+    ],
+    _自定义标签分隔符号的提示: [
+        '现在你可以自定义文件名中使用的标签分隔符号，以替换默认的 <span class="blue">,</span>。',
+        '現在你可以自定義檔名中使用的標籤分隔符號，以替換預設的 <span class="blue">,</span>。',
+        'You can now customize the tag separator used in filenames to replace the default <span class="blue">,</span>',
+        'ファイル名で使用されるタグ区切りをカスタマイズして、デフォルトの <span class="blue">,</span> を置き換えることができるようになりました',
+        '이제 파일 이름에 사용되는 태그 구분 기호를 사용자 지정하여 기본 <span class="blue">,</span>',
+        'Теперь вы можете настроить разделитель тегов, используемый в именах файлов, чтобы заменить используемый по умолчанию <span class="blue">,</span>',
+    ],
+    _高亮关注的用户: [
+        '<span class="key">高亮</span>关注的用户',
+        '<span class="key">高亮</span>關注的使用者',
+        '<span class="key">Highlight</span> following users',
+        'フォローしているユーザーを強調表示する',
+        '다음 사용자 <span class="key">강조표시</span>',
+        '<span class="key">Выделить</span> следующих пользователей',
+    ],
+    _高亮关注的用户的说明: [
+        '你关注（Following）的用户的名字会具有黄色背景，或者显示为黄色。<br>这便于你确认自己是否关注了某个用户。',
+        '你關注（Following）的使用者的名字會具有黃色背景，或者顯示為黃色。<br>這便於你確認自己是否關注了某個使用者。',
+        'The names of users you are following will have a yellow background, or be displayed in yellow. <br>This is convenient for you to confirm whether you follow a certain user.',
+        'フォローしているユーザーの名前は背景が黄色、または黄色で表示されます。 <br>特定のユーザーをフォローしているかどうかを確認するのに便利です。',
+        '팔로우하는 사용자의 이름은 노란색 배경으로 표시되거나 노란색으로 표시됩니다. <br>특정 사용자를 팔로우하고 있는지 확인할 때 편리합니다.',
+        'Имена пользователей, на которых вы подписаны, будут иметь желтый фон или отображаться желтым цветом. <br>Это удобно для вас, чтобы подтвердить, подписаны ли вы на определенного пользователя',
+    ],
+    _正在加载关注用户列表: [
+        '正在加载关注用户列表',
+        '正在載入關注使用者列表',
+        'Loading list of followed users',
+        'フォローしているユーザーのリストを読み込み中',
+        '팔로우한 사용자 목록 로드 중',
+        'Загрузка списка отслеживаемых пользователей',
     ],
 };
 
@@ -10565,15 +10945,19 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '15.4.0';
+        this.flag = '15.6.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增功能')}:</strong>
+            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增功能')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_高亮关注的用户')}</strong>
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览作品时按快捷键C仅下载当前图片')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_高亮关注的用户的说明')}
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')}
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_增强'))}
       `;
             // 在更新说明的下方显示赞助提示
             msg += `
@@ -10786,7 +11170,9 @@ class Theme {
             const ob = new MutationObserver((mutationsList) => {
                 for (const item of mutationsList) {
                     if (item.type === 'characterData') {
-                        this.setTheme(this.getThemeFromHtml());
+                        const flag = this.getThemeFromHtml();
+                        this.setTheme(flag);
+                        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('pageThemeChange', flag);
                         break;
                     }
                 }
@@ -11352,7 +11738,7 @@ class Tools {
     }
     // 获取当前页面的用户 id
     // 这是一个不够可靠的 api
-    // 测试：在 https://www.pixiv.net/artworks/79399027 获取 userId ，正确的结果应该是 13895186
+    // 测试：在作品页内 https://www.pixiv.net/artworks/79399027 获取 userId ，正确结果应该是 13895186
     static getUserId() {
         const newRegExp = /\/users\/(\d+)/; // 获取 /users/ 后面连续的数字部分，也就是用户的 id
         // 列表页里从 url 中获取
@@ -11391,6 +11777,31 @@ class Tools {
         }
         // 如果都没有获取到
         throw new Error('getUserId failed!');
+    }
+    static getLoggedUserID() {
+        // 在新版页面里，从 head 里的 script 里匹配用户 id
+        const match = document.head.innerHTML.match(/'user_id', "(\d*)"/);
+        if (match && match.length > 1) {
+            return match[1];
+        }
+        {
+            // 在旧版页面里，从 head 里的 script 里匹配用户 id
+            const match2 = document.head.innerHTML.match(/pixiv.user.id = "(\d*)"/);
+            if (match2 && match2.length > 1) {
+                return match2[1];
+            }
+        }
+        {
+            // 在约稿页面里，从 body 里的 script 里匹配用户 id
+            const el = document.querySelector('script#gtm-datalayer');
+            if (el && el.textContent) {
+                const match3 = el.textContent.match(/user_id:'(\d+)'/);
+                if (match3 && match3.length > 1) {
+                    return match3[1];
+                }
+            }
+        }
+        return '';
     }
     // 将元素插入到 Pixiv 页面顶部
     /*
@@ -12079,10 +12490,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
 /* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
 /* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -12093,6 +12505,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 
@@ -13606,7 +14019,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
             49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-            70, 71, 72, 74, 75, 76, 77, 78, 79, 80,
+            70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84,
         ]);
     }
     nextStep() {
@@ -17855,6 +18268,10 @@ class DownloadControl {
                 _Toast__WEBPACK_IMPORTED_MODULE_16__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕2'), {
                     position: 'center',
                 });
+                // 通知后台清除保存的此标签页的 idList
+                chrome.runtime.sendMessage({
+                    msg: 'clearDownloadsTempData',
+                });
             }
             else {
                 window.clearTimeout(this.waitingTimer);
@@ -18784,34 +19201,60 @@ class DownloadRecord {
         });
     }
     // 清空下载记录
-    clearRecords() {
+    async clearRecords() {
         if (window.confirm(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('确定要清除下载记录吗')) === false) {
             return;
         }
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除下载记录'));
+        _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除下载记录'));
+        let total = this.storeNameList.length;
+        let num = 0;
         for (const name of this.storeNameList) {
-            this.IDB.clear(name);
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_任务进度')} ${num}/${total}`);
+            num++;
+            await this.IDB.clear(name);
         }
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_任务进度')} ${num}/${total}`);
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载记录已清除'));
         _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载记录已清除'));
     }
     // 导出下载记录
     async exportRecord() {
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导出下载记录'));
+        _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导出下载记录'));
+        let total = this.storeNameList.length;
+        let num = 0;
         let record = [];
         for (const name of this.storeNameList) {
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_任务进度')} ${num}/${total}`);
+            num++;
             const r = (await this.IDB.getAll(name));
             record = record.concat(r);
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_任务进度')} ${num}/${total}`);
+        if (record.length === 0) {
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_没有数据可供使用'));
+            _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_没有数据可供使用'));
+            return;
         }
         const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].json2BlobSafe(record);
         const url = URL.createObjectURL(blob);
         _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].downloadFile(url, `record-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].replaceUnsafeStr(new Date().toLocaleString())}.json`);
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导出成功'));
         _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导出成功'));
     }
     // 导入下载记录
     async importRecord(record) {
-        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入下载记录'));
-        // 器显示导入进度
+        var _a, _b;
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入下载记录'));
+        // 显示导入进度
         let stored = 0;
         let total = record.length;
+        if (total > 10000) {
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_数据较多需要花费一些时间'));
+        }
         _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${stored}/${total}`, 1, false);
+        console.time('importRecord');
         // 依次处理每个存储库
         for (let index = 0; index < this.storeNameList.length; index++) {
             // 提取出要存入这个存储库的数据
@@ -18821,10 +19264,28 @@ class DownloadRecord {
                     data.push(r);
                 }
             }
-            // 批量添加数据
-            await this.IDB.batchAddData(this.storeNameList[index], data, 'id');
-            stored += data.length;
-            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${stored}/${total}`, 1, false);
+            if (data.length === 0) {
+                continue;
+            }
+            // 添加数据
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_待处理')} ${data.length}`);
+            try {
+                // console.time('restoreRecord' + (index + 1))
+                await this.IDB.batchAddData(this.storeNameList[index], data, 'id');
+                // console.timeEnd('restoreRecord' + (index + 1))
+                stored += data.length;
+                _Log__WEBPACK_IMPORTED_MODULE_2__["log"].log(`${stored}/${total}`, 1, false);
+            }
+            catch (error) {
+                const errorMsg = (_b = (_a = error) === null || _a === void 0 ? void 0 : _a.target) === null || _b === void 0 ? void 0 : _b.error;
+                const tip = errorMsg ? errorMsg : error;
+                _Log__WEBPACK_IMPORTED_MODULE_2__["log"].error(tip);
+                _MsgBox__WEBPACK_IMPORTED_MODULE_9__["msgBox"].error(tip);
+            }
+        }
+        console.timeEnd('importRecord');
+        if (stored < total) {
+            return;
         }
         _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入成功'));
         _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入成功'));
@@ -22096,10 +22557,10 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask1', () => {
-            this.crawlData(105500000, 105717364);
+            this.crawlData(105780000, 108404581);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask2', () => {
-            this.crawlData(19330000, 19379190, 'novels');
+            this.crawlData(19400000, 19944063, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -23976,6 +24437,10 @@ class Form {
         this.form
             .querySelector('.showDateTip')
             .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].toggleEl(document.querySelector('.dateFormatTip')));
+        // 显示标签分隔提示
+        this.form
+            .querySelector('.showTagsSeparatorTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].toggleEl(document.querySelector('.tagsSeparatorTip')));
         // 输入框获得焦点时自动选择文本（文件名输入框例外）
         const centerInputs = this.form.querySelectorAll('input[type=text]');
         for (const el of centerInputs) {
@@ -24046,7 +24511,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formHtml", function() { return formHtml; });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 
-// 已使用的最大编号是 81
+// 已使用的最大编号是 84
 const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -24727,6 +25192,15 @@ const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="83">
+    <span class="settingNameStyle1" data-xztext="_标签分隔符号"></span>
+    <input type="text" name="tagsSeparator" class="setinput_style1 blue" value=",">
+    <button type="button" class="gray1 textButton showTagsSeparatorTip" data-xztext="_提示"></button>
+    </p>
+    <p class="tagsSeparatorTip tip" style="display:none">
+    <span data-xztext="_标签分隔符号提示"></span>
+    </p>
+    
     <p class="option" data-no="67">
     <span class="has_tip settingNameStyle1" data-xztip="_移除用户名中的at和后续字符的说明">
     <span data-xztext="_移除用户名中的at和后续字符"></span>
@@ -24926,6 +25400,14 @@ const formHtml = `<form class="settingForm">
 
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
+    </p>
+    
+    <p class="option" data-no="84">
+    <span class="has_tip settingNameStyle1" data-xztip="_高亮关注的用户的说明">
+    <span data-xztext="_高亮关注的用户"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="highlightFollowingUsers" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch" tabindex="0"></span>
     </p>
     
     <p class="option" data-no="68">
@@ -25343,6 +25825,7 @@ class FormSettings {
                 'notAIGenerated',
                 'UnknownAI',
                 'setFileDownloadOrder',
+                'highlightFollowingUsers',
             ],
             text: [
                 'setWantPage',
@@ -25365,6 +25848,7 @@ class FormSettings {
                 'downloadThread',
                 'fileNameLengthLimit',
                 'dateFormat',
+                'tagsSeparator',
                 'blockList',
                 'bgOpacity',
                 'zeroPaddingLength',
@@ -26086,10 +26570,10 @@ __webpack_require__.r(__webpack_exports__);
 // 本模块会触发 3 个事件：
 // EVT.list.settingChange
 // 当任意一个设置项被赋值时触发（不会区分值是否发生了变化）。这是最常用的事件。
-// 事件的参数里会传递这个设置项的名称和值，格式如：
+// 事件的参数里会传递这个设置项的名称和值，可以通过 ev.detail.data 获取，格式如：
 // {name: string, value: any}
 // 如果某个模块要监听特定的设置项，应该使用参数的 name 来判断触发事件的设置项是否是自己需要的设置项
-// 如果不依赖于特定设置项，则应该考虑使用节流或者防抖来限制事件监听器的执行频率，防止造成性能问题
+// 如果不依赖于特定设置项，则应该考虑使用节流或者防抖来限制事件的回调函数的执行频率，防止造成性能问题
 // EVT.list.settingInitialized
 // 当设置初始化完毕（以及恢复本地储存的设置）之后触发。这个事件在生命周期里只会触发一次。
 // 过程中，每个设置项都会触发一次 settingChange 事件
@@ -26099,6 +26583,7 @@ __webpack_require__.r(__webpack_exports__);
 // 过程中，每个设置项都会触发一次 settingChange 事件
 // 如果打开了多个标签页，每个页面的 settings 数据是相互独立的，在一个页面里修改设置不会影响另一个页面里的设置。
 // 但是持久化保存的数据只有一份：最后一次的设置变化是在哪个页面发生的，就保存哪个页面的 settings 数据。
+// 所以当页面刷新时，或者打开新的页面时，会加载设置最后一次发生变化的页面里的 settings 数据
 
 
 
@@ -26180,6 +26665,7 @@ class Settings {
             deduplication: false,
             dupliStrategy: 'loose',
             fileNameLengthLimitSwitch: false,
+            tagsSeparator: ',',
             fileNameLengthLimit: 200,
             imageSize: 'original',
             dateFormat: 'YYYY-MM-DD',
@@ -26305,6 +26791,7 @@ class Settings {
             tipAltSToSelectWork: true,
             tipAltQToQuickDownload: true,
             tipBookmarkButton: true,
+            highlightFollowingUsers: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -27435,6 +27922,7 @@ __webpack_require__.r(__webpack_exports__);
 // 生成抓取结果
 class Store {
     constructor() {
+        this.loggedUserID = '';
         this.idList = []; // 储存从列表中抓取到的作品的 id
         this.waitingIdList = []; // 下载器尚未完成本次下载时，如果有新的下载请求，则添加到这里，下载完成后再处理
         this.resultMeta = []; // 储存抓取结果的元数据。
@@ -27492,6 +27980,7 @@ class Store {
             xRestrict: 0,
             sl: null,
         };
+        this.loggedUserID = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getLoggedUserID();
         this.bindEvents();
     }
     // 恢复未完成的下载之后，生成 downloadCount 数据
@@ -29590,6 +30079,63 @@ const novelData = [
     [19350000, 1676985136000],
     [19360000, 1677125230000],
     [19370001, 1677247234000],
+    [19380000, 1677373760000],
+    [19390000, 1677495165000],
+    [19400000, 1677633838000],
+    [19410000, 1677769224000],
+    [19420000, 1677919084000],
+    [19430000, 1678019683000],
+    [19440001, 1678155656000],
+    [19450001, 1678288614000],
+    [19460000, 1678449353000],
+    [19470000, 1678577300000],
+    [19480000, 1678704079000],
+    [19490001, 1678828261000],
+    [19500000, 1678977066000],
+    [19510000, 1679123089000],
+    [19520000, 1679232561000],
+    [19530001, 1679366629000],
+    [19540000, 1679492483000],
+    [19550000, 1679650444000],
+    [19560000, 1679756408000],
+    [19570000, 1679865472000],
+    [19580000, 1680010450000],
+    [19590000, 1680165108000],
+    [19600000, 1680274893000],
+    [19610000, 1680386401000],
+    [19620000, 1680512613000],
+    [19630001, 1680642045000],
+    [19640001, 1680788039000],
+    [19650000, 1680928729000],
+    [19660000, 1681038067000],
+    [19670000, 1681176951000],
+    [19680000, 1681327167000],
+    [19690000, 1681483914000],
+    [19700000, 1681613428000],
+    [19710000, 1681733363000],
+    [19720000, 1681901262000],
+    [19730000, 1682061980000],
+    [19740000, 1682176670000],
+    [19750000, 1682309707000],
+    [19760001, 1682466416000],
+    [19770000, 1682617585000],
+    [19780001, 1682768367000],
+    [19790000, 1682866680000],
+    [19800000, 1683019738000],
+    [19810000, 1683136858000],
+    [19820000, 1683268994000],
+    [19830000, 1683372201000],
+    [19840001, 1683462031000],
+    [19850001, 1683603948000],
+    [19860000, 1683730620000],
+    [19870000, 1683898327000],
+    [19880001, 1684024153000],
+    [19890000, 1684148452000],
+    [19900000, 1684313296000],
+    [19910000, 1684469994000],
+    [19920002, 1684590680000],
+    [19930000, 1684699592000],
+    [19940001, 1684851189000],
 ];
 
 
@@ -40178,6 +40724,275 @@ const illustsData = [
     [105690000, 1677286440000],
     [105700000, 1677315960000],
     [105710000, 1677334920000],
+    [105720000, 1677367080000],
+    [105730000, 1677396720000],
+    [105740000, 1677415680000],
+    [105750000, 1677433800000],
+    [105760000, 1677480480000],
+    [105770000, 1677503760000],
+    [105780000, 1677530640000],
+    [105790000, 1677572460000],
+    [105800000, 1677592500000],
+    [105810000, 1677622380000],
+    [105820000, 1677661200000],
+    [105830000, 1677680520000],
+    [105840000, 1677717300000],
+    [105850000, 1677752820000],
+    [105860000, 1677771060000],
+    [105870001, 1677815100000],
+    [105880000, 1677843900000],
+    [105890000, 1677860640000],
+    [105900000, 1677902400000],
+    [105910000, 1677927600000],
+    [105920000, 1677944280000],
+    [105930000, 1677982920000],
+    [105940000, 1678007760000],
+    [105950000, 1678024380000],
+    [105960000, 1678053060000],
+    [105970000, 1678092960000],
+    [105980001, 1678112340000],
+    [105990001, 1678147500000],
+    [106000000, 1678183140000],
+    [106010000, 1678201560000],
+    [106020000, 1678243800000],
+    [106030000, 1678274820000],
+    [106040000, 1678291920000],
+    [106050000, 1678335600000],
+    [106060000, 1678362480000],
+    [106070000, 1678378860000],
+    [106080000, 1678424700000],
+    [106090000, 1678450320000],
+    [106100000, 1678468860000],
+    [106110003, 1678509420000],
+    [106120000, 1678534200000],
+    [106130000, 1678551480000],
+    [106140000, 1678589880000],
+    [106150000, 1678612680000],
+    [106160000, 1678628940000],
+    [106170000, 1678657140000],
+    [106180001, 1678696680000],
+    [106190000, 1678716480000],
+    [106200000, 1678748040000],
+    [106210002, 1678784760000],
+    [106220000, 1678803420000],
+    [106230001, 1678837920000],
+    [106240000, 1678873860000],
+    [106250000, 1678892280000],
+    [106260000, 1678932720000],
+    [106270000, 1678964280000],
+    [106280000, 1678981860000],
+    [106290000, 1679026080000],
+    [106300000, 1679053320000],
+    [106310000, 1679069340000],
+    [106320000, 1679109120000],
+    [106330000, 1679134200000],
+    [106340000, 1679151540000],
+    [106350001, 1679186760000],
+    [106360001, 1679214420000],
+    [106370000, 1679232180000],
+    [106380000, 1679252820000],
+    [106390000, 1679296680000],
+    [106400000, 1679318520000],
+    [106410000, 1679342340000],
+    [106420001, 1679380200000],
+    [106430002, 1679401020000],
+    [106440000, 1679418060000],
+    [106450000, 1679463300000],
+    [106460000, 1679488440000],
+    [106470000, 1679508780000],
+    [106480000, 1679554320000],
+    [106490000, 1679577120000],
+    [106500000, 1679600640000],
+    [106510000, 1679643120000],
+    [106520000, 1679663400000],
+    [106530000, 1679683500000],
+    [106540002, 1679720880000],
+    [106550000, 1679743920000],
+    [106560000, 1679759700000],
+    [106570000, 1679797680000],
+    [106580001, 1679821260000],
+    [106590000, 1679837700000],
+    [106600000, 1679859600000],
+    [106610001, 1679901840000],
+    [106620000, 1679923920000],
+    [106630000, 1679951700000],
+    [106640000, 1679991780000],
+    [106650002, 1680012240000],
+    [106660000, 1680045000000],
+    [106670000, 1680081360000],
+    [106680000, 1680100500000],
+    [106690000, 1680135900000],
+    [106700000, 1680170400000],
+    [106710000, 1680188520000],
+    [106720000, 1680226920000],
+    [106730000, 1680257820000],
+    [106740000, 1680274800000],
+    [106750000, 1680304680000],
+    [106760000, 1680332820000],
+    [106770000, 1680352440000],
+    [106780001, 1680368580000],
+    [106790000, 1680406200000],
+    [106800001, 1680429600000],
+    [106810000, 1680445200000],
+    [106820000, 1680474780000],
+    [106830000, 1680512220000],
+    [106840001, 1680530820000],
+    [106850001, 1680562320000],
+    [106860000, 1680598080000],
+    [106870000, 1680617100000],
+    [106880000, 1680649320000],
+    [106890000, 1680684540000],
+    [106900000, 1680702720000],
+    [106910000, 1680732360000],
+    [106920000, 1680770640000],
+    [106930000, 1680789660000],
+    [106940000, 1680820620000],
+    [106950000, 1680856980000],
+    [106960000, 1680876000000],
+    [106970000, 1680904440000],
+    [106980000, 1680936780000],
+    [106990000, 1680956820000],
+    [107000000, 1680973380000],
+    [107010000, 1681010520000],
+    [107020002, 1681032780000],
+    [107030000, 1681047960000],
+    [107040001, 1681070400000],
+    [107050000, 1681111800000],
+    [107060000, 1681132800000],
+    [107070000, 1681158360000],
+    [107080000, 1681200660000],
+    [107090000, 1681221060000],
+    [107100000, 1681251480000],
+    [107110000, 1681290420000],
+    [107120000, 1681309740000],
+    [107130000, 1681345620000],
+    [107140000, 1681381920000],
+    [107150000, 1681399140000],
+    [107160000, 1681441740000],
+    [107170000, 1681471620000],
+    [107180002, 1681488720000],
+    [107190000, 1681527900000],
+    [107200000, 1681553220000],
+    [107210000, 1681570560000],
+    [107220000, 1681603440000],
+    [107230002, 1681629840000],
+    [107240000, 1681647480000],
+    [107250001, 1681661760000],
+    [107260000, 1681704120000],
+    [107270000, 1681732020000],
+    [107280000, 1681748280000],
+    [107290000, 1681792260000],
+    [107300000, 1681819620000],
+    [107310001, 1681837560000],
+    [107320000, 1681883220000],
+    [107330000, 1681908120000],
+    [107340000, 1681928760000],
+    [107350000, 1681974480000],
+    [107360003, 1681996560000],
+    [107370000, 1682024220000],
+    [107380000, 1682065620000],
+    [107390000, 1682084640000],
+    [107400000, 1682111160000],
+    [107410000, 1682145360000],
+    [107420001, 1682165520000],
+    [107430001, 1682181480000],
+    [107440000, 1682219040000],
+    [107450000, 1682241480000],
+    [107460000, 1682256660000],
+    [107470000, 1682277480000],
+    [107480000, 1682321460000],
+    [107490000, 1682341980000],
+    [107500000, 1682365200000],
+    [107510000, 1682407980000],
+    [107520000, 1682428140000],
+    [107530000, 1682453040000],
+    [107540001, 1682495580000],
+    [107550002, 1682515980000],
+    [107560000, 1682545200000],
+    [107570000, 1682586780000],
+    [107580000, 1682605860000],
+    [107590000, 1682641680000],
+    [107600000, 1682676360000],
+    [107610000, 1682693640000],
+    [107620000, 1682727780000],
+    [107630000, 1682755500000],
+    [107640000, 1682773200000],
+    [107650000, 1682790720000],
+    [107660000, 1682826420000],
+    [107670000, 1682850000000],
+    [107680000, 1682863320000],
+    [107690000, 1682884560000],
+    [107700000, 1682922240000],
+    [107710000, 1682942820000],
+    [107720000, 1682957040000],
+    [107730000, 1682996400000],
+    [107740000, 1683022680000],
+    [107750000, 1683039120000],
+    [107760000, 1683071520000],
+    [107770000, 1683101220000],
+    [107780000, 1683120000000],
+    [107790000, 1683143520000],
+    [107800000, 1683179400000],
+    [107810001, 1683201840000],
+    [107820001, 1683218160000],
+    [107830000, 1683255300000],
+    [107840000, 1683279240000],
+    [107850001, 1683295740000],
+    [107860000, 1683320580000],
+    [107870000, 1683352800000],
+    [107880000, 1683373380000],
+    [107890000, 1683388440000],
+    [107900000, 1683424500000],
+    [107910000, 1683446340000],
+    [107920000, 1683462840000],
+    [107930000, 1683478140000],
+    [107940000, 1683523260000],
+    [107950000, 1683549960000],
+    [107960000, 1683569880000],
+    [107970001, 1683615660000],
+    [107980000, 1683638220000],
+    [107990000, 1683654120000],
+    [108000000, 1683699000000],
+    [108010000, 1683723660000],
+    [108020000, 1683747360000],
+    [108030000, 1683792000000],
+    [108040000, 1683813480000],
+    [108050000, 1683848640000],
+    [108060001, 1683886500000],
+    [108070000, 1683905160000],
+    [108080000, 1683945900000],
+    [108090000, 1683973200000],
+    [108100000, 1683990780000],
+    [108110000, 1684027440000],
+    [108120000, 1684053240000],
+    [108130000, 1684070460000],
+    [108140000, 1684093260000],
+    [108150000, 1684137600000],
+    [108160000, 1684159380000],
+    [108170000, 1684195680000],
+    [108180000, 1684233900000],
+    [108190000, 1684252800000],
+    [108200000, 1684299720000],
+    [108210000, 1684327980000],
+    [108220000, 1684357200000],
+    [108230002, 1684399740000],
+    [108240000, 1684421280000],
+    [108250000, 1684463040000],
+    [108260000, 1684494900000],
+    [108270000, 1684513680000],
+    [108280000, 1684555020000],
+    [108290001, 1684580760000],
+    [108300000, 1684598400000],
+    [108310000, 1684637580000],
+    [108320000, 1684661940000],
+    [108330000, 1684678980000],
+    [108340000, 1684712700000],
+    [108350000, 1684749840000],
+    [108360000, 1684768500000],
+    [108370000, 1684811640000],
+    [108380000, 1684843200000],
+    [108390000, 1684864320000],
+    [108400000, 1684911720000],
 ];
 
 
@@ -41026,7 +41841,7 @@ class Utils {
     }
 }
 // 不安全的字符，这里多数是控制字符，需要替换掉
-Utils.unsafeStr = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g);
+Utils.unsafeStr = new RegExp(/[\u0000\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g);
 // 一些需要替换成全角字符的符号，左边是正则表达式的字符
 Utils.fullWidthDict = [
     ['\\\\', '＼'],

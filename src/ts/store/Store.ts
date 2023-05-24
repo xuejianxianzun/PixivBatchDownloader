@@ -6,8 +6,11 @@ import { Result, ResultOptional, RankList, IDData } from './StoreType'
 // 生成抓取结果
 class Store {
   constructor() {
+    this.loggedUserID = Tools.getLoggedUserID()
     this.bindEvents()
   }
+
+  public loggedUserID = ''
 
   public idList: IDData[] = [] // 储存从列表中抓取到的作品的 id
 

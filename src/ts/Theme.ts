@@ -66,7 +66,9 @@ class Theme {
       const ob = new MutationObserver((mutationsList) => {
         for (const item of mutationsList) {
           if (item.type === 'characterData') {
-            this.setTheme(this.getThemeFromHtml())
+            const flag = this.getThemeFromHtml()
+            this.setTheme(flag)
+            EVT.fire('pageThemeChange', flag)
             break
           }
         }

@@ -120,6 +120,7 @@ class FormSettings {
       'notAIGenerated',
       'UnknownAI',
       'setFileDownloadOrder',
+      'highlightFollowingUsers',
     ],
     text: [
       'setWantPage',
@@ -142,6 +143,7 @@ class FormSettings {
       'downloadThread',
       'fileNameLengthLimit',
       'dateFormat',
+      'tagsSeparator',
       'blockList',
       'bgOpacity',
       'zeroPaddingLength',
