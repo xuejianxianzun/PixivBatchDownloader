@@ -164,8 +164,8 @@ class EVENT {
     startTimedCrawl: 'startTimedCrawl',
     /** 请求取消定时抓取时触发*/
     cancelTimedCrawl: 'cancelTimedCrawl',
-    /**当页面的主题变化时触发（注意，下载器的主题变化时不会触发） */
-    pageThemeChange: 'pageThemeChange',
+    /**当获取到页面的主题颜色时触发 */
+    getPageTheme: 'getPageTheme',
   }
 
   /** 触发自定义事件，大部分事件都不需要携带数据
@@ -234,7 +234,7 @@ class EVENT {
   // 对于需要携带数据的事件进行重载
 
   public fire(
-    type: 'downloadError' | 'crawlTag' | 'pageThemeChange',
+    type: 'downloadError' | 'crawlTag' | 'getPageTheme',
     data: string
   ): void
 
