@@ -1847,8 +1847,8 @@ class EVENT {
             startTimedCrawl: 'startTimedCrawl',
             /** 请求取消定时抓取时触发*/
             cancelTimedCrawl: 'cancelTimedCrawl',
-            /**当页面的主题变化时触发（注意，下载器的主题变化时不会触发） */
-            pageThemeChange: 'pageThemeChange',
+            /**当获取到页面的主题颜色时触发 */
+            getPageTheme: 'getPageTheme',
         };
     }
     // 只绑定某个事件一次，用于防止事件重复绑定
@@ -2575,6 +2575,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class HighlightFollowingUsers {
     constructor() {
+        this.pageTheme = '';
         /**当前登录用户的关注用户列表 */
         this.following = [];
         /**当前登录用户的关注用户总数 */
@@ -2616,12 +2617,22 @@ class HighlightFollowingUsers {
                 msg: 'requestFollowingData',
             });
         }
-        // 当用户改变页面主题时，一些页面元素会重新生成，但是目前的代码不能监听到这个变化
-        // 所以借助自定义事件来更新高亮状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageThemeChange, () => {
-            window.setTimeout(() => {
-                this.makeHighlight();
-            }, 0);
+        // 每当下载器获取了页面的主题颜色时
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.getPageTheme, (ev) => {
+            if (ev.detail.data) {
+                if (this.pageTheme !== ev.detail.data) {
+                    // 当用户改变页面主题时，一些页面元素会重新生成，但是目前的代码不能监听到这个变化
+                    // 所以需要来更新高亮状态
+                    window.setTimeout(() => {
+                        this.makeHighlight();
+                    }, 0);
+                }
+                this.pageTheme = ev.detail.data;
+                // 给 html 标签添加自定义 data 属性，这是因为原本的 html 标签在没有任何 data 属性的时候，
+                // 可能是普通模式，也可能是夜间模式，所以下载器必须自行添加一个属性，
+                // 才能让高亮样式在不同模式中有不同的效果
+                document.documentElement.setAttribute('data-xzpagetheme', this.pageTheme);
+            }
         });
         // 在作品页内，作品大图下方和右侧的作者名字变化时，监视器无法监测到变化，尤其是右侧的名字
         // 所以用定时器执行
@@ -7605,6 +7616,14 @@ const langText = {
         '팔로우한 사용자 목록 로드 중',
         'Загрузка списка отслеживаемых пользователей',
     ],
+    _某些用户看到的高亮效果异常的问题: [
+        '某些用户看到的高亮效果异常的问题',
+        '某些使用者看到的高亮效果異常的問題',
+        'Some users see abnormal highlighting effect',
+        '一部のユーザーには異常なハイライト効果が見られます',
+        '일부 사용자에게 비정상적인 강조 표시 효과가 나타남',
+        'Некоторые пользователи видят ненормальный эффект выделения',
+    ],
 };
 
 
@@ -10833,20 +10852,20 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '15.6.0';
+        this.flag = '15.6.2';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增功能')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_高亮关注的用户')}</strong>
+            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_修复bug')}</strong>
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_高亮关注的用户的说明')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_增强'))}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_某些用户看到的高亮效果异常的问题')}
       `;
+            // ${lang.transl(
+            //   '_你可以在更多选项卡的xx分类里找到它',
+            //   lang.transl('_增强')
+            // )}
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -11060,7 +11079,6 @@ class Theme {
                     if (item.type === 'characterData') {
                         const flag = this.getThemeFromHtml();
                         this.setTheme(flag);
-                        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('pageThemeChange', flag);
                         break;
                     }
                 }
@@ -11072,10 +11090,13 @@ class Theme {
         }
     }
     getThemeFromHtml() {
+        console.log('getThemeFromHtml');
         // 从含有 pixiv 主题标记的元素里获取主题
         const el = document.querySelector(this.selector);
         if (el) {
-            return this.htmlFlagMap.get(el.textContent) || this.defaultTheme;
+            const pageTheme = this.htmlFlagMap.get(el.textContent);
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('getPageTheme', pageTheme);
+            return pageTheme || this.defaultTheme;
         }
         // 根据 html 元素的背景颜色判断
         // "rgb(245, 245, 245)"

@@ -68,7 +68,6 @@ class Theme {
           if (item.type === 'characterData') {
             const flag = this.getThemeFromHtml()
             this.setTheme(flag)
-            EVT.fire('pageThemeChange', flag)
             break
           }
         }
@@ -81,10 +80,14 @@ class Theme {
   }
 
   private getThemeFromHtml(): ThemeName {
+    console.log('getThemeFromHtml')
     // 从含有 pixiv 主题标记的元素里获取主题
     const el = document.querySelector(this.selector) as HTMLElement
     if (el) {
-      return this.htmlFlagMap.get(el.textContent!) || this.defaultTheme
+      const pageTheme = this.htmlFlagMap.get(el.textContent!)
+      EVT.fire('getPageTheme', pageTheme!)
+
+      return pageTheme || this.defaultTheme
     }
 
     // 根据 html 元素的背景颜色判断
