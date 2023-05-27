@@ -7541,6 +7541,14 @@ const langText = {
         '팔로우한 사용자 목록 로드 중',
         'Загрузка списка отслеживаемых пользователей',
     ],
+    _某些用户看到的高亮效果异常的问题: [
+        '某些用户看到的高亮效果异常的问题',
+        '某些使用者看到的高亮效果異常的問題',
+        'Some users see abnormal highlighting effect',
+        '一部のユーザーには異常なハイライト効果が見られます',
+        '일부 사용자에게 비정상적인 강조 표시 효과가 나타남',
+        'Некоторые пользователи видят ненормальный эффект выделения',
+    ],
 };
 
 
@@ -10769,20 +10777,20 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '15.6.0';
+        this.flag = '15.6.2';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增功能')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_高亮关注的用户')}</strong>
+            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_修复bug')}</strong>
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_高亮关注的用户的说明')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_增强'))}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_某些用户看到的高亮效果异常的问题')}
       `;
+            // ${lang.transl(
+            //   '_你可以在更多选项卡的xx分类里找到它',
+            //   lang.transl('_增强')
+            // )}
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
