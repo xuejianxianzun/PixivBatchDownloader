@@ -50,12 +50,25 @@ class HighlightFollowingUsers {
       })
     }
 
-    // 当用户改变页面主题时，一些页面元素会重新生成，但是目前的代码不能监听到这个变化
-    // 所以借助自定义事件来更新高亮状态
-    window.addEventListener(EVT.list.pageThemeChange, () => {
-      window.setTimeout(() => {
-        this.makeHighlight()
-      }, 0)
+    // 每当下载器获取了页面的主题颜色时
+    window.addEventListener(EVT.list.getPageTheme, (ev: CustomEventInit) => {
+      if (ev.detail.data) {
+        if (this.pageTheme !== ev.detail.data) {
+          // 当用户改变页面主题时，一些页面元素会重新生成，但是目前的代码不能监听到这个变化
+          // 所以需要来更新高亮状态
+          window.setTimeout(() => {
+            this.makeHighlight()
+          }, 0)
+        }
+        this.pageTheme = ev.detail.data
+        // 给 html 标签添加自定义 data 属性，这是因为原本的 html 标签在没有任何 data 属性的时候，
+        // 可能是普通模式，也可能是夜间模式，所以下载器必须自行添加一个属性，
+        // 才能让高亮样式在不同模式中有不同的效果
+        document.documentElement.setAttribute(
+          'data-xzpagetheme',
+          this.pageTheme
+        )
+      }
     })
 
     // 在作品页内，作品大图下方和右侧的作者名字变化时，监视器无法监测到变化，尤其是右侧的名字
@@ -93,6 +106,8 @@ class HighlightFollowingUsers {
       }
     })
   }
+
+  private pageTheme = ''
 
   /**当前登录用户的关注用户列表 */
   private following: string[] = []
@@ -199,6 +214,10 @@ class HighlightFollowingUsers {
 
   /**检查关注用户的数量，如果数量发生变化则执行全量更新 */
   private async checkNeedUpdate() {
+    if (!settings.highlightFollowingUsers) {
+      return
+    }
+
     // 因为本程序不区分公开和非公开关注，所以只储存总数
     let newTotal = 0
     for (const rest of ['show', 'hide']) {

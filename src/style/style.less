@@ -294,12 +294,13 @@ main section nav[style] {
   margin: 10px auto;
 }
 
-html[data-theme='default'] body .pbdHighlightFollowing,
-html[data-theme='light'] body .pbdHighlightFollowing {
-  background-color: yellow !important;
+html[data-xzpagetheme='white'] body .pbdHighlightFollowing {
+  background-color: yellow;
 }
 
-html[data-theme='dark'] body .pbdHighlightFollowing,
-html[data-theme='dark'] body .pbdHighlightFollowing * {
+html[data-xzpagetheme='dark'] body .pbdHighlightFollowing,
+html[data-xzpagetheme='dark'] body .pbdHighlightFollowing * {
+  // 这里覆盖上面的黄色背景，必须把背景颜色设置为 transparent，设置为 none 是无效的，因为 none 不是颜色
+  background-color: transparent !important;
   color: yellow !important;
 }
