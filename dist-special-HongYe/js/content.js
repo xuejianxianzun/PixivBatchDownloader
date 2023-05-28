@@ -1169,6 +1169,192 @@ new CheckNewVersion();
 
 /***/ }),
 
+/***/ "./src/ts/CheckTag.ts":
+/*!****************************!*\
+  !*** ./src/ts/CheckTag.ts ***!
+  \****************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
+
+// 当鼠标放在作品页面内的 tag 上时，检查这个 tag 是否存在于下载器的某些 tag 过滤设置里，并显示对应操作和提示
+class CheckTag {
+    constructor() {
+        this.selector = 'footer li a';
+        this.workTagList = [];
+        this.activeTag = document.createElement('a');
+        this.panelClassName = 'xzTagCheckPanelWrap';
+        // 由于新打开一个作品页面，以及切换页面时，下载器无法准确知道新的标签列表何时生成，所以用定时器检查
+        window.setInterval(() => {
+            this.queryElements();
+        }, 1000);
+    }
+    queryElements() {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.Artwork ||
+            _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.Novel) {
+            const newWorkTagList = [];
+            const allA = document.querySelectorAll(this.selector);
+            for (const a of allA) {
+                newWorkTagList.push(a);
+                // 如果一个元素已经保存在列表里了，那么说明已经为它添加过事件了
+                // 另外在页面切换时，相同的 tag 会复用元素，所以它的元素和之前的是同一个
+                if (!this.workTagList.includes(a)) {
+                    a.addEventListener('mouseenter', () => {
+                        // 严谨起见，每当进入一个 tag 时，应该清除之前的面板元素
+                        // 不过现在不清除也不会导致 bug，而且鼠标快速移动时，多个面板陆续出现并消失挺好看的
+                        const result = this.check(a);
+                        this.createPanel(a, result);
+                        this.activeTag = a;
+                    });
+                    a.addEventListener('mouseleave', () => {
+                        this.hiddenPanelTimer = window.setTimeout(() => {
+                            this.removePanel();
+                        }, 200);
+                    });
+                }
+            }
+            this.workTagList = newWorkTagList;
+        }
+    }
+    /**检查下载器的 tag 过滤设置，决定对这个 tag 应该显示什么提示和操作 */
+    // 需要传递 A 标签，用于确定操作面板出现的位置
+    check(a) {
+        const tag = a.innerText;
+        const result = {
+            inNotNeedTagList: _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].notNeedTag.includes(tag),
+            inTagRename: [],
+        };
+        for (const item of _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].UseDifferentNameRuleIfWorkHasTagList) {
+            if (item.tags.includes(tag)) {
+                result.inTagRename.push(item);
+            }
+        }
+        return result;
+    }
+    createPanel(a, result) {
+        // 创建元素
+        const tag = a.innerText;
+        const html = `
+    <div class="${this.panelClassName}">
+      <div class="notNeedTip">
+        <p style="display: ${result.inNotNeedTagList ? 'none' : 'block'};"><button>屏蔽这个tag</button></p>
+        <p style="display: ${result.inNotNeedTagList ? 'block' : 'none'};"><button>取消屏蔽该tag</button></p>
+      </div>
+
+      <div class="renameTiphr hr" style="display: ${result.inTagRename.length > 0 ? 'block' : 'none'};"></div>
+
+      <div class="renameTip" style="display: ${result.inTagRename.length > 0 ? 'block' : 'none'};">
+        <p>已将该tag重命名为：</p>
+        <ul>
+        
+        </ul>
+      </div>
+    </div>`;
+        const wrap = document.createElement('div');
+        wrap.innerHTML = html;
+        // 绑定事件
+        const panel = wrap.querySelector('.' + this.panelClassName);
+        panel.addEventListener('mouseenter', () => {
+            window.clearTimeout(this.hiddenPanelTimer);
+        });
+        panel.addEventListener('mouseleave', () => {
+            this.removePanel();
+        });
+        const notNeedBtns = panel.querySelectorAll('.notNeedTip button');
+        notNeedBtns[0].onclick = () => {
+            this.addToExcludeList(tag);
+        };
+        notNeedBtns[1].onclick = () => {
+            if (window.confirm(`确定要取消屏蔽 ${tag} 吗？`)) {
+                this.removeFormExcludeList(tag);
+            }
+        };
+        const ul = panel.querySelector('.renameTip ul');
+        for (const item of result.inTagRename) {
+            const li = document.createElement('li');
+            const left = document.createElement('span');
+            left.textContent = item.rule;
+            li.append(left);
+            const btn = document.createElement('button');
+            btn.textContent = '移除';
+            btn.onclick = () => {
+                if (window.confirm(`确定要取消重命名 ${tag} -> ${item.rule} 吗？`)) {
+                    this.removeFormTagRename(tag, item.id);
+                }
+            };
+            li.append(btn);
+            ul.append(li);
+        }
+        // 确定位置
+        const rectList = a.getClientRects();
+        const rect = rectList[0];
+        panel.style.left = rect.x + 'px';
+        panel.style.top = rect.y + rect.height + 2 + 'px';
+        // 上面把 top 加了 2 像素的间距，使其与 tag 文字之间存在一定空隙
+        // 这个间距不能太大，否则会导致面板的顶部进入了下方 tag 的文字区域
+        // 这会导致鼠标移动到面板的路径中会经过下面的 tag，出现第二个面板（也就是下面的 tag 的面板）
+        document.body.appendChild(panel);
+    }
+    removePanel() {
+        const panel = document.querySelector('.' + this.panelClassName);
+        panel && panel.remove();
+    }
+    updatePanel() {
+        this.removePanel();
+        const result = this.check(this.activeTag);
+        this.createPanel(this.activeTag, result);
+    }
+    /**把这个 tag 添加到 tag 屏蔽列表 */
+    addToExcludeList(tag) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].notNeedTag.includes(tag)) {
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].notNeedTag.push(tag);
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])('notNeedTag', _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].notNeedTag);
+            _Toast__WEBPACK_IMPORTED_MODULE_1__["toast"].warning('屏蔽 ' + tag);
+            this.updatePanel();
+        }
+    }
+    /**把这个 tag 从屏蔽列表中移除*/
+    removeFormExcludeList(tag) {
+        const index = _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].notNeedTag.findIndex((str) => str === tag);
+        if (index > -1) {
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].notNeedTag.splice(index, 1);
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])('notNeedTag', _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].notNeedTag);
+            _Toast__WEBPACK_IMPORTED_MODULE_1__["toast"].success('取消屏蔽 ' + tag);
+            this.updatePanel();
+        }
+    }
+    /**把这个 tag 从 tag 重命名列表中移除 */
+    removeFormTagRename(tag, itemID) {
+        const itemIndex = _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].UseDifferentNameRuleIfWorkHasTagList.findIndex((item) => item.id === itemID);
+        if (itemIndex > -1) {
+            const item = _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].UseDifferentNameRuleIfWorkHasTagList[itemIndex];
+            const index = item.tags.findIndex((str) => str === tag);
+            if (index > -1) {
+                const rename = item.rule;
+                item.tags.splice(index, 1);
+                // 如果这个规则里的 tag 全都移除了，则删除这条规则
+                if (item.tags.length === 0) {
+                    _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].UseDifferentNameRuleIfWorkHasTagList.splice(itemIndex, 1);
+                }
+                Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])('UseDifferentNameRuleIfWorkHasTagList', _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].UseDifferentNameRuleIfWorkHasTagList);
+                _Toast__WEBPACK_IMPORTED_MODULE_1__["toast"].success(`移除重命名 ${tag} -> ${rename}`);
+                this.updatePanel();
+            }
+        }
+    }
+}
+new CheckTag();
+
+
+/***/ }),
+
 /***/ "./src/ts/CheckUnsupportBrowser.ts":
 /*!*****************************************!*\
   !*** ./src/ts/CheckUnsupportBrowser.ts ***!
@@ -12519,6 +12705,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
 /* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
 /* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _CheckTag__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./CheckTag */ "./src/ts/CheckTag.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -12529,6 +12716,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 
