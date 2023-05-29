@@ -20,6 +20,10 @@ class CheckTag {
     window.setInterval(() => {
       this.queryElements()
     }, 1000)
+
+    window.addEventListener('scroll', () => {
+      this.removePanel()
+    })
   }
 
   private readonly selector = 'footer li a'
@@ -45,8 +49,9 @@ class CheckTag {
         // 另外在页面切换时，相同的 tag 会复用元素，所以它的元素和之前的是同一个
         if (!this.workTagList.includes(a)) {
           a.addEventListener('mouseenter', () => {
-            // 严谨起见，每当进入一个 tag 时，应该清除之前的面板元素
-            // 不过现在不清除也不会导致 bug，而且鼠标快速移动时，多个面板陆续出现并消失挺好看的
+            window.clearTimeout(this.hiddenPanelTimer)
+            this.removePanel()
+
             const result = this.check(a)
             this.createPanel(a, result)
             this.activeTag = a
@@ -55,7 +60,7 @@ class CheckTag {
           a.addEventListener('mouseleave', () => {
             this.hiddenPanelTimer = window.setTimeout(() => {
               this.removePanel()
-            }, 200)
+            }, 400)
           })
         }
       }
