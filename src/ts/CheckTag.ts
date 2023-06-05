@@ -1,6 +1,7 @@
 import { pageType } from './PageType'
 import { toast } from './Toast'
 import { setSetting, settings } from './setting/Settings'
+import { Utils } from './utils/Utils'
 
 interface TagRenameItem {
   id: number
@@ -16,6 +17,10 @@ interface CheckResult {
 // 当鼠标放在作品页面内的 tag 上时，检查这个 tag 是否存在于下载器的某些 tag 过滤设置里，并显示对应操作和提示
 class CheckTag {
   constructor() {
+    if (!Utils.isPixiv()) {
+      return
+    }
+
     // 由于新打开一个作品页面，以及切换页面时，下载器无法准确知道新的标签列表何时生成，所以用定时器检查
     window.setInterval(() => {
       this.queryElements()
@@ -30,7 +35,7 @@ class CheckTag {
   private workTagList: HTMLAnchorElement[] = []
   private activeTag: HTMLAnchorElement = document.createElement('a')
 
-  private panelClassName = 'xzTagCheckPanelWrap'
+  private panelID = 'xzTagCheckPanel'
   private hiddenPanelTimer: number | undefined
 
   private queryElements() {
@@ -90,7 +95,7 @@ class CheckTag {
     // 创建元素
     const tag = a.innerText
     const html = `
-    <div class="${this.panelClassName}">
+    <div class="xzTipPanelWrap" id="${this.panelID}">
       <div class="notNeedTip">
         <p style="display: ${
           result.inNotNeedTagList ? 'none' : 'block'
@@ -117,9 +122,7 @@ class CheckTag {
     wrap.innerHTML = html
 
     // 绑定事件
-    const panel = wrap.querySelector(
-      '.' + this.panelClassName
-    )! as HTMLDivElement
+    const panel = wrap.querySelector('#' + this.panelID)! as HTMLDivElement
     panel.addEventListener('mouseenter', () => {
       window.clearTimeout(this.hiddenPanelTimer)
     })
@@ -172,7 +175,7 @@ class CheckTag {
   }
 
   private removePanel() {
-    const panel = document.querySelector('.' + this.panelClassName)
+    const panel = document.querySelector('#' + this.panelID)
     panel && panel.remove()
   }
 

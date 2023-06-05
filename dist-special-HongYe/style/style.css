@@ -1984,7 +1984,7 @@ iframe[name='expandedFooter'] {
 .xzBG .UseDifferentNameRuleIfWorkHasTagWarp textarea::-webkit-input-placeholder {
   color: #ddd;
 }
-.xzTagCheckPanelWrap {
+.xzTipPanelWrap {
   border: 1px solid #fff;
   border-radius: 8px;
   background-color: #0096fa;
@@ -1997,14 +1997,14 @@ iframe[name='expandedFooter'] {
   position: fixed;
   z-index: 999;
 }
-.xzTagCheckPanelWrap p {
+.xzTipPanelWrap p {
   margin: 4px 0;
 }
-.xzTagCheckPanelWrap > div {
+.xzTipPanelWrap > div {
   display: inline-flex;
   flex-direction: column;
 }
-.xzTagCheckPanelWrap button {
+.xzTipPanelWrap button {
   padding: 0;
   border: none;
   background: none;
@@ -2014,22 +2014,22 @@ iframe[name='expandedFooter'] {
   font-size: 14px;
   flex-shrink: 0;
 }
-.xzTagCheckPanelWrap button:hover {
+.xzTipPanelWrap button:hover {
   font-weight: bold;
 }
-.xzTagCheckPanelWrap .hr {
+.xzTipPanelWrap .hr {
   height: 1px;
   background-color: #a1d9ff;
   margin: 6px 0;
 }
-.xzTagCheckPanelWrap .renameTip p {
+.xzTipPanelWrap .renameTip p {
   margin-bottom: 6px;
 }
-.xzTagCheckPanelWrap .renameTip ul {
+.xzTipPanelWrap .renameTip ul {
   margin: 0;
   padding: 0;
 }
-.xzTagCheckPanelWrap .renameTip ul li {
+.xzTipPanelWrap .renameTip ul li {
   list-style: none;
   display: flex;
   flex-direction: row;
