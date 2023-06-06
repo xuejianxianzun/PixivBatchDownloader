@@ -1092,6 +1092,44 @@
   background-color: #eee;
   z-index: -1;
 }
+.centerWrap.mobile {
+  width: 90vw;
+  left: -45vw;
+  top: 10vw;
+  font-size: 16px;
+  font-family: sans-serif;
+}
+.centerWrap.mobile .centerWrap_head .centerWrap_title {
+  line-height: 40px;
+  font-size: 18px;
+}
+.centerWrap.mobile .centerWrap_head .btns .centerWrap_top_btn {
+  font-size: 26px;
+  width: 30px;
+  height: 40px;
+  line-height: 40px;
+}
+.centerWrap.mobile .centerWrap_head .btns .github_icon,
+.centerWrap.mobile .centerWrap_head .btns .wiki_url {
+  display: none;
+}
+.centerWrap.mobile .centerWrap_con {
+  padding: 0 5vw;
+}
+.centerWrap.mobile p {
+  line-height: 32px;
+}
+.centerWrap.mobile .centerWrap_con .settingForm .setinput_style1 {
+  font-size: 16px !important;
+}
+.centerWrap.mobile .centerWrap_tabs .title {
+  font-weight: inherit;
+}
+.centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns button {
+  font-size: 16px;
+  line-height: 24px;
+  padding: 12px 16px;
+}
 .theme-dark.centerWrap {
   background: #222;
   box-shadow: #10506e 0px 0px 15px;
@@ -1354,6 +1392,45 @@
 .theme-dark.outputWrap .outputContent * {
   color: #fff !important;
 }
+.outputWrap.mobile {
+  box-sizing: border-box;
+  padding: 20px 30px;
+  width: 92vw;
+  top: 15%;
+  left: 50%;
+  margin-left: -45vw;
+  border-radius: 15px;
+  font-family: sans-serif;
+}
+.outputWrap.mobile .outputContent {
+  border: 1px solid #ccc;
+  transition: 0.3s;
+  font-size: 14px;
+  margin-top: 20px;
+  padding: 5px 10px;
+  overflow: auto;
+  max-height: 350px;
+  line-height: 20px;
+  min-height: 100px;
+  word-break: break-all;
+}
+.outputWrap.mobile .outputClose {
+  width: 40px;
+  height: 40px;
+  top: 10px;
+  right: 30px;
+  z-index: 9999;
+  font-size: 40px;
+}
+.outputWrap.mobile .outputCopy {
+  height: 40px;
+  line-height: 30px;
+  min-width: 100px;
+  padding: 4px 25px;
+  margin-top: 15px;
+  font-size: 16px;
+  border-radius: 8px;
+}
 #logWrap {
   position: relative;
   z-index: 1;
@@ -1391,6 +1468,11 @@
 }
 .xzBG#logWrap .xzBGLayer {
   filter: blur(2px);
+}
+#logWrap.mobile {
+  font-size: 16px;
+  font-family: sans-serif;
+  padding: 10px 10px;
 }
 .xz_msg_box {
   background: #fff;
@@ -1467,6 +1549,15 @@
 .xzBG.xz_msg_box .xzBGLayer {
   filter: blur(1px);
   border-radius: 12px;
+}
+.xz_msg_box.mobile {
+  min-width: inherit;
+  width: 86vw;
+  max-width: inherit;
+  padding: 5vw 3vw;
+  top: 6vh;
+  font-size: 16px;
+  font-family: sans-serif;
 }
 #header-banner.ad,
 ._2vNejsc,
@@ -2082,6 +2173,12 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   background-color: #29b3f3;
   padding: 8px 10px;
   border-radius: 4px;
+}
+.xzToast.mobile {
+  font-size: 16px;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-family: sans-serif;
 }
 #previewWorkWrap {
   position: fixed;

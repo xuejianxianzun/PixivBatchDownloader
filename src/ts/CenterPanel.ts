@@ -114,6 +114,11 @@ class CenterPanel {
     this.titleAnimationEl = this.centerPanel.querySelector(
       '.title_active'
     )! as HTMLElement
+
+    // 设置移动端样式
+    if (Config.mobile) {
+      this.centerPanel.classList.add('mobile')
+    }
   }
 
   private allLangFlag: string[] = []
@@ -220,7 +225,10 @@ class CenterPanel {
     })
 
     // 在选项卡的标题上触发事件时，激活对应的选项卡
-    const eventList = ['click', 'mouseenter']
+    let eventList = ['click', 'mouseenter']
+    if (Config.mobile) {
+      eventList = ['touchend']
+    }
     for (let index = 0; index < this.allTabTitle.length; index++) {
       const title = this.allTabTitle[index]
       eventList.forEach((eventName) => {

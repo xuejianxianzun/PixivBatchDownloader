@@ -949,6 +949,10 @@ class CenterPanel {
         this.updateLink = this.centerPanel.querySelector('.update');
         this.allTabTitle = this.centerPanel.querySelectorAll('.tabsTitle .title');
         this.titleAnimationEl = this.centerPanel.querySelector('.title_active');
+        // 设置移动端样式
+        if (_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].mobile) {
+            this.centerPanel.classList.add('mobile');
+        }
     }
     setLangFlag() {
         this.allLangFlag.forEach((flag) => {
@@ -1030,7 +1034,10 @@ class CenterPanel {
             }
         });
         // 在选项卡的标题上触发事件时，激活对应的选项卡
-        const eventList = ['click', 'mouseenter'];
+        let eventList = ['click', 'mouseenter'];
+        if (_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].mobile) {
+            eventList = ['touchend'];
+        }
         for (let index = 0; index < this.allTabTitle.length; index++) {
             const title = this.allTabTitle[index];
             eventList.forEach((eventName) => {
@@ -7714,6 +7721,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -7818,6 +7827,9 @@ class Log {
             this.wrap.id = this.id;
             this.logArea = document.createElement('div');
             this.logArea.classList.add('beautify_scrollbar', 'logContent');
+            if (_Config__WEBPACK_IMPORTED_MODULE_10__["Config"].mobile) {
+                this.wrap.classList.add('mobile');
+            }
             this.wrap.append(this.logArea);
             document.body.insertAdjacentElement('beforebegin', this.wrap);
             _Theme__WEBPACK_IMPORTED_MODULE_1__["theme"].register(this.wrap);
@@ -7920,6 +7932,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _BG__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./BG */ "./src/ts/BG.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -7991,6 +8005,9 @@ class MsgBox {
     create(data) {
         const wrap = document.createElement('div');
         wrap.classList.add('xz_msg_box');
+        if (_Config__WEBPACK_IMPORTED_MODULE_5__["Config"].mobile) {
+            wrap.classList.add('mobile');
+        }
         let colorStyle = '';
         if (data.color) {
             colorStyle = `style="color:${data.color}"`;
@@ -11399,6 +11416,8 @@ new Tip();
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toast", function() { return toast; });
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+
 
 // 轻提示，只显示文字和背景颜色
 // 适用于无需用户进行确认的提示
@@ -11473,8 +11492,11 @@ class Toast {
         // 设置背景颜色，优先使用 color
         span.style.backgroundColor = arg.bgColor;
         span.style.opacity = '0'; // 先使提示完全透明
-        // 把提示添加到页面上
         span.classList.add(this.tipClassName);
+        if (_Config__WEBPACK_IMPORTED_MODULE_1__["Config"].mobile) {
+            span.classList.add('mobile');
+        }
+        // 把提示添加到页面上
         document.body.appendChild(span);
         // 设置 left，使其居中
         // 默认的中间点是窗口的中间
@@ -22815,6 +22837,9 @@ class OutputPanel {
     `;
         document.body.insertAdjacentHTML('beforebegin', html);
         this.outputPanel = document.querySelector('.outputWrap');
+        if (_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].mobile) {
+            this.outputPanel.classList.add('mobile');
+        }
         this.outputTitle = this.outputPanel.querySelector('.outputTitle');
         this.outputContent = this.outputPanel.querySelector('.outputContent');
         this.copyBtn = this.outputPanel.querySelector('.outputCopy');

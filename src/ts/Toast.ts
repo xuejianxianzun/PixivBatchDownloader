@@ -1,4 +1,5 @@
 import { Colors } from './Colors'
+import { Config } from './Config'
 
 // 可选参数
 export interface ToastArgOptional {
@@ -137,8 +138,12 @@ class Toast {
     span.style.backgroundColor = arg.bgColor
     span.style.opacity = '0' // 先使提示完全透明
 
-    // 把提示添加到页面上
     span.classList.add(this.tipClassName)
+    if (Config.mobile) {
+      span.classList.add('mobile')
+    }
+
+    // 把提示添加到页面上
     document.body.appendChild(span)
 
     // 设置 left，使其居中
