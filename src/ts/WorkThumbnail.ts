@@ -1,3 +1,6 @@
+import { Config } from "./Config"
+import { Tools } from "./Tools"
+
 // 查找作品的缩略图，当鼠标进入、移出时等动作触发时执行回调函数
 abstract class WorkThumbnail {
   /**作品缩略图的选择器 */
@@ -15,13 +18,18 @@ abstract class WorkThumbnail {
 
   /**查找缩略图右下角的收藏按钮 */
   protected findBookmarkBtn(el: HTMLElement): HTMLElement | null {
-    // 缩略图容器里只有 1 个 button，就是收藏按钮。目前还没有发现有多个 button 的情况
+    if(Config.mobile){
+      // 移动端的收藏按钮不是 button，其容器是 div.bookmark
+      return el.querySelector('.bookmark')
+    }else{
+    // 桌面端的缩略图容器里只有 1 个 button，就是收藏按钮。目前还没有发现有多个 button 的情况
     if (el.querySelector('button svg[width="32"]')) {
       return el.querySelector('button') as HTMLButtonElement
     }
 
     // 旧版缩略图里，缩略图元素是 div._one-click-bookmark （例如：各种排行榜页面）
     return el.querySelector('div._one-click-bookmark')
+    }
   }
 
   /**为作品缩略图绑定事件 */
@@ -66,6 +74,9 @@ abstract class WorkThumbnail {
     const bmkBtn = this.findBookmarkBtn(el as HTMLElement)
     if (!!bmkBtn) {
       bmkBtn.addEventListener('click', (ev) => {
+        if(!id){
+          id = Tools.findWorkIdFromElement(el as HTMLElement, 'illusts')
+        }
         this.bookmarkBtnCallback.forEach((cb) => cb(id, bmkBtn, ev))
       })
     }

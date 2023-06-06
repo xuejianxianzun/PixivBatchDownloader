@@ -12267,6 +12267,10 @@ const unBookmarkWorks = new UnBookmarkWorks();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WorkThumbnail", function() { return WorkThumbnail; });
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+
+
 // 查找作品的缩略图，当鼠标进入、移出时等动作触发时执行回调函数
 class WorkThumbnail {
     constructor() {
@@ -12281,12 +12285,18 @@ class WorkThumbnail {
     }
     /**查找缩略图右下角的收藏按钮 */
     findBookmarkBtn(el) {
-        // 缩略图容器里只有 1 个 button，就是收藏按钮。目前还没有发现有多个 button 的情况
-        if (el.querySelector('button svg[width="32"]')) {
-            return el.querySelector('button');
+        if (_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].mobile) {
+            // 移动端的收藏按钮不是 button，其容器是 div.bookmark
+            return el.querySelector('.bookmark');
         }
-        // 旧版缩略图里，缩略图元素是 div._one-click-bookmark （例如：各种排行榜页面）
-        return el.querySelector('div._one-click-bookmark');
+        else {
+            // 桌面端的缩略图容器里只有 1 个 button，就是收藏按钮。目前还没有发现有多个 button 的情况
+            if (el.querySelector('button svg[width="32"]')) {
+                return el.querySelector('button');
+            }
+            // 旧版缩略图里，缩略图元素是 div._one-click-bookmark （例如：各种排行榜页面）
+            return el.querySelector('div._one-click-bookmark');
+        }
     }
     /**为作品缩略图绑定事件 */
     bindEvents(el, id) {
@@ -12321,6 +12331,9 @@ class WorkThumbnail {
         const bmkBtn = this.findBookmarkBtn(el);
         if (!!bmkBtn) {
             bmkBtn.addEventListener('click', (ev) => {
+                if (!id) {
+                    id = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].findWorkIdFromElement(el, 'illusts');
+                }
                 this.bookmarkBtnCallback.forEach((cb) => cb(id, bmkBtn, ev));
             });
         }
