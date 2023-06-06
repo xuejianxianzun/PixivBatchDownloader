@@ -7592,6 +7592,14 @@ const langText = {
         '키위 브라우저를 사용하는 경우 폴더가 생성되지 않을 수 있습니다. 이것은 Kiwi 브라우저의 버그입니다.',
         'Если вы используете браузер Kiwi, он может не создать папку. Это баг браузера Киви.',
     ],
+    _优化移动设备上的用户体验: [
+        '优化移动设备上的用户体验。',
+        '最佳化移動裝置上的使用者體驗。',
+        'Optimize user experience on mobile devices.',
+        'モバイルデバイスでのユーザーエクスペリエンスを最適化します。',
+        '모바일 장치에서 사용자 경험을 최적화합니다.',
+        'Оптимизируйте взаимодействие с пользователем на мобильных устройствах.',
+    ],
 };
 
 
@@ -10998,15 +11006,13 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '15.6.2';
+        this.flag = '15.7.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_修复bug')}</strong>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_某些用户看到的高亮效果异常的问题')}
+            let msg = `<strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_优化移动设备上的用户体验')}</strong>
       `;
             // ${lang.transl(
             //   '_你可以在更多选项卡的xx分类里找到它',
