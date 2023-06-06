@@ -189,11 +189,16 @@ class CenterPanel {
     // 显示常见问题
     this.centerPanel
       .querySelector('#showDownTip')!
-      .addEventListener('click', () =>
-        msgBox.show(lang.transl('_常见问题说明'), {
+      .addEventListener('click', () => {
+        let msg = lang.transl('_常见问题说明')
+        if (Config.mobile) {
+          msg =
+            msg + '<br><br>' + lang.transl('_Kiwi浏览器可能不能建立文件夹的bug')
+        }
+        msgBox.show(msg, {
           title: lang.transl('_常见问题'),
         })
-      )
+      })
 
     this.centerPanel
       .querySelector('#showPatronTip')!
