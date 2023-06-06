@@ -8140,7 +8140,16 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__["WorkTh
             for (const el of elements) {
                 const id = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].findWorkIdFromElement(el, 'novels');
                 // 在移动端页面里，此时获取的可能是空 id，或者是 '0'
-                this.bindEvents(el, id);
+                // 依然绑定
+                if (_Config__WEBPACK_IMPORTED_MODULE_3__["Config"].mobile) {
+                    this.bindEvents(el, id);
+                }
+                else {
+                    // 在桌面端必须有 id 之后再绑定
+                    if (id) {
+                        this.bindEvents(el, id);
+                    }
+                }
             }
         }
     }
@@ -19034,8 +19043,6 @@ class DownloadOnClickBookmark {
             this.send(id);
         });
         _NovelThumbnail__WEBPACK_IMPORTED_MODULE_10__["novelThumbnail"].onClickBookmarkBtn((el, id) => {
-            console.log(el);
-            console.log(id);
             if (!id || id === '0') {
                 id = _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].findWorkIdFromElement(el, 'novels');
                 console.log(id);

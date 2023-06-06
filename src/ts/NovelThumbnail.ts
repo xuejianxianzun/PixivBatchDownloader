@@ -91,8 +91,16 @@ class NovelThumbnail extends WorkThumbnail {
 
       for (const el of elements) {
         const id = Tools.findWorkIdFromElement(el as HTMLElement, 'novels')
-        // 在移动端页面里，此时获取的可能是空 id，或者是 '0'
-        this.bindEvents(el as HTMLElement, id)
+        // 在移动端页面里，此时获取的可能是 '0'
+        // 依然绑定
+        if (Config.mobile) {
+          this.bindEvents(el as HTMLElement, id)
+        } else {
+          // 在桌面版页面里，只有查找到作品 id 时才会执行回调函数
+          if (id) {
+            this.bindEvents(el as HTMLElement, id)
+          }
+        }
       }
     }
   }

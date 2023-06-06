@@ -27,8 +27,6 @@ class DownloadOnClickBookmark {
     })
 
     novelThumbnail.onClickBookmarkBtn((el: HTMLElement, id: string) => {
-      console.log(el)
-      console.log(id)
       if (!id || id === '0') {
         id = Tools.findWorkIdFromElement(el, 'novels')
         console.log(id)
