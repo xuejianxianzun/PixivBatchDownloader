@@ -8,7 +8,18 @@ TODO:日语文本需要加粗显示关键字，但是我不懂日语，所以现
 - 导入作者列表进行抓取
 - 搜索页面的横图没能占据2倍宽度？ https://www.pixiv.net/tags/C.C.%2010000users%E5%85%A5%E3%82%8A/artworks?s_mode=s_tag
 
-## 15.6.1 2023/05/28
+## next
+
+
+`chrome.storage.local` 之前的存储上限我记得是 5MB，但是现在看文档显示为 10MB，可能是增大了吧。
+
+https://developer.chrome.com/docs/extensions/reference/storage/#property-local
+
+我之前担心过把用户的关注列表保存到这里，可能会导致超出存储限制。现在看来应该很难达到限制。
+
+如果以后发现不够用，可以增加 `unlimitedStorage` 权限来提高容量。现在似乎没有必要使用此权限。
+
+## 15.6.2 2023/05/28
 
 ### 修复一些用户的“高亮关注的用户”显示效果异常的 bug
 

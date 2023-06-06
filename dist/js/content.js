@@ -1238,6 +1238,8 @@ Config.worksNumberLimit = 9999999999;
 Config.retryTime = 200000;
 /**慢速抓取模式下，每个抓取请求之间的间隔时间（ms） */
 Config.slowCrawlDealy = 1400;
+/**浏览器是否处于移动端模式 */
+Config.mobile = navigator.userAgent.includes('Mobile');
 
 
 
@@ -12199,8 +12201,10 @@ class WorkThumbnail {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "workToolBar", function() { return workToolBar; });
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+
 
 
 // 在作品页面里，获取作品内容下方包含点赞、收藏、分享等按钮的工具栏元素
@@ -12218,20 +12222,20 @@ class WorkToolBar {
         this.pixivBMKDiv = undefined;
         this.likeBtn = undefined;
         window.clearInterval(this.timer);
-        if (_PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type !== _PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].list.Artwork &&
-            _PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type !== _PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].list.Novel) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type !== _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Artwork &&
+            _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type !== _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Novel) {
             return;
         }
         this.timer = window.setInterval(() => {
-            this.getElements();
+            _Config__WEBPACK_IMPORTED_MODULE_0__["Config"].mobile ? this.getElementsOnMobile() : this.getElementsOnDesktop();
         }, 300);
     }
     bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, () => {
             this.init();
         });
     }
-    async getElements() {
+    async getElementsOnDesktop() {
         // 获取工具栏
         const toolbarParent = document.querySelectorAll('main > section');
         for (const el of toolbarParent) {
@@ -12256,6 +12260,31 @@ class WorkToolBar {
         // 获取点赞按钮
         const btnList = this.toolbar.querySelectorAll('button');
         this.likeBtn = btnList[btnList.length - 1] || undefined;
+        // 全部获取完毕
+        if (this.pixivBMKDiv && this.likeBtn) {
+            window.clearInterval(this.timer);
+            this.executionCB();
+        }
+    }
+    async getElementsOnMobile() {
+        // 获取工具栏
+        const toolbar = document.querySelector('.work-interactions');
+        if (!toolbar || toolbar.classList.contains(this.flag)) {
+            return;
+        }
+        toolbar.classList.add(this.flag);
+        this.toolbar = toolbar;
+        const divs = toolbar.querySelectorAll('div');
+        if (divs.length !== 4) {
+            return;
+        }
+        // 只在正常模式下（有 4 个按钮）时工作
+        // 如果在自己的作品页面里，就只有 1 个分享按钮
+        // 获取心形收藏按钮的 div
+        // 心形收藏按钮是第 2 个元素
+        this.pixivBMKDiv = divs[1];
+        // 获取点赞按钮
+        this.likeBtn = divs[0];
         // 全部获取完毕
         if (this.pixivBMKDiv && this.likeBtn) {
             window.clearInterval(this.timer);
