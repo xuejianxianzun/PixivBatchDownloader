@@ -11,6 +11,7 @@ import { artworkThumbnail } from './ArtworkThumbnail'
 import { novelThumbnail } from './NovelThumbnail'
 import { pageType } from './PageType'
 import { showHelp } from './ShowHelp'
+import { Config } from './Config'
 
 // 手动选择作品，图片作品和小说都可以选择
 class SelectWork {
@@ -141,7 +142,7 @@ class SelectWork {
     })
 
     document.body.addEventListener(
-      'click',
+      Config.mobile ? 'touchend' : 'click',
       (ev: Event) => {
         this.clickElement(ev.target as HTMLElement, ev)
       },
@@ -458,8 +459,16 @@ class SelectWork {
       return
     }
 
+    if (!id || id === '0') {
+      id = Tools.findWorkIdFromElement(
+        el,
+        type === 'novels' ? 'novels' : 'illusts'
+      )
+    }
+
     // 阻止默认事件，否则会进入作品页面，导致无法在当前页面继续选择
     ev.preventDefault()
+    ev.stopPropagation()
     this.addId(el, id, type)
   }
 

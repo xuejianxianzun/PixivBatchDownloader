@@ -1,4 +1,4 @@
-// 储存一些配置
+// 定义一些常量
 // 用户不可以修改这里的配置
 class Config {
   /**使用输出面板显示内容时，如果文件数量大于这个值，就不再显示内容，而是保存到 txt 文件 */
@@ -22,6 +22,8 @@ class Config {
   static readonly retryTime = 200000
   /**慢速抓取模式下，每个抓取请求之间的间隔时间（ms） */
   static readonly slowCrawlDealy = 1400
+  /**浏览器是否处于移动端模式 */
+  static readonly mobile = navigator.userAgent.includes('Mobile')
 }
 
 export { Config }

@@ -1,3 +1,4 @@
+import { Config } from './Config'
 import { EVT } from './EVT'
 import { Utils } from './utils/Utils'
 
@@ -58,51 +59,78 @@ class Theme {
 
   // 查找含有 pixiv 主题标记的元素，并监听其变化
   private findFlag() {
-    const el = document.querySelector(this.selector) as HTMLElement
-    if (el) {
-      window.clearInterval(this.timer)
-      this.setTheme(this.getThemeFromHtml())
-      // 监听标记元素的 textContent 变化
-      const ob = new MutationObserver((mutationsList) => {
-        for (const item of mutationsList) {
-          if (item.type === 'characterData') {
-            const flag = this.getThemeFromHtml()
-            this.setTheme(flag)
-            break
+    if (Config.mobile) {
+      const el = document.body
+      if (el) {
+        window.clearInterval(this.timer)
+        this.setTheme(this.getThemeFromHtml())
+        // 监听 body 的 class 变化
+        const ob = new MutationObserver(() => {
+          const flag = this.getThemeFromHtml()
+          this.setTheme(flag)
+        })
+        ob.observe(el, {
+          attributes: true,
+          attributeFilter: ['class'],
+        })
+      }
+    } else {
+      const el = document.querySelector(this.selector) as HTMLElement
+      if (el) {
+        window.clearInterval(this.timer)
+        this.setTheme(this.getThemeFromHtml())
+        // 监听标记元素的 textContent 变化
+        const ob = new MutationObserver((mutationsList) => {
+          for (const item of mutationsList) {
+            if (item.type === 'characterData') {
+              const flag = this.getThemeFromHtml()
+              this.setTheme(flag)
+              break
+            }
           }
-        }
-      })
-      ob.observe(el, {
-        characterData: true,
-        subtree: true,
-      })
+        })
+        ob.observe(el, {
+          characterData: true,
+          subtree: true,
+        })
+      }
     }
   }
 
   private getThemeFromHtml(): ThemeName {
-    console.log('getThemeFromHtml')
-    // 从含有 pixiv 主题标记的元素里获取主题
-    const el = document.querySelector(this.selector) as HTMLElement
-    if (el) {
-      const pageTheme = this.htmlFlagMap.get(el.textContent!)
+    if (Config.mobile) {
+      // 移动端需要使用不同的方法来获取主题
+      const dark = document.body.classList.contains('dark')
+      const pageTheme = dark ? 'dark' : 'white'
       EVT.fire('getPageTheme', pageTheme!)
-
-      return pageTheme || this.defaultTheme
-    }
-
-    // 根据 html 元素的背景颜色判断
-    // "rgb(245, 245, 245)"
-    // "rgb(0, 0, 0)"
-    const htmlBG = getComputedStyle(document.documentElement)['backgroundColor']
-    if (htmlBG) {
-      if (htmlBG.includes('rgb(2')) {
-        return 'white'
-      } else if (htmlBG.includes('rgb(0')) {
-        return 'dark'
+      return pageTheme
+    } else {
+      // 桌面端
+      // 从含有 pixiv 主题标记的元素里获取主题
+      const el = document.querySelector(this.selector) as HTMLElement
+      if (el) {
+        const pageTheme = this.htmlFlagMap.get(el.textContent!)
+        EVT.fire('getPageTheme', pageTheme!)
+        return pageTheme || this.defaultTheme
       }
-    }
 
-    return this.defaultTheme
+      // 根据 html 元素的背景颜色判断
+      // 此方法不适用于移动端，因为移动端的 html 背景色总是 'rgba(0, 0, 0, 0)'
+      // "rgb(245, 245, 245)"
+      // "rgb(0, 0, 0)"
+      const htmlBG = getComputedStyle(document.documentElement)[
+        'backgroundColor'
+      ]
+      if (htmlBG) {
+        if (htmlBG.includes('rgb(2')) {
+          return 'white'
+        } else if (htmlBG.includes('rgb(0')) {
+          return 'dark'
+        }
+      }
+
+      return this.defaultTheme
+    }
   }
 
   private setTheme(flag: string) {

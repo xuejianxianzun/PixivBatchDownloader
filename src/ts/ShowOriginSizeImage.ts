@@ -10,6 +10,7 @@ import { lang } from './Lang'
 import { Colors } from './Colors'
 import { showHelp } from './ShowHelp'
 import { store } from './store/Store'
+import { Config } from './Config'
 
 interface Style {
   imgW: number
@@ -27,6 +28,10 @@ interface Urls {
 
 class ShowOriginSizeImage {
   constructor() {
+    if (Config.mobile) {
+      return
+    }
+
     this.createElements()
     this.bindEvents()
   }

@@ -1,3 +1,4 @@
+import { Config } from './Config'
 import { EVT } from './EVT'
 import { Utils } from './utils/Utils'
 
@@ -48,12 +49,13 @@ class Token {
         return response.text()
       })
       .then((data) => {
-        const result = data.match(/token":"(\w+)"/)
-        // 不论用户是否登录，都有 token，所以不能根据 token 来判断用户是否登录
-        // 如果存在下面的字符串，则说明用户未登录：
-        // "userData":null
+        const regExp = Config.mobile ? /postKey":"(\w+)"/ : /token":"(\w+)"/
+        const result = data.match(regExp)
         if (result) {
           this.token = result[1]
+        }
+
+        if (this.token) {
           localStorage.setItem(this.tokenStore, this.token)
           localStorage.setItem(this.timeStore, new Date().getTime().toString())
         } else {
@@ -61,6 +63,10 @@ class Token {
         }
       })
   }
+
+  // 不论用户是否登录，都有 token，所以不能根据 token 来判断用户是否登录
+  // 在桌面端，如果存在下面的字符串，则说明用户未登录：
+  // "userData":null
 
   public async reset() {
     this.token = ''

@@ -8,6 +8,7 @@ import { List } from './ManageFollowing'
 import { settings } from './setting/Settings'
 import { toast } from './Toast'
 import { lang } from './Lang'
+import { Config } from './Config'
 
 class HighlightFollowingUsers {
   constructor() {
@@ -75,8 +76,9 @@ class HighlightFollowingUsers {
     // 所以用定时器执行
     window.addEventListener(EVT.list.pageSwitch, () => {
       if (
-        pageType.type === pageType.list.Artwork ||
-        pageType.type === pageType.list.Novel
+        !Config.mobile &&
+        (pageType.type === pageType.list.Artwork ||
+          pageType.type === pageType.list.Novel)
       ) {
         let time = 0
         let interval = 500
@@ -291,7 +293,7 @@ class HighlightFollowingUsers {
       }
     }
 
-    this.highlightUserName()
+    this.handleUserHomePage()
   }
 
   private startMutationObserver() {
@@ -332,14 +334,21 @@ class HighlightFollowingUsers {
     })
   }
 
-  /**在用户主页里，高亮用户名（因为用户名没有超链接，需要单独处理） */
-  private highlightUserName() {
+  private handleUserHomePage() {
     if (pageType.type === pageType.list.UserHome) {
+      // 在用户主页里，高亮用户名（因为用户名没有超链接，需要单独处理）
       const userID = Tools.getUserId()
       const flag = this.following.includes(userID)
       const h1 = document.querySelector('h1') as HTMLHeadingElement
       if (h1) {
         h1.classList[flag ? 'add' : 'remove'](this.highlightClassName)
+      }
+
+      // 取消用户主页里“主页”按钮的高亮，它具有用户主页链接，但它不是用户名
+      const selector = Config.mobile ? '.v-nav-tabs a' : 'nav a'
+      const homeBtn = document.querySelector(selector)
+      if (homeBtn) {
+        homeBtn.classList.remove(this.highlightClassName)
       }
     }
   }

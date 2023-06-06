@@ -1,3 +1,4 @@
+import { Config } from './Config'
 import { EVT } from './EVT'
 import { pageType } from './PageType'
 import { settings } from './setting/Settings'
@@ -5,6 +6,10 @@ import { Tools } from './Tools'
 
 class ShowLargerThumbnails {
   constructor() {
+    if (Config.mobile) {
+      return
+    }
+
     this.loadCssText()
     this.bindEvents()
     this.findFriendsWrapEl()

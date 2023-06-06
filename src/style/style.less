@@ -93,6 +93,13 @@ main section nav[style] {
   text-decoration: none;
   display: block;
 }
+html[data-xzpagetheme='white'] #quickBookmarkEl {
+  color: #1f1f1f;
+}
+
+html[data-xzpagetheme='dark'] #quickBookmarkEl {
+  color: #fff;
+}
 
 .bookmarkedColor {
   color: #ff4060 !important;
@@ -164,6 +171,13 @@ main section nav[style] {
   border-radius: 4px;
 }
 
+.xzToast.mobile {
+  font-size: 16px;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-family: sans-serif;
+}
+
 #previewWorkWrap {
   position: fixed;
   z-index: 100000;
@@ -224,7 +238,7 @@ main section nav[style] {
 
 #zoomBtnOnThumb {
   position: absolute;
-  z-index: 99999;
+  z-index: 99998;
   display: none;
   left: 0px;
   top: 0px;
@@ -247,7 +261,7 @@ main section nav[style] {
   }
 }
 
-#downloadBtnOnThumb {
+.downloadBtnOnThumb {
   position: absolute;
   // 如果使用 fixed，将导致页面滚动时按钮停留在原地，这是不好的体验
   z-index: 99999;

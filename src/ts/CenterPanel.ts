@@ -68,7 +68,12 @@ class CenterPanel {
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
-        <button class="textButton has_tip centerWrap_top_btn centerWrap_close" data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板">
+        <button class="textButton ${
+          !Config.mobile && 'has_tip'
+        } centerWrap_top_btn centerWrap_close" ${
+      !Config.mobile &&
+      'data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板"'
+    }>
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
         </svg>
@@ -114,6 +119,11 @@ class CenterPanel {
     this.titleAnimationEl = this.centerPanel.querySelector(
       '.title_active'
     )! as HTMLElement
+
+    // 设置移动端样式
+    if (Config.mobile) {
+      this.centerPanel.classList.add('mobile')
+    }
   }
 
   private allLangFlag: string[] = []
@@ -189,11 +199,16 @@ class CenterPanel {
     // 显示常见问题
     this.centerPanel
       .querySelector('#showDownTip')!
-      .addEventListener('click', () =>
-        msgBox.show(lang.transl('_常见问题说明'), {
+      .addEventListener('click', () => {
+        let msg = lang.transl('_常见问题说明')
+        if (Config.mobile) {
+          msg =
+            msg + '<br><br>' + lang.transl('_Kiwi浏览器可能不能建立文件夹的bug')
+        }
+        msgBox.show(msg, {
           title: lang.transl('_常见问题'),
         })
-      )
+      })
 
     this.centerPanel
       .querySelector('#showPatronTip')!
@@ -215,7 +230,10 @@ class CenterPanel {
     })
 
     // 在选项卡的标题上触发事件时，激活对应的选项卡
-    const eventList = ['click', 'mouseenter']
+    let eventList = ['click', 'mouseenter']
+    if (Config.mobile) {
+      eventList = ['touchend']
+    }
     for (let index = 0; index < this.allTabTitle.length; index++) {
       const title = this.allTabTitle[index]
       eventList.forEach((eventName) => {

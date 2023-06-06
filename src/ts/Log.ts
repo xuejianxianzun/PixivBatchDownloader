@@ -9,6 +9,7 @@ import { Tools } from './Tools'
 import { Utils } from './utils/Utils'
 import { settings } from './setting/Settings'
 import { DateFormat } from './utils/DateFormat'
+import { Config } from './Config'
 
 // 日志
 class Log {
@@ -125,6 +126,9 @@ class Log {
       this.wrap.id = this.id
       this.logArea = document.createElement('div')
       this.logArea.classList.add('beautify_scrollbar', 'logContent')
+      if (Config.mobile) {
+        this.wrap.classList.add('mobile')
+      }
       this.wrap.append(this.logArea)
       document.body.insertAdjacentElement('beforebegin', this.wrap)
       theme.register(this.wrap)
