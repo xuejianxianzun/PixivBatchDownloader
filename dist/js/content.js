@@ -10443,10 +10443,12 @@ const showHelp = new ShowHelp();
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+
 
 
 
@@ -10457,6 +10459,9 @@ class ShowLargerThumbnails {
         this.css = '';
         this.styleId = 'ShowLargerThumbnails';
         this.findFriendsWrap = false;
+        if (_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].mobile) {
+            return;
+        }
         this.loadCssText();
         this.bindEvents();
         this.findFriendsWrapEl();
@@ -10467,13 +10472,13 @@ class ShowLargerThumbnails {
         this.setCss();
     }
     bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name === 'showLargerThumbnails') {
                 this.setCss();
             }
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, () => {
             this.setCss();
             this.findFriendsWrap = false;
         });
@@ -10485,10 +10490,10 @@ class ShowLargerThumbnails {
         if (!this.css) {
             return;
         }
-        if (_Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].notEnabledShowLargerThumb()) {
+        if (_Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].notEnabledShowLargerThumb()) {
             return this.removeStyle();
         }
-        _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].showLargerThumbnails ? this.addStyle() : this.removeStyle();
+        _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].showLargerThumbnails ? this.addStyle() : this.removeStyle();
     }
     addStyle() {
         if (document.querySelector('#' + this.styleId)) {
@@ -10505,7 +10510,7 @@ class ShowLargerThumbnails {
     }
     // 在首页查找“关注用户・好P友的作品”列表容器，为其添加自定义的 className
     findFriendsWrapEl() {
-        if (this.findFriendsWrap || _PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type !== _PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].list.Home) {
+        if (this.findFriendsWrap || _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type !== _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Home) {
             return;
         }
         const query = document.evaluate(`//*[@id="root"]/div[2]/div[2]/div[4]/div/section/div[2]/div`, document, null, XPathResult.ANY_TYPE, null);
@@ -23598,6 +23603,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -23631,7 +23638,8 @@ class FastScreen {
     // 添加快速筛选功能
     create() {
         // 判断插入点的元素有没有加载出来
-        const target = document.querySelector('#root>div');
+        const selector = _Config__WEBPACK_IMPORTED_MODULE_4__["Config"].mobile ? '.search-header' : '#root>div';
+        const target = document.querySelector(selector);
         if (!target) {
             setTimeout(() => {
                 this.create();
@@ -26475,9 +26483,11 @@ const nameRuleManager = new NameRuleManager();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "options", function() { return options; });
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+
 
 
 
@@ -26507,18 +26517,18 @@ class Options {
         this.bindEvents();
     }
     bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name === 'showAdvancedSettings') {
                 this.handleShowAdvancedSettings();
             }
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingInitialized, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingInitialized, () => {
             this.alwaysHideSomeOption();
         });
         const list = [
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeNotChange,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitchedTypeNotChange,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitchedTypeChange,
         ];
         list.forEach((ev) => {
             window.addEventListener(ev, () => {
@@ -26533,6 +26543,11 @@ class Options {
     // 总是隐藏某些设置
     alwaysHideSomeOption() {
         this.hideOption([79, 80]);
+        // 在移动端某些设置不会生效，所以隐藏它们
+        // 主要是和作品缩略图相关的一些设置
+        if (_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].mobile) {
+            this.hideOption([18, 68, 55, 71, 62, 40]);
+        }
     }
     handleShowAdvancedSettings() {
         for (const option of this.allOption) {
@@ -26541,7 +26556,7 @@ class Options {
             }
             const no = Number.parseInt(option.dataset.no);
             // 如果需要隐藏高级设置
-            if (!_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].showAdvancedSettings) {
+            if (!_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].showAdvancedSettings) {
                 // 如果在白名单中，并且当前页面不需要隐藏它，那么它就是显示的
                 if (this.whiteList.includes(no) && !this.hiddenList.includes(no)) {
                     this.showOption([no]);
@@ -26597,16 +26612,16 @@ class Options {
     }
     // 设置 “抓取多少作品/页面” 选项的提示和预设值
     setWantPageTip(arg) {
-        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.wantPageEls.text, arg.text);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.wantPageEls.text, arg.text);
         this.wantPageEls.wrap.dataset.xztip = arg.tip;
-        this.wantPageEls.wrap.dataset.tip = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl(arg.tip);
+        this.wantPageEls.wrap.dataset.tip = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl(arg.tip);
         // rangTip 可能需要翻译
         if (arg.rangTip.startsWith('_')) {
-            _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.wantPageEls.rangTip, arg.rangTip);
+            _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.wantPageEls.rangTip, arg.rangTip);
         }
         else {
             // 也可能直接传递了字符串，不需要翻译
-            _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.wantPageEls.rangTip, '');
+            _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.wantPageEls.rangTip, '');
             this.wantPageEls.rangTip.textContent = arg.rangTip;
         }
     }

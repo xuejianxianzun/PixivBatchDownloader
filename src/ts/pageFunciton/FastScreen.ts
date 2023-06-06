@@ -2,6 +2,7 @@ import { EVT } from '../EVT'
 import { Tools } from '../Tools'
 import { theme } from '../Theme'
 import { settings } from '../setting/Settings'
+import { Config } from '../Config'
 
 // 在搜索页面按收藏数快速筛选
 class FastScreen {
@@ -37,7 +38,8 @@ class FastScreen {
   // 添加快速筛选功能
   private create() {
     // 判断插入点的元素有没有加载出来
-    const target = document.querySelector('#root>div') as HTMLDivElement
+    const selector = Config.mobile?'.search-header':'#root>div'
+    const target = document.querySelector(selector) as HTMLDivElement
 
     if (!target) {
       setTimeout(() => {
