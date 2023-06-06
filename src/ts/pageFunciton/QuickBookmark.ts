@@ -10,6 +10,7 @@ import { bookmark } from '../Bookmark'
 import { workToolBar } from '../WorkToolBar'
 import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
 import { showHelp } from '../ShowHelp'
+import { Config } from '../Config'
 
 type WorkType = 'illusts' | 'novels'
 
@@ -66,22 +67,45 @@ class QuickBookmark {
     this.isBookmarked = !!this.workData.body.bookmarkData
 
     // 监听心形收藏按钮从未收藏到收藏的变化
-    // 没有收藏时，心形按钮的第一个子元素是 button。收藏之后，button 被移除，然后添加一个 a 标签
     if (!this.isBookmarked) {
-      this.ob = new MutationObserver((mutations) => {
-        for (const change of mutations) {
-          if (change.type === 'childList') {
-            const added = change.addedNodes
-            if (added.length > 0 && added[0].nodeName === 'A') {
-              this.isBookmarked = true
-              this.redQuickBookmarkBtn()
+      if (!Config.mobile) {
+        // 桌面端
+        // 没有收藏时，心形按钮的第一个子元素是 button。收藏之后，button 被移除，然后添加一个 a 标签
+        this.ob = new MutationObserver((mutations) => {
+          for (const change of mutations) {
+            if (change.type === 'childList') {
+              const added = change.addedNodes
+              if (added.length > 0 && added[0].nodeName === 'A') {
+                this.isBookmarked = true
+                this.redQuickBookmarkBtn()
+              }
             }
           }
+        })
+        this.ob.observe(pixivBMKDiv, {
+          childList: true,
+        })
+      } else {
+        // 移动端
+        // 点击心形按钮收藏作品后，不会添加 a 标签，也不会跳转到编辑收藏的页面，仅仅会改变 path 的 fill 颜色。
+        const path = pixivBMKDiv.querySelector('path')
+        if (!path) {
+          return
         }
-      })
-      this.ob.observe(pixivBMKDiv, {
-        childList: true,
-      })
+        this.ob = new MutationObserver((mutations) => {
+          if (path.getAttribute('fill') === '#FF4060') {
+            this.isBookmarked = true
+            this.redQuickBookmarkBtn()
+          } else {
+            this.isBookmarked = false
+            this.resetQuickBookmarkBtn()
+          }
+        })
+        this.ob.observe(path, {
+          attributes: true,
+          attributeFilter: ['fill'],
+        })
+      }
     }
 
     // 添加快速收藏按钮
@@ -141,7 +165,10 @@ class QuickBookmark {
     const type = this.isNovel ? 'novels' : 'illusts'
     const id = this.isNovel ? Tools.getNovelId() : Tools.getIllustId()
 
-    this.like(type, id, likeBtn)
+    // 移动端不自动点赞和设置点赞按钮的颜色，因为切换作品后元素没有重新生成，样式会依旧存在
+    if (!Config.mobile) {
+      this.like(type, id, likeBtn)
+    }
 
     if (this.isBookmarked) {
       return
@@ -152,7 +179,11 @@ class QuickBookmark {
       // 收藏成功之后
       this.isBookmarked = true
       this.redQuickBookmarkBtn()
-      this.redPixivBMKDiv(pixivBMKDiv)
+
+      // 移动端不改变收藏按钮的颜色以及设置超链接，因为切换作品后元素没有重新生成，样式和超链接会依旧存在
+      if (!Config.mobile) {
+        this.redPixivBMKDiv(pixivBMKDiv)
+      }
     }
   }
 
@@ -174,6 +205,12 @@ class QuickBookmark {
   private redQuickBookmarkBtn() {
     this.btn.classList.add(this.redClass)
     this.btn.href = this.getEditBookmarkLink()
+  }
+
+  // 如果这个作品从已收藏变成未收藏，则改变快速收藏按钮
+  private resetQuickBookmarkBtn() {
+    this.btn.classList.remove(this.redClass)
+    this.btn.href = 'javascript:void(0)'
   }
 
   // 把心形收藏按钮从未收藏变成已收藏

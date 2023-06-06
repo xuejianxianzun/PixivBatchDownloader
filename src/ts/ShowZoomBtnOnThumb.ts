@@ -2,10 +2,15 @@ import { EVT } from './EVT'
 import { ImageViewer } from './ImageViewer'
 import { settings } from './setting/Settings'
 import { artworkThumbnail } from './ArtworkThumbnail'
+import { Config } from './Config'
 
 // 在作品缩略图上显示放大按钮，点击按钮会调用图片查看器来查看大图
 class ShowZoomBtnOnThumb {
   constructor() {
+    if (Config.mobile) {
+      return
+    }
+
     this.addBtn()
     this.bindEvents()
   }

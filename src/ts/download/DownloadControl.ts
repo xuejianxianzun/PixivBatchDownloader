@@ -397,6 +397,10 @@ class DownloadControl {
     }
 
     log.success(lang.transl('_正在下载中'))
+
+    if (Config.mobile) {
+      log.warning(lang.transl('_Kiwi浏览器可能不能建立文件夹的bug'))
+    }
   }
 
   // 暂停下载

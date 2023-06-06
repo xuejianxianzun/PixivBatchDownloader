@@ -1,9 +1,13 @@
+import { Config } from './Config'
+import { Tools } from './Tools'
+
 // 查找作品的缩略图，当鼠标进入、移出时等动作触发时执行回调函数
 abstract class WorkThumbnail {
   /**作品缩略图的选择器 */
   // 选择器的元素必须含有作品的超链接（超链接可以在这个元素上，也可以在这个元素的子元素上）
   protected selectors: string[] = []
 
+  protected foundCallback: Function[] = []
   protected enterCallback: Function[] = []
   protected leaveCallback: Function[] = []
   protected clickCallback: Function[] = []
@@ -14,17 +18,23 @@ abstract class WorkThumbnail {
 
   /**查找缩略图右下角的收藏按钮 */
   protected findBookmarkBtn(el: HTMLElement): HTMLElement | null {
-    // 缩略图容器里只有 1 个 button，就是收藏按钮。目前还没有发现有多个 button 的情况
-    if (el.querySelector('button svg[width="32"]')) {
-      return el.querySelector('button') as HTMLButtonElement
-    }
+    if (Config.mobile) {
+      // 移动端的收藏按钮不是 button，其容器是 div.bookmark
+      return el.querySelector('.bookmark')
+    } else {
+      // 桌面端的缩略图容器里只有 1 个 button，就是收藏按钮。目前还没有发现有多个 button 的情况
+      if (el.querySelector('button svg[width="32"]')) {
+        return el.querySelector('button') as HTMLButtonElement
+      }
 
-    // 旧版缩略图里，缩略图元素是 div._one-click-bookmark （例如：各种排行榜页面）
-    return el.querySelector('div._one-click-bookmark')
+      // 旧版缩略图里，缩略图元素是 div._one-click-bookmark （例如：各种排行榜页面）
+      return el.querySelector('div._one-click-bookmark')
+    }
   }
 
   /**为作品缩略图绑定事件 */
-  protected bindEvents(el: HTMLElement, id: string) {
+  // 注意：在移动端页面，此时获取的 id 可能是空字符串。可以在执行回调时尝试再次获取 id
+  protected bindEvents(el: HTMLElement, id: string | '') {
     // 如果这个缩略图元素、或者它的直接父元素、或者它的直接子元素已经有标记，就跳过它
     // mouseover 这个标记名称不可以修改，因为它在 Pixiv Previewer 里硬编码了
     // https://github.com/xuejianxianzun/PixivBatchDownloader/issues/212
@@ -47,6 +57,8 @@ abstract class WorkThumbnail {
     // 添加标记的目的是为了减少事件重复绑定的情况发生
     ;(el as HTMLElement).dataset.mouseover = '1'
 
+    this.foundCallback.forEach((cb) => cb(el, id))
+
     el.addEventListener('mouseenter', (ev) => {
       this.enterCallback.forEach((cb) => cb(el, id, ev))
     })
@@ -55,15 +67,19 @@ abstract class WorkThumbnail {
       this.leaveCallback.forEach((cb) => cb(el, ev))
     })
 
-    el.addEventListener('click', (ev) => {
-      this.clickCallback.forEach((cb) => cb(el, id, ev))
-    })
+    el.addEventListener(
+      Config.mobile ? 'touchend' : 'click',
+      (ev) => {
+        this.clickCallback.forEach((cb) => cb(el, id, ev))
+      },
+      false
+    )
 
     // 查找作品缩略图右下角的收藏按钮
     const bmkBtn = this.findBookmarkBtn(el as HTMLElement)
     if (!!bmkBtn) {
-      bmkBtn.addEventListener('click', (ev) => {
-        this.bookmarkBtnCallback.forEach((cb) => cb(id, bmkBtn, ev))
+      bmkBtn.addEventListener(Config.mobile ? 'touchend' : 'click', (ev) => {
+        this.bookmarkBtnCallback.forEach((cb) => cb(el, id, bmkBtn, ev))
       })
     }
   }
@@ -84,6 +100,19 @@ abstract class WorkThumbnail {
       childList: true,
       subtree: true,
     })
+  }
+
+  /**添加下载器寻找到一个作品缩略图时的回调。
+   * 注意：这个回调只会执行一次，因为它不是根据用户操作的事件触发的。
+   *
+   * 回调函数会接收到 2 个参数：
+   *
+   * @el 作品缩略图的元素
+   *
+   * @id 作品 id（在移动端页面里，此时传递的 id 可能是空字符串 ''）
+   */
+  public onFound(cb: Function) {
+    this.foundCallback.push(cb)
   }
 
   /**添加鼠标进入作品缩略图时的回调。
@@ -130,7 +159,9 @@ abstract class WorkThumbnail {
 
   /**添加鼠标点击缩略图里的收藏按钮时的回调。
    *
-   * 回调函数会接收到 3 个参数：
+   * 回调函数会接收到 4 个参数：
+   *
+   * @el 作品缩略图的元素
    *
    * @id 作品 id
    *
