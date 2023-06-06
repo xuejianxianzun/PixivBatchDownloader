@@ -8,6 +8,7 @@ import { List } from './ManageFollowing'
 import { settings } from './setting/Settings'
 import { toast } from './Toast'
 import { lang } from './Lang'
+import { Config } from './Config'
 
 class HighlightFollowingUsers {
   constructor() {
@@ -75,8 +76,9 @@ class HighlightFollowingUsers {
     // 所以用定时器执行
     window.addEventListener(EVT.list.pageSwitch, () => {
       if (
-        pageType.type === pageType.list.Artwork ||
-        pageType.type === pageType.list.Novel
+        !Config.mobile &&
+        (pageType.type === pageType.list.Artwork ||
+          pageType.type === pageType.list.Novel)
       ) {
         let time = 0
         let interval = 500

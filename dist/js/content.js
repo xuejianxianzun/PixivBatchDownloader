@@ -2524,6 +2524,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -2597,8 +2599,9 @@ class HighlightFollowingUsers {
         // 在作品页内，作品大图下方和右侧的作者名字变化时，监视器无法监测到变化，尤其是右侧的名字
         // 所以用定时器执行
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, () => {
-            if (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Artwork ||
-                _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Novel) {
+            if (!_Config__WEBPACK_IMPORTED_MODULE_9__["Config"].mobile &&
+                (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Artwork ||
+                    _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Novel)) {
                 let time = 0;
                 let interval = 500;
                 let timer = window.setInterval(() => {
@@ -8139,13 +8142,13 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__["WorkTh
             }
             for (const el of elements) {
                 const id = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].findWorkIdFromElement(el, 'novels');
-                // 在移动端页面里，此时获取的可能是空 id，或者是 '0'
+                // 在移动端页面里，此时获取的可能是 '0'
                 // 依然绑定
                 if (_Config__WEBPACK_IMPORTED_MODULE_3__["Config"].mobile) {
                     this.bindEvents(el, id);
                 }
                 else {
-                    // 在桌面端必须有 id 之后再绑定
+                    // 在桌面版页面里，只有查找到作品 id 时才会执行回调函数
                     if (id) {
                         this.bindEvents(el, id);
                     }
@@ -11717,9 +11720,11 @@ const token = new Token();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tools", function() { return Tools; });
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -11764,7 +11769,7 @@ class Tools {
         }
         // 4 旧版收藏页面
         if (nowURL.pathname === '/bookmark.php') {
-            if (parseInt(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].getURLSearchField(nowURL.href, 'untagged')) === 1) {
+            if (parseInt(_utils_Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].getURLSearchField(nowURL.href, 'untagged')) === 1) {
                 // 旧版 “未分类” tag 是个特殊标记
                 // https://www.pixiv.net/bookmark.php?untagged=1
                 return '未分類';
@@ -11786,12 +11791,12 @@ class Tools {
         }
         // 默认情况，从查询字符串里获取，如下网址
         // https://www.pixiv.net/bookmark.php?tag=R-18
-        return decodeURIComponent(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].getURLSearchField(nowURL.href, 'tag'));
+        return decodeURIComponent(_utils_Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].getURLSearchField(nowURL.href, 'tag'));
     }
     /**从 url 里获取 artworks id。如果查找不到 id 会返回空字符串 */
     static getIllustId(url) {
-        if (_PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].list.Unlisted) {
-            return _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].getURLPathField(window.location.pathname, 'unlisted');
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Unlisted) {
+            return _utils_Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].getURLPathField(window.location.pathname, 'unlisted');
         }
         const str = url || window.location.href;
         let test = null;
@@ -11813,8 +11818,8 @@ class Tools {
     /**从 url 里获取 novel id。如果查找不到 id 会返回空字符串 */
     // https://www.pixiv.net/novel/show.php?id=12771688
     static getNovelId(url) {
-        if (_PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].list.Unlisted) {
-            return _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].getURLPathField(window.location.pathname, 'unlisted');
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Unlisted) {
+            return _utils_Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].getURLPathField(window.location.pathname, 'unlisted');
         }
         const str = url || window.location.href;
         let result = '';
@@ -11894,6 +11899,12 @@ class Tools {
         throw new Error('getUserId failed!');
     }
     static getLoggedUserID() {
+        if (_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].mobile) {
+            const match = document.head.innerHTML.match(/'user_id', (\d*)/);
+            if (match && match.length > 1) {
+                return match[1];
+            }
+        }
         // 在新版页面里，从 head 里的 script 里匹配用户 id
         const match = document.head.innerHTML.match(/'user_id', "(\d*)"/);
         if (match && match.length > 1) {
@@ -11974,7 +11985,7 @@ class Tools {
         textFlag && e.setAttribute('data-xztext', textFlag);
         titleFlag && e.setAttribute('data-xztitle', titleFlag);
         this.useSlot(slot, e);
-        _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].register(e);
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].register(e);
         return e;
     }
     /**获取页面标题 */
@@ -12216,7 +12227,7 @@ class Tools {
                 }
                 else if (target === 'img') {
                     const url = URL.createObjectURL(blob);
-                    const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].loadImg(url);
+                    const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].loadImg(url);
                     result.push(img);
                 }
                 ++i;
@@ -12246,7 +12257,7 @@ class Tools {
      */
     static getAIGeneratedMark(aiType) {
         if (aiType === 2) {
-            return this.AIMark.get(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].htmlLangType);
+            return this.AIMark.get(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].htmlLangType);
         }
         return '';
     }

@@ -1,3 +1,4 @@
+import { Config } from './Config'
 import { ArtworkData, NovelData } from './crawl/CrawlResult'
 import { lang } from './Lang'
 import { pageType } from './PageType'
@@ -222,6 +223,13 @@ class Tools {
   }
 
   static getLoggedUserID() {
+    if (Config.mobile) {
+      const match = document.head.innerHTML.match(/'user_id', (\d*)/)
+      if (match && match.length > 1) {
+        return match[1]
+      }
+    }
+
     // 在新版页面里，从 head 里的 script 里匹配用户 id
     const match = document.head.innerHTML.match(/'user_id', "(\d*)"/)
     if (match && match.length > 1) {
