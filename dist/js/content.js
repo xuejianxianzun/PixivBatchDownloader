@@ -400,6 +400,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./WorkThumbnail */ "./src/ts/WorkThumbnail.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -407,19 +409,26 @@ __webpack_require__.r(__webpack_exports__);
 class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__["WorkThumbnail"] {
     constructor() {
         super();
-        this.selectors = [
-            'div[width="136"]',
-            'div[width="131"]',
-            'div[width="288"]',
-            'div[width="184"]',
-            'div[width="112"]',
-            'div[width="104"]',
-            'div[width="90"]',
-            'div[width="118"]',
-            '._work',
-            '._work.item',
-            'li>div>div:first-child',
-        ];
+        this.selectors = [];
+        if (_Config__WEBPACK_IMPORTED_MODULE_3__["Config"].mobile) {
+            // 移动端的作品选择器就这一个
+            this.selectors = ['.works-item-illust'];
+        }
+        else {
+            this.selectors = [
+                'div[width="136"]',
+                'div[width="131"]',
+                'div[width="288"]',
+                'div[width="184"]',
+                'div[width="112"]',
+                'div[width="104"]',
+                'div[width="90"]',
+                'div[width="118"]',
+                '._work',
+                '._work.item',
+                'li>div>div:first-child',
+            ];
+        }
         this.findThumbnail(document.body);
         this.createObserver(document.body);
     }
@@ -441,9 +450,19 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__["Work
             const elements = parent.querySelectorAll(selector);
             for (const el of elements) {
                 const id = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].findWorkIdFromElement(el, 'illusts');
-                // 只有查找到作品 id 时才会执行回调函数
-                if (id) {
+                if (_Config__WEBPACK_IMPORTED_MODULE_3__["Config"].mobile) {
+                    // 在移动端页面里，即使没有找到作品 id，也要执行回调函数
+                    // 因为此时可能内部的 A 标签还未生成，所以会获取不到 id
+                    // 而之后下载器只会监听新添加的缩略图容器，不会监听内部添加 A 标签的事件，
+                    // 所以以后也不会监听到它。那么只能先为它绑定事件，
+                    // 等到点击下载按钮时再尝试获取 id
                     this.bindEvents(el, id);
+                }
+                else {
+                    // 在桌面版页面里，只有查找到作品 id 时才会执行回调函数
+                    if (id) {
+                        this.bindEvents(el, id);
+                    }
                 }
             }
         }
@@ -1214,7 +1233,7 @@ var Colors;
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Config", function() { return Config; });
-// 储存一些配置
+// 定义一些常量
 // 用户不可以修改这里的配置
 class Config {
 }
@@ -1228,7 +1247,7 @@ Config.retryMax = 10;
 Config.worksTypeName = ['Illustration', 'Manga', 'Ugoira', 'Novel'];
 /**程序名 */
 Config.appName = 'Powerful Pixiv Downloader';
-/**下载器设置在 localStorage 里储存时的 name */
+/**下载器储存设置时使用的 key name */
 Config.settingStoreName = 'xzSetting';
 /**按收藏数量过滤作品时，预设的最大收藏数量 */
 Config.BookmarkCountLimit = 9999999;
@@ -8625,6 +8644,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
 /* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowHelp */ "./src/ts/ShowHelp.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -8697,6 +8718,9 @@ class PreviewWork {
                 this.swicthImage();
             }
         };
+        if (_Config__WEBPACK_IMPORTED_MODULE_15__["Config"].mobile) {
+            return;
+        }
         this.createElements();
         this.bindEvents();
     }
@@ -10045,6 +10069,35 @@ new SetUserName();
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _ShowDownloadBtnOnThumbOnDesktop__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumbOnDesktop */ "./src/ts/ShowDownloadBtnOnThumbOnDesktop.ts");
+/* harmony import */ var _ShowDownloadBtnOnThumbOnMobile__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumbOnMobile */ "./src/ts/ShowDownloadBtnOnThumbOnMobile.ts");
+
+
+
+// 在图片作品的缩略图上显示下载按钮，点击按钮会直接下载这个作品
+class ShowDownloadBtnOnThumb {
+    constructor() {
+        _Config__WEBPACK_IMPORTED_MODULE_0__["Config"].mobile
+            ? new _ShowDownloadBtnOnThumbOnMobile__WEBPACK_IMPORTED_MODULE_2__["ShowDownloadBtnOnThumbOnMobile"]()
+            : new _ShowDownloadBtnOnThumbOnDesktop__WEBPACK_IMPORTED_MODULE_1__["ShowDownloadBtnOnThumbOnDesktop"]();
+    }
+}
+new ShowDownloadBtnOnThumb();
+
+
+/***/ }),
+
+/***/ "./src/ts/ShowDownloadBtnOnThumbOnDesktop.ts":
+/*!***************************************************!*\
+  !*** ./src/ts/ShowDownloadBtnOnThumbOnDesktop.ts ***!
+  \***************************************************/
+/*! exports provided: ShowDownloadBtnOnThumbOnDesktop */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ShowDownloadBtnOnThumbOnDesktop", function() { return ShowDownloadBtnOnThumbOnDesktop; });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
@@ -10052,6 +10105,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -10060,7 +10115,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 // 在图片作品的缩略图上显示下载按钮，点击按钮会直接下载这个作品
-class ShowDownloadBtnOnThumb {
+class ShowDownloadBtnOnThumbOnDesktop {
     constructor() {
         this.btnId = 'downloadBtnOnThumb';
         this.btnSize = 32;
@@ -10068,6 +10123,10 @@ class ShowDownloadBtnOnThumb {
         this.hiddenBtnTimer = 0; // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
         this.hiddenBtnDelay = 100;
         this.doNotShowBtn = false; // 当点击了按钮后，进入此状态，此状态中不会显示按钮
+        if (_Config__WEBPACK_IMPORTED_MODULE_7__["Config"].mobile) {
+            return;
+        }
+        // 在桌面端，只有一个下载按钮，当鼠标经过作品缩略图时才会显示下载按钮
         this.addBtn();
         this.bindEvents();
     }
@@ -10075,6 +10134,7 @@ class ShowDownloadBtnOnThumb {
     addBtn() {
         const btn = document.createElement('button');
         btn.id = this.btnId;
+        btn.classList.add(this.btnId);
         btn.innerHTML = `
     <svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-download"></use>
@@ -10097,7 +10157,7 @@ class ShowDownloadBtnOnThumb {
         this.btn.addEventListener('mouseleave', () => {
             this.hiddenBtn();
         });
-        // 点击按钮时初始化图片查看器
+        // 点击按钮时发送下载任务
         this.btn.addEventListener('click', (ev) => {
             this.hiddenBtnNow();
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('clickBtnOnThumb');
@@ -10159,7 +10219,114 @@ class ShowDownloadBtnOnThumb {
         this.btn.style.display = 'none';
     }
 }
-new ShowDownloadBtnOnThumb();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/ShowDownloadBtnOnThumbOnMobile.ts":
+/*!**************************************************!*\
+  !*** ./src/ts/ShowDownloadBtnOnThumbOnMobile.ts ***!
+  \**************************************************/
+/*! exports provided: ShowDownloadBtnOnThumbOnMobile */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ShowDownloadBtnOnThumbOnMobile", function() { return ShowDownloadBtnOnThumbOnMobile; });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+
+
+
+
+
+
+
+
+// 在图片作品的缩略图上显示下载按钮，点击按钮会直接下载这个作品
+class ShowDownloadBtnOnThumbOnMobile {
+    constructor() {
+        this.className = 'downloadBtnOnThumb';
+        this.size = 32;
+        // 在移动端，由于没有 mouseover 事件，
+        // 所以只能每个作品缩略图分别添加一个下载按钮
+        this.bindEvents();
+    }
+    bindEvents() {
+        _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__["artworkThumbnail"].onFound((el, id) => {
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showDownloadBtnOnThumb) {
+                return;
+            }
+            const btn = this.addBtn(el);
+            btn.addEventListener('click', (ev) => {
+                if (!id) {
+                    id = _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].findWorkIdFromElement(el, 'illusts');
+                }
+                if (!id) {
+                    return;
+                }
+                const IDData = {
+                    type: 'illusts',
+                    id: id,
+                };
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlIdList', [IDData]);
+                // 下载时不显示下载面板
+                _store_States__WEBPACK_IMPORTED_MODULE_3__["states"].quickCrawl = true;
+                _Toast__WEBPACK_IMPORTED_MODULE_4__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_5__["lang"].transl('_已发送下载请求'), {
+                    bgColor: _Colors__WEBPACK_IMPORTED_MODULE_6__["Colors"].bgBlue,
+                });
+            });
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'showDownloadBtnOnThumb') {
+                this.toggleShowBtns(data.value);
+                this.setPageCountStyle(data.value);
+            }
+        });
+    }
+    addBtn(target) {
+        const btn = document.createElement('button');
+        btn.classList.add(this.className);
+        btn.innerHTML = `
+    <svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-download"></use>
+</svg>`;
+        btn.style.left = 'auto';
+        btn.style.right = '0px';
+        btn.style.top = '0px';
+        btn.style.display = 'flex';
+        target.appendChild(btn);
+        return btn;
+    }
+    setPageCountStyle(value) {
+        // 显示按钮时，让缩略图的页数文字下移到按钮下面，否则页数会被按钮遮挡
+        if (value && !this.styleElement) {
+            this.styleElement = document.createElement('style');
+            this.styleElement.innerText = `.status-page-count-container {margin-top: ${this.size}px;}`;
+            document.body.append(this.styleElement);
+        }
+        if (!value && this.styleElement) {
+            this.styleElement.remove();
+            this.styleElement = undefined;
+        }
+    }
+    toggleShowBtns(value) {
+        const btns = document.body.querySelectorAll(`.${this.className}`);
+        for (const btn of btns) {
+            ;
+            btn.style.display = value ? 'flex' : 'none';
+        }
+    }
+}
+
 
 
 /***/ }),
@@ -10377,6 +10544,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
 /* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ShowHelp */ "./src/ts/ShowHelp.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -10440,6 +10609,9 @@ class ShowOriginSizeImage {
         this.cancelReadyShow = (ev) => {
             window.clearTimeout(this.showTimer);
         };
+        if (_Config__WEBPACK_IMPORTED_MODULE_11__["Config"].mobile) {
+            return;
+        }
         this.createElements();
         this.bindEvents();
     }
@@ -10829,6 +11001,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ImageViewer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ImageViewer */ "./src/ts/ImageViewer.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -10842,6 +11016,9 @@ class ShowZoomBtnOnThumb {
         this.hiddenBtnDelay = 100;
         this.currentWorkId = ''; // 显示放大按钮时，保存触发事件的作品 id
         this.doNotShowBtn = false; // 当点击了放大按钮后，进入此状态，此状态中不会显示放大按钮
+        if (_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].mobile) {
+            return;
+        }
         this.addBtn();
         this.bindEvents();
     }
@@ -12096,6 +12273,7 @@ class WorkThumbnail {
         /**作品缩略图的选择器 */
         // 选择器的元素必须含有作品的超链接（超链接可以在这个元素上，也可以在这个元素的子元素上）
         this.selectors = [];
+        this.foundCallback = [];
         this.enterCallback = [];
         this.leaveCallback = [];
         this.clickCallback = [];
@@ -12129,6 +12307,7 @@ class WorkThumbnail {
         // 添加标记的目的是为了减少事件重复绑定的情况发生
         ;
         el.dataset.mouseover = '1';
+        this.foundCallback.forEach((cb) => cb(el, id));
         el.addEventListener('mouseenter', (ev) => {
             this.enterCallback.forEach((cb) => cb(el, id, ev));
         });
@@ -12162,6 +12341,18 @@ class WorkThumbnail {
             childList: true,
             subtree: true,
         });
+    }
+    /**添加下载器寻找到一个作品缩略图时的回调。
+     * 注意：这个回调只会执行一次，因为它不是根据用户操作的事件触发的。
+     *
+     * 回调函数会接收到 2 个参数：
+     *
+     * @el 作品缩略图的元素
+     *
+     * @id 作品 id（在移动端页面里，此时传递的 id 可能是空字符串 ''）
+     */
+    onFound(cb) {
+        this.foundCallback.push(cb);
     }
     /**添加鼠标进入作品缩略图时的回调。
      *
@@ -12248,7 +12439,6 @@ class WorkToolBar {
         this.bindEvents();
     }
     async init() {
-        console.log('init');
         this.toolbar = undefined;
         this.pixivBMKDiv = undefined;
         this.likeBtn = undefined;
@@ -27700,7 +27890,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "states", function() { return states; });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 
-// 储存需要跨模块使用的、会变化的状态
+// 储存下载器内部产生的、会变化的状态
 // 这里的状态不需要持久化保存
 // 状态的值通常只由单一的模块修改
 class States {

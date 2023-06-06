@@ -4,6 +4,7 @@ abstract class WorkThumbnail {
   // 选择器的元素必须含有作品的超链接（超链接可以在这个元素上，也可以在这个元素的子元素上）
   protected selectors: string[] = []
 
+  protected foundCallback: Function[] = []
   protected enterCallback: Function[] = []
   protected leaveCallback: Function[] = []
   protected clickCallback: Function[] = []
@@ -47,6 +48,8 @@ abstract class WorkThumbnail {
     // 添加标记的目的是为了减少事件重复绑定的情况发生
     ;(el as HTMLElement).dataset.mouseover = '1'
 
+    this.foundCallback.forEach((cb) => cb(el, id))
+
     el.addEventListener('mouseenter', (ev) => {
       this.enterCallback.forEach((cb) => cb(el, id, ev))
     })
@@ -84,6 +87,19 @@ abstract class WorkThumbnail {
       childList: true,
       subtree: true,
     })
+  }
+
+  /**添加下载器寻找到一个作品缩略图时的回调。
+   * 注意：这个回调只会执行一次，因为它不是根据用户操作的事件触发的。
+   *
+   * 回调函数会接收到 2 个参数：
+   *
+   * @el 作品缩略图的元素
+   *
+   * @id 作品 id（在移动端页面里，此时传递的 id 可能是空字符串 ''）
+   */
+  public onFound(cb: Function) {
+    this.foundCallback.push(cb)
   }
 
   /**添加鼠标进入作品缩略图时的回调。

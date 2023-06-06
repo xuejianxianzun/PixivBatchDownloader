@@ -18,7 +18,6 @@ class WorkToolBar {
   private timer: number = 0 // 获取元素用的定时器
 
   private async init() {
-    console.log('init')
     this.toolbar = undefined
     this.pixivBMKDiv = undefined
     this.likeBtn = undefined

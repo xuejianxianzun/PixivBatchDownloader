@@ -2138,7 +2138,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
 }
 #zoomBtnOnThumb {
   position: absolute;
-  z-index: 99999;
+  z-index: 99998;
   left: 0px;
   top: 0px;
   width: 32px;
@@ -2159,7 +2159,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
 #zoomBtnOnThumb:hover {
   opacity: 0.8;
 }
-#downloadBtnOnThumb {
+.downloadBtnOnThumb {
   position: absolute;
   z-index: 99999;
   left: 0px;
@@ -2179,7 +2179,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   overflow: hidden;
   font-size: 22px;
 }
-#downloadBtnOnThumb:hover {
+.downloadBtnOnThumb:hover {
   opacity: 0.8;
 }
 .xzBGLayer {
