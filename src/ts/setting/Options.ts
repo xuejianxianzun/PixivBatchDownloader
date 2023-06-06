@@ -87,7 +87,7 @@ class Options {
 
     // 在移动端某些设置不会生效，所以隐藏它们
     // 主要是和作品缩略图相关的一些设置
-    if(Config.mobile){
+    if (Config.mobile) {
       this.hideOption([18, 68, 55, 71, 62, 40])
     }
   }

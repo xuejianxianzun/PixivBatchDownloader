@@ -911,7 +911,8 @@ class CenterPanel {
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
-        <button class="textButton has_tip centerWrap_top_btn centerWrap_close" data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板">
+        <button class="textButton ${!_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].mobile && 'has_tip'} centerWrap_top_btn centerWrap_close" ${!_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].mobile &&
+            'data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板"'}>
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
         </svg>
@@ -2756,7 +2757,7 @@ class HighlightFollowingUsers {
                 }
             }
         }
-        this.highlightUserName();
+        this.handleUserHomePage();
     }
     startMutationObserver() {
         const observer = new MutationObserver((mutations) => {
@@ -2796,14 +2797,19 @@ class HighlightFollowingUsers {
             subtree: true,
         });
     }
-    /**在用户主页里，高亮用户名（因为用户名没有超链接，需要单独处理） */
-    highlightUserName() {
+    handleUserHomePage() {
         if (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.UserHome) {
+            // 在用户主页里，高亮用户名（因为用户名没有超链接，需要单独处理）
             const userID = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getUserId();
             const flag = this.following.includes(userID);
             const h1 = document.querySelector('h1');
             if (h1) {
                 h1.classList[flag ? 'add' : 'remove'](this.highlightClassName);
+            }
+            // 取消“主页”按钮的高亮，它具有用户主页链接，但它不是用户名
+            const homeBtn = document.querySelector(`a[aria-current]`);
+            if (homeBtn) {
+                homeBtn.classList.remove(this.highlightClassName);
             }
         }
     }
@@ -22727,10 +22733,10 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask1', () => {
-            this.crawlData(105780000, 108404581);
+            this.crawlData(108410000, 108785615);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__["secretSignal"].register('ppdtask2', () => {
-            this.crawlData(19400000, 19944063, 'novels');
+            this.crawlData(19950000, 20026437, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -30357,6 +30363,14 @@ const novelData = [
     [19920002, 1684590680000],
     [19930000, 1684699592000],
     [19940001, 1684851189000],
+    [19950000, 1685017223000],
+    [19960001, 1685169953000],
+    [19970000, 1685278382000],
+    [19980000, 1685433556000],
+    [19990000, 1685564102000],
+    [20000000, 1685716288000],
+    [20010003, 1685847463000],
+    [20020000, 1685964724000],
 ];
 
 
@@ -41214,6 +41228,44 @@ const illustsData = [
     [108380000, 1684843200000],
     [108390000, 1684864320000],
     [108400000, 1684911720000],
+    [108410000, 1684935720000],
+    [108420001, 1684969800000],
+    [108430003, 1685009100000],
+    [108440000, 1685028480000],
+    [108450001, 1685073960000],
+    [108460000, 1685102820000],
+    [108470000, 1685123760000],
+    [108480000, 1685164620000],
+    [108490000, 1685188800000],
+    [108500000, 1685208300000],
+    [108510000, 1685248020000],
+    [108520000, 1685271240000],
+    [108530001, 1685286360000],
+    [108540000, 1685326740000],
+    [108550000, 1685358480000],
+    [108560000, 1685376480000],
+    [108570000, 1685421420000],
+    [108580001, 1685449800000],
+    [108590000, 1685474580000],
+    [108600000, 1685519820000],
+    [108610000, 1685540700000],
+    [108620000, 1685570040000],
+    [108630001, 1685610000000],
+    [108640000, 1685630400000],
+    [108650000, 1685668560000],
+    [108660000, 1685701020000],
+    [108670000, 1685719140000],
+    [108680000, 1685759160000],
+    [108690000, 1685785800000],
+    [108700000, 1685803920000],
+    [108710000, 1685838180000],
+    [108720000, 1685865720000],
+    [108730001, 1685883720000],
+    [108740001, 1685905860000],
+    [108750000, 1685950980000],
+    [108760000, 1685972520000],
+    [108770000, 1686003060000],
+    [108780000, 1686043020000],
 ];
 
 

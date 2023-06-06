@@ -293,7 +293,7 @@ class HighlightFollowingUsers {
       }
     }
 
-    this.highlightUserName()
+    this.handleUserHomePage()
   }
 
   private startMutationObserver() {
@@ -334,14 +334,20 @@ class HighlightFollowingUsers {
     })
   }
 
-  /**在用户主页里，高亮用户名（因为用户名没有超链接，需要单独处理） */
-  private highlightUserName() {
+  private handleUserHomePage() {
     if (pageType.type === pageType.list.UserHome) {
+      // 在用户主页里，高亮用户名（因为用户名没有超链接，需要单独处理）
       const userID = Tools.getUserId()
       const flag = this.following.includes(userID)
       const h1 = document.querySelector('h1') as HTMLHeadingElement
       if (h1) {
         h1.classList[flag ? 'add' : 'remove'](this.highlightClassName)
+      }
+
+      // 取消“主页”按钮的高亮，它具有用户主页链接，但它不是用户名
+      const homeBtn = document.querySelector(`a[aria-current]`)
+      if (homeBtn) {
+        homeBtn.classList.remove(this.highlightClassName)
       }
     }
   }
