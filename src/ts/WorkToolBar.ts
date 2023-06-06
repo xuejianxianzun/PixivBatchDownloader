@@ -18,6 +18,7 @@ class WorkToolBar {
   private timer: number = 0 // 获取元素用的定时器
 
   private async init() {
+    console.log('init')
     this.toolbar = undefined
     this.pixivBMKDiv = undefined
     this.likeBtn = undefined
@@ -79,21 +80,23 @@ class WorkToolBar {
 
   private async getElementsOnMobile() {
     // 获取工具栏
-    const toolbar = document.querySelector('.work-interactions') as HTMLDivElement
-    if (!toolbar || toolbar.classList.contains(this.flag)) {
+    const toolbar = document.querySelector(
+      '.work-interactions'
+    ) as HTMLDivElement
+    if (!toolbar) {
       return
     }
-
-    toolbar.classList.add(this.flag)
     this.toolbar = toolbar
 
+    // 在移动端不要给工具栏添加自定义 class 名，因为切换页面时元素没重新生成，class 还在
+
     const divs = toolbar.querySelectorAll('div')
-    if(divs.length!==4){
+    if (divs.length !== 4) {
       return
     }
     // 只在正常模式下（有 4 个按钮）时工作
     // 如果在自己的作品页面里，就只有 1 个分享按钮
-    
+
     // 获取心形收藏按钮的 div
     this.pixivBMKDiv = divs[1]
 

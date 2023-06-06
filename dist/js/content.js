@@ -10949,8 +10949,10 @@ new ShowZoomBtnOnThumb();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "theme", function() { return theme; });
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 // 下载器的主题默认跟随页面主题。如果用户设置了下载器主题，则不再跟随页面主题
@@ -10976,13 +10978,13 @@ class Theme {
             ['dark', 'dark'],
         ]);
         this.elList = []; // 保存已注册的元素
-        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].isPixiv()) {
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].isPixiv()) {
             this.bindEvents();
         }
     }
     bindEvents() {
         // 主题设置变化时修改主题
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name === 'theme') {
                 this.settingTheme = data.value;
@@ -10996,48 +10998,76 @@ class Theme {
     }
     // 查找含有 pixiv 主题标记的元素，并监听其变化
     findFlag() {
-        const el = document.querySelector(this.selector);
-        if (el) {
-            window.clearInterval(this.timer);
-            this.setTheme(this.getThemeFromHtml());
-            // 监听标记元素的 textContent 变化
-            const ob = new MutationObserver((mutationsList) => {
-                for (const item of mutationsList) {
-                    if (item.type === 'characterData') {
-                        const flag = this.getThemeFromHtml();
-                        this.setTheme(flag);
-                        break;
+        if (_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].mobile) {
+            const el = document.body;
+            if (el) {
+                window.clearInterval(this.timer);
+                this.setTheme(this.getThemeFromHtml());
+                // 监听 body 的 class 变化
+                const ob = new MutationObserver(() => {
+                    const flag = this.getThemeFromHtml();
+                    this.setTheme(flag);
+                });
+                ob.observe(el, {
+                    attributes: true,
+                    attributeFilter: ['class'],
+                });
+            }
+        }
+        else {
+            const el = document.querySelector(this.selector);
+            if (el) {
+                window.clearInterval(this.timer);
+                this.setTheme(this.getThemeFromHtml());
+                // 监听标记元素的 textContent 变化
+                const ob = new MutationObserver((mutationsList) => {
+                    for (const item of mutationsList) {
+                        if (item.type === 'characterData') {
+                            const flag = this.getThemeFromHtml();
+                            this.setTheme(flag);
+                            break;
+                        }
                     }
-                }
-            });
-            ob.observe(el, {
-                characterData: true,
-                subtree: true,
-            });
+                });
+                ob.observe(el, {
+                    characterData: true,
+                    subtree: true,
+                });
+            }
         }
     }
     getThemeFromHtml() {
-        console.log('getThemeFromHtml');
-        // 从含有 pixiv 主题标记的元素里获取主题
-        const el = document.querySelector(this.selector);
-        if (el) {
-            const pageTheme = this.htmlFlagMap.get(el.textContent);
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('getPageTheme', pageTheme);
-            return pageTheme || this.defaultTheme;
+        if (_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].mobile) {
+            // 移动端需要使用不同的方法来获取主题
+            const dark = document.body.classList.contains('dark');
+            const pageTheme = dark ? 'dark' : 'white';
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('getPageTheme', pageTheme);
+            return pageTheme;
         }
-        // 根据 html 元素的背景颜色判断
-        // "rgb(245, 245, 245)"
-        // "rgb(0, 0, 0)"
-        const htmlBG = getComputedStyle(document.documentElement)['backgroundColor'];
-        if (htmlBG) {
-            if (htmlBG.includes('rgb(2')) {
-                return 'white';
+        else {
+            // 桌面端
+            // 从含有 pixiv 主题标记的元素里获取主题
+            const el = document.querySelector(this.selector);
+            if (el) {
+                const pageTheme = this.htmlFlagMap.get(el.textContent);
+                _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('getPageTheme', pageTheme);
+                return pageTheme || this.defaultTheme;
             }
-            else if (htmlBG.includes('rgb(0')) {
-                return 'dark';
+            // 根据 html 元素的背景颜色判断
+            // 此方法不适用于移动端，因为移动端的 html 背景色总是 'rgba(0, 0, 0, 0)'
+            // "rgb(245, 245, 245)"
+            // "rgb(0, 0, 0)"
+            const htmlBG = getComputedStyle(document.documentElement)['backgroundColor'];
+            if (htmlBG) {
+                if (htmlBG.includes('rgb(2')) {
+                    return 'white';
+                }
+                else if (htmlBG.includes('rgb(0')) {
+                    return 'dark';
+                }
             }
+            return this.defaultTheme;
         }
-        return this.defaultTheme;
     }
     setTheme(flag) {
         // 如果用户设置了下载器主题，则始终使用下载器主题（忽略页面主题）
@@ -11068,7 +11098,7 @@ class Theme {
     }
     // 把元素注册到本组件里
     register(el) {
-        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].isPixiv()) {
+        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].isPixiv()) {
             return;
         }
         this.elList.push(el);
@@ -12218,6 +12248,7 @@ class WorkToolBar {
         this.bindEvents();
     }
     async init() {
+        console.log('init');
         this.toolbar = undefined;
         this.pixivBMKDiv = undefined;
         this.likeBtn = undefined;
@@ -12269,11 +12300,11 @@ class WorkToolBar {
     async getElementsOnMobile() {
         // 获取工具栏
         const toolbar = document.querySelector('.work-interactions');
-        if (!toolbar || toolbar.classList.contains(this.flag)) {
+        if (!toolbar) {
             return;
         }
-        toolbar.classList.add(this.flag);
         this.toolbar = toolbar;
+        // 在移动端不要给工具栏添加自定义 class 名，因为切换页面时元素没重新生成，class 还在
         const divs = toolbar.querySelectorAll('div');
         if (divs.length !== 4) {
             return;
@@ -12281,7 +12312,6 @@ class WorkToolBar {
         // 只在正常模式下（有 4 个按钮）时工作
         // 如果在自己的作品页面里，就只有 1 个分享按钮
         // 获取心形收藏按钮的 div
-        // 心形收藏按钮是第 2 个元素
         this.pixivBMKDiv = divs[1];
         // 获取点赞按钮
         this.likeBtn = divs[0];
@@ -23380,7 +23410,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
 /* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
 /* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 // 作品页面内的快速收藏功能
+
 
 
 
@@ -23420,22 +23452,47 @@ class QuickBookmark {
         this.workData = await this.getWorkData();
         this.isBookmarked = !!this.workData.body.bookmarkData;
         // 监听心形收藏按钮从未收藏到收藏的变化
-        // 没有收藏时，心形按钮的第一个子元素是 button。收藏之后，button 被移除，然后添加一个 a 标签
         if (!this.isBookmarked) {
-            this.ob = new MutationObserver((mutations) => {
-                for (const change of mutations) {
-                    if (change.type === 'childList') {
-                        const added = change.addedNodes;
-                        if (added.length > 0 && added[0].nodeName === 'A') {
-                            this.isBookmarked = true;
-                            this.redQuickBookmarkBtn();
+            if (!_Config__WEBPACK_IMPORTED_MODULE_10__["Config"].mobile) {
+                // 桌面端
+                // 没有收藏时，心形按钮的第一个子元素是 button。收藏之后，button 被移除，然后添加一个 a 标签
+                this.ob = new MutationObserver((mutations) => {
+                    for (const change of mutations) {
+                        if (change.type === 'childList') {
+                            const added = change.addedNodes;
+                            if (added.length > 0 && added[0].nodeName === 'A') {
+                                this.isBookmarked = true;
+                                this.redQuickBookmarkBtn();
+                            }
                         }
                     }
+                });
+                this.ob.observe(pixivBMKDiv, {
+                    childList: true,
+                });
+            }
+            else {
+                // 移动端
+                // 点击心形按钮收藏作品后，不会添加 a 标签，也不会跳转到编辑收藏的页面，仅仅会改变 path 的 fill 颜色。
+                const path = pixivBMKDiv.querySelector('path');
+                if (!path) {
+                    return;
                 }
-            });
-            this.ob.observe(pixivBMKDiv, {
-                childList: true,
-            });
+                this.ob = new MutationObserver((mutations) => {
+                    if (path.getAttribute('fill') === '#FF4060') {
+                        this.isBookmarked = true;
+                        this.redQuickBookmarkBtn();
+                    }
+                    else {
+                        this.isBookmarked = false;
+                        this.resetQuickBookmarkBtn();
+                    }
+                });
+                this.ob.observe(path, {
+                    attributes: true,
+                    attributeFilter: ['fill'],
+                });
+            }
         }
         // 添加快速收藏按钮
         this.btn = this.createBtn();
@@ -23483,7 +23540,10 @@ class QuickBookmark {
     async addBookmark(pixivBMKDiv, likeBtn) {
         const type = this.isNovel ? 'novels' : 'illusts';
         const id = this.isNovel ? _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getNovelId() : _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getIllustId();
-        this.like(type, id, likeBtn);
+        // 移动端不自动点赞和设置点赞按钮的颜色，因为切换作品后元素没有重新生成，样式会依旧存在
+        if (!_Config__WEBPACK_IMPORTED_MODULE_10__["Config"].mobile) {
+            this.like(type, id, likeBtn);
+        }
         if (this.isBookmarked) {
             return;
         }
@@ -23492,7 +23552,10 @@ class QuickBookmark {
             // 收藏成功之后
             this.isBookmarked = true;
             this.redQuickBookmarkBtn();
-            this.redPixivBMKDiv(pixivBMKDiv);
+            // 移动端不改变收藏按钮的颜色以及设置超链接，因为切换作品后元素没有重新生成，样式和超链接会依旧存在
+            if (!_Config__WEBPACK_IMPORTED_MODULE_10__["Config"].mobile) {
+                this.redPixivBMKDiv(pixivBMKDiv);
+            }
         }
     }
     // 点赞这个作品
@@ -23512,6 +23575,11 @@ class QuickBookmark {
     redQuickBookmarkBtn() {
         this.btn.classList.add(this.redClass);
         this.btn.href = this.getEditBookmarkLink();
+    }
+    // 如果这个作品从已收藏变成未收藏，则改变快速收藏按钮
+    resetQuickBookmarkBtn() {
+        this.btn.classList.remove(this.redClass);
+        this.btn.href = 'javascript:void(0)';
     }
     // 把心形收藏按钮从未收藏变成已收藏
     redPixivBMKDiv(pixivBMKDiv) {
