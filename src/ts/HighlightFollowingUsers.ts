@@ -344,8 +344,9 @@ class HighlightFollowingUsers {
         h1.classList[flag ? 'add' : 'remove'](this.highlightClassName)
       }
 
-      // 取消“主页”按钮的高亮，它具有用户主页链接，但它不是用户名
-      const homeBtn = document.querySelector(`a[aria-current]`)
+      // 取消用户主页里“主页”按钮的高亮，它具有用户主页链接，但它不是用户名
+      const selector = Config.mobile ? '.v-nav-tabs a' : 'nav a'
+      const homeBtn = document.querySelector(selector)
       if (homeBtn) {
         homeBtn.classList.remove(this.highlightClassName)
       }

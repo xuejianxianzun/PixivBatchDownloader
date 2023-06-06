@@ -2807,7 +2807,8 @@ class HighlightFollowingUsers {
                 h1.classList[flag ? 'add' : 'remove'](this.highlightClassName);
             }
             // 取消“主页”按钮的高亮，它具有用户主页链接，但它不是用户名
-            const homeBtn = document.querySelector(`a[aria-current]`);
+            const selector = _Config__WEBPACK_IMPORTED_MODULE_9__["Config"].mobile ? '.v-nav-tabs a' : 'nav a';
+            const homeBtn = document.querySelector(selector);
             if (homeBtn) {
                 homeBtn.classList.remove(this.highlightClassName);
             }
