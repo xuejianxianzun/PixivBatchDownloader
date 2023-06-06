@@ -7,6 +7,7 @@ import { Config } from './Config'
 class ArtworkThumbnail extends WorkThumbnail {
   constructor() {
     super()
+
     if (Config.mobile) {
       // 移动端的作品选择器就这一个
       this.selectors = ['.works-item-illust']

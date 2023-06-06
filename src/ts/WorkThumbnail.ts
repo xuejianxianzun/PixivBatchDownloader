@@ -70,9 +70,6 @@ abstract class WorkThumbnail {
     el.addEventListener(
       Config.mobile ? 'touchend' : 'click',
       (ev) => {
-        if (!id) {
-          id = Tools.findWorkIdFromElement(el as HTMLElement, 'illusts')
-        }
         this.clickCallback.forEach((cb) => cb(el, id, ev))
       },
       false
@@ -81,11 +78,8 @@ abstract class WorkThumbnail {
     // 查找作品缩略图右下角的收藏按钮
     const bmkBtn = this.findBookmarkBtn(el as HTMLElement)
     if (!!bmkBtn) {
-      bmkBtn.addEventListener('click', (ev) => {
-        if (!id) {
-          id = Tools.findWorkIdFromElement(el as HTMLElement, 'illusts')
-        }
-        this.bookmarkBtnCallback.forEach((cb) => cb(id, bmkBtn, ev))
+      bmkBtn.addEventListener(Config.mobile ? 'touchend' : 'click', (ev) => {
+        this.bookmarkBtnCallback.forEach((cb) => cb(el, id, bmkBtn, ev))
       })
     }
   }
@@ -165,7 +159,9 @@ abstract class WorkThumbnail {
 
   /**添加鼠标点击缩略图里的收藏按钮时的回调。
    *
-   * 回调函数会接收到 3 个参数：
+   * 回调函数会接收到 4 个参数：
+   *
+   * @el 作品缩略图的元素
    *
    * @id 作品 id
    *

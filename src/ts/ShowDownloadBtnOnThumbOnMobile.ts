@@ -29,7 +29,7 @@ class ShowDownloadBtnOnThumbOnMobile {
       const btn = this.addBtn(el)
       btn.addEventListener('click', (ev) => {
         if (!id) {
-          id = Tools.findWorkIdFromElement(el as HTMLElement, 'illusts')
+          id = Tools.findWorkIdFromElement(el, 'illusts')
         }
         if (!id) {
           return
