@@ -9609,6 +9609,7 @@ class SelectWork {
         }
         // 阻止默认事件，否则会进入作品页面，导致无法在当前页面继续选择
         ev.preventDefault();
+        ev.stopPropagation();
         this.addId(el, id, type);
     }
     clickElement(el, ev) {
@@ -12299,6 +12300,7 @@ class WorkThumbnail {
         }
     }
     /**为作品缩略图绑定事件 */
+    // 注意：在移动端页面，此时获取的 id 可能是空字符串。可以在必要的时候再次尝试获取 id
     bindEvents(el, id) {
         // 如果这个缩略图元素、或者它的直接父元素、或者它的直接子元素已经有标记，就跳过它
         // mouseover 这个标记名称不可以修改，因为它在 Pixiv Previewer 里硬编码了
@@ -12324,9 +12326,12 @@ class WorkThumbnail {
         el.addEventListener('mouseleave', (ev) => {
             this.leaveCallback.forEach((cb) => cb(el, ev));
         });
-        el.addEventListener('click', (ev) => {
+        el.addEventListener(_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].mobile ? 'touchend' : 'click', (ev) => {
+            if (!id) {
+                id = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].findWorkIdFromElement(el, 'illusts');
+            }
             this.clickCallback.forEach((cb) => cb(el, id, ev));
-        });
+        }, false);
         // 查找作品缩略图右下角的收藏按钮
         const bmkBtn = this.findBookmarkBtn(el);
         if (!!bmkBtn) {

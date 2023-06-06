@@ -1,5 +1,5 @@
-import { Config } from "./Config"
-import { Tools } from "./Tools"
+import { Config } from './Config'
+import { Tools } from './Tools'
 
 // 查找作品的缩略图，当鼠标进入、移出时等动作触发时执行回调函数
 abstract class WorkThumbnail {
@@ -18,22 +18,23 @@ abstract class WorkThumbnail {
 
   /**查找缩略图右下角的收藏按钮 */
   protected findBookmarkBtn(el: HTMLElement): HTMLElement | null {
-    if(Config.mobile){
+    if (Config.mobile) {
       // 移动端的收藏按钮不是 button，其容器是 div.bookmark
       return el.querySelector('.bookmark')
-    }else{
-    // 桌面端的缩略图容器里只有 1 个 button，就是收藏按钮。目前还没有发现有多个 button 的情况
-    if (el.querySelector('button svg[width="32"]')) {
-      return el.querySelector('button') as HTMLButtonElement
-    }
+    } else {
+      // 桌面端的缩略图容器里只有 1 个 button，就是收藏按钮。目前还没有发现有多个 button 的情况
+      if (el.querySelector('button svg[width="32"]')) {
+        return el.querySelector('button') as HTMLButtonElement
+      }
 
-    // 旧版缩略图里，缩略图元素是 div._one-click-bookmark （例如：各种排行榜页面）
-    return el.querySelector('div._one-click-bookmark')
+      // 旧版缩略图里，缩略图元素是 div._one-click-bookmark （例如：各种排行榜页面）
+      return el.querySelector('div._one-click-bookmark')
     }
   }
 
   /**为作品缩略图绑定事件 */
-  protected bindEvents(el: HTMLElement, id: string) {
+  // 注意：在移动端页面，此时获取的 id 可能是空字符串。可以在执行回调时尝试再次获取 id
+  protected bindEvents(el: HTMLElement, id: string | '') {
     // 如果这个缩略图元素、或者它的直接父元素、或者它的直接子元素已经有标记，就跳过它
     // mouseover 这个标记名称不可以修改，因为它在 Pixiv Previewer 里硬编码了
     // https://github.com/xuejianxianzun/PixivBatchDownloader/issues/212
@@ -66,15 +67,22 @@ abstract class WorkThumbnail {
       this.leaveCallback.forEach((cb) => cb(el, ev))
     })
 
-    el.addEventListener('click', (ev) => {
-      this.clickCallback.forEach((cb) => cb(el, id, ev))
-    })
+    el.addEventListener(
+      Config.mobile ? 'touchend' : 'click',
+      (ev) => {
+        if (!id) {
+          id = Tools.findWorkIdFromElement(el as HTMLElement, 'illusts')
+        }
+        this.clickCallback.forEach((cb) => cb(el, id, ev))
+      },
+      false
+    )
 
     // 查找作品缩略图右下角的收藏按钮
     const bmkBtn = this.findBookmarkBtn(el as HTMLElement)
     if (!!bmkBtn) {
       bmkBtn.addEventListener('click', (ev) => {
-        if(!id){
+        if (!id) {
           id = Tools.findWorkIdFromElement(el as HTMLElement, 'illusts')
         }
         this.bookmarkBtnCallback.forEach((cb) => cb(id, bmkBtn, ev))

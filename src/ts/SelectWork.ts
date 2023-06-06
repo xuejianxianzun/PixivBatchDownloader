@@ -330,6 +330,7 @@ class SelectWork {
 
     // 阻止默认事件，否则会进入作品页面，导致无法在当前页面继续选择
     ev.preventDefault()
+    ev.stopPropagation()
     this.addId(el, id, type)
   }
 
