@@ -891,6 +891,13 @@ export const formHtml = `<form class="settingForm">
       <span data-xztext="_增强"></span>
     </p>
     
+    <p class="option" data-no="999">
+    <span class="settingNameStyle1">
+    <span>把图片显示为<span class="key">灰色</span></span>
+    <input type="checkbox" name="coverImage" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
     <p class="option" data-no="84">
     <span class="has_tip settingNameStyle1" data-xztip="_高亮关注的用户的说明">
     <span data-xztext="_高亮关注的用户"></span>

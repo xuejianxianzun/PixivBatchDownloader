@@ -121,6 +121,7 @@ class FormSettings {
       'UnknownAI',
       'setFileDownloadOrder',
       'highlightFollowingUsers',
+      'coverImage',
     ],
     text: [
       'setWantPage',

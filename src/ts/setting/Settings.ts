@@ -252,6 +252,7 @@ interface XzSetting {
   tipAltQToQuickDownload: boolean
   tipBookmarkButton: boolean
   highlightFollowingUsers: boolean
+  coverImage: boolean
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -461,6 +462,7 @@ class Settings {
     tipAltQToQuickDownload: true,
     tipBookmarkButton: true,
     highlightFollowingUsers: true,
+    coverImage: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -703,11 +705,11 @@ class Settings {
     }
 
     // 对于一些不合法的值，重置为默认值
-    if (key === 'firstFewImages' && value < 1) {
+    if (key === 'firstFewImages' && (value as number) < 1) {
       value = this.defaultSettings[key]
     }
 
-    if (key === 'fileNameLengthLimit' && value < 1) {
+    if (key === 'fileNameLengthLimit' && (value as number) < 1) {
       value = this.defaultSettings[key]
     }
 
@@ -715,7 +717,7 @@ class Settings {
       value = this.defaultSettings[key]
     }
 
-    if (key === 'previewResultLimit' && value < 0) {
+    if (key === 'previewResultLimit' && (value as number) < 0) {
       value = 999999
     }
 

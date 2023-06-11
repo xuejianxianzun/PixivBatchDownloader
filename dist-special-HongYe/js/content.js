@@ -3379,6 +3379,73 @@ new HighlightFollowingUsers();
 
 /***/ }),
 
+/***/ "./src/ts/ImageToGray.ts":
+/*!*******************************!*\
+  !*** ./src/ts/ImageToGray.ts ***!
+  \*******************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
+// 把图片变成灰色，不显示图片内容避免被别人发现在看 H
+class ImageToGray {
+    constructor() {
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.getPageTheme, (ev) => {
+            if (ev.detail.data) {
+                this.updateStyle();
+            }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'coverImage') {
+                this.updateStyle();
+            }
+        });
+    }
+    updateStyle() {
+        _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].coverImage ? this.setStyle() : this.removeStyle();
+    }
+    setStyle() {
+        this.removeStyle();
+        this.style = document.createElement('style');
+        // 本来想使用 img::before 在图片上覆盖一层元素，但是 img 不能有子元素，所以 ::before 无效
+        // 之后改为使用滤镜，还更简单了
+        // https://developer.mozilla.org/zh-CN/docs/Web/CSS/filter
+        // brightness 滤镜为 0 可以把图片变成纯黑；值为 100 大致是全白的，但是一些颜色还是会显示出来，不完美
+        // brightness() 函数将线性乘法器应用于输入图像，使其看起来或多或少地变得明亮。值为 0% 将创建全黑图像。值为 100% 会使输入保持不变。其他值是效果的线性乘数。如果值大于 100% 提供更明亮的结果。
+        // 另一种方案是用 contrast(0) 滤镜把图片都显示灰色
+        // contrast() 函数可调整输入图像的对比度。值是 0% 的话，图像会全黑。值是 100%，图像不变。值可以超过 100%，意味着会运用更低的对比。若没有设置值，默认是 1。
+        this.style.innerHTML = `
+      /* 让图片还有一些背景图片变成灰色 */
+      img, .sc-x1dm5r-0, .jSwXpE, .gLVttt, .hmCglJ, .sc-mfqjj-5, .fpdtUH, .gOATqM, .sc-k3uf3r-2{
+        filter: contrast(0);
+      }
+      /* 让作品缩略图左上角的 R-18 角标里的文字不显示 */
+      .sc-1ovn4zb-0, .efxZOo, .bfWaOT{
+        color: rgb(255, 64, 96);
+      }
+      .xxxxx{
+        background: transparent;
+      }`;
+        document.body.append(this.style);
+    }
+    removeStyle() {
+        this.style && this.style.remove();
+    }
+}
+new ImageToGray();
+
+
+/***/ }),
+
 /***/ "./src/ts/ImageViewer.ts":
 /*!*******************************!*\
   !*** ./src/ts/ImageViewer.ts ***!
@@ -13347,12 +13414,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
 /* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
 /* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
-/* harmony import */ var _CheckTag__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./CheckTag */ "./src/ts/CheckTag.ts");
-/* harmony import */ var _CheckUser__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./CheckUser */ "./src/ts/CheckUser.ts");
+/* harmony import */ var _ImageToGray__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./ImageToGray */ "./src/ts/ImageToGray.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _CheckTag__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./CheckTag */ "./src/ts/CheckTag.ts");
+/* harmony import */ var _CheckUser__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./CheckUser */ "./src/ts/CheckUser.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -13363,6 +13431,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 
@@ -26316,6 +26385,13 @@ const formHtml = `<form class="settingForm">
       <span data-xztext="_增强"></span>
     </p>
     
+    <p class="option" data-no="999">
+    <span class="settingNameStyle1">
+    <span>把图片显示为<span class="key">灰色</span></span>
+    <input type="checkbox" name="coverImage" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
     <p class="option" data-no="84">
     <span class="has_tip settingNameStyle1" data-xztip="_高亮关注的用户的说明">
     <span data-xztext="_高亮关注的用户"></span>
@@ -26740,6 +26816,7 @@ class FormSettings {
                 'UnknownAI',
                 'setFileDownloadOrder',
                 'highlightFollowingUsers',
+                'coverImage',
             ],
             text: [
                 'setWantPage',
@@ -27713,6 +27790,7 @@ class Settings {
             tipAltQToQuickDownload: true,
             tipBookmarkButton: true,
             highlightFollowingUsers: true,
+            coverImage: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
