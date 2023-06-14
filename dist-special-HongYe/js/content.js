@@ -12466,10 +12466,12 @@ const token = new Token();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tools", function() { return Tools; });
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -12515,7 +12517,7 @@ class Tools {
         }
         // 4 旧版收藏页面
         if (nowURL.pathname === '/bookmark.php') {
-            if (parseInt(_utils_Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].getURLSearchField(nowURL.href, 'untagged')) === 1) {
+            if (parseInt(_utils_Utils__WEBPACK_IMPORTED_MODULE_4__["Utils"].getURLSearchField(nowURL.href, 'untagged')) === 1) {
                 // 旧版 “未分类” tag 是个特殊标记
                 // https://www.pixiv.net/bookmark.php?untagged=1
                 return '未分類';
@@ -12537,12 +12539,12 @@ class Tools {
         }
         // 默认情况，从查询字符串里获取，如下网址
         // https://www.pixiv.net/bookmark.php?tag=R-18
-        return decodeURIComponent(_utils_Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].getURLSearchField(nowURL.href, 'tag'));
+        return decodeURIComponent(_utils_Utils__WEBPACK_IMPORTED_MODULE_4__["Utils"].getURLSearchField(nowURL.href, 'tag'));
     }
     /**从 url 里获取 artworks id。如果查找不到 id 会返回空字符串 */
     static getIllustId(url) {
-        if (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Unlisted) {
-            return _utils_Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].getURLPathField(window.location.pathname, 'unlisted');
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].list.Unlisted) {
+            return _utils_Utils__WEBPACK_IMPORTED_MODULE_4__["Utils"].getURLPathField(window.location.pathname, 'unlisted');
         }
         const str = url || window.location.href;
         let test = null;
@@ -12564,8 +12566,8 @@ class Tools {
     /**从 url 里获取 novel id。如果查找不到 id 会返回空字符串 */
     // https://www.pixiv.net/novel/show.php?id=12771688
     static getNovelId(url) {
-        if (_PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Unlisted) {
-            return _utils_Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].getURLPathField(window.location.pathname, 'unlisted');
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].list.Unlisted) {
+            return _utils_Utils__WEBPACK_IMPORTED_MODULE_4__["Utils"].getURLPathField(window.location.pathname, 'unlisted');
         }
         const str = url || window.location.href;
         let result = '';
@@ -12645,7 +12647,7 @@ class Tools {
         throw new Error('getUserId failed!');
     }
     static getLoggedUserID() {
-        if (_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].mobile) {
+        if (_Config__WEBPACK_IMPORTED_MODULE_1__["Config"].mobile) {
             const match = document.head.innerHTML.match(/'user_id', (\d*)/);
             if (match && match.length > 1) {
                 return match[1];
@@ -12731,7 +12733,7 @@ class Tools {
         textFlag && e.setAttribute('data-xztext', textFlag);
         titleFlag && e.setAttribute('data-xztitle', titleFlag);
         this.useSlot(slot, e);
-        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].register(e);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(e);
         return e;
     }
     /**获取页面标题 */
@@ -12973,7 +12975,7 @@ class Tools {
                 }
                 else if (target === 'img') {
                     const url = URL.createObjectURL(blob);
-                    const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].loadImg(url);
+                    const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__["Utils"].loadImg(url);
                     result.push(img);
                 }
                 ++i;
@@ -13003,9 +13005,21 @@ class Tools {
      */
     static getAIGeneratedMark(aiType) {
         if (aiType === 2) {
-            return this.AIMark.get(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].htmlLangType);
+            return this.AIMark.get(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].htmlLangType);
         }
         return '';
+    }
+    static async getUserName(uid) {
+        return new Promise(async (resolve, reject) => {
+            const profile = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getUserProfile(uid.toString()).catch((err) => {
+                console.log(err);
+                return reject(`ERROR: userID ${uid}, status ${err.status}<br><a href="https://www.pixiv.net/users/${uid}" target="_blank">https://www.pixiv.net/users/${uid}</a>`);
+            });
+            if (profile && profile.body.name) {
+                return resolve(profile.body.name);
+            }
+            return resolve('');
+        });
     }
 }
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
@@ -13082,6 +13096,119 @@ class UnBookmarkWorks {
 }
 const unBookmarkWorks = new UnBookmarkWorks();
 
+
+
+/***/ }),
+
+/***/ "./src/ts/UpdateUserName.ts":
+/*!**********************************!*\
+  !*** ./src/ts/UpdateUserName.ts ***!
+  \**********************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
+
+class UpdateUserName {
+    constructor() {
+        this.startKey = 'updateUserNameStart';
+        this.finishKey = 'updateUserNameFinish';
+        // 更新间隔为一天
+        this.interval = 24 * 60 * 60 * 1000;
+        window.setTimeout(() => {
+            this.checkNeedUpdate();
+        }, 2000);
+    }
+    checkNeedUpdate() {
+        // 如果从未更新过，则开始更新
+        const start = Number.parseInt(localStorage.getItem(this.startKey) || '0');
+        if (!start) {
+            return this.update();
+        }
+        // 如果有上次开始更新的时间，则检查结束时间
+        const end = Number.parseInt(localStorage.getItem(this.finishKey) || '0');
+        const now = new Date().getTime();
+        if (!end) {
+            // 如果没有结束时间，并且距离上次开始时间已经过去了半小时，则视为上次更新异常终止
+            // 需要再次开始更新
+            if (now - start < 30 * 60 * 1000) {
+                return this.update();
+            }
+            // 如果距离上次更新还没过去半小时，则什么都不做。目前来看 300 个画师可以在 10 分钟之内更新完成。
+        }
+        else {
+            if (end > start) {
+                // 如果结束时间大于开始时间，说明上次更新已完成
+                // 检查距离上次结束时间是否已经过去了一天，如果过去了一天，则开始更新
+                if (now - end > this.interval) {
+                    return this.update();
+                }
+            }
+            else {
+                // 反之，如果结束时间小于开始时间，说明开始过新的更新，那么判断距离新的更新是否已经过去了半小时
+                // 如果过去了半小时，说明上次更新异常终止
+                if (now - start < 30 * 60 * 1000) {
+                    return this.update();
+                }
+            }
+        }
+    }
+    async update() {
+        _Log__WEBPACK_IMPORTED_MODULE_0__["log"].log('开始更新画师名称');
+        localStorage.setItem(this.startKey, new Date().getTime().toString());
+        // 在检查过程中，如果请求出错（通常是画师 403 或 404 了），则会显示对应的日志进行提示
+        // 不过不会自动删除对应的画师。如需删除需要手动操作
+        // pixiv 里用户 403 的错误文本是："找不到该用户"
+        // pixiv 里用户 404 的错误文本是："抱歉，您当前所寻找的个用户已经离开了pixiv, 或者这ID不存在。"
+        let change1 = 0;
+        for (const item of _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].DoNotDownloadLastFewImagesList) {
+            try {
+                const name = await _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getUserName(item.uid);
+                if (name && name !== item.user) {
+                    _Log__WEBPACK_IMPORTED_MODULE_0__["log"].warning(`${item.user} -> ${name}`);
+                    item.user = name;
+                    change1 = change1 + 1;
+                }
+            }
+            catch (error) {
+                _Log__WEBPACK_IMPORTED_MODULE_0__["log"].error(error);
+            }
+        }
+        if (change1) {
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])('DoNotDownloadLastFewImagesList', _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].DoNotDownloadLastFewImagesList);
+        }
+        let change2 = 0;
+        for (const item of _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].blockTagsForSpecificUserList) {
+            try {
+                const name = await _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getUserName(item.uid);
+                if (name && name !== item.user) {
+                    _Log__WEBPACK_IMPORTED_MODULE_0__["log"].warning(`${item.user} -> ${name}`);
+                    item.user = name;
+                    change2 = change1 + 1;
+                }
+            }
+            catch (error) {
+                _Log__WEBPACK_IMPORTED_MODULE_0__["log"].error(error);
+            }
+        }
+        if (change2) {
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])('blockTagsForSpecificUserList', _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].blockTagsForSpecificUserList);
+        }
+        localStorage.setItem(this.finishKey, new Date().getTime().toString());
+        _Log__WEBPACK_IMPORTED_MODULE_0__["log"].success(`画师名称更新完成`);
+        const count = change1 + change2;
+        if (count > 0) {
+            _Log__WEBPACK_IMPORTED_MODULE_0__["log"].log(`本次更新中有 ${count} 个画师名字发生变化，已更新`, 2);
+        }
+    }
+}
+new UpdateUserName();
 
 
 /***/ }),
@@ -13415,12 +13542,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
 /* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
 /* harmony import */ var _ImageToGray__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./ImageToGray */ "./src/ts/ImageToGray.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
-/* harmony import */ var _CheckTag__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./CheckTag */ "./src/ts/CheckTag.ts");
-/* harmony import */ var _CheckUser__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./CheckUser */ "./src/ts/CheckUser.ts");
+/* harmony import */ var _UpdateUserName__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./UpdateUserName */ "./src/ts/UpdateUserName.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _CheckTag__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./CheckTag */ "./src/ts/CheckTag.ts");
+/* harmony import */ var _CheckUser__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./CheckUser */ "./src/ts/CheckUser.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -13431,6 +13559,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 

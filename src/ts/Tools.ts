@@ -1,3 +1,4 @@
+import { API } from './API'
 import { Config } from './Config'
 import { ArtworkData, NovelData } from './crawl/CrawlResult'
 import { lang } from './Lang'
@@ -661,6 +662,21 @@ class Tools {
       return this.AIMark.get(lang.htmlLangType)
     }
     return ''
+  }
+
+  static async getUserName(uid: number): Promise<string> {
+    return new Promise(async (resolve, reject) => {
+      const profile = await API.getUserProfile(uid.toString()).catch((err) => {
+        console.log(err)
+        return reject(
+          `ERROR: userID ${uid}, status ${err.status}<br><a href="https://www.pixiv.net/users/${uid}" target="_blank">https://www.pixiv.net/users/${uid}</a>`
+        )
+      })
+      if (profile && profile.body.name) {
+        return resolve(profile.body.name)
+      }
+      return resolve('')
+    })
   }
 }
 
