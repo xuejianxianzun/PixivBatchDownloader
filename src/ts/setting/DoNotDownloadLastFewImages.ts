@@ -6,6 +6,7 @@ import { settings, setSetting } from './Settings'
 import { theme } from '../Theme'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
+import { log } from '../Log'
 
 // 针对某些用户,不下载他们的多图作品的最后几张图片
 class DoNotDownloadLastFewImages {
@@ -265,6 +266,9 @@ class DoNotDownloadLastFewImages {
     return new Promise(async (resolve) => {
       const profile = await API.getUserProfile(uid.toString()).catch((err) => {
         console.log(err)
+        log.error(
+          `ERROR: userID ${uid}, status ${err.status}<br><a href="https://www.pixiv.net/users/${uid}" target="_blank">https://www.pixiv.net/users/${uid}</a>`
+        )
       })
       if (profile && profile.body.name) {
         return resolve(profile.body.name)
