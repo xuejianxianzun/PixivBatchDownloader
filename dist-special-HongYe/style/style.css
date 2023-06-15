@@ -457,6 +457,12 @@
   background: -webkit-linear-gradient(top, #47b4ff 0%, #027fd2 100%);
   font-size: 17px;
 }
+#crawlCurrentBtn {
+  top: 27%;
+  background: #0096fa;
+  background: -webkit-linear-gradient(top, #1ceb3e 0%, #02b116 100%);
+  font-size: 20px;
+}
 #selectAllBtn {
   top: 21%;
   background: #0096fa;

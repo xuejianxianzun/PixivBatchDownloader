@@ -13140,7 +13140,7 @@ class UpdateUserName {
             if (now - start > 30 * 60 * 1000) {
                 return this.update();
             }
-            // 如果距离上次更新还没过去半小时，则什么都不做。目前来看 300 个画师可以在 10 分钟之内更新完成。
+            // 如果距离上次更新还没过去半小时，则什么都不做。目前来看 300 个画师可以在 2 分钟之内更新完成。
         }
         else {
             if (end > start) {
@@ -13522,37 +13522,38 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ReplaceSquareThumb__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ReplaceSquareThumb */ "./src/ts/ReplaceSquareThumb.ts");
 /* harmony import */ var _InitPage__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./InitPage */ "./src/ts/InitPage.ts");
 /* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
-/* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
-/* harmony import */ var _download_Resume__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./download/Resume */ "./src/ts/download/Resume.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_15__);
-/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
-/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
-/* harmony import */ var _DoubleWidthThumb__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./DoubleWidthThumb */ "./src/ts/DoubleWidthThumb.ts");
-/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
-/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
-/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
-/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
-/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
-/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
-/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
-/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
-/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _download_ShowStatusOnTitle__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/ShowStatusOnTitle */ "./src/ts/download/ShowStatusOnTitle.ts");
-/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
-/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
-/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
-/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
-/* harmony import */ var _ImageToGray__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./ImageToGray */ "./src/ts/ImageToGray.ts");
-/* harmony import */ var _UpdateUserName__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./UpdateUserName */ "./src/ts/UpdateUserName.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
-/* harmony import */ var _CheckTag__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./CheckTag */ "./src/ts/CheckTag.ts");
-/* harmony import */ var _CheckUser__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./CheckUser */ "./src/ts/CheckUser.ts");
+/* harmony import */ var _crawlArtworkPage_CrawlCurrent__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./crawlArtworkPage/CrawlCurrent */ "./src/ts/crawlArtworkPage/CrawlCurrent.ts");
+/* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
+/* harmony import */ var _download_Resume__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./download/Resume */ "./src/ts/download/Resume.ts");
+/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
+/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_16__);
+/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
+/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
+/* harmony import */ var _DoubleWidthThumb__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./DoubleWidthThumb */ "./src/ts/DoubleWidthThumb.ts");
+/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
+/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
+/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
+/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
+/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
+/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
+/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
+/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
+/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
+/* harmony import */ var _download_ShowStatusOnTitle__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ShowStatusOnTitle */ "./src/ts/download/ShowStatusOnTitle.ts");
+/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
+/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
+/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
+/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
+/* harmony import */ var _ImageToGray__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./ImageToGray */ "./src/ts/ImageToGray.ts");
+/* harmony import */ var _UpdateUserName__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./UpdateUserName */ "./src/ts/UpdateUserName.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _CheckTag__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./CheckTag */ "./src/ts/CheckTag.ts");
+/* harmony import */ var _CheckUser__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ./CheckUser */ "./src/ts/CheckUser.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -13563,6 +13564,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 
@@ -14369,6 +14371,151 @@ class VipSearchOptimize {
 }
 const vipSearchOptimize = new VipSearchOptimize();
 
+
+
+/***/ }),
+
+/***/ "./src/ts/crawlArtworkPage/CrawlCurrent.ts":
+/*!*************************************************!*\
+  !*** ./src/ts/crawlArtworkPage/CrawlCurrent.ts ***!
+  \*************************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
+
+
+
+
+
+
+
+// 抓取当前显示/查看的这一张图片
+class CrawlCurrent {
+    constructor() {
+        this.show = true; // 是否显示
+        // 指定在哪些页面类型里启用
+        this.enablePageType = [
+            _PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].list.Artwork,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].list.Unlisted,
+        ];
+        this.addBtn();
+        this.setVisible();
+        this.bindEvents();
+    }
+    addBtn() {
+        // 在右侧添加快速抓取按钮
+        this.btn = document.createElement('button');
+        this.btn.classList.add('rightButton');
+        this.btn.id = 'crawlCurrentBtn';
+        this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-C_square"></use>
+</svg>`;
+        document.body.append(this.btn);
+    }
+    bindEvents() {
+        this.btn.addEventListener('click', () => {
+            this.sendDownload();
+        }, false);
+        window.addEventListener('keydown', (ev) => {
+            if (ev.code === 'KeyC' && !ev.shiftKey && !ev.altKey && !ev.ctrlKey) {
+                // 在作品页面内按 C 时，Pixiv 会把焦点定位到评论输入框里，阻止此行为
+                // 但是如果用户在可输入区域里打字时按 C 则不应执行动作，所以还要检查焦点元素
+                if (document.activeElement) {
+                    const nodeName = document.activeElement.nodeName;
+                    if (nodeName !== 'INPUT' && nodeName !== 'TEXTAREA') {
+                        // 如果焦点元素不是输入框，则阻止 C 定位到评论区，并下载
+                        ev.stopPropagation();
+                        this.sendDownload();
+                    }
+                }
+            }
+        }, true);
+        // 页面类型改变时设置按钮的显示隐藏
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, () => {
+            this.setVisible();
+        });
+    }
+    sendDownload() {
+        // 首先判断是否处于预览作品的状态
+        // 因为预览作品时也使用了快捷键 C，所以如果正在预览，则不执行本模块的下载，以免造成同时下载 2 个文件的情况
+        const previewWorkWrap = document.querySelector('#previewWorkWrap');
+        if (previewWorkWrap && previewWorkWrap.style.display === 'block') {
+            return;
+        }
+        let id = 0;
+        let no = 0;
+        // 判断是否打开了图片查看器，如果打开了则下载图片查看器里的图片
+        const viewerImg = document.querySelector('.viewer-canvas img');
+        if (viewerImg && viewerImg.checkVisibility() && viewerImg.src) {
+            // 获取 id
+            const matchID = viewerImg.src.match(/(\d+)_p/);
+            if (matchID && matchID[1]) {
+                id = Number.parseInt(matchID[1]);
+            }
+            // 获取页码
+            const matchNO = viewerImg.src.match(/_p(\d)\./);
+            if (matchNO && matchNO[1]) {
+                no = Number.parseInt(matchNO[1]);
+            }
+        }
+        else {
+            // 如果没有打开图片查看器，则下载当前页面所显示的图片
+            if (this.show) {
+                // 获取 id
+                id = Number.parseInt(_Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].getIllustId(window.location.href));
+                // 获取页码
+                const span = document.querySelector('div[role="presentation"] span');
+                if (!span) {
+                    no = 0;
+                }
+                else {
+                    // 获取多图右上角显示的图片进度，较小的那个数字就是页码
+                    const text = span.textContent || '';
+                    const match = text.match(/(\d+)\/(\d+)/);
+                    // 对于页码如 1/4，匹配结果：
+                    // ['1/4', '1', '4']
+                    if (match && match.length === 3) {
+                        const number1 = Number.parseInt(match[1]);
+                        const number2 = Number.parseInt(match[2]);
+                        const min = Math.min(number1, number2);
+                        // 因为右上角的页码是从 1 开始的，所以需要 -1
+                        no = min - 1;
+                    }
+                }
+            }
+            else {
+                // 没有显示预览作品或者图片查看器，也不在作品页面里，则不能下载
+                return;
+            }
+        }
+        _store_States__WEBPACK_IMPORTED_MODULE_4__["states"].quickCrawl = true;
+        _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].setDownloadOnlyPart(id, [no]);
+        let idData = {
+            type: 'illusts',
+            id: id.toString(),
+        };
+        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('crawlIdList', [idData]);
+        _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已发送下载请求'), {
+            bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__["Colors"].bgBlue,
+        });
+    }
+    setVisible() {
+        this.show = this.enablePageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].type);
+        this.btn.style.display = this.show ? 'flex' : 'none';
+    }
+}
+new CrawlCurrent();
 
 
 /***/ }),
