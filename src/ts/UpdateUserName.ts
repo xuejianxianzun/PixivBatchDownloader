@@ -27,10 +27,10 @@ class UpdateUserName {
     if (!end) {
       // 如果没有结束时间，并且距离上次开始时间已经过去了半小时，则视为上次更新异常终止
       // 需要再次开始更新
-      if (now - start < 30 * 60 * 1000) {
+      if (now - start > 30 * 60 * 1000) {
         return this.update()
       }
-      // 如果距离上次更新还没过去半小时，则什么都不做。目前来看 300 个画师可以在 10 分钟之内更新完成。
+      // 如果距离上次更新还没过去半小时，则什么都不做。目前来看 300 个画师可以在 2 分钟之内更新完成。
     } else {
       if (end > start) {
         // 如果结束时间大于开始时间，说明上次更新已完成
@@ -41,7 +41,7 @@ class UpdateUserName {
       } else {
         // 反之，如果结束时间小于开始时间，说明开始过新的更新，那么判断距离新的更新是否已经过去了半小时
         // 如果过去了半小时，说明上次更新异常终止
-        if (now - start < 30 * 60 * 1000) {
+        if (now - start > 30 * 60 * 1000) {
           return this.update()
         }
       }
@@ -56,6 +56,8 @@ class UpdateUserName {
     // 不过不会自动删除对应的画师。如需删除需要手动操作
     // pixiv 里用户 403 的错误文本是："找不到该用户"
     // pixiv 里用户 404 的错误文本是："抱歉，您当前所寻找的个用户已经离开了pixiv, 或者这ID不存在。"
+    const errorLog: string[] = []
+
     let change1 = 0
     for (const item of settings.DoNotDownloadLastFewImagesList) {
       try {
@@ -67,7 +69,7 @@ class UpdateUserName {
           change1 = change1 + 1
         }
       } catch (error) {
-        log.error(error as string)
+        errorLog.push(error as string)
       }
     }
     if (change1) {
@@ -88,7 +90,7 @@ class UpdateUserName {
           change2 = change1 + 1
         }
       } catch (error) {
-        log.error(error as string)
+        errorLog.push(error as string)
       }
     }
     if (change2) {
@@ -103,6 +105,10 @@ class UpdateUserName {
     const count = change1 + change2
     if (count > 0) {
       log.log(`本次更新中有 ${count} 个画师名字发生变化，已更新`, 2)
+    }
+
+    for (const error of errorLog) {
+      log.error(error)
     }
   }
 }

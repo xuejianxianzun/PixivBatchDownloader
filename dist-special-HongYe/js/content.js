@@ -13137,7 +13137,7 @@ class UpdateUserName {
         if (!end) {
             // 如果没有结束时间，并且距离上次开始时间已经过去了半小时，则视为上次更新异常终止
             // 需要再次开始更新
-            if (now - start < 30 * 60 * 1000) {
+            if (now - start > 30 * 60 * 1000) {
                 return this.update();
             }
             // 如果距离上次更新还没过去半小时，则什么都不做。目前来看 300 个画师可以在 10 分钟之内更新完成。
@@ -13153,7 +13153,7 @@ class UpdateUserName {
             else {
                 // 反之，如果结束时间小于开始时间，说明开始过新的更新，那么判断距离新的更新是否已经过去了半小时
                 // 如果过去了半小时，说明上次更新异常终止
-                if (now - start < 30 * 60 * 1000) {
+                if (now - start > 30 * 60 * 1000) {
                     return this.update();
                 }
             }
@@ -13166,6 +13166,7 @@ class UpdateUserName {
         // 不过不会自动删除对应的画师。如需删除需要手动操作
         // pixiv 里用户 403 的错误文本是："找不到该用户"
         // pixiv 里用户 404 的错误文本是："抱歉，您当前所寻找的个用户已经离开了pixiv, 或者这ID不存在。"
+        const errorLog = [];
         let change1 = 0;
         for (const item of _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].DoNotDownloadLastFewImagesList) {
             try {
@@ -13177,7 +13178,7 @@ class UpdateUserName {
                 }
             }
             catch (error) {
-                _Log__WEBPACK_IMPORTED_MODULE_0__["log"].error(error);
+                errorLog.push(error);
             }
         }
         if (change1) {
@@ -13194,7 +13195,7 @@ class UpdateUserName {
                 }
             }
             catch (error) {
-                _Log__WEBPACK_IMPORTED_MODULE_0__["log"].error(error);
+                errorLog.push(error);
             }
         }
         if (change2) {
@@ -13205,6 +13206,9 @@ class UpdateUserName {
         const count = change1 + change2;
         if (count > 0) {
             _Log__WEBPACK_IMPORTED_MODULE_0__["log"].log(`本次更新中有 ${count} 个画师名字发生变化，已更新`, 2);
+        }
+        for (const error of errorLog) {
+            _Log__WEBPACK_IMPORTED_MODULE_0__["log"].error(error);
         }
     }
 }
@@ -25091,6 +25095,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+
 
 
 
@@ -25301,6 +25307,7 @@ class DoNotDownloadLastFewImages {
         return new Promise(async (resolve) => {
             const profile = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getUserProfile(uid.toString()).catch((err) => {
                 console.log(err);
+                _Log__WEBPACK_IMPORTED_MODULE_8__["log"].error(`ERROR: userID ${uid}, status ${err.status}<br><a href="https://www.pixiv.net/users/${uid}" target="_blank">https://www.pixiv.net/users/${uid}</a>`);
             });
             if (profile && profile.body.name) {
                 return resolve(profile.body.name);
