@@ -7610,6 +7610,14 @@ const langText = {
         '모바일 장치에서 사용자 경험을 최적화합니다.',
         'Оптимизируйте взаимодействие с пользователем на мобильных устройствах.',
     ],
+    _导出CSV文件的提示: [
+        'CSV 文件的可读性更好，但它不能用于恢复（导入）抓取结果。',
+        'CSV 檔案的可讀性更好，但它不能用於恢復（匯入）抓取結果。',
+        'A CSV file is more readable, but it cannot be used to restore (import) crawl results.',
+        'CSV ファイルは読みやすいですが、クロール結果の復元 (インポート) には使用できません。',
+        'CSV 파일은 더 읽기 쉽지만 크롤링 결과를 복원(가져오기)하는 데 사용할 수 없습니다.',
+        'CSV-файл более удобен для чтения, но его нельзя использовать для восстановления (импорта) результатов сканирования.',
+    ],
 };
 
 
@@ -19752,6 +19760,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/CreateCSV */ "./src/ts/utils/CreateCSV.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
+
 
 
 
@@ -19930,6 +19940,7 @@ class ExportResult2CSV {
         let csvName = `result-${_utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getPageTitle())}-${_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].crawlCompleteTime.getTime()}.csv`;
         _utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].downloadFile(csvURL, csvName);
         _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_导出成功'));
+        _ShowHelp__WEBPACK_IMPORTED_MODULE_9__["showHelp"].show('tipCSV', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_导出CSV文件的提示'));
     }
 }
 new ExportResult2CSV();
@@ -27032,6 +27043,7 @@ class Settings {
             tipAltQToQuickDownload: true,
             tipBookmarkButton: true,
             highlightFollowingUsers: true,
+            tipCSV: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
