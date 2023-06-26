@@ -8,6 +8,26 @@ TODO:日语文本需要加粗显示关键字，但是我不懂日语，所以现
 - 导入作者列表进行抓取
 - 搜索页面的横图没能占据2倍宽度？ https://www.pixiv.net/tags/C.C.%2010000users%E5%85%A5%E3%82%8A/artworks?s_mode=s_tag
 
+## next
+
+### 优化：当翻译后的标签是英文时，优先使用原标签
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/313
+
+Pixiv 会把有些中文标签翻译为英文，这导致用户使用 `{tags_transl_only}` 保存翻译后的标签时，反而会得到英文，例如：
+
+```
+原神 Genshin Impact
+神里綾華 Ayaka Kamisato
+八重神子 Guuji Yae
+明日方舟 Arknights
+史尔特尔 Surtr
+```
+
+现在进行了优化，如果中文标签被翻译成了英文，那么下载器会保存中文标签。
+
+但是 `フラミンゴ flamingo`不会使用原标签，因为原标签里没有中文。此时依然会使用翻译后的英文。
+
 ## 15.7.0 2023/06/06
 
 ### 优化了在移动端浏览器的使用体验

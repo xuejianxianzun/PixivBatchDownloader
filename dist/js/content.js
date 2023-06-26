@@ -2806,7 +2806,7 @@ class HighlightFollowingUsers {
             if (h1) {
                 h1.classList[flag ? 'add' : 'remove'](this.highlightClassName);
             }
-            // 取消“主页”按钮的高亮，它具有用户主页链接，但它不是用户名
+            // 取消用户主页里“主页”按钮的高亮，它具有用户主页链接，但它不是用户名
             const selector = _Config__WEBPACK_IMPORTED_MODULE_9__["Config"].mobile ? '.v-nav-tabs a' : 'nav a';
             const homeBtn = document.querySelector(selector);
             if (homeBtn) {
@@ -12039,20 +12039,28 @@ class Tools {
             // 添加原版 tag
             tags.push(tagData.tag);
             // 添加翻译的 tag
+            // 缺省使用原标签
+            let useOriginTag = true;
             if (this.isArtworkTags(tagData)) {
+                // 不管是什么语种的翻译结果，都保存在 en 属性里
                 if (tagData.translation && tagData.translation.en) {
-                    // 不管是什么语种的翻译结果，都保存在 en 属性里
-                    tagsTransl.push(tagData.translation.en);
-                }
-                else {
-                    // 如果没有翻译，则把原 tag 保存到翻译里
-                    tagsTransl.push(tagData.tag);
+                    useOriginTag = false;
+                    // 如果用户在 Pixiv 的页面语言是中文，则应用优化策略
+                    // 如果翻译后的标签是纯英文，则判断原标签是否含有至少一部分中文，如果是则使用原标签
+                    // 这是为了解决一些中文标签被翻译成英文的问题，如 原神 被翻译为 Genshin Impact
+                    // 能代(アズールレーン) Noshiro (Azur Lane) 也会使用原标签
+                    // 但是如果原标签里没有中文则依然会使用翻译后的标签，如 フラミンゴ flamingo
+                    if (_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].htmlLangType === 'zh-cn' || _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].htmlLangType === 'zh-tw') {
+                        const allEnglish = [].every.call(tagData.translation.en, function (s) {
+                            return s.charCodeAt(0) < 128;
+                        });
+                        if (allEnglish) {
+                            useOriginTag = this.chineseRegexp.test(tagData.tag);
+                        }
+                    }
                 }
             }
-            else {
-                // 没有翻译
-                tagsTransl.push(tagData.tag);
-            }
+            tagsTransl.push(useOriginTag ? tagData.tag : tagData.translation.en);
         }
         if (type === 'origin') {
             return tags;
@@ -12274,6 +12282,7 @@ class Tools {
         return '';
     }
 }
+Tools.chineseRegexp = /[一-龥]/;
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
 Tools.AIMark = new Map([
     ['zh-cn', 'AI生成'],
@@ -24200,6 +24209,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+
 
 
 
@@ -24410,6 +24421,7 @@ class DoNotDownloadLastFewImages {
         return new Promise(async (resolve) => {
             const profile = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getUserProfile(uid.toString()).catch((err) => {
                 console.log(err);
+                _Log__WEBPACK_IMPORTED_MODULE_8__["log"].error(`ERROR: userID ${uid}, status ${err.status}<br><a href="https://www.pixiv.net/users/${uid}" target="_blank">https://www.pixiv.net/users/${uid}</a>`);
             });
             if (profile && profile.body.name) {
                 return resolve(profile.body.name);
