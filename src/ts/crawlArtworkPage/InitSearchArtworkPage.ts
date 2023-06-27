@@ -837,7 +837,7 @@ class InitSearchArtworkPage extends InitPageBase {
     for (const r of store.result) {
       if (r.idNum === data.id) {
         const res = await bookmark.add(data.id.toString(), 'illusts', data.tags)
-        if (res !== 429) {
+        if (res === 200) {
           // 同步数据
           r.bookmarked = true
           this.resultMeta.forEach((result) => {

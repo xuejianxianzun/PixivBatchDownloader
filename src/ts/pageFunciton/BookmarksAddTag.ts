@@ -8,6 +8,7 @@ import {
 } from '../crawl/CrawlResult'
 import { toast } from '../Toast'
 import { bookmark } from '../Bookmark'
+import { lang } from '../Lang'
 
 // 给收藏页面里的未分类作品批量添加 tag
 class BookmarksAddTag {
@@ -76,11 +77,15 @@ class BookmarksAddTag {
       // 如果作品的 bookmarkData 为假说明没有实际数据，可能是在获取别人的收藏数据。
       if (works.length > 0 && works[0].bookmarkData) {
         works.forEach((work: ArtworkCommonData | NovelCommonData) => {
-          this.addTagList.push({
-            id: work.id,
-            tags: work.tags,
-            restrict: work.bookmarkData!.private,
-          })
+          // 如果该作品没有标签，则不添加它
+          // 这个作品也许确实没有标签，但绝大多数情况下，这表示这个作品已经被删除而不存在了（404）
+          if (work.tags.length > 0) {
+            this.addTagList.push({
+              id: work.id,
+              tags: work.tags,
+              restrict: work.bookmarkData!.private,
+            })
+          }
         })
       }
     }
@@ -109,7 +114,7 @@ class BookmarksAddTag {
   private async addTag(): Promise<void> {
     const item = this.addTagList[this.addIndex]
 
-    await bookmark.add(item.id, this.type, item.tags, true, item.restrict)
+    await bookmark.add(item.id, this.type, item.tags, true, item.restrict, true)
 
     if (this.addIndex < this.addTagList.length - 1) {
       this.addIndex++
@@ -120,7 +125,7 @@ class BookmarksAddTag {
       // 添加完成
       this.btn!.textContent = `✓ Complete`
       this.btn!.removeAttribute('disabled')
-      toast.success('✓ Complete')
+      toast.success(lang.transl('_收藏作品完毕'))
     }
   }
 }

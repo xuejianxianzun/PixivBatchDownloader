@@ -18,7 +18,6 @@ class RemoveWorksTagsInBookmarks {
 
     const total = idList.length.toString()
     log.log(lang.transl('_当前作品个数', total))
-    log.log(lang.transl('_开始获取作品信息'))
 
     let number = 0
     for (const idData of idList) {
@@ -32,8 +31,12 @@ class RemoveWorksTagsInBookmarks {
             idData.type === 'novels' ? 'novels' : 'illusts',
             [],
             false,
-            data.body.bookmarkData.private
+            data.body.bookmarkData.private,
+            true
           )
+          // 使用了慢速收藏模式。虽然这个按钮一次只会处理一页的作品（通常是 48 个）。
+          // 但是它需要先获取作品数据然后收藏，也就是说请求数量会翻倍（96 个）。
+          // 请求作品时没有慢速，所以需要在添加收藏时使用慢速处理，以减少出现 429 错误的概率。
         }
       } catch (error) {
         // 处理自己收藏的作品时可能遇到错误。最常见的错误就是作品被删除了，获取作品数据时会产生 404 错误
