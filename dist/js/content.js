@@ -1575,8 +1575,8 @@ __webpack_require__.r(__webpack_exports__);
 // 注意：必须开启“替换方形缩略图以显示图片比例”，“横图占用二倍宽度”的功能才能生效
 class DoubleWidthThumb {
     constructor() {
-        this.addId = 'doubleWidth';
         /* 双倍宽度的图片的 id（由下载器添加这个 id） */
+        this.addId = 'doubleWidth';
         this.styleId = 'doubleWidthStyle';
         this.css = `#doubleWidth {
     width: 30% !important;
@@ -2336,6 +2336,8 @@ const fileName = new FileName();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "findHorizontalImageWrap", function() { return findHorizontalImageWrap; });
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+
 // 查找横图作品的缩略图和容器
 class FindHorizontalImageWrap {
     constructor() {
@@ -2355,6 +2357,7 @@ class FindHorizontalImageWrap {
     // 如果 img 的 src 是在缓存里的（并且没有禁用缓存），则捕获到它时就已经 complete 了
     obBody() {
         const ob = new MutationObserver((mutations) => {
+            var _a, _b, _c, _d, _e;
             for (const mutation of mutations) {
                 if (mutation.addedNodes.length > 0) {
                     for (const el of mutation.addedNodes) {
@@ -2367,6 +2370,15 @@ class FindHorizontalImageWrap {
                                 e.querySelector('div[width="184"]') ||
                                 e.classList.contains('searchList')) {
                                 wrapList.push(e);
+                            }
+                        }
+                        else if (e.nodeName === 'IMG' && e.src) {
+                            if (_PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.ArtworkSearch) {
+                                // 在搜索页面里，添加的元素是 img 而不是其容器 li
+                                const li = (_e = (_d = (_c = (_b = (_a = e.parentElement) === null || _a === void 0 ? void 0 : _a.parentElement) === null || _b === void 0 ? void 0 : _b.parentElement) === null || _c === void 0 ? void 0 : _c.parentElement) === null || _d === void 0 ? void 0 : _d.parentElement) === null || _e === void 0 ? void 0 : _e.parentElement;
+                                if (li && li.nodeName === 'LI') {
+                                    this.readyCheckImage(e, li);
+                                }
                             }
                         }
                         else if (e.nodeType === 1) {
@@ -2407,11 +2419,14 @@ class FindHorizontalImageWrap {
     }
     // 监视作品缩略图容器内部的 img 元素
     obWorkWrap(wrap) {
-        // .searchList 是下载器在搜索页面生成的元素，里面一开始就有 img 元素，所以不需要监视
-        if (wrap.classList.contains('searchList')) {
-            const img = wrap.querySelector('img');
-            this.readyCheckImage(img, wrap);
-            return;
+        // 已经有 img 元素的情况
+        if (_PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.ArtworkSearch) {
+            // .searchList 是下载器在搜索页面生成的元素，里面一开始就有 img 元素，所以不需要监视
+            if (wrap.classList.contains('searchList') || wrap.nodeName === 'LI') {
+                const img = wrap.querySelector('img');
+                this.readyCheckImage(img, wrap);
+                return;
+            }
         }
         // 如果是动态生成 img 的情况，则需要对 wrap 使用监视器
         const ob = new MutationObserver((records) => {
