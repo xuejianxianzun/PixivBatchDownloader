@@ -20,7 +20,6 @@ class ShowWhatIsNew {
       let msg = `
       ${lang.transl('_批量收藏作品时减慢速度')}
       <br>
-      <br>
       ${lang.transl('_其他优化')}
       `
 

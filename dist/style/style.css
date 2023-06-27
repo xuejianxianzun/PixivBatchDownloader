@@ -1296,6 +1296,24 @@
 .lang_ru * {
   font-family: 'NotoSans', sans-serif;
 }
+@media (max-width: 414px) {
+  .centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns button {
+    width: 142px;
+    margin-right: 8px;
+    padding: 12px 8px;
+  }
+  .centerWrap .centerWrap_con .settingForm .setinput_style1.fileNameRule {
+    width: 290px !important;
+    min-width: 290px !important;
+  }
+}
+@media (max-width: 388px) {
+  .centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns button {
+    width: 134px;
+    margin-right: 8px;
+    padding: 12px 6px;
+  }
+}
 .outputWrap {
   padding: 20px 30px;
   width: 520px;

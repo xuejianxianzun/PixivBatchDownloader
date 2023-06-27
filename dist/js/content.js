@@ -11060,7 +11060,6 @@ class ShowWhatIsNew {
             let msg = `
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_批量收藏作品时减慢速度')}
       <br>
-      <br>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_其他优化')}
       `;
             // ${lang.transl(
