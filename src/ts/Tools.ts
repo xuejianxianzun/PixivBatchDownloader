@@ -356,6 +356,7 @@ class Tools {
     return (<ArtworkData>data).body.illustType !== undefined
   }
 
+  static readonly chineseRegexp = /[一-龥]/
   /**从作品数据里提取出 tag 列表
    *
    * 可选参数 type:
@@ -381,18 +382,34 @@ class Tools {
       tags.push(tagData.tag)
 
       // 添加翻译的 tag
+      // 缺省使用原标签
+      let useOriginTag = true
       if (this.isArtworkTags(tagData)) {
+        // 不管是什么语种的翻译结果，都保存在 en 属性里
         if (tagData.translation && tagData.translation.en) {
-          // 不管是什么语种的翻译结果，都保存在 en 属性里
-          tagsTransl.push(tagData.translation.en)
-        } else {
-          // 如果没有翻译，则把原 tag 保存到翻译里
-          tagsTransl.push(tagData.tag)
+          useOriginTag = false
+          // 如果用户在 Pixiv 的页面语言是中文，则应用优化策略
+          // 如果翻译后的标签是纯英文，则判断原标签是否含有至少一部分中文，如果是则使用原标签
+          // 这是为了解决一些中文标签被翻译成英文的问题，如 原神 被翻译为 Genshin Impact
+          // 能代(アズールレーン) Noshiro (Azur Lane) 也会使用原标签
+          // 但是如果原标签里没有中文则依然会使用翻译后的标签，如 フラミンゴ flamingo
+          if (lang.htmlLangType === 'zh-cn' || lang.htmlLangType === 'zh-tw') {
+            const allEnglish = [].every.call(
+              tagData.translation.en,
+              function (s: string) {
+                return s.charCodeAt(0) < 128
+              }
+            )
+            if (allEnglish) {
+              useOriginTag = this.chineseRegexp.test(tagData.tag)
+            }
+          }
         }
-      } else {
-        // 没有翻译
-        tagsTransl.push(tagData.tag)
       }
+
+      tagsTransl.push(
+        useOriginTag ? tagData.tag : (tagData as any).translation.en
+      )
     }
 
     if (type === 'origin') {

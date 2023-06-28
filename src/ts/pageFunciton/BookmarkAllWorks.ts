@@ -7,6 +7,8 @@ import { bookmark } from '../Bookmark'
 import { Tools } from '../Tools'
 import { log } from '../Log'
 import { msgBox } from '../MsgBox'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
+import { Config } from '../Config'
 
 // 一键收藏所有作品
 // 可以传入页面上的作品元素列表，也可以直接传入 id 列表
@@ -103,21 +105,30 @@ class BookmarkAllWorks {
         this.tipWrap.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`
 
         try {
-          let data
-          if (id.type === 'novels') {
-            data = await API.getNovelData(id.id)
-          } else {
-            data = await API.getArtworkData(id.id)
-          }
+          // 如果作品数量大于一定数量，则启用慢速抓取，以免在获取作品数据时发生 429 错误
+          await new Promise(async (res) => {
+            setTimeoutWorker.set(
+              async () => {
+                let data
+                if (id.type === 'novels') {
+                  data = await API.getNovelData(id.id)
+                } else {
+                  data = await API.getArtworkData(id.id)
+                }
 
-          this.bookmarKData.push({
-            type: id.type,
-            id: data.body.id,
-            tags: Tools.extractTags(data),
-            restrict: false,
+                this.bookmarKData.push({
+                  type: id.type,
+                  id: data.body.id,
+                  tags: Tools.extractTags(data),
+                  restrict: false,
+                })
+                res(id)
+              },
+              this.idList.length >= 120 ? Config.slowCrawlDealy : 0
+            )
           })
         } catch (error) {
-          // 捕获错误，主要是为了处理 429 错误
+          // 捕获错误，主要是为了处理 429 错误。但是现在只会提示，没有重试。因为需要过 3 分钟之后才能重试成功，等待时间太长了
           const e = error as {
             status: number
             statusText: string
@@ -132,7 +143,6 @@ class BookmarkAllWorks {
               '_未知错误'
             )}${lang.transl('_请稍后重试')}`
           }
-          // 对于 429 错误，过一段时间之后（等 429 状态解除），是可以重试的
 
           // 显示提示，并中止执行
           log.error(msg)
@@ -155,7 +165,14 @@ class BookmarkAllWorks {
       for (const data of this.bookmarKData) {
         this.tipWrap.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`
 
-        await bookmark.add(data.id, data.type, data.tags)
+        await bookmark.add(
+          data.id,
+          data.type,
+          data.tags,
+          undefined,
+          undefined,
+          true
+        )
         index++
       }
 
@@ -166,9 +183,8 @@ class BookmarkAllWorks {
   private complete() {
     this.tipWrap.textContent = `✓ Complete`
     this.tipWrap.removeAttribute('disabled')
+    toast.success(lang.transl('_收藏作品完毕'))
     EVT.fire('bookmarkModeEnd')
-
-    toast.success('✓ Complete')
   }
 }
 

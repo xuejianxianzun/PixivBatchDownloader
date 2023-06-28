@@ -1,37 +1,26 @@
+import { resolve } from 'path'
 import { API } from './API'
 import { Config } from './Config'
 import { EVT } from './EVT'
 import { lang } from './Lang'
 import { log } from './Log'
 import { msgBox } from './MsgBox'
+import { setTimeoutWorker } from './SetTimeoutWorker'
 import { settings } from './setting/Settings'
 import { toast } from './Toast'
 import { token } from './Token'
 import { Tools } from './Tools'
-import { Utils } from './utils/Utils'
-
-type AddBMKArgs = [
-  string,
-  'illusts' | 'novels',
-  string[] | undefined,
-  Boolean | undefined,
-  Boolean | undefined,
-  Boolean | undefined
-]
 
 // 对 API.addBookmark 进行封装
 class Bookmark {
   constructor() {
-    window.setTimeout(() => {
-      this.retry()
-    }, this.retryInterval)
-
     window.addEventListener(EVT.list.downloadComplete, () => {
-      if (settings.bmkAfterDL && this.retryList.length > 0) {
-        const msg = `${lang.transl('_有一些作品未能成功收藏')} ${lang.transl(
-          '_下载器会在几分钟后重试'
-        )} `
-        log.error(msg)
+      if (this.taskID > this.nextTaskID) {
+        const msg = lang.transl('_收藏任务尚未完成请等待')
+        log.warning(msg)
+        toast.warning(msg, {
+          position: 'center',
+        })
       }
     })
 
@@ -40,49 +29,17 @@ class Bookmark {
     // 但是这会导致 SelectWork 里的该事件出现问题，或者两个模块里都会出现问题，所以就不提示了
   }
 
-  // 保存重试收藏的数据的队列
-  // 现在没有做去重处理，因为一般不会有重复的，而且即使有重复的也没有什么影响
-  private retryList: AddBMKArgs[] = []
-
-  // 当前是否可以重试收藏
-  // 当出现 429 错误时，设置为不可重试
-  private canRetry = true
-
-  // 每隔指定时间，尝试重试收藏
-  private readonly retryInterval = 1000
-
-  // 429 错误过去一段时间后，把重试标记设置为可以重试
-  private delayRetry = Utils.debounce(() => {
-    this.canRetry = true
-  }, Config.retryTime)
-
-  // 不间断运行的函数，每次运行会检查是否可以重试，如果可以重试，则取出队列中的一条数据进行重试
-  private retry() {
-    if (this.canRetry !== false) {
-      const args = this.retryList.shift()
-      if (args) {
-        log.warning(
-          `${lang.transl('_重试收藏')} ${Tools.createWorkLink(
-            args[0],
-            args[1] === 'illusts'
-          )}`
-        )
-
-        this.add(...args)
-      }
-    }
-
-    // 不管是否能够重试，都会继续下一次运行
-    window.setTimeout(() => {
-      this.retry()
-    }, this.retryInterval)
-  }
-
   private async getWorkData(type: 'illusts' | 'novels', id: string) {
     return type === 'illusts'
       ? await API.getArtworkData(id)
       : await API.getNovelData(id)
   }
+
+  /** 接收到需要排队的任务时增加计数 */
+  private taskID = 0
+
+  /**叫号的号码，当 add 方法的 needWait 参数为 true 时，需要等待叫号到它才能执行 */
+  private nextTaskID = 1
 
   /**添加收藏
    *
@@ -94,87 +51,98 @@ class Bookmark {
    *
    * 可选参数 restrict：指示这个收藏是否为非公开收藏。false 为公开收藏，true 为非公开收藏。缺省时使用 settings.restrictBoolean
    *
+   * 可选参数 needWait：未指定或 false 时，立即执行这个收藏请求。设置为 true 则会获得一个号码并等待叫号到它再执行。这是为了减少 429 错误发生的概率。当需要大批量收藏作品时应该设置为 true。
    */
   public async add(
     id: string,
     type: 'illusts' | 'novels',
     tags?: string[],
-    needAddTag?: Boolean,
-    restrict?: Boolean,
-    retry?: Boolean
+    needAddTag?: boolean,
+    restrict?: boolean,
+    needWait?: boolean
   ) {
-    const _needAddTag =
-      needAddTag === undefined ? settings.widthTagBoolean : !!needAddTag
-    if (_needAddTag) {
-      // 需要添加 tags
-      if (tags === undefined) {
-        // 如果未传递 tags，则请求作品数据来获取 tags
-        const data = await this.getWorkData(type, id)
-        tags = Tools.extractTags(data)
+    return new Promise<number>(async (resolve, reject) => {
+      const _needAddTag =
+        needAddTag === undefined ? settings.widthTagBoolean : !!needAddTag
+      if (_needAddTag) {
+        // 需要添加 tags
+        if (tags === undefined) {
+          // 如果未传递 tags，则请求作品数据来获取 tags
+          const data = await this.getWorkData(type, id)
+          tags = Tools.extractTags(data)
+        }
+      } else {
+        // 不需要添加 tags
+        tags = []
       }
-    } else {
-      // 不需要添加 tags
-      tags = []
-    }
 
-    const _restrict =
-      restrict === undefined ? settings.restrictBoolean : !!restrict
+      const _restrict =
+        restrict === undefined ? settings.restrictBoolean : !!restrict
 
-    const request = API.addBookmark(id, type, tags, _restrict, token.token)
+      // 立即执行的情况
+      if (!needWait) {
+        const status = await this.sendRequest(id, type, tags, _restrict)
+        return resolve(status)
+      }
 
-    let status = 0
-    await request.then((res) => {
-      status = res.status
+      // 需要排队的情况
+      const NO = ++this.taskID
+      await this.waitCallMe(NO)
+      setTimeoutWorker.set(async () => {
+        const status = await this.sendRequest(id, type, tags!, _restrict)
+        this.nextTaskID++
+        return resolve(status)
+      }, Config.slowCrawlDealy)
     })
+  }
 
-    // 如果状态码为 400，则表示当前 token 无效，需要重新获取 token，然后重新添加收藏
-    if (status === 400) {
-      await token.reset()
-      return await API.addBookmark(id, type, tags, _restrict, token.token)
-    }
-
-    if (status === 429) {
-      toast.error(lang.transl('_添加收藏失败'), {
-        position: 'topCenter',
-      })
-
-      log.error(
-        `${Tools.createWorkLink(id, type === 'illusts')} ${lang.transl(
-          '_添加收藏失败'
-        )}. ${lang.transl('_错误代码')}${status}. ${lang.transl(
-          '_下载器会在几分钟后重试'
-        )}`
-      )
-
-      // 将参数添加到重试队列，并且把 retry 标记设为 true
-      this.retryList.push([id, type, tags, needAddTag, restrict, true])
-
-      // 在一定时间后重试收藏
-      this.canRetry = false
-      this.delayRetry()
-    }
-
-    // 其他状态码视为收藏成功
-
-    // 显示重试收藏的进度信息
-    if (retry) {
-      log.success(
-        `${Tools.createWorkLink(id, type === 'illusts')} ${lang.transl(
-          '_重试收藏成功'
-        )} ${lang.transl('_剩余xx个', this.retryList.length.toString())}`
-      )
-
-      if (this.retryList.length === 0) {
-        const msg = `${lang.transl('_重试收藏')} ${lang.transl('_完成')}.`
-        log.success(msg)
-        toast.success(msg, {
-          position: 'center',
-        })
+  private async waitCallMe(NO: number) {
+    return new Promise<number>(async (resolve) => {
+      if (this.nextTaskID === NO) {
+        return resolve(NO)
+      } else {
+        setTimeoutWorker.set(() => {
+          return resolve(this.waitCallMe(NO))
+        }, 300)
       }
-    }
+    })
+  }
 
-    // 返回状态码
-    return status
+  private async sendRequest(
+    id: string,
+    type: 'illusts' | 'novels',
+    tags: string[],
+    hide: boolean
+  ) {
+    return new Promise<number>(async (resolve) => {
+      API.addBookmark(id, type, tags, hide, token.token).then(async (res) => {
+        switch (res.status) {
+          case 400:
+            await token.reset()
+            return resolve(this.sendRequest(id, type, tags, hide))
+          case 429:
+          case 500:
+            toast.error(lang.transl('_添加收藏失败'), {
+              position: 'center',
+            })
+
+            log.error(
+              `${Tools.createWorkLink(id, type === 'illusts')} ${lang.transl(
+                '_添加收藏失败'
+              )}. ${lang.transl('_错误代码')}${res.status}. ${lang.transl(
+                '_下载器会在几分钟后重试'
+              )}`
+            )
+
+            window.setTimeout(() => {
+              return resolve(this.sendRequest(id, type, tags, hide))
+            }, Config.retryTime)
+            break
+          default:
+            return resolve(res.status)
+        }
+      })
+    })
   }
 }
 
