@@ -19,7 +19,6 @@ class UnBookmarkWorks {
 
     const total = idList.length.toString()
     log.log(lang.transl('_当前作品个数', total))
-    log.log(lang.transl('_开始获取作品信息'))
 
     let number = 0
     for (const idData of idList) {
@@ -33,6 +32,8 @@ class UnBookmarkWorks {
             idData.type === 'novels' ? 'novels' : 'illusts',
             token.token
           )
+          // 尚不清楚 deleteBookmark 使用的 API 是否会被计入 429 限制里
+          // 现在没有控制发送请求的速度，反正一次一页，48 个作品会发送 96 个请求，问题不大。
         }
       } catch (error) {
         // 处理自己收藏的作品时可能遇到错误。最常见的错误就是作品被删除了，获取作品数据时会产生 404 错误
