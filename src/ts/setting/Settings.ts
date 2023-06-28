@@ -252,6 +252,7 @@ interface XzSetting {
   tipAltQToQuickDownload: boolean
   tipBookmarkButton: boolean
   highlightFollowingUsers: boolean
+  tipCSV: boolean
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -461,6 +462,7 @@ class Settings {
     tipAltQToQuickDownload: true,
     tipBookmarkButton: true,
     highlightFollowingUsers: true,
+    tipCSV: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

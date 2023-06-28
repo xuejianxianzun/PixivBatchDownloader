@@ -1,3 +1,4 @@
+import { Config } from './Config'
 import { EVT } from './EVT'
 import { pageType } from './PageType'
 
@@ -12,7 +13,7 @@ class WorkToolBar {
   private toolbar: HTMLDivElement | undefined // 工具栏容器
   private readonly flag = 'xzToolbar' // 在工具栏上添加的标记
   private pixivBMKDiv: HTMLDivElement | undefined // pixiv 的心形收藏按钮
-  private likeBtn: HTMLButtonElement | undefined // 点赞按钮
+  private likeBtn: HTMLButtonElement | HTMLDivElement | undefined // 点赞按钮
 
   private timer: number = 0 // 获取元素用的定时器
 
@@ -30,7 +31,7 @@ class WorkToolBar {
     }
 
     this.timer = window.setInterval(() => {
-      this.getElements()
+      Config.mobile ? this.getElementsOnMobile() : this.getElementsOnDesktop()
     }, 300)
   }
 
@@ -40,7 +41,7 @@ class WorkToolBar {
     })
   }
 
-  private async getElements() {
+  private async getElementsOnDesktop() {
     // 获取工具栏
     const toolbarParent = document.querySelectorAll('main > section')
     for (const el of toolbarParent) {
@@ -68,6 +69,38 @@ class WorkToolBar {
     // 获取点赞按钮
     const btnList = this.toolbar.querySelectorAll('button')
     this.likeBtn = btnList[btnList.length - 1] || undefined
+
+    // 全部获取完毕
+    if (this.pixivBMKDiv && this.likeBtn) {
+      window.clearInterval(this.timer)
+      this.executionCB()
+    }
+  }
+
+  private async getElementsOnMobile() {
+    // 获取工具栏
+    const toolbar = document.querySelector(
+      '.work-interactions'
+    ) as HTMLDivElement
+    if (!toolbar) {
+      return
+    }
+    this.toolbar = toolbar
+
+    // 在移动端不要给工具栏添加自定义 class 名，因为切换页面时元素没重新生成，class 还在
+
+    const divs = toolbar.querySelectorAll('div')
+    if (divs.length !== 4) {
+      return
+    }
+    // 只在正常模式下（有 4 个按钮）时工作
+    // 如果在自己的作品页面里，就只有 1 个分享按钮
+
+    // 获取心形收藏按钮的 div
+    this.pixivBMKDiv = divs[1]
+
+    // 获取点赞按钮
+    this.likeBtn = divs[0]
 
     // 全部获取完毕
     if (this.pixivBMKDiv && this.likeBtn) {

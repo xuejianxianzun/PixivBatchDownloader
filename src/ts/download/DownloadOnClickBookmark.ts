@@ -19,10 +19,18 @@ class DownloadOnClickBookmark {
 
   public bindEvents() {
     // 在作品缩略图上点击收藏按钮时，下载这个作品
-    artworkThumbnail.onClickBookmarkBtn((id: string) => {
+    artworkThumbnail.onClickBookmarkBtn((el: HTMLElement, id: string) => {
+      if (!id) {
+        id = Tools.findWorkIdFromElement(el, 'illusts')
+      }
       this.send(id)
     })
-    novelThumbnail.onClickBookmarkBtn((id: string) => {
+
+    novelThumbnail.onClickBookmarkBtn((el: HTMLElement, id: string) => {
+      if (!id || id === '0') {
+        id = Tools.findWorkIdFromElement(el, 'novels')
+        console.log(id)
+      }
       this.send(id, 'novels')
     })
 
