@@ -14,10 +14,15 @@ import { Colors } from './Colors'
 import { DateFormat } from './utils/DateFormat'
 import { showHelp } from './ShowHelp'
 import { store } from './store/Store'
+import { Config } from './Config'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
   constructor() {
+    if (Config.mobile) {
+      return
+    }
+
     this.createElements()
     this.bindEvents()
   }

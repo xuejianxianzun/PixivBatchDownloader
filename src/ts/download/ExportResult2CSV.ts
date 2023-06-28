@@ -8,6 +8,7 @@ import { fileName } from '../FileName'
 import { createCSV } from '../utils/CreateCSV'
 import { toast } from '../Toast'
 import { Utils } from '../utils/Utils'
+import { showHelp } from '../ShowHelp'
 
 // 定义字段信息
 interface Field {
@@ -202,6 +203,8 @@ class ExportResult2CSV {
     Utils.downloadFile(csvURL, csvName)
 
     toast.success(lang.transl('_导出成功'))
+
+    showHelp.show('tipCSV', lang.transl('_导出CSV文件的提示'))
   }
 }
 

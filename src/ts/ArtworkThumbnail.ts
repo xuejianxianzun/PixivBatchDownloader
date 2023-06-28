@@ -1,28 +1,37 @@
 import { WorkThumbnail } from './WorkThumbnail'
 import { pageType } from './PageType'
 import { Tools } from './Tools'
+import { Config } from './Config'
 
 // 查找图像作品的缩略图，当鼠标进入、移出时等动作触发时执行回调函数
 class ArtworkThumbnail extends WorkThumbnail {
   constructor() {
     super()
+
+    if (Config.mobile) {
+      // 移动端的作品选择器就这一个
+      this.selectors = ['.works-item-illust']
+    } else {
+      this.selectors = [
+        'div[width="136"]',
+        'div[width="131"]',
+        'div[width="288"]',
+        'div[width="184"]',
+        'div[width="112"]',
+        'div[width="104"]',
+        'div[width="90"]',
+        'div[width="118"]',
+        '._work',
+        '._work.item',
+        'li>div>div:first-child',
+      ]
+    }
+
     this.findThumbnail(document.body)
     this.createObserver(document.body)
   }
 
-  protected readonly selectors = [
-    'div[width="136"]',
-    'div[width="131"]',
-    'div[width="288"]',
-    'div[width="184"]',
-    'div[width="112"]',
-    'div[width="104"]',
-    'div[width="90"]',
-    'div[width="118"]',
-    '._work',
-    '._work.item',
-    'li>div>div:first-child',
-  ]
+  protected readonly selectors: string[] = []
 
   protected findThumbnail(parent: HTMLElement) {
     if (!parent.querySelectorAll) {
@@ -45,9 +54,19 @@ class ArtworkThumbnail extends WorkThumbnail {
       const elements = parent.querySelectorAll(selector)
       for (const el of elements) {
         const id = Tools.findWorkIdFromElement(el as HTMLElement, 'illusts')
-        // 只有查找到作品 id 时才会执行回调函数
-        if (id) {
+
+        if (Config.mobile) {
+          // 在移动端页面里，即使没有找到作品 id，也要执行回调函数
+          // 因为此时可能内部的 A 标签还未生成，所以会获取不到 id
+          // 而之后下载器只会监听新添加的缩略图容器，不会监听内部添加 A 标签的事件，
+          // 所以以后也不会监听到它。那么只能先为它绑定事件，
+          // 等到点击下载按钮时再尝试获取 id
           this.bindEvents(el as HTMLElement, id)
+        } else {
+          // 在桌面版页面里，只有查找到作品 id 时才会执行回调函数
+          if (id) {
+            this.bindEvents(el as HTMLElement, id)
+          }
         }
       }
     }

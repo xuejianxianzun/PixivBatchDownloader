@@ -107,9 +107,53 @@
 
     .outputContent {
       color: #fff !important;
+
       & * {
         color: #fff !important;
       }
     }
+  }
+}
+
+.outputWrap.mobile {
+  box-sizing: border-box;
+  padding: 20px 30px;
+  width: 92vw;
+  top: 15%;
+  left: 50%;
+  margin-left: -45vw;
+  border-radius: 15px;
+  font-family: sans-serif;
+
+  .outputContent {
+    border: 1px solid #ccc;
+    transition: 0.3s;
+    font-size: 14px;
+    margin-top: 20px;
+    padding: 5px 10px;
+    overflow: auto;
+    max-height: 350px;
+    line-height: 20px;
+    min-height: 100px;
+    word-break: break-all;
+  }
+
+  .outputClose {
+    width: 40px;
+    height: 40px;
+    top: 10px;
+    right: 30px;
+    z-index: 9999;
+    font-size: 40px;
+  }
+
+  .outputCopy {
+    height: 40px;
+    line-height: 30px;
+    min-width: 100px;
+    padding: 4px 25px;
+    margin-top: 15px;
+    font-size: 16px;
+    border-radius: 8px;
   }
 }

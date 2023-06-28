@@ -4,6 +4,7 @@ import { lang } from '../Lang'
 import { EVT } from '../EVT'
 import { DonwloadSuccessData, DonwloadSkipData } from './DownloadType'
 import { bookmark } from '../Bookmark'
+import { log } from '../Log'
 
 // 当文件下载成功后，收藏这个作品
 class BookmarkAfterDL {
@@ -72,6 +73,10 @@ class BookmarkAfterDL {
       '_已收藏带参数',
       `${this.successCount}/${this.savedIds.length}`
     )
+
+    if (this.successCount === this.savedIds.length) {
+      log.success(lang.transl('_收藏作品完毕'))
+    }
   }
 
   private reset() {
@@ -117,15 +122,12 @@ class BookmarkAfterDL {
       const res = await bookmark.add(
         id.toString(),
         data.type !== 3 ? 'illusts' : 'novels',
-        data.tags
+        data.tags,
+        undefined,
+        undefined,
+        true
       )
-      if (res === 429) {
-        // 有错误发生
-        this.tipEl.classList.remove('green')
-        this.tipEl.classList.add('red')
-      } else {
-        this.successCount++
-      }
+      this.successCount++
 
       this.showProgress()
 

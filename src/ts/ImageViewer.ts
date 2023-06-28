@@ -487,7 +487,7 @@ class ImageViewer {
       'illusts',
       Tools.extractTags(this.workData!)
     )
-    if (res !== 429) {
+    if (res === 200) {
       toast.success(lang.transl('_已收藏'))
     }
   }

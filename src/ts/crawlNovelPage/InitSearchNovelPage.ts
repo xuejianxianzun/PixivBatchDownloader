@@ -29,7 +29,7 @@ class InitSearchNovelPage extends InitPageBase {
     crawlTagList.init()
   }
 
-  private readonly worksWrapSelector = '#root section>div>ul'
+  private readonly worksWrapSelector = '#root section>div ul'
 
   private option: SearchOption = {}
   private readonly worksNoPerPage = 24 // 每个页面有多少个作品
@@ -54,6 +54,7 @@ class InitSearchNovelPage extends InitPageBase {
     'tgt',
     'original_only',
     'work_lang',
+    'ai_type',
   ]
 
   protected addCrawlBtns() {
@@ -92,12 +93,11 @@ class InitSearchNovelPage extends InitPageBase {
       const listWrap = this.getWorksWrap()
       if (listWrap) {
         const list = document.querySelectorAll(
-          '#root section>div>ul>li'
+          '#root section>div ul>li'
         ) as NodeListOf<HTMLLIElement>
-        const showList = Array.from(list).filter((el) => {
-          return el.style.display !== 'none'
-        })
-        bookmarkAll.sendWorkList(showList)
+        if (list.length > 0) {
+          bookmarkAll.sendWorkList(list, 'novels')
+        }
       }
     })
   }

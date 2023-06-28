@@ -1,3 +1,5 @@
+import { pageType } from './PageType'
+
 // 查找横图作品的缩略图和容器
 class FindHorizontalImageWrap {
   constructor() {
@@ -22,7 +24,7 @@ class FindHorizontalImageWrap {
         if (mutation.addedNodes.length > 0) {
           for (const el of mutation.addedNodes) {
             // 从添加的元素里寻找缩略图容器
-            const e = el as HTMLLIElement
+            const e = el as HTMLElement
             const wrapList: HTMLElement[] = []
             // 如果添加的是单个的 li，，则判断它是不是缩略图容器
             if (e.nodeName === 'LI') {
@@ -32,6 +34,16 @@ class FindHorizontalImageWrap {
                 e.classList.contains('searchList')
               ) {
                 wrapList.push(e)
+              }
+            } else if (e.nodeName === 'IMG' && (e as HTMLImageElement).src) {
+              if (pageType.type === pageType.list.ArtworkSearch) {
+                // 在搜索页面里，添加的元素是 img 而不是其容器 li
+                const li =
+                  e.parentElement?.parentElement?.parentElement?.parentElement
+                    ?.parentElement?.parentElement
+                if (li && li.nodeName === 'LI') {
+                  this.readyCheckImage(e as HTMLImageElement, li)
+                }
               }
             } else if (e.nodeType === 1) {
               // 添加的不是 li，则试图从元素中寻找缩略图容器
@@ -74,11 +86,14 @@ class FindHorizontalImageWrap {
 
   // 监视作品缩略图容器内部的 img 元素
   private obWorkWrap(wrap: HTMLElement) {
-    // .searchList 是下载器在搜索页面生成的元素，里面一开始就有 img 元素，所以不需要监视
-    if (wrap.classList.contains('searchList')) {
-      const img = wrap.querySelector('img')! as HTMLImageElement
-      this.readyCheckImage(img, wrap)
-      return
+    // 已经有 img 元素的情况
+    if (pageType.type === pageType.list.ArtworkSearch) {
+      // .searchList 是下载器在搜索页面生成的元素，里面一开始就有 img 元素，所以不需要监视
+      if (wrap.classList.contains('searchList') || wrap.nodeName === 'LI') {
+        const img = wrap.querySelector('img')! as HTMLImageElement
+        this.readyCheckImage(img, wrap)
+        return
+      }
     }
 
     // 如果是动态生成 img 的情况，则需要对 wrap 使用监视器

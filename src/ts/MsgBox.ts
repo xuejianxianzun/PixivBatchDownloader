@@ -3,6 +3,7 @@ import { Colors } from './Colors'
 import { theme } from './Theme'
 import { lang } from './Lang'
 import { bg } from './BG'
+import { Config } from './Config'
 
 interface MsgOptional {
   btn?: string
@@ -107,6 +108,9 @@ class MsgBox {
   private create(data: Msg) {
     const wrap = document.createElement('div')
     wrap.classList.add('xz_msg_box')
+    if (Config.mobile) {
+      wrap.classList.add('mobile')
+    }
 
     let colorStyle = ''
     if (data.color) {

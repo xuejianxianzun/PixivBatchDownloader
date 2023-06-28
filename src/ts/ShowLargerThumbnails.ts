@@ -1,3 +1,4 @@
+import { Config } from './Config'
 import { EVT } from './EVT'
 import { pageType } from './PageType'
 import { settings } from './setting/Settings'
@@ -5,6 +6,10 @@ import { Tools } from './Tools'
 
 class ShowLargerThumbnails {
   constructor() {
+    if (Config.mobile) {
+      return
+    }
+
     this.loadCssText()
     this.bindEvents()
     this.findFriendsWrapEl()
@@ -75,17 +80,12 @@ class ShowLargerThumbnails {
       return
     }
 
-    const query = document.evaluate(
-      `//*[@id="root"]/div[2]/div[2]/div[4]/div/section/div[2]/div`,
-      document,
-      null,
-      XPathResult.ANY_TYPE,
-      null
-    )
-    const el = query.iterateNext() as HTMLDivElement
-    if (el && el.childElementCount === 2) {
-      el.classList.add('homeFriendsNewWorks')
-      this.findFriendsWrap = true
+    const sectionList = document.querySelectorAll('section')
+    if (sectionList && sectionList[1]) {
+      if (sectionList[1].querySelector('ul div')) {
+        sectionList[1].classList.add('homeFriendsNewWorks')
+        this.findFriendsWrap = true
+      }
     }
   }
 }

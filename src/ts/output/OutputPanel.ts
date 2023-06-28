@@ -83,6 +83,10 @@ class OutputPanel {
 
     this.outputPanel = document.querySelector('.outputWrap')! as HTMLDivElement
 
+    if (Config.mobile) {
+      this.outputPanel.classList.add('mobile')
+    }
+
     this.outputTitle = this.outputPanel.querySelector(
       '.outputTitle'
     )! as HTMLDivElement

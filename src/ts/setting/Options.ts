@@ -1,3 +1,4 @@
+import { Config } from '../Config'
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { settings } from './Settings'
@@ -83,6 +84,12 @@ class Options {
   // 总是隐藏某些设置
   private alwaysHideSomeOption() {
     this.hideOption([79, 80])
+
+    // 在移动端某些设置不会生效，所以隐藏它们
+    // 主要是和作品缩略图相关的一些设置
+    if (Config.mobile) {
+      this.hideOption([18, 68, 55, 71, 62, 40])
+    }
   }
 
   private handleShowAdvancedSettings() {
