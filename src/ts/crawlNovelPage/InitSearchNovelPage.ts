@@ -54,6 +54,7 @@ class InitSearchNovelPage extends InitPageBase {
     'tgt',
     'original_only',
     'work_lang',
+    'ai_type',
   ]
 
   protected addCrawlBtns() {

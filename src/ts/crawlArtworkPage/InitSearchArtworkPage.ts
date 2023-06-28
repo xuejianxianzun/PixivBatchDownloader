@@ -71,6 +71,7 @@ class InitSearchArtworkPage extends InitPageBase {
     'blt',
     'bgt',
     'work_lang',
+    'ai_type',
   ]
 
   private resultMeta: Result[] = [] // 每次“开始筛选”完成后，储存当时所有结果，以备“在结果中筛选”使用

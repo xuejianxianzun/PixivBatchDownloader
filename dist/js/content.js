@@ -14603,6 +14603,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             'blt',
             'bgt',
             'work_lang',
+            'ai_type',
         ];
         this.resultMeta = []; // 每次“开始筛选”完成后，储存当时所有结果，以备“在结果中筛选”使用
         this.worksWrap = null;
@@ -17541,6 +17542,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             'tgt',
             'original_only',
             'work_lang',
+            'ai_type',
         ];
         this.tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__["Utils"].debounce(() => {
             _Log__WEBPACK_IMPORTED_MODULE_7__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取被限制时返回空结果的提示'));
