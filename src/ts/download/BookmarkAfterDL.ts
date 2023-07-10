@@ -119,13 +119,14 @@ class BookmarkAfterDL {
         return reject(new Error(`Not find ${id} in result`))
       }
 
-      const res = await bookmark.add(
+      // 当抓取结果很少时，不使用慢速收藏
+      await bookmark.add(
         id.toString(),
         data.type !== 3 ? 'illusts' : 'novels',
         data.tags,
         undefined,
         undefined,
-        true
+        store.result.length > 24
       )
       this.successCount++
 

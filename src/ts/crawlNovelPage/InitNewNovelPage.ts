@@ -85,12 +85,20 @@ class InitNewNovelPage extends InitPageBase {
   }
 
   protected async getIdList() {
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
+    }
+
     let data: NewNovelData
     try {
       data = await API.getNewNovleData(this.option)
     } catch (error) {
       this.getIdList()
       return
+    }
+
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
     }
 
     let useData = data.body.novels

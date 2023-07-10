@@ -142,6 +142,10 @@ class InitFollowingPage extends InitPageBase {
 
   // 获取用户列表
   private async getUserList() {
+    if (states.stopCrawl) {
+      return this.getUserListComplete()
+    }
+
     const offset = this.baseOffset + this.getUserListNo * this.limit
 
     let res
@@ -165,6 +169,10 @@ class InitFollowingPage extends InitPageBase {
     } catch {
       this.getUserList()
       return
+    }
+
+    if (states.stopCrawl) {
+      return this.getUserListComplete()
     }
 
     const users = res.body.users
@@ -240,12 +248,20 @@ class InitFollowingPage extends InitPageBase {
 
   // 获取用户的 id 列表
   protected async getIdList() {
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
+    }
+
     let idList = []
     try {
       idList = await API.getUserWorksByType(this.userList[this.index])
     } catch {
       this.getIdList()
       return
+    }
+
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
     }
 
     store.idList = store.idList.concat(idList)

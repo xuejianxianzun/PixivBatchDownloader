@@ -366,6 +366,10 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
   protected async getIdList(p?: number): Promise<void> {
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
+    }
+
     if (p === undefined) {
       p = this.startpageNo + this.sendCrawlTaskCount
       this.sendCrawlTaskCount++
@@ -383,6 +387,10 @@ class InitSearchArtworkPage extends InitPageBase {
       }
     } catch {
       return this.getIdList(p)
+    }
+
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
     }
 
     data = data.data
