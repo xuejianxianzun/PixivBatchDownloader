@@ -9621,6 +9621,16 @@ class SelectWork {
         if (!this.canSelect()) {
             return;
         }
+        // 如果点击的元素是作品缩略图里的收藏按钮，则不选择这个作品，这样可以让收藏按钮发挥作用
+        // 注意这些 nodeName 是小写的
+        const target = ev.target;
+        if (target && (target.nodeName === 'svg' || target.nodeName === 'path')) {
+            return;
+        }
+        // 真实点击的元素
+        // console.log(ev.target)
+        // 绑定了这个事件的元素
+        // console.log(ev.currentTarget)
         if (!id || id === '0') {
             id = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.findWorkIdFromElement(el, type === 'novels' ? 'novels' : 'illusts');
         }
