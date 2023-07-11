@@ -1,5 +1,6 @@
 import { API } from '../API'
 import { lang } from '../Lang'
+import { log } from '../Log'
 import { msgBox } from '../MsgBox'
 
 // 获取用户在 Pixiv 里屏蔽的用户和/或 tag，进行过滤
@@ -52,6 +53,17 @@ class Mute {
           if (item.type === 'tag') {
             this.tagList.push(item.value)
           }
+        }
+
+        if (this.userList.length > 0 || this.tagList.length > 0) {
+          let msg = lang.transl('_屏蔽设定') + ': <br>'
+          if (this.userList.length > 0) {
+            msg += `Users: ${this.userList.join(',')}<br>`
+          }
+          if (this.tagList.length > 0) {
+            msg += `Tags: ${this.tagList.join(',')}<br>`
+          }
+          log.warning(msg)
         }
 
         this.got = true

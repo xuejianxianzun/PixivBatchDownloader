@@ -130,13 +130,7 @@ offline 分支会检查 github 上是否发布了新版本；master 分支上不
 
 1. 本工具在开发时需要先安装 Node.JS。
 
-2. 全局安装以下依赖：
-
-```
-npm i -g less prettier typescript webpack webpack-cli
-```
-
-3. Clone 本项目（或者先 Fork），并安装依赖：
+2. Clone 本项目（或者先 Fork），并安装依赖：
 
 ```
 git clone https://github.com/xuejianxianzun/PixivBatchDownloader.git

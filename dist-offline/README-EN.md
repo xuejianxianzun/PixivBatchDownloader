@@ -114,13 +114,7 @@ Thank you for your support!
 
 1. This tool needs to be installed Node.JS first during development.
 
-2. Install the following dependencies globally:
-
-```
-npm i -g less prettier typescript webpack webpack-cli
-```
-
-3. Clone this project (or fork first) and install dependencies:
+2. Clone this project (or fork first) and install dependencies:
 
 ```
 git clone https://github.com/xuejianxianzun/PixivBatchDownloader.git

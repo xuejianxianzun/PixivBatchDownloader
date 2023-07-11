@@ -1,10 +1,8 @@
-import { resolve } from 'path'
 import { API } from './API'
 import { Config } from './Config'
 import { EVT } from './EVT'
 import { lang } from './Lang'
 import { log } from './Log'
-import { msgBox } from './MsgBox'
 import { setTimeoutWorker } from './SetTimeoutWorker'
 import { settings } from './setting/Settings'
 import { toast } from './Toast'
@@ -38,7 +36,7 @@ class Bookmark {
   /** 接收到需要排队的任务时增加计数 */
   private taskID = 0
 
-  /**叫号的号码，当 add 方法的 needWait 参数为 true 时，需要等待叫号到它才能执行 */
+  /**叫号的号码，当 add 方法的 slowly 参数为 true 时，需要等待叫号到它才能执行 */
   private nextTaskID = 1
 
   /**添加收藏
@@ -51,7 +49,7 @@ class Bookmark {
    *
    * 可选参数 restrict：指示这个收藏是否为非公开收藏。false 为公开收藏，true 为非公开收藏。缺省时使用 settings.restrictBoolean
    *
-   * 可选参数 needWait：未指定或 false 时，立即执行这个收藏请求。设置为 true 则会获得一个号码并等待叫号到它再执行。这是为了减少 429 错误发生的概率。当需要大批量收藏作品时应该设置为 true。
+   * 可选参数 slowly：未指定或 false 时，立即执行这个收藏请求。设置为 true 则会获得一个号码并等待叫号到它再执行。这是为了减少 429 错误发生的概率。当需要大批量收藏作品时应该设置为 true。
    */
   public async add(
     id: string,
@@ -59,7 +57,7 @@ class Bookmark {
     tags?: string[],
     needAddTag?: boolean,
     restrict?: boolean,
-    needWait?: boolean
+    slowly?: boolean
   ) {
     return new Promise<number>(async (resolve, reject) => {
       const _needAddTag =
@@ -80,7 +78,7 @@ class Bookmark {
         restrict === undefined ? settings.restrictBoolean : !!restrict
 
       // 立即执行的情况
-      if (!needWait) {
+      if (!slowly) {
         const status = await this.sendRequest(id, type, tags, _restrict)
         return resolve(status)
       }

@@ -123,13 +123,7 @@
 
 1. 本工具在開發時需要先安裝 Node.JS。
 
-2. 全域安裝以下依賴：
-
-```
-npm i -g less prettier typescript webpack webpack-cli
-```
-
-3. Clone 本項目（或者先 Fork），並安裝依賴：
+2. Clone 本項目（或者先 Fork），並安裝依賴：
 
 ```
 git clone https://github.com/xuejianxianzun/PixivBatchDownloader.git

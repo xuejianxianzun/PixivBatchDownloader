@@ -291,6 +291,7 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <div class="centerWrap_btns">
+      <slot data-name="stopCrawl"></slot>
       <slot data-name="crawlBtns"></slot>
       <slot data-name="selectWorkBtns"></slot>
     </div>

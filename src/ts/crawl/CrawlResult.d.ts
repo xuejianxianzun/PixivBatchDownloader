@@ -651,7 +651,7 @@ export interface RecommendData {
           | ['illust_by_illust_table_mf_tda']
           | [
               'illust_by_illust_table_bq_recommendation_c',
-              'illust_by_illust_table_mf_tda'
+              'illust_by_illust_table_mf_tda',
             ]
         score: number
         seedIllustIds: string[]
@@ -700,7 +700,7 @@ export interface RankingData {
       attr: string
       is_bookmarked: boolean
       bookmarkable: boolean
-    }
+    },
   ]
   mode: string
   content: string
@@ -1193,7 +1193,7 @@ export interface SeriesData {
         coverImageSl: number
         firstIllustId: string
         updateDate: string
-      }
+      },
     ]
     novelSeries: []
     users: UserCommonData[]
@@ -1402,7 +1402,7 @@ export interface LatestMessageData {
         is_mendako: boolean
         is_active_thread: boolean
         is_fanbox_subscriber: boolean
-      }
+      },
     ]
     /**获取后续消息的 URL，如果没有后续消息，则为 null */
     next_url: string | null

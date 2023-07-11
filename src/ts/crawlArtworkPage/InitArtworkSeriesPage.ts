@@ -9,6 +9,7 @@ import { filter, FilterOption } from '../filter/Filter'
 import { store } from '../store/Store'
 import { log } from '../Log'
 import { Utils } from '../utils/Utils'
+import { states } from '../store/States'
 
 class InitArtworkSeriesPage extends InitPageBase {
   constructor() {
@@ -58,10 +59,18 @@ class InitArtworkSeriesPage extends InitPageBase {
   }
 
   protected async getIdList() {
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
+    }
+
     let p = this.startpageNo + this.listPageFinished
 
     const data = await API.getSeriesData(this.seriesId, p)
     this.listPageFinished++
+
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
+    }
 
     // 保存本页面的作品的 id 列表
     const idList: string[] = []
