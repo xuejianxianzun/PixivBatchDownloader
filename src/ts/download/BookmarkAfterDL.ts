@@ -116,7 +116,8 @@ class BookmarkAfterDL {
         store.resultMeta.length > 0 ? store.resultMeta : store.result
       const data = dataSource.find((val) => val.idNum === id)
       if (data === undefined) {
-        return reject(new Error(`Not find ${id} in result`))
+        log.error(`Not find ${id} in result`)
+        return resolve()
       }
 
       // 当抓取结果很少时，不使用慢速收藏

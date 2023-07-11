@@ -17262,15 +17262,19 @@ class InitPageBase {
         // 对文件进行排序
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.setFileDownloadOrder) {
             // 按照用户设置的规则进行排序
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrderSortBy === 'ID') {
-                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.sortByProperty('id', _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrder));
+            const scheme = new Map([
+                ['ID', 'id'],
+                ['bookmarkCount', 'bmk'],
+                ['bookmarkID', 'bmkId'],
+            ]);
+            let key = scheme.get(_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrderSortBy);
+            // 在搜索页面预览抓取结果时，始终按收藏数量排序
+            if (_PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.ArtworkSearch &&
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.previewResult) {
+                key = 'bmk';
             }
-            else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrderSortBy === 'bookmarkCount') {
-                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.sortByProperty('bmk', _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrder));
-            }
-            else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrderSortBy === 'bookmarkID') {
-                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.sortByProperty('bmkId', _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrder));
-            }
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.sortByProperty(key, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrder));
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.sortByProperty(key, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrder));
         }
         else {
             // 如果用户未设置排序规则，则每个页面自行处理排序逻辑
@@ -17809,7 +17813,8 @@ class BookmarkAfterDL {
             const dataSource = _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.resultMeta.length > 0 ? _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.resultMeta : _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result;
             const data = dataSource.find((val) => val.idNum === id);
             if (data === undefined) {
-                return reject(new Error(`Not find ${id} in result`));
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(`Not find ${id} in result`);
+                return resolve();
             }
             // 当抓取结果很少时，不使用慢速收藏
             await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(id.toString(), data.type !== 3 ? 'illusts' : 'novels', data.tags, undefined, undefined, _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length > 24);

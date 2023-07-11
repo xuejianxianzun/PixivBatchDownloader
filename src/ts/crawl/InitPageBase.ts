@@ -419,13 +419,21 @@ abstract class InitPageBase {
     // 对文件进行排序
     if (settings.setFileDownloadOrder) {
       // 按照用户设置的规则进行排序
-      if (settings.downloadOrderSortBy === 'ID') {
-        store.result.sort(Utils.sortByProperty('id', settings.downloadOrder))
-      } else if (settings.downloadOrderSortBy === 'bookmarkCount') {
-        store.result.sort(Utils.sortByProperty('bmk', settings.downloadOrder))
-      } else if (settings.downloadOrderSortBy === 'bookmarkID') {
-        store.result.sort(Utils.sortByProperty('bmkId', settings.downloadOrder))
+      const scheme = new Map([
+        ['ID', 'id'],
+        ['bookmarkCount', 'bmk'],
+        ['bookmarkID', 'bmkId'],
+      ])
+      let key = scheme.get(settings.downloadOrderSortBy)
+      // 在搜索页面预览抓取结果时，始终按收藏数量排序
+      if (
+        pageType.type === pageType.list.ArtworkSearch &&
+        settings.previewResult
+      ) {
+        key = 'bmk'
       }
+      store.result.sort(Utils.sortByProperty(key!, settings.downloadOrder))
+      store.resultMeta.sort(Utils.sortByProperty(key!, settings.downloadOrder))
     } else {
       // 如果用户未设置排序规则，则每个页面自行处理排序逻辑
       this.sortResult()
