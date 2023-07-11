@@ -99,13 +99,7 @@ Powerful Pixiv Downloaderは画像や小説を一括ダウンロード出来る*
 
 1. このツールの開発時にはNode.JSが必須です。最初にインストールしてください。
 
-2. 以下の依存関係をグローバルにインストールします。
-
-```
-npm i -g less prettier typescript webpack webpack-cli
-```
-
-3. このプロジェクトをクローンし(あるいはフォークし)、依存関係をインストールします。
+2. このプロジェクトをクローンし(あるいはフォークし)、依存関係をインストールします。
 
 ```
 git clone https://github.com/xuejianxianzun/PixivBatchDownloader.git
