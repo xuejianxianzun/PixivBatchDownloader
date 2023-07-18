@@ -22555,8 +22555,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-
 
 
 
@@ -22621,10 +22619,12 @@ class Mute {
                 return resolve(items);
             }
             catch (error) {
+                // 当请求出错时，视为获取完成。不抛出 reject，否则会导致抓取中止
+                this.got = true;
                 if (error.status === 401) {
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_作品页状态码401'));
+                    console.error('get mute settings error ' + _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_作品页状态码401'));
                 }
-                return reject(error.status);
+                return resolve(error.status);
             }
         });
     }
