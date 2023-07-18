@@ -253,6 +253,7 @@ interface XzSetting {
   tipBookmarkButton: boolean
   highlightFollowingUsers: boolean
   tipCSV: boolean
+  exportIDList: boolean
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -463,6 +464,7 @@ class Settings {
     tipBookmarkButton: true,
     highlightFollowingUsers: true,
     tipCSV: true,
+    exportIDList: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

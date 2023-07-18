@@ -121,6 +121,7 @@ class FormSettings {
       'UnknownAI',
       'setFileDownloadOrder',
       'highlightFollowingUsers',
+      'exportIDList',
     ],
     text: [
       'setWantPage',

@@ -71,7 +71,9 @@ class Mute {
         // 当请求出错时，视为获取完成。不抛出 reject，否则会导致抓取中止
         this.got = true
         if (error.status === 401) {
-          console.error('get mute settings error ' + lang.transl('_作品页状态码401'))
+          console.error(
+            'get mute settings error ' + lang.transl('_作品页状态码401')
+          )
         }
         return resolve(error.status)
       }

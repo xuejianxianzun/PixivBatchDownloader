@@ -270,6 +270,24 @@ abstract class InitPageBase {
 
     log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
 
+    // 导出 ID 列表，并停止抓取
+    if (settings.exportIDList) {
+      const blob = Utils.json2BlobSafe(store.idList)
+      const url = URL.createObjectURL(blob)
+      Utils.downloadFile(
+        url,
+        `export ID list-total ${
+          store.idList.length
+        }-from ${Tools.getPageTitle()}-${store.crawlCompleteTime.getTime()}.json`
+      )
+      URL.revokeObjectURL(url)
+      states.busy = false
+
+      log.success(lang.transl('_导出ID列表'))
+      log.warning(lang.transl('_已停止抓取'))
+      return
+    }
+
     // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
     // return states.busy = false
 

@@ -7562,6 +7562,22 @@ const langText = {
         '크롤링 중지됨',
         'Сканирование остановлено',
     ],
+    _导入ID列表: [
+        '导入 ID 列表',
+        '匯入 ID 列表',
+        'Import ID list',
+        'インポートIDリスト',
+        'ID 목록 가져오기',
+        'Список идентификаторов импорта',
+    ],
+    _导出ID列表: [
+        '获取 ID 列表完毕后导出它，并停止抓取',
+        '獲取 ID 列表完畢後匯出它，並停止抓取',
+        'Export the ID list after fetching it, and stop crawling',
+        'IDリストを取得後にエクスポートし、クロールを停止します',
+        'ID 목록을 가져온 후 내보내기 및 크롤링 중지',
+        'Экспортируйте список идентификаторов после его извлечения и остановите сканирование.',
+    ],
 };
 
 
@@ -15362,7 +15378,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 // 初始化首页
+
+
+
+
+
 
 
 
@@ -15376,10 +15402,14 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     constructor() {
         super();
         this.downIdButton = document.createElement('button');
+        this.importIDListButton = document.createElement('button');
         this.downIdInput = document.createElement('textarea');
         this.ready = false;
         this.init();
         this.idRangeTip = this.createidRangeTip();
+        this.importIDListButton.addEventListener('click', () => {
+            this.importIDList();
+        });
     }
     addCrawlBtns() {
         this.downIdButton = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_输入id进行抓取');
@@ -15388,6 +15418,8 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         crawlIdRange.addEventListener('click', () => {
             this.crawlIdRange();
         });
+        this.importIDListButton = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导入ID列表');
+        this.importIDListButton.id = 'down_id_button';
     }
     addAnyElement() {
         // 用于输入id的输入框
@@ -15511,6 +15543,45 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
             });
         }
         _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('crawlIdList', idList);
+    }
+    async importIDList() {
+        const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.loadJSONFile().catch((err) => {
+            return _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.error(err);
+        }));
+        if (!loadedJSON) {
+            return;
+        }
+        // 要求是数组并且要有内容
+        if (!Array.isArray(loadedJSON) || !loadedJSON.length || !loadedJSON[0]) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_格式错误'));
+        }
+        // 检查是否含有必须的字段（只检查了一部分）
+        const keys = Object.keys(loadedJSON[0]);
+        const need = ['id', 'type'];
+        for (const field of need) {
+            if (!keys.includes(field)) {
+                return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_格式错误'));
+            }
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_12__.log.success('✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入ID列表'));
+        _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.reset();
+        _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList = loadedJSON;
+        this.crawlImportIDList();
+    }
+    crawlImportIDList() {
+        _Log__WEBPACK_IMPORTED_MODULE_12__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前作品个数', _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList.length.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_12__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_开始获取作品信息'));
+        // 始终全速抓取
+        _store_States__WEBPACK_IMPORTED_MODULE_13__.states.slowCrawlMode = false;
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList.length <= this.ajaxThreadsDefault) {
+            this.ajaxThread = _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList.length;
+        }
+        else {
+            this.ajaxThread = this.ajaxThreadsDefault;
+        }
+        for (let i = 0; i < this.ajaxThread; i++) {
+            this.getWorksData();
+        }
     }
     destroy() {
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.clearSlot('crawlBtns');
@@ -17129,6 +17200,17 @@ class InitPageBase {
             return this.noResult();
         }
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前作品个数', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length.toString()));
+        // 导出 ID 列表，并停止抓取
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportIDList) {
+            const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList);
+            const url = URL.createObjectURL(blob);
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.downloadFile(url, `export ID list-total ${_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length}-from ${_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageTitle()}-${_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.crawlCompleteTime.getTime()}.json`);
+            URL.revokeObjectURL(url);
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy = false;
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出ID列表'));
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_已停止抓取'));
+            return;
+        }
         // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
         // return states.busy = false
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始获取作品信息'));
@@ -19683,6 +19765,10 @@ class ExportResult {
             _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_没有可用的抓取结果'));
             return;
         }
+        const total = _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result.length;
+        let offset = 0;
+        // 为了避免导出的文件体积大于 512 MB，限制每个文件只保存 100000 条数据，如果数据太多就分成多个文件
+        const limit = 100000;
         const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result);
         const url = URL.createObjectURL(blob);
         _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.downloadFile(url, `result-${_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getPageTitle())}-${_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.crawlCompleteTime.getTime()}.json`);
@@ -24704,7 +24790,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 
-// 已使用的最大编号是 84
+// 已使用的最大编号是 85
 const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -25592,6 +25678,12 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <p class="option" data-no="85">
+    <span class="settingNameStyle1" data-xztext="_导出ID列表"></span>
+    <input type="checkbox" name="exportIDList" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </p>
@@ -26020,6 +26112,7 @@ class FormSettings {
                 'UnknownAI',
                 'setFileDownloadOrder',
                 'highlightFollowingUsers',
+                'exportIDList',
             ],
             text: [
                 'setWantPage',
@@ -26992,6 +27085,7 @@ class Settings {
             tipBookmarkButton: true,
             highlightFollowingUsers: true,
             tipCSV: true,
+            exportIDList: false,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项

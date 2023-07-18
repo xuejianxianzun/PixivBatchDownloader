@@ -9,15 +9,26 @@ import { IDData } from '../store/StoreType'
 import { Config } from '../Config'
 import { toast } from '../Toast'
 import { theme } from '../Theme'
+import { Utils } from '../utils/Utils'
+import { msgBox } from '../MsgBox'
+import { store } from '../store/Store'
+import { log } from '../Log'
+import { states } from '../store/States'
 
 class InitHomePage extends InitPageBase {
   constructor() {
     super()
     this.init()
     this.idRangeTip = this.createidRangeTip()
+
+    this.importIDListButton.addEventListener('click', () => {
+      this.importIDList()
+    })
   }
 
   private downIdButton: HTMLButtonElement = document.createElement('button')
+  private importIDListButton: HTMLButtonElement =
+    document.createElement('button')
   private downIdInput: HTMLTextAreaElement = document.createElement('textarea')
   private ready = false
 
@@ -35,6 +46,13 @@ class InitHomePage extends InitPageBase {
     crawlIdRange.addEventListener('click', () => {
       this.crawlIdRange()
     })
+
+    this.importIDListButton = Tools.addBtn(
+      'crawlBtns',
+      Colors.bgGreen,
+      '_导入ID列表'
+    )
+    this.importIDListButton.id = 'down_id_button'
   }
 
   protected addAnyElement() {
@@ -186,6 +204,55 @@ class InitHomePage extends InitPageBase {
     }
 
     EVT.fire('crawlIdList', idList)
+  }
+
+  private async importIDList() {
+    const loadedJSON = (await Utils.loadJSONFile().catch((err) => {
+      return msgBox.error(err)
+    })) as IDData[]
+    if (!loadedJSON) {
+      return
+    }
+
+    // 要求是数组并且要有内容
+    if (!Array.isArray(loadedJSON) || !loadedJSON.length || !loadedJSON[0]) {
+      return toast.error(lang.transl('_格式错误'))
+    }
+
+    // 检查是否含有必须的字段（只检查了一部分）
+    const keys = Object.keys(loadedJSON[0])
+    const need = ['id', 'type']
+    for (const field of need) {
+      if (!keys.includes(field)) {
+        return toast.error(lang.transl('_格式错误'))
+      }
+    }
+
+    log.success('✓ ' + lang.transl('_导入ID列表'))
+
+    store.reset()
+
+    store.idList = loadedJSON
+
+    this.crawlImportIDList()
+  }
+
+  protected crawlImportIDList() {
+    log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
+    log.log(lang.transl('_开始获取作品信息'))
+
+    // 始终全速抓取
+    states.slowCrawlMode = false
+
+    if (store.idList.length <= this.ajaxThreadsDefault) {
+      this.ajaxThread = store.idList.length
+    } else {
+      this.ajaxThread = this.ajaxThreadsDefault
+    }
+
+    for (let i = 0; i < this.ajaxThread; i++) {
+      this.getWorksData()
+    }
   }
 
   protected destroy() {

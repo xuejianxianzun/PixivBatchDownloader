@@ -22,6 +22,11 @@ class ExportResult {
       return
     }
 
+    const total = store.result.length
+    let offset = 0
+    // 为了避免导出的文件体积大于 512 MB，限制每个文件只保存 100000 条数据，如果数据太多就分成多个文件
+    const limit = 100000
+
     const blob = Utils.json2BlobSafe(store.result)
     const url = URL.createObjectURL(blob)
     Utils.downloadFile(
