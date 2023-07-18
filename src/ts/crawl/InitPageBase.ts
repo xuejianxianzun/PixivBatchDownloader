@@ -271,7 +271,7 @@ abstract class InitPageBase {
     log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
 
     // 导出 ID 列表，并停止抓取
-    if (settings.exportIDList) {
+    if (settings.exportIDList && Utils.isPixiv()) {
       const blob = Utils.json2BlobSafe(store.idList)
       const url = URL.createObjectURL(blob)
       Utils.downloadFile(
@@ -281,7 +281,10 @@ abstract class InitPageBase {
         }-from ${Tools.getPageTitle()}-${store.crawlCompleteTime.getTime()}.json`
       )
       URL.revokeObjectURL(url)
+
       states.busy = false
+
+      EVT.fire('stopCrawl')
 
       log.success(lang.transl('_导出ID列表'))
       log.warning(lang.transl('_已停止抓取'))

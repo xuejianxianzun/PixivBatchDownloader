@@ -12241,6 +12241,15 @@ class Tools {
         }
         return '';
     }
+    static checkUserLogin() {
+        // 如果有“登录”的超链接，则是未登录状态
+        // 在桌面版和移动版网页里都有效
+        const loginLink = document.querySelector('a[href^="/login"]');
+        if (loginLink) {
+            return false;
+        }
+        return true;
+    }
 }
 Tools.chineseRegexp = /[一-龥]/;
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
@@ -13327,7 +13336,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
             49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-            70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84,
+            70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85,
         ]);
     }
     nextStep() {
@@ -17201,12 +17210,13 @@ class InitPageBase {
         }
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前作品个数', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length.toString()));
         // 导出 ID 列表，并停止抓取
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportIDList) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportIDList && _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.isPixiv()) {
             const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList);
             const url = URL.createObjectURL(blob);
             _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.downloadFile(url, `export ID list-total ${_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length}-from ${_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageTitle()}-${_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.crawlCompleteTime.getTime()}.json`);
             URL.revokeObjectURL(url);
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy = false;
+            _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('stopCrawl');
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出ID列表'));
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_已停止抓取'));
             return;
@@ -17512,7 +17522,6 @@ class StopCrawl {
         this.btn = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.addBtn('stopCrawl', _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgRed, '_停止抓取');
         this.hide();
         this.btn.addEventListener('click', () => {
-            this.stopCrawl();
             this.hide();
             const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已停止抓取');
             _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(msg);
@@ -17525,11 +17534,13 @@ class StopCrawl {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlStart, () => {
             this.show();
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlComplete, () => {
-            this.hide();
+        const hiddenEvents = [_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.stopCrawl];
+        hiddenEvents.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.hide();
+            });
         });
     }
-    stopCrawl() { }
     hide() {
         this.btn.style.display = 'none';
     }
@@ -22641,6 +22652,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
 
 
 
@@ -22676,6 +22689,9 @@ class Mute {
         this.userList = [];
         this.tagList = [];
         return new Promise(async (resolve, reject) => {
+            if (_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.checkUserLogin() === false) {
+                return resolve(401);
+            }
             try {
                 const response = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getMuteSettings();
                 const items = response.body.mute_items;

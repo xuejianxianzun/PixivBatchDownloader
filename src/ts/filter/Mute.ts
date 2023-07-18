@@ -1,6 +1,7 @@
 import { API } from '../API'
 import { lang } from '../Lang'
 import { log } from '../Log'
+import { Tools } from '../Tools'
 
 // 获取用户在 Pixiv 里屏蔽的用户和/或 tag，进行过滤
 class Mute {
@@ -38,6 +39,10 @@ class Mute {
     this.tagList = []
 
     return new Promise(async (resolve, reject) => {
+      if (Tools.checkUserLogin() === false) {
+        return resolve(401)
+      }
+
       try {
         const response = await API.getMuteSettings()
         const items = response.body.mute_items
