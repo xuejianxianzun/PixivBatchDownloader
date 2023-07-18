@@ -19493,7 +19493,7 @@ class DownloadRecord {
         }
         const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.json2BlobSafe(record);
         const url = URL.createObjectURL(blob);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.downloadFile(url, `record-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.downloadFile(url, `record-total ${record.length}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
         _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出成功'));
         _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出成功'));
     }

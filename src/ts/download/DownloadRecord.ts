@@ -280,7 +280,7 @@ class DownloadRecord {
     const url = URL.createObjectURL(blob)
     Utils.downloadFile(
       url,
-      `record-${Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`
+      `record-total ${record.length}-${Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`
     )
 
     log.success(lang.transl('_导出成功'))
