@@ -276,17 +276,19 @@ class DownloadRecord {
       return
     }
 
-    const blob = Utils.json2BlobSafe(record)
-    const url = URL.createObjectURL(blob)
-    Utils.downloadFile(
-      url,
-      `record-total ${record.length}-${Utils.replaceUnsafeStr(
-        new Date().toLocaleString()
-      )}.json`
-    )
+    const resultList = await Utils.json2BlobSafe(record)
+    for (const result of resultList) {
+      Utils.downloadFile(
+        result.url,
+        `record-total ${result.total}-${Utils.replaceUnsafeStr(
+          new Date().toLocaleString()
+        )}.json`
+      )
+    }
 
-    log.success(lang.transl('_导出成功'))
-    toast.success(lang.transl('_导出成功'))
+    const msg = lang.transl('_导出成功')
+    log.success(msg)
+    toast.success(msg)
   }
 
   // 导入下载记录

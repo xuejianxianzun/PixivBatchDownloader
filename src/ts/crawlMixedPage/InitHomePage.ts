@@ -14,6 +14,7 @@ import { msgBox } from '../MsgBox'
 import { store } from '../store/Store'
 import { log } from '../Log'
 import { states } from '../store/States'
+import { settings } from '../setting/Settings'
 
 class InitHomePage extends InitPageBase {
   constructor() {
@@ -241,13 +242,25 @@ class InitHomePage extends InitPageBase {
     log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
     log.log(lang.transl('_开始获取作品信息'))
 
-    // 始终全速抓取
-    states.slowCrawlMode = false
+    if (Tools.checkUserLogin() === false) {
+      // 如果未登录账号，则全速抓取
+      states.slowCrawlMode = false
 
-    if (store.idList.length <= this.ajaxThreadsDefault) {
-      this.ajaxThread = store.idList.length
+      if (store.idList.length <= this.ajaxThreadsDefault) {
+        this.ajaxThread = store.idList.length
+      } else {
+        this.ajaxThread = this.ajaxThreadsDefault
+      }
     } else {
-      this.ajaxThread = this.ajaxThreadsDefault
+      // 登录账号后，可以使用慢速抓取
+      if (
+        settings.slowCrawl &&
+        store.idList.length > settings.slowCrawlOnWorksNumber
+      ) {
+        log.warning(lang.transl('_慢速抓取'))
+        states.slowCrawlMode = true
+        this.ajaxThread = 1
+      }
     }
 
     for (let i = 0; i < this.ajaxThread; i++) {

@@ -583,6 +583,7 @@ class Settings {
     const blob = Utils.json2Blob(this.settings)
     const url = URL.createObjectURL(blob)
     Utils.downloadFile(url, Config.appName + ` Settings.json`)
+    URL.revokeObjectURL(url)
     toast.success(lang.transl('_导出成功'))
   }
 

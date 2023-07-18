@@ -4819,10 +4819,10 @@ const langText = {
     ],
     _举报: ['举报', '回報', 'Report', '報告', '신고', 'Отчет'],
     _输入id进行抓取: [
-        '输入 id 进行抓取',
-        '輸入 id 進行擷取',
-        'Type id to crawl',
-        'idを入力してダウンロードする',
+        '输入 ID 进行抓取',
+        '輸入 ID 進行擷取',
+        'Type ID to crawl',
+        'IDを入力してダウンロードする',
         '유형 ID 긁어오기',
         'Введите ID для вытаскивания',
     ],
@@ -6068,10 +6068,10 @@ const langText = {
         'Просмотр на весь экран',
     ],
     _抓取id区间: [
-        '抓取 id 区间',
-        '擷取 id 區間',
-        'Crawl id range',
-        'id 範囲をクロール',
+        '抓取 ID 区间',
+        '擷取 ID 區間',
+        'Crawl ID range',
+        'ID 範囲をクロール',
         'ID 범위 긁어오기',
         'Стащить диапазон идентификаторов',
     ],
@@ -7571,8 +7571,8 @@ const langText = {
         'Список идентификаторов импорта',
     ],
     _导出ID列表: [
-        '获取 ID 列表完毕后导出它，并停止抓取',
-        '獲取 ID 列表完畢後匯出它，並停止抓取',
+        '获取 ID 列表完毕后导出列表，并停止抓取',
+        '獲取 ID 列表完畢後匯出列表，並停止抓取',
         'Export the ID list after fetching it, and stop crawling',
         'IDリストを取得後にエクスポートし、クロールを停止します',
         'ID 목록을 가져온 후 내보내기 및 크롤링 중지',
@@ -15392,7 +15392,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 // 初始化首页
+
 
 
 
@@ -15580,13 +15582,24 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     crawlImportIDList() {
         _Log__WEBPACK_IMPORTED_MODULE_12__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前作品个数', _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList.length.toString()));
         _Log__WEBPACK_IMPORTED_MODULE_12__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_开始获取作品信息'));
-        // 始终全速抓取
-        _store_States__WEBPACK_IMPORTED_MODULE_13__.states.slowCrawlMode = false;
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList.length <= this.ajaxThreadsDefault) {
-            this.ajaxThread = _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList.length;
+        if (_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.checkUserLogin() === false) {
+            // 如果未登录账号，则全速抓取
+            _store_States__WEBPACK_IMPORTED_MODULE_13__.states.slowCrawlMode = false;
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList.length <= this.ajaxThreadsDefault) {
+                this.ajaxThread = _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList.length;
+            }
+            else {
+                this.ajaxThread = this.ajaxThreadsDefault;
+            }
         }
         else {
-            this.ajaxThread = this.ajaxThreadsDefault;
+            // 登录账号后，可以使用慢速抓取
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_14__.settings.slowCrawl &&
+                _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_14__.settings.slowCrawlOnWorksNumber) {
+                _Log__WEBPACK_IMPORTED_MODULE_12__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_慢速抓取'));
+                _store_States__WEBPACK_IMPORTED_MODULE_13__.states.slowCrawlMode = true;
+                this.ajaxThread = 1;
+            }
         }
         for (let i = 0; i < this.ajaxThread; i++) {
             this.getWorksData();
@@ -17198,7 +17211,7 @@ class InitPageBase {
     // 获取 id 列表，由各个子类具体定义
     getIdList() { }
     // id 列表获取完毕，开始抓取作品内容页
-    getIdListFinished() {
+    async getIdListFinished() {
         _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = false;
         this.resetGetIdListStatus();
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('getIdListFinished');
@@ -17211,10 +17224,10 @@ class InitPageBase {
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前作品个数', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length.toString()));
         // 导出 ID 列表，并停止抓取
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportIDList && _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.isPixiv()) {
-            const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList);
-            const url = URL.createObjectURL(blob);
-            _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.downloadFile(url, `export ID list-total ${_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length}-from ${_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageTitle()}-${_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.crawlCompleteTime.getTime()}.json`);
-            URL.revokeObjectURL(url);
+            const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList);
+            for (const result of resultList) {
+                _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.downloadFile(result.url, `ID list-total ${result.total}-from ${_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageTitle()}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
+            }
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy = false;
             _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('stopCrawl');
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出ID列表'));
@@ -19502,11 +19515,13 @@ class DownloadRecord {
             _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有数据可供使用'));
             return;
         }
-        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.json2BlobSafe(record);
-        const url = URL.createObjectURL(blob);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.downloadFile(url, `record-total ${record.length}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出成功'));
-        _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出成功'));
+        const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.json2BlobSafe(record);
+        for (const result of resultList) {
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.downloadFile(result.url, `record-total ${result.total}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
+        }
+        const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出成功');
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.success(msg);
     }
     // 导入下载记录
     async importRecord(record) {
@@ -19756,6 +19771,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+
 
 
 
@@ -19771,19 +19788,18 @@ class ExportResult {
             this.output();
         });
     }
-    output() {
+    async output() {
         if (_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result.length === 0) {
             _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_没有可用的抓取结果'));
             return;
         }
-        const total = _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result.length;
-        let offset = 0;
-        // 为了避免导出的文件体积大于 512 MB，限制每个文件只保存 100000 条数据，如果数据太多就分成多个文件
-        const limit = 100000;
-        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result);
-        const url = URL.createObjectURL(blob);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.downloadFile(url, `result-${_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getPageTitle())}-${_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.crawlCompleteTime.getTime()}.json`);
-        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_导出成功'));
+        const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result);
+        for (const result of resultList) {
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.downloadFile(result.url, `result-total ${result.total}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getPageTitle())}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.crawlCompleteTime.toLocaleString())}.json`);
+        }
+        const msg = _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_导出成功');
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(msg);
     }
 }
 new ExportResult();
@@ -19983,7 +19999,7 @@ class ExportResult2CSV {
         const csv = _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_6__.createCSV.create(body);
         const csvURL = URL.createObjectURL(csv);
         // 设置文件名
-        let csvName = `result-${_utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getPageTitle())}-${_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.crawlCompleteTime.getTime()}.csv`;
+        let csvName = `result-total ${body.length - 1}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getPageTitle())}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.replaceUnsafeStr(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.crawlCompleteTime.toLocaleString())}.csv`;
         _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.downloadFile(csvURL, csvName);
         _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导出成功'));
         _ShowHelp__WEBPACK_IMPORTED_MODULE_9__.showHelp.show('tipCSV', _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导出CSV文件的提示'));
@@ -22832,9 +22848,10 @@ class WorkPublishTime {
         }
         console.log(result);
         console.log('crawl time data complete');
-        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.json2BlobSafe(result);
-        const url = URL.createObjectURL(blob);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.downloadFile(url, `workPublishTime-${type}-${start}-${end}.json`);
+        const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.json2BlobSafe(result);
+        for (const result of resultList) {
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.downloadFile(result.url, `workPublishTime-${type}-${start}-${end}.json`);
+        }
         return result;
     }
     // 获取指定作品的发布时间
@@ -27207,6 +27224,7 @@ class Settings {
         const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.json2Blob(this.settings);
         const url = URL.createObjectURL(blob);
         _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.downloadFile(url, _Config__WEBPACK_IMPORTED_MODULE_4__.Config.appName + ` Settings.json`);
+        URL.revokeObjectURL(url);
         _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_导出成功'));
     }
     async importSettings() {
@@ -27814,6 +27832,9 @@ class SaveArtworkData {
             if (body.illustType === 0 || body.illustType === 1) {
                 // 插画或漫画
                 const imgUrl = body.urls.original; // 作品的原图 URL
+                if (imgUrl === null) {
+                    return;
+                }
                 const tempExt = imgUrl.split('.');
                 const ext = tempExt[tempExt.length - 1];
                 // 添加作品信息
@@ -42140,6 +42161,9 @@ class Utils {
         a.href = url;
         a.download = fileName;
         a.click();
+        if (url.startsWith('blob')) {
+            URL.revokeObjectURL(url);
+        }
     }
     // 判断当前页面是否属于 pixiv.net
     static isPixiv() {
@@ -42260,25 +42284,56 @@ class Utils {
         const blob = new Blob([str], { type: 'application/json' });
         return blob;
     }
-    /**JSON 转换成 Blob 对象。可以处理更大的数据量 */
-    static json2BlobSafe(data) {
-        // 在这个数组里储存数组字面量
-        let result = [];
-        // 添加数组的开始符号
-        result.push('[');
-        // 循环添加每一项数据
-        for (const item of data) {
-            result.push(JSON.stringify(item));
-            result.push(',');
-        }
-        // 删除最后一个分隔符，否则会导致格式错误
-        result.pop();
-        // 添加数组的结束符号
-        result.push(']');
-        // 创建 blob 对象
-        const blob = new Blob(result, { type: 'application/json' });
-        result = [];
-        return blob;
+    /**把 JSON 转换成 Blob 对象。可以处理更大的数据量，并且导出的文件体积不会超过 500 MB */
+    static async json2BlobSafe(data) {
+        return new Promise((resolve) => {
+            // 限制单个文件的体积上限为 500 MB
+            const fileByteLengthLimit = 524288000;
+            const result = [];
+            // 在这个数组里储存数组字面量
+            let JSONStringArray = [];
+            const length = data.length;
+            let index = 0;
+            let total = 0;
+            let bytelength = 0;
+            let startNewFile = true;
+            const textEncode = new TextEncoder();
+            while (index < length) {
+                // 添加数组的开始符号
+                if (startNewFile) {
+                    startNewFile = false;
+                    JSONStringArray.push('[');
+                    bytelength = bytelength + 1;
+                }
+                // 循环添加每一项数据
+                const string = JSON.stringify(data[index]);
+                JSONStringArray.push(string);
+                JSONStringArray.push(',');
+                bytelength = bytelength + textEncode.encode(string).length + 1;
+                index++;
+                total++;
+                // 分割文件
+                if (index === length || bytelength >= fileByteLengthLimit) {
+                    // 删除最后一个分隔符，否则会导致格式错误
+                    JSONStringArray.pop();
+                    // 添加数组的结束符号
+                    JSONStringArray.push(']');
+                    // 生成文件数据
+                    const blob = new Blob(JSONStringArray, { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    result.push({
+                        url,
+                        total,
+                    });
+                    // 重置变量
+                    startNewFile = true;
+                    bytelength = 0;
+                    total = 0;
+                    JSONStringArray = [];
+                }
+            }
+            return resolve(result);
+        });
     }
     /**防抖 */
     static debounce(func, wait) {

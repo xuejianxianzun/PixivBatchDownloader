@@ -255,7 +255,7 @@ abstract class InitPageBase {
   protected getIdList() {}
 
   // id 列表获取完毕，开始抓取作品内容页
-  protected getIdListFinished() {
+  protected async getIdListFinished() {
     states.slowCrawlMode = false
     this.resetGetIdListStatus()
 
@@ -272,15 +272,17 @@ abstract class InitPageBase {
 
     // 导出 ID 列表，并停止抓取
     if (settings.exportIDList && Utils.isPixiv()) {
-      const blob = Utils.json2BlobSafe(store.idList)
-      const url = URL.createObjectURL(blob)
-      Utils.downloadFile(
-        url,
-        `export ID list-total ${
-          store.idList.length
-        }-from ${Tools.getPageTitle()}-${store.crawlCompleteTime.getTime()}.json`
-      )
-      URL.revokeObjectURL(url)
+      const resultList = await Utils.json2BlobSafe(store.idList)
+      for (const result of resultList) {
+        Utils.downloadFile(
+          result.url,
+          `ID list-total ${
+            result.total
+          }-from ${Tools.getPageTitle()}-${Utils.replaceUnsafeStr(
+            new Date().toLocaleString()
+          )}.json`
+        )
+      }
 
       states.busy = false
 

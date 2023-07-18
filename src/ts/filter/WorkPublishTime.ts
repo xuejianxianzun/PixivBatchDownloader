@@ -98,9 +98,14 @@ class WorkPublishTime {
 
     console.log(result)
     console.log('crawl time data complete')
-    const blob = Utils.json2BlobSafe(result)
-    const url = URL.createObjectURL(blob)
-    Utils.downloadFile(url, `workPublishTime-${type}-${start}-${end}.json`)
+
+    const resultList = await Utils.json2BlobSafe(result)
+    for (const result of resultList) {
+      Utils.downloadFile(
+        result.url,
+        `workPublishTime-${type}-${start}-${end}.json`
+      )
+    }
 
     return result
   }

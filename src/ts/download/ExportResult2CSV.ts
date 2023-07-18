@@ -196,9 +196,9 @@ class ExportResult2CSV {
     const csvURL = URL.createObjectURL(csv)
 
     // 设置文件名
-    let csvName = `result-${Utils.replaceUnsafeStr(
+    let csvName = `result-total ${body.length - 1}-${Utils.replaceUnsafeStr(
       Tools.getPageTitle()
-    )}-${store.crawlCompleteTime.getTime()}.csv`
+    )}-${Utils.replaceUnsafeStr(store.crawlCompleteTime.toLocaleString())}.csv`
 
     Utils.downloadFile(csvURL, csvName)
 
