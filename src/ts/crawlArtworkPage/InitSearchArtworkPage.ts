@@ -366,6 +366,10 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
   protected async getIdList(p?: number): Promise<void> {
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
+    }
+
     if (p === undefined) {
       p = this.startpageNo + this.sendCrawlTaskCount
       this.sendCrawlTaskCount++
@@ -383,6 +387,10 @@ class InitSearchArtworkPage extends InitPageBase {
       }
     } catch {
       return this.getIdList(p)
+    }
+
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
     }
 
     data = data.data
@@ -630,8 +638,8 @@ class InitSearchArtworkPage extends InitPageBase {
                 ? Tools.convertThumbURLTo540px(data.thumb)
                 : data.thumb
             }" alt="${
-      data.title
-    }" style="object-fit: contain; object-position: center center;">
+              data.title
+            }" style="object-fit: contain; object-position: center center;">
               <!-- 动图 svg -->
               ${ugoiraHTML}
               </div>
@@ -654,8 +662,8 @@ class InitSearchArtworkPage extends InitPageBase {
       </div>
       <!--标题名-->
       <a target="_blank" class="titleLink" href="/artworks/${data.idNum}">${
-      data.title
-    }</a>
+        data.title
+      }</a>
       <!--底部-->
       <div class="bottomBar">
       <!--作者信息-->

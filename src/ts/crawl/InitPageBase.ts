@@ -13,6 +13,7 @@ import { saveArtworkData } from '../store/SaveArtworkData'
 import { saveNovelData } from '../store/SaveNovelData'
 import { mute } from '../filter/Mute'
 import { IDData } from '../store/StoreType'
+import './StopCrawl'
 import '../SelectWork'
 import { destroyManager } from '../pageFunciton/DestroyManager'
 import { vipSearchOptimize } from './VipSearchOptimize'
@@ -32,9 +33,9 @@ abstract class InitPageBase {
 
   protected maxCount = 1000 // 当前页面类型最多有多少个页面/作品
 
-  protected startpageNo = 1 // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、新作品页、系列页面使用。
+  protected startpageNo = 1 // 列表页开始抓取时的页码，只在 api 需要页码时使用
 
-  protected listPageFinished = 0 // 记录一共抓取了多少个列表页。使用范围同上。
+  protected listPageFinished = 0 // 记录一共抓取了多少个列表页
 
   protected readonly ajaxThreadsDefault = 10 // 抓取作品数据时的并发请求数量默认值，也是最大值
 
@@ -42,10 +43,7 @@ abstract class InitPageBase {
 
   protected finishedRequest = 0 // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
 
-  /**抓取是否已停止 */
-  protected crawlStopped = false
-
-  // 子组件不可以修改 init 方法
+  // 子组件必须调用 init 方法，并且不可以修改 init 方法
   protected init() {
     this.setFormOption()
     this.addCrawlBtns()
@@ -70,10 +68,15 @@ abstract class InitPageBase {
       if (idList) {
         this.crawlIdList(idList)
       }
+      // 通过 bindOnce 绑定的 this 是执行此代码时通过这个虚拟类生成的实例，这个 this 是不会变化的
+      // 但是这个虚拟类会产生多个实例，所以这里调用 this 的方法时，要求这个方法与具体实例无关，不受实例变化影响
+      // 也就是说即使页面类型变化并且生成了新的实例，调用旧实例上的这个方法也依然会正常运行
+      // 如果某个方法做不到这一点, 就不要在这里调用。
+      // 基于此，在这里修改 this 上的属性是不合适的，因为每个新实例都会复制这个虚拟类上的属性，它们是独立的
     })
   }
 
-  // 设置表单里的选项。主要是设置页数，隐藏不需要的选项。
+  // 设置表单里的选项。主要是设置页数，并隐藏不需要的选项。
   protected setFormOption(): void {
     // 个数/页数选项的提示
     options.setWantPageTip({
@@ -83,7 +86,7 @@ abstract class InitPageBase {
     })
   }
 
-  // 添加抓取区域的按钮
+  // 添加抓取区域的默认按钮，可以被子类覆写
   protected addCrawlBtns() {
     Tools.addBtn(
       'crawlBtns',
@@ -143,13 +146,13 @@ abstract class InitPageBase {
   protected checkWantPageInputGreater0(max: number, page: boolean) {
     const want = settings.wantPageArr[pageType.type]
     if (want > 0) {
-      const result = want > max ? max : want
-
-      if (page) {
-        log.warning(lang.transl('_从本页开始下载x页', result.toString()))
-      } else {
-        log.warning(lang.transl('_从本页开始下载x个', result.toString()))
-      }
+      const result = Math.min(want, max)
+      log.warning(
+        lang.transl(
+          page ? '_从本页开始下载x页' : '_从本页开始下载x个',
+          result.toString()
+        )
+      )
       return result
     } else {
       throw this.getWantPageError()
@@ -203,7 +206,7 @@ abstract class InitPageBase {
 
     this.finishedRequest = 0
 
-    this.crawlStopped = false
+    states.stopCrawl = false
 
     // 进入第一个抓取流程
     this.nextStep()
@@ -235,7 +238,7 @@ abstract class InitPageBase {
 
       this.finishedRequest = 0
 
-      this.crawlStopped = false
+      states.stopCrawl = false
 
       store.idList = idList
 
@@ -252,12 +255,12 @@ abstract class InitPageBase {
   protected getIdList() {}
 
   // id 列表获取完毕，开始抓取作品内容页
-  protected getIdListFinished() {
+  protected async getIdListFinished() {
     states.slowCrawlMode = false
     this.resetGetIdListStatus()
 
     EVT.fire('getIdListFinished')
-    if (states.bookmarkMode) {
+    if (states.stopCrawl || states.bookmarkMode) {
       return
     }
 
@@ -266,6 +269,29 @@ abstract class InitPageBase {
     }
 
     log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
+
+    // 导出 ID 列表，并停止抓取
+    if (settings.exportIDList && Utils.isPixiv()) {
+      const resultList = await Utils.json2BlobSafe(store.idList)
+      for (const result of resultList) {
+        Utils.downloadFile(
+          result.url,
+          `ID list-total ${
+            result.total
+          }-from ${Tools.getPageTitle()}-${Utils.replaceUnsafeStr(
+            new Date().toLocaleString()
+          )}.json`
+        )
+      }
+
+      states.busy = false
+
+      EVT.fire('stopCrawl')
+
+      log.success(lang.transl('_导出ID列表'))
+      log.warning(lang.transl('_已停止抓取'))
+      return
+    }
 
     // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
     // return states.busy = false
@@ -305,6 +331,10 @@ abstract class InitPageBase {
 
   // 获取作品的数据
   protected async getWorksData(idData?: IDData) {
+    if (states.stopCrawl) {
+      return this.crawlFinished()
+    }
+
     idData = idData || (store.idList.shift()! as IDData)
     const id = idData.id
 
@@ -340,10 +370,6 @@ abstract class InitPageBase {
       }
     } catch (error) {
       // 当 API 里的网络请求的状态码异常时，会 reject，被这里捕获
-      // error: {
-      //   status: response.status,
-      //   statusText: response.statusText,
-      // }
       if (error.status) {
         // 请求成功，但状态码不正常
         this.logErrorStatus(error.status, idData)
@@ -372,18 +398,18 @@ abstract class InitPageBase {
 
   // 每当获取完一个作品的信息
   private async afterGetWorksData(data?: NovelData | ArtworkData) {
-    // 抓取可能中途停止，在停止之后完成的抓取不进行任何处理
-    if (this.crawlStopped) {
-      return
-    }
-
     this.logResultNumber()
+
+    // 抓取可能中途停止，保留抓取结果
+    if (states.stopCrawl) {
+      return this.crawlFinished()
+    }
 
     // 如果会员搜索优化策略指示停止抓取，则立即进入完成状态
     if (data && (await vipSearchOptimize.stopCrawl(data))) {
       // 指示抓取已停止
-      this.crawlStopped = true
-      this.crawlFinished()
+      states.stopCrawl = true
+      return this.crawlFinished()
     }
 
     if (store.idList.length > 0) {
@@ -416,13 +442,21 @@ abstract class InitPageBase {
     // 对文件进行排序
     if (settings.setFileDownloadOrder) {
       // 按照用户设置的规则进行排序
-      if (settings.downloadOrderSortBy === 'ID') {
-        store.result.sort(Utils.sortByProperty('id', settings.downloadOrder))
-      } else if (settings.downloadOrderSortBy === 'bookmarkCount') {
-        store.result.sort(Utils.sortByProperty('bmk', settings.downloadOrder))
-      } else if (settings.downloadOrderSortBy === 'bookmarkID') {
-        store.result.sort(Utils.sortByProperty('bmkId', settings.downloadOrder))
+      const scheme = new Map([
+        ['ID', 'id'],
+        ['bookmarkCount', 'bmk'],
+        ['bookmarkID', 'bmkId'],
+      ])
+      let key = scheme.get(settings.downloadOrderSortBy)
+      // 在搜索页面预览抓取结果时，始终按收藏数量排序
+      if (
+        pageType.type === pageType.list.ArtworkSearch &&
+        settings.previewResult
+      ) {
+        key = 'bmk'
       }
+      store.result.sort(Utils.sortByProperty(key!, settings.downloadOrder))
+      store.resultMeta.sort(Utils.sortByProperty(key!, settings.downloadOrder))
     } else {
       // 如果用户未设置排序规则，则每个页面自行处理排序逻辑
       this.sortResult()

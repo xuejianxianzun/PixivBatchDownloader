@@ -114,13 +114,7 @@
 
 1. 이 도구는 개발 중에 Node.js를 먼저 설치해야 합니다.
 
-2. 다음 종속성을 전역으로 설치합니다:
-
-```
-npm i -g less prettier typescript webpack webpack-cli
-```
-
-3. 이 프로젝트를 복제하고(또는 먼저 포크) 종속성을 설치합니다:
+2. 이 프로젝트를 복제하고(또는 먼저 포크) 종속성을 설치합니다:
 
 ```
 git clone https://github.com/xuejianxianzun/PixivBatchDownloader.git

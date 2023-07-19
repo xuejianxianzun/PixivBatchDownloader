@@ -99,6 +99,10 @@ class InitBookmarkNewPage extends InitPageBase {
   }
 
   protected async getIdList() {
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
+    }
+
     let p = this.startpageNo + this.listPageFinished
 
     let data
@@ -107,6 +111,10 @@ class InitBookmarkNewPage extends InitPageBase {
     } catch (error) {
       this.getIdList()
       return
+    }
+
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
     }
 
     let worksData = data.body.thumbnails[this.type]
