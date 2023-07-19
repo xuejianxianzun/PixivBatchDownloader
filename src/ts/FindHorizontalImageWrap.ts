@@ -121,14 +121,15 @@ class FindHorizontalImageWrap {
     wrap: HTMLElement,
     ob?: MutationObserver
   ) {
-    if (img.complete) {
+    if (img?.complete) {
       this.checkImage(img, wrap)
       ob && ob.disconnect()
     } else {
-      img.onload = () => {
-        this.checkImage(img, wrap)
-        ob && ob.disconnect()
-      }
+      img &&
+        (img.onload = () => {
+          this.checkImage(img, wrap)
+          ob && ob.disconnect()
+        })
     }
   }
 

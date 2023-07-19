@@ -254,6 +254,8 @@ interface XzSetting {
   highlightFollowingUsers: boolean
   coverImage: boolean
   tipCSV: boolean
+  exportIDList: boolean
+  tipExportFollowingUserList: boolean
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -428,7 +430,7 @@ class Settings {
     setUserNameShow: true,
     setUserNameList: {},
     removeAtFromUsername: false,
-    showLargerThumbnails: false,
+    showLargerThumbnails: true,
     doubleWidthThumb: true,
     wheelScrollSwitchImageOnPreviewWork: true,
     doNotDownloadLastImageOfMultiImageWork: false,
@@ -465,6 +467,8 @@ class Settings {
     highlightFollowingUsers: true,
     coverImage: true,
     tipCSV: true,
+    exportIDList: false,
+    tipExportFollowingUserList: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -583,6 +587,7 @@ class Settings {
     const blob = Utils.json2Blob(this.settings)
     const url = URL.createObjectURL(blob)
     Utils.downloadFile(url, Config.appName + ` Settings.json`)
+    URL.revokeObjectURL(url)
     toast.success(lang.transl('_导出成功'))
   }
 
@@ -612,6 +617,8 @@ class Settings {
     this.setSetting('tipPressDToQuickDownload', true)
     this.setSetting('tipAltQToQuickDownload', true)
     this.setSetting('tipBookmarkButton', true)
+    this.setSetting('tipCSV', true)
+    this.setSetting('tipExportFollowingUserList', true)
 
     toast.success('✓ ' + lang.transl('_重新显示帮助'))
   }

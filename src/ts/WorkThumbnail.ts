@@ -1,5 +1,4 @@
 import { Config } from './Config'
-import { Tools } from './Tools'
 
 // 查找作品的缩略图，当鼠标进入、移出时等动作触发时执行回调函数
 abstract class WorkThumbnail {

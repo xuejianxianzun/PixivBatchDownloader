@@ -244,6 +244,10 @@ class InitUserPage extends InitPageBase {
 
   // 获取用户某些类型的作品的 id 列表（附带 tag）
   private async getIdListByTag() {
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
+    }
+
     // 这里不用判断用户主页的情况，因为用户主页不会带 tag
     let type: tagPageFlag = 'illustmanga'
     switch (this.listType) {
@@ -276,6 +280,10 @@ class InitUserPage extends InitPageBase {
         offset,
         this.onceNumber
       )
+
+      if (states.stopCrawl) {
+        return this.getIdListFinished()
+      }
 
       // 图片和小说返回的数据是不同的，小说没有 illustType 标记
       if (this.listType === ListType.Novels) {

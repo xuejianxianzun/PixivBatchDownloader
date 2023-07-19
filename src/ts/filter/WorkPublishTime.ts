@@ -60,13 +60,13 @@ class WorkPublishTime {
 
   private bindEvents() {
     secretSignal.register('ppdtask1', () => {
-      // 上次记录到 109420000
-      this.crawlData(108790000, 109420760)
+      // 上次记录到 110060000
+      this.crawlData(109830000, 110067342)
     })
 
     secretSignal.register('ppdtask2', () => {
-      // 上次记录到 20160000
-      this.crawlData(20030000, 20160634, 'novels')
+      // 上次记录到 20290000
+      this.crawlData(20250000, 20296530, 'novels')
     })
   }
 
@@ -98,9 +98,14 @@ class WorkPublishTime {
 
     console.log(result)
     console.log('crawl time data complete')
-    const blob = Utils.json2BlobSafe(result)
-    const url = URL.createObjectURL(blob)
-    Utils.downloadFile(url, `workPublishTime-${type}-${start}-${end}.json`)
+
+    const resultList = await Utils.json2BlobSafe(result)
+    for (const result of resultList) {
+      Utils.downloadFile(
+        result.url,
+        `workPublishTime-${type}-${start}-${end}.json`
+      )
+    }
 
     return result
   }

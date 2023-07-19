@@ -695,6 +695,17 @@ class Tools {
       return resolve('')
     })
   }
+
+  static checkUserLogin() {
+    // 如果有“登录”的超链接，则是未登录状态
+    // 在桌面版和移动版网页里都有效
+    const loginLink = document.querySelector('a[href^="/login"]')
+    if (loginLink) {
+      return false
+    }
+
+    return true
+  }
 }
 
 export { Tools }

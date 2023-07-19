@@ -122,6 +122,7 @@ class FormSettings {
       'setFileDownloadOrder',
       'highlightFollowingUsers',
       'coverImage',
+      'exportIDList',
     ],
     text: [
       'setWantPage',

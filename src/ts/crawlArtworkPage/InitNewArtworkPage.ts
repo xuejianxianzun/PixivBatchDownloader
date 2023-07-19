@@ -89,12 +89,20 @@ class InitNewArtworkPage extends InitPageBase {
   }
 
   protected async getIdList() {
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
+    }
+
     let data: NewIllustData
     try {
       data = await API.getNewIllustData(this.option)
     } catch (error) {
       this.getIdList()
       return
+    }
+
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
     }
 
     let useData = data.body.illusts

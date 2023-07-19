@@ -63,6 +63,7 @@ class BookmarkAfterDL {
     })
   }
 
+  private showCompleteTip = true
   private showProgress() {
     if (this.savedIds.length === 0) {
       lang.updateText(this.tipEl, '')
@@ -74,12 +75,15 @@ class BookmarkAfterDL {
       `${this.successCount}/${this.savedIds.length}`
     )
 
-    if (this.successCount === this.savedIds.length) {
+    if (this.successCount === this.savedIds.length && this.showCompleteTip) {
+      // 当全部收藏完成时，只显示一次提示。否则会显示多次
+      this.showCompleteTip = false
       log.success(lang.transl('_收藏作品完毕'))
     }
   }
 
   private reset() {
+    this.showCompleteTip = true
     this.savedIds = []
     this.successCount = 0
     this.tipEl.classList.remove('red')
@@ -116,16 +120,18 @@ class BookmarkAfterDL {
         store.resultMeta.length > 0 ? store.resultMeta : store.result
       const data = dataSource.find((val) => val.idNum === id)
       if (data === undefined) {
-        return reject(new Error(`Not find ${id} in result`))
+        log.error(`Not find ${id} in result`)
+        return resolve()
       }
 
-      const res = await bookmark.add(
+      // 当抓取结果很少时，不使用慢速收藏
+      await bookmark.add(
         id.toString(),
         data.type !== 3 ? 'illusts' : 'novels',
         data.tags,
         undefined,
         undefined,
-        true
+        store.result.length > 24
       )
       this.successCount++
 

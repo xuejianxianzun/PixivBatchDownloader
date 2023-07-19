@@ -4,6 +4,7 @@ import { store } from '../store/Store'
 import { lang } from '../Lang'
 import { Utils } from '../utils/Utils'
 import { toast } from '../Toast'
+import { log } from '../Log'
 
 class ExportResult {
   constructor() {
@@ -16,22 +17,27 @@ class ExportResult {
     })
   }
 
-  private output() {
+  private async output() {
     if (store.result.length === 0) {
       toast.error(lang.transl('_没有可用的抓取结果'))
       return
     }
 
-    const blob = Utils.json2BlobSafe(store.result)
-    const url = URL.createObjectURL(blob)
-    Utils.downloadFile(
-      url,
-      `result-${Utils.replaceUnsafeStr(
-        Tools.getPageTitle()
-      )}-${store.crawlCompleteTime.getTime()}.json`
-    )
+    const resultList = await Utils.json2BlobSafe(store.result)
+    for (const result of resultList) {
+      Utils.downloadFile(
+        result.url,
+        `result-total ${result.total}-${Utils.replaceUnsafeStr(
+          Tools.getPageTitle()
+        )}-${Utils.replaceUnsafeStr(
+          store.crawlCompleteTime.toLocaleString()
+        )}.json`
+      )
+    }
 
-    toast.success(lang.transl('_导出成功'))
+    const msg = lang.transl('_导出成功')
+    log.success(msg)
+    toast.success(msg)
   }
 }
 

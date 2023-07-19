@@ -25,6 +25,9 @@ class States {
    */
   public quickCrawl = false
 
+  /**指示是否应该停止抓取 */
+  public stopCrawl = false
+
   /**在排行榜抓取时，是否只抓取“首次登场”的作品 */
   // 修改者：InitRankingArtworkPage 模块修改这个状态
   public debut = false
@@ -55,6 +58,7 @@ class States {
     })
 
     const idle = [
+      EVT.list.stopCrawl,
       EVT.list.crawlComplete,
       EVT.list.downloadPause,
       EVT.list.downloadStop,
