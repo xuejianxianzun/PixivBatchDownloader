@@ -100,8 +100,11 @@ class ShowStatusOnTitle {
       this.set(Flags.stopped)
     })
 
-    window.addEventListener(EVT.list.crawlEmpty, () => {
-      this.reset()
+    const resetEvents = [EVT.list.crawlEmpty, EVT.list.stopCrawl]
+    resetEvents.forEach((event) => {
+      window.addEventListener(event, () => {
+        this.reset()
+      })
     })
   }
 

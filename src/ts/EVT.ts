@@ -26,6 +26,7 @@ class EVENT {
   public readonly list = {
     /** 当抓取开始时触发 */
     crawlStart: 'crawlStart',
+    stopCrawl: 'stopCrawl',
     /** 让下载器抓取特定的 tag，而不是自动获取当前页面的 tag（仅在 tag 搜索页面有效） */
     crawlTag: 'crawlTag',
     /** 当检查到错误的设置时触发 */
@@ -107,7 +108,7 @@ class EVENT {
     deleteWork: 'deleteWork',
     /** 当下载器在页面上创建的作品列表全部完成时触发 */
     worksUpdate: 'worksUpdate',
-    /** 当需要清空下载记录时触发（指用于检测重复文件的下载记录） */
+    /** 当需要清空下载记录时触发（只用于检测重复文件的下载记录） */
     clearDownloadRecord: 'clearDownloadRecord',
     /** 当需要导出下载记录时触发 */
     exportDownloadRecord: 'exportDownloadRecord',
@@ -175,6 +176,7 @@ class EVENT {
   public fire(
     type:
       | 'crawlStart'
+      | 'stopCrawl'
       | 'wrongSetting'
       | 'getIdListFinished'
       | 'crawlComplete'

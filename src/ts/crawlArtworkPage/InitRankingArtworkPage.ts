@@ -116,6 +116,10 @@ class InitRankingArtworkPage extends InitPageBase {
   }
 
   protected async getIdList() {
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
+    }
+
     this.option.p = this.startpageNo + this.listPageFinished
 
     // 发起请求，获取作品列表
@@ -130,6 +134,10 @@ class InitRankingArtworkPage extends InitPageBase {
       }
 
       return
+    }
+
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
     }
 
     this.listPageFinished++

@@ -12,6 +12,11 @@ import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
 import { Config } from '../Config'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
+import { toast } from '../Toast'
+import { showHelp } from '../ShowHelp'
+import { msgBox } from '../MsgBox'
+import { token } from '../Token'
+import { EVT } from '../EVT'
 
 interface UserInfo {
   userId: string
@@ -42,7 +47,7 @@ class InitFollowingPage extends InitPageBase {
   private readonly limit = 100 // 每次请求多少个用户
 
   private totalNeed = Number.MAX_SAFE_INTEGER
-  private myId = ''
+  private crawlUserID = ''
   private rest: 'show' | 'hide' = 'show'
   private tag = ''
 
@@ -50,9 +55,11 @@ class InitFollowingPage extends InitPageBase {
 
   private index = 0 // getIdList 时，对 userList 的索引
 
-  private userInfoList: UserInfo[] = [] // 储存用户列表，包含 id 和用户名
+  private task: 'crawl' | 'exportCSV' | 'exportJSON' | 'batchFollow' = 'crawl'
 
-  private downUserList = false // 下载用户列表的标记
+  private CSVData: UserInfo[] = [] // 储存用户列表，包含 id 和用户名
+
+  private importFollowedUserIDs: string[] = []
 
   private readonly homePrefix = 'https://www.pixiv.net/users/' // 用户主页的通用链接前缀
 
@@ -77,13 +84,83 @@ class InitFollowingPage extends InitPageBase {
       this.readyCrawl()
     })
 
-    Tools.addBtn('crawlBtns', Colors.bgGreen, '_下载用户列表').addEventListener(
-      'click',
-      () => {
-        this.downUserList = true
-        this.readyCrawl()
-      }
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgGreen,
+      '_导出关注列表CSV'
+    ).addEventListener('click', () => {
+      this.task = 'exportCSV'
+      this.readyCrawl()
+    })
+
+    const exportButton = Tools.addBtn(
+      'crawlBtns',
+      Colors.bgGreen,
+      '_导出关注列表'
     )
+    exportButton.addEventListener('click', () => {
+      this.task = 'exportJSON'
+      this.readyCrawl()
+    })
+    exportButton.addEventListener('mouseenter', () => {
+      showHelp.show(
+        'tipExportFollowingUserList',
+        lang.transl('_导入导出关注用户列表的说明')
+      )
+    })
+
+    const batchFollowButton = Tools.addBtn(
+      'crawlBtns',
+      Colors.bgGreen,
+      '_批量关注用户'
+    )
+    batchFollowButton.addEventListener('click', async () => {
+      if (states.busy) {
+        return toast.error(lang.transl('_当前任务尚未完成'))
+      }
+
+      if (store.loggedUserID === '') {
+        return msgBox.error(lang.transl('_作品页状态码401'))
+      }
+
+      EVT.fire('clearLog')
+
+      log.log(lang.transl('_批量关注用户'))
+      this.importFollowedUserIDs = await this.importUserList()
+      log.log(
+        lang.transl('_导入的用户ID数量') + this.importFollowedUserIDs.length
+      )
+      if (this.importFollowedUserIDs.length === 0) {
+        return log.success(lang.transl('_本次任务已全部完成'))
+      }
+
+      // 导入关注列表后，需要获取关注的所有用户列表，以便在添加关注时跳过已关注的，节约时间
+      this.task = 'batchFollow'
+
+      states.slowCrawlMode = true
+      states.stopCrawl = false
+
+      EVT.fire('crawlStart')
+
+      // 批量添加关注时，获取所有关注的用户
+      this.crawlNumber = -1
+      // 把页面类型设置为 0，始终获取关注的用户列表
+      this.pageType = 0
+
+      log.log(lang.transl('_正在加载关注用户列表'))
+      this.readyGet()
+
+      // 始终抓取自己的关注列表，而非别人的，因为添加关注时，需要和自己的关注列表进行对比
+      this.crawlUserID = store.loggedUserID
+
+      this.getUserList()
+    })
+    batchFollowButton.addEventListener('mouseenter', () => {
+      showHelp.show(
+        'tipExportFollowingUserList',
+        lang.transl('_导入导出关注用户列表的说明')
+      )
+    })
   }
 
   protected setFormOption() {
@@ -129,10 +206,10 @@ class InitFollowingPage extends InitPageBase {
       this.totalNeed = this.onceNumber * this.crawlNumber
     }
 
-    // 获取用户自己的 id
+    // 获取当前页面的用户 id
     const test = /users\/(\d*)\//.exec(location.href)
     if (test && test.length > 1) {
-      this.myId = test[1]
+      this.crawlUserID = test[1]
     } else {
       const msg = `Get the user's own id failed`
       log.error(msg, 2)
@@ -142,6 +219,10 @@ class InitFollowingPage extends InitPageBase {
 
   // 获取用户列表
   private async getUserList() {
+    if (states.stopCrawl) {
+      return this.getUserListComplete()
+    }
+
     const offset = this.baseOffset + this.getUserListNo * this.limit
 
     let res
@@ -149,22 +230,26 @@ class InitFollowingPage extends InitPageBase {
       switch (this.pageType) {
         case 0:
           res = await API.getFollowingList(
-            this.myId,
+            this.crawlUserID,
             this.rest,
             this.tag,
             offset
           )
           break
         case 1:
-          res = await API.getMyPixivList(this.myId, offset)
+          res = await API.getMyPixivList(this.crawlUserID, offset)
           break
         case 2:
-          res = await API.getFollowersList(this.myId, offset)
+          res = await API.getFollowersList(this.crawlUserID, offset)
           break
       }
     } catch {
       this.getUserList()
       return
+    }
+
+    if (states.stopCrawl) {
+      return this.getUserListComplete()
     }
 
     const users = res.body.users
@@ -175,12 +260,10 @@ class InitFollowingPage extends InitPageBase {
     }
 
     for (const userData of users) {
-      // 保存用户 id
       this.userList.push(userData.userId)
 
-      // 如果需要下载用户列表
-      if (this.downUserList) {
-        this.userInfoList.push({
+      if (this.task === 'exportCSV') {
+        this.CSVData.push({
           userId: userData.userId,
           userName: userData.userName,
           homePage: this.homePrefix + userData.userId,
@@ -205,30 +288,59 @@ class InitFollowingPage extends InitPageBase {
     this.getUserList()
   }
 
-  private getUserListComplete() {
+  private async getUserListComplete() {
     log.log(lang.transl('_当前有x个用户', this.userList.length.toString()))
 
     if (this.userList.length === 0) {
       return this.getIdListFinished()
     }
 
-    // 处理下载用户列表的情况
-    if (this.downUserList) {
-      this.toCSV()
-      return this.getIdListFinished()
+    if (this.task === 'exportCSV') {
+      this.exportCSV()
+      const msg = '✓ ' + lang.transl('_导出关注列表CSV')
+      log.success(msg)
+      toast.success(msg)
+
+      this.stopCrawl()
+      return
+    }
+
+    if (this.task === 'exportJSON') {
+      this.exportJSON()
+      const msg = '✓ ' + lang.transl('_导出关注列表')
+      log.success(msg)
+      toast.success(msg)
+
+      this.stopCrawl()
+      return
+    }
+
+    if (this.task === 'batchFollow') {
+      await this.batchFollow()
+      this.stopCrawl()
+      return
     }
 
     this.getIdList()
   }
 
-  private toCSV() {
+  private stopCrawl() {
+    states.slowCrawlMode = false
+    states.busy = false
+
+    this.resetGetIdListStatus()
+
+    EVT.fire('stopCrawl')
+  }
+
+  private exportCSV() {
     // 添加用户信息
-    const data: string[][] = this.userInfoList.map((item) => {
+    const data: string[][] = this.CSVData.map((item) => {
       return Object.values(item)
     })
 
     // 添加用户信息的标题字段
-    data.unshift(Object.keys(this.userInfoList[0]))
+    data.unshift(Object.keys(this.CSVData[0]))
 
     const csv = createCSV.create(data)
     const csvURL = URL.createObjectURL(csv)
@@ -238,14 +350,121 @@ class InitFollowingPage extends InitPageBase {
     Utils.downloadFile(csvURL, Utils.replaceUnsafeStr(csvName) + '.csv')
   }
 
+  private exportJSON() {
+    const blob = Utils.json2Blob(this.userList)
+    const url = URL.createObjectURL(blob)
+    Utils.downloadFile(
+      url,
+      `following list-toal ${
+        this.userList.length
+      }-from user ${Utils.getURLPathField(
+        window.location.pathname,
+        'users'
+      )}-${Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`
+    )
+    URL.revokeObjectURL(url)
+  }
+
+  private async importUserList(): Promise<string[]> {
+    return new Promise(async (resolve) => {
+      const loadedJSON = (await Utils.loadJSONFile().catch((err) => {
+        return msgBox.error(err)
+      })) as string[]
+      if (!loadedJSON) {
+        return resolve([])
+      }
+
+      // 要求是数组并且为 string[]
+      if (
+        !Array.isArray(loadedJSON) ||
+        loadedJSON.length === 0 ||
+        typeof loadedJSON[0] !== 'string'
+      ) {
+        toast.error(lang.transl('_格式错误'))
+        return resolve([])
+      }
+
+      return resolve(loadedJSON)
+    })
+  }
+
+  private async batchFollow(): Promise<void> {
+    return new Promise(async (resolve) => {
+      const taskName = lang
+        .transl('_批量关注用户')
+        .replace('（JSON）', '')
+        .replace('(JSON)', '')
+      log.success(taskName)
+      log.warning(lang.transl('_慢速执行以避免引起429错误'))
+
+      let followed = 0
+      let number = 0
+      const total = this.importFollowedUserIDs.length
+      for (const userID of this.importFollowedUserIDs) {
+        number++
+        log.log(`${number} / ${total}`, 1, false)
+        if (this.userList.includes(userID) === false) {
+          await this.addFollow(userID)
+        } else {
+          followed++
+        }
+      }
+      console.log('followed, not send request', followed)
+
+      log.success('✓ ' + taskName)
+      msgBox.success('✓ ' + taskName)
+      return resolve()
+    })
+  }
+
+  private retryUpdateToken = false
+  private async addFollow(userID: string) {
+    return new Promise(async (resolve) => {
+      const status = await API.addFollowingUser(userID, token.token)
+      if (status !== 200) {
+        if (this.retryUpdateToken === true) {
+          log.error(`Error: ${userID} Status: ${status}`)
+        } else {
+          // 404 有两种可能的原因：
+          // 1. token 无效
+          // 2. 该用户不存在
+          // 404 时尝试重新获取 token，然后重试请求（仅执行一次）
+          if (status === 404) {
+            this.retryUpdateToken = true
+            await token.reset()
+            await API.addFollowingUser(userID, token.token)
+          } else {
+            log.error(`Error: ${userID} Status: ${status}`)
+          }
+        }
+      }
+
+      // 慢速执行
+      // 关注用户的 API 也会触发 429 错误，此时获取作品数据的话会返回 429，
+      // 但是关注用户的 API 依然返回 200，并且返回值也正常，但实际上关注用户的操作失败了。无法判断到底有没有关注成功
+      // 所以需要限制添加的速度。我用 1400ms 依然会触发 429，所以需要使用更大的时间间隔，以确保不会触发 429
+      setTimeoutWorker.set(() => {
+        return resolve(status)
+      }, 2500)
+    })
+  }
+
   // 获取用户的 id 列表
   protected async getIdList() {
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
+    }
+
     let idList = []
     try {
       idList = await API.getUserWorksByType(this.userList[this.index])
     } catch {
       this.getIdList()
       return
+    }
+
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
     }
 
     store.idList = store.idList.concat(idList)
@@ -276,8 +495,9 @@ class InitFollowingPage extends InitPageBase {
 
   protected resetGetIdListStatus() {
     this.userList = []
-    this.userInfoList = []
-    this.downUserList = false
+    this.task = 'crawl'
+    this.CSVData = []
+    this.importFollowedUserIDs = []
     this.getUserListNo = 0
     this.index = 0
   }

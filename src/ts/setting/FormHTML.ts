@@ -1,6 +1,6 @@
 import { Config } from '../Config'
 
-// 已使用的最大编号是 84
+// 已使用的最大编号是 85
 export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -291,6 +291,7 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <div class="centerWrap_btns">
+      <slot data-name="stopCrawl"></slot>
       <slot data-name="crawlBtns"></slot>
       <slot data-name="selectWorkBtns"></slot>
     </div>
@@ -884,6 +885,12 @@ export const formHtml = `<form class="settingForm">
     <p class="option" data-no="73">
     <span class="settingNameStyle1" data-xztext="_隐藏浏览器底部的下载栏"></span>
     <input type="checkbox" name="hiddenBrowserDownloadBar" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
+    <p class="option" data-no="85">
+    <span class="settingNameStyle1" data-xztext="_导出ID列表"></span>
+    <input type="checkbox" name="exportIDList" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
     </p>
 

@@ -71,9 +71,9 @@ class CenterPanel {
         <button class="textButton ${
           !Config.mobile && 'has_tip'
         } centerWrap_top_btn centerWrap_close" ${
-      !Config.mobile &&
-      'data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板"'
-    }>
+          !Config.mobile &&
+          'data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板"'
+        }>
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
         </svg>

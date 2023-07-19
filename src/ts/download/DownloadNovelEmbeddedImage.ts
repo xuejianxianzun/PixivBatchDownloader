@@ -78,7 +78,7 @@ class DownloadNovelEmbeddedImage {
         idData = await this.getImageBolbURL(idData)
         const dataURL = await this.getImageDataURL(idData)
         const html = `<img src="${dataURL}" />`
-        content = content.replace(idData.flag, html)
+        content = content.replaceAll(idData.flag, html)
       }
 
       return resolve(content)

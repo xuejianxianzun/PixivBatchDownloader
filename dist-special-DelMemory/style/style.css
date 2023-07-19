@@ -2155,6 +2155,8 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   font-size: 12px;
   padding: 7px;
   display: none;
+  position: relative;
+  z-index: 99;
   border: 1px solid #0ea8ef;
 }
 #logWrap,

@@ -27,6 +27,7 @@ import { Utils } from '../utils/Utils'
 import { pageType } from '../PageType'
 import { msgBox } from '../MsgBox'
 import './CheckWarningMessage'
+import { showHelp } from '../ShowHelp'
 
 class DownloadControl {
   constructor() {
@@ -305,6 +306,14 @@ class DownloadControl {
         'click',
         () => {
           EVT.fire('exportCSV')
+        },
+        false
+      )
+
+      this.resultBtns.exportCSV.addEventListener(
+        'mouseenter',
+        () => {
+          showHelp.show('tipCSV', lang.transl('_导出CSV文件的提示'))
         },
         false
       )

@@ -227,6 +227,10 @@ class InitBookmarkPage extends InitPageBase {
 
   // 获取用户的收藏作品列表
   protected async getIdList() {
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
+    }
+
     let data: BookmarkData
     try {
       data = await API.getBookmarkData(
@@ -239,6 +243,10 @@ class InitBookmarkPage extends InitPageBase {
     } catch (error) {
       this.getIdList()
       return
+    }
+
+    if (states.stopCrawl) {
+      return this.getIdListFinished()
     }
 
     if (

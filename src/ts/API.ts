@@ -33,6 +33,7 @@ import {
 } from './crawl/CrawlArgument'
 
 import { IDData } from './store/StoreType'
+import { resolve } from 'path'
 
 /** 点击 like 按钮的返回数据 */
 interface LikeResponse {
@@ -479,6 +480,31 @@ class API {
     return this.sendGetRequest(
       `https://www.pixiv.net/rpc/index.php?mode=latest_message_threads2&num=${number}&offset=0`
     )
+  }
+
+  /**关注一个用户 */
+  static async addFollowingUser(
+    userID: string,
+    token: string
+  ): Promise<number> {
+    return new Promise(async (resolve) => {
+      const response = await fetch(`https://www.pixiv.net/bookmark_add.php`, {
+        method: 'POST',
+        credentials: 'same-origin', // 附带 cookie
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+          'x-csrf-token': token,
+        },
+        body: `mode=add&type=user&user_id=${userID}&tag=&restrict=0&format=json`,
+      })
+      // 如果操作成功，则返回值是 []
+      // 如果用户不存在，返回值是该用户主页的网页源码
+      // 如果 token 错误，返回值是一个包含错误提示的 JSON 对象
+      // 所以这里需要转换为 text
+      await response.text()
+      return resolve(response.status)
+    })
   }
 }
 
