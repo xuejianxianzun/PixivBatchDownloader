@@ -18058,6 +18058,7 @@ class BookmarkAfterDL {
         this.tipEl = document.createElement('span');
         // 如果之前的下载已完成，那么当下一次开始下载时（也就是新的下载，而不是暂停后继续的下载），则重置状态
         this.delayReset = false;
+        this.showCompleteTip = true;
         if (tipEl) {
             this.tipEl = tipEl;
             _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.tipEl);
@@ -18100,11 +18101,14 @@ class BookmarkAfterDL {
             return;
         }
         _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.tipEl, '_已收藏带参数', `${this.successCount}/${this.savedIds.length}`);
-        if (this.successCount === this.savedIds.length) {
+        if (this.successCount === this.savedIds.length && this.showCompleteTip) {
+            // 当全部收藏完成时，只显示一次提示。否则会显示多次
+            this.showCompleteTip = false;
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品完毕'));
         }
     }
     reset() {
+        this.showCompleteTip = true;
         this.savedIds = [];
         this.successCount = 0;
         this.tipEl.classList.remove('red');
@@ -18618,7 +18622,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _CheckWarningMessage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./CheckWarningMessage */ "./src/ts/download/CheckWarningMessage.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
 // 下载控制
+
 
 
 
@@ -18827,6 +18833,9 @@ class DownloadControl {
             this.resultBtns.exportCSV.style.display = 'none';
             this.resultBtns.exportCSV.addEventListener('click', () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('exportCSV');
+            }, false);
+            this.resultBtns.exportCSV.addEventListener('mouseenter', () => {
+                _ShowHelp__WEBPACK_IMPORTED_MODULE_21__.showHelp.show('tipCSV', _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_导出CSV文件的提示'));
             }, false);
         }
     }
@@ -23038,12 +23047,12 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 109820000
-            this.crawlData(109430000, 109823252);
+            // 上次记录到 110060000
+            this.crawlData(109830000, 110067342);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 20240000
-            this.crawlData(20170000, 20244726, 'novels');
+            // 上次记录到 20290000
+            this.crawlData(20250000, 20296530, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -30719,6 +30728,11 @@ const novelData = [
     [20220000, 1688737374000],
     [20230000, 1688867724000],
     [20240000, 1688988884000],
+    [20250001, 1689149214000],
+    [20260000, 1689311524000],
+    [20270000, 1689433202000],
+    [20280000, 1689564424000],
+    [20290000, 1689687736000],
 ];
 
 
@@ -41718,6 +41732,30 @@ const illustsData = [
     [109800000, 1688987760000],
     [109810000, 1689006420000],
     [109820001, 1689051540000],
+    [109830000, 1689079500000],
+    [109840001, 1689106560000],
+    [109850000, 1689150600000],
+    [109860001, 1689171960000],
+    [109870001, 1689209880000],
+    [109880000, 1689244800000],
+    [109890000, 1689264120000],
+    [109900000, 1689309480000],
+    [109910000, 1689337560000],
+    [109920000, 1689358200000],
+    [109930000, 1689398340000],
+    [109940000, 1689422700000],
+    [109950000, 1689441540000],
+    [109960000, 1689480960000],
+    [109970000, 1689505500000],
+    [109980000, 1689521820000],
+    [109990000, 1689560700000],
+    [110000000, 1689586440000],
+    [110010000, 1689604020000],
+    [110020000, 1689639480000],
+    [110030000, 1689676320000],
+    [110040000, 1689695520000],
+    [110050000, 1689741720000],
+    [110060000, 1689770400000],
 ];
 
 
