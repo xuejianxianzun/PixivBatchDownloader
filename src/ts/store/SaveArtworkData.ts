@@ -63,6 +63,9 @@ class SaveArtworkData {
       if (body.illustType === 0 || body.illustType === 1) {
         // 插画或漫画
         const imgUrl = body.urls.original // 作品的原图 URL
+        if (imgUrl === null) {
+          return
+        }
 
         const tempExt = imgUrl.split('.')
         const ext = tempExt[tempExt.length - 1]

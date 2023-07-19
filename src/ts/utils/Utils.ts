@@ -173,6 +173,10 @@ class Utils {
     a.href = url
     a.download = fileName
     a.click()
+
+    if (url.startsWith('blob')) {
+      URL.revokeObjectURL(url)
+    }
   }
 
   // 判断当前页面是否属于 pixiv.net
@@ -306,31 +310,75 @@ class Utils {
     return blob
   }
 
-  /**JSON 转换成 Blob 对象。可以处理更大的数据量 */
-  static json2BlobSafe(data: any[]): Blob {
-    // 在这个数组里储存数组字面量
-    let result: string[] = []
+  /**把 JSON 转换成 Blob 对象。可以处理更大的数据量，并且导出的文件体积不会超过 500 MB */
+  static async json2BlobSafe(data: any[]): Promise<
+    {
+      url: string
+      total: number
+    }[]
+  > {
+    return new Promise((resolve) => {
+      // 限制单个文件的体积上限为 500 MB
+      const fileByteLengthLimit = 524288000
 
-    // 添加数组的开始符号
-    result.push('[')
+      const result: {
+        url: string
+        total: number
+      }[] = []
 
-    // 循环添加每一项数据
-    for (const item of data) {
-      result.push(JSON.stringify(item))
-      result.push(',')
-    }
+      // 在这个数组里储存数组字面量
+      let JSONStringArray: string[] = []
 
-    // 删除最后一个分隔符，否则会导致格式错误
-    result.pop()
+      const length = data.length
 
-    // 添加数组的结束符号
-    result.push(']')
+      let index = 0
+      let total = 0
+      let bytelength = 0
+      let startNewFile = true
+      const textEncode = new TextEncoder()
 
-    // 创建 blob 对象
-    const blob = new Blob(result, { type: 'application/json' })
-    result = []
+      while (index < length) {
+        // 添加数组的开始符号
+        if (startNewFile) {
+          startNewFile = false
+          JSONStringArray.push('[')
+          bytelength = bytelength + 1
+        }
 
-    return blob
+        // 循环添加每一项数据
+        const string = JSON.stringify(data[index])
+        JSONStringArray.push(string)
+        JSONStringArray.push(',')
+        bytelength = bytelength + textEncode.encode(string).length + 1
+
+        index++
+        total++
+
+        // 分割文件
+        if (index === length || bytelength >= fileByteLengthLimit) {
+          // 删除最后一个分隔符，否则会导致格式错误
+          JSONStringArray.pop()
+          // 添加数组的结束符号
+          JSONStringArray.push(']')
+
+          // 生成文件数据
+          const blob = new Blob(JSONStringArray, { type: 'application/json' })
+          const url = URL.createObjectURL(blob)
+          result.push({
+            url,
+            total,
+          })
+
+          // 重置变量
+          startNewFile = true
+          bytelength = 0
+          total = 0
+          JSONStringArray = []
+        }
+      }
+
+      return resolve(result)
+    })
   }
 
   /**防抖 */

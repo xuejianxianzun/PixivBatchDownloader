@@ -1,7 +1,7 @@
 import { API } from '../API'
 import { lang } from '../Lang'
 import { log } from '../Log'
-import { msgBox } from '../MsgBox'
+import { Tools } from '../Tools'
 
 // 获取用户在 Pixiv 里屏蔽的用户和/或 tag，进行过滤
 class Mute {
@@ -39,6 +39,10 @@ class Mute {
     this.tagList = []
 
     return new Promise(async (resolve, reject) => {
+      if (Tools.checkUserLogin() === false) {
+        return resolve(401)
+      }
+
       try {
         const response = await API.getMuteSettings()
         const items = response.body.mute_items
@@ -69,10 +73,14 @@ class Mute {
         this.got = true
         return resolve(items)
       } catch (error) {
+        // 当请求出错时，视为获取完成。不抛出 reject，否则会导致抓取中止
+        this.got = true
         if (error.status === 401) {
-          msgBox.error(lang.transl('_作品页状态码401'))
+          console.error(
+            'get mute settings error ' + lang.transl('_作品页状态码401')
+          )
         }
-        return reject(error.status)
+        return resolve(error.status)
       }
     })
   }

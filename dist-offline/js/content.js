@@ -297,6 +297,27 @@ class API {
     static async getLatestMessage(number) {
         return this.sendGetRequest(`https://www.pixiv.net/rpc/index.php?mode=latest_message_threads2&num=${number}&offset=0`);
     }
+    /**关注一个用户 */
+    static async addFollowingUser(userID, token) {
+        return new Promise(async (resolve) => {
+            const response = await fetch(`https://www.pixiv.net/bookmark_add.php`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+                    'x-csrf-token': token,
+                },
+                body: `mode=add&type=user&user_id=${userID}&tag=&restrict=0&format=json`,
+            });
+            // 如果操作成功，则返回值是 []
+            // 如果用户不存在，返回值是该用户主页的网页源码
+            // 如果 token 错误，返回值是一个包含错误提示的 JSON 对象
+            // 所以这里需要转换为 text
+            await response.text();
+            return resolve(response.status);
+        });
+    }
 }
 
 
@@ -4892,10 +4913,10 @@ const langText = {
     ],
     _举报: ['举报', '回報', 'Report', '報告', '신고', 'Отчет'],
     _输入id进行抓取: [
-        '输入 id 进行抓取',
-        '輸入 id 進行擷取',
-        'Type id to crawl',
-        'idを入力してダウンロードする',
+        '输入 ID 进行抓取',
+        '輸入 ID 進行擷取',
+        'Type ID to crawl',
+        'IDを入力してダウンロードする',
         '유형 ID 긁어오기',
         'Введите ID для вытаскивания',
     ],
@@ -5802,13 +5823,37 @@ const langText = {
         '작품의 일일 평균 북마크 수를 설정할 수 있습니다. 조건을 만족한 작품은 다운로드됩니다.',
         'Вы можете установить среднесуточное количество закладок в работах. Работы, удовлетворяющие условиям, будут загружены.',
     ],
-    _下载用户列表: [
-        '下载用户列表',
-        '下載使用者列表',
-        'Download users list',
-        'ユーザーリストのダウンロード',
-        '유저 목록 다운로드',
-        'Загрузить список пользователей',
+    _导出关注列表CSV: [
+        '导出关注的用户列表（CSV）',
+        '匯出關注的使用者列表（CSV）',
+        'Export Followed Users List (CSV)',
+        'フォローされているユーザーのリストをエクスポートする（CSV）',
+        '팔로우한 사용자 목록 내보내기 (CSV)',
+        'Экспорт списка отслеживаемых пользователей (CSV)',
+    ],
+    _导出关注列表: [
+        '导出关注的用户列表（JSON）',
+        '匯出關注的使用者列表（JSON）',
+        'Export Followed Users List (JSON)',
+        'フォローされているユーザーのリストをエクスポートする（JSON）',
+        '팔로우한 사용자 목록 내보내기 (JSON)',
+        'Экспорт списка отслеживаемых пользователей (JSON)',
+    ],
+    _批量关注用户: [
+        '批量关注用户（JSON）',
+        '批次關注使用者（JSON）',
+        'Follow users in batches (JSON)',
+        'ユーザーをバッチでフォローする（JSON）',
+        '일괄적으로 사용자 팔로우 (JSON)',
+        'Подписывайтесь на пользователей пакетами (JSON)',
+    ],
+    _导入导出关注用户列表的说明: [
+        '在你或其他用户的 Following 页面里，你可以导出关注的用户列表，也可以导入列表来批量关注用户。<br>当你有多个帐户时，可以使用这个方法同步你关注的用户列表。你也可以复制其他用户的关注用户列表。',
+        '在你或其他使用者的 Following 頁面裡，你可以匯出關注的使用者列表，也可以匯入列表來批次關注使用者。<br>當你有多個帳戶時，可以使用這個方法同步你關注的使用者列表。你也可以複製其他使用者的關注使用者列表。',
+        "On the Following page of you or other users, you can export the list of followed users, or import the list to follow users in batches. <br>When you have multiple accounts, you can use this method to synchronize the list of users you follow. You can also copy another user's followed user list.",
+        '自分または他のユーザーの [フォロー中] ページで、フォローしているユーザーのリストをエクスポートしたり、ユーザーをフォローするリストをバッチでインポートしたりできます。 <br>複数のアカウントをお持ちの場合、この方法を使用して、フォローしているユーザーのリストを同期できます。 別のユーザーのフォローしているユーザー リストをコピーすることもできます。',
+        '본인 또는 다른 사용자의 팔로잉 페이지에서 팔로우한 사용자 목록을 내보내거나 목록을 가져와 사용자를 일괄적으로 팔로우할 수 있습니다. <br>계정이 여러 개인 경우 이 방법을 사용하여 팔로우하는 사용자 목록을 동기화할 수 있습니다. 다른 사용자의 팔로우된 사용자 목록을 복사할 수도 있습니다.',
+        'На странице «Отслеживание» вас или других пользователей вы можете экспортировать список отслеживаемых пользователей или импортировать список для подписки на пользователей в пакетном режиме. <br>Если у вас несколько учетных записей, вы можете использовать этот метод для синхронизации списка пользователей, на которых вы подписаны. Вы также можете скопировать список отслеживаемых пользователей другого пользователя.',
     ],
     _手动选择作品: [
         '手动选择作品',
@@ -6141,10 +6186,10 @@ const langText = {
         'Просмотр на весь экран',
     ],
     _抓取id区间: [
-        '抓取 id 区间',
-        '擷取 id 區間',
-        'Crawl id range',
-        'id 範囲をクロール',
+        '抓取 ID 区间',
+        '擷取 ID 區間',
+        'Crawl ID range',
+        'ID 範囲をクロール',
         'ID 범위 긁어오기',
         'Стащить диапазон идентификаторов',
     ],
@@ -7132,12 +7177,20 @@ const langText = {
         'При количестве работ >',
     ],
     _慢速抓取: [
-        '慢速抓取',
-        '慢速抓取',
-        'slow crawl',
-        'クロールが遅い',
-        '느린 크롤링',
-        'медленное сканирование',
+        '慢速抓取，以避免触发 429 限制',
+        '慢速抓取，以避免觸發 429 限制',
+        'Crawl slowly to avoid triggering 429 throttling',
+        '429 スロットリングのトリガーを避けるためにゆっくりとクロールします',
+        '429 스로틀링 트리거를 방지하기 위해 천천히 크롤링',
+        'Медленно сканируйте, чтобы не спровоцировать 429 троттлинг.',
+    ],
+    _慢速执行以避免引起429错误: [
+        '慢速执行，以避免引起 429 错误',
+        '慢速執行，以避免引起 429 錯誤',
+        'Execute slowly to avoid causing 429 errors',
+        '429 エラーの発生を避けるためにゆっくり実行してください',
+        '429 오류가 발생하지 않도록 천천히 실행하십시오.',
+        'Выполняйте медленно, чтобы избежать ошибок 429',
     ],
     _点击收藏按钮时下载作品: [
         '点击<span class="key">收藏</span>按钮时下载作品',
@@ -7579,14 +7632,6 @@ const langText = {
         '팔로우한 사용자 목록 로드 중',
         'Загрузка списка отслеживаемых пользователей',
     ],
-    _某些用户看到的高亮效果异常的问题: [
-        '某些用户看到的高亮效果异常的问题',
-        '某些使用者看到的高亮效果異常的問題',
-        'Some users see abnormal highlighting effect',
-        '一部のユーザーには異常なハイライト効果が見られます',
-        '일부 사용자에게 비정상적인 강조 표시 효과가 나타남',
-        'Некоторые пользователи видят ненормальный эффект выделения',
-    ],
     _Kiwi浏览器可能不能建立文件夹的bug: [
         '如果你使用的是 Kiwi 浏览器，它可能不会建立文件夹。这是 Kiwi 浏览器的 bug。',
         '如果你使用的是 Kiwi 瀏覽器，它可能不會建立資料夾。這是 Kiwi 瀏覽器的 bug。',
@@ -7634,6 +7679,30 @@ const langText = {
         'クロールを停止しました',
         '크롤링 중지됨',
         'Сканирование остановлено',
+    ],
+    _导入ID列表: [
+        '导入 ID 列表',
+        '匯入 ID 列表',
+        'Import ID list',
+        'インポートIDリスト',
+        'ID 목록 가져오기',
+        'Список идентификаторов импорта',
+    ],
+    _导出ID列表: [
+        '获取 ID 列表完毕后导出列表，并停止抓取',
+        '獲取 ID 列表完畢後匯出列表，並停止抓取',
+        'Export the ID list after fetching it, and stop crawling',
+        'IDリストを取得後にエクスポートし、クロールを停止します',
+        'ID 목록을 가져온 후 내보내기 및 크롤링 중지',
+        'Экспортируйте список идентификаторов после его извлечения и остановите сканирование.',
+    ],
+    _导入的用户ID数量: [
+        '导入的用户 ID 数量：',
+        '匯入的使用者 ID 數量：',
+        'Number of user IDs imported: ',
+        'インポートされたユーザー ID の数: ',
+        '가져온 사용자 ID 수: ',
+        'Количество импортированных идентификаторов пользователей:',
     ],
 };
 
@@ -11047,17 +11116,23 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '15.9.0';
+        this.flag = '16.0.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_停止抓取')}</strong>
+      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</strong>
+      <br>
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出关注列表')}</span>
+      <br>
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_批量关注用户')}</span>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入导出关注用户列表的说明')}
       <br>
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复bug')}
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_其他优化')}</span>
       `;
             // ${lang.transl(
             //   '_你可以在更多选项卡的xx分类里找到它',
@@ -12298,6 +12373,15 @@ class Tools {
         }
         return '';
     }
+    static checkUserLogin() {
+        // 如果有“登录”的超链接，则是未登录状态
+        // 在桌面版和移动版网页里都有效
+        const loginLink = document.querySelector('a[href^="/login"]');
+        if (loginLink) {
+            return false;
+        }
+        return true;
+    }
 }
 Tools.chineseRegexp = /[一-龥]/;
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
@@ -13384,7 +13468,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
             49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-            70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84,
+            70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85,
         ]);
     }
     nextStep() {
@@ -15186,7 +15270,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../Token */ "./src/ts/Token.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 // 初始化关注页面、好 P 友页面、粉丝页面
+
+
+
+
+
 
 
 
@@ -15212,14 +15306,16 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         this.getUserListNo = 0; // 获取用户列表时，记录请求的次数
         this.limit = 100; // 每次请求多少个用户
         this.totalNeed = Number.MAX_SAFE_INTEGER;
-        this.myId = '';
+        this.crawlUserID = '';
         this.rest = 'show';
         this.tag = '';
         this.userList = [];
         this.index = 0; // getIdList 时，对 userList 的索引
-        this.userInfoList = []; // 储存用户列表，包含 id 和用户名
-        this.downUserList = false; // 下载用户列表的标记
+        this.task = 'crawl';
+        this.CSVData = []; // 储存用户列表，包含 id 和用户名
+        this.importFollowedUserIDs = [];
         this.homePrefix = 'https://www.pixiv.net/users/'; // 用户主页的通用链接前缀
+        this.retryUpdateToken = false;
         this.getPageType();
         this.init();
     }
@@ -15239,9 +15335,50 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_下载用户列表').addEventListener('click', () => {
-            this.downUserList = true;
+        _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导出关注列表CSV').addEventListener('click', () => {
+            this.task = 'exportCSV';
             this.readyCrawl();
+        });
+        const exportButton = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导出关注列表');
+        exportButton.addEventListener('click', () => {
+            this.task = 'exportJSON';
+            this.readyCrawl();
+        });
+        exportButton.addEventListener('mouseenter', () => {
+            _ShowHelp__WEBPACK_IMPORTED_MODULE_14__.showHelp.show('tipExportFollowingUserList', _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入导出关注用户列表的说明'));
+        });
+        const batchFollowButton = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_批量关注用户');
+        batchFollowButton.addEventListener('click', async () => {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_10__.states.busy) {
+                return _Toast__WEBPACK_IMPORTED_MODULE_13__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
+            }
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.loggedUserID === '') {
+                return _MsgBox__WEBPACK_IMPORTED_MODULE_15__.msgBox.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_作品页状态码401'));
+            }
+            _EVT__WEBPACK_IMPORTED_MODULE_17__.EVT.fire('clearLog');
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_批量关注用户'));
+            this.importFollowedUserIDs = await this.importUserList();
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入的用户ID数量') + this.importFollowedUserIDs.length);
+            if (this.importFollowedUserIDs.length === 0) {
+                return _Log__WEBPACK_IMPORTED_MODULE_6__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_本次任务已全部完成'));
+            }
+            // 导入关注列表后，需要获取关注的所有用户列表，以便在添加关注时跳过已关注的，节约时间
+            this.task = 'batchFollow';
+            _store_States__WEBPACK_IMPORTED_MODULE_10__.states.slowCrawlMode = true;
+            _store_States__WEBPACK_IMPORTED_MODULE_10__.states.stopCrawl = false;
+            _EVT__WEBPACK_IMPORTED_MODULE_17__.EVT.fire('crawlStart');
+            // 批量添加关注时，获取所有关注的用户
+            this.crawlNumber = -1;
+            // 把页面类型设置为 0，始终获取关注的用户列表
+            this.pageType = 0;
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_正在加载关注用户列表'));
+            this.readyGet();
+            // 始终抓取自己的关注列表，而非别人的，因为添加关注时，需要和自己的关注列表进行对比
+            this.crawlUserID = _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.loggedUserID;
+            this.getUserList();
+        });
+        batchFollowButton.addEventListener('mouseenter', () => {
+            _ShowHelp__WEBPACK_IMPORTED_MODULE_14__.showHelp.show('tipExportFollowingUserList', _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入导出关注用户列表的说明'));
         });
     }
     setFormOption() {
@@ -15279,10 +15416,10 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         if (this.crawlNumber !== -1) {
             this.totalNeed = this.onceNumber * this.crawlNumber;
         }
-        // 获取用户自己的 id
+        // 获取当前页面的用户 id
         const test = /users\/(\d*)\//.exec(location.href);
         if (test && test.length > 1) {
-            this.myId = test[1];
+            this.crawlUserID = test[1];
         }
         else {
             const msg = `Get the user's own id failed`;
@@ -15300,13 +15437,13 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         try {
             switch (this.pageType) {
                 case 0:
-                    res = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getFollowingList(this.myId, this.rest, this.tag, offset);
+                    res = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getFollowingList(this.crawlUserID, this.rest, this.tag, offset);
                     break;
                 case 1:
-                    res = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getMyPixivList(this.myId, offset);
+                    res = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getMyPixivList(this.crawlUserID, offset);
                     break;
                 case 2:
-                    res = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getFollowersList(this.myId, offset);
+                    res = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getFollowersList(this.crawlUserID, offset);
                     break;
             }
         }
@@ -15323,11 +15460,9 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             return this.getUserListComplete();
         }
         for (const userData of users) {
-            // 保存用户 id
             this.userList.push(userData.userId);
-            // 如果需要下载用户列表
-            if (this.downUserList) {
-                this.userInfoList.push({
+            if (this.task === 'exportCSV') {
+                this.CSVData.push({
                     userId: userData.userId,
                     userName: userData.userName,
                     homePage: this.homePrefix + userData.userId,
@@ -15344,29 +15479,133 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         this.getUserListNo++;
         this.getUserList();
     }
-    getUserListComplete() {
+    async getUserListComplete() {
         _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前有x个用户', this.userList.length.toString()));
         if (this.userList.length === 0) {
             return this.getIdListFinished();
         }
-        // 处理下载用户列表的情况
-        if (this.downUserList) {
-            this.toCSV();
-            return this.getIdListFinished();
+        if (this.task === 'exportCSV') {
+            this.exportCSV();
+            const msg = '✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导出关注列表CSV');
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.success(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_13__.toast.success(msg);
+            this.stopCrawl();
+            return;
+        }
+        if (this.task === 'exportJSON') {
+            this.exportJSON();
+            const msg = '✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导出关注列表');
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.success(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_13__.toast.success(msg);
+            this.stopCrawl();
+            return;
+        }
+        if (this.task === 'batchFollow') {
+            await this.batchFollow();
+            this.stopCrawl();
+            return;
         }
         this.getIdList();
     }
-    toCSV() {
+    stopCrawl() {
+        _store_States__WEBPACK_IMPORTED_MODULE_10__.states.slowCrawlMode = false;
+        _store_States__WEBPACK_IMPORTED_MODULE_10__.states.busy = false;
+        this.resetGetIdListStatus();
+        _EVT__WEBPACK_IMPORTED_MODULE_17__.EVT.fire('stopCrawl');
+    }
+    exportCSV() {
         // 添加用户信息
-        const data = this.userInfoList.map((item) => {
+        const data = this.CSVData.map((item) => {
             return Object.values(item);
         });
         // 添加用户信息的标题字段
-        data.unshift(Object.keys(this.userInfoList[0]));
+        data.unshift(Object.keys(this.CSVData[0]));
         const csv = _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_8__.createCSV.create(data);
         const csvURL = URL.createObjectURL(csv);
         const csvName = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getPageTitle();
         _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.downloadFile(csvURL, _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.replaceUnsafeStr(csvName) + '.csv');
+    }
+    exportJSON() {
+        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.json2Blob(this.userList);
+        const url = URL.createObjectURL(blob);
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.downloadFile(url, `following list-toal ${this.userList.length}-from user ${_utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.getURLPathField(window.location.pathname, 'users')}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
+        URL.revokeObjectURL(url);
+    }
+    async importUserList() {
+        return new Promise(async (resolve) => {
+            const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.loadJSONFile().catch((err) => {
+                return _MsgBox__WEBPACK_IMPORTED_MODULE_15__.msgBox.error(err);
+            }));
+            if (!loadedJSON) {
+                return resolve([]);
+            }
+            // 要求是数组并且为 string[]
+            if (!Array.isArray(loadedJSON) ||
+                loadedJSON.length === 0 ||
+                typeof loadedJSON[0] !== 'string') {
+                _Toast__WEBPACK_IMPORTED_MODULE_13__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_格式错误'));
+                return resolve([]);
+            }
+            return resolve(loadedJSON);
+        });
+    }
+    async batchFollow() {
+        return new Promise(async (resolve) => {
+            const taskName = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang
+                .transl('_批量关注用户')
+                .replace('（JSON）', '')
+                .replace('(JSON)', '');
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.success(taskName);
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_慢速执行以避免引起429错误'));
+            let followed = 0;
+            let number = 0;
+            const total = this.importFollowedUserIDs.length;
+            for (const userID of this.importFollowedUserIDs) {
+                number++;
+                _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(`${number} / ${total}`, 1, false);
+                if (this.userList.includes(userID) === false) {
+                    await this.addFollow(userID);
+                }
+                else {
+                    followed++;
+                }
+            }
+            console.log('followed, not send request', followed);
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.success('✓ ' + taskName);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_15__.msgBox.success('✓ ' + taskName);
+            return resolve();
+        });
+    }
+    async addFollow(userID) {
+        return new Promise(async (resolve) => {
+            const status = await _API__WEBPACK_IMPORTED_MODULE_4__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_16__.token.token);
+            if (status !== 200) {
+                if (this.retryUpdateToken === true) {
+                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(`Error: ${userID} Status: ${status}`);
+                }
+                else {
+                    // 404 有两种可能的原因：
+                    // 1. token 无效
+                    // 2. 该用户不存在
+                    // 404 时尝试重新获取 token，然后重试请求（仅执行一次）
+                    if (status === 404) {
+                        this.retryUpdateToken = true;
+                        await _Token__WEBPACK_IMPORTED_MODULE_16__.token.reset();
+                        await _API__WEBPACK_IMPORTED_MODULE_4__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_16__.token.token);
+                    }
+                    else {
+                        _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(`Error: ${userID} Status: ${status}`);
+                    }
+                }
+            }
+            // 慢速执行
+            // 关注用户的 API 也会触发 429 错误，此时获取作品数据的话会返回 429，
+            // 但是关注用户的 API 依然返回 200，并且返回值也正常，但实际上关注用户的操作失败了。无法判断到底有没有关注成功
+            // 所以需要限制添加的速度。我用 1400ms 依然会触发 429，所以需要使用更大的时间间隔，以确保不会触发 429
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_12__.setTimeoutWorker.set(() => {
+                return resolve(status);
+            }, 2500);
+        });
     }
     // 获取用户的 id 列表
     async getIdList() {
@@ -15401,8 +15640,9 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     }
     resetGetIdListStatus() {
         this.userList = [];
-        this.userInfoList = [];
-        this.downUserList = false;
+        this.task = 'crawl';
+        this.CSVData = [];
+        this.importFollowedUserIDs = [];
         this.getUserListNo = 0;
         this.index = 0;
     }
@@ -15435,7 +15675,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 // 初始化首页
+
+
+
+
+
+
 
 
 
@@ -15449,10 +15701,14 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     constructor() {
         super();
         this.downIdButton = document.createElement('button');
+        this.importIDListButton = document.createElement('button');
         this.downIdInput = document.createElement('textarea');
         this.ready = false;
         this.init();
         this.idRangeTip = this.createidRangeTip();
+        this.importIDListButton.addEventListener('click', () => {
+            this.importIDList();
+        });
     }
     addCrawlBtns() {
         this.downIdButton = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_输入id进行抓取');
@@ -15461,6 +15717,8 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         crawlIdRange.addEventListener('click', () => {
             this.crawlIdRange();
         });
+        this.importIDListButton = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导入ID列表');
+        this.importIDListButton.id = 'down_id_button';
     }
     addAnyElement() {
         // 用于输入id的输入框
@@ -15584,6 +15842,56 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
             });
         }
         _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('crawlIdList', idList);
+    }
+    async importIDList() {
+        const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.loadJSONFile().catch((err) => {
+            return _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.error(err);
+        }));
+        if (!loadedJSON) {
+            return;
+        }
+        // 要求是数组并且要有内容
+        if (!Array.isArray(loadedJSON) || !loadedJSON.length || !loadedJSON[0]) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_格式错误'));
+        }
+        // 检查是否含有必须的字段（只检查了一部分）
+        const keys = Object.keys(loadedJSON[0]);
+        const need = ['id', 'type'];
+        for (const field of need) {
+            if (!keys.includes(field)) {
+                return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_格式错误'));
+            }
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_12__.log.success('✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入ID列表'));
+        _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.reset();
+        _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList = loadedJSON;
+        this.crawlImportIDList();
+    }
+    crawlImportIDList() {
+        _Log__WEBPACK_IMPORTED_MODULE_12__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前作品个数', _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList.length.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_12__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_开始获取作品信息'));
+        if (_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.checkUserLogin() === false) {
+            // 如果未登录账号，则全速抓取
+            _store_States__WEBPACK_IMPORTED_MODULE_13__.states.slowCrawlMode = false;
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList.length <= this.ajaxThreadsDefault) {
+                this.ajaxThread = _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList.length;
+            }
+            else {
+                this.ajaxThread = this.ajaxThreadsDefault;
+            }
+        }
+        else {
+            // 登录账号后，可以使用慢速抓取
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_14__.settings.slowCrawl &&
+                _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_14__.settings.slowCrawlOnWorksNumber) {
+                _Log__WEBPACK_IMPORTED_MODULE_12__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_慢速抓取'));
+                _store_States__WEBPACK_IMPORTED_MODULE_13__.states.slowCrawlMode = true;
+                this.ajaxThread = 1;
+            }
+        }
+        for (let i = 0; i < this.ajaxThread; i++) {
+            this.getWorksData();
+        }
     }
     destroy() {
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.clearSlot('crawlBtns');
@@ -17191,7 +17499,7 @@ class InitPageBase {
     // 获取 id 列表，由各个子类具体定义
     getIdList() { }
     // id 列表获取完毕，开始抓取作品内容页
-    getIdListFinished() {
+    async getIdListFinished() {
         _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = false;
         this.resetGetIdListStatus();
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('getIdListFinished');
@@ -17202,6 +17510,18 @@ class InitPageBase {
             return this.noResult();
         }
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前作品个数', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length.toString()));
+        // 导出 ID 列表，并停止抓取
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportIDList && _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.isPixiv()) {
+            const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList);
+            for (const result of resultList) {
+                _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.downloadFile(result.url, `ID list-total ${result.total}-from ${_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageTitle()}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
+            }
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy = false;
+            _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('stopCrawl');
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出ID列表'));
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_已停止抓取'));
+            return;
+        }
         // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
         // return states.busy = false
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始获取作品信息'));
@@ -17503,7 +17823,6 @@ class StopCrawl {
         this.btn = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.addBtn('stopCrawl', _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgRed, '_停止抓取');
         this.hide();
         this.btn.addEventListener('click', () => {
-            this.stopCrawl();
             this.hide();
             const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已停止抓取');
             _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(msg);
@@ -17516,11 +17835,13 @@ class StopCrawl {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlStart, () => {
             this.show();
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlComplete, () => {
-            this.hide();
+        const hiddenEvents = [_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.stopCrawl];
+        hiddenEvents.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.hide();
+            });
         });
     }
-    stopCrawl() { }
     hide() {
         this.btn.style.display = 'none';
     }
@@ -17810,6 +18131,7 @@ class BookmarkAfterDL {
         this.tipEl = document.createElement('span');
         // 如果之前的下载已完成，那么当下一次开始下载时（也就是新的下载，而不是暂停后继续的下载），则重置状态
         this.delayReset = false;
+        this.showCompleteTip = true;
         if (tipEl) {
             this.tipEl = tipEl;
             _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.tipEl);
@@ -17852,11 +18174,14 @@ class BookmarkAfterDL {
             return;
         }
         _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.tipEl, '_已收藏带参数', `${this.successCount}/${this.savedIds.length}`);
-        if (this.successCount === this.savedIds.length) {
+        if (this.successCount === this.savedIds.length && this.showCompleteTip) {
+            // 当全部收藏完成时，只显示一次提示。否则会显示多次
+            this.showCompleteTip = false;
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品完毕'));
         }
     }
     reset() {
+        this.showCompleteTip = true;
         this.savedIds = [];
         this.successCount = 0;
         this.tipEl.classList.remove('red');
@@ -18370,7 +18695,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _CheckWarningMessage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./CheckWarningMessage */ "./src/ts/download/CheckWarningMessage.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
 // 下载控制
+
 
 
 
@@ -18579,6 +18906,9 @@ class DownloadControl {
             this.resultBtns.exportCSV.style.display = 'none';
             this.resultBtns.exportCSV.addEventListener('click', () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('exportCSV');
+            }, false);
+            this.resultBtns.exportCSV.addEventListener('mouseenter', () => {
+                _ShowHelp__WEBPACK_IMPORTED_MODULE_21__.showHelp.show('tipCSV', _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_导出CSV文件的提示'));
             }, false);
         }
     }
@@ -19482,11 +19812,13 @@ class DownloadRecord {
             _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有数据可供使用'));
             return;
         }
-        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.json2BlobSafe(record);
-        const url = URL.createObjectURL(blob);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.downloadFile(url, `record-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出成功'));
-        _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出成功'));
+        const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.json2BlobSafe(record);
+        for (const result of resultList) {
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.downloadFile(result.url, `record-total ${result.total}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
+        }
+        const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出成功');
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.success(msg);
     }
     // 导入下载记录
     async importRecord(record) {
@@ -19736,6 +20068,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+
 
 
 
@@ -19751,15 +20085,18 @@ class ExportResult {
             this.output();
         });
     }
-    output() {
+    async output() {
         if (_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result.length === 0) {
             _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_没有可用的抓取结果'));
             return;
         }
-        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result);
-        const url = URL.createObjectURL(blob);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.downloadFile(url, `result-${_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getPageTitle())}-${_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.crawlCompleteTime.getTime()}.json`);
-        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_导出成功'));
+        const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result);
+        for (const result of resultList) {
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.downloadFile(result.url, `result-total ${result.total}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getPageTitle())}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.crawlCompleteTime.toLocaleString())}.json`);
+        }
+        const msg = _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_导出成功');
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(msg);
     }
 }
 new ExportResult();
@@ -19959,7 +20296,7 @@ class ExportResult2CSV {
         const csv = _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_6__.createCSV.create(body);
         const csvURL = URL.createObjectURL(csv);
         // 设置文件名
-        let csvName = `result-${_utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getPageTitle())}-${_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.crawlCompleteTime.getTime()}.csv`;
+        let csvName = `result-total ${body.length - 1}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getPageTitle())}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.replaceUnsafeStr(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.crawlCompleteTime.toLocaleString())}.csv`;
         _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.downloadFile(csvURL, csvName);
         _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导出成功'));
         _ShowHelp__WEBPACK_IMPORTED_MODULE_9__.showHelp.show('tipCSV', _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导出CSV文件的提示'));
@@ -21298,8 +21635,11 @@ class ShowStatusOnTitle {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadStop, () => {
             this.set(Flags.stopped);
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlEmpty, () => {
-            this.reset();
+        const resetEvents = [_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlEmpty, _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.stopCrawl];
+        resetEvents.forEach((event) => {
+            window.addEventListener(event, () => {
+                this.reset();
+            });
         });
     }
     // 检查标题里是否含有标记
@@ -22628,7 +22968,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 
 
 
@@ -22665,6 +23005,9 @@ class Mute {
         this.userList = [];
         this.tagList = [];
         return new Promise(async (resolve, reject) => {
+            if (_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.checkUserLogin() === false) {
+                return resolve(401);
+            }
             try {
                 const response = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getMuteSettings();
                 const items = response.body.mute_items;
@@ -22694,10 +23037,12 @@ class Mute {
                 return resolve(items);
             }
             catch (error) {
+                // 当请求出错时，视为获取完成。不抛出 reject，否则会导致抓取中止
+                this.got = true;
                 if (error.status === 401) {
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_作品页状态码401'));
+                    console.error('get mute settings error ' + _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_作品页状态码401'));
                 }
-                return reject(error.status);
+                return resolve(error.status);
             }
         });
     }
@@ -22775,12 +23120,12 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 109820000
-            this.crawlData(109430000, 109823252);
+            // 上次记录到 110060000
+            this.crawlData(109830000, 110067342);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 20240000
-            this.crawlData(20170000, 20244726, 'novels');
+            // 上次记录到 20290000
+            this.crawlData(20250000, 20296530, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -22803,9 +23148,10 @@ class WorkPublishTime {
         }
         console.log(result);
         console.log('crawl time data complete');
-        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.json2BlobSafe(result);
-        const url = URL.createObjectURL(blob);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.downloadFile(url, `workPublishTime-${type}-${start}-${end}.json`);
+        const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.json2BlobSafe(result);
+        for (const result of resultList) {
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.downloadFile(result.url, `workPublishTime-${type}-${start}-${end}.json`);
+        }
         return result;
     }
     // 获取指定作品的发布时间
@@ -24777,7 +25123,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 
-// 已使用的最大编号是 84
+// 已使用的最大编号是 85
 const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -25665,6 +26011,12 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <p class="option" data-no="85">
+    <span class="settingNameStyle1" data-xztext="_导出ID列表"></span>
+    <input type="checkbox" name="exportIDList" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </p>
@@ -26093,6 +26445,7 @@ class FormSettings {
                 'UnknownAI',
                 'setFileDownloadOrder',
                 'highlightFollowingUsers',
+                'exportIDList',
             ],
             text: [
                 'setWantPage',
@@ -27029,7 +27382,7 @@ class Settings {
             setUserNameShow: true,
             setUserNameList: {},
             removeAtFromUsername: false,
-            showLargerThumbnails: false,
+            showLargerThumbnails: true,
             doubleWidthThumb: true,
             wheelScrollSwitchImageOnPreviewWork: true,
             doNotDownloadLastImageOfMultiImageWork: false,
@@ -27065,6 +27418,8 @@ class Settings {
             tipBookmarkButton: true,
             highlightFollowingUsers: true,
             tipCSV: true,
+            exportIDList: false,
+            tipExportFollowingUserList: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -27170,6 +27525,7 @@ class Settings {
         const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.json2Blob(this.settings);
         const url = URL.createObjectURL(blob);
         _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.downloadFile(url, _Config__WEBPACK_IMPORTED_MODULE_4__.Config.appName + ` Settings.json`);
+        URL.revokeObjectURL(url);
         _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_导出成功'));
     }
     async importSettings() {
@@ -27197,6 +27553,8 @@ class Settings {
         this.setSetting('tipPressDToQuickDownload', true);
         this.setSetting('tipAltQToQuickDownload', true);
         this.setSetting('tipBookmarkButton', true);
+        this.setSetting('tipCSV', true);
+        this.setSetting('tipExportFollowingUserList', true);
         _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success('✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_重新显示帮助'));
     }
     // 重置设置 或者 导入设置
@@ -27777,6 +28135,9 @@ class SaveArtworkData {
             if (body.illustType === 0 || body.illustType === 1) {
                 // 插画或漫画
                 const imgUrl = body.urls.original; // 作品的原图 URL
+                if (imgUrl === null) {
+                    return;
+                }
                 const tempExt = imgUrl.split('.');
                 const ext = tempExt[tempExt.length - 1];
                 // 添加作品信息
@@ -30440,6 +30801,11 @@ const novelData = [
     [20220000, 1688737374000],
     [20230000, 1688867724000],
     [20240000, 1688988884000],
+    [20250001, 1689149214000],
+    [20260000, 1689311524000],
+    [20270000, 1689433202000],
+    [20280000, 1689564424000],
+    [20290000, 1689687736000],
 ];
 
 
@@ -41439,6 +41805,30 @@ const illustsData = [
     [109800000, 1688987760000],
     [109810000, 1689006420000],
     [109820001, 1689051540000],
+    [109830000, 1689079500000],
+    [109840001, 1689106560000],
+    [109850000, 1689150600000],
+    [109860001, 1689171960000],
+    [109870001, 1689209880000],
+    [109880000, 1689244800000],
+    [109890000, 1689264120000],
+    [109900000, 1689309480000],
+    [109910000, 1689337560000],
+    [109920000, 1689358200000],
+    [109930000, 1689398340000],
+    [109940000, 1689422700000],
+    [109950000, 1689441540000],
+    [109960000, 1689480960000],
+    [109970000, 1689505500000],
+    [109980000, 1689521820000],
+    [109990000, 1689560700000],
+    [110000000, 1689586440000],
+    [110010000, 1689604020000],
+    [110020000, 1689639480000],
+    [110030000, 1689676320000],
+    [110040000, 1689695520000],
+    [110050000, 1689741720000],
+    [110060000, 1689770400000],
 ];
 
 
@@ -42103,6 +42493,9 @@ class Utils {
         a.href = url;
         a.download = fileName;
         a.click();
+        if (url.startsWith('blob')) {
+            URL.revokeObjectURL(url);
+        }
     }
     // 判断当前页面是否属于 pixiv.net
     static isPixiv() {
@@ -42223,25 +42616,56 @@ class Utils {
         const blob = new Blob([str], { type: 'application/json' });
         return blob;
     }
-    /**JSON 转换成 Blob 对象。可以处理更大的数据量 */
-    static json2BlobSafe(data) {
-        // 在这个数组里储存数组字面量
-        let result = [];
-        // 添加数组的开始符号
-        result.push('[');
-        // 循环添加每一项数据
-        for (const item of data) {
-            result.push(JSON.stringify(item));
-            result.push(',');
-        }
-        // 删除最后一个分隔符，否则会导致格式错误
-        result.pop();
-        // 添加数组的结束符号
-        result.push(']');
-        // 创建 blob 对象
-        const blob = new Blob(result, { type: 'application/json' });
-        result = [];
-        return blob;
+    /**把 JSON 转换成 Blob 对象。可以处理更大的数据量，并且导出的文件体积不会超过 500 MB */
+    static async json2BlobSafe(data) {
+        return new Promise((resolve) => {
+            // 限制单个文件的体积上限为 500 MB
+            const fileByteLengthLimit = 524288000;
+            const result = [];
+            // 在这个数组里储存数组字面量
+            let JSONStringArray = [];
+            const length = data.length;
+            let index = 0;
+            let total = 0;
+            let bytelength = 0;
+            let startNewFile = true;
+            const textEncode = new TextEncoder();
+            while (index < length) {
+                // 添加数组的开始符号
+                if (startNewFile) {
+                    startNewFile = false;
+                    JSONStringArray.push('[');
+                    bytelength = bytelength + 1;
+                }
+                // 循环添加每一项数据
+                const string = JSON.stringify(data[index]);
+                JSONStringArray.push(string);
+                JSONStringArray.push(',');
+                bytelength = bytelength + textEncode.encode(string).length + 1;
+                index++;
+                total++;
+                // 分割文件
+                if (index === length || bytelength >= fileByteLengthLimit) {
+                    // 删除最后一个分隔符，否则会导致格式错误
+                    JSONStringArray.pop();
+                    // 添加数组的结束符号
+                    JSONStringArray.push(']');
+                    // 生成文件数据
+                    const blob = new Blob(JSONStringArray, { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    result.push({
+                        url,
+                        total,
+                    });
+                    // 重置变量
+                    startNewFile = true;
+                    bytelength = 0;
+                    total = 0;
+                    JSONStringArray = [];
+                }
+            }
+            return resolve(result);
+        });
     }
     /**防抖 */
     static debounce(func, wait) {
