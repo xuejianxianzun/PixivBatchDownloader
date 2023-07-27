@@ -107,7 +107,7 @@ nav .cYUezH {
 .bgeGyS .jDiQFZ,
 .hcLnhb .jDiQFZ,
 .hhoRzm .jDiQFZ,
-.dgeelW>div {
+.dgeelW > div {
   display: flex !important;
   flex-direction: column !important;
 }
@@ -115,14 +115,14 @@ nav .cYUezH {
 .bgeGyS .jDiQFZ .hYfnPb,
 .hcLnhb .jDiQFZ .hYfnPb,
 .hhoRzm .jDiQFZ .hYfnPb,
-.dgeelW>div>div {
+.dgeelW > div > div {
   display: flex !important;
 }
 
 // 注意：上面不能改成 .bgeGyS  div:first-child div:first-child 的形式，因为这样会导致错误的匹配，导致其他某些部分乱版（例如首页的 推荐用户 区域）
 
 /* 下载器会尝试给“关注用户・好P友的作品”的容器添加自定义的 class，避免其频繁改版而失效 */
-.homeFriendsNewWorks ul>div {
+.homeFriendsNewWorks ul > div {
   display: flex !important;
   width: auto;
   max-width: 540px;
@@ -130,18 +130,21 @@ nav .cYUezH {
   flex-shrink: 0;
 }
 
-.homeFriendsNewWorks ul>div>div {
+.homeFriendsNewWorks ul > div > div {
   display: flex !important;
   flex-direction: column !important;
 }
 
-.homeFriendsNewWorks ul>div>div>div {
+.homeFriendsNewWorks ul > div > div > div {
   display: flex !important;
 }
 
 /* 推荐作品 li */
 /* 很多新版页面的作品列表都要把 margin 改小一些，从 12 改为 10，否则在 125% 缩放时，因为宽度不够，一排原本能显示 6 个的，变得只能显示 5 个*/
-.kxmdLh,.dgeelW, .flkRKs,.jexggF{
+.kxmdLh,
+.dgeelW,
+.flkRKs,
+.jexggF {
   margin: 10px !important;
   width: 15% !important;
   max-width: 540px;
@@ -325,7 +328,7 @@ nav .cYUezH {
 /* 约稿页面 */
 /* 取消容器的宽度限制 */
 .hHwhak,
-.hHwhak>div,
+.hHwhak > div,
 .iSHgSV,
 .kCIgXV,
 .eDubME {
@@ -346,7 +349,8 @@ nav .cYUezH {
 }
 
 /* 取消约稿页面 img 的绝对定位 */
-.zdawJ,.cdrSgJ {
+.zdawJ,
+.cdrSgJ {
   position: unset !important;
 }
 
@@ -362,7 +366,7 @@ nav .cYUezH {
   align-items: center;
 }
 
-.hLhHDu>div {
+.hLhHDu > div {
   width: 15%;
   flex-shrink: 0;
   max-width: 540px;

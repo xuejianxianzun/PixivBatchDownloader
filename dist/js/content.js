@@ -7152,6 +7152,14 @@ const langText = {
         '버그 수정',
         'Баг фикс',
     ],
+    _修复已知问题: [
+        '修复已知问题',
+        '修復已知問題',
+        'fix known issues',
+        '既知の問題を修正する',
+        '알려진 문제 수정',
+        'исправить известные проблемы',
+    ],
     _不支持的浏览器: [
         '你的浏览器不能正常使用这个扩展程序，主要原因可能是浏览器内核版本太低，或者存在兼容性问题。<br>建议您更换成最新版本的 Chrome 或 Edge 浏览器。',
         '你的瀏覽器不能正常使用這個擴充套件程式，主要原因可能是瀏覽器核心版本太低，或者存在相容性問題。<br>建議您更換成最新版本的 Chrome 或 Edge 瀏覽器。',
@@ -7687,6 +7695,14 @@ const langText = {
         '追加した {}',
         '추가됨 {}',
         'Добавлен {}',
+    ],
+    _优化批量关注用户的功能: [
+        '优化批量关注用户的功能',
+        '最佳化批次關注使用者的功能',
+        'Optimize the function of following users in batches',
+        'ユーザーの一括フォロー機能を最適化',
+        '사용자 일괄 팔로우 기능 최적화',
+        'Оптимизируйте функцию подписки на пользователей в пакетном режиме.',
     ],
 };
 
@@ -11100,23 +11116,17 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.0.0';
+        this.flag = '16.0.1';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
+            // <strong>${lang.transl('_新增功能')}:</strong>
             let msg = `
-      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</strong>
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化批量关注用户的功能')}</span>
       <br>
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出关注列表')}</span>
-      <br>
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_批量关注用户')}</span>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入导出关注用户列表的说明')}
-      <br>
-      <br>
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_其他优化')}</span>
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
       `;
             // ${lang.transl(
             //   '_你可以在更多选项卡的xx分类里找到它',
@@ -23220,12 +23230,12 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 110060000
-            this.crawlData(109830000, 110067342);
+            // 上次记录到 110280000
+            this.crawlData(110070000, 110284375);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 20290000
-            this.crawlData(20250000, 20296530, 'novels');
+            // 上次记录到 20340000
+            this.crawlData(20300000, 20342039, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -30906,6 +30916,11 @@ const novelData = [
     [20270000, 1689433202000],
     [20280000, 1689564424000],
     [20290000, 1689687736000],
+    [20300000, 1689856471000],
+    [20310000, 1690007766000],
+    [20320000, 1690119474000],
+    [20330000, 1690271740000],
+    [20340000, 1690412997000],
 ];
 
 
@@ -41929,6 +41944,28 @@ const illustsData = [
     [110040000, 1689695520000],
     [110050000, 1689741720000],
     [110060000, 1689770400000],
+    [110070000, 1689797460000],
+    [110080000, 1689840600000],
+    [110090000, 1689862500000],
+    [110100000, 1689898920000],
+    [110110000, 1689934260000],
+    [110120000, 1689952680000],
+    [110130000, 1689993300000],
+    [110140000, 1690020120000],
+    [110150000, 1690038720000],
+    [110160000, 1690076040000],
+    [110170000, 1690102860000],
+    [110180000, 1690120800000],
+    [110190001, 1690153080000],
+    [110200001, 1690190220000],
+    [110210000, 1690209420000],
+    [110220000, 1690246920000],
+    [110230000, 1690281120000],
+    [110240000, 1690300080000],
+    [110250000, 1690343880000],
+    [110260000, 1690372800000],
+    [110270000, 1690393500000],
+    [110280000, 1690438260000],
 ];
 
 
