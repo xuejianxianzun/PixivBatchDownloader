@@ -507,6 +507,18 @@ class Tools {
     return `<a href="${href}" target="_blank">${id}</a>`
   }
 
+  // 传入用户 id，生成用户页面的超链接
+  /**
+   *
+   * @param userID 用户 id
+   * @returns 超链接（A 标签）
+   */
+  static createUserLink(userID: number | string) {
+    const idNum = typeof userID === 'number' ? userID : Number.parseInt(userID)
+    const href = `https://www.pixiv.net/users/${idNum}`
+    return `<a href="${href}" target="_blank">${idNum}</a>`
+  }
+
   /**替换 EPUB 文本里的特殊字符和换行符 */
   // 换行符必须放在最后处理，以免其 < 符号被替换
   static replaceEPUBText(str: string) {
@@ -705,6 +717,12 @@ class Tools {
     }
 
     return true
+  }
+
+  static rangeRandom(start: number, end: number) {
+    const difference = end - start
+    const num = Math.ceil(Math.random() * difference)
+    return start + num
   }
 }
 

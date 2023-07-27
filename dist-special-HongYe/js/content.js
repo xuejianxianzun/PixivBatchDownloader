@@ -298,7 +298,8 @@ class API {
         return this.sendGetRequest(`https://www.pixiv.net/rpc/index.php?mode=latest_message_threads2&num=${number}&offset=0`);
     }
     /**关注一个用户 */
-    static async addFollowingUser(userID, token) {
+    // recaptcha_enterprise_score_token 对于有些用户是不需要的，不过传递空值是允许的
+    static async addFollowingUser(userID, token, recaptcha_enterprise_score_token) {
         return new Promise(async (resolve) => {
             const response = await fetch(`https://www.pixiv.net/bookmark_add.php`, {
                 method: 'POST',
@@ -308,7 +309,7 @@ class API {
                     'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
                     'x-csrf-token': token,
                 },
-                body: `mode=add&type=user&user_id=${userID}&tag=&restrict=0&format=json`,
+                body: `mode=add&type=user&user_id=${userID}&tag=&restrict=0&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
             });
             // 如果操作成功，则返回值是 []
             // 如果用户不存在，返回值是该用户主页的网页源码
@@ -7763,6 +7764,14 @@ const langText = {
         '버그 수정',
         'Баг фикс',
     ],
+    _修复已知问题: [
+        '修复已知问题',
+        '修復已知問題',
+        'fix known issues',
+        '既知の問題を修正する',
+        '알려진 문제 수정',
+        'исправить известные проблемы',
+    ],
     _不支持的浏览器: [
         '你的浏览器不能正常使用这个扩展程序，主要原因可能是浏览器内核版本太低，或者存在兼容性问题。<br>建议您更换成最新版本的 Chrome 或 Edge 浏览器。',
         '你的瀏覽器不能正常使用這個擴充套件程式，主要原因可能是瀏覽器核心版本太低，或者存在相容性問題。<br>建議您更換成最新版本的 Chrome 或 Edge 瀏覽器。',
@@ -8242,6 +8251,70 @@ const langText = {
         'インポートされたユーザー ID の数: ',
         '가져온 사용자 ID 수: ',
         'Количество импортированных идентификаторов пользователей:',
+    ],
+    _任务已中止: [
+        '任务已中止',
+        '任務已中止',
+        'task aborted',
+        'タスクが中止されました',
+        '작업이 중단됨',
+        'задача прервана',
+    ],
+    _新增的关注用户达到每日限制: [
+        '新增的关注用户数量达到 {}， 下载器已中止任务，以免你的账号被 Pixiv 限制。<br>建议明天再执行此任务。',
+        '新增的關注使用者數量達到 {}， 下載器已中止任務，以免你的賬號被 Pixiv 限制。<br>建議明天再執行此任務。',
+        'The number of newly added followers has reached {}, the downloader has stopped the task to prevent your account from being restricted by Pixiv. <br>It is recommended to perform this task again tomorrow.',
+        '新しく追加されたフォロワーの数が {} に達しました。あなたのアカウントが Pixiv によって制限されるのを防ぐために、ダウンローダーはタスクを停止しました。 <br>このタスクは明日もう一度実行することをお勧めします。',
+        '새로 추가된 팔로워 수가 {}에 도달했습니다. 다운로더가 작업을 중지하여 Pixiv에서 귀하의 계정을 제한하지 않도록 했습니다. <br>내일 이 작업을 다시 수행하는 것이 좋습니다.',
+        'Количество новых подписчиков достигло {}, загрузчик остановил задачу, чтобы предотвратить ограничение вашей учетной записи Pixiv. <br>Рекомендуется повторить это задание завтра.',
+    ],
+    _没有找到关注按钮的提示: [
+        '跳过关注用户 {} 因为没有找到关注按钮。你可以手动关注此用户。再次执行此任务有可能解决此问题。',
+        '跳過關注使用者 {} 因為沒有找到關注按鈕。你可以手動關注此使用者。再次執行此任務有可能解決此問題。',
+        'Skip following user {} because no follow button was found. You can follow this user manually. Performing this task again may resolve the issue.',
+        'フォロー ボタンが見つからなかったため、ユーザー {} のフォローをスキップします。このユーザーを手動でフォローできます。 このタスクを再度実行すると、問題が解決される可能性があります。',
+        '팔로우 버튼을 찾을 수 없으므로 사용자 {} 팔로우를 건너뜁니다. 이 사용자를 수동으로 팔로우할 수 있습니다. 이 작업을 다시 수행하면 문제가 해결될 수 있습니다.',
+        'Пропустить подписку на пользователя {}, поскольку кнопка подписки не найдена. Вы можете подписаться на этого пользователя вручную. Повторное выполнение этой задачи может решить проблему.',
+    ],
+    _你的账号已经被Pixiv限制: [
+        '你的账号已经被 Pixiv 限制',
+        '你的賬號已經被 Pixiv 限制',
+        'Your account has been restricted by Pixiv',
+        'あなたのアカウントはPixivによって制限されています',
+        '귀하의 계정은 Pixiv에 의해 제한되었습니다.',
+        'Ваша учетная запись была ограничена Pixiv',
+    ],
+    _模拟用户点击: [
+        '下载器发送的 API 返回 400 错误（需要 recaptcha enterprise score token），切换到模拟用户点击的方式，这会使用较多的硬件资源。',
+        '下載器傳送的 API 返回 400 錯誤（需要 recaptcha enterprise score token），切換到模擬使用者點選的方式，這會使用較多的硬體資源。',
+        'The API sent by the downloader returns a 400 error (recaptcha enterprise score token is required), and switches to the method of simulating user clicks, which will use more hardware resources.',
+        'ダウンローダーによって送信された API は 400 エラー (recaptcha enterprise score token が必要です) を返し、より多くのハードウェア リソースを使用するユーザーのクリックをシミュレートする方法に切り替わります。',
+        '다운로더가 보낸 API는 400 오류(recaptcha enterprise score token 필요)를 반환하고 더 많은 하드웨어 리소스를 사용하는 사용자 클릭 시뮬레이션 방법으로 전환합니다.',
+        'API, отправленный загрузчиком, возвращает ошибку 400 (требуется recaptcha enterprise score token) и переключается на метод имитации пользовательских кликов, который будет использовать больше аппаратных ресурсов.',
+    ],
+    _提示可以重新执行批量关注任务: [
+        '如果该标签页失去响应，或者关注的用户有遗漏，请关闭标签页，再重新打开，重新执行此任务。',
+        '如果該標籤頁失去響應，或者關注的使用者有遺漏，請關閉標籤頁，再重新開啟，重新執行此任務。',
+        'If the tab becomes unresponsive, or if you miss a follower, close the tab, reopen it, and redo the task.',
+        'タブが応答しなくなった場合、またはフォロワーを見逃した場合は、タブを閉じて再度開き、タスクをやり直してください。',
+        '탭이 응답하지 않거나 팔로어를 놓친 경우 탭을 닫았다가 다시 열고 작업을 다시 실행하십시오.',
+        'Если вкладка перестает отвечать на запросы или вы пропустили подписчика, закройте вкладку, снова откройте ее и повторите задачу.',
+    ],
+    _新增x个: [
+        '新增 {} 个',
+        '新增 {} 個',
+        'Added {}',
+        '追加した {}',
+        '추가됨 {}',
+        'Добавлен {}',
+    ],
+    _优化批量关注用户的功能: [
+        '优化批量关注用户的功能',
+        '最佳化批次關注使用者的功能',
+        'Optimize the function of following users in batches',
+        'ユーザーの一括フォロー機能を最適化',
+        '사용자 일괄 팔로우 기능 최적화',
+        'Оптимизируйте функцию подписки на пользователей в пакетном режиме.',
     ],
 };
 
@@ -11769,23 +11842,17 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.0.0';
+        this.flag = '16.0.1';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
+            // <strong>${lang.transl('_新增功能')}:</strong>
             let msg = `
-      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</strong>
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化批量关注用户的功能')}</span>
       <br>
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出关注列表')}</span>
-      <br>
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_批量关注用户')}</span>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入导出关注用户列表的说明')}
-      <br>
-      <br>
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_其他优化')}</span>
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
       `;
             // ${lang.transl(
             //   '_你可以在更多选项卡的xx分类里找到它',
@@ -12894,6 +12961,17 @@ class Tools {
         const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}`;
         return `<a href="${href}" target="_blank">${id}</a>`;
     }
+    // 传入用户 id，生成用户页面的超链接
+    /**
+     *
+     * @param userID 用户 id
+     * @returns 超链接（A 标签）
+     */
+    static createUserLink(userID) {
+        const idNum = typeof userID === 'number' ? userID : Number.parseInt(userID);
+        const href = `https://www.pixiv.net/users/${idNum}`;
+        return `<a href="${href}" target="_blank">${idNum}</a>`;
+    }
     /**替换 EPUB 文本里的特殊字符和换行符 */
     // 换行符必须放在最后处理，以免其 < 符号被替换
     static replaceEPUBText(str) {
@@ -13048,6 +13126,11 @@ class Tools {
             return false;
         }
         return true;
+    }
+    static rangeRandom(start, end) {
+        const difference = end - start;
+        const num = Math.ceil(Math.random() * difference);
+        return start + num;
     }
 }
 Tools.chineseRegexp = /[一-龥]/;
@@ -16240,7 +16323,11 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         this.CSVData = []; // 储存用户列表，包含 id 和用户名
         this.importFollowedUserIDs = [];
         this.homePrefix = 'https://www.pixiv.net/users/'; // 用户主页的通用链接前缀
-        this.retryUpdateToken = false;
+        this.stopAddFollow = false;
+        this.sendReqNumber = 0;
+        this.dailyLimit = 1000; // 每天限制关注的数量，以免被封号
+        this.tokenHasUpdated = false;
+        this.need_recaptcha_enterprise_score_token = false;
         this.getPageType();
         this.init();
     }
@@ -16287,6 +16374,8 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             if (this.importFollowedUserIDs.length === 0) {
                 return _Log__WEBPACK_IMPORTED_MODULE_6__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_本次任务已全部完成'));
             }
+            this.stopAddFollow = false;
+            this.sendReqNumber = 0;
             // 导入关注列表后，需要获取关注的所有用户列表，以便在添加关注时跳过已关注的，节约时间
             this.task = 'batchFollow';
             _store_States__WEBPACK_IMPORTED_MODULE_10__.states.slowCrawlMode = true;
@@ -16474,53 +16563,111 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             return resolve(loadedJSON);
         });
     }
+    logProgress(current, total, newAdded) {
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(`${current} / ${total}, ${_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_新增x个', newAdded.toString())}`, 1, false);
+    }
     async batchFollow() {
-        return new Promise(async (resolve) => {
+        return new Promise(async (resolve, reject) => {
             const taskName = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang
                 .transl('_批量关注用户')
                 .replace('（JSON）', '')
                 .replace('(JSON)', '');
             _Log__WEBPACK_IMPORTED_MODULE_6__.log.success(taskName);
             _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_慢速执行以避免引起429错误'));
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示可以重新执行批量关注任务'));
             let followed = 0;
             let number = 0;
             const total = this.importFollowedUserIDs.length;
             for (const userID of this.importFollowedUserIDs) {
+                this.logProgress(number, total, this.sendReqNumber);
+                if (this.stopAddFollow) {
+                    const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_任务已中止');
+                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_15__.msgBox.error(msg);
+                    return resolve();
+                }
+                if (this.sendReqNumber >= this.dailyLimit) {
+                    this.stopAddFollow = true;
+                    const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_新增的关注用户达到每日限制', this.dailyLimit.toString());
+                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_15__.msgBox.error(msg);
+                    return resolve();
+                }
                 number++;
-                _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(`${number} / ${total}`, 1, false);
                 if (this.userList.includes(userID) === false) {
+                    this.sendReqNumber++;
                     await this.addFollow(userID);
                 }
                 else {
                     followed++;
                 }
             }
-            console.log('followed, not send request', followed);
+            this.logProgress(number, total, this.sendReqNumber);
             _Log__WEBPACK_IMPORTED_MODULE_6__.log.success('✓ ' + taskName);
             _MsgBox__WEBPACK_IMPORTED_MODULE_15__.msgBox.success('✓ ' + taskName);
             return resolve();
         });
     }
+    clearIframe(iframe) {
+        iframe.src = 'about:blank';
+        iframe.remove();
+        iframe = null;
+        console.log('清理iframe');
+        // 下载器每生成一个 iframe，Pixiv 的脚本也会创建一个 iframe，一并清除
+        const allIframe = document.querySelectorAll('body>iframe');
+        for (const frame of allIframe) {
+            if (frame?.src.includes('criteo.com')) {
+                frame.remove();
+            }
+        }
+    }
     async addFollow(userID) {
         return new Promise(async (resolve) => {
+            // 需要携带 need_recaptcha_enterprise_score_token 时，用 iframe 加载网页然后点击关注按钮
+            if (this.need_recaptcha_enterprise_score_token) {
+                const iframe = await this.clickFollowButton(userID);
+                this.clearIframe(iframe);
+                return resolve(200);
+            }
+            // 不需要携带 need_recaptcha_enterprise_score_token 时可以直接添加关注
             const status = await _API__WEBPACK_IMPORTED_MODULE_4__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_16__.token.token);
             if (status !== 200) {
-                if (this.retryUpdateToken === true) {
-                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(`Error: ${userID} Status: ${status}`);
-                }
-                else {
-                    // 404 有两种可能的原因：
+                const errorMsg = `Error: ${_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID)} Status: ${status}`;
+                if (status === 404) {
+                    // 404 可能的原因：
                     // 1. token 无效
                     // 2. 该用户不存在
-                    // 404 时尝试重新获取 token，然后重试请求（仅执行一次）
-                    if (status === 404) {
-                        this.retryUpdateToken = true;
+                    if (this.tokenHasUpdated === true) {
+                        _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(errorMsg);
+                    }
+                    else {
+                        // 404 时尝试重新获取 token，然后重试请求（仅执行一次）
+                        this.tokenHasUpdated = true;
                         await _Token__WEBPACK_IMPORTED_MODULE_16__.token.reset();
                         await _API__WEBPACK_IMPORTED_MODULE_4__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_16__.token.token);
                     }
-                    else {
-                        _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(`Error: ${userID} Status: ${status}`);
-                    }
+                }
+                else if (status === 400) {
+                    // 400 是需要传递 recaptcha_enterprise_score_token 的时候，它的值为空或错误
+                    // 此时发出一次错误提醒，并重试添加关注
+                    this.need_recaptcha_enterprise_score_token = true;
+                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_模拟用户点击'));
+                    const iframe = await this.clickFollowButton(userID);
+                    this.clearIframe(iframe);
+                    return resolve(200);
+                }
+                else if (status === 403) {
+                    // 403 是访问权限已经被限制
+                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(errorMsg);
+                    const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_你的账号已经被Pixiv限制');
+                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_15__.msgBox.error(msg);
+                    this.stopAddFollow = true;
+                    return resolve(status);
+                }
+                else {
+                    // 其他错误
+                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(errorMsg);
                 }
             }
             // 慢速执行
@@ -16529,7 +16676,43 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             // 所以需要限制添加的速度。我用 1400ms 依然会触发 429，所以需要使用更大的时间间隔，以确保不会触发 429
             _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_12__.setTimeoutWorker.set(() => {
                 return resolve(status);
-            }, 2500);
+            }, _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
+        });
+    }
+    fun(userID, iframe) {
+        return new Promise(async (resolve) => {
+            // 等待一段时间，默认操作完成。但是如果此时一些请求尚未完成，可能会被取消。所以这个时间最好稍大一点
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_12__.setTimeoutWorker.set(() => {
+                return resolve(iframe);
+            }, _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
+            const button = iframe.contentDocument?.querySelector('button[data-click-label]');
+            if (button) {
+                button.click();
+                console.log(userID + ' click');
+            }
+            else {
+                const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_没有找到关注按钮的提示', _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID));
+                _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(msg);
+                return resolve(iframe);
+            }
+        });
+    }
+    async clickFollowButton(userID) {
+        return new Promise(async (resolve, reject) => {
+            const url = `https://www.pixiv.net/${_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.htmlLangType === 'en' ? 'en/' : ''}users/${userID}`;
+            const res = await fetch(url);
+            // const text = await res.text()
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            document.body.append(iframe);
+            // iframe.srcdoc = text
+            iframe.src = url;
+            // 在一定时间后，强制执行回调，不管 iframe.onload 的状态。
+            // 因为有时一些广告脚本可能会加载失败，导致很久才能进入 onload。那样会等待太久。
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_12__.setTimeoutWorker.set(async () => {
+                const _iframe = await this.fun(userID, iframe);
+                return resolve(_iframe);
+            }, _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
         });
     }
     // 获取用户的 id 列表
@@ -24066,12 +24249,12 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 110060000
-            this.crawlData(109830000, 110067342);
+            // 上次记录到 110280000
+            this.crawlData(110070000, 110284375);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 20290000
-            this.crawlData(20250000, 20296530, 'novels');
+            // 上次记录到 20340000
+            this.crawlData(20300000, 20342039, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -31761,6 +31944,11 @@ const novelData = [
     [20270000, 1689433202000],
     [20280000, 1689564424000],
     [20290000, 1689687736000],
+    [20300000, 1689856471000],
+    [20310000, 1690007766000],
+    [20320000, 1690119474000],
+    [20330000, 1690271740000],
+    [20340000, 1690412997000],
 ];
 
 
@@ -42784,6 +42972,28 @@ const illustsData = [
     [110040000, 1689695520000],
     [110050000, 1689741720000],
     [110060000, 1689770400000],
+    [110070000, 1689797460000],
+    [110080000, 1689840600000],
+    [110090000, 1689862500000],
+    [110100000, 1689898920000],
+    [110110000, 1689934260000],
+    [110120000, 1689952680000],
+    [110130000, 1689993300000],
+    [110140000, 1690020120000],
+    [110150000, 1690038720000],
+    [110160000, 1690076040000],
+    [110170000, 1690102860000],
+    [110180000, 1690120800000],
+    [110190001, 1690153080000],
+    [110200001, 1690190220000],
+    [110210000, 1690209420000],
+    [110220000, 1690246920000],
+    [110230000, 1690281120000],
+    [110240000, 1690300080000],
+    [110250000, 1690343880000],
+    [110260000, 1690372800000],
+    [110270000, 1690393500000],
+    [110280000, 1690438260000],
 ];
 
 

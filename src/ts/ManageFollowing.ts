@@ -46,7 +46,7 @@ class ManageFollowing {
 
     chrome.runtime.onMessage.addListener(async (msg, sender) => {
       if (msg.msg === 'requestFollowingData') {
-        this.dispath(sender?.tab)
+        this.dispatchFollowingList(sender?.tab)
       }
 
       if (msg.msg === 'needUpdateFollowingData') {
@@ -86,7 +86,7 @@ class ManageFollowing {
           // 如果有等待的操作，则不派发和储存数据，因为稍后队列执行完毕后也会派发和储存数据
           // 这是为了避免重复派发和储存数据，避免影响性能
           if (this.queue.length === 0) {
-            this.dispath()
+            this.dispatchFollowingList()
             this.storage()
           }
 
@@ -209,7 +209,7 @@ class ManageFollowing {
    * 可以指定向哪个 tab 派发
    * 如果未指定 tab，则向所有的 pixiv 标签页派发
    */
-  private async dispath(tab?: chrome.tabs.Tab) {
+  private async dispatchFollowingList(tab?: chrome.tabs.Tab) {
     if (tab?.id) {
       chrome.tabs.sendMessage(tab.id, {
         msg: 'dispathFollowingData',
@@ -223,6 +223,18 @@ class ManageFollowing {
           data: this.data,
         })
       }
+    }
+  }
+
+  private async dispatchRecaptchaToken(
+    recaptcha_enterprise_score_token: string
+  ) {
+    const tabs = await this.findAllPixivTab()
+    for (const tab of tabs) {
+      chrome.tabs.sendMessage(tab.id!, {
+        msg: 'dispatchRecaptchaToken',
+        data: recaptcha_enterprise_score_token,
+      })
     }
   }
 
@@ -243,7 +255,7 @@ class ManageFollowing {
     }
 
     // 队列中的所有操作完成后，派发和储存数据
-    this.dispath()
+    this.dispatchFollowingList()
 
     this.storage()
   }
@@ -324,7 +336,7 @@ class ManageFollowing {
         if (new Date().getTime() - item.time > day30ms) {
           this.data.splice(index, 1)
 
-          this.dispath()
+          this.dispatchFollowingList()
           this.storage()
           break
         }

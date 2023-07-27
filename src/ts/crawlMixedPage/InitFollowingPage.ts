@@ -134,6 +134,9 @@ class InitFollowingPage extends InitPageBase {
         return log.success(lang.transl('_本次任务已全部完成'))
       }
 
+      this.stopAddFollow = false
+      this.sendReqNumber = 0
+
       // 导入关注列表后，需要获取关注的所有用户列表，以便在添加关注时跳过已关注的，节约时间
       this.task = 'batchFollow'
 
@@ -388,54 +391,136 @@ class InitFollowingPage extends InitPageBase {
     })
   }
 
+  private stopAddFollow = false
+  private sendReqNumber = 0
+  private readonly dailyLimit = 1000 // 每天限制关注的数量，以免被封号
+  private tokenHasUpdated = false
+  private need_recaptcha_enterprise_score_token = false
+
+  private logProgress(current: number, total: number, newAdded: number) {
+    log.log(
+      `${current} / ${total}, ${lang.transl('_新增x个', newAdded.toString())}`,
+      1,
+      false
+    )
+  }
+
   private async batchFollow(): Promise<void> {
-    return new Promise(async (resolve) => {
+    return new Promise(async (resolve, reject) => {
       const taskName = lang
         .transl('_批量关注用户')
         .replace('（JSON）', '')
         .replace('(JSON)', '')
       log.success(taskName)
       log.warning(lang.transl('_慢速执行以避免引起429错误'))
+      log.warning(lang.transl('_提示可以重新执行批量关注任务'))
 
       let followed = 0
       let number = 0
       const total = this.importFollowedUserIDs.length
+
       for (const userID of this.importFollowedUserIDs) {
+        this.logProgress(number, total, this.sendReqNumber)
+
+        if (this.stopAddFollow) {
+          const msg = lang.transl('_任务已中止')
+          log.error(msg)
+          msgBox.error(msg)
+          return resolve()
+        }
+
+        if (this.sendReqNumber >= this.dailyLimit) {
+          this.stopAddFollow = true
+          const msg = lang.transl(
+            '_新增的关注用户达到每日限制',
+            this.dailyLimit.toString()
+          )
+          log.error(msg)
+          msgBox.error(msg)
+          return resolve()
+        }
+
         number++
-        log.log(`${number} / ${total}`, 1, false)
         if (this.userList.includes(userID) === false) {
+          this.sendReqNumber++
           await this.addFollow(userID)
         } else {
           followed++
         }
       }
-      console.log('followed, not send request', followed)
 
+      this.logProgress(number, total, this.sendReqNumber)
       log.success('✓ ' + taskName)
       msgBox.success('✓ ' + taskName)
       return resolve()
     })
   }
 
-  private retryUpdateToken = false
-  private async addFollow(userID: string) {
+  private clearIframe(iframe: HTMLIFrameElement) {
+    iframe.src = 'about:blank'
+    iframe.remove()
+    iframe = null as any
+    console.log('清理iframe')
+
+    // 下载器每生成一个 iframe，Pixiv 的脚本也会创建一个 iframe，一并清除
+    const allIframe = document.querySelectorAll(
+      'body>iframe'
+    ) as NodeListOf<HTMLIFrameElement>
+    for (const frame of allIframe) {
+      if (frame?.src.includes('criteo.com')) {
+        frame.remove()
+      }
+    }
+  }
+
+  private async addFollow(userID: string): Promise<number> {
     return new Promise(async (resolve) => {
+      // 需要携带 need_recaptcha_enterprise_score_token 时，用 iframe 加载网页然后点击关注按钮
+      if (this.need_recaptcha_enterprise_score_token) {
+        const iframe = await this.clickFollowButton(userID)
+        this.clearIframe(iframe)
+
+        return resolve(200)
+      }
+
+      // 不需要携带 need_recaptcha_enterprise_score_token 时可以直接添加关注
       const status = await API.addFollowingUser(userID, token.token)
       if (status !== 200) {
-        if (this.retryUpdateToken === true) {
-          log.error(`Error: ${userID} Status: ${status}`)
-        } else {
-          // 404 有两种可能的原因：
+        const errorMsg = `Error: ${Tools.createUserLink(
+          userID
+        )} Status: ${status}`
+        if (status === 404) {
+          // 404 可能的原因：
           // 1. token 无效
           // 2. 该用户不存在
-          // 404 时尝试重新获取 token，然后重试请求（仅执行一次）
-          if (status === 404) {
-            this.retryUpdateToken = true
+          if (this.tokenHasUpdated === true) {
+            log.error(errorMsg)
+          } else {
+            // 404 时尝试重新获取 token，然后重试请求（仅执行一次）
+            this.tokenHasUpdated = true
             await token.reset()
             await API.addFollowingUser(userID, token.token)
-          } else {
-            log.error(`Error: ${userID} Status: ${status}`)
           }
+        } else if (status === 400) {
+          // 400 是需要传递 recaptcha_enterprise_score_token 的时候，它的值为空或错误
+          // 此时发出一次错误提醒，并重试添加关注
+          this.need_recaptcha_enterprise_score_token = true
+          log.warning(lang.transl('_模拟用户点击'))
+          const iframe = await this.clickFollowButton(userID)
+          this.clearIframe(iframe)
+
+          return resolve(200)
+        } else if (status === 403) {
+          // 403 是访问权限已经被限制
+          log.error(errorMsg)
+          const msg = lang.transl('_你的账号已经被Pixiv限制')
+          log.error(msg)
+          msgBox.error(msg)
+          this.stopAddFollow = true
+          return resolve(status)
+        } else {
+          // 其他错误
+          log.error(errorMsg)
         }
       }
 
@@ -443,9 +528,68 @@ class InitFollowingPage extends InitPageBase {
       // 关注用户的 API 也会触发 429 错误，此时获取作品数据的话会返回 429，
       // 但是关注用户的 API 依然返回 200，并且返回值也正常，但实际上关注用户的操作失败了。无法判断到底有没有关注成功
       // 所以需要限制添加的速度。我用 1400ms 依然会触发 429，所以需要使用更大的时间间隔，以确保不会触发 429
-      setTimeoutWorker.set(() => {
-        return resolve(status)
-      }, 2500)
+      setTimeoutWorker.set(
+        () => {
+          return resolve(status)
+        },
+        Tools.rangeRandom(2500, 3600)
+      )
+    })
+  }
+
+  private fun(
+    userID: string,
+    iframe: HTMLIFrameElement
+  ): Promise<HTMLIFrameElement> {
+    return new Promise(async (resolve) => {
+      // 等待一段时间，默认操作完成。但是如果此时一些请求尚未完成，可能会被取消。所以这个时间最好稍大一点
+      setTimeoutWorker.set(
+        () => {
+          return resolve(iframe)
+        },
+        Tools.rangeRandom(2500, 3600)
+      )
+
+      const button = iframe.contentDocument?.querySelector(
+        'button[data-click-label]'
+      ) as HTMLButtonElement | null
+      if (button) {
+        button.click()
+        console.log(userID + ' click')
+      } else {
+        const msg = lang.transl(
+          '_没有找到关注按钮的提示',
+          Tools.createUserLink(userID)
+        )
+        log.error(msg)
+
+        return resolve(iframe)
+      }
+    })
+  }
+
+  private async clickFollowButton(userID: string): Promise<HTMLIFrameElement> {
+    return new Promise(async (resolve, reject) => {
+      const url = `https://www.pixiv.net/${
+        lang.htmlLangType === 'en' ? 'en/' : ''
+      }users/${userID}`
+      const res = await fetch(url)
+      // const text = await res.text()
+      const iframe = document.createElement('iframe')
+      iframe.style.display = 'none'
+      document.body.append(iframe)
+      // iframe.srcdoc = text
+      iframe.src = url
+
+      // 在一定时间后，强制执行回调，不管 iframe.onload 的状态。
+      // 因为有时一些广告脚本可能会加载失败，导致很久才能进入 onload。那样会等待太久。
+      setTimeoutWorker.set(
+        async () => {
+          const _iframe = await this.fun(userID, iframe)
+          return resolve(_iframe)
+        },
+        Tools.rangeRandom(2500, 3600)
+      )
     })
   }
 
