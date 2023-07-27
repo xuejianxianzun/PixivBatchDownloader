@@ -1,11 +1,23 @@
 /* 显示更大的缩略图 */
 /* 为了便于使用，这里面使用 CSS 的语法，而不是 Less 的语法 */
 /* 下载器替换默认的缩略图时，使用的的图片宽高最大是 540px */
-/* 这两个是通用的作品列表外部容器，在大部分新版页面都有。取消它们的宽度限制 */
+/* 作品列表外部容器，取消它们的宽度限制 */
 .iClkCH,
-.gTaKE {
+.gTaKE,
+.dkDhZO,
+.FIoEP,
+.cFnmRM,
+.egRndR,
+.cziSru,
+.fwKwiN,
+.kzVVzC,
+.sc-5ab8209a-1,
+.drrFnc,
+.sc-5ab8209a-2,
+.hbbJkA {
   width: auto !important;
   min-width: 1224px;
+  max-width: unset !important;
 }
 /* li 的直接子元素 */
 .jDiQFZ {
@@ -36,7 +48,8 @@ nav .cYUezH {
 /* div[width="184"] a div img */
 /* img */
 .erYaF,
-.eCFXg {
+.eCFXg,
+.cdrSgJ {
   height: auto !important;
   max-height: 540px;
 }
@@ -59,22 +72,34 @@ nav .cYUezH {
 .hkzusx div[style] {
   flex-shrink: 0;
 }
-/* 最顶部 关注用户・好P友的作品 列表 缩略图 li */
-/* 最底部 本站的最新作品 列表 */
+.hjtPnz,
+.bpXOJR {
+  display: flex !important;
+}
+/* 缩略图 li */
 /* 首页还有不少地方的作品缩略图容器列表也都是这个 class */
 /* max-height 需要比 max-width 更大一些，因为图片的下方还要显示标题等信息，也要占据空间 */
-.bgeGyS {
+.bgeGyS,
+.hcLnhb,
+.hhoRzm,
+.dgeelW {
   display: flex !important;
   width: auto;
   max-width: 540px;
   max-height: 600px;
   flex-shrink: 0;
 }
-.bgeGyS .jDiQFZ {
+.bgeGyS .jDiQFZ,
+.hcLnhb .jDiQFZ,
+.hhoRzm .jDiQFZ,
+.dgeelW > div {
   display: flex !important;
   flex-direction: column !important;
 }
-.bgeGyS .jDiQFZ .hYfnPb {
+.bgeGyS .jDiQFZ .hYfnPb,
+.hcLnhb .jDiQFZ .hYfnPb,
+.hhoRzm .jDiQFZ .hYfnPb,
+.dgeelW > div > div {
   display: flex !important;
 }
 /* 下载器会尝试给“关注用户・好P友的作品”的容器添加自定义的 class，避免其频繁改版而失效 */
@@ -94,7 +119,10 @@ nav .cYUezH {
 }
 /* 推荐作品 li */
 /* 很多新版页面的作品列表都要把 margin 改小一些，从 12 改为 10，否则在 125% 缩放时，因为宽度不够，一排原本能显示 6 个的，变得只能显示 5 个*/
-.kxmdLh {
+.kxmdLh,
+.dgeelW,
+.flkRKs,
+.jexggF {
   margin: 10px !important;
   width: 15% !important;
   max-width: 540px;
@@ -104,20 +132,6 @@ nav .cYUezH {
 .kJiNJl {
   width: auto !important;
   height: auto !important;
-}
-/* 底部 xxx 的推荐插画作品的 li */
-.jexggF {
-  margin: 10px !important;
-  width: 15% !important;
-  max-width: 540px;
-  max-height: 600px;
-}
-/* 瞩目的企划目录、已关注用户的最新商品 li */
-.flkRKs {
-  margin: 10px !important;
-  width: 15% !important;
-  max-width: 540px;
-  max-height: 600px;
 }
 /* 画师主页 */
 /* 主页、插画、收藏 一栏取消宽度限制 */
@@ -282,8 +296,9 @@ nav .cYUezH {
   max-width: 540px;
   max-height: 600px;
 }
-/* 取消 img 的绝对定位 */
-.zdawJ {
+/* 取消约稿页面 img 的绝对定位 */
+.zdawJ,
+.cdrSgJ {
   position: unset !important;
 }
 /* 发现页面 */
