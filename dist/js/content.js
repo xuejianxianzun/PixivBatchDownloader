@@ -3497,7 +3497,7 @@ const langText = {
         '<span class="key">Исключить</span> ярлык',
     ],
     _排除tag的提示文字: [
-        '您可在下载前设置要排除的标签，这样在下载时将不会下载含有这些标签的作品。不区分大小写；如需排除多个标签，请使用英文逗号分隔。请注意要排除的标签的优先级大于要包含的tag的优先级。',
+        '您可在下载前设置要排除的标签，这样在下载时将不会下载含有这些标签的作品。不区分大小写；如需排除多个标签，请使用英文逗号分隔。请注意，要排除的标签的优先级大于要包含的标签的优先级。',
         '可在下載前設定要排除的標籤，下載時將排除含有這些標籤的作品，不區分大小寫；如需排除多個標籤，請使用半形逗號（,）分隔。請注意，要排除的標籤優先於要包含的標籤。',
         'Before downloading, you can set the tag you want to exclude. Not case sensitive; If you need to set multiple tags, you can use comma (,) separated. The excluded tag takes precedence over the included tag',
         'ダウンロード前に、除外するタグを設定できます。大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、「,」で区切ってください。除外されたタグは、必要なタグよりも優先されます',
@@ -25506,7 +25506,7 @@ const formHtml = `<form class="settingForm">
     <input type="radio" name="needTagMode" id="needTagMode2" class="need_beautify radio" value="one">
     <span class="beautify_radio" tabindex="0"></span>
     <label for="needTagMode2" data-xztext="_任一"></label>
-    <input type="text" name="needTag" class="setinput_style1 blue setinput_tag">
+    <input type="text" name="needTag" class="setinput_style1 blue setinput_tag" placeholder="tag1,tag2,tag3">
     </span>
     </p>
 
@@ -25525,7 +25525,7 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_radio" tabindex="0"></span>
     <label for="tagMatchMode2" data-xztext="_完全一致"></label>
     <br>
-    <textarea class="centerPanelTextArea beautify_scrollbar" name="notNeedTag" rows="1"></textarea>
+    <textarea class="centerPanelTextArea beautify_scrollbar" name="notNeedTag" rows="1" placeholder="tag1,tag2,tag3"></textarea>
     </span>
     </p>
 
