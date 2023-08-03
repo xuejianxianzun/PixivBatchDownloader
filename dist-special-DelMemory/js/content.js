@@ -7786,6 +7786,14 @@ const langText = {
         '사용자 일괄 팔로우 기능 최적화',
         'Оптимизируйте функцию подписки на пользователей в пакетном режиме.',
     ],
+    _修复了显示更大的缩略图失效的问题: [
+        '修复了“显示更大的缩略图”失效的问题',
+        '修復了“顯示更大的縮圖”失效的問題',
+        'Fixed an issue where "Show Larger Thumbnails" didn\'t work',
+        '「大きなサムネイルを表示」が機能しない問題を修正しました',
+        '"큰 축소판 보기"가 작동하지 않는 문제를 수정했습니다.',
+        'Исправлена ​​ошибка, из-за которой не работал параметр «Показать увеличенные эскизы».',
+    ],
 };
 
 
@@ -11198,7 +11206,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.0.1';
+        this.flag = '16.0.2';
         this.bindEvents();
     }
     bindEvents() {
@@ -11206,9 +11214,7 @@ class ShowWhatIsNew {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             // <strong>${lang.transl('_新增功能')}:</strong>
             let msg = `
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化批量关注用户的功能')}</span>
-      <br>
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复了显示更大的缩略图失效的问题')}</span>
       `;
             // ${lang.transl(
             //   '_你可以在更多选项卡的xx分类里找到它',
