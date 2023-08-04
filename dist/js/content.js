@@ -11124,7 +11124,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.0.2';
+        this.flag = '16.0.3';
         this.bindEvents();
     }
     bindEvents() {
@@ -11132,7 +11132,7 @@ class ShowWhatIsNew {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             // <strong>${lang.transl('_新增功能')}:</strong>
             let msg = `
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复了显示更大的缩略图失效的问题')}</span>
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
       `;
             // ${lang.transl(
             //   '_你可以在更多选项卡的xx分类里找到它',
@@ -25476,7 +25476,7 @@ const formHtml = `<form class="settingForm">
     <input type="radio" name="idRange" id="idRange2" class="need_beautify radio" value="<">
     <span class="beautify_radio" tabindex="0"></span>
     <label for="idRange2">&lt;</label>
-    <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
+    <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="" placeholder="100000000">
     </span>
     </p>
 
@@ -25862,7 +25862,7 @@ const formHtml = `<form class="settingForm">
     <span class="subOptionWrap" data-show="createFolderByTag">
     <span class="gray1" data-xztext="_tag用逗号分割"></span>
     <br>
-    <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1"></textarea>
+    <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1" placeholder="tag1,tag2,tag3"></textarea>
     </span>
     </p>
 
