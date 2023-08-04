@@ -237,7 +237,7 @@ export const formHtml = `<form class="settingForm">
     <input type="radio" name="idRange" id="idRange2" class="need_beautify radio" value="<">
     <span class="beautify_radio" tabindex="0"></span>
     <label for="idRange2">&lt;</label>
-    <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
+    <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="" placeholder="100000000">
     </span>
     </p>
 
@@ -623,7 +623,7 @@ export const formHtml = `<form class="settingForm">
     <span class="subOptionWrap" data-show="createFolderByTag">
     <span class="gray1" data-xztext="_tag用逗号分割"></span>
     <br>
-    <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1"></textarea>
+    <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1" placeholder="tag1,tag2,tag3"></textarea>
     </span>
     </p>
 

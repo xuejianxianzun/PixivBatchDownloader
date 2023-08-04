@@ -90,7 +90,9 @@ class DownloadControl {
 
   private pause = false // 是否已经暂停下载
 
-  private waitingTimer: undefined | number = undefined
+  private crawlIdListTimer: undefined | number = undefined
+
+  private checkDownloadTimeoutTimer: undefined | number = undefined
 
   private readonly msgFlag = 'uuidTip'
 
@@ -130,6 +132,29 @@ class DownloadControl {
     window.addEventListener(EVT.list.requestPauseDownload, (ev) => {
       // 请求暂停下载
       this.pauseDownload()
+    })
+
+    // 如果下载器让浏览器保存文件到本地，但是之后没有收到回应（不知道文件是否有成功保存），这会导致下载进度卡住
+    window.addEventListener(EVT.list.sendBrowserDownload, () => {
+      this.checkDownloadTimeoutTimer = window.setTimeout(() => {
+        const msg = lang.transl('_可能发生了错误请刷新页面重试')
+        msgBox.once('mayError', msg, 'warning')
+        log.warning(msg)
+      }, 3000)
+
+      const clearDownloadTimeoutTimerList = [
+        EVT.list.downloadComplete,
+        EVT.list.downloadError,
+        EVT.list.downloadPause,
+        EVT.list.downloadStop,
+        EVT.list.downloadSuccess,
+        EVT.list.crawlStart,
+      ]
+      clearDownloadTimeoutTimerList.forEach((evt) => {
+        window.addEventListener(evt, () => {
+          window.clearTimeout(this.checkDownloadTimeoutTimer)
+        })
+      })
     })
 
     // 监听浏览器返回的消息
@@ -204,8 +229,8 @@ class DownloadControl {
           msg: 'clearDownloadsTempData',
         })
       } else {
-        window.clearTimeout(this.waitingTimer)
-        this.waitingTimer = window.setTimeout(() => {
+        window.clearTimeout(this.crawlIdListTimer)
+        this.crawlIdListTimer = window.setTimeout(() => {
           states.quickCrawl = true // 下载等待的任务时，不显示下载器面板
           const idList = store.waitingIdList
           store.waitingIdList = []

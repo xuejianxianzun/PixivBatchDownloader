@@ -1810,6 +1810,8 @@ class EVENT {
             cancelTimedCrawl: 'cancelTimedCrawl',
             /**当获取到页面的主题颜色时触发 */
             getPageTheme: 'getPageTheme',
+            /**当下载模块向浏览器发起一个下载请求（保存文件到本地）时触发 */
+            sendBrowserDownload: 'sendBrowserDownload',
         };
     }
     // 只绑定某个事件一次，用于防止事件重复绑定
@@ -3570,7 +3572,7 @@ const langText = {
         '<span class="key">Исключить</span> ярлык',
     ],
     _排除tag的提示文字: [
-        '您可在下载前设置要排除的标签，这样在下载时将不会下载含有这些标签的作品。不区分大小写；如需排除多个标签，请使用英文逗号分隔。请注意，排除的标签的优先级大于包含的标签的优先级。',
+        '您可在下载前设置要排除的标签，这样在下载时将不会下载含有这些标签的作品。不区分大小写；如需排除多个标签，请使用英文逗号分隔。请注意，要排除的标签的优先级大于要包含的标签的优先级。',
         '可在下載前設定要排除的標籤，下載時將排除含有這些標籤的作品，不區分大小寫；如需排除多個標籤，請使用半形逗號（,）分隔。請注意，要排除的標籤優先於要包含的標籤。',
         'Before downloading, you can set the tag you want to exclude. Not case sensitive; If you need to set multiple tags, you can use comma (,) separated. The excluded tag takes precedence over the included tag',
         'ダウンロード前に、除外するタグを設定できます。大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、「,」で区切ってください。除外されたタグは、必要なタグよりも優先されます',
@@ -7785,6 +7787,14 @@ const langText = {
         '"큰 축소판 보기"가 작동하지 않는 문제를 수정했습니다.',
         'Исправлена ​​ошибка, из-за которой не работал параметр «Показать увеличенные эскизы».',
     ],
+    _可能发生了错误请刷新页面重试: [
+        '可能发生了错误。请刷新页面重试。',
+        '可能發生了錯誤。請重新整理頁面重試。',
+        'An error may have occurred. Please refresh the page and try again.',
+        'エラーが発生した可能性があります。 ページを更新して、もう一度お試しください。',
+        '오류가 발생했을 수 있습니다. 페이지를 새로고침하고 다시 시도하세요.',
+        'Возможно, произошла ошибка. Пожалуйста, обновите страницу и повторите попытку.',
+    ],
 };
 
 
@@ -8410,6 +8420,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   pageType: () => (/* binding */ pageType)
 /* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/SecretSignal */ "./src/ts/utils/SecretSignal.ts");
+
+
 
 // 所有页面类型及对应的数字编号
 // 可以通过 pageType.list 使用
@@ -8450,6 +8464,9 @@ class PageType {
         this.type = this.getType();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch, () => {
             this.checkTypeChange();
+        });
+        _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_2__.secretSignal.register('ppdtask3', () => {
+            this.openAllTestPage();
         });
     }
     getType() {
@@ -8549,6 +8566,106 @@ class PageType {
         }
         else {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('pageSwitchedTypeNotChange', this.type);
+        }
+    }
+    async openAllTestPage() {
+        // 列出要打开的测试页面。不包含已经不存在的页面类型和 Pixivision
+        const testPageList = [
+            {
+                type: PageName.Unsupported,
+                url: 'https://www.pixiv.net/stacc?mode=unify',
+            },
+            {
+                type: PageName.Home,
+                url: 'https://www.pixiv.net',
+            },
+            {
+                type: PageName.Artwork,
+                url: 'https://www.pixiv.net/artworks/108271116',
+            },
+            {
+                type: PageName.UserHome,
+                url: 'https://www.pixiv.net/users/89469319',
+            },
+            {
+                type: PageName.Bookmark,
+                url: 'https://www.pixiv.net/users/96661459/bookmarks/artworks',
+            },
+            {
+                type: PageName.ArtworkSearch,
+                url: 'https://www.pixiv.net/tags/%E5%8E%9F%E7%A5%9E/artworks?s_mode=s_tag',
+            },
+            {
+                type: PageName.AreaRanking,
+                url: 'https://www.pixiv.net/ranking_area.php?type=state&no=0',
+            },
+            {
+                type: PageName.ArtworkRanking,
+                url: 'https://www.pixiv.net/ranking.php',
+            },
+            {
+                type: PageName.NewArtworkBookmark,
+                url: 'https://www.pixiv.net/bookmark_new_illust.php',
+            },
+            {
+                type: PageName.Discover,
+                url: 'https://www.pixiv.net/discovery',
+            },
+            {
+                type: PageName.NewArtwork,
+                url: 'https://www.pixiv.net/new_illust.php',
+            },
+            {
+                type: PageName.ArtworkSeries,
+                url: 'https://www.pixiv.net/user/3698796/series/61267',
+            },
+            {
+                type: PageName.Following,
+                url: 'https://www.pixiv.net/users/96661459/following',
+            },
+            {
+                type: PageName.Request,
+                url: 'https://www.pixiv.net/request',
+            },
+            {
+                type: PageName.Unlisted,
+                url: 'https://www.pixiv.net/artworks/unlisted/eE3fTYaROT9IsZmep386',
+            },
+            {
+                type: PageName.Novel,
+                url: 'https://www.pixiv.net/novel/show.php?id=12771688',
+            },
+            {
+                type: PageName.NovelSeries,
+                url: 'https://www.pixiv.net/novel/series/1090654',
+            },
+            {
+                type: PageName.NovelSearch,
+                url: 'https://www.pixiv.net/tags/%E7%99%BE%E5%90%88/novels',
+            },
+            {
+                type: PageName.NovelRanking,
+                url: 'https://www.pixiv.net/novel/ranking.php?mode=daily',
+            },
+            {
+                type: PageName.NewNovelBookmark,
+                url: 'https://www.pixiv.net/novel/bookmark_new.php',
+            },
+            {
+                type: PageName.NewNovel,
+                url: 'https://www.pixiv.net/novel/new.php',
+            },
+        ];
+        const wait = () => {
+            return new Promise((resolve) => {
+                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_1__.setTimeoutWorker.set(() => {
+                    resolve();
+                }, 500);
+            });
+        };
+        for (const item of testPageList) {
+            window.open(item.url);
+            await wait();
         }
     }
 }
@@ -11197,7 +11314,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.0.2';
+        this.flag = '16.0.3';
         this.bindEvents();
     }
     bindEvents() {
@@ -11205,7 +11322,7 @@ class ShowWhatIsNew {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             // <strong>${lang.transl('_新增功能')}:</strong>
             let msg = `
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复了显示更大的缩略图失效的问题')}</span>
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
       `;
             // ${lang.transl(
             //   '_你可以在更多选项卡的xx分类里找到它',
@@ -18835,6 +18952,7 @@ class Download {
         };
         try {
             chrome.runtime.sendMessage(sendData);
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('sendBrowserDownload');
         }
         catch (error) {
             let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_发生错误原因')}<br>{}${_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_请刷新页面')}`;
@@ -18926,7 +19044,8 @@ class DownloadControl {
         this.downloaded = 0; // 已下载的任务数量
         this.stop = false; // 是否已经停止下载
         this.pause = false; // 是否已经暂停下载
-        this.waitingTimer = undefined;
+        this.crawlIdListTimer = undefined;
+        this.checkDownloadTimeoutTimer = undefined;
         this.msgFlag = 'uuidTip';
         this.createResultBtns();
         this.createDownloadArea();
@@ -18975,6 +19094,27 @@ class DownloadControl {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.requestPauseDownload, (ev) => {
             // 请求暂停下载
             this.pauseDownload();
+        });
+        // 如果下载器让浏览器保存文件到本地，但是之后没有收到回应（不知道文件是否有成功保存），这会导致下载进度卡住
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.sendBrowserDownload, () => {
+            this.checkDownloadTimeoutTimer = window.setTimeout(() => {
+                const msg = _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_可能发生了错误请刷新页面重试');
+                _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.once('mayError', msg, 'warning');
+                _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(msg);
+            }, 3000);
+            const clearDownloadTimeoutTimerList = [
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadComplete,
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadError,
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadPause,
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop,
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadSuccess,
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart,
+            ];
+            clearDownloadTimeoutTimerList.forEach((evt) => {
+                window.addEventListener(evt, () => {
+                    window.clearTimeout(this.checkDownloadTimeoutTimer);
+                });
+            });
         });
         // 监听浏览器返回的消息
         chrome.runtime.onMessage.addListener((msg) => {
@@ -19027,8 +19167,8 @@ class DownloadControl {
                 });
             }
             else {
-                window.clearTimeout(this.waitingTimer);
-                this.waitingTimer = window.setTimeout(() => {
+                window.clearTimeout(this.crawlIdListTimer);
+                this.crawlIdListTimer = window.setTimeout(() => {
                     _store_States__WEBPACK_IMPORTED_MODULE_14__.states.quickCrawl = true; // 下载等待的任务时，不显示下载器面板
                     const idList = _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.waitingIdList;
                     _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.waitingIdList = [];
@@ -23309,12 +23449,12 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 110280000
-            this.crawlData(110070000, 110284375);
+            // 上次记录到 110510000
+            this.crawlData(110290000, 110513103);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 20340000
-            this.crawlData(20300000, 20342039, 'novels');
+            // 上次记录到 20390000
+            this.crawlData(20350000, 20390343, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -25549,7 +25689,7 @@ const formHtml = `<form class="settingForm">
     <input type="radio" name="idRange" id="idRange2" class="need_beautify radio" value="<">
     <span class="beautify_radio" tabindex="0"></span>
     <label for="idRange2">&lt;</label>
-    <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
+    <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="" placeholder="100000000">
     </span>
     </p>
 
@@ -25935,7 +26075,7 @@ const formHtml = `<form class="settingForm">
     <span class="subOptionWrap" data-show="createFolderByTag">
     <span class="gray1" data-xztext="_tag用逗号分割"></span>
     <br>
-    <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1"></textarea>
+    <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1" placeholder="tag1,tag2,tag3"></textarea>
     </span>
     </p>
 
@@ -31000,6 +31140,11 @@ const novelData = [
     [20320000, 1690119474000],
     [20330000, 1690271740000],
     [20340000, 1690412997000],
+    [20350000, 1690556408000],
+    [20360000, 1690695983000],
+    [20370000, 1690813374000],
+    [20380000, 1690966802000],
+    [20390001, 1691109438000],
 ];
 
 
@@ -42045,6 +42190,29 @@ const illustsData = [
     [110260000, 1690372800000],
     [110270000, 1690393500000],
     [110280000, 1690438260000],
+    [110290000, 1690462800000],
+    [110300000, 1690491420000],
+    [110310000, 1690531860000],
+    [110320000, 1690552560000],
+    [110330000, 1690583820000],
+    [110340000, 1690615680000],
+    [110350000, 1690636680000],
+    [110360000, 1690662060000],
+    [110370000, 1690696680000],
+    [110380000, 1690718400000],
+    [110390000, 1690735020000],
+    [110400000, 1690778640000],
+    [110410001, 1690805640000],
+    [110420000, 1690823580000],
+    [110430000, 1690867680000],
+    [110440000, 1690893060000],
+    [110450000, 1690913940000],
+    [110460000, 1690957080000],
+    [110470000, 1690980480000],
+    [110480001, 1691003760000],
+    [110490000, 1691047740000],
+    [110500000, 1691070060000],
+    [110510000, 1691102940000],
 ];
 
 
