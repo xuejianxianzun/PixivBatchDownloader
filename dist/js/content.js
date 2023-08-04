@@ -1737,6 +1737,8 @@ class EVENT {
             cancelTimedCrawl: 'cancelTimedCrawl',
             /**当获取到页面的主题颜色时触发 */
             getPageTheme: 'getPageTheme',
+            /**当下载模块向浏览器发起一个下载请求（保存文件到本地）时触发 */
+            sendBrowserDownload: 'sendBrowserDownload',
         };
     }
     // 只绑定某个事件一次，用于防止事件重复绑定
@@ -7711,6 +7713,14 @@ const langText = {
         '「大きなサムネイルを表示」が機能しない問題を修正しました',
         '"큰 축소판 보기"가 작동하지 않는 문제를 수정했습니다.',
         'Исправлена ​​ошибка, из-за которой не работал параметр «Показать увеличенные эскизы».',
+    ],
+    _可能发生了错误请刷新页面重试: [
+        '可能发生了错误。请刷新页面重试。',
+        '可能發生了錯誤。請重新整理頁面重試。',
+        'An error may have occurred. Please refresh the page and try again.',
+        'エラーが発生した可能性があります。 ページを更新して、もう一度お試しください。',
+        '오류가 발생했을 수 있습니다. 페이지를 새로고침하고 다시 시도하세요.',
+        'Возможно, произошла ошибка. Пожалуйста, обновите страницу и повторите попытку.',
     ],
 };
 
@@ -18869,6 +18879,7 @@ class Download {
         };
         try {
             chrome.runtime.sendMessage(sendData);
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('sendBrowserDownload');
         }
         catch (error) {
             let msg = `${_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_发生错误原因')}<br>{}${_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_请刷新页面')}`;
@@ -18960,7 +18971,8 @@ class DownloadControl {
         this.downloaded = 0; // 已下载的任务数量
         this.stop = false; // 是否已经停止下载
         this.pause = false; // 是否已经暂停下载
-        this.waitingTimer = undefined;
+        this.crawlIdListTimer = undefined;
+        this.checkDownloadTimeoutTimer = undefined;
         this.msgFlag = 'uuidTip';
         this.createResultBtns();
         this.createDownloadArea();
@@ -19009,6 +19021,27 @@ class DownloadControl {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.requestPauseDownload, (ev) => {
             // 请求暂停下载
             this.pauseDownload();
+        });
+        // 如果下载器让浏览器保存文件到本地，但是之后没有收到回应（不知道文件是否有成功保存），这会导致下载进度卡住
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.sendBrowserDownload, () => {
+            this.checkDownloadTimeoutTimer = window.setTimeout(() => {
+                const msg = _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_可能发生了错误请刷新页面重试');
+                _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.once('mayError', msg, 'warning');
+                _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(msg);
+            }, 3000);
+            const clearDownloadTimeoutTimerList = [
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadComplete,
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadError,
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadPause,
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop,
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadSuccess,
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart,
+            ];
+            clearDownloadTimeoutTimerList.forEach((evt) => {
+                window.addEventListener(evt, () => {
+                    window.clearTimeout(this.checkDownloadTimeoutTimer);
+                });
+            });
         });
         // 监听浏览器返回的消息
         chrome.runtime.onMessage.addListener((msg) => {
@@ -19061,8 +19094,8 @@ class DownloadControl {
                 });
             }
             else {
-                window.clearTimeout(this.waitingTimer);
-                this.waitingTimer = window.setTimeout(() => {
+                window.clearTimeout(this.crawlIdListTimer);
+                this.crawlIdListTimer = window.setTimeout(() => {
                     _store_States__WEBPACK_IMPORTED_MODULE_14__.states.quickCrawl = true; // 下载等待的任务时，不显示下载器面板
                     const idList = _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.waitingIdList;
                     _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.waitingIdList = [];
