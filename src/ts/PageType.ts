@@ -1,4 +1,6 @@
 import { EVT } from './EVT'
+import { setTimeoutWorker } from './SetTimeoutWorker'
+import { secretSignal } from './utils/SecretSignal'
 
 // 所有页面类型及对应的数字编号
 // 可以通过 pageType.list 使用
@@ -36,6 +38,10 @@ class PageType {
 
     window.addEventListener(EVT.list.pageSwitch, () => {
       this.checkTypeChange()
+    })
+
+    secretSignal.register('ppdtask3', () => {
+      this.openAllTestPage()
     })
   }
 
@@ -137,6 +143,109 @@ class PageType {
       EVT.fire('pageSwitchedTypeChange', this.type)
     } else {
       EVT.fire('pageSwitchedTypeNotChange', this.type)
+    }
+  }
+
+  private async openAllTestPage() {
+    // 列出要打开的测试页面。不包含已经不存在的页面类型和 Pixivision
+    const testPageList: { type: number; url: string }[] = [
+      {
+        type: PageName.Unsupported,
+        url: 'https://www.pixiv.net/stacc?mode=unify',
+      },
+      {
+        type: PageName.Home,
+        url: 'https://www.pixiv.net',
+      },
+      {
+        type: PageName.Artwork,
+        url: 'https://www.pixiv.net/artworks/108271116',
+      },
+      {
+        type: PageName.UserHome,
+        url: 'https://www.pixiv.net/users/89469319',
+      },
+      {
+        type: PageName.Bookmark,
+        url: 'https://www.pixiv.net/users/96661459/bookmarks/artworks',
+      },
+      {
+        type: PageName.ArtworkSearch,
+        url: 'https://www.pixiv.net/tags/%E5%8E%9F%E7%A5%9E/artworks?s_mode=s_tag',
+      },
+      {
+        type: PageName.AreaRanking,
+        url: 'https://www.pixiv.net/ranking_area.php?type=state&no=0',
+      },
+      {
+        type: PageName.ArtworkRanking,
+        url: 'https://www.pixiv.net/ranking.php',
+      },
+      {
+        type: PageName.NewArtworkBookmark,
+        url: 'https://www.pixiv.net/bookmark_new_illust.php',
+      },
+      {
+        type: PageName.Discover,
+        url: 'https://www.pixiv.net/discovery',
+      },
+      {
+        type: PageName.NewArtwork,
+        url: 'https://www.pixiv.net/new_illust.php',
+      },
+      {
+        type: PageName.ArtworkSeries,
+        url: 'https://www.pixiv.net/user/3698796/series/61267',
+      },
+      {
+        type: PageName.Following,
+        url: 'https://www.pixiv.net/users/96661459/following',
+      },
+      {
+        type: PageName.Request,
+        url: 'https://www.pixiv.net/request',
+      },
+      {
+        type: PageName.Unlisted,
+        url: 'https://www.pixiv.net/artworks/unlisted/eE3fTYaROT9IsZmep386',
+      },
+      {
+        type: PageName.Novel,
+        url: 'https://www.pixiv.net/novel/show.php?id=12771688',
+      },
+      {
+        type: PageName.NovelSeries,
+        url: 'https://www.pixiv.net/novel/series/1090654',
+      },
+      {
+        type: PageName.NovelSearch,
+        url: 'https://www.pixiv.net/tags/%E7%99%BE%E5%90%88/novels',
+      },
+      {
+        type: PageName.NovelRanking,
+        url: 'https://www.pixiv.net/novel/ranking.php?mode=daily',
+      },
+      {
+        type: PageName.NewNovelBookmark,
+        url: 'https://www.pixiv.net/novel/bookmark_new.php',
+      },
+      {
+        type: PageName.NewNovel,
+        url: 'https://www.pixiv.net/novel/new.php',
+      },
+    ]
+
+    const wait = (): Promise<void> => {
+      return new Promise((resolve) => {
+        setTimeoutWorker.set(() => {
+          resolve()
+        }, 500)
+      })
+    }
+
+    for (const item of testPageList) {
+      window.open(item.url)
+      await wait()
     }
   }
 }

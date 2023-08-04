@@ -1,5 +1,4 @@
 /* 显示更大的缩略图 */
-/* 为了便于使用，这里面使用 CSS 的语法，而不是 Less 的语法 */
 /* 下载器替换默认的缩略图时，使用的的图片宽高最大是 540px */
 /* 作品列表外部容器，取消它们的宽度限制 */
 .iClkCH,
@@ -54,6 +53,10 @@ nav .cYUezH {
 main nav div .erYaF {
   height: 100% !important;
   width: 136px !important;
+}
+/* 搜索框下拉面板底部的缩略图列表保持原宽高，不然只能显示一部分 */
+.eHTuWt .erYaF {
+  width: 118px !important;
 }
 /* div[width="184"] a div img */
 /* img */
