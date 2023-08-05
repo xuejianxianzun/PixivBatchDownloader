@@ -136,24 +136,25 @@ class DownloadControl {
 
     // 如果下载器让浏览器保存文件到本地，但是之后没有收到回应（不知道文件是否有成功保存），这会导致下载进度卡住
     window.addEventListener(EVT.list.sendBrowserDownload, () => {
+      window.clearTimeout(this.checkDownloadTimeoutTimer)
       this.checkDownloadTimeoutTimer = window.setTimeout(() => {
         const msg = lang.transl('_可能发生了错误请刷新页面重试')
         msgBox.once('mayError', msg, 'warning')
         log.warning(msg)
-      }, 3000)
+      }, 5000)
+    })
 
-      const clearDownloadTimeoutTimerList = [
-        EVT.list.downloadComplete,
-        EVT.list.downloadError,
-        EVT.list.downloadPause,
-        EVT.list.downloadStop,
-        EVT.list.downloadSuccess,
-        EVT.list.crawlStart,
-      ]
-      clearDownloadTimeoutTimerList.forEach((evt) => {
-        window.addEventListener(evt, () => {
-          window.clearTimeout(this.checkDownloadTimeoutTimer)
-        })
+    const clearDownloadTimeoutTimerList = [
+      EVT.list.downloadComplete,
+      EVT.list.downloadError,
+      EVT.list.downloadPause,
+      EVT.list.downloadStop,
+      EVT.list.downloadSuccess,
+      EVT.list.crawlStart,
+    ]
+    clearDownloadTimeoutTimerList.forEach((evt) => {
+      window.addEventListener(evt, () => {
+        window.clearTimeout(this.checkDownloadTimeoutTimer)
       })
     })
 

@@ -11314,7 +11314,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.0.3';
+        this.flag = '16.0.4';
         this.bindEvents();
     }
     bindEvents() {
@@ -19097,23 +19097,24 @@ class DownloadControl {
         });
         // 如果下载器让浏览器保存文件到本地，但是之后没有收到回应（不知道文件是否有成功保存），这会导致下载进度卡住
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.sendBrowserDownload, () => {
+            window.clearTimeout(this.checkDownloadTimeoutTimer);
             this.checkDownloadTimeoutTimer = window.setTimeout(() => {
                 const msg = _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_可能发生了错误请刷新页面重试');
                 _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.once('mayError', msg, 'warning');
                 _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(msg);
-            }, 3000);
-            const clearDownloadTimeoutTimerList = [
-                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadComplete,
-                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadError,
-                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadPause,
-                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop,
-                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadSuccess,
-                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart,
-            ];
-            clearDownloadTimeoutTimerList.forEach((evt) => {
-                window.addEventListener(evt, () => {
-                    window.clearTimeout(this.checkDownloadTimeoutTimer);
-                });
+            }, 5000);
+        });
+        const clearDownloadTimeoutTimerList = [
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadComplete,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadError,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadPause,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadSuccess,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart,
+        ];
+        clearDownloadTimeoutTimerList.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                window.clearTimeout(this.checkDownloadTimeoutTimer);
             });
         });
         // 监听浏览器返回的消息
