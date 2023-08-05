@@ -11241,7 +11241,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.0.3';
+        this.flag = '16.0.4';
         this.bindEvents();
     }
     bindEvents() {
@@ -18973,7 +18973,6 @@ class DownloadControl {
         this.pause = false; // 是否已经暂停下载
         this.crawlIdListTimer = undefined;
         this.checkDownloadTimeoutTimer = undefined;
-        this.showDownloadTimeoutTip = true;
         this.msgFlag = 'uuidTip';
         this.createResultBtns();
         this.createDownloadArea();
@@ -19025,15 +19024,12 @@ class DownloadControl {
         });
         // 如果下载器让浏览器保存文件到本地，但是之后没有收到回应（不知道文件是否有成功保存），这会导致下载进度卡住
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.sendBrowserDownload, () => {
-            if (this.showDownloadTimeoutTip) {
-                this.showDownloadTimeoutTip = false;
-                window.clearTimeout(this.checkDownloadTimeoutTimer);
-                this.checkDownloadTimeoutTimer = window.setTimeout(() => {
-                    const msg = _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_可能发生了错误请刷新页面重试');
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.once('mayError', msg, 'warning');
-                    _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(msg);
-                }, 5000);
-            }
+            window.clearTimeout(this.checkDownloadTimeoutTimer);
+            this.checkDownloadTimeoutTimer = window.setTimeout(() => {
+                const msg = _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_可能发生了错误请刷新页面重试');
+                _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.once('mayError', msg, 'warning');
+                _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(msg);
+            }, 5000);
         });
         const clearDownloadTimeoutTimerList = [
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadComplete,
@@ -19045,9 +19041,7 @@ class DownloadControl {
         ];
         clearDownloadTimeoutTimerList.forEach((evt) => {
             window.addEventListener(evt, () => {
-                if (this.showDownloadTimeoutTip) {
-                    window.clearTimeout(this.checkDownloadTimeoutTimer);
-                }
+                window.clearTimeout(this.checkDownloadTimeoutTimer);
             });
         });
         // 监听浏览器返回的消息
