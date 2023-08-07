@@ -50,13 +50,16 @@ nav .cYUezH {
   height: 100% !important;
 }
 /* 作品页面大图下面的横向小图列表，保持其原宽高。因为这里的元素是绝对定位设置了 left 的，如果下载器改变了内容的宽度，就会导致 left 不准确，显示出错*/
-main nav div .erYaF {
+main nav div .erYaF,
+main figcaption .lgccrd {
   height: 100% !important;
   width: 136px !important;
 }
 /* 搜索框下拉面板底部的缩略图列表保持原宽高，不然只能显示一部分 */
+main figcaption .lgccrd .erYaF,
 .eHTuWt .erYaF {
-  width: 118px !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 /* div[width="184"] a div img */
 /* img */
