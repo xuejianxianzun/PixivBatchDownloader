@@ -101,12 +101,12 @@ class ShowDownloadBtnOnThumbOnDesktop {
     window.clearTimeout(this.hiddenBtnTimer)
     const rect = target.getBoundingClientRect()
     this.btn.style.left =
-      window.pageXOffset +
+      window.scrollX +
       rect.left +
       (settings.magnifierPosition === 'left' ? 0 : rect.width - this.btnSize) +
       'px'
 
-    let top = window.pageYOffset + rect.top
+    let top = window.scrollY + rect.top
     // 如果显示了放大按钮，就需要加大 top，让下载按钮显示在放大按钮下面
     if (settings.magnifier) {
       top = top + this.btnSize + 8

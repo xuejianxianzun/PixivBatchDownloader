@@ -146,4 +146,5 @@ export interface SettingsForm extends HTMLFormElement {
   highlightFollowingUsers: HTMLInputElement
   coverImage: HTMLInputElement
   exportIDList: HTMLInputElement
+  displayThumbnailListOnMultiImageWorkPage: HTMLInputElement
 }

@@ -123,6 +123,7 @@ class FormSettings {
       'highlightFollowingUsers',
       'coverImage',
       'exportIDList',
+      'displayThumbnailListOnMultiImageWorkPage',
     ],
     text: [
       'setWantPage',

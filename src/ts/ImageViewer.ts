@@ -1,9 +1,7 @@
-// 图片查看器
 /// <reference path = "./ImageViewer.d.ts" />
 import { API } from './API'
 import { EVT } from './EVT'
 import { lang } from './Lang'
-import { theme } from './Theme'
 import { loading } from './Loading'
 import { states } from './store/States'
 import { toast } from './Toast'
@@ -18,39 +16,16 @@ import { pageType } from './PageType'
 // 所有参数
 interface Config {
   // 作品 id
-  // 默认从 url 中获取作品 id，但要考虑到获取 id 失败的情况
+  // 默认从 url 中获取作品 id
   workId: string
-  // 是否显示缩略图列表
-  // 默认为 false，不会把缩略图列表添加到页面上
-  // 如果需要显示缩略图列表供用户查看，则应为 true
-  showImageList: boolean
-  // 图片列表容器的 id
-  // 默认为空字符串
-  // 对于图片查看器来说没有任何作用。如果需要获取图片列表容器，或者使用 css 控制样式，可以传入 id 作为标记
-  imageListId: string
-  // 图片列表要插入到的父元素的选择器
-  // 默认为空字符串
-  // showImageList 为 false 时可以省略，为 true 时必需
-  insertTarget: string
-  // 插入到父元素的什么位置
-  // 默认为 beforeend
-  // showImageList 为 false 时可以省略，为 true 时必需
-  insertPostion: InsertPosition
-  // 图片最少有多少张时 >= 才会启用查看器
+  // 图片最少有多少张时才会启用查看器
   // 默认为 2
   imageNumber: number
   // 查看大图时，显示哪种尺寸的图片
   // 默认为 original
   imageSize: 'original' | 'regular' | 'small'
-  // 是否显示下载按钮
-  // 默认为 true
-  showDownloadBtn: boolean
-  // 是否显示收藏按钮
-  // 默认为 true
-  showBookmarkBtn: boolean
-  // 初始化之后，直接启动查看器，无需用户点击缩略图
+  // 初始化之后，是否直接启动查看器
   // 默认为 false
-  // showImageList 为 false 时建议 autoStart 为 true
   autoStart: boolean
   // 获取作品数据期间，是否显示 loading 动画
   // 默认为 false
@@ -60,28 +35,23 @@ interface Config {
 // 可选参数
 interface ConfigOptional {
   workId?: string
-  showImageList?: boolean
-  imageListId?: string
-  insertTarget?: string
-  insertPostion?: InsertPosition
   imageNumber?: number
   imageSize?: 'original' | 'regular' | 'small'
-  showDownloadBtn?: boolean
-  showBookmarkBtn?: boolean
   autoStart?: boolean
   showLoading?: boolean
 }
 
 // 对 Viewer 进行修改以供下载器使用
-// 原版是接收页面上已存在的缩略图列表，但在下载器里它需要从作品 id 获取数据，生成缩略图列表
+// 原版是接收页面上已存在的缩略图列表，但在下载器里它需要从作品 id 获取数据，生成缩略图列表。并且需要进行一些改造
 class ImageViewer {
+  // new() 不会创建图片查看器，需要再手动执行 init()
+  // 这是因为有的模块需要获取异步操作之后生成的元素，但是构造函数无法返回异步操作，所以使用 init() 进行包装
   constructor(cfg: ConfigOptional) {
     this.cfg = Object.assign(this.cfg, cfg)
-    this.init()
   }
 
   private myViewer!: Viewer // 查看器
-  private viewerWarpper: HTMLDivElement = document.createElement('div') // 图片列表的容器
+  private viewerWarpper?: HTMLDivElement // 图片列表的容器
   private viewerUl: HTMLUListElement = document.createElement('ul') // 图片列表的 ul 元素
 
   private show = false // 当前查看器实例是否处于显示状态
@@ -89,45 +59,35 @@ class ImageViewer {
 
   // 图片查看器初始化时，会获取作品数据，保存到这个成员
   private workData: ArtworkData | undefined
+  private pageCount = 1
+  private firstImageURL = '' // 第一张图片的 url
 
   // 默认配置
   private cfg: Config = {
     workId: Tools.getIllustId(),
-    showImageList: false,
-    imageListId: '',
-    insertTarget: '',
-    insertPostion: 'beforeend',
     imageNumber: 2,
     imageSize: 'original',
-    showDownloadBtn: true,
-    showBookmarkBtn: true,
     autoStart: false,
     showLoading: false,
   }
 
-  private readonly viewerWarpperFlag = 'viewerWarpperFlag'
   private readonly addBtnClass = 'viewer-add-btn'
 
-  private init() {
-    // 当创建新的查看器实例时，删除旧的查看器元素。其实不删除也没有问题，但是查看器每初始化一次都会创建全新的对象，所以旧的对象没必要保留。
-
-    // 删除之前创建的图片列表，否则旧的图片列表依然存在
-    const oldViewerWarpper = document.querySelector(
-      '.' + this.viewerWarpperFlag
-    )
-    oldViewerWarpper && oldViewerWarpper.remove()
-
-    // 删除旧的查看器的 DOM 节点
+  public async init() {
+    // 删除旧的图片查看器元素
     const oldViewerContainer = document.querySelector('.viewer-container')
     oldViewerContainer && oldViewerContainer.remove()
 
-    this.createImageList()
-
-    this.bindEvents()
+    const wrap = await this.createImageList()
+    if (wrap) {
+      this.bindHotKey()
+      this.configureViewer()
+    }
+    return wrap
   }
 
-  // 如果多次初始化查看器，这些事件会被多次绑定。但是因为回调函数内部判断了查看器实例，所以不会有问题
-  private bindEvents() {
+  // 事件会重复绑定，设计如此，这是因为每次绑定时的 this 是不同的，必须重新绑定。而且不会冲突
+  private bindHotKey() {
     // 按 F 进入/退出 1:1 查看模式
     document.addEventListener('keydown', (event) => {
       if (event.code === 'KeyF') {
@@ -177,112 +137,75 @@ class ImageViewer {
     )
   }
 
-  // 创建缩略图列表
-  private async createImageList() {
-    if (this.cfg.showImageList) {
-      // 如果要显示缩略图列表，则等待要插入的容器元素生成
-      if (!document.querySelector(this.cfg.insertTarget)) {
-        window.setTimeout(() => {
-          this.createImageList()
-        }, 300)
-        return
-      }
-    }
-
-    let useBigURL = '' // 查看大图时的第一张图片的 url
-
-    // 查看器图片列表元素的结构： div > ul > li > img
-    // 创建图片列表的容器
-    this.viewerWarpper = document.createElement('div')
-    this.viewerWarpper.classList.add(this.viewerWarpperFlag)
-    this.viewerUl = document.createElement('ul')
-    this.viewerUl.classList.add('beautify_scrollbar')
-    this.viewerWarpper.appendChild(this.viewerUl)
-    this.viewerWarpper.style.display = 'none'
-
-    if (this.cfg.imageListId) {
-      this.viewerWarpper.id = this.cfg.imageListId
-    }
-
-    if (this.cfg.showLoading) {
-      loading.show = true
-    }
-
-    // 获取作品数据，生成缩略图列表
-    if (cacheWorkData.has(this.cfg.workId)) {
-      this.workData = cacheWorkData.get(this.cfg.workId)
-    } else {
-      const unlisted = pageType.type === pageType.list.Unlisted
-      const data = await API.getArtworkData(this.cfg.workId, unlisted)
-      this.workData = data
-      cacheWorkData.set(data)
-    }
-    const body = this.workData!.body
-    // 处理插画、漫画、动图作品，不处理其他类型的作品
-    if (
-      body.illustType === 0 ||
-      body.illustType === 1 ||
-      body.illustType === 2
-    ) {
-      // 如果图片数量达到指定值，则会创建创建缩略图，启用查看器
-      if (body.pageCount >= this.cfg.imageNumber) {
-        // 配置大图 url
-        useBigURL = body.urls[this.cfg.imageSize] || body.urls.original
-
-        // 生成缩略图列表
-        let html: string[] = []
-        for (let index = 0; index < body.pageCount; index++) {
-          const str = `<li><img src="${Tools.convertThumbURLTo540px(
-            body.urls.thumb.replace('p0', 'p' + index)
-          )}" data-src="${useBigURL.replace('p0', 'p' + index)}"></li>`
-          html.push(str)
-        }
-        this.viewerUl.innerHTML = html.join('')
+  // 图片查看器需要一个图片列表元素，创建缩略图列表
+  private async createImageList(): Promise<HTMLElement | undefined> {
+    return new Promise(async (resolve) => {
+      // 获取作品数据
+      if (cacheWorkData.has(this.cfg.workId)) {
+        this.workData = cacheWorkData.get(this.cfg.workId)
       } else {
-        return
+        this.cfg.showLoading && (loading.show = true)
+
+        const unlisted = pageType.type === pageType.list.Unlisted
+        const data = await API.getArtworkData(this.cfg.workId, unlisted)
+        this.workData = data
+        cacheWorkData.set(data)
+
+        this.cfg.showLoading && (loading.show = false)
       }
-    } else {
-      return
-    }
 
-    if (this.cfg.showLoading) {
-      loading.show = false
-    }
+      const body = this.workData!.body
+      // 处理插画、漫画、动图作品，不处理其他类型的作品
+      if (
+        body.illustType === 0 ||
+        body.illustType === 1 ||
+        body.illustType === 2
+      ) {
+        // 如果图片数量达到指定值，则会创建创建缩略图，启用图片查看器
+        if (body.pageCount >= this.cfg.imageNumber) {
+          this.pageCount = body.pageCount
+          this.firstImageURL =
+            body.urls[this.cfg.imageSize] || body.urls.original
 
-    if (this.cfg.showImageList) {
-      // 把缩略图列表添加到页面上
-      theme.register(this.viewerWarpper)
+          // 缩略图列表的结构： div > ul > li > img
+          this.viewerWarpper = document.createElement('div')
+          this.viewerUl = document.createElement('ul')
+          this.viewerUl.classList.add('beautify_scrollbar')
+          this.viewerWarpper.appendChild(this.viewerUl)
+          this.viewerWarpper.style.display = 'none'
 
-      this.viewerWarpper.style.display = 'block'
-
-      const target = document.querySelector(this.cfg.insertTarget)
-      if (target) {
-        target.insertAdjacentElement('beforebegin', this.viewerWarpper)
+          // 生成 UL 里面的缩略图列表
+          let html: string[] = []
+          for (let index = 0; index < body.pageCount; index++) {
+            const str = `<li><img src="${Tools.convertThumbURLTo540px(
+              body.urls.thumb.replace('p0', 'p' + index)
+            )}" data-src="${this.firstImageURL.replace(
+              'p0',
+              'p' + index
+            )}"></li>`
+            html.push(str)
+          }
+          this.viewerUl.innerHTML = html.join('')
+        }
       }
-    }
 
-    this.configureViewer(body.pageCount, useBigURL)
+      return resolve(this.viewerWarpper)
+    })
   }
 
   // 配置图片查看器
-  private async configureViewer(pageCount: number, firstBigImgURL: string) {
+  private configureViewer() {
     // 图片查看器显示之后
     this.viewerUl.addEventListener('shown', () => {
       this.show = true
-
-      if (this.cfg.showDownloadBtn) {
-        this.addDownloadBtn()
-      }
-
-      if (this.cfg.showBookmarkBtn) {
-        this.addBookmarkBtn()
-      }
+      this.addDownloadBtn()
+      this.addBookmarkBtn()
 
       // 如果图片数量只有 1 个，则不显示缩略图一栏
       const navbar = document.querySelector('.viewer-navbar') as HTMLDivElement
       if (navbar) {
         // 控制不透明度，这样它依然会占据空间，不会导致工具栏下移
-        navbar.style.opacity = pageCount > 1 ? '1' : '0'
+        navbar.style.opacity = this.pageCount > 1 ? '1' : '0'
       }
 
       // 点击 1：1 按钮时
@@ -324,6 +247,8 @@ class ImageViewer {
 
     // 配置新的看图组件
     const handleToTop = this.moveToTop.bind(this)
+    const pageCount = this.pageCount
+    const firstImageURL = this.firstImageURL
 
     this.myViewer = new Viewer(this.viewerUl, {
       toolbar: {
@@ -356,7 +281,7 @@ class ImageViewer {
           index++
         }
 
-        const nextImg = firstBigImgURL.replace('p0', 'p' + index)
+        const nextImg = firstImageURL.replace('p0', 'p' + index)
         const img = new Image()
         img.src = nextImg
       },
@@ -372,10 +297,9 @@ class ImageViewer {
 
     // 预加载第一张图片
     const img = new Image()
-    img.src = firstBigImgURL
+    img.src = firstImageURL
 
     if (this.cfg.autoStart) {
-      // 自动显示
       this.myViewer.show()
     }
   }

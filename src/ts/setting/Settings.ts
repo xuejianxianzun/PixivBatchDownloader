@@ -256,6 +256,7 @@ interface XzSetting {
   tipCSV: boolean
   exportIDList: boolean
   tipExportFollowingUserList: boolean
+  displayThumbnailListOnMultiImageWorkPage: boolean
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -469,6 +470,7 @@ class Settings {
     tipCSV: true,
     exportIDList: false,
     tipExportFollowingUserList: true,
+    displayThumbnailListOnMultiImageWorkPage: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
