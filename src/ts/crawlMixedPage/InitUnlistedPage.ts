@@ -2,7 +2,6 @@
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
 import { options } from '../setting/Options'
-import { ImageViewer } from '../ImageViewer'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
 import { IDData } from '../store/StoreType'
@@ -12,19 +11,6 @@ class InitUnlistedPage extends InitPageBase {
   constructor() {
     super()
     this.init()
-  }
-
-  protected initAny() {
-    this.initImgViewer()
-  }
-
-  private initImgViewer() {
-    new ImageViewer({
-      showImageList: true,
-      imageListId: 'viewerWarpper',
-      insertTarget: 'main figcaption',
-      insertPostion: 'beforebegin',
-    })
   }
 
   protected addCrawlBtns() {

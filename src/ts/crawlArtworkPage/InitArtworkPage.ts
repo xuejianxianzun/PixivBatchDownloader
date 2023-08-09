@@ -5,7 +5,6 @@ import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { store } from '../store/Store'
-import { ImageViewer } from '../ImageViewer'
 import { userWorksType } from '../crawl/CrawlArgument'
 import { Tools } from '../Tools'
 import { API } from '../API'
@@ -26,24 +25,6 @@ class InitArtworkPage extends InitPageBase {
   */
 
   private crawlRelated: boolean = false // 是否下载相关作品
-
-  protected initAny() {
-    this.initImgViewer()
-
-    window.addEventListener(
-      EVT.list.pageSwitchedTypeNotChange,
-      this.initImgViewer
-    )
-  }
-
-  private initImgViewer() {
-    new ImageViewer({
-      showImageList: true,
-      imageListId: 'viewerWarpper',
-      insertTarget: 'main figcaption',
-      insertPostion: 'beforebegin',
-    })
-  }
 
   protected addCrawlBtns() {
     Tools.addBtn(
@@ -91,11 +72,6 @@ class InitArtworkPage extends InitPageBase {
   protected destroy() {
     Tools.clearSlot('crawlBtns')
     Tools.clearSlot('otherBtns')
-
-    window.removeEventListener(
-      EVT.list.pageSwitchedTypeNotChange,
-      this.initImgViewer
-    )
   }
 
   protected getWantPage() {

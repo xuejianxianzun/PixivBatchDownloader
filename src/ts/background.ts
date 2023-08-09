@@ -194,4 +194,4 @@ async function clearData() {
 
 setInterval(() => {
   clearData()
-}, 60000)
+}, 3600000)
