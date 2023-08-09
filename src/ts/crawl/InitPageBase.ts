@@ -331,7 +331,7 @@ abstract class InitPageBase {
   }, 500)
 
   // 获取作品的数据
-  protected async getWorksData(idData?: IDData) {
+  protected async getWorksData(idData?: IDData): Promise<void> {
     if (states.stopCrawl) {
       return this.crawlFinished()
     }
@@ -377,9 +377,10 @@ abstract class InitPageBase {
         if (error.status === 500 || error.status === 429) {
           // 如果状态码 500 或 429，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
           this.log429ErrorTip()
-          return window.setTimeout(() => {
+          window.setTimeout(() => {
             this.getWorksData(idData)
           }, Config.retryTime)
+          return
         } else {
           this.afterGetWorksData()
         }
@@ -398,7 +399,9 @@ abstract class InitPageBase {
   }
 
   // 每当获取完一个作品的信息
-  private async afterGetWorksData(data?: NovelData | ArtworkData) {
+  private async afterGetWorksData(
+    data?: NovelData | ArtworkData
+  ): Promise<void> {
     this.logResultNumber()
 
     // 抓取可能中途停止，保留抓取结果
@@ -413,8 +416,20 @@ abstract class InitPageBase {
       return this.crawlFinished()
     }
 
+    // 如果存在下一个作品，则继续抓取
     if (store.idList.length > 0) {
-      // 如果存在下一个作品，则继续抓取
+      // 在抓取前，预先检查这个 id 是否符合过滤条件
+      // 如果它不符合过滤条件，则不会实际发送请求，那么也就不需要等待慢速抓取
+      // 这样可以加快抓取速度
+      const nextIDData = store.idList[0]
+      const check = await filter.check({
+        id: nextIDData.id,
+        workTypeString: nextIDData.type,
+      })
+      if (!check) {
+        return this.getWorksData()
+      }
+
       if (states.slowCrawlMode) {
         setTimeoutWorker.set(() => {
           this.getWorksData()
