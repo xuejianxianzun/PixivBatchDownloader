@@ -122,6 +122,7 @@ class FormSettings {
       'setFileDownloadOrder',
       'highlightFollowingUsers',
       'exportIDList',
+      'displayThumbnailListOnMultiImageWorkPage',
     ],
     text: [
       'setWantPage',

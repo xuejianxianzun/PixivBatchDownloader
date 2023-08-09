@@ -67,13 +67,14 @@ class ShowZoomBtnOnThumb {
       EVT.fire('clickBtnOnThumb')
 
       if (this.currentWorkId) {
-        new ImageViewer({
+        const viewer = new ImageViewer({
           workId: this.currentWorkId,
           imageNumber: 1,
           imageSize: settings.magnifierSize,
           autoStart: true,
           showLoading: true,
         })
+        viewer.init()
       }
     })
 
@@ -99,13 +100,13 @@ class ShowZoomBtnOnThumb {
     window.clearTimeout(this.hiddenBtnTimer)
     const rect = target.getBoundingClientRect()
     this.btn.style.left =
-      window.pageXOffset +
+      window.scrollX +
       rect.left +
       (settings.magnifierPosition === 'left'
         ? 0
         : rect.width - this.btnSize[0]) +
       'px'
-    this.btn.style.top = window.pageYOffset + rect.top + 'px'
+    this.btn.style.top = window.scrollY + rect.top + 'px'
     this.btn.style.display = 'flex'
   }
 

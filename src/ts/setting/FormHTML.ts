@@ -1,6 +1,6 @@
 import { Config } from '../Config'
 
-// 已使用的最大编号是 85
+// 已使用的最大编号是 86
 export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -1014,6 +1014,12 @@ export const formHtml = `<form class="settingForm">
     <p class="option" data-no="56">
     <span class="settingNameStyle1" data-xztext="_在作品缩略图上显示下载按钮"></span>
     <input type="checkbox" name="showDownloadBtnOnThumb" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
+    <p class="option" data-no="86">
+    <span class="settingNameStyle1" data-xztext="_在多图作品页面里显示缩略图列表"></span>
+    <input type="checkbox" name="displayThumbnailListOnMultiImageWorkPage" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch" tabindex="0"></span>
     </p>
 
