@@ -1,5 +1,4 @@
 /* 显示更大的缩略图 */
-/* 为了便于使用，这里面使用 CSS 的语法，而不是 Less 的语法 */
 /* 下载器替换默认的缩略图时，使用的的图片宽高最大是 540px */
 /* 作品列表外部容器，取消它们的宽度限制 */
 .iClkCH,
@@ -19,7 +18,9 @@
   min-width: 1224px;
   max-width: unset !important;
 }
-.liyNwX {
+.liyNwX,
+.gClOXE,
+.sc-11m5zdr-2 {
   width: auto !important;
 }
 /* li 的直接子元素 */
@@ -47,6 +48,15 @@
 /* nav 里的这个元素是横向滚动区域里的，不能设置它的高度为 auto，否则它的高度就是图片的高度，图片就无法垂直居中了 */
 nav .cYUezH {
   height: 100% !important;
+}
+/* 作品页面大图下面的横向小图列表，保持其原宽高。因为这里的元素是绝对定位设置了 left 的，如果下载器改变了内容的宽度，就会导致 left 不准确，显示出错*/
+main nav div .erYaF {
+  height: 100% !important;
+  width: 136px !important;
+}
+/* 搜索框下拉面板底部的缩略图列表保持原宽高，不然只能显示一部分 */
+.eHTuWt .erYaF {
+  width: 118px !important;
 }
 /* div[width="184"] a div img */
 /* img */
@@ -76,9 +86,16 @@ nav .cYUezH {
 .hkzusx div[style] {
   flex-shrink: 0;
 }
+/**推荐作品*/
 .hjtPnz,
 .bpXOJR {
   display: flex !important;
+  overflow: auto;
+  flex-wrap: wrap;
+}
+.hjtPnz li,
+.bpXOJR li {
+  margin-bottom: 26px;
 }
 /* 缩略图 li */
 /* 首页还有不少地方的作品缩略图容器列表也都是这个 class */
@@ -129,7 +146,7 @@ nav .cYUezH {
 .flkRKs,
 .jexggF {
   margin: 10px !important;
-  width: 15% !important;
+  width: auto !important;
   max-width: 540px;
   max-height: 600px;
 }
@@ -165,7 +182,7 @@ nav .cYUezH {
 /* li */
 .jtUPOE li {
   margin: 10px !important;
-  width: 15%;
+  width: auto;
   max-width: 540px;
   max-height: 600px;
 }
@@ -182,13 +199,13 @@ nav .cYUezH {
   margin: 10px !important;
   flex-grow: 0;
   flex-shrink: 1;
-  width: 15% !important;
+  width: auto !important;
   max-width: 540px;
   max-height: 600px;
 }
 /* 下载器预览搜索结果时添加的列表元素 */
 .searchList {
-  width: 15% !important;
+  width: auto !important;
   max-width: 540px;
   max-height: 600px;
 }
@@ -213,14 +230,14 @@ nav .cYUezH {
 /* 这样相关作品部分就没有宽度限制了，缩略图可以放大 */
 /* 相关作品的 li */
 .fDaNEv {
-  width: 15% !important;
+  width: auto !important;
   max-width: 540px;
   max-height: 600px;
   margin: 10px !important;
 }
 /* 已关注用户的新作品 li */
 .KwpMC {
-  width: 15% !important;
+  width: auto !important;
   margin: 10px !important;
   max-width: 540px;
   max-height: 600px;
@@ -238,7 +255,7 @@ nav .cYUezH {
   margin: 12px !important;
   flex-grow: 0;
   flex-shrink: 1;
-  width: 15% !important;
+  width: auto !important;
   margin: 10px !important;
   max-width: 540px;
   max-height: 600px;
@@ -282,6 +299,20 @@ nav .cYUezH {
   object-position: center;
 }
 /* 约稿页面 */
+.ijiEqW {
+  display: flex;
+  flex-wrap: wrap;
+}
+.ijiEqW li,
+.dwiunr,
+.hOMcwd {
+  margin: 26px;
+}
+.ijiEqW .jdIpfd,
+.ijiEqW li > div {
+  display: flex;
+  flex-direction: column;
+}
 /* 取消容器的宽度限制 */
 .hHwhak,
 .hHwhak > div,
@@ -296,7 +327,7 @@ nav .cYUezH {
   align-items: center;
 }
 .jsLfYP li {
-  width: 15% !important;
+  width: auto !important;
   margin: 10px !important;
   max-width: 540px;
   max-height: 600px;
@@ -317,7 +348,7 @@ nav .cYUezH {
   align-items: center;
 }
 .hLhHDu > div {
-  width: 15%;
+  width: auto;
   flex-shrink: 0;
   max-width: 540px;
   max-height: 600px;
