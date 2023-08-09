@@ -26,6 +26,7 @@ import { filter } from '../filter/Filter'
 import { Config } from '../Config'
 import { timedCrawl } from './TimedCrawl'
 import '../pageFunciton/QuickBookmark'
+import '../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 abstract class InitPageBase {

@@ -396,6 +396,7 @@ class Download {
 
     try {
       chrome.runtime.sendMessage(sendData)
+      EVT.fire('sendBrowserDownload')
     } catch (error) {
       let msg = `${lang.transl('_发生错误原因')}<br>{}${lang.transl(
         '_请刷新页面'
