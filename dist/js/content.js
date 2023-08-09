@@ -11207,21 +11207,26 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.1.0';
+        this.flag = '16.1.00';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            // <strong>${lang.transl('_新增功能')}:</strong>
             let msg = `
       <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增设置项')}:</strong>
       <br>
       <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在多图作品页面里显示缩略图列表')}</span>
       <br>
-      <br>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_增强'))}
+      <br>
+      <br>
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
       `;
+            // <strong>${lang.transl('_新增功能')}:</strong>
+            // <span class="blue">${lang.transl(
+            //   '_修复已知问题'
+            // )}</span>
             // ${lang.transl(
             //   '_你可以在更多选项卡的xx分类里找到它',
             //   lang.transl('_增强')
@@ -23321,12 +23326,12 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 110510000
-            this.crawlData(110290000, 110513103);
+            // 上次记录到 110670000
+            this.crawlData(110520000, 110672935);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 20390000
-            this.crawlData(20350000, 20390343, 'novels');
+            // 上次记录到 20420000
+            this.crawlData(20400000, 20424904, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -31107,6 +31112,9 @@ const novelData = [
     [20370000, 1690813374000],
     [20380000, 1690966802000],
     [20390001, 1691109438000],
+    [20400000, 1691241419000],
+    [20410000, 1691360804000],
+    [20420000, 1691498119000],
 ];
 
 
@@ -42175,6 +42183,22 @@ const illustsData = [
     [110490000, 1691047740000],
     [110500000, 1691070060000],
     [110510000, 1691102940000],
+    [110520000, 1691139480000],
+    [110530000, 1691158860000],
+    [110540000, 1691194080000],
+    [110550000, 1691224200000],
+    [110560000, 1691244240000],
+    [110570000, 1691276220000],
+    [110580000, 1691305260000],
+    [110590000, 1691324880000],
+    [110600000, 1691342400000],
+    [110610000, 1691385300000],
+    [110620000, 1691410680000],
+    [110630000, 1691429760000],
+    [110640000, 1691474400000],
+    [110650000, 1691498040000],
+    [110660000, 1691519820000],
+    [110670000, 1691563620000],
 ];
 
 
