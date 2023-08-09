@@ -11207,7 +11207,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.1.00';
+        this.flag = '16.1.1';
         this.bindEvents();
     }
     bindEvents() {
@@ -11215,11 +11215,6 @@ class ShowWhatIsNew {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
       <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增设置项')}:</strong>
-      <br>
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在多图作品页面里显示缩略图列表')}</span>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_增强'))}
-      <br>
       <br>
       <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
       `;
@@ -17775,9 +17770,10 @@ class InitPageBase {
                 if (error.status === 500 || error.status === 429) {
                     // 如果状态码 500 或 429，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
                     this.log429ErrorTip();
-                    return window.setTimeout(() => {
+                    window.setTimeout(() => {
                         this.getWorksData(idData);
                     }, _Config__WEBPACK_IMPORTED_MODULE_22__.Config.retryTime);
+                    return;
                 }
                 else {
                     this.afterGetWorksData();
@@ -17808,8 +17804,19 @@ class InitPageBase {
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = true;
             return this.crawlFinished();
         }
+        // 如果存在下一个作品，则继续抓取
         if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0) {
-            // 如果存在下一个作品，则继续抓取
+            // 在抓取前，预先检查这个 id 是否符合过滤条件
+            // 如果它不符合过滤条件，则不会实际发送请求，那么也就不需要等待慢速抓取
+            // 这样可以加快抓取速度
+            const nextIDData = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0];
+            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
+                id: nextIDData.id,
+                workTypeString: nextIDData.type,
+            });
+            if (!check) {
+                return this.getWorksData();
+            }
             if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode) {
                 _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__.setTimeoutWorker.set(() => {
                     this.getWorksData();
