@@ -345,6 +345,8 @@ class Resume {
     for (const id of dataIdList) {
       this.IDB.delete(this.dataName, id)
     }
+
+    log.warning(lang.transl('_清空已保存的抓取结果'))
   }
 
   // 清除过期的数据
