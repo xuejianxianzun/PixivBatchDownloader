@@ -11280,15 +11280,13 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.1.1';
+        this.flag = '16.1.2';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增设置项')}:</strong>
-      <br>
       <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
       `;
             // <strong>${lang.transl('_新增功能')}:</strong>
