@@ -6,13 +6,115 @@ TODO:日语文本需要加粗显示关键字，但是我不懂日语，所以现
 
 - 自动合并系列小说
 
-## 16.1.2 2023/08/11
+## 16.1.3 2023/08/12
 
-### 🐛修复了“显示更大的缩略图”的一些问题
+### 🐛修复了抓取完成时可能卡住的 bug
 
-之前修复问题的时候没测试夜间模式，结果夜间模式里的问题依然存在。这是因为夜间模式图片的 className 是不同的。
+当用户启用 “ID 范围”设置时，下载器可能会在抓取完成时出错，导致任务卡住，无法完成抓取并开始下载。
 
-现在修复。
+上个版本的修改“修复了慢速抓取功能导致时间范围的优化策略失效的问题”导致了此问题。现在修复。
+
+---------
+
+这是下载器的 10 个并发抓取线程引起的问题。以下是分析。
+
+假设在一个画师主页，抓取 1 页，并要求 ID 大于某个作品的 ID。并且符合条件的结果少于 10 个。
+
+涉及这部分的流程是这样的：
+
+首先，下载器建立抓取任务，默认是 10 个并发：
+
+```js
+for (let i = 0; i < this.ajaxThread; i++) {
+  this.getWorksData()
+}
+```
+
+执行 10 个 getWorksData，完成后执行 10 个 afterGetWorksData，里面有预检查下一个 ID 的代码。于是这里也是一批 10 个。
+
+上个版本预检查 ID 的代码如下：
+
+```js
+const nextIDData = store.idList[0]
+const check = await filter.check({
+  id: nextIDData.id,
+  workTypeString: nextIDData.type,
+})
+if (!check) {
+  return this.getWorksData()
+}
+```
+
+这里检查 ID 不通过的话，会直接再次进入 getWorksData，而不需要等待下面的慢速抓取的时间间隔。
+
+但是这也导致了执行到最后几个作品 ID 时，getWorksData 里报错，并且程序因异常而无法继续执行，卡住了。
+
+![](/notes/images/20230812_154158.png)
+
+原因：假设前面的 ID 都被排除了，最后只剩下 4 个 ID 符合要求。执行到这里时，一批 10 个预检查都会获取首个 ID 检查，并且都通过了，那么就返回了 10 个 getWorksData。
+
+但是 4 个 ID 不够 10 个 getWorksData 用，获取不到 ID 的时候就发生了上面的错误。
+
+最简单的修复方法就是处理这个错误。当没有 ID 可用时，直接进入抓取完成的流程：
+
+```js
+idData = idData || (store.idList.shift()! as IDData)
+if (!idData) {
+  return this.afterGetWorksData()
+}
+const id = idData.id
+```
+
+这已经可以修复错误，但是还能进一步优化。
+
+------------
+
+第一个优化：使用定时器让每个 getWorksData 都在空闲时才建立：
+
+```js
+for (let i = 0; i < this.ajaxThread; i++) {
+  window.setTimeout(() => {
+    this.getWorksData()
+  }, 0)
+}
+```
+
+之前是用同步代码立刻执行 10 个 getWorksData，现在用定时器把 getWorksData 放到宏任务里。
+
+同步代码执行完成后，首先执行 1 个宏任务，也就是第一个 getWorksData。
+
+之后 ID 被预检查时， `await filter.check` 是微任务，所以会尽快执行。如果 ID 被过滤掉了，那么就继续向下执行同步代码，然后又是 await 微任务。
+
+所以不管处理了多少个 ID，只要这些 ID 都是会被过滤掉的，那么就只存在 1 个 getWorksData。直到遇到了需要发送网络请求的作品，因为需要等待网络请求，此时剩余的 9 个 getWorksData 宏任务才会开始执行。
+
+不过这样最后还是会产生 10 个 getWorksData，还是会有一些 getWorksData 没有 ID 可用。怎样彻底避免没 ID 可用的问题呢？
+
+第二个优化：在定时器回调里，判断有 ID 可用才会执行 getWorksData，没有的话就不执行，这样就不会出现 ID 不够用的问题了。
+
+```js
+for (let i = 0; i < this.ajaxThread; i++) {
+  window.setTimeout(() => {
+    if (store.idList.length > 0) {
+      this.getWorksData()
+    } else {
+      this.afterGetWorksData()
+    }
+  }, 0)
+}
+```
+
+第三个优化：当预检查不通过时，之前是直接返回 getWorksData，让 getWorksData 再次检查并删除这个 ID。现在在预检查里直接删除这个 ID，之后 getWorksData 里检查的就是下一个 ID 了。
+
+```js
+if (!check) {
+  store.idList.shift()
+  return this.getWorksData()
+}
+```
+
+之前一轮只会删除 1 个 ID，现在一轮可能会删除 2 个 ID（如果这个 ID 未通过预检查的话）。这样就减少了整个流程循环的次数。
+
+至此问题完美解决。
 
 ### ✨新增了 Input 组件
 
@@ -25,6 +127,14 @@ TODO:日语文本需要加粗显示关键字，但是我不懂日语，所以现
 ![](/notes/images/20230812_122537.png)
 
 不过目前在主分支里并没有实际使用它。
+
+## 16.1.2 2023/08/11
+
+### 🐛修复了“显示更大的缩略图”的一些问题
+
+之前修复问题的时候没测试夜间模式，结果夜间模式里的问题依然存在。这是因为夜间模式图片的 className 是不同的。
+
+现在修复。
 
 ## 16.1.1 2023/08/09
 

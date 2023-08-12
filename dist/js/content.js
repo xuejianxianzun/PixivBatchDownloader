@@ -11208,7 +11208,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.1.2';
+        this.flag = '16.1.3';
         this.bindEvents();
     }
     bindEvents() {
@@ -17711,15 +17711,13 @@ class InitPageBase {
         else {
             // 全速抓取
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = false;
-            if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length <= this.ajaxThreadsDefault) {
-                this.ajaxThread = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length;
-            }
-            else {
-                this.ajaxThread = this.ajaxThreadsDefault;
-            }
+            this.ajaxThread = Math.min(this.ajaxThreadsDefault, _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length);
         }
+        // 开始抓取作品数据
         for (let i = 0; i < this.ajaxThread; i++) {
-            this.getWorksData();
+            window.setTimeout(() => {
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0 ? this.getWorksData() : this.afterGetWorksData();
+            }, 0);
         }
     }
     // 重设抓取作品列表时使用的变量或标记
@@ -17730,6 +17728,9 @@ class InitPageBase {
             return this.crawlFinished();
         }
         idData = idData || _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
+        if (!idData) {
+            return this.afterGetWorksData();
+        }
         const id = idData.id;
         if (!id) {
             const msg = 'Error: work id is invalid!';
@@ -17803,19 +17804,22 @@ class InitPageBase {
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = true;
             return this.crawlFinished();
         }
-        // 如果存在下一个作品，则继续抓取
+        // 在进行下一次抓取前，预先检查这个 id 是否符合过滤条件
+        // 如果它不符合过滤条件，则立刻跳过它，这样也不会发送请求来获取这个作品的数据
+        // 这样可以加快抓取速度
         if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0) {
-            // 在抓取前，预先检查这个 id 是否符合过滤条件
-            // 如果它不符合过滤条件，则不会实际发送请求，那么也就不需要等待慢速抓取
-            // 这样可以加快抓取速度
             const nextIDData = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0];
             const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
                 id: nextIDData.id,
                 workTypeString: nextIDData.type,
             });
             if (!check) {
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
                 return this.getWorksData();
             }
+        }
+        // 如果存在下一个作品，则继续抓取
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0) {
             if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode) {
                 _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__.setTimeoutWorker.set(() => {
                     this.getWorksData();
