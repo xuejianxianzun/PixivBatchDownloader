@@ -7688,6 +7688,7 @@ const langText = {
         '멀티 이미지 작품 페이지에서 썸네일 목록을 표시',
         'На рабочей странице с несколькими изображениями отобразите список эскизов',
     ],
+    _提交: ['提交', '提交', 'Submit', '提出する', '제출하다', 'Подавать'],
 };
 
 
@@ -21307,7 +21308,6 @@ class Resume {
         for (const id of dataIdList) {
             this.IDB.delete(this.dataName, id);
         }
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_清空已保存的抓取结果'));
     }
     // 清除过期的数据
     async clearExired() {

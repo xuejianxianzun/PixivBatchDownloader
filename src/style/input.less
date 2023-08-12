@@ -1,0 +1,96 @@
+.XZInputWrap {
+  position: fixed;
+  z-index: 99999;
+  left: 0;
+  right: 0;
+  top: 10vh;
+  bottom: 0;
+  margin: 0 auto auto;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  box-shadow: 2px 3px 8px #ddd;
+  padding: 14px 20px;
+  max-width: 90vw;
+  height: max-content;
+  font-size: 16px;
+  border-radius: 8px;
+
+  .XZInputInstruction {
+    display: flex;
+    color: #333;
+    margin: 0px 0 10px 0;
+    line-height: 24px;
+  }
+
+  .XZInputContainer {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+
+    .XZInput {
+      color: #333;
+      border: 1px solid #0096fa;
+      box-sizing: border-box;
+      font-size: 16px;
+      line-height: 24px;
+      flex-basis: 600px;
+      flex-grow: 0;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-family: sans-serif;
+    }
+
+    input.XZInput {
+      height: 36px;
+    }
+
+    textarea.XZInput {
+      height: 56px;
+    }
+
+    .XZInputButton {
+      margin-left: 10px;
+      flex-shrink: 0;
+      background-color: #0096fa;
+      color: #fff;
+      height: 36px;
+      line-height: 36px;
+      padding: 0 25px;
+      border: none;
+      border-radius: 18px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+    }
+  }
+}
+
+.theme-dark.XZInputWrap {
+  background-color: #333;
+  box-shadow: 2px 3px 8px #000;
+
+  .XZInputInstruction {
+    color: rgba(255, 255, 255, 0.84);
+  }
+
+  .XZInput {
+    background-color: #4c4c4c;
+    color: rgba(255, 255, 255, 0.84);
+  }
+}
+
+.mobile.XZInputWrap {
+  padding: 14px 14px;
+  font-size: 14px;
+
+  .XZInputInstruction {
+    margin: 0px 0 8px 0;
+    line-height: 22px;
+  }
+
+  .XZInput {
+    font-size: 14px;
+    padding: 2px 5px;
+  }
+}
