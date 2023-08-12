@@ -8856,6 +8856,17 @@ class PreviewUgoira {
         this.canvas.width = this.width;
         this.canvas.height = this.height;
     }
+    setSize(width, height) {
+        // 当用户移动鼠标时，ShowOriginSizeImage 会频繁触发 setSize
+        // 如果频繁的重设尺寸，会导致动画闪烁。所以判断只在有必要时才重设尺寸
+        if (width === this.width && height === this.height) {
+            return;
+        }
+        this.width = width;
+        this.height = height;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+    }
     destroy() {
         this.destroyed = true;
         window.cancelAnimationFrame(this.animationID);
@@ -11170,6 +11181,8 @@ class ShowOriginSizeImage {
         this.wrap.style.height = this.style.height + 'px';
         this.wrap.style.marginTop = this.style.mt + 'px';
         this.wrap.style.marginLeft = this.style.ml + 'px';
+        this.previewUgoira &&
+            this.previewUgoira.setSize(this.style.width, this.style.height);
     }
     setData(urls, data, index) {
         this.urls = urls;
