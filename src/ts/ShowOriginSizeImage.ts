@@ -454,6 +454,9 @@ class ShowOriginSizeImage {
     this.wrap.style.height = this.style.height + 'px'
     this.wrap.style.marginTop = this.style.mt + 'px'
     this.wrap.style.marginLeft = this.style.ml + 'px'
+
+    this.previewUgoira &&
+      this.previewUgoira.setSize(this.style.width, this.style.height)
   }
 
   public setData(urls: Urls, data: ArtworkData, index: number) {

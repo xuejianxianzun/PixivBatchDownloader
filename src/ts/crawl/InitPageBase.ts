@@ -310,16 +310,14 @@ abstract class InitPageBase {
     } else {
       // 全速抓取
       states.slowCrawlMode = false
-
-      if (store.idList.length <= this.ajaxThreadsDefault) {
-        this.ajaxThread = store.idList.length
-      } else {
-        this.ajaxThread = this.ajaxThreadsDefault
-      }
+      this.ajaxThread = Math.min(this.ajaxThreadsDefault, store.idList.length)
     }
 
+    // 开始抓取作品数据
     for (let i = 0; i < this.ajaxThread; i++) {
-      this.getWorksData()
+      window.setTimeout(() => {
+        store.idList.length > 0 ? this.getWorksData() : this.afterGetWorksData()
+      }, 0)
     }
   }
 
@@ -337,6 +335,9 @@ abstract class InitPageBase {
     }
 
     idData = idData || (store.idList.shift()! as IDData)
+    if (!idData) {
+      return this.afterGetWorksData()
+    }
     const id = idData.id
 
     if (!id) {
@@ -416,20 +417,23 @@ abstract class InitPageBase {
       return this.crawlFinished()
     }
 
-    // 如果存在下一个作品，则继续抓取
+    // 在进行下一次抓取前，预先检查这个 id 是否符合过滤条件
+    // 如果它不符合过滤条件，则立刻跳过它，这样也不会发送请求来获取这个作品的数据
+    // 这样可以加快抓取速度
     if (store.idList.length > 0) {
-      // 在抓取前，预先检查这个 id 是否符合过滤条件
-      // 如果它不符合过滤条件，则不会实际发送请求，那么也就不需要等待慢速抓取
-      // 这样可以加快抓取速度
       const nextIDData = store.idList[0]
       const check = await filter.check({
         id: nextIDData.id,
         workTypeString: nextIDData.type,
       })
       if (!check) {
+        store.idList.shift()
         return this.getWorksData()
       }
+    }
 
+    // 如果存在下一个作品，则继续抓取
+    if (store.idList.length > 0) {
       if (states.slowCrawlMode) {
         setTimeoutWorker.set(() => {
           this.getWorksData()

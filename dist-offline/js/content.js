@@ -7761,6 +7761,7 @@ const langText = {
         '멀티 이미지 작품 페이지에서 썸네일 목록을 표시',
         'На рабочей странице с несколькими изображениями отобразите список эскизов',
     ],
+    _提交: ['提交', '提交', 'Submit', '提出する', '제출하다', 'Подавать'],
 };
 
 
@@ -8925,6 +8926,17 @@ class PreviewUgoira {
         }
         this.canvas.style.display = 'none';
         this.canvasWrap.append(this.canvas);
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+    }
+    setSize(width, height) {
+        // 当用户移动鼠标时，ShowOriginSizeImage 会频繁触发 setSize
+        // 如果频繁的重设尺寸，会导致动画闪烁。所以判断只在有必要时才重设尺寸
+        if (width === this.width && height === this.height) {
+            return;
+        }
+        this.width = width;
+        this.height = height;
         this.canvas.width = this.width;
         this.canvas.height = this.height;
     }
@@ -11242,6 +11254,8 @@ class ShowOriginSizeImage {
         this.wrap.style.height = this.style.height + 'px';
         this.wrap.style.marginTop = this.style.mt + 'px';
         this.wrap.style.marginLeft = this.style.ml + 'px';
+        this.previewUgoira &&
+            this.previewUgoira.setSize(this.style.width, this.style.height);
     }
     setData(urls, data, index) {
         this.urls = urls;
@@ -11280,7 +11294,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.1.2';
+        this.flag = '16.1.3';
         this.bindEvents();
     }
     bindEvents() {
@@ -17783,15 +17797,13 @@ class InitPageBase {
         else {
             // 全速抓取
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = false;
-            if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length <= this.ajaxThreadsDefault) {
-                this.ajaxThread = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length;
-            }
-            else {
-                this.ajaxThread = this.ajaxThreadsDefault;
-            }
+            this.ajaxThread = Math.min(this.ajaxThreadsDefault, _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length);
         }
+        // 开始抓取作品数据
         for (let i = 0; i < this.ajaxThread; i++) {
-            this.getWorksData();
+            window.setTimeout(() => {
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0 ? this.getWorksData() : this.afterGetWorksData();
+            }, 0);
         }
     }
     // 重设抓取作品列表时使用的变量或标记
@@ -17802,6 +17814,9 @@ class InitPageBase {
             return this.crawlFinished();
         }
         idData = idData || _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
+        if (!idData) {
+            return this.afterGetWorksData();
+        }
         const id = idData.id;
         if (!id) {
             const msg = 'Error: work id is invalid!';
@@ -17875,19 +17890,22 @@ class InitPageBase {
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = true;
             return this.crawlFinished();
         }
-        // 如果存在下一个作品，则继续抓取
+        // 在进行下一次抓取前，预先检查这个 id 是否符合过滤条件
+        // 如果它不符合过滤条件，则立刻跳过它，这样也不会发送请求来获取这个作品的数据
+        // 这样可以加快抓取速度
         if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0) {
-            // 在抓取前，预先检查这个 id 是否符合过滤条件
-            // 如果它不符合过滤条件，则不会实际发送请求，那么也就不需要等待慢速抓取
-            // 这样可以加快抓取速度
             const nextIDData = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0];
             const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
                 id: nextIDData.id,
                 workTypeString: nextIDData.type,
             });
             if (!check) {
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
                 return this.getWorksData();
             }
+        }
+        // 如果存在下一个作品，则继续抓取
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0) {
             if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode) {
                 _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__.setTimeoutWorker.set(() => {
                     this.getWorksData();
@@ -23404,8 +23422,8 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 110670000
-            this.crawlData(110520000, 110672935);
+            // 上次记录到 110760000
+            this.crawlData(110680000, 110765451);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
             // 上次记录到 20420000
@@ -42277,6 +42295,15 @@ const illustsData = [
     [110650000, 1691498040000],
     [110660000, 1691519820000],
     [110670000, 1691563620000],
+    [110680000, 1691586780000],
+    [110690000, 1691612940000],
+    [110700000, 1691653440000],
+    [110710000, 1691674620000],
+    [110720002, 1691702460000],
+    [110730000, 1691737080000],
+    [110740000, 1691758260000],
+    [110750000, 1691782980000],
+    [110760000, 1691821380000],
 ];
 
 
