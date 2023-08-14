@@ -2180,6 +2180,7 @@ iframe[name='expandedFooter'] {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
+  justify-content: space-between;
 }
 .XZInputWrap .XZInputContainer .XZInput {
   color: #333;

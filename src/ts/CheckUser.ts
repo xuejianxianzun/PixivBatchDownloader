@@ -1,5 +1,7 @@
 import { API } from './API'
 import { EVT } from './EVT'
+import { Input } from './Input'
+import { lang } from './Lang'
 import { pageType } from './PageType'
 import { toast } from './Toast'
 import { Tools } from './Tools'
@@ -12,7 +14,8 @@ interface CheckResult {
   /**如果没有设置过只下载这个用户的最后几张图片，则是 undefined
    * 注意数字可能为 0，这表示设置了数字，只不过值是 0
    */
-  notDownloadLastImage: number | undefined
+  notDownloadLastImage?: number
+  blockTags?: string[]
 }
 
 // 当鼠标放在画师头像上时，检查这个画师是否被屏蔽，以及检查和修改他不下载最后几张图片的设置
@@ -133,6 +136,7 @@ class CheckUser {
     const result: CheckResult = {
       isBlock: settings.blockList.includes(userID),
       notDownloadLastImage: undefined,
+      blockTags: undefined,
     }
 
     for (const item of settings.DoNotDownloadLastFewImagesList) {
@@ -140,6 +144,11 @@ class CheckUser {
         result.notDownloadLastImage = item.value
       }
     }
+
+    const blockTags = settings.blockTagsForSpecificUserList.find(
+      (item) => item.uid.toString() === userID
+    )
+    result.blockTags = blockTags ? blockTags.tags : undefined
 
     return result
   }
@@ -161,9 +170,15 @@ class CheckUser {
 
       <div class="renameTiphr hr"></div>
 
-      <div class="renameTip">
+      <div class="renameTip notDownloadLastImage">
         <ul>
-        
+        </ul>
+      </div>
+
+      <div class="renameTiphr hr"></div>
+
+      <div class="renameTip blockTags">
+        <ul>
         </ul>
       </div>
     </div>`
@@ -179,6 +194,7 @@ class CheckUser {
       this.removePanel()
     })
 
+    // 屏蔽用户
     const blockBtns = panel.querySelectorAll(
       '.notNeedTip button'
     ) as NodeListOf<HTMLButtonElement>
@@ -191,37 +207,104 @@ class CheckUser {
       }
     }
 
-    const ul = panel.querySelector('.renameTip ul')! as HTMLUListElement
-
-    const li = document.createElement('li')
-    const left = document.createElement('span')
-    const btn = document.createElement('button')
-    if (result.notDownloadLastImage === undefined) {
-      left.textContent = '添加最后 x 张不抓取'
-      btn.textContent = '添加'
-    } else {
-      left.textContent = `已设置最后 ${result.notDownloadLastImage} 张不抓取`
-      btn.textContent = '编辑'
-    }
-
-    btn.onclick = () => {
-      const input = window.prompt('请输入数字，表示最后 x 张不抓取：', '1')
-      // 检测错误的输入
-      if (input === null) {
-        return toast.error('未输入值，本次操作取消')
+    // 最后几张不抓取
+    {
+      const ul = panel.querySelector(
+        '.notDownloadLastImage ul'
+      )! as HTMLUListElement
+      const li = document.createElement('li')
+      const left = document.createElement('span')
+      const btn = document.createElement('button')
+      if (result.notDownloadLastImage === undefined) {
+        left.textContent = '添加最后 x 张不抓取'
+        btn.textContent = '添加'
+      } else {
+        left.textContent = `已设置最后 ${result.notDownloadLastImage} 张不抓取`
+        btn.textContent = '编辑'
       }
 
-      const number = Number.parseInt(input)
-      if (isNaN(number) || number < 0) {
-        return toast.error('输入有误，请输入大于等于 0 的数字')
+      btn.onclick = () => {
+        const input = window.prompt('请输入数字，表示最后 x 张不抓取：', '1')
+        // 检测错误的输入
+        if (input === null) {
+          return toast.error('未输入值，本次操作取消')
+        }
+
+        const number = Number.parseInt(input)
+        if (isNaN(number) || number < 0) {
+          return toast.error('输入有误，请输入大于等于 0 的数字')
+        }
+
+        return this.setNotDownloadLastImage(userID, number)
       }
 
-      return this.setNotDownloadLastImage(userID, number)
+      li.append(left)
+      li.append(btn)
+      ul.append(li)
     }
 
-    li.append(left)
-    li.append(btn)
-    ul.append(li)
+    // 针对该用户屏蔽标签
+    {
+      const ul = panel.querySelector('.blockTags ul')! as HTMLUListElement
+      const li = document.createElement('li')
+      const left = document.createElement('span')
+      const btn = document.createElement('button')
+      if (result.blockTags === undefined) {
+        // 如果未屏蔽过，则只显示编辑按钮。不添加左侧的说明文字
+        btn.textContent = '针对该画师屏蔽 tag'
+        btn.onclick = () => {
+          const input = new Input({
+            instruction: `针对该画师（${userID}）屏蔽 tag：`,
+            placeholder: lang.transl('_tag用逗号分割'),
+            type: 'textarea',
+          })
+          input.onSubmit = () => {
+            let value = input.value
+            if (value === '') {
+              toast.warning('输入为空，所以没有更改设置')
+            } else {
+              this.blockTagsForUser(userID, value)
+              toast.success(`已针对该画师屏蔽这些 tag：${value}`)
+            }
+            window.setTimeout(() => {
+              input.remove()
+            }, 300)
+            return
+          }
+        }
+      } else {
+        // textContent 里换行符无效，所以这里用 innerText
+        left.innerText = `已针对该画师屏蔽：\n${result.blockTags.join(', ')}`
+        btn.textContent = '编辑'
+        li.append(left)
+
+        btn.onclick = () => {
+          const input = new Input({
+            instruction: `针对该画师（${userID}）编辑屏蔽的 tag：<br>如果清空，则将取消对这个画师屏蔽 tag`,
+            placeholder: lang.transl('_tag用逗号分割'),
+            type: 'textarea',
+            value: result.blockTags?.join(','),
+          })
+          input.onSubmit = () => {
+            let value = input.value
+            if (value === '') {
+              this.removeBlockTagsForUser(userID)
+              toast.warning('输入为空，取消对这个画师的屏蔽')
+            } else {
+              this.blockTagsForUser(userID, value)
+              toast.success(`已更新针对该画师屏蔽的 tag：${value}`)
+            }
+            window.setTimeout(() => {
+              input.remove()
+            }, 300)
+            return
+          }
+        }
+      }
+
+      li.append(btn)
+      ul.append(li)
+    }
 
     // 确定位置
     const rectList = this.activeEl.getClientRects()
@@ -333,6 +416,46 @@ class CheckUser {
       toast.success('取消屏蔽 ' + userID)
 
       this.removePanel()
+    }
+  }
+
+  private async blockTagsForUser(userID: string, str: string) {
+    const uid = Number.parseInt(userID)
+    const tags = Utils.string2array(str)
+
+    const index = settings.blockTagsForSpecificUserList.findIndex(
+      (item) => item.uid.toString() === userID
+    )
+    // 新增
+    if (index === -1) {
+      const user = await this.getUserName(uid)
+      const item = {
+        uid: uid,
+        user: user,
+        tags: tags,
+      }
+      settings.blockTagsForSpecificUserList.push(item)
+      setSetting('blockTagsForSpecificUserList', [
+        ...settings.blockTagsForSpecificUserList,
+      ])
+    } else {
+      // 更新已有
+      settings.blockTagsForSpecificUserList[index].tags = tags
+      setSetting('blockTagsForSpecificUserList', [
+        ...settings.blockTagsForSpecificUserList,
+      ])
+    }
+  }
+
+  private removeBlockTagsForUser(userID: string) {
+    const index = settings.blockTagsForSpecificUserList.findIndex(
+      (item) => item.uid.toString() === userID
+    )
+    if (index > -1) {
+      settings.blockTagsForSpecificUserList.splice(index, 1)
+      setSetting('blockTagsForSpecificUserList', [
+        ...settings.blockTagsForSpecificUserList,
+      ])
     }
   }
 }
