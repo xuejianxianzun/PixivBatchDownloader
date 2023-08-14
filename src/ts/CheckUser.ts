@@ -342,18 +342,6 @@ class CheckUser {
     document.body.appendChild(panel)
   }
 
-  private async getUserName(uid: number): Promise<string> {
-    return new Promise(async (resolve) => {
-      const profile = await API.getUserProfile(uid.toString()).catch((err) => {
-        console.log(err)
-      })
-      if (profile && profile.body.name) {
-        return resolve(profile.body.name)
-      }
-      return resolve('')
-    })
-  }
-
   private async setNotDownloadLastImage(
     userID: string | number,
     number: number
@@ -371,7 +359,7 @@ class CheckUser {
       find.value = number
       msg = `添加成功：最后 ${number} 张不抓取`
     } else {
-      const userName = await this.getUserName(userID)
+      const userName = await Tools.getUserName(userID)
       const data = {
         uid: userID,
         user: userName,
@@ -428,7 +416,7 @@ class CheckUser {
     )
     // 新增
     if (index === -1) {
-      const user = await this.getUserName(uid)
+      const user = await Tools.getUserName(uid)
       const item = {
         uid: uid,
         user: user,

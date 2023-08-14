@@ -1140,20 +1140,23 @@ new CheckNewVersion();
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
 
 // 当鼠标放在作品页面内的 tag 上时，检查这个 tag 是否存在于下载器的某些 tag 过滤设置里，并显示对应操作和提示
+// 只在插画或小说详情页面里生效
 class CheckTag {
     constructor() {
         this.selector = 'footer li a';
         this.workTagList = [];
         this.activeTag = document.createElement('a');
         this.panelID = 'xzTagCheckPanel';
-        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.isPixiv()) {
+        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.isPixiv()) {
             return;
         }
         // 由于新打开一个作品页面，以及切换页面时，下载器无法准确知道新的标签列表何时生成，所以用定时器检查
@@ -1196,12 +1199,20 @@ class CheckTag {
     check(a) {
         const tag = a.innerText;
         const result = {
-            inNotNeedTagList: _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.notNeedTag.includes(tag),
+            inNotNeedTagList: _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.notNeedTag.includes(tag),
             inTagRename: [],
+            blockTags: false,
         };
-        for (const item of _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.UseDifferentNameRuleIfWorkHasTagList) {
+        for (const item of _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.UseDifferentNameRuleIfWorkHasTagList) {
             if (item.tags.includes(tag)) {
                 result.inTagRename.push(item);
+            }
+        }
+        const uid = Number.parseInt(_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getUserId());
+        for (const item of _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.blockTagsForSpecificUserList) {
+            if (item.uid === uid && item.tags.includes(tag)) {
+                result.blockTags = true;
+                break;
             }
         }
         return result;
@@ -1216,9 +1227,16 @@ class CheckTag {
         <p style="display: ${result.inNotNeedTagList ? 'block' : 'none'};"><button>取消屏蔽该tag</button></p>
       </div>
 
+      <div class="renameTiphr hr"></div>
+
+      <div class="renameTip blockTags">
+        <ul>
+        </ul>
+      </div>
+
       <div class="renameTiphr hr" style="display: ${result.inTagRename.length > 0 ? 'block' : 'none'};"></div>
 
-      <div class="renameTip" style="display: ${result.inTagRename.length > 0 ? 'block' : 'none'};">
+      <div class="renameTip tagRename" style="display: ${result.inTagRename.length > 0 ? 'block' : 'none'};">
         <p>已将该tag重命名为：</p>
         <ul>
         
@@ -1244,30 +1262,52 @@ class CheckTag {
                 this.removeFormExcludeList(tag);
             }
         };
-        const ul = panel.querySelector('.renameTip ul');
-        for (const item of result.inTagRename) {
+        // 针对某个用户屏蔽这个标签
+        {
+            const ul = panel.querySelector('.blockTags ul');
             const li = document.createElement('li');
-            const left = document.createElement('span');
-            left.textContent = item.rule;
-            li.append(left);
             const btn = document.createElement('button');
-            btn.textContent = '移除';
-            btn.onclick = () => {
-                if (window.confirm(`确定要取消重命名 ${tag} -> ${item.rule} 吗？`)) {
-                    this.removeFormTagRename(tag, item.id);
-                }
-            };
+            if (result.blockTags === false) {
+                // 如果未屏蔽过
+                btn.textContent = '针对该画师屏蔽该 tag';
+                btn.onclick = () => {
+                    this.blockTagsForUser(tag);
+                };
+            }
+            else {
+                // 已屏蔽
+                btn.textContent = '取消针对该画师屏蔽该tag';
+                btn.onclick = () => {
+                    this.removeBlockTagsForUser(tag);
+                };
+            }
             li.append(btn);
             ul.append(li);
+        }
+        // 如果作品含有某些特定标签，则对这个作品使用另一种命名规则
+        {
+            const ul = panel.querySelector('.tagRename ul');
+            for (const item of result.inTagRename) {
+                const li = document.createElement('li');
+                const left = document.createElement('span');
+                left.textContent = item.rule;
+                li.append(left);
+                const btn = document.createElement('button');
+                btn.textContent = '移除';
+                btn.onclick = () => {
+                    if (window.confirm(`确定要取消重命名 ${tag} -> ${item.rule} 吗？`)) {
+                        this.removeFormTagRename(tag, item.id);
+                    }
+                };
+                li.append(btn);
+                ul.append(li);
+            }
         }
         // 确定位置
         const rectList = a.getClientRects();
         const rect = rectList[0];
         panel.style.left = rect.x + 'px';
-        panel.style.top = rect.y + rect.height + 2 + 'px';
-        // 上面把 top 加了 2 像素的间距，使其与 tag 文字之间存在一定空隙
-        // 这个间距不能太大，否则会导致面板的顶部进入了下方 tag 的文字区域
-        // 这会导致鼠标移动到面板的路径中会经过下面的 tag，出现第二个面板（也就是下面的 tag 的面板）
+        panel.style.top = rect.y + rect.height + 'px';
         document.body.appendChild(panel);
     }
     removePanel() {
@@ -1281,40 +1321,87 @@ class CheckTag {
     }
     /**把这个 tag 添加到 tag 屏蔽列表 */
     addToExcludeList(tag) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.notNeedTag.includes(tag)) {
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.notNeedTag.push(tag);
-            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.setSetting)('notNeedTag', _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.notNeedTag);
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.notNeedTag.includes(tag)) {
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.notNeedTag.push(tag);
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('notNeedTag', _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.notNeedTag);
             _Toast__WEBPACK_IMPORTED_MODULE_1__.toast.warning('屏蔽 ' + tag);
             this.updatePanel();
         }
     }
     /**把这个 tag 从屏蔽列表中移除*/
     removeFormExcludeList(tag) {
-        const index = _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.notNeedTag.findIndex((str) => str === tag);
+        const index = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.notNeedTag.findIndex((str) => str === tag);
         if (index > -1) {
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.notNeedTag.splice(index, 1);
-            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.setSetting)('notNeedTag', _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.notNeedTag);
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.notNeedTag.splice(index, 1);
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('notNeedTag', _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.notNeedTag);
             _Toast__WEBPACK_IMPORTED_MODULE_1__.toast.success('取消屏蔽 ' + tag);
             this.updatePanel();
         }
     }
     /**把这个 tag 从 tag 重命名列表中移除 */
     removeFormTagRename(tag, itemID) {
-        const itemIndex = _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.UseDifferentNameRuleIfWorkHasTagList.findIndex((item) => item.id === itemID);
+        const itemIndex = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.UseDifferentNameRuleIfWorkHasTagList.findIndex((item) => item.id === itemID);
         if (itemIndex > -1) {
-            const item = _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.UseDifferentNameRuleIfWorkHasTagList[itemIndex];
+            const item = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.UseDifferentNameRuleIfWorkHasTagList[itemIndex];
             const index = item.tags.findIndex((str) => str === tag);
             if (index > -1) {
                 const rename = item.rule;
                 item.tags.splice(index, 1);
                 // 如果这个规则里的 tag 全都移除了，则删除这条规则
                 if (item.tags.length === 0) {
-                    _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.UseDifferentNameRuleIfWorkHasTagList.splice(itemIndex, 1);
+                    _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.UseDifferentNameRuleIfWorkHasTagList.splice(itemIndex, 1);
                 }
-                (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.setSetting)('UseDifferentNameRuleIfWorkHasTagList', _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.UseDifferentNameRuleIfWorkHasTagList);
+                (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('UseDifferentNameRuleIfWorkHasTagList', _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.UseDifferentNameRuleIfWorkHasTagList);
                 _Toast__WEBPACK_IMPORTED_MODULE_1__.toast.success(`移除重命名 ${tag} -> ${rename}`);
                 this.updatePanel();
             }
+        }
+    }
+    async blockTagsForUser(tag) {
+        const uid = Number.parseInt(_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getUserId());
+        const index = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.blockTagsForSpecificUserList.findIndex((item) => item.uid === uid);
+        // 新增
+        if (index === -1) {
+            const user = await _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getUserName(uid);
+            const item = {
+                uid: uid,
+                user: user,
+                tags: [tag],
+            };
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.blockTagsForSpecificUserList.push(item);
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('blockTagsForSpecificUserList', [
+                ..._setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.blockTagsForSpecificUserList,
+            ]);
+        }
+        else {
+            // 更新已有
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.blockTagsForSpecificUserList[index].tags.push(tag);
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('blockTagsForSpecificUserList', [
+                ..._setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.blockTagsForSpecificUserList,
+            ]);
+        }
+        _Toast__WEBPACK_IMPORTED_MODULE_1__.toast.success(`已针对该画师屏蔽了 tag：${tag}`);
+    }
+    removeBlockTagsForUser(tag) {
+        const uid = Number.parseInt(_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getUserId());
+        const index = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.blockTagsForSpecificUserList.findIndex((item) => item.uid === uid);
+        if (index > -1) {
+            const item = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.blockTagsForSpecificUserList[index];
+            if (item.tags.length === 1 && item.tags[0] === tag) {
+                // 如果针对该用户只屏蔽了这一个标签，现在要取消屏蔽，则把这个配置项直接移除
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.blockTagsForSpecificUserList.splice(index, 1);
+            }
+            else {
+                // 否则只移除这一个标签
+                const tagIndex = item.tags.findIndex((str) => str === tag);
+                if (tagIndex > -1) {
+                    item.tags.splice(tagIndex, 1);
+                }
+            }
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('blockTagsForSpecificUserList', [
+                ..._setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.blockTagsForSpecificUserList,
+            ]);
+            _Toast__WEBPACK_IMPORTED_MODULE_1__.toast.success(`已解除对该画师屏蔽 tag：${tag}`);
         }
     }
 }
@@ -1399,16 +1486,14 @@ new CheckUnsupportBrowser();
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Input__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Input */ "./src/ts/Input.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
-
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Input__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Input */ "./src/ts/Input.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
 
 
 
@@ -1427,16 +1512,16 @@ class CheckUser {
         this.checkUserLinkReg = /\/users\/(\d+)$/;
         this.panelID = 'xzUserCheckPanel';
         this.enablePage = [
-            _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Following,
-            _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.UserHome,
-            _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Home,
-            _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Artwork,
-            _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.NewArtworkBookmark,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Following,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.UserHome,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Home,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtworkBookmark,
         ];
-        this.fun = _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.debounce(() => {
+        this.fun = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.debounce(() => {
             this.findUserLink();
         }, 100);
-        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.isPixiv()) {
+        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.isPixiv()) {
             return;
         }
         document.body.addEventListener('mousemove', (ev) => {
@@ -1446,7 +1531,7 @@ class CheckUser {
         window.addEventListener('scroll', () => {
             this.removePanel();
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch, () => {
             this.removePanel();
         });
     }
@@ -1461,17 +1546,17 @@ class CheckUser {
         return this.findA(el.parentElement, loop);
     }
     findUserLink() {
-        if (!this.enablePage.includes(_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type) || !this.target) {
+        if (!this.enablePage.includes(_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type) || !this.target) {
             return;
         }
         // 在用户主页需要特殊处理，因为这里的用户头像没有超链接
-        if (_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.UserHome) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.UserHome) {
             // 当鼠标经过头像图片或者名字时，显示面板
             const avatar = document.querySelector('div[size="96"]');
             const h1 = document.querySelector('h1');
             if (this.target === avatar || this.target === h1) {
                 this.activeEl = this.target;
-                const userID = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.getUserId();
+                const userID = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getUserId();
                 const result = this.checkSettings(userID);
                 this.createPanel(result, userID);
                 return;
@@ -1487,8 +1572,8 @@ class CheckUser {
         }
         // 在画师主页里，如果超链接的用户 ID 就是网址里的 ID，说明这是“主页”按钮链接。
         // 此时不显示面板
-        if (_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.UserHome) {
-            if (_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.getUserId() === userID) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.UserHome) {
+            if (_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getUserId() === userID) {
                 return;
             }
         }
@@ -1509,16 +1594,16 @@ class CheckUser {
     /**检查下载器里针对这个用户的设置，决定对这个用户显示什么提示和操作 */
     checkSettings(userID) {
         const result = {
-            isBlock: _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.blockList.includes(userID),
+            isBlock: _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockList.includes(userID),
             notDownloadLastImage: undefined,
             blockTags: undefined,
         };
-        for (const item of _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.DoNotDownloadLastFewImagesList) {
+        for (const item of _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.DoNotDownloadLastFewImagesList) {
             if (item.uid === Number.parseInt(userID)) {
                 result.notDownloadLastImage = item.value;
             }
         }
-        const blockTags = _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.blockTagsForSpecificUserList.find(item => item.uid.toString() === userID);
+        const blockTags = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockTagsForSpecificUserList.find((item) => item.uid.toString() === userID);
         result.blockTags = blockTags ? blockTags.tags : undefined;
         return result;
     }
@@ -1584,11 +1669,11 @@ class CheckUser {
                 const input = window.prompt('请输入数字，表示最后 x 张不抓取：', '1');
                 // 检测错误的输入
                 if (input === null) {
-                    return _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error('未输入值，本次操作取消');
+                    return _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error('未输入值，本次操作取消');
                 }
                 const number = Number.parseInt(input);
                 if (isNaN(number) || number < 0) {
-                    return _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error('输入有误，请输入大于等于 0 的数字');
+                    return _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error('输入有误，请输入大于等于 0 的数字');
                 }
                 return this.setNotDownloadLastImage(userID, number);
             };
@@ -1603,25 +1688,26 @@ class CheckUser {
             const left = document.createElement('span');
             const btn = document.createElement('button');
             if (result.blockTags === undefined) {
+                // 如果未屏蔽过，则只显示编辑按钮。不添加左侧的说明文字
                 btn.textContent = '针对该画师屏蔽 tag';
                 btn.onclick = () => {
-                    const input = new _Input__WEBPACK_IMPORTED_MODULE_2__.Input({
+                    const input = new _Input__WEBPACK_IMPORTED_MODULE_1__.Input({
                         instruction: `针对该画师（${userID}）屏蔽 tag：`,
-                        placeholder: _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_tag用逗号分割'),
+                        placeholder: _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_tag用逗号分割'),
                         type: 'textarea',
                     });
                     input.onSubmit = () => {
                         let value = input.value;
                         if (value === '') {
-                            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.warning('输入为空，所以没有更改设置');
+                            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning('输入为空，所以没有更改设置');
                         }
                         else {
                             this.blockTagsForUser(userID, value);
-                            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(`已针对该画师屏蔽这些 tag：${value}`);
+                            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(`已针对该画师屏蔽这些 tag：${value}`);
                         }
                         window.setTimeout(() => {
                             input.remove();
-                        }, 500);
+                        }, 300);
                         return;
                     };
                 };
@@ -1632,25 +1718,25 @@ class CheckUser {
                 btn.textContent = '编辑';
                 li.append(left);
                 btn.onclick = () => {
-                    const input = new _Input__WEBPACK_IMPORTED_MODULE_2__.Input({
+                    const input = new _Input__WEBPACK_IMPORTED_MODULE_1__.Input({
                         instruction: `针对该画师（${userID}）编辑屏蔽的 tag：<br>如果清空，则将取消对这个画师屏蔽 tag`,
-                        placeholder: _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_tag用逗号分割'),
+                        placeholder: _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_tag用逗号分割'),
                         type: 'textarea',
-                        value: result.blockTags?.join(',')
+                        value: result.blockTags?.join(','),
                     });
                     input.onSubmit = () => {
                         let value = input.value;
                         if (value === '') {
                             this.removeBlockTagsForUser(userID);
-                            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.warning('输入为空，取消对这个画师的屏蔽');
+                            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning('输入为空，取消对这个画师的屏蔽');
                         }
                         else {
                             this.blockTagsForUser(userID, value);
-                            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(`已更新针对该画师屏蔽的 tag：${value}`);
+                            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(`已更新针对该画师屏蔽的 tag：${value}`);
                         }
                         window.setTimeout(() => {
                             input.remove();
-                        }, 500);
+                        }, 300);
                         return;
                     };
                 };
@@ -1676,10 +1762,10 @@ class CheckUser {
             // 所以有时候可能仍然会与卡片重叠
             showTop = true;
         }
-        if (_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.UserHome) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.UserHome) {
             // 在画师主页里，如果超链接的用户 ID 不是地址栏里的 ID，则是底部弹出的推荐关注画师
             // 面板需要显示在上方
-            if (_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.getUserId() !== userID) {
+            if (_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getUserId() !== userID) {
                 showTop = true;
             }
         }
@@ -1689,40 +1775,29 @@ class CheckUser {
         panel.style.left = rect.x + 'px';
         document.body.appendChild(panel);
     }
-    async getUserName(uid) {
-        return new Promise(async (resolve) => {
-            const profile = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getUserProfile(uid.toString()).catch((err) => {
-                console.log(err);
-            });
-            if (profile && profile.body.name) {
-                return resolve(profile.body.name);
-            }
-            return resolve('');
-        });
-    }
     async setNotDownloadLastImage(userID, number) {
         // 自动判断，如果之前没有设置过这个画师，则新建一条规则
         if (typeof userID === 'string') {
             userID = Number.parseInt(userID);
         }
         let msg = '';
-        const find = _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.DoNotDownloadLastFewImagesList.find((item) => item.uid === userID);
+        const find = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.DoNotDownloadLastFewImagesList.find((item) => item.uid === userID);
         if (find) {
             find.value = number;
             msg = `添加成功：最后 ${number} 张不抓取`;
         }
         else {
-            const userName = await this.getUserName(userID);
+            const userName = await _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getUserName(userID);
             const data = {
                 uid: userID,
                 user: userName,
                 value: number,
             };
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.DoNotDownloadLastFewImagesList.push(data);
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.DoNotDownloadLastFewImagesList.push(data);
             msg = `修改成功：最后 ${number} 张不抓取`;
         }
-        (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.setSetting)('DoNotDownloadLastFewImagesList', _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.DoNotDownloadLastFewImagesList);
-        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(msg);
+        (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('DoNotDownloadLastFewImagesList', _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.DoNotDownloadLastFewImagesList);
+        _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg);
         this.removePanel();
     }
     removePanel() {
@@ -1730,48 +1805,54 @@ class CheckUser {
         panel && panel.remove();
     }
     addBlock(userID) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.blockList.includes(userID)) {
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.blockList.push(userID);
-            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.setSetting)('blockList', _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.blockList);
-            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.warning('添加屏蔽 ' + userID);
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockList.includes(userID)) {
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockList.push(userID);
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('blockList', _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockList);
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning('添加屏蔽 ' + userID);
             this.removePanel();
         }
     }
     removeBlock(userID) {
-        const index = _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.blockList.findIndex((str) => str === userID);
+        const index = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockList.findIndex((str) => str === userID);
         if (index > -1) {
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.blockList.splice(index, 1);
-            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.setSetting)('blockList', _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.blockList);
-            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success('取消屏蔽 ' + userID);
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockList.splice(index, 1);
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('blockList', _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockList);
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success('取消屏蔽 ' + userID);
             this.removePanel();
         }
     }
     async blockTagsForUser(userID, str) {
         const uid = Number.parseInt(userID);
-        const tags = _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.string2array(str);
-        const index = _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.blockTagsForSpecificUserList.findIndex(item => item.uid.toString() === userID);
+        const tags = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.string2array(str);
+        const index = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockTagsForSpecificUserList.findIndex((item) => item.uid.toString() === userID);
         // 新增
         if (index === -1) {
-            const user = await this.getUserName(uid);
+            const user = await _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getUserName(uid);
             const item = {
                 uid: uid,
                 user: user,
-                tags: tags
+                tags: tags,
             };
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.blockTagsForSpecificUserList.push(item);
-            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.setSetting)('blockTagsForSpecificUserList', [..._setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.blockTagsForSpecificUserList]);
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockTagsForSpecificUserList.push(item);
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('blockTagsForSpecificUserList', [
+                ..._setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockTagsForSpecificUserList,
+            ]);
         }
         else {
             // 更新已有
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.blockTagsForSpecificUserList[index].tags = tags;
-            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.setSetting)('blockTagsForSpecificUserList', [..._setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.blockTagsForSpecificUserList]);
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockTagsForSpecificUserList[index].tags = tags;
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('blockTagsForSpecificUserList', [
+                ..._setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockTagsForSpecificUserList,
+            ]);
         }
     }
     removeBlockTagsForUser(userID) {
-        const index = _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.blockTagsForSpecificUserList.findIndex(item => item.uid.toString() === userID);
+        const index = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockTagsForSpecificUserList.findIndex((item) => item.uid.toString() === userID);
         if (index > -1) {
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.blockTagsForSpecificUserList.splice(index, 1);
-            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.setSetting)('blockTagsForSpecificUserList', [..._setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.blockTagsForSpecificUserList]);
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockTagsForSpecificUserList.splice(index, 1);
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('blockTagsForSpecificUserList', [
+                ..._setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockTagsForSpecificUserList,
+            ]);
         }
     }
 }
@@ -4053,6 +4134,12 @@ class Input {
         }
         input.addEventListener('change', () => {
             this.value = input.value;
+        });
+        // 按 Esc 直接移除本组件，并且不会执行 onSubmit 回调
+        input.addEventListener('keydown', (ev) => {
+            if (ev.code === 'Escape') {
+                this.remove();
+            }
         });
         button.addEventListener('click', () => {
             this.onSubmit();

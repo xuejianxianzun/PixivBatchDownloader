@@ -1,5 +1,6 @@
 import { pageType } from './PageType'
 import { toast } from './Toast'
+import { Tools } from './Tools'
 import { setSetting, settings } from './setting/Settings'
 import { Utils } from './utils/Utils'
 
@@ -12,9 +13,11 @@ interface TagRenameItem {
 interface CheckResult {
   inNotNeedTagList: boolean
   inTagRename: TagRenameItem[]
+  blockTags: boolean
 }
 
 // 当鼠标放在作品页面内的 tag 上时，检查这个 tag 是否存在于下载器的某些 tag 过滤设置里，并显示对应操作和提示
+// 只在插画或小说详情页面里生效
 class CheckTag {
   constructor() {
     if (!Utils.isPixiv()) {
@@ -80,11 +83,20 @@ class CheckTag {
     const result: CheckResult = {
       inNotNeedTagList: settings.notNeedTag.includes(tag),
       inTagRename: [],
+      blockTags: false,
     }
 
     for (const item of settings.UseDifferentNameRuleIfWorkHasTagList) {
       if (item.tags.includes(tag)) {
         result.inTagRename.push(item)
+      }
+    }
+
+    const uid = Number.parseInt(Tools.getUserId())
+    for (const item of settings.blockTagsForSpecificUserList) {
+      if (item.uid === uid && item.tags.includes(tag)) {
+        result.blockTags = true
+        break
       }
     }
 
@@ -105,11 +117,18 @@ class CheckTag {
         };"><button>取消屏蔽该tag</button></p>
       </div>
 
+      <div class="renameTiphr hr"></div>
+
+      <div class="renameTip blockTags">
+        <ul>
+        </ul>
+      </div>
+
       <div class="renameTiphr hr" style="display: ${
         result.inTagRename.length > 0 ? 'block' : 'none'
       };"></div>
 
-      <div class="renameTip" style="display: ${
+      <div class="renameTip tagRename" style="display: ${
         result.inTagRename.length > 0 ? 'block' : 'none'
       };">
         <p>已将该tag重命名为：</p>
@@ -142,34 +161,57 @@ class CheckTag {
       }
     }
 
-    const ul = panel.querySelector('.renameTip ul')! as HTMLUListElement
-    for (const item of result.inTagRename) {
+    // 针对某个用户屏蔽这个标签
+    {
+      const ul = panel.querySelector('.blockTags ul')! as HTMLUListElement
       const li = document.createElement('li')
-
-      const left = document.createElement('span')
-      left.textContent = item.rule
-      li.append(left)
-
       const btn = document.createElement('button')
-      btn.textContent = '移除'
-      btn.onclick = () => {
-        if (window.confirm(`确定要取消重命名 ${tag} -> ${item.rule} 吗？`)) {
-          this.removeFormTagRename(tag, item.id)
+      if (result.blockTags === false) {
+        // 如果未屏蔽过
+        btn.textContent = '针对该画师屏蔽该 tag'
+        btn.onclick = () => {
+          this.blockTagsForUser(tag)
+        }
+      } else {
+        // 已屏蔽
+        btn.textContent = '取消针对该画师屏蔽该tag'
+        btn.onclick = () => {
+          this.removeBlockTagsForUser(tag)
         }
       }
-      li.append(btn)
 
+      li.append(btn)
       ul.append(li)
+    }
+
+    // 如果作品含有某些特定标签，则对这个作品使用另一种命名规则
+    {
+      const ul = panel.querySelector('.tagRename ul')! as HTMLUListElement
+      for (const item of result.inTagRename) {
+        const li = document.createElement('li')
+
+        const left = document.createElement('span')
+        left.textContent = item.rule
+        li.append(left)
+
+        const btn = document.createElement('button')
+        btn.textContent = '移除'
+        btn.onclick = () => {
+          if (window.confirm(`确定要取消重命名 ${tag} -> ${item.rule} 吗？`)) {
+            this.removeFormTagRename(tag, item.id)
+          }
+        }
+        li.append(btn)
+
+        ul.append(li)
+      }
     }
 
     // 确定位置
     const rectList = a.getClientRects()
     const rect = rectList[0]
     panel.style.left = rect.x + 'px'
-    panel.style.top = rect.y + rect.height + 2 + 'px'
-    // 上面把 top 加了 2 像素的间距，使其与 tag 文字之间存在一定空隙
-    // 这个间距不能太大，否则会导致面板的顶部进入了下方 tag 的文字区域
-    // 这会导致鼠标移动到面板的路径中会经过下面的 tag，出现第二个面板（也就是下面的 tag 的面板）
+    panel.style.top = rect.y + rect.height + 'px'
 
     document.body.appendChild(panel)
   }
@@ -236,6 +278,62 @@ class CheckTag {
 
         this.updatePanel()
       }
+    }
+  }
+
+  private async blockTagsForUser(tag: string) {
+    const uid = Number.parseInt(Tools.getUserId())
+    const index = settings.blockTagsForSpecificUserList.findIndex(
+      (item) => item.uid === uid
+    )
+
+    // 新增
+    if (index === -1) {
+      const user = await Tools.getUserName(uid)
+      const item = {
+        uid: uid,
+        user: user,
+        tags: [tag],
+      }
+      settings.blockTagsForSpecificUserList.push(item)
+      setSetting('blockTagsForSpecificUserList', [
+        ...settings.blockTagsForSpecificUserList,
+      ])
+    } else {
+      // 更新已有
+      settings.blockTagsForSpecificUserList[index].tags.push(tag)
+      setSetting('blockTagsForSpecificUserList', [
+        ...settings.blockTagsForSpecificUserList,
+      ])
+    }
+
+    toast.success(`已针对该画师屏蔽了 tag：${tag}`)
+  }
+
+  private removeBlockTagsForUser(tag: string) {
+    const uid = Number.parseInt(Tools.getUserId())
+    const index = settings.blockTagsForSpecificUserList.findIndex(
+      (item) => item.uid === uid
+    )
+
+    if (index > -1) {
+      const item = settings.blockTagsForSpecificUserList[index]
+      if (item.tags.length === 1 && item.tags[0] === tag) {
+        // 如果针对该用户只屏蔽了这一个标签，现在要取消屏蔽，则把这个配置项直接移除
+        settings.blockTagsForSpecificUserList.splice(index, 1)
+      } else {
+        // 否则只移除这一个标签
+        const tagIndex = item.tags.findIndex((str) => str === tag)
+        if (tagIndex > -1) {
+          item.tags.splice(tagIndex, 1)
+        }
+      }
+
+      setSetting('blockTagsForSpecificUserList', [
+        ...settings.blockTagsForSpecificUserList,
+      ])
+
+      toast.success(`已解除对该画师屏蔽 tag：${tag}`)
     }
   }
 }
