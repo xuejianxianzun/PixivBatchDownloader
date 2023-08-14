@@ -1,7 +1,7 @@
 ---
 name: 报告 Bug -中文模板
-about: ''
-title: ''
+about: '报告问题'
+title: '[BUG]'
 labels: 'bug'
 assignees: ''
 
