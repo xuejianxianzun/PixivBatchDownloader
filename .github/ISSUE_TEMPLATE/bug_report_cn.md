@@ -1,8 +1,8 @@
 ---
 name: 报告 Bug -中文模板
-about: 
+about: ''
 title: ''
-labels: ''
+labels: 'bug'
 assignees: ''
 
 ---
