@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: 'report a problem'
+about: 'Report a problem'
 title: '[BUG]'
 labels: 'bug'
 assignees: ''
