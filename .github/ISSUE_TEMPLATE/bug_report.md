@@ -1,3 +1,12 @@
+---
+name: Bug report
+about: 
+title: ''
+labels: ''
+assignees: ''
+
+---
+
 **Question self-test**
 
 Please follow the steps below first to see if the problem is resolved:
