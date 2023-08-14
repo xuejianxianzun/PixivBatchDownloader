@@ -1,39 +1,34 @@
 ---
 name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: bug
+about: 'Report a problem'
+title: '[BUG]'
+labels: 'bug'
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
-*请描述你遇到的问题。*
+**Question self-test**
 
-**To Reproduce**
-How to reproduce this problem?
-*如何重现这个问题？*
+Please follow the steps below first to see if the problem is resolved:
 
-**Diagnostic information**
-1. Screenshot of the problem
-2. The URL of the page when crawling
-3. Export the settings of the downloader and add to the attachment if needed.
-4. Export crawl results and add to attachments if needed.
+1. If the browser is not Chrome or Edge, please use Chrome or Edge browser to install this extension.
+2. If your Chrome or Edge browser is not the latest version, please update your browser.
+3. If this extension is not the latest version, please update to the latest version. The latest version number: ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
+4. Try refreshing the problematic tab, or restart the browser.
+5. Search for the keyword of the problem in the issues list of this repository to see if someone has already reported this problem.
 
-*诊断信息*
-1. 问题截图
-2. 抓取时的页面 URL
-3. 如果需要，导出下载器的设置，并添加到附件。
-4. 如果需要，导出抓取结果，并添加到附件。
+Before you report a bug, please make sure you have performed the above checks.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**Bug Details**
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+**How to reproduce this problem? **
 
-**Additional context**
-Add any other context about the problem here.
+**Diagnostic Information**
+
+When the problem occurs, the URL of the page: (required)
+
+Screenshot of the problem: (optional)
+
+Also, if necessary, you can export the settings of the downloader, or export the crawling results, and add them as attachments.
+
+**Your operating system and browser version number**

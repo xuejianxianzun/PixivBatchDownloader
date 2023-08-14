@@ -100,6 +100,13 @@ class Input {
       this.value = input.value
     })
 
+    // 按 Esc 直接移除本组件，并且不会执行 onSubmit 回调
+    input.addEventListener('keydown', (ev: any) => {
+      if (ev.code === 'Escape') {
+        this.remove()
+      }
+    })
+
     button.addEventListener('click', () => {
       this.onSubmit()
     })
