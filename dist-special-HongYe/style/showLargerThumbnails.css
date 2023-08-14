@@ -1,5 +1,6 @@
 /* 显示更大的缩略图 */
 /* 下载器替换默认的缩略图时，使用的的图片宽高最大是 540px */
+/* 需要注意的是，普通模式和夜间模式的图片 className 不同。所以修改后需要在两个模式下都测试效果。现在普通模式是 erYaF，夜间模式是 eCFXg*/
 /* 作品列表外部容器，取消它们的宽度限制 */
 .iClkCH,
 .gTaKE,
@@ -51,13 +52,17 @@ nav .cYUezH {
 }
 /* 作品页面大图下面的横向小图列表，保持其原宽高。因为这里的元素是绝对定位设置了 left 的，如果下载器改变了内容的宽度，就会导致 left 不准确，显示出错*/
 main nav div .erYaF,
-main figcaption .lgccrd {
+main figcaption .lgccrd,
+main nav div .eCFXg,
+main figcaption .eCFXg {
   height: 100% !important;
   width: 136px !important;
 }
 /* 搜索框下拉面板底部的缩略图列表保持原宽高，不然只能显示一部分 */
 main figcaption .lgccrd .erYaF,
-.eHTuWt .erYaF {
+main figcaption .lgccrd .eCFXg,
+.eHTuWt .erYaF,
+.eHTuWt .eCFXg {
   width: 100% !important;
   height: 100% !important;
 }

@@ -310,16 +310,14 @@ abstract class InitPageBase {
     } else {
       // 全速抓取
       states.slowCrawlMode = false
-
-      if (store.idList.length <= this.ajaxThreadsDefault) {
-        this.ajaxThread = store.idList.length
-      } else {
-        this.ajaxThread = this.ajaxThreadsDefault
-      }
+      this.ajaxThread = Math.min(this.ajaxThreadsDefault, store.idList.length)
     }
 
+    // 开始抓取作品数据
     for (let i = 0; i < this.ajaxThread; i++) {
-      this.getWorksData()
+      window.setTimeout(() => {
+        store.idList.length > 0 ? this.getWorksData() : this.afterGetWorksData()
+      }, 0)
     }
   }
 
@@ -331,12 +329,15 @@ abstract class InitPageBase {
   }, 500)
 
   // 获取作品的数据
-  protected async getWorksData(idData?: IDData) {
+  protected async getWorksData(idData?: IDData): Promise<void> {
     if (states.stopCrawl) {
       return this.crawlFinished()
     }
 
     idData = idData || (store.idList.shift()! as IDData)
+    if (!idData) {
+      return this.afterGetWorksData()
+    }
     const id = idData.id
 
     if (!id) {
@@ -377,9 +378,10 @@ abstract class InitPageBase {
         if (error.status === 500 || error.status === 429) {
           // 如果状态码 500 或 429，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
           this.log429ErrorTip()
-          return window.setTimeout(() => {
+          window.setTimeout(() => {
             this.getWorksData(idData)
           }, Config.retryTime)
+          return
         } else {
           this.afterGetWorksData()
         }
@@ -398,7 +400,9 @@ abstract class InitPageBase {
   }
 
   // 每当获取完一个作品的信息
-  private async afterGetWorksData(data?: NovelData | ArtworkData) {
+  private async afterGetWorksData(
+    data?: NovelData | ArtworkData
+  ): Promise<void> {
     this.logResultNumber()
 
     // 抓取可能中途停止，保留抓取结果
@@ -413,8 +417,23 @@ abstract class InitPageBase {
       return this.crawlFinished()
     }
 
+    // 在进行下一次抓取前，预先检查这个 id 是否符合过滤条件
+    // 如果它不符合过滤条件，则立刻跳过它，这样也不会发送请求来获取这个作品的数据
+    // 这样可以加快抓取速度
     if (store.idList.length > 0) {
-      // 如果存在下一个作品，则继续抓取
+      const nextIDData = store.idList[0]
+      const check = await filter.check({
+        id: nextIDData.id,
+        workTypeString: nextIDData.type,
+      })
+      if (!check) {
+        store.idList.shift()
+        return this.getWorksData()
+      }
+    }
+
+    // 如果存在下一个作品，则继续抓取
+    if (store.idList.length > 0) {
       if (states.slowCrawlMode) {
         setTimeoutWorker.set(() => {
           this.getWorksData()
