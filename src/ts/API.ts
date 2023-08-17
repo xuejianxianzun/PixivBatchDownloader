@@ -165,6 +165,7 @@ class API {
     type: 'illusts' | 'novels',
     token: string
   ) {
+    // 注意，这里的 ID 是 bookmarkID，不是作品 ID
     const bodyStr =
       type === 'illusts'
         ? `bookmark_id=${bookmarkID}`
