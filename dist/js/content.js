@@ -96,6 +96,7 @@ class API {
         });
     }
     static async deleteBookmark(bookmarkID, type, token) {
+        // 注意，这里的 ID 是 bookmarkID，不是作品 ID
         const bodyStr = type === 'illusts'
             ? `bookmark_id=${bookmarkID}`
             : `del=1&book_id=${bookmarkID}`;
@@ -12538,25 +12539,22 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class UnBookmarkWorks {
-    async start(idList) {
+    async start(list) {
         _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_取消收藏作品'));
-        if (idList.length === 0) {
+        if (list.length === 0) {
             _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有数据可供使用'));
             _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有数据可供使用'));
             return;
         }
         _store_States__WEBPACK_IMPORTED_MODULE_5__.states.busy = true;
-        const total = idList.length.toString();
+        const total = list.length.toString();
         _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前作品个数', total));
         let number = 0;
-        for (const idData of idList) {
+        for (const item of list) {
             try {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API[idData.type === 'novels' ? 'getNovelData' : 'getArtworkData'](idData.id);
-                if (data.body.bookmarkData) {
-                    await _API__WEBPACK_IMPORTED_MODULE_0__.API.deleteBookmark(data.body.bookmarkData.id, idData.type === 'novels' ? 'novels' : 'illusts', _Token__WEBPACK_IMPORTED_MODULE_4__.token.token);
-                    // 尚不清楚 deleteBookmark 使用的 API 是否会被计入 429 限制里
-                    // 现在没有控制发送请求的速度，反正一次一页，48 个作品会发送 96 个请求，问题不大。
-                }
+                await _API__WEBPACK_IMPORTED_MODULE_0__.API.deleteBookmark(item.bookmarkID, item.type, _Token__WEBPACK_IMPORTED_MODULE_4__.token.token);
+                // 尚不清楚 deleteBookmark 使用的 API 是否会被计入 429 限制里
+                // 现在没有控制发送请求的速度，反正一次一页，48 个作品会发送 96 个请求，问题不大。
             }
             catch (error) {
                 // 处理自己收藏的作品时可能遇到错误。最常见的错误就是作品被删除了，获取作品数据时会产生 404 错误
@@ -15099,6 +15097,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
     constructor() {
         super();
         this.idList = []; // 储存从列表页获取到的 id
+        this.bookmarkDataList = [];
         this.type = 'illusts'; // 页面是图片还是小说
         this.isHide = false; // 当前页面是否显示的是非公开收藏
         this.requsetNumber = 0; // 根据页数，计算要抓取的作品个数
@@ -15275,6 +15274,14 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
                 if (this.filteredNumber >= this.requsetNumber) {
                     return this.afterGetIdList();
                 }
+                if (this.crawlMode === 'unBookmark' && workData.bookmarkData) {
+                    this.bookmarkDataList.push({
+                        workID: Number.parseInt(workData.id),
+                        type: workData.illustType === undefined ? 'novels' : 'illusts',
+                        bookmarkID: workData.bookmarkData.id,
+                        private: workData.bookmarkData.private,
+                    });
+                }
                 const filterOpt = {
                     aiType: workData.aiType,
                     id: workData.id,
@@ -15321,9 +15328,9 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         else if (this.crawlMode === 'unBookmark') {
             // 取消收藏本页面的书签时
             // 复制本页作品的 id 列表，传递给指定模块
-            const idList = Array.from(this.idList);
+            const bookmarkDataList = Array.from(this.bookmarkDataList);
             this.resetGetIdListStatus();
-            _UnBookmarkWorks__WEBPACK_IMPORTED_MODULE_16__.unBookmarkWorks.start(idList);
+            _UnBookmarkWorks__WEBPACK_IMPORTED_MODULE_16__.unBookmarkWorks.start(bookmarkDataList);
         }
         else if (this.crawlMode === 'removeTags') {
             // 移除本页面作品的标签
@@ -15337,6 +15344,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         this.type = 'illusts';
         this.crawlMode = 'normal';
         this.idList = [];
+        this.bookmarkDataList = [];
         this.offset = 0;
         this.requsetNumber = 0;
         this.filteredNumber = 0;

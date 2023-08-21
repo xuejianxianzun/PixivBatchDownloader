@@ -5,7 +5,11 @@ import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { IDData } from '../store/StoreType'
 import { options } from '../setting/Options'
-import { BookmarkData } from '../crawl/CrawlResult'
+import {
+  ArtworkCommonData,
+  ArtworkData,
+  BookmarkData,
+} from '../crawl/CrawlResult'
 import { store } from '../store/Store'
 import { log } from '../Log'
 import { Tools } from '../Tools'
@@ -17,7 +21,7 @@ import { Config } from '../Config'
 import { states } from '../store/States'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { toast } from '../Toast'
-import { unBookmarkWorks } from '../UnBookmarkWorks'
+import { unBookmarkWorks, WorkBookmarkData } from '../UnBookmarkWorks'
 import { removeWorksTagsInBookmarks } from '../RemoveWorksTagsInBookmarks'
 import { EVT } from '../EVT'
 
@@ -28,6 +32,8 @@ class InitBookmarkPage extends InitPageBase {
   }
 
   private idList: IDData[] = [] // 储存从列表页获取到的 id
+
+  private bookmarkDataList: WorkBookmarkData[] = []
 
   private type: 'illusts' | 'novels' = 'illusts' // 页面是图片还是小说
 
@@ -263,6 +269,19 @@ class InitBookmarkPage extends InitPageBase {
         if (this.filteredNumber >= this.requsetNumber) {
           return this.afterGetIdList()
         }
+
+        if (this.crawlMode === 'unBookmark' && workData.bookmarkData) {
+          this.bookmarkDataList.push({
+            workID: Number.parseInt(workData.id),
+            type:
+              (workData as ArtworkCommonData).illustType === undefined
+                ? 'novels'
+                : 'illusts',
+            bookmarkID: workData.bookmarkData.id,
+            private: workData.bookmarkData.private,
+          })
+        }
+
         const filterOpt: FilterOption = {
           aiType: workData.aiType,
           id: workData.id,
@@ -318,9 +337,9 @@ class InitBookmarkPage extends InitPageBase {
     } else if (this.crawlMode === 'unBookmark') {
       // 取消收藏本页面的书签时
       // 复制本页作品的 id 列表，传递给指定模块
-      const idList = Array.from(this.idList)
+      const bookmarkDataList = Array.from(this.bookmarkDataList)
       this.resetGetIdListStatus()
-      unBookmarkWorks.start(idList)
+      unBookmarkWorks.start(bookmarkDataList)
     } else if (this.crawlMode === 'removeTags') {
       // 移除本页面作品的标签
       // 复制本页作品的 id 列表，传递给指定模块
@@ -334,6 +353,7 @@ class InitBookmarkPage extends InitPageBase {
     this.type = 'illusts'
     this.crawlMode = 'normal'
     this.idList = []
+    this.bookmarkDataList = []
     this.offset = 0
     this.requsetNumber = 0
     this.filteredNumber = 0

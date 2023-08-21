@@ -1,4 +1,3 @@
-import { IDData } from './store/StoreType'
 import { API } from './API'
 import { lang } from './Lang'
 import { log } from './Log'
@@ -6,10 +5,17 @@ import { toast } from './Toast'
 import { token } from './Token'
 import { states } from './store/States'
 
+export interface WorkBookmarkData {
+  workID: number
+  type: 'illusts' | 'novels'
+  bookmarkID: string
+  private: boolean
+}
+
 class UnBookmarkWorks {
-  public async start(idList: IDData[]) {
+  public async start(list: WorkBookmarkData[]) {
     log.warning(lang.transl('_取消收藏作品'))
-    if (idList.length === 0) {
+    if (list.length === 0) {
       toast.error(lang.transl('_没有数据可供使用'))
       log.error(lang.transl('_没有数据可供使用'))
       return
@@ -17,24 +23,15 @@ class UnBookmarkWorks {
 
     states.busy = true
 
-    const total = idList.length.toString()
+    const total = list.length.toString()
     log.log(lang.transl('_当前作品个数', total))
 
     let number = 0
-    for (const idData of idList) {
+    for (const item of list) {
       try {
-        const data = await API[
-          idData.type === 'novels' ? 'getNovelData' : 'getArtworkData'
-        ](idData.id)
-        if (data.body.bookmarkData) {
-          await API.deleteBookmark(
-            data.body.bookmarkData.id,
-            idData.type === 'novels' ? 'novels' : 'illusts',
-            token.token
-          )
-          // 尚不清楚 deleteBookmark 使用的 API 是否会被计入 429 限制里
-          // 现在没有控制发送请求的速度，反正一次一页，48 个作品会发送 96 个请求，问题不大。
-        }
+        await API.deleteBookmark(item.bookmarkID, item.type, token.token)
+        // 尚不清楚 deleteBookmark 使用的 API 是否会被计入 429 限制里
+        // 现在没有控制发送请求的速度，反正一次一页，48 个作品会发送 96 个请求，问题不大。
       } catch (error) {
         // 处理自己收藏的作品时可能遇到错误。最常见的错误就是作品被删除了，获取作品数据时会产生 404 错误
         // 对于出错的作品直接跳过，不需要对其执行任何操作
