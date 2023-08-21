@@ -96,6 +96,7 @@ class API {
         });
     }
     static async deleteBookmark(bookmarkID, type, token) {
+        // 注意，这里的 ID 是 bookmarkID，不是作品 ID
         const bodyStr = type === 'illusts'
             ? `bookmark_id=${bookmarkID}`
             : `del=1&book_id=${bookmarkID}`;
@@ -1705,9 +1706,7 @@ class CheckUser {
                             this.blockTagsForUser(userID, value);
                             _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(`已针对该画师屏蔽这些 tag：${value}`);
                         }
-                        window.setTimeout(() => {
-                            input.remove();
-                        }, 300);
+                        input.remove();
                         return;
                     };
                 };
@@ -1734,9 +1733,7 @@ class CheckUser {
                             this.blockTagsForUser(userID, value);
                             _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(`已更新针对该画师屏蔽的 tag：${value}`);
                         }
-                        window.setTimeout(() => {
-                            input.remove();
-                        }, 300);
+                        input.remove();
                         return;
                     };
                 };
@@ -1747,8 +1744,6 @@ class CheckUser {
         // 确定位置
         const rectList = this.activeEl.getClientRects();
         const rect = rectList[0];
-        // 该模块显示的操作面板的高度约为 72px
-        const wrapHeight = 72;
         // 显示在超链接的上方还是下方
         // 主要是为了避免遮挡 pixiv 本身出现的小卡片
         // 默认显示在下方
@@ -1769,11 +1764,15 @@ class CheckUser {
                 showTop = true;
             }
         }
-        if (showTop) {
-            panel.style.top = rect.y - wrapHeight + 'px';
-        }
         panel.style.left = rect.x + 'px';
         document.body.appendChild(panel);
+        if (showTop) {
+            // 当面板显示在画师名字上方时，需要减去面板高度，但面板高度是不固定的
+            // 所以需要先添加面板到 DOM 上，然后才能获取面板高度，做出调整
+            const panelRectList = panel.getClientRects();
+            const panelHeight = panelRectList[0].height;
+            panel.style.top = rect.y - panelHeight + 'px';
+        }
     }
     async setNotDownloadLastImage(userID, number) {
         // 自动判断，如果之前没有设置过这个画师，则新建一条规则
@@ -4075,7 +4074,7 @@ class Input {
             instruction: '',
             placeholder: '',
             value: '',
-            buttonText: _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_提交'),
+            submitButtonText: _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_提交'),
         };
         this.value = '';
         this.id = '';
@@ -4093,14 +4092,16 @@ class Input {
     <div class="XZInputContainer">
       <input type="text" class="XZInput" value="default" placeholder="tip" />
       <textarea class="XZInput" placeholder="tip">default</textarea>
-      <button class="XZInputButton">submit</button>
+      <button class="XZInputButton">Submit</button>
+      <button class="XZInputButton cancel">Cancel</button>
     </div>
   </div>`;
         const wrap = document.createElement('div');
         wrap.classList.add('XZInputWrap');
         _Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile && wrap.classList.add('mobile');
         wrap.id = this.id;
-        wrap.style.width = option.width + 100 + 'px';
+        // 这里设置的宽度是粗略值，后面会再修改
+        wrap.style.width = option.width + 200 + 'px';
         _Theme__WEBPACK_IMPORTED_MODULE_2__.theme.register(wrap);
         if (option.instruction) {
             const p = document.createElement('p');
@@ -4122,12 +4123,25 @@ class Input {
             input.textContent = option.value;
         }
         container.append(input);
-        const button = document.createElement('button');
-        button.classList.add('XZInputButton');
-        button.textContent = option.buttonText;
-        container.append(button);
+        const submitButton = document.createElement('button');
+        submitButton.classList.add('XZInputButton');
+        submitButton.textContent = option.submitButtonText;
+        container.append(submitButton);
+        const cancelButton = document.createElement('button');
+        cancelButton.classList.add('XZInputButton', 'cancel');
+        cancelButton.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_取消');
+        container.append(cancelButton);
         wrap.append(container);
+        // 由于 wrap 宽度要考虑按钮宽度，但按钮宽度不固定，所以要先添加到页面上，获取按钮实际宽度，再调整 wrap 宽度
+        wrap.style.opacity = '0';
         document.body.append(wrap);
+        // 根据按钮宽度，重设 wrap 宽度
+        const submitRect = submitButton.getClientRects();
+        const cancelRect = cancelButton.getClientRects();
+        // 14 是按钮的 margin-left 值
+        wrap.style.width =
+            option.width + 14 + submitRect[0].width + 14 + cancelRect[0].width + 'px';
+        wrap.style.opacity = '1';
         input.focus();
         if (option.value) {
             input.setSelectionRange(option.value.length, option.value.length);
@@ -4141,8 +4155,11 @@ class Input {
                 this.remove();
             }
         });
-        button.addEventListener('click', () => {
+        submitButton.addEventListener('click', () => {
             this.onSubmit();
+        });
+        cancelButton.addEventListener('click', () => {
+            this.remove();
         });
     }
     /**点击提交按钮时执行此回调函数 */

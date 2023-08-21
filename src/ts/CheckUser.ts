@@ -266,9 +266,7 @@ class CheckUser {
               this.blockTagsForUser(userID, value)
               toast.success(`已针对该画师屏蔽这些 tag：${value}`)
             }
-            window.setTimeout(() => {
-              input.remove()
-            }, 300)
+            input.remove()
             return
           }
         }
@@ -294,9 +292,7 @@ class CheckUser {
               this.blockTagsForUser(userID, value)
               toast.success(`已更新针对该画师屏蔽的 tag：${value}`)
             }
-            window.setTimeout(() => {
-              input.remove()
-            }, 300)
+            input.remove()
             return
           }
         }
@@ -309,9 +305,6 @@ class CheckUser {
     // 确定位置
     const rectList = this.activeEl.getClientRects()
     const rect = rectList[0]
-
-    // 该模块显示的操作面板的高度约为 72px
-    const wrapHeight = 72
 
     // 显示在超链接的上方还是下方
     // 主要是为了避免遮挡 pixiv 本身出现的小卡片
@@ -333,13 +326,17 @@ class CheckUser {
         showTop = true
       }
     }
-    if (showTop) {
-      panel.style.top = rect.y - wrapHeight + 'px'
-    }
-
     panel.style.left = rect.x + 'px'
 
     document.body.appendChild(panel)
+
+    if (showTop) {
+      // 当面板显示在画师名字上方时，需要减去面板高度，但面板高度是不固定的
+      // 所以需要先添加面板到 DOM 上，然后才能获取面板高度，做出调整
+      const panelRectList = panel.getClientRects()
+      const panelHeight = panelRectList[0].height
+      panel.style.top = rect.y - panelHeight + 'px'
+    }
   }
 
   private async setNotDownloadLastImage(

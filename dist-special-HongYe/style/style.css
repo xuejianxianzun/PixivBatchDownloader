@@ -2201,7 +2201,7 @@ iframe[name='expandedFooter'] {
   height: 56px;
 }
 .XZInputWrap .XZInputContainer .XZInputButton {
-  margin-left: 10px;
+  margin-left: 14px;
   flex-shrink: 0;
   background-color: #0096fa;
   color: #fff;
@@ -2213,6 +2213,9 @@ iframe[name='expandedFooter'] {
   cursor: pointer;
   font-size: 14px;
   font-weight: bold;
+}
+.XZInputWrap .XZInputContainer .XZInputButton.cancel {
+  background-color: #e49d00;
 }
 .theme-dark.XZInputWrap {
   background-color: #333;
