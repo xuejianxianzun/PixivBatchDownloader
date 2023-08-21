@@ -9,6 +9,13 @@ import { toast } from './Toast'
 import { token } from './Token'
 import { Tools } from './Tools'
 
+export interface WorkBookmarkData {
+  workID: number
+  type: 'illusts' | 'novels'
+  bookmarkID: string
+  private: boolean
+}
+
 // 对 API.addBookmark 进行封装
 class Bookmark {
   constructor() {
