@@ -57,7 +57,13 @@ class TimedCrawl {
       '_定时抓取已启动的提示',
       settings.timedCrawlInterval.toString()
     )
-    msgBox.show(msg + '<br><br>' + lang.transl('_定时抓取已启动的提示2'))
+    msgBox.show(
+      msg +
+        '<br><br>' +
+        lang.transl('_定时抓取的推荐用法') +
+        '<br><br>' +
+        lang.transl('_定时抓取已启动的提示2')
+    )
     log.success(msg)
   }
 
