@@ -14,7 +14,7 @@ interface Option {
   /**可选，传递输入框的默认值。 */
   value?: string
   /**可选，提交按钮里显示的文字。点击按钮时会提交 */
-  buttonText?: string
+  submitButtonText?: string
 }
 
 class Input {
@@ -29,7 +29,7 @@ class Input {
     instruction: '',
     placeholder: '',
     value: '',
-    buttonText: lang.transl('_提交'),
+    submitButtonText: lang.transl('_提交'),
   }
 
   public value = ''
@@ -49,7 +49,8 @@ class Input {
     <div class="XZInputContainer">
       <input type="text" class="XZInput" value="default" placeholder="tip" />
       <textarea class="XZInput" placeholder="tip">default</textarea>
-      <button class="XZInputButton">submit</button>
+      <button class="XZInputButton">Submit</button>
+      <button class="XZInputButton cancel">Cancel</button>
     </div>
   </div>`
 
@@ -57,7 +58,8 @@ class Input {
     wrap.classList.add('XZInputWrap')
     Config.mobile && wrap.classList.add('mobile')
     wrap.id = this.id
-    wrap.style.width = option.width! + 100 + 'px'
+    // 这里设置的宽度是粗略值，后面会再修改
+    wrap.style.width = option.width! + 200 + 'px'
     theme.register(wrap)
 
     if (option.instruction) {
@@ -82,14 +84,29 @@ class Input {
     }
     container.append(input)
 
-    const button = document.createElement('button')
-    button.classList.add('XZInputButton')
-    button.textContent = option.buttonText!
-    container.append(button)
+    const submitButton = document.createElement('button')
+    submitButton.classList.add('XZInputButton')
+    submitButton.textContent = option.submitButtonText!
+    container.append(submitButton)
+
+    const cancelButton = document.createElement('button')
+    cancelButton.classList.add('XZInputButton', 'cancel')
+    cancelButton.textContent = lang.transl('_取消')
+    container.append(cancelButton)
 
     wrap.append(container)
 
+    // 由于 wrap 宽度要考虑按钮宽度，但按钮宽度不固定，所以要先添加到页面上，获取按钮实际宽度，再调整 wrap 宽度
+    wrap.style.opacity = '0'
     document.body.append(wrap)
+
+    // 根据按钮宽度，重设 wrap 宽度
+    const submitRect = submitButton.getClientRects()
+    const cancelRect = cancelButton.getClientRects()
+    // 14 是按钮的 margin-left 值
+    wrap.style.width =
+      option.width! + 14 + submitRect[0].width + 14 + cancelRect[0].width + 'px'
+    wrap.style.opacity = '1'
 
     input.focus()
     if (option.value) {
@@ -107,8 +124,12 @@ class Input {
       }
     })
 
-    button.addEventListener('click', () => {
+    submitButton.addEventListener('click', () => {
       this.onSubmit()
+    })
+
+    cancelButton.addEventListener('click', () => {
+      this.remove()
     })
   }
 
