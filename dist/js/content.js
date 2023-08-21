@@ -7185,6 +7185,22 @@ const langText = {
         '이 페이지의 모든 작품에 대한 북마크 해제',
         'Удалить из избранного все работы на этой странице',
     ],
+    _取消收藏所有已被删除的作品: [
+        '取消收藏所有已被删除的作品',
+        '取消收藏所有已被刪除的作品',
+        'Unbookmark all deleted works',
+        '削除した作品をすべてブックマーク解除する',
+        '삭제된 모든 작품 북마크 해제',
+        'Снять закладку со всех удаленных работ',
+    ],
+    _取消收藏所有已被删除的作品的使用说明: [
+        '在你的收藏页面里，切换到下载器的“更多”标签页可以看到该功能按钮。',
+        '在你的收藏頁面裡，切換到下載器的“更多”標籤頁可以看到該功能按鈕。',
+        'In your bookmark page, switch to the "More" tab of the downloader to see this function button.',
+        'ブックマーク ページで、ダウンローダーの「その他」タブに切り替えると、この機能ボタンが表示されます。',
+        '북마크 페이지에서 다운로더의 "더보기" 탭으로 전환하면 이 기능 버튼을 볼 수 있습니다.',
+        'На странице закладок перейдите на вкладку «Дополнительно» загрузчика, чтобы увидеть эту функциональную кнопку.',
+    ],
     _取消收藏作品: [
         '取消收藏作品',
         '取消收藏作品',
@@ -7690,6 +7706,22 @@ const langText = {
         'На рабочей странице с несколькими изображениями отобразите список эскизов',
     ],
     _提交: ['提交', '提交', 'Submit', '提出する', '제출하다', 'Подавать'],
+    _已导出被删除的作品的ID列表: [
+        '已导出被删除的作品的 ID 列表',
+        '已匯出被刪除的作品的 ID 列表',
+        'List of IDs of deleted works exported',
+        'エクスポートされた削除作品のID一覧',
+        '내보낸 삭제된 작품의 ID 목록',
+        'Список идентификаторов удаленных работ экспортирован',
+    ],
+    _在收藏页面里提示有辅助功能可用: [
+        '在你的收藏页面里，下载器的“更多”标签页里有一些功能可以帮助管理你的收藏。',
+        '在你的收藏頁面裡，下載器的“更多”標籤頁裡有一些功能可以幫助管理你的收藏。',
+        `On your bookmarks page, the Downloader's "More" tab has some features to help you manage your bookmarks.`,
+        'ブックマーク ページのダウンローダーの [その他] タブには、ブックマークの管理に役立つ機能がいくつかあります。',
+        '북마크 페이지에서 다운로더의 "더보기" 탭에는 북마크를 관리하는 데 도움이 되는 몇 가지 기능이 있습니다.',
+        'На странице закладок на вкладке «Дополнительно» Downloader есть некоторые функции, которые помогут вам управлять своими закладками.',
+    ],
 };
 
 
@@ -9464,9 +9496,6 @@ class RemoveWorksTagsInBookmarks {
         for (const item of list) {
             try {
                 await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(item.workID.toString(), item.type, [], false, item.private, true);
-                // 使用了慢速收藏模式。虽然这个按钮一次只会处理一页的作品（通常是 48 个）。
-                // 但是它需要先获取作品数据然后收藏，也就是说请求数量会翻倍（96 个）。
-                // 请求作品时没有慢速，所以需要在添加收藏时使用慢速处理，以减少出现 429 错误的概率。
             }
             catch (error) {
                 // 处理自己收藏的作品时可能遇到错误。最常见的错误就是作品被删除了，获取作品数据时会产生 404 错误
@@ -11217,19 +11246,24 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.1.3';
+        this.flag = '16.2.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
+      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</strong>
+      <br>
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_取消收藏所有已被删除的作品')}</span>
+      <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_取消收藏所有已被删除的作品的使用说明')}</span>
+      <br>
+      <br>
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_其他优化')}</span>
       `;
             // <strong>${lang.transl('_新增功能')}:</strong>
-            // <span class="blue">${lang.transl(
-            //   '_修复已知问题'
-            // )}</span>
+            // <span class="blue">${lang.transl('abc')}</span>
             // ${lang.transl(
             //   '_你可以在更多选项卡的xx分类里找到它',
             //   lang.transl('_增强')
@@ -12111,6 +12145,13 @@ class Tools {
         if (match && match.length > 1) {
             return match[1];
         }
+        const element = document.querySelector('#qualtrics_user-id');
+        if (element) {
+            const text = element.textContent;
+            if (text && /^\d+\d$/.test(text)) {
+                return text;
+            }
+        }
         {
             // 在旧版页面里，从 head 里的 script 里匹配用户 id
             const match2 = document.head.innerHTML.match(/pixiv.user.id = "(\d*)"/);
@@ -12527,6 +12568,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Token */ "./src/ts/Token.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+
+
 
 
 
@@ -12542,22 +12587,24 @@ class UnBookmarkWorks {
             return;
         }
         _store_States__WEBPACK_IMPORTED_MODULE_5__.states.busy = true;
-        const total = list.length.toString();
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前作品个数', total));
-        let number = 0;
+        const total = list.length;
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前作品个数', total.toString()));
+        // 尚不清楚 deleteBookmark 使用的 API 是否会被计入 429 限制里
+        // 当操作的作品数量大于一页（48 个作品）时，使用慢速抓取
+        const slowMode = total > 48;
+        let progress = 0;
         for (const item of list) {
             try {
+                await this.waitSlowMode(slowMode);
                 await _API__WEBPACK_IMPORTED_MODULE_0__.API.deleteBookmark(item.bookmarkID, item.type, _Token__WEBPACK_IMPORTED_MODULE_4__.token.token);
-                // 尚不清楚 deleteBookmark 使用的 API 是否会被计入 429 限制里
-                // 现在没有控制发送请求的速度，反正一次一页，48 个作品会发送 96 个请求，问题不大。
             }
             catch (error) {
                 // 处理自己收藏的作品时可能遇到错误。最常见的错误就是作品被删除了，获取作品数据时会产生 404 错误
                 // 对于出错的作品直接跳过，不需要对其执行任何操作
                 // 不过这种作品无法被删除，执行完毕后还是会留在收藏里
             }
-            number++;
-            _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${number} / ${total}`, 1, false);
+            progress++;
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${progress} / ${total}`, 1, false);
         }
         const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_取消收藏作品') + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_完成');
         _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(msg);
@@ -12565,6 +12612,18 @@ class UnBookmarkWorks {
             position: 'topCenter',
         });
         _store_States__WEBPACK_IMPORTED_MODULE_5__.states.busy = false;
+    }
+    waitSlowMode(slowMode) {
+        return new Promise((resolve) => {
+            if (!slowMode) {
+                return resolve();
+            }
+            else {
+                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_6__.setTimeoutWorker.set(() => {
+                    return resolve();
+                }, _Config__WEBPACK_IMPORTED_MODULE_7__.Config.slowCrawlDealy);
+            }
+        });
     }
 }
 const unBookmarkWorks = new UnBookmarkWorks();
@@ -15068,7 +15127,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _UnBookmarkWorks__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../UnBookmarkWorks */ "./src/ts/UnBookmarkWorks.ts");
 /* harmony import */ var _RemoveWorksTagsInBookmarks__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../RemoveWorksTagsInBookmarks */ "./src/ts/RemoveWorksTagsInBookmarks.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
 // 初始化新版收藏页面
+
 
 
 
@@ -15126,47 +15187,50 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         if (!_Token__WEBPACK_IMPORTED_MODULE_8__.token.token) {
             return;
         }
-        // 判断这个收藏页面是不是用户自己的页面，如果不是，也不会添加相关按钮
-        let ownPage = false;
+        // 判断这个收藏页面是不是用户自己的页面，如果不是，则不会添加相关按钮
         const URLUserID = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.getURLPathField(window.location.pathname, 'users');
-        if (!URLUserID) {
-            ownPage = true;
-        }
-        else {
-            // 从特定标签中提取用户自己的 userID，与 URL 中的 userID 对比
-            const element = document.querySelector('#qualtrics_user-id');
-            if (!element || !element.textContent) {
-                ownPage = false;
-            }
-            else {
-                ownPage =
-                    element.textContent ===
-                        _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.getURLPathField(window.location.pathname, 'users');
-            }
-            // 为防止 pixiv 改版导致上一个标签失效，这里使用第二种方法作为备选项
-            // 在 head 里的某个 script 标签里包含有自己的 userID。使用 URL 里的 userID 去尝试匹配
-            // 'user_id', "1234567"
-            if (!ownPage) {
-                ownPage = document.head.innerHTML.includes(`'user_id', "${URLUserID}"`);
-            }
-        }
-        if (!ownPage) {
+        if (URLUserID === '' || URLUserID !== _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.loggedUserID) {
             return;
         }
+        // 显示提示
+        window.setTimeout(() => {
+            _ShowHelp__WEBPACK_IMPORTED_MODULE_19__.showHelp.show('tipBookmarkManage', _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_在收藏页面里提示有辅助功能可用'));
+        }, 1000);
         const btn = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.bgGreen, '_给未分类作品添加添加tag');
         new _pageFunciton_BookmarksAddTag__WEBPACK_IMPORTED_MODULE_9__.BookmarksAddTag(btn);
-        _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.bgGreen, '_移除本页面中所有作品的标签').addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.bgYellow, '_移除本页面中所有作品的标签').addEventListener('click', () => {
             this.removeWorksTagsOnThisPage();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.bgGreen, '_取消收藏本页面的所有作品').addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.bgRed, '_取消收藏本页面的所有作品').addEventListener('click', () => {
             this.unBookmarkAllWorksOnThisPage();
         });
+        _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.bgRed, '_取消收藏所有已被删除的作品').addEventListener('click', () => {
+            this.unBookmarkAll404Works();
+        });
+    }
+    // 移除本页面中所有作品的标签
+    removeWorksTagsOnThisPage() {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_13__.states.busy || this.crawlMode !== 'normal') {
+            _Toast__WEBPACK_IMPORTED_MODULE_15__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_当前任务尚未完成'));
+            return;
+        }
+        // 走一遍简化的抓取流程
+        this.crawlMode = 'removeTags';
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_移除本页面中所有作品的标签'));
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_它们会变成未分类状态'));
+        _Toast__WEBPACK_IMPORTED_MODULE_15__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_移除本页面中所有作品的标签'), {
+            position: 'topCenter',
+        });
+        _EVT__WEBPACK_IMPORTED_MODULE_18__.EVT.fire('closeCenterPanel');
+        // 设置抓取页数为 1
+        this.crawlNumber = 1;
+        _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.tag = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getTagFromURL();
+        this.readyGetIdList();
+        this.getIdList();
     }
     // 取消收藏本页面的所有作品
     unBookmarkAllWorksOnThisPage() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_13__.states.busy ||
-            this.crawlMode === 'removeTags' ||
-            this.crawlMode === 'unBookmark') {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_13__.states.busy || this.crawlMode !== 'normal') {
             _Toast__WEBPACK_IMPORTED_MODULE_15__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_当前任务尚未完成'));
             return;
         }
@@ -15183,26 +15247,25 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         this.readyGetIdList();
         this.getIdList();
     }
-    // 移除本页面中所有作品的标签
-    removeWorksTagsOnThisPage() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_13__.states.busy ||
-            this.crawlMode === 'removeTags' ||
-            this.crawlMode === 'unBookmark') {
+    unBookmarkAll404Works() {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_13__.states.busy || this.crawlMode !== 'normal') {
             _Toast__WEBPACK_IMPORTED_MODULE_15__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_当前任务尚未完成'));
             return;
         }
         // 走一遍简化的抓取流程
-        this.crawlMode = 'removeTags';
-        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_移除本页面中所有作品的标签'));
-        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_它们会变成未分类状态'));
-        _Toast__WEBPACK_IMPORTED_MODULE_15__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_移除本页面中所有作品的标签'), {
+        this.crawlMode = 'unBookmark404';
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_取消收藏所有已被删除的作品'));
+        _Toast__WEBPACK_IMPORTED_MODULE_15__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_取消收藏所有已被删除的作品'), {
             position: 'topCenter',
         });
         _EVT__WEBPACK_IMPORTED_MODULE_18__.EVT.fire('closeCenterPanel');
-        // 设置抓取页数为 1
-        this.crawlNumber = 1;
+        // 设置抓取页数为 -1
+        this.crawlNumber = -1;
         _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.tag = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getTagFromURL();
+        this.setSlowCrawl();
         this.readyGetIdList();
+        // 抓取全部收藏
+        this.offset = 0;
         this.getIdList();
     }
     nextStep() {
@@ -15269,36 +15332,45 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
                 if (this.filteredNumber >= this.requsetNumber) {
                     return this.afterGetIdList();
                 }
-                if (workData.bookmarkData &&
-                    (this.crawlMode === 'unBookmark' || this.crawlMode === 'removeTags')) {
-                    this.bookmarkDataList.push({
-                        workID: Number.parseInt(workData.id),
-                        type: workData.illustType === undefined
-                            ? 'novels'
-                            : 'illusts',
-                        bookmarkID: workData.bookmarkData.id,
-                        private: workData.bookmarkData.private,
-                    });
+                if (workData.bookmarkData) {
+                    if (this.crawlMode === 'unBookmark' ||
+                        this.crawlMode === 'removeTags' ||
+                        (this.crawlMode === 'unBookmark404' &&
+                            Number.parseInt(workData.userId) == 0)) {
+                        this.bookmarkDataList.push({
+                            workID: Number.parseInt(workData.id),
+                            type: workData.illustType === undefined
+                                ? 'novels'
+                                : 'illusts',
+                            bookmarkID: workData.bookmarkData.id,
+                            private: workData.bookmarkData.private,
+                        });
+                    }
                 }
-                const filterOpt = {
-                    aiType: workData.aiType,
-                    id: workData.id,
-                    tags: workData.tags,
-                    bookmarkData: workData.bookmarkData,
-                    createDate: workData.createDate,
-                    userId: workData.userId,
-                    xRestrict: workData.xRestrict,
-                };
-                this.filteredNumber++;
-                if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_10__.filter.check(filterOpt)) {
-                    this.idList.push({
-                        type: idType,
+                if (this.crawlMode === 'normal') {
+                    const filterOpt = {
+                        aiType: workData.aiType,
                         id: workData.id,
-                    });
+                        tags: workData.tags,
+                        bookmarkData: workData.bookmarkData,
+                        createDate: workData.createDate,
+                        userId: workData.userId,
+                        xRestrict: workData.xRestrict,
+                    };
+                    this.filteredNumber++;
+                    if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_10__.filter.check(filterOpt)) {
+                        this.idList.push({
+                            type: idType,
+                            id: workData.id,
+                        });
+                    }
                 }
             }
-            this.offset += this.onceRequest; // 每次增加偏移量
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_当前作品个数', this.idList.length.toString()), 1, false);
+            this.offset += this.onceRequest;
+            const length = this.crawlMode === 'normal'
+                ? this.idList.length
+                : this.bookmarkDataList.length;
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_当前作品个数', length.toString()), 1, false);
             // 继续抓取
             if (_store_States__WEBPACK_IMPORTED_MODULE_13__.states.slowCrawlMode) {
                 _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_14__.setTimeoutWorker.set(() => {
@@ -15312,27 +15384,46 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
     }
     // 获取作品 id 列表完毕之后
     afterGetIdList() {
-        // 因为书签页面一次获取 100 个作品，大于一页的数量。所以可能会抓取多了，需要删除多余的作品
-        if (this.idList.length > this.requsetNumber) {
-            // 删除后面部分（较早收藏的），留下近期收藏的
-            this.idList.splice(this.requsetNumber, this.idList.length);
-            // 书签页面的 api 没有考虑页面上的排序顺序，获取到的 id 列表始终是按收藏顺序由近期到早期排列的
+        // 裁剪作品。但是如果
+        if (this.crawlMode === 'normal') {
+            // 因为书签页面一次获取 100 个作品，大于一页的数量。所以可能会抓取多了，需要删除多余的作品
+            if (this.idList.length > this.requsetNumber) {
+                // 删除后面部分（较早收藏的），留下近期收藏的
+                this.idList.splice(this.requsetNumber, this.idList.length);
+                // 书签页面的 api 没有考虑页面上的排序顺序，获取到的 id 列表始终是按收藏顺序由近期到早期排列的
+            }
+        }
+        else {
+            if (this.bookmarkDataList.length > this.requsetNumber) {
+                this.bookmarkDataList.splice(this.requsetNumber, this.bookmarkDataList.length);
+            }
         }
         if (this.crawlMode === 'normal') {
-            // 正常抓取时
+            // 正常抓取
             _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList = _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.concat(this.idList);
             this.getIdListFinished();
         }
-        else if (this.crawlMode === 'unBookmark') {
-            // 取消收藏本页面的书签时
-            // 复制本页作品的 id 列表，传递给指定模块
+        else if (this.crawlMode === 'unBookmark' ||
+            this.crawlMode === 'unBookmark404') {
+            // 取消收藏
+            // 导出已被删除的收藏的 ID 列表
+            if (this.crawlMode === 'unBookmark404' &&
+                this.bookmarkDataList.length > 0) {
+                const IDList = [];
+                for (const item of this.bookmarkDataList) {
+                    IDList.push(item.workID);
+                }
+                const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.json2Blob(IDList);
+                const url = URL.createObjectURL(blob);
+                _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.downloadFile(url, '404 bookmark ID list.txt');
+                _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已导出被删除的作品的ID列表'));
+            }
             const bookmarkDataList = Array.from(this.bookmarkDataList);
             this.resetGetIdListStatus();
             _UnBookmarkWorks__WEBPACK_IMPORTED_MODULE_16__.unBookmarkWorks.start(bookmarkDataList);
         }
         else if (this.crawlMode === 'removeTags') {
             // 移除本页面作品的标签
-            // 复制本页作品的 id 列表，传递给指定模块
             const bookmarkDataList = Array.from(this.bookmarkDataList);
             this.resetGetIdListStatus();
             _RemoveWorksTagsInBookmarks__WEBPACK_IMPORTED_MODULE_17__.removeWorksTagsInBookmarks.start(bookmarkDataList);
@@ -27745,6 +27836,7 @@ class Settings {
             exportIDList: false,
             tipExportFollowingUserList: true,
             displayThumbnailListOnMultiImageWorkPage: true,
+            tipBookmarkManage: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -27880,6 +27972,7 @@ class Settings {
         this.setSetting('tipBookmarkButton', true);
         this.setSetting('tipCSV', true);
         this.setSetting('tipExportFollowingUserList', true);
+        this.setSetting('tipBookmarkManage', true);
         _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success('✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_重新显示帮助'));
     }
     // 重置设置 或者 导入设置
