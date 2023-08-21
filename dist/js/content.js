@@ -6905,12 +6905,20 @@ const langText = {
         'Автоматически запускать сканирование и загрузку через регулярные промежутки времени',
     ],
     _定时抓取已启动的提示: [
-        '定时抓取已启动，间隔时间：{} 分钟。',
-        '定時抓取已啟動，間隔時間：{} 分鐘。',
-        'Timed crawl started, interval: {} minutes.',
-        '時限クロールが開始されました。間隔: {} 分。',
-        '시간 제한 크롤링이 시작되었습니다. 간격: {}분. ',
-        'Таймер сканирования запущен, интервал: {} минут.',
+        '定时抓取已启动，间隔时间：{} 分钟。<br>如果你想修改间隔时间，可以在“更多”选项卡里修改设置：定时抓取的间隔时间。',
+        '定時抓取已啟動，間隔時間：{} 分鐘。<br>如果你想修改間隔時間，可以在“更多”選項卡里修改設定：定時抓取的間隔時間。',
+        'Timed crawl started, interval: {} minutes.<br>If you want to modify the interval time, you can modify the settings in the "More" tab: The interval time of timed crawl.',
+        '時限クロールが開始されました。間隔: {} 分。<br>間隔時間を変更したい場合は、[詳細] タブの設定 (時間指定クロールの間隔時間) を変更できます。',
+        '시간 제한 크롤링이 시작되었습니다. 간격: {}분. <br>간격 시간을 수정하려면 "자세히" 탭에서 예약된 크롤링 간격 설정을 수정할 수 있습니다.',
+        'Таймер сканирования запущен, интервал: {} минут.<br>Если вы хотите изменить интервал времени, вы можете изменить настройки на вкладке «Дополнительно»: Интервальное время сканирования с таймером.',
+    ],
+    _定时抓取的推荐用法: [
+        '推荐用法：增量抓取新作品。例如在关注的用户的新作品页面里，设置抓取页数为 2，然后启动定时抓取。这样下载器可以自动下载新作品。',
+        '推薦用法：增量抓取新作品。例如在關注的使用者的新作品頁面裡，設定抓取頁數為 2，然後啟動定時抓取。這樣下載器可以自動下載新作品。',
+        'Recommended usage: Fetch new work incrementally. For example, in the new work page of the user you follow, set the number of crawled pages to 2, and then start timing crawling. This way the downloader can automatically download new works.',
+        '推奨される使用法: 新しい作業を段階的にフェッチします。 たとえば、フォローしているユーザーの新しい作品ページで、クロールされたページの数を 2 に設定し、クロールのタイミングを開始します。 このようにして、ダウンローダーは新しい作品を自動的にダウンロードできます。',
+        '권장 사용법: 새 작업을 점진적으로 가져옵니다. 예를 들어 팔로우하는 사용자의 새 작업 페이지에서 크롤링 페이지 수를 2로 설정한 다음 타이밍 크롤링을 시작합니다. 이렇게 하면 다운로더가 자동으로 새 작품을 다운로드할 수 있습니다.',
+        'Рекомендуемое использование: получать новую работу постепенно. Например, на новой рабочей странице пользователя, за которым вы следите, установите количество просканированных страниц равным 2, а затем запустите сканирование по времени. Таким образом, загрузчик может автоматически загружать новые работы.',
     ],
     _定时抓取已启动的提示2: [
         '请不要关闭这个标签页，也不要改变这个标签页的 URL。<br>建议启用“不下载重复文件”功能，以避免下载重复的文件。<br><br>如果这个扩展程序自动更新了，那么这个页面将不能正常下载文件（需要刷新页面来恢复正常）。 如果你想长期执行定时抓取任务，建议安装下载器的离线版本，以免因为自动更新而导致问题。<br>你可以在这里下载离线安装包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
@@ -18217,7 +18225,11 @@ class TimedCrawl {
         }, this.time);
         _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.fire('startTimedCrawl');
         const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取已启动的提示', _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval.toString());
-        _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.show(msg + '<br><br>' + _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取已启动的提示2'));
+        _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.show(msg +
+            '<br><br>' +
+            _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取的推荐用法') +
+            '<br><br>' +
+            _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取已启动的提示2'));
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(msg);
     }
     reset() {
