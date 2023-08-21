@@ -4,13 +4,7 @@ import { log } from './Log'
 import { toast } from './Toast'
 import { token } from './Token'
 import { states } from './store/States'
-
-export interface WorkBookmarkData {
-  workID: number
-  type: 'illusts' | 'novels'
-  bookmarkID: string
-  private: boolean
-}
+import { WorkBookmarkData } from './Bookmark'
 
 class UnBookmarkWorks {
   public async start(list: WorkBookmarkData[]) {

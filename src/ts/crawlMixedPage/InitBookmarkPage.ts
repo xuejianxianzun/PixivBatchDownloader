@@ -21,9 +21,10 @@ import { Config } from '../Config'
 import { states } from '../store/States'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { toast } from '../Toast'
-import { unBookmarkWorks, WorkBookmarkData } from '../UnBookmarkWorks'
+import { unBookmarkWorks } from '../UnBookmarkWorks'
 import { removeWorksTagsInBookmarks } from '../RemoveWorksTagsInBookmarks'
 import { EVT } from '../EVT'
+import { WorkBookmarkData } from '../Bookmark'
 
 class InitBookmarkPage extends InitPageBase {
   constructor() {
@@ -270,7 +271,10 @@ class InitBookmarkPage extends InitPageBase {
           return this.afterGetIdList()
         }
 
-        if (this.crawlMode === 'unBookmark' && workData.bookmarkData) {
+        if (
+          workData.bookmarkData &&
+          (this.crawlMode === 'unBookmark' || this.crawlMode === 'removeTags')
+        ) {
           this.bookmarkDataList.push({
             workID: Number.parseInt(workData.id),
             type:
@@ -343,9 +347,9 @@ class InitBookmarkPage extends InitPageBase {
     } else if (this.crawlMode === 'removeTags') {
       // 移除本页面作品的标签
       // 复制本页作品的 id 列表，传递给指定模块
-      const idList = Array.from(this.idList)
+      const bookmarkDataList = Array.from(this.bookmarkDataList)
       this.resetGetIdListStatus()
-      removeWorksTagsInBookmarks.start(idList)
+      removeWorksTagsInBookmarks.start(bookmarkDataList)
     }
   }
 
