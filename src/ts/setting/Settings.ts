@@ -257,6 +257,7 @@ interface XzSetting {
   exportIDList: boolean
   tipExportFollowingUserList: boolean
   displayThumbnailListOnMultiImageWorkPage: boolean
+  tipBookmarkManage: boolean
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -471,6 +472,7 @@ class Settings {
     exportIDList: false,
     tipExportFollowingUserList: true,
     displayThumbnailListOnMultiImageWorkPage: true,
+    tipBookmarkManage: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -621,6 +623,7 @@ class Settings {
     this.setSetting('tipBookmarkButton', true)
     this.setSetting('tipCSV', true)
     this.setSetting('tipExportFollowingUserList', true)
+    this.setSetting('tipBookmarkManage', true)
 
     toast.success('✓ ' + lang.transl('_重新显示帮助'))
   }

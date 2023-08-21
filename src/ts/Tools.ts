@@ -237,6 +237,14 @@ class Tools {
       return match[1]
     }
 
+    const element = document.querySelector('#qualtrics_user-id')
+    if (element) {
+      const text = element.textContent
+      if (text && /^\d+\d$/.test(text)) {
+        return text
+      }
+    }
+
     {
       // 在旧版页面里，从 head 里的 script 里匹配用户 id
       const match2 = document.head.innerHTML.match(/pixiv.user.id = "(\d*)"/)
