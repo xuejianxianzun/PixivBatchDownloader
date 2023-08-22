@@ -6913,20 +6913,20 @@ const langText = {
         'Таймер сканирования запущен, интервал: {} минут.<br>Если вы хотите изменить интервал времени, вы можете изменить настройки на вкладке «Дополнительно»: Интервальное время сканирования с таймером.',
     ],
     _定时抓取的推荐用法: [
-        '推荐用法：增量抓取新作品。例如在关注的用户的新作品页面里，设置抓取页数为 2，然后启动定时抓取。这样下载器可以自动下载新作品。',
-        '推薦用法：增量抓取新作品。例如在關注的使用者的新作品頁面裡，設定抓取頁數為 2，然後啟動定時抓取。這樣下載器可以自動下載新作品。',
-        'Recommended usage: Fetch new work incrementally. For example, in the new work page of the user you follow, set the number of crawled pages to 2, and then start timing crawling. This way the downloader can automatically download new works.',
-        '推奨される使用法: 新しい作業を段階的にフェッチします。 たとえば、フォローしているユーザーの新しい作品ページで、クロールされたページの数を 2 に設定し、クロールのタイミングを開始します。 このようにして、ダウンローダーは新しい作品を自動的にダウンロードできます。',
-        '권장 사용법: 새 작업을 점진적으로 가져옵니다. 예를 들어 팔로우하는 사용자의 새 작업 페이지에서 크롤링 페이지 수를 2로 설정한 다음 타이밍 크롤링을 시작합니다. 이렇게 하면 다운로더가 자동으로 새 작품을 다운로드할 수 있습니다.',
-        'Рекомендуемое использование: получать новую работу постепенно. Например, на новой рабочей странице пользователя, за которым вы следите, установите количество просканированных страниц равным 2, а затем запустите сканирование по времени. Таким образом, загрузчик может автоматически загружать новые работы.',
+        '推荐用法：增量抓取新作品。例如在关注的用户的新作品页面里，设置抓取页数为 2，然后启动定时抓取。这样下载器可以自动下载新作品。<br>建议启用“不下载重复文件”功能，以避免下载重复的文件。',
+        '推薦用法：增量抓取新作品。例如在關注的使用者的新作品頁面裡，設定抓取頁數為 2，然後啟動定時抓取。這樣下載器可以自動下載新作品。<br>建議啟用“不下載重複檔案”功能，以避免下載重複的檔案。',
+        'Recommended usage: Fetch new work incrementally. For example, in the new work page of the user you follow, set the number of crawled pages to 2, and then start timing crawling. This way the downloader can automatically download new works.<br>It is recommended to enable the "Do not download duplicate files" feature to avoid downloading duplicate files.',
+        '推奨される使用法: 新しい作業を段階的にフェッチします。 たとえば、フォローしているユーザーの新しい作品ページで、クロールされたページの数を 2 に設定し、クロールのタイミングを開始します。 このようにして、ダウンローダーは新しい作品を自動的にダウンロードできます。<br>重複ファイルのダウンロードを避けるために、「重複ファイルをダウンロードしない」機能を有効にすることをお勧めします。',
+        '권장 사용법: 새 작업을 점진적으로 가져옵니다. 예를 들어 팔로우하는 사용자의 새 작업 페이지에서 크롤링 페이지 수를 2로 설정한 다음 타이밍 크롤링을 시작합니다. 이렇게 하면 다운로더가 자동으로 새 작품을 다운로드할 수 있습니다.<br>중복 파일 다운로드를 방지하기 위해 "중복 파일 다운로드 금지" 기능을 활성화하는 것이 좋습니다.',
+        'Рекомендуемое использование: получать новую работу постепенно. Например, на новой рабочей странице пользователя, за которым вы следите, установите количество просканированных страниц равным 2, а затем запустите сканирование по времени. Таким образом, загрузчик может автоматически загружать новые работы.<br>Рекомендуется включить функцию "Не загружать дубликаты файлов", чтобы избежать загрузки дубликатов файлов.',
     ],
     _定时抓取已启动的提示2: [
-        '请不要关闭这个标签页，也不要改变这个标签页的 URL。<br>建议启用“不下载重复文件”功能，以避免下载重复的文件。<br><br>如果这个扩展程序自动更新了，那么这个页面将不能正常下载文件（需要刷新页面来恢复正常）。 如果你想长期执行定时抓取任务，建议安装下载器的离线版本，以免因为自动更新而导致问题。<br>你可以在这里下载离线安装包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
-        '請不要關閉這個標籤頁，也不要改變這個標籤頁的 URL。<br>建議啟用“不下載重複檔案”功能，以避免下載重複的檔案。<br><br>如果這個擴充套件程式自動更新了，那麼這個頁面將不能正常下載檔案（需要重新整理頁面來恢復正常）。 如果你想長期執行定時抓取任務，建議安裝下載器的離線版本，以免因為自動更新而導致問題。<br>你可以在這裡下載離線安裝包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
-        'Please do not close this tab or change the URL of this tab. <br>It is recommended to enable the "Do not download duplicate files" feature to avoid downloading duplicate files.<br><br>If the extension is automatically updated, the page will not be able to download files normally (refresh the page to restore normal). If you want to perform scheduled crawling tasks for a long time, it is recommended to install the offline version of the downloader to avoid problems caused by automatic updates.<br>You can download the offline installation package here: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
-        'このタブを閉じたり、このタブの URL を変更したりしないでください。<br>重複ファイルのダウンロードを避けるために、「重複ファイルをダウンロードしない」機能を有効にすることをお勧めします。<br><br>拡張機能が自動的に更新されると、ページはファイルを正常にダウンロードできなくなります (ページを更新して正常に戻します)。 スケジュールされたクロール タスクを長時間実行する場合は、自動更新による問題を回避するために、ダウンローダのオフライン バージョンをインストールすることをお勧めします。<br>オフライン インストール パッケージは、次の場所からダウンロードできます。<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
-        '이 탭을 닫거나 이 탭의 URL을 변경하지 마십시오.<br>중복 파일 다운로드를 방지하기 위해 "중복 파일 다운로드 금지" 기능을 활성화하는 것이 좋습니다.<br><br>확장자가 자동으로 업데이트되면 페이지에서 파일을 정상적으로 다운로드할 수 없습니다(페이지를 새로고침하여 정상으로 복원). 예약된 크롤링 작업을 장기간 수행하려면 자동 업데이트로 인한 문제를 방지하기 위해 다운로더의 오프라인 버전을 설치하는 것이 좋습니다.<br>여기에서 오프라인 설치 패키지를 다운로드할 수 있습니다. <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
-        'Пожалуйста, не закрывайте эту вкладку и не меняйте URL этой вкладки. <br> Рекомендуется включить функцию "Не загружать дубликаты файлов", чтобы избежать загрузки дубликатов файлов.<br><br>Если расширение автоматически обновляется, страница не сможет загружать файлы в обычном режиме (обновите страницу, чтобы восстановить нормальный режим). Если вы хотите выполнять запланированные задачи обхода в течение длительного времени, рекомендуется установить автономную версию загрузчика, чтобы избежать проблем, вызванных автоматическими обновлениями.<br>Вы можете скачать автономный установочный пакет здесь: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Страница релизов</a>',
+        '在定时抓取时，将这个标签页静置即可。不要改变这个标签页的 URL，否则抓取结果可能不符合预期。<br><br>如果这个扩展程序自动更新了，那么这个页面将不能正常下载文件（需要刷新页面来恢复正常）。 如果你想长期执行定时抓取任务，建议安装下载器的离线版本，以免因为自动更新而导致问题。<br>你可以在这里下载离线安装包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        '在定時抓取時，將這個標籤頁靜置即可。不要改變這個標籤頁的 URL，否則抓取結果可能不符合預期。<br><br>如果這個擴充套件程式自動更新了，那麼這個頁面將不能正常下載檔案（需要重新整理頁面來恢復正常）。 如果你想長期執行定時抓取任務，建議安裝下載器的離線版本，以免因為自動更新而導致問題。<br>你可以在這裡下載離線安裝包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        'During timed crawling, just leave this tab alone. Do not change the URL of this tab, or the crawl results may not be as expected.<br><br>If the extension is automatically updated, the page will not be able to download files normally (refresh the page to restore normal). If you want to perform scheduled crawling tasks for a long time, it is recommended to install the offline version of the downloader to avoid problems caused by automatic updates.<br>You can download the offline installation package here: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        '時限クロール中は、このタブをそのままにしておきます。 このタブの URL は変更しないでください。変更すると、クロール結果が期待どおりにならない可能性があります。<br><br>拡張機能が自動的に更新されると、ページはファイルを正常にダウンロードできなくなります (ページを更新して正常に戻します)。 スケジュールされたクロール タスクを長時間実行する場合は、自動更新による問題を回避するために、ダウンローダのオフライン バージョンをインストールすることをお勧めします。<br>オフライン インストール パッケージは、次の場所からダウンロードできます。<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        '시간 제한 크롤링 중에는 이 탭을 그대로 두십시오. 이 탭의 URL을 변경하지 마십시오. 그렇지 않으면 크롤링 결과가 예상과 다를 수 있습니다.<br><br>확장자가 자동으로 업데이트되면 페이지에서 파일을 정상적으로 다운로드할 수 없습니다(페이지를 새로고침하여 정상으로 복원). 예약된 크롤링 작업을 장기간 수행하려면 자동 업데이트로 인한 문제를 방지하기 위해 다운로더의 오프라인 버전을 설치하는 것이 좋습니다.<br>여기에서 오프라인 설치 패키지를 다운로드할 수 있습니다. <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        'Во время сканирования по времени просто оставьте эту вкладку в покое. Не меняйте URL-адрес этой вкладки, иначе результаты сканирования могут отличаться от ожидаемых.<br><br>Если расширение автоматически обновляется, страница не сможет загружать файлы в обычном режиме (обновите страницу, чтобы восстановить нормальный режим). Если вы хотите выполнять запланированные задачи обхода в течение длительного времени, рекомендуется установить автономную версию загрузчика, чтобы избежать проблем, вызванных автоматическими обновлениями.<br>Вы можете скачать автономный установочный пакет здесь: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Страница релизов</a>',
     ],
     _定时抓取的间隔时间: [
         '<span class="key">定时</span>抓取的间隔时间',
@@ -15167,7 +15167,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         this.requsetNumber = 0; // 根据页数，计算要抓取的作品个数
         this.filteredNumber = 0; // 记录检查了多少作品（不论结果是否通过都计入）
         this.onceRequest = 100; // 每次请求多少个数量
-        this.offset = 0; // 要去掉的作品数量
+        this.offset = 0; // 每次请求的偏移量
         // 点击不同的功能按钮时，设定抓取模式
         this.crawlMode = 'normal';
         this.init();
@@ -15328,6 +15328,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
             return this.getIdListFinished();
         }
         if (data.body.works.length === 0 ||
+            this.bookmarkDataList.length >= this.requsetNumber ||
             this.idList.length >= this.requsetNumber ||
             this.filteredNumber >= this.requsetNumber) {
             // 书签页获取完毕
