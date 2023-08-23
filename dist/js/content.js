@@ -28510,6 +28510,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+
 
 
 
@@ -28567,6 +28569,7 @@ class SaveArtworkData {
                 // 插画或漫画
                 const imgUrl = body.urls.original; // 作品的原图 URL
                 if (imgUrl === null) {
+                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(`${_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.createWorkLink(body.id, true)} URLs are null`);
                     return;
                 }
                 const tempExt = imgUrl.split('.');
