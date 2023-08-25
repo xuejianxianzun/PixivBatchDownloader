@@ -549,6 +549,7 @@
   fill: #666;
   user-select: none;
   display: inline-block;
+  vertical-align: baseline;
 }
 .centerWrap .centerWrap_head .btns .centerWrap_top_btn.update {
   display: none;

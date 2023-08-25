@@ -19593,19 +19593,22 @@ class DownloadNovelEmbeddedImage {
         const idList = await this.getIdList(content, embeddedImages);
         // 保存为 TXT 格式时，每加载完一个图片，就立即保存这个图片
         for (let idData of idList) {
-            idData = await this.getImageBolbURL(idData);
-            let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceSuffix(novelName, idData.url);
-            // 在文件名末尾加上内嵌图片的 id 和序号
-            const array = imageName.split('.');
-            const addString = `-${idData.id}${idData.p === 0 ? '' : '-' + idData.p}`;
-            array[array.length - 2] = array[array.length - 2] + addString;
-            imageName = array.join('.');
-            // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
-            // 所以要替换掉内嵌图片路径里的斜线
-            if (action === 'mergeNovel') {
-                imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(imageName);
+            // 如果 url 是 null，则不会保存这个图片
+            if (idData.url) {
+                idData = await this.getImageBolbURL(idData);
+                let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceSuffix(novelName, idData.url);
+                // 在文件名末尾加上内嵌图片的 id 和序号
+                const array = imageName.split('.');
+                const addString = `-${idData.id}${idData.p === 0 ? '' : '-' + idData.p}`;
+                array[array.length - 2] = array[array.length - 2] + addString;
+                imageName = array.join('.');
+                // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
+                // 所以要替换掉内嵌图片路径里的斜线
+                if (action === 'mergeNovel') {
+                    imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(imageName);
+                }
+                this.sendDownload(idData.blobURL, imageName);
             }
-            this.sendDownload(idData.blobURL, imageName);
         }
     }
     /**下载小说为 EPUB 时，替换内嵌图片标记，把图片用 img 标签保存到正文里 */
@@ -19616,10 +19619,16 @@ class DownloadNovelEmbeddedImage {
             }
             const idList = await this.getIdList(content, embeddedImages);
             for (let idData of idList) {
-                idData = await this.getImageBolbURL(idData);
-                const dataURL = await this.getImageDataURL(idData);
-                const html = `<img src="${dataURL}" />`;
-                content = content.replaceAll(idData.flag, html);
+                if (idData.url) {
+                    idData = await this.getImageBolbURL(idData);
+                    const dataURL = await this.getImageDataURL(idData);
+                    const html = `<img src="${dataURL}" />`;
+                    content = content.replaceAll(idData.flag, html);
+                }
+                else {
+                    // 如果 url 是 null，则修改标记，做出提示
+                    content = content.replaceAll(idData.flag, ` ${idData.flag} url is null`);
+                }
             }
             return resolve(content);
         });
@@ -19698,9 +19707,11 @@ class DownloadNovelEmbeddedImage {
     }
     async getImageBolbURL(idData) {
         return new Promise(async (resolve) => {
-            const res = await fetch(idData.url);
-            const blob = await res.blob();
-            idData.blobURL = URL.createObjectURL(blob);
+            if (idData.url) {
+                const res = await fetch(idData.url);
+                const blob = await res.blob();
+                idData.blobURL = URL.createObjectURL(blob);
+            }
             resolve(idData);
         });
     }
@@ -22070,6 +22081,92 @@ class ShowStatusOnTitle {
     }
 }
 new ShowStatusOnTitle();
+
+
+/***/ }),
+
+/***/ "./src/ts/download/ShowTotalResultOnTitle.ts":
+/*!***************************************************!*\
+  !*** ./src/ts/download/ShowTotalResultOnTitle.ts ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+
+
+
+// 抓取阶段，在网页标题上显示抓取到的结果数量
+class ShowTotalResultOnTitle {
+    constructor() {
+        this.enable = false;
+        // 保存缓存的字符串，后面会需要在标题中查找缓存的字符串
+        this.str = this.createStr();
+        this.bindEvents();
+    }
+    bindEvents() {
+        const enableEvts = [_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.crawlStart, _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.resultChange];
+        enableEvts.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.removeStr();
+                this.enable = true;
+            });
+        });
+        const disableEvts = [
+            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadStart,
+            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadPause,
+            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadStop,
+        ];
+        disableEvts.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.removeStr();
+                this.enable = false;
+            });
+        });
+        window.setInterval(() => {
+            this.enable && this.show();
+        }, 500);
+    }
+    // 生成新的字符串
+    createStr() {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length > 0) {
+            return ` ${_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length} `;
+        }
+        return '';
+    }
+    // 检查标题中是否有下载状态的 flag
+    // 如果没有，就不会显示剩余数量
+    checkStatusFlag() {
+        return document.title.indexOf(']') > 0;
+    }
+    show() {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_1__.states.downloading || !this.checkStatusFlag()) {
+            return;
+        }
+        // 先移除旧的字符串，然后添加新的字符串
+        const title = this.removeStr(document.title);
+        this.str = this.createStr();
+        if (!this.str || !title) {
+            return;
+        }
+        document.title = title.replace(']', ']' + this.str);
+    }
+    // 如果传入字符串，则不直接修改 document.title，以提高性能
+    removeStr(titleStr) {
+        if (!this.str) {
+            return;
+        }
+        if (titleStr) {
+            return titleStr.replace(this.str, '');
+        }
+        else {
+            document.title = document.title.replace(this.str, '');
+        }
+    }
+}
+new ShowTotalResultOnTitle();
 
 
 /***/ }),
@@ -43629,13 +43726,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
 /* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
 /* harmony import */ var _download_ShowStatusOnTitle__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/ShowStatusOnTitle */ "./src/ts/download/ShowStatusOnTitle.ts");
-/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
-/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
-/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
+/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
+/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
+/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -43646,6 +43744,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 
