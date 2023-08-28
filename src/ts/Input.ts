@@ -7,6 +7,8 @@ interface Option {
   width?: number
   /**输入框的 HTML 标签是 input 还是 textarea。默认为 input */
   type?: 'input' | 'textarea'
+  /**仅当输入框为 textarea 时，可以通过 rows 设置高度（行数） */
+  rows?: number
   /**可选，在输入框上方可以显示一段说明文字 */
   instruction?: string
   /**可选，输入框里显示的占位符 */
@@ -26,6 +28,7 @@ class Input {
   private defultOption: Option = {
     width: 600,
     type: 'input',
+    rows: 3,
     instruction: '',
     placeholder: '',
     value: '',
@@ -83,6 +86,7 @@ class Input {
       input.setAttribute('value', option.value!)
     } else {
       input.textContent = option.value!
+      input.setAttribute('rows', option.rows!.toString())
     }
     container.append(input)
 

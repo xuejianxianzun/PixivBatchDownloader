@@ -21,20 +21,21 @@ class InitHomePage extends InitPageBase {
   constructor() {
     super()
     this.init()
+    this.checkPageType()
     this.idRangeTip = this.createidRangeTip()
-
-    this.importIDListButton.addEventListener('click', () => {
-      this.importIDList()
-    })
   }
 
   private downIdButton: HTMLButtonElement = document.createElement('button')
   private importIDListButton: HTMLButtonElement =
     document.createElement('button')
-  private downIdInput: HTMLTextAreaElement = document.createElement('textarea')
-  private ready = false
-
   private idRangeTip: HTMLDivElement
+
+  private type: 'novels' | 'illusts' = 'illusts'
+  private checkPageType() {
+    this.type = window.location.pathname.includes('novel')
+      ? 'novels'
+      : 'illusts'
+  }
 
   protected addCrawlBtns() {
     this.downIdButton = Tools.addBtn(
@@ -42,7 +43,9 @@ class InitHomePage extends InitPageBase {
       Colors.bgBlue,
       '_输入id进行抓取'
     )
-    this.downIdButton.id = 'down_id_button'
+    this.downIdButton.addEventListener('click', () => {
+      this.inputIDList()
+    })
 
     const crawlIdRange = Tools.addBtn('crawlBtns', Colors.bgBlue, '_抓取id区间')
     crawlIdRange.addEventListener('click', () => {
@@ -54,21 +57,12 @@ class InitHomePage extends InitPageBase {
       Colors.bgGreen,
       '_导入ID列表'
     )
-    this.importIDListButton.id = 'down_id_button'
+    this.importIDListButton.addEventListener('click', () => {
+      this.importIDList()
+    })
   }
 
   protected addAnyElement() {
-    // 用于输入id的输入框
-    this.downIdInput.id = 'down_id_input'
-    this.downIdInput.style.display = 'none'
-    this.downIdInput.setAttribute(
-      'data-xzplaceholder',
-      '_输入id进行抓取的提示文字'
-    )
-    document.body.insertAdjacentElement('beforebegin', this.downIdInput)
-
-    lang.register(this.downIdInput)
-
     Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
@@ -82,39 +76,6 @@ class InitHomePage extends InitPageBase {
     options.hideOption([1])
   }
 
-  protected initAny() {
-    this.downIdButton.addEventListener(
-      'click',
-      () => {
-        if (!this.ready) {
-          // 还没准备好
-          EVT.fire('closeCenterPanel')
-          this.downIdInput.style.display = 'block'
-          this.downIdInput.focus()
-          document.documentElement.scrollTop = 0
-        } else {
-          this.checkIdList()
-        }
-      },
-      false
-    )
-
-    // 当输入框内容改变时检测，非空值时显示下载区域
-    this.downIdInput.addEventListener('change', () => {
-      if (this.downIdInput.value !== '') {
-        this.ready = true
-        window.setTimeout(() => {
-          EVT.fire('openCenterPanel')
-        }, 300)
-        lang.updateText(this.downIdButton, '_开始抓取')
-      } else {
-        this.ready = false
-        EVT.fire('closeCenterPanel')
-        lang.updateText(this.downIdButton, '_输入id进行抓取')
-      }
-    })
-  }
-
   // 单独添加一个用于提示 id 范围的元素，因为上面的日志显示在日志区域的顶端，不便于查看
   private createidRangeTip(): HTMLDivElement {
     const div = document.createElement('div')
@@ -126,10 +87,32 @@ class InitHomePage extends InitPageBase {
     )! as HTMLDivElement
   }
 
-  // 把合法的 id 添加到数组里
-  private checkIdList() {
+  private async inputIDList() {
+    EVT.fire('closeCenterPanel')
+    this.checkPageType()
+
+    const input = new Input({
+      width: 400,
+      type: 'textarea',
+      rows: 10,
+      instruction:
+        lang.transl('_输入id进行抓取的提示文字') +
+        '<br><br>' +
+        lang.transl(
+          this.type === 'illusts'
+            ? '_输入的ID视为图像ID'
+            : '_输入的ID视为小说ID'
+        ),
+      placeholder: '10000\n10001\n10002\n10003',
+    })
+
+    const value = await input.complete()
+    if (!value) {
+      return toast.warning(lang.transl('_本次操作已取消'))
+    }
+
     // 不必去重，因为 store 存储抓取结果时会去重
-    const array = this.downIdInput.value.split('\n')
+    const array = value.split('\n')
     const result: string[] = []
     for (const str of array) {
       const id = parseInt(str)
@@ -145,6 +128,7 @@ class InitHomePage extends InitPageBase {
 
   private async crawlIdRange() {
     EVT.fire('closeCenterPanel')
+    this.checkPageType()
 
     let start = 0
     let end = 0
@@ -154,6 +138,12 @@ class InitHomePage extends InitPageBase {
       width: 400,
       instruction:
         lang.transl('_抓取id区间说明') +
+        '<br><br>' +
+        lang.transl(
+          this.type === 'illusts'
+            ? '_输入的ID视为图像ID'
+            : '_输入的ID视为小说ID'
+        ) +
         '<br><br>' +
         lang.transl('_抓取id区间起点'),
       placeholder: '100',
@@ -208,13 +198,10 @@ class InitHomePage extends InitPageBase {
 
   // 把 id 列表添加到 store 里，然后开始抓取
   private addIdList(ids: string[]) {
-    // 检查页面类型，设置输入的 id 的作品类型
-    const type = window.location.pathname === '/novel/' ? 'novels' : 'unknown'
-
     const idList: IDData[] = []
     for (const id of ids) {
       idList.push({
-        type: type,
+        type: this.type,
         id: id,
       })
     }
@@ -286,7 +273,6 @@ class InitHomePage extends InitPageBase {
   protected destroy() {
     Tools.clearSlot('crawlBtns')
     Tools.clearSlot('otherBtns')
-    this.downIdInput.remove()
   }
 }
 

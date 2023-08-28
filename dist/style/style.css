@@ -2093,8 +2093,8 @@ iframe[name='expandedFooter'] {
   display: flex;
   flex-direction: column;
   background-color: #fff;
-  box-shadow: 2px 3px 8px #ddd;
-  padding: 14px 20px;
+  box-shadow: 0 0 15px #2ca6df;
+  padding: 20px 20px;
   max-width: 90vw;
   height: max-content;
   font-size: 16px;
@@ -2127,7 +2127,7 @@ iframe[name='expandedFooter'] {
   height: 36px;
 }
 .XZInputWrap .XZInputContainer textarea.XZInput {
-  height: 56px;
+  height: auto;
 }
 .XZInputWrap .XZInputContainer .XZInputButton {
   margin-left: 10px;

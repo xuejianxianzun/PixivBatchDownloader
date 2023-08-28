@@ -3273,6 +3273,7 @@ class Input {
         this.defultOption = {
             width: 600,
             type: 'input',
+            rows: 3,
             instruction: '',
             placeholder: '',
             value: '',
@@ -3324,6 +3325,7 @@ class Input {
         }
         else {
             input.textContent = option.value;
+            input.setAttribute('rows', option.rows.toString());
         }
         container.append(input);
         const submitButton = document.createElement('button');
@@ -4958,12 +4960,28 @@ const langText = {
         'Введите ID для вытаскивания',
     ],
     _输入id进行抓取的提示文字: [
-        '请输入作品 id。如果有多个 id，则以换行分割（即每行一个id）',
+        '请输入作品 id。如果有多个 id，则以换行分割（即每行一个id）。',
         '請輸入作品 id。如果有多個 id，則以換行分隔（即每行一個 id）。',
         'Please type the illustration id. If there is more than one id, one id per line.',
         'イラストレーターIDを入力してください。 複数の id がある場合は、1 行に 1 つの id を付けます。',
-        '일러스트 작품 ID를 입력해주세요. 여러 개의 ID가 있으면 줄을 바꾸어주세요 (한 줄에 한 개의 ID)',
+        '일러스트 작품 ID를 입력해주세요. 여러 개의 ID가 있으면 줄을 바꾸어주세요 (한 줄에 한 개의 ID).',
         'Пожалуйста, введите идентификатор иллюстрации. Если идентификаторов несколько, то по одному идентификатору на строку.',
+    ],
+    _输入的ID视为图像ID: [
+        '因为这个标签页展示的是图像，所以输入的 ID 会被视为图像作品的 ID。',
+        '因為這個標籤頁展示的是圖片，所以輸入的 ID 會被視為圖片作品的 ID。',
+        'Since this tab displays images, the ID entered will be considered the ID of the image work.',
+        'このタブは画像を表示するため、入力したIDが画像作品のIDとなります。',
+        '이 탭에는 이미지가 표시되므로 입력한 ID가 해당 이미지 작품의 ID로 간주됩니다.',
+        'Поскольку на этой вкладке отображаются изображения, введенный идентификатор будет считаться идентификатором работы с изображением.',
+    ],
+    _输入的ID视为小说ID: [
+        '因为这个标签页展示的是小说，所以输入的 ID 会被视为小说作品的 ID。',
+        '因為這個標籤頁展示的是小說，所以輸入的 ID 會被視為小說作品的 ID。',
+        'Since this tab displays novels, the ID entered will be treated as the ID of the novel work.',
+        'このタブは小説を表示するため、入力したIDは小説作品のIDとして扱われます。',
+        '이 탭에는 소설이 표시되므로 입력한 ID는 소설 작품의 ID로 처리됩니다.',
+        'Поскольку на этой вкладке отображаются романы, введенный идентификатор будет рассматриваться как идентификатор романа.',
     ],
     _开始抓取: [
         '开始抓取',
@@ -16158,66 +16176,37 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         super();
         this.downIdButton = document.createElement('button');
         this.importIDListButton = document.createElement('button');
-        this.downIdInput = document.createElement('textarea');
-        this.ready = false;
+        this.type = 'illusts';
         this.init();
+        this.checkPageType();
         this.idRangeTip = this.createidRangeTip();
-        this.importIDListButton.addEventListener('click', () => {
-            this.importIDList();
-        });
+    }
+    checkPageType() {
+        this.type = window.location.pathname.includes('novel')
+            ? 'novels'
+            : 'illusts';
     }
     addCrawlBtns() {
         this.downIdButton = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_输入id进行抓取');
-        this.downIdButton.id = 'down_id_button';
+        this.downIdButton.addEventListener('click', () => {
+            this.inputIDList();
+        });
         const crawlIdRange = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取id区间');
         crawlIdRange.addEventListener('click', () => {
             this.crawlIdRange();
         });
         this.importIDListButton = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导入ID列表');
-        this.importIDListButton.id = 'down_id_button';
+        this.importIDListButton.addEventListener('click', () => {
+            this.importIDList();
+        });
     }
     addAnyElement() {
-        // 用于输入id的输入框
-        this.downIdInput.id = 'down_id_input';
-        this.downIdInput.style.display = 'none';
-        this.downIdInput.setAttribute('data-xzplaceholder', '_输入id进行抓取的提示文字');
-        document.body.insertAdjacentElement('beforebegin', this.downIdInput);
-        _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.downIdInput);
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_清空已保存的抓取结果').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('clearSavedCrawl');
         });
     }
     setFormOption() {
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__.options.hideOption([1]);
-    }
-    initAny() {
-        this.downIdButton.addEventListener('click', () => {
-            if (!this.ready) {
-                // 还没准备好
-                _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('closeCenterPanel');
-                this.downIdInput.style.display = 'block';
-                this.downIdInput.focus();
-                document.documentElement.scrollTop = 0;
-            }
-            else {
-                this.checkIdList();
-            }
-        }, false);
-        // 当输入框内容改变时检测，非空值时显示下载区域
-        this.downIdInput.addEventListener('change', () => {
-            if (this.downIdInput.value !== '') {
-                this.ready = true;
-                window.setTimeout(() => {
-                    _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('openCenterPanel');
-                }, 300);
-                _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.downIdButton, '_开始抓取');
-            }
-            else {
-                this.ready = false;
-                _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('closeCenterPanel');
-                _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.downIdButton, '_输入id进行抓取');
-            }
-        });
     }
     // 单独添加一个用于提示 id 范围的元素，因为上面的日志显示在日志区域的顶端，不便于查看
     createidRangeTip() {
@@ -16226,10 +16215,26 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         _Theme__WEBPACK_IMPORTED_MODULE_8__.theme.register(div);
         return document.body.insertAdjacentElement('beforebegin', div);
     }
-    // 把合法的 id 添加到数组里
-    checkIdList() {
+    async inputIDList() {
+        _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('closeCenterPanel');
+        this.checkPageType();
+        const input = new _Input__WEBPACK_IMPORTED_MODULE_15__.Input({
+            width: 400,
+            type: 'textarea',
+            rows: 10,
+            instruction: _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_输入id进行抓取的提示文字') +
+                '<br><br>' +
+                _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl(this.type === 'illusts'
+                    ? '_输入的ID视为图像ID'
+                    : '_输入的ID视为小说ID'),
+            placeholder: '10000\n10001\n10002\n10003',
+        });
+        const value = await input.complete();
+        if (!value) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_本次操作已取消'));
+        }
         // 不必去重，因为 store 存储抓取结果时会去重
-        const array = this.downIdInput.value.split('\n');
+        const array = value.split('\n');
         const result = [];
         for (const str of array) {
             const id = parseInt(str);
@@ -16244,12 +16249,17 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     }
     async crawlIdRange() {
         _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('closeCenterPanel');
+        this.checkPageType();
         let start = 0;
         let end = 0;
         // 接收起点
         const startInput = new _Input__WEBPACK_IMPORTED_MODULE_15__.Input({
             width: 400,
             instruction: _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间说明') +
+                '<br><br>' +
+                _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl(this.type === 'illusts'
+                    ? '_输入的ID视为图像ID'
+                    : '_输入的ID视为小说ID') +
                 '<br><br>' +
                 _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间起点'),
             placeholder: '100',
@@ -16301,12 +16311,10 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     }
     // 把 id 列表添加到 store 里，然后开始抓取
     addIdList(ids) {
-        // 检查页面类型，设置输入的 id 的作品类型
-        const type = window.location.pathname === '/novel/' ? 'novels' : 'unknown';
         const idList = [];
         for (const id of ids) {
             idList.push({
-                type: type,
+                type: this.type,
                 id: id,
             });
         }
@@ -16365,7 +16373,6 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     destroy() {
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.clearSlot('crawlBtns');
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.clearSlot('otherBtns');
-        this.downIdInput.remove();
     }
 }
 
