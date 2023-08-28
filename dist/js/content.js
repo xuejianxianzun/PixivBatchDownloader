@@ -3251,6 +3251,146 @@ new InitPage();
 
 /***/ }),
 
+/***/ "./src/ts/Input.ts":
+/*!*************************!*\
+  !*** ./src/ts/Input.ts ***!
+  \*************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Input: () => (/* binding */ Input)
+/* harmony export */ });
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
+
+
+
+class Input {
+    /**所有选项皆是可选的 */
+    constructor(option) {
+        this.defultOption = {
+            width: 600,
+            type: 'input',
+            instruction: '',
+            placeholder: '',
+            value: '',
+            submitButtonText: _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_提交'),
+        };
+        this.value = '';
+        this.id = '';
+        this.isComplete = false;
+        this.init(option);
+    }
+    init(option) {
+        const _option = Object.assign(this.defultOption, option || {});
+        this.value = _option.value;
+        this.id = `input` + new Date().getTime();
+        this.create(_option);
+    }
+    create(option) {
+        const example = `<div class="XZInputWrap ?:mobile" id="input1691811888224">
+    <p class="XZInputInstruction">instruction</p>
+    <div class="XZInputContainer">
+      <input type="text" class="XZInput" value="default" placeholder="tip" />
+      <textarea class="XZInput" placeholder="tip">default</textarea>
+      <button class="XZInputButton">Submit</button>
+      <button class="XZInputButton cancel">Cancel</button>
+    </div>
+  </div>`;
+        const wrap = document.createElement('div');
+        wrap.classList.add('XZInputWrap');
+        _Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile && wrap.classList.add('mobile');
+        wrap.id = this.id;
+        // 这里设置的宽度是粗略值，后面会再修改
+        wrap.style.width = option.width + 200 + 'px';
+        _Theme__WEBPACK_IMPORTED_MODULE_2__.theme.register(wrap);
+        if (option.instruction) {
+            const p = document.createElement('p');
+            p.classList.add('XZInputInstruction');
+            p.innerHTML = option.instruction;
+            wrap.append(p);
+        }
+        const container = document.createElement('div');
+        container.classList.add('XZInputContainer');
+        const input = document.createElement(option.type);
+        input.classList.add('XZInput');
+        input.setAttribute('placeholder', option.placeholder);
+        input.style.flexBasis = option.width + 'px';
+        if (option.type === 'input') {
+            input.setAttribute('type', 'text');
+            input.setAttribute('value', option.value);
+        }
+        else {
+            input.textContent = option.value;
+        }
+        container.append(input);
+        const submitButton = document.createElement('button');
+        submitButton.classList.add('XZInputButton');
+        submitButton.textContent = option.submitButtonText;
+        container.append(submitButton);
+        const cancelButton = document.createElement('button');
+        cancelButton.classList.add('XZInputButton', 'cancel');
+        cancelButton.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_取消');
+        container.append(cancelButton);
+        wrap.append(container);
+        // 由于 wrap 宽度要考虑按钮宽度，但按钮宽度不固定，所以要先添加到页面上，获取按钮实际宽度，再调整 wrap 宽度
+        wrap.style.opacity = '0';
+        document.body.append(wrap);
+        // 根据按钮宽度，重设 wrap 宽度
+        const submitRect = submitButton.getClientRects();
+        const cancelRect = cancelButton.getClientRects();
+        // 14 是按钮的 margin-left 值
+        wrap.style.width =
+            option.width + 14 + submitRect[0].width + 14 + cancelRect[0].width + 'px';
+        wrap.style.opacity = '1';
+        input.focus();
+        if (option.value) {
+            input.setSelectionRange(option.value.length, option.value.length);
+        }
+        input.addEventListener('change', () => {
+            this.value = input.value;
+        });
+        // 按 Esc 直接移除本组件，并且不会执行 onSubmit 回调
+        input.addEventListener('keydown', (ev) => {
+            if (ev.code === 'Escape') {
+                this.remove();
+            }
+        });
+        submitButton.addEventListener('click', () => {
+            this.isComplete = true;
+            this.remove();
+        });
+        cancelButton.addEventListener('click', () => {
+            this.isComplete = true;
+            this.value = '';
+            this.remove();
+        });
+    }
+    remove() {
+        const wrap = document.querySelector(`#${this.id}`);
+        wrap && wrap.remove();
+    }
+    /**用户点击提交或取消按钮后，返回 value。注意：可能会返回空字符串 */
+    complete() {
+        return new Promise((resolve) => {
+            window.setTimeout(() => {
+                if (this.isComplete) {
+                    return resolve(this.value);
+                }
+                else {
+                    return resolve(this.complete());
+                }
+            }, 100);
+        });
+    }
+}
+
+
+
+/***/ }),
+
 /***/ "./src/ts/Lang.ts":
 /*!************************!*\
   !*** ./src/ts/Lang.ts ***!
@@ -3641,13 +3781,21 @@ const langText = {
         '이 작업 조건: ',
         'Это условие задачи: ',
     ],
-    _参数不合法: [
+    _参数不合法本次操作已取消: [
         '参数不合法，本次操作已取消。',
         '參數不合法，本次動作已取消。',
         'Parameter is not legal, this operation has been canceled.',
         'パラメータは有効ではありません。この操作はキャンセルされました。',
         '매개변수가 잘못되었습니다, 이 작업은 취소됩니다.',
         'Параметр не является разрешенным, операция отменена.',
+    ],
+    _本次操作已取消: [
+        '本次操作已取消',
+        '本次動作已取消',
+        'This operation has been canceled',
+        'この操作はキャンセルされました',
+        '이 작업이 취소되었습니다.',
+        'Эта операция была отменена',
     ],
     _向下获取所有作品: [
         '向下获取所有作品',
@@ -6083,28 +6231,28 @@ const langText = {
         'Стащить диапазон идентификаторов',
     ],
     _抓取id区间说明: [
-        '你可以设置一个作品 id 范围，抓取此范围内的所有作品（包含开始和结束的 id）。\n注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。',
-        '你可以設定一個作品 id 範圍，擷取此範圍內的所有作品（包含開始和結束的 id）。\n注意：如果一次任務中產生的擷取結果數量太多，可能會導致頁面崩潰。',
-        'You can set a range of work id and grab all works in this range (including the begin and end id). \nNote: If the number of crawling results in a task is too much, it may cause the page to crash.',
-        '作品 id の範囲を設定し、その範囲内のすべての作品をクロールすることができます。「開始 id と終了 id を含む」\n注意：1 つのタスクであまりにも多くのクロール結果を生成すると、ページがクラッシュする可能性があります。',
-        '작품 ID 범위를 설정할 수 있습니다. 이 범위 내의 모든 작품 (시작과 끝 ID 포함).\n참고: 작업의 긁어오기 결과가 너무 많으면 페이지가 충돌할 수 있습니다.',
-        'Вы можете задать диапазон идентификаторов работ и захватить все работы в этом диапазоне (включая идентификаторы начала и конца). \nПримечание: Если в задании слишком большое количество результатов стаскивания, это может привести к сбою страницы.',
+        '你可以设置一个作品 id 范围，抓取此范围内的所有作品（包含开始和结束的 id）。<br>注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。',
+        '你可以設定一個作品 id 範圍，擷取此範圍內的所有作品（包含開始和結束的 id）。<br>注意：如果一次任務中產生的擷取結果數量太多，可能會導致頁面崩潰。',
+        'You can set a range of work id and grab all works in this range (including the begin and end id). <br>Note: If the number of crawling results in a task is too much, it may cause the page to crash.',
+        '作品 id の範囲を設定し、その範囲内のすべての作品をクロールすることができます。「開始 id と終了 id を含む」<br>注意：1 つのタスクであまりにも多くのクロール結果を生成すると、ページがクラッシュする可能性があります。',
+        '작품 ID 범위를 설정할 수 있습니다. 이 범위 내의 모든 작품 (시작과 끝 ID 포함).<br>참고: 작업의 긁어오기 결과가 너무 많으면 페이지가 충돌할 수 있습니다.',
+        'Вы можете задать диапазон идентификаторов работ и захватить все работы в этом диапазоне (включая идентификаторы начала и конца). <br>Примечание: Если в задании слишком большое количество результатов стаскивания, это может привести к сбою страницы.',
     ],
     _抓取id区间起点: [
-        '请输入开始的 id',
-        '請輸入開始的 id',
-        'Please type in the beginning id',
-        '開始 id を入力してください',
-        '시작 ID를 입력해주세요',
-        'Пожалуйста, введите начальный идентификатор',
+        '请输入开始的 id: ',
+        '請輸入開始的 id: ',
+        'Please type in the beginning id: ',
+        '開始 id を入力してください: ',
+        '시작 ID를 입력해주세요: ',
+        'Пожалуйста, введите начальный идентификатор: ',
     ],
     _抓取id区间终点: [
-        '请输入结束的 id',
-        '請輸入結束的 id',
-        'Please type  in the ending id',
-        '終了 id を入力してください',
-        '끝 ID를 입력해주세요',
-        'Пожалуйста, введите конечный идентификатор',
+        '请输入结束的 id: ',
+        '請輸入結束的 id: ',
+        'Please type  in the ending id: ',
+        '終了 id を入力してください: ',
+        '끝 ID를 입력해주세요: ',
+        'Пожалуйста, введите конечный идентификатор: ',
     ],
     _选项卡切换方式: [
         '<span class="key">选项卡</span>切换方式',
@@ -15987,7 +16135,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Input__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../Input */ "./src/ts/Input.ts");
 // 初始化首页
+
 
 
 
@@ -16092,36 +16242,49 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         }
         this.addIdList(result);
     }
-    crawlIdRange() {
+    async crawlIdRange() {
+        _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('closeCenterPanel');
         let start = 0;
         let end = 0;
         // 接收起点
-        const startInput = window.prompt(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间说明') + '\n' + _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间起点'), '0');
-        if (startInput) {
-            const num = Number.parseInt(startInput);
+        const startInput = new _Input__WEBPACK_IMPORTED_MODULE_15__.Input({
+            width: 400,
+            instruction: _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间说明') +
+                '<br><br>' +
+                _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间起点'),
+            placeholder: '100',
+        });
+        const startValue = await startInput.complete();
+        if (startValue) {
+            const num = Number.parseInt(startValue);
             if (!isNaN(num) && num >= 0) {
                 start = num;
             }
             else {
-                return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_参数不合法'));
+                return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_参数不合法本次操作已取消'));
             }
         }
         else {
-            return;
+            return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_本次操作已取消'));
         }
         // 接收终点
-        const endInput = window.prompt(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间终点'), '1');
-        if (endInput) {
-            const num = Number.parseInt(endInput);
-            if (!isNaN(num) && num > start) {
+        const endInput = new _Input__WEBPACK_IMPORTED_MODULE_15__.Input({
+            width: 400,
+            instruction: _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间终点'),
+            placeholder: '200',
+        });
+        const endValue = await endInput.complete();
+        if (endValue) {
+            const num = Number.parseInt(endValue);
+            if (!isNaN(num) && num >= start) {
                 end = num;
             }
             else {
-                return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_参数不合法'));
+                return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_参数不合法本次操作已取消'));
             }
         }
         else {
-            return;
+            return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_本次操作已取消'));
         }
         // 提示抓取范围，便于用户分批次抓取的时候查看
         const tip = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间') + `: ${start} - ${end}`;

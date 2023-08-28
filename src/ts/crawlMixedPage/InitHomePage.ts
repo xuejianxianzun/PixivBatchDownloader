@@ -15,6 +15,7 @@ import { store } from '../store/Store'
 import { log } from '../Log'
 import { states } from '../store/States'
 import { settings } from '../setting/Settings'
+import { Input } from '../Input'
 
 class InitHomePage extends InitPageBase {
   constructor() {
@@ -142,37 +143,51 @@ class InitHomePage extends InitPageBase {
     this.addIdList(result)
   }
 
-  private crawlIdRange() {
+  private async crawlIdRange() {
+    EVT.fire('closeCenterPanel')
+
     let start = 0
     let end = 0
 
     // 接收起点
-    const startInput = window.prompt(
-      lang.transl('_抓取id区间说明') + '\n' + lang.transl('_抓取id区间起点'),
-      '0'
-    )
-    if (startInput) {
-      const num = Number.parseInt(startInput)
+    const startInput = new Input({
+      width: 400,
+      instruction:
+        lang.transl('_抓取id区间说明') +
+        '<br><br>' +
+        lang.transl('_抓取id区间起点'),
+      placeholder: '100',
+    })
+
+    const startValue = await startInput.complete()
+    if (startValue) {
+      const num = Number.parseInt(startValue)
       if (!isNaN(num) && num >= 0) {
         start = num
       } else {
-        return toast.error(lang.transl('_参数不合法'))
+        return toast.error(lang.transl('_参数不合法本次操作已取消'))
       }
     } else {
-      return
+      return toast.warning(lang.transl('_本次操作已取消'))
     }
 
     // 接收终点
-    const endInput = window.prompt(lang.transl('_抓取id区间终点'), '1')
-    if (endInput) {
-      const num = Number.parseInt(endInput)
-      if (!isNaN(num) && num > start) {
+    const endInput = new Input({
+      width: 400,
+      instruction: lang.transl('_抓取id区间终点'),
+      placeholder: '200',
+    })
+
+    const endValue = await endInput.complete()
+    if (endValue) {
+      const num = Number.parseInt(endValue)
+      if (!isNaN(num) && num >= start) {
         end = num
       } else {
-        return toast.error(lang.transl('_参数不合法'))
+        return toast.error(lang.transl('_参数不合法本次操作已取消'))
       }
     } else {
-      return
+      return toast.warning(lang.transl('_本次操作已取消'))
     }
 
     // 提示抓取范围，便于用户分批次抓取的时候查看

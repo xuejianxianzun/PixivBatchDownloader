@@ -2087,7 +2087,7 @@ iframe[name='expandedFooter'] {
   z-index: 99999;
   left: 0;
   right: 0;
-  top: 10vh;
+  top: 20vh;
   bottom: 0;
   margin: 0 auto auto;
   display: flex;
@@ -2142,6 +2142,9 @@ iframe[name='expandedFooter'] {
   cursor: pointer;
   font-size: 14px;
   font-weight: bold;
+}
+.XZInputWrap .XZInputContainer .XZInputButton.cancel {
+  background-color: #e49d00;
 }
 .theme-dark.XZInputWrap {
   background-color: #333;
@@ -2402,6 +2405,9 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   display: none;
   text-align: center;
   margin: 10px auto;
+  position: relative;
+  z-index: 9;
+  font-size: 16px;
 }
 html[data-xzpagetheme='white'] body .pbdHighlightFollowing {
   background-color: yellow;
