@@ -4162,7 +4162,9 @@ class Input {
         const wrap = document.querySelector(`#${this.id}`);
         wrap && wrap.remove();
     }
-    /**用户点击提交或取消按钮后，返回 value。注意：可能会返回空字符串 */
+    /**当用户点击提交按钮后，返回 value。注意：可能会返回空字符串
+     * 如果用户点击取消按钮，则抛出 reject
+     */
     submit() {
         return new Promise((resolve, reject) => {
             window.setTimeout(() => {
