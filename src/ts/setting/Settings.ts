@@ -107,6 +107,7 @@ interface XzSetting {
   setHeight: number
   ratioSwitch: boolean
   ratio: 'square' | 'horizontal' | 'vertical' | 'userSet'
+  userSetChecked: boolean
   userRatio: number
   userRatioLimit: '>=' | '=' | '<='
   idRangeSwitch: boolean
@@ -258,6 +259,7 @@ interface XzSetting {
   tipExportFollowingUserList: boolean
   displayThumbnailListOnMultiImageWorkPage: boolean
   tipBookmarkManage: boolean
+  requestSponsorshipTime: number
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -323,6 +325,7 @@ class Settings {
     setHeight: 0,
     ratioSwitch: false,
     ratio: 'horizontal',
+    userSetChecked: false,
     userRatio: 1.4,
     userRatioLimit: '>=',
     idRangeSwitch: false,
@@ -473,6 +476,7 @@ class Settings {
     tipExportFollowingUserList: true,
     displayThumbnailListOnMultiImageWorkPage: true,
     tipBookmarkManage: true,
+    requestSponsorshipTime: 0,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -742,12 +746,16 @@ class Settings {
     // 更改设置
     ;(this.settings[key] as any) = value
 
-    // 当修改某些设置时，顺便修改和它有对应关系的设置
+    // 当修改某些设置时，顺便修改以来它的设置
     if (key === 'widthTag') {
       this.settings.widthTagBoolean = value === 'yes'
     }
     if (key === 'restrict') {
       this.settings.restrictBoolean = value === 'yes'
+    }
+
+    if (key === 'ratio') {
+      this.settings.userSetChecked = value === 'userSet'
     }
 
     // 触发设置变化的事件

@@ -153,7 +153,7 @@ class CheckUser {
     return result
   }
 
-  private createPanel(result: CheckResult, userID: string) {
+  private async createPanel(result: CheckResult, userID: string) {
     this.removePanel()
 
     // 创建元素
@@ -252,23 +252,19 @@ class CheckUser {
       if (result.blockTags === undefined) {
         // 如果未屏蔽过，则只显示编辑按钮。不添加左侧的说明文字
         btn.textContent = '针对该画师屏蔽 tag'
-        btn.onclick = () => {
+        btn.onclick = async () => {
           const input = new Input({
             instruction: `针对该画师（${userID}）屏蔽 tag：`,
             placeholder: lang.transl('_tag用逗号分割'),
             type: 'textarea',
           })
-          input.onSubmit = () => {
-            let value = input.value
-            if (value === '') {
-              toast.warning('输入为空，所以没有更改设置')
-            } else {
-              this.blockTagsForUser(userID, value)
-              toast.success(`已针对该画师屏蔽这些 tag：${value}`)
-            }
-            input.remove()
-            return
+          const value = await input.submit()
+          if (value === '') {
+            return toast.warning('输入为空，所以没有更改设置')
           }
+
+          this.blockTagsForUser(userID, value)
+          toast.success(`已针对该画师屏蔽这些 tag：${value}`)
         }
       } else {
         // textContent 里换行符无效，所以这里用 innerText
@@ -276,24 +272,20 @@ class CheckUser {
         btn.textContent = '编辑'
         li.append(left)
 
-        btn.onclick = () => {
+        btn.onclick = async () => {
           const input = new Input({
             instruction: `针对该画师（${userID}）编辑屏蔽的 tag：<br>如果清空，则将取消对这个画师屏蔽 tag`,
             placeholder: lang.transl('_tag用逗号分割'),
             type: 'textarea',
             value: result.blockTags?.join(','),
           })
-          input.onSubmit = () => {
-            let value = input.value
-            if (value === '') {
-              this.removeBlockTagsForUser(userID)
-              toast.warning('输入为空，取消对这个画师的屏蔽')
-            } else {
-              this.blockTagsForUser(userID, value)
-              toast.success(`已更新针对该画师屏蔽的 tag：${value}`)
-            }
-            input.remove()
-            return
+          const value = await input.submit()
+          if (value === '') {
+            this.removeBlockTagsForUser(userID)
+            return toast.warning('输入为空，取消对这个画师的屏蔽')
+          } else {
+            this.blockTagsForUser(userID, value)
+            toast.success(`已更新针对该画师屏蔽的 tag：${value}`)
           }
         }
       }

@@ -202,11 +202,15 @@ export const formHtml = `<form class="settingForm">
     <span class="beautify_radio" tabindex="0"></span>
     <label for="ratio0" data-xztext="_正方形"></label>
 
-    <span class="verticalSplit"></span>
     <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
     <span class="beautify_radio" tabindex="0"></span>
     <label for="ratio3" data-xztext="_宽高比"></label>
-    
+
+    <!-- 这里使用了一个不可见的开关 userSetChecked，用来根据 radio 的值来控制子选项的显示或隐藏 -->
+    <input type="checkbox" name="userSetChecked" class="need_beautify checkbox_switch" style="display:none;">
+    <span class="beautify_switch" tabindex="0" style="display:none;"></span>
+
+    <span class="subOptionWrap" data-show="userSetChecked">
     <input type="radio" name="userRatioLimit" id="userRatioLimit1" class="need_beautify radio" value=">=" checked>
     <span class="beautify_radio" tabindex="0"></span>
     <label for="userRatioLimit1">&gt;=</label>
@@ -220,6 +224,7 @@ export const formHtml = `<form class="settingForm">
     <label for="userRatioLimit3">&lt;=</label>
 
     <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
+    </span>
 
     </span>
     </p>
@@ -316,8 +321,8 @@ export const formHtml = `<form class="settingForm">
       <option value="{AI}">{AI}</option>
       <option value="{like}">{like}</option>
       <option value="{bmk}">{bmk}</option>
-      <option value="{bmk_id}">{bmk_id}</option>
       <option value="{bmk_1000}">{bmk_1000}</option>
+      <option value="{bmk_id}">{bmk_id}</option>
       <option value="{view}">{view}</option>
       <option value="{rank}">{rank}</option>
       <option value="{date}">{date}</option>
@@ -381,11 +386,11 @@ export const formHtml = `<form class="settingForm">
     <span class="blue">{bmk}</span>
     <span data-xztext="_命名标记bmk"></span>
     <br>
-    <span class="blue">{bmk_id}</span>
-    <span data-xztext="_命名标记bmk_id"></span>
-    <br>
     <span class="blue">{bmk_1000}</span>
     <span data-xztext="_命名标记bmk_1000"></span>
+    <br>
+    <span class="blue">{bmk_id}</span>
+    <span data-xztext="_命名标记bmk_id"></span>
     <br>
     <span class="blue">{view}</span>
     <span data-xztext="_命名标记view"></span>

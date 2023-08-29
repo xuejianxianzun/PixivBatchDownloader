@@ -4,6 +4,7 @@ import { settings } from '../setting/Settings'
 import { ArtworkData } from '../crawl/CrawlResult'
 import { store } from './Store'
 import { Tools } from '../Tools'
+import { log } from '../Log'
 
 // 保存图片作品的数据
 class SaveArtworkData {
@@ -64,6 +65,7 @@ class SaveArtworkData {
         // 插画或漫画
         const imgUrl = body.urls.original // 作品的原图 URL
         if (imgUrl === null) {
+          log.error(`${Tools.createWorkLink(body.id, true)} URLs are null`)
           return
         }
 

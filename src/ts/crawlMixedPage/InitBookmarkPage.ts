@@ -47,7 +47,7 @@ class InitBookmarkPage extends InitPageBase {
 
   private readonly onceRequest: number = 100 // 每次请求多少个数量
 
-  private offset: number = 0 // 要去掉的作品数量
+  private offset: number = 0 // 每次请求的偏移量
 
   // 点击不同的功能按钮时，设定抓取模式
   private crawlMode: 'normal' | 'removeTags' | 'unBookmark' | 'unBookmark404' =
@@ -269,6 +269,7 @@ class InitBookmarkPage extends InitPageBase {
 
     if (
       data.body.works.length === 0 ||
+      this.bookmarkDataList.length >= this.requsetNumber ||
       this.idList.length >= this.requsetNumber ||
       this.filteredNumber >= this.requsetNumber
     ) {

@@ -567,6 +567,7 @@
   fill: #666;
   user-select: none;
   display: inline-block;
+  vertical-align: baseline;
 }
 .centerWrap .centerWrap_head .btns .centerWrap_top_btn.update {
   display: none;
@@ -2157,14 +2158,14 @@ iframe[name='expandedFooter'] {
   z-index: 99999;
   left: 0;
   right: 0;
-  top: 10vh;
+  top: 20vh;
   bottom: 0;
   margin: 0 auto auto;
   display: flex;
   flex-direction: column;
   background-color: #fff;
-  box-shadow: 2px 3px 8px #ddd;
-  padding: 14px 20px;
+  box-shadow: 0 0 15px #2ca6df;
+  padding: 20px 20px;
   max-width: 90vw;
   height: max-content;
   font-size: 16px;
@@ -2198,7 +2199,7 @@ iframe[name='expandedFooter'] {
   height: 36px;
 }
 .XZInputWrap .XZInputContainer textarea.XZInput {
-  height: 56px;
+  height: auto;
 }
 .XZInputWrap .XZInputContainer .XZInputButton {
   margin-left: 14px;
@@ -2476,6 +2477,9 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   display: none;
   text-align: center;
   margin: 10px auto;
+  position: relative;
+  z-index: 9;
+  font-size: 16px;
 }
 html[data-xzpagetheme='white'] body .pbdHighlightFollowing {
   background-color: yellow;

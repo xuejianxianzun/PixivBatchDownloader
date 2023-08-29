@@ -1608,7 +1608,7 @@ class CheckUser {
         result.blockTags = blockTags ? blockTags.tags : undefined;
         return result;
     }
-    createPanel(result, userID) {
+    async createPanel(result, userID) {
         this.removePanel();
         // 创建元素
         const html = `
@@ -1691,24 +1691,18 @@ class CheckUser {
             if (result.blockTags === undefined) {
                 // 如果未屏蔽过，则只显示编辑按钮。不添加左侧的说明文字
                 btn.textContent = '针对该画师屏蔽 tag';
-                btn.onclick = () => {
+                btn.onclick = async () => {
                     const input = new _Input__WEBPACK_IMPORTED_MODULE_1__.Input({
                         instruction: `针对该画师（${userID}）屏蔽 tag：`,
                         placeholder: _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_tag用逗号分割'),
                         type: 'textarea',
                     });
-                    input.onSubmit = () => {
-                        let value = input.value;
-                        if (value === '') {
-                            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning('输入为空，所以没有更改设置');
-                        }
-                        else {
-                            this.blockTagsForUser(userID, value);
-                            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(`已针对该画师屏蔽这些 tag：${value}`);
-                        }
-                        input.remove();
-                        return;
-                    };
+                    const value = await input.submit();
+                    if (value === '') {
+                        return _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning('输入为空，所以没有更改设置');
+                    }
+                    this.blockTagsForUser(userID, value);
+                    _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(`已针对该画师屏蔽这些 tag：${value}`);
                 };
             }
             else {
@@ -1716,26 +1710,22 @@ class CheckUser {
                 left.innerText = `已针对该画师屏蔽：\n${result.blockTags.join(', ')}`;
                 btn.textContent = '编辑';
                 li.append(left);
-                btn.onclick = () => {
+                btn.onclick = async () => {
                     const input = new _Input__WEBPACK_IMPORTED_MODULE_1__.Input({
                         instruction: `针对该画师（${userID}）编辑屏蔽的 tag：<br>如果清空，则将取消对这个画师屏蔽 tag`,
                         placeholder: _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_tag用逗号分割'),
                         type: 'textarea',
                         value: result.blockTags?.join(','),
                     });
-                    input.onSubmit = () => {
-                        let value = input.value;
-                        if (value === '') {
-                            this.removeBlockTagsForUser(userID);
-                            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning('输入为空，取消对这个画师的屏蔽');
-                        }
-                        else {
-                            this.blockTagsForUser(userID, value);
-                            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(`已更新针对该画师屏蔽的 tag：${value}`);
-                        }
-                        input.remove();
-                        return;
-                    };
+                    const value = await input.submit();
+                    if (value === '') {
+                        this.removeBlockTagsForUser(userID);
+                        return _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning('输入为空，取消对这个画师的屏蔽');
+                    }
+                    else {
+                        this.blockTagsForUser(userID, value);
+                        _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(`已更新针对该画师屏蔽的 tag：${value}`);
+                    }
                 };
             }
             li.append(btn);
@@ -4071,6 +4061,7 @@ class Input {
         this.defultOption = {
             width: 600,
             type: 'input',
+            rows: 3,
             instruction: '',
             placeholder: '',
             value: '',
@@ -4078,6 +4069,8 @@ class Input {
         };
         this.value = '';
         this.id = '';
+        this.submitted = false;
+        this.cancelled = false;
         this.init(option);
     }
     init(option) {
@@ -4121,6 +4114,7 @@ class Input {
         }
         else {
             input.textContent = option.value;
+            input.setAttribute('rows', option.rows.toString());
         }
         container.append(input);
         const submitButton = document.createElement('button');
@@ -4156,17 +4150,31 @@ class Input {
             }
         });
         submitButton.addEventListener('click', () => {
-            this.onSubmit();
+            this.submitted = true;
+            this.remove();
         });
         cancelButton.addEventListener('click', () => {
+            this.cancelled = true;
             this.remove();
         });
     }
-    /**点击提交按钮时执行此回调函数 */
-    onSubmit() { }
     remove() {
         const wrap = document.querySelector(`#${this.id}`);
         wrap && wrap.remove();
+    }
+    /**用户点击提交或取消按钮后，返回 value。注意：可能会返回空字符串 */
+    submit() {
+        return new Promise((resolve, reject) => {
+            window.setTimeout(() => {
+                if (this.cancelled) {
+                    return reject('');
+                }
+                if (this.submitted) {
+                    return resolve(this.value);
+                }
+                return resolve(this.submit());
+            }, 100);
+        });
     }
 }
 
@@ -4564,13 +4572,21 @@ const langText = {
         '이 작업 조건: ',
         'Это условие задачи: ',
     ],
-    _参数不合法: [
+    _参数不合法本次操作已取消: [
         '参数不合法，本次操作已取消。',
         '參數不合法，本次動作已取消。',
         'Parameter is not legal, this operation has been canceled.',
         'パラメータは有効ではありません。この操作はキャンセルされました。',
         '매개변수가 잘못되었습니다, 이 작업은 취소됩니다.',
         'Параметр не является разрешенным, операция отменена.',
+    ],
+    _本次操作已取消: [
+        '本次操作已取消',
+        '本次動作已取消',
+        'This operation has been canceled',
+        'この操作はキャンセルされました',
+        '이 작업이 취소되었습니다.',
+        'Эта операция была отменена',
     ],
     _向下获取所有作品: [
         '向下获取所有作品',
@@ -5428,7 +5444,7 @@ const langText = {
         'Если имя файла после загрузки ненормальное, отключите другие расширения браузера, которые имеют возможность загрузки.<br> Например: Chrono Download Manager, бесплатный менеджер загрузок, загрузчик изображений, DownThemAll! и многое другое.',
     ],
     _常见问题说明: [
-        '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>如果你需要一个梯子（机场）,可以试试这个机场：<a href="https://v2.hjl772vps.top/#/register?code=KEA3xTT4" title="农家有风小院">农家有风小院</a>，价格实惠，网络稳定。先购买订阅，然后在仪表盘复制订阅链接使用。<br><br>下载器 QQ 群：499873152<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
+        '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>如果你需要一个梯子（机场）,可以试试这个机场：<a href="https://v2.hjl772vps.top/#/register?code=KEA3xTT4" title="农家有风小院" target="_blank">农家有风小院</a>，价格实惠，网络稳定。先购买订阅，然后在仪表盘复制订阅链接使用。<br><br>下载器 QQ 群：499873152<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
         '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。',
         'The downloaded file is saved in the browsers download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.<br><br>If your browser stops responding at startup, you can clear your browser`s download history.',
         'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。',
@@ -5733,12 +5749,28 @@ const langText = {
         'Введите ID для вытаскивания',
     ],
     _输入id进行抓取的提示文字: [
-        '请输入作品 id。如果有多个 id，则以换行分割（即每行一个id）',
+        '请输入作品 id。如果有多个 id，则以换行分割（即每行一个id）。',
         '請輸入作品 id。如果有多個 id，則以換行分隔（即每行一個 id）。',
         'Please type the illustration id. If there is more than one id, one id per line.',
         'イラストレーターIDを入力してください。 複数の id がある場合は、1 行に 1 つの id を付けます。',
-        '일러스트 작품 ID를 입력해주세요. 여러 개의 ID가 있으면 줄을 바꾸어주세요 (한 줄에 한 개의 ID)',
+        '일러스트 작품 ID를 입력해주세요. 여러 개의 ID가 있으면 줄을 바꾸어주세요 (한 줄에 한 개의 ID).',
         'Пожалуйста, введите идентификатор иллюстрации. Если идентификаторов несколько, то по одному идентификатору на строку.',
+    ],
+    _输入的ID视为图像ID: [
+        '因为这个标签页展示的是图像，所以输入的 ID 会被视为图像作品的 ID。',
+        '因為這個標籤頁展示的是圖片，所以輸入的 ID 會被視為圖片作品的 ID。',
+        'Since this tab displays images, the ID entered will be considered the ID of the image work.',
+        'このタブは画像を表示するため、入力したIDが画像作品のIDとなります。',
+        '이 탭에는 이미지가 표시되므로 입력한 ID가 해당 이미지 작품의 ID로 간주됩니다.',
+        'Поскольку на этой вкладке отображаются изображения, введенный идентификатор будет считаться идентификатором работы с изображением.',
+    ],
+    _输入的ID视为小说ID: [
+        '因为这个标签页展示的是小说，所以输入的 ID 会被视为小说作品的 ID。',
+        '因為這個標籤頁展示的是小說，所以輸入的 ID 會被視為小說作品的 ID。',
+        'Since this tab displays novels, the ID entered will be treated as the ID of the novel work.',
+        'このタブは小説を表示するため、入力したIDは小説作品のIDとして扱われます。',
+        '이 탭에는 소설이 표시되므로 입력한 ID는 소설 작품의 ID로 처리됩니다.',
+        'Поскольку на этой вкладке отображаются романы, введенный идентификатор будет рассматриваться как идентификатор романа.',
     ],
     _开始抓取: [
         '开始抓取',
@@ -6898,12 +6930,12 @@ const langText = {
         'Запрос на скачивание отправлен',
     ],
     _HowToUse: [
-        '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。',
-        '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。',
-        'Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.',
-        'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。',
-        '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.<br><br>다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.',
-        'Нажмите синюю кнопку в правой части страницы, чтобы открыть панель загрузчика.<br><br>Загруженный файл сохраняется в каталоге загрузки браузера. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.',
+        '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>下载器默认开启了一些增强功能，这可能导致 Pixiv 页面样式改变。你可以在下载器的“更多”标签页中开启或关闭这些功能。',
+        '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>下載器預設開啟了一些增強功能，這可能導致 Pixiv 頁面樣式改變。你可以在下載器的“更多”標籤頁中開啟或關閉這些功能。',
+        'Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>The downloader has some enhancements turned on by default, which may cause changes in the style of Pixiv pages. You can turn these features on or off in the "More" tab of the downloader.',
+        'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンローダーにはデフォルトでいくつかの機能拡張が有効になっており、これにより Pixiv ページのスタイルが変更される可能性があります。 これらの機能は、ダウンローダーの「その他」タブでオンまたはオフにできます。',
+        '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.<br><br>다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로더에는 기본적으로 몇 가지 향상된 기능이 켜져 있으며 이로 인해 Pixiv 페이지 스타일이 변경될 수 있습니다. 다운로더의 "더 보기" 탭에서 이러한 기능을 켜거나 끌 수 있습니다.',
+        'Нажмите синюю кнопку в правой части страницы, чтобы открыть панель загрузчика.<br><br>Загруженный файл сохраняется в каталоге загрузки браузера. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>В загрузчике по умолчанию включены некоторые улучшения, которые могут привести к изменению стиля страниц Pixiv. Вы можете включить или отключить эти функции на вкладке «Дополнительно» загрузчика.',
     ],
     _我知道了: ['我知道了', '我知道了', 'OK', '分かりました', '확인', 'Ок'],
     _背景图片: [
@@ -7006,28 +7038,28 @@ const langText = {
         'Стащить диапазон идентификаторов',
     ],
     _抓取id区间说明: [
-        '你可以设置一个作品 id 范围，抓取此范围内的所有作品（包含开始和结束的 id）。\n注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。',
-        '你可以設定一個作品 id 範圍，擷取此範圍內的所有作品（包含開始和結束的 id）。\n注意：如果一次任務中產生的擷取結果數量太多，可能會導致頁面崩潰。',
-        'You can set a range of work id and grab all works in this range (including the begin and end id). \nNote: If the number of crawling results in a task is too much, it may cause the page to crash.',
-        '作品 id の範囲を設定し、その範囲内のすべての作品をクロールすることができます。「開始 id と終了 id を含む」\n注意：1 つのタスクであまりにも多くのクロール結果を生成すると、ページがクラッシュする可能性があります。',
-        '작품 ID 범위를 설정할 수 있습니다. 이 범위 내의 모든 작품 (시작과 끝 ID 포함).\n참고: 작업의 긁어오기 결과가 너무 많으면 페이지가 충돌할 수 있습니다.',
-        'Вы можете задать диапазон идентификаторов работ и захватить все работы в этом диапазоне (включая идентификаторы начала и конца). \nПримечание: Если в задании слишком большое количество результатов стаскивания, это может привести к сбою страницы.',
+        '你可以设置一个作品 id 范围，抓取此范围内的所有作品（包含开始和结束的 id）。<br>注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。',
+        '你可以設定一個作品 id 範圍，擷取此範圍內的所有作品（包含開始和結束的 id）。<br>注意：如果一次任務中產生的擷取結果數量太多，可能會導致頁面崩潰。',
+        'You can set a range of work id and grab all works in this range (including the begin and end id). <br>Note: If the number of crawling results in a task is too much, it may cause the page to crash.',
+        '作品 id の範囲を設定し、その範囲内のすべての作品をクロールすることができます。「開始 id と終了 id を含む」<br>注意：1 つのタスクであまりにも多くのクロール結果を生成すると、ページがクラッシュする可能性があります。',
+        '작품 ID 범위를 설정할 수 있습니다. 이 범위 내의 모든 작품 (시작과 끝 ID 포함).<br>참고: 작업의 긁어오기 결과가 너무 많으면 페이지가 충돌할 수 있습니다.',
+        'Вы можете задать диапазон идентификаторов работ и захватить все работы в этом диапазоне (включая идентификаторы начала и конца). <br>Примечание: Если в задании слишком большое количество результатов стаскивания, это может привести к сбою страницы.',
     ],
     _抓取id区间起点: [
-        '请输入开始的 id',
-        '請輸入開始的 id',
-        'Please type in the beginning id',
-        '開始 id を入力してください',
-        '시작 ID를 입력해주세요',
-        'Пожалуйста, введите начальный идентификатор',
+        '请输入开始的 id: ',
+        '請輸入開始的 id: ',
+        'Please type in the beginning id: ',
+        '開始 id を入力してください: ',
+        '시작 ID를 입력해주세요: ',
+        'Пожалуйста, введите начальный идентификатор: ',
     ],
     _抓取id区间终点: [
-        '请输入结束的 id',
-        '請輸入結束的 id',
-        'Please type  in the ending id',
-        '終了 id を入力してください',
-        '끝 ID를 입력해주세요',
-        'Пожалуйста, введите конечный идентификатор',
+        '请输入结束的 id: ',
+        '請輸入結束的 id: ',
+        'Please type  in the ending id: ',
+        '終了 id を入力してください: ',
+        '끝 ID를 입력해주세요: ',
+        'Пожалуйста, введите конечный идентификатор: ',
     ],
     _选项卡切换方式: [
         '<span class="key">选项卡</span>切换方式',
@@ -7836,20 +7868,20 @@ const langText = {
         'Таймер сканирования запущен, интервал: {} минут.<br>Если вы хотите изменить интервал времени, вы можете изменить настройки на вкладке «Дополнительно»: Интервальное время сканирования с таймером.',
     ],
     _定时抓取的推荐用法: [
-        '推荐用法：增量抓取新作品。例如在关注的用户的新作品页面里，设置抓取页数为 2，然后启动定时抓取。这样下载器可以自动下载新作品。',
-        '推薦用法：增量抓取新作品。例如在關注的使用者的新作品頁面裡，設定抓取頁數為 2，然後啟動定時抓取。這樣下載器可以自動下載新作品。',
-        'Recommended usage: Fetch new work incrementally. For example, in the new work page of the user you follow, set the number of crawled pages to 2, and then start timing crawling. This way the downloader can automatically download new works.',
-        '推奨される使用法: 新しい作業を段階的にフェッチします。 たとえば、フォローしているユーザーの新しい作品ページで、クロールされたページの数を 2 に設定し、クロールのタイミングを開始します。 このようにして、ダウンローダーは新しい作品を自動的にダウンロードできます。',
-        '권장 사용법: 새 작업을 점진적으로 가져옵니다. 예를 들어 팔로우하는 사용자의 새 작업 페이지에서 크롤링 페이지 수를 2로 설정한 다음 타이밍 크롤링을 시작합니다. 이렇게 하면 다운로더가 자동으로 새 작품을 다운로드할 수 있습니다.',
-        'Рекомендуемое использование: получать новую работу постепенно. Например, на новой рабочей странице пользователя, за которым вы следите, установите количество просканированных страниц равным 2, а затем запустите сканирование по времени. Таким образом, загрузчик может автоматически загружать новые работы.',
+        '推荐用法：增量抓取新作品。例如在关注的用户的新作品页面里，设置抓取页数为 2，然后启动定时抓取。这样下载器可以自动下载新作品。<br>建议启用“不下载重复文件”功能，以避免下载重复的文件。',
+        '推薦用法：增量抓取新作品。例如在關注的使用者的新作品頁面裡，設定抓取頁數為 2，然後啟動定時抓取。這樣下載器可以自動下載新作品。<br>建議啟用“不下載重複檔案”功能，以避免下載重複的檔案。',
+        'Recommended usage: Fetch new work incrementally. For example, in the new work page of the user you follow, set the number of crawled pages to 2, and then start timing crawling. This way the downloader can automatically download new works.<br>It is recommended to enable the "Do not download duplicate files" feature to avoid downloading duplicate files.',
+        '推奨される使用法: 新しい作業を段階的にフェッチします。 たとえば、フォローしているユーザーの新しい作品ページで、クロールされたページの数を 2 に設定し、クロールのタイミングを開始します。 このようにして、ダウンローダーは新しい作品を自動的にダウンロードできます。<br>重複ファイルのダウンロードを避けるために、「重複ファイルをダウンロードしない」機能を有効にすることをお勧めします。',
+        '권장 사용법: 새 작업을 점진적으로 가져옵니다. 예를 들어 팔로우하는 사용자의 새 작업 페이지에서 크롤링 페이지 수를 2로 설정한 다음 타이밍 크롤링을 시작합니다. 이렇게 하면 다운로더가 자동으로 새 작품을 다운로드할 수 있습니다.<br>중복 파일 다운로드를 방지하기 위해 "중복 파일 다운로드 금지" 기능을 활성화하는 것이 좋습니다.',
+        'Рекомендуемое использование: получать новую работу постепенно. Например, на новой рабочей странице пользователя, за которым вы следите, установите количество просканированных страниц равным 2, а затем запустите сканирование по времени. Таким образом, загрузчик может автоматически загружать новые работы.<br>Рекомендуется включить функцию "Не загружать дубликаты файлов", чтобы избежать загрузки дубликатов файлов.',
     ],
     _定时抓取已启动的提示2: [
-        '请不要关闭这个标签页，也不要改变这个标签页的 URL。<br>建议启用“不下载重复文件”功能，以避免下载重复的文件。<br><br>如果这个扩展程序自动更新了，那么这个页面将不能正常下载文件（需要刷新页面来恢复正常）。 如果你想长期执行定时抓取任务，建议安装下载器的离线版本，以免因为自动更新而导致问题。<br>你可以在这里下载离线安装包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
-        '請不要關閉這個標籤頁，也不要改變這個標籤頁的 URL。<br>建議啟用“不下載重複檔案”功能，以避免下載重複的檔案。<br><br>如果這個擴充套件程式自動更新了，那麼這個頁面將不能正常下載檔案（需要重新整理頁面來恢復正常）。 如果你想長期執行定時抓取任務，建議安裝下載器的離線版本，以免因為自動更新而導致問題。<br>你可以在這裡下載離線安裝包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
-        'Please do not close this tab or change the URL of this tab. <br>It is recommended to enable the "Do not download duplicate files" feature to avoid downloading duplicate files.<br><br>If the extension is automatically updated, the page will not be able to download files normally (refresh the page to restore normal). If you want to perform scheduled crawling tasks for a long time, it is recommended to install the offline version of the downloader to avoid problems caused by automatic updates.<br>You can download the offline installation package here: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
-        'このタブを閉じたり、このタブの URL を変更したりしないでください。<br>重複ファイルのダウンロードを避けるために、「重複ファイルをダウンロードしない」機能を有効にすることをお勧めします。<br><br>拡張機能が自動的に更新されると、ページはファイルを正常にダウンロードできなくなります (ページを更新して正常に戻します)。 スケジュールされたクロール タスクを長時間実行する場合は、自動更新による問題を回避するために、ダウンローダのオフライン バージョンをインストールすることをお勧めします。<br>オフライン インストール パッケージは、次の場所からダウンロードできます。<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
-        '이 탭을 닫거나 이 탭의 URL을 변경하지 마십시오.<br>중복 파일 다운로드를 방지하기 위해 "중복 파일 다운로드 금지" 기능을 활성화하는 것이 좋습니다.<br><br>확장자가 자동으로 업데이트되면 페이지에서 파일을 정상적으로 다운로드할 수 없습니다(페이지를 새로고침하여 정상으로 복원). 예약된 크롤링 작업을 장기간 수행하려면 자동 업데이트로 인한 문제를 방지하기 위해 다운로더의 오프라인 버전을 설치하는 것이 좋습니다.<br>여기에서 오프라인 설치 패키지를 다운로드할 수 있습니다. <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
-        'Пожалуйста, не закрывайте эту вкладку и не меняйте URL этой вкладки. <br> Рекомендуется включить функцию "Не загружать дубликаты файлов", чтобы избежать загрузки дубликатов файлов.<br><br>Если расширение автоматически обновляется, страница не сможет загружать файлы в обычном режиме (обновите страницу, чтобы восстановить нормальный режим). Если вы хотите выполнять запланированные задачи обхода в течение длительного времени, рекомендуется установить автономную версию загрузчика, чтобы избежать проблем, вызванных автоматическими обновлениями.<br>Вы можете скачать автономный установочный пакет здесь: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Страница релизов</a>',
+        '在定时抓取时，将这个标签页静置即可。不要改变这个标签页的 URL，否则抓取结果可能不符合预期。<br><br>如果这个扩展程序自动更新了，那么这个页面将不能正常下载文件（需要刷新页面来恢复正常）。 如果你想长期执行定时抓取任务，建议安装下载器的离线版本，以免因为自动更新而导致问题。<br>你可以在这里下载离线安装包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        '在定時抓取時，將這個標籤頁靜置即可。不要改變這個標籤頁的 URL，否則抓取結果可能不符合預期。<br><br>如果這個擴充套件程式自動更新了，那麼這個頁面將不能正常下載檔案（需要重新整理頁面來恢復正常）。 如果你想長期執行定時抓取任務，建議安裝下載器的離線版本，以免因為自動更新而導致問題。<br>你可以在這裡下載離線安裝包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        'During timed crawling, just leave this tab alone. Do not change the URL of this tab, or the crawl results may not be as expected.<br><br>If the extension is automatically updated, the page will not be able to download files normally (refresh the page to restore normal). If you want to perform scheduled crawling tasks for a long time, it is recommended to install the offline version of the downloader to avoid problems caused by automatic updates.<br>You can download the offline installation package here: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        '時限クロール中は、このタブをそのままにしておきます。 このタブの URL は変更しないでください。変更すると、クロール結果が期待どおりにならない可能性があります。<br><br>拡張機能が自動的に更新されると、ページはファイルを正常にダウンロードできなくなります (ページを更新して正常に戻します)。 スケジュールされたクロール タスクを長時間実行する場合は、自動更新による問題を回避するために、ダウンローダのオフライン バージョンをインストールすることをお勧めします。<br>オフライン インストール パッケージは、次の場所からダウンロードできます。<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        '시간 제한 크롤링 중에는 이 탭을 그대로 두십시오. 이 탭의 URL을 변경하지 마십시오. 그렇지 않으면 크롤링 결과가 예상과 다를 수 있습니다.<br><br>확장자가 자동으로 업데이트되면 페이지에서 파일을 정상적으로 다운로드할 수 없습니다(페이지를 새로고침하여 정상으로 복원). 예약된 크롤링 작업을 장기간 수행하려면 자동 업데이트로 인한 문제를 방지하기 위해 다운로더의 오프라인 버전을 설치하는 것이 좋습니다.<br>여기에서 오프라인 설치 패키지를 다운로드할 수 있습니다. <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        'Во время сканирования по времени просто оставьте эту вкладку в покое. Не меняйте URL-адрес этой вкладки, иначе результаты сканирования могут отличаться от ожидаемых.<br><br>Если расширение автоматически обновляется, страница не сможет загружать файлы в обычном режиме (обновите страницу, чтобы восстановить нормальный режим). Если вы хотите выполнять запланированные задачи обхода в течение длительного времени, рекомендуется установить автономную версию загрузчика, чтобы избежать проблем, вызванных автоматическими обновлениями.<br>Вы можете скачать автономный установочный пакет здесь: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Страница релизов</a>',
     ],
     _定时抓取的间隔时间: [
         '<span class="key">定时</span>抓取的间隔时间',
@@ -8621,12 +8653,12 @@ const langText = {
         'Исправлена ​​ошибка, из-за которой не работал параметр «Показать увеличенные эскизы».',
     ],
     _可能发生了错误请刷新页面重试: [
-        '可能发生了错误。请刷新页面重试。',
-        '可能發生了錯誤。請重新整理頁面重試。',
-        'An error may have occurred. Please refresh the page and try again.',
-        'エラーが発生した可能性があります。 ページを更新して、もう一度お試しください。',
-        '오류가 발생했을 수 있습니다. 페이지를 새로고침하고 다시 시도하세요.',
-        'Возможно, произошла ошибка. Пожалуйста, обновите страницу и повторите попытку.',
+        '可能发生了错误。<br>如果下载进度卡住，请刷新页面重试，或者重启浏览器。',
+        '可能發生了錯誤。<br>如果下載進度卡住，請重新整理頁面重試，或者重啟瀏覽器。',
+        'An error may have occurred. <br>If the download progress is stuck, please refresh the page and try again, or restart the browser.',
+        'エラーが発生した可能性があります。 <br>ダウンロードの進行が進まない場合は、ページを更新して再試行するか、ブラウザを再起動してください。',
+        '오류가 발생했을 수 있습니다. <br>다운로드 진행이 중단되면 페이지를 새로 고친 후 다시 시도하거나 브라우저를 다시 시작하세요.',
+        'Возможно, произошла ошибка. <br>Если процесс загрузки завис, обновите страницу и повторите попытку или перезапустите браузер.',
     ],
     _在多图作品页面里显示缩略图列表: [
         '在多图作品页面里显示<span class="key">缩略图</span>列表',
@@ -10549,6 +10581,50 @@ new ReplaceSquareThumb();
 
 /***/ }),
 
+/***/ "./src/ts/RequestSponsorship.ts":
+/*!**************************************!*\
+  !*** ./src/ts/RequestSponsorship.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
+
+
+class RequestSponsorship {
+    constructor() {
+        // 30 * 24 * 60 * 60 * 1000
+        this.interval = 2592000000;
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, () => {
+            // 赋予初始值
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.requestSponsorshipTime === 0) {
+                (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('requestSponsorshipTime', new Date().getTime() + this.interval);
+            }
+            window.setTimeout(() => {
+                this.check();
+            }, 10000);
+        });
+    }
+    check() {
+        const now = new Date().getTime();
+        if (now >= _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.requestSponsorshipTime) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.once('request sponsorship', _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_赞助方式提示'), 'show', {
+                title: _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_赞助我'),
+            });
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('requestSponsorshipTime', now + this.interval);
+        }
+    }
+}
+new RequestSponsorship();
+
+
+/***/ }),
+
 /***/ "./src/ts/SelectWork.ts":
 /*!******************************!*\
   !*** ./src/ts/SelectWork.ts ***!
@@ -12291,21 +12367,14 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.2.0';
+        this.flag = '16.3.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</strong>
-      <br>
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_取消收藏所有已被删除的作品')}</span>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_取消收藏所有已被删除的作品的使用说明')}</span>
-      <br>
-      <br>
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_其他优化')}</span>
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
       `;
             // <strong>${lang.transl('_新增功能')}:</strong>
             // <span class="blue">${lang.transl('abc')}</span>
@@ -16476,7 +16545,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         this.requsetNumber = 0; // 根据页数，计算要抓取的作品个数
         this.filteredNumber = 0; // 记录检查了多少作品（不论结果是否通过都计入）
         this.onceRequest = 100; // 每次请求多少个数量
-        this.offset = 0; // 要去掉的作品数量
+        this.offset = 0; // 每次请求的偏移量
         // 点击不同的功能按钮时，设定抓取模式
         this.crawlMode = 'normal';
         this.init();
@@ -16637,6 +16706,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
             return this.getIdListFinished();
         }
         if (data.body.works.length === 0 ||
+            this.bookmarkDataList.length >= this.requsetNumber ||
             this.idList.length >= this.requsetNumber ||
             this.filteredNumber >= this.requsetNumber) {
             // 书签页获取完毕
@@ -17295,7 +17365,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Input__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../Input */ "./src/ts/Input.ts");
 // 初始化首页
+
 
 
 
@@ -17316,66 +17388,37 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         super();
         this.downIdButton = document.createElement('button');
         this.importIDListButton = document.createElement('button');
-        this.downIdInput = document.createElement('textarea');
-        this.ready = false;
+        this.type = 'illusts';
         this.init();
+        this.checkPageType();
         this.idRangeTip = this.createidRangeTip();
-        this.importIDListButton.addEventListener('click', () => {
-            this.importIDList();
-        });
+    }
+    checkPageType() {
+        this.type = window.location.pathname.includes('novel')
+            ? 'novels'
+            : 'illusts';
     }
     addCrawlBtns() {
         this.downIdButton = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_输入id进行抓取');
-        this.downIdButton.id = 'down_id_button';
+        this.downIdButton.addEventListener('click', () => {
+            this.inputIDList();
+        });
         const crawlIdRange = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取id区间');
         crawlIdRange.addEventListener('click', () => {
             this.crawlIdRange();
         });
         this.importIDListButton = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导入ID列表');
-        this.importIDListButton.id = 'down_id_button';
+        this.importIDListButton.addEventListener('click', () => {
+            this.importIDList();
+        });
     }
     addAnyElement() {
-        // 用于输入id的输入框
-        this.downIdInput.id = 'down_id_input';
-        this.downIdInput.style.display = 'none';
-        this.downIdInput.setAttribute('data-xzplaceholder', '_输入id进行抓取的提示文字');
-        document.body.insertAdjacentElement('beforebegin', this.downIdInput);
-        _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.downIdInput);
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_清空已保存的抓取结果').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('clearSavedCrawl');
         });
     }
     setFormOption() {
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__.options.hideOption([1]);
-    }
-    initAny() {
-        this.downIdButton.addEventListener('click', () => {
-            if (!this.ready) {
-                // 还没准备好
-                _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('closeCenterPanel');
-                this.downIdInput.style.display = 'block';
-                this.downIdInput.focus();
-                document.documentElement.scrollTop = 0;
-            }
-            else {
-                this.checkIdList();
-            }
-        }, false);
-        // 当输入框内容改变时检测，非空值时显示下载区域
-        this.downIdInput.addEventListener('change', () => {
-            if (this.downIdInput.value !== '') {
-                this.ready = true;
-                window.setTimeout(() => {
-                    _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('openCenterPanel');
-                }, 300);
-                _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.downIdButton, '_开始抓取');
-            }
-            else {
-                this.ready = false;
-                _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('closeCenterPanel');
-                _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.downIdButton, '_输入id进行抓取');
-            }
-        });
     }
     // 单独添加一个用于提示 id 范围的元素，因为上面的日志显示在日志区域的顶端，不便于查看
     createidRangeTip() {
@@ -17384,10 +17427,26 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         _Theme__WEBPACK_IMPORTED_MODULE_8__.theme.register(div);
         return document.body.insertAdjacentElement('beforebegin', div);
     }
-    // 把合法的 id 添加到数组里
-    checkIdList() {
+    async inputIDList() {
+        _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('closeCenterPanel');
+        this.checkPageType();
+        const input = new _Input__WEBPACK_IMPORTED_MODULE_15__.Input({
+            width: 400,
+            type: 'textarea',
+            rows: 10,
+            instruction: _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_输入id进行抓取的提示文字') +
+                '<br><br>' +
+                _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl(this.type === 'illusts'
+                    ? '_输入的ID视为图像ID'
+                    : '_输入的ID视为小说ID'),
+            placeholder: '10000\n10001\n10002\n10003',
+        });
+        const value = await input.submit();
+        if (!value) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_本次操作已取消'));
+        }
         // 不必去重，因为 store 存储抓取结果时会去重
-        const array = this.downIdInput.value.split('\n');
+        const array = value.split('\n');
         const result = [];
         for (const str of array) {
             const id = parseInt(str);
@@ -17400,36 +17459,54 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         }
         this.addIdList(result);
     }
-    crawlIdRange() {
+    async crawlIdRange() {
+        _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('closeCenterPanel');
+        this.checkPageType();
         let start = 0;
         let end = 0;
         // 接收起点
-        const startInput = window.prompt(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间说明') + '\n' + _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间起点'), '0');
-        if (startInput) {
-            const num = Number.parseInt(startInput);
+        const startInput = new _Input__WEBPACK_IMPORTED_MODULE_15__.Input({
+            width: 400,
+            instruction: _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间说明') +
+                '<br><br>' +
+                _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl(this.type === 'illusts'
+                    ? '_输入的ID视为图像ID'
+                    : '_输入的ID视为小说ID') +
+                '<br><br>' +
+                _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间起点'),
+            placeholder: '100',
+        });
+        const startValue = await startInput.submit();
+        if (startValue) {
+            const num = Number.parseInt(startValue);
             if (!isNaN(num) && num >= 0) {
                 start = num;
             }
             else {
-                return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_参数不合法'));
+                return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_参数不合法本次操作已取消'));
             }
         }
         else {
-            return;
+            return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_本次操作已取消'));
         }
         // 接收终点
-        const endInput = window.prompt(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间终点'), '1');
-        if (endInput) {
-            const num = Number.parseInt(endInput);
-            if (!isNaN(num) && num > start) {
+        const endInput = new _Input__WEBPACK_IMPORTED_MODULE_15__.Input({
+            width: 400,
+            instruction: _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间终点'),
+            placeholder: '200',
+        });
+        const endValue = await endInput.submit();
+        if (endValue) {
+            const num = Number.parseInt(endValue);
+            if (!isNaN(num) && num >= start) {
                 end = num;
             }
             else {
-                return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_参数不合法'));
+                return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_参数不合法本次操作已取消'));
             }
         }
         else {
-            return;
+            return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_本次操作已取消'));
         }
         // 提示抓取范围，便于用户分批次抓取的时候查看
         const tip = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间') + `: ${start} - ${end}`;
@@ -17446,12 +17523,10 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     }
     // 把 id 列表添加到 store 里，然后开始抓取
     addIdList(ids) {
-        // 检查页面类型，设置输入的 id 的作品类型
-        const type = window.location.pathname === '/novel/' ? 'novels' : 'unknown';
         const idList = [];
         for (const id of ids) {
             idList.push({
-                type: type,
+                type: this.type,
                 id: id,
             });
         }
@@ -17510,7 +17585,6 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     destroy() {
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.clearSlot('crawlBtns');
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.clearSlot('otherBtns');
-        this.downIdInput.remove();
     }
 }
 
@@ -19489,6 +19563,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Input__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Input */ "./src/ts/Input.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+
+
 
 
 
@@ -19510,28 +19588,34 @@ class TimedCrawl {
      *
      * 只能有 1 个定时抓取任务，如果重复调用此方法，后传递的回调函数会覆盖之前的回调函数。
      */
-    start(cb) {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval > this.timeMinuteMax) {
+    async start(cb) {
+        const input = new _Input__WEBPACK_IMPORTED_MODULE_6__.Input({
+            instruction: `${_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取的间隔时间')} (${_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_分钟')})`,
+            value: _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval.toString(),
+            width: 500,
+        });
+        const value = await input.submit();
+        if (!value) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_本次操作已取消'));
+        }
+        const number = Number.parseInt(value);
+        if (isNaN(number)) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_参数不合法本次操作已取消'));
+        }
+        if (number > this.timeMinuteMax) {
             _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取的时间超过最大值') +
                 this.timeMinuteMax +
                 _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_分钟'));
             return;
         }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval < 1) {
+        if (number < 1) {
             _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取的时间最小值'));
             return;
         }
+        (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.setSetting)('timedCrawlInterval', number);
         this.reset();
         this.callback = cb;
-        this.time = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval * 60 * 1000;
-        this.timer = window.setInterval(() => {
-            if (!this.callback) {
-                return;
-            }
-            this.crawlBySelf = true;
-            _store_States__WEBPACK_IMPORTED_MODULE_5__.states.quickCrawl = true;
-            this.callback();
-        }, this.time);
+        this.execute();
         _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.fire('startTimedCrawl');
         const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取已启动的提示', _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval.toString());
         _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.show(msg +
@@ -19540,6 +19624,18 @@ class TimedCrawl {
             '<br><br>' +
             _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取已启动的提示2'));
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(msg);
+    }
+    execute() {
+        this.time = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval * 60 * 1000;
+        this.timer = window.setTimeout(() => {
+            if (!this.callback) {
+                return;
+            }
+            this.crawlBySelf = true;
+            _store_States__WEBPACK_IMPORTED_MODULE_5__.states.quickCrawl = true;
+            this.callback();
+            this.execute();
+        }, this.time);
     }
     reset() {
         this.callback = undefined;
@@ -20901,19 +20997,22 @@ class DownloadNovelEmbeddedImage {
         const idList = await this.getIdList(content, embeddedImages);
         // 保存为 TXT 格式时，每加载完一个图片，就立即保存这个图片
         for (let idData of idList) {
-            idData = await this.getImageBolbURL(idData);
-            let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceSuffix(novelName, idData.url);
-            // 在文件名末尾加上内嵌图片的 id 和序号
-            const array = imageName.split('.');
-            const addString = `-${idData.id}${idData.p === 0 ? '' : '-' + idData.p}`;
-            array[array.length - 2] = array[array.length - 2] + addString;
-            imageName = array.join('.');
-            // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
-            // 所以要替换掉内嵌图片路径里的斜线
-            if (action === 'mergeNovel') {
-                imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(imageName);
+            // 如果 url 是 null，则不会保存这个图片
+            if (idData.url) {
+                idData = await this.getImageBolbURL(idData);
+                let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceSuffix(novelName, idData.url);
+                // 在文件名末尾加上内嵌图片的 id 和序号
+                const array = imageName.split('.');
+                const addString = `-${idData.id}${idData.p === 0 ? '' : '-' + idData.p}`;
+                array[array.length - 2] = array[array.length - 2] + addString;
+                imageName = array.join('.');
+                // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
+                // 所以要替换掉内嵌图片路径里的斜线
+                if (action === 'mergeNovel') {
+                    imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(imageName);
+                }
+                this.sendDownload(idData.blobURL, imageName);
             }
-            this.sendDownload(idData.blobURL, imageName);
         }
     }
     /**下载小说为 EPUB 时，替换内嵌图片标记，把图片用 img 标签保存到正文里 */
@@ -20924,10 +21023,16 @@ class DownloadNovelEmbeddedImage {
             }
             const idList = await this.getIdList(content, embeddedImages);
             for (let idData of idList) {
-                idData = await this.getImageBolbURL(idData);
-                const dataURL = await this.getImageDataURL(idData);
-                const html = `<img src="${dataURL}" />`;
-                content = content.replaceAll(idData.flag, html);
+                if (idData.url) {
+                    idData = await this.getImageBolbURL(idData);
+                    const dataURL = await this.getImageDataURL(idData);
+                    const html = `<img src="${dataURL}" />`;
+                    content = content.replaceAll(idData.flag, html);
+                }
+                else {
+                    // 如果 url 是 null，则修改标记，做出提示
+                    content = content.replaceAll(idData.flag, ` ${idData.flag} url is null`);
+                }
             }
             return resolve(content);
         });
@@ -21006,9 +21111,11 @@ class DownloadNovelEmbeddedImage {
     }
     async getImageBolbURL(idData) {
         return new Promise(async (resolve) => {
-            const res = await fetch(idData.url);
-            const blob = await res.blob();
-            idData.blobURL = URL.createObjectURL(blob);
+            if (idData.url) {
+                const res = await fetch(idData.url);
+                const blob = await res.blob();
+                idData.blobURL = URL.createObjectURL(blob);
+            }
             resolve(idData);
         });
     }
@@ -23382,6 +23489,92 @@ new ShowStatusOnTitle();
 
 /***/ }),
 
+/***/ "./src/ts/download/ShowTotalResultOnTitle.ts":
+/*!***************************************************!*\
+  !*** ./src/ts/download/ShowTotalResultOnTitle.ts ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+
+
+
+// 抓取阶段，在网页标题上显示抓取到的结果数量
+class ShowTotalResultOnTitle {
+    constructor() {
+        this.enable = false;
+        // 保存缓存的字符串，后面会需要在标题中查找缓存的字符串
+        this.str = this.createStr();
+        this.bindEvents();
+    }
+    bindEvents() {
+        const enableEvts = [_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.crawlStart, _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.resultChange];
+        enableEvts.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.removeStr();
+                this.enable = true;
+            });
+        });
+        const disableEvts = [
+            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadStart,
+            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadPause,
+            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadStop,
+        ];
+        disableEvts.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.removeStr();
+                this.enable = false;
+            });
+        });
+        window.setInterval(() => {
+            this.enable && this.show();
+        }, 500);
+    }
+    // 生成新的字符串
+    createStr() {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length > 0) {
+            return ` ${_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length} `;
+        }
+        return '';
+    }
+    // 检查标题中是否有下载状态的 flag
+    // 如果没有，就不会显示剩余数量
+    checkStatusFlag() {
+        return document.title.indexOf(']') > 0;
+    }
+    show() {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_1__.states.downloading || !this.checkStatusFlag()) {
+            return;
+        }
+        // 先移除旧的字符串，然后添加新的字符串
+        const title = this.removeStr(document.title);
+        this.str = this.createStr();
+        if (!this.str || !title) {
+            return;
+        }
+        document.title = title.replace(']', ']' + this.str);
+    }
+    // 如果传入字符串，则不直接修改 document.title，以提高性能
+    removeStr(titleStr) {
+        if (!this.str) {
+            return;
+        }
+        if (titleStr) {
+            return titleStr.replace(this.str, '');
+        }
+        else {
+            document.title = document.title.replace(this.str, '');
+        }
+    }
+}
+new ShowTotalResultOnTitle();
+
+
+/***/ }),
+
 /***/ "./src/ts/filter/BlackandWhiteImage.ts":
 /*!*********************************************!*\
   !*** ./src/ts/filter/BlackandWhiteImage.ts ***!
@@ -24788,12 +24981,12 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 111040000
-            this.crawlData(110770000, 111044884);
+            // 上次记录到 111260000
+            this.crawlData(111050000, 111260690);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 20510000
-            this.crawlData(20430000, 20510155, 'novels');
+            // 上次记录到 20550000
+            this.crawlData(20520000, 20559865, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -27075,11 +27268,15 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_radio" tabindex="0"></span>
     <label for="ratio0" data-xztext="_正方形"></label>
 
-    <span class="verticalSplit"></span>
     <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
     <span class="beautify_radio" tabindex="0"></span>
     <label for="ratio3" data-xztext="_宽高比"></label>
-    
+
+    <!-- 这里使用了一个不可见的开关 userSetChecked，用来根据 radio 的值来控制子选项的显示或隐藏 -->
+    <input type="checkbox" name="userSetChecked" class="need_beautify checkbox_switch" style="display:none;">
+    <span class="beautify_switch" tabindex="0" style="display:none;"></span>
+
+    <span class="subOptionWrap" data-show="userSetChecked">
     <input type="radio" name="userRatioLimit" id="userRatioLimit1" class="need_beautify radio" value=">=" checked>
     <span class="beautify_radio" tabindex="0"></span>
     <label for="userRatioLimit1">&gt;=</label>
@@ -27093,6 +27290,7 @@ const formHtml = `<form class="settingForm">
     <label for="userRatioLimit3">&lt;=</label>
 
     <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
+    </span>
 
     </span>
     </p>
@@ -27189,8 +27387,8 @@ const formHtml = `<form class="settingForm">
       <option value="{AI}">{AI}</option>
       <option value="{like}">{like}</option>
       <option value="{bmk}">{bmk}</option>
-      <option value="{bmk_id}">{bmk_id}</option>
       <option value="{bmk_1000}">{bmk_1000}</option>
+      <option value="{bmk_id}">{bmk_id}</option>
       <option value="{view}">{view}</option>
       <option value="{rank}">{rank}</option>
       <option value="{date}">{date}</option>
@@ -27254,11 +27452,11 @@ const formHtml = `<form class="settingForm">
     <span class="blue">{bmk}</span>
     <span data-xztext="_命名标记bmk"></span>
     <br>
-    <span class="blue">{bmk_id}</span>
-    <span data-xztext="_命名标记bmk_id"></span>
-    <br>
     <span class="blue">{bmk_1000}</span>
     <span data-xztext="_命名标记bmk_1000"></span>
+    <br>
+    <span class="blue">{bmk_id}</span>
+    <span data-xztext="_命名标记bmk_id"></span>
     <br>
     <span class="blue">{view}</span>
     <span data-xztext="_命名标记view"></span>
@@ -28142,6 +28340,7 @@ class FormSettings {
                 'BMKNumAverageSwitch',
                 'setWHSwitch',
                 'ratioSwitch',
+                'userSetChecked',
                 'postDate',
                 'idRangeSwitch',
                 'needTagSwitch',
@@ -29038,6 +29237,7 @@ class Settings {
             setHeight: 0,
             ratioSwitch: false,
             ratio: 'horizontal',
+            userSetChecked: false,
             userRatio: 1.4,
             userRatioLimit: '>=',
             idRangeSwitch: false,
@@ -29188,6 +29388,7 @@ class Settings {
             tipExportFollowingUserList: true,
             displayThumbnailListOnMultiImageWorkPage: true,
             tipBookmarkManage: true,
+            requestSponsorshipTime: 0,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -29429,12 +29630,15 @@ class Settings {
         // 更改设置
         ;
         this.settings[key] = value;
-        // 当修改某些设置时，顺便修改和它有对应关系的设置
+        // 当修改某些设置时，顺便修改以来它的设置
         if (key === 'widthTag') {
             this.settings.widthTagBoolean = value === 'yes';
         }
         if (key === 'restrict') {
             this.settings.restrictBoolean = value === 'yes';
+        }
+        if (key === 'ratio') {
+            this.settings.userSetChecked = value === 'userSet';
         }
         // 触发设置变化的事件
         _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('settingChange', { name: key, value: value });
@@ -29848,6 +30052,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+
 
 
 
@@ -29905,6 +30111,7 @@ class SaveArtworkData {
                 // 插画或漫画
                 const imgUrl = body.urls.original; // 作品的原图 URL
                 if (imgUrl === null) {
+                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(`${_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.createWorkLink(body.id, true)} URLs are null`);
                     return;
                 }
                 const tempExt = imgUrl.split('.');
@@ -32597,6 +32804,10 @@ const novelData = [
     [20490000, 1692372791000],
     [20500000, 1692508140000],
     [20510000, 1692624146000],
+    [20520000, 1692765923000],
+    [20530000, 1692888700000],
+    [20540000, 1693038437000],
+    [20550000, 1693143069000],
 ];
 
 
@@ -43718,6 +43929,28 @@ const illustsData = [
     [111020000, 1692545340000],
     [111030000, 1692586800000],
     [111040000, 1692616500000],
+    [111050000, 1692633840000],
+    [111060000, 1692677940000],
+    [111070000, 1692706320000],
+    [111080000, 1692728040000],
+    [111090000, 1692774600000],
+    [111100000, 1692797880000],
+    [111110000, 1692829320000],
+    [111120000, 1692868920000],
+    [111130000, 1692889260000],
+    [111140000, 1692931440000],
+    [111150001, 1692962400000],
+    [111160000, 1692981120000],
+    [111170000, 1693022520000],
+    [111180000, 1693048920000],
+    [111190000, 1693066740000],
+    [111200000, 1693105920000],
+    [111210000, 1693130760000],
+    [111220000, 1693146780000],
+    [111230000, 1693179900000],
+    [111240000, 1693216800000],
+    [111250000, 1693236180000],
+    [111260000, 1693280100000],
 ];
 
 
@@ -44955,18 +45188,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
 /* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
 /* harmony import */ var _download_ShowStatusOnTitle__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ShowStatusOnTitle */ "./src/ts/download/ShowStatusOnTitle.ts");
-/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
-/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
-/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
-/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
-/* harmony import */ var _ImageToGray__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./ImageToGray */ "./src/ts/ImageToGray.ts");
-/* harmony import */ var _UpdateUserName__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./UpdateUserName */ "./src/ts/UpdateUserName.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
-/* harmony import */ var _CheckTag__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./CheckTag */ "./src/ts/CheckTag.ts");
-/* harmony import */ var _CheckUser__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ./CheckUser */ "./src/ts/CheckUser.ts");
+/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
+/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
+/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
+/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
+/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
+/* harmony import */ var _ImageToGray__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./ImageToGray */ "./src/ts/ImageToGray.ts");
+/* harmony import */ var _UpdateUserName__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./UpdateUserName */ "./src/ts/UpdateUserName.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _CheckTag__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ./CheckTag */ "./src/ts/CheckTag.ts");
+/* harmony import */ var _CheckUser__WEBPACK_IMPORTED_MODULE_44__ = __webpack_require__(/*! ./CheckUser */ "./src/ts/CheckUser.ts");
+/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_45__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -44977,6 +45212,8 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
+
 
 
 

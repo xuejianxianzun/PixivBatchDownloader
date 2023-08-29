@@ -55,6 +55,7 @@ class FormSettings {
       'BMKNumAverageSwitch',
       'setWHSwitch',
       'ratioSwitch',
+      'userSetChecked',
       'postDate',
       'idRangeSwitch',
       'needTagSwitch',
