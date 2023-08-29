@@ -34,7 +34,7 @@ class TimedCrawl {
       value: settings.timedCrawlInterval.toString(),
       width: 500,
     })
-    const value = await input.complete()
+    const value = await input.submit()
     if (!value) {
       return toast.warning(lang.transl('_本次操作已取消'))
     }

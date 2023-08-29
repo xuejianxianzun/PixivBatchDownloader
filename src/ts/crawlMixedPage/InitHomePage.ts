@@ -106,7 +106,7 @@ class InitHomePage extends InitPageBase {
       placeholder: '10000\n10001\n10002\n10003',
     })
 
-    const value = await input.complete()
+    const value = await input.submit()
     if (!value) {
       return toast.warning(lang.transl('_本次操作已取消'))
     }
@@ -149,7 +149,7 @@ class InitHomePage extends InitPageBase {
       placeholder: '100',
     })
 
-    const startValue = await startInput.complete()
+    const startValue = await startInput.submit()
     if (startValue) {
       const num = Number.parseInt(startValue)
       if (!isNaN(num) && num >= 0) {
@@ -168,7 +168,7 @@ class InitHomePage extends InitPageBase {
       placeholder: '200',
     })
 
-    const endValue = await endInput.complete()
+    const endValue = await endInput.submit()
     if (endValue) {
       const num = Number.parseInt(endValue)
       if (!isNaN(num) && num >= start) {
