@@ -7,6 +7,8 @@ interface Option {
   width?: number
   /**输入框的 HTML 标签是 input 还是 textarea。默认为 input */
   type?: 'input' | 'textarea'
+  /**仅当输入框为 textarea 时，可以通过 rows 设置高度（行数） */
+  rows?: number
   /**可选，在输入框上方可以显示一段说明文字 */
   instruction?: string
   /**可选，输入框里显示的占位符 */
@@ -26,6 +28,7 @@ class Input {
   private defultOption: Option = {
     width: 600,
     type: 'input',
+    rows: 3,
     instruction: '',
     placeholder: '',
     value: '',
@@ -35,6 +38,9 @@ class Input {
   public value = ''
 
   private id = ''
+
+  private submitted = false
+  private cancelled = false
 
   private init(option?: Option) {
     const _option = Object.assign(this.defultOption, option || {})
@@ -81,6 +87,7 @@ class Input {
       input.setAttribute('value', option.value!)
     } else {
       input.textContent = option.value!
+      input.setAttribute('rows', option.rows!.toString())
     }
     container.append(input)
 
@@ -125,20 +132,36 @@ class Input {
     })
 
     submitButton.addEventListener('click', () => {
-      this.onSubmit()
+      this.submitted = true
+      this.remove()
     })
 
     cancelButton.addEventListener('click', () => {
+      this.cancelled = true
       this.remove()
     })
   }
 
-  /**点击提交按钮时执行此回调函数 */
-  public onSubmit() {}
-
-  public remove() {
+  private remove() {
     const wrap = document.querySelector(`#${this.id}`)
     wrap && wrap.remove()
+  }
+
+  /**当用户点击提交按钮后，返回 value。注意：可能会返回空字符串
+   * 如果用户点击取消按钮，则抛出 reject
+   */
+  public submit(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      window.setTimeout(() => {
+        if (this.cancelled) {
+          return reject('')
+        }
+        if (this.submitted) {
+          return resolve(this.value)
+        }
+        return resolve(this.submit())
+      }, 100)
+    })
   }
 }
 
