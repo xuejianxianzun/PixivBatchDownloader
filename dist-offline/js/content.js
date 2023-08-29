@@ -3354,7 +3354,8 @@ class Input {
         };
         this.value = '';
         this.id = '';
-        this.isComplete = false;
+        this.submitted = false;
+        this.cancelled = false;
         this.init(option);
     }
     init(option) {
@@ -3434,12 +3435,11 @@ class Input {
             }
         });
         submitButton.addEventListener('click', () => {
-            this.isComplete = true;
+            this.submitted = true;
             this.remove();
         });
         cancelButton.addEventListener('click', () => {
-            this.isComplete = true;
-            this.value = '';
+            this.cancelled = true;
             this.remove();
         });
     }
@@ -3447,16 +3447,19 @@ class Input {
         const wrap = document.querySelector(`#${this.id}`);
         wrap && wrap.remove();
     }
-    /**用户点击提交或取消按钮后，返回 value。注意：可能会返回空字符串 */
-    complete() {
-        return new Promise((resolve) => {
+    /**当用户点击提交按钮后，返回 value。注意：可能会返回空字符串
+     * 如果用户点击取消按钮，则抛出 reject
+     */
+    submit() {
+        return new Promise((resolve, reject) => {
             window.setTimeout(() => {
-                if (this.isComplete) {
+                if (this.cancelled) {
+                    return reject('');
+                }
+                if (this.submitted) {
                     return resolve(this.value);
                 }
-                else {
-                    return resolve(this.complete());
-                }
+                return resolve(this.submit());
             }, 100);
         });
     }
@@ -16339,7 +16342,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
                     : '_输入的ID视为小说ID'),
             placeholder: '10000\n10001\n10002\n10003',
         });
-        const value = await input.complete();
+        const value = await input.submit();
         if (!value) {
             return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_本次操作已取消'));
         }
@@ -16374,7 +16377,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
                 _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间起点'),
             placeholder: '100',
         });
-        const startValue = await startInput.complete();
+        const startValue = await startInput.submit();
         if (startValue) {
             const num = Number.parseInt(startValue);
             if (!isNaN(num) && num >= 0) {
@@ -16393,7 +16396,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
             instruction: _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间终点'),
             placeholder: '200',
         });
-        const endValue = await endInput.complete();
+        const endValue = await endInput.submit();
         if (endValue) {
             const num = Number.parseInt(endValue);
             if (!isNaN(num) && num >= start) {
@@ -18492,7 +18495,7 @@ class TimedCrawl {
             value: _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval.toString(),
             width: 500,
         });
-        const value = await input.complete();
+        const value = await input.submit();
         if (!value) {
             return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_本次操作已取消'));
         }

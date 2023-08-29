@@ -39,7 +39,8 @@ class Input {
 
   private id = ''
 
-  private isComplete = false
+  private submitted = false
+  private cancelled = false
 
   private init(option?: Option) {
     const _option = Object.assign(this.defultOption, option || {})
@@ -131,31 +132,34 @@ class Input {
     })
 
     submitButton.addEventListener('click', () => {
-      this.isComplete = true
+      this.submitted = true
       this.remove()
     })
 
     cancelButton.addEventListener('click', () => {
-      this.isComplete = true
-      this.value = ''
+      this.cancelled = true
       this.remove()
     })
   }
 
-  public remove() {
+  private remove() {
     const wrap = document.querySelector(`#${this.id}`)
     wrap && wrap.remove()
   }
 
-  /**用户点击提交或取消按钮后，返回 value。注意：可能会返回空字符串 */
-  public complete(): Promise<string> {
-    return new Promise((resolve) => {
+  /**当用户点击提交按钮后，返回 value。注意：可能会返回空字符串
+   * 如果用户点击取消按钮，则抛出 reject
+   */
+  public submit(): Promise<string> {
+    return new Promise((resolve, reject) => {
       window.setTimeout(() => {
-        if (this.isComplete) {
-          return resolve(this.value)
-        } else {
-          return resolve(this.complete())
+        if (this.cancelled) {
+          return reject('')
         }
+        if (this.submitted) {
+          return resolve(this.value)
+        }
+        return resolve(this.submit())
       }, 100)
     })
   }
