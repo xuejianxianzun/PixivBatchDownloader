@@ -9791,6 +9791,50 @@ new ReplaceSquareThumb();
 
 /***/ }),
 
+/***/ "./src/ts/RequestSponsorship.ts":
+/*!**************************************!*\
+  !*** ./src/ts/RequestSponsorship.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
+
+
+class RequestSponsorship {
+    constructor() {
+        // 30 * 24 * 60 * 60 * 1000
+        this.interval = 2592000000;
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, () => {
+            // 赋予初始值
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.requestSponsorshipTime === 0) {
+                (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('requestSponsorshipTime', new Date().getTime() + this.interval);
+            }
+            window.setTimeout(() => {
+                this.check();
+            }, 10000);
+        });
+    }
+    check() {
+        const now = new Date().getTime();
+        if (now >= _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.requestSponsorshipTime) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.once('request sponsorship', _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_赞助方式提示'), 'show', {
+                title: _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_赞助我'),
+            });
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('requestSponsorshipTime', now + this.interval);
+        }
+    }
+}
+new RequestSponsorship();
+
+
+/***/ }),
+
 /***/ "./src/ts/SelectWork.ts":
 /*!******************************!*\
   !*** ./src/ts/SelectWork.ts ***!
@@ -18383,17 +18427,17 @@ class TimedCrawl {
         if (isNaN(number)) {
             return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_参数不合法本次操作已取消'));
         }
-        (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.setSetting)('timedCrawlInterval', number);
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval > this.timeMinuteMax) {
+        if (number > this.timeMinuteMax) {
             _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取的时间超过最大值') +
                 this.timeMinuteMax +
                 _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_分钟'));
             return;
         }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval < 1) {
+        if (number < 1) {
             _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取的时间最小值'));
             return;
         }
+        (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.setSetting)('timedCrawlInterval', number);
         this.reset();
         this.callback = cb;
         this.execute();
@@ -28139,6 +28183,7 @@ class Settings {
             tipExportFollowingUserList: true,
             displayThumbnailListOnMultiImageWorkPage: true,
             tipBookmarkManage: true,
+            requestSponsorshipTime: 0,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -43919,6 +43964,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
 /* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
 /* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -43965,6 +44011,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 // import './CheckNewVersion'
+
 
 
 

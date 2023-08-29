@@ -258,6 +258,7 @@ interface XzSetting {
   tipExportFollowingUserList: boolean
   displayThumbnailListOnMultiImageWorkPage: boolean
   tipBookmarkManage: boolean
+  requestSponsorshipTime: number
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -473,6 +474,7 @@ class Settings {
     tipExportFollowingUserList: true,
     displayThumbnailListOnMultiImageWorkPage: true,
     tipBookmarkManage: true,
+    requestSponsorshipTime: 0,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

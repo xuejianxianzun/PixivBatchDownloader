@@ -44,9 +44,7 @@ class TimedCrawl {
       return toast.error(lang.transl('_参数不合法本次操作已取消'))
     }
 
-    setSetting('timedCrawlInterval', number)
-
-    if (settings.timedCrawlInterval > this.timeMinuteMax) {
+    if (number > this.timeMinuteMax) {
       msgBox.error(
         lang.transl('_定时抓取的时间超过最大值') +
           this.timeMinuteMax +
@@ -55,13 +53,14 @@ class TimedCrawl {
       return
     }
 
-    if (settings.timedCrawlInterval < 1) {
+    if (number < 1) {
       msgBox.error(lang.transl('_定时抓取的时间最小值'))
       return
     }
 
-    this.reset()
+    setSetting('timedCrawlInterval', number)
 
+    this.reset()
     this.callback = cb
     this.execute()
 
