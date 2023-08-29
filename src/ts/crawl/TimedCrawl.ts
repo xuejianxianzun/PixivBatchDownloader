@@ -1,9 +1,11 @@
-import { settings } from '../setting/Settings'
+import { setSetting, settings } from '../setting/Settings'
 import { lang } from '../Lang'
 import { msgBox } from '../MsgBox'
 import { log } from '../Log'
 import { EVT } from '../EVT'
 import { states } from '../store/States'
+import { Input } from '../Input'
+import { toast } from '../Toast'
 
 class TimedCrawl {
   constructor() {
@@ -24,8 +26,25 @@ class TimedCrawl {
    *
    * 只能有 1 个定时抓取任务，如果重复调用此方法，后传递的回调函数会覆盖之前的回调函数。
    */
-  public start(cb: Function) {
-    if (settings.timedCrawlInterval > this.timeMinuteMax) {
+  public async start(cb: Function) {
+    const input = new Input({
+      instruction: `${lang.transl('_定时抓取的间隔时间')} (${lang.transl(
+        '_分钟'
+      )})`,
+      value: settings.timedCrawlInterval.toString(),
+      width: 500,
+    })
+    const value = await input.complete()
+    if (!value) {
+      return toast.warning(lang.transl('_本次操作已取消'))
+    }
+
+    const number = Number.parseInt(value)
+    if (isNaN(number)) {
+      return toast.error(lang.transl('_参数不合法本次操作已取消'))
+    }
+
+    if (number > this.timeMinuteMax) {
       msgBox.error(
         lang.transl('_定时抓取的时间超过最大值') +
           this.timeMinuteMax +
@@ -34,23 +53,16 @@ class TimedCrawl {
       return
     }
 
-    if (settings.timedCrawlInterval < 1) {
+    if (number < 1) {
       msgBox.error(lang.transl('_定时抓取的时间最小值'))
       return
     }
 
-    this.reset()
+    setSetting('timedCrawlInterval', number)
 
+    this.reset()
     this.callback = cb
-    this.time = settings.timedCrawlInterval * 60 * 1000
-    this.timer = window.setInterval(() => {
-      if (!this.callback) {
-        return
-      }
-      this.crawlBySelf = true
-      states.quickCrawl = true
-      this.callback()
-    }, this.time)
+    this.execute()
 
     EVT.fire('startTimedCrawl')
     const msg = lang.transl(
@@ -65,6 +77,20 @@ class TimedCrawl {
         lang.transl('_定时抓取已启动的提示2')
     )
     log.success(msg)
+  }
+
+  private execute() {
+    this.time = settings.timedCrawlInterval * 60 * 1000
+    this.timer = window.setTimeout(() => {
+      if (!this.callback) {
+        return
+      }
+      this.crawlBySelf = true
+      states.quickCrawl = true
+      this.callback()
+
+      this.execute()
+    }, this.time)
   }
 
   private reset() {

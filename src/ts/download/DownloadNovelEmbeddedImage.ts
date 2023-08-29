@@ -13,8 +13,8 @@ type IDData = {
   p: number
   /**表示图片来源自用户上传，或是引用其他作品 */
   type: 'upload' | 'pixiv'
-  /**图片的 URL */
-  url: string
+  /**图片的 URL，有可能是 null。当图片是通过引用作品 ID 插入，但下载器获取到作品数据里的 urls 都是 null（通常是因为用户未登录），那这个属性就也是 null。此时无法下载这个图片 */
+  url: string | null
   /**图片的 BLOBURL */
   blobURL?: string
   /**图片在原文中的标记文字 */
@@ -45,20 +45,23 @@ class DownloadNovelEmbeddedImage {
 
     // 保存为 TXT 格式时，每加载完一个图片，就立即保存这个图片
     for (let idData of idList) {
-      idData = await this.getImageBolbURL(idData)
-      let imageName = Utils.replaceSuffix(novelName, idData.url)
-      // 在文件名末尾加上内嵌图片的 id 和序号
-      const array = imageName.split('.')
-      const addString = `-${idData.id}${idData.p === 0 ? '' : '-' + idData.p}`
-      array[array.length - 2] = array[array.length - 2] + addString
-      imageName = array.join('.')
+      // 如果 url 是 null，则不会保存这个图片
+      if (idData.url) {
+        idData = await this.getImageBolbURL(idData)
+        let imageName = Utils.replaceSuffix(novelName, idData.url!)
+        // 在文件名末尾加上内嵌图片的 id 和序号
+        const array = imageName.split('.')
+        const addString = `-${idData.id}${idData.p === 0 ? '' : '-' + idData.p}`
+        array[array.length - 2] = array[array.length - 2] + addString
+        imageName = array.join('.')
 
-      // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
-      // 所以要替换掉内嵌图片路径里的斜线
-      if (action === 'mergeNovel') {
-        imageName = Utils.replaceUnsafeStr(imageName)
+        // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
+        // 所以要替换掉内嵌图片路径里的斜线
+        if (action === 'mergeNovel') {
+          imageName = Utils.replaceUnsafeStr(imageName)
+        }
+        this.sendDownload(idData.blobURL!, imageName)
       }
-      this.sendDownload(idData.blobURL!, imageName)
     }
   }
 
@@ -73,12 +76,19 @@ class DownloadNovelEmbeddedImage {
       }
 
       const idList = await this.getIdList(content, embeddedImages)
-
       for (let idData of idList) {
-        idData = await this.getImageBolbURL(idData)
-        const dataURL = await this.getImageDataURL(idData)
-        const html = `<img src="${dataURL}" />`
-        content = content.replaceAll(idData.flag, html)
+        if (idData.url) {
+          idData = await this.getImageBolbURL(idData)
+          const dataURL = await this.getImageDataURL(idData)
+          const html = `<img src="${dataURL}" />`
+          content = content.replaceAll(idData.flag, html)
+        } else {
+          // 如果 url 是 null，则修改标记，做出提示
+          content = content.replaceAll(
+            idData.flag,
+            ` ${idData.flag} url is null`
+          )
+        }
       }
 
       return resolve(content)
@@ -167,9 +177,11 @@ class DownloadNovelEmbeddedImage {
 
   private async getImageBolbURL(idData: IDData): Promise<IDData> {
     return new Promise(async (resolve) => {
-      const res = await fetch(idData.url)
-      const blob = await res.blob()
-      idData.blobURL = URL.createObjectURL(blob)
+      if (idData.url) {
+        const res = await fetch(idData.url)
+        const blob = await res.blob()
+        idData.blobURL = URL.createObjectURL(blob)
+      }
       resolve(idData)
     })
   }
@@ -183,7 +195,7 @@ class DownloadNovelEmbeddedImage {
       const con = canvas.getContext('2d')
       con!.drawImage(img, 0, 0, img.width, img.height)
 
-      const suffix = Utils.getSuffix(data.url)
+      const suffix = Utils.getSuffix(data.url!)
       // 如果原图是 png 格式，就转换成 png 格式的数据，否则转换为 jpeg 格式
       if (suffix === 'png') {
         const ImgDataURL = canvas.toDataURL()
