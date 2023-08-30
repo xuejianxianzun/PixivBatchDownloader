@@ -21853,10 +21853,13 @@ class SaveWorkMeta {
         fileContent.push(this.addMeta('User', data.user));
         fileContent.push(this.addMeta('UserId', data.userId));
         fileContent.push(this.addMeta('URL', this.getWorkURL(data)));
+        if (data.type !== 3) {
+            fileContent.push(this.addMeta('Original', data.original));
+        }
+        fileContent.push(this.addMeta('Thumbnail', data.thumb));
         fileContent.push(this.addMeta('Tags', this.joinTags(data.tags)));
         fileContent.push(this.addMeta('Date', data.date));
-        // description 的标题下面多添加一行空格，便于和 description 内容进行区分
-        fileContent.push(this.addMeta('Description\n', this.handleHTML(data.description)));
+        fileContent.push(this.addMeta('Description', this.handleHTML(data.description)));
         // 生成文件
         const blob = new Blob(fileContent, {
             type: 'text/plain',
