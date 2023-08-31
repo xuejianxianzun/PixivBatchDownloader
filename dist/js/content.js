@@ -913,7 +913,9 @@ class CenterPanel {
             .querySelector('.centerWrap_close')
             .addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('closeCenterPanel');
-            _ShowHelp__WEBPACK_IMPORTED_MODULE_10__.showHelp.show('tipAltXToShowControlPanel', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_快捷键ALTX显示隐藏控制面板'));
+            if (!_Config__WEBPACK_IMPORTED_MODULE_4__.Config.mobile) {
+                _ShowHelp__WEBPACK_IMPORTED_MODULE_10__.showHelp.show('tipAltXToShowControlPanel', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_快捷键ALTX显示隐藏控制面板'));
+            }
         });
         // 开始抓取作品时，隐藏
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlStart, () => {
@@ -6252,26 +6254,26 @@ const langText = {
         'Стащить диапазон идентификаторов',
     ],
     _抓取id区间说明: [
-        '你可以设置一个作品 id 范围，抓取此范围内的所有作品（包含开始和结束的 id）。<br>注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。',
-        '你可以設定一個作品 id 範圍，擷取此範圍內的所有作品（包含開始和結束的 id）。<br>注意：如果一次任務中產生的擷取結果數量太多，可能會導致頁面崩潰。',
-        'You can set a range of work id and grab all works in this range (including the begin and end id). <br>Note: If the number of crawling results in a task is too much, it may cause the page to crash.',
-        '作品 id の範囲を設定し、その範囲内のすべての作品をクロールすることができます。「開始 id と終了 id を含む」<br>注意：1 つのタスクであまりにも多くのクロール結果を生成すると、ページがクラッシュする可能性があります。',
-        '작품 ID 범위를 설정할 수 있습니다. 이 범위 내의 모든 작품 (시작과 끝 ID 포함).<br>참고: 작업의 긁어오기 결과가 너무 많으면 페이지가 충돌할 수 있습니다.',
-        'Вы можете задать диапазон идентификаторов работ и захватить все работы в этом диапазоне (включая идентификаторы начала и конца). <br>Примечание: Если в задании слишком большое количество результатов стаскивания, это может привести к сбою страницы.',
+        '你可以设置一个作品 ID 范围，抓取此范围内的所有作品（包含开始和结束的 id）。<br>注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。<br>如果你需要抓取很多 ID，请考虑拆分成多个任务。我建议每批抓取的 ID 数量不要超过 100,000 个。',
+        '你可以設定一個作品 ID 範圍，擷取此範圍內的所有作品（包含開始和結束的 id）。<br>注意：如果一次任務中產生的擷取結果數量太多，可能會導致頁面崩潰。<br>如果你需要抓取很多 ID，請考慮拆分成多個任務。我建議每批抓取的 ID 數量不要超過 100,000 個。',
+        'You can set a range of work ID and grab all works in this range (including the begin and end ID). <br>Note: If the number of crawling results in a task is too much, it may cause the page to crash.<br>If you need to crawl a lot of IDs, consider splitting it into multiple tasks. I recommend crawling no more than 100,000 IDs per batch.',
+        '作品 ID の範囲を設定し、その範囲内のすべての作品をクロールすることができます。「開始 ID と終了 id を含む」<br>注意：1 つのタスクであまりにも多くのクロール結果を生成すると、ページがクラッシュする可能性があります。<br>多数の ID をクロールする必要がある場合は、複数のタスクに分割することを検討してください。 バッチごとにクロールする ID は 100,000 未満にすることをお勧めします。',
+        '작품 ID 범위를 설정할 수 있습니다. 이 범위 내의 모든 작품 (시작과 끝 ID 포함).<br>참고: 작업의 긁어오기 결과가 너무 많으면 페이지가 충돌할 수 있습니다.<br>많은 ID를 크롤링해야 하는 경우 이를 여러 작업으로 분할하는 것이 좋습니다. 배치당 100,000개 이하의 ID를 크롤링하는 것이 좋습니다.',
+        'Вы можете задать диапазон идентификаторов работ и захватить все работы в этом диапазоне (включая идентификаторы начала и конца). <br>Примечание: Если в задании слишком большое количество результатов стаскивания, это может привести к сбою страницы.<br>Если вам нужно сканировать большое количество идентификаторов, рассмотрите возможность разделения этого процесса на несколько задач. Я рекомендую сканировать не более 100 000 идентификаторов за пакет.',
     ],
     _抓取id区间起点: [
-        '请输入开始的 id: ',
-        '請輸入開始的 id: ',
-        'Please type in the beginning id: ',
-        '開始 id を入力してください: ',
+        '请输入开始的 ID: ',
+        '請輸入開始的 ID: ',
+        'Please type in the beginning ID: ',
+        '開始 ID を入力してください: ',
         '시작 ID를 입력해주세요: ',
         'Пожалуйста, введите начальный идентификатор: ',
     ],
     _抓取id区间终点: [
-        '请输入结束的 id: ',
-        '請輸入結束的 id: ',
-        'Please type  in the ending id: ',
-        '終了 id を入力してください: ',
+        '请输入结束的 ID: ',
+        '請輸入結束的 ID: ',
+        'Please type  in the ending ID: ',
+        '終了 ID を入力してください: ',
         '끝 ID를 입력해주세요: ',
         'Пожалуйста, введите конечный идентификатор: ',
     ],
@@ -9210,7 +9212,9 @@ class PreviewWork {
                     _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__.showOriginSizeImage.hide();
                     this.showWrap();
                     window.clearTimeout(this.delayHiddenTimer);
-                    _ShowHelp__WEBPACK_IMPORTED_MODULE_13__.showHelp.show('tipPressDToQuickDownload', _Lang__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品时按快捷键可以下载这个作品'));
+                    if (!_Config__WEBPACK_IMPORTED_MODULE_15__.Config.mobile) {
+                        _ShowHelp__WEBPACK_IMPORTED_MODULE_13__.showHelp.show('tipPressDToQuickDownload', _Lang__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品时按快捷键可以下载这个作品'));
+                    }
                 }
             }
         }
@@ -10059,7 +10063,9 @@ class SelectWork {
             this.controlBtn.onclick = (ev) => {
                 this.startSelect(ev);
                 this.clearBtn.style.display = 'block';
-                _ShowHelp__WEBPACK_IMPORTED_MODULE_11__.showHelp.show('tipAltSToSelectWork', _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快捷键ALTS手动选择作品'));
+                if (!_Config__WEBPACK_IMPORTED_MODULE_12__.Config.mobile) {
+                    _ShowHelp__WEBPACK_IMPORTED_MODULE_11__.showHelp.show('tipAltSToSelectWork', _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快捷键ALTS手动选择作品'));
+                }
             };
         }
         else {
@@ -11140,7 +11146,9 @@ class ShowOriginSizeImage {
         if (val) {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('showOriginSizeImage');
             this.wrap.style.display = 'block';
-            _ShowHelp__WEBPACK_IMPORTED_MODULE_9__.showHelp.show('tipPressDToQuickDownload', _Lang__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_预览作品时按快捷键可以下载这个作品'));
+            if (!_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile) {
+                _ShowHelp__WEBPACK_IMPORTED_MODULE_9__.showHelp.show('tipPressDToQuickDownload', _Lang__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_预览作品时按快捷键可以下载这个作品'));
+            }
             // 预览动图
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.previewUgoira && this.workData?.body.illustType === 2) {
                 this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_4__.PreviewUgoira(this.workData.body.id, this.wrap, _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.showOriginImageSize);
@@ -16790,13 +16798,15 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
 
 
 
@@ -16811,9 +16821,9 @@ class QuickCrawl {
         this.show = true; // 是否显示
         // 指定在哪些页面类型里启用
         this.enablePageType = [
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Novel,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Unlisted,
+            _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Artwork,
+            _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Novel,
+            _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Unlisted,
         ];
         this.addBtn();
         this.setVisible();
@@ -16829,13 +16839,15 @@ class QuickCrawl {
   <use xlink:href="#icon-download"></use>
 </svg>`;
         document.body.append(this.btn);
-        _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.btn);
+        _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.register(this.btn);
     }
     bindEvents() {
         // 点击按钮启动快速抓取
         this.btn.addEventListener('click', () => {
             this.sendDownload();
-            _ShowHelp__WEBPACK_IMPORTED_MODULE_4__.showHelp.show('tipAltQToQuickDownload', _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快捷键ALTQ快速下载本页作品'));
+            if (!_Config__WEBPACK_IMPORTED_MODULE_1__.Config.mobile) {
+                _ShowHelp__WEBPACK_IMPORTED_MODULE_5__.showHelp.show('tipAltQToQuickDownload', _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_快捷键ALTQ快速下载本页作品'));
+            }
         }, false);
         // 使用快捷键 Alt + Q 启动快速抓取
         window.addEventListener('keydown', (ev) => {
@@ -16844,33 +16856,33 @@ class QuickCrawl {
             }
         }, false);
         // 页面类型改变时设置按钮的显示隐藏
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.pageSwitch, () => {
             this.setVisible();
         });
     }
     sendDownload() {
-        _store_States__WEBPACK_IMPORTED_MODULE_5__.states.quickCrawl = true;
+        _store_States__WEBPACK_IMPORTED_MODULE_6__.states.quickCrawl = true;
         const isNovel = window.location.href.includes('/novel');
         let idData;
         if (isNovel) {
             idData = {
                 type: 'novels',
-                id: _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getNovelId(window.location.href),
+                id: _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getNovelId(window.location.href),
             };
         }
         else {
             idData = {
                 type: 'unknown',
-                id: _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getIllustId(window.location.href),
+                id: _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getIllustId(window.location.href),
             };
         }
-        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [idData]);
-        _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已发送下载请求'), {
+        _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('crawlIdList', [idData]);
+        _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已发送下载请求'), {
             bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgBlue,
         });
     }
     setVisible() {
-        this.show = this.enablePageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type);
+        this.show = this.enablePageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type);
         this.btn.style.display = this.show ? 'flex' : 'none';
     }
 }

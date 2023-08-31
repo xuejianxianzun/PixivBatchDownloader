@@ -82,10 +82,12 @@ class PreviewWork {
           showOriginSizeImage.hide()
           this.showWrap()
           window.clearTimeout(this.delayHiddenTimer)
-          showHelp.show(
-            'tipPressDToQuickDownload',
-            lang.transl('_预览作品时按快捷键可以下载这个作品')
-          )
+          if (!Config.mobile) {
+            showHelp.show(
+              'tipPressDToQuickDownload',
+              lang.transl('_预览作品时按快捷键可以下载这个作品')
+            )
+          }
         }
       }
     } else {
