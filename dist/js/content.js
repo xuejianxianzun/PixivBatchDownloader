@@ -23811,12 +23811,12 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 111260000
-            this.crawlData(111050000, 111260690);
+            // 上次记录到 111460000
+            this.crawlData(111270000, 111469542);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 20550000
-            this.crawlData(20520000, 20559865, 'novels');
+            // 上次记录到 20600000
+            this.crawlData(20560000, 20606655, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -28169,7 +28169,7 @@ class Settings {
             setUserNameShow: true,
             setUserNameList: {},
             removeAtFromUsername: false,
-            showLargerThumbnails: true,
+            showLargerThumbnails: false,
             doubleWidthThumb: true,
             wheelScrollSwitchImageOnPreviewWork: true,
             doNotDownloadLastImageOfMultiImageWork: false,
@@ -31629,6 +31629,11 @@ const novelData = [
     [20530000, 1692888700000],
     [20540000, 1693038437000],
     [20550000, 1693143069000],
+    [20560001, 1693284776000],
+    [20570000, 1693409238000],
+    [20580000, 1693558804000],
+    [20590000, 1693667983000],
+    [20600001, 1693801909000],
 ];
 
 
@@ -42772,6 +42777,26 @@ const illustsData = [
     [111240000, 1693216800000],
     [111250000, 1693236180000],
     [111260000, 1693280100000],
+    [111270000, 1693310820000],
+    [111280000, 1693332840000],
+    [111290001, 1693380180000],
+    [111300000, 1693403160000],
+    [111310001, 1693428480000],
+    [111320000, 1693468260000],
+    [111330001, 1693487760000],
+    [111340001, 1693510320000],
+    [111350003, 1693555260000],
+    [111360000, 1693576320000],
+    [111370000, 1693607700000],
+    [111380000, 1693640520000],
+    [111390000, 1693661700000],
+    [111400000, 1693689600000],
+    [111410000, 1693722780000],
+    [111420000, 1693743000000],
+    [111430000, 1693762200000],
+    [111440000, 1693810800000],
+    [111450000, 1693834920000],
+    [111460000, 1693869840000],
 ];
 
 

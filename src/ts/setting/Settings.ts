@@ -434,7 +434,7 @@ class Settings {
     setUserNameShow: true,
     setUserNameList: {},
     removeAtFromUsername: false,
-    showLargerThumbnails: true,
+    showLargerThumbnails: false,
     doubleWidthThumb: true,
     wheelScrollSwitchImageOnPreviewWork: true,
     doNotDownloadLastImageOfMultiImageWork: false,
