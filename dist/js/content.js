@@ -7107,6 +7107,14 @@ const langText = {
         '정기 크롤링 간격 시간',
         'Интервальное время сканирования с таймером',
     ],
+    _定时抓取的间隔时间2: [
+        '定时抓取的间隔时间',
+        '定時抓取的間隔時間',
+        'The interval time of timed crawl',
+        '時間指定クロールの間隔時間',
+        '정기 크롤링 간격 시간',
+        'Интервальное время сканирования с таймером',
+    ],
     _分钟: ['分钟', '分鐘', 'Minute', '分', '분', 'Минут'],
     _定时抓取的时间超过最大值: [
         '定时抓取的间隔时间超过最大值：',
@@ -18430,7 +18438,7 @@ class TimedCrawl {
      */
     async start(cb) {
         const input = new _Input__WEBPACK_IMPORTED_MODULE_6__.Input({
-            instruction: `${_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取的间隔时间')} (${_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_分钟')})`,
+            instruction: `${_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取的间隔时间2')} (${_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_分钟')})`,
             value: _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval.toString(),
             width: 500,
         });
