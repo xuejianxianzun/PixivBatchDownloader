@@ -21,11 +21,24 @@
 }
 .liyNwX,
 .gClOXE,
-.sc-11m5zdr-2 {
+.sc-11m5zdr-2,
+.hkRLSu,
+.fgSNcI {
   width: auto !important;
 }
+.hkRLSu,
+.fgSNcI {
+  padding: 0 50px;
+}
+/* display: grid 的 ul */
+.kpXxgm,
+.fmesiH {
+  display: flex;
+  flex-wrap: wrap;
+}
 /* li 的直接子元素 */
-.jDiQFZ {
+.jDiQFZ,
+.gFXJBU {
   width: 100% !important;
 }
 /* div[width="184"] */
@@ -72,6 +85,8 @@ div[width='104'] .eCFXg {
 /* img */
 .erYaF,
 .eCFXg,
+.cdrSgJ,
+.zdawJ,
 .cdrSgJ {
   width: auto !important;
   height: auto !important;

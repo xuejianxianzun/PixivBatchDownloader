@@ -394,10 +394,12 @@ class SelectWork {
       this.controlBtn.onclick = (ev) => {
         this.startSelect()
         this.clearBtn.style.display = 'block'
-        showHelp.show(
-          'tipAltSToSelectWork',
-          lang.transl('_快捷键ALTS手动选择作品')
-        )
+        if (!Config.mobile) {
+          showHelp.show(
+            'tipAltSToSelectWork',
+            lang.transl('_快捷键ALTS手动选择作品')
+          )
+        }
       }
     } else {
       if (!this.pause) {

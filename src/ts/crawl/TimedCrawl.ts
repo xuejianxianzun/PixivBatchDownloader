@@ -28,7 +28,7 @@ class TimedCrawl {
    */
   public async start(cb: Function) {
     const input = new Input({
-      instruction: `${lang.transl('_定时抓取的间隔时间')} (${lang.transl(
+      instruction: `${lang.transl('_定时抓取的间隔时间2')} (${lang.transl(
         '_分钟'
       )})`,
       value: settings.timedCrawlInterval.toString(),
