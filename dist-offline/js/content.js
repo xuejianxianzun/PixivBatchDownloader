@@ -11556,14 +11556,14 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.3.0';
+        this.flag = '16.3.2';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
       `;
             // <strong>${lang.transl('_新增功能')}:</strong>
             // <span class="blue">${lang.transl('abc')}</span>
@@ -15988,7 +15988,8 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     }
     async getUserListComplete() {
         _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前有x个用户', this.userList.length.toString()));
-        if (this.userList.length === 0) {
+        // 在批量关注用户时，抓取结果为 0 并不影响继续执行
+        if (this.userList.length === 0 && this.task !== 'batchFollow') {
             return this.getIdListFinished();
         }
         if (this.task === 'exportCSV') {
@@ -23884,12 +23885,12 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 111460000
-            this.crawlData(111270000, 111469542);
+            // 上次记录到 111740000
+            this.crawlData(111470000, 111746669);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 20600000
-            this.crawlData(20560000, 20606655, 'novels');
+            // 上次记录到 20660000
+            this.crawlData(20610000, 20667154, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -31707,6 +31708,12 @@ const novelData = [
     [20580000, 1693558804000],
     [20590000, 1693667983000],
     [20600001, 1693801909000],
+    [20610000, 1693950411000],
+    [20620000, 1694100047000],
+    [20630001, 1694257179000],
+    [20640000, 1694357698000],
+    [20650001, 1694519970000],
+    [20660000, 1694683520000],
 ];
 
 
@@ -42870,6 +42877,34 @@ const illustsData = [
     [111440000, 1693810800000],
     [111450000, 1693834920000],
     [111460000, 1693869840000],
+    [111470000, 1693908840000],
+    [111480000, 1693928340000],
+    [111490000, 1693974900000],
+    [111500000, 1694004240000],
+    [111510001, 1694033880000],
+    [111520000, 1694077200000],
+    [111530000, 1694098500000],
+    [111540000, 1694140200000],
+    [111550000, 1694171580000],
+    [111560000, 1694190360000],
+    [111570000, 1694231460000],
+    [111580000, 1694257800000],
+    [111590000, 1694274960000],
+    [111600000, 1694314080000],
+    [111610000, 1694338920000],
+    [111620000, 1694356740000],
+    [111630001, 1694395140000],
+    [111640001, 1694430660000],
+    [111650001, 1694450520000],
+    [111660000, 1694498580000],
+    [111670000, 1694524620000],
+    [111680000, 1694557200000],
+    [111690000, 1694599680000],
+    [111700000, 1694619840000],
+    [111710000, 1694667060000],
+    [111720000, 1694696520000],
+    [111730000, 1694729400000],
+    [111740000, 1694770620000],
 ];
 
 

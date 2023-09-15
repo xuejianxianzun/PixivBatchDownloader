@@ -294,7 +294,8 @@ class InitFollowingPage extends InitPageBase {
   private async getUserListComplete() {
     log.log(lang.transl('_当前有x个用户', this.userList.length.toString()))
 
-    if (this.userList.length === 0) {
+    // 在批量关注用户时，抓取结果为 0 并不影响继续执行
+    if (this.userList.length === 0 && this.task !== 'batchFollow') {
       return this.getIdListFinished()
     }
 
