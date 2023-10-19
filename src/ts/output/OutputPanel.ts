@@ -6,6 +6,7 @@ import { Config } from '../Config'
 import { theme } from '../Theme'
 import { msgBox } from '../MsgBox'
 import { toast } from '../Toast'
+import { CopyToClipboard } from '../CopyToClipboard'
 
 export type OutputData = {
   content: string
@@ -55,12 +56,12 @@ class OutputPanel {
 
     // 复制输出内容
     this.copyBtn.addEventListener('click', () => {
-      const range = document.createRange()
-      range.selectNodeContents(this.outputContent)
-      window.getSelection()!.removeAllRanges()
-      window.getSelection()!.addRange(range)
-      document.execCommand('copy')
-      toast.success(lang.transl('_已复制到剪贴板'))
+      const text = this.outputContent.innerText.replaceAll('\n\n', '\n')
+      CopyToClipboard.setClipboard(text)
+
+      window.setTimeout(() => {
+        this.close()
+      }, 100)
     })
 
     window.addEventListener(EVT.list.output, (ev: CustomEventInit) => {

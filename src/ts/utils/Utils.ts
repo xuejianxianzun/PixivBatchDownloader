@@ -425,6 +425,11 @@ class Utils {
     const nameArray = name.split('.')
     return nameArray[nameArray.length - 1]
   }
+
+  /**替换换行标签，移除 html 标签 */
+  static htmlToText(str: string) {
+    return str.replace(/<br \/>/g, '\n').replace(/<\/?.+?>/g, '')
+  }
 }
 
 export { Utils }
