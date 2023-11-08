@@ -248,6 +248,21 @@ class PreviewWork {
       })
     })
 
+    // 当作品的详情面板隐藏时，鼠标位置可能在作品缩略图之外。所以此时需要检测鼠标位置，决定是否需要隐藏预览图
+    window.addEventListener(
+      EVT.list.PreviewWorkDetailPanelClosed,
+      (ev: CustomEventInit) => {
+        const data = ev.detail?.data as {
+          x: number
+          y: number
+        }
+
+        if (this.mouseInElementArea(this.workEL, data.x, data.y) === false) {
+          this.show = false
+        }
+      }
+    )
+
     this.wrap.addEventListener('mouseenter', () => {
       window.clearTimeout(this.delayHiddenTimer)
     })

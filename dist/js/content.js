@@ -1779,6 +1779,8 @@ class EVENT {
             sendBrowserDownload: 'sendBrowserDownload',
             /**需要显示预览作品详细信息的面板时触发 */
             showPreviewWorkDetailPanel: 'showPreviewWorkDetailPanel',
+            /**预览作品详细信息的面板关闭后触发 */
+            PreviewWorkDetailPanelClosed: 'PreviewWorkDetailPanelClosed',
             // 通过鼠标滚轮事件来切换预览图
             wheelScrollSwitchPreviewImage: 'wheelScrollSwitchPreviewImage',
             // 当结束对一个作品的预览时触发（即预览图窗口消失时触发）
@@ -9445,6 +9447,13 @@ class PreviewWork {
                 this.show = false;
             });
         });
+        // 当作品的详情面板隐藏时，鼠标位置可能在作品缩略图之外。所以此时需要检测鼠标位置，决定是否需要隐藏预览图
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.PreviewWorkDetailPanelClosed, (ev) => {
+            const data = ev.detail?.data;
+            if (this.mouseInElementArea(this.workEL, data.x, data.y) === false) {
+                this.show = false;
+            }
+        });
         this.wrap.addEventListener('mouseenter', () => {
             window.clearTimeout(this.delayHiddenTimer);
         });
@@ -9941,6 +9950,10 @@ class PreviewWorkDetailInfo {
     remove(el) {
         el && el.parentNode && el.parentNode.removeChild(el);
         this.show = false;
+        _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('PreviewWorkDetailPanelClosed', {
+            x: this.mouseX,
+            y: this.mouseY,
+        });
     }
     copyTXT(workData) {
         // 组织输出的内容
