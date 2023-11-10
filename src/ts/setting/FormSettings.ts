@@ -125,6 +125,7 @@ class FormSettings {
       'coverImage',
       'exportIDList',
       'displayThumbnailListOnMultiImageWorkPage',
+      'PreviewWorkDetailInfo',
     ],
     text: [
       'setWantPage',
@@ -158,6 +159,7 @@ class FormSettings {
       'timedCrawlInterval',
       'slowCrawlOnWorksNumber',
       'exportLogExclude',
+      'PreviewDetailInfoWidth',
     ],
     radio: [
       'ugoiraSaveAs',

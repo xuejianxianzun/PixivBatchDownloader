@@ -1,7 +1,6 @@
 //初始化 artwork 作品页
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { store } from '../store/Store'
@@ -10,6 +9,7 @@ import { Tools } from '../Tools'
 import { API } from '../API'
 import { log } from '../Log'
 import { Utils } from '../utils/Utils'
+import './CrawlRecommendWorks'
 
 class InitArtworkPage extends InitPageBase {
   constructor() {

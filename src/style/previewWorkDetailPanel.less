@@ -1,0 +1,154 @@
+.xz_PreviewWorkDetailPanel {
+  background: #fff;
+  box-shadow: 0 0 15px @boxShadowBlue;
+  position: fixed;
+  z-index: 100001;
+  min-width: 100px;
+  padding: 16px 20px;
+  border-radius: 8px;
+  top: 0;
+  left: 0;
+  opacity: 0;
+
+  .content {
+    margin: 0;
+    padding: 0px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #555;
+    text-align: left;
+
+    p {
+      margin: 4px 0;
+    }
+
+    .flags {
+      span {
+        padding: 0px 4px;
+        border-radius: 4px;
+        color: rgb(255, 255, 255);
+        font-weight: bold;
+        font-size: 10px;
+        line-height: 16px;
+        user-select: none;
+      }
+
+      .r18 {
+        background: rgb(255, 64, 96);
+      }
+
+      .ai {
+        background: rgb(176 54 246);
+      }
+    }
+
+    .title,
+    .desc.tags {
+      line-height: 22px;
+    }
+
+    .title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .tags {
+      span {
+        padding: 0 4px 0 0;
+        word-break: break-word;
+      }
+
+      .origin a {
+        color: #3d7699;
+      }
+
+      .transl a {
+        color: #999;
+        font-size: 12px;
+      }
+    }
+
+    .size {
+      font-size: 13px;
+      color: #888;
+    }
+
+    .bmk {
+      font-size: 12px;
+      color: #888;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      .item {
+        padding: 0 12px 0 0;
+        display: flex;
+        flex-direction: row;
+
+        span {
+          padding: 0 6px 0 0;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+    }
+
+    .date {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .textButton {
+      font-size: 12px;
+      color: #999;
+      background: none;
+      padding: 1px 2px;
+      cursor: pointer;
+      border: none;
+
+      &:hover {
+        color: rgb(14, 168, 239);
+      }
+    }
+  }
+
+  a {
+    color: @themeBlue;
+  }
+}
+
+.theme-dark {
+  &.xz_PreviewWorkDetailPanel {
+    background: #222;
+    box-shadow: @darkBoxShadow 0px 0px 15px;
+
+    .content {
+      color: #eee;
+      text-shadow: 1px 1px black;
+
+      .title {
+        color: #fff;
+      }
+
+      .origin a {
+        color: #3d7699;
+      }
+
+      .transl a {
+        color: #ccc;
+      }
+
+      .size,
+      .bmk {
+        color: #ddd;
+      }
+
+      .date {
+        color: #ccc;
+      }
+    }
+  }
+}

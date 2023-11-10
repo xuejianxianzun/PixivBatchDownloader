@@ -1,6 +1,6 @@
 import { Config } from '../Config'
 
-// 已使用的最大编号是 86
+// 已使用的最大编号是 87
 export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -913,11 +913,29 @@ export const formHtml = `<form class="settingForm">
     <p class="option" data-no="84">
     <span class="has_tip settingNameStyle1" data-xztip="_高亮关注的用户的说明">
     <span data-xztext="_高亮关注的用户"></span>
-    <span class="gray1"> ? </span></span>
+    <span class="gray1"> ? </span>
+    </span>
     <input type="checkbox" name="highlightFollowingUsers" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch" tabindex="0"></span>
     </p>
     
+    <p class="option" data-no="87">
+    <span class="has_tip settingNameStyle1" data-xztip="_预览作品的详细信息的说明">
+    <span data-xztext="_预览作品的详细信息"></span>
+    <span class="gray1"> ? </span>
+    </span>
+    <input type="checkbox" name="PreviewWorkDetailInfo" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="subOptionWrap" data-show="PreviewWorkDetailInfo">
+
+    <span data-xztext="_显示区域宽度"></span>&nbsp;
+    <input type="text" name="PreviewDetailInfoWidth" class="setinput_style1 blue" value="500" style="width:40px;min-width: 40px;">
+    <span>&nbsp;px</span>
+
+    </span>
+    </p>
+
     <p class="option" data-no="68">
     <span class="settingNameStyle1" data-xztext="_显示更大的缩略图"></span>
     <input type="checkbox" name="showLargerThumbnails" class="need_beautify checkbox_switch" checked>

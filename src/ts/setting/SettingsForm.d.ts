@@ -147,4 +147,6 @@ export interface SettingsForm extends HTMLFormElement {
   coverImage: HTMLInputElement
   exportIDList: HTMLInputElement
   displayThumbnailListOnMultiImageWorkPage: HTMLInputElement
+  PreviewWorkDetailInfo: HTMLInputElement
+  PreviewDetailInfoWidth: HTMLInputElement
 }

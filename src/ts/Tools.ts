@@ -732,6 +732,41 @@ class Tools {
     const num = Math.ceil(Math.random() * difference)
     return start + num
   }
+
+  /**格式化数字，每千位添加一个逗号，返回结果字符串 */
+  static numberToString(int: number): string {
+    let stringArray = Array.from(int.toString())
+
+    let group: string[] = []
+
+    let index = stringArray.length
+    while (index > 0) {
+      let array: string[] = []
+      for (let times = 0; times < 3; times++) {
+        index >= 0 && array.push(stringArray[--index])
+      }
+      group.push(array.reverse().join(''))
+    }
+
+    const result = group.reverse().join(',')
+    return result
+  }
+
+  static readonly xRestrictMap = new Map([
+    [0, 'AllAges'],
+    [1, 'R-18'],
+    [2, 'R-18G'],
+  ])
+
+  static getXRestrictText(number: number) {
+    return this.xRestrictMap.get(number)
+  }
+
+  static readonly AIType = ['Unknown', 'No', 'Yes']
+
+  static getAITypeText(number: number) {
+    return this.AIType[number]
+  }
 }
 
 export { Tools }
