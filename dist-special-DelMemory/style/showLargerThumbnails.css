@@ -23,7 +23,8 @@
 .gClOXE,
 .sc-11m5zdr-2,
 .hkRLSu,
-.fgSNcI {
+.fgSNcI,
+.gFXOjb {
   width: auto !important;
 }
 .hkRLSu,
@@ -38,7 +39,8 @@
 }
 /* li 的直接子元素 */
 .jDiQFZ,
-.gFXJBU {
+.gFXJBU,
+.cWMKYW {
   width: 100% !important;
 }
 /* div[width="184"] */
@@ -391,4 +393,12 @@ div[width='104'] .eCFXg {
 #wrapper #page-group {
   margin: 0 auto;
   width: 970px;
+}
+.kblezP,
+.sc-a4p1vl-0 {
+  height: auto !important;
+}
+.kOHspG,
+.sc-a4p1vl-3 {
+  align-items: center;
 }

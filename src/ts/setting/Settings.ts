@@ -259,6 +259,8 @@ interface XzSetting {
   displayThumbnailListOnMultiImageWorkPage: boolean
   tipBookmarkManage: boolean
   requestSponsorshipTime: number
+  PreviewWorkDetailInfo: boolean
+  PreviewDetailInfoWidth: number
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -475,6 +477,8 @@ class Settings {
     displayThumbnailListOnMultiImageWorkPage: true,
     tipBookmarkManage: true,
     requestSponsorshipTime: 0,
+    PreviewWorkDetailInfo: false,
+    PreviewDetailInfoWidth: 400,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

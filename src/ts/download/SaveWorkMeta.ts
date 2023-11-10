@@ -4,6 +4,8 @@ import { DonwloadSuccessData } from './DownloadType'
 import { fileName } from '../FileName'
 import { Result } from '../store/StoreType'
 import { settings } from '../setting/Settings'
+import { Utils } from '../utils/Utils'
+import { Tools } from '../Tools'
 
 // 为每个作品创建一个 txt 文件，保存这个作品的元数据
 class SaveWorkMeta {
@@ -42,11 +44,6 @@ class SaveWorkMeta {
   private joinTags(tags: String[]) {
     const format = tags.map((tag) => '#' + tag)
     return format.join(this.CRLF)
-  }
-
-  // 替换换行标签，移除 html 标签
-  private handleHTML(str: string) {
-    return str.replace(/<br \/>/g, this.CRLF).replace(/<\/?.+?>/g, '')
   }
 
   // 根据作品类型判断是否需要保存它的元数据
@@ -95,20 +92,30 @@ class SaveWorkMeta {
 
     // 添加文件内容
     const fileContent: string[] = []
-    fileContent.push(this.addMeta('Id', data.idNum.toString()))
-    fileContent.push(this.addMeta('Title', data.title))
-    fileContent.push(this.addMeta('User', data.user))
-    fileContent.push(this.addMeta('UserId', data.userId))
+    fileContent.push(this.addMeta('ID', data.idNum.toString()))
     fileContent.push(this.addMeta('URL', this.getWorkURL(data)))
     if (data.type !== 3) {
       fileContent.push(this.addMeta('Original', data.original))
     }
     fileContent.push(this.addMeta('Thumbnail', data.thumb))
-    fileContent.push(this.addMeta('Tags', this.joinTags(data.tags)))
-    fileContent.push(this.addMeta('Date', data.date))
     fileContent.push(
-      this.addMeta('Description', this.handleHTML(data.description))
+      this.addMeta('xRestrict', Tools.getXRestrictText(data.xRestrict)!)
     )
+    fileContent.push(this.addMeta('AI', Tools.getAITypeText(data.aiType || 0)))
+    fileContent.push(this.addMeta('User', data.user))
+    fileContent.push(this.addMeta('UserID', data.userId))
+    fileContent.push(this.addMeta('Title', data.title))
+    fileContent.push(
+      this.addMeta('Description', Utils.htmlToText(data.description))
+    )
+    fileContent.push(this.addMeta('Tags', this.joinTags(data.tags)))
+    if (data.type !== 3) {
+      fileContent.push(
+        this.addMeta('Size', `${data.fullWidth} x ${data.fullHeight}`)
+      )
+    }
+    fileContent.push(this.addMeta('Bookmark', data.bmk.toString()))
+    fileContent.push(this.addMeta('Date', data.date))
 
     // 生成文件
     const blob = new Blob(fileContent, {
