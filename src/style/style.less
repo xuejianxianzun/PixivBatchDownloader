@@ -94,6 +94,7 @@ main section nav[style] {
   text-decoration: none;
   display: block;
 }
+
 html[data-xzpagetheme='white'] #quickBookmarkEl {
   color: #1f1f1f;
 }
@@ -194,6 +195,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   border: 2px solid @beautifyBlue;
   background-color: rgba(41, 179, 243, 0.1);
   box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
+
   img {
     width: 100%;
     height: auto;
@@ -211,9 +213,11 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
   span {
     font-size: 14px;
     padding: 0 5px;
+
     a {
       color: #fff;
     }
@@ -233,6 +237,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   border: 2px solid @beautifyBlue;
   background-color: rgba(41, 179, 243, 0.2);
   box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
+
   img {
     width: 100%;
     height: auto;
@@ -259,6 +264,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   cursor: pointer;
   overflow: hidden;
   font-size: 22px;
+
   &:hover {
     opacity: 0.8;
   }
@@ -285,6 +291,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   cursor: pointer;
   overflow: hidden;
   font-size: 22px;
+
   &:hover {
     opacity: 0.8;
   }
@@ -324,4 +331,36 @@ html[data-xzpagetheme='dark'] body .pbdHighlightFollowing * {
   // 这里覆盖上面的黄色背景，必须把背景颜色设置为 transparent，设置为 none 是无效的，因为 none 不是颜色
   background-color: transparent !important;
   color: yellow !important;
+}
+
+// 模仿 Pixiv 的蓝底白字的文字按钮
+.blueTextBtn {
+  display: flex;
+  align-items: center;
+  width: min-content;
+  -webkit-box-pack: center;
+  justify-content: center;
+  cursor: pointer;
+  white-space: nowrap;
+  color: #fff;
+  background-color: #0096fa;
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: bold;
+  appearance: none;
+  padding: 0px;
+  margin: 0px 8px;
+  padding-right: 16px;
+  padding-left: 16px;
+  border-style: none;
+  border-radius: 99px;
+  transition:
+    color 0.2s ease 0s,
+    background-color 0.2s ease 0s,
+    box-shadow 0.2s ease 0s;
+  height: 32px;
+
+  &:hover {
+    background-color: #0090f0;
+  }
 }

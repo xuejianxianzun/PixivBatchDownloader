@@ -3,7 +3,6 @@ import { API } from '../API'
 import { Tools } from '../Tools'
 import { lang } from '../Lang'
 import { token } from '../Token'
-import { Utils } from '../utils/Utils'
 import { pageType } from '../PageType'
 import { ArtworkData, NovelData } from '../crawl/CrawlResult'
 import { bookmark } from '../Bookmark'
@@ -129,6 +128,13 @@ class QuickBookmark {
         )
       })
     }
+
+    // 使用快捷键 Ctrl + B 点击快速收藏按钮
+    window.addEventListener('keydown', (ev) => {
+      if (ev.code === 'KeyB' && ev.ctrlKey) {
+        this.btn && this.btn.click()
+      }
+    })
   }
 
   private sendDownload() {
@@ -179,11 +185,7 @@ class QuickBookmark {
       // 收藏成功之后
       this.isBookmarked = true
       this.redQuickBookmarkBtn()
-
-      // 移动端不改变收藏按钮的颜色以及设置超链接，因为切换作品后元素没有重新生成，样式和超链接会依旧存在
-      if (!Config.mobile) {
-        this.redPixivBMKDiv(pixivBMKDiv)
-      }
+      this.redPixivBMKDiv(pixivBMKDiv)
     }
   }
 
@@ -215,42 +217,14 @@ class QuickBookmark {
 
   // 把心形收藏按钮从未收藏变成已收藏
   private redPixivBMKDiv(pixivBMKDiv: HTMLDivElement) {
+    if (Config.mobile) {
+      pixivBMKDiv && pixivBMKDiv.click()
+    } else {
+      const btn = pixivBMKDiv.querySelector('button')
+      btn && btn.click()
+    }
     // 取消监听心形收藏按钮的变化
     this.ob && this.ob.disconnect()
-
-    const svg = pixivBMKDiv.querySelector('svg')
-    if (!svg) {
-      return
-    }
-
-    // 这条规则让心形的内部填充，显示出来完整的心。缺少这个规则的话，心形只有边框，内部还是空的
-    const redStyle = `
-    .${this.redClass} mask path{
-      fill: white !important;
-    }`
-    Utils.addStyle(redStyle)
-
-    // 创建一个 a 标签，用它替换掉 button（模拟心形按钮收藏后的变化）
-    const a = document.createElement('a')
-    a.href = this.getEditBookmarkLink()
-    a.appendChild(svg as Node)
-
-    // 移除 button，添加 a 标签
-    const btn = pixivBMKDiv.querySelector('button')
-    btn && btn.remove()
-    pixivBMKDiv.insertAdjacentElement('afterbegin', a)
-
-    // 给 svg 添加 class，让心形变红
-    svg.classList.add(this.redClass)
-
-    // 点击 a 标签时阻止事件冒泡。因为不阻止的话，点击这个 a 标签，pixiv 会进行添加收藏的操作。我的目的是让它跳转到编辑 tag 的页面。
-    a.addEventListener(
-      'click',
-      (ev) => {
-        ev.stopPropagation()
-      },
-      true
-    )
   }
 }
 

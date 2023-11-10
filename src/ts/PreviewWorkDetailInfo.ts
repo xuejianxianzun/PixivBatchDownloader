@@ -218,6 +218,11 @@ class PreviewWorkDetailInfo {
   private remove(el: HTMLDivElement) {
     el && el.parentNode && el.parentNode.removeChild(el)
     this.show = false
+
+    EVT.fire('PreviewWorkDetailPanelClosed', {
+      x: this.mouseX,
+      y: this.mouseY,
+    })
   }
 
   private copyTXT(workData: ArtworkData) {

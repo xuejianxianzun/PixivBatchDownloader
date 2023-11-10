@@ -2540,3 +2540,29 @@ html[data-xzpagetheme='dark'] body .pbdHighlightFollowing * {
   background-color: transparent !important;
   color: yellow !important;
 }
+.blueTextBtn {
+  display: flex;
+  align-items: center;
+  width: min-content;
+  -webkit-box-pack: center;
+  justify-content: center;
+  cursor: pointer;
+  white-space: nowrap;
+  color: #fff;
+  background-color: #0096fa;
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: bold;
+  appearance: none;
+  padding: 0px;
+  margin: 0px 8px;
+  padding-right: 16px;
+  padding-left: 16px;
+  border-style: none;
+  border-radius: 99px;
+  transition: color 0.2s ease 0s, background-color 0.2s ease 0s, box-shadow 0.2s ease 0s;
+  height: 32px;
+}
+.blueTextBtn:hover {
+  background-color: #0090f0;
+}
