@@ -162,10 +162,12 @@ class CenterPanel {
       .querySelector('.centerWrap_close')!
       .addEventListener('click', () => {
         EVT.fire('closeCenterPanel')
-        showHelp.show(
-          'tipAltXToShowControlPanel',
-          lang.transl('_快捷键ALTX显示隐藏控制面板')
-        )
+        if (!Config.mobile) {
+          showHelp.show(
+            'tipAltXToShowControlPanel',
+            lang.transl('_快捷键ALTX显示隐藏控制面板')
+          )
+        }
       })
 
     // 开始抓取作品时，隐藏

@@ -15,6 +15,7 @@ import { DateFormat } from './utils/DateFormat'
 import { showHelp } from './ShowHelp'
 import { store } from './store/Store'
 import { Config } from './Config'
+import { previewWorkDetailInfo } from './PreviewWorkDetailInfo'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -76,16 +77,23 @@ class PreviewWork {
       if (!this.workData || this.workData.body.id !== this.workId) {
         this.readyShow()
       } else {
+        // 显示作品的详细信息
+        if (settings.PreviewWorkDetailInfo) {
+          EVT.fire('showPreviewWorkDetailPanel', this.workData)
+        }
+
         this.sendUrls()
         if (settings.PreviewWork) {
           this._show = true
           showOriginSizeImage.hide()
           this.showWrap()
           window.clearTimeout(this.delayHiddenTimer)
-          showHelp.show(
-            'tipPressDToQuickDownload',
-            lang.transl('_预览作品时按快捷键可以下载这个作品')
-          )
+          if (!Config.mobile) {
+            showHelp.show(
+              'tipPressDToQuickDownload',
+              lang.transl('_预览作品时按快捷键可以下载这个作品')
+            )
+          }
         }
       }
     } else {
@@ -105,6 +113,8 @@ class PreviewWork {
         this.previewUgoira.destroy()
         this.previewUgoira = null as unknown as PreviewUgoira
       }
+
+      EVT.fire('previewEnd')
     }
   }
 
@@ -146,6 +156,11 @@ class PreviewWork {
     })
 
     artworkThumbnail.onLeave((el: HTMLElement) => {
+      // 当鼠标离开作品缩略图时，有可能是因为显示了作品详细信息的面板。此时让预览图保持显示
+      if (previewWorkDetailInfo.show) {
+        return
+      }
+
       if (this.overThumb) {
         // 如果预览图遮挡了作品缩略图，就需要延迟隐藏预览图。
         // 因为预览图显示之后，鼠标可能处于预览图上，这会触发此事件。
@@ -233,6 +248,21 @@ class PreviewWork {
       })
     })
 
+    // 当作品的详情面板隐藏时，鼠标位置可能在作品缩略图之外。所以此时需要检测鼠标位置，决定是否需要隐藏预览图
+    window.addEventListener(
+      EVT.list.PreviewWorkDetailPanelClosed,
+      (ev: CustomEventInit) => {
+        const data = ev.detail?.data as {
+          x: number
+          y: number
+        }
+
+        if (this.mouseInElementArea(this.workEL, data.x, data.y) === false) {
+          this.show = false
+        }
+      }
+    )
+
     this.wrap.addEventListener('mouseenter', () => {
       window.clearTimeout(this.delayHiddenTimer)
     })
@@ -258,6 +288,14 @@ class PreviewWork {
     this.wrap.addEventListener('mousewheel', (ev) => {
       this.overThumb && this.onWheelScroll(ev)
     })
+
+    window.addEventListener(
+      EVT.list.wheelScrollSwitchPreviewImage,
+      (ev: CustomEventInit) => {
+        const mouseEvent = ev.detail.data
+        mouseEvent && this.onWheelScroll(mouseEvent)
+      }
+    )
   }
 
   // 判断鼠标是否处于某个元素的范围内

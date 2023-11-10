@@ -1,4 +1,5 @@
 import { Colors } from '../Colors'
+import { Config } from '../Config'
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { pageType } from '../PageType'
@@ -46,10 +47,12 @@ class QuickCrawl {
       'click',
       () => {
         this.sendDownload()
-        showHelp.show(
-          'tipAltQToQuickDownload',
-          lang.transl('_快捷键ALTQ快速下载本页作品')
-        )
+        if (!Config.mobile) {
+          showHelp.show(
+            'tipAltQToQuickDownload',
+            lang.transl('_快捷键ALTQ快速下载本页作品')
+          )
+        }
       },
       false
     )

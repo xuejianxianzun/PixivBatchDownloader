@@ -3,6 +3,7 @@ import { IDData, Result } from './store/StoreType'
 import { OutputData } from './output/OutputPanel'
 import { SettingChangeData } from './setting/Settings'
 import { Msg } from './MsgBox'
+import { ArtworkData } from './crawl/CrawlResult'
 
 type eventNames = keyof typeof EVT.list
 
@@ -169,6 +170,14 @@ class EVENT {
     getPageTheme: 'getPageTheme',
     /**当下载模块向浏览器发起一个下载请求（保存文件到本地）时触发 */
     sendBrowserDownload: 'sendBrowserDownload',
+    /**需要显示预览作品详细信息的面板时触发 */
+    showPreviewWorkDetailPanel: 'showPreviewWorkDetailPanel',
+    /**预览作品详细信息的面板关闭后触发 */
+    PreviewWorkDetailPanelClosed: 'PreviewWorkDetailPanelClosed',
+    // 通过鼠标滚轮事件来切换预览图
+    wheelScrollSwitchPreviewImage: 'wheelScrollSwitchPreviewImage',
+    // 当结束对一个作品的预览时触发（即预览图窗口消失时触发）
+    previewEnd: 'previewEnd',
   }
 
   /** 触发自定义事件，大部分事件都不需要携带数据
@@ -234,6 +243,7 @@ class EVENT {
       | 'startTimedCrawl'
       | 'cancelTimedCrawl'
       | 'sendBrowserDownload'
+      | 'previewEnd'
   ): void
 
   // 对于需要携带数据的事件进行重载
@@ -266,6 +276,18 @@ class EVENT {
   public fire(type: 'skipDownload', data: DonwloadSkipData): void
 
   public fire(type: 'showMsg', data: Msg): void
+
+  public fire(type: 'showPreviewWorkDetailPanel', data: ArtworkData): void
+
+  public fire(type: 'wheelScrollSwitchPreviewImage', data: Event): void
+
+  public fire(
+    type: 'PreviewWorkDetailPanelClosed',
+    data: {
+      x: number
+      y: number
+    }
+  ): void
 
   public fire(type: eventNames, data?: unknown) {
     const event = new CustomEvent(type, {

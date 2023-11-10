@@ -25,12 +25,29 @@
 // 这里解除限制
 .liyNwX,
 .gClOXE,
-.sc-11m5zdr-2 {
+.sc-11m5zdr-2,
+.hkRLSu,
+.fgSNcI,
+.gFXOjb {
   width: auto !important;
 }
 
+.hkRLSu,
+.fgSNcI {
+  padding: 0 50px;
+}
+
+/* display: grid 的 ul */
+.kpXxgm,
+.fmesiH {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 /* li 的直接子元素 */
-.jDiQFZ {
+.jDiQFZ,
+.gFXJBU,
+.cWMKYW {
   width: 100% !important;
 }
 
@@ -84,6 +101,8 @@ div[width='104'] .eCFXg {
 /* img */
 .erYaF,
 .eCFXg,
+.cdrSgJ,
+.zdawJ,
 .cdrSgJ {
   width: auto !important;
   height: auto !important;
@@ -444,4 +463,16 @@ div[width='104'] .eCFXg {
 #wrapper #page-group {
   margin: 0 auto;
   width: 970px;
+}
+
+// 在作品页面里收藏作品后，大图下面出现的推荐作品列表
+// 这一横排的最外层元素取消固定高度，否则如果图片高度比较高，超出它的高度限制，就会遮挡下面的文字
+.kblezP,
+.sc-a4p1vl-0 {
+  height: auto !important;
+}
+// 推荐作品的图片列表的父元素，这条规则让图片水平居中对齐
+.kOHspG,
+.sc-a4p1vl-3 {
+  align-items: center;
 }

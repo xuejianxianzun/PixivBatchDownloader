@@ -26,14 +26,6 @@ class ExportResult2CSV {
     })
   }
 
-  private readonly xRestrictMap = new Map([
-    [0, 'AllAges'],
-    [1, 'R-18'],
-    [2, 'R-18G'],
-  ])
-
-  private readonly AIType = ['Unknown', 'No', 'Yes']
-
   // 定义要保存的字段
   private readonly fieldCfg: Field[] = [
     {
@@ -178,11 +170,11 @@ class ExportResult2CSV {
           }
 
           if (field.name === 'xRestrict') {
-            result = this.xRestrictMap.get(result as number) || ''
+            result = Tools.getXRestrictText(result as number) || ''
           }
 
           if (field.name === 'AI') {
-            result = this.AIType[d.aiType || 0]
+            result = Tools.getAITypeText(d.aiType || 0)
           }
 
           bodyItem.push(result)

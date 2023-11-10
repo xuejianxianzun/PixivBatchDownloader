@@ -90,10 +90,12 @@ class ShowOriginSizeImage {
     if (val) {
       EVT.fire('showOriginSizeImage')
       this.wrap.style.display = 'block'
-      showHelp.show(
-        'tipPressDToQuickDownload',
-        lang.transl('_预览作品时按快捷键可以下载这个作品')
-      )
+      if (!Config.mobile) {
+        showHelp.show(
+          'tipPressDToQuickDownload',
+          lang.transl('_预览作品时按快捷键可以下载这个作品')
+        )
+      }
 
       // 预览动图
       if (settings.previewUgoira && this.workData?.body.illustType === 2) {
