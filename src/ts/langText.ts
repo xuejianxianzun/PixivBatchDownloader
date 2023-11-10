@@ -281,8 +281,8 @@ const langText = {
   _下载推荐作品: [
     '下载推荐作品',
     '下載推薦作品',
-    'download recommend works',
-    'お勧め作品をダウンロードする',
+    'download recommended works',
+    'おすすめ作品をダウンロードする',
     '추천 작품 다운로드',
     'скачать рекомендуемые работы',
   ],
