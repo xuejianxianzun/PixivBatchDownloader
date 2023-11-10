@@ -1,5 +1,6 @@
 import { Config } from '../Config'
 import { EVT } from '../EVT'
+import { lang } from '../Lang'
 import { pageType } from '../PageType'
 import { states } from '../store/States'
 import { IDData } from '../store/StoreType'
@@ -95,7 +96,7 @@ class CrawlRecommendWorks {
     }
 
     const btn = document.createElement('button')
-    btn.textContent = '下载推荐作品'
+    btn.textContent = lang.transl('_下载推荐作品')
     btn.classList.add('blueTextBtn')
     btn.addEventListener('click', () => {
       states.quickCrawl = true

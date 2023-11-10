@@ -11821,7 +11821,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.4.0';
+        this.flag = '16.5.0';
         this.bindEvents();
     }
     bindEvents() {
@@ -11830,15 +11830,10 @@ class ShowWhatIsNew {
             let msg = `
       <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</strong>
       <br>
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_预览作品的详细信息')}</span>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_预览作品的详细信息的说明')}</span>
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载推荐作品')}</span>
       <br>
       <br>
-
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_默认未启用')}</span>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_增强'))}
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}:</span>
       `;
             // <strong>${lang.transl('_新增功能')}:</strong>
             // <br>
@@ -13530,8 +13525,10 @@ const workToolBar = new WorkToolBar();
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+
 
 
 
@@ -13554,7 +13551,7 @@ class CrawlRecommendWorks {
         return _Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile ? 'gtmRecommendIllustId' : 'gtmValue';
     }
     foundTarget() {
-        if (this.found || _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Artwork) {
+        if (this.found || _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork) {
             return;
         }
         const titleBar = document.querySelector(this.checkSelector);
@@ -13604,10 +13601,10 @@ class CrawlRecommendWorks {
             return;
         }
         const btn = document.createElement('button');
-        btn.textContent = '下载推荐作品';
+        btn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载推荐作品');
         btn.classList.add('blueTextBtn');
         btn.addEventListener('click', () => {
-            _store_States__WEBPACK_IMPORTED_MODULE_3__.states.quickCrawl = true;
+            _store_States__WEBPACK_IMPORTED_MODULE_4__.states.quickCrawl = true;
             // 传递 ID 列表时需要复制一份，因为如果直接传递变量，那么这个数组会在抓取之后被清空
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [...this.IDList]);
         });

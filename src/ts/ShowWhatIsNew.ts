@@ -11,7 +11,7 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '16.4.0'
+  private flag = '16.5.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
@@ -19,18 +19,10 @@ class ShowWhatIsNew {
       let msg = `
       <strong>${lang.transl('_新增功能')}:</strong>
       <br>
-      <span class="blue">${lang.transl('_预览作品的详细信息')}</span>
-      <br>
-      <span>${lang.transl('_预览作品的详细信息的说明')}</span>
+      <span class="blue">${lang.transl('_下载推荐作品')}</span>
       <br>
       <br>
-
-      <span>${lang.transl('_默认未启用')}</span>
-      <br>
-      ${lang.transl(
-        '_你可以在更多选项卡的xx分类里找到它',
-        lang.transl('_增强')
-      )}
+      <span>${lang.transl('_修复已知问题')}:</span>
       `
       // <strong>${lang.transl('_新增功能')}:</strong>
       // <br>
