@@ -24326,8 +24326,8 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 113300000
-            this.crawlData(112630000, 113303558);
+            // 上次记录到 113360000
+            this.crawlData(113310000, 113369183);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
             // 上次记录到 21000000
@@ -43543,6 +43543,12 @@ const illustsData = [
     [113280000, 1699553880000],
     [113290000, 1699604160000],
     [113300000, 1699626360000],
+    [113310000, 1699660680000],
+    [113320000, 1699692180000],
+    [113330000, 1699711260000],
+    [113340000, 1699743780000],
+    [113350000, 1699775640000],
+    [113360001, 1699795200000],
 ];
 
 
