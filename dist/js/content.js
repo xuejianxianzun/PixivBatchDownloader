@@ -8709,8 +8709,9 @@ class PageType {
             url.includes('/a/')) {
             return PageName.Pixivision;
         }
-        else if (url.includes('/bookmark_add.php?id=') ||
-            url.includes('/bookmark_detail.php?illust_id=')) {
+        else if ((url.includes('/bookmark_add.php?id=') ||
+            url.includes('/bookmark_detail.php?illust_id=')) &&
+            !pathname.includes('/novel')) {
             return PageName.BookmarkDetail;
         }
         else if (url.includes('/bookmark_new_illust.php') ||
@@ -13708,7 +13709,7 @@ class InitAreaRankingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__.filter.check(filterOpt)) {
                 const id = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId(el.querySelector('a').href);
                 _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
-                    type: 'unknown',
+                    type: 'illusts',
                     id,
                 });
             }
@@ -13862,7 +13863,7 @@ class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.I
         }
         for (const id of ids) {
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.push({
-                type: 'unknown',
+                type: 'illusts',
                 id,
             });
         }
@@ -13984,7 +13985,7 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以 type 是 unknown
             if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__.filter.check(filterOpt)) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.idList.push({
-                    type: 'unknown',
+                    type: 'illusts',
                     id: work.id,
                 });
             }
@@ -14063,7 +14064,7 @@ class InitBookmarkDetailPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         let data = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getRecommenderData(_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId(), this.crawlNumber);
         for (const id of data.recommendations) {
             _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
-                type: 'unknown',
+                type: 'illusts',
                 id: id.toString(),
             });
         }
@@ -14133,7 +14134,7 @@ class InitDiscoverPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
             allLink.forEach((a) => {
                 const id = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId(a.href);
                 _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.push({
-                    type: 'unknown',
+                    type: 'illusts',
                     id,
                 });
             });
@@ -16065,7 +16066,6 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         }
         else {
             // 没有抓取完毕时，添加数据
-            const idType = this.type === 'illusts' ? 'unknown' : 'novels';
             for (const workData of data.body.works) {
                 if (this.filteredNumber >= this.requsetNumber) {
                     return this.afterGetIdList();
@@ -16098,7 +16098,9 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
                     this.filteredNumber++;
                     if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_10__.filter.check(filterOpt)) {
                         this.idList.push({
-                            type: idType,
+                            type: workData.illustType === undefined
+                                ? 'novels'
+                                : _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getWorkTypeString(workData.illustType),
                             id: workData.id,
                         });
                     }
@@ -17388,7 +17390,7 @@ class QuickCrawl {
         }
         else {
             idData = {
-                type: 'unknown',
+                type: 'illusts',
                 id: _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getIllustId(window.location.href),
             };
         }
