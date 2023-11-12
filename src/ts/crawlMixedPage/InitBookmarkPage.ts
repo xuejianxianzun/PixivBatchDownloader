@@ -277,7 +277,6 @@ class InitBookmarkPage extends InitPageBase {
       return this.afterGetIdList()
     } else {
       // 没有抓取完毕时，添加数据
-      const idType = this.type === 'illusts' ? 'unknown' : 'novels'
       for (const workData of data.body.works) {
         if (this.filteredNumber >= this.requsetNumber) {
           return this.afterGetIdList()
@@ -317,7 +316,12 @@ class InitBookmarkPage extends InitPageBase {
 
           if (await filter.check(filterOpt)) {
             this.idList.push({
-              type: idType,
+              type:
+                (workData as ArtworkCommonData).illustType === undefined
+                  ? 'novels'
+                  : Tools.getWorkTypeString(
+                      (workData as ArtworkCommonData).illustType
+                    ),
               id: workData.id,
             })
           }

@@ -105,7 +105,7 @@ class InitArtworkSeriesPage extends InitPageBase {
       // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以 type 是 unknown
       if (await filter.check(filterOpt)) {
         store.idList.push({
-          type: 'unknown',
+          type: 'illusts',
           id: work.id,
         })
       }

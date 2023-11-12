@@ -157,7 +157,7 @@ class InitArtworkPage extends InitPageBase {
 
     for (const id of ids) {
       store.idList.push({
-        type: 'unknown',
+        type: 'illusts',
         id,
       })
     }

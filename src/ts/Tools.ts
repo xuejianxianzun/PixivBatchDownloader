@@ -680,6 +680,40 @@ class Tools {
     }
   }
 
+  /**根据作品类型字符串，返回对应的数字 */
+  static getWorkType(
+    workTypeString: WorkTypeString
+  ): 0 | 1 | 2 | 3 | undefined {
+    switch (workTypeString) {
+      case 'illusts':
+        return 0
+      case 'manga':
+        return 1
+      case 'ugoira':
+        return 2
+      case 'novels':
+        return 3
+      default:
+        return undefined
+    }
+  }
+
+  /**根据作品类型字符串，返回对应的数字。但是这里把插画、漫画、动图均返回 -1。
+   * 这是因为某些时候无法确定一个图像作品到底属于哪一类型，所以用 -1 笼统的概括
+   */
+  static getWorkTypeVague(workTypeString: WorkTypeString): -1 | 3 | undefined {
+    switch (workTypeString) {
+      case 'illusts':
+      case 'manga':
+      case 'ugoira':
+        return -1
+      case 'novels':
+        return 3
+      default:
+        return undefined
+    }
+  }
+
   static readonly AIMark: Map<string, string> = new Map([
     ['zh-cn', 'AI生成'],
     ['zh-tw', 'AI生成'],

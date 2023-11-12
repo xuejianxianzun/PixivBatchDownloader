@@ -57,7 +57,7 @@ class PageType {
 
     if (
       window.location.hostname === 'www.pixiv.net' &&
-      ['/', '/manga', '/novel/', '/en/'].includes(pathname)
+      ['/', '/manga', '/novel', '/en/'].includes(pathname)
     ) {
       return PageName.Home
     } else if (
@@ -94,8 +94,9 @@ class PageType {
     ) {
       return PageName.Pixivision
     } else if (
-      url.includes('/bookmark_add.php?id=') ||
-      url.includes('/bookmark_detail.php?illust_id=')
+      (url.includes('/bookmark_add.php?id=') ||
+        url.includes('/bookmark_detail.php?illust_id=')) &&
+      !pathname.includes('/novel')
     ) {
       return PageName.BookmarkDetail
     } else if (
