@@ -8670,7 +8670,7 @@ class PageType {
         const url = window.location.href;
         const pathname = window.location.pathname;
         if (window.location.hostname === 'www.pixiv.net' &&
-            ['/', '/manga', '/novel/', '/en/'].includes(pathname)) {
+            ['/', '/manga', '/novel', '/en/'].includes(pathname)) {
             return PageName.Home;
         }
         else if ((pathname.startsWith('/artworks') ||
@@ -11821,19 +11821,14 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.5.0';
+        this.flag = '16.5.1';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</strong>
-      <br>
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载推荐作品')}</span>
-      <br>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}:</span>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
       `;
             // <strong>${lang.transl('_新增功能')}:</strong>
             // <br>
@@ -13084,6 +13079,36 @@ class Tools {
                 return 'novels';
             default:
                 return 'unknown';
+        }
+    }
+    /**根据作品类型字符串，返回对应的数字 */
+    static getWorkType(workTypeString) {
+        switch (workTypeString) {
+            case 'illusts':
+                return 0;
+            case 'manga':
+                return 1;
+            case 'ugoira':
+                return 2;
+            case 'novels':
+                return 3;
+            default:
+                return undefined;
+        }
+    }
+    /**根据作品类型字符串，返回对应的数字。但是这里把插画、漫画、动图均返回 -1。
+     * 这是因为某些时候无法确定一个图像作品到底属于哪一类型，所以用 -1 笼统的概括
+     */
+    static getWorkTypeVague(workTypeString) {
+        switch (workTypeString) {
+            case 'illusts':
+            case 'manga':
+            case 'ugoira':
+                return -1;
+            case 'novels':
+                return 3;
+            default:
+                return undefined;
         }
     }
     /**如果一个作品是 AI 生成的，则返回特定的字符串标记
@@ -18573,9 +18598,11 @@ class InitPageBase {
         // 现在这里能够检查 2 种设置条件：
         // 1. 检查 id 是否符合 id 范围条件
         // 2. 检查 id 的发布时间是否符合时间范围条件
+        // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
         const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
             id,
             workTypeString: idData.type,
+            workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
         });
         if (!check) {
             return this.afterGetWorksData();
@@ -18644,6 +18671,7 @@ class InitPageBase {
             const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
                 id: nextIDData.id,
                 workTypeString: nextIDData.type,
+                workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(nextIDData.type),
             });
             if (!check) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
@@ -23429,7 +23457,7 @@ class Filter {
         this.getBlockList();
         this.getSize();
     }
-    // 检查作品是否符合过滤器的要求
+    /**检查作品是否符合过滤器的要求，返回值 false 表示作品不符合要求，true 表示符合要求 */
     // 注意：这是一个异步函数，所以要使用 await 获取检查结果
     // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
     // 每个过滤器函数里都必须检查参数为 undefined 的情况
@@ -23722,6 +23750,8 @@ class Filter {
     // 检查下载的作品类型设置
     checkDownType(workType) {
         switch (workType) {
+            case -1:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downType0 || _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downType1 || _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downType2;
             case 0:
                 return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downType0;
             case 1:
