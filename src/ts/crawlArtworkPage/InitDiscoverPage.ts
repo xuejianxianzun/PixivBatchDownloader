@@ -55,7 +55,7 @@ class InitDiscoverPage extends InitPageBase {
       allLink.forEach((a) => {
         const id = Tools.getIllustId(a.href)
         store.idList.push({
-          type: 'unknown',
+          type: 'illusts',
           id,
         })
       })
