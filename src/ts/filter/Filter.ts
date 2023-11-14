@@ -15,7 +15,14 @@ export interface FilterOption {
   /**是否为 AI 创作。0 未知 1 否 2 是 */
   aiType?: 0 | 1 | 2
   id?: number | string
-  workType?: 0 | 1 | 2 | 3
+  /**作品类型
+   * -1 插画、漫画、动图的合集。也就是只知道是图像作品，但是不能确定是哪种具体的类型
+   * 0 插画
+   * 1 漫画
+   * 2 动图
+   * 3 小说
+   */
+  workType?: -1 | 0 | 1 | 2 | 3
   workTypeString?: WorkTypeString
   pageCount?: number
   tags?: string[]
@@ -71,7 +78,7 @@ class Filter {
     this.getSize()
   }
 
-  // 检查作品是否符合过滤器的要求
+  /**检查作品是否符合过滤器的要求，返回值 false 表示作品不符合要求，true 表示符合要求 */
   // 注意：这是一个异步函数，所以要使用 await 获取检查结果
   // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
   // 每个过滤器函数里都必须检查参数为 undefined 的情况
@@ -452,6 +459,8 @@ class Filter {
   // 检查下载的作品类型设置
   private checkDownType(workType: FilterOption['workType']) {
     switch (workType) {
+      case -1:
+        return settings.downType0 || settings.downType1 || settings.downType2
       case 0:
         return settings.downType0
       case 1:

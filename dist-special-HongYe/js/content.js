@@ -9459,7 +9459,7 @@ class PageType {
         const url = window.location.href;
         const pathname = window.location.pathname;
         if (window.location.hostname === 'www.pixiv.net' &&
-            ['/', '/manga', '/novel/', '/en/'].includes(pathname)) {
+            ['/', '/manga', '/novel', '/en/'].includes(pathname)) {
             return PageName.Home;
         }
         else if ((pathname.startsWith('/artworks') ||
@@ -9498,8 +9498,9 @@ class PageType {
             url.includes('/a/')) {
             return PageName.Pixivision;
         }
-        else if (url.includes('/bookmark_add.php?id=') ||
-            url.includes('/bookmark_detail.php?illust_id=')) {
+        else if ((url.includes('/bookmark_add.php?id=') ||
+            url.includes('/bookmark_detail.php?illust_id=')) &&
+            !pathname.includes('/novel')) {
             return PageName.BookmarkDetail;
         }
         else if (url.includes('/bookmark_new_illust.php') ||
@@ -12723,19 +12724,14 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.5.0';
+        this.flag = '16.5.1';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</strong>
-      <br>
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载推荐作品')}</span>
-      <br>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}:</span>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
       `;
             // <strong>${lang.transl('_新增功能')}:</strong>
             // <br>
@@ -13990,6 +13986,36 @@ class Tools {
                 return 'unknown';
         }
     }
+    /**根据作品类型字符串，返回对应的数字 */
+    static getWorkType(workTypeString) {
+        switch (workTypeString) {
+            case 'illusts':
+                return 0;
+            case 'manga':
+                return 1;
+            case 'ugoira':
+                return 2;
+            case 'novels':
+                return 3;
+            default:
+                return undefined;
+        }
+    }
+    /**根据作品类型字符串，返回对应的数字。但是这里把插画、漫画、动图均返回 -1。
+     * 这是因为某些时候无法确定一个图像作品到底属于哪一类型，所以用 -1 笼统的概括
+     */
+    static getWorkTypeVague(workTypeString) {
+        switch (workTypeString) {
+            case 'illusts':
+            case 'manga':
+            case 'ugoira':
+                return -1;
+            case 'novels':
+                return 3;
+            default:
+                return undefined;
+        }
+    }
     /**如果一个作品是 AI 生成的，则返回特定的字符串标记
      *
      * 这个标记就是作品页面里和标签列表显示在一起的字符串
@@ -14857,7 +14883,7 @@ class InitAreaRankingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__.filter.check(filterOpt)) {
                 const id = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId(el.querySelector('a').href);
                 _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
-                    type: 'unknown',
+                    type: 'illusts',
                     id,
                 });
             }
@@ -15011,7 +15037,7 @@ class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.I
         }
         for (const id of ids) {
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.push({
-                type: 'unknown',
+                type: 'illusts',
                 id,
             });
         }
@@ -15133,7 +15159,7 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以 type 是 unknown
             if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__.filter.check(filterOpt)) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.idList.push({
-                    type: 'unknown',
+                    type: 'illusts',
                     id: work.id,
                 });
             }
@@ -15212,7 +15238,7 @@ class InitBookmarkDetailPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         let data = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getRecommenderData(_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId(), this.crawlNumber);
         for (const id of data.recommendations) {
             _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
-                type: 'unknown',
+                type: 'illusts',
                 id: id.toString(),
             });
         }
@@ -15282,7 +15308,7 @@ class InitDiscoverPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
             allLink.forEach((a) => {
                 const id = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId(a.href);
                 _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.push({
-                    type: 'unknown',
+                    type: 'illusts',
                     id,
                 });
             });
@@ -17214,7 +17240,6 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         }
         else {
             // 没有抓取完毕时，添加数据
-            const idType = this.type === 'illusts' ? 'unknown' : 'novels';
             for (const workData of data.body.works) {
                 if (this.filteredNumber >= this.requsetNumber) {
                     return this.afterGetIdList();
@@ -17247,7 +17272,9 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
                     this.filteredNumber++;
                     if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_10__.filter.check(filterOpt)) {
                         this.idList.push({
-                            type: idType,
+                            type: workData.illustType === undefined
+                                ? 'novels'
+                                : _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getWorkTypeString(workData.illustType),
                             id: workData.id,
                         });
                     }
@@ -18537,7 +18564,7 @@ class QuickCrawl {
         }
         else {
             idData = {
-                type: 'unknown',
+                type: 'illusts',
                 id: _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getIllustId(window.location.href),
             };
         }
@@ -19747,9 +19774,11 @@ class InitPageBase {
         // 现在这里能够检查 2 种设置条件：
         // 1. 检查 id 是否符合 id 范围条件
         // 2. 检查 id 的发布时间是否符合时间范围条件
+        // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
         const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
             id,
             workTypeString: idData.type,
+            workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
         });
         if (!check) {
             return this.afterGetWorksData();
@@ -19818,6 +19847,7 @@ class InitPageBase {
             const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
                 id: nextIDData.id,
                 workTypeString: nextIDData.type,
+                workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(nextIDData.type),
             });
             if (!check) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
@@ -24610,7 +24640,7 @@ class Filter {
         this.getBlockList();
         this.getSize();
     }
-    // 检查作品是否符合过滤器的要求
+    /**检查作品是否符合过滤器的要求，返回值 false 表示作品不符合要求，true 表示符合要求 */
     // 注意：这是一个异步函数，所以要使用 await 获取检查结果
     // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
     // 每个过滤器函数里都必须检查参数为 undefined 的情况
@@ -24903,6 +24933,8 @@ class Filter {
     // 检查下载的作品类型设置
     checkDownType(workType) {
         switch (workType) {
+            case -1:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downType0 || _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downType1 || _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downType2;
             case 0:
                 return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downType0;
             case 1:
@@ -25489,8 +25521,8 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 113300000
-            this.crawlData(112630000, 113303558);
+            // 上次记录到 113360000
+            this.crawlData(113310000, 113369183);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
             // 上次记录到 21000000
@@ -26713,13 +26745,19 @@ class QuickBookmark {
         if (this.isBookmarked) {
             return;
         }
-        const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_5__.bookmark.add(id, type, _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.extractTags(this.workData));
-        if (res !== 429) {
-            // 收藏成功之后
-            this.isBookmarked = true;
-            this.redQuickBookmarkBtn();
-            this.redPixivBMKDiv(pixivBMKDiv);
-        }
+        // 先模拟点击 Pixiv 原本的收藏按钮，这样可以显示推荐作品
+        // 这会发送一次 Pixiv 原生的收藏请求
+        this.clickPixivBMKBtn(pixivBMKDiv);
+        // 然后再由下载器发送收藏请求
+        // 因为下载器的收藏按钮具有添加标签、非公开收藏等功能，所以要在后面执行，覆盖掉 Pixiv 原生收藏的效果
+        window.setTimeout(async () => {
+            const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_5__.bookmark.add(id, type, _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.extractTags(this.workData));
+            if (res !== 429) {
+                // 收藏成功之后
+                this.isBookmarked = true;
+                this.redQuickBookmarkBtn();
+            }
+        }, 100);
     }
     // 点赞这个作品
     like(type, id, likeBtn) {
@@ -26744,8 +26782,7 @@ class QuickBookmark {
         this.btn.classList.remove(this.redClass);
         this.btn.href = 'javascript:void(0)';
     }
-    // 把心形收藏按钮从未收藏变成已收藏
-    redPixivBMKDiv(pixivBMKDiv) {
+    clickPixivBMKBtn(pixivBMKDiv) {
         if (_Config__WEBPACK_IMPORTED_MODULE_9__.Config.mobile) {
             pixivBMKDiv && pixivBMKDiv.click();
         }
@@ -44715,6 +44752,12 @@ const illustsData = [
     [113280000, 1699553880000],
     [113290000, 1699604160000],
     [113300000, 1699626360000],
+    [113310000, 1699660680000],
+    [113320000, 1699692180000],
+    [113330000, 1699711260000],
+    [113340000, 1699743780000],
+    [113350000, 1699775640000],
+    [113360001, 1699795200000],
 ];
 
 

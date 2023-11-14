@@ -88,7 +88,7 @@ class QuickCrawl {
       }
     } else {
       idData = {
-        type: 'unknown',
+        type: 'illusts',
         id: Tools.getIllustId(window.location.href),
       }
     }

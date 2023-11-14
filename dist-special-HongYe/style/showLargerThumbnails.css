@@ -359,9 +359,10 @@ div[width='104'] .eCFXg {
   max-width: 540px;
   max-height: 600px;
 }
-/* 取消约稿页面 img 的绝对定位 */
+/* 取消约稿页面 img 的绝对定位，否则其父元素不会被图片撑开 */
 .zdawJ,
-.cdrSgJ {
+.cdrSgJ,
+.ieJNnF {
   position: unset !important;
 }
 /* 发现页面 */
