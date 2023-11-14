@@ -180,13 +180,24 @@ class QuickBookmark {
       return
     }
 
-    const res = await bookmark.add(id, type, Tools.extractTags(this.workData!))
-    if (res !== 429) {
-      // 收藏成功之后
-      this.isBookmarked = true
-      this.redQuickBookmarkBtn()
-      this.redPixivBMKDiv(pixivBMKDiv)
-    }
+    // 先模拟点击 Pixiv 原本的收藏按钮，这样可以显示推荐作品
+    // 这会发送一次 Pixiv 原生的收藏请求
+    this.clickPixivBMKBtn(pixivBMKDiv)
+
+    // 然后再由下载器发送收藏请求
+    // 因为下载器的收藏按钮具有添加标签、非公开收藏等功能，所以要在后面执行，覆盖掉 Pixiv 原生收藏的效果
+    window.setTimeout(async () => {
+      const res = await bookmark.add(
+        id,
+        type,
+        Tools.extractTags(this.workData!)
+      )
+      if (res !== 429) {
+        // 收藏成功之后
+        this.isBookmarked = true
+        this.redQuickBookmarkBtn()
+      }
+    }, 100)
   }
 
   // 点赞这个作品
@@ -215,8 +226,7 @@ class QuickBookmark {
     this.btn.href = 'javascript:void(0)'
   }
 
-  // 把心形收藏按钮从未收藏变成已收藏
-  private redPixivBMKDiv(pixivBMKDiv: HTMLDivElement) {
+  private clickPixivBMKBtn(pixivBMKDiv: HTMLDivElement) {
     if (Config.mobile) {
       pixivBMKDiv && pixivBMKDiv.click()
     } else {
