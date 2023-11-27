@@ -1228,6 +1228,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+
 
 
 
@@ -1311,15 +1313,22 @@ class ConvertUgoira {
         this.count = this._count - 1;
     }
     // 转换成 WebM
-    async webm(file, info) {
+    async webm(file, info, id) {
+        const delayTooLarge = info.frames.find((item) => item.delay > 32767);
+        if (delayTooLarge) {
+            const msg = _Lang__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_动图不能转换为WEBM视频的提示', _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createWorkLink(id));
+            _MsgBox__WEBPACK_IMPORTED_MODULE_5__.msgBox.warning(msg);
+            _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(msg);
+            return await this.start(file, info, 'gif');
+        }
         return await this.start(file, info, 'webm');
     }
     // 转换成 GIF
-    async gif(file, info) {
+    async gif(file, info, id) {
         return await this.start(file, info, 'gif');
     }
     // 转换成 APNG
-    async apng(file, info) {
+    async apng(file, info, id) {
         return await this.start(file, info, 'png');
     }
     checkHidden() {
@@ -6957,6 +6966,14 @@ const langText = {
         'うごイラの変換に失敗しました、id：{}',
         '움직이는 일러스트 변환에 실패했습니다, ID: {}',
         'Не удалось преобразовать Ugoira(анимацию), идентификатор: {}',
+    ],
+    _动图不能转换为WEBM视频的提示: [
+        '作品 ID {} 不能转换为 WEBM 视频，因为它的某一帧延迟大于 32767 毫秒。下载器会把它转换为 GIF 图像。',
+        '作品 ID {} 不能轉換為 WEBM 影片，因為它的某一幀延遲大於 32767 毫秒。下載器會把它轉換為 GIF 影象。',
+        'Work ID {} cannot be converted to WEBM video because it has a frame duration greater than 32767 ms. The downloader will convert it into a GIF image.',
+        'ワークid {} は、32767ミリ秒以上のフレーム長を持つため、webm動画に変換できません。ダウンローダはそれをgif画像に変換します。',
+        '작업 ID {}의 프레임 지속 시간이 32767 ms보다 크기 때문에 WEBM 비디오로 변환할 수 없습니다.다운로더가 GIF 이미지로 변환해 줍니다.',
+        'Рабочий ID {} не может быть преобразован в WEBM видео, потому что он имеет длительность кадров более 32767 мс. Загрузчик преобразует его в изображение GIF.',
     ],
     _作品id无法下载带状态码: [
         '{} 无法下载，状态码：{}',
@@ -19641,13 +19658,13 @@ class Download {
                     // 当下载图片的方形缩略图时，不转换动图，因为此时下载的是作品的静态缩略图，无法进行转换
                     try {
                         if (ext === 'webm') {
-                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__.convertUgoira.webm(file, arg.result.ugoiraInfo);
+                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__.convertUgoira.webm(file, arg.result.ugoiraInfo, arg.result.idNum);
                         }
                         if (ext === 'gif') {
-                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__.convertUgoira.gif(file, arg.result.ugoiraInfo);
+                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__.convertUgoira.gif(file, arg.result.ugoiraInfo, arg.result.idNum);
                         }
                         if (ext === 'png') {
-                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__.convertUgoira.apng(file, arg.result.ugoiraInfo);
+                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__.convertUgoira.apng(file, arg.result.ugoiraInfo, arg.result.idNum);
                         }
                     }
                     catch (error) {
