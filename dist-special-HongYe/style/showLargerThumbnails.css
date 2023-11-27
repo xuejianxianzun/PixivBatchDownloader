@@ -14,7 +14,9 @@
 .sc-5ab8209a-1,
 .drrFnc,
 .sc-5ab8209a-2,
-.hbbJkA {
+.hbbJkA,
+.ggHNyV,
+.dkjfqS {
   width: auto !important;
   min-width: 1224px;
   max-width: unset !important;
@@ -24,7 +26,9 @@
 .sc-11m5zdr-2,
 .hkRLSu,
 .fgSNcI,
-.gFXOjb {
+.gFXOjb,
+.cDZIoX,
+.cwAKCq {
   width: auto !important;
 }
 .hkRLSu,
@@ -215,14 +219,16 @@ div[width='104'] .eCFXg {
 }
 /* 搜索页面 */
 /* ul */
-.krFoBL {
+.krFoBL,
+.hdRpMN {
   gap: 0 !important;
   display: flex !important;
   flex-wrap: wrap;
   align-items: center;
 }
 /* li */
-.krFoBL li {
+.krFoBL li,
+.hdRpMN li {
   margin: 10px !important;
   flex-grow: 0;
   flex-shrink: 1;
@@ -336,7 +342,8 @@ div[width='104'] .eCFXg {
   margin: 26px;
 }
 .ijiEqW .jdIpfd,
-.ijiEqW li > div {
+.ijiEqW li > div,
+.fHNABj {
   display: flex;
   flex-direction: column;
 }
@@ -349,11 +356,13 @@ div[width='104'] .eCFXg {
   width: auto !important;
   min-width: 1224px;
 }
-/* ul */
-.jsLfYP {
+/* 作品缩略图列表容器的 ul */
+.jsLfYP,
+.fmesiH {
   align-items: center;
 }
-.jsLfYP li {
+.jsLfYP li,
+.fmesiH li {
   width: auto !important;
   margin: 10px !important;
   max-width: 540px;
@@ -362,7 +371,8 @@ div[width='104'] .eCFXg {
 /* 取消约稿页面 img 的绝对定位，否则其父元素不会被图片撑开 */
 .zdawJ,
 .cdrSgJ,
-.ieJNnF {
+.ieJNnF,
+.brFRzf {
   position: unset !important;
 }
 /* 发现页面 */

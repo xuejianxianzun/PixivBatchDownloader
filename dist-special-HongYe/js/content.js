@@ -1951,6 +1951,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+
 
 
 
@@ -2034,15 +2036,22 @@ class ConvertUgoira {
         this.count = this._count - 1;
     }
     // 转换成 WebM
-    async webm(file, info) {
+    async webm(file, info, id) {
+        const delayTooLarge = info.frames.find((item) => item.delay > 32767);
+        if (delayTooLarge) {
+            const msg = _Lang__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_动图不能转换为WEBM视频的提示', _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createWorkLink(id));
+            _MsgBox__WEBPACK_IMPORTED_MODULE_5__.msgBox.warning(msg);
+            _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(msg);
+            return await this.start(file, info, 'gif');
+        }
         return await this.start(file, info, 'webm');
     }
     // 转换成 GIF
-    async gif(file, info) {
+    async gif(file, info, id) {
         return await this.start(file, info, 'gif');
     }
     // 转换成 APNG
-    async apng(file, info) {
+    async apng(file, info, id) {
         return await this.start(file, info, 'png');
     }
     checkHidden() {
@@ -5491,7 +5500,7 @@ const langText = {
         'Если имя файла после загрузки ненормальное, отключите другие расширения браузера, которые имеют возможность загрузки.<br> Например: Chrono Download Manager, бесплатный менеджер загрузок, загрузчик изображений, DownThemAll! и многое другое.',
     ],
     _常见问题说明: [
-        '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>如果你需要一个梯子（机场）,可以试试这个机场：<a href="https://v2.hjl772vps.top/#/register?code=KEA3xTT4" title="农家有风小院" target="_blank">农家有风小院</a>，价格实惠，网络稳定。先购买订阅，然后在仪表盘复制订阅链接使用。<br><br>下载器 QQ 群：499873152<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
+        '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>如果你需要一个梯子（机场）,可以试试这个机场：<a href="https://v3.xiaoy666.top/#/register?code=KEA3xTT4" title="农家有风小院" target="_blank">农家有风小院</a>，价格实惠，网络稳定。先购买订阅，然后在仪表盘复制订阅链接使用。<br><br>下载器 QQ 群：499873152<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
         '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。',
         'The downloaded file is saved in the browsers download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.<br><br>If your browser stops responding at startup, you can clear your browser`s download history.',
         'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。',
@@ -7745,6 +7754,14 @@ const langText = {
         'うごイラの変換に失敗しました、id：{}',
         '움직이는 일러스트 변환에 실패했습니다, ID: {}',
         'Не удалось преобразовать Ugoira(анимацию), идентификатор: {}',
+    ],
+    _动图不能转换为WEBM视频的提示: [
+        '作品 ID {} 不能转换为 WEBM 视频，因为它的某一帧延迟大于 32767 毫秒。下载器会把它转换为 GIF 图像。',
+        '作品 ID {} 不能轉換為 WEBM 影片，因為它的某一幀延遲大於 32767 毫秒。下載器會把它轉換為 GIF 影象。',
+        'Work ID {} cannot be converted to WEBM video because it has a frame duration greater than 32767 ms. The downloader will convert it into a GIF image.',
+        'ワークid {} は、32767ミリ秒以上のフレーム長を持つため、webm動画に変換できません。ダウンローダはそれをgif画像に変換します。',
+        '작업 ID {}의 프레임 지속 시간이 32767 ms보다 크기 때문에 WEBM 비디오로 변환할 수 없습니다.다운로더가 GIF 이미지로 변환해 줍니다.',
+        'Рабочий ID {} не может быть преобразован в WEBM видео, потому что он имеет длительность кадров более 32767 мс. Загрузчик преобразует его в изображение GIF.',
     ],
     _作品id无法下载带状态码: [
         '{} 无法下载，状态码：{}',
@@ -20815,13 +20832,13 @@ class Download {
                     // 当下载图片的方形缩略图时，不转换动图，因为此时下载的是作品的静态缩略图，无法进行转换
                     try {
                         if (ext === 'webm') {
-                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__.convertUgoira.webm(file, arg.result.ugoiraInfo);
+                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__.convertUgoira.webm(file, arg.result.ugoiraInfo, arg.result.idNum);
                         }
                         if (ext === 'gif') {
-                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__.convertUgoira.gif(file, arg.result.ugoiraInfo);
+                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__.convertUgoira.gif(file, arg.result.ugoiraInfo, arg.result.idNum);
                         }
                         if (ext === 'png') {
-                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__.convertUgoira.apng(file, arg.result.ugoiraInfo);
+                            file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__.convertUgoira.apng(file, arg.result.ugoiraInfo, arg.result.idNum);
                         }
                     }
                     catch (error) {
@@ -25521,12 +25538,12 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 113360000
-            this.crawlData(113310000, 113369183);
+            // 上次记录到 113760000
+            this.crawlData(113370000, 113769980);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 21000000
-            this.crawlData(20870000, 21003756, 'novels');
+            // 上次记录到 21100000
+            this.crawlData(21010000, 21103388, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -33405,6 +33422,16 @@ const novelData = [
     [20980000, 1699258766000],
     [20990000, 1699425433000],
     [21000000, 1699598512000],
+    [21010001, 1699714856000],
+    [21020000, 1699857336000],
+    [21030002, 1700020188000],
+    [21040000, 1700195973000],
+    [21050000, 1700322845000],
+    [21060000, 1700475217000],
+    [21070000, 1700647081000],
+    [21080000, 1700787860000],
+    [21090000, 1700923757000],
+    [21100000, 1701068828000],
 ];
 
 
@@ -44758,6 +44785,46 @@ const illustsData = [
     [113340000, 1699743780000],
     [113350000, 1699775640000],
     [113360001, 1699795200000],
+    [113370002, 1699822980000],
+    [113380000, 1699867980000],
+    [113390000, 1699889100000],
+    [113400000, 1699937820000],
+    [113410002, 1699968180000],
+    [113420000, 1700005080000],
+    [113430000, 1700045400000],
+    [113440000, 1700067660000],
+    [113450000, 1700119380000],
+    [113460000, 1700143860000],
+    [113470000, 1700185740000],
+    [113480000, 1700219880000],
+    [113490000, 1700240460000],
+    [113500000, 1700283780000],
+    [113510000, 1700308380000],
+    [113520000, 1700327100000],
+    [113530000, 1700368320000],
+    [113540001, 1700392500000],
+    [113550000, 1700408820000],
+    [113560000, 1700455380000],
+    [113570000, 1700484180000],
+    [113580000, 1700511420000],
+    [113590000, 1700557200000],
+    [113600000, 1700578380000],
+    [113610000, 1700619420000],
+    [113620000, 1700652180000],
+    [113630000, 1700672280000],
+    [113640000, 1700716260000],
+    [113650000, 1700742000000],
+    [113660000, 1700766360000],
+    [113670000, 1700814060000],
+    [113680000, 1700836200000],
+    [113690000, 1700875140000],
+    [113700000, 1700905620000],
+    [113710001, 1700924580000],
+    [113720001, 1700963580000],
+    [113730000, 1700990220000],
+    [113740000, 1701008100000],
+    [113750000, 1701043740000],
+    [113760000, 1701081480000],
 ];
 
 
