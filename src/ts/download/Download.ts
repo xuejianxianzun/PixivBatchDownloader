@@ -287,15 +287,27 @@ class Download {
           // 当下载图片的方形缩略图时，不转换动图，因为此时下载的是作品的静态缩略图，无法进行转换
           try {
             if (ext === 'webm') {
-              file = await convertUgoira.webm(file, arg.result.ugoiraInfo)
+              file = await convertUgoira.webm(
+                file,
+                arg.result.ugoiraInfo,
+                arg.result.idNum
+              )
             }
 
             if (ext === 'gif') {
-              file = await convertUgoira.gif(file, arg.result.ugoiraInfo)
+              file = await convertUgoira.gif(
+                file,
+                arg.result.ugoiraInfo,
+                arg.result.idNum
+              )
             }
 
             if (ext === 'png') {
-              file = await convertUgoira.apng(file, arg.result.ugoiraInfo)
+              file = await convertUgoira.apng(
+                file,
+                arg.result.ugoiraInfo,
+                arg.result.idNum
+              )
             }
           } catch (error) {
             const msg = lang.transl(
