@@ -563,6 +563,11 @@ class PreviewWork {
     if (settings.showPreviewWorkTip) {
       const text: string[] = []
       const body = this.workData.body
+
+      if (body.aiType === 2) {
+        text.push('AI')
+      }
+
       if (body.pageCount > 1) {
         text.push(`${this.index + 1}/${body.pageCount}`)
       }
