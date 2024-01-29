@@ -1,14 +1,54 @@
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
 import { store } from '../store/Store'
+import { lang } from '../Lang'
+import { log } from '../Log'
+import { EVT } from '../EVT'
 
 // 在搜索页面里移除已关注用户的作品
 class RemoveWorksOfFollowedUsersOnSearchPage {
   constructor() {
-    // 初始化时，页面上的作品元素尚未生成，所以不必使用 findWorks 方法
-    // this.findWorks()
+    // 初始化时，页面上的作品元素尚未生成，所以不必使用 findAllWorks 方法
+    // this.findAllWorks()
 
     this.createObserver(document.body)
+    this.bindEvents()
+  }
+
+  private bindEvents() {
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      const data = ev.detail.data as any
+      if (
+        data.name === 'removeWorksOfFollowedUsersOnSearchPage' &&
+        data.value
+      ) {
+        this.findAllWorks()
+      }
+    })
+
+    window.addEventListener(EVT.list.pageSwitch, () => {
+      this.showTip = false
+    })
+  }
+
+  private showTip = false
+
+  // 在每个页面上只显示一次提示
+  private showTipOnce() {
+    if (this.showTip) {
+      return
+    }
+
+    this.showTip = true
+    log.warning(lang.transl('_在搜索页面里移除已关注用户的作品'))
+  }
+
+  private get enable() {
+    return (
+      settings.removeWorksOfFollowedUsersOnSearchPage &&
+      (pageType.type === pageType.list.ArtworkSearch ||
+        pageType.type === pageType.list.NovelSearch)
+    )
   }
 
   /**传入作品元素，从中检查用户 ID，如果该用户已关注，就移除这个作品 */
@@ -16,10 +56,7 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
   // 例如在搜索页面里，一个作品元素分为 3 个部分：1. 缩略图 2. 标题 3. 作者（用户名）
   // ArtworkThumbnail 获取的元素只是缩略图，不是完整的作品元素，所以不能用它来移除作品元素。而且缩略图里面有时可能没有用户信息，无法判断用户是否已关注。
   private check(el: HTMLElement) {
-    if (
-      !settings.removeWorksOfFollowedUsersOnSearchPage ||
-      pageType.type !== pageType.list.ArtworkSearch
-    ) {
+    if (!this.enable) {
       return
     }
 
@@ -32,6 +69,7 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
     const userID = userLink.href.match(/\d+/)
     if (userID && store.followingUserIDList.includes(userID[0])) {
       el.remove()
+      this.showTipOnce()
     }
   }
 
@@ -39,7 +77,11 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
   private readonly worksSelector = '#root section ul li'
 
   /**检查当前页面上的作品元素 */
-  private findWorks() {
+  private findAllWorks() {
+    if (!this.enable) {
+      return
+    }
+
     const allLI = document.body.querySelectorAll(
       this.worksSelector
     ) as NodeListOf<HTMLLIElement>
@@ -51,6 +93,10 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
   /**使用监视器，检查未来添加的作品元素 */
   protected createObserver(target: HTMLElement) {
     const observer = new MutationObserver((records) => {
+      if (!this.enable) {
+        return
+      }
+
       for (const record of records) {
         if (record.addedNodes.length > 0) {
           // 遍历被添加的元素，检查其中的作品元素

@@ -11858,7 +11858,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.6.0';
+        this.flag = '16.6.00';
         this.bindEvents();
     }
     bindEvents() {
@@ -11871,11 +11871,13 @@ class ShowWhatIsNew {
       <br>
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在搜索页面里移除已关注用户的作品的说明')}</span>
       <br>
-      <br>
-
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_增强'))}
+      
+      <br>
+      <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_其他优化')}</span>
       `;
-            // <span>${lang.transl('_优化性能和用户体验')}</span>
+            // <span>${lang.transl('_其他优化')}</span>
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -18515,7 +18517,8 @@ class InitPageBase {
     /**在日志上显示任意提示 */
     showTip() {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.removeWorksOfFollowedUsersOnSearchPage &&
-            _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.ArtworkSearch) {
+            (_PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.ArtworkSearch ||
+                _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.NovelSearch)) {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在搜索页面里移除已关注用户的作品'));
         }
     }
@@ -25665,25 +25668,57 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+
+
+
 
 
 
 // 在搜索页面里移除已关注用户的作品
 class RemoveWorksOfFollowedUsersOnSearchPage {
     constructor() {
-        // 初始化时，页面上的作品元素尚未生成，所以不必使用 findWorks 方法
-        // this.findWorks()
+        // 初始化时，页面上的作品元素尚未生成，所以不必使用 findAllWorks 方法
+        // this.findAllWorks()
+        this.showTip = false;
         // 搜索页面里的插画作品选择器
         this.worksSelector = '#root section ul li';
         this.createObserver(document.body);
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'removeWorksOfFollowedUsersOnSearchPage' &&
+                data.value) {
+                this.findAllWorks();
+            }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.pageSwitch, () => {
+            this.showTip = false;
+        });
+    }
+    // 在每个页面上只显示一次提示
+    showTipOnce() {
+        if (this.showTip) {
+            return;
+        }
+        this.showTip = true;
+        _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_在搜索页面里移除已关注用户的作品'));
+    }
+    get enable() {
+        return (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.removeWorksOfFollowedUsersOnSearchPage &&
+            (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkSearch ||
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelSearch));
     }
     /**传入作品元素，从中检查用户 ID，如果该用户已关注，就移除这个作品 */
     // 这里不能使用 ArtworkThumbnail 类（作品缩略图）所监听的元素来检查，因为 ArtworkThumbnail 监听的不是完整的作品元素，只是作品元素里的图片部分
     // 例如在搜索页面里，一个作品元素分为 3 个部分：1. 缩略图 2. 标题 3. 作者（用户名）
     // ArtworkThumbnail 获取的元素只是缩略图，不是完整的作品元素，所以不能用它来移除作品元素。而且缩略图里面有时可能没有用户信息，无法判断用户是否已关注。
     check(el) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.removeWorksOfFollowedUsersOnSearchPage ||
-            _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkSearch) {
+        if (!this.enable) {
             return;
         }
         const userLink = el.querySelector('a[href*=users]');
@@ -25694,10 +25729,14 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
         const userID = userLink.href.match(/\d+/);
         if (userID && _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.followingUserIDList.includes(userID[0])) {
             el.remove();
+            this.showTipOnce();
         }
     }
     /**检查当前页面上的作品元素 */
-    findWorks() {
+    findAllWorks() {
+        if (!this.enable) {
+            return;
+        }
         const allLI = document.body.querySelectorAll(this.worksSelector);
         for (const LI of allLI) {
             this.check(LI);
@@ -25706,6 +25745,9 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
     /**使用监视器，检查未来添加的作品元素 */
     createObserver(target) {
         const observer = new MutationObserver((records) => {
+            if (!this.enable) {
+                return;
+            }
             for (const record of records) {
                 if (record.addedNodes.length > 0) {
                     // 遍历被添加的元素，检查其中的作品元素

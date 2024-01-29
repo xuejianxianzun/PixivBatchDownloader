@@ -11,7 +11,7 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '16.6.0'
+  private flag = '16.6.00'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
@@ -25,14 +25,16 @@ class ShowWhatIsNew {
       <br>
       <span>${lang.transl('_在搜索页面里移除已关注用户的作品的说明')}</span>
       <br>
-      <br>
-
       ${lang.transl(
         '_你可以在更多选项卡的xx分类里找到它',
         lang.transl('_增强')
       )}
+      
+      <br>
+      <br>
+      <span>${lang.transl('_其他优化')}</span>
       `
-      // <span>${lang.transl('_优化性能和用户体验')}</span>
+      // <span>${lang.transl('_其他优化')}</span>
 
       // 在更新说明的下方显示赞助提示
       msg += `

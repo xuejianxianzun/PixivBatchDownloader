@@ -177,7 +177,8 @@ abstract class InitPageBase {
   protected showTip() {
     if (
       settings.removeWorksOfFollowedUsersOnSearchPage &&
-      pageType.type === pageType.list.ArtworkSearch
+      (pageType.type === pageType.list.ArtworkSearch ||
+        pageType.type === pageType.list.NovelSearch)
     ) {
       log.warning(lang.transl('_在搜索页面里移除已关注用户的作品'))
     }
