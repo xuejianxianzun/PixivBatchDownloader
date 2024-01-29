@@ -9724,6 +9724,9 @@ class PreviewWork {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.showPreviewWorkTip) {
             const text = [];
             const body = this.workData.body;
+            if (body.aiType === 2) {
+                text.push('AI');
+            }
             if (body.pageCount > 1) {
                 text.push(`${this.index + 1}/${body.pageCount}`);
             }
