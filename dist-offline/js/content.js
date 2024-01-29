@@ -2699,6 +2699,7 @@ class HighlightFollowingUsers {
         const thisUserData = list.find((data) => data.user === _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.loggedUserID);
         if (thisUserData) {
             this.following = thisUserData.following;
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.followingUserIDList = this.following;
             this.total = thisUserData.total;
             this.makeHighlight();
         }
@@ -2767,7 +2768,9 @@ class HighlightFollowingUsers {
     }
     /**检查关注用户的数量，如果数量发生变化则执行全量更新 */
     async checkNeedUpdate() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.highlightFollowingUsers) {
+        // 在搜索页面里移除已关注用户的作品 功能依赖关注用户列表，所以如果用户启用了该功能，也需要更新关注列表
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.highlightFollowingUsers &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.removeWorksOfFollowedUsersOnSearchPage) {
             return;
         }
         // 因为本程序不区分公开和非公开关注，所以只储存总数
@@ -4520,12 +4523,12 @@ const langText = {
         'Количество закладок, количество произведений в закладках',
     ],
     _命名标记bmk_id: [
-        'Bookmark Id。你收藏的每一个作品都会有一个 Bookmark Id。收藏的时间越晚，Bookmark Id 就越大。当你下载你的收藏时，可以使用 {bmk_id} 作为排序依据。',
-        'Bookmark Id。你收藏的每一個作品都會有一個 Bookmark Id。收藏的時間越晚，Bookmark Id 就越大。當你下載你的收藏時，可以使用 {bmk_id} 作為排序依據。',
-        'Bookmark Id. Every work in your bookmarks will have a Bookmark Id. The later the bookmark is added, the larger the Bookmark Id. When you download your bookmarks, you can use {bmk_id} as a sorting basis.',
+        'Bookmark ID。你收藏的每一个作品都会有一个 Bookmark ID。收藏的时间越晚，Bookmark ID 就越大。当你下载你的收藏时，可以使用 {bmk_id} 作为排序依据。',
+        'Bookmark ID。你收藏的每一個作品都會有一個 Bookmark ID。收藏的時間越晚，Bookmark ID 就越大。當你下載你的收藏時，可以使用 {bmk_id} 作為排序依據。',
+        'Bookmark ID. Every work in your bookmarks will have a Bookmark ID. The later the bookmark is added, the larger the Bookmark ID. When you download your bookmarks, you can use {bmk_id} as a sorting basis.',
         'ブックマークID。 ブックマーク内のすべての作品にはブックマークIDがあります。 ブックマークを後で追加すると、ブックマークIDが大きくなります。 ブックマークをダウンロードするときは、{bmk_id}を並べ替えの基準として使用できます。',
         '북마크 ID. 당신이 북마크하고 있는 작품마다 북마크 ID가 있습니다. 북마크 시간이 늦어질수록 북마크 ID는 커집니다. 북마크를 다운로드할때 {bmk_id}를 기준으로 정렬할 수 있습니다.',
-        'Bookmark Id. Каждая работа в ваших закладках будет иметь идентификатор закладки. Чем позже добавлена закладка, тем больше Id закладки. Когда вы загружаете закладки, вы можете использовать {bmk_id} в качестве основы для сортировки.',
+        'Bookmark ID. Каждая работа в ваших закладках будет иметь идентификатор закладки. Чем позже добавлена закладка, тем больше ID закладки. Когда вы загружаете закладки, вы можете использовать {bmk_id} в качестве основы для сортировки.',
     ],
     _命名标记bmk_1000: [
         '作品收藏数的简化显示。例如：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
@@ -5326,12 +5329,12 @@ const langText = {
         '<span class="key">Предварительный просмотр</span> результатов фильтрации на странице поиска',
     ],
     _预览搜索结果说明: [
-        '下载器可以把符合条件的作品显示在当前页面上。如果抓取结果太多导致页面崩溃，请关闭这个功能。<br>启用预览功能时，下载器不会自动开始下载。',
-        '下載器可以將符合條件的作品顯示在目前頁面上。如果擷取結果太多導致頁面當掉，請關閉這個功能。<br>啟用預覽功能時，下載器不會自動開始下載。',
-        'The downloader can display the qualified works on the current page. If too many crawling results cause the page to crash, turn off this feature.<br>When the preview feature is enabled, the downloader does not start downloading automatically.',
-        'ローダは、該当する作品を現在のページに表示することができます。クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。<br>プレビュー機能を有効にすると、ダウンロードは自動的に開始されません。',
-        '다운로더는 조건에 맞는 작품을 현재 페이지에 표시할 수 있습니다. 긁어오기 결과가 너무 많아서 페이지가 충돌하면 이 기능을 꺼주세요.<br> 미리보기를 사용하면 다운로드가 자동으로 시작되지 않습니다.',
-        'Загрузчик может отображать подходящие работы на текущей странице. Пожалуйста, отключите эту функцию, если слишком большое количество результатов просмотра приводит к сбою страницы.<br>Загрузчик не начинает автоматическую загрузку, если включена функция предварительного просмотра.',
+        '下载器可以把符合条件的作品显示在当前页面上，并且按照收藏数量从高到低排序。<br>如果抓取结果太多导致页面崩溃，请关闭这个功能。<br>启用预览功能时，下载器不会自动开始下载。',
+        '下載器可以把符合條件的作品顯示在當前頁面上，並且按照收藏數量從高到低排序。<br>如果擷取結果太多導致頁面當掉，請關閉這個功能。<br>啟用預覽功能時，下載器不會自動開始下載。',
+        'The downloader can display eligible works on the current page and sort them from high to low according to the number of bookmarks.<br>If too many crawling results cause the page to crash, turn off this feature.<br>When the preview feature is enabled, the downloader does not start downloading automatically.',
+        'ダウンローダーは、対象となる作品を現在のページに表示し、コレクション数に応じて上位から下位に並べ替えることができます。<br>クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。<br>プレビュー機能を有効にすると、ダウンロードは自動的に開始されません。',
+        '다운로더는 현재 페이지에 적합한 작품을 표시하고 컬렉션 수에 따라 높은 순으로 정렬할 수 있습니다.<br>긁어오기 결과가 너무 많아서 페이지가 충돌하면 이 기능을 꺼주세요.<br> 미리보기를 사용하면 다운로드가 자동으로 시작되지 않습니다.',
+        'Загрузчик может отображать подходящие произведения на текущей странице и сортировать их по возрастанию в зависимости от количества коллекций.<br>Пожалуйста, отключите эту функцию, если слишком большое количество результатов просмотра приводит к сбою страницы.<br>Загрузчик не начинает автоматическую загрузку, если включена функция предварительного просмотра.',
     ],
     _目录名使用: [
         '目录名使用：',
@@ -5903,12 +5906,12 @@ const langText = {
         'После загрузки файла загрузчик автоматически делает закладку',
     ],
     _收藏设置: [
-        '下载器的<span class="key">收藏</span>按钮 (✩)',
-        '下載器的<span class="key">收藏</span>按鈕 (✩)',
-        `Downloader's <span class="key">bookmark</span> button (✩)`,
-        'ダウンローダーの<span class="key">ブックマーク</span>ボタン (✩)',
-        '다운로더의 <span class="key">북마크</span> 버튼 (☆)',
-        `Кнопка <span class="key">закладок</span> загрузчика (✩)`,
+        '下载器的<span class="key">收藏</span>功能 (✩)',
+        '下載器的<span class="key">收藏</span>功能 (✩)',
+        `Downloader's <span class="key">bookmark</span> function (✩)`,
+        'ダウンローダーの<span class="key">ブックマーク</span>機能 (✩)',
+        '다운로더의 <span class="key">북마크</span> 기능 (☆)',
+        `Функция сбора загрузчика (✩)`,
     ],
     _下载器的收藏按钮默认会添加作品的标签: [
         '点击 <span class="blue">✩</span> 按钮时，下载器会收藏这个作品并且附带它的标签。',
@@ -7386,12 +7389,12 @@ const langText = {
         'Количество работ',
     ],
     _当作品数量大于: [
-        '当作品数量 >',
-        '當作品數量 >',
-        'When the number of works >',
-        '作品数 >',
-        '작품 수 >',
-        'При количестве работ >',
+        '当作品数量超过指定数量时启用：',
+        '當作品數量超過指定數量时啟用：',
+        'Enabled when the number of works exceeds the specified number:',
+        '作品数が規定数を超えた場合に有効：',
+        '작품 수가 지정된 수를 초과하면 활성화됩니다.',
+        'Включается, когда количество работ превышает указанное количество:',
     ],
     _慢速抓取: [
         '慢速抓取，以避免触发 429 限制',
@@ -7930,12 +7933,12 @@ const langText = {
         'Список идентификаторов импорта',
     ],
     _导出ID列表: [
-        '获取 ID 列表完毕后导出列表，并停止抓取',
-        '獲取 ID 列表完畢後匯出列表，並停止抓取',
-        'Export the ID list after fetching it, and stop crawling',
-        'IDリストを取得後にエクスポートし、クロールを停止します',
-        'ID 목록을 가져온 후 내보내기 및 크롤링 중지',
-        'Экспортируйте список идентификаторов после его извлечения и остановите сканирование.',
+        '获取作品 ID 列表后导出 <span class="key">ID 列表</span>，并停止任务',
+        '獲取作品 ID 列表後匯出 <span class="key">ID 列表</span>，並停止任務',
+        'After obtaining the work ID list, export the <span class="key">ID list</span> and stop the task',
+        'ワークIDリストを取得後、IDリストをエクスポートしてタスクを停止する',
+        '작업 ID 목록을 가져온 후 ID 목록을 내보내고 작업을 중지합니다',
+        'После получения списка идентификаторов работ экспортируйте список идентификаторов и остановите задачу',
     ],
     _导入的用户ID数量: [
         '导入的用户 ID 数量：',
@@ -8081,6 +8084,22 @@ const langText = {
         'クリップボードへの書き込みに失敗しました',
         '클립보드에 쓰지 못했습니다.',
         'Запись в буфер обмена не удалась',
+    ],
+    _在搜索页面里移除已关注用户的作品: [
+        '在搜索页面里<span class="key">移除</span>已关注用户的作品',
+        '在搜尋頁面裡<span class="key">移除</span>已關注使用者的作品',
+        '<span class="key">Remove</span> the works of followed users from the search page',
+        'フォローしているユーザーの作品を検索ページから削除します',
+        '검색 페이지에서 팔로우한 사용자의 작품을 제거합니다.',
+        'Удалить работы подписавшихся пользователей со страницы поиска',
+    ],
+    _在搜索页面里移除已关注用户的作品的说明: [
+        '这样只会显示未关注用户的作品，便于你发现新的喜欢的用户。<br>只在搜索页面里生效。',
+        '這樣只會顯示未關注使用者的作品，便於你發現新的喜歡的使用者。<br>只在搜尋頁面裡生效。',
+        'This will only display the works of unfollowed users, making it easier for you to discover new users you like.<br>Only takes effect on the search page.',
+        'フォローを解除しているユーザーの作品のみが表示されるので、新たに好みのユーザーを見つけやすくなります。<br>検索ページでのみ有効です。',
+        '팔로우하지 않은 사용자의 작품만 표시되므로 마음에 드는 새로운 사용자를 더 쉽게 찾을 수 있습니다.<br>검색 페이지에만 적용됩니다.',
+        'При этом будут отображаться только работы пользователей, на которых вы не подписаны, что облегчит вам поиск новых пользователей, которые вам нравятся.<br>Действует только на странице поиска.',
     ],
 };
 
@@ -9778,6 +9797,9 @@ class PreviewWork {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.showPreviewWorkTip) {
             const text = [];
             const body = this.workData.body;
+            if (body.aiType === 2) {
+                text.push('AI');
+            }
             if (body.pageCount > 1) {
                 text.push(`${this.index + 1}/${body.pageCount}`);
             }
@@ -11912,22 +11934,26 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.5.1';
+        this.flag = '16.6.00';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
+      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</strong>
+      <br>
+      <span class="blue"><strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在搜索页面里移除已关注用户的作品')}</strong></span>
+      <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在搜索页面里移除已关注用户的作品的说明')}</span>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_增强'))}
+      
+      <br>
+      <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_其他优化')}</span>
       `;
-            // <strong>${lang.transl('_新增功能')}:</strong>
-            // <br>
-            // <span class="blue">${lang.transl('abc')}</span>
-            // ${lang.transl(
-            //   '_你可以在更多选项卡的xx分类里找到它',
-            //   lang.transl('_增强')
-            // )}
+            // <span>${lang.transl('_其他优化')}</span>
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -14448,7 +14474,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
             49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-            70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87,
+            70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88,
         ]);
     }
     nextStep() {
@@ -14743,7 +14769,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _pageFunciton_RemoveWorksOfFollowedUsersOnSearchPage__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../pageFunciton/RemoveWorksOfFollowedUsersOnSearchPage */ "./src/ts/pageFunciton/RemoveWorksOfFollowedUsersOnSearchPage.ts");
 // 初始化 artwork 搜索页
+
 
 
 
@@ -18562,6 +18590,14 @@ class InitPageBase {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(`${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品只下载前几张图片')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.firstFewImages}`);
         }
     }
+    /**在日志上显示任意提示 */
+    showTip() {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.removeWorksOfFollowedUsersOnSearchPage &&
+            (_PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.ArtworkSearch ||
+                _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.NovelSearch)) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在搜索页面里移除已关注用户的作品'));
+        }
+    }
     setSlowCrawl() {
         _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl;
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl) {
@@ -18586,6 +18622,7 @@ class InitPageBase {
         }
         this.getWantPage();
         this.getMultipleSetting();
+        this.showTip();
         this.finishedRequest = 0;
         _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = false;
         // 进入第一个抓取流程
@@ -24416,12 +24453,12 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 113760000
-            this.crawlData(113370000, 113769980);
+            // 上次记录到 115580000
+            this.crawlData(113770000, 115588089);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 21100000
-            this.crawlData(21010000, 21103388, 'novels');
+            // 上次记录到 21480000
+            this.crawlData(21110000, 21481903, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -25694,6 +25731,131 @@ new QuickBookmark();
 
 /***/ }),
 
+/***/ "./src/ts/pageFunciton/RemoveWorksOfFollowedUsersOnSearchPage.ts":
+/*!***********************************************************************!*\
+  !*** ./src/ts/pageFunciton/RemoveWorksOfFollowedUsersOnSearchPage.ts ***!
+  \***********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   removeWorksOfFollowedUsersOnSearchPage: () => (/* binding */ removeWorksOfFollowedUsersOnSearchPage)
+/* harmony export */ });
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+
+
+
+
+
+
+// 在搜索页面里移除已关注用户的作品
+class RemoveWorksOfFollowedUsersOnSearchPage {
+    constructor() {
+        // 初始化时，页面上的作品元素尚未生成，所以不必使用 findAllWorks 方法
+        // this.findAllWorks()
+        this.showTip = false;
+        // 搜索页面里的插画作品选择器
+        this.worksSelector = '#root section ul li';
+        this.createObserver(document.body);
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'removeWorksOfFollowedUsersOnSearchPage' &&
+                data.value) {
+                this.findAllWorks();
+            }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.pageSwitch, () => {
+            this.showTip = false;
+        });
+    }
+    // 在每个页面上只显示一次提示
+    showTipOnce() {
+        if (this.showTip) {
+            return;
+        }
+        this.showTip = true;
+        _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_在搜索页面里移除已关注用户的作品'));
+    }
+    get enable() {
+        return (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.removeWorksOfFollowedUsersOnSearchPage &&
+            (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkSearch ||
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelSearch));
+    }
+    /**传入作品元素，从中检查用户 ID，如果该用户已关注，就移除这个作品 */
+    // 这里不能使用 ArtworkThumbnail 类（作品缩略图）所监听的元素来检查，因为 ArtworkThumbnail 监听的不是完整的作品元素，只是作品元素里的图片部分
+    // 例如在搜索页面里，一个作品元素分为 3 个部分：1. 缩略图 2. 标题 3. 作者（用户名）
+    // ArtworkThumbnail 获取的元素只是缩略图，不是完整的作品元素，所以不能用它来移除作品元素。而且缩略图里面有时可能没有用户信息，无法判断用户是否已关注。
+    check(el) {
+        if (!this.enable) {
+            return;
+        }
+        const userLink = el.querySelector('a[href*=users]');
+        if (!userLink) {
+            return;
+        }
+        // https://www.pixiv.net/users/9212166
+        const userID = userLink.href.match(/\d+/);
+        if (userID && _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.followingUserIDList.includes(userID[0])) {
+            el.remove();
+            this.showTipOnce();
+        }
+    }
+    /**检查当前页面上的作品元素 */
+    findAllWorks() {
+        if (!this.enable) {
+            return;
+        }
+        const allLI = document.body.querySelectorAll(this.worksSelector);
+        for (const LI of allLI) {
+            this.check(LI);
+        }
+    }
+    /**使用监视器，检查未来添加的作品元素 */
+    createObserver(target) {
+        const observer = new MutationObserver((records) => {
+            if (!this.enable) {
+                return;
+            }
+            for (const record of records) {
+                if (record.addedNodes.length > 0) {
+                    // 遍历被添加的元素，检查其中的作品元素
+                    for (const newEl of record.addedNodes) {
+                        if (newEl.nodeType !== 1) {
+                            continue;
+                        }
+                        if (newEl.nodeName === 'LI') {
+                            this.check(newEl);
+                        }
+                        else {
+                            const allLI = newEl.querySelectorAll('li');
+                            for (const LI of allLI) {
+                                this.check(LI);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        observer.observe(target, {
+            childList: true,
+            subtree: true,
+        });
+    }
+}
+const removeWorksOfFollowedUsersOnSearchPage = new RemoveWorksOfFollowedUsersOnSearchPage();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/pageFunciton/SaveAvatarIcon.ts":
 /*!***********************************************!*\
   !*** ./src/ts/pageFunciton/SaveAvatarIcon.ts ***!
@@ -26491,7 +26653,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 
-// 已使用的最大编号是 87
+// 目前设置项的最大编号是 88
 const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -27069,6 +27231,12 @@ const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="85">
+    <span class="settingNameStyle1" data-xztext="_导出ID列表"></span>
+    <input type="checkbox" name="exportIDList" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
     <p class="option settingCategoryName" data-no="65">
       <span data-xztext="_命名"></span>
     </p>
@@ -27384,12 +27552,6 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_switch" tabindex="0"></span>
     </p>
 
-    <p class="option" data-no="85">
-    <span class="settingNameStyle1" data-xztext="_导出ID列表"></span>
-    <input type="checkbox" name="exportIDList" class="need_beautify checkbox_switch">
-    <span class="beautify_switch" tabindex="0"></span>
-    </p>
-
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </p>
@@ -27540,6 +27702,14 @@ const formHtml = `<form class="settingForm">
     <p class="option" data-no="48">
     <span class="settingNameStyle1" data-xztext="_在搜索页面添加快捷搜索区域"></span>
     <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
+    <p class="option" data-no="88">
+    <span class="has_tip settingNameStyle1" data-xztip="_在搜索页面里移除已关注用户的作品的说明">
+    <span data-xztext="_在搜索页面里移除已关注用户的作品"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="removeWorksOfFollowedUsersOnSearchPage" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
     </p>
 
@@ -27846,6 +28016,7 @@ class FormSettings {
                 'exportIDList',
                 'displayThumbnailListOnMultiImageWorkPage',
                 'PreviewWorkDetailInfo',
+                'removeWorksOfFollowedUsersOnSearchPage',
             ],
             text: [
                 'setWantPage',
@@ -28827,6 +28998,7 @@ class Settings {
             requestSponsorshipTime: 0,
             PreviewWorkDetailInfo: false,
             PreviewDetailInfoWidth: 400,
+            removeWorksOfFollowedUsersOnSearchPage: false,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -29968,7 +30140,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 生成抓取结果
+// 保存抓取结果和其他一些公用数据
 class Store {
     constructor() {
         this.loggedUserID = '';
@@ -29981,6 +30153,8 @@ class Store {
         this.artworkIDList = []; // 储存抓取到的图片作品的 id 列表，用来避免重复添加
         this.novelIDList = []; // 储存抓取到的小说作品的 id 列表，用来避免重复添加
         this.result = []; // 储存抓取结果
+        /**当前登录用户的关注用户列表 */
+        this.followingUserIDList = [];
         /**记录从每个作品里下载多少个文件 */
         this.downloadCount = {};
         this.remainingDownload = 0; // 剩余多少个等待下载和保存的文件
@@ -32301,6 +32475,44 @@ const novelData = [
     [21080000, 1700787860000],
     [21090000, 1700923757000],
     [21100000, 1701068828000],
+    [21110000, 1701228360000],
+    [21120001, 1701375951000],
+    [21130002, 1701523398000],
+    [21140000, 1701654327000],
+    [21150000, 1701804625000],
+    [21160000, 1701961975000],
+    [21170000, 1702121359000],
+    [21180000, 1702224558000],
+    [21190000, 1702390238000],
+    [21200000, 1702559901000],
+    [21210000, 1702721469000],
+    [21220000, 1702834825000],
+    [21230000, 1703001809000],
+    [21240001, 1703174055000],
+    [21250000, 1703333512000],
+    [21260000, 1703427102000],
+    [21270001, 1703527561000],
+    [21280000, 1703689409000],
+    [21290000, 1703848444000],
+    [21300001, 1703952652000],
+    [21310000, 1704035239000],
+    [21320001, 1704184959000],
+    [21330000, 1704299117000],
+    [21340000, 1704457111000],
+    [21350000, 1704591749000],
+    [21360000, 1704709211000],
+    [21370002, 1704864150000],
+    [21380000, 1705033355000],
+    [21390000, 1705161084000],
+    [21400000, 1705311385000],
+    [21410001, 1705480370000],
+    [21420000, 1705646826000],
+    [21430000, 1705767267000],
+    [21440000, 1705911585000],
+    [21450000, 1706063572000],
+    [21460000, 1706200084000],
+    [21470000, 1706359804000],
+    [21480000, 1706484417000],
 ];
 
 
@@ -43694,6 +43906,188 @@ const illustsData = [
     [113740000, 1701008100000],
     [113750000, 1701043740000],
     [113760000, 1701081480000],
+    [113770000, 1701101760000],
+    [113780001, 1701151440000],
+    [113790000, 1701178260000],
+    [113800000, 1701213480000],
+    [113810000, 1701252000000],
+    [113820001, 1701271980000],
+    [113830000, 1701317820000],
+    [113840000, 1701347040000],
+    [113850000, 1701369840000],
+    [113860000, 1701416400000],
+    [113870000, 1701438960000],
+    [113880001, 1701473760000],
+    [113890000, 1701505800000],
+    [113900000, 1701526920000],
+    [113910000, 1701562320000],
+    [113920000, 1701592200000],
+    [113930001, 1701610800000],
+    [113940000, 1701641040000],
+    [113950000, 1701683040000],
+    [113960000, 1701703200000],
+    [113970000, 1701748920000],
+    [113980001, 1701780180000],
+    [113990000, 1701810000000],
+    [114000000, 1701853560000],
+    [114010000, 1701874800000],
+    [114020000, 1701918000000],
+    [114030000, 1701949680000],
+    [114040000, 1701973020000],
+    [114050000, 1702022100000],
+    [114060000, 1702044540000],
+    [114070000, 1702081200000],
+    [114080000, 1702113060000],
+    [114090001, 1702132680000],
+    [114100000, 1702169160000],
+    [114110001, 1702197000000],
+    [114120001, 1702215120000],
+    [114130000, 1702242720000],
+    [114140000, 1702285200000],
+    [114150001, 1702306200000],
+    [114160000, 1702347120000],
+    [114170000, 1702379820000],
+    [114180001, 1702398660000],
+    [114190001, 1702446480000],
+    [114200000, 1702472340000],
+    [114210000, 1702501200000],
+    [114220000, 1702544400000],
+    [114230000, 1702565340000],
+    [114240000, 1702607880000],
+    [114250000, 1702639440000],
+    [114260000, 1702657500000],
+    [114270000, 1702698720000],
+    [114280000, 1702724700000],
+    [114290001, 1702742760000],
+    [114300000, 1702783140000],
+    [114310000, 1702809240000],
+    [114320000, 1702825980000],
+    [114330000, 1702869300000],
+    [114340000, 1702901340000],
+    [114350000, 1702926840000],
+    [114360000, 1702974120000],
+    [114370000, 1702995900000],
+    [114380000, 1703035800000],
+    [114390000, 1703070780000],
+    [114400000, 1703091780000],
+    [114410000, 1703140500000],
+    [114420000, 1703166300000],
+    [114430000, 1703202900000],
+    [114440000, 1703240040000],
+    [114450000, 1703259120000],
+    [114460001, 1703301360000],
+    [114470000, 1703329200000],
+    [114480000, 1703346120000],
+    [114490000, 1703381400000],
+    [114500000, 1703404620000],
+    [114510001, 1703419860000],
+    [114520000, 1703431140000],
+    [114530000, 1703461560000],
+    [114540000, 1703491740000],
+    [114550000, 1703508660000],
+    [114560000, 1703523180000],
+    [114570000, 1703565900000],
+    [114580000, 1703593080000],
+    [114590001, 1703614620000],
+    [114600000, 1703659740000],
+    [114610000, 1703683080000],
+    [114620000, 1703712300000],
+    [114630000, 1703751540000],
+    [114640000, 1703772420000],
+    [114650000, 1703806260000],
+    [114660000, 1703838240000],
+    [114670000, 1703857500000],
+    [114680000, 1703885400000],
+    [114690000, 1703920020000],
+    [114700000, 1703940600000],
+    [114710000, 1703958720000],
+    [114720001, 1703993340000],
+    [114730000, 1704013200000],
+    [114740000, 1704027600000],
+    [114750000, 1704035340000],
+    [114760000, 1704046140000],
+    [114770000, 1704074640000],
+    [114780000, 1704095940000],
+    [114790000, 1704116280000],
+    [114800000, 1704144600000],
+    [114810000, 1704179460000],
+    [114820000, 1704201360000],
+    [114830000, 1704226440000],
+    [114840000, 1704262740000],
+    [114850001, 1704283860000],
+    [114860000, 1704301440000],
+    [114870001, 1704345720000],
+    [114880000, 1704370500000],
+    [114890000, 1704390660000],
+    [114900000, 1704435780000],
+    [114910001, 1704458820000],
+    [114920001, 1704480240000],
+    [114930000, 1704520200000],
+    [114940001, 1704542580000],
+    [114950000, 1704559860000],
+    [114960000, 1704600120000],
+    [114970000, 1704624060000],
+    [114980000, 1704640260000],
+    [114990000, 1704677880000],
+    [115000000, 1704705540000],
+    [115010000, 1704723840000],
+    [115020000, 1704761280000],
+    [115030000, 1704797880000],
+    [115040000, 1704817080000],
+    [115050000, 1704865620000],
+    [115060000, 1704892320000],
+    [115070000, 1704925380000],
+    [115080000, 1704966600000],
+    [115090000, 1704987360000],
+    [115100000, 1705034040000],
+    [115110000, 1705062900000],
+    [115120000, 1705088220000],
+    [115130000, 1705127400000],
+    [115140000, 1705150200000],
+    [115150000, 1705174200000],
+    [115160000, 1705211340000],
+    [115170000, 1705232880000],
+    [115180000, 1705249260000],
+    [115190000, 1705295640000],
+    [115200000, 1705323240000],
+    [115210000, 1705351680000],
+    [115220000, 1705395660000],
+    [115230000, 1705417200000],
+    [115240000, 1705458600000],
+    [115250000, 1705491540000],
+    [115260000, 1705512600000],
+    [115270001, 1705560420000],
+    [115280000, 1705584840000],
+    [115290000, 1705619760000],
+    [115300000, 1705658520000],
+    [115310000, 1705677420000],
+    [115320000, 1705717620000],
+    [115330000, 1705745760000],
+    [115340000, 1705763580000],
+    [115350000, 1705801500000],
+    [115360000, 1705827600000],
+    [115370001, 1705844940000],
+    [115380000, 1705874220000],
+    [115390000, 1705914060000],
+    [115400000, 1705934700000],
+    [115410000, 1705974600000],
+    [115420000, 1706008320000],
+    [115430001, 1706028060000],
+    [115440000, 1706076000000],
+    [115450000, 1706101200000],
+    [115460000, 1706131260000],
+    [115470000, 1706173620000],
+    [115480000, 1706194020000],
+    [115490000, 1706235000000],
+    [115500000, 1706267880000],
+    [115510000, 1706287200000],
+    [115520000, 1706328960000],
+    [115530000, 1706354460000],
+    [115540000, 1706372400000],
+    [115550000, 1706411160000],
+    [115560001, 1706435580000],
+    [115570000, 1706452800000],
+    [115580000, 1706490120000],
 ];
 
 

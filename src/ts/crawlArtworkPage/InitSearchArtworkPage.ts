@@ -26,6 +26,7 @@ import { pageType } from '../PageType'
 import { Config } from '../Config'
 import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
+import '../pageFunciton/RemoveWorksOfFollowedUsersOnSearchPage'
 
 type AddBMKData = {
   id: number

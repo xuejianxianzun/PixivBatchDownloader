@@ -125,6 +125,7 @@ class FormSettings {
       'exportIDList',
       'displayThumbnailListOnMultiImageWorkPage',
       'PreviewWorkDetailInfo',
+      'removeWorksOfFollowedUsersOnSearchPage',
     ],
     text: [
       'setWantPage',

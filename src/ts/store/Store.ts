@@ -3,7 +3,7 @@ import { settings } from '../setting/Settings'
 import { Tools } from '../Tools'
 import { Result, ResultOptional, RankList, IDData } from './StoreType'
 
-// 生成抓取结果
+// 保存抓取结果和其他一些公用数据
 class Store {
   constructor() {
     this.loggedUserID = Tools.getLoggedUserID()
@@ -26,6 +26,9 @@ class Store {
   private novelIDList: number[] = [] // 储存抓取到的小说作品的 id 列表，用来避免重复添加
 
   public result: Result[] = [] // 储存抓取结果
+
+  /**当前登录用户的关注用户列表 */
+  public followingUserIDList: string[] = []
 
   /**记录从每个作品里下载多少个文件 */
   public downloadCount: {

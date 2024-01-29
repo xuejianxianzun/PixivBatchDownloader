@@ -11,22 +11,30 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '16.5.1'
+  private flag = '16.6.00'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
       let msg = `
-      <span>${lang.transl('_优化性能和用户体验')}</span>
+      <strong>${lang.transl('_新增功能')}:</strong>
+      <br>
+      <span class="blue"><strong>${lang.transl(
+        '_在搜索页面里移除已关注用户的作品'
+      )}</strong></span>
+      <br>
+      <span>${lang.transl('_在搜索页面里移除已关注用户的作品的说明')}</span>
+      <br>
+      ${lang.transl(
+        '_你可以在更多选项卡的xx分类里找到它',
+        lang.transl('_增强')
+      )}
+      
+      <br>
+      <br>
+      <span>${lang.transl('_其他优化')}</span>
       `
-      // <strong>${lang.transl('_新增功能')}:</strong>
-      // <br>
-      // <span class="blue">${lang.transl('abc')}</span>
-
-      // ${lang.transl(
-      //   '_你可以在更多选项卡的xx分类里找到它',
-      //   lang.transl('_增强')
-      // )}
+      // <span>${lang.transl('_其他优化')}</span>
 
       // 在更新说明的下方显示赞助提示
       msg += `
