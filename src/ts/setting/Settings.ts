@@ -261,6 +261,7 @@ interface XzSetting {
   requestSponsorshipTime: number
   PreviewWorkDetailInfo: boolean
   PreviewDetailInfoWidth: number
+  removeWorksOfFollowedUsersOnSearchPage: boolean
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -479,6 +480,7 @@ class Settings {
     requestSponsorshipTime: 0,
     PreviewWorkDetailInfo: false,
     PreviewDetailInfoWidth: 400,
+    removeWorksOfFollowedUsersOnSearchPage: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

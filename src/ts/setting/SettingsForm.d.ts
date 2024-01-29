@@ -148,4 +148,5 @@ export interface SettingsForm extends HTMLFormElement {
   displayThumbnailListOnMultiImageWorkPage: HTMLInputElement
   PreviewWorkDetailInfo: HTMLInputElement
   PreviewDetailInfoWidth: HTMLInputElement
+  removeWorksOfFollowedUsersOnSearchPage: HTMLInputElement
 }

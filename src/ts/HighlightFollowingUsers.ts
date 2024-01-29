@@ -125,6 +125,7 @@ class HighlightFollowingUsers {
     const thisUserData = list.find((data) => data.user === store.loggedUserID)
     if (thisUserData) {
       this.following = thisUserData.following
+      store.followingUserIDList = this.following
       this.total = thisUserData.total
 
       this.makeHighlight()
@@ -216,7 +217,11 @@ class HighlightFollowingUsers {
 
   /**检查关注用户的数量，如果数量发生变化则执行全量更新 */
   private async checkNeedUpdate() {
-    if (!settings.highlightFollowingUsers) {
+    // 在搜索页面里移除已关注用户的作品 功能依赖关注用户列表，所以如果用户启用了该功能，也需要更新关注列表
+    if (
+      !settings.highlightFollowingUsers &&
+      !settings.removeWorksOfFollowedUsersOnSearchPage
+    ) {
       return
     }
 

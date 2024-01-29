@@ -2626,6 +2626,7 @@ class HighlightFollowingUsers {
         const thisUserData = list.find((data) => data.user === _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.loggedUserID);
         if (thisUserData) {
             this.following = thisUserData.following;
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.followingUserIDList = this.following;
             this.total = thisUserData.total;
             this.makeHighlight();
         }
@@ -2694,7 +2695,9 @@ class HighlightFollowingUsers {
     }
     /**检查关注用户的数量，如果数量发生变化则执行全量更新 */
     async checkNeedUpdate() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.highlightFollowingUsers) {
+        // 在搜索页面里移除已关注用户的作品 功能依赖关注用户列表，所以如果用户启用了该功能，也需要更新关注列表
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.highlightFollowingUsers &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.removeWorksOfFollowedUsersOnSearchPage) {
             return;
         }
         // 因为本程序不区分公开和非公开关注，所以只储存总数
@@ -4447,12 +4450,12 @@ const langText = {
         'Количество закладок, количество произведений в закладках',
     ],
     _命名标记bmk_id: [
-        'Bookmark Id。你收藏的每一个作品都会有一个 Bookmark Id。收藏的时间越晚，Bookmark Id 就越大。当你下载你的收藏时，可以使用 {bmk_id} 作为排序依据。',
-        'Bookmark Id。你收藏的每一個作品都會有一個 Bookmark Id。收藏的時間越晚，Bookmark Id 就越大。當你下載你的收藏時，可以使用 {bmk_id} 作為排序依據。',
-        'Bookmark Id. Every work in your bookmarks will have a Bookmark Id. The later the bookmark is added, the larger the Bookmark Id. When you download your bookmarks, you can use {bmk_id} as a sorting basis.',
+        'Bookmark ID。你收藏的每一个作品都会有一个 Bookmark ID。收藏的时间越晚，Bookmark ID 就越大。当你下载你的收藏时，可以使用 {bmk_id} 作为排序依据。',
+        'Bookmark ID。你收藏的每一個作品都會有一個 Bookmark ID。收藏的時間越晚，Bookmark ID 就越大。當你下載你的收藏時，可以使用 {bmk_id} 作為排序依據。',
+        'Bookmark ID. Every work in your bookmarks will have a Bookmark ID. The later the bookmark is added, the larger the Bookmark ID. When you download your bookmarks, you can use {bmk_id} as a sorting basis.',
         'ブックマークID。 ブックマーク内のすべての作品にはブックマークIDがあります。 ブックマークを後で追加すると、ブックマークIDが大きくなります。 ブックマークをダウンロードするときは、{bmk_id}を並べ替えの基準として使用できます。',
         '북마크 ID. 당신이 북마크하고 있는 작품마다 북마크 ID가 있습니다. 북마크 시간이 늦어질수록 북마크 ID는 커집니다. 북마크를 다운로드할때 {bmk_id}를 기준으로 정렬할 수 있습니다.',
-        'Bookmark Id. Каждая работа в ваших закладках будет иметь идентификатор закладки. Чем позже добавлена закладка, тем больше Id закладки. Когда вы загружаете закладки, вы можете использовать {bmk_id} в качестве основы для сортировки.',
+        'Bookmark ID. Каждая работа в ваших закладках будет иметь идентификатор закладки. Чем позже добавлена закладка, тем больше ID закладки. Когда вы загружаете закладки, вы можете использовать {bmk_id} в качестве основы для сортировки.',
     ],
     _命名标记bmk_1000: [
         '作品收藏数的简化显示。例如：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
@@ -5253,12 +5256,12 @@ const langText = {
         '<span class="key">Предварительный просмотр</span> результатов фильтрации на странице поиска',
     ],
     _预览搜索结果说明: [
-        '下载器可以把符合条件的作品显示在当前页面上。如果抓取结果太多导致页面崩溃，请关闭这个功能。<br>启用预览功能时，下载器不会自动开始下载。',
-        '下載器可以將符合條件的作品顯示在目前頁面上。如果擷取結果太多導致頁面當掉，請關閉這個功能。<br>啟用預覽功能時，下載器不會自動開始下載。',
-        'The downloader can display the qualified works on the current page. If too many crawling results cause the page to crash, turn off this feature.<br>When the preview feature is enabled, the downloader does not start downloading automatically.',
-        'ローダは、該当する作品を現在のページに表示することができます。クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。<br>プレビュー機能を有効にすると、ダウンロードは自動的に開始されません。',
-        '다운로더는 조건에 맞는 작품을 현재 페이지에 표시할 수 있습니다. 긁어오기 결과가 너무 많아서 페이지가 충돌하면 이 기능을 꺼주세요.<br> 미리보기를 사용하면 다운로드가 자동으로 시작되지 않습니다.',
-        'Загрузчик может отображать подходящие работы на текущей странице. Пожалуйста, отключите эту функцию, если слишком большое количество результатов просмотра приводит к сбою страницы.<br>Загрузчик не начинает автоматическую загрузку, если включена функция предварительного просмотра.',
+        '下载器可以把符合条件的作品显示在当前页面上，并且按照收藏数量从高到低排序。<br>如果抓取结果太多导致页面崩溃，请关闭这个功能。<br>启用预览功能时，下载器不会自动开始下载。',
+        '下載器可以把符合條件的作品顯示在當前頁面上，並且按照收藏數量從高到低排序。<br>如果擷取結果太多導致頁面當掉，請關閉這個功能。<br>啟用預覽功能時，下載器不會自動開始下載。',
+        'The downloader can display eligible works on the current page and sort them from high to low according to the number of bookmarks.<br>If too many crawling results cause the page to crash, turn off this feature.<br>When the preview feature is enabled, the downloader does not start downloading automatically.',
+        'ダウンローダーは、対象となる作品を現在のページに表示し、コレクション数に応じて上位から下位に並べ替えることができます。<br>クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。<br>プレビュー機能を有効にすると、ダウンロードは自動的に開始されません。',
+        '다운로더는 현재 페이지에 적합한 작품을 표시하고 컬렉션 수에 따라 높은 순으로 정렬할 수 있습니다.<br>긁어오기 결과가 너무 많아서 페이지가 충돌하면 이 기능을 꺼주세요.<br> 미리보기를 사용하면 다운로드가 자동으로 시작되지 않습니다.',
+        'Загрузчик может отображать подходящие произведения на текущей странице и сортировать их по возрастанию в зависимости от количества коллекций.<br>Пожалуйста, отключите эту функцию, если слишком большое количество результатов просмотра приводит к сбою страницы.<br>Загрузчик не начинает автоматическую загрузку, если включена функция предварительного просмотра.',
     ],
     _目录名使用: [
         '目录名使用：',
@@ -5830,12 +5833,12 @@ const langText = {
         'После загрузки файла загрузчик автоматически делает закладку',
     ],
     _收藏设置: [
-        '下载器的<span class="key">收藏</span>按钮 (✩)',
-        '下載器的<span class="key">收藏</span>按鈕 (✩)',
-        `Downloader's <span class="key">bookmark</span> button (✩)`,
-        'ダウンローダーの<span class="key">ブックマーク</span>ボタン (✩)',
-        '다운로더의 <span class="key">북마크</span> 버튼 (☆)',
-        `Кнопка <span class="key">закладок</span> загрузчика (✩)`,
+        '下载器的<span class="key">收藏</span>功能 (✩)',
+        '下載器的<span class="key">收藏</span>功能 (✩)',
+        `Downloader's <span class="key">bookmark</span> function (✩)`,
+        'ダウンローダーの<span class="key">ブックマーク</span>機能 (✩)',
+        '다운로더의 <span class="key">북마크</span> 기능 (☆)',
+        `Функция сбора загрузчика (✩)`,
     ],
     _下载器的收藏按钮默认会添加作品的标签: [
         '点击 <span class="blue">✩</span> 按钮时，下载器会收藏这个作品并且附带它的标签。',
@@ -7313,12 +7316,12 @@ const langText = {
         'Количество работ',
     ],
     _当作品数量大于: [
-        '当作品数量 >',
-        '當作品數量 >',
-        'When the number of works >',
-        '作品数 >',
-        '작품 수 >',
-        'При количестве работ >',
+        '当作品数量超过指定数量时启用：',
+        '當作品數量超過指定數量时啟用：',
+        'Enabled when the number of works exceeds the specified number:',
+        '作品数が規定数を超えた場合に有効：',
+        '작품 수가 지정된 수를 초과하면 활성화됩니다.',
+        'Включается, когда количество работ превышает указанное количество:',
     ],
     _慢速抓取: [
         '慢速抓取，以避免触发 429 限制',
@@ -7857,12 +7860,12 @@ const langText = {
         'Список идентификаторов импорта',
     ],
     _导出ID列表: [
-        '获取 ID 列表完毕后导出列表，并停止抓取',
-        '獲取 ID 列表完畢後匯出列表，並停止抓取',
-        'Export the ID list after fetching it, and stop crawling',
-        'IDリストを取得後にエクスポートし、クロールを停止します',
-        'ID 목록을 가져온 후 내보내기 및 크롤링 중지',
-        'Экспортируйте список идентификаторов после его извлечения и остановите сканирование.',
+        '获取作品 ID 列表后导出 <span class="key">ID 列表</span>，并停止任务',
+        '獲取作品 ID 列表後匯出 <span class="key">ID 列表</span>，並停止任務',
+        'After obtaining the work ID list, export the <span class="key">ID list</span> and stop the task',
+        'ワークIDリストを取得後、IDリストをエクスポートしてタスクを停止する',
+        '작업 ID 목록을 가져온 후 ID 목록을 내보내고 작업을 중지합니다',
+        'После получения списка идентификаторов работ экспортируйте список идентификаторов и остановите задачу',
     ],
     _导入的用户ID数量: [
         '导入的用户 ID 数量：',
@@ -8008,6 +8011,22 @@ const langText = {
         'クリップボードへの書き込みに失敗しました',
         '클립보드에 쓰지 못했습니다.',
         'Запись в буфер обмена не удалась',
+    ],
+    _在搜索页面里移除已关注用户的作品: [
+        '在搜索页面里<span class="key">移除</span>已关注用户的作品',
+        '在搜尋頁面裡<span class="key">移除</span>已關注使用者的作品',
+        '<span class="key">Remove</span> the works of followed users from the search page',
+        'フォローしているユーザーの作品を検索ページから削除します',
+        '검색 페이지에서 팔로우한 사용자의 작품을 제거합니다.',
+        'Удалить работы подписавшихся пользователей со страницы поиска',
+    ],
+    _在搜索页面里移除已关注用户的作品的说明: [
+        '这样只会显示未关注用户的作品，便于你发现新的喜欢的用户。<br>只在搜索页面里生效。',
+        '這樣只會顯示未關注使用者的作品，便於你發現新的喜歡的使用者。<br>只在搜尋頁面裡生效。',
+        'This will only display the works of unfollowed users, making it easier for you to discover new users you like.<br>Only takes effect on the search page.',
+        'フォローを解除しているユーザーの作品のみが表示されるので、新たに好みのユーザーを見つけやすくなります。<br>検索ページでのみ有効です。',
+        '팔로우하지 않은 사용자의 작품만 표시되므로 마음에 드는 새로운 사용자를 더 쉽게 찾을 수 있습니다.<br>검색 페이지에만 적용됩니다.',
+        'При этом будут отображаться только работы пользователей, на которых вы не подписаны, что облегчит вам поиск новых пользователей, которые вам нравятся.<br>Действует только на странице поиска.',
     ],
 };
 
@@ -11839,22 +11858,24 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.5.1';
+        this.flag = '16.6.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
+      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</strong>
+      <br>
+      <span class="blue"><strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在搜索页面里移除已关注用户的作品')}</strong></span>
+      <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在搜索页面里移除已关注用户的作品的说明')}</span>
+      <br>
+      <br>
+
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_增强'))}
       `;
-            // <strong>${lang.transl('_新增功能')}:</strong>
-            // <br>
-            // <span class="blue">${lang.transl('abc')}</span>
-            // ${lang.transl(
-            //   '_你可以在更多选项卡的xx分类里找到它',
-            //   lang.transl('_增强')
-            // )}
+            // <span>${lang.transl('_优化性能和用户体验')}</span>
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -14375,7 +14396,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
             49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-            70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87,
+            70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88,
         ]);
     }
     nextStep() {
@@ -14670,7 +14691,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _pageFunciton_RemoveWorksOfFollowedUsersOnSearchPage__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../pageFunciton/RemoveWorksOfFollowedUsersOnSearchPage */ "./src/ts/pageFunciton/RemoveWorksOfFollowedUsersOnSearchPage.ts");
 // 初始化 artwork 搜索页
+
 
 
 
@@ -18489,6 +18512,13 @@ class InitPageBase {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(`${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品只下载前几张图片')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.firstFewImages}`);
         }
     }
+    /**在日志上显示任意提示 */
+    showTip() {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.removeWorksOfFollowedUsersOnSearchPage &&
+            _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.ArtworkSearch) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在搜索页面里移除已关注用户的作品'));
+        }
+    }
     setSlowCrawl() {
         _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl;
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl) {
@@ -18513,6 +18543,7 @@ class InitPageBase {
         }
         this.getWantPage();
         this.getMultipleSetting();
+        this.showTip();
         this.finishedRequest = 0;
         _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = false;
         // 进入第一个抓取流程
@@ -25621,6 +25652,92 @@ new QuickBookmark();
 
 /***/ }),
 
+/***/ "./src/ts/pageFunciton/RemoveWorksOfFollowedUsersOnSearchPage.ts":
+/*!***********************************************************************!*\
+  !*** ./src/ts/pageFunciton/RemoveWorksOfFollowedUsersOnSearchPage.ts ***!
+  \***********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   removeWorksOfFollowedUsersOnSearchPage: () => (/* binding */ removeWorksOfFollowedUsersOnSearchPage)
+/* harmony export */ });
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+
+
+
+// 在搜索页面里移除已关注用户的作品
+class RemoveWorksOfFollowedUsersOnSearchPage {
+    constructor() {
+        // 初始化时，页面上的作品元素尚未生成，所以不必使用 findWorks 方法
+        // this.findWorks()
+        // 搜索页面里的插画作品选择器
+        this.worksSelector = '#root section ul li';
+        this.createObserver(document.body);
+    }
+    /**传入作品元素，从中检查用户 ID，如果该用户已关注，就移除这个作品 */
+    // 这里不能使用 ArtworkThumbnail 类（作品缩略图）所监听的元素来检查，因为 ArtworkThumbnail 监听的不是完整的作品元素，只是作品元素里的图片部分
+    // 例如在搜索页面里，一个作品元素分为 3 个部分：1. 缩略图 2. 标题 3. 作者（用户名）
+    // ArtworkThumbnail 获取的元素只是缩略图，不是完整的作品元素，所以不能用它来移除作品元素。而且缩略图里面有时可能没有用户信息，无法判断用户是否已关注。
+    check(el) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.removeWorksOfFollowedUsersOnSearchPage ||
+            _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkSearch) {
+            return;
+        }
+        const userLink = el.querySelector('a[href*=users]');
+        if (!userLink) {
+            return;
+        }
+        // https://www.pixiv.net/users/9212166
+        const userID = userLink.href.match(/\d+/);
+        if (userID && _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.followingUserIDList.includes(userID[0])) {
+            el.remove();
+        }
+    }
+    /**检查当前页面上的作品元素 */
+    findWorks() {
+        const allLI = document.body.querySelectorAll(this.worksSelector);
+        for (const LI of allLI) {
+            this.check(LI);
+        }
+    }
+    /**使用监视器，检查未来添加的作品元素 */
+    createObserver(target) {
+        const observer = new MutationObserver((records) => {
+            for (const record of records) {
+                if (record.addedNodes.length > 0) {
+                    // 遍历被添加的元素，检查其中的作品元素
+                    for (const newEl of record.addedNodes) {
+                        if (newEl.nodeType !== 1) {
+                            continue;
+                        }
+                        if (newEl.nodeName === 'LI') {
+                            this.check(newEl);
+                        }
+                        else {
+                            const allLI = newEl.querySelectorAll('li');
+                            for (const LI of allLI) {
+                                this.check(LI);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        observer.observe(target, {
+            childList: true,
+            subtree: true,
+        });
+    }
+}
+const removeWorksOfFollowedUsersOnSearchPage = new RemoveWorksOfFollowedUsersOnSearchPage();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/pageFunciton/SaveAvatarIcon.ts":
 /*!***********************************************!*\
   !*** ./src/ts/pageFunciton/SaveAvatarIcon.ts ***!
@@ -26418,7 +26535,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 
-// 已使用的最大编号是 87
+// 目前设置项的最大编号是 88
 const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -26996,6 +27113,12 @@ const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="85">
+    <span class="settingNameStyle1" data-xztext="_导出ID列表"></span>
+    <input type="checkbox" name="exportIDList" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
     <p class="option settingCategoryName" data-no="65">
       <span data-xztext="_命名"></span>
     </p>
@@ -27311,12 +27434,6 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_switch" tabindex="0"></span>
     </p>
 
-    <p class="option" data-no="85">
-    <span class="settingNameStyle1" data-xztext="_导出ID列表"></span>
-    <input type="checkbox" name="exportIDList" class="need_beautify checkbox_switch">
-    <span class="beautify_switch" tabindex="0"></span>
-    </p>
-
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </p>
@@ -27467,6 +27584,14 @@ const formHtml = `<form class="settingForm">
     <p class="option" data-no="48">
     <span class="settingNameStyle1" data-xztext="_在搜索页面添加快捷搜索区域"></span>
     <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
+    <p class="option" data-no="88">
+    <span class="has_tip settingNameStyle1" data-xztip="_在搜索页面里移除已关注用户的作品的说明">
+    <span data-xztext="_在搜索页面里移除已关注用户的作品"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="removeWorksOfFollowedUsersOnSearchPage" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
     </p>
 
@@ -27773,6 +27898,7 @@ class FormSettings {
                 'exportIDList',
                 'displayThumbnailListOnMultiImageWorkPage',
                 'PreviewWorkDetailInfo',
+                'removeWorksOfFollowedUsersOnSearchPage',
             ],
             text: [
                 'setWantPage',
@@ -28754,6 +28880,7 @@ class Settings {
             requestSponsorshipTime: 0,
             PreviewWorkDetailInfo: false,
             PreviewDetailInfoWidth: 400,
+            removeWorksOfFollowedUsersOnSearchPage: false,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -29895,7 +30022,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 生成抓取结果
+// 保存抓取结果和其他一些公用数据
 class Store {
     constructor() {
         this.loggedUserID = '';
@@ -29908,6 +30035,8 @@ class Store {
         this.artworkIDList = []; // 储存抓取到的图片作品的 id 列表，用来避免重复添加
         this.novelIDList = []; // 储存抓取到的小说作品的 id 列表，用来避免重复添加
         this.result = []; // 储存抓取结果
+        /**当前登录用户的关注用户列表 */
+        this.followingUserIDList = [];
         /**记录从每个作品里下载多少个文件 */
         this.downloadCount = {};
         this.remainingDownload = 0; // 剩余多少个等待下载和保存的文件

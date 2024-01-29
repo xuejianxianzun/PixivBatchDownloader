@@ -173,6 +173,16 @@ abstract class InitPageBase {
     }
   }
 
+  /**在日志上显示任意提示 */
+  protected showTip() {
+    if (
+      settings.removeWorksOfFollowedUsersOnSearchPage &&
+      pageType.type === pageType.list.ArtworkSearch
+    ) {
+      log.warning(lang.transl('_在搜索页面里移除已关注用户的作品'))
+    }
+  }
+
   protected setSlowCrawl() {
     states.slowCrawlMode = settings.slowCrawl
     if (settings.slowCrawl) {
@@ -204,6 +214,8 @@ abstract class InitPageBase {
     this.getWantPage()
 
     this.getMultipleSetting()
+
+    this.showTip()
 
     this.finishedRequest = 0
 
