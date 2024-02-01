@@ -3373,14 +3373,6 @@ const langText = {
     '총 작품 수가 0개입니다, Pixiv가 이번 긁어오기를 거부한 것으로 보입니다. 잠시 후에 다시 시도해주세요.',
     'Общее количество работ равно 0, возможно, Pixiv блокирует сканирование. Пожалуйста, повторите попытку позже.',
   ],
-  _快捷键AltP: [
-    '快捷键 Alt + P',
-    '快捷鍵 Alt + P',
-    'Hot key: Alt + P',
-    'ホットキー Alt + P',
-    '단축키: Alt + P',
-    'Горячая клавиша: Alt + P',
-  ],
   _优化预览作品功能: [
     '优化“预览作品”功能',
     '最佳化“預覽作品”功能',
@@ -3493,21 +3485,13 @@ const langText = {
     '사용 가능한 크롤링 결과가 없습니다.',
     'Результаты сканирования недоступны',
   ],
-  _预览作品时按快捷键可以下载这个作品: [
-    '预览作品时，按快捷键 <span class="blue">D</span> 可以下载这个作品。<br>按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
-    '預覽作品時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。<br>按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
-    'When previewing a work, press the shortcut key <span class="blue">D</span> to download the work.<br>Press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
-    '作品をプレビューしているときに、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。<br>ショートカット キー <span class="blue">C</span> を押して、現在表示されている画像のみをダウンロードします。',
-    '이미지를 미리 보는 동안 바로 가기 <span class="blue">D</span>를 눌러 다운로드하세요.<br>현재 표시된 이미지만 다운로드하려면 단축키 <span class="blue">C</span>를 누르십시오.',
-    'При предварительном просмотре произведения нажмите клавишу <span class="blue">D</span>, чтобы загрузить произведение.<br>Нажмите клавишу быстрого доступа <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
-  ],
-  _预览作品时按快捷键C仅下载当前图片: [
-    '预览作品时，按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
-    '預覽作品時，按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
-    'When previewing a work, press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
-    '作品のプレビュー中に、ショートカット キー <span class="blue">C</span> を押すと、現在表示されている画像のみをダウンロードできます。',
-    '작품 미리보기 시 단축키 <span class="blue">C</span>를 누르면 현재 표시된 이미지만 다운로드 됩니다.',
-    'При предварительном просмотре работы нажмите клавишу быстрого доступа <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
+  _查看作品大图时的快捷键: [
+    '查看作品大图时，按快捷键 <span class="blue">D</span> 可以下载这个作品。<br>按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
+    '檢視作品大圖時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。<br>按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
+    'When viewing the large image of the work, press the shortcut key <span class="blue">D</span> to download the work.<br>Press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
+    '作品の大きな画像をご覧になる場合、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。<br>ショートカット キー <span class="blue">C</span> を押して、現在表示されている画像のみをダウンロードします。',
+    '작품의 큰 그림을 볼 때 단축키 <span class="blue">D</span>를 누르면 작품을 다운로드할 수 있습니다. <br>현재 표시된 이미지만 다운로드하려면 단축키 <span class="blue">C</span>를 누르세요.',
+    'При просмотре большого изображения работы нажмите горячую клавишу <span class="blue">D</span>, чтобы загрузить работу. <br>Нажмите горячую клавишу <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
   ],
   _定时抓取: [
     '定时抓取',
@@ -4406,6 +4390,86 @@ const langText = {
     'フォローを解除しているユーザーの作品のみが表示されるので、新たに好みのユーザーを見つけやすくなります。<br>検索ページでのみ有効です。',
     '팔로우하지 않은 사용자의 작품만 표시되므로 마음에 드는 새로운 사용자를 더 쉽게 찾을 수 있습니다.<br>검색 페이지에만 적용됩니다.',
     'При этом будут отображаться только работы пользователей, на которых вы не подписаны, что облегчит вам поиск новых пользователей, которые вам нравятся.<br>Действует только на странице поиска.',
+  ],
+  _使用方向键和空格键切换图片: [
+    '使用方向键和空格键切换图片',
+    '使用方向鍵和空格鍵切換圖片',
+    'Use the arrow keys and space bar to switch images',
+    '矢印キーとスペースバーを使用して画像を切り替えます',
+    '이미지를 전환하려면 화살표 키와 스페이스바를 사용하세요.',
+    'Используйте клавиши со стрелками и пробел для переключения изображений.',
+  ],
+  _使用方向键和空格键切换图片的提示: [
+    '← ↑ 上一张图片<br>→ ↓ 下一张图片<br>空格键 下一张图片',
+    '← ↑ 上一張圖片<br>→ ↓ 下一張圖片<br>空格鍵 下一張圖片',
+    '← ↑ Previous image<br>→ ↓ Next image<br>Spacebar Next image',
+    '← ↑ 前の画像<br>→ ↓ 次の画像<br>スペースバー 次の画像',
+    '← ↑ 이전 이미지<br>→ ↓ 다음 이미지<br>스페이스바 다음 이미지',
+    '← ↑ Предыдущее изображение<br>→ ↓ Следующее изображение<br>Пробел Следующее изображение',
+  ],
+  _快捷键列表:[
+    '快捷键列表',
+    '快捷鍵列表',
+    'Shortcut list',
+    'ショートカットリスト',
+    '바로가기 목록',
+    'Список ярлыков',
+  ],
+  _预览作品的快捷键说明:[
+    `<span class="blue">Alt</span> + <span class="blue">P</span> 关闭/启用预览作品功能<br>
+    当你查看预览图时，可以使用如下快捷键：<br>
+    <span class="blue">B</span>(ookmark) 收藏预览的作品<br>
+    <span class="blue">C</span>(urrent) 下载当前预览的图片<br>
+    <span class="blue">D</span>(ownload) 下载当前预览的作品<br>
+    <span class="blue">Esc</span> 关闭预览图<br>
+    <span class="blue">← ↑</span> 上一张图片<br>
+    <span class="blue">→ ↓</span> 下一张图片<br>
+    <span class="blue">空格键</span> 下一张图片`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> 關閉/啟用預覽作品功能<br>
+    當你檢視預覽圖時，可以使用如下快捷鍵：<br>
+    <span class="blue">B</span>(ookmark) 收藏預覽的作品<br>
+    <span class="blue">C</span>(urrent) 下載當前預覽的圖片<br>
+    <span class="blue">D</span>(ownload) 下載當前預覽的作品<br>
+    <span class="blue">Esc</span> 關閉預覽圖<br>
+    <span class="blue">← ↑</span> 上一張圖片<br>
+    <span class="blue">→ ↓</span> 下一張圖片<br>
+    <span class="blue">空格鍵</span> 下一張圖片`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> Turn off/enable the preview function<br>
+    When you view the preview, you can use the following shortcut keys:<br>
+    <span class="blue">B</span>(ookmark) Bookmark previewed workbr>
+    <span class="blue">C</span>(urrent) Download the currently previewed image<br>
+    <span class="blue">D</span>(download) Download the currently previewed work<br>
+    <span class="blue">Esc</span> Close preview<br>
+    <span class="blue">← ↑</span> Previous image<br>
+    <span class="blue">→ ↓</span> Next image<br>
+    <span class="blue">Space bar</span> Next image`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> プレビュー機能をオフ/有効にします<br>
+    プレビューを表示するときは、次のショートカット キーを使用できます。<br>
+    <span class="blue">B</span>(ookmark) プレビューした作品をブックマークしますbr>
+    <span class="blue">C</span>(urrent) 現在プレビューされている画像をダウンロードします<br>
+    <span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロードします<br>
+    <span class="blue">Esc</span> プレビューを閉じる<br>
+    <span class="blue">← ↑</span> 前の画像<br>
+    <span class="blue">→ ↓</span> 次の画像<br>
+    <span class="blue">スペースバー</span> 次の画像`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> 미리보기 기능 끄기/활성화<br>
+    미리보기를 볼 때 다음 단축키를 사용할 수 있습니다.<br>
+    <span class="blue">B</span>(ookmark) 북마크 미리보기 작업br>
+    <span class="blue">C</span>(urrent) 현재 미리보기 이미지 다운로드<br>
+    <span class="blue">D</span>(ownload) 현재 미리보기된 작품 다운로드<br>
+    <span class="blue">Esc</span> 미리보기 닫기<br>
+    <span class="blue">← ↑</span> 이전 이미지<br>
+    <span class="blue">→ ↓</span> 다음 이미지<br>
+    <span class="blue">스페이스바</span> 다음 이미지`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> Выключить/включить функцию предварительного просмотра<br>
+    При предварительном просмотре вы можете использовать следующие сочетания клавиш:<br>
+    <span class="blue">B</span>(ookmark) Добавить в закладки предварительно просмотренную работуbr>
+    <span class="blue">C</span>(urrent) Загрузите просматриваемое в данный момент изображение<br>
+    <span class="blue">D</span>(ownload) Загрузите просматриваемую в данный момент работу<br>
+    <span class="blue">Esc</span> Закрыть предварительный просмотр<br>
+    <span class="blue"> ← ↑</span> Предыдущее изображение<br>
+    <span class="blue">→ ↓</span> Следующее изображение<br>
+    <span class="blue">Пробел</span> Следующее изображение`,
   ],
 }
 

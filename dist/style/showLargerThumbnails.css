@@ -352,9 +352,12 @@ div[width='104'] .eCFXg {
 .hHwhak > div,
 .iSHgSV,
 .kCIgXV,
-.eDubME {
+.eDubME,
+.gmHyde {
   width: auto !important;
   min-width: 1224px;
+  padding-left: 72px;
+  padding-right: 72px;
 }
 /* 作品缩略图列表容器的 ul */
 .jsLfYP,
@@ -372,7 +375,9 @@ div[width='104'] .eCFXg {
 .zdawJ,
 .cdrSgJ,
 .ieJNnF,
-.brFRzf {
+.brFRzf,
+.gtm-request-creator-recommend-post-link-work img,
+.gtm-complete-request-portal-work-link-illust img {
   position: unset !important;
 }
 /* 发现页面 */

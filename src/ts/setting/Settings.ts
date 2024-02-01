@@ -211,13 +211,15 @@ interface XzSetting {
   showLargerThumbnails: boolean
   doubleWidthThumb: boolean
   wheelScrollSwitchImageOnPreviewWork: boolean
+  swicthImageByKeyboard: boolean
   /**不抓取多图作品的最后一张图片 */
   doNotDownloadLastImageOfMultiImageWork: boolean
   downloadNovelCoverImage: boolean
   downloadNovelEmbeddedImage: boolean
   previewUgoira: boolean
   hiddenBrowserDownloadBar: boolean
-  tipPressDToQuickDownload: boolean
+  tipPreviewWork: boolean
+  tipHotkeysViewLargeImage: boolean
   /**定时抓取的间隔时间，注意单位是分钟而不是毫秒 */
   timedCrawlInterval: number
   slowCrawl: boolean
@@ -440,12 +442,14 @@ class Settings {
     showLargerThumbnails: false,
     doubleWidthThumb: true,
     wheelScrollSwitchImageOnPreviewWork: true,
+    swicthImageByKeyboard: true,
     doNotDownloadLastImageOfMultiImageWork: false,
     downloadNovelCoverImage: true,
     downloadNovelEmbeddedImage: true,
     previewUgoira: true,
     hiddenBrowserDownloadBar: false,
-    tipPressDToQuickDownload: true,
+    tipPreviewWork: true,
+    tipHotkeysViewLargeImage: true,
     timedCrawlInterval: 120,
     slowCrawl: true,
     slowCrawlOnWorksNumber: 100,
@@ -624,9 +628,9 @@ class Settings {
   private resetHelpTip() {
     this.setSetting('tipHowToUse', true)
     this.setSetting('tipAltXToShowControlPanel', true)
-    this.setSetting('tipPressDToQuickDownload', true)
+    this.setSetting('tipPreviewWork', true)
+    this.setSetting('tipHotkeysViewLargeImage', true)
     this.setSetting('tipAltSToSelectWork', true)
-    this.setSetting('tipPressDToQuickDownload', true)
     this.setSetting('tipAltQToQuickDownload', true)
     this.setSetting('tipBookmarkButton', true)
     this.setSetting('tipCSV', true)
@@ -748,7 +752,7 @@ class Settings {
     }
 
     // 更改设置
-    ;(this.settings[key] as any) = value
+    ; (this.settings[key] as any) = value
 
     // 当修改某些设置时，顺便修改以来它的设置
     if (key === 'widthTag') {
