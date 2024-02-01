@@ -25,10 +25,16 @@ class HighlightFollowingUsers {
     chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
       if (msg.msg === 'dispathFollowingData') {
         this.receiveData(msg.data)
+        EVT.fire('followingUsersChange')
       }
 
       if (msg.msg === 'updateFollowingData') {
         const following = await this.getList()
+
+        console.log(lang.transl('_已更新关注用户列表'))
+        toast.success(lang.transl('_已更新关注用户列表'), {
+          position: 'topCenter',
+        })
 
         chrome.runtime.sendMessage({
           msg: 'setFollowingData',

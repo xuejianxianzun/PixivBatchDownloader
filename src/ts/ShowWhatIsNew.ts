@@ -11,7 +11,7 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '16.6.00'
+  private flag = '16.7.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
@@ -20,10 +20,12 @@ class ShowWhatIsNew {
       <strong>${lang.transl('_新增功能')}:</strong>
       <br>
       <span class="blue"><strong>${lang.transl(
-        '_在搜索页面里移除已关注用户的作品'
+        '_优化预览作品功能'
+      )}</strong>: <strong>${lang.transl(
+        '_使用方向键和空格键切换图片'
       )}</strong></span>
       <br>
-      <span>${lang.transl('_在搜索页面里移除已关注用户的作品的说明')}</span>
+      <span>${lang.transl('_使用方向键和空格键切换图片的提示')}</span>
       <br>
       ${lang.transl(
         '_你可以在更多选项卡的xx分类里找到它',

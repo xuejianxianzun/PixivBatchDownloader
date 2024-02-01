@@ -105,6 +105,7 @@ class FormSettings {
       'showLargerThumbnails',
       'doubleWidthThumb',
       'wheelScrollSwitchImageOnPreviewWork',
+      'swicthImageByKeyboard',
       'doNotDownloadLastImageOfMultiImageWork',
       'downloadNovelCoverImage',
       'downloadNovelEmbeddedImage',

@@ -21,6 +21,7 @@ class ArtworkThumbnail extends WorkThumbnail {
         'div[width="104"]',
         'div[width="90"]',
         'div[width="118"]',
+        'div[type="illust"]',
         '._work',
         '._work.item',
         'li>div>div:first-child',

@@ -948,7 +948,7 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="55">
-    <span class="settingNameStyle1 has_tip" data-xztip="_快捷键AltP">
+    <span class="settingNameStyle1">
     <span data-xztext="_预览作品"></span>
     </span>
     <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
@@ -958,6 +958,12 @@ export const formHtml = `<form class="settingForm">
 
     <label for="wheelScrollSwitchImageOnPreviewWork" class="has_tip" data-xztext="_使用鼠标滚轮切换作品里的图片" data-xztip="_这可能会阻止页面滚动"></label>
     <input type="checkbox" name="wheelScrollSwitchImageOnPreviewWork" id="wheelScrollSwitchImageOnPreviewWork" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="verticalSplit"></span>
+
+    <label for="swicthImageByKeyboard" class="has_tip" data-xztext="_使用方向键和空格键切换图片" data-xztip="_使用方向键和空格键切换图片的提示"></label>
+    <input type="checkbox" name="swicthImageByKeyboard" id="swicthImageByKeyboard" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch" tabindex="0"></span>
 
     <span class="verticalSplit"></span>
@@ -982,6 +988,14 @@ export const formHtml = `<form class="settingForm">
     <span class="beautify_radio" tabindex="0"></span>
     <label for="prevWorkSize2" data-xztext="_普通"></label>
     </span>
+
+    <span class="verticalSplit"></span>
+
+    <button type="button" class="gray1 textButton showPreviewWorkTip" data-xztext="_快捷键列表"></button>
+    </p>
+
+    <p class="previewWorkTip tip" style="display:none">
+    <span data-xztext="_预览作品的快捷键说明"></span>
     </p>
 
     <p class="option" data-no="71">

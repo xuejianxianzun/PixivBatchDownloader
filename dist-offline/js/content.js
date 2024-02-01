@@ -96,7 +96,6 @@ class API {
         });
     }
     static async deleteBookmark(bookmarkID, type, token) {
-        // 注意，这里的 ID 是 bookmarkID，不是作品 ID
         const bodyStr = type === 'illusts'
             ? `bookmark_id=${bookmarkID}`
             : `del=1&book_id=${bookmarkID}`;
@@ -363,6 +362,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 'div[width="104"]',
                 'div[width="90"]',
                 'div[width="118"]',
+                'div[type="illust"]',
                 '._work',
                 '._work.item',
                 'li>div>div:first-child',
@@ -1863,10 +1863,12 @@ class EVENT {
             showPreviewWorkDetailPanel: 'showPreviewWorkDetailPanel',
             /**预览作品详细信息的面板关闭后触发 */
             PreviewWorkDetailPanelClosed: 'PreviewWorkDetailPanelClosed',
-            // 通过鼠标滚轮事件来切换预览图
+            /**通过鼠标滚轮事件来切换预览图 */
             wheelScrollSwitchPreviewImage: 'wheelScrollSwitchPreviewImage',
-            // 当结束对一个作品的预览时触发（即预览图窗口消失时触发）
+            /**当结束对一个作品的预览时触发（即预览图窗口消失时触发） */
             previewEnd: 'previewEnd',
+            /**当关注的用户列表发生变化时触发 */
+            followingUsersChange: 'followingUsersChange',
         };
     }
     // 只绑定某个事件一次，用于防止事件重复绑定
@@ -2625,9 +2627,14 @@ class HighlightFollowingUsers {
         chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
             if (msg.msg === 'dispathFollowingData') {
                 this.receiveData(msg.data);
+                _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('followingUsersChange');
             }
             if (msg.msg === 'updateFollowingData') {
                 const following = await this.getList();
+                console.log(_Lang__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_已更新关注用户列表'));
+                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_已更新关注用户列表'), {
+                    position: 'topCenter',
+                });
                 chrome.runtime.sendMessage({
                     msg: 'setFollowingData',
                     data: {
@@ -3290,7 +3297,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./crawlMixedPage/InitFollowingPage */ "./src/ts/crawlMixedPage/InitFollowingPage.ts");
 /* harmony import */ var _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./crawl/InitUnsupportedPage */ "./src/ts/crawl/InitUnsupportedPage.ts");
 /* harmony import */ var _crawlMixedPage_InitUnlistedPage__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./crawlMixedPage/InitUnlistedPage */ "./src/ts/crawlMixedPage/InitUnlistedPage.ts");
+/* harmony import */ var _crawl_InitRequestPage__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./crawl/InitRequestPage */ "./src/ts/crawl/InitRequestPage.ts");
 // 根据页面类型来初始化抓取流程和一些特定的功能
+
 
 
 
@@ -3371,6 +3380,8 @@ class InitPage {
                 return new _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_21__.InitFollowingPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Unlisted:
                 return new _crawlMixedPage_InitUnlistedPage__WEBPACK_IMPORTED_MODULE_23__.InitUnlistedPage();
+            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request:
+                return new _crawl_InitRequestPage__WEBPACK_IMPORTED_MODULE_24__.InitRequestPage();
             default:
                 return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__.InitUnsupportedPage();
         }
@@ -3597,6 +3608,9 @@ class Lang {
     }
     // translate
     transl(name, ...arg) {
+        // if(!langText[name]){
+        //   console.log(`not found lang ${name}`)
+        // }
         let content = _LangText__WEBPACK_IMPORTED_MODULE_0__.langText[name][this.flagIndex.get(this.type)];
         arg.forEach((val) => (content = content.replace('{}', val)));
         return content;
@@ -7067,14 +7081,6 @@ const langText = {
         '총 작품 수가 0개입니다, Pixiv가 이번 긁어오기를 거부한 것으로 보입니다. 잠시 후에 다시 시도해주세요.',
         'Общее количество работ равно 0, возможно, Pixiv блокирует сканирование. Пожалуйста, повторите попытку позже.',
     ],
-    _快捷键AltP: [
-        '快捷键 Alt + P',
-        '快捷鍵 Alt + P',
-        'Hot key: Alt + P',
-        'ホットキー Alt + P',
-        '단축키: Alt + P',
-        'Горячая клавиша: Alt + P',
-    ],
     _优化预览作品功能: [
         '优化“预览作品”功能',
         '最佳化“預覽作品”功能',
@@ -7187,21 +7193,13 @@ const langText = {
         '사용 가능한 크롤링 결과가 없습니다.',
         'Результаты сканирования недоступны',
     ],
-    _预览作品时按快捷键可以下载这个作品: [
-        '预览作品时，按快捷键 <span class="blue">D</span> 可以下载这个作品。<br>按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
-        '預覽作品時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。<br>按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
-        'When previewing a work, press the shortcut key <span class="blue">D</span> to download the work.<br>Press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
-        '作品をプレビューしているときに、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。<br>ショートカット キー <span class="blue">C</span> を押して、現在表示されている画像のみをダウンロードします。',
-        '이미지를 미리 보는 동안 바로 가기 <span class="blue">D</span>를 눌러 다운로드하세요.<br>현재 표시된 이미지만 다운로드하려면 단축키 <span class="blue">C</span>를 누르십시오.',
-        'При предварительном просмотре произведения нажмите клавишу <span class="blue">D</span>, чтобы загрузить произведение.<br>Нажмите клавишу быстрого доступа <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
-    ],
-    _预览作品时按快捷键C仅下载当前图片: [
-        '预览作品时，按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
-        '預覽作品時，按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
-        'When previewing a work, press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
-        '作品のプレビュー中に、ショートカット キー <span class="blue">C</span> を押すと、現在表示されている画像のみをダウンロードできます。',
-        '작품 미리보기 시 단축키 <span class="blue">C</span>를 누르면 현재 표시된 이미지만 다운로드 됩니다.',
-        'При предварительном просмотре работы нажмите клавишу быстрого доступа <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
+    _查看作品大图时的快捷键: [
+        '查看作品大图时，按快捷键 <span class="blue">D</span> 可以下载这个作品。<br>按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
+        '檢視作品大圖時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。<br>按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
+        'When viewing the large image of the work, press the shortcut key <span class="blue">D</span> to download the work.<br>Press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
+        '作品の大きな画像をご覧になる場合、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。<br>ショートカット キー <span class="blue">C</span> を押して、現在表示されている画像のみをダウンロードします。',
+        '작품의 큰 그림을 볼 때 단축키 <span class="blue">D</span>를 누르면 작품을 다운로드할 수 있습니다. <br>현재 표시된 이미지만 다운로드하려면 단축키 <span class="blue">C</span>를 누르세요.',
+        'При просмотре большого изображения работы нажмите горячую клавишу <span class="blue">D</span>, чтобы загрузить работу. <br>Нажмите горячую клавишу <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
     ],
     _定时抓取: [
         '定时抓取',
@@ -7876,6 +7874,14 @@ const langText = {
         '팔로우한 사용자 목록 로드 중',
         'Загрузка списка отслеживаемых пользователей',
     ],
+    _已更新关注用户列表: [
+        '已更新关注用户列表',
+        '已更新關注使用者列表',
+        'The list of following users has been updated',
+        'フォローしているユーザーのリストが更新されました',
+        '다음 사용자 목록이 업데이트되었습니다',
+        'Список следующих пользователей обновлен',
+    ],
     _Kiwi浏览器可能不能建立文件夹的bug: [
         '如果你使用的是 Kiwi 浏览器，它可能不会建立文件夹。这是 Kiwi 浏览器的 bug。',
         '如果你使用的是 Kiwi 瀏覽器，它可能不會建立資料夾。這是 Kiwi 瀏覽器的 bug。',
@@ -8100,6 +8106,86 @@ const langText = {
         'フォローを解除しているユーザーの作品のみが表示されるので、新たに好みのユーザーを見つけやすくなります。<br>検索ページでのみ有効です。',
         '팔로우하지 않은 사용자의 작품만 표시되므로 마음에 드는 새로운 사용자를 더 쉽게 찾을 수 있습니다.<br>검색 페이지에만 적용됩니다.',
         'При этом будут отображаться только работы пользователей, на которых вы не подписаны, что облегчит вам поиск новых пользователей, которые вам нравятся.<br>Действует только на странице поиска.',
+    ],
+    _使用方向键和空格键切换图片: [
+        '使用方向键和空格键切换图片',
+        '使用方向鍵和空格鍵切換圖片',
+        'Use the arrow keys and space bar to switch images',
+        '矢印キーとスペースバーを使用して画像を切り替えます',
+        '이미지를 전환하려면 화살표 키와 스페이스바를 사용하세요.',
+        'Используйте клавиши со стрелками и пробел для переключения изображений.',
+    ],
+    _使用方向键和空格键切换图片的提示: [
+        '← ↑ 上一张图片<br>→ ↓ 下一张图片<br>空格键 下一张图片',
+        '← ↑ 上一張圖片<br>→ ↓ 下一張圖片<br>空格鍵 下一張圖片',
+        '← ↑ Previous image<br>→ ↓ Next image<br>Spacebar Next image',
+        '← ↑ 前の画像<br>→ ↓ 次の画像<br>スペースバー 次の画像',
+        '← ↑ 이전 이미지<br>→ ↓ 다음 이미지<br>스페이스바 다음 이미지',
+        '← ↑ Предыдущее изображение<br>→ ↓ Следующее изображение<br>Пробел Следующее изображение',
+    ],
+    _快捷键列表: [
+        '快捷键列表',
+        '快捷鍵列表',
+        'Shortcut list',
+        'ショートカットリスト',
+        '바로가기 목록',
+        'Список ярлыков',
+    ],
+    _预览作品的快捷键说明: [
+        `<span class="blue">Alt</span> + <span class="blue">P</span> 关闭/启用预览作品功能<br>
+    当你查看预览图时，可以使用如下快捷键：<br>
+    <span class="blue">B</span>(ookmark) 收藏预览的作品<br>
+    <span class="blue">C</span>(urrent) 下载当前预览的图片<br>
+    <span class="blue">D</span>(ownload) 下载当前预览的作品<br>
+    <span class="blue">Esc</span> 关闭预览图<br>
+    <span class="blue">← ↑</span> 上一张图片<br>
+    <span class="blue">→ ↓</span> 下一张图片<br>
+    <span class="blue">空格键</span> 下一张图片`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> 關閉/啟用預覽作品功能<br>
+    當你檢視預覽圖時，可以使用如下快捷鍵：<br>
+    <span class="blue">B</span>(ookmark) 收藏預覽的作品<br>
+    <span class="blue">C</span>(urrent) 下載當前預覽的圖片<br>
+    <span class="blue">D</span>(ownload) 下載當前預覽的作品<br>
+    <span class="blue">Esc</span> 關閉預覽圖<br>
+    <span class="blue">← ↑</span> 上一張圖片<br>
+    <span class="blue">→ ↓</span> 下一張圖片<br>
+    <span class="blue">空格鍵</span> 下一張圖片`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> Turn off/enable the preview function<br>
+    When you view the preview, you can use the following shortcut keys:<br>
+    <span class="blue">B</span>(ookmark) Bookmark previewed workbr>
+    <span class="blue">C</span>(urrent) Download the currently previewed image<br>
+    <span class="blue">D</span>(download) Download the currently previewed work<br>
+    <span class="blue">Esc</span> Close preview<br>
+    <span class="blue">← ↑</span> Previous image<br>
+    <span class="blue">→ ↓</span> Next image<br>
+    <span class="blue">Space bar</span> Next image`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> プレビュー機能をオフ/有効にします<br>
+    プレビューを表示するときは、次のショートカット キーを使用できます。<br>
+    <span class="blue">B</span>(ookmark) プレビューした作品をブックマークしますbr>
+    <span class="blue">C</span>(urrent) 現在プレビューされている画像をダウンロードします<br>
+    <span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロードします<br>
+    <span class="blue">Esc</span> プレビューを閉じる<br>
+    <span class="blue">← ↑</span> 前の画像<br>
+    <span class="blue">→ ↓</span> 次の画像<br>
+    <span class="blue">スペースバー</span> 次の画像`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> 미리보기 기능 끄기/활성화<br>
+    미리보기를 볼 때 다음 단축키를 사용할 수 있습니다.<br>
+    <span class="blue">B</span>(ookmark) 북마크 미리보기 작업br>
+    <span class="blue">C</span>(urrent) 현재 미리보기 이미지 다운로드<br>
+    <span class="blue">D</span>(ownload) 현재 미리보기된 작품 다운로드<br>
+    <span class="blue">Esc</span> 미리보기 닫기<br>
+    <span class="blue">← ↑</span> 이전 이미지<br>
+    <span class="blue">→ ↓</span> 다음 이미지<br>
+    <span class="blue">스페이스바</span> 다음 이미지`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> Выключить/включить функцию предварительного просмотра<br>
+    При предварительном просмотре вы можете использовать следующие сочетания клавиш:<br>
+    <span class="blue">B</span>(ookmark) Добавить в закладки предварительно просмотренную работуbr>
+    <span class="blue">C</span>(urrent) Загрузите просматриваемое в данный момент изображение<br>
+    <span class="blue">D</span>(ownload) Загрузите просматриваемую в данный момент работу<br>
+    <span class="blue">Esc</span> Закрыть предварительный просмотр<br>
+    <span class="blue"> ← ↑</span> Предыдущее изображение<br>
+    <span class="blue">→ ↓</span> Следующее изображение<br>
+    <span class="blue">Пробел</span> Следующее изображение`,
     ],
 };
 
@@ -9318,6 +9404,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 /* harmony import */ var _PreviewWorkDetailInfo__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./PreviewWorkDetailInfo */ "./src/ts/PreviewWorkDetailInfo.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+
+
+
 
 
 
@@ -9362,26 +9454,9 @@ class PreviewWork {
         this._show = false;
         // 当鼠标滚轮滚动时，切换显示的图片
         // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
-        this.swicthImage = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.throttle(() => {
-            const count = this.workData.body.pageCount;
+        this.swicthImageByMouse = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.throttle(() => {
             const up = this.wheelEvent.deltaY < 0;
-            if (up) {
-                if (this.index > 0) {
-                    this.index--;
-                }
-                else {
-                    this.index = count - 1;
-                }
-            }
-            else {
-                if (this.index < count - 1) {
-                    this.index++;
-                }
-                else {
-                    this.index = 0;
-                }
-            }
-            this.showWrap();
+            this.swicthImage(up ? 'prev' : 'next');
         }, 100);
         this.onWheelScroll = (ev) => {
             if (this.show &&
@@ -9389,7 +9464,7 @@ class PreviewWork {
                 this.workData.body.pageCount > 1) {
                 ev.preventDefault();
                 this.wheelEvent = ev;
-                this.swicthImage();
+                this.swicthImageByMouse();
             }
         };
         if (_Config__WEBPACK_IMPORTED_MODULE_15__.Config.mobile) {
@@ -9420,7 +9495,7 @@ class PreviewWork {
                     this.showWrap();
                     window.clearTimeout(this.delayHiddenTimer);
                     if (!_Config__WEBPACK_IMPORTED_MODULE_15__.Config.mobile) {
-                        _ShowHelp__WEBPACK_IMPORTED_MODULE_13__.showHelp.show('tipPressDToQuickDownload', _Lang__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品时按快捷键可以下载这个作品'));
+                        _ShowHelp__WEBPACK_IMPORTED_MODULE_13__.showHelp.show('tipPreviewWork', _Lang__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品的快捷键说明'));
                     }
                 }
             }
@@ -9509,6 +9584,22 @@ class PreviewWork {
                     _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.warning(msg);
                 }
             }
+            // 使用 Esc 键关闭当前预览
+            if (ev.code === 'Escape' && this.show) {
+                this.show = false;
+                // 并且不再显示这个作品的预览图，否则如果鼠标依然位于这个作品上，就会马上再次显示缩略图了
+                // 当鼠标移出这个作品的缩略图之后会取消此限制
+                this.dontShowAgain = true;
+            }
+            // 翻页时关闭当前预览
+            // 这是为了处理边界情况。常见的触发方式是预览一个横图作品，且鼠标处于预览图之上
+            // 此时翻页的话，虽然作品区域已经变化，但由于鼠标一直停留在预览图上，预览图就不会消失
+            // 此时需要强制关闭预览
+            if (ev.code === 'PageUp' || ev.code === 'PageDown') {
+                if (this.show) {
+                    this.show = false;
+                }
+            }
             // 预览作品时，可以使用快捷键 D 下载这个作品
             if (ev.code === 'KeyD' && this.show) {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [
@@ -9546,6 +9637,28 @@ class PreviewWork {
                     position: 'center',
                 });
             }
+            // 预览作品时，可以使用快捷键 B 收藏这个作品
+            if (ev.code === 'KeyB' && this.show) {
+                // 阻止 Pixiv 对按下 B 键的行为
+                ev.stopPropagation();
+                this.addBookmark();
+            }
+            // 预览作品时，可以使用方向键切换图片，也可以使用空格键切换到下一张图片
+            if (ev.code === 'ArrowLeft' ||
+                ev.code === 'ArrowRight' ||
+                ev.code === 'ArrowUp' ||
+                ev.code === 'ArrowDown' ||
+                ev.code === 'Space') {
+                if (this.show && _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.swicthImageByKeyboard) {
+                    // 阻止事件冒泡和默认事件
+                    // 阻止事件冒泡用来阻止 Pixiv 使用左右键来切换作品的功能
+                    // 阻止默认事件用来阻止上下键和空格键滚动页面的功能
+                    ev.stopPropagation();
+                    ev.preventDefault();
+                    const prev = ev.code === 'ArrowLeft' || ev.code === 'ArrowUp';
+                    this.swicthImage(prev ? 'prev' : 'next');
+                }
+            }
         }, true);
         const hiddenEvtList = [
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch,
@@ -9576,7 +9689,7 @@ class PreviewWork {
         this.wrap.addEventListener('click', (ev) => {
             this.show = false;
             // 点击预览图使预览图消失时，如果鼠标仍处于缩略图区域内，则不再显示这个作品的预览图
-            // 当鼠标移出这个作品的缩略图之后取消此限制
+            // 当鼠标移出这个作品的缩略图之后会取消此限制
             if (this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY)) {
                 this.dontShowAgain = true;
             }
@@ -9622,9 +9735,60 @@ class PreviewWork {
             }
         }
     }
+    swicthImage(operate) {
+        const count = this.workData.body.pageCount;
+        if (operate === 'prev') {
+            if (this.index > 0) {
+                this.index--;
+            }
+            else {
+                this.index = count - 1;
+            }
+        }
+        else {
+            if (this.index < count - 1) {
+                this.index++;
+            }
+            else {
+                this.index = 0;
+            }
+        }
+        this.showWrap();
+    }
     async fetchWorkData() {
         const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(this.workId);
         _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.set(data);
+    }
+    async addBookmark() {
+        if (this.workData?.body.illustId === undefined) {
+            return;
+        }
+        _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_收藏'), {
+            bgColor: _Colors__WEBPACK_IMPORTED_MODULE_11__.Colors.bgBlue,
+        });
+        const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_18__.bookmark.add(this.workData.body.illustId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_17__.Tools.extractTags(this.workData));
+        if (res === 200) {
+            _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_已收藏'));
+        }
+        // 将作品缩略图上的收藏按钮变成红色
+        const allSVG = this.workEL.querySelectorAll('svg');
+        if (allSVG.length > 0) {
+            // 如果有多个 svg，一般最后一个是收藏按钮，但有些特殊情况是第一个
+            let useSVG = allSVG[allSVG.length - 1];
+            if (_PageType__WEBPACK_IMPORTED_MODULE_19__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_19__.pageType.list.Request) {
+                useSVG = allSVG[0];
+            }
+            useSVG.style.color = 'rgb(255, 64, 96)';
+            const allPath = useSVG.querySelectorAll('path');
+            for (const path of allPath) {
+                path.style.fill = 'currentcolor';
+            }
+        }
+        // 排行榜页面的收藏按钮
+        const btn = this.workEL.querySelector('._one-click-bookmark');
+        if (btn) {
+            btn.classList.add('on');
+        }
     }
     readyShow() {
         this.delayShowTimer = window.setTimeout(() => {
@@ -11606,7 +11770,7 @@ class ShowOriginSizeImage {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('showOriginSizeImage');
             this.wrap.style.display = 'block';
             if (!_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile) {
-                _ShowHelp__WEBPACK_IMPORTED_MODULE_9__.showHelp.show('tipPressDToQuickDownload', _Lang__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_预览作品时按快捷键可以下载这个作品'));
+                _ShowHelp__WEBPACK_IMPORTED_MODULE_9__.showHelp.show('tipHotkeysViewLargeImage', _Lang__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_查看作品大图时的快捷键'));
             }
             // 预览动图
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.previewUgoira && this.workData?.body.illustType === 2) {
@@ -11934,7 +12098,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.6.00';
+        this.flag = '16.7.0';
         this.bindEvents();
     }
     bindEvents() {
@@ -11943,9 +12107,9 @@ class ShowWhatIsNew {
             let msg = `
       <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</strong>
       <br>
-      <span class="blue"><strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在搜索页面里移除已关注用户的作品')}</strong></span>
+      <span class="blue"><strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化预览作品功能')}</strong>: <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_使用方向键和空格键切换图片')}</strong></span>
       <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在搜索页面里移除已关注用户的作品的说明')}</span>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_使用方向键和空格键切换图片的提示')}</span>
       <br>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_增强'))}
       
@@ -18942,6 +19106,45 @@ class InitPageBase {
 
 /***/ }),
 
+/***/ "./src/ts/crawl/InitRequestPage.ts":
+/*!*****************************************!*\
+  !*** ./src/ts/crawl/InitRequestPage.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   InitRequestPage: () => (/* binding */ InitRequestPage)
+/* harmony export */ });
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
+
+
+// 投稿页面
+class InitRequestPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_1__.InitPageBase {
+    constructor() {
+        super();
+        this.init();
+    }
+    initAny() {
+        // 为作品容器添加自定义 className，让显示更大的缩率图功能不那么容易失效
+        const allSection = document.querySelectorAll('section');
+        for (const section of allSection) {
+            if (section.parentElement?.nodeName == 'DIV') {
+                section.parentElement.classList.add('requestContainer');
+            }
+        }
+    }
+    addCrawlBtns() { }
+    setFormOption() {
+        _setting_Options__WEBPACK_IMPORTED_MODULE_0__.options.hideOption([1]);
+    }
+}
+
+
+
+/***/ }),
+
 /***/ "./src/ts/crawl/InitUnsupportedPage.ts":
 /*!*********************************************!*\
   !*** ./src/ts/crawl/InitUnsupportedPage.ts ***!
@@ -24453,12 +24656,12 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 115580000
-            this.crawlData(113770000, 115588089);
+            // 上次记录到 115660000
+            this.crawlData(115590000, 115665850);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 21480000
-            this.crawlData(21110000, 21481903, 'novels');
+            // 上次记录到 21490000
+            this.crawlData(21490000, 21498416, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -25772,6 +25975,9 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
                 this.findAllWorks();
             }
         });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.followingUsersChange, () => {
+            this.findAllWorks();
+        });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.pageSwitch, () => {
             this.showTip = false;
         });
@@ -26583,6 +26789,10 @@ class Form {
         this.form
             .querySelector('.showTagsSeparatorTip')
             .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('.tagsSeparatorTip')));
+        // 显示标签分隔提示
+        this.form
+            .querySelector('.showPreviewWorkTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('.previewWorkTip')));
         // 输入框获得焦点时自动选择文本（文件名输入框例外）
         const centerInputs = this.form.querySelectorAll('input[type=text]');
         for (const el of centerInputs) {
@@ -27601,7 +27811,7 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="55">
-    <span class="settingNameStyle1 has_tip" data-xztip="_快捷键AltP">
+    <span class="settingNameStyle1">
     <span data-xztext="_预览作品"></span>
     </span>
     <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
@@ -27611,6 +27821,12 @@ const formHtml = `<form class="settingForm">
 
     <label for="wheelScrollSwitchImageOnPreviewWork" class="has_tip" data-xztext="_使用鼠标滚轮切换作品里的图片" data-xztip="_这可能会阻止页面滚动"></label>
     <input type="checkbox" name="wheelScrollSwitchImageOnPreviewWork" id="wheelScrollSwitchImageOnPreviewWork" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="verticalSplit"></span>
+
+    <label for="swicthImageByKeyboard" class="has_tip" data-xztext="_使用方向键和空格键切换图片" data-xztip="_使用方向键和空格键切换图片的提示"></label>
+    <input type="checkbox" name="swicthImageByKeyboard" id="swicthImageByKeyboard" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch" tabindex="0"></span>
 
     <span class="verticalSplit"></span>
@@ -27635,6 +27851,14 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_radio" tabindex="0"></span>
     <label for="prevWorkSize2" data-xztext="_普通"></label>
     </span>
+
+    <span class="verticalSplit"></span>
+
+    <button type="button" class="gray1 textButton showPreviewWorkTip" data-xztext="_快捷键列表"></button>
+    </p>
+
+    <p class="previewWorkTip tip" style="display:none">
+    <span data-xztext="_预览作品的快捷键说明"></span>
     </p>
 
     <p class="option" data-no="71">
@@ -27996,6 +28220,7 @@ class FormSettings {
                 'showLargerThumbnails',
                 'doubleWidthThumb',
                 'wheelScrollSwitchImageOnPreviewWork',
+                'swicthImageByKeyboard',
                 'doNotDownloadLastImageOfMultiImageWork',
                 'downloadNovelCoverImage',
                 'downloadNovelEmbeddedImage',
@@ -28958,12 +29183,14 @@ class Settings {
             showLargerThumbnails: false,
             doubleWidthThumb: true,
             wheelScrollSwitchImageOnPreviewWork: true,
+            swicthImageByKeyboard: true,
             doNotDownloadLastImageOfMultiImageWork: false,
             downloadNovelCoverImage: true,
             downloadNovelEmbeddedImage: true,
             previewUgoira: true,
             hiddenBrowserDownloadBar: false,
-            tipPressDToQuickDownload: true,
+            tipPreviewWork: true,
+            tipHotkeysViewLargeImage: true,
             timedCrawlInterval: 120,
             slowCrawl: true,
             slowCrawlOnWorksNumber: 100,
@@ -29127,9 +29354,9 @@ class Settings {
     resetHelpTip() {
         this.setSetting('tipHowToUse', true);
         this.setSetting('tipAltXToShowControlPanel', true);
-        this.setSetting('tipPressDToQuickDownload', true);
+        this.setSetting('tipPreviewWork', true);
+        this.setSetting('tipHotkeysViewLargeImage', true);
         this.setSetting('tipAltSToSelectWork', true);
-        this.setSetting('tipPressDToQuickDownload', true);
         this.setSetting('tipAltQToQuickDownload', true);
         this.setSetting('tipBookmarkButton', true);
         this.setSetting('tipCSV', true);
@@ -32513,6 +32740,7 @@ const novelData = [
     [21460000, 1706200084000],
     [21470000, 1706359804000],
     [21480000, 1706484417000],
+    [21490000, 1706628284000],
 ];
 
 
@@ -44088,6 +44316,14 @@ const illustsData = [
     [115560001, 1706435580000],
     [115570000, 1706452800000],
     [115580000, 1706490120000],
+    [115590000, 1706525160000],
+    [115600000, 1706544300000],
+    [115610000, 1706590440000],
+    [115620000, 1706618580000],
+    [115630000, 1706644080000],
+    [115640002, 1706688540000],
+    [115650000, 1706709660000],
+    [115660000, 1706742600000],
 ];
 
 
