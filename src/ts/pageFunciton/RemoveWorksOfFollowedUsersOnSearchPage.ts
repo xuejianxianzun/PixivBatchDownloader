@@ -26,6 +26,10 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
       }
     })
 
+    window.addEventListener(EVT.list.followingUsersChange, () => {
+      this.findAllWorks()
+    })
+
     window.addEventListener(EVT.list.pageSwitch, () => {
       this.showTip = false
     })

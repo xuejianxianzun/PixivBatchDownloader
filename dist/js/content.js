@@ -1790,10 +1790,12 @@ class EVENT {
             showPreviewWorkDetailPanel: 'showPreviewWorkDetailPanel',
             /**预览作品详细信息的面板关闭后触发 */
             PreviewWorkDetailPanelClosed: 'PreviewWorkDetailPanelClosed',
-            // 通过鼠标滚轮事件来切换预览图
+            /**通过鼠标滚轮事件来切换预览图 */
             wheelScrollSwitchPreviewImage: 'wheelScrollSwitchPreviewImage',
-            // 当结束对一个作品的预览时触发（即预览图窗口消失时触发）
+            /**当结束对一个作品的预览时触发（即预览图窗口消失时触发） */
             previewEnd: 'previewEnd',
+            /**当关注的用户列表发生变化时触发 */
+            followingUsersChange: 'followingUsersChange',
         };
     }
     // 只绑定某个事件一次，用于防止事件重复绑定
@@ -2552,9 +2554,14 @@ class HighlightFollowingUsers {
         chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
             if (msg.msg === 'dispathFollowingData') {
                 this.receiveData(msg.data);
+                _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('followingUsersChange');
             }
             if (msg.msg === 'updateFollowingData') {
                 const following = await this.getList();
+                console.log(_Lang__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_已更新关注用户列表'));
+                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_已更新关注用户列表'), {
+                    position: 'topCenter',
+                });
                 chrome.runtime.sendMessage({
                     msg: 'setFollowingData',
                     data: {
@@ -7793,6 +7800,14 @@ const langText = {
         'フォローしているユーザーのリストを読み込み中',
         '팔로우한 사용자 목록 로드 중',
         'Загрузка списка отслеживаемых пользователей',
+    ],
+    _已更新关注用户列表: [
+        '已更新关注用户列表',
+        '已更新關注使用者列表',
+        'The list of following users has been updated',
+        'フォローしているユーザーのリストが更新されました',
+        '다음 사용자 목록이 업데이트되었습니다',
+        'Список следующих пользователей обновлен',
     ],
     _Kiwi浏览器可能不能建立文件夹的bug: [
         '如果你使用的是 Kiwi 浏览器，它可能不会建立文件夹。这是 Kiwi 浏览器的 bug。',
@@ -25886,6 +25901,9 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
                 data.value) {
                 this.findAllWorks();
             }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.followingUsersChange, () => {
+            this.findAllWorks();
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.pageSwitch, () => {
             this.showTip = false;
