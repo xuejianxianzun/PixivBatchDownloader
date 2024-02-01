@@ -449,7 +449,7 @@ class PreviewWork {
     if (allSVG.length > 0) {
       // 如果有多个 svg，一般最后一个是收藏按钮，但有些特殊情况是第一个
       let useSVG = allSVG[allSVG.length - 1]
-      if(pageType.type===pageType.list.Request){
+      if (pageType.type === pageType.list.Request) {
         useSVG = allSVG[0]
       }
 
@@ -462,7 +462,7 @@ class PreviewWork {
 
     // 排行榜页面的收藏按钮
     const btn = this.workEL!.querySelector('._one-click-bookmark')
-    if (btn){
+    if (btn) {
       btn.classList.add('on')
     }
   }

@@ -3217,7 +3217,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./crawlMixedPage/InitFollowingPage */ "./src/ts/crawlMixedPage/InitFollowingPage.ts");
 /* harmony import */ var _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./crawl/InitUnsupportedPage */ "./src/ts/crawl/InitUnsupportedPage.ts");
 /* harmony import */ var _crawlMixedPage_InitUnlistedPage__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./crawlMixedPage/InitUnlistedPage */ "./src/ts/crawlMixedPage/InitUnlistedPage.ts");
+/* harmony import */ var _crawl_InitRequestPage__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./crawl/InitRequestPage */ "./src/ts/crawl/InitRequestPage.ts");
 // 根据页面类型来初始化抓取流程和一些特定的功能
+
 
 
 
@@ -3298,6 +3300,8 @@ class InitPage {
                 return new _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_21__.InitFollowingPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Unlisted:
                 return new _crawlMixedPage_InitUnlistedPage__WEBPACK_IMPORTED_MODULE_23__.InitUnlistedPage();
+            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request:
+                return new _crawl_InitRequestPage__WEBPACK_IMPORTED_MODULE_24__.InitRequestPage();
             default:
                 return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__.InitUnsupportedPage();
         }
@@ -19007,6 +19011,45 @@ class InitPageBase {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.startTimedCrawl, () => {
             btn.style.display = 'flex';
         });
+    }
+}
+
+
+
+/***/ }),
+
+/***/ "./src/ts/crawl/InitRequestPage.ts":
+/*!*****************************************!*\
+  !*** ./src/ts/crawl/InitRequestPage.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   InitRequestPage: () => (/* binding */ InitRequestPage)
+/* harmony export */ });
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
+
+
+// 投稿页面
+class InitRequestPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_1__.InitPageBase {
+    constructor() {
+        super();
+        this.init();
+    }
+    initAny() {
+        // 为作品容器添加自定义 className，让显示更大的缩率图功能不那么容易失效
+        const allSection = document.querySelectorAll('section');
+        for (const section of allSection) {
+            if (section.parentElement?.nodeName == 'DIV') {
+                section.parentElement.classList.add('requestContainer');
+            }
+        }
+    }
+    addCrawlBtns() { }
+    setFormOption() {
+        _setting_Options__WEBPACK_IMPORTED_MODULE_0__.options.hideOption([1]);
     }
 }
 
