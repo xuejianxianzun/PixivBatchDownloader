@@ -4444,7 +4444,7 @@ const langText = {
     <span class="blue">空格鍵</span> 下一張圖片`,
     `<span class="blue">Alt</span> + <span class="blue">P</span> Turn off/enable the preview function<br>
     When you view the preview, you can use the following shortcut keys:<br>
-    <span class="blue">B</span>(ookmark) Bookmark previewed workbr>
+    <span class="blue">B</span>(ookmark) Bookmark previewed work<br>
     <span class="blue">C</span>(urrent) Download the currently previewed image<br>
     <span class="blue">D</span>(download) Download the currently previewed work<br>
     <span class="blue">Esc</span> Close preview<br>
@@ -4453,7 +4453,7 @@ const langText = {
     <span class="blue">Space bar</span> Next image`,
     `<span class="blue">Alt</span> + <span class="blue">P</span> プレビュー機能をオフ/有効にします<br>
     プレビューを表示するときは、次のショートカット キーを使用できます。<br>
-    <span class="blue">B</span>(ookmark) プレビューした作品をブックマークしますbr>
+    <span class="blue">B</span>(ookmark) プレビューした作品をブックマークします<br>
     <span class="blue">C</span>(urrent) 現在プレビューされている画像をダウンロードします<br>
     <span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロードします<br>
     <span class="blue">Esc</span> プレビューを閉じる<br>
@@ -4462,7 +4462,7 @@ const langText = {
     <span class="blue">スペースバー</span> 次の画像`,
     `<span class="blue">Alt</span> + <span class="blue">P</span> 미리보기 기능 끄기/활성화<br>
     미리보기를 볼 때 다음 단축키를 사용할 수 있습니다.<br>
-    <span class="blue">B</span>(ookmark) 북마크 미리보기 작업br>
+    <span class="blue">B</span>(ookmark) 북마크 미리보기 작업<br>
     <span class="blue">C</span>(urrent) 현재 미리보기 이미지 다운로드<br>
     <span class="blue">D</span>(ownload) 현재 미리보기된 작품 다운로드<br>
     <span class="blue">Esc</span> 미리보기 닫기<br>
@@ -4471,7 +4471,7 @@ const langText = {
     <span class="blue">스페이스바</span> 다음 이미지`,
     `<span class="blue">Alt</span> + <span class="blue">P</span> Выключить/включить функцию предварительного просмотра<br>
     При предварительном просмотре вы можете использовать следующие сочетания клавиш:<br>
-    <span class="blue">B</span>(ookmark) Добавить в закладки предварительно просмотренную работуbr>
+    <span class="blue">B</span>(ookmark) Добавить в закладки предварительно просмотренную работу<br>
     <span class="blue">C</span>(urrent) Загрузите просматриваемое в данный момент изображение<br>
     <span class="blue">D</span>(ownload) Загрузите просматриваемую в данный момент работу<br>
     <span class="blue">Esc</span> Закрыть предварительный просмотр<br>
