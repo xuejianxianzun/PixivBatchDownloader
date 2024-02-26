@@ -29825,6 +29825,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -29878,7 +29880,8 @@ class SaveArtworkData {
             const rank = rankData ? rankData : null;
             const seriesTitle = body.seriesNavData ? body.seriesNavData.title : '';
             const seriesOrder = body.seriesNavData ? body.seriesNavData.order : null;
-            // 储存作品信息
+            // 保存作品信息
+            const description = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.htmlDecode(body.description);
             if (body.illustType === 0 || body.illustType === 1) {
                 // 插画或漫画
                 const imgUrl = body.urls.original; // 作品的原图 URL
@@ -29888,7 +29891,6 @@ class SaveArtworkData {
                 }
                 const tempExt = imgUrl.split('.');
                 const ext = tempExt[tempExt.length - 1];
-                // 添加作品信息
                 _Store__WEBPACK_IMPORTED_MODULE_3__.store.addResult({
                     aiType: body.aiType,
                     id: body.id,
@@ -29902,7 +29904,7 @@ class SaveArtworkData {
                     regular: body.urls.regular,
                     small: body.urls.small,
                     title: title,
-                    description: body.description,
+                    description: description,
                     tags: tags,
                     tagsWithTransl: tagsWithTransl,
                     tagsTranslOnly: tagsTranslOnly,
@@ -29954,7 +29956,7 @@ class SaveArtworkData {
                     regular: meta.body.src,
                     small: meta.body.src,
                     title: title,
-                    description: body.description,
+                    description: description,
                     tags: tags,
                     tagsWithTransl: tagsWithTransl,
                     tagsTranslOnly: tagsTranslOnly,
@@ -30003,6 +30005,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -30064,14 +30068,15 @@ class SaveNovelData {
                     embeddedImages[id] = value.urls.original;
                 }
             }
-            // 添加作品信息
+            // 保存作品信息
+            const description = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlDecode(body.description);
             _Store__WEBPACK_IMPORTED_MODULE_1__.store.addResult({
                 aiType: body.aiType,
                 id: id,
                 idNum: idNum,
                 thumb: body.coverUrl || undefined,
                 title: title,
-                description: body.description,
+                description: description,
                 tags: tags,
                 tagsWithTransl: tags,
                 tagsTranslOnly: tags,
@@ -30096,7 +30101,7 @@ class SaveNovelData {
                     id: body.id,
                     title: body.title,
                     content: this.replaceFlag(body.content),
-                    description: body.description,
+                    description: description,
                     coverUrl: body.coverUrl,
                     createDate: body.createDate,
                     userName: body.userName,
@@ -45141,6 +45146,14 @@ class Utils {
     /**替换换行标签，移除 html 标签 */
     static htmlToText(str) {
         return str.replace(/<br \/>/g, '\n').replace(/<\/?.+?>/g, '');
+    }
+    /**将可能包含有 HTML 转义字符的字符串进行反转义（输出可读的正常字符） */
+    // 例如输入 "1&#44;2&#44;3&#44;4&#39;5&#39;6&#39;"
+    // 输出 "1,2,3,4'5'6'"
+    static htmlDecode(str) {
+        const div = document.createElement('div');
+        div.innerHTML = str;
+        return div.innerText;
     }
 }
 // 不安全的字符，这里多数是控制字符，需要替换掉

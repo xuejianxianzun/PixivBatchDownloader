@@ -227,7 +227,7 @@ class Utils {
     }
     if (Reflect.has(el, 'length')) {
       // 如果有 length 属性则循环删除。
-      ;(el as NodeListOf<Element>).forEach((el) => {
+      ; (el as NodeListOf<Element>).forEach((el) => {
         if (el.parentNode) {
           el.parentNode.removeChild(el)
         }
@@ -429,6 +429,15 @@ class Utils {
   /**替换换行标签，移除 html 标签 */
   static htmlToText(str: string) {
     return str.replace(/<br \/>/g, '\n').replace(/<\/?.+?>/g, '')
+  }
+
+  /**将可能包含有 HTML 转义字符的字符串进行反转义（输出可读的正常字符） */
+  // 例如输入 "1&#44;2&#44;3&#44;4&#39;5&#39;6&#39;"
+  // 输出 "1,2,3,4'5'6'"
+  static htmlDecode(str: string) {
+    const div = document.createElement('div')
+    div.innerHTML = str
+    return div.innerText
   }
 }
 
