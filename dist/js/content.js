@@ -9506,17 +9506,28 @@ class PreviewWork {
             }
         });
         window.addEventListener('keydown', (ev) => {
-            // 可以使用 Alt + P 快捷键来启用/禁用此功能
-            if (ev.altKey && ev.code === 'KeyP') {
-                (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('PreviewWork', !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.PreviewWork);
-                // 显示提示信息
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.PreviewWork) {
-                    const msg = 'Preview work - On';
-                    _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.success(msg);
+            // 当用户按下 Ctrl 时，不启用下载器的热键，以避免快捷键冲突或重复生效
+            // 例如，预览作品时按 C 可以下载，但是当用户按下 Ctrl + C 时其实是想复制，此时不应该下载
+            if (ev.ctrlKey) {
+                return;
+            }
+            // 当用户按下 Alt 时，只响应 P 键
+            if (ev.altKey) {
+                // 可以使用 Alt + P 快捷键来启用/禁用此功能
+                if (ev.code === 'KeyP') {
+                    (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('PreviewWork', !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.PreviewWork);
+                    // 显示提示信息
+                    if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.PreviewWork) {
+                        const msg = 'Preview works - On';
+                        _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.success(msg);
+                    }
+                    else {
+                        const msg = 'Preview works - Off';
+                        _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.warning(msg);
+                    }
                 }
                 else {
-                    const msg = 'Preview work - Off';
-                    _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.warning(msg);
+                    return;
                 }
             }
             // 使用 Esc 键关闭当前预览
@@ -45170,8 +45181,9 @@ class Utils {
         const div = document.createElement('div');
         div.innerHTML = str;
         // 注意，输出的是 innerHTML 而非 innerText
-        // innerHTML 可以保持换行等标签依然是 html 标签 <br>
-        // 如果使用 innerText，那么换行就会变成 \n 导致输入和输出的类型不一样，所以不使用 innerText
+        // 原因 1：如果不将生成的元素添加到页面上，而是直接获取 innerText 的话，是没有换行标签的
+        // 原因 2：innerHTML 可以保持换行等标签依然是 html 标签 <br>
+        // 但通过 innerText 获取的换行是 \n ，这会导致输入和输出的类型不一样，所以不使用 innerText
         return div.innerHTML;
     }
 }

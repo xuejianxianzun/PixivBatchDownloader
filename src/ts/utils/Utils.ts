@@ -456,8 +456,9 @@ class Utils {
     const div = document.createElement('div')
     div.innerHTML = str
     // 注意，输出的是 innerHTML 而非 innerText
-    // innerHTML 可以保持换行等标签依然是 html 标签 <br>
-    // 如果使用 innerText，那么换行就会变成 \n 导致输入和输出的类型不一样，所以不使用 innerText
+    // 原因 1：如果不将生成的元素添加到页面上，而是直接获取 innerText 的话，是没有换行标签的
+    // 原因 2：innerHTML 可以保持换行等标签依然是 html 标签 <br>
+    // 但通过 innerText 获取的换行是 \n ，这会导致输入和输出的类型不一样，所以不使用 innerText
     return div.innerHTML
   }
 }
