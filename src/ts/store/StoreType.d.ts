@@ -52,7 +52,7 @@ export interface Result {
   index: number
   /**这个作品的标题 */
   title: string
-  /**这个作品的描述（简介） */
+  /**这个作品的描述（简介）。html 格式，换行标签是 <br> 而非 \n */
   description: string
   /**这个作品的 tag 列表（未翻译） */
   tags: string[]

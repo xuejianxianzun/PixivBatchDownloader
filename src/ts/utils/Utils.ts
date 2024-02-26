@@ -227,7 +227,7 @@ class Utils {
     }
     if (Reflect.has(el, 'length')) {
       // 如果有 length 属性则循环删除。
-      ; (el as NodeListOf<Element>).forEach((el) => {
+      ;(el as NodeListOf<Element>).forEach((el) => {
         if (el.parentNode) {
           el.parentNode.removeChild(el)
         }
@@ -428,16 +428,37 @@ class Utils {
 
   /**替换换行标签，移除 html 标签 */
   static htmlToText(str: string) {
-    return str.replace(/<br \/>/g, '\n').replace(/<\/?.+?>/g, '')
+    // 这里有两种换行标签：
+    // <br /> 这是 Pixiv 的 API 返回的，比如作品简介里的换行
+    // <br> 这是现代标准的换行标签，从元素的 innerHTML 属性获取的换行是这样的
+    return str
+      .replace(/<br \/>/g, '\n')
+      .replace(/<br>/g, '\n')
+      .replace(/<\/?.+?>/g, '')
   }
 
-  /**将可能包含有 HTML 转义字符的字符串进行反转义（输出可读的正常字符） */
+  /**将 html 代码转换成纯文本（innerText） */
+  static htmlToTextWrong(str: string) {
+    const div = document.createElement('div')
+    div.innerHTML = str
+    // 如果使用这个方法，那么必须将创建的这个元素添加到页面上，然后才能获取其 innerText
+    // 如果不 append 到页面，而是直接获取 innerText，那么不会有换行标记 \n
+    // 这可能是因为如果一个元素只存在于内存里，而没有添加到页面上进行渲染的话，浏览器会忽略换行标记
+    document.body.append(div)
+
+    return div.innerText
+  }
+
+  /**将可能包含有 HTML 转义字符的字符串进行反转义 */
   // 例如输入 "1&#44;2&#44;3&#44;4&#39;5&#39;6&#39;"
   // 输出 "1,2,3,4'5'6'"
   static htmlDecode(str: string) {
     const div = document.createElement('div')
     div.innerHTML = str
-    return div.innerText
+    // 注意，输出的是 innerHTML 而非 innerText
+    // innerHTML 可以保持换行等标签依然是 html 标签 <br>
+    // 如果使用 innerText，那么换行就会变成 \n 导致输入和输出的类型不一样，所以不使用 innerText
+    return div.innerHTML
   }
 }
 

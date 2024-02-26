@@ -8,7 +8,7 @@ TODO:日语文本需要加粗显示关键字，但是我不懂日语，所以现
 
 ## next
 
-### 🐛修复了作品简介里的 HTML 转义字符没有处理的情况
+### 🐛修复了作品简介里的 HTML 转义字符没有处理的问题
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/387
 
