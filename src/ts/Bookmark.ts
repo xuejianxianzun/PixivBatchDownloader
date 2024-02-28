@@ -197,7 +197,11 @@ class Bookmark {
     }
 
     log.persistentRefresh()
-    log.success('✓ ' + lang.transl('_收藏作品完毕'))
+    const msg = '✓ ' + lang.transl('_收藏作品完毕')
+    log.success(msg)
+    toast.success(msg, {
+      position: 'center',
+    })
   }
 
   private async sendRequest(
