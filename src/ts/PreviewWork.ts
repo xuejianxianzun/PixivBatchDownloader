@@ -181,16 +181,27 @@ class PreviewWork {
     window.addEventListener(
       'keydown',
       (ev) => {
-        // 可以使用 Alt + P 快捷键来启用/禁用此功能
-        if (ev.altKey && ev.code === 'KeyP') {
-          setSetting('PreviewWork', !settings.PreviewWork)
-          // 显示提示信息
-          if (settings.PreviewWork) {
-            const msg = 'Preview work - On'
-            toast.success(msg)
+        // 当用户按下 Ctrl 时，不启用下载器的热键，以避免快捷键冲突或重复生效
+        // 例如，预览作品时按 C 可以下载，但是当用户按下 Ctrl + C 时其实是想复制，此时不应该下载
+        if (ev.ctrlKey) {
+          return
+        }
+
+        // 当用户按下 Alt 时，只响应 P 键
+        if (ev.altKey) {
+          // 可以使用 Alt + P 快捷键来启用/禁用此功能
+          if (ev.code === 'KeyP') {
+            setSetting('PreviewWork', !settings.PreviewWork)
+            // 显示提示信息
+            if (settings.PreviewWork) {
+              const msg = 'Preview works - On'
+              toast.success(msg)
+            } else {
+              const msg = 'Preview works - Off'
+              toast.warning(msg)
+            }
           } else {
-            const msg = 'Preview work - Off'
-            toast.warning(msg)
+            return
           }
         }
 

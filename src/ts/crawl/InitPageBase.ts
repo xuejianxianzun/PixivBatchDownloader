@@ -282,28 +282,33 @@ abstract class InitPageBase {
       return this.noResult()
     }
 
+    log.persistentRefresh()
     log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
 
     // 导出 ID 列表，并停止抓取
-    if (settings.exportIDList && Utils.isPixiv()) {
-      const resultList = await Utils.json2BlobSafe(store.idList)
-      for (const result of resultList) {
-        Utils.downloadFile(
-          result.url,
-          `ID list-total ${
-            result.total
-          }-from ${Tools.getPageTitle()}-${Utils.replaceUnsafeStr(
-            new Date().toLocaleString()
-          )}.json`
-        )
+    if ((settings.exportIDList || states.exportIDList) && Utils.isPixiv()) {
+      states.busy = false
+      EVT.fire('stopCrawl')
+      log.warning(lang.transl('_已停止抓取'))
+
+      if (settings.exportIDList) {
+        const resultList = await Utils.json2BlobSafe(store.idList)
+        for (const result of resultList) {
+          Utils.downloadFile(
+            result.url,
+            `ID list-total ${
+              result.total
+            }-from ${Tools.getPageTitle()}-${Utils.replaceUnsafeStr(
+              new Date().toLocaleString()
+            )}.json`
+          )
+        }
+
+        const msg = '✓ ' + lang.transl('_导出ID列表')
+        log.success(msg)
+        toast.success(msg)
       }
 
-      states.busy = false
-
-      EVT.fire('stopCrawl')
-
-      log.success(lang.transl('_导出ID列表'))
-      log.warning(lang.transl('_已停止抓取'))
       return
     }
 

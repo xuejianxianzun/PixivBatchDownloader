@@ -3,6 +3,7 @@ import { NovelData } from '../crawl/CrawlResult'
 import { store } from './Store'
 import { settings } from '../setting/Settings'
 import { Tools } from '../Tools'
+import { Utils } from '../utils/Utils'
 
 // 保存单个小说作品的数据
 class SaveNovelData {
@@ -74,14 +75,16 @@ class SaveNovelData {
         }
       }
 
-      // 添加作品信息
+      // 保存作品信息
+      const description = Utils.htmlDecode(body.description)
+
       store.addResult({
         aiType: body.aiType,
         id: id,
         idNum: idNum,
         thumb: body.coverUrl || undefined,
         title: title,
-        description: body.description,
+        description: description,
         tags: tags,
         tagsWithTransl: tags,
         tagsTranslOnly: tags,
@@ -106,7 +109,7 @@ class SaveNovelData {
           id: body.id,
           title: body.title,
           content: this.replaceFlag(body.content),
-          description: body.description,
+          description: description,
           coverUrl: body.coverUrl,
           createDate: body.createDate,
           userName: body.userName,
