@@ -310,7 +310,7 @@ class Utils {
     return blob
   }
 
-  /**把 JSON 转换成 Blob 对象。可以处理更大的数据量，并且导出的文件体积不会超过 500 MB */
+  /**把 JSON 转换成 Blob 对象。可以处理更大的数据量，并且导出的单个文件体积不会超过 500 MB */
   static async json2BlobSafe(data: any[]): Promise<
     {
       url: string
@@ -460,6 +460,10 @@ class Utils {
     // 原因 2：innerHTML 可以保持换行等标签依然是 html 标签 <br>
     // 但通过 innerText 获取的换行是 \n ，这会导致输入和输出的类型不一样，所以不使用 innerText
     return div.innerHTML
+  }
+
+  static sleep(time: number) {
+    return new Promise((res) => window.setTimeout(res, time))
   }
 }
 

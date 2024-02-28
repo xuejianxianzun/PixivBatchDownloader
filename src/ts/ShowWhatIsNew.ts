@@ -11,7 +11,7 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '16.7.0'
+  private flag = '16.8.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
@@ -19,23 +19,17 @@ class ShowWhatIsNew {
       let msg = `
       <strong>${lang.transl('_新增功能')}:</strong>
       <br>
-      <span class="blue"><strong>${lang.transl(
-        '_优化预览作品功能'
-      )}</strong>: <strong>${lang.transl(
-        '_使用方向键和空格键切换图片'
-      )}</strong></span>
-      <br>
-      <span>${lang.transl('_使用方向键和空格键切换图片的提示')}</span>
-      <br>
-      ${lang.transl(
-        '_你可以在更多选项卡的xx分类里找到它',
-        lang.transl('_增强')
-      )}
-      
+      <span>${lang.transl('_同步收藏列表的说明')}</span>
+    
       <br>
       <br>
       <span>${lang.transl('_其他优化')}</span>
       `
+      // ${lang.transl(
+      //   '_你可以在更多选项卡的xx分类里找到它',
+      //   lang.transl('_增强')
+      // )}
+
       // <span>${lang.transl('_其他优化')}</span>
 
       // 在更新说明的下方显示赞助提示
