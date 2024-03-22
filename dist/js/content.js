@@ -13318,11 +13318,15 @@ class Tools {
     }
     /**替换 EPUB 文本里的特殊字符和换行符 */
     // 换行符必须放在最后处理，以免其 < 符号被替换
+    // 把所有换行符统一成 <br/>
+    // 这是因为 epub 是 xhtml 格式，要求必须有闭合标记，所以 <br> 是非法的，会导致小说无法被解析和阅读
     static replaceEPUBText(str) {
         return str
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/&lt;br/g, '<br')
+            .replace(/<br>/g, '<br/>')
+            .replace(/<br \/>/g, '<br/>')
             .replace(/\n/g, '<br/>');
     }
     /** 在 zip 压缩包里查找类似于 000000.jpg 的标记，返回它后面的位置的下标
@@ -45546,6 +45550,9 @@ class Utils {
     /**将可能包含有 HTML 转义字符的字符串进行反转义 */
     // 例如输入 "1&#44;2&#44;3&#44;4&#39;5&#39;6&#39;"
     // 输出 "1,2,3,4'5'6'"
+    // 需要注意的是，这里返回的 html 标签是不带闭合标记的（html 5 规范）
+    // 如果参数里含有 <br/>，这是 html 4 规范，经过该方法处理后返回的是 <br>，没有了闭合标记
+    // 通常这不会导致问题，但是 epub 小说必须有结束标记
     static htmlDecode(str) {
         const div = document.createElement('div');
         div.innerHTML = str;
