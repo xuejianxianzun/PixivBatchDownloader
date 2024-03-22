@@ -528,11 +528,15 @@ class Tools {
 
   /**替换 EPUB 文本里的特殊字符和换行符 */
   // 换行符必须放在最后处理，以免其 < 符号被替换
+  // 把所有换行符统一成 <br/>
+  // 这是因为 epub 是 xhtml 格式，要求必须有闭合标记，所以 <br> 是非法的，会导致小说无法被解析和阅读
   static replaceEPUBText(str: string) {
     return str
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/&lt;br/g, '<br')
+      .replace(/<br>/g, '<br/>')
+      .replace(/<br \/>/g, '<br/>')
       .replace(/\n/g, '<br/>')
   }
 

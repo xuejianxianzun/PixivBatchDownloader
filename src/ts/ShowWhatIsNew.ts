@@ -11,19 +11,13 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '16.8.0'
+  private flag = '16.8.1'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
       let msg = `
-      <strong>${lang.transl('_新增功能')}:</strong>
-      <br>
-      <span>${lang.transl('_同步收藏列表的说明')}</span>
-    
-      <br>
-      <br>
-      <span>${lang.transl('_其他优化')}</span>
+      <span>${lang.transl('_修复bug')}</span>
       `
       // ${lang.transl(
       //   '_你可以在更多选项卡的xx分类里找到它',
