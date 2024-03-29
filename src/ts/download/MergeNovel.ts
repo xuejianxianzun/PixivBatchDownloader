@@ -165,7 +165,7 @@ class MergeNovel {
         .withAuthor(Utils.replaceUnsafeStr(firstResult.novelMeta!.userName))
         .withModificationDate(new Date(firstResult.novelMeta!.createDate))
         .withRights({
-          description: firstResult.novelMeta!.description,
+          description: Tools.replaceEPUBText(firstResult.novelMeta!.description),
           license: '',
         })
         .withAttributionUrl(

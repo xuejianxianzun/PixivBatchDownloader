@@ -4716,8 +4716,8 @@ const langText = {
         'Имя файла предварительного просмотра',
     ],
     _下载线程: [
-        '下载<span class="key">线程</span>',
-        '下載<span class="key">執行緒</span>',
+        '同时下载<span class="key">数量</span>',
+        '同時下載<span class="key">數量</span>',
         'Download <span class="key">thread</span>',
         '同時ダウンロード数',
         '다운로드 <span class="key">쓰레드</span>',
@@ -22254,7 +22254,7 @@ class MergeNovel {
                 .withAuthor(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(firstResult.novelMeta.userName))
                 .withModificationDate(new Date(firstResult.novelMeta.createDate))
                 .withRights({
-                description: firstResult.novelMeta.description,
+                description: _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(firstResult.novelMeta.description),
                 license: '',
             })
                 .withAttributionUrl(`https://www.pixiv.net/novel/show.php?id=${firstResult.novelMeta.id}`)
