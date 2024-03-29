@@ -8246,6 +8246,47 @@ const langText = {
         '{}개의 기존 북마크를 건너뛰었습니다.',
         '{} существующих закладок пропущено',
     ],
+    _保存作品的简介: [
+        '保存作品简介',
+        '儲存作品說明',
+        'Save work description',
+        '作品説明の保存',
+        '작품 설명 저장',
+        'Сохранить описание работы',
+    ],
+    _保存作品简介的说明: [
+        '生成 TXT 文件保存作品简介',
+        '生成 TXT 檔案儲存作品說明',
+        'Create a TXT file to save the work description',
+        '作業説明を保存するためのTXTファイルを作成します。',
+        '작업 설명을 저장하려면 TXT 파일을 만드세요.',
+        'Создайте файл TXT для сохранения описания работы.',
+    ],
+    _简介: ['简介', '說明', 'description', '説明', '설명', 'описание'],
+    _简介汇总: [
+        '简介汇总',
+        '說明彙總',
+        'description summary',
+        '説明の概要',
+        '설명 요약',
+        'краткое описание',
+    ],
+    _每个作品分别保存: [
+        '每个作品分别保存',
+        '每個作品分別儲存',
+        'Save each work separately',
+        '作品ごとに分けて保存する',
+        '각 작품을 별도로 저장',
+        'Сохраняйте каждую работу отдельно',
+    ],
+    _汇总到一个文件: [
+        '汇总到一个文件',
+        '彙總到一個檔案',
+        'Summarize to one file',
+        '1つのファイルにまとめる',
+        '하나의 파일로 요약',
+        'Свести в один файл',
+    ],
 };
 
 
@@ -10324,7 +10365,7 @@ class PreviewWorkDetailInfo {
         array.push(`UserID\n${body.userId}`);
         array.push(`Title\n${body.title}`);
         if (body.description) {
-            array.push(`Description\n${_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.htmlToText(body.description)}`);
+            array.push(`Description\n${_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.htmlToText(_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.replaceATag(body.description))}`);
         }
         array.push(`Tags\n${tags.join('\n')}`);
         array.push(`Size\n${body.width} x ${body.height}`);
@@ -12886,6 +12927,15 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class Tools {
+    constructor() {
+        // 简介里的链接目前有这 3 种，其中站内链接缩写需要替换成完整的 URL，否则将其转换为文本时，只会留下缩写，丢失了链接。
+        // 1. 站内作品链接，但是 a 标签内的字符并不是链接本身，而是缩写。需要处理
+        this.link1 = `<a href=\"https://www.pixiv.net/artworks/117285658\">illust/117285658</a>`;
+        // 2. 表里如一的链接，href 和 a 标签内的字符一样。不需要处理，因为 htmlToText 方法会去掉 a 标签只留下文字
+        this.link2 = `<a href=\"https://asanagi.fanbox.cc/posts/7683248\" target=\"_blank\">https://asanagi.fanbox.cc/posts/7683248</a>`;
+        // 3. 站外链接，有 jump.php 的。不需要处理，因为 htmlToText 方法会去掉 a 标签只留下文字
+        this.link3 = `<a href=\"/jump.php?https%3A%2F%2Ffantia.jp%2Fposts%2F2649580\" target=\"_blank\">https://fantia.jp/posts/2649580</a>`;
+    }
     // 把结果中的动图排列到最前面
     static sortUgoiraFirst(a, b) {
         if (a.type === 2 && b.type !== 2) {
@@ -13310,6 +13360,36 @@ class Tools {
         const href = `https://www.pixiv.net/users/${idNum}`;
         return `<a href="${href}" target="_blank">${idNum}</a>`;
     }
+    /** 处理简介里缩写的 A 标签，将其替换成完整 URL */
+    static replaceATag(str) {
+        // 匹配所有 A 标签
+        const matchAllA = str.match(this.ATagRegexp);
+        if (matchAllA && matchAllA.length > 0) {
+            for (const a of matchAllA) {
+                // 站外链接，不需要处理
+                if (a.includes('jump.php')) {
+                    continue;
+                }
+                // 在剩下的情况里，需要处理 A 标签内文本是缩写的情况。如：
+                // <a href=\"https://www.pixiv.net/artworks/117285658\">illust/117285658</a>
+                // 处理之后变成完整的链接：
+                // <a href="https://www.pixiv.net/artworks/117285658">https://www.pixiv.net/artworks/117285658</a>
+                // 匹配 a 标签内的文本
+                const div = document.createElement('div');
+                div.innerHTML = a;
+                // 如果文本里没有 http 则表示这不是一个完整的网址
+                if (div.innerText.includes('http') === false) {
+                    // 取出 href 也就是 URL，替换掉缩写的文本
+                    const matchURL = a.match(this.matchHref);
+                    if (matchURL && matchURL[1]) {
+                        const url = matchURL[1];
+                        str = str.replace(div.innerText, url);
+                    }
+                }
+            }
+        }
+        return str;
+    }
     /**替换 EPUB 文本里的特殊字符和换行符 */
     // 换行符必须放在最后处理，以免其 < 符号被替换
     // 把所有换行符统一成 <br/>
@@ -13516,6 +13596,8 @@ class Tools {
 }
 Tools.chineseRegexp = /[一-龥]/;
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
+Tools.ATagRegexp = /<a href.*?\/a>/g;
+Tools.matchHref = /"(http[s].*?)"/;
 Tools.AIMark = new Map([
     ['zh-cn', 'AI生成'],
     ['zh-tw', 'AI生成'],
@@ -14715,6 +14797,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
             49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
             70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88,
+            89,
         ]);
     }
     nextStep() {
@@ -21920,7 +22003,10 @@ class ExportResult2CSV {
                 }
                 else {
                     let result = d[field.index] ?? '';
-                    // 对于某些字段，将其内容特殊化处理
+                    // 对于某些字段，将其内容进行特殊处理
+                    if (field.name === 'description') {
+                        result = _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.htmlToText(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceATag(d.description));
+                    }
                     if (field.name === 'type') {
                         result = _Config__WEBPACK_IMPORTED_MODULE_3__.Config.worksTypeName[result];
                     }
@@ -22824,6 +22910,184 @@ new Resume();
 
 /***/ }),
 
+/***/ "./src/ts/download/SaveWorkDescription.ts":
+/*!************************************************!*\
+  !*** ./src/ts/download/SaveWorkDescription.ts ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../FileName */ "./src/ts/FileName.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+
+
+
+
+
+
+
+
+
+// 为每个作品创建一个 txt 文件，保存这个作品的元数据
+class SaveWorkDescription {
+    constructor() {
+        this.savedIds = [];
+        this.hasLinkRegexp = /http[s]:\/\//;
+        this.bindEvents();
+    }
+    bindEvents() {
+        // 当有作品文件下载成功时，保存其元数据
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadSuccess, (ev) => {
+            const successData = ev.detail.data;
+            this.saveOne(Number.parseInt(successData.id));
+        });
+        // 当开始新的抓取时，清空保存的 id 列表
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
+            this.savedIds = [];
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, () => {
+            window.setTimeout(() => {
+                this.summary();
+            }, 50);
+        });
+    }
+    saveOne(id) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveWorkDescription || !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveEachDescription) {
+            return;
+        }
+        if (this.savedIds.includes(id)) {
+            return;
+        }
+        // 查找这个作品的数据
+        const dataSource = _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta.length > 0 ? _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta : _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.result;
+        const data = dataSource.find((val) => val.idNum === id);
+        if (data === undefined) {
+            console.error(`Not find ${id} in result`);
+            return;
+        }
+        if (data.description === '') {
+            return;
+        }
+        // 生成文件
+        const desc = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlToText(_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.replaceATag(data.description));
+        const blob = new Blob([desc], {
+            type: 'text/plain',
+        });
+        // 如果简介里含有外链，则在文件名最后添加 links 标记
+        const hasLink = this.hasLinkRegexp.test(desc);
+        const namePart1 = this.createFileName(data);
+        const fileName = `${namePart1}-description${hasLink ? '-links' : ''}.txt`;
+        // 不检查下载状态，默认下载成功
+        chrome.runtime.sendMessage({
+            msg: 'save_description_file',
+            fileUrl: URL.createObjectURL(blob),
+            fileName: fileName,
+        });
+        this.savedIds.push(id);
+    }
+    /**返回该作品的文件名（不含后缀名），并且把 id 字符串替换为数字 id */
+    createFileName(data) {
+        // 生成文件名
+        // 元数据文件需要和它对应的图片/小说文件的路径相同，文件名相似，这样它们才能在资源管理器里排在一起，便于查看
+        // 生成这个数据的路径和文件名
+        const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_2__.fileName.createFileName(data);
+        // 取出后缀名之前的部分
+        const index = _fileName.lastIndexOf('.');
+        let part1 = _fileName.substring(0, index);
+        // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.zeroPadding) {
+            // 但如果用户启用了在序号前面填充 0，则不替换 id，因为文件名里的 id 后面可能带多个 0，如 p000，用 idNum 去替换的话替换不了后面两个 0
+            part1 = part1.replace(data.id, data.idNum.toString());
+        }
+        return part1;
+    }
+    // 抓取完毕后，把所有简介汇总到一个文件里
+    summary() {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveWorkDescription || !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.summarizeDescription) {
+            return;
+        }
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta.length === 0) {
+            return;
+        }
+        // 生成文件内容
+        const noLinkContent = [];
+        const hasLinkContent = [];
+        // 从 resultMeta 生成数据而非 result
+        // 因为 resultMeta 里每个作品只有一条数据，而 result 里可能有多条。使用 resultMeta 不需要去重
+        for (const result of _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta) {
+            if (result.description === '') {
+                continue;
+            }
+            // 每条结果生成两条文本：
+            // 1. 文件名
+            // 2. 简介
+            const namePart1 = this.createFileName(result);
+            const desc = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlToText(_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.replaceATag(result.description));
+            const hasLink = this.hasLinkRegexp.test(desc);
+            if (hasLink) {
+                hasLinkContent.push('links-' + namePart1);
+                hasLinkContent.push('\n\n');
+                hasLinkContent.push(desc);
+                hasLinkContent.push('\n\n');
+                hasLinkContent.push('----------');
+                hasLinkContent.push('\n\n');
+            }
+            else {
+                noLinkContent.push(namePart1);
+                hasLinkContent.push('\n\n');
+                noLinkContent.push(desc);
+                noLinkContent.push('\n\n');
+                noLinkContent.push('----------');
+                noLinkContent.push('\n\n');
+            }
+        }
+        // 生成文件
+        // 不带外链的简介放在文件前面，带有外链的简介放在后面
+        // 因为这个功能是有人赞助让我添加的，所以要按照他要求的格式做
+        const blob = new Blob(noLinkContent.concat(hasLinkContent), {
+            type: 'text/plain',
+        });
+        // 设置 TXT 的文件名
+        let txtName = 'description summary.txt';
+        const title = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getPageTitle());
+        const time = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(_store_Store__WEBPACK_IMPORTED_MODULE_1__.store.crawlCompleteTime.toLocaleString());
+        // 在文件名里添加时间戳可以避免同名文件覆盖
+        // 检查这些作品是否属于同一个画师
+        const firstUser = _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta[0].userId;
+        const notAllSame = _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta.some((result) => result.userId !== firstUser);
+        // 如果不是同一个画师，则将汇总文件直接保存到下载目录里
+        if (notAllSame) {
+            txtName = `description summary-${title}-${time}.txt`;
+        }
+        else {
+            // 如果是同一个画师，则保存到命名规则创建的第一层目录里，并在文件名里添加画师名字
+            const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_2__.fileName.createFileName(_store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta[0]);
+            const firstPath = _fileName.split('/')[0];
+            txtName = `${firstPath}/description summary-user ${_store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta[0].user}-${title}-${time}.txt`;
+        }
+        // 不检查下载状态，默认下载成功
+        chrome.runtime.sendMessage({
+            msg: 'save_description_file',
+            fileUrl: URL.createObjectURL(blob),
+            fileName: txtName,
+        });
+        const msg = `✓ ${_Lang__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_保存作品的简介')}: ${_Lang__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_汇总到一个文件')}`;
+        _Log__WEBPACK_IMPORTED_MODULE_7__.log.success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.success(msg);
+    }
+}
+new SaveWorkDescription();
+
+
+/***/ }),
+
 /***/ "./src/ts/download/SaveWorkMeta.ts":
 /*!*****************************************!*\
   !*** ./src/ts/download/SaveWorkMeta.ts ***!
@@ -22923,7 +23187,7 @@ class SaveWorkMeta {
         fileContent.push(this.addMeta('User', data.user));
         fileContent.push(this.addMeta('UserID', data.userId));
         fileContent.push(this.addMeta('Title', data.title));
-        fileContent.push(this.addMeta('Description', _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlToText(data.description)));
+        fileContent.push(this.addMeta('Description', _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlToText(_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.replaceATag(data.description))));
         fileContent.push(this.addMeta('Tags', this.joinTags(data.tags)));
         if (data.type !== 3) {
             fileContent.push(this.addMeta('Size', `${data.fullWidth} x ${data.fullHeight}`));
@@ -27070,7 +27334,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 
-// 目前设置项的最大编号是 88
+// 目前设置项的最大编号是 889
 const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -27545,6 +27809,29 @@ const formHtml = `<form class="settingForm">
     <span class="settingNameStyle1" data-xztext="_下载完成后显示通知"></span>
     <input type="checkbox" name="showNotificationAfterDownloadComplete" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
+    <p class="option" data-no="89">
+    <span class="has_tip settingNameStyle1" data-xztip="_保存作品简介的说明">
+    <span data-xztext="_保存作品的简介"></span>
+    <span class="gray1"> ? </span>
+    </span>
+    <input type="checkbox" name="saveWorkDescription" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="subOptionWrap" data-show="saveWorkDescription">
+    
+    <label for="saveEachDescription" data-xztext="_每个作品分别保存"></label>
+    <input type="checkbox" name="saveEachDescription" id="saveEachDescription" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="verticalSplit"></span>
+
+    <label for="summarizeDescription" data-xztext="_汇总到一个文件"></label>
+    <input type="checkbox" name="summarizeDescription" id="summarizeDescription" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+
+    </span>
     </p>
 
     <div class="centerWrap_btns">
@@ -28449,6 +28736,9 @@ class FormSettings {
                 'displayThumbnailListOnMultiImageWorkPage',
                 'PreviewWorkDetailInfo',
                 'removeWorksOfFollowedUsersOnSearchPage',
+                'saveWorkDescription',
+                'saveEachDescription',
+                'summarizeDescription',
             ],
             text: [
                 'setWantPage',
@@ -29434,6 +29724,9 @@ class Settings {
             PreviewDetailInfoWidth: 400,
             removeWorksOfFollowedUsersOnSearchPage: false,
             tipExportAndImportBookmark: true,
+            saveWorkDescription: false,
+            saveEachDescription: false,
+            summarizeDescription: false,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -30591,13 +30884,15 @@ class Store {
         this.loggedUserID = '';
         this.idList = []; // 储存从列表中抓取到的作品的 id
         this.waitingIdList = []; // 下载器尚未完成本次下载时，如果有新的下载请求，则添加到这里，下载完成后再处理
-        this.resultMeta = []; // 储存抓取结果的元数据。
-        // 当用于图片作品时，它可以根据每个作品需要下载多少张，生成每一张图片的信息
+        this.resultMeta = [];
+        // 储存抓取结果的元数据，每个作品只会有一条数据
+        // 抓取图片作品时，根据此数据生成每一张图片的数据，也就是生成多个 result
+        // 有一种情况下没有 resultMeta 数据：Resume 也就是恢复未完成的下载时，只恢复了 result，没有生成 resultMeta
+        this.result = []; // 储存抓取结果
         /**系列小说的设定资料 */
         this.novelSeriesGlossary = '';
         this.artworkIDList = []; // 储存抓取到的图片作品的 id 列表，用来避免重复添加
         this.novelIDList = []; // 储存抓取到的小说作品的 id 列表，用来避免重复添加
-        this.result = []; // 储存抓取结果
         /**当前登录用户的关注用户列表 */
         this.followingUserIDList = [];
         /**记录从每个作品里下载多少个文件 */
@@ -30667,7 +30962,7 @@ class Store {
             this.downloadOnlyPart[workID] = indexList;
         }
     }
-    // 添加每个作品的信息。只需要传递有值的属性
+    // 添加每个作品的数据。只需要传递有值的属性
     // 如果一个作品有多张图片，只需要传递第一张图片的数据。后面的数据会根据设置自动生成
     addResult(data) {
         // 检查该作品 id 是否已存在，已存在则不添加
@@ -45996,16 +46291,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
 /* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
 /* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _download_ShowStatusOnTitle__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/ShowStatusOnTitle */ "./src/ts/download/ShowStatusOnTitle.ts");
-/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
-/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
-/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
-/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
-/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
+/* harmony import */ var _download_SaveWorkDescription__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/SaveWorkDescription */ "./src/ts/download/SaveWorkDescription.ts");
+/* harmony import */ var _download_ShowStatusOnTitle__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ShowStatusOnTitle */ "./src/ts/download/ShowStatusOnTitle.ts");
+/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
+/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
+/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
+/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -46016,6 +46312,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 
