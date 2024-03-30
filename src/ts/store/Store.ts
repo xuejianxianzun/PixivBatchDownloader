@@ -16,16 +16,18 @@ class Store {
 
   public waitingIdList: IDData[] = [] // 下载器尚未完成本次下载时，如果有新的下载请求，则添加到这里，下载完成后再处理
 
-  public resultMeta: Result[] = [] // 储存抓取结果的元数据。
-  // 当用于图片作品时，它可以根据每个作品需要下载多少张，生成每一张图片的信息
+  public resultMeta: Result[] = []
+  // 储存抓取结果的元数据，每个作品只会有一条数据
+  // 抓取图片作品时，根据此数据生成每一张图片的数据，也就是生成多个 result
+  // 有一种情况下没有 resultMeta 数据：Resume 也就是恢复未完成的下载时，只恢复了 result，没有生成 resultMeta
+
+  public result: Result[] = [] // 储存抓取结果
 
   /**系列小说的设定资料 */
   public novelSeriesGlossary = ''
 
   private artworkIDList: number[] = [] // 储存抓取到的图片作品的 id 列表，用来避免重复添加
   private novelIDList: number[] = [] // 储存抓取到的小说作品的 id 列表，用来避免重复添加
-
-  public result: Result[] = [] // 储存抓取结果
 
   /**当前登录用户的关注用户列表 */
   public followingUserIDList: string[] = []
@@ -110,7 +112,7 @@ class Store {
     sl: null,
   }
 
-  // 添加每个作品的信息。只需要传递有值的属性
+  // 添加每个作品的数据。只需要传递有值的属性
   // 如果一个作品有多张图片，只需要传递第一张图片的数据。后面的数据会根据设置自动生成
   public addResult(data: ResultOptional) {
     // 检查该作品 id 是否已存在，已存在则不添加

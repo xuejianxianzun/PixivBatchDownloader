@@ -265,6 +265,9 @@ interface XzSetting {
   PreviewDetailInfoWidth: number
   removeWorksOfFollowedUsersOnSearchPage: boolean
   tipExportAndImportBookmark: boolean
+  saveWorkDescription: boolean
+  saveEachDescription: boolean
+  summarizeDescription: boolean
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -487,6 +490,9 @@ class Settings {
     PreviewDetailInfoWidth: 400,
     removeWorksOfFollowedUsersOnSearchPage: false,
     tipExportAndImportBookmark: true,
+    saveWorkDescription: false,
+    saveEachDescription: false,
+    summarizeDescription: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

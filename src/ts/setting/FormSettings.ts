@@ -127,6 +127,9 @@ class FormSettings {
       'displayThumbnailListOnMultiImageWorkPage',
       'PreviewWorkDetailInfo',
       'removeWorksOfFollowedUsersOnSearchPage',
+      'saveWorkDescription',
+      'saveEachDescription',
+      'summarizeDescription',
     ],
     text: [
       'setWantPage',

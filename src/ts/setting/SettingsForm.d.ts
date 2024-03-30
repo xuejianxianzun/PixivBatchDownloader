@@ -150,4 +150,7 @@ export interface SettingsForm extends HTMLFormElement {
   PreviewWorkDetailInfo: HTMLInputElement
   PreviewDetailInfoWidth: HTMLInputElement
   removeWorksOfFollowedUsersOnSearchPage: HTMLInputElement
+  saveWorkDescription: HTMLInputElement
+  saveEachDescription: HTMLInputElement
+  summarizeDescription: HTMLInputElement
 }

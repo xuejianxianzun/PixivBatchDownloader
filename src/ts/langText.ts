@@ -1005,8 +1005,8 @@ const langText = {
     'Имя файла предварительного просмотра',
   ],
   _下载线程: [
-    '下载<span class="key">线程</span>',
-    '下載<span class="key">執行緒</span>',
+    '同时下载<span class="key">数量</span>',
+    '同時下載<span class="key">數量</span>',
     'Download <span class="key">thread</span>',
     '同時ダウンロード数',
     '다운로드 <span class="key">쓰레드</span>',
@@ -3090,9 +3090,7 @@ const langText = {
     您可以在 Patreon 上贊助我：<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br>
     中國大陸使用者可以在“愛發電”上贊助我：<br>
-    <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
-    也可以掃描行動條碼（QR Code）：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上檢視行動條碼</a>。
+    <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a>。
     `,
     `Thank you very much for your support!<br>
     You can sponsor me on Patreon: <br>
@@ -4534,6 +4532,63 @@ const langText = {
     '{} 個の既存のブックマークがスキップされました',
     '{}개의 기존 북마크를 건너뛰었습니다.',
     '{} существующих закладок пропущено',
+  ],
+  _保存作品的简介: [
+    '保存作品<span class="key">简介</span>',
+    '儲存作品<span class="key">說明</span>',
+    'Save work <span class="key">description</span>',
+    '作品<span class="key">説明</span>の保存',
+    '작품 설명 저장',
+    'Сохранить описание работы',
+  ],
+  _保存作品的简介2: [
+    '保存作品简介',
+    '儲存作品說明',
+    'Save work description',
+    '作品説明の保存',
+    '작품 설명 저장',
+    'Сохранить описание работы',
+  ],
+  _保存作品简介的说明: [
+    '生成 TXT 文件保存作品简介',
+    '生成 TXT 檔案儲存作品說明',
+    'Create a TXT file to save the work description',
+    '作業説明を保存するためのTXTファイルを作成します。',
+    '작업 설명을 저장하려면 TXT 파일을 만드세요.',
+    'Создайте файл TXT для сохранения описания работы.',
+  ],
+  _简介: ['简介', '說明', 'description', '説明', '설명', 'описание'],
+  _简介汇总: [
+    '简介汇总',
+    '說明彙總',
+    'description summary',
+    '説明の概要',
+    '설명 요약',
+    'краткое описание',
+  ],
+  _每个作品分别保存: [
+    '每个作品分别保存',
+    '每個作品分別儲存',
+    'Save each work separately',
+    '作品ごとに分けて保存する',
+    '각 작품을 별도로 저장',
+    'Сохраняйте каждую работу отдельно',
+  ],
+  _简介的Links标记: [
+    `如果作品简介里含有超链接，下载器会在文件名末尾添加 'links' 标记`,
+    `如果作品說明裡含有超連結，下載器會在檔名末尾新增 'links' 標記`,
+    `If the work description contains hyperlinks, the downloader will add a 'links' tag at the end of the file name`,
+    `作品の説明にハイパーリンクが含まれている場合、ダウンローダーはファイル名の末尾に「links」タグを追加します。`,
+    `작업 설명에 하이퍼링크가 포함된 경우 다운로더는 파일 이름 끝에 'links' 태그를 추가합니다.`,
+    `Если описание работы содержит гиперссылки, загрузчик добавит тег «links» в конце имени файла.`,
+  ],
+  _汇总到一个文件: [
+    '汇总到一个文件',
+    '彙總到一個檔案',
+    'Summarize to one file',
+    '1つのファイルにまとめる',
+    '하나의 파일로 요약',
+    'Свести в один файл',
   ],
 }
 

@@ -1,6 +1,6 @@
 import { Config } from '../Config'
 
-// 目前设置项的最大编号是 88
+// 目前设置项的最大编号是 89
 export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -475,6 +475,30 @@ export const formHtml = `<form class="settingForm">
     <span class="settingNameStyle1" data-xztext="_下载完成后显示通知"></span>
     <input type="checkbox" name="showNotificationAfterDownloadComplete" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
+    <p class="option" data-no="89">
+    <span class="has_tip settingNameStyle1" data-xztip="_保存作品简介的说明">
+    <span data-xztext="_保存作品的简介"></span>
+    <span class="gray1"> ? </span>
+    </span>
+    <input type="checkbox" name="saveWorkDescription" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="subOptionWrap" data-show="saveWorkDescription">
+    
+    <label for="saveEachDescription" data-xztext="_每个作品分别保存" class="has_tip" data-xztip="_简介的Links标记"></label>
+    <span class="gray1"> ? &nbsp;</span>
+    <input type="checkbox" name="saveEachDescription" id="saveEachDescription" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="verticalSplit"></span>
+
+    <label for="summarizeDescription" data-xztext="_汇总到一个文件"></label>
+    <input type="checkbox" name="summarizeDescription" id="summarizeDescription" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+
+    </span>
     </p>
 
     <div class="centerWrap_btns">
