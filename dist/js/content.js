@@ -6801,9 +6801,7 @@ const langText = {
     您可以在 Patreon 上贊助我：<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br>
     中國大陸使用者可以在“愛發電”上贊助我：<br>
-    <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
-    也可以掃描行動條碼（QR Code）：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上檢視行動條碼</a>。
+    <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a>。
     `,
         `Thank you very much for your support!<br>
     You can sponsor me on Patreon: <br>
@@ -8247,6 +8245,14 @@ const langText = {
         '{} существующих закладок пропущено',
     ],
     _保存作品的简介: [
+        '保存作品<span class="key">简介</span>',
+        '儲存作品<span class="key">說明</span>',
+        'Save work <span class="key">description</span>',
+        '作品<span class="key">説明</span>の保存',
+        '작품 설명 저장',
+        'Сохранить описание работы',
+    ],
+    _保存作品的简介2: [
         '保存作品简介',
         '儲存作品說明',
         'Save work description',
@@ -8278,6 +8284,14 @@ const langText = {
         '作品ごとに分けて保存する',
         '각 작품을 별도로 저장',
         'Сохраняйте каждую работу отдельно',
+    ],
+    _简介的Links标记: [
+        `如果作品简介里含有超链接，下载器会在文件名末尾添加 'links' 标记`,
+        `如果作品說明裡含有超連結，下載器會在檔名末尾新增 'links' 標記`,
+        `If the work description contains hyperlinks, the downloader will add a 'links' tag at the end of the file name`,
+        `作品の説明にハイパーリンクが含まれている場合、ダウンローダーはファイル名の末尾に「links」タグを追加します。`,
+        `작업 설명에 하이퍼링크가 포함된 경우 다운로더는 파일 이름 끝에 'links' 태그를 추가합니다.`,
+        `Если описание работы содержит гиперссылки, загрузчик добавит тег «links» в конце имени файла.`,
     ],
     _汇总到一个文件: [
         '汇总到一个文件',
@@ -10365,7 +10379,7 @@ class PreviewWorkDetailInfo {
         array.push(`UserID\n${body.userId}`);
         array.push(`Title\n${body.title}`);
         if (body.description) {
-            array.push(`Description\n${_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.htmlToText(_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.replaceATag(body.description))}`);
+            array.push(`Description\n${_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.htmlToText(_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.replaceATag(_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.htmlDecode(body.description)))}`);
         }
         array.push(`Tags\n${tags.join('\n')}`);
         array.push(`Size\n${body.width} x ${body.height}`);
@@ -12217,14 +12231,21 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.8.1';
+        this.flag = '16.9.00';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复bug')}</span>
+      <strong><span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</span></strong>
+      <br>
+      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_保存作品的简介')}</span>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在xx选项卡里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载'))}
+      <br>
+      <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
       `;
             // ${lang.transl(
             //   '_你可以在更多选项卡的xx分类里找到它',
@@ -12931,6 +12952,7 @@ class Tools {
         // 简介里的链接目前有这 3 种，其中站内链接缩写需要替换成完整的 URL，否则将其转换为文本时，只会留下缩写，丢失了链接。
         // 1. 站内作品链接，但是 a 标签内的字符并不是链接本身，而是缩写。需要处理
         this.link1 = `<a href=\"https://www.pixiv.net/artworks/117285658\">illust/117285658</a>`;
+        // 测试用的作品： https://www.pixiv.net/artworks/117386033 其简介是这种链接
         // 2. 表里如一的链接，href 和 a 标签内的字符一样。不需要处理，因为 htmlToText 方法会去掉 a 标签只留下文字
         this.link2 = `<a href=\"https://asanagi.fanbox.cc/posts/7683248\" target=\"_blank\">https://asanagi.fanbox.cc/posts/7683248</a>`;
         // 3. 站外链接，有 jump.php 的。不需要处理，因为 htmlToText 方法会去掉 a 标签只留下文字
@@ -22958,6 +22980,7 @@ class SaveWorkDescription {
             }, 50);
         });
     }
+    /**保存单个作品的简介 */
     saveOne(id) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveWorkDescription || !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveEachDescription) {
             return;
@@ -22983,7 +23006,7 @@ class SaveWorkDescription {
         // 如果简介里含有外链，则在文件名最后添加 links 标记
         const hasLink = this.hasLinkRegexp.test(desc);
         const namePart1 = this.createFileName(data);
-        const fileName = `${namePart1}-description${hasLink ? '-links' : ''}.txt`;
+        const fileName = `${namePart1}-${_Lang__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_简介')}${hasLink ? '-links' : ''}.txt`;
         // 不检查下载状态，默认下载成功
         chrome.runtime.sendMessage({
             msg: 'save_description_file',
@@ -23008,7 +23031,7 @@ class SaveWorkDescription {
         }
         return part1;
     }
-    // 抓取完毕后，把所有简介汇总到一个文件里
+    /**抓取完毕后，把所有简介汇总到一个文件里 */
     summary() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveWorkDescription || !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.summarizeDescription) {
             return;
@@ -23019,7 +23042,7 @@ class SaveWorkDescription {
         // 生成文件内容
         const noLinkContent = [];
         const hasLinkContent = [];
-        // 从 resultMeta 生成数据而非 result
+        // 从 resultMeta 生成每个作品的简介数据（而不是从而 result 生成）
         // 因为 resultMeta 里每个作品只有一条数据，而 result 里可能有多条。使用 resultMeta 不需要去重
         for (const result of _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta) {
             if (result.description === '') {
@@ -23041,21 +23064,36 @@ class SaveWorkDescription {
             }
             else {
                 noLinkContent.push(namePart1);
-                hasLinkContent.push('\n\n');
+                noLinkContent.push('\n\n');
                 noLinkContent.push(desc);
                 noLinkContent.push('\n\n');
                 noLinkContent.push('----------');
                 noLinkContent.push('\n\n');
             }
         }
+        if (hasLinkContent.length === 0 && noLinkContent.length === 0) {
+            return;
+        }
+        // 判断带外链和不带外链的简介谁在文章末尾，然后移除最后多余的换行和分隔符
+        const removeLastString = hasLinkContent.length > 0 ? hasLinkContent : noLinkContent;
+        removeLastString.splice(removeLastString.length - 2, 2);
+        // 放在上下两部分中间的字符，起到分割作用
+        const center = [];
+        if (hasLinkContent.length > 0) {
+            center.push('links section');
+            center.push('\n\n');
+            center.push('----------');
+            center.push('\n\n');
+        }
         // 生成文件
         // 不带外链的简介放在文件前面，带有外链的简介放在后面
         // 因为这个功能是有人赞助让我添加的，所以要按照他要求的格式做
-        const blob = new Blob(noLinkContent.concat(hasLinkContent), {
+        const blob = new Blob(noLinkContent.concat(center, hasLinkContent), {
             type: 'text/plain',
         });
         // 设置 TXT 的文件名
-        let txtName = 'description summary.txt';
+        let txtName = '';
+        const name = _Lang__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_简介汇总');
         const title = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getPageTitle());
         const time = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(_store_Store__WEBPACK_IMPORTED_MODULE_1__.store.crawlCompleteTime.toLocaleString());
         // 在文件名里添加时间戳可以避免同名文件覆盖
@@ -23064,13 +23102,13 @@ class SaveWorkDescription {
         const notAllSame = _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta.some((result) => result.userId !== firstUser);
         // 如果不是同一个画师，则将汇总文件直接保存到下载目录里
         if (notAllSame) {
-            txtName = `description summary-${title}-${time}.txt`;
+            txtName = `${name}-${title}-${time}.txt`;
         }
         else {
             // 如果是同一个画师，则保存到命名规则创建的第一层目录里，并在文件名里添加画师名字
             const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_2__.fileName.createFileName(_store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta[0]);
             const firstPath = _fileName.split('/')[0];
-            txtName = `${firstPath}/description summary-user ${_store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta[0].user}-${title}-${time}.txt`;
+            txtName = `${firstPath}/${name}-user ${_store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta[0].user}-${title}-${time}.txt`;
         }
         // 不检查下载状态，默认下载成功
         chrome.runtime.sendMessage({
@@ -23078,7 +23116,7 @@ class SaveWorkDescription {
             fileUrl: URL.createObjectURL(blob),
             fileName: txtName,
         });
-        const msg = `✓ ${_Lang__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_保存作品的简介')}: ${_Lang__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_汇总到一个文件')}`;
+        const msg = `✓ ${_Lang__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_保存作品的简介2')}: ${_Lang__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_汇总到一个文件')}`;
         _Log__WEBPACK_IMPORTED_MODULE_7__.log.success(msg);
         _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.success(msg);
     }
@@ -25127,12 +25165,12 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 117140000
-            this.crawlData(116490000, 117146184);
+            // 上次记录到 117360000
+            this.crawlData(117150000, 117369894);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 21670000
-            this.crawlData(21680000, 21825808, 'novels');
+            // 上次记录到 21870000
+            this.crawlData(21830000, 21874434, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -27334,7 +27372,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 
-// 目前设置项的最大编号是 889
+// 目前设置项的最大编号是 89
 const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -27821,7 +27859,8 @@ const formHtml = `<form class="settingForm">
 
     <span class="subOptionWrap" data-show="saveWorkDescription">
     
-    <label for="saveEachDescription" data-xztext="_每个作品分别保存"></label>
+    <label for="saveEachDescription" data-xztext="_每个作品分别保存" class="has_tip" data-xztip="_简介的Links标记"></label>
+    <span class="gray1"> ? &nbsp;</span>
     <input type="checkbox" name="saveEachDescription" id="saveEachDescription" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
 
@@ -33287,6 +33326,11 @@ const novelData = [
     [21800000, 1710729269000],
     [21810000, 1710862791000],
     [21820000, 1711011101000],
+    [21830000, 1711152692000],
+    [21840000, 1711274382000],
+    [21850000, 1711385301000],
+    [21860001, 1711542015000],
+    [21870000, 1711691358000],
 ];
 
 
@@ -45018,6 +45062,28 @@ const illustsData = [
     [117120000, 1711012680000],
     [117130000, 1711033140000],
     [117140000, 1711074300000],
+    [117150001, 1711105260000],
+    [117160000, 1711123140000],
+    [117170000, 1711162380000],
+    [117180000, 1711188360000],
+    [117190001, 1711206180000],
+    [117200000, 1711241100000],
+    [117210000, 1711268340000],
+    [117220000, 1711286100000],
+    [117230002, 1711308420000],
+    [117240000, 1711351380000],
+    [117250000, 1711373340000],
+    [117260000, 1711402380000],
+    [117270000, 1711441500000],
+    [117280000, 1711462020000],
+    [117290000, 1711497360000],
+    [117300000, 1711533600000],
+    [117310000, 1711552320000],
+    [117320000, 1711594740000],
+    [117330000, 1711625280000],
+    [117340000, 1711644960000],
+    [117350000, 1711689840000],
+    [117360000, 1711714980000],
 ];
 
 
@@ -45897,15 +45963,15 @@ class Utils {
         const nameArray = name.split('.');
         return nameArray[nameArray.length - 1];
     }
-    /**替换换行标签，移除 html 标签 */
+    /**替换换行标签，并移除 html 标签 */
     static htmlToText(str) {
-        // 这里有两种换行标签：
-        // <br /> 这是 Pixiv 的 API 返回的，比如作品简介里的换行
-        // <br> 这是现代标准的换行标签，从元素的 innerHTML 属性获取的换行是这样的
         return str
             .replace(/<br \/>/g, '\n')
             .replace(/<br>/g, '\n')
             .replace(/<\/?.+?>/g, '');
+        // 这里有两种换行标签：
+        // <br /> 这是 Pixiv 的 API 返回的，比如作品简介里的换行
+        // <br> 这是现代标准的换行标签，从元素的 innerHTML 属性获取的换行是这样的
     }
     /**将 html 代码转换成纯文本（innerText） */
     static htmlToTextWrong(str) {
@@ -45920,17 +45986,14 @@ class Utils {
     /**将可能包含有 HTML 转义字符的字符串进行反转义 */
     // 例如输入 "1&#44;2&#44;3&#44;4&#39;5&#39;6&#39;"
     // 输出 "1,2,3,4'5'6'"
-    // 需要注意的是，这里返回的 html 标签是不带闭合标记的（html 5 规范）
-    // 如果参数里含有 <br/>，这是 html 4 规范，经过该方法处理后返回的是 <br>，没有了闭合标记
-    // 通常这不会导致问题，但是 epub 小说必须有结束标记
+    // 这也可以解码这些字符：例如 > 的转义 &gt; 空格的 &nbsp;
+    // 注意：这里创建的是 textarea 元素，并获取其 value
+    // 不能将 textarea 换成 div 元素然后获取其 innerHTML，因为这不会解码 &gt; &nbsp; 之类字符
+    // textarea.value 不会转换 <br /> 等 html 标记
     static htmlDecode(str) {
-        const div = document.createElement('div');
-        div.innerHTML = str;
-        // 注意，输出的是 innerHTML 而非 innerText
-        // 原因 1：如果不将生成的元素添加到页面上，而是直接获取 innerText 的话，是没有换行标签的
-        // 原因 2：innerHTML 可以保持换行等标签依然是 html 标签 <br>
-        // 但通过 innerText 获取的换行是 \n ，这会导致输入和输出的类型不一样，所以不使用 innerText
-        return div.innerHTML;
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = str;
+        return textarea.value;
     }
     static sleep(time) {
         return new Promise((res) => window.setTimeout(res, time));

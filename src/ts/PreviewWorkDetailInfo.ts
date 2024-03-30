@@ -241,7 +241,9 @@ class PreviewWorkDetailInfo {
     array.push(`Title\n${body.title}`)
     if (body.description) {
       array.push(
-        `Description\n${Utils.htmlToText(Tools.replaceATag(body.description))}`
+        `Description\n${Utils.htmlToText(
+          Tools.replaceATag(Utils.htmlDecode(body.description))
+        )}`
       )
     }
     array.push(`Tags\n${tags.join('\n')}`)

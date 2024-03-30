@@ -1,6 +1,6 @@
 import { Config } from '../Config'
 
-// 目前设置项的最大编号是 889
+// 目前设置项的最大编号是 89
 export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -487,7 +487,8 @@ export const formHtml = `<form class="settingForm">
 
     <span class="subOptionWrap" data-show="saveWorkDescription">
     
-    <label for="saveEachDescription" data-xztext="_每个作品分别保存"></label>
+    <label for="saveEachDescription" data-xztext="_每个作品分别保存" class="has_tip" data-xztip="_简介的Links标记"></label>
+    <span class="gray1"> ? &nbsp;</span>
     <input type="checkbox" name="saveEachDescription" id="saveEachDescription" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
 

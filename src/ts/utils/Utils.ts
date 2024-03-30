@@ -426,15 +426,15 @@ class Utils {
     return nameArray[nameArray.length - 1]
   }
 
-  /**替换换行标签，移除 html 标签 */
+  /**替换换行标签，并移除 html 标签 */
   static htmlToText(str: string) {
-    // 这里有两种换行标签：
-    // <br /> 这是 Pixiv 的 API 返回的，比如作品简介里的换行
-    // <br> 这是现代标准的换行标签，从元素的 innerHTML 属性获取的换行是这样的
     return str
       .replace(/<br \/>/g, '\n')
       .replace(/<br>/g, '\n')
       .replace(/<\/?.+?>/g, '')
+    // 这里有两种换行标签：
+    // <br /> 这是 Pixiv 的 API 返回的，比如作品简介里的换行
+    // <br> 这是现代标准的换行标签，从元素的 innerHTML 属性获取的换行是这样的
   }
 
   /**将 html 代码转换成纯文本（innerText） */
@@ -452,17 +452,16 @@ class Utils {
   /**将可能包含有 HTML 转义字符的字符串进行反转义 */
   // 例如输入 "1&#44;2&#44;3&#44;4&#39;5&#39;6&#39;"
   // 输出 "1,2,3,4'5'6'"
-  // 需要注意的是，这里返回的 html 标签是不带闭合标记的（html 5 规范）
-  // 如果参数里含有 <br/>，这是 html 4 规范，经过该方法处理后返回的是 <br>，没有了闭合标记
-  // 通常这不会导致问题，但是 epub 小说必须有结束标记
+  // 这也可以解码这些字符：例如 > 的转义 &gt; 空格的 &nbsp;
+
+  // 注意：这里创建的是 textarea 元素，并获取其 value
+  // 不能将 textarea 换成 div 元素然后获取其 innerHTML，因为这不会解码 &gt; &nbsp; 之类字符
+
+  // textarea.value 不会转换 <br /> 等 html 标记
   static htmlDecode(str: string) {
-    const div = document.createElement('div')
-    div.innerHTML = str
-    // 注意，输出的是 innerHTML 而非 innerText
-    // 原因 1：如果不将生成的元素添加到页面上，而是直接获取 innerText 的话，是没有换行标签的
-    // 原因 2：innerHTML 可以保持换行等标签依然是 html 标签 <br>
-    // 但通过 innerText 获取的换行是 \n ，这会导致输入和输出的类型不一样，所以不使用 innerText
-    return div.innerHTML
+    const textarea = document.createElement('textarea')
+    textarea.innerHTML = str
+    return textarea.value
   }
 
   static sleep(time: number) {

@@ -3090,9 +3090,7 @@ const langText = {
     您可以在 Patreon 上贊助我：<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br>
     中國大陸使用者可以在“愛發電”上贊助我：<br>
-    <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
-    也可以掃描行動條碼（QR Code）：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上檢視行動條碼</a>。
+    <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a>。
     `,
     `Thank you very much for your support!<br>
     You can sponsor me on Patreon: <br>
@@ -4536,6 +4534,14 @@ const langText = {
     '{} существующих закладок пропущено',
   ],
   _保存作品的简介: [
+    '保存作品<span class="key">简介</span>',
+    '儲存作品<span class="key">說明</span>',
+    'Save work <span class="key">description</span>',
+    '作品<span class="key">説明</span>の保存',
+    '작품 설명 저장',
+    'Сохранить описание работы',
+  ],
+  _保存作品的简介2: [
     '保存作品简介',
     '儲存作品說明',
     'Save work description',
@@ -4567,6 +4573,14 @@ const langText = {
     '作品ごとに分けて保存する',
     '각 작품을 별도로 저장',
     'Сохраняйте каждую работу отдельно',
+  ],
+  _简介的Links标记: [
+    `如果作品简介里含有超链接，下载器会在文件名末尾添加 'links' 标记`,
+    `如果作品說明裡含有超連結，下載器會在檔名末尾新增 'links' 標記`,
+    `If the work description contains hyperlinks, the downloader will add a 'links' tag at the end of the file name`,
+    `作品の説明にハイパーリンクが含まれている場合、ダウンローダーはファイル名の末尾に「links」タグを追加します。`,
+    `작업 설명에 하이퍼링크가 포함된 경우 다운로더는 파일 이름 끝에 'links' 태그를 추가합니다.`,
+    `Если описание работы содержит гиперссылки, загрузчик добавит тег «links» в конце имени файла.`,
   ],
   _汇总到一个文件: [
     '汇总到一个文件',

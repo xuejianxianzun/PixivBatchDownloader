@@ -38,6 +38,7 @@ class SaveWorkDescription {
     })
   }
 
+  /**保存单个作品的简介 */
   private saveOne(id: number) {
     if (!settings.saveWorkDescription || !settings.saveEachDescription) {
       return
@@ -69,7 +70,9 @@ class SaveWorkDescription {
     // 如果简介里含有外链，则在文件名最后添加 links 标记
     const hasLink = this.hasLinkRegexp.test(desc)
     const namePart1 = this.createFileName(data)
-    const fileName = `${namePart1}-description${hasLink ? '-links' : ''}.txt`
+    const fileName = `${namePart1}-${lang.transl('_简介')}${
+      hasLink ? '-links' : ''
+    }.txt`
 
     // 不检查下载状态，默认下载成功
     chrome.runtime.sendMessage({
@@ -101,7 +104,7 @@ class SaveWorkDescription {
     return part1
   }
 
-  // 抓取完毕后，把所有简介汇总到一个文件里
+  /**抓取完毕后，把所有简介汇总到一个文件里 */
   private summary() {
     if (!settings.saveWorkDescription || !settings.summarizeDescription) {
       return
@@ -115,7 +118,7 @@ class SaveWorkDescription {
     const noLinkContent: string[] = []
     const hasLinkContent: string[] = []
 
-    // 从 resultMeta 生成数据而非 result
+    // 从 resultMeta 生成每个作品的简介数据（而不是从而 result 生成）
     // 因为 resultMeta 里每个作品只有一条数据，而 result 里可能有多条。使用 resultMeta 不需要去重
     for (const result of store.resultMeta) {
       if (result.description === '') {
@@ -138,7 +141,7 @@ class SaveWorkDescription {
         hasLinkContent.push('\n\n')
       } else {
         noLinkContent.push(namePart1)
-        hasLinkContent.push('\n\n')
+        noLinkContent.push('\n\n')
         noLinkContent.push(desc)
         noLinkContent.push('\n\n')
         noLinkContent.push('----------')
@@ -146,15 +149,34 @@ class SaveWorkDescription {
       }
     }
 
+    if (hasLinkContent.length === 0 && noLinkContent.length === 0) {
+      return
+    }
+
+    // 判断带外链和不带外链的简介谁在文章末尾，然后移除最后多余的换行和分隔符
+    const removeLastString =
+      hasLinkContent.length > 0 ? hasLinkContent : noLinkContent
+    removeLastString.splice(removeLastString.length - 2, 2)
+
+    // 放在上下两部分中间的字符，起到分割作用
+    const center: string[] = []
+    if (hasLinkContent.length > 0) {
+      center.push('links section')
+      center.push('\n\n')
+      center.push('----------')
+      center.push('\n\n')
+    }
+
     // 生成文件
     // 不带外链的简介放在文件前面，带有外链的简介放在后面
     // 因为这个功能是有人赞助让我添加的，所以要按照他要求的格式做
-    const blob = new Blob(noLinkContent.concat(hasLinkContent), {
+    const blob = new Blob(noLinkContent.concat(center, hasLinkContent), {
       type: 'text/plain',
     })
 
     // 设置 TXT 的文件名
-    let txtName = 'description summary.txt'
+    let txtName = ''
+    const name = lang.transl('_简介汇总')
     const title = Utils.replaceUnsafeStr(Tools.getPageTitle())
     const time = Utils.replaceUnsafeStr(
       store.crawlCompleteTime.toLocaleString()
@@ -168,12 +190,12 @@ class SaveWorkDescription {
     )
     // 如果不是同一个画师，则将汇总文件直接保存到下载目录里
     if (notAllSame) {
-      txtName = `description summary-${title}-${time}.txt`
+      txtName = `${name}-${title}-${time}.txt`
     } else {
       // 如果是同一个画师，则保存到命名规则创建的第一层目录里，并在文件名里添加画师名字
       const _fileName = fileName.createFileName(store.resultMeta[0])
       const firstPath = _fileName.split('/')[0]
-      txtName = `${firstPath}/description summary-user ${store.resultMeta[0].user}-${title}-${time}.txt`
+      txtName = `${firstPath}/${name}-user ${store.resultMeta[0].user}-${title}-${time}.txt`
     }
 
     // 不检查下载状态，默认下载成功
@@ -183,7 +205,7 @@ class SaveWorkDescription {
       fileName: txtName,
     })
 
-    const msg = `✓ ${lang.transl('_保存作品的简介')}: ${lang.transl(
+    const msg = `✓ ${lang.transl('_保存作品的简介2')}: ${lang.transl(
       '_汇总到一个文件'
     )}`
     log.success(msg)

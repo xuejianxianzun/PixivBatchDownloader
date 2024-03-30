@@ -529,8 +529,11 @@ class Tools {
   // 简介里的链接目前有这 3 种，其中站内链接缩写需要替换成完整的 URL，否则将其转换为文本时，只会留下缩写，丢失了链接。
   // 1. 站内作品链接，但是 a 标签内的字符并不是链接本身，而是缩写。需要处理
   private link1 = `<a href=\"https://www.pixiv.net/artworks/117285658\">illust/117285658</a>`
+  // 测试用的作品： https://www.pixiv.net/artworks/117386033 其简介是这种链接
+
   // 2. 表里如一的链接，href 和 a 标签内的字符一样。不需要处理，因为 htmlToText 方法会去掉 a 标签只留下文字
   private link2 = `<a href=\"https://asanagi.fanbox.cc/posts/7683248\" target=\"_blank\">https://asanagi.fanbox.cc/posts/7683248</a>`
+
   // 3. 站外链接，有 jump.php 的。不需要处理，因为 htmlToText 方法会去掉 a 标签只留下文字
   private link3 = `<a href=\"/jump.php?https%3A%2F%2Ffantia.jp%2Fposts%2F2649580\" target=\"_blank\">https://fantia.jp/posts/2649580</a>`
 
