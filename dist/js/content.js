@@ -1372,7 +1372,7 @@ class ConvertUgoira {
                     const indexList = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getJPGContentIndex(zipFileBuffer);
                     const ImageBitmapList = await _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.extractImage(zipFileBuffer, indexList, 'ImageBitmap');
                     if (type === 'gif') {
-                        resolve(_ToGIF__WEBPACK_IMPORTED_MODULE_3__.toGIF.convert(ImageBitmapList, info));
+                        resolve(_ToGIF__WEBPACK_IMPORTED_MODULE_3__.toGIF.convert(ImageBitmapList, info, file.size));
                     }
                     else if (type === 'png') {
                         resolve(_ToAPNG__WEBPACK_IMPORTED_MODULE_4__.toAPNG.convert(ImageBitmapList, info));
@@ -1484,6 +1484,7 @@ __webpack_require__.r(__webpack_exports__);
 class ToGIF {
     constructor() {
         this.gifWorkerUrl = '';
+        this.MBSize = 1024 * 1024;
         this.loadWorkerJS();
     }
     // 添加转换 GIF 的 worker 文件
@@ -1493,16 +1494,18 @@ class ToGIF {
         this.gifWorkerUrl = URL.createObjectURL(gifWorkerBolb);
     }
     // 转换成 GIF
-    async convert(ImageBitmapList, info) {
+    async convert(ImageBitmapList, info, fileSize) {
         return new Promise(async (resolve, reject) => {
             // 配置 gif.js
             let gif = new GIF({
                 workers: 4,
-                quality: 10,
+                quality: this.setQuality(fileSize),
                 workerScript: this.gifWorkerUrl,
             });
+            // console.time('gif')
             // 绑定渲染完成事件
             gif.on('finished', (file) => {
+                // console.timeEnd('gif')
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('convertSuccess');
                 resolve(file);
             });
@@ -1523,6 +1526,34 @@ class ToGIF {
             // 渲染 gif
             gif.render();
         });
+    }
+    /**根据 zip 文件的体积，决定转换动图使的质量 */
+    // 使用更小的 quality 可以获得更好的画面质量（颜色质量）
+    // 以前下载器使用的都是默认值 10，现在改为体积越小则使用越高的质量，以减少某些动图转换成 GIF 之后色差严重的问题
+    setQuality(fileSize) {
+        const MB = Math.floor(fileSize / this.MBSize);
+        switch (MB) {
+            case 0:
+                return 1;
+            case 1:
+                return 2;
+            case 2:
+                return 3;
+            case 3:
+                return 4;
+            case 4:
+                return 5;
+            case 5:
+                return 6;
+            case 6:
+                return 7;
+            case 7:
+                return 8;
+            case 8:
+                return 9;
+            default:
+                return 10;
+        }
     }
 }
 const toGIF = new ToGIF();
