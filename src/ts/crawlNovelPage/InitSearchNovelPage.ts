@@ -12,7 +12,6 @@ import { FastScreen } from '../pageFunciton/FastScreen'
 import { Tools } from '../Tools'
 import { BookmarkAllWorks } from '../pageFunciton/BookmarkAllWorks'
 import { Utils } from '../utils/Utils'
-import { idListWithPageNo } from '../store/IdListWithPageNo'
 import { EVT } from '../EVT'
 import { msgBox } from '../MsgBox'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
@@ -272,29 +271,34 @@ class InitSearchNovelPage extends InitPageBase {
       return this.getIdListFinished()
     }
 
-    data = data.data
-    for (const nowData of data) {
+    const worksData = data.data
+    for (const work of worksData) {
       const filterOpt: FilterOption = {
-        aiType: nowData.aiType,
-        createDate: nowData.createDate,
-        id: nowData.id,
-        bookmarkData: nowData.bookmarkData,
-        bookmarkCount: nowData.bookmarkCount,
+        aiType: work.aiType,
+        createDate: work.createDate,
+        id: work.id,
+        bookmarkData: work.bookmarkData,
+        bookmarkCount: work.bookmarkCount,
         workType: 3,
-        tags: nowData.tags,
-        userId: nowData.userId,
-        xRestrict: nowData.xRestrict,
+        tags: work.tags,
+        userId: work.userId,
+        xRestrict: work.xRestrict,
       }
 
       if (await filter.check(filterOpt)) {
-        idListWithPageNo.add(
-          pageType.type,
-          {
-            type: 'novels',
-            id: nowData.id,
-          },
-          p
-        )
+        store.idList.push({
+          id: work.id,
+          type: 'novels',
+        })
+
+        // idListWithPageNo.add(
+        //   pageType.type,
+        //   {
+        //     type: 'novels',
+        //     id: work.id,
+        //   },
+        //   p
+        // )
       }
     }
 
@@ -325,7 +329,7 @@ class InitSearchNovelPage extends InitPageBase {
         // 抓取任务全部完成
         log.log(lang.transl('_列表页抓取完成'))
 
-        idListWithPageNo.store(pageType.type)
+        // idListWithPageNo.store(pageType.type)
 
         this.getIdListFinished()
       }

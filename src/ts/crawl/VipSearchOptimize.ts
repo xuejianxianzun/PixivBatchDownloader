@@ -2,11 +2,10 @@ import { EVT } from '../EVT'
 import { pageType } from '../PageType'
 import { settings } from '../setting/Settings'
 import { ArtworkData, NovelData } from './CrawlResult.d'
-import { filter } from '../filter/Filter'
 import { Utils } from '../utils/Utils'
 import { Tools } from '../Tools'
 
-// 当 Pixiv 会员使用按热门度排序搜索时，通过检查收藏数量是否符合要求来进行优化
+// 当 Pixiv 会员在搜索页面按热门度排序，并且设置了收藏数量时，可以进行优化以减少不必要的抓取
 // 原理：当会员使用热门度排序时，Pixiv 返回的数据是按收藏数量从高到低排序的。（但不是严格一致，经常有少量作品顺序不对）
 // 假如会员用户在下载器里设置了收藏数量大于 10000，那么当查找到小于 10000 收藏的作品时，就可以考虑停止抓取作品了，因为后面的作品都是收藏数量低于 10000 的了
 class VipSearchOptimize {
@@ -53,7 +52,14 @@ class VipSearchOptimize {
     this.filterFailed = 0
   }
 
-  /**在抓取列表页阶段，接收作品 id 列表，检查最后一个作品，如果收藏数低于指定值， */
+  /**在抓取列表页阶段，接收作品 id ，检查最后一个作品，如果收藏数低于指定值，则停止抓取 */
+public async checckWork(id:string|number){
+  // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
+  if (!this.vipSearchOptimize || !settings.BMKNumSwitch) {
+    return false
+  }
+
+}
 
   /**在抓取作品详情阶段，接收作品数据，判断收藏数量是否达到要求，并据此指示是否应该停止抓取作品 */
   public async stopCrawl(data: NovelData | ArtworkData) {

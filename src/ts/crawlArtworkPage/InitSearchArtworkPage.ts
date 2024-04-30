@@ -17,7 +17,6 @@ import { Tools } from '../Tools'
 import { BookmarkAllWorks } from '../pageFunciton/BookmarkAllWorks'
 import { states } from '../store/States'
 import { Utils } from '../utils/Utils'
-import { idListWithPageNo } from '../store/IdListWithPageNo'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
 import { bookmark } from '../Bookmark'
@@ -365,6 +364,7 @@ class InitSearchArtworkPage extends InitPageBase {
     log.error(lang.transl('_抓取被限制时返回空结果的提示'))
   }, 1000)
 
+  /**获取作品 id 列表（列表页数据） */
   // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
   protected async getIdList(p?: number): Promise<void> {
     if (states.stopCrawl) {
@@ -394,37 +394,42 @@ class InitSearchArtworkPage extends InitPageBase {
       return this.getIdListFinished()
     }
 
-    data = data.data
+    const worksData = data.data
 
-    for (const nowData of data) {
+    for (const work of worksData) {
       // 排除广告信息
-      if (nowData.isAdContainer) {
+      if (work.isAdContainer) {
         continue
       }
 
       const filterOpt: FilterOption = {
-        aiType: nowData.aiType,
-        createDate: nowData.createDate,
-        id: nowData.id,
-        width: nowData.pageCount === 1 ? nowData.width : 0,
-        height: nowData.pageCount === 1 ? nowData.height : 0,
-        pageCount: nowData.pageCount,
-        bookmarkData: nowData.bookmarkData,
-        workType: nowData.illustType,
-        tags: nowData.tags,
-        userId: nowData.userId,
-        xRestrict: nowData.xRestrict,
+        aiType: work.aiType,
+        createDate: work.createDate,
+        id: work.id,
+        width: work.pageCount === 1 ? work.width : 0,
+        height: work.pageCount === 1 ? work.height : 0,
+        pageCount: work.pageCount,
+        bookmarkData: work.bookmarkData,
+        workType: work.illustType,
+        tags: work.tags,
+        userId: work.userId,
+        xRestrict: work.xRestrict,
       }
 
       if (await filter.check(filterOpt)) {
-        idListWithPageNo.add(
-          pageType.type,
-          {
-            type: Tools.getWorkTypeString(nowData.illustType),
-            id: nowData.id,
-          },
-          p
-        )
+        store.idList.push({
+          id: work.id,
+          type: Tools.getWorkTypeString(work.illustType),
+        })
+
+        // idListWithPageNo.add(
+        //   pageType.type,
+        //   {
+        //     type: Tools.getWorkTypeString(work.illustType),
+        //     id: work.id,
+        //   },
+        //   p
+        // )
       }
     }
 
@@ -455,7 +460,7 @@ class InitSearchArtworkPage extends InitPageBase {
         // 抓取任务全部完成
         log.log(lang.transl('_列表页抓取完成'))
 
-        idListWithPageNo.store(pageType.type)
+        // idListWithPageNo.store(pageType.type)
 
         this.getIdListFinished()
       }
