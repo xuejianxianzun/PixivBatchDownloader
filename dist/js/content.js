@@ -12685,6 +12685,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 // 轻提示，只显示文字和背景颜色
@@ -12755,7 +12757,7 @@ class Toast {
     }
     create(arg) {
         const span = document.createElement('span');
-        span.textContent = arg.msg;
+        span.textContent = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(arg.msg);
         span.style.color = arg.color;
         // 设置背景颜色，优先使用 color
         span.style.backgroundColor = arg.bgColor;
