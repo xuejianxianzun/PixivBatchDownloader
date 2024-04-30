@@ -19749,10 +19749,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 
 
 
@@ -19786,6 +19784,7 @@ class VipSearchOptimize {
         // 启动抓取时设置是否启用优化策略
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
             this.vipSearchOptimize = this.setVipOptimize();
+            console.log('启用 vip 优化：', this.vipSearchOptimize);
         });
         // 抓取完毕时重置状态
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, () => {
@@ -19796,7 +19795,8 @@ class VipSearchOptimize {
         this.vipSearchOptimize = false;
         this.filterFailed = 0;
     }
-    // 指示是否停止抓取作品
+    /**在抓取列表页阶段，接收作品 id 列表，检查最后一个作品，如果收藏数低于指定值， */
+    /**在抓取作品详情阶段，接收作品数据，判断收藏数量是否达到要求，并据此指示是否应该停止抓取作品 */
     async stopCrawl(data) {
         // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
         if (!this.vipSearchOptimize || !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumSwitch) {
@@ -19806,17 +19806,22 @@ class VipSearchOptimize {
         if (this.filterFailed >= this.checkNumber) {
             return true;
         }
-        // 判断收藏数量是否不符合要求
-        // createDate 用于计算日均收藏数量，必须传递
-        const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_3__.filter.check({
-            bookmarkCount: data.body.bookmarkCount,
-            createDate: data.body.createDate,
-        });
+        // 在按热门度排序时，作品是按收藏数量从高到低排列的。因此检查作品的收藏数量是否满足用户设置的最小收藏数量
+        const check = data.body.bookmarkCount >= _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumMin;
+        // 如果作品的收藏数量小于用户要求的最低收藏数量，那么它就不符合要求
+        // 这里不会检查用户设置的最大收藏数量，也不检查日均收藏数量，否则可能在某些情况下出现误判
+        // 假设用户设置的收藏数量条件为： >= 100 && <= 200 如果检查最大收藏数量，那么排在最前面的许多作品都不符合要求
+        // 所以只检查最小收藏数量
         if (!check) {
+            console.log(data.body.bookmarkCount);
+            console.log(this.filterFailed);
             this.filterFailed++;
         }
         else {
             this.filterFailed = 0;
+        }
+        if (this.filterFailed >= this.checkNumber) {
+            console.log('连续多少个作品没有达到要求，则停止抓取');
         }
         return this.filterFailed >= this.checkNumber;
     }
@@ -19827,11 +19832,11 @@ class VipSearchOptimize {
             return false;
         }
         // 判断是否是会员
-        if (!_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.isPremium()) {
+        if (!_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.isPremium()) {
             return false;
         }
         // 判断 order 方式
-        const order = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.getURLSearchField(window.location.href, 'order');
+        const order = _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.getURLSearchField(window.location.href, 'order');
         // 无排序方式
         if (!order) {
             return false;
@@ -19995,7 +20000,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-/**当下载数量达到一定数值时，检查当前用户是否被 pixiv 警告 */
+/** 每下载 100 个文件（是文件不是作品），检查当前用户是否被 pixiv 警告 */
 class CheckWarningMessage {
     constructor() {
         /**已下载（成功保存到硬盘上）的文件数量
