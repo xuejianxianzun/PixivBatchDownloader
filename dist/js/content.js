@@ -8332,6 +8332,14 @@ const langText = {
         '하나의 파일로 요약',
         'Свести в один файл',
     ],
+    _后续作品低于最低收藏数量要求跳过后续作品: [
+        '检测到后续作品的收藏数量低于用户设置的数字，跳过后续作品',
+        '檢測到後續作品的收藏數量低於使用者設定的數字，跳過後續作品',
+        'It is detected that the number of bookmarks of subsequent works is lower than the number set by the user, and subsequent works are skipped.',
+        '以降の作品のブックマーク数がユーザーが設定した数よりも少ないことを検出し、以降の作品をスキップする。',
+        '후속 작품의 북마크 수가 사용자가 설정한 수보다 적은 것으로 감지되어 후속 작품을 건너뜁니다.',
+        'Обнаружено, что количество закладок последующих произведений меньше количества, установленного пользователем, и последующие произведения пропускаются.',
+    ]
 };
 
 
@@ -15147,7 +15155,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
 /* harmony import */ var _pageFunciton_RemoveWorksOfFollowedUsersOnSearchPage__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../pageFunciton/RemoveWorksOfFollowedUsersOnSearchPage */ "./src/ts/pageFunciton/RemoveWorksOfFollowedUsersOnSearchPage.ts");
+/* harmony import */ var _crawl_VipSearchOptimize__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../crawl/VipSearchOptimize */ "./src/ts/crawl/VipSearchOptimize.ts");
 // 初始化 artwork 搜索页
+
 
 
 
@@ -15707,6 +15717,20 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             }
         }
         this.listPageFinished++;
+        // 每抓取 10 页，取出最后一个作品的 id，检查其是否符合要求
+        // 如果不符合要求，就不再抓取剩余列表页
+        // 这里使用本页 api 里返回的数据，而非 store.idList 的数据，
+        // 因为如果作品被过滤掉了，就不会储存在 store.idList 里
+        if (this.listPageFinished > 0 && this.listPageFinished % 10 === 0) {
+            console.log(`已抓取 ${this.listPageFinished} 页，检查最后一个作品的收藏数量`);
+            const lastWork = data.data[data.data.length - 1];
+            const check = await _crawl_VipSearchOptimize__WEBPACK_IMPORTED_MODULE_25__.vipSearchOptimize.checkWork(lastWork.id, 'illusts');
+            if (check) {
+                _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'));
+                _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取完成'));
+                return this.getIdListFinished();
+            }
+        }
         _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取进度2', this.listPageFinished.toString(), this.needCrawlPageCount.toString()), 1, false);
         if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
             // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
@@ -18634,7 +18658,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _crawl_VipSearchOptimize__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../crawl/VipSearchOptimize */ "./src/ts/crawl/VipSearchOptimize.ts");
 // 初始化小说搜索页
+
 
 
 
@@ -18889,6 +18915,20 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             }
         }
         this.listPageFinished++;
+        // 每抓取 10 页，取出最后一个作品的 id，检查其是否符合要求
+        // 如果不符合要求，就不再抓取剩余列表页
+        // 这里使用本页 api 里返回的数据，而非 store.idList 的数据，
+        // 因为如果作品被过滤掉了，就不会储存在 store.idList 里
+        if (this.listPageFinished > 0 && this.listPageFinished % 10 === 0) {
+            console.log(`已抓取 ${this.listPageFinished} 页，检查最后一个作品的收藏数量`);
+            const lastWork = data.data[data.data.length - 1];
+            const check = await _crawl_VipSearchOptimize__WEBPACK_IMPORTED_MODULE_18__.vipSearchOptimize.checkWork(lastWork.id, 'novels');
+            if (check) {
+                _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'));
+                _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取完成'));
+                return this.getIdListFinished();
+            }
+        }
         _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取进度2', this.listPageFinished.toString(), this.needCrawlPageCount.toString()), 1, false);
         if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
             // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
@@ -19000,6 +19040,7 @@ class InitPageBase {
         this.ajaxThreadsDefault = 10; // 抓取作品数据时的并发请求数量默认值，也是最大值
         this.ajaxThread = this.ajaxThreadsDefault; // 抓取时的并发请求数
         this.finishedRequest = 0; // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
+        this.crawlFinishBecauseStopCrawl = false;
         this.log429ErrorTip = _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.debounce(() => {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取被限制时返回空结果的提示'));
         }, 500);
@@ -19139,6 +19180,7 @@ class InitPageBase {
         this.getMultipleSetting();
         this.showTip();
         this.finishedRequest = 0;
+        this.crawlFinishBecauseStopCrawl = false;
         _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = false;
         // 进入第一个抓取流程
         this.nextStep();
@@ -19164,6 +19206,7 @@ class InitPageBase {
             }
             this.getMultipleSetting();
             this.finishedRequest = 0;
+            this.crawlFinishBecauseStopCrawl = false;
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = false;
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = idList;
             this.getIdListFinished();
@@ -19302,12 +19345,13 @@ class InitPageBase {
     // 每当获取完一个作品的信息
     async afterGetWorksData(data) {
         this.logResultNumber();
-        // 抓取可能中途停止，保留抓取结果
+        // 抓取可能中途停止，此时保留抓取结果
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
             return this.crawlFinished();
         }
         // 如果会员搜索优化策略指示停止抓取，则立即进入完成状态
-        if (data && (await _VipSearchOptimize__WEBPACK_IMPORTED_MODULE_16__.vipSearchOptimize.stopCrawl(data))) {
+        if (data && (await _VipSearchOptimize__WEBPACK_IMPORTED_MODULE_16__.vipSearchOptimize.checkBookmarkCount(data))) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'));
             // 指示抓取已停止
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = true;
             return this.crawlFinished();
@@ -19349,6 +19393,15 @@ class InitPageBase {
     }
     // 抓取完毕
     crawlFinished() {
+        // 当下载器没有处于慢速抓取模式时，会使用 10 个并发请求
+        // 此时如果第一个请求触发了停止抓取 states.stopCrawl，这 10 个都会进入这里
+        // 所以我设置了个一次性的标记，防止重复执行这里的代码
+        if (this.crawlFinishBecauseStopCrawl) {
+            return;
+        }
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
+            this.crawlFinishBecauseStopCrawl = true;
+        }
         if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length === 0) {
             return this.noResult();
         }
@@ -19764,6 +19817,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+
 
 
 
@@ -19775,8 +19830,8 @@ __webpack_require__.r(__webpack_exports__);
 class VipSearchOptimize {
     constructor() {
         // 在哪些页面上启用
-        this.enablePageType = [_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkSearch];
-        // 小说搜索页面不需要优化，因为列表数据中包含了每个作品的收藏数
+        this.enablePageType = [_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkSearch, _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelSearch];
+        // 小说搜索页面的列表数据中已经包含了每个作品的收藏数，但是依然需要在这个模块里进行优化处理
         // 只有会员才能使用的排序方式（按热门度排序）
         this.vipOrders = [
             'popular_d',
@@ -19808,15 +19863,39 @@ class VipSearchOptimize {
         this.vipSearchOptimize = false;
         this.filterFailed = 0;
     }
-    /**在抓取列表页阶段，接收作品 id ，检查最后一个作品，如果收藏数低于指定值，则停止抓取 */
-    async checckWork(id) {
-        // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
-        if (!this.vipSearchOptimize || !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumSwitch) {
-            return false;
-        }
+    /**在抓取列表页阶段，每隔一定页数，接收最后一个作品的 id，检查它的收藏数量，如果收藏数低于指定值，则停止抓取
+     *
+     * 返回值 true 表示停止抓取
+     */
+    async checkWork(id, workType) {
+        return new Promise(async (resolve) => {
+            // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
+            if (!this.vipSearchOptimize || !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumSwitch) {
+                return resolve(false);
+            }
+            let bmk = 99999999;
+            if (workType === 'novels') {
+                const data = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getNovelData(id);
+                bmk = data.body.bookmarkCount;
+            }
+            else {
+                const data = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getArtworkData(id);
+                bmk = data.body.bookmarkCount;
+            }
+            const check = bmk >= _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumMin;
+            if (!check) {
+                console.log(bmk);
+                console.log('抽查的作品收藏数量低于最低要求，停止抓取');
+                return resolve(true);
+            }
+            return resolve(false);
+        });
     }
-    /**在抓取作品详情阶段，接收作品数据，判断收藏数量是否达到要求，并据此指示是否应该停止抓取作品 */
-    async stopCrawl(data) {
+    /**在抓取作品详情阶段，接收作品数据，判断收藏数量是否达到要求，并据此指示是否应该停止抓取作品
+     *
+     * 返回值 true 表示停止抓取
+     */
+    async checkBookmarkCount(data) {
         // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
         if (!this.vipSearchOptimize || !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumSwitch) {
             return false;

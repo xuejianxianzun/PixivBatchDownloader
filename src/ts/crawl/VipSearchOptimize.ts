@@ -4,6 +4,8 @@ import { settings } from '../setting/Settings'
 import { ArtworkData, NovelData } from './CrawlResult.d'
 import { Utils } from '../utils/Utils'
 import { Tools } from '../Tools'
+import { WorkTypeString } from '../store/StoreType'
+import { API } from '../API'
 
 // 当 Pixiv 会员在搜索页面按热门度排序，并且设置了收藏数量时，可以进行优化以减少不必要的抓取
 // 原理：当会员使用热门度排序时，Pixiv 返回的数据是按收藏数量从高到低排序的。（但不是严格一致，经常有少量作品顺序不对）
@@ -14,8 +16,11 @@ class VipSearchOptimize {
   }
 
   // 在哪些页面上启用
-  private readonly enablePageType: number[] = [pageType.list.ArtworkSearch]
-  // 小说搜索页面不需要优化，因为列表数据中包含了每个作品的收藏数
+  private readonly enablePageType: number[] = [
+    pageType.list.ArtworkSearch,
+    pageType.list.NovelSearch,
+  ]
+  // 小说搜索页面的列表数据中本身就含有每个作品的收藏数，但是依然需要在这个模块里进行优化处理
 
   // 只有会员才能使用的排序方式（按热门度排序）
   private readonly vipOrders: string[] = [
@@ -52,17 +57,45 @@ class VipSearchOptimize {
     this.filterFailed = 0
   }
 
-  /**在抓取列表页阶段，接收作品 id ，检查最后一个作品，如果收藏数低于指定值，则停止抓取 */
-public async checckWork(id:string|number){
-  // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
-  if (!this.vipSearchOptimize || !settings.BMKNumSwitch) {
-    return false
+  /**在抓取列表页阶段，每隔一定页数，接收最后一个作品的 id，检查它的收藏数量，如果收藏数低于指定值，则停止抓取
+   *
+   * 返回值 true 表示停止抓取
+   */
+  public async checkWork(
+    id: string,
+    workType: WorkTypeString
+  ): Promise<boolean> {
+    return new Promise(async (resolve) => {
+      // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
+      if (!this.vipSearchOptimize || !settings.BMKNumSwitch) {
+        return resolve(false)
+      }
+
+      let bmk = 99999999
+      if (workType === 'novels') {
+        const data = await API.getNovelData(id)
+        bmk = data.body.bookmarkCount
+      } else {
+        const data = await API.getArtworkData(id)
+        bmk = data.body.bookmarkCount
+      }
+
+      const check = bmk >= settings.BMKNumMin
+      console.log(bmk)
+      if (!check) {
+        console.log('抽查的作品收藏数量低于最低要求，停止抓取')
+        return resolve(true)
+      }
+
+      return resolve(false)
+    })
   }
 
-}
-
-  /**在抓取作品详情阶段，接收作品数据，判断收藏数量是否达到要求，并据此指示是否应该停止抓取作品 */
-  public async stopCrawl(data: NovelData | ArtworkData) {
+  /**在抓取作品详情阶段，接收作品数据，判断收藏数量是否达到要求，并据此指示是否应该停止抓取作品
+   *
+   * 返回值 true 表示停止抓取
+   */
+  public async checkBookmarkCount(data: NovelData | ArtworkData) {
     // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
     if (!this.vipSearchOptimize || !settings.BMKNumSwitch) {
       return false
@@ -74,15 +107,13 @@ public async checckWork(id:string|number){
     }
 
     // 在按热门度排序时，作品是按收藏数量从高到低排列的。因此检查作品的收藏数量是否满足用户设置的最小收藏数量
-    const check =  data.body.bookmarkCount >= settings.BMKNumMin 
+    const check = data.body.bookmarkCount >= settings.BMKNumMin
     // 如果作品的收藏数量小于用户要求的最低收藏数量，那么它就不符合要求
     // 这里不会检查用户设置的最大收藏数量，也不检查日均收藏数量，否则可能在某些情况下出现误判
     // 假设用户设置的收藏数量条件为： >= 100 && <= 200 如果检查最大收藏数量，那么排在最前面的许多作品都不符合要求
     // 所以只检查最小收藏数量
 
     if (!check) {
-      console.log(data.body.bookmarkCount)
-      console.log(this.filterFailed)
       this.filterFailed++
     } else {
       this.filterFailed = 0

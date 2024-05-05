@@ -11,7 +11,7 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '16.9.00'
+  private flag = '17.0.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {

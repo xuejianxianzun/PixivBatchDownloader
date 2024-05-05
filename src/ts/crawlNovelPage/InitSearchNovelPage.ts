@@ -16,9 +16,9 @@ import { EVT } from '../EVT'
 import { msgBox } from '../MsgBox'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { states } from '../store/States'
-import { pageType } from '../PageType'
 import { Config } from '../Config'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
+import { vipSearchOptimize } from '../crawl/VipSearchOptimize'
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {
@@ -303,6 +303,23 @@ class InitSearchNovelPage extends InitPageBase {
     }
 
     this.listPageFinished++
+
+    // 每抓取 10 页，取出最后一个作品的 id，检查其是否符合要求
+    // 如果不符合要求，就不再抓取剩余列表页
+    // 这里使用本页 api 里返回的数据，而非 store.idList 的数据，
+    // 因为如果作品被过滤掉了，就不会储存在 store.idList 里
+    if (this.listPageFinished > 0 && this.listPageFinished % 10 === 0) {
+      console.log(
+        `已抓取 ${this.listPageFinished} 页，检查最后一个作品的收藏数量`
+      )
+      const lastWork = data.data[data.data.length - 1]
+      const check = await vipSearchOptimize.checkWork(lastWork.id, 'novels')
+      if (check) {
+        log.log(lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'))
+        log.log(lang.transl('_列表页抓取完成'))
+        return this.getIdListFinished()
+      }
+    }
 
     log.log(
       lang.transl(
