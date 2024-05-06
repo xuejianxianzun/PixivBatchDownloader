@@ -99,7 +99,7 @@ class Bookmark {
         const status = await this.sendRequest(id, type, tags!, _restrict)
         this.nextTaskID++
         return resolve(status)
-      }, Config.slowCrawlDealy)
+      }, settings.slowCrawlDealy)
     })
   }
 
@@ -149,7 +149,7 @@ class Bookmark {
           break
         }
 
-        await Utils.sleep(Config.slowCrawlDealy)
+        await Utils.sleep(settings.slowCrawlDealy)
       }
 
       log.persistentRefresh()

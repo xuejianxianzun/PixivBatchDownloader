@@ -14,6 +14,7 @@ import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
 import { Config } from '../Config'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
+import { settings } from '../setting/Settings'
 
 class InitNewArtworkPage extends InitPageBase {
   constructor() {
@@ -159,7 +160,7 @@ class InitNewArtworkPage extends InitPageBase {
     if (states.slowCrawlMode) {
       setTimeoutWorker.set(() => {
         this.getIdList()
-      }, Config.slowCrawlDealy)
+      }, settings.slowCrawlDealy)
     } else {
       this.getIdList()
     }

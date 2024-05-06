@@ -27,6 +27,7 @@ import { EVT } from '../EVT'
 import { WorkBookmarkData, bookmark } from '../Bookmark'
 import { showHelp } from '../ShowHelp'
 import { msgBox } from '../MsgBox'
+import { settings } from '../setting/Settings'
 
 class InitBookmarkPage extends InitPageBase {
   constructor() {
@@ -522,7 +523,7 @@ class InitBookmarkPage extends InitPageBase {
       if (states.slowCrawlMode) {
         setTimeoutWorker.set(() => {
           this.getIdList()
-        }, Config.slowCrawlDealy)
+        }, settings.slowCrawlDealy)
       } else {
         this.getIdList()
       }

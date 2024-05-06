@@ -44,6 +44,8 @@ abstract class InitPageBase {
 
   protected finishedRequest = 0 // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
 
+  protected crawlFinishBecauseStopCrawl = false
+
   // 子组件必须调用 init 方法，并且不可以修改 init 方法
   protected init() {
     this.setFormOption()
@@ -220,6 +222,8 @@ abstract class InitPageBase {
 
     this.finishedRequest = 0
 
+    this.crawlFinishBecauseStopCrawl = false
+
     states.stopCrawl = false
 
     // 进入第一个抓取流程
@@ -251,6 +255,8 @@ abstract class InitPageBase {
       this.getMultipleSetting()
 
       this.finishedRequest = 0
+
+      this.crawlFinishBecauseStopCrawl = false
 
       states.stopCrawl = false
 
@@ -425,13 +431,14 @@ abstract class InitPageBase {
   ): Promise<void> {
     this.logResultNumber()
 
-    // 抓取可能中途停止，保留抓取结果
+    // 抓取可能中途停止，此时保留抓取结果
     if (states.stopCrawl) {
       return this.crawlFinished()
     }
 
     // 如果会员搜索优化策略指示停止抓取，则立即进入完成状态
-    if (data && (await vipSearchOptimize.stopCrawl(data))) {
+    if (data && (await vipSearchOptimize.checkBookmarkCount(data))) {
+      log.log(lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'))
       // 指示抓取已停止
       states.stopCrawl = true
       return this.crawlFinished()
@@ -458,7 +465,7 @@ abstract class InitPageBase {
       if (states.slowCrawlMode) {
         setTimeoutWorker.set(() => {
           this.getWorksData()
-        }, Config.slowCrawlDealy)
+        }, settings.slowCrawlDealy)
       } else {
         this.getWorksData()
       }
@@ -474,6 +481,16 @@ abstract class InitPageBase {
 
   // 抓取完毕
   protected crawlFinished() {
+    // 当下载器没有处于慢速抓取模式时，会使用 10 个并发请求
+    // 此时如果第一个请求触发了停止抓取 states.stopCrawl，这 10 个都会进入这里
+    // 所以我设置了个一次性的标记，防止重复执行这里的代码
+    if (this.crawlFinishBecauseStopCrawl) {
+      return
+    }
+
+    if (states.stopCrawl) {
+      this.crawlFinishBecauseStopCrawl = true
+    }
     if (store.result.length === 0) {
       return this.noResult()
     }
