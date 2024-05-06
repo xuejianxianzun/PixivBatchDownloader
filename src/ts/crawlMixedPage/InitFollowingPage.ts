@@ -17,6 +17,7 @@ import { showHelp } from '../ShowHelp'
 import { msgBox } from '../MsgBox'
 import { token } from '../Token'
 import { EVT } from '../EVT'
+import { settings } from '../setting/Settings'
 
 interface UserInfo {
   userId: string
@@ -359,8 +360,7 @@ class InitFollowingPage extends InitPageBase {
     const url = URL.createObjectURL(blob)
     Utils.downloadFile(
       url,
-      `following list-toal ${
-        this.userList.length
+      `following list-toal ${this.userList.length
       }-from user ${Utils.getURLPathField(
         window.location.pathname,
         'users'
@@ -571,9 +571,8 @@ class InitFollowingPage extends InitPageBase {
 
   private async clickFollowButton(userID: string): Promise<HTMLIFrameElement> {
     return new Promise(async (resolve, reject) => {
-      const url = `https://www.pixiv.net/${
-        lang.htmlLangType === 'en' ? 'en/' : ''
-      }users/${userID}`
+      const url = `https://www.pixiv.net/${lang.htmlLangType === 'en' ? 'en/' : ''
+        }users/${userID}`
       const res = await fetch(url)
       // const text = await res.text()
       const iframe = document.createElement('iframe')
@@ -632,7 +631,7 @@ class InitFollowingPage extends InitPageBase {
     if (states.slowCrawlMode) {
       setTimeoutWorker.set(() => {
         this.getIdList()
-      }, Config.slowCrawlDealy)
+      }, settings.slowCrawlDealy)
     } else {
       this.getIdList()
     }

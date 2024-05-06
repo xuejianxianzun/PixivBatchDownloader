@@ -19,6 +19,7 @@ import { states } from '../store/States'
 import { Config } from '../Config'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { vipSearchOptimize } from '../crawl/VipSearchOptimize'
+import { settings } from '../setting/Settings'
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {
@@ -336,7 +337,7 @@ class InitSearchNovelPage extends InitPageBase {
       if (states.slowCrawlMode) {
         setTimeoutWorker.set(() => {
           this.getIdList()
-        }, Config.slowCrawlDealy)
+        }, settings.slowCrawlDealy)
       } else {
         this.getIdList()
       }

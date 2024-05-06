@@ -730,7 +730,7 @@ class Bookmark {
                 const status = await this.sendRequest(id, type, tags, _restrict);
                 this.nextTaskID++;
                 return resolve(status);
-            }, _Config__WEBPACK_IMPORTED_MODULE_1__.Config.slowCrawlDealy);
+            }, _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.slowCrawlDealy);
         });
     }
     async waitCallMe(NO) {
@@ -768,7 +768,7 @@ class Bookmark {
                 if (data.body.works.length === 0) {
                     break;
                 }
-                await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sleep(_Config__WEBPACK_IMPORTED_MODULE_1__.Config.slowCrawlDealy);
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.slowCrawlDealy);
             }
             _Log__WEBPACK_IMPORTED_MODULE_4__.log.persistentRefresh();
             resolve(result);
@@ -1277,8 +1277,6 @@ Config.BookmarkCountLimit = 9999999;
 Config.worksNumberLimit = 9999999999;
 /**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
 Config.retryTime = 200000;
-/**慢速抓取模式下，每个抓取请求之间的间隔时间（ms） */
-Config.slowCrawlDealy = 1600;
 /**浏览器是否处于移动端模式 */
 Config.mobile = navigator.userAgent.includes('Mobile');
 
@@ -8339,7 +8337,23 @@ const langText = {
         '以降の作品のブックマーク数がユーザーが設定した数よりも少ないことを検出し、以降の作品をスキップする。',
         '후속 작품의 북마크 수가 사용자가 설정한 수보다 적은 것으로 감지되어 후속 작품을 건너뜁니다.',
         'Обнаружено, что количество закладок последующих произведений меньше количества, установленного пользователем, и последующие произведения пропускаются.',
-    ]
+    ],
+    _间隔时间: [
+        '间隔时间：',
+        '間隔時間：',
+        'Interval time:',
+        'インターバル時間：',
+        '간격 시간:',
+        'Интервал времени:',
+    ],
+    _更新说明v1700: [
+        '- 现在你可以设置慢速抓取时的间隔时间了<br>- 优化了某些情况下的抓取效率<br>- 优化了动图保存为 GIF 图像时的画质',
+        '- 現在你可以設定慢速抓取時的間隔時間了<br>- 優化了某些情況下的抓取效率<br>- 優化了動圖儲存為 GIF 影象時的畫質',
+        '- Now you can set the interval for slow crawling<br>- Optimized the crawling efficiency in some cases<br> - Optimized the image quality when saving animated images as GIF images',
+        '- 低速クロールの間隔を設定できるようになりました<br>- 場合によってはクロール効率を最適化しました<br> - アニメーション画像をGIF画像として保存する際の画質を最適化しました',
+        '- 이제 느린 크롤링 간격을 설정할 수 있습니다.<br>- 경우에 따라 크롤링 효율성이 최적화되었습니다.<br> - 애니메이션 이미지를 GIF 이미지로 저장할 때 이미지 품질이 최적화되었습니다.',
+        '– Теперь вы можете установить интервал для медленного сканирования.<br> – Оптимизирована эффективность сканирования в некоторых случаях<br> – Оптимизировано качество изображения при сохранении анимированных изображений в формате GIF.',
+    ],
 };
 
 
@@ -12270,22 +12284,17 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '16.9.00';
+        this.flag = '17.0.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <strong><span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</span></strong>
-      <br>
-      <span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_保存作品的简介')}</span>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在xx选项卡里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载'))}
-      <br>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_更新说明v1700')}</span>
       `;
+            // <strong><span>${lang.transl('_新增功能')}:</span></strong>
+            // <span class="blue">${lang.transl('_保存作品的简介')}</span>
             // ${lang.transl(
             //   '_你可以在更多选项卡的xx分类里找到它',
             //   lang.transl('_增强')
@@ -13697,7 +13706,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Token */ "./src/ts/Token.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 
 
 
@@ -13749,7 +13758,7 @@ class UnBookmarkWorks {
             else {
                 _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_6__.setTimeoutWorker.set(() => {
                     return resolve();
-                }, _Config__WEBPACK_IMPORTED_MODULE_7__.Config.slowCrawlDealy);
+                }, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
             }
         });
     }
@@ -14669,8 +14678,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 // 初始化 本站的最新作品 artwork 页面
 
 
@@ -14799,9 +14808,9 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
         // 继续抓取
         this.option.lastId = data.body.lastId;
         if (_store_States__WEBPACK_IMPORTED_MODULE_10__.states.slowCrawlMode) {
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_12__.setTimeoutWorker.set(() => {
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_11__.setTimeoutWorker.set(() => {
                 this.getIdList();
-            }, _Config__WEBPACK_IMPORTED_MODULE_11__.Config.slowCrawlDealy);
+            }, _setting_Settings__WEBPACK_IMPORTED_MODULE_12__.settings.slowCrawlDealy);
         }
         else {
             this.getIdList();
@@ -15737,7 +15746,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.slowCrawlMode) {
                 _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_23__.setTimeoutWorker.set(() => {
                     this.getIdList();
-                }, _Config__WEBPACK_IMPORTED_MODULE_21__.Config.slowCrawlDealy);
+                }, _setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.slowCrawlDealy);
             }
             else {
                 this.getIdList();
@@ -16161,8 +16170,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 // 初始化 关注的用户的新作品页面
 
 
@@ -16342,9 +16351,9 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         else {
             // 继续抓取
             if (_store_States__WEBPACK_IMPORTED_MODULE_10__.states.slowCrawlMode) {
-                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_12__.setTimeoutWorker.set(() => {
+                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_11__.setTimeoutWorker.set(() => {
                     this.getIdList();
-                }, _Config__WEBPACK_IMPORTED_MODULE_11__.Config.slowCrawlDealy);
+                }, _setting_Settings__WEBPACK_IMPORTED_MODULE_12__.settings.slowCrawlDealy);
             }
             else {
                 this.getIdList();
@@ -16395,7 +16404,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 // 初始化新版收藏页面
+
 
 
 
@@ -16765,7 +16776,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
             if (_store_States__WEBPACK_IMPORTED_MODULE_13__.states.slowCrawlMode) {
                 _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_14__.setTimeoutWorker.set(() => {
                     this.getIdList();
-                }, _Config__WEBPACK_IMPORTED_MODULE_12__.Config.slowCrawlDealy);
+                }, _setting_Settings__WEBPACK_IMPORTED_MODULE_22__.settings.slowCrawlDealy);
             }
             else {
                 this.getIdList();
@@ -16858,13 +16869,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/CreateCSV */ "./src/ts/utils/CreateCSV.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../Token */ "./src/ts/Token.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../Token */ "./src/ts/Token.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 // 初始化关注页面、好 P 友页面、粉丝页面
 
 
@@ -16939,17 +16950,17 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             this.readyCrawl();
         });
         exportButton.addEventListener('mouseenter', () => {
-            _ShowHelp__WEBPACK_IMPORTED_MODULE_14__.showHelp.show('tipExportFollowingUserList', _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入导出关注用户列表的说明'));
+            _ShowHelp__WEBPACK_IMPORTED_MODULE_13__.showHelp.show('tipExportFollowingUserList', _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入导出关注用户列表的说明'));
         });
         const batchFollowButton = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_批量关注用户');
         batchFollowButton.addEventListener('click', async () => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_10__.states.busy) {
-                return _Toast__WEBPACK_IMPORTED_MODULE_13__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
+                return _Toast__WEBPACK_IMPORTED_MODULE_12__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
             }
             if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.loggedUserID === '') {
-                return _MsgBox__WEBPACK_IMPORTED_MODULE_15__.msgBox.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_作品页状态码401'));
+                return _MsgBox__WEBPACK_IMPORTED_MODULE_14__.msgBox.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_作品页状态码401'));
             }
-            _EVT__WEBPACK_IMPORTED_MODULE_17__.EVT.fire('clearLog');
+            _EVT__WEBPACK_IMPORTED_MODULE_16__.EVT.fire('clearLog');
             _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_批量关注用户'));
             this.importFollowedUserIDs = await this.importUserList();
             _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入的用户ID数量') + this.importFollowedUserIDs.length);
@@ -16962,7 +16973,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             this.task = 'batchFollow';
             _store_States__WEBPACK_IMPORTED_MODULE_10__.states.slowCrawlMode = true;
             _store_States__WEBPACK_IMPORTED_MODULE_10__.states.stopCrawl = false;
-            _EVT__WEBPACK_IMPORTED_MODULE_17__.EVT.fire('crawlStart');
+            _EVT__WEBPACK_IMPORTED_MODULE_16__.EVT.fire('crawlStart');
             // 批量添加关注时，获取所有关注的用户
             this.crawlNumber = -1;
             // 把页面类型设置为 0，始终获取关注的用户列表
@@ -16974,7 +16985,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             this.getUserList();
         });
         batchFollowButton.addEventListener('mouseenter', () => {
-            _ShowHelp__WEBPACK_IMPORTED_MODULE_14__.showHelp.show('tipExportFollowingUserList', _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入导出关注用户列表的说明'));
+            _ShowHelp__WEBPACK_IMPORTED_MODULE_13__.showHelp.show('tipExportFollowingUserList', _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入导出关注用户列表的说明'));
         });
     }
     setFormOption() {
@@ -17085,7 +17096,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             this.exportCSV();
             const msg = '✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导出关注列表CSV');
             _Log__WEBPACK_IMPORTED_MODULE_6__.log.success(msg);
-            _Toast__WEBPACK_IMPORTED_MODULE_13__.toast.success(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_12__.toast.success(msg);
             this.stopCrawl();
             return;
         }
@@ -17093,7 +17104,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             this.exportJSON();
             const msg = '✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导出关注列表');
             _Log__WEBPACK_IMPORTED_MODULE_6__.log.success(msg);
-            _Toast__WEBPACK_IMPORTED_MODULE_13__.toast.success(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_12__.toast.success(msg);
             this.stopCrawl();
             return;
         }
@@ -17108,7 +17119,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         _store_States__WEBPACK_IMPORTED_MODULE_10__.states.slowCrawlMode = false;
         _store_States__WEBPACK_IMPORTED_MODULE_10__.states.busy = false;
         this.resetGetIdListStatus();
-        _EVT__WEBPACK_IMPORTED_MODULE_17__.EVT.fire('stopCrawl');
+        _EVT__WEBPACK_IMPORTED_MODULE_16__.EVT.fire('stopCrawl');
     }
     exportCSV() {
         // 添加用户信息
@@ -17131,7 +17142,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     async importUserList() {
         return new Promise(async (resolve) => {
             const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.loadJSONFile().catch((err) => {
-                return _MsgBox__WEBPACK_IMPORTED_MODULE_15__.msgBox.error(err);
+                return _MsgBox__WEBPACK_IMPORTED_MODULE_14__.msgBox.error(err);
             }));
             if (!loadedJSON) {
                 return resolve([]);
@@ -17140,7 +17151,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             if (!Array.isArray(loadedJSON) ||
                 loadedJSON.length === 0 ||
                 typeof loadedJSON[0] !== 'string') {
-                _Toast__WEBPACK_IMPORTED_MODULE_13__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_格式错误'));
+                _Toast__WEBPACK_IMPORTED_MODULE_12__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_格式错误'));
                 return resolve([]);
             }
             return resolve(loadedJSON);
@@ -17166,14 +17177,14 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
                 if (this.stopAddFollow) {
                     const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_任务已中止');
                     _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_15__.msgBox.error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_14__.msgBox.error(msg);
                     return resolve();
                 }
                 if (this.sendReqNumber >= this.dailyLimit) {
                     this.stopAddFollow = true;
                     const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_新增的关注用户达到每日限制', this.dailyLimit.toString());
                     _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_15__.msgBox.error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_14__.msgBox.error(msg);
                     return resolve();
                 }
                 number++;
@@ -17187,7 +17198,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             }
             this.logProgress(number, total, this.sendReqNumber);
             _Log__WEBPACK_IMPORTED_MODULE_6__.log.success('✓ ' + taskName);
-            _MsgBox__WEBPACK_IMPORTED_MODULE_15__.msgBox.success('✓ ' + taskName);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_14__.msgBox.success('✓ ' + taskName);
             return resolve();
         });
     }
@@ -17213,7 +17224,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
                 return resolve(200);
             }
             // 不需要携带 need_recaptcha_enterprise_score_token 时可以直接添加关注
-            const status = await _API__WEBPACK_IMPORTED_MODULE_4__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_16__.token.token);
+            const status = await _API__WEBPACK_IMPORTED_MODULE_4__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_15__.token.token);
             if (status !== 200) {
                 const errorMsg = `Error: ${_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID)} Status: ${status}`;
                 if (status === 404) {
@@ -17226,8 +17237,8 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
                     else {
                         // 404 时尝试重新获取 token，然后重试请求（仅执行一次）
                         this.tokenHasUpdated = true;
-                        await _Token__WEBPACK_IMPORTED_MODULE_16__.token.reset();
-                        await _API__WEBPACK_IMPORTED_MODULE_4__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_16__.token.token);
+                        await _Token__WEBPACK_IMPORTED_MODULE_15__.token.reset();
+                        await _API__WEBPACK_IMPORTED_MODULE_4__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_15__.token.token);
                     }
                 }
                 else if (status === 400) {
@@ -17244,7 +17255,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
                     _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(errorMsg);
                     const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_你的账号已经被Pixiv限制');
                     _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_15__.msgBox.error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_14__.msgBox.error(msg);
                     this.stopAddFollow = true;
                     return resolve(status);
                 }
@@ -17257,7 +17268,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             // 关注用户的 API 也会触发 429 错误，此时获取作品数据的话会返回 429，
             // 但是关注用户的 API 依然返回 200，并且返回值也正常，但实际上关注用户的操作失败了。无法判断到底有没有关注成功
             // 所以需要限制添加的速度。我用 1400ms 依然会触发 429，所以需要使用更大的时间间隔，以确保不会触发 429
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_12__.setTimeoutWorker.set(() => {
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_11__.setTimeoutWorker.set(() => {
                 return resolve(status);
             }, _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
         });
@@ -17265,7 +17276,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     fun(userID, iframe) {
         return new Promise(async (resolve) => {
             // 等待一段时间，默认操作完成。但是如果此时一些请求尚未完成，可能会被取消。所以这个时间最好稍大一点
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_12__.setTimeoutWorker.set(() => {
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_11__.setTimeoutWorker.set(() => {
                 return resolve(iframe);
             }, _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
             const button = iframe.contentDocument?.querySelector('button[data-click-label]');
@@ -17292,7 +17303,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             iframe.src = url;
             // 在一定时间后，强制执行回调，不管 iframe.onload 的状态。
             // 因为有时一些广告脚本可能会加载失败，导致很久才能进入 onload。那样会等待太久。
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_12__.setTimeoutWorker.set(async () => {
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_11__.setTimeoutWorker.set(async () => {
                 const _iframe = await this.fun(userID, iframe);
                 return resolve(_iframe);
             }, _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
@@ -17321,9 +17332,9 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             return this.getIdListFinished();
         }
         if (_store_States__WEBPACK_IMPORTED_MODULE_10__.states.slowCrawlMode) {
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_12__.setTimeoutWorker.set(() => {
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_11__.setTimeoutWorker.set(() => {
                 this.getIdList();
-            }, _Config__WEBPACK_IMPORTED_MODULE_11__.Config.slowCrawlDealy);
+            }, _setting_Settings__WEBPACK_IMPORTED_MODULE_17__.settings.slowCrawlDealy);
         }
         else {
             this.getIdList();
@@ -18146,8 +18157,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 // 初始化 本站的最新作品 小说页面
 
 
@@ -18266,9 +18277,9 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         // 继续抓取
         this.option.lastId = data.body.lastId;
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode) {
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_11__.setTimeoutWorker.set(() => {
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(() => {
                 this.getIdList();
-            }, _Config__WEBPACK_IMPORTED_MODULE_10__.Config.slowCrawlDealy);
+            }, _setting_Settings__WEBPACK_IMPORTED_MODULE_11__.settings.slowCrawlDealy);
         }
         else {
             this.getIdList();
@@ -18659,7 +18670,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
 /* harmony import */ var _crawl_VipSearchOptimize__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../crawl/VipSearchOptimize */ "./src/ts/crawl/VipSearchOptimize.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 // 初始化小说搜索页
+
 
 
 
@@ -18935,7 +18948,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             if (_store_States__WEBPACK_IMPORTED_MODULE_15__.states.slowCrawlMode) {
                 _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_17__.setTimeoutWorker.set(() => {
                     this.getIdList();
-                }, _Config__WEBPACK_IMPORTED_MODULE_16__.Config.slowCrawlDealy);
+                }, _setting_Settings__WEBPACK_IMPORTED_MODULE_19__.settings.slowCrawlDealy);
             }
             else {
                 this.getIdList();
@@ -19376,7 +19389,7 @@ class InitPageBase {
             if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode) {
                 _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__.setTimeoutWorker.set(() => {
                     this.getWorksData();
-                }, _Config__WEBPACK_IMPORTED_MODULE_22__.Config.slowCrawlDealy);
+                }, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawlDealy);
             }
             else {
                 this.getWorksData();
@@ -19830,8 +19843,11 @@ __webpack_require__.r(__webpack_exports__);
 class VipSearchOptimize {
     constructor() {
         // 在哪些页面上启用
-        this.enablePageType = [_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkSearch, _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelSearch];
-        // 小说搜索页面的列表数据中已经包含了每个作品的收藏数，但是依然需要在这个模块里进行优化处理
+        this.enablePageType = [
+            _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkSearch,
+            _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelSearch,
+        ];
+        // 小说搜索页面的列表数据中本身就含有每个作品的收藏数，但是依然需要在这个模块里进行优化处理
         // 只有会员才能使用的排序方式（按热门度排序）
         this.vipOrders = [
             'popular_d',
@@ -19883,8 +19899,8 @@ class VipSearchOptimize {
                 bmk = data.body.bookmarkCount;
             }
             const check = bmk >= _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumMin;
+            console.log(bmk);
             if (!check) {
-                console.log(bmk);
                 console.log('抽查的作品收藏数量低于最低要求，停止抓取');
                 return resolve(true);
             }
@@ -19911,8 +19927,6 @@ class VipSearchOptimize {
         // 假设用户设置的收藏数量条件为： >= 100 && <= 200 如果检查最大收藏数量，那么排在最前面的许多作品都不符合要求
         // 所以只检查最小收藏数量
         if (!check) {
-            console.log(data.body.bookmarkCount);
-            console.log(this.filterFailed);
             this.filterFailed++;
         }
         else {
@@ -25677,7 +25691,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 
 
 
@@ -25767,7 +25781,7 @@ class BookmarkAllWorks {
                                 restrict: false,
                             });
                             res(id);
-                        }, this.idList.length >= 120 ? _Config__WEBPACK_IMPORTED_MODULE_9__.Config.slowCrawlDealy : 0);
+                        }, this.idList.length >= 120 ? _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.slowCrawlDealy : 0);
                     });
                 }
                 catch (error) {
@@ -28044,7 +28058,14 @@ const formHtml = `<form class="settingForm">
     <span class="subOptionWrap" data-show="slowCrawl">
     <span data-xztext="_当作品数量大于"></span>
     <input type="text" name="slowCrawlOnWorksNumber" class="setinput_style1 blue" value="100" style="width:60px;min-width: 60px;">
+
+    <span class="verticalSplit"></span>
+
+    <span data-xztext="_间隔时间"></span>
+    <input type="text" name="slowCrawlDealy" class="setinput_style1 blue" value="1600" placeholder="1600" style="width:60px;min-width: 60px;"> ms
+
     </span>
+
     </p>
 
     <p class="option" data-no="69">
@@ -28946,6 +28967,7 @@ class FormSettings {
                 'slowCrawlOnWorksNumber',
                 'exportLogExclude',
                 'PreviewDetailInfoWidth',
+                'slowCrawlDealy',
             ],
             radio: [
                 'ugoiraSaveAs',
@@ -29900,6 +29922,7 @@ class Settings {
             saveWorkDescription: false,
             saveEachDescription: false,
             summarizeDescription: false,
+            slowCrawlDealy: 1600,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -30124,6 +30147,9 @@ class Settings {
             }
         }
         // 对于一些不合法的值，重置为默认值
+        if (key === 'slowCrawlDealy' && value < 1000) {
+            value = 1000;
+        }
         if (key === 'firstFewImages' && value < 1) {
             value = this.defaultSettings[key];
         }

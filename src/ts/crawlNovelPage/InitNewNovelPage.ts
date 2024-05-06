@@ -13,6 +13,7 @@ import { Tools } from '../Tools'
 import { states } from '../store/States'
 import { Config } from '../Config'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
+import { settings } from '../setting/Settings'
 
 class InitNewNovelPage extends InitPageBase {
   constructor() {
@@ -40,7 +41,7 @@ class InitNewNovelPage extends InitPageBase {
     this.addCancelTimedCrawlBtn()
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected setFormOption() {
     // 个数/页数选项的提示
@@ -148,7 +149,7 @@ class InitNewNovelPage extends InitPageBase {
     if (states.slowCrawlMode) {
       setTimeoutWorker.set(() => {
         this.getIdList()
-      }, Config.slowCrawlDealy)
+      }, settings.slowCrawlDealy)
     } else {
       this.getIdList()
     }

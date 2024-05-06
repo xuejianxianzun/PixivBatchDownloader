@@ -16,6 +16,7 @@ import {
 import { states } from '../store/States'
 import { Config } from '../Config'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
+import { settings } from '../setting/Settings'
 
 class InitBookmarkNewPage extends InitPageBase {
   constructor() {
@@ -51,7 +52,7 @@ class InitBookmarkNewPage extends InitPageBase {
     this.addCancelTimedCrawlBtn()
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected setFormOption() {
     // 个数/页数选项的提示
@@ -216,7 +217,7 @@ class InitBookmarkNewPage extends InitPageBase {
       if (states.slowCrawlMode) {
         setTimeoutWorker.set(() => {
           this.getIdList()
-        }, Config.slowCrawlDealy)
+        }, settings.slowCrawlDealy)
       } else {
         this.getIdList()
       }

@@ -164,6 +164,7 @@ class FormSettings {
       'slowCrawlOnWorksNumber',
       'exportLogExclude',
       'PreviewDetailInfoWidth',
+      'slowCrawlDealy',
     ],
     radio: [
       'ugoiraSaveAs',

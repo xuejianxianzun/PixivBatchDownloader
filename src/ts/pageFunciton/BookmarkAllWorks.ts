@@ -9,6 +9,7 @@ import { log } from '../Log'
 import { msgBox } from '../MsgBox'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { Config } from '../Config'
+import { settings } from '../setting/Settings'
 
 // 一键收藏所有作品
 // 可以传入页面上的作品元素列表，也可以直接传入 id 列表
@@ -124,7 +125,7 @@ class BookmarkAllWorks {
                 })
                 res(id)
               },
-              this.idList.length >= 120 ? Config.slowCrawlDealy : 0
+              this.idList.length >= 120 ? settings.slowCrawlDealy : 0
             )
           })
         } catch (error) {
@@ -135,9 +136,8 @@ class BookmarkAllWorks {
           }
           let msg = ''
           if (e.status) {
-            msg = `${lang.transl('_发生错误原因')}${lang.transl('_错误代码')}${
-              e.status
-            }. ${lang.transl('_请稍后重试')}`
+            msg = `${lang.transl('_发生错误原因')}${lang.transl('_错误代码')}${e.status
+              }. ${lang.transl('_请稍后重试')}`
           } else {
             msg = `${lang.transl('_发生错误原因')}${lang.transl(
               '_未知错误'

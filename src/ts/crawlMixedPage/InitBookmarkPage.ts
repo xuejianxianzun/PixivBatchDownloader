@@ -27,6 +27,7 @@ import { EVT } from '../EVT'
 import { WorkBookmarkData, bookmark } from '../Bookmark'
 import { showHelp } from '../ShowHelp'
 import { msgBox } from '../MsgBox'
+import { settings } from '../setting/Settings'
 
 class InitBookmarkPage extends InitPageBase {
   constructor() {
@@ -258,8 +259,7 @@ class InitBookmarkPage extends InitPageBase {
           for (const result of resultList) {
             Utils.downloadFile(
               result.url,
-              `Bookmark list-total ${
-                result.total
+              `Bookmark list-total ${result.total
               }-from ${Tools.getPageTitle()}-${Utils.replaceUnsafeStr(
                 new Date().toLocaleString()
               )}.json`
@@ -490,8 +490,8 @@ class InitBookmarkPage extends InitPageBase {
                 (workData as ArtworkCommonData).illustType === undefined
                   ? 'novels'
                   : Tools.getWorkTypeString(
-                      (workData as ArtworkCommonData).illustType
-                    ),
+                    (workData as ArtworkCommonData).illustType
+                  ),
               id: workData.id,
             })
 
@@ -522,7 +522,7 @@ class InitBookmarkPage extends InitPageBase {
       if (states.slowCrawlMode) {
         setTimeoutWorker.set(() => {
           this.getIdList()
-        }, Config.slowCrawlDealy)
+        }, settings.slowCrawlDealy)
       } else {
         this.getIdList()
       }
