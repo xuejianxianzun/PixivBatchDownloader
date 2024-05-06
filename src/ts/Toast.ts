@@ -1,5 +1,6 @@
 import { Colors } from './Colors'
 import { Config } from './Config'
+import { Utils } from './utils/Utils'
 
 // 可选参数
 export interface ToastArgOptional {
@@ -130,7 +131,7 @@ class Toast {
 
   private create(arg: ToastArg) {
     const span = document.createElement('span')
-    span.textContent = arg.msg
+    span.textContent = Utils.htmlToText(arg.msg)
 
     span.style.color = arg.color
 

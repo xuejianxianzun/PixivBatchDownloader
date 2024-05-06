@@ -240,7 +240,11 @@ class PreviewWorkDetailInfo {
     array.push(`UserID\n${body.userId}`)
     array.push(`Title\n${body.title}`)
     if (body.description) {
-      array.push(`Description\n${Utils.htmlToText(body.description)}`)
+      array.push(
+        `Description\n${Utils.htmlToText(
+          Tools.replaceATag(Utils.htmlDecode(body.description))
+        )}`
+      )
     }
     array.push(`Tags\n${tags.join('\n')}`)
     array.push(`Size\n${body.width} x ${body.height}`)

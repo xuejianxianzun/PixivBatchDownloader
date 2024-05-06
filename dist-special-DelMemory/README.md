@@ -78,9 +78,11 @@ offline 分支会检查 github 上是否发布了新版本；master 分支上不
 
 ## 在线安装
 
-1. **Chromium 内核**的浏览器可以从 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 安装本扩展。
+**Chromium 内核**的浏览器可以从 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 安装本扩展。
 
-**注意：** 有时候 Chrome Web Store 上的扩展可能不是最新版本。如果有需要，你可以离线安装。
+推荐在 PC 浏览器上使用。如果你需要在 Android 系统上使用，可以使用 Kiwi 浏览器安装此扩展。具体说明：
+
+[怎么在安卓上使用](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%9C%A8%E7%BA%BF%E5%AE%89%E8%A3%85?id=android)
 
 ## 离线安装
 

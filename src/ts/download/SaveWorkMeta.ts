@@ -106,7 +106,10 @@ class SaveWorkMeta {
     fileContent.push(this.addMeta('UserID', data.userId))
     fileContent.push(this.addMeta('Title', data.title))
     fileContent.push(
-      this.addMeta('Description', Utils.htmlToText(data.description))
+      this.addMeta(
+        'Description',
+        Utils.htmlToText(Tools.replaceATag(data.description))
+      )
     )
     fileContent.push(this.addMeta('Tags', this.joinTags(data.tags)))
     if (data.type !== 3) {

@@ -829,12 +829,12 @@ const langText = {
     'Количество закладок, количество произведений в закладках',
   ],
   _命名标记bmk_id: [
-    'Bookmark Id。你收藏的每一个作品都会有一个 Bookmark Id。收藏的时间越晚，Bookmark Id 就越大。当你下载你的收藏时，可以使用 {bmk_id} 作为排序依据。',
-    'Bookmark Id。你收藏的每一個作品都會有一個 Bookmark Id。收藏的時間越晚，Bookmark Id 就越大。當你下載你的收藏時，可以使用 {bmk_id} 作為排序依據。',
-    'Bookmark Id. Every work in your bookmarks will have a Bookmark Id. The later the bookmark is added, the larger the Bookmark Id. When you download your bookmarks, you can use {bmk_id} as a sorting basis.',
+    'Bookmark ID。你收藏的每一个作品都会有一个 Bookmark ID。收藏的时间越晚，Bookmark ID 就越大。当你下载你的收藏时，可以使用 {bmk_id} 作为排序依据。',
+    'Bookmark ID。你收藏的每一個作品都會有一個 Bookmark ID。收藏的時間越晚，Bookmark ID 就越大。當你下載你的收藏時，可以使用 {bmk_id} 作為排序依據。',
+    'Bookmark ID. Every work in your bookmarks will have a Bookmark ID. The later the bookmark is added, the larger the Bookmark ID. When you download your bookmarks, you can use {bmk_id} as a sorting basis.',
     'ブックマークID。 ブックマーク内のすべての作品にはブックマークIDがあります。 ブックマークを後で追加すると、ブックマークIDが大きくなります。 ブックマークをダウンロードするときは、{bmk_id}を並べ替えの基準として使用できます。',
     '북마크 ID. 당신이 북마크하고 있는 작품마다 북마크 ID가 있습니다. 북마크 시간이 늦어질수록 북마크 ID는 커집니다. 북마크를 다운로드할때 {bmk_id}를 기준으로 정렬할 수 있습니다.',
-    'Bookmark Id. Каждая работа в ваших закладках будет иметь идентификатор закладки. Чем позже добавлена закладка, тем больше Id закладки. Когда вы загружаете закладки, вы можете использовать {bmk_id} в качестве основы для сортировки.',
+    'Bookmark ID. Каждая работа в ваших закладках будет иметь идентификатор закладки. Чем позже добавлена закладка, тем больше ID закладки. Когда вы загружаете закладки, вы можете использовать {bmk_id} в качестве основы для сортировки.',
   ],
   _命名标记bmk_1000: [
     '作品收藏数的简化显示。例如：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
@@ -1005,8 +1005,8 @@ const langText = {
     'Имя файла предварительного просмотра',
   ],
   _下载线程: [
-    '下载<span class="key">线程</span>',
-    '下載<span class="key">執行緒</span>',
+    '同时下载<span class="key">数量</span>',
+    '同時下載<span class="key">數量</span>',
     'Download <span class="key">thread</span>',
     '同時ダウンロード数',
     '다운로드 <span class="key">쓰레드</span>',
@@ -1635,12 +1635,12 @@ const langText = {
     '<span class="key">Предварительный просмотр</span> результатов фильтрации на странице поиска',
   ],
   _预览搜索结果说明: [
-    '下载器可以把符合条件的作品显示在当前页面上。如果抓取结果太多导致页面崩溃，请关闭这个功能。<br>启用预览功能时，下载器不会自动开始下载。',
-    '下載器可以將符合條件的作品顯示在目前頁面上。如果擷取結果太多導致頁面當掉，請關閉這個功能。<br>啟用預覽功能時，下載器不會自動開始下載。',
-    'The downloader can display the qualified works on the current page. If too many crawling results cause the page to crash, turn off this feature.<br>When the preview feature is enabled, the downloader does not start downloading automatically.',
-    'ローダは、該当する作品を現在のページに表示することができます。クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。<br>プレビュー機能を有効にすると、ダウンロードは自動的に開始されません。',
-    '다운로더는 조건에 맞는 작품을 현재 페이지에 표시할 수 있습니다. 긁어오기 결과가 너무 많아서 페이지가 충돌하면 이 기능을 꺼주세요.<br> 미리보기를 사용하면 다운로드가 자동으로 시작되지 않습니다.',
-    'Загрузчик может отображать подходящие работы на текущей странице. Пожалуйста, отключите эту функцию, если слишком большое количество результатов просмотра приводит к сбою страницы.<br>Загрузчик не начинает автоматическую загрузку, если включена функция предварительного просмотра.',
+    '下载器可以把符合条件的作品显示在当前页面上，并且按照收藏数量从高到低排序。<br>如果抓取结果太多导致页面崩溃，请关闭这个功能。<br>启用预览功能时，下载器不会自动开始下载。',
+    '下載器可以把符合條件的作品顯示在當前頁面上，並且按照收藏數量從高到低排序。<br>如果擷取結果太多導致頁面當掉，請關閉這個功能。<br>啟用預覽功能時，下載器不會自動開始下載。',
+    'The downloader can display eligible works on the current page and sort them from high to low according to the number of bookmarks.<br>If too many crawling results cause the page to crash, turn off this feature.<br>When the preview feature is enabled, the downloader does not start downloading automatically.',
+    'ダウンローダーは、対象となる作品を現在のページに表示し、コレクション数に応じて上位から下位に並べ替えることができます。<br>クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。<br>プレビュー機能を有効にすると、ダウンロードは自動的に開始されません。',
+    '다운로더는 현재 페이지에 적합한 작품을 표시하고 컬렉션 수에 따라 높은 순으로 정렬할 수 있습니다.<br>긁어오기 결과가 너무 많아서 페이지가 충돌하면 이 기능을 꺼주세요.<br> 미리보기를 사용하면 다운로드가 자동으로 시작되지 않습니다.',
+    'Загрузчик может отображать подходящие произведения на текущей странице и сортировать их по возрастанию в зависимости от количества коллекций.<br>Пожалуйста, отключите эту функцию, если слишком большое количество результатов просмотра приводит к сбою страницы.<br>Загрузчик не начинает автоматическую загрузку, если включена функция предварительного просмотра.',
   ],
   _目录名使用: [
     '目录名使用：',
@@ -2195,6 +2195,14 @@ const langText = {
     '북마크되지 않음',
     'Не в закладках',
   ],
+  _收藏作品: [
+    '收藏作品',
+    '收藏作品',
+    'Bookmark works',
+    '作品をブックマークする',
+    '북마크 작품',
+    'Закладки работают',
+  ],
   _下载之后收藏作品: [
     '下载之后<span class="key">收藏</span>作品',
     '下載之後<span class="key">收藏</span>作品',
@@ -2212,12 +2220,12 @@ const langText = {
     'После загрузки файла загрузчик автоматически делает закладку',
   ],
   _收藏设置: [
-    '下载器的<span class="key">收藏</span>按钮 (✩)',
-    '下載器的<span class="key">收藏</span>按鈕 (✩)',
-    `Downloader's <span class="key">bookmark</span> button (✩)`,
-    'ダウンローダーの<span class="key">ブックマーク</span>ボタン (✩)',
-    '다운로더의 <span class="key">북마크</span> 버튼 (☆)',
-    `Кнопка <span class="key">закладок</span> загрузчика (✩)`,
+    '下载器的<span class="key">收藏</span>功能 (✩)',
+    '下載器的<span class="key">收藏</span>功能 (✩)',
+    `Downloader's <span class="key">bookmark</span> function (✩)`,
+    'ダウンローダーの<span class="key">ブックマーク</span>機能 (✩)',
+    '다운로더의 <span class="key">북마크</span> 기능 (☆)',
+    `Функция сбора загрузчика (✩)`,
   ],
   _下载器的收藏按钮默认会添加作品的标签: [
     '点击 <span class="blue">✩</span> 按钮时，下载器会收藏这个作品并且附带它的标签。',
@@ -3082,9 +3090,7 @@ const langText = {
     您可以在 Patreon 上贊助我：<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br>
     中國大陸使用者可以在“愛發電”上贊助我：<br>
-    <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
-    也可以掃描行動條碼（QR Code）：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上檢視行動條碼</a>。
+    <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a>。
     `,
     `Thank you very much for your support!<br>
     You can sponsor me on Patreon: <br>
@@ -3373,14 +3379,6 @@ const langText = {
     '총 작품 수가 0개입니다, Pixiv가 이번 긁어오기를 거부한 것으로 보입니다. 잠시 후에 다시 시도해주세요.',
     'Общее количество работ равно 0, возможно, Pixiv блокирует сканирование. Пожалуйста, повторите попытку позже.',
   ],
-  _快捷键AltP: [
-    '快捷键 Alt + P',
-    '快捷鍵 Alt + P',
-    'Hot key: Alt + P',
-    'ホットキー Alt + P',
-    '단축키: Alt + P',
-    'Горячая клавиша: Alt + P',
-  ],
   _优化预览作品功能: [
     '优化“预览作品”功能',
     '最佳化“預覽作品”功能',
@@ -3493,21 +3491,13 @@ const langText = {
     '사용 가능한 크롤링 결과가 없습니다.',
     'Результаты сканирования недоступны',
   ],
-  _预览作品时按快捷键可以下载这个作品: [
-    '预览作品时，按快捷键 <span class="blue">D</span> 可以下载这个作品。<br>按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
-    '預覽作品時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。<br>按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
-    'When previewing a work, press the shortcut key <span class="blue">D</span> to download the work.<br>Press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
-    '作品をプレビューしているときに、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。<br>ショートカット キー <span class="blue">C</span> を押して、現在表示されている画像のみをダウンロードします。',
-    '이미지를 미리 보는 동안 바로 가기 <span class="blue">D</span>를 눌러 다운로드하세요.<br>현재 표시된 이미지만 다운로드하려면 단축키 <span class="blue">C</span>를 누르십시오.',
-    'При предварительном просмотре произведения нажмите клавишу <span class="blue">D</span>, чтобы загрузить произведение.<br>Нажмите клавишу быстрого доступа <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
-  ],
-  _预览作品时按快捷键C仅下载当前图片: [
-    '预览作品时，按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
-    '預覽作品時，按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
-    'When previewing a work, press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
-    '作品のプレビュー中に、ショートカット キー <span class="blue">C</span> を押すと、現在表示されている画像のみをダウンロードできます。',
-    '작품 미리보기 시 단축키 <span class="blue">C</span>를 누르면 현재 표시된 이미지만 다운로드 됩니다.',
-    'При предварительном просмотре работы нажмите клавишу быстрого доступа <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
+  _查看作品大图时的快捷键: [
+    '查看作品大图时，按快捷键 <span class="blue">D</span> 可以下载这个作品。<br>按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
+    '檢視作品大圖時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。<br>按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
+    'When viewing the large image of the work, press the shortcut key <span class="blue">D</span> to download the work.<br>Press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
+    '作品の大きな画像をご覧になる場合、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。<br>ショートカット キー <span class="blue">C</span> を押して、現在表示されている画像のみをダウンロードします。',
+    '작품의 큰 그림을 볼 때 단축키 <span class="blue">D</span>를 누르면 작품을 다운로드할 수 있습니다. <br>현재 표시된 이미지만 다운로드하려면 단축키 <span class="blue">C</span>를 누르세요.',
+    'При просмотре большого изображения работы нажмите горячую клавишу <span class="blue">D</span>, чтобы загрузить работу. <br>Нажмите горячую клавишу <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
   ],
   _定时抓取: [
     '定时抓取',
@@ -3695,12 +3685,12 @@ const langText = {
     'Количество работ',
   ],
   _当作品数量大于: [
-    '当作品数量 >',
-    '當作品數量 >',
-    'When the number of works >',
-    '作品数 >',
-    '작품 수 >',
-    'При количестве работ >',
+    '当作品数量超过指定数量时启用：',
+    '當作品數量超過指定數量时啟用：',
+    'Enabled when the number of works exceeds the specified number:',
+    '作品数が規定数を超えた場合に有効：',
+    '작품 수가 지정된 수를 초과하면 활성화됩니다.',
+    'Включается, когда количество работ превышает указанное количество:',
   ],
   _慢速抓取: [
     '慢速抓取，以避免触发 429 限制',
@@ -4182,6 +4172,14 @@ const langText = {
     '팔로우한 사용자 목록 로드 중',
     'Загрузка списка отслеживаемых пользователей',
   ],
+  _已更新关注用户列表: [
+    '已更新关注用户列表',
+    '已更新關注使用者列表',
+    'The list of following users has been updated',
+    'フォローしているユーザーのリストが更新されました',
+    '다음 사용자 목록이 업데이트되었습니다',
+    'Список следующих пользователей обновлен',
+  ],
   _Kiwi浏览器可能不能建立文件夹的bug: [
     '如果你使用的是 Kiwi 浏览器，它可能不会建立文件夹。这是 Kiwi 浏览器的 bug。',
     '如果你使用的是 Kiwi 瀏覽器，它可能不會建立資料夾。這是 Kiwi 瀏覽器的 bug。',
@@ -4239,12 +4237,12 @@ const langText = {
     'Список идентификаторов импорта',
   ],
   _导出ID列表: [
-    '获取 ID 列表完毕后导出列表，并停止抓取',
-    '獲取 ID 列表完畢後匯出列表，並停止抓取',
-    'Export the ID list after fetching it, and stop crawling',
-    'IDリストを取得後にエクスポートし、クロールを停止します',
-    'ID 목록을 가져온 후 내보내기 및 크롤링 중지',
-    'Экспортируйте список идентификаторов после его извлечения и остановите сканирование.',
+    '获取作品 ID 列表后导出 <span class="key">ID 列表</span>，并停止任务',
+    '獲取作品 ID 列表後匯出 <span class="key">ID 列表</span>，並停止任務',
+    'After obtaining the work ID list, export the <span class="key">ID list</span> and stop the task',
+    'ワークIDリストを取得後、IDリストをエクスポートしてタスクを停止する',
+    '작업 ID 목록을 가져온 후 ID 목록을 내보내고 작업을 중지합니다',
+    'После получения списка идентификаторов работ экспортируйте список идентификаторов и остановите задачу',
   ],
   _导入的用户ID数量: [
     '导入的用户 ID 数量：',
@@ -4390,6 +4388,231 @@ const langText = {
     'クリップボードへの書き込みに失敗しました',
     '클립보드에 쓰지 못했습니다.',
     'Запись в буфер обмена не удалась',
+  ],
+  _在搜索页面里移除已关注用户的作品: [
+    '在搜索页面里<span class="key">移除</span>已关注用户的作品',
+    '在搜尋頁面裡<span class="key">移除</span>已關注使用者的作品',
+    '<span class="key">Remove</span> the works of followed users from the search page',
+    'フォローしているユーザーの作品を検索ページから削除します',
+    '검색 페이지에서 팔로우한 사용자의 작품을 제거합니다.',
+    'Удалить работы подписавшихся пользователей со страницы поиска',
+  ],
+  _在搜索页面里移除已关注用户的作品的说明: [
+    '这样只会显示未关注用户的作品，便于你发现新的喜欢的用户。<br>只在搜索页面里生效。',
+    '這樣只會顯示未關注使用者的作品，便於你發現新的喜歡的使用者。<br>只在搜尋頁面裡生效。',
+    'This will only display the works of unfollowed users, making it easier for you to discover new users you like.<br>Only takes effect on the search page.',
+    'フォローを解除しているユーザーの作品のみが表示されるので、新たに好みのユーザーを見つけやすくなります。<br>検索ページでのみ有効です。',
+    '팔로우하지 않은 사용자의 작품만 표시되므로 마음에 드는 새로운 사용자를 더 쉽게 찾을 수 있습니다.<br>검색 페이지에만 적용됩니다.',
+    'При этом будут отображаться только работы пользователей, на которых вы не подписаны, что облегчит вам поиск новых пользователей, которые вам нравятся.<br>Действует только на странице поиска.',
+  ],
+  _使用方向键和空格键切换图片: [
+    '使用方向键和空格键切换图片',
+    '使用方向鍵和空格鍵切換圖片',
+    'Use the arrow keys and space bar to switch images',
+    '矢印キーとスペースバーを使用して画像を切り替えます',
+    '이미지를 전환하려면 화살표 키와 스페이스바를 사용하세요.',
+    'Используйте клавиши со стрелками и пробел для переключения изображений.',
+  ],
+  _使用方向键和空格键切换图片的提示: [
+    '← ↑ 上一张图片<br>→ ↓ 下一张图片<br>空格键 下一张图片',
+    '← ↑ 上一張圖片<br>→ ↓ 下一張圖片<br>空格鍵 下一張圖片',
+    '← ↑ Previous image<br>→ ↓ Next image<br>Spacebar Next image',
+    '← ↑ 前の画像<br>→ ↓ 次の画像<br>スペースバー 次の画像',
+    '← ↑ 이전 이미지<br>→ ↓ 다음 이미지<br>스페이스바 다음 이미지',
+    '← ↑ Предыдущее изображение<br>→ ↓ Следующее изображение<br>Пробел Следующее изображение',
+  ],
+  _快捷键列表: [
+    '快捷键列表',
+    '快捷鍵列表',
+    'Shortcut list',
+    'ショートカットリスト',
+    '바로가기 목록',
+    'Список ярлыков',
+  ],
+  _预览作品的快捷键说明: [
+    `<span class="blue">Alt</span> + <span class="blue">P</span> 关闭/启用预览作品功能<br>
+    当你查看预览图时，可以使用如下快捷键：<br>
+    <span class="blue">B</span>(ookmark) 收藏预览的作品<br>
+    <span class="blue">C</span>(urrent) 下载当前预览的图片<br>
+    <span class="blue">D</span>(ownload) 下载当前预览的作品<br>
+    <span class="blue">Esc</span> 关闭预览图<br>
+    <span class="blue">← ↑</span> 上一张图片<br>
+    <span class="blue">→ ↓</span> 下一张图片<br>
+    <span class="blue">空格键</span> 下一张图片`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> 關閉/啟用預覽作品功能<br>
+    當你檢視預覽圖時，可以使用如下快捷鍵：<br>
+    <span class="blue">B</span>(ookmark) 收藏預覽的作品<br>
+    <span class="blue">C</span>(urrent) 下載當前預覽的圖片<br>
+    <span class="blue">D</span>(ownload) 下載當前預覽的作品<br>
+    <span class="blue">Esc</span> 關閉預覽圖<br>
+    <span class="blue">← ↑</span> 上一張圖片<br>
+    <span class="blue">→ ↓</span> 下一張圖片<br>
+    <span class="blue">空格鍵</span> 下一張圖片`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> Turn off/enable the preview function<br>
+    When you view the preview, you can use the following shortcut keys:<br>
+    <span class="blue">B</span>(ookmark) Bookmark previewed work<br>
+    <span class="blue">C</span>(urrent) Download the currently previewed image<br>
+    <span class="blue">D</span>(download) Download the currently previewed work<br>
+    <span class="blue">Esc</span> Close preview<br>
+    <span class="blue">← ↑</span> Previous image<br>
+    <span class="blue">→ ↓</span> Next image<br>
+    <span class="blue">Space bar</span> Next image`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> プレビュー機能をオフ/有効にします<br>
+    プレビューを表示するときは、次のショートカット キーを使用できます。<br>
+    <span class="blue">B</span>(ookmark) プレビューした作品をブックマークします<br>
+    <span class="blue">C</span>(urrent) 現在プレビューされている画像をダウンロードします<br>
+    <span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロードします<br>
+    <span class="blue">Esc</span> プレビューを閉じる<br>
+    <span class="blue">← ↑</span> 前の画像<br>
+    <span class="blue">→ ↓</span> 次の画像<br>
+    <span class="blue">スペースバー</span> 次の画像`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> 미리보기 기능 끄기/활성화<br>
+    미리보기를 볼 때 다음 단축키를 사용할 수 있습니다.<br>
+    <span class="blue">B</span>(ookmark) 북마크 미리보기 작업<br>
+    <span class="blue">C</span>(urrent) 현재 미리보기 이미지 다운로드<br>
+    <span class="blue">D</span>(ownload) 현재 미리보기된 작품 다운로드<br>
+    <span class="blue">Esc</span> 미리보기 닫기<br>
+    <span class="blue">← ↑</span> 이전 이미지<br>
+    <span class="blue">→ ↓</span> 다음 이미지<br>
+    <span class="blue">스페이스바</span> 다음 이미지`,
+    `<span class="blue">Alt</span> + <span class="blue">P</span> Выключить/включить функцию предварительного просмотра<br>
+    При предварительном просмотре вы можете использовать следующие сочетания клавиш:<br>
+    <span class="blue">B</span>(ookmark) Добавить в закладки предварительно просмотренную работу<br>
+    <span class="blue">C</span>(urrent) Загрузите просматриваемое в данный момент изображение<br>
+    <span class="blue">D</span>(ownload) Загрузите просматриваемую в данный момент работу<br>
+    <span class="blue">Esc</span> Закрыть предварительный просмотр<br>
+    <span class="blue"> ← ↑</span> Предыдущее изображение<br>
+    <span class="blue">→ ↓</span> Следующее изображение<br>
+    <span class="blue">Пробел</span> Следующее изображение`,
+  ],
+  _导出收藏列表: [
+    '导出收藏列表（JSON）',
+    '匯出收藏列表（JSON）',
+    'Export bookmark list（JSON）',
+    'ブックマークリストをエクスポートする（JSON）',
+    '북마크 목록 내보내기（JSON）',
+    'Экспортировать список закладок（JSON）',
+  ],
+  _导入收藏列表: [
+    '导入收藏列表（批量添加收藏）',
+    '匯入收藏列表（批次新增收藏）',
+    'Import bookmark list (add bookmarks in batches)',
+    'ブックマークリストをインポート（ブックマークを一括追加）',
+    '북마크 목록 가져오기(북마크 일괄 추가)',
+    'Импортировать список закладок (добавлять закладки пакетно)',
+  ],
+  _同步收藏列表的说明: [
+    '你可以导出自己或其他用户的收藏列表，然后批量添加收藏。<br>这可以用来拷贝其他用户的收藏列表。<br>另外，如果你有多个 Pixiv 账号，想要同步它们的收藏列表，可以先导出一个账号的收藏列表，然后使用其他账号导入收藏列表。<br><br>当你处于自己或其他人的书签页面里时，可以在下载器的“更多”分类里找到此功能。',
+    '你可以匯出自己或其他使用者的收藏列表，然後批次新增收藏。<br>這可以用來複製其他使用者的收藏列表。<br>另外，如果你有多個 Pixiv 賬號，想要同步它們的收藏列表，可以先匯出一個賬號的收藏列表，然後使用其他賬號匯入收藏列表。<br><br>當你處於自己或其他人的書籤頁面裡時，可以在下載器的“更多”分類裡找到此功能。',
+    `You can export your own or other users' bookmark lists and then add bookmarks in batches. <br>This can be used to copy another user's bookmark list. <br>In addition, if you have multiple Pixiv accounts and want to synchronize their bookmark lists, you can first export the bookmark list of one account, and then use other accounts to import the bookmark list.<br><br>This feature can be found in the "More" category of the downloader when you are on your own or someone else's bookmark page.`,
+    '自分や他のユーザーのブックマークリストをエクスポートして、一括でブックマークを追加できます。<br>他のユーザーのブックマークリストをコピーすることもできます。<br>また、複数のPixivアカウントを持っていて、ブックマークを同期したい場合にも使用できます。リストの場合、最初に 1 つのアカウントのブックマーク リストをエクスポートし、次に他のアカウントを使用してブックマーク リストをインポートできます。<br><br>この機能は、自分または他の人のブックマーク ページにいるときに、ダウンローダーの「その他」カテゴリにあります。',
+    '자신 또는 다른 사용자의 북마크 목록을 내보낸 후 일괄적으로 북마크를 추가할 수 있습니다.<br>이는 다른 사용자의 북마크 목록을 복사하는 데 사용할 수 있습니다.<br>또한 Pixiv 계정이 여러 개 있고 북마크를 동기화하려는 경우 목록의 경우 먼저 한 계정의 북마크 목록을 내보낸 다음 다른 계정을 사용하여 북마크 목록을 가져올 수 있습니다.<br><br>이 기능은 자신이나 다른 사람의 북마크 페이지에 있을 때 다운로더의 "더 보기" 카테고리에서 찾을 수 있습니다.',
+    'Вы можете экспортировать свои списки закладок или списки закладок других пользователей, а затем добавлять закладки в пакетном режиме. <br>Это можно использовать для копирования списка закладок другого пользователя. <br>Кроме того, если у вас есть несколько учетных записей Pixiv и вы хотите синхронизировать их закладки списки, вы можете сначала экспортировать список закладок одной учетной записи, а затем использовать другие учетные записи для импорта списка закладок.<br><br>Эту функцию можно найти в категории «Дополнительно» загрузчика, когда вы находитесь на своей или чужой странице закладок.',
+  ],
+  _加载收藏列表: [
+    '正在加载你的收藏列表，以避免重复添加收藏',
+    '正在載入你的收藏列表，以避免重複新增收藏',
+    'Loading your bookmark list to avoid duplicate bookmarks',
+    'ブックマークの重複を避けるためにブックマーク リストをロードする',
+    '중복 북마크를 방지하기 위해 북마크 목록 로드 중',
+    'Загрузка списка закладок, чтобы избежать дублирования закладок',
+  ],
+  _一共有x个: [
+    '一共有 {} 个',
+    '一共有 {} 個',
+    'There are {} in total',
+    '合計 {} 個あります',
+    '총 {}개가 있습니다.',
+    'Всего {}',
+  ],
+  _跳过x个: [
+    '跳过了 {} 个已存在的收藏',
+    '跳過了 {} 個已存在的收藏',
+    '{} existing bookmarks skipped',
+    '{} 個の既存のブックマークがスキップされました',
+    '{}개의 기존 북마크를 건너뛰었습니다.',
+    '{} существующих закладок пропущено',
+  ],
+  _保存作品的简介: [
+    '保存作品<span class="key">简介</span>',
+    '儲存作品<span class="key">說明</span>',
+    'Save work <span class="key">description</span>',
+    '作品<span class="key">説明</span>の保存',
+    '작품 설명 저장',
+    'Сохранить описание работы',
+  ],
+  _保存作品的简介2: [
+    '保存作品简介',
+    '儲存作品說明',
+    'Save work description',
+    '作品説明の保存',
+    '작품 설명 저장',
+    'Сохранить описание работы',
+  ],
+  _保存作品简介的说明: [
+    '生成 TXT 文件保存作品简介',
+    '生成 TXT 檔案儲存作品說明',
+    'Create a TXT file to save the work description',
+    '作業説明を保存するためのTXTファイルを作成します。',
+    '작업 설명을 저장하려면 TXT 파일을 만드세요.',
+    'Создайте файл TXT для сохранения описания работы.',
+  ],
+  _简介: ['简介', '說明', 'description', '説明', '설명', 'описание'],
+  _简介汇总: [
+    '简介汇总',
+    '說明彙總',
+    'description summary',
+    '説明の概要',
+    '설명 요약',
+    'краткое описание',
+  ],
+  _每个作品分别保存: [
+    '每个作品分别保存',
+    '每個作品分別儲存',
+    'Save each work separately',
+    '作品ごとに分けて保存する',
+    '각 작품을 별도로 저장',
+    'Сохраняйте каждую работу отдельно',
+  ],
+  _简介的Links标记: [
+    `如果作品简介里含有超链接，下载器会在文件名末尾添加 'links' 标记`,
+    `如果作品說明裡含有超連結，下載器會在檔名末尾新增 'links' 標記`,
+    `If the work description contains hyperlinks, the downloader will add a 'links' tag at the end of the file name`,
+    `作品の説明にハイパーリンクが含まれている場合、ダウンローダーはファイル名の末尾に「links」タグを追加します。`,
+    `작업 설명에 하이퍼링크가 포함된 경우 다운로더는 파일 이름 끝에 'links' 태그를 추가합니다.`,
+    `Если описание работы содержит гиперссылки, загрузчик добавит тег «links» в конце имени файла.`,
+  ],
+  _汇总到一个文件: [
+    '汇总到一个文件',
+    '彙總到一個檔案',
+    'Summarize to one file',
+    '1つのファイルにまとめる',
+    '하나의 파일로 요약',
+    'Свести в один файл',
+  ],
+  _后续作品低于最低收藏数量要求跳过后续作品: [
+    '检测到后续作品的收藏数量低于用户设置的数字，跳过后续作品',
+    '檢測到後續作品的收藏數量低於使用者設定的數字，跳過後續作品',
+    'It is detected that the number of bookmarks of subsequent works is lower than the number set by the user, and subsequent works are skipped.',
+    '以降の作品のブックマーク数がユーザーが設定した数よりも少ないことを検出し、以降の作品をスキップする。',
+    '후속 작품의 북마크 수가 사용자가 설정한 수보다 적은 것으로 감지되어 후속 작품을 건너뜁니다.',
+    'Обнаружено, что количество закладок последующих произведений меньше количества, установленного пользователем, и последующие произведения пропускаются.',
+  ],
+  _间隔时间: [
+    '间隔时间：',
+    '間隔時間：',
+    'Interval time:',
+    'インターバル時間：',
+    '간격 시간:',
+    'Интервал времени:',
+  ],
+  _更新说明v1700: [
+    '- 现在你可以设置慢速抓取时的间隔时间了<br>- 优化了某些情况下的抓取效率<br>- 优化了动图保存为 GIF 图像时的画质',
+    '- 現在你可以設定慢速抓取時的間隔時間了<br>- 優化了某些情況下的抓取效率<br>- 優化了動圖儲存為 GIF 影象時的畫質',
+    '- Now you can set the interval for slow crawling<br>- Optimized the crawling efficiency in some cases<br> - Optimized the image quality when saving animated images as GIF images',
+    '- 低速クロールの間隔を設定できるようになりました<br>- 場合によってはクロール効率を最適化しました<br> - アニメーション画像をGIF画像として保存する際の画質を最適化しました',
+    '- 이제 느린 크롤링 간격을 설정할 수 있습니다.<br>- 경우에 따라 크롤링 효율성이 최적화되었습니다.<br> - 애니메이션 이미지를 GIF 이미지로 저장할 때 이미지 품질이 최적화되었습니다.',
+    '– Теперь вы можете установить интервал для медленного сканирования.<br> – Оптимизирована эффективность сканирования в некоторых случаях<br> – Оптимизировано качество изображения при сохранении анимированных изображений в формате GIF.',
   ],
 }
 

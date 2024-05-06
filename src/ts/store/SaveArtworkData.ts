@@ -5,6 +5,7 @@ import { ArtworkData } from '../crawl/CrawlResult'
 import { store } from './Store'
 import { Tools } from '../Tools'
 import { log } from '../Log'
+import { Utils } from '../utils/Utils'
 
 // 保存图片作品的数据
 class SaveArtworkData {
@@ -60,7 +61,9 @@ class SaveArtworkData {
       const seriesTitle = body.seriesNavData ? body.seriesNavData.title : ''
       const seriesOrder = body.seriesNavData ? body.seriesNavData.order : null
 
-      // 储存作品信息
+      // 保存作品信息
+      const description = Utils.htmlDecode(body.description)
+
       if (body.illustType === 0 || body.illustType === 1) {
         // 插画或漫画
         const imgUrl = body.urls.original // 作品的原图 URL
@@ -72,7 +75,6 @@ class SaveArtworkData {
         const tempExt = imgUrl.split('.')
         const ext = tempExt[tempExt.length - 1]
 
-        // 添加作品信息
         store.addResult({
           aiType: body.aiType,
           id: body.id,
@@ -87,7 +89,7 @@ class SaveArtworkData {
           regular: body.urls.regular,
           small: body.urls.small,
           title: title,
-          description: body.description,
+          description: description,
           tags: tags,
           tagsWithTransl: tagsWithTransl,
           tagsTranslOnly: tagsTranslOnly,
@@ -140,7 +142,7 @@ class SaveArtworkData {
           regular: meta.body.src,
           small: meta.body.src,
           title: title,
-          description: body.description,
+          description: description,
           tags: tags,
           tagsWithTransl: tagsWithTransl,
           tagsTranslOnly: tagsTranslOnly,

@@ -88,7 +88,7 @@ class ConvertUgoira {
           )
 
           if (type === 'gif') {
-            resolve(toGIF.convert(ImageBitmapList, info))
+            resolve(toGIF.convert(ImageBitmapList, info, file.size))
           } else if (type === 'png') {
             resolve(toAPNG.convert(ImageBitmapList, info))
           } else {

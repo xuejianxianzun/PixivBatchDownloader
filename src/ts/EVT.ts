@@ -174,10 +174,12 @@ class EVENT {
     showPreviewWorkDetailPanel: 'showPreviewWorkDetailPanel',
     /**预览作品详细信息的面板关闭后触发 */
     PreviewWorkDetailPanelClosed: 'PreviewWorkDetailPanelClosed',
-    // 通过鼠标滚轮事件来切换预览图
+    /**通过鼠标滚轮事件来切换预览图 */
     wheelScrollSwitchPreviewImage: 'wheelScrollSwitchPreviewImage',
-    // 当结束对一个作品的预览时触发（即预览图窗口消失时触发）
+    /**当结束对一个作品的预览时触发（即预览图窗口消失时触发） */
     previewEnd: 'previewEnd',
+    /**当关注的用户列表发生变化时触发 */
+    followingUsersChange: 'followingUsersChange',
   }
 
   /** 触发自定义事件，大部分事件都不需要携带数据
@@ -244,6 +246,7 @@ class EVENT {
       | 'cancelTimedCrawl'
       | 'sendBrowserDownload'
       | 'previewEnd'
+      | 'followingUsersChange'
   ): void
 
   // 对于需要携带数据的事件进行重载

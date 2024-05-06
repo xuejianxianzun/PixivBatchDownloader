@@ -105,6 +105,7 @@ class FormSettings {
       'showLargerThumbnails',
       'doubleWidthThumb',
       'wheelScrollSwitchImageOnPreviewWork',
+      'swicthImageByKeyboard',
       'doNotDownloadLastImageOfMultiImageWork',
       'downloadNovelCoverImage',
       'downloadNovelEmbeddedImage',
@@ -125,6 +126,10 @@ class FormSettings {
       'exportIDList',
       'displayThumbnailListOnMultiImageWorkPage',
       'PreviewWorkDetailInfo',
+      'removeWorksOfFollowedUsersOnSearchPage',
+      'saveWorkDescription',
+      'saveEachDescription',
+      'summarizeDescription',
     ],
     text: [
       'setWantPage',
@@ -159,6 +164,7 @@ class FormSettings {
       'slowCrawlOnWorksNumber',
       'exportLogExclude',
       'PreviewDetailInfoWidth',
+      'slowCrawlDealy',
     ],
     radio: [
       'ugoiraSaveAs',
