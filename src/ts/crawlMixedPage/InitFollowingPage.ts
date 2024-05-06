@@ -360,7 +360,8 @@ class InitFollowingPage extends InitPageBase {
     const url = URL.createObjectURL(blob)
     Utils.downloadFile(
       url,
-      `following list-toal ${this.userList.length
+      `following list-toal ${
+        this.userList.length
       }-from user ${Utils.getURLPathField(
         window.location.pathname,
         'users'
@@ -571,8 +572,9 @@ class InitFollowingPage extends InitPageBase {
 
   private async clickFollowButton(userID: string): Promise<HTMLIFrameElement> {
     return new Promise(async (resolve, reject) => {
-      const url = `https://www.pixiv.net/${lang.htmlLangType === 'en' ? 'en/' : ''
-        }users/${userID}`
+      const url = `https://www.pixiv.net/${
+        lang.htmlLangType === 'en' ? 'en/' : ''
+      }users/${userID}`
       const res = await fetch(url)
       // const text = await res.text()
       const iframe = document.createElement('iframe')

@@ -52,7 +52,7 @@ class InitBookmarkNewPage extends InitPageBase {
     this.addCancelTimedCrawlBtn()
   }
 
-  protected initAny() { }
+  protected initAny() {}
 
   protected setFormOption() {
     // 个数/页数选项的提示

@@ -102,12 +102,12 @@ abstract class InitPageBase {
   }
 
   // 添加其他任意元素（如果有）
-  protected addAnyElement(): void { }
+  protected addAnyElement(): void {}
 
   // 初始化任意内容
   // 如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里
   // 通常用来初始化特有的组件、功能、事件、状态等
-  protected initAny() { }
+  protected initAny() {}
 
   // 销毁初始化页面时添加的元素和事件，恢复设置项等
   protected destroy(): void {
@@ -163,7 +163,7 @@ abstract class InitPageBase {
   }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
-  protected getWantPage() { }
+  protected getWantPage() {}
 
   // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
   protected getMultipleSetting() {
@@ -272,7 +272,7 @@ abstract class InitPageBase {
   }
 
   // 获取 id 列表，由各个子类具体定义
-  protected getIdList() { }
+  protected getIdList() {}
 
   // id 列表获取完毕，开始抓取作品内容页
   protected async getIdListFinished() {
@@ -302,7 +302,8 @@ abstract class InitPageBase {
         for (const result of resultList) {
           Utils.downloadFile(
             result.url,
-            `ID list-total ${result.total
+            `ID list-total ${
+              result.total
             }-from ${Tools.getPageTitle()}-${Utils.replaceUnsafeStr(
               new Date().toLocaleString()
             )}.json`
@@ -345,7 +346,7 @@ abstract class InitPageBase {
   }
 
   // 重设抓取作品列表时使用的变量或标记
-  protected resetGetIdListStatus() { }
+  protected resetGetIdListStatus() {}
 
   protected log429ErrorTip = Utils.debounce(() => {
     log.error(lang.transl('_抓取被限制时返回空结果的提示'))
@@ -607,7 +608,7 @@ abstract class InitPageBase {
   }
 
   // 抓取完成后，对结果进行排序
-  protected sortResult() { }
+  protected sortResult() {}
 
   /**定时抓取的按钮 */
   protected addStartTimedCrawlBtn(cb: Function) {

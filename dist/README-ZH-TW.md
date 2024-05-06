@@ -69,9 +69,11 @@
 
 ## 線上安裝
 
-1. **Chromium 核心**的瀏覽器可以從 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**  安裝本擴充功能。
+**Chromium 核心**的瀏覽器可以從 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**  安裝本擴充功能。
 
-**注意：** 有時 Chrome Web Store 上的擴充功能可能不是最新版本。如果有需要，你可以離線安裝。
+推薦在 PC 瀏覽器上使用。如果你需要在 Android 系統上使用，可以使用 Kiwi 瀏覽器安裝此擴充套件。具體說明：
+
+[怎么在安卓上使用](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%9C%A8%E7%BA%BF%E5%AE%89%E8%A3%85?id=android)
 
 ## 離線安裝
 

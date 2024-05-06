@@ -19,7 +19,7 @@ class ShowWhatIsNew {
       let msg = `
       <span>${lang.transl('_更新说明v1700')}</span>
       `
-      
+
       // <strong><span>${lang.transl('_新增功能')}:</span></strong>
       // <span class="blue">${lang.transl('_保存作品的简介')}</span>
 
