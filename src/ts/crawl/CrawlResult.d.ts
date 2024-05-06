@@ -330,6 +330,8 @@ export interface ArtworkCommonData {
     private: boolean
   }
   alt: string
+  /**如果为 true，就是已删除或不公开作品 */
+  isMasked: boolean
   isAdContainer: boolean
   titleCaptionTranslation: {
     workTitle: string
@@ -514,7 +516,6 @@ export type BookMarkNewIllustData = ArtworkCommonData & {
     '360x360': string
     '540x540': string
   }
-  isMasked: boolean
 }
 
 export type BookMarkNewNovelData = NovelCommonData & {

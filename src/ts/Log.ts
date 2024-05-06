@@ -118,6 +118,15 @@ class Log {
     this.add(str, 3, br, keepShow)
   }
 
+  /**将刷新的日志元素持久化 */
+  // 刷新区域通常用于显示进度，例如 0/10, 1/10, 2/10... 10/10
+  // 它们使用同一个 span 元素，并且同时只能存在一个刷新区域
+  // 当显示 10/10 的时候，进度就不会再变化了，此时应该将其“持久化”。生成一个新的 span 元素作为新的刷新区域
+  // 这样如果后续又需要显示刷新的元素，不会影响之前已完成“持久化”的日志
+  public persistentRefresh() {
+    this.refresh = document.createElement('span')
+  }
+
   private checkElement() {
     // 如果日志区域没有被添加到页面上，则添加
     let test = document.getElementById(this.id)

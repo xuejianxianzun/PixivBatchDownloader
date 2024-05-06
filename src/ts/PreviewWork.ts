@@ -16,6 +16,9 @@ import { showHelp } from './ShowHelp'
 import { store } from './store/Store'
 import { Config } from './Config'
 import { previewWorkDetailInfo } from './PreviewWorkDetailInfo'
+import { Tools } from './Tools'
+import { bookmark } from './Bookmark'
+import { pageType } from './PageType'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -90,8 +93,8 @@ class PreviewWork {
           window.clearTimeout(this.delayHiddenTimer)
           if (!Config.mobile) {
             showHelp.show(
-              'tipPressDToQuickDownload',
-              lang.transl('_预览作品时按快捷键可以下载这个作品')
+              'tipPreviewWork',
+              lang.transl('_预览作品的快捷键说明')
             )
           }
         }
@@ -178,16 +181,45 @@ class PreviewWork {
     window.addEventListener(
       'keydown',
       (ev) => {
-        // 可以使用 Alt + P 快捷键来启用/禁用此功能
-        if (ev.altKey && ev.code === 'KeyP') {
-          setSetting('PreviewWork', !settings.PreviewWork)
-          // 显示提示信息
-          if (settings.PreviewWork) {
-            const msg = 'Preview work - On'
-            toast.success(msg)
+        // 当用户按下 Ctrl 时，不启用下载器的热键，以避免快捷键冲突或重复生效
+        // 例如，预览作品时按 C 可以下载，但是当用户按下 Ctrl + C 时其实是想复制，此时不应该下载
+        if (ev.ctrlKey) {
+          return
+        }
+
+        // 当用户按下 Alt 时，只响应 P 键
+        if (ev.altKey) {
+          // 可以使用 Alt + P 快捷键来启用/禁用此功能
+          if (ev.code === 'KeyP') {
+            setSetting('PreviewWork', !settings.PreviewWork)
+            // 显示提示信息
+            if (settings.PreviewWork) {
+              const msg = 'Preview works - On'
+              toast.success(msg)
+            } else {
+              const msg = 'Preview works - Off'
+              toast.warning(msg)
+            }
           } else {
-            const msg = 'Preview work - Off'
-            toast.warning(msg)
+            return
+          }
+        }
+
+        // 使用 Esc 键关闭当前预览
+        if (ev.code === 'Escape' && this.show) {
+          this.show = false
+          // 并且不再显示这个作品的预览图，否则如果鼠标依然位于这个作品上，就会马上再次显示缩略图了
+          // 当鼠标移出这个作品的缩略图之后会取消此限制
+          this.dontShowAgain = true
+        }
+
+        // 翻页时关闭当前预览
+        // 这是为了处理边界情况。常见的触发方式是预览一个横图作品，且鼠标处于预览图之上
+        // 此时翻页的话，虽然作品区域已经变化，但由于鼠标一直停留在预览图上，预览图就不会消失
+        // 此时需要强制关闭预览
+        if (ev.code === 'PageUp' || ev.code === 'PageDown') {
+          if (this.show) {
+            this.show = false
           }
         }
 
@@ -232,6 +264,32 @@ class PreviewWork {
             bgColor: Colors.bgBlue,
             position: 'center',
           })
+        }
+
+        // 预览作品时，可以使用快捷键 B 收藏这个作品
+        if (ev.code === 'KeyB' && this.show) {
+          // 阻止 Pixiv 对按下 B 键的行为
+          ev.stopPropagation()
+          this.addBookmark()
+        }
+
+        // 预览作品时，可以使用方向键切换图片，也可以使用空格键切换到下一张图片
+        if (
+          ev.code === 'ArrowLeft' ||
+          ev.code === 'ArrowRight' ||
+          ev.code === 'ArrowUp' ||
+          ev.code === 'ArrowDown' ||
+          ev.code === 'Space'
+        ) {
+          if (this.show && settings.swicthImageByKeyboard) {
+            // 阻止事件冒泡和默认事件
+            // 阻止事件冒泡用来阻止 Pixiv 使用左右键来切换作品的功能
+            // 阻止默认事件用来阻止上下键和空格键滚动页面的功能
+            ev.stopPropagation()
+            ev.preventDefault()
+            const prev = ev.code === 'ArrowLeft' || ev.code === 'ArrowUp'
+            this.swicthImage(prev ? 'prev' : 'next')
+          }
         }
       },
       true
@@ -279,7 +337,7 @@ class PreviewWork {
     this.wrap.addEventListener('click', (ev) => {
       this.show = false
       // 点击预览图使预览图消失时，如果鼠标仍处于缩略图区域内，则不再显示这个作品的预览图
-      // 当鼠标移出这个作品的缩略图之后取消此限制
+      // 当鼠标移出这个作品的缩略图之后会取消此限制
       if (this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY)) {
         this.dontShowAgain = true
       }
@@ -337,10 +395,14 @@ class PreviewWork {
 
   // 当鼠标滚轮滚动时，切换显示的图片
   // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
-  private swicthImage = Utils.throttle(() => {
-    const count = this.workData!.body.pageCount
+  private swicthImageByMouse = Utils.throttle(() => {
     const up = this.wheelEvent!.deltaY < 0
-    if (up) {
+    this.swicthImage(up ? 'prev' : 'next')
+  }, 100)
+
+  private swicthImage(operate: 'prev' | 'next') {
+    const count = this.workData!.body.pageCount
+    if (operate === 'prev') {
       if (this.index > 0) {
         this.index--
       } else {
@@ -353,8 +415,9 @@ class PreviewWork {
         this.index = 0
       }
     }
+
     this.showWrap()
-  }, 100)
+  }
 
   private onWheelScroll = (ev: Event) => {
     if (
@@ -364,13 +427,55 @@ class PreviewWork {
     ) {
       ev.preventDefault()
       this.wheelEvent = ev as WheelEvent
-      this.swicthImage()
+      this.swicthImageByMouse()
     }
   }
 
   private async fetchWorkData() {
     const data = await API.getArtworkData(this.workId)
     cacheWorkData.set(data)
+  }
+
+  private async addBookmark() {
+    if (this.workData?.body.illustId === undefined) {
+      return
+    }
+
+    toast.show(lang.transl('_收藏'), {
+      bgColor: Colors.bgBlue,
+    })
+
+    const res = await bookmark.add(
+      this.workData.body.illustId,
+      'illusts',
+      Tools.extractTags(this.workData!)
+    )
+
+    if (res === 200) {
+      toast.success(lang.transl('_已收藏'))
+    }
+
+    // 将作品缩略图上的收藏按钮变成红色
+    const allSVG = this.workEL!.querySelectorAll('svg')
+    if (allSVG.length > 0) {
+      // 如果有多个 svg，一般最后一个是收藏按钮，但有些特殊情况是第一个
+      let useSVG = allSVG[allSVG.length - 1]
+      if (pageType.type === pageType.list.Request) {
+        useSVG = allSVG[0]
+      }
+
+      useSVG.style.color = 'rgb(255, 64, 96)'
+      const allPath = useSVG.querySelectorAll('path')
+      for (const path of allPath) {
+        path.style.fill = 'currentcolor'
+      }
+    }
+
+    // 排行榜页面的收藏按钮
+    const btn = this.workEL!.querySelector('._one-click-bookmark')
+    if (btn) {
+      btn.classList.add('on')
+    }
   }
 
   private readyShow() {
@@ -563,6 +668,11 @@ class PreviewWork {
     if (settings.showPreviewWorkTip) {
       const text: string[] = []
       const body = this.workData.body
+
+      if (body.aiType === 2) {
+        text.push('AI')
+      }
+
       if (body.pageCount > 1) {
         text.push(`${this.index + 1}/${body.pageCount}`)
       }

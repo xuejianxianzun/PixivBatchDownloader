@@ -1,6 +1,6 @@
 import { Config } from '../Config'
 
-// 已使用的最大编号是 87
+// 目前设置项的最大编号是 89
 export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -477,6 +477,30 @@ export const formHtml = `<form class="settingForm">
     <span class="beautify_switch" tabindex="0"></span>
     </p>
 
+    <p class="option" data-no="89">
+    <span class="has_tip settingNameStyle1" data-xztip="_保存作品简介的说明">
+    <span data-xztext="_保存作品的简介"></span>
+    <span class="gray1"> ? </span>
+    </span>
+    <input type="checkbox" name="saveWorkDescription" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="subOptionWrap" data-show="saveWorkDescription">
+    
+    <label for="saveEachDescription" data-xztext="_每个作品分别保存" class="has_tip" data-xztip="_简介的Links标记"></label>
+    <span class="gray1"> ? &nbsp;</span>
+    <input type="checkbox" name="saveEachDescription" id="saveEachDescription" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="verticalSplit"></span>
+
+    <label for="summarizeDescription" data-xztext="_汇总到一个文件"></label>
+    <input type="checkbox" name="summarizeDescription" id="summarizeDescription" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
+
+    </span>
+    </p>
+
     <div class="centerWrap_btns">
     <slot data-name="exportResult"></slot>
     <slot data-name="namingBtns"></slot>
@@ -514,7 +538,14 @@ export const formHtml = `<form class="settingForm">
     <span class="subOptionWrap" data-show="slowCrawl">
     <span data-xztext="_当作品数量大于"></span>
     <input type="text" name="slowCrawlOnWorksNumber" class="setinput_style1 blue" value="100" style="width:60px;min-width: 60px;">
+
+    <span class="verticalSplit"></span>
+
+    <span data-xztext="_间隔时间"></span>
+    <input type="text" name="slowCrawlDealy" class="setinput_style1 blue" value="1600" placeholder="1600" style="width:60px;min-width: 60px;"> ms
+
     </span>
+
     </p>
 
     <p class="option" data-no="69">
@@ -576,6 +607,12 @@ export const formHtml = `<form class="settingForm">
     <span class="beautify_checkbox" tabindex="0"></span>
     <label for="autoExportResultJSON"> JSON </label>
     </span>
+    </p>
+
+    <p class="option" data-no="85">
+    <span class="settingNameStyle1" data-xztext="_导出ID列表"></span>
+    <input type="checkbox" name="exportIDList" class="need_beautify checkbox_switch">
+    <span class="beautify_switch" tabindex="0"></span>
     </p>
 
     <p class="option settingCategoryName" data-no="65">
@@ -893,12 +930,6 @@ export const formHtml = `<form class="settingForm">
     <span class="beautify_switch" tabindex="0"></span>
     </p>
 
-    <p class="option" data-no="85">
-    <span class="settingNameStyle1" data-xztext="_导出ID列表"></span>
-    <input type="checkbox" name="exportIDList" class="need_beautify checkbox_switch">
-    <span class="beautify_switch" tabindex="0"></span>
-    </p>
-
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </p>
@@ -955,7 +986,7 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="55">
-    <span class="settingNameStyle1 has_tip" data-xztip="_快捷键AltP">
+    <span class="settingNameStyle1">
     <span data-xztext="_预览作品"></span>
     </span>
     <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
@@ -965,6 +996,12 @@ export const formHtml = `<form class="settingForm">
 
     <label for="wheelScrollSwitchImageOnPreviewWork" class="has_tip" data-xztext="_使用鼠标滚轮切换作品里的图片" data-xztip="_这可能会阻止页面滚动"></label>
     <input type="checkbox" name="wheelScrollSwitchImageOnPreviewWork" id="wheelScrollSwitchImageOnPreviewWork" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch" tabindex="0"></span>
+
+    <span class="verticalSplit"></span>
+
+    <label for="swicthImageByKeyboard" class="has_tip" data-xztext="_使用方向键和空格键切换图片" data-xztip="_使用方向键和空格键切换图片的提示"></label>
+    <input type="checkbox" name="swicthImageByKeyboard" id="swicthImageByKeyboard" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch" tabindex="0"></span>
 
     <span class="verticalSplit"></span>
@@ -989,6 +1026,14 @@ export const formHtml = `<form class="settingForm">
     <span class="beautify_radio" tabindex="0"></span>
     <label for="prevWorkSize2" data-xztext="_普通"></label>
     </span>
+
+    <span class="verticalSplit"></span>
+
+    <button type="button" class="gray1 textButton showPreviewWorkTip" data-xztext="_快捷键列表"></button>
+    </p>
+
+    <p class="previewWorkTip tip" style="display:none">
+    <span data-xztext="_预览作品的快捷键说明"></span>
     </p>
 
     <p class="option" data-no="71">
@@ -1056,6 +1101,14 @@ export const formHtml = `<form class="settingForm">
     <p class="option" data-no="48">
     <span class="settingNameStyle1" data-xztext="_在搜索页面添加快捷搜索区域"></span>
     <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
+    <p class="option" data-no="88">
+    <span class="has_tip settingNameStyle1" data-xztip="_在搜索页面里移除已关注用户的作品的说明">
+    <span data-xztext="_在搜索页面里移除已关注用户的作品"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="removeWorksOfFollowedUsersOnSearchPage" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
     </p>
 

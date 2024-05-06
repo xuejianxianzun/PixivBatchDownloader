@@ -24,6 +24,7 @@ import { InitArtworkSeriesPage } from './crawlArtworkPage/InitArtworkSeriesPage'
 import { InitFollowingPage } from './crawlMixedPage/InitFollowingPage'
 import { InitUnsupportedPage } from './crawl/InitUnsupportedPage'
 import { InitUnlistedPage } from './crawlMixedPage/InitUnlistedPage'
+import { InitRequestPage } from './crawl/InitRequestPage'
 
 class InitPage {
   constructor() {
@@ -83,6 +84,8 @@ class InitPage {
         return new InitFollowingPage()
       case pageType.list.Unlisted:
         return new InitUnlistedPage()
+      case pageType.list.Request:
+        return new InitRequestPage()
       default:
         return new InitUnsupportedPage()
     }

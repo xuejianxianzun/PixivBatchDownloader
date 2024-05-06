@@ -12,14 +12,14 @@ import { FastScreen } from '../pageFunciton/FastScreen'
 import { Tools } from '../Tools'
 import { BookmarkAllWorks } from '../pageFunciton/BookmarkAllWorks'
 import { Utils } from '../utils/Utils'
-import { idListWithPageNo } from '../store/IdListWithPageNo'
 import { EVT } from '../EVT'
 import { msgBox } from '../MsgBox'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { states } from '../store/States'
-import { pageType } from '../PageType'
 import { Config } from '../Config'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
+import { vipSearchOptimize } from '../crawl/VipSearchOptimize'
+import { settings } from '../setting/Settings'
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {
@@ -272,33 +272,55 @@ class InitSearchNovelPage extends InitPageBase {
       return this.getIdListFinished()
     }
 
-    data = data.data
-    for (const nowData of data) {
+    const worksData = data.data
+    for (const work of worksData) {
       const filterOpt: FilterOption = {
-        aiType: nowData.aiType,
-        createDate: nowData.createDate,
-        id: nowData.id,
-        bookmarkData: nowData.bookmarkData,
-        bookmarkCount: nowData.bookmarkCount,
+        aiType: work.aiType,
+        createDate: work.createDate,
+        id: work.id,
+        bookmarkData: work.bookmarkData,
+        bookmarkCount: work.bookmarkCount,
         workType: 3,
-        tags: nowData.tags,
-        userId: nowData.userId,
-        xRestrict: nowData.xRestrict,
+        tags: work.tags,
+        userId: work.userId,
+        xRestrict: work.xRestrict,
       }
 
       if (await filter.check(filterOpt)) {
-        idListWithPageNo.add(
-          pageType.type,
-          {
-            type: 'novels',
-            id: nowData.id,
-          },
-          p
-        )
+        store.idList.push({
+          id: work.id,
+          type: 'novels',
+        })
+
+        // idListWithPageNo.add(
+        //   pageType.type,
+        //   {
+        //     type: 'novels',
+        //     id: work.id,
+        //   },
+        //   p
+        // )
       }
     }
 
     this.listPageFinished++
+
+    // 每抓取 10 页，取出最后一个作品的 id，检查其是否符合要求
+    // 如果不符合要求，就不再抓取剩余列表页
+    // 这里使用本页 api 里返回的数据，而非 store.idList 的数据，
+    // 因为如果作品被过滤掉了，就不会储存在 store.idList 里
+    if (this.listPageFinished > 0 && this.listPageFinished % 10 === 0) {
+      console.log(
+        `已抓取 ${this.listPageFinished} 页，检查最后一个作品的收藏数量`
+      )
+      const lastWork = data.data[data.data.length - 1]
+      const check = await vipSearchOptimize.checkWork(lastWork.id, 'novels')
+      if (check) {
+        log.log(lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'))
+        log.log(lang.transl('_列表页抓取完成'))
+        return this.getIdListFinished()
+      }
+    }
 
     log.log(
       lang.transl(
@@ -315,7 +337,7 @@ class InitSearchNovelPage extends InitPageBase {
       if (states.slowCrawlMode) {
         setTimeoutWorker.set(() => {
           this.getIdList()
-        }, Config.slowCrawlDealy)
+        }, settings.slowCrawlDealy)
       } else {
         this.getIdList()
       }
@@ -325,7 +347,7 @@ class InitSearchNovelPage extends InitPageBase {
         // 抓取任务全部完成
         log.log(lang.transl('_列表页抓取完成'))
 
-        idListWithPageNo.store(pageType.type)
+        // idListWithPageNo.store(pageType.type)
 
         this.getIdListFinished()
       }
