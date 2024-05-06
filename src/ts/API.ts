@@ -108,13 +108,13 @@ class API {
   // 获取收藏数据
   // 这个 api 返回的作品列表顺序是按收藏顺序由近期到早期排列的
   static async getBookmarkData(
-    id: string,
+    userID: string,
     type: 'illusts' | 'novels' = 'illusts',
     tag: string,
     offset: number,
     hide: boolean = false
   ): Promise<BookmarkData> {
-    const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
+    const url = `https://www.pixiv.net/ajax/user/${userID}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
       hide ? 'hide' : 'show'
     }&rdm=${Math.random()}`
 
@@ -165,7 +165,6 @@ class API {
     type: 'illusts' | 'novels',
     token: string
   ) {
-    // 注意，这里的 ID 是 bookmarkID，不是作品 ID
     const bodyStr =
       type === 'illusts'
         ? `bookmark_id=${bookmarkID}`

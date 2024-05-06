@@ -52,6 +52,11 @@ class States {
   // 由 InitPageBase 修改它的值
   public slowCrawlMode = false
 
+  /**是否在获取完作品 ID 列表后立即导出，并停止抓取 */
+  // 这和 settings 里的 exportIDList 作用是相同的，但不是持久设置，
+  // 因为它只在某些特定功能上临时使用，之后会被重置
+  public exportIDList = false
+
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       this.settingInitialized = true

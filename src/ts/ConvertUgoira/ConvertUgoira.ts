@@ -7,6 +7,7 @@ import { toAPNG } from './ToAPNG'
 import { msgBox } from '../MsgBox'
 import { lang } from '../Lang'
 import { Tools } from '../Tools'
+import { log } from '../Log'
 
 // 控制动图转换
 class ConvertUgoira {
@@ -87,7 +88,7 @@ class ConvertUgoira {
           )
 
           if (type === 'gif') {
-            resolve(toGIF.convert(ImageBitmapList, info))
+            resolve(toGIF.convert(ImageBitmapList, info, file.size))
           } else if (type === 'png') {
             resolve(toAPNG.convert(ImageBitmapList, info))
           } else {
@@ -104,17 +105,28 @@ class ConvertUgoira {
   }
 
   // 转换成 WebM
-  public async webm(file: Blob, info: UgoiraInfo): Promise<Blob> {
+  public async webm(file: Blob, info: UgoiraInfo, id: number): Promise<Blob> {
+    const delayTooLarge = info.frames.find((item) => item.delay > 32767)
+    if (delayTooLarge) {
+      const msg = lang.transl(
+        '_动图不能转换为WEBM视频的提示',
+        Tools.createWorkLink(id)
+      )
+      msgBox.warning(msg)
+      log.warning(msg)
+      return await this.start(file, info, 'gif')
+    }
+
     return await this.start(file, info, 'webm')
   }
 
   // 转换成 GIF
-  public async gif(file: Blob, info: UgoiraInfo): Promise<Blob> {
+  public async gif(file: Blob, info: UgoiraInfo, id: number): Promise<Blob> {
     return await this.start(file, info, 'gif')
   }
 
   // 转换成 APNG
-  public async apng(file: Blob, info: UgoiraInfo): Promise<Blob> {
+  public async apng(file: Blob, info: UgoiraInfo, id: number): Promise<Blob> {
     return await this.start(file, info, 'png')
   }
 

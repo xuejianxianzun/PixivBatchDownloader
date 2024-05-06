@@ -17,7 +17,6 @@ import { Tools } from '../Tools'
 import { BookmarkAllWorks } from '../pageFunciton/BookmarkAllWorks'
 import { states } from '../store/States'
 import { Utils } from '../utils/Utils'
-import { idListWithPageNo } from '../store/IdListWithPageNo'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
 import { bookmark } from '../Bookmark'
@@ -26,6 +25,8 @@ import { pageType } from '../PageType'
 import { Config } from '../Config'
 import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
+import '../pageFunciton/RemoveWorksOfFollowedUsersOnSearchPage'
+import { vipSearchOptimize } from '../crawl/VipSearchOptimize'
 
 type AddBMKData = {
   id: number
@@ -364,6 +365,7 @@ class InitSearchArtworkPage extends InitPageBase {
     log.error(lang.transl('_抓取被限制时返回空结果的提示'))
   }, 1000)
 
+  /**获取作品 id 列表（列表页数据） */
   // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
   protected async getIdList(p?: number): Promise<void> {
     if (states.stopCrawl) {
@@ -393,41 +395,63 @@ class InitSearchArtworkPage extends InitPageBase {
       return this.getIdListFinished()
     }
 
-    data = data.data
+    const worksData = data.data
 
-    for (const nowData of data) {
+    for (const work of worksData) {
       // 排除广告信息
-      if (nowData.isAdContainer) {
+      if (work.isAdContainer) {
         continue
       }
 
       const filterOpt: FilterOption = {
-        aiType: nowData.aiType,
-        createDate: nowData.createDate,
-        id: nowData.id,
-        width: nowData.pageCount === 1 ? nowData.width : 0,
-        height: nowData.pageCount === 1 ? nowData.height : 0,
-        pageCount: nowData.pageCount,
-        bookmarkData: nowData.bookmarkData,
-        workType: nowData.illustType,
-        tags: nowData.tags,
-        userId: nowData.userId,
-        xRestrict: nowData.xRestrict,
+        aiType: work.aiType,
+        createDate: work.createDate,
+        id: work.id,
+        width: work.pageCount === 1 ? work.width : 0,
+        height: work.pageCount === 1 ? work.height : 0,
+        pageCount: work.pageCount,
+        bookmarkData: work.bookmarkData,
+        workType: work.illustType,
+        tags: work.tags,
+        userId: work.userId,
+        xRestrict: work.xRestrict,
       }
 
       if (await filter.check(filterOpt)) {
-        idListWithPageNo.add(
-          pageType.type,
-          {
-            type: Tools.getWorkTypeString(nowData.illustType),
-            id: nowData.id,
-          },
-          p
-        )
+        store.idList.push({
+          id: work.id,
+          type: Tools.getWorkTypeString(work.illustType),
+        })
+
+        // idListWithPageNo.add(
+        //   pageType.type,
+        //   {
+        //     type: Tools.getWorkTypeString(work.illustType),
+        //     id: work.id,
+        //   },
+        //   p
+        // )
       }
     }
 
     this.listPageFinished++
+
+    // 每抓取 10 页，取出最后一个作品的 id，检查其是否符合要求
+    // 如果不符合要求，就不再抓取剩余列表页
+    // 这里使用本页 api 里返回的数据，而非 store.idList 的数据，
+    // 因为如果作品被过滤掉了，就不会储存在 store.idList 里
+    if (this.listPageFinished > 0 && this.listPageFinished % 10 === 0) {
+      console.log(
+        `已抓取 ${this.listPageFinished} 页，检查最后一个作品的收藏数量`
+      )
+      const lastWork = data.data[data.data.length - 1]
+      const check = await vipSearchOptimize.checkWork(lastWork.id, 'illusts')
+      if (check) {
+        log.log(lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'))
+        log.log(lang.transl('_列表页抓取完成'))
+        return this.getIdListFinished()
+      }
+    }
 
     log.log(
       lang.transl(
@@ -444,7 +468,7 @@ class InitSearchArtworkPage extends InitPageBase {
       if (states.slowCrawlMode) {
         setTimeoutWorker.set(() => {
           this.getIdList()
-        }, Config.slowCrawlDealy)
+        }, settings.slowCrawlDealy)
       } else {
         this.getIdList()
       }
@@ -454,7 +478,7 @@ class InitSearchArtworkPage extends InitPageBase {
         // 抓取任务全部完成
         log.log(lang.transl('_列表页抓取完成'))
 
-        idListWithPageNo.store(pageType.type)
+        // idListWithPageNo.store(pageType.type)
 
         this.getIdListFinished()
       }

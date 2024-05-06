@@ -17,6 +17,7 @@ import { showHelp } from '../ShowHelp'
 import { msgBox } from '../MsgBox'
 import { token } from '../Token'
 import { EVT } from '../EVT'
+import { settings } from '../setting/Settings'
 
 interface UserInfo {
   userId: string
@@ -632,7 +633,7 @@ class InitFollowingPage extends InitPageBase {
     if (states.slowCrawlMode) {
       setTimeoutWorker.set(() => {
         this.getIdList()
-      }, Config.slowCrawlDealy)
+      }, settings.slowCrawlDealy)
     } else {
       this.getIdList()
     }

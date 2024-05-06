@@ -15,7 +15,9 @@
 .sc-5ab8209a-1,
 .drrFnc,
 .sc-5ab8209a-2,
-.hbbJkA {
+.hbbJkA,
+.ggHNyV,
+.dkjfqS {
   width: auto !important;
   min-width: 1224px;
   max-width: unset !important;
@@ -28,7 +30,9 @@
 .sc-11m5zdr-2,
 .hkRLSu,
 .fgSNcI,
-.gFXOjb {
+.gFXOjb,
+.cDZIoX,
+.cwAKCq {
   width: auto !important;
 }
 
@@ -253,7 +257,8 @@ div[width='104'] .eCFXg {
 
 /* 搜索页面 */
 /* ul */
-.krFoBL {
+.krFoBL,
+.hdRpMN {
   // 原本是网格布局，改为 flex 布局
   gap: 0 !important;
   display: flex !important;
@@ -262,7 +267,8 @@ div[width='104'] .eCFXg {
 }
 
 /* li */
-.krFoBL li {
+.krFoBL li,
+.hdRpMN li {
   margin: 10px !important;
   flex-grow: 0;
   flex-shrink: 1;
@@ -384,49 +390,62 @@ div[width='104'] .eCFXg {
 
 /* 约稿页面 */
 
-.ijiEqW {
+.jlWuvS {
   display: flex;
   flex-wrap: wrap;
 }
 
-.ijiEqW li,
+.jlWuvS li,
 .dwiunr,
 .hOMcwd {
   margin: 26px;
 }
 
-.ijiEqW .jdIpfd,
-.ijiEqW li > div {
+.jlWuvS .jdIpfd,
+.jlWuvS li > div,
+.fHNABj {
   display: flex;
   flex-direction: column;
 }
 
-/* 取消容器的宽度限制 */
+/* 取消约稿页面容器的宽度限制 */
 .hHwhak,
 .hHwhak > div,
 .iSHgSV,
 .kCIgXV,
-.eDubME {
+.eDubME,
+.requestContainer {
   width: auto !important;
   min-width: 1224px;
+  padding-left: 36px;
+  padding-right: 36px;
 }
 
-/* ul */
-.jsLfYP {
+/* 作品缩略图列表容器的 ul */
+.jsLfYP,
+.fmesiH {
   align-items: center;
 }
 
-.jsLfYP li {
+.jsLfYP li,
+.fmesiH li {
   width: auto !important;
   margin: 10px !important;
   max-width: 540px;
   max-height: 600px;
 }
 
-/* 取消约稿页面 img 的绝对定位 */
+/* 取消约稿页面 img 的绝对定位，否则其父元素不会被图片撑开 */
 .zdawJ,
-.cdrSgJ {
+.cdrSgJ,
+.ieJNnF,
+.brFRzf,
+a[data-gtm-value] img,
+.gtm-request-creator-recommend-post-link-work img,
+.gtm-complete-request-portal-work-link-illust img,
+.gtm-complete-request-portal-work-link-manga img {
   position: unset !important;
+  max-height: 540px;
 }
 
 /* 发现页面 */

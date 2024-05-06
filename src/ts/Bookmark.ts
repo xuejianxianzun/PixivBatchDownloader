@@ -1,5 +1,6 @@
 import { API } from './API'
 import { Config } from './Config'
+import { ArtworkCommonData, BookmarkResult } from './crawl/CrawlResult'
 import { EVT } from './EVT'
 import { lang } from './Lang'
 import { log } from './Log'
@@ -8,6 +9,7 @@ import { settings } from './setting/Settings'
 import { toast } from './Toast'
 import { token } from './Token'
 import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 
 export interface WorkBookmarkData {
   workID: number
@@ -97,7 +99,7 @@ class Bookmark {
         const status = await this.sendRequest(id, type, tags!, _restrict)
         this.nextTaskID++
         return resolve(status)
-      }, Config.slowCrawlDealy)
+      }, settings.slowCrawlDealy)
     })
   }
 
@@ -113,6 +115,95 @@ class Bookmark {
     })
   }
 
+  /**获取指定用户的指定分类下的所有收藏列表，不限制页数或个数，全部抓取 */
+  public async getAllBookmarkList(
+    userID: string,
+    type: 'illusts' | 'novels',
+    tags: string,
+    offsetStart: number = 0,
+    hide: boolean
+  ): Promise<BookmarkResult[]> {
+    return new Promise(async (resolve) => {
+      const result: BookmarkResult[] = []
+      let offset = offsetStart
+      const onceOffset = 100
+
+      while (true) {
+        const data = await API.getBookmarkData(userID, type, '', offset, hide)
+
+        for (const workData of data.body.works) {
+          result.push({
+            id: workData.id,
+            type:
+              (workData as ArtworkCommonData).illustType === undefined
+                ? 'novels'
+                : 'illusts',
+            tags: workData.tags,
+            restrict: workData.bookmarkData?.private || false,
+          })
+        }
+        log.log(result.length.toString(), 1, false)
+
+        offset += onceOffset
+        if (data.body.works.length === 0) {
+          break
+        }
+
+        await Utils.sleep(settings.slowCrawlDealy)
+      }
+
+      log.persistentRefresh()
+      resolve(result)
+    })
+  }
+
+  public async addBookmarksInBatchs(
+    list: BookmarkResult[],
+    oldList: BookmarkResult[] = []
+  ) {
+    // 反转要添加收藏的作品列表。这是因为它来自于导出的收藏列表，导出时的顺序是按照添加收藏时的倒序排列
+    // 即后收藏的作品在数组前面，先收藏的作品在数组后面
+    // 如果不反转，那么在添加收藏时，就会先收藏在“导出时是后收藏”的作品，这会导致添加收藏的顺序反了
+    // 在网页上看新添加收藏的作品时，顺序也是反的
+    list.reverse()
+
+    let added = 0
+    let skip = 0
+    let tip = ''
+    for (const data of list) {
+      // 如果这个作品已经被收藏过，就不会重复收藏它（这里没有检查 tag 列表）
+      const find = oldList.find(
+        (old) => old.id === data.id && old.type === data.type
+      )
+      if (!find) {
+        await this.add(
+          data.id,
+          data.type!,
+          data.tags,
+          undefined,
+          undefined,
+          true
+        )
+      } else {
+        skip++
+        console.log('已收藏')
+      }
+      added++
+      tip = lang.transl('_收藏作品') + ` ${added}/${list.length}`
+      if (skip > 0) {
+        tip = tip + `, ${lang.transl('_跳过x个', skip.toString())}`
+      }
+      log.log(tip, 1, false)
+    }
+
+    log.persistentRefresh()
+    const msg = '✓ ' + lang.transl('_收藏作品完毕')
+    log.success(msg)
+    toast.success(msg, {
+      position: 'center',
+    })
+  }
+
   private async sendRequest(
     id: string,
     type: 'illusts' | 'novels',
@@ -122,9 +213,13 @@ class Bookmark {
     return new Promise<number>(async (resolve) => {
       API.addBookmark(id, type, tags, hide, token.token).then(async (res) => {
         switch (res.status) {
+          // 当发生 400 错误时重试
           case 400:
             await token.reset()
             return resolve(this.sendRequest(id, type, tags, hide))
+          case 404:
+            log.error(`${id} 404 Not Found`)
+            return resolve(res.status)
           case 429:
           case 500:
             toast.error(lang.transl('_添加收藏失败'), {

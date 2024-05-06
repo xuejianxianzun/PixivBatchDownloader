@@ -72,6 +72,9 @@ class Lang {
 
   // translate
   public transl(name: keyof typeof langText, ...arg: string[]) {
+    // if(!langText[name]){
+    //   console.log(`not found lang ${name}`)
+    // }
     let content = langText[name][this.flagIndex.get(this.type)!]
     arg.forEach((val) => (content = content.replace('{}', val)))
     return content

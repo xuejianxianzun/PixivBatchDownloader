@@ -55,7 +55,7 @@ class InitAreaRankingPage extends InitPageBase {
       if (await filter.check(filterOpt)) {
         const id = Tools.getIllustId(el.querySelector('a')!.href)
         store.idList.push({
-          type: 'unknown',
+          type: 'illusts',
           id,
         })
       }

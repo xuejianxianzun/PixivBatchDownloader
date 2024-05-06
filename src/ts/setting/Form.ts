@@ -216,6 +216,15 @@ class Form {
         )
       )
 
+    // 显示标签分隔提示
+    this.form
+      .querySelector('.showPreviewWorkTip')!
+      .addEventListener('click', () =>
+        Utils.toggleEl(
+          document.querySelector('.previewWorkTip')! as HTMLElement
+        )
+      )
+
     // 输入框获得焦点时自动选择文本（文件名输入框例外）
     const centerInputs: NodeListOf<HTMLInputElement> =
       this.form.querySelectorAll('input[type=text]')

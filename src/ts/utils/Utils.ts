@@ -310,7 +310,7 @@ class Utils {
     return blob
   }
 
-  /**把 JSON 转换成 Blob 对象。可以处理更大的数据量，并且导出的文件体积不会超过 500 MB */
+  /**把 JSON 转换成 Blob 对象。可以处理更大的数据量，并且导出的单个文件体积不会超过 500 MB */
   static async json2BlobSafe(data: any[]): Promise<
     {
       url: string
@@ -426,9 +426,46 @@ class Utils {
     return nameArray[nameArray.length - 1]
   }
 
-  /**替换换行标签，移除 html 标签 */
+  /**替换换行标签，并移除 html 标签 */
   static htmlToText(str: string) {
-    return str.replace(/<br \/>/g, '\n').replace(/<\/?.+?>/g, '')
+    return str
+      .replace(/<br \/>/g, '\n')
+      .replace(/<br>/g, '\n')
+      .replace(/<\/?.+?>/g, '')
+    // 这里有两种换行标签：
+    // <br /> 这是 Pixiv 的 API 返回的，比如作品简介里的换行
+    // <br> 这是现代标准的换行标签，从元素的 innerHTML 属性获取的换行是这样的
+  }
+
+  /**将 html 代码转换成纯文本（innerText） */
+  static htmlToTextWrong(str: string) {
+    const div = document.createElement('div')
+    div.innerHTML = str
+    // 如果使用这个方法，那么必须将创建的这个元素添加到页面上，然后才能获取其 innerText
+    // 如果不 append 到页面，而是直接获取 innerText，那么不会有换行标记 \n
+    // 这可能是因为如果一个元素只存在于内存里，而没有添加到页面上进行渲染的话，浏览器会忽略换行标记
+    document.body.append(div)
+
+    return div.innerText
+  }
+
+  /**将可能包含有 HTML 转义字符的字符串进行反转义 */
+  // 例如输入 "1&#44;2&#44;3&#44;4&#39;5&#39;6&#39;"
+  // 输出 "1,2,3,4'5'6'"
+  // 这也可以解码这些字符：例如 > 的转义 &gt; 空格的 &nbsp;
+
+  // 注意：这里创建的是 textarea 元素，并获取其 value
+  // 不能将 textarea 换成 div 元素然后获取其 innerHTML，因为这不会解码 &gt; &nbsp; 之类字符
+
+  // textarea.value 不会转换 <br /> 等 html 标记
+  static htmlDecode(str: string) {
+    const textarea = document.createElement('textarea')
+    textarea.innerHTML = str
+    return textarea.value
+  }
+
+  static sleep(time: number) {
+    return new Promise((res) => window.setTimeout(res, time))
   }
 }
 

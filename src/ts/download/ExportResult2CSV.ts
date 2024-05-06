@@ -160,7 +160,12 @@ class ExportResult2CSV {
         } else {
           let result = d[field.index] ?? ''
 
-          // 对于某些字段，将其内容特殊化处理
+          // 对于某些字段，将其内容进行特殊处理
+
+          if (field.name === 'description') {
+            result = Utils.htmlToText(Tools.replaceATag(d.description))
+          }
+
           if (field.name === 'type') {
             result = Config.worksTypeName[result as number]
           }

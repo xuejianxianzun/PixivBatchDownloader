@@ -526,13 +526,64 @@ class Tools {
     return `<a href="${href}" target="_blank">${idNum}</a>`
   }
 
+  // 简介里的链接目前有这 3 种，其中站内链接缩写需要替换成完整的 URL，否则将其转换为文本时，只会留下缩写，丢失了链接。
+  // 1. 站内作品链接，但是 a 标签内的字符并不是链接本身，而是缩写。需要处理
+  private link1 = `<a href=\"https://www.pixiv.net/artworks/117285658\">illust/117285658</a>`
+  // 测试用的作品： https://www.pixiv.net/artworks/117386033 其简介是这种链接
+
+  // 2. 表里如一的链接，href 和 a 标签内的字符一样。不需要处理，因为 htmlToText 方法会去掉 a 标签只留下文字
+  private link2 = `<a href=\"https://asanagi.fanbox.cc/posts/7683248\" target=\"_blank\">https://asanagi.fanbox.cc/posts/7683248</a>`
+
+  // 3. 站外链接，有 jump.php 的。不需要处理，因为 htmlToText 方法会去掉 a 标签只留下文字
+  private link3 = `<a href=\"/jump.php?https%3A%2F%2Ffantia.jp%2Fposts%2F2649580\" target=\"_blank\">https://fantia.jp/posts/2649580</a>`
+
+  static readonly ATagRegexp = /<a href.*?\/a>/g
+  static readonly matchHref = /"(http[s].*?)"/
+
+  /** 处理简介里缩写的 A 标签，将其替换成完整 URL */
+  static replaceATag(str: string) {
+    // 匹配所有 A 标签
+    const matchAllA = str.match(this.ATagRegexp)
+    if (matchAllA && matchAllA.length > 0) {
+      for (const a of matchAllA) {
+        // 站外链接，不需要处理
+        if (a.includes('jump.php')) {
+          continue
+        }
+        // 在剩下的情况里，需要处理 A 标签内文本是缩写的情况。如：
+        // <a href=\"https://www.pixiv.net/artworks/117285658\">illust/117285658</a>
+        // 处理之后变成完整的链接：
+        // <a href="https://www.pixiv.net/artworks/117285658">https://www.pixiv.net/artworks/117285658</a>
+
+        // 匹配 a 标签内的文本
+        const div = document.createElement('div')
+        div.innerHTML = a
+        // 如果文本里没有 http 则表示这不是一个完整的网址
+        if (div.innerText.includes('http') === false) {
+          // 取出 href 也就是 URL，替换掉缩写的文本
+          const matchURL = a.match(this.matchHref)
+          if (matchURL && matchURL[1]) {
+            const url = matchURL[1]
+            str = str.replace(div.innerText, url)
+          }
+        }
+      }
+    }
+
+    return str
+  }
+
   /**替换 EPUB 文本里的特殊字符和换行符 */
   // 换行符必须放在最后处理，以免其 < 符号被替换
+  // 把所有换行符统一成 <br/>
+  // 这是因为 epub 是 xhtml 格式，要求必须有闭合标记，所以 <br> 是非法的，会导致小说无法被解析和阅读
   static replaceEPUBText(str: string) {
     return str
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/&lt;br/g, '<br')
+      .replace(/<br>/g, '<br/>')
+      .replace(/<br \/>/g, '<br/>')
       .replace(/\n/g, '<br/>')
   }
 
@@ -677,6 +728,40 @@ class Tools {
         return 'novels'
       default:
         return 'unknown'
+    }
+  }
+
+  /**根据作品类型字符串，返回对应的数字 */
+  static getWorkType(
+    workTypeString: WorkTypeString
+  ): 0 | 1 | 2 | 3 | undefined {
+    switch (workTypeString) {
+      case 'illusts':
+        return 0
+      case 'manga':
+        return 1
+      case 'ugoira':
+        return 2
+      case 'novels':
+        return 3
+      default:
+        return undefined
+    }
+  }
+
+  /**根据作品类型字符串，返回对应的数字。但是这里把插画、漫画、动图均返回 -1。
+   * 这是因为某些时候无法确定一个图像作品到底属于哪一类型，所以用 -1 笼统的概括
+   */
+  static getWorkTypeVague(workTypeString: WorkTypeString): -1 | 3 | undefined {
+    switch (workTypeString) {
+      case 'illusts':
+      case 'manga':
+      case 'ugoira':
+        return -1
+      case 'novels':
+        return 3
+      default:
+        return undefined
     }
   }
 

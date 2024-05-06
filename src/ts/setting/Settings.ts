@@ -211,13 +211,15 @@ interface XzSetting {
   showLargerThumbnails: boolean
   doubleWidthThumb: boolean
   wheelScrollSwitchImageOnPreviewWork: boolean
+  swicthImageByKeyboard: boolean
   /**不抓取多图作品的最后一张图片 */
   doNotDownloadLastImageOfMultiImageWork: boolean
   downloadNovelCoverImage: boolean
   downloadNovelEmbeddedImage: boolean
   previewUgoira: boolean
   hiddenBrowserDownloadBar: boolean
-  tipPressDToQuickDownload: boolean
+  tipPreviewWork: boolean
+  tipHotkeysViewLargeImage: boolean
   /**定时抓取的间隔时间，注意单位是分钟而不是毫秒 */
   timedCrawlInterval: number
   slowCrawl: boolean
@@ -261,6 +263,12 @@ interface XzSetting {
   requestSponsorshipTime: number
   PreviewWorkDetailInfo: boolean
   PreviewDetailInfoWidth: number
+  removeWorksOfFollowedUsersOnSearchPage: boolean
+  tipExportAndImportBookmark: boolean
+  saveWorkDescription: boolean
+  saveEachDescription: boolean
+  summarizeDescription: boolean
+  slowCrawlDealy: number
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -439,12 +447,14 @@ class Settings {
     showLargerThumbnails: false,
     doubleWidthThumb: true,
     wheelScrollSwitchImageOnPreviewWork: true,
+    swicthImageByKeyboard: true,
     doNotDownloadLastImageOfMultiImageWork: false,
     downloadNovelCoverImage: true,
     downloadNovelEmbeddedImage: true,
     previewUgoira: true,
     hiddenBrowserDownloadBar: false,
-    tipPressDToQuickDownload: true,
+    tipPreviewWork: true,
+    tipHotkeysViewLargeImage: true,
     timedCrawlInterval: 120,
     slowCrawl: true,
     slowCrawlOnWorksNumber: 100,
@@ -479,6 +489,12 @@ class Settings {
     requestSponsorshipTime: 0,
     PreviewWorkDetailInfo: false,
     PreviewDetailInfoWidth: 400,
+    removeWorksOfFollowedUsersOnSearchPage: false,
+    tipExportAndImportBookmark: true,
+    saveWorkDescription: false,
+    saveEachDescription: false,
+    summarizeDescription: false,
+    slowCrawlDealy: 1600,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -622,14 +638,15 @@ class Settings {
   private resetHelpTip() {
     this.setSetting('tipHowToUse', true)
     this.setSetting('tipAltXToShowControlPanel', true)
-    this.setSetting('tipPressDToQuickDownload', true)
+    this.setSetting('tipPreviewWork', true)
+    this.setSetting('tipHotkeysViewLargeImage', true)
     this.setSetting('tipAltSToSelectWork', true)
-    this.setSetting('tipPressDToQuickDownload', true)
     this.setSetting('tipAltQToQuickDownload', true)
     this.setSetting('tipBookmarkButton', true)
     this.setSetting('tipCSV', true)
     this.setSetting('tipExportFollowingUserList', true)
     this.setSetting('tipBookmarkManage', true)
+    this.setSetting('tipExportAndImportBookmark', true)
 
     toast.success('✓ ' + lang.transl('_重新显示帮助'))
   }
@@ -725,11 +742,15 @@ class Settings {
     }
 
     // 对于一些不合法的值，重置为默认值
-    if (key === 'firstFewImages' && value < 1) {
+    if (key === 'slowCrawlDealy' && (value as number) < 1000) {
+      value = 1000
+    }
+
+    if (key === 'firstFewImages' && (value as number) < 1) {
       value = this.defaultSettings[key]
     }
 
-    if (key === 'fileNameLengthLimit' && value < 1) {
+    if (key === 'fileNameLengthLimit' && (value as number) < 1) {
       value = this.defaultSettings[key]
     }
 
@@ -737,7 +758,7 @@ class Settings {
       value = this.defaultSettings[key]
     }
 
-    if (key === 'previewResultLimit' && value < 0) {
+    if (key === 'previewResultLimit' && (value as number) < 0) {
       value = 999999
     }
 

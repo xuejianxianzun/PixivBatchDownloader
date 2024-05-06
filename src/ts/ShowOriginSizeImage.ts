@@ -92,8 +92,8 @@ class ShowOriginSizeImage {
       this.wrap.style.display = 'block'
       if (!Config.mobile) {
         showHelp.show(
-          'tipPressDToQuickDownload',
-          lang.transl('_预览作品时按快捷键可以下载这个作品')
+          'tipHotkeysViewLargeImage',
+          lang.transl('_查看作品大图时的快捷键')
         )
       }
 

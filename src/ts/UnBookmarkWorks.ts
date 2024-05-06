@@ -7,6 +7,7 @@ import { states } from './store/States'
 import { WorkBookmarkData } from './Bookmark'
 import { setTimeoutWorker } from './SetTimeoutWorker'
 import { Config } from './Config'
+import { settings } from './setting/Settings'
 
 class UnBookmarkWorks {
   public async start(list: WorkBookmarkData[]) {
@@ -56,7 +57,7 @@ class UnBookmarkWorks {
       } else {
         setTimeoutWorker.set(() => {
           return resolve()
-        }, Config.slowCrawlDealy)
+        }, settings.slowCrawlDealy)
       }
     })
   }

@@ -120,6 +120,7 @@ export interface SettingsForm extends HTMLFormElement {
   showLargerThumbnails: HTMLInputElement
   doubleWidthThumb: HTMLInputElement
   wheelScrollSwitchImageOnPreviewWork: HTMLInputElement
+  swicthImageByKeyboard: HTMLInputElement
   doNotDownloadLastImageOfMultiImageWork: HTMLInputElement
   downloadNovelCoverImage: HTMLInputElement
   downloadNovelEmbeddedImage: HTMLInputElement
@@ -148,4 +149,9 @@ export interface SettingsForm extends HTMLFormElement {
   displayThumbnailListOnMultiImageWorkPage: HTMLInputElement
   PreviewWorkDetailInfo: HTMLInputElement
   PreviewDetailInfoWidth: HTMLInputElement
+  removeWorksOfFollowedUsersOnSearchPage: HTMLInputElement
+  saveWorkDescription: HTMLInputElement
+  saveEachDescription: HTMLInputElement
+  summarizeDescription: HTMLInputElement
+  slowCrawlDealy: HTMLInputElement
 }

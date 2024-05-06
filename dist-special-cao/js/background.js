@@ -434,7 +434,7 @@ chrome.runtime.onMessage.addListener(async function (msg, sender) {
             });
         }
     }
-    // save_description_file 下载作品的简介文件，不需要返回下载状态
+    // save_description_file 下载作品的元数据/简介 TXT 文件，不需要返回下载状态
     // save_novel_cover_file 下载小说的封面图片
     if (msg.msg === 'save_description_file' ||
         msg.msg === 'save_novel_cover_file' ||
