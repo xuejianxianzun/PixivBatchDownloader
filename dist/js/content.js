@@ -13476,6 +13476,15 @@ class Tools {
             .replace(/<br \/>/g, '<br/>')
             .replace(/\n/g, '<br/>');
     }
+    // 小说标题里有些符号需要和正文进行不同的处理
+    // 标题里的 & 符号必须去掉或将其转换为普通字符
+    static replaceEPUBTitle(str) {
+        return str
+            .replace(/&/g, ' and ')
+            .replace(/<br>/g, ' br ')
+            .replace(/<br \/>/g, ' br ')
+            .replace(/\n/g, ' br ');
+    }
     /** 在 zip 压缩包里查找类似于 000000.jpg 的标记，返回它后面的位置的下标
      *
      * @param zipFile  Zip 文件的内容
@@ -22352,7 +22361,7 @@ class MakeNovelFile {
             content = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_3__.downloadNovelEmbeddedImage.EPUB(content, data.embeddedImages);
             // epub 内部会使用标题 title 建立一个文件夹，把一些文件存放进去，所以要替换掉标题的特殊字符。特殊字符会导致这个文件夹名被截断，结果就是这个 epub 文件无法被解析。
             const userName = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(data.userName));
-            const title = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(data.title));
+            const title = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(data.title));
             new EpubMaker()
                 .withTemplate('idpf-wasteland')
                 .withAuthor(userName)

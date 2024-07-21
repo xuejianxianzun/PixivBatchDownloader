@@ -587,6 +587,17 @@ class Tools {
       .replace(/\n/g, '<br/>')
   }
 
+  // 小说标题里有些符号需要和正文进行不同的处理
+  // 标题里的 & 符号必须去掉或将其转换为普通字符
+  // 至于换行标记，不知道标题里有没有，如果有的话也需要将其转换成普通符号
+  static replaceEPUBTitle(str: string) {
+    return str
+      .replace(/&/g, ' and ')
+      .replace(/<br>/g, ' br ')
+      .replace(/<br \/>/g, ' br ')
+      .replace(/\n/g, ' br ')
+  }
+
   /** 在 zip 压缩包里查找类似于 000000.jpg 的标记，返回它后面的位置的下标
    *
    * @param zipFile  Zip 文件的内容

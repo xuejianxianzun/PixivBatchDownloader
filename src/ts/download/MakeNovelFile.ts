@@ -41,7 +41,7 @@ class MakeNovelFile {
       const userName = Tools.replaceEPUBText(
         Utils.replaceUnsafeStr(data.userName)
       )
-      const title = Tools.replaceEPUBText(Utils.replaceUnsafeStr(data.title))
+      const title = Tools.replaceEPUBTitle(Utils.replaceUnsafeStr(data.title))
       new EpubMaker()
         .withTemplate('idpf-wasteland')
         .withAuthor(userName)
