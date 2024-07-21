@@ -3082,7 +3082,7 @@ const langText = {
     您可以在 Patreon 上赞助我：<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br>
     中国大陆用户可以在“爱发电”上赞助我：<br>
-    <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
+    <a href="https://afdian.com/@xuejianxianzun" target="_blank">https://afdian.com/@xuejianxianzun</a><br>
     也可以扫描二维码：<br>
     <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 499873152，在群文件里查看二维码。
     `,
@@ -3090,7 +3090,7 @@ const langText = {
     您可以在 Patreon 上贊助我：<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br>
     中國大陸使用者可以在“愛發電”上贊助我：<br>
-    <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a>。
+    <a href="https://afdian.com/@xuejianxianzun" target="_blank">https://afdian.com/@xuejianxianzun</a>。
     `,
     `Thank you very much for your support!<br>
     You can sponsor me on Patreon: <br>

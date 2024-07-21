@@ -32,7 +32,7 @@ class InitSearchNovelPage extends InitPageBase {
   private readonly worksWrapSelector = '#root section>div ul'
 
   private option: SearchOption = {}
-  private readonly worksNoPerPage = 24 // 每个页面有多少个作品
+  private readonly worksNoPerPage = 30 // 每个页面有多少个作品
   private needCrawlPageCount = 0 // 一共有有多少个列表页面
   private sendCrawlTaskCount = 0 // 已经抓取了多少个列表页面
   private readonly allOption = [

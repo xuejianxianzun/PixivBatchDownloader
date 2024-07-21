@@ -384,8 +384,8 @@ class InitBookmarkPage extends InitPageBase {
 
     store.tag = Tools.getTagFromURL()
 
-    // 每页个作品数，插画 48 个，小说 24 个
-    const onceNumber = window.location.pathname.includes('/novels') ? 24 : 48
+    // 每页个作品数，插画 48 个，小说 30 个
+    const onceNumber = window.location.pathname.includes('/novels') ? 30 : 48
 
     // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
     const nowPage = Utils.getURLSearchField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码

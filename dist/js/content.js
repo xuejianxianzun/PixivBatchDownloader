@@ -2784,6 +2784,7 @@ class HighlightFollowingUsers {
     }
     /**只请求第一页的数据，以获取 total */
     async getFollowingTotal(rest) {
+        // 关注页面一页显示 24 个作者
         const res = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.loggedUserID, rest, '', 0, 24);
         return res.body.total;
     }
@@ -6822,7 +6823,7 @@ const langText = {
     您可以在 Patreon 上赞助我：<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br>
     中国大陆用户可以在“爱发电”上赞助我：<br>
-    <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
+    <a href="https://afdian.com/@xuejianxianzun" target="_blank">https://afdian.com/@xuejianxianzun</a><br>
     也可以扫描二维码：<br>
     <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 499873152，在群文件里查看二维码。
     `,
@@ -6830,7 +6831,7 @@ const langText = {
     您可以在 Patreon 上贊助我：<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br>
     中國大陸使用者可以在“愛發電”上贊助我：<br>
-    <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a>。
+    <a href="https://afdian.com/@xuejianxianzun" target="_blank">https://afdian.com/@xuejianxianzun</a>。
     `,
         `Thank you very much for your support!<br>
     You can sponsor me on Patreon: <br>
@@ -16669,8 +16670,8 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
             this.type = 'novels';
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.tag = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getTagFromURL();
-        // 每页个作品数，插画 48 个，小说 24 个
-        const onceNumber = window.location.pathname.includes('/novels') ? 24 : 48;
+        // 每页个作品数，插画 48 个，小说 30 个
+        const onceNumber = window.location.pathname.includes('/novels') ? 30 : 48;
         // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
         const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.getURLSearchField(location.href, 'p'); // 判断当前处于第几页，页码从 1 开始。也可能没有页码
         if (nowPage) {
@@ -17726,7 +17727,7 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     constructor() {
         super();
         this.listType = ListType.UserHome; // 当前页面应该获取哪些类型的作品
-        this.onceNumber = 48; // 每页作品个数，插画是 48 个，小说是 24 个
+        this.onceNumber = 48; // 每页作品个数，插画是 48 个，小说是 30 个
         this.bookmarkAll = new _pageFunciton_BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_13__.BookmarkAllWorks();
         this.sendBookmarkIdList = () => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.bookmarkMode) {
@@ -17820,7 +17821,7 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
             else if (str.includes('/novels')) {
                 // 小说列表
                 this.listType = ListType.Novels;
-                this.onceNumber = 24; // 如果是在小说列表页，一页只有 24 个作品
+                this.onceNumber = 30; // 如果是在小说列表页，一页有 30 个作品
             }
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.tag ? this.getIdListByTag() : this.getIdList();
@@ -18699,7 +18700,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         super();
         this.worksWrapSelector = '#root section>div ul';
         this.option = {};
-        this.worksNoPerPage = 24; // 每个页面有多少个作品
+        this.worksNoPerPage = 30; // 每个页面有多少个作品
         this.needCrawlPageCount = 0; // 一共有有多少个列表页面
         this.sendCrawlTaskCount = 0; // 已经抓取了多少个列表页面
         this.allOption = [
@@ -20089,7 +20090,7 @@ class BookmarkAfterDL {
                 return resolve();
             }
             // 当抓取结果很少时，不使用慢速收藏
-            await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(id.toString(), data.type !== 3 ? 'illusts' : 'novels', data.tags, undefined, undefined, _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length > 24);
+            await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(id.toString(), data.type !== 3 ? 'illusts' : 'novels', data.tags, undefined, undefined, _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length > 30);
             this.successCount++;
             this.showProgress();
             resolve();
