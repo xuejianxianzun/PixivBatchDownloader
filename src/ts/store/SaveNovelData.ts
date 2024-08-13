@@ -115,6 +115,7 @@ class SaveNovelData {
           userName: body.userName,
           embeddedImages: embeddedImages,
           meta: meta,
+          tags: tags,
         },
         xRestrict: body.xRestrict,
       })

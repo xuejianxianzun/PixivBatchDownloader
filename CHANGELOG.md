@@ -6,7 +6,73 @@ TODO:日语文本需要加粗显示关键字，但是我不懂日语，所以现
 
 - 自动合并系列小说
 
-## 17.1.0 2024/07/21
+下载 TXT 格式的小说时，也需要显示图片进度：
+_正在下载小说中的插画
+
+## 17.1.0 2024/08/14
+
+### 下载小说的测试用例
+
+小说里的图片有两种形式，P 站在小说正文里添加有对应的标记。
+1. 上传的图片，标记如 `[uploadedimage:17995414]`，其对应数据保存在 `embeddedImages` 里。
+2. 引用其他作品的图片，标记如 `[pixivimage:99760571-1]`，形式为作品 id 后面跟着图片序号，从 1 开始。但也有可能没有序号。
+
+测试用例：
+
+包含 6 个嵌入的图片 `[uploadedimage:17995414]`：
+https://www.pixiv.net/novel/show.php?id=22088160
+
+包含 1 个引用的图片 `[pixivimage:70551567]`：
+https://www.pixiv.net/novel/show.php?id=10083001
+
+这个系列小说里一共有 57 张图片，图片总体积 184.8 MB：
+https://www.pixiv.net/novel/series/10923616
+
+没有图片的小说：
+https://www.pixiv.net/novel/show.php?id=21782995
+
+### 更换了生成 EPUB 小说的库
+
+下载器之前用的是 js-epub-marker.js:
+https://github.com/bbottema/js-epub-maker
+
+当小说里的图片很多并且总体积很大时，它生成的 EPUB 文件存在严重的性能问题。EPUB 阅读器会很难打开生成的 EPUB 文件，或者打开速度很慢、卡顿。
+
+这是因为两个原因：
+1. 即使有多个章节，它也只会生成一个 html 文件。这意味着单个 html 里可能存在过多的内容（特别是图片）。
+2. 在保存图片方面，它只能保存封面图，没有添加其他图片（如文章里的图片）的功能，所以我只能把图片转换成 base64 格式内嵌在 html 里。这会导致文件体积增大，以及解析时有额外的性能损耗。
+
+假设有一个含有 100 多 MB 图片的系列小说，由于它只有一个 html 文件，所以点击每个章节都会把这个 html 文件完整的解析一遍。这是重复并且浪费资源的。我需要的是每个章节保存在单独的 html 文件里。
+
+我尝试搞明白它到底能不能为每个章节生成一个单独的 html 文件，但看来似乎是不可能的。因为它生成的文件里，每个章节的内容都被放在一个固定名字的 content.xhtml 里，用不同的 hash 做区分。如果要生成多个文件，那么应该能看到不同的 xhtml 的文件名，但这里只有一个 content.xhtml。
+
+并且它生成的所有文件都是相同的文件名。
+
+我找到了另一个生成 EPUB 的库，它的 demo 就是我想要的，每个章节保存一个单独的 html 文件：
+
+![](./notes/images/20240814_033710.png)
+
+这个库是 jEpub：
+https://github.com/lelinhtinh/jEpub
+
+但是它存在另一个问题，就是它依赖 ejs，而 ejs 是个字符串模板框架，它会动态构建 JavaScript 代码，这导致它无法在 Pixiv.net 里运行，会报错：
+
+```
+ejs.min.js:1 
+Uncaught EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'self' 'wasm-unsafe-eval' 'inline-speculation-rules' http://localhost:* http://127.0.0.1:*".
+```
+
+ejs 的这个问题现在也无法解决：https://github.com/mde/ejs/issues/468
+
+这导致 ejs 未能成功运行，而依赖 ejs 的 JEpub 在运行时也会因 ejs 未定义而产生错误，导致无法生成 epub 文件。
+
+我修改了 jepub.js 的代码，解除了对 ejs 的依赖。
+
+### 😄优化下载器生成的 EPUB 小说的文件体积和性能
+
+现在每个章节会单独生成一个 html 文件保存，而不是所有内容都塞在一个 html 里。
+
+另外图片文件会单独保存，而不是内嵌在 html 里，这可以减小文件体积（相比于使用 DataURL 保存图片），以及优化解析页面时的性能。
 
 ### 🐛修复小说标题里含有 & 符号导致生成的 epub 无法阅读的问题
 
@@ -46,8 +112,6 @@ ps：这个修改不会影响 epub 文件的文件名，因为文件名是命名
 1. 自己收藏页面里的小说列表 https://www.pixiv.net/users/9460149/bookmarks/novels/
 2. 作者主页的小说列表 https://www.pixiv.net/users/16208053/novels
 3. 搜索 tag 的小说列表 https://www.pixiv.net/tags/%E5%87%8C%E8%BE%B1/novels?ai_type=1
-
-## 17.0.1 2024/06/07
 
 ### 🐛修复了在搜索页面抓取时，vip 优化策略可能出错导致抓取中止的问题
 

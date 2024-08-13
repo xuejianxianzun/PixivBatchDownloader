@@ -27,7 +27,7 @@
         "lib/gif.js",
         "lib/jszip-utils.min.js",
         "lib/jszip.min.js",
-        "lib/js-epub-maker.js",
+        "lib/jepub.js",
         "lib/pako.min.js",
         "lib/UPNG.js",
         "js/content.js",

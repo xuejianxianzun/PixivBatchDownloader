@@ -6,7 +6,7 @@ type EmbeddedImages = null | {
   [key: string]: string
 }
 
-type IDData = {
+type NovelImageIDData = {
   /**图片的 id，可能会重复。id 重复时，它们的 p 不同 */
   id: string
   /**这个属性只在引用其他作品的图片时有实机值，表示这个图片是作品里的第几张图片（从 1 开始）。0 无实际意义。 */
@@ -21,7 +21,7 @@ type IDData = {
   flag: string
 }
 
-type IDList = IDData[]
+type NovelImageIDList = NovelImageIDData[]
 
 /**下载小说里的内嵌图片 */
 class DownloadNovelEmbeddedImage {
@@ -41,7 +41,7 @@ class DownloadNovelEmbeddedImage {
       return
     }
 
-    const idList = await this.getIdList(content, embeddedImages)
+    const idList = await this.getImageList(content, embeddedImages)
 
     // 保存为 TXT 格式时，每加载完一个图片，就立即保存这个图片
     for (let idData of idList) {
@@ -75,7 +75,7 @@ class DownloadNovelEmbeddedImage {
         return resolve(content)
       }
 
-      const idList = await this.getIdList(content, embeddedImages)
+      const idList = await this.getImageList(content, embeddedImages)
       for (let idData of idList) {
         if (idData.url) {
           idData = await this.getImageBolbURL(idData)
@@ -96,12 +96,12 @@ class DownloadNovelEmbeddedImage {
   }
 
   // 获取正文里上传的图片 id 和引用的图片 id
-  private async getIdList(
+  public async getImageList(
     content: string,
     embeddedImages: EmbeddedImages
-  ): Promise<IDList> {
+  ): Promise<NovelImageIDList> {
     return new Promise(async (resolve) => {
-      const idList: IDList = []
+      const idList: NovelImageIDList = []
 
       // 获取上传的图片数据
       if (embeddedImages) {
@@ -175,7 +175,9 @@ class DownloadNovelEmbeddedImage {
     })
   }
 
-  private async getImageBolbURL(idData: IDData): Promise<IDData> {
+  private async getImageBolbURL(
+    idData: NovelImageIDData
+  ): Promise<NovelImageIDData> {
     return new Promise(async (resolve) => {
       if (idData.url) {
         const res = await fetch(idData.url)
@@ -186,7 +188,7 @@ class DownloadNovelEmbeddedImage {
     })
   }
 
-  private async getImageDataURL(data: IDData): Promise<string> {
+  private async getImageDataURL(data: NovelImageIDData): Promise<string> {
     return new Promise(async (resolve) => {
       const img = await Utils.loadImg(data.blobURL!)
       const canvas = document.createElement('canvas')
