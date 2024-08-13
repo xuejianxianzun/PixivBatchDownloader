@@ -1,4 +1,6 @@
 import { API } from '../API'
+import { lang } from '../Lang'
+import { log } from '../Log'
 import { settings } from '../setting/Settings'
 import { Utils } from '../utils/Utils'
 
@@ -6,7 +8,7 @@ type EmbeddedImages = null | {
   [key: string]: string
 }
 
-type NovelImageIDData = {
+type NovelImageData = {
   /**图片的 id，可能会重复。id 重复时，它们的 p 不同 */
   id: string
   /**这个属性只在引用其他作品的图片时有实机值，表示这个图片是作品里的第几张图片（从 1 开始）。0 无实际意义。 */
@@ -21,7 +23,7 @@ type NovelImageIDData = {
   flag: string
 }
 
-type NovelImageIDList = NovelImageIDData[]
+type NovelImageList = NovelImageData[]
 
 /**下载小说里的内嵌图片 */
 class DownloadNovelEmbeddedImage {
@@ -41,28 +43,40 @@ class DownloadNovelEmbeddedImage {
       return
     }
 
-    const idList = await this.getImageList(content, embeddedImages)
+    const imageList = await this.getImageList(content, embeddedImages)
 
+    let current = 1
+    const total = imageList.length
     // 保存为 TXT 格式时，每加载完一个图片，就立即保存这个图片
-    for (let idData of idList) {
-      // 如果 url 是 null，则不会保存这个图片
-      if (idData.url) {
-        idData = await this.getImageBolbURL(idData)
-        let imageName = Utils.replaceSuffix(novelName, idData.url!)
-        // 在文件名末尾加上内嵌图片的 id 和序号
-        const array = imageName.split('.')
-        const addString = `-${idData.id}${idData.p === 0 ? '' : '-' + idData.p}`
-        array[array.length - 2] = array[array.length - 2] + addString
-        imageName = array.join('.')
-
-        // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
-        // 所以要替换掉内嵌图片路径里的斜线
-        if (action === 'mergeNovel') {
-          imageName = Utils.replaceUnsafeStr(imageName)
-        }
-        this.sendDownload(idData.blobURL!, imageName)
+    for (let image of imageList) {
+      log.log(
+        lang.transl('_正在下载小说中的插画', `${current} / ${total}`),
+        action === 'mergeNovel' ? 1 : 2,
+        false
+      )
+      current++
+      if (image.url === null) {
+        // 如果引用的图片作品已经不存在，那么它的图片网址会是 null
+        log.warning(`image ${image.id} not found`)
+        continue
       }
+
+      image = await this.getImageBlobURL(image)
+      let imageName = Utils.replaceSuffix(novelName, image.url!)
+      // 在文件名末尾加上内嵌图片的 id 和序号
+      const array = imageName.split('.')
+      const addString = `-${image.id}${image.p === 0 ? '' : '-' + image.p}`
+      array[array.length - 2] = array[array.length - 2] + addString
+      imageName = array.join('.')
+
+      // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
+      // 所以要替换掉内嵌图片路径里的斜线
+      if (action === 'mergeNovel') {
+        imageName = Utils.replaceUnsafeStr(imageName)
+      }
+      this.sendDownload(image.blobURL!, imageName)
     }
+    log.persistentRefresh()
   }
 
   /**下载小说为 EPUB 时，替换内嵌图片标记，把图片用 img 标签保存到正文里 */
@@ -78,7 +92,7 @@ class DownloadNovelEmbeddedImage {
       const idList = await this.getImageList(content, embeddedImages)
       for (let idData of idList) {
         if (idData.url) {
-          idData = await this.getImageBolbURL(idData)
+          idData = await this.getImageBlobURL(idData)
           const dataURL = await this.getImageDataURL(idData)
           const html = `<img src="${dataURL}" />`
           content = content.replaceAll(idData.flag, html)
@@ -99,9 +113,9 @@ class DownloadNovelEmbeddedImage {
   public async getImageList(
     content: string,
     embeddedImages: EmbeddedImages
-  ): Promise<NovelImageIDList> {
+  ): Promise<NovelImageList> {
     return new Promise(async (resolve) => {
-      const idList: NovelImageIDList = []
+      const idList: NovelImageList = []
 
       // 获取上传的图片数据
       if (embeddedImages) {
@@ -175,20 +189,28 @@ class DownloadNovelEmbeddedImage {
     })
   }
 
-  private async getImageBolbURL(
-    idData: NovelImageIDData
-  ): Promise<NovelImageIDData> {
+  private async getImageBlobURL(
+    image: NovelImageData
+  ): Promise<NovelImageData> {
     return new Promise(async (resolve) => {
-      if (idData.url) {
-        const res = await fetch(idData.url)
-        const blob = await res.blob()
-        idData.blobURL = URL.createObjectURL(blob)
+      if (image.url) {
+        const illustration = await fetch(image.url).then((response) => {
+          if (response.ok) {
+            return response.blob()
+          }
+        })
+        // 如果图片获取失败，不重试
+        if (illustration === undefined) {
+          log.error(`fetch ${image.url} failed`)
+          return resolve(image)
+        }
+        image.blobURL = URL.createObjectURL(illustration)
       }
-      resolve(idData)
+      resolve(image)
     })
   }
 
-  private async getImageDataURL(data: NovelImageIDData): Promise<string> {
+  private async getImageDataURL(data: NovelImageData): Promise<string> {
     return new Promise(async (resolve) => {
       const img = await Utils.loadImg(data.blobURL!)
       const canvas = document.createElement('canvas')

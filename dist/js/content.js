@@ -21154,8 +21154,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   downloadNovelEmbeddedImage: () => (/* binding */ downloadNovelEmbeddedImage)
 /* harmony export */ });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
 
 
 
@@ -21167,40 +21171,47 @@ class DownloadNovelEmbeddedImage {
      * 默认是正常下载小说的情况，可以设置为合并系列小说的情况
      */
     async TXT(content, embeddedImages, novelName, action = 'downloadNovel') {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.downloadNovelEmbeddedImage) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadNovelEmbeddedImage) {
             return;
         }
-        const idList = await this.getImageList(content, embeddedImages);
+        const imageList = await this.getImageList(content, embeddedImages);
+        let current = 1;
+        const total = imageList.length;
         // 保存为 TXT 格式时，每加载完一个图片，就立即保存这个图片
-        for (let idData of idList) {
-            // 如果 url 是 null，则不会保存这个图片
-            if (idData.url) {
-                idData = await this.getImageBolbURL(idData);
-                let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceSuffix(novelName, idData.url);
-                // 在文件名末尾加上内嵌图片的 id 和序号
-                const array = imageName.split('.');
-                const addString = `-${idData.id}${idData.p === 0 ? '' : '-' + idData.p}`;
-                array[array.length - 2] = array[array.length - 2] + addString;
-                imageName = array.join('.');
-                // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
-                // 所以要替换掉内嵌图片路径里的斜线
-                if (action === 'mergeNovel') {
-                    imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(imageName);
-                }
-                this.sendDownload(idData.blobURL, imageName);
+        for (let image of imageList) {
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_正在下载小说中的插画', `${current} / ${total}`), action === 'mergeNovel' ? 1 : 2, false);
+            current++;
+            if (image.url === null) {
+                // 如果引用的图片作品已经不存在，那么它的图片网址会是 null
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(`image ${image.id} not found`);
+                continue;
             }
+            image = await this.getImageBlobURL(image);
+            let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceSuffix(novelName, image.url);
+            // 在文件名末尾加上内嵌图片的 id 和序号
+            const array = imageName.split('.');
+            const addString = `-${image.id}${image.p === 0 ? '' : '-' + image.p}`;
+            array[array.length - 2] = array[array.length - 2] + addString;
+            imageName = array.join('.');
+            // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
+            // 所以要替换掉内嵌图片路径里的斜线
+            if (action === 'mergeNovel') {
+                imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(imageName);
+            }
+            this.sendDownload(image.blobURL, imageName);
         }
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.persistentRefresh();
     }
     /**下载小说为 EPUB 时，替换内嵌图片标记，把图片用 img 标签保存到正文里 */
     async EPUB(content, embeddedImages) {
         return new Promise(async (resolve) => {
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.downloadNovelEmbeddedImage) {
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadNovelEmbeddedImage) {
                 return resolve(content);
             }
             const idList = await this.getImageList(content, embeddedImages);
             for (let idData of idList) {
                 if (idData.url) {
-                    idData = await this.getImageBolbURL(idData);
+                    idData = await this.getImageBlobURL(idData);
                     const dataURL = await this.getImageDataURL(idData);
                     const html = `<img src="${dataURL}" />`;
                     content = content.replaceAll(idData.flag, html);
@@ -21285,25 +21296,33 @@ class DownloadNovelEmbeddedImage {
             return resolve(result);
         });
     }
-    async getImageBolbURL(idData) {
+    async getImageBlobURL(image) {
         return new Promise(async (resolve) => {
-            if (idData.url) {
-                const res = await fetch(idData.url);
-                const blob = await res.blob();
-                idData.blobURL = URL.createObjectURL(blob);
+            if (image.url) {
+                const illustration = await fetch(image.url).then((response) => {
+                    if (response.ok) {
+                        return response.blob();
+                    }
+                });
+                // 如果图片获取失败，不重试
+                if (illustration === undefined) {
+                    _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(`fetch ${image.url} failed`);
+                    return resolve(image);
+                }
+                image.blobURL = URL.createObjectURL(illustration);
             }
-            resolve(idData);
+            resolve(image);
         });
     }
     async getImageDataURL(data) {
         return new Promise(async (resolve) => {
-            const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.loadImg(data.blobURL);
+            const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.loadImg(data.blobURL);
             const canvas = document.createElement('canvas');
             canvas.width = img.width;
             canvas.height = img.height;
             const con = canvas.getContext('2d');
             con.drawImage(img, 0, 0, img.width, img.height);
-            const suffix = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.getSuffix(data.url);
+            const suffix = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.getSuffix(data.url);
             // 如果原图是 png 格式，就转换成 png 格式的数据，否则转换为 jpeg 格式
             if (suffix === 'png') {
                 const ImgDataURL = canvas.toDataURL();
@@ -22405,11 +22424,11 @@ class MakeNovelFile {
             jepub.cover(cover);
             // 添加小说里的图片
             const imageList = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_3__.downloadNovelEmbeddedImage.getImageList(content, data.embeddedImages);
-            let index = 1;
+            let current = 1;
             const total = imageList.length;
             for (const image of imageList) {
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_正在下载小说中的插画', `${index} / ${total}`), 2, false);
-                index++;
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_正在下载小说中的插画', `${current} / ${total}`), 2, false);
+                current++;
                 if (image.url === null) {
                     // 如果引用的图片作品已经不存在，那么它的图片网址会是 null。将其替换为提示
                     content = content.replaceAll(image.flag, `image ${image.id} not found`);
@@ -22473,6 +22492,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../download/DownloadNovelCover */ "./src/ts/download/DownloadNovelCover.ts");
 /* harmony import */ var _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./DownloadNovelEmbeddedImage */ "./src/ts/download/DownloadNovelEmbeddedImage.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+
 
 
 
@@ -22538,27 +22559,28 @@ class MergeNovel {
         let file = null;
         const novelName = `${firstResult.seriesTitle}-tags_${firstResult.tags}-user_${firstResult.user}-seriesId_${firstResult.seriesId}.${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.novelSaveAs}`;
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.novelSaveAs === 'txt') {
-            file = await this.makeTXT(allNovelData);
+            file = await this.mergeTXT(allNovelData);
             // 保存为 txt 格式时，在这里下载小说内嵌的图片
             for (const result of allResult) {
                 await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_8__.downloadNovelEmbeddedImage.TXT(result.novelMeta.content, result.novelMeta.embeddedImages, novelName, 'mergeNovel');
             }
         }
         else {
-            file = await this.makeEPUB(allNovelData, firstResult);
+            file = await this.mergeEPUB(allNovelData, firstResult);
         }
         const url = URL.createObjectURL(file);
         _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.downloadFile(url, _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(novelName));
-        _store_States__WEBPACK_IMPORTED_MODULE_3__.states.mergeNovel = false;
-        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadComplete');
         // 保存第一个小说的封面图片
         // 实际上系列的封面不一定是第一个小说的封面，这里用第一个小说的封面凑合一下
         if (firstResult.novelMeta?.coverUrl) {
             _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_7__.downloadNovelCover.download(firstResult.novelMeta.coverUrl, novelName, 'mergeNovel');
         }
+        _store_States__WEBPACK_IMPORTED_MODULE_3__.states.mergeNovel = false;
+        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadComplete');
+        _Log__WEBPACK_IMPORTED_MODULE_9__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_下载完毕'), 2);
         _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.reset();
     }
-    async makeTXT(novelDataArray) {
+    async mergeTXT(novelDataArray) {
         return new Promise(async (resolve, reject) => {
             const result = [];
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveNovelMeta) {
@@ -22581,7 +22603,7 @@ class MergeNovel {
             return resolve(blob);
         });
     }
-    makeEPUB(novelDataArray, firstResult) {
+    mergeEPUB(novelDataArray, firstResult) {
         return new Promise(async (resolve, reject) => {
             // 添加一些元数据
             let epubData = new EpubMaker()

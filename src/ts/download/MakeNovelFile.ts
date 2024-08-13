@@ -72,15 +72,16 @@ class MakeNovelFile {
         content,
         data.embeddedImages
       )
-      let index = 1
+
+      let current = 1
       const total = imageList.length
       for (const image of imageList) {
         log.log(
-          lang.transl('_正在下载小说中的插画', `${index} / ${total}`),
+          lang.transl('_正在下载小说中的插画', `${current} / ${total}`),
           2,
           false
         )
-        index++
+        current++
         if (image.url === null) {
           // 如果引用的图片作品已经不存在，那么它的图片网址会是 null。将其替换为提示
           content = content.replaceAll(

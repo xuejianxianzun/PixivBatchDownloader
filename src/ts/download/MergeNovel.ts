@@ -8,6 +8,7 @@ import { lang } from '../Lang'
 import { Tools } from '../Tools'
 import { downloadNovelCover } from '../download/DownloadNovelCover'
 import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
+import { log } from '../Log'
 
 // 单个小说的数据
 interface NovelData {
@@ -93,7 +94,7 @@ class MergeNovel {
     let file: Blob | null = null
     const novelName = `${firstResult.seriesTitle}-tags_${firstResult.tags}-user_${firstResult.user}-seriesId_${firstResult.seriesId}.${settings.novelSaveAs}`
     if (settings.novelSaveAs === 'txt') {
-      file = await this.makeTXT(allNovelData)
+      file = await this.mergeTXT(allNovelData)
       // 保存为 txt 格式时，在这里下载小说内嵌的图片
       for (const result of allResult) {
         await downloadNovelEmbeddedImage.TXT(
@@ -104,15 +105,11 @@ class MergeNovel {
         )
       }
     } else {
-      file = await this.makeEPUB(allNovelData, firstResult)
+      file = await this.mergeEPUB(allNovelData, firstResult)
     }
 
     const url = URL.createObjectURL(file)
     Utils.downloadFile(url, Utils.replaceUnsafeStr(novelName))
-
-    states.mergeNovel = false
-    EVT.fire('downloadComplete')
-
     // 保存第一个小说的封面图片
     // 实际上系列的封面不一定是第一个小说的封面，这里用第一个小说的封面凑合一下
     if (firstResult.novelMeta?.coverUrl) {
@@ -123,10 +120,14 @@ class MergeNovel {
       )
     }
 
+    states.mergeNovel = false
+    EVT.fire('downloadComplete')
+    log.success(lang.transl('_下载完毕'), 2)
+
     store.reset()
   }
 
-  private async makeTXT(novelDataArray: NovelData[]): Promise<Blob> {
+  private async mergeTXT(novelDataArray: NovelData[]): Promise<Blob> {
     return new Promise(async (resolve, reject) => {
       const result: string[] = []
       if (settings.saveNovelMeta) {
@@ -154,7 +155,7 @@ class MergeNovel {
     })
   }
 
-  private makeEPUB(
+  private mergeEPUB(
     novelDataArray: NovelData[],
     firstResult: Result
   ): Promise<Blob> {
