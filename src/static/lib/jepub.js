@@ -33,12 +33,12 @@ function createTitlePage (data) {
 	</div>
     
         <div class="part-title-wrap">
-            ${createTags(data.tags)}
+            <p>${createTags(data.tags)}</p>
         </div>
     
     
         <div class="ugc">
-            ${data.description || ''}
+          <p>${data.description || ''}</p>
         </div>
     
 </body>

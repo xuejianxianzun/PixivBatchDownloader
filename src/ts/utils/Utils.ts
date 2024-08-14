@@ -430,6 +430,7 @@ class Utils {
   static htmlToText(str: string) {
     return str
       .replace(/<br \/>/g, '\n')
+      .replace(/<br\/>/g, '\n')
       .replace(/<br>/g, '\n')
       .replace(/<\/?.+?>/g, '')
     // 这里有两种换行标签：

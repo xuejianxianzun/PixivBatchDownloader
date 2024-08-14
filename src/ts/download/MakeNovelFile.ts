@@ -114,7 +114,9 @@ class MakeNovelFile {
         // 因为某些在线阅读器(https://epub-reader.online/)会读取图片内容，生成 blob URL，然后替换原 src 里的值。
         // 当 src 前面有 ./ 的时候，blob URL 会跟在 ./ 后面，导致图片路径错误，无法显示
         const ext = Utils.getURLExt(image.url)
-        const imgTag = `<img src="assets/${image.id}.${ext}" />`
+        // 在图片前后添加换行，因为有时图片和文字挨在一起，或者多张图片挨在一起。
+        // 不添加换行的话，在某些阅读器里这些内容会并排，影响阅读体验
+        const imgTag = `<br/><img src="assets/${image.id}.${ext}" /><br/>`
         content = content.replaceAll(image.flag, imgTag)
       }
       log.persistentRefresh()

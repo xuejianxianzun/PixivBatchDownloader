@@ -1056,7 +1056,7 @@ export interface NovelSeriesData {
     genreId: string
     /** 系列标题 */
     title: string
-    /** 系列标题下方的简介 */
+    /** 系列标题下方的简介（摘要）*/
     caption: string
     language: string
     tags: string[]

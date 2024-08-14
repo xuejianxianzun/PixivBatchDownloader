@@ -20393,10 +20393,12 @@ class Download {
             // 生成小说的文件
             if (arg.result.novelMeta) {
                 if (arg.result.novelMeta?.coverUrl) {
-                    _DownloadNovelCover__WEBPACK_IMPORTED_MODULE_16__.downloadNovelCover.download(arg.result.novelMeta.coverUrl, _fileName, 'downloadNovel');
+                    await _DownloadNovelCover__WEBPACK_IMPORTED_MODULE_16__.downloadNovelCover.download(arg.result.novelMeta.coverUrl, _fileName, 'downloadNovel');
                 }
                 let blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_9__.MakeNovelFile.make(arg.result.novelMeta);
                 url = URL.createObjectURL(blob);
+                // 当小说保存为 txt 格式时，在这里下载内嵌的图片。
+                // 如果是保存为 EPUB 格式，那么在 MakeNovelFile.make 里会保存图片
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.novelSaveAs === 'txt') {
                     await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_15__.downloadNovelEmbeddedImage.TXT(arg.result.novelMeta.content, arg.result.novelMeta.embeddedImages, _fileName);
                 }
@@ -21215,31 +21217,12 @@ class DownloadNovelEmbeddedImage {
         }
         _Log__WEBPACK_IMPORTED_MODULE_2__.log.persistentRefresh();
     }
-    /**下载小说为 EPUB 时，替换内嵌图片标记，把图片用 img 标签保存到正文里 */
-    async EPUB(content, embeddedImages) {
-        return new Promise(async (resolve) => {
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadNovelEmbeddedImage) {
-                return resolve(content);
-            }
-            const idList = await this.getImageList(content, embeddedImages);
-            for (let idData of idList) {
-                if (idData.url) {
-                    idData = await this.getImageBlobURL(idData);
-                    const dataURL = await this.getImageDataURL(idData);
-                    const html = `<img src="${dataURL}" />`;
-                    content = content.replaceAll(idData.flag, html);
-                }
-                else {
-                    // 如果 url 是 null，则修改标记，做出提示
-                    content = content.replaceAll(idData.flag, ` ${idData.flag} url is null`);
-                }
-            }
-            return resolve(content);
-        });
-    }
     // 获取正文里上传的图片 id 和引用的图片 id
     async getImageList(content, embeddedImages) {
         return new Promise(async (resolve) => {
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadNovelEmbeddedImage) {
+                return resolve([]);
+            }
             const idList = [];
             // 获取上传的图片数据
             if (embeddedImages) {
@@ -21325,26 +21308,6 @@ class DownloadNovelEmbeddedImage {
                 image.blobURL = URL.createObjectURL(illustration);
             }
             resolve(image);
-        });
-    }
-    async getImageDataURL(data) {
-        return new Promise(async (resolve) => {
-            const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.loadImg(data.blobURL);
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const con = canvas.getContext('2d');
-            con.drawImage(img, 0, 0, img.width, img.height);
-            const suffix = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.getSuffix(data.url);
-            // 如果原图是 png 格式，就转换成 png 格式的数据，否则转换为 jpeg 格式
-            if (suffix === 'png') {
-                const ImgDataURL = canvas.toDataURL();
-                return resolve(ImgDataURL);
-            }
-            else {
-                const ImgDataURL = canvas.toDataURL('image/jpeg', 0.95);
-                return resolve(ImgDataURL);
-            }
         });
     }
     sendDownload(url, name) {
@@ -22469,7 +22432,9 @@ class MakeNovelFile {
                 // 因为某些在线阅读器(https://epub-reader.online/)会读取图片内容，生成 blob URL，然后替换原 src 里的值。
                 // 当 src 前面有 ./ 的时候，blob URL 会跟在 ./ 后面，导致图片路径错误，无法显示
                 const ext = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.getURLExt(image.url);
-                const imgTag = `<img src="assets/${image.id}.${ext}" />`;
+                // 在图片前后添加换行，因为有时图片和文字挨在一起，或者多张图片挨在一起。
+                // 不添加换行的话，在某些阅读器里这些内容会并排，影响阅读体验
+                const imgTag = `<br/><img src="assets/${image.id}.${ext}" /><br/>`;
                 content = content.replaceAll(image.flag, imgTag);
             }
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.persistentRefresh();
@@ -22521,8 +22486,8 @@ __webpack_require__.r(__webpack_exports__);
 class MergeNovel {
     constructor() {
         this.CRLF = '\n'; // pixiv 小说的换行符
-        /**在文件开头添加的元数据 */
-        this.meta = '';
+        /** 这个系列小说的元数据 */
+        this.seriesMeta = '';
         this.init();
     }
     init() {
@@ -22542,7 +22507,6 @@ class MergeNovel {
         }
         // 因为结果里的小说顺序可能是乱的，所以需要按照小说的序号对结果进行排序
         const allResult = _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.sortByProperty('seriesOrder', 'asc'));
-        const firstResult = _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.resultMeta[0];
         // 汇总小说数据
         const allNovelData = [];
         for (const result of allResult) {
@@ -22551,31 +22515,36 @@ class MergeNovel {
                 title: _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(result.title),
                 content: result.novelMeta.content,
                 embeddedImages: result.novelMeta.embeddedImages,
+                description: result.description,
             });
         }
         // 获取这个系列本身的资料
-        const seriesDataJSON = await _API__WEBPACK_IMPORTED_MODULE_10__.API.getNovelSeriesData(firstResult.seriesId);
+        const seriesDataJSON = await _API__WEBPACK_IMPORTED_MODULE_10__.API.getNovelSeriesData(_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.resultMeta[0].seriesId);
         const seriesData = seriesDataJSON.body;
-        // 生成 meta 文本
-        this.meta = '';
+        // 生成系列小说元数据的文本
+        this.seriesMeta = '';
+        const title = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(seriesData.title));
+        const userName = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(seriesData.userName));
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveNovelMeta) {
             const metaArray = [];
             // 系列标题
-            metaArray.push(seriesData.title);
+            metaArray.push(title);
             // 作者
-            metaArray.push(seriesData.userName);
+            metaArray.push(userName);
             // 网址链接
             const link = `https://www.pixiv.net/novel/series/${seriesData.id}`;
-            metaArray.push(link + this.CRLF.repeat(2));
+            metaArray.push(link + this.CRLF);
+            const description = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(seriesData.caption);
+            metaArray.push(description + this.CRLF.repeat(2));
             // 设定资料
             if (_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.novelSeriesGlossary) {
-                metaArray.push(_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.novelSeriesGlossary);
+                metaArray.push(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.novelSeriesGlossary) + this.CRLF.repeat(2));
             }
-            this.meta = metaArray.join(this.CRLF.repeat(2));
+            this.seriesMeta = metaArray.join(this.CRLF);
         }
         // 生成小说文件并下载
         let file = null;
-        const novelName = `${seriesData.title}-tags_${seriesData.tags}-user_${seriesData.userName}-seriesId_${seriesData.id}.${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.novelSaveAs}`;
+        const novelName = `${title}-tags_${seriesData.tags}-user_${userName}-seriesId_${seriesData.id}.${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.novelSaveAs}`;
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.novelSaveAs === 'txt') {
             file = await this.mergeTXT(allNovelData);
             // 保存为 txt 格式时，在这里下载小说内嵌的图片
@@ -22584,7 +22553,7 @@ class MergeNovel {
             }
         }
         else {
-            file = await this.mergeEPUB(allNovelData, firstResult);
+            file = await this.mergeEPUB(allNovelData, seriesData);
         }
         const url = URL.createObjectURL(file);
         _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.downloadFile(url, _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(novelName));
@@ -22601,13 +22570,17 @@ class MergeNovel {
         return new Promise(async (resolve, reject) => {
             const result = [];
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveNovelMeta) {
-                result.push(this.meta);
+                result.push(this.seriesMeta);
             }
             for (const data of novelDataArray) {
                 // 添加章节名
                 result.push(`${this.chapterNo(data.no)} ${data.title}`);
-                // 在章节名与正文之间添加换行
                 result.push(this.CRLF.repeat(2));
+                // 保存每篇小说的元数据，现在只添加了简介
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveNovelMeta) {
+                    result.push(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(data.description));
+                    result.push(this.CRLF.repeat(2));
+                }
                 // 添加正文
                 // 替换换行标签，移除 html 标签
                 result.push(data.content.replace(/<br \/>/g, this.CRLF).replace(/<\/?.+?>/g, ''));
@@ -22620,54 +22593,100 @@ class MergeNovel {
             return resolve(blob);
         });
     }
-    mergeEPUB(novelDataArray, firstResult) {
+    mergeEPUB(novelDataArray, seriesData) {
         return new Promise(async (resolve, reject) => {
-            // 添加一些元数据
-            let epubData = new EpubMaker()
-                .withTemplate('idpf-wasteland')
-                .withAuthor(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(firstResult.novelMeta.userName))
-                .withModificationDate(new Date(firstResult.novelMeta.createDate))
-                .withRights({
-                description: _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(firstResult.novelMeta.description),
-                license: '',
-            })
-                .withAttributionUrl(`https://www.pixiv.net/novel/show.php?id=${firstResult.novelMeta.id}`)
-                .withCover(firstResult.novelMeta.coverUrl, {
-                license: '',
-                attributionUrl: '',
-            })
-                .withTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(firstResult.seriesTitle));
-            // 下面注释的伪代码是用于创建二级目录用的。目前 pixiv 的小说只需要一层目录就够了，所以这里的代码未被使用
-            // const Section = new EpubMaker.Section(...........)
-            // for (const data of novelDataArray) {
-            //   Section.withSubSection(
-            //     new EpubMaker.Section(...........)
-            //   )
-            // }
-            // epubData = epubData.withSection(Section)
+            const link = `https://www.pixiv.net/novel/series/${seriesData.id}`;
+            const title = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(seriesData.title));
+            const userName = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(seriesData.userName));
+            let description = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(seriesData.caption));
+            // 现在生成的 EPUB 小说里有个“信息”页面，会显示如下数据（就是在下面的 jepub.init 里定义的）：
+            // title 系列标题
+            // author 作者
+            // publisher 系列小说的 URL
+            // tags 标签列表
+            // description 简介
+            // 所以如果需要保存系列小说的元数据，那么把上面未包含的数据添加到 description 里即可
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveNovelMeta) {
-                epubData.withSection(new EpubMaker.Section('chapter', 0, {
-                    title: _Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_设定资料'),
-                    content: _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(this.meta),
-                }, true, true));
+                if (_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.novelSeriesGlossary) {
+                    description =
+                        description +
+                            '<br/><br/>' +
+                            _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.novelSeriesGlossary));
+                }
             }
-            // 为每一篇小说创建一个章节
-            for (const data of novelDataArray) {
-                let content = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(data.content);
-                // 添加小说里内嵌的图片。这部分必须放在 replaceEPUBText 后面，否则 <img> 标签的左尖括号会被转义
-                content = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_8__.downloadNovelEmbeddedImage.EPUB(content, data.embeddedImages);
-                // 创建 epub 文件时不需要在标题和正文后面添加换行符
-                epubData.withSection(new EpubMaker.Section('chapter', data.no, {
-                    title: `${this.chapterNo(data.no)} ${data.title}`,
-                    content: content,
-                }, true, true)
-                // 倒数第二个参数是 includeInToc，必须为 true，否则某些小说阅读软件无法读取章节信息
-                // includeInToc 的作用是在 .ncx 文件和 nav.xhtml 文件里添加导航信息
-                );
-            }
-            epubData.makeEpub().then((blob) => {
-                resolve(blob);
+            const jepub = new jEpub();
+            jepub.init({
+                i18n: _Lang__WEBPACK_IMPORTED_MODULE_5__.lang.type,
+                // 对 EPUB 左侧的一些文字进行本地化
+                i18n_config: {
+                    code: _Lang__WEBPACK_IMPORTED_MODULE_5__.lang.type,
+                    cover: 'Cover',
+                    toc: _Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_目录'),
+                    info: _Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_Information'),
+                    note: 'Notes',
+                },
+                title: title,
+                author: userName,
+                publisher: link,
+                tags: seriesData.tags,
+                description: description,
             });
+            jepub.uuid(link);
+            jepub.date(new Date(seriesData.updateDate));
+            const cover = await fetch(seriesData.cover.urls.original).then((response) => {
+                if (response.ok)
+                    return response.arrayBuffer();
+                throw 'Network response was not ok.';
+            });
+            jepub.cover(cover);
+            // 循环添加小说内容
+            for (const novelData of novelDataArray) {
+                let content = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(novelData.content);
+                // 添加小说里的图片
+                const imageList = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_8__.downloadNovelEmbeddedImage.getImageList(content, novelData.embeddedImages);
+                let current = 1;
+                const total = imageList.length;
+                for (const image of imageList) {
+                    _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_正在下载小说中的插画', `${current} / ${total}`), 1, false);
+                    current++;
+                    if (image.url === null) {
+                        // 如果引用的图片作品已经不存在，那么它的图片网址会是 null。将其替换为提示
+                        content = content.replaceAll(image.flag, `image ${image.id} not found`);
+                        continue;
+                    }
+                    // 加载图片
+                    const illustration = await fetch(image.url).then((response) => {
+                        if (response.ok) {
+                            return response.blob();
+                        }
+                    });
+                    // 如果图片获取失败，不重试，并将其替换为提示
+                    if (illustration === undefined) {
+                        content = content.replaceAll(image.flag, `fetch ${image.url} failed`);
+                        continue;
+                    }
+                    jepub.image(illustration, image.id);
+                    // 将小说正文里的图片标记替换为真实的的图片路径，以在 EPUB 里显示
+                    const ext = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.getURLExt(image.url);
+                    const imgTag = `<br/><img src="assets/${image.id}.${ext}" /><br/>`;
+                    content = content.replaceAll(image.flag, imgTag);
+                }
+                _Log__WEBPACK_IMPORTED_MODULE_9__.log.persistentRefresh();
+                const title = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(novelData.title));
+                const description = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(novelData.description));
+                // 保存每篇小说的元数据，现在只添加了简介
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveNovelMeta) {
+                    content = description + '<br/><br/>' + content;
+                }
+                // 添加正文，这会在 EPUB 里生成一个新的章节
+                // 实际上会生成一个对应的 html 文件，如 OEBPS/page-0.html
+                jepub.add(`${this.chapterNo(novelData.no)} ${title}`, content);
+            }
+            const blob = await jepub.generate('blob', (metadata) => {
+                // console.log('progression: ' + metadata.percent.toFixed(2) + ' %');
+                // if (metadata.currentFile) console.log('current file = ' + metadata.currentFile);
+            });
+            resolve(blob);
         });
     }
     // 在每个小说的开头加上章节编号
@@ -46314,6 +46333,7 @@ class Utils {
     static htmlToText(str) {
         return str
             .replace(/<br \/>/g, '\n')
+            .replace(/<br\/>/g, '\n')
             .replace(/<br>/g, '\n')
             .replace(/<\/?.+?>/g, '');
         // 这里有两种换行标签：

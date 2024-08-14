@@ -79,42 +79,15 @@ class DownloadNovelEmbeddedImage {
     log.persistentRefresh()
   }
 
-  /**下载小说为 EPUB 时，替换内嵌图片标记，把图片用 img 标签保存到正文里 */
-  public async EPUB(
-    content: string,
-    embeddedImages: EmbeddedImages
-  ): Promise<string> {
-    return new Promise(async (resolve) => {
-      if (!settings.downloadNovelEmbeddedImage) {
-        return resolve(content)
-      }
-
-      const idList = await this.getImageList(content, embeddedImages)
-      for (let idData of idList) {
-        if (idData.url) {
-          idData = await this.getImageBlobURL(idData)
-          const dataURL = await this.getImageDataURL(idData)
-          const html = `<img src="${dataURL}" />`
-          content = content.replaceAll(idData.flag, html)
-        } else {
-          // 如果 url 是 null，则修改标记，做出提示
-          content = content.replaceAll(
-            idData.flag,
-            ` ${idData.flag} url is null`
-          )
-        }
-      }
-
-      return resolve(content)
-    })
-  }
-
   // 获取正文里上传的图片 id 和引用的图片 id
   public async getImageList(
     content: string,
     embeddedImages: EmbeddedImages
   ): Promise<NovelImageList> {
     return new Promise(async (resolve) => {
+      if (!settings.downloadNovelEmbeddedImage) {
+        return resolve([])
+      }
       const idList: NovelImageList = []
 
       // 获取上传的图片数据
@@ -207,27 +180,6 @@ class DownloadNovelEmbeddedImage {
         image.blobURL = URL.createObjectURL(illustration)
       }
       resolve(image)
-    })
-  }
-
-  private async getImageDataURL(data: NovelImageData): Promise<string> {
-    return new Promise(async (resolve) => {
-      const img = await Utils.loadImg(data.blobURL!)
-      const canvas = document.createElement('canvas')
-      canvas.width = img.width
-      canvas.height = img.height
-      const con = canvas.getContext('2d')
-      con!.drawImage(img, 0, 0, img.width, img.height)
-
-      const suffix = Utils.getSuffix(data.url!)
-      // 如果原图是 png 格式，就转换成 png 格式的数据，否则转换为 jpeg 格式
-      if (suffix === 'png') {
-        const ImgDataURL = canvas.toDataURL()
-        return resolve(ImgDataURL)
-      } else {
-        const ImgDataURL = canvas.toDataURL('image/jpeg', 0.95)
-        return resolve(ImgDataURL)
-      }
     })
   }
 
