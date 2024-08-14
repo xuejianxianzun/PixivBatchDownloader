@@ -1038,8 +1038,136 @@ export interface NovelData {
   }
 }
 
-// 小说的系列信息
+/**系列小说的数据，注意只是系列本身的数据，没有系列里每部小说的数据 */
 export interface NovelSeriesData {
+  error: boolean
+  message: string
+  body: {
+    /** 系列小说的 ID */
+    id: string
+    userId: string
+    userName: string
+    /**作者头像 */
+    profileImageUrl: 'https://i.pximg.net/user-profile/img/2024/07/05/01/22/56/26073083_0cfa3d438f22c593b62c3ee5e7f25c0a_170.png'
+    xRestrict: 0 | 1 | 2
+    isOriginal: boolean
+    isConcluded: boolean
+    /** 是 string 类型的数字，如 "0" | "1" | "2" | "3"。这个字段或许指的是系列标题上方的 tag 数量 */
+    genreId: string
+    /** 系列标题 */
+    title: string
+    /** 系列标题下方的简介 */
+    caption: string
+    language: string
+    tags: string[]
+    /** 系列里的小说总数量 */
+    publishedContentCount: number
+    /** 所有小说的总字数 */
+    publishedTotalCharacterCount: number
+    /** 所有小说的总词数 */
+    publishedTotalWordCount: number
+    /** 所有小说的估计阅读总时间（每篇小说的阅读时间加起来）。页面上显示的阅读时间是分钟数，这个字段是秒数 */
+    publishedReadingTime: number
+    useWordCount: boolean
+    /** 系列小说里最新一篇小说的发布时间（时间戳，没有毫秒部分） */
+    lastPublishedContentTimestamp: number
+    /** 系列小说的创建时间（时间戳，没有毫秒部分） */
+    createdTimestamp: number
+    /** 最后一次编辑（更新）系列内小说内容的时间（时间戳，没有毫秒部分） */
+    updatedTimestamp: number
+    /** 系列小说的创建时间（时间字符串） */
+    createDate: string
+    /** 最后一次编辑（更新）系列内小说内容的时间（时间字符串） */
+    updateDate: string
+    /** 系列里第一篇小说的 id */
+    firstNovelId: string
+    /** 系列里最后一篇小说的 id */
+    latestNovelId: string
+    /** 有多少篇小说可以显示，通常就是 publishedContentCount 的数量 */
+    displaySeriesContentCount: number
+    /** 分享时使用的文字 */
+    shareText: string
+    /** 系列里的小说总数量 */
+    total: number
+    /** 系列里第一篇小说的封面图片 */
+    firstEpisode: {
+      url: string
+    }
+    watchCount: null
+    maxXRestrict: null
+    /** 系列小说的封面图片（图片内容可能与第一篇小说的封面图片相同，也可能不同，具体要看作者是怎么上传的） */
+    cover: {
+      urls: {
+        '240mw': string
+        '480mw': string
+        '1200x1200': string
+        '128x128': string
+        original: string
+      }
+    }
+    coverSettingData: null
+    isWatched: boolean
+    isNotifying: boolean
+    /**是否为 AI 创作。0 未知 1 否 2 是 */
+    aiType: 0 | 1 | 2
+    /** 是否有设定资料 */
+    hasGlossary: boolean
+    extraData: {
+      meta: {
+        /** 这个系列小说的网页标题（包含系列标题和作者等信息） */
+        title: string
+        /** 系列内第一篇小说的简介 */
+        description: string
+        /** 这个系列小说的网址 */
+        canonical: string
+        /** 分享到不知道地方时使用的数据 */
+        ogp: {
+          type: 'article'
+          /** 这个系列小说的网页标题（包含系列标题和作者等信息） */
+          title: string
+          /** 系列内第一篇小说的简介 */
+          description: string
+          /** 一张分享用的图片，上面是两栏文字：左边是系列标题，右边是第一篇小说的简介 */
+          image: string
+        }
+        /** 分享到推特时使用的数据 */
+        twitter: {
+          card: 'summary_large_image'
+          site: '@pixiv'
+          /** 系列标题 */
+          title: string
+          /** 系列内第一篇小说的简介 */
+          description: string
+          /** 一张分享用的图片，上面是两栏文字：左边是系列标题，右边是第一篇小说的简介 */
+          image: string
+        }
+      }
+    }
+    zoneConfig: {
+      responsive: {
+        url: string
+      }
+      rectangle: {
+        url: string
+      }
+      header: {
+        url: string
+      }
+      footer: {
+        url: string
+      }
+      logo: {
+        url: string
+      }
+      ad_logo: {
+        url: string
+      }
+    }
+  }
+}
+
+/** 系列小说里每部小说的详细数据（但是没有小说正文内容） */
+export interface NovelSeriesContentData {
   error: boolean
   message: string
   body: {

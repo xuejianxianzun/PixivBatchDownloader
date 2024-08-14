@@ -9,6 +9,7 @@ import { Tools } from '../Tools'
 import { downloadNovelCover } from '../download/DownloadNovelCover'
 import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
 import { log } from '../Log'
+import { API } from '../API'
 
 // 单个小说的数据
 interface NovelData {
@@ -71,16 +72,20 @@ class MergeNovel {
       })
     }
 
+    // 获取这个系列本身的资料
+    const seriesDataJSON = await API.getNovelSeriesData(firstResult.seriesId!)
+    const seriesData = seriesDataJSON.body
+
     // 生成 meta 文本
     this.meta = ''
     if (settings.saveNovelMeta) {
       const metaArray: string[] = []
       // 系列标题
-      metaArray.push(firstResult.seriesTitle!)
+      metaArray.push(seriesData.title)
       // 作者
-      metaArray.push(firstResult.user)
+      metaArray.push(seriesData.userName)
       // 网址链接
-      const link = `https://www.pixiv.net/novel/series/${firstResult.seriesId}`
+      const link = `https://www.pixiv.net/novel/series/${seriesData.id}`
       metaArray.push(link + this.CRLF.repeat(2))
       // 设定资料
       if (store.novelSeriesGlossary) {
@@ -92,7 +97,7 @@ class MergeNovel {
 
     // 生成小说文件并下载
     let file: Blob | null = null
-    const novelName = `${firstResult.seriesTitle}-tags_${firstResult.tags}-user_${firstResult.user}-seriesId_${firstResult.seriesId}.${settings.novelSaveAs}`
+    const novelName = `${seriesData.title}-tags_${seriesData.tags}-user_${seriesData.userName}-seriesId_${seriesData.id}.${settings.novelSaveAs}`
     if (settings.novelSaveAs === 'txt') {
       file = await this.mergeTXT(allNovelData)
       // 保存为 txt 格式时，在这里下载小说内嵌的图片
@@ -110,15 +115,11 @@ class MergeNovel {
 
     const url = URL.createObjectURL(file)
     Utils.downloadFile(url, Utils.replaceUnsafeStr(novelName))
-    // 保存第一个小说的封面图片
-    // 实际上系列的封面不一定是第一个小说的封面，这里用第一个小说的封面凑合一下
-    if (firstResult.novelMeta?.coverUrl) {
-      downloadNovelCover.download(
-        firstResult.novelMeta.coverUrl,
-        novelName,
-        'mergeNovel'
-      )
-    }
+
+    // 下载系列小说的封面图片
+    const cover = seriesData.cover.urls.original
+    log.log(lang.transl('_下载封面图片'))
+    await downloadNovelCover.download(cover, novelName, 'mergeNovel')
 
     states.mergeNovel = false
     EVT.fire('downloadComplete')

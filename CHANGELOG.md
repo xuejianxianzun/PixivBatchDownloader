@@ -24,11 +24,17 @@ https://www.pixiv.net/novel/show.php?id=22088160
 包含 1 个引用的图片 `[pixivimage:70551567]`：
 https://www.pixiv.net/novel/show.php?id=10083001
 
+没有图片的小说：
+https://www.pixiv.net/novel/show.php?id=21782995
+
+这个系列小说里有 7 张图片：
+https://www.pixiv.net/novel/series/12324638
+
 这个系列小说里一共有 57 张图片，图片总体积 184.8 MB：
 https://www.pixiv.net/novel/series/10923616
 
-没有图片的小说：
-https://www.pixiv.net/novel/show.php?id=21782995
+没有图片的系列小说：
+https://www.pixiv.net/novel/series/7616746
 
 ### 更换了生成 EPUB 小说的库
 
@@ -72,6 +78,12 @@ ejs 的这个问题现在也无法解决：https://github.com/mde/ejs/issues/468
 现在每个章节会单独生成一个 html 文件保存，而不是所有内容都塞在一个 html 里。
 
 另外图片文件会单独保存，而不是内嵌在 html 里，这可以减小文件体积（相比于使用 DataURL 保存图片），以及优化解析页面时的性能。
+
+### 🐛合并系列小说时，可以保存正确的封面图片
+
+之前保存系列小说时，把第一篇小说的封面图当作系列的封面。
+
+但实际上系列的封面可能是另一张图片，现在可以保存真正的封面图了。
 
 ### 🐛修复小说标题里含有 & 符号导致生成的 epub 无法阅读的问题
 

@@ -243,9 +243,14 @@ class API {
         const url = `https://www.pixiv.net/ajax/follow_latest/${type}?p=${p}&tag=${tag}&mode=${r18 ? 'r18' : 'all'}&lang=${lang}`;
         return this.sendGetRequest(url);
     }
-    // 获取小说的系列作品信息
+    /**获取小说系列的数据，注意只是系列本身的数据，没有系列里每部小说的数据 */
+    static getNovelSeriesData(series_id) {
+        const url = `https://www.pixiv.net/ajax/novel/series/${series_id}`;
+        return this.sendGetRequest(url);
+    }
+    /**获取小说系列作品里每个作品的详细数据（但是没有小说正文内容） */
     // 这个 api 目前一批最多只能返回 30 个作品的数据，所以可能需要多次获取
-    static getNovelSeriesData(series_id, limit = 30, last_order, order_by = 'asc') {
+    static getNovelSeriesContent(series_id, limit = 30, last_order, order_by = 'asc') {
         const url = `https://www.pixiv.net/ajax/novel/series_content/${series_id}?limit=${limit}&last_order=${last_order}&order_by=${order_by}`;
         return this.sendGetRequest(url);
     }
@@ -5576,6 +5581,14 @@ const langText = {
         '小説のイラストをダウンロードする {}',
         '소설에서 삽화 다운로드 {}',
         'Скачивание иллюстраций из романа {}',
+    ],
+    _下载封面图片: [
+        '下载封面图片',
+        '下載封面圖片',
+        'Download cover image',
+        'カバー画像をダウンロード',
+        '표지 이미지 다운로드',
+        'Загрузить изображение обложки',
     ],
     _目录: ['目录', '目錄', 'Table of Contents', '目次', '목차', 'Оглавление'],
     _Information: ['信息', '資訊', 'Information', '情報', '정보', 'Информация'],
@@ -18489,7 +18502,7 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         this.getIdList();
     }
     async getIdList() {
-        const seriesData = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getNovelSeriesData(this.seriesId, this.limit, this.last, 'asc');
+        const seriesData = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getNovelSeriesContent(this.seriesId, this.limit, this.last, 'asc');
         const list = seriesData.body.page.seriesContents;
         for (const item of list) {
             _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.idList.push({
@@ -22493,6 +22506,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../download/DownloadNovelCover */ "./src/ts/download/DownloadNovelCover.ts");
 /* harmony import */ var _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./DownloadNovelEmbeddedImage */ "./src/ts/download/DownloadNovelEmbeddedImage.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+
 
 
 
@@ -22538,16 +22553,19 @@ class MergeNovel {
                 embeddedImages: result.novelMeta.embeddedImages,
             });
         }
+        // 获取这个系列本身的资料
+        const seriesDataJSON = await _API__WEBPACK_IMPORTED_MODULE_10__.API.getNovelSeriesData(firstResult.seriesId);
+        const seriesData = seriesDataJSON.body;
         // 生成 meta 文本
         this.meta = '';
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveNovelMeta) {
             const metaArray = [];
             // 系列标题
-            metaArray.push(firstResult.seriesTitle);
+            metaArray.push(seriesData.title);
             // 作者
-            metaArray.push(firstResult.user);
+            metaArray.push(seriesData.userName);
             // 网址链接
-            const link = `https://www.pixiv.net/novel/series/${firstResult.seriesId}`;
+            const link = `https://www.pixiv.net/novel/series/${seriesData.id}`;
             metaArray.push(link + this.CRLF.repeat(2));
             // 设定资料
             if (_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.novelSeriesGlossary) {
@@ -22557,7 +22575,7 @@ class MergeNovel {
         }
         // 生成小说文件并下载
         let file = null;
-        const novelName = `${firstResult.seriesTitle}-tags_${firstResult.tags}-user_${firstResult.user}-seriesId_${firstResult.seriesId}.${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.novelSaveAs}`;
+        const novelName = `${seriesData.title}-tags_${seriesData.tags}-user_${seriesData.userName}-seriesId_${seriesData.id}.${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.novelSaveAs}`;
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.novelSaveAs === 'txt') {
             file = await this.mergeTXT(allNovelData);
             // 保存为 txt 格式时，在这里下载小说内嵌的图片
@@ -22570,11 +22588,10 @@ class MergeNovel {
         }
         const url = URL.createObjectURL(file);
         _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.downloadFile(url, _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(novelName));
-        // 保存第一个小说的封面图片
-        // 实际上系列的封面不一定是第一个小说的封面，这里用第一个小说的封面凑合一下
-        if (firstResult.novelMeta?.coverUrl) {
-            _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_7__.downloadNovelCover.download(firstResult.novelMeta.coverUrl, novelName, 'mergeNovel');
-        }
+        // 下载系列小说的封面图片
+        const cover = seriesData.cover.urls.original;
+        _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_下载封面图片'));
+        await _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_7__.downloadNovelCover.download(cover, novelName, 'mergeNovel');
         _store_States__WEBPACK_IMPORTED_MODULE_3__.states.mergeNovel = false;
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadComplete');
         _Log__WEBPACK_IMPORTED_MODULE_9__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_下载完毕'), 2);
