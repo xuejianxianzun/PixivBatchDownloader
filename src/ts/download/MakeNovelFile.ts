@@ -79,7 +79,8 @@ class MakeNovelFile {
         log.log(
           lang.transl('_正在下载小说中的插画', `${current} / ${total}`),
           2,
-          false
+          false,
+          'downloadNovelImage'
         )
         current++
         if (image.url === null) {
@@ -119,7 +120,7 @@ class MakeNovelFile {
         const imgTag = `<br/><img src="assets/${image.id}.${ext}" /><br/>`
         content = content.replaceAll(image.flag, imgTag)
       }
-      log.persistentRefresh()
+      log.persistentRefresh('downloadNovelImage')
 
       // 添加正文，这会在 EPUB 里生成一个新的章节
       // 实际上会生成对应的 html 文件，如 OEBPS/page-0.html

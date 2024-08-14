@@ -8523,7 +8523,10 @@ class Log {
         this.id = 'logWrap'; // 日志区域元素的 id
         this.wrap = document.createElement('div'); // 日志容器的区域
         this.logArea = document.createElement('div'); // 日志主体区域
-        this.refresh = document.createElement('span'); // 刷新时使用的元素
+        // 会刷新的日志所使用的元素，可以传入 flag 来设置多条用于刷新日志的元素
+        this.refresh = {
+            default: document.createElement('span'),
+        };
         this.levelColor = [
             'inherit',
             _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textSuccess,
@@ -8569,11 +8572,16 @@ class Log {
     2 warning
     3 error
     */
-    add(str, level, br, keepShow) {
+    add(str, level, br, keepShow, refreshFlag = 'default') {
         this.checkElement();
         let span = document.createElement('span');
         if (!keepShow) {
-            span = this.refresh;
+            if (this.refresh[refreshFlag] === undefined) {
+                this.refresh[refreshFlag] = span;
+            }
+            else {
+                span = this.refresh[refreshFlag];
+            }
         }
         else {
             this.count++;
@@ -8591,25 +8599,25 @@ class Log {
             this.record.push({ html: span.outerHTML, level });
         }
     }
-    log(str, br = 1, keepShow = true) {
-        this.add(str, 0, br, keepShow);
+    log(str, br = 1, keepShow = true, refreshFlag = 'default') {
+        this.add(str, 0, br, keepShow, refreshFlag);
     }
-    success(str, br = 1, keepShow = true) {
-        this.add(str, 1, br, keepShow);
+    success(str, br = 1, keepShow = true, refreshFlag = 'default') {
+        this.add(str, 1, br, keepShow, refreshFlag);
     }
-    warning(str, br = 1, keepShow = true) {
-        this.add(str, 2, br, keepShow);
+    warning(str, br = 1, keepShow = true, refreshFlag = 'default') {
+        this.add(str, 2, br, keepShow, refreshFlag);
     }
-    error(str, br = 1, keepShow = true) {
-        this.add(str, 3, br, keepShow);
+    error(str, br = 1, keepShow = true, refreshFlag = 'default') {
+        this.add(str, 3, br, keepShow, refreshFlag);
     }
     /**将刷新的日志元素持久化 */
     // 刷新区域通常用于显示进度，例如 0/10, 1/10, 2/10... 10/10
     // 它们使用同一个 span 元素，并且同时只能存在一个刷新区域
     // 当显示 10/10 的时候，进度就不会再变化了，此时应该将其“持久化”。生成一个新的 span 元素作为新的刷新区域
     // 这样如果后续又需要显示刷新的元素，不会影响之前已完成“持久化”的日志
-    persistentRefresh() {
-        this.refresh = document.createElement('span');
+    persistentRefresh(refreshFlag = 'default') {
+        this.refresh[refreshFlag] = document.createElement('span');
     }
     checkElement() {
         // 如果日志区域没有被添加到页面上，则添加
@@ -22403,7 +22411,7 @@ class MakeNovelFile {
             let current = 1;
             const total = imageList.length;
             for (const image of imageList) {
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_正在下载小说中的插画', `${current} / ${total}`), 2, false);
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_正在下载小说中的插画', `${current} / ${total}`), 2, false, 'downloadNovelImage');
                 current++;
                 if (image.url === null) {
                     // 如果引用的图片作品已经不存在，那么它的图片网址会是 null。将其替换为提示
@@ -22437,7 +22445,7 @@ class MakeNovelFile {
                 const imgTag = `<br/><img src="assets/${image.id}.${ext}" /><br/>`;
                 content = content.replaceAll(image.flag, imgTag);
             }
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.persistentRefresh();
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.persistentRefresh('downloadNovelImage');
             // 添加正文，这会在 EPUB 里生成一个新的章节
             // 实际上会生成对应的 html 文件，如 OEBPS/page-0.html
             jepub.add(title, content);
@@ -22647,7 +22655,7 @@ class MergeNovel {
                 let current = 1;
                 const total = imageList.length;
                 for (const image of imageList) {
-                    _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_正在下载小说中的插画', `${current} / ${total}`), 1, false);
+                    _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_正在下载小说中的插画', `${current} / ${total}`), 1, false, 'downloadNovelImage');
                     current++;
                     if (image.url === null) {
                         // 如果引用的图片作品已经不存在，那么它的图片网址会是 null。将其替换为提示
@@ -22671,7 +22679,7 @@ class MergeNovel {
                     const imgTag = `<br/><img src="assets/${image.id}.${ext}" /><br/>`;
                     content = content.replaceAll(image.flag, imgTag);
                 }
-                _Log__WEBPACK_IMPORTED_MODULE_9__.log.persistentRefresh();
+                _Log__WEBPACK_IMPORTED_MODULE_9__.log.persistentRefresh('downloadNovelImage');
                 const title = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(novelData.title));
                 const description = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(novelData.description));
                 // 保存每篇小说的元数据，现在只添加了简介
@@ -26391,6 +26399,7 @@ class DisplayThumbnailListOnMultiImageWorkPage {
             return;
         }
         // 把缩略图列表添加到页面上
+        this.remove();
         const viewer = new _ImageViewer__WEBPACK_IMPORTED_MODULE_5__.ImageViewer({
             workId: _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getIllustId(),
             imageNumber: 2,

@@ -252,7 +252,8 @@ class MergeNovel {
           log.log(
             lang.transl('_正在下载小说中的插画', `${current} / ${total}`),
             1,
-            false
+            false,
+            'downloadNovelImage'
           )
           current++
           if (image.url === null) {
@@ -285,7 +286,7 @@ class MergeNovel {
           const imgTag = `<br/><img src="assets/${image.id}.${ext}" /><br/>`
           content = content.replaceAll(image.flag, imgTag)
         }
-        log.persistentRefresh()
+        log.persistentRefresh('downloadNovelImage')
 
         const title = Tools.replaceEPUBTitle(
           Utils.replaceUnsafeStr(novelData.title)
