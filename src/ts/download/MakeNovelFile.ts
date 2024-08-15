@@ -59,7 +59,11 @@ class MakeNovelFile {
         title: title,
         author: userName,
         publisher: novelURL,
-        description: Tools.replaceEPUBText(data.description),
+        // description 的内容会被添加到 book.opf 的 <dc:description> 标签对中
+        // 有的小说简介里含有 & 符号，需要转换成别的字符，否则会导致阅读器解析时出错
+        // 如 https://www.pixiv.net/novel/show.php?id=22260000
+        // 因此这里使用 replaceEPUBTitle 方法
+        description: Tools.replaceEPUBTitle(Utils.htmlToText(data.description)),
         tags: data.tags || [],
       })
 
