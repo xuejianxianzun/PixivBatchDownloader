@@ -82,7 +82,7 @@ class MakeNovelFile {
       for (const image of imageList) {
         log.log(
           lang.transl('_正在下载小说中的插画', `${current} / ${total}`),
-          2,
+          1,
           false,
           'downloadNovelImage'
         )

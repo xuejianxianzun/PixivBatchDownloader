@@ -57,6 +57,11 @@ class States {
   // 因为它只在某些特定功能上临时使用，之后会被重置
   public exportIDList = false
 
+  // 保存每次抓取完成和下载完成的时间戳，用来判断这次抓取结果是否已被下载完毕
+  // 因为这两个变量的值不应该随页面切换而改变，所以放在这里而非 initPageBase 里
+  public crawlCompleteTime = 1
+  public downloadCompleteTime = 0
+
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       this.settingInitialized = true

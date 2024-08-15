@@ -2293,6 +2293,9 @@ iframe[name='expandedFooter'] {
 .theme-dark.xz_PreviewWorkDetailPanel .content .date {
   color: #ccc;
 }
+:root {
+  --box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
+}
 .warn {
   color: #d27e00;
 }
@@ -2403,6 +2406,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   max-width: 500px;
   color: #fff;
   background-color: #29b3f3;
+  box-shadow: var(--box-shadow);
   padding: 8px 10px;
   border-radius: 4px;
 }
@@ -2424,7 +2428,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   overflow: hidden;
   border: 2px solid #29b3f3;
   background-color: rgba(41, 179, 243, 0.1);
-  box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
+  box-shadow: var(--box-shadow);
 }
 #previewWorkWrap img {
   width: 100%;
@@ -2459,7 +2463,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   height: 1200px;
   border: 2px solid #29b3f3;
   background-color: rgba(41, 179, 243, 0.2);
-  box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
+  box-shadow: var(--box-shadow);
 }
 #originSizeWrap img {
   width: 100%;

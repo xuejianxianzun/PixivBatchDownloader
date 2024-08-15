@@ -51,8 +51,9 @@ class DownloadNovelEmbeddedImage {
     for (let image of imageList) {
       log.log(
         lang.transl('_正在下载小说中的插画', `${current} / ${total}`),
-        action === 'mergeNovel' ? 1 : 2,
-        false
+        1,
+        false,
+        'downloadNovelImage'
       )
       current++
       if (image.url === null) {
@@ -76,7 +77,7 @@ class DownloadNovelEmbeddedImage {
       }
       this.sendDownload(image.blobURL!, imageName)
     }
-    log.persistentRefresh()
+    log.persistentRefresh('downloadNovelImage')
   }
 
   // 获取正文里上传的图片 id 和引用的图片 id

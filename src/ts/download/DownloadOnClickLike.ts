@@ -41,18 +41,12 @@ class DownloadOnClickLike {
    */
   private send(id: string, type: WorkTypeString = 'illusts') {
     if (settings.downloadOnClickLike) {
-      states.quickCrawl = true
-
       EVT.fire('crawlIdList', [
         {
           id,
           type,
         },
       ])
-
-      toast.show(lang.transl('_已发送下载请求'), {
-        bgColor: Colors.bgBlue,
-      })
     }
   }
 }

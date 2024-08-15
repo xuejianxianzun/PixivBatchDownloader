@@ -232,7 +232,6 @@ class DownloadControl {
       } else {
         window.clearTimeout(this.crawlIdListTimer)
         this.crawlIdListTimer = window.setTimeout(() => {
-          states.quickCrawl = true // 下载等待的任务时，不显示下载器面板
           const idList = store.waitingIdList
           store.waitingIdList = []
           EVT.fire('crawlIdList', idList)
