@@ -33,7 +33,7 @@ class MergeNovel {
 
   private readonly CRLF = '\n' // pixiv 小说的换行符
 
-  /** 这个系列小说的元数据 */
+  /** 这个系列小说的元数据，现在只用在 TXT 里 */
   private seriesMeta = ''
 
   private init() {
@@ -68,7 +68,7 @@ class MergeNovel {
         title: Utils.replaceUnsafeStr(result.title),
         content: result.novelMeta!.content,
         embeddedImages: result.novelMeta!.embeddedImages,
-        description: result.description,
+        description: result.novelMeta!.description,
       })
     }
 
@@ -97,13 +97,14 @@ class MergeNovel {
       const link = `https://www.pixiv.net/novel/series/${seriesData.id}`
       metaArray.push(link + this.CRLF)
 
-      const description = Utils.htmlToText(seriesData.caption)
+      const description = Utils.htmlToText(Utils.htmlDecode(seriesData.caption))
       metaArray.push(description + this.CRLF.repeat(2))
 
       // 设定资料
       if (store.novelSeriesGlossary) {
         metaArray.push(
-          Utils.htmlToText(store.novelSeriesGlossary) + this.CRLF.repeat(2)
+          Utils.htmlToText(Utils.htmlDecode(store.novelSeriesGlossary)) +
+            this.CRLF.repeat(2)
         )
       }
 
@@ -133,7 +134,6 @@ class MergeNovel {
 
     // 下载系列小说的封面图片
     const cover = seriesData.cover.urls.original
-    log.log(lang.transl('_下载封面图片'))
     await downloadNovelCover.download(cover, novelName, 'mergeNovel')
 
     states.mergeNovel = false
@@ -156,7 +156,7 @@ class MergeNovel {
         result.push(this.CRLF.repeat(2))
         // 保存每篇小说的元数据，现在只添加了简介
         if (settings.saveNovelMeta) {
-          result.push(Utils.htmlToText(data.description))
+          result.push(data.description)
           result.push(this.CRLF.repeat(2))
         }
         // 添加正文
@@ -175,6 +175,17 @@ class MergeNovel {
     })
   }
 
+  /** 处理从 Pixiv API 里取得的字符串，将其转换为可以安全的用于 EPUB 小说的 description 的内容
+   *
+   * 这些字符串通常是作品简介、设定资料等，可能包含 html 代码、特殊符号 */
+  private handleEPUBDescription(htmlString: string) {
+    return Tools.replaceEPUBText(
+      Tools.replaceEPUBDescription(
+        Utils.htmlToText(Utils.htmlDecode(htmlString))
+      )
+    )
+  }
+
   private mergeEPUB(
     novelDataArray: NovelData[],
     seriesData: NovelSeriesData['body']
@@ -187,9 +198,7 @@ class MergeNovel {
       const userName = Tools.replaceEPUBText(
         Utils.replaceUnsafeStr(seriesData.userName)
       )
-      let description = Tools.replaceEPUBText(
-        Utils.htmlToText(seriesData.caption)
-      )
+      let description = this.handleEPUBDescription(seriesData.caption)
 
       // 现在生成的 EPUB 小说里有个“信息”页面，会显示如下数据（就是在下面的 jepub.init 里定义的）：
       // title 系列标题
@@ -204,7 +213,7 @@ class MergeNovel {
           description =
             description +
             '<br/><br/>' +
-            Tools.replaceEPUBText(Utils.htmlToText(store.novelSeriesGlossary))
+            this.handleEPUBDescription(store.novelSeriesGlossary)
         }
       }
 
@@ -291,13 +300,13 @@ class MergeNovel {
         const title = Tools.replaceEPUBTitle(
           Utils.replaceUnsafeStr(novelData.title)
         )
-        const description = Tools.replaceEPUBText(
-          Utils.htmlToText(novelData.description)
-        )
 
         // 保存每篇小说的元数据，现在只添加了简介
         if (settings.saveNovelMeta) {
-          content = description + '<br/><br/>' + content
+          content =
+            Tools.replaceEPUBText(novelData.description) +
+            '<br/><br/>' +
+            content
         }
 
         // 添加正文，这会在 EPUB 里生成一个新的章节

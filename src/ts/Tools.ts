@@ -575,8 +575,8 @@ class Tools {
 
   /**替换 EPUB 文本里的特殊字符和换行符 */
   // 换行符必须放在最后处理，以免其 < 符号被替换
-  // 把所有换行符统一成 <br/>
-  // 这是因为 epub 是 xhtml 格式，要求必须有闭合标记，所以 <br> 是非法的，会导致小说无法被解析和阅读
+  // 把所有换行符统一成 <br />（包括 \n）
+  // epub 是 xhtml 格式，要求必须有闭合标记，所以 <br> 是非法的，必须使用 <br/>
   static replaceEPUBText(str: string) {
     return str
       .replace(/&/g, '&amp;')
@@ -596,6 +596,11 @@ class Tools {
       .replace(/<br>/g, ' br ')
       .replace(/<br \/>/g, ' br ')
       .replace(/\n/g, ' br ')
+  }
+
+  /** 把简介添加到 EPUB 小说里时，需要对特定字符进行处理 */
+  static replaceEPUBDescription(str: string) {
+    return str.replace(/&/g, ' and ')
   }
 
   /** 在 zip 压缩包里查找类似于 000000.jpg 的标记，返回它后面的位置的下标

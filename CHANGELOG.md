@@ -44,6 +44,12 @@ https://www.pixiv.net/novel/show.php?id=22088160
 包含 1 个引用的图片 `[pixivimage:70551567]`：
 https://www.pixiv.net/novel/show.php?id=10083001
 
+含有 130 个图片的小说，它的图片全都是引用自同一个插画，从 `[pixivimage:99760571-1]` 一直到 `[pixivimage:99760571-130]`：
+https://www.pixiv.net/novel/show.php?id=17968738
+
+这个小说引用的插画作品已经 404 了，因此不会保存它里面的图片：
+https://www.pixiv.net/novel/show.php?id=13898151#3
+
 没有图片的小说：
 https://www.pixiv.net/novel/show.php?id=21782995
 
@@ -55,6 +61,17 @@ https://www.pixiv.net/novel/series/10923616
 
 没有图片的系列小说：(星铁捕奴计划)
 https://www.pixiv.net/novel/series/7616746
+
+简介里含有 `&` 符号需要进行处理：
+https://www.pixiv.net/novel/show.php?id=22260000
+
+`&` 符号不能出现在 EPUB 里（至少不能出现在 book.opf 头部类似 `<dc:description>` 等一些标签里），而其转义符号 `&amp;` 包含了 `&` 本身，所以也不能用。最后我只好把它完全换掉，替换成 ` and `。但这样做有个缺点，如果这个 `&` 是网址里的，那么替换成 ` and ` 后这个网址就是错误的了。目前我还不清楚如何完美解决这个问题。
+
+标题里含有 `&` 符号需要进行处理：
+https://www.pixiv.net/novel/show.php?id=21782995
+
+
+
 
 ### 更换了生成 EPUB 小说的库
 
@@ -1247,7 +1264,7 @@ https://www.pixiv.net/novel/show.php?id=15066191
 
 这个小说标题里的“上”后面含有一个特殊的字符 `\u0000`，导致下载器保存文件时出现问题，浏览器弹出另存为对话框，并把文件名从这个特殊字符截断。
 
-现在修复此问题。
+现在下载器会移除此类特殊字符，修复了这个问题。
 
 ## 15.4.1 2023/02/28
 

@@ -62,8 +62,7 @@ class MakeNovelFile {
         // description 的内容会被添加到 book.opf 的 <dc:description> 标签对中
         // 有的小说简介里含有 & 符号，需要转换成别的字符，否则会导致阅读器解析时出错
         // 如 https://www.pixiv.net/novel/show.php?id=22260000
-        // 因此这里使用 replaceEPUBTitle 方法
-        description: Tools.replaceEPUBTitle(Utils.htmlToText(data.description)),
+        description: Tools.replaceEPUBText(data.description),
         tags: data.tags || [],
       })
 
@@ -87,12 +86,15 @@ class MakeNovelFile {
           'downloadNovelImage'
         )
         current++
+
+        let imageID = image.id
+        // 如果图片是引用自其他插画作品的，需要加上它的序号才不会重复。如果只使用作品 id 就可能会重复
+        if (image.type === 'pixiv') {
+          imageID = image.id + '-' + image.p
+        }
         if (image.url === null) {
           // 如果引用的图片作品已经不存在，那么它的图片网址会是 null。将其替换为提示
-          content = content.replaceAll(
-            image.flag,
-            `image ${image.id} not found`
-          )
+          content = content.replaceAll(image.flag, `image ${imageID} not found`)
           continue
         }
 
@@ -107,7 +109,7 @@ class MakeNovelFile {
           content = content.replaceAll(image.flag, `fetch ${image.url} failed`)
           continue
         }
-        jepub.image(illustration, image.id)
+        jepub.image(illustration, imageID)
 
         // 将小说正文里的图片标记替换为真实的的图片路径，以在 EPUB 里显示
         // [uploadedimage:17995414]
@@ -121,7 +123,7 @@ class MakeNovelFile {
         const ext = Utils.getURLExt(image.url)
         // 在图片前后添加换行，因为有时图片和文字挨在一起，或者多张图片挨在一起。
         // 不添加换行的话，在某些阅读器里这些内容会并排，影响阅读体验
-        const imgTag = `<br/><img src="assets/${image.id}.${ext}" /><br/>`
+        const imgTag = `<br/><img src="assets/${imageID}.${ext}" /><br/>`
         content = content.replaceAll(image.flag, imgTag)
       }
       log.persistentRefresh('downloadNovelImage')

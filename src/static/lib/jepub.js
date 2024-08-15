@@ -59,7 +59,7 @@ function createFrontCover (data) {
 
 <body>
 	<div id="cover-image">
-		<img src="../${data.cover.path}" alt="${data.i18n.cover}" />
+		<img src="${data.cover.path.replace('OEBPS/', '')}" alt="${data.i18n.cover}" />
 	</div>
 </body>
 
