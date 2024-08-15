@@ -111,7 +111,7 @@
 
 1. 中國的眾籌贊助平台「愛發電」（類似於 patreon）：
 
-[https://afdian.net/@xuejianxianzun](https://afdian.net/@xuejianxianzun)
+[https://afdian.com/a/xuejianxianzun](https://afdian.com/a/xuejianxianzun)
 
 2. 國外的贊助網站 Patreon：
 
