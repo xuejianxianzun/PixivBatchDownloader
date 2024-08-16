@@ -16801,6 +16801,23 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
             data = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getBookmarkData(_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getUserId(), this.type, _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.tag, this.offset, this.isHide);
         }
         catch (error) {
+            // 一种特殊的错误情况：
+            // 如果一个用户被封禁了，那么在他的小说收藏页面里抓取，会返回 html 源代码，
+            // 就是显示“找不到该用户”的错误页面。此时无法解析为 JSON，报错信息如下：
+            // SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+            // 此时应该终止抓取。
+            // 注：这个错误只在小说收藏页面出现。在插画收藏页面依旧可以正常抓取
+            if (error.message.includes('not valid JSON')) {
+                if (_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.type.includes('zh')) {
+                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(`预期的数据格式为 JSON，但抓取结果不是 JSON。已取消抓取。<br>
+一种可能的原因：您已被 Pixiv 封禁。`);
+                }
+                else {
+                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(`Expected data format is JSON, but the fetch result is not JSON. Fetch has been canceled. <br>
+One possible reason: You have been banned from Pixiv.`);
+                }
+                return this.getIdListFinished();
+            }
             this.getIdList();
             return;
         }
