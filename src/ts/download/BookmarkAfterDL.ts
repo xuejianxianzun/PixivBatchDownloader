@@ -131,7 +131,7 @@ class BookmarkAfterDL {
         data.tags,
         undefined,
         undefined,
-        store.result.length > 24
+        store.result.length > 30
       )
       this.successCount++
 

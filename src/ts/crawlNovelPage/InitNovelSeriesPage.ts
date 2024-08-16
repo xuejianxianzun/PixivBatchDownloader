@@ -60,7 +60,7 @@ class InitNovelSeriesPage extends InitPageBase {
   }
 
   protected async getIdList() {
-    const seriesData = await API.getNovelSeriesData(
+    const seriesData = await API.getNovelSeriesContent(
       this.seriesId,
       this.limit,
       this.last,

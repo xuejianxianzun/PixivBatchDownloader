@@ -140,7 +140,7 @@ class DownloadControl {
       this.checkDownloadTimeoutTimer = window.setTimeout(() => {
         const msg = lang.transl('_可能发生了错误请刷新页面重试')
         msgBox.once('mayError', msg, 'warning')
-        log.warning(msg)
+        log.warning(msg, 1, false, 'mayError')
       }, 5000)
     })
 
@@ -166,7 +166,7 @@ class DownloadControl {
 
       // UUID 的情况
       if (msg.data?.uuid) {
-        log.error(lang.transl('_uuid'))
+        log.error(lang.transl('_uuid'), 1, false, 'filenameUUID')
         msgBox.once(this.msgFlag, lang.transl('_uuid'), 'error')
       }
 
@@ -232,7 +232,6 @@ class DownloadControl {
       } else {
         window.clearTimeout(this.crawlIdListTimer)
         this.crawlIdListTimer = window.setTimeout(() => {
-          states.quickCrawl = true // 下载等待的任务时，不显示下载器面板
           const idList = store.waitingIdList
           store.waitingIdList = []
           EVT.fire('crawlIdList', idList)
