@@ -73,12 +73,6 @@ class ShowDownloadBtnOnThumbOnDesktop {
           id: this.currentWorkId,
         }
         EVT.fire('crawlIdList', [IDData])
-
-        // 下载时不显示下载面板
-        states.quickCrawl = true
-        toast.show(lang.transl('_已发送下载请求'), {
-          bgColor: Colors.bgBlue,
-        })
       }
     })
 

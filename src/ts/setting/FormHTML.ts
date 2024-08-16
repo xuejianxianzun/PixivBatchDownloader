@@ -4,12 +4,11 @@ import { Config } from '../Config'
 export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
-    <span class="setWantPageWrap has_tip" data-xztip="_抓取多少页面">
-    <span class="settingNameStyle1"><span class="setWantPageTip1" data-xztext="_抓取多少页面"></span><span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1"><span class="setWantPageTip1 has_tip" data-xztip="_抓取多少页面" data-xztext="_抓取多少页面"></span><span class="gray1"> ? </span></span>
     <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
     value = '-1'>&nbsp;
     <span class="setWantPageTip2 gray1" data-xztext="_数字提示1"></span>
-    </span>
+    <button class="gray1 showSetWantPageTip textButton" type="button" data-xztext="_提示"></button>
     </p>
 
     <p class="option" data-no="2">
@@ -337,7 +336,7 @@ export const formHtml = `<form class="settingForm">
       </select>
     &nbsp;
     <slot data-name="saveNamingRule"></slot>
-    <button class="showFileNameTip textButton" type="button" data-xztext="_提示2"></button>
+    <button class="showFileNameTip textButton" type="button" data-xztext="_提示"></button>
     </p>
     <p class="fileNameTip tip">
     <span data-xztext="_设置文件夹名的提示"></span>

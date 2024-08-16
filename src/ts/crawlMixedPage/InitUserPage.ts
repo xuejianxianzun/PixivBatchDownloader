@@ -35,7 +35,7 @@ class InitUserPage extends InitPageBase {
 
   private listType: ListType = ListType.UserHome // 当前页面应该获取哪些类型的作品
 
-  private onceNumber = 48 // 每页作品个数，插画是 48 个，小说是 24 个
+  private onceNumber = 48 // 每页作品个数，插画是 48 个，小说是 30 个
 
   private bookmarkAll = new BookmarkAllWorks()
 
@@ -161,7 +161,7 @@ class InitUserPage extends InitPageBase {
       } else if (str.includes('/novels')) {
         // 小说列表
         this.listType = ListType.Novels
-        this.onceNumber = 24 // 如果是在小说列表页，一页只有 24 个作品
+        this.onceNumber = 30 // 如果是在小说列表页，一页有 30 个作品
       }
     }
 

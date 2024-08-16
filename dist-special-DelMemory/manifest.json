@@ -1,6 +1,6 @@
 {
   "name": "Powerful Pixiv Downloader DelMemory",
-  "version": "17.0.0",
+  "version": "17.1.0",
   "manifest_version": 3,
   "description": "强大的 Pixiv 批量下载器。Powerful Pixiv batch downloader. 強力な Pixiv ダウンローダー。",
   "icons": {
@@ -27,7 +27,7 @@
         "lib/gif.js",
         "lib/jszip-utils.min.js",
         "lib/jszip.min.js",
-        "lib/js-epub-maker.js",
+        "lib/jepub.js",
         "lib/pako.min.js",
         "lib/UPNG.js",
         "js/content.js",

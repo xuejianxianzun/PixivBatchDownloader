@@ -63,6 +63,7 @@ class DisplayThumbnailListOnMultiImageWorkPage {
     }
 
     // 把缩略图列表添加到页面上
+    this.remove()
     const viewer = new ImageViewer({
       workId: Tools.getIllustId(),
       imageNumber: 2,

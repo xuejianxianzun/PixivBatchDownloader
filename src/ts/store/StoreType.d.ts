@@ -28,6 +28,7 @@ export interface NovelMeta {
     [key: string]: string
   }
   meta: string
+  tags: string[]
 }
 
 /**保存每个要下载的作品的信息。这是下载器内部保存的抓取结果 */

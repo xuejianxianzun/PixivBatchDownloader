@@ -1,6 +1,7 @@
 import { Config } from '../Config'
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
+import { pageType } from '../PageType'
 import { settings } from './Settings'
 
 interface WantPageArg {
@@ -10,7 +11,6 @@ interface WantPageArg {
 }
 
 interface WantPageEls {
-  wrap: HTMLSpanElement
   text: HTMLSpanElement
   rangTip: HTMLSpanElement
   input: HTMLInputElement
@@ -20,14 +20,14 @@ interface WantPageEls {
 // 设置页数/个数的提示文本
 class Options {
   public init(allOption: NodeListOf<HTMLElement>) {
+    this.showSetWantPageTipButton = document.querySelector(
+      '.settingForm .showSetWantPageTip'
+    )! as HTMLButtonElement
     this.allOption = allOption
 
     // 获取“页数/个数”设置的元素
     const wantPageOption = this.getOption(1)!
     this.wantPageEls = {
-      wrap: wantPageOption.querySelector(
-        '.setWantPageWrap'
-      )! as HTMLSpanElement,
       text: wantPageOption.querySelector(
         '.setWantPageTip1'
       )! as HTMLSpanElement,
@@ -40,6 +40,20 @@ class Options {
     this.handleShowAdvancedSettings()
     this.bindEvents()
   }
+
+  private showSetWantPageTipButton!: HTMLButtonElement
+  private hiddenButtonPages = [
+    pageType.list.AreaRanking,
+    pageType.list.ArtworkRanking,
+    pageType.list.Pixivision,
+    pageType.list.BookmarkDetail,
+    pageType.list.Discover,
+    pageType.list.NewArtwork,
+    pageType.list.NovelRanking,
+    pageType.list.NewNovel,
+    pageType.list.Request,
+    pageType.list.Unlisted,
+  ]
 
   private allOption!: NodeListOf<HTMLElement>
 
@@ -162,10 +176,16 @@ class Options {
 
   // 设置 “抓取多少作品/页面” 选项的提示和预设值
   public setWantPageTip(arg: WantPageArg) {
-    lang.updateText(this.wantPageEls.text, arg.text)
+    // 当页面里设置的是作品个数，而非页面数量时，隐藏这个按钮，因为它只在设置页面数量时有用
+    if (this.hiddenButtonPages.includes(pageType.type)) {
+      this.showSetWantPageTipButton.style.display = 'none'
+    } else {
+      this.showSetWantPageTipButton.style.display = 'inline-block'
+    }
 
-    this.wantPageEls.wrap.dataset.xztip = arg.tip
-    this.wantPageEls.wrap.dataset.tip = lang.transl(arg.tip as any)
+    lang.updateText(this.wantPageEls.text, arg.text)
+    this.wantPageEls.text.dataset.xztip = arg.tip
+    this.wantPageEls.text.dataset.tip = lang.transl(arg.tip as any)
 
     // rangTip 可能需要翻译
     if (arg.rangTip.startsWith('_')) {
