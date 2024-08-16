@@ -631,6 +631,11 @@
   /*--------美化普通的复选框------------*/
   /*--------美化单选框------------*/
 }
+.centerWrap .centerWrap_con .settingForm p.option > *,
+.centerWrap .centerWrap_con .settingForm .setWantPageWrap > * {
+  line-height: 20px;
+  vertical-align: middle;
+}
 .centerWrap .centerWrap_con .settingForm select {
   width: 80px;
   height: 20px;
@@ -1501,7 +1506,7 @@
   z-index: 9999;
   min-width: 500px;
   max-width: 700px;
-  padding: 20px;
+  padding: 30px;
   border-radius: 12px;
   top: 15%;
   left: 50%;
@@ -1512,7 +1517,8 @@
   margin: 0;
 }
 .xz_msg_box .title {
-  font-size: 16px;
+  font-size: 17px;
+  font-weight: bold;
   color: #0ea8ef;
 }
 .xz_msg_box .blue {
@@ -1533,6 +1539,9 @@
   text-align: center;
   padding: 7px 20px;
   border-radius: 6px;
+}
+.xz_msg_box .btn:hover {
+  font-weight: bold;
 }
 .xz_msg_box a {
   color: #0ea8ef;

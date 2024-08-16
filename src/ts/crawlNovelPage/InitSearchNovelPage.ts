@@ -240,6 +240,9 @@ class InitSearchNovelPage extends InitPageBase {
   }
 
   private tipEmptyResult = Utils.debounce(() => {
+    if (!settings.slowCrawl) {
+      log.error(lang.transl('_提示启用减慢抓取速度功能'))
+    }
     log.error(lang.transl('_抓取被限制时返回空结果的提示'))
   }, 1000)
 

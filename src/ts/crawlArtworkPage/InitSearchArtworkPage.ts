@@ -363,6 +363,9 @@ class InitSearchArtworkPage extends InitPageBase {
 
   private tipEmptyResult = Utils.debounce(() => {
     log.error(lang.transl('_抓取被限制时返回空结果的提示'))
+    if (!settings.slowCrawl) {
+      log.error(lang.transl('_提示启用减慢抓取速度功能'))
+    }
   }, 1000)
 
   /**获取作品 id 列表（列表页数据） */

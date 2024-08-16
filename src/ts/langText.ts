@@ -254,6 +254,86 @@ const langText = {
     '현재 페이지에서 다운로드합니다.<br>다운로드할 페이지 수를 설정하려면 1로 시작하는 숫자를 입력해주세요.<br>1은 이 페이지만 다운로드합니다, -1은 모든 페이지를 다운로드합니다.',
     'Загрузка с текущей страницы.<br>Если вы хотите задать количество страниц для загрузки, введите число, начиная с 1. <br>1 - это загрузка только этой страницы, -1 для загрузки всех страниц.',
   ],
+  _设置页数的提示: [
+    `下载器总是从当前页面开始抓取的。
+<br>
+如果你在第 1 页，就从第 1 页开始抓取。如果你在第 2 页，就从第 2 页开始抓取。<br>
+<br>
+默认值 -1 会使下载器抓取到最后一页。<br>
+如果你只需要抓取一部分页面，可以设置抓取的页数：<br>
+设置为 1 只会抓取这一页里的作品。<br>
+设置为 2 会抓取这一页和下一页，以此类推。<br>
+<br>
+如果你有需要的话，可以把抓取大量页面的任务拆分成多次。例如：<br>
+设置抓取的页数为 100，然后从第 1 页开始抓取。下载器会抓取第 0 - 100 页里的作品。<br>
+下载完成后，跳转到第 101 页，开始下一次抓取。下载器会抓取第 101 - 200 页里的作品。<br>
+以此类推。<br>`,
+    `下載器總是從當前頁面開始抓取的。
+<br>
+如果你在第 1 頁，就從第 1 頁開始抓取。如果你在第 2 頁，就從第 2 頁開始抓取。<br>
+<br>
+預設值 -1 會使下載器抓取到最後一頁。<br>
+如果你只需要抓取一部分頁面，可以設定抓取的頁數：<br>
+設定為 1 只會抓取這一頁裡的作品。<br>
+設定為 2 會抓取這一頁和下一頁，以此類推。<br>
+<br>
+如果你有需要的話，可以把抓取大量頁面的任務拆分成多次。例如：<br>
+設定抓取的頁數為 100，然後從第 1 頁開始抓取。下載器會抓取第 0 - 100 頁裡的作品。<br>
+下載完成後，跳轉到第 101 頁，開始下一次抓取。下載器會抓取第 101 - 200 頁裡的作品。<br>
+以此類推。<br>`,
+    `The downloader always starts crawling from the current page.
+<br>
+If you are on page 1, it starts crawling from page 1. If you are on page 2, it starts crawling from page 2. <br>
+<br>
+The default value of -1 will make the downloader crawl to the last page. <br>
+If you only need to crawl a part of the pages, you can set the number of pages to crawl: <br>
+Set to 1 to crawl only the works on this page. <br>
+Set to 2 to crawl this page and the next page, and so on. <br>
+<br>
+If you need to, you can split the task of crawling a large number of pages into multiple times. For example: <br>
+Set the number of pages to crawl to 100, and start crawling from page 1. The downloader will crawl the works from pages 0 - 100. <br>
+After the download is completed, jump to page 101 and start the next crawl. The downloader will crawl the works from pages 101 - 200. <br>
+And so on. <br>`,
+    `ダウンローダーは常に現在のページからクロールを開始します。
+<br>
+ページ 1 にいる場合は、ページ 1 からスクレイピングを開始します。 2 ページにいる場合は、2 ページからスクレイピングを開始します。 <br>
+<br>
+デフォルト値 -1 では、ダウンローダーは最後のページまでクロールします。 <br>
+ページの一部のみをクロールする必要がある場合は、クロールするページ数を設定できます。<br>
+1 に設定すると、このページの作品のみをクロールします。 <br>
+2 に設定すると、このページと次のページなどがクロールされます。 <br>
+<br>
+必要に応じて、大量のページをクロールするタスクを複数回に分割できます。例:<br>
+クロールするページ数を 100 に設定し、1 ページからクロールを開始します。ダウンローダーは、0 ～ 100 ページの作品をクロールします。 <br>
+ダウンロードが完了したら、101 ページに移動して次のクロールを開始します。ダウンローダーは、101 ～ 200 ページの作品を取得します。 <br>
+等々。 <br>`,
+    `다운로더는 항상 현재 페이지에서 크롤링을 시작합니다.
+<br>
+1페이지에 있다면 1페이지부터 스크래핑을 시작하세요. 2페이지에 있다면 2페이지부터 스크래핑을 시작하세요. <br>
+<br>
+기본값 -1을 사용하면 다운로더가 마지막 페이지로 크롤링됩니다. <br>
+페이지의 일부만 크롤링해야 하는 경우 크롤링할 페이지 수를 설정할 수 있습니다.<br>
+이 페이지의 작품만 크롤링하려면 1로 설정하세요. <br>
+2로 설정하면 이 페이지와 다음 페이지 등을 크롤링합니다. <br>
+<br>
+필요한 경우 많은 수의 페이지를 크롤링하는 작업을 여러 번 분할할 수 있습니다. 예:<br>
+크롤링할 페이지 수를 100으로 설정한 다음 1페이지부터 크롤링을 시작합니다. 다운로더는 0~100페이지의 작품을 크롤링합니다. <br>
+다운로드가 완료되면 101페이지로 이동하여 다음 크롤링을 시작하세요. 다운로더는 101~200페이지의 작품을 가져옵니다. <br>
+등. <br>`,
+    `Загрузчик всегда начинает сканирование с текущей страницы.
+<br>
+Если вы находитесь на странице 1, начните парсинг с первой страницы. Если вы находитесь на странице 2, начните очистку со страницы 2. <br>
+<br>
+Значение по умолчанию -1 заставит загрузчик просканировать последнюю страницу. <br>
+Если вам нужно просканировать только часть страницы, вы можете указать количество страниц для сканирования:<br>
+Установите значение 1, чтобы сканировать только работы на этой странице. <br>
+При значении 2 будет сканироваться эта страница, следующая страница и т. д. <br>
+<br>
+При необходимости вы можете разделить задачу сканирования большого количества страниц на несколько раз. Например:<br>
+Установите количество страниц для сканирования на 100, а затем начните сканирование со страницы 1. Загрузчик просканирует произведения на страницах 0–100. <br>
+После завершения загрузки перейдите на страницу 101, чтобы начать следующее сканирование. Загрузчик получит работы на страницах 101–200. <br>
+И так далее. <br>`,
+  ],
   _下载所有页面: [
     '下载所有页面',
     '下載所有頁面',
@@ -753,7 +833,7 @@ const langText = {
     `可以使用斜線（<span class="key">/</span>）建立資料夾。範例：`,
     `You can create a directory with '<span class="key">/</span>'. Example：`,
     `フォルダーは '<span class="key">/</span>' で作成できます。例：`,
-    `'<span class="key">/</span>'을 사용하여 디렉토리를 생성할 수 있습니다.<br>예:`,
+    `'<span class="key">/</span>'을 사용하여 디렉토리를 생성할 수 있습니다. 예:`,
     `Вы можете создать каталог с помощью '<span class="key">/</span>'. Пример:`,
   ],
   _添加命名标记前缀: [
@@ -933,12 +1013,12 @@ const langText = {
     'Если работа создана с помощью ИИ, выведите <span class="blue">AI</span>',
   ],
   _命名标记提醒: [
-    '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{user_id}',
-    '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{user_id}',
-    'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{user_id}',
-    'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{user_id}',
-    '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.<br>여러 태그를 사용할 수 있습니다. 서로 다른 태그 사이에 구분자를 넣는 것을 권장합니다. 예: {id}-{user}',
-    'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.<br>Вы можете использовать несколько тегов, и вы можете добавить отдельный символ между различными тегами. Пример: {id}-{user_id}',
+    '你可以使用多个标记，并且可以在标记之间添加自定义文字。例如：pixiv/{id}-{title}-user {user}<br>为了防止文件名重复，命名规则里必须含有 {id} 或者 {id_num}{p_num}。',
+    '你可以使用多個標記，並且可以在標記之間新增自定義文字。例如：pixiv/{id}-{title}-user {user}<br>為了防止檔名重複，命名規則裡必須含有 {id} 或者 {id_num}{p_num}。',
+    'You can use multiple tags and add custom text between tags. For example: pixiv/{id}-{title}-user {user}<br>To prevent duplicate file names, the naming rule must contain {id} or {id_num}{p_num}.',
+    '複数のタグを使用し、タグの間にカスタム テキストを追加できます。例: pixiv/{id}-{title}-user {user}<br>ファイル名の重複を防ぐために、命名規則に {id} または {id_num}{p_num} を含める必要があります。',
+    '여러 태그를 사용하고 태그 사이에 사용자 정의 텍스트를 추가할 수 있습니다. 예: pixiv/{id}-{title}-user {user}<br>파일 이름 중복을 방지하려면 명명 규칙에 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.',
+    'Вы можете использовать несколько тегов и добавлять собственный текст между тегами. Например: pixiv/{id}-{title}-user {user}<br>Чтобы предотвратить дублирование имен файлов, правило именования должно содержать {id} или {id_num}{p_num}.',
   ],
   _有些标记并不总是可用的提醒: [
     '有些标记并不总是可用，有时它们可能什么都不输出。',
@@ -1086,12 +1166,24 @@ const langText = {
   ],
   _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問', '도움말', 'help'],
   _uuid: [
-    '如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>例如：Chrono 下载管理器、free Download Manager、Image Downloader、DownThemAll! 等。',
-    '如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。<br>例如：Chrono 下载管理器、free Download Manager、Image Downloader、DownThemAll! 等。',
-    'If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.<br>For example: Chrono Download Manager, free Download Manager, Image Downloader, DownThemAll! and more.',
-    'ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br>例：Chrono Download Manager, free Download Manager, Image Downloader, DownThemAll! など。',
-    '다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.예: Chrono Download Manager, free Download Manager、Image Downloader、DownThemAll! 등.',
-    'Если имя файла после загрузки ненормальное, отключите другие расширения браузера, которые имеют возможность загрузки.<br> Например: Chrono Download Manager, бесплатный менеджер загрузок, загрузчик изображений, DownThemAll! и многое другое.',
+    `下载器检测到下载后的文件名异常。如果你看到文件名是一串随机的字母和数字，表示有某些扩展程序接管了由下载器建立的下载，导致下载器设置的文件名丢失。<br>
+遇到此问题时，请禁用其他有下载文件的功能的扩展程序。例如：<br>
+Chrono 下载管理器、mage Downloade 等。`,
+    `下載器檢測到下載後的檔名異常。如果你看到檔名是一串隨機的字母和數字，表示有某些擴充套件程式接管了由下載器建立的下載，導致下載器設定的檔名丟失。<br>
+遇到此問題時，請禁用其他有下載檔案的功能的擴充套件程式。例如：<br>
+Chrono 下載管理器、mage Downloade 等。`,
+    `The downloader detected an abnormal file name after downloading. If you see a random string of letters and numbers in the file name, it means that some extensions have taken over the download established by the downloader, causing the file name set by the downloader to be lost. <br>
+When encountering this problem, please disable other extensions that have the function of downloading files. For example: <br>
+Chrono Download Manager, Image Downloader, etc.`,
+    `ダウンローダーはダウンロード後に異常なファイル名を検出しました。ファイル名にランダムな文字と数字の文字列が表示されている場合は、一部の拡張機能がダウンローダーによって確立されたダウンロードを引き継ぎ、ダウンローダーによって設定されたファイル名が失われたことを意味します。<br>
+この問題が発生した場合は、ファイルをダウンロードする機能を持つ他の拡張機能を無効にしてください。例: <br>
+Chrono Download Manager、mage Downloade など。`,
+    `다운로더가 다운로드 후 비정상적인 파일 이름을 감지했습니다. 파일 이름에 임의의 문자와 숫자 문자열이 있는 경우 다운로더가 설정한 다운로드를 일부 확장자가 인수하여 다운로더가 설정한 파일 이름이 손실되었음을 의미합니다. <br>
+이 문제가 발생하면 파일을 다운로드하는 기능이 있는 다른 확장자를 비활성화하세요. 예: <br>
+Chrono Download Manager, Image Downloader 등`,
+    `Загрузчик обнаружил ненормальное имя файла после загрузки. Если вы видите случайную строку букв и цифр в имени файла, это означает, что некоторые расширения взяли на себя загрузку, установленную загрузчиком, в результате чего имя файла, установленное загрузчиком, было потеряно. <br>
+При возникновении этой проблемы, пожалуйста, отключите другие расширения, которые имеют функцию загрузки файлов. Например: <br>
+Chrono Download Manager, Image Downloader и т. д.`,
   ],
   _常见问题说明: [
     '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>如果你需要一个梯子（机场）,可以试试这个机场：<a href="https://www.xfx.life/#/register?code=6m4hMaPu" title="XFX Cloud" target="_blank">XFX Cloud</a>，价格实惠，网络稳定。先购买订阅，然后在仪表盘复制订阅链接，在梯子软件里使用。<br><br>下载器 QQ 群：499873152<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
@@ -1754,7 +1846,6 @@ const langText = {
     'Одновременное преобразование нескольких анимаций увеличит потребление ресурсов. ',
   ],
   _提示: ['提示', '提示', 'Tip', 'ヒント', '팁', 'Совет'],
-  _提示2: ['提示', '提示', 'Tip', '？', '팁', 'Совет'],
   _fanboxDownloader: [
     'Fanbox 下载器',
     'Fanbox 下載器',
@@ -3106,15 +3197,15 @@ const langText = {
   _赞助方式提示: [
     `非常感谢您的支持！<br>
     您可以在 Patreon 上赞助我：<br>
-    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br>
+    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br><br>
     中国大陆用户可以在“爱发电”上赞助我：<br>
-    <a href="https://afdian.com/a/xuejianxianzun" target="_blank">https://afdian.com/a/xuejianxianzun</a><br>
+    <a href="https://afdian.com/a/xuejianxianzun" target="_blank">https://afdian.com/a/xuejianxianzun</a><br><br>
     也可以扫描二维码：<br>
     <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 499873152，在群文件里查看二维码。
     `,
     `非常感謝您的支持！<br>
     您可以在 Patreon 上贊助我：<br>
-    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br>
+    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br><br>
     中國大陸使用者可以在“愛發電”上贊助我：<br>
     <a href="https://afdian.com/a/xuejianxianzun" target="_blank">https://afdian.com/a/xuejianxianzun</a>。
     `,
@@ -3229,12 +3320,20 @@ const langText = {
     'Например: Anmi@画集発売中 → Anmi',
   ],
   _抓取被限制时返回空结果的提示: [
-    'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。(429)<br>这说明您的账号被 Pixiv 限制访问了，等待几分钟即可恢复正常。<br>您可以启用“减慢抓取速度”功能来减少 429 问题出现的概率。',
-    'Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。(429)<br>這說明您的賬號被 Pixiv 限制訪問了，等待幾分鐘即可恢復正常。<br>您可以啟用“減慢抓取速度”功能來減少 429 問題出現的機率。',
-    'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes. (429)<br>This means that your account has been restricted by Pixiv, please wait for a few minutes for it to return to normal.<br>You can reduce the chances of 429 issues by enabling the "Slow down crawl" feature.',
-    'Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。(429)<br>これは、あなたのアカウントが Pixiv によって制限されていることを意味します。通常の状態に戻るまで数分お待ちください。<br>"クロールを遅くする" 機能を有効にすると、429 の問題が発生する可能性を減らすことができます。',
-    'Pixiv가 빈 데이터를 반환했습니다. 다운로더가 긁어오기를 일시 중지하고 몇 분 동안 기다린 후 긁어오기를 계속합니다. (429)<br>이것은 귀하의 계정이 Pixiv에 의해 제한되었음을 의미합니다. 정상으로 돌아갈 때까지 몇 분 정도 기다리십시오.<br>"천천히 크롤링" 기능을 활성화하면 429 문제 발생 가능성을 줄일 수 있습니다.',
-    'Pixiv вернул пустые данные. Загрузчик приостановил загрузку и возобновит ее через несколько минут. (429)<br>Это означает, что ваша учетная запись была ограничена Pixiv, подождите несколько минут, пока она вернется в нормальное состояние.<br>Вы можете снизить вероятность возникновения ошибок 429, включив функцию «Замедлить сканирование».',
+    'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。(429)<br>这说明您的账号被 Pixiv 限制访问了，等待几分钟即可恢复正常。',
+    'Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。(429)<br>這說明您的賬號被 Pixiv 限制訪問了，等待幾分鐘即可恢復正常。',
+    'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes. (429)<br>This means that your account has been restricted by Pixiv, please wait for a few minutes for it to return to normal.',
+    'Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。(429)<br>これは、あなたのアカウントが Pixiv によって制限されていることを意味します。通常の状態に戻るまで数分お待ちください。',
+    'Pixiv가 빈 데이터를 반환했습니다. 다운로더가 긁어오기를 일시 중지하고 몇 분 동안 기다린 후 긁어오기를 계속합니다. (429)<br>이것은 귀하의 계정이 Pixiv에 의해 제한되었음을 의미합니다. 정상으로 돌아갈 때까지 몇 분 정도 기다리십시오.',
+    'Pixiv вернул пустые данные. Загрузчик приостановил загрузку и возобновит ее через несколько минут. (429)<br>Это означает, что ваша учетная запись была ограничена Pixiv, подождите несколько минут, пока она вернется в нормальное состояние.',
+  ],
+  _提示启用减慢抓取速度功能: [
+    '您可以启用“减慢抓取速度”功能来减少 429 问题出现的概率。',
+    '您可以啟用“減慢抓取速度”功能來減少 429 問題出現的機率。',
+    'You can reduce the chances of 429 issues by enabling the "Slow down crawl" feature.',
+    '"クロールを遅くする" 機能を有効にすると、429 の問題が発生する可能性を減らすことができます。',
+    '"천천히 크롤링" 기능을 활성화하면 429 문제 발생 가능성을 줄일 수 있습니다.',
+    'Вы можете снизить вероятность возникновения ошибок 429, включив функцию «Замедлить сканирование».',
   ],
   _搜索模式: [
     '搜索模式',

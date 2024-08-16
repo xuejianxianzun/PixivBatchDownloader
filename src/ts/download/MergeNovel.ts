@@ -129,12 +129,12 @@ class MergeNovel {
       file = await this.mergeEPUB(allNovelData, seriesData)
     }
 
-    const url = URL.createObjectURL(file)
-    Utils.downloadFile(url, Utils.replaceUnsafeStr(novelName))
-
     // 下载系列小说的封面图片
     const cover = seriesData.cover.urls.original
     await downloadNovelCover.download(cover, novelName, 'mergeNovel')
+
+    const url = URL.createObjectURL(file)
+    Utils.downloadFile(url, Utils.replaceUnsafeStr(novelName))
 
     states.mergeNovel = false
     EVT.fire('downloadComplete')
