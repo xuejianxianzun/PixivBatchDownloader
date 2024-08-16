@@ -192,7 +192,7 @@ class Download {
       // 生成小说的文件
       if (arg.result.novelMeta) {
         if (arg.result.novelMeta?.coverUrl) {
-          downloadNovelCover.download(
+          await downloadNovelCover.download(
             arg.result.novelMeta.coverUrl,
             _fileName,
             'downloadNovel'
@@ -202,6 +202,8 @@ class Download {
         let blob: Blob = await MakeNovelFile.make(arg.result.novelMeta)
         url = URL.createObjectURL(blob)
 
+        // 当小说保存为 txt 格式时，在这里下载内嵌的图片。
+        // 如果是保存为 EPUB 格式，那么在 MakeNovelFile.make 里会保存图片
         if (settings.novelSaveAs === 'txt') {
           await downloadNovelEmbeddedImage.TXT(
             arg.result.novelMeta.content,

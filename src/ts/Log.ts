@@ -46,7 +46,10 @@ class Log {
   private id = 'logWrap' // 日志区域元素的 id
   private wrap = document.createElement('div') // 日志容器的区域
   private logArea = document.createElement('div') // 日志主体区域
-  private refresh = document.createElement('span') // 刷新时使用的元素
+  // 会刷新的日志所使用的元素，可以传入 flag 来设置多条用于刷新日志的元素
+  private refresh: { [key: string]: HTMLElement } = {
+    default: document.createElement('span'),
+  }
   private readonly levelColor = [
     'inherit',
     Colors.textSuccess,
@@ -75,11 +78,21 @@ class Log {
   2 warning
   3 error
   */
-  private add(str: string, level: number, br: number, keepShow: boolean) {
+  private add(
+    str: string,
+    level: number,
+    br: number,
+    keepShow: boolean,
+    refreshFlag: string = 'default'
+  ) {
     this.checkElement()
     let span = document.createElement('span')
     if (!keepShow) {
-      span = this.refresh
+      if (this.refresh[refreshFlag] === undefined) {
+        this.refresh[refreshFlag] = span
+      } else {
+        span = this.refresh[refreshFlag]
+      }
     } else {
       this.count++
     }
@@ -102,20 +115,40 @@ class Log {
     }
   }
 
-  public log(str: string, br: number = 1, keepShow: boolean = true) {
-    this.add(str, 0, br, keepShow)
+  public log(
+    str: string,
+    br: number = 1,
+    keepShow: boolean = true,
+    refreshFlag = 'default'
+  ) {
+    this.add(str, 0, br, keepShow, refreshFlag)
   }
 
-  public success(str: string, br: number = 1, keepShow: boolean = true) {
-    this.add(str, 1, br, keepShow)
+  public success(
+    str: string,
+    br: number = 1,
+    keepShow: boolean = true,
+    refreshFlag = 'default'
+  ) {
+    this.add(str, 1, br, keepShow, refreshFlag)
   }
 
-  public warning(str: string, br: number = 1, keepShow: boolean = true) {
-    this.add(str, 2, br, keepShow)
+  public warning(
+    str: string,
+    br: number = 1,
+    keepShow: boolean = true,
+    refreshFlag = 'default'
+  ) {
+    this.add(str, 2, br, keepShow, refreshFlag)
   }
 
-  public error(str: string, br: number = 1, keepShow: boolean = true) {
-    this.add(str, 3, br, keepShow)
+  public error(
+    str: string,
+    br: number = 1,
+    keepShow: boolean = true,
+    refreshFlag = 'default'
+  ) {
+    this.add(str, 3, br, keepShow, refreshFlag)
   }
 
   /**将刷新的日志元素持久化 */
@@ -123,8 +156,8 @@ class Log {
   // 它们使用同一个 span 元素，并且同时只能存在一个刷新区域
   // 当显示 10/10 的时候，进度就不会再变化了，此时应该将其“持久化”。生成一个新的 span 元素作为新的刷新区域
   // 这样如果后续又需要显示刷新的元素，不会影响之前已完成“持久化”的日志
-  public persistentRefresh() {
-    this.refresh = document.createElement('span')
+  public persistentRefresh(refreshFlag: string = 'default') {
+    this.refresh[refreshFlag] = document.createElement('span')
   }
 
   private checkElement() {

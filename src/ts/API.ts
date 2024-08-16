@@ -22,6 +22,7 @@ import {
   NovelSeriesGlossary,
   NovelSeriesGlossaryItem,
   LatestMessageData,
+  NovelSeriesContentData,
 } from './crawl/CrawlResult'
 
 import {
@@ -396,14 +397,22 @@ class API {
     return this.sendGetRequest(url)
   }
 
-  // 获取小说的系列作品信息
-  // 这个 api 目前一批最多只能返回 30 个作品的数据，所以可能需要多次获取
+  /**获取小说系列的数据，注意只是系列本身的数据，没有系列里每部小说的数据 */
   static getNovelSeriesData(
+    series_id: number | string
+  ): Promise<NovelSeriesData> {
+    const url = `https://www.pixiv.net/ajax/novel/series/${series_id}`
+    return this.sendGetRequest(url)
+  }
+
+  /**获取小说系列作品里每个作品的详细数据（但是没有小说正文内容） */
+  // 这个 api 目前一批最多只能返回 30 个作品的数据，所以可能需要多次获取
+  static getNovelSeriesContent(
     series_id: number | string,
     limit: number = 30,
     last_order: number,
     order_by = 'asc'
-  ): Promise<NovelSeriesData> {
+  ): Promise<NovelSeriesContentData> {
     const url = `https://www.pixiv.net/ajax/novel/series_content/${series_id}?limit=${limit}&last_order=${last_order}&order_by=${order_by}`
     return this.sendGetRequest(url)
   }

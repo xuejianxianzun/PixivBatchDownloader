@@ -19,6 +19,13 @@
 @import './previewWorkDetailPanel.less';
 // @import './showLargerThumbnails.less';
 
+:root {
+  --box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
+}
+
+// less 里不支持将属性值直接设置为 var(--var) 形式，需要用 less 的变量做一层包装
+@boxShadow: var(--box-shadow);
+
 // 储存通用规则和一些零散的元素的规则
 .warn {
   color: #d27e00;
@@ -172,6 +179,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   max-width: 500px;
   color: #fff;
   background-color: @beautifyBlue;
+  box-shadow: @boxShadow;
   padding: 8px 10px;
   border-radius: 4px;
 }
@@ -195,7 +203,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   overflow: hidden;
   border: 2px solid @beautifyBlue;
   background-color: rgba(41, 179, 243, 0.1);
-  box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
+  box-shadow: @boxShadow;
 
   img {
     width: 100%;
@@ -237,7 +245,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   height: 1200px;
   border: 2px solid @beautifyBlue;
   background-color: rgba(41, 179, 243, 0.2);
-  box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
+  box-shadow: @boxShadow;
 
   img {
     width: 100%;

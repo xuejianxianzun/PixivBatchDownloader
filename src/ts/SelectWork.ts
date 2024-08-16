@@ -567,11 +567,6 @@ class SelectWork {
 
       this.sendCrawl = true
       this.crawled = false
-      states.quickCrawl = true
-
-      toast.show(lang.transl('_已发送下载请求'), {
-        bgColor: Colors.bgBlue,
-      })
     } else {
       toast.error(lang.transl('_没有数据可供使用'))
     }
