@@ -1,7 +1,7 @@
 import { API } from '../API'
 import { secretSignal } from '../utils/SecretSignal'
 import { Utils } from '../utils/Utils'
-import { illustsData } from '../store/workPublishTimeIllusts'
+import { illustsData } from '../store/WorkPublishTimeIllusts'
 import { novelData as novelsData } from '../store/WorkPublishTimeNovels'
 
 // 获取指定 id 的发布时间范围

@@ -1,4 +1,4 @@
-import { langText } from './LangText'
+import { langText } from './langText'
 import { EVT } from './EVT'
 
 type LangTypes = 'zh-cn' | 'zh-tw' | 'en' | 'ja' | 'ko' | 'ru'
