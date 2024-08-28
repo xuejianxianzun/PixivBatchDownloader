@@ -290,8 +290,8 @@ class FileName {
         value: !allNameRule.includes('{px}')
           ? null
           : data.fullWidth
-          ? data.fullWidth + 'x' + data.fullHeight
-          : '',
+            ? data.fullWidth + 'x' + data.fullHeight
+            : '',
         prefix: '',
         safe: true,
       },
