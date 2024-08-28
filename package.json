@@ -6,7 +6,7 @@
   "author": "xuejianxianzun",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "fmt": "prettier -c --write \"src\\ts\\**\" && prettier -c --write \"src\\style\\**\"",
+    "fmt": "prettier -c --write \"src/ts/**\" && prettier -c --write \"src/style/**\"",
     "ts": "webpack --config ./webpack.conf.js",
     "less": "lessc ./src/style/style.less ./dist/style/style.css && lessc ./src/style/showLargerThumbnails.less ./dist/style/showLargerThumbnails.css",
     "pre-build": "npm run fmt && npm run ts && npm run less",
@@ -15,6 +15,7 @@
   "devDependencies": {
     "@types/chrome": "0.0.154",
     "@types/node": "^13.13.5",
+    "@types/har-format": "1.2.8",
     "@typescript-eslint/eslint-plugin": "^2.7.0",
     "@typescript-eslint/parser": "^2.7.0",
     "archiver": "^3.1.1",
