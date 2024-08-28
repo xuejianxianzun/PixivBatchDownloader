@@ -6933,33 +6933,33 @@ Chrono Download Manager, Image Downloader и т. д.`,
         'Поддержать меня',
     ],
     _赞助方式提示: [
-        `非常感谢您的支持！<br>
+        `如果您觉得这个工具对您有帮助，可以考虑赞助我，谢谢！<br>
     您可以在 Patreon 上赞助我：<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br><br>
     中国大陆用户可以在“爱发电”上赞助我：<br>
     <a href="https://afdian.com/a/xuejianxianzun" target="_blank">https://afdian.com/a/xuejianxianzun</a><br><br>
     也可以扫描二维码：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 499873152，在群文件里查看二维码。
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a>。
     `,
-        `非常感謝您的支持！<br>
+        `如果您覺得這個工具對您有幫助，可以考慮贊助我，謝謝！<br>
     您可以在 Patreon 上贊助我：<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br><br>
     中國大陸使用者可以在“愛發電”上贊助我：<br>
     <a href="https://afdian.com/a/xuejianxianzun" target="_blank">https://afdian.com/a/xuejianxianzun</a>。
     `,
-        `Thank you very much for your support!<br>
+        `If you find this tool helpful, please consider sponsoring me, thank you!<br>
     You can sponsor me on Patreon: <br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a>
     `,
-        `ご支援してくださった皆様、本当にありがとうございました。<br>
+        `このツールが役に立ったと思われる場合は、スポンサーになることをご検討ください。ありがとうございます。<br>
     ご支援してくださった方は、以下の Patreon で：<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank"> https://www.patreon.com/xuejianxianzun </a>
     `,
-        `지원해주셔서 정말 감사합니다!<br>
+        `이 도구가 도움이 된다면 후원해 보시기 바랍니다. 감사합니다!<br>
     Patreon에서 저를 후원해주세요<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a>
     `,
-        `Большое вам спасибо за вашу поддержку!<br>
+        `Если вы найдете этот инструмент полезным, пожалуйста, рассмотрите возможность спонсировать меня, спасибо!<br>
     Вы можете спонсировать меня на Patreon: <br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a>
     `,
