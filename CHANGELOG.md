@@ -8,7 +8,7 @@ TODO:日语文本需要加粗显示关键字，但是我不懂日语，所以现
 
 ## 17.1.1 2024/08/28
 
-### Merg PR
+### Merge PR
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/pull/419
 
