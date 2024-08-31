@@ -43,7 +43,7 @@ class VipSearchOptimize {
     // 启动抓取时设置是否启用优化策略
     window.addEventListener(EVT.list.crawlStart, () => {
       this.vipSearchOptimize = this.setVipOptimize()
-      console.log('启用 vip 优化：', this.vipSearchOptimize)
+      // console.log('vipSearchOptimize: ', this.vipSearchOptimize)
     })
 
     // 抓取完毕时重置状态

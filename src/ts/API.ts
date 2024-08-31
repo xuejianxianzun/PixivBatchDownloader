@@ -23,6 +23,7 @@ import {
   NovelSeriesGlossaryItem,
   LatestMessageData,
   NovelSeriesContentData,
+  NovelInsertIllusts,
 } from './crawl/CrawlResult'
 
 import {
@@ -462,6 +463,23 @@ class API {
     return this.sendGetRequest(
       `https://www.pixiv.net/ajax/mute/items?context=setting`
     )
+  }
+
+  /**获取小说里引用的插画的数据，可以一次传递多个插画 id（需要带序号） */
+  // illustsIDs 形式例如：[70551567,99760571-1,99760571-130]
+  // 如果指定了序号，那么 Pixiv 会返回对应序号的图片 URL
+  static async getNovelInsertIllustsData(
+    novelID: string | number,
+    illustsIDs: string[]
+  ): Promise<NovelInsertIllusts> {
+    const parameters: string[] = []
+    illustsIDs.forEach((id) => parameters.push(`id%5B%5D=${id}`))
+    const url =
+      `https://www.pixiv.net/ajax/novel/${novelID}/insert_illusts?` +
+      parameters.join('&')
+    // 组合好的 url 里可能包含多个 id[]=123456789 参数，如：
+    // https://www.pixiv.net/ajax/novel/22894530/insert_illusts?id%5B%5D=121979383-1&id%5B%5D=121979454-1&id%5B%5D=121979665-1
+    return this.sendGetRequest(url)
   }
 
   /**获取系列小说的设定资料 */

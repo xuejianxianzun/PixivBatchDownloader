@@ -1,7 +1,7 @@
 import { API } from '../API'
 import { secretSignal } from '../utils/SecretSignal'
 import { Utils } from '../utils/Utils'
-import { illustsData } from '../store/workPublishTimeIllusts'
+import { illustsData } from '../store/WorkPublishTimeIllusts'
 import { novelData as novelsData } from '../store/WorkPublishTimeNovels'
 
 // 获取指定 id 的发布时间范围
@@ -60,13 +60,13 @@ class WorkPublishTime {
 
   private bindEvents() {
     secretSignal.register('ppdtask1', () => {
-      // 上次记录到 121500000
-      this.crawlData(118510000, 121502350)
+      // 上次记录到 121900000
+      this.crawlData(121510000, 121907226)
     })
 
     secretSignal.register('ppdtask2', () => {
-      // 上次记录到 22780000
-      this.crawlData(22120000, 22781009, 'novels')
+      // 上次记录到 22870001
+      this.crawlData(22790000, 22877769, 'novels')
     })
   }
 
