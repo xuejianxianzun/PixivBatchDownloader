@@ -7585,18 +7585,14 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.1.0';
+        this.flag = '17.1.3';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_更新说明v1710')}</span>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_更新说明v1713')}</span>
       `;
             // <strong><span>${lang.transl('_新增功能')}:</span></strong>
             // <span class="blue">${lang.transl('_保存作品的简介')}</span>
@@ -7604,6 +7600,10 @@ class ShowWhatIsNew {
             //   '_你可以在更多选项卡的xx分类里找到它',
             //   lang.transl('_增强')
             // )}
+            // <br>
+            // <span>${lang.transl('_优化性能和用户体验')}</span>
+            // <br>
+            // <span>${lang.transl('_修复已知问题')}</span>
             // <span>${lang.transl('_其他优化')}</span>
             // 在更新说明的下方显示赞助提示
             msg += `
@@ -15233,7 +15233,7 @@ class VipSearchOptimize {
         // 启动抓取时设置是否启用优化策略
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
             this.vipSearchOptimize = this.setVipOptimize();
-            console.log('启用 vip 优化：', this.vipSearchOptimize);
+            // console.log('vipSearchOptimize: ', this.vipSearchOptimize)
         });
         // 抓取完毕时重置状态
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, () => {
@@ -25643,13 +25643,13 @@ Chrono Download Manager, Image Downloader и т. д.`,
         '이 탭에는 이미 크롤링 결과가 있습니다. 크롤링을 다시 시작하면 크롤링 결과가 지워집니다. \n크롤링을 다시 시작할 것인지 확인해주세요.',
         'На этой вкладке уже есть результаты сканирования. При перезапуске сканирования эти результаты будут удалены. \nПодтвердите, хотите ли вы возобновить сканирование?',
     ],
-    _更新说明v1710: [
-        '优化了保存小说的功能，特别优化了当小说里含有很多插画时，保存为 EPUB 格式的性能问题。',
-        '優化了儲存小說的功能，特別優化了當小說裡含有很多插畫時，儲存為 EPUB 格式的效能問題。',
-        'The function of saving novels has been optimized, especially the performance issue of saving in EPUB format when the novel contains many illustrations.',
-        '小説の保存機能が最適化されました。特に、小説に多くのイラストが含まれている場合に EPUB 形式で保存する際のパフォーマンスの問題が解決されました。',
-        '소설 저장 기능이 최적화되었으며, 특히 소설에 많은 일러스트가 포함되어 있는 경우 EPUB 형식으로 저장하는 성능 문제가 해결되었습니다.',
-        'Оптимизирована функция сохранения романов, особенно устранена проблема производительности при сохранении в формате EPUB, когда роман содержит много иллюстраций.',
+    _更新说明v1713: [
+        '提高了下载小说中的插画的效率，并修复了一些问题。',
+        '提高了下載小說中的插畫的效率，並修復了一些問題。',
+        'Improved the efficiency of downloading illustrations in novels and fixed some issues.',
+        'ノベル内のイラストダウンロードの効率改善と一部不具合の修正を行いました。',
+        '소설 속 일러스트 다운로드 효율성을 개선하고 일부 문제를 수정했습니다.',
+        'Повышена эффективность загрузки иллюстраций в романах и исправлены некоторые проблемы.',
     ],
 };
 

@@ -27,7 +27,7 @@ class ShowWhatIsNew {
       //   '_你可以在更多选项卡的xx分类里找到它',
       //   lang.transl('_增强')
       // )}
-      
+
       // <br>
       // <span>${lang.transl('_优化性能和用户体验')}</span>
       // <br>
