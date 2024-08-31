@@ -16,6 +16,7 @@ declare const jEpub: any
 
 // 单个小说的数据
 interface NovelData {
+  id: string
   /**小说在系列中的排序，是从 1 开始的数字 */
   no: number
   title: string
@@ -64,6 +65,7 @@ class MergeNovel {
     const allNovelData: NovelData[] = []
     for (const result of allResult) {
       allNovelData.push({
+        id: result.id,
         no: result.seriesOrder!,
         title: Utils.replaceUnsafeStr(result.title),
         content: result.novelMeta!.content,
@@ -119,6 +121,7 @@ class MergeNovel {
       // 保存为 txt 格式时，在这里下载小说内嵌的图片
       for (const result of allResult) {
         await downloadNovelEmbeddedImage.TXT(
+          result.novelMeta!.id,
           result.novelMeta!.content,
           result.novelMeta!.embeddedImages,
           novelName,
@@ -251,6 +254,7 @@ class MergeNovel {
         let content = Tools.replaceEPUBText(novelData.content)
         // 添加小说里的图片
         const imageList = await downloadNovelEmbeddedImage.getImageList(
+          novelData.id,
           content,
           novelData.embeddedImages
         )
@@ -265,11 +269,12 @@ class MergeNovel {
             'downloadNovelImage'
           )
           current++
-          if (image.url === null) {
-            // 如果引用的图片作品已经不存在，那么它的图片网址会是 null。将其替换为提示
+
+          const imageID = image.flag_id_part
+          if (image.url === '') {
             content = content.replaceAll(
               image.flag,
-              `image ${image.id} not found`
+              `image ${imageID} not found`
             )
             continue
           }
@@ -288,11 +293,11 @@ class MergeNovel {
             )
             continue
           }
-          jepub.image(illustration, image.id)
+          jepub.image(illustration, imageID)
 
           // 将小说正文里的图片标记替换为真实的的图片路径，以在 EPUB 里显示
           const ext = Utils.getURLExt(image.url)
-          const imgTag = `<br/><img src="assets/${image.id}.${ext}" /><br/>`
+          const imgTag = `<br/><img src="assets/${imageID}.${ext}" /><br/>`
           content = content.replaceAll(image.flag, imgTag)
         }
         log.persistentRefresh('downloadNovelImage')

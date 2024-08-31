@@ -72,6 +72,7 @@ class MakeNovelFile {
 
       // 添加小说里的图片
       const imageList = await downloadNovelEmbeddedImage.getImageList(
+        data.id,
         content,
         data.embeddedImages
       )
@@ -87,13 +88,8 @@ class MakeNovelFile {
         )
         current++
 
-        let imageID = image.id
-        // 如果图片是引用自其他插画作品的，需要加上它的序号才不会重复。如果只使用作品 id 就可能会重复
-        if (image.type === 'pixiv') {
-          imageID = image.id + '-' + image.p
-        }
-        if (image.url === null) {
-          // 如果引用的图片作品已经不存在，那么它的图片网址会是 null。将其替换为提示
+        const imageID = image.flag_id_part
+        if (image.url === '') {
           content = content.replaceAll(image.flag, `image ${imageID} not found`)
           continue
         }

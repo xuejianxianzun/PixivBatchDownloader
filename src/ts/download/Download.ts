@@ -206,6 +206,7 @@ class Download {
         // 如果是保存为 EPUB 格式，那么在 MakeNovelFile.make 里会保存图片
         if (settings.novelSaveAs === 'txt') {
           await downloadNovelEmbeddedImage.TXT(
+            arg.result.novelMeta.id,
             arg.result.novelMeta.content,
             arg.result.novelMeta.embeddedImages,
             _fileName
