@@ -1201,6 +1201,56 @@ export interface NovelSeriesContentData {
   }
 }
 
+/**获取小说里插入（引用）的插画图片的数据。相比获取这个插画的全部数据，这里返回的数据要少一些，而且更有针对性 */
+// 示例网址：
+// https://www.pixiv.net/ajax/novel/22894530/insert_illusts?id%5B%5D=121979454-1
+export interface NovelInsertIllusts {
+  error: boolean
+  message: string
+  body: {
+    /**illustID 是插画 ID 附带序号（从 1 开始），如 121979454-1 */
+    [illustID: string]: {
+      visible: boolean
+      unavailableType: null
+
+      // 当插画被删除或隐藏后，illust 和 user 是 null
+      illust: {
+        title: string
+        description: string
+        restrict: 0 | 1 | 2
+        xRestrict: 0 | 1 | 2
+        sl: 0 | 2 | 4 | 6
+        tags: {
+          tag: string
+          userId: string
+        }[]
+        // 这个 API 会根据序号返回对应图片的 URL，而非总是返回第一张图片的 URL
+        // 如果指定了序号，那么 Pixiv 会返回对应序号的图片 URL
+        images: {
+          /**小尺寸的图片网址 square1200 */
+          small: string
+          /**中等尺寸的图片网址 master1200 */
+          medium: string
+          /**原图网址 */
+          original: string
+        }
+      } | null
+
+      user: {
+        id: string
+        name: string
+        image: string
+      } | null
+
+      // 当插画被删除或隐藏后，没有 id 和 page 属性
+      /**插画的 id，如 121979454 */
+      id?: string
+      /**插画的页数 */
+      page?: number
+    }
+  }
+}
+
 // 获取关注列表时的返回数据
 // 每个用户数据里附带他最新的 4 个作品的数据。这里面的作品分类没有 manga，manga 作品会被放到 illusts 里
 export interface FollowingResponse {

@@ -180,7 +180,9 @@ function createBookOpf (data) {
 			: ''
 		}
 		<item id="title-page" href="OEBPS/title-page.html" media-type="application/xhtml+xml" />
-		<item id="notes" href="OEBPS/notes.html" media-type="application/xhtml+xml" />
+	${data.notes ?
+		'<item id="notes" href="OEBPS/notes.html" media-type="application/xhtml+xml" />' : ''
+		}
 		<item id="table-of-contents" href="OEBPS/table-of-contents.html" media-type="application/xhtml+xml" />
 		${pagesStr(data.pages, '<item id="page-${index}" href="OEBPS/page-${index}.html" media-type="application/xhtml+xml" />')}
 				${data.cover ?
