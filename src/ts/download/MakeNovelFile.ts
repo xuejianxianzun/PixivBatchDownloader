@@ -79,12 +79,13 @@ class MakeNovelFile {
 
       let current = 1
       const total = imageList.length
+      const novelID = data.id
       for (const image of imageList) {
         log.log(
           lang.transl('_正在下载小说中的插画', `${current} / ${total}`),
           1,
           false,
-          'downloadNovelImage'
+          'downloadNovelImage' + novelID
         )
         current++
 
@@ -95,11 +96,18 @@ class MakeNovelFile {
         }
 
         // 加载图片
-        const illustration = await fetch(image.url).then((response) => {
-          if (response.ok) {
-            return response.blob()
-          }
-        })
+        let illustration: Blob | undefined = undefined
+        try {
+          illustration = await fetch(image.url).then((response) => {
+            if (response.ok) {
+              return response.blob()
+            }
+          })
+        } catch (error) {
+          // 如果请求失败，不做处理，因为我懒……
+          // 而且不排除有什么异常情况会导致重试也依然会失败，贸然重试可能会死循环
+          console.log(error)
+        }
         // 如果图片获取失败，不重试，并将其替换为提示
         if (illustration === undefined) {
           content = content.replaceAll(image.flag, `fetch ${image.url} failed`)
@@ -122,7 +130,7 @@ class MakeNovelFile {
         const imgTag = `<br/><img src="assets/${imageID}.${ext}" /><br/>`
         content = content.replaceAll(image.flag, imgTag)
       }
-      log.persistentRefresh('downloadNovelImage')
+      log.persistentRefresh('downloadNovelImage' + novelID)
 
       // 添加正文，这会在 EPUB 里生成一个新的章节
       // 实际上会生成对应的 html 文件，如 OEBPS/page-0.html

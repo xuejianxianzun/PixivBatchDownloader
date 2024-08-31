@@ -16527,7 +16527,7 @@ class DownloadNovelEmbeddedImage {
         const total = imageList.length;
         // 保存为 TXT 格式时，每加载完一个图片，就立即保存这个图片
         for (let image of imageList) {
-            _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_正在下载小说中的插画', `${current} / ${total}`), 1, false, 'downloadNovelImage');
+            _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_正在下载小说中的插画', `${current} / ${total}`), 1, false, 'downloadNovelImage' + novelID);
             current++;
             if (image.url === '') {
                 _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(`image ${image.id} not found`);
@@ -16547,7 +16547,7 @@ class DownloadNovelEmbeddedImage {
             }
             this.sendDownload(image.blobURL, imageName);
         }
-        _Log__WEBPACK_IMPORTED_MODULE_3__.log.persistentRefresh('downloadNovelImage');
+        _Log__WEBPACK_IMPORTED_MODULE_3__.log.persistentRefresh('downloadNovelImage' + novelID);
     }
     // 获取正文里上传的图片 id 和引用的图片 id
     async getImageList(novelID, content, embeddedImages) {
@@ -16661,11 +16661,17 @@ class DownloadNovelEmbeddedImage {
     async getImageBlobURL(image) {
         return new Promise(async (resolve) => {
             if (image.url) {
-                const illustration = await fetch(image.url).then((response) => {
-                    if (response.ok) {
-                        return response.blob();
-                    }
-                });
+                let illustration = undefined;
+                try {
+                    illustration = await fetch(image.url).then((response) => {
+                        if (response.ok) {
+                            return response.blob();
+                        }
+                    });
+                }
+                catch (error) {
+                    console.log(error);
+                }
                 // 如果图片获取失败，不重试
                 if (illustration === undefined) {
                     _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(`fetch ${image.url} failed`);
@@ -17747,8 +17753,9 @@ class MakeNovelFile {
             const imageList = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_3__.downloadNovelEmbeddedImage.getImageList(data.id, content, data.embeddedImages);
             let current = 1;
             const total = imageList.length;
+            const novelID = data.id;
             for (const image of imageList) {
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_正在下载小说中的插画', `${current} / ${total}`), 1, false, 'downloadNovelImage');
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_正在下载小说中的插画', `${current} / ${total}`), 1, false, 'downloadNovelImage' + novelID);
                 current++;
                 const imageID = image.flag_id_part;
                 if (image.url === '') {
@@ -17756,11 +17763,19 @@ class MakeNovelFile {
                     continue;
                 }
                 // 加载图片
-                const illustration = await fetch(image.url).then((response) => {
-                    if (response.ok) {
-                        return response.blob();
-                    }
-                });
+                let illustration = undefined;
+                try {
+                    illustration = await fetch(image.url).then((response) => {
+                        if (response.ok) {
+                            return response.blob();
+                        }
+                    });
+                }
+                catch (error) {
+                    // 如果请求失败，不做处理，因为我懒……
+                    // 而且不排除有什么异常情况会导致重试也依然会失败，贸然重试可能会死循环
+                    console.log(error);
+                }
                 // 如果图片获取失败，不重试，并将其替换为提示
                 if (illustration === undefined) {
                     content = content.replaceAll(image.flag, `fetch ${image.url} failed`);
@@ -17782,7 +17797,7 @@ class MakeNovelFile {
                 const imgTag = `<br/><img src="assets/${imageID}.${ext}" /><br/>`;
                 content = content.replaceAll(image.flag, imgTag);
             }
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.persistentRefresh('downloadNovelImage');
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.persistentRefresh('downloadNovelImage' + novelID);
             // 添加正文，这会在 EPUB 里生成一个新的章节
             // 实际上会生成对应的 html 文件，如 OEBPS/page-0.html
             jepub.add(title, content);
@@ -17994,12 +18009,13 @@ class MergeNovel {
             // 循环添加小说内容
             for (const novelData of novelDataArray) {
                 let content = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(novelData.content);
+                const novelID = novelData.id;
                 // 添加小说里的图片
-                const imageList = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_8__.downloadNovelEmbeddedImage.getImageList(novelData.id, content, novelData.embeddedImages);
+                const imageList = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_8__.downloadNovelEmbeddedImage.getImageList(novelID, content, novelData.embeddedImages);
                 let current = 1;
                 const total = imageList.length;
                 for (const image of imageList) {
-                    _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_正在下载小说中的插画', `${current} / ${total}`), 1, false, 'downloadNovelImage');
+                    _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_正在下载小说中的插画', `${current} / ${total}`), 1, false, 'downloadNovelImage' + novelID);
                     current++;
                     const imageID = image.flag_id_part;
                     if (image.url === '') {
@@ -18007,11 +18023,17 @@ class MergeNovel {
                         continue;
                     }
                     // 加载图片
-                    const illustration = await fetch(image.url).then((response) => {
-                        if (response.ok) {
-                            return response.blob();
-                        }
-                    });
+                    let illustration = undefined;
+                    try {
+                        illustration = await fetch(image.url).then((response) => {
+                            if (response.ok) {
+                                return response.blob();
+                            }
+                        });
+                    }
+                    catch (error) {
+                        console.log(error);
+                    }
                     // 如果图片获取失败，不重试，并将其替换为提示
                     if (illustration === undefined) {
                         content = content.replaceAll(image.flag, `fetch ${image.url} failed`);
@@ -18023,7 +18045,7 @@ class MergeNovel {
                     const imgTag = `<br/><img src="assets/${imageID}.${ext}" /><br/>`;
                     content = content.replaceAll(image.flag, imgTag);
                 }
-                _Log__WEBPACK_IMPORTED_MODULE_9__.log.persistentRefresh('downloadNovelImage');
+                _Log__WEBPACK_IMPORTED_MODULE_9__.log.persistentRefresh('downloadNovelImage' + novelID);
                 const title = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(novelData.title));
                 // 保存每篇小说的元数据，现在只添加了简介
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveNovelMeta) {

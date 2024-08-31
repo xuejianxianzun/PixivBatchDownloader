@@ -59,7 +59,7 @@ class DownloadNovelEmbeddedImage {
         lang.transl('_正在下载小说中的插画', `${current} / ${total}`),
         1,
         false,
-        'downloadNovelImage'
+        'downloadNovelImage' + novelID
       )
       current++
       if (image.url === '') {
@@ -82,7 +82,7 @@ class DownloadNovelEmbeddedImage {
       }
       this.sendDownload(image.blobURL!, imageName)
     }
-    log.persistentRefresh('downloadNovelImage')
+    log.persistentRefresh('downloadNovelImage' + novelID)
   }
 
   // 获取正文里上传的图片 id 和引用的图片 id
@@ -212,11 +212,16 @@ class DownloadNovelEmbeddedImage {
   ): Promise<NovelImageData> {
     return new Promise(async (resolve) => {
       if (image.url) {
-        const illustration = await fetch(image.url).then((response) => {
-          if (response.ok) {
-            return response.blob()
-          }
-        })
+        let illustration: Blob | undefined = undefined
+        try {
+          illustration = await fetch(image.url).then((response) => {
+            if (response.ok) {
+              return response.blob()
+            }
+          })
+        } catch (error) {
+          console.log(error)
+        }
         // 如果图片获取失败，不重试
         if (illustration === undefined) {
           log.error(`fetch ${image.url} failed`)

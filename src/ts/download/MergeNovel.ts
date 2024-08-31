@@ -252,9 +252,10 @@ class MergeNovel {
       // 循环添加小说内容
       for (const novelData of novelDataArray) {
         let content = Tools.replaceEPUBText(novelData.content)
+        const novelID = novelData.id
         // 添加小说里的图片
         const imageList = await downloadNovelEmbeddedImage.getImageList(
-          novelData.id,
+          novelID,
           content,
           novelData.embeddedImages
         )
@@ -266,7 +267,7 @@ class MergeNovel {
             lang.transl('_正在下载小说中的插画', `${current} / ${total}`),
             1,
             false,
-            'downloadNovelImage'
+            'downloadNovelImage' + novelID
           )
           current++
 
@@ -280,11 +281,16 @@ class MergeNovel {
           }
 
           // 加载图片
-          const illustration = await fetch(image.url).then((response) => {
-            if (response.ok) {
-              return response.blob()
-            }
-          })
+          let illustration: Blob | undefined = undefined
+          try {
+            illustration = await fetch(image.url).then((response) => {
+              if (response.ok) {
+                return response.blob()
+              }
+            })
+          } catch (error) {
+            console.log(error)
+          }
           // 如果图片获取失败，不重试，并将其替换为提示
           if (illustration === undefined) {
             content = content.replaceAll(
@@ -300,7 +306,7 @@ class MergeNovel {
           const imgTag = `<br/><img src="assets/${imageID}.${ext}" /><br/>`
           content = content.replaceAll(image.flag, imgTag)
         }
-        log.persistentRefresh('downloadNovelImage')
+        log.persistentRefresh('downloadNovelImage' + novelID)
 
         const title = Tools.replaceEPUBTitle(
           Utils.replaceUnsafeStr(novelData.title)
