@@ -14,8 +14,8 @@
   },
   "devDependencies": {
     "@types/chrome": "0.0.154",
-    "@types/node": "^13.13.5",
     "@types/har-format": "1.2.8",
+    "@types/node": "^13.13.5",
     "@typescript-eslint/eslint-plugin": "^2.7.0",
     "@typescript-eslint/parser": "^2.7.0",
     "archiver": "^3.1.1",
@@ -31,5 +31,8 @@
     "viewerjs": "^1.4.0",
     "webpack": "^5.88.1",
     "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "powerful-pixiv-downloader": "file:"
   }
 }
