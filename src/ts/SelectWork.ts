@@ -82,6 +82,7 @@ class SelectWork {
   private worksWrapperSelectorList: string[] = [
     '#root',
     '#js-mount-point-discovery',
+    '#__next',
   ]
   // 储存当前页面使用的选择器
   private usedWorksWrapperSelector = this.worksWrapperSelectorList[0]

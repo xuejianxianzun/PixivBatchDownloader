@@ -379,6 +379,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 'div[width="104"]',
                 'div[width="90"]',
                 'div[width="118"]',
+                'div[size="184"]',
                 '._work',
                 '._work.item',
                 'div[type="illust"]',
@@ -6080,6 +6081,7 @@ class SelectWork {
         this.worksWrapperSelectorList = [
             '#root',
             '#js-mount-point-discovery',
+            '#__next',
         ];
         // 储存当前页面使用的选择器
         this.usedWorksWrapperSelector = this.worksWrapperSelectorList[0];
@@ -47310,8 +47312,6 @@ const img2ico = new ImageToIcon();
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
-(() => {
 /*!***************************!*\
   !*** ./src/ts/content.ts ***!
   \***************************/
@@ -47410,8 +47410,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-})();
 
 /******/ })()
 ;
