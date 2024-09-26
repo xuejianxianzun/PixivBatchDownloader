@@ -11,13 +11,13 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '17.1.3'
+  private flag = '17.1.4'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
       let msg = `
-      <span>${lang.transl('_更新说明v1713')}</span>
+      <span>${lang.transl('_更新说明v1714')}</span>
       `
 
       // <strong><span>${lang.transl('_新增功能')}:</span></strong>

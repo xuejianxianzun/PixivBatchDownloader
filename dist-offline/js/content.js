@@ -375,6 +375,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 'div[width="131"]',
                 'div[width="288"]',
                 'div[width="184"]',
+                'div[size="184"]',
                 'div[width="112"]',
                 'div[width="104"]',
                 'div[width="90"]',
@@ -397,6 +398,11 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
         // 如果在查找到某个选择器之后，不再查找剩余的选择器，就可能会遗漏一部分缩略图。
         // 但是，这有可能会导致事件的重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
         for (const selector of this.selectors) {
+            // div[size="184"] 只在发现页面使用，因为其他页面目前不会用到它
+            if (selector === 'div[size="184"]' &&
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Discover) {
+                continue;
+            }
             // div[type="illust"] 只在约稿页面使用
             // 因为已知问题：在收藏页面里， div[type="illust"] 嵌套了子元素 div[width="184"]
             // 这会导致重复绑定（在不同元素上）
@@ -7658,14 +7664,14 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.1.3';
+        this.flag = '17.1.4';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_更新说明v1713')}</span>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_更新说明v1714')}</span>
       `;
             // <strong><span>${lang.transl('_新增功能')}:</span></strong>
             // <span class="blue">${lang.transl('_保存作品的简介')}</span>
@@ -10028,7 +10034,7 @@ class InitDiscoverPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         }
         else {
             // 插画漫画页面
-            const allLink = document.querySelectorAll('div[width="184"]>a');
+            const allLink = document.querySelectorAll('div[size="184"] a');
             // 获取已有作品的 id
             allLink.forEach((a) => {
                 const id = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId(a.href);
@@ -14741,7 +14747,8 @@ class InitPageBase {
         // 现在这里能够检查 2 种设置条件：
         // 1. 检查 id 是否符合 id 范围条件
         // 2. 检查 id 的发布时间是否符合时间范围条件
-        // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
+        // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，
+        // 但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
         const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
             id,
             workTypeString: idData.type,
@@ -25716,13 +25723,13 @@ Chrono Download Manager, Image Downloader и т. д.`,
         '이 탭에는 이미 크롤링 결과가 있습니다. 크롤링을 다시 시작하면 크롤링 결과가 지워집니다. \n크롤링을 다시 시작할 것인지 확인해주세요.',
         'На этой вкладке уже есть результаты сканирования. При перезапуске сканирования эти результаты будут удалены. \nПодтвердите, хотите ли вы возобновить сканирование?',
     ],
-    _更新说明v1713: [
-        '提高了下载小说中的插画的效率，并修复了一些问题。',
-        '提高了下載小說中的插畫的效率，並修復了一些問題。',
-        'Improved the efficiency of downloading illustrations in novels and fixed some issues.',
-        'ノベル内のイラストダウンロードの効率改善と一部不具合の修正を行いました。',
-        '소설 속 일러스트 다운로드 효율성을 개선하고 일부 문제를 수정했습니다.',
-        'Повышена эффективность загрузки иллюстраций в романах и исправлены некоторые проблемы.',
+    _更新说明v1714: [
+        '修复了发现（discovery）页面里的一些问题',
+        '修復了發現（discovery）頁面裡的一些問題',
+        'Fixed some issues in the discovery page',
+        '発見ページのいくつかの問題を修正しました',
+        '검색 페이지의 일부 문제를 수정했습니다.（discovery page）',
+        'Исправлены некоторые проблемы на странице открытий.',
     ],
 };
 
