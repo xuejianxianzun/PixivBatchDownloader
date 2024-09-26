@@ -7591,14 +7591,14 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.1.3';
+        this.flag = '17.1.4';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_更新说明v1713')}</span>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_更新说明v1714')}</span>
       `;
             // <strong><span>${lang.transl('_新增功能')}:</span></strong>
             // <span class="blue">${lang.transl('_保存作品的简介')}</span>
@@ -25650,13 +25650,13 @@ Chrono Download Manager, Image Downloader и т. д.`,
         '이 탭에는 이미 크롤링 결과가 있습니다. 크롤링을 다시 시작하면 크롤링 결과가 지워집니다. \n크롤링을 다시 시작할 것인지 확인해주세요.',
         'На этой вкладке уже есть результаты сканирования. При перезапуске сканирования эти результаты будут удалены. \nПодтвердите, хотите ли вы возобновить сканирование?',
     ],
-    _更新说明v1713: [
-        '提高了下载小说中的插画的效率，并修复了一些问题。',
-        '提高了下載小說中的插畫的效率，並修復了一些問題。',
-        'Improved the efficiency of downloading illustrations in novels and fixed some issues.',
-        'ノベル内のイラストダウンロードの効率改善と一部不具合の修正を行いました。',
-        '소설 속 일러스트 다운로드 효율성을 개선하고 일부 문제를 수정했습니다.',
-        'Повышена эффективность загрузки иллюстраций в романах и исправлены некоторые проблемы.',
+    _更新说明v1714: [
+        '修复了发现（discovery）页面里的一些问题',
+        '修復了發現（discovery）頁面裡的一些問題',
+        'Fixed some issues in the discovery page',
+        '発見ページのいくつかの問題を修正しました',
+        '검색 페이지의 일부 문제를 수정했습니다.（discovery page）',
+        'Исправлены некоторые проблемы на странице открытий.',
     ],
 };
 
