@@ -376,6 +376,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 'div[width="288"]',
                 'div[width="184"]',
                 'div[size="184"]',
+                'div[size="112"]',
                 'div[width="112"]',
                 'div[width="104"]',
                 'div[width="90"]',
@@ -7797,6 +7798,7 @@ class Theme {
         this.htmlFlagMap = new Map([
             ['', 'white'],
             ['default', 'white'],
+            ['light', 'white'],
             ['dark', 'dark'],
         ]);
         this.elList = []; // 保存已注册的元素
@@ -7871,7 +7873,7 @@ class Theme {
             // 从含有 pixiv 主题标记的元素里获取主题
             const el = document.querySelector(this.selector);
             if (el) {
-                const pageTheme = this.htmlFlagMap.get(el.textContent);
+                const pageTheme = this.htmlFlagMap.get(el.textContent) || 'white';
                 _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('getPageTheme', pageTheme);
                 return pageTheme || this.defaultTheme;
             }
