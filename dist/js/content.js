@@ -10877,6 +10877,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.crawlNumber = this.checkWantPageInput(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始下载x页'), _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载所有页面'));
     }
     async nextStep() {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.previewResult) {
+            _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示启用预览搜索页面的筛选结果时不会自动开始下载'));
+        }
         this.setSlowCrawl();
         this.initFetchURL();
         // 计算应该抓取多少页
@@ -22097,12 +22100,12 @@ Chrono Download Manager, Image Downloader 등`,
 Chrono Download Manager, Image Downloader и т. д.`,
     ],
     _常见问题说明: [
-        '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>下载器 QQ 群：499873152<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
-        '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。',
-        'The downloaded file is saved in the browsers download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.<br><br>If your browser stops responding at startup, you can clear your browser`s download history.',
-        'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。',
-        '다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.<br><br>시작 시 브라우저가 응답하지 않으면 브라우저의 다운로드 기록을 지울 수 있습니다.',
-        'Загруженный файл сохраняется в каталоге загрузки браузеров. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>Если имя файла после загрузки является ненормальным, отключите другие расширения браузера, которые имеют возможности загрузки.<br><br>Если ваш браузер перестает отвечать на запросы при запуске, вы можете очистить историю загрузок вашего браузера.',
+        '下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>还有些扩展会导致下载器不能开始下载。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>下载器 QQ 群：675174717<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
+        '下載的檔案儲存在瀏覽器的下載目錄裡。如果你想儲存到其他位置，需要修改瀏覽器的下載目錄。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br>還有些擴充套件會導致下載器不能開始下載。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。',
+        `The downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download location. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser\`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities. <br>There are also some extensions that can prevent the downloader from starting the download.<br><br>If your browser stops responding at startup, you can clear your browser\`s download history.`,
+        'ダウンロードされたファイルはブラウザのダウンロード ディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロード場所を変更する必要があります。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br>ダウンローダーがダウンロードを開始するのを妨げる拡張機能もいくつかあります。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。',
+        '다운로드한 파일은 브라우저의 다운로드 디렉터리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 위치를 수정해야 합니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요. <br>다운로더가 다운로드를 시작하지 못하게 막는 몇 가지 확장 프로그램도 있습니다.<br><br>시작 시 브라우저가 응답하지 않으면 브라우저의 다운로드 기록을 지울 수 있습니다.',
+        'Загруженный файл сохраняется в каталоге загрузки браузера. Если вы хотите сохранить в другое место, вам необходимо изменить место загрузки браузера. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>Если имя файла после загрузки является ненормальным, отключите другие расширения браузера, которые имеют возможности загрузки. <br>Существуют также некоторые расширения, которые могут помешать загрузчику начать загрузку.<br><br>Если ваш браузер перестает отвечать на запросы при запуске, вы можете очистить историю загрузок вашего браузера.',
     ],
     _正在下载中: [
         '正在下载中',
@@ -22644,6 +22647,14 @@ Chrono Download Manager, Image Downloader и т. д.`,
         'ダウンローダーは、対象となる作品を現在のページに表示し、コレクション数に応じて上位から下位に並べ替えることができます。<br>クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。<br>プレビュー機能を有効にすると、ダウンロードは自動的に開始されません。',
         '다운로더는 현재 페이지에 적합한 작품을 표시하고 컬렉션 수에 따라 높은 순으로 정렬할 수 있습니다.<br>긁어오기 결과가 너무 많아서 페이지가 충돌하면 이 기능을 꺼주세요.<br> 미리보기를 사용하면 다운로드가 자동으로 시작되지 않습니다.',
         'Загрузчик может отображать подходящие произведения на текущей странице и сортировать их по возрастанию в зависимости от количества коллекций.<br>Пожалуйста, отключите эту функцию, если слишком большое количество результатов просмотра приводит к сбою страницы.<br>Загрузчик не начинает автоматическую загрузку, если включена функция предварительного просмотра.',
+    ],
+    _提示启用预览搜索页面的筛选结果时不会自动开始下载: [
+        '由于启用了“预览搜索页面的筛选结果”，本次抓取完成后，下载器不会自动开始下载。<br>这是为了让用户可以在抓取后进一步筛选抓取结果。',
+        '由於啟用了“預覽搜尋頁面的篩選結果”，本次抓取完成後，下載器不會自動開始下載。<br>這是為了讓使用者可以在抓取後進一步篩選抓取結果。',
+        'Since "Preview filter results of search page" is enabled, the downloader will not automatically start downloading after this crawl is completed.<br>This is to allow users to further filter the crawl results after the crawl.',
+        '「検索ページのフィルター結果のプレビュー」が有効になっているため、このクロールが完了した後、ダウンローダーは自動的にダウンロードを開始しません。 <br>これは、ユーザーがクロール後にクロール結果をさらにフィルタリングできるようにするためです。',
+        `'검색 페이지 필터 결과 미리보기'가 활성화되어 있으므로 크롤링이 완료된 후 다운로더가 자동으로 다운로드를 시작하지 않습니다. <br>이는 사용자가 크롤링 후 크롤링 결과를 추가로 필터링할 수 있도록 하기 위한 것입니다.`,
+        'Поскольку функция «Предварительный просмотр результатов фильтра страницы поиска» включена, загрузчик не начнет загрузку автоматически после завершения сканирования. <br>Это позволит пользователям дополнительно фильтровать результаты сканирования после сканирования.',
     ],
     _目录名使用: [
         '目录名使用：',
@@ -23616,12 +23627,12 @@ Chrono Download Manager, Image Downloader и т. д.`,
         'На этот раз запрос начал помещаться в очередь.',
     ],
     _HowToUse: [
-        '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>下载器默认开启了一些增强功能，这可能导致 Pixiv 页面样式改变。你可以在下载器的“更多”标签页中开启或关闭这些功能。',
-        '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>下載器預設開啟了一些增強功能，這可能導致 Pixiv 頁面樣式改變。你可以在下載器的“更多”標籤頁中開啟或關閉這些功能。',
-        'Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>The downloader has some enhancements turned on by default, which may cause changes in the style of Pixiv pages. You can turn these features on or off in the "More" tab of the downloader.',
-        'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンローダーにはデフォルトでいくつかの機能拡張が有効になっており、これにより Pixiv ページのスタイルが変更される可能性があります。 これらの機能は、ダウンローダーの「その他」タブでオンまたはオフにできます。',
-        '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.<br><br>다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로더에는 기본적으로 몇 가지 향상된 기능이 켜져 있으며 이로 인해 Pixiv 페이지 스타일이 변경될 수 있습니다. 다운로더의 "더 보기" 탭에서 이러한 기능을 켜거나 끌 수 있습니다.',
-        'Нажмите синюю кнопку в правой части страницы, чтобы открыть панель загрузчика.<br><br>Загруженный файл сохраняется в каталоге загрузки браузера. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>В загрузчике по умолчанию включены некоторые улучшения, которые могут привести к изменению стиля страниц Pixiv. Вы можете включить или отключить эти функции на вкладке «Дополнительно» загрузчика.',
+        '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>下载器默认开启了一些增强功能，这可能导致 Pixiv 页面样式改变。你可以在下载器的“更多”标签页中开启或关闭这些功能。',
+        '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。如果你想儲存到其他位置，需要修改瀏覽器的下載目錄。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>下載器預設開啟了一些增強功能，這可能導致 Pixiv 頁面樣式改變。你可以在下載器的“更多”標籤頁中開啟或關閉這些功能。',
+        `Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download location. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser\`s download settings.<br><br>The downloader has some enhancements turned on by default, which may cause changes in the style of Pixiv pages. You can turn these features on or off in the "More" tab of the downloader.`,
+        'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードされたファイルはブラウザのダウンロード ディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロード場所を変更する必要があります。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンローダーにはデフォルトでいくつかの機能拡張が有効になっており、これにより Pixiv ページのスタイルが変更される可能性があります。 これらの機能は、ダウンローダーの「その他」タブでオンまたはオフにできます。',
+        '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.<br><br>다운로드한 파일은 브라우저의 다운로드 디렉터리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 위치를 수정해야 합니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로더에는 기본적으로 몇 가지 향상된 기능이 켜져 있으며 이로 인해 Pixiv 페이지 스타일이 변경될 수 있습니다. 다운로더의 "더 보기" 탭에서 이러한 기능을 켜거나 끌 수 있습니다.',
+        'Нажмите синюю кнопку в правой части страницы, чтобы открыть панель загрузчика.<br><br>Загруженный файл сохраняется в каталоге загрузки браузера. Если вы хотите сохранить в другое место, вам необходимо изменить место загрузки браузера.<br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>В загрузчике по умолчанию включены некоторые улучшения, которые могут привести к изменению стиля страниц Pixiv. Вы можете включить или отключить эти функции на вкладке «Дополнительно» загрузчика.',
     ],
     _我知道了: ['我知道了', '我知道了', 'OK', '分かりました', '확인', 'Ок'],
     _背景图片: [

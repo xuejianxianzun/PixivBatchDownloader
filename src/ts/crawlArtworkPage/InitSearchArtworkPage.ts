@@ -222,6 +222,10 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   protected async nextStep() {
+    if(settings.previewResult){
+      log.warning(lang.transl('_提示启用预览搜索页面的筛选结果时不会自动开始下载'))
+    }
+
     this.setSlowCrawl()
     this.initFetchURL()
 
