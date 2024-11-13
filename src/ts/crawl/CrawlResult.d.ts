@@ -5,7 +5,7 @@ export interface ArtworkData {
   error: boolean
   message: string
   body: {
-    /**是否为 AI 创作。0 未知 1 否 2 是 */
+    /**是否为 AI 生成。0 未知 1 否 2 是 */
     aiType: 0 | 1 | 2
     /**作品 id */
     illustId: string
@@ -308,7 +308,7 @@ export interface ArtworkData {
 
 // 插画、漫画的通用数据
 export interface ArtworkCommonData {
-  /**是否为 AI 创作。0 未知 1 否 2 是 */
+  /**是否为 AI 生成。0 未知 1 否 2 是 */
   aiType: 0 | 1 | 2
   id: string
   title: string
@@ -457,12 +457,12 @@ export interface UserProfile {
     }
     official: boolean
     group:
-      | null
-      | {
-          id: string
-          title: string
-          iconUrl: string
-        }[]
+    | null
+    | {
+      id: string
+      title: string
+      iconUrl: string
+    }[]
   }
 }
 
@@ -573,20 +573,20 @@ export interface UserProfileAllData {
   message: string
   body: {
     illusts:
-      | []
-      | {
-          [key: string]: null
-        }
+    | []
+    | {
+      [key: string]: null
+    }
     manga:
-      | []
-      | {
-          [key: string]: null
-        }
+    | []
+    | {
+      [key: string]: null
+    }
     novels:
-      | []
-      | {
-          [key: string]: null
-        }
+    | []
+    | {
+      [key: string]: null
+    }
     mangaSeries: [] | {}
     novelSeries: [] | {}
     pickup: object
@@ -648,12 +648,12 @@ export interface RecommendData {
     details: {
       [key: string]: {
         methods:
-          | ['illust_by_illust_table_bq_recommendation_c']
-          | ['illust_by_illust_table_mf_tda']
-          | [
-              'illust_by_illust_table_bq_recommendation_c',
-              'illust_by_illust_table_mf_tda',
-            ]
+        | ['illust_by_illust_table_bq_recommendation_c']
+        | ['illust_by_illust_table_mf_tda']
+        | [
+          'illust_by_illust_table_bq_recommendation_c',
+          'illust_by_illust_table_mf_tda',
+        ]
         score: number
         seedIllustIds: string[]
       }
@@ -820,7 +820,7 @@ export interface UserImageWorksWithTag {
 }
 
 export interface NovelCommonData {
-  /**是否为 AI 创作。0 未知 1 否 2 是 */
+  /**是否为 AI 生成。0 未知 1 否 2 是 */
   aiType: 0 | 1 | 2
   bookmarkCount: number
   bookmarkData: null | {
@@ -886,7 +886,7 @@ export interface NovelData {
   error: boolean
   message: string
   body: {
-    /**是否为 AI 创作。0 未知 1 否 2 是 */
+    /**是否为 AI 生成。0 未知 1 否 2 是 */
     aiType: 0 | 1 | 2
     bookmarkCount: number
     bookmarkData: null | {
@@ -1108,7 +1108,7 @@ export interface NovelSeriesData {
     coverSettingData: null
     isWatched: boolean
     isNotifying: boolean
-    /**是否为 AI 创作。0 未知 1 否 2 是 */
+    /**是否为 AI 生成。0 未知 1 否 2 是 */
     aiType: 0 | 1 | 2
     /** 是否有设定资料 */
     hasGlossary: boolean
