@@ -294,8 +294,8 @@ class Filter {
     if (settings.multiImageWorkImageLimit > 0) {
       log.warning(
         lang.transl('_多图作品的图片数量上限') +
-        '：' +
-        settings.multiImageWorkImageLimit
+          '：' +
+          settings.multiImageWorkImageLimit
       )
     }
   }
@@ -336,9 +336,11 @@ class Filter {
       const andOr = settings.setWidthAndOr
         .replace('|', lang.transl('_或者'))
         .replace('&', lang.transl('_并且'))
-      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${settings.setWidth
-        } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${settings.setHeight
-        }`
+      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${
+        settings.setWidth
+      } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${
+        settings.setHeight
+      }`
       log.warning(text)
     }
   }
@@ -391,8 +393,8 @@ class Filter {
       case 'userSet':
         log.warning(
           lang.transl('_宽高比') +
-          ` ${settings.userRatioLimit} ` +
-          settings.userRatio
+            ` ${settings.userRatioLimit} ` +
+            settings.userRatio
         )
         break
     }

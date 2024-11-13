@@ -3882,26 +3882,31 @@ __webpack_require__.r(__webpack_exports__);
 // 日志
 class Log {
     constructor() {
-        this.id = 'logWrap'; // 日志区域元素的 id
-        this.wrap = document.createElement('div'); // 日志容器的区域
-        this.logArea = document.createElement('div'); // 日志主体区域
-        // 会刷新的日志所使用的元素，可以传入 flag 来设置多条用于刷新日志的元素
+        this.wrap = document.createElement('div'); // 日志容器的区域，当日志条数很多时，会产生多个日志容器
+        this.activeLogWrapID = 'logWrap';
+        this.logWrapClassName = 'logWrap';
+        this.logContent = document.createElement('div'); // 日志主体区域，这个指针始终指向最新的那个日志容器内部
+        /**会刷新的日志所使用的元素，可以传入 flag 来设置多条用于刷新日志的元素 */
         this.refresh = {
             default: document.createElement('span'),
         };
+        /**不同日志等级的字体颜色 */
         this.levelColor = [
             'inherit',
             _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textSuccess,
             _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textWarning,
             _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textError,
         ];
-        this.max = 300;
+        /**每个日志区域允许显示多少条日志 */
+        this.max = 100;
+        /**日志条数。刷新的日志不会计入 */
         this.count = 0;
+        /** 保存日志历史。刷新的日志不会保存 */
         this.record = [];
         this.toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
         this.scrollToBottom();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.clearLog, () => {
-            this.clear();
+            this.remove();
         });
         const clearRecordEvents = [_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.clearLog, _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop];
         clearRecordEvents.forEach((evt) => {
@@ -3926,7 +3931,7 @@ class Log {
     str 日志文本
     level 日志等级
     br 换行标签的个数
-    keepShow 追加日志的模式，默认为 true，把这一条日志添加后不再修改。false 则是刷新显示这条消息。
+    keepShow 是否为持久日志。默认为 true，把这一条日志添加后不再修改。false 则会刷新显示这条日志。
   
     level 日志等级：
     0 normal
@@ -3947,6 +3952,13 @@ class Log {
         }
         else {
             this.count++;
+            // 如果页面上的日志条数超过指定数量，则生成一个新的日志区域
+            // 因为日志数量太多的话会占用很大的内存。同时显示 8000 条日志可能占用接近 1 GB 的内存
+            if (this.count >= this.max) {
+                // 移除 id 属性，下次输出日志时查找不到日志区域，就会新建一个
+                this.wrap.removeAttribute('id');
+                this.count = 0;
+            }
         }
         span.innerHTML = str;
         span.style.color = this.levelColor[level];
@@ -3954,7 +3966,7 @@ class Log {
             span.appendChild(document.createElement('br'));
             br--;
         }
-        this.logArea.appendChild(span);
+        this.logContent.appendChild(span);
         this.toBottom = true; // 需要把日志滚动到底部
         // 把持久日志保存到记录里
         if (keepShow) {
@@ -3983,45 +3995,37 @@ class Log {
     }
     checkElement() {
         // 如果日志区域没有被添加到页面上，则添加
-        let test = document.getElementById(this.id);
+        let test = document.getElementById(this.activeLogWrapID);
         if (test === null) {
             this.wrap = document.createElement('div');
-            this.wrap.id = this.id;
-            this.logArea = document.createElement('div');
-            this.logArea.classList.add('beautify_scrollbar', 'logContent');
+            this.wrap.id = this.activeLogWrapID;
+            this.wrap.classList.add(this.logWrapClassName);
+            this.logContent = document.createElement('div');
+            this.logContent.classList.add('beautify_scrollbar', 'logContent');
             if (_Config__WEBPACK_IMPORTED_MODULE_10__.Config.mobile) {
                 this.wrap.classList.add('mobile');
             }
-            this.wrap.append(this.logArea);
+            this.wrap.append(this.logContent);
             document.body.insertAdjacentElement('beforebegin', this.wrap);
             _Theme__WEBPACK_IMPORTED_MODULE_1__.theme.register(this.wrap);
             // 虽然可以应用背景图片，但是由于日志区域比较狭长，背景图片的视觉效果不佳，看起来比较粗糙，所以还是不应用背景图片了
             // bg.useBG(this.wrap, 0.9)
         }
-        // 如果页面上的日志条数超过指定数量，则清空
-        // 因为日志数量太多的话会占用很大的内存。同时显示 8000 条日志可能占用接近 1 GB 的内存
-        if (this.count > this.max) {
-            this.clear();
-        }
     }
-    /**移除日志区域 */
+    /**移除所有日志区域 */
     remove() {
         this.count = 0;
-        this.wrap.remove();
-    }
-    /**清空显示的日志内容 */
-    clear() {
-        this.count = 0;
-        this.logArea.innerHTML = '';
+        const allLogWrap = document.querySelectorAll(`.${this.logWrapClassName}`);
+        allLogWrap.forEach((wrap) => wrap.remove());
     }
     // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部
     scrollToBottom() {
         window.setInterval(() => {
             if (this.toBottom) {
-                this.logArea.scrollTop = this.logArea.scrollHeight;
+                this.logContent.scrollTop = this.logContent.scrollHeight;
                 this.toBottom = false;
             }
-        }, 800);
+        }, 500);
     }
     export() {
         const data = [];
@@ -14417,7 +14421,7 @@ class InitPageBase {
         // 切换页面时，如果任务已经完成，则移除日志区域
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('clearLogAfterPageSwitch', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.pageSwitch, () => {
             if (!_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.remove();
+                _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
             }
         });
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('crawlCompleteTime', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.crawlComplete, () => {
@@ -23688,12 +23692,12 @@ Chrono Download Manager, Image Downloader и т. д.`,
         'Создать папку с первым совпавшим <span class="key">тегом</span>',
     ],
     _使用匹配的tag建立文件夹的说明: [
-        '如果作品的标签列表里含有用户设置的标签，就会使用这个标签建立文件夹（仅限第一个）',
-        '如果作品的標籤列表裡含有使用者設定的標籤，就會使用這個標籤建立資料夾（僅限第一個）',
-        'If the tag list of the work contains a tag set by the user, this tag will be used to create a folder (only the first one)',
-        '作品のタグリストにユーザーが設定したタグが含まれている場合、そのタグを使用してフォルダが作成されます。(最初の1つだけ)',
-        '작품의 태그에 유저가 설정한 태그가 포함되어 있다면, 태그를 사용하여 디렉토리를 생성합니다. (첫 번째 태그만 해당)',
-        'Если в списке тегов работы есть тег, заданный пользователем, этот тег будет использован для создания папки (только первой)',
+        '如果作品的标签列表里含有用户设置的标签，就会使用这个标签建立文件夹（仅限第一个匹配到的标签）',
+        '如果作品的標籤列表裡含有使用者設定的標籤，就會使用這個標籤建立資料夾（僅限第一個匹配到的標籤）',
+        'If the tag list of the work contains a tag set by the user, this tag will be used to create a folder (Only the first matching tag)',
+        '作品のタグリストにユーザーが設定したタグが含まれている場合、そのタグを使用してフォルダが作成されます。(最初に一致するタグのみ)',
+        '작품의 태그에 유저가 설정한 태그가 포함되어 있다면, 태그를 사용하여 디렉토리를 생성합니다. (첫 번째 일치하는 태그만)',
+        'Если в списке тегов работы есть тег, заданный пользователем, этот тег будет использован для создания папки (Только первый совпадающий тег)',
     ],
     _全年龄: [
         '全年龄',
