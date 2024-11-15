@@ -1000,7 +1000,7 @@ class CenterPanel {
             }
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, () => {
-            _ShowHelp__WEBPACK_IMPORTED_MODULE_10__.showHelp.show('tipHowToUse', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_HowToUse'));
+            _ShowHelp__WEBPACK_IMPORTED_MODULE_10__.showHelp.show('tipHowToUse', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_HowToUse') + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_账户可能被封禁的警告'));
         });
         // 使用快捷键 Alt + x 切换中间面板显示隐藏
         window.addEventListener('keydown', (ev) => {
@@ -1044,7 +1044,7 @@ class CenterPanel {
         this.centerPanel
             .querySelector('#showDownTip')
             .addEventListener('click', () => {
-            let msg = _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_常见问题说明');
+            let msg = _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_常见问题说明') + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_账户可能被封禁的警告');
             if (_Config__WEBPACK_IMPORTED_MODULE_4__.Config.mobile) {
                 msg =
                     msg + '<br><br>' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_Kiwi浏览器可能不能建立文件夹的bug');
@@ -15589,7 +15589,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DownloadNovelCover__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./DownloadNovelCover */ "./src/ts/download/DownloadNovelCover.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
 /* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/download/DownloadStates.ts");
+/* harmony import */ var _DownloadInterval__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./DownloadInterval */ "./src/ts/download/DownloadInterval.ts");
 // 下载文件，然后发送给浏览器进行保存
+
 
 
 
@@ -15733,15 +15735,20 @@ class Download {
         // 下载文件
         let url;
         if (arg.result.type === 3) {
-            // 生成小说的文件
+            // 小说
             if (arg.result.novelMeta) {
-                if (arg.result.novelMeta?.coverUrl) {
+                // 下载小说的封面图片
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadNovelCoverImage &&
+                    arg.result.novelMeta?.coverUrl) {
+                    await _DownloadInterval__WEBPACK_IMPORTED_MODULE_19__.downloadInterval.wait();
                     await _DownloadNovelCover__WEBPACK_IMPORTED_MODULE_16__.downloadNovelCover.download(arg.result.novelMeta.coverUrl, _fileName, 'downloadNovel');
                 }
+                // 生成小说文件
+                // 另外，如果小说保存为 EPUB 格式，此步骤里会下载内嵌的图片
+                // 并且会再次下载小说的封面图（因为要嵌入到 EPUB 文件里）
                 let blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_9__.MakeNovelFile.make(arg.result.novelMeta);
                 url = URL.createObjectURL(blob);
-                // 当小说保存为 txt 格式时，在这里下载内嵌的图片。
-                // 如果是保存为 EPUB 格式，那么在 MakeNovelFile.make 里会保存图片
+                // 如果小说保存为 TXT 格式，在这里下载内嵌的图片
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.novelSaveAs === 'txt') {
                     await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_15__.downloadNovelEmbeddedImage.TXT(arg.result.novelMeta.id, arg.result.novelMeta.content, arg.result.novelMeta.embeddedImages, _fileName);
                 }
@@ -15753,6 +15760,7 @@ class Download {
         else {
             // 对于图像作品，如果设置了图片尺寸就使用指定的 url，否则使用原图 url
             url = arg.result[_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.imageSize] || arg.result.original;
+            await _DownloadInterval__WEBPACK_IMPORTED_MODULE_19__.downloadInterval.wait();
         }
         let xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
@@ -16248,7 +16256,9 @@ class DownloadControl {
         _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('downloadStart');
         // 建立并发下载线程
         for (let i = 0; i < this.thread; i++) {
-            this.createDownload(i);
+            window.setTimeout(() => {
+                this.createDownload(i);
+            }, 0);
         }
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_正在下载中'));
         if (_Config__WEBPACK_IMPORTED_MODULE_15__.Config.mobile) {
@@ -16333,10 +16343,6 @@ class DownloadControl {
         // 如果剩余任务数量少于下载线程数
         if (_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result.length - this.downloaded < this.thread) {
             this.thread = _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result.length - this.downloaded;
-        }
-        // 如果设置了下载间隔，则把同时下载数量设置为 1
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.DownloadInterval > 0) {
-            this.thread = 1;
         }
         // 重设下载进度条
         _ProgressBar__WEBPACK_IMPORTED_MODULE_8__.progressBar.reset(this.thread, this.downloaded);
@@ -16446,6 +16452,102 @@ new DownloadControl();
 
 /***/ }),
 
+/***/ "./src/ts/download/DownloadInterval.ts":
+/*!*********************************************!*\
+  !*** ./src/ts/download/DownloadInterval.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   downloadInterval: () => (/* binding */ downloadInterval)
+/* harmony export */ });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+
+
+
+
+
+class DownloadInterval {
+    constructor() {
+        /**允许开始下载的时间戳 */
+        // 不管设置里的值是多少，初始值都是 0，即允许第一次下载立即开始
+        // 在开始下载第一个文件后，才会有实际的值
+        this.allowDownloadTime = 0;
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'downloadInterval') {
+                if (data.value === 0) {
+                    this.reset();
+                }
+            }
+        });
+        const resetEvents = [
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStart,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadPause,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadComplete,
+        ];
+        resetEvents.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.reset();
+            });
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStart, () => {
+            // 在开始下载时，如果应用了间隔时间，则显示一条日志提醒
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadIntervalOnWorksNumber &&
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadInterval > 0) {
+                const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_下载间隔') +
+                    `: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadInterval} ` +
+                    _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_秒');
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(msg, 1, false, 'downloadInterval');
+            }
+        });
+    }
+    reset() {
+        this.allowDownloadTime = 0;
+    }
+    addTime() {
+        this.allowDownloadTime =
+            new Date().getTime() + _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadInterval * 1000;
+    }
+    wait() {
+        return new Promise(async (resolve) => {
+            // 首先检查此设置不应该生效的情况，立即放行
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadInterval === 0 ||
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length <= _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadIntervalOnWorksNumber) {
+                return resolve(true);
+            }
+            // 可以立即开始下载
+            if (new Date().getTime() >= this.allowDownloadTime) {
+                this.addTime();
+                return resolve(true);
+            }
+            // 需要等待
+            const timer = window.setInterval(() => {
+                if (new Date().getTime() >= this.allowDownloadTime) {
+                    window.clearInterval(timer);
+                    this.addTime();
+                    return resolve(true);
+                }
+            }, 50);
+        });
+    }
+}
+const downloadInterval = new DownloadInterval();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/download/DownloadNovelCover.ts":
 /*!***********************************************!*\
   !*** ./src/ts/download/DownloadNovelCover.ts ***!
@@ -16458,9 +16560,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 
 
 
@@ -16470,16 +16570,13 @@ class DownloadNovelCover {
      * 默认是正常下载小说的情况，可以设置为合并系列小说的情况
      */
     async download(coverURL, novelName, action = 'downloadNovel') {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.downloadNovelCoverImage || !coverURL) {
-            return;
-        }
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载封面图片'), 1, false, 'downloadNovelCover');
         const url = await this.getCoverBolbURL(coverURL);
-        let coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.replaceSuffix(novelName, coverURL);
+        let coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceSuffix(novelName, coverURL);
         // 合并系列小说时，文件直接保存在下载目录里，封面图片也保存在下载目录里
         // 所以要替换掉封面图路径里的斜线
         if (action === 'mergeNovel') {
-            coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.replaceUnsafeStr(coverName);
+            coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(coverName);
         }
         this.sendDownload(url, coverName);
     }
@@ -16525,6 +16622,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./DownloadInterval */ "./src/ts/download/DownloadInterval.ts");
+
 
 
 
@@ -16553,6 +16652,7 @@ class DownloadNovelEmbeddedImage {
                 _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(`image ${image.id} not found`);
                 continue;
             }
+            await _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__.downloadInterval.wait();
             image = await this.getImageBlobURL(image);
             let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceSuffix(novelName, image.url);
             // 在文件名末尾加上内嵌图片的 id 和序号
@@ -17710,6 +17810,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DownloadNovelEmbeddedImage */ "./src/ts/download/DownloadNovelEmbeddedImage.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./DownloadInterval */ "./src/ts/download/DownloadInterval.ts");
+
 
 
 
@@ -17741,6 +17843,7 @@ class MakeNovelFile {
             const title = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(data.title));
             const novelURL = `https://www.pixiv.net/novel/show.php?id=${data.id}`;
             // 开始生成 EPUB 文件
+            await _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__.downloadInterval.wait();
             const cover = await fetch(data.coverUrl).then((response) => {
                 if (response.ok)
                     return response.arrayBuffer();
@@ -17783,6 +17886,7 @@ class MakeNovelFile {
                     continue;
                 }
                 // 加载图片
+                await _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__.downloadInterval.wait();
                 let illustration = undefined;
                 try {
                     illustration = await fetch(image.url).then((response) => {
@@ -22109,13 +22213,33 @@ Chrono Download Manager, Image Downloader 등`,
 При возникновении этой проблемы, пожалуйста, отключите другие расширения, которые имеют функцию загрузки файлов. Например: <br>
 Chrono Download Manager, Image Downloader и т. д.`,
     ],
+    _账户可能被封禁的警告: [
+        `<strong>警告</strong>：频繁和大量的抓取（和下载）可能会导致你的 Pixiv 账号被封禁。<br>
+多数用户不会遇到这个情况，而且下载器默认会减慢抓取的速度。但如果你的账户被封禁，下载器不会承担任何责任。<br>
+如果你计划进行大量的下载，可以考虑注册 Pixiv 小号。<br><br>`,
+        `<strong>警告</strong>：頻繁和大量的抓取（和下載）可能會導致你的 Pixiv 賬號被封禁。<br>
+多數使用者不會遇到這個情況，而且下載器預設會減慢抓取的速度。但如果你的賬戶被封禁，下載器不會承擔任何責任。<br>
+如果你計劃進行大量的下載，可以考慮註冊 Pixiv 小號。<br><br>`,
+        `<strong>Warning</strong>: Frequent and heavy scraping (and downloading) may result in your Pixiv account being banned. <br>
+Most users will not encounter this, and the downloader will slow down scraping by default. However, the downloader will not be held responsible if your account is banned. <br>
+If you plan to do a lot of downloading, consider signing up for a secondary Pixiv account. <br><br>`,
+        `<strong>警告</strong>: 頻繁かつ大量のスクレイピング (およびダウンロード) を行うと、Pixiv アカウントが禁止される可能性があります。 <br>
+ほとんどのユーザーはこの状況に遭遇することはなく、ダウンローダーはデフォルトでクロールを遅くします。ただし、アカウントが禁止された場合、ダウンローダーは責任を負いません。 <br>
+大量のダウンロードを行う予定がある場合は、Pixiv アカウントへのサインアップを検討してください。 <br><br>`,
+        `<strong>경고</strong>: 빈번하고 많은 양의 스크래핑(및 다운로드)을 수행하면 Pixiv 계정이 금지될 수 있습니다. <br>
+대부분의 사용자는 이러한 상황을 겪지 않으며 다운로더는 기본적으로 크롤링 속도를 늦춥니다. 그러나 귀하의 계정이 금지된 경우 다운로더는 책임을 지지 않습니다. <br>
+다운로드를 많이 할 계획이라면 Pixiv 계정에 가입하는 것을 고려해 보세요. <br><br>`,
+        `<strong>Внимание</strong>. Частое и массовое сканирование (и загрузка) может привести к блокировке вашей учетной записи Pixiv. <br>
+Большинство пользователей не столкнутся с такой ситуацией, и загрузчик по умолчанию замедлит сканирование. Но загрузчик не будет нести ответственности, если ваша учетная запись будет заблокирована. <br>
+Если вы планируете загружать много файлов, рассмотрите возможность регистрации учетной записи Pixiv. <br><br>`,
+    ],
     _常见问题说明: [
-        '下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>还有些扩展会导致下载器不能开始下载。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>下载器 QQ 群：675174717<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
-        '下載的檔案儲存在瀏覽器的下載目錄裡。如果你想儲存到其他位置，需要修改瀏覽器的下載目錄。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br>還有些擴充套件會導致下載器不能開始下載。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。',
-        `The downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download location. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser\`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities. <br>There are also some extensions that can prevent the downloader from starting the download.<br><br>If your browser stops responding at startup, you can clear your browser\`s download history.`,
-        'ダウンロードされたファイルはブラウザのダウンロード ディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロード場所を変更する必要があります。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br>ダウンローダーがダウンロードを開始するのを妨げる拡張機能もいくつかあります。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。',
-        '다운로드한 파일은 브라우저의 다운로드 디렉터리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 위치를 수정해야 합니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요. <br>다운로더가 다운로드를 시작하지 못하게 막는 몇 가지 확장 프로그램도 있습니다.<br><br>시작 시 브라우저가 응답하지 않으면 브라우저의 다운로드 기록을 지울 수 있습니다.',
-        'Загруженный файл сохраняется в каталоге загрузки браузера. Если вы хотите сохранить в другое место, вам необходимо изменить место загрузки браузера. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>Если имя файла после загрузки является ненормальным, отключите другие расширения браузера, которые имеют возможности загрузки. <br>Существуют также некоторые расширения, которые могут помешать загрузчику начать загрузку.<br><br>Если ваш браузер перестает отвечать на запросы при запуске, вы можете очистить историю загрузок вашего браузера.',
+        '下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>还有些扩展会导致下载器不能开始下载。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>下载器 QQ 群：675174717<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a><br><br>',
+        '下載的檔案儲存在瀏覽器的下載目錄裡。如果你想儲存到其他位置，需要修改瀏覽器的下載目錄。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br>還有些擴充套件會導致下載器不能開始下載。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。<br><br>',
+        `The downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download location. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser\`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities. <br>There are also some extensions that can prevent the downloader from starting the download.<br><br>If your browser stops responding at startup, you can clear your browser\`s download history.<br><br>`,
+        'ダウンロードされたファイルはブラウザのダウンロード ディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロード場所を変更する必要があります。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br>ダウンローダーがダウンロードを開始するのを妨げる拡張機能もいくつかあります。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。<br><br>',
+        '다운로드한 파일은 브라우저의 다운로드 디렉터리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 위치를 수정해야 합니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요. <br>다운로더가 다운로드를 시작하지 못하게 막는 몇 가지 확장 프로그램도 있습니다.<br><br>시작 시 브라우저가 응답하지 않으면 브라우저의 다운로드 기록을 지울 수 있습니다.<br><br>',
+        'Загруженный файл сохраняется в каталоге загрузки браузера. Если вы хотите сохранить в другое место, вам необходимо изменить место загрузки браузера. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>Если имя файла после загрузки является ненормальным, отключите другие расширения браузера, которые имеют возможности загрузки. <br>Существуют также некоторые расширения, которые могут помешать загрузчику начать загрузку.<br><br>Если ваш браузер перестает отвечать на запросы при запуске, вы можете очистить историю загрузок вашего браузера.<br><br>',
     ],
     _正在下载中: [
         '正在下载中',
@@ -23637,12 +23761,12 @@ Chrono Download Manager, Image Downloader и т. д.`,
         'На этот раз запрос начал помещаться в очередь.',
     ],
     _HowToUse: [
-        '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>下载器默认开启了一些增强功能，这可能导致 Pixiv 页面样式改变。你可以在下载器的“更多”标签页中开启或关闭这些功能。',
-        '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。如果你想儲存到其他位置，需要修改瀏覽器的下載目錄。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>下載器預設開啟了一些增強功能，這可能導致 Pixiv 頁面樣式改變。你可以在下載器的“更多”標籤頁中開啟或關閉這些功能。',
-        `Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download location. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser\`s download settings.<br><br>The downloader has some enhancements turned on by default, which may cause changes in the style of Pixiv pages. You can turn these features on or off in the "More" tab of the downloader.`,
-        'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードされたファイルはブラウザのダウンロード ディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロード場所を変更する必要があります。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンローダーにはデフォルトでいくつかの機能拡張が有効になっており、これにより Pixiv ページのスタイルが変更される可能性があります。 これらの機能は、ダウンローダーの「その他」タブでオンまたはオフにできます。',
-        '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.<br><br>다운로드한 파일은 브라우저의 다운로드 디렉터리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 위치를 수정해야 합니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로더에는 기본적으로 몇 가지 향상된 기능이 켜져 있으며 이로 인해 Pixiv 페이지 스타일이 변경될 수 있습니다. 다운로더의 "더 보기" 탭에서 이러한 기능을 켜거나 끌 수 있습니다.',
-        'Нажмите синюю кнопку в правой части страницы, чтобы открыть панель загрузчика.<br><br>Загруженный файл сохраняется в каталоге загрузки браузера. Если вы хотите сохранить в другое место, вам необходимо изменить место загрузки браузера.<br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>В загрузчике по умолчанию включены некоторые улучшения, которые могут привести к изменению стиля страниц Pixiv. Вы можете включить или отключить эти функции на вкладке «Дополнительно» загрузчика.',
+        '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>下载器默认开启了一些增强功能，这可能会导致 Pixiv 的一些页面样式产生变化。你可以在下载器的“更多”标签页中开启或关闭这些功能。<br><br>',
+        '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。如果你想儲存到其他位置，需要修改瀏覽器的下載目錄。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>下載器預設開啟了一些增強功能，這可能會導致 Pixiv 的一些頁面樣式產生變化。你可以在下載器的“更多”標籤頁中開啟或關閉這些功能。<br><br>',
+        `Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download location. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser\`s download settings.<br><br>The downloader has some enhancements turned on by default, which may cause changes in the style of Pixiv pages. You can turn these features on or off in the "More" tab of the downloader.<br><br>`,
+        'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードされたファイルはブラウザのダウンロード ディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロード場所を変更する必要があります。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンローダーにはデフォルトでいくつかの機能拡張が有効になっており、これにより Pixiv ページのスタイルが変更される可能性があります。 これらの機能は、ダウンローダーの「その他」タブでオンまたはオフにできます。<br><br>',
+        '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.<br><br>다운로드한 파일은 브라우저의 다운로드 디렉터리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 위치를 수정해야 합니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로더에는 기본적으로 몇 가지 향상된 기능이 켜져 있으며 이로 인해 Pixiv 페이지 스타일이 변경될 수 있습니다. 다운로더의 "더 보기" 탭에서 이러한 기능을 켜거나 끌 수 있습니다.<br><br>',
+        'Нажмите синюю кнопку в правой части страницы, чтобы открыть панель загрузчика.<br><br>Загруженный файл сохраняется в каталоге загрузки браузера. Если вы хотите сохранить в другое место, вам необходимо изменить место загрузки браузера.<br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>В загрузчике по умолчанию включены некоторые улучшения, которые могут привести к изменению стиля страниц Pixiv. Вы можете включить или отключить эти функции на вкладке «Дополнительно» загрузчика.<br><br>',
     ],
     _我知道了: ['我知道了', '我知道了', 'OK', '分かりました', '확인', 'Ок'],
     _背景图片: [
@@ -24133,13 +24257,13 @@ Chrono Download Manager, Image Downloader и т. д.`,
     中国大陆用户可以在“爱发电”上赞助我：<br>
     <a href="https://afdian.com/a/xuejianxianzun" target="_blank">https://afdian.com/a/xuejianxianzun</a><br><br>
     也可以扫描二维码：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a>。
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a>
     `,
         `如果您覺得這個工具對您有幫助，可以考慮贊助我，謝謝！<br>
     您可以在 Patreon 上贊助我：<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br><br>
     中國大陸使用者可以在“愛發電”上贊助我：<br>
-    <a href="https://afdian.com/a/xuejianxianzun" target="_blank">https://afdian.com/a/xuejianxianzun</a>。
+    <a href="https://afdian.com/a/xuejianxianzun" target="_blank">https://afdian.com/a/xuejianxianzun</a>
     `,
         `If you find this tool helpful, please consider sponsoring me, thank you!<br>
     You can sponsor me on Patreon: <br>
@@ -25672,28 +25796,39 @@ Chrono Download Manager, Image Downloader и т. д.`,
         'На этой вкладке уже есть результаты сканирования. При перезапуске сканирования эти результаты будут удалены. \nПодтвердите, хотите ли вы возобновить сканирование?',
     ],
     _下载间隔: [
-        '下载间隔',
-        '下載間隔',
-        'Download interval',
-        'ダウンロード間隔',
-        '다운로드 간격',
-        'Интервал загрузки',
+        '下载<span class="key">间隔</span>',
+        '下載<span class="key">間隔</span>',
+        'Download <span class="key">interval</span>',
+        'ダウンロード<span class="key">間隔</span>',
+        '다운로드 <span class="key">간격</span>',
+        '<span class="key">Интервал</span> загрузки',
     ],
-    _秒: [
-        '秒',
-        '秒',
-        'seconds',
-        '秒',
-        '초',
-        'секунд',
-    ],
+    _秒: ['秒', '秒', 'seconds', '秒', '초', 'секунд'],
     _下载间隔的说明: [
-        '每当下载一个文件之后，等待一段时间。<br>如果你担心因为下载文件太频繁导致账号被 Ban，可以设置大于 0 的数字，以缓解此问题。',
-        '每當下載一個檔案之後，等待一段時間。<br>如果你擔心因為下載檔案太頻繁導致賬號被 Ban，可以設定大於 0 的數字，以緩解此問題。',
-        'Wait for a while after downloading a file. <br>If you are worried that your account will be banned due to downloading files too frequently, you can set a number greater than 0 to alleviate this problem.',
-        'ファイルをダウンロードした後、しばらくお待ちください。<br>頻繁にファイルをダウンロードしすぎてアカウントが禁止されるのではないかと心配な場合は、0 より大きい数値を設定することでこの問題を軽減できます。',
-        '파일을 다운로드한 후 잠시 기다리세요. <br>파일을 너무 자주 다운로드해서 계정이 금지될까 걱정된다면 0보다 큰 숫자를 설정하여 이 문제를 완화할 수 있습니다.',
-        'Подождите некоторое время после загрузки файла. <br>Если вы беспокоитесь, что ваш аккаунт будет заблокирован из-за слишком частой загрузки файлов, вы можете установить число больше 0, чтобы облегчить эту проблему.',
+        `每隔一定时间开始一次下载。<br>
+默认值为 0，即无限制。<br>
+如果设置为 1 秒钟，那么每小时最多会从 Pixiv 下载 3600 个文件。<br>
+如果你担心因为下载文件太频繁导致账号被 Ban，可以设置大于 0 的数字，以缓解此问题。<br>`,
+        `每隔一定時間開始一次下載。<br>
+預設值為 0，即無限制。<br>
+如果設定為 1 秒鐘，那麼每小時最多會從 Pixiv 下載 3600 個檔案。<br>
+如果你擔心因為下載檔案太頻繁導致賬號被 Ban，可以設定大於 0 的數字，以緩解此問題。<br>`,
+        `Start a download every certain time. <br>
+The default value is 0, which means no limit. <br>
+If set to 1 second, a maximum of 3,600 files will be downloaded from Pixiv per hour. <br>
+If you are worried that your account will be banned due to downloading files too frequently, you can set a number greater than 0 to alleviate this problem. <br>`,
+        `一定時間ごとにダウンロードを開始します。<br>
+デフォルト値は 0 で、制限なしを意味します。<br>
+1 秒に設定すると、Pixiv から 1 時間あたり最大 3,600 ファイルがダウンロードされます。<br>
+頻繁にファイルをダウンロードしすぎてアカウントが禁止されるのではないかと心配な場合は、0 より大きい数値を設定することでこの問題を軽減できます。<br>`,
+        `특정 시간마다 다운로드를 시작합니다. <br>
+기본값은 0으로, 제한이 없음을 의미합니다. <br>
+1초로 설정하면 Pixiv에서 시간당 최대 3,600개의 파일이 다운로드됩니다. <br>
+파일을 너무 자주 다운로드해서 계정이 금지될까 걱정된다면 0보다 큰 숫자를 설정하여 이 문제를 완화할 수 있습니다. <br>`,
+        `Начинать загрузку каждый определенный момент времени. <br>
+Значение по умолчанию — 0, что означает отсутствие ограничений. <br>
+Если установлено значение 1 секунда, с Pixiv будет загружено максимум 3600 файлов в час. <br>
+Если вы беспокоитесь, что ваш аккаунт будет заблокирован из-за слишком частой загрузки файлов, вы можете установить число больше 0, чтобы решить эту проблему. <br>`,
     ],
     _更新说明v1714: [
         '修复了发现（discovery）页面里的一些问题',
@@ -28394,12 +28529,12 @@ const formHtml = `<form class="settingForm">
     
     <span class="subOptionWrap" data-show="slowCrawl">
     <span data-xztext="_当作品数量大于"></span>
-    <input type="text" name="slowCrawlOnWorksNumber" class="setinput_style1 blue" value="100" style="width:60px;min-width: 60px;">
+    <input type="text" name="slowCrawlOnWorksNumber" class="setinput_style1 blue" value="100">
 
     <span class="verticalSplit"></span>
 
     <span data-xztext="_间隔时间"></span>
-    <input type="text" name="slowCrawlDealy" class="setinput_style1 blue" value="1600" placeholder="1600" style="width:60px;min-width: 60px;"> ms
+    <input type="text" name="slowCrawlDealy" class="setinput_style1 blue" value="1600" placeholder="1600"> ms
 
     </span>
 
@@ -28616,7 +28751,14 @@ const formHtml = `<form class="settingForm">
     <span data-xztext="_下载间隔"></span>
     <span class="gray1"> ? </span>
     </span>
-    <input type="text" name="DownloadInterval" class="setinput_style1 blue" value="0">
+    
+    <span data-xztext="_当作品数量大于"></span>
+    <input type="text" name="downloadIntervalOnWorksNumber" class="setinput_style1 blue" value="120">
+
+    <span class="verticalSplit"></span>
+
+    <span data-xztext="_间隔时间"></span>
+    <input type="text" name="downloadInterval" class="setinput_style1 blue" value="0">
     <span data-xztext="_秒"></span>
     </span>
     </p>
@@ -29315,7 +29457,8 @@ class FormSettings {
                 'exportLogExclude',
                 'PreviewDetailInfoWidth',
                 'slowCrawlDealy',
-                'DownloadInterval',
+                'downloadInterval',
+                'downloadIntervalOnWorksNumber',
             ],
             radio: [
                 'ugoiraSaveAs',
@@ -30292,11 +30435,17 @@ class Settings {
             saveEachDescription: false,
             summarizeDescription: false,
             slowCrawlDealy: 1600,
-            DownloadInterval: 0,
+            downloadInterval: 0,
+            downloadIntervalOnWorksNumber: 120,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
-        this.floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax', 'DownloadInterval'];
+        this.floatNumberKey = [
+            'userRatio',
+            'sizeMin',
+            'sizeMax',
+            'downloadInterval',
+        ];
         // 值为整数的选项不必单独列出
         // 值为数字数组的选项
         this.numberArrayKeys = ['wantPageArr'];
@@ -30520,11 +30669,14 @@ class Settings {
         if (key === 'slowCrawlDealy' && value < 1000) {
             value = 1000;
         }
-        if (key === 'DownloadInterval' && value < 0) {
+        if (key === 'downloadInterval' && value < 0) {
             value = 0;
         }
-        if (key === 'DownloadInterval' && value > 3600) {
+        if (key === 'downloadInterval' && value > 3600) {
             value = 3600;
+        }
+        if (key === 'downloadIntervalOnWorksNumber' && value < 0) {
+            value = 0;
         }
         if (key === 'firstFewImages' && value < 1) {
             value = this.defaultSettings[key];
@@ -31326,8 +31478,6 @@ class States {
         // 因为这两个变量的值不应该随页面切换而改变，所以放在这里而非 initPageBase 里
         this.crawlCompleteTime = 1;
         this.downloadCompleteTime = 0;
-        /**是否允许开始下一次下载 */
-        this.allowDownloadTime = 0;
         this.bindEvents();
     }
     bindEvents() {

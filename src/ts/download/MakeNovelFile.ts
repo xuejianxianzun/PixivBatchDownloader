@@ -5,6 +5,7 @@ import { Utils } from '../utils/Utils'
 import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
 import { lang } from '../Lang'
 import { log } from '../Log'
+import { downloadInterval } from './DownloadInterval'
 
 declare const jEpub: any
 
@@ -40,6 +41,8 @@ class MakeNovelFile {
       const novelURL = `https://www.pixiv.net/novel/show.php?id=${data.id}`
 
       // 开始生成 EPUB 文件
+      await downloadInterval.wait()
+
       const cover = await fetch(data.coverUrl).then((response) => {
         if (response.ok) return response.arrayBuffer()
         throw 'Network response was not ok.'
@@ -96,6 +99,8 @@ class MakeNovelFile {
         }
 
         // 加载图片
+        await downloadInterval.wait()
+
         let illustration: Blob | undefined = undefined
         try {
           illustration = await fetch(image.url).then((response) => {

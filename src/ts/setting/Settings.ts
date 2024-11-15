@@ -270,7 +270,8 @@ interface XzSetting {
   summarizeDescription: boolean
   slowCrawlDealy: number
   /**设置下载一个文件后，需要等待多久才能开始下一次下载。值为 0 - 3600 秒，允许小数 */
-  DownloadInterval: number
+  downloadInterval: number
+  downloadIntervalOnWorksNumber: number
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -497,13 +498,19 @@ class Settings {
     saveEachDescription: false,
     summarizeDescription: false,
     slowCrawlDealy: 1600,
-    DownloadInterval: 0,
+    downloadInterval: 0,
+    downloadIntervalOnWorksNumber: 120,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
 
   // 值为浮点数的选项
-  private floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax', 'DownloadInterval']
+  private floatNumberKey = [
+    'userRatio',
+    'sizeMin',
+    'sizeMax',
+    'downloadInterval',
+  ]
 
   // 值为整数的选项不必单独列出
 
@@ -749,12 +756,16 @@ class Settings {
       value = 1000
     }
 
-    if (key === 'DownloadInterval' && (value as number) < 0) {
+    if (key === 'downloadInterval' && (value as number) < 0) {
       value = 0
     }
 
-    if (key === 'DownloadInterval' && (value as number) > 3600) {
+    if (key === 'downloadInterval' && (value as number) > 3600) {
       value = 3600
+    }
+
+    if (key === 'downloadIntervalOnWorksNumber' && (value as number) < 0) {
+      value = 0
     }
 
     if (key === 'firstFewImages' && (value as number) < 1) {

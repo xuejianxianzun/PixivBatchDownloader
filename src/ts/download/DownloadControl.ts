@@ -427,7 +427,9 @@ class DownloadControl {
 
     // 建立并发下载线程
     for (let i = 0; i < this.thread; i++) {
-      this.createDownload(i)
+      window.setTimeout(() => {
+        this.createDownload(i)
+      }, 0)
     }
 
     log.success(lang.transl('_正在下载中'))
@@ -530,11 +532,6 @@ class DownloadControl {
     // 如果剩余任务数量少于下载线程数
     if (store.result.length - this.downloaded < this.thread) {
       this.thread = store.result.length - this.downloaded
-    }
-
-    // 如果设置了下载间隔，则把同时下载数量设置为 1
-    if(settings.DownloadInterval > 0){
-      this.thread = 1
     }
 
     // 重设下载进度条

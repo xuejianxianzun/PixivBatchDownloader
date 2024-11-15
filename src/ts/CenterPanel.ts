@@ -143,7 +143,7 @@ class CenterPanel {
     })
 
     window.addEventListener(EVT.list.settingInitialized, () => {
-      showHelp.show('tipHowToUse', lang.transl('_HowToUse'))
+      showHelp.show('tipHowToUse', lang.transl('_HowToUse') + lang.transl('_账户可能被封禁的警告'))
     })
 
     // 使用快捷键 Alt + x 切换中间面板显示隐藏
@@ -202,7 +202,7 @@ class CenterPanel {
     this.centerPanel
       .querySelector('#showDownTip')!
       .addEventListener('click', () => {
-        let msg = lang.transl('_常见问题说明')
+        let msg = lang.transl('_常见问题说明') + lang.transl('_账户可能被封禁的警告')
         if (Config.mobile) {
           msg =
             msg + '<br><br>' + lang.transl('_Kiwi浏览器可能不能建立文件夹的bug')
