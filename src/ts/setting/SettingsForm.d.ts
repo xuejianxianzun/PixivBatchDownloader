@@ -154,4 +154,5 @@ export interface SettingsForm extends HTMLFormElement {
   saveEachDescription: HTMLInputElement
   summarizeDescription: HTMLInputElement
   slowCrawlDealy: HTMLInputElement
+  DownloadInterval: HTMLInputElement
 }

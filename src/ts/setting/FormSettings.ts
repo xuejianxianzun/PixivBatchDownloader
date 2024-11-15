@@ -165,6 +165,7 @@ class FormSettings {
       'exportLogExclude',
       'PreviewDetailInfoWidth',
       'slowCrawlDealy',
+      'DownloadInterval',
     ],
     radio: [
       'ugoiraSaveAs',

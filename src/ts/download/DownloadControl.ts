@@ -532,6 +532,11 @@ class DownloadControl {
       this.thread = store.result.length - this.downloaded
     }
 
+    // 如果设置了下载间隔，则把同时下载数量设置为 1
+    if(settings.DownloadInterval > 0){
+      this.thread = 1
+    }
+
     // 重设下载进度条
     progressBar.reset(this.thread, this.downloaded)
   }

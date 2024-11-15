@@ -62,6 +62,9 @@ class States {
   public crawlCompleteTime = 1
   public downloadCompleteTime = 0
 
+  /**是否允许开始下一次下载 */
+  public allowDownloadTime = 0
+
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       this.settingInitialized = true

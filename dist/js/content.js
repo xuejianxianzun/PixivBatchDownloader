@@ -16334,6 +16334,10 @@ class DownloadControl {
         if (_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result.length - this.downloaded < this.thread) {
             this.thread = _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result.length - this.downloaded;
         }
+        // 如果设置了下载间隔，则把同时下载数量设置为 1
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.DownloadInterval > 0) {
+            this.thread = 1;
+        }
         // 重设下载进度条
         _ProgressBar__WEBPACK_IMPORTED_MODULE_8__.progressBar.reset(this.thread, this.downloaded);
     }
@@ -25667,6 +25671,30 @@ Chrono Download Manager, Image Downloader и т. д.`,
         '이 탭에는 이미 크롤링 결과가 있습니다. 크롤링을 다시 시작하면 크롤링 결과가 지워집니다. \n크롤링을 다시 시작할 것인지 확인해주세요.',
         'На этой вкладке уже есть результаты сканирования. При перезапуске сканирования эти результаты будут удалены. \nПодтвердите, хотите ли вы возобновить сканирование?',
     ],
+    _下载间隔: [
+        '下载间隔',
+        '下載間隔',
+        'Download interval',
+        'ダウンロード間隔',
+        '다운로드 간격',
+        'Интервал загрузки',
+    ],
+    _秒: [
+        '秒',
+        '秒',
+        'seconds',
+        '秒',
+        '초',
+        'секунд',
+    ],
+    _下载间隔的说明: [
+        '每当下载一个文件之后，等待一段时间。<br>如果你担心因为下载文件太频繁导致账号被 Ban，可以设置大于 0 的数字，以缓解此问题。',
+        '每當下載一個檔案之後，等待一段時間。<br>如果你擔心因為下載檔案太頻繁導致賬號被 Ban，可以設定大於 0 的數字，以緩解此問題。',
+        'Wait for a while after downloading a file. <br>If you are worried that your account will be banned due to downloading files too frequently, you can set a number greater than 0 to alleviate this problem.',
+        'ファイルをダウンロードした後、しばらくお待ちください。<br>頻繁にファイルをダウンロードしすぎてアカウントが禁止されるのではないかと心配な場合は、0 より大きい数値を設定することでこの問題を軽減できます。',
+        '파일을 다운로드한 후 잠시 기다리세요. <br>파일을 너무 자주 다운로드해서 계정이 금지될까 걱정된다면 0보다 큰 숫자를 설정하여 이 문제를 완화할 수 있습니다.',
+        'Подождите некоторое время после загрузки файла. <br>Если вы беспокоитесь, что ваш аккаунт будет заблокирован из-за слишком частой загрузки файлов, вы можете установить число больше 0, чтобы облегчить эту проблему.',
+    ],
     _更新说明v1714: [
         '修复了发现（discovery）页面里的一些问题',
         '修復了發現（discovery）頁面裡的一些問題',
@@ -27830,7 +27858,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 
-// 目前设置项的最大编号是 89
+// 目前设置项的最大编号是 90
 const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -28582,6 +28610,16 @@ const formHtml = `<form class="settingForm">
     <p class="option settingCategoryName" data-no="58">
       <span data-xztext="_下载"></span>
     </p>
+
+    <p class="option" data-no="90">
+    <span class="has_tip settingNameStyle1"  data-xztip="_下载间隔的说明">
+    <span data-xztext="_下载间隔"></span>
+    <span class="gray1"> ? </span>
+    </span>
+    <input type="text" name="DownloadInterval" class="setinput_style1 blue" value="0">
+    <span data-xztext="_秒"></span>
+    </span>
+    </p>
     
     <p class="option" data-no="76">
     <span class="settingNameStyle1">
@@ -29277,6 +29315,7 @@ class FormSettings {
                 'exportLogExclude',
                 'PreviewDetailInfoWidth',
                 'slowCrawlDealy',
+                'DownloadInterval',
             ],
             radio: [
                 'ugoiraSaveAs',
@@ -30253,10 +30292,11 @@ class Settings {
             saveEachDescription: false,
             summarizeDescription: false,
             slowCrawlDealy: 1600,
+            DownloadInterval: 0,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
-        this.floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax'];
+        this.floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax', 'DownloadInterval'];
         // 值为整数的选项不必单独列出
         // 值为数字数组的选项
         this.numberArrayKeys = ['wantPageArr'];
@@ -30479,6 +30519,12 @@ class Settings {
         // 对于一些不合法的值，重置为默认值
         if (key === 'slowCrawlDealy' && value < 1000) {
             value = 1000;
+        }
+        if (key === 'DownloadInterval' && value < 0) {
+            value = 0;
+        }
+        if (key === 'DownloadInterval' && value > 3600) {
+            value = 3600;
         }
         if (key === 'firstFewImages' && value < 1) {
             value = this.defaultSettings[key];
@@ -31280,6 +31326,8 @@ class States {
         // 因为这两个变量的值不应该随页面切换而改变，所以放在这里而非 initPageBase 里
         this.crawlCompleteTime = 1;
         this.downloadCompleteTime = 0;
+        /**是否允许开始下一次下载 */
+        this.allowDownloadTime = 0;
         this.bindEvents();
     }
     bindEvents() {
