@@ -101,6 +101,10 @@ html[data-xzpagetheme="white"] body .pbdHighlightFollowing {
 
 另外还替换了 QQ 群号。之前的群爆了。
 
+### 在小说的元数据里添加了发表日期
+
+我想查看发表日期时才发现元数据里没有包含发表日期。现在加上了。
+
 ## 17.1.4 2024/09/26
 
 ### 🐛修复了在发现（discovery）页面中失效的问题

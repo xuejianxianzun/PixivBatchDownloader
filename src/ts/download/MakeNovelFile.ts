@@ -6,6 +6,7 @@ import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
 import { lang } from '../Lang'
 import { log } from '../Log'
 import { downloadInterval } from './DownloadInterval'
+import { DateFormat } from '../utils/DateFormat'
 
 declare const jEpub: any
 
@@ -48,6 +49,8 @@ class MakeNovelFile {
         throw 'Network response was not ok.'
       })
 
+      const date = DateFormat.format(data.createDate, settings.dateFormat)
+
       const jepub = new jEpub()
       jepub.init({
         i18n: lang.type,
@@ -65,8 +68,8 @@ class MakeNovelFile {
         // description 的内容会被添加到 book.opf 的 <dc:description> 标签对中
         // 有的小说简介里含有 & 符号，需要转换成别的字符，否则会导致阅读器解析时出错
         // 如 https://www.pixiv.net/novel/show.php?id=22260000
-        description: Tools.replaceEPUBText(data.description),
         tags: data.tags || [],
+        description: date + '<br/><br/>' +Tools.replaceEPUBText(data.description),
       })
 
       jepub.uuid(novelURL)

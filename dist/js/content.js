@@ -17811,6 +17811,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./DownloadInterval */ "./src/ts/download/DownloadInterval.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+
 
 
 
@@ -17849,6 +17851,7 @@ class MakeNovelFile {
                     return response.arrayBuffer();
                 throw 'Network response was not ok.';
             });
+            const date = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_7__.DateFormat.format(data.createDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat);
             const jepub = new jEpub();
             jepub.init({
                 i18n: _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.type,
@@ -17866,8 +17869,8 @@ class MakeNovelFile {
                 // description 的内容会被添加到 book.opf 的 <dc:description> 标签对中
                 // 有的小说简介里含有 & 符号，需要转换成别的字符，否则会导致阅读器解析时出错
                 // 如 https://www.pixiv.net/novel/show.php?id=22260000
-                description: _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBText(data.description),
                 tags: data.tags || [],
+                description: date + '<br/><br/>' + _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBText(data.description),
             });
             jepub.uuid(novelURL);
             jepub.date(new Date(data.createDate));
@@ -31256,6 +31259,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+
 
 
 
@@ -31314,7 +31319,8 @@ class SaveNovelData {
             // 它会在生成的小说里显示，供读者阅读，所以移除了 html 标签，只保留纯文本
             // 处理后，换行标记是 \n 而不是 <br/>
             const metaDescription = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.replaceEPUBDescription(_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlToText(description));
-            metaArr.push(title, user, pageUrl, metaDescription, tagsA.join('\n'));
+            const date = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__.DateFormat.format(body.createDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.dateFormat);
+            metaArr.push(title, user, pageUrl, date, metaDescription, tagsA.join('\n'));
             meta = metaArr.join('\n\n') + '\n\n\n';
             // 提取嵌入的图片资源
             let embeddedImages = null;
