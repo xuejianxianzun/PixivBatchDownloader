@@ -4,6 +4,7 @@ import { store } from './Store'
 import { settings } from '../setting/Settings'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
+import { DateFormat } from '../utils/DateFormat'
 
 // 保存单个小说作品的数据
 class SaveNovelData {
@@ -69,7 +70,15 @@ class SaveNovelData {
       const metaDescription = Tools.replaceEPUBDescription(
         Utils.htmlToText(description)
       )
-      metaArr.push(title, user, pageUrl, metaDescription, tagsA.join('\n'))
+      const date = DateFormat.format(body.createDate, settings.dateFormat)
+      metaArr.push(
+        title,
+        user,
+        pageUrl,
+        date,
+        metaDescription,
+        tagsA.join('\n')
+      )
       meta = metaArr.join('\n\n') + '\n\n\n'
 
       // 提取嵌入的图片资源

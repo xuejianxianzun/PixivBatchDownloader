@@ -23,6 +23,7 @@ import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
 import { downloadNovelCover } from './DownloadNovelCover'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { downloadStates } from './DownloadStates'
+import { downloadInterval } from './DownloadInterval'
 
 // 处理下载队列里的任务
 // 不显示在进度条上的下载任务，不在这里处理
@@ -189,9 +190,14 @@ class Download {
     // 下载文件
     let url: string
     if (arg.result.type === 3) {
-      // 生成小说的文件
+      // 小说
       if (arg.result.novelMeta) {
-        if (arg.result.novelMeta?.coverUrl) {
+        // 下载小说的封面图片
+        if (
+          settings.downloadNovelCoverImage &&
+          arg.result.novelMeta?.coverUrl
+        ) {
+          await downloadInterval.wait()
           await downloadNovelCover.download(
             arg.result.novelMeta.coverUrl,
             _fileName,
@@ -199,11 +205,13 @@ class Download {
           )
         }
 
+        // 生成小说文件
+        // 另外，如果小说保存为 EPUB 格式，此步骤里会下载内嵌的图片
+        // 并且会再次下载小说的封面图（因为要嵌入到 EPUB 文件里）
         let blob: Blob = await MakeNovelFile.make(arg.result.novelMeta)
         url = URL.createObjectURL(blob)
 
-        // 当小说保存为 txt 格式时，在这里下载内嵌的图片。
-        // 如果是保存为 EPUB 格式，那么在 MakeNovelFile.make 里会保存图片
+        // 如果小说保存为 TXT 格式，在这里下载内嵌的图片
         if (settings.novelSaveAs === 'txt') {
           await downloadNovelEmbeddedImage.TXT(
             arg.result.novelMeta.id,
@@ -218,6 +226,7 @@ class Download {
     } else {
       // 对于图像作品，如果设置了图片尺寸就使用指定的 url，否则使用原图 url
       url = arg.result[settings.imageSize] || arg.result.original
+      await downloadInterval.wait()
     }
 
     let xhr = new XMLHttpRequest()

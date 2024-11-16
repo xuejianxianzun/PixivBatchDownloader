@@ -4,6 +4,7 @@ import { lang } from '../Lang'
 import { log } from '../Log'
 import { settings } from '../setting/Settings'
 import { Utils } from '../utils/Utils'
+import { downloadInterval } from './DownloadInterval'
 
 type EmbeddedImages = null | {
   [key: string]: string
@@ -66,6 +67,8 @@ class DownloadNovelEmbeddedImage {
         log.warning(`image ${image.id} not found`)
         continue
       }
+
+      await downloadInterval.wait()
 
       image = await this.getImageBlobURL(image)
       let imageName = Utils.replaceSuffix(novelName, image.url!)

@@ -61,7 +61,7 @@ abstract class InitPageBase {
     // 切换页面时，如果任务已经完成，则移除日志区域
     EVT.bindOnce('clearLogAfterPageSwitch', EVT.list.pageSwitch, () => {
       if (!states.busy) {
-        log.remove()
+        EVT.fire('clearLog')
       }
     })
 

@@ -60,13 +60,13 @@ class WorkPublishTime {
 
   private bindEvents() {
     secretSignal.register('ppdtask1', () => {
-      // 上次记录到 121900000
-      this.crawlData(121510000, 121907226)
+      // 上次记录到 124350000
+      this.crawlData(121910000, 124355845)
     })
 
     secretSignal.register('ppdtask2', () => {
-      // 上次记录到 22870001
-      this.crawlData(22790000, 22877769, 'novels')
+      // 上次记录到 23410001
+      this.crawlData(22880000, 23419624, 'novels')
     })
   }
 
