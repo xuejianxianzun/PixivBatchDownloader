@@ -1533,6 +1533,7 @@
 .xz_msg_box .btn {
   cursor: pointer;
   background: #0ea8ef;
+  box-shadow: #2ca6df 0px 0px 2px;
   color: #fff;
   border: none;
   text-align: center;

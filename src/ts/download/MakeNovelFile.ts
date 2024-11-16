@@ -69,7 +69,8 @@ class MakeNovelFile {
         // 有的小说简介里含有 & 符号，需要转换成别的字符，否则会导致阅读器解析时出错
         // 如 https://www.pixiv.net/novel/show.php?id=22260000
         tags: data.tags || [],
-        description: date + '<br/><br/>' +Tools.replaceEPUBText(data.description),
+        description:
+          date + '<br/><br/>' + Tools.replaceEPUBText(data.description),
       })
 
       jepub.uuid(novelURL)

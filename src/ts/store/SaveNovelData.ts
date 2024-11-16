@@ -71,7 +71,14 @@ class SaveNovelData {
         Utils.htmlToText(description)
       )
       const date = DateFormat.format(body.createDate, settings.dateFormat)
-      metaArr.push(title, user, pageUrl, date, metaDescription, tagsA.join('\n'))
+      metaArr.push(
+        title,
+        user,
+        pageUrl,
+        date,
+        metaDescription,
+        tagsA.join('\n')
+      )
       meta = metaArr.join('\n\n') + '\n\n\n'
 
       // 提取嵌入的图片资源

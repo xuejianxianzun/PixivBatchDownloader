@@ -6,14 +6,6 @@ TODO:日语文本需要加粗显示关键字，但是我不懂日语，所以现
 
 - 自动合并系列小说
 
-### 小说的测试用例
-
-含有 2 张内嵌图片的小说：
-https://www.pixiv.net/novel/show.php?id=21552226
-
-它之后更新的一篇有 26 张内嵌图片：
-https://www.pixiv.net/novel/show.php?id=21809989
-
 ## 17.2.0 2024/11/13
 
 ### ✨新增设置：下载间隔
@@ -30,8 +22,6 @@ https://www.pixiv.net/novel/show.php?id=21809989
 如果你担心因为下载文件太频繁导致账号被 Ban，可以设置大于 0 的数字，以缓解此问题。
 
 默认未启用（因为间隔时间默认是 0 秒）。
-
------------------
 
 #### 技术细节
 
@@ -90,6 +80,8 @@ html[data-xzpagetheme="white"] body .pbdHighlightFollowing {
 
 这些小图现在的选择器是 `div[size="112"]`。
 
+### 🐛修复了在大家的新作品页面里，显示更大的缩略图功能失效的问题
+
 ### 😄添加和优化了一些提示
 
 因为“预览搜索页面的筛选结果”不自动下载时，在抓取开始时显示一条提醒日志。
@@ -99,11 +91,13 @@ html[data-xzpagetheme="white"] body .pbdHighlightFollowing {
 - 还有些扩展会导致下载器不能开始下载。
 - 警告：频繁抓取和下载可能会导致你的账号被 Pixiv 封禁。
 
-另外还替换了 QQ 群号。之前的群爆了。
+另外还替换了 QQ 群号，之前的群爆了。
 
 ### 在小说的元数据里添加了发表日期
 
 我想查看发表日期时才发现元数据里没有包含发表日期。现在加上了。
+
+### 🕑更新了作品发布时间数据
 
 ## 17.1.4 2024/09/26
 
@@ -5826,7 +5820,7 @@ pixiv 并没有给小说作品提供一个 url 来下载这个小说，所以下
 现在把 `Settings` 类拆分成了两部分：
 
 1. 管理下载器设置的部分放在 `Settings` 类里
-2. 管理form 表单的部分放在 `FormSettings` 类里
+2. 管理 form 表单的部分放在 `FormSettings` 类里
 
 这解决了循环引用的问题，而且可以把其他选项都放入 `settings` 里了，用起来舒服多了。
 
@@ -5907,7 +5901,7 @@ ps：以前偶尔有用户说起过想要单独设置下载器的语言，但是
 
 此问题可简化为以下模型：
 
-```
+```js
 // 导出对象 a
 let a = {
   name: 'a'
@@ -5939,7 +5933,7 @@ console.log(b.name)
 
 把情况简化一下，假设有个函数，有 3 个参数作为判断条件，如果检查到某个参数为 false 就直接 resolve，不执行后续代码。那么下面的代码是错误的：
 
-```
+```js
 async function t(a, b, c) {
   return new Promise((resolve) => {
     if (!a) {
@@ -9479,3 +9473,11 @@ Viewerjs-mix.js [CSS part](https://github.com/fengyuanchen/viewerjs/blob/master/
 之前的下载方式和脚本版是一样的，点击 a 标签下载。现在为了能自动建立文件夹，改成了发送给 chrome 来下载。
 
 *早期的一些版本更新没有写日志*
+
+## 小说的测试用例
+
+含有 2 张内嵌图片的小说：
+https://www.pixiv.net/novel/show.php?id=21552226
+
+它后面的这篇小说有 26 张内嵌图片：
+https://www.pixiv.net/novel/show.php?id=21809989
