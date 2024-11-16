@@ -33,7 +33,7 @@ export interface NovelMeta {
 
 /**保存每个要下载的作品的信息。这是下载器内部保存的抓取结果 */
 export interface Result {
-  /**是否为 AI 创作。0 未知 1 否 2 是 */
+  /**是否为 AI 生成。0 未知 1 否 2 是 */
   aiType: 0 | 1 | 2
   /**作品的数字 id。这个属性不是唯一的，多图作品会产生多个抓取结果，它们的 idNum 是相同的 */
   idNum: number

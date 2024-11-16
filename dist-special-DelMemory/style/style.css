@@ -1456,22 +1456,21 @@
   font-size: 16px;
   border-radius: 8px;
 }
-#logWrap {
+.logWrap {
   position: relative;
   z-index: 1;
   width: 100%;
-  height: 200px;
-  padding: 10px 0;
-  background: #fff;
   color: #333;
+  background: #fff;
 }
 .logContent {
-  height: 100%;
-  margin: 0 auto;
-  font-size: 14px;
   width: 100%;
   max-width: 950px;
-  overflow-y: auto;
+  max-height: 200px;
+  overflow-y: scroll;
+  margin: 0 auto;
+  padding: 10px 0;
+  font-size: 14px;
 }
 .logContent br {
   display: inline;
@@ -1479,22 +1478,22 @@
 .logContent a {
   color: #0ea8ef;
 }
-.theme-dark#logWrap {
+.theme-dark.logWrap {
   background: #222;
   color: #fff;
 }
-.xzBG#logWrap {
+.xzBG.logWrap {
   background: #222;
   color: #fff;
   text-shadow: #003247 0px 0px 2px;
 }
-.xzBG#logWrap .logContent * {
+.xzBG.logWrap .logContent * {
   color: #fff !important;
 }
-.xzBG#logWrap .xzBGLayer {
+.xzBG.logWrap .xzBGLayer {
   filter: blur(2px);
 }
-#logWrap.mobile {
+.logWrap.mobile {
   font-size: 16px;
   font-family: sans-serif;
   padding: 10px 10px;
@@ -1534,6 +1533,7 @@
 .xz_msg_box .btn {
   cursor: pointer;
   background: #0ea8ef;
+  box-shadow: #2ca6df 0px 0px 2px;
   color: #fff;
   border: none;
   text-align: center;

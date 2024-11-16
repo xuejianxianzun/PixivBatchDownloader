@@ -18,6 +18,7 @@ class ArtworkThumbnail extends WorkThumbnail {
         'div[width="288"]',
         'div[width="184"]',
         'div[size="184"]',
+        'div[size="112"]',
         'div[width="112"]',
         'div[width="104"]',
         'div[width="90"]',
