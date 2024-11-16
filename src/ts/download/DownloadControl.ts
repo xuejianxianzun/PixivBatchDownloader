@@ -427,7 +427,9 @@ class DownloadControl {
 
     // 建立并发下载线程
     for (let i = 0; i < this.thread; i++) {
-      this.createDownload(i)
+      window.setTimeout(() => {
+        this.createDownload(i)
+      }, 0)
     }
 
     log.success(lang.transl('_正在下载中'))

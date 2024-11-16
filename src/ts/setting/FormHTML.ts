@@ -1,6 +1,6 @@
 import { Config } from '../Config'
 
-// 目前设置项的最大编号是 89
+// 目前设置项的最大编号是 90
 export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -536,12 +536,12 @@ export const formHtml = `<form class="settingForm">
     
     <span class="subOptionWrap" data-show="slowCrawl">
     <span data-xztext="_当作品数量大于"></span>
-    <input type="text" name="slowCrawlOnWorksNumber" class="setinput_style1 blue" value="100" style="width:60px;min-width: 60px;">
+    <input type="text" name="slowCrawlOnWorksNumber" class="setinput_style1 blue" value="100">
 
     <span class="verticalSplit"></span>
 
     <span data-xztext="_间隔时间"></span>
-    <input type="text" name="slowCrawlDealy" class="setinput_style1 blue" value="1600" placeholder="1600" style="width:60px;min-width: 60px;"> ms
+    <input type="text" name="slowCrawlDealy" class="setinput_style1 blue" value="1600" placeholder="1600"> ms
 
     </span>
 
@@ -751,6 +751,23 @@ export const formHtml = `<form class="settingForm">
 
     <p class="option settingCategoryName" data-no="58">
       <span data-xztext="_下载"></span>
+    </p>
+
+    <p class="option" data-no="90">
+    <span class="has_tip settingNameStyle1"  data-xztip="_下载间隔的说明">
+    <span data-xztext="_下载间隔"></span>
+    <span class="gray1"> ? </span>
+    </span>
+    
+    <span data-xztext="_当作品数量大于"></span>
+    <input type="text" name="downloadIntervalOnWorksNumber" class="setinput_style1 blue" value="120">
+
+    <span class="verticalSplit"></span>
+
+    <span data-xztext="_间隔时间"></span>
+    <input type="text" name="downloadInterval" class="setinput_style1 blue" value="0">
+    <span data-xztext="_秒"></span>
+    </span>
     </p>
     
     <p class="option" data-no="76">

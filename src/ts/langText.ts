@@ -1185,13 +1185,33 @@ Chrono Download Manager, Image Downloader 등`,
 При возникновении этой проблемы, пожалуйста, отключите другие расширения, которые имеют функцию загрузки файлов. Например: <br>
 Chrono Download Manager, Image Downloader и т. д.`,
   ],
+  _账户可能被封禁的警告: [
+    `<strong>警告</strong>：频繁和大量的抓取（和下载）可能会导致你的 Pixiv 账号被封禁。<br>
+多数用户不会遇到这个情况，而且下载器默认会减慢抓取的速度。但如果你的账户被封禁，下载器不会承担任何责任。<br>
+如果你计划进行大量的下载，可以考虑注册 Pixiv 小号。<br><br>`,
+    `<strong>警告</strong>：頻繁和大量的抓取（和下載）可能會導致你的 Pixiv 賬號被封禁。<br>
+多數使用者不會遇到這個情況，而且下載器預設會減慢抓取的速度。但如果你的賬戶被封禁，下載器不會承擔任何責任。<br>
+如果你計劃進行大量的下載，可以考慮註冊 Pixiv 小號。<br><br>`,
+    `<strong>Warning</strong>: Frequent and heavy scraping (and downloading) may result in your Pixiv account being banned. <br>
+Most users will not encounter this, and the downloader will slow down scraping by default. However, the downloader will not be held responsible if your account is banned. <br>
+If you plan to do a lot of downloading, consider signing up for a secondary Pixiv account. <br><br>`,
+    `<strong>警告</strong>: 頻繁かつ大量のスクレイピング (およびダウンロード) を行うと、Pixiv アカウントが禁止される可能性があります。 <br>
+ほとんどのユーザーはこの状況に遭遇することはなく、ダウンローダーはデフォルトでクロールを遅くします。ただし、アカウントが禁止された場合、ダウンローダーは責任を負いません。 <br>
+大量のダウンロードを行う予定がある場合は、Pixiv アカウントへのサインアップを検討してください。 <br><br>`,
+    `<strong>경고</strong>: 빈번하고 많은 양의 스크래핑(및 다운로드)을 수행하면 Pixiv 계정이 금지될 수 있습니다. <br>
+대부분의 사용자는 이러한 상황을 겪지 않으며 다운로더는 기본적으로 크롤링 속도를 늦춥니다. 그러나 귀하의 계정이 금지된 경우 다운로더는 책임을 지지 않습니다. <br>
+다운로드를 많이 할 계획이라면 Pixiv 계정에 가입하는 것을 고려해 보세요. <br><br>`,
+    `<strong>Внимание</strong>. Частое и массовое сканирование (и загрузка) может привести к блокировке вашей учетной записи Pixiv. <br>
+Большинство пользователей не столкнутся с такой ситуацией, и загрузчик по умолчанию замедлит сканирование. Но загрузчик не будет нести ответственности, если ваша учетная запись будет заблокирована. <br>
+Если вы планируете загружать много файлов, рассмотрите возможность регистрации учетной записи Pixiv. <br><br>`,
+  ],
   _常见问题说明: [
-    '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>下载器 QQ 群：499873152<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
-    '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。',
-    'The downloaded file is saved in the browsers download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.<br><br>If your browser stops responding at startup, you can clear your browser`s download history.',
-    'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。',
-    '다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.<br><br>시작 시 브라우저가 응답하지 않으면 브라우저의 다운로드 기록을 지울 수 있습니다.',
-    'Загруженный файл сохраняется в каталоге загрузки браузеров. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>Если имя файла после загрузки является ненормальным, отключите другие расширения браузера, которые имеют возможности загрузки.<br><br>Если ваш браузер перестает отвечать на запросы при запуске, вы можете очистить историю загрузок вашего браузера.',
+    '下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>还有些扩展会导致下载器不能开始下载。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>下载器 QQ 群：675174717<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a><br><br>',
+    '下載的檔案儲存在瀏覽器的下載目錄裡。如果你想儲存到其他位置，需要修改瀏覽器的下載目錄。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br>還有些擴充套件會導致下載器不能開始下載。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。<br><br>',
+    `The downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download location. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser\`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities. <br>There are also some extensions that can prevent the downloader from starting the download.<br><br>If your browser stops responding at startup, you can clear your browser\`s download history.<br><br>`,
+    'ダウンロードされたファイルはブラウザのダウンロード ディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロード場所を変更する必要があります。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br>ダウンローダーがダウンロードを開始するのを妨げる拡張機能もいくつかあります。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。<br><br>',
+    '다운로드한 파일은 브라우저의 다운로드 디렉터리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 위치를 수정해야 합니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요. <br>다운로더가 다운로드를 시작하지 못하게 막는 몇 가지 확장 프로그램도 있습니다.<br><br>시작 시 브라우저가 응답하지 않으면 브라우저의 다운로드 기록을 지울 수 있습니다.<br><br>',
+    'Загруженный файл сохраняется в каталоге загрузки браузера. Если вы хотите сохранить в другое место, вам необходимо изменить место загрузки браузера. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>Если имя файла после загрузки является ненормальным, отключите другие расширения браузера, которые имеют возможности загрузки. <br>Существуют также некоторые расширения, которые могут помешать загрузчику начать загрузку.<br><br>Если ваш браузер перестает отвечать на запросы при запуске, вы можете очистить историю загрузок вашего браузера.<br><br>',
   ],
   _正在下载中: [
     '正在下载中',
@@ -1733,6 +1753,14 @@ Chrono Download Manager, Image Downloader и т. д.`,
     'ダウンローダーは、対象となる作品を現在のページに表示し、コレクション数に応じて上位から下位に並べ替えることができます。<br>クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。<br>プレビュー機能を有効にすると、ダウンロードは自動的に開始されません。',
     '다운로더는 현재 페이지에 적합한 작품을 표시하고 컬렉션 수에 따라 높은 순으로 정렬할 수 있습니다.<br>긁어오기 결과가 너무 많아서 페이지가 충돌하면 이 기능을 꺼주세요.<br> 미리보기를 사용하면 다운로드가 자동으로 시작되지 않습니다.',
     'Загрузчик может отображать подходящие произведения на текущей странице и сортировать их по возрастанию в зависимости от количества коллекций.<br>Пожалуйста, отключите эту функцию, если слишком большое количество результатов просмотра приводит к сбою страницы.<br>Загрузчик не начинает автоматическую загрузку, если включена функция предварительного просмотра.',
+  ],
+  _提示启用预览搜索页面的筛选结果时不会自动开始下载: [
+    '由于启用了“预览搜索页面的筛选结果”，本次抓取完成后，下载器不会自动开始下载。<br>这是为了让用户可以在抓取后进一步筛选抓取结果。',
+    '由於啟用了“預覽搜尋頁面的篩選結果”，本次抓取完成後，下載器不會自動開始下載。<br>這是為了讓使用者可以在抓取後進一步篩選抓取結果。',
+    'Since "Preview filter results of search page" is enabled, the downloader will not automatically start downloading after this crawl is completed.<br>This is to allow users to further filter the crawl results after the crawl.',
+    '「検索ページのフィルター結果のプレビュー」が有効になっているため、このクロールが完了した後、ダウンローダーは自動的にダウンロードを開始しません。 <br>これは、ユーザーがクロール後にクロール結果をさらにフィルタリングできるようにするためです。',
+    `'검색 페이지 필터 결과 미리보기'가 활성화되어 있으므로 크롤링이 완료된 후 다운로더가 자동으로 다운로드를 시작하지 않습니다. <br>이는 사용자가 크롤링 후 크롤링 결과를 추가로 필터링할 수 있도록 하기 위한 것입니다.`,
+    'Поскольку функция «Предварительный просмотр результатов фильтра страницы поиска» включена, загрузчик не начнет загрузку автоматически после завершения сканирования. <br>Это позволит пользователям дополнительно фильтровать результаты сканирования после сканирования.',
   ],
   _目录名使用: [
     '目录名使用：',
@@ -2705,12 +2733,12 @@ Chrono Download Manager, Image Downloader и т. д.`,
     'На этот раз запрос начал помещаться в очередь.',
   ],
   _HowToUse: [
-    '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>下载器默认开启了一些增强功能，这可能导致 Pixiv 页面样式改变。你可以在下载器的“更多”标签页中开启或关闭这些功能。',
-    '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>下載器預設開啟了一些增強功能，這可能導致 Pixiv 頁面樣式改變。你可以在下載器的“更多”標籤頁中開啟或關閉這些功能。',
-    'Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>The downloader has some enhancements turned on by default, which may cause changes in the style of Pixiv pages. You can turn these features on or off in the "More" tab of the downloader.',
-    'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンローダーにはデフォルトでいくつかの機能拡張が有効になっており、これにより Pixiv ページのスタイルが変更される可能性があります。 これらの機能は、ダウンローダーの「その他」タブでオンまたはオフにできます。',
-    '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.<br><br>다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로더에는 기본적으로 몇 가지 향상된 기능이 켜져 있으며 이로 인해 Pixiv 페이지 스타일이 변경될 수 있습니다. 다운로더의 "더 보기" 탭에서 이러한 기능을 켜거나 끌 수 있습니다.',
-    'Нажмите синюю кнопку в правой части страницы, чтобы открыть панель загрузчика.<br><br>Загруженный файл сохраняется в каталоге загрузки браузера. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>В загрузчике по умолчанию включены некоторые улучшения, которые могут привести к изменению стиля страниц Pixiv. Вы можете включить или отключить эти функции на вкладке «Дополнительно» загрузчика.',
+    '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>下载器默认开启了一些增强功能，这可能会导致 Pixiv 的一些页面样式产生变化。你可以在下载器的“更多”标签页中开启或关闭这些功能。<br><br>',
+    '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。如果你想儲存到其他位置，需要修改瀏覽器的下載目錄。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>下載器預設開啟了一些增強功能，這可能會導致 Pixiv 的一些頁面樣式產生變化。你可以在下載器的“更多”標籤頁中開啟或關閉這些功能。<br><br>',
+    `Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download location. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser\`s download settings.<br><br>The downloader has some enhancements turned on by default, which may cause changes in the style of Pixiv pages. You can turn these features on or off in the "More" tab of the downloader.<br><br>`,
+    'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードされたファイルはブラウザのダウンロード ディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロード場所を変更する必要があります。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンローダーにはデフォルトでいくつかの機能拡張が有効になっており、これにより Pixiv ページのスタイルが変更される可能性があります。 これらの機能は、ダウンローダーの「その他」タブでオンまたはオフにできます。<br><br>',
+    '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.<br><br>다운로드한 파일은 브라우저의 다운로드 디렉터리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 위치를 수정해야 합니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로더에는 기본적으로 몇 가지 향상된 기능이 켜져 있으며 이로 인해 Pixiv 페이지 스타일이 변경될 수 있습니다. 다운로더의 "더 보기" 탭에서 이러한 기능을 켜거나 끌 수 있습니다.<br><br>',
+    'Нажмите синюю кнопку в правой части страницы, чтобы открыть панель загрузчика.<br><br>Загруженный файл сохраняется в каталоге загрузки браузера. Если вы хотите сохранить в другое место, вам необходимо изменить место загрузки браузера.<br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>В загрузчике по умолчанию включены некоторые улучшения, которые могут привести к изменению стиля страниц Pixiv. Вы можете включить или отключить эти функции на вкладке «Дополнительно» загрузчика.<br><br>',
   ],
   _我知道了: ['我知道了', '我知道了', 'OK', '分かりました', '확인', 'Ок'],
   _背景图片: [
@@ -2764,12 +2792,12 @@ Chrono Download Manager, Image Downloader и т. д.`,
     'Создать папку с первым совпавшим <span class="key">тегом</span>',
   ],
   _使用匹配的tag建立文件夹的说明: [
-    '如果作品的标签列表里含有用户设置的标签，就会使用这个标签建立文件夹（仅限第一个）',
-    '如果作品的標籤列表裡含有使用者設定的標籤，就會使用這個標籤建立資料夾（僅限第一個）',
-    'If the tag list of the work contains a tag set by the user, this tag will be used to create a folder (only the first one)',
-    '作品のタグリストにユーザーが設定したタグが含まれている場合、そのタグを使用してフォルダが作成されます。(最初の1つだけ)',
-    '작품의 태그에 유저가 설정한 태그가 포함되어 있다면, 태그를 사용하여 디렉토리를 생성합니다. (첫 번째 태그만 해당)',
-    'Если в списке тегов работы есть тег, заданный пользователем, этот тег будет использован для создания папки (только первой)',
+    '如果作品的标签列表里含有用户设置的标签，就会使用这个标签建立文件夹（仅限第一个匹配到的标签）',
+    '如果作品的標籤列表裡含有使用者設定的標籤，就會使用這個標籤建立資料夾（僅限第一個匹配到的標籤）',
+    'If the tag list of the work contains a tag set by the user, this tag will be used to create a folder (Only the first matching tag)',
+    '作品のタグリストにユーザーが設定したタグが含まれている場合、そのタグを使用してフォルダが作成されます。(最初に一致するタグのみ)',
+    '작품의 태그에 유저가 설정한 태그가 포함되어 있다면, 태그를 사용하여 디렉토리를 생성합니다. (첫 번째 일치하는 태그만)',
+    'Если в списке тегов работы есть тег, заданный пользователем, этот тег будет использован для создания папки (Только первый совпадающий тег)',
   ],
   _全年龄: [
     '全年龄',
@@ -3201,13 +3229,13 @@ Chrono Download Manager, Image Downloader и т. д.`,
     中国大陆用户可以在“爱发电”上赞助我：<br>
     <a href="https://afdian.com/a/xuejianxianzun" target="_blank">https://afdian.com/a/xuejianxianzun</a><br><br>
     也可以扫描二维码：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a>。
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a>
     `,
     `如果您覺得這個工具對您有幫助，可以考慮贊助我，謝謝！<br>
     您可以在 Patreon 上贊助我：<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br><br>
     中國大陸使用者可以在“愛發電”上贊助我：<br>
-    <a href="https://afdian.com/a/xuejianxianzun" target="_blank">https://afdian.com/a/xuejianxianzun</a>。
+    <a href="https://afdian.com/a/xuejianxianzun" target="_blank">https://afdian.com/a/xuejianxianzun</a>
     `,
     `If you find this tool helpful, please consider sponsoring me, thank you!<br>
     You can sponsor me on Patreon: <br>
@@ -4738,6 +4766,41 @@ Chrono Download Manager, Image Downloader и т. д.`,
     'このタブにはすでにクロール結果があります。クロールを再開すると、これらのクロール結果は消去されます。 \nクロールを再開するかどうかを確認してください?',
     '이 탭에는 이미 크롤링 결과가 있습니다. 크롤링을 다시 시작하면 크롤링 결과가 지워집니다. \n크롤링을 다시 시작할 것인지 확인해주세요.',
     'На этой вкладке уже есть результаты сканирования. При перезапуске сканирования эти результаты будут удалены. \nПодтвердите, хотите ли вы возобновить сканирование?',
+  ],
+  _下载间隔: [
+    '下载<span class="key">间隔</span>',
+    '下載<span class="key">間隔</span>',
+    'Download <span class="key">interval</span>',
+    'ダウンロード<span class="key">間隔</span>',
+    '다운로드 <span class="key">간격</span>',
+    '<span class="key">Интервал</span> загрузки',
+  ],
+  _秒: ['秒', '秒', 'seconds', '秒', '초', 'секунд'],
+  _下载间隔的说明: [
+    `每隔一定时间开始一次下载。<br>
+默认值为 0，即无限制。<br>
+如果设置为 1 秒钟，那么每小时最多会从 Pixiv 下载 3600 个文件。<br>
+如果你担心因为下载文件太频繁导致账号被 Ban，可以设置大于 0 的数字，以缓解此问题。<br>`,
+    `每隔一定時間開始一次下載。<br>
+預設值為 0，即無限制。<br>
+如果設定為 1 秒鐘，那麼每小時最多會從 Pixiv 下載 3600 個檔案。<br>
+如果你擔心因為下載檔案太頻繁導致賬號被 Ban，可以設定大於 0 的數字，以緩解此問題。<br>`,
+    `Start a download every certain time. <br>
+The default value is 0, which means no limit. <br>
+If set to 1 second, a maximum of 3,600 files will be downloaded from Pixiv per hour. <br>
+If you are worried that your account will be banned due to downloading files too frequently, you can set a number greater than 0 to alleviate this problem. <br>`,
+    `一定時間ごとにダウンロードを開始します。<br>
+デフォルト値は 0 で、制限なしを意味します。<br>
+1 秒に設定すると、Pixiv から 1 時間あたり最大 3,600 ファイルがダウンロードされます。<br>
+頻繁にファイルをダウンロードしすぎてアカウントが禁止されるのではないかと心配な場合は、0 より大きい数値を設定することでこの問題を軽減できます。<br>`,
+    `특정 시간마다 다운로드를 시작합니다. <br>
+기본값은 0으로, 제한이 없음을 의미합니다. <br>
+1초로 설정하면 Pixiv에서 시간당 최대 3,600개의 파일이 다운로드됩니다. <br>
+파일을 너무 자주 다운로드해서 계정이 금지될까 걱정된다면 0보다 큰 숫자를 설정하여 이 문제를 완화할 수 있습니다. <br>`,
+    `Начинать загрузку каждый определенный момент времени. <br>
+Значение по умолчанию — 0, что означает отсутствие ограничений. <br>
+Если установлено значение 1 секунда, с Pixiv будет загружено максимум 3600 файлов в час. <br>
+Если вы беспокоитесь, что ваш аккаунт будет заблокирован из-за слишком частой загрузки файлов, вы можете установить число больше 0, чтобы решить эту проблему. <br>`,
   ],
   _更新说明v1714: [
     '修复了发现（discovery）页面里的一些问题',

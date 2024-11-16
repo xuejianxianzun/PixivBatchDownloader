@@ -12,7 +12,7 @@ import { WorkTypeString } from '../store/StoreType'
 
 /** 过滤选项，其中所有字段都是可选的 */
 export interface FilterOption {
-  /**是否为 AI 创作。0 未知 1 否 2 是 */
+  /**是否为 AI 生成。0 未知 1 否 2 是 */
   aiType?: 0 | 1 | 2
   id?: number | string
   /**作品类型

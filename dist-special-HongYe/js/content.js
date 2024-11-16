@@ -376,6 +376,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 'div[width="288"]',
                 'div[width="184"]',
                 'div[size="184"]',
+                'div[size="112"]',
                 'div[width="112"]',
                 'div[width="104"]',
                 'div[width="90"]',
@@ -999,7 +1000,7 @@ class CenterPanel {
             }
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, () => {
-            _ShowHelp__WEBPACK_IMPORTED_MODULE_10__.showHelp.show('tipHowToUse', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_HowToUse'));
+            _ShowHelp__WEBPACK_IMPORTED_MODULE_10__.showHelp.show('tipHowToUse', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_HowToUse') + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_账户可能被封禁的警告'));
         });
         // 使用快捷键 Alt + x 切换中间面板显示隐藏
         window.addEventListener('keydown', (ev) => {
@@ -1043,7 +1044,7 @@ class CenterPanel {
         this.centerPanel
             .querySelector('#showDownTip')
             .addEventListener('click', () => {
-            let msg = _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_常见问题说明');
+            let msg = _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_常见问题说明') + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_账户可能被封禁的警告');
             if (_Config__WEBPACK_IMPORTED_MODULE_4__.Config.mobile) {
                 msg =
                     msg + '<br><br>' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_Kiwi浏览器可能不能建立文件夹的bug');
@@ -4669,13 +4670,15 @@ __webpack_require__.r(__webpack_exports__);
 // 日志
 class Log {
     constructor() {
-        this.id = 'logWrap'; // 日志区域元素的 id
-        this.wrap = document.createElement('div'); // 日志容器的区域
-        this.logArea = document.createElement('div'); // 日志主体区域
-        // 会刷新的日志所使用的元素，可以传入 flag 来设置多条用于刷新日志的元素
+        this.wrap = document.createElement('div'); // 日志容器的区域，当日志条数很多时，会产生多个日志容器
+        this.activeLogWrapID = 'logWrap';
+        this.logWrapClassName = 'logWrap';
+        this.logContent = document.createElement('div'); // 日志主体区域，这个指针始终指向最新的那个日志容器内部
+        /**会刷新的日志所使用的元素，可以传入 flag 来设置多条用于刷新日志的元素 */
         this.refresh = {
             default: document.createElement('span'),
         };
+        /**不同日志等级的字体颜色 */
         this.levelColor = [
             'inherit',
             _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textSuccess,
@@ -4683,13 +4686,16 @@ class Log {
             '#E95701',
             _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textError,
         ];
-        this.max = 300;
+        /**每个日志区域允许显示多少条日志 */
+        this.max = 100;
+        /**日志条数。刷新的日志不会计入 */
         this.count = 0;
+        /** 保存日志历史。刷新的日志不会保存 */
         this.record = [];
         this.toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
         this.scrollToBottom();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.clearLog, () => {
-            this.clear();
+            this.remove();
         });
         const clearRecordEvents = [_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.clearLog, _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop];
         clearRecordEvents.forEach((evt) => {
@@ -4714,7 +4720,7 @@ class Log {
     str 日志文本
     level 日志等级
     br 换行标签的个数
-    keepShow 追加日志的模式，默认为 true，把这一条日志添加后不再修改。false 则是刷新显示这条消息。
+    keepShow 是否为持久日志。默认为 true，把这一条日志添加后不再修改。false 则会刷新显示这条日志。
   
     level 日志等级：
     0 normal
@@ -4735,6 +4741,13 @@ class Log {
         }
         else {
             this.count++;
+            // 如果页面上的日志条数超过指定数量，则生成一个新的日志区域
+            // 因为日志数量太多的话会占用很大的内存。同时显示 8000 条日志可能占用接近 1 GB 的内存
+            if (this.count >= this.max) {
+                // 移除 id 属性，下次输出日志时查找不到日志区域，就会新建一个
+                this.wrap.removeAttribute('id');
+                this.count = 0;
+            }
         }
         span.innerHTML = str;
         span.style.color = this.levelColor[level];
@@ -4742,7 +4755,7 @@ class Log {
             span.appendChild(document.createElement('br'));
             br--;
         }
-        this.logArea.appendChild(span);
+        this.logContent.appendChild(span);
         this.toBottom = true; // 需要把日志滚动到底部
         // 把持久日志保存到记录里
         if (keepShow) {
@@ -4771,45 +4784,37 @@ class Log {
     }
     checkElement() {
         // 如果日志区域没有被添加到页面上，则添加
-        let test = document.getElementById(this.id);
+        let test = document.getElementById(this.activeLogWrapID);
         if (test === null) {
             this.wrap = document.createElement('div');
-            this.wrap.id = this.id;
-            this.logArea = document.createElement('div');
-            this.logArea.classList.add('beautify_scrollbar', 'logContent');
+            this.wrap.id = this.activeLogWrapID;
+            this.wrap.classList.add(this.logWrapClassName);
+            this.logContent = document.createElement('div');
+            this.logContent.classList.add('beautify_scrollbar', 'logContent');
             if (_Config__WEBPACK_IMPORTED_MODULE_10__.Config.mobile) {
                 this.wrap.classList.add('mobile');
             }
-            this.wrap.append(this.logArea);
+            this.wrap.append(this.logContent);
             document.body.insertAdjacentElement('beforebegin', this.wrap);
             _Theme__WEBPACK_IMPORTED_MODULE_1__.theme.register(this.wrap);
             // 虽然可以应用背景图片，但是由于日志区域比较狭长，背景图片的视觉效果不佳，看起来比较粗糙，所以还是不应用背景图片了
             // bg.useBG(this.wrap, 0.9)
         }
-        // 如果页面上的日志条数超过指定数量，则清空
-        // 因为日志数量太多的话会占用很大的内存。同时显示 8000 条日志可能占用接近 1 GB 的内存
-        if (this.count > this.max) {
-            this.clear();
-        }
     }
-    /**移除日志区域 */
+    /**移除所有日志区域 */
     remove() {
         this.count = 0;
-        this.wrap.remove();
-    }
-    /**清空显示的日志内容 */
-    clear() {
-        this.count = 0;
-        this.logArea.innerHTML = '';
+        const allLogWrap = document.querySelectorAll(`.${this.logWrapClassName}`);
+        allLogWrap.forEach((wrap) => wrap.remove());
     }
     // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部
     scrollToBottom() {
         window.setInterval(() => {
             if (this.toBottom) {
-                this.logArea.scrollTop = this.logArea.scrollHeight;
+                this.logContent.scrollTop = this.logContent.scrollHeight;
                 this.toBottom = false;
             }
-        }, 800);
+        }, 500);
     }
     export() {
         const data = [];
@@ -8493,20 +8498,29 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.1.4';
+        this.flag = '17.2.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_更新说明v1714')}</span>
+            let msg = `<strong><span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增设置项')}: </span><span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载间隔')}</span></strong>
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载'))}
+      <br>
+      <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载间隔的说明')}</span>
+      <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
+      <br>
+      <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_其他优化')}</span>
       `;
-            // <strong><span>${lang.transl('_新增功能')}:</span></strong>
-            // <span class="blue">${lang.transl('_保存作品的简介')}</span>
+            // <strong><span>${lang.transl('_新增设置项')}:</span></strong>
+            // <span class="blue">${lang.transl('_下载间隔')}</span>
             // ${lang.transl(
             //   '_你可以在更多选项卡的xx分类里找到它',
-            //   lang.transl('_增强')
+            //   lang.transl('_下载')
             // )}
             // <br>
             // <span>${lang.transl('_优化性能和用户体验')}</span>
@@ -8699,6 +8713,7 @@ class Theme {
         this.htmlFlagMap = new Map([
             ['', 'white'],
             ['default', 'white'],
+            ['light', 'white'],
             ['dark', 'dark'],
         ]);
         this.elList = []; // 保存已注册的元素
@@ -8773,7 +8788,7 @@ class Theme {
             // 从含有 pixiv 主题标记的元素里获取主题
             const el = document.querySelector(this.selector);
             if (el) {
-                const pageTheme = this.htmlFlagMap.get(el.textContent);
+                const pageTheme = this.htmlFlagMap.get(el.textContent) || 'white';
                 _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('getPageTheme', pageTheme);
                 return pageTheme || this.defaultTheme;
             }
@@ -12051,6 +12066,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.crawlNumber = this.checkWantPageInput(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始下载x页'), _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载所有页面'));
     }
     async nextStep() {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.previewResult) {
+            _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示启用预览搜索页面的筛选结果时不会自动开始下载'));
+        }
         this.setSlowCrawl();
         this.initFetchURL();
         // 计算应该抓取多少页
@@ -15586,7 +15604,7 @@ class InitPageBase {
         // 切换页面时，如果任务已经完成，则移除日志区域
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('clearLogAfterPageSwitch', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.pageSwitch, () => {
             if (!_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.remove();
+                _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
             }
         });
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('crawlCompleteTime', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.crawlComplete, () => {
@@ -16754,7 +16772,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DownloadNovelCover__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./DownloadNovelCover */ "./src/ts/download/DownloadNovelCover.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
 /* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/download/DownloadStates.ts");
+/* harmony import */ var _DownloadInterval__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./DownloadInterval */ "./src/ts/download/DownloadInterval.ts");
 // 下载文件，然后发送给浏览器进行保存
+
 
 
 
@@ -16898,15 +16918,20 @@ class Download {
         // 下载文件
         let url;
         if (arg.result.type === 3) {
-            // 生成小说的文件
+            // 小说
             if (arg.result.novelMeta) {
-                if (arg.result.novelMeta?.coverUrl) {
+                // 下载小说的封面图片
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadNovelCoverImage &&
+                    arg.result.novelMeta?.coverUrl) {
+                    await _DownloadInterval__WEBPACK_IMPORTED_MODULE_19__.downloadInterval.wait();
                     await _DownloadNovelCover__WEBPACK_IMPORTED_MODULE_16__.downloadNovelCover.download(arg.result.novelMeta.coverUrl, _fileName, 'downloadNovel');
                 }
+                // 生成小说文件
+                // 另外，如果小说保存为 EPUB 格式，此步骤里会下载内嵌的图片
+                // 并且会再次下载小说的封面图（因为要嵌入到 EPUB 文件里）
                 let blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_9__.MakeNovelFile.make(arg.result.novelMeta);
                 url = URL.createObjectURL(blob);
-                // 当小说保存为 txt 格式时，在这里下载内嵌的图片。
-                // 如果是保存为 EPUB 格式，那么在 MakeNovelFile.make 里会保存图片
+                // 如果小说保存为 TXT 格式，在这里下载内嵌的图片
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.novelSaveAs === 'txt') {
                     await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_15__.downloadNovelEmbeddedImage.TXT(arg.result.novelMeta.id, arg.result.novelMeta.content, arg.result.novelMeta.embeddedImages, _fileName);
                 }
@@ -16918,6 +16943,7 @@ class Download {
         else {
             // 对于图像作品，如果设置了图片尺寸就使用指定的 url，否则使用原图 url
             url = arg.result[_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.imageSize] || arg.result.original;
+            await _DownloadInterval__WEBPACK_IMPORTED_MODULE_19__.downloadInterval.wait();
         }
         let xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
@@ -17413,7 +17439,9 @@ class DownloadControl {
         _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('downloadStart');
         // 建立并发下载线程
         for (let i = 0; i < this.thread; i++) {
-            this.createDownload(i);
+            window.setTimeout(() => {
+                this.createDownload(i);
+            }, 0);
         }
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_正在下载中'));
         if (_Config__WEBPACK_IMPORTED_MODULE_15__.Config.mobile) {
@@ -17607,6 +17635,102 @@ new DownloadControl();
 
 /***/ }),
 
+/***/ "./src/ts/download/DownloadInterval.ts":
+/*!*********************************************!*\
+  !*** ./src/ts/download/DownloadInterval.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   downloadInterval: () => (/* binding */ downloadInterval)
+/* harmony export */ });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+
+
+
+
+
+class DownloadInterval {
+    constructor() {
+        /**允许开始下载的时间戳 */
+        // 不管设置里的值是多少，初始值都是 0，即允许第一次下载立即开始
+        // 在开始下载第一个文件后，才会有实际的值
+        this.allowDownloadTime = 0;
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'downloadInterval') {
+                if (data.value === 0) {
+                    this.reset();
+                }
+            }
+        });
+        const resetEvents = [
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStart,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadPause,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadComplete,
+        ];
+        resetEvents.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.reset();
+            });
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStart, () => {
+            // 在开始下载时，如果应用了间隔时间，则显示一条日志提醒
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadIntervalOnWorksNumber &&
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadInterval > 0) {
+                const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_下载间隔') +
+                    `: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadInterval} ` +
+                    _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_秒');
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(msg, 1, false, 'downloadInterval');
+            }
+        });
+    }
+    reset() {
+        this.allowDownloadTime = 0;
+    }
+    addTime() {
+        this.allowDownloadTime =
+            new Date().getTime() + _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadInterval * 1000;
+    }
+    wait() {
+        return new Promise(async (resolve) => {
+            // 首先检查此设置不应该生效的情况，立即放行
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadInterval === 0 ||
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length <= _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadIntervalOnWorksNumber) {
+                return resolve(true);
+            }
+            // 可以立即开始下载
+            if (new Date().getTime() >= this.allowDownloadTime) {
+                this.addTime();
+                return resolve(true);
+            }
+            // 需要等待
+            const timer = window.setInterval(() => {
+                if (new Date().getTime() >= this.allowDownloadTime) {
+                    window.clearInterval(timer);
+                    this.addTime();
+                    return resolve(true);
+                }
+            }, 50);
+        });
+    }
+}
+const downloadInterval = new DownloadInterval();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/download/DownloadNovelCover.ts":
 /*!***********************************************!*\
   !*** ./src/ts/download/DownloadNovelCover.ts ***!
@@ -17619,9 +17743,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 
 
 
@@ -17631,16 +17753,13 @@ class DownloadNovelCover {
      * 默认是正常下载小说的情况，可以设置为合并系列小说的情况
      */
     async download(coverURL, novelName, action = 'downloadNovel') {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.downloadNovelCoverImage || !coverURL) {
-            return;
-        }
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载封面图片'), 1, false, 'downloadNovelCover');
         const url = await this.getCoverBolbURL(coverURL);
-        let coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.replaceSuffix(novelName, coverURL);
+        let coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceSuffix(novelName, coverURL);
         // 合并系列小说时，文件直接保存在下载目录里，封面图片也保存在下载目录里
         // 所以要替换掉封面图路径里的斜线
         if (action === 'mergeNovel') {
-            coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.replaceUnsafeStr(coverName);
+            coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(coverName);
         }
         this.sendDownload(url, coverName);
     }
@@ -17686,6 +17805,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./DownloadInterval */ "./src/ts/download/DownloadInterval.ts");
+
 
 
 
@@ -17714,6 +17835,7 @@ class DownloadNovelEmbeddedImage {
                 _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(`image ${image.id} not found`);
                 continue;
             }
+            await _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__.downloadInterval.wait();
             image = await this.getImageBlobURL(image);
             let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceSuffix(novelName, image.url);
             // 在文件名末尾加上内嵌图片的 id 和序号
@@ -18871,6 +18993,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DownloadNovelEmbeddedImage */ "./src/ts/download/DownloadNovelEmbeddedImage.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./DownloadInterval */ "./src/ts/download/DownloadInterval.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+
+
 
 
 
@@ -18902,11 +19028,13 @@ class MakeNovelFile {
             const title = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(data.title));
             const novelURL = `https://www.pixiv.net/novel/show.php?id=${data.id}`;
             // 开始生成 EPUB 文件
+            await _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__.downloadInterval.wait();
             const cover = await fetch(data.coverUrl).then((response) => {
                 if (response.ok)
                     return response.arrayBuffer();
                 throw 'Network response was not ok.';
             });
+            const date = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_7__.DateFormat.format(data.createDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat);
             const jepub = new jEpub();
             jepub.init({
                 i18n: _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.type,
@@ -18924,8 +19052,8 @@ class MakeNovelFile {
                 // description 的内容会被添加到 book.opf 的 <dc:description> 标签对中
                 // 有的小说简介里含有 & 符号，需要转换成别的字符，否则会导致阅读器解析时出错
                 // 如 https://www.pixiv.net/novel/show.php?id=22260000
-                description: _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBText(data.description),
                 tags: data.tags || [],
+                description: date + '<br/><br/>' + _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBText(data.description),
             });
             jepub.uuid(novelURL);
             jepub.date(new Date(data.createDate));
@@ -18944,6 +19072,7 @@ class MakeNovelFile {
                     continue;
                 }
                 // 加载图片
+                await _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__.downloadInterval.wait();
                 let illustration = undefined;
                 try {
                     illustration = await fetch(image.url).then((response) => {
@@ -22028,12 +22157,12 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 121900000
-            this.crawlData(121510000, 121907226);
+            // 上次记录到 124350000
+            this.crawlData(121910000, 124355845);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 22870001
-            this.crawlData(22790000, 22877769, 'novels');
+            // 上次记录到 23410001
+            this.crawlData(22880000, 23419624, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -23291,13 +23420,33 @@ Chrono Download Manager, Image Downloader 등`,
 При возникновении этой проблемы, пожалуйста, отключите другие расширения, которые имеют функцию загрузки файлов. Например: <br>
 Chrono Download Manager, Image Downloader и т. д.`,
     ],
+    _账户可能被封禁的警告: [
+        `<strong>警告</strong>：频繁和大量的抓取（和下载）可能会导致你的 Pixiv 账号被封禁。<br>
+多数用户不会遇到这个情况，而且下载器默认会减慢抓取的速度。但如果你的账户被封禁，下载器不会承担任何责任。<br>
+如果你计划进行大量的下载，可以考虑注册 Pixiv 小号。<br><br>`,
+        `<strong>警告</strong>：頻繁和大量的抓取（和下載）可能會導致你的 Pixiv 賬號被封禁。<br>
+多數使用者不會遇到這個情況，而且下載器預設會減慢抓取的速度。但如果你的賬戶被封禁，下載器不會承擔任何責任。<br>
+如果你計劃進行大量的下載，可以考慮註冊 Pixiv 小號。<br><br>`,
+        `<strong>Warning</strong>: Frequent and heavy scraping (and downloading) may result in your Pixiv account being banned. <br>
+Most users will not encounter this, and the downloader will slow down scraping by default. However, the downloader will not be held responsible if your account is banned. <br>
+If you plan to do a lot of downloading, consider signing up for a secondary Pixiv account. <br><br>`,
+        `<strong>警告</strong>: 頻繁かつ大量のスクレイピング (およびダウンロード) を行うと、Pixiv アカウントが禁止される可能性があります。 <br>
+ほとんどのユーザーはこの状況に遭遇することはなく、ダウンローダーはデフォルトでクロールを遅くします。ただし、アカウントが禁止された場合、ダウンローダーは責任を負いません。 <br>
+大量のダウンロードを行う予定がある場合は、Pixiv アカウントへのサインアップを検討してください。 <br><br>`,
+        `<strong>경고</strong>: 빈번하고 많은 양의 스크래핑(및 다운로드)을 수행하면 Pixiv 계정이 금지될 수 있습니다. <br>
+대부분의 사용자는 이러한 상황을 겪지 않으며 다운로더는 기본적으로 크롤링 속도를 늦춥니다. 그러나 귀하의 계정이 금지된 경우 다운로더는 책임을 지지 않습니다. <br>
+다운로드를 많이 할 계획이라면 Pixiv 계정에 가입하는 것을 고려해 보세요. <br><br>`,
+        `<strong>Внимание</strong>. Частое и массовое сканирование (и загрузка) может привести к блокировке вашей учетной записи Pixiv. <br>
+Большинство пользователей не столкнутся с такой ситуацией, и загрузчик по умолчанию замедлит сканирование. Но загрузчик не будет нести ответственности, если ваша учетная запись будет заблокирована. <br>
+Если вы планируете загружать много файлов, рассмотрите возможность регистрации учетной записи Pixiv. <br><br>`,
+    ],
     _常见问题说明: [
-        '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>下载器 QQ 群：499873152<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
-        '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。',
-        'The downloaded file is saved in the browsers download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.<br><br>If your browser stops responding at startup, you can clear your browser`s download history.',
-        'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。',
-        '다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.<br><br>시작 시 브라우저가 응답하지 않으면 브라우저의 다운로드 기록을 지울 수 있습니다.',
-        'Загруженный файл сохраняется в каталоге загрузки браузеров. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>Если имя файла после загрузки является ненормальным, отключите другие расширения браузера, которые имеют возможности загрузки.<br><br>Если ваш браузер перестает отвечать на запросы при запуске, вы можете очистить историю загрузок вашего браузера.',
+        '下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>还有些扩展会导致下载器不能开始下载。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>下载器 QQ 群：675174717<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a><br><br>',
+        '下載的檔案儲存在瀏覽器的下載目錄裡。如果你想儲存到其他位置，需要修改瀏覽器的下載目錄。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br>還有些擴充套件會導致下載器不能開始下載。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。<br><br>',
+        `The downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download location. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser\`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities. <br>There are also some extensions that can prevent the downloader from starting the download.<br><br>If your browser stops responding at startup, you can clear your browser\`s download history.<br><br>`,
+        'ダウンロードされたファイルはブラウザのダウンロード ディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロード場所を変更する必要があります。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br>ダウンローダーがダウンロードを開始するのを妨げる拡張機能もいくつかあります。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。<br><br>',
+        '다운로드한 파일은 브라우저의 다운로드 디렉터리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 위치를 수정해야 합니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요. <br>다운로더가 다운로드를 시작하지 못하게 막는 몇 가지 확장 프로그램도 있습니다.<br><br>시작 시 브라우저가 응답하지 않으면 브라우저의 다운로드 기록을 지울 수 있습니다.<br><br>',
+        'Загруженный файл сохраняется в каталоге загрузки браузера. Если вы хотите сохранить в другое место, вам необходимо изменить место загрузки браузера. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>Если имя файла после загрузки является ненормальным, отключите другие расширения браузера, которые имеют возможности загрузки. <br>Существуют также некоторые расширения, которые могут помешать загрузчику начать загрузку.<br><br>Если ваш браузер перестает отвечать на запросы при запуске, вы можете очистить историю загрузок вашего браузера.<br><br>',
     ],
     _正在下载中: [
         '正在下载中',
@@ -23839,6 +23988,14 @@ Chrono Download Manager, Image Downloader и т. д.`,
         'ダウンローダーは、対象となる作品を現在のページに表示し、コレクション数に応じて上位から下位に並べ替えることができます。<br>クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。<br>プレビュー機能を有効にすると、ダウンロードは自動的に開始されません。',
         '다운로더는 현재 페이지에 적합한 작품을 표시하고 컬렉션 수에 따라 높은 순으로 정렬할 수 있습니다.<br>긁어오기 결과가 너무 많아서 페이지가 충돌하면 이 기능을 꺼주세요.<br> 미리보기를 사용하면 다운로드가 자동으로 시작되지 않습니다.',
         'Загрузчик может отображать подходящие произведения на текущей странице и сортировать их по возрастанию в зависимости от количества коллекций.<br>Пожалуйста, отключите эту функцию, если слишком большое количество результатов просмотра приводит к сбою страницы.<br>Загрузчик не начинает автоматическую загрузку, если включена функция предварительного просмотра.',
+    ],
+    _提示启用预览搜索页面的筛选结果时不会自动开始下载: [
+        '由于启用了“预览搜索页面的筛选结果”，本次抓取完成后，下载器不会自动开始下载。<br>这是为了让用户可以在抓取后进一步筛选抓取结果。',
+        '由於啟用了“預覽搜尋頁面的篩選結果”，本次抓取完成後，下載器不會自動開始下載。<br>這是為了讓使用者可以在抓取後進一步篩選抓取結果。',
+        'Since "Preview filter results of search page" is enabled, the downloader will not automatically start downloading after this crawl is completed.<br>This is to allow users to further filter the crawl results after the crawl.',
+        '「検索ページのフィルター結果のプレビュー」が有効になっているため、このクロールが完了した後、ダウンローダーは自動的にダウンロードを開始しません。 <br>これは、ユーザーがクロール後にクロール結果をさらにフィルタリングできるようにするためです。',
+        `'검색 페이지 필터 결과 미리보기'가 활성화되어 있으므로 크롤링이 완료된 후 다운로더가 자동으로 다운로드를 시작하지 않습니다. <br>이는 사용자가 크롤링 후 크롤링 결과를 추가로 필터링할 수 있도록 하기 위한 것입니다.`,
+        'Поскольку функция «Предварительный просмотр результатов фильтра страницы поиска» включена, загрузчик не начнет загрузку автоматически после завершения сканирования. <br>Это позволит пользователям дополнительно фильтровать результаты сканирования после сканирования.',
     ],
     _目录名使用: [
         '目录名使用：',
@@ -24811,12 +24968,12 @@ Chrono Download Manager, Image Downloader и т. д.`,
         'На этот раз запрос начал помещаться в очередь.',
     ],
     _HowToUse: [
-        '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>下载器默认开启了一些增强功能，这可能导致 Pixiv 页面样式改变。你可以在下载器的“更多”标签页中开启或关闭这些功能。',
-        '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>下載器預設開啟了一些增強功能，這可能導致 Pixiv 頁面樣式改變。你可以在下載器的“更多”標籤頁中開啟或關閉這些功能。',
-        'Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>The downloader has some enhancements turned on by default, which may cause changes in the style of Pixiv pages. You can turn these features on or off in the "More" tab of the downloader.',
-        'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンローダーにはデフォルトでいくつかの機能拡張が有効になっており、これにより Pixiv ページのスタイルが変更される可能性があります。 これらの機能は、ダウンローダーの「その他」タブでオンまたはオフにできます。',
-        '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.<br><br>다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로더에는 기본적으로 몇 가지 향상된 기능이 켜져 있으며 이로 인해 Pixiv 페이지 스타일이 변경될 수 있습니다. 다운로더의 "더 보기" 탭에서 이러한 기능을 켜거나 끌 수 있습니다.',
-        'Нажмите синюю кнопку в правой части страницы, чтобы открыть панель загрузчика.<br><br>Загруженный файл сохраняется в каталоге загрузки браузера. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>В загрузчике по умолчанию включены некоторые улучшения, которые могут привести к изменению стиля страниц Pixiv. Вы можете включить или отключить эти функции на вкладке «Дополнительно» загрузчика.',
+        '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>下载器默认开启了一些增强功能，这可能会导致 Pixiv 的一些页面样式产生变化。你可以在下载器的“更多”标签页中开启或关闭这些功能。<br><br>',
+        '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。如果你想儲存到其他位置，需要修改瀏覽器的下載目錄。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>下載器預設開啟了一些增強功能，這可能會導致 Pixiv 的一些頁面樣式產生變化。你可以在下載器的“更多”標籤頁中開啟或關閉這些功能。<br><br>',
+        `Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download location. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser\`s download settings.<br><br>The downloader has some enhancements turned on by default, which may cause changes in the style of Pixiv pages. You can turn these features on or off in the "More" tab of the downloader.<br><br>`,
+        'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードされたファイルはブラウザのダウンロード ディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロード場所を変更する必要があります。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンローダーにはデフォルトでいくつかの機能拡張が有効になっており、これにより Pixiv ページのスタイルが変更される可能性があります。 これらの機能は、ダウンローダーの「その他」タブでオンまたはオフにできます。<br><br>',
+        '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.<br><br>다운로드한 파일은 브라우저의 다운로드 디렉터리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 위치를 수정해야 합니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로더에는 기본적으로 몇 가지 향상된 기능이 켜져 있으며 이로 인해 Pixiv 페이지 스타일이 변경될 수 있습니다. 다운로더의 "더 보기" 탭에서 이러한 기능을 켜거나 끌 수 있습니다.<br><br>',
+        'Нажмите синюю кнопку в правой части страницы, чтобы открыть панель загрузчика.<br><br>Загруженный файл сохраняется в каталоге загрузки браузера. Если вы хотите сохранить в другое место, вам необходимо изменить место загрузки браузера.<br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>В загрузчике по умолчанию включены некоторые улучшения, которые могут привести к изменению стиля страниц Pixiv. Вы можете включить или отключить эти функции на вкладке «Дополнительно» загрузчика.<br><br>',
     ],
     _我知道了: ['我知道了', '我知道了', 'OK', '分かりました', '확인', 'Ок'],
     _背景图片: [
@@ -24870,12 +25027,12 @@ Chrono Download Manager, Image Downloader и т. д.`,
         'Создать папку с первым совпавшим <span class="key">тегом</span>',
     ],
     _使用匹配的tag建立文件夹的说明: [
-        '如果作品的标签列表里含有用户设置的标签，就会使用这个标签建立文件夹（仅限第一个）',
-        '如果作品的標籤列表裡含有使用者設定的標籤，就會使用這個標籤建立資料夾（僅限第一個）',
-        'If the tag list of the work contains a tag set by the user, this tag will be used to create a folder (only the first one)',
-        '作品のタグリストにユーザーが設定したタグが含まれている場合、そのタグを使用してフォルダが作成されます。(最初の1つだけ)',
-        '작품의 태그에 유저가 설정한 태그가 포함되어 있다면, 태그를 사용하여 디렉토리를 생성합니다. (첫 번째 태그만 해당)',
-        'Если в списке тегов работы есть тег, заданный пользователем, этот тег будет использован для создания папки (только первой)',
+        '如果作品的标签列表里含有用户设置的标签，就会使用这个标签建立文件夹（仅限第一个匹配到的标签）',
+        '如果作品的標籤列表裡含有使用者設定的標籤，就會使用這個標籤建立資料夾（僅限第一個匹配到的標籤）',
+        'If the tag list of the work contains a tag set by the user, this tag will be used to create a folder (Only the first matching tag)',
+        '作品のタグリストにユーザーが設定したタグが含まれている場合、そのタグを使用してフォルダが作成されます。(最初に一致するタグのみ)',
+        '작품의 태그에 유저가 설정한 태그가 포함되어 있다면, 태그를 사용하여 디렉토리를 생성합니다. (첫 번째 일치하는 태그만)',
+        'Если в списке тегов работы есть тег, заданный пользователем, этот тег будет использован для создания папки (Только первый совпадающий тег)',
     ],
     _全年龄: [
         '全年龄',
@@ -25307,13 +25464,13 @@ Chrono Download Manager, Image Downloader и т. д.`,
     中国大陆用户可以在“爱发电”上赞助我：<br>
     <a href="https://afdian.com/a/xuejianxianzun" target="_blank">https://afdian.com/a/xuejianxianzun</a><br><br>
     也可以扫描二维码：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a>。
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a>
     `,
         `如果您覺得這個工具對您有幫助，可以考慮贊助我，謝謝！<br>
     您可以在 Patreon 上贊助我：<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br><br>
     中國大陸使用者可以在“愛發電”上贊助我：<br>
-    <a href="https://afdian.com/a/xuejianxianzun" target="_blank">https://afdian.com/a/xuejianxianzun</a>。
+    <a href="https://afdian.com/a/xuejianxianzun" target="_blank">https://afdian.com/a/xuejianxianzun</a>
     `,
         `If you find this tool helpful, please consider sponsoring me, thank you!<br>
     You can sponsor me on Patreon: <br>
@@ -26844,6 +27001,41 @@ Chrono Download Manager, Image Downloader и т. д.`,
         'このタブにはすでにクロール結果があります。クロールを再開すると、これらのクロール結果は消去されます。 \nクロールを再開するかどうかを確認してください?',
         '이 탭에는 이미 크롤링 결과가 있습니다. 크롤링을 다시 시작하면 크롤링 결과가 지워집니다. \n크롤링을 다시 시작할 것인지 확인해주세요.',
         'На этой вкладке уже есть результаты сканирования. При перезапуске сканирования эти результаты будут удалены. \nПодтвердите, хотите ли вы возобновить сканирование?',
+    ],
+    _下载间隔: [
+        '下载<span class="key">间隔</span>',
+        '下載<span class="key">間隔</span>',
+        'Download <span class="key">interval</span>',
+        'ダウンロード<span class="key">間隔</span>',
+        '다운로드 <span class="key">간격</span>',
+        '<span class="key">Интервал</span> загрузки',
+    ],
+    _秒: ['秒', '秒', 'seconds', '秒', '초', 'секунд'],
+    _下载间隔的说明: [
+        `每隔一定时间开始一次下载。<br>
+默认值为 0，即无限制。<br>
+如果设置为 1 秒钟，那么每小时最多会从 Pixiv 下载 3600 个文件。<br>
+如果你担心因为下载文件太频繁导致账号被 Ban，可以设置大于 0 的数字，以缓解此问题。<br>`,
+        `每隔一定時間開始一次下載。<br>
+預設值為 0，即無限制。<br>
+如果設定為 1 秒鐘，那麼每小時最多會從 Pixiv 下載 3600 個檔案。<br>
+如果你擔心因為下載檔案太頻繁導致賬號被 Ban，可以設定大於 0 的數字，以緩解此問題。<br>`,
+        `Start a download every certain time. <br>
+The default value is 0, which means no limit. <br>
+If set to 1 second, a maximum of 3,600 files will be downloaded from Pixiv per hour. <br>
+If you are worried that your account will be banned due to downloading files too frequently, you can set a number greater than 0 to alleviate this problem. <br>`,
+        `一定時間ごとにダウンロードを開始します。<br>
+デフォルト値は 0 で、制限なしを意味します。<br>
+1 秒に設定すると、Pixiv から 1 時間あたり最大 3,600 ファイルがダウンロードされます。<br>
+頻繁にファイルをダウンロードしすぎてアカウントが禁止されるのではないかと心配な場合は、0 より大きい数値を設定することでこの問題を軽減できます。<br>`,
+        `특정 시간마다 다운로드를 시작합니다. <br>
+기본값은 0으로, 제한이 없음을 의미합니다. <br>
+1초로 설정하면 Pixiv에서 시간당 최대 3,600개의 파일이 다운로드됩니다. <br>
+파일을 너무 자주 다운로드해서 계정이 금지될까 걱정된다면 0보다 큰 숫자를 설정하여 이 문제를 완화할 수 있습니다. <br>`,
+        `Начинать загрузку каждый определенный момент времени. <br>
+Значение по умолчанию — 0, что означает отсутствие ограничений. <br>
+Если установлено значение 1 секунда, с Pixiv будет загружено максимум 3600 файлов в час. <br>
+Если вы беспокоитесь, что ваш аккаунт будет заблокирован из-за слишком частой загрузки файлов, вы можете установить число больше 0, чтобы решить эту проблему. <br>`,
     ],
     _更新说明v1714: [
         '修复了发现（discovery）页面里的一些问题',
@@ -29008,7 +29200,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 
-// 目前设置项的最大编号是 89
+// 目前设置项的最大编号是 90
 const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
@@ -29544,12 +29736,12 @@ const formHtml = `<form class="settingForm">
     
     <span class="subOptionWrap" data-show="slowCrawl">
     <span data-xztext="_当作品数量大于"></span>
-    <input type="text" name="slowCrawlOnWorksNumber" class="setinput_style1 blue" value="100" style="width:60px;min-width: 60px;">
+    <input type="text" name="slowCrawlOnWorksNumber" class="setinput_style1 blue" value="100">
 
     <span class="verticalSplit"></span>
 
     <span data-xztext="_间隔时间"></span>
-    <input type="text" name="slowCrawlDealy" class="setinput_style1 blue" value="1600" placeholder="1600" style="width:60px;min-width: 60px;"> ms
+    <input type="text" name="slowCrawlDealy" class="setinput_style1 blue" value="1600" placeholder="1600"> ms
 
     </span>
 
@@ -29759,6 +29951,23 @@ const formHtml = `<form class="settingForm">
 
     <p class="option settingCategoryName" data-no="58">
       <span data-xztext="_下载"></span>
+    </p>
+
+    <p class="option" data-no="90">
+    <span class="has_tip settingNameStyle1"  data-xztip="_下载间隔的说明">
+    <span data-xztext="_下载间隔"></span>
+    <span class="gray1"> ? </span>
+    </span>
+    
+    <span data-xztext="_当作品数量大于"></span>
+    <input type="text" name="downloadIntervalOnWorksNumber" class="setinput_style1 blue" value="120">
+
+    <span class="verticalSplit"></span>
+
+    <span data-xztext="_间隔时间"></span>
+    <input type="text" name="downloadInterval" class="setinput_style1 blue" value="0">
+    <span data-xztext="_秒"></span>
+    </span>
     </p>
     
     <p class="option" data-no="76">
@@ -30463,6 +30672,8 @@ class FormSettings {
                 'exportLogExclude',
                 'PreviewDetailInfoWidth',
                 'slowCrawlDealy',
+                'downloadInterval',
+                'downloadIntervalOnWorksNumber',
             ],
             radio: [
                 'ugoiraSaveAs',
@@ -31440,10 +31651,17 @@ class Settings {
             saveEachDescription: false,
             summarizeDescription: false,
             slowCrawlDealy: 1600,
+            downloadInterval: 0,
+            downloadIntervalOnWorksNumber: 120,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
-        this.floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax'];
+        this.floatNumberKey = [
+            'userRatio',
+            'sizeMin',
+            'sizeMax',
+            'downloadInterval',
+        ];
         // 值为整数的选项不必单独列出
         // 值为数字数组的选项
         this.numberArrayKeys = ['wantPageArr'];
@@ -31666,6 +31884,15 @@ class Settings {
         // 对于一些不合法的值，重置为默认值
         if (key === 'slowCrawlDealy' && value < 1000) {
             value = 1000;
+        }
+        if (key === 'downloadInterval' && value < 0) {
+            value = 0;
+        }
+        if (key === 'downloadInterval' && value > 3600) {
+            value = 3600;
+        }
+        if (key === 'downloadIntervalOnWorksNumber' && value < 0) {
+            value = 0;
         }
         if (key === 'firstFewImages' && value < 1) {
             value = this.defaultSettings[key];
@@ -32245,6 +32472,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+
 
 
 
@@ -32303,7 +32532,8 @@ class SaveNovelData {
             // 它会在生成的小说里显示，供读者阅读，所以移除了 html 标签，只保留纯文本
             // 处理后，换行标记是 \n 而不是 <br/>
             const metaDescription = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.replaceEPUBDescription(_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlToText(description));
-            metaArr.push(title, user, pageUrl, metaDescription, tagsA.join('\n'));
+            const date = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__.DateFormat.format(body.createDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.dateFormat);
+            metaArr.push(title, user, pageUrl, date, metaDescription, tagsA.join('\n'));
             meta = metaArr.join('\n\n') + '\n\n\n';
             // 提取嵌入的图片资源
             let embeddedImages = null;
@@ -44977,6 +45207,251 @@ const illustsData = [
     [121880000, 1724739780000],
     [121890000, 1724763480000],
     [121900000, 1724791860000],
+    [121910000, 1724833020000],
+    [121920000, 1724853180000],
+    [121930000, 1724887200000],
+    [121940000, 1724923740000],
+    [121950000, 1724942940000],
+    [121960000, 1724979600000],
+    [121970000, 1725011760000],
+    [121980000, 1725029820000],
+    [121990000, 1725059160000],
+    [122000000, 1725086400000],
+    [122010000, 1725105000000],
+    [122020000, 1725117660000],
+    [122030000, 1725150180000],
+    [122040000, 1725174900000],
+    [122050000, 1725192240000],
+    [122060000, 1725205560000],
+    [122070000, 1725246300000],
+    [122080000, 1725276540000],
+    [122090000, 1725294000000],
+    [122100000, 1725338040000],
+    [122110000, 1725365880000],
+    [122120000, 1725387300000],
+    [122130001, 1725434040000],
+    [122140000, 1725457260000],
+    [122150003, 1725490500000],
+    [122160000, 1725528420000],
+    [122170000, 1725548400000],
+    [122180000, 1725587640000],
+    [122190000, 1725619560000],
+    [122200002, 1725636960000],
+    [122210000, 1725674640000],
+    [122220001, 1725702540000],
+    [122230001, 1725720600000],
+    [122240001, 1725753540000],
+    [122250002, 1725781200000],
+    [122260000, 1725799500000],
+    [122270000, 1725817020000],
+    [122280000, 1725860700000],
+    [122290000, 1725885600000],
+    [122300000, 1725907980000],
+    [122310000, 1725953040000],
+    [122320000, 1725975300000],
+    [122330000, 1726005600000],
+    [122340000, 1726046100000],
+    [122350000, 1726066440000],
+    [122360002, 1726105440000],
+    [122370000, 1726138980000],
+    [122380000, 1726157760000],
+    [122390000, 1726203480000],
+    [122400000, 1726230360000],
+    [122410000, 1726251060000],
+    [122420000, 1726291380000],
+    [122430001, 1726315380000],
+    [122440000, 1726333440000],
+    [122450000, 1726371360000],
+    [122460000, 1726396260000],
+    [122470000, 1726412400000],
+    [122480000, 1726447200000],
+    [122490000, 1726475760000],
+    [122500001, 1726493940000],
+    [122510002, 1726519740000],
+    [122520002, 1726560000000],
+    [122530000, 1726580460000],
+    [122540000, 1726610700000],
+    [122550000, 1726650540000],
+    [122560001, 1726669560000],
+    [122570000, 1726704780000],
+    [122580000, 1726741380000],
+    [122590000, 1726759140000],
+    [122600000, 1726801200000],
+    [122610000, 1726830960000],
+    [122620000, 1726847760000],
+    [122630000, 1726887180000],
+    [122640000, 1726912980000],
+    [122650000, 1726930800000],
+    [122660000, 1726965300000],
+    [122670002, 1726992900000],
+    [122680000, 1727011140000],
+    [122690000, 1727031780000],
+    [122700000, 1727069220000],
+    [122710000, 1727092080000],
+    [122720000, 1727108520000],
+    [122730002, 1727154000000],
+    [122740000, 1727182080000],
+    [122750000, 1727207220000],
+    [122760000, 1727253600000],
+    [122770002, 1727274660000],
+    [122780000, 1727311860000],
+    [122790000, 1727347080000],
+    [122800000, 1727366100000],
+    [122810001, 1727411100000],
+    [122820000, 1727439240000],
+    [122830000, 1727458980000],
+    [122840000, 1727499240000],
+    [122850000, 1727523000000],
+    [122860000, 1727539620000],
+    [122870000, 1727578140000],
+    [122880000, 1727602020000],
+    [122890000, 1727618760000],
+    [122900000, 1727648280000],
+    [122910000, 1727686620000],
+    [122920000, 1727704680000],
+    [122930000, 1727732760000],
+    [122940000, 1727773200000],
+    [122950000, 1727792100000],
+    [122960000, 1727826840000],
+    [122970000, 1727863020000],
+    [122980000, 1727881620000],
+    [122990000, 1727923440000],
+    [123000000, 1727954040000],
+    [123010000, 1727971860000],
+    [123020001, 1728016020000],
+    [123030001, 1728043260000],
+    [123040000, 1728061140000],
+    [123050000, 1728100800000],
+    [123060000, 1728126000000],
+    [123070000, 1728142080000],
+    [123080000, 1728178800000],
+    [123090000, 1728204660000],
+    [123100000, 1728221580000],
+    [123110000, 1728247620000],
+    [123120000, 1728288960000],
+    [123130000, 1728309360000],
+    [123140000, 1728341700000],
+    [123150001, 1728381060000],
+    [123160000, 1728400020000],
+    [123170000, 1728443040000],
+    [123180000, 1728474420000],
+    [123190000, 1728493920000],
+    [123200001, 1728540900000],
+    [123210000, 1728565200000],
+    [123220001, 1728590700000],
+    [123230000, 1728634680000],
+    [123240000, 1728655620000],
+    [123250000, 1728688320000],
+    [123260000, 1728720060000],
+    [123270000, 1728739920000],
+    [123280001, 1728766320000],
+    [123290000, 1728799020000],
+    [123300000, 1728820740000],
+    [123310000, 1728837000000],
+    [123320000, 1728876060000],
+    [123330000, 1728900720000],
+    [123340001, 1728917580000],
+    [123350000, 1728955080000],
+    [123360001, 1728989400000],
+    [123370001, 1729007040000],
+    [123380001, 1729051020000],
+    [123390000, 1729080420000],
+    [123400000, 1729100640000],
+    [123410001, 1729146480000],
+    [123420001, 1729166400000],
+    [123430000, 1729181940000],
+    [123440000, 1729223040000],
+    [123450000, 1729249920000],
+    [123460000, 1729266120000],
+    [123470000, 1729303860000],
+    [123480000, 1729330080000],
+    [123490001, 1729347180000],
+    [123500000, 1729375200000],
+    [123510000, 1729405500000],
+    [123520000, 1729425180000],
+    [123530001, 1729439580000],
+    [123540000, 1729482120000],
+    [123550000, 1729511340000],
+    [123560000, 1729529940000],
+    [123570000, 1729574640000],
+    [123580001, 1729600380000],
+    [123590000, 1729621800000],
+    [123600000, 1729666620000],
+    [123610000, 1729688820000],
+    [123620001, 1729713060000],
+    [123630001, 1729756560000],
+    [123640000, 1729777200000],
+    [123650000, 1729806840000],
+    [123660000, 1729846380000],
+    [123670001, 1729864620000],
+    [123680000, 1729892220000],
+    [123690000, 1729924500000],
+    [123700000, 1729945560000],
+    [123710000, 1729962300000],
+    [123720000, 1729999920000],
+    [123730001, 1730023560000],
+    [123740000, 1730039460000],
+    [123750000, 1730071560000],
+    [123760000, 1730107800000],
+    [123770000, 1730126520000],
+    [123780000, 1730161500000],
+    [123790000, 1730196600000],
+    [123800000, 1730214360000],
+    [123810000, 1730253960000],
+    [123820000, 1730284740000],
+    [123830000, 1730300520000],
+    [123840000, 1730326860000],
+    [123850000, 1730358120000],
+    [123860000, 1730374020000],
+    [123870000, 1730384760000],
+    [123880000, 1730404260000],
+    [123890000, 1730441880000],
+    [123900000, 1730464200000],
+    [123910000, 1730482320000],
+    [123920000, 1730522520000],
+    [123930000, 1730545800000],
+    [123940000, 1730562600000],
+    [123950000, 1730600760000],
+    [123960000, 1730626740000],
+    [123970000, 1730644020000],
+    [123980000, 1730674260000],
+    [123990000, 1730705760000],
+    [124000000, 1730725200000],
+    [124010001, 1730745900000],
+    [124020000, 1730791980000],
+    [124030000, 1730813760000],
+    [124040001, 1730845800000],
+    [124050000, 1730885820000],
+    [124060000, 1730905260000],
+    [124070000, 1730947860000],
+    [124080000, 1730978940000],
+    [124090000, 1730998440000],
+    [124100000, 1731046020000],
+    [124110000, 1731070320000],
+    [124120000, 1731093960000],
+    [124130000, 1731132600000],
+    [124140000, 1731155460000],
+    [124150000, 1731175020000],
+    [124160000, 1731213360000],
+    [124170000, 1731235740000],
+    [124180000, 1731250800000],
+    [124190000, 1731283200000],
+    [124200000, 1731317400000],
+    [124210000, 1731334260000],
+    [124220000, 1731364260000],
+    [124230000, 1731402720000],
+    [124240000, 1731422160000],
+    [124250000, 1731458100000],
+    [124260000, 1731491460000],
+    [124270000, 1731509040000],
+    [124280000, 1731544920000],
+    [124290000, 1731577320000],
+    [124300000, 1731594660000],
+    [124310000, 1731627120000],
+    [124320000, 1731662220000],
+    [124330000, 1731679560000],
+    [124340001, 1731709140000],
+    [124350000, 1731740700000],
 ];
 
 
@@ -47281,6 +47756,60 @@ const novelData = [
     [22850000, 1724500266000],
     [22860001, 1724595689000],
     [22870001, 1724717042000],
+    [22880001, 1724847836000],
+    [22890000, 1724991613000],
+    [22900000, 1725105062000],
+    [22910000, 1725196968000],
+    [22920000, 1725341318000],
+    [22930000, 1725465040000],
+    [22940000, 1725623698000],
+    [22950001, 1725731292000],
+    [22960000, 1725864081000],
+    [22970000, 1725980402000],
+    [22980003, 1726134697000],
+    [22990001, 1726244258000],
+    [23000000, 1726367674000],
+    [23010000, 1726481287000],
+    [23020000, 1726600878000],
+    [23030001, 1726745536000],
+    [23040000, 1726848438000],
+    [23050000, 1726982453000],
+    [23060001, 1727077995000],
+    [23070000, 1727183688000],
+    [23080002, 1727332529000],
+    [23090000, 1727449602000],
+    [23100000, 1727581677000],
+    [23110002, 1727692062000],
+    [23120000, 1727804827000],
+    [23130001, 1727958985000],
+    [23140000, 1728099030000],
+    [23150000, 1728215689000],
+    [23160000, 1728338305000],
+    [23170000, 1728482839000],
+    [23180001, 1728646439000],
+    [23190000, 1728769677000],
+    [23200000, 1728892218000],
+    [23210000, 1729003447000],
+    [23220000, 1729160283000],
+    [23230000, 1729278055000],
+    [23240000, 1729409298000],
+    [23250000, 1729523083000],
+    [23260000, 1729680720000],
+    [23270002, 1729830638000],
+    [23280000, 1729949459000],
+    [23290000, 1730072767000],
+    [23300000, 1730208759000],
+    [23310001, 1730348478000],
+    [23320000, 1730462528000],
+    [23330000, 1730563828000],
+    [23340001, 1730698365000],
+    [23350000, 1730813383000],
+    [23360003, 1730970785000],
+    [23370000, 1731085319000],
+    [23380000, 1731227401000],
+    [23390001, 1731332783000],
+    [23400001, 1731483063000],
+    [23410001, 1731604116000],
 ];
 
 
