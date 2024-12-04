@@ -182,7 +182,7 @@ class MergeNovel {
    *
    * 这些字符串通常是作品简介、设定资料等，可能包含 html 代码、特殊符号 */
   private handleEPUBDescription(htmlString: string) {
-    return Tools.replaceEPUBText(
+    return Tools.replaceEPUBTextWithP(
       Tools.replaceEPUBDescription(
         Utils.htmlToText(Utils.htmlDecode(htmlString))
       )
@@ -251,7 +251,8 @@ class MergeNovel {
 
       // 循环添加小说内容
       for (const novelData of novelDataArray) {
-        let content = Tools.replaceEPUBText(novelData.content)
+        //使用新的function统一替换添加<p>与</p>， 以对应EPUB文本惯例
+        let content = Tools.replaceEPUBTextWithP(novelData.content)
         const novelID = novelData.id
         // 添加小说里的图片
         const imageList = await downloadNovelEmbeddedImage.getImageList(
