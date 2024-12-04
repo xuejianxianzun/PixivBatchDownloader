@@ -587,6 +587,22 @@ class Tools {
       .replace(/\n/g, '<br/>')
   }
 
+  // 把所有换行符统一成 <br /> （包括 \n）之后 统一替换添加<p>与</p>， 以对应EPUB文本惯例
+  static replaceEPUBTextWithP(str: string) {
+    return (
+      '<p>' +
+      str
+        .replaceAll(/&/g, '&amp;')
+        .replaceAll(/</g, '&lt;')
+        .replaceAll(/&lt;br/g, '<br')
+        .replaceAll(/<br>/g, '<br/>')
+        .replaceAll(/<br \/>/g, '<br/>')
+        .replaceAll(/\n/g, '<br/>')
+        .replaceAll('<br/>', '</p>\n<p>') +
+      '</p>'
+    )
+  }
+
   // 小说标题里有些符号需要和正文进行不同的处理
   // 标题里的 & 符号必须去掉或将其转换为普通字符
   // 至于换行标记，不知道标题里有没有，如果有的话也需要将其转换成普通符号
