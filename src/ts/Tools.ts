@@ -575,7 +575,7 @@ class Tools {
 
   /**替换 EPUB 文本里的特殊字符和换行符 */
   // 换行符必须放在最后处理，以免其 < 符号被替换
-  // 把所有换行符统一成 <br />（包括 \n）
+  // 把所有换行符统一成 <br/>（包括 \n）
   // epub 是 xhtml 格式，要求必须有闭合标记，所以 <br> 是非法的，必须使用 <br/>
   static replaceEPUBText(str: string) {
     return str
@@ -587,7 +587,8 @@ class Tools {
       .replace(/\n/g, '<br/>')
   }
 
-  // 把所有换行符统一成 <br /> （包括 \n）之后 统一替换添加<p>与</p>， 以对应EPUB文本惯例
+  // 把所有换行符统一成 <br/>（包括 \n）
+  // 之后统一替换为 <p> 与 </p>，以对应 EPUB 文本惯例
   static replaceEPUBTextWithP(str: string) {
     return (
       '<p>' +

@@ -38,7 +38,7 @@ function createTitlePage (data) {
     
     
         <div class="ugc">
-          <p>${data.description || ''}</p>
+          ${data.description || ''}
         </div>
     
 </body>

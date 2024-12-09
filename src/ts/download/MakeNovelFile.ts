@@ -71,7 +71,8 @@ class MakeNovelFile {
         // 如 https://www.pixiv.net/novel/show.php?id=22260000
         tags: data.tags || [],
         //使用新的function统一替换添加<p>与</p>， 以对应EPUB文本惯例
-        description: date + Tools.replaceEPUBTextWithP(data.description),
+        description:
+          `<p>${date}</p>` + Tools.replaceEPUBTextWithP(data.description),
       })
 
       jepub.uuid(novelURL)

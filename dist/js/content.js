@@ -8790,7 +8790,7 @@ class Tools {
     }
     /**替换 EPUB 文本里的特殊字符和换行符 */
     // 换行符必须放在最后处理，以免其 < 符号被替换
-    // 把所有换行符统一成 <br />（包括 \n）
+    // 把所有换行符统一成 <br/>（包括 \n）
     // epub 是 xhtml 格式，要求必须有闭合标记，所以 <br> 是非法的，必须使用 <br/>
     static replaceEPUBText(str) {
         return str
@@ -8800,6 +8800,20 @@ class Tools {
             .replace(/<br>/g, '<br/>')
             .replace(/<br \/>/g, '<br/>')
             .replace(/\n/g, '<br/>');
+    }
+    // 把所有换行符统一成 <br/>（包括 \n）
+    // 之后统一替换为 <p> 与 </p>，以对应 EPUB 文本惯例
+    static replaceEPUBTextWithP(str) {
+        return ('<p>' +
+            str
+                .replaceAll(/&/g, '&amp;')
+                .replaceAll(/</g, '&lt;')
+                .replaceAll(/&lt;br/g, '<br')
+                .replaceAll(/<br>/g, '<br/>')
+                .replaceAll(/<br \/>/g, '<br/>')
+                .replaceAll(/\n/g, '<br/>')
+                .replaceAll('<br/>', '</p>\n<p>') +
+            '</p>');
     }
     // 小说标题里有些符号需要和正文进行不同的处理
     // 标题里的 & 符号必须去掉或将其转换为普通字符
@@ -17849,7 +17863,8 @@ class MakeNovelFile {
     static makeEPUB(data, saveMeta = true) {
         return new Promise(async (resolve, reject) => {
             let content = saveMeta ? data.meta + data.content : data.content;
-            content = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBText(content);
+            //使用新的function统一替换添加<p>与</p>， 以对应EPUB文本惯例
+            content = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBTextWithP(content);
             const userName = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(data.userName));
             const title = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(data.title));
             const novelURL = `https://www.pixiv.net/novel/show.php?id=${data.id}`;
@@ -17879,7 +17894,8 @@ class MakeNovelFile {
                 // 有的小说简介里含有 & 符号，需要转换成别的字符，否则会导致阅读器解析时出错
                 // 如 https://www.pixiv.net/novel/show.php?id=22260000
                 tags: data.tags || [],
-                description: date + '<br/><br/>' + _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBText(data.description),
+                //使用新的function统一替换添加<p>与</p>， 以对应EPUB文本惯例
+                description: `<p>${date}</p>` + _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBTextWithP(data.description),
             });
             jepub.uuid(novelURL);
             jepub.date(new Date(data.createDate));
@@ -18096,7 +18112,7 @@ class MergeNovel {
      *
      * 这些字符串通常是作品简介、设定资料等，可能包含 html 代码、特殊符号 */
     handleEPUBDescription(htmlString) {
-        return _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBDescription(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlDecode(htmlString))));
+        return _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBTextWithP(_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBDescription(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlDecode(htmlString))));
     }
     mergeEPUB(novelDataArray, seriesData) {
         return new Promise(async (resolve, reject) => {
@@ -18146,7 +18162,8 @@ class MergeNovel {
             jepub.cover(cover);
             // 循环添加小说内容
             for (const novelData of novelDataArray) {
-                let content = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(novelData.content);
+                //使用新的function统一替换添加<p>与</p>， 以对应EPUB文本惯例
+                let content = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBTextWithP(novelData.content);
                 const novelID = novelData.id;
                 // 添加小说里的图片
                 const imageList = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_8__.downloadNovelEmbeddedImage.getImageList(novelID, content, novelData.embeddedImages);
