@@ -18054,8 +18054,10 @@ class MergeNovel {
             file = await this.mergeEPUB(allNovelData, seriesData);
         }
         // 下载系列小说的封面图片
-        const cover = seriesData.cover.urls.original;
-        await _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_7__.downloadNovelCover.download(cover, novelName, 'mergeNovel');
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downloadNovelCoverImage) {
+            const cover = seriesData.cover.urls.original;
+            await _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_7__.downloadNovelCover.download(cover, novelName, 'mergeNovel');
+        }
         const url = URL.createObjectURL(file);
         _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.downloadFile(url, _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(novelName));
         _store_States__WEBPACK_IMPORTED_MODULE_3__.states.mergeNovel = false;

@@ -133,8 +133,10 @@ class MergeNovel {
     }
 
     // 下载系列小说的封面图片
-    const cover = seriesData.cover.urls.original
-    await downloadNovelCover.download(cover, novelName, 'mergeNovel')
+    if(settings.downloadNovelCoverImage){
+      const cover = seriesData.cover.urls.original
+      await downloadNovelCover.download(cover, novelName, 'mergeNovel')
+    }
 
     const url = URL.createObjectURL(file)
     Utils.downloadFile(url, Utils.replaceUnsafeStr(novelName))
