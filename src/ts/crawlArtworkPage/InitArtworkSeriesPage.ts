@@ -34,7 +34,11 @@ class InitArtworkSeriesPage extends InitPageBase {
 
   protected setFormOption() {
     // 个数/页数选项的提示
-    this.maxCount = 100
+    // 这个系列漫画有 252 页：
+    // https://www.pixiv.net/user/1001918/series/5915?p=252
+    // 所以我把最大页数设置为了 1000
+    // 不知道是否有超过 1000 页的
+    this.maxCount = 1000
 
     options.setWantPageTip({
       text: '_抓取多少页面',
