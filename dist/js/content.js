@@ -14642,6 +14642,24 @@ class InitPageBase {
     async getIdListFinished() {
         _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = false;
         this.resetGetIdListStatus();
+        // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则直接剔除它
+        // 现在这里能够检查这些过滤条件：
+        // 1. 检查 id 是否符合 id 范围条件
+        // 2. 检查 id 的发布时间是否符合时间范围条件
+        // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，
+        // 但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
+        const filteredIDList = [];
+        for (const idData of _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList) {
+            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
+                id: idData.id,
+                workTypeString: idData.type,
+                workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
+            });
+            if (check) {
+                filteredIDList.push(idData);
+            }
+        }
+        _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = filteredIDList;
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('getIdListFinished');
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl || _store_States__WEBPACK_IMPORTED_MODULE_9__.states.bookmarkMode) {
             return;
@@ -14706,8 +14724,8 @@ class InitPageBase {
             _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
             throw new Error(msg);
         }
-        // 在抓取之前，预先对 id 进行检查，如果不符合要求则不发送这个请求，直接跳过它
-        // 现在这里能够检查 2 种设置条件：
+        // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则跳过它
+        // 现在这里能够检查这些过滤条件：
         // 1. 检查 id 是否符合 id 范围条件
         // 2. 检查 id 的发布时间是否符合时间范围条件
         // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，
