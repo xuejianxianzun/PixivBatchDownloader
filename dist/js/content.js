@@ -30342,7 +30342,7 @@ class Settings {
             sizeMax: 100,
             novelSaveAs: 'txt',
             saveNovelMeta: false,
-            deduplication: false,
+            deduplication: true,
             dupliStrategy: 'loose',
             fileNameLengthLimitSwitch: false,
             tagsSeparator: ',',
