@@ -76,8 +76,6 @@ class RemoveBlockedUsersWork {
       return
     }
 
-    console.log('check')
-
     let currentUserID = ''
     if (this.dontRemoveCurrentUser.includes(pageType.type)) {
       currentUserID = Tools.getCurrentPageUserID()
