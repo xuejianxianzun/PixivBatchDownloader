@@ -423,7 +423,7 @@ class InitBookmarkPage extends InitPageBase {
     let data: BookmarkData
     try {
       data = await API.getBookmarkData(
-        Tools.getUserId(),
+        Tools.getCurrentPageUserID(),
         this.type,
         store.tag,
         this.offset,

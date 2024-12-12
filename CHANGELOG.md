@@ -6,7 +6,19 @@ TODO:日语文本需要加粗显示关键字，但是我不懂日语，所以现
 
 - 自动合并系列小说
 
-## next
+不支持预览：
+https://www.pixiv.net/discovery/users
+
+
+## 17.3.0 2024/12/12
+
+### ✨新功能：从页面上移除“用户阻止名单”里的用户的作品
+
+该功能默认启用。你可以在“更多”-“抓取”里找到这个设置。
+
+下载器不会抓取“用户阻止名单”里的用户的作品，而且还可以从页面上移除他们的作品，这样你就不会看到不喜欢的用户的作品了。
+
+PS：在被阻止的用户的主页里不会移除他们的作品，所以你可以正常查看他们的主页。
 
 ### ⚙️“不下载重复文件”功能改为默认启用
 
@@ -25,6 +37,17 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/457
 
 **注意：**这种优化只能对部分过滤条件生效，它们不需要获取作品的详细数据就能够判断出是否符合要求。有些过滤条件必须请求作品的详细数据才能判断，此时无法应用这个优化措施。
 
+### 😊根据文本长度，动态设置 textarea 的高度
+
+一些设置的输入框是 textarea，例如：
+- 不能含有标签
+- 用户阻止名单
+- 使用第一个匹配的标签建立文件夹。
+
+之前这些 textarea 的高度（rows）固定为 1，当内容较多时，查看和编辑起来很不方便。
+
+现在下载器会动态设置高度，最多允许同时显示 4 行（内容超过 4 行的话依然会显示滚动条）。
+
 ### 🐛修复了系列漫画最多只能抓取 100 页的问题
 
 这个系列漫画有 252 页：
@@ -35,7 +58,7 @@ https://www.pixiv.net/user/1001918/series/5915?p=252
 
 现在修复了此问题，我把最大页码修改为了 1000 页，应该够用了。不知道有没有超过 1000 页的。
 
-### 🐛修复了合并系列小说时，总会下载封面图的问题
+### 🐛修复了合并系列小说时，总会下载封面图片的问题
 
 上次更新导致少了一处条件判断，即使用户关闭了下载封面图，在合并系列小说时依然会下载。
 
@@ -232,57 +255,6 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/pull/419
 epub: fix send-to-kindle failure on notes.html
 
 ### 🕑更新了作品发布时间数据
-
-## 下载小说的测试用例
-
-小说里的图片有两种形式，P 站在小说正文里添加有对应的标记。
-1. 上传的图片，标记如 `[uploadedimage:17995414]`，其对应数据保存在 `embeddedImages` 里。
-2. 引用其他作品的图片，标记如 `[pixivimage:99760571-1]`，形式为作品 id 后面跟着图片序号，从 1 开始。但也有可能没有序号。
-
-**单篇小说：**
-
-包含 6 个嵌入的图片 `[uploadedimage:17995414]`：
-https://www.pixiv.net/novel/show.php?id=22088160
-
-包含 1 个引用的图片 `[pixivimage:70551567]`：
-https://www.pixiv.net/novel/show.php?id=10083001
-
-含有 130 个图片的小说，它的图片全都是引用自同一个插画，从 `[pixivimage:99760571-1]` 一直到 `[pixivimage:99760571-130]`：
-https://www.pixiv.net/novel/show.php?id=17968738
-
-这个小说引用的插画作品已经 404 了，因此不会保存它里面的图片：
-https://www.pixiv.net/novel/show.php?id=13898151#3
-
-没有图片的小说：
-https://www.pixiv.net/novel/show.php?id=21782995
-
-**系列小说：**
-
-这个系列小说里有 9 张图片：
-都是嵌入的 uploadedimage
-https://www.pixiv.net/novel/series/12324638
-
-这个系列小说里一共有 57 张图片，图片总体积 184.8 MB：
-都是嵌入的 uploadedimage
-https://www.pixiv.net/novel/series/10923616
-
-这个系列小说里有 227 张图片，图片总体积 418 MB：
-第一篇小说里有 2 个嵌入的图片，其他的都是引用的 pixivimage
-第二篇小说里没有图片。
-https://www.pixiv.net/novel/series/1521095
-
-没有图片的系列小说：(星铁捕奴计划)
-https://www.pixiv.net/novel/series/7616746
-
-**含有特殊字符的：**
-
-简介里含有 `&` 符号需要进行处理：
-https://www.pixiv.net/novel/show.php?id=22260000
-
-`&` 符号不能出现在 EPUB 里（至少不能出现在 book.opf 头部类似 `<dc:description>` 等一些标签里），而其转义符号 `&amp;` 包含了 `&` 本身，所以也不能用。最后我只好把它完全换掉，替换成 ` and `。但这样做有个缺点，如果这个 `&` 是网址里的，那么替换成 ` and ` 后这个网址就是错误的了。目前我还不清楚如何完美解决这个问题。
-
-标题里含有 `&` 符号需要进行处理：
-https://www.pixiv.net/novel/show.php?id=21782995
 
 ## 17.1.0 2024/08/17
 
@@ -9516,3 +9488,55 @@ https://www.pixiv.net/novel/show.php?id=21552226
 
 它后面的这篇小说有 26 张内嵌图片：
 https://www.pixiv.net/novel/show.php?id=21809989
+
+
+## 下载小说的测试用例
+
+小说里的图片有两种形式，P 站在小说正文里添加有对应的标记。
+1. 上传的图片，标记如 `[uploadedimage:17995414]`，其对应数据保存在 `embeddedImages` 里。
+2. 引用其他作品的图片，标记如 `[pixivimage:99760571-1]`，形式为作品 id 后面跟着图片序号，从 1 开始。但也有可能没有序号。
+
+**单篇小说：**
+
+包含 6 个嵌入的图片 `[uploadedimage:17995414]`：
+https://www.pixiv.net/novel/show.php?id=22088160
+
+包含 1 个引用的图片 `[pixivimage:70551567]`：
+https://www.pixiv.net/novel/show.php?id=10083001
+
+含有 130 个图片的小说，它的图片全都是引用自同一个插画，从 `[pixivimage:99760571-1]` 一直到 `[pixivimage:99760571-130]`：
+https://www.pixiv.net/novel/show.php?id=17968738
+
+这个小说引用的插画作品已经 404 了，因此不会保存它里面的图片：
+https://www.pixiv.net/novel/show.php?id=13898151#3
+
+没有图片的小说：
+https://www.pixiv.net/novel/show.php?id=21782995
+
+**系列小说：**
+
+这个系列小说里有 9 张图片：
+都是嵌入的 uploadedimage
+https://www.pixiv.net/novel/series/12324638
+
+这个系列小说里一共有 57 张图片，图片总体积 184.8 MB：
+都是嵌入的 uploadedimage
+https://www.pixiv.net/novel/series/10923616
+
+这个系列小说里有 227 张图片，图片总体积 418 MB：
+第一篇小说里有 2 个嵌入的图片，其他的都是引用的 pixivimage
+第二篇小说里没有图片。
+https://www.pixiv.net/novel/series/1521095
+
+没有图片的系列小说：(星铁捕奴计划)
+https://www.pixiv.net/novel/series/7616746
+
+**含有特殊字符的：**
+
+简介里含有 `&` 符号需要进行处理：
+https://www.pixiv.net/novel/show.php?id=22260000
+
+`&` 符号不能出现在 EPUB 里（至少不能出现在 book.opf 头部类似 `<dc:description>` 等一些标签里），而其转义符号 `&amp;` 包含了 `&` 本身，所以也不能用。最后我只好把它完全换掉，替换成 ` and `。但这样做有个缺点，如果这个 `&` 是网址里的，那么替换成 ` and ` 后这个网址就是错误的了。目前我还不清楚如何完美解决这个问题。
+
+标题里含有 `&` 符号需要进行处理：
+https://www.pixiv.net/novel/show.php?id=21782995

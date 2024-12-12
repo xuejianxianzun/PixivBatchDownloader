@@ -568,7 +568,12 @@ export const formHtml = `<form class="settingForm">
     <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
     <span class="subOptionWrap" data-show="userBlockList">
-    <input type="text" name="blockList" class="has_tip setinput_style1 blue setinput_tag" data-xztip="_用户阻止名单的说明" data-xzplaceholder="_用户ID必须是数字">
+      <textarea class="centerPanelTextArea beautify_scrollbar" name="blockList" rows="1" placeholder="11111,22222,33333"></textarea>
+      <br>
+      <input type="checkbox" name="removeBlockedUsersWork" id="setRemoveBlockedUsersWork" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="setRemoveBlockedUsersWork" data-xztext="_从页面上移除他们的作品"></label>
+      <button type="button" class="gray1 textButton" id="showRemoveBlockedUsersWorkTip" data-xztext="_提示"></button>
     </span>
     </p>
 

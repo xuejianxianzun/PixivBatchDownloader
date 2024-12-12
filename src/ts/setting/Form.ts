@@ -226,6 +226,16 @@ class Form {
         )
       )
 
+    // 显示用户阻止名单的提示
+    this.form
+      .querySelector('#showRemoveBlockedUsersWorkTip')!
+      .addEventListener('click', () => {
+        msgBox.show(lang.transl('_用户阻止名单的说明2'), {
+          title: lang.transl('_用户阻止名单'),
+        })
+      })
+
+    // 显示设置页数的提示
     const showSetWantPageTipButton = this.form.querySelector(
       '.showSetWantPageTip'
     ) as HTMLButtonElement
