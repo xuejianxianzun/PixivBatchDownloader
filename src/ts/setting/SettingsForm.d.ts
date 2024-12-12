@@ -67,6 +67,7 @@ export interface SettingsForm extends HTMLFormElement {
   restrict: RadioNodeList
   userBlockList: HTMLInputElement
   blockList: HTMLInputElement
+  removeBlockedUsersWork: HTMLInputElement
   needTagMode: RadioNodeList
   theme: RadioNodeList
   r18Folder: HTMLInputElement

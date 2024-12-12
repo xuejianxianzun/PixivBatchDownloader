@@ -52,13 +52,19 @@ class BookmarksAddTag {
     // 发起请求
     const [showData, hideData]: BookmarkData[] = await Promise.all([
       API.getBookmarkData(
-        Tools.getUserId(),
+        Tools.getCurrentPageUserID(),
         this.type,
         '未分類',
         offset,
         false
       ),
-      API.getBookmarkData(Tools.getUserId(), this.type, '未分類', offset, true),
+      API.getBookmarkData(
+        Tools.getCurrentPageUserID(),
+        this.type,
+        '未分類',
+        offset,
+        true
+      ),
     ]).catch((error) => {
       if (error.status && error.status === 403) {
         this.btn!.textContent = `× Permission denied`

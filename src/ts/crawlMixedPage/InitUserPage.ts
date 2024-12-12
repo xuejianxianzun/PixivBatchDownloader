@@ -212,7 +212,10 @@ class InitUserPage extends InitPageBase {
         break
     }
 
-    let idList = await API.getUserWorksByType(Tools.getUserId(), type)
+    let idList = await API.getUserWorksByType(
+      Tools.getCurrentPageUserID(),
+      type
+    )
 
     // 判断是否全都是小说，如果是，把每页的作品个数设置为 24 个
     const allWorkIsNovels = idList.every((data) => {
@@ -274,7 +277,7 @@ class InitUserPage extends InitPageBase {
     const maxRequest = 1000
     for (const iterator of new Array(maxRequest)) {
       let data = await API.getUserWorksByTypeWithTag(
-        Tools.getUserId(),
+        Tools.getCurrentPageUserID(),
         type,
         store.tag,
         offset,

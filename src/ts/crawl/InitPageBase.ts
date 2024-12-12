@@ -315,6 +315,25 @@ abstract class InitPageBase {
     states.slowCrawlMode = false
     this.resetGetIdListStatus()
 
+    // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则直接剔除它
+    // 现在这里能够检查这些过滤条件：
+    // 1. 检查 id 是否符合 id 范围条件
+    // 2. 检查 id 的发布时间是否符合时间范围条件
+    // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，
+    // 但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
+    const filteredIDList: IDData[] = []
+    for (const idData of store.idList) {
+      const check = await filter.check({
+        id: idData.id,
+        workTypeString: idData.type,
+        workType: Tools.getWorkTypeVague(idData.type),
+      })
+      if (check) {
+        filteredIDList.push(idData)
+      }
+    }
+    store.idList = filteredIDList
+
     EVT.fire('getIdListFinished')
     if (states.stopCrawl || states.bookmarkMode) {
       return
@@ -409,8 +428,8 @@ abstract class InitPageBase {
       throw new Error(msg)
     }
 
-    // 在抓取之前，预先对 id 进行检查，如果不符合要求则不发送这个请求，直接跳过它
-    // 现在这里能够检查 2 种设置条件：
+    // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则跳过它
+    // 现在这里能够检查这些过滤条件：
     // 1. 检查 id 是否符合 id 范围条件
     // 2. 检查 id 的发布时间是否符合时间范围条件
     // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，

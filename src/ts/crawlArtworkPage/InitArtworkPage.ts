@@ -106,7 +106,10 @@ class InitArtworkPage extends InitPageBase {
 
   protected async getIdList() {
     let type: userWorksType[] = ['illusts', 'manga']
-    let idList = await API.getUserWorksByType(Tools.getUserId(), type)
+    let idList = await API.getUserWorksByType(
+      Tools.getCurrentPageUserID(),
+      type
+    )
 
     // 储存符合条件的 id
     let nowId = parseInt(Tools.getIllustId(window.location.href))
