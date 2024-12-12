@@ -19,7 +19,11 @@ class RemoveBlockedUsersWork {
     // 当初始化时，以及用户修改了屏蔽列表时进行检查
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data as any
-      if (data.name === 'blockList' || data.name === 'removeBlockedUsersWork') {
+      if (
+        data.name === 'userBlockList' ||
+        data.name === 'blockList' ||
+        data.name === 'removeBlockedUsersWork'
+      ) {
         this.check()
       }
     })
@@ -126,7 +130,7 @@ class RemoveBlockedUsersWork {
   // 非常广泛
 
   // ul>div
-  // 主要是首页里的元素，如 关注用户・好P友的作品 等
+  // 主要是首页里的元素，如 关注用户・好P友的作品 等。其他页面里也有一些地方是这个选择器
 
   private findContainerEl(link: HTMLAnchorElement) {
     let container: HTMLElement | null = null

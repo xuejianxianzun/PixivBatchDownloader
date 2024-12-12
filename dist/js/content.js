@@ -5923,7 +5923,9 @@ class RemoveBlockedUsersWork {
         // 当初始化时，以及用户修改了屏蔽列表时进行检查
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
-            if (data.name === 'blockList' || data.name === 'removeBlockedUsersWork') {
+            if (data.name === 'userBlockList' ||
+                data.name === 'blockList' ||
+                data.name === 'removeBlockedUsersWork') {
                 this.check();
             }
         });
@@ -5953,7 +5955,7 @@ class RemoveBlockedUsersWork {
     // li
     // 非常广泛
     // ul>div
-    // 主要是首页里的元素，如 关注用户・好P友的作品 等
+    // 主要是首页里的元素，如 关注用户・好P友的作品 等。其他页面里也有一些地方是这个选择器
     findContainerEl(link) {
         let container = null;
         // 在某些页面里使用特定的选择器
@@ -7744,23 +7746,25 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.2.0';
+        this.flag = '17.3.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong><span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增设置项')}: </span><span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载间隔')}</span></strong>
+            let msg = `<strong><span>✨${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}: </span><span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_移除用户阻止名单里的用户的作品')}</span></strong>
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载'))}
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_用户阻止名单的说明2')}</span>
       <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_该功能默认启用')}</span>
       <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载间隔的说明')}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取'))}
+      <br>
       <br>
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
       <br>
       <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_其他优化')}</span>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
       `;
             // <strong><span>${lang.transl('_新增设置项')}:</span></strong>
             // <span class="blue">${lang.transl('_下载间隔')}</span>
@@ -7769,9 +7773,10 @@ class ShowWhatIsNew {
             //   lang.transl('_下载')
             // )}
             // <br>
-            // <span>${lang.transl('_优化性能和用户体验')}</span>
             // <br>
+            // <span>${lang.transl('_该功能默认启用')}</span>
             // <span>${lang.transl('_修复已知问题')}</span>
+            // <span>${lang.transl('_优化性能和用户体验')}</span>
             // <span>${lang.transl('_其他优化')}</span>
             // 在更新说明的下方显示赞助提示
             msg += `
@@ -24690,7 +24695,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
         '가로 그림은 두 배의 너비를 차지',
         'Горизонтальное изображение занимает вдвое большую ширину',
     ],
-    _该功能默认开启: [
+    _该功能默认启用: [
         '这个功能默认启用。',
         '這個功能預設啟用。',
         'This feature is enabled by default.',
@@ -26077,6 +26082,14 @@ PS: The works of blocked users will not be removed from their homepages, so you 
 PS: 차단된 사용자의 작품은 홈페이지에서 제거되지 않으므로, 해당 홈페이지를 정상적으로 볼 수 있습니다.`,
         `Загрузчик не будет сканировать работы пользователей из «списка заблокированных пользователей», а также может удалить их работы со страницы, так что вы не увидите работы пользователей, которые вам не нравятся. <br>
 P.S. Работы заблокированных пользователей не будут удалены с их домашних страниц, так что вы сможете просматривать их домашние страницы как обычно.`,
+    ],
+    _移除用户阻止名单里的用户的作品: [
+        '移除“用户阻止名单”里的用户的作品',
+        '移除“使用者阻止名單”裡的使用者的作品',
+        'Remove works from users in the "User Blocklist"',
+        '「ユーザーブロックリスト」のユーザーから作品を削除する',
+        '"사용자 차단 목록"에 있는 사용자의 작품을 제거합니다.',
+        'Удалить работы пользователей из «Черного списка пользователей»',
     ],
 };
 
