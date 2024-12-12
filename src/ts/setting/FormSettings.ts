@@ -73,6 +73,7 @@ class FormSettings {
       'fileNameLengthLimitSwitch',
       'bmkAfterDL',
       'userBlockList',
+      'removeBlockedUsersWork',
       'blockTagsForSpecificUser',
       'bgDisplay',
       'createFolderByType',
@@ -145,7 +146,6 @@ class FormSettings {
       'userRatio',
       'idRangeInput',
       'needTag',
-      'notNeedTag',
       'workDirFileNumber',
       'r18FolderName',
       'sizeMin',
@@ -154,7 +154,6 @@ class FormSettings {
       'fileNameLengthLimit',
       'dateFormat',
       'tagsSeparator',
-      'blockList',
       'bgOpacity',
       'zeroPaddingLength',
       'workDirNameRule',
@@ -195,7 +194,7 @@ class FormSettings {
       'downloadOrder',
       'downloadOrderSortBy',
     ],
-    textarea: ['createFolderTagList'],
+    textarea: ['notNeedTag', 'blockList', 'createFolderTagList'],
     datetime: ['postDateStart', 'postDateEnd'],
   }
 
@@ -216,7 +215,7 @@ class FormSettings {
   }
 
   // 监听所有输入选项的变化
-  // 该函数可执行一次，否则事件会重复绑定
+  // 该函数只应执行一次，否则事件会重复绑定
   private ListenChange() {
     for (const name of this.inputFileds.text) {
       // 对于某些特定输入框，不使用通用的事件处理函数
@@ -251,6 +250,30 @@ class FormSettings {
     }
   }
 
+  /**根据文本长度，动态设置 textarea 的高度 */
+  private setRows(name: SettingKeys) {
+    // 下载器的 textarea 默认 rows 是 1，随着内容增多，应该增大 rows，以提供更好的交互体验
+    // 由于文本内容可能有数字、字母、中日文，所以 length 只是个大致的值。
+    // 对于中日文，假设 50 个字符为一行（PC 端的宽度）
+    // 对于数字、字母，80 个字符为一行
+    let oneRowLength = 50
+    if (name === 'blockList') {
+      oneRowLength = 80
+    }
+    const el = this.form[name] as HTMLInputElement
+
+    let rows = Math.ceil(el.value.length / oneRowLength)
+    // 如果值是空字符串，rows 会是 0，此时设置为 1
+    if (rows === 0) {
+      rows = 1
+    }
+    // 最大 rows 限制为 4
+    if (rows > 4) {
+      rows = 4
+    }
+    el.setAttribute('rows', rows.toString())
+  }
+
   // 读取设置，恢复到表单里
   private restoreFormSettings() {
     for (const name of this.inputFileds.text) {
@@ -269,6 +292,7 @@ class FormSettings {
 
     for (const name of this.inputFileds.textarea) {
       this.restoreString(name)
+      this.setRows(name)
     }
 
     for (const name of this.inputFileds.checkbox) {
@@ -287,6 +311,9 @@ class FormSettings {
     const el = this.form[name] as HTMLInputElement
     el.addEventListener('change', () => {
       setSetting(name, el.value)
+      if (this.inputFileds.textarea.includes(name)) {
+        this.setRows(name)
+      }
     })
   }
 

@@ -84,7 +84,7 @@ class CheckUser {
       if (this.target === avatar || this.target === h1) {
         this.activeEl = this.target
 
-        const userID = Tools.getUserId()
+        const userID = Tools.getCurrentPageUserID()
         const result = this.checkSettings(userID)
         this.createPanel(result, userID)
         return
@@ -104,7 +104,7 @@ class CheckUser {
     // 在画师主页里，如果超链接的用户 ID 就是网址里的 ID，说明这是“主页”按钮链接。
     // 此时不显示面板
     if (pageType.type === pageType.list.UserHome) {
-      if (Tools.getUserId() === userID) {
+      if (Tools.getCurrentPageUserID() === userID) {
         return
       }
     }
@@ -314,7 +314,7 @@ class CheckUser {
     if (pageType.type === pageType.list.UserHome) {
       // 在画师主页里，如果超链接的用户 ID 不是地址栏里的 ID，则是底部弹出的推荐关注画师
       // 面板需要显示在上方
-      if (Tools.getUserId() !== userID) {
+      if (Tools.getCurrentPageUserID() !== userID) {
         showTop = true
       }
     }

@@ -316,7 +316,7 @@ class InitBookmarkPage extends InitPageBase {
     if (loadedJSON.length > 200) {
       log.log(lang.transl('_加载收藏列表'))
       // 注意，这里使用的必须是当前登录用户的 ID
-      // 由于用户可能会在其他用户的页面上执行这个功能，所以不能使用 Tools.getUserId()
+      // 由于用户可能会在其他用户的页面上执行这个功能，所以不能使用 Tools.getCurrentPageUserID()
       const userID = store.loggedUserID
       let loadIllust = loadedJSON.some((item) => item.type === 'illusts')
       let loadNovel = loadedJSON.some((item) => item.type === 'novels')
@@ -423,7 +423,7 @@ class InitBookmarkPage extends InitPageBase {
     let data: BookmarkData
     try {
       data = await API.getBookmarkData(
-        Tools.getUserId(),
+        Tools.getCurrentPageUserID(),
         this.type,
         store.tag,
         this.offset,

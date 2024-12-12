@@ -92,7 +92,7 @@ class CheckTag {
       }
     }
 
-    const uid = Number.parseInt(Tools.getUserId())
+    const uid = Number.parseInt(Tools.getCurrentPageUserID())
     for (const item of settings.blockTagsForSpecificUserList) {
       if (item.uid === uid && item.tags.includes(tag)) {
         result.blockTags = true
@@ -282,7 +282,7 @@ class CheckTag {
   }
 
   private async blockTagsForUser(tag: string) {
-    const uid = Number.parseInt(Tools.getUserId())
+    const uid = Number.parseInt(Tools.getCurrentPageUserID())
     const index = settings.blockTagsForSpecificUserList.findIndex(
       (item) => item.uid === uid
     )
@@ -311,7 +311,7 @@ class CheckTag {
   }
 
   private removeBlockTagsForUser(tag: string) {
-    const uid = Number.parseInt(Tools.getUserId())
+    const uid = Number.parseInt(Tools.getCurrentPageUserID())
     const index = settings.blockTagsForSpecificUserList.findIndex(
       (item) => item.uid === uid
     )
