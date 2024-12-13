@@ -33,7 +33,8 @@ class MakeNovelFile {
   static makeEPUB(data: NovelMeta, saveMeta = true): Promise<Blob> {
     return new Promise(async (resolve, reject) => {
       let content = saveMeta ? data.meta + data.content : data.content
-      content = Tools.replaceEPUBText(content)
+      //使用新的function统一替换添加<p>与</p>， 以对应EPUB文本惯例
+      content = Tools.replaceEPUBTextWithP(content)
 
       const userName = Tools.replaceEPUBText(
         Utils.replaceUnsafeStr(data.userName)
@@ -69,8 +70,9 @@ class MakeNovelFile {
         // 有的小说简介里含有 & 符号，需要转换成别的字符，否则会导致阅读器解析时出错
         // 如 https://www.pixiv.net/novel/show.php?id=22260000
         tags: data.tags || [],
+        //使用新的function统一替换添加<p>与</p>， 以对应EPUB文本惯例
         description:
-          date + '<br/><br/>' + Tools.replaceEPUBText(data.description),
+          `<p>${date}</p>` + Tools.replaceEPUBTextWithP(data.description),
       })
 
       jepub.uuid(novelURL)

@@ -13,9 +13,8 @@ class DoubleWidthThumb {
   /* 双倍宽度的图片的 id（由下载器添加这个 id） */
   private readonly addId = 'doubleWidth'
   private readonly styleId = 'doubleWidthStyle'
-  private readonly css = `#doubleWidth {
-    width: 30% !important;
-  }`
+  private readonly css = `#doubleWidth {width: 30% !important;}
+  #doubleWidth > div, #doubleWidth div[width="184"] {width: 100% !important;}`
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {

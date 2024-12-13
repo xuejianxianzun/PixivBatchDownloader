@@ -142,6 +142,7 @@ interface XzSetting {
 
   userBlockList: boolean
   blockList: string[]
+  removeBlockedUsersWork: boolean
   needTagMode: 'all' | 'one'
   theme: 'auto' | 'white' | 'dark'
   r18Folder: boolean
@@ -352,7 +353,7 @@ class Settings {
     sizeMax: 100,
     novelSaveAs: 'txt',
     saveNovelMeta: false,
-    deduplication: false,
+    deduplication: true,
     dupliStrategy: 'loose',
     fileNameLengthLimitSwitch: false,
     tagsSeparator: ',',
@@ -365,7 +366,8 @@ class Settings {
     restrict: 'no',
     widthTagBoolean: true,
     restrictBoolean: false,
-    userBlockList: false,
+    userBlockList: true,
+    removeBlockedUsersWork: true,
     blockList: [],
     theme: 'auto',
     needTagMode: 'all',

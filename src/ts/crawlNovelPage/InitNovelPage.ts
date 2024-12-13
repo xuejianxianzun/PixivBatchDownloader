@@ -72,7 +72,10 @@ class InitNovelPage extends InitPageBase {
 
   protected async getIdList() {
     let type: userWorksType[] = ['novels']
-    let idList = await API.getUserWorksByType(Tools.getUserId(), type)
+    let idList = await API.getUserWorksByType(
+      Tools.getCurrentPageUserID(),
+      type
+    )
 
     // 储存符合条件的 id
     let nowId = parseInt(Tools.getNovelId(window.location.href))

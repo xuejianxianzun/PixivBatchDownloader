@@ -79,10 +79,12 @@ div[data-gtm-recommend-zone='discovery'] ul div[size='184'] > div,
 
 /* div[width="184"] a */
 /* 这是 img 外部的 a 标签，让它继承父元素的高度。否则有时 img 始终是最大高度 540px，导致图片高度自动居中失效 */
+// width: 100%; 是为了让尺寸较小（如 320px）的图片铺满容器宽度
 div[data-gtm-recommend-zone='discovery'] ul div[size='184'] a,
 .fGjAxR {
   display: inline-flex;
   height: 100%;
+  width: 100%;
 }
 
 /* div[width="184"] a div */
@@ -139,6 +141,7 @@ div[width='104'] .eCFXg {
 .jCNiwq {
   mask-image: unset !important;
 }
+
 .jCNiwq > div {
   display: none;
 }
@@ -513,6 +516,7 @@ a[data-gtm-value] img,
 .sc-a4p1vl-0 {
   height: auto !important;
 }
+
 // 推荐作品的图片列表的父元素，这条规则让图片水平居中对齐
 .kOHspG,
 .sc-a4p1vl-3 {

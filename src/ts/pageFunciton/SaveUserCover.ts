@@ -19,7 +19,7 @@ class SaveUserCover {
   }
 
   private async saveUserCover() {
-    const userId = Tools.getUserId()
+    const userId = Tools.getCurrentPageUserID()
     const userProfile = await API.getUserProfile(userId)
     const bgData = userProfile.body.background
     if (bgData === null) {
