@@ -1759,9 +1759,8 @@ class DoubleWidthThumb {
         /* 双倍宽度的图片的 id（由下载器添加这个 id） */
         this.addId = 'doubleWidth';
         this.styleId = 'doubleWidthStyle';
-        this.css = `#doubleWidth {
-    width: 30% !important;
-  }`;
+        this.css = `#doubleWidth {width: 30% !important;}
+  #doubleWidth > div, #doubleWidth div[width="184"] {width: 100% !important;}`;
         this.bindEvents();
     }
     bindEvents() {
@@ -2535,7 +2534,7 @@ class FindHorizontalImageWrap {
         // 寻找作品缩略图的容器时使用的选择器
         // 并不是所有容器都需要处理，只需要处理应用了“显示更大的缩略图”的容器
         // 有些缩略图并不会被放大，也就不用处理它们的容器
-        this.wrapSelectors = ['.searchList', 'li[size="1"]'];
+        this.workWrapSelectors = ['.searchList', 'li[size="1"]', 'ul>div'];
         this.onFindCB = [];
         this.obBody();
     }
@@ -2546,6 +2545,9 @@ class FindHorizontalImageWrap {
     // observer 可以捕获到添加的 img 标签，并且有 src 属性
     // 如果开启了下载器的替换方形缩略图功能，则捕获到的 src 是替换后的
     // 如果 img 的 src 是在缓存里的（并且没有禁用缓存），则捕获到它时就已经 complete 了
+    // 首页的“关注用户・好P友的作品”和排行榜区域这样的横向滚动区域是分多次添加的：
+    // 1. 页面加载时，这块区域是一次性添加的，添加的是最外层的 div，里面包含了作品列表，但只有前 8 个作品，后面是一些空壳容器
+    // 2. 当用户向右滚动时，动态添加后续作品，此时既会添加单个 img 元素来填充空壳容器，还会添加单个的新的空壳容器（div）
     obBody() {
         const ob = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
@@ -2565,16 +2567,22 @@ class FindHorizontalImageWrap {
                         else if (e.nodeName === 'IMG' && e.src) {
                             if (_PageType__WEBPACK_IMPORTED_MODULE_0__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_0__.pageType.list.ArtworkSearch) {
                                 // 在搜索页面里，添加的元素是 img 而不是其容器 li
-                                const li = e.parentElement?.parentElement?.parentElement?.parentElement
-                                    ?.parentElement?.parentElement;
-                                if (li && li.nodeName === 'LI') {
+                                const li = e.closest('li');
+                                if (li) {
                                     this.readyCheckImage(e, li);
+                                }
+                            }
+                            else {
+                                // 在其他页面里（主要是首页），横向滚动区域里的一些作品是动态添加 img 元素的，寻找其父元素
+                                const parent = e.closest('ul>div');
+                                if (parent) {
+                                    this.readyCheckImage(e, parent);
                                 }
                             }
                         }
                         else if (e.nodeType === 1) {
-                            // 添加的不是 li，则试图从元素中寻找缩略图容器
-                            for (const selector of this.wrapSelectors) {
+                            // 如果添加的不是 li，则尝试在子元素里寻找缩略图容器
+                            for (const selector of this.workWrapSelectors) {
                                 const elList = e.querySelectorAll(selector);
                                 for (const el of elList) {
                                     wrapList.push(el);
@@ -5953,7 +5961,6 @@ class RemoveBlockedUsersWork {
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.blockList.length === 0) {
                 return;
             }
-            console.log('check');
             let currentUserID = '';
             if (this.dontRemoveCurrentUser.includes(_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type)) {
                 currentUserID = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getCurrentPageUserID();
@@ -5996,7 +6003,9 @@ class RemoveBlockedUsersWork {
         // 当初始化时，以及用户修改了屏蔽列表时进行检查
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
-            if (data.name === 'blockList' || data.name === 'removeBlockedUsersWork') {
+            if (data.name === 'userBlockList' ||
+                data.name === 'blockList' ||
+                data.name === 'removeBlockedUsersWork') {
                 this.check();
             }
         });
@@ -6026,7 +6035,7 @@ class RemoveBlockedUsersWork {
     // li
     // 非常广泛
     // ul>div
-    // 主要是首页里的元素，如 关注用户・好P友的作品 等
+    // 主要是首页里的元素，如 关注用户・好P友的作品 等。其他页面里也有一些地方是这个选择器
     findContainerEl(link) {
         let container = null;
         // 在某些页面里使用特定的选择器
@@ -7817,23 +7826,25 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.2.0';
+        this.flag = '17.3.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong><span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增设置项')}: </span><span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载间隔')}</span></strong>
+            let msg = `<strong><span>✨${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}: </span><span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_移除用户阻止名单里的用户的作品')}</span></strong>
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载'))}
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_用户阻止名单的说明2')}</span>
       <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_该功能默认启用')}</span>
       <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载间隔的说明')}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取'))}
+      <br>
       <br>
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
       <br>
       <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_其他优化')}</span>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
       `;
             // <strong><span>${lang.transl('_新增设置项')}:</span></strong>
             // <span class="blue">${lang.transl('_下载间隔')}</span>
@@ -7842,9 +7853,10 @@ class ShowWhatIsNew {
             //   lang.transl('_下载')
             // )}
             // <br>
-            // <span>${lang.transl('_优化性能和用户体验')}</span>
             // <br>
+            // <span>${lang.transl('_该功能默认启用')}</span>
             // <span>${lang.transl('_修复已知问题')}</span>
+            // <span>${lang.transl('_优化性能和用户体验')}</span>
             // <span>${lang.transl('_其他优化')}</span>
             // 在更新说明的下方显示赞助提示
             msg += `
@@ -21233,12 +21245,12 @@ class WorkPublishTime {
     }
     bindEvents() {
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 124350000
-            this.crawlData(121910000, 124355845);
+            // 上次记录到 125130000
+            this.crawlData(124360000, 125133163);
         });
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 23410001
-            this.crawlData(22880000, 23419624, 'novels');
+            // 上次记录到 23580001
+            this.crawlData(23420001, 23588685, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -24763,7 +24775,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
         '가로 그림은 두 배의 너비를 차지',
         'Горизонтальное изображение занимает вдвое большую ширину',
     ],
-    _该功能默认开启: [
+    _该功能默认启用: [
         '这个功能默认启用。',
         '這個功能預設啟用。',
         'This feature is enabled by default.',
@@ -26150,6 +26162,14 @@ PS: The works of blocked users will not be removed from their homepages, so you 
 PS: 차단된 사용자의 작품은 홈페이지에서 제거되지 않으므로, 해당 홈페이지를 정상적으로 볼 수 있습니다.`,
         `Загрузчик не будет сканировать работы пользователей из «списка заблокированных пользователей», а также может удалить их работы со страницы, так что вы не увидите работы пользователей, которые вам не нравятся. <br>
 P.S. Работы заблокированных пользователей не будут удалены с их домашних страниц, так что вы сможете просматривать их домашние страницы как обычно.`,
+    ],
+    _移除用户阻止名单里的用户的作品: [
+        '移除“用户阻止名单”里的用户的作品',
+        '移除“使用者阻止名單”裡的使用者的作品',
+        'Remove works from users in the "User Blocklist"',
+        '「ユーザーブロックリスト」のユーザーから作品を削除する',
+        '"사용자 차단 목록"에 있는 사용자의 작품을 제거합니다.',
+        'Удалить работы пользователей из «Черного списка пользователей»',
     ],
 };
 
@@ -44589,6 +44609,84 @@ const illustsData = [
     [124330000, 1731679560000],
     [124340001, 1731709140000],
     [124350000, 1731740700000],
+    [124360001, 1731760260000],
+    [124370000, 1731778260000],
+    [124380000, 1731816300000],
+    [124390000, 1731838440000],
+    [124400001, 1731853860000],
+    [124410000, 1731886620000],
+    [124420000, 1731923580000],
+    [124430000, 1731942000000],
+    [124440000, 1731982380000],
+    [124450001, 1732014900000],
+    [124460000, 1732033980000],
+    [124470000, 1732080540000],
+    [124480001, 1732106460000],
+    [124490001, 1732130580000],
+    [124500001, 1732176360000],
+    [124510000, 1732197780000],
+    [124520000, 1732232580000],
+    [124530000, 1732269660000],
+    [124540000, 1732287600000],
+    [124550000, 1732323600000],
+    [124560000, 1732352400000],
+    [124570000, 1732370940000],
+    [124580000, 1732399740000],
+    [124590000, 1732430940000],
+    [124600000, 1732449660000],
+    [124610001, 1732465560000],
+    [124620000, 1732511520000],
+    [124630000, 1732538040000],
+    [124640000, 1732562040000],
+    [124650000, 1732607280000],
+    [124660000, 1732628460000],
+    [124670000, 1732658400000],
+    [124680000, 1732698420000],
+    [124690000, 1732718040000],
+    [124700000, 1732753080000],
+    [124710000, 1732789260000],
+    [124720000, 1732806960000],
+    [124730000, 1732849200000],
+    [124740000, 1732878300000],
+    [124750000, 1732894560000],
+    [124760000, 1732931460000],
+    [124770000, 1732958100000],
+    [124780000, 1732975200000],
+    [124790000, 1732999800000],
+    [124800000, 1733031780000],
+    [124810001, 1733052360000],
+    [124820000, 1733067240000],
+    [124830000, 1733109600000],
+    [124840000, 1733139180000],
+    [124850000, 1733157180000],
+    [124860000, 1733202600000],
+    [124870000, 1733229300000],
+    [124880000, 1733254920000],
+    [124890001, 1733300400000],
+    [124900000, 1733320860000],
+    [124910000, 1733356500000],
+    [124920000, 1733393100000],
+    [124930001, 1733412000000],
+    [124940000, 1733456940000],
+    [124950000, 1733485560000],
+    [124960000, 1733504100000],
+    [124970000, 1733545620000],
+    [124980000, 1733569680000],
+    [124990000, 1733586480000],
+    [125000000, 1733625600000],
+    [125010000, 1733649780000],
+    [125020000, 1733666880000],
+    [125030000, 1733698800000],
+    [125040000, 1733737620000],
+    [125050000, 1733756460000],
+    [125060000, 1733798520000],
+    [125070000, 1733829300000],
+    [125080000, 1733848320000],
+    [125090000, 1733896440000],
+    [125100000, 1733921640000],
+    [125110000, 1733949180000],
+    [125120000, 1733991780000],
+    [125130000, 1734012360000],
 ];
 
 
@@ -46947,6 +47045,23 @@ const novelData = [
     [23390001, 1731332783000],
     [23400001, 1731483063000],
     [23410001, 1731604116000],
+    [23420001, 1731756397000],
+    [23430000, 1731856607000],
+    [23440000, 1732014001000],
+    [23450000, 1732164474000],
+    [23460000, 1732286949000],
+    [23470000, 1732417363000],
+    [23480000, 1732538545000],
+    [23490001, 1732690392000],
+    [23500000, 1732830468000],
+    [23510000, 1732962071000],
+    [23520000, 1733060854000],
+    [23530002, 1733214677000],
+    [23540000, 1733359235000],
+    [23550000, 1733493863000],
+    [23560000, 1733622771000],
+    [23570000, 1733748205000],
+    [23580001, 1733905670000],
 ];
 
 
@@ -48215,23 +48330,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DoubleWidthThumb__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./DoubleWidthThumb */ "./src/ts/DoubleWidthThumb.ts");
 /* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
 /* harmony import */ var _showDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./showDownloadBtnOnThumb */ "./src/ts/showDownloadBtnOnThumb.ts");
-<<<<<<< HEAD:dist-offline/js/content.js
-/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
-/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
-/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
-/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
-/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
-/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
-/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _download_SaveWorkDescription__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/SaveWorkDescription */ "./src/ts/download/SaveWorkDescription.ts");
-/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
-/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
-/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
-/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
-/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
-=======
 /* harmony import */ var _RemoveBlockedUsersWork__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./RemoveBlockedUsersWork */ "./src/ts/RemoveBlockedUsersWork.ts");
 /* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
 /* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
@@ -48247,13 +48345,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
 /* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
 /* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
->>>>>>> dev:dist/js/content.js
-/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
-/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
+/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
+/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -48301,10 +48399,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-<<<<<<< HEAD:dist-offline/js/content.js
-=======
-// import './CheckNewVersion'
->>>>>>> dev:dist/js/content.js
+
 
 
 
