@@ -3906,7 +3906,7 @@ class Log {
             _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textError,
         ];
         /**每个日志区域允许显示多少条日志 */
-        this.max = 100;
+        this.max = 300;
         /**日志条数。刷新的日志不会计入 */
         this.count = 0;
         /** 保存日志历史。刷新的日志不会保存 */
@@ -15860,7 +15860,7 @@ class Download {
             return this.skipDownload({
                 id: arg.id,
                 reason: 'duplicate',
-            }, _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_跳过下载因为重复文件', _Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.createWorkLink(arg.id, arg.result.type !== 3)));
+            }, _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_跳过下载因为', _Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.createWorkLink(arg.id, arg.result.type !== 3)) + _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_不下载重复文件'));
         }
         // 如果是动图，再次检查是否排除了动图
         // 因为有时候用户在抓取时没有排除动图，但是在下载时排除了动图。所以下载时需要再次检查
@@ -23304,6 +23304,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
         '重複ファイル {} をスキップ',
         '파일 {}이(가) 이미 다운로드되어 있어, 다운로드를 건너뜁니다',
         'Пропустить загрузку дубликатов файлов {}',
+    ],
+    _跳过下载因为: [
+        '跳过 {} 因为：',
+        '跳過 {} 因為：',
+        'Skipping {} because: ',
+        '{} をスキップします。理由: ',
+        '{}를 건너뜁니다. 이유: ',
+        'Пропустить {}, потому что: ',
     ],
     _保存用户头像为图标: [
         '保存用户头像为图标',
