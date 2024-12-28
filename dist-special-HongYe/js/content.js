@@ -2409,9 +2409,8 @@ class DoubleWidthThumb {
         /* 双倍宽度的图片的 id（由下载器添加这个 id） */
         this.addId = 'doubleWidth';
         this.styleId = 'doubleWidthStyle';
-        this.css = `#doubleWidth {
-    width: 30% !important;
-  }`;
+        this.css = `#doubleWidth {width: 30% !important;}
+  #doubleWidth > div, #doubleWidth div[width="184"] {width: 100% !important;}`;
         this.bindEvents();
     }
     bindEvents() {
@@ -3185,7 +3184,7 @@ class FindHorizontalImageWrap {
         // 寻找作品缩略图的容器时使用的选择器
         // 并不是所有容器都需要处理，只需要处理应用了“显示更大的缩略图”的容器
         // 有些缩略图并不会被放大，也就不用处理它们的容器
-        this.wrapSelectors = ['.searchList', 'li[size="1"]'];
+        this.workWrapSelectors = ['.searchList', 'li[size="1"]', 'ul>div'];
         this.onFindCB = [];
         this.obBody();
     }
@@ -3196,6 +3195,9 @@ class FindHorizontalImageWrap {
     // observer 可以捕获到添加的 img 标签，并且有 src 属性
     // 如果开启了下载器的替换方形缩略图功能，则捕获到的 src 是替换后的
     // 如果 img 的 src 是在缓存里的（并且没有禁用缓存），则捕获到它时就已经 complete 了
+    // 首页的“关注用户・好P友的作品”和排行榜区域这样的横向滚动区域是分多次添加的：
+    // 1. 页面加载时，这块区域是一次性添加的，添加的是最外层的 div，里面包含了作品列表，但只有前 8 个作品，后面是一些空壳容器
+    // 2. 当用户向右滚动时，动态添加后续作品，此时既会添加单个 img 元素来填充空壳容器，还会添加单个的新的空壳容器（div）
     obBody() {
         const ob = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
@@ -3215,16 +3217,22 @@ class FindHorizontalImageWrap {
                         else if (e.nodeName === 'IMG' && e.src) {
                             if (_PageType__WEBPACK_IMPORTED_MODULE_0__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_0__.pageType.list.ArtworkSearch) {
                                 // 在搜索页面里，添加的元素是 img 而不是其容器 li
-                                const li = e.parentElement?.parentElement?.parentElement?.parentElement
-                                    ?.parentElement?.parentElement;
-                                if (li && li.nodeName === 'LI') {
+                                const li = e.closest('li');
+                                if (li) {
                                     this.readyCheckImage(e, li);
+                                }
+                            }
+                            else {
+                                // 在其他页面里（主要是首页），横向滚动区域里的一些作品是动态添加 img 元素的，寻找其父元素
+                                const parent = e.closest('ul>div');
+                                if (parent) {
+                                    this.readyCheckImage(e, parent);
                                 }
                             }
                         }
                         else if (e.nodeType === 1) {
-                            // 添加的不是 li，则试图从元素中寻找缩略图容器
-                            for (const selector of this.wrapSelectors) {
+                            // 如果添加的不是 li，则尝试在子元素里寻找缩略图容器
+                            for (const selector of this.workWrapSelectors) {
                                 const elList = e.querySelectorAll(selector);
                                 for (const el of elList) {
                                     wrapList.push(el);
@@ -4687,7 +4695,7 @@ class Log {
             _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textError,
         ];
         /**每个日志区域允许显示多少条日志 */
-        this.max = 100;
+        this.max = 300;
         /**日志条数。刷新的日志不会计入 */
         this.count = 0;
         /** 保存日志历史。刷新的日志不会保存 */
@@ -5802,6 +5810,8 @@ class PreviewWork {
         this.workId = '';
         // 显示作品中的第几张图片
         this.index = 0;
+        // 保存每个预览过的作品的 index。当用户再次预览这个作品时，可以恢复上次的进度
+        this.indexHistory = {};
         // 延迟显示预览区域的定时器
         // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片，这是为了避免浪费网络资源
         this.delayShowTimer = undefined;
@@ -5841,7 +5851,10 @@ class PreviewWork {
     set show(val) {
         if (val) {
             this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.get(this.workId);
-            // 如果保存的作品数据不是最后一个鼠标经过的作品，可能是请求尚未完成，此时延长等待时间
+            // 这两个判断条件其实是等价的
+            // 因为在 show 之前会先获取作品数据
+            // 所以如果在这里获取不到作品数据，说明用户在等待请求期间移动了鼠标到另一个没有获取过数据的作品上
+            // 现在的作品已经不是前面请求的那个作品了
             if (!this.workData || this.workData.body.id !== this.workId) {
                 this.readyShow();
             }
@@ -5851,14 +5864,12 @@ class PreviewWork {
                     _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('showPreviewWorkDetailPanel', this.workData);
                 }
                 this.sendUrls();
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.PreviewWork) {
-                    this._show = true;
-                    _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__.showOriginSizeImage.hide();
-                    this.showWrap();
-                    window.clearTimeout(this.delayHiddenTimer);
-                    if (!_Config__WEBPACK_IMPORTED_MODULE_15__.Config.mobile) {
-                        _ShowHelp__WEBPACK_IMPORTED_MODULE_13__.showHelp.show('tipPreviewWork', _Lang__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品的快捷键说明'));
-                    }
+                this._show = true;
+                _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__.showOriginSizeImage.hide();
+                this.showWrap();
+                window.clearTimeout(this.delayHiddenTimer);
+                if (!_Config__WEBPACK_IMPORTED_MODULE_15__.Config.mobile) {
+                    _ShowHelp__WEBPACK_IMPORTED_MODULE_13__.showHelp.show('tipPreviewWork', _Lang__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品的快捷键说明'));
                 }
             }
         }
@@ -5896,21 +5907,20 @@ class PreviewWork {
             }
             // 当鼠标进入到不同作品时
             // 隐藏之前的预览图
-            // 重置 index
             if (this.workId !== id) {
                 this.show = false;
-                this.index = 0;
+                // 设置 index
+                this.index = this.indexHistory[id] || 0;
             }
             this.workId = id;
             this.workEL = el;
-            if (!_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.has(id)) {
-                // 如果在缓存中没有找到这个作品的数据，则发起请求
-                this.fetchWorkData();
-            }
-            else {
-                this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.get(id);
-            }
-            this.readyShow();
+            // 判断是插画还是动图，然后根据设置决定是否加载作品数据
+            // 动图有一个特定元素：circle，就是播放按钮的圆形背景
+            // 需要注意：在某些页面里没有这个元素，比如浏览历史里。
+            // 不过现在下载器也没有支持浏览历史页面，所以没有影响。
+            const ugoira = el.querySelector('circle');
+            const show = ugoira ? _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.previewUgoira : _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.PreviewWork;
+            show && this.readyShow();
             el.addEventListener('mousewheel', this.onWheelScroll);
         });
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__.artworkThumbnail.onLeave((el) => {
@@ -6114,11 +6124,8 @@ class PreviewWork {
                 this.index = 0;
             }
         }
+        this.indexHistory[this.workId] = this.index;
         this.showWrap();
-    }
-    async fetchWorkData() {
-        const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(this.workId);
-        _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.set(data);
     }
     async addBookmark() {
         if (this.workData?.body.illustId === undefined) {
@@ -6152,7 +6159,12 @@ class PreviewWork {
         }
     }
     readyShow() {
-        this.delayShowTimer = window.setTimeout(() => {
+        this.delayShowTimer = window.setTimeout(async () => {
+            if (!_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.has(this.workId)) {
+                // 如果在缓存中没有找到这个作品的数据，则发起请求
+                const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(this.workId);
+                _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.set(data);
+            }
             this.show = true;
         }, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.previewWorkWait);
     }
@@ -6652,8 +6664,9 @@ class RemoveBlockedUsersWork {
     constructor() {
         // 当 Pixiv 语言设置为英语时，用户链接以 /en 开头，如
         // href="/en/users/277602"
+        // 所以需要使用 *=
         this.userLinkSelector = 'a[href*="/users/"]';
-        // 在用户主页和作品页面里，不屏蔽这个用户自己的作品
+        // 在用户主页和作品页面里，不移除这个用户自己的作品
         this.dontRemoveCurrentUser = [
             _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.UserHome,
             _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Bookmark,
@@ -6669,15 +6682,25 @@ class RemoveBlockedUsersWork {
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.blockList.length === 0) {
                 return;
             }
-            console.log('check');
             let currentUserID = '';
             if (this.dontRemoveCurrentUser.includes(_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type)) {
+                // 在不移除当前页面的作者自己的作品时，等待页面资源加载完成后再检查
+                // 否则一开始 Tools.getCurrentPageUserID 可能会获取到错误的用户 ID
+                // 例如这个作品：
+                // https://www.pixiv.net/artworks/123098863
+                // 它的简介里含有另一个作者的主页链接
+                // 在 complete 之前执行 getCurrentPageUserID 时，正确的用户主页元素还不存在，
+                // 此时会获取到简介里的作者链接，也就是错误的 currentUserID
+                // 这会导致下载器移除当前页面作者自己的一些元素（虽然不是作品元素，但也不应该移除）
+                if (document.readyState !== 'complete') {
+                    return;
+                }
                 currentUserID = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getCurrentPageUserID();
             }
             const allUserLink = document.body.querySelectorAll(this.userLinkSelector);
             const removedUsers = new Map();
             for (const link of allUserLink) {
-                // 在用户主页和作品页面里，不屏蔽这个用户本身的元素
+                // 在用户主页和作品页面里，不移除这个用户自己的元素
                 const userID = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getUserID(link.href);
                 if (userID === currentUserID) {
                     continue;
@@ -6712,7 +6735,15 @@ class RemoveBlockedUsersWork {
         // 当初始化时，以及用户修改了屏蔽列表时进行检查
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
-            if (data.name === 'blockList' || data.name === 'removeBlockedUsersWork') {
+            if (data.name === 'userBlockList' ||
+                data.name === 'blockList' ||
+                data.name === 'removeBlockedUsersWork') {
+                this.check();
+            }
+        });
+        // 当页面从不可见状态变为可见状态时，执行检查
+        window.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
                 this.check();
             }
         });
@@ -6742,7 +6773,7 @@ class RemoveBlockedUsersWork {
     // li
     // 非常广泛
     // ul>div
-    // 主要是首页里的元素，如 关注用户・好P友的作品 等
+    // 主要是首页里的元素，如 关注用户・好P友的作品 等。其他页面里也有一些地方是这个选择器
     findContainerEl(link) {
         let container = null;
         // 在某些页面里使用特定的选择器
@@ -8646,34 +8677,29 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.2.0';
+        this.flag = '17.3.1';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong><span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增设置项')}: </span><span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载间隔')}</span></strong>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载'))}
-      <br>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载间隔的说明')}</span>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
-      <br>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_其他优化')}</span>
+            let msg = `
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
       `;
-            // <strong><span>${lang.transl('_新增设置项')}:</span></strong>
+            // <strong>
+            // <span>✨${lang.transl('_新增设置项')}:</span>
+            // <span>✨${lang.transl('_新增功能')}:</span>
             // <span class="blue">${lang.transl('_下载间隔')}</span>
+            // </strong>
             // ${lang.transl(
             //   '_你可以在更多选项卡的xx分类里找到它',
             //   lang.transl('_下载')
             // )}
             // <br>
-            // <span>${lang.transl('_优化性能和用户体验')}</span>
             // <br>
+            // <span>${lang.transl('_该功能默认启用')}</span>
             // <span>${lang.transl('_修复已知问题')}</span>
+            // <span>${lang.transl('_优化性能和用户体验')}</span>
             // <span>${lang.transl('_其他优化')}</span>
             // 在更新说明的下方显示赞助提示
             msg += `
@@ -9554,7 +9580,7 @@ class Tools {
             return test2[1];
         }
         // 最后从 body 里匹配
-        // Warning ：这有可能会匹配到错误的（其他）用户 id！
+        // Warning：这有可能会匹配到错误的（其他用户的）ID！
         const test3 = newRegExp.exec(document.body.innerHTML);
         if (test3) {
             return test3[1];
@@ -13847,7 +13873,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     exportJSON() {
         const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.json2Blob(this.userList);
         const url = URL.createObjectURL(blob);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.downloadFile(url, `following list-toal ${this.userList.length}-from user ${_utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.getURLPathField(window.location.pathname, 'users')}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.downloadFile(url, `following list-total ${this.userList.length}-from user ${_utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.getURLPathField(window.location.pathname, 'users')}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
         URL.revokeObjectURL(url);
     }
     async importUserList() {
@@ -17022,7 +17048,7 @@ class Download {
             return this.skipDownload({
                 id: arg.id,
                 reason: 'duplicate',
-            }, _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_跳过下载因为重复文件', _Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.createWorkLink(arg.id, arg.result.type !== 3)));
+            }, _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_跳过下载因为', _Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.createWorkLink(arg.id, arg.result.type !== 3)) + _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_不下载重复文件'));
         }
         // 如果是动图，再次检查是否排除了动图
         // 因为有时候用户在抓取时没有排除动图，但是在下载时排除了动图。所以下载时需要再次检查
@@ -17065,7 +17091,9 @@ class Download {
     }
     // 设置进度条信息
     setProgressBar(name, loaded, total) {
-        _ProgressBar__WEBPACK_IMPORTED_MODULE_5__.progressBar.setProgress(this.progressBarIndex, {
+        // 在下载初始化和下载完成时，立即更新进度条
+        // 在下载途中，使用节流来更新进度条
+        _ProgressBar__WEBPACK_IMPORTED_MODULE_5__.progressBar[loaded === total ? 'setProgress' : 'setProgressThrottle'](this.progressBarIndex, {
             name,
             loaded,
             total,
@@ -17169,7 +17197,11 @@ class Download {
                 xhr = null;
                 return;
             }
-            let file = xhr.response; // 要下载的文件
+            // 要下载的文件
+            let file = xhr.response;
+            // 下载时有些图片可能没有 content-length，无法计算下载进度
+            // 所以在 loadend 之后，把下载进度拉满
+            this.setProgressBar(_fileName, file.size, file.size);
             // 状态码错误，进入重试流程
             if (xhr.status !== 200) {
                 // 正常下载完毕的状态码是 200
@@ -19607,7 +19639,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 // 下载进度条
+
 
 
 
@@ -19648,6 +19682,8 @@ class ProgressBar {
         this.allProgressBar = [];
         this.KB = 1024;
         this.MB = 1024 * 1024;
+        /**更新子进度条时，使用节流 */
+        this.setProgressThrottle = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.throttle(this.setProgress.bind(this), 200);
         this.createElements();
         _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.wrap);
         this.bindEvents();
@@ -19694,7 +19730,7 @@ class ProgressBar {
         const progress = (downloaded / _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length) * 100;
         this.progressColorEl.style.width = progress + '%';
     }
-    // 设置子进度条的进度
+    /**立即更新子进度条的进度 */
     setProgress(index, data) {
         const bar = this.allProgressBar[index];
         if (!bar) {
@@ -22354,13 +22390,15 @@ class WorkPublishTime {
         }
     }
     bindEvents() {
+        // 获取图像作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 124350000
-            this.crawlData(121910000, 124355845);
+            // 上次记录到 125640000
+            this.crawlData(125140000, 125647801);
         });
+        // 获取小说作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 23410001
-            this.crawlData(22880000, 23419624, 'novels');
+            // 上次记录到 23690000
+            this.crawlData(23590000, 23695206, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -24488,6 +24526,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
         '파일 {}이(가) 이미 다운로드되어 있어, 다운로드를 건너뜁니다',
         'Пропустить загрузку дубликатов файлов {}',
     ],
+    _跳过下载因为: [
+        '跳过 {} 因为：',
+        '跳過 {} 因為：',
+        'Skipping {} because: ',
+        '{} をスキップします。理由: ',
+        '{}를 건너뜁니다. 이유: ',
+        'Пропустить {}, потому что: ',
+    ],
     _保存用户头像为图标: [
         '保存用户头像为图标',
         '將使用者頭貼另存為圖示檔案',
@@ -25885,7 +25931,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
         '가로 그림은 두 배의 너비를 차지',
         'Горизонтальное изображение занимает вдвое большую ширину',
     ],
-    _该功能默认开启: [
+    _该功能默认启用: [
         '这个功能默认启用。',
         '這個功能預設啟用。',
         'This feature is enabled by default.',
@@ -27272,6 +27318,14 @@ PS: The works of blocked users will not be removed from their homepages, so you 
 PS: 차단된 사용자의 작품은 홈페이지에서 제거되지 않으므로, 해당 홈페이지를 정상적으로 볼 수 있습니다.`,
         `Загрузчик не будет сканировать работы пользователей из «списка заблокированных пользователей», а также может удалить их работы со страницы, так что вы не увидите работы пользователей, которые вам не нравятся. <br>
 P.S. Работы заблокированных пользователей не будут удалены с их домашних страниц, так что вы сможете просматривать их домашние страницы как обычно.`,
+    ],
+    _移除用户阻止名单里的用户的作品: [
+        '移除“用户阻止名单”里的用户的作品',
+        '移除“使用者阻止名單”裡的使用者的作品',
+        'Remove works from users in the "User Blocklist"',
+        '「ユーザーブロックリスト」のユーザーから作品を削除する',
+        '"사용자 차단 목록"에 있는 사용자의 작품을 제거합니다.',
+        'Удалить работы пользователей из «Черного списка пользователей»',
     ],
 };
 
@@ -32519,7 +32573,7 @@ class CacheWorkData {
     constructor() {
         this.cache = [];
         // 一个图像作品的数据大约是 5 KB
-        this.max = 20;
+        this.max = 100;
     }
     set(data) {
         if (this.has(data.body.id)) {
@@ -45720,6 +45774,135 @@ const illustsData = [
     [124330000, 1731679560000],
     [124340001, 1731709140000],
     [124350000, 1731740700000],
+    [124360001, 1731760260000],
+    [124370000, 1731778260000],
+    [124380000, 1731816300000],
+    [124390000, 1731838440000],
+    [124400001, 1731853860000],
+    [124410000, 1731886620000],
+    [124420000, 1731923580000],
+    [124430000, 1731942000000],
+    [124440000, 1731982380000],
+    [124450001, 1732014900000],
+    [124460000, 1732033980000],
+    [124470000, 1732080540000],
+    [124480001, 1732106460000],
+    [124490001, 1732130580000],
+    [124500001, 1732176360000],
+    [124510000, 1732197780000],
+    [124520000, 1732232580000],
+    [124530000, 1732269660000],
+    [124540000, 1732287600000],
+    [124550000, 1732323600000],
+    [124560000, 1732352400000],
+    [124570000, 1732370940000],
+    [124580000, 1732399740000],
+    [124590000, 1732430940000],
+    [124600000, 1732449660000],
+    [124610001, 1732465560000],
+    [124620000, 1732511520000],
+    [124630000, 1732538040000],
+    [124640000, 1732562040000],
+    [124650000, 1732607280000],
+    [124660000, 1732628460000],
+    [124670000, 1732658400000],
+    [124680000, 1732698420000],
+    [124690000, 1732718040000],
+    [124700000, 1732753080000],
+    [124710000, 1732789260000],
+    [124720000, 1732806960000],
+    [124730000, 1732849200000],
+    [124740000, 1732878300000],
+    [124750000, 1732894560000],
+    [124760000, 1732931460000],
+    [124770000, 1732958100000],
+    [124780000, 1732975200000],
+    [124790000, 1732999800000],
+    [124800000, 1733031780000],
+    [124810001, 1733052360000],
+    [124820000, 1733067240000],
+    [124830000, 1733109600000],
+    [124840000, 1733139180000],
+    [124850000, 1733157180000],
+    [124860000, 1733202600000],
+    [124870000, 1733229300000],
+    [124880000, 1733254920000],
+    [124890001, 1733300400000],
+    [124900000, 1733320860000],
+    [124910000, 1733356500000],
+    [124920000, 1733393100000],
+    [124930001, 1733412000000],
+    [124940000, 1733456940000],
+    [124950000, 1733485560000],
+    [124960000, 1733504100000],
+    [124970000, 1733545620000],
+    [124980000, 1733569680000],
+    [124990000, 1733586480000],
+    [125000000, 1733625600000],
+    [125010000, 1733649780000],
+    [125020000, 1733666880000],
+    [125030000, 1733698800000],
+    [125040000, 1733737620000],
+    [125050000, 1733756460000],
+    [125060000, 1733798520000],
+    [125070000, 1733829300000],
+    [125080000, 1733848320000],
+    [125090000, 1733896440000],
+    [125100000, 1733921640000],
+    [125110000, 1733949180000],
+    [125120000, 1733991780000],
+    [125130000, 1734012360000],
+    [125140000, 1734046920000],
+    [125150000, 1734084000000],
+    [125160000, 1734102000000],
+    [125170001, 1734138720000],
+    [125180000, 1734166800000],
+    [125190000, 1734185400000],
+    [125200000, 1734215400000],
+    [125210000, 1734246060000],
+    [125220000, 1734265020000],
+    [125230000, 1734281160000],
+    [125240000, 1734325440000],
+    [125250000, 1734351420000],
+    [125260000, 1734372180000],
+    [125270000, 1734418800000],
+    [125280000, 1734441540000],
+    [125290000, 1734470340000],
+    [125300000, 1734510840000],
+    [125310000, 1734530640000],
+    [125320000, 1734565500000],
+    [125330000, 1734601740000],
+    [125340000, 1734620580000],
+    [125350000, 1734662160000],
+    [125360000, 1734692280000],
+    [125370000, 1734709440000],
+    [125380000, 1734750000000],
+    [125390000, 1734775740000],
+    [125400000, 1734793140000],
+    [125410001, 1734826800000],
+    [125420001, 1734853740000],
+    [125430000, 1734871380000],
+    [125440000, 1734888960000],
+    [125450001, 1734933660000],
+    [125460000, 1734957360000],
+    [125470000, 1734973500000],
+    [125480000, 1735012440000],
+    [125490000, 1735035780000],
+    [125500000, 1735048680000],
+    [125510000, 1735061940000],
+    [125520000, 1735096980000],
+    [125530000, 1735120500000],
+    [125540000, 1735133940000],
+    [125550000, 1735149600000],
+    [125560000, 1735189140000],
+    [125570000, 1735214040000],
+    [125580000, 1735230420000],
+    [125590001, 1735271220000],
+    [125600000, 1735297020000],
+    [125610000, 1735312740000],
+    [125620000, 1735349640000],
+    [125630001, 1735375800000],
+    [125640000, 1735393980000],
 ];
 
 
@@ -48078,6 +48261,34 @@ const novelData = [
     [23390001, 1731332783000],
     [23400001, 1731483063000],
     [23410001, 1731604116000],
+    [23420001, 1731756397000],
+    [23430000, 1731856607000],
+    [23440000, 1732014001000],
+    [23450000, 1732164474000],
+    [23460000, 1732286949000],
+    [23470000, 1732417363000],
+    [23480000, 1732538545000],
+    [23490001, 1732690392000],
+    [23500000, 1732830468000],
+    [23510000, 1732962071000],
+    [23520000, 1733060854000],
+    [23530002, 1733214677000],
+    [23540000, 1733359235000],
+    [23550000, 1733493863000],
+    [23560000, 1733622771000],
+    [23570000, 1733748205000],
+    [23580001, 1733905670000],
+    [23590000, 1734050421000],
+    [23600000, 1734183048000],
+    [23610001, 1734314495000],
+    [23620000, 1734447229000],
+    [23630001, 1734610858000],
+    [23640000, 1734754496000],
+    [23650002, 1734870470000],
+    [23660000, 1735008280000],
+    [23670000, 1735113206000],
+    [23680000, 1735220356000],
+    [23690000, 1735360245000],
 ];
 
 

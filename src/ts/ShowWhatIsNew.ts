@@ -11,31 +11,20 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '17.2.0'
+  private flag = '17.3.1'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-      let msg = `<strong><span>${lang.transl(
-        '_新增设置项'
-      )}: </span><span class="blue">${lang.transl('_下载间隔')}</span></strong>
-      <br>
-      ${lang.transl(
-        '_你可以在更多选项卡的xx分类里找到它',
-        lang.transl('_下载')
-      )}
-      <br>
-      <br>
-      <span>${lang.transl('_下载间隔的说明')}</span>
-      <br>
-      <span>${lang.transl('_修复已知问题')}</span>
-      <br>
-      <br>
-      <span>${lang.transl('_其他优化')}</span>
+      let msg = `
+      <span>${lang.transl('_优化性能和用户体验')}</span>
       `
 
-      // <strong><span>${lang.transl('_新增设置项')}:</span></strong>
+      // <strong>
+      // <span>✨${lang.transl('_新增设置项')}:</span>
+      // <span>✨${lang.transl('_新增功能')}:</span>
       // <span class="blue">${lang.transl('_下载间隔')}</span>
+      // </strong>
 
       // ${lang.transl(
       //   '_你可以在更多选项卡的xx分类里找到它',
@@ -43,10 +32,10 @@ class ShowWhatIsNew {
       // )}
 
       // <br>
-      // <span>${lang.transl('_优化性能和用户体验')}</span>
       // <br>
+      // <span>${lang.transl('_该功能默认启用')}</span>
       // <span>${lang.transl('_修复已知问题')}</span>
-
+      // <span>${lang.transl('_优化性能和用户体验')}</span>
       // <span>${lang.transl('_其他优化')}</span>
 
       // 在更新说明的下方显示赞助提示

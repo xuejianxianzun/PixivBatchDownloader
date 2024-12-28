@@ -222,7 +222,7 @@ class Tools {
     }
 
     // 最后从 body 里匹配
-    // Warning ：这有可能会匹配到错误的（其他）用户 id！
+    // Warning：这有可能会匹配到错误的（其他用户的）ID！
     const test3 = newRegExp.exec(document.body.innerHTML)
     if (test3) {
       return test3[1]
