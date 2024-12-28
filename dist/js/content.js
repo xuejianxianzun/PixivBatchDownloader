@@ -5060,7 +5060,10 @@ class PreviewWork {
     set show(val) {
         if (val) {
             this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.get(this.workId);
-            // 如果保存的作品数据不是最后一个鼠标经过的作品，可能是请求尚未完成，此时延长等待时间
+            // 这两个判断条件其实是等价的
+            // 因为在 show 之前会先获取作品数据
+            // 所以如果在这里获取不到作品数据，说明用户在等待请求期间移动了鼠标到另一个没有获取过数据的作品上
+            // 现在的作品已经不是前面请求的那个作品了
             if (!this.workData || this.workData.body.id !== this.workId) {
                 this.readyShow();
             }
@@ -5070,14 +5073,12 @@ class PreviewWork {
                     _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('showPreviewWorkDetailPanel', this.workData);
                 }
                 this.sendUrls();
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.PreviewWork) {
-                    this._show = true;
-                    _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__.showOriginSizeImage.hide();
-                    this.showWrap();
-                    window.clearTimeout(this.delayHiddenTimer);
-                    if (!_Config__WEBPACK_IMPORTED_MODULE_15__.Config.mobile) {
-                        _ShowHelp__WEBPACK_IMPORTED_MODULE_13__.showHelp.show('tipPreviewWork', _Lang__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品的快捷键说明'));
-                    }
+                this._show = true;
+                _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__.showOriginSizeImage.hide();
+                this.showWrap();
+                window.clearTimeout(this.delayHiddenTimer);
+                if (!_Config__WEBPACK_IMPORTED_MODULE_15__.Config.mobile) {
+                    _ShowHelp__WEBPACK_IMPORTED_MODULE_13__.showHelp.show('tipPreviewWork', _Lang__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品的快捷键说明'));
                 }
             }
         }
@@ -5122,14 +5123,11 @@ class PreviewWork {
             }
             this.workId = id;
             this.workEL = el;
-            if (!_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.has(id)) {
-                // 如果在缓存中没有找到这个作品的数据，则发起请求
-                this.fetchWorkData();
-            }
-            else {
-                this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.get(id);
-            }
-            this.readyShow();
+            // 判断是插画还是动图，然后根据设置决定是否加载作品数据
+            // 动图有一个特定元素：circle，就是播放按钮的圆形背景
+            const ugoira = el.querySelector('circle');
+            const show = ugoira ? _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.previewUgoira : _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.PreviewWork;
+            show && this.readyShow();
             el.addEventListener('mousewheel', this.onWheelScroll);
         });
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__.artworkThumbnail.onLeave((el) => {
@@ -5335,10 +5333,6 @@ class PreviewWork {
         }
         this.showWrap();
     }
-    async fetchWorkData() {
-        const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(this.workId);
-        _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.set(data);
-    }
     async addBookmark() {
         if (this.workData?.body.illustId === undefined) {
             return;
@@ -5371,7 +5365,12 @@ class PreviewWork {
         }
     }
     readyShow() {
-        this.delayShowTimer = window.setTimeout(() => {
+        this.delayShowTimer = window.setTimeout(async () => {
+            if (!_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.has(this.workId)) {
+                // 如果在缓存中没有找到这个作品的数据，则发起请求
+                const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(this.workId);
+                _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.set(data);
+            }
             this.show = true;
         }, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.previewWorkWait);
     }
@@ -12685,7 +12684,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     exportJSON() {
         const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.json2Blob(this.userList);
         const url = URL.createObjectURL(blob);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.downloadFile(url, `following list-toal ${this.userList.length}-from user ${_utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.getURLPathField(window.location.pathname, 'users')}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.downloadFile(url, `following list-total ${this.userList.length}-from user ${_utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.getURLPathField(window.location.pathname, 'users')}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
         URL.revokeObjectURL(url);
     }
     async importUserList() {
@@ -31343,7 +31342,7 @@ class CacheWorkData {
     constructor() {
         this.cache = [];
         // 一个图像作品的数据大约是 5 KB
-        this.max = 20;
+        this.max = 100;
     }
     set(data) {
         if (this.has(data.body.id)) {

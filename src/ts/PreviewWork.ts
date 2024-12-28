@@ -76,7 +76,10 @@ class PreviewWork {
   private set show(val: boolean) {
     if (val) {
       this.workData = cacheWorkData.get(this.workId)
-      // 如果保存的作品数据不是最后一个鼠标经过的作品，可能是请求尚未完成，此时延长等待时间
+      // 这两个判断条件其实是等价的
+      // 因为在 show 之前会先获取作品数据
+      // 所以如果在这里获取不到作品数据，说明用户在等待请求期间移动了鼠标到另一个没有获取过数据的作品上
+      // 现在的作品已经不是前面请求的那个作品了
       if (!this.workData || this.workData.body.id !== this.workId) {
         this.readyShow()
       } else {
@@ -86,17 +89,13 @@ class PreviewWork {
         }
 
         this.sendUrls()
-        if (settings.PreviewWork) {
-          this._show = true
-          showOriginSizeImage.hide()
-          this.showWrap()
-          window.clearTimeout(this.delayHiddenTimer)
-          if (!Config.mobile) {
-            showHelp.show(
-              'tipPreviewWork',
-              lang.transl('_预览作品的快捷键说明')
-            )
-          }
+
+        this._show = true
+        showOriginSizeImage.hide()
+        this.showWrap()
+        window.clearTimeout(this.delayHiddenTimer)
+        if (!Config.mobile) {
+          showHelp.show('tipPreviewWork', lang.transl('_预览作品的快捷键说明'))
         }
       }
     } else {
@@ -146,14 +145,12 @@ class PreviewWork {
       }
       this.workId = id
       this.workEL = el
-      if (!cacheWorkData.has(id)) {
-        // 如果在缓存中没有找到这个作品的数据，则发起请求
-        this.fetchWorkData()
-      } else {
-        this.workData = cacheWorkData.get(id)!
-      }
 
-      this.readyShow()
+      // 判断是插画还是动图，然后根据设置决定是否加载作品数据
+      // 动图有一个特定元素：circle，就是播放按钮的圆形背景
+      const ugoira = el.querySelector('circle')
+      const show = ugoira ? settings.previewUgoira : settings.PreviewWork
+      show && this.readyShow()
 
       el.addEventListener('mousewheel', this.onWheelScroll)
     })
@@ -417,11 +414,6 @@ class PreviewWork {
     }
   }
 
-  private async fetchWorkData() {
-    const data = await API.getArtworkData(this.workId)
-    cacheWorkData.set(data)
-  }
-
   private async addBookmark() {
     if (this.workData?.body.illustId === undefined) {
       return
@@ -465,7 +457,13 @@ class PreviewWork {
   }
 
   private readyShow() {
-    this.delayShowTimer = window.setTimeout(() => {
+    this.delayShowTimer = window.setTimeout(async () => {
+      if (!cacheWorkData.has(this.workId)) {
+        // 如果在缓存中没有找到这个作品的数据，则发起请求
+        const data = await API.getArtworkData(this.workId)
+        cacheWorkData.set(data)
+      }
+
       this.show = true
     }, settings.previewWorkWait)
   }
