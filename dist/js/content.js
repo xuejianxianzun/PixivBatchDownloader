@@ -5877,7 +5877,7 @@ class RemoveBlockedUsersWork {
         // href="/en/users/277602"
         // 所以需要使用 *=
         this.userLinkSelector = 'a[href*="/users/"]';
-        // 在用户主页和作品页面里，不屏蔽这个用户自己的作品
+        // 在用户主页和作品页面里，不移除这个用户自己的作品
         this.dontRemoveCurrentUser = [
             _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.UserHome,
             _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Bookmark,
@@ -5911,9 +5911,8 @@ class RemoveBlockedUsersWork {
             const allUserLink = document.body.querySelectorAll(this.userLinkSelector);
             const removedUsers = new Map();
             for (const link of allUserLink) {
-                // 在用户主页和作品页面里，不屏蔽这个用户本身的元素
+                // 在用户主页和作品页面里，不移除这个用户自己的元素
                 const userID = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getUserID(link.href);
-                // console.log(userID, currentUserID)
                 if (userID === currentUserID) {
                     continue;
                 }
@@ -7776,28 +7775,20 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.3.0';
+        this.flag = '17.3.1';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong><span>✨${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}: </span><span class="blue">${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_移除用户阻止名单里的用户的作品')}</span></strong>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_用户阻止名单的说明2')}</span>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_该功能默认启用')}</span>
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取'))}
-      <br>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
-      <br>
-      <br>
+            let msg = `
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
       `;
-            // <strong><span>${lang.transl('_新增设置项')}:</span></strong>
+            // <strong>
+            // <span>✨${lang.transl('_新增设置项')}:</span>
+            // <span>✨${lang.transl('_新增功能')}:</span>
             // <span class="blue">${lang.transl('_下载间隔')}</span>
+            // </strong>
             // ${lang.transl(
             //   '_你可以在更多选项卡的xx分类里找到它',
             //   lang.transl('_下载')
@@ -21204,13 +21195,15 @@ class WorkPublishTime {
         }
     }
     bindEvents() {
+        // 获取图像作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 125130000
-            this.crawlData(124360000, 125133163);
+            // 上次记录到 125640000
+            this.crawlData(125140000, 125647801);
         });
+        // 获取小说作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 23580001
-            this.crawlData(23420001, 23588685, 'novels');
+            // 上次记录到 23690000
+            this.crawlData(23590000, 23695206, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -44655,6 +44648,57 @@ const illustsData = [
     [125110000, 1733949180000],
     [125120000, 1733991780000],
     [125130000, 1734012360000],
+    [125140000, 1734046920000],
+    [125150000, 1734084000000],
+    [125160000, 1734102000000],
+    [125170001, 1734138720000],
+    [125180000, 1734166800000],
+    [125190000, 1734185400000],
+    [125200000, 1734215400000],
+    [125210000, 1734246060000],
+    [125220000, 1734265020000],
+    [125230000, 1734281160000],
+    [125240000, 1734325440000],
+    [125250000, 1734351420000],
+    [125260000, 1734372180000],
+    [125270000, 1734418800000],
+    [125280000, 1734441540000],
+    [125290000, 1734470340000],
+    [125300000, 1734510840000],
+    [125310000, 1734530640000],
+    [125320000, 1734565500000],
+    [125330000, 1734601740000],
+    [125340000, 1734620580000],
+    [125350000, 1734662160000],
+    [125360000, 1734692280000],
+    [125370000, 1734709440000],
+    [125380000, 1734750000000],
+    [125390000, 1734775740000],
+    [125400000, 1734793140000],
+    [125410001, 1734826800000],
+    [125420001, 1734853740000],
+    [125430000, 1734871380000],
+    [125440000, 1734888960000],
+    [125450001, 1734933660000],
+    [125460000, 1734957360000],
+    [125470000, 1734973500000],
+    [125480000, 1735012440000],
+    [125490000, 1735035780000],
+    [125500000, 1735048680000],
+    [125510000, 1735061940000],
+    [125520000, 1735096980000],
+    [125530000, 1735120500000],
+    [125540000, 1735133940000],
+    [125550000, 1735149600000],
+    [125560000, 1735189140000],
+    [125570000, 1735214040000],
+    [125580000, 1735230420000],
+    [125590001, 1735271220000],
+    [125600000, 1735297020000],
+    [125610000, 1735312740000],
+    [125620000, 1735349640000],
+    [125630001, 1735375800000],
+    [125640000, 1735393980000],
 ];
 
 
@@ -47030,6 +47074,17 @@ const novelData = [
     [23560000, 1733622771000],
     [23570000, 1733748205000],
     [23580001, 1733905670000],
+    [23590000, 1734050421000],
+    [23600000, 1734183048000],
+    [23610001, 1734314495000],
+    [23620000, 1734447229000],
+    [23630001, 1734610858000],
+    [23640000, 1734754496000],
+    [23650002, 1734870470000],
+    [23660000, 1735008280000],
+    [23670000, 1735113206000],
+    [23680000, 1735220356000],
+    [23690000, 1735360245000],
 ];
 
 
