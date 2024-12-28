@@ -3,6 +3,7 @@ import { store } from '../store/Store'
 import { Tools } from '../Tools'
 import { lang } from '../Lang'
 import { EVT } from '../EVT'
+import { Utils } from '../utils/Utils'
 
 interface ProgressBarEl {
   name: HTMLSpanElement
@@ -125,7 +126,7 @@ class ProgressBar {
     this.progressColorEl.style.width = progress + '%'
   }
 
-  // 设置子进度条的进度
+  /**立即更新子进度条的进度 */
   public setProgress(index: number, data: ProgressData) {
     const bar = this.allProgressBar[index]
     if (!bar) {
@@ -155,6 +156,9 @@ class ProgressBar {
     const progress = data.loaded / data.total || 0 // 若结果为 NaN 则设为 0
     bar.progress.style.width = progress * 100 + '%'
   }
+
+  /**更新子进度条时，使用节流 */
+  public setProgressThrottle = Utils.throttle(this.setProgress.bind(this), 200)
 
   // 让某个子进度条显示警告色
   public errorColor(index: number, show: boolean) {

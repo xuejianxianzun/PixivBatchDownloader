@@ -75,9 +75,9 @@ class Download {
           reason: 'duplicate',
         },
         lang.transl(
-          '_跳过下载因为重复文件',
+          '_跳过下载因为',
           Tools.createWorkLink(arg.id, arg.result.type !== 3)
-        )
+        ) + lang.transl('_不下载重复文件')
       )
     }
 
@@ -134,11 +134,16 @@ class Download {
 
   // 设置进度条信息
   private setProgressBar(name: string, loaded: number, total: number) {
-    progressBar.setProgress(this.progressBarIndex, {
-      name,
-      loaded,
-      total,
-    })
+    // 在下载初始化和下载完成时，立即更新进度条
+    // 在下载途中，使用节流来更新进度条
+    progressBar[loaded === total ? 'setProgress' : 'setProgressThrottle'](
+      this.progressBarIndex,
+      {
+        name,
+        loaded,
+        total,
+      }
+    )
   }
 
   // 当重试达到最大次数时
@@ -268,7 +273,13 @@ class Download {
         return
       }
 
-      let file: Blob = xhr.response // 要下载的文件
+      // 要下载的文件
+      let file: Blob = xhr.response
+
+      // 下载时有些图片可能没有 content-length，无法计算下载进度
+      // 所以在 loadend 之后，把下载进度拉满
+      this.setProgressBar(_fileName, file.size, file.size)
+
       // 状态码错误，进入重试流程
       if (xhr.status !== 200) {
         // 正常下载完毕的状态码是 200

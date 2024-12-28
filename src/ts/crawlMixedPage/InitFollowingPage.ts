@@ -360,7 +360,7 @@ class InitFollowingPage extends InitPageBase {
     const url = URL.createObjectURL(blob)
     Utils.downloadFile(
       url,
-      `following list-toal ${
+      `following list-total ${
         this.userList.length
       }-from user ${Utils.getURLPathField(
         window.location.pathname,
