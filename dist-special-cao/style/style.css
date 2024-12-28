@@ -631,6 +631,11 @@
   /*--------美化普通的复选框------------*/
   /*--------美化单选框------------*/
 }
+.centerWrap .centerWrap_con .settingForm p.option > *,
+.centerWrap .centerWrap_con .settingForm .setWantPageWrap > * {
+  line-height: 20px;
+  vertical-align: middle;
+}
 .centerWrap .centerWrap_con .settingForm select {
   width: 80px;
   height: 20px;
@@ -1451,22 +1456,21 @@
   font-size: 16px;
   border-radius: 8px;
 }
-#logWrap {
+.logWrap {
   position: relative;
   z-index: 1;
   width: 100%;
-  height: 200px;
-  padding: 10px 0;
-  background: #fff;
   color: #333;
+  background: #fff;
 }
 .logContent {
-  height: 100%;
-  margin: 0 auto;
-  font-size: 14px;
   width: 100%;
   max-width: 950px;
-  overflow-y: auto;
+  max-height: 200px;
+  overflow-y: scroll;
+  margin: 0 auto;
+  padding: 10px 0;
+  font-size: 14px;
 }
 .logContent br {
   display: inline;
@@ -1474,22 +1478,22 @@
 .logContent a {
   color: #0ea8ef;
 }
-.theme-dark#logWrap {
+.theme-dark.logWrap {
   background: #222;
   color: #fff;
 }
-.xzBG#logWrap {
+.xzBG.logWrap {
   background: #222;
   color: #fff;
   text-shadow: #003247 0px 0px 2px;
 }
-.xzBG#logWrap .logContent * {
+.xzBG.logWrap .logContent * {
   color: #fff !important;
 }
-.xzBG#logWrap .xzBGLayer {
+.xzBG.logWrap .xzBGLayer {
   filter: blur(2px);
 }
-#logWrap.mobile {
+.logWrap.mobile {
   font-size: 16px;
   font-family: sans-serif;
   padding: 10px 10px;
@@ -1501,7 +1505,7 @@
   z-index: 9999;
   min-width: 500px;
   max-width: 700px;
-  padding: 20px;
+  padding: 30px;
   border-radius: 12px;
   top: 15%;
   left: 50%;
@@ -1512,7 +1516,8 @@
   margin: 0;
 }
 .xz_msg_box .title {
-  font-size: 16px;
+  font-size: 17px;
+  font-weight: bold;
   color: #0ea8ef;
 }
 .xz_msg_box .blue {
@@ -1528,11 +1533,15 @@
 .xz_msg_box .btn {
   cursor: pointer;
   background: #0ea8ef;
+  box-shadow: #2ca6df 0px 0px 2px;
   color: #fff;
   border: none;
   text-align: center;
   padding: 7px 20px;
   border-radius: 6px;
+}
+.xz_msg_box .btn:hover {
+  font-weight: bold;
 }
 .xz_msg_box a {
   color: #0ea8ef;
@@ -2293,6 +2302,9 @@ iframe[name='expandedFooter'] {
 .theme-dark.xz_PreviewWorkDetailPanel .content .date {
   color: #ccc;
 }
+:root {
+  --box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
+}
 .warn {
   color: #d27e00;
 }
@@ -2403,6 +2415,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   max-width: 500px;
   color: #fff;
   background-color: #29b3f3;
+  box-shadow: var(--box-shadow);
   padding: 8px 10px;
   border-radius: 4px;
 }
@@ -2424,7 +2437,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   overflow: hidden;
   border: 2px solid #29b3f3;
   background-color: rgba(41, 179, 243, 0.1);
-  box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
+  box-shadow: var(--box-shadow);
 }
 #previewWorkWrap img {
   width: 100%;
@@ -2459,7 +2472,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   height: 1200px;
   border: 2px solid #29b3f3;
   background-color: rgba(41, 179, 243, 0.2);
-  box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
+  box-shadow: var(--box-shadow);
 }
 #originSizeWrap img {
   width: 100%;

@@ -243,9 +243,14 @@ class API {
         const url = `https://www.pixiv.net/ajax/follow_latest/${type}?p=${p}&tag=${tag}&mode=${r18 ? 'r18' : 'all'}&lang=${lang}`;
         return this.sendGetRequest(url);
     }
-    // 获取小说的系列作品信息
+    /**获取小说系列的数据，注意只是系列本身的数据，没有系列里每部小说的数据 */
+    static getNovelSeriesData(series_id) {
+        const url = `https://www.pixiv.net/ajax/novel/series/${series_id}`;
+        return this.sendGetRequest(url);
+    }
+    /**获取小说系列作品里每个作品的详细数据（但是没有小说正文内容） */
     // 这个 api 目前一批最多只能返回 30 个作品的数据，所以可能需要多次获取
-    static getNovelSeriesData(series_id, limit = 30, last_order, order_by = 'asc') {
+    static getNovelSeriesContent(series_id, limit = 30, last_order, order_by = 'asc') {
         const url = `https://www.pixiv.net/ajax/novel/series_content/${series_id}?limit=${limit}&last_order=${last_order}&order_by=${order_by}`;
         return this.sendGetRequest(url);
     }
@@ -284,6 +289,18 @@ class API {
     }
     static async getMuteSettings() {
         return this.sendGetRequest(`https://www.pixiv.net/ajax/mute/items?context=setting`);
+    }
+    /**获取小说里引用的插画的数据，可以一次传递多个插画 id（需要带序号） */
+    // illustsIDs 形式例如：[70551567,99760571-1,99760571-130]
+    // 如果指定了序号，那么 Pixiv 会返回对应序号的图片 URL
+    static async getNovelInsertIllustsData(novelID, illustsIDs) {
+        const parameters = [];
+        illustsIDs.forEach((id) => parameters.push(`id%5B%5D=${id}`));
+        const url = `https://www.pixiv.net/ajax/novel/${novelID}/insert_illusts?` +
+            parameters.join('&');
+        // 组合好的 url 里可能包含多个 id[]=123456789 参数，如：
+        // https://www.pixiv.net/ajax/novel/22894530/insert_illusts?id%5B%5D=121979383-1&id%5B%5D=121979454-1&id%5B%5D=121979665-1
+        return this.sendGetRequest(url);
     }
     /**获取系列小说的设定资料 */
     static async getNovelSeriesGlossary(seriesId) {
@@ -358,6 +375,8 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 'div[width="131"]',
                 'div[width="288"]',
                 'div[width="184"]',
+                'div[size="184"]',
+                'div[size="112"]',
                 'div[width="112"]',
                 'div[width="104"]',
                 'div[width="90"]',
@@ -380,6 +399,11 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
         // 如果在查找到某个选择器之后，不再查找剩余的选择器，就可能会遗漏一部分缩略图。
         // 但是，这有可能会导致事件的重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
         for (const selector of this.selectors) {
+            // div[size="184"] 只在发现页面使用，因为其他页面目前不会用到它
+            if (selector === 'div[size="184"]' &&
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Discover) {
+                continue;
+            }
             // div[type="illust"] 只在约稿页面使用
             // 因为已知问题：在收藏页面里， div[type="illust"] 嵌套了子元素 div[width="184"]
             // 这会导致重复绑定（在不同元素上）
@@ -976,7 +1000,7 @@ class CenterPanel {
             }
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, () => {
-            _ShowHelp__WEBPACK_IMPORTED_MODULE_10__.showHelp.show('tipHowToUse', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_HowToUse'));
+            _ShowHelp__WEBPACK_IMPORTED_MODULE_10__.showHelp.show('tipHowToUse', _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_HowToUse') + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_账户可能被封禁的警告'));
         });
         // 使用快捷键 Alt + x 切换中间面板显示隐藏
         window.addEventListener('keydown', (ev) => {
@@ -1020,7 +1044,7 @@ class CenterPanel {
         this.centerPanel
             .querySelector('#showDownTip')
             .addEventListener('click', () => {
-            let msg = _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_常见问题说明');
+            let msg = _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_常见问题说明') + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_账户可能被封禁的警告');
             if (_Config__WEBPACK_IMPORTED_MODULE_4__.Config.mobile) {
                 msg =
                     msg + '<br><br>' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_Kiwi浏览器可能不能建立文件夹的bug');
@@ -1735,9 +1759,8 @@ class DoubleWidthThumb {
         /* 双倍宽度的图片的 id（由下载器添加这个 id） */
         this.addId = 'doubleWidth';
         this.styleId = 'doubleWidthStyle';
-        this.css = `#doubleWidth {
-    width: 30% !important;
-  }`;
+        this.css = `#doubleWidth {width: 30% !important;}
+  #doubleWidth > div, #doubleWidth div[width="184"] {width: 100% !important;}`;
         this.bindEvents();
     }
     bindEvents() {
@@ -2511,7 +2534,7 @@ class FindHorizontalImageWrap {
         // 寻找作品缩略图的容器时使用的选择器
         // 并不是所有容器都需要处理，只需要处理应用了“显示更大的缩略图”的容器
         // 有些缩略图并不会被放大，也就不用处理它们的容器
-        this.wrapSelectors = ['.searchList', 'li[size="1"]'];
+        this.workWrapSelectors = ['.searchList', 'li[size="1"]', 'ul>div'];
         this.onFindCB = [];
         this.obBody();
     }
@@ -2522,6 +2545,9 @@ class FindHorizontalImageWrap {
     // observer 可以捕获到添加的 img 标签，并且有 src 属性
     // 如果开启了下载器的替换方形缩略图功能，则捕获到的 src 是替换后的
     // 如果 img 的 src 是在缓存里的（并且没有禁用缓存），则捕获到它时就已经 complete 了
+    // 首页的“关注用户・好P友的作品”和排行榜区域这样的横向滚动区域是分多次添加的：
+    // 1. 页面加载时，这块区域是一次性添加的，添加的是最外层的 div，里面包含了作品列表，但只有前 8 个作品，后面是一些空壳容器
+    // 2. 当用户向右滚动时，动态添加后续作品，此时既会添加单个 img 元素来填充空壳容器，还会添加单个的新的空壳容器（div）
     obBody() {
         const ob = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
@@ -2541,16 +2567,22 @@ class FindHorizontalImageWrap {
                         else if (e.nodeName === 'IMG' && e.src) {
                             if (_PageType__WEBPACK_IMPORTED_MODULE_0__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_0__.pageType.list.ArtworkSearch) {
                                 // 在搜索页面里，添加的元素是 img 而不是其容器 li
-                                const li = e.parentElement?.parentElement?.parentElement?.parentElement
-                                    ?.parentElement?.parentElement;
-                                if (li && li.nodeName === 'LI') {
+                                const li = e.closest('li');
+                                if (li) {
                                     this.readyCheckImage(e, li);
+                                }
+                            }
+                            else {
+                                // 在其他页面里（主要是首页），横向滚动区域里的一些作品是动态添加 img 元素的，寻找其父元素
+                                const parent = e.closest('ul>div');
+                                if (parent) {
+                                    this.readyCheckImage(e, parent);
                                 }
                             }
                         }
                         else if (e.nodeType === 1) {
-                            // 添加的不是 li，则试图从元素中寻找缩略图容器
-                            for (const selector of this.wrapSelectors) {
+                            // 如果添加的不是 li，则尝试在子元素里寻找缩略图容器
+                            for (const selector of this.workWrapSelectors) {
                                 const elList = e.querySelectorAll(selector);
                                 for (const el of elList) {
                                     wrapList.push(el);
@@ -2857,6 +2889,7 @@ class HighlightFollowingUsers {
     }
     /**只请求第一页的数据，以获取 total */
     async getFollowingTotal(rest) {
+        // 关注页面一页显示 24 个作者
         const res = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getFollowingList(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.loggedUserID, rest, '', 0, 24);
         return res.body.total;
     }
@@ -2981,7 +3014,7 @@ class HighlightFollowingUsers {
     handleUserHomePage() {
         if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.UserHome) {
             // 在用户主页里，高亮用户名（因为用户名没有超链接，需要单独处理）
-            const userID = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getUserId();
+            const userID = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getCurrentPageUserID();
             const flag = this.following.includes(userID);
             const h1 = document.querySelector('h1');
             if (h1) {
@@ -3021,16 +3054,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Loading__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Loading */ "./src/ts/Loading.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
-/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
-/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
-/* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
 /// <reference path = "./ImageViewer.d.ts" />
-
 
 
 
@@ -3055,7 +3086,7 @@ class ImageViewer {
         this.firstImageURL = ''; // 第一张图片的 url
         // 默认配置
         this.cfg = {
-            workId: _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.getIllustId(),
+            workId: _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getIllustId(),
             imageNumber: 2,
             imageSize: 'original',
             autoStart: false,
@@ -3122,15 +3153,15 @@ class ImageViewer {
     async createImageList() {
         return new Promise(async (resolve) => {
             // 获取作品数据
-            if (_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_8__.cacheWorkData.has(this.cfg.workId)) {
-                this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_8__.cacheWorkData.get(this.cfg.workId);
+            if (_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_7__.cacheWorkData.has(this.cfg.workId)) {
+                this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_7__.cacheWorkData.get(this.cfg.workId);
             }
             else {
                 this.cfg.showLoading && (_Loading__WEBPACK_IMPORTED_MODULE_3__.loading.show = true);
-                const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_11__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_11__.pageType.list.Unlisted;
+                const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.list.Unlisted;
                 const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(this.cfg.workId, unlisted);
                 this.workData = data;
-                _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_8__.cacheWorkData.set(data);
+                _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_7__.cacheWorkData.set(data);
                 this.cfg.showLoading && (_Loading__WEBPACK_IMPORTED_MODULE_3__.loading.show = false);
             }
             const body = this.workData.body;
@@ -3152,7 +3183,7 @@ class ImageViewer {
                     // 生成 UL 里面的缩略图列表
                     let html = [];
                     for (let index = 0; index < body.pageCount; index++) {
-                        const str = `<li><img src="${_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.convertThumbURLTo540px(body.urls.thumb.replace('p0', 'p' + index))}" data-src="${this.firstImageURL.replace('p0', 'p' + index)}"></li>`;
+                        const str = `<li><img src="${_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.convertThumbURLTo540px(body.urls.thumb.replace('p0', 'p' + index))}" data-src="${this.firstImageURL.replace('p0', 'p' + index)}"></li>`;
                         html.push(str);
                     }
                     this.viewerUl.innerHTML = html.join('');
@@ -3337,33 +3368,27 @@ class ImageViewer {
             // 添加收藏
             this.addBookmark();
             // 下载这个作品
-            _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_10__.downloadOnClickBookmark.send(this.workData.body.illustId);
+            _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_9__.downloadOnClickBookmark.send(this.workData.body.illustId);
         });
     }
     async addBookmark() {
         // 显示提示
-        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏'), {
-            bgColor: _Colors__WEBPACK_IMPORTED_MODULE_9__.Colors.bgBlue,
+        _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏'), {
+            bgColor: _Colors__WEBPACK_IMPORTED_MODULE_8__.Colors.bgBlue,
         });
-        const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_7__.bookmark.add(this.cfg.workId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.extractTags(this.workData));
+        const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_6__.bookmark.add(this.cfg.workId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractTags(this.workData));
         if (res === 200) {
-            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已收藏'));
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已收藏'));
         }
     }
     // 下载当前查看的作品
     download() {
-        _store_States__WEBPACK_IMPORTED_MODULE_4__.states.quickCrawl = true;
-        // 发送要下载的作品 id
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [
             {
                 id: this.cfg.workId,
                 type: 'illusts',
             },
         ]);
-        // 显示提示
-        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已发送下载请求'), {
-            bgColor: _Colors__WEBPACK_IMPORTED_MODULE_9__.Colors.bgBlue,
-        });
     }
 }
 
@@ -3652,7 +3677,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   lang: () => (/* binding */ lang)
 /* harmony export */ });
-/* harmony import */ var _LangText__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./LangText */ "./src/ts/LangText.ts");
+/* harmony import */ var _langText__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./langText */ "./src/ts/langText.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 
 
@@ -3716,7 +3741,7 @@ class Lang {
         // if(!langText[name]){
         //   console.log(`not found lang ${name}`)
         // }
-        let content = _LangText__WEBPACK_IMPORTED_MODULE_0__.langText[name][this.flagIndex.get(this.type)];
+        let content = _langText__WEBPACK_IMPORTED_MODULE_0__.langText[name][this.flagIndex.get(this.type)];
         arg.forEach((val) => (content = content.replace('{}', val)));
         return content;
     }
@@ -3797,4637 +3822,6 @@ class Lang {
     }
 }
 const lang = new Lang();
-
-
-
-/***/ }),
-
-/***/ "./src/ts/LangText.ts":
-/*!****************************!*\
-  !*** ./src/ts/LangText.ts ***!
-  \****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   langText: () => (/* binding */ langText)
-/* harmony export */ });
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-
-// 储存下载器使用的多语言文本
-// 在属性名前面加上下划线，和文本内容做出区别
-// {} 是占位符
-// <br> 是换行
-const langText = {
-    _只下载已收藏: [
-        '只下载已收藏',
-        '只下載已收藏',
-        'Download only bookmarked works',
-        'ブックマークのみをダウンロードする',
-        '북마크된 작품만 다운로드',
-        'Загружайте только работы, сохраненные в закладках',
-    ],
-    _下载作品类型: [
-        '下载作品类型',
-        '下載作品類型',
-        'Download work type',
-        'ダウンロード作品の種類',
-        '다운로드할 작품 유형',
-        'Типы контента для загрузки',
-    ],
-    _作品类型: [
-        '作品<span class="key">类型</span>',
-        '作品<span class="key">類型</span>',
-        '<span class="key">Type</span> of work',
-        '作品の<span class="key">種類</span>',
-        '작품 <span class="key">유형</span>',
-        'Тип <span class="key">работы</span>',
-    ],
-    _不能含有tag: [
-        '<span class="key">不能</span>含有标签',
-        '<span class="key">不能</span>含有標籤',
-        '<span class="key">Exclude</span> tag',
-        'タグを除外する',
-        '<span class="key">제외</span> 태그',
-        '<span class="key">Исключить</span> ярлык',
-    ],
-    _排除tag的提示文字: [
-        '您可在下载前设置要排除的标签，这样在下载时将不会下载含有这些标签的作品。不区分大小写；如需排除多个标签，请使用英文逗号分隔。请注意，要排除的标签的优先级大于要包含的标签的优先级。',
-        '可在下載前設定要排除的標籤，下載時將排除含有這些標籤的作品，不區分大小寫；如需排除多個標籤，請使用半形逗號（,）分隔。請注意，要排除的標籤優先於要包含的標籤。',
-        'Before downloading, you can set the tag you want to exclude. Not case sensitive; If you need to set multiple tags, you can use comma (,) separated. The excluded tag takes precedence over the included tag',
-        'ダウンロード前に、除外するタグを設定できます。大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、「,」で区切ってください。除外されたタグは、必要なタグよりも優先されます',
-        '다운로드하기 전에 제외해야 하는 태그를 설정할 수 있습니다. 대소문자를 구분하지 않습니다. 여러 태그를 설정해야 하는 경우 쉼표(,)로 구분합니다. 제외된 태그가 포함된 태그보다 우선합니다.',
-        'Перед загрузкой можно задать тег, который необходимо исключить. Не чувствителен к регистру; Если вам нужно задать несколько тегов, вы можете использовать разделение запятыми (,). Исключенный тег имеет приоритет над включенным тегом',
-    ],
-    _设置了排除tag之后的提示: [
-        '排除标签：',
-        '排除標籤：',
-        'Excludes tag: ',
-        '以下のタグを除外：',
-        '제외 태그: ',
-        'Исключающий тег: ',
-    ],
-    _必须含有tag: [
-        '<span class="key">必须</span>含有标签',
-        '<span class="key">必須</span>含有標籤',
-        '<span class="key">Include</span> tag',
-        '<span class="key">必要な</span>タグ',
-        '<span class="key">포함</span> 태그',
-        '<span class="key">Включать</span> ярлык',
-    ],
-    _必须tag的提示文字: [
-        '您可在下载前设置作品里必须包含的标签，不区分大小写；如需包含多个标签，请使用英文逗号分隔。',
-        '可在下載前設定作品裡必須包含的標籤，不區分大小寫；如需包含多個標籤，請使用半形逗號（,）分隔。',
-        'Before downloading, you can set the tag that must be included. Not case sensitive; If you need to set multiple tags, you can use comma (,) separated.',
-        'ダウンロードする前に、必要なタグを設定することができます。大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、「,」で区切ってください。',
-        '다운로드하기 전에 포함해야 하는 태그를 설정할 수 있습니다. 대소문자를 구분하지 않습니다. 여러 태그를 설정해야 하는 경우 쉼표(,)로 구분합니다.',
-        'Перед загрузкой можно задать тег, который должен быть включен. Не чувствителен к регистру; Если вам нужно задать несколько тегов, вы можете использовать разделение запятыми (,).',
-    ],
-    _设置了必须tag之后的提示: [
-        '包含标签：',
-        '包含標籤：',
-        'Include tag: ',
-        '以下の タグ を含める：',
-        '포함 태그: ',
-        'Включающий тег: ',
-    ],
-    _图片的宽高比例: [
-        '图片的宽高<span class="key">比例</span>',
-        '圖片的寬高<span class="key">比例</span>',
-        'Aspect <span class="key">ratio</span>',
-        '画像の縦横比',
-        '<span class="key">종횡비</span>',
-        'Сотношение <span class="key">сторон</span>',
-    ],
-    _设置宽高比例Title: [
-        '设置宽高比例，也可以手动输入宽高比',
-        '設定寬高比，也可以手動輸入寬高比。',
-        'Set the aspect ratio, or manually type the aspect ratio',
-        '縦横比を設定する、手動で縦横比を入力することもできる',
-        '종횡비를 설정하거나, 값을 수동으로 입력할 수 있습니다.',
-        'Установите соотношение сторон или введите соотношение сторон вручную',
-    ],
-    _不限制: [
-        '不限制',
-        '不限制',
-        'not limited',
-        '無制限',
-        '제한 없음',
-        'Без лимитов',
-    ],
-    _横图: ['横图', '橫圖', 'Horizontal', '横長', '가로', 'Горизонтальный'],
-    _竖图: ['竖图', '豎圖', 'Vertical', '縦長', '세로', 'Вертикальный'],
-    _正方形: ['正方形', '正方形', 'Square', '正方形', '정사각형', 'Квадрат(1:1)'],
-    _宽高比: ['宽高比', '寬高比', 'Ratio', '縦横比', '종횡비 ', 'Соотношение'],
-    _设置了宽高比之后的提示: [
-        '宽高比：{}',
-        '寬高比：{}',
-        'Aspect ratio: {}',
-        '縦横比：{}',
-        '종횡비: {}',
-        'Соотношение сторон: {}',
-    ],
-    _宽高比必须是数字: [
-        '宽高比必须是数字',
-        '寬高比必須是數字',
-        'The aspect ratio must be a number',
-        '縦横比は数値でなければなりません',
-        '종횡비는 숫자여야 합니다',
-        'Соотношение сторон должно быть числом',
-    ],
-    _图片的宽高: [
-        '图片的<span class="key">宽高</span>',
-        '圖片的<span class="key">寬高</span>',
-        '<span class="key">width</span> and height',
-        '画像の幅と高さ',
-        '<span class="key">너비</span> 그리고 높이',
-        '<span class="key">Ширина</span> и высота',
-    ],
-    _筛选宽高的提示文字: [
-        '请输入最小宽度和最小高度，不会下载不符合要求的图片。',
-        '請輸入最小寬度和最小高度，只會下載符合要求的圖片。',
-        'Please type the minimum width and minimum height. Will not download images that do not meet the requirements',
-        '最小幅と最小高さを入力してください。要件を満たしていない画像はダウンロードされません。',
-        '최소 너비와 최소 높이를 입력해주세요, 요구 사항을 충족하지 않는 이미지는 다운로드하지 않습니다.',
-        'Введите минимальную ширину и минимальную высоту. Не соответствующие требованиям изображения, загружаться не будут',
-    ],
-    _本次输入的数值无效: [
-        '本次输入的数值无效',
-        '本次輸入的數值無效',
-        'Invalid input',
-        '無効な入力',
-        '잘못된 입력',
-        'Недопустимый ввод',
-    ],
-    _宽度: ['宽度', '寬度', 'Width', '幅', '너비', 'Ширина'],
-    _或者: [' 或者 ', ' 或是 ', ' or ', ' または ', '또는', 'или'],
-    _并且: [' 并且 ', ' 並且 ', ' and ', ' そして ', '그리고', 'и'],
-    _高度: ['高度', '高度', 'height', '高さ', '높이', 'высота'],
-    _抓取多少作品: [
-        '抓取<span class="key">多少</span>作品',
-        '擷取<span class="key">多少</span>作品',
-        'How <span class="key">many</span> works to crawl',
-        'クロールする作品の数',
-        '긁어올 작품 <span class="key">수</span>',
-        'Какое <span class="key">колличество</span> работ сканировать',
-    ],
-    _抓取多少页面: [
-        '抓取<span class="key">多少</span>页面',
-        '擷取<span class="key">多少</span>頁面',
-        'How <span class="key">many</span> pages to crawl',
-        'クロールするページ数',
-        '긁어올 페이지 <span class="key">수</span>',
-        'Какое <span class="key">колличество</span> страниц сканироватьь',
-    ],
-    _收藏数量: [
-        '<span class="key">收藏</span>数量',
-        '<span class="key">收藏</span>數量',
-        'Number of <span class="key">bookmarks</span>',
-        'ブックマークの数',
-        '<span class="key">북마크</span> 수',
-        'Колличество <span class="key">закладок</span>',
-    ],
-    _设置收藏数量的提示: [
-        '如果作品的收藏数小于设置的数字，作品不会被下载。',
-        '只會下載設定收藏數範圍內的作品。',
-        'If the number of bookmarks of the work is less than the set number, the work will not be downloaded.',
-        '作品のブックマークされた数が設定された数字よりも少ない場合、作品はダウンロードされません。',
-        '작품의 북마크 수가 설정된 값보다 적을 경우 작품은 다운로드되지 않습니다.',
-        'Если количество закладок произведения меньше заданного, произведение не будет загружено',
-    ],
-    _筛选收藏数的提示文字: [
-        '请输入一个数字，如果作品的收藏数小于这个数字，作品不会被下载。',
-        '請輸入數字，只會下載設定收藏數範圍內的作品。',
-        'Please type a number. If the number of bookmarks of the work is less than this number, the work will not be downloaded.',
-        '数字を入力してください。 作品のブックマークされた数がこの数字より少ない場合、作品はダウンロードされません。',
-        '숫자를 입력해주세요. 작품의 북마크 수가 이 수보다 적을 경우 작품은 다운로드되지 않습니다.',
-        'Пожалуйста, введите число. Если количество закладок произведения меньше этого числа, произведение не будет загружено.',
-    ],
-    _收藏数大于: [
-        '收藏数 >= ',
-        '收藏數 >= ',
-        'Number of bookmarks >= ',
-        'ブックマークの数 >= ',
-        '북마크 수 >= ',
-        'Количество закладок >= ',
-    ],
-    _收藏数小于: [
-        '收藏数 <= ',
-        '收藏數 <= ',
-        'Number of bookmarks <= ',
-        'ブックマークの数 <= ',
-        '북마크 수 <=',
-        'Количество закладок <= ',
-    ],
-    _本次任务已全部完成: [
-        '本次任务已全部完成。',
-        '本次工作已全部完成。',
-        'This task has been completed.',
-        'この作業は完了しました。',
-        '이 작업은 완료되었습니다.',
-        'Эта задача была выполнена.',
-    ],
-    _本次任务条件: [
-        '本次任务条件: ',
-        '本次工作條件：',
-        'This task condition: ',
-        'この作業の条件：',
-        '이 작업 조건: ',
-        'Это условие задачи: ',
-    ],
-    _参数不合法本次操作已取消: [
-        '参数不合法，本次操作已取消。',
-        '參數不合法，本次動作已取消。',
-        'Parameter is not legal, this operation has been canceled.',
-        'パラメータは有効ではありません。この操作はキャンセルされました。',
-        '매개변수가 잘못되었습니다, 이 작업은 취소됩니다.',
-        'Параметр не является разрешенным, операция отменена.',
-    ],
-    _本次操作已取消: [
-        '本次操作已取消',
-        '本次動作已取消',
-        'This operation has been canceled',
-        'この操作はキャンセルされました',
-        '이 작업이 취소되었습니다.',
-        'Эта операция была отменена',
-    ],
-    _向下获取所有作品: [
-        '向下获取所有作品',
-        '向下取得所有作品',
-        'download all the work from this page.',
-        'このページからすべての作品をダウンロードする。',
-        '모든 작품 다운로드',
-        'загрузить все работы с этой страницы',
-    ],
-    _从本页开始下载提示: [
-        '从当前页面开始下载。<br>如果要限制下载的页数，请输入从 1 开始的数字。<br>1 为仅下载本页，-1 为下载所有页面。',
-        '從當前頁面開始下載。<br>如果要限制下載的頁數，請輸入從 1 開始的數字。<br>1 為僅下載本頁，-1 為下載所有頁面。',
-        'Download from the current page.<br>If you want to set the number of pages to download, type a number starting at 1. <br>1 is to download only this page, -1 to download all pages.',
-        '現在のページからダウンロードしてください。<br>ダウンロードするページを設定する場合は、1から始まる数字を入力してください。<br>1 は現在のページのみをダウンロードする，すべてのページをダウンロードするには -1。',
-        '현재 페이지에서 다운로드합니다.<br>다운로드할 페이지 수를 설정하려면 1로 시작하는 숫자를 입력해주세요.<br>1은 이 페이지만 다운로드합니다, -1은 모든 페이지를 다운로드합니다.',
-        'Загрузка с текущей страницы.<br>Если вы хотите задать количество страниц для загрузки, введите число, начиная с 1. <br>1 - это загрузка только этой страницы, -1 для загрузки всех страниц.',
-    ],
-    _下载所有页面: [
-        '下载所有页面',
-        '下載所有頁面',
-        'download all pages',
-        'すべてのページをダウンロードする',
-        '모든 페이지 다운로드',
-        'загрузить все страницы',
-    ],
-    _下载x个相关作品: [
-        '下载 {} 个相关作品',
-        '下載 {} 個相關作品',
-        'download {} related works.',
-        '関連作品 {} 枚をダウンロードする。',
-        '관련 작품 {}개를 다운로드',
-        'скачать {} связанные работы',
-    ],
-    _下载所有相关作品: [
-        '下载所有相关作品',
-        '下載所有相關作品',
-        'download all related works.',
-        '関連作品をすべてダウンロードする。',
-        '모든 관련 작품 다운로드',
-        'скачать все соответствующие работы.',
-    ],
-    _下载推荐作品: [
-        '下载推荐作品',
-        '下載推薦作品',
-        'download recommended works',
-        'おすすめ作品をダウンロードする',
-        '추천 작품 다운로드',
-        'скачать рекомендуемые работы',
-    ],
-    _下载排行榜前x个作品: [
-        '下载排行榜前 {} 个作品',
-        '下載排行榜前 {} 個作品',
-        'download the top {} works in the ranking list',
-        'ランク前 {} 位の作品をダウンロードする。',
-        '랭킹 목록 상위 {}개의 작품 다운로드',
-        'загрузить лучшие {} работы в рейтинговом списке',
-    ],
-    _输入超过了最大值: [
-        '您输入的数字超过了最大值',
-        '輸入的數字超出最大值',
-        'The number you set exceeds the maximum',
-        '入力した番号が最大値を超えています',
-        '설정하신 수가 최대값을 초과합니다',
-        'Заданное вами число превышает максимальное',
-    ],
-    _从本页开始下载x页: [
-        '从本页开始下载 {} 页',
-        '從本頁開始下載 {} 頁',
-        'download {} pages from this page',
-        'このページから {} ページをダウンロードする',
-        '이 페이지부터 {} 페이지 다운로드',
-        'Начать загрузку с страниц этой {} страницы',
-    ],
-    _从本页开始下载x个: [
-        '从本页开始下载 {} 个作品',
-        '從本頁開始下載 {} 個作品',
-        'Download {} works from this page.',
-        'このページから {} 枚の作品をダウンロード。',
-        '이 페이지부터 {}개의 작품 다운로드',
-        'Загрузить {} работы с этой страницы.',
-    ],
-    _任务开始: [
-        '任务开始',
-        '工作開始',
-        'Task starts',
-        '作業が開始されます',
-        '작업 시작',
-        'Задание начинается',
-    ],
-    _排除作品类型: [
-        '排除作品类型：',
-        '排除作品類型：',
-        'Excludes these types of works: ',
-        'これらのタイプの作品を除外：',
-        '제외된 작품 유형: ',
-        'Исключает эти виды работ: ',
-    ],
-    _多图作品: [
-        '多图作品',
-        '多圖作品',
-        'Multi-image works',
-        '複数画像作品',
-        '여러 이미지 작품',
-        'Работа с несколькими изображениями',
-    ],
-    _多图下载设置: [
-        '多图下载设置',
-        '多圖下載設定',
-        'Download multi-image works',
-        '複数画像設定',
-        '여러 이미지 작품 다운로드',
-        'Загрузить работы с несколькими изображениями',
-    ],
-    _不下载: ['不下载', '不下載', 'No', '必要なし', '아니요', 'Нет'],
-    _全部下载: ['全部下载', '全部下載', 'Yes', '全部ダウンロード', '네', 'Да'],
-    _插画: [
-        '插画',
-        '插畫',
-        'Illustrations',
-        'イラスト',
-        '일러스트',
-        'Иллюстрации',
-    ],
-    _漫画: ['漫画', '漫畫', 'Manga', '漫画', '만화', 'Манга'],
-    _动图: [
-        '动图',
-        '動圖',
-        'Ugoira',
-        'うごイラ',
-        '움직이는 일러스트',
-        'Ugoira(гиф)',
-    ],
-    _动图保存格式: [
-        '<span class="key">动图</span>保存格式',
-        '<span class="key">動圖</span>儲存格式',
-        'Save the <span class="key">ugoira</span> work as',
-        'うごイラの保存タイプ',
-        '<span class="key">움직이는 일러스트</span> 작품 저장 형식',
-        'Сохранить <span class="key">Ugoira</span> как',
-    ],
-    _动图保存格式title: [
-        '下载动图时，可以把它转换成视频文件',
-        '下載動圖時，可轉換為影片檔。',
-        'When you download a ugoira work, you can convert it to a video file.',
-        'うごイラをダウンロードするとき、動画に変換することができます。',
-        '움직이는 일러스트 작품을 다운로드 하면, 동영상 파일로 변환할 수 있습니다.',
-        'Когда вы скачиваете произведение ugoira, вы можете конвертировать его в видеофайл.',
-    ],
-    _webmVideo: [
-        'WebM 视频',
-        '影片（WebM）',
-        'WebM video',
-        'WebM ビデオ',
-        'WebM 동영상',
-        'WebM видео',
-    ],
-    _gif: [
-        'GIF 图片',
-        '圖片（GIF）',
-        'GIF image',
-        'GIF 画像',
-        'GIF 이미지',
-        'GIF изображение',
-    ],
-    _apng: [
-        'APNG 图片',
-        '圖片（APNG）',
-        'APNG image',
-        'APNG 画像',
-        'APNG 이미지',
-        'APNG изображение',
-    ],
-    _zipFile: [
-        'Zip 文件',
-        '壓縮檔（Zip）',
-        'Zip file',
-        'ZIP ファイル',
-        'Zip 파일',
-        'Zip файл',
-    ],
-    _当前作品个数: [
-        '当前有 {} 个作品',
-        '目前有 {} 個作品',
-        'There are now {} works',
-        '今は　{}　枚の作品があります',
-        '현재 {}개의 작품이 있습니다',
-        'В настоящее время существует {} работ',
-    ],
-    _当前有x个用户: [
-        '当前有 {} 个用户',
-        '目前有 {} 個使用者',
-        'There are currently {} users',
-        '現在 {} 人のユーザーがいます',
-        '현재 {}명의 유저가 있습니다',
-        'В настоящее время существует {} пользователей',
-    ],
-    _已抓取x个用户: [
-        '已抓取 {} 个用户',
-        '已擷取 {} 個使用者',
-        'crawled {} users',
-        'クロールされた {} ユーザー',
-        '{}명의 유저를 긁어왔습니다',
-        'Сканированные {} пользователи',
-    ],
-    _排行榜进度: [
-        '已抓取本页面第{}部分',
-        '已擷取本頁面第 {} 部分',
-        'Part {} of this page has been crawled',
-        'このページの第　{}　部がクロールされました',
-        '이 페이지의 {} 부분을 긁어왔습니다',
-        'Часть {} этой страницы была просмотрена',
-    ],
-    _新作品进度: [
-        '已抓取本页面 {} 个作品',
-        '已擷取本頁面 {} 個作品',
-        'This page has been crawled {} works',
-        'このページの {} つの作品をクロールしました',
-        '이 페이지의 {}개의 작품을 긁어왔습니다',
-        'На этой странице было просканированно {} работ',
-    ],
-    _抓取多少个作品: [
-        '抓取本页面 {} 个作品',
-        '擷取本頁面 {} 個作品',
-        'Crawl this page {} works',
-        'このページの {} つの作品をクロールします',
-        '이 페이지의 {}개의 작품 긁어오기',
-        'Сканировать на этой странице {} работ',
-    ],
-    _相关作品抓取完毕: [
-        '相关作品抓取完毕。包含有{}个作品，开始获取作品信息。',
-        '相關作品擷取完畢。包含有 {} 個作品，開始取得作品資訊。',
-        'The related works have been crawled. Contains {} works and starts getting information about the work.',
-        '関連作品はクロールされました。 {} 作品を含み、その作品に関する情報の取得を開始します。',
-        '관련 작품 긁어오기 완료, {}개의 작품이 포함되어 있으며, 작품 정보 가져오기를 시작합니다',
-        'Связанные работы были просканированы. Содержит {} работ и начинает получать информацию о работе(ах).',
-    ],
-    _排行榜任务完成: [
-        '本页面抓取完毕。<br>当前有{}个作品，开始获取作品信息。',
-        '本頁面擷取完畢。<br>目前有 {} 個作品，開始取得作品資訊。',
-        'This page is crawled and now has {} works.<br> Start getting the works for more information.',
-        'このページのクロール終了。<br>{}枚の作品があります。 作品情報の取得を開始します。',
-        '이 페이지 긁어오기 완료되었습니다<br>현재 {}개의 작품이 있으며, 작품 정보 가져오기를 시작합니다',
-        'Эта страница просмотрена и имеет {} работ.<br> Начинаю получать работы для получения дополнительной информации.',
-    ],
-    _开始获取作品信息: [
-        '开始获取作品信息',
-        '開始取得作品資訊',
-        'Start getting work data',
-        '作品情報の取得を開始します',
-        '작품 정보 가져오기 시작',
-        'Начинаю получать данные о работе',
-    ],
-    _列表页抓取进度: [
-        '已抓取列表页 {} 个页面',
-        '已擷取清單頁 {} 個頁面',
-        'Has acquired {} list pages',
-        '{} のリストページを取得しました',
-        '{}개의 목록 페이지를 획득하였습니다',
-        'Получено {} страниц списка',
-    ],
-    _列表页抓取进度2: [
-        '正在抓取列表页 {}/{}',
-        '正在抓取列表頁 {}/{}',
-        'crawling list page {}/{}',
-        'リストページの取得 {}/{}',
-        '목록 페이지 긁어오는 중 {}/{}',
-        'Вытаскивание списка страниц {}/{}',
-    ],
-    _列表页抓取完成: [
-        '列表页面抓取完成',
-        '清單頁面擷取完成',
-        'The list page is crawled',
-        'リストページがクロールされ',
-        '목록 페이지 긁어오기 완료',
-        'Список страниц просканирован',
-    ],
-    _抓取结果为零: [
-        '抓取完毕，但没有找到符合筛选条件的作品。<br>请检查“抓取”相关的设置。',
-        '擷取完畢，但沒有找到符合篩選條件的作品。<br>請檢查“抓取”相關的設定。',
-        'Crawl complete but did not find works that match the filter criteria.<br>Please check the settings related to Crawl.',
-        'クロールは終了しましたが、フィルタ条件に一致する作品が見つかりませんでした。<br>クロールに関する設定を確認してください。',
-        '긁어오기가 완료되었지만 필터 조건과 일치하는 작품을 찾지 못했습니다.<br>크롤링 관련 설정을 확인하세요.',
-        'Вытаскивание завершено, но не найдены работы, соответствующие критериям фильтра.<br>Пожалуйста, проверьте настройки, связанные со сканированием.',
-    ],
-    _当前任务尚未完成: [
-        '当前任务尚未完成',
-        '目前工作尚未完成',
-        'The current task has not yet been completed',
-        '現在の作業はまだ完了していません',
-        '현재 작업이 아직 완료되지 않았습니다',
-        'Текущее задание еще не выполнено',
-    ],
-    _当前任务尚未完成2: [
-        '当前任务尚未完成，请等待完成后再下载。',
-        '目前工作尚未完成，請等待完成後再下載。',
-        'The current task has not yet been completed',
-        '現在の作業はまだ完了していません、完了するまでお待ちください',
-        '현재 작업이 아직 완료되지 않았습니다, 완료될 때까지 기다려주세요.',
-        'Текущее задание еще не выполнено',
-    ],
-    _列表抓取完成开始获取作品页: [
-        '当前列表中有{}张作品，开始获取作品信息',
-        '目前清單中有 {} 張作品，開始取得作品資訊',
-        'Now has {} works. Start getting the works for more information.',
-        '{} 枚の作品があります。 作品情報の取得を開始します。',
-        '현재 {}개의 작품이 있습니다, 작품 정보 가져오기를 시작합니다',
-        'Сейчас в работе {} работ. Начните получать работы для получения дополнительной информации.',
-    ],
-    _开始获取作品页面: [
-        '开始获取作品页面',
-        '開始取得作品頁面',
-        'Start getting the works page',
-        '作品ページの取得を開始する',
-        '작품 페이지 가져오기 시작',
-        'Начинаю получать страницу с работами',
-    ],
-    _无权访问: [
-        '无权访问 {}，跳过该作品。',
-        '沒有權限存取 {}，跳過該作品。',
-        'No access {}, skip.',
-        '{} のアクセス権限がありません、作品を無視する。',
-        '{}에 접근 권한이 없습니다, 이 작업을 건너뜁니다.',
-        'Нет доступа {}, пропуск.',
-    ],
-    _作品页状态码0: [
-        '请求的 URL 不可访问 (0)',
-        '要求的 URL 無法存取 (0)',
-        'The requested URL is not accessible (0)',
-        '要求された URL にアクセスできません (0)',
-        '요청한 URL에 접근할 수 없습니다 (0)',
-        'Запрашиваемый URL недоступен (0)',
-    ],
-    _作品页状态码400: [
-        '该作品已被删除 (400)',
-        '該作品已被刪除 (400)',
-        'The work has been deleted (400)',
-        '作品は削除されました (400)',
-        '이 작품은 삭제되었습니다 (400)',
-        'Работа была удалена (400)',
-    ],
-    _作品页状态码401: [
-        '请您登录 Pixiv 账号然后重试。(401)',
-        '請您登入 Pixiv 帳號後重試。(401)',
-        'Please log in to your Pixiv account and try again. (401)',
-        'Pixiv アカウントにログインして、もう一度お試しください。(401)',
-        'Pixiv 계정에 로그인 후 다시 시도해주세요. (401)',
-        'Пожалуйста, войдите в свою учетную запись Pixiv и попробуйте еще раз. (401)',
-    ],
-    _作品页状态码403: [
-        '无权访问请求的 URL (403)',
-        '沒有權限存取要求的 URL (403)',
-        'Have no access to the requested URL (403)',
-        'リクエストされた URL にアクセスできない (403)',
-        '요청한 URL에 접근 권한이 없습니다 (403)',
-        'Нет доступа к запрашиваемому URL (403)',
-    ],
-    _作品页状态码404: [
-        '404 not found',
-        '404 not found',
-        '404 not found',
-        '404 not found',
-        '404 not found',
-        '404 not found',
-    ],
-    _作品页状态码429: [
-        '错误代码：429（请求数量过多）。下载器会重新抓取它。',
-        '錯誤程式碼：429（請求數量過多）。下載器会重新抓取它。',
-        'Error code: 429 (Too many requests). The downloader will re-crawl it.',
-        'エラー コード: 429 (要求が多すぎます)。ダウンローダーはそれを再クロールします。',
-        '오류 코드: 429(요청이 너무 많음). 다운로더가 다시 크롤링합니다.',
-        'Код ошибки: 429 (Слишком много запросов). Загрузчик будет повторять вытаскивание.',
-    ],
-    _错误代码: [
-        '错误代码：',
-        '錯誤程式碼：',
-        'Error code: ',
-        'エラー コード: ',
-        '오류 코드: ',
-        'Код ошибки: ',
-    ],
-    _作品页状态码500: [
-        'Pixiv 拒绝返回数据 (500)。下载器会重新抓取它。',
-        'Pixiv 拒絕返回資料 (500)。下載器会重新抓取它。',
-        'Pixiv refuses to return data (500). The downloader will re-crawl it.',
-        'ピクシブはデータの返却を拒否します (500)。ダウンローダーはそれを再クロールします。',
-        'pixiv는 데이터 반환을 거부합니다 (500). 다운로더가 다시 크롤링합니다.',
-        'Pixiv отказывается возвращать данные (500). Загрузчик будет повторять вытаскивание.',
-    ],
-    _正在抓取: [
-        '正在抓取，请等待……',
-        '擷取中，請稍後……',
-        'Getting, please wait...',
-        'クロール中、しばらくお待ちください...',
-        '얻어오는 중, 잠시만 기다려주세요...',
-        'Получение, пожалуйста, подождите...',
-    ],
-    _获取全部书签作品: [
-        '获取全部书签作品，时间可能比较长，请耐心等待。',
-        '取得全部書籤作品，時間可能比較長，請耐心等待。',
-        'Get all bookmarked works, the time may be longer, please wait.',
-        'ブックマークしたすべての作品を取得すると、時間がかかることがあります。お待ちください。',
-        '북마크된 작품을 모두 가져오는 것은 시간이 오래 걸릴 수 있으니 기다려주세요.',
-        'Получить все работы из закладок, это может занять время, пожалуйста, подождите',
-    ],
-    _抓取图片网址遇到中断: [
-        '当前任务已中断!',
-        '目前工作已中斷！',
-        'The current task has been interrupted.',
-        '現在の作業が中断されました。',
-        '현재 작업이 중단되었습니다!',
-        'Текущая задача была прервана.',
-    ],
-    _关闭: ['关闭', '關閉', 'close', 'クローズ', '닫기', 'закрыть'],
-    _输出信息: [
-        '输出信息',
-        '輸出資訊',
-        'Output information',
-        '出力情報',
-        '출력 정보',
-        'Выходная информация',
-    ],
-    _复制: ['复制', '複製', 'Copy', 'コピー', '복사', 'Копировать'],
-    _已复制到剪贴板: [
-        '已复制到剪贴板，可直接粘贴',
-        '已複製至剪貼簿，可直接貼上',
-        'Has been copied to the clipboard',
-        'クリップボードにコピーされました',
-        '클립보드에 복사되었습니다.',
-        'Скопировано в буфер обмена',
-    ],
-    _下载设置: [
-        '下载设置',
-        '下載設定',
-        'Download settings',
-        'ダウンロード設定',
-        '다운로드 설정',
-        'Настройки загрузки',
-    ],
-    _收起展开设置项: [
-        '收起/展开设置项',
-        '摺疊/展開設定項目',
-        'Collapse/expand settings',
-        '設定の折りたたみ/展開',
-        '설정 축소/확장',
-        'Свернуть/развернуть настройки',
-    ],
-    _github: [
-        'Github 页面，欢迎 star',
-        'Github 頁面，歡迎 star',
-        'Github page, if you like, please star it',
-        'Github のページ、star をクリックしてください',
-        'Github, 유용하셨다면 Star를 주세요.',
-        'Страница на Github, если вам нравится, пожалуйста, поставьте звезду',
-    ],
-    _wiki: ['使用手册', 'Wiki', 'Wiki', 'マニュアル', '위키', 'Вики'],
-    _快捷键ALTX显示隐藏控制面板: [
-        '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">X</span> 显示或隐藏控制面板。',
-        '你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">X</span> 顯示或隱藏控制面板。',
-        'You can use the shortcut keys <span class="blue">Alt</span> + <span class="blue">X</span> to show or hide the control panel.',
-        'ショートカット キー <span class="blue">Alt</span> + <span class="blue">X</span> を使用して、コントロール パネルを表示または非表示にできます。',
-        '단축키 <span class="blue">Alt</span> + <span class="blue">X</span>를 사용하여 제어판을 표시하거나 숨길 수 있습니다.',
-        'Вы можете использовать сочетания клавиш <span class="blue">Alt</span> + <span class="blue">X</span>, чтобы отобразить или скрыть панель управления.',
-    ],
-    _隐藏控制面板: [
-        '隐藏控制面板（Alt + X）',
-        '隱藏控制面板（Alt + X）',
-        'hide control panel (Alt + X)',
-        'コントロールパネルを隠す（Alt + X）',
-        '제어판 숨기기 (Alt + X)',
-        'скрыть панель управления (Alt + X)',
-    ],
-    _显示控制面板: [
-        '显示控制面板 (Alt + X)',
-        '顯示控制面板 (Alt + X)',
-        'Show control panel (Alt + X)',
-        'コントロールパネルを表示 (Alt + X)',
-        '제어판 표시 (Alt + X)',
-        'показать панель управления (Alt + X)',
-    ],
-    _共抓取到n个文件: [
-        '共抓取到 {} 个文件',
-        '共擷取到 {} 個檔案',
-        'Crawl a total of {} files',
-        '合計 {} つのファイルがあります',
-        '총 {}개의 파일을 긁어왔습니다',
-        'Всего просканированно {} файлов',
-    ],
-    _共抓取到n个作品: [
-        '共抓取到 {} 个作品',
-        '共擷取到 {} 個作品',
-        'Crawl a total of {} works',
-        '合計 {} つの作品があります',
-        '총 {}개의 작품을 긁어왔습니다',
-        'Всего просканированно {} работ',
-    ],
-    _命名规则: [
-        '<span class="key">命名</span>规则',
-        '<span class="key">命名</span>規則',
-        '<span class="key">Naming</span> rule',
-        '<span class="key">命名</span>規則',
-        '<span class="key">명명</span> 규칙',
-        '<span class="key">Правила</span> названий',
-    ],
-    _命名规则2: [
-        '命名规则',
-        '命名規則',
-        'Naming rule',
-        '命名規則',
-        '명명 규칙',
-        'Правила названий',
-    ],
-    _设置文件夹名的提示: [
-        `可以使用 '<span class="key">/</span>' 建立文件夹。示例：`,
-        `可以使用斜線（<span class="key">/</span>）建立資料夾。範例：`,
-        `You can create a directory with '<span class="key">/</span>'. Example：`,
-        `フォルダーは '<span class="key">/</span>' で作成できます。例：`,
-        `'<span class="key">/</span>'을 사용하여 디렉토리를 생성할 수 있습니다.<br>예:`,
-        `Вы можете создать каталог с помощью '<span class="key">/</span>'. Пример:`,
-    ],
-    _添加命名标记前缀: [
-        '添加命名标记<span class="key">前缀</span>',
-        '加入命名標記<span class="key">前綴</span>',
-        'Add named tag <span class="key">prefix</span>',
-        '前にタグの名前を追加',
-        '명명된 태그 추가 <span class="key">접두사</span>',
-        'Добавить именованный тег <span class="key">префикс</span>',
-    ],
-    _添加字段名称提示: [
-        `例如，在用户名前面添加“user_”标记`,
-        '例如，在使用者名稱前面加入「user_」標記。',
-        `For example, add the 'user_' tag in front of the username`,
-        'たとえば、ユーザー名の前に 「user_」タグを追加します。',
-        `예: 유저명 앞에 'user_' 태그 추가`,
-        `Например, добавьте тег 'user_' перед именем пользователя`,
-    ],
-    _命名标记id: [
-        '默认文件名，如 <span class="blue">44920385_p0</span>',
-        '預設檔案名稱，例如：<span class="blue">44920385_p0</span>。',
-        'Default file name, for example <span class="blue">44920385_p0</span>',
-        'デフォルトのファイル名，例 <span class="blue">44920385_p0</span>',
-        '기본 파일명. 예: <span class="blue">44920385_p0</span>',
-        'Имя файла по умолчанию, например <span class="blue">44920385_p0</span>',
-    ],
-    _命名标记title: [
-        '作品标题',
-        '作品標題',
-        'Works title',
-        '作品のタイトル',
-        '작품 제목',
-        'Название работ',
-    ],
-    _命名标记tags: [
-        '作品的标签列表',
-        '作品的標籤清單',
-        'The tags of the work',
-        '作品のタグ',
-        '작품 태그',
-        'Теги работ',
-    ],
-    _命名标记user: [
-        '用户名字',
-        '使用者名稱',
-        'User name',
-        'ユーザー名',
-        '유저명',
-        'Никнейм юзера',
-    ],
-    _用户id: [
-        '用户 ID（数字）',
-        '使用者 ID（數字）',
-        'User ID (Number)',
-        'ユーザー ID (Number)',
-        '유저 ID (숫자)',
-        'ID Юзера (Число)',
-    ],
-    _命名标记px: [
-        '宽度和高度。例如：<span class="blue">600x900</span>',
-        '寬度和高度。例如：<span class="blue">600x900</span>',
-        'Width and height, e.g. <span class="blue">600x900</span>',
-        '幅と高さ。例：<span class="blue">600x900</span>',
-        '너비와 높이. 예: <span class="blue">600x900</span>',
-        'Ширина и высота, напр. <span class="blue">600x900</span>',
-    ],
-    _命名标记bmk: [
-        'Bookmark count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
-        'Bookmark count，作品的收藏數。將它放在最前面可以讓檔案依收藏數排序。',
-        'Bookmark count, bookmarks number of works.',
-        'Bookmark count，作品のボックマークの数、前に追加することでボックマーク数で并べることができます。',
-        '북마크 수. 맨 앞에 두면 북마크 수별로 문서를 정렬할 수 있습니다.',
-        'Количество закладок, количество произведений в закладках',
-    ],
-    _命名标记bmk_id: [
-        'Bookmark ID。你收藏的每一个作品都会有一个 Bookmark ID。收藏的时间越晚，Bookmark ID 就越大。当你下载你的收藏时，可以使用 {bmk_id} 作为排序依据。',
-        'Bookmark ID。你收藏的每一個作品都會有一個 Bookmark ID。收藏的時間越晚，Bookmark ID 就越大。當你下載你的收藏時，可以使用 {bmk_id} 作為排序依據。',
-        'Bookmark ID. Every work in your bookmarks will have a Bookmark ID. The later the bookmark is added, the larger the Bookmark ID. When you download your bookmarks, you can use {bmk_id} as a sorting basis.',
-        'ブックマークID。 ブックマーク内のすべての作品にはブックマークIDがあります。 ブックマークを後で追加すると、ブックマークIDが大きくなります。 ブックマークをダウンロードするときは、{bmk_id}を並べ替えの基準として使用できます。',
-        '북마크 ID. 당신이 북마크하고 있는 작품마다 북마크 ID가 있습니다. 북마크 시간이 늦어질수록 북마크 ID는 커집니다. 북마크를 다운로드할때 {bmk_id}를 기준으로 정렬할 수 있습니다.',
-        'Bookmark ID. Каждая работа в ваших закладках будет иметь идентификатор закладки. Чем позже добавлена закладка, тем больше ID закладки. Когда вы загружаете закладки, вы можете использовать {bmk_id} в качестве основы для сортировки.',
-    ],
-    _命名标记bmk_1000: [
-        '作品收藏数的简化显示。例如：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
-        '作品收藏數的簡化顯示。例如：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
-        'Simplified number of bookmark, e.g. <span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
-        '作品のボックマークの数の簡略表示。例：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
-        '단순화된 북마크 수. 예: <span class="blue">0+</span>, <span class="blue">1000+</span>, <span class="blue">2000+</span>, <span class="blue">3000+</span> ……',
-        'Упрощенное количество закладок, напр. <span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ......',
-    ],
-    _命名标记like: [
-        'Like count，作品的点赞数。',
-        'Like count，作品的點讚數。',
-        'Like count.',
-        'Like count。',
-        '좋아요 수',
-        'Колличество лайков',
-    ],
-    _命名标记view: [
-        'View count，作品的浏览量。',
-        'View count，作品的瀏覽量。',
-        'View count.',
-        'View count。',
-        '조회수',
-        'Колличество просмотров',
-    ],
-    _命名标记id_num: [
-        '数字 ID，如 <span class="blue">44920385</span>',
-        '數字 ID，例如：<span class="blue">44920385</span>。',
-        'Number ID, for example <span class="blue">44920385</span>',
-        '<span class="blue">44920385</span> などの番号 ID',
-        '숫자 ID. 예: <span class="blue">44920385</span>',
-        'Идентификатор номера, например <span class="blue">44920385</span>',
-    ],
-    _命名标记p_num: [
-        '图片在作品内的序号，如 <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 每个作品都会重新计数。',
-        '圖片在作品內的序號，例如：<span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span>……每個作品都將重新計數。',
-        'The serial number of the image in the work, such as <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Each work will be recounted.',
-        '<span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> など、作品の画像のシリアル番号。各ピースは再集計されます。',
-        '작품 안에 있는 번호. 예: <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> …… 작품마다 다시 세어봅니다.',
-        'Порядковый номер изображения в работе, например, <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> .... Каждое произведение будет пересказано',
-    ],
-    _命名标记tags_trans: [
-        '作品的标签列表，附带翻译后的标签（如果有）',
-        '作品的標籤清單，包含翻譯後的標籤（如果有的話）。',
-        'The tags of the work, with the translated tag (if any)',
-        '作品のタグリスト、翻訳付きタグ(あれば)',
-        '작품 태그, 번역된 태그 (있다면)',
-        'Теги произведения, с тегом перевода (если есть)',
-    ],
-    _命名标记tags_transl_only: [
-        '翻译后的标签列表',
-        '譯後的標籤清單。',
-        'Translated tags',
-        '翻訳后のタグリスト',
-        '번역된 태그',
-        'Теги перевода',
-    ],
-    _命名标记date: [
-        '作品的创建时间。如 <span class="blue">2019-08-29</span>。',
-        '作品的建立時間。例如：<span class="blue">2019-08-29</span>。',
-        'The time the creation of the work. Such as <span class="blue">2019-08-29</span>',
-        '作品の作成時間。例 <span class="blue">2019-08-29</span>',
-        '작품 생성 날짜. 예: <span class="blue">2019-08-29</span>',
-        'Время создания произведения. Например, <span class="blue">2019-08-29</span>',
-    ],
-    _命名标记upload_date: [
-        '作品内容最后一次被修改的时间。如 <span class="blue">2019-08-30</span>。',
-        '作品內容最後一次被修改的時間。如 <span class="blue">2019-08-30</span>。',
-        'The time when the content of the work was last modified. Such as <span class="blue">2019-08-30</span>.',
-        '作品の内容が最後に変更された時刻。例 <span class="blue">2019-08-30</span>',
-        '저작물의 내용이 마지막으로 수정된 시간입니다. 예: <span class="blue">2019-08-30</span>',
-        'Время, когда содержание работы было изменено в последний раз. Например, <span class="blue">2019-08-30</span>.',
-    ],
-    _命名标记rank: [
-        '作品在排行榜中的排名。如 <span class="blue">#1</span>、<span class="blue">#2</span> …… 只能在排行榜页面中使用。',
-        '作品在排行榜中的排名。例如：<span class="blue">#1</span>、<span class="blue">#2</span>……只能在排行榜頁面中使用。',
-        'The ranking of the work in the ranking pages. Such as <span class="blue">#1</span>, <span class="blue">#2</span> ... Can only be used in ranking pages.',
-        '作品のランキング。例え　<span class="blue">#1</span>、<span class="blue">#2</span> …… ランキングページのみで使用できます。',
-        '작품의 랭킹. 예: <span class="blue">#1</span>, <span class="blue">#2</span> …… 랭킹 페이지에서만 사용할 수 있습니다.',
-        'Рейтинг работы на страницах рейтинга. Например, <span class="blue">#1</span>, <span class="blue">#2</span> ... Может использоваться только на страницах ранжирования.',
-    ],
-    _命名标记type: [
-        '作品类型，分为：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
-        '作品類型，分為：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
-        'The type of work, divided into：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
-        '作品分類は：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
-        '작품 유형: <span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
-        'Тип работы, разделенный на：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
-    ],
-    _命名标记AI: [
-        '如果作品是由 AI 生成的，则输出 <span class="blue">AI</span>',
-        '如果作品是由 AI 生成的，則輸出 <span class="blue">AI</span>',
-        'If the work is generated by AI, output <span class="blue">AI</span>',
-        '作品がAIで生成された場合、<span class="blue">AI</span>を出力',
-        '작업이 AI로 생성된 경우 <span class="blue">AI</span> 출력',
-        'Если работа создана с помощью ИИ, выведите <span class="blue">AI</span>',
-    ],
-    _命名标记提醒: [
-        '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{user_id}',
-        '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{user_id}',
-        'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{user_id}',
-        'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{user_id}',
-        '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.<br>여러 태그를 사용할 수 있습니다. 서로 다른 태그 사이에 구분자를 넣는 것을 권장합니다. 예: {id}-{user}',
-        'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.<br>Вы можете использовать несколько тегов, и вы можете добавить отдельный символ между различными тегами. Пример: {id}-{user_id}',
-    ],
-    _有些标记并不总是可用的提醒: [
-        '有些标记并不总是可用，有时它们可能什么都不输出。',
-        '有些標記並不總是可用，有時它們可能什麼都不輸出。',
-        'Some tags are not always available, and sometimes they may output nothing.',
-        '一部のタグは常に使用できるとは限らず、何も出力しない場合もあります。',
-        '일부 태그는 항상 사용할 수 있는 것은 아니며 때로는 아무 것도 출력하지 않을 수도 있습니다.',
-        'Некоторые теги не всегда доступны, а иногда могут ничего не выводить.',
-    ],
-    _命名规则一定要包含id: [
-        '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}',
-        '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。',
-        'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.',
-        'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。',
-        '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.',
-        'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.',
-    ],
-    _文件夹标记PTag: [
-        '如果页面里的作品属于同一个标签，则输出这个标签。',
-        '如果頁面裡的作品屬於同一個標籤，則輸出這個標籤。',
-        'If the works on the page belong to the same tag, then output this tag.',
-        'ページ上の作品が同じタグに属している場合は、このタグを出力します。',
-        '페이지의 작품이 같은 태그에 속하는 경우 이 태그를 출력합니다.',
-        'Если работы на странице относятся к одному и тому же тегу, то выводить этот тег.',
-    ],
-    _命名标记seriesTitle: [
-        '系列标题，只在系列页面中可用（小说系列、漫画系列）。',
-        '系列標題，只在系列頁面中可用（小說系列、漫畫系列）。',
-        'Series title, only available in series pages (Novel series, Manga series).',
-        'シリーズタイトル，シリーズページのみ（小説連載、漫画連載）。',
-        '시리즈 제목, 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
-        'Название серии, доступно только на страницах серий (серия романов, серия манги).',
-    ],
-    _命名标记seriesOrder: [
-        '作品在系列中的序号，如 <span class="blue">#1</span> <span class="blue">#2</span>。只在系列页面中可用（小说系列、漫画系列）。',
-        '作品在系列中的編號，如 <span class="blue">#1</span> <span class="blue">#2</span>。只在系列頁面中可用（小說系列、漫畫系列）。',
-        'The number of the work in the series, such as <span class="blue">#1</span> <span class="blue">#2</span>. only available in series pages (Novel series, Manga series).',
-        'シリーズの中の作品の番号，例え <span class="blue">#1</span> <span class="blue">#2</span>。シリーズページのみ（小説連載、漫画連載）。',
-        '시리즈 내 작품 번호. 예: <span class="blue">#1</span> <span class="blue">#2</span>. 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
-        'Номер работы в серии, например, <span class="blue">#1</span> <span class="blue">#2</span>. доступны только на страницах серий (серия романов, серия манги).',
-    ],
-    _命名标记seriesId: [
-        '系列 ID，只在系列页面中可用（小说系列、漫画系列）。',
-        '系列 ID，只在系列頁面中可用（小說系列、漫畫系列）。',
-        'Series ID, only available in series pages (Novel series, Manga series).',
-        'シリーズ ID，シリーズページのみ（小説連載、漫画連載）。',
-        '시리즈 ID, 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
-        'Идентификатор серии, доступен только на страницах серий (серия романов, серия манги).',
-    ],
-    _文件夹标记PTitle: [
-        '页面标题',
-        '頁面標題',
-        'Page title',
-        'ページタイトル',
-        '페이지 제목',
-        'Заголовок страницы',
-    ],
-    _预览文件名: [
-        '预览文件名',
-        '預覽檔案名稱',
-        'Preview file name',
-        'ファイル名',
-        '파일명 미리보기',
-        'Имя файла предварительного просмотра',
-    ],
-    _下载线程: [
-        '同时下载<span class="key">数量</span>',
-        '同時下載<span class="key">數量</span>',
-        'Download <span class="key">thread</span>',
-        '同時ダウンロード数',
-        '다운로드 <span class="key">쓰레드</span>',
-        'Кол-во <span class="key">потоков</span> на загрузку',
-    ],
-    _下载线程的说明: [
-        `你可以输入 1-${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.downloadThreadMax} 之间的数字，设置同时下载的数量`,
-        `你可以輸入 1-${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.downloadThreadMax} 之間的數字，設定同時下載的數量。`,
-        `You can type a number between 1-${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.downloadThreadMax} to set the number of concurrent downloads`,
-        `同時ダウンロード数を設定、1-${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.downloadThreadMax} の数値を入力してください`,
-        `1-${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.downloadThreadMax} 사이의 숫자를 입력하여 동시 다운로드 수를 설정할 수 있습니다.`,
-        `Вы можете ввести число между 1-${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.downloadThreadMax} , чтобы установить количество одновременных загрузок`,
-    ],
-    _开始下载: [
-        '开始下载',
-        '開始下載',
-        'Start download',
-        '開始',
-        '다운로드 시작',
-        'Начать загрузку',
-    ],
-    _暂停下载: [
-        '暂停下载',
-        '暫停下載',
-        'Pause download',
-        '一時停止',
-        '다운로드 일시중지',
-        'Приостановить загрузку',
-    ],
-    _停止下载: [
-        '停止下载',
-        '停止下載',
-        'Stop download',
-        '停止',
-        '다운로드 정지',
-        'Остановить загрузку',
-    ],
-    _复制url: [
-        '复制 URL',
-        '複製下載網址',
-        'Copy URLs',
-        'URL をコピー',
-        'URL 복사',
-        'Копировать URL',
-    ],
-    _当前状态: [
-        '当前状态 ',
-        '目前狀態：',
-        'State ',
-        '現在の状態 ',
-        '현재 상태',
-        'Текущее состояние',
-    ],
-    _未开始下载: [
-        '未开始下载',
-        '未開始下載',
-        'Not yet started downloading',
-        'まだダウンロードを開始していません',
-        '아직 다운로드를 시작하지 않았습니다.',
-        'Загрузка еще не началась',
-    ],
-    _下载进度: [
-        '下载进度',
-        '下載進度',
-        'Total progress',
-        '概要',
-        '다운로드 진행률',
-        'Полный прогресс',
-    ],
-    _任务进度: [
-        '任务进度',
-        '任務進度',
-        'Task progress',
-        'タスクの進行状況',
-        '작업 진행',
-        'прогресс',
-    ],
-    _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問', '도움말', 'help'],
-    _uuid: [
-        '如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>例如：Chrono 下载管理器、free Download Manager、Image Downloader、DownThemAll! 等。',
-        '如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。<br>例如：Chrono 下载管理器、free Download Manager、Image Downloader、DownThemAll! 等。',
-        'If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.<br>For example: Chrono Download Manager, free Download Manager, Image Downloader, DownThemAll! and more.',
-        'ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br>例：Chrono Download Manager, free Download Manager, Image Downloader, DownThemAll! など。',
-        '다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.예: Chrono Download Manager, free Download Manager、Image Downloader、DownThemAll! 등.',
-        'Если имя файла после загрузки ненормальное, отключите другие расширения браузера, которые имеют возможность загрузки.<br> Например: Chrono Download Manager, бесплатный менеджер загрузок, загрузчик изображений, DownThemAll! и многое другое.',
-    ],
-    _常见问题说明: [
-        '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>如果你需要一个梯子（机场）,可以试试这个机场：<a href="https://v3.xiaoy666.top/#/register?code=KEA3xTT4" title="农家有风小院" target="_blank">农家有风小院</a>，价格实惠，网络稳定。先购买订阅，然后在仪表盘复制订阅链接使用。<br><br>下载器 QQ 群：499873152<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
-        '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。',
-        'The downloaded file is saved in the browsers download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.<br><br>If your browser stops responding at startup, you can clear your browser`s download history.',
-        'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。',
-        '다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요.<br><br>시작 시 브라우저가 응답하지 않으면 브라우저의 다운로드 기록을 지울 수 있습니다.',
-        'Загруженный файл сохраняется в каталоге загрузки браузеров. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>Если имя файла после загрузки является ненормальным, отключите другие расширения браузера, которые имеют возможности загрузки.<br><br>Если ваш браузер перестает отвечать на запросы при запуске, вы можете очистить историю загрузок вашего браузера.',
-    ],
-    _正在下载中: [
-        '正在下载中',
-        '正在下載',
-        'Downloading',
-        'ダウンロード中',
-        '다운로드 중',
-        'Загрузка',
-    ],
-    _下载完毕: [
-        '✓ 下载完毕',
-        '✓ 下載完畢',
-        '✓ Download complete',
-        '✓ ダウンロードが完了しました',
-        '✓ 다운로드 완료',
-        '✓ Загрузка завершена',
-    ],
-    _下载完毕2: [
-        '下载完毕',
-        '下載完畢',
-        'Download complete',
-        'ダウンロードが完了しました',
-        '다운로드 완료',
-        'Загрузка завершена',
-    ],
-    _已暂停: [
-        '下载已暂停',
-        '下載已暫停',
-        'Download is paused',
-        'ダウンロードは一時停止中です',
-        '다운로드 일시중지',
-        'Загрузка приостановлена',
-    ],
-    _已停止: [
-        '下载已停止',
-        '下載已停止',
-        'Download stopped',
-        'ダウンロードが停止しました',
-        '다운로드 정지',
-        'Загрузка остановлена',
-    ],
-    _已下载: [
-        '已下载',
-        '已下載',
-        'downloaded',
-        'downloaded',
-        '다운로드됨',
-        'загруженно',
-    ],
-    _抓取完毕: [
-        '抓取完毕！',
-        '擷取完畢！',
-        'Crawl complete!',
-        'クロールが終了しました！',
-        '긁어오기 완료!',
-        'Вытаскивание завершено!',
-    ],
-    _抓取完毕2: [
-        '抓取完毕',
-        '擷取完畢',
-        'Crawl complete',
-        'クロールが終了しました',
-        '긁어오기 완료',
-        'Вытаскивание завершено',
-    ],
-    _快速下载本页: [
-        '快速下载本页作品 (Alt + Q)',
-        '快速下載本頁作品 (Alt + Q)',
-        'Download this work quickly (Alt + Q)',
-        'この作品をすばやくダウンロードする (Alt + Q)',
-        '작품 빠른 다운로드 (Alt + Q)',
-        'Быстро загрузить эту работу (Alt + Q)',
-    ],
-    _快捷键ALTQ快速下载本页作品: [
-        '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">Q</span> 快速下载本页作品。',
-        '你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">Q</span> 快速下載本頁作品。',
-        'You can use the shortcut keys <span class="blue">Alt</span> + <span class="blue">Q</span> to quickly download works on this page.',
-        'ショートカット キー <span class="blue">Alt</span> + <span class="blue">Q</span> を使用して、このページの作品をすばやくダウンロードできます。',
-        '단축키 <span class="blue">Alt</span> + <span class="blue">Q</span>를 사용하여 이 페이지에서 작품을 빠르게 다운로드할 수 있습니다.',
-        'Вы можете использовать сочетания клавиш <span class="blue">Alt</span> + <span class="blue">Q</span> для быстрой загрузки работ на этой странице.',
-    ],
-    _抓取此作品: [
-        '抓取此作品',
-        '抓取此作品',
-        'Crawl this work',
-        'この作品をクロールする',
-        '이 작품을 크롤링',
-        'Просканировать эту работу',
-    ],
-    _从本页开始抓取new: [
-        '从本页开始抓取新作品',
-        '從本頁開始擷取新作品',
-        'Crawl the new works from this page',
-        'このページから新しい作品を入手する',
-        '이 페이지부터 새 작품 긁어오기',
-        'Просканировать новые работы с этой страницы',
-    ],
-    _从本页开始抓取old: [
-        '从本页开始抓取旧作品',
-        '從本頁開始擷取舊作品',
-        'Crawl the old works from this page',
-        'このページから古い作品を入手する',
-        '이 페이지부터 오래된 작품 긁어오기',
-        'Просканировать старые работы с этой страницы',
-    ],
-    _抓取推荐作品: [
-        '抓取推荐作品',
-        '擷取推薦作品',
-        'Crawl the recommend works',
-        '推奨作品をダウンロードする',
-        '추천 작품 긁어오기',
-        'Просканировать рекомендуемые работы',
-    ],
-    _抓取推荐作品Title: [
-        '抓取页面底部的的推荐作品',
-        '擷取頁面底部的推薦作品。',
-        'Crawl the recommended works at the bottom of the page',
-        'ページの下部で推奨作品をクロールします',
-        '페이지 하단 추천 작품 긁어오기',
-        'Просканировать рекомендованные работы внизу страницы',
-    ],
-    _抓取相关作品: [
-        '抓取相关作品',
-        '擷取相關作品',
-        'Crawl the related works',
-        '関連作品をダウンロードする',
-        '관련 작품 긁어오기',
-        'Просканировать похожие работы',
-    ],
-    _调整完毕: [
-        '调整完毕，当前有{}个作品。',
-        '調整完畢，目前有 {} 個作品。',
-        'The adjustment is complete and now has {} works.',
-        '調整が完了し、今、{} の作品があります。',
-        '조정이 완료되어, 현재 {}개의 작품이 있습니다.',
-        'Настройка завершена и теперь имеет {} работ',
-    ],
-    _抓取当前作品: [
-        '抓取当前作品',
-        '擷取目前作品',
-        'Crawl the current work',
-        '現在の作品をクロールする',
-        '현재 작품 긁어오기',
-        'Просканировать текущую работу',
-    ],
-    _抓取当前作品Title: [
-        '抓取当前列表里的所有作品',
-        '擷取目前清單裡的所有作品',
-        'Crawl all the works in the current list',
-        '現在のリスト内のすべての作品をクロールする',
-        '현재 목록에 있는 모든 작품 긁어오기',
-        'Просканировать все работы в текущем списке',
-    ],
-    _清除多图作品: [
-        '清除多图作品',
-        '清除多圖作品',
-        'Remove multi-image works',
-        '複数画像をクリア',
-        '여러 이미지 작품 지우기',
-        'Удалить работы с несколькими изображениями',
-    ],
-    _清除动图作品: [
-        '清除动图作品',
-        '清除動圖作品',
-        'Remove ugoira work',
-        'うごイラ作品を削除する',
-        '움직이는 일러스트 작품 지우기',
-        'Убрать Ugoira(gif) работы',
-    ],
-    _手动删除作品: [
-        '手动删除作品',
-        '手動刪除作品',
-        'Manually delete the work',
-        '作品を手動で削除する',
-        '수동으로 작품 지우기',
-        'Вручную удалить работу',
-    ],
-    _手动删除作品Title: [
-        '可以在下载前手动删除不需要的作品',
-        '可以在下載前手動刪除不需要的作品，點擊作品刪除。',
-        'You can manually delete unwanted work before downloading',
-        'ダウンロードする前に不要な作品を手動で削除することができます',
-        '다운로드를 원하지 않는 작품을 수동으로 지울 수 있습니다.',
-        'Вы можете вручную удалить нежелательные работы перед загрузкой',
-    ],
-    _退出手动删除: [
-        '退出手动删除',
-        '結束手動刪除',
-        'Exit manually delete',
-        '削除モードを終了する',
-        '수동 지우기 종료',
-        'Выйти из ручного удаления',
-    ],
-    _抓取本页作品: [
-        '抓取本页作品',
-        '擷取本頁作品',
-        'Crawl this page works',
-        'このページをクロールする',
-        '이 페이지의 작품 긁어오기',
-        'Просканировать работы с этой страницы',
-    ],
-    _抓取本页作品Title: [
-        '抓取本页列表中的所有作品',
-        '擷取本頁清單中的所有作品',
-        'Crawl this page works',
-        'このページの全ての作品をクロールする',
-        '이 페이지의 모든 작품 긁어오기',
-        'Просканировать работы с этой страницы',
-    ],
-    _抓取本排行榜作品: [
-        '抓取本排行榜作品',
-        '擷取本排行榜作品',
-        'Crawl the works in this list',
-        'このリストの作品をクロールする',
-        '이 목록의 작품 긁어오기',
-        'Просканировать работы из этого списка',
-    ],
-    _抓取本排行榜作品Title: [
-        '抓取本排行榜的所有作品，包括现在尚未加载出来的。',
-        '擷取本排行榜的所有作品，包括現在尚未載入出來的。',
-        'Crawl all of the works in this list, including those that are not yet loaded.',
-        'まだ読み込まれていないものを含めて、このリストの作品をダウンロードする',
-        '아직 불러오지 않은 작품을 포함하여, 이 목록의 모든 작품을 긁어옵니다.',
-        'Просмотреть все работы в этом списке, включая те, которые еще не загружены.',
-    ],
-    _抓取首次登场的作品: [
-        '抓取首次登场作品',
-        '擷取首次登場作品',
-        'Crawl the debut works',
-        '初登場作品をダウンロードする',
-        '데뷔작 긁어오기',
-        'Просканировать по дебютные работы',
-    ],
-    _抓取首次登场的作品Title: [
-        '只下载首次登场的作品',
-        '只下載首次登場的作品',
-        'Download only debut works',
-        '初登場作品のみダウンロードします',
-        '데뷔작만 다운로드',
-        'Скачать только дебютные работы',
-    ],
-    _抓取该页面的图片: [
-        '抓取该页面的图片',
-        '擷取該頁面的圖片',
-        'Crawl the image of the page',
-        'ページの画像をクロールする',
-        '페이지의 이미지 긁어오기',
-        'Просканировать по изображение страницы',
-    ],
-    _抓取相似图片: [
-        '抓取相似图片',
-        '擷取相似圖片',
-        'Crawl similar works',
-        '類似の作品をクロールする',
-        '비슷한 작품 긁어오기',
-        'Просканировать похожие работы',
-    ],
-    _想要获取多少个作品: [
-        '您想要获取多少个作品？',
-        '想要取得多少個作品？',
-        'How many works do you want to download?',
-        'いくつの作品をダウンロードしたいですか？',
-        '몇 개의 작품을 다운로드하시겠습니까?',
-        'Сколько работ вы хотите загрузить?',
-    ],
-    _数字提示1: [
-        '-1, 或者大于 0',
-        '-1，或是大於 0',
-        '-1, or greater than 0',
-        '-1、または 0 より大きい',
-        '-1, 또는 0보다 크게',
-        '-1, или больше 0',
-    ],
-    _下载大家的新作品: [
-        '下载大家的新作品',
-        '下載大家的新作品',
-        'Download everyone`s new work',
-        'みんなの新作をダウンロードする',
-        '모두의 새 작품 다운로드',
-        'Вседа загружать новые работы',
-    ],
-    _屏蔽设定: [
-        '屏蔽設定',
-        '封鎖設定',
-        'Mute settings',
-        'ミュート設定',
-        '차단 설정',
-        'Настройки защиты',
-    ],
-    _举报: ['举报', '回報', 'Report', '報告', '신고', 'Отчет'],
-    _输入id进行抓取: [
-        '输入 ID 进行抓取',
-        '輸入 ID 進行擷取',
-        'Type ID to crawl',
-        'IDを入力してダウンロードする',
-        '유형 ID 긁어오기',
-        'Введите ID для вытаскивания',
-    ],
-    _输入id进行抓取的提示文字: [
-        '请输入作品 id。如果有多个 id，则以换行分割（即每行一个id）。',
-        '請輸入作品 id。如果有多個 id，則以換行分隔（即每行一個 id）。',
-        'Please type the illustration id. If there is more than one id, one id per line.',
-        'イラストレーターIDを入力してください。 複数の id がある場合は、1 行に 1 つの id を付けます。',
-        '일러스트 작품 ID를 입력해주세요. 여러 개의 ID가 있으면 줄을 바꾸어주세요 (한 줄에 한 개의 ID).',
-        'Пожалуйста, введите идентификатор иллюстрации. Если идентификаторов несколько, то по одному идентификатору на строку.',
-    ],
-    _输入的ID视为图像ID: [
-        '因为这个标签页展示的是图像，所以输入的 ID 会被视为图像作品的 ID。',
-        '因為這個標籤頁展示的是圖片，所以輸入的 ID 會被視為圖片作品的 ID。',
-        'Since this tab displays images, the ID entered will be considered the ID of the image work.',
-        'このタブは画像を表示するため、入力したIDが画像作品のIDとなります。',
-        '이 탭에는 이미지가 표시되므로 입력한 ID가 해당 이미지 작품의 ID로 간주됩니다.',
-        'Поскольку на этой вкладке отображаются изображения, введенный идентификатор будет считаться идентификатором работы с изображением.',
-    ],
-    _输入的ID视为小说ID: [
-        '因为这个标签页展示的是小说，所以输入的 ID 会被视为小说作品的 ID。',
-        '因為這個標籤頁展示的是小說，所以輸入的 ID 會被視為小說作品的 ID。',
-        'Since this tab displays novels, the ID entered will be treated as the ID of the novel work.',
-        'このタブは小説を表示するため、入力したIDは小説作品のIDとして扱われます。',
-        '이 탭에는 소설이 표시되므로 입력한 ID는 소설 작품의 ID로 처리됩니다.',
-        'Поскольку на этой вкладке отображаются романы, введенный идентификатор будет рассматриваться как идентификатор романа.',
-    ],
-    _开始抓取: [
-        '开始抓取',
-        '開始擷取',
-        'Start crawl',
-        'クロールを開始する',
-        '긁어오기 시작',
-        'Начать вытаскивание',
-    ],
-    _给未分类作品添加添加tag: [
-        '给未分类的作品添加标签',
-        '幫未分類的作品加入標籤',
-        'Add tag to uncategorized work',
-        '未分類の作品にタグを追加',
-        '분류되지 않은 작품에 태그 추가',
-        'Добавить метку к неклассифицированной работе',
-    ],
-    _id不合法: [
-        'id不合法',
-        'id 不合法',
-        'id is illegal',
-        'id が不正な',
-        '올바르지 않은 ID',
-        'Это ID неверно',
-    ],
-    _快速收藏: [
-        '快速收藏 (Ctrl + B)',
-        '快速收藏 (Ctrl + B)',
-        'Quick bookmarks (Ctrl + B)',
-        'クイックブックマーク (Ctrl + B)',
-        '빠른 북마크 (Ctrl + B)',
-        'Быстрые закладки (Ctrl + B)',
-    ],
-    _启用: ['启用', '啟用', 'Enable', '有効にする', '활성화', 'Включить'],
-    _自动开始下载: [
-        '<span class="key">自动</span>开始下载',
-        '<span class="key">自動</span>開始下載',
-        'Download starts <span class="key">automatically</span>',
-        'ダウンロードは自動的に開始されます',
-        '<span class="key">자동으로</span> 다운로드 시작',
-        'Загрузка начинается <span class="key">автоматически</span>',
-    ],
-    _自动开始下载的提示: [
-        '当“开始下载”状态可用时，自动开始下载，不需要点击下载按钮。',
-        '當可下載時自動開始下載，不需要點選下載按鈕。',
-        'When the &quot;Start Download &quot; status is available, the download starts automatically and no need to click the download button.',
-        '「ダウンロードを開始する」ステータスが利用可能になると、ダウンロードは自動的に開始され、ダウンロードボタンをクリックする必要はありません。',
-        '"다운로드 시작" 상태가 활성화되면, 다운로드가 자동으로 시작되고 다운로드 시작 버튼을 클릭할 필요가 없게 됩니다.',
-        'При активации этого тумблера загрузка начнется автоматически, без необходимости нажимать кнопку загрузки',
-    ],
-    _转换任务提示: [
-        '正在转换 {} 个文件',
-        '正在轉換 {} 個檔案',
-        'Converting {} files',
-        '{} ファイルの変換',
-        '{}개의 파일을 변환하는 중',
-        'Преобразование {} файлов',
-    ],
-    _最近更新: [
-        '最近更新',
-        '最近更新',
-        'What`s new',
-        '最近更新する',
-        '새로운 기능',
-        'Что нового',
-    ],
-    _确定: ['确定', '確定', 'Ok', '確定', '확인', 'Ок'],
-    _file404: [
-        '404 错误：文件 {} 不存在。',
-        '404 錯誤：檔案 {} 不存在。',
-        '404 error: File {} does not exist.',
-        '404 エラー：ファイル {} は存在しません。',
-        '404 오류: 파일 {}이 존재하지 않습니다.',
-        '404 ошибка: Файл {} не существует.',
-    ],
-    _文件下载失败: [
-        '文件 {} 下载失败',
-        '檔案 {} 下載失敗',
-        'File {} download failed',
-        'ファイル {} のダウンロードを失敗しました',
-        '파일 {} 다운로드 실패',
-        'Загрузка файла {} не удалась',
-    ],
-    _是否重置设置: [
-        '是否重置设置？',
-        '確定要重設設定嗎？',
-        'Do you want to reset the settings?',
-        '設定をリセットしますか？',
-        '설정을 초기화하시겠습니까?',
-        'Вы хотите сбросить настройки?',
-    ],
-    _newver: [
-        '有新版本可用',
-        '有新版本可更新',
-        'A new version is available',
-        '新しいバージョンがあります',
-        '새 버전이 있습니다',
-        'Доступна новая версия',
-    ],
-    _id范围: [
-        '<span class="key">ID</span> 范围',
-        '<span class="key">ID</span> 範圍',
-        '<span class="key">ID</span> range',
-        '<span class="key">ID</span> 範囲',
-        '<span class="key">ID</span> 범위',
-        '<span class="key">ID</span> диапазон',
-    ],
-    _设置id范围提示: [
-        '您可以输入一个作品 id，抓取比它新或者比它旧的作品',
-        '可以輸入一個作品 id，擷取比它新或者比它舊的作品。',
-        'You can type a work id and crawl works that are newer or older than it',
-        '1 つの作品 id を入力することで、それより新しいあるいは古い作品をクロールことができます',
-        '작품 ID를 입력하여, 그보다 새로운 혹은 오래된 작품을 긁어올 수 있습니다.',
-        'Вы можете ввести идентификатор работы и просмотреть работы, которые новее или старше его',
-    ],
-    _大于: ['大于', '大於', 'Bigger than', 'より大きい', '보다 큼', 'Больше чем'],
-    _小于: ['小于', '小於', 'Less than', 'より小さい', '보다 작음', 'Меньше чем'],
-    _投稿时间: [
-        '投稿<span class="key">时间</span>',
-        '投稿<span class="key">時間</span>',
-        'Posting <span class="key">date</span>',
-        '投稿日時',
-        '게시 <span class="key">날짜</span>',
-        '<span class="key">Дата</span> публикации',
-    ],
-    _设置投稿时间提示: [
-        '您可以下载指定时间内发布的作品',
-        '可以下載指定時間內發布的作品。',
-        'You can download works posted in a specified period of time',
-        '指定された時間内に配信された作品をダウンロードすることができます',
-        '지정된 기간 내에 게시된 작품을 다운로드할 수 있습니다.',
-        'Вы можете загружать работы, размещенные за определенный период времени',
-    ],
-    _时间范围: [
-        '时间范围',
-        '時間範圍',
-        'Time range',
-        '時間範囲',
-        '시간 범위',
-        'Диапазон времени',
-    ],
-    _必须大于0: [
-        '必须大于 0',
-        '必須大於 0',
-        'must be greater than 0',
-        '0 より大きくなければなりません',
-        '0보다 커야합니다',
-        'должно быть больше 0',
-    ],
-    _开始筛选: [
-        '开始筛选',
-        '開始篩選',
-        'Start screening',
-        'スクリーニング開始',
-        '선별 시작',
-        'Начать скрининг',
-    ],
-    _开始筛选Title: [
-        '按照设置来筛选当前标签里的作品。',
-        '按照設定來篩選目前標籤裡的作品。',
-        'Screen the works in the current tag.',
-        '現在のタグにある作品を設定によってスクリーニングする',
-        '설정에 따라 현재 태그 내 작품을 선별합니다.',
-        'Отобразить работы в с текущим тегом',
-    ],
-    _在结果中筛选: [
-        '在结果中筛选',
-        '在結果中篩選',
-        'Screen in results',
-        '結果の中からスクリーニング',
-        '결과 중에서 선별',
-        'Экран результатов',
-    ],
-    _在结果中筛选说明: [
-        '您可以改变设置，并在结果中再次筛选。',
-        '可以變更設定，並在結果中再次篩選。',
-        'You can change the settings and screen again in the results.',
-        '設定を変えて、結果の中で再びスクリーニングすることができます。',
-        '설정을 변경하고, 결과를 다시 선별할 수 있습니다',
-        'Вы можете изменить настройки и снова просмотреть результаты',
-    ],
-    _抓取筛选结果: [
-        '抓取筛选结果',
-        '擷取篩選結果',
-        'Crawl the screening results',
-        'スクリーニングの結果をクロールする',
-        '선별 결과 긁어오기',
-        'Просканировать результаты скрининга',
-    ],
-    _尚未开始筛选: [
-        '尚未开始筛选',
-        '尚未開始篩選',
-        'Screening has not started',
-        'まだスクリーニングを開始していない',
-        '선별이 시작되지 않았습니다',
-        'Скрининг не начался',
-    ],
-    _没有数据可供使用: [
-        '没有数据可供使用',
-        '沒有資料可供使用',
-        'No data is available.',
-        '使用可能なデータはない',
-        '사용 가능한 데이터가 없습니다',
-        'Нет данных',
-    ],
-    _预览搜索结果: [
-        '<span class="key">预览</span>搜索页面的筛选结果',
-        '<span class="key">預覽</span>搜尋頁面的篩選結果',
-        '<span class="key">Preview</span> filter results on search page',
-        '検索ページのフィルタ結果をプレビューします',
-        '<span class="key">미리보기</span> 검색 페이지 필터 결과',
-        '<span class="key">Предварительный просмотр</span> результатов фильтрации на странице поиска',
-    ],
-    _预览搜索结果说明: [
-        '下载器可以把符合条件的作品显示在当前页面上，并且按照收藏数量从高到低排序。<br>如果抓取结果太多导致页面崩溃，请关闭这个功能。<br>启用预览功能时，下载器不会自动开始下载。',
-        '下載器可以把符合條件的作品顯示在當前頁面上，並且按照收藏數量從高到低排序。<br>如果擷取結果太多導致頁面當掉，請關閉這個功能。<br>啟用預覽功能時，下載器不會自動開始下載。',
-        'The downloader can display eligible works on the current page and sort them from high to low according to the number of bookmarks.<br>If too many crawling results cause the page to crash, turn off this feature.<br>When the preview feature is enabled, the downloader does not start downloading automatically.',
-        'ダウンローダーは、対象となる作品を現在のページに表示し、コレクション数に応じて上位から下位に並べ替えることができます。<br>クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。<br>プレビュー機能を有効にすると、ダウンロードは自動的に開始されません。',
-        '다운로더는 현재 페이지에 적합한 작품을 표시하고 컬렉션 수에 따라 높은 순으로 정렬할 수 있습니다.<br>긁어오기 결과가 너무 많아서 페이지가 충돌하면 이 기능을 꺼주세요.<br> 미리보기를 사용하면 다운로드가 자동으로 시작되지 않습니다.',
-        'Загрузчик может отображать подходящие произведения на текущей странице и сортировать их по возрастанию в зависимости от количества коллекций.<br>Пожалуйста, отключите эту функцию, если слишком большое количество результатов просмотра приводит к сбою страницы.<br>Загрузчик не начинает автоматическую загрузку, если включена функция предварительного просмотра.',
-    ],
-    _目录名使用: [
-        '目录名使用：',
-        '資料夾名稱使用：',
-        'Name: ',
-        'ディレクトリ名の使用：',
-        '이름: ',
-        'Имя: ',
-    ],
-    _目录名: ['目录名', '資料夾名稱', 'Name', 'ディレクトリ名', '이름', 'Имя'],
-    _启用快速收藏: [
-        '启用快速收藏',
-        '開啟快速收藏',
-        'Enable quick bookmark',
-        'クイックボックマークを有効にする',
-        '빠른 북마크 활성화',
-        'Включить быструю закладку',
-    ],
-    _启用快速收藏说明: [
-        '当你点击下载器添加的收藏按钮(☆)，把作品添加到书签时，自动添加这个作品的标签。',
-        '當點選下載器新增的收藏按鈕（☆），將作品加入書籤時，自動新增這個作品的標籤。',
-        'When you click the favorite button (☆) added by the downloader to bookmark a work, the tag of the work is automatically added.',
-        'ダウンローダーに追加されたボックマークボタン「☆」をクリックして、作品をブックマークに追加すると、自動的に作品のタグが追加されます。',
-        '다운로더에 추가된 북마크 버튼(☆)을 클릭하여 북마크에 작품을 추가하면 자동으로 이 작품의 태그가 추가됩니다.',
-        'Когда вы нажимаете на кнопку Закладка (☆), добавленную загрузчиком, чтобы добавить произведение в закладки, автоматически добавляется тег для этого произведения',
-    ],
-    _新增设置项: [
-        '新增设置项',
-        '新增設定項目',
-        'Added setting items',
-        '新たな機能を追加されました',
-        '새로운 설정 항목 추가',
-        'Добавить новый элемент настройки',
-    ],
-    _新增功能: [
-        '新增功能',
-        '新增功能',
-        'New feature',
-        '新機能',
-        '새로운 기능',
-        'Новая фича',
-    ],
-    _抓取: ['抓取', '擷取', 'Crawl', 'クロール', '긁어오기', 'Сканирование'],
-    _下载: ['下载', '下載', 'Download', 'ダウンロード', '다운로드', 'Скачивание'],
-    _其他: ['其他', '其他', 'Other', 'その他', '그 외', 'Другие настройки'],
-    _更多: ['更多', '更多', 'More', 'もっと', '더보기', 'Больше'],
-    _第一张图不带序号: [
-        '第一张图不带<span class="key">序号</span>',
-        '第一張圖片不包含<span class="key">序號</span>',
-        'The first image without a <span class="key">serial number</span>',
-        '最初のイメージの番号を削除',
-        '<span class="key">일련번호</span>가 없는 첫 번째 이미지',
-        'Первое изображение без <span class="key">серийного номера</span>',
-    ],
-    _第一张图不带序号说明: [
-        '去掉每个作品第一张图的序号。例如 80036479_p0 变成 80036479',
-        '去掉每個作品第一張圖的序號。例如：80036479_p0 變成 80036479。',
-        'Remove the serial number of the first image of each work. For example 80036479_p0 becomes 80036479.',
-        '作品ごとの最初のイメージの番号を削除します。例えば 80036479_p0 は 80036479 になります。',
-        '작품마다 첫 번째 이미지의 일련번호를 지웁니다.<br>예: 80036479_p0은 80036479가 됩니다.',
-        'Удалите серийный номер с первой фотографии каждой работы. Например, 80036479_p0 становится 80036479',
-    ],
-    _最小值: ['最小值', '最小值', 'Minimum', '最小値', '최소', 'Минимум'],
-    _最大值: ['最大值', '最大值', 'Maximum', '最大値', '최대', 'Максимум'],
-    _单图作品: [
-        '单图作品',
-        '單圖作品',
-        'Single image works',
-        'シングルイメージ作品',
-        '단일 이미지 작품',
-        'Работа с одним изображением',
-    ],
-    _彩色图片: [
-        '彩色图片',
-        '彩色圖片',
-        'Color images',
-        'カラーイメージ',
-        '컬러 이미지',
-        'Цветная картинки',
-    ],
-    _黑白图片: [
-        '黑白图片',
-        '黑白圖片',
-        'Black and white images',
-        '白黒イメージ',
-        '흑백 이미지',
-        'Черно-белые изображения',
-    ],
-    _不保存图片因为颜色: [
-        '{} 没有被保存，因为它的颜色不符合设定。',
-        '{} 並未儲存，因為它的色彩不符合設定。',
-        '{} was not saved because its colors do not match the settings.',
-        '{} は色が設定に合わないため、保存されていません。',
-        '{} 색상이 설정과 일치하지 않아, 저장되지 않았습니다.',
-        '{} не был(и) сохранен(ы), потому что его цвета не соответствуют настройкам.',
-    ],
-    _同时转换多少个动图: [
-        '同时<span class="key">转换</span>多少个动图',
-        '同時<span class="key">轉換</span>多少個動圖',
-        'How many animations are <span class="key">converted</span> at the same time',
-        '同時変換のうごイラの上限',
-        '동시에 <span class="key">변환할</span> 움직이는 일러스트 수',
-        'Сколько анимаций <span class="key">преобразуется</span> одновременно',
-    ],
-    _同时转换多少个动图警告: [
-        '同时转换多个动图会增加资源占用。',
-        '同時轉換多個動圖會增加資源占用。',
-        'Converting multiple animations at the same time will increase resource consumption. ',
-        '複数の動画を同時に変換すると、リソースの占有が増加します。',
-        '여러 움직이는 일러스트를 동시에 변환하면 리소스가 더 많이 사용됩니다.',
-        'Одновременное преобразование нескольких анимаций увеличит потребление ресурсов. ',
-    ],
-    _提示: ['提示', '提示', 'Tip', 'ヒント', '팁', 'Совет'],
-    _提示2: ['提示', '提示', 'Tip', '？', '팁', 'Совет'],
-    _fanboxDownloader: [
-        'Fanbox 下载器',
-        'Fanbox 下載器',
-        'Fanbox Downloader',
-        'Fanbox ダウンロード',
-        'Fanbox 다운로더',
-        'Fanbox загрузчик',
-    ],
-    _不保存图片因为体积: [
-        '{} 没有被保存，因为它的体积不符合设定。',
-        '{} 並未儲存，因為它的大小不符合設定。',
-        '{} was not saved because its size do not match the settings.',
-        '{} はファイルサイズが設定に合わないため、保存されていません。',
-        '{} 크기가 설정에 맞지 않아, 저장되지 않았습니다.',
-        '{} не был(и) сохранен(ы), потому что его размер не соответствует настройкам.',
-    ],
-    _文件体积限制: [
-        '文件<span class="key">体积</span>限制',
-        '檔案<span class="key">體積</span>限制',
-        'File <span class="key">size</span> limit',
-        'ファイルサイズ制限',
-        '파일 <span class="key">크기</span> 제한',
-        'Ограничение <span class="key">размера</span> файла',
-    ],
-    _不符合要求的文件不会被保存: [
-        '不符合要求的文件不会被保存。',
-        '不會儲存不符合要求的檔案。',
-        'Files that do not meet the requirements will not be saved.',
-        '設定 に合わないファイルは保存されません。',
-        '요구 사항을 충족하지 않는 파일은 저장되지 않습니다.',
-        'Файлы, не соответствующие требованиям, не будут сохранены',
-    ],
-    _小说: ['小说', '小說', 'Novel', '小説', '소설', 'Новеллы'],
-    _抓取系列小说: [
-        '抓取系列小说',
-        '擷取系列小說',
-        'Crawl series of novels',
-        '小説のシリーズをクロールする',
-        '시리즈 소설 긁어오기',
-        'Просканировать серию новелл',
-    ],
-    _合并系列小说: [
-        '合并系列小说',
-        '合併系列小說',
-        'Merge series of novels',
-        'シリーズ小説の統合',
-        '시리즈 소설 합치기',
-        'Объединить серию новелл',
-    ],
-    _小说保存格式: [
-        '<span class="key">小说</span>保存格式',
-        '<span class="key">小說</span>儲存格式',
-        'Save the <span class="key">novel</span> as',
-        '<span class="key">小説</span>の保存形式',
-        '<span class="key">소설</span>저장 형식',
-        'Сохранить <span class="key">новеллу</span> как',
-    ],
-    _在小说里保存元数据: [
-        '在小说里保存<span class="key">元数据</span>',
-        '在小說裡儲存<span class="key">元資料</span>',
-        'Save <span class="key">metadata</span> in the novel',
-        '小説の中にメタデータを保存する',
-        '소설 내 <span class="key">메타데이터</span> 저장',
-        'Сохранить <span class="key">метаданные</span> новеллы',
-    ],
-    _在小说里保存元数据提示: [
-        '把作者、网址等信息保存到小说里',
-        '將作者、網址等資訊儲存到小說裡',
-        'Save the author, URL and other information in the file',
-        '作者やURLなどの情報をファイルの中に保存します。',
-        '작가, URL, 그 외 정보를 소설 내에 저장합니다.',
-        'Сохранить автора, URL и другую информацию в файле',
-    ],
-    _收藏本页面的所有作品: [
-        '收藏本页面的所有作品',
-        '收藏本頁面的所有作品',
-        'Bookmark all works on this page',
-        'この頁の全ての作品をブックマークに追加します',
-        '이 페이지의 북마크된 모든 작품 다운로드',
-        'Перенести в закладки все работы на этой странице',
-    ],
-    _输出内容太多已经为你保存到文件: [
-        '因为输出内容太多，已经为您保存到文件。',
-        '因為輸出內容太多，已經為你儲存到檔案。',
-        'Because the output is too much, it has been saved to a file.',
-        '出力内容が多いため、txt ファイルに保存しました。',
-        '출력 내용이 너무 많아, 파일로 저장했습니다.',
-        'Так как выход слишком большой, он был сохранен в файл',
-    ],
-    _不下载重复文件: [
-        '不下载<span class="key">重复</span>文件',
-        '不下載<span class="key">重複</span>檔案',
-        'Don`t download <span class="key">duplicate</span> files',
-        '重複ファイルをダウンロードしない',
-        '<span class="key">중복</span>파일 다운로드하지 않기',
-        'Не загружать <span class="key">дубликаты</span> файлов',
-    ],
-    _不下载重复文件的提示: [
-        '下载器会保存自己的下载记录，以避免下载重复的文件。<br>你可以清除浏览器的下载记录，这不会影响下载器的下载记录。<br>当你清除 Cookie 及其他网站数据时，下载器的记录也会被清除。',
-        '下載器會儲存自己的下載紀錄，以避免下載重複的檔案。<br>你可以清除瀏覽器的下載記錄，這不會影響下載器的下載記錄。<br>當你清除 Cookie 及其他網站資料時，下載器的記錄也會被清除。',
-        `The downloader will save its download record to avoid downloading duplicate files.<br>You can clear the browser's download history, which will not affect the downloader's download record.<br>When you clear cookies and other site data, the downloader's records will also be cleared.`,
-        'ダウンローダーは独自のダウンロード履歴を保存して、重複ファイルのダウンロードを回避する。<br>ブラウザのダウンロード履歴をクリアできますが、ダウンローダのダウンロード記録には影響しません。<br>cookie と他のサイトデータを削除すると、ダウンローダーの記録も削除されます。',
-        '다운로더가 중복되는 파일을 다운로드하지 않도록 자신의 다운로드 기록을 저장합니다.<br>브라우저의 다운로드 기록을 지울 수 있으며 이는 다운로더의 다운로드 기록에 영향을 미치지 않습니다.<br>쿠키와 다른 사이트 데이터를 지울 때 다운로드 기록도 삭제됩니다.',
-        'Загрузчик хранит собственную историю загрузок, чтобы избежать загрузки дубликатов файлов.<br> Вы можете очистить историю загрузок вашего браузера, и это не повлияет на историю загрузок загрузчика.<br> Когда вы очищаете cookies и другие данные веб-сайта, история загрузчика также будет очищена.<br>',
-    ],
-    _策略: [
-        '策略：',
-        '策略：',
-        'Strategy:',
-        'フィルター：',
-        '전략:',
-        'Стратегия',
-    ],
-    _严格: ['严格', '嚴格', 'Strict', '厳格', '엄격하게', 'Строгий'],
-    _宽松: ['宽松', '寬鬆', 'Loose', '緩い', '느슨하게', 'Свободный'],
-    _严格模式说明: [
-        '判断条件：作品的 id、上传日期、文件名',
-        '判斷條件：作品的 id、上傳日期、檔名',
-        'Judgment conditions: id, upload date, file name of the work',
-        '審査条件：作品のID、アップロード日、ファイル名',
-        '판정 조건: 작품 ID, 업로드 날짜, 파일명',
-        'Условия оценки: идентификатор, дата загрузки, имя файла работы',
-    ],
-    _宽松模式说明: [
-        '判断条件：作品的 id、上传日期',
-        '判斷條件：作品的 id、上傳日期',
-        'Judgment conditions: id, upload date of the work',
-        '審査条件：作品のID、アップロード日',
-        '판정 조건: 작품 ID, 업로드 날짜',
-        'Условия оценки: идентификатор, дата загрузки работы',
-    ],
-    _清除下载记录: [
-        '清除下载记录',
-        '清除下載記錄',
-        'Clear download record',
-        'ダウンロード記録をクリア',
-        '다운로드 기록 지우기',
-        'Очистить запись загрузки',
-    ],
-    确定要清除下载记录吗: [
-        '确定要清除下载记录吗？',
-        '確定要清除下載記錄嗎？',
-        'Are you sure you want to clear download record?',
-        'ダウンロード記録を消去してもよろしいですか?',
-        '다운로드 기록을 지우시겠습니까?',
-        'Вы уверены, что хотите очистить запись загрузки?',
-    ],
-    _下载记录已清除: [
-        '下载记录已清除',
-        '已清除下載紀錄',
-        'Download record has been cleared',
-        'ダウンロード履歴がクリアされました',
-        '다운로드 기록이 비워졌습니다',
-        'Запись загрузок была очищена',
-    ],
-    _跳过下载因为重复文件: [
-        '检测到文件 {} 已经下载过，跳过此次下载',
-        '偵測到檔案 {} 已經下載過，跳過此次下載。',
-        'Skip downloading duplicate files {}',
-        '重複ファイル {} をスキップ',
-        '파일 {}이(가) 이미 다운로드되어 있어, 다운로드를 건너뜁니다',
-        'Пропустить загрузку дубликатов файлов {}',
-    ],
-    _保存用户头像为图标: [
-        '保存用户头像为图标',
-        '將使用者頭貼另存為圖示檔案',
-        'Save user avatar as icon',
-        'プロフィール画像をアイコンとして保存',
-        '아이콘으로 유저 프로필 이미지 저장',
-        'Сохранить аватар пользователя как иконку',
-    ],
-    _保存用户头像为图标说明: [
-        '把用户头像保存为 ico 文件，可以手动设置成文件夹的图标。',
-        '將使用者頭貼儲存為 ico 檔案，可以手動設定成資料夾圖示。',
-        'Save user avatar as icon',
-        'ユーザーのプロフィール画像を ico ファイルとして保存して、フォルダーアイコンとして設定できます。',
-        '유저 프로필 이미지를 ico 파일로 저장하면, 디렉토리 아이콘으로 수동 설정할 수 있습니다.',
-        'Сохранить аватар пользователя как иконку',
-    ],
-    _正在保存抓取结果: [
-        '正在保存抓取结果',
-        '正在儲存擷取結果',
-        'Saving crawl results',
-        'クロール結果を保存しています',
-        '긁어오기 결과 저장 중',
-        'Сохранение результатов вытаскивания',
-    ],
-    _已保存抓取结果: [
-        '已保存抓取结果',
-        '已儲存擷取結果',
-        'Crawl results saved',
-        'クロール結果を保存しました',
-        '긁어오기 결과가 저장되었습니다',
-        'Сохранение результатов вытаскивания',
-    ],
-    _正在恢复抓取结果: [
-        '正在恢复抓取结果',
-        '正在還原擷取結果',
-        'Restoring crawl results',
-        'クロール結果を再開しています',
-        '긁어오기 결과 복구 중',
-        'Восстановление результатов вытаскивания',
-    ],
-    _已恢复抓取结果: [
-        '已恢复抓取结果',
-        '已還原擷取結果',
-        'Crawl results resumed',
-        'クロール結果を再開しました',
-        '긁어오기 결과가 복구되었습니다',
-        'Результаты вытаскивания восстановлены',
-    ],
-    _清空已保存的抓取结果: [
-        '清空已保存的抓取结果',
-        '清除已儲存的擷取結果',
-        'Clear saved crawl results',
-        'セーブしたクロール結果をクリアします',
-        '저장된 긁어오기 결과 비우기',
-        'Очистить сохраненные результаты вытаскивания',
-    ],
-    _数据清除完毕: [
-        '数据清除完毕',
-        '資料清除完畢',
-        'Data cleared',
-        'クリアされたデータ',
-        '데이터가 비워졌습니다',
-        'Данные очищены',
-    ],
-    _已跳过n个文件: [
-        '已跳过 {} 个文件',
-        '已跳過 {} 個檔案',
-        '{} files skipped',
-        '{} つのファイルをスキップしました',
-        '{}개의 파일을 건너뛰었습니다',
-        '{} файл(ов) пропущены',
-    ],
-    _不保存图片因为宽高: [
-        '{} 没有被保存，因为它的宽高不符合设定。',
-        '{} 並未儲存，因為它的寬高不符合設定。',
-        '{} was not saved because its width and height do not match the settings.',
-        '{} は幅と高さが設定に合わないため、保存されていません。',
-        '{} 너비와 높이가 설정에 맞지 않아, 저장되지 않았습니다.',
-        '{} не был(и) сохранен, потому что его ширина и высота не соответствуют настройкам.',
-    ],
-    _保存: ['保存', '儲存', 'Save', '保存', '저장', 'Сохранить'],
-    _加载: ['加载', '載入', 'Load', 'ロード', '불러오기', 'Загрузить'],
-    _保存命名规则提示: [
-        '保存命名规则，最多 20 个',
-        '儲存命名規則，最多 20 個',
-        'Save naming rule, up to 20',
-        '命名規則を保存します。最大 20 個まで',
-        '명명 규칙 저장, 최대 20개',
-        'Сохранить правило именования, до 20',
-    ],
-    _已保存命名规则: [
-        '已保存命名规则',
-        '已儲存命名規則',
-        'Naming rule saved',
-        '命名規則を保存しました',
-        '명명 규칙이 저장되었습니다.',
-        'Правило наименования сохранено',
-    ],
-    _命名: ['命名', '命名', 'Name', '命名', '이름', 'Имя'],
-    _无损: ['无损', '無損', 'Lossless', 'ロスレス', '무손실', 'Без потерь'],
-    _文件名长度限制: [
-        '文件名<span class="key">长度</span>限制',
-        '檔案名稱<span class="key">長度</span>限制',
-        'File name <span class="key">length</span> limit',
-        'ファイル名の長さ制限',
-        '파일명 <span class="key">길이</span> 제한',
-        'Лимит <span class="key">длины</span> имени файла',
-    ],
-    _标签分隔符号: [
-        '标签<span class="key">分隔</span>符号',
-        '標簽<span class="key">分隔</span>符號',
-        'Tag <span class="key">separation</span> symbol',
-        'タグ <span class="key">セパレーション</span>シンボル',
-        '태그 <span class="key">분리</span> 기호',
-        'Тег <span class="key">символ разделения</span>',
-    ],
-    _标签分隔符号提示: [
-        '只会影响这些命名标记的结果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>。<br>推荐符号<span class="blue"> , # ^ & _</span>',
-        '只會影響這些命名標記的結果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>。<br>推薦符號<span class="blue"> , # ^ & _</span>',
-        'Only affects results for these named tags: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{ tags_transl_only}</span>. <br>Recommended symbols <span class="blue"> , # ^ & _</span>',
-        '次の名前付きタグの結果にのみ影響します: <span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{ tags_transl_only }</スパン>。 <br>推奨記号 <span class="blue"> , # ^ & _</span>。',
-        '이러한 명명된 태그의 결과에만 영향을 미칩니다: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{ tags_transl_only }</스팬>. <br>권장 기호 <span class="blue"> , # ^ & _</span>',
-        'Влияет только на результаты для следующих именованных тегов: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{ tags_transl_only </промежуток>. <br>Рекомендуемые символы <span class="blue"> , # ^ & _</span>',
-    ],
-    _导出csv: [
-        '导出 CSV 文件',
-        '匯出 CSV 檔',
-        'Export CSV file',
-        'CSV ファイルをエクスポート',
-        'CSV 파일 내보내기',
-        'Экспорт в файл CSV',
-    ],
-    _导出抓取结果: [
-        '导出抓取结果',
-        '匯出擷取結果',
-        'Export results',
-        'クロール結果をエクスポート',
-        '결과 내보내기',
-        'Экспорт результатов',
-    ],
-    _导入抓取结果: [
-        '导入抓取结果',
-        '匯入擷取結果',
-        'Import results',
-        'クロール結果をインポート',
-        '결과 불러오기',
-        'Импорт результатов',
-    ],
-    _导入成功: [
-        '导入成功',
-        '匯入成功',
-        'Import successfully',
-        'インポート成功',
-        '가져오기 성공',
-        'Импорт успешен',
-    ],
-    _导出成功: [
-        '导出成功',
-        '匯出成功',
-        'Export successfully',
-        'エクスポート成功',
-        '내보내기 성공',
-        'Импорт успешен',
-    ],
-    _图片尺寸: [
-        '图片<span class="key">尺寸</span>',
-        '圖片<span class="key">尺寸</span>',
-        'Image <span class="key">size</span>',
-        '画像<span class="key">サイズ</span>',
-        '이미지 <span class="key">크기</span>',
-        '<span class="key">Размер</span> изображения',
-    ],
-    _图片尺寸2: [
-        '图片尺寸',
-        '圖片尺寸',
-        'Image size',
-        '画像サイズ',
-        '이미지 크기',
-        'Размер изображения',
-    ],
-    _原图: ['原图', '原圖', 'Original', 'Original', '원본', 'Оригинал'],
-    _普通: ['普通', '普通', 'Regular', 'Regular', '레귤러', 'Обычный'],
-    _小图: ['小图', '小圖', 'Small', 'Small', '스몰', 'Маленький'],
-    _方形缩略图: [
-        '方形缩略图',
-        '方形縮圖',
-        'Square thumbnail',
-        'Square thumbnail',
-        '정사각형 썸네일',
-        'Квадратная миниатюра',
-    ],
-    _导出: ['导出', '匯出', 'Export', 'エクスポート', '내보내기', 'Экспорт'],
-    _导入: ['导入', '匯入', 'Import', 'インポート', '불러오기', 'Импорт'],
-    _清除: ['清除', '清除', 'Clear', 'クリア', '비우기', 'Очистить'],
-    _导入下载记录: [
-        '导入下载记录',
-        '匯入下載紀錄',
-        'Import download record',
-        'ダウンロード記録をインポート',
-        '다운로드 기록 불러오기',
-        'Импорт записи загрузки',
-    ],
-    _导出下载记录: [
-        '导出下载记录',
-        '匯出下載紀錄',
-        'Export download record',
-        'ダウンロード記録のエクスポート',
-        '다운로드 기록 내보내기',
-        'Экспорт записи загрузки',
-    ],
-    _数据较多需要花费一些时间: [
-        '数据较多，需要花费一些时间',
-        '資料較多，需要花費一些時間',
-        'A lot of data, it will take some time',
-        'データ量が多いので少し時間がかかります',
-        '데이터가 많아 시간이 좀 걸립니다',
-        'Много данных, это займет некоторое время',
-    ],
-    _完成: ['完成', '完成', 'Completed', '完了', '완료됨', 'Готово'],
-    _日期格式: [
-        '日期和时间<span class="key">格式</span>',
-        '日期和時間<span class="key">格式</span>',
-        'Date and time <span class="key">format</span>',
-        '日付と時刻の書式',
-        '날짜 및 시간 <span class="key">형식</span>',
-        '<span class="key">Формат</span> даты и времени',
-    ],
-    _日期格式提示: [
-        '你可以使用以下标记来设置日期和时间格式。这会影响命名规则里的 {date} 和 {upload_date} 和 {task_date}。<br>对于时间如 2021-04-30T06:40:08',
-        '你可以使用以下標記來設定日期和時間格式。這會影響命名規則裡的 {date} 和 {upload_date} 和 {task_date}。<br>對於資料如：2021-04-30T06:40:08。',
-        'You can use the following notation to set the date and time format. This will affect {date} and {upload_date} and {task_date} in the naming rules. <br>For time such as 2021-04-30T06:40:08',
-        '以下のタグを使用して日時と時刻の書式を設定することができます。 これは命名規則の {date} と {upload_date} と {task_date} に影響します。 <br> 例：2021-04-30T06:40:08',
-        '다음 표기법을 사용하여 날짜 및 시간 형식을 설정할 수 있습니다.<br>이것은 명명 규칙에 있는 {date}와 {upload_date}와 {task_date}에 영향을 미칩니다.<br>예: 2021-04-30T06:40:08',
-        'Для установки формата даты и времени можно использовать следующую нотацию. Это повлияет на {date} и {upload_date} и {task_date} в правилах именования. <br>Для времени, например, 2021-04-30T06:40:08',
-    ],
-    _命名标记taskDate: [
-        '本次任务抓取完成时的时间。例如：<span class="blue">2020-10-21</span>。',
-        '本次工作擷取完成時的時間。例如：<span class="blue">2020-10-21</span>。',
-        'The time when the task was crawl completed. For example: <span class="blue">2020-10-21</span>',
-        'この作業のクロールが完了した時刻です。 例：<span class="blue">2020-10-21</span>',
-        '긁어오기 작업을 완료한 날짜입니다. 예: <span class="blue">2020-10-21</span>',
-        'Время, когда задание было выполнено. Например: <span class="blue">2020-10-21</span>',
-    ],
-    _自动检测: [
-        '自动检测',
-        '自動偵測',
-        'Auto',
-        '自動検出',
-        '자동',
-        'Авто детект',
-    ],
-    _公开: ['公开', '公開', 'Public', '公開', '공개', 'Публичный'],
-    _不公开: ['不公开', '非公開', 'Private', '非公開', '비공개', 'Приватный'],
-    _已收藏: [
-        '已收藏',
-        '已收藏',
-        'Bookmarked',
-        'ブックマークした',
-        '북마크됨',
-        'В закладках',
-    ],
-    _已收藏带参数: [
-        '已收藏 {}',
-        '已收藏 {}',
-        'Bookmarked {}',
-        'ブックマークした {}',
-        '북마크된 {}',
-        'В закладках {}',
-    ],
-    _未收藏: [
-        '未收藏',
-        '未收藏',
-        'Not bookmarked',
-        'ブックマークされていない',
-        '북마크되지 않음',
-        'Не в закладках',
-    ],
-    _收藏作品: [
-        '收藏作品',
-        '收藏作品',
-        'Bookmark works',
-        '作品をブックマークする',
-        '북마크 작품',
-        'Закладки работают',
-    ],
-    _下载之后收藏作品: [
-        '下载之后<span class="key">收藏</span>作品',
-        '下載之後<span class="key">收藏</span>作品',
-        '<span class="key">Bookmark</span> works after downloading',
-        'ダウンロードした作品をブックマークする',
-        '다운로드 후 작품 <span class="key">북마크</span>',
-        '<span class="key">Закладка</span> работает после загрузки',
-    ],
-    _下载之后收藏作品的提示: [
-        '下载文件之后，自动收藏这个作品。',
-        '下載檔案之後，自動收藏這個作品。',
-        'After you download a file, the downloader will automatically bookmark the work.',
-        'ダウンロード後、作品は自動的にブックマークされます。',
-        '파일을 다운로드하면, 자동으로 작품을 북마크합니다.',
-        'После загрузки файла загрузчик автоматически делает закладку',
-    ],
-    _收藏设置: [
-        '下载器的<span class="key">收藏</span>功能 (✩)',
-        '下載器的<span class="key">收藏</span>功能 (✩)',
-        `Downloader's <span class="key">bookmark</span> function (✩)`,
-        'ダウンローダーの<span class="key">ブックマーク</span>機能 (✩)',
-        '다운로더의 <span class="key">북마크</span> 기능 (☆)',
-        `Функция сбора загрузчика (✩)`,
-    ],
-    _下载器的收藏按钮默认会添加作品的标签: [
-        '点击 <span class="blue">✩</span> 按钮时，下载器会收藏这个作品并且附带它的标签。',
-        '點選 <span class="blue">✩</span> 按鈕時，下載器會收藏這個作品並且附帶它的標籤。',
-        'When the <span class="blue">✩</span> button is clicked, the downloader bookmarks this work and attaches its tag.',
-        '<span class="blue">✩</span> ボタンをクリックすると、ダウンローダはこの作品をブックマークし、タグを付けます。',
-        '<span class="blue">✩</span> 버튼을 클릭하면 다운로더는 이 작품을 북마크하고 태그를 붙입니다.',
-        'При нажатии кнопки <span class="blue">✩</span> загрузчик добавляет эту работу в закладки и прикрепляет свой тег.',
-    ],
-    _添加tag: [
-        '添加标签',
-        '加入標籤',
-        'Add tag',
-        'タグを追加',
-        '태그 추가',
-        'Добавить тег',
-    ],
-    _不添加tag: [
-        '不添加标签',
-        '不加入標籤',
-        "Don't add tag",
-        'タグなし',
-        '태그 추가하지 않기',
-        'Не добавлять тег',
-    ],
-    _用户阻止名单: [
-        '用户<span class="key">阻止</span>名单',
-        '使用者<span class="key">阻止</span>名單',
-        'User <span class="key">block</span> list',
-        'ユーザーブロックリスト',
-        '유저 <span class="key">차단</span> 목록',
-        '<span class="key">Блок</span> списка пользователей ',
-    ],
-    _用户阻止名单的说明: [
-        '不下载这些用户的作品。需要输入用户 id。如果有多个用户 id，使用英文逗号,分割。',
-        '不下載這些使用者的作品。需要輸入使用者 id。若有多個使用者 id，使用半形逗號（,）分隔。',
-        'The works of these users will not be downloaded. Need to type the user ID. If there are multiple user ID, use comma (,) separated.',
-        'これらのユーザーの作品はダウンロードしません。ユーザー ID が必要です。複数のユーザ ID は "," で区切ってください。',
-        '이 유저들의 작품은 다운로드되지 않습니다. 유저 ID를 입력해야 합니다.<br>여러 유저 ID가 있는 경우 쉼표(,)로 구분합니다.',
-        'Работы этих пользователей не будут загружаться. Необходимо ввести идентификатор пользователя. Если имеется несколько идентификаторов пользователя, используйте разделение запятыми (,).',
-    ],
-    _全部: ['全部', '全部', 'All', '全部', '전부', 'Все'],
-    _任一: ['任一', '任一', 'One', '何れか', '하나만', 'Один'],
-    _颜色主题: [
-        '颜色<span class="key">主题</span>',
-        '色彩<span class="key">主題</span>',
-        'Color <span class="key">theme</span>',
-        'カラーテーマ',
-        '<class key="key">테마</span>',
-        'Цветовая <span class="key">тема</span>',
-    ],
-    _管理设置: [
-        '管理<span class="key">设置</span>',
-        '管理<span class="key">設定</span>',
-        'Manage <span class="key">settings</span>',
-        '<span class="key">設定</span>の管理',
-        '<span class="key">설정</span> 관리',
-        'Изменение <span class="key">настроек</span>',
-    ],
-    _导出设置: [
-        '导出设置',
-        '匯出設定',
-        'Export settings',
-        'エクスポート設定',
-        '내보내기',
-        'Настройки экспорта',
-    ],
-    _导入设置: [
-        '导入设置',
-        '匯入設定',
-        'Import settings',
-        'インポート設定',
-        '불러오기',
-        'Настройки импорта',
-    ],
-    _重置设置: [
-        '重置设置',
-        '重設設定',
-        'Reset settings',
-        'リセット設定',
-        '설정 초기화',
-        'Сброс настроек',
-    ],
-    _日均收藏数量: [
-        '日均收藏数量',
-        '日均收藏數量',
-        'Average number of daily bookmarks',
-        '1 日の平均ブックマーク数',
-        '일일 평균 북마크 수',
-        'Среднее количество ежедневных закладок',
-    ],
-    _日均收藏数量的提示: [
-        '你可以设置作品的平均每日收藏数量。满足条件的作品会被下载。',
-        '您可以設定作品的平均每日收藏數量。滿足條件的作品會被下載。',
-        'You can set the average daily bookmarks number of works. Works that meet the conditions will be downloaded.',
-        '作品の 1 日の平均ブックマーク数を設定することができます。条件を満した作品はダウンロードされます。',
-        '작품의 일일 평균 북마크 수를 설정할 수 있습니다. 조건을 만족한 작품은 다운로드됩니다.',
-        'Вы можете установить среднесуточное количество закладок в работах. Работы, удовлетворяющие условиям, будут загружены.',
-    ],
-    _导出关注列表CSV: [
-        '导出关注的用户列表（CSV）',
-        '匯出關注的使用者列表（CSV）',
-        'Export Followed Users List (CSV)',
-        'フォローされているユーザーのリストをエクスポートする（CSV）',
-        '팔로우한 사용자 목록 내보내기 (CSV)',
-        'Экспорт списка отслеживаемых пользователей (CSV)',
-    ],
-    _导出关注列表: [
-        '导出关注的用户列表（JSON）',
-        '匯出關注的使用者列表（JSON）',
-        'Export Followed Users List (JSON)',
-        'フォローされているユーザーのリストをエクスポートする（JSON）',
-        '팔로우한 사용자 목록 내보내기 (JSON)',
-        'Экспорт списка отслеживаемых пользователей (JSON)',
-    ],
-    _批量关注用户: [
-        '批量关注用户（JSON）',
-        '批次關注使用者（JSON）',
-        'Follow users in batches (JSON)',
-        'ユーザーをバッチでフォローする（JSON）',
-        '일괄적으로 사용자 팔로우 (JSON)',
-        'Подписывайтесь на пользователей пакетами (JSON)',
-    ],
-    _导入导出关注用户列表的说明: [
-        '在你或其他用户的 Following 页面里，你可以导出关注的用户列表，也可以导入列表来批量关注用户。<br>当你有多个帐户时，可以使用这个方法同步你关注的用户列表。你也可以复制其他用户的关注用户列表。',
-        '在你或其他使用者的 Following 頁面裡，你可以匯出關注的使用者列表，也可以匯入列表來批次關注使用者。<br>當你有多個帳戶時，可以使用這個方法同步你關注的使用者列表。你也可以複製其他使用者的關注使用者列表。',
-        "On the Following page of you or other users, you can export the list of followed users, or import the list to follow users in batches. <br>When you have multiple accounts, you can use this method to synchronize the list of users you follow. You can also copy another user's followed user list.",
-        '自分または他のユーザーの [フォロー中] ページで、フォローしているユーザーのリストをエクスポートしたり、ユーザーをフォローするリストをバッチでインポートしたりできます。 <br>複数のアカウントをお持ちの場合、この方法を使用して、フォローしているユーザーのリストを同期できます。 別のユーザーのフォローしているユーザー リストをコピーすることもできます。',
-        '본인 또는 다른 사용자의 팔로잉 페이지에서 팔로우한 사용자 목록을 내보내거나 목록을 가져와 사용자를 일괄적으로 팔로우할 수 있습니다. <br>계정이 여러 개인 경우 이 방법을 사용하여 팔로우하는 사용자 목록을 동기화할 수 있습니다. 다른 사용자의 팔로우된 사용자 목록을 복사할 수도 있습니다.',
-        'На странице «Отслеживание» вас или других пользователей вы можете экспортировать список отслеживаемых пользователей или импортировать список для подписки на пользователей в пакетном режиме. <br>Если у вас несколько учетных записей, вы можете использовать этот метод для синхронизации списка пользователей, на которых вы подписаны. Вы также можете скопировать список отслеживаемых пользователей другого пользователя.',
-    ],
-    _手动选择作品: [
-        '手动选择作品',
-        '手動選擇作品',
-        'Manually select',
-        '手動で作品を選ぶ',
-        '수동 선택',
-        'Ручной выбор',
-    ],
-    _快捷键ALTS手动选择作品: [
-        '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">S</span> 开始或暂停手动选择作品。<br>选择完毕之后，打开下载器面板，点击“抓取选择的作品”。',
-        '你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">S</span> 開始或暫停手動選擇作品。<br>選擇完畢之後，開啟下載器面板，點選“抓取選擇的作品”。',
-        'You can use the shortcut keys <span class="blue">Alt</span> + <span class="blue">S</span> to start or pause manual selection of works.<br>After selecting, open the downloader panel and click "Crawl selected works".',
-        'ショートカット キー <span class="blue">Alt</span> + <span class="blue">S</span> を使用して、作品の手動選択を開始または一時停止できます。<br>選択後、ダウンローダパネルを開いて「選ばれた作品をクロール」をクリック。',
-        '바로 가기 키 <span class="blue">Alt</span> + <span class="blue">S</span>를 사용하여 작품 수동 선택을 시작하거나 일시 중지할 수 있습니다.<br>선택한 후 다운로더 패널을 열고 "선택된 작품 긁어오기"를 클릭합니다.',
-        'Вы можете использовать сочетания клавиш <span class="blue">Alt</span> + <span class="blue">S</span>, чтобы начать или приостановить ручной выбор произведений.<br>После выбора откройте панель загрузчика и нажмите «Стащить выбранные работы».',
-    ],
-    _抓取选择的作品: [
-        '抓取选择的作品',
-        '擷取選擇的作品',
-        'Crawl selected works',
-        '選ばれた作品をクロール',
-        '선택된 작품 긁어오기',
-        'Стащить выбранные работы',
-    ],
-    _抓取选择的作品2: [
-        '抓取选择的作品 {}',
-        '擷取選擇的作品 {}',
-        'Crawl selected works {}',
-        '選ばれた作品をクロール {}',
-        '선택된 작품 긁어오기 {}',
-        'Стащить выбранные работы',
-    ],
-    _清空选择的作品: [
-        '清空选择的作品',
-        '清空選擇的作品',
-        'Clear selected works',
-        '選んだ作品をクリアします',
-        '선택된 작품 비우기',
-        'Очистить выбранные работы',
-    ],
-    _暂停选择: [
-        '暂停选择',
-        '暫停選擇',
-        'Pause select',
-        '選択を一時停止',
-        '선택 일시중지',
-        'Остановить выбора',
-    ],
-    _继续选择: [
-        '继续选择',
-        '繼續選擇',
-        'Continue select',
-        '選択を続ける',
-        '선택 이어하기',
-        'Продолжить выбор',
-    ],
-    _离开页面前提示选择的作品未抓取: [
-        '选择的作品尚未抓取。现在离开此页面会导致你选择的作品被清空。',
-        '選擇的作品尚未擷取。現在離開此頁面會導致您選擇的作品被清空。',
-        'The selected work has not been crawled. Leaving this page now will cause your selected work to be cleared.',
-        '選ばれた作品はまだクロールしていません。今このページを離れると、選ばれた作品がクリアされます。',
-        '선택된 작품을 아직 긁어오지 않았습니다. 지금 현재 페이지를 떠나면 선택된 작품이 비워집니다.',
-        'Выбранная работа не была стащена. Если вы покинете эту страницу, выбранная вами работа будет очищена.',
-    ],
-    _排除了所有作品类型: [
-        '排除了所有作品类型',
-        '排除了所有作品類型',
-        'Excluded all work types',
-        'すべての作品種類を除外しました',
-        '모든 작품 유형 제외',
-        'Исключены все типы работ',
-    ],
-    _为作品建立单独的文件夹: [
-        '为<span class="key">每个</span>作品建立单独的文件夹',
-        '為<span class="key">每個</span>作品建立單獨的資料夾',
-        'Create a separate folder for <span class="key">each</span> work',
-        '作品ごとに別フォルダを作成',
-        '작품마다 <span class="key">별도</span>의 디렉토리 생성',
-        'Создайте отдельную папку для <span class="key">каждой</span> работы',
-    ],
-    _为作品建立单独的文件夹说明: [
-        '这里应该使用 {id_num} 代替 {id}',
-        '這裡應該使用 {id_num} 代替 {id}',
-        'Here {id_num} should be used instead of {id}',
-        'ここでは、{id} の代わりに {id_num} を使用する必要があります',
-        '여기서는 {id}대신 {id_num}을 사용해야 합니다',
-        'Здесь {id_num} следует использовать вместо {id}',
-    ],
-    _文件数量大于: [
-        '文件数量 >',
-        '檔案數量 >',
-        'Number of files >',
-        'ファイル数 >',
-        '파일 수 >',
-        'Количество файлов >',
-    ],
-    _保存用户头像: [
-        '保存用户头像',
-        '儲存使用者頭貼',
-        'Save user avatar',
-        'ユーザーアイコンの保存',
-        '유저 프로필 이미지 저장',
-        'Сохранить аватар пользователя',
-    ],
-    _保存用户封面: [
-        '保存用户封面',
-        '儲存使用者封面',
-        'Save user cover',
-        'ユーザーカバーの保存',
-        '유저 커버 저장',
-        'Сохранить обложку пользователя',
-    ],
-    _待处理: [
-        '待处理',
-        '待處理',
-        'Pending',
-        '処理待ち',
-        '처리 대기',
-        'В ожидании',
-    ],
-    _超出最大页码: [
-        '超出最大页码：',
-        '超出最大頁碼：',
-        'Maximum page number exceeded:',
-        '最大ページ数を超えました：',
-        '최대 페이지 번호 초과:',
-        'Превышен максимальный номер страницы:',
-    ],
-    _针对特定用户屏蔽tag: [
-        '针对特定用户屏蔽<span class="key">标签</span>',
-        '針對特定使用者排除<span class="key">標籤</span>',
-        'Block <span class="key">tags</span> for specific users',
-        '特定のユーザーに対して<span class="key">タグ</span>をブロック',
-        '특정 유저에 대한 차단 <span class="key">태그</span>',
-        'Блокировать <span class="key">теги</span> для определенных пользователей',
-    ],
-    _展开收起: [
-        '展开/收起',
-        '展開/摺疊',
-        'Expand/Collapse',
-        '展開/折りたたみ',
-        '확장/축소',
-        'Развернуть/Свернуть',
-    ],
-    _展开: ['展开', '展開', 'Expand', '展開', '확장', 'Развернуть'],
-    _收起: ['收起', '摺疊', 'Collapse', '折りたたみ', '축소', 'Свернуть'],
-    _把r18作品存入指定的文件夹里: [
-        '把 <span class="key">R-18(G)</span> 作品存入指定的文件夹里',
-        '把 <span class="key">R-18(G)</span> 作品存入指定的資料夾裡',
-        'Save the <span class="key">R-18(G)</span> works in the designated folder',
-        '<span class="key">R-18(G)</span> の作品を指定のフォルダに入れる',
-        '<span class="key">R-18(G)</span> 작품을 지정된 디렉토리에 저장',
-        'Сохраните <span class="key">R-18(G)</span> работы в указанной папке',
-    ],
-    _必填项不能为空: [
-        '必填项不能为空',
-        '必填項不能為空',
-        'Required fields cannot be empty',
-        '必須フィールドが入力されていません',
-        '필수 입력 항목은 비워둘 수 없습니다',
-        'Обязательные поля не могут быть пустыми',
-    ],
-    _用户ID必须是数字: [
-        '用户 ID 必须是数字',
-        '使用者 ID 必須是數字',
-        'User ID must be a number',
-        'ユーザー ID は数字です',
-        '유저 ID는 숫자만 허용합니다',
-        'Идентификатор пользователя должен быть числом',
-    ],
-    _必须是数字: [
-        '必须是数字',
-        '必須是數字',
-        'Number',
-        '数字でなければなりません',
-        '숫자만 허용',
-        'Число',
-    ],
-    _tag用逗号分割: [
-        '多个标签使用英文逗号,分割',
-        '多個標籤使用半形逗號（,）分隔',
-        'Multiple tags use comma (,) split',
-        '複数のタグはカンマ「,」で区切ってください',
-        '여러 태그는 쉼표(,)로 구분합니다.',
-        'Для нескольких тегов используется разделение запятой (,)',
-    ],
-    _添加: ['添加', '新增', 'Add', '追加', '추가', 'Добавить'],
-    _取消: ['取消', '取消', 'Cancel', 'キャンセル', '취소', 'Отмена'],
-    _更新: ['更新', '更新', 'Update', '更新', '업데이트', 'Обновить'],
-    _删除: ['删除', '刪除', 'Delete', '削除', '제거', 'Удалить'],
-    _添加成功: [
-        '添加成功',
-        '新增成功',
-        'Added successfully',
-        '追加されました',
-        '성공적으로 추가되었습니다.',
-        'Добавлено успешно',
-    ],
-    _更新成功: [
-        '更新成功',
-        '更新成功',
-        'update completed',
-        '更新成功',
-        '업데이트에 성공하였습니다.',
-        'обновление завершено',
-    ],
-    _在作品缩略图上显示放大按钮: [
-        '在作品缩略图上显示<span class="key">放大</span>按钮',
-        '在作品縮圖上顯示<span class="key">放大</span>按鈕',
-        'Show <span class="key">zoom</span> button on thumbnail',
-        '作品のサムネイルに<span class="key">拡大</span>ボタンを表示',
-        '썸네일에 <span class="key">확대</span> 버튼 표시',
-        'Показать кнопку <span class="key">увеличить</span> на миниатюре',
-    ],
-    _在作品缩略图上显示下载按钮: [
-        '在作品缩略图上显示<span class="key">下载</span>按钮',
-        '在作品縮圖上顯示<span class="key">下載</span>按鈕',
-        'Show <span class="key">download</span> button on thumbnail',
-        '作品のサムネイルに<span class="key">ダウンロード</span>ボタンを表示',
-        '썸네일에 <span class="key">다운로드</span> 버튼 표시',
-        'Показать кнопку <span class="key">загрузить</span> на миниатюре',
-    ],
-    _已发送下载请求: [
-        '已发送下载请求',
-        '已傳送下載請求',
-        'Download request sent',
-        'ダウンロードリクエストを送信しました',
-        '다운로드 요청 전송',
-        'Запрос на скачивание отправлен',
-    ],
-    _HowToUse: [
-        '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>下载器默认开启了一些增强功能，这可能导致 Pixiv 页面样式改变。你可以在下载器的“更多”标签页中开启或关闭这些功能。',
-        '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>下載器預設開啟了一些增強功能，這可能導致 Pixiv 頁面樣式改變。你可以在下載器的“更多”標籤頁中開啟或關閉這些功能。',
-        'Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>The downloader has some enhancements turned on by default, which may cause changes in the style of Pixiv pages. You can turn these features on or off in the "More" tab of the downloader.',
-        'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンローダーにはデフォルトでいくつかの機能拡張が有効になっており、これにより Pixiv ページのスタイルが変更される可能性があります。 これらの機能は、ダウンローダーの「その他」タブでオンまたはオフにできます。',
-        '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.<br><br>다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로더에는 기본적으로 몇 가지 향상된 기능이 켜져 있으며 이로 인해 Pixiv 페이지 스타일이 변경될 수 있습니다. 다운로더의 "더 보기" 탭에서 이러한 기능을 켜거나 끌 수 있습니다.',
-        'Нажмите синюю кнопку в правой части страницы, чтобы открыть панель загрузчика.<br><br>Загруженный файл сохраняется в каталоге загрузки браузера. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>В загрузчике по умолчанию включены некоторые улучшения, которые могут привести к изменению стиля страниц Pixiv. Вы можете включить или отключить эти функции на вкладке «Дополнительно» загрузчика.',
-    ],
-    _我知道了: ['我知道了', '我知道了', 'OK', '分かりました', '확인', 'Ок'],
-    _背景图片: [
-        '<span class="key">背景</span>图片',
-        '<span class="key">背景</span>圖片',
-        '<span class="key">Background</span> image',
-        '<span class="key">背景</span>画像',
-        '<span class="key">배경</span> 이미지',
-        '<span class="key">Фоновое</span> изображение',
-    ],
-    _选择文件: [
-        '选择文件',
-        '選擇檔案',
-        'Select a file',
-        'ファイルを選択',
-        '파일 선택',
-        'Выберите файл',
-    ],
-    _不透明度: [
-        '不透明度',
-        '不透明度',
-        'Opacity',
-        '不透明度',
-        '투명도',
-        'Непрозрачность',
-    ],
-    _对齐方式: [
-        '对齐方式',
-        '對齊方式',
-        'Alignment',
-        '揃え方式',
-        '정렬',
-        'Выравнивание',
-    ],
-    _顶部: ['顶部', '頂部', 'top', '上揃え', '상단', 'топ'],
-    _居中: ['居中', '居中', 'center', '中央揃え', '중앙', 'центр'],
-    _根据作品类型自动建立文件夹: [
-        '根据作品<span class="key">类型</span>自动建立文件夹',
-        '根據作品<span class="key">類型</span>自動建立資料夾',
-        'Create folders based on the <span class="key">type</span> of work',
-        '作品種類に応じてフォルダを自動作成',
-        '작품 <span class="key">유형</span>에 따라 자동으로 디렉토리 생성',
-        'Создание папок на основе <span class="key">вида</span> работы',
-    ],
-    _使用第一个匹配的tag建立文件夹: [
-        '使用第一个匹配的<span class="key">标签</span>建立文件夹',
-        '使用第一個符合的<span class="key">標籤</span>建立資料夾',
-        'Create a folder with the first matched <span class="key">tag</span>',
-        '最初の一致するタグにフォルダを作成',
-        '첫 번째 일치하는 <span class="key">태그</span>로 디렉토리 생성',
-        'Создать папку с первым совпавшим <span class="key">тегом</span>',
-    ],
-    _使用匹配的tag建立文件夹的说明: [
-        '如果作品的标签列表里含有用户设置的标签，就会使用这个标签建立文件夹（仅限第一个）',
-        '如果作品的標籤列表裡含有使用者設定的標籤，就會使用這個標籤建立資料夾（僅限第一個）',
-        'If the tag list of the work contains a tag set by the user, this tag will be used to create a folder (only the first one)',
-        '作品のタグリストにユーザーが設定したタグが含まれている場合、そのタグを使用してフォルダが作成されます。(最初の1つだけ)',
-        '작품의 태그에 유저가 설정한 태그가 포함되어 있다면, 태그를 사용하여 디렉토리를 생성합니다. (첫 번째 태그만 해당)',
-        'Если в списке тегов работы есть тег, заданный пользователем, этот тег будет использован для создания папки (только первой)',
-    ],
-    _全年龄: [
-        '全年龄',
-        '全年齡',
-        'All ages',
-        '全年齢',
-        '전체 연령',
-        'Все возраста',
-    ],
-    _没有符合条件的结果: [
-        '没有符合条件的结果',
-        '沒有符合條件的結果',
-        'There are no eligible results',
-        '対象となる結果はありません',
-        '조건에 부합하는 결과가 없습니다',
-        'Нет результатов, отвечающих требованиям',
-    ],
-    _收藏: ['收藏', '收藏', 'Bookmark', 'ブックマーク', '북마크', 'Закладка'],
-    _已加入收藏: [
-        '已加入收藏',
-        '已加入收藏',
-        'Bookmarked',
-        'ブックマークした',
-        '북마크됨',
-        'В закладках',
-    ],
-    _全屏查看: [
-        '全屏',
-        '全螢幕',
-        'Full screen view',
-        '全画面表示',
-        '전체 화면 보기',
-        'Просмотр на весь экран',
-    ],
-    _抓取id区间: [
-        '抓取 ID 区间',
-        '擷取 ID 區間',
-        'Crawl ID range',
-        'ID 範囲をクロール',
-        'ID 범위 긁어오기',
-        'Стащить диапазон идентификаторов',
-    ],
-    _抓取id区间说明: [
-        '你可以设置一个作品 ID 范围，抓取此范围内的所有作品（包含开始和结束的 id）。<br>注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。<br>如果你需要抓取很多 ID，请考虑拆分成多个任务。我建议每批抓取的 ID 数量不要超过 100,000 个。',
-        '你可以設定一個作品 ID 範圍，擷取此範圍內的所有作品（包含開始和結束的 id）。<br>注意：如果一次任務中產生的擷取結果數量太多，可能會導致頁面崩潰。<br>如果你需要抓取很多 ID，請考慮拆分成多個任務。我建議每批抓取的 ID 數量不要超過 100,000 個。',
-        'You can set a range of work ID and grab all works in this range (including the begin and end ID). <br>Note: If the number of crawling results in a task is too much, it may cause the page to crash.<br>If you need to crawl a lot of IDs, consider splitting it into multiple tasks. I recommend crawling no more than 100,000 IDs per batch.',
-        '作品 ID の範囲を設定し、その範囲内のすべての作品をクロールすることができます。「開始 ID と終了 id を含む」<br>注意：1 つのタスクであまりにも多くのクロール結果を生成すると、ページがクラッシュする可能性があります。<br>多数の ID をクロールする必要がある場合は、複数のタスクに分割することを検討してください。 バッチごとにクロールする ID は 100,000 未満にすることをお勧めします。',
-        '작품 ID 범위를 설정할 수 있습니다. 이 범위 내의 모든 작품 (시작과 끝 ID 포함).<br>참고: 작업의 긁어오기 결과가 너무 많으면 페이지가 충돌할 수 있습니다.<br>많은 ID를 크롤링해야 하는 경우 이를 여러 작업으로 분할하는 것이 좋습니다. 배치당 100,000개 이하의 ID를 크롤링하는 것이 좋습니다.',
-        'Вы можете задать диапазон идентификаторов работ и захватить все работы в этом диапазоне (включая идентификаторы начала и конца). <br>Примечание: Если в задании слишком большое количество результатов стаскивания, это может привести к сбою страницы.<br>Если вам нужно сканировать большое количество идентификаторов, рассмотрите возможность разделения этого процесса на несколько задач. Я рекомендую сканировать не более 100 000 идентификаторов за пакет.',
-    ],
-    _抓取id区间起点: [
-        '请输入开始的 ID: ',
-        '請輸入開始的 ID: ',
-        'Please type in the beginning ID: ',
-        '開始 ID を入力してください: ',
-        '시작 ID를 입력해주세요: ',
-        'Пожалуйста, введите начальный идентификатор: ',
-    ],
-    _抓取id区间终点: [
-        '请输入结束的 ID: ',
-        '請輸入結束的 ID: ',
-        'Please type  in the ending ID: ',
-        '終了 ID を入力してください: ',
-        '끝 ID를 입력해주세요: ',
-        'Пожалуйста, введите конечный идентификатор: ',
-    ],
-    _选项卡切换方式: [
-        '<span class="key">选项卡</span>切换方式',
-        '<span class="key">頁籤</span>切換方式',
-        'How to switch <span class="key">tabs</span>',
-        'タブ切り替え方式',
-        '<span class="key">탭</span> 전환 방식',
-        'Как переключать <span class="key">вкладки</span>',
-    ],
-    _鼠标经过: [
-        '鼠标经过',
-        '滑鼠經過',
-        'Mouse over',
-        'マウスオーバー',
-        '마우스 올리기',
-        'Наведите мышь',
-    ],
-    _鼠标点击: [
-        '鼠标点击',
-        '滑鼠點選',
-        'Mouse click',
-        'マウスクリック',
-        '마우스 클릭',
-        'Кликнуть мышкой',
-    ],
-    _在序号前面填充0: [
-        '在序号前面<span class="key">填充 0</span>',
-        '在序號前面<span class="key">填充 0</span>',
-        '<span class="key">Add 0</span> in front of the serial number',
-        'シリアル番号の前に 0 を記入',
-        '일련번호 앞 <span class="key">0 채우기</span>',
-        '<span class="key">Добавьте 0</span> перед серийным номером',
-    ],
-    _在序号前面填充0的说明: [
-        '这可以解决一些软件不能正确的按照文件名来排序文件的问题。',
-        '這可以解決一些軟體不能正確的按照檔名來排序檔案的問題。',
-        'This can solve the problem that some software cannot correctly sort files by file name.',
-        'これにより、一部のソフトウェアがファイルをファイル名で正しくソートできないという問題を解決できます。',
-        '이것은 일부 소프트웨어가 파일 이름별로 파일을 올바르게 정렬할 수 없는 문제를 해결할 수 있습니다.',
-        'Это может решить проблему того, что некоторые программы не могут правильно сортировать файлы по имени файла.',
-    ],
-    _序号总长度: [
-        '序号总长度',
-        '序號總長度',
-        'Total length of serial number',
-        'シリアル番号の全長',
-        '일련번호 전체 길이',
-        'Общая длина серийного номера',
-    ],
-    _完全一致: [
-        '完全一致',
-        '完全一致',
-        'Perfect match',
-        '完全一致',
-        '완전 일치',
-        'Идеальное совпадение',
-    ],
-    _部分一致: [
-        '部分一致',
-        '部分一致',
-        'Partial match',
-        '部分一致',
-        '부분 일치',
-        'Частичное совпадение',
-    ],
-    _位置: ['位置', '位置', 'Position', '位置', '위치', 'Позиция'],
-    _左: ['左', '左', 'Left', '左', '왼쪽', 'Слева'],
-    _右: ['右', '右', 'Right', '右', '오른쪽', 'Справа'],
-    _多图作品只下载前几张图片: [
-        '多图作品只下载<span class="key">前几张</span>图片',
-        '多圖作品只下載<span class="key">前幾張</span>圖片',
-        'Multi-image works only download the <span class="key">first few</span> images',
-        'マルチ作品は最初の何枚の画像のみをダウンロードする',
-        '여러 이미지 작품은 <span class="key">처음 몇 개</span>의 이미지만 다운로드합니까',
-        'При работе с несколькими изображениями загружаются только <span class="key">первые несколько</span> изображений',
-    ],
-    _多图作品的图片数量上限: [
-        '多图作品的图片<span class="key">数量</span>上限',
-        '多圖作品的圖片<span class="key">數量</span>上限',
-        '<span class="key">Maximum number</span> of images for multi-image works',
-        'マルチ作品の最大画像数',
-        '여러 이미지 작품의 <span class="key">최대 수</span>',
-        '<span class="key">Максимальное количество</span> изображений для работ с несколькими изображениями',
-    ],
-    _超出此限制的多图作品不会被下载: [
-        '超出此限制的多图作品不会被下载',
-        '不會下載超出此限制的多圖作品',
-        'Multi-image works exceeding this limit will not be downloaded',
-        'この制限を超えたマルチ作品はダウンロードされません',
-        '이 제한을 초과하는 여러 이미지 작품은 다운로드되지 않습니다.',
-        'Работы с несколькими изображениями, превышающие этот лимит, не будут загружены',
-    ],
-    _在搜索页面添加快捷搜索区域: [
-        '在搜索页面添加快捷<span class="key">搜索</span>区域',
-        '在搜尋頁面新增快速<span class="key">搜尋</span>區域',
-        'Add a quick <span class="key">search</span> area on the search page',
-        '検索ページにクイック検索領域を追加します',
-        '검색 페이지에 빠른 <span class="key">검색</span> 영역 추가',
-        'Добавить область быстрого <span class="key">поиска</span> на странице поиска',
-    ],
-    _保存作品的元数据: [
-        '保存作品的<span class="key">元数据</span>',
-        '儲存作品的<span class="key">元資料</span>',
-        'Save the <span class="key">metadata</span> of the work',
-        '作品のメタデータを保存する',
-        '작품 <span class="key">메타데이터</span> 저장',
-        'Сохранить <span class="key">метаданные</span> работы',
-    ],
-    _保存作品的元数据说明: [
-        '为每个作品建立一个 txt 文件保存它的元数据',
-        '為每個作品建立一個 txt 檔案儲存它的元資料',
-        'Create a txt file for each work to save its metadata',
-        '作品ごとに txt ファイルを作成して、メタデータを保存します',
-        '각 작품에 대한 메타데이터를 저장하는 txt 파일 생성',
-        'Создайте txt-файл для каждой работы, чтобы сохранить ее метаданные',
-    ],
-    _在不同的页面类型中使用不同的命名规则: [
-        '在不同的页面类型中使用<span class="key">不同</span>的命名规则',
-        '在不同的頁面類型中使用<span class="key">不同</span>的命名規則',
-        'Use <span class="key">different</span> naming rules in different page types',
-        'ページの種類によって異なる命名規則を使用',
-        '페이지 유형에 따라 <span class="key">다른</span> 명명 규칙 사용',
-        'Использовать <span class="key">различные</span> правила именования в разных типах страниц',
-    ],
-    _显示高级设置: [
-        '显示<span class="key">高级</span>设置',
-        '顯示<span class="key">進階</span>設定',
-        'Show <span class="key">advanced</span> settings',
-        '詳細設定を表示する',
-        '<span class="key">고급</span> 설정 보기',
-        'Показать <span class="key">расширенные</span> настройки',
-    ],
-    _显示高级设置说明: [
-        '被隐藏的设置仍然会发挥作用',
-        '被隱藏的設定仍然會發揮作用',
-        'Hidden settings will still work',
-        '隠していた設定がそのまま機能する',
-        '숨겨진 설정은 계속 작동합니다.',
-        'Скрытые настройки будут работать',
-    ],
-    _状态码为0的错误提示: [
-        '下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（通常是 C 盘）（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。如果你使用 Nginx 或者 Apache 反代理访问 pixiv，请换成梯子。<br><br>3. 可以尝试重启浏览器，或者禁用此扩展然后重新启用，并刷新这个标签页。',
-        '下載時發生錯誤，狀態碼為 0，請求未成功。可能的原因：<br><br>1. 系統磁碟的剩餘空間可能不足（通常是 C 盤）（建議剩餘空間大於 4GB）。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>2. 網路錯誤。可能是網路代理導致的問題。<br><br>3. 可以嘗試重啟瀏覽器，或者禁用此擴充套件然後重新啟用，並重新整理這個標籤頁。',
-        'An error occurred while downloading, the status code is 0, and the request was unsuccessful. Possible reasons: <br><br>1. The remaining space of the system disk may be insufficient (usually C drive)(it is recommended that the remaining space be greater than 4GB). Please try to clear the system disk space, and then restart the browser to continue the unfinished download. <br><br>2. Network error. It may be a problem caused by a network proxy.<br><br>3. You can try to restart the browser, or disable and re-enable the extension, and refresh the tab.',
-        'ダウンロード中にエラーが発生し、ステータスコードは0で、リクエストは失敗しました。 考えられる理由：<br> <br> 1。 システムディスクの残りのスペースが不足している可能性があります(通常はCドライブ)（残りのスペースは4GBを超えることをお勧めします）。 システムのディスク領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。 <br> <br> 2。 ネットワークエラー。 ネットワークプロキシが原因の問題である可能性があります。<br><br>3. ブラウザを再起動するか、拡張機能を無効にしてから再度有効にして、タブを更新してみてください。',
-        '다운로드 중 오류가 발생했으며, 상태 코드가 0이고 요청에 실패했습니다. 가능한 원인: <br><br>1. 시스템 디스크의 남은 공간이 부족할 수 있습니다(보통 C드라이브)(남은 공간은 4GB보다 큰 것이 좋습니다). 시스템 디스크 공간을 비운 다음 브라우저를 다시 시작하여 완료되지 않은 다운로드를 계속해주세요. <br><br>2. 네트워크 오류. 네트워크 프록시로 인한 문제일 수 있습니다.<br><br>3. 브라우저를 다시 시작하거나 확장 프로그램을 비활성화했다가 다시 활성화하고 탭을 새로 고칠 수 있습니다.',
-        'Во время загрузки произошла ошибка, код состояния равен 0, и запрос был выполнен неудачно. Возможные причины: <br><br>1. Оставшегося места на системном диске может быть недостаточно (обычно это диск C) (рекомендуется, чтобы оставшееся место было больше 4 ГБ). Пожалуйста, попробуйте освободить место на системном диске, а затем перезапустите браузер, чтобы продолжить незаконченную загрузку. <br><br>2. Ошибка сети. Это может быть проблема, вызванная сетевым прокси-сервером.<br><br>3. Вы можете попробовать перезапустить браузер или отключить и снова включить расширение и обновить вкладку.',
-    ],
-    _下载完成后显示通知: [
-        '下载完成后显示<span class="key">通知</span>',
-        '下載完成後顯示<span class="key">通知</span>',
-        'Show <span class="key">notification</span> after download is complete',
-        'ダウンロードが完了した後に通知を表示する',
-        '다운로드가 완료되면 <span class="key">알림</span> 표시',
-        'Показать <span class="key">уведомление</span> после завершения загрузки',
-    ],
-    _高亮显示关键字: [
-        '<span class="key">高亮</span>显示关键字',
-        '<span class="key">標明</span>顯示關鍵字',
-        '<span class="key">Highlight</span> keywords',
-        'キーワードを強調表示',
-        '<span class="key">강조</span> 키워드 표시',
-        '<span class="key">Выделить</span> ключевые слова',
-    ],
-    _抓取标签列表: [
-        '抓取标签列表',
-        '擷取標籤列表',
-        'Crawl a list of tags',
-        'タグのリストをクロール',
-        '태그 긁어오기',
-        'Сканировать список тегов',
-    ],
-    _抓取标签列表的输入框提示: [
-        '请输入你要抓取的标签列表。多个标签之间使用换行分割',
-        '請輸入你要擷取的標籤列表。多個標籤之間使用換行分隔',
-        'Please type the list of tags you want to crawl. Use line breaks between multiple tags',
-        'クロールしたいタグのリストを入力してください。 複数のタグを改行で分割',
-        '긁어올 태그를 입력해주세요. 여러 태그는 줄 바꿈 사용',
-        'Пожалуйста, введите список тегов, которые вы хотите просмотреть. Используйте разрывы строк между несколькими тегами',
-    ],
-    _抓取标签列表的文件夹提示: [
-        '在抓取标签列表时，你可以使用 {page_tag} 或者 {page_title} 标记获取当前抓取的标签，并用来建立文件夹。例如：{page_tag}/{id}',
-        '在擷取標籤列表時，你可以使用 {page_tag} 或者 {page_title} 標記獲取目前擷取的標籤，並用來建立資料夾。例如：{page_tag}/{id}',
-        'When crawling the tag list, you can use {page_tag} or {page_title} tags to get the tags currently crawled and use them to create folders. For example: {page_tag}/{id}',
-        'タグリストをクロールする時に、 {page_tag} や {page_title}を使用すると、現在クロールされているタグを取得し、それらを使ってフォルダを作成することができます。例：{page_tag}/{id}',
-        '태그를 긁어올 때 {page_tag} 또는 {page_title} 태그를 사용하여, 긁어온 태그로 디렉토리를 생성할 수 있습니다. 예: {page_tag}/{id}',
-        'При сканировании списка тегов вы можете использовать теги {page_tag} или {page_title}, чтобы получить теги, которые в данный момент просматриваются, и использовать их для создания папок. Например: {page_tag}/{id}',
-    ],
-    _停止抓取标签列表: [
-        '停止抓取标签列表',
-        '停止擷取標籤列表',
-        'Stop crawling the list of tags',
-        'タグリストのクロールを停止',
-        '태그 긁어오기 정지',
-        'Прекратить сканирование списка тегов',
-    ],
-    _等待下载的标签: [
-        '等待下载的标签',
-        '等待下載的標籤',
-        'Tags waiting to be downloaded',
-        'ダウンロード待ちのタグ',
-        '다운로드 대기 중인 태그',
-        'Теги, ожидающие загрузки',
-    ],
-    _你确定要停止抓取吗: [
-        '你确定要停止抓取吗？',
-        '確定要停止擷取嗎？',
-        'Are you sure you want to stop crawling?',
-        '本当にクロールをやめたいのか',
-        '긁어오기를 중지하시겠습니까?',
-        'Ты уверен, что хочешь перестать сканировать?',
-    ],
-    _只能在搜索页面使用: [
-        '只能在搜索页面使用',
-        '只能在搜尋頁面使用',
-        'Can only be used on the search page',
-        '検索ページでのみ使用できます',
-        '검색 페이지에서만 사용 가능',
-        'Можно использовать только на странице поиска',
-    ],
-    _自动导出抓取结果: [
-        '自动<span class="key">导出</span>抓取结果',
-        '自動<span class="key">匯出</span>擷取結果',
-        'Automatically <span class="key">export</span> crawl results',
-        'クロール結果の自動エクスポート',
-        '자동으로 긁어오기 결과 <span class="key">내보내기</span>',
-        'Автоматически <span class="key">экспортировать</span> результаты сканирования',
-    ],
-    _抓取结果: [
-        '抓取结果',
-        '擷取結果',
-        'Crawl results',
-        'クロール結果',
-        '긁어오기 결과',
-        'Сканировать результаты',
-    ],
-    _文件格式: [
-        '文件格式',
-        '檔案格式',
-        'File format',
-        'ファイル形式',
-        '파일 형식',
-        'Формат файла',
-    ],
-    _格式: ['格式', '格式', 'Format', '形式', '형식', 'Формат'],
-    _预览作品: [
-        '<span class="key">预览</span>作品',
-        '<span class="key">預覽</span>作品',
-        '<span class="key">Preview</span> works',
-        '作品のプレビュー',
-        '작품 <span class="key">미리보기</span>',
-        '<span class="key">Превью</span> работает',
-    ],
-    _点击鼠标左键可以关闭预览图: [
-        '点击鼠标左键可以关闭预览图',
-        '點選滑鼠左鍵可以關閉預覽圖',
-        'Click the left mouse button to close the preview',
-        'マウスの左クリックでプレビュー画像を閉じる',
-        '마우스 왼쪽 버튼을 클릭하면 미리보기를 닫습니다',
-        'Нажмите левую кнопку мыши, чтобы закрыть предварительный просмотр',
-    ],
-    _尺寸: ['尺寸', '尺寸', 'Size', 'サイズ', '크기', 'Размер'],
-    _允许鼠标停留在预览图上: [
-        '允许鼠标停留在预览图上',
-        '允許滑鼠停留在預覽圖上',
-        'Allow the mouse to stay on the preview image',
-        'プレビュー画像の上にマウスを置くことができます',
-        '마우스가 미리보기 이미지 위에서 유지되도록 허용',
-        'Разрешить мыши оставаться на изображении предварительного просмотра',
-    ],
-    _点击预览图时下载作品: [
-        '点击预览图时下载作品',
-        '點選預覽圖時下載作品',
-        'Download the work when you click on the preview',
-        'プレビュー画像をクリックするとその作品がダウンロードされます',
-        '미리보기 이미지를 클릭하면 작품 다운로드',
-        'Загружать работу при нажатии на предварительный просмотр',
-    ],
-    _转换动图时页面被隐藏的提示: [
-        '这个标签页正在转换动图。如果这个标签页被隐藏了，转换速度可能会变慢。',
-        '這個標籤頁正在轉換動圖。如果這個標籤頁被隱藏了，轉換速度可能會變慢。',
-        'This tab page is converting ugoira. If this tab page is hidden, the conversion speed may slow down.',
-        'このタブページはうごイラを変換しています。 このタブを非表示にすると、変換速度が低下する場合があります。',
-        '이 탭은 움직이는 일러스트를 변환하는 중입니다.이 탭이 숨겨지면 변환 속도가 느려질 수 있습니다.',
-        'Эта страница вкладки преобразует ugoira. Если эта страница вкладки скрыта, скорость конвертации может замедлиться.',
-    ],
-    _原始尺寸: [
-        '原始尺寸',
-        '原始尺寸',
-        'Original size',
-        'オリジナルサイズ',
-        '원본 크기',
-        'Оригинальный размер',
-    ],
-    _增强: ['增强', '增強', 'Enhance', '強化機能', '향상', 'Улучшение'],
-    _长按右键显示大图: [
-        '在缩略图上长按鼠标右键时显示<span class="key">大图</span>',
-        '在縮圖上長按滑鼠右鍵時顯示<span class="key">大圖</span>',
-        'Long press the right mouse button on the thumbnail to display the <span class="key">large image</span>',
-        'サムネイルでマウスの右ボタンを長押しすると、大きな画像が表示されます。',
-        '썸네일을 마우스 오른쪽 버튼으로 클릭했을 때 <span class="key">큰 이미지</span> 표시',
-        'Длительное нажатие правой кнопки мыши на миниатюре для отображения <span class="key">большого изображения</span>',
-    ],
-    _鼠标滚轮切换图片: [
-        '预览多图作品时，可以使用鼠标滚轮切换图片。',
-        '預覽多圖作品時，可以使用滑鼠滾輪切換圖片。',
-        'When previewing multi-image works, you can use the mouse wheel to switch images.',
-        '複数画像をプレビューする際に、マウスホイールを使って画像を切り替えることができます。',
-        '여러 이미지 작품을 미리 볼 때, 마우스 휠을 사용하여 이미지를 전환할 수 있습니다.',
-        'При предварительном просмотре работ с несколькими изображениями можно использовать колесико мыши для переключения изображений',
-    ],
-    _whatisnew: [
-        `修复因为 Pixiv 的变化而导致的抓取失败的问题。`,
-        `修復因為 Pixiv 的變化而導致的抓取失敗的問題。`,
-        `Fixed crawl failures due to Pixiv changes.`,
-        `Pixiv の変更によるクロールの失敗を修正しました。`,
-        `Pixiv 변경으로 인한 크롤링 실패를 수정했습니다.`,
-        'Исправлены сбои в сканировании из-за изменений в Pixiv',
-    ],
-    _等待时间: [
-        '等待时间',
-        '等待時間',
-        'Waiting time',
-        '待ち時間',
-        '대기 시간',
-        'Время ожидания',
-    ],
-    _格式错误: [
-        '格式错误',
-        '格式錯誤',
-        'Format error',
-        'フォーマットエラー',
-        '형식 오류',
-        'Ошибка форматантирования',
-    ],
-    _下载数量错误: [
-        '下载的页数（作品）数量设置错误',
-        '下載的頁數（作品）數量設定錯誤',
-        'The number of downloaded pages (works) is set incorrectly',
-        '下载页数（作品）设置不正确',
-        '다운로드할 페이지 수(작품) 설정 오류',
-        'Количество загруженных страниц (работ) установлено неверно',
-    ],
-    _默认下载多页: [
-        '开始抓取, 如有多页，默认会下载全部。',
-        '開始擷取，如有多頁，預設會下載全部。',
-        'Start crawl, if there are multiple pages, the default will be downloaded.',
-        'クロールを開始する、複数のページがある場合、デフォルトですべてをダウンロードされます。',
-        '긁어오기를 시작합니다. 여러 페이지가 있으면 기본적으로 모두 다운로드됩니다.',
-        'Начать сканирование, если есть несколько страниц, все будут загружены по умолчанию.',
-    ],
-    _赞助我: [
-        '赞助我',
-        '贊助我',
-        'Sponsor me',
-        '支援する',
-        '후원하기',
-        'Поддержать меня',
-    ],
-    _赞助方式提示: [
-        `非常感谢您的支持！<br>
-    您可以在 Patreon 上赞助我：<br>
-    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br>
-    中国大陆用户可以在“爱发电”上赞助我：<br>
-    <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
-    也可以扫描二维码：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 499873152，在群文件里查看二维码。
-    `,
-        `非常感謝您的支持！<br>
-    您可以在 Patreon 上贊助我：<br>
-    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br>
-    中國大陸使用者可以在“愛發電”上贊助我：<br>
-    <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a>。
-    `,
-        `Thank you very much for your support!<br>
-    You can sponsor me on Patreon: <br>
-    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a>
-    `,
-        `ご支援してくださった皆様、本当にありがとうございました。<br>
-    ご支援してくださった方は、以下の Patreon で：<br>
-    <a href="https://www.patreon.com/xuejianxianzun" target="_blank"> https://www.patreon.com/xuejianxianzun </a>
-    `,
-        `지원해주셔서 정말 감사합니다!<br>
-    Patreon에서 저를 후원해주세요<br>
-    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a>
-    `,
-        `Большое вам спасибо за вашу поддержку!<br>
-    Вы можете спонсировать меня на Patreon: <br>
-    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a>
-    `,
-    ],
-    _替换方形缩略图以显示图片比例: [
-        '替换方形<span class="key">缩略图</span>以显示图片比例',
-        '替換方形<span class="key">縮圖</span>以顯示圖片比例',
-        'Replace square <span class="key">thumbnails</span> to show image ratio',
-        '正方形のサムネイルを置き換えて、画像のスケールを表示。',
-        '이미지 종횡비를 표시하기 위해 정사각형 <span class="key">썸네일</span> 교체',
-        'Замените квадратные <span class="key">миниатюры</span>, чтобы показать соотношение сторон изображения',
-    ],
-    _只有一个抓取结果时不建立文件夹: [
-        '只有一个抓取结果时<span class="key">不建立</span>文件夹',
-        '只有一個擷取結果時<span class="key">不建立</span>資料夾',
-        '<span class="key">Do not create</span> a folder when there is only one crawl result',
-        'クロール結果が１つのみの場合、フォルダを作成しない',
-        '긁어오기 결과가 하나일 때 디렉토리 <span class="key">생성하지 않기</span>',
-        'Когда есть только один результат сканирования, <span class="key">никакая</span> папка не создается',
-    ],
-    _搜索页面页数限制: [
-        '由于 pixiv 的限制，下载器最多只能抓取到第 {} 页。',
-        '由於 pixiv 的限制，下載器最多只能擷取到第 {} 頁。',
-        'Due to the limitation of pixiv, the downloader can only crawl up to the {}th page.',
-        'pixiv の制限により、ダウンローダーは {} ページ目までしかクロールできません。',
-        'pixiv 제한으로 인해 최대 {} 페이지까지만 다운로드 받을 수 있습니다.',
-        'Из-за ограничений pixiv загрузчик может сканировать только до {}-й страницы',
-    ],
-    _获取图片的宽高时出现错误: [
-        '获取图片的宽高时出现错误：',
-        '獲取圖片的寬高時出現錯誤：',
-        'An error occurred while getting the width and height of the image:',
-        '画像の幅と高さの取得中にエラーが発生しました：',
-        '이미지의 너비를 가져오는 도중 오류가 발생했습니다:',
-        'Произошла ошибка при получении ширины и высоты изображения:',
-    ],
-    _上限: ['上限', '上限', 'Upper limit', '上限', '상한', 'Верхний предел'],
-    _预览搜索结果的数量达到上限的提示: [
-        '预览搜索结果的数量已经达到上限，剩余的结果不会显示。',
-        '預覽搜尋結果的數量已經達到上限，剩餘的結果不會顯示。',
-        'The number of preview search results has reached the upper limit, and the remaining results will not be displayed.',
-        'プレビュー検索結果の数が上限に達し、残りの結果は表示されません。',
-        '미리보기 검색 결과 수가 상한에 도달하여, 남은 결과는 표시되지 않습니다.',
-        'Количество результатов предварительного поиска достигло верхнего предела, и оставшиеся результаты не будут отображаться.',
-    ],
-    _新增命名标记: [
-        '新增命名标记',
-        '新增命名標記',
-        'Add named tag',
-        '名前付きタグを追加',
-        '명명된 태그 추가',
-        'Добавить именованный тег',
-    ],
-    _自定义用户名: [
-        '自定义<span class="key">用户名</span>',
-        '自訂<span class="key">使用者名稱</span>',
-        'Customize <span class="key">username</span>',
-        'カスタムユーザー名',
-        '사용자 정의 <span class="key">유저명</span>',
-        'Настроить <span class="key">имя пользователя</span>',
-    ],
-    _自定义用户名的说明: [
-        `有些用户可能会改名，如果你想使用他原来的名字，你可以在这里手动设置他的名字。<br>
-    你也可以为用户设置别名。<br>
-    当你在命名规则中使用 {user} 标记时，下载器会优先使用你设置的名字。`,
-        `有些使用者可能會改名，如果你想使用他原來的名字，你可以在這裡手動設定他的名字。<br>
-    你也可以為使用者設定別名。<br>
-    當你在命名規則中使用 {user} 標記時，下載器會優先使用你設定的名字。`,
-        `Some users may change their name. If you want to use his original name, you can manually set his name here. <br>
-    You can also set aliases for users. <br>
-    When you use the {user} tag in the naming rule, the downloader will give priority to the name you set.`,
-        `ユーザーによっては名前を変更する場合があります。元の名前を使いたい場合は、ここで名前を手動で設定することができます。<br>
-    また、ユーザーの別名を設定することも可能です。<br>
-    命名規則で {user} タグを使用すると、ダウンローダーは設定された名前を優先的に使用します。`,
-        `일부 유저는 이름을 바꿀 수 있습니다. 만약 당신이 그의 원래 이름을 사용하고 싶다면, 당신은 여기에서 그의 이름을 수동으로 설정할 수 있습니다.<br>
-    사용자의 별칭을 설정할 수도 있습니다. <br>
-    명명 규칙에 {user} 태그를 사용할 때 다운로드더가 사용자 정의 유저명을 우선시합니다.`,
-        `Некоторые пользователи могут изменить свое имя. Если вы хотите использовать его оригинальное имя, вы можете вручную задать его имя здесь. <br>
-    Вы также можете задать псевдонимы для пользователей. <br>
-    Когда вы используете тег {user} в правиле именования, загрузчик будет отдавать приоритет имени, которое вы задали.`,
-    ],
-    _移除用户名中的at和后续字符: [
-        '移除用户名中的 <span class="key">@</span> 和后续字符',
-        '移除使用者名稱中的 <span class="key">@</span> 和後續字元',
-        'Remove <span class="key">@</span> and subsequent characters in username',
-        'ユーザー名から <span class="key">@</span> 以降の文字を削除する',
-        '유저명에서 @와 후속 문자 제거',
-        'Удалить <span class="key">@</span> и последующие символы в имени пользователя',
-    ],
-    _移除用户名中的at和后续字符的说明: [
-        '例如：Anmi@画集発売中 → Anmi',
-        '例如：Anmi@画集発売中 → Anmi',
-        'For example：Anmi@画集発売中 → Anmi',
-        '例：Anmi@画集発売中 → Anmi',
-        '예: Anmi@画集発売中 → Anmi',
-        'Например: Anmi@画集発売中 → Anmi',
-    ],
-    _抓取被限制时返回空结果的提示: [
-        'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。(429)<br>这说明您的账号被 Pixiv 限制访问了，等待几分钟即可恢复正常。<br>您可以启用“减慢抓取速度”功能来减少 429 问题出现的概率。',
-        'Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。(429)<br>這說明您的賬號被 Pixiv 限制訪問了，等待幾分鐘即可恢復正常。<br>您可以啟用“減慢抓取速度”功能來減少 429 問題出現的機率。',
-        'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes. (429)<br>This means that your account has been restricted by Pixiv, please wait for a few minutes for it to return to normal.<br>You can reduce the chances of 429 issues by enabling the "Slow down crawl" feature.',
-        'Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。(429)<br>これは、あなたのアカウントが Pixiv によって制限されていることを意味します。通常の状態に戻るまで数分お待ちください。<br>"クロールを遅くする" 機能を有効にすると、429 の問題が発生する可能性を減らすことができます。',
-        'Pixiv가 빈 데이터를 반환했습니다. 다운로더가 긁어오기를 일시 중지하고 몇 분 동안 기다린 후 긁어오기를 계속합니다. (429)<br>이것은 귀하의 계정이 Pixiv에 의해 제한되었음을 의미합니다. 정상으로 돌아갈 때까지 몇 분 정도 기다리십시오.<br>"천천히 크롤링" 기능을 활성화하면 429 문제 발생 가능성을 줄일 수 있습니다.',
-        'Pixiv вернул пустые данные. Загрузчик приостановил загрузку и возобновит ее через несколько минут. (429)<br>Это означает, что ваша учетная запись была ограничена Pixiv, подождите несколько минут, пока она вернется в нормальное состояние.<br>Вы можете снизить вероятность возникновения ошибок 429, включив функцию «Замедлить сканирование».',
-    ],
-    _搜索模式: [
-        '搜索模式',
-        '搜尋模式',
-        'Search mode',
-        '検索モード',
-        '검색 모드',
-        'Режим поиска',
-    ],
-    _标签部分一致: [
-        '标签（部分一致）',
-        '標籤（部分一致）',
-        'Tags (partial match)',
-        'タグ（部分一致）',
-        '태그 (부분 일치)',
-        'Теги (частичное совпадение)',
-    ],
-    _标签完全一致: [
-        '标签（完全一致）',
-        '標籤（完全一致）',
-        'Tags (perfect match)',
-        'タグ（完全一致）',
-        '태그 (완전 일치)',
-        'Теги (идеальное совпадение)',
-    ],
-    _标题说明文字: [
-        '标题、说明文字',
-        '標題、說明文字',
-        'Title, Caption',
-        'タイトル・キャプション',
-        '제목, 설명',
-        'Название, Подпись',
-    ],
-    _正文: ['正文', '本文', 'Text', '本文', '본문', 'Текст'],
-    _标签标题说明文字: [
-        '标签、标题、说明文字',
-        '標籤、標題、說明文字',
-        'Tags, Titles, Captions',
-        'タグ・タイトル・キャプション',
-        '태그, 제목, 설명',
-        'Теги, Заголовки, Подписи',
-    ],
-    _save_file_failed_tip: [
-        `{} 保存失败，code：{}。下载器将会重试下载这个文件。`,
-        `{} 儲存失敗，code：{}。下載器將會重試下載這個檔案。`,
-        `{} save failed, code: {}. The downloader will retry to download the file.`,
-        `{} 保存に失敗しました。code：{}。ダウンローダーはファイルのダウンロードを再試行します。`,
-        `{} 저장에 실패했습니다. 코드: {}. 다운로드더가 파일 다운로드를 다시 시도합니다.`,
-        `{} сохранение не удалось, код: {}. Загрузчик повторит попытку загрузить файл.`,
-    ],
-    _user_canceled_tip: [
-        `{} 未保存，code：{}。`,
-        `{} 未儲存，code：{}。`,
-        `{} not saved, code: {}.`,
-        `{} 保存されていません。code：{}。`,
-        `{} 저장되지 않음, 코드: {}.`,
-        `{} не сохранено, код: {}.`,
-    ],
-    _FILE_FAILED_tip: [
-        '可能是文件名太长，或是其他原因导致文件保存失败。你可以尝试启用高级设置里的“文件名长度限制”。',
-        '可能是檔名太長，或是其他原因導致檔案儲存失敗。你可以嘗試啟用高階設定裡的“檔案名稱長度限制”。',
-        'Maybe the file name is too long, or other reasons cause the file to fail to save. You can try enabling "File name length limit" in advanced settings.',
-        'ファイル名が長すぎるか、他の理由でファイルの保存に失敗した可能性があります。 詳細設定で「ファイル名の長さ制限」を有効にしてみてください。',
-        '파일명이 너무 길거나 다른 이유로 저장에 실패한 것 같습니다. 고급 설정에서 "파일명 길이 제한"을 사용하도록 설정할 수 있습니다.',
-        'Возможно, имя файла слишком длинное, или по другим причинам файл не удается сохранить. Вы можете попробовать включить "Ограничение длины имени файла". в расширенных настройках.',
-    ],
-    _显示摘要信息: [
-        '显示摘要信息',
-        '顯示摘要資訊',
-        'Show summary',
-        '要約情報を表示する',
-        '요약 정보 표시',
-        'Показать сводку',
-    ],
-    _显示更大的缩略图: [
-        '显示<span class="key">更大</span>的缩略图',
-        '顯示<span class="key">更大</span>的縮圖',
-        'show <span class="key">larger</span> thumbnails',
-        '大きなサムネイルを表示する',
-        '<span class="key">더 큰</span> 썸네일 표시',
-        'Показывать <span class="key">большие</span> миниатюры',
-    ],
-    _横图占用二倍宽度: [
-        '横图占用二倍宽度',
-        '橫圖佔用二倍寬度',
-        'Horizontal image takes up double the width',
-        '水平方向の画像は幅の2倍を占めます',
-        '가로 그림은 두 배의 너비를 차지',
-        'Горизонтальное изображение занимает вдвое большую ширину',
-    ],
-    _该功能默认开启: [
-        '这个功能默认启用。',
-        '這個功能預設啟用。',
-        'This feature is enabled by default.',
-        'この機能はデフォルトで有効になっています。',
-        '이 기능은 기본적으로 활성화됩니다.',
-        'Эта функция включена по умолчанию.',
-    ],
-    _默认未启用: [
-        '默认未启用。',
-        '預設未啟用。',
-        'It is disabled by default.',
-        'デフォルトでは有効になっていません。',
-        '기본값이 비활성화되어 있습니다.',
-        'По умолчанию не работает.',
-    ],
-    _你可以在更多选项卡的xx分类里找到它: [
-        '你可以在“更多”选项卡 → “{}”分类里找到它。（需要先启用“显示高级设置”）',
-        '你可以在“更多”選項卡 → “{}”分類裡找到它。（需要先啟用“顯示進階設定”）',
-        'You can find it in the "More" tab → "{}" category. ("Show advanced settings" needs to be enabled first)',
-        '[もっと]タブ→[{}]カテゴリにあります。（最初に「詳細設定を表示」を有効にする必要があります）',
-        '"더보기" 탭 → "{}" 카테고리에서 찾을 수 있습니다. ("고급 설정 보기"를 먼저 활성화해야 합니다.)',
-        'Вы можете найти его в разделе "Еще". вкладка → "{}" категория. ("Показать расширенные настройки" необходимо сначала включить)',
-    ],
-    _你可以在xx选项卡里找到它: [
-        '你可以在“{}”选项卡里找到它。（需要先启用“显示高级设置”）',
-        '你可以在“{}”選項卡裡找到它。（需要先啟用“顯示進階設定”）',
-        'You can find it in the "{}" tab. ("Show advanced settings" needs to be enabled first)',
-        '「{}」タブにあります。（最初に「詳細設定を表示」を有効にする必要があります）',
-        '"{}" 탭에서 찾을 수 있습니다. ("고급 설정 보기"를 먼저 활성화해야 합니다.)',
-        'Вы можете найти его на вкладке "{}". ("Показать расширенные настройки" необходимо сначала включить)',
-    ],
-    _使用鼠标滚轮切换作品里的图片: [
-        '使用鼠标滚轮切换多图作品里的图片',
-        '使用滑鼠滾輪切換多圖作品裡的圖片',
-        'Use the mouse wheel to switch images in multi-image works',
-        'マウスホイールを使用して、マルチイメージ作品のイメージを切り替えます',
-        '마우스 휠을 사용하여 여러 이미지 작품에서 이미지 전환',
-        'Используйте колесико мыши для переключения изображений в работах с несколькими изображениями',
-    ],
-    _这可能会阻止页面滚动: [
-        '这可能会阻止页面滚动',
-        '這可能會阻止頁面滾動',
-        'This might stop the page from scrolling',
-        'ページのスクロールを妨げる可能性があります',
-        '이 기능은 페이지를 스크롤하지 못하게 할 수 있습니다.',
-        'Это может остановить прокрутку страницы',
-    ],
-    _动图转换失败的提示: [
-        '动图转换失败，id：{}',
-        '動圖轉換失敗，id：{}',
-        'Ugoira(animation) conversion failed, id: {}',
-        'うごイラの変換に失敗しました、id：{}',
-        '움직이는 일러스트 변환에 실패했습니다, ID: {}',
-        'Не удалось преобразовать Ugoira(анимацию), идентификатор: {}',
-    ],
-    _动图不能转换为WEBM视频的提示: [
-        '作品 ID {} 不能转换为 WEBM 视频，因为它的某一帧延迟大于 32767 毫秒。下载器会把它转换为 GIF 图像。',
-        '作品 ID {} 不能轉換為 WEBM 影片，因為它的某一幀延遲大於 32767 毫秒。下載器會把它轉換為 GIF 影象。',
-        'Work ID {} cannot be converted to WEBM video because it has a frame duration greater than 32767 ms. The downloader will convert it into a GIF image.',
-        'ワークid {} は、32767ミリ秒以上のフレーム長を持つため、webm動画に変換できません。ダウンローダはそれをgif画像に変換します。',
-        '작업 ID {}의 프레임 지속 시간이 32767 ms보다 크기 때문에 WEBM 비디오로 변환할 수 없습니다.다운로더가 GIF 이미지로 변환해 줍니다.',
-        'Рабочий ID {} не может быть преобразован в WEBM видео, потому что он имеет длительность кадров более 32767 мс. Загрузчик преобразует его в изображение GIF.',
-    ],
-    _作品id无法下载带状态码: [
-        '{} 无法下载，状态码：{}',
-        '{} 無法下載，狀態碼：{}',
-        '{} failed to download, status code: {}',
-        '{} ダウンロードに失敗しました、ステータスコード：{}',
-        '{} 다운로드할 수 없습니다, 상태 코드: {}',
-        '{} не удалось загрузить, код состояния: {}',
-    ],
-    _作品总数为0: [
-        '作品总数为 0，Pixiv 可能拒绝了此次抓取。请稍后重试。',
-        '作品總數為 0，Pixiv 可能拒絕了此次抓取。請稍後重試。',
-        'The total number of works is 0, Pixiv may have refused this crawl. Please try again later.',
-        '作品の総数は 0 です。 Pixivがこのクロールを拒否した可能性があります。 後でもう一度やり直してください。',
-        '총 작품 수가 0개입니다, Pixiv가 이번 긁어오기를 거부한 것으로 보입니다. 잠시 후에 다시 시도해주세요.',
-        'Общее количество работ равно 0, возможно, Pixiv блокирует сканирование. Пожалуйста, повторите попытку позже.',
-    ],
-    _优化预览作品功能: [
-        '优化“预览作品”功能',
-        '最佳化“預覽作品”功能',
-        'Optimize the "Preview Works" function',
-        '「作品のプレビュー」機能を最適化する',
-        '"작품 미리보기" 기능 최적화',
-        'Оптимизация "Предварительного просмотра работ" функция',
-    ],
-    _设定资料: [
-        '设定资料',
-        '設定資料',
-        'Reference materials',
-        '設定資料',
-        '설정 자료',
-        'Справочные материалы',
-    ],
-    _年龄限制: [
-        '<span class="key">年龄</span>限制',
-        '<span class="key">年齡</span>限制',
-        '<span class="key">Age</span> limit',
-        '<span class="key">年齢</span>制限',
-        '<span class="key">연령</span> 제한',
-        '<span class="key">Возраст</span> ограничение',
-    ],
-    _收藏状态: [
-        '<span class="key">收藏</span>状态',
-        '<span class="key">收藏</span>狀態',
-        '<span class="key">Bookmark</span> status',
-        '<span class="key">ブックマーク</span>ステータス',
-        '<span class="key">북마크</span> 상태',
-        'Статус <span class="key">закладки</span> ',
-    ],
-    _图片色彩: [
-        '图片<span class="key">色彩</span>',
-        '圖片<span class="key">色彩</span>',
-        'Image <span class="key">color</span>',
-        '画像の<span class="key">色</span>',
-        '이미지 <span class="key">색채</span>',
-        '<span class="key">Цвет</span> изображения',
-    ],
-    _图片数量: [
-        '图片<span class="key">数量</span>',
-        '圖片<span class="key">數量</span>',
-        '<span class="key">Number</span> of images',
-        '画像の<span class="key">数</span>',
-        '이미지 <span class="key">수</span>',
-        '<span class="key">Количество</span> изображений',
-    ],
-    _不抓取多图作品的最后一张图片: [
-        '不抓取多图作品的<span class="key">最后一张</span>图片',
-        '不抓取多圖作品的<span class="key">最後一張</span>圖片',
-        'Do not crawl the <span class="key">last image</span> of multi-image works',
-        'マルチ画像作品の<span class="key">最後の画像</span>をつかまないでください',
-        '여러 이미지의 <span class="key">마지막 이미지</span> 긁어오지 않기',
-        'Не сканировать по <span class="key">последние изображения</span> в много картинных работах',
-    ],
-    _下载小说的封面图片: [
-        '下载小说的<span class="key">封面</span>图片',
-        '下載小說的<span class="key">封面</span>圖片',
-        'Download the <span class="key">cover</span> image of the novel',
-        '小説の<span class="key">表紙画像</span>をダウンロード',
-        '소설 <span class="key">커버</span> 이미지 다운로드',
-        'Скачать изображение <span class="key">обложки</span> новеллы',
-    ],
-    _预览动图: [
-        '<span class="key">预览</span>动图',
-        '<span class="key">預覽</span>動圖',
-        '<span class="key">Preview</span> Ugoira',
-        'うごイラのプレビュー',
-        '움직이는 일러스트 <span class="key">미리보기</span>',
-        '<span class="key">Превью</span> Ugoira(анимации)',
-    ],
-    _过度访问警告警告: [
-        '下载器检测到你可能收到了 pixiv 的警告消息，这通常是因为过度下载导致的。<br><strong>当你再次被警告时，你会被 Pixiv 封号。</strong><br>我建议你减少下载数量，或者使用新的账号进行下载。',
-        '下載器檢測到你可能收到了 pixiv 的警告訊息，這通常是因為過度下載導致的。<br><strong>當你再次被警告時，你會被 Pixiv 封號。</strong><br>我建議你減少下載數量，或者使用新的賬號進行下載。',
-        'The downloader has detected that you may have received a warning message from pixiv, usually due to excessive downloads.<br><strong>When you are warned again, you will be banned from Pixiv. </strong><br>I suggest you reduce your downloads, or use a new account to download.',
-        'ダウンロードが多すぎるため、pixivから警告メッセージが届いた可能性があることをダウンローダーが検出しました。<br><strong>再度警告を受けた場合、Pixivから追放されます。 </strong><br>ダウンロード数を減らすか、新しいアカウントを使用してダウンロードすることをお勧めします。',
-        '다운로더는 일반적으로 과도한 다운로드로 인해 pixiv에서 경고 메시지를 수신했을 수 있음을 감지했습니다.<br><strong>다시 경고를 받으면 Pixiv에서 차단됩니다. </strong><br>다운로드를 줄이거나 새 계정을 사용하여 다운로드하는 것이 좋습니다.',
-        'Программа загрузки обнаружила, что вы могли получить предупреждающее сообщение от pixiv, обычно из-за чрезмерной загрузки.<br><strong>Когда вы снова получите предупреждение, вы будете заблокированы в Pixiv. </strong><br>Я предлагаю вам сократить количество загрузок или использовать новую учетную запись для загрузки.',
-    ],
-    _下载小说里的内嵌图片: [
-        '下载小说里的<span class="key">内嵌</span>图片',
-        '下載小說裡的<span class="key">內嵌</span>圖片',
-        'Download <span class="key">embedded</span> images in novels',
-        '小説に埋め込まれた画像をダウンロードする',
-        '소설에서 <span class="key">인라인</span> 이미지 다운로드',
-        'Загрузка <span class="key">вложенных</span> изображений в новеллах',
-    ],
-    _其他优化: [
-        '其他优化',
-        '其他最佳化',
-        'Other optimizations',
-        'その他の最適化',
-        '기타 최적화',
-        'Другие оптимизации',
-    ],
-    _隐藏浏览器底部的下载栏: [
-        '隐藏浏览器底部的<span class="key">下载栏</span>',
-        '隱藏瀏覽器底部的<span class="key">下載欄</span>',
-        `Hide the <span class="key">download bar</span> at the bottom of the browser`,
-        'ブラウザの下部にあるダウンロードバーを非表示にします',
-        '브라우저 하단의 <span class="key">다운로드 바</span> 숨기기',
-        `Скрыть <span class="key">панель загрузки</span> в нижней части браузера`,
-    ],
-    _没有可用的抓取结果: [
-        '没有可用的抓取结果',
-        '沒有可用的抓取結果',
-        'No crawl results available',
-        'クロール結果がありません',
-        '사용 가능한 크롤링 결과가 없습니다.',
-        'Результаты сканирования недоступны',
-    ],
-    _查看作品大图时的快捷键: [
-        '查看作品大图时，按快捷键 <span class="blue">D</span> 可以下载这个作品。<br>按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
-        '檢視作品大圖時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。<br>按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
-        'When viewing the large image of the work, press the shortcut key <span class="blue">D</span> to download the work.<br>Press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
-        '作品の大きな画像をご覧になる場合、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。<br>ショートカット キー <span class="blue">C</span> を押して、現在表示されている画像のみをダウンロードします。',
-        '작품의 큰 그림을 볼 때 단축키 <span class="blue">D</span>를 누르면 작품을 다운로드할 수 있습니다. <br>현재 표시된 이미지만 다운로드하려면 단축키 <span class="blue">C</span>를 누르세요.',
-        'При просмотре большого изображения работы нажмите горячую клавишу <span class="blue">D</span>, чтобы загрузить работу. <br>Нажмите горячую клавишу <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
-    ],
-    _定时抓取: [
-        '定时抓取',
-        '定時抓取',
-        'Timed crawl',
-        '時限クロール',
-        '시간 제한 크롤링',
-        'Сканирование по таймеру',
-    ],
-    _定时抓取说明: [
-        '每隔一定时间，自动开始抓取和下载。',
-        '每隔一定時間，自動開始抓取和下載。',
-        'Automatically start crawling and downloading at regular intervals.',
-        '定期的にクロールとダウンロードを自動的に開始します。',
-        '정기적으로 자동으로 크롤링 및 다운로드를 시작합니다.',
-        'Автоматически запускать сканирование и загрузку через регулярные промежутки времени',
-    ],
-    _定时抓取已启动的提示: [
-        '定时抓取已启动，间隔时间：{} 分钟。<br>如果你想修改间隔时间，可以在“更多”选项卡里修改设置：定时抓取的间隔时间。',
-        '定時抓取已啟動，間隔時間：{} 分鐘。<br>如果你想修改間隔時間，可以在“更多”選項卡里修改設定：定時抓取的間隔時間。',
-        'Timed crawl started, interval: {} minutes.<br>If you want to modify the interval time, you can modify the settings in the "More" tab: The interval time of timed crawl.',
-        '時限クロールが開始されました。間隔: {} 分。<br>間隔時間を変更したい場合は、[詳細] タブの設定 (時間指定クロールの間隔時間) を変更できます。',
-        '시간 제한 크롤링이 시작되었습니다. 간격: {}분. <br>간격 시간을 수정하려면 "자세히" 탭에서 예약된 크롤링 간격 설정을 수정할 수 있습니다.',
-        'Таймер сканирования запущен, интервал: {} минут.<br>Если вы хотите изменить интервал времени, вы можете изменить настройки на вкладке «Дополнительно»: Интервальное время сканирования с таймером.',
-    ],
-    _定时抓取的推荐用法: [
-        '推荐用法：增量抓取新作品。例如在关注的用户的新作品页面里，设置抓取页数为 2，然后启动定时抓取。这样下载器可以自动下载新作品。<br>建议启用“不下载重复文件”功能，以避免下载重复的文件。',
-        '推薦用法：增量抓取新作品。例如在關注的使用者的新作品頁面裡，設定抓取頁數為 2，然後啟動定時抓取。這樣下載器可以自動下載新作品。<br>建議啟用“不下載重複檔案”功能，以避免下載重複的檔案。',
-        'Recommended usage: Fetch new work incrementally. For example, in the new work page of the user you follow, set the number of crawled pages to 2, and then start timing crawling. This way the downloader can automatically download new works.<br>It is recommended to enable the "Do not download duplicate files" feature to avoid downloading duplicate files.',
-        '推奨される使用法: 新しい作業を段階的にフェッチします。 たとえば、フォローしているユーザーの新しい作品ページで、クロールされたページの数を 2 に設定し、クロールのタイミングを開始します。 このようにして、ダウンローダーは新しい作品を自動的にダウンロードできます。<br>重複ファイルのダウンロードを避けるために、「重複ファイルをダウンロードしない」機能を有効にすることをお勧めします。',
-        '권장 사용법: 새 작업을 점진적으로 가져옵니다. 예를 들어 팔로우하는 사용자의 새 작업 페이지에서 크롤링 페이지 수를 2로 설정한 다음 타이밍 크롤링을 시작합니다. 이렇게 하면 다운로더가 자동으로 새 작품을 다운로드할 수 있습니다.<br>중복 파일 다운로드를 방지하기 위해 "중복 파일 다운로드 금지" 기능을 활성화하는 것이 좋습니다.',
-        'Рекомендуемое использование: получать новую работу постепенно. Например, на новой рабочей странице пользователя, за которым вы следите, установите количество просканированных страниц равным 2, а затем запустите сканирование по времени. Таким образом, загрузчик может автоматически загружать новые работы.<br>Рекомендуется включить функцию "Не загружать дубликаты файлов", чтобы избежать загрузки дубликатов файлов.',
-    ],
-    _定时抓取已启动的提示2: [
-        '在定时抓取时，将这个标签页静置即可。不要改变这个标签页的 URL，否则抓取结果可能不符合预期。<br><br>如果这个扩展程序自动更新了，那么这个页面将不能正常下载文件（需要刷新页面来恢复正常）。 如果你想长期执行定时抓取任务，建议安装下载器的离线版本，以免因为自动更新而导致问题。<br>你可以在这里下载离线安装包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
-        '在定時抓取時，將這個標籤頁靜置即可。不要改變這個標籤頁的 URL，否則抓取結果可能不符合預期。<br><br>如果這個擴充套件程式自動更新了，那麼這個頁面將不能正常下載檔案（需要重新整理頁面來恢復正常）。 如果你想長期執行定時抓取任務，建議安裝下載器的離線版本，以免因為自動更新而導致問題。<br>你可以在這裡下載離線安裝包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
-        'During timed crawling, just leave this tab alone. Do not change the URL of this tab, or the crawl results may not be as expected.<br><br>If the extension is automatically updated, the page will not be able to download files normally (refresh the page to restore normal). If you want to perform scheduled crawling tasks for a long time, it is recommended to install the offline version of the downloader to avoid problems caused by automatic updates.<br>You can download the offline installation package here: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
-        '時限クロール中は、このタブをそのままにしておきます。 このタブの URL は変更しないでください。変更すると、クロール結果が期待どおりにならない可能性があります。<br><br>拡張機能が自動的に更新されると、ページはファイルを正常にダウンロードできなくなります (ページを更新して正常に戻します)。 スケジュールされたクロール タスクを長時間実行する場合は、自動更新による問題を回避するために、ダウンローダのオフライン バージョンをインストールすることをお勧めします。<br>オフライン インストール パッケージは、次の場所からダウンロードできます。<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
-        '시간 제한 크롤링 중에는 이 탭을 그대로 두십시오. 이 탭의 URL을 변경하지 마십시오. 그렇지 않으면 크롤링 결과가 예상과 다를 수 있습니다.<br><br>확장자가 자동으로 업데이트되면 페이지에서 파일을 정상적으로 다운로드할 수 없습니다(페이지를 새로고침하여 정상으로 복원). 예약된 크롤링 작업을 장기간 수행하려면 자동 업데이트로 인한 문제를 방지하기 위해 다운로더의 오프라인 버전을 설치하는 것이 좋습니다.<br>여기에서 오프라인 설치 패키지를 다운로드할 수 있습니다. <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
-        'Во время сканирования по времени просто оставьте эту вкладку в покое. Не меняйте URL-адрес этой вкладки, иначе результаты сканирования могут отличаться от ожидаемых.<br><br>Если расширение автоматически обновляется, страница не сможет загружать файлы в обычном режиме (обновите страницу, чтобы восстановить нормальный режим). Если вы хотите выполнять запланированные задачи обхода в течение длительного времени, рекомендуется установить автономную версию загрузчика, чтобы избежать проблем, вызванных автоматическими обновлениями.<br>Вы можете скачать автономный установочный пакет здесь: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Страница релизов</a>',
-    ],
-    _定时抓取的间隔时间: [
-        '<span class="key">定时</span>抓取的间隔时间',
-        '<span class="key">定時</span>抓取的間隔時間',
-        'The interval time of <span class="key">timed crawl</span>',
-        '<span class="key">時間指定</span>クロールの間隔時間',
-        '정기 크롤링 간격 시간',
-        'Интервальное время сканирования с таймером',
-    ],
-    _定时抓取的间隔时间2: [
-        '定时抓取的间隔时间',
-        '定時抓取的間隔時間',
-        'The interval time of timed crawl',
-        '時間指定クロールの間隔時間',
-        '정기 크롤링 간격 시간',
-        'Интервальное время сканирования с таймером',
-    ],
-    _分钟: ['分钟', '分鐘', 'Minute', '分', '분', 'Минут'],
-    _定时抓取的时间超过最大值: [
-        '定时抓取的间隔时间超过最大值：',
-        '定時抓取的間隔時間超過最大值：',
-        'The interval of timed crawl exceeds the maximum value: ',
-        '時間指定クロールの間隔が最大値を超えています: ',
-        '시간 지정 크롤링 간격이 최대값을 초과합니다: ',
-        'Интервал сканирования по таймеру превышает максимальное значение: ',
-    ],
-    _定时抓取的时间最小值: [
-        '定时抓取的间隔时间最小值为 1 分钟。',
-        '定時抓取的間隔時間最小值為 1 分鐘。',
-        'The minimum interval for timed crawls is 1 minute.',
-        '時間指定クロールの最小間隔は 1 分です。',
-        '시간 지정 크롤링의 최소 간격은 1분입니다.',
-        'Минимальный интервал для сканирования по таймеру составляет 1 минуту.',
-    ],
-    _取消定时抓取: [
-        '取消定时抓取',
-        '取消定時抓取',
-        'Cancel timed crawl',
-        '時間指定クロールをキャンセル',
-        '시간 지정 크롤링 취소',
-        'Отменить сканирование по таймеру',
-    ],
-    _已取消定时抓取: [
-        '已取消定时抓取',
-        '已取消定時抓取',
-        'Timed crawl canceled',
-        '時間指定クロールがキャンセルされました',
-        '예약된 크롤링이 취소되었습니다.',
-        'Сканирование по таймеру отменено',
-    ],
-    _因为URL变化取消定时抓取任务: [
-        '因为 URL 变化，定时抓取任务已被取消。',
-        '因為 URL 變化，定時抓取任務已被取消。',
-        'The timed crawl task has been canceled due to URL changes.',
-        'URL が変更されたため、時間指定クロール タスクがキャンセルされました。',
-        'URL 변경으로 인해 시간이 지정된 크롤링 작업이 취소되었습니다.',
-        'Задание на сканирование по времени было отменено из-за изменений URL.',
-    ],
-    _开始定时抓取: [
-        '开始定时抓取',
-        '開始定時抓取',
-        'Start timed crawling',
-        '時間指定クロールを開始する',
-        '시간 지정 크롤링 시작',
-        'Начать сканирование по таймеру',
-    ],
-    _等待下一次定时抓取: [
-        '等待下一次定时抓取',
-        '等待下一次定時抓取',
-        'Wait for the next timed crawl',
-        '次回の時限クロールを待つ',
-        '다음 시간 크롤링을 기다립니다.',
-        'Подождите следующего сканирования с таймером',
-    ],
-    _当前时间: [
-        '当前时间：',
-        '當前時間：',
-        'Current time: ',
-        '現在の時刻：',
-        '현재 시간: ',
-        'Текущее время: ',
-    ],
-    _仅在部分页面中可用: [
-        '仅在部分页面中可用。',
-        '僅在部分頁面中可用。',
-        'Only available on some pages.',
-        '一部のページのみ利用可能です。',
-        '일부 페이지에서만 사용할 수 있습니다.',
-        'Доступно только на некоторых страницах',
-    ],
-    _发生错误原因: [
-        '发生错误，原因：',
-        '發生錯誤，原因：',
-        'An error occurred due to:',
-        '次の理由でエラーが発生しました:',
-        '다음으로 인해 오류가 발생했습니다.',
-        'Произошла ошибка по причине:',
-    ],
-    _扩展程序已更新: [
-        '扩展程序已更新。',
-        '擴充套件程式已更新。',
-        'The extension has been updated.',
-        '拡張機能が更新されました。',
-        '확장이 업데이트되었습니다.',
-        'Расширение было обновлено.',
-    ],
-    _未知错误: [
-        '未知错误。',
-        '未知錯誤。',
-        'unknown mistake.',
-        '未知の間違い。',
-        '알 수 없는 실수.',
-        'неизвестная ошибка',
-    ],
-    _请刷新页面: [
-        '请刷新页面。',
-        '請重新整理頁面。',
-        'Please refresh the page.',
-        'ページを更新してください。',
-        '페이지를 새로고침하세요.',
-        'Пожалуйста, обновите страницу.',
-    ],
-    _减慢抓取速度: [
-        '<span class="key">减慢</span>抓取速度',
-        '<span class="key">減慢</span>抓取速度',
-        '<span class="key">Slow down</span> crawl',
-        'クロールを<span class="key">遅くする</span>',
-        '<span class="key">천천히</span> 크롤링',
-        '<span class="key">Замедлить</span> сканирование',
-    ],
-    _减慢抓取速度的说明: [
-        '减慢抓取速度可以避免在抓取时被 Pixiv 临时限制。但是会增加抓取时间。',
-        '減慢抓取速度可以避免在抓取時被 Pixiv 臨時限制。但是會增加抓取時間。',
-        'Slow down the crawl to avoid being temporarily restricted by Pixiv while crawling. But this will increase the crawl time.',
-        'クロール中にPixivによって一時的に制限されないように、クロールを遅くします。 ただし、これによりクロール時間が長くなります。',
-        '크롤링하는 동안 Pixiv에 의해 일시적으로 제한되지 않도록 크롤링 속도를 늦춥니다. 그러나 이것은 크롤링 시간을 증가시킵니다.',
-        'Замедлить сканирование, чтобы избежать временного ограничения Pixiv во время сканирования. Это увеличит время сканирования.',
-    ],
-    _作品数量: [
-        '作品数量',
-        '作品數量',
-        'Number of works',
-        '作品数',
-        '작품 수',
-        'Количество работ',
-    ],
-    _当作品数量大于: [
-        '当作品数量超过指定数量时启用：',
-        '當作品數量超過指定數量时啟用：',
-        'Enabled when the number of works exceeds the specified number:',
-        '作品数が規定数を超えた場合に有効：',
-        '작품 수가 지정된 수를 초과하면 활성화됩니다.',
-        'Включается, когда количество работ превышает указанное количество:',
-    ],
-    _慢速抓取: [
-        '慢速抓取，以避免触发 429 限制',
-        '慢速抓取，以避免觸發 429 限制',
-        'Crawl slowly to avoid triggering 429 throttling',
-        '429 スロットリングのトリガーを避けるためにゆっくりとクロールします',
-        '429 스로틀링 트리거를 방지하기 위해 천천히 크롤링',
-        'Медленно сканируйте, чтобы не спровоцировать 429 троттлинг.',
-    ],
-    _慢速执行以避免引起429错误: [
-        '慢速执行，以避免引起 429 错误',
-        '慢速執行，以避免引起 429 錯誤',
-        'Execute slowly to avoid causing 429 errors',
-        '429 エラーの発生を避けるためにゆっくり実行してください',
-        '429 오류가 발생하지 않도록 천천히 실행하십시오.',
-        'Выполняйте медленно, чтобы избежать ошибок 429',
-    ],
-    _点击收藏按钮时下载作品: [
-        '点击<span class="key">收藏</span>按钮时下载作品',
-        '點選<span class="key">收藏</span>按鈕時下載作品',
-        'Download a work when you click the <span class="key">bookmark</span> button',
-        '<span class="key">ブックマーク</span>ボタンをクリックすると作品をダウンロード',
-        '<span class="key">북마크</span> 버튼 클릭 시 작품 다운로드',
-        'Загрузка произведения при нажатии кнопки <span class="key">закладка</span>',
-    ],
-    _点击点赞按钮时下载作品: [
-        '点击<span class="key">点赞</span>按钮时下载作品',
-        '點選<span class="key">點贊</span>按鈕時下載作品',
-        'Download a work when you click the <span class="key">like</span> button',
-        '<span class="key">いいね</span> ボタンをクリックすると作品がダウンロードされます',
-        '<span class="key">좋아요</span> 버튼 클릭 시 작품 다운로드',
-        'Загрузка произведения при нажатии на кнопку <span class="key">лайк</span>',
-    ],
-    _优化性能和用户体验: [
-        '优化性能和用户体验。',
-        '最佳化效能和使用者體驗。',
-        'Optimize performance and user experience.',
-        'パフォーマンスとユーザー エクスペリエンスを最適化します。',
-        '성능과 사용자 경험을 최적화합니다.',
-        'Оптимизация производительности и пользовательского опыта',
-    ],
-    _修复bug: [
-        '修复 bug',
-        '修復 bug',
-        'fix bugs',
-        'バグを修正',
-        '버그 수정',
-        'Баг фикс',
-    ],
-    _修复已知问题: [
-        '修复已知问题',
-        '修復已知問題',
-        'fix known issues',
-        '既知の問題を修正する',
-        '알려진 문제 수정',
-        'исправить известные проблемы',
-    ],
-    _不支持的浏览器: [
-        '你的浏览器不能正常使用这个扩展程序，主要原因可能是浏览器内核版本太低，或者存在兼容性问题。<br>建议您更换成最新版本的 Chrome 或 Edge 浏览器。',
-        '你的瀏覽器不能正常使用這個擴充套件程式，主要原因可能是瀏覽器核心版本太低，或者存在相容性問題。<br>建議您更換成最新版本的 Chrome 或 Edge 瀏覽器。',
-        'Your browser cannot use this extension properly. The main reason may be that the browser kernel version is too low, or there is a compatibility problem. <br>We recommend that you switch to the latest version of Chrome or Edge.',
-        'お使いのブラウザでは、この拡張機能を正しく使用できません。 主な理由としては、ブラウザのカーネル バージョンが低すぎるか、互換性の問題がある可能性があります。 <br>最新バージョンの Chrome または Edge に切り替えることをお勧めします。',
-        '브라우저에서 이 확장 프로그램을 제대로 사용할 수 없습니다. 주된 이유는 브라우저 커널 버전이 너무 낮거나 호환성 문제가 있기 때문일 수 있습니다. <br>최신 버전의 Chrome 또는 Edge로 전환하는 것이 좋습니다.',
-        'Ваш браузер не может правильно использовать это расширение. Основной причиной может быть слишком низкая версия ядра браузера или проблема совместимости. <br>Мы рекомендуем вам перейти на последнюю версию Chrome или Edge.',
-    ],
-    _日期时间格式错误: [
-        '日期时间格式错误',
-        '日期時間格式錯誤',
-        'wrong datetime format',
-        '間違った日時形式',
-        '잘못된 날짜/시간 형식',
-        'неправильный формат даты',
-    ],
-    _添加了对此页面类型的支持: [
-        '添加了对此页面类型的支持：',
-        '添加了对此页面类型的支持：',
-        'Added support for this page type:',
-        '次のページ タイプのサポートが追加されました：',
-        '이 페이지 유형에 대한 지원이 추가되었습니다：',
-        'Добавлена поддержка этого типа страницы:',
-    ],
-    _仅可由链接浏览: [
-        '仅可由链接浏览',
-        '僅可由連結瀏覽',
-        'URL restricted',
-        'URL限定公開',
-        'URL 한정 공개',
-        'URL ограничен',
-    ],
-    _添加了俄语翻译: [
-        '添加了俄语翻译',
-        '添加了俄語翻譯',
-        'Added Russian translation',
-        'ロシア語の翻訳を追加',
-        '러시아어 번역 추가',
-        'Добавлен русский перевод',
-    ],
-    _移除本页面中所有作品的标签: [
-        '移除本页面中所有作品的标签',
-        '移除本頁面中所有作品的標籤',
-        'Remove tags from all works on this page',
-        'このページのすべての作品からタグを削除します',
-        '이 페이지의 모든 작품에서 태그 제거',
-        'Удалить теги со всех работ на этой странице',
-    ],
-    _它们会变成未分类状态: [
-        '它们会变成未分类状态',
-        '它們會變成未分類狀態',
-        'They become uncategorized',
-        'それらは未分類になります',
-        '분류되지 않습니다',
-        'Они становятся некатегоризированными',
-    ],
-    _取消收藏本页面的所有作品: [
-        '取消收藏本页面中的所有作品',
-        '取消收藏本頁面中的所有作品',
-        'Unbookmark all works on this page',
-        'このページのすべての作品のブックマークを解除',
-        '이 페이지의 모든 작품에 대한 북마크 해제',
-        'Удалить из избранного все работы на этой странице',
-    ],
-    _取消收藏所有已被删除的作品: [
-        '取消收藏所有已被删除的作品',
-        '取消收藏所有已被刪除的作品',
-        'Unbookmark all deleted works',
-        '削除した作品をすべてブックマーク解除する',
-        '삭제된 모든 작품 북마크 해제',
-        'Снять закладку со всех удаленных работ',
-    ],
-    _取消收藏所有已被删除的作品的使用说明: [
-        '在你的收藏页面里，切换到下载器的“更多”标签页可以看到该功能按钮。',
-        '在你的收藏頁面裡，切換到下載器的“更多”標籤頁可以看到該功能按鈕。',
-        'In your bookmark page, switch to the "More" tab of the downloader to see this function button.',
-        'ブックマーク ページで、ダウンローダーの「その他」タブに切り替えると、この機能ボタンが表示されます。',
-        '북마크 페이지에서 다운로더의 "더보기" 탭으로 전환하면 이 기능 버튼을 볼 수 있습니다.',
-        'На странице закладок перейдите на вкладку «Дополнительно» загрузчика, чтобы увидеть эту функциональную кнопку.',
-    ],
-    _取消收藏作品: [
-        '取消收藏作品',
-        '取消收藏作品',
-        'Unbookmark works',
-        '作品のブックマークを解除',
-        '작품 북마크 해제',
-        'Снять закладку с работ',
-    ],
-    _收藏页面里的按钮: [
-        '当你在自己的收藏页面时，可以在“更多”选项卡里看到这个按钮。',
-        '當你在自己的收藏頁面時，可以在“更多”選項卡里看到這個按鈕。',
-        `You can see this button in the "More" tab when you're on your bookmarks page.`,
-        'このボタンは、ブックマーク ページの [もっと] タブに表示されます。',
-        '북마크 페이지에 있을 때 "더보기" 탭에서 이 버튼을 볼 수 있습니다.',
-        'Вы можете увидеть эту кнопку на вкладке «Больше», когда находитесь на странице закладок.',
-    ],
-    _收藏任务尚未完成请等待: [
-        '收藏作品的任务尚未全部完成，请等待',
-        '收藏作品的任務尚未全部完成，請等待',
-        'The task of bookmarking works has not been completed yet, please wait.',
-        '作品のブックマーク作業がまだ完了していませんので、しばらくお待ちください',
-        '작품을 북마크하는 작업이 아직 완료되지 않았습니다. 잠시만 기다려 주세요',
-        'Задание работ по закладке еще не выполнено, пожалуйста, подождите',
-    ],
-    _收藏作品完毕: [
-        '收藏作品完毕',
-        '收藏作品完畢',
-        'Bookmark works finished',
-        'ブックマーク作業終了',
-        '북마크 작업 완료',
-        'Работа над закладками завершена',
-    ],
-    _添加收藏失败: [
-        '添加收藏失败',
-        '新增收藏失敗',
-        'Failed to add bookmark',
-        'ブックマークを追加できませんでした',
-        '북마크 추가 실패',
-        'Не удалось добавить закладку',
-    ],
-    _下载器会在几分钟后重试: [
-        '下载器会在几分钟后重试。',
-        '下載器會在幾分鐘後重試。',
-        'The downloader will try again in a few minutes.',
-        'ダウンローダーは数分後に再試行します。',
-        '다운로더는 몇 분 후에 다시 시도합니다.',
-        'Загрузчик повторит попытку через несколько минут.',
-    ],
-    _重试收藏: [
-        '重试收藏',
-        '重試收藏',
-        'Retry bookmark',
-        'ブックマークを再試行',
-        '북마크 다시 시도',
-        'Повторить закладку',
-    ],
-    _剩余xx个: [
-        '剩余 {} 个。',
-        '剩餘 {} 個。',
-        '{} remaining.',
-        '{} 残り。',
-        '{} 남음.',
-        '{} осталось.',
-    ],
-    _重试收藏成功: [
-        '重试收藏成功。',
-        '重試收藏成功。',
-        'Retry bookmark successfully.',
-        'ブックマークを再試行します。',
-        '북마크를 다시 시도하십시오.',
-        'Повторите попытку закладки.',
-    ],
-    _出现错误请稍后重试: [
-        '出现错误，请稍后重试。',
-        '出現錯誤，請稍後重試。',
-        'An error occurred, please try again later.',
-        'エラーが発生しました。しばらくしてからもう一度お試しください。',
-        '오류가 발생했습니다. 잠시 후 다시 시도 해주세요.',
-        'Произошла ошибка. Пожалуйста, повторите попытку позже.',
-    ],
-    _请稍后重试: [
-        '请稍后重试。',
-        '請稍後重試。',
-        'Please try again later.',
-        '後でもう一度やり直してください。',
-        '잠시 후에 다시 시도해주세요.',
-        'Пожалуйста, повторите попытку позже.',
-    ],
-    _确定要离开吗: [
-        '确定要离开吗？',
-        '確定要離開嗎？',
-        'Are you sure you want to leave?',
-        '退会してもよろしいですか？',
-        '떠나시겠습니까?',
-        'Вы уверены, что хотите оставить?',
-    ],
-    _yandex浏览器的警告: [
-        `如果你在 Yandex 浏览器（Android）上使用 Powerful Pixiv Downloader，请换成 Kiwi 浏览器。<br>
-    因为下载器在最近将会升级到 Manifest version 3，但是 Yandex 浏览器不支持  Manifest version 3， 所以它不能使用新版本的下载器。`,
-        `如果你在 Yandex 瀏覽器（Android）上使用 Powerful Pixiv Downloader，請換成 Kiwi 瀏覽器。<br>
-    因為下載器在最近將會升級到 Manifest version 3，但是 Yandex 瀏覽器不支援  Manifest version 3， 所以它不能使用新版本的下載器。`,
-        `If you are using Powerful Pixiv Downloader on Yandex browser（Android）, please switch to Kiwi browser. <br>
-    Because the downloader will be upgraded to Manifest version 3 in the near future, but Yandex browser does not support Manifest version 3, so it cannot use the new version of the downloader.`,
-        `Yandex（Android） ブラウザで強力な Pixiv Downloader を使用している場合は、Kiwi ブラウザに切り替えてください。 <br>
-    ダウンローダは近いうちにマニフェスト バージョン 3 にアップグレードされますが、Yandex ブラウザはマニフェスト バージョン 3 をサポートしていないため、新しいバージョンのダウンローダを使用することはできません。`,
-        `Yandex（Android） 브라우저에서 강력한 Pixiv Downloader를 사용하는 경우 Kiwi 브라우저로 전환하십시오. <br>
-    다운로더는 가까운 시일 내에 Manifest 버전 3으로 업그레이드되지만 Yandex 브라우저는 Manifest 버전 3을 지원하지 않으므로 새 버전의 다운로더를 사용할 수 없습니다.`,
-        `Если вы используете Powerful Pixiv Downloader в браузере Yandex（Android）, перейдите на браузер Kiwi. <br>
-    Потому что в ближайшее время загрузчик будет обновлен до Манифеста версии 3, но Yandex браузер не поддерживает Манифест версии 3, поэтому он не может использовать новую версию загрузчика.`,
-    ],
-    _导出日志: [
-        '导出<span class="key">日志</span>',
-        '匯出<span class="key">日誌</span>',
-        'Export <span class="key">log</span>',
-        '<span class="key">ログ</span>のエクスポート',
-        '내보내기 로그',
-        'Экспорт <span class="key">журнала</span>',
-    ],
-    _导出日志成功: [
-        '✓ 导出日志',
-        '✓ 匯出日誌',
-        '✓ Export log',
-        '✓ ログのエクスポート',
-        '✓ 내보내기 로그',
-        '✓ Экспорт журнала',
-    ],
-    _导出时机: [
-        '导出时机',
-        '匯出時機',
-        'Export timing',
-        'エクスポートのタイミング',
-        '내보내기 타이밍',
-        'Время экспорта',
-    ],
-    _日志类型: [
-        '日志类型',
-        '日誌型別',
-        'Log type',
-        'ログの種類',
-        '로그 유형',
-        'Тип журнала',
-    ],
-    _正常: ['正常', '正常', 'Normal', '普通', '정상', 'Обычный'],
-    _错误: ['错误', '錯誤', 'Error', 'エラー', '오류', 'Ошибка'],
-    _排除关键字: [
-        '排除关键字',
-        '排除關鍵字',
-        'Exclude keywords',
-        'キーワードを除外',
-        '키워드 제외',
-        'Исключить ключевые слова',
-    ],
-    _Chrome108版本转换WebM失败的问题: [
-        '从 Chrome 108 版本开始，浏览器的一些变化导致下载器转换 WebM 视频失败。<br>现已修复转换功能。',
-        '從 Chrome 108 版本開始，瀏覽器的一些變化導致下載器轉換 WebM 影片失敗。<br>現已修復轉換功能。',
-        'Starting with Chrome version 108, some changes in the browser caused the downloader to fail to convert WebM videos. <br>The conversion function is now fixed.',
-        'Chrome バージョン 108 以降、ブラウザーの一部の変更により、ダウンローダーが WebM ビデオの変換に失敗しました。 <br>変換機能を修正しました。',
-        'Chrome 버전 108부터 브라우저의 일부 변경으로 인해 다운로더가 WebM 비디오를 변환하지 못했습니다. <br>변환 기능이 수정되었습니다.',
-        'Начиная с Chrome версии 108, некоторые изменения в браузере приводили к тому, что загрузчик не мог конвертировать видео WebM. <br>Функция преобразования теперь исправлена.',
-    ],
-    _特定用户的多图作品不下载最后几张图片: [
-        '特定用户的多图作品不下载<span class="key">最后几张</span>图片',
-        '特定使用者的多圖作品不下載<span class="key">最後幾張</span>圖片',
-        `Don't download the <span class="key">last few</span> images for specific user's multi-image works`,
-        '特定のユーザーのマルチイメージ作品の最後のいくつかのイメージをダウンロードしないでください',
-        '특정 사용자의 다중 이미지 작품에 대한 마지막 몇 개의 이미지를 다운로드하지 마십시오.',
-        'Не загружайте несколько последних изображений для работы с несколькими изображениями конкретного пользователя.',
-    ],
-    _不下载最后几张图片: [
-        '不下载最后几张图片',
-        '不下載最後幾張圖片',
-        'Do not download the last few images',
-        '最後の数枚の画像をダウンロードしない',
-        '마지막 몇 개의 이미지를 다운로드하지 마십시오',
-        'Не загружайте последние несколько изображений',
-    ],
-    _提示0表示不生效: [
-        '0 表示不生效',
-        '0 表示不生效',
-        '0 means no effect',
-        '0 は影響なしを意味します',
-        '0은 영향이 없음을 의미합니다.',
-        '0 означает отсутствие эффекта',
-    ],
-    _如果作品含有某些标签则对这个作品使用另一种命名规则: [
-        '如果作品含有某些<span class="key">特定标签</span>，则对这个作品使用另一种命名规则',
-        '如果作品含有某些<span class="key">特定標籤</span>，則對這個作品使用另一種命名規則',
-        'Use a different naming rule for the work if it has certain tags',
-        '特定のタグがある場合は、作品に別の命名規則を使用する',
-        '특정 태그가 있는 경우 작업에 다른 명명 규칙을 사용하십시오.',
-        'Используйте другое правило именования для работы, если она имеет определенные теги',
-    ],
-    _升级到manifest_v3的提示: [
-        '下载器已升级到 Manifest V3。<br>如果你在下载时遇到问题，请打开扩展管理页面，重新加载本扩展。',
-        '下載器已升級到 Manifest V3。<br>如果你在下載時遇到問題，請開啟擴充套件管理頁面，重新載入本擴充套件。',
-        'Downloader has been upgraded to Manifest V3. <br>If you encounter problems when downloading, please open the extension management page and reload this extension.',
-        'Downloader が Manifest V3 にアップグレードされました。 <br>ダウンロード中に問題が発生した場合は、拡張機能の管理ページを開いて、この拡張機能をリロードしてください。',
-        '다운로더가 Manifest V3로 업그레이드되었습니다. <br>다운로드 시 문제가 발생하면 확장 프로그램 관리 페이지를 열고 이 확장 프로그램을 새로고침하세요.',
-        'Загрузчик обновлен до версии Manifest V3. <br>Если у вас возникли проблемы при загрузке, откройте страницу управления расширением и перезагрузите это расширение.',
-    ],
-    _AI作品: [
-        '<span class="key">AI</span> 作品',
-        '<span class="key">AI</span> 作品',
-        '<span class="key">AI</span> works',
-        '<span class="key">AI</span>が働く',
-        '<span class="key">AI</span> 작동',
-        '<span class="key">ИИ</span> работает',
-    ],
-    _AI生成: [
-        'AI 生成',
-        'AI 生成',
-        'AI-generated',
-        'AI 生成',
-        'AI 생성',
-        'сгенерированный ИИ',
-    ],
-    _非AI生成: [
-        '非 AI 生成',
-        '非 AI 生成',
-        'Not AI-generated',
-        'AI生成ではない',
-        'AI 생성 아님',
-        'Не сгенерировано ИИ',
-    ],
-    _未知: [
-        '未知',
-        '未知',
-        'Unknown',
-        '知らない',
-        '알려지지 않은',
-        'Неизвестный',
-    ],
-    _AI未知作品的说明: [
-        '早期作品没有标记，无法判断',
-        '早期作品沒有標記，無法判斷',
-        'Early works are not marked and cannot be judged',
-        '初期の作品は採点せず、審査不可',
-        '초기 작품은 표시되지 않으며 평가할 수 없습니다.',
-        'Ранние работы не отмечены и не могут быть оценены',
-    ],
-    _用户可以选择是否下载AI生成的作品: [
-        '用户可以选择是否下载由 AI 生成的作品。',
-        '使用者可以選擇是否下載由 AI 生成的作品。',
-        'Users can choose whether to download AI-generated works.',
-        'ユーザーは、AI によって生成された作品をダウンロードするかどうかを選択できます。',
-        '사용자는 AI가 생성한 작품을 다운로드할지 여부를 선택할 수 있습니다.',
-        'Пользователи могут выбирать, загружать ли работы, созданные ИИ.',
-    ],
-    _文件下载顺序: [
-        '文件下载<span class="key">顺序</span>',
-        '檔案下載<span class="key">順序</span>',
-        'File download <span class="key">order</span>',
-        'ファイルのダウンロード<span class="key">順序</span>',
-        '파일 다운로드 순서',
-        'Порядок загрузки файлов',
-    ],
-    _降序: [
-        '降序',
-        '降序',
-        'Descending',
-        '降順',
-        '내림차순',
-        'в порядке убывания',
-    ],
-    _升序: [
-        '升序',
-        '升序',
-        'Ascending',
-        '昇順',
-        '오름차순',
-        'возрастающий порядок',
-    ],
-    _排序依据: [
-        '排序依据',
-        '排序依據',
-        'Sort by',
-        'ソート基準',
-        '정렬 기준',
-        'Сортировать по',
-    ],
-    _作品ID: [
-        '作品 ID',
-        '作品 ID',
-        'Work ID',
-        '作品ID',
-        'ID 아이디',
-        'РРабочий идентификатор',
-    ],
-    _收藏时间: [
-        '收藏时间',
-        '收藏時間',
-        'Bookmark time',
-        'ブックマーク時間',
-        '북마크 시간',
-        'время сбора',
-    ],
-    _收藏数量2: [
-        '收藏数量',
-        '收藏數量',
-        'Number of bookmarks',
-        'ブックマークの数',
-        '북마크 수',
-        'Колличество закладок',
-    ],
-    _重新显示帮助: [
-        '重新显示帮助',
-        '重新顯示幫助',
-        'Redisplay help',
-        'ヘルプを再表示',
-        '도움말 다시 표시',
-        'Повторно отобразить справку',
-    ],
-    _自定义标签分隔符号的提示: [
-        '现在你可以自定义文件名中使用的标签分隔符号，以替换默认的 <span class="blue">,</span>。',
-        '現在你可以自定義檔名中使用的標籤分隔符號，以替換預設的 <span class="blue">,</span>。',
-        'You can now customize the tag separator used in filenames to replace the default <span class="blue">,</span>',
-        'ファイル名で使用されるタグ区切りをカスタマイズして、デフォルトの <span class="blue">,</span> を置き換えることができるようになりました',
-        '이제 파일 이름에 사용되는 태그 구분 기호를 사용자 지정하여 기본 <span class="blue">,</span>',
-        'Теперь вы можете настроить разделитель тегов, используемый в именах файлов, чтобы заменить используемый по умолчанию <span class="blue">,</span>',
-    ],
-    _高亮关注的用户: [
-        '<span class="key">高亮</span>关注的用户',
-        '<span class="key">高亮</span>關注的使用者',
-        '<span class="key">Highlight</span> following users',
-        'フォローしているユーザーを強調表示する',
-        '다음 사용자 <span class="key">강조표시</span>',
-        '<span class="key">Выделить</span> следующих пользователей',
-    ],
-    _高亮关注的用户的说明: [
-        '你关注（Following）的用户的名字会具有黄色背景，或者显示为黄色。<br>这便于你确认自己是否关注了某个用户。',
-        '你關注（Following）的使用者的名字會具有黃色背景，或者顯示為黃色。<br>這便於你確認自己是否關注了某個使用者。',
-        'The names of users you are following will have a yellow background, or be displayed in yellow. <br>This is convenient for you to confirm whether you follow a certain user.',
-        'フォローしているユーザーの名前は背景が黄色、または黄色で表示されます。 <br>特定のユーザーをフォローしているかどうかを確認するのに便利です。',
-        '팔로우하는 사용자의 이름은 노란색 배경으로 표시되거나 노란색으로 표시됩니다. <br>특정 사용자를 팔로우하고 있는지 확인할 때 편리합니다.',
-        'Имена пользователей, на которых вы подписаны, будут иметь желтый фон или отображаться желтым цветом. <br>Это удобно для вас, чтобы подтвердить, подписаны ли вы на определенного пользователя',
-    ],
-    _正在加载关注用户列表: [
-        '正在加载关注用户列表',
-        '正在載入關注使用者列表',
-        'Loading list of followed users',
-        'フォローしているユーザーのリストを読み込み中',
-        '팔로우한 사용자 목록 로드 중',
-        'Загрузка списка отслеживаемых пользователей',
-    ],
-    _已更新关注用户列表: [
-        '已更新关注用户列表',
-        '已更新關注使用者列表',
-        'The list of following users has been updated',
-        'フォローしているユーザーのリストが更新されました',
-        '다음 사용자 목록이 업데이트되었습니다',
-        'Список следующих пользователей обновлен',
-    ],
-    _Kiwi浏览器可能不能建立文件夹的bug: [
-        '如果你使用的是 Kiwi 浏览器，它可能不会建立文件夹。这是 Kiwi 浏览器的 bug。',
-        '如果你使用的是 Kiwi 瀏覽器，它可能不會建立資料夾。這是 Kiwi 瀏覽器的 bug。',
-        'If you are using the Kiwi browser, it may not create the folder. This is a bug in the Kiwi browser',
-        'Kiwi ブラウザを使用している場合、フォルダが作成されない場合があります。 これは Kiwi ブラウザのバグです。',
-        '키위 브라우저를 사용하는 경우 폴더가 생성되지 않을 수 있습니다. 이것은 Kiwi 브라우저의 버그입니다.',
-        'Если вы используете браузер Kiwi, он может не создать папку. Это баг браузера Киви.',
-    ],
-    _优化移动设备上的用户体验: [
-        '优化移动设备上的用户体验。',
-        '最佳化移動裝置上的使用者體驗。',
-        'Optimize user experience on mobile devices.',
-        'モバイルデバイスでのユーザーエクスペリエンスを最適化します。',
-        '모바일 장치에서 사용자 경험을 최적화합니다.',
-        'Оптимизируйте взаимодействие с пользователем на мобильных устройствах.',
-    ],
-    _导出CSV文件的提示: [
-        'CSV 文件的可读性更好，但它不能用于恢复（导入）抓取结果。',
-        'CSV 檔案的可讀性更好，但它不能用於恢復（匯入）抓取結果。',
-        'A CSV file is more readable, but it cannot be used to restore (import) crawl results.',
-        'CSV ファイルは読みやすいですが、クロール結果の復元 (インポート) には使用できません。',
-        'CSV 파일은 더 읽기 쉽지만 크롤링 결과를 복원(가져오기)하는 데 사용할 수 없습니다.',
-        'CSV-файл более удобен для чтения, но его нельзя использовать для восстановления (импорта) результатов сканирования.',
-    ],
-    _批量收藏作品时减慢速度: [
-        '批量收藏作品时减慢速度，以减少 429 错误发生的概率',
-        '批量收藏作品时减慢速度，以减少 429 错误发生的概率',
-        'Slow down when batch bookmarking works to reduce chance of 429 errors',
-        'バッチブックマークが機能すると、429 エラーの可能性を減らすために速度が低下します。',
-        '429 오류 가능성을 줄이기 위해 일괄 북마크가 작동할 때 속도를 늦춥니다.',
-        'Замедлите работу, когда пакетная закладка работает, чтобы уменьшить вероятность ошибки 429',
-    ],
-    _停止抓取: [
-        '停止抓取',
-        '停止擷取',
-        'Stop crawling',
-        'クロールをやめる',
-        '크롤링 중지',
-        'Остановить сканирование',
-    ],
-    _已停止抓取: [
-        '已停止抓取',
-        '已停止擷取',
-        'Crawl stopped',
-        'クロールを停止しました',
-        '크롤링 중지됨',
-        'Сканирование остановлено',
-    ],
-    _导入ID列表: [
-        '导入 ID 列表',
-        '匯入 ID 列表',
-        'Import ID list',
-        'インポートIDリスト',
-        'ID 목록 가져오기',
-        'Список идентификаторов импорта',
-    ],
-    _导出ID列表: [
-        '获取作品 ID 列表后导出 <span class="key">ID 列表</span>，并停止任务',
-        '獲取作品 ID 列表後匯出 <span class="key">ID 列表</span>，並停止任務',
-        'After obtaining the work ID list, export the <span class="key">ID list</span> and stop the task',
-        'ワークIDリストを取得後、IDリストをエクスポートしてタスクを停止する',
-        '작업 ID 목록을 가져온 후 ID 목록을 내보내고 작업을 중지합니다',
-        'После получения списка идентификаторов работ экспортируйте список идентификаторов и остановите задачу',
-    ],
-    _导入的用户ID数量: [
-        '导入的用户 ID 数量：',
-        '匯入的使用者 ID 數量：',
-        'Number of user IDs imported: ',
-        'インポートされたユーザー ID の数: ',
-        '가져온 사용자 ID 수: ',
-        'Количество импортированных идентификаторов пользователей:',
-    ],
-    _任务已中止: [
-        '任务已中止',
-        '任務已中止',
-        'task aborted',
-        'タスクが中止されました',
-        '작업이 중단됨',
-        'задача прервана',
-    ],
-    _新增的关注用户达到每日限制: [
-        '新增的关注用户数量达到 {}， 下载器已中止任务，以免你的账号被 Pixiv 限制。<br>建议明天再执行此任务。',
-        '新增的關注使用者數量達到 {}， 下載器已中止任務，以免你的賬號被 Pixiv 限制。<br>建議明天再執行此任務。',
-        'The number of newly added followers has reached {}, the downloader has stopped the task to prevent your account from being restricted by Pixiv. <br>It is recommended to perform this task again tomorrow.',
-        '新しく追加されたフォロワーの数が {} に達しました。あなたのアカウントが Pixiv によって制限されるのを防ぐために、ダウンローダーはタスクを停止しました。 <br>このタスクは明日もう一度実行することをお勧めします。',
-        '새로 추가된 팔로워 수가 {}에 도달했습니다. 다운로더가 작업을 중지하여 Pixiv에서 귀하의 계정을 제한하지 않도록 했습니다. <br>내일 이 작업을 다시 수행하는 것이 좋습니다.',
-        'Количество новых подписчиков достигло {}, загрузчик остановил задачу, чтобы предотвратить ограничение вашей учетной записи Pixiv. <br>Рекомендуется повторить это задание завтра.',
-    ],
-    _没有找到关注按钮的提示: [
-        '跳过关注用户 {} 因为没有找到关注按钮。你可以手动关注此用户。再次执行此任务有可能解决此问题。',
-        '跳過關注使用者 {} 因為沒有找到關注按鈕。你可以手動關注此使用者。再次執行此任務有可能解決此問題。',
-        'Skip following user {} because no follow button was found. You can follow this user manually. Performing this task again may resolve the issue.',
-        'フォロー ボタンが見つからなかったため、ユーザー {} のフォローをスキップします。このユーザーを手動でフォローできます。 このタスクを再度実行すると、問題が解決される可能性があります。',
-        '팔로우 버튼을 찾을 수 없으므로 사용자 {} 팔로우를 건너뜁니다. 이 사용자를 수동으로 팔로우할 수 있습니다. 이 작업을 다시 수행하면 문제가 해결될 수 있습니다.',
-        'Пропустить подписку на пользователя {}, поскольку кнопка подписки не найдена. Вы можете подписаться на этого пользователя вручную. Повторное выполнение этой задачи может решить проблему.',
-    ],
-    _你的账号已经被Pixiv限制: [
-        '你的账号已经被 Pixiv 限制',
-        '你的賬號已經被 Pixiv 限制',
-        'Your account has been restricted by Pixiv',
-        'あなたのアカウントはPixivによって制限されています',
-        '귀하의 계정은 Pixiv에 의해 제한되었습니다.',
-        'Ваша учетная запись была ограничена Pixiv',
-    ],
-    _模拟用户点击: [
-        '下载器发送的 API 返回 400 错误（需要 recaptcha enterprise score token），切换到模拟用户点击的方式，这会使用较多的硬件资源。',
-        '下載器傳送的 API 返回 400 錯誤（需要 recaptcha enterprise score token），切換到模擬使用者點選的方式，這會使用較多的硬體資源。',
-        'The API sent by the downloader returns a 400 error (recaptcha enterprise score token is required), and switches to the method of simulating user clicks, which will use more hardware resources.',
-        'ダウンローダーによって送信された API は 400 エラー (recaptcha enterprise score token が必要です) を返し、より多くのハードウェア リソースを使用するユーザーのクリックをシミュレートする方法に切り替わります。',
-        '다운로더가 보낸 API는 400 오류(recaptcha enterprise score token 필요)를 반환하고 더 많은 하드웨어 리소스를 사용하는 사용자 클릭 시뮬레이션 방법으로 전환합니다.',
-        'API, отправленный загрузчиком, возвращает ошибку 400 (требуется recaptcha enterprise score token) и переключается на метод имитации пользовательских кликов, который будет использовать больше аппаратных ресурсов.',
-    ],
-    _提示可以重新执行批量关注任务: [
-        '如果该标签页失去响应，或者关注的用户有遗漏，请关闭标签页，再重新打开，重新执行此任务。',
-        '如果該標籤頁失去響應，或者關注的使用者有遺漏，請關閉標籤頁，再重新開啟，重新執行此任務。',
-        'If the tab becomes unresponsive, or if you miss a follower, close the tab, reopen it, and redo the task.',
-        'タブが応答しなくなった場合、またはフォロワーを見逃した場合は、タブを閉じて再度開き、タスクをやり直してください。',
-        '탭이 응답하지 않거나 팔로어를 놓친 경우 탭을 닫았다가 다시 열고 작업을 다시 실행하십시오.',
-        'Если вкладка перестает отвечать на запросы или вы пропустили подписчика, закройте вкладку, снова откройте ее и повторите задачу.',
-    ],
-    _新增x个: [
-        '新增 {} 个',
-        '新增 {} 個',
-        'Added {}',
-        '追加した {}',
-        '추가됨 {}',
-        'Добавлен {}',
-    ],
-    _优化批量关注用户的功能: [
-        '优化批量关注用户的功能',
-        '最佳化批次關注使用者的功能',
-        'Optimize the function of following users in batches',
-        'ユーザーの一括フォロー機能を最適化',
-        '사용자 일괄 팔로우 기능 최적화',
-        'Оптимизируйте функцию подписки на пользователей в пакетном режиме.',
-    ],
-    _修复了显示更大的缩略图失效的问题: [
-        '修复了“显示更大的缩略图”失效的问题',
-        '修復了“顯示更大的縮圖”失效的問題',
-        'Fixed an issue where "Show Larger Thumbnails" didn\'t work',
-        '「大きなサムネイルを表示」が機能しない問題を修正しました',
-        '"큰 축소판 보기"가 작동하지 않는 문제를 수정했습니다.',
-        'Исправлена ​​ошибка, из-за которой не работал параметр «Показать увеличенные эскизы».',
-    ],
-    _可能发生了错误请刷新页面重试: [
-        '可能发生了错误。<br>如果下载进度卡住，请刷新页面重试，或者重启浏览器。',
-        '可能發生了錯誤。<br>如果下載進度卡住，請重新整理頁面重試，或者重啟瀏覽器。',
-        'An error may have occurred. <br>If the download progress is stuck, please refresh the page and try again, or restart the browser.',
-        'エラーが発生した可能性があります。 <br>ダウンロードの進行が進まない場合は、ページを更新して再試行するか、ブラウザを再起動してください。',
-        '오류가 발생했을 수 있습니다. <br>다운로드 진행이 중단되면 페이지를 새로 고친 후 다시 시도하거나 브라우저를 다시 시작하세요.',
-        'Возможно, произошла ошибка. <br>Если процесс загрузки завис, обновите страницу и повторите попытку или перезапустите браузер.',
-    ],
-    _在多图作品页面里显示缩略图列表: [
-        '在多图作品页面里显示<span class="key">缩略图</span>列表',
-        '在多圖作品頁面裡顯示<span class="key">縮圖</span>列表',
-        'In the multi-image work page, display the <span class="key">thumbnail</span> list',
-        '複数画像作品ページでサムネイル一覧を表示',
-        '멀티 이미지 작품 페이지에서 썸네일 목록을 표시',
-        'На рабочей странице с несколькими изображениями отобразите список эскизов',
-    ],
-    _提交: ['提交', '提交', 'Submit', '提出する', '제출하다', 'Подавать'],
-    _已导出被删除的作品的ID列表: [
-        '已导出被删除的作品的 ID 列表',
-        '已匯出被刪除的作品的 ID 列表',
-        'List of IDs of deleted works exported',
-        'エクスポートされた削除作品のID一覧',
-        '내보낸 삭제된 작품의 ID 목록',
-        'Список идентификаторов удаленных работ экспортирован',
-    ],
-    _在收藏页面里提示有辅助功能可用: [
-        '在你的收藏页面里，下载器的“更多”标签页里有一些功能可以帮助管理你的收藏。',
-        '在你的收藏頁面裡，下載器的“更多”標籤頁裡有一些功能可以幫助管理你的收藏。',
-        `On your bookmarks page, the Downloader's "More" tab has some features to help you manage your bookmarks.`,
-        'ブックマーク ページのダウンローダーの [その他] タブには、ブックマークの管理に役立つ機能がいくつかあります。',
-        '북마크 페이지에서 다운로더의 "더보기" 탭에는 북마크를 관리하는 데 도움이 되는 몇 가지 기능이 있습니다.',
-        'На странице закладок на вкладке «Дополнительно» Downloader есть некоторые функции, которые помогут вам управлять своими закладками.',
-    ],
-    _预览作品的详细信息: [
-        '预览作品的<span class="key">详细</span>信息',
-        '預覽作品時的<span class="key">詳細</span>資料',
-        'Preview the <span class="key">details</span> of the work',
-        'プレビュー作品の詳細です',
-        '작품의 상세한 정보를 미리보다',
-        'Подробности предварительного показа',
-    ],
-    _预览作品的详细信息的说明: [
-        '鼠标放在作品缩略图上即可查看作品数据',
-        '滑鼠放在作品縮圖上即可檢視作品資料',
-        'Mouse over the thumbnail of the work to view the work data',
-        '作品のサムネイルにマウスをかざすだけで作品データを見ることができます',
-        '마우스를 작품 썸네일 위에 놓으면 작품 데이터를 볼 수 있다',
-        'Данные о работе можно увидеть с помощью мыши на сокращённом графике',
-    ],
-    _显示区域宽度: [
-        '显示区域宽度',
-        '顯示區域寬度',
-        'Display area width',
-        '表示領域幅です',
-        '영역 너비 보이기',
-        'Покажи ширину зоны',
-    ],
-    _写入剪贴板失败: [
-        '写入剪贴板失败',
-        '寫入剪貼簿失敗',
-        'Writing to clipboard failed',
-        'クリップボードへの書き込みに失敗しました',
-        '클립보드에 쓰지 못했습니다.',
-        'Запись в буфер обмена не удалась',
-    ],
-    _在搜索页面里移除已关注用户的作品: [
-        '在搜索页面里<span class="key">移除</span>已关注用户的作品',
-        '在搜尋頁面裡<span class="key">移除</span>已關注使用者的作品',
-        '<span class="key">Remove</span> the works of followed users from the search page',
-        'フォローしているユーザーの作品を検索ページから削除します',
-        '검색 페이지에서 팔로우한 사용자의 작품을 제거합니다.',
-        'Удалить работы подписавшихся пользователей со страницы поиска',
-    ],
-    _在搜索页面里移除已关注用户的作品的说明: [
-        '这样只会显示未关注用户的作品，便于你发现新的喜欢的用户。<br>只在搜索页面里生效。',
-        '這樣只會顯示未關注使用者的作品，便於你發現新的喜歡的使用者。<br>只在搜尋頁面裡生效。',
-        'This will only display the works of unfollowed users, making it easier for you to discover new users you like.<br>Only takes effect on the search page.',
-        'フォローを解除しているユーザーの作品のみが表示されるので、新たに好みのユーザーを見つけやすくなります。<br>検索ページでのみ有効です。',
-        '팔로우하지 않은 사용자의 작품만 표시되므로 마음에 드는 새로운 사용자를 더 쉽게 찾을 수 있습니다.<br>검색 페이지에만 적용됩니다.',
-        'При этом будут отображаться только работы пользователей, на которых вы не подписаны, что облегчит вам поиск новых пользователей, которые вам нравятся.<br>Действует только на странице поиска.',
-    ],
-    _使用方向键和空格键切换图片: [
-        '使用方向键和空格键切换图片',
-        '使用方向鍵和空格鍵切換圖片',
-        'Use the arrow keys and space bar to switch images',
-        '矢印キーとスペースバーを使用して画像を切り替えます',
-        '이미지를 전환하려면 화살표 키와 스페이스바를 사용하세요.',
-        'Используйте клавиши со стрелками и пробел для переключения изображений.',
-    ],
-    _使用方向键和空格键切换图片的提示: [
-        '← ↑ 上一张图片<br>→ ↓ 下一张图片<br>空格键 下一张图片',
-        '← ↑ 上一張圖片<br>→ ↓ 下一張圖片<br>空格鍵 下一張圖片',
-        '← ↑ Previous image<br>→ ↓ Next image<br>Spacebar Next image',
-        '← ↑ 前の画像<br>→ ↓ 次の画像<br>スペースバー 次の画像',
-        '← ↑ 이전 이미지<br>→ ↓ 다음 이미지<br>스페이스바 다음 이미지',
-        '← ↑ Предыдущее изображение<br>→ ↓ Следующее изображение<br>Пробел Следующее изображение',
-    ],
-    _快捷键列表: [
-        '快捷键列表',
-        '快捷鍵列表',
-        'Shortcut list',
-        'ショートカットリスト',
-        '바로가기 목록',
-        'Список ярлыков',
-    ],
-    _预览作品的快捷键说明: [
-        `<span class="blue">Alt</span> + <span class="blue">P</span> 关闭/启用预览作品功能<br>
-    当你查看预览图时，可以使用如下快捷键：<br>
-    <span class="blue">B</span>(ookmark) 收藏预览的作品<br>
-    <span class="blue">C</span>(urrent) 下载当前预览的图片<br>
-    <span class="blue">D</span>(ownload) 下载当前预览的作品<br>
-    <span class="blue">Esc</span> 关闭预览图<br>
-    <span class="blue">← ↑</span> 上一张图片<br>
-    <span class="blue">→ ↓</span> 下一张图片<br>
-    <span class="blue">空格键</span> 下一张图片`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> 關閉/啟用預覽作品功能<br>
-    當你檢視預覽圖時，可以使用如下快捷鍵：<br>
-    <span class="blue">B</span>(ookmark) 收藏預覽的作品<br>
-    <span class="blue">C</span>(urrent) 下載當前預覽的圖片<br>
-    <span class="blue">D</span>(ownload) 下載當前預覽的作品<br>
-    <span class="blue">Esc</span> 關閉預覽圖<br>
-    <span class="blue">← ↑</span> 上一張圖片<br>
-    <span class="blue">→ ↓</span> 下一張圖片<br>
-    <span class="blue">空格鍵</span> 下一張圖片`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> Turn off/enable the preview function<br>
-    When you view the preview, you can use the following shortcut keys:<br>
-    <span class="blue">B</span>(ookmark) Bookmark previewed work<br>
-    <span class="blue">C</span>(urrent) Download the currently previewed image<br>
-    <span class="blue">D</span>(download) Download the currently previewed work<br>
-    <span class="blue">Esc</span> Close preview<br>
-    <span class="blue">← ↑</span> Previous image<br>
-    <span class="blue">→ ↓</span> Next image<br>
-    <span class="blue">Space bar</span> Next image`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> プレビュー機能をオフ/有効にします<br>
-    プレビューを表示するときは、次のショートカット キーを使用できます。<br>
-    <span class="blue">B</span>(ookmark) プレビューした作品をブックマークします<br>
-    <span class="blue">C</span>(urrent) 現在プレビューされている画像をダウンロードします<br>
-    <span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロードします<br>
-    <span class="blue">Esc</span> プレビューを閉じる<br>
-    <span class="blue">← ↑</span> 前の画像<br>
-    <span class="blue">→ ↓</span> 次の画像<br>
-    <span class="blue">スペースバー</span> 次の画像`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> 미리보기 기능 끄기/활성화<br>
-    미리보기를 볼 때 다음 단축키를 사용할 수 있습니다.<br>
-    <span class="blue">B</span>(ookmark) 북마크 미리보기 작업<br>
-    <span class="blue">C</span>(urrent) 현재 미리보기 이미지 다운로드<br>
-    <span class="blue">D</span>(ownload) 현재 미리보기된 작품 다운로드<br>
-    <span class="blue">Esc</span> 미리보기 닫기<br>
-    <span class="blue">← ↑</span> 이전 이미지<br>
-    <span class="blue">→ ↓</span> 다음 이미지<br>
-    <span class="blue">스페이스바</span> 다음 이미지`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> Выключить/включить функцию предварительного просмотра<br>
-    При предварительном просмотре вы можете использовать следующие сочетания клавиш:<br>
-    <span class="blue">B</span>(ookmark) Добавить в закладки предварительно просмотренную работу<br>
-    <span class="blue">C</span>(urrent) Загрузите просматриваемое в данный момент изображение<br>
-    <span class="blue">D</span>(ownload) Загрузите просматриваемую в данный момент работу<br>
-    <span class="blue">Esc</span> Закрыть предварительный просмотр<br>
-    <span class="blue"> ← ↑</span> Предыдущее изображение<br>
-    <span class="blue">→ ↓</span> Следующее изображение<br>
-    <span class="blue">Пробел</span> Следующее изображение`,
-    ],
-    _导出收藏列表: [
-        '导出收藏列表（JSON）',
-        '匯出收藏列表（JSON）',
-        'Export bookmark list（JSON）',
-        'ブックマークリストをエクスポートする（JSON）',
-        '북마크 목록 내보내기（JSON）',
-        'Экспортировать список закладок（JSON）',
-    ],
-    _导入收藏列表: [
-        '导入收藏列表（批量添加收藏）',
-        '匯入收藏列表（批次新增收藏）',
-        'Import bookmark list (add bookmarks in batches)',
-        'ブックマークリストをインポート（ブックマークを一括追加）',
-        '북마크 목록 가져오기(북마크 일괄 추가)',
-        'Импортировать список закладок (добавлять закладки пакетно)',
-    ],
-    _同步收藏列表的说明: [
-        '你可以导出自己或其他用户的收藏列表，然后批量添加收藏。<br>这可以用来拷贝其他用户的收藏列表。<br>另外，如果你有多个 Pixiv 账号，想要同步它们的收藏列表，可以先导出一个账号的收藏列表，然后使用其他账号导入收藏列表。<br><br>当你处于自己或其他人的书签页面里时，可以在下载器的“更多”分类里找到此功能。',
-        '你可以匯出自己或其他使用者的收藏列表，然後批次新增收藏。<br>這可以用來複製其他使用者的收藏列表。<br>另外，如果你有多個 Pixiv 賬號，想要同步它們的收藏列表，可以先匯出一個賬號的收藏列表，然後使用其他賬號匯入收藏列表。<br><br>當你處於自己或其他人的書籤頁面裡時，可以在下載器的“更多”分類裡找到此功能。',
-        `You can export your own or other users' bookmark lists and then add bookmarks in batches. <br>This can be used to copy another user's bookmark list. <br>In addition, if you have multiple Pixiv accounts and want to synchronize their bookmark lists, you can first export the bookmark list of one account, and then use other accounts to import the bookmark list.<br><br>This feature can be found in the "More" category of the downloader when you are on your own or someone else's bookmark page.`,
-        '自分や他のユーザーのブックマークリストをエクスポートして、一括でブックマークを追加できます。<br>他のユーザーのブックマークリストをコピーすることもできます。<br>また、複数のPixivアカウントを持っていて、ブックマークを同期したい場合にも使用できます。リストの場合、最初に 1 つのアカウントのブックマーク リストをエクスポートし、次に他のアカウントを使用してブックマーク リストをインポートできます。<br><br>この機能は、自分または他の人のブックマーク ページにいるときに、ダウンローダーの「その他」カテゴリにあります。',
-        '자신 또는 다른 사용자의 북마크 목록을 내보낸 후 일괄적으로 북마크를 추가할 수 있습니다.<br>이는 다른 사용자의 북마크 목록을 복사하는 데 사용할 수 있습니다.<br>또한 Pixiv 계정이 여러 개 있고 북마크를 동기화하려는 경우 목록의 경우 먼저 한 계정의 북마크 목록을 내보낸 다음 다른 계정을 사용하여 북마크 목록을 가져올 수 있습니다.<br><br>이 기능은 자신이나 다른 사람의 북마크 페이지에 있을 때 다운로더의 "더 보기" 카테고리에서 찾을 수 있습니다.',
-        'Вы можете экспортировать свои списки закладок или списки закладок других пользователей, а затем добавлять закладки в пакетном режиме. <br>Это можно использовать для копирования списка закладок другого пользователя. <br>Кроме того, если у вас есть несколько учетных записей Pixiv и вы хотите синхронизировать их закладки списки, вы можете сначала экспортировать список закладок одной учетной записи, а затем использовать другие учетные записи для импорта списка закладок.<br><br>Эту функцию можно найти в категории «Дополнительно» загрузчика, когда вы находитесь на своей или чужой странице закладок.',
-    ],
-    _加载收藏列表: [
-        '正在加载你的收藏列表，以避免重复添加收藏',
-        '正在載入你的收藏列表，以避免重複新增收藏',
-        'Loading your bookmark list to avoid duplicate bookmarks',
-        'ブックマークの重複を避けるためにブックマーク リストをロードする',
-        '중복 북마크를 방지하기 위해 북마크 목록 로드 중',
-        'Загрузка списка закладок, чтобы избежать дублирования закладок',
-    ],
-    _一共有x个: [
-        '一共有 {} 个',
-        '一共有 {} 個',
-        'There are {} in total',
-        '合計 {} 個あります',
-        '총 {}개가 있습니다.',
-        'Всего {}',
-    ],
-    _跳过x个: [
-        '跳过了 {} 个已存在的收藏',
-        '跳過了 {} 個已存在的收藏',
-        '{} existing bookmarks skipped',
-        '{} 個の既存のブックマークがスキップされました',
-        '{}개의 기존 북마크를 건너뛰었습니다.',
-        '{} существующих закладок пропущено',
-    ],
-    _保存作品的简介: [
-        '保存作品<span class="key">简介</span>',
-        '儲存作品<span class="key">說明</span>',
-        'Save work <span class="key">description</span>',
-        '作品<span class="key">説明</span>の保存',
-        '작품 설명 저장',
-        'Сохранить описание работы',
-    ],
-    _保存作品的简介2: [
-        '保存作品简介',
-        '儲存作品說明',
-        'Save work description',
-        '作品説明の保存',
-        '작품 설명 저장',
-        'Сохранить описание работы',
-    ],
-    _保存作品简介的说明: [
-        '生成 TXT 文件保存作品简介',
-        '生成 TXT 檔案儲存作品說明',
-        'Create a TXT file to save the work description',
-        '作業説明を保存するためのTXTファイルを作成します。',
-        '작업 설명을 저장하려면 TXT 파일을 만드세요.',
-        'Создайте файл TXT для сохранения описания работы.',
-    ],
-    _简介: ['简介', '說明', 'description', '説明', '설명', 'описание'],
-    _简介汇总: [
-        '简介汇总',
-        '說明彙總',
-        'description summary',
-        '説明の概要',
-        '설명 요약',
-        'краткое описание',
-    ],
-    _每个作品分别保存: [
-        '每个作品分别保存',
-        '每個作品分別儲存',
-        'Save each work separately',
-        '作品ごとに分けて保存する',
-        '각 작품을 별도로 저장',
-        'Сохраняйте каждую работу отдельно',
-    ],
-    _简介的Links标记: [
-        `如果作品简介里含有超链接，下载器会在文件名末尾添加 'links' 标记`,
-        `如果作品說明裡含有超連結，下載器會在檔名末尾新增 'links' 標記`,
-        `If the work description contains hyperlinks, the downloader will add a 'links' tag at the end of the file name`,
-        `作品の説明にハイパーリンクが含まれている場合、ダウンローダーはファイル名の末尾に「links」タグを追加します。`,
-        `작업 설명에 하이퍼링크가 포함된 경우 다운로더는 파일 이름 끝에 'links' 태그를 추가합니다.`,
-        `Если описание работы содержит гиперссылки, загрузчик добавит тег «links» в конце имени файла.`,
-    ],
-    _汇总到一个文件: [
-        '汇总到一个文件',
-        '彙總到一個檔案',
-        'Summarize to one file',
-        '1つのファイルにまとめる',
-        '하나의 파일로 요약',
-        'Свести в один файл',
-    ],
-    _后续作品低于最低收藏数量要求跳过后续作品: [
-        '检测到后续作品的收藏数量低于用户设置的数字，跳过后续作品',
-        '檢測到後續作品的收藏數量低於使用者設定的數字，跳過後續作品',
-        'It is detected that the number of bookmarks of subsequent works is lower than the number set by the user, and subsequent works are skipped.',
-        '以降の作品のブックマーク数がユーザーが設定した数よりも少ないことを検出し、以降の作品をスキップする。',
-        '후속 작품의 북마크 수가 사용자가 설정한 수보다 적은 것으로 감지되어 후속 작품을 건너뜁니다.',
-        'Обнаружено, что количество закладок последующих произведений меньше количества, установленного пользователем, и последующие произведения пропускаются.',
-    ],
-    _间隔时间: [
-        '间隔时间：',
-        '間隔時間：',
-        'Interval time:',
-        'インターバル時間：',
-        '간격 시간:',
-        'Интервал времени:',
-    ],
-    _更新说明v1700: [
-        '- 现在你可以设置慢速抓取时的间隔时间了<br>- 优化了某些情况下的抓取效率<br>- 优化了动图保存为 GIF 图像时的画质',
-        '- 現在你可以設定慢速抓取時的間隔時間了<br>- 優化了某些情況下的抓取效率<br>- 優化了動圖儲存為 GIF 影象時的畫質',
-        '- Now you can set the interval for slow crawling<br>- Optimized the crawling efficiency in some cases<br> - Optimized the image quality when saving animated images as GIF images',
-        '- 低速クロールの間隔を設定できるようになりました<br>- 場合によってはクロール効率を最適化しました<br> - アニメーション画像をGIF画像として保存する際の画質を最適化しました',
-        '- 이제 느린 크롤링 간격을 설정할 수 있습니다.<br>- 경우에 따라 크롤링 효율성이 최적화되었습니다.<br> - 애니메이션 이미지를 GIF 이미지로 저장할 때 이미지 품질이 최적화되었습니다.',
-        '– Теперь вы можете установить интервал для медленного сканирования.<br> – Оптимизирована эффективность сканирования в некоторых случаях<br> – Оптимизировано качество изображения при сохранении анимированных изображений в формате GIF.',
-    ],
-};
 
 
 
@@ -8569,23 +3963,31 @@ __webpack_require__.r(__webpack_exports__);
 // 日志
 class Log {
     constructor() {
-        this.id = 'logWrap'; // 日志区域元素的 id
-        this.wrap = document.createElement('div'); // 日志容器的区域
-        this.logArea = document.createElement('div'); // 日志主体区域
-        this.refresh = document.createElement('span'); // 刷新时使用的元素
+        this.wrap = document.createElement('div'); // 日志容器的区域，当日志条数很多时，会产生多个日志容器
+        this.activeLogWrapID = 'logWrap';
+        this.logWrapClassName = 'logWrap';
+        this.logContent = document.createElement('div'); // 日志主体区域，这个指针始终指向最新的那个日志容器内部
+        /**会刷新的日志所使用的元素，可以传入 flag 来设置多条用于刷新日志的元素 */
+        this.refresh = {
+            default: document.createElement('span'),
+        };
+        /**不同日志等级的字体颜色 */
         this.levelColor = [
             'inherit',
             _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textSuccess,
             _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textWarning,
             _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textError,
         ];
+        /**每个日志区域允许显示多少条日志 */
         this.max = 300;
+        /**日志条数。刷新的日志不会计入 */
         this.count = 0;
+        /** 保存日志历史。刷新的日志不会保存 */
         this.record = [];
         this.toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
         this.scrollToBottom();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.clearLog, () => {
-            this.clear();
+            this.remove();
         });
         const clearRecordEvents = [_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.clearLog, _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop];
         clearRecordEvents.forEach((evt) => {
@@ -8610,7 +4012,7 @@ class Log {
     str 日志文本
     level 日志等级
     br 换行标签的个数
-    keepShow 追加日志的模式，默认为 true，把这一条日志添加后不再修改。false 则是刷新显示这条消息。
+    keepShow 是否为持久日志。默认为 true，把这一条日志添加后不再修改。false 则会刷新显示这条日志。
   
     level 日志等级：
     0 normal
@@ -8618,14 +4020,26 @@ class Log {
     2 warning
     3 error
     */
-    add(str, level, br, keepShow) {
+    add(str, level, br, keepShow, refreshFlag = 'default') {
         this.checkElement();
         let span = document.createElement('span');
         if (!keepShow) {
-            span = this.refresh;
+            if (this.refresh[refreshFlag] === undefined) {
+                this.refresh[refreshFlag] = span;
+            }
+            else {
+                span = this.refresh[refreshFlag];
+            }
         }
         else {
             this.count++;
+            // 如果页面上的日志条数超过指定数量，则生成一个新的日志区域
+            // 因为日志数量太多的话会占用很大的内存。同时显示 8000 条日志可能占用接近 1 GB 的内存
+            if (this.count >= this.max) {
+                // 移除 id 属性，下次输出日志时查找不到日志区域，就会新建一个
+                this.wrap.removeAttribute('id');
+                this.count = 0;
+            }
         }
         span.innerHTML = str;
         span.style.color = this.levelColor[level];
@@ -8633,74 +4047,66 @@ class Log {
             span.appendChild(document.createElement('br'));
             br--;
         }
-        this.logArea.appendChild(span);
+        this.logContent.appendChild(span);
         this.toBottom = true; // 需要把日志滚动到底部
         // 把持久日志保存到记录里
         if (keepShow) {
             this.record.push({ html: span.outerHTML, level });
         }
     }
-    log(str, br = 1, keepShow = true) {
-        this.add(str, 0, br, keepShow);
+    log(str, br = 1, keepShow = true, refreshFlag = 'default') {
+        this.add(str, 0, br, keepShow, refreshFlag);
     }
-    success(str, br = 1, keepShow = true) {
-        this.add(str, 1, br, keepShow);
+    success(str, br = 1, keepShow = true, refreshFlag = 'default') {
+        this.add(str, 1, br, keepShow, refreshFlag);
     }
-    warning(str, br = 1, keepShow = true) {
-        this.add(str, 2, br, keepShow);
+    warning(str, br = 1, keepShow = true, refreshFlag = 'default') {
+        this.add(str, 2, br, keepShow, refreshFlag);
     }
-    error(str, br = 1, keepShow = true) {
-        this.add(str, 3, br, keepShow);
+    error(str, br = 1, keepShow = true, refreshFlag = 'default') {
+        this.add(str, 3, br, keepShow, refreshFlag);
     }
     /**将刷新的日志元素持久化 */
     // 刷新区域通常用于显示进度，例如 0/10, 1/10, 2/10... 10/10
     // 它们使用同一个 span 元素，并且同时只能存在一个刷新区域
     // 当显示 10/10 的时候，进度就不会再变化了，此时应该将其“持久化”。生成一个新的 span 元素作为新的刷新区域
     // 这样如果后续又需要显示刷新的元素，不会影响之前已完成“持久化”的日志
-    persistentRefresh() {
-        this.refresh = document.createElement('span');
+    persistentRefresh(refreshFlag = 'default') {
+        this.refresh[refreshFlag] = document.createElement('span');
     }
     checkElement() {
         // 如果日志区域没有被添加到页面上，则添加
-        let test = document.getElementById(this.id);
+        let test = document.getElementById(this.activeLogWrapID);
         if (test === null) {
             this.wrap = document.createElement('div');
-            this.wrap.id = this.id;
-            this.logArea = document.createElement('div');
-            this.logArea.classList.add('beautify_scrollbar', 'logContent');
+            this.wrap.id = this.activeLogWrapID;
+            this.wrap.classList.add(this.logWrapClassName);
+            this.logContent = document.createElement('div');
+            this.logContent.classList.add('beautify_scrollbar', 'logContent');
             if (_Config__WEBPACK_IMPORTED_MODULE_10__.Config.mobile) {
                 this.wrap.classList.add('mobile');
             }
-            this.wrap.append(this.logArea);
+            this.wrap.append(this.logContent);
             document.body.insertAdjacentElement('beforebegin', this.wrap);
             _Theme__WEBPACK_IMPORTED_MODULE_1__.theme.register(this.wrap);
             // 虽然可以应用背景图片，但是由于日志区域比较狭长，背景图片的视觉效果不佳，看起来比较粗糙，所以还是不应用背景图片了
             // bg.useBG(this.wrap, 0.9)
         }
-        // 如果页面上的日志条数超过指定数量，则清空
-        // 因为日志数量太多的话会占用很大的内存。同时显示 8000 条日志可能占用接近 1 GB 的内存
-        if (this.count > this.max) {
-            this.clear();
-        }
     }
-    /**移除日志区域 */
+    /**移除所有日志区域 */
     remove() {
         this.count = 0;
-        this.wrap.remove();
-    }
-    /**清空显示的日志内容 */
-    clear() {
-        this.count = 0;
-        this.logArea.innerHTML = '';
+        const allLogWrap = document.querySelectorAll(`.${this.logWrapClassName}`);
+        allLogWrap.forEach((wrap) => wrap.remove());
     }
     // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部
     scrollToBottom() {
         window.setInterval(() => {
             if (this.toBottom) {
-                this.logArea.scrollTop = this.logArea.scrollHeight;
+                this.logContent.scrollTop = this.logContent.scrollHeight;
                 this.toBottom = false;
             }
-        }, 800);
+        }, 500);
     }
     export() {
         const data = [];
@@ -9688,6 +5094,8 @@ class PreviewWork {
         this.workId = '';
         // 显示作品中的第几张图片
         this.index = 0;
+        // 保存每个预览过的作品的 index。当用户再次预览这个作品时，可以恢复上次的进度
+        this.indexHistory = {};
         // 延迟显示预览区域的定时器
         // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片，这是为了避免浪费网络资源
         this.delayShowTimer = undefined;
@@ -9727,7 +5135,10 @@ class PreviewWork {
     set show(val) {
         if (val) {
             this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.get(this.workId);
-            // 如果保存的作品数据不是最后一个鼠标经过的作品，可能是请求尚未完成，此时延长等待时间
+            // 这两个判断条件其实是等价的
+            // 因为在 show 之前会先获取作品数据
+            // 所以如果在这里获取不到作品数据，说明用户在等待请求期间移动了鼠标到另一个没有获取过数据的作品上
+            // 现在的作品已经不是前面请求的那个作品了
             if (!this.workData || this.workData.body.id !== this.workId) {
                 this.readyShow();
             }
@@ -9737,14 +5148,12 @@ class PreviewWork {
                     _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('showPreviewWorkDetailPanel', this.workData);
                 }
                 this.sendUrls();
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.PreviewWork) {
-                    this._show = true;
-                    _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__.showOriginSizeImage.hide();
-                    this.showWrap();
-                    window.clearTimeout(this.delayHiddenTimer);
-                    if (!_Config__WEBPACK_IMPORTED_MODULE_15__.Config.mobile) {
-                        _ShowHelp__WEBPACK_IMPORTED_MODULE_13__.showHelp.show('tipPreviewWork', _Lang__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品的快捷键说明'));
-                    }
+                this._show = true;
+                _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__.showOriginSizeImage.hide();
+                this.showWrap();
+                window.clearTimeout(this.delayHiddenTimer);
+                if (!_Config__WEBPACK_IMPORTED_MODULE_15__.Config.mobile) {
+                    _ShowHelp__WEBPACK_IMPORTED_MODULE_13__.showHelp.show('tipPreviewWork', _Lang__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品的快捷键说明'));
                 }
             }
         }
@@ -9782,21 +5191,20 @@ class PreviewWork {
             }
             // 当鼠标进入到不同作品时
             // 隐藏之前的预览图
-            // 重置 index
             if (this.workId !== id) {
                 this.show = false;
-                this.index = 0;
+                // 设置 index
+                this.index = this.indexHistory[id] || 0;
             }
             this.workId = id;
             this.workEL = el;
-            if (!_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.has(id)) {
-                // 如果在缓存中没有找到这个作品的数据，则发起请求
-                this.fetchWorkData();
-            }
-            else {
-                this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.get(id);
-            }
-            this.readyShow();
+            // 判断是插画还是动图，然后根据设置决定是否加载作品数据
+            // 动图有一个特定元素：circle，就是播放按钮的圆形背景
+            // 需要注意：在某些页面里没有这个元素，比如浏览历史里。
+            // 不过现在下载器也没有支持浏览历史页面，所以没有影响。
+            const ugoira = el.querySelector('circle');
+            const show = ugoira ? _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.previewUgoira : _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.PreviewWork;
+            show && this.readyShow();
             el.addEventListener('mousewheel', this.onWheelScroll);
         });
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__.artworkThumbnail.onLeave((el) => {
@@ -9867,12 +5275,6 @@ class PreviewWork {
                         id: this.workData.body.id,
                     },
                 ]);
-                // 下载时不显示下载面板
-                _store_States__WEBPACK_IMPORTED_MODULE_6__.states.quickCrawl = true;
-                _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_已发送下载请求'), {
-                    bgColor: _Colors__WEBPACK_IMPORTED_MODULE_11__.Colors.bgBlue,
-                    position: 'center',
-                });
             }
             // 预览作品时，可以使用快捷键 C 仅下载当前显示的图片
             if (ev.code === 'KeyC' && this.show) {
@@ -9889,12 +5291,6 @@ class PreviewWork {
                         id: this.workData.body.id,
                     },
                 ]);
-                // 下载时不显示下载面板
-                _store_States__WEBPACK_IMPORTED_MODULE_6__.states.quickCrawl = true;
-                _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_已发送下载请求'), {
-                    bgColor: _Colors__WEBPACK_IMPORTED_MODULE_11__.Colors.bgBlue,
-                    position: 'center',
-                });
             }
             // 预览作品时，可以使用快捷键 B 收藏这个作品
             if (ev.code === 'KeyB' && this.show) {
@@ -10012,11 +5408,8 @@ class PreviewWork {
                 this.index = 0;
             }
         }
+        this.indexHistory[this.workId] = this.index;
         this.showWrap();
-    }
-    async fetchWorkData() {
-        const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(this.workId);
-        _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.set(data);
     }
     async addBookmark() {
         if (this.workData?.body.illustId === undefined) {
@@ -10050,7 +5443,12 @@ class PreviewWork {
         }
     }
     readyShow() {
-        this.delayShowTimer = window.setTimeout(() => {
+        this.delayShowTimer = window.setTimeout(async () => {
+            if (!_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.has(this.workId)) {
+                // 如果在缓存中没有找到这个作品的数据，则发起请求
+                const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(this.workId);
+                _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.set(data);
+            }
             this.show = true;
         }, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.previewWorkWait);
     }
@@ -10524,6 +5922,173 @@ class PreviewWorkDetailInfo {
 }
 const previewWorkDetailInfo = new PreviewWorkDetailInfo();
 
+
+
+/***/ }),
+
+/***/ "./src/ts/RemoveBlockedUsersWork.ts":
+/*!******************************************!*\
+  !*** ./src/ts/RemoveBlockedUsersWork.ts ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+
+
+
+
+
+
+
+class RemoveBlockedUsersWork {
+    constructor() {
+        // 当 Pixiv 语言设置为英语时，用户链接以 /en 开头，如
+        // href="/en/users/277602"
+        // 所以需要使用 *=
+        this.userLinkSelector = 'a[href*="/users/"]';
+        // 在用户主页和作品页面里，不移除这个用户自己的作品
+        this.dontRemoveCurrentUser = [
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.UserHome,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Bookmark,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.ArtworkSeries,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Novel,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NovelSeries,
+        ];
+        this.check = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.debounce(() => {
+            if (document.hidden ||
+                !_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.userBlockList ||
+                !_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.removeBlockedUsersWork ||
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.blockList.length === 0) {
+                return;
+            }
+            let currentUserID = '';
+            if (this.dontRemoveCurrentUser.includes(_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type)) {
+                // 在不移除当前页面的作者自己的作品时，等待页面资源加载完成后再检查
+                // 否则一开始 Tools.getCurrentPageUserID 可能会获取到错误的用户 ID
+                // 例如这个作品：
+                // https://www.pixiv.net/artworks/123098863
+                // 它的简介里含有另一个作者的主页链接
+                // 在 complete 之前执行 getCurrentPageUserID 时，正确的用户主页元素还不存在，
+                // 此时会获取到简介里的作者链接，也就是错误的 currentUserID
+                // 这会导致下载器移除当前页面作者自己的一些元素（虽然不是作品元素，但也不应该移除）
+                if (document.readyState !== 'complete') {
+                    return;
+                }
+                currentUserID = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getCurrentPageUserID();
+            }
+            const allUserLink = document.body.querySelectorAll(this.userLinkSelector);
+            const removedUsers = new Map();
+            for (const link of allUserLink) {
+                // 在用户主页和作品页面里，不移除这个用户自己的元素
+                const userID = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getUserID(link.href);
+                if (userID === currentUserID) {
+                    continue;
+                }
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.blockList.includes(userID)) {
+                    // 查找用户链接的父元素，来移除这个作品，或者作品列表的容器
+                    this.findContainerEl(link).remove();
+                    // 保存记录
+                    // 有时候一个作者有 2 个链接，第一个是头像，没有用户名（textContent），第二个有用户名
+                    // 所以第二次添加它的记录时才能保存用户名
+                    const name = removedUsers.get(userID);
+                    if (!name) {
+                        // 如果没有获取到用户名，则更新。有用户名的话就不需要更新了
+                        removedUsers.set(userID, link.textContent || '');
+                    }
+                }
+            }
+            // 输出日志
+            const logText = [];
+            removedUsers.forEach((name, id) => {
+                logText.push(_Lang__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_移除了用户xxx的作品', `<a href="/users/${id}" target="blank">${name || id}</a>`));
+            });
+            if (logText.length > 0) {
+                _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(logText.join('<br>'));
+            }
+        }, 200);
+        // 作品或作品列表元素的选择器
+        this.containerSelectors = ['li', 'ul>div'];
+        this.bindEvents();
+    }
+    bindEvents() {
+        // 当初始化时，以及用户修改了屏蔽列表时进行检查
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'userBlockList' ||
+                data.name === 'blockList' ||
+                data.name === 'removeBlockedUsersWork') {
+                this.check();
+            }
+        });
+        // 当页面从不可见状态变为可见状态时，执行检查
+        window.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                this.check();
+            }
+        });
+        // 当页面内容变化时进行检查
+        this.startMutationObserver();
+    }
+    startMutationObserver() {
+        const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.addedNodes.length > 0) {
+                    for (const added of mutation.addedNodes) {
+                        // 如果添加的元素里含有用户链接，则进行检查
+                        if (added.nodeType === 1 &&
+                            added.querySelector(this.userLinkSelector)) {
+                            this.check();
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
+    }
+    // li
+    // 非常广泛
+    // ul>div
+    // 主要是首页里的元素，如 关注用户・好P友的作品 等。其他页面里也有一些地方是这个选择器
+    findContainerEl(link) {
+        let container = null;
+        // 在某些页面里使用特定的选择器
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Following) {
+            // 关注页面
+            container = link.closest('section>div>div');
+        }
+        else if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.ArtworkRanking) {
+            // 排行榜页面
+            container = link.closest('section.ranking-item');
+        }
+        else if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NovelRanking) {
+            container = link.closest('div._ranking-item');
+        }
+        // 没有找到容器元素时（包括在其他页面里时），使用通用的选择器
+        if (!container) {
+            for (const selector of this.containerSelectors) {
+                const find = link.closest(selector);
+                if (find) {
+                    container = find;
+                    break;
+                }
+            }
+        }
+        return container || link;
+    }
+}
+new RemoveBlockedUsersWork();
 
 
 /***/ }),
@@ -11089,10 +6654,6 @@ class SelectWork {
             _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('crawlIdList', Array.from(this.idList));
             this.sendCrawl = true;
             this.crawled = false;
-            _store_States__WEBPACK_IMPORTED_MODULE_4__.states.quickCrawl = true;
-            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已发送下载请求'), {
-                bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
-            });
         }
         else {
             _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_没有数据可供使用'));
@@ -11468,32 +7029,6 @@ new SetUserName();
 
 /***/ }),
 
-/***/ "./src/ts/ShowDownloadBtnOnThumb.ts":
-/*!******************************************!*\
-  !*** ./src/ts/ShowDownloadBtnOnThumb.ts ***!
-  \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _ShowDownloadBtnOnThumbOnDesktop__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumbOnDesktop */ "./src/ts/ShowDownloadBtnOnThumbOnDesktop.ts");
-/* harmony import */ var _ShowDownloadBtnOnThumbOnMobile__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumbOnMobile */ "./src/ts/ShowDownloadBtnOnThumbOnMobile.ts");
-
-
-
-// 在图片作品的缩略图上显示下载按钮，点击按钮可以直接下载这个作品
-class ShowDownloadBtnOnThumb {
-    constructor() {
-        _Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile
-            ? new _ShowDownloadBtnOnThumbOnMobile__WEBPACK_IMPORTED_MODULE_2__.ShowDownloadBtnOnThumbOnMobile()
-            : new _ShowDownloadBtnOnThumbOnDesktop__WEBPACK_IMPORTED_MODULE_1__.ShowDownloadBtnOnThumbOnDesktop();
-    }
-}
-new ShowDownloadBtnOnThumb();
-
-
-/***/ }),
-
 /***/ "./src/ts/ShowDownloadBtnOnThumbOnDesktop.ts":
 /*!***************************************************!*\
   !*** ./src/ts/ShowDownloadBtnOnThumbOnDesktop.ts ***!
@@ -11507,15 +7042,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-
-
-
-
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 
 
 
@@ -11529,7 +7056,7 @@ class ShowDownloadBtnOnThumbOnDesktop {
         this.hiddenBtnTimer = 0; // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
         this.hiddenBtnDelay = 100;
         this.doNotShowBtn = false; // 当点击了按钮后，进入此状态，此状态中不会显示按钮
-        if (_Config__WEBPACK_IMPORTED_MODULE_7__.Config.mobile) {
+        if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
             return;
         }
         // 在桌面端，只有一个下载按钮，当鼠标经过作品缩略图时才会显示下载按钮
@@ -11573,11 +7100,6 @@ class ShowDownloadBtnOnThumbOnDesktop {
                     id: this.currentWorkId,
                 };
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [IDData]);
-                // 下载时不显示下载面板
-                _store_States__WEBPACK_IMPORTED_MODULE_3__.states.quickCrawl = true;
-                _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_已发送下载请求'), {
-                    bgColor: _Colors__WEBPACK_IMPORTED_MODULE_6__.Colors.bgBlue,
-                });
             }
         });
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__.artworkThumbnail.onEnter((el, id) => {
@@ -11643,15 +7165,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-
-
-
-
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
 
 
 
@@ -11673,7 +7187,7 @@ class ShowDownloadBtnOnThumbOnMobile {
             const btn = this.addBtn(el);
             btn.addEventListener('click', (ev) => {
                 if (!id) {
-                    id = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.findWorkIdFromElement(el, 'illusts');
+                    id = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.findWorkIdFromElement(el, 'illusts');
                 }
                 if (!id) {
                     return;
@@ -11683,11 +7197,6 @@ class ShowDownloadBtnOnThumbOnMobile {
                     id: id,
                 };
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [IDData]);
-                // 下载时不显示下载面板
-                _store_States__WEBPACK_IMPORTED_MODULE_3__.states.quickCrawl = true;
-                _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_已发送下载请求'), {
-                    bgColor: _Colors__WEBPACK_IMPORTED_MODULE_6__.Colors.bgBlue,
-                });
             });
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
@@ -11946,16 +7455,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
 /* harmony import */ var _PreviewUgoira__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./PreviewUgoira */ "./src/ts/PreviewUgoira.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
-/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ShowHelp */ "./src/ts/ShowHelp.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-
-
-
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 
 
 
@@ -12017,7 +7520,7 @@ class ShowOriginSizeImage {
         this.cancelReadyShow = (ev) => {
             window.clearTimeout(this.showTimer);
         };
-        if (_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile) {
+        if (_Config__WEBPACK_IMPORTED_MODULE_8__.Config.mobile) {
             return;
         }
         this.createElements();
@@ -12031,8 +7534,8 @@ class ShowOriginSizeImage {
         if (val) {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('showOriginSizeImage');
             this.wrap.style.display = 'block';
-            if (!_Config__WEBPACK_IMPORTED_MODULE_11__.Config.mobile) {
-                _ShowHelp__WEBPACK_IMPORTED_MODULE_9__.showHelp.show('tipHotkeysViewLargeImage', _Lang__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_查看作品大图时的快捷键'));
+            if (!_Config__WEBPACK_IMPORTED_MODULE_8__.Config.mobile) {
+                _ShowHelp__WEBPACK_IMPORTED_MODULE_6__.showHelp.show('tipHotkeysViewLargeImage', _Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_查看作品大图时的快捷键'));
             }
             // 预览动图
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.previewUgoira && this.workData?.body.illustType === 2) {
@@ -12110,18 +7613,12 @@ class ShowOriginSizeImage {
                         id: this.workData.body.id,
                     },
                 ]);
-                // 下载时不显示下载面板
-                _store_States__WEBPACK_IMPORTED_MODULE_5__.states.quickCrawl = true;
-                _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_已发送下载请求'), {
-                    bgColor: _Colors__WEBPACK_IMPORTED_MODULE_8__.Colors.bgBlue,
-                    position: 'center',
-                });
             }
             // 预览作品时，可以使用快捷键 C 仅下载当前显示的图片
             if (ev.code === 'KeyC' && this.show) {
                 ev.stopPropagation();
                 if (this.workData.body.pageCount > 1) {
-                    _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.setDownloadOnlyPart(Number.parseInt(this.workData.body.id), [
+                    _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.setDownloadOnlyPart(Number.parseInt(this.workData.body.id), [
                         this.index,
                     ]);
                 }
@@ -12131,12 +7628,6 @@ class ShowOriginSizeImage {
                         id: this.workData.body.id,
                     },
                 ]);
-                // 下载时不显示下载面板
-                _store_States__WEBPACK_IMPORTED_MODULE_5__.states.quickCrawl = true;
-                _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_已发送下载请求'), {
-                    bgColor: _Colors__WEBPACK_IMPORTED_MODULE_8__.Colors.bgBlue,
-                    position: 'center',
-                });
             }
             // 按 Esc 键时取消预览
             if (ev.code === 'Escape' && this.show) {
@@ -12360,21 +7851,29 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.0.0';
+        this.flag = '17.3.1';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_更新说明v1700')}</span>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
       `;
-            // <strong><span>${lang.transl('_新增功能')}:</span></strong>
-            // <span class="blue">${lang.transl('_保存作品的简介')}</span>
+            // <strong>
+            // <span>✨${lang.transl('_新增设置项')}:</span>
+            // <span>✨${lang.transl('_新增功能')}:</span>
+            // <span class="blue">${lang.transl('_下载间隔')}</span>
+            // </strong>
             // ${lang.transl(
             //   '_你可以在更多选项卡的xx分类里找到它',
-            //   lang.transl('_增强')
+            //   lang.transl('_下载')
             // )}
+            // <br>
+            // <br>
+            // <span>${lang.transl('_该功能默认启用')}</span>
+            // <span>${lang.transl('_修复已知问题')}</span>
+            // <span>${lang.transl('_优化性能和用户体验')}</span>
             // <span>${lang.transl('_其他优化')}</span>
             // 在更新说明的下方显示赞助提示
             msg += `
@@ -12562,6 +8061,7 @@ class Theme {
         this.htmlFlagMap = new Map([
             ['', 'white'],
             ['default', 'white'],
+            ['light', 'white'],
             ['dark', 'dark'],
         ]);
         this.elList = []; // 保存已注册的元素
@@ -12636,7 +8136,7 @@ class Theme {
             // 从含有 pixiv 主题标记的元素里获取主题
             const el = document.querySelector(this.selector);
             if (el) {
-                const pageTheme = this.htmlFlagMap.get(el.textContent);
+                const pageTheme = this.htmlFlagMap.get(el.textContent) || 'white';
                 _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('getPageTheme', pageTheme);
                 return pageTheme || this.defaultTheme;
             }
@@ -13211,10 +8711,17 @@ class Tools {
             return this.getNovelId(a.href);
         }
     }
+    static getUserID(url) {
+        const test = url.match(this.userIDRegExp);
+        if (test && test.length > 1) {
+            return test[1];
+        }
+        return '';
+    }
     // 获取当前页面的用户 id
     // 这是一个不够可靠的 api
     // 测试：在作品页内 https://www.pixiv.net/artworks/79399027 获取 userId ，正确结果应该是 13895186
-    static getUserId() {
+    static getCurrentPageUserID() {
         const newRegExp = /\/users\/(\d+)/; // 获取 /users/ 后面连续的数字部分，也就是用户的 id
         // 列表页里从 url 中获取
         const test4 = newRegExp.exec(location.pathname);
@@ -13245,13 +8752,14 @@ class Tools {
             return test2[1];
         }
         // 最后从 body 里匹配
-        // Warning ：这有可能会匹配到错误的（其他）用户 id！
+        // Warning：这有可能会匹配到错误的（其他用户的）ID！
         const test3 = newRegExp.exec(document.body.innerHTML);
         if (test3) {
             return test3[1];
         }
         // 如果都没有获取到
-        throw new Error('getUserId failed!');
+        console.log('getCurrentPageUserID failed!');
+        return '';
     }
     static getLoggedUserID() {
         if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
@@ -13540,8 +9048,8 @@ class Tools {
     }
     /**替换 EPUB 文本里的特殊字符和换行符 */
     // 换行符必须放在最后处理，以免其 < 符号被替换
-    // 把所有换行符统一成 <br/>
-    // 这是因为 epub 是 xhtml 格式，要求必须有闭合标记，所以 <br> 是非法的，会导致小说无法被解析和阅读
+    // 把所有换行符统一成 <br/>（包括 \n）
+    // epub 是 xhtml 格式，要求必须有闭合标记，所以 <br> 是非法的，必须使用 <br/>
     static replaceEPUBText(str) {
         return str
             .replace(/&/g, '&amp;')
@@ -13550,6 +9058,34 @@ class Tools {
             .replace(/<br>/g, '<br/>')
             .replace(/<br \/>/g, '<br/>')
             .replace(/\n/g, '<br/>');
+    }
+    // 把所有换行符统一成 <br/>（包括 \n）
+    // 之后统一替换为 <p> 与 </p>，以对应 EPUB 文本惯例
+    static replaceEPUBTextWithP(str) {
+        return ('<p>' +
+            str
+                .replaceAll(/&/g, '&amp;')
+                .replaceAll(/</g, '&lt;')
+                .replaceAll(/&lt;br/g, '<br')
+                .replaceAll(/<br>/g, '<br/>')
+                .replaceAll(/<br \/>/g, '<br/>')
+                .replaceAll(/\n/g, '<br/>')
+                .replaceAll('<br/>', '</p>\n<p>') +
+            '</p>');
+    }
+    // 小说标题里有些符号需要和正文进行不同的处理
+    // 标题里的 & 符号必须去掉或将其转换为普通字符
+    // 至于换行标记，不知道标题里有没有，如果有的话也需要将其转换成普通符号
+    static replaceEPUBTitle(str) {
+        return str
+            .replace(/&/g, ' and ')
+            .replace(/<br>/g, ' br ')
+            .replace(/<br \/>/g, ' br ')
+            .replace(/\n/g, ' br ');
+    }
+    /** 把简介添加到 EPUB 小说里时，需要对特定字符进行处理 */
+    static replaceEPUBDescription(str) {
+        return str.replace(/&/g, ' and ');
     }
     /** 在 zip 压缩包里查找类似于 000000.jpg 的标记，返回它后面的位置的下标
      *
@@ -13742,6 +9278,7 @@ class Tools {
         return this.AIType[number];
     }
 }
+Tools.userIDRegExp = /\/users\/(\d+)/;
 Tools.chineseRegexp = /[一-龥]/;
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
 Tools.ATagRegexp = /<a href.*?\/a>/g;
@@ -14139,8 +9676,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-
 
 
 
@@ -14216,7 +9751,6 @@ class CrawlRecommendWorks {
         btn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载推荐作品');
         btn.classList.add('blueTextBtn');
         btn.addEventListener('click', () => {
-            _store_States__WEBPACK_IMPORTED_MODULE_4__.states.quickCrawl = true;
             // 传递 ID 列表时需要复制一份，因为如果直接传递变量，那么这个数组会在抓取之后被清空
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [...this.IDList]);
         });
@@ -14403,7 +9937,7 @@ class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.I
     }
     async getIdList() {
         let type = ['illusts', 'manga'];
-        let idList = await _API__WEBPACK_IMPORTED_MODULE_6__.API.getUserWorksByType(_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getUserId(), type);
+        let idList = await _API__WEBPACK_IMPORTED_MODULE_6__.API.getUserWorksByType(_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getCurrentPageUserID(), type);
         // 储存符合条件的 id
         let nowId = parseInt(_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getIllustId(window.location.href));
         idList.forEach((id) => {
@@ -14513,7 +10047,11 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     initAny() { }
     setFormOption() {
         // 个数/页数选项的提示
-        this.maxCount = 100;
+        // 这个系列漫画有 252 页：
+        // https://www.pixiv.net/user/1001918/series/5915?p=252
+        // 所以我把最大页数设置为了 1000
+        // 不知道是否有超过 1000 页的
+        this.maxCount = 1000;
         _setting_Options__WEBPACK_IMPORTED_MODULE_5__.options.setWantPageTip({
             text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
@@ -14715,7 +10253,7 @@ class InitDiscoverPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         }
         else {
             // 插画漫画页面
-            const allLink = document.querySelectorAll('div[width="184"]>a');
+            const allLink = document.querySelectorAll('div[size="184"] a');
             // 获取已有作品的 id
             allLink.forEach((a) => {
                 const id = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId(a.href);
@@ -15312,6 +10850,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.workPreviewBuffer = document.createDocumentFragment();
         this.tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_15__.Utils.debounce(() => {
             _Log__WEBPACK_IMPORTED_MODULE_9__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取被限制时返回空结果的提示'));
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.slowCrawl) {
+                _Log__WEBPACK_IMPORTED_MODULE_9__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示启用减慢抓取速度功能'));
+            }
         }, 1000);
         this.onSettingChange = (event) => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.crawlTagList) {
@@ -15628,6 +11169,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.crawlNumber = this.checkWantPageInput(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始下载x页'), _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载所有页面'));
     }
     async nextStep() {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.previewResult) {
+            _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示启用预览搜索页面的筛选结果时不会自动开始下载'));
+        }
         this.setSlowCrawl();
         this.initFetchURL();
         // 计算应该抓取多少页
@@ -15807,13 +11351,15 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         // 这里使用本页 api 里返回的数据，而非 store.idList 的数据，
         // 因为如果作品被过滤掉了，就不会储存在 store.idList 里
         if (this.listPageFinished > 0 && this.listPageFinished % 10 === 0) {
-            console.log(`已抓取 ${this.listPageFinished} 页，检查最后一个作品的收藏数量`);
-            const lastWork = data.data[data.data.length - 1];
-            const check = await _crawl_VipSearchOptimize__WEBPACK_IMPORTED_MODULE_25__.vipSearchOptimize.checkWork(lastWork.id, 'illusts');
-            if (check) {
-                _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'));
-                _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取完成'));
-                return this.getIdListFinished();
+            if (data.data.length > 0) {
+                console.log(`已抓取 ${this.listPageFinished} 页，检查最后一个作品的收藏数量`);
+                const lastWork = data.data[data.data.length - 1];
+                const check = await _crawl_VipSearchOptimize__WEBPACK_IMPORTED_MODULE_25__.vipSearchOptimize.checkWork(lastWork.id, 'illusts');
+                if (check) {
+                    _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'));
+                    _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取完成'));
+                    return this.getIdListFinished();
+                }
             }
         }
         _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取进度2', this.listPageFinished.toString(), this.needCrawlPageCount.toString()), 1, false);
@@ -16743,8 +12289,8 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
             this.type = 'novels';
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.tag = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getTagFromURL();
-        // 每页个作品数，插画 48 个，小说 24 个
-        const onceNumber = window.location.pathname.includes('/novels') ? 24 : 48;
+        // 每页个作品数，插画 48 个，小说 30 个
+        const onceNumber = window.location.pathname.includes('/novels') ? 30 : 48;
         // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
         const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.getURLSearchField(location.href, 'p'); // 判断当前处于第几页，页码从 1 开始。也可能没有页码
         if (nowPage) {
@@ -16775,9 +12321,26 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         }
         let data;
         try {
-            data = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getBookmarkData(_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getUserId(), this.type, _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.tag, this.offset, this.isHide);
+            data = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getBookmarkData(_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getCurrentPageUserID(), this.type, _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.tag, this.offset, this.isHide);
         }
         catch (error) {
+            // 一种特殊的错误情况：
+            // 如果一个用户被封禁了，那么在他的小说收藏页面里抓取，会返回 html 源代码，
+            // 就是显示“找不到该用户”的错误页面。此时无法解析为 JSON，报错信息如下：
+            // SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+            // 此时应该终止抓取。
+            // 注：这个错误只在小说收藏页面出现。在插画收藏页面依旧可以正常抓取
+            if (error.message.includes('not valid JSON')) {
+                if (_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.type.includes('zh')) {
+                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(`预期的数据格式为 JSON，但抓取结果不是 JSON。已取消抓取。<br>
+一种可能的原因：您已被 Pixiv 封禁。`);
+                }
+                else {
+                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(`Expected data format is JSON, but the fetch result is not JSON. Fetch has been canceled. <br>
+One possible reason: You have been banned from Pixiv.`);
+                }
+                return this.getIdListFinished();
+            }
             this.getIdList();
             return;
         }
@@ -17212,7 +12775,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     exportJSON() {
         const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.json2Blob(this.userList);
         const url = URL.createObjectURL(blob);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.downloadFile(url, `following list-toal ${this.userList.length}-from user ${_utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.getURLPathField(window.location.pathname, 'users')}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.downloadFile(url, `following list-total ${this.userList.length}-from user ${_utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.getURLPathField(window.location.pathname, 'users')}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
         URL.revokeObjectURL(url);
     }
     async importUserList() {
@@ -17800,7 +13363,7 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     constructor() {
         super();
         this.listType = ListType.UserHome; // 当前页面应该获取哪些类型的作品
-        this.onceNumber = 48; // 每页作品个数，插画是 48 个，小说是 24 个
+        this.onceNumber = 48; // 每页作品个数，插画是 48 个，小说是 30 个
         this.bookmarkAll = new _pageFunciton_BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_13__.BookmarkAllWorks();
         this.sendBookmarkIdList = () => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.bookmarkMode) {
@@ -17894,7 +13457,7 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
             else if (str.includes('/novels')) {
                 // 小说列表
                 this.listType = ListType.Novels;
-                this.onceNumber = 24; // 如果是在小说列表页，一页只有 24 个作品
+                this.onceNumber = 30; // 如果是在小说列表页，一页有 30 个作品
             }
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.tag ? this.getIdListByTag() : this.getIdList();
@@ -17938,7 +13501,7 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
                 type = ['novels'];
                 break;
         }
-        let idList = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getUserWorksByType(_Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getUserId(), type);
+        let idList = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getUserWorksByType(_Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getCurrentPageUserID(), type);
         // 判断是否全都是小说，如果是，把每页的作品个数设置为 24 个
         const allWorkIsNovels = idList.every((data) => {
             return data.type === 'novels';
@@ -17988,7 +13551,7 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         // 循环请求作品，一次请求一页。假设用户的标签页面最大页数不会超过这个数字
         const maxRequest = 1000;
         for (const iterator of new Array(maxRequest)) {
-            let data = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getUserWorksByTypeWithTag(_Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getUserId(), type, _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.tag, offset, this.onceNumber);
+            let data = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getUserWorksByTypeWithTag(_Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getCurrentPageUserID(), type, _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.tag, offset, this.onceNumber);
             if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
                 return this.getIdListFinished();
             }
@@ -18055,18 +13618,12 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-
-
-
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 
 
 
@@ -18079,9 +13636,9 @@ class QuickCrawl {
         this.show = true; // 是否显示
         // 指定在哪些页面类型里启用
         this.enablePageType = [
-            _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Artwork,
-            _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Novel,
-            _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Unlisted,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Novel,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Unlisted,
         ];
         this.addBtn();
         this.setVisible();
@@ -18097,14 +13654,14 @@ class QuickCrawl {
   <use xlink:href="#icon-download"></use>
 </svg>`;
         document.body.append(this.btn);
-        _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.register(this.btn);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.btn);
     }
     bindEvents() {
         // 点击按钮启动快速抓取
         this.btn.addEventListener('click', () => {
             this.sendDownload();
-            if (!_Config__WEBPACK_IMPORTED_MODULE_1__.Config.mobile) {
-                _ShowHelp__WEBPACK_IMPORTED_MODULE_5__.showHelp.show('tipAltQToQuickDownload', _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_快捷键ALTQ快速下载本页作品'));
+            if (!_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
+                _ShowHelp__WEBPACK_IMPORTED_MODULE_4__.showHelp.show('tipAltQToQuickDownload', _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快捷键ALTQ快速下载本页作品'));
             }
         }, false);
         // 使用快捷键 Alt + Q 启动快速抓取
@@ -18114,33 +13671,29 @@ class QuickCrawl {
             }
         }, false);
         // 页面类型改变时设置按钮的显示隐藏
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.pageSwitch, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, () => {
             this.setVisible();
         });
     }
     sendDownload() {
-        _store_States__WEBPACK_IMPORTED_MODULE_6__.states.quickCrawl = true;
         const isNovel = window.location.href.includes('/novel');
         let idData;
         if (isNovel) {
             idData = {
                 type: 'novels',
-                id: _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getNovelId(window.location.href),
+                id: _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getNovelId(window.location.href),
             };
         }
         else {
             idData = {
                 type: 'illusts',
-                id: _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getIllustId(window.location.href),
+                id: _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getIllustId(window.location.href),
             };
         }
-        _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('crawlIdList', [idData]);
-        _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已发送下载请求'), {
-            bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgBlue,
-        });
+        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [idData]);
     }
     setVisible() {
-        this.show = this.enablePageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type);
+        this.show = this.enablePageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type);
         this.btn.style.display = this.show ? 'flex' : 'none';
     }
 }
@@ -18440,7 +13993,7 @@ class InitNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Ini
     }
     async getIdList() {
         let type = ['novels'];
-        let idList = await _API__WEBPACK_IMPORTED_MODULE_6__.API.getUserWorksByType(_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getUserId(), type);
+        let idList = await _API__WEBPACK_IMPORTED_MODULE_6__.API.getUserWorksByType(_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getCurrentPageUserID(), type);
         // 储存符合条件的 id
         let nowId = parseInt(_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getNovelId(window.location.href));
         idList.forEach((id) => {
@@ -18542,7 +14095,7 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         this.getIdList();
     }
     async getIdList() {
-        const seriesData = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getNovelSeriesData(this.seriesId, this.limit, this.last, 'asc');
+        const seriesData = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getNovelSeriesContent(this.seriesId, this.limit, this.last, 'asc');
         const list = seriesData.body.page.seriesContents;
         for (const item of list) {
             _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.idList.push({
@@ -18773,7 +14326,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         super();
         this.worksWrapSelector = '#root section>div ul';
         this.option = {};
-        this.worksNoPerPage = 24; // 每个页面有多少个作品
+        this.worksNoPerPage = 30; // 每个页面有多少个作品
         this.needCrawlPageCount = 0; // 一共有有多少个列表页面
         this.sendCrawlTaskCount = 0; // 已经抓取了多少个列表页面
         this.allOption = [
@@ -18798,6 +14351,9 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             'ai_type',
         ];
         this.tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.debounce(() => {
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_19__.settings.slowCrawl) {
+                _Log__WEBPACK_IMPORTED_MODULE_7__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示启用减慢抓取速度功能'));
+            }
             _Log__WEBPACK_IMPORTED_MODULE_7__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取被限制时返回空结果的提示'));
         }, 1000);
         this.crawlTag = () => {
@@ -19009,13 +14565,15 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         // 这里使用本页 api 里返回的数据，而非 store.idList 的数据，
         // 因为如果作品被过滤掉了，就不会储存在 store.idList 里
         if (this.listPageFinished > 0 && this.listPageFinished % 10 === 0) {
-            console.log(`已抓取 ${this.listPageFinished} 页，检查最后一个作品的收藏数量`);
-            const lastWork = data.data[data.data.length - 1];
-            const check = await _crawl_VipSearchOptimize__WEBPACK_IMPORTED_MODULE_18__.vipSearchOptimize.checkWork(lastWork.id, 'novels');
-            if (check) {
-                _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'));
-                _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取完成'));
-                return this.getIdListFinished();
+            if (data.data.length > 0) {
+                console.log(`已抓取 ${this.listPageFinished} 页，检查最后一个作品的收藏数量`);
+                const lastWork = data.data[data.data.length - 1];
+                const check = await _crawl_VipSearchOptimize__WEBPACK_IMPORTED_MODULE_18__.vipSearchOptimize.checkWork(lastWork.id, 'novels');
+                if (check) {
+                    _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'));
+                    _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取完成'));
+                    return this.getIdListFinished();
+                }
             }
         }
         _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取进度2', this.listPageFinished.toString(), this.needCrawlPageCount.toString()), 1, false);
@@ -19132,6 +14690,9 @@ class InitPageBase {
         this.crawlFinishBecauseStopCrawl = false;
         this.log429ErrorTip = _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.debounce(() => {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取被限制时返回空结果的提示'));
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl) {
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示启用减慢抓取速度功能'));
+            }
         }, 500);
     }
     // 子组件必须调用 init 方法，并且不可以修改 init 方法
@@ -19146,8 +14707,14 @@ class InitPageBase {
         // 切换页面时，如果任务已经完成，则移除日志区域
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('clearLogAfterPageSwitch', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.pageSwitch, () => {
             if (!_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.remove();
+                _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
             }
+        });
+        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('crawlCompleteTime', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.crawlComplete, () => {
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.crawlCompleteTime = new Date().getTime();
+        });
+        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('downloadCompleteTime', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.downloadComplete, () => {
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.downloadCompleteTime = new Date().getTime();
         });
         // 监听下载 id 列表的事件
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('crawlIdList', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.crawlIdList, (ev) => {
@@ -19249,11 +14816,27 @@ class InitPageBase {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
         }
     }
+    confirmRecrawl() {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length > 0) {
+            // 如果已经有抓取结果，则检查这些抓取结果是否已被下载过
+            // 如果没有被下载过，则显示提醒
+            if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.crawlCompleteTime > _store_States__WEBPACK_IMPORTED_MODULE_9__.states.downloadCompleteTime) {
+                const _confirm = window.confirm(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_已有抓取结果时进行提醒'));
+                return _confirm;
+            }
+        }
+        return true;
+    }
     // 准备正常进行抓取，执行一些检查
     async readyCrawl() {
         // 检查是否可以开始抓取
+        // states.busy 表示下载器正在抓取或正在下载
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
             _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前任务尚未完成'));
+            return;
+        }
+        // 下载器空闲，此时检查是否有已存在的抓取结果
+        if (!this.confirmRecrawl()) {
             return;
         }
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
@@ -19278,16 +14861,21 @@ class InitPageBase {
     // 这个方法是为了让其他模块可以传递 id 列表，直接进行下载。
     // 这个类的子类没有必要使用这个方法。当子类需要直接指定 id 列表时，修改自己的 getIdList 方法即可。
     async crawlIdList(idList) {
-        // 检查是否可以开始抓取
-        // 如果不能抓取则把 id 列表添加到等待队列中
+        // 如果下载器正忙则把 id 列表添加到等待队列中
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.waitingIdList.push(...idList);
+            _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器正忙这次请求已开始排队'), {
+                bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
+            });
         }
         else {
+            if (!this.confirmRecrawl()) {
+                return;
+            }
             _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
             _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
-                position: 'center',
+                bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
             });
             _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlStart');
             if (_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.isPixiv()) {
@@ -19297,6 +14885,8 @@ class InitPageBase {
             this.finishedRequest = 0;
             this.crawlFinishBecauseStopCrawl = false;
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = false;
+            // 传递 id 列表下载时，不显示下载面板
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.quickCrawl = true;
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = idList;
             this.getIdListFinished();
         }
@@ -19311,6 +14901,24 @@ class InitPageBase {
     async getIdListFinished() {
         _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = false;
         this.resetGetIdListStatus();
+        // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则直接剔除它
+        // 现在这里能够检查这些过滤条件：
+        // 1. 检查 id 是否符合 id 范围条件
+        // 2. 检查 id 的发布时间是否符合时间范围条件
+        // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，
+        // 但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
+        const filteredIDList = [];
+        for (const idData of _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList) {
+            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
+                id: idData.id,
+                workTypeString: idData.type,
+                workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
+            });
+            if (check) {
+                filteredIDList.push(idData);
+            }
+        }
+        _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = filteredIDList;
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('getIdListFinished');
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl || _store_States__WEBPACK_IMPORTED_MODULE_9__.states.bookmarkMode) {
             return;
@@ -19375,11 +14983,12 @@ class InitPageBase {
             _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
             throw new Error(msg);
         }
-        // 在抓取之前，预先对 id 进行检查，如果不符合要求则不发送这个请求，直接跳过它
-        // 现在这里能够检查 2 种设置条件：
+        // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则跳过它
+        // 现在这里能够检查这些过滤条件：
         // 1. 检查 id 是否符合 id 范围条件
         // 2. 检查 id 的发布时间是否符合时间范围条件
-        // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
+        // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，
+        // 但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
         const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
             id,
             workTypeString: idData.type,
@@ -19944,7 +15553,7 @@ class VipSearchOptimize {
         // 启动抓取时设置是否启用优化策略
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
             this.vipSearchOptimize = this.setVipOptimize();
-            console.log('启用 vip 优化：', this.vipSearchOptimize);
+            // console.log('vipSearchOptimize: ', this.vipSearchOptimize)
         });
         // 抓取完毕时重置状态
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, () => {
@@ -20161,7 +15770,7 @@ class BookmarkAfterDL {
                 return resolve();
             }
             // 当抓取结果很少时，不使用慢速收藏
-            await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(id.toString(), data.type !== 3 ? 'illusts' : 'novels', data.tags, undefined, undefined, _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length > 24);
+            await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(id.toString(), data.type !== 3 ? 'illusts' : 'novels', data.tags, undefined, undefined, _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length > 30);
             this.successCount++;
             this.showProgress();
             resolve();
@@ -20284,7 +15893,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DownloadNovelCover__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./DownloadNovelCover */ "./src/ts/download/DownloadNovelCover.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
 /* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/download/DownloadStates.ts");
+/* harmony import */ var _DownloadInterval__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./DownloadInterval */ "./src/ts/download/DownloadInterval.ts");
 // 下载文件，然后发送给浏览器进行保存
+
 
 
 
@@ -20339,7 +15950,7 @@ class Download {
             return this.skipDownload({
                 id: arg.id,
                 reason: 'duplicate',
-            }, _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_跳过下载因为重复文件', _Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.createWorkLink(arg.id, arg.result.type !== 3)));
+            }, _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_跳过下载因为', _Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.createWorkLink(arg.id, arg.result.type !== 3)) + _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_不下载重复文件'));
         }
         // 如果是动图，再次检查是否排除了动图
         // 因为有时候用户在抓取时没有排除动图，但是在下载时排除了动图。所以下载时需要再次检查
@@ -20382,7 +15993,9 @@ class Download {
     }
     // 设置进度条信息
     setProgressBar(name, loaded, total) {
-        _ProgressBar__WEBPACK_IMPORTED_MODULE_5__.progressBar.setProgress(this.progressBarIndex, {
+        // 在下载初始化和下载完成时，立即更新进度条
+        // 在下载途中，使用节流来更新进度条
+        _ProgressBar__WEBPACK_IMPORTED_MODULE_5__.progressBar[loaded === total ? 'setProgress' : 'setProgressThrottle'](this.progressBarIndex, {
             name,
             loaded,
             total,
@@ -20428,15 +16041,22 @@ class Download {
         // 下载文件
         let url;
         if (arg.result.type === 3) {
-            // 生成小说的文件
+            // 小说
             if (arg.result.novelMeta) {
-                if (arg.result.novelMeta?.coverUrl) {
-                    _DownloadNovelCover__WEBPACK_IMPORTED_MODULE_16__.downloadNovelCover.download(arg.result.novelMeta.coverUrl, _fileName, 'downloadNovel');
+                // 下载小说的封面图片
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadNovelCoverImage &&
+                    arg.result.novelMeta?.coverUrl) {
+                    await _DownloadInterval__WEBPACK_IMPORTED_MODULE_19__.downloadInterval.wait();
+                    await _DownloadNovelCover__WEBPACK_IMPORTED_MODULE_16__.downloadNovelCover.download(arg.result.novelMeta.coverUrl, _fileName, 'downloadNovel');
                 }
+                // 生成小说文件
+                // 另外，如果小说保存为 EPUB 格式，此步骤里会下载内嵌的图片
+                // 并且会再次下载小说的封面图（因为要嵌入到 EPUB 文件里）
                 let blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_9__.MakeNovelFile.make(arg.result.novelMeta);
                 url = URL.createObjectURL(blob);
+                // 如果小说保存为 TXT 格式，在这里下载内嵌的图片
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.novelSaveAs === 'txt') {
-                    await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_15__.downloadNovelEmbeddedImage.TXT(arg.result.novelMeta.content, arg.result.novelMeta.embeddedImages, _fileName);
+                    await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_15__.downloadNovelEmbeddedImage.TXT(arg.result.novelMeta.id, arg.result.novelMeta.content, arg.result.novelMeta.embeddedImages, _fileName);
                 }
             }
             else {
@@ -20446,6 +16066,7 @@ class Download {
         else {
             // 对于图像作品，如果设置了图片尺寸就使用指定的 url，否则使用原图 url
             url = arg.result[_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.imageSize] || arg.result.original;
+            await _DownloadInterval__WEBPACK_IMPORTED_MODULE_19__.downloadInterval.wait();
         }
         let xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
@@ -20478,7 +16099,11 @@ class Download {
                 xhr = null;
                 return;
             }
-            let file = xhr.response; // 要下载的文件
+            // 要下载的文件
+            let file = xhr.response;
+            // 下载时有些图片可能没有 content-length，无法计算下载进度
+            // 所以在 loadend 之后，把下载进度拉满
+            this.setProgressBar(_fileName, file.size, file.size);
             // 状态码错误，进入重试流程
             if (xhr.status !== 200) {
                 // 正常下载完毕的状态码是 200
@@ -20741,7 +16366,7 @@ class DownloadControl {
             this.checkDownloadTimeoutTimer = window.setTimeout(() => {
                 const msg = _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_可能发生了错误请刷新页面重试');
                 _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.once('mayError', msg, 'warning');
-                _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(msg);
+                _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(msg, 1, false, 'mayError');
             }, 5000);
         });
         const clearDownloadTimeoutTimerList = [
@@ -20764,7 +16389,7 @@ class DownloadControl {
             }
             // UUID 的情况
             if (msg.data?.uuid) {
-                _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_uuid'));
+                _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_uuid'), 1, false, 'filenameUUID');
                 _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.once(this.msgFlag, _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_uuid'), 'error');
             }
             // 文件下载成功
@@ -20810,7 +16435,6 @@ class DownloadControl {
             else {
                 window.clearTimeout(this.crawlIdListTimer);
                 this.crawlIdListTimer = window.setTimeout(() => {
-                    _store_States__WEBPACK_IMPORTED_MODULE_14__.states.quickCrawl = true; // 下载等待的任务时，不显示下载器面板
                     const idList = _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.waitingIdList;
                     _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.waitingIdList = [];
                     _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', idList);
@@ -20942,7 +16566,9 @@ class DownloadControl {
         _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('downloadStart');
         // 建立并发下载线程
         for (let i = 0; i < this.thread; i++) {
-            this.createDownload(i);
+            window.setTimeout(() => {
+                this.createDownload(i);
+            }, 0);
         }
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_正在下载中'));
         if (_Config__WEBPACK_IMPORTED_MODULE_15__.Config.mobile) {
@@ -21136,6 +16762,102 @@ new DownloadControl();
 
 /***/ }),
 
+/***/ "./src/ts/download/DownloadInterval.ts":
+/*!*********************************************!*\
+  !*** ./src/ts/download/DownloadInterval.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   downloadInterval: () => (/* binding */ downloadInterval)
+/* harmony export */ });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+
+
+
+
+
+class DownloadInterval {
+    constructor() {
+        /**允许开始下载的时间戳 */
+        // 不管设置里的值是多少，初始值都是 0，即允许第一次下载立即开始
+        // 在开始下载第一个文件后，才会有实际的值
+        this.allowDownloadTime = 0;
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'downloadInterval') {
+                if (data.value === 0) {
+                    this.reset();
+                }
+            }
+        });
+        const resetEvents = [
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStart,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadPause,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadComplete,
+        ];
+        resetEvents.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.reset();
+            });
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStart, () => {
+            // 在开始下载时，如果应用了间隔时间，则显示一条日志提醒
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadIntervalOnWorksNumber &&
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadInterval > 0) {
+                const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_下载间隔') +
+                    `: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadInterval} ` +
+                    _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_秒');
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(msg, 1, false, 'downloadInterval');
+            }
+        });
+    }
+    reset() {
+        this.allowDownloadTime = 0;
+    }
+    addTime() {
+        this.allowDownloadTime =
+            new Date().getTime() + _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadInterval * 1000;
+    }
+    wait() {
+        return new Promise(async (resolve) => {
+            // 首先检查此设置不应该生效的情况，立即放行
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadInterval === 0 ||
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length <= _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadIntervalOnWorksNumber) {
+                return resolve(true);
+            }
+            // 可以立即开始下载
+            if (new Date().getTime() >= this.allowDownloadTime) {
+                this.addTime();
+                return resolve(true);
+            }
+            // 需要等待
+            const timer = window.setInterval(() => {
+                if (new Date().getTime() >= this.allowDownloadTime) {
+                    window.clearInterval(timer);
+                    this.addTime();
+                    return resolve(true);
+                }
+            }, 50);
+        });
+    }
+}
+const downloadInterval = new DownloadInterval();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/download/DownloadNovelCover.ts":
 /*!***********************************************!*\
   !*** ./src/ts/download/DownloadNovelCover.ts ***!
@@ -21146,8 +16868,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   downloadNovelCover: () => (/* binding */ downloadNovelCover)
 /* harmony export */ });
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 class DownloadNovelCover {
@@ -21156,15 +16880,13 @@ class DownloadNovelCover {
      * 默认是正常下载小说的情况，可以设置为合并系列小说的情况
      */
     async download(coverURL, novelName, action = 'downloadNovel') {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.downloadNovelCoverImage || !coverURL) {
-            return;
-        }
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载封面图片'), 1, false, 'downloadNovelCover');
         const url = await this.getCoverBolbURL(coverURL);
-        let coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceSuffix(novelName, coverURL);
+        let coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceSuffix(novelName, coverURL);
         // 合并系列小说时，文件直接保存在下载目录里，封面图片也保存在下载目录里
         // 所以要替换掉封面图路径里的斜线
         if (action === 'mergeNovel') {
-            coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceUnsafeStr(coverName);
+            coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(coverName);
         }
         this.sendDownload(url, coverName);
     }
@@ -21205,8 +16927,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   downloadNovelEmbeddedImage: () => (/* binding */ downloadNovelEmbeddedImage)
 /* harmony export */ });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./DownloadInterval */ "./src/ts/download/DownloadInterval.ts");
+
+
+
+
 
 
 
@@ -21217,66 +16947,56 @@ class DownloadNovelEmbeddedImage {
      *
      * 默认是正常下载小说的情况，可以设置为合并系列小说的情况
      */
-    async TXT(content, embeddedImages, novelName, action = 'downloadNovel') {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.downloadNovelEmbeddedImage) {
+    async TXT(novelID, content, embeddedImages, novelName, action = 'downloadNovel') {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downloadNovelEmbeddedImage) {
             return;
         }
-        const idList = await this.getIdList(content, embeddedImages);
+        const imageList = await this.getImageList(novelID, content, embeddedImages);
+        let current = 1;
+        const total = imageList.length;
         // 保存为 TXT 格式时，每加载完一个图片，就立即保存这个图片
-        for (let idData of idList) {
-            // 如果 url 是 null，则不会保存这个图片
-            if (idData.url) {
-                idData = await this.getImageBolbURL(idData);
-                let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceSuffix(novelName, idData.url);
-                // 在文件名末尾加上内嵌图片的 id 和序号
-                const array = imageName.split('.');
-                const addString = `-${idData.id}${idData.p === 0 ? '' : '-' + idData.p}`;
-                array[array.length - 2] = array[array.length - 2] + addString;
-                imageName = array.join('.');
-                // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
-                // 所以要替换掉内嵌图片路径里的斜线
-                if (action === 'mergeNovel') {
-                    imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(imageName);
-                }
-                this.sendDownload(idData.blobURL, imageName);
+        for (let image of imageList) {
+            _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_正在下载小说中的插画', `${current} / ${total}`), 1, false, 'downloadNovelImage' + novelID);
+            current++;
+            if (image.url === '') {
+                _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(`image ${image.id} not found`);
+                continue;
             }
+            await _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__.downloadInterval.wait();
+            image = await this.getImageBlobURL(image);
+            let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceSuffix(novelName, image.url);
+            // 在文件名末尾加上内嵌图片的 id 和序号
+            const array = imageName.split('.');
+            const addString = image.flag_id_part;
+            array[array.length - 2] = array[array.length - 2] + addString;
+            imageName = array.join('.');
+            // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
+            // 所以要替换掉内嵌图片路径里的斜线
+            if (action === 'mergeNovel') {
+                imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(imageName);
+            }
+            this.sendDownload(image.blobURL, imageName);
         }
-    }
-    /**下载小说为 EPUB 时，替换内嵌图片标记，把图片用 img 标签保存到正文里 */
-    async EPUB(content, embeddedImages) {
-        return new Promise(async (resolve) => {
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.downloadNovelEmbeddedImage) {
-                return resolve(content);
-            }
-            const idList = await this.getIdList(content, embeddedImages);
-            for (let idData of idList) {
-                if (idData.url) {
-                    idData = await this.getImageBolbURL(idData);
-                    const dataURL = await this.getImageDataURL(idData);
-                    const html = `<img src="${dataURL}" />`;
-                    content = content.replaceAll(idData.flag, html);
-                }
-                else {
-                    // 如果 url 是 null，则修改标记，做出提示
-                    content = content.replaceAll(idData.flag, ` ${idData.flag} url is null`);
-                }
-            }
-            return resolve(content);
-        });
+        _Log__WEBPACK_IMPORTED_MODULE_3__.log.persistentRefresh('downloadNovelImage' + novelID);
     }
     // 获取正文里上传的图片 id 和引用的图片 id
-    async getIdList(content, embeddedImages) {
+    async getImageList(novelID, content, embeddedImages) {
         return new Promise(async (resolve) => {
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downloadNovelEmbeddedImage) {
+                return resolve([]);
+            }
             const idList = [];
             // 获取上传的图片数据
+            // 此时可以直接获取到图片 URL
             if (embeddedImages) {
                 for (const [id, url] of Object.entries(embeddedImages)) {
                     idList.push({
-                        id,
-                        p: 0,
+                        id: id,
+                        p: '',
                         type: 'upload',
                         url,
                         flag: `[uploadedimage:${id}]`,
+                        flag_id_part: id,
                     });
                 }
             }
@@ -21285,85 +17005,111 @@ class DownloadNovelEmbeddedImage {
             let test;
             while ((test = reg.exec(content))) {
                 if (test && test.length === 2) {
+                    // 当引用的是第一张插画时，可能有序号，也可能没有序号
                     // 99381250
-                    // 一个图像作品可能有多个被引用的图片，如
+                    // 一个插画作品可能有多个被引用的图片，如
                     // 99760571-1
                     // 99760571-130
+                    // 检查是否重复，因为同一张图片可能在小说里被多次引用，所以有可能出现重复的情况
+                    // 应该避免重复添加相同的图片 id，因为这会导致重复的图片下载请求
+                    const some = idList.some((idData) => idData.flag_id_part === test[1]);
+                    if (some) {
+                        continue;
+                    }
                     const idInfo = test[1].split('-');
                     idList.push({
                         id: idInfo[0],
-                        p: idInfo[1] ? parseInt(idInfo[1]) : 0,
+                        // 如果没有带序号，那么实际上就是第一张图片
+                        p: idInfo[1] || '1',
                         type: 'pixiv',
                         url: '',
                         flag: `[pixivimage:${test[1]}]`,
+                        flag_id_part: test[1],
                     });
                 }
             }
-            // 引用的图片此时没有 URL
-            // 统计引用的图像作品的 id （不重复），然后获取每个 id 的数据
-            const artworkIDs = new Set();
-            idList.forEach((data) => {
-                if (data.type === 'pixiv') {
-                    artworkIDs.add(data.id);
+            // 引用的图片此时没有 URL，需要获取
+            let insertIllustIDs = [];
+            for (const idData of idList) {
+                if (idData.type === 'pixiv') {
+                    insertIllustIDs.push(idData.flag_id_part);
                 }
-            });
-            for (const id of Array.from(artworkIDs)) {
-                try {
-                    // 尝试获取原图作品数据，提取 URL
-                    const workData = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(id);
-                    const p0URL = workData.body.urls.original;
+            }
+            if (insertIllustIDs.length === 0) {
+                return resolve(idList);
+            }
+            try {
+                const allInsert = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelInsertIllustsData(novelID, insertIllustIDs);
+                for (const id_part of insertIllustIDs) {
+                    const illustData = allInsert.body[id_part];
                     for (const idData of idList) {
-                        if (idData.id === id) {
-                            // 如果 p 为 0 则表示未指定图片序号，也就是第一张图片
-                            if (idData.p === 0) {
-                                idData.url = p0URL;
+                        if (idData.flag_id_part === id_part) {
+                            // // 从原图 URL 里根据序号生成对应 p 的 URL
+                            // const p0URL = illustData.illust.images.original
+                            // parseInt(idData.p)-1
+                            // idData.url = p0URL.replace('p0.', `p${idData.p - 1}.`)
+                            // 当引用的插画作品 404 或当前不能查看时，该数据为 null
+                            if (illustData.illust === null) {
+                                idData.url = '';
                             }
                             else {
-                                // 如果指定了图片序号，则从第一张图片的 URL 生成指定图片的 URL
-                                idData.url = p0URL.replace('p0.', `p${idData.p - 1}.`);
+                                idData.url = illustData.illust.images.original;
                             }
                         }
                     }
                 }
-                catch (error) {
-                    // 原图作品可能被删除了，404
-                    console.log(error);
-                    continue;
+                return resolve(idList);
+            }
+            catch (error) {
+                if (error.status) {
+                    // 请求成功，但状态码不正常
+                    if (error.status === 500 || error.status === 429) {
+                        _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取被限制时返回空结果的提示'));
+                        window.setTimeout(() => {
+                            return this.getImageList(novelID, content, embeddedImages);
+                        }, _Config__WEBPACK_IMPORTED_MODULE_1__.Config.retryTime);
+                        return;
+                    }
+                    else {
+                        // 其他状态码，尚不清楚实际会遇到什么情况，最可能的是作品被删除（404 ）了吧
+                        // 此时直接返回数据（不会下载图片，但是后续会在正文里显示对应的提示）
+                        return resolve(idList);
+                    }
+                }
+                else {
+                    // 请求失败，没有获得服务器的返回数据，一般都是
+                    // TypeError: Failed to fetch
+                    console.error(error);
+                    // 再次发送这个请求
+                    window.setTimeout(() => {
+                        return this.getImageList(novelID, content, embeddedImages);
+                    }, 2000);
                 }
             }
-            // 返回数据时，删除没有 url 的数据
-            const result = idList.filter((data) => data.url !== '');
-            return resolve(result);
         });
     }
-    async getImageBolbURL(idData) {
+    async getImageBlobURL(image) {
         return new Promise(async (resolve) => {
-            if (idData.url) {
-                const res = await fetch(idData.url);
-                const blob = await res.blob();
-                idData.blobURL = URL.createObjectURL(blob);
+            if (image.url) {
+                let illustration = undefined;
+                try {
+                    illustration = await fetch(image.url).then((response) => {
+                        if (response.ok) {
+                            return response.blob();
+                        }
+                    });
+                }
+                catch (error) {
+                    console.log(error);
+                }
+                // 如果图片获取失败，不重试
+                if (illustration === undefined) {
+                    _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(`fetch ${image.url} failed`);
+                    return resolve(image);
+                }
+                image.blobURL = URL.createObjectURL(illustration);
             }
-            resolve(idData);
-        });
-    }
-    async getImageDataURL(data) {
-        return new Promise(async (resolve) => {
-            const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.loadImg(data.blobURL);
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const con = canvas.getContext('2d');
-            con.drawImage(img, 0, 0, img.width, img.height);
-            const suffix = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.getSuffix(data.url);
-            // 如果原图是 png 格式，就转换成 png 格式的数据，否则转换为 jpeg 格式
-            if (suffix === 'png') {
-                const ImgDataURL = canvas.toDataURL();
-                return resolve(ImgDataURL);
-            }
-            else {
-                const ImgDataURL = canvas.toDataURL('image/jpeg', 0.95);
-                return resolve(ImgDataURL);
-            }
+            resolve(image);
         });
     }
     sendDownload(url, name) {
@@ -21392,19 +17138,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
-/* harmony import */ var _NovelThumbnail__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../NovelThumbnail */ "./src/ts/NovelThumbnail.ts");
-
-
-
-
+/* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
+/* harmony import */ var _NovelThumbnail__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../NovelThumbnail */ "./src/ts/NovelThumbnail.ts");
 
 
 
@@ -21419,27 +17157,27 @@ class DownloadOnClickBookmark {
     }
     bindEvents() {
         // 在作品缩略图上点击收藏按钮时，下载这个作品
-        _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_9__.artworkThumbnail.onClickBookmarkBtn((el, id) => {
+        _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_5__.artworkThumbnail.onClickBookmarkBtn((el, id) => {
             if (!id) {
-                id = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.findWorkIdFromElement(el, 'illusts');
+                id = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.findWorkIdFromElement(el, 'illusts');
             }
             this.send(id);
         });
-        _NovelThumbnail__WEBPACK_IMPORTED_MODULE_10__.novelThumbnail.onClickBookmarkBtn((el, id) => {
+        _NovelThumbnail__WEBPACK_IMPORTED_MODULE_6__.novelThumbnail.onClickBookmarkBtn((el, id) => {
             if (!id || id === '0') {
-                id = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.findWorkIdFromElement(el, 'novels');
+                id = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.findWorkIdFromElement(el, 'novels');
                 console.log(id);
             }
             this.send(id, 'novels');
         });
         // 在作品页面里点击收藏按钮时，下载这个作品
-        _WorkToolBar__WEBPACK_IMPORTED_MODULE_6__.workToolBar.register((toolbar, pixivBMKDiv, likeBtn) => {
+        _WorkToolBar__WEBPACK_IMPORTED_MODULE_2__.workToolBar.register((toolbar, pixivBMKDiv, likeBtn) => {
             pixivBMKDiv.addEventListener('click', () => {
-                if (_PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.list.Artwork) {
-                    this.send(_Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getIllustId(window.location.href));
+                if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork) {
+                    this.send(_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.getIllustId(window.location.href));
                 }
-                if (_PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.list.Novel) {
-                    this.send(_Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getNovelId(window.location.href), 'novels');
+                if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Novel) {
+                    this.send(_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.getNovelId(window.location.href), 'novels');
                 }
             });
         });
@@ -21450,16 +17188,12 @@ class DownloadOnClickBookmark {
      */
     send(id, type = 'illusts') {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.downloadOnClickBookmark) {
-            _store_States__WEBPACK_IMPORTED_MODULE_2__.states.quickCrawl = true;
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [
                 {
                     id,
                     type,
                 },
             ]);
-            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_已发送下载请求'), {
-                bgColor: _Colors__WEBPACK_IMPORTED_MODULE_4__.Colors.bgBlue,
-            });
         }
     }
 }
@@ -21476,19 +17210,11 @@ const downloadOnClickBookmark = new DownloadOnClickBookmark();
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
-
-
-
-
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
 
 
 
@@ -21500,13 +17226,13 @@ class DownloadOnClickLike {
         this.bindEvents();
     }
     bindEvents() {
-        _WorkToolBar__WEBPACK_IMPORTED_MODULE_8__.workToolBar.register((toolbar, pixivBMKDiv, likeBtn) => {
+        _WorkToolBar__WEBPACK_IMPORTED_MODULE_4__.workToolBar.register((toolbar, pixivBMKDiv, likeBtn) => {
             likeBtn.addEventListener('click', () => {
-                if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork) {
-                    this.send(_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getIllustId(window.location.href));
+                if (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Artwork) {
+                    this.send(_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getIllustId(window.location.href));
                 }
-                if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Novel) {
-                    this.send(_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getNovelId(window.location.href), 'novels');
+                if (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Novel) {
+                    this.send(_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getNovelId(window.location.href), 'novels');
                 }
             });
         });
@@ -21516,17 +17242,13 @@ class DownloadOnClickLike {
      * @type 默认值是 'illusts'
      */
     send(id, type = 'illusts') {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downloadOnClickLike) {
-            _store_States__WEBPACK_IMPORTED_MODULE_5__.states.quickCrawl = true;
-            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.downloadOnClickLike) {
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [
                 {
                     id,
                     type,
                 },
             ]);
-            _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已发送下载请求'), {
-                bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgBlue,
-            });
         }
     }
 }
@@ -22396,6 +18118,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DownloadNovelEmbeddedImage */ "./src/ts/download/DownloadNovelEmbeddedImage.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./DownloadInterval */ "./src/ts/download/DownloadInterval.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+
+
+
+
 
 
 
@@ -22405,7 +18135,9 @@ class MakeNovelFile {
         if (type === 'txt') {
             return this.makeTXT(data, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.saveNovelMeta);
         }
-        return this.makeEPUB(data, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.saveNovelMeta);
+        else {
+            return this.makeEPUB(data, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.saveNovelMeta);
+        }
     }
     static makeTXT(data, saveMeta = true) {
         let content = saveMeta ? data.meta + data.content : data.content;
@@ -22418,34 +18150,101 @@ class MakeNovelFile {
     static makeEPUB(data, saveMeta = true) {
         return new Promise(async (resolve, reject) => {
             let content = saveMeta ? data.meta + data.content : data.content;
-            content = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBText(content);
-            // 添加小说里内嵌的图片。这部分必须放在 replaceEPUBText 后面，否则 <img> 标签的左尖括号会被转义
-            content = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_3__.downloadNovelEmbeddedImage.EPUB(content, data.embeddedImages);
-            // epub 内部会使用标题 title 建立一个文件夹，把一些文件存放进去，所以要替换掉标题的特殊字符。特殊字符会导致这个文件夹名被截断，结果就是这个 epub 文件无法被解析。
+            //使用新的function统一替换添加<p>与</p>， 以对应EPUB文本惯例
+            content = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBTextWithP(content);
             const userName = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(data.userName));
-            const title = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(data.title));
-            new EpubMaker()
-                .withTemplate('idpf-wasteland')
-                .withAuthor(userName)
-                .withModificationDate(new Date(data.createDate))
-                .withRights({
-                description: _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBText(data.description),
-                license: '',
-            })
-                .withAttributionUrl(`https://www.pixiv.net/novel/show.php?id=${data.id}`)
-                .withCover(data.coverUrl, {
-                license: '',
-                attributionUrl: '',
-            })
-                .withTitle(title)
-                .withSection(new EpubMaker.Section('chapter', null, {
-                title: title,
-                content: content,
-            }, true, true))
-                .makeEpub()
-                .then((blob) => {
-                resolve(blob);
+            const title = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(data.title));
+            const novelURL = `https://www.pixiv.net/novel/show.php?id=${data.id}`;
+            // 开始生成 EPUB 文件
+            await _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__.downloadInterval.wait();
+            const cover = await fetch(data.coverUrl).then((response) => {
+                if (response.ok)
+                    return response.arrayBuffer();
+                throw 'Network response was not ok.';
             });
+            const date = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_7__.DateFormat.format(data.createDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat);
+            const jepub = new jEpub();
+            jepub.init({
+                i18n: _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.type,
+                // 对 EPUB 左侧的一些文字进行本地化
+                i18n_config: {
+                    code: _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.type,
+                    cover: 'Cover',
+                    toc: _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_目录'),
+                    info: _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_Information'),
+                    note: 'Notes',
+                },
+                title: title,
+                author: userName,
+                publisher: novelURL,
+                // description 的内容会被添加到 book.opf 的 <dc:description> 标签对中
+                // 有的小说简介里含有 & 符号，需要转换成别的字符，否则会导致阅读器解析时出错
+                // 如 https://www.pixiv.net/novel/show.php?id=22260000
+                tags: data.tags || [],
+                //使用新的function统一替换添加<p>与</p>， 以对应EPUB文本惯例
+                description: `<p>${date}</p>` + _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBTextWithP(data.description),
+            });
+            jepub.uuid(novelURL);
+            jepub.date(new Date(data.createDate));
+            jepub.cover(cover);
+            // 添加小说里的图片
+            const imageList = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_3__.downloadNovelEmbeddedImage.getImageList(data.id, content, data.embeddedImages);
+            let current = 1;
+            const total = imageList.length;
+            const novelID = data.id;
+            for (const image of imageList) {
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_正在下载小说中的插画', `${current} / ${total}`), 1, false, 'downloadNovelImage' + novelID);
+                current++;
+                const imageID = image.flag_id_part;
+                if (image.url === '') {
+                    content = content.replaceAll(image.flag, `image ${imageID} not found`);
+                    continue;
+                }
+                // 加载图片
+                await _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__.downloadInterval.wait();
+                let illustration = undefined;
+                try {
+                    illustration = await fetch(image.url).then((response) => {
+                        if (response.ok) {
+                            return response.blob();
+                        }
+                    });
+                }
+                catch (error) {
+                    // 如果请求失败，不做处理，因为我懒……
+                    // 而且不排除有什么异常情况会导致重试也依然会失败，贸然重试可能会死循环
+                    console.log(error);
+                }
+                // 如果图片获取失败，不重试，并将其替换为提示
+                if (illustration === undefined) {
+                    content = content.replaceAll(image.flag, `fetch ${image.url} failed`);
+                    continue;
+                }
+                jepub.image(illustration, imageID);
+                // 将小说正文里的图片标记替换为真实的的图片路径，以在 EPUB 里显示
+                // [uploadedimage:17995414]
+                // <img src="assets/17995414.png"></img>
+                // 小说页面的文件是 OEBPS/page-0.html
+                // 小说里的图片保存在 OEBPS/assets 文件夹里（封面图除外，它直接保存在 OEBPS/cover-image.jpg）
+                // 注意：img src 的 assets 前面不要添加相对位置的符号： ./
+                // 也就是说不能是 src="./assets/17995414.png"
+                // 因为某些在线阅读器(https://epub-reader.online/)会读取图片内容，生成 blob URL，然后替换原 src 里的值。
+                // 当 src 前面有 ./ 的时候，blob URL 会跟在 ./ 后面，导致图片路径错误，无法显示
+                const ext = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.getURLExt(image.url);
+                // 在图片前后添加换行，因为有时图片和文字挨在一起，或者多张图片挨在一起。
+                // 不添加换行的话，在某些阅读器里这些内容会并排，影响阅读体验
+                const imgTag = `<br/><img src="assets/${imageID}.${ext}" /><br/>`;
+                content = content.replaceAll(image.flag, imgTag);
+            }
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.persistentRefresh('downloadNovelImage' + novelID);
+            // 添加正文，这会在 EPUB 里生成一个新的章节
+            // 实际上会生成对应的 html 文件，如 OEBPS/page-0.html
+            jepub.add(title, content);
+            const blob = await jepub.generate('blob', (metadata) => {
+                // console.log('progression: ' + metadata.percent.toFixed(2) + ' %');
+                // if (metadata.currentFile) console.log('current file = ' + metadata.currentFile);
+            });
+            resolve(blob);
         });
     }
 }
@@ -22470,6 +18269,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../download/DownloadNovelCover */ "./src/ts/download/DownloadNovelCover.ts");
 /* harmony import */ var _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./DownloadNovelEmbeddedImage */ "./src/ts/download/DownloadNovelEmbeddedImage.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+
+
 
 
 
@@ -22482,8 +18285,8 @@ __webpack_require__.r(__webpack_exports__);
 class MergeNovel {
     constructor() {
         this.CRLF = '\n'; // pixiv 小说的换行符
-        /**在文件开头添加的元数据 */
-        this.meta = '';
+        /** 这个系列小说的元数据，现在只用在 TXT 里 */
+        this.seriesMeta = '';
         this.init();
     }
     init() {
@@ -22503,69 +18306,83 @@ class MergeNovel {
         }
         // 因为结果里的小说顺序可能是乱的，所以需要按照小说的序号对结果进行排序
         const allResult = _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.sortByProperty('seriesOrder', 'asc'));
-        const firstResult = _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.resultMeta[0];
         // 汇总小说数据
         const allNovelData = [];
         for (const result of allResult) {
             allNovelData.push({
+                id: result.id,
                 no: result.seriesOrder,
                 title: _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(result.title),
                 content: result.novelMeta.content,
                 embeddedImages: result.novelMeta.embeddedImages,
+                description: result.novelMeta.description,
             });
         }
-        // 生成 meta 文本
-        this.meta = '';
+        // 获取这个系列本身的资料
+        const seriesDataJSON = await _API__WEBPACK_IMPORTED_MODULE_10__.API.getNovelSeriesData(_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.resultMeta[0].seriesId);
+        const seriesData = seriesDataJSON.body;
+        // 生成系列小说元数据的文本
+        this.seriesMeta = '';
+        const title = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(seriesData.title));
+        const userName = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(seriesData.userName));
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveNovelMeta) {
             const metaArray = [];
             // 系列标题
-            metaArray.push(firstResult.seriesTitle);
+            metaArray.push(title);
             // 作者
-            metaArray.push(firstResult.user);
+            metaArray.push(userName);
             // 网址链接
-            const link = `https://www.pixiv.net/novel/series/${firstResult.seriesId}`;
-            metaArray.push(link + this.CRLF.repeat(2));
+            const link = `https://www.pixiv.net/novel/series/${seriesData.id}`;
+            metaArray.push(link + this.CRLF);
+            const description = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlDecode(seriesData.caption));
+            metaArray.push(description + this.CRLF.repeat(2));
             // 设定资料
             if (_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.novelSeriesGlossary) {
-                metaArray.push(_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.novelSeriesGlossary);
+                metaArray.push(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlDecode(_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.novelSeriesGlossary)) +
+                    this.CRLF.repeat(2));
             }
-            this.meta = metaArray.join(this.CRLF.repeat(2));
+            this.seriesMeta = metaArray.join(this.CRLF);
         }
         // 生成小说文件并下载
         let file = null;
-        const novelName = `${firstResult.seriesTitle}-tags_${firstResult.tags}-user_${firstResult.user}-seriesId_${firstResult.seriesId}.${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.novelSaveAs}`;
+        const novelName = `${title}-tags_${seriesData.tags}-user_${userName}-seriesId_${seriesData.id}.${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.novelSaveAs}`;
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.novelSaveAs === 'txt') {
-            file = await this.makeTXT(allNovelData);
+            file = await this.mergeTXT(allNovelData);
             // 保存为 txt 格式时，在这里下载小说内嵌的图片
             for (const result of allResult) {
-                await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_8__.downloadNovelEmbeddedImage.TXT(result.novelMeta.content, result.novelMeta.embeddedImages, novelName, 'mergeNovel');
+                await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_8__.downloadNovelEmbeddedImage.TXT(result.novelMeta.id, result.novelMeta.content, result.novelMeta.embeddedImages, novelName, 'mergeNovel');
             }
         }
         else {
-            file = await this.makeEPUB(allNovelData, firstResult);
+            file = await this.mergeEPUB(allNovelData, seriesData);
+        }
+        // 下载系列小说的封面图片
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downloadNovelCoverImage) {
+            const cover = seriesData.cover.urls.original;
+            await _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_7__.downloadNovelCover.download(cover, novelName, 'mergeNovel');
         }
         const url = URL.createObjectURL(file);
         _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.downloadFile(url, _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(novelName));
         _store_States__WEBPACK_IMPORTED_MODULE_3__.states.mergeNovel = false;
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadComplete');
-        // 保存第一个小说的封面图片
-        // 实际上系列的封面不一定是第一个小说的封面，这里用第一个小说的封面凑合一下
-        if (firstResult.novelMeta?.coverUrl) {
-            _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_7__.downloadNovelCover.download(firstResult.novelMeta.coverUrl, novelName, 'mergeNovel');
-        }
+        _Log__WEBPACK_IMPORTED_MODULE_9__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_下载完毕'), 2);
         _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.reset();
     }
-    async makeTXT(novelDataArray) {
+    async mergeTXT(novelDataArray) {
         return new Promise(async (resolve, reject) => {
             const result = [];
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveNovelMeta) {
-                result.push(this.meta);
+                result.push(this.seriesMeta);
             }
             for (const data of novelDataArray) {
                 // 添加章节名
                 result.push(`${this.chapterNo(data.no)} ${data.title}`);
-                // 在章节名与正文之间添加换行
                 result.push(this.CRLF.repeat(2));
+                // 保存每篇小说的元数据，现在只添加了简介
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveNovelMeta) {
+                    result.push(data.description);
+                    result.push(this.CRLF.repeat(2));
+                }
                 // 添加正文
                 // 替换换行标签，移除 html 标签
                 result.push(data.content.replace(/<br \/>/g, this.CRLF).replace(/<\/?.+?>/g, ''));
@@ -22578,54 +18395,116 @@ class MergeNovel {
             return resolve(blob);
         });
     }
-    makeEPUB(novelDataArray, firstResult) {
+    /** 处理从 Pixiv API 里取得的字符串，将其转换为可以安全的用于 EPUB 小说的 description 的内容
+     *
+     * 这些字符串通常是作品简介、设定资料等，可能包含 html 代码、特殊符号 */
+    handleEPUBDescription(htmlString) {
+        return _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBTextWithP(_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBDescription(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlDecode(htmlString))));
+    }
+    mergeEPUB(novelDataArray, seriesData) {
         return new Promise(async (resolve, reject) => {
-            // 添加一些元数据
-            let epubData = new EpubMaker()
-                .withTemplate('idpf-wasteland')
-                .withAuthor(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(firstResult.novelMeta.userName))
-                .withModificationDate(new Date(firstResult.novelMeta.createDate))
-                .withRights({
-                description: _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(firstResult.novelMeta.description),
-                license: '',
-            })
-                .withAttributionUrl(`https://www.pixiv.net/novel/show.php?id=${firstResult.novelMeta.id}`)
-                .withCover(firstResult.novelMeta.coverUrl, {
-                license: '',
-                attributionUrl: '',
-            })
-                .withTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(firstResult.seriesTitle));
-            // 下面注释的伪代码是用于创建二级目录用的。目前 pixiv 的小说只需要一层目录就够了，所以这里的代码未被使用
-            // const Section = new EpubMaker.Section(...........)
-            // for (const data of novelDataArray) {
-            //   Section.withSubSection(
-            //     new EpubMaker.Section(...........)
-            //   )
-            // }
-            // epubData = epubData.withSection(Section)
+            const link = `https://www.pixiv.net/novel/series/${seriesData.id}`;
+            const title = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(seriesData.title));
+            const userName = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(seriesData.userName));
+            let description = this.handleEPUBDescription(seriesData.caption);
+            // 现在生成的 EPUB 小说里有个“信息”页面，会显示如下数据（就是在下面的 jepub.init 里定义的）：
+            // title 系列标题
+            // author 作者
+            // publisher 系列小说的 URL
+            // tags 标签列表
+            // description 简介
+            // 所以如果需要保存系列小说的元数据，那么把上面未包含的数据添加到 description 里即可
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveNovelMeta) {
-                epubData.withSection(new EpubMaker.Section('chapter', 0, {
-                    title: _Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_设定资料'),
-                    content: _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(this.meta),
-                }, true, true));
+                if (_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.novelSeriesGlossary) {
+                    description =
+                        description +
+                            '<br/><br/>' +
+                            this.handleEPUBDescription(_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.novelSeriesGlossary);
+                }
             }
-            // 为每一篇小说创建一个章节
-            for (const data of novelDataArray) {
-                let content = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(data.content);
-                // 添加小说里内嵌的图片。这部分必须放在 replaceEPUBText 后面，否则 <img> 标签的左尖括号会被转义
-                content = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_8__.downloadNovelEmbeddedImage.EPUB(content, data.embeddedImages);
-                // 创建 epub 文件时不需要在标题和正文后面添加换行符
-                epubData.withSection(new EpubMaker.Section('chapter', data.no, {
-                    title: `${this.chapterNo(data.no)} ${data.title}`,
-                    content: content,
-                }, true, true)
-                // 倒数第二个参数是 includeInToc，必须为 true，否则某些小说阅读软件无法读取章节信息
-                // includeInToc 的作用是在 .ncx 文件和 nav.xhtml 文件里添加导航信息
-                );
-            }
-            epubData.makeEpub().then((blob) => {
-                resolve(blob);
+            const jepub = new jEpub();
+            jepub.init({
+                i18n: _Lang__WEBPACK_IMPORTED_MODULE_5__.lang.type,
+                // 对 EPUB 左侧的一些文字进行本地化
+                i18n_config: {
+                    code: _Lang__WEBPACK_IMPORTED_MODULE_5__.lang.type,
+                    cover: 'Cover',
+                    toc: _Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_目录'),
+                    info: _Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_Information'),
+                    note: 'Notes',
+                },
+                title: title,
+                author: userName,
+                publisher: link,
+                tags: seriesData.tags,
+                description: description,
             });
+            jepub.uuid(link);
+            jepub.date(new Date(seriesData.updateDate));
+            const cover = await fetch(seriesData.cover.urls.original).then((response) => {
+                if (response.ok)
+                    return response.arrayBuffer();
+                throw 'Network response was not ok.';
+            });
+            jepub.cover(cover);
+            // 循环添加小说内容
+            for (const novelData of novelDataArray) {
+                //使用新的function统一替换添加<p>与</p>， 以对应EPUB文本惯例
+                let content = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBTextWithP(novelData.content);
+                const novelID = novelData.id;
+                // 添加小说里的图片
+                const imageList = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_8__.downloadNovelEmbeddedImage.getImageList(novelID, content, novelData.embeddedImages);
+                let current = 1;
+                const total = imageList.length;
+                for (const image of imageList) {
+                    _Log__WEBPACK_IMPORTED_MODULE_9__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_正在下载小说中的插画', `${current} / ${total}`), 1, false, 'downloadNovelImage' + novelID);
+                    current++;
+                    const imageID = image.flag_id_part;
+                    if (image.url === '') {
+                        content = content.replaceAll(image.flag, `image ${imageID} not found`);
+                        continue;
+                    }
+                    // 加载图片
+                    let illustration = undefined;
+                    try {
+                        illustration = await fetch(image.url).then((response) => {
+                            if (response.ok) {
+                                return response.blob();
+                            }
+                        });
+                    }
+                    catch (error) {
+                        console.log(error);
+                    }
+                    // 如果图片获取失败，不重试，并将其替换为提示
+                    if (illustration === undefined) {
+                        content = content.replaceAll(image.flag, `fetch ${image.url} failed`);
+                        continue;
+                    }
+                    jepub.image(illustration, imageID);
+                    // 将小说正文里的图片标记替换为真实的的图片路径，以在 EPUB 里显示
+                    const ext = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.getURLExt(image.url);
+                    const imgTag = `<br/><img src="assets/${imageID}.${ext}" /><br/>`;
+                    content = content.replaceAll(image.flag, imgTag);
+                }
+                _Log__WEBPACK_IMPORTED_MODULE_9__.log.persistentRefresh('downloadNovelImage' + novelID);
+                const title = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(novelData.title));
+                // 保存每篇小说的元数据，现在只添加了简介
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveNovelMeta) {
+                    content =
+                        _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceEPUBText(novelData.description) +
+                            '<br/><br/>' +
+                            content;
+                }
+                // 添加正文，这会在 EPUB 里生成一个新的章节
+                // 实际上会生成一个对应的 html 文件，如 OEBPS/page-0.html
+                jepub.add(`${this.chapterNo(novelData.no)} ${title}`, content);
+            }
+            const blob = await jepub.generate('blob', (metadata) => {
+                // console.log('progression: ' + metadata.percent.toFixed(2) + ' %');
+                // if (metadata.currentFile) console.log('current file = ' + metadata.currentFile);
+            });
+            resolve(blob);
         });
     }
     // 在每个小说的开头加上章节编号
@@ -22662,7 +18541,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 // 下载进度条
+
 
 
 
@@ -22703,6 +18584,8 @@ class ProgressBar {
         this.allProgressBar = [];
         this.KB = 1024;
         this.MB = 1024 * 1024;
+        /**更新子进度条时，使用节流 */
+        this.setProgressThrottle = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.throttle(this.setProgress.bind(this), 200);
         this.createElements();
         _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.wrap);
         this.bindEvents();
@@ -22749,7 +18632,7 @@ class ProgressBar {
         const progress = (downloaded / _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length) * 100;
         this.progressColorEl.style.width = progress + '%';
     }
-    // 设置子进度条的进度
+    /**立即更新子进度条的进度 */
     setProgress(index, data) {
         const bar = this.allProgressBar[index];
         if (!bar) {
@@ -23719,9 +19602,95 @@ class ShowSkipCount {
 
 /***/ }),
 
-/***/ "./src/ts/download/ShowStatusOnTitle.ts":
+/***/ "./src/ts/download/ShowTotalResultOnTitle.ts":
+/*!***************************************************!*\
+  !*** ./src/ts/download/ShowTotalResultOnTitle.ts ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+
+
+
+// 抓取阶段，在网页标题上显示抓取到的结果数量
+class ShowTotalResultOnTitle {
+    constructor() {
+        this.enable = false;
+        // 保存缓存的字符串，后面会需要在标题中查找缓存的字符串
+        this.str = this.createStr();
+        this.bindEvents();
+    }
+    bindEvents() {
+        const enableEvts = [_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.crawlStart, _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.resultChange];
+        enableEvts.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.removeStr();
+                this.enable = true;
+            });
+        });
+        const disableEvts = [
+            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadStart,
+            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadPause,
+            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadStop,
+        ];
+        disableEvts.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.removeStr();
+                this.enable = false;
+            });
+        });
+        window.setInterval(() => {
+            this.enable && this.show();
+        }, 500);
+    }
+    // 生成新的字符串
+    createStr() {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length > 0) {
+            return ` ${_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length} `;
+        }
+        return '';
+    }
+    // 检查标题中是否有下载状态的 flag
+    // 如果没有，就不会显示剩余数量
+    checkStatusFlag() {
+        return document.title.indexOf(']') > 0;
+    }
+    show() {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_1__.states.downloading || !this.checkStatusFlag()) {
+            return;
+        }
+        // 先移除旧的字符串，然后添加新的字符串
+        const title = this.removeStr(document.title);
+        this.str = this.createStr();
+        if (!this.str || !title) {
+            return;
+        }
+        document.title = title.replace(']', ']' + this.str);
+    }
+    // 如果传入字符串，则不直接修改 document.title，以提高性能
+    removeStr(titleStr) {
+        if (!this.str) {
+            return;
+        }
+        if (titleStr) {
+            return titleStr.replace(this.str, '');
+        }
+        else {
+            document.title = document.title.replace(this.str, '');
+        }
+    }
+}
+new ShowTotalResultOnTitle();
+
+
+/***/ }),
+
+/***/ "./src/ts/download/showStatusOnTitle.ts":
 /*!**********************************************!*\
-  !*** ./src/ts/download/ShowStatusOnTitle.ts ***!
+  !*** ./src/ts/download/showStatusOnTitle.ts ***!
   \**********************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -23912,92 +19881,6 @@ class ShowStatusOnTitle {
     }
 }
 new ShowStatusOnTitle();
-
-
-/***/ }),
-
-/***/ "./src/ts/download/ShowTotalResultOnTitle.ts":
-/*!***************************************************!*\
-  !*** ./src/ts/download/ShowTotalResultOnTitle.ts ***!
-  \***************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-
-
-
-// 抓取阶段，在网页标题上显示抓取到的结果数量
-class ShowTotalResultOnTitle {
-    constructor() {
-        this.enable = false;
-        // 保存缓存的字符串，后面会需要在标题中查找缓存的字符串
-        this.str = this.createStr();
-        this.bindEvents();
-    }
-    bindEvents() {
-        const enableEvts = [_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.crawlStart, _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.resultChange];
-        enableEvts.forEach((evt) => {
-            window.addEventListener(evt, () => {
-                this.removeStr();
-                this.enable = true;
-            });
-        });
-        const disableEvts = [
-            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadStart,
-            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadPause,
-            _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadStop,
-        ];
-        disableEvts.forEach((evt) => {
-            window.addEventListener(evt, () => {
-                this.removeStr();
-                this.enable = false;
-            });
-        });
-        window.setInterval(() => {
-            this.enable && this.show();
-        }, 500);
-    }
-    // 生成新的字符串
-    createStr() {
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length > 0) {
-            return ` ${_store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length} `;
-        }
-        return '';
-    }
-    // 检查标题中是否有下载状态的 flag
-    // 如果没有，就不会显示剩余数量
-    checkStatusFlag() {
-        return document.title.indexOf(']') > 0;
-    }
-    show() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_1__.states.downloading || !this.checkStatusFlag()) {
-            return;
-        }
-        // 先移除旧的字符串，然后添加新的字符串
-        const title = this.removeStr(document.title);
-        this.str = this.createStr();
-        if (!this.str || !title) {
-            return;
-        }
-        document.title = title.replace(']', ']' + this.str);
-    }
-    // 如果传入字符串，则不直接修改 document.title，以提高性能
-    removeStr(titleStr) {
-        if (!this.str) {
-            return;
-        }
-        if (titleStr) {
-            return titleStr.replace(this.str, '');
-        }
-        else {
-            document.title = document.title.replace(this.str, '');
-        }
-    }
-}
-new ShowTotalResultOnTitle();
 
 
 /***/ }),
@@ -25334,7 +21217,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/SecretSignal */ "./src/ts/utils/SecretSignal.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _store_workPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/workPublishTimeIllusts */ "./src/ts/store/workPublishTimeIllusts.ts");
+/* harmony import */ var _store_WorkPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/WorkPublishTimeIllusts */ "./src/ts/store/WorkPublishTimeIllusts.ts");
 /* harmony import */ var _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/WorkPublishTimeNovels */ "./src/ts/store/WorkPublishTimeNovels.ts");
 
 
@@ -25350,7 +21233,7 @@ class WorkPublishTime {
         this.gap = 10000;
         this.illustsLength = 0;
         this.novelsLength = 0;
-        this.illustsLength = _store_workPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__.illustsData.length;
+        this.illustsLength = _store_WorkPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__.illustsData.length;
         this.novelsLength = _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__.novelData.length;
         this.bindEvents();
     }
@@ -25358,7 +21241,7 @@ class WorkPublishTime {
      *
      * 返回值是一个包含 2 个数字的数组，第一个数字是开始时间，第二个数字是结束时间。 */
     getTimeRange(id, type = 'illusts') {
-        const data = type === 'illusts' ? _store_workPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__.illustsData : _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__.novelData;
+        const data = type === 'illusts' ? _store_WorkPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__.illustsData : _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__.novelData;
         const length = type === 'illusts' ? this.illustsLength : this.novelsLength;
         const index = Math.floor(id / this.gap);
         // 如果传入的 id 匹配到最后一条记录，则将结束时间设置为现在
@@ -25387,13 +21270,15 @@ class WorkPublishTime {
         }
     }
     bindEvents() {
+        // 获取图像作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 118500000
-            this.crawlData(117370000, 118505797);
+            // 上次记录到 125640000
+            this.crawlData(125140000, 125647801);
         });
+        // 获取小说作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 22110000
-            this.crawlData(21880000, 22119855, 'novels');
+            // 上次记录到 23690000
+            this.crawlData(23590000, 23695206, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -25450,6 +21335,4879 @@ class WorkPublishTime {
     }
 }
 const workPublishTime = new WorkPublishTime();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/langText.ts":
+/*!****************************!*\
+  !*** ./src/ts/langText.ts ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   langText: () => (/* binding */ langText)
+/* harmony export */ });
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+
+// 储存下载器使用的多语言文本
+// 在属性名前面加上下划线，和文本内容做出区别
+// {} 是占位符
+// <br> 是换行
+const langText = {
+    _只下载已收藏: [
+        '只下载已收藏',
+        '只下載已收藏',
+        'Download only bookmarked works',
+        'ブックマークのみをダウンロードする',
+        '북마크된 작품만 다운로드',
+        'Загружайте только работы, сохраненные в закладках',
+    ],
+    _下载作品类型: [
+        '下载作品类型',
+        '下載作品類型',
+        'Download work type',
+        'ダウンロード作品の種類',
+        '다운로드할 작품 유형',
+        'Типы контента для загрузки',
+    ],
+    _作品类型: [
+        '作品<span class="key">类型</span>',
+        '作品<span class="key">類型</span>',
+        '<span class="key">Type</span> of work',
+        '作品の<span class="key">種類</span>',
+        '작품 <span class="key">유형</span>',
+        'Тип <span class="key">работы</span>',
+    ],
+    _不能含有tag: [
+        '<span class="key">不能</span>含有标签',
+        '<span class="key">不能</span>含有標籤',
+        '<span class="key">Exclude</span> tag',
+        'タグを除外する',
+        '<span class="key">제외</span> 태그',
+        '<span class="key">Исключить</span> ярлык',
+    ],
+    _排除tag的提示文字: [
+        '您可在下载前设置要排除的标签，这样在下载时将不会下载含有这些标签的作品。不区分大小写；如需排除多个标签，请使用英文逗号分隔。请注意，要排除的标签的优先级大于要包含的标签的优先级。',
+        '可在下載前設定要排除的標籤，下載時將排除含有這些標籤的作品，不區分大小寫；如需排除多個標籤，請使用半形逗號（,）分隔。請注意，要排除的標籤優先於要包含的標籤。',
+        'Before downloading, you can set the tag you want to exclude. Not case sensitive; If you need to set multiple tags, you can use comma (,) separated. The excluded tag takes precedence over the included tag',
+        'ダウンロード前に、除外するタグを設定できます。大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、「,」で区切ってください。除外されたタグは、必要なタグよりも優先されます',
+        '다운로드하기 전에 제외해야 하는 태그를 설정할 수 있습니다. 대소문자를 구분하지 않습니다. 여러 태그를 설정해야 하는 경우 쉼표(,)로 구분합니다. 제외된 태그가 포함된 태그보다 우선합니다.',
+        'Перед загрузкой можно задать тег, который необходимо исключить. Не чувствителен к регистру; Если вам нужно задать несколько тегов, вы можете использовать разделение запятыми (,). Исключенный тег имеет приоритет над включенным тегом',
+    ],
+    _设置了排除tag之后的提示: [
+        '排除标签：',
+        '排除標籤：',
+        'Excludes tag: ',
+        '以下のタグを除外：',
+        '제외 태그: ',
+        'Исключающий тег: ',
+    ],
+    _必须含有tag: [
+        '<span class="key">必须</span>含有标签',
+        '<span class="key">必須</span>含有標籤',
+        '<span class="key">Include</span> tag',
+        '<span class="key">必要な</span>タグ',
+        '<span class="key">포함</span> 태그',
+        '<span class="key">Включать</span> ярлык',
+    ],
+    _必须tag的提示文字: [
+        '您可在下载前设置作品里必须包含的标签，不区分大小写；如需包含多个标签，请使用英文逗号分隔。',
+        '可在下載前設定作品裡必須包含的標籤，不區分大小寫；如需包含多個標籤，請使用半形逗號（,）分隔。',
+        'Before downloading, you can set the tag that must be included. Not case sensitive; If you need to set multiple tags, you can use comma (,) separated.',
+        'ダウンロードする前に、必要なタグを設定することができます。大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、「,」で区切ってください。',
+        '다운로드하기 전에 포함해야 하는 태그를 설정할 수 있습니다. 대소문자를 구분하지 않습니다. 여러 태그를 설정해야 하는 경우 쉼표(,)로 구분합니다.',
+        'Перед загрузкой можно задать тег, который должен быть включен. Не чувствителен к регистру; Если вам нужно задать несколько тегов, вы можете использовать разделение запятыми (,).',
+    ],
+    _设置了必须tag之后的提示: [
+        '包含标签：',
+        '包含標籤：',
+        'Include tag: ',
+        '以下の タグ を含める：',
+        '포함 태그: ',
+        'Включающий тег: ',
+    ],
+    _图片的宽高比例: [
+        '图片的宽高<span class="key">比例</span>',
+        '圖片的寬高<span class="key">比例</span>',
+        'Aspect <span class="key">ratio</span>',
+        '画像の縦横比',
+        '<span class="key">종횡비</span>',
+        'Сотношение <span class="key">сторон</span>',
+    ],
+    _设置宽高比例Title: [
+        '设置宽高比例，也可以手动输入宽高比',
+        '設定寬高比，也可以手動輸入寬高比。',
+        'Set the aspect ratio, or manually type the aspect ratio',
+        '縦横比を設定する、手動で縦横比を入力することもできる',
+        '종횡비를 설정하거나, 값을 수동으로 입력할 수 있습니다.',
+        'Установите соотношение сторон или введите соотношение сторон вручную',
+    ],
+    _不限制: [
+        '不限制',
+        '不限制',
+        'not limited',
+        '無制限',
+        '제한 없음',
+        'Без лимитов',
+    ],
+    _横图: ['横图', '橫圖', 'Horizontal', '横長', '가로', 'Горизонтальный'],
+    _竖图: ['竖图', '豎圖', 'Vertical', '縦長', '세로', 'Вертикальный'],
+    _正方形: ['正方形', '正方形', 'Square', '正方形', '정사각형', 'Квадрат(1:1)'],
+    _宽高比: ['宽高比', '寬高比', 'Ratio', '縦横比', '종횡비 ', 'Соотношение'],
+    _设置了宽高比之后的提示: [
+        '宽高比：{}',
+        '寬高比：{}',
+        'Aspect ratio: {}',
+        '縦横比：{}',
+        '종횡비: {}',
+        'Соотношение сторон: {}',
+    ],
+    _宽高比必须是数字: [
+        '宽高比必须是数字',
+        '寬高比必須是數字',
+        'The aspect ratio must be a number',
+        '縦横比は数値でなければなりません',
+        '종횡비는 숫자여야 합니다',
+        'Соотношение сторон должно быть числом',
+    ],
+    _图片的宽高: [
+        '图片的<span class="key">宽高</span>',
+        '圖片的<span class="key">寬高</span>',
+        '<span class="key">width</span> and height',
+        '画像の幅と高さ',
+        '<span class="key">너비</span> 그리고 높이',
+        '<span class="key">Ширина</span> и высота',
+    ],
+    _筛选宽高的提示文字: [
+        '请输入最小宽度和最小高度，不会下载不符合要求的图片。',
+        '請輸入最小寬度和最小高度，只會下載符合要求的圖片。',
+        'Please type the minimum width and minimum height. Will not download images that do not meet the requirements',
+        '最小幅と最小高さを入力してください。要件を満たしていない画像はダウンロードされません。',
+        '최소 너비와 최소 높이를 입력해주세요, 요구 사항을 충족하지 않는 이미지는 다운로드하지 않습니다.',
+        'Введите минимальную ширину и минимальную высоту. Не соответствующие требованиям изображения, загружаться не будут',
+    ],
+    _本次输入的数值无效: [
+        '本次输入的数值无效',
+        '本次輸入的數值無效',
+        'Invalid input',
+        '無効な入力',
+        '잘못된 입력',
+        'Недопустимый ввод',
+    ],
+    _宽度: ['宽度', '寬度', 'Width', '幅', '너비', 'Ширина'],
+    _或者: [' 或者 ', ' 或是 ', ' or ', ' または ', '또는', 'или'],
+    _并且: [' 并且 ', ' 並且 ', ' and ', ' そして ', '그리고', 'и'],
+    _高度: ['高度', '高度', 'height', '高さ', '높이', 'высота'],
+    _抓取多少作品: [
+        '抓取<span class="key">多少</span>作品',
+        '擷取<span class="key">多少</span>作品',
+        'How <span class="key">many</span> works to crawl',
+        'クロールする作品の数',
+        '긁어올 작품 <span class="key">수</span>',
+        'Какое <span class="key">колличество</span> работ сканировать',
+    ],
+    _抓取多少页面: [
+        '抓取<span class="key">多少</span>页面',
+        '擷取<span class="key">多少</span>頁面',
+        'How <span class="key">many</span> pages to crawl',
+        'クロールするページ数',
+        '긁어올 페이지 <span class="key">수</span>',
+        'Какое <span class="key">колличество</span> страниц сканироватьь',
+    ],
+    _收藏数量: [
+        '<span class="key">收藏</span>数量',
+        '<span class="key">收藏</span>數量',
+        'Number of <span class="key">bookmarks</span>',
+        'ブックマークの数',
+        '<span class="key">북마크</span> 수',
+        'Колличество <span class="key">закладок</span>',
+    ],
+    _设置收藏数量的提示: [
+        '如果作品的收藏数小于设置的数字，作品不会被下载。',
+        '只會下載設定收藏數範圍內的作品。',
+        'If the number of bookmarks of the work is less than the set number, the work will not be downloaded.',
+        '作品のブックマークされた数が設定された数字よりも少ない場合、作品はダウンロードされません。',
+        '작품의 북마크 수가 설정된 값보다 적을 경우 작품은 다운로드되지 않습니다.',
+        'Если количество закладок произведения меньше заданного, произведение не будет загружено',
+    ],
+    _筛选收藏数的提示文字: [
+        '请输入一个数字，如果作品的收藏数小于这个数字，作品不会被下载。',
+        '請輸入數字，只會下載設定收藏數範圍內的作品。',
+        'Please type a number. If the number of bookmarks of the work is less than this number, the work will not be downloaded.',
+        '数字を入力してください。 作品のブックマークされた数がこの数字より少ない場合、作品はダウンロードされません。',
+        '숫자를 입력해주세요. 작품의 북마크 수가 이 수보다 적을 경우 작품은 다운로드되지 않습니다.',
+        'Пожалуйста, введите число. Если количество закладок произведения меньше этого числа, произведение не будет загружено.',
+    ],
+    _收藏数大于: [
+        '收藏数 >= ',
+        '收藏數 >= ',
+        'Number of bookmarks >= ',
+        'ブックマークの数 >= ',
+        '북마크 수 >= ',
+        'Количество закладок >= ',
+    ],
+    _收藏数小于: [
+        '收藏数 <= ',
+        '收藏數 <= ',
+        'Number of bookmarks <= ',
+        'ブックマークの数 <= ',
+        '북마크 수 <=',
+        'Количество закладок <= ',
+    ],
+    _本次任务已全部完成: [
+        '本次任务已全部完成。',
+        '本次工作已全部完成。',
+        'This task has been completed.',
+        'この作業は完了しました。',
+        '이 작업은 완료되었습니다.',
+        'Эта задача была выполнена.',
+    ],
+    _本次任务条件: [
+        '本次任务条件: ',
+        '本次工作條件：',
+        'This task condition: ',
+        'この作業の条件：',
+        '이 작업 조건: ',
+        'Это условие задачи: ',
+    ],
+    _参数不合法本次操作已取消: [
+        '参数不合法，本次操作已取消。',
+        '參數不合法，本次動作已取消。',
+        'Parameter is not legal, this operation has been canceled.',
+        'パラメータは有効ではありません。この操作はキャンセルされました。',
+        '매개변수가 잘못되었습니다, 이 작업은 취소됩니다.',
+        'Параметр не является разрешенным, операция отменена.',
+    ],
+    _本次操作已取消: [
+        '本次操作已取消',
+        '本次動作已取消',
+        'This operation has been canceled',
+        'この操作はキャンセルされました',
+        '이 작업이 취소되었습니다.',
+        'Эта операция была отменена',
+    ],
+    _向下获取所有作品: [
+        '向下获取所有作品',
+        '向下取得所有作品',
+        'download all the work from this page.',
+        'このページからすべての作品をダウンロードする。',
+        '모든 작품 다운로드',
+        'загрузить все работы с этой страницы',
+    ],
+    _从本页开始下载提示: [
+        '从当前页面开始下载。<br>如果要限制下载的页数，请输入从 1 开始的数字。<br>1 为仅下载本页，-1 为下载所有页面。',
+        '從當前頁面開始下載。<br>如果要限制下載的頁數，請輸入從 1 開始的數字。<br>1 為僅下載本頁，-1 為下載所有頁面。',
+        'Download from the current page.<br>If you want to set the number of pages to download, type a number starting at 1. <br>1 is to download only this page, -1 to download all pages.',
+        '現在のページからダウンロードしてください。<br>ダウンロードするページを設定する場合は、1から始まる数字を入力してください。<br>1 は現在のページのみをダウンロードする，すべてのページをダウンロードするには -1。',
+        '현재 페이지에서 다운로드합니다.<br>다운로드할 페이지 수를 설정하려면 1로 시작하는 숫자를 입력해주세요.<br>1은 이 페이지만 다운로드합니다, -1은 모든 페이지를 다운로드합니다.',
+        'Загрузка с текущей страницы.<br>Если вы хотите задать количество страниц для загрузки, введите число, начиная с 1. <br>1 - это загрузка только этой страницы, -1 для загрузки всех страниц.',
+    ],
+    _设置页数的提示: [
+        `下载器总是从当前页面开始抓取的。
+<br>
+如果你在第 1 页，就从第 1 页开始抓取。如果你在第 2 页，就从第 2 页开始抓取。<br>
+<br>
+默认值 -1 会使下载器抓取到最后一页。<br>
+如果你只需要抓取一部分页面，可以设置抓取的页数：<br>
+设置为 1 只会抓取这一页里的作品。<br>
+设置为 2 会抓取这一页和下一页，以此类推。<br>
+<br>
+如果你有需要的话，可以把抓取大量页面的任务拆分成多次。例如：<br>
+设置抓取的页数为 100，然后从第 1 页开始抓取。下载器会抓取第 0 - 100 页里的作品。<br>
+下载完成后，跳转到第 101 页，开始下一次抓取。下载器会抓取第 101 - 200 页里的作品。<br>
+以此类推。<br>`,
+        `下載器總是從當前頁面開始抓取的。
+<br>
+如果你在第 1 頁，就從第 1 頁開始抓取。如果你在第 2 頁，就從第 2 頁開始抓取。<br>
+<br>
+預設值 -1 會使下載器抓取到最後一頁。<br>
+如果你只需要抓取一部分頁面，可以設定抓取的頁數：<br>
+設定為 1 只會抓取這一頁裡的作品。<br>
+設定為 2 會抓取這一頁和下一頁，以此類推。<br>
+<br>
+如果你有需要的話，可以把抓取大量頁面的任務拆分成多次。例如：<br>
+設定抓取的頁數為 100，然後從第 1 頁開始抓取。下載器會抓取第 0 - 100 頁裡的作品。<br>
+下載完成後，跳轉到第 101 頁，開始下一次抓取。下載器會抓取第 101 - 200 頁裡的作品。<br>
+以此類推。<br>`,
+        `The downloader always starts crawling from the current page.
+<br>
+If you are on page 1, it starts crawling from page 1. If you are on page 2, it starts crawling from page 2. <br>
+<br>
+The default value of -1 will make the downloader crawl to the last page. <br>
+If you only need to crawl a part of the pages, you can set the number of pages to crawl: <br>
+Set to 1 to crawl only the works on this page. <br>
+Set to 2 to crawl this page and the next page, and so on. <br>
+<br>
+If you need to, you can split the task of crawling a large number of pages into multiple times. For example: <br>
+Set the number of pages to crawl to 100, and start crawling from page 1. The downloader will crawl the works from pages 0 - 100. <br>
+After the download is completed, jump to page 101 and start the next crawl. The downloader will crawl the works from pages 101 - 200. <br>
+And so on. <br>`,
+        `ダウンローダーは常に現在のページからクロールを開始します。
+<br>
+ページ 1 にいる場合は、ページ 1 からスクレイピングを開始します。 2 ページにいる場合は、2 ページからスクレイピングを開始します。 <br>
+<br>
+デフォルト値 -1 では、ダウンローダーは最後のページまでクロールします。 <br>
+ページの一部のみをクロールする必要がある場合は、クロールするページ数を設定できます。<br>
+1 に設定すると、このページの作品のみをクロールします。 <br>
+2 に設定すると、このページと次のページなどがクロールされます。 <br>
+<br>
+必要に応じて、大量のページをクロールするタスクを複数回に分割できます。例:<br>
+クロールするページ数を 100 に設定し、1 ページからクロールを開始します。ダウンローダーは、0 ～ 100 ページの作品をクロールします。 <br>
+ダウンロードが完了したら、101 ページに移動して次のクロールを開始します。ダウンローダーは、101 ～ 200 ページの作品を取得します。 <br>
+等々。 <br>`,
+        `다운로더는 항상 현재 페이지에서 크롤링을 시작합니다.
+<br>
+1페이지에 있다면 1페이지부터 스크래핑을 시작하세요. 2페이지에 있다면 2페이지부터 스크래핑을 시작하세요. <br>
+<br>
+기본값 -1을 사용하면 다운로더가 마지막 페이지로 크롤링됩니다. <br>
+페이지의 일부만 크롤링해야 하는 경우 크롤링할 페이지 수를 설정할 수 있습니다.<br>
+이 페이지의 작품만 크롤링하려면 1로 설정하세요. <br>
+2로 설정하면 이 페이지와 다음 페이지 등을 크롤링합니다. <br>
+<br>
+필요한 경우 많은 수의 페이지를 크롤링하는 작업을 여러 번 분할할 수 있습니다. 예:<br>
+크롤링할 페이지 수를 100으로 설정한 다음 1페이지부터 크롤링을 시작합니다. 다운로더는 0~100페이지의 작품을 크롤링합니다. <br>
+다운로드가 완료되면 101페이지로 이동하여 다음 크롤링을 시작하세요. 다운로더는 101~200페이지의 작품을 가져옵니다. <br>
+등. <br>`,
+        `Загрузчик всегда начинает сканирование с текущей страницы.
+<br>
+Если вы находитесь на странице 1, начните парсинг с первой страницы. Если вы находитесь на странице 2, начните очистку со страницы 2. <br>
+<br>
+Значение по умолчанию -1 заставит загрузчик просканировать последнюю страницу. <br>
+Если вам нужно просканировать только часть страницы, вы можете указать количество страниц для сканирования:<br>
+Установите значение 1, чтобы сканировать только работы на этой странице. <br>
+При значении 2 будет сканироваться эта страница, следующая страница и т. д. <br>
+<br>
+При необходимости вы можете разделить задачу сканирования большого количества страниц на несколько раз. Например:<br>
+Установите количество страниц для сканирования на 100, а затем начните сканирование со страницы 1. Загрузчик просканирует произведения на страницах 0–100. <br>
+После завершения загрузки перейдите на страницу 101, чтобы начать следующее сканирование. Загрузчик получит работы на страницах 101–200. <br>
+И так далее. <br>`,
+    ],
+    _下载所有页面: [
+        '下载所有页面',
+        '下載所有頁面',
+        'download all pages',
+        'すべてのページをダウンロードする',
+        '모든 페이지 다운로드',
+        'загрузить все страницы',
+    ],
+    _下载x个相关作品: [
+        '下载 {} 个相关作品',
+        '下載 {} 個相關作品',
+        'download {} related works.',
+        '関連作品 {} 枚をダウンロードする。',
+        '관련 작품 {}개를 다운로드',
+        'скачать {} связанные работы',
+    ],
+    _下载所有相关作品: [
+        '下载所有相关作品',
+        '下載所有相關作品',
+        'download all related works.',
+        '関連作品をすべてダウンロードする。',
+        '모든 관련 작품 다운로드',
+        'скачать все соответствующие работы.',
+    ],
+    _下载推荐作品: [
+        '下载推荐作品',
+        '下載推薦作品',
+        'download recommended works',
+        'おすすめ作品をダウンロードする',
+        '추천 작품 다운로드',
+        'скачать рекомендуемые работы',
+    ],
+    _下载排行榜前x个作品: [
+        '下载排行榜前 {} 个作品',
+        '下載排行榜前 {} 個作品',
+        'download the top {} works in the ranking list',
+        'ランク前 {} 位の作品をダウンロードする。',
+        '랭킹 목록 상위 {}개의 작품 다운로드',
+        'загрузить лучшие {} работы в рейтинговом списке',
+    ],
+    _输入超过了最大值: [
+        '您输入的数字超过了最大值',
+        '輸入的數字超出最大值',
+        'The number you set exceeds the maximum',
+        '入力した番号が最大値を超えています',
+        '설정하신 수가 최대값을 초과합니다',
+        'Заданное вами число превышает максимальное',
+    ],
+    _从本页开始下载x页: [
+        '从本页开始下载 {} 页',
+        '從本頁開始下載 {} 頁',
+        'download {} pages from this page',
+        'このページから {} ページをダウンロードする',
+        '이 페이지부터 {} 페이지 다운로드',
+        'Начать загрузку с страниц этой {} страницы',
+    ],
+    _从本页开始下载x个: [
+        '从本页开始下载 {} 个作品',
+        '從本頁開始下載 {} 個作品',
+        'Download {} works from this page.',
+        'このページから {} 枚の作品をダウンロード。',
+        '이 페이지부터 {}개의 작품 다운로드',
+        'Загрузить {} работы с этой страницы.',
+    ],
+    _任务开始: [
+        '任务开始',
+        '工作開始',
+        'Task starts',
+        '作業が開始されます',
+        '작업 시작',
+        'Задание начинается',
+    ],
+    _排除作品类型: [
+        '排除作品类型：',
+        '排除作品類型：',
+        'Excludes these types of works: ',
+        'これらのタイプの作品を除外：',
+        '제외된 작품 유형: ',
+        'Исключает эти виды работ: ',
+    ],
+    _多图作品: [
+        '多图作品',
+        '多圖作品',
+        'Multi-image works',
+        '複数画像作品',
+        '여러 이미지 작품',
+        'Работа с несколькими изображениями',
+    ],
+    _多图下载设置: [
+        '多图下载设置',
+        '多圖下載設定',
+        'Download multi-image works',
+        '複数画像設定',
+        '여러 이미지 작품 다운로드',
+        'Загрузить работы с несколькими изображениями',
+    ],
+    _不下载: ['不下载', '不下載', 'No', '必要なし', '아니요', 'Нет'],
+    _全部下载: ['全部下载', '全部下載', 'Yes', '全部ダウンロード', '네', 'Да'],
+    _插画: [
+        '插画',
+        '插畫',
+        'Illustrations',
+        'イラスト',
+        '일러스트',
+        'Иллюстрации',
+    ],
+    _漫画: ['漫画', '漫畫', 'Manga', '漫画', '만화', 'Манга'],
+    _动图: [
+        '动图',
+        '動圖',
+        'Ugoira',
+        'うごイラ',
+        '움직이는 일러스트',
+        'Ugoira(гиф)',
+    ],
+    _动图保存格式: [
+        '<span class="key">动图</span>保存格式',
+        '<span class="key">動圖</span>儲存格式',
+        'Save the <span class="key">ugoira</span> work as',
+        'うごイラの保存タイプ',
+        '<span class="key">움직이는 일러스트</span> 작품 저장 형식',
+        'Сохранить <span class="key">Ugoira</span> как',
+    ],
+    _动图保存格式title: [
+        '下载动图时，可以把它转换成视频文件',
+        '下載動圖時，可轉換為影片檔。',
+        'When you download a ugoira work, you can convert it to a video file.',
+        'うごイラをダウンロードするとき、動画に変換することができます。',
+        '움직이는 일러스트 작품을 다운로드 하면, 동영상 파일로 변환할 수 있습니다.',
+        'Когда вы скачиваете произведение ugoira, вы можете конвертировать его в видеофайл.',
+    ],
+    _webmVideo: [
+        'WebM 视频',
+        '影片（WebM）',
+        'WebM video',
+        'WebM ビデオ',
+        'WebM 동영상',
+        'WebM видео',
+    ],
+    _gif: [
+        'GIF 图片',
+        '圖片（GIF）',
+        'GIF image',
+        'GIF 画像',
+        'GIF 이미지',
+        'GIF изображение',
+    ],
+    _apng: [
+        'APNG 图片',
+        '圖片（APNG）',
+        'APNG image',
+        'APNG 画像',
+        'APNG 이미지',
+        'APNG изображение',
+    ],
+    _zipFile: [
+        'Zip 文件',
+        '壓縮檔（Zip）',
+        'Zip file',
+        'ZIP ファイル',
+        'Zip 파일',
+        'Zip файл',
+    ],
+    _当前作品个数: [
+        '当前有 {} 个作品',
+        '目前有 {} 個作品',
+        'There are now {} works',
+        '今は　{}　枚の作品があります',
+        '현재 {}개의 작품이 있습니다',
+        'В настоящее время существует {} работ',
+    ],
+    _当前有x个用户: [
+        '当前有 {} 个用户',
+        '目前有 {} 個使用者',
+        'There are currently {} users',
+        '現在 {} 人のユーザーがいます',
+        '현재 {}명의 유저가 있습니다',
+        'В настоящее время существует {} пользователей',
+    ],
+    _已抓取x个用户: [
+        '已抓取 {} 个用户',
+        '已擷取 {} 個使用者',
+        'crawled {} users',
+        'クロールされた {} ユーザー',
+        '{}명의 유저를 긁어왔습니다',
+        'Сканированные {} пользователи',
+    ],
+    _排行榜进度: [
+        '已抓取本页面第{}部分',
+        '已擷取本頁面第 {} 部分',
+        'Part {} of this page has been crawled',
+        'このページの第　{}　部がクロールされました',
+        '이 페이지의 {} 부분을 긁어왔습니다',
+        'Часть {} этой страницы была просмотрена',
+    ],
+    _新作品进度: [
+        '已抓取本页面 {} 个作品',
+        '已擷取本頁面 {} 個作品',
+        'This page has been crawled {} works',
+        'このページの {} つの作品をクロールしました',
+        '이 페이지의 {}개의 작품을 긁어왔습니다',
+        'На этой странице было просканированно {} работ',
+    ],
+    _抓取多少个作品: [
+        '抓取本页面 {} 个作品',
+        '擷取本頁面 {} 個作品',
+        'Crawl this page {} works',
+        'このページの {} つの作品をクロールします',
+        '이 페이지의 {}개의 작품 긁어오기',
+        'Сканировать на этой странице {} работ',
+    ],
+    _相关作品抓取完毕: [
+        '相关作品抓取完毕。包含有{}个作品，开始获取作品信息。',
+        '相關作品擷取完畢。包含有 {} 個作品，開始取得作品資訊。',
+        'The related works have been crawled. Contains {} works and starts getting information about the work.',
+        '関連作品はクロールされました。 {} 作品を含み、その作品に関する情報の取得を開始します。',
+        '관련 작품 긁어오기 완료, {}개의 작품이 포함되어 있으며, 작품 정보 가져오기를 시작합니다',
+        'Связанные работы были просканированы. Содержит {} работ и начинает получать информацию о работе(ах).',
+    ],
+    _排行榜任务完成: [
+        '本页面抓取完毕。<br>当前有{}个作品，开始获取作品信息。',
+        '本頁面擷取完畢。<br>目前有 {} 個作品，開始取得作品資訊。',
+        'This page is crawled and now has {} works.<br> Start getting the works for more information.',
+        'このページのクロール終了。<br>{}枚の作品があります。 作品情報の取得を開始します。',
+        '이 페이지 긁어오기 완료되었습니다<br>현재 {}개의 작품이 있으며, 작품 정보 가져오기를 시작합니다',
+        'Эта страница просмотрена и имеет {} работ.<br> Начинаю получать работы для получения дополнительной информации.',
+    ],
+    _开始获取作品信息: [
+        '开始获取作品信息',
+        '開始取得作品資訊',
+        'Start getting work data',
+        '作品情報の取得を開始します',
+        '작품 정보 가져오기 시작',
+        'Начинаю получать данные о работе',
+    ],
+    _列表页抓取进度: [
+        '已抓取列表页 {} 个页面',
+        '已擷取清單頁 {} 個頁面',
+        'Has acquired {} list pages',
+        '{} のリストページを取得しました',
+        '{}개의 목록 페이지를 획득하였습니다',
+        'Получено {} страниц списка',
+    ],
+    _列表页抓取进度2: [
+        '正在抓取列表页 {}/{}',
+        '正在抓取列表頁 {}/{}',
+        'crawling list page {}/{}',
+        'リストページの取得 {}/{}',
+        '목록 페이지 긁어오는 중 {}/{}',
+        'Вытаскивание списка страниц {}/{}',
+    ],
+    _列表页抓取完成: [
+        '列表页面抓取完成',
+        '清單頁面擷取完成',
+        'The list page is crawled',
+        'リストページがクロールされ',
+        '목록 페이지 긁어오기 완료',
+        'Список страниц просканирован',
+    ],
+    _抓取结果为零: [
+        '抓取完毕，但没有找到符合筛选条件的作品。<br>请检查“抓取”相关的设置。',
+        '擷取完畢，但沒有找到符合篩選條件的作品。<br>請檢查“抓取”相關的設定。',
+        'Crawl complete but did not find works that match the filter criteria.<br>Please check the settings related to Crawl.',
+        'クロールは終了しましたが、フィルタ条件に一致する作品が見つかりませんでした。<br>クロールに関する設定を確認してください。',
+        '긁어오기가 완료되었지만 필터 조건과 일치하는 작품을 찾지 못했습니다.<br>크롤링 관련 설정을 확인하세요.',
+        'Вытаскивание завершено, но не найдены работы, соответствующие критериям фильтра.<br>Пожалуйста, проверьте настройки, связанные со сканированием.',
+    ],
+    _当前任务尚未完成: [
+        '当前任务尚未完成',
+        '目前工作尚未完成',
+        'The current task has not yet been completed',
+        '現在の作業はまだ完了していません',
+        '현재 작업이 아직 완료되지 않았습니다',
+        'Текущее задание еще не выполнено',
+    ],
+    _当前任务尚未完成2: [
+        '当前任务尚未完成，请等待完成后再下载。',
+        '目前工作尚未完成，請等待完成後再下載。',
+        'The current task has not yet been completed',
+        '現在の作業はまだ完了していません、完了するまでお待ちください',
+        '현재 작업이 아직 완료되지 않았습니다, 완료될 때까지 기다려주세요.',
+        'Текущее задание еще не выполнено',
+    ],
+    _列表抓取完成开始获取作品页: [
+        '当前列表中有{}张作品，开始获取作品信息',
+        '目前清單中有 {} 張作品，開始取得作品資訊',
+        'Now has {} works. Start getting the works for more information.',
+        '{} 枚の作品があります。 作品情報の取得を開始します。',
+        '현재 {}개의 작품이 있습니다, 작품 정보 가져오기를 시작합니다',
+        'Сейчас в работе {} работ. Начните получать работы для получения дополнительной информации.',
+    ],
+    _开始获取作品页面: [
+        '开始获取作品页面',
+        '開始取得作品頁面',
+        'Start getting the works page',
+        '作品ページの取得を開始する',
+        '작품 페이지 가져오기 시작',
+        'Начинаю получать страницу с работами',
+    ],
+    _无权访问: [
+        '无权访问 {}，跳过该作品。',
+        '沒有權限存取 {}，跳過該作品。',
+        'No access {}, skip.',
+        '{} のアクセス権限がありません、作品を無視する。',
+        '{}에 접근 권한이 없습니다, 이 작업을 건너뜁니다.',
+        'Нет доступа {}, пропуск.',
+    ],
+    _作品页状态码0: [
+        '请求的 URL 不可访问 (0)',
+        '要求的 URL 無法存取 (0)',
+        'The requested URL is not accessible (0)',
+        '要求された URL にアクセスできません (0)',
+        '요청한 URL에 접근할 수 없습니다 (0)',
+        'Запрашиваемый URL недоступен (0)',
+    ],
+    _作品页状态码400: [
+        '该作品已被删除 (400)',
+        '該作品已被刪除 (400)',
+        'The work has been deleted (400)',
+        '作品は削除されました (400)',
+        '이 작품은 삭제되었습니다 (400)',
+        'Работа была удалена (400)',
+    ],
+    _作品页状态码401: [
+        '请您登录 Pixiv 账号然后重试。(401)',
+        '請您登入 Pixiv 帳號後重試。(401)',
+        'Please log in to your Pixiv account and try again. (401)',
+        'Pixiv アカウントにログインして、もう一度お試しください。(401)',
+        'Pixiv 계정에 로그인 후 다시 시도해주세요. (401)',
+        'Пожалуйста, войдите в свою учетную запись Pixiv и попробуйте еще раз. (401)',
+    ],
+    _作品页状态码403: [
+        '无权访问请求的 URL (403)',
+        '沒有權限存取要求的 URL (403)',
+        'Have no access to the requested URL (403)',
+        'リクエストされた URL にアクセスできない (403)',
+        '요청한 URL에 접근 권한이 없습니다 (403)',
+        'Нет доступа к запрашиваемому URL (403)',
+    ],
+    _作品页状态码404: [
+        '404 not found',
+        '404 not found',
+        '404 not found',
+        '404 not found',
+        '404 not found',
+        '404 not found',
+    ],
+    _作品页状态码429: [
+        '错误代码：429（请求数量过多）。下载器会重新抓取它。',
+        '錯誤程式碼：429（請求數量過多）。下載器会重新抓取它。',
+        'Error code: 429 (Too many requests). The downloader will re-crawl it.',
+        'エラー コード: 429 (要求が多すぎます)。ダウンローダーはそれを再クロールします。',
+        '오류 코드: 429(요청이 너무 많음). 다운로더가 다시 크롤링합니다.',
+        'Код ошибки: 429 (Слишком много запросов). Загрузчик будет повторять вытаскивание.',
+    ],
+    _错误代码: [
+        '错误代码：',
+        '錯誤程式碼：',
+        'Error code: ',
+        'エラー コード: ',
+        '오류 코드: ',
+        'Код ошибки: ',
+    ],
+    _作品页状态码500: [
+        'Pixiv 拒绝返回数据 (500)。下载器会重新抓取它。',
+        'Pixiv 拒絕返回資料 (500)。下載器会重新抓取它。',
+        'Pixiv refuses to return data (500). The downloader will re-crawl it.',
+        'ピクシブはデータの返却を拒否します (500)。ダウンローダーはそれを再クロールします。',
+        'pixiv는 데이터 반환을 거부합니다 (500). 다운로더가 다시 크롤링합니다.',
+        'Pixiv отказывается возвращать данные (500). Загрузчик будет повторять вытаскивание.',
+    ],
+    _正在抓取: [
+        '正在抓取，请等待……',
+        '擷取中，請稍後……',
+        'Getting, please wait...',
+        'クロール中、しばらくお待ちください...',
+        '얻어오는 중, 잠시만 기다려주세요...',
+        'Получение, пожалуйста, подождите...',
+    ],
+    _获取全部书签作品: [
+        '获取全部书签作品，时间可能比较长，请耐心等待。',
+        '取得全部書籤作品，時間可能比較長，請耐心等待。',
+        'Get all bookmarked works, the time may be longer, please wait.',
+        'ブックマークしたすべての作品を取得すると、時間がかかることがあります。お待ちください。',
+        '북마크된 작품을 모두 가져오는 것은 시간이 오래 걸릴 수 있으니 기다려주세요.',
+        'Получить все работы из закладок, это может занять время, пожалуйста, подождите',
+    ],
+    _抓取图片网址遇到中断: [
+        '当前任务已中断!',
+        '目前工作已中斷！',
+        'The current task has been interrupted.',
+        '現在の作業が中断されました。',
+        '현재 작업이 중단되었습니다!',
+        'Текущая задача была прервана.',
+    ],
+    _关闭: ['关闭', '關閉', 'close', 'クローズ', '닫기', 'закрыть'],
+    _输出信息: [
+        '输出信息',
+        '輸出資訊',
+        'Output information',
+        '出力情報',
+        '출력 정보',
+        'Выходная информация',
+    ],
+    _复制: ['复制', '複製', 'Copy', 'コピー', '복사', 'Копировать'],
+    _已复制到剪贴板: [
+        '已复制到剪贴板，可直接粘贴',
+        '已複製至剪貼簿，可直接貼上',
+        'Has been copied to the clipboard',
+        'クリップボードにコピーされました',
+        '클립보드에 복사되었습니다.',
+        'Скопировано в буфер обмена',
+    ],
+    _下载设置: [
+        '下载设置',
+        '下載設定',
+        'Download settings',
+        'ダウンロード設定',
+        '다운로드 설정',
+        'Настройки загрузки',
+    ],
+    _收起展开设置项: [
+        '收起/展开设置项',
+        '摺疊/展開設定項目',
+        'Collapse/expand settings',
+        '設定の折りたたみ/展開',
+        '설정 축소/확장',
+        'Свернуть/развернуть настройки',
+    ],
+    _github: [
+        'Github 页面，欢迎 star',
+        'Github 頁面，歡迎 star',
+        'Github page, if you like, please star it',
+        'Github のページ、star をクリックしてください',
+        'Github, 유용하셨다면 Star를 주세요.',
+        'Страница на Github, если вам нравится, пожалуйста, поставьте звезду',
+    ],
+    _wiki: ['使用手册', 'Wiki', 'Wiki', 'マニュアル', '위키', 'Вики'],
+    _快捷键ALTX显示隐藏控制面板: [
+        '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">X</span> 显示或隐藏控制面板。',
+        '你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">X</span> 顯示或隱藏控制面板。',
+        'You can use the shortcut keys <span class="blue">Alt</span> + <span class="blue">X</span> to show or hide the control panel.',
+        'ショートカット キー <span class="blue">Alt</span> + <span class="blue">X</span> を使用して、コントロール パネルを表示または非表示にできます。',
+        '단축키 <span class="blue">Alt</span> + <span class="blue">X</span>를 사용하여 제어판을 표시하거나 숨길 수 있습니다.',
+        'Вы можете использовать сочетания клавиш <span class="blue">Alt</span> + <span class="blue">X</span>, чтобы отобразить или скрыть панель управления.',
+    ],
+    _隐藏控制面板: [
+        '隐藏控制面板（Alt + X）',
+        '隱藏控制面板（Alt + X）',
+        'hide control panel (Alt + X)',
+        'コントロールパネルを隠す（Alt + X）',
+        '제어판 숨기기 (Alt + X)',
+        'скрыть панель управления (Alt + X)',
+    ],
+    _显示控制面板: [
+        '显示控制面板 (Alt + X)',
+        '顯示控制面板 (Alt + X)',
+        'Show control panel (Alt + X)',
+        'コントロールパネルを表示 (Alt + X)',
+        '제어판 표시 (Alt + X)',
+        'показать панель управления (Alt + X)',
+    ],
+    _共抓取到n个文件: [
+        '共抓取到 {} 个文件',
+        '共擷取到 {} 個檔案',
+        'Crawl a total of {} files',
+        '合計 {} つのファイルがあります',
+        '총 {}개의 파일을 긁어왔습니다',
+        'Всего просканированно {} файлов',
+    ],
+    _共抓取到n个作品: [
+        '共抓取到 {} 个作品',
+        '共擷取到 {} 個作品',
+        'Crawl a total of {} works',
+        '合計 {} つの作品があります',
+        '총 {}개의 작품을 긁어왔습니다',
+        'Всего просканированно {} работ',
+    ],
+    _命名规则: [
+        '<span class="key">命名</span>规则',
+        '<span class="key">命名</span>規則',
+        '<span class="key">Naming</span> rule',
+        '<span class="key">命名</span>規則',
+        '<span class="key">명명</span> 규칙',
+        '<span class="key">Правила</span> названий',
+    ],
+    _命名规则2: [
+        '命名规则',
+        '命名規則',
+        'Naming rule',
+        '命名規則',
+        '명명 규칙',
+        'Правила названий',
+    ],
+    _设置文件夹名的提示: [
+        `可以使用 '<span class="key">/</span>' 建立文件夹。示例：`,
+        `可以使用斜線（<span class="key">/</span>）建立資料夾。範例：`,
+        `You can create a directory with '<span class="key">/</span>'. Example：`,
+        `フォルダーは '<span class="key">/</span>' で作成できます。例：`,
+        `'<span class="key">/</span>'을 사용하여 디렉토리를 생성할 수 있습니다. 예:`,
+        `Вы можете создать каталог с помощью '<span class="key">/</span>'. Пример:`,
+    ],
+    _添加命名标记前缀: [
+        '添加命名标记<span class="key">前缀</span>',
+        '加入命名標記<span class="key">前綴</span>',
+        'Add named tag <span class="key">prefix</span>',
+        '前にタグの名前を追加',
+        '명명된 태그 추가 <span class="key">접두사</span>',
+        'Добавить именованный тег <span class="key">префикс</span>',
+    ],
+    _添加字段名称提示: [
+        `例如，在用户名前面添加“user_”标记`,
+        '例如，在使用者名稱前面加入「user_」標記。',
+        `For example, add the 'user_' tag in front of the username`,
+        'たとえば、ユーザー名の前に 「user_」タグを追加します。',
+        `예: 유저명 앞에 'user_' 태그 추가`,
+        `Например, добавьте тег 'user_' перед именем пользователя`,
+    ],
+    _命名标记id: [
+        '默认文件名，如 <span class="blue">44920385_p0</span>',
+        '預設檔案名稱，例如：<span class="blue">44920385_p0</span>。',
+        'Default file name, for example <span class="blue">44920385_p0</span>',
+        'デフォルトのファイル名，例 <span class="blue">44920385_p0</span>',
+        '기본 파일명. 예: <span class="blue">44920385_p0</span>',
+        'Имя файла по умолчанию, например <span class="blue">44920385_p0</span>',
+    ],
+    _命名标记title: [
+        '作品标题',
+        '作品標題',
+        'Works title',
+        '作品のタイトル',
+        '작품 제목',
+        'Название работ',
+    ],
+    _命名标记tags: [
+        '作品的标签列表',
+        '作品的標籤清單',
+        'The tags of the work',
+        '作品のタグ',
+        '작품 태그',
+        'Теги работ',
+    ],
+    _命名标记user: [
+        '用户名字',
+        '使用者名稱',
+        'User name',
+        'ユーザー名',
+        '유저명',
+        'Никнейм юзера',
+    ],
+    _用户id: [
+        '用户 ID（数字）',
+        '使用者 ID（數字）',
+        'User ID (Number)',
+        'ユーザー ID (Number)',
+        '유저 ID (숫자)',
+        'ID Юзера (Число)',
+    ],
+    _命名标记px: [
+        '宽度和高度。例如：<span class="blue">600x900</span>',
+        '寬度和高度。例如：<span class="blue">600x900</span>',
+        'Width and height, e.g. <span class="blue">600x900</span>',
+        '幅と高さ。例：<span class="blue">600x900</span>',
+        '너비와 높이. 예: <span class="blue">600x900</span>',
+        'Ширина и высота, напр. <span class="blue">600x900</span>',
+    ],
+    _命名标记bmk: [
+        'Bookmark count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
+        'Bookmark count，作品的收藏數。將它放在最前面可以讓檔案依收藏數排序。',
+        'Bookmark count, bookmarks number of works.',
+        'Bookmark count，作品のボックマークの数、前に追加することでボックマーク数で并べることができます。',
+        '북마크 수. 맨 앞에 두면 북마크 수별로 문서를 정렬할 수 있습니다.',
+        'Количество закладок, количество произведений в закладках',
+    ],
+    _命名标记bmk_id: [
+        'Bookmark ID。你收藏的每一个作品都会有一个 Bookmark ID。收藏的时间越晚，Bookmark ID 就越大。当你下载你的收藏时，可以使用 {bmk_id} 作为排序依据。',
+        'Bookmark ID。你收藏的每一個作品都會有一個 Bookmark ID。收藏的時間越晚，Bookmark ID 就越大。當你下載你的收藏時，可以使用 {bmk_id} 作為排序依據。',
+        'Bookmark ID. Every work in your bookmarks will have a Bookmark ID. The later the bookmark is added, the larger the Bookmark ID. When you download your bookmarks, you can use {bmk_id} as a sorting basis.',
+        'ブックマークID。 ブックマーク内のすべての作品にはブックマークIDがあります。 ブックマークを後で追加すると、ブックマークIDが大きくなります。 ブックマークをダウンロードするときは、{bmk_id}を並べ替えの基準として使用できます。',
+        '북마크 ID. 당신이 북마크하고 있는 작품마다 북마크 ID가 있습니다. 북마크 시간이 늦어질수록 북마크 ID는 커집니다. 북마크를 다운로드할때 {bmk_id}를 기준으로 정렬할 수 있습니다.',
+        'Bookmark ID. Каждая работа в ваших закладках будет иметь идентификатор закладки. Чем позже добавлена закладка, тем больше ID закладки. Когда вы загружаете закладки, вы можете использовать {bmk_id} в качестве основы для сортировки.',
+    ],
+    _命名标记bmk_1000: [
+        '作品收藏数的简化显示。例如：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
+        '作品收藏數的簡化顯示。例如：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
+        'Simplified number of bookmark, e.g. <span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
+        '作品のボックマークの数の簡略表示。例：<span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ……',
+        '단순화된 북마크 수. 예: <span class="blue">0+</span>, <span class="blue">1000+</span>, <span class="blue">2000+</span>, <span class="blue">3000+</span> ……',
+        'Упрощенное количество закладок, напр. <span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ......',
+    ],
+    _命名标记like: [
+        'Like count，作品的点赞数。',
+        'Like count，作品的點讚數。',
+        'Like count.',
+        'Like count。',
+        '좋아요 수',
+        'Колличество лайков',
+    ],
+    _命名标记view: [
+        'View count，作品的浏览量。',
+        'View count，作品的瀏覽量。',
+        'View count.',
+        'View count。',
+        '조회수',
+        'Колличество просмотров',
+    ],
+    _命名标记id_num: [
+        '数字 ID，如 <span class="blue">44920385</span>',
+        '數字 ID，例如：<span class="blue">44920385</span>。',
+        'Number ID, for example <span class="blue">44920385</span>',
+        '<span class="blue">44920385</span> などの番号 ID',
+        '숫자 ID. 예: <span class="blue">44920385</span>',
+        'Идентификатор номера, например <span class="blue">44920385</span>',
+    ],
+    _命名标记p_num: [
+        '图片在作品内的序号，如 <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 每个作品都会重新计数。',
+        '圖片在作品內的序號，例如：<span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span>……每個作品都將重新計數。',
+        'The serial number of the image in the work, such as <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Each work will be recounted.',
+        '<span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> など、作品の画像のシリアル番号。各ピースは再集計されます。',
+        '작품 안에 있는 번호. 예: <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> …… 작품마다 다시 세어봅니다.',
+        'Порядковый номер изображения в работе, например, <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> .... Каждое произведение будет пересказано',
+    ],
+    _命名标记tags_trans: [
+        '作品的标签列表，附带翻译后的标签（如果有）',
+        '作品的標籤清單，包含翻譯後的標籤（如果有的話）。',
+        'The tags of the work, with the translated tag (if any)',
+        '作品のタグリスト、翻訳付きタグ(あれば)',
+        '작품 태그, 번역된 태그 (있다면)',
+        'Теги произведения, с тегом перевода (если есть)',
+    ],
+    _命名标记tags_transl_only: [
+        '翻译后的标签列表',
+        '譯後的標籤清單。',
+        'Translated tags',
+        '翻訳后のタグリスト',
+        '번역된 태그',
+        'Теги перевода',
+    ],
+    _命名标记date: [
+        '作品的创建时间。如 <span class="blue">2019-08-29</span>。',
+        '作品的建立時間。例如：<span class="blue">2019-08-29</span>。',
+        'The time the creation of the work. Such as <span class="blue">2019-08-29</span>',
+        '作品の作成時間。例 <span class="blue">2019-08-29</span>',
+        '작품 생성 날짜. 예: <span class="blue">2019-08-29</span>',
+        'Время создания произведения. Например, <span class="blue">2019-08-29</span>',
+    ],
+    _命名标记upload_date: [
+        '作品内容最后一次被修改的时间。如 <span class="blue">2019-08-30</span>。',
+        '作品內容最後一次被修改的時間。如 <span class="blue">2019-08-30</span>。',
+        'The time when the content of the work was last modified. Such as <span class="blue">2019-08-30</span>.',
+        '作品の内容が最後に変更された時刻。例 <span class="blue">2019-08-30</span>',
+        '저작물의 내용이 마지막으로 수정된 시간입니다. 예: <span class="blue">2019-08-30</span>',
+        'Время, когда содержание работы было изменено в последний раз. Например, <span class="blue">2019-08-30</span>.',
+    ],
+    _命名标记rank: [
+        '作品在排行榜中的排名。如 <span class="blue">#1</span>、<span class="blue">#2</span> …… 只能在排行榜页面中使用。',
+        '作品在排行榜中的排名。例如：<span class="blue">#1</span>、<span class="blue">#2</span>……只能在排行榜頁面中使用。',
+        'The ranking of the work in the ranking pages. Such as <span class="blue">#1</span>, <span class="blue">#2</span> ... Can only be used in ranking pages.',
+        '作品のランキング。例え　<span class="blue">#1</span>、<span class="blue">#2</span> …… ランキングページのみで使用できます。',
+        '작품의 랭킹. 예: <span class="blue">#1</span>, <span class="blue">#2</span> …… 랭킹 페이지에서만 사용할 수 있습니다.',
+        'Рейтинг работы на страницах рейтинга. Например, <span class="blue">#1</span>, <span class="blue">#2</span> ... Может использоваться только на страницах ранжирования.',
+    ],
+    _命名标记type: [
+        '作品类型，分为：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        '作品類型，分為：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        'The type of work, divided into：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        '作品分類は：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        '작품 유형: <span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+        'Тип работы, разделенный на：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
+    ],
+    _命名标记AI: [
+        '如果作品是由 AI 生成的，则输出 <span class="blue">AI</span>',
+        '如果作品是由 AI 生成的，則輸出 <span class="blue">AI</span>',
+        'If the work is generated by AI, output <span class="blue">AI</span>',
+        '作品がAIで生成された場合、<span class="blue">AI</span>を出力',
+        '작업이 AI로 생성된 경우 <span class="blue">AI</span> 출력',
+        'Если работа создана с помощью ИИ, выведите <span class="blue">AI</span>',
+    ],
+    _命名标记提醒: [
+        '你可以使用多个标记，并且可以在标记之间添加自定义文字。例如：pixiv/{id}-{title}-user {user}<br>为了防止文件名重复，命名规则里必须含有 {id} 或者 {id_num}{p_num}。',
+        '你可以使用多個標記，並且可以在標記之間新增自定義文字。例如：pixiv/{id}-{title}-user {user}<br>為了防止檔名重複，命名規則裡必須含有 {id} 或者 {id_num}{p_num}。',
+        'You can use multiple tags and add custom text between tags. For example: pixiv/{id}-{title}-user {user}<br>To prevent duplicate file names, the naming rule must contain {id} or {id_num}{p_num}.',
+        '複数のタグを使用し、タグの間にカスタム テキストを追加できます。例: pixiv/{id}-{title}-user {user}<br>ファイル名の重複を防ぐために、命名規則に {id} または {id_num}{p_num} を含める必要があります。',
+        '여러 태그를 사용하고 태그 사이에 사용자 정의 텍스트를 추가할 수 있습니다. 예: pixiv/{id}-{title}-user {user}<br>파일 이름 중복을 방지하려면 명명 규칙에 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.',
+        'Вы можете использовать несколько тегов и добавлять собственный текст между тегами. Например: pixiv/{id}-{title}-user {user}<br>Чтобы предотвратить дублирование имен файлов, правило именования должно содержать {id} или {id_num}{p_num}.',
+    ],
+    _有些标记并不总是可用的提醒: [
+        '有些标记并不总是可用，有时它们可能什么都不输出。',
+        '有些標記並不總是可用，有時它們可能什麼都不輸出。',
+        'Some tags are not always available, and sometimes they may output nothing.',
+        '一部のタグは常に使用できるとは限らず、何も出力しない場合もあります。',
+        '일부 태그는 항상 사용할 수 있는 것은 아니며 때로는 아무 것도 출력하지 않을 수도 있습니다.',
+        'Некоторые теги не всегда доступны, а иногда могут ничего не выводить.',
+    ],
+    _命名规则一定要包含id: [
+        '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}',
+        '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。',
+        'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.',
+        'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。',
+        '파일명이 중복되지 않도록, 명명 규칙에는 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.',
+        'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.',
+    ],
+    _文件夹标记PTag: [
+        '如果页面里的作品属于同一个标签，则输出这个标签。',
+        '如果頁面裡的作品屬於同一個標籤，則輸出這個標籤。',
+        'If the works on the page belong to the same tag, then output this tag.',
+        'ページ上の作品が同じタグに属している場合は、このタグを出力します。',
+        '페이지의 작품이 같은 태그에 속하는 경우 이 태그를 출력합니다.',
+        'Если работы на странице относятся к одному и тому же тегу, то выводить этот тег.',
+    ],
+    _命名标记seriesTitle: [
+        '系列标题，只在系列页面中可用（小说系列、漫画系列）。',
+        '系列標題，只在系列頁面中可用（小說系列、漫畫系列）。',
+        'Series title, only available in series pages (Novel series, Manga series).',
+        'シリーズタイトル，シリーズページのみ（小説連載、漫画連載）。',
+        '시리즈 제목, 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
+        'Название серии, доступно только на страницах серий (серия романов, серия манги).',
+    ],
+    _命名标记seriesOrder: [
+        '作品在系列中的序号，如 <span class="blue">#1</span> <span class="blue">#2</span>。只在系列页面中可用（小说系列、漫画系列）。',
+        '作品在系列中的編號，如 <span class="blue">#1</span> <span class="blue">#2</span>。只在系列頁面中可用（小說系列、漫畫系列）。',
+        'The number of the work in the series, such as <span class="blue">#1</span> <span class="blue">#2</span>. only available in series pages (Novel series, Manga series).',
+        'シリーズの中の作品の番号，例え <span class="blue">#1</span> <span class="blue">#2</span>。シリーズページのみ（小説連載、漫画連載）。',
+        '시리즈 내 작품 번호. 예: <span class="blue">#1</span> <span class="blue">#2</span>. 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
+        'Номер работы в серии, например, <span class="blue">#1</span> <span class="blue">#2</span>. доступны только на страницах серий (серия романов, серия манги).',
+    ],
+    _命名标记seriesId: [
+        '系列 ID，只在系列页面中可用（小说系列、漫画系列）。',
+        '系列 ID，只在系列頁面中可用（小說系列、漫畫系列）。',
+        'Series ID, only available in series pages (Novel series, Manga series).',
+        'シリーズ ID，シリーズページのみ（小説連載、漫画連載）。',
+        '시리즈 ID, 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
+        'Идентификатор серии, доступен только на страницах серий (серия романов, серия манги).',
+    ],
+    _文件夹标记PTitle: [
+        '页面标题',
+        '頁面標題',
+        'Page title',
+        'ページタイトル',
+        '페이지 제목',
+        'Заголовок страницы',
+    ],
+    _预览文件名: [
+        '预览文件名',
+        '預覽檔案名稱',
+        'Preview file name',
+        'ファイル名',
+        '파일명 미리보기',
+        'Имя файла предварительного просмотра',
+    ],
+    _下载线程: [
+        '同时下载<span class="key">数量</span>',
+        '同時下載<span class="key">數量</span>',
+        'Download <span class="key">thread</span>',
+        '同時ダウンロード数',
+        '다운로드 <span class="key">쓰레드</span>',
+        'Кол-во <span class="key">потоков</span> на загрузку',
+    ],
+    _下载线程的说明: [
+        `你可以输入 1-${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.downloadThreadMax} 之间的数字，设置同时下载的数量`,
+        `你可以輸入 1-${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.downloadThreadMax} 之間的數字，設定同時下載的數量。`,
+        `You can type a number between 1-${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.downloadThreadMax} to set the number of concurrent downloads`,
+        `同時ダウンロード数を設定、1-${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.downloadThreadMax} の数値を入力してください`,
+        `1-${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.downloadThreadMax} 사이의 숫자를 입력하여 동시 다운로드 수를 설정할 수 있습니다.`,
+        `Вы можете ввести число между 1-${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.downloadThreadMax} , чтобы установить количество одновременных загрузок`,
+    ],
+    _开始下载: [
+        '开始下载',
+        '開始下載',
+        'Start download',
+        '開始',
+        '다운로드 시작',
+        'Начать загрузку',
+    ],
+    _暂停下载: [
+        '暂停下载',
+        '暫停下載',
+        'Pause download',
+        '一時停止',
+        '다운로드 일시중지',
+        'Приостановить загрузку',
+    ],
+    _停止下载: [
+        '停止下载',
+        '停止下載',
+        'Stop download',
+        '停止',
+        '다운로드 정지',
+        'Остановить загрузку',
+    ],
+    _复制url: [
+        '复制 URL',
+        '複製下載網址',
+        'Copy URLs',
+        'URL をコピー',
+        'URL 복사',
+        'Копировать URL',
+    ],
+    _当前状态: [
+        '当前状态 ',
+        '目前狀態：',
+        'State ',
+        '現在の状態 ',
+        '현재 상태',
+        'Текущее состояние',
+    ],
+    _未开始下载: [
+        '未开始下载',
+        '未開始下載',
+        'Not yet started downloading',
+        'まだダウンロードを開始していません',
+        '아직 다운로드를 시작하지 않았습니다.',
+        'Загрузка еще не началась',
+    ],
+    _下载进度: [
+        '下载进度',
+        '下載進度',
+        'Total progress',
+        '概要',
+        '다운로드 진행률',
+        'Полный прогресс',
+    ],
+    _任务进度: [
+        '任务进度',
+        '任務進度',
+        'Task progress',
+        'タスクの進行状況',
+        '작업 진행',
+        'прогресс',
+    ],
+    _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問', '도움말', 'help'],
+    _uuid: [
+        `下载器检测到下载后的文件名异常。如果你看到文件名是一串随机的字母和数字，表示有某些扩展程序接管了由下载器建立的下载，导致下载器设置的文件名丢失。<br>
+遇到此问题时，请禁用其他有下载文件的功能的扩展程序。例如：<br>
+Chrono 下载管理器、mage Downloade 等。`,
+        `下載器檢測到下載後的檔名異常。如果你看到檔名是一串隨機的字母和數字，表示有某些擴充套件程式接管了由下載器建立的下載，導致下載器設定的檔名丟失。<br>
+遇到此問題時，請禁用其他有下載檔案的功能的擴充套件程式。例如：<br>
+Chrono 下載管理器、mage Downloade 等。`,
+        `The downloader detected an abnormal file name after downloading. If you see a random string of letters and numbers in the file name, it means that some extensions have taken over the download established by the downloader, causing the file name set by the downloader to be lost. <br>
+When encountering this problem, please disable other extensions that have the function of downloading files. For example: <br>
+Chrono Download Manager, Image Downloader, etc.`,
+        `ダウンローダーはダウンロード後に異常なファイル名を検出しました。ファイル名にランダムな文字と数字の文字列が表示されている場合は、一部の拡張機能がダウンローダーによって確立されたダウンロードを引き継ぎ、ダウンローダーによって設定されたファイル名が失われたことを意味します。<br>
+この問題が発生した場合は、ファイルをダウンロードする機能を持つ他の拡張機能を無効にしてください。例: <br>
+Chrono Download Manager、mage Downloade など。`,
+        `다운로더가 다운로드 후 비정상적인 파일 이름을 감지했습니다. 파일 이름에 임의의 문자와 숫자 문자열이 있는 경우 다운로더가 설정한 다운로드를 일부 확장자가 인수하여 다운로더가 설정한 파일 이름이 손실되었음을 의미합니다. <br>
+이 문제가 발생하면 파일을 다운로드하는 기능이 있는 다른 확장자를 비활성화하세요. 예: <br>
+Chrono Download Manager, Image Downloader 등`,
+        `Загрузчик обнаружил ненормальное имя файла после загрузки. Если вы видите случайную строку букв и цифр в имени файла, это означает, что некоторые расширения взяли на себя загрузку, установленную загрузчиком, в результате чего имя файла, установленное загрузчиком, было потеряно. <br>
+При возникновении этой проблемы, пожалуйста, отключите другие расширения, которые имеют функцию загрузки файлов. Например: <br>
+Chrono Download Manager, Image Downloader и т. д.`,
+    ],
+    _账户可能被封禁的警告: [
+        `<strong>警告</strong>：频繁和大量的抓取（和下载）可能会导致你的 Pixiv 账号被封禁。<br>
+多数用户不会遇到这个情况，而且下载器默认会减慢抓取的速度。但如果你的账户被封禁，下载器不会承担任何责任。<br>
+如果你计划进行大量的下载，可以考虑注册 Pixiv 小号。<br><br>`,
+        `<strong>警告</strong>：頻繁和大量的抓取（和下載）可能會導致你的 Pixiv 賬號被封禁。<br>
+多數使用者不會遇到這個情況，而且下載器預設會減慢抓取的速度。但如果你的賬戶被封禁，下載器不會承擔任何責任。<br>
+如果你計劃進行大量的下載，可以考慮註冊 Pixiv 小號。<br><br>`,
+        `<strong>Warning</strong>: Frequent and heavy scraping (and downloading) may result in your Pixiv account being banned. <br>
+Most users will not encounter this, and the downloader will slow down scraping by default. However, the downloader will not be held responsible if your account is banned. <br>
+If you plan to do a lot of downloading, consider signing up for a secondary Pixiv account. <br><br>`,
+        `<strong>警告</strong>: 頻繁かつ大量のスクレイピング (およびダウンロード) を行うと、Pixiv アカウントが禁止される可能性があります。 <br>
+ほとんどのユーザーはこの状況に遭遇することはなく、ダウンローダーはデフォルトでクロールを遅くします。ただし、アカウントが禁止された場合、ダウンローダーは責任を負いません。 <br>
+大量のダウンロードを行う予定がある場合は、Pixiv アカウントへのサインアップを検討してください。 <br><br>`,
+        `<strong>경고</strong>: 빈번하고 많은 양의 스크래핑(및 다운로드)을 수행하면 Pixiv 계정이 금지될 수 있습니다. <br>
+대부분의 사용자는 이러한 상황을 겪지 않으며 다운로더는 기본적으로 크롤링 속도를 늦춥니다. 그러나 귀하의 계정이 금지된 경우 다운로더는 책임을 지지 않습니다. <br>
+다운로드를 많이 할 계획이라면 Pixiv 계정에 가입하는 것을 고려해 보세요. <br><br>`,
+        `<strong>Внимание</strong>. Частое и массовое сканирование (и загрузка) может привести к блокировке вашей учетной записи Pixiv. <br>
+Большинство пользователей не столкнутся с такой ситуацией, и загрузчик по умолчанию замедлит сканирование. Но загрузчик не будет нести ответственности, если ваша учетная запись будет заблокирована. <br>
+Если вы планируете загружать много файлов, рассмотрите возможность регистрации учетной записи Pixiv. <br><br>`,
+    ],
+    _常见问题说明: [
+        '下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>还有些扩展会导致下载器不能开始下载。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>下载器 QQ 群：675174717<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a><br><br>',
+        '下載的檔案儲存在瀏覽器的下載目錄裡。如果你想儲存到其他位置，需要修改瀏覽器的下載目錄。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br>還有些擴充套件會導致下載器不能開始下載。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。<br><br>',
+        `The downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download location. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser\`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities. <br>There are also some extensions that can prevent the downloader from starting the download.<br><br>If your browser stops responding at startup, you can clear your browser\`s download history.<br><br>`,
+        'ダウンロードされたファイルはブラウザのダウンロード ディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロード場所を変更する必要があります。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br>ダウンローダーがダウンロードを開始するのを妨げる拡張機能もいくつかあります。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。<br><br>',
+        '다운로드한 파일은 브라우저의 다운로드 디렉터리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 위치를 수정해야 합니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요. <br>다운로더가 다운로드를 시작하지 못하게 막는 몇 가지 확장 프로그램도 있습니다.<br><br>시작 시 브라우저가 응답하지 않으면 브라우저의 다운로드 기록을 지울 수 있습니다.<br><br>',
+        'Загруженный файл сохраняется в каталоге загрузки браузера. Если вы хотите сохранить в другое место, вам необходимо изменить место загрузки браузера. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>Если имя файла после загрузки является ненормальным, отключите другие расширения браузера, которые имеют возможности загрузки. <br>Существуют также некоторые расширения, которые могут помешать загрузчику начать загрузку.<br><br>Если ваш браузер перестает отвечать на запросы при запуске, вы можете очистить историю загрузок вашего браузера.<br><br>',
+    ],
+    _正在下载中: [
+        '正在下载中',
+        '正在下載',
+        'Downloading',
+        'ダウンロード中',
+        '다운로드 중',
+        'Загрузка',
+    ],
+    _下载完毕: [
+        '✓ 下载完毕',
+        '✓ 下載完畢',
+        '✓ Download complete',
+        '✓ ダウンロードが完了しました',
+        '✓ 다운로드 완료',
+        '✓ Загрузка завершена',
+    ],
+    _下载完毕2: [
+        '下载完毕',
+        '下載完畢',
+        'Download complete',
+        'ダウンロードが完了しました',
+        '다운로드 완료',
+        'Загрузка завершена',
+    ],
+    _已暂停: [
+        '下载已暂停',
+        '下載已暫停',
+        'Download is paused',
+        'ダウンロードは一時停止中です',
+        '다운로드 일시중지',
+        'Загрузка приостановлена',
+    ],
+    _已停止: [
+        '下载已停止',
+        '下載已停止',
+        'Download stopped',
+        'ダウンロードが停止しました',
+        '다운로드 정지',
+        'Загрузка остановлена',
+    ],
+    _已下载: [
+        '已下载',
+        '已下載',
+        'downloaded',
+        'downloaded',
+        '다운로드됨',
+        'загруженно',
+    ],
+    _抓取完毕: [
+        '抓取完毕！',
+        '擷取完畢！',
+        'Crawl complete!',
+        'クロールが終了しました！',
+        '긁어오기 완료!',
+        'Вытаскивание завершено!',
+    ],
+    _抓取完毕2: [
+        '抓取完毕',
+        '擷取完畢',
+        'Crawl complete',
+        'クロールが終了しました',
+        '긁어오기 완료',
+        'Вытаскивание завершено',
+    ],
+    _快速下载本页: [
+        '快速下载本页作品 (Alt + Q)',
+        '快速下載本頁作品 (Alt + Q)',
+        'Download this work quickly (Alt + Q)',
+        'この作品をすばやくダウンロードする (Alt + Q)',
+        '작품 빠른 다운로드 (Alt + Q)',
+        'Быстро загрузить эту работу (Alt + Q)',
+    ],
+    _快捷键ALTQ快速下载本页作品: [
+        '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">Q</span> 快速下载本页作品。',
+        '你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">Q</span> 快速下載本頁作品。',
+        'You can use the shortcut keys <span class="blue">Alt</span> + <span class="blue">Q</span> to quickly download works on this page.',
+        'ショートカット キー <span class="blue">Alt</span> + <span class="blue">Q</span> を使用して、このページの作品をすばやくダウンロードできます。',
+        '단축키 <span class="blue">Alt</span> + <span class="blue">Q</span>를 사용하여 이 페이지에서 작품을 빠르게 다운로드할 수 있습니다.',
+        'Вы можете использовать сочетания клавиш <span class="blue">Alt</span> + <span class="blue">Q</span> для быстрой загрузки работ на этой странице.',
+    ],
+    _抓取此作品: [
+        '抓取此作品',
+        '抓取此作品',
+        'Crawl this work',
+        'この作品をクロールする',
+        '이 작품을 크롤링',
+        'Просканировать эту работу',
+    ],
+    _从本页开始抓取new: [
+        '从本页开始抓取新作品',
+        '從本頁開始擷取新作品',
+        'Crawl the new works from this page',
+        'このページから新しい作品を入手する',
+        '이 페이지부터 새 작품 긁어오기',
+        'Просканировать новые работы с этой страницы',
+    ],
+    _从本页开始抓取old: [
+        '从本页开始抓取旧作品',
+        '從本頁開始擷取舊作品',
+        'Crawl the old works from this page',
+        'このページから古い作品を入手する',
+        '이 페이지부터 오래된 작품 긁어오기',
+        'Просканировать старые работы с этой страницы',
+    ],
+    _抓取推荐作品: [
+        '抓取推荐作品',
+        '擷取推薦作品',
+        'Crawl the recommend works',
+        '推奨作品をダウンロードする',
+        '추천 작품 긁어오기',
+        'Просканировать рекомендуемые работы',
+    ],
+    _抓取推荐作品Title: [
+        '抓取页面底部的的推荐作品',
+        '擷取頁面底部的推薦作品。',
+        'Crawl the recommended works at the bottom of the page',
+        'ページの下部で推奨作品をクロールします',
+        '페이지 하단 추천 작품 긁어오기',
+        'Просканировать рекомендованные работы внизу страницы',
+    ],
+    _抓取相关作品: [
+        '抓取相关作品',
+        '擷取相關作品',
+        'Crawl the related works',
+        '関連作品をダウンロードする',
+        '관련 작품 긁어오기',
+        'Просканировать похожие работы',
+    ],
+    _调整完毕: [
+        '调整完毕，当前有{}个作品。',
+        '調整完畢，目前有 {} 個作品。',
+        'The adjustment is complete and now has {} works.',
+        '調整が完了し、今、{} の作品があります。',
+        '조정이 완료되어, 현재 {}개의 작품이 있습니다.',
+        'Настройка завершена и теперь имеет {} работ',
+    ],
+    _抓取当前作品: [
+        '抓取当前作品',
+        '擷取目前作品',
+        'Crawl the current work',
+        '現在の作品をクロールする',
+        '현재 작품 긁어오기',
+        'Просканировать текущую работу',
+    ],
+    _抓取当前作品Title: [
+        '抓取当前列表里的所有作品',
+        '擷取目前清單裡的所有作品',
+        'Crawl all the works in the current list',
+        '現在のリスト内のすべての作品をクロールする',
+        '현재 목록에 있는 모든 작품 긁어오기',
+        'Просканировать все работы в текущем списке',
+    ],
+    _清除多图作品: [
+        '清除多图作品',
+        '清除多圖作品',
+        'Remove multi-image works',
+        '複数画像をクリア',
+        '여러 이미지 작품 지우기',
+        'Удалить работы с несколькими изображениями',
+    ],
+    _清除动图作品: [
+        '清除动图作品',
+        '清除動圖作品',
+        'Remove ugoira work',
+        'うごイラ作品を削除する',
+        '움직이는 일러스트 작품 지우기',
+        'Убрать Ugoira(gif) работы',
+    ],
+    _手动删除作品: [
+        '手动删除作品',
+        '手動刪除作品',
+        'Manually delete the work',
+        '作品を手動で削除する',
+        '수동으로 작품 지우기',
+        'Вручную удалить работу',
+    ],
+    _手动删除作品Title: [
+        '可以在下载前手动删除不需要的作品',
+        '可以在下載前手動刪除不需要的作品，點擊作品刪除。',
+        'You can manually delete unwanted work before downloading',
+        'ダウンロードする前に不要な作品を手動で削除することができます',
+        '다운로드를 원하지 않는 작품을 수동으로 지울 수 있습니다.',
+        'Вы можете вручную удалить нежелательные работы перед загрузкой',
+    ],
+    _退出手动删除: [
+        '退出手动删除',
+        '結束手動刪除',
+        'Exit manually delete',
+        '削除モードを終了する',
+        '수동 지우기 종료',
+        'Выйти из ручного удаления',
+    ],
+    _抓取本页作品: [
+        '抓取本页作品',
+        '擷取本頁作品',
+        'Crawl this page works',
+        'このページをクロールする',
+        '이 페이지의 작품 긁어오기',
+        'Просканировать работы с этой страницы',
+    ],
+    _抓取本页作品Title: [
+        '抓取本页列表中的所有作品',
+        '擷取本頁清單中的所有作品',
+        'Crawl this page works',
+        'このページの全ての作品をクロールする',
+        '이 페이지의 모든 작품 긁어오기',
+        'Просканировать работы с этой страницы',
+    ],
+    _抓取本排行榜作品: [
+        '抓取本排行榜作品',
+        '擷取本排行榜作品',
+        'Crawl the works in this list',
+        'このリストの作品をクロールする',
+        '이 목록의 작품 긁어오기',
+        'Просканировать работы из этого списка',
+    ],
+    _抓取本排行榜作品Title: [
+        '抓取本排行榜的所有作品，包括现在尚未加载出来的。',
+        '擷取本排行榜的所有作品，包括現在尚未載入出來的。',
+        'Crawl all of the works in this list, including those that are not yet loaded.',
+        'まだ読み込まれていないものを含めて、このリストの作品をダウンロードする',
+        '아직 불러오지 않은 작품을 포함하여, 이 목록의 모든 작품을 긁어옵니다.',
+        'Просмотреть все работы в этом списке, включая те, которые еще не загружены.',
+    ],
+    _抓取首次登场的作品: [
+        '抓取首次登场作品',
+        '擷取首次登場作品',
+        'Crawl the debut works',
+        '初登場作品をダウンロードする',
+        '데뷔작 긁어오기',
+        'Просканировать по дебютные работы',
+    ],
+    _抓取首次登场的作品Title: [
+        '只下载首次登场的作品',
+        '只下載首次登場的作品',
+        'Download only debut works',
+        '初登場作品のみダウンロードします',
+        '데뷔작만 다운로드',
+        'Скачать только дебютные работы',
+    ],
+    _抓取该页面的图片: [
+        '抓取该页面的图片',
+        '擷取該頁面的圖片',
+        'Crawl the image of the page',
+        'ページの画像をクロールする',
+        '페이지의 이미지 긁어오기',
+        'Просканировать по изображение страницы',
+    ],
+    _抓取相似图片: [
+        '抓取相似图片',
+        '擷取相似圖片',
+        'Crawl similar works',
+        '類似の作品をクロールする',
+        '비슷한 작품 긁어오기',
+        'Просканировать похожие работы',
+    ],
+    _想要获取多少个作品: [
+        '您想要获取多少个作品？',
+        '想要取得多少個作品？',
+        'How many works do you want to download?',
+        'いくつの作品をダウンロードしたいですか？',
+        '몇 개의 작품을 다운로드하시겠습니까?',
+        'Сколько работ вы хотите загрузить?',
+    ],
+    _数字提示1: [
+        '-1, 或者大于 0',
+        '-1，或是大於 0',
+        '-1, or greater than 0',
+        '-1、または 0 より大きい',
+        '-1, 또는 0보다 크게',
+        '-1, или больше 0',
+    ],
+    _下载大家的新作品: [
+        '下载大家的新作品',
+        '下載大家的新作品',
+        'Download everyone`s new work',
+        'みんなの新作をダウンロードする',
+        '모두의 새 작품 다운로드',
+        'Вседа загружать новые работы',
+    ],
+    _屏蔽设定: [
+        '屏蔽設定',
+        '封鎖設定',
+        'Mute settings',
+        'ミュート設定',
+        '차단 설정',
+        'Настройки защиты',
+    ],
+    _举报: ['举报', '回報', 'Report', '報告', '신고', 'Отчет'],
+    _输入id进行抓取: [
+        '输入 ID 进行抓取',
+        '輸入 ID 進行擷取',
+        'Type ID to crawl',
+        'IDを入力してダウンロードする',
+        '유형 ID 긁어오기',
+        'Введите ID для вытаскивания',
+    ],
+    _输入id进行抓取的提示文字: [
+        '请输入作品 id。如果有多个 id，则以换行分割（即每行一个id）。',
+        '請輸入作品 id。如果有多個 id，則以換行分隔（即每行一個 id）。',
+        'Please type the illustration id. If there is more than one id, one id per line.',
+        'イラストレーターIDを入力してください。 複数の id がある場合は、1 行に 1 つの id を付けます。',
+        '일러스트 작품 ID를 입력해주세요. 여러 개의 ID가 있으면 줄을 바꾸어주세요 (한 줄에 한 개의 ID).',
+        'Пожалуйста, введите идентификатор иллюстрации. Если идентификаторов несколько, то по одному идентификатору на строку.',
+    ],
+    _输入的ID视为图像ID: [
+        '因为这个标签页展示的是图像，所以输入的 ID 会被视为图像作品的 ID。',
+        '因為這個標籤頁展示的是圖片，所以輸入的 ID 會被視為圖片作品的 ID。',
+        'Since this tab displays images, the ID entered will be considered the ID of the image work.',
+        'このタブは画像を表示するため、入力したIDが画像作品のIDとなります。',
+        '이 탭에는 이미지가 표시되므로 입력한 ID가 해당 이미지 작품의 ID로 간주됩니다.',
+        'Поскольку на этой вкладке отображаются изображения, введенный идентификатор будет считаться идентификатором работы с изображением.',
+    ],
+    _输入的ID视为小说ID: [
+        '因为这个标签页展示的是小说，所以输入的 ID 会被视为小说作品的 ID。',
+        '因為這個標籤頁展示的是小說，所以輸入的 ID 會被視為小說作品的 ID。',
+        'Since this tab displays novels, the ID entered will be treated as the ID of the novel work.',
+        'このタブは小説を表示するため、入力したIDは小説作品のIDとして扱われます。',
+        '이 탭에는 소설이 표시되므로 입력한 ID는 소설 작품의 ID로 처리됩니다.',
+        'Поскольку на этой вкладке отображаются романы, введенный идентификатор будет рассматриваться как идентификатор романа.',
+    ],
+    _开始抓取: [
+        '开始抓取',
+        '開始擷取',
+        'Start crawl',
+        'クロールを開始する',
+        '긁어오기 시작',
+        'Начать вытаскивание',
+    ],
+    _给未分类作品添加添加tag: [
+        '给未分类的作品添加标签',
+        '幫未分類的作品加入標籤',
+        'Add tag to uncategorized work',
+        '未分類の作品にタグを追加',
+        '분류되지 않은 작품에 태그 추가',
+        'Добавить метку к неклассифицированной работе',
+    ],
+    _id不合法: [
+        'id不合法',
+        'id 不合法',
+        'id is illegal',
+        'id が不正な',
+        '올바르지 않은 ID',
+        'Это ID неверно',
+    ],
+    _快速收藏: [
+        '快速收藏 (Ctrl + B)',
+        '快速收藏 (Ctrl + B)',
+        'Quick bookmarks (Ctrl + B)',
+        'クイックブックマーク (Ctrl + B)',
+        '빠른 북마크 (Ctrl + B)',
+        'Быстрые закладки (Ctrl + B)',
+    ],
+    _启用: ['启用', '啟用', 'Enable', '有効にする', '활성화', 'Включить'],
+    _自动开始下载: [
+        '<span class="key">自动</span>开始下载',
+        '<span class="key">自動</span>開始下載',
+        'Download starts <span class="key">automatically</span>',
+        'ダウンロードは自動的に開始されます',
+        '<span class="key">자동으로</span> 다운로드 시작',
+        'Загрузка начинается <span class="key">автоматически</span>',
+    ],
+    _自动开始下载的提示: [
+        '当“开始下载”状态可用时，自动开始下载，不需要点击下载按钮。',
+        '當可下載時自動開始下載，不需要點選下載按鈕。',
+        'When the &quot;Start Download &quot; status is available, the download starts automatically and no need to click the download button.',
+        '「ダウンロードを開始する」ステータスが利用可能になると、ダウンロードは自動的に開始され、ダウンロードボタンをクリックする必要はありません。',
+        '"다운로드 시작" 상태가 활성화되면, 다운로드가 자동으로 시작되고 다운로드 시작 버튼을 클릭할 필요가 없게 됩니다.',
+        'При активации этого тумблера загрузка начнется автоматически, без необходимости нажимать кнопку загрузки',
+    ],
+    _转换任务提示: [
+        '正在转换 {} 个文件',
+        '正在轉換 {} 個檔案',
+        'Converting {} files',
+        '{} ファイルの変換',
+        '{}개의 파일을 변환하는 중',
+        'Преобразование {} файлов',
+    ],
+    _最近更新: [
+        '最近更新',
+        '最近更新',
+        'What`s new',
+        '最近更新する',
+        '새로운 기능',
+        'Что нового',
+    ],
+    _确定: ['确定', '確定', 'Ok', '確定', '확인', 'Ок'],
+    _file404: [
+        '404 错误：文件 {} 不存在。',
+        '404 錯誤：檔案 {} 不存在。',
+        '404 error: File {} does not exist.',
+        '404 エラー：ファイル {} は存在しません。',
+        '404 오류: 파일 {}이 존재하지 않습니다.',
+        '404 ошибка: Файл {} не существует.',
+    ],
+    _文件下载失败: [
+        '文件 {} 下载失败',
+        '檔案 {} 下載失敗',
+        'File {} download failed',
+        'ファイル {} のダウンロードを失敗しました',
+        '파일 {} 다운로드 실패',
+        'Загрузка файла {} не удалась',
+    ],
+    _是否重置设置: [
+        '是否重置设置？',
+        '確定要重設設定嗎？',
+        'Do you want to reset the settings?',
+        '設定をリセットしますか？',
+        '설정을 초기화하시겠습니까?',
+        'Вы хотите сбросить настройки?',
+    ],
+    _newver: [
+        '有新版本可用',
+        '有新版本可更新',
+        'A new version is available',
+        '新しいバージョンがあります',
+        '새 버전이 있습니다',
+        'Доступна новая версия',
+    ],
+    _id范围: [
+        '<span class="key">ID</span> 范围',
+        '<span class="key">ID</span> 範圍',
+        '<span class="key">ID</span> range',
+        '<span class="key">ID</span> 範囲',
+        '<span class="key">ID</span> 범위',
+        '<span class="key">ID</span> диапазон',
+    ],
+    _设置id范围提示: [
+        '您可以输入一个作品 id，抓取比它新或者比它旧的作品',
+        '可以輸入一個作品 id，擷取比它新或者比它舊的作品。',
+        'You can type a work id and crawl works that are newer or older than it',
+        '1 つの作品 id を入力することで、それより新しいあるいは古い作品をクロールことができます',
+        '작품 ID를 입력하여, 그보다 새로운 혹은 오래된 작품을 긁어올 수 있습니다.',
+        'Вы можете ввести идентификатор работы и просмотреть работы, которые новее или старше его',
+    ],
+    _大于: ['大于', '大於', 'Bigger than', 'より大きい', '보다 큼', 'Больше чем'],
+    _小于: ['小于', '小於', 'Less than', 'より小さい', '보다 작음', 'Меньше чем'],
+    _投稿时间: [
+        '投稿<span class="key">时间</span>',
+        '投稿<span class="key">時間</span>',
+        'Posting <span class="key">date</span>',
+        '投稿日時',
+        '게시 <span class="key">날짜</span>',
+        '<span class="key">Дата</span> публикации',
+    ],
+    _设置投稿时间提示: [
+        '您可以下载指定时间内发布的作品',
+        '可以下載指定時間內發布的作品。',
+        'You can download works posted in a specified period of time',
+        '指定された時間内に配信された作品をダウンロードすることができます',
+        '지정된 기간 내에 게시된 작품을 다운로드할 수 있습니다.',
+        'Вы можете загружать работы, размещенные за определенный период времени',
+    ],
+    _时间范围: [
+        '时间范围',
+        '時間範圍',
+        'Time range',
+        '時間範囲',
+        '시간 범위',
+        'Диапазон времени',
+    ],
+    _必须大于0: [
+        '必须大于 0',
+        '必須大於 0',
+        'must be greater than 0',
+        '0 より大きくなければなりません',
+        '0보다 커야합니다',
+        'должно быть больше 0',
+    ],
+    _开始筛选: [
+        '开始筛选',
+        '開始篩選',
+        'Start screening',
+        'スクリーニング開始',
+        '선별 시작',
+        'Начать скрининг',
+    ],
+    _开始筛选Title: [
+        '按照设置来筛选当前标签里的作品。',
+        '按照設定來篩選目前標籤裡的作品。',
+        'Screen the works in the current tag.',
+        '現在のタグにある作品を設定によってスクリーニングする',
+        '설정에 따라 현재 태그 내 작품을 선별합니다.',
+        'Отобразить работы в с текущим тегом',
+    ],
+    _在结果中筛选: [
+        '在结果中筛选',
+        '在結果中篩選',
+        'Screen in results',
+        '結果の中からスクリーニング',
+        '결과 중에서 선별',
+        'Экран результатов',
+    ],
+    _在结果中筛选说明: [
+        '您可以改变设置，并在结果中再次筛选。',
+        '可以變更設定，並在結果中再次篩選。',
+        'You can change the settings and screen again in the results.',
+        '設定を変えて、結果の中で再びスクリーニングすることができます。',
+        '설정을 변경하고, 결과를 다시 선별할 수 있습니다',
+        'Вы можете изменить настройки и снова просмотреть результаты',
+    ],
+    _抓取筛选结果: [
+        '抓取筛选结果',
+        '擷取篩選結果',
+        'Crawl the screening results',
+        'スクリーニングの結果をクロールする',
+        '선별 결과 긁어오기',
+        'Просканировать результаты скрининга',
+    ],
+    _尚未开始筛选: [
+        '尚未开始筛选',
+        '尚未開始篩選',
+        'Screening has not started',
+        'まだスクリーニングを開始していない',
+        '선별이 시작되지 않았습니다',
+        'Скрининг не начался',
+    ],
+    _没有数据可供使用: [
+        '没有数据可供使用',
+        '沒有資料可供使用',
+        'No data is available.',
+        '使用可能なデータはない',
+        '사용 가능한 데이터가 없습니다',
+        'Нет данных',
+    ],
+    _预览搜索结果: [
+        '<span class="key">预览</span>搜索页面的筛选结果',
+        '<span class="key">預覽</span>搜尋頁面的篩選結果',
+        '<span class="key">Preview</span> filter results on search page',
+        '検索ページのフィルタ結果をプレビューします',
+        '<span class="key">미리보기</span> 검색 페이지 필터 결과',
+        '<span class="key">Предварительный просмотр</span> результатов фильтрации на странице поиска',
+    ],
+    _预览搜索结果说明: [
+        '下载器可以把符合条件的作品显示在当前页面上，并且按照收藏数量从高到低排序。<br>如果抓取结果太多导致页面崩溃，请关闭这个功能。<br>启用预览功能时，下载器不会自动开始下载。',
+        '下載器可以把符合條件的作品顯示在當前頁面上，並且按照收藏數量從高到低排序。<br>如果擷取結果太多導致頁面當掉，請關閉這個功能。<br>啟用預覽功能時，下載器不會自動開始下載。',
+        'The downloader can display eligible works on the current page and sort them from high to low according to the number of bookmarks.<br>If too many crawling results cause the page to crash, turn off this feature.<br>When the preview feature is enabled, the downloader does not start downloading automatically.',
+        'ダウンローダーは、対象となる作品を現在のページに表示し、コレクション数に応じて上位から下位に並べ替えることができます。<br>クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。<br>プレビュー機能を有効にすると、ダウンロードは自動的に開始されません。',
+        '다운로더는 현재 페이지에 적합한 작품을 표시하고 컬렉션 수에 따라 높은 순으로 정렬할 수 있습니다.<br>긁어오기 결과가 너무 많아서 페이지가 충돌하면 이 기능을 꺼주세요.<br> 미리보기를 사용하면 다운로드가 자동으로 시작되지 않습니다.',
+        'Загрузчик может отображать подходящие произведения на текущей странице и сортировать их по возрастанию в зависимости от количества коллекций.<br>Пожалуйста, отключите эту функцию, если слишком большое количество результатов просмотра приводит к сбою страницы.<br>Загрузчик не начинает автоматическую загрузку, если включена функция предварительного просмотра.',
+    ],
+    _提示启用预览搜索页面的筛选结果时不会自动开始下载: [
+        '由于启用了“预览搜索页面的筛选结果”，本次抓取完成后，下载器不会自动开始下载。<br>这是为了让用户可以在抓取后进一步筛选抓取结果。',
+        '由於啟用了“預覽搜尋頁面的篩選結果”，本次抓取完成後，下載器不會自動開始下載。<br>這是為了讓使用者可以在抓取後進一步篩選抓取結果。',
+        'Since "Preview filter results of search page" is enabled, the downloader will not automatically start downloading after this crawl is completed.<br>This is to allow users to further filter the crawl results after the crawl.',
+        '「検索ページのフィルター結果のプレビュー」が有効になっているため、このクロールが完了した後、ダウンローダーは自動的にダウンロードを開始しません。 <br>これは、ユーザーがクロール後にクロール結果をさらにフィルタリングできるようにするためです。',
+        `'검색 페이지 필터 결과 미리보기'가 활성화되어 있으므로 크롤링이 완료된 후 다운로더가 자동으로 다운로드를 시작하지 않습니다. <br>이는 사용자가 크롤링 후 크롤링 결과를 추가로 필터링할 수 있도록 하기 위한 것입니다.`,
+        'Поскольку функция «Предварительный просмотр результатов фильтра страницы поиска» включена, загрузчик не начнет загрузку автоматически после завершения сканирования. <br>Это позволит пользователям дополнительно фильтровать результаты сканирования после сканирования.',
+    ],
+    _目录名使用: [
+        '目录名使用：',
+        '資料夾名稱使用：',
+        'Name: ',
+        'ディレクトリ名の使用：',
+        '이름: ',
+        'Имя: ',
+    ],
+    _目录名: ['目录名', '資料夾名稱', 'Name', 'ディレクトリ名', '이름', 'Имя'],
+    _启用快速收藏: [
+        '启用快速收藏',
+        '開啟快速收藏',
+        'Enable quick bookmark',
+        'クイックボックマークを有効にする',
+        '빠른 북마크 활성화',
+        'Включить быструю закладку',
+    ],
+    _启用快速收藏说明: [
+        '当你点击下载器添加的收藏按钮(☆)，把作品添加到书签时，自动添加这个作品的标签。',
+        '當點選下載器新增的收藏按鈕（☆），將作品加入書籤時，自動新增這個作品的標籤。',
+        'When you click the favorite button (☆) added by the downloader to bookmark a work, the tag of the work is automatically added.',
+        'ダウンローダーに追加されたボックマークボタン「☆」をクリックして、作品をブックマークに追加すると、自動的に作品のタグが追加されます。',
+        '다운로더에 추가된 북마크 버튼(☆)을 클릭하여 북마크에 작품을 추가하면 자동으로 이 작품의 태그가 추가됩니다.',
+        'Когда вы нажимаете на кнопку Закладка (☆), добавленную загрузчиком, чтобы добавить произведение в закладки, автоматически добавляется тег для этого произведения',
+    ],
+    _新增设置项: [
+        '新增设置项',
+        '新增設定項目',
+        'Added setting items',
+        '新たな機能を追加されました',
+        '새로운 설정 항목 추가',
+        'Добавить новый элемент настройки',
+    ],
+    _新增功能: [
+        '新增功能',
+        '新增功能',
+        'New feature',
+        '新機能',
+        '새로운 기능',
+        'Новая фича',
+    ],
+    _抓取: ['抓取', '擷取', 'Crawl', 'クロール', '긁어오기', 'Сканирование'],
+    _下载: ['下载', '下載', 'Download', 'ダウンロード', '다운로드', 'Скачивание'],
+    _其他: ['其他', '其他', 'Other', 'その他', '그 외', 'Другие настройки'],
+    _更多: ['更多', '更多', 'More', 'もっと', '더보기', 'Больше'],
+    _第一张图不带序号: [
+        '第一张图不带<span class="key">序号</span>',
+        '第一張圖片不包含<span class="key">序號</span>',
+        'The first image without a <span class="key">serial number</span>',
+        '最初のイメージの番号を削除',
+        '<span class="key">일련번호</span>가 없는 첫 번째 이미지',
+        'Первое изображение без <span class="key">серийного номера</span>',
+    ],
+    _第一张图不带序号说明: [
+        '去掉每个作品第一张图的序号。例如 80036479_p0 变成 80036479',
+        '去掉每個作品第一張圖的序號。例如：80036479_p0 變成 80036479。',
+        'Remove the serial number of the first image of each work. For example 80036479_p0 becomes 80036479.',
+        '作品ごとの最初のイメージの番号を削除します。例えば 80036479_p0 は 80036479 になります。',
+        '작품마다 첫 번째 이미지의 일련번호를 지웁니다.<br>예: 80036479_p0은 80036479가 됩니다.',
+        'Удалите серийный номер с первой фотографии каждой работы. Например, 80036479_p0 становится 80036479',
+    ],
+    _最小值: ['最小值', '最小值', 'Minimum', '最小値', '최소', 'Минимум'],
+    _最大值: ['最大值', '最大值', 'Maximum', '最大値', '최대', 'Максимум'],
+    _单图作品: [
+        '单图作品',
+        '單圖作品',
+        'Single image works',
+        'シングルイメージ作品',
+        '단일 이미지 작품',
+        'Работа с одним изображением',
+    ],
+    _彩色图片: [
+        '彩色图片',
+        '彩色圖片',
+        'Color images',
+        'カラーイメージ',
+        '컬러 이미지',
+        'Цветная картинки',
+    ],
+    _黑白图片: [
+        '黑白图片',
+        '黑白圖片',
+        'Black and white images',
+        '白黒イメージ',
+        '흑백 이미지',
+        'Черно-белые изображения',
+    ],
+    _不保存图片因为颜色: [
+        '{} 没有被保存，因为它的颜色不符合设定。',
+        '{} 並未儲存，因為它的色彩不符合設定。',
+        '{} was not saved because its colors do not match the settings.',
+        '{} は色が設定に合わないため、保存されていません。',
+        '{} 색상이 설정과 일치하지 않아, 저장되지 않았습니다.',
+        '{} не был(и) сохранен(ы), потому что его цвета не соответствуют настройкам.',
+    ],
+    _同时转换多少个动图: [
+        '同时<span class="key">转换</span>多少个动图',
+        '同時<span class="key">轉換</span>多少個動圖',
+        'How many animations are <span class="key">converted</span> at the same time',
+        '同時変換のうごイラの上限',
+        '동시에 <span class="key">변환할</span> 움직이는 일러스트 수',
+        'Сколько анимаций <span class="key">преобразуется</span> одновременно',
+    ],
+    _同时转换多少个动图警告: [
+        '同时转换多个动图会增加资源占用。',
+        '同時轉換多個動圖會增加資源占用。',
+        'Converting multiple animations at the same time will increase resource consumption. ',
+        '複数の動画を同時に変換すると、リソースの占有が増加します。',
+        '여러 움직이는 일러스트를 동시에 변환하면 리소스가 더 많이 사용됩니다.',
+        'Одновременное преобразование нескольких анимаций увеличит потребление ресурсов. ',
+    ],
+    _提示: ['提示', '提示', 'Tip', 'ヒント', '팁', 'Совет'],
+    _fanboxDownloader: [
+        'Fanbox 下载器',
+        'Fanbox 下載器',
+        'Fanbox Downloader',
+        'Fanbox ダウンロード',
+        'Fanbox 다운로더',
+        'Fanbox загрузчик',
+    ],
+    _不保存图片因为体积: [
+        '{} 没有被保存，因为它的体积不符合设定。',
+        '{} 並未儲存，因為它的大小不符合設定。',
+        '{} was not saved because its size do not match the settings.',
+        '{} はファイルサイズが設定に合わないため、保存されていません。',
+        '{} 크기가 설정에 맞지 않아, 저장되지 않았습니다.',
+        '{} не был(и) сохранен(ы), потому что его размер не соответствует настройкам.',
+    ],
+    _文件体积限制: [
+        '文件<span class="key">体积</span>限制',
+        '檔案<span class="key">體積</span>限制',
+        'File <span class="key">size</span> limit',
+        'ファイルサイズ制限',
+        '파일 <span class="key">크기</span> 제한',
+        'Ограничение <span class="key">размера</span> файла',
+    ],
+    _不符合要求的文件不会被保存: [
+        '不符合要求的文件不会被保存。',
+        '不會儲存不符合要求的檔案。',
+        'Files that do not meet the requirements will not be saved.',
+        '設定 に合わないファイルは保存されません。',
+        '요구 사항을 충족하지 않는 파일은 저장되지 않습니다.',
+        'Файлы, не соответствующие требованиям, не будут сохранены',
+    ],
+    _小说: ['小说', '小說', 'Novel', '小説', '소설', 'Новеллы'],
+    _抓取系列小说: [
+        '抓取系列小说',
+        '擷取系列小說',
+        'Crawl series of novels',
+        '小説のシリーズをクロールする',
+        '시리즈 소설 긁어오기',
+        'Просканировать серию новелл',
+    ],
+    _合并系列小说: [
+        '合并系列小说',
+        '合併系列小說',
+        'Merge series of novels',
+        'シリーズ小説の統合',
+        '시리즈 소설 합치기',
+        'Объединить серию новелл',
+    ],
+    _小说保存格式: [
+        '<span class="key">小说</span>保存格式',
+        '<span class="key">小說</span>儲存格式',
+        'Save the <span class="key">novel</span> as',
+        '<span class="key">小説</span>の保存形式',
+        '<span class="key">소설</span>저장 형식',
+        'Сохранить <span class="key">новеллу</span> как',
+    ],
+    _在小说里保存元数据: [
+        '在小说里保存<span class="key">元数据</span>',
+        '在小說裡儲存<span class="key">元資料</span>',
+        'Save <span class="key">metadata</span> in the novel',
+        '小説の中にメタデータを保存する',
+        '소설 내 <span class="key">메타데이터</span> 저장',
+        'Сохранить <span class="key">метаданные</span> новеллы',
+    ],
+    _在小说里保存元数据提示: [
+        '把作者、网址等信息保存到小说里',
+        '將作者、網址等資訊儲存到小說裡',
+        'Save the author, URL and other information in the file',
+        '作者やURLなどの情報をファイルの中に保存します。',
+        '작가, URL, 그 외 정보를 소설 내에 저장합니다.',
+        'Сохранить автора, URL и другую информацию в файле',
+    ],
+    _正在下载小说中的插画: [
+        '正在下载小说中的插画 {}',
+        '正在下載小說中的插畫 {}',
+        'Downloading illustrations from the novel {}',
+        '小説のイラストをダウンロードする {}',
+        '소설에서 삽화 다운로드 {}',
+        'Скачивание иллюстраций из романа {}',
+    ],
+    _下载封面图片: [
+        '下载封面图片',
+        '下載封面圖片',
+        'Download cover image',
+        'カバー画像をダウンロード',
+        '표지 이미지 다운로드',
+        'Загрузить изображение обложки',
+    ],
+    _目录: ['目录', '目錄', 'Table of Contents', '目次', '목차', 'Оглавление'],
+    _Information: ['信息', '資訊', 'Information', '情報', '정보', 'Информация'],
+    _收藏本页面的所有作品: [
+        '收藏本页面的所有作品',
+        '收藏本頁面的所有作品',
+        'Bookmark all works on this page',
+        'この頁の全ての作品をブックマークに追加します',
+        '이 페이지의 북마크된 모든 작품 다운로드',
+        'Перенести в закладки все работы на этой странице',
+    ],
+    _输出内容太多已经为你保存到文件: [
+        '因为输出内容太多，已经为您保存到文件。',
+        '因為輸出內容太多，已經為你儲存到檔案。',
+        'Because the output is too much, it has been saved to a file.',
+        '出力内容が多いため、txt ファイルに保存しました。',
+        '출력 내용이 너무 많아, 파일로 저장했습니다.',
+        'Так как выход слишком большой, он был сохранен в файл',
+    ],
+    _不下载重复文件: [
+        '不下载<span class="key">重复</span>文件',
+        '不下載<span class="key">重複</span>檔案',
+        'Don`t download <span class="key">duplicate</span> files',
+        '重複ファイルをダウンロードしない',
+        '<span class="key">중복</span>파일 다운로드하지 않기',
+        'Не загружать <span class="key">дубликаты</span> файлов',
+    ],
+    _不下载重复文件的提示: [
+        '下载器会保存自己的下载记录，以避免下载重复的文件。<br>你可以清除浏览器的下载记录，这不会影响下载器的下载记录。<br>当你清除 Cookie 及其他网站数据时，下载器的记录也会被清除。',
+        '下載器會儲存自己的下載紀錄，以避免下載重複的檔案。<br>你可以清除瀏覽器的下載記錄，這不會影響下載器的下載記錄。<br>當你清除 Cookie 及其他網站資料時，下載器的記錄也會被清除。',
+        `The downloader will save its download record to avoid downloading duplicate files.<br>You can clear the browser's download history, which will not affect the downloader's download record.<br>When you clear cookies and other site data, the downloader's records will also be cleared.`,
+        'ダウンローダーは独自のダウンロード履歴を保存して、重複ファイルのダウンロードを回避する。<br>ブラウザのダウンロード履歴をクリアできますが、ダウンローダのダウンロード記録には影響しません。<br>cookie と他のサイトデータを削除すると、ダウンローダーの記録も削除されます。',
+        '다운로더가 중복되는 파일을 다운로드하지 않도록 자신의 다운로드 기록을 저장합니다.<br>브라우저의 다운로드 기록을 지울 수 있으며 이는 다운로더의 다운로드 기록에 영향을 미치지 않습니다.<br>쿠키와 다른 사이트 데이터를 지울 때 다운로드 기록도 삭제됩니다.',
+        'Загрузчик хранит собственную историю загрузок, чтобы избежать загрузки дубликатов файлов.<br> Вы можете очистить историю загрузок вашего браузера, и это не повлияет на историю загрузок загрузчика.<br> Когда вы очищаете cookies и другие данные веб-сайта, история загрузчика также будет очищена.<br>',
+    ],
+    _策略: [
+        '策略：',
+        '策略：',
+        'Strategy:',
+        'フィルター：',
+        '전략:',
+        'Стратегия',
+    ],
+    _严格: ['严格', '嚴格', 'Strict', '厳格', '엄격하게', 'Строгий'],
+    _宽松: ['宽松', '寬鬆', 'Loose', '緩い', '느슨하게', 'Свободный'],
+    _严格模式说明: [
+        '判断条件：作品的 id、上传日期、文件名',
+        '判斷條件：作品的 id、上傳日期、檔名',
+        'Judgment conditions: id, upload date, file name of the work',
+        '審査条件：作品のID、アップロード日、ファイル名',
+        '판정 조건: 작품 ID, 업로드 날짜, 파일명',
+        'Условия оценки: идентификатор, дата загрузки, имя файла работы',
+    ],
+    _宽松模式说明: [
+        '判断条件：作品的 id、上传日期',
+        '判斷條件：作品的 id、上傳日期',
+        'Judgment conditions: id, upload date of the work',
+        '審査条件：作品のID、アップロード日',
+        '판정 조건: 작품 ID, 업로드 날짜',
+        'Условия оценки: идентификатор, дата загрузки работы',
+    ],
+    _清除下载记录: [
+        '清除下载记录',
+        '清除下載記錄',
+        'Clear download record',
+        'ダウンロード記録をクリア',
+        '다운로드 기록 지우기',
+        'Очистить запись загрузки',
+    ],
+    确定要清除下载记录吗: [
+        '确定要清除下载记录吗？',
+        '確定要清除下載記錄嗎？',
+        'Are you sure you want to clear download record?',
+        'ダウンロード記録を消去してもよろしいですか?',
+        '다운로드 기록을 지우시겠습니까?',
+        'Вы уверены, что хотите очистить запись загрузки?',
+    ],
+    _下载记录已清除: [
+        '下载记录已清除',
+        '已清除下載紀錄',
+        'Download record has been cleared',
+        'ダウンロード履歴がクリアされました',
+        '다운로드 기록이 비워졌습니다',
+        'Запись загрузок была очищена',
+    ],
+    _跳过下载因为重复文件: [
+        '检测到文件 {} 已经下载过，跳过此次下载',
+        '偵測到檔案 {} 已經下載過，跳過此次下載。',
+        'Skip downloading duplicate files {}',
+        '重複ファイル {} をスキップ',
+        '파일 {}이(가) 이미 다운로드되어 있어, 다운로드를 건너뜁니다',
+        'Пропустить загрузку дубликатов файлов {}',
+    ],
+    _跳过下载因为: [
+        '跳过 {} 因为：',
+        '跳過 {} 因為：',
+        'Skipping {} because: ',
+        '{} をスキップします。理由: ',
+        '{}를 건너뜁니다. 이유: ',
+        'Пропустить {}, потому что: ',
+    ],
+    _保存用户头像为图标: [
+        '保存用户头像为图标',
+        '將使用者頭貼另存為圖示檔案',
+        'Save user avatar as icon',
+        'プロフィール画像をアイコンとして保存',
+        '아이콘으로 유저 프로필 이미지 저장',
+        'Сохранить аватар пользователя как иконку',
+    ],
+    _保存用户头像为图标说明: [
+        '把用户头像保存为 ico 文件，可以手动设置成文件夹的图标。',
+        '將使用者頭貼儲存為 ico 檔案，可以手動設定成資料夾圖示。',
+        'Save user avatar as icon',
+        'ユーザーのプロフィール画像を ico ファイルとして保存して、フォルダーアイコンとして設定できます。',
+        '유저 프로필 이미지를 ico 파일로 저장하면, 디렉토리 아이콘으로 수동 설정할 수 있습니다.',
+        'Сохранить аватар пользователя как иконку',
+    ],
+    _正在保存抓取结果: [
+        '正在保存抓取结果',
+        '正在儲存擷取結果',
+        'Saving crawl results',
+        'クロール結果を保存しています',
+        '긁어오기 결과 저장 중',
+        'Сохранение результатов вытаскивания',
+    ],
+    _已保存抓取结果: [
+        '已保存抓取结果',
+        '已儲存擷取結果',
+        'Crawl results saved',
+        'クロール結果を保存しました',
+        '긁어오기 결과가 저장되었습니다',
+        'Сохранение результатов вытаскивания',
+    ],
+    _正在恢复抓取结果: [
+        '正在恢复抓取结果',
+        '正在還原擷取結果',
+        'Restoring crawl results',
+        'クロール結果を再開しています',
+        '긁어오기 결과 복구 중',
+        'Восстановление результатов вытаскивания',
+    ],
+    _已恢复抓取结果: [
+        '已恢复抓取结果',
+        '已還原擷取結果',
+        'Crawl results resumed',
+        'クロール結果を再開しました',
+        '긁어오기 결과가 복구되었습니다',
+        'Результаты вытаскивания восстановлены',
+    ],
+    _清空已保存的抓取结果: [
+        '清空已保存的抓取结果',
+        '清除已儲存的擷取結果',
+        'Clear saved crawl results',
+        'セーブしたクロール結果をクリアします',
+        '저장된 긁어오기 결과 비우기',
+        'Очистить сохраненные результаты вытаскивания',
+    ],
+    _数据清除完毕: [
+        '数据清除完毕',
+        '資料清除完畢',
+        'Data cleared',
+        'クリアされたデータ',
+        '데이터가 비워졌습니다',
+        'Данные очищены',
+    ],
+    _已跳过n个文件: [
+        '已跳过 {} 个文件',
+        '已跳過 {} 個檔案',
+        '{} files skipped',
+        '{} つのファイルをスキップしました',
+        '{}개의 파일을 건너뛰었습니다',
+        '{} файл(ов) пропущены',
+    ],
+    _不保存图片因为宽高: [
+        '{} 没有被保存，因为它的宽高不符合设定。',
+        '{} 並未儲存，因為它的寬高不符合設定。',
+        '{} was not saved because its width and height do not match the settings.',
+        '{} は幅と高さが設定に合わないため、保存されていません。',
+        '{} 너비와 높이가 설정에 맞지 않아, 저장되지 않았습니다.',
+        '{} не был(и) сохранен, потому что его ширина и высота не соответствуют настройкам.',
+    ],
+    _保存: ['保存', '儲存', 'Save', '保存', '저장', 'Сохранить'],
+    _加载: ['加载', '載入', 'Load', 'ロード', '불러오기', 'Загрузить'],
+    _保存命名规则提示: [
+        '保存命名规则，最多 20 个',
+        '儲存命名規則，最多 20 個',
+        'Save naming rule, up to 20',
+        '命名規則を保存します。最大 20 個まで',
+        '명명 규칙 저장, 최대 20개',
+        'Сохранить правило именования, до 20',
+    ],
+    _已保存命名规则: [
+        '已保存命名规则',
+        '已儲存命名規則',
+        'Naming rule saved',
+        '命名規則を保存しました',
+        '명명 규칙이 저장되었습니다.',
+        'Правило наименования сохранено',
+    ],
+    _命名: ['命名', '命名', 'Name', '命名', '이름', 'Имя'],
+    _无损: ['无损', '無損', 'Lossless', 'ロスレス', '무손실', 'Без потерь'],
+    _文件名长度限制: [
+        '文件名<span class="key">长度</span>限制',
+        '檔案名稱<span class="key">長度</span>限制',
+        'File name <span class="key">length</span> limit',
+        'ファイル名の長さ制限',
+        '파일명 <span class="key">길이</span> 제한',
+        'Лимит <span class="key">длины</span> имени файла',
+    ],
+    _标签分隔符号: [
+        '标签<span class="key">分隔</span>符号',
+        '標簽<span class="key">分隔</span>符號',
+        'Tag <span class="key">separation</span> symbol',
+        'タグ <span class="key">セパレーション</span>シンボル',
+        '태그 <span class="key">분리</span> 기호',
+        'Тег <span class="key">символ разделения</span>',
+    ],
+    _标签分隔符号提示: [
+        '只会影响这些命名标记的结果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>。<br>推荐符号<span class="blue"> , # ^ & _</span>',
+        '只會影響這些命名標記的結果：<span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{tags_transl_only}</span>。<br>推薦符號<span class="blue"> , # ^ & _</span>',
+        'Only affects results for these named tags: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{ tags_transl_only}</span>. <br>Recommended symbols <span class="blue"> , # ^ & _</span>',
+        '次の名前付きタグの結果にのみ影響します: <span class="blue">{tags}</span>、<span class="blue">{tags_translate}</span>、<span class="blue">{ tags_transl_only }</スパン>。 <br>推奨記号 <span class="blue"> , # ^ & _</span>。',
+        '이러한 명명된 태그의 결과에만 영향을 미칩니다: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{ tags_transl_only }</스팬>. <br>권장 기호 <span class="blue"> , # ^ & _</span>',
+        'Влияет только на результаты для следующих именованных тегов: <span class="blue">{tags}</span>, <span class="blue">{tags_translate}</span>, <span class="blue">{ tags_transl_only </промежуток>. <br>Рекомендуемые символы <span class="blue"> , # ^ & _</span>',
+    ],
+    _导出csv: [
+        '导出 CSV 文件',
+        '匯出 CSV 檔',
+        'Export CSV file',
+        'CSV ファイルをエクスポート',
+        'CSV 파일 내보내기',
+        'Экспорт в файл CSV',
+    ],
+    _导出抓取结果: [
+        '导出抓取结果',
+        '匯出擷取結果',
+        'Export results',
+        'クロール結果をエクスポート',
+        '결과 내보내기',
+        'Экспорт результатов',
+    ],
+    _导入抓取结果: [
+        '导入抓取结果',
+        '匯入擷取結果',
+        'Import results',
+        'クロール結果をインポート',
+        '결과 불러오기',
+        'Импорт результатов',
+    ],
+    _导入成功: [
+        '导入成功',
+        '匯入成功',
+        'Import successfully',
+        'インポート成功',
+        '가져오기 성공',
+        'Импорт успешен',
+    ],
+    _导出成功: [
+        '导出成功',
+        '匯出成功',
+        'Export successfully',
+        'エクスポート成功',
+        '내보내기 성공',
+        'Импорт успешен',
+    ],
+    _图片尺寸: [
+        '图片<span class="key">尺寸</span>',
+        '圖片<span class="key">尺寸</span>',
+        'Image <span class="key">size</span>',
+        '画像<span class="key">サイズ</span>',
+        '이미지 <span class="key">크기</span>',
+        '<span class="key">Размер</span> изображения',
+    ],
+    _图片尺寸2: [
+        '图片尺寸',
+        '圖片尺寸',
+        'Image size',
+        '画像サイズ',
+        '이미지 크기',
+        'Размер изображения',
+    ],
+    _原图: ['原图', '原圖', 'Original', 'Original', '원본', 'Оригинал'],
+    _普通: ['普通', '普通', 'Regular', 'Regular', '레귤러', 'Обычный'],
+    _小图: ['小图', '小圖', 'Small', 'Small', '스몰', 'Маленький'],
+    _方形缩略图: [
+        '方形缩略图',
+        '方形縮圖',
+        'Square thumbnail',
+        'Square thumbnail',
+        '정사각형 썸네일',
+        'Квадратная миниатюра',
+    ],
+    _导出: ['导出', '匯出', 'Export', 'エクスポート', '내보내기', 'Экспорт'],
+    _导入: ['导入', '匯入', 'Import', 'インポート', '불러오기', 'Импорт'],
+    _清除: ['清除', '清除', 'Clear', 'クリア', '비우기', 'Очистить'],
+    _导入下载记录: [
+        '导入下载记录',
+        '匯入下載紀錄',
+        'Import download record',
+        'ダウンロード記録をインポート',
+        '다운로드 기록 불러오기',
+        'Импорт записи загрузки',
+    ],
+    _导出下载记录: [
+        '导出下载记录',
+        '匯出下載紀錄',
+        'Export download record',
+        'ダウンロード記録のエクスポート',
+        '다운로드 기록 내보내기',
+        'Экспорт записи загрузки',
+    ],
+    _数据较多需要花费一些时间: [
+        '数据较多，需要花费一些时间',
+        '資料較多，需要花費一些時間',
+        'A lot of data, it will take some time',
+        'データ量が多いので少し時間がかかります',
+        '데이터가 많아 시간이 좀 걸립니다',
+        'Много данных, это займет некоторое время',
+    ],
+    _完成: ['完成', '完成', 'Completed', '完了', '완료됨', 'Готово'],
+    _日期格式: [
+        '日期和时间<span class="key">格式</span>',
+        '日期和時間<span class="key">格式</span>',
+        'Date and time <span class="key">format</span>',
+        '日付と時刻の書式',
+        '날짜 및 시간 <span class="key">형식</span>',
+        '<span class="key">Формат</span> даты и времени',
+    ],
+    _日期格式提示: [
+        '你可以使用以下标记来设置日期和时间格式。这会影响命名规则里的 {date} 和 {upload_date} 和 {task_date}。<br>对于时间如 2021-04-30T06:40:08',
+        '你可以使用以下標記來設定日期和時間格式。這會影響命名規則裡的 {date} 和 {upload_date} 和 {task_date}。<br>對於資料如：2021-04-30T06:40:08。',
+        'You can use the following notation to set the date and time format. This will affect {date} and {upload_date} and {task_date} in the naming rules. <br>For time such as 2021-04-30T06:40:08',
+        '以下のタグを使用して日時と時刻の書式を設定することができます。 これは命名規則の {date} と {upload_date} と {task_date} に影響します。 <br> 例：2021-04-30T06:40:08',
+        '다음 표기법을 사용하여 날짜 및 시간 형식을 설정할 수 있습니다.<br>이것은 명명 규칙에 있는 {date}와 {upload_date}와 {task_date}에 영향을 미칩니다.<br>예: 2021-04-30T06:40:08',
+        'Для установки формата даты и времени можно использовать следующую нотацию. Это повлияет на {date} и {upload_date} и {task_date} в правилах именования. <br>Для времени, например, 2021-04-30T06:40:08',
+    ],
+    _命名标记taskDate: [
+        '本次任务抓取完成时的时间。例如：<span class="blue">2020-10-21</span>。',
+        '本次工作擷取完成時的時間。例如：<span class="blue">2020-10-21</span>。',
+        'The time when the task was crawl completed. For example: <span class="blue">2020-10-21</span>',
+        'この作業のクロールが完了した時刻です。 例：<span class="blue">2020-10-21</span>',
+        '긁어오기 작업을 완료한 날짜입니다. 예: <span class="blue">2020-10-21</span>',
+        'Время, когда задание было выполнено. Например: <span class="blue">2020-10-21</span>',
+    ],
+    _自动检测: [
+        '自动检测',
+        '自動偵測',
+        'Auto',
+        '自動検出',
+        '자동',
+        'Авто детект',
+    ],
+    _公开: ['公开', '公開', 'Public', '公開', '공개', 'Публичный'],
+    _不公开: ['不公开', '非公開', 'Private', '非公開', '비공개', 'Приватный'],
+    _已收藏: [
+        '已收藏',
+        '已收藏',
+        'Bookmarked',
+        'ブックマークした',
+        '북마크됨',
+        'В закладках',
+    ],
+    _已收藏带参数: [
+        '已收藏 {}',
+        '已收藏 {}',
+        'Bookmarked {}',
+        'ブックマークした {}',
+        '북마크된 {}',
+        'В закладках {}',
+    ],
+    _未收藏: [
+        '未收藏',
+        '未收藏',
+        'Not bookmarked',
+        'ブックマークされていない',
+        '북마크되지 않음',
+        'Не в закладках',
+    ],
+    _收藏作品: [
+        '收藏作品',
+        '收藏作品',
+        'Bookmark works',
+        '作品をブックマークする',
+        '북마크 작품',
+        'Закладки работают',
+    ],
+    _下载之后收藏作品: [
+        '下载之后<span class="key">收藏</span>作品',
+        '下載之後<span class="key">收藏</span>作品',
+        '<span class="key">Bookmark</span> works after downloading',
+        'ダウンロードした作品をブックマークする',
+        '다운로드 후 작품 <span class="key">북마크</span>',
+        '<span class="key">Закладка</span> работает после загрузки',
+    ],
+    _下载之后收藏作品的提示: [
+        '下载文件之后，自动收藏这个作品。',
+        '下載檔案之後，自動收藏這個作品。',
+        'After you download a file, the downloader will automatically bookmark the work.',
+        'ダウンロード後、作品は自動的にブックマークされます。',
+        '파일을 다운로드하면, 자동으로 작품을 북마크합니다.',
+        'После загрузки файла загрузчик автоматически делает закладку',
+    ],
+    _收藏设置: [
+        '下载器的<span class="key">收藏</span>功能 (✩)',
+        '下載器的<span class="key">收藏</span>功能 (✩)',
+        `Downloader's <span class="key">bookmark</span> function (✩)`,
+        'ダウンローダーの<span class="key">ブックマーク</span>機能 (✩)',
+        '다운로더의 <span class="key">북마크</span> 기능 (☆)',
+        `Функция сбора загрузчика (✩)`,
+    ],
+    _下载器的收藏按钮默认会添加作品的标签: [
+        '点击 <span class="blue">✩</span> 按钮时，下载器会收藏这个作品并且附带它的标签。',
+        '點選 <span class="blue">✩</span> 按鈕時，下載器會收藏這個作品並且附帶它的標籤。',
+        'When the <span class="blue">✩</span> button is clicked, the downloader bookmarks this work and attaches its tag.',
+        '<span class="blue">✩</span> ボタンをクリックすると、ダウンローダはこの作品をブックマークし、タグを付けます。',
+        '<span class="blue">✩</span> 버튼을 클릭하면 다운로더는 이 작품을 북마크하고 태그를 붙입니다.',
+        'При нажатии кнопки <span class="blue">✩</span> загрузчик добавляет эту работу в закладки и прикрепляет свой тег.',
+    ],
+    _添加tag: [
+        '添加标签',
+        '加入標籤',
+        'Add tag',
+        'タグを追加',
+        '태그 추가',
+        'Добавить тег',
+    ],
+    _不添加tag: [
+        '不添加标签',
+        '不加入標籤',
+        "Don't add tag",
+        'タグなし',
+        '태그 추가하지 않기',
+        'Не добавлять тег',
+    ],
+    _用户阻止名单: [
+        '用户<span class="key">阻止</span>名单',
+        '使用者<span class="key">阻止</span>名單',
+        'User <span class="key">block</span> list',
+        'ユーザーブロックリスト',
+        '유저 <span class="key">차단</span> 목록',
+        '<span class="key">Блок</span> списка пользователей ',
+    ],
+    _用户阻止名单的说明: [
+        '不下载这些用户的作品。需要输入用户 id。如果有多个用户 id，使用英文逗号,分割。',
+        '不下載這些使用者的作品。需要輸入使用者 id。若有多個使用者 id，使用半形逗號（,）分隔。',
+        'The works of these users will not be downloaded. Need to type the user ID. If there are multiple user ID, use comma (,) separated.',
+        'これらのユーザーの作品はダウンロードしません。ユーザー ID が必要です。複数のユーザ ID は "," で区切ってください。',
+        '이 유저들의 작품은 다운로드되지 않습니다. 유저 ID를 입력해야 합니다.<br>여러 유저 ID가 있는 경우 쉼표(,)로 구분합니다.',
+        'Работы этих пользователей не будут загружаться. Необходимо ввести идентификатор пользователя. Если имеется несколько идентификаторов пользователя, используйте разделение запятыми (,).',
+    ],
+    _全部: ['全部', '全部', 'All', '全部', '전부', 'Все'],
+    _任一: ['任一', '任一', 'One', '何れか', '하나만', 'Один'],
+    _颜色主题: [
+        '颜色<span class="key">主题</span>',
+        '色彩<span class="key">主題</span>',
+        'Color <span class="key">theme</span>',
+        'カラーテーマ',
+        '<class key="key">테마</span>',
+        'Цветовая <span class="key">тема</span>',
+    ],
+    _管理设置: [
+        '管理<span class="key">设置</span>',
+        '管理<span class="key">設定</span>',
+        'Manage <span class="key">settings</span>',
+        '<span class="key">設定</span>の管理',
+        '<span class="key">설정</span> 관리',
+        'Изменение <span class="key">настроек</span>',
+    ],
+    _导出设置: [
+        '导出设置',
+        '匯出設定',
+        'Export settings',
+        'エクスポート設定',
+        '내보내기',
+        'Настройки экспорта',
+    ],
+    _导入设置: [
+        '导入设置',
+        '匯入設定',
+        'Import settings',
+        'インポート設定',
+        '불러오기',
+        'Настройки импорта',
+    ],
+    _重置设置: [
+        '重置设置',
+        '重設設定',
+        'Reset settings',
+        'リセット設定',
+        '설정 초기화',
+        'Сброс настроек',
+    ],
+    _日均收藏数量: [
+        '日均收藏数量',
+        '日均收藏數量',
+        'Average number of daily bookmarks',
+        '1 日の平均ブックマーク数',
+        '일일 평균 북마크 수',
+        'Среднее количество ежедневных закладок',
+    ],
+    _日均收藏数量的提示: [
+        '你可以设置作品的平均每日收藏数量。满足条件的作品会被下载。',
+        '您可以設定作品的平均每日收藏數量。滿足條件的作品會被下載。',
+        'You can set the average daily bookmarks number of works. Works that meet the conditions will be downloaded.',
+        '作品の 1 日の平均ブックマーク数を設定することができます。条件を満した作品はダウンロードされます。',
+        '작품의 일일 평균 북마크 수를 설정할 수 있습니다. 조건을 만족한 작품은 다운로드됩니다.',
+        'Вы можете установить среднесуточное количество закладок в работах. Работы, удовлетворяющие условиям, будут загружены.',
+    ],
+    _导出关注列表CSV: [
+        '导出关注的用户列表（CSV）',
+        '匯出關注的使用者列表（CSV）',
+        'Export Followed Users List (CSV)',
+        'フォローされているユーザーのリストをエクスポートする（CSV）',
+        '팔로우한 사용자 목록 내보내기 (CSV)',
+        'Экспорт списка отслеживаемых пользователей (CSV)',
+    ],
+    _导出关注列表: [
+        '导出关注的用户列表（JSON）',
+        '匯出關注的使用者列表（JSON）',
+        'Export Followed Users List (JSON)',
+        'フォローされているユーザーのリストをエクスポートする（JSON）',
+        '팔로우한 사용자 목록 내보내기 (JSON)',
+        'Экспорт списка отслеживаемых пользователей (JSON)',
+    ],
+    _批量关注用户: [
+        '批量关注用户（JSON）',
+        '批次關注使用者（JSON）',
+        'Follow users in batches (JSON)',
+        'ユーザーをバッチでフォローする（JSON）',
+        '일괄적으로 사용자 팔로우 (JSON)',
+        'Подписывайтесь на пользователей пакетами (JSON)',
+    ],
+    _导入导出关注用户列表的说明: [
+        '在你或其他用户的 Following 页面里，你可以导出关注的用户列表，也可以导入列表来批量关注用户。<br>当你有多个帐户时，可以使用这个方法同步你关注的用户列表。你也可以复制其他用户的关注用户列表。',
+        '在你或其他使用者的 Following 頁面裡，你可以匯出關注的使用者列表，也可以匯入列表來批次關注使用者。<br>當你有多個帳戶時，可以使用這個方法同步你關注的使用者列表。你也可以複製其他使用者的關注使用者列表。',
+        "On the Following page of you or other users, you can export the list of followed users, or import the list to follow users in batches. <br>When you have multiple accounts, you can use this method to synchronize the list of users you follow. You can also copy another user's followed user list.",
+        '自分または他のユーザーの [フォロー中] ページで、フォローしているユーザーのリストをエクスポートしたり、ユーザーをフォローするリストをバッチでインポートしたりできます。 <br>複数のアカウントをお持ちの場合、この方法を使用して、フォローしているユーザーのリストを同期できます。 別のユーザーのフォローしているユーザー リストをコピーすることもできます。',
+        '본인 또는 다른 사용자의 팔로잉 페이지에서 팔로우한 사용자 목록을 내보내거나 목록을 가져와 사용자를 일괄적으로 팔로우할 수 있습니다. <br>계정이 여러 개인 경우 이 방법을 사용하여 팔로우하는 사용자 목록을 동기화할 수 있습니다. 다른 사용자의 팔로우된 사용자 목록을 복사할 수도 있습니다.',
+        'На странице «Отслеживание» вас или других пользователей вы можете экспортировать список отслеживаемых пользователей или импортировать список для подписки на пользователей в пакетном режиме. <br>Если у вас несколько учетных записей, вы можете использовать этот метод для синхронизации списка пользователей, на которых вы подписаны. Вы также можете скопировать список отслеживаемых пользователей другого пользователя.',
+    ],
+    _手动选择作品: [
+        '手动选择作品',
+        '手動選擇作品',
+        'Manually select',
+        '手動で作品を選ぶ',
+        '수동 선택',
+        'Ручной выбор',
+    ],
+    _快捷键ALTS手动选择作品: [
+        '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">S</span> 开始或暂停手动选择作品。<br>选择完毕之后，打开下载器面板，点击“抓取选择的作品”。',
+        '你可以使用快捷鍵 <span class="blue">Alt</span> + <span class="blue">S</span> 開始或暫停手動選擇作品。<br>選擇完畢之後，開啟下載器面板，點選“抓取選擇的作品”。',
+        'You can use the shortcut keys <span class="blue">Alt</span> + <span class="blue">S</span> to start or pause manual selection of works.<br>After selecting, open the downloader panel and click "Crawl selected works".',
+        'ショートカット キー <span class="blue">Alt</span> + <span class="blue">S</span> を使用して、作品の手動選択を開始または一時停止できます。<br>選択後、ダウンローダパネルを開いて「選ばれた作品をクロール」をクリック。',
+        '바로 가기 키 <span class="blue">Alt</span> + <span class="blue">S</span>를 사용하여 작품 수동 선택을 시작하거나 일시 중지할 수 있습니다.<br>선택한 후 다운로더 패널을 열고 "선택된 작품 긁어오기"를 클릭합니다.',
+        'Вы можете использовать сочетания клавиш <span class="blue">Alt</span> + <span class="blue">S</span>, чтобы начать или приостановить ручной выбор произведений.<br>После выбора откройте панель загрузчика и нажмите «Стащить выбранные работы».',
+    ],
+    _抓取选择的作品: [
+        '抓取选择的作品',
+        '擷取選擇的作品',
+        'Crawl selected works',
+        '選ばれた作品をクロール',
+        '선택된 작품 긁어오기',
+        'Стащить выбранные работы',
+    ],
+    _抓取选择的作品2: [
+        '抓取选择的作品 {}',
+        '擷取選擇的作品 {}',
+        'Crawl selected works {}',
+        '選ばれた作品をクロール {}',
+        '선택된 작품 긁어오기 {}',
+        'Стащить выбранные работы',
+    ],
+    _清空选择的作品: [
+        '清空选择的作品',
+        '清空選擇的作品',
+        'Clear selected works',
+        '選んだ作品をクリアします',
+        '선택된 작품 비우기',
+        'Очистить выбранные работы',
+    ],
+    _暂停选择: [
+        '暂停选择',
+        '暫停選擇',
+        'Pause select',
+        '選択を一時停止',
+        '선택 일시중지',
+        'Остановить выбора',
+    ],
+    _继续选择: [
+        '继续选择',
+        '繼續選擇',
+        'Continue select',
+        '選択を続ける',
+        '선택 이어하기',
+        'Продолжить выбор',
+    ],
+    _离开页面前提示选择的作品未抓取: [
+        '选择的作品尚未抓取。现在离开此页面会导致你选择的作品被清空。',
+        '選擇的作品尚未擷取。現在離開此頁面會導致您選擇的作品被清空。',
+        'The selected work has not been crawled. Leaving this page now will cause your selected work to be cleared.',
+        '選ばれた作品はまだクロールしていません。今このページを離れると、選ばれた作品がクリアされます。',
+        '선택된 작품을 아직 긁어오지 않았습니다. 지금 현재 페이지를 떠나면 선택된 작품이 비워집니다.',
+        'Выбранная работа не была стащена. Если вы покинете эту страницу, выбранная вами работа будет очищена.',
+    ],
+    _排除了所有作品类型: [
+        '排除了所有作品类型',
+        '排除了所有作品類型',
+        'Excluded all work types',
+        'すべての作品種類を除外しました',
+        '모든 작품 유형 제외',
+        'Исключены все типы работ',
+    ],
+    _为作品建立单独的文件夹: [
+        '为<span class="key">每个</span>作品建立单独的文件夹',
+        '為<span class="key">每個</span>作品建立單獨的資料夾',
+        'Create a separate folder for <span class="key">each</span> work',
+        '作品ごとに別フォルダを作成',
+        '작품마다 <span class="key">별도</span>의 디렉토리 생성',
+        'Создайте отдельную папку для <span class="key">каждой</span> работы',
+    ],
+    _为作品建立单独的文件夹说明: [
+        '这里应该使用 {id_num} 代替 {id}',
+        '這裡應該使用 {id_num} 代替 {id}',
+        'Here {id_num} should be used instead of {id}',
+        'ここでは、{id} の代わりに {id_num} を使用する必要があります',
+        '여기서는 {id}대신 {id_num}을 사용해야 합니다',
+        'Здесь {id_num} следует использовать вместо {id}',
+    ],
+    _文件数量大于: [
+        '文件数量 >',
+        '檔案數量 >',
+        'Number of files >',
+        'ファイル数 >',
+        '파일 수 >',
+        'Количество файлов >',
+    ],
+    _保存用户头像: [
+        '保存用户头像',
+        '儲存使用者頭貼',
+        'Save user avatar',
+        'ユーザーアイコンの保存',
+        '유저 프로필 이미지 저장',
+        'Сохранить аватар пользователя',
+    ],
+    _保存用户封面: [
+        '保存用户封面',
+        '儲存使用者封面',
+        'Save user cover',
+        'ユーザーカバーの保存',
+        '유저 커버 저장',
+        'Сохранить обложку пользователя',
+    ],
+    _待处理: [
+        '待处理',
+        '待處理',
+        'Pending',
+        '処理待ち',
+        '처리 대기',
+        'В ожидании',
+    ],
+    _超出最大页码: [
+        '超出最大页码：',
+        '超出最大頁碼：',
+        'Maximum page number exceeded:',
+        '最大ページ数を超えました：',
+        '최대 페이지 번호 초과:',
+        'Превышен максимальный номер страницы:',
+    ],
+    _针对特定用户屏蔽tag: [
+        '针对特定用户屏蔽<span class="key">标签</span>',
+        '針對特定使用者排除<span class="key">標籤</span>',
+        'Block <span class="key">tags</span> for specific users',
+        '特定のユーザーに対して<span class="key">タグ</span>をブロック',
+        '특정 유저에 대한 차단 <span class="key">태그</span>',
+        'Блокировать <span class="key">теги</span> для определенных пользователей',
+    ],
+    _展开收起: [
+        '展开/收起',
+        '展開/摺疊',
+        'Expand/Collapse',
+        '展開/折りたたみ',
+        '확장/축소',
+        'Развернуть/Свернуть',
+    ],
+    _展开: ['展开', '展開', 'Expand', '展開', '확장', 'Развернуть'],
+    _收起: ['收起', '摺疊', 'Collapse', '折りたたみ', '축소', 'Свернуть'],
+    _把r18作品存入指定的文件夹里: [
+        '把 <span class="key">R-18(G)</span> 作品存入指定的文件夹里',
+        '把 <span class="key">R-18(G)</span> 作品存入指定的資料夾裡',
+        'Save the <span class="key">R-18(G)</span> works in the designated folder',
+        '<span class="key">R-18(G)</span> の作品を指定のフォルダに入れる',
+        '<span class="key">R-18(G)</span> 작품을 지정된 디렉토리에 저장',
+        'Сохраните <span class="key">R-18(G)</span> работы в указанной папке',
+    ],
+    _必填项不能为空: [
+        '必填项不能为空',
+        '必填項不能為空',
+        'Required fields cannot be empty',
+        '必須フィールドが入力されていません',
+        '필수 입력 항목은 비워둘 수 없습니다',
+        'Обязательные поля не могут быть пустыми',
+    ],
+    _用户ID必须是数字: [
+        '用户 ID 必须是数字',
+        '使用者 ID 必須是數字',
+        'User ID must be a number',
+        'ユーザー ID は数字です',
+        '유저 ID는 숫자만 허용합니다',
+        'Идентификатор пользователя должен быть числом',
+    ],
+    _必须是数字: [
+        '必须是数字',
+        '必須是數字',
+        'Number',
+        '数字でなければなりません',
+        '숫자만 허용',
+        'Число',
+    ],
+    _tag用逗号分割: [
+        '多个标签使用英文逗号,分割',
+        '多個標籤使用半形逗號（,）分隔',
+        'Multiple tags use comma (,) split',
+        '複数のタグはカンマ「,」で区切ってください',
+        '여러 태그는 쉼표(,)로 구분합니다.',
+        'Для нескольких тегов используется разделение запятой (,)',
+    ],
+    _添加: ['添加', '新增', 'Add', '追加', '추가', 'Добавить'],
+    _取消: ['取消', '取消', 'Cancel', 'キャンセル', '취소', 'Отмена'],
+    _更新: ['更新', '更新', 'Update', '更新', '업데이트', 'Обновить'],
+    _删除: ['删除', '刪除', 'Delete', '削除', '제거', 'Удалить'],
+    _添加成功: [
+        '添加成功',
+        '新增成功',
+        'Added successfully',
+        '追加されました',
+        '성공적으로 추가되었습니다.',
+        'Добавлено успешно',
+    ],
+    _更新成功: [
+        '更新成功',
+        '更新成功',
+        'update completed',
+        '更新成功',
+        '업데이트에 성공하였습니다.',
+        'обновление завершено',
+    ],
+    _在作品缩略图上显示放大按钮: [
+        '在作品缩略图上显示<span class="key">放大</span>按钮',
+        '在作品縮圖上顯示<span class="key">放大</span>按鈕',
+        'Show <span class="key">zoom</span> button on thumbnail',
+        '作品のサムネイルに<span class="key">拡大</span>ボタンを表示',
+        '썸네일에 <span class="key">확대</span> 버튼 표시',
+        'Показать кнопку <span class="key">увеличить</span> на миниатюре',
+    ],
+    _在作品缩略图上显示下载按钮: [
+        '在作品缩略图上显示<span class="key">下载</span>按钮',
+        '在作品縮圖上顯示<span class="key">下載</span>按鈕',
+        'Show <span class="key">download</span> button on thumbnail',
+        '作品のサムネイルに<span class="key">ダウンロード</span>ボタンを表示',
+        '썸네일에 <span class="key">다운로드</span> 버튼 표시',
+        'Показать кнопку <span class="key">загрузить</span> на миниатюре',
+    ],
+    _已发送下载请求: [
+        '已发送下载请求',
+        '已傳送下載請求',
+        'Download request sent',
+        'ダウンロードリクエストを送信しました',
+        '다운로드 요청 전송',
+        'Запрос на скачивание отправлен',
+    ],
+    _下载器正忙这次请求已开始排队: [
+        '下载器正忙，这次请求已开始排队',
+        '下載器正忙，這次請求已開始排隊',
+        'The downloader is busy and this request has been queued',
+        'このリクエストはキューに入れられ始めました',
+        '이번에는 요청이 대기되기 시작했습니다.',
+        'На этот раз запрос начал помещаться в очередь.',
+    ],
+    _HowToUse: [
+        '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>下载器默认开启了一些增强功能，这可能会导致 Pixiv 的一些页面样式产生变化。你可以在下载器的“更多”标签页中开启或关闭这些功能。<br><br>',
+        '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。如果你想儲存到其他位置，需要修改瀏覽器的下載目錄。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>下載器預設開啟了一些增強功能，這可能會導致 Pixiv 的一些頁面樣式產生變化。你可以在下載器的“更多”標籤頁中開啟或關閉這些功能。<br><br>',
+        `Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download location. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser\`s download settings.<br><br>The downloader has some enhancements turned on by default, which may cause changes in the style of Pixiv pages. You can turn these features on or off in the "More" tab of the downloader.<br><br>`,
+        'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードされたファイルはブラウザのダウンロード ディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロード場所を変更する必要があります。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンローダーにはデフォルトでいくつかの機能拡張が有効になっており、これにより Pixiv ページのスタイルが変更される可能性があります。 これらの機能は、ダウンローダーの「その他」タブでオンまたはオフにできます。<br><br>',
+        '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.<br><br>다운로드한 파일은 브라우저의 다운로드 디렉터리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 위치를 수정해야 합니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로더에는 기본적으로 몇 가지 향상된 기능이 켜져 있으며 이로 인해 Pixiv 페이지 스타일이 변경될 수 있습니다. 다운로더의 "더 보기" 탭에서 이러한 기능을 켜거나 끌 수 있습니다.<br><br>',
+        'Нажмите синюю кнопку в правой части страницы, чтобы открыть панель загрузчика.<br><br>Загруженный файл сохраняется в каталоге загрузки браузера. Если вы хотите сохранить в другое место, вам необходимо изменить место загрузки браузера.<br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>В загрузчике по умолчанию включены некоторые улучшения, которые могут привести к изменению стиля страниц Pixiv. Вы можете включить или отключить эти функции на вкладке «Дополнительно» загрузчика.<br><br>',
+    ],
+    _我知道了: ['我知道了', '我知道了', 'OK', '分かりました', '확인', 'Ок'],
+    _背景图片: [
+        '<span class="key">背景</span>图片',
+        '<span class="key">背景</span>圖片',
+        '<span class="key">Background</span> image',
+        '<span class="key">背景</span>画像',
+        '<span class="key">배경</span> 이미지',
+        '<span class="key">Фоновое</span> изображение',
+    ],
+    _选择文件: [
+        '选择文件',
+        '選擇檔案',
+        'Select a file',
+        'ファイルを選択',
+        '파일 선택',
+        'Выберите файл',
+    ],
+    _不透明度: [
+        '不透明度',
+        '不透明度',
+        'Opacity',
+        '不透明度',
+        '투명도',
+        'Непрозрачность',
+    ],
+    _对齐方式: [
+        '对齐方式',
+        '對齊方式',
+        'Alignment',
+        '揃え方式',
+        '정렬',
+        'Выравнивание',
+    ],
+    _顶部: ['顶部', '頂部', 'top', '上揃え', '상단', 'топ'],
+    _居中: ['居中', '居中', 'center', '中央揃え', '중앙', 'центр'],
+    _根据作品类型自动建立文件夹: [
+        '根据作品<span class="key">类型</span>自动建立文件夹',
+        '根據作品<span class="key">類型</span>自動建立資料夾',
+        'Create folders based on the <span class="key">type</span> of work',
+        '作品種類に応じてフォルダを自動作成',
+        '작품 <span class="key">유형</span>에 따라 자동으로 디렉토리 생성',
+        'Создание папок на основе <span class="key">вида</span> работы',
+    ],
+    _使用第一个匹配的tag建立文件夹: [
+        '使用第一个匹配的<span class="key">标签</span>建立文件夹',
+        '使用第一個符合的<span class="key">標籤</span>建立資料夾',
+        'Create a folder with the first matched <span class="key">tag</span>',
+        '最初の一致するタグにフォルダを作成',
+        '첫 번째 일치하는 <span class="key">태그</span>로 디렉토리 생성',
+        'Создать папку с первым совпавшим <span class="key">тегом</span>',
+    ],
+    _使用匹配的tag建立文件夹的说明: [
+        '如果作品的标签列表里含有用户设置的标签，就会使用这个标签建立文件夹（仅限第一个匹配到的标签）',
+        '如果作品的標籤列表裡含有使用者設定的標籤，就會使用這個標籤建立資料夾（僅限第一個匹配到的標籤）',
+        'If the tag list of the work contains a tag set by the user, this tag will be used to create a folder (Only the first matching tag)',
+        '作品のタグリストにユーザーが設定したタグが含まれている場合、そのタグを使用してフォルダが作成されます。(最初に一致するタグのみ)',
+        '작품의 태그에 유저가 설정한 태그가 포함되어 있다면, 태그를 사용하여 디렉토리를 생성합니다. (첫 번째 일치하는 태그만)',
+        'Если в списке тегов работы есть тег, заданный пользователем, этот тег будет использован для создания папки (Только первый совпадающий тег)',
+    ],
+    _全年龄: [
+        '全年龄',
+        '全年齡',
+        'All ages',
+        '全年齢',
+        '전체 연령',
+        'Все возраста',
+    ],
+    _没有符合条件的结果: [
+        '没有符合条件的结果',
+        '沒有符合條件的結果',
+        'There are no eligible results',
+        '対象となる結果はありません',
+        '조건에 부합하는 결과가 없습니다',
+        'Нет результатов, отвечающих требованиям',
+    ],
+    _收藏: ['收藏', '收藏', 'Bookmark', 'ブックマーク', '북마크', 'Закладка'],
+    _已加入收藏: [
+        '已加入收藏',
+        '已加入收藏',
+        'Bookmarked',
+        'ブックマークした',
+        '북마크됨',
+        'В закладках',
+    ],
+    _全屏查看: [
+        '全屏',
+        '全螢幕',
+        'Full screen view',
+        '全画面表示',
+        '전체 화면 보기',
+        'Просмотр на весь экран',
+    ],
+    _抓取id区间: [
+        '抓取 ID 区间',
+        '擷取 ID 區間',
+        'Crawl ID range',
+        'ID 範囲をクロール',
+        'ID 범위 긁어오기',
+        'Стащить диапазон идентификаторов',
+    ],
+    _抓取id区间说明: [
+        '你可以设置一个作品 ID 范围，抓取此范围内的所有作品（包含开始和结束的 id）。<br>注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。<br>如果你需要抓取很多 ID，请考虑拆分成多个任务。我建议每批抓取的 ID 数量不要超过 100,000 个。',
+        '你可以設定一個作品 ID 範圍，擷取此範圍內的所有作品（包含開始和結束的 id）。<br>注意：如果一次任務中產生的擷取結果數量太多，可能會導致頁面崩潰。<br>如果你需要抓取很多 ID，請考慮拆分成多個任務。我建議每批抓取的 ID 數量不要超過 100,000 個。',
+        'You can set a range of work ID and grab all works in this range (including the begin and end ID). <br>Note: If the number of crawling results in a task is too much, it may cause the page to crash.<br>If you need to crawl a lot of IDs, consider splitting it into multiple tasks. I recommend crawling no more than 100,000 IDs per batch.',
+        '作品 ID の範囲を設定し、その範囲内のすべての作品をクロールすることができます。「開始 ID と終了 id を含む」<br>注意：1 つのタスクであまりにも多くのクロール結果を生成すると、ページがクラッシュする可能性があります。<br>多数の ID をクロールする必要がある場合は、複数のタスクに分割することを検討してください。 バッチごとにクロールする ID は 100,000 未満にすることをお勧めします。',
+        '작품 ID 범위를 설정할 수 있습니다. 이 범위 내의 모든 작품 (시작과 끝 ID 포함).<br>참고: 작업의 긁어오기 결과가 너무 많으면 페이지가 충돌할 수 있습니다.<br>많은 ID를 크롤링해야 하는 경우 이를 여러 작업으로 분할하는 것이 좋습니다. 배치당 100,000개 이하의 ID를 크롤링하는 것이 좋습니다.',
+        'Вы можете задать диапазон идентификаторов работ и захватить все работы в этом диапазоне (включая идентификаторы начала и конца). <br>Примечание: Если в задании слишком большое количество результатов стаскивания, это может привести к сбою страницы.<br>Если вам нужно сканировать большое количество идентификаторов, рассмотрите возможность разделения этого процесса на несколько задач. Я рекомендую сканировать не более 100 000 идентификаторов за пакет.',
+    ],
+    _抓取id区间起点: [
+        '请输入开始的 ID: ',
+        '請輸入開始的 ID: ',
+        'Please type in the beginning ID: ',
+        '開始 ID を入力してください: ',
+        '시작 ID를 입력해주세요: ',
+        'Пожалуйста, введите начальный идентификатор: ',
+    ],
+    _抓取id区间终点: [
+        '请输入结束的 ID: ',
+        '請輸入結束的 ID: ',
+        'Please type  in the ending ID: ',
+        '終了 ID を入力してください: ',
+        '끝 ID를 입력해주세요: ',
+        'Пожалуйста, введите конечный идентификатор: ',
+    ],
+    _选项卡切换方式: [
+        '<span class="key">选项卡</span>切换方式',
+        '<span class="key">頁籤</span>切換方式',
+        'How to switch <span class="key">tabs</span>',
+        'タブ切り替え方式',
+        '<span class="key">탭</span> 전환 방식',
+        'Как переключать <span class="key">вкладки</span>',
+    ],
+    _鼠标经过: [
+        '鼠标经过',
+        '滑鼠經過',
+        'Mouse over',
+        'マウスオーバー',
+        '마우스 올리기',
+        'Наведите мышь',
+    ],
+    _鼠标点击: [
+        '鼠标点击',
+        '滑鼠點選',
+        'Mouse click',
+        'マウスクリック',
+        '마우스 클릭',
+        'Кликнуть мышкой',
+    ],
+    _在序号前面填充0: [
+        '在序号前面<span class="key">填充 0</span>',
+        '在序號前面<span class="key">填充 0</span>',
+        '<span class="key">Add 0</span> in front of the serial number',
+        'シリアル番号の前に 0 を記入',
+        '일련번호 앞 <span class="key">0 채우기</span>',
+        '<span class="key">Добавьте 0</span> перед серийным номером',
+    ],
+    _在序号前面填充0的说明: [
+        '这可以解决一些软件不能正确的按照文件名来排序文件的问题。',
+        '這可以解決一些軟體不能正確的按照檔名來排序檔案的問題。',
+        'This can solve the problem that some software cannot correctly sort files by file name.',
+        'これにより、一部のソフトウェアがファイルをファイル名で正しくソートできないという問題を解決できます。',
+        '이것은 일부 소프트웨어가 파일 이름별로 파일을 올바르게 정렬할 수 없는 문제를 해결할 수 있습니다.',
+        'Это может решить проблему того, что некоторые программы не могут правильно сортировать файлы по имени файла.',
+    ],
+    _序号总长度: [
+        '序号总长度',
+        '序號總長度',
+        'Total length of serial number',
+        'シリアル番号の全長',
+        '일련번호 전체 길이',
+        'Общая длина серийного номера',
+    ],
+    _完全一致: [
+        '完全一致',
+        '完全一致',
+        'Perfect match',
+        '完全一致',
+        '완전 일치',
+        'Идеальное совпадение',
+    ],
+    _部分一致: [
+        '部分一致',
+        '部分一致',
+        'Partial match',
+        '部分一致',
+        '부분 일치',
+        'Частичное совпадение',
+    ],
+    _位置: ['位置', '位置', 'Position', '位置', '위치', 'Позиция'],
+    _左: ['左', '左', 'Left', '左', '왼쪽', 'Слева'],
+    _右: ['右', '右', 'Right', '右', '오른쪽', 'Справа'],
+    _多图作品只下载前几张图片: [
+        '多图作品只下载<span class="key">前几张</span>图片',
+        '多圖作品只下載<span class="key">前幾張</span>圖片',
+        'Multi-image works only download the <span class="key">first few</span> images',
+        'マルチ作品は最初の何枚の画像のみをダウンロードする',
+        '여러 이미지 작품은 <span class="key">처음 몇 개</span>의 이미지만 다운로드합니까',
+        'При работе с несколькими изображениями загружаются только <span class="key">первые несколько</span> изображений',
+    ],
+    _多图作品的图片数量上限: [
+        '多图作品的图片<span class="key">数量</span>上限',
+        '多圖作品的圖片<span class="key">數量</span>上限',
+        '<span class="key">Maximum number</span> of images for multi-image works',
+        'マルチ作品の最大画像数',
+        '여러 이미지 작품의 <span class="key">최대 수</span>',
+        '<span class="key">Максимальное количество</span> изображений для работ с несколькими изображениями',
+    ],
+    _超出此限制的多图作品不会被下载: [
+        '超出此限制的多图作品不会被下载',
+        '不會下載超出此限制的多圖作品',
+        'Multi-image works exceeding this limit will not be downloaded',
+        'この制限を超えたマルチ作品はダウンロードされません',
+        '이 제한을 초과하는 여러 이미지 작품은 다운로드되지 않습니다.',
+        'Работы с несколькими изображениями, превышающие этот лимит, не будут загружены',
+    ],
+    _在搜索页面添加快捷搜索区域: [
+        '在搜索页面添加快捷<span class="key">搜索</span>区域',
+        '在搜尋頁面新增快速<span class="key">搜尋</span>區域',
+        'Add a quick <span class="key">search</span> area on the search page',
+        '検索ページにクイック検索領域を追加します',
+        '검색 페이지에 빠른 <span class="key">검색</span> 영역 추가',
+        'Добавить область быстрого <span class="key">поиска</span> на странице поиска',
+    ],
+    _保存作品的元数据: [
+        '保存作品的<span class="key">元数据</span>',
+        '儲存作品的<span class="key">元資料</span>',
+        'Save the <span class="key">metadata</span> of the work',
+        '作品のメタデータを保存する',
+        '작품 <span class="key">메타데이터</span> 저장',
+        'Сохранить <span class="key">метаданные</span> работы',
+    ],
+    _保存作品的元数据说明: [
+        '为每个作品建立一个 txt 文件保存它的元数据',
+        '為每個作品建立一個 txt 檔案儲存它的元資料',
+        'Create a txt file for each work to save its metadata',
+        '作品ごとに txt ファイルを作成して、メタデータを保存します',
+        '각 작품에 대한 메타데이터를 저장하는 txt 파일 생성',
+        'Создайте txt-файл для каждой работы, чтобы сохранить ее метаданные',
+    ],
+    _在不同的页面类型中使用不同的命名规则: [
+        '在不同的页面类型中使用<span class="key">不同</span>的命名规则',
+        '在不同的頁面類型中使用<span class="key">不同</span>的命名規則',
+        'Use <span class="key">different</span> naming rules in different page types',
+        'ページの種類によって異なる命名規則を使用',
+        '페이지 유형에 따라 <span class="key">다른</span> 명명 규칙 사용',
+        'Использовать <span class="key">различные</span> правила именования в разных типах страниц',
+    ],
+    _显示高级设置: [
+        '显示<span class="key">高级</span>设置',
+        '顯示<span class="key">進階</span>設定',
+        'Show <span class="key">advanced</span> settings',
+        '詳細設定を表示する',
+        '<span class="key">고급</span> 설정 보기',
+        'Показать <span class="key">расширенные</span> настройки',
+    ],
+    _显示高级设置说明: [
+        '被隐藏的设置仍然会发挥作用',
+        '被隱藏的設定仍然會發揮作用',
+        'Hidden settings will still work',
+        '隠していた設定がそのまま機能する',
+        '숨겨진 설정은 계속 작동합니다.',
+        'Скрытые настройки будут работать',
+    ],
+    _状态码为0的错误提示: [
+        '下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（通常是 C 盘）（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。如果你使用 Nginx 或者 Apache 反代理访问 pixiv，请换成梯子。<br><br>3. 可以尝试重启浏览器，或者禁用此扩展然后重新启用，并刷新这个标签页。',
+        '下載時發生錯誤，狀態碼為 0，請求未成功。可能的原因：<br><br>1. 系統磁碟的剩餘空間可能不足（通常是 C 盤）（建議剩餘空間大於 4GB）。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>2. 網路錯誤。可能是網路代理導致的問題。<br><br>3. 可以嘗試重啟瀏覽器，或者禁用此擴充套件然後重新啟用，並重新整理這個標籤頁。',
+        'An error occurred while downloading, the status code is 0, and the request was unsuccessful. Possible reasons: <br><br>1. The remaining space of the system disk may be insufficient (usually C drive)(it is recommended that the remaining space be greater than 4GB). Please try to clear the system disk space, and then restart the browser to continue the unfinished download. <br><br>2. Network error. It may be a problem caused by a network proxy.<br><br>3. You can try to restart the browser, or disable and re-enable the extension, and refresh the tab.',
+        'ダウンロード中にエラーが発生し、ステータスコードは0で、リクエストは失敗しました。 考えられる理由：<br> <br> 1。 システムディスクの残りのスペースが不足している可能性があります(通常はCドライブ)（残りのスペースは4GBを超えることをお勧めします）。 システムのディスク領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。 <br> <br> 2。 ネットワークエラー。 ネットワークプロキシが原因の問題である可能性があります。<br><br>3. ブラウザを再起動するか、拡張機能を無効にしてから再度有効にして、タブを更新してみてください。',
+        '다운로드 중 오류가 발생했으며, 상태 코드가 0이고 요청에 실패했습니다. 가능한 원인: <br><br>1. 시스템 디스크의 남은 공간이 부족할 수 있습니다(보통 C드라이브)(남은 공간은 4GB보다 큰 것이 좋습니다). 시스템 디스크 공간을 비운 다음 브라우저를 다시 시작하여 완료되지 않은 다운로드를 계속해주세요. <br><br>2. 네트워크 오류. 네트워크 프록시로 인한 문제일 수 있습니다.<br><br>3. 브라우저를 다시 시작하거나 확장 프로그램을 비활성화했다가 다시 활성화하고 탭을 새로 고칠 수 있습니다.',
+        'Во время загрузки произошла ошибка, код состояния равен 0, и запрос был выполнен неудачно. Возможные причины: <br><br>1. Оставшегося места на системном диске может быть недостаточно (обычно это диск C) (рекомендуется, чтобы оставшееся место было больше 4 ГБ). Пожалуйста, попробуйте освободить место на системном диске, а затем перезапустите браузер, чтобы продолжить незаконченную загрузку. <br><br>2. Ошибка сети. Это может быть проблема, вызванная сетевым прокси-сервером.<br><br>3. Вы можете попробовать перезапустить браузер или отключить и снова включить расширение и обновить вкладку.',
+    ],
+    _下载完成后显示通知: [
+        '下载完成后显示<span class="key">通知</span>',
+        '下載完成後顯示<span class="key">通知</span>',
+        'Show <span class="key">notification</span> after download is complete',
+        'ダウンロードが完了した後に通知を表示する',
+        '다운로드가 완료되면 <span class="key">알림</span> 표시',
+        'Показать <span class="key">уведомление</span> после завершения загрузки',
+    ],
+    _高亮显示关键字: [
+        '<span class="key">高亮</span>显示关键字',
+        '<span class="key">標明</span>顯示關鍵字',
+        '<span class="key">Highlight</span> keywords',
+        'キーワードを強調表示',
+        '<span class="key">강조</span> 키워드 표시',
+        '<span class="key">Выделить</span> ключевые слова',
+    ],
+    _抓取标签列表: [
+        '抓取标签列表',
+        '擷取標籤列表',
+        'Crawl a list of tags',
+        'タグのリストをクロール',
+        '태그 긁어오기',
+        'Сканировать список тегов',
+    ],
+    _抓取标签列表的输入框提示: [
+        '请输入你要抓取的标签列表。多个标签之间使用换行分割',
+        '請輸入你要擷取的標籤列表。多個標籤之間使用換行分隔',
+        'Please type the list of tags you want to crawl. Use line breaks between multiple tags',
+        'クロールしたいタグのリストを入力してください。 複数のタグを改行で分割',
+        '긁어올 태그를 입력해주세요. 여러 태그는 줄 바꿈 사용',
+        'Пожалуйста, введите список тегов, которые вы хотите просмотреть. Используйте разрывы строк между несколькими тегами',
+    ],
+    _抓取标签列表的文件夹提示: [
+        '在抓取标签列表时，你可以使用 {page_tag} 或者 {page_title} 标记获取当前抓取的标签，并用来建立文件夹。例如：{page_tag}/{id}',
+        '在擷取標籤列表時，你可以使用 {page_tag} 或者 {page_title} 標記獲取目前擷取的標籤，並用來建立資料夾。例如：{page_tag}/{id}',
+        'When crawling the tag list, you can use {page_tag} or {page_title} tags to get the tags currently crawled and use them to create folders. For example: {page_tag}/{id}',
+        'タグリストをクロールする時に、 {page_tag} や {page_title}を使用すると、現在クロールされているタグを取得し、それらを使ってフォルダを作成することができます。例：{page_tag}/{id}',
+        '태그를 긁어올 때 {page_tag} 또는 {page_title} 태그를 사용하여, 긁어온 태그로 디렉토리를 생성할 수 있습니다. 예: {page_tag}/{id}',
+        'При сканировании списка тегов вы можете использовать теги {page_tag} или {page_title}, чтобы получить теги, которые в данный момент просматриваются, и использовать их для создания папок. Например: {page_tag}/{id}',
+    ],
+    _停止抓取标签列表: [
+        '停止抓取标签列表',
+        '停止擷取標籤列表',
+        'Stop crawling the list of tags',
+        'タグリストのクロールを停止',
+        '태그 긁어오기 정지',
+        'Прекратить сканирование списка тегов',
+    ],
+    _等待下载的标签: [
+        '等待下载的标签',
+        '等待下載的標籤',
+        'Tags waiting to be downloaded',
+        'ダウンロード待ちのタグ',
+        '다운로드 대기 중인 태그',
+        'Теги, ожидающие загрузки',
+    ],
+    _你确定要停止抓取吗: [
+        '你确定要停止抓取吗？',
+        '確定要停止擷取嗎？',
+        'Are you sure you want to stop crawling?',
+        '本当にクロールをやめたいのか',
+        '긁어오기를 중지하시겠습니까?',
+        'Ты уверен, что хочешь перестать сканировать?',
+    ],
+    _只能在搜索页面使用: [
+        '只能在搜索页面使用',
+        '只能在搜尋頁面使用',
+        'Can only be used on the search page',
+        '検索ページでのみ使用できます',
+        '검색 페이지에서만 사용 가능',
+        'Можно использовать только на странице поиска',
+    ],
+    _自动导出抓取结果: [
+        '自动<span class="key">导出</span>抓取结果',
+        '自動<span class="key">匯出</span>擷取結果',
+        'Automatically <span class="key">export</span> crawl results',
+        'クロール結果の自動エクスポート',
+        '자동으로 긁어오기 결과 <span class="key">내보내기</span>',
+        'Автоматически <span class="key">экспортировать</span> результаты сканирования',
+    ],
+    _抓取结果: [
+        '抓取结果',
+        '擷取結果',
+        'Crawl results',
+        'クロール結果',
+        '긁어오기 결과',
+        'Сканировать результаты',
+    ],
+    _文件格式: [
+        '文件格式',
+        '檔案格式',
+        'File format',
+        'ファイル形式',
+        '파일 형식',
+        'Формат файла',
+    ],
+    _格式: ['格式', '格式', 'Format', '形式', '형식', 'Формат'],
+    _预览作品: [
+        '<span class="key">预览</span>作品',
+        '<span class="key">預覽</span>作品',
+        '<span class="key">Preview</span> works',
+        '作品のプレビュー',
+        '작품 <span class="key">미리보기</span>',
+        '<span class="key">Превью</span> работает',
+    ],
+    _点击鼠标左键可以关闭预览图: [
+        '点击鼠标左键可以关闭预览图',
+        '點選滑鼠左鍵可以關閉預覽圖',
+        'Click the left mouse button to close the preview',
+        'マウスの左クリックでプレビュー画像を閉じる',
+        '마우스 왼쪽 버튼을 클릭하면 미리보기를 닫습니다',
+        'Нажмите левую кнопку мыши, чтобы закрыть предварительный просмотр',
+    ],
+    _尺寸: ['尺寸', '尺寸', 'Size', 'サイズ', '크기', 'Размер'],
+    _允许鼠标停留在预览图上: [
+        '允许鼠标停留在预览图上',
+        '允許滑鼠停留在預覽圖上',
+        'Allow the mouse to stay on the preview image',
+        'プレビュー画像の上にマウスを置くことができます',
+        '마우스가 미리보기 이미지 위에서 유지되도록 허용',
+        'Разрешить мыши оставаться на изображении предварительного просмотра',
+    ],
+    _点击预览图时下载作品: [
+        '点击预览图时下载作品',
+        '點選預覽圖時下載作品',
+        'Download the work when you click on the preview',
+        'プレビュー画像をクリックするとその作品がダウンロードされます',
+        '미리보기 이미지를 클릭하면 작품 다운로드',
+        'Загружать работу при нажатии на предварительный просмотр',
+    ],
+    _转换动图时页面被隐藏的提示: [
+        '这个标签页正在转换动图。如果这个标签页被隐藏了，转换速度可能会变慢。',
+        '這個標籤頁正在轉換動圖。如果這個標籤頁被隱藏了，轉換速度可能會變慢。',
+        'This tab page is converting ugoira. If this tab page is hidden, the conversion speed may slow down.',
+        'このタブページはうごイラを変換しています。 このタブを非表示にすると、変換速度が低下する場合があります。',
+        '이 탭은 움직이는 일러스트를 변환하는 중입니다.이 탭이 숨겨지면 변환 속도가 느려질 수 있습니다.',
+        'Эта страница вкладки преобразует ugoira. Если эта страница вкладки скрыта, скорость конвертации может замедлиться.',
+    ],
+    _原始尺寸: [
+        '原始尺寸',
+        '原始尺寸',
+        'Original size',
+        'オリジナルサイズ',
+        '원본 크기',
+        'Оригинальный размер',
+    ],
+    _增强: ['增强', '增強', 'Enhance', '強化機能', '향상', 'Улучшение'],
+    _长按右键显示大图: [
+        '在缩略图上长按鼠标右键时显示<span class="key">大图</span>',
+        '在縮圖上長按滑鼠右鍵時顯示<span class="key">大圖</span>',
+        'Long press the right mouse button on the thumbnail to display the <span class="key">large image</span>',
+        'サムネイルでマウスの右ボタンを長押しすると、大きな画像が表示されます。',
+        '썸네일을 마우스 오른쪽 버튼으로 클릭했을 때 <span class="key">큰 이미지</span> 표시',
+        'Длительное нажатие правой кнопки мыши на миниатюре для отображения <span class="key">большого изображения</span>',
+    ],
+    _鼠标滚轮切换图片: [
+        '预览多图作品时，可以使用鼠标滚轮切换图片。',
+        '預覽多圖作品時，可以使用滑鼠滾輪切換圖片。',
+        'When previewing multi-image works, you can use the mouse wheel to switch images.',
+        '複数画像をプレビューする際に、マウスホイールを使って画像を切り替えることができます。',
+        '여러 이미지 작품을 미리 볼 때, 마우스 휠을 사용하여 이미지를 전환할 수 있습니다.',
+        'При предварительном просмотре работ с несколькими изображениями можно использовать колесико мыши для переключения изображений',
+    ],
+    _whatisnew: [
+        `修复因为 Pixiv 的变化而导致的抓取失败的问题。`,
+        `修復因為 Pixiv 的變化而導致的抓取失敗的問題。`,
+        `Fixed crawl failures due to Pixiv changes.`,
+        `Pixiv の変更によるクロールの失敗を修正しました。`,
+        `Pixiv 변경으로 인한 크롤링 실패를 수정했습니다.`,
+        'Исправлены сбои в сканировании из-за изменений в Pixiv',
+    ],
+    _等待时间: [
+        '等待时间',
+        '等待時間',
+        'Waiting time',
+        '待ち時間',
+        '대기 시간',
+        'Время ожидания',
+    ],
+    _格式错误: [
+        '格式错误',
+        '格式錯誤',
+        'Format error',
+        'フォーマットエラー',
+        '형식 오류',
+        'Ошибка форматантирования',
+    ],
+    _下载数量错误: [
+        '下载的页数（作品）数量设置错误',
+        '下載的頁數（作品）數量設定錯誤',
+        'The number of downloaded pages (works) is set incorrectly',
+        '下载页数（作品）设置不正确',
+        '다운로드할 페이지 수(작품) 설정 오류',
+        'Количество загруженных страниц (работ) установлено неверно',
+    ],
+    _默认下载多页: [
+        '开始抓取, 如有多页，默认会下载全部。',
+        '開始擷取，如有多頁，預設會下載全部。',
+        'Start crawl, if there are multiple pages, the default will be downloaded.',
+        'クロールを開始する、複数のページがある場合、デフォルトですべてをダウンロードされます。',
+        '긁어오기를 시작합니다. 여러 페이지가 있으면 기본적으로 모두 다운로드됩니다.',
+        'Начать сканирование, если есть несколько страниц, все будут загружены по умолчанию.',
+    ],
+    _赞助我: [
+        '赞助我',
+        '贊助我',
+        'Sponsor me',
+        '支援する',
+        '후원하기',
+        'Поддержать меня',
+    ],
+    _赞助方式提示: [
+        `如果您觉得这个工具对您有帮助，可以考虑赞助我，谢谢！<br>
+    您可以在 Patreon 上赞助我：<br>
+    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br><br>
+    中国大陆用户可以在“爱发电”上赞助我：<br>
+    <a href="https://afdian.com/a/xuejianxianzun" target="_blank">https://afdian.com/a/xuejianxianzun</a><br><br>
+    也可以扫描二维码：<br>
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a>
+    `,
+        `如果您覺得這個工具對您有幫助，可以考慮贊助我，謝謝！<br>
+    您可以在 Patreon 上贊助我：<br>
+    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br><br>
+    中國大陸使用者可以在“愛發電”上贊助我：<br>
+    <a href="https://afdian.com/a/xuejianxianzun" target="_blank">https://afdian.com/a/xuejianxianzun</a>
+    `,
+        `If you find this tool helpful, please consider sponsoring me, thank you!<br>
+    You can sponsor me on Patreon: <br>
+    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a>
+    `,
+        `このツールが役に立ったと思われる場合は、スポンサーになることをご検討ください。ありがとうございます。<br>
+    ご支援してくださった方は、以下の Patreon で：<br>
+    <a href="https://www.patreon.com/xuejianxianzun" target="_blank"> https://www.patreon.com/xuejianxianzun </a>
+    `,
+        `이 도구가 도움이 된다면 후원해 보시기 바랍니다. 감사합니다!<br>
+    Patreon에서 저를 후원해주세요<br>
+    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a>
+    `,
+        `Если вы найдете этот инструмент полезным, пожалуйста, рассмотрите возможность спонсировать меня, спасибо!<br>
+    Вы можете спонсировать меня на Patreon: <br>
+    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a>
+    `,
+    ],
+    _替换方形缩略图以显示图片比例: [
+        '替换方形<span class="key">缩略图</span>以显示图片比例',
+        '替換方形<span class="key">縮圖</span>以顯示圖片比例',
+        'Replace square <span class="key">thumbnails</span> to show image ratio',
+        '正方形のサムネイルを置き換えて、画像のスケールを表示。',
+        '이미지 종횡비를 표시하기 위해 정사각형 <span class="key">썸네일</span> 교체',
+        'Замените квадратные <span class="key">миниатюры</span>, чтобы показать соотношение сторон изображения',
+    ],
+    _只有一个抓取结果时不建立文件夹: [
+        '只有一个抓取结果时<span class="key">不建立</span>文件夹',
+        '只有一個擷取結果時<span class="key">不建立</span>資料夾',
+        '<span class="key">Do not create</span> a folder when there is only one crawl result',
+        'クロール結果が１つのみの場合、フォルダを作成しない',
+        '긁어오기 결과가 하나일 때 디렉토리 <span class="key">생성하지 않기</span>',
+        'Когда есть только один результат сканирования, <span class="key">никакая</span> папка не создается',
+    ],
+    _搜索页面页数限制: [
+        '由于 pixiv 的限制，下载器最多只能抓取到第 {} 页。',
+        '由於 pixiv 的限制，下載器最多只能擷取到第 {} 頁。',
+        'Due to the limitation of pixiv, the downloader can only crawl up to the {}th page.',
+        'pixiv の制限により、ダウンローダーは {} ページ目までしかクロールできません。',
+        'pixiv 제한으로 인해 최대 {} 페이지까지만 다운로드 받을 수 있습니다.',
+        'Из-за ограничений pixiv загрузчик может сканировать только до {}-й страницы',
+    ],
+    _获取图片的宽高时出现错误: [
+        '获取图片的宽高时出现错误：',
+        '獲取圖片的寬高時出現錯誤：',
+        'An error occurred while getting the width and height of the image:',
+        '画像の幅と高さの取得中にエラーが発生しました：',
+        '이미지의 너비를 가져오는 도중 오류가 발생했습니다:',
+        'Произошла ошибка при получении ширины и высоты изображения:',
+    ],
+    _上限: ['上限', '上限', 'Upper limit', '上限', '상한', 'Верхний предел'],
+    _预览搜索结果的数量达到上限的提示: [
+        '预览搜索结果的数量已经达到上限，剩余的结果不会显示。',
+        '預覽搜尋結果的數量已經達到上限，剩餘的結果不會顯示。',
+        'The number of preview search results has reached the upper limit, and the remaining results will not be displayed.',
+        'プレビュー検索結果の数が上限に達し、残りの結果は表示されません。',
+        '미리보기 검색 결과 수가 상한에 도달하여, 남은 결과는 표시되지 않습니다.',
+        'Количество результатов предварительного поиска достигло верхнего предела, и оставшиеся результаты не будут отображаться.',
+    ],
+    _新增命名标记: [
+        '新增命名标记',
+        '新增命名標記',
+        'Add named tag',
+        '名前付きタグを追加',
+        '명명된 태그 추가',
+        'Добавить именованный тег',
+    ],
+    _自定义用户名: [
+        '自定义<span class="key">用户名</span>',
+        '自訂<span class="key">使用者名稱</span>',
+        'Customize <span class="key">username</span>',
+        'カスタムユーザー名',
+        '사용자 정의 <span class="key">유저명</span>',
+        'Настроить <span class="key">имя пользователя</span>',
+    ],
+    _自定义用户名的说明: [
+        `有些用户可能会改名，如果你想使用他原来的名字，你可以在这里手动设置他的名字。<br>
+    你也可以为用户设置别名。<br>
+    当你在命名规则中使用 {user} 标记时，下载器会优先使用你设置的名字。`,
+        `有些使用者可能會改名，如果你想使用他原來的名字，你可以在這裡手動設定他的名字。<br>
+    你也可以為使用者設定別名。<br>
+    當你在命名規則中使用 {user} 標記時，下載器會優先使用你設定的名字。`,
+        `Some users may change their name. If you want to use his original name, you can manually set his name here. <br>
+    You can also set aliases for users. <br>
+    When you use the {user} tag in the naming rule, the downloader will give priority to the name you set.`,
+        `ユーザーによっては名前を変更する場合があります。元の名前を使いたい場合は、ここで名前を手動で設定することができます。<br>
+    また、ユーザーの別名を設定することも可能です。<br>
+    命名規則で {user} タグを使用すると、ダウンローダーは設定された名前を優先的に使用します。`,
+        `일부 유저는 이름을 바꿀 수 있습니다. 만약 당신이 그의 원래 이름을 사용하고 싶다면, 당신은 여기에서 그의 이름을 수동으로 설정할 수 있습니다.<br>
+    사용자의 별칭을 설정할 수도 있습니다. <br>
+    명명 규칙에 {user} 태그를 사용할 때 다운로드더가 사용자 정의 유저명을 우선시합니다.`,
+        `Некоторые пользователи могут изменить свое имя. Если вы хотите использовать его оригинальное имя, вы можете вручную задать его имя здесь. <br>
+    Вы также можете задать псевдонимы для пользователей. <br>
+    Когда вы используете тег {user} в правиле именования, загрузчик будет отдавать приоритет имени, которое вы задали.`,
+    ],
+    _移除用户名中的at和后续字符: [
+        '移除用户名中的 <span class="key">@</span> 和后续字符',
+        '移除使用者名稱中的 <span class="key">@</span> 和後續字元',
+        'Remove <span class="key">@</span> and subsequent characters in username',
+        'ユーザー名から <span class="key">@</span> 以降の文字を削除する',
+        '유저명에서 @와 후속 문자 제거',
+        'Удалить <span class="key">@</span> и последующие символы в имени пользователя',
+    ],
+    _移除用户名中的at和后续字符的说明: [
+        '例如：Anmi@画集発売中 → Anmi',
+        '例如：Anmi@画集発売中 → Anmi',
+        'For example：Anmi@画集発売中 → Anmi',
+        '例：Anmi@画集発売中 → Anmi',
+        '예: Anmi@画集発売中 → Anmi',
+        'Например: Anmi@画集発売中 → Anmi',
+    ],
+    _抓取被限制时返回空结果的提示: [
+        'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。(429)<br>这说明您的账号被 Pixiv 限制访问了，等待几分钟即可恢复正常。',
+        'Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。(429)<br>這說明您的賬號被 Pixiv 限制訪問了，等待幾分鐘即可恢復正常。',
+        'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes. (429)<br>This means that your account has been restricted by Pixiv, please wait for a few minutes for it to return to normal.',
+        'Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。(429)<br>これは、あなたのアカウントが Pixiv によって制限されていることを意味します。通常の状態に戻るまで数分お待ちください。',
+        'Pixiv가 빈 데이터를 반환했습니다. 다운로더가 긁어오기를 일시 중지하고 몇 분 동안 기다린 후 긁어오기를 계속합니다. (429)<br>이것은 귀하의 계정이 Pixiv에 의해 제한되었음을 의미합니다. 정상으로 돌아갈 때까지 몇 분 정도 기다리십시오.',
+        'Pixiv вернул пустые данные. Загрузчик приостановил загрузку и возобновит ее через несколько минут. (429)<br>Это означает, что ваша учетная запись была ограничена Pixiv, подождите несколько минут, пока она вернется в нормальное состояние.',
+    ],
+    _提示启用减慢抓取速度功能: [
+        '您可以启用“减慢抓取速度”功能来减少 429 问题出现的概率。',
+        '您可以啟用“減慢抓取速度”功能來減少 429 問題出現的機率。',
+        'You can reduce the chances of 429 issues by enabling the "Slow down crawl" feature.',
+        '"クロールを遅くする" 機能を有効にすると、429 の問題が発生する可能性を減らすことができます。',
+        '"천천히 크롤링" 기능을 활성화하면 429 문제 발생 가능성을 줄일 수 있습니다.',
+        'Вы можете снизить вероятность возникновения ошибок 429, включив функцию «Замедлить сканирование».',
+    ],
+    _搜索模式: [
+        '搜索模式',
+        '搜尋模式',
+        'Search mode',
+        '検索モード',
+        '검색 모드',
+        'Режим поиска',
+    ],
+    _标签部分一致: [
+        '标签（部分一致）',
+        '標籤（部分一致）',
+        'Tags (partial match)',
+        'タグ（部分一致）',
+        '태그 (부분 일치)',
+        'Теги (частичное совпадение)',
+    ],
+    _标签完全一致: [
+        '标签（完全一致）',
+        '標籤（完全一致）',
+        'Tags (perfect match)',
+        'タグ（完全一致）',
+        '태그 (완전 일치)',
+        'Теги (идеальное совпадение)',
+    ],
+    _标题说明文字: [
+        '标题、说明文字',
+        '標題、說明文字',
+        'Title, Caption',
+        'タイトル・キャプション',
+        '제목, 설명',
+        'Название, Подпись',
+    ],
+    _正文: ['正文', '本文', 'Text', '本文', '본문', 'Текст'],
+    _标签标题说明文字: [
+        '标签、标题、说明文字',
+        '標籤、標題、說明文字',
+        'Tags, Titles, Captions',
+        'タグ・タイトル・キャプション',
+        '태그, 제목, 설명',
+        'Теги, Заголовки, Подписи',
+    ],
+    _save_file_failed_tip: [
+        `{} 保存失败，code：{}。下载器将会重试下载这个文件。`,
+        `{} 儲存失敗，code：{}。下載器將會重試下載這個檔案。`,
+        `{} save failed, code: {}. The downloader will retry to download the file.`,
+        `{} 保存に失敗しました。code：{}。ダウンローダーはファイルのダウンロードを再試行します。`,
+        `{} 저장에 실패했습니다. 코드: {}. 다운로드더가 파일 다운로드를 다시 시도합니다.`,
+        `{} сохранение не удалось, код: {}. Загрузчик повторит попытку загрузить файл.`,
+    ],
+    _user_canceled_tip: [
+        `{} 未保存，code：{}。`,
+        `{} 未儲存，code：{}。`,
+        `{} not saved, code: {}.`,
+        `{} 保存されていません。code：{}。`,
+        `{} 저장되지 않음, 코드: {}.`,
+        `{} не сохранено, код: {}.`,
+    ],
+    _FILE_FAILED_tip: [
+        '可能是文件名太长，或是其他原因导致文件保存失败。你可以尝试启用高级设置里的“文件名长度限制”。',
+        '可能是檔名太長，或是其他原因導致檔案儲存失敗。你可以嘗試啟用高階設定裡的“檔案名稱長度限制”。',
+        'Maybe the file name is too long, or other reasons cause the file to fail to save. You can try enabling "File name length limit" in advanced settings.',
+        'ファイル名が長すぎるか、他の理由でファイルの保存に失敗した可能性があります。 詳細設定で「ファイル名の長さ制限」を有効にしてみてください。',
+        '파일명이 너무 길거나 다른 이유로 저장에 실패한 것 같습니다. 고급 설정에서 "파일명 길이 제한"을 사용하도록 설정할 수 있습니다.',
+        'Возможно, имя файла слишком длинное, или по другим причинам файл не удается сохранить. Вы можете попробовать включить "Ограничение длины имени файла". в расширенных настройках.',
+    ],
+    _显示摘要信息: [
+        '显示摘要信息',
+        '顯示摘要資訊',
+        'Show summary',
+        '要約情報を表示する',
+        '요약 정보 표시',
+        'Показать сводку',
+    ],
+    _显示更大的缩略图: [
+        '显示<span class="key">更大</span>的缩略图',
+        '顯示<span class="key">更大</span>的縮圖',
+        'show <span class="key">larger</span> thumbnails',
+        '大きなサムネイルを表示する',
+        '<span class="key">더 큰</span> 썸네일 표시',
+        'Показывать <span class="key">большие</span> миниатюры',
+    ],
+    _横图占用二倍宽度: [
+        '横图占用二倍宽度',
+        '橫圖佔用二倍寬度',
+        'Horizontal image takes up double the width',
+        '水平方向の画像は幅の2倍を占めます',
+        '가로 그림은 두 배의 너비를 차지',
+        'Горизонтальное изображение занимает вдвое большую ширину',
+    ],
+    _该功能默认启用: [
+        '这个功能默认启用。',
+        '這個功能預設啟用。',
+        'This feature is enabled by default.',
+        'この機能はデフォルトで有効になっています。',
+        '이 기능은 기본적으로 활성화됩니다.',
+        'Эта функция включена по умолчанию.',
+    ],
+    _默认未启用: [
+        '默认未启用。',
+        '預設未啟用。',
+        'It is disabled by default.',
+        'デフォルトでは有効になっていません。',
+        '기본값이 비활성화되어 있습니다.',
+        'По умолчанию не работает.',
+    ],
+    _你可以在更多选项卡的xx分类里找到它: [
+        '你可以在“更多”选项卡 → “{}”分类里找到它。（需要先启用“显示高级设置”）',
+        '你可以在“更多”選項卡 → “{}”分類裡找到它。（需要先啟用“顯示進階設定”）',
+        'You can find it in the "More" tab → "{}" category. ("Show advanced settings" needs to be enabled first)',
+        '[もっと]タブ→[{}]カテゴリにあります。（最初に「詳細設定を表示」を有効にする必要があります）',
+        '"더보기" 탭 → "{}" 카테고리에서 찾을 수 있습니다. ("고급 설정 보기"를 먼저 활성화해야 합니다.)',
+        'Вы можете найти его в разделе "Еще". вкладка → "{}" категория. ("Показать расширенные настройки" необходимо сначала включить)',
+    ],
+    _你可以在xx选项卡里找到它: [
+        '你可以在“{}”选项卡里找到它。（需要先启用“显示高级设置”）',
+        '你可以在“{}”選項卡裡找到它。（需要先啟用“顯示進階設定”）',
+        'You can find it in the "{}" tab. ("Show advanced settings" needs to be enabled first)',
+        '「{}」タブにあります。（最初に「詳細設定を表示」を有効にする必要があります）',
+        '"{}" 탭에서 찾을 수 있습니다. ("고급 설정 보기"를 먼저 활성화해야 합니다.)',
+        'Вы можете найти его на вкладке "{}". ("Показать расширенные настройки" необходимо сначала включить)',
+    ],
+    _使用鼠标滚轮切换作品里的图片: [
+        '使用鼠标滚轮切换多图作品里的图片',
+        '使用滑鼠滾輪切換多圖作品裡的圖片',
+        'Use the mouse wheel to switch images in multi-image works',
+        'マウスホイールを使用して、マルチイメージ作品のイメージを切り替えます',
+        '마우스 휠을 사용하여 여러 이미지 작품에서 이미지 전환',
+        'Используйте колесико мыши для переключения изображений в работах с несколькими изображениями',
+    ],
+    _这可能会阻止页面滚动: [
+        '这可能会阻止页面滚动',
+        '這可能會阻止頁面滾動',
+        'This might stop the page from scrolling',
+        'ページのスクロールを妨げる可能性があります',
+        '이 기능은 페이지를 스크롤하지 못하게 할 수 있습니다.',
+        'Это может остановить прокрутку страницы',
+    ],
+    _动图转换失败的提示: [
+        '动图转换失败，id：{}',
+        '動圖轉換失敗，id：{}',
+        'Ugoira(animation) conversion failed, id: {}',
+        'うごイラの変換に失敗しました、id：{}',
+        '움직이는 일러스트 변환에 실패했습니다, ID: {}',
+        'Не удалось преобразовать Ugoira(анимацию), идентификатор: {}',
+    ],
+    _动图不能转换为WEBM视频的提示: [
+        '作品 ID {} 不能转换为 WEBM 视频，因为它的某一帧延迟大于 32767 毫秒。下载器会把它转换为 GIF 图像。',
+        '作品 ID {} 不能轉換為 WEBM 影片，因為它的某一幀延遲大於 32767 毫秒。下載器會把它轉換為 GIF 影象。',
+        'Work ID {} cannot be converted to WEBM video because it has a frame duration greater than 32767 ms. The downloader will convert it into a GIF image.',
+        'ワークid {} は、32767ミリ秒以上のフレーム長を持つため、webm動画に変換できません。ダウンローダはそれをgif画像に変換します。',
+        '작업 ID {}의 프레임 지속 시간이 32767 ms보다 크기 때문에 WEBM 비디오로 변환할 수 없습니다.다운로더가 GIF 이미지로 변환해 줍니다.',
+        'Рабочий ID {} не может быть преобразован в WEBM видео, потому что он имеет длительность кадров более 32767 мс. Загрузчик преобразует его в изображение GIF.',
+    ],
+    _作品id无法下载带状态码: [
+        '{} 无法下载，状态码：{}',
+        '{} 無法下載，狀態碼：{}',
+        '{} failed to download, status code: {}',
+        '{} ダウンロードに失敗しました、ステータスコード：{}',
+        '{} 다운로드할 수 없습니다, 상태 코드: {}',
+        '{} не удалось загрузить, код состояния: {}',
+    ],
+    _作品总数为0: [
+        '作品总数为 0，Pixiv 可能拒绝了此次抓取。请稍后重试。',
+        '作品總數為 0，Pixiv 可能拒絕了此次抓取。請稍後重試。',
+        'The total number of works is 0, Pixiv may have refused this crawl. Please try again later.',
+        '作品の総数は 0 です。 Pixivがこのクロールを拒否した可能性があります。 後でもう一度やり直してください。',
+        '총 작품 수가 0개입니다, Pixiv가 이번 긁어오기를 거부한 것으로 보입니다. 잠시 후에 다시 시도해주세요.',
+        'Общее количество работ равно 0, возможно, Pixiv блокирует сканирование. Пожалуйста, повторите попытку позже.',
+    ],
+    _优化预览作品功能: [
+        '优化“预览作品”功能',
+        '最佳化“預覽作品”功能',
+        'Optimize the "Preview Works" function',
+        '「作品のプレビュー」機能を最適化する',
+        '"작품 미리보기" 기능 최적화',
+        'Оптимизация "Предварительного просмотра работ" функция',
+    ],
+    _设定资料: [
+        '设定资料',
+        '設定資料',
+        'Reference materials',
+        '設定資料',
+        '설정 자료',
+        'Справочные материалы',
+    ],
+    _年龄限制: [
+        '<span class="key">年龄</span>限制',
+        '<span class="key">年齡</span>限制',
+        '<span class="key">Age</span> limit',
+        '<span class="key">年齢</span>制限',
+        '<span class="key">연령</span> 제한',
+        '<span class="key">Возраст</span> ограничение',
+    ],
+    _收藏状态: [
+        '<span class="key">收藏</span>状态',
+        '<span class="key">收藏</span>狀態',
+        '<span class="key">Bookmark</span> status',
+        '<span class="key">ブックマーク</span>ステータス',
+        '<span class="key">북마크</span> 상태',
+        'Статус <span class="key">закладки</span> ',
+    ],
+    _图片色彩: [
+        '图片<span class="key">色彩</span>',
+        '圖片<span class="key">色彩</span>',
+        'Image <span class="key">color</span>',
+        '画像の<span class="key">色</span>',
+        '이미지 <span class="key">색채</span>',
+        '<span class="key">Цвет</span> изображения',
+    ],
+    _图片数量: [
+        '图片<span class="key">数量</span>',
+        '圖片<span class="key">數量</span>',
+        '<span class="key">Number</span> of images',
+        '画像の<span class="key">数</span>',
+        '이미지 <span class="key">수</span>',
+        '<span class="key">Количество</span> изображений',
+    ],
+    _不抓取多图作品的最后一张图片: [
+        '不抓取多图作品的<span class="key">最后一张</span>图片',
+        '不抓取多圖作品的<span class="key">最後一張</span>圖片',
+        'Do not crawl the <span class="key">last image</span> of multi-image works',
+        'マルチ画像作品の<span class="key">最後の画像</span>をつかまないでください',
+        '여러 이미지의 <span class="key">마지막 이미지</span> 긁어오지 않기',
+        'Не сканировать по <span class="key">последние изображения</span> в много картинных работах',
+    ],
+    _下载小说的封面图片: [
+        '下载小说的<span class="key">封面</span>图片',
+        '下載小說的<span class="key">封面</span>圖片',
+        'Download the <span class="key">cover</span> image of the novel',
+        '小説の<span class="key">表紙画像</span>をダウンロード',
+        '소설 <span class="key">커버</span> 이미지 다운로드',
+        'Скачать изображение <span class="key">обложки</span> новеллы',
+    ],
+    _预览动图: [
+        '<span class="key">预览</span>动图',
+        '<span class="key">預覽</span>動圖',
+        '<span class="key">Preview</span> Ugoira',
+        'うごイラのプレビュー',
+        '움직이는 일러스트 <span class="key">미리보기</span>',
+        '<span class="key">Превью</span> Ugoira(анимации)',
+    ],
+    _过度访问警告警告: [
+        '下载器检测到你可能收到了 pixiv 的警告消息，这通常是因为过度下载导致的。<br><strong>当你再次被警告时，你会被 Pixiv 封号。</strong><br>我建议你减少下载数量，或者使用新的账号进行下载。',
+        '下載器檢測到你可能收到了 pixiv 的警告訊息，這通常是因為過度下載導致的。<br><strong>當你再次被警告時，你會被 Pixiv 封號。</strong><br>我建議你減少下載數量，或者使用新的賬號進行下載。',
+        'The downloader has detected that you may have received a warning message from pixiv, usually due to excessive downloads.<br><strong>When you are warned again, you will be banned from Pixiv. </strong><br>I suggest you reduce your downloads, or use a new account to download.',
+        'ダウンロードが多すぎるため、pixivから警告メッセージが届いた可能性があることをダウンローダーが検出しました。<br><strong>再度警告を受けた場合、Pixivから追放されます。 </strong><br>ダウンロード数を減らすか、新しいアカウントを使用してダウンロードすることをお勧めします。',
+        '다운로더는 일반적으로 과도한 다운로드로 인해 pixiv에서 경고 메시지를 수신했을 수 있음을 감지했습니다.<br><strong>다시 경고를 받으면 Pixiv에서 차단됩니다. </strong><br>다운로드를 줄이거나 새 계정을 사용하여 다운로드하는 것이 좋습니다.',
+        'Программа загрузки обнаружила, что вы могли получить предупреждающее сообщение от pixiv, обычно из-за чрезмерной загрузки.<br><strong>Когда вы снова получите предупреждение, вы будете заблокированы в Pixiv. </strong><br>Я предлагаю вам сократить количество загрузок или использовать новую учетную запись для загрузки.',
+    ],
+    _下载小说里的内嵌图片: [
+        '下载小说里的<span class="key">内嵌</span>图片',
+        '下載小說裡的<span class="key">內嵌</span>圖片',
+        'Download <span class="key">embedded</span> images in novels',
+        '小説に埋め込まれた画像をダウンロードする',
+        '소설에서 <span class="key">인라인</span> 이미지 다운로드',
+        'Загрузка <span class="key">вложенных</span> изображений в новеллах',
+    ],
+    _其他优化: [
+        '其他优化',
+        '其他最佳化',
+        'Other optimizations',
+        'その他の最適化',
+        '기타 최적화',
+        'Другие оптимизации',
+    ],
+    _隐藏浏览器底部的下载栏: [
+        '隐藏浏览器底部的<span class="key">下载栏</span>',
+        '隱藏瀏覽器底部的<span class="key">下載欄</span>',
+        `Hide the <span class="key">download bar</span> at the bottom of the browser`,
+        'ブラウザの下部にあるダウンロードバーを非表示にします',
+        '브라우저 하단의 <span class="key">다운로드 바</span> 숨기기',
+        `Скрыть <span class="key">панель загрузки</span> в нижней части браузера`,
+    ],
+    _没有可用的抓取结果: [
+        '没有可用的抓取结果',
+        '沒有可用的抓取結果',
+        'No crawl results available',
+        'クロール結果がありません',
+        '사용 가능한 크롤링 결과가 없습니다.',
+        'Результаты сканирования недоступны',
+    ],
+    _查看作品大图时的快捷键: [
+        '查看作品大图时，按快捷键 <span class="blue">D</span> 可以下载这个作品。<br>按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
+        '檢視作品大圖時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。<br>按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
+        'When viewing the large image of the work, press the shortcut key <span class="blue">D</span> to download the work.<br>Press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
+        '作品の大きな画像をご覧になる場合、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。<br>ショートカット キー <span class="blue">C</span> を押して、現在表示されている画像のみをダウンロードします。',
+        '작품의 큰 그림을 볼 때 단축키 <span class="blue">D</span>를 누르면 작품을 다운로드할 수 있습니다. <br>현재 표시된 이미지만 다운로드하려면 단축키 <span class="blue">C</span>를 누르세요.',
+        'При просмотре большого изображения работы нажмите горячую клавишу <span class="blue">D</span>, чтобы загрузить работу. <br>Нажмите горячую клавишу <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
+    ],
+    _定时抓取: [
+        '定时抓取',
+        '定時抓取',
+        'Timed crawl',
+        '時限クロール',
+        '시간 제한 크롤링',
+        'Сканирование по таймеру',
+    ],
+    _定时抓取说明: [
+        '每隔一定时间，自动开始抓取和下载。',
+        '每隔一定時間，自動開始抓取和下載。',
+        'Automatically start crawling and downloading at regular intervals.',
+        '定期的にクロールとダウンロードを自動的に開始します。',
+        '정기적으로 자동으로 크롤링 및 다운로드를 시작합니다.',
+        'Автоматически запускать сканирование и загрузку через регулярные промежутки времени',
+    ],
+    _定时抓取已启动的提示: [
+        '定时抓取已启动，间隔时间：{} 分钟。<br>如果你想修改间隔时间，可以在“更多”选项卡里修改设置：定时抓取的间隔时间。',
+        '定時抓取已啟動，間隔時間：{} 分鐘。<br>如果你想修改間隔時間，可以在“更多”選項卡里修改設定：定時抓取的間隔時間。',
+        'Timed crawl started, interval: {} minutes.<br>If you want to modify the interval time, you can modify the settings in the "More" tab: The interval time of timed crawl.',
+        '時限クロールが開始されました。間隔: {} 分。<br>間隔時間を変更したい場合は、[詳細] タブの設定 (時間指定クロールの間隔時間) を変更できます。',
+        '시간 제한 크롤링이 시작되었습니다. 간격: {}분. <br>간격 시간을 수정하려면 "자세히" 탭에서 예약된 크롤링 간격 설정을 수정할 수 있습니다.',
+        'Таймер сканирования запущен, интервал: {} минут.<br>Если вы хотите изменить интервал времени, вы можете изменить настройки на вкладке «Дополнительно»: Интервальное время сканирования с таймером.',
+    ],
+    _定时抓取的推荐用法: [
+        '推荐用法：增量抓取新作品。例如在关注的用户的新作品页面里，设置抓取页数为 2，然后启动定时抓取。这样下载器可以自动下载新作品。<br>建议启用“不下载重复文件”功能，以避免下载重复的文件。',
+        '推薦用法：增量抓取新作品。例如在關注的使用者的新作品頁面裡，設定抓取頁數為 2，然後啟動定時抓取。這樣下載器可以自動下載新作品。<br>建議啟用“不下載重複檔案”功能，以避免下載重複的檔案。',
+        'Recommended usage: Fetch new work incrementally. For example, in the new work page of the user you follow, set the number of crawled pages to 2, and then start timing crawling. This way the downloader can automatically download new works.<br>It is recommended to enable the "Do not download duplicate files" feature to avoid downloading duplicate files.',
+        '推奨される使用法: 新しい作業を段階的にフェッチします。 たとえば、フォローしているユーザーの新しい作品ページで、クロールされたページの数を 2 に設定し、クロールのタイミングを開始します。 このようにして、ダウンローダーは新しい作品を自動的にダウンロードできます。<br>重複ファイルのダウンロードを避けるために、「重複ファイルをダウンロードしない」機能を有効にすることをお勧めします。',
+        '권장 사용법: 새 작업을 점진적으로 가져옵니다. 예를 들어 팔로우하는 사용자의 새 작업 페이지에서 크롤링 페이지 수를 2로 설정한 다음 타이밍 크롤링을 시작합니다. 이렇게 하면 다운로더가 자동으로 새 작품을 다운로드할 수 있습니다.<br>중복 파일 다운로드를 방지하기 위해 "중복 파일 다운로드 금지" 기능을 활성화하는 것이 좋습니다.',
+        'Рекомендуемое использование: получать новую работу постепенно. Например, на новой рабочей странице пользователя, за которым вы следите, установите количество просканированных страниц равным 2, а затем запустите сканирование по времени. Таким образом, загрузчик может автоматически загружать новые работы.<br>Рекомендуется включить функцию "Не загружать дубликаты файлов", чтобы избежать загрузки дубликатов файлов.',
+    ],
+    _定时抓取已启动的提示2: [
+        '在定时抓取时，将这个标签页静置即可。不要改变这个标签页的 URL，否则抓取结果可能不符合预期。<br><br>如果这个扩展程序自动更新了，那么这个页面将不能正常下载文件（需要刷新页面来恢复正常）。 如果你想长期执行定时抓取任务，建议安装下载器的离线版本，以免因为自动更新而导致问题。<br>你可以在这里下载离线安装包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        '在定時抓取時，將這個標籤頁靜置即可。不要改變這個標籤頁的 URL，否則抓取結果可能不符合預期。<br><br>如果這個擴充套件程式自動更新了，那麼這個頁面將不能正常下載檔案（需要重新整理頁面來恢復正常）。 如果你想長期執行定時抓取任務，建議安裝下載器的離線版本，以免因為自動更新而導致問題。<br>你可以在這裡下載離線安裝包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        'During timed crawling, just leave this tab alone. Do not change the URL of this tab, or the crawl results may not be as expected.<br><br>If the extension is automatically updated, the page will not be able to download files normally (refresh the page to restore normal). If you want to perform scheduled crawling tasks for a long time, it is recommended to install the offline version of the downloader to avoid problems caused by automatic updates.<br>You can download the offline installation package here: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        '時限クロール中は、このタブをそのままにしておきます。 このタブの URL は変更しないでください。変更すると、クロール結果が期待どおりにならない可能性があります。<br><br>拡張機能が自動的に更新されると、ページはファイルを正常にダウンロードできなくなります (ページを更新して正常に戻します)。 スケジュールされたクロール タスクを長時間実行する場合は、自動更新による問題を回避するために、ダウンローダのオフライン バージョンをインストールすることをお勧めします。<br>オフライン インストール パッケージは、次の場所からダウンロードできます。<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        '시간 제한 크롤링 중에는 이 탭을 그대로 두십시오. 이 탭의 URL을 변경하지 마십시오. 그렇지 않으면 크롤링 결과가 예상과 다를 수 있습니다.<br><br>확장자가 자동으로 업데이트되면 페이지에서 파일을 정상적으로 다운로드할 수 없습니다(페이지를 새로고침하여 정상으로 복원). 예약된 크롤링 작업을 장기간 수행하려면 자동 업데이트로 인한 문제를 방지하기 위해 다운로더의 오프라인 버전을 설치하는 것이 좋습니다.<br>여기에서 오프라인 설치 패키지를 다운로드할 수 있습니다. <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
+        'Во время сканирования по времени просто оставьте эту вкладку в покое. Не меняйте URL-адрес этой вкладки, иначе результаты сканирования могут отличаться от ожидаемых.<br><br>Если расширение автоматически обновляется, страница не сможет загружать файлы в обычном режиме (обновите страницу, чтобы восстановить нормальный режим). Если вы хотите выполнять запланированные задачи обхода в течение длительного времени, рекомендуется установить автономную версию загрузчика, чтобы избежать проблем, вызванных автоматическими обновлениями.<br>Вы можете скачать автономный установочный пакет здесь: <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Страница релизов</a>',
+    ],
+    _定时抓取的间隔时间: [
+        '<span class="key">定时</span>抓取的间隔时间',
+        '<span class="key">定時</span>抓取的間隔時間',
+        'The interval time of <span class="key">timed crawl</span>',
+        '<span class="key">時間指定</span>クロールの間隔時間',
+        '정기 크롤링 간격 시간',
+        'Интервальное время сканирования с таймером',
+    ],
+    _定时抓取的间隔时间2: [
+        '定时抓取的间隔时间',
+        '定時抓取的間隔時間',
+        'The interval time of timed crawl',
+        '時間指定クロールの間隔時間',
+        '정기 크롤링 간격 시간',
+        'Интервальное время сканирования с таймером',
+    ],
+    _分钟: ['分钟', '分鐘', 'Minute', '分', '분', 'Минут'],
+    _定时抓取的时间超过最大值: [
+        '定时抓取的间隔时间超过最大值：',
+        '定時抓取的間隔時間超過最大值：',
+        'The interval of timed crawl exceeds the maximum value: ',
+        '時間指定クロールの間隔が最大値を超えています: ',
+        '시간 지정 크롤링 간격이 최대값을 초과합니다: ',
+        'Интервал сканирования по таймеру превышает максимальное значение: ',
+    ],
+    _定时抓取的时间最小值: [
+        '定时抓取的间隔时间最小值为 1 分钟。',
+        '定時抓取的間隔時間最小值為 1 分鐘。',
+        'The minimum interval for timed crawls is 1 minute.',
+        '時間指定クロールの最小間隔は 1 分です。',
+        '시간 지정 크롤링의 최소 간격은 1분입니다.',
+        'Минимальный интервал для сканирования по таймеру составляет 1 минуту.',
+    ],
+    _取消定时抓取: [
+        '取消定时抓取',
+        '取消定時抓取',
+        'Cancel timed crawl',
+        '時間指定クロールをキャンセル',
+        '시간 지정 크롤링 취소',
+        'Отменить сканирование по таймеру',
+    ],
+    _已取消定时抓取: [
+        '已取消定时抓取',
+        '已取消定時抓取',
+        'Timed crawl canceled',
+        '時間指定クロールがキャンセルされました',
+        '예약된 크롤링이 취소되었습니다.',
+        'Сканирование по таймеру отменено',
+    ],
+    _因为URL变化取消定时抓取任务: [
+        '因为 URL 变化，定时抓取任务已被取消。',
+        '因為 URL 變化，定時抓取任務已被取消。',
+        'The timed crawl task has been canceled due to URL changes.',
+        'URL が変更されたため、時間指定クロール タスクがキャンセルされました。',
+        'URL 변경으로 인해 시간이 지정된 크롤링 작업이 취소되었습니다.',
+        'Задание на сканирование по времени было отменено из-за изменений URL.',
+    ],
+    _开始定时抓取: [
+        '开始定时抓取',
+        '開始定時抓取',
+        'Start timed crawling',
+        '時間指定クロールを開始する',
+        '시간 지정 크롤링 시작',
+        'Начать сканирование по таймеру',
+    ],
+    _等待下一次定时抓取: [
+        '等待下一次定时抓取',
+        '等待下一次定時抓取',
+        'Wait for the next timed crawl',
+        '次回の時限クロールを待つ',
+        '다음 시간 크롤링을 기다립니다.',
+        'Подождите следующего сканирования с таймером',
+    ],
+    _当前时间: [
+        '当前时间：',
+        '當前時間：',
+        'Current time: ',
+        '現在の時刻：',
+        '현재 시간: ',
+        'Текущее время: ',
+    ],
+    _仅在部分页面中可用: [
+        '仅在部分页面中可用。',
+        '僅在部分頁面中可用。',
+        'Only available on some pages.',
+        '一部のページのみ利用可能です。',
+        '일부 페이지에서만 사용할 수 있습니다.',
+        'Доступно только на некоторых страницах',
+    ],
+    _发生错误原因: [
+        '发生错误，原因：',
+        '發生錯誤，原因：',
+        'An error occurred due to:',
+        '次の理由でエラーが発生しました:',
+        '다음으로 인해 오류가 발생했습니다.',
+        'Произошла ошибка по причине:',
+    ],
+    _扩展程序已更新: [
+        '扩展程序已更新。',
+        '擴充套件程式已更新。',
+        'The extension has been updated.',
+        '拡張機能が更新されました。',
+        '확장이 업데이트되었습니다.',
+        'Расширение было обновлено.',
+    ],
+    _未知错误: [
+        '未知错误。',
+        '未知錯誤。',
+        'unknown mistake.',
+        '未知の間違い。',
+        '알 수 없는 실수.',
+        'неизвестная ошибка',
+    ],
+    _请刷新页面: [
+        '请刷新页面。',
+        '請重新整理頁面。',
+        'Please refresh the page.',
+        'ページを更新してください。',
+        '페이지를 새로고침하세요.',
+        'Пожалуйста, обновите страницу.',
+    ],
+    _减慢抓取速度: [
+        '<span class="key">减慢</span>抓取速度',
+        '<span class="key">減慢</span>抓取速度',
+        '<span class="key">Slow down</span> crawl',
+        'クロールを<span class="key">遅くする</span>',
+        '<span class="key">천천히</span> 크롤링',
+        '<span class="key">Замедлить</span> сканирование',
+    ],
+    _减慢抓取速度的说明: [
+        '减慢抓取速度可以避免在抓取时被 Pixiv 临时限制。但是会增加抓取时间。',
+        '減慢抓取速度可以避免在抓取時被 Pixiv 臨時限制。但是會增加抓取時間。',
+        'Slow down the crawl to avoid being temporarily restricted by Pixiv while crawling. But this will increase the crawl time.',
+        'クロール中にPixivによって一時的に制限されないように、クロールを遅くします。 ただし、これによりクロール時間が長くなります。',
+        '크롤링하는 동안 Pixiv에 의해 일시적으로 제한되지 않도록 크롤링 속도를 늦춥니다. 그러나 이것은 크롤링 시간을 증가시킵니다.',
+        'Замедлить сканирование, чтобы избежать временного ограничения Pixiv во время сканирования. Это увеличит время сканирования.',
+    ],
+    _作品数量: [
+        '作品数量',
+        '作品數量',
+        'Number of works',
+        '作品数',
+        '작품 수',
+        'Количество работ',
+    ],
+    _当作品数量大于: [
+        '当作品数量超过指定数量时启用：',
+        '當作品數量超過指定數量时啟用：',
+        'Enabled when the number of works exceeds the specified number:',
+        '作品数が規定数を超えた場合に有効：',
+        '작품 수가 지정된 수를 초과하면 활성화됩니다.',
+        'Включается, когда количество работ превышает указанное количество:',
+    ],
+    _慢速抓取: [
+        '慢速抓取，以避免触发 429 限制',
+        '慢速抓取，以避免觸發 429 限制',
+        'Crawl slowly to avoid triggering 429 throttling',
+        '429 スロットリングのトリガーを避けるためにゆっくりとクロールします',
+        '429 스로틀링 트리거를 방지하기 위해 천천히 크롤링',
+        'Медленно сканируйте, чтобы не спровоцировать 429 троттлинг.',
+    ],
+    _慢速执行以避免引起429错误: [
+        '慢速执行，以避免引起 429 错误',
+        '慢速執行，以避免引起 429 錯誤',
+        'Execute slowly to avoid causing 429 errors',
+        '429 エラーの発生を避けるためにゆっくり実行してください',
+        '429 오류가 발생하지 않도록 천천히 실행하십시오.',
+        'Выполняйте медленно, чтобы избежать ошибок 429',
+    ],
+    _点击收藏按钮时下载作品: [
+        '点击<span class="key">收藏</span>按钮时下载作品',
+        '點選<span class="key">收藏</span>按鈕時下載作品',
+        'Download a work when you click the <span class="key">bookmark</span> button',
+        '<span class="key">ブックマーク</span>ボタンをクリックすると作品をダウンロード',
+        '<span class="key">북마크</span> 버튼 클릭 시 작품 다운로드',
+        'Загрузка произведения при нажатии кнопки <span class="key">закладка</span>',
+    ],
+    _点击点赞按钮时下载作品: [
+        '点击<span class="key">点赞</span>按钮时下载作品',
+        '點選<span class="key">點贊</span>按鈕時下載作品',
+        'Download a work when you click the <span class="key">like</span> button',
+        '<span class="key">いいね</span> ボタンをクリックすると作品がダウンロードされます',
+        '<span class="key">좋아요</span> 버튼 클릭 시 작품 다운로드',
+        'Загрузка произведения при нажатии на кнопку <span class="key">лайк</span>',
+    ],
+    _优化性能和用户体验: [
+        '优化性能和用户体验。',
+        '最佳化效能和使用者體驗。',
+        'Optimize performance and user experience.',
+        'パフォーマンスとユーザー エクスペリエンスを最適化します。',
+        '성능과 사용자 경험을 최적화합니다.',
+        'Оптимизация производительности и пользовательского опыта',
+    ],
+    _修复bug: [
+        '修复 bug',
+        '修復 bug',
+        'fix bugs',
+        'バグを修正',
+        '버그 수정',
+        'Баг фикс',
+    ],
+    _修复已知问题: [
+        '修复已知问题',
+        '修復已知問題',
+        'fix known issues',
+        '既知の問題を修正する',
+        '알려진 문제 수정',
+        'исправить известные проблемы',
+    ],
+    _不支持的浏览器: [
+        '你的浏览器不能正常使用这个扩展程序，主要原因可能是浏览器内核版本太低，或者存在兼容性问题。<br>建议您更换成最新版本的 Chrome 或 Edge 浏览器。',
+        '你的瀏覽器不能正常使用這個擴充套件程式，主要原因可能是瀏覽器核心版本太低，或者存在相容性問題。<br>建議您更換成最新版本的 Chrome 或 Edge 瀏覽器。',
+        'Your browser cannot use this extension properly. The main reason may be that the browser kernel version is too low, or there is a compatibility problem. <br>We recommend that you switch to the latest version of Chrome or Edge.',
+        'お使いのブラウザでは、この拡張機能を正しく使用できません。 主な理由としては、ブラウザのカーネル バージョンが低すぎるか、互換性の問題がある可能性があります。 <br>最新バージョンの Chrome または Edge に切り替えることをお勧めします。',
+        '브라우저에서 이 확장 프로그램을 제대로 사용할 수 없습니다. 주된 이유는 브라우저 커널 버전이 너무 낮거나 호환성 문제가 있기 때문일 수 있습니다. <br>최신 버전의 Chrome 또는 Edge로 전환하는 것이 좋습니다.',
+        'Ваш браузер не может правильно использовать это расширение. Основной причиной может быть слишком низкая версия ядра браузера или проблема совместимости. <br>Мы рекомендуем вам перейти на последнюю версию Chrome или Edge.',
+    ],
+    _日期时间格式错误: [
+        '日期时间格式错误',
+        '日期時間格式錯誤',
+        'wrong datetime format',
+        '間違った日時形式',
+        '잘못된 날짜/시간 형식',
+        'неправильный формат даты',
+    ],
+    _添加了对此页面类型的支持: [
+        '添加了对此页面类型的支持：',
+        '添加了对此页面类型的支持：',
+        'Added support for this page type:',
+        '次のページ タイプのサポートが追加されました：',
+        '이 페이지 유형에 대한 지원이 추가되었습니다：',
+        'Добавлена поддержка этого типа страницы:',
+    ],
+    _仅可由链接浏览: [
+        '仅可由链接浏览',
+        '僅可由連結瀏覽',
+        'URL restricted',
+        'URL限定公開',
+        'URL 한정 공개',
+        'URL ограничен',
+    ],
+    _添加了俄语翻译: [
+        '添加了俄语翻译',
+        '添加了俄語翻譯',
+        'Added Russian translation',
+        'ロシア語の翻訳を追加',
+        '러시아어 번역 추가',
+        'Добавлен русский перевод',
+    ],
+    _移除本页面中所有作品的标签: [
+        '移除本页面中所有作品的标签',
+        '移除本頁面中所有作品的標籤',
+        'Remove tags from all works on this page',
+        'このページのすべての作品からタグを削除します',
+        '이 페이지의 모든 작품에서 태그 제거',
+        'Удалить теги со всех работ на этой странице',
+    ],
+    _它们会变成未分类状态: [
+        '它们会变成未分类状态',
+        '它們會變成未分類狀態',
+        'They become uncategorized',
+        'それらは未分類になります',
+        '분류되지 않습니다',
+        'Они становятся некатегоризированными',
+    ],
+    _取消收藏本页面的所有作品: [
+        '取消收藏本页面中的所有作品',
+        '取消收藏本頁面中的所有作品',
+        'Unbookmark all works on this page',
+        'このページのすべての作品のブックマークを解除',
+        '이 페이지의 모든 작품에 대한 북마크 해제',
+        'Удалить из избранного все работы на этой странице',
+    ],
+    _取消收藏所有已被删除的作品: [
+        '取消收藏所有已被删除的作品',
+        '取消收藏所有已被刪除的作品',
+        'Unbookmark all deleted works',
+        '削除した作品をすべてブックマーク解除する',
+        '삭제된 모든 작품 북마크 해제',
+        'Снять закладку со всех удаленных работ',
+    ],
+    _取消收藏所有已被删除的作品的使用说明: [
+        '在你的收藏页面里，切换到下载器的“更多”标签页可以看到该功能按钮。',
+        '在你的收藏頁面裡，切換到下載器的“更多”標籤頁可以看到該功能按鈕。',
+        'In your bookmark page, switch to the "More" tab of the downloader to see this function button.',
+        'ブックマーク ページで、ダウンローダーの「その他」タブに切り替えると、この機能ボタンが表示されます。',
+        '북마크 페이지에서 다운로더의 "더보기" 탭으로 전환하면 이 기능 버튼을 볼 수 있습니다.',
+        'На странице закладок перейдите на вкладку «Дополнительно» загрузчика, чтобы увидеть эту функциональную кнопку.',
+    ],
+    _取消收藏作品: [
+        '取消收藏作品',
+        '取消收藏作品',
+        'Unbookmark works',
+        '作品のブックマークを解除',
+        '작품 북마크 해제',
+        'Снять закладку с работ',
+    ],
+    _收藏页面里的按钮: [
+        '当你在自己的收藏页面时，可以在“更多”选项卡里看到这个按钮。',
+        '當你在自己的收藏頁面時，可以在“更多”選項卡里看到這個按鈕。',
+        `You can see this button in the "More" tab when you're on your bookmarks page.`,
+        'このボタンは、ブックマーク ページの [もっと] タブに表示されます。',
+        '북마크 페이지에 있을 때 "더보기" 탭에서 이 버튼을 볼 수 있습니다.',
+        'Вы можете увидеть эту кнопку на вкладке «Больше», когда находитесь на странице закладок.',
+    ],
+    _收藏任务尚未完成请等待: [
+        '收藏作品的任务尚未全部完成，请等待',
+        '收藏作品的任務尚未全部完成，請等待',
+        'The task of bookmarking works has not been completed yet, please wait.',
+        '作品のブックマーク作業がまだ完了していませんので、しばらくお待ちください',
+        '작품을 북마크하는 작업이 아직 완료되지 않았습니다. 잠시만 기다려 주세요',
+        'Задание работ по закладке еще не выполнено, пожалуйста, подождите',
+    ],
+    _收藏作品完毕: [
+        '收藏作品完毕',
+        '收藏作品完畢',
+        'Bookmark works finished',
+        'ブックマーク作業終了',
+        '북마크 작업 완료',
+        'Работа над закладками завершена',
+    ],
+    _添加收藏失败: [
+        '添加收藏失败',
+        '新增收藏失敗',
+        'Failed to add bookmark',
+        'ブックマークを追加できませんでした',
+        '북마크 추가 실패',
+        'Не удалось добавить закладку',
+    ],
+    _下载器会在几分钟后重试: [
+        '下载器会在几分钟后重试。',
+        '下載器會在幾分鐘後重試。',
+        'The downloader will try again in a few minutes.',
+        'ダウンローダーは数分後に再試行します。',
+        '다운로더는 몇 분 후에 다시 시도합니다.',
+        'Загрузчик повторит попытку через несколько минут.',
+    ],
+    _重试收藏: [
+        '重试收藏',
+        '重試收藏',
+        'Retry bookmark',
+        'ブックマークを再試行',
+        '북마크 다시 시도',
+        'Повторить закладку',
+    ],
+    _剩余xx个: [
+        '剩余 {} 个。',
+        '剩餘 {} 個。',
+        '{} remaining.',
+        '{} 残り。',
+        '{} 남음.',
+        '{} осталось.',
+    ],
+    _重试收藏成功: [
+        '重试收藏成功。',
+        '重試收藏成功。',
+        'Retry bookmark successfully.',
+        'ブックマークを再試行します。',
+        '북마크를 다시 시도하십시오.',
+        'Повторите попытку закладки.',
+    ],
+    _出现错误请稍后重试: [
+        '出现错误，请稍后重试。',
+        '出現錯誤，請稍後重試。',
+        'An error occurred, please try again later.',
+        'エラーが発生しました。しばらくしてからもう一度お試しください。',
+        '오류가 발생했습니다. 잠시 후 다시 시도 해주세요.',
+        'Произошла ошибка. Пожалуйста, повторите попытку позже.',
+    ],
+    _请稍后重试: [
+        '请稍后重试。',
+        '請稍後重試。',
+        'Please try again later.',
+        '後でもう一度やり直してください。',
+        '잠시 후에 다시 시도해주세요.',
+        'Пожалуйста, повторите попытку позже.',
+    ],
+    _确定要离开吗: [
+        '确定要离开吗？',
+        '確定要離開嗎？',
+        'Are you sure you want to leave?',
+        '退会してもよろしいですか？',
+        '떠나시겠습니까?',
+        'Вы уверены, что хотите оставить?',
+    ],
+    _yandex浏览器的警告: [
+        `如果你在 Yandex 浏览器（Android）上使用 Powerful Pixiv Downloader，请换成 Kiwi 浏览器。<br>
+    因为下载器在最近将会升级到 Manifest version 3，但是 Yandex 浏览器不支持  Manifest version 3， 所以它不能使用新版本的下载器。`,
+        `如果你在 Yandex 瀏覽器（Android）上使用 Powerful Pixiv Downloader，請換成 Kiwi 瀏覽器。<br>
+    因為下載器在最近將會升級到 Manifest version 3，但是 Yandex 瀏覽器不支援  Manifest version 3， 所以它不能使用新版本的下載器。`,
+        `If you are using Powerful Pixiv Downloader on Yandex browser（Android）, please switch to Kiwi browser. <br>
+    Because the downloader will be upgraded to Manifest version 3 in the near future, but Yandex browser does not support Manifest version 3, so it cannot use the new version of the downloader.`,
+        `Yandex（Android） ブラウザで強力な Pixiv Downloader を使用している場合は、Kiwi ブラウザに切り替えてください。 <br>
+    ダウンローダは近いうちにマニフェスト バージョン 3 にアップグレードされますが、Yandex ブラウザはマニフェスト バージョン 3 をサポートしていないため、新しいバージョンのダウンローダを使用することはできません。`,
+        `Yandex（Android） 브라우저에서 강력한 Pixiv Downloader를 사용하는 경우 Kiwi 브라우저로 전환하십시오. <br>
+    다운로더는 가까운 시일 내에 Manifest 버전 3으로 업그레이드되지만 Yandex 브라우저는 Manifest 버전 3을 지원하지 않으므로 새 버전의 다운로더를 사용할 수 없습니다.`,
+        `Если вы используете Powerful Pixiv Downloader в браузере Yandex（Android）, перейдите на браузер Kiwi. <br>
+    Потому что в ближайшее время загрузчик будет обновлен до Манифеста версии 3, но Yandex браузер не поддерживает Манифест версии 3, поэтому он не может использовать новую версию загрузчика.`,
+    ],
+    _导出日志: [
+        '导出<span class="key">日志</span>',
+        '匯出<span class="key">日誌</span>',
+        'Export <span class="key">log</span>',
+        '<span class="key">ログ</span>のエクスポート',
+        '내보내기 로그',
+        'Экспорт <span class="key">журнала</span>',
+    ],
+    _导出日志成功: [
+        '✓ 导出日志',
+        '✓ 匯出日誌',
+        '✓ Export log',
+        '✓ ログのエクスポート',
+        '✓ 내보내기 로그',
+        '✓ Экспорт журнала',
+    ],
+    _导出时机: [
+        '导出时机',
+        '匯出時機',
+        'Export timing',
+        'エクスポートのタイミング',
+        '내보내기 타이밍',
+        'Время экспорта',
+    ],
+    _日志类型: [
+        '日志类型',
+        '日誌型別',
+        'Log type',
+        'ログの種類',
+        '로그 유형',
+        'Тип журнала',
+    ],
+    _正常: ['正常', '正常', 'Normal', '普通', '정상', 'Обычный'],
+    _错误: ['错误', '錯誤', 'Error', 'エラー', '오류', 'Ошибка'],
+    _排除关键字: [
+        '排除关键字',
+        '排除關鍵字',
+        'Exclude keywords',
+        'キーワードを除外',
+        '키워드 제외',
+        'Исключить ключевые слова',
+    ],
+    _Chrome108版本转换WebM失败的问题: [
+        '从 Chrome 108 版本开始，浏览器的一些变化导致下载器转换 WebM 视频失败。<br>现已修复转换功能。',
+        '從 Chrome 108 版本開始，瀏覽器的一些變化導致下載器轉換 WebM 影片失敗。<br>現已修復轉換功能。',
+        'Starting with Chrome version 108, some changes in the browser caused the downloader to fail to convert WebM videos. <br>The conversion function is now fixed.',
+        'Chrome バージョン 108 以降、ブラウザーの一部の変更により、ダウンローダーが WebM ビデオの変換に失敗しました。 <br>変換機能を修正しました。',
+        'Chrome 버전 108부터 브라우저의 일부 변경으로 인해 다운로더가 WebM 비디오를 변환하지 못했습니다. <br>변환 기능이 수정되었습니다.',
+        'Начиная с Chrome версии 108, некоторые изменения в браузере приводили к тому, что загрузчик не мог конвертировать видео WebM. <br>Функция преобразования теперь исправлена.',
+    ],
+    _特定用户的多图作品不下载最后几张图片: [
+        '特定用户的多图作品不下载<span class="key">最后几张</span>图片',
+        '特定使用者的多圖作品不下載<span class="key">最後幾張</span>圖片',
+        `Don't download the <span class="key">last few</span> images for specific user's multi-image works`,
+        '特定のユーザーのマルチイメージ作品の最後のいくつかのイメージをダウンロードしないでください',
+        '특정 사용자의 다중 이미지 작품에 대한 마지막 몇 개의 이미지를 다운로드하지 마십시오.',
+        'Не загружайте несколько последних изображений для работы с несколькими изображениями конкретного пользователя.',
+    ],
+    _不下载最后几张图片: [
+        '不下载最后几张图片',
+        '不下載最後幾張圖片',
+        'Do not download the last few images',
+        '最後の数枚の画像をダウンロードしない',
+        '마지막 몇 개의 이미지를 다운로드하지 마십시오',
+        'Не загружайте последние несколько изображений',
+    ],
+    _提示0表示不生效: [
+        '0 表示不生效',
+        '0 表示不生效',
+        '0 means no effect',
+        '0 は影響なしを意味します',
+        '0은 영향이 없음을 의미합니다.',
+        '0 означает отсутствие эффекта',
+    ],
+    _如果作品含有某些标签则对这个作品使用另一种命名规则: [
+        '如果作品含有某些<span class="key">特定标签</span>，则对这个作品使用另一种命名规则',
+        '如果作品含有某些<span class="key">特定標籤</span>，則對這個作品使用另一種命名規則',
+        'Use a different naming rule for the work if it has certain tags',
+        '特定のタグがある場合は、作品に別の命名規則を使用する',
+        '특정 태그가 있는 경우 작업에 다른 명명 규칙을 사용하십시오.',
+        'Используйте другое правило именования для работы, если она имеет определенные теги',
+    ],
+    _升级到manifest_v3的提示: [
+        '下载器已升级到 Manifest V3。<br>如果你在下载时遇到问题，请打开扩展管理页面，重新加载本扩展。',
+        '下載器已升級到 Manifest V3。<br>如果你在下載時遇到問題，請開啟擴充套件管理頁面，重新載入本擴充套件。',
+        'Downloader has been upgraded to Manifest V3. <br>If you encounter problems when downloading, please open the extension management page and reload this extension.',
+        'Downloader が Manifest V3 にアップグレードされました。 <br>ダウンロード中に問題が発生した場合は、拡張機能の管理ページを開いて、この拡張機能をリロードしてください。',
+        '다운로더가 Manifest V3로 업그레이드되었습니다. <br>다운로드 시 문제가 발생하면 확장 프로그램 관리 페이지를 열고 이 확장 프로그램을 새로고침하세요.',
+        'Загрузчик обновлен до версии Manifest V3. <br>Если у вас возникли проблемы при загрузке, откройте страницу управления расширением и перезагрузите это расширение.',
+    ],
+    _AI作品: [
+        '<span class="key">AI</span> 作品',
+        '<span class="key">AI</span> 作品',
+        '<span class="key">AI</span> works',
+        '<span class="key">AI</span>が働く',
+        '<span class="key">AI</span> 작동',
+        '<span class="key">ИИ</span> работает',
+    ],
+    _AI生成: [
+        'AI 生成',
+        'AI 生成',
+        'AI-generated',
+        'AI 生成',
+        'AI 생성',
+        'сгенерированный ИИ',
+    ],
+    _非AI生成: [
+        '非 AI 生成',
+        '非 AI 生成',
+        'Not AI-generated',
+        'AI生成ではない',
+        'AI 생성 아님',
+        'Не сгенерировано ИИ',
+    ],
+    _未知: [
+        '未知',
+        '未知',
+        'Unknown',
+        '知らない',
+        '알려지지 않은',
+        'Неизвестный',
+    ],
+    _AI未知作品的说明: [
+        '早期作品没有标记，无法判断',
+        '早期作品沒有標記，無法判斷',
+        'Early works are not marked and cannot be judged',
+        '初期の作品は採点せず、審査不可',
+        '초기 작품은 표시되지 않으며 평가할 수 없습니다.',
+        'Ранние работы не отмечены и не могут быть оценены',
+    ],
+    _用户可以选择是否下载AI生成的作品: [
+        '用户可以选择是否下载由 AI 生成的作品。',
+        '使用者可以選擇是否下載由 AI 生成的作品。',
+        'Users can choose whether to download AI-generated works.',
+        'ユーザーは、AI によって生成された作品をダウンロードするかどうかを選択できます。',
+        '사용자는 AI가 생성한 작품을 다운로드할지 여부를 선택할 수 있습니다.',
+        'Пользователи могут выбирать, загружать ли работы, созданные ИИ.',
+    ],
+    _文件下载顺序: [
+        '文件下载<span class="key">顺序</span>',
+        '檔案下載<span class="key">順序</span>',
+        'File download <span class="key">order</span>',
+        'ファイルのダウンロード<span class="key">順序</span>',
+        '파일 다운로드 순서',
+        'Порядок загрузки файлов',
+    ],
+    _降序: [
+        '降序',
+        '降序',
+        'Descending',
+        '降順',
+        '내림차순',
+        'в порядке убывания',
+    ],
+    _升序: [
+        '升序',
+        '升序',
+        'Ascending',
+        '昇順',
+        '오름차순',
+        'возрастающий порядок',
+    ],
+    _排序依据: [
+        '排序依据',
+        '排序依據',
+        'Sort by',
+        'ソート基準',
+        '정렬 기준',
+        'Сортировать по',
+    ],
+    _作品ID: [
+        '作品 ID',
+        '作品 ID',
+        'Work ID',
+        '作品ID',
+        'ID 아이디',
+        'РРабочий идентификатор',
+    ],
+    _收藏时间: [
+        '收藏时间',
+        '收藏時間',
+        'Bookmark time',
+        'ブックマーク時間',
+        '북마크 시간',
+        'время сбора',
+    ],
+    _收藏数量2: [
+        '收藏数量',
+        '收藏數量',
+        'Number of bookmarks',
+        'ブックマークの数',
+        '북마크 수',
+        'Колличество закладок',
+    ],
+    _重新显示帮助: [
+        '重新显示帮助',
+        '重新顯示幫助',
+        'Redisplay help',
+        'ヘルプを再表示',
+        '도움말 다시 표시',
+        'Повторно отобразить справку',
+    ],
+    _自定义标签分隔符号的提示: [
+        '现在你可以自定义文件名中使用的标签分隔符号，以替换默认的 <span class="blue">,</span>。',
+        '現在你可以自定義檔名中使用的標籤分隔符號，以替換預設的 <span class="blue">,</span>。',
+        'You can now customize the tag separator used in filenames to replace the default <span class="blue">,</span>',
+        'ファイル名で使用されるタグ区切りをカスタマイズして、デフォルトの <span class="blue">,</span> を置き換えることができるようになりました',
+        '이제 파일 이름에 사용되는 태그 구분 기호를 사용자 지정하여 기본 <span class="blue">,</span>',
+        'Теперь вы можете настроить разделитель тегов, используемый в именах файлов, чтобы заменить используемый по умолчанию <span class="blue">,</span>',
+    ],
+    _高亮关注的用户: [
+        '<span class="key">高亮</span>关注的用户',
+        '<span class="key">高亮</span>關注的使用者',
+        '<span class="key">Highlight</span> following users',
+        'フォローしているユーザーを強調表示する',
+        '다음 사용자 <span class="key">강조표시</span>',
+        '<span class="key">Выделить</span> следующих пользователей',
+    ],
+    _高亮关注的用户的说明: [
+        '你关注（Following）的用户的名字会具有黄色背景，或者显示为黄色。<br>这便于你确认自己是否关注了某个用户。',
+        '你關注（Following）的使用者的名字會具有黃色背景，或者顯示為黃色。<br>這便於你確認自己是否關注了某個使用者。',
+        'The names of users you are following will have a yellow background, or be displayed in yellow. <br>This is convenient for you to confirm whether you follow a certain user.',
+        'フォローしているユーザーの名前は背景が黄色、または黄色で表示されます。 <br>特定のユーザーをフォローしているかどうかを確認するのに便利です。',
+        '팔로우하는 사용자의 이름은 노란색 배경으로 표시되거나 노란색으로 표시됩니다. <br>특정 사용자를 팔로우하고 있는지 확인할 때 편리합니다.',
+        'Имена пользователей, на которых вы подписаны, будут иметь желтый фон или отображаться желтым цветом. <br>Это удобно для вас, чтобы подтвердить, подписаны ли вы на определенного пользователя',
+    ],
+    _正在加载关注用户列表: [
+        '正在加载关注用户列表',
+        '正在載入關注使用者列表',
+        'Loading list of followed users',
+        'フォローしているユーザーのリストを読み込み中',
+        '팔로우한 사용자 목록 로드 중',
+        'Загрузка списка отслеживаемых пользователей',
+    ],
+    _已更新关注用户列表: [
+        '已更新关注用户列表',
+        '已更新關注使用者列表',
+        'The list of following users has been updated',
+        'フォローしているユーザーのリストが更新されました',
+        '다음 사용자 목록이 업데이트되었습니다',
+        'Список следующих пользователей обновлен',
+    ],
+    _Kiwi浏览器可能不能建立文件夹的bug: [
+        '如果你使用的是 Kiwi 浏览器，它可能不会建立文件夹。这是 Kiwi 浏览器的 bug。',
+        '如果你使用的是 Kiwi 瀏覽器，它可能不會建立資料夾。這是 Kiwi 瀏覽器的 bug。',
+        'If you are using the Kiwi browser, it may not create the folder. This is a bug in the Kiwi browser',
+        'Kiwi ブラウザを使用している場合、フォルダが作成されない場合があります。 これは Kiwi ブラウザのバグです。',
+        '키위 브라우저를 사용하는 경우 폴더가 생성되지 않을 수 있습니다. 이것은 Kiwi 브라우저의 버그입니다.',
+        'Если вы используете браузер Kiwi, он может не создать папку. Это баг браузера Киви.',
+    ],
+    _优化移动设备上的用户体验: [
+        '优化移动设备上的用户体验。',
+        '最佳化移動裝置上的使用者體驗。',
+        'Optimize user experience on mobile devices.',
+        'モバイルデバイスでのユーザーエクスペリエンスを最適化します。',
+        '모바일 장치에서 사용자 경험을 최적화합니다.',
+        'Оптимизируйте взаимодействие с пользователем на мобильных устройствах.',
+    ],
+    _导出CSV文件的提示: [
+        'CSV 文件的可读性更好，但它不能用于恢复（导入）抓取结果。',
+        'CSV 檔案的可讀性更好，但它不能用於恢復（匯入）抓取結果。',
+        'A CSV file is more readable, but it cannot be used to restore (import) crawl results.',
+        'CSV ファイルは読みやすいですが、クロール結果の復元 (インポート) には使用できません。',
+        'CSV 파일은 더 읽기 쉽지만 크롤링 결과를 복원(가져오기)하는 데 사용할 수 없습니다.',
+        'CSV-файл более удобен для чтения, но его нельзя использовать для восстановления (импорта) результатов сканирования.',
+    ],
+    _批量收藏作品时减慢速度: [
+        '批量收藏作品时减慢速度，以减少 429 错误发生的概率',
+        '批量收藏作品时减慢速度，以减少 429 错误发生的概率',
+        'Slow down when batch bookmarking works to reduce chance of 429 errors',
+        'バッチブックマークが機能すると、429 エラーの可能性を減らすために速度が低下します。',
+        '429 오류 가능성을 줄이기 위해 일괄 북마크가 작동할 때 속도를 늦춥니다.',
+        'Замедлите работу, когда пакетная закладка работает, чтобы уменьшить вероятность ошибки 429',
+    ],
+    _停止抓取: [
+        '停止抓取',
+        '停止擷取',
+        'Stop crawling',
+        'クロールをやめる',
+        '크롤링 중지',
+        'Остановить сканирование',
+    ],
+    _已停止抓取: [
+        '已停止抓取',
+        '已停止擷取',
+        'Crawl stopped',
+        'クロールを停止しました',
+        '크롤링 중지됨',
+        'Сканирование остановлено',
+    ],
+    _导入ID列表: [
+        '导入 ID 列表',
+        '匯入 ID 列表',
+        'Import ID list',
+        'インポートIDリスト',
+        'ID 목록 가져오기',
+        'Список идентификаторов импорта',
+    ],
+    _导出ID列表: [
+        '获取作品 ID 列表后导出 <span class="key">ID 列表</span>，并停止任务',
+        '獲取作品 ID 列表後匯出 <span class="key">ID 列表</span>，並停止任務',
+        'After obtaining the work ID list, export the <span class="key">ID list</span> and stop the task',
+        'ワークIDリストを取得後、IDリストをエクスポートしてタスクを停止する',
+        '작업 ID 목록을 가져온 후 ID 목록을 내보내고 작업을 중지합니다',
+        'После получения списка идентификаторов работ экспортируйте список идентификаторов и остановите задачу',
+    ],
+    _导入的用户ID数量: [
+        '导入的用户 ID 数量：',
+        '匯入的使用者 ID 數量：',
+        'Number of user IDs imported: ',
+        'インポートされたユーザー ID の数: ',
+        '가져온 사용자 ID 수: ',
+        'Количество импортированных идентификаторов пользователей:',
+    ],
+    _任务已中止: [
+        '任务已中止',
+        '任務已中止',
+        'task aborted',
+        'タスクが中止されました',
+        '작업이 중단됨',
+        'задача прервана',
+    ],
+    _新增的关注用户达到每日限制: [
+        '新增的关注用户数量达到 {}， 下载器已中止任务，以免你的账号被 Pixiv 限制。<br>建议明天再执行此任务。',
+        '新增的關注使用者數量達到 {}， 下載器已中止任務，以免你的賬號被 Pixiv 限制。<br>建議明天再執行此任務。',
+        'The number of newly added followers has reached {}, the downloader has stopped the task to prevent your account from being restricted by Pixiv. <br>It is recommended to perform this task again tomorrow.',
+        '新しく追加されたフォロワーの数が {} に達しました。あなたのアカウントが Pixiv によって制限されるのを防ぐために、ダウンローダーはタスクを停止しました。 <br>このタスクは明日もう一度実行することをお勧めします。',
+        '새로 추가된 팔로워 수가 {}에 도달했습니다. 다운로더가 작업을 중지하여 Pixiv에서 귀하의 계정을 제한하지 않도록 했습니다. <br>내일 이 작업을 다시 수행하는 것이 좋습니다.',
+        'Количество новых подписчиков достигло {}, загрузчик остановил задачу, чтобы предотвратить ограничение вашей учетной записи Pixiv. <br>Рекомендуется повторить это задание завтра.',
+    ],
+    _没有找到关注按钮的提示: [
+        '跳过关注用户 {} 因为没有找到关注按钮。你可以手动关注此用户。再次执行此任务有可能解决此问题。',
+        '跳過關注使用者 {} 因為沒有找到關注按鈕。你可以手動關注此使用者。再次執行此任務有可能解決此問題。',
+        'Skip following user {} because no follow button was found. You can follow this user manually. Performing this task again may resolve the issue.',
+        'フォロー ボタンが見つからなかったため、ユーザー {} のフォローをスキップします。このユーザーを手動でフォローできます。 このタスクを再度実行すると、問題が解決される可能性があります。',
+        '팔로우 버튼을 찾을 수 없으므로 사용자 {} 팔로우를 건너뜁니다. 이 사용자를 수동으로 팔로우할 수 있습니다. 이 작업을 다시 수행하면 문제가 해결될 수 있습니다.',
+        'Пропустить подписку на пользователя {}, поскольку кнопка подписки не найдена. Вы можете подписаться на этого пользователя вручную. Повторное выполнение этой задачи может решить проблему.',
+    ],
+    _你的账号已经被Pixiv限制: [
+        '你的账号已经被 Pixiv 限制',
+        '你的賬號已經被 Pixiv 限制',
+        'Your account has been restricted by Pixiv',
+        'あなたのアカウントはPixivによって制限されています',
+        '귀하의 계정은 Pixiv에 의해 제한되었습니다.',
+        'Ваша учетная запись была ограничена Pixiv',
+    ],
+    _模拟用户点击: [
+        '下载器发送的 API 返回 400 错误（需要 recaptcha enterprise score token），切换到模拟用户点击的方式，这会使用较多的硬件资源。',
+        '下載器傳送的 API 返回 400 錯誤（需要 recaptcha enterprise score token），切換到模擬使用者點選的方式，這會使用較多的硬體資源。',
+        'The API sent by the downloader returns a 400 error (recaptcha enterprise score token is required), and switches to the method of simulating user clicks, which will use more hardware resources.',
+        'ダウンローダーによって送信された API は 400 エラー (recaptcha enterprise score token が必要です) を返し、より多くのハードウェア リソースを使用するユーザーのクリックをシミュレートする方法に切り替わります。',
+        '다운로더가 보낸 API는 400 오류(recaptcha enterprise score token 필요)를 반환하고 더 많은 하드웨어 리소스를 사용하는 사용자 클릭 시뮬레이션 방법으로 전환합니다.',
+        'API, отправленный загрузчиком, возвращает ошибку 400 (требуется recaptcha enterprise score token) и переключается на метод имитации пользовательских кликов, который будет использовать больше аппаратных ресурсов.',
+    ],
+    _提示可以重新执行批量关注任务: [
+        '如果该标签页失去响应，或者关注的用户有遗漏，请关闭标签页，再重新打开，重新执行此任务。',
+        '如果該標籤頁失去響應，或者關注的使用者有遺漏，請關閉標籤頁，再重新開啟，重新執行此任務。',
+        'If the tab becomes unresponsive, or if you miss a follower, close the tab, reopen it, and redo the task.',
+        'タブが応答しなくなった場合、またはフォロワーを見逃した場合は、タブを閉じて再度開き、タスクをやり直してください。',
+        '탭이 응답하지 않거나 팔로어를 놓친 경우 탭을 닫았다가 다시 열고 작업을 다시 실행하십시오.',
+        'Если вкладка перестает отвечать на запросы или вы пропустили подписчика, закройте вкладку, снова откройте ее и повторите задачу.',
+    ],
+    _新增x个: [
+        '新增 {} 个',
+        '新增 {} 個',
+        'Added {}',
+        '追加した {}',
+        '추가됨 {}',
+        'Добавлен {}',
+    ],
+    _优化批量关注用户的功能: [
+        '优化批量关注用户的功能',
+        '最佳化批次關注使用者的功能',
+        'Optimize the function of following users in batches',
+        'ユーザーの一括フォロー機能を最適化',
+        '사용자 일괄 팔로우 기능 최적화',
+        'Оптимизируйте функцию подписки на пользователей в пакетном режиме.',
+    ],
+    _修复了显示更大的缩略图失效的问题: [
+        '修复了“显示更大的缩略图”失效的问题',
+        '修復了“顯示更大的縮圖”失效的問題',
+        'Fixed an issue where "Show Larger Thumbnails" didn\'t work',
+        '「大きなサムネイルを表示」が機能しない問題を修正しました',
+        '"큰 축소판 보기"가 작동하지 않는 문제를 수정했습니다.',
+        'Исправлена ​​ошибка, из-за которой не работал параметр «Показать увеличенные эскизы».',
+    ],
+    _可能发生了错误请刷新页面重试: [
+        '可能发生了错误。<br>如果下载进度卡住，请刷新页面重试，或者重启浏览器。',
+        '可能發生了錯誤。<br>如果下載進度卡住，請重新整理頁面重試，或者重啟瀏覽器。',
+        'An error may have occurred. <br>If the download progress is stuck, please refresh the page and try again, or restart the browser.',
+        'エラーが発生した可能性があります。 <br>ダウンロードの進行が進まない場合は、ページを更新して再試行するか、ブラウザを再起動してください。',
+        '오류가 발생했을 수 있습니다. <br>다운로드 진행이 중단되면 페이지를 새로 고친 후 다시 시도하거나 브라우저를 다시 시작하세요.',
+        'Возможно, произошла ошибка. <br>Если процесс загрузки завис, обновите страницу и повторите попытку или перезапустите браузер.',
+    ],
+    _在多图作品页面里显示缩略图列表: [
+        '在多图作品页面里显示<span class="key">缩略图</span>列表',
+        '在多圖作品頁面裡顯示<span class="key">縮圖</span>列表',
+        'In the multi-image work page, display the <span class="key">thumbnail</span> list',
+        '複数画像作品ページでサムネイル一覧を表示',
+        '멀티 이미지 작품 페이지에서 썸네일 목록을 표시',
+        'На рабочей странице с несколькими изображениями отобразите список эскизов',
+    ],
+    _提交: ['提交', '提交', 'Submit', '提出する', '제출하다', 'Подавать'],
+    _已导出被删除的作品的ID列表: [
+        '已导出被删除的作品的 ID 列表',
+        '已匯出被刪除的作品的 ID 列表',
+        'List of IDs of deleted works exported',
+        'エクスポートされた削除作品のID一覧',
+        '내보낸 삭제된 작품의 ID 목록',
+        'Список идентификаторов удаленных работ экспортирован',
+    ],
+    _在收藏页面里提示有辅助功能可用: [
+        '在你的收藏页面里，下载器的“更多”标签页里有一些功能可以帮助管理你的收藏。',
+        '在你的收藏頁面裡，下載器的“更多”標籤頁裡有一些功能可以幫助管理你的收藏。',
+        `On your bookmarks page, the Downloader's "More" tab has some features to help you manage your bookmarks.`,
+        'ブックマーク ページのダウンローダーの [その他] タブには、ブックマークの管理に役立つ機能がいくつかあります。',
+        '북마크 페이지에서 다운로더의 "더보기" 탭에는 북마크를 관리하는 데 도움이 되는 몇 가지 기능이 있습니다.',
+        'На странице закладок на вкладке «Дополнительно» Downloader есть некоторые функции, которые помогут вам управлять своими закладками.',
+    ],
+    _预览作品的详细信息: [
+        '预览作品的<span class="key">详细</span>信息',
+        '預覽作品時的<span class="key">詳細</span>資料',
+        'Preview the <span class="key">details</span> of the work',
+        'プレビュー作品の詳細です',
+        '작품의 상세한 정보를 미리보다',
+        'Подробности предварительного показа',
+    ],
+    _预览作品的详细信息的说明: [
+        '鼠标放在作品缩略图上即可查看作品数据',
+        '滑鼠放在作品縮圖上即可檢視作品資料',
+        'Mouse over the thumbnail of the work to view the work data',
+        '作品のサムネイルにマウスをかざすだけで作品データを見ることができます',
+        '마우스를 작품 썸네일 위에 놓으면 작품 데이터를 볼 수 있다',
+        'Данные о работе можно увидеть с помощью мыши на сокращённом графике',
+    ],
+    _显示区域宽度: [
+        '显示区域宽度',
+        '顯示區域寬度',
+        'Display area width',
+        '表示領域幅です',
+        '영역 너비 보이기',
+        'Покажи ширину зоны',
+    ],
+    _写入剪贴板失败: [
+        '写入剪贴板失败',
+        '寫入剪貼簿失敗',
+        'Writing to clipboard failed',
+        'クリップボードへの書き込みに失敗しました',
+        '클립보드에 쓰지 못했습니다.',
+        'Запись в буфер обмена не удалась',
+    ],
+    _在搜索页面里移除已关注用户的作品: [
+        '在搜索页面里<span class="key">移除</span>已关注用户的作品',
+        '在搜尋頁面裡<span class="key">移除</span>已關注使用者的作品',
+        '<span class="key">Remove</span> the works of followed users from the search page',
+        'フォローしているユーザーの作品を検索ページから削除します',
+        '검색 페이지에서 팔로우한 사용자의 작품을 제거합니다.',
+        'Удалить работы подписавшихся пользователей со страницы поиска',
+    ],
+    _在搜索页面里移除已关注用户的作品的说明: [
+        '这样只会显示未关注用户的作品，便于你发现新的喜欢的用户。<br>只在搜索页面里生效。',
+        '這樣只會顯示未關注使用者的作品，便於你發現新的喜歡的使用者。<br>只在搜尋頁面裡生效。',
+        'This will only display the works of unfollowed users, making it easier for you to discover new users you like.<br>Only takes effect on the search page.',
+        'フォローを解除しているユーザーの作品のみが表示されるので、新たに好みのユーザーを見つけやすくなります。<br>検索ページでのみ有効です。',
+        '팔로우하지 않은 사용자의 작품만 표시되므로 마음에 드는 새로운 사용자를 더 쉽게 찾을 수 있습니다.<br>검색 페이지에만 적용됩니다.',
+        'При этом будут отображаться только работы пользователей, на которых вы не подписаны, что облегчит вам поиск новых пользователей, которые вам нравятся.<br>Действует только на странице поиска.',
+    ],
+    _使用方向键和空格键切换图片: [
+        '使用方向键和空格键切换图片',
+        '使用方向鍵和空格鍵切換圖片',
+        'Use the arrow keys and space bar to switch images',
+        '矢印キーとスペースバーを使用して画像を切り替えます',
+        '이미지를 전환하려면 화살표 키와 스페이스바를 사용하세요.',
+        'Используйте клавиши со стрелками и пробел для переключения изображений.',
+    ],
+    _使用方向键和空格键切换图片的提示: [
+        '← ↑ 上一张图片<br>→ ↓ 下一张图片<br>空格键 下一张图片',
+        '← ↑ 上一張圖片<br>→ ↓ 下一張圖片<br>空格鍵 下一張圖片',
+        '← ↑ Previous image<br>→ ↓ Next image<br>Spacebar Next image',
+        '← ↑ 前の画像<br>→ ↓ 次の画像<br>スペースバー 次の画像',
+        '← ↑ 이전 이미지<br>→ ↓ 다음 이미지<br>스페이스바 다음 이미지',
+        '← ↑ Предыдущее изображение<br>→ ↓ Следующее изображение<br>Пробел Следующее изображение',
+    ],
+    _快捷键列表: [
+        '快捷键列表',
+        '快捷鍵列表',
+        'Shortcut list',
+        'ショートカットリスト',
+        '바로가기 목록',
+        'Список ярлыков',
+    ],
+    _预览作品的快捷键说明: [
+        `<span class="blue">Alt</span> + <span class="blue">P</span> 关闭/启用预览作品功能<br>
+    当你查看预览图时，可以使用如下快捷键：<br>
+    <span class="blue">B</span>(ookmark) 收藏预览的作品<br>
+    <span class="blue">C</span>(urrent) 下载当前预览的图片<br>
+    <span class="blue">D</span>(ownload) 下载当前预览的作品<br>
+    <span class="blue">Esc</span> 关闭预览图<br>
+    <span class="blue">← ↑</span> 上一张图片<br>
+    <span class="blue">→ ↓</span> 下一张图片<br>
+    <span class="blue">空格键</span> 下一张图片`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> 關閉/啟用預覽作品功能<br>
+    當你檢視預覽圖時，可以使用如下快捷鍵：<br>
+    <span class="blue">B</span>(ookmark) 收藏預覽的作品<br>
+    <span class="blue">C</span>(urrent) 下載當前預覽的圖片<br>
+    <span class="blue">D</span>(ownload) 下載當前預覽的作品<br>
+    <span class="blue">Esc</span> 關閉預覽圖<br>
+    <span class="blue">← ↑</span> 上一張圖片<br>
+    <span class="blue">→ ↓</span> 下一張圖片<br>
+    <span class="blue">空格鍵</span> 下一張圖片`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> Turn off/enable the preview function<br>
+    When you view the preview, you can use the following shortcut keys:<br>
+    <span class="blue">B</span>(ookmark) Bookmark previewed work<br>
+    <span class="blue">C</span>(urrent) Download the currently previewed image<br>
+    <span class="blue">D</span>(download) Download the currently previewed work<br>
+    <span class="blue">Esc</span> Close preview<br>
+    <span class="blue">← ↑</span> Previous image<br>
+    <span class="blue">→ ↓</span> Next image<br>
+    <span class="blue">Space bar</span> Next image`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> プレビュー機能をオフ/有効にします<br>
+    プレビューを表示するときは、次のショートカット キーを使用できます。<br>
+    <span class="blue">B</span>(ookmark) プレビューした作品をブックマークします<br>
+    <span class="blue">C</span>(urrent) 現在プレビューされている画像をダウンロードします<br>
+    <span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロードします<br>
+    <span class="blue">Esc</span> プレビューを閉じる<br>
+    <span class="blue">← ↑</span> 前の画像<br>
+    <span class="blue">→ ↓</span> 次の画像<br>
+    <span class="blue">スペースバー</span> 次の画像`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> 미리보기 기능 끄기/활성화<br>
+    미리보기를 볼 때 다음 단축키를 사용할 수 있습니다.<br>
+    <span class="blue">B</span>(ookmark) 북마크 미리보기 작업<br>
+    <span class="blue">C</span>(urrent) 현재 미리보기 이미지 다운로드<br>
+    <span class="blue">D</span>(ownload) 현재 미리보기된 작품 다운로드<br>
+    <span class="blue">Esc</span> 미리보기 닫기<br>
+    <span class="blue">← ↑</span> 이전 이미지<br>
+    <span class="blue">→ ↓</span> 다음 이미지<br>
+    <span class="blue">스페이스바</span> 다음 이미지`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> Выключить/включить функцию предварительного просмотра<br>
+    При предварительном просмотре вы можете использовать следующие сочетания клавиш:<br>
+    <span class="blue">B</span>(ookmark) Добавить в закладки предварительно просмотренную работу<br>
+    <span class="blue">C</span>(urrent) Загрузите просматриваемое в данный момент изображение<br>
+    <span class="blue">D</span>(ownload) Загрузите просматриваемую в данный момент работу<br>
+    <span class="blue">Esc</span> Закрыть предварительный просмотр<br>
+    <span class="blue"> ← ↑</span> Предыдущее изображение<br>
+    <span class="blue">→ ↓</span> Следующее изображение<br>
+    <span class="blue">Пробел</span> Следующее изображение`,
+    ],
+    _导出收藏列表: [
+        '导出收藏列表（JSON）',
+        '匯出收藏列表（JSON）',
+        'Export bookmark list（JSON）',
+        'ブックマークリストをエクスポートする（JSON）',
+        '북마크 목록 내보내기（JSON）',
+        'Экспортировать список закладок（JSON）',
+    ],
+    _导入收藏列表: [
+        '导入收藏列表（批量添加收藏）',
+        '匯入收藏列表（批次新增收藏）',
+        'Import bookmark list (add bookmarks in batches)',
+        'ブックマークリストをインポート（ブックマークを一括追加）',
+        '북마크 목록 가져오기(북마크 일괄 추가)',
+        'Импортировать список закладок (добавлять закладки пакетно)',
+    ],
+    _同步收藏列表的说明: [
+        '你可以导出自己或其他用户的收藏列表，然后批量添加收藏。<br>这可以用来拷贝其他用户的收藏列表。<br>另外，如果你有多个 Pixiv 账号，想要同步它们的收藏列表，可以先导出一个账号的收藏列表，然后使用其他账号导入收藏列表。<br><br>当你处于自己或其他人的书签页面里时，可以在下载器的“更多”分类里找到此功能。',
+        '你可以匯出自己或其他使用者的收藏列表，然後批次新增收藏。<br>這可以用來複製其他使用者的收藏列表。<br>另外，如果你有多個 Pixiv 賬號，想要同步它們的收藏列表，可以先匯出一個賬號的收藏列表，然後使用其他賬號匯入收藏列表。<br><br>當你處於自己或其他人的書籤頁面裡時，可以在下載器的“更多”分類裡找到此功能。',
+        `You can export your own or other users' bookmark lists and then add bookmarks in batches. <br>This can be used to copy another user's bookmark list. <br>In addition, if you have multiple Pixiv accounts and want to synchronize their bookmark lists, you can first export the bookmark list of one account, and then use other accounts to import the bookmark list.<br><br>This feature can be found in the "More" category of the downloader when you are on your own or someone else's bookmark page.`,
+        '自分や他のユーザーのブックマークリストをエクスポートして、一括でブックマークを追加できます。<br>他のユーザーのブックマークリストをコピーすることもできます。<br>また、複数のPixivアカウントを持っていて、ブックマークを同期したい場合にも使用できます。リストの場合、最初に 1 つのアカウントのブックマーク リストをエクスポートし、次に他のアカウントを使用してブックマーク リストをインポートできます。<br><br>この機能は、自分または他の人のブックマーク ページにいるときに、ダウンローダーの「その他」カテゴリにあります。',
+        '자신 또는 다른 사용자의 북마크 목록을 내보낸 후 일괄적으로 북마크를 추가할 수 있습니다.<br>이는 다른 사용자의 북마크 목록을 복사하는 데 사용할 수 있습니다.<br>또한 Pixiv 계정이 여러 개 있고 북마크를 동기화하려는 경우 목록의 경우 먼저 한 계정의 북마크 목록을 내보낸 다음 다른 계정을 사용하여 북마크 목록을 가져올 수 있습니다.<br><br>이 기능은 자신이나 다른 사람의 북마크 페이지에 있을 때 다운로더의 "더 보기" 카테고리에서 찾을 수 있습니다.',
+        'Вы можете экспортировать свои списки закладок или списки закладок других пользователей, а затем добавлять закладки в пакетном режиме. <br>Это можно использовать для копирования списка закладок другого пользователя. <br>Кроме того, если у вас есть несколько учетных записей Pixiv и вы хотите синхронизировать их закладки списки, вы можете сначала экспортировать список закладок одной учетной записи, а затем использовать другие учетные записи для импорта списка закладок.<br><br>Эту функцию можно найти в категории «Дополнительно» загрузчика, когда вы находитесь на своей или чужой странице закладок.',
+    ],
+    _加载收藏列表: [
+        '正在加载你的收藏列表，以避免重复添加收藏',
+        '正在載入你的收藏列表，以避免重複新增收藏',
+        'Loading your bookmark list to avoid duplicate bookmarks',
+        'ブックマークの重複を避けるためにブックマーク リストをロードする',
+        '중복 북마크를 방지하기 위해 북마크 목록 로드 중',
+        'Загрузка списка закладок, чтобы избежать дублирования закладок',
+    ],
+    _一共有x个: [
+        '一共有 {} 个',
+        '一共有 {} 個',
+        'There are {} in total',
+        '合計 {} 個あります',
+        '총 {}개가 있습니다.',
+        'Всего {}',
+    ],
+    _跳过x个: [
+        '跳过了 {} 个已存在的收藏',
+        '跳過了 {} 個已存在的收藏',
+        '{} existing bookmarks skipped',
+        '{} 個の既存のブックマークがスキップされました',
+        '{}개의 기존 북마크를 건너뛰었습니다.',
+        '{} существующих закладок пропущено',
+    ],
+    _保存作品的简介: [
+        '保存作品<span class="key">简介</span>',
+        '儲存作品<span class="key">說明</span>',
+        'Save work <span class="key">description</span>',
+        '作品<span class="key">説明</span>の保存',
+        '작품 설명 저장',
+        'Сохранить описание работы',
+    ],
+    _保存作品的简介2: [
+        '保存作品简介',
+        '儲存作品說明',
+        'Save work description',
+        '作品説明の保存',
+        '작품 설명 저장',
+        'Сохранить описание работы',
+    ],
+    _保存作品简介的说明: [
+        '生成 TXT 文件保存作品简介',
+        '生成 TXT 檔案儲存作品說明',
+        'Create a TXT file to save the work description',
+        '作業説明を保存するためのTXTファイルを作成します。',
+        '작업 설명을 저장하려면 TXT 파일을 만드세요.',
+        'Создайте файл TXT для сохранения описания работы.',
+    ],
+    _简介: ['简介', '說明', 'description', '説明', '설명', 'описание'],
+    _简介汇总: [
+        '简介汇总',
+        '說明彙總',
+        'description summary',
+        '説明の概要',
+        '설명 요약',
+        'краткое описание',
+    ],
+    _每个作品分别保存: [
+        '每个作品分别保存',
+        '每個作品分別儲存',
+        'Save each work separately',
+        '作品ごとに分けて保存する',
+        '각 작품을 별도로 저장',
+        'Сохраняйте каждую работу отдельно',
+    ],
+    _简介的Links标记: [
+        `如果作品简介里含有超链接，下载器会在文件名末尾添加 'links' 标记`,
+        `如果作品說明裡含有超連結，下載器會在檔名末尾新增 'links' 標記`,
+        `If the work description contains hyperlinks, the downloader will add a 'links' tag at the end of the file name`,
+        `作品の説明にハイパーリンクが含まれている場合、ダウンローダーはファイル名の末尾に「links」タグを追加します。`,
+        `작업 설명에 하이퍼링크가 포함된 경우 다운로더는 파일 이름 끝에 'links' 태그를 추가합니다.`,
+        `Если описание работы содержит гиперссылки, загрузчик добавит тег «links» в конце имени файла.`,
+    ],
+    _汇总到一个文件: [
+        '汇总到一个文件',
+        '彙總到一個檔案',
+        'Summarize to one file',
+        '1つのファイルにまとめる',
+        '하나의 파일로 요약',
+        'Свести в один файл',
+    ],
+    _后续作品低于最低收藏数量要求跳过后续作品: [
+        '检测到后续作品的收藏数量低于用户设置的数字，跳过后续作品',
+        '檢測到後續作品的收藏數量低於使用者設定的數字，跳過後續作品',
+        'It is detected that the number of bookmarks of subsequent works is lower than the number set by the user, and subsequent works are skipped.',
+        '以降の作品のブックマーク数がユーザーが設定した数よりも少ないことを検出し、以降の作品をスキップする。',
+        '후속 작품의 북마크 수가 사용자가 설정한 수보다 적은 것으로 감지되어 후속 작품을 건너뜁니다.',
+        'Обнаружено, что количество закладок последующих произведений меньше количества, установленного пользователем, и последующие произведения пропускаются.',
+    ],
+    _间隔时间: [
+        '间隔时间：',
+        '間隔時間：',
+        'Interval time:',
+        'インターバル時間：',
+        '간격 시간:',
+        'Интервал времени:',
+    ],
+    _已有抓取结果时进行提醒: [
+        '这个标签页里已经有抓取结果了，重新开始抓取会清空这些抓取结果。\n请确认是否要重新开始抓取？',
+        '這個標籤頁裡已經有抓取結果了，重新開始抓取會清空這些抓取結果。\n請確認是否要重新開始抓取？',
+        'There are already crawl results on this tab. Restarting the crawl will clear these crawl results. \nPlease confirm that you want to restart the crawl?',
+        'このタブにはすでにクロール結果があります。クロールを再開すると、これらのクロール結果は消去されます。 \nクロールを再開するかどうかを確認してください?',
+        '이 탭에는 이미 크롤링 결과가 있습니다. 크롤링을 다시 시작하면 크롤링 결과가 지워집니다. \n크롤링을 다시 시작할 것인지 확인해주세요.',
+        'На этой вкладке уже есть результаты сканирования. При перезапуске сканирования эти результаты будут удалены. \nПодтвердите, хотите ли вы возобновить сканирование?',
+    ],
+    _下载间隔: [
+        '下载<span class="key">间隔</span>',
+        '下載<span class="key">間隔</span>',
+        'Download <span class="key">interval</span>',
+        'ダウンロード<span class="key">間隔</span>',
+        '다운로드 <span class="key">간격</span>',
+        '<span class="key">Интервал</span> загрузки',
+    ],
+    _秒: ['秒', '秒', 'seconds', '秒', '초', 'секунд'],
+    _下载间隔的说明: [
+        `每隔一定时间开始一次下载。<br>
+默认值为 0，即无限制。<br>
+如果设置为 1 秒钟，那么每小时最多会从 Pixiv 下载 3600 个文件。<br>
+如果你担心因为下载文件太频繁导致账号被 Ban，可以设置大于 0 的数字，以缓解此问题。<br>`,
+        `每隔一定時間開始一次下載。<br>
+預設值為 0，即無限制。<br>
+如果設定為 1 秒鐘，那麼每小時最多會從 Pixiv 下載 3600 個檔案。<br>
+如果你擔心因為下載檔案太頻繁導致賬號被 Ban，可以設定大於 0 的數字，以緩解此問題。<br>`,
+        `Start a download every certain time. <br>
+The default value is 0, which means no limit. <br>
+If set to 1 second, a maximum of 3,600 files will be downloaded from Pixiv per hour. <br>
+If you are worried that your account will be banned due to downloading files too frequently, you can set a number greater than 0 to alleviate this problem. <br>`,
+        `一定時間ごとにダウンロードを開始します。<br>
+デフォルト値は 0 で、制限なしを意味します。<br>
+1 秒に設定すると、Pixiv から 1 時間あたり最大 3,600 ファイルがダウンロードされます。<br>
+頻繁にファイルをダウンロードしすぎてアカウントが禁止されるのではないかと心配な場合は、0 より大きい数値を設定することでこの問題を軽減できます。<br>`,
+        `특정 시간마다 다운로드를 시작합니다. <br>
+기본값은 0으로, 제한이 없음을 의미합니다. <br>
+1초로 설정하면 Pixiv에서 시간당 최대 3,600개의 파일이 다운로드됩니다. <br>
+파일을 너무 자주 다운로드해서 계정이 금지될까 걱정된다면 0보다 큰 숫자를 설정하여 이 문제를 완화할 수 있습니다. <br>`,
+        `Начинать загрузку каждый определенный момент времени. <br>
+Значение по умолчанию — 0, что означает отсутствие ограничений. <br>
+Если установлено значение 1 секунда, с Pixiv будет загружено максимум 3600 файлов в час. <br>
+Если вы беспокоитесь, что ваш аккаунт будет заблокирован из-за слишком частой загрузки файлов, вы можете установить число больше 0, чтобы решить эту проблему. <br>`,
+    ],
+    _更新说明v1714: [
+        '修复了发现（discovery）页面里的一些问题',
+        '修復了發現（discovery）頁面裡的一些問題',
+        'Fixed some issues in the discovery page',
+        '発見ページのいくつかの問題を修正しました',
+        '검색 페이지의 일부 문제를 수정했습니다.（discovery page）',
+        'Исправлены некоторые проблемы на странице открытий.',
+    ],
+    _从页面上移除他们的作品: [
+        '从页面上移除他们的作品',
+        '從頁面上移除他們的作品',
+        'Remove their work from the page',
+        'ページから作品を削除する',
+        '페이지에서 해당 작업을 제거합니다.',
+        'Удалить их работу со страницы',
+    ],
+    _移除了用户xxx的作品: [
+        '移除了用户 {} 的作品',
+        '移除了使用者 {} 的作品',
+        'Removed work from user {}',
+        'ユーザー {} の作品を削除しました',
+        '사용자 {} 의 작업이 제거되었습니다.',
+        'Удалена работа пользователя {}',
+    ],
+    _用户阻止名单的说明2: [
+        `下载器不会抓取“用户阻止名单”里的用户的作品，而且还可以从页面上移除他们的作品，这样你就不会看到不喜欢的用户的作品了。<br>
+PS：在被阻止的用户的主页里不会移除他们的作品，所以你可以正常查看他们的主页。`,
+        `下載器不會抓取“使用者阻止名單”裡的使用者的作品，而且還可以從頁面上移除他們的作品，這樣你就不會看到不喜歡的使用者的作品了。<br>
+PS：在被阻止的使用者的主頁裡不會移除他們的作品，所以你可以正常檢視他們的主頁。`,
+        `The downloader will not crawl the works of users in the "user block list", and can also remove their works from the page, so you won't see the works of users you don't like. <br>
+PS: The works of blocked users will not be removed from their homepages, so you can view their homepages normally.`,
+        `ダウンローダーは「ユーザーブロックリスト」内のユーザーの作品をクロールしません。また、ページから作品を削除することもできます。そのため、気に入らないユーザーの作品は表示されません。<br>
+追記：ブロックされたユーザーの作品はホームページから削除されないため、通常どおりホームページを閲覧できます。`,
+        `다운로더는 "사용자 차단 목록"에 있는 사용자의 작품을 크롤링하지 않으며, 페이지에서 해당 작품을 제거할 수도 있으므로 마음에 들지 않는 사용자의 작품은 볼 수 없습니다. <br>
+PS: 차단된 사용자의 작품은 홈페이지에서 제거되지 않으므로, 해당 홈페이지를 정상적으로 볼 수 있습니다.`,
+        `Загрузчик не будет сканировать работы пользователей из «списка заблокированных пользователей», а также может удалить их работы со страницы, так что вы не увидите работы пользователей, которые вам не нравятся. <br>
+P.S. Работы заблокированных пользователей не будут удалены с их домашних страниц, так что вы сможете просматривать их домашние страницы как обычно.`,
+    ],
+    _移除用户阻止名单里的用户的作品: [
+        '移除“用户阻止名单”里的用户的作品',
+        '移除“使用者阻止名單”裡的使用者的作品',
+        'Remove works from users in the "User Blocklist"',
+        '「ユーザーブロックリスト」のユーザーから作品を削除する',
+        '"사용자 차단 목록"에 있는 사용자의 작품을 제거합니다.',
+        'Удалить работы пользователей из «Черного списка пользователей»',
+    ],
+};
 
 
 
@@ -25954,8 +26712,8 @@ class BookmarksAddTag {
         let errorFlag = false;
         // 发起请求
         const [showData, hideData] = await Promise.all([
-            _API__WEBPACK_IMPORTED_MODULE_0__.API.getBookmarkData(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getUserId(), this.type, '未分類', offset, false),
-            _API__WEBPACK_IMPORTED_MODULE_0__.API.getBookmarkData(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getUserId(), this.type, '未分類', offset, true),
+            _API__WEBPACK_IMPORTED_MODULE_0__.API.getBookmarkData(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getCurrentPageUserID(), this.type, '未分類', offset, false),
+            _API__WEBPACK_IMPORTED_MODULE_0__.API.getBookmarkData(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getCurrentPageUserID(), this.type, '未分類', offset, true),
         ]).catch((error) => {
             if (error.status && error.status === 403) {
                 this.btn.textContent = `× Permission denied`;
@@ -26329,6 +27087,7 @@ class DisplayThumbnailListOnMultiImageWorkPage {
             return;
         }
         // 把缩略图列表添加到页面上
+        this.remove();
         const viewer = new _ImageViewer__WEBPACK_IMPORTED_MODULE_5__.ImageViewer({
             workId: _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getIllustId(),
             imageNumber: 2,
@@ -26828,7 +27587,7 @@ class SaveAvatarIcon {
         });
     }
     async saveAvatarIcon() {
-        const userId = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getUserId();
+        const userId = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getCurrentPageUserID();
         const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getUserProfile(userId);
         const bigImg = userProfile.body.imageBig; // imageBig 并不是头像原图，而是裁剪成 170 px 的尺寸
         const fullSizeImg = bigImg.replace('_170', ''); // 去掉 170 标记，获取头像图片的原图
@@ -26887,7 +27646,7 @@ class SaveAvatarImage {
         });
     }
     async saveAvatarImage() {
-        const userId = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getUserId();
+        const userId = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getCurrentPageUserID();
         const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getUserProfile(userId);
         const imageURL = userProfile.body.imageBig;
         // 提取图片的后缀名
@@ -26947,7 +27706,7 @@ class SaveUserCover {
         });
     }
     async saveUserCover() {
-        const userId = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getUserId();
+        const userId = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getCurrentPageUserID();
         const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getUserProfile(userId);
         const bgData = userProfile.body.background;
         if (bgData === null) {
@@ -27364,6 +28123,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+
 
 
 
@@ -27525,6 +28286,21 @@ class Form {
         this.form
             .querySelector('.showPreviewWorkTip')
             .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('.previewWorkTip')));
+        // 显示用户阻止名单的提示
+        this.form
+            .querySelector('#showRemoveBlockedUsersWorkTip')
+            .addEventListener('click', () => {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_用户阻止名单的说明2'), {
+                title: _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_用户阻止名单'),
+            });
+        });
+        // 显示设置页数的提示
+        const showSetWantPageTipButton = this.form.querySelector('.showSetWantPageTip');
+        showSetWantPageTipButton.addEventListener('click', () => {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_设置页数的提示'), {
+                title: _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取多少页面'),
+            });
+        });
         // 输入框获得焦点时自动选择文本（文件名输入框例外）
         const centerInputs = this.form.querySelectorAll('input[type=text]');
         for (const el of centerInputs) {
@@ -27595,16 +28371,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 
-// 目前设置项的最大编号是 89
+// 目前设置项的最大编号是 90
 const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
-    <span class="setWantPageWrap has_tip" data-xztip="_抓取多少页面">
-    <span class="settingNameStyle1"><span class="setWantPageTip1" data-xztext="_抓取多少页面"></span><span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1"><span class="setWantPageTip1 has_tip" data-xztip="_抓取多少页面" data-xztext="_抓取多少页面"></span><span class="gray1"> ? </span></span>
     <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
     value = '-1'>&nbsp;
     <span class="setWantPageTip2 gray1" data-xztext="_数字提示1"></span>
-    </span>
+    <button class="gray1 showSetWantPageTip textButton" type="button" data-xztext="_提示"></button>
     </p>
 
     <p class="option" data-no="2">
@@ -27932,7 +28707,7 @@ const formHtml = `<form class="settingForm">
       </select>
     &nbsp;
     <slot data-name="saveNamingRule"></slot>
-    <button class="showFileNameTip textButton" type="button" data-xztext="_提示2"></button>
+    <button class="showFileNameTip textButton" type="button" data-xztext="_提示"></button>
     </p>
     <p class="fileNameTip tip">
     <span data-xztext="_设置文件夹名的提示"></span>
@@ -28132,12 +28907,12 @@ const formHtml = `<form class="settingForm">
     
     <span class="subOptionWrap" data-show="slowCrawl">
     <span data-xztext="_当作品数量大于"></span>
-    <input type="text" name="slowCrawlOnWorksNumber" class="setinput_style1 blue" value="100" style="width:60px;min-width: 60px;">
+    <input type="text" name="slowCrawlOnWorksNumber" class="setinput_style1 blue" value="100">
 
     <span class="verticalSplit"></span>
 
     <span data-xztext="_间隔时间"></span>
-    <input type="text" name="slowCrawlDealy" class="setinput_style1 blue" value="1600" placeholder="1600" style="width:60px;min-width: 60px;"> ms
+    <input type="text" name="slowCrawlDealy" class="setinput_style1 blue" value="1600" placeholder="1600"> ms
 
     </span>
 
@@ -28164,7 +28939,12 @@ const formHtml = `<form class="settingForm">
     <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
     <span class="subOptionWrap" data-show="userBlockList">
-    <input type="text" name="blockList" class="has_tip setinput_style1 blue setinput_tag" data-xztip="_用户阻止名单的说明" data-xzplaceholder="_用户ID必须是数字">
+      <textarea class="centerPanelTextArea beautify_scrollbar" name="blockList" rows="1" placeholder="11111,22222,33333"></textarea>
+      <br>
+      <input type="checkbox" name="removeBlockedUsersWork" id="setRemoveBlockedUsersWork" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="setRemoveBlockedUsersWork" data-xztext="_从页面上移除他们的作品"></label>
+      <button type="button" class="gray1 textButton" id="showRemoveBlockedUsersWorkTip" data-xztext="_提示"></button>
     </span>
     </p>
 
@@ -28347,6 +29127,23 @@ const formHtml = `<form class="settingForm">
 
     <p class="option settingCategoryName" data-no="58">
       <span data-xztext="_下载"></span>
+    </p>
+
+    <p class="option" data-no="90">
+    <span class="has_tip settingNameStyle1"  data-xztip="_下载间隔的说明">
+    <span data-xztext="_下载间隔"></span>
+    <span class="gray1"> ? </span>
+    </span>
+    
+    <span data-xztext="_当作品数量大于"></span>
+    <input type="text" name="downloadIntervalOnWorksNumber" class="setinput_style1 blue" value="120">
+
+    <span class="verticalSplit"></span>
+
+    <span data-xztext="_间隔时间"></span>
+    <input type="text" name="downloadInterval" class="setinput_style1 blue" value="0">
+    <span data-xztext="_秒"></span>
+    </span>
     </p>
     
     <p class="option" data-no="76">
@@ -28951,6 +29748,7 @@ class FormSettings {
                 'fileNameLengthLimitSwitch',
                 'bmkAfterDL',
                 'userBlockList',
+                'removeBlockedUsersWork',
                 'blockTagsForSpecificUser',
                 'bgDisplay',
                 'createFolderByType',
@@ -29022,7 +29820,6 @@ class FormSettings {
                 'userRatio',
                 'idRangeInput',
                 'needTag',
-                'notNeedTag',
                 'workDirFileNumber',
                 'r18FolderName',
                 'sizeMin',
@@ -29031,7 +29828,6 @@ class FormSettings {
                 'fileNameLengthLimit',
                 'dateFormat',
                 'tagsSeparator',
-                'blockList',
                 'bgOpacity',
                 'zeroPaddingLength',
                 'workDirNameRule',
@@ -29043,6 +29839,8 @@ class FormSettings {
                 'exportLogExclude',
                 'PreviewDetailInfoWidth',
                 'slowCrawlDealy',
+                'downloadInterval',
+                'downloadIntervalOnWorksNumber',
             ],
             radio: [
                 'ugoiraSaveAs',
@@ -29070,7 +29868,7 @@ class FormSettings {
                 'downloadOrder',
                 'downloadOrderSortBy',
             ],
-            textarea: ['createFolderTagList'],
+            textarea: ['notNeedTag', 'blockList', 'createFolderTagList'],
             datetime: ['postDateStart', 'postDateEnd'],
         };
         this.restoreTimer = 0;
@@ -29093,7 +29891,7 @@ class FormSettings {
         });
     }
     // 监听所有输入选项的变化
-    // 该函数可执行一次，否则事件会重复绑定
+    // 该函数只应执行一次，否则事件会重复绑定
     ListenChange() {
         for (const name of this.inputFileds.text) {
             // 对于某些特定输入框，不使用通用的事件处理函数
@@ -29121,6 +29919,28 @@ class FormSettings {
             this.saveCheckBox(name);
         }
     }
+    /**根据文本长度，动态设置 textarea 的高度 */
+    setRows(name) {
+        // 下载器的 textarea 默认 rows 是 1，随着内容增多，应该增大 rows，以提供更好的交互体验
+        // 由于文本内容可能有数字、字母、中日文，所以 length 只是个大致的值。
+        // 对于中日文，假设 50 个字符为一行（PC 端的宽度）
+        // 对于数字、字母，80 个字符为一行
+        let oneRowLength = 50;
+        if (name === 'blockList') {
+            oneRowLength = 80;
+        }
+        const el = this.form[name];
+        let rows = Math.ceil(el.value.length / oneRowLength);
+        // 如果值是空字符串，rows 会是 0，此时设置为 1
+        if (rows === 0) {
+            rows = 1;
+        }
+        // 最大 rows 限制为 4
+        if (rows > 4) {
+            rows = 4;
+        }
+        el.setAttribute('rows', rows.toString());
+    }
     // 读取设置，恢复到表单里
     restoreFormSettings() {
         for (const name of this.inputFileds.text) {
@@ -29136,6 +29956,7 @@ class FormSettings {
         }
         for (const name of this.inputFileds.textarea) {
             this.restoreString(name);
+            this.setRows(name);
         }
         for (const name of this.inputFileds.checkbox) {
             this.restoreBoolean(name);
@@ -29150,6 +29971,9 @@ class FormSettings {
         const el = this.form[name];
         el.addEventListener('change', () => {
             (0,_Settings__WEBPACK_IMPORTED_MODULE_2__.setSetting)(name, el.value);
+            if (this.inputFileds.textarea.includes(name)) {
+                this.setRows(name);
+            }
         });
     }
     // 处理复选框： click 时保存 checked
@@ -29454,7 +30278,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+
 
 
 
@@ -29463,6 +30289,18 @@ __webpack_require__.r(__webpack_exports__);
 // 设置页数/个数的提示文本
 class Options {
     constructor() {
+        this.hiddenButtonPages = [
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.AreaRanking,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.ArtworkRanking,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Pixivision,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.BookmarkDetail,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Discover,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtwork,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NovelRanking,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewNovel,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Request,
+            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Unlisted,
+        ];
         // 保持显示的选项的 id
         this.whiteList = [
             1, 2, 4, 13, 17, 32, 44, 50, 51, 57, 64,
@@ -29472,11 +30310,11 @@ class Options {
         this.hiddenList = [];
     }
     init(allOption) {
+        this.showSetWantPageTipButton = document.querySelector('.settingForm .showSetWantPageTip');
         this.allOption = allOption;
         // 获取“页数/个数”设置的元素
         const wantPageOption = this.getOption(1);
         this.wantPageEls = {
-            wrap: wantPageOption.querySelector('.setWantPageWrap'),
             text: wantPageOption.querySelector('.setWantPageTip1'),
             rangTip: wantPageOption.querySelector('.setWantPageTip2'),
             input: wantPageOption.querySelector('.setWantPage'),
@@ -29524,7 +30362,7 @@ class Options {
             }
             const no = Number.parseInt(option.dataset.no);
             // 如果需要隐藏高级设置
-            if (!_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.showAdvancedSettings) {
+            if (!_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.showAdvancedSettings) {
                 // 如果在白名单中，并且当前页面不需要隐藏它，那么它就是显示的
                 if (this.whiteList.includes(no) && !this.hiddenList.includes(no)) {
                     this.showOption([no]);
@@ -29580,9 +30418,16 @@ class Options {
     }
     // 设置 “抓取多少作品/页面” 选项的提示和预设值
     setWantPageTip(arg) {
+        // 当页面里设置的是作品个数，而非页面数量时，隐藏这个按钮，因为它只在设置页面数量时有用
+        if (this.hiddenButtonPages.includes(_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type)) {
+            this.showSetWantPageTipButton.style.display = 'none';
+        }
+        else {
+            this.showSetWantPageTipButton.style.display = 'inline-block';
+        }
         _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.wantPageEls.text, arg.text);
-        this.wantPageEls.wrap.dataset.xztip = arg.tip;
-        this.wantPageEls.wrap.dataset.tip = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl(arg.tip);
+        this.wantPageEls.text.dataset.xztip = arg.tip;
+        this.wantPageEls.text.dataset.tip = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl(arg.tip);
         // rangTip 可能需要翻译
         if (arg.rangTip.startsWith('_')) {
             _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.wantPageEls.rangTip, arg.rangTip);
@@ -29852,7 +30697,7 @@ class Settings {
             sizeMax: 100,
             novelSaveAs: 'txt',
             saveNovelMeta: false,
-            deduplication: false,
+            deduplication: true,
             dupliStrategy: 'loose',
             fileNameLengthLimitSwitch: false,
             tagsSeparator: ',',
@@ -29865,7 +30710,8 @@ class Settings {
             restrict: 'no',
             widthTagBoolean: true,
             restrictBoolean: false,
-            userBlockList: false,
+            userBlockList: true,
+            removeBlockedUsersWork: true,
             blockList: [],
             theme: 'auto',
             needTagMode: 'all',
@@ -29998,10 +30844,17 @@ class Settings {
             saveEachDescription: false,
             summarizeDescription: false,
             slowCrawlDealy: 1600,
+            downloadInterval: 0,
+            downloadIntervalOnWorksNumber: 120,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
-        this.floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax'];
+        this.floatNumberKey = [
+            'userRatio',
+            'sizeMin',
+            'sizeMax',
+            'downloadInterval',
+        ];
         // 值为整数的选项不必单独列出
         // 值为数字数组的选项
         this.numberArrayKeys = ['wantPageArr'];
@@ -30224,6 +31077,15 @@ class Settings {
         // 对于一些不合法的值，重置为默认值
         if (key === 'slowCrawlDealy' && value < 1000) {
             value = 1000;
+        }
+        if (key === 'downloadInterval' && value < 0) {
+            value = 0;
+        }
+        if (key === 'downloadInterval' && value > 3600) {
+            value = 3600;
+        }
+        if (key === 'downloadIntervalOnWorksNumber' && value < 0) {
+            value = 0;
         }
         if (key === 'firstFewImages' && value < 1) {
             value = this.defaultSettings[key];
@@ -30539,6 +31401,32 @@ new UseDifferentNameRuleIfWorkHasTag();
 
 /***/ }),
 
+/***/ "./src/ts/showDownloadBtnOnThumb.ts":
+/*!******************************************!*\
+  !*** ./src/ts/showDownloadBtnOnThumb.ts ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _ShowDownloadBtnOnThumbOnDesktop__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumbOnDesktop */ "./src/ts/ShowDownloadBtnOnThumbOnDesktop.ts");
+/* harmony import */ var _ShowDownloadBtnOnThumbOnMobile__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumbOnMobile */ "./src/ts/ShowDownloadBtnOnThumbOnMobile.ts");
+
+
+
+// 在图片作品的缩略图上显示下载按钮，点击按钮可以直接下载这个作品
+class ShowDownloadBtnOnThumb {
+    constructor() {
+        _Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile
+            ? new _ShowDownloadBtnOnThumbOnMobile__WEBPACK_IMPORTED_MODULE_2__.ShowDownloadBtnOnThumbOnMobile()
+            : new _ShowDownloadBtnOnThumbOnDesktop__WEBPACK_IMPORTED_MODULE_1__.ShowDownloadBtnOnThumbOnDesktop();
+    }
+}
+new ShowDownloadBtnOnThumb();
+
+
+/***/ }),
+
 /***/ "./src/ts/store/CacheWorkData.ts":
 /*!***************************************!*\
   !*** ./src/ts/store/CacheWorkData.ts ***!
@@ -30556,7 +31444,7 @@ class CacheWorkData {
     constructor() {
         this.cache = [];
         // 一个图像作品的数据大约是 5 KB
-        this.max = 20;
+        this.max = 100;
     }
     set(data) {
         if (this.has(data.body.id)) {
@@ -30777,6 +31665,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+
 
 
 
@@ -30829,7 +31719,14 @@ class SaveNovelData {
             for (const tag of tags) {
                 tagsA.push('#' + tag);
             }
-            metaArr.push(title, user, pageUrl, body.description, tagsA.join('\n'));
+            // 这个 description 是保存到抓取结果里的，尽量保持原样，会保留 html 标签
+            const description = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlDecode(body.description);
+            // metaDescription 保存在 novelMeta.description 和 novelMeta.meta 里
+            // 它会在生成的小说里显示，供读者阅读，所以移除了 html 标签，只保留纯文本
+            // 处理后，换行标记是 \n 而不是 <br/>
+            const metaDescription = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.replaceEPUBDescription(_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlToText(description));
+            const date = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__.DateFormat.format(body.createDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.dateFormat);
+            metaArr.push(title, user, pageUrl, date, metaDescription, tagsA.join('\n'));
             meta = metaArr.join('\n\n') + '\n\n\n';
             // 提取嵌入的图片资源
             let embeddedImages = null;
@@ -30840,7 +31737,6 @@ class SaveNovelData {
                 }
             }
             // 保存作品信息
-            const description = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlDecode(body.description);
             _Store__WEBPACK_IMPORTED_MODULE_1__.store.addResult({
                 aiType: body.aiType,
                 id: id,
@@ -30870,14 +31766,15 @@ class SaveNovelData {
                 commentCount: body.commentCount,
                 novelMeta: {
                     id: body.id,
-                    title: body.title,
+                    title: title,
                     content: this.replaceFlag(body.content),
-                    description: description,
+                    description: metaDescription,
                     coverUrl: body.coverUrl,
                     createDate: body.createDate,
                     userName: body.userName,
                     embeddedImages: embeddedImages,
                     meta: meta,
+                    tags: tags,
                 },
                 xRestrict: body.xRestrict,
             });
@@ -30989,6 +31886,10 @@ class States {
         // 这和 settings 里的 exportIDList 作用是相同的，但不是持久设置，
         // 因为它只在某些特定功能上临时使用，之后会被重置
         this.exportIDList = false;
+        // 保存每次抓取完成和下载完成的时间戳，用来判断这次抓取结果是否已被下载完毕
+        // 因为这两个变量的值不应该随页面切换而改变，所以放在这里而非 initPageBase 里
+        this.crawlCompleteTime = 1;
+        this.downloadCompleteTime = 0;
         this.bindEvents();
     }
     bindEvents() {
@@ -31297,2237 +32198,9 @@ const store = new Store();
 
 /***/ }),
 
-/***/ "./src/ts/store/WorkPublishTimeNovels.ts":
-/*!***********************************************!*\
-  !*** ./src/ts/store/WorkPublishTimeNovels.ts ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   novelData: () => (/* binding */ novelData)
-/* harmony export */ });
-const novelData = [
-    [129, 1280384594000],
-    [10007, 1280558885000],
-    [20001, 1281099833000],
-    [30006, 1282016726000],
-    [40000, 1283058990000],
-    [50003, 1284130800000],
-    [60002, 1285248459000],
-    [70000, 1286383797000],
-    [80000, 1287587350000],
-    [90003, 1288702643000],
-    [100000, 1289750009000],
-    [110000, 1290800661000],
-    [120000, 1291911048000],
-    [130000, 1293023102000],
-    [140001, 1293990763000],
-    [150004, 1294921696000],
-    [160004, 1295784678000],
-    [170001, 1296580286000],
-    [180000, 1297357894000],
-    [190002, 1298051246000],
-    [200000, 1298800698000],
-    [210000, 1299544965000],
-    [220000, 1300512363000],
-    [230000, 1301213084000],
-    [240000, 1301836904000],
-    [250000, 1302561861000],
-    [260000, 1303376035000],
-    [270002, 1304084248000],
-    [280000, 1304695785000],
-    [290000, 1305338427000],
-    [300000, 1305942926000],
-    [310002, 1306521475000],
-    [320000, 1307103716000],
-    [330000, 1307628374000],
-    [340000, 1308152212000],
-    [350001, 1308671940000],
-    [360003, 1309193210000],
-    [370000, 1309707590000],
-    [380001, 1310224382000],
-    [390002, 1310744385000],
-    [400000, 1311240590000],
-    [410000, 1311714592000],
-    [420003, 1312224244000],
-    [430001, 1312731339000],
-    [440001, 1313296075000],
-    [450003, 1313764835000],
-    [460000, 1314249696000],
-    [470003, 1314711329000],
-    [480000, 1315145953000],
-    [490007, 1315659922000],
-    [500000, 1316129991000],
-    [510003, 1316556988000],
-    [520000, 1316999883000],
-    [530004, 1317484198000],
-    [540001, 1317970536000],
-    [550003, 1318383439000],
-    [560001, 1318844138000],
-    [570001, 1319298372000],
-    [580000, 1319786020000],
-    [590001, 1320157532000],
-    [600000, 1320589354000],
-    [610003, 1321033402000],
-    [620000, 1321519466000],
-    [630002, 1321925666000],
-    [640000, 1322323144000],
-    [650001, 1322778841000],
-    [660000, 1323187376000],
-    [670000, 1323619422000],
-    [680002, 1324113471000],
-    [690005, 1324542346000],
-    [700000, 1324863292000],
-    [710000, 1325265330000],
-    [720001, 1325664232000],
-    [730000, 1326030447000],
-    [740000, 1326447371000],
-    [750000, 1326813089000],
-    [760000, 1327222222000],
-    [770000, 1327616533000],
-    [780001, 1327978661000],
-    [790006, 1328363509000],
-    [800000, 1328708326000],
-    [810002, 1329049070000],
-    [820000, 1329313827000],
-    [830000, 1329661069000],
-    [840000, 1330044197000],
-    [850002, 1330399536000],
-    [860000, 1330760171000],
-    [870000, 1331091059000],
-    [880001, 1331430688000],
-    [890000, 1331740424000],
-    [900000, 1332056343000],
-    [910000, 1332342034000],
-    [920004, 1332657590000],
-    [930000, 1332950185000],
-    [940001, 1333253995000],
-    [950001, 1333531155000],
-    [960003, 1333851677000],
-    [970001, 1334204901000],
-    [980001, 1334509654000],
-    [990000, 1334915605000],
-    [1000004, 1335194889000],
-    [1010001, 1335577999000],
-    [1020001, 1335865453000],
-    [1030000, 1336148344000],
-    [1040000, 1336430393000],
-    [1050000, 1336801524000],
-    [1060001, 1337093451000],
-    [1070000, 1337435442000],
-    [1080003, 1337748152000],
-    [1090000, 1338048813000],
-    [1100000, 1338386829000],
-    [1110006, 1338706652000],
-    [1120001, 1338995770000],
-    [1130003, 1339304913000],
-    [1140000, 1339594732000],
-    [1150005, 1339900812000],
-    [1160000, 1340181428000],
-    [1170000, 1340467013000],
-    [1180000, 1340798549000],
-    [1190004, 1341081318000],
-    [1200000, 1341378294000],
-    [1210000, 1341627003000],
-    [1220000, 1341838882000],
-    [1230002, 1342107912000],
-    [1240001, 1342366761000],
-    [1250000, 1342624522000],
-    [1260000, 1342893053000],
-    [1270001, 1343141451000],
-    [1280000, 1343411297000],
-    [1290000, 1343663085000],
-    [1300001, 1343920259000],
-    [1310000, 1344169879000],
-    [1320002, 1344409293000],
-    [1330000, 1344659199000],
-    [1340000, 1344896869000],
-    [1350000, 1345124715000],
-    [1360009, 1345359194000],
-    [1370002, 1345599272000],
-    [1380000, 1345835088000],
-    [1390000, 1346075877000],
-    [1400001, 1346330394000],
-    [1410001, 1346550028000],
-    [1420000, 1346779027000],
-    [1430000, 1347060633000],
-    [1440001, 1347279773000],
-    [1450001, 1347538265000],
-    [1460005, 1347781791000],
-    [1470001, 1347973096000],
-    [1480002, 1348233789000],
-    [1490000, 1348421630000],
-    [1500001, 1348700844000],
-    [1510001, 1348937413000],
-    [1520000, 1349157850000],
-    [1530001, 1349372979000],
-    [1540002, 1349606131000],
-    [1550001, 1349795097000],
-    [1560001, 1350052229000],
-    [1570002, 1350269341000],
-    [1580001, 1350532237000],
-    [1590000, 1350758415000],
-    [1600000, 1350997858000],
-    [1610006, 1351261071000],
-    [1620003, 1351479480000],
-    [1630002, 1351693412000],
-    [1640000, 1351949249000],
-    [1650005, 1352189853000],
-    [1660000, 1352449647000],
-    [1670002, 1352637939000],
-    [1680001, 1352884190000],
-    [1690000, 1353154000000],
-    [1700000, 1353402782000],
-    [1710000, 1353638092000],
-    [1720001, 1353848294000],
-    [1730000, 1354118175000],
-    [1740003, 1354378863000],
-    [1750002, 1354631450000],
-    [1760000, 1354938336000],
-    [1770001, 1355153123000],
-    [1780000, 1355444255000],
-    [1790003, 1355670988000],
-    [1800000, 1355934280000],
-    [1810000, 1356190313000],
-    [1820001, 1356371790000],
-    [1830001, 1356616228000],
-    [1840003, 1356868743000],
-    [1850002, 1357070395000],
-    [1860000, 1357313538000],
-    [1870000, 1357548863000],
-    [1880001, 1357824009000],
-    [1890000, 1358074605000],
-    [1900000, 1358265865000],
-    [1910000, 1358569040000],
-    [1920003, 1358779320000],
-    [1930000, 1359041117000],
-    [1940001, 1359285099000],
-    [1950002, 1359536718000],
-    [1960000, 1359745109000],
-    [1970002, 1359966846000],
-    [1980000, 1360210328000],
-    [1990001, 1360429921000],
-    [2000000, 1360642383000],
-    [2010000, 1360844563000],
-    [2020000, 1361026805000],
-    [2030005, 1361263382000],
-    [2040000, 1361519812000],
-    [2050000, 1361713982000],
-    [2060001, 1361973749000],
-    [2070000, 1362225095000],
-    [2080000, 1362416157000],
-    [2090000, 1362671650000],
-    [2100001, 1362903499000],
-    [2110004, 1363125268000],
-    [2120000, 1363354484000],
-    [2130000, 1363575696000],
-    [2140000, 1363788816000],
-    [2150000, 1364031500000],
-    [2160000, 1364224743000],
-    [2170003, 1364468664000],
-    [2180001, 1364685260000],
-    [2190000, 1364872459000],
-    [2200001, 1365085949000],
-    [2210001, 1365305116000],
-    [2220000, 1365521609000],
-    [2230000, 1365821669000],
-    [2240001, 1366035468000],
-    [2250001, 1366338753000],
-    [2260002, 1366554728000],
-    [2270000, 1366817986000],
-    [2280001, 1367079795000],
-    [2290001, 1367301796000],
-    [2300000, 1367535148000],
-    [2310000, 1367755047000],
-    [2320001, 1367938482000],
-    [2330002, 1368198077000],
-    [2340002, 1368402443000],
-    [2350002, 1368671885000],
-    [2360000, 1368908138000],
-    [2370000, 1369143679000],
-    [2380000, 1369399230000],
-    [2390002, 1369586696000],
-    [2400004, 1369887355000],
-    [2410000, 1370104099000],
-    [2420002, 1370341310000],
-    [2430001, 1370603557000],
-    [2440001, 1370788687000],
-    [2450000, 1371038666000],
-    [2460002, 1371286007000],
-    [2470000, 1371481119000],
-    [2480000, 1371732988000],
-    [2490002, 1371958259000],
-    [2500000, 1372170531000],
-    [2510000, 1372430704000],
-    [2520001, 1372617024000],
-    [2530004, 1372871380000],
-    [2540001, 1373120348000],
-    [2550000, 1373293117000],
-    [2560000, 1373552201000],
-    [2570001, 1373799086000],
-    [2580000, 1373990399000],
-    [2590001, 1374251028000],
-    [2600000, 1374478513000],
-    [2610000, 1374695793000],
-    [2620001, 1374935403000],
-    [2630001, 1375151019000],
-    [2640000, 1375366140000],
-    [2650003, 1375582844000],
-    [2660006, 1375789458000],
-    [2670000, 1375982223000],
-    [2680001, 1376219077000],
-    [2690000, 1376419869000],
-    [2700000, 1376641349000],
-    [2710002, 1376830708000],
-    [2720001, 1377025884000],
-    [2730003, 1377257395000],
-    [2740002, 1377439480000],
-    [2750000, 1377658821000],
-    [2760000, 1377871532000],
-    [2770000, 1378042294000],
-    [2780000, 1378279211000],
-    [2790004, 1378512151000],
-    [2800000, 1378707972000],
-    [2810000, 1378919770000],
-    [2820001, 1379167185000],
-    [2830000, 1379338634000],
-    [2840000, 1379588368000],
-    [2850000, 1379791566000],
-    [2860002, 1379998199000],
-    [2870001, 1380244352000],
-    [2880001, 1380458162000],
-    [2890000, 1380709854000],
-    [2900001, 1380955990000],
-    [2910000, 1381149483000],
-    [2920000, 1381395761000],
-    [2930000, 1381600314000],
-    [2940005, 1381806653000],
-    [2950001, 1382032915000],
-    [2960000, 1382266138000],
-    [2970000, 1382497296000],
-    [2980001, 1382722022000],
-    [2990002, 1382958224000],
-    [3000001, 1383198845000],
-    [3010001, 1383402564000],
-    [3020000, 1383581008000],
-    [3030002, 1383836419000],
-    [3040001, 1384069244000],
-    [3050000, 1384263193000],
-    [3060003, 1384524757000],
-    [3070001, 1384737837000],
-    [3080000, 1384996638000],
-    [3090003, 1385212146000],
-    [3100003, 1385431019000],
-    [3110000, 1385699731000],
-    [3120003, 1385900847000],
-    [3130000, 1386153660000],
-    [3140002, 1386408440000],
-    [3150000, 1386604510000],
-    [3160003, 1386865240000],
-    [3170000, 1387110539000],
-    [3180000, 1387367749000],
-    [3190000, 1387604327000],
-    [3200000, 1387802332000],
-    [3210000, 1387970572000],
-    [3220007, 1388160975000],
-    [3230000, 1388398804000],
-    [3240000, 1388570893000],
-    [3250002, 1388768138000],
-    [3260001, 1388976072000],
-    [3270002, 1389194106000],
-    [3280001, 1389440923000],
-    [3290006, 1389592662000],
-    [3300000, 1389790343000],
-    [3310000, 1390038223000],
-    [3320001, 1390228417000],
-    [3330003, 1390483721000],
-    [3340000, 1390708173000],
-    [3350001, 1390916206000],
-    [3360000, 1391147130000],
-    [3370000, 1391328790000],
-    [3380002, 1391519054000],
-    [3390001, 1391742834000],
-    [3400000, 1391928566000],
-    [3410000, 1392108927000],
-    [3420001, 1392300500000],
-    [3430000, 1392440337000],
-    [3440000, 1392581355000],
-    [3450000, 1392818545000],
-    [3460000, 1393053469000],
-    [3470003, 1393240576000],
-    [3480000, 1393469026000],
-    [3490004, 1393675973000],
-    [3500000, 1393852227000],
-    [3510001, 1394081671000],
-    [3520001, 1394285166000],
-    [3530001, 1394462801000],
-    [3540002, 1394697374000],
-    [3550000, 1394880049000],
-    [3560002, 1395050621000],
-    [3570000, 1395246872000],
-    [3580003, 1395474465000],
-    [3590000, 1395659536000],
-    [3600001, 1395846777000],
-    [3610003, 1396065846000],
-    [3620000, 1396244134000],
-    [3630001, 1396417542000],
-    [3640000, 1396614221000],
-    [3650001, 1396791326000],
-    [3660000, 1397022134000],
-    [3670000, 1397274214000],
-    [3680003, 1397465091000],
-    [3690003, 1397723422000],
-    [3700000, 1397926553000],
-    [3710001, 1398151228000],
-    [3720005, 1398391812000],
-    [3730000, 1398595954000],
-    [3740000, 1398778603000],
-    [3750000, 1398968016000],
-    [3760000, 1399202230000],
-    [3770001, 1399372076000],
-    [3780000, 1399569729000],
-    [3790000, 1399790469000],
-    [3800000, 1399992962000],
-    [3810000, 1400246876000],
-    [3820000, 1400425983000],
-    [3830000, 1400679476000],
-    [3840002, 1400911387000],
-    [3850000, 1401098715000],
-    [3860001, 1401339903000],
-    [3870000, 1401551332000],
-    [3880001, 1401759755000],
-    [3890001, 1401983592000],
-    [3900002, 1402204857000],
-    [3910000, 1402398206000],
-    [3920001, 1402640662000],
-    [3930000, 1402831875000],
-    [3940001, 1403027766000],
-    [3950001, 1403273218000],
-    [3960001, 1403448681000],
-    [3970001, 1403689984000],
-    [3980003, 1403925632000],
-    [3990001, 1404107465000],
-    [4000000, 1404318974000],
-    [4010001, 1404563643000],
-    [4020003, 1404739221000],
-    [4030003, 1404955522000],
-    [4040000, 1405172711000],
-    [4050001, 1405356399000],
-    [4060004, 1405613850000],
-    [4070000, 1405857345000],
-    [4080000, 1406040627000],
-    [4090000, 1406291871000],
-    [4100002, 1406484212000],
-    [4110000, 1406727405000],
-    [4120000, 1406945016000],
-    [4130001, 1407141824000],
-    [4140010, 1407340131000],
-    [4150000, 1407562661000],
-    [4160000, 1407734796000],
-    [4170001, 1407935639000],
-    [4180000, 1408125359000],
-    [4190000, 1408330818000],
-    [4200001, 1408532218000],
-    [4210000, 1408722044000],
-    [4220000, 1408901567000],
-    [4230001, 1409137675000],
-    [4240001, 1409330881000],
-    [4250005, 1409500868000],
-    [4260002, 1409744703000],
-    [4270002, 1409967629000],
-    [4280003, 1410150372000],
-    [4290000, 1410357905000],
-    [4300000, 1410596035000],
-    [4310000, 1410775372000],
-    [4320000, 1410968927000],
-    [4330000, 1411212383000],
-    [4340001, 1411396391000],
-    [4350000, 1411601413000],
-    [4360000, 1411826286000],
-    [4370002, 1412006421000],
-    [4380000, 1412254595000],
-    [4390001, 1412446854000],
-    [4400000, 1412610825000],
-    [4410002, 1412853440000],
-    [4420000, 1413040935000],
-    [4430002, 1413210796000],
-    [4440001, 1413449251000],
-    [4450003, 1413674476000],
-    [4460002, 1413895354000],
-    [4470002, 1414148442000],
-    [4480003, 1414334560000],
-    [4490000, 1414587176000],
-    [4500000, 1414768048000],
-    [4510002, 1414948293000],
-    [4520000, 1415180576000],
-    [4530000, 1415427122000],
-    [4540000, 1415620756000],
-    [4550000, 1415833945000],
-    [4560002, 1416071344000],
-    [4570004, 1416308460000],
-    [4580002, 1416572690000],
-    [4590000, 1416760063000],
-    [4600002, 1417003566000],
-    [4610002, 1417259849000],
-    [4620001, 1417447473000],
-    [4630000, 1417714518000],
-    [4640000, 1417956598000],
-    [4650000, 1418216048000],
-    [4660000, 1418475241000],
-    [4670000, 1418710339000],
-    [4680004, 1418970521000],
-    [4690002, 1419169105000],
-    [4700005, 1419358497000],
-    [4710000, 1419526254000],
-    [4720000, 1419772928000],
-    [4730000, 1419974551000],
-    [4740000, 1420161657000],
-    [4750001, 1420365381000],
-    [4760002, 1420562341000],
-    [4770000, 1420815773000],
-    [4780001, 1421031408000],
-    [4790001, 1421246156000],
-    [4800000, 1421501308000],
-    [4810000, 1421686861000],
-    [4820000, 1421939002000],
-    [4830000, 1422169526000],
-    [4840000, 1422371808000],
-    [4850000, 1422623205000],
-    [4860000, 1422797374000],
-    [4870000, 1423017739000],
-    [4880000, 1423234605000],
-    [4890000, 1423410499000],
-    [4900000, 1423644484000],
-    [4910001, 1423837444000],
-    [4920000, 1423970388000],
-    [4930001, 1424165273000],
-    [4940001, 1424364687000],
-    [4950002, 1424582000000],
-    [4960001, 1424768846000],
-    [4970001, 1424966114000],
-    [4980000, 1425171871000],
-    [4990000, 1425349395000],
-    [5000000, 1425559592000],
-    [5010001, 1425741575000],
-    [5020003, 1425913279000],
-    [5030003, 1426126824000],
-    [5040001, 1426327854000],
-    [5050000, 1426495511000],
-    [5060001, 1426693282000],
-    [5070005, 1426922090000],
-    [5080000, 1427098056000],
-    [5090000, 1427293125000],
-    [5100000, 1427514626000],
-    [5110000, 1427695785000],
-    [5120002, 1427877197000],
-    [5130002, 1428060146000],
-    [5140001, 1428234288000],
-    [5150000, 1428419973000],
-    [5160000, 1428671937000],
-    [5170002, 1428847629000],
-    [5180001, 1429094087000],
-    [5190000, 1429341649000],
-    [5200003, 1429525955000],
-    [5210000, 1429765217000],
-    [5220000, 1429975534000],
-    [5230001, 1430176975000],
-    [5240002, 1430391697000],
-    [5250000, 1430580945000],
-    [5260000, 1430763266000],
-    [5270001, 1430924583000],
-    [5280000, 1431154114000],
-    [5290000, 1431323463000],
-    [5300002, 1431536550000],
-    [5310000, 1431780262000],
-    [5320000, 1431956743000],
-    [5330000, 1432204529000],
-    [5340001, 1432398271000],
-    [5350006, 1432606153000],
-    [5360001, 1432841545000],
-    [5370000, 1433063471000],
-    [5380003, 1433258662000],
-    [5390000, 1433508887000],
-    [5400000, 1433685193000],
-    [5410001, 1433916258000],
-    [5420000, 1434135276000],
-    [5430001, 1434333869000],
-    [5440001, 1434559422000],
-    [5450000, 1434804693000],
-    [5460001, 1434979921000],
-    [5470000, 1435217857000],
-    [5480001, 1435416104000],
-    [5490000, 1435602027000],
-    [5500001, 1435840850000],
-    [5510000, 1436030904000],
-    [5520003, 1436227024000],
-    [5530000, 1436442515000],
-    [5540003, 1436663422000],
-    [5550000, 1436874223000],
-    [5560001, 1437120062000],
-    [5570000, 1437316067000],
-    [5580000, 1437494808000],
-    [5590000, 1437746039000],
-    [5600002, 1437929627000],
-    [5610001, 1438176113000],
-    [5620000, 1438388870000],
-    [5630000, 1438589507000],
-    [5640000, 1438796233000],
-    [5650000, 1439030571000],
-    [5660004, 1439214144000],
-    [5670001, 1439431273000],
-    [5680000, 1439642569000],
-    [5690001, 1439824201000],
-    [5700005, 1440058580000],
-    [5710000, 1440256699000],
-    [5720000, 1440475809000],
-    [5730002, 1440689040000],
-    [5740000, 1440914751000],
-    [5750003, 1441110359000],
-    [5760000, 1441364816000],
-    [5770000, 1441549697000],
-    [5780006, 1441797710000],
-    [5790001, 1442037713000],
-    [5800002, 1442233888000],
-    [5810000, 1442481291000],
-    [5820003, 1442705357000],
-    [5830000, 1442908303000],
-    [5840000, 1443086697000],
-    [5850003, 1443282432000],
-    [5860000, 1443459310000],
-    [5870006, 1443707232000],
-    [5880001, 1443928257000],
-    [5890001, 1444139874000],
-    [5900001, 1444396252000],
-    [5910001, 1444577096000],
-    [5920000, 1444792260000],
-    [5930002, 1445029691000],
-    [5940001, 1445245605000],
-    [5950000, 1445504572000],
-    [5960000, 1445731426000],
-    [5970002, 1445953442000],
-    [5980000, 1446211281000],
-    [5990002, 1446383992000],
-    [6000000, 1446580875000],
-    [6010003, 1446842203000],
-    [6020001, 1447044347000],
-    [6030000, 1447253873000],
-    [6040000, 1447505627000],
-    [6050000, 1447691164000],
-    [6060001, 1447947945000],
-    [6070005, 1448186860000],
-    [6080000, 1448365784000],
-    [6090000, 1448624170000],
-    [6100002, 1448810246000],
-    [6110000, 1449066515000],
-    [6120000, 1449317021000],
-    [6130002, 1449507406000],
-    [6140001, 1449770690000],
-    [6150000, 1450002546000],
-    [6160000, 1450231069000],
-    [6170001, 1450484327000],
-    [6180001, 1450692134000],
-    [6190000, 1450882802000],
-    [6200001, 1451053403000],
-    [6210000, 1451234149000],
-    [6220003, 1451471784000],
-    [6230000, 1451644655000],
-    [6240000, 1451713332000],
-    [6250000, 1451847328000],
-    [6260005, 1452076808000],
-    [6270000, 1452299253000],
-    [6280000, 1452496401000],
-    [6290000, 1452698011000],
-    [6300000, 1452951233000],
-    [6310000, 1453142080000],
-    [6320001, 1453393135000],
-    [6330000, 1453616322000],
-    [6340001, 1453812318000],
-    [6350000, 1454055730000],
-    [6360003, 1454238250000],
-    [6370000, 1454427033000],
-    [6380000, 1454661000000],
-    [6390000, 1454842409000],
-    [6400000, 1455041335000],
-    [6410000, 1455272058000],
-    [6420000, 1455429130000],
-    [6430000, 1455565696000],
-    [6440000, 1455807564000],
-    [6450000, 1456029749000],
-    [6460000, 1456225146000],
-    [6470000, 1456470713000],
-    [6480000, 1456663870000],
-    [6490003, 1456892356000],
-    [6500001, 1457110676000],
-    [6510002, 1457312408000],
-    [6520000, 1457531526000],
-    [6530000, 1457759895000],
-    [6540001, 1457945527000],
-    [6550000, 1458146778000],
-    [6560000, 1458393176000],
-    [6570001, 1458570750000],
-    [6580000, 1458809559000],
-    [6590000, 1459016231000],
-    [6600000, 1459238945000],
-    [6610000, 1459438183000],
-    [6620004, 1459646525000],
-    [6630000, 1459854652000],
-    [6640001, 1460090525000],
-    [6650000, 1460290792000],
-    [6660000, 1460548807000],
-    [6670000, 1460814501000],
-    [6680000, 1461034745000],
-    [6690000, 1461309246000],
-    [6700004, 1461504246000],
-    [6710000, 1461752821000],
-    [6720003, 1461973135000],
-    [6730001, 1462174879000],
-    [6740001, 1462370008000],
-    [6750001, 1462548340000],
-    [6760000, 1462720908000],
-    [6770002, 1462975121000],
-    [6780000, 1463232933000],
-    [6790007, 1463433933000],
-    [6800002, 1463714821000],
-    [6810000, 1463920668000],
-    [6820000, 1464128839000],
-    [6830004, 1464385492000],
-    [6840000, 1464599226000],
-    [6850001, 1464861239000],
-    [6860002, 1465075280000],
-    [6870000, 1465297401000],
-    [6880001, 1465549772000],
-    [6890000, 1465736580000],
-    [6900000, 1465964679000],
-    [6910001, 1466179197000],
-    [6920000, 1466354374000],
-    [6930001, 1466603732000],
-    [6940002, 1466845739000],
-    [6950000, 1467033992000],
-    [6960000, 1467284783000],
-    [6970001, 1467480681000],
-    [6980000, 1467714202000],
-    [6990002, 1467914778000],
-    [7000001, 1468145606000],
-    [7010000, 1468384915000],
-    [7020000, 1468639043000],
-    [7030001, 1468840463000],
-    [7040002, 1469087617000],
-    [7050000, 1469337012000],
-    [7060002, 1469582162000],
-    [7070002, 1469845430000],
-    [7080002, 1470060235000],
-    [7090000, 1470312128000],
-    [7100000, 1470548609000],
-    [7110000, 1470754953000],
-    [7120000, 1470989043000],
-    [7130001, 1471190531000],
-    [7140000, 1471414854000],
-    [7150004, 1471624400000],
-    [7160000, 1471854212000],
-    [7170000, 1472088374000],
-    [7180002, 1472310616000],
-    [7190001, 1472520312000],
-    [7200000, 1472738227000],
-    [7210002, 1472965256000],
-    [7220001, 1473171102000],
-    [7230000, 1473424874000],
-    [7240001, 1473609515000],
-    [7250000, 1473863715000],
-    [7260001, 1474116184000],
-    [7270003, 1474295985000],
-    [7280000, 1474535039000],
-    [7290000, 1474737285000],
-    [7300000, 1474975696000],
-    [7310000, 1475234975000],
-    [7320000, 1475421025000],
-    [7330001, 1475671020000],
-    [7340001, 1475911455000],
-    [7350005, 1476103986000],
-    [7360002, 1476361587000],
-    [7370000, 1476599211000],
-    [7380001, 1476815745000],
-    [7390000, 1477099543000],
-    [7400000, 1477316178000],
-    [7410001, 1477579038000],
-    [7420003, 1477818419000],
-    [7430002, 1478011264000],
-    [7440000, 1478264690000],
-    [7450002, 1478480338000],
-    [7460006, 1478769027000],
-    [7470001, 1478994247000],
-    [7480000, 1479219274000],
-    [7490000, 1479486058000],
-    [7500002, 1479730140000],
-    [7510003, 1479958570000],
-    [7520003, 1480222232000],
-    [7530001, 1480471579000],
-    [7540000, 1480749927000],
-    [7550000, 1480952230000],
-    [7560000, 1481224069000],
-    [7570001, 1481463117000],
-    [7580000, 1481722387000],
-    [7590002, 1481985058000],
-    [7600001, 1482227418000],
-    [7610001, 1482478601000],
-    [7620000, 1482645299000],
-    [7630003, 1482841839000],
-    [7640001, 1483074183000],
-    [7650000, 1483258759000],
-    [7660004, 1483452663000],
-    [7670000, 1483674720000],
-    [7680002, 1483879318000],
-    [7690000, 1484064960000],
-    [7700000, 1484322340000],
-    [7710000, 1484542900000],
-    [7720000, 1484812130000],
-    [7730001, 1485026320000],
-    [7740000, 1485257233000],
-    [7750006, 1485510790000],
-    [7760000, 1485696491000],
-    [7770000, 1485932317000],
-    [7780000, 1486164673000],
-    [7790001, 1486362226000],
-    [7800000, 1486599658000],
-    [7810000, 1486822612000],
-    [7820001, 1487000522000],
-    [7830000, 1487174999000],
-    [7840000, 1487419341000],
-    [7850000, 1487602867000],
-    [7860000, 1487855018000],
-    [7870000, 1488086339000],
-    [7880000, 1488292733000],
-    [7890001, 1488543208000],
-    [7900000, 1488728156000],
-    [7910001, 1488979685000],
-    [7920001, 1489220616000],
-    [7930000, 1489412693000],
-    [7940003, 1489631325000],
-    [7950001, 1489848873000],
-    [7960000, 1490044638000],
-    [7970002, 1490279983000],
-    [7980001, 1490516089000],
-    [7990001, 1490719990000],
-    [8000000, 1490963479000],
-    [8010000, 1491137084000],
-    [8020002, 1491375868000],
-    [8030000, 1491612912000],
-    [8040001, 1491803454000],
-    [8050001, 1492077857000],
-    [8060002, 1492324560000],
-    [8070003, 1492561737000],
-    [8080002, 1492838030000],
-    [8090002, 1493043924000],
-    [8100001, 1493307660000],
-    [8110002, 1493543878000],
-    [8120000, 1493769888000],
-    [8130004, 1493982506000],
-    [8140000, 1494142350000],
-    [8150001, 1494318814000],
-    [8160000, 1494568833000],
-    [8170000, 1494762677000],
-    [8180002, 1495006227000],
-    [8190000, 1495250700000],
-    [8200000, 1495443298000],
-    [8210002, 1495646825000],
-    [8220011, 1495894082000],
-    [8230000, 1496082134000],
-    [8240000, 1496326810000],
-    [8250000, 1496555088000],
-    [8260000, 1496756385000],
-    [8270000, 1497007056000],
-    [8280001, 1497183503000],
-    [8290002, 1497397397000],
-    [8300003, 1497629360000],
-    [8310000, 1497796088000],
-    [8320000, 1498023980000],
-    [8330001, 1498235560000],
-    [8340001, 1498396394000],
-    [8350000, 1498613161000],
-    [8360001, 1498837786000],
-    [8370000, 1499015731000],
-    [8380001, 1499265524000],
-    [8390002, 1499481547000],
-    [8400001, 1499686732000],
-    [8410005, 1499932800000],
-    [8420001, 1500169609000],
-    [8430000, 1500374791000],
-    [8440006, 1500617656000],
-    [8450000, 1500814972000],
-    [8460003, 1501039768000],
-    [8470000, 1501277295000],
-    [8480001, 1501477676000],
-    [8490000, 1501697581000],
-    [8500002, 1501932379000],
-    [8510000, 1502117905000],
-    [8520002, 1502331968000],
-    [8530000, 1502540146000],
-    [8540000, 1502722627000],
-    [8550001, 1502898202000],
-    [8560004, 1503134037000],
-    [8570003, 1503323268000],
-    [8580002, 1503521778000],
-    [8590002, 1503744984000],
-    [8600000, 1503928192000],
-    [8610000, 1504170146000],
-    [8620000, 1504371768000],
-    [8630002, 1504602602000],
-    [8640004, 1504820812000],
-    [8650000, 1505027878000],
-    [8660001, 1505226480000],
-    [8670000, 1505482045000],
-    [8680000, 1505658395000],
-    [8690000, 1505834586000],
-    [8700001, 1506089466000],
-    [8710000, 1506264067000],
-    [8720000, 1506500571000],
-    [8730002, 1506728331000],
-    [8740000, 1506914687000],
-    [8750000, 1507128072000],
-    [8760000, 1507345605000],
-    [8770000, 1507518334000],
-    [8780000, 1507708428000],
-    [8790001, 1507940275000],
-    [8800002, 1508138851000],
-    [8810000, 1508387594000],
-    [8820000, 1508606774000],
-    [8830000, 1508827234000],
-    [8840001, 1509091766000],
-    [8850004, 1509287015000],
-    [8860000, 1509490049000],
-    [8870000, 1509723653000],
-    [8880000, 1509932817000],
-    [8890002, 1510207133000],
-    [8900004, 1510424299000],
-    [8910000, 1510667493000],
-    [8920001, 1510940639000],
-    [8930000, 1511186220000],
-    [8940000, 1511451946000],
-    [8950000, 1511704396000],
-    [8960000, 1511990454000],
-    [8970002, 1512274717000],
-    [8980000, 1512537099000],
-    [8990000, 1512820550000],
-    [9000001, 1513072801000],
-    [9010001, 1513357525000],
-    [9020000, 1513609923000],
-    [9030000, 1513915128000],
-    [9040000, 1514118493000],
-    [9050002, 1514301843000],
-    [9060000, 1514555378000],
-    [9070000, 1514732301000],
-    [9080001, 1514962790000],
-    [9090001, 1515172312000],
-    [9100002, 1515397618000],
-    [9110000, 1515639717000],
-    [9120002, 1515896492000],
-    [9130001, 1516144113000],
-    [9140000, 1516418097000],
-    [9150001, 1516626163000],
-    [9160001, 1516883176000],
-    [9170001, 1517111440000],
-    [9180000, 1517325014000],
-    [9190000, 1517578594000],
-    [9200001, 1517757784000],
-    [9210001, 1518010671000],
-    [9220000, 1518256808000],
-    [9230005, 1518430798000],
-    [9240001, 1518605600000],
-    [9250000, 1518794113000],
-    [9260001, 1518995823000],
-    [9270000, 1519225213000],
-    [9280003, 1519458758000],
-    [9290001, 1519651282000],
-    [9300001, 1519890063000],
-    [9310000, 1520090182000],
-    [9320000, 1520286849000],
-    [9330001, 1520520452000],
-    [9340000, 1520744294000],
-    [9350002, 1520943868000],
-    [9360001, 1521147293000],
-    [9370002, 1521362086000],
-    [9380000, 1521558925000],
-    [9390001, 1521769563000],
-    [9400001, 1521973588000],
-    [9410000, 1522173272000],
-    [9420000, 1522410936000],
-    [9430000, 1522582869000],
-    [9440000, 1522765509000],
-    [9450000, 1523004539000],
-    [9460000, 1523190018000],
-    [9470000, 1523431728000],
-    [9480000, 1523685971000],
-    [9490002, 1523878396000],
-    [9500002, 1524128292000],
-    [9510004, 1524330609000],
-    [9520004, 1524533838000],
-    [9530000, 1524759003000],
-    [9540000, 1524987989000],
-    [9550001, 1525164608000],
-    [9560002, 1525357365000],
-    [9570003, 1525528111000],
-    [9580002, 1525674935000],
-    [9590000, 1525878167000],
-    [9600000, 1526120272000],
-    [9610000, 1526290836000],
-    [9620000, 1526490579000],
-    [9630000, 1526727803000],
-    [9640000, 1526907002000],
-    [9650002, 1527128556000],
-    [9660000, 1527340038000],
-    [9670001, 1527517920000],
-    [9680002, 1527765780000],
-    [9690002, 1527957463000],
-    [9700000, 1528151574000],
-    [9710000, 1528379137000],
-    [9720000, 1528580383000],
-    [9730001, 1528772398000],
-    [9740001, 1528987967000],
-    [9750000, 1529204175000],
-    [9760000, 1529406774000],
-    [9770001, 1529609683000],
-    [9780000, 1529819612000],
-    [9790000, 1530014717000],
-    [9800000, 1530245547000],
-    [9810002, 1530432261000],
-    [9820001, 1530629380000],
-    [9830000, 1530874223000],
-    [9840000, 1531041319000],
-    [9850000, 1531235299000],
-    [9860001, 1531486297000],
-    [9870000, 1531670196000],
-    [9880001, 1531889979000],
-    [9890001, 1532135177000],
-    [9900000, 1532338734000],
-    [9910000, 1532578434000],
-    [9920001, 1532787506000],
-    [9930000, 1532975363000],
-    [9940002, 1533210580000],
-    [9950002, 1533417619000],
-    [9960000, 1533624914000],
-    [9970001, 1533822046000],
-    [9980000, 1534037713000],
-    [9990000, 1534228523000],
-    [10000000, 1534413149000],
-    [10010001, 1534602898000],
-    [10020000, 1534783503000],
-    [10030000, 1535021938000],
-    [10040001, 1535212003000],
-    [10050000, 1535428390000],
-    [10060003, 1535641964000],
-    [10070001, 1535858219000],
-    [10080001, 1536054602000],
-    [10090000, 1536289206000],
-    [10100000, 1536480473000],
-    [10110000, 1536676444000],
-    [10120000, 1536926627000],
-    [10130002, 1537109324000],
-    [10140002, 1537291222000],
-    [10150000, 1537542002000],
-    [10160001, 1537742745000],
-    [10170000, 1537951046000],
-    [10180001, 1538191192000],
-    [10190000, 1538335437000],
-    [10200000, 1538573831000],
-    [10210000, 1538809742000],
-    [10220001, 1538988459000],
-    [10230001, 1539181117000],
-    [10240000, 1539420771000],
-    [10250000, 1539603667000],
-    [10260000, 1539849223000],
-    [10270001, 1540053876000],
-    [10280002, 1540283911000],
-    [10290000, 1540536175000],
-    [10300001, 1540729543000],
-    [10310000, 1540922544000],
-    [10320000, 1541154968000],
-    [10330000, 1541337866000],
-    [10340001, 1541577224000],
-    [10350000, 1541802693000],
-    [10360000, 1541963072000],
-    [10370000, 1542202693000],
-    [10380000, 1542444218000],
-    [10390000, 1542627147000],
-    [10400000, 1542839314000],
-    [10410000, 1543047446000],
-    [10420001, 1543235621000],
-    [10430000, 1543484894000],
-    [10440000, 1543685077000],
-    [10450000, 1543913221000],
-    [10460000, 1544159482000],
-    [10470003, 1544358248000],
-    [10480004, 1544606237000],
-    [10490002, 1544855404000],
-    [10500000, 1545051752000],
-    [10510000, 1545300827000],
-    [10520005, 1545521938000],
-    [10530000, 1545661181000],
-    [10540000, 1545834409000],
-    [10550000, 1546063345000],
-    [10560000, 1546244119000],
-    [10570000, 1546421525000],
-    [10580000, 1546614293000],
-    [10590000, 1546787040000],
-    [10600000, 1547033210000],
-    [10610000, 1547273443000],
-    [10620006, 1547455616000],
-    [10630000, 1547657448000],
-    [10640000, 1547904630000],
-    [10650001, 1548082511000],
-    [10660000, 1548328452000],
-    [10670000, 1548524147000],
-    [10680000, 1548734159000],
-    [10690000, 1548948502000],
-    [10700000, 1549167894000],
-    [10710000, 1549362890000],
-    [10720000, 1549582063000],
-    [10730001, 1549784961000],
-    [10740000, 1549939861000],
-    [10750001, 1550125895000],
-    [10760001, 1550285616000],
-    [10770000, 1550431490000],
-    [10780004, 1550660401000],
-    [10790000, 1550851727000],
-    [10800000, 1551023024000],
-    [10810000, 1551259433000],
-    [10820002, 1551458705000],
-    [10830001, 1551629225000],
-    [10840002, 1551870373000],
-    [10850001, 1552064671000],
-    [10860000, 1552234630000],
-    [10870002, 1552471261000],
-    [10880000, 1552662209000],
-    [10890000, 1552836681000],
-    [10900002, 1553069704000],
-    [10910000, 1553257072000],
-    [10920000, 1553422366000],
-    [10930000, 1553606730000],
-    [10940001, 1553802181000],
-    [10950000, 1553998231000],
-    [10960000, 1554134490000],
-    [10970002, 1554360751000],
-    [10980000, 1554554642000],
-    [10990000, 1554735834000],
-    [11000000, 1554991576000],
-    [11010001, 1555218769000],
-    [11020000, 1555420366000],
-    [11030000, 1555672640000],
-    [11040001, 1555849807000],
-    [11050001, 1556084207000],
-    [11060000, 1556299720000],
-    [11070000, 1556504671000],
-    [11080001, 1556632398000],
-    [11090000, 1556782396000],
-    [11100002, 1556955999000],
-    [11110000, 1557106544000],
-    [11120000, 1557296907000],
-    [11130000, 1557514210000],
-    [11140000, 1557684014000],
-    [11150001, 1557925678000],
-    [11160001, 1558170113000],
-    [11170000, 1558354050000],
-    [11180001, 1558597755000],
-    [11190000, 1558792328000],
-    [11200001, 1558975623000],
-    [11210000, 1559221084000],
-    [11220009, 1559435114000],
-    [11230001, 1559636873000],
-    [11240000, 1559873390000],
-    [11250001, 1560067885000],
-    [11260002, 1560253598000],
-    [11270000, 1560479047000],
-    [11280000, 1560672273000],
-    [11290000, 1560863233000],
-    [11300003, 1561102493000],
-    [11310000, 1561287305000],
-    [11320000, 1561489991000],
-    [11330000, 1561731006000],
-    [11340000, 1561903335000],
-    [11350000, 1562136969000],
-    [11360001, 1562344828000],
-    [11370000, 1562510422000],
-    [11380000, 1562736164000],
-    [11390000, 1562948007000],
-    [11400000, 1563125661000],
-    [11410001, 1563328806000],
-    [11420000, 1563546056000],
-    [11430000, 1563724029000],
-    [11440003, 1563963216000],
-    [11450001, 1564167040000],
-    [11460001, 1564335184000],
-    [11470001, 1564568121000],
-    [11480000, 1564760362000],
-    [11490005, 1564962205000],
-    [11500000, 1565179291000],
-    [11510000, 1565367541000],
-    [11520001, 1565572757000],
-    [11530000, 1565747468000],
-    [11540000, 1565914332000],
-    [11550002, 1566091110000],
-    [11560000, 1566252215000],
-    [11570001, 1566459388000],
-    [11580001, 1566648694000],
-    [11590000, 1566824198000],
-    [11600001, 1567013191000],
-    [11610000, 1567228025000],
-    [11620001, 1567393806000],
-    [11630001, 1567606734000],
-    [11640000, 1567835845000],
-    [11650001, 1568012646000],
-    [11660000, 1568212823000],
-    [11670000, 1568435781000],
-    [11680003, 1568605425000],
-    [11690002, 1568787569000],
-    [11700002, 1568989756000],
-    [11710000, 1569163036000],
-    [11720003, 1569334820000],
-    [11730000, 1569574593000],
-    [11740000, 1569752468000],
-    [11750000, 1569935750000],
-    [11760000, 1570150966000],
-    [11770000, 1570332151000],
-    [11780000, 1570509507000],
-    [11790003, 1570715608000],
-    [11800003, 1570888809000],
-    [11810000, 1571034246000],
-    [11820001, 1571216151000],
-    [11830000, 1571419097000],
-    [11840000, 1571584069000],
-    [11850001, 1571757789000],
-    [11860001, 1571993843000],
-    [11870001, 1572169847000],
-    [11880002, 1572357033000],
-    [11890000, 1572533610000],
-    [11900000, 1572715665000],
-    [11910000, 1572878846000],
-    [11920000, 1573112560000],
-    [11930000, 1573308611000],
-    [11940000, 1573474898000],
-    [11950000, 1573661969000],
-    [11960000, 1573890077000],
-    [11970001, 1574075552000],
-    [11980000, 1574297595000],
-    [11990004, 1574507058000],
-    [12000000, 1574681239000],
-    [12010000, 1574895129000],
-    [12020000, 1575113068000],
-    [12030004, 1575288871000],
-    [12040000, 1575515481000],
-    [12050000, 1575722999000],
-    [12060000, 1575900754000],
-    [12070000, 1576138200000],
-    [12080001, 1576334837000],
-    [12090001, 1576511372000],
-    [12100000, 1576752334000],
-    [12110000, 1576943163000],
-    [12120000, 1577116967000],
-    [12130001, 1577281370000],
-    [12140000, 1577461695000],
-    [12150000, 1577646401000],
-    [12160000, 1577796064000],
-    [12170001, 1577957614000],
-    [12180001, 1578127602000],
-    [12190001, 1578279558000],
-    [12200000, 1578477602000],
-    [12210000, 1578666504000],
-    [12220000, 1578839347000],
-    [12230000, 1579008316000],
-    [12240000, 1579227285000],
-    [12250002, 1579415678000],
-    [12260003, 1579607375000],
-    [12270000, 1579805432000],
-    [12280000, 1580008380000],
-    [12290002, 1580191030000],
-    [12300000, 1580389984000],
-    [12310001, 1580566786000],
-    [12320003, 1580730297000],
-    [12330000, 1580915887000],
-    [12340001, 1581129374000],
-    [12350001, 1581261750000],
-    [12360000, 1581430178000],
-    [12370000, 1581606681000],
-    [12380000, 1581751510000],
-    [12390001, 1581868909000],
-    [12400000, 1582069408000],
-    [12410001, 1582272103000],
-    [12420003, 1582429352000],
-    [12430000, 1582554250000],
-    [12440000, 1582738718000],
-    [12450004, 1582951392000],
-    [12460000, 1583070874000],
-    [12470002, 1583235146000],
-    [12480001, 1583402022000],
-    [12490003, 1583559433000],
-    [12500000, 1583673315000],
-    [12510000, 1583825446000],
-    [12520002, 1583980204000],
-    [12530001, 1584135315000],
-    [12540000, 1584263921000],
-    [12550000, 1584416516000],
-    [12560001, 1584590400000],
-    [12570001, 1584744451000],
-    [12580000, 1584885405000],
-    [12590000, 1585058908000],
-    [12600002, 1585236381000],
-    [12610000, 1585399742000],
-    [12620000, 1585517492000],
-    [12630001, 1585669259000],
-    [12640000, 1585828423000],
-    [12650000, 1585989472000],
-    [12660003, 1586098998000],
-    [12670001, 1586269270000],
-    [12680000, 1586438019000],
-    [12690001, 1586591555000],
-    [12700000, 1586695382000],
-    [12710003, 1586836653000],
-    [12720001, 1586971750000],
-    [12730000, 1587131198000],
-    [12740003, 1587258788000],
-    [12750000, 1587373867000],
-    [12760000, 1587488314000],
-    [12770000, 1587641662000],
-    [12780000, 1587781045000],
-    [12790000, 1587893479000],
-    [12800000, 1588002355000],
-    [12810001, 1588148020000],
-    [12820000, 1588261459000],
-    [12830000, 1588405175000],
-    [12840000, 1588508532000],
-    [12850000, 1588603233000],
-    [12860002, 1588689904000],
-    [12870001, 1588780404000],
-    [12880000, 1588926173000],
-    [12890001, 1589031515000],
-    [12900004, 1589112738000],
-    [12910000, 1589198403000],
-    [12920000, 1589338200000],
-    [12930000, 1589463502000],
-    [12940000, 1589580481000],
-    [12950000, 1589690404000],
-    [12960003, 1589796092000],
-    [12970000, 1589904983000],
-    [12980000, 1590056583000],
-    [12990001, 1590174208000],
-    [13000000, 1590293031000],
-    [13010000, 1590402693000],
-    [13020000, 1590542113000],
-    [13030000, 1590673782000],
-    [13040000, 1590817020000],
-    [13050000, 1590921816000],
-    [13060000, 1591050960000],
-    [13070003, 1591197055000],
-    [13080001, 1591357890000],
-    [13090001, 1591464609000],
-    [13100000, 1591588831000],
-    [13110001, 1591714925000],
-    [13120001, 1591874091000],
-    [13130000, 1592018956000],
-    [13140000, 1592127066000],
-    [13150003, 1592239701000],
-    [13160001, 1592403491000],
-    [13170000, 1592562322000],
-    [13180000, 1592673515000],
-    [13190002, 1592805607000],
-    [13200003, 1592944390000],
-    [13210000, 1593102620000],
-    [13220000, 1593261761000],
-    [13230000, 1593358849000],
-    [13240000, 1593523575000],
-    [13250001, 1593691848000],
-    [13260001, 1593849928000],
-    [13270000, 1593953075000],
-    [13280002, 1594098141000],
-    [13290000, 1594221705000],
-    [13300000, 1594391310000],
-    [13310001, 1594528320000],
-    [13320000, 1594646658000],
-    [13330000, 1594810055000],
-    [13340000, 1594974088000],
-    [13350000, 1595086699000],
-    [13360002, 1595219750000],
-    [13370000, 1595373630000],
-    [13380004, 1595514554000],
-    [13390000, 1595646365000],
-    [13400000, 1595752459000],
-    [13410003, 1595863524000],
-    [13420003, 1596029751000],
-    [13430000, 1596194279000],
-    [13440000, 1596306883000],
-    [13450001, 1596441247000],
-    [13460002, 1596593681000],
-    [13470002, 1596734690000],
-    [13480000, 1596886682000],
-    [13490001, 1596987319000],
-    [13500000, 1597123137000],
-    [13510001, 1597244082000],
-    [13520000, 1597387488000],
-    [13530000, 1597496781000],
-    [13540000, 1597589882000],
-    [13550001, 1597746996000],
-    [13560000, 1597895740000],
-    [13570002, 1598026651000],
-    [13580000, 1598162365000],
-    [13590002, 1598279240000],
-    [13600000, 1598443997000],
-    [13610000, 1598608599000],
-    [13620003, 1598726042000],
-    [13630002, 1598859157000],
-    [13640001, 1598978674000],
-    [13650001, 1599140606000],
-    [13660000, 1599296267000],
-    [13670000, 1599398967000],
-    [13680001, 1599550784000],
-    [13690000, 1599701636000],
-    [13700000, 1599841328000],
-    [13710000, 1599975477000],
-    [13720001, 1600089113000],
-    [13730000, 1600252766000],
-    [13740001, 1600416357000],
-    [13750001, 1600532583000],
-    [13760002, 1600665853000],
-    [13770000, 1600769092000],
-    [13780000, 1600891369000],
-    [13790004, 1601046381000],
-    [13800000, 1601178160000],
-    [13810000, 1601294975000],
-    [13820002, 1601457229000],
-    [13830001, 1601618680000],
-    [13840000, 1601742168000],
-    [13850001, 1601888032000],
-    [13860001, 1602053063000],
-    [13870001, 1602229323000],
-    [13880001, 1602343999000],
-    [13890000, 1602487521000],
-    [13900000, 1602647496000],
-    [13910000, 1602824568000],
-    [13920000, 1602952732000],
-    [13930000, 1603099598000],
-    [13940001, 1603269016000],
-    [13950001, 1603431520000],
-    [13960000, 1603553517000],
-    [13970000, 1603683799000],
-    [13980001, 1603825799000],
-    [13990000, 1603990293000],
-    [14000000, 1604141441000],
-    [14010000, 1604239538000],
-    [14020002, 1604392582000],
-    [14030001, 1604547728000],
-    [14040000, 1604710282000],
-    [14050002, 1604831865000],
-    [14060001, 1604978794000],
-    [14070003, 1605111829000],
-    [14080000, 1605281377000],
-    [14090000, 1605426595000],
-    [14100000, 1605544081000],
-    [14110001, 1605710566000],
-    [14120000, 1605878130000],
-    [14130000, 1606009270000],
-    [14140000, 1606110664000],
-    [14150000, 1606228059000],
-    [14160000, 1606395766000],
-    [14170000, 1606550198000],
-    [14180000, 1606655608000],
-    [14190005, 1606811213000],
-    [14200001, 1606977488000],
-    [14210000, 1607132673000],
-    [14220002, 1607254867000],
-    [14230000, 1607408548000],
-    [14240000, 1607578193000],
-    [14250000, 1607731193000],
-    [14260000, 1607855866000],
-    [14270001, 1608015495000],
-    [14280000, 1608188196000],
-    [14290000, 1608344622000],
-    [14300001, 1608467026000],
-    [14310000, 1608631924000],
-    [14320001, 1608787087000],
-    [14330001, 1608900065000],
-    [14340004, 1609032182000],
-    [14350001, 1609157888000],
-    [14360002, 1609289135000],
-    [14370000, 1609392601000],
-    [14380004, 1609477161000],
-    [14390000, 1609591619000],
-    [14400000, 1609687852000],
-    [14410000, 1609831223000],
-    [14420001, 1609957660000],
-    [14430000, 1610118005000],
-    [14440000, 1610261298000],
-    [14450000, 1610366620000],
-    [14460000, 1610524924000],
-    [14470000, 1610684778000],
-    [14480001, 1610809189000],
-    [14490000, 1610930924000],
-    [14500000, 1611076353000],
-    [14510000, 1611244136000],
-    [14520000, 1611399289000],
-    [14530001, 1611494532000],
-    [14540000, 1611645230000],
-    [14550001, 1611779802000],
-    [14560000, 1611929597000],
-    [14570000, 1612053001000],
-    [14580000, 1612159145000],
-    [14590000, 1612284409000],
-    [14600002, 1612445935000],
-    [14610002, 1612594878000],
-    [14620000, 1612696360000],
-    [14630000, 1612822111000],
-    [14640002, 1612968761000],
-    [14650000, 1613108310000],
-    [14660000, 1613224941000],
-    [14670000, 1613306449000],
-    [14680003, 1613406134000],
-    [14690002, 1613567319000],
-    [14700001, 1613724799000],
-    [14710001, 1613833209000],
-    [14720002, 1613937109000],
-    [14730000, 1614073989000],
-    [14740000, 1614203006000],
-    [14750000, 1614348178000],
-    [14760000, 1614475529000],
-    [14770000, 1614583382000],
-    [14780001, 1614704431000],
-    [14790001, 1614865547000],
-    [14800000, 1615013503000],
-    [14810000, 1615118546000],
-    [14820001, 1615260353000],
-    [14830000, 1615392435000],
-    [14840001, 1615554134000],
-    [14850000, 1615656736000],
-    [14860000, 1615777688000],
-    [14870000, 1615909277000],
-    [14880000, 1616074253000],
-    [14890000, 1616225241000],
-    [14900000, 1616329884000],
-    [14910001, 1616479813000],
-    [14920001, 1616639805000],
-    [14930000, 1616776543000],
-    [14940000, 1616919064000],
-    [14950001, 1617033405000],
-    [14960000, 1617192850000],
-    [14970000, 1617324478000],
-    [14980000, 1617457126000],
-    [14990001, 1617560471000],
-    [15000000, 1617721110000],
-    [15010000, 1617890905000],
-    [15020001, 1618051846000],
-    [15030000, 1618154216000],
-    [15040001, 1618325640000],
-    [15050000, 1618498930000],
-    [15060000, 1618661401000],
-    [15070000, 1618759507000],
-    [15080000, 1618927949000],
-    [15090000, 1619101646000],
-    [15100003, 1619267671000],
-    [15110001, 1619366377000],
-    [15120000, 1619539865000],
-    [15130001, 1619698940000],
-    [15140000, 1619841193000],
-    [15150000, 1619952445000],
-    [15160001, 1620053070000],
-    [15170000, 1620147984000],
-    [15180001, 1620264427000],
-    [15190000, 1620408103000],
-    [15200001, 1620542441000],
-    [15210000, 1620656347000],
-    [15220002, 1620827018000],
-    [15230002, 1620996871000],
-    [15240001, 1621125933000],
-    [15250005, 1621247716000],
-    [15260000, 1621414260000],
-    [15270000, 1621576564000],
-    [15280004, 1621693448000],
-    [15290001, 1621784663000],
-    [15300001, 1621944874000],
-    [15310000, 1622111419000],
-    [15320000, 1622262907000],
-    [15330001, 1622368908000],
-    [15340001, 1622490000000],
-    [15350000, 1622646046000],
-    [15360000, 1622811317000],
-    [15370000, 1622934001000],
-    [15380000, 1623050332000],
-    [15390002, 1623204454000],
-    [15400001, 1623345615000],
-    [15410000, 1623499760000],
-    [15420000, 1623596380000],
-    [15430000, 1623754940000],
-    [15440000, 1623917063000],
-    [15450006, 1624062216000],
-    [15460000, 1624173519000],
-    [15470000, 1624285944000],
-    [15480001, 1624446884000],
-    [15490001, 1624611602000],
-    [15500001, 1624721981000],
-    [15510000, 1624848973000],
-    [15520000, 1624987994000],
-    [15530000, 1625149123000],
-    [15540001, 1625305857000],
-    [15550000, 1625407992000],
-    [15560001, 1625570458000],
-    [15570000, 1625708289000],
-    [15580001, 1625846024000],
-    [15590000, 1625983462000],
-    [15600000, 1626102253000],
-    [15610000, 1626268263000],
-    [15620001, 1626435982000],
-    [15630000, 1626571357000],
-    [15640000, 1626697635000],
-    [15650000, 1626859260000],
-    [15660001, 1626984401000],
-    [15670001, 1627121694000],
-    [15680000, 1627222279000],
-    [15690000, 1627377515000],
-    [15700001, 1627534685000],
-    [15710002, 1627667668000],
-    [15720000, 1627799205000],
-    [15730001, 1627916409000],
-    [15740002, 1628077710000],
-    [15750001, 1628239296000],
-    [15760000, 1628352705000],
-    [15770000, 1628478255000],
-    [15780001, 1628594784000],
-    [15790001, 1628735344000],
-    [15800001, 1628858188000],
-    [15810000, 1628957693000],
-    [15820000, 1629072598000],
-    [15830000, 1629203998000],
-    [15840000, 1629345639000],
-    [15850000, 1629469386000],
-    [15860002, 1629589331000],
-    [15870000, 1629705588000],
-    [15880000, 1629823753000],
-    [15890001, 1629980009000],
-    [15900001, 1630116572000],
-    [15910000, 1630221709000],
-    [15920000, 1630329553000],
-    [15930000, 1630470444000],
-    [15940001, 1630596817000],
-    [15950000, 1630742907000],
-    [15960000, 1630841882000],
-    [15970000, 1630949694000],
-    [15980000, 1631107604000],
-    [15990001, 1631258037000],
-    [16000000, 1631368076000],
-    [16010001, 1631459740000],
-    [16020000, 1631616392000],
-    [16030000, 1631759130000],
-    [16040000, 1631890364000],
-    [16050002, 1632006000000],
-    [16060000, 1632113580000],
-    [16070000, 1632224017000],
-    [16080000, 1632357039000],
-    [16090000, 1632479964000],
-    [16100002, 1632584915000],
-    [16110000, 1632693601000],
-    [16120001, 1632837146000],
-    [16130001, 1632992269000],
-    [16140000, 1633103302000],
-    [16150000, 1633236036000],
-    [16160000, 1633351627000],
-    [16170000, 1633510429000],
-    [16180001, 1633670463000],
-    [16190000, 1633787504000],
-    [16200000, 1633879002000],
-    [16210000, 1634036463000],
-    [16220000, 1634190311000],
-    [16230000, 1634316909000],
-    [16240001, 1634449090000],
-    [16250001, 1634564297000],
-    [16260000, 1634731148000],
-    [16270000, 1634894514000],
-    [16280001, 1635006911000],
-    [16290000, 1635146973000],
-    [16300000, 1635296235000],
-    [16310001, 1635438801000],
-    [16320000, 1635596200000],
-    [16330000, 1635683945000],
-    [16340001, 1635813965000],
-    [16350000, 1635944185000],
-    [16360001, 1636104318000],
-    [16370000, 1636216125000],
-    [16380001, 1636349708000],
-    [16390000, 1636485778000],
-    [16400000, 1636633126000],
-    [16410000, 1636775436000],
-    [16420000, 1636887831000],
-    [16430000, 1637035157000],
-    [16440000, 1637202106000],
-    [16450000, 1637344438000],
-    [16460000, 1637480688000],
-    [16470001, 1637592913000],
-    [16480002, 1637739009000],
-    [16490000, 1637904942000],
-    [16500000, 1638026842000],
-    [16510000, 1638162888000],
-    [16520000, 1638292148000],
-    [16530000, 1638458030000],
-    [16540002, 1638615167000],
-    [16550000, 1638714393000],
-    [16560000, 1638876409000],
-    [16570000, 1639040028000],
-    [16580000, 1639187217000],
-    [16590000, 1639307662000],
-    [16600000, 1639454477000],
-    [16610000, 1639627185000],
-    [16620000, 1639779710000],
-    [16630000, 1639907263000],
-    [16640003, 1640056572000],
-    [16650000, 1640195488000],
-    [16660000, 1640347206000],
-    [16670002, 1640441258000],
-    [16680000, 1640558659000],
-    [16690000, 1640704773000],
-    [16700000, 1640851001000],
-    [16710000, 1640944416000],
-    [16720000, 1641034407000],
-    [16730001, 1641145162000],
-    [16740001, 1641287228000],
-    [16750001, 1641432930000],
-    [16760000, 1641569488000],
-    [16770000, 1641714711000],
-    [16780000, 1641819617000],
-    [16790000, 1641976092000],
-    [16800002, 1642135341000],
-    [16810000, 1642258816000],
-    [16820000, 1642376854000],
-    [16830000, 1642522447000],
-    [16840000, 1642692211000],
-    [16850001, 1642848145000],
-    [16860001, 1642946066000],
-    [16870006, 1643104274000],
-    [16880000, 1643256755000],
-    [16890000, 1643383270000],
-    [16900001, 1643513558000],
-    [16910000, 1643624822000],
-    [16920000, 1643761593000],
-    [16930000, 1643897518000],
-    [16940001, 1644046689000],
-    [16950000, 1644148988000],
-    [16960000, 1644292691000],
-    [16970000, 1644424029000],
-    [16980001, 1644571875000],
-    [16990000, 1644672859000],
-    [17000000, 1644761982000],
-    [17010001, 1644848140000],
-    [17020000, 1644994685000],
-    [17030000, 1645143682000],
-    [17040000, 1645269253000],
-    [17050001, 1645357332000],
-    [17060001, 1645465591000],
-    [17070000, 1645604057000],
-    [17080001, 1645725342000],
-    [17090000, 1645877056000],
-    [17100000, 1645972181000],
-    [17110000, 1646124672000],
-    [17120000, 1646276532000],
-    [17130000, 1646407396000],
-    [17140000, 1646535918000],
-    [17150000, 1646650916000],
-    [17160001, 1646804197000],
-    [17170001, 1646946167000],
-    [17180000, 1647084906000],
-    [17190000, 1647182489000],
-    [17200000, 1647314276000],
-    [17210000, 1647447683000],
-    [17220000, 1647607726000],
-    [17230002, 1647721896000],
-    [17240000, 1647838182000],
-    [17250000, 1647954518000],
-    [17260001, 1648112167000],
-    [17270000, 1648244365000],
-    [17280000, 1648363832000],
-    [17290002, 1648479018000],
-    [17300000, 1648637593000],
-    [17310000, 1648744721000],
-    [17320000, 1648882125000],
-    [17330001, 1648989613000],
-    [17340001, 1649121083000],
-    [17350002, 1649258940000],
-    [17360000, 1649424449000],
-    [17370000, 1649558056000],
-    [17380002, 1649679221000],
-    [17390000, 1649848546000],
-    [17400000, 1650014854000],
-    [17410001, 1650127780000],
-    [17420000, 1650265614000],
-    [17430000, 1650415187000],
-    [17440000, 1650565548000],
-    [17450000, 1650718660000],
-    [17460000, 1650817714000],
-    [17470000, 1650980883000],
-    [17480001, 1651147321000],
-    [17490000, 1651256656000],
-    [17500000, 1651380792000],
-    [17510000, 1651497322000],
-    [17520000, 1651636671000],
-    [17530000, 1651742579000],
-    [17540001, 1651852590000],
-    [17550000, 1651980986000],
-    [17560000, 1652097812000],
-    [17570000, 1652258339000],
-    [17580000, 1652418951000],
-    [17590000, 1652537092000],
-    [17600000, 1652648521000],
-    [17610000, 1652798828000],
-    [17620000, 1652966576000],
-    [17630000, 1653120396000],
-    [17640000, 1653224595000],
-    [17650000, 1653366436000],
-    [17660000, 1653503365000],
-    [17670000, 1653662025000],
-    [17680002, 1653797175000],
-    [17690001, 1653916799000],
-    [17700000, 1654083042000],
-    [17710000, 1654250603000],
-    [17720001, 1654366796000],
-    [17730000, 1654500942000],
-    [17740000, 1654659950000],
-    [17750000, 1654795307000],
-    [17760001, 1654949442000],
-    [17770000, 1655049498000],
-    [17780000, 1655209018000],
-    [17790000, 1655371763000],
-    [17800000, 1655523056000],
-    [17810000, 1655635213000],
-    [17820000, 1655777166000],
-    [17830001, 1655925251000],
-    [17840000, 1656082802000],
-    [17850000, 1656223265000],
-    [17860001, 1656347789000],
-    [17870000, 1656519562000],
-    [17880000, 1656686470000],
-    [17890001, 1656823962000],
-    [17900000, 1656943371000],
-    [17910000, 1657110378000],
-    [17920000, 1657261432000],
-    [17930000, 1657389177000],
-    [17940000, 1657537359000],
-    [17950001, 1657703351000],
-    [17960001, 1657862126000],
-    [17970000, 1657982775000],
-    [17980000, 1658107869000],
-    [17990000, 1658231351000],
-    [18000000, 1658390432000],
-    [18010000, 1658529832000],
-    [18020000, 1658657110000],
-    [18030000, 1658786587000],
-    [18040000, 1658931410000],
-    [18050000, 1659090621000],
-    [18060002, 1659210315000],
-    [18070000, 1659342601000],
-    [18080000, 1659490247000],
-    [18090000, 1659623847000],
-    [18100000, 1659771081000],
-    [18110000, 1659878153000],
-    [18120000, 1660020634000],
-    [18130000, 1660135471000],
-    [18140000, 1660271287000],
-    [18150000, 1660392085000],
-    [18160000, 1660493452000],
-    [18170001, 1660634551000],
-    [18180001, 1660751722000],
-    [18190001, 1660907787000],
-    [18200000, 1661015264000],
-    [18210001, 1661154293000],
-    [18220000, 1661296680000],
-    [18230000, 1661441105000],
-    [18240000, 1661594422000],
-    [18250000, 1661697793000],
-    [18260000, 1661860267000],
-    [18270000, 1662006107000],
-    [18280000, 1662153346000],
-    [18290000, 1662284110000],
-    [18300000, 1662417637000],
-    [18310001, 1662564937000],
-    [18320000, 1662732210000],
-    [18330000, 1662864886000],
-    [18340000, 1662989323000],
-    [18350000, 1663157286000],
-    [18360001, 1663325776000],
-    [18370001, 1663457990000],
-    [18380001, 1663569154000],
-    [18390000, 1663685381000],
-    [18400000, 1663854279000],
-    [18410000, 1663986345000],
-    [18420002, 1664098955000],
-    [18430003, 1664233443000],
-    [18440000, 1664381791000],
-    [18450000, 1664545903000],
-    [18460001, 1664672366000],
-    [18470000, 1664797315000],
-    [18480000, 1664963327000],
-    [18490001, 1665129129000],
-    [18500000, 1665249079000],
-    [18510000, 1665378101000],
-    [18520000, 1665498402000],
-    [18530000, 1665666274000],
-    [18540000, 1665822906000],
-    [18550000, 1665928917000],
-    [18560000, 1666091693000],
-    [18570000, 1666258710000],
-    [18580000, 1666413011000],
-    [18590000, 1666525787000],
-    [18600000, 1666683378000],
-    [18610001, 1666856198000],
-    [18620000, 1667012932000],
-    [18630001, 1667130397000],
-    [18640000, 1667227842000],
-    [18650000, 1667391437000],
-    [18660000, 1667537375000],
-    [18670000, 1667659115000],
-    [18680000, 1667778232000],
-    [18690000, 1667928642000],
-    [18700000, 1668092558000],
-    [18710000, 1668243412000],
-    [18720000, 1668347270000],
-    [18730000, 1668511156000],
-    [18740000, 1668681913000],
-    [18750000, 1668835345000],
-    [18760000, 1668948613000],
-    [18770000, 1669107023000],
-    [18780001, 1669217357000],
-    [18790000, 1669385287000],
-    [18800000, 1669521446000],
-    [18810000, 1669644488000],
-    [18820000, 1669806609000],
-    [18830000, 1669969123000],
-    [18840000, 1670085906000],
-    [18850001, 1670230236000],
-    [18860000, 1670388111000],
-    [18870000, 1670553568000],
-    [18880000, 1670680140000],
-    [18890001, 1670803201000],
-    [18900000, 1670955818000],
-    [18910000, 1671119233000],
-    [18920000, 1671281912000],
-    [18930000, 1671409195000],
-    [18940000, 1671567402000],
-    [18950000, 1671721208000],
-    [18960000, 1671861312000],
-    [18970000, 1671954612000],
-    [18980000, 1672061020000],
-    [18990001, 1672222393000],
-    [19000000, 1672353531000],
-    [19010000, 1672467100000],
-    [19020000, 1672553764000],
-    [19030000, 1672671491000],
-    [19040000, 1672808932000],
-    [19050000, 1672932463000],
-    [19060000, 1673087550000],
-    [19070000, 1673193657000],
-    [19080000, 1673334059000],
-    [19090000, 1673495777000],
-    [19100000, 1673631095000],
-    [19110000, 1673768998000],
-    [19120000, 1673885155000],
-    [19130000, 1674054006000],
-    [19140000, 1674222465000],
-    [19150000, 1674353315000],
-    [19160000, 1674473730000],
-    [19170001, 1674632979000],
-    [19180000, 1674785242000],
-    [19190000, 1674912941000],
-    [19200000, 1675017226000],
-    [19210000, 1675171526000],
-    [19220000, 1675332469000],
-    [19230000, 1675444750000],
-    [19240000, 1675578816000],
-    [19250000, 1675692430000],
-    [19260000, 1675852157000],
-    [19270000, 1675999035000],
-    [19280000, 1676117630000],
-    [19290000, 1676213750000],
-    [19300000, 1676339631000],
-    [19310001, 1676450914000],
-    [19320000, 1676596485000],
-    [19330000, 1676726295000],
-    [19340000, 1676824763000],
-    [19350000, 1676985136000],
-    [19360000, 1677125230000],
-    [19370001, 1677247234000],
-    [19380000, 1677373760000],
-    [19390000, 1677495165000],
-    [19400000, 1677633838000],
-    [19410000, 1677769224000],
-    [19420000, 1677919084000],
-    [19430000, 1678019683000],
-    [19440001, 1678155656000],
-    [19450001, 1678288614000],
-    [19460000, 1678449353000],
-    [19470000, 1678577300000],
-    [19480000, 1678704079000],
-    [19490001, 1678828261000],
-    [19500000, 1678977066000],
-    [19510000, 1679123089000],
-    [19520000, 1679232561000],
-    [19530001, 1679366629000],
-    [19540000, 1679492483000],
-    [19550000, 1679650444000],
-    [19560000, 1679756408000],
-    [19570000, 1679865472000],
-    [19580000, 1680010450000],
-    [19590000, 1680165108000],
-    [19600000, 1680274893000],
-    [19610000, 1680386401000],
-    [19620000, 1680512613000],
-    [19630001, 1680642045000],
-    [19640001, 1680788039000],
-    [19650000, 1680928729000],
-    [19660000, 1681038067000],
-    [19670000, 1681176951000],
-    [19680000, 1681327167000],
-    [19690000, 1681483914000],
-    [19700000, 1681613428000],
-    [19710000, 1681733363000],
-    [19720000, 1681901262000],
-    [19730000, 1682061980000],
-    [19740000, 1682176670000],
-    [19750000, 1682309707000],
-    [19760001, 1682466416000],
-    [19770000, 1682617585000],
-    [19780001, 1682768367000],
-    [19790000, 1682866680000],
-    [19800000, 1683019738000],
-    [19810000, 1683136858000],
-    [19820000, 1683268994000],
-    [19830000, 1683372201000],
-    [19840001, 1683462031000],
-    [19850001, 1683603948000],
-    [19860000, 1683730620000],
-    [19870000, 1683898327000],
-    [19880001, 1684024153000],
-    [19890000, 1684148452000],
-    [19900000, 1684313296000],
-    [19910000, 1684469994000],
-    [19920002, 1684590680000],
-    [19930000, 1684699592000],
-    [19940001, 1684851189000],
-    [19950000, 1685017223000],
-    [19960001, 1685169953000],
-    [19970000, 1685278382000],
-    [19980000, 1685433556000],
-    [19990000, 1685564102000],
-    [20000000, 1685716288000],
-    [20010003, 1685847463000],
-    [20020000, 1685964724000],
-    [20030000, 1686119859000],
-    [20040000, 1686275819000],
-    [20050000, 1686401217000],
-    [20060001, 1686496334000],
-    [20070001, 1686654781000],
-    [20080000, 1686814224000],
-    [20090000, 1686958417000],
-    [20100000, 1687078105000],
-    [20110000, 1687190663000],
-    [20120001, 1687355764000],
-    [20130000, 1687523522000],
-    [20140000, 1687645127000],
-    [20150000, 1687774959000],
-    [20160000, 1687936267000],
-    [20170000, 1688078953000],
-    [20180002, 1688208028000],
-    [20190000, 1688306045000],
-    [20200000, 1688453116000],
-    [20210000, 1688598008000],
-    [20220000, 1688737374000],
-    [20230000, 1688867724000],
-    [20240000, 1688988884000],
-    [20250001, 1689149214000],
-    [20260000, 1689311524000],
-    [20270000, 1689433202000],
-    [20280000, 1689564424000],
-    [20290000, 1689687736000],
-    [20300000, 1689856471000],
-    [20310000, 1690007766000],
-    [20320000, 1690119474000],
-    [20330000, 1690271740000],
-    [20340000, 1690412997000],
-    [20350000, 1690556408000],
-    [20360000, 1690695983000],
-    [20370000, 1690813374000],
-    [20380000, 1690966802000],
-    [20390001, 1691109438000],
-    [20400000, 1691241419000],
-    [20410000, 1691360804000],
-    [20420000, 1691498119000],
-    [20430001, 1691642753000],
-    [20440000, 1691761055000],
-    [20450001, 1691887415000],
-    [20460000, 1692010504000],
-    [20470000, 1692112959000],
-    [20480000, 1692255348000],
-    [20490000, 1692372791000],
-    [20500000, 1692508140000],
-    [20510000, 1692624146000],
-    [20520000, 1692765923000],
-    [20530000, 1692888700000],
-    [20540000, 1693038437000],
-    [20550000, 1693143069000],
-    [20560001, 1693284776000],
-    [20570000, 1693409238000],
-    [20580000, 1693558804000],
-    [20590000, 1693667983000],
-    [20600001, 1693801909000],
-    [20610000, 1693950411000],
-    [20620000, 1694100047000],
-    [20630001, 1694257179000],
-    [20640000, 1694357698000],
-    [20650001, 1694519970000],
-    [20660000, 1694683520000],
-    [20670000, 1694831389000],
-    [20680002, 1694954414000],
-    [20690000, 1695056275000],
-    [20700001, 1695217826000],
-    [20710000, 1695374863000],
-    [20720000, 1695482728000],
-    [20730000, 1695622806000],
-    [20740000, 1695771949000],
-    [20750000, 1695917849000],
-    [20760000, 1696066366000],
-    [20770000, 1696167557000],
-    [20780002, 1696333609000],
-    [20790001, 1696498978000],
-    [20800000, 1696647600000],
-    [20810000, 1696769069000],
-    [20820000, 1696880989000],
-    [20830000, 1697036612000],
-    [20840000, 1697205385000],
-    [20850000, 1697351378000],
-    [20860000, 1697475553000],
-    [20870001, 1697647826000],
-    [20880000, 1697814223000],
-    [20890000, 1697964038000],
-    [20900000, 1698114540000],
-    [20910000, 1698284373000],
-    [20920000, 1698442869000],
-    [20930000, 1698575354000],
-    [20940000, 1698701279000],
-    [20950000, 1698838714000],
-    [20960000, 1698999234000],
-    [20970001, 1699114399000],
-    [20980000, 1699258766000],
-    [20990000, 1699425433000],
-    [21000000, 1699598512000],
-    [21010001, 1699714856000],
-    [21020000, 1699857336000],
-    [21030002, 1700020188000],
-    [21040000, 1700195973000],
-    [21050000, 1700322845000],
-    [21060000, 1700475217000],
-    [21070000, 1700647081000],
-    [21080000, 1700787860000],
-    [21090000, 1700923757000],
-    [21100000, 1701068828000],
-    [21110000, 1701228360000],
-    [21120001, 1701375951000],
-    [21130002, 1701523398000],
-    [21140000, 1701654327000],
-    [21150000, 1701804625000],
-    [21160000, 1701961975000],
-    [21170000, 1702121359000],
-    [21180000, 1702224558000],
-    [21190000, 1702390238000],
-    [21200000, 1702559901000],
-    [21210000, 1702721469000],
-    [21220000, 1702834825000],
-    [21230000, 1703001809000],
-    [21240001, 1703174055000],
-    [21250000, 1703333512000],
-    [21260000, 1703427102000],
-    [21270001, 1703527561000],
-    [21280000, 1703689409000],
-    [21290000, 1703848444000],
-    [21300001, 1703952652000],
-    [21310000, 1704035239000],
-    [21320001, 1704184959000],
-    [21330000, 1704299117000],
-    [21340000, 1704457111000],
-    [21350000, 1704591749000],
-    [21360000, 1704709211000],
-    [21370002, 1704864150000],
-    [21380000, 1705033355000],
-    [21390000, 1705161084000],
-    [21400000, 1705311385000],
-    [21410001, 1705480370000],
-    [21420000, 1705646826000],
-    [21430000, 1705767267000],
-    [21440000, 1705911585000],
-    [21450000, 1706063572000],
-    [21460000, 1706200084000],
-    [21470000, 1706359804000],
-    [21480000, 1706484417000],
-    [21490000, 1706628284000],
-    [21500000, 1706787810000],
-    [21510000, 1706936708000],
-    [21520000, 1707051230000],
-    [21530000, 1707203452000],
-    [21540000, 1707358202000],
-    [21550001, 1707493684000],
-    [21560000, 1707632981000],
-    [21570000, 1707741391000],
-    [21580000, 1707864128000],
-    [21590000, 1707983294000],
-    [21600001, 1708108861000],
-    [21610002, 1708246649000],
-    [21620000, 1708362354000],
-    [21630000, 1708523363000],
-    [21640000, 1708665620000],
-    [21650000, 1708777893000],
-    [21660000, 1708872340000],
-    [21670000, 1709024108000],
-    [21680000, 1709164529000],
-    [21690001, 1709297573000],
-    [21700000, 1709421870000],
-    [21710000, 1709542096000],
-    [21720000, 1709689064000],
-    [21730000, 1709820201000],
-    [21740000, 1709966185000],
-    [21750001, 1710073580000],
-    [21760001, 1710216347000],
-    [21770000, 1710342745000],
-    [21780000, 1710489002000],
-    [21790000, 1710601771000],
-    [21800000, 1710729269000],
-    [21810000, 1710862791000],
-    [21820000, 1711011101000],
-    [21830000, 1711152692000],
-    [21840000, 1711274382000],
-    [21850000, 1711385301000],
-    [21860001, 1711542015000],
-    [21870000, 1711691358000],
-    [21880000, 1711808085000],
-    [21890000, 1711899903000],
-    [21900001, 1712048402000],
-    [21910002, 1712181192000],
-    [21920000, 1712323980000],
-    [21930000, 1712451639000],
-    [21940000, 1712575850000],
-    [21950000, 1712738176000],
-    [21960000, 1712907761000],
-    [21970000, 1713026853000],
-    [21980001, 1713159855000],
-    [21990000, 1713304268000],
-    [22000003, 1713454216000],
-    [22010000, 1713609088000],
-    [22020000, 1713709575000],
-    [22030001, 1713870918000],
-    [22040000, 1714035851000],
-    [22050000, 1714183495000],
-    [22060000, 1714306017000],
-    [22070000, 1714406420000],
-    [22080001, 1714561607000],
-    [22090000, 1714696149000],
-    [22100000, 1714817914000],
-    [22110000, 1714917205000],
-];
-
-
-/***/ }),
-
-/***/ "./src/ts/store/workPublishTimeIllusts.ts":
+/***/ "./src/ts/store/WorkPublishTimeIllusts.ts":
 /*!************************************************!*\
-  !*** ./src/ts/store/workPublishTimeIllusts.ts ***!
+  !*** ./src/ts/store/WorkPublishTimeIllusts.ts ***!
   \************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -45387,6 +44060,3106 @@ const illustsData = [
     [118480000, 1714955820000],
     [118490000, 1714983000000],
     [118500000, 1715001000000],
+    [118510000, 1715023680000],
+    [118520000, 1715069040000],
+    [118530000, 1715089980000],
+    [118540000, 1715123880000],
+    [118550000, 1715162400000],
+    [118560001, 1715181540000],
+    [118570000, 1715226960000],
+    [118580001, 1715257320000],
+    [118590001, 1715280540000],
+    [118600000, 1715327820000],
+    [118610000, 1715348760000],
+    [118620000, 1715379540000],
+    [118630001, 1715412060000],
+    [118640000, 1715432640000],
+    [118650000, 1715455020000],
+    [118660001, 1715490180000],
+    [118670000, 1715511600000],
+    [118680000, 1715526600000],
+    [118690000, 1715568180000],
+    [118700000, 1715599680000],
+    [118710000, 1715618160000],
+    [118720000, 1715664900000],
+    [118730000, 1715691600000],
+    [118740000, 1715719320000],
+    [118750000, 1715760960000],
+    [118760000, 1715782320000],
+    [118770001, 1715818680000],
+    [118780000, 1715854860000],
+    [118790000, 1715873700000],
+    [118800000, 1715919120000],
+    [118810001, 1715948100000],
+    [118820000, 1715969220000],
+    [118830000, 1716009720000],
+    [118840002, 1716033420000],
+    [118850000, 1716052080000],
+    [118860001, 1716091080000],
+    [118870000, 1716114480000],
+    [118880000, 1716130560000],
+    [118890000, 1716168300000],
+    [118900000, 1716201600000],
+    [118910000, 1716218760000],
+    [118920000, 1716262620000],
+    [118930001, 1716292680000],
+    [118940000, 1716312180000],
+    [118950002, 1716358680000],
+    [118960000, 1716383520000],
+    [118970000, 1716413220000],
+    [118980000, 1716454980000],
+    [118990000, 1716475140000],
+    [119000000, 1716514920000],
+    [119010000, 1716547860000],
+    [119020000, 1716565080000],
+    [119030000, 1716603780000],
+    [119040000, 1716631800000],
+    [119050000, 1716649560000],
+    [119060000, 1716685440000],
+    [119070000, 1716713100000],
+    [119080000, 1716730440000],
+    [119090000, 1716757680000],
+    [119100000, 1716799020000],
+    [119110003, 1716818340000],
+    [119120000, 1716847200000],
+    [119130000, 1716886680000],
+    [119140000, 1716905820000],
+    [119150001, 1716942000000],
+    [119160001, 1716978060000],
+    [119170002, 1716996180000],
+    [119180001, 1717039800000],
+    [119190000, 1717070040000],
+    [119200000, 1717089960000],
+    [119210001, 1717136100000],
+    [119220000, 1717159500000],
+    [119230000, 1717177500000],
+    [119240000, 1717215360000],
+    [119250000, 1717239720000],
+    [119260000, 1717256100000],
+    [119270000, 1717291500000],
+    [119280000, 1717316820000],
+    [119290000, 1717333620000],
+    [119300000, 1717353120000],
+    [119310000, 1717398720000],
+    [119320001, 1717420860000],
+    [119330000, 1717450140000],
+    [119340000, 1717491660000],
+    [119350000, 1717511940000],
+    [119360000, 1717549260000],
+    [119370000, 1717583880000],
+    [119380000, 1717602180000],
+    [119390002, 1717646160000],
+    [119400000, 1717675260000],
+    [119410000, 1717694220000],
+    [119420000, 1717741740000],
+    [119430000, 1717765080000],
+    [119440000, 1717788420000],
+    [119450000, 1717824960000],
+    [119460000, 1717848060000],
+    [119470000, 1717866300000],
+    [119480000, 1717904160000],
+    [119490000, 1717927320000],
+    [119500000, 1717943340000],
+    [119510000, 1717976280000],
+    [119520000, 1718012820000],
+    [119530000, 1718031540000],
+    [119540001, 1718070480000],
+    [119550000, 1718104380000],
+    [119560000, 1718123100000],
+    [119570000, 1718168640000],
+    [119580000, 1718196120000],
+    [119590000, 1718222580000],
+    [119600001, 1718266200000],
+    [119610000, 1718287860000],
+    [119620000, 1718322960000],
+    [119630000, 1718358840000],
+    [119640000, 1718377200000],
+    [119650000, 1718413080000],
+    [119660000, 1718442000000],
+    [119670000, 1718460600000],
+    [119680000, 1718490300000],
+    [119690000, 1718519820000],
+    [119700000, 1718539200000],
+    [119710000, 1718554320000],
+    [119720002, 1718597040000],
+    [119730000, 1718625480000],
+    [119740000, 1718644260000],
+    [119750003, 1718690460000],
+    [119760000, 1718715240000],
+    [119770000, 1718741820000],
+    [119780000, 1718785140000],
+    [119790000, 1718806380000],
+    [119800000, 1718841600000],
+    [119810001, 1718878320000],
+    [119820000, 1718897220000],
+    [119830000, 1718938920000],
+    [119840000, 1718969580000],
+    [119850001, 1718987580000],
+    [119860000, 1719027780000],
+    [119870000, 1719053460000],
+    [119880000, 1719069600000],
+    [119890000, 1719106140000],
+    [119900000, 1719130680000],
+    [119910000, 1719146880000],
+    [119920000, 1719162900000],
+    [119930000, 1719206940000],
+    [119940000, 1719232500000],
+    [119950000, 1719251460000],
+    [119960001, 1719296940000],
+    [119970000, 1719320400000],
+    [119980001, 1719345180000],
+    [119990001, 1719389040000],
+    [120000000, 1719409620000],
+    [120010001, 1719441000000],
+    [120020000, 1719480120000],
+    [120030002, 1719498540000],
+    [120040000, 1719534000000],
+    [120050001, 1719568260000],
+    [120060000, 1719585300000],
+    [120070000, 1719617400000],
+    [120080001, 1719647400000],
+    [120090000, 1719666300000],
+    [120100000, 1719685020000],
+    [120110000, 1719721620000],
+    [120120000, 1719743520000],
+    [120130000, 1719757620000],
+    [120140000, 1719786780000],
+    [120150000, 1719824580000],
+    [120160000, 1719843600000],
+    [120170000, 1719879540000],
+    [120180001, 1719916320000],
+    [120190000, 1719934140000],
+    [120200000, 1719978840000],
+    [120210001, 1720008120000],
+    [120220000, 1720027980000],
+    [120230001, 1720075620000],
+    [120240000, 1720100160000],
+    [120250000, 1720133160000],
+    [120260000, 1720172760000],
+    [120270000, 1720191600000],
+    [120280000, 1720228500000],
+    [120290000, 1720257360000],
+    [120300001, 1720276320000],
+    [120310000, 1720306800000],
+    [120320000, 1720335660000],
+    [120330000, 1720354440000],
+    [120340000, 1720369320000],
+    [120350000, 1720414320000],
+    [120360000, 1720442460000],
+    [120370003, 1720466820000],
+    [120380000, 1720511160000],
+    [120390000, 1720533540000],
+    [120400000, 1720571100000],
+    [120410000, 1720606680000],
+    [120420000, 1720625760000],
+    [120430000, 1720670040000],
+    [120440000, 1720699980000],
+    [120450001, 1720724820000],
+    [120460001, 1720771020000],
+    [120470001, 1720791600000],
+    [120480000, 1720822680000],
+    [120490000, 1720856160000],
+    [120500001, 1720877040000],
+    [120510000, 1720905360000],
+    [120520000, 1720939320000],
+    [120530000, 1720959900000],
+    [120540000, 1720977120000],
+    [120550001, 1721015520000],
+    [120560001, 1721039280000],
+    [120570001, 1721055660000],
+    [120580000, 1721094780000],
+    [120590000, 1721127600000],
+    [120600000, 1721145660000],
+    [120610000, 1721192640000],
+    [120620000, 1721219520000],
+    [120630000, 1721245740000],
+    [120640000, 1721290140000],
+    [120650001, 1721312160000],
+    [120660000, 1721350140000],
+    [120670000, 1721384520000],
+    [120680001, 1721403060000],
+    [120690000, 1721443560000],
+    [120700000, 1721471160000],
+    [120710000, 1721488380000],
+    [120720000, 1721525460000],
+    [120730000, 1721551080000],
+    [120740003, 1721565300000],
+    [120750000, 1721572140000],
+    [120760000, 1721584860000],
+    [120770002, 1721628900000],
+    [120780000, 1721653080000],
+    [120790004, 1721670060000],
+    [120800000, 1721686140000],
+    [120810002, 1721705220000],
+    [120820000, 1721735460000],
+    [120830000, 1721756280000],
+    [120840000, 1721801580000],
+    [120850000, 1721825880000],
+    [120860000, 1721853420000],
+    [120870000, 1721894400000],
+    [120880000, 1721916000000],
+    [120890000, 1721949660000],
+    [120900000, 1721985660000],
+    [120910001, 1722005460000],
+    [120920000, 1722040200000],
+    [120930000, 1722070320000],
+    [120940000, 1722089400000],
+    [120950000, 1722122160000],
+    [120960002, 1722151680000],
+    [120970000, 1722170820000],
+    [120980000, 1722189720000],
+    [120990000, 1722235620000],
+    [121000000, 1722259080000],
+    [121010000, 1722288300000],
+    [121020000, 1722328200000],
+    [121030000, 1722348480000],
+    [121040000, 1722381960000],
+    [121050000, 1722417240000],
+    [121060000, 1722436320000],
+    [121070000, 1722467940000],
+    [121080000, 1722503220000],
+    [121090000, 1722522240000],
+    [121100000, 1722555660000],
+    [121110000, 1722589620000],
+    [121120000, 1722607200000],
+    [121130000, 1722635760000],
+    [121140000, 1722667740000],
+    [121150000, 1722689040000],
+    [121160001, 1722709140000],
+    [121170000, 1722746640000],
+    [121180000, 1722769380000],
+    [121190002, 1722784740000],
+    [121200000, 1722825360000],
+    [121210000, 1722855480000],
+    [121220000, 1722872280000],
+    [121230000, 1722913680000],
+    [121240000, 1722943380000],
+    [121250000, 1722960720000],
+    [121260000, 1723002240000],
+    [121270000, 1723030080000],
+    [121280000, 1723046760000],
+    [121290001, 1723088280000],
+    [121300000, 1723116600000],
+    [121310000, 1723133880000],
+    [121320000, 1723175580000],
+    [121330000, 1723203480000],
+    [121340000, 1723219500000],
+    [121350000, 1723256880000],
+    [121360000, 1723282200000],
+    [121370000, 1723300020000],
+    [121380000, 1723332540000],
+    [121390001, 1723362720000],
+    [121400000, 1723383000000],
+    [121410000, 1723411080000],
+    [121420001, 1723445520000],
+    [121430000, 1723467000000],
+    [121440000, 1723491660000],
+    [121450000, 1723531440000],
+    [121460000, 1723554060000],
+    [121470001, 1723580280000],
+    [121480000, 1723618800000],
+    [121490000, 1723640880000],
+    [121500000, 1723667160000],
+    [121510000, 1723704840000],
+    [121520000, 1723727040000],
+    [121530000, 1723754100000],
+    [121540000, 1723790880000],
+    [121550000, 1723811220000],
+    [121560000, 1723830180000],
+    [121570000, 1723868760000],
+    [121580000, 1723893000000],
+    [121590000, 1723908720000],
+    [121600000, 1723945680000],
+    [121610001, 1723970820000],
+    [121620000, 1723987560000],
+    [121630000, 1724011140000],
+    [121640000, 1724053140000],
+    [121650000, 1724073960000],
+    [121660000, 1724101800000],
+    [121670000, 1724142780000],
+    [121680000, 1724163420000],
+    [121690001, 1724197380000],
+    [121700000, 1724231820000],
+    [121710000, 1724249820000],
+    [121720000, 1724281980000],
+    [121730001, 1724318700000],
+    [121740000, 1724337780000],
+    [121750000, 1724375760000],
+    [121760000, 1724407260000],
+    [121770000, 1724425260000],
+    [121780000, 1724460300000],
+    [121790000, 1724489220000],
+    [121800000, 1724508180000],
+    [121810001, 1724538960000],
+    [121820000, 1724569200000],
+    [121830000, 1724588700000],
+    [121840000, 1724605440000],
+    [121850000, 1724649120000],
+    [121860000, 1724674920000],
+    [121870000, 1724695560000],
+    [121880000, 1724739780000],
+    [121890000, 1724763480000],
+    [121900000, 1724791860000],
+    [121910000, 1724833020000],
+    [121920000, 1724853180000],
+    [121930000, 1724887200000],
+    [121940000, 1724923740000],
+    [121950000, 1724942940000],
+    [121960000, 1724979600000],
+    [121970000, 1725011760000],
+    [121980000, 1725029820000],
+    [121990000, 1725059160000],
+    [122000000, 1725086400000],
+    [122010000, 1725105000000],
+    [122020000, 1725117660000],
+    [122030000, 1725150180000],
+    [122040000, 1725174900000],
+    [122050000, 1725192240000],
+    [122060000, 1725205560000],
+    [122070000, 1725246300000],
+    [122080000, 1725276540000],
+    [122090000, 1725294000000],
+    [122100000, 1725338040000],
+    [122110000, 1725365880000],
+    [122120000, 1725387300000],
+    [122130001, 1725434040000],
+    [122140000, 1725457260000],
+    [122150003, 1725490500000],
+    [122160000, 1725528420000],
+    [122170000, 1725548400000],
+    [122180000, 1725587640000],
+    [122190000, 1725619560000],
+    [122200002, 1725636960000],
+    [122210000, 1725674640000],
+    [122220001, 1725702540000],
+    [122230001, 1725720600000],
+    [122240001, 1725753540000],
+    [122250002, 1725781200000],
+    [122260000, 1725799500000],
+    [122270000, 1725817020000],
+    [122280000, 1725860700000],
+    [122290000, 1725885600000],
+    [122300000, 1725907980000],
+    [122310000, 1725953040000],
+    [122320000, 1725975300000],
+    [122330000, 1726005600000],
+    [122340000, 1726046100000],
+    [122350000, 1726066440000],
+    [122360002, 1726105440000],
+    [122370000, 1726138980000],
+    [122380000, 1726157760000],
+    [122390000, 1726203480000],
+    [122400000, 1726230360000],
+    [122410000, 1726251060000],
+    [122420000, 1726291380000],
+    [122430001, 1726315380000],
+    [122440000, 1726333440000],
+    [122450000, 1726371360000],
+    [122460000, 1726396260000],
+    [122470000, 1726412400000],
+    [122480000, 1726447200000],
+    [122490000, 1726475760000],
+    [122500001, 1726493940000],
+    [122510002, 1726519740000],
+    [122520002, 1726560000000],
+    [122530000, 1726580460000],
+    [122540000, 1726610700000],
+    [122550000, 1726650540000],
+    [122560001, 1726669560000],
+    [122570000, 1726704780000],
+    [122580000, 1726741380000],
+    [122590000, 1726759140000],
+    [122600000, 1726801200000],
+    [122610000, 1726830960000],
+    [122620000, 1726847760000],
+    [122630000, 1726887180000],
+    [122640000, 1726912980000],
+    [122650000, 1726930800000],
+    [122660000, 1726965300000],
+    [122670002, 1726992900000],
+    [122680000, 1727011140000],
+    [122690000, 1727031780000],
+    [122700000, 1727069220000],
+    [122710000, 1727092080000],
+    [122720000, 1727108520000],
+    [122730002, 1727154000000],
+    [122740000, 1727182080000],
+    [122750000, 1727207220000],
+    [122760000, 1727253600000],
+    [122770002, 1727274660000],
+    [122780000, 1727311860000],
+    [122790000, 1727347080000],
+    [122800000, 1727366100000],
+    [122810001, 1727411100000],
+    [122820000, 1727439240000],
+    [122830000, 1727458980000],
+    [122840000, 1727499240000],
+    [122850000, 1727523000000],
+    [122860000, 1727539620000],
+    [122870000, 1727578140000],
+    [122880000, 1727602020000],
+    [122890000, 1727618760000],
+    [122900000, 1727648280000],
+    [122910000, 1727686620000],
+    [122920000, 1727704680000],
+    [122930000, 1727732760000],
+    [122940000, 1727773200000],
+    [122950000, 1727792100000],
+    [122960000, 1727826840000],
+    [122970000, 1727863020000],
+    [122980000, 1727881620000],
+    [122990000, 1727923440000],
+    [123000000, 1727954040000],
+    [123010000, 1727971860000],
+    [123020001, 1728016020000],
+    [123030001, 1728043260000],
+    [123040000, 1728061140000],
+    [123050000, 1728100800000],
+    [123060000, 1728126000000],
+    [123070000, 1728142080000],
+    [123080000, 1728178800000],
+    [123090000, 1728204660000],
+    [123100000, 1728221580000],
+    [123110000, 1728247620000],
+    [123120000, 1728288960000],
+    [123130000, 1728309360000],
+    [123140000, 1728341700000],
+    [123150001, 1728381060000],
+    [123160000, 1728400020000],
+    [123170000, 1728443040000],
+    [123180000, 1728474420000],
+    [123190000, 1728493920000],
+    [123200001, 1728540900000],
+    [123210000, 1728565200000],
+    [123220001, 1728590700000],
+    [123230000, 1728634680000],
+    [123240000, 1728655620000],
+    [123250000, 1728688320000],
+    [123260000, 1728720060000],
+    [123270000, 1728739920000],
+    [123280001, 1728766320000],
+    [123290000, 1728799020000],
+    [123300000, 1728820740000],
+    [123310000, 1728837000000],
+    [123320000, 1728876060000],
+    [123330000, 1728900720000],
+    [123340001, 1728917580000],
+    [123350000, 1728955080000],
+    [123360001, 1728989400000],
+    [123370001, 1729007040000],
+    [123380001, 1729051020000],
+    [123390000, 1729080420000],
+    [123400000, 1729100640000],
+    [123410001, 1729146480000],
+    [123420001, 1729166400000],
+    [123430000, 1729181940000],
+    [123440000, 1729223040000],
+    [123450000, 1729249920000],
+    [123460000, 1729266120000],
+    [123470000, 1729303860000],
+    [123480000, 1729330080000],
+    [123490001, 1729347180000],
+    [123500000, 1729375200000],
+    [123510000, 1729405500000],
+    [123520000, 1729425180000],
+    [123530001, 1729439580000],
+    [123540000, 1729482120000],
+    [123550000, 1729511340000],
+    [123560000, 1729529940000],
+    [123570000, 1729574640000],
+    [123580001, 1729600380000],
+    [123590000, 1729621800000],
+    [123600000, 1729666620000],
+    [123610000, 1729688820000],
+    [123620001, 1729713060000],
+    [123630001, 1729756560000],
+    [123640000, 1729777200000],
+    [123650000, 1729806840000],
+    [123660000, 1729846380000],
+    [123670001, 1729864620000],
+    [123680000, 1729892220000],
+    [123690000, 1729924500000],
+    [123700000, 1729945560000],
+    [123710000, 1729962300000],
+    [123720000, 1729999920000],
+    [123730001, 1730023560000],
+    [123740000, 1730039460000],
+    [123750000, 1730071560000],
+    [123760000, 1730107800000],
+    [123770000, 1730126520000],
+    [123780000, 1730161500000],
+    [123790000, 1730196600000],
+    [123800000, 1730214360000],
+    [123810000, 1730253960000],
+    [123820000, 1730284740000],
+    [123830000, 1730300520000],
+    [123840000, 1730326860000],
+    [123850000, 1730358120000],
+    [123860000, 1730374020000],
+    [123870000, 1730384760000],
+    [123880000, 1730404260000],
+    [123890000, 1730441880000],
+    [123900000, 1730464200000],
+    [123910000, 1730482320000],
+    [123920000, 1730522520000],
+    [123930000, 1730545800000],
+    [123940000, 1730562600000],
+    [123950000, 1730600760000],
+    [123960000, 1730626740000],
+    [123970000, 1730644020000],
+    [123980000, 1730674260000],
+    [123990000, 1730705760000],
+    [124000000, 1730725200000],
+    [124010001, 1730745900000],
+    [124020000, 1730791980000],
+    [124030000, 1730813760000],
+    [124040001, 1730845800000],
+    [124050000, 1730885820000],
+    [124060000, 1730905260000],
+    [124070000, 1730947860000],
+    [124080000, 1730978940000],
+    [124090000, 1730998440000],
+    [124100000, 1731046020000],
+    [124110000, 1731070320000],
+    [124120000, 1731093960000],
+    [124130000, 1731132600000],
+    [124140000, 1731155460000],
+    [124150000, 1731175020000],
+    [124160000, 1731213360000],
+    [124170000, 1731235740000],
+    [124180000, 1731250800000],
+    [124190000, 1731283200000],
+    [124200000, 1731317400000],
+    [124210000, 1731334260000],
+    [124220000, 1731364260000],
+    [124230000, 1731402720000],
+    [124240000, 1731422160000],
+    [124250000, 1731458100000],
+    [124260000, 1731491460000],
+    [124270000, 1731509040000],
+    [124280000, 1731544920000],
+    [124290000, 1731577320000],
+    [124300000, 1731594660000],
+    [124310000, 1731627120000],
+    [124320000, 1731662220000],
+    [124330000, 1731679560000],
+    [124340001, 1731709140000],
+    [124350000, 1731740700000],
+    [124360001, 1731760260000],
+    [124370000, 1731778260000],
+    [124380000, 1731816300000],
+    [124390000, 1731838440000],
+    [124400001, 1731853860000],
+    [124410000, 1731886620000],
+    [124420000, 1731923580000],
+    [124430000, 1731942000000],
+    [124440000, 1731982380000],
+    [124450001, 1732014900000],
+    [124460000, 1732033980000],
+    [124470000, 1732080540000],
+    [124480001, 1732106460000],
+    [124490001, 1732130580000],
+    [124500001, 1732176360000],
+    [124510000, 1732197780000],
+    [124520000, 1732232580000],
+    [124530000, 1732269660000],
+    [124540000, 1732287600000],
+    [124550000, 1732323600000],
+    [124560000, 1732352400000],
+    [124570000, 1732370940000],
+    [124580000, 1732399740000],
+    [124590000, 1732430940000],
+    [124600000, 1732449660000],
+    [124610001, 1732465560000],
+    [124620000, 1732511520000],
+    [124630000, 1732538040000],
+    [124640000, 1732562040000],
+    [124650000, 1732607280000],
+    [124660000, 1732628460000],
+    [124670000, 1732658400000],
+    [124680000, 1732698420000],
+    [124690000, 1732718040000],
+    [124700000, 1732753080000],
+    [124710000, 1732789260000],
+    [124720000, 1732806960000],
+    [124730000, 1732849200000],
+    [124740000, 1732878300000],
+    [124750000, 1732894560000],
+    [124760000, 1732931460000],
+    [124770000, 1732958100000],
+    [124780000, 1732975200000],
+    [124790000, 1732999800000],
+    [124800000, 1733031780000],
+    [124810001, 1733052360000],
+    [124820000, 1733067240000],
+    [124830000, 1733109600000],
+    [124840000, 1733139180000],
+    [124850000, 1733157180000],
+    [124860000, 1733202600000],
+    [124870000, 1733229300000],
+    [124880000, 1733254920000],
+    [124890001, 1733300400000],
+    [124900000, 1733320860000],
+    [124910000, 1733356500000],
+    [124920000, 1733393100000],
+    [124930001, 1733412000000],
+    [124940000, 1733456940000],
+    [124950000, 1733485560000],
+    [124960000, 1733504100000],
+    [124970000, 1733545620000],
+    [124980000, 1733569680000],
+    [124990000, 1733586480000],
+    [125000000, 1733625600000],
+    [125010000, 1733649780000],
+    [125020000, 1733666880000],
+    [125030000, 1733698800000],
+    [125040000, 1733737620000],
+    [125050000, 1733756460000],
+    [125060000, 1733798520000],
+    [125070000, 1733829300000],
+    [125080000, 1733848320000],
+    [125090000, 1733896440000],
+    [125100000, 1733921640000],
+    [125110000, 1733949180000],
+    [125120000, 1733991780000],
+    [125130000, 1734012360000],
+    [125140000, 1734046920000],
+    [125150000, 1734084000000],
+    [125160000, 1734102000000],
+    [125170001, 1734138720000],
+    [125180000, 1734166800000],
+    [125190000, 1734185400000],
+    [125200000, 1734215400000],
+    [125210000, 1734246060000],
+    [125220000, 1734265020000],
+    [125230000, 1734281160000],
+    [125240000, 1734325440000],
+    [125250000, 1734351420000],
+    [125260000, 1734372180000],
+    [125270000, 1734418800000],
+    [125280000, 1734441540000],
+    [125290000, 1734470340000],
+    [125300000, 1734510840000],
+    [125310000, 1734530640000],
+    [125320000, 1734565500000],
+    [125330000, 1734601740000],
+    [125340000, 1734620580000],
+    [125350000, 1734662160000],
+    [125360000, 1734692280000],
+    [125370000, 1734709440000],
+    [125380000, 1734750000000],
+    [125390000, 1734775740000],
+    [125400000, 1734793140000],
+    [125410001, 1734826800000],
+    [125420001, 1734853740000],
+    [125430000, 1734871380000],
+    [125440000, 1734888960000],
+    [125450001, 1734933660000],
+    [125460000, 1734957360000],
+    [125470000, 1734973500000],
+    [125480000, 1735012440000],
+    [125490000, 1735035780000],
+    [125500000, 1735048680000],
+    [125510000, 1735061940000],
+    [125520000, 1735096980000],
+    [125530000, 1735120500000],
+    [125540000, 1735133940000],
+    [125550000, 1735149600000],
+    [125560000, 1735189140000],
+    [125570000, 1735214040000],
+    [125580000, 1735230420000],
+    [125590001, 1735271220000],
+    [125600000, 1735297020000],
+    [125610000, 1735312740000],
+    [125620000, 1735349640000],
+    [125630001, 1735375800000],
+    [125640000, 1735393980000],
+];
+
+
+/***/ }),
+
+/***/ "./src/ts/store/WorkPublishTimeNovels.ts":
+/*!***********************************************!*\
+  !*** ./src/ts/store/WorkPublishTimeNovels.ts ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   novelData: () => (/* binding */ novelData)
+/* harmony export */ });
+const novelData = [
+    [129, 1280384594000],
+    [10007, 1280558885000],
+    [20001, 1281099833000],
+    [30006, 1282016726000],
+    [40000, 1283058990000],
+    [50003, 1284130800000],
+    [60002, 1285248459000],
+    [70000, 1286383797000],
+    [80000, 1287587350000],
+    [90003, 1288702643000],
+    [100000, 1289750009000],
+    [110000, 1290800661000],
+    [120000, 1291911048000],
+    [130000, 1293023102000],
+    [140001, 1293990763000],
+    [150004, 1294921696000],
+    [160004, 1295784678000],
+    [170001, 1296580286000],
+    [180000, 1297357894000],
+    [190002, 1298051246000],
+    [200000, 1298800698000],
+    [210000, 1299544965000],
+    [220000, 1300512363000],
+    [230000, 1301213084000],
+    [240000, 1301836904000],
+    [250000, 1302561861000],
+    [260000, 1303376035000],
+    [270002, 1304084248000],
+    [280000, 1304695785000],
+    [290000, 1305338427000],
+    [300000, 1305942926000],
+    [310002, 1306521475000],
+    [320000, 1307103716000],
+    [330000, 1307628374000],
+    [340000, 1308152212000],
+    [350001, 1308671940000],
+    [360003, 1309193210000],
+    [370000, 1309707590000],
+    [380001, 1310224382000],
+    [390002, 1310744385000],
+    [400000, 1311240590000],
+    [410000, 1311714592000],
+    [420003, 1312224244000],
+    [430001, 1312731339000],
+    [440001, 1313296075000],
+    [450003, 1313764835000],
+    [460000, 1314249696000],
+    [470003, 1314711329000],
+    [480000, 1315145953000],
+    [490007, 1315659922000],
+    [500000, 1316129991000],
+    [510003, 1316556988000],
+    [520000, 1316999883000],
+    [530004, 1317484198000],
+    [540001, 1317970536000],
+    [550003, 1318383439000],
+    [560001, 1318844138000],
+    [570001, 1319298372000],
+    [580000, 1319786020000],
+    [590001, 1320157532000],
+    [600000, 1320589354000],
+    [610003, 1321033402000],
+    [620000, 1321519466000],
+    [630002, 1321925666000],
+    [640000, 1322323144000],
+    [650001, 1322778841000],
+    [660000, 1323187376000],
+    [670000, 1323619422000],
+    [680002, 1324113471000],
+    [690005, 1324542346000],
+    [700000, 1324863292000],
+    [710000, 1325265330000],
+    [720001, 1325664232000],
+    [730000, 1326030447000],
+    [740000, 1326447371000],
+    [750000, 1326813089000],
+    [760000, 1327222222000],
+    [770000, 1327616533000],
+    [780001, 1327978661000],
+    [790006, 1328363509000],
+    [800000, 1328708326000],
+    [810002, 1329049070000],
+    [820000, 1329313827000],
+    [830000, 1329661069000],
+    [840000, 1330044197000],
+    [850002, 1330399536000],
+    [860000, 1330760171000],
+    [870000, 1331091059000],
+    [880001, 1331430688000],
+    [890000, 1331740424000],
+    [900000, 1332056343000],
+    [910000, 1332342034000],
+    [920004, 1332657590000],
+    [930000, 1332950185000],
+    [940001, 1333253995000],
+    [950001, 1333531155000],
+    [960003, 1333851677000],
+    [970001, 1334204901000],
+    [980001, 1334509654000],
+    [990000, 1334915605000],
+    [1000004, 1335194889000],
+    [1010001, 1335577999000],
+    [1020001, 1335865453000],
+    [1030000, 1336148344000],
+    [1040000, 1336430393000],
+    [1050000, 1336801524000],
+    [1060001, 1337093451000],
+    [1070000, 1337435442000],
+    [1080003, 1337748152000],
+    [1090000, 1338048813000],
+    [1100000, 1338386829000],
+    [1110006, 1338706652000],
+    [1120001, 1338995770000],
+    [1130003, 1339304913000],
+    [1140000, 1339594732000],
+    [1150005, 1339900812000],
+    [1160000, 1340181428000],
+    [1170000, 1340467013000],
+    [1180000, 1340798549000],
+    [1190004, 1341081318000],
+    [1200000, 1341378294000],
+    [1210000, 1341627003000],
+    [1220000, 1341838882000],
+    [1230002, 1342107912000],
+    [1240001, 1342366761000],
+    [1250000, 1342624522000],
+    [1260000, 1342893053000],
+    [1270001, 1343141451000],
+    [1280000, 1343411297000],
+    [1290000, 1343663085000],
+    [1300001, 1343920259000],
+    [1310000, 1344169879000],
+    [1320002, 1344409293000],
+    [1330000, 1344659199000],
+    [1340000, 1344896869000],
+    [1350000, 1345124715000],
+    [1360009, 1345359194000],
+    [1370002, 1345599272000],
+    [1380000, 1345835088000],
+    [1390000, 1346075877000],
+    [1400001, 1346330394000],
+    [1410001, 1346550028000],
+    [1420000, 1346779027000],
+    [1430000, 1347060633000],
+    [1440001, 1347279773000],
+    [1450001, 1347538265000],
+    [1460005, 1347781791000],
+    [1470001, 1347973096000],
+    [1480002, 1348233789000],
+    [1490000, 1348421630000],
+    [1500001, 1348700844000],
+    [1510001, 1348937413000],
+    [1520000, 1349157850000],
+    [1530001, 1349372979000],
+    [1540002, 1349606131000],
+    [1550001, 1349795097000],
+    [1560001, 1350052229000],
+    [1570002, 1350269341000],
+    [1580001, 1350532237000],
+    [1590000, 1350758415000],
+    [1600000, 1350997858000],
+    [1610006, 1351261071000],
+    [1620003, 1351479480000],
+    [1630002, 1351693412000],
+    [1640000, 1351949249000],
+    [1650005, 1352189853000],
+    [1660000, 1352449647000],
+    [1670002, 1352637939000],
+    [1680001, 1352884190000],
+    [1690000, 1353154000000],
+    [1700000, 1353402782000],
+    [1710000, 1353638092000],
+    [1720001, 1353848294000],
+    [1730000, 1354118175000],
+    [1740003, 1354378863000],
+    [1750002, 1354631450000],
+    [1760000, 1354938336000],
+    [1770001, 1355153123000],
+    [1780000, 1355444255000],
+    [1790003, 1355670988000],
+    [1800000, 1355934280000],
+    [1810000, 1356190313000],
+    [1820001, 1356371790000],
+    [1830001, 1356616228000],
+    [1840003, 1356868743000],
+    [1850002, 1357070395000],
+    [1860000, 1357313538000],
+    [1870000, 1357548863000],
+    [1880001, 1357824009000],
+    [1890000, 1358074605000],
+    [1900000, 1358265865000],
+    [1910000, 1358569040000],
+    [1920003, 1358779320000],
+    [1930000, 1359041117000],
+    [1940001, 1359285099000],
+    [1950002, 1359536718000],
+    [1960000, 1359745109000],
+    [1970002, 1359966846000],
+    [1980000, 1360210328000],
+    [1990001, 1360429921000],
+    [2000000, 1360642383000],
+    [2010000, 1360844563000],
+    [2020000, 1361026805000],
+    [2030005, 1361263382000],
+    [2040000, 1361519812000],
+    [2050000, 1361713982000],
+    [2060001, 1361973749000],
+    [2070000, 1362225095000],
+    [2080000, 1362416157000],
+    [2090000, 1362671650000],
+    [2100001, 1362903499000],
+    [2110004, 1363125268000],
+    [2120000, 1363354484000],
+    [2130000, 1363575696000],
+    [2140000, 1363788816000],
+    [2150000, 1364031500000],
+    [2160000, 1364224743000],
+    [2170003, 1364468664000],
+    [2180001, 1364685260000],
+    [2190000, 1364872459000],
+    [2200001, 1365085949000],
+    [2210001, 1365305116000],
+    [2220000, 1365521609000],
+    [2230000, 1365821669000],
+    [2240001, 1366035468000],
+    [2250001, 1366338753000],
+    [2260002, 1366554728000],
+    [2270000, 1366817986000],
+    [2280001, 1367079795000],
+    [2290001, 1367301796000],
+    [2300000, 1367535148000],
+    [2310000, 1367755047000],
+    [2320001, 1367938482000],
+    [2330002, 1368198077000],
+    [2340002, 1368402443000],
+    [2350002, 1368671885000],
+    [2360000, 1368908138000],
+    [2370000, 1369143679000],
+    [2380000, 1369399230000],
+    [2390002, 1369586696000],
+    [2400004, 1369887355000],
+    [2410000, 1370104099000],
+    [2420002, 1370341310000],
+    [2430001, 1370603557000],
+    [2440001, 1370788687000],
+    [2450000, 1371038666000],
+    [2460002, 1371286007000],
+    [2470000, 1371481119000],
+    [2480000, 1371732988000],
+    [2490002, 1371958259000],
+    [2500000, 1372170531000],
+    [2510000, 1372430704000],
+    [2520001, 1372617024000],
+    [2530004, 1372871380000],
+    [2540001, 1373120348000],
+    [2550000, 1373293117000],
+    [2560000, 1373552201000],
+    [2570001, 1373799086000],
+    [2580000, 1373990399000],
+    [2590001, 1374251028000],
+    [2600000, 1374478513000],
+    [2610000, 1374695793000],
+    [2620001, 1374935403000],
+    [2630001, 1375151019000],
+    [2640000, 1375366140000],
+    [2650003, 1375582844000],
+    [2660006, 1375789458000],
+    [2670000, 1375982223000],
+    [2680001, 1376219077000],
+    [2690000, 1376419869000],
+    [2700000, 1376641349000],
+    [2710002, 1376830708000],
+    [2720001, 1377025884000],
+    [2730003, 1377257395000],
+    [2740002, 1377439480000],
+    [2750000, 1377658821000],
+    [2760000, 1377871532000],
+    [2770000, 1378042294000],
+    [2780000, 1378279211000],
+    [2790004, 1378512151000],
+    [2800000, 1378707972000],
+    [2810000, 1378919770000],
+    [2820001, 1379167185000],
+    [2830000, 1379338634000],
+    [2840000, 1379588368000],
+    [2850000, 1379791566000],
+    [2860002, 1379998199000],
+    [2870001, 1380244352000],
+    [2880001, 1380458162000],
+    [2890000, 1380709854000],
+    [2900001, 1380955990000],
+    [2910000, 1381149483000],
+    [2920000, 1381395761000],
+    [2930000, 1381600314000],
+    [2940005, 1381806653000],
+    [2950001, 1382032915000],
+    [2960000, 1382266138000],
+    [2970000, 1382497296000],
+    [2980001, 1382722022000],
+    [2990002, 1382958224000],
+    [3000001, 1383198845000],
+    [3010001, 1383402564000],
+    [3020000, 1383581008000],
+    [3030002, 1383836419000],
+    [3040001, 1384069244000],
+    [3050000, 1384263193000],
+    [3060003, 1384524757000],
+    [3070001, 1384737837000],
+    [3080000, 1384996638000],
+    [3090003, 1385212146000],
+    [3100003, 1385431019000],
+    [3110000, 1385699731000],
+    [3120003, 1385900847000],
+    [3130000, 1386153660000],
+    [3140002, 1386408440000],
+    [3150000, 1386604510000],
+    [3160003, 1386865240000],
+    [3170000, 1387110539000],
+    [3180000, 1387367749000],
+    [3190000, 1387604327000],
+    [3200000, 1387802332000],
+    [3210000, 1387970572000],
+    [3220007, 1388160975000],
+    [3230000, 1388398804000],
+    [3240000, 1388570893000],
+    [3250002, 1388768138000],
+    [3260001, 1388976072000],
+    [3270002, 1389194106000],
+    [3280001, 1389440923000],
+    [3290006, 1389592662000],
+    [3300000, 1389790343000],
+    [3310000, 1390038223000],
+    [3320001, 1390228417000],
+    [3330003, 1390483721000],
+    [3340000, 1390708173000],
+    [3350001, 1390916206000],
+    [3360000, 1391147130000],
+    [3370000, 1391328790000],
+    [3380002, 1391519054000],
+    [3390001, 1391742834000],
+    [3400000, 1391928566000],
+    [3410000, 1392108927000],
+    [3420001, 1392300500000],
+    [3430000, 1392440337000],
+    [3440000, 1392581355000],
+    [3450000, 1392818545000],
+    [3460000, 1393053469000],
+    [3470003, 1393240576000],
+    [3480000, 1393469026000],
+    [3490004, 1393675973000],
+    [3500000, 1393852227000],
+    [3510001, 1394081671000],
+    [3520001, 1394285166000],
+    [3530001, 1394462801000],
+    [3540002, 1394697374000],
+    [3550000, 1394880049000],
+    [3560002, 1395050621000],
+    [3570000, 1395246872000],
+    [3580003, 1395474465000],
+    [3590000, 1395659536000],
+    [3600001, 1395846777000],
+    [3610003, 1396065846000],
+    [3620000, 1396244134000],
+    [3630001, 1396417542000],
+    [3640000, 1396614221000],
+    [3650001, 1396791326000],
+    [3660000, 1397022134000],
+    [3670000, 1397274214000],
+    [3680003, 1397465091000],
+    [3690003, 1397723422000],
+    [3700000, 1397926553000],
+    [3710001, 1398151228000],
+    [3720005, 1398391812000],
+    [3730000, 1398595954000],
+    [3740000, 1398778603000],
+    [3750000, 1398968016000],
+    [3760000, 1399202230000],
+    [3770001, 1399372076000],
+    [3780000, 1399569729000],
+    [3790000, 1399790469000],
+    [3800000, 1399992962000],
+    [3810000, 1400246876000],
+    [3820000, 1400425983000],
+    [3830000, 1400679476000],
+    [3840002, 1400911387000],
+    [3850000, 1401098715000],
+    [3860001, 1401339903000],
+    [3870000, 1401551332000],
+    [3880001, 1401759755000],
+    [3890001, 1401983592000],
+    [3900002, 1402204857000],
+    [3910000, 1402398206000],
+    [3920001, 1402640662000],
+    [3930000, 1402831875000],
+    [3940001, 1403027766000],
+    [3950001, 1403273218000],
+    [3960001, 1403448681000],
+    [3970001, 1403689984000],
+    [3980003, 1403925632000],
+    [3990001, 1404107465000],
+    [4000000, 1404318974000],
+    [4010001, 1404563643000],
+    [4020003, 1404739221000],
+    [4030003, 1404955522000],
+    [4040000, 1405172711000],
+    [4050001, 1405356399000],
+    [4060004, 1405613850000],
+    [4070000, 1405857345000],
+    [4080000, 1406040627000],
+    [4090000, 1406291871000],
+    [4100002, 1406484212000],
+    [4110000, 1406727405000],
+    [4120000, 1406945016000],
+    [4130001, 1407141824000],
+    [4140010, 1407340131000],
+    [4150000, 1407562661000],
+    [4160000, 1407734796000],
+    [4170001, 1407935639000],
+    [4180000, 1408125359000],
+    [4190000, 1408330818000],
+    [4200001, 1408532218000],
+    [4210000, 1408722044000],
+    [4220000, 1408901567000],
+    [4230001, 1409137675000],
+    [4240001, 1409330881000],
+    [4250005, 1409500868000],
+    [4260002, 1409744703000],
+    [4270002, 1409967629000],
+    [4280003, 1410150372000],
+    [4290000, 1410357905000],
+    [4300000, 1410596035000],
+    [4310000, 1410775372000],
+    [4320000, 1410968927000],
+    [4330000, 1411212383000],
+    [4340001, 1411396391000],
+    [4350000, 1411601413000],
+    [4360000, 1411826286000],
+    [4370002, 1412006421000],
+    [4380000, 1412254595000],
+    [4390001, 1412446854000],
+    [4400000, 1412610825000],
+    [4410002, 1412853440000],
+    [4420000, 1413040935000],
+    [4430002, 1413210796000],
+    [4440001, 1413449251000],
+    [4450003, 1413674476000],
+    [4460002, 1413895354000],
+    [4470002, 1414148442000],
+    [4480003, 1414334560000],
+    [4490000, 1414587176000],
+    [4500000, 1414768048000],
+    [4510002, 1414948293000],
+    [4520000, 1415180576000],
+    [4530000, 1415427122000],
+    [4540000, 1415620756000],
+    [4550000, 1415833945000],
+    [4560002, 1416071344000],
+    [4570004, 1416308460000],
+    [4580002, 1416572690000],
+    [4590000, 1416760063000],
+    [4600002, 1417003566000],
+    [4610002, 1417259849000],
+    [4620001, 1417447473000],
+    [4630000, 1417714518000],
+    [4640000, 1417956598000],
+    [4650000, 1418216048000],
+    [4660000, 1418475241000],
+    [4670000, 1418710339000],
+    [4680004, 1418970521000],
+    [4690002, 1419169105000],
+    [4700005, 1419358497000],
+    [4710000, 1419526254000],
+    [4720000, 1419772928000],
+    [4730000, 1419974551000],
+    [4740000, 1420161657000],
+    [4750001, 1420365381000],
+    [4760002, 1420562341000],
+    [4770000, 1420815773000],
+    [4780001, 1421031408000],
+    [4790001, 1421246156000],
+    [4800000, 1421501308000],
+    [4810000, 1421686861000],
+    [4820000, 1421939002000],
+    [4830000, 1422169526000],
+    [4840000, 1422371808000],
+    [4850000, 1422623205000],
+    [4860000, 1422797374000],
+    [4870000, 1423017739000],
+    [4880000, 1423234605000],
+    [4890000, 1423410499000],
+    [4900000, 1423644484000],
+    [4910001, 1423837444000],
+    [4920000, 1423970388000],
+    [4930001, 1424165273000],
+    [4940001, 1424364687000],
+    [4950002, 1424582000000],
+    [4960001, 1424768846000],
+    [4970001, 1424966114000],
+    [4980000, 1425171871000],
+    [4990000, 1425349395000],
+    [5000000, 1425559592000],
+    [5010001, 1425741575000],
+    [5020003, 1425913279000],
+    [5030003, 1426126824000],
+    [5040001, 1426327854000],
+    [5050000, 1426495511000],
+    [5060001, 1426693282000],
+    [5070005, 1426922090000],
+    [5080000, 1427098056000],
+    [5090000, 1427293125000],
+    [5100000, 1427514626000],
+    [5110000, 1427695785000],
+    [5120002, 1427877197000],
+    [5130002, 1428060146000],
+    [5140001, 1428234288000],
+    [5150000, 1428419973000],
+    [5160000, 1428671937000],
+    [5170002, 1428847629000],
+    [5180001, 1429094087000],
+    [5190000, 1429341649000],
+    [5200003, 1429525955000],
+    [5210000, 1429765217000],
+    [5220000, 1429975534000],
+    [5230001, 1430176975000],
+    [5240002, 1430391697000],
+    [5250000, 1430580945000],
+    [5260000, 1430763266000],
+    [5270001, 1430924583000],
+    [5280000, 1431154114000],
+    [5290000, 1431323463000],
+    [5300002, 1431536550000],
+    [5310000, 1431780262000],
+    [5320000, 1431956743000],
+    [5330000, 1432204529000],
+    [5340001, 1432398271000],
+    [5350006, 1432606153000],
+    [5360001, 1432841545000],
+    [5370000, 1433063471000],
+    [5380003, 1433258662000],
+    [5390000, 1433508887000],
+    [5400000, 1433685193000],
+    [5410001, 1433916258000],
+    [5420000, 1434135276000],
+    [5430001, 1434333869000],
+    [5440001, 1434559422000],
+    [5450000, 1434804693000],
+    [5460001, 1434979921000],
+    [5470000, 1435217857000],
+    [5480001, 1435416104000],
+    [5490000, 1435602027000],
+    [5500001, 1435840850000],
+    [5510000, 1436030904000],
+    [5520003, 1436227024000],
+    [5530000, 1436442515000],
+    [5540003, 1436663422000],
+    [5550000, 1436874223000],
+    [5560001, 1437120062000],
+    [5570000, 1437316067000],
+    [5580000, 1437494808000],
+    [5590000, 1437746039000],
+    [5600002, 1437929627000],
+    [5610001, 1438176113000],
+    [5620000, 1438388870000],
+    [5630000, 1438589507000],
+    [5640000, 1438796233000],
+    [5650000, 1439030571000],
+    [5660004, 1439214144000],
+    [5670001, 1439431273000],
+    [5680000, 1439642569000],
+    [5690001, 1439824201000],
+    [5700005, 1440058580000],
+    [5710000, 1440256699000],
+    [5720000, 1440475809000],
+    [5730002, 1440689040000],
+    [5740000, 1440914751000],
+    [5750003, 1441110359000],
+    [5760000, 1441364816000],
+    [5770000, 1441549697000],
+    [5780006, 1441797710000],
+    [5790001, 1442037713000],
+    [5800002, 1442233888000],
+    [5810000, 1442481291000],
+    [5820003, 1442705357000],
+    [5830000, 1442908303000],
+    [5840000, 1443086697000],
+    [5850003, 1443282432000],
+    [5860000, 1443459310000],
+    [5870006, 1443707232000],
+    [5880001, 1443928257000],
+    [5890001, 1444139874000],
+    [5900001, 1444396252000],
+    [5910001, 1444577096000],
+    [5920000, 1444792260000],
+    [5930002, 1445029691000],
+    [5940001, 1445245605000],
+    [5950000, 1445504572000],
+    [5960000, 1445731426000],
+    [5970002, 1445953442000],
+    [5980000, 1446211281000],
+    [5990002, 1446383992000],
+    [6000000, 1446580875000],
+    [6010003, 1446842203000],
+    [6020001, 1447044347000],
+    [6030000, 1447253873000],
+    [6040000, 1447505627000],
+    [6050000, 1447691164000],
+    [6060001, 1447947945000],
+    [6070005, 1448186860000],
+    [6080000, 1448365784000],
+    [6090000, 1448624170000],
+    [6100002, 1448810246000],
+    [6110000, 1449066515000],
+    [6120000, 1449317021000],
+    [6130002, 1449507406000],
+    [6140001, 1449770690000],
+    [6150000, 1450002546000],
+    [6160000, 1450231069000],
+    [6170001, 1450484327000],
+    [6180001, 1450692134000],
+    [6190000, 1450882802000],
+    [6200001, 1451053403000],
+    [6210000, 1451234149000],
+    [6220003, 1451471784000],
+    [6230000, 1451644655000],
+    [6240000, 1451713332000],
+    [6250000, 1451847328000],
+    [6260005, 1452076808000],
+    [6270000, 1452299253000],
+    [6280000, 1452496401000],
+    [6290000, 1452698011000],
+    [6300000, 1452951233000],
+    [6310000, 1453142080000],
+    [6320001, 1453393135000],
+    [6330000, 1453616322000],
+    [6340001, 1453812318000],
+    [6350000, 1454055730000],
+    [6360003, 1454238250000],
+    [6370000, 1454427033000],
+    [6380000, 1454661000000],
+    [6390000, 1454842409000],
+    [6400000, 1455041335000],
+    [6410000, 1455272058000],
+    [6420000, 1455429130000],
+    [6430000, 1455565696000],
+    [6440000, 1455807564000],
+    [6450000, 1456029749000],
+    [6460000, 1456225146000],
+    [6470000, 1456470713000],
+    [6480000, 1456663870000],
+    [6490003, 1456892356000],
+    [6500001, 1457110676000],
+    [6510002, 1457312408000],
+    [6520000, 1457531526000],
+    [6530000, 1457759895000],
+    [6540001, 1457945527000],
+    [6550000, 1458146778000],
+    [6560000, 1458393176000],
+    [6570001, 1458570750000],
+    [6580000, 1458809559000],
+    [6590000, 1459016231000],
+    [6600000, 1459238945000],
+    [6610000, 1459438183000],
+    [6620004, 1459646525000],
+    [6630000, 1459854652000],
+    [6640001, 1460090525000],
+    [6650000, 1460290792000],
+    [6660000, 1460548807000],
+    [6670000, 1460814501000],
+    [6680000, 1461034745000],
+    [6690000, 1461309246000],
+    [6700004, 1461504246000],
+    [6710000, 1461752821000],
+    [6720003, 1461973135000],
+    [6730001, 1462174879000],
+    [6740001, 1462370008000],
+    [6750001, 1462548340000],
+    [6760000, 1462720908000],
+    [6770002, 1462975121000],
+    [6780000, 1463232933000],
+    [6790007, 1463433933000],
+    [6800002, 1463714821000],
+    [6810000, 1463920668000],
+    [6820000, 1464128839000],
+    [6830004, 1464385492000],
+    [6840000, 1464599226000],
+    [6850001, 1464861239000],
+    [6860002, 1465075280000],
+    [6870000, 1465297401000],
+    [6880001, 1465549772000],
+    [6890000, 1465736580000],
+    [6900000, 1465964679000],
+    [6910001, 1466179197000],
+    [6920000, 1466354374000],
+    [6930001, 1466603732000],
+    [6940002, 1466845739000],
+    [6950000, 1467033992000],
+    [6960000, 1467284783000],
+    [6970001, 1467480681000],
+    [6980000, 1467714202000],
+    [6990002, 1467914778000],
+    [7000001, 1468145606000],
+    [7010000, 1468384915000],
+    [7020000, 1468639043000],
+    [7030001, 1468840463000],
+    [7040002, 1469087617000],
+    [7050000, 1469337012000],
+    [7060002, 1469582162000],
+    [7070002, 1469845430000],
+    [7080002, 1470060235000],
+    [7090000, 1470312128000],
+    [7100000, 1470548609000],
+    [7110000, 1470754953000],
+    [7120000, 1470989043000],
+    [7130001, 1471190531000],
+    [7140000, 1471414854000],
+    [7150004, 1471624400000],
+    [7160000, 1471854212000],
+    [7170000, 1472088374000],
+    [7180002, 1472310616000],
+    [7190001, 1472520312000],
+    [7200000, 1472738227000],
+    [7210002, 1472965256000],
+    [7220001, 1473171102000],
+    [7230000, 1473424874000],
+    [7240001, 1473609515000],
+    [7250000, 1473863715000],
+    [7260001, 1474116184000],
+    [7270003, 1474295985000],
+    [7280000, 1474535039000],
+    [7290000, 1474737285000],
+    [7300000, 1474975696000],
+    [7310000, 1475234975000],
+    [7320000, 1475421025000],
+    [7330001, 1475671020000],
+    [7340001, 1475911455000],
+    [7350005, 1476103986000],
+    [7360002, 1476361587000],
+    [7370000, 1476599211000],
+    [7380001, 1476815745000],
+    [7390000, 1477099543000],
+    [7400000, 1477316178000],
+    [7410001, 1477579038000],
+    [7420003, 1477818419000],
+    [7430002, 1478011264000],
+    [7440000, 1478264690000],
+    [7450002, 1478480338000],
+    [7460006, 1478769027000],
+    [7470001, 1478994247000],
+    [7480000, 1479219274000],
+    [7490000, 1479486058000],
+    [7500002, 1479730140000],
+    [7510003, 1479958570000],
+    [7520003, 1480222232000],
+    [7530001, 1480471579000],
+    [7540000, 1480749927000],
+    [7550000, 1480952230000],
+    [7560000, 1481224069000],
+    [7570001, 1481463117000],
+    [7580000, 1481722387000],
+    [7590002, 1481985058000],
+    [7600001, 1482227418000],
+    [7610001, 1482478601000],
+    [7620000, 1482645299000],
+    [7630003, 1482841839000],
+    [7640001, 1483074183000],
+    [7650000, 1483258759000],
+    [7660004, 1483452663000],
+    [7670000, 1483674720000],
+    [7680002, 1483879318000],
+    [7690000, 1484064960000],
+    [7700000, 1484322340000],
+    [7710000, 1484542900000],
+    [7720000, 1484812130000],
+    [7730001, 1485026320000],
+    [7740000, 1485257233000],
+    [7750006, 1485510790000],
+    [7760000, 1485696491000],
+    [7770000, 1485932317000],
+    [7780000, 1486164673000],
+    [7790001, 1486362226000],
+    [7800000, 1486599658000],
+    [7810000, 1486822612000],
+    [7820001, 1487000522000],
+    [7830000, 1487174999000],
+    [7840000, 1487419341000],
+    [7850000, 1487602867000],
+    [7860000, 1487855018000],
+    [7870000, 1488086339000],
+    [7880000, 1488292733000],
+    [7890001, 1488543208000],
+    [7900000, 1488728156000],
+    [7910001, 1488979685000],
+    [7920001, 1489220616000],
+    [7930000, 1489412693000],
+    [7940003, 1489631325000],
+    [7950001, 1489848873000],
+    [7960000, 1490044638000],
+    [7970002, 1490279983000],
+    [7980001, 1490516089000],
+    [7990001, 1490719990000],
+    [8000000, 1490963479000],
+    [8010000, 1491137084000],
+    [8020002, 1491375868000],
+    [8030000, 1491612912000],
+    [8040001, 1491803454000],
+    [8050001, 1492077857000],
+    [8060002, 1492324560000],
+    [8070003, 1492561737000],
+    [8080002, 1492838030000],
+    [8090002, 1493043924000],
+    [8100001, 1493307660000],
+    [8110002, 1493543878000],
+    [8120000, 1493769888000],
+    [8130004, 1493982506000],
+    [8140000, 1494142350000],
+    [8150001, 1494318814000],
+    [8160000, 1494568833000],
+    [8170000, 1494762677000],
+    [8180002, 1495006227000],
+    [8190000, 1495250700000],
+    [8200000, 1495443298000],
+    [8210002, 1495646825000],
+    [8220011, 1495894082000],
+    [8230000, 1496082134000],
+    [8240000, 1496326810000],
+    [8250000, 1496555088000],
+    [8260000, 1496756385000],
+    [8270000, 1497007056000],
+    [8280001, 1497183503000],
+    [8290002, 1497397397000],
+    [8300003, 1497629360000],
+    [8310000, 1497796088000],
+    [8320000, 1498023980000],
+    [8330001, 1498235560000],
+    [8340001, 1498396394000],
+    [8350000, 1498613161000],
+    [8360001, 1498837786000],
+    [8370000, 1499015731000],
+    [8380001, 1499265524000],
+    [8390002, 1499481547000],
+    [8400001, 1499686732000],
+    [8410005, 1499932800000],
+    [8420001, 1500169609000],
+    [8430000, 1500374791000],
+    [8440006, 1500617656000],
+    [8450000, 1500814972000],
+    [8460003, 1501039768000],
+    [8470000, 1501277295000],
+    [8480001, 1501477676000],
+    [8490000, 1501697581000],
+    [8500002, 1501932379000],
+    [8510000, 1502117905000],
+    [8520002, 1502331968000],
+    [8530000, 1502540146000],
+    [8540000, 1502722627000],
+    [8550001, 1502898202000],
+    [8560004, 1503134037000],
+    [8570003, 1503323268000],
+    [8580002, 1503521778000],
+    [8590002, 1503744984000],
+    [8600000, 1503928192000],
+    [8610000, 1504170146000],
+    [8620000, 1504371768000],
+    [8630002, 1504602602000],
+    [8640004, 1504820812000],
+    [8650000, 1505027878000],
+    [8660001, 1505226480000],
+    [8670000, 1505482045000],
+    [8680000, 1505658395000],
+    [8690000, 1505834586000],
+    [8700001, 1506089466000],
+    [8710000, 1506264067000],
+    [8720000, 1506500571000],
+    [8730002, 1506728331000],
+    [8740000, 1506914687000],
+    [8750000, 1507128072000],
+    [8760000, 1507345605000],
+    [8770000, 1507518334000],
+    [8780000, 1507708428000],
+    [8790001, 1507940275000],
+    [8800002, 1508138851000],
+    [8810000, 1508387594000],
+    [8820000, 1508606774000],
+    [8830000, 1508827234000],
+    [8840001, 1509091766000],
+    [8850004, 1509287015000],
+    [8860000, 1509490049000],
+    [8870000, 1509723653000],
+    [8880000, 1509932817000],
+    [8890002, 1510207133000],
+    [8900004, 1510424299000],
+    [8910000, 1510667493000],
+    [8920001, 1510940639000],
+    [8930000, 1511186220000],
+    [8940000, 1511451946000],
+    [8950000, 1511704396000],
+    [8960000, 1511990454000],
+    [8970002, 1512274717000],
+    [8980000, 1512537099000],
+    [8990000, 1512820550000],
+    [9000001, 1513072801000],
+    [9010001, 1513357525000],
+    [9020000, 1513609923000],
+    [9030000, 1513915128000],
+    [9040000, 1514118493000],
+    [9050002, 1514301843000],
+    [9060000, 1514555378000],
+    [9070000, 1514732301000],
+    [9080001, 1514962790000],
+    [9090001, 1515172312000],
+    [9100002, 1515397618000],
+    [9110000, 1515639717000],
+    [9120002, 1515896492000],
+    [9130001, 1516144113000],
+    [9140000, 1516418097000],
+    [9150001, 1516626163000],
+    [9160001, 1516883176000],
+    [9170001, 1517111440000],
+    [9180000, 1517325014000],
+    [9190000, 1517578594000],
+    [9200001, 1517757784000],
+    [9210001, 1518010671000],
+    [9220000, 1518256808000],
+    [9230005, 1518430798000],
+    [9240001, 1518605600000],
+    [9250000, 1518794113000],
+    [9260001, 1518995823000],
+    [9270000, 1519225213000],
+    [9280003, 1519458758000],
+    [9290001, 1519651282000],
+    [9300001, 1519890063000],
+    [9310000, 1520090182000],
+    [9320000, 1520286849000],
+    [9330001, 1520520452000],
+    [9340000, 1520744294000],
+    [9350002, 1520943868000],
+    [9360001, 1521147293000],
+    [9370002, 1521362086000],
+    [9380000, 1521558925000],
+    [9390001, 1521769563000],
+    [9400001, 1521973588000],
+    [9410000, 1522173272000],
+    [9420000, 1522410936000],
+    [9430000, 1522582869000],
+    [9440000, 1522765509000],
+    [9450000, 1523004539000],
+    [9460000, 1523190018000],
+    [9470000, 1523431728000],
+    [9480000, 1523685971000],
+    [9490002, 1523878396000],
+    [9500002, 1524128292000],
+    [9510004, 1524330609000],
+    [9520004, 1524533838000],
+    [9530000, 1524759003000],
+    [9540000, 1524987989000],
+    [9550001, 1525164608000],
+    [9560002, 1525357365000],
+    [9570003, 1525528111000],
+    [9580002, 1525674935000],
+    [9590000, 1525878167000],
+    [9600000, 1526120272000],
+    [9610000, 1526290836000],
+    [9620000, 1526490579000],
+    [9630000, 1526727803000],
+    [9640000, 1526907002000],
+    [9650002, 1527128556000],
+    [9660000, 1527340038000],
+    [9670001, 1527517920000],
+    [9680002, 1527765780000],
+    [9690002, 1527957463000],
+    [9700000, 1528151574000],
+    [9710000, 1528379137000],
+    [9720000, 1528580383000],
+    [9730001, 1528772398000],
+    [9740001, 1528987967000],
+    [9750000, 1529204175000],
+    [9760000, 1529406774000],
+    [9770001, 1529609683000],
+    [9780000, 1529819612000],
+    [9790000, 1530014717000],
+    [9800000, 1530245547000],
+    [9810002, 1530432261000],
+    [9820001, 1530629380000],
+    [9830000, 1530874223000],
+    [9840000, 1531041319000],
+    [9850000, 1531235299000],
+    [9860001, 1531486297000],
+    [9870000, 1531670196000],
+    [9880001, 1531889979000],
+    [9890001, 1532135177000],
+    [9900000, 1532338734000],
+    [9910000, 1532578434000],
+    [9920001, 1532787506000],
+    [9930000, 1532975363000],
+    [9940002, 1533210580000],
+    [9950002, 1533417619000],
+    [9960000, 1533624914000],
+    [9970001, 1533822046000],
+    [9980000, 1534037713000],
+    [9990000, 1534228523000],
+    [10000000, 1534413149000],
+    [10010001, 1534602898000],
+    [10020000, 1534783503000],
+    [10030000, 1535021938000],
+    [10040001, 1535212003000],
+    [10050000, 1535428390000],
+    [10060003, 1535641964000],
+    [10070001, 1535858219000],
+    [10080001, 1536054602000],
+    [10090000, 1536289206000],
+    [10100000, 1536480473000],
+    [10110000, 1536676444000],
+    [10120000, 1536926627000],
+    [10130002, 1537109324000],
+    [10140002, 1537291222000],
+    [10150000, 1537542002000],
+    [10160001, 1537742745000],
+    [10170000, 1537951046000],
+    [10180001, 1538191192000],
+    [10190000, 1538335437000],
+    [10200000, 1538573831000],
+    [10210000, 1538809742000],
+    [10220001, 1538988459000],
+    [10230001, 1539181117000],
+    [10240000, 1539420771000],
+    [10250000, 1539603667000],
+    [10260000, 1539849223000],
+    [10270001, 1540053876000],
+    [10280002, 1540283911000],
+    [10290000, 1540536175000],
+    [10300001, 1540729543000],
+    [10310000, 1540922544000],
+    [10320000, 1541154968000],
+    [10330000, 1541337866000],
+    [10340001, 1541577224000],
+    [10350000, 1541802693000],
+    [10360000, 1541963072000],
+    [10370000, 1542202693000],
+    [10380000, 1542444218000],
+    [10390000, 1542627147000],
+    [10400000, 1542839314000],
+    [10410000, 1543047446000],
+    [10420001, 1543235621000],
+    [10430000, 1543484894000],
+    [10440000, 1543685077000],
+    [10450000, 1543913221000],
+    [10460000, 1544159482000],
+    [10470003, 1544358248000],
+    [10480004, 1544606237000],
+    [10490002, 1544855404000],
+    [10500000, 1545051752000],
+    [10510000, 1545300827000],
+    [10520005, 1545521938000],
+    [10530000, 1545661181000],
+    [10540000, 1545834409000],
+    [10550000, 1546063345000],
+    [10560000, 1546244119000],
+    [10570000, 1546421525000],
+    [10580000, 1546614293000],
+    [10590000, 1546787040000],
+    [10600000, 1547033210000],
+    [10610000, 1547273443000],
+    [10620006, 1547455616000],
+    [10630000, 1547657448000],
+    [10640000, 1547904630000],
+    [10650001, 1548082511000],
+    [10660000, 1548328452000],
+    [10670000, 1548524147000],
+    [10680000, 1548734159000],
+    [10690000, 1548948502000],
+    [10700000, 1549167894000],
+    [10710000, 1549362890000],
+    [10720000, 1549582063000],
+    [10730001, 1549784961000],
+    [10740000, 1549939861000],
+    [10750001, 1550125895000],
+    [10760001, 1550285616000],
+    [10770000, 1550431490000],
+    [10780004, 1550660401000],
+    [10790000, 1550851727000],
+    [10800000, 1551023024000],
+    [10810000, 1551259433000],
+    [10820002, 1551458705000],
+    [10830001, 1551629225000],
+    [10840002, 1551870373000],
+    [10850001, 1552064671000],
+    [10860000, 1552234630000],
+    [10870002, 1552471261000],
+    [10880000, 1552662209000],
+    [10890000, 1552836681000],
+    [10900002, 1553069704000],
+    [10910000, 1553257072000],
+    [10920000, 1553422366000],
+    [10930000, 1553606730000],
+    [10940001, 1553802181000],
+    [10950000, 1553998231000],
+    [10960000, 1554134490000],
+    [10970002, 1554360751000],
+    [10980000, 1554554642000],
+    [10990000, 1554735834000],
+    [11000000, 1554991576000],
+    [11010001, 1555218769000],
+    [11020000, 1555420366000],
+    [11030000, 1555672640000],
+    [11040001, 1555849807000],
+    [11050001, 1556084207000],
+    [11060000, 1556299720000],
+    [11070000, 1556504671000],
+    [11080001, 1556632398000],
+    [11090000, 1556782396000],
+    [11100002, 1556955999000],
+    [11110000, 1557106544000],
+    [11120000, 1557296907000],
+    [11130000, 1557514210000],
+    [11140000, 1557684014000],
+    [11150001, 1557925678000],
+    [11160001, 1558170113000],
+    [11170000, 1558354050000],
+    [11180001, 1558597755000],
+    [11190000, 1558792328000],
+    [11200001, 1558975623000],
+    [11210000, 1559221084000],
+    [11220009, 1559435114000],
+    [11230001, 1559636873000],
+    [11240000, 1559873390000],
+    [11250001, 1560067885000],
+    [11260002, 1560253598000],
+    [11270000, 1560479047000],
+    [11280000, 1560672273000],
+    [11290000, 1560863233000],
+    [11300003, 1561102493000],
+    [11310000, 1561287305000],
+    [11320000, 1561489991000],
+    [11330000, 1561731006000],
+    [11340000, 1561903335000],
+    [11350000, 1562136969000],
+    [11360001, 1562344828000],
+    [11370000, 1562510422000],
+    [11380000, 1562736164000],
+    [11390000, 1562948007000],
+    [11400000, 1563125661000],
+    [11410001, 1563328806000],
+    [11420000, 1563546056000],
+    [11430000, 1563724029000],
+    [11440003, 1563963216000],
+    [11450001, 1564167040000],
+    [11460001, 1564335184000],
+    [11470001, 1564568121000],
+    [11480000, 1564760362000],
+    [11490005, 1564962205000],
+    [11500000, 1565179291000],
+    [11510000, 1565367541000],
+    [11520001, 1565572757000],
+    [11530000, 1565747468000],
+    [11540000, 1565914332000],
+    [11550002, 1566091110000],
+    [11560000, 1566252215000],
+    [11570001, 1566459388000],
+    [11580001, 1566648694000],
+    [11590000, 1566824198000],
+    [11600001, 1567013191000],
+    [11610000, 1567228025000],
+    [11620001, 1567393806000],
+    [11630001, 1567606734000],
+    [11640000, 1567835845000],
+    [11650001, 1568012646000],
+    [11660000, 1568212823000],
+    [11670000, 1568435781000],
+    [11680003, 1568605425000],
+    [11690002, 1568787569000],
+    [11700002, 1568989756000],
+    [11710000, 1569163036000],
+    [11720003, 1569334820000],
+    [11730000, 1569574593000],
+    [11740000, 1569752468000],
+    [11750000, 1569935750000],
+    [11760000, 1570150966000],
+    [11770000, 1570332151000],
+    [11780000, 1570509507000],
+    [11790003, 1570715608000],
+    [11800003, 1570888809000],
+    [11810000, 1571034246000],
+    [11820001, 1571216151000],
+    [11830000, 1571419097000],
+    [11840000, 1571584069000],
+    [11850001, 1571757789000],
+    [11860001, 1571993843000],
+    [11870001, 1572169847000],
+    [11880002, 1572357033000],
+    [11890000, 1572533610000],
+    [11900000, 1572715665000],
+    [11910000, 1572878846000],
+    [11920000, 1573112560000],
+    [11930000, 1573308611000],
+    [11940000, 1573474898000],
+    [11950000, 1573661969000],
+    [11960000, 1573890077000],
+    [11970001, 1574075552000],
+    [11980000, 1574297595000],
+    [11990004, 1574507058000],
+    [12000000, 1574681239000],
+    [12010000, 1574895129000],
+    [12020000, 1575113068000],
+    [12030004, 1575288871000],
+    [12040000, 1575515481000],
+    [12050000, 1575722999000],
+    [12060000, 1575900754000],
+    [12070000, 1576138200000],
+    [12080001, 1576334837000],
+    [12090001, 1576511372000],
+    [12100000, 1576752334000],
+    [12110000, 1576943163000],
+    [12120000, 1577116967000],
+    [12130001, 1577281370000],
+    [12140000, 1577461695000],
+    [12150000, 1577646401000],
+    [12160000, 1577796064000],
+    [12170001, 1577957614000],
+    [12180001, 1578127602000],
+    [12190001, 1578279558000],
+    [12200000, 1578477602000],
+    [12210000, 1578666504000],
+    [12220000, 1578839347000],
+    [12230000, 1579008316000],
+    [12240000, 1579227285000],
+    [12250002, 1579415678000],
+    [12260003, 1579607375000],
+    [12270000, 1579805432000],
+    [12280000, 1580008380000],
+    [12290002, 1580191030000],
+    [12300000, 1580389984000],
+    [12310001, 1580566786000],
+    [12320003, 1580730297000],
+    [12330000, 1580915887000],
+    [12340001, 1581129374000],
+    [12350001, 1581261750000],
+    [12360000, 1581430178000],
+    [12370000, 1581606681000],
+    [12380000, 1581751510000],
+    [12390001, 1581868909000],
+    [12400000, 1582069408000],
+    [12410001, 1582272103000],
+    [12420003, 1582429352000],
+    [12430000, 1582554250000],
+    [12440000, 1582738718000],
+    [12450004, 1582951392000],
+    [12460000, 1583070874000],
+    [12470002, 1583235146000],
+    [12480001, 1583402022000],
+    [12490003, 1583559433000],
+    [12500000, 1583673315000],
+    [12510000, 1583825446000],
+    [12520002, 1583980204000],
+    [12530001, 1584135315000],
+    [12540000, 1584263921000],
+    [12550000, 1584416516000],
+    [12560001, 1584590400000],
+    [12570001, 1584744451000],
+    [12580000, 1584885405000],
+    [12590000, 1585058908000],
+    [12600002, 1585236381000],
+    [12610000, 1585399742000],
+    [12620000, 1585517492000],
+    [12630001, 1585669259000],
+    [12640000, 1585828423000],
+    [12650000, 1585989472000],
+    [12660003, 1586098998000],
+    [12670001, 1586269270000],
+    [12680000, 1586438019000],
+    [12690001, 1586591555000],
+    [12700000, 1586695382000],
+    [12710003, 1586836653000],
+    [12720001, 1586971750000],
+    [12730000, 1587131198000],
+    [12740003, 1587258788000],
+    [12750000, 1587373867000],
+    [12760000, 1587488314000],
+    [12770000, 1587641662000],
+    [12780000, 1587781045000],
+    [12790000, 1587893479000],
+    [12800000, 1588002355000],
+    [12810001, 1588148020000],
+    [12820000, 1588261459000],
+    [12830000, 1588405175000],
+    [12840000, 1588508532000],
+    [12850000, 1588603233000],
+    [12860002, 1588689904000],
+    [12870001, 1588780404000],
+    [12880000, 1588926173000],
+    [12890001, 1589031515000],
+    [12900004, 1589112738000],
+    [12910000, 1589198403000],
+    [12920000, 1589338200000],
+    [12930000, 1589463502000],
+    [12940000, 1589580481000],
+    [12950000, 1589690404000],
+    [12960003, 1589796092000],
+    [12970000, 1589904983000],
+    [12980000, 1590056583000],
+    [12990001, 1590174208000],
+    [13000000, 1590293031000],
+    [13010000, 1590402693000],
+    [13020000, 1590542113000],
+    [13030000, 1590673782000],
+    [13040000, 1590817020000],
+    [13050000, 1590921816000],
+    [13060000, 1591050960000],
+    [13070003, 1591197055000],
+    [13080001, 1591357890000],
+    [13090001, 1591464609000],
+    [13100000, 1591588831000],
+    [13110001, 1591714925000],
+    [13120001, 1591874091000],
+    [13130000, 1592018956000],
+    [13140000, 1592127066000],
+    [13150003, 1592239701000],
+    [13160001, 1592403491000],
+    [13170000, 1592562322000],
+    [13180000, 1592673515000],
+    [13190002, 1592805607000],
+    [13200003, 1592944390000],
+    [13210000, 1593102620000],
+    [13220000, 1593261761000],
+    [13230000, 1593358849000],
+    [13240000, 1593523575000],
+    [13250001, 1593691848000],
+    [13260001, 1593849928000],
+    [13270000, 1593953075000],
+    [13280002, 1594098141000],
+    [13290000, 1594221705000],
+    [13300000, 1594391310000],
+    [13310001, 1594528320000],
+    [13320000, 1594646658000],
+    [13330000, 1594810055000],
+    [13340000, 1594974088000],
+    [13350000, 1595086699000],
+    [13360002, 1595219750000],
+    [13370000, 1595373630000],
+    [13380004, 1595514554000],
+    [13390000, 1595646365000],
+    [13400000, 1595752459000],
+    [13410003, 1595863524000],
+    [13420003, 1596029751000],
+    [13430000, 1596194279000],
+    [13440000, 1596306883000],
+    [13450001, 1596441247000],
+    [13460002, 1596593681000],
+    [13470002, 1596734690000],
+    [13480000, 1596886682000],
+    [13490001, 1596987319000],
+    [13500000, 1597123137000],
+    [13510001, 1597244082000],
+    [13520000, 1597387488000],
+    [13530000, 1597496781000],
+    [13540000, 1597589882000],
+    [13550001, 1597746996000],
+    [13560000, 1597895740000],
+    [13570002, 1598026651000],
+    [13580000, 1598162365000],
+    [13590002, 1598279240000],
+    [13600000, 1598443997000],
+    [13610000, 1598608599000],
+    [13620003, 1598726042000],
+    [13630002, 1598859157000],
+    [13640001, 1598978674000],
+    [13650001, 1599140606000],
+    [13660000, 1599296267000],
+    [13670000, 1599398967000],
+    [13680001, 1599550784000],
+    [13690000, 1599701636000],
+    [13700000, 1599841328000],
+    [13710000, 1599975477000],
+    [13720001, 1600089113000],
+    [13730000, 1600252766000],
+    [13740001, 1600416357000],
+    [13750001, 1600532583000],
+    [13760002, 1600665853000],
+    [13770000, 1600769092000],
+    [13780000, 1600891369000],
+    [13790004, 1601046381000],
+    [13800000, 1601178160000],
+    [13810000, 1601294975000],
+    [13820002, 1601457229000],
+    [13830001, 1601618680000],
+    [13840000, 1601742168000],
+    [13850001, 1601888032000],
+    [13860001, 1602053063000],
+    [13870001, 1602229323000],
+    [13880001, 1602343999000],
+    [13890000, 1602487521000],
+    [13900000, 1602647496000],
+    [13910000, 1602824568000],
+    [13920000, 1602952732000],
+    [13930000, 1603099598000],
+    [13940001, 1603269016000],
+    [13950001, 1603431520000],
+    [13960000, 1603553517000],
+    [13970000, 1603683799000],
+    [13980001, 1603825799000],
+    [13990000, 1603990293000],
+    [14000000, 1604141441000],
+    [14010000, 1604239538000],
+    [14020002, 1604392582000],
+    [14030001, 1604547728000],
+    [14040000, 1604710282000],
+    [14050002, 1604831865000],
+    [14060001, 1604978794000],
+    [14070003, 1605111829000],
+    [14080000, 1605281377000],
+    [14090000, 1605426595000],
+    [14100000, 1605544081000],
+    [14110001, 1605710566000],
+    [14120000, 1605878130000],
+    [14130000, 1606009270000],
+    [14140000, 1606110664000],
+    [14150000, 1606228059000],
+    [14160000, 1606395766000],
+    [14170000, 1606550198000],
+    [14180000, 1606655608000],
+    [14190005, 1606811213000],
+    [14200001, 1606977488000],
+    [14210000, 1607132673000],
+    [14220002, 1607254867000],
+    [14230000, 1607408548000],
+    [14240000, 1607578193000],
+    [14250000, 1607731193000],
+    [14260000, 1607855866000],
+    [14270001, 1608015495000],
+    [14280000, 1608188196000],
+    [14290000, 1608344622000],
+    [14300001, 1608467026000],
+    [14310000, 1608631924000],
+    [14320001, 1608787087000],
+    [14330001, 1608900065000],
+    [14340004, 1609032182000],
+    [14350001, 1609157888000],
+    [14360002, 1609289135000],
+    [14370000, 1609392601000],
+    [14380004, 1609477161000],
+    [14390000, 1609591619000],
+    [14400000, 1609687852000],
+    [14410000, 1609831223000],
+    [14420001, 1609957660000],
+    [14430000, 1610118005000],
+    [14440000, 1610261298000],
+    [14450000, 1610366620000],
+    [14460000, 1610524924000],
+    [14470000, 1610684778000],
+    [14480001, 1610809189000],
+    [14490000, 1610930924000],
+    [14500000, 1611076353000],
+    [14510000, 1611244136000],
+    [14520000, 1611399289000],
+    [14530001, 1611494532000],
+    [14540000, 1611645230000],
+    [14550001, 1611779802000],
+    [14560000, 1611929597000],
+    [14570000, 1612053001000],
+    [14580000, 1612159145000],
+    [14590000, 1612284409000],
+    [14600002, 1612445935000],
+    [14610002, 1612594878000],
+    [14620000, 1612696360000],
+    [14630000, 1612822111000],
+    [14640002, 1612968761000],
+    [14650000, 1613108310000],
+    [14660000, 1613224941000],
+    [14670000, 1613306449000],
+    [14680003, 1613406134000],
+    [14690002, 1613567319000],
+    [14700001, 1613724799000],
+    [14710001, 1613833209000],
+    [14720002, 1613937109000],
+    [14730000, 1614073989000],
+    [14740000, 1614203006000],
+    [14750000, 1614348178000],
+    [14760000, 1614475529000],
+    [14770000, 1614583382000],
+    [14780001, 1614704431000],
+    [14790001, 1614865547000],
+    [14800000, 1615013503000],
+    [14810000, 1615118546000],
+    [14820001, 1615260353000],
+    [14830000, 1615392435000],
+    [14840001, 1615554134000],
+    [14850000, 1615656736000],
+    [14860000, 1615777688000],
+    [14870000, 1615909277000],
+    [14880000, 1616074253000],
+    [14890000, 1616225241000],
+    [14900000, 1616329884000],
+    [14910001, 1616479813000],
+    [14920001, 1616639805000],
+    [14930000, 1616776543000],
+    [14940000, 1616919064000],
+    [14950001, 1617033405000],
+    [14960000, 1617192850000],
+    [14970000, 1617324478000],
+    [14980000, 1617457126000],
+    [14990001, 1617560471000],
+    [15000000, 1617721110000],
+    [15010000, 1617890905000],
+    [15020001, 1618051846000],
+    [15030000, 1618154216000],
+    [15040001, 1618325640000],
+    [15050000, 1618498930000],
+    [15060000, 1618661401000],
+    [15070000, 1618759507000],
+    [15080000, 1618927949000],
+    [15090000, 1619101646000],
+    [15100003, 1619267671000],
+    [15110001, 1619366377000],
+    [15120000, 1619539865000],
+    [15130001, 1619698940000],
+    [15140000, 1619841193000],
+    [15150000, 1619952445000],
+    [15160001, 1620053070000],
+    [15170000, 1620147984000],
+    [15180001, 1620264427000],
+    [15190000, 1620408103000],
+    [15200001, 1620542441000],
+    [15210000, 1620656347000],
+    [15220002, 1620827018000],
+    [15230002, 1620996871000],
+    [15240001, 1621125933000],
+    [15250005, 1621247716000],
+    [15260000, 1621414260000],
+    [15270000, 1621576564000],
+    [15280004, 1621693448000],
+    [15290001, 1621784663000],
+    [15300001, 1621944874000],
+    [15310000, 1622111419000],
+    [15320000, 1622262907000],
+    [15330001, 1622368908000],
+    [15340001, 1622490000000],
+    [15350000, 1622646046000],
+    [15360000, 1622811317000],
+    [15370000, 1622934001000],
+    [15380000, 1623050332000],
+    [15390002, 1623204454000],
+    [15400001, 1623345615000],
+    [15410000, 1623499760000],
+    [15420000, 1623596380000],
+    [15430000, 1623754940000],
+    [15440000, 1623917063000],
+    [15450006, 1624062216000],
+    [15460000, 1624173519000],
+    [15470000, 1624285944000],
+    [15480001, 1624446884000],
+    [15490001, 1624611602000],
+    [15500001, 1624721981000],
+    [15510000, 1624848973000],
+    [15520000, 1624987994000],
+    [15530000, 1625149123000],
+    [15540001, 1625305857000],
+    [15550000, 1625407992000],
+    [15560001, 1625570458000],
+    [15570000, 1625708289000],
+    [15580001, 1625846024000],
+    [15590000, 1625983462000],
+    [15600000, 1626102253000],
+    [15610000, 1626268263000],
+    [15620001, 1626435982000],
+    [15630000, 1626571357000],
+    [15640000, 1626697635000],
+    [15650000, 1626859260000],
+    [15660001, 1626984401000],
+    [15670001, 1627121694000],
+    [15680000, 1627222279000],
+    [15690000, 1627377515000],
+    [15700001, 1627534685000],
+    [15710002, 1627667668000],
+    [15720000, 1627799205000],
+    [15730001, 1627916409000],
+    [15740002, 1628077710000],
+    [15750001, 1628239296000],
+    [15760000, 1628352705000],
+    [15770000, 1628478255000],
+    [15780001, 1628594784000],
+    [15790001, 1628735344000],
+    [15800001, 1628858188000],
+    [15810000, 1628957693000],
+    [15820000, 1629072598000],
+    [15830000, 1629203998000],
+    [15840000, 1629345639000],
+    [15850000, 1629469386000],
+    [15860002, 1629589331000],
+    [15870000, 1629705588000],
+    [15880000, 1629823753000],
+    [15890001, 1629980009000],
+    [15900001, 1630116572000],
+    [15910000, 1630221709000],
+    [15920000, 1630329553000],
+    [15930000, 1630470444000],
+    [15940001, 1630596817000],
+    [15950000, 1630742907000],
+    [15960000, 1630841882000],
+    [15970000, 1630949694000],
+    [15980000, 1631107604000],
+    [15990001, 1631258037000],
+    [16000000, 1631368076000],
+    [16010001, 1631459740000],
+    [16020000, 1631616392000],
+    [16030000, 1631759130000],
+    [16040000, 1631890364000],
+    [16050002, 1632006000000],
+    [16060000, 1632113580000],
+    [16070000, 1632224017000],
+    [16080000, 1632357039000],
+    [16090000, 1632479964000],
+    [16100002, 1632584915000],
+    [16110000, 1632693601000],
+    [16120001, 1632837146000],
+    [16130001, 1632992269000],
+    [16140000, 1633103302000],
+    [16150000, 1633236036000],
+    [16160000, 1633351627000],
+    [16170000, 1633510429000],
+    [16180001, 1633670463000],
+    [16190000, 1633787504000],
+    [16200000, 1633879002000],
+    [16210000, 1634036463000],
+    [16220000, 1634190311000],
+    [16230000, 1634316909000],
+    [16240001, 1634449090000],
+    [16250001, 1634564297000],
+    [16260000, 1634731148000],
+    [16270000, 1634894514000],
+    [16280001, 1635006911000],
+    [16290000, 1635146973000],
+    [16300000, 1635296235000],
+    [16310001, 1635438801000],
+    [16320000, 1635596200000],
+    [16330000, 1635683945000],
+    [16340001, 1635813965000],
+    [16350000, 1635944185000],
+    [16360001, 1636104318000],
+    [16370000, 1636216125000],
+    [16380001, 1636349708000],
+    [16390000, 1636485778000],
+    [16400000, 1636633126000],
+    [16410000, 1636775436000],
+    [16420000, 1636887831000],
+    [16430000, 1637035157000],
+    [16440000, 1637202106000],
+    [16450000, 1637344438000],
+    [16460000, 1637480688000],
+    [16470001, 1637592913000],
+    [16480002, 1637739009000],
+    [16490000, 1637904942000],
+    [16500000, 1638026842000],
+    [16510000, 1638162888000],
+    [16520000, 1638292148000],
+    [16530000, 1638458030000],
+    [16540002, 1638615167000],
+    [16550000, 1638714393000],
+    [16560000, 1638876409000],
+    [16570000, 1639040028000],
+    [16580000, 1639187217000],
+    [16590000, 1639307662000],
+    [16600000, 1639454477000],
+    [16610000, 1639627185000],
+    [16620000, 1639779710000],
+    [16630000, 1639907263000],
+    [16640003, 1640056572000],
+    [16650000, 1640195488000],
+    [16660000, 1640347206000],
+    [16670002, 1640441258000],
+    [16680000, 1640558659000],
+    [16690000, 1640704773000],
+    [16700000, 1640851001000],
+    [16710000, 1640944416000],
+    [16720000, 1641034407000],
+    [16730001, 1641145162000],
+    [16740001, 1641287228000],
+    [16750001, 1641432930000],
+    [16760000, 1641569488000],
+    [16770000, 1641714711000],
+    [16780000, 1641819617000],
+    [16790000, 1641976092000],
+    [16800002, 1642135341000],
+    [16810000, 1642258816000],
+    [16820000, 1642376854000],
+    [16830000, 1642522447000],
+    [16840000, 1642692211000],
+    [16850001, 1642848145000],
+    [16860001, 1642946066000],
+    [16870006, 1643104274000],
+    [16880000, 1643256755000],
+    [16890000, 1643383270000],
+    [16900001, 1643513558000],
+    [16910000, 1643624822000],
+    [16920000, 1643761593000],
+    [16930000, 1643897518000],
+    [16940001, 1644046689000],
+    [16950000, 1644148988000],
+    [16960000, 1644292691000],
+    [16970000, 1644424029000],
+    [16980001, 1644571875000],
+    [16990000, 1644672859000],
+    [17000000, 1644761982000],
+    [17010001, 1644848140000],
+    [17020000, 1644994685000],
+    [17030000, 1645143682000],
+    [17040000, 1645269253000],
+    [17050001, 1645357332000],
+    [17060001, 1645465591000],
+    [17070000, 1645604057000],
+    [17080001, 1645725342000],
+    [17090000, 1645877056000],
+    [17100000, 1645972181000],
+    [17110000, 1646124672000],
+    [17120000, 1646276532000],
+    [17130000, 1646407396000],
+    [17140000, 1646535918000],
+    [17150000, 1646650916000],
+    [17160001, 1646804197000],
+    [17170001, 1646946167000],
+    [17180000, 1647084906000],
+    [17190000, 1647182489000],
+    [17200000, 1647314276000],
+    [17210000, 1647447683000],
+    [17220000, 1647607726000],
+    [17230002, 1647721896000],
+    [17240000, 1647838182000],
+    [17250000, 1647954518000],
+    [17260001, 1648112167000],
+    [17270000, 1648244365000],
+    [17280000, 1648363832000],
+    [17290002, 1648479018000],
+    [17300000, 1648637593000],
+    [17310000, 1648744721000],
+    [17320000, 1648882125000],
+    [17330001, 1648989613000],
+    [17340001, 1649121083000],
+    [17350002, 1649258940000],
+    [17360000, 1649424449000],
+    [17370000, 1649558056000],
+    [17380002, 1649679221000],
+    [17390000, 1649848546000],
+    [17400000, 1650014854000],
+    [17410001, 1650127780000],
+    [17420000, 1650265614000],
+    [17430000, 1650415187000],
+    [17440000, 1650565548000],
+    [17450000, 1650718660000],
+    [17460000, 1650817714000],
+    [17470000, 1650980883000],
+    [17480001, 1651147321000],
+    [17490000, 1651256656000],
+    [17500000, 1651380792000],
+    [17510000, 1651497322000],
+    [17520000, 1651636671000],
+    [17530000, 1651742579000],
+    [17540001, 1651852590000],
+    [17550000, 1651980986000],
+    [17560000, 1652097812000],
+    [17570000, 1652258339000],
+    [17580000, 1652418951000],
+    [17590000, 1652537092000],
+    [17600000, 1652648521000],
+    [17610000, 1652798828000],
+    [17620000, 1652966576000],
+    [17630000, 1653120396000],
+    [17640000, 1653224595000],
+    [17650000, 1653366436000],
+    [17660000, 1653503365000],
+    [17670000, 1653662025000],
+    [17680002, 1653797175000],
+    [17690001, 1653916799000],
+    [17700000, 1654083042000],
+    [17710000, 1654250603000],
+    [17720001, 1654366796000],
+    [17730000, 1654500942000],
+    [17740000, 1654659950000],
+    [17750000, 1654795307000],
+    [17760001, 1654949442000],
+    [17770000, 1655049498000],
+    [17780000, 1655209018000],
+    [17790000, 1655371763000],
+    [17800000, 1655523056000],
+    [17810000, 1655635213000],
+    [17820000, 1655777166000],
+    [17830001, 1655925251000],
+    [17840000, 1656082802000],
+    [17850000, 1656223265000],
+    [17860001, 1656347789000],
+    [17870000, 1656519562000],
+    [17880000, 1656686470000],
+    [17890001, 1656823962000],
+    [17900000, 1656943371000],
+    [17910000, 1657110378000],
+    [17920000, 1657261432000],
+    [17930000, 1657389177000],
+    [17940000, 1657537359000],
+    [17950001, 1657703351000],
+    [17960001, 1657862126000],
+    [17970000, 1657982775000],
+    [17980000, 1658107869000],
+    [17990000, 1658231351000],
+    [18000000, 1658390432000],
+    [18010000, 1658529832000],
+    [18020000, 1658657110000],
+    [18030000, 1658786587000],
+    [18040000, 1658931410000],
+    [18050000, 1659090621000],
+    [18060002, 1659210315000],
+    [18070000, 1659342601000],
+    [18080000, 1659490247000],
+    [18090000, 1659623847000],
+    [18100000, 1659771081000],
+    [18110000, 1659878153000],
+    [18120000, 1660020634000],
+    [18130000, 1660135471000],
+    [18140000, 1660271287000],
+    [18150000, 1660392085000],
+    [18160000, 1660493452000],
+    [18170001, 1660634551000],
+    [18180001, 1660751722000],
+    [18190001, 1660907787000],
+    [18200000, 1661015264000],
+    [18210001, 1661154293000],
+    [18220000, 1661296680000],
+    [18230000, 1661441105000],
+    [18240000, 1661594422000],
+    [18250000, 1661697793000],
+    [18260000, 1661860267000],
+    [18270000, 1662006107000],
+    [18280000, 1662153346000],
+    [18290000, 1662284110000],
+    [18300000, 1662417637000],
+    [18310001, 1662564937000],
+    [18320000, 1662732210000],
+    [18330000, 1662864886000],
+    [18340000, 1662989323000],
+    [18350000, 1663157286000],
+    [18360001, 1663325776000],
+    [18370001, 1663457990000],
+    [18380001, 1663569154000],
+    [18390000, 1663685381000],
+    [18400000, 1663854279000],
+    [18410000, 1663986345000],
+    [18420002, 1664098955000],
+    [18430003, 1664233443000],
+    [18440000, 1664381791000],
+    [18450000, 1664545903000],
+    [18460001, 1664672366000],
+    [18470000, 1664797315000],
+    [18480000, 1664963327000],
+    [18490001, 1665129129000],
+    [18500000, 1665249079000],
+    [18510000, 1665378101000],
+    [18520000, 1665498402000],
+    [18530000, 1665666274000],
+    [18540000, 1665822906000],
+    [18550000, 1665928917000],
+    [18560000, 1666091693000],
+    [18570000, 1666258710000],
+    [18580000, 1666413011000],
+    [18590000, 1666525787000],
+    [18600000, 1666683378000],
+    [18610001, 1666856198000],
+    [18620000, 1667012932000],
+    [18630001, 1667130397000],
+    [18640000, 1667227842000],
+    [18650000, 1667391437000],
+    [18660000, 1667537375000],
+    [18670000, 1667659115000],
+    [18680000, 1667778232000],
+    [18690000, 1667928642000],
+    [18700000, 1668092558000],
+    [18710000, 1668243412000],
+    [18720000, 1668347270000],
+    [18730000, 1668511156000],
+    [18740000, 1668681913000],
+    [18750000, 1668835345000],
+    [18760000, 1668948613000],
+    [18770000, 1669107023000],
+    [18780001, 1669217357000],
+    [18790000, 1669385287000],
+    [18800000, 1669521446000],
+    [18810000, 1669644488000],
+    [18820000, 1669806609000],
+    [18830000, 1669969123000],
+    [18840000, 1670085906000],
+    [18850001, 1670230236000],
+    [18860000, 1670388111000],
+    [18870000, 1670553568000],
+    [18880000, 1670680140000],
+    [18890001, 1670803201000],
+    [18900000, 1670955818000],
+    [18910000, 1671119233000],
+    [18920000, 1671281912000],
+    [18930000, 1671409195000],
+    [18940000, 1671567402000],
+    [18950000, 1671721208000],
+    [18960000, 1671861312000],
+    [18970000, 1671954612000],
+    [18980000, 1672061020000],
+    [18990001, 1672222393000],
+    [19000000, 1672353531000],
+    [19010000, 1672467100000],
+    [19020000, 1672553764000],
+    [19030000, 1672671491000],
+    [19040000, 1672808932000],
+    [19050000, 1672932463000],
+    [19060000, 1673087550000],
+    [19070000, 1673193657000],
+    [19080000, 1673334059000],
+    [19090000, 1673495777000],
+    [19100000, 1673631095000],
+    [19110000, 1673768998000],
+    [19120000, 1673885155000],
+    [19130000, 1674054006000],
+    [19140000, 1674222465000],
+    [19150000, 1674353315000],
+    [19160000, 1674473730000],
+    [19170001, 1674632979000],
+    [19180000, 1674785242000],
+    [19190000, 1674912941000],
+    [19200000, 1675017226000],
+    [19210000, 1675171526000],
+    [19220000, 1675332469000],
+    [19230000, 1675444750000],
+    [19240000, 1675578816000],
+    [19250000, 1675692430000],
+    [19260000, 1675852157000],
+    [19270000, 1675999035000],
+    [19280000, 1676117630000],
+    [19290000, 1676213750000],
+    [19300000, 1676339631000],
+    [19310001, 1676450914000],
+    [19320000, 1676596485000],
+    [19330000, 1676726295000],
+    [19340000, 1676824763000],
+    [19350000, 1676985136000],
+    [19360000, 1677125230000],
+    [19370001, 1677247234000],
+    [19380000, 1677373760000],
+    [19390000, 1677495165000],
+    [19400000, 1677633838000],
+    [19410000, 1677769224000],
+    [19420000, 1677919084000],
+    [19430000, 1678019683000],
+    [19440001, 1678155656000],
+    [19450001, 1678288614000],
+    [19460000, 1678449353000],
+    [19470000, 1678577300000],
+    [19480000, 1678704079000],
+    [19490001, 1678828261000],
+    [19500000, 1678977066000],
+    [19510000, 1679123089000],
+    [19520000, 1679232561000],
+    [19530001, 1679366629000],
+    [19540000, 1679492483000],
+    [19550000, 1679650444000],
+    [19560000, 1679756408000],
+    [19570000, 1679865472000],
+    [19580000, 1680010450000],
+    [19590000, 1680165108000],
+    [19600000, 1680274893000],
+    [19610000, 1680386401000],
+    [19620000, 1680512613000],
+    [19630001, 1680642045000],
+    [19640001, 1680788039000],
+    [19650000, 1680928729000],
+    [19660000, 1681038067000],
+    [19670000, 1681176951000],
+    [19680000, 1681327167000],
+    [19690000, 1681483914000],
+    [19700000, 1681613428000],
+    [19710000, 1681733363000],
+    [19720000, 1681901262000],
+    [19730000, 1682061980000],
+    [19740000, 1682176670000],
+    [19750000, 1682309707000],
+    [19760001, 1682466416000],
+    [19770000, 1682617585000],
+    [19780001, 1682768367000],
+    [19790000, 1682866680000],
+    [19800000, 1683019738000],
+    [19810000, 1683136858000],
+    [19820000, 1683268994000],
+    [19830000, 1683372201000],
+    [19840001, 1683462031000],
+    [19850001, 1683603948000],
+    [19860000, 1683730620000],
+    [19870000, 1683898327000],
+    [19880001, 1684024153000],
+    [19890000, 1684148452000],
+    [19900000, 1684313296000],
+    [19910000, 1684469994000],
+    [19920002, 1684590680000],
+    [19930000, 1684699592000],
+    [19940001, 1684851189000],
+    [19950000, 1685017223000],
+    [19960001, 1685169953000],
+    [19970000, 1685278382000],
+    [19980000, 1685433556000],
+    [19990000, 1685564102000],
+    [20000000, 1685716288000],
+    [20010003, 1685847463000],
+    [20020000, 1685964724000],
+    [20030000, 1686119859000],
+    [20040000, 1686275819000],
+    [20050000, 1686401217000],
+    [20060001, 1686496334000],
+    [20070001, 1686654781000],
+    [20080000, 1686814224000],
+    [20090000, 1686958417000],
+    [20100000, 1687078105000],
+    [20110000, 1687190663000],
+    [20120001, 1687355764000],
+    [20130000, 1687523522000],
+    [20140000, 1687645127000],
+    [20150000, 1687774959000],
+    [20160000, 1687936267000],
+    [20170000, 1688078953000],
+    [20180002, 1688208028000],
+    [20190000, 1688306045000],
+    [20200000, 1688453116000],
+    [20210000, 1688598008000],
+    [20220000, 1688737374000],
+    [20230000, 1688867724000],
+    [20240000, 1688988884000],
+    [20250001, 1689149214000],
+    [20260000, 1689311524000],
+    [20270000, 1689433202000],
+    [20280000, 1689564424000],
+    [20290000, 1689687736000],
+    [20300000, 1689856471000],
+    [20310000, 1690007766000],
+    [20320000, 1690119474000],
+    [20330000, 1690271740000],
+    [20340000, 1690412997000],
+    [20350000, 1690556408000],
+    [20360000, 1690695983000],
+    [20370000, 1690813374000],
+    [20380000, 1690966802000],
+    [20390001, 1691109438000],
+    [20400000, 1691241419000],
+    [20410000, 1691360804000],
+    [20420000, 1691498119000],
+    [20430001, 1691642753000],
+    [20440000, 1691761055000],
+    [20450001, 1691887415000],
+    [20460000, 1692010504000],
+    [20470000, 1692112959000],
+    [20480000, 1692255348000],
+    [20490000, 1692372791000],
+    [20500000, 1692508140000],
+    [20510000, 1692624146000],
+    [20520000, 1692765923000],
+    [20530000, 1692888700000],
+    [20540000, 1693038437000],
+    [20550000, 1693143069000],
+    [20560001, 1693284776000],
+    [20570000, 1693409238000],
+    [20580000, 1693558804000],
+    [20590000, 1693667983000],
+    [20600001, 1693801909000],
+    [20610000, 1693950411000],
+    [20620000, 1694100047000],
+    [20630001, 1694257179000],
+    [20640000, 1694357698000],
+    [20650001, 1694519970000],
+    [20660000, 1694683520000],
+    [20670000, 1694831389000],
+    [20680002, 1694954414000],
+    [20690000, 1695056275000],
+    [20700001, 1695217826000],
+    [20710000, 1695374863000],
+    [20720000, 1695482728000],
+    [20730000, 1695622806000],
+    [20740000, 1695771949000],
+    [20750000, 1695917849000],
+    [20760000, 1696066366000],
+    [20770000, 1696167557000],
+    [20780002, 1696333609000],
+    [20790001, 1696498978000],
+    [20800000, 1696647600000],
+    [20810000, 1696769069000],
+    [20820000, 1696880989000],
+    [20830000, 1697036612000],
+    [20840000, 1697205385000],
+    [20850000, 1697351378000],
+    [20860000, 1697475553000],
+    [20870001, 1697647826000],
+    [20880000, 1697814223000],
+    [20890000, 1697964038000],
+    [20900000, 1698114540000],
+    [20910000, 1698284373000],
+    [20920000, 1698442869000],
+    [20930000, 1698575354000],
+    [20940000, 1698701279000],
+    [20950000, 1698838714000],
+    [20960000, 1698999234000],
+    [20970001, 1699114399000],
+    [20980000, 1699258766000],
+    [20990000, 1699425433000],
+    [21000000, 1699598512000],
+    [21010001, 1699714856000],
+    [21020000, 1699857336000],
+    [21030002, 1700020188000],
+    [21040000, 1700195973000],
+    [21050000, 1700322845000],
+    [21060000, 1700475217000],
+    [21070000, 1700647081000],
+    [21080000, 1700787860000],
+    [21090000, 1700923757000],
+    [21100000, 1701068828000],
+    [21110000, 1701228360000],
+    [21120001, 1701375951000],
+    [21130002, 1701523398000],
+    [21140000, 1701654327000],
+    [21150000, 1701804625000],
+    [21160000, 1701961975000],
+    [21170000, 1702121359000],
+    [21180000, 1702224558000],
+    [21190000, 1702390238000],
+    [21200000, 1702559901000],
+    [21210000, 1702721469000],
+    [21220000, 1702834825000],
+    [21230000, 1703001809000],
+    [21240001, 1703174055000],
+    [21250000, 1703333512000],
+    [21260000, 1703427102000],
+    [21270001, 1703527561000],
+    [21280000, 1703689409000],
+    [21290000, 1703848444000],
+    [21300001, 1703952652000],
+    [21310000, 1704035239000],
+    [21320001, 1704184959000],
+    [21330000, 1704299117000],
+    [21340000, 1704457111000],
+    [21350000, 1704591749000],
+    [21360000, 1704709211000],
+    [21370002, 1704864150000],
+    [21380000, 1705033355000],
+    [21390000, 1705161084000],
+    [21400000, 1705311385000],
+    [21410001, 1705480370000],
+    [21420000, 1705646826000],
+    [21430000, 1705767267000],
+    [21440000, 1705911585000],
+    [21450000, 1706063572000],
+    [21460000, 1706200084000],
+    [21470000, 1706359804000],
+    [21480000, 1706484417000],
+    [21490000, 1706628284000],
+    [21500000, 1706787810000],
+    [21510000, 1706936708000],
+    [21520000, 1707051230000],
+    [21530000, 1707203452000],
+    [21540000, 1707358202000],
+    [21550001, 1707493684000],
+    [21560000, 1707632981000],
+    [21570000, 1707741391000],
+    [21580000, 1707864128000],
+    [21590000, 1707983294000],
+    [21600001, 1708108861000],
+    [21610002, 1708246649000],
+    [21620000, 1708362354000],
+    [21630000, 1708523363000],
+    [21640000, 1708665620000],
+    [21650000, 1708777893000],
+    [21660000, 1708872340000],
+    [21670000, 1709024108000],
+    [21680000, 1709164529000],
+    [21690001, 1709297573000],
+    [21700000, 1709421870000],
+    [21710000, 1709542096000],
+    [21720000, 1709689064000],
+    [21730000, 1709820201000],
+    [21740000, 1709966185000],
+    [21750001, 1710073580000],
+    [21760001, 1710216347000],
+    [21770000, 1710342745000],
+    [21780000, 1710489002000],
+    [21790000, 1710601771000],
+    [21800000, 1710729269000],
+    [21810000, 1710862791000],
+    [21820000, 1711011101000],
+    [21830000, 1711152692000],
+    [21840000, 1711274382000],
+    [21850000, 1711385301000],
+    [21860001, 1711542015000],
+    [21870000, 1711691358000],
+    [21880000, 1711808085000],
+    [21890000, 1711899903000],
+    [21900001, 1712048402000],
+    [21910002, 1712181192000],
+    [21920000, 1712323980000],
+    [21930000, 1712451639000],
+    [21940000, 1712575850000],
+    [21950000, 1712738176000],
+    [21960000, 1712907761000],
+    [21970000, 1713026853000],
+    [21980001, 1713159855000],
+    [21990000, 1713304268000],
+    [22000003, 1713454216000],
+    [22010000, 1713609088000],
+    [22020000, 1713709575000],
+    [22030001, 1713870918000],
+    [22040000, 1714035851000],
+    [22050000, 1714183495000],
+    [22060000, 1714306017000],
+    [22070000, 1714406420000],
+    [22080001, 1714561607000],
+    [22090000, 1714696149000],
+    [22100000, 1714817914000],
+    [22110000, 1714917205000],
+    [22120000, 1715010671000],
+    [22130000, 1715174875000],
+    [22140000, 1715340472000],
+    [22150000, 1715454628000],
+    [22160000, 1715589958000],
+    [22170001, 1715741898000],
+    [22180001, 1715882636000],
+    [22190000, 1716034802000],
+    [22200001, 1716134758000],
+    [22210001, 1716298787000],
+    [22220000, 1716458892000],
+    [22230002, 1716588733000],
+    [22240001, 1716710571000],
+    [22250000, 1716817486000],
+    [22260000, 1716964216000],
+    [22270000, 1717088181000],
+    [22280002, 1717232719000],
+    [22290001, 1717332863000],
+    [22300000, 1717479029000],
+    [22310002, 1717623512000],
+    [22320001, 1717772156000],
+    [22330000, 1717911290000],
+    [22340000, 1718023892000],
+    [22350001, 1718177668000],
+    [22360001, 1718315699000],
+    [22370000, 1718451206000],
+    [22380001, 1718549319000],
+    [22390001, 1718702678000],
+    [22400000, 1718856680000],
+    [22410002, 1718984153000],
+    [22420001, 1719120553000],
+    [22430000, 1719234494000],
+    [22440000, 1719399366000],
+    [22450002, 1719544857000],
+    [22460000, 1719665701000],
+    [22470000, 1719758882000],
+    [22480000, 1719893669000],
+    [22490001, 1720013880000],
+    [22500000, 1720174730000],
+    [22510000, 1720280392000],
+    [22520000, 1720379071000],
+    [22530000, 1720529940000],
+    [22540004, 1720663493000],
+    [22550000, 1720784587000],
+    [22560000, 1720890044000],
+    [22570000, 1721016084000],
+    [22580000, 1721123408000],
+    [22590000, 1721236924000],
+    [22600000, 1721395192000],
+    [22610000, 1721515509000],
+    [22620000, 1721636683000],
+    [22630000, 1721779206000],
+    [22640001, 1721916096000],
+    [22650002, 1722056930000],
+    [22660000, 1722167669000],
+    [22670001, 1722301636000],
+    [22680001, 1722431222000],
+    [22690000, 1722570105000],
+    [22700002, 1722688760000],
+    [22710001, 1722796889000],
+    [22720001, 1722946520000],
+    [22730000, 1723081375000],
+    [22740000, 1723206841000],
+    [22750000, 1723310183000],
+    [22760000, 1723442349000],
+    [22770000, 1723551110000],
+    [22780000, 1723653407000],
+    [22790000, 1723790742000],
+    [22800001, 1723898554000],
+    [22810000, 1723993209000],
+    [22820000, 1724133734000],
+    [22830000, 1724248161000],
+    [22840000, 1724384991000],
+    [22850000, 1724500266000],
+    [22860001, 1724595689000],
+    [22870001, 1724717042000],
+    [22880001, 1724847836000],
+    [22890000, 1724991613000],
+    [22900000, 1725105062000],
+    [22910000, 1725196968000],
+    [22920000, 1725341318000],
+    [22930000, 1725465040000],
+    [22940000, 1725623698000],
+    [22950001, 1725731292000],
+    [22960000, 1725864081000],
+    [22970000, 1725980402000],
+    [22980003, 1726134697000],
+    [22990001, 1726244258000],
+    [23000000, 1726367674000],
+    [23010000, 1726481287000],
+    [23020000, 1726600878000],
+    [23030001, 1726745536000],
+    [23040000, 1726848438000],
+    [23050000, 1726982453000],
+    [23060001, 1727077995000],
+    [23070000, 1727183688000],
+    [23080002, 1727332529000],
+    [23090000, 1727449602000],
+    [23100000, 1727581677000],
+    [23110002, 1727692062000],
+    [23120000, 1727804827000],
+    [23130001, 1727958985000],
+    [23140000, 1728099030000],
+    [23150000, 1728215689000],
+    [23160000, 1728338305000],
+    [23170000, 1728482839000],
+    [23180001, 1728646439000],
+    [23190000, 1728769677000],
+    [23200000, 1728892218000],
+    [23210000, 1729003447000],
+    [23220000, 1729160283000],
+    [23230000, 1729278055000],
+    [23240000, 1729409298000],
+    [23250000, 1729523083000],
+    [23260000, 1729680720000],
+    [23270002, 1729830638000],
+    [23280000, 1729949459000],
+    [23290000, 1730072767000],
+    [23300000, 1730208759000],
+    [23310001, 1730348478000],
+    [23320000, 1730462528000],
+    [23330000, 1730563828000],
+    [23340001, 1730698365000],
+    [23350000, 1730813383000],
+    [23360003, 1730970785000],
+    [23370000, 1731085319000],
+    [23380000, 1731227401000],
+    [23390001, 1731332783000],
+    [23400001, 1731483063000],
+    [23410001, 1731604116000],
+    [23420001, 1731756397000],
+    [23430000, 1731856607000],
+    [23440000, 1732014001000],
+    [23450000, 1732164474000],
+    [23460000, 1732286949000],
+    [23470000, 1732417363000],
+    [23480000, 1732538545000],
+    [23490001, 1732690392000],
+    [23500000, 1732830468000],
+    [23510000, 1732962071000],
+    [23520000, 1733060854000],
+    [23530002, 1733214677000],
+    [23540000, 1733359235000],
+    [23550000, 1733493863000],
+    [23560000, 1733622771000],
+    [23570000, 1733748205000],
+    [23580001, 1733905670000],
+    [23590000, 1734050421000],
+    [23600000, 1734183048000],
+    [23610001, 1734314495000],
+    [23620000, 1734447229000],
+    [23630001, 1734610858000],
+    [23640000, 1734754496000],
+    [23650002, 1734870470000],
+    [23660000, 1735008280000],
+    [23670000, 1735113206000],
+    [23680000, 1735220356000],
+    [23690000, 1735360245000],
 ];
 
 
@@ -46270,6 +48043,7 @@ class Utils {
     static htmlToText(str) {
         return str
             .replace(/<br \/>/g, '\n')
+            .replace(/<br\/>/g, '\n')
             .replace(/<br>/g, '\n')
             .replace(/<\/?.+?>/g, '');
         // 这里有两种换行标签：
@@ -46300,6 +48074,12 @@ class Utils {
     }
     static sleep(time) {
         return new Promise((res) => window.setTimeout(res, time));
+    }
+    /**传入一个文件的 URL，返回它的文件扩展名 */
+    static getURLExt(url) {
+        url = url.split('?')[0]; // 移除可能存在的查询字符串
+        const array = url.split('.');
+        return array[array.length - 1];
     }
 }
 // 不安全的字符，这里多数是控制字符，需要替换掉
@@ -46647,28 +48427,29 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
 /* harmony import */ var _DoubleWidthThumb__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./DoubleWidthThumb */ "./src/ts/DoubleWidthThumb.ts");
 /* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
-/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
-/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
-/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
-/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
-/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
-/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
-/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
-/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _download_SaveWorkDescription__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/SaveWorkDescription */ "./src/ts/download/SaveWorkDescription.ts");
-/* harmony import */ var _download_ShowStatusOnTitle__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ShowStatusOnTitle */ "./src/ts/download/ShowStatusOnTitle.ts");
-/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
-/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
-/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
-/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
-/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
-/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
+/* harmony import */ var _showDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./showDownloadBtnOnThumb */ "./src/ts/showDownloadBtnOnThumb.ts");
+/* harmony import */ var _RemoveBlockedUsersWork__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./RemoveBlockedUsersWork */ "./src/ts/RemoveBlockedUsersWork.ts");
+/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
+/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
+/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
+/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
+/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
+/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
+/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
+/* harmony import */ var _download_SaveWorkDescription__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/SaveWorkDescription */ "./src/ts/download/SaveWorkDescription.ts");
+/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
+/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
+/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
+/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
+/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
+/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -46679,6 +48460,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 

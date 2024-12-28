@@ -17,6 +17,8 @@ class ArtworkThumbnail extends WorkThumbnail {
         'div[width="131"]',
         'div[width="288"]',
         'div[width="184"]',
+        'div[size="184"]',
+        'div[size="112"]',
         'div[width="112"]',
         'div[width="104"]',
         'div[width="90"]',
@@ -43,6 +45,14 @@ class ArtworkThumbnail extends WorkThumbnail {
     // 如果在查找到某个选择器之后，不再查找剩余的选择器，就可能会遗漏一部分缩略图。
     // 但是，这有可能会导致事件的重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
     for (const selector of this.selectors) {
+      // div[size="184"] 只在发现页面使用，因为其他页面目前不会用到它
+      if (
+        selector === 'div[size="184"]' &&
+        pageType.type !== pageType.list.Discover
+      ) {
+        continue
+      }
+
       // div[type="illust"] 只在约稿页面使用
       // 因为已知问题：在收藏页面里， div[type="illust"] 嵌套了子元素 div[width="184"]
       // 这会导致重复绑定（在不同元素上）

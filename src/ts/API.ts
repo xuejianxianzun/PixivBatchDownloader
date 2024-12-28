@@ -22,6 +22,8 @@ import {
   NovelSeriesGlossary,
   NovelSeriesGlossaryItem,
   LatestMessageData,
+  NovelSeriesContentData,
+  NovelInsertIllusts,
 } from './crawl/CrawlResult'
 
 import {
@@ -396,14 +398,22 @@ class API {
     return this.sendGetRequest(url)
   }
 
-  // 获取小说的系列作品信息
-  // 这个 api 目前一批最多只能返回 30 个作品的数据，所以可能需要多次获取
+  /**获取小说系列的数据，注意只是系列本身的数据，没有系列里每部小说的数据 */
   static getNovelSeriesData(
+    series_id: number | string
+  ): Promise<NovelSeriesData> {
+    const url = `https://www.pixiv.net/ajax/novel/series/${series_id}`
+    return this.sendGetRequest(url)
+  }
+
+  /**获取小说系列作品里每个作品的详细数据（但是没有小说正文内容） */
+  // 这个 api 目前一批最多只能返回 30 个作品的数据，所以可能需要多次获取
+  static getNovelSeriesContent(
     series_id: number | string,
     limit: number = 30,
     last_order: number,
     order_by = 'asc'
-  ): Promise<NovelSeriesData> {
+  ): Promise<NovelSeriesContentData> {
     const url = `https://www.pixiv.net/ajax/novel/series_content/${series_id}?limit=${limit}&last_order=${last_order}&order_by=${order_by}`
     return this.sendGetRequest(url)
   }
@@ -453,6 +463,23 @@ class API {
     return this.sendGetRequest(
       `https://www.pixiv.net/ajax/mute/items?context=setting`
     )
+  }
+
+  /**获取小说里引用的插画的数据，可以一次传递多个插画 id（需要带序号） */
+  // illustsIDs 形式例如：[70551567,99760571-1,99760571-130]
+  // 如果指定了序号，那么 Pixiv 会返回对应序号的图片 URL
+  static async getNovelInsertIllustsData(
+    novelID: string | number,
+    illustsIDs: string[]
+  ): Promise<NovelInsertIllusts> {
+    const parameters: string[] = []
+    illustsIDs.forEach((id) => parameters.push(`id%5B%5D=${id}`))
+    const url =
+      `https://www.pixiv.net/ajax/novel/${novelID}/insert_illusts?` +
+      parameters.join('&')
+    // 组合好的 url 里可能包含多个 id[]=123456789 参数，如：
+    // https://www.pixiv.net/ajax/novel/22894530/insert_illusts?id%5B%5D=121979383-1&id%5B%5D=121979454-1&id%5B%5D=121979665-1
+    return this.sendGetRequest(url)
   }
 
   /**获取系列小说的设定资料 */

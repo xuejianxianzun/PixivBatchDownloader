@@ -384,8 +384,8 @@ class InitBookmarkPage extends InitPageBase {
 
     store.tag = Tools.getTagFromURL()
 
-    // 每页个作品数，插画 48 个，小说 24 个
-    const onceNumber = window.location.pathname.includes('/novels') ? 24 : 48
+    // 每页个作品数，插画 48 个，小说 30 个
+    const onceNumber = window.location.pathname.includes('/novels') ? 30 : 48
 
     // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
     const nowPage = Utils.getURLSearchField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
@@ -423,13 +423,29 @@ class InitBookmarkPage extends InitPageBase {
     let data: BookmarkData
     try {
       data = await API.getBookmarkData(
-        Tools.getUserId(),
+        Tools.getCurrentPageUserID(),
         this.type,
         store.tag,
         this.offset,
         this.isHide
       )
     } catch (error) {
+      // 一种特殊的错误情况：
+      // 如果一个用户被封禁了，那么在他的小说收藏页面里抓取，会返回 html 源代码，
+      // 就是显示“找不到该用户”的错误页面。此时无法解析为 JSON，报错信息如下：
+      // SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+      // 此时应该终止抓取。
+      // 注：这个错误只在小说收藏页面出现。在插画收藏页面依旧可以正常抓取
+      if ((error as any).message.includes('not valid JSON')) {
+        if (lang.type.includes('zh')) {
+          log.error(`预期的数据格式为 JSON，但抓取结果不是 JSON。已取消抓取。<br>
+一种可能的原因：您已被 Pixiv 封禁。`)
+        } else {
+          log.error(`Expected data format is JSON, but the fetch result is not JSON. Fetch has been canceled. <br>
+One possible reason: You have been banned from Pixiv.`)
+        }
+        return this.getIdListFinished()
+      }
       this.getIdList()
       return
     }

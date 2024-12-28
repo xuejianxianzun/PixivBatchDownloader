@@ -75,8 +75,6 @@ class QuickCrawl {
   }
 
   private sendDownload() {
-    states.quickCrawl = true
-
     const isNovel = window.location.href.includes('/novel')
 
     let idData: IDData
@@ -94,10 +92,6 @@ class QuickCrawl {
     }
 
     EVT.fire('crawlIdList', [idData])
-
-    toast.show(lang.transl('_已发送下载请求'), {
-      bgColor: Colors.bgBlue,
-    })
   }
 
   private setVisible() {

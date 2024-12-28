@@ -194,6 +194,7 @@ class HighlightFollowingUsers {
 
   /**只请求第一页的数据，以获取 total */
   private async getFollowingTotal(rest: 'show' | 'hide') {
+    // 关注页面一页显示 24 个作者
     const res = await API.getFollowingList(store.loggedUserID, rest, '', 0, 24)
 
     return res.body.total
@@ -348,7 +349,7 @@ class HighlightFollowingUsers {
   private handleUserHomePage() {
     if (pageType.type === pageType.list.UserHome) {
       // 在用户主页里，高亮用户名（因为用户名没有超链接，需要单独处理）
-      const userID = Tools.getUserId()
+      const userID = Tools.getCurrentPageUserID()
       const flag = this.following.includes(userID)
       const h1 = document.querySelector('h1') as HTMLHeadingElement
       if (h1) {

@@ -8,20 +8,24 @@ import { lang } from '../Lang'
 import { Tools } from '../Tools'
 import { downloadNovelCover } from '../download/DownloadNovelCover'
 import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
+import { log } from '../Log'
+import { API } from '../API'
+import { NovelSeriesData } from '../crawl/CrawlResult'
+
+declare const jEpub: any
 
 // 单个小说的数据
 interface NovelData {
+  id: string
   /**小说在系列中的排序，是从 1 开始的数字 */
   no: number
   title: string
+  description: string
   content: string
   embeddedImages: null | {
     [key: string]: string
   }
 }
-
-// https://github.com/bbottema/js-epub-maker
-declare const EpubMaker: any
 
 class MergeNovel {
   constructor() {
@@ -30,8 +34,8 @@ class MergeNovel {
 
   private readonly CRLF = '\n' // pixiv 小说的换行符
 
-  /**在文件开头添加的元数据 */
-  private meta = ''
+  /** 这个系列小说的元数据，现在只用在 TXT 里 */
+  private seriesMeta = ''
 
   private init() {
     window.addEventListener(EVT.list.crawlComplete, () => {
@@ -57,46 +61,67 @@ class MergeNovel {
       Utils.sortByProperty('seriesOrder', 'asc')
     )
 
-    const firstResult = store.resultMeta[0]
-
     // 汇总小说数据
     const allNovelData: NovelData[] = []
     for (const result of allResult) {
       allNovelData.push({
+        id: result.id,
         no: result.seriesOrder!,
         title: Utils.replaceUnsafeStr(result.title),
         content: result.novelMeta!.content,
         embeddedImages: result.novelMeta!.embeddedImages,
+        description: result.novelMeta!.description,
       })
     }
 
-    // 生成 meta 文本
-    this.meta = ''
+    // 获取这个系列本身的资料
+    const seriesDataJSON = await API.getNovelSeriesData(
+      store.resultMeta[0].seriesId!
+    )
+    const seriesData = seriesDataJSON.body
+
+    // 生成系列小说元数据的文本
+    this.seriesMeta = ''
+
+    const title = Tools.replaceEPUBTitle(
+      Utils.replaceUnsafeStr(seriesData.title)
+    )
+    const userName = Tools.replaceEPUBText(
+      Utils.replaceUnsafeStr(seriesData.userName)
+    )
     if (settings.saveNovelMeta) {
       const metaArray: string[] = []
       // 系列标题
-      metaArray.push(firstResult.seriesTitle!)
+      metaArray.push(title)
       // 作者
-      metaArray.push(firstResult.user)
+      metaArray.push(userName)
       // 网址链接
-      const link = `https://www.pixiv.net/novel/series/${firstResult.seriesId}`
-      metaArray.push(link + this.CRLF.repeat(2))
+      const link = `https://www.pixiv.net/novel/series/${seriesData.id}`
+      metaArray.push(link + this.CRLF)
+
+      const description = Utils.htmlToText(Utils.htmlDecode(seriesData.caption))
+      metaArray.push(description + this.CRLF.repeat(2))
+
       // 设定资料
       if (store.novelSeriesGlossary) {
-        metaArray.push(store.novelSeriesGlossary)
+        metaArray.push(
+          Utils.htmlToText(Utils.htmlDecode(store.novelSeriesGlossary)) +
+            this.CRLF.repeat(2)
+        )
       }
 
-      this.meta = metaArray.join(this.CRLF.repeat(2))
+      this.seriesMeta = metaArray.join(this.CRLF)
     }
 
     // 生成小说文件并下载
     let file: Blob | null = null
-    const novelName = `${firstResult.seriesTitle}-tags_${firstResult.tags}-user_${firstResult.user}-seriesId_${firstResult.seriesId}.${settings.novelSaveAs}`
+    const novelName = `${title}-tags_${seriesData.tags}-user_${userName}-seriesId_${seriesData.id}.${settings.novelSaveAs}`
     if (settings.novelSaveAs === 'txt') {
-      file = await this.makeTXT(allNovelData)
+      file = await this.mergeTXT(allNovelData)
       // 保存为 txt 格式时，在这里下载小说内嵌的图片
       for (const result of allResult) {
         await downloadNovelEmbeddedImage.TXT(
+          result.novelMeta!.id,
           result.novelMeta!.content,
           result.novelMeta!.embeddedImages,
           novelName,
@@ -104,7 +129,13 @@ class MergeNovel {
         )
       }
     } else {
-      file = await this.makeEPUB(allNovelData, firstResult)
+      file = await this.mergeEPUB(allNovelData, seriesData)
+    }
+
+    // 下载系列小说的封面图片
+    if (settings.downloadNovelCoverImage) {
+      const cover = seriesData.cover.urls.original
+      await downloadNovelCover.download(cover, novelName, 'mergeNovel')
     }
 
     const url = URL.createObjectURL(file)
@@ -112,32 +143,27 @@ class MergeNovel {
 
     states.mergeNovel = false
     EVT.fire('downloadComplete')
-
-    // 保存第一个小说的封面图片
-    // 实际上系列的封面不一定是第一个小说的封面，这里用第一个小说的封面凑合一下
-    if (firstResult.novelMeta?.coverUrl) {
-      downloadNovelCover.download(
-        firstResult.novelMeta.coverUrl,
-        novelName,
-        'mergeNovel'
-      )
-    }
+    log.success(lang.transl('_下载完毕'), 2)
 
     store.reset()
   }
 
-  private async makeTXT(novelDataArray: NovelData[]): Promise<Blob> {
+  private async mergeTXT(novelDataArray: NovelData[]): Promise<Blob> {
     return new Promise(async (resolve, reject) => {
       const result: string[] = []
       if (settings.saveNovelMeta) {
-        result.push(this.meta)
+        result.push(this.seriesMeta)
       }
 
       for (const data of novelDataArray) {
         // 添加章节名
         result.push(`${this.chapterNo(data.no)} ${data.title}`)
-        // 在章节名与正文之间添加换行
         result.push(this.CRLF.repeat(2))
+        // 保存每篇小说的元数据，现在只添加了简介
+        if (settings.saveNovelMeta) {
+          result.push(data.description)
+          result.push(this.CRLF.repeat(2))
+        }
         // 添加正文
         // 替换换行标签，移除 html 标签
         result.push(
@@ -154,85 +180,159 @@ class MergeNovel {
     })
   }
 
-  private makeEPUB(
+  /** 处理从 Pixiv API 里取得的字符串，将其转换为可以安全的用于 EPUB 小说的 description 的内容
+   *
+   * 这些字符串通常是作品简介、设定资料等，可能包含 html 代码、特殊符号 */
+  private handleEPUBDescription(htmlString: string) {
+    return Tools.replaceEPUBTextWithP(
+      Tools.replaceEPUBDescription(
+        Utils.htmlToText(Utils.htmlDecode(htmlString))
+      )
+    )
+  }
+
+  private mergeEPUB(
     novelDataArray: NovelData[],
-    firstResult: Result
+    seriesData: NovelSeriesData['body']
   ): Promise<Blob> {
     return new Promise(async (resolve, reject) => {
-      // 添加一些元数据
-      let epubData = new EpubMaker()
-        .withTemplate('idpf-wasteland')
-        .withAuthor(Utils.replaceUnsafeStr(firstResult.novelMeta!.userName))
-        .withModificationDate(new Date(firstResult.novelMeta!.createDate))
-        .withRights({
-          description: Tools.replaceEPUBText(
-            firstResult.novelMeta!.description
-          ),
-          license: '',
-        })
-        .withAttributionUrl(
-          `https://www.pixiv.net/novel/show.php?id=${firstResult.novelMeta!.id}`
-        )
-        .withCover(firstResult.novelMeta!.coverUrl, {
-          license: '',
-          attributionUrl: '',
-        })
-        .withTitle(Utils.replaceUnsafeStr(firstResult.seriesTitle!))
+      const link = `https://www.pixiv.net/novel/series/${seriesData.id}`
+      const title = Tools.replaceEPUBTitle(
+        Utils.replaceUnsafeStr(seriesData.title)
+      )
+      const userName = Tools.replaceEPUBText(
+        Utils.replaceUnsafeStr(seriesData.userName)
+      )
+      let description = this.handleEPUBDescription(seriesData.caption)
 
-      // 下面注释的伪代码是用于创建二级目录用的。目前 pixiv 的小说只需要一层目录就够了，所以这里的代码未被使用
-      // const Section = new EpubMaker.Section(...........)
-      // for (const data of novelDataArray) {
-      //   Section.withSubSection(
-      //     new EpubMaker.Section(...........)
-      //   )
-      // }
-      // epubData = epubData.withSection(Section)
+      // 现在生成的 EPUB 小说里有个“信息”页面，会显示如下数据（就是在下面的 jepub.init 里定义的）：
+      // title 系列标题
+      // author 作者
+      // publisher 系列小说的 URL
+      // tags 标签列表
+      // description 简介
 
+      // 所以如果需要保存系列小说的元数据，那么把上面未包含的数据添加到 description 里即可
       if (settings.saveNovelMeta) {
-        epubData.withSection(
-          new EpubMaker.Section(
-            'chapter',
-            0,
-            {
-              title: lang.transl('_设定资料'),
-              content: Tools.replaceEPUBText(this.meta),
-            },
-            true,
-            true
-          )
-        )
+        if (store.novelSeriesGlossary) {
+          description =
+            description +
+            '<br/><br/>' +
+            this.handleEPUBDescription(store.novelSeriesGlossary)
+        }
       }
 
-      // 为每一篇小说创建一个章节
-      for (const data of novelDataArray) {
-        let content = Tools.replaceEPUBText(data.content)
-
-        // 添加小说里内嵌的图片。这部分必须放在 replaceEPUBText 后面，否则 <img> 标签的左尖括号会被转义
-        content = await downloadNovelEmbeddedImage.EPUB(
-          content,
-          data.embeddedImages
-        )
-
-        // 创建 epub 文件时不需要在标题和正文后面添加换行符
-        epubData.withSection(
-          new EpubMaker.Section(
-            'chapter',
-            data.no,
-            {
-              title: `${this.chapterNo(data.no)} ${data.title}`,
-              content: content,
-            },
-            true,
-            true
-          )
-          // 倒数第二个参数是 includeInToc，必须为 true，否则某些小说阅读软件无法读取章节信息
-          // includeInToc 的作用是在 .ncx 文件和 nav.xhtml 文件里添加导航信息
-        )
-      }
-
-      epubData.makeEpub().then((blob: Blob) => {
-        resolve(blob)
+      const jepub = new jEpub()
+      jepub.init({
+        i18n: lang.type,
+        // 对 EPUB 左侧的一些文字进行本地化
+        i18n_config: {
+          code: lang.type,
+          cover: 'Cover',
+          toc: lang.transl('_目录'),
+          info: lang.transl('_Information'),
+          note: 'Notes',
+        },
+        title: title,
+        author: userName,
+        publisher: link,
+        tags: seriesData.tags,
+        description: description,
       })
+
+      jepub.uuid(link)
+      jepub.date(new Date(seriesData.updateDate))
+
+      const cover = await fetch(seriesData.cover.urls.original).then(
+        (response) => {
+          if (response.ok) return response.arrayBuffer()
+          throw 'Network response was not ok.'
+        }
+      )
+      jepub.cover(cover)
+
+      // 循环添加小说内容
+      for (const novelData of novelDataArray) {
+        //使用新的function统一替换添加<p>与</p>， 以对应EPUB文本惯例
+        let content = Tools.replaceEPUBTextWithP(novelData.content)
+        const novelID = novelData.id
+        // 添加小说里的图片
+        const imageList = await downloadNovelEmbeddedImage.getImageList(
+          novelID,
+          content,
+          novelData.embeddedImages
+        )
+
+        let current = 1
+        const total = imageList.length
+        for (const image of imageList) {
+          log.log(
+            lang.transl('_正在下载小说中的插画', `${current} / ${total}`),
+            1,
+            false,
+            'downloadNovelImage' + novelID
+          )
+          current++
+
+          const imageID = image.flag_id_part
+          if (image.url === '') {
+            content = content.replaceAll(
+              image.flag,
+              `image ${imageID} not found`
+            )
+            continue
+          }
+
+          // 加载图片
+          let illustration: Blob | undefined = undefined
+          try {
+            illustration = await fetch(image.url).then((response) => {
+              if (response.ok) {
+                return response.blob()
+              }
+            })
+          } catch (error) {
+            console.log(error)
+          }
+          // 如果图片获取失败，不重试，并将其替换为提示
+          if (illustration === undefined) {
+            content = content.replaceAll(
+              image.flag,
+              `fetch ${image.url} failed`
+            )
+            continue
+          }
+          jepub.image(illustration, imageID)
+
+          // 将小说正文里的图片标记替换为真实的的图片路径，以在 EPUB 里显示
+          const ext = Utils.getURLExt(image.url)
+          const imgTag = `<br/><img src="assets/${imageID}.${ext}" /><br/>`
+          content = content.replaceAll(image.flag, imgTag)
+        }
+        log.persistentRefresh('downloadNovelImage' + novelID)
+
+        const title = Tools.replaceEPUBTitle(
+          Utils.replaceUnsafeStr(novelData.title)
+        )
+
+        // 保存每篇小说的元数据，现在只添加了简介
+        if (settings.saveNovelMeta) {
+          content =
+            Tools.replaceEPUBText(novelData.description) +
+            '<br/><br/>' +
+            content
+        }
+
+        // 添加正文，这会在 EPUB 里生成一个新的章节
+        // 实际上会生成一个对应的 html 文件，如 OEBPS/page-0.html
+        jepub.add(`${this.chapterNo(novelData.no)} ${title}`, content)
+      }
+
+      const blob = await jepub.generate('blob', (metadata: any) => {
+        // console.log('progression: ' + metadata.percent.toFixed(2) + ' %');
+        // if (metadata.currentFile) console.log('current file = ' + metadata.currentFile);
+      })
+      resolve(blob)
     })
   }
 

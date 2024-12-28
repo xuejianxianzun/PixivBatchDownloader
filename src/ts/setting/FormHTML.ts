@@ -1,15 +1,14 @@
 import { Config } from '../Config'
 
-// 目前设置项的最大编号是 89
+// 目前设置项的最大编号是 90
 export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
     <p class="option" data-no="1">
-    <span class="setWantPageWrap has_tip" data-xztip="_抓取多少页面">
-    <span class="settingNameStyle1"><span class="setWantPageTip1" data-xztext="_抓取多少页面"></span><span class="gray1"> ? </span></span>
+    <span class="settingNameStyle1"><span class="setWantPageTip1 has_tip" data-xztip="_抓取多少页面" data-xztext="_抓取多少页面"></span><span class="gray1"> ? </span></span>
     <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
     value = '-1'>&nbsp;
     <span class="setWantPageTip2 gray1" data-xztext="_数字提示1"></span>
-    </span>
+    <button class="gray1 showSetWantPageTip textButton" type="button" data-xztext="_提示"></button>
     </p>
 
     <p class="option" data-no="2">
@@ -337,7 +336,7 @@ export const formHtml = `<form class="settingForm">
       </select>
     &nbsp;
     <slot data-name="saveNamingRule"></slot>
-    <button class="showFileNameTip textButton" type="button" data-xztext="_提示2"></button>
+    <button class="showFileNameTip textButton" type="button" data-xztext="_提示"></button>
     </p>
     <p class="fileNameTip tip">
     <span data-xztext="_设置文件夹名的提示"></span>
@@ -537,12 +536,12 @@ export const formHtml = `<form class="settingForm">
     
     <span class="subOptionWrap" data-show="slowCrawl">
     <span data-xztext="_当作品数量大于"></span>
-    <input type="text" name="slowCrawlOnWorksNumber" class="setinput_style1 blue" value="100" style="width:60px;min-width: 60px;">
+    <input type="text" name="slowCrawlOnWorksNumber" class="setinput_style1 blue" value="100">
 
     <span class="verticalSplit"></span>
 
     <span data-xztext="_间隔时间"></span>
-    <input type="text" name="slowCrawlDealy" class="setinput_style1 blue" value="1600" placeholder="1600" style="width:60px;min-width: 60px;"> ms
+    <input type="text" name="slowCrawlDealy" class="setinput_style1 blue" value="1600" placeholder="1600"> ms
 
     </span>
 
@@ -569,7 +568,12 @@ export const formHtml = `<form class="settingForm">
     <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
     <span class="subOptionWrap" data-show="userBlockList">
-    <input type="text" name="blockList" class="has_tip setinput_style1 blue setinput_tag" data-xztip="_用户阻止名单的说明" data-xzplaceholder="_用户ID必须是数字">
+      <textarea class="centerPanelTextArea beautify_scrollbar" name="blockList" rows="1" placeholder="11111,22222,33333"></textarea>
+      <br>
+      <input type="checkbox" name="removeBlockedUsersWork" id="setRemoveBlockedUsersWork" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="setRemoveBlockedUsersWork" data-xztext="_从页面上移除他们的作品"></label>
+      <button type="button" class="gray1 textButton" id="showRemoveBlockedUsersWorkTip" data-xztext="_提示"></button>
     </span>
     </p>
 
@@ -752,6 +756,23 @@ export const formHtml = `<form class="settingForm">
 
     <p class="option settingCategoryName" data-no="58">
       <span data-xztext="_下载"></span>
+    </p>
+
+    <p class="option" data-no="90">
+    <span class="has_tip settingNameStyle1"  data-xztip="_下载间隔的说明">
+    <span data-xztext="_下载间隔"></span>
+    <span class="gray1"> ? </span>
+    </span>
+    
+    <span data-xztext="_当作品数量大于"></span>
+    <input type="text" name="downloadIntervalOnWorksNumber" class="setinput_style1 blue" value="120">
+
+    <span class="verticalSplit"></span>
+
+    <span data-xztext="_间隔时间"></span>
+    <input type="text" name="downloadInterval" class="setinput_style1 blue" value="0">
+    <span data-xztext="_秒"></span>
+    </span>
     </p>
     
     <p class="option" data-no="76">

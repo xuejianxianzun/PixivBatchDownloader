@@ -418,20 +418,12 @@ class ImageViewer {
 
   // 下载当前查看的作品
   private download() {
-    states.quickCrawl = true
-
-    // 发送要下载的作品 id
     EVT.fire('crawlIdList', [
       {
         id: this.cfg.workId,
         type: 'illusts',
       },
     ])
-
-    // 显示提示
-    toast.show(lang.transl('_已发送下载请求'), {
-      bgColor: Colors.bgBlue,
-    })
   }
 }
 

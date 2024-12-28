@@ -1,27 +1,35 @@
 import { API } from '../API'
+import { Config } from '../Config'
+import { lang } from '../Lang'
+import { log } from '../Log'
 import { settings } from '../setting/Settings'
 import { Utils } from '../utils/Utils'
+import { downloadInterval } from './DownloadInterval'
 
 type EmbeddedImages = null | {
   [key: string]: string
 }
 
-type IDData = {
+type NovelImageData = {
   /**图片的 id，可能会重复。id 重复时，它们的 p 不同 */
   id: string
-  /**这个属性只在引用其他作品的图片时有实机值，表示这个图片是作品里的第几张图片（从 1 开始）。0 无实际意义。 */
-  p: number
+  /**这个属性只在引用其他作品的图片时有值，表示这个图片是作品里的第几张图片（从 1 开始） */
+  p: '' | string
   /**表示图片来源自用户上传，或是引用其他作品 */
   type: 'upload' | 'pixiv'
-  /**图片的 URL，有可能是 null。当图片是通过引用作品 ID 插入，但下载器获取到作品数据里的 urls 都是 null（通常是因为用户未登录），那这个属性就也是 null。此时无法下载这个图片 */
-  url: string | null
+  /**图片的 URL，有可能是空字符串。此时无法下载这个图片。
+   * 可能的原因 1：当图片是通过引用作品 ID 插入，但这个图片作品已经不存在了（404）
+   * 可能的原因 2：当图片是通过引用作品 ID 插入，但下载器获取到作品数据里的 urls 都是 null（通常是因为用户未登录） */
+  url: '' | string
   /**图片的 BLOBURL */
   blobURL?: string
-  /**图片在原文中的标记文字 */
+  /**图片在原文中的标记文字，如 [pixivimage:121979383-1]*/
   flag: string
+  /**标记里的图片 id + 序号部分，如 121979383-1（也可能没有序号） */
+  flag_id_part: string
 }
 
-type IDList = IDData[]
+type NovelImageList = NovelImageData[]
 
 /**下载小说里的内嵌图片 */
 class DownloadNovelEmbeddedImage {
@@ -32,6 +40,7 @@ class DownloadNovelEmbeddedImage {
    * 默认是正常下载小说的情况，可以设置为合并系列小说的情况
    */
   public async TXT(
+    novelID: string,
     content: string,
     embeddedImages: EmbeddedImages,
     novelName: string,
@@ -41,169 +50,189 @@ class DownloadNovelEmbeddedImage {
       return
     }
 
-    const idList = await this.getIdList(content, embeddedImages)
+    const imageList = await this.getImageList(novelID, content, embeddedImages)
 
+    let current = 1
+    const total = imageList.length
     // 保存为 TXT 格式时，每加载完一个图片，就立即保存这个图片
-    for (let idData of idList) {
-      // 如果 url 是 null，则不会保存这个图片
-      if (idData.url) {
-        idData = await this.getImageBolbURL(idData)
-        let imageName = Utils.replaceSuffix(novelName, idData.url!)
-        // 在文件名末尾加上内嵌图片的 id 和序号
-        const array = imageName.split('.')
-        const addString = `-${idData.id}${idData.p === 0 ? '' : '-' + idData.p}`
-        array[array.length - 2] = array[array.length - 2] + addString
-        imageName = array.join('.')
-
-        // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
-        // 所以要替换掉内嵌图片路径里的斜线
-        if (action === 'mergeNovel') {
-          imageName = Utils.replaceUnsafeStr(imageName)
-        }
-        this.sendDownload(idData.blobURL!, imageName)
+    for (let image of imageList) {
+      log.log(
+        lang.transl('_正在下载小说中的插画', `${current} / ${total}`),
+        1,
+        false,
+        'downloadNovelImage' + novelID
+      )
+      current++
+      if (image.url === '') {
+        log.warning(`image ${image.id} not found`)
+        continue
       }
+
+      await downloadInterval.wait()
+
+      image = await this.getImageBlobURL(image)
+      let imageName = Utils.replaceSuffix(novelName, image.url!)
+      // 在文件名末尾加上内嵌图片的 id 和序号
+      const array = imageName.split('.')
+      const addString = image.flag_id_part
+      array[array.length - 2] = array[array.length - 2] + addString
+      imageName = array.join('.')
+
+      // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
+      // 所以要替换掉内嵌图片路径里的斜线
+      if (action === 'mergeNovel') {
+        imageName = Utils.replaceUnsafeStr(imageName)
+      }
+      this.sendDownload(image.blobURL!, imageName)
     }
-  }
-
-  /**下载小说为 EPUB 时，替换内嵌图片标记，把图片用 img 标签保存到正文里 */
-  public async EPUB(
-    content: string,
-    embeddedImages: EmbeddedImages
-  ): Promise<string> {
-    return new Promise(async (resolve) => {
-      if (!settings.downloadNovelEmbeddedImage) {
-        return resolve(content)
-      }
-
-      const idList = await this.getIdList(content, embeddedImages)
-      for (let idData of idList) {
-        if (idData.url) {
-          idData = await this.getImageBolbURL(idData)
-          const dataURL = await this.getImageDataURL(idData)
-          const html = `<img src="${dataURL}" />`
-          content = content.replaceAll(idData.flag, html)
-        } else {
-          // 如果 url 是 null，则修改标记，做出提示
-          content = content.replaceAll(
-            idData.flag,
-            ` ${idData.flag} url is null`
-          )
-        }
-      }
-
-      return resolve(content)
-    })
+    log.persistentRefresh('downloadNovelImage' + novelID)
   }
 
   // 获取正文里上传的图片 id 和引用的图片 id
-  private async getIdList(
+  public async getImageList(
+    novelID: string,
     content: string,
     embeddedImages: EmbeddedImages
-  ): Promise<IDList> {
+  ): Promise<NovelImageList> {
     return new Promise(async (resolve) => {
-      const idList: IDList = []
+      if (!settings.downloadNovelEmbeddedImage) {
+        return resolve([])
+      }
+      const idList: NovelImageList = []
 
       // 获取上传的图片数据
+      // 此时可以直接获取到图片 URL
       if (embeddedImages) {
         for (const [id, url] of Object.entries(embeddedImages)) {
           idList.push({
-            id,
-            p: 0,
+            id: id,
+            p: '',
             type: 'upload',
             url,
             flag: `[uploadedimage:${id}]`,
+            flag_id_part: id,
           })
         }
       }
 
       // 获取引用的图片数据
       const reg = /\[pixivimage:(.+?)\]/g
-      let test
+      let test: RegExpExecArray | null
       while ((test = reg.exec(content))) {
         if (test && test.length === 2) {
+          // 当引用的是第一张插画时，可能有序号，也可能没有序号
           // 99381250
-          // 一个图像作品可能有多个被引用的图片，如
+          // 一个插画作品可能有多个被引用的图片，如
           // 99760571-1
           // 99760571-130
+
+          // 检查是否重复，因为同一张图片可能在小说里被多次引用，所以有可能出现重复的情况
+          // 应该避免重复添加相同的图片 id，因为这会导致重复的图片下载请求
+          const some = idList.some((idData) => idData.flag_id_part === test![1])
+          if (some) {
+            continue
+          }
+
           const idInfo = test[1].split('-')
           idList.push({
             id: idInfo[0],
-            p: idInfo[1] ? parseInt(idInfo[1]) : 0,
+            // 如果没有带序号，那么实际上就是第一张图片
+            p: idInfo[1] || '1',
             type: 'pixiv',
             url: '',
             flag: `[pixivimage:${test[1]}]`,
+            flag_id_part: test[1],
           })
         }
       }
 
-      // 引用的图片此时没有 URL
-      // 统计引用的图像作品的 id （不重复），然后获取每个 id 的数据
-      const artworkIDs: Set<string> = new Set()
-      idList.forEach((data) => {
-        if (data.type === 'pixiv') {
-          artworkIDs.add(data.id)
+      // 引用的图片此时没有 URL，需要获取
+      let insertIllustIDs: string[] = []
+      for (const idData of idList) {
+        if (idData.type === 'pixiv') {
+          insertIllustIDs.push(idData.flag_id_part)
         }
-      })
+      }
+      if (insertIllustIDs.length === 0) {
+        return resolve(idList)
+      }
 
-      for (const id of Array.from(artworkIDs)) {
-        try {
-          // 尝试获取原图作品数据，提取 URL
-          const workData = await API.getArtworkData(id)
-          const p0URL = workData.body.urls.original
+      try {
+        const allInsert = await API.getNovelInsertIllustsData(
+          novelID,
+          insertIllustIDs
+        )
 
+        for (const id_part of insertIllustIDs) {
+          const illustData = allInsert.body[id_part]
           for (const idData of idList) {
-            if (idData.id === id) {
-              // 如果 p 为 0 则表示未指定图片序号，也就是第一张图片
-              if (idData.p === 0) {
-                idData.url = p0URL
+            if (idData.flag_id_part === id_part) {
+              // // 从原图 URL 里根据序号生成对应 p 的 URL
+              // const p0URL = illustData.illust.images.original
+              // parseInt(idData.p)-1
+              // idData.url = p0URL.replace('p0.', `p${idData.p - 1}.`)
+              // 当引用的插画作品 404 或当前不能查看时，该数据为 null
+              if (illustData.illust === null) {
+                idData.url = ''
               } else {
-                // 如果指定了图片序号，则从第一张图片的 URL 生成指定图片的 URL
-                idData.url = p0URL.replace('p0.', `p${idData.p - 1}.`)
+                idData.url = illustData.illust.images.original
               }
             }
           }
-        } catch (error) {
-          // 原图作品可能被删除了，404
-          console.log(error)
-          continue
+        }
+
+        return resolve(idList)
+      } catch (error) {
+        if (error.status) {
+          // 请求成功，但状态码不正常
+          if (error.status === 500 || error.status === 429) {
+            log.error(lang.transl('_抓取被限制时返回空结果的提示'))
+            window.setTimeout(() => {
+              return this.getImageList(novelID, content, embeddedImages)
+            }, Config.retryTime)
+            return
+          } else {
+            // 其他状态码，尚不清楚实际会遇到什么情况，最可能的是作品被删除（404 ）了吧
+            // 此时直接返回数据（不会下载图片，但是后续会在正文里显示对应的提示）
+            return resolve(idList)
+          }
+        } else {
+          // 请求失败，没有获得服务器的返回数据，一般都是
+          // TypeError: Failed to fetch
+          console.error(error)
+
+          // 再次发送这个请求
+          window.setTimeout(() => {
+            return this.getImageList(novelID, content, embeddedImages)
+          }, 2000)
         }
       }
-
-      // 返回数据时，删除没有 url 的数据
-      const result = idList.filter((data) => data.url !== '')
-      return resolve(result)
     })
   }
 
-  private async getImageBolbURL(idData: IDData): Promise<IDData> {
+  private async getImageBlobURL(
+    image: NovelImageData
+  ): Promise<NovelImageData> {
     return new Promise(async (resolve) => {
-      if (idData.url) {
-        const res = await fetch(idData.url)
-        const blob = await res.blob()
-        idData.blobURL = URL.createObjectURL(blob)
+      if (image.url) {
+        let illustration: Blob | undefined = undefined
+        try {
+          illustration = await fetch(image.url).then((response) => {
+            if (response.ok) {
+              return response.blob()
+            }
+          })
+        } catch (error) {
+          console.log(error)
+        }
+        // 如果图片获取失败，不重试
+        if (illustration === undefined) {
+          log.error(`fetch ${image.url} failed`)
+          return resolve(image)
+        }
+        image.blobURL = URL.createObjectURL(illustration)
       }
-      resolve(idData)
-    })
-  }
-
-  private async getImageDataURL(data: IDData): Promise<string> {
-    return new Promise(async (resolve) => {
-      const img = await Utils.loadImg(data.blobURL!)
-      const canvas = document.createElement('canvas')
-      canvas.width = img.width
-      canvas.height = img.height
-      const con = canvas.getContext('2d')
-      con!.drawImage(img, 0, 0, img.width, img.height)
-
-      const suffix = Utils.getSuffix(data.url!)
-      // 如果原图是 png 格式，就转换成 png 格式的数据，否则转换为 jpeg 格式
-      if (suffix === 'png') {
-        const ImgDataURL = canvas.toDataURL()
-        return resolve(ImgDataURL)
-      } else {
-        const ImgDataURL = canvas.toDataURL('image/jpeg', 0.95)
-        return resolve(ImgDataURL)
-      }
+      resolve(image)
     })
   }
 

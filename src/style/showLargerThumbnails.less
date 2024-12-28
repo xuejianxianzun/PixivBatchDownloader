@@ -17,10 +17,19 @@
 .sc-5ab8209a-2,
 .hbbJkA,
 .ggHNyV,
-.dkjfqS {
+.dkjfqS,
+.hairtM {
   width: auto !important;
   min-width: 1224px;
   max-width: unset !important;
+}
+
+// 发现页面的外层容器
+.ldgmym,
+.YXoqY {
+  width: auto !important;
+  min-width: 1224px;
+  max-width: 94vw !important;
 }
 
 // 一些外层容器元素可能被设置了固定宽度，导致图片尺寸固定，或者容器不能完全显示里面的内容
@@ -43,20 +52,25 @@
 
 /* display: grid 的 ul */
 .kpXxgm,
-.fmesiH {
+.fmesiH,
+.fhUcsb,
+div[data-gtm-recommend-zone='discovery'] ul {
   display: flex;
   flex-wrap: wrap;
 }
 
 /* li 的直接子元素 */
 .jDiQFZ,
+.janQPj,
 .gFXJBU,
-.cWMKYW {
+.cWMKYW,
+div[data-gtm-recommend-zone='discovery'] ul > li > div {
   width: 100% !important;
 }
 
 /* div[width="184"] */
 /* 给图片外面的容器设置最小高度，否则图片没加载出来时高度太小了，收藏按钮都只显示一半*/
+div[data-gtm-recommend-zone='discovery'] ul div[size='184'] > div,
 .fxGVAF {
   min-height: 100px;
   width: auto !important;
@@ -65,13 +79,17 @@
 
 /* div[width="184"] a */
 /* 这是 img 外部的 a 标签，让它继承父元素的高度。否则有时 img 始终是最大高度 540px，导致图片高度自动居中失效 */
+// width: 100%; 是为了让尺寸较小（如 320px）的图片铺满容器宽度
+div[data-gtm-recommend-zone='discovery'] ul div[size='184'] a,
 .fGjAxR {
   display: inline-flex;
   height: 100%;
+  width: 100%;
 }
 
 /* div[width="184"] a div */
 /* img 的直接父级元素 div */
+div[data-gtm-recommend-zone='discovery'] ul div[size='184'] a:first-child,
 .cYUezH {
   height: auto !important;
 }
@@ -119,7 +137,15 @@ div[width='104'] .eCFXg {
   padding-left: 70px !important;
 }
 
-/* 发现页面点击关注后出现的横向区域，需要减少右侧 padding */
+/* 发现页面点击关注后出现的横向区域，取消其遮罩元素和两侧的透明元素，这样可以增加其横向显示范围 */
+.jCNiwq {
+  mask-image: unset !important;
+}
+
+.jCNiwq > div {
+  display: none;
+}
+
 .hkzusx .eYOHvS {
   padding-right: 70px !important;
 }
@@ -490,6 +516,7 @@ a[data-gtm-value] img,
 .sc-a4p1vl-0 {
   height: auto !important;
 }
+
 // 推荐作品的图片列表的父元素，这条规则让图片水平居中对齐
 .kOHspG,
 .sc-a4p1vl-3 {

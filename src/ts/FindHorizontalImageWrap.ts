@@ -9,7 +9,7 @@ class FindHorizontalImageWrap {
   // 寻找作品缩略图的容器时使用的选择器
   // 并不是所有容器都需要处理，只需要处理应用了“显示更大的缩略图”的容器
   // 有些缩略图并不会被放大，也就不用处理它们的容器
-  private wrapSelectors = ['.searchList', 'li[size="1"]']
+  private workWrapSelectors = ['.searchList', 'li[size="1"]', 'ul>div']
 
   // 首先会动态生成 li（或者是包含很多 li 的容器元素）
   // 但是此时 li 里面没有 img 标签，而是用一个 figure 标签占位
@@ -18,6 +18,11 @@ class FindHorizontalImageWrap {
   // observer 可以捕获到添加的 img 标签，并且有 src 属性
   // 如果开启了下载器的替换方形缩略图功能，则捕获到的 src 是替换后的
   // 如果 img 的 src 是在缓存里的（并且没有禁用缓存），则捕获到它时就已经 complete 了
+
+  // 首页的“关注用户・好P友的作品”和排行榜区域这样的横向滚动区域是分多次添加的：
+  // 1. 页面加载时，这块区域是一次性添加的，添加的是最外层的 div，里面包含了作品列表，但只有前 8 个作品，后面是一些空壳容器
+  // 2. 当用户向右滚动时，动态添加后续作品，此时既会添加单个 img 元素来填充空壳容器，还会添加单个的新的空壳容器（div）
+
   private obBody() {
     const ob = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
@@ -38,16 +43,20 @@ class FindHorizontalImageWrap {
             } else if (e.nodeName === 'IMG' && (e as HTMLImageElement).src) {
               if (pageType.type === pageType.list.ArtworkSearch) {
                 // 在搜索页面里，添加的元素是 img 而不是其容器 li
-                const li =
-                  e.parentElement?.parentElement?.parentElement?.parentElement
-                    ?.parentElement?.parentElement
-                if (li && li.nodeName === 'LI') {
+                const li = e.closest('li')
+                if (li) {
                   this.readyCheckImage(e as HTMLImageElement, li)
+                }
+              } else {
+                // 在其他页面里（主要是首页），横向滚动区域里的一些作品是动态添加 img 元素的，寻找其父元素
+                const parent = e.closest('ul>div') as HTMLDivElement
+                if (parent) {
+                  this.readyCheckImage(e as HTMLImageElement, parent)
                 }
               }
             } else if (e.nodeType === 1) {
-              // 添加的不是 li，则试图从元素中寻找缩略图容器
-              for (const selector of this.wrapSelectors) {
+              // 如果添加的不是 li，则尝试在子元素里寻找缩略图容器
+              for (const selector of this.workWrapSelectors) {
                 const elList = e.querySelectorAll(selector)
                 for (const el of elList) {
                   wrapList.push(el as HTMLLIElement)

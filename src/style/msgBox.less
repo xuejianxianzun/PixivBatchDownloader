@@ -5,7 +5,7 @@
   z-index: 9999;
   min-width: 500px;
   max-width: 700px;
-  padding: 20px;
+  padding: 30px;
   border-radius: 12px;
   top: 15%;
   left: 50%;
@@ -17,7 +17,8 @@
   }
 
   .title {
-    font-size: 16px;
+    font-size: 17px;
+    font-weight: bold;
     color: @themeBlue;
   }
 
@@ -36,11 +37,15 @@
   .btn {
     cursor: pointer;
     background: @themeBlue;
+    box-shadow: @boxShadowBlue 0px 0px 2px;
     color: #fff;
     border: none;
     text-align: center;
     padding: 7px 20px;
     border-radius: 6px;
+    &:hover {
+      font-weight: bold;
+    }
   }
 
   a {

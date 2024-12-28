@@ -1,4 +1,5 @@
-import { settings } from '../setting/Settings'
+import { lang } from '../Lang'
+import { log } from '../Log'
 import { Utils } from '../utils/Utils'
 
 class DownloadNovelCover {
@@ -11,9 +12,7 @@ class DownloadNovelCover {
     novelName: string,
     action: 'downloadNovel' | 'mergeNovel' = 'downloadNovel'
   ) {
-    if (!settings.downloadNovelCoverImage || !coverURL) {
-      return
-    }
+    log.log(lang.transl('_下载封面图片'), 1, false, 'downloadNovelCover')
 
     const url = await this.getCoverBolbURL(coverURL)
     let coverName = Utils.replaceSuffix(novelName, coverURL)

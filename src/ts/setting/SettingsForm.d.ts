@@ -67,6 +67,7 @@ export interface SettingsForm extends HTMLFormElement {
   restrict: RadioNodeList
   userBlockList: HTMLInputElement
   blockList: HTMLInputElement
+  removeBlockedUsersWork: HTMLInputElement
   needTagMode: RadioNodeList
   theme: RadioNodeList
   r18Folder: HTMLInputElement
@@ -154,4 +155,6 @@ export interface SettingsForm extends HTMLFormElement {
   saveEachDescription: HTMLInputElement
   summarizeDescription: HTMLInputElement
   slowCrawlDealy: HTMLInputElement
+  downloadInterval: HTMLInputElement
+  downloadIntervalOnWorksNumber: HTMLInputElement
 }

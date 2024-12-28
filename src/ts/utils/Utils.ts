@@ -430,6 +430,7 @@ class Utils {
   static htmlToText(str: string) {
     return str
       .replace(/<br \/>/g, '\n')
+      .replace(/<br\/>/g, '\n')
       .replace(/<br>/g, '\n')
       .replace(/<\/?.+?>/g, '')
     // 这里有两种换行标签：
@@ -466,6 +467,13 @@ class Utils {
 
   static sleep(time: number) {
     return new Promise((res) => window.setTimeout(res, time))
+  }
+
+  /**传入一个文件的 URL，返回它的文件扩展名 */
+  static getURLExt(url: string) {
+    url = url.split('?')[0] // 移除可能存在的查询字符串
+    const array = url.split('.')
+    return array[array.length - 1]
   }
 }
 

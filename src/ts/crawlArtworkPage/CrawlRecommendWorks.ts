@@ -99,7 +99,6 @@ class CrawlRecommendWorks {
     btn.textContent = lang.transl('_下载推荐作品')
     btn.classList.add('blueTextBtn')
     btn.addEventListener('click', () => {
-      states.quickCrawl = true
       // 传递 ID 列表时需要复制一份，因为如果直接传递变量，那么这个数组会在抓取之后被清空
       EVT.fire('crawlIdList', [...this.IDList])
     })

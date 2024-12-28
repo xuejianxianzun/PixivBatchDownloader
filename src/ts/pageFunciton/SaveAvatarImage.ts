@@ -19,7 +19,7 @@ class SaveAvatarImage {
   }
 
   private async saveAvatarImage() {
-    const userId = Tools.getUserId()
+    const userId = Tools.getCurrentPageUserID()
     const userProfile = await API.getUserProfile(userId)
     const imageURL = userProfile.body.imageBig
 

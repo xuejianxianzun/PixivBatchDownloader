@@ -23,6 +23,7 @@ import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
 import { downloadNovelCover } from './DownloadNovelCover'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { downloadStates } from './DownloadStates'
+import { downloadInterval } from './DownloadInterval'
 
 // 处理下载队列里的任务
 // 不显示在进度条上的下载任务，不在这里处理
@@ -74,9 +75,9 @@ class Download {
           reason: 'duplicate',
         },
         lang.transl(
-          '_跳过下载因为重复文件',
+          '_跳过下载因为',
           Tools.createWorkLink(arg.id, arg.result.type !== 3)
-        )
+        ) + lang.transl('_不下载重复文件')
       )
     }
 
@@ -133,11 +134,16 @@ class Download {
 
   // 设置进度条信息
   private setProgressBar(name: string, loaded: number, total: number) {
-    progressBar.setProgress(this.progressBarIndex, {
-      name,
-      loaded,
-      total,
-    })
+    // 在下载初始化和下载完成时，立即更新进度条
+    // 在下载途中，使用节流来更新进度条
+    progressBar[loaded === total ? 'setProgress' : 'setProgressThrottle'](
+      this.progressBarIndex,
+      {
+        name,
+        loaded,
+        total,
+      }
+    )
   }
 
   // 当重试达到最大次数时
@@ -189,21 +195,31 @@ class Download {
     // 下载文件
     let url: string
     if (arg.result.type === 3) {
-      // 生成小说的文件
+      // 小说
       if (arg.result.novelMeta) {
-        if (arg.result.novelMeta?.coverUrl) {
-          downloadNovelCover.download(
+        // 下载小说的封面图片
+        if (
+          settings.downloadNovelCoverImage &&
+          arg.result.novelMeta?.coverUrl
+        ) {
+          await downloadInterval.wait()
+          await downloadNovelCover.download(
             arg.result.novelMeta.coverUrl,
             _fileName,
             'downloadNovel'
           )
         }
 
+        // 生成小说文件
+        // 另外，如果小说保存为 EPUB 格式，此步骤里会下载内嵌的图片
+        // 并且会再次下载小说的封面图（因为要嵌入到 EPUB 文件里）
         let blob: Blob = await MakeNovelFile.make(arg.result.novelMeta)
         url = URL.createObjectURL(blob)
 
+        // 如果小说保存为 TXT 格式，在这里下载内嵌的图片
         if (settings.novelSaveAs === 'txt') {
           await downloadNovelEmbeddedImage.TXT(
+            arg.result.novelMeta.id,
             arg.result.novelMeta.content,
             arg.result.novelMeta.embeddedImages,
             _fileName
@@ -215,6 +231,7 @@ class Download {
     } else {
       // 对于图像作品，如果设置了图片尺寸就使用指定的 url，否则使用原图 url
       url = arg.result[settings.imageSize] || arg.result.original
+      await downloadInterval.wait()
     }
 
     let xhr = new XMLHttpRequest()
@@ -256,7 +273,13 @@ class Download {
         return
       }
 
-      let file: Blob = xhr.response // 要下载的文件
+      // 要下载的文件
+      let file: Blob = xhr.response
+
+      // 下载时有些图片可能没有 content-length，无法计算下载进度
+      // 所以在 loadend 之后，把下载进度拉满
+      this.setProgressBar(_fileName, file.size, file.size)
+
       // 状态码错误，进入重试流程
       if (xhr.status !== 200) {
         // 正常下载完毕的状态码是 200

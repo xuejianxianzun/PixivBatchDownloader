@@ -192,13 +192,6 @@ class ShowOriginSizeImage {
               id: this.workData!.body.id,
             },
           ])
-
-          // 下载时不显示下载面板
-          states.quickCrawl = true
-          toast.show(lang.transl('_已发送下载请求'), {
-            bgColor: Colors.bgBlue,
-            position: 'center',
-          })
         }
 
         // 预览作品时，可以使用快捷键 C 仅下载当前显示的图片
@@ -217,13 +210,6 @@ class ShowOriginSizeImage {
               id: this.workData!.body.id,
             },
           ])
-
-          // 下载时不显示下载面板
-          states.quickCrawl = true
-          toast.show(lang.transl('_已发送下载请求'), {
-            bgColor: Colors.bgBlue,
-            position: 'center',
-          })
         }
 
         // 按 Esc 键时取消预览

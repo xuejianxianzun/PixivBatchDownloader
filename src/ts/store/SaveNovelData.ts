@@ -4,6 +4,7 @@ import { store } from './Store'
 import { settings } from '../setting/Settings'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
+import { DateFormat } from '../utils/DateFormat'
 
 // 保存单个小说作品的数据
 class SaveNovelData {
@@ -61,7 +62,23 @@ class SaveNovelData {
       for (const tag of tags) {
         tagsA.push('#' + tag)
       }
-      metaArr.push(title, user, pageUrl, body.description, tagsA.join('\n'))
+      // 这个 description 是保存到抓取结果里的，尽量保持原样，会保留 html 标签
+      const description = Utils.htmlDecode(body.description)
+      // metaDescription 保存在 novelMeta.description 和 novelMeta.meta 里
+      // 它会在生成的小说里显示，供读者阅读，所以移除了 html 标签，只保留纯文本
+      // 处理后，换行标记是 \n 而不是 <br/>
+      const metaDescription = Tools.replaceEPUBDescription(
+        Utils.htmlToText(description)
+      )
+      const date = DateFormat.format(body.createDate, settings.dateFormat)
+      metaArr.push(
+        title,
+        user,
+        pageUrl,
+        date,
+        metaDescription,
+        tagsA.join('\n')
+      )
       meta = metaArr.join('\n\n') + '\n\n\n'
 
       // 提取嵌入的图片资源
@@ -76,7 +93,6 @@ class SaveNovelData {
       }
 
       // 保存作品信息
-      const description = Utils.htmlDecode(body.description)
 
       store.addResult({
         aiType: body.aiType,
@@ -107,14 +123,15 @@ class SaveNovelData {
         commentCount: body.commentCount,
         novelMeta: {
           id: body.id,
-          title: body.title,
+          title: title,
           content: this.replaceFlag(body.content),
-          description: description,
+          description: metaDescription,
           coverUrl: body.coverUrl,
           createDate: body.createDate,
           userName: body.userName,
           embeddedImages: embeddedImages,
           meta: meta,
+          tags: tags,
         },
         xRestrict: body.xRestrict,
       })

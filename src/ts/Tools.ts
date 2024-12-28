@@ -172,10 +172,19 @@ class Tools {
     }
   }
 
+  static readonly userIDRegExp = /\/users\/(\d+)/
+  static getUserID(url: string) {
+    const test = url.match(this.userIDRegExp)
+    if (test && test.length > 1) {
+      return test[1]
+    }
+    return ''
+  }
+
   // 获取当前页面的用户 id
   // 这是一个不够可靠的 api
   // 测试：在作品页内 https://www.pixiv.net/artworks/79399027 获取 userId ，正确结果应该是 13895186
-  static getUserId() {
+  static getCurrentPageUserID() {
     const newRegExp = /\/users\/(\d+)/ // 获取 /users/ 后面连续的数字部分，也就是用户的 id
 
     // 列表页里从 url 中获取
@@ -212,14 +221,15 @@ class Tools {
     }
 
     // 最后从 body 里匹配
-    // Warning ：这有可能会匹配到错误的（其他）用户 id！
+    // Warning：这有可能会匹配到错误的（其他用户的）ID！
     const test3 = newRegExp.exec(document.body.innerHTML)
     if (test3) {
       return test3[1]
     }
 
     // 如果都没有获取到
-    throw new Error('getUserId failed!')
+    console.log('getCurrentPageUserID failed!')
+    return ''
   }
 
   static getLoggedUserID() {
@@ -575,8 +585,8 @@ class Tools {
 
   /**替换 EPUB 文本里的特殊字符和换行符 */
   // 换行符必须放在最后处理，以免其 < 符号被替换
-  // 把所有换行符统一成 <br/>
-  // 这是因为 epub 是 xhtml 格式，要求必须有闭合标记，所以 <br> 是非法的，会导致小说无法被解析和阅读
+  // 把所有换行符统一成 <br/>（包括 \n）
+  // epub 是 xhtml 格式，要求必须有闭合标记，所以 <br> 是非法的，必须使用 <br/>
   static replaceEPUBText(str: string) {
     return str
       .replace(/&/g, '&amp;')
@@ -585,6 +595,39 @@ class Tools {
       .replace(/<br>/g, '<br/>')
       .replace(/<br \/>/g, '<br/>')
       .replace(/\n/g, '<br/>')
+  }
+
+  // 把所有换行符统一成 <br/>（包括 \n）
+  // 之后统一替换为 <p> 与 </p>，以对应 EPUB 文本惯例
+  static replaceEPUBTextWithP(str: string) {
+    return (
+      '<p>' +
+      str
+        .replaceAll(/&/g, '&amp;')
+        .replaceAll(/</g, '&lt;')
+        .replaceAll(/&lt;br/g, '<br')
+        .replaceAll(/<br>/g, '<br/>')
+        .replaceAll(/<br \/>/g, '<br/>')
+        .replaceAll(/\n/g, '<br/>')
+        .replaceAll('<br/>', '</p>\n<p>') +
+      '</p>'
+    )
+  }
+
+  // 小说标题里有些符号需要和正文进行不同的处理
+  // 标题里的 & 符号必须去掉或将其转换为普通字符
+  // 至于换行标记，不知道标题里有没有，如果有的话也需要将其转换成普通符号
+  static replaceEPUBTitle(str: string) {
+    return str
+      .replace(/&/g, ' and ')
+      .replace(/<br>/g, ' br ')
+      .replace(/<br \/>/g, ' br ')
+      .replace(/\n/g, ' br ')
+  }
+
+  /** 把简介添加到 EPUB 小说里时，需要对特定字符进行处理 */
+  static replaceEPUBDescription(str: string) {
+    return str.replace(/&/g, ' and ')
   }
 
   /** 在 zip 压缩包里查找类似于 000000.jpg 的标记，返回它后面的位置的下标

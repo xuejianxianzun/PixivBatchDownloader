@@ -61,8 +61,16 @@ abstract class InitPageBase {
     // 切换页面时，如果任务已经完成，则移除日志区域
     EVT.bindOnce('clearLogAfterPageSwitch', EVT.list.pageSwitch, () => {
       if (!states.busy) {
-        log.remove()
+        EVT.fire('clearLog')
       }
+    })
+
+    EVT.bindOnce('crawlCompleteTime', EVT.list.crawlComplete, () => {
+      states.crawlCompleteTime = new Date().getTime()
+    })
+
+    EVT.bindOnce('downloadCompleteTime', EVT.list.downloadComplete, () => {
+      states.downloadCompleteTime = new Date().getTime()
     })
 
     // 监听下载 id 列表的事件
@@ -193,11 +201,30 @@ abstract class InitPageBase {
     }
   }
 
+  protected confirmRecrawl() {
+    if (store.result.length > 0) {
+      // 如果已经有抓取结果，则检查这些抓取结果是否已被下载过
+      // 如果没有被下载过，则显示提醒
+      if (states.crawlCompleteTime > states.downloadCompleteTime) {
+        const _confirm = window.confirm(lang.transl('_已有抓取结果时进行提醒'))
+        return _confirm
+      }
+    }
+
+    return true
+  }
+
   // 准备正常进行抓取，执行一些检查
   protected async readyCrawl() {
     // 检查是否可以开始抓取
+    // states.busy 表示下载器正在抓取或正在下载
     if (states.busy) {
       toast.error(lang.transl('_当前任务尚未完成'))
+      return
+    }
+
+    // 下载器空闲，此时检查是否有已存在的抓取结果
+    if (!this.confirmRecrawl()) {
       return
     }
 
@@ -234,16 +261,22 @@ abstract class InitPageBase {
   // 这个方法是为了让其他模块可以传递 id 列表，直接进行下载。
   // 这个类的子类没有必要使用这个方法。当子类需要直接指定 id 列表时，修改自己的 getIdList 方法即可。
   protected async crawlIdList(idList: IDData[]) {
-    // 检查是否可以开始抓取
-    // 如果不能抓取则把 id 列表添加到等待队列中
+    // 如果下载器正忙则把 id 列表添加到等待队列中
     if (states.busy) {
       store.waitingIdList.push(...idList)
+      toast.show(lang.transl('_下载器正忙这次请求已开始排队'), {
+        bgColor: Colors.bgBlue,
+      })
     } else {
+      if (!this.confirmRecrawl()) {
+        return
+      }
+
       EVT.fire('clearLog')
 
       log.success(lang.transl('_开始抓取'))
       toast.show(lang.transl('_开始抓取'), {
-        position: 'center',
+        bgColor: Colors.bgBlue,
       })
 
       EVT.fire('crawlStart')
@@ -259,6 +292,9 @@ abstract class InitPageBase {
       this.crawlFinishBecauseStopCrawl = false
 
       states.stopCrawl = false
+
+      // 传递 id 列表下载时，不显示下载面板
+      states.quickCrawl = true
 
       store.idList = idList
 
@@ -278,6 +314,25 @@ abstract class InitPageBase {
   protected async getIdListFinished() {
     states.slowCrawlMode = false
     this.resetGetIdListStatus()
+
+    // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则直接剔除它
+    // 现在这里能够检查这些过滤条件：
+    // 1. 检查 id 是否符合 id 范围条件
+    // 2. 检查 id 的发布时间是否符合时间范围条件
+    // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，
+    // 但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
+    const filteredIDList: IDData[] = []
+    for (const idData of store.idList) {
+      const check = await filter.check({
+        id: idData.id,
+        workTypeString: idData.type,
+        workType: Tools.getWorkTypeVague(idData.type),
+      })
+      if (check) {
+        filteredIDList.push(idData)
+      }
+    }
+    store.idList = filteredIDList
 
     EVT.fire('getIdListFinished')
     if (states.stopCrawl || states.bookmarkMode) {
@@ -350,6 +405,9 @@ abstract class InitPageBase {
 
   protected log429ErrorTip = Utils.debounce(() => {
     log.error(lang.transl('_抓取被限制时返回空结果的提示'))
+    if (!settings.slowCrawl) {
+      log.error(lang.transl('_提示启用减慢抓取速度功能'))
+    }
   }, 500)
 
   // 获取作品的数据
@@ -370,11 +428,12 @@ abstract class InitPageBase {
       throw new Error(msg)
     }
 
-    // 在抓取之前，预先对 id 进行检查，如果不符合要求则不发送这个请求，直接跳过它
-    // 现在这里能够检查 2 种设置条件：
+    // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则跳过它
+    // 现在这里能够检查这些过滤条件：
     // 1. 检查 id 是否符合 id 范围条件
     // 2. 检查 id 的发布时间是否符合时间范围条件
-    // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
+    // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，
+    // 但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
     const check = await filter.check({
       id,
       workTypeString: idData.type,

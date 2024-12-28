@@ -122,7 +122,7 @@ offline 分支会检查 github 上是否发布了新版本；master 分支上不
 
 1. 国内的众筹赞助平台“爱发电”（类似于 patreon）：
 
-[https://afdian.net/@xuejianxianzun](https://afdian.net/@xuejianxianzun)
+[https://afdian.com/a/xuejianxianzun](https://afdian.com/a/xuejianxianzun)
 
 2. 可通过微信和支付宝扫码转账：
 

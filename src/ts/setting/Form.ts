@@ -9,6 +9,7 @@ import { FormSettings } from './FormSettings'
 import { Utils } from '../utils/Utils'
 import { settings, setSetting, SettingKeys } from '../setting/Settings'
 import { options } from '../setting/Options'
+import { msgBox } from '../MsgBox'
 
 // 设置表单
 class Form {
@@ -224,6 +225,25 @@ class Form {
           document.querySelector('.previewWorkTip')! as HTMLElement
         )
       )
+
+    // 显示用户阻止名单的提示
+    this.form
+      .querySelector('#showRemoveBlockedUsersWorkTip')!
+      .addEventListener('click', () => {
+        msgBox.show(lang.transl('_用户阻止名单的说明2'), {
+          title: lang.transl('_用户阻止名单'),
+        })
+      })
+
+    // 显示设置页数的提示
+    const showSetWantPageTipButton = this.form.querySelector(
+      '.showSetWantPageTip'
+    ) as HTMLButtonElement
+    showSetWantPageTipButton.addEventListener('click', () => {
+      msgBox.show(lang.transl('_设置页数的提示'), {
+        title: lang.transl('_抓取多少页面'),
+      })
+    })
 
     // 输入框获得焦点时自动选择文本（文件名输入框例外）
     const centerInputs: NodeListOf<HTMLInputElement> =

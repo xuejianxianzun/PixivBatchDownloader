@@ -36,6 +36,7 @@ class Theme {
   private readonly htmlFlagMap: Map<string, ThemeName> = new Map([
     ['', 'white'],
     ['default', 'white'],
+    ['light', 'white'],
     ['dark', 'dark'],
   ])
 
@@ -109,8 +110,8 @@ class Theme {
       // 从含有 pixiv 主题标记的元素里获取主题
       const el = document.querySelector(this.selector) as HTMLElement
       if (el) {
-        const pageTheme = this.htmlFlagMap.get(el.textContent!)
-        EVT.fire('getPageTheme', pageTheme!)
+        const pageTheme = this.htmlFlagMap.get(el.textContent!) || 'white'
+        EVT.fire('getPageTheme', pageTheme)
         return pageTheme || this.defaultTheme
       }
 

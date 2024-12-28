@@ -222,6 +222,12 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   protected async nextStep() {
+    if (settings.previewResult) {
+      log.warning(
+        lang.transl('_提示启用预览搜索页面的筛选结果时不会自动开始下载')
+      )
+    }
+
     this.setSlowCrawl()
     this.initFetchURL()
 
@@ -363,6 +369,9 @@ class InitSearchArtworkPage extends InitPageBase {
 
   private tipEmptyResult = Utils.debounce(() => {
     log.error(lang.transl('_抓取被限制时返回空结果的提示'))
+    if (!settings.slowCrawl) {
+      log.error(lang.transl('_提示启用减慢抓取速度功能'))
+    }
   }, 1000)
 
   /**获取作品 id 列表（列表页数据） */
@@ -441,15 +450,17 @@ class InitSearchArtworkPage extends InitPageBase {
     // 这里使用本页 api 里返回的数据，而非 store.idList 的数据，
     // 因为如果作品被过滤掉了，就不会储存在 store.idList 里
     if (this.listPageFinished > 0 && this.listPageFinished % 10 === 0) {
-      console.log(
-        `已抓取 ${this.listPageFinished} 页，检查最后一个作品的收藏数量`
-      )
-      const lastWork = data.data[data.data.length - 1]
-      const check = await vipSearchOptimize.checkWork(lastWork.id, 'illusts')
-      if (check) {
-        log.log(lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'))
-        log.log(lang.transl('_列表页抓取完成'))
-        return this.getIdListFinished()
+      if (data.data.length > 0) {
+        console.log(
+          `已抓取 ${this.listPageFinished} 页，检查最后一个作品的收藏数量`
+        )
+        const lastWork = data.data[data.data.length - 1]
+        const check = await vipSearchOptimize.checkWork(lastWork.id, 'illusts')
+        if (check) {
+          log.log(lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'))
+          log.log(lang.transl('_列表页抓取完成'))
+          return this.getIdListFinished()
+        }
       }
     }
 

@@ -49,7 +49,7 @@ class InitDiscoverPage extends InitPageBase {
     } else {
       // 插画漫画页面
       const allLink = document.querySelectorAll(
-        'div[width="184"]>a'
+        'div[size="184"] a'
       ) as NodeListOf<HTMLAnchorElement>
       // 获取已有作品的 id
       allLink.forEach((a) => {
