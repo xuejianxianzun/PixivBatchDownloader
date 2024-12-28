@@ -5127,6 +5127,8 @@ class PreviewWork {
             this.workEL = el;
             // 判断是插画还是动图，然后根据设置决定是否加载作品数据
             // 动图有一个特定元素：circle，就是播放按钮的圆形背景
+            // 需要注意：在某些页面里没有这个元素，比如浏览历史里。
+            // 不过现在下载器也没有支持浏览历史页面，所以没有影响。
             const ugoira = el.querySelector('circle');
             const show = ugoira ? _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.previewUgoira : _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.PreviewWork;
             show && this.readyShow();
@@ -5873,6 +5875,7 @@ class RemoveBlockedUsersWork {
     constructor() {
         // 当 Pixiv 语言设置为英语时，用户链接以 /en 开头，如
         // href="/en/users/277602"
+        // 所以需要使用 *=
         this.userLinkSelector = 'a[href*="/users/"]';
         // 在用户主页和作品页面里，不屏蔽这个用户自己的作品
         this.dontRemoveCurrentUser = [
@@ -5892,6 +5895,17 @@ class RemoveBlockedUsersWork {
             }
             let currentUserID = '';
             if (this.dontRemoveCurrentUser.includes(_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type)) {
+                // 在不移除当前页面的作者自己的作品时，等待页面资源加载完成后再检查
+                // 否则一开始 Tools.getCurrentPageUserID 可能会获取到错误的用户 ID
+                // 例如这个作品：
+                // https://www.pixiv.net/artworks/123098863
+                // 它的简介里含有另一个作者的主页链接
+                // 在 complete 之前执行 getCurrentPageUserID 时，正确的用户主页元素还不存在，
+                // 此时会获取到简介里的作者链接，也就是错误的 currentUserID
+                // 这会导致下载器移除当前页面作者自己的一些元素（虽然不是作品元素，但也不应该移除）
+                if (document.readyState !== 'complete') {
+                    return;
+                }
                 currentUserID = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getCurrentPageUserID();
             }
             const allUserLink = document.body.querySelectorAll(this.userLinkSelector);
@@ -5899,6 +5913,7 @@ class RemoveBlockedUsersWork {
             for (const link of allUserLink) {
                 // 在用户主页和作品页面里，不屏蔽这个用户本身的元素
                 const userID = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getUserID(link.href);
+                // console.log(userID, currentUserID)
                 if (userID === currentUserID) {
                     continue;
                 }
@@ -5935,6 +5950,12 @@ class RemoveBlockedUsersWork {
             if (data.name === 'userBlockList' ||
                 data.name === 'blockList' ||
                 data.name === 'removeBlockedUsersWork') {
+                this.check();
+            }
+        });
+        // 当页面从不可见状态变为可见状态时，执行检查
+        window.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
                 this.check();
             }
         });
@@ -8664,7 +8685,7 @@ class Tools {
             return test2[1];
         }
         // 最后从 body 里匹配
-        // Warning ：这有可能会匹配到错误的（其他）用户 id！
+        // Warning：这有可能会匹配到错误的（其他用户的）ID！
         const test3 = newRegExp.exec(document.body.innerHTML);
         if (test3) {
             return test3[1];

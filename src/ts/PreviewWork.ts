@@ -150,6 +150,8 @@ class PreviewWork {
 
       // 判断是插画还是动图，然后根据设置决定是否加载作品数据
       // 动图有一个特定元素：circle，就是播放按钮的圆形背景
+      // 需要注意：在某些页面里没有这个元素，比如浏览历史里。
+      // 不过现在下载器也没有支持浏览历史页面，所以没有影响。
       const ugoira = el.querySelector('circle')
       const show = ugoira ? settings.previewUgoira : settings.PreviewWork
       show && this.readyShow()
