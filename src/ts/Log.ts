@@ -60,7 +60,7 @@ class Log {
   ]
 
   /**每个日志区域允许显示多少条日志 */
-  private max = 100
+  private max = 300
   /**日志条数。刷新的日志不会计入 */
   private count = 0
 
