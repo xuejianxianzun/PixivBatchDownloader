@@ -5021,6 +5021,8 @@ class PreviewWork {
         this.workId = '';
         // 显示作品中的第几张图片
         this.index = 0;
+        // 保存每个预览过的作品的 index。当用户再次预览这个作品时，可以恢复上次的进度
+        this.indexHistory = {};
         // 延迟显示预览区域的定时器
         // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片，这是为了避免浪费网络资源
         this.delayShowTimer = undefined;
@@ -5116,10 +5118,10 @@ class PreviewWork {
             }
             // 当鼠标进入到不同作品时
             // 隐藏之前的预览图
-            // 重置 index
             if (this.workId !== id) {
                 this.show = false;
-                this.index = 0;
+                // 设置 index
+                this.index = this.indexHistory[id] || 0;
             }
             this.workId = id;
             this.workEL = el;
@@ -5331,6 +5333,7 @@ class PreviewWork {
                 this.index = 0;
             }
         }
+        this.indexHistory[this.workId] = this.index;
         this.showWrap();
     }
     async addBookmark() {
