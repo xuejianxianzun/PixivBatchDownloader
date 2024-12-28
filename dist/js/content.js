@@ -15905,7 +15905,9 @@ class Download {
     }
     // 设置进度条信息
     setProgressBar(name, loaded, total) {
-        _ProgressBar__WEBPACK_IMPORTED_MODULE_5__.progressBar.setProgress(this.progressBarIndex, {
+        // 在下载初始化和下载完成时，立即更新进度条
+        // 在下载途中，使用节流来更新进度条
+        _ProgressBar__WEBPACK_IMPORTED_MODULE_5__.progressBar[loaded === total ? 'setProgress' : 'setProgressThrottle'](this.progressBarIndex, {
             name,
             loaded,
             total,
@@ -16009,7 +16011,11 @@ class Download {
                 xhr = null;
                 return;
             }
-            let file = xhr.response; // 要下载的文件
+            // 要下载的文件
+            let file = xhr.response;
+            // 下载时有些图片可能没有 content-length，无法计算下载进度
+            // 所以在 loadend 之后，把下载进度拉满
+            this.setProgressBar(_fileName, file.size, file.size);
             // 状态码错误，进入重试流程
             if (xhr.status !== 200) {
                 // 正常下载完毕的状态码是 200
@@ -18447,7 +18453,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 // 下载进度条
+
 
 
 
@@ -18488,6 +18496,8 @@ class ProgressBar {
         this.allProgressBar = [];
         this.KB = 1024;
         this.MB = 1024 * 1024;
+        /**更新子进度条时，使用节流 */
+        this.setProgressThrottle = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.throttle(this.setProgress.bind(this), 200);
         this.createElements();
         _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.wrap);
         this.bindEvents();
@@ -18534,7 +18544,7 @@ class ProgressBar {
         const progress = (downloaded / _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length) * 100;
         this.progressColorEl.style.width = progress + '%';
     }
-    // 设置子进度条的进度
+    /**立即更新子进度条的进度 */
     setProgress(index, data) {
         const bar = this.allProgressBar[index];
         if (!bar) {
