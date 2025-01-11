@@ -411,12 +411,15 @@ export const formHtml = `<form class="settingForm">
     <br>
     * <span class="blue">{series_title}</span>
     <span data-xztext="_命名标记seriesTitle"></span>
+    <span data-xztext="_当作品属于一个系列时可用"></span>
     <br>
     * <span class="blue">{series_order}</span>
     <span data-xztext="_命名标记seriesOrder"></span>
+    <span data-xztext="_当作品属于一个系列时可用"></span>
     <br>
     * <span class="blue">{series_id}</span>
     <span data-xztext="_命名标记seriesId"></span>
+    <span data-xztext="_当作品属于一个系列时可用"></span>
     <br>
     <span class="blue">{id_num}</span>
     <span data-xztext="_命名标记id_num"></span>

@@ -29,6 +29,7 @@ enum PageName {
   Following,
   Request,
   Unlisted,
+  DiscoverUsers,
 }
 
 // 获取页面类型
@@ -109,6 +110,8 @@ class PageType {
       pathname.startsWith('/novel/discovery')
     ) {
       return PageName.Discover
+    } else if (pathname === '/discovery/users') {
+      return PageName.DiscoverUsers
     } else if (
       url.includes('/new_illust.php') ||
       url.includes('/new_illust_r18.php')
@@ -233,6 +236,10 @@ class PageType {
       {
         type: PageName.NewNovel,
         url: 'https://www.pixiv.net/novel/new.php',
+      },
+      {
+        type: PageName.DiscoverUsers,
+        url: 'https://www.pixiv.net/discovery/users',
       },
     ]
 

@@ -373,6 +373,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
             this.selectors = [
                 'div[width="136"]',
                 'div[width="131"]',
+                'div[size="131"]',
                 'div[width="288"]',
                 'div[width="184"]',
                 'div[size="184"]',
@@ -399,9 +400,15 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
         // 如果在查找到某个选择器之后，不再查找剩余的选择器，就可能会遗漏一部分缩略图。
         // 但是，这有可能会导致事件的重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
         for (const selector of this.selectors) {
-            // div[size="184"] 只在发现页面使用，因为其他页面目前不会用到它
+            // div[size="184"] 只在 发现 和 发现-推荐用户 页面里使用
             if (selector === 'div[size="184"]' &&
-                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Discover) {
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Discover &&
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.DiscoverUsers) {
+                continue;
+            }
+            // div[size="131"] 只在 发现-推荐用户 页面里使用。当关注一个用户后，底部显示的推荐用户的作品是这个选择器
+            if (selector === 'div[size="131"]' &&
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.DiscoverUsers) {
                 continue;
             }
             // div[type="illust"] 只在约稿页面使用
@@ -411,11 +418,12 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request) {
                 continue;
             }
-            // li>div>div:first-child 只在约稿页面使用
-            // 因为已知问题：画师主页顶部的“精选”作品会被两个选择器查找到：li>div>div:first-child div[width="288"]
-            // 这会导致重复绑定（在同一个元素上）
+            // li>div>div:first-child 只在 约稿 和 大家的新作 页面里使用
+            // 已知问题：画师主页顶部的“精选”作品会被两个选择器查找到：li>div>div:first-child 和 div[width="288"]
+            // 如果不限制在特定页面里使用，就会导致这部分作品被重复绑定
             if (selector === 'li>div>div:first-child' &&
-                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request) {
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request &&
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtwork) {
                 continue;
             }
             const elements = parent.querySelectorAll(selector);
@@ -3512,6 +3520,8 @@ class InitPage {
                 return new _crawlMixedPage_InitUnlistedPage__WEBPACK_IMPORTED_MODULE_23__.InitUnlistedPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request:
                 return new _crawl_InitRequestPage__WEBPACK_IMPORTED_MODULE_24__.InitRequestPage();
+            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.DiscoverUsers:
+                return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__.InitUnsupportedPage();
             default:
                 return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__.InitUnsupportedPage();
         }
@@ -4499,6 +4509,7 @@ var PageName;
     PageName[PageName["Following"] = 20] = "Following";
     PageName[PageName["Request"] = 21] = "Request";
     PageName[PageName["Unlisted"] = 22] = "Unlisted";
+    PageName[PageName["DiscoverUsers"] = 23] = "DiscoverUsers";
 })(PageName || (PageName = {}));
 // 获取页面类型
 class PageType {
@@ -4570,6 +4581,9 @@ class PageType {
         else if (pathname === '/discovery' ||
             pathname.startsWith('/novel/discovery')) {
             return PageName.Discover;
+        }
+        else if (pathname === '/discovery/users') {
+            return PageName.DiscoverUsers;
         }
         else if (url.includes('/new_illust.php') ||
             url.includes('/new_illust_r18.php')) {
@@ -4701,6 +4715,10 @@ class PageType {
             {
                 type: PageName.NewNovel,
                 url: 'https://www.pixiv.net/novel/new.php',
+            },
+            {
+                type: PageName.DiscoverUsers,
+                url: 'https://www.pixiv.net/discovery/users',
             },
         ];
         const wait = () => {
@@ -7848,13 +7866,15 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.3.1';
+        this.flag = '17.3.2';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
+      <br>
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
       `;
             // <strong>
@@ -15835,9 +15855,14 @@ class CheckWarningMessage {
             if (data.body.total === 0) {
                 return resolve(false);
             }
+            // 获取到的数据是以会话为单位的，也就是最后三个发送消息的账号。包含了每个消息里的最后一条对话
+            // 如果与一个用户发送了多条消息，也只会有一条数据，而不会是多条数据
             for (const msgData of data.body.message_threads) {
                 if (msgData.is_official === true &&
                     msgData.thread_name === 'pixiv事務局') {
+                    // pixiv事務局 这个账号名称应该是不会变的。它是这个账号：
+                    // https://www.pixiv.net/users/11
+                    // 但是下面这个判断条件不清楚以后是否会发生变化
                     if (msgData.latest_content.includes('policies.pixiv.net') &&
                         msgData.latest_content.includes('14')) {
                         // 如果找到了官方账号发送的警告消息，则判断时间
@@ -16100,7 +16125,13 @@ class Download {
             let file = xhr.response;
             // 下载时有些图片可能没有 content-length，无法计算下载进度
             // 所以在 loadend 之后，把下载进度拉满
-            this.setProgressBar(_fileName, file.size, file.size);
+            if (file?.size) {
+                this.setProgressBar(_fileName, file.size, file.size);
+            }
+            else {
+                // 有时候 file 是 null，所以不能获取 size 属性。尚不清楚原因是什么
+                console.log(file);
+            }
             // 状态码错误，进入重试流程
             if (xhr.status !== 200) {
                 // 正常下载完毕的状态码是 200
@@ -21270,13 +21301,13 @@ class WorkPublishTime {
     bindEvents() {
         // 获取图像作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 125640000
-            this.crawlData(125140000, 125647801);
+            // 上次记录到 126120000
+            this.crawlData(125650000, 126129860);
         });
         // 获取小说作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 23690000
-            this.crawlData(23590000, 23695206, 'novels');
+            // 上次记录到 23790003
+            this.crawlData(23700000, 23795143, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -22394,28 +22425,36 @@ And so on. <br>`,
         'Если работы на странице относятся к одному и тому же тегу, то выводить этот тег.',
     ],
     _命名标记seriesTitle: [
-        '系列标题，只在系列页面中可用（小说系列、漫画系列）。',
-        '系列標題，只在系列頁面中可用（小說系列、漫畫系列）。',
-        'Series title, only available in series pages (Novel series, Manga series).',
-        'シリーズタイトル，シリーズページのみ（小説連載、漫画連載）。',
-        '시리즈 제목, 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
-        'Название серии, доступно только на страницах серий (серия романов, серия манги).',
+        '系列标题。',
+        '系列標題。',
+        'Series title.',
+        'シリーズタイトル。',
+        '시리즈 제목.',
+        'Название серии.',
     ],
     _命名标记seriesOrder: [
-        '作品在系列中的序号，如 <span class="blue">#1</span> <span class="blue">#2</span>。只在系列页面中可用（小说系列、漫画系列）。',
-        '作品在系列中的編號，如 <span class="blue">#1</span> <span class="blue">#2</span>。只在系列頁面中可用（小說系列、漫畫系列）。',
-        'The number of the work in the series, such as <span class="blue">#1</span> <span class="blue">#2</span>. only available in series pages (Novel series, Manga series).',
-        'シリーズの中の作品の番号，例え <span class="blue">#1</span> <span class="blue">#2</span>。シリーズページのみ（小説連載、漫画連載）。',
-        '시리즈 내 작품 번호. 예: <span class="blue">#1</span> <span class="blue">#2</span>. 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
-        'Номер работы в серии, например, <span class="blue">#1</span> <span class="blue">#2</span>. доступны только на страницах серий (серия романов, серия манги).',
+        '作品在系列中的序号，如 <span class="blue">#1</span> <span class="blue">#2</span>。',
+        '作品在系列中的編號，如 <span class="blue">#1</span> <span class="blue">#2</span>。',
+        'The number of the work in the series, such as <span class="blue">#1</span> <span class="blue">#2</span>.',
+        'シリーズの中の作品の番号，例え <span class="blue">#1</span> <span class="blue">#2</span>。',
+        '시리즈 내 작품 번호. 예: <span class="blue">#1</span> <span class="blue">#2</span>.',
+        'Номер работы в серии, например, <span class="blue">#1</span> <span class="blue">#2</span>.',
     ],
     _命名标记seriesId: [
-        '系列 ID，只在系列页面中可用（小说系列、漫画系列）。',
-        '系列 ID，只在系列頁面中可用（小說系列、漫畫系列）。',
-        'Series ID, only available in series pages (Novel series, Manga series).',
-        'シリーズ ID，シリーズページのみ（小説連載、漫画連載）。',
-        '시리즈 ID, 시리즈 페이지에서만 사용 가능(소설 시리즈, 만화 시리즈).',
-        'Идентификатор серии, доступен только на страницах серий (серия романов, серия манги).',
+        '系列 ID。',
+        '系列 ID。',
+        'Series ID.',
+        'シリーズ ID。',
+        '시리즈 ID.',
+        'Идентификатор серии.',
+    ],
+    _当作品属于一个系列时可用: [
+        '当作品属于一个系列时可用。',
+        '當作品屬於一個系列時可用。',
+        'Available when the work belongs to a series.',
+        '作品がシリーズに属している場合に利用できる。',
+        '작품이 시리즈에 속할 때 사용할 수 있습니다.',
+        'Доступно, если работа принадлежит к серии.',
     ],
     _文件夹标记PTitle: [
         '页面标题',
@@ -23640,12 +23679,12 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
         '<span class="key">Формат</span> даты и времени',
     ],
     _日期格式提示: [
-        '你可以使用以下标记来设置日期和时间格式。这会影响命名规则里的 {date} 和 {upload_date} 和 {task_date}。<br>对于时间如 2021-04-30T06:40:08',
-        '你可以使用以下標記來設定日期和時間格式。這會影響命名規則裡的 {date} 和 {upload_date} 和 {task_date}。<br>對於資料如：2021-04-30T06:40:08。',
-        'You can use the following notation to set the date and time format. This will affect {date} and {upload_date} and {task_date} in the naming rules. <br>For time such as 2021-04-30T06:40:08',
-        '以下のタグを使用して日時と時刻の書式を設定することができます。 これは命名規則の {date} と {upload_date} と {task_date} に影響します。 <br> 例：2021-04-30T06:40:08',
-        '다음 표기법을 사용하여 날짜 및 시간 형식을 설정할 수 있습니다.<br>이것은 명명 규칙에 있는 {date}와 {upload_date}와 {task_date}에 영향을 미칩니다.<br>예: 2021-04-30T06:40:08',
-        'Для установки формата даты и времени можно использовать следующую нотацию. Это повлияет на {date} и {upload_date} и {task_date} в правилах именования. <br>Для времени, например, 2021-04-30T06:40:08',
+        '你可以使用以下标记来设置日期和时间格式。这会影响命名规则里的 <span class="blue">{date}</span> 和 <span class="blue">{upload_date}</span> 和 <span class="blue">{task_date}</span>。<br>对于时间如 2021-04-30T06:40:08',
+        '你可以使用以下標記來設定日期和時間格式。這會影響命名規則裡的 <span class="blue">{date}</span> 和 <span class="blue">{upload_date}</span> 和 <span class="blue">{task_date}</span>。<br>對於資料如：2021-04-30T06:40:08。',
+        'You can use the following notation to set the date and time format. This will affect <span class="blue">{date}</span> and <span class="blue">{upload_date}</span> and <span class="blue">{task_date}</span> in the naming rules. <br>For time such as 2021-04-30T06:40:08',
+        '以下のタグを使用して日時と時刻の書式を設定することができます。 これは命名規則の <span class="blue">{date}</span> と <span class="blue">{upload_date}</span> と <span class="blue">{task_date}</span> に影響します。 <br> 例：2021-04-30T06:40:08',
+        '다음 표기법을 사용하여 날짜 및 시간 형식을 설정할 수 있습니다.<br>이것은 명명 규칙에 있는 <span class="blue">{date}</span>와 <span class="blue">{upload_date}</span>와 <span class="blue">{task_date}</span>에 영향을 미칩니다.<br>예: 2021-04-30T06:40:08',
+        'Для установки формата даты и времени можно использовать следующую нотацию. Это повлияет на <span class="blue">{date}</span> и <span class="blue">{upload_date}</span> и <span class="blue">{task_date}</span> в правилах именования. <br>Для времени, например, 2021-04-30T06:40:08',
     ],
     _命名标记taskDate: [
         '本次任务抓取完成时的时间。例如：<span class="blue">2020-10-21</span>。',
@@ -24978,12 +25017,12 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
         'Загрузка <span class="key">вложенных</span> изображений в новеллах',
     ],
     _其他优化: [
-        '其他优化',
-        '其他最佳化',
-        'Other optimizations',
-        'その他の最適化',
-        '기타 최적화',
-        'Другие оптимизации',
+        '其他优化。',
+        '其他最佳化。',
+        'Other optimizations.',
+        'その他の最適化。',
+        '기타 최적화.',
+        'Другие оптимизации.',
     ],
     _隐藏浏览器底部的下载栏: [
         '隐藏浏览器底部的<span class="key">下载栏</span>',
@@ -25251,12 +25290,12 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
         'Баг фикс',
     ],
     _修复已知问题: [
-        '修复已知问题',
-        '修復已知問題',
-        'fix known issues',
-        '既知の問題を修正する',
-        '알려진 문제 수정',
-        'исправить известные проблемы',
+        '修复已知问题。',
+        '修復已知問題。',
+        'fix known issues.',
+        '既知の問題を修正する。',
+        '알려진 문제 수정。',
+        'исправить известные проблемы。',
     ],
     _不支持的浏览器: [
         '你的浏览器不能正常使用这个扩展程序，主要原因可能是浏览器内核版本太低，或者存在兼容性问题。<br>建议您更换成最新版本的 Chrome 或 Edge 浏览器。',
@@ -28780,12 +28819,15 @@ const formHtml = `<form class="settingForm">
     <br>
     * <span class="blue">{series_title}</span>
     <span data-xztext="_命名标记seriesTitle"></span>
+    <span data-xztext="_当作品属于一个系列时可用"></span>
     <br>
     * <span class="blue">{series_order}</span>
     <span data-xztext="_命名标记seriesOrder"></span>
+    <span data-xztext="_当作品属于一个系列时可用"></span>
     <br>
     * <span class="blue">{series_id}</span>
     <span data-xztext="_命名标记seriesId"></span>
+    <span data-xztext="_当作品属于一个系列时可用"></span>
     <br>
     <span class="blue">{id_num}</span>
     <span data-xztext="_命名标记id_num"></span>
@@ -30695,7 +30737,7 @@ class Settings {
             sizeMax: 100,
             novelSaveAs: 'txt',
             saveNovelMeta: false,
-            deduplication: true,
+            deduplication: false,
             dupliStrategy: 'loose',
             fileNameLengthLimitSwitch: false,
             tagsSeparator: ',',
@@ -44772,6 +44814,54 @@ const illustsData = [
     [125620000, 1735349640000],
     [125630001, 1735375800000],
     [125640000, 1735393980000],
+    [125650000, 1735422840000],
+    [125660000, 1735455480000],
+    [125670000, 1735475700000],
+    [125680000, 1735494060000],
+    [125690000, 1735532760000],
+    [125700000, 1735556340000],
+    [125710000, 1735572060000],
+    [125720000, 1735604280000],
+    [125730000, 1735626540000],
+    [125740000, 1735642680000],
+    [125750000, 1735654860000],
+    [125760000, 1735659720000],
+    [125770000, 1735680900000],
+    [125780000, 1735703040000],
+    [125790000, 1735722120000],
+    [125800000, 1735737720000],
+    [125810001, 1735757040000],
+    [125820000, 1735793040000],
+    [125830000, 1735816200000],
+    [125840000, 1735832520000],
+    [125850001, 1735869720000],
+    [125860000, 1735894800000],
+    [125870000, 1735912620000],
+    [125880001, 1735938540000],
+    [125890000, 1735971420000],
+    [125900000, 1735991580000],
+    [125910000, 1736007840000],
+    [125920000, 1736045040000],
+    [125930000, 1736067600000],
+    [125940001, 1736083200000],
+    [125950000, 1736103360000],
+    [125960000, 1736144820000],
+    [125970000, 1736166480000],
+    [125980001, 1736183760000],
+    [125990000, 1736226180000],
+    [126000000, 1736251380000],
+    [126010000, 1736269200000],
+    [126020000, 1736312880000],
+    [126030000, 1736338260000],
+    [126040000, 1736356380000],
+    [126050000, 1736402040000],
+    [126060000, 1736426460000],
+    [126070000, 1736446080000],
+    [126080000, 1736490240000],
+    [126090000, 1736512860000],
+    [126100000, 1736532180000],
+    [126110000, 1736571000000],
+    [126120000, 1736593980000],
 ];
 
 
@@ -47158,6 +47248,16 @@ const novelData = [
     [23670000, 1735113206000],
     [23680000, 1735220356000],
     [23690000, 1735360245000],
+    [23700000, 1735477399000],
+    [23710000, 1735576636000],
+    [23720000, 1735657209000],
+    [23730002, 1735782436000],
+    [23740000, 1735903914000],
+    [23750000, 1736009388000],
+    [23760000, 1736138552000],
+    [23770000, 1736260921000],
+    [23780000, 1736419332000],
+    [23790003, 1736560359000],
 ];
 
 
