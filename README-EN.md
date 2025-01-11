@@ -35,7 +35,7 @@
 
 This is a browser extension for **Chrome** that lets you download images and novels from Pixiv in batch.
 
-Available languages: Simplified Chinese, Traditional Chinese, Japanese, English、Korean.
+Available languages: Simplified Chinese, Traditional Chinese, Japanese, English、Korean、Russian.
 
 The main function:
 

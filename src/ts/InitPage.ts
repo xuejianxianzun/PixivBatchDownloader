@@ -86,6 +86,8 @@ class InitPage {
         return new InitUnlistedPage()
       case pageType.list.Request:
         return new InitRequestPage()
+      case pageType.list.DiscoverUsers:
+        return new InitUnsupportedPage()
       default:
         return new InitUnsupportedPage()
     }
