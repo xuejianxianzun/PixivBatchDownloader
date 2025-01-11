@@ -373,6 +373,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
             this.selectors = [
                 'div[width="136"]',
                 'div[width="131"]',
+                'div[size="131"]',
                 'div[width="288"]',
                 'div[width="184"]',
                 'div[size="184"]',
@@ -399,9 +400,15 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
         // 如果在查找到某个选择器之后，不再查找剩余的选择器，就可能会遗漏一部分缩略图。
         // 但是，这有可能会导致事件的重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
         for (const selector of this.selectors) {
-            // div[size="184"] 只在发现页面使用，因为其他页面目前不会用到它
+            // div[size="184"] 只在 发现 和 发现-推荐用户 页面里使用
             if (selector === 'div[size="184"]' &&
-                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Discover) {
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Discover &&
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.DiscoverUsers) {
+                continue;
+            }
+            // div[size="131"] 只在 发现-推荐用户 页面里使用。当关注一个用户后，底部显示的推荐用户的作品是这个选择器
+            if (selector === 'div[size="131"]' &&
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.DiscoverUsers) {
                 continue;
             }
             // div[type="illust"] 只在约稿页面使用
@@ -3440,6 +3447,8 @@ class InitPage {
                 return new _crawlMixedPage_InitUnlistedPage__WEBPACK_IMPORTED_MODULE_23__.InitUnlistedPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request:
                 return new _crawl_InitRequestPage__WEBPACK_IMPORTED_MODULE_24__.InitRequestPage();
+            case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.DiscoverUsers:
+                return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__.InitUnsupportedPage();
             default:
                 return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__.InitUnsupportedPage();
         }
@@ -4427,6 +4436,7 @@ var PageName;
     PageName[PageName["Following"] = 20] = "Following";
     PageName[PageName["Request"] = 21] = "Request";
     PageName[PageName["Unlisted"] = 22] = "Unlisted";
+    PageName[PageName["DiscoverUsers"] = 23] = "DiscoverUsers";
 })(PageName || (PageName = {}));
 // 获取页面类型
 class PageType {
@@ -4498,6 +4508,9 @@ class PageType {
         else if (pathname === '/discovery' ||
             pathname.startsWith('/novel/discovery')) {
             return PageName.Discover;
+        }
+        else if (pathname === '/discovery/users') {
+            return PageName.DiscoverUsers;
         }
         else if (url.includes('/new_illust.php') ||
             url.includes('/new_illust_r18.php')) {
@@ -4629,6 +4642,10 @@ class PageType {
             {
                 type: PageName.NewNovel,
                 url: 'https://www.pixiv.net/novel/new.php',
+            },
+            {
+                type: PageName.DiscoverUsers,
+                url: 'https://www.pixiv.net/discovery/users',
             },
         ];
         const wait = () => {
@@ -16028,7 +16045,13 @@ class Download {
             let file = xhr.response;
             // 下载时有些图片可能没有 content-length，无法计算下载进度
             // 所以在 loadend 之后，把下载进度拉满
-            this.setProgressBar(_fileName, file.size, file.size);
+            if (file?.size) {
+                this.setProgressBar(_fileName, file.size, file.size);
+            }
+            else {
+                // 有时候 file 是 null，所以不能获取 size 属性。尚不清楚原因是什么
+                console.log(file);
+            }
             // 状态码错误，进入重试流程
             if (xhr.status !== 200) {
                 // 正常下载完毕的状态码是 200

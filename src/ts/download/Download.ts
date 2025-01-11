@@ -278,7 +278,12 @@ class Download {
 
       // 下载时有些图片可能没有 content-length，无法计算下载进度
       // 所以在 loadend 之后，把下载进度拉满
-      this.setProgressBar(_fileName, file.size, file.size)
+      if (file?.size) {
+        this.setProgressBar(_fileName, file.size, file.size)
+      } else {
+        // 有时候 file 是 null，所以不能获取 size 属性。尚不清楚原因是什么
+        console.log(file)
+      }
 
       // 状态码错误，进入重试流程
       if (xhr.status !== 200) {
