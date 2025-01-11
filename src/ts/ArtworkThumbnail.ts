@@ -63,12 +63,13 @@ class ArtworkThumbnail extends WorkThumbnail {
         continue
       }
 
-      // li>div>div:first-child 只在约稿页面使用
-      // 因为已知问题：画师主页顶部的“精选”作品会被两个选择器查找到：li>div>div:first-child div[width="288"]
-      // 这会导致重复绑定（在同一个元素上）
+      // li>div>div:first-child 只在 约稿 和 大家的新作 页面里使用
+      // 已知问题：画师主页顶部的“精选”作品会被两个选择器查找到：li>div>div:first-child 和 div[width="288"]
+      // 如果不限制在特定页面里使用，就会导致这部分作品被重复绑定
       if (
         selector === 'li>div>div:first-child' &&
-        pageType.type !== pageType.list.Request
+        pageType.type !== pageType.list.Request &&
+        pageType.type !== pageType.list.NewArtwork
       ) {
         continue
       }
