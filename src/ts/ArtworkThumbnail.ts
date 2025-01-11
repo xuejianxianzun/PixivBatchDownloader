@@ -15,6 +15,7 @@ class ArtworkThumbnail extends WorkThumbnail {
       this.selectors = [
         'div[width="136"]',
         'div[width="131"]',
+        'div[size="131"]',
         'div[width="288"]',
         'div[width="184"]',
         'div[size="184"]',
@@ -45,10 +46,19 @@ class ArtworkThumbnail extends WorkThumbnail {
     // 如果在查找到某个选择器之后，不再查找剩余的选择器，就可能会遗漏一部分缩略图。
     // 但是，这有可能会导致事件的重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
     for (const selector of this.selectors) {
-      // div[size="184"] 只在发现页面使用，因为其他页面目前不会用到它
+      // div[size="184"] 只在 发现 和 发现-推荐用户 页面里使用
       if (
         selector === 'div[size="184"]' &&
-        pageType.type !== pageType.list.Discover
+        pageType.type !== pageType.list.Discover &&
+        pageType.type !== pageType.list.DiscoverUsers
+      ) {
+        continue
+      }
+
+      // div[size="131"] 只在 发现-推荐用户 页面里使用。当关注一个用户后，底部显示的推荐用户的作品是这个选择器
+      if (
+        selector === 'div[size="131"]' &&
+        pageType.type !== pageType.list.DiscoverUsers
       ) {
         continue
       }
@@ -63,12 +73,13 @@ class ArtworkThumbnail extends WorkThumbnail {
         continue
       }
 
-      // li>div>div:first-child 只在约稿页面使用
-      // 因为已知问题：画师主页顶部的“精选”作品会被两个选择器查找到：li>div>div:first-child div[width="288"]
-      // 这会导致重复绑定（在同一个元素上）
+      // li>div>div:first-child 只在 约稿 和 大家的新作 页面里使用
+      // 已知问题：画师主页顶部的“精选”作品会被两个选择器查找到：li>div>div:first-child 和 div[width="288"]
+      // 如果不限制在特定页面里使用，就会导致这部分作品被重复绑定
       if (
         selector === 'li>div>div:first-child' &&
-        pageType.type !== pageType.list.Request
+        pageType.type !== pageType.list.Request &&
+        pageType.type !== pageType.list.NewArtwork
       ) {
         continue
       }

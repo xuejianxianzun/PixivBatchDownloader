@@ -51,11 +51,16 @@ class CheckWarningMessage {
         return resolve(false)
       }
 
+      // 获取到的数据是以会话为单位的，也就是最后三个发送消息的账号。包含了每个消息里的最后一条对话
+      // 如果与一个用户发送了多条消息，也只会有一条数据，而不会是多条数据
       for (const msgData of data.body.message_threads) {
         if (
           msgData.is_official === true &&
           msgData.thread_name === 'pixiv事務局'
         ) {
+          // pixiv事務局 这个账号名称应该是不会变的。它是这个账号：
+          // https://www.pixiv.net/users/11
+          // 但是下面这个判断条件不清楚以后是否会发生变化
           if (
             msgData.latest_content.includes('policies.pixiv.net') &&
             msgData.latest_content.includes('14')
