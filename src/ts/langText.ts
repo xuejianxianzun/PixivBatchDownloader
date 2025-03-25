@@ -1214,7 +1214,33 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
 Если вы планируете загружать много файлов, рассмотрите возможность регистрации учетной записи Pixiv. <br><br>`,
   ],
   _常见问题说明: [
-    '下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>还有些扩展会导致下载器不能开始下载。<br><br>如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。<br><br>如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。<br><br>下载器 QQ 群：675174717<br><br>在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a><br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a><br><br>',
+    `下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。
+    <br><br>
+    建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。
+    <br><br>
+    如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>还有些扩展会导致下载器不能开始下载。
+    <br><br>
+    如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。
+    <br><br>
+    如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。
+    <br><br>
+    梯子推荐：
+    <br>
+    如果你需要一个机场（梯子）的话，可以试试我现在用的机场：魔法喵 <a href="https://magicm.cc/#/register?code=GYjQWDob" title="魔法喵" target="_blank">https://magicm.cc</a>，性价比很高，9.9 元 768 GB 流量（倍率都是 1x），而且速度很快，下载国外网盘的文件时可以跑满我的带宽（70 MB/s）。
+    <br>
+    如果上面的网址打不开，可以访问地址发布页：<a href="https://magicm.click" title="魔法喵" target="_blank">https://magicm.click</a>
+    <br>
+    你也可以查看我写的使用体验：<a href="https://saber.love/?p=12736" title="魔法喵使用体验" target="_blank">魔法喵使用体验</a>
+    <br>
+    我的邀请码：GYjQWDob
+    <br><br>
+    下载器 QQ 群：675174717
+    <br><br>
+    在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a>
+    <br><br>
+    中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>
+    <br><br>
+    `,
     '下載的檔案儲存在瀏覽器的下載目錄裡。如果你想儲存到其他位置，需要修改瀏覽器的下載目錄。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br>還有些擴充套件會導致下載器不能開始下載。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。<br><br>',
     `The downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download location. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser\`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities. <br>There are also some extensions that can prevent the downloader from starting the download.<br><br>If your browser stops responding at startup, you can clear your browser\`s download history.<br><br>`,
     'ダウンロードされたファイルはブラウザのダウンロード ディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロード場所を変更する必要があります。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br>ダウンローダーがダウンロードを開始するのを妨げる拡張機能もいくつかあります。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。<br><br>',
