@@ -175,21 +175,46 @@ div[width='104'] .eCFXg {
 .dgeelW > div > div {
   display: flex !important;
 }
-/* 下载器会尝试给“关注用户・好P友的作品”的容器添加自定义的 class，避免其频繁改版而失效 */
-.homeFriendsNewWorks ul > div {
+/* 下载器会尝试给 精选新作 和 已关注用户的作品 的容器添加自定义的 class，避免其频繁改版而失效 */
+.homeFriendsNewWorks > div:nth-child(2) {
+  --carousel-width: unset !important;
+}
+.homeFriendsNewWorks ul > div,
+.homeFriendsNewWorks ul > li {
   display: flex !important;
   width: auto;
   max-width: 540px;
   max-height: 600px;
   flex-shrink: 0;
 }
-.homeFriendsNewWorks ul > div > div {
+.homeFriendsNewWorks ul > div > div,
+.homeFriendsNewWorks ul > li > div {
   display: flex !important;
   flex-direction: column !important;
   width: auto !important;
 }
-.homeFriendsNewWorks ul > div > div > div {
+.homeFriendsNewWorks ul > div > div > div,
+.homeFriendsNewWorks ul > li > div > div {
   display: flex !important;
+  flex-direction: column !important;
+}
+.homeRecommendedWorks ul > li {
+  display: flex !important;
+  max-width: 540px;
+  max-height: 600px;
+  flex-shrink: 0;
+  flex-grow: 1;
+}
+.homeRecommendedWorks ul > li > div {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+}
+.homeRecommendedWorks ul > li.novelLI {
+  width: 100% !important;
+}
+.homeRecommendedWorks ul > li.novelLI > div > div > div:nth-child(1) {
+  background-color: #d1bfa2;
 }
 /* 推荐作品 li */
 /* 很多新版页面的作品列表都要把 margin 改小一些，从 12 改为 10，否则在 125% 缩放时，因为宽度不够，一排原本能显示 6 个的，变得只能显示 5 个*/
