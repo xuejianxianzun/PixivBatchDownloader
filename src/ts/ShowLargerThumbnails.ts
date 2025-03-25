@@ -92,7 +92,7 @@ class ShowLargerThumbnails {
     // 在新版首页里，额外查找 推荐作品
     if (['/', '/en/'].includes(window.location.pathname)) {
       const allLi = sectionList[2].querySelectorAll('ul li')
-      if (allLi) {
+      if (allLi.length > 1) {
         sectionList[2].classList.add('homeRecommendedWorks')
 
         // 并且需要查找里面的小说作品，然后找到其 li 元素。

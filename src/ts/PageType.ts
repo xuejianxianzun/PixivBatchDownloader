@@ -58,7 +58,7 @@ class PageType {
 
     if (
       window.location.hostname === 'www.pixiv.net' &&
-      ['/', '/illustration', '/manga', '/novel', '/en/'].includes(pathname)
+      ['/', '/en/', '/illustration', '/manga', '/novel'].includes(pathname)
     ) {
       return PageName.Home
     } else if (

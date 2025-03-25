@@ -4478,7 +4478,7 @@ class PageType {
         const url = window.location.href;
         const pathname = window.location.pathname;
         if (window.location.hostname === 'www.pixiv.net' &&
-            ['/', '/illustration', '/manga', '/novel', '/en/'].includes(pathname)) {
+            ['/', '/en/', '/illustration', '/manga', '/novel'].includes(pathname)) {
             return PageName.Home;
         }
         else if ((pathname.startsWith('/artworks') ||
@@ -7333,7 +7333,7 @@ class ShowLargerThumbnails {
         // 在新版首页里，额外查找 推荐作品
         if (['/', '/en/'].includes(window.location.pathname)) {
             const allLi = sectionList[2].querySelectorAll('ul li');
-            if (allLi) {
+            if (allLi.length > 1) {
                 sectionList[2].classList.add('homeRecommendedWorks');
                 // 并且需要查找里面的小说作品，然后找到其 li 元素。
                 // 这样可以给小说的 li 添加 width:100%，否则小说的宽度就是原本的样子，和大图片的视觉效果不一致
