@@ -5113,7 +5113,7 @@ class PreviewWork {
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.PreviewWorkDetailInfo) {
                     _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('showPreviewWorkDetailPanel', this.workData);
                 }
-                this.sendUrls();
+                this.sendURLs();
                 this._show = true;
                 _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__.showOriginSizeImage.hide();
                 this.showWrap();
@@ -5462,7 +5462,7 @@ class PreviewWork {
         if (!this.workEL || !this.workData) {
             return;
         }
-        const url = this.replaceUrl(this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.prevWorkSize]);
+        const url = this.replaceURL(this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.prevWorkSize]);
         const size = await this.getImageSize(url);
         // getImageSize 可能需要花费比较长的时间。有时候在 getImageSize 之前是要显示 wrap 的，但是之后鼠标移出，需要隐藏 wrap，再之后 getImageSize 才执行完毕。
         // 所以此时需要再次判断是否要显示 wrap。如果不再次判断的话，可能有时候需要隐藏预览图，但是预览图却显示出来了
@@ -5590,7 +5590,11 @@ class PreviewWork {
             if (body.pageCount > 1) {
                 text.push(`${this.index + 1}/${body.pageCount}`);
             }
-            text.push(body.bookmarkCount.toString());
+            text.push(`${body.bookmarkCount.toString()} <svg viewBox="0 0 12 12" width="12" height="12"><path fill="currentColor" d="
+      M9,0.75 C10.6568542,0.75 12,2.09314575 12,3.75 C12,6.68851315 10.0811423,9.22726429 6.24342696,11.3662534
+      L6.24342863,11.3662564 C6.09210392,11.4505987 5.90790324,11.4505988 5.75657851,11.3662565
+      C1.9188595,9.22726671 0,6.68851455 0,3.75 C1.1324993e-16,2.09314575 1.34314575,0.75 3,0.75
+      C4.12649824,0.75 5.33911281,1.60202454 6,2.66822994 C6.66088719,1.60202454 7.87350176,0.75 9,0.75 Z"></path></svg>`);
             // 加载原图时，可以获取到每张图片的真实尺寸
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.prevWorkSize === 'original') {
                 text.push(`${w}x${h}`);
@@ -5627,17 +5631,17 @@ class PreviewWork {
         }
         this.wrap.setAttribute('style', styleArray.join(''));
         // 每次显示图片后，传递图片的 url
-        this.sendUrls();
+        this.sendURLs();
         // 预览动图
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.previewUgoira && this.workData.body.illustType === 2) {
             this.previewUgoira = new _PreviewUgoira__WEBPACK_IMPORTED_MODULE_8__.PreviewUgoira(this.workData.body.id, this.wrap, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.prevWorkSize, cfg.width, cfg.height - tipHeight);
             // 需要显式传递 wrap 的宽高，特别是高度。因为需要减去顶部提示区域的高度
         }
     }
-    replaceUrl(url) {
+    replaceURL(url) {
         return url.replace('p0', `p${this.index}`);
     }
-    sendUrls() {
+    sendURLs() {
         const data = this.workData;
         if (!data) {
             return;
@@ -5646,8 +5650,8 @@ class PreviewWork {
         // 因为预览图片默认加载“普通”尺寸的图片，但是 showOriginSizeImage 默认显示“原图”尺寸。
         // 而且对于第一张之后的图片，加载“普通”尺寸的图片时，无法获取“原图”的尺寸。
         _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__.showOriginSizeImage.setData({
-            original: this.replaceUrl(data.body.urls.original),
-            regular: this.replaceUrl(data.body.urls.regular),
+            original: this.replaceURL(data.body.urls.original),
+            regular: this.replaceURL(data.body.urls.regular),
         }, data, this.index);
     }
 }
@@ -25969,8 +25973,8 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
         `<span class="blue">Alt</span> + <span class="blue">P</span> 关闭/启用预览作品功能<br>
     当你查看预览图时，可以使用如下快捷键：<br>
     <span class="blue">B</span>(ookmark) 收藏预览的作品<br>
-    <span class="blue">C</span>(urrent) 下载当前预览的图片<br>
-    <span class="blue">D</span>(ownload) 下载当前预览的作品<br>
+    <span class="blue">C</span>(urrent) 下载当前预览的图片（如果这个作品里有多张图片，也只会下载当前这一张）<br>
+    <span class="blue">D</span>(ownload) 下载当前预览的作品（如果这个作品里有多张图片，默认会全部下载）<br>
     <span class="blue">Esc</span> 关闭预览图<br>
     <span class="blue">← ↑</span> 上一张图片<br>
     <span class="blue">→ ↓</span> 下一张图片<br>

@@ -4628,8 +4628,8 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     `<span class="blue">Alt</span> + <span class="blue">P</span> 关闭/启用预览作品功能<br>
     当你查看预览图时，可以使用如下快捷键：<br>
     <span class="blue">B</span>(ookmark) 收藏预览的作品<br>
-    <span class="blue">C</span>(urrent) 下载当前预览的图片<br>
-    <span class="blue">D</span>(ownload) 下载当前预览的作品<br>
+    <span class="blue">C</span>(urrent) 下载当前预览的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
+    <span class="blue">D</span>(ownload) 下载当前预览的作品（如果这个作品里有多张图片，默认会全部下载）<br>
     <span class="blue">Esc</span> 关闭预览图<br>
     <span class="blue">← ↑</span> 上一张图片<br>
     <span class="blue">→ ↓</span> 下一张图片<br>
