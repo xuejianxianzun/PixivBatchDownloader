@@ -207,8 +207,15 @@ div[width='104'] .eCFXg {
 
 // 注意：上面不能改成 .bgeGyS  div:first-child div:first-child 的形式，因为这样会导致错误的匹配，导致其他某些部分乱版（例如首页的 推荐用户 区域）
 
-/* 下载器会尝试给“关注用户・好P友的作品”的容器添加自定义的 class，避免其频繁改版而失效 */
-.homeFriendsNewWorks ul > div {
+/* 下载器会尝试给 精选新作 和 已关注用户的作品 的容器添加自定义的 class，避免其频繁改版而失效 */
+
+// 在新版首页里，把 精选新作 的宽度设置为 100%。因为它原本的样式只占页面中间的一部分
+.homeFriendsNewWorks > div:nth-child(2) {
+  --carousel-width: unset !important;
+}
+
+.homeFriendsNewWorks ul > div,
+.homeFriendsNewWorks ul > li {
   display: flex !important;
   width: auto;
   max-width: 540px;
@@ -216,14 +223,42 @@ div[width='104'] .eCFXg {
   flex-shrink: 0;
 }
 
-.homeFriendsNewWorks ul > div > div {
+.homeFriendsNewWorks ul > div > div,
+.homeFriendsNewWorks ul > li > div {
   display: flex !important;
   flex-direction: column !important;
   width: auto !important;
 }
 
-.homeFriendsNewWorks ul > div > div > div {
+.homeFriendsNewWorks ul > div > div > div,
+.homeFriendsNewWorks ul > li > div > div {
   display: flex !important;
+  flex-direction: column !important;
+}
+
+// 新版首页的推荐作品
+.homeRecommendedWorks ul > li {
+  display: flex !important;
+  max-width: 540px;
+  max-height: 600px;
+  flex-shrink: 0;
+  flex-grow: 1;
+}
+
+.homeRecommendedWorks ul > li > div {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+}
+
+// 增加小说的宽度
+.homeRecommendedWorks ul > li.novelLI {
+  width: 100% !important;
+}
+
+// 在推荐作品里，小说和图片的区别不明显。我把小说的背景颜色设置为浅棕色，这样就能一眼看出来
+.homeRecommendedWorks ul > li.novelLI > div > div > div:nth-child(1) {
+  background-color: #d1bfa2;
 }
 
 /* 推荐作品 li */

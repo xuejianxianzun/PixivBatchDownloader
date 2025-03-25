@@ -1542,7 +1542,10 @@
   color: #0ea8ef;
 }
 .xz_msg_box .content {
-  padding: 20px 10px;
+  padding: 0;
+  margin: 20px 0;
+  max-height: 60vh;
+  overflow: auto;
   font-size: 14px;
   line-height: 1.7;
   color: #555;
