@@ -7829,16 +7829,14 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.3.2';
+        this.flag = '17.3.3';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_支持在Pixiv的新版主页里使用')}</span>
       `;
             // <strong>
             // <span>✨${lang.transl('_新增设置项')}:</span>
@@ -26232,6 +26230,14 @@ P.S. Работы заблокированных пользователей не
         '「ユーザーブロックリスト」のユーザーから作品を削除する',
         '"사용자 차단 목록"에 있는 사용자의 작품을 제거합니다.',
         'Удалить работы пользователей из «Черного списка пользователей»',
+    ],
+    _支持在Pixiv的新版主页里使用: [
+        '支持在 Pixiv 的新版主页里使用。',
+        '支援在 Pixiv 的新版主頁裡使用。',
+        'Supported in the new homepage of Pixiv.',
+        'Pixivの新ホームページに対応しました。',
+        'Pixiv의 새로운 홈페이지에서 지원됩니다.',
+        'Поддерживается на новой домашней странице Pixiv.',
     ],
 };
 
