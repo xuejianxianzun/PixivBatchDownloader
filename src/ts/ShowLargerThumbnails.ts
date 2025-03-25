@@ -74,7 +74,7 @@ class ShowLargerThumbnails {
     el && el.remove()
   }
 
-  // 在首页查找“关注用户・好P友的作品”列表容器，为其添加自定义的 className
+  // 在首页一些特定容器，为其添加自定义的 className
   private findFriendsWrapEl() {
     if (this.findFriendsWrap || pageType.type !== pageType.list.Home) {
       return
@@ -82,9 +82,26 @@ class ShowLargerThumbnails {
 
     const sectionList = document.querySelectorAll('section')
     if (sectionList && sectionList[1]) {
+      // 查找 精选新作 和 已关注用户的作品 的 section 父元素
       if (sectionList[1].querySelector('ul div')) {
         sectionList[1].classList.add('homeFriendsNewWorks')
         this.findFriendsWrap = true
+      }
+    }
+
+    // 在新版首页里，额外查找 推荐作品
+    if (['/', '/en/'].includes(window.location.pathname)) {
+      const allLi = sectionList[2].querySelectorAll('ul li')
+      if (allLi.length > 1) {
+        sectionList[2].classList.add('homeRecommendedWorks')
+
+        // 并且需要查找里面的小说作品，然后找到其 li 元素。
+        // 这样可以给小说的 li 添加 width:100%，否则小说的宽度就是原本的样子，和大图片的视觉效果不一致
+        allLi.forEach((li) => {
+          if (li.querySelector('a[href^="/novel"]')) {
+            li.classList.add('novelLI')
+          }
+        })
       }
     }
   }

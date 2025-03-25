@@ -21,6 +21,7 @@ class NovelThumbnail extends WorkThumbnail {
         'section ul>li',
         'div._ranking-item',
         'div[size="496"]',
+        'div[data-ga4-entity-id^="novel"]>div:nth-child(2)',
         'li',
       ]
     }
@@ -71,6 +72,13 @@ class NovelThumbnail extends WorkThumbnail {
         if (
           selector === 'div.gtm-novel-work-recommend-link' &&
           pageType.type !== pageType.list.Novel
+        ) {
+          continue
+        }
+
+        if (
+          selector === 'div[data-ga4-entity-id^="novel"]>div:nth-child(2)' &&
+          pageType.type !== pageType.list.Home
         ) {
           continue
         }

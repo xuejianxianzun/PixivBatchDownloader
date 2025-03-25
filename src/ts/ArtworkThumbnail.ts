@@ -28,7 +28,15 @@ class ArtworkThumbnail extends WorkThumbnail {
         '._work.item',
         'div[type="illust"]',
         'li>div>div:first-child',
+        'li>div>div>div:first-child',
+        'div[data-ga4-entity-id^="illust"]>div:nth-child(2)',
+        'div[data-ga4-entity-id^="manga"]>div:nth-child(2)',
       ]
+      // div[data-ga4-entity-id^="illust"]>div:nth-child(2) 匹配新版首页的插画作品区域
+      // 即显示在页面左半边的作品缩略图。它们的元素里含有此类特征：
+      // data-ga4-entity-id="illust/128387071"
+      // 这里还会显示小说，但小说的含有 novel 关键词，可以区别开来，例如：
+      // data-ga4-entity-id="novel/18205969"
     }
 
     this.findThumbnail(document.body)
@@ -46,11 +54,12 @@ class ArtworkThumbnail extends WorkThumbnail {
     // 如果在查找到某个选择器之后，不再查找剩余的选择器，就可能会遗漏一部分缩略图。
     // 但是，这有可能会导致事件的重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
     for (const selector of this.selectors) {
-      // div[size="184"] 只在 发现 和 发现-推荐用户 页面里使用
+      // div[size="184"] 只在 发现 和 发现-推荐用户 和 新版首页 里使用
       if (
         selector === 'div[size="184"]' &&
         pageType.type !== pageType.list.Discover &&
-        pageType.type !== pageType.list.DiscoverUsers
+        pageType.type !== pageType.list.DiscoverUsers &&
+        pageType.type !== pageType.list.Home
       ) {
         continue
       }
@@ -80,6 +89,16 @@ class ArtworkThumbnail extends WorkThumbnail {
         selector === 'li>div>div:first-child' &&
         pageType.type !== pageType.list.Request &&
         pageType.type !== pageType.list.NewArtwork
+      ) {
+        continue
+      }
+
+      // 这些选择器只在新版首页使用
+      if (
+        (selector === 'li>div>div>div:first-child' ||
+          selector === 'div[data-ga4-entity-id^="illust"]>div:nth-child(2)' ||
+          selector === 'div[data-ga4-entity-id^="manga"]>div:nth-child(2)') &&
+        pageType.type !== pageType.list.Home
       ) {
         continue
       }
