@@ -5590,6 +5590,7 @@ class PreviewWork {
             if (body.pageCount > 1) {
                 text.push(`${this.index + 1}/${body.pageCount}`);
             }
+            // 显示收藏数量
             text.push(`${body.bookmarkCount.toString()} <svg viewBox="0 0 12 12" width="12" height="12"><path fill="currentColor" d="
       M9,0.75 C10.6568542,0.75 12,2.09314575 12,3.75 C12,6.68851315 10.0811423,9.22726429 6.24342696,11.3662534
       L6.24342863,11.3662564 C6.09210392,11.4505987 5.90790324,11.4505988 5.75657851,11.3662565
@@ -8744,13 +8745,21 @@ class Tools {
         return '';
     }
     static getLoggedUserID() {
+        // 移动端
         if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
             const match = document.head.innerHTML.match(/'user_id', (\d*)/);
             if (match && match.length > 1) {
                 return match[1];
             }
         }
-        // 在新版页面里，从 head 里的 script 里匹配用户 id
+        // 在新版首页里，从 script 里匹配用户 id
+        if (window.location.pathname === '/' || window.location.pathname === '/en/') {
+            const match = document.head.innerHTML.match(/user_id:'(\d*)'/);
+            if (match && match.length > 1) {
+                return match[1];
+            }
+        }
+        // 在新版其他页面里，从 head 里的 script 里匹配用户 id
         const match = document.head.innerHTML.match(/'user_id', "(\d*)"/);
         if (match && match.length > 1) {
             return match[1];
@@ -25973,7 +25982,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
         `<span class="blue">Alt</span> + <span class="blue">P</span> 关闭/启用预览作品功能<br>
     当你查看预览图时，可以使用如下快捷键：<br>
     <span class="blue">B</span>(ookmark) 收藏预览的作品<br>
-    <span class="blue">C</span>(urrent) 下载当前预览的图片（如果这个作品里有多张图片，也只会下载当前这一张）<br>
+    <span class="blue">C</span>(urrent) 下载当前预览的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
     <span class="blue">D</span>(ownload) 下载当前预览的作品（如果这个作品里有多张图片，默认会全部下载）<br>
     <span class="blue">Esc</span> 关闭预览图<br>
     <span class="blue">← ↑</span> 上一张图片<br>
