@@ -5171,7 +5171,9 @@ class PreviewWork {
             const ugoira = el.querySelector('circle');
             const show = ugoira ? _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.previewUgoira : _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.PreviewWork;
             show && this.readyShow();
-            el.addEventListener('mousewheel', this.onWheelScroll);
+            el.addEventListener('mousewheel', this.onWheelScroll, {
+                passive: false,
+            });
         });
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__.artworkThumbnail.onLeave((el) => {
             // 当鼠标离开作品缩略图时，有可能是因为显示了作品详细信息的面板。此时让预览图保持显示
@@ -5317,6 +5319,8 @@ class PreviewWork {
         });
         this.wrap.addEventListener('mousewheel', (ev) => {
             this.overThumb && this.onWheelScroll(ev);
+        }, {
+            passive: false,
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.wheelScrollSwitchPreviewImage, (ev) => {
             const mouseEvent = ev.detail.data;
@@ -5822,6 +5826,8 @@ class PreviewWorkDetailInfo {
                 ev.preventDefault();
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('wheelScrollSwitchPreviewImage', ev);
             }
+        }, {
+            passive: false,
         });
         _Theme__WEBPACK_IMPORTED_MODULE_1__.theme.register(wrap);
         document.body.append(wrap);
@@ -7565,6 +7571,8 @@ class ShowOriginSizeImage {
             // 向上滚 deltaY 是负数（-125），向下滚是正数（125）
             const zoomAdd = ev.deltaY < 0;
             this.zoomWrap(ev, zoomAdd);
+        }, {
+            passive: false,
         });
         this.wrap.addEventListener('mousemove', (ev) => {
             if (this.moveX === 0) {
@@ -8753,7 +8761,8 @@ class Tools {
             }
         }
         // 在新版首页里，从 script 里匹配用户 id
-        if (window.location.pathname === '/' || window.location.pathname === '/en/') {
+        if (window.location.pathname === '/' ||
+            window.location.pathname === '/en/') {
             const match = document.head.innerHTML.match(/user_id:'(\d*)'/);
             if (match && match.length > 1) {
                 return match[1];

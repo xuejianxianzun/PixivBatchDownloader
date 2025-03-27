@@ -169,12 +169,18 @@ class PreviewWorkDetailInfo {
       this.remove(wrap)
     })
 
-    wrap.addEventListener('mousewheel', (ev) => {
-      if (this.show) {
-        ev.preventDefault()
-        EVT.fire('wheelScrollSwitchPreviewImage', ev)
+    wrap.addEventListener(
+      'mousewheel',
+      (ev) => {
+        if (this.show) {
+          ev.preventDefault()
+          EVT.fire('wheelScrollSwitchPreviewImage', ev)
+        }
+      },
+      {
+        passive: false,
       }
-    })
+    )
 
     theme.register(wrap)
 

@@ -24,6 +24,22 @@ TODO:日语文本需要加粗显示关键字，但是我不懂日语，所以现
 
 PS：这个爱心图标是个 svg 图标。我试过用 emoji 的心 ♥️，但是 emoji 不能更改颜色，所以就改成 svg 了，可以显示为和文字相同的白色。
 
+### 为一些滚动事件设置 passive 参数
+
+例如：
+
+```js
+el.addEventListener('mousewheel', this.onWheelScroll, {
+  passive: false,
+})
+```
+
+以前没有设置 passive 参数，导致触发这些事件时，浏览器会在控制台显示警告：
+
+![](./notes/images/2025-03-28 0327.png)
+
+现在设置了 `passive: false`，明确下载器将会调用 `event.preventDefault()` 参数，这样浏览器就不会显示这个警告了。
+
 ## 17.3.3 2025/03/26
 
 ### ✨适配了新版首页

@@ -156,7 +156,9 @@ class PreviewWork {
       const show = ugoira ? settings.previewUgoira : settings.PreviewWork
       show && this.readyShow()
 
-      el.addEventListener('mousewheel', this.onWheelScroll)
+      el.addEventListener('mousewheel', this.onWheelScroll, {
+        passive: false,
+      })
     })
 
     artworkThumbnail.onLeave((el: HTMLElement) => {
@@ -330,9 +332,15 @@ class PreviewWork {
       }
     })
 
-    this.wrap.addEventListener('mousewheel', (ev) => {
-      this.overThumb && this.onWheelScroll(ev)
-    })
+    this.wrap.addEventListener(
+      'mousewheel',
+      (ev) => {
+        this.overThumb && this.onWheelScroll(ev)
+      },
+      {
+        passive: false,
+      }
+    )
 
     window.addEventListener(
       EVT.list.wheelScrollSwitchPreviewImage,

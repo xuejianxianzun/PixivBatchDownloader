@@ -12,10 +12,10 @@ type artworkDataTagsItem = {
   userId: string
   romaji: string
   translation?:
-  | {
-    en: string
-  }
-  | undefined
+    | {
+        en: string
+      }
+    | undefined
   userName: string
 }
 
@@ -242,7 +242,10 @@ class Tools {
     }
 
     // 在新版首页里，从 script 里匹配用户 id
-    if (window.location.pathname === '/' || window.location.pathname === '/en/') {
+    if (
+      window.location.pathname === '/' ||
+      window.location.pathname === '/en/'
+    ) {
       const match = document.head.innerHTML.match(/user_id:'(\d*)'/)
       if (match && match.length > 1) {
         return match[1]
@@ -294,7 +297,7 @@ class Tools {
     if (document.body) {
       document.body.insertAdjacentElement('afterbegin', el)
     } else {
-      ; (
+      ;(
         document.querySelector('.newindex-inner')! ||
         document.querySelector('.layout-body')!
       ).insertAdjacentElement('beforebegin', el)
@@ -752,11 +755,11 @@ class Tools {
         })
         if (target === 'ImageBitmap') {
           const map = await createImageBitmap(blob)
-            ; (result as ImageBitmap[]).push(map)
+          ;(result as ImageBitmap[]).push(map)
         } else if (target === 'img') {
           const url = URL.createObjectURL(blob)
           const img = await Utils.loadImg(url)
-            ; (result as HTMLImageElement[]).push(img)
+          ;(result as HTMLImageElement[]).push(img)
         }
         ++i
       }
