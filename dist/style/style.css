@@ -474,7 +474,6 @@
   padding: 20px 0px;
   border-radius: 15px;
   overflow: hidden;
-  font-family: win-bug-omega, system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
 }
 .centerWrap hr {
   border: none;
@@ -1332,6 +1331,7 @@
   }
 }
 .outputWrap {
+  font-family: win-bug-omega, system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
   padding: 20px 30px;
   width: 520px;
   background: #fff;
@@ -1467,6 +1467,7 @@
   border-radius: 8px;
 }
 .logWrap {
+  font-family: win-bug-omega, system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
   position: relative;
   z-index: 1;
   width: 100%;

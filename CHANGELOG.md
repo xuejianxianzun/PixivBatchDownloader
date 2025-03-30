@@ -6,7 +6,19 @@ TODO:日语文本需要加粗显示关键字，但是我不懂日语，所以现
 
 - 自动合并系列小说
 
-## next
+## 17.3.4 2025/03/30
+
+### 设置了下载器的字体，与 Pixiv 保持一致
+
+最近浏览器的默认字体变成了 Noto Sans SC（思源黑体），之前是微软雅黑（我猜测这个变化可能和 Windows 11 最近的更新有关，在某些情况下的默认字体跌落到思源黑体）。
+
+下载器的字体也变成了 Noto Sans SC，但是这与 Pixiv 不符，因为 Pixiv 设置的字体在 Windows 11 上渲染出来是微软雅黑。
+
+```
+font-family: win-bug-omega, system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+```
+
+所以我对下载器设置了相同的字体，使其维持原样（微软雅黑）。
 
 ### 🐛修复了在新版首页里，无法高亮关注的用户的 bug
 
