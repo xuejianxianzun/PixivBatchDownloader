@@ -3,7 +3,9 @@ import { log } from './Log'
 import { toast } from './Toast'
 import { states } from './store/States'
 import { bookmark, WorkBookmarkData } from './Bookmark'
+import { msgBox } from './MsgBox'
 
+// 移除本页面中所有作品的标签
 class RemoveWorksTagsInBookmarks {
   public async start(list: WorkBookmarkData[]) {
     if (list.length === 0) {
@@ -20,7 +22,7 @@ class RemoveWorksTagsInBookmarks {
     let number = 0
     for (const item of list) {
       try {
-        await bookmark.add(
+        const status = await bookmark.add(
           item.workID.toString(),
           item.type,
           [],
@@ -28,6 +30,15 @@ class RemoveWorksTagsInBookmarks {
           item.private,
           true
         )
+
+        if (status === 403) {
+          msgBox.error(
+            `Add bookmark: ${item.workID}, Error: 403 Forbidden, ${lang.transl(
+              '_你的账号已经被Pixiv限制'
+            )}`
+          )
+          break
+        }
       } catch (error) {
         // 处理自己收藏的作品时可能遇到错误。最常见的错误就是作品被删除了，获取作品数据时会产生 404 错误
         // 但是也可能出现其他错误，比如因为请求太多而出现 429 错误。因为 429 错误需要等待几分钟后才能重试，这里偷懒不再重试

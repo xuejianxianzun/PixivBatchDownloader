@@ -1,3 +1,5 @@
+@import './var.less';
+
 @contentOffsetWidth: 700px;
 @sidePadding: 25px;
 
@@ -72,6 +74,18 @@
     background: none;
     padding: 1px 6px;
     cursor: pointer;
+  }
+
+  .grayButton {
+    background: #eee;
+    border-radius: 3px;
+    padding: 0px 6px;
+    margin-right: 8px;
+
+    &:hover {
+      background: @beautifyBlue;
+      color: #fff !important;
+    }
   }
 
   .centerWrap_head {
@@ -196,6 +210,12 @@
       fill: @themeBlue !important;
     }
 
+    .grayButton:hover,
+    .grayButton:focus {
+      background: @beautifyBlue;
+      color: #fff !important;
+    }
+
     .settingForm {
       position: relative;
       // 表单区域设置最大宽度，使其与右侧滚动条保持距离，否则里面的内容会紧贴着滚动条，很难看
@@ -240,7 +260,7 @@
       }
 
       .centerPanelTextArea {
-        font-family: 'aria';
+        font-family: sans-serif;
         color: @beautifyBlue;
         font-size: 14px;
         line-height: 1.5;
@@ -248,6 +268,10 @@
         padding: 5px 5px 1px;
         width: 100%;
         min-height: 20px;
+        // 在排行榜页面，Pixiv 设置了 textarea 的高度为 20 px，
+        // 需要解除限制，否则下载器的输入区域无法撑开高度
+        height: auto;
+        max-height: 200px;
         resize: none;
         border: none;
         border-bottom: 1px solid #ccc;
@@ -779,7 +803,7 @@
   left: -45vw;
   top: 10vw;
   font-size: 16px;
-  font-family: sans-serif;
+  font-family: @MobileFontFamily;
 
   .centerWrap_head {
     .centerWrap_title {
@@ -859,6 +883,16 @@
     .updateActiveClass {
       color: @beautifyBlue !important;
       fill: @beautifyBlue !important;
+    }
+
+    .grayButton {
+      background-color: #999;
+    }
+
+    .grayButton:hover,
+    .grayButton:focus {
+      background: @beautifyBlue;
+      color: #fff !important;
     }
 
     .saveNamingRuleWrap {
@@ -949,6 +983,16 @@
     .updateActiveClass {
       color: #fff !important;
       fill: #fff !important;
+    }
+
+    .grayButton {
+      background-color: #666;
+    }
+
+    .grayButton:hover,
+    .grayButton:focus {
+      background: @beautifyBlue;
+      color: #fff !important;
     }
 
     .centerWrap_con {
@@ -1077,11 +1121,13 @@
     margin-right: 8px;
     padding: 12px 8px;
   }
+
   .centerWrap .centerWrap_con .settingForm .setinput_style1.fileNameRule {
     width: 290px !important;
     min-width: 290px !important;
   }
 }
+
 @media (max-width: 388px) {
   .centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns button {
     width: 134px;

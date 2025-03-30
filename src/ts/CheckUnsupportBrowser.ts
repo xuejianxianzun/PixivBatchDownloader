@@ -1,6 +1,8 @@
+import { Config } from './Config'
 import { EVT } from './EVT'
 import { lang } from './Lang'
 import { log } from './Log'
+import { msgBox } from './MsgBox'
 
 interface Rules {
   [key: string]: () => boolean
@@ -28,6 +30,25 @@ class CheckUnsupportBrowser {
     '2345': function () {
       return navigator.userAgent.includes('2345Explorer')
     },
+    FireFox: function () {
+      // 本扩展不支持 Firefox，在其上使用会遇到一些问题
+      if (navigator.userAgent.includes('Firefox')) {
+        msgBox.warning(lang.transl('_检测到在Firefox浏览器上使用'), {
+          title: Config.appName,
+        })
+        return true
+      }
+      return false
+    },
+    Yandex: function () {
+      if (navigator.userAgent.includes('YaBrowser')) {
+        msgBox.warning(lang.transl('_yandex浏览器的警告'), {
+          title: Config.appName,
+        })
+        return true
+      }
+      return false
+    },
     All: function () {
       // 如果这个浏览器的 Chrome 内核的版本号较低，也会显示提示
       // 为什么设置为 88：
@@ -53,10 +74,6 @@ class CheckUnsupportBrowser {
         log.error(msg)
         return
       }
-    }
-
-    if (navigator.userAgent.includes('YaBrowser')) {
-      log.warning(lang.transl('_yandex浏览器的警告'))
     }
   }
 }

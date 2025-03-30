@@ -10,6 +10,7 @@ import { workToolBar } from '../WorkToolBar'
 import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
 import { showHelp } from '../ShowHelp'
 import { Config } from '../Config'
+import { toast } from '../Toast'
 
 type WorkType = 'illusts' | 'novels'
 
@@ -187,13 +188,18 @@ class QuickBookmark {
     // 然后再由下载器发送收藏请求
     // 因为下载器的收藏按钮具有添加标签、非公开收藏等功能，所以要在后面执行，覆盖掉 Pixiv 原生收藏的效果
     window.setTimeout(async () => {
-      const res = await bookmark.add(
+      const status = await bookmark.add(
         id,
         type,
         Tools.extractTags(this.workData!)
       )
-      if (res !== 429) {
-        // 收藏成功之后
+
+      if (status === 403) {
+        toast.error(`403 Forbidden, ${lang.transl('_你的账号已经被Pixiv限制')}`)
+        return
+      }
+
+      if (status !== 429) {
         this.isBookmarked = true
         this.redQuickBookmarkBtn()
       }

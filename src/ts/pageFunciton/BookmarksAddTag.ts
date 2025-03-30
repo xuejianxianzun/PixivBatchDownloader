@@ -9,6 +9,7 @@ import {
 import { toast } from '../Toast'
 import { bookmark } from '../Bookmark'
 import { lang } from '../Lang'
+import { msgBox } from '../MsgBox'
 
 // 给收藏页面里的未分类作品批量添加 tag
 class BookmarksAddTag {
@@ -49,7 +50,7 @@ class BookmarksAddTag {
     const offset = loop * this.once // 一次请求只能获取一部分，所以可能有多次请求，要计算偏移量
     let errorFlag = false
 
-    // 发起请求
+    // 获取收藏的作品的数据
     const [showData, hideData]: BookmarkData[] = await Promise.all([
       API.getBookmarkData(
         Tools.getCurrentPageUserID(),
@@ -66,6 +67,7 @@ class BookmarksAddTag {
         true
       ),
     ]).catch((error) => {
+      // 如果错误码为 403, 可能是在其他用户的页面里
       if (error.status && error.status === 403) {
         this.btn!.textContent = `× Permission denied`
       }
@@ -120,7 +122,19 @@ class BookmarksAddTag {
   private async addTag(): Promise<void> {
     const item = this.addTagList[this.addIndex]
 
-    await bookmark.add(item.id, this.type, item.tags, true, item.restrict, true)
+    const status = await bookmark.add(
+      item.id,
+      this.type,
+      item.tags,
+      true,
+      item.restrict,
+      true
+    )
+    if (status === 403) {
+      this.btn!.textContent = `× Permission denied`
+      msgBox.error(lang.transl('_你的账号已经被Pixiv限制'))
+      return
+    }
 
     if (this.addIndex < this.addTagList.length - 1) {
       this.addIndex++

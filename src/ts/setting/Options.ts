@@ -8,12 +8,16 @@ interface WantPageArg {
   text: string
   tip: string
   rangTip: string
+  min: number
+  max: number
 }
 
 interface WantPageEls {
   text: HTMLSpanElement
   rangTip: HTMLSpanElement
   input: HTMLInputElement
+  setMin: HTMLButtonElement
+  setMax: HTMLButtonElement
 }
 
 // 控制每个设置的隐藏、显示
@@ -35,6 +39,8 @@ class Options {
         '.setWantPageTip2'
       )! as HTMLSpanElement,
       input: wantPageOption.querySelector('.setWantPage')! as HTMLInputElement,
+      setMin: wantPageOption.querySelector('#setMin')! as HTMLButtonElement,
+      setMax: wantPageOption.querySelector('#setMax')! as HTMLButtonElement,
     }
 
     this.handleShowAdvancedSettings()
@@ -174,7 +180,7 @@ class Options {
     this.setOptionDisplay(no, 'block')
   }
 
-  // 设置 “抓取多少作品/页面” 选项的提示和预设值
+  // 设置“抓取多少作品/页面” 选项的提示和预设值
   public setWantPageTip(arg: WantPageArg) {
     // 当页面里设置的是作品个数，而非页面数量时，隐藏这个按钮，因为它只在设置页面数量时有用
     if (this.hiddenButtonPages.includes(pageType.type)) {
@@ -183,11 +189,25 @@ class Options {
       this.showSetWantPageTipButton.style.display = 'inline-block'
     }
 
+    // 设置这个选项的文字
     lang.updateText(this.wantPageEls.text, arg.text)
     this.wantPageEls.text.dataset.xztip = arg.tip
     this.wantPageEls.text.dataset.tip = lang.transl(arg.tip as any)
 
-    // rangTip 可能需要翻译
+    // 设置最小值和最大值
+    this.wantPageEls.setMin.textContent = arg.min.toString()
+    this.wantPageEls.setMax.textContent = arg.max.toString()
+    this.wantPageEls.setMin.onclick = () => {
+      this.wantPageEls.input.value = arg.min.toString()
+      this.wantPageEls.input.dispatchEvent(new Event('change'))
+    }
+    this.wantPageEls.setMax.onclick = () => {
+      this.wantPageEls.input.value = arg.max.toString()
+      this.wantPageEls.input.dispatchEvent(new Event('change'))
+    }
+
+    // 设置可以输入的值的范围提示
+    // 需要翻译的情况
     if (arg.rangTip.startsWith('_')) {
       lang.updateText(this.wantPageEls.rangTip, arg.rangTip)
     } else {

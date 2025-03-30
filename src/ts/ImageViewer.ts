@@ -406,13 +406,18 @@ class ImageViewer {
       bgColor: Colors.bgBlue,
     })
 
-    const res = await bookmark.add(
+    const status = await bookmark.add(
       this.cfg.workId,
       'illusts',
       Tools.extractTags(this.workData!)
     )
-    if (res === 200) {
+
+    if (status === 200) {
       toast.success(lang.transl('_已收藏'))
+    }
+
+    if (status === 403) {
+      toast.error(`403 Forbidden, ${lang.transl('_你的账号已经被Pixiv限制')}`)
     }
   }
 
