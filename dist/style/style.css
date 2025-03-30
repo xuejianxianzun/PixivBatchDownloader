@@ -528,7 +528,8 @@
   margin-right: 8px;
 }
 .centerWrap .grayButton:hover {
-  background: #d9eef8;
+  background: #29b3f3;
+  color: #fff !important;
 }
 .centerWrap .centerWrap_head {
   padding: 0 25px;
@@ -633,6 +634,11 @@
   color: #0ea8ef !important;
   fill: #0ea8ef !important;
 }
+.centerWrap .centerWrap_con .grayButton:hover,
+.centerWrap .centerWrap_con .grayButton:focus {
+  background: #29b3f3;
+  color: #fff !important;
+}
 .centerWrap .centerWrap_con .settingForm {
   position: relative;
   max-width: 650px;
@@ -680,6 +686,8 @@
   padding: 5px 5px 1px;
   width: 100%;
   min-height: 20px;
+  height: auto;
+  max-height: 200px;
   resize: none;
   border: none;
   border-bottom: 1px solid #ccc;
@@ -1177,6 +1185,14 @@
   color: #29b3f3 !important;
   fill: #29b3f3 !important;
 }
+.theme-dark.centerWrap .grayButton {
+  background-color: #999;
+}
+.theme-dark.centerWrap .grayButton:hover,
+.theme-dark.centerWrap .grayButton:focus {
+  background: #29b3f3;
+  color: #fff !important;
+}
 .theme-dark.centerWrap .saveNamingRuleWrap {
   color: #fff;
 }
@@ -1242,6 +1258,14 @@
 .xzBG.centerWrap .updateActiveClass {
   color: #fff !important;
   fill: #fff !important;
+}
+.xzBG.centerWrap .grayButton {
+  background-color: #666;
+}
+.xzBG.centerWrap .grayButton:hover,
+.xzBG.centerWrap .grayButton:focus {
+  background: #29b3f3;
+  color: #fff !important;
 }
 .xzBG.centerWrap .centerWrap_con .settingForm select {
   background: transparent;

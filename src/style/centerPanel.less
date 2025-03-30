@@ -83,7 +83,8 @@
     margin-right: 8px;
 
     &:hover {
-      background: #d9eef8;
+      background: @beautifyBlue;
+      color: #fff !important;
     }
   }
 
@@ -207,6 +208,12 @@
     .updateActiveClass {
       color: @themeBlue !important;
       fill: @themeBlue !important;
+    }
+
+    .grayButton:hover,
+    .grayButton:focus {
+      background: @beautifyBlue;
+      color: #fff !important;
     }
 
     .settingForm {
@@ -877,6 +884,16 @@
       color: @beautifyBlue !important;
       fill: @beautifyBlue !important;
     }
+    
+    .grayButton{
+      background-color: #999;
+    }
+    
+    .grayButton:hover,
+    .grayButton:focus {
+      background: @beautifyBlue;
+      color: #fff !important;
+    }
 
     .saveNamingRuleWrap {
       color: #fff;
@@ -966,6 +983,16 @@
     .updateActiveClass {
       color: #fff !important;
       fill: #fff !important;
+    }
+
+    .grayButton{
+      background-color: #666;
+    }
+
+    .grayButton:hover,
+    .grayButton:focus {
+      background: @beautifyBlue;
+      color: #fff !important;
     }
 
     .centerWrap_con {
