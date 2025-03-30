@@ -24,6 +24,10 @@ font-family: win-bug-omega, system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu
 
 至于下载器面板上的普通文字，使用微软雅黑是为了在低 PPI 屏幕上看的更清晰易读。
 
+### 🐛修复了在排行榜页面里，下载器的 textarea 不会自动撑开高度的问题
+
+这是因为 Pixiv 在该页面里的样式设置了 textarea 的高度固定为 20 px，导致下载器的 textarea 无法按照 row 的值撑开高度，现在修复。
+
 ### 🐛修复了在新版首页里，无法高亮关注的用户的 bug
 
 这是因为下载器需要先检测用户是否登录了 Pixiv 账号，然后才会高亮关注的用户。

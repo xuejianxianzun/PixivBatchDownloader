@@ -261,6 +261,10 @@
         padding: 5px 5px 1px;
         width: 100%;
         min-height: 20px;
+        // 在排行榜页面，Pixiv 设置了 textarea 的高度为 20 px，
+        // 需要解除限制，否则下载器的输入区域无法撑开高度
+        height: auto;
+        max-height: 200px;
         resize: none;
         border: none;
         border-bottom: 1px solid #ccc;
