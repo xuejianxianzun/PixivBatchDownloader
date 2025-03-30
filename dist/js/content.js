@@ -1192,9 +1192,13 @@ new CenterPanel();
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
+
+
 
 
 
@@ -1215,6 +1219,16 @@ class CheckUnsupportBrowser {
             '2345': function () {
                 return navigator.userAgent.includes('2345Explorer');
             },
+            FireFox: function () {
+                // 本扩展不支持 Firefox，在其上使用会遇到一些问题
+                // if (navigator.userAgent.includes('Firefox')) {
+                _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_检测到在Firefox浏览器上使用'), {
+                    title: _Config__WEBPACK_IMPORTED_MODULE_0__.Config.appName,
+                });
+                return true;
+                // }
+                return false;
+            },
             All: function () {
                 // 如果这个浏览器的 Chrome 内核的版本号较低，也会显示提示
                 // 为什么设置为 88：
@@ -1232,20 +1246,20 @@ class CheckUnsupportBrowser {
                 return false;
             },
         };
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, () => {
             this.check();
         });
     }
     check() {
         for (const func of Object.values(this.rules)) {
             if (func()) {
-                const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_不支持的浏览器');
-                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(msg);
+                const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_不支持的浏览器');
+                _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(msg);
                 return;
             }
         }
         if (navigator.userAgent.includes('YaBrowser')) {
-            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_yandex浏览器的警告'));
+            _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_yandex浏览器的警告'));
         }
     }
 }
@@ -26320,6 +26334,26 @@ P.S. Работы заблокированных пользователей не
         'Pixivの新ホームページに対応しました。',
         'Pixiv의 새로운 홈페이지에서 지원됩니다.',
         'Поддерживается на новой домашней странице Pixiv.',
+    ],
+    _检测到在Firefox浏览器上使用: [
+        `你好！下载器检测到它运行在 Firefox 浏览器上。<br>
+有人在火狐扩展商店（ADD-ONS）发布了这个扩展，但不是我发布的。<br>
+这个下载器不支持 Firefox，可能会遇到一些问题。我不会为其修复问题。`,
+        `你好！下載器檢測到它執行在 Firefox 瀏覽器上。<br>
+有人在火狐擴充套件商店（ADD-ONS）釋出了這個擴充套件，但不是我釋出的。<br>
+這個下載器不支援 Firefox，可能會遇到一些問題。我不會為其修復問題。`,
+        `Hello! The downloader detects that it is running on the Firefox browser.<br>
+Someone published this extension on the Firefox Add-on Store (ADD-ONS), but not me.<br>
+This downloader does not support Firefox and may encounter some problems. I will not fix problems for it.`,
+        `こんにちは！ダウンローダーは、Firefox ブラウザ上で実行されていることを検出しました。 <br>
+誰かがこの拡張機能を Firefox 拡張機能ストア (ADD-ONS) に公開しましたが、公開したのは私ではありません。 <br>
+このダウンローダーは Firefox をサポートしていないため、問題が発生する可能性があります。私はそれを直してあげません。`,
+        `안녕하세요! 다운로더가 Firefox 브라우저에서 실행 중임을 감지했습니다. <br>
+누군가 이 확장 기능을 Firefox 확장 기능 스토어(추가 기능)에 게시했지만 저는 게시하지 않았습니다. <br>
+이 다운로더는 Firefox를 지원하지 않으므로 몇 가지 문제가 발생할 수 있습니다. 제가 해결해드리지 않을 거예요.`,
+        `Привет! Загрузчик обнаружил, что он запущен в браузере Firefox. <br>
+Кто-то опубликовал это расширение в магазине расширений Firefox (ADD-ONS), но не я. <br>
+Этот загрузчик не поддерживает Firefox и может вызывать некоторые проблемы. Я не буду это за тебя исправлять.`,
     ],
 };
 
