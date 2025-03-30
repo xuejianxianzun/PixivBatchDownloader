@@ -98,6 +98,8 @@ class InitSearchArtworkPage extends InitPageBase {
       text: '_抓取多少页面',
       tip: '_从本页开始下载提示',
       rangTip: `1 - ${isPremium ? 5000 : 1000}`,
+      min: 1,
+      max: isPremium ? 5000 : 1000,
     })
   }
 
@@ -880,8 +882,12 @@ class InitSearchArtworkPage extends InitPageBase {
 
     for (const r of store.result) {
       if (r.idNum === data.id) {
-        const res = await bookmark.add(data.id.toString(), 'illusts', data.tags)
-        if (res === 200) {
+        const status = await bookmark.add(
+          data.id.toString(),
+          'illusts',
+          data.tags
+        )
+        if (status === 200) {
           // 同步数据
           r.bookmarked = true
           this.resultMeta.forEach((result) => {
@@ -890,6 +896,12 @@ class InitSearchArtworkPage extends InitPageBase {
             }
           })
           data.el.classList.add(this.bookmarkedClass)
+        }
+
+        if (status === 403) {
+          toast.error(
+            `403 Forbidden, ${lang.transl('_你的账号已经被Pixiv限制')}`
+          )
         }
 
         break

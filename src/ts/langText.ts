@@ -1172,7 +1172,14 @@ And so on. <br>`,
     '작업 진행',
     'прогресс',
   ],
-  _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問', '도움말', 'help'],
+  _常见问题: [
+    '常见问题',
+    '常見問題',
+    'Help',
+    'よくある質問',
+    '도움말',
+    'помощь',
+  ],
   _uuid: [
     `下载器检测到下载后的文件名异常。如果你看到文件名是一串随机的字母和数字，表示有某些扩展程序接管了由下载器建立的下载，导致下载器设置的文件名丢失。<br>
 遇到此问题时，请禁用其他有下载文件的功能的扩展程序。例如：<br>
@@ -4628,8 +4635,8 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     `<span class="blue">Alt</span> + <span class="blue">P</span> 关闭/启用预览作品功能<br>
     当你查看预览图时，可以使用如下快捷键：<br>
     <span class="blue">B</span>(ookmark) 收藏预览的作品<br>
-    <span class="blue">C</span>(urrent) 下载当前预览的图片<br>
-    <span class="blue">D</span>(ownload) 下载当前预览的作品<br>
+    <span class="blue">C</span>(urrent) 下载当前预览的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
+    <span class="blue">D</span>(ownload) 下载当前预览的作品（如果这个作品里有多张图片，默认会全部下载）<br>
     <span class="blue">Esc</span> 关闭预览图<br>
     <span class="blue">← ↑</span> 上一张图片<br>
     <span class="blue">→ ↓</span> 下一张图片<br>
@@ -4890,13 +4897,25 @@ P.S. Работы заблокированных пользователей не
     '"사용자 차단 목록"에 있는 사용자의 작품을 제거합니다.',
     'Удалить работы пользователей из «Черного списка пользователей»',
   ],
-  _支持在Pixiv的新版主页里使用: [
-    '支持在 Pixiv 的新版主页里使用。',
-    '支援在 Pixiv 的新版主頁裡使用。',
-    'Supported in the new homepage of Pixiv.',
-    'Pixivの新ホームページに対応しました。',
-    'Pixiv의 새로운 홈페이지에서 지원됩니다.',
-    'Поддерживается на новой домашней странице Pixiv.',
+  _检测到在Firefox浏览器上使用: [
+    `你好！下载器检测到它运行在 Firefox 浏览器上。<br>
+有人在火狐扩展商店（ADD-ONS）发布了这个扩展，但不是我发布的。<br>
+这个下载器不支持 Firefox，可能会遇到一些问题。我不会为其修复问题。`,
+    `你好！下載器檢測到它執行在 Firefox 瀏覽器上。<br>
+有人在火狐擴充套件商店（ADD-ONS）釋出了這個擴充套件，但不是我釋出的。<br>
+這個下載器不支援 Firefox，可能會遇到一些問題。我不會為其修復問題。`,
+    `Hello! The downloader detects that it is running on the Firefox browser.<br>
+Someone published this extension on the Firefox Add-on Store (ADD-ONS), but not me.<br>
+This downloader does not support Firefox and may encounter some problems. I will not fix problems for it.`,
+    `こんにちは！ダウンローダーは、Firefox ブラウザ上で実行されていることを検出しました。 <br>
+誰かがこの拡張機能を Firefox 拡張機能ストア (ADD-ONS) に公開しましたが、公開したのは私ではありません。 <br>
+このダウンローダーは Firefox をサポートしていないため、問題が発生する可能性があります。私はそれを直してあげません。`,
+    `안녕하세요! 다운로더가 Firefox 브라우저에서 실행 중임을 감지했습니다. <br>
+누군가 이 확장 기능을 Firefox 확장 기능 스토어(추가 기능)에 게시했지만 저는 게시하지 않았습니다. <br>
+이 다운로더는 Firefox를 지원하지 않으므로 몇 가지 문제가 발생할 수 있습니다. 제가 해결해드리지 않을 거예요.`,
+    `Привет! Загрузчик обнаружил, что он запущен в браузере Firefox. <br>
+Кто-то опубликовал это расширение в магазине расширений Firefox (ADD-ONS), но не я. <br>
+Этот загрузчик не поддерживает Firefox и может вызывать некоторые проблемы. Я не буду это за тебя исправлять.`,
   ],
 }
 

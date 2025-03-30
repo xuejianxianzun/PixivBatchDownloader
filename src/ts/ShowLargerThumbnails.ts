@@ -81,7 +81,11 @@ class ShowLargerThumbnails {
     }
 
     const sectionList = document.querySelectorAll('section')
-    if (sectionList && sectionList[1]) {
+    if (sectionList.length === 0) {
+      return
+    }
+
+    if (sectionList[1]) {
       // 查找 精选新作 和 已关注用户的作品 的 section 父元素
       if (sectionList[1].querySelector('ul div')) {
         sectionList[1].classList.add('homeFriendsNewWorks')
@@ -90,7 +94,7 @@ class ShowLargerThumbnails {
     }
 
     // 在新版首页里，额外查找 推荐作品
-    if (['/', '/en/'].includes(window.location.pathname)) {
+    if (sectionList[2] && ['/', '/en/'].includes(window.location.pathname)) {
       const allLi = sectionList[2].querySelectorAll('ul li')
       if (allLi.length > 1) {
         sectionList[2].classList.add('homeRecommendedWorks')

@@ -150,12 +150,18 @@ class ShowOriginSizeImage {
       this.show = false
     })
 
-    this.wrap.addEventListener('mousewheel', (ev) => {
-      ev.preventDefault()
-      // 向上滚 deltaY 是负数（-125），向下滚是正数（125）
-      const zoomAdd = (ev as WheelEvent).deltaY < 0
-      this.zoomWrap(ev as MouseEvent, zoomAdd)
-    })
+    this.wrap.addEventListener(
+      'mousewheel',
+      (ev) => {
+        ev.preventDefault()
+        // 向上滚 deltaY 是负数（-125），向下滚是正数（125）
+        const zoomAdd = (ev as WheelEvent).deltaY < 0
+        this.zoomWrap(ev as MouseEvent, zoomAdd)
+      },
+      {
+        passive: false,
+      }
+    )
 
     this.wrap.addEventListener('mousemove', (ev) => {
       if (this.moveX === 0) {
