@@ -17,6 +17,19 @@
   padding: 20px 0px;
   border-radius: 15px;
   overflow: hidden;
+  // 由于 centerWrap 是添加到 Head 里而非 body 里的，
+  font-family:
+    win-bug-omega,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    Ubuntu,
+    Cantarell,
+    'Noto Sans',
+    'Hiragino Kaku Gothic ProN',
+    Meiryo,
+    sans-serif;
 
   hr {
     border: none;
@@ -72,6 +85,17 @@
     background: none;
     padding: 1px 6px;
     cursor: pointer;
+  }
+
+  .grayButton {
+    background: #eee;
+    border-radius: 3px;
+    padding: 0px 6px;
+    margin-right: 8px;
+
+    &:hover {
+      background: #d9eef8;
+    }
   }
 
   .centerWrap_head {
@@ -1077,11 +1101,13 @@
     margin-right: 8px;
     padding: 12px 8px;
   }
+
   .centerWrap .centerWrap_con .settingForm .setinput_style1.fileNameRule {
     width: 290px !important;
     min-width: 290px !important;
   }
 }
+
 @media (max-width: 388px) {
   .centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns button {
     width: 134px;

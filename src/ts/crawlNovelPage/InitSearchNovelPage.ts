@@ -109,6 +109,8 @@ class InitSearchNovelPage extends InitPageBase {
       text: '_抓取多少页面',
       tip: '_从本页开始下载提示',
       rangTip: `1 - ${isPremium ? 5000 : 1000}`,
+      min: 1,
+      max: isPremium ? 5000 : 1000,
     })
   }
 

@@ -474,6 +474,7 @@
   padding: 20px 0px;
   border-radius: 15px;
   overflow: hidden;
+  font-family: win-bug-omega, system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
 }
 .centerWrap hr {
   border: none;
@@ -520,6 +521,15 @@
   background: none;
   padding: 1px 6px;
   cursor: pointer;
+}
+.centerWrap .grayButton {
+  background: #eee;
+  border-radius: 3px;
+  padding: 0px 6px;
+  margin-right: 8px;
+}
+.centerWrap .grayButton:hover {
+  background: #d9eef8;
 }
 .centerWrap .centerWrap_head {
   padding: 0 25px;

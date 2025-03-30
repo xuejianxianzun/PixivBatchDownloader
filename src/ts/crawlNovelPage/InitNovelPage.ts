@@ -50,6 +50,8 @@ class InitNovelPage extends InitPageBase {
       text: '_抓取多少作品',
       tip: '_从本页开始下载提示',
       rangTip: '_数字提示1',
+      min: 1,
+      max: -1,
     })
   }
 

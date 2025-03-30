@@ -6,7 +6,10 @@ export const formHtml = `<form class="settingForm">
     <p class="option" data-no="1">
     <span class="settingNameStyle1"><span class="setWantPageTip1 has_tip" data-xztip="_抓取多少页面" data-xztext="_抓取多少页面"></span><span class="gray1"> ? </span></span>
     <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
-    value = '-1'>&nbsp;
+    value = '-1'>
+    &nbsp;
+    <button class="textButton grayButton" type="button" id="setMin"></button>
+    <button class="textButton grayButton" type="button" id="setMax"></button>
     <span class="setWantPageTip2 gray1" data-xztext="_数字提示1"></span>
     <button class="gray1 showSetWantPageTip textButton" type="button" data-xztext="_提示"></button>
     </p>

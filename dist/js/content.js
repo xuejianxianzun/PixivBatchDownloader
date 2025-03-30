@@ -1000,7 +1000,7 @@ class CenterPanel {
 
       </div>
       `;
-        document.body.insertAdjacentHTML('beforebegin', centerPanelHTML);
+        document.body.insertAdjacentHTML('afterbegin', centerPanelHTML);
         this.centerPanel = document.querySelector('.centerWrap');
         this.updateLink = this.centerPanel.querySelector('.update');
         this.allTabTitle = this.centerPanel.querySelectorAll('.tabsTitle .title');
@@ -7334,7 +7334,10 @@ class ShowLargerThumbnails {
             return;
         }
         const sectionList = document.querySelectorAll('section');
-        if (sectionList && sectionList[1]) {
+        if (sectionList.length === 0) {
+            return;
+        }
+        if (sectionList[1]) {
             // 查找 精选新作 和 已关注用户的作品 的 section 父元素
             if (sectionList[1].querySelector('ul div')) {
                 sectionList[1].classList.add('homeFriendsNewWorks');
@@ -7342,7 +7345,7 @@ class ShowLargerThumbnails {
             }
         }
         // 在新版首页里，额外查找 推荐作品
-        if (['/', '/en/'].includes(window.location.pathname)) {
+        if (sectionList[2] && ['/', '/en/'].includes(window.location.pathname)) {
             const allLi = sectionList[2].querySelectorAll('ul li');
             if (allLi.length > 1) {
                 sectionList[2].classList.add('homeRecommendedWorks');
@@ -9906,6 +9909,8 @@ class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.I
             text: '_抓取多少作品',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
+            min: 1,
+            max: -1,
         });
     }
     destroy() {
@@ -10056,6 +10061,8 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: `1 - ${this.maxCount}`,
+            min: 1,
+            max: this.maxCount,
         });
     }
     getWantPage() {
@@ -10178,6 +10185,8 @@ class InitBookmarkDetailPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
             text: '_抓取多少作品',
             tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
+            min: 1,
+            max: this.maxCount,
         });
     }
     getWantPage() {
@@ -10330,6 +10339,8 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             text: '_抓取多少作品',
             tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
+            min: 1,
+            max: this.maxCount,
         });
     }
     getWantPage() {
@@ -10635,6 +10646,8 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
             text: '_抓取多少作品',
             tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
+            min: 1,
+            max: this.maxCount,
         });
     }
     resetOption() {
@@ -11093,6 +11106,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: `1 - ${isPremium ? 5000 : 1000}`,
+            min: 1,
+            max: isPremium ? 5000 : 1000,
         });
     }
     addCrawlBtns() {
@@ -11841,6 +11856,8 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: `1 - ${this.maxCount}`,
+            min: 1,
+            max: this.maxCount,
         });
     }
     getWantPage() {
@@ -12081,6 +12098,8 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
             text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
+            min: 1,
+            max: -1,
         });
     }
     getWantPage() {
@@ -12633,6 +12652,8 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
+            min: 1,
+            max: -1,
         });
     }
     getWantPage() {
@@ -13423,6 +13444,8 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
             text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
+            min: 1,
+            max: -1,
         });
     }
     getWantPage() {
@@ -13823,6 +13846,8 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
             text: '_抓取多少作品',
             tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
+            min: 1,
+            max: this.maxCount,
         });
     }
     getWantPage() {
@@ -13978,6 +14003,8 @@ class InitNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Ini
             text: '_抓取多少作品',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
+            min: 1,
+            max: -1,
         });
     }
     destroy() {
@@ -14168,6 +14195,8 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
             text: '_抓取多少作品',
             tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
+            min: 1,
+            max: this.maxCount,
         });
     }
     getWantPage() {
@@ -14401,6 +14430,8 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: `1 - ${isPremium ? 5000 : 1000}`,
+            min: 1,
+            max: isPremium ? 5000 : 1000,
         });
     }
     initAny() {
@@ -14736,6 +14767,8 @@ class InitPageBase {
             text: '_抓取多少页面',
             tip: '_从本页开始下载提示',
             rangTip: '_数字提示1',
+            min: 1,
+            max: -1,
         });
     }
     // 添加抓取区域的默认按钮，可以被子类覆写
@@ -28431,7 +28464,10 @@ const formHtml = `<form class="settingForm">
     <p class="option" data-no="1">
     <span class="settingNameStyle1"><span class="setWantPageTip1 has_tip" data-xztip="_抓取多少页面" data-xztext="_抓取多少页面"></span><span class="gray1"> ? </span></span>
     <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
-    value = '-1'>&nbsp;
+    value = '-1'>
+    &nbsp;
+    <button class="textButton grayButton" type="button" id="setMin"></button>
+    <button class="textButton grayButton" type="button" id="setMax"></button>
     <span class="setWantPageTip2 gray1" data-xztext="_数字提示1"></span>
     <button class="gray1 showSetWantPageTip textButton" type="button" data-xztext="_提示"></button>
     </p>
@@ -30375,6 +30411,8 @@ class Options {
             text: wantPageOption.querySelector('.setWantPageTip1'),
             rangTip: wantPageOption.querySelector('.setWantPageTip2'),
             input: wantPageOption.querySelector('.setWantPage'),
+            setMin: wantPageOption.querySelector('#setMin'),
+            setMax: wantPageOption.querySelector('#setMax'),
         };
         this.handleShowAdvancedSettings();
         this.bindEvents();
@@ -30473,7 +30511,7 @@ class Options {
     showOption(no) {
         this.setOptionDisplay(no, 'block');
     }
-    // 设置 “抓取多少作品/页面” 选项的提示和预设值
+    // 设置“抓取多少作品/页面” 选项的提示和预设值
     setWantPageTip(arg) {
         // 当页面里设置的是作品个数，而非页面数量时，隐藏这个按钮，因为它只在设置页面数量时有用
         if (this.hiddenButtonPages.includes(_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type)) {
@@ -30482,10 +30520,23 @@ class Options {
         else {
             this.showSetWantPageTipButton.style.display = 'inline-block';
         }
+        // 设置这个选项的文字
         _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.wantPageEls.text, arg.text);
         this.wantPageEls.text.dataset.xztip = arg.tip;
         this.wantPageEls.text.dataset.tip = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl(arg.tip);
-        // rangTip 可能需要翻译
+        // 设置最小值和最大值
+        this.wantPageEls.setMin.textContent = arg.min.toString();
+        this.wantPageEls.setMax.textContent = arg.max.toString();
+        this.wantPageEls.setMin.onclick = () => {
+            this.wantPageEls.input.value = arg.min.toString();
+            this.wantPageEls.input.dispatchEvent(new Event('change'));
+        };
+        this.wantPageEls.setMax.onclick = () => {
+            this.wantPageEls.input.value = arg.max.toString();
+            this.wantPageEls.input.dispatchEvent(new Event('change'));
+        };
+        // 设置可以输入的值的范围提示
+        // 需要翻译的情况
         if (arg.rangTip.startsWith('_')) {
             _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.wantPageEls.rangTip, arg.rangTip);
         }
