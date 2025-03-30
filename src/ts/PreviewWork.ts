@@ -437,14 +437,19 @@ class PreviewWork {
       bgColor: Colors.bgBlue,
     })
 
-    const res = await bookmark.add(
+    const status = await bookmark.add(
       this.workData.body.illustId,
       'illusts',
       Tools.extractTags(this.workData!)
     )
 
-    if (res === 200) {
+    if (status === 200) {
       toast.success(lang.transl('_已收藏'))
+    }
+
+    if (status === 403) {
+      toast.error(`403 Forbidden, ${lang.transl('_你的账号已经被Pixiv限制')}`)
+      return
     }
 
     // 将作品缩略图上的收藏按钮变成红色

@@ -593,7 +593,7 @@ One possible reason: You have been banned from Pixiv.`)
         const blob = Utils.json2Blob(IDList)
         const url = URL.createObjectURL(blob)
         Utils.downloadFile(url, '404 bookmark ID list.txt')
-        log.log(lang.transl('_已导出被删除的作品的ID列表'))
+        log.success(lang.transl('_已导出被删除的作品的ID列表'))
       }
 
       const bookmarkDataList = Array.from(this.bookmarkDataList)

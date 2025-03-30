@@ -166,7 +166,7 @@ class BookmarkAllWorks {
       for (const data of this.bookmarKData) {
         this.tipWrap.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`
 
-        await bookmark.add(
+        const status = await bookmark.add(
           data.id,
           data.type,
           data.tags,
@@ -174,6 +174,15 @@ class BookmarkAllWorks {
           undefined,
           true
         )
+        if (status === 403) {
+          msgBox.error(
+            `Add bookmark: ${data.id}, Error: 403 Forbidden, ${lang.transl(
+              '_你的账号已经被Pixiv限制'
+            )}`
+          )
+          break
+        }
+
         index++
       }
 

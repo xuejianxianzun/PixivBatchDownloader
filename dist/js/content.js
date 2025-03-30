@@ -3327,9 +3327,12 @@ class ImageViewer {
         _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏'), {
             bgColor: _Colors__WEBPACK_IMPORTED_MODULE_8__.Colors.bgBlue,
         });
-        const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_6__.bookmark.add(this.cfg.workId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractTags(this.workData));
-        if (res === 200) {
+        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_6__.bookmark.add(this.cfg.workId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractTags(this.workData));
+        if (status === 200) {
             _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已收藏'));
+        }
+        if (status === 403) {
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(`403 Forbidden, ${_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_你的账号已经被Pixiv限制')}`);
         }
     }
     // 下载当前查看的作品
@@ -5388,9 +5391,13 @@ class PreviewWork {
         _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_收藏'), {
             bgColor: _Colors__WEBPACK_IMPORTED_MODULE_11__.Colors.bgBlue,
         });
-        const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_18__.bookmark.add(this.workData.body.illustId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_17__.Tools.extractTags(this.workData));
-        if (res === 200) {
+        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_18__.bookmark.add(this.workData.body.illustId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_17__.Tools.extractTags(this.workData));
+        if (status === 200) {
             _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_已收藏'));
+        }
+        if (status === 403) {
+            _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.error(`403 Forbidden, ${_Lang__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_你的账号已经被Pixiv限制')}`);
+            return;
         }
         // 将作品缩略图上的收藏按钮变成红色
         const allSVG = this.workEL.querySelectorAll('svg');
@@ -6082,11 +6089,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
 
 
 
 
 
+
+// 移除本页面中所有作品的标签
 class RemoveWorksTagsInBookmarks {
     async start(list) {
         if (list.length === 0) {
@@ -6100,7 +6110,11 @@ class RemoveWorksTagsInBookmarks {
         let number = 0;
         for (const item of list) {
             try {
-                await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(item.workID.toString(), item.type, [], false, item.private, true);
+                const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(item.workID.toString(), item.type, [], false, item.private, true);
+                if (status === 403) {
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_5__.msgBox.error(`Add bookmark: ${item.workID}, Error: 403 Forbidden, ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你的账号已经被Pixiv限制')}`);
+                    break;
+                }
             }
             catch (error) {
                 // 处理自己收藏的作品时可能遇到错误。最常见的错误就是作品被删除了，获取作品数据时会产生 404 错误
@@ -11077,8 +11091,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             const data = event.detail.data;
             for (const r of _store_Store__WEBPACK_IMPORTED_MODULE_8__.store.result) {
                 if (r.idNum === data.id) {
-                    const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_18__.bookmark.add(data.id.toString(), 'illusts', data.tags);
-                    if (res === 200) {
+                    const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_18__.bookmark.add(data.id.toString(), 'illusts', data.tags);
+                    if (status === 200) {
                         // 同步数据
                         r.bookmarked = true;
                         this.resultMeta.forEach((result) => {
@@ -11087,6 +11101,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                             }
                         });
                         data.el.classList.add(this.bookmarkedClass);
+                    }
+                    if (status === 403) {
+                        _Toast__WEBPACK_IMPORTED_MODULE_16__.toast.error(`403 Forbidden, ${_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_你的账号已经被Pixiv限制')}`);
                     }
                     break;
                 }
@@ -12478,7 +12495,7 @@ One possible reason: You have been banned from Pixiv.`);
                 const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.json2Blob(IDList);
                 const url = URL.createObjectURL(blob);
                 _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.downloadFile(url, '404 bookmark ID list.txt');
-                _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已导出被删除的作品的ID列表'));
+                _Log__WEBPACK_IMPORTED_MODULE_6__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已导出被删除的作品的ID列表'));
             }
             const bookmarkDataList = Array.from(this.bookmarkDataList);
             this.resetGetIdListStatus();
@@ -15803,9 +15820,12 @@ class BookmarkAfterDL {
                 return resolve();
             }
             // 当抓取结果很少时，不使用慢速收藏
-            await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(id.toString(), data.type !== 3 ? 'illusts' : 'novels', data.tags, undefined, undefined, _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length > 30);
+            const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(id.toString(), data.type !== 3 ? 'illusts' : 'novels', data.tags, undefined, undefined, _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length > 30);
             this.successCount++;
             this.showProgress();
+            if (status === 403) {
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(`Add bookmark: ${id}, Error: 403 Forbidden, ${_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_你的账号已经被Pixiv限制')}`);
+            }
             resolve();
         });
     }
@@ -22568,7 +22588,14 @@ And so on. <br>`,
         '작업 진행',
         'прогресс',
     ],
-    _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問', '도움말', 'help'],
+    _常见问题: [
+        '常见问题',
+        '常見問題',
+        'Help',
+        'よくある質問',
+        '도움말',
+        'помощь',
+    ],
     _uuid: [
         `下载器检测到下载后的文件名异常。如果你看到文件名是一串随机的字母和数字，表示有某些扩展程序接管了由下载器建立的下载，导致下载器设置的文件名丢失。<br>
 遇到此问题时，请禁用其他有下载文件的功能的扩展程序。例如：<br>
@@ -26732,7 +26759,11 @@ class BookmarkAllWorks {
             let index = 0;
             for (const data of this.bookmarKData) {
                 this.tipWrap.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`;
-                await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(data.id, data.type, data.tags, undefined, undefined, true);
+                const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(data.id, data.type, data.tags, undefined, undefined, true);
+                if (status === 403) {
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_7__.msgBox.error(`Add bookmark: ${data.id}, Error: 403 Forbidden, ${_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_你的账号已经被Pixiv限制')}`);
+                    break;
+                }
                 index++;
             }
             resolve();
@@ -26765,6 +26796,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+
 
 
 
@@ -26797,11 +26830,12 @@ class BookmarksAddTag {
     async readyAddTag(loop = 0) {
         const offset = loop * this.once; // 一次请求只能获取一部分，所以可能有多次请求，要计算偏移量
         let errorFlag = false;
-        // 发起请求
+        // 获取收藏的作品的数据
         const [showData, hideData] = await Promise.all([
             _API__WEBPACK_IMPORTED_MODULE_0__.API.getBookmarkData(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getCurrentPageUserID(), this.type, '未分類', offset, false),
             _API__WEBPACK_IMPORTED_MODULE_0__.API.getBookmarkData(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getCurrentPageUserID(), this.type, '未分類', offset, true),
         ]).catch((error) => {
+            // 如果错误码为 403, 可能是在其他用户的页面里
             if (error.status && error.status === 403) {
                 this.btn.textContent = `× Permission denied`;
             }
@@ -26852,7 +26886,12 @@ class BookmarksAddTag {
     // 给未分类作品添加 tag
     async addTag() {
         const item = this.addTagList[this.addIndex];
-        await _Bookmark__WEBPACK_IMPORTED_MODULE_3__.bookmark.add(item.id, this.type, item.tags, true, item.restrict, true);
+        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_3__.bookmark.add(item.id, this.type, item.tags, true, item.restrict, true);
+        if (status === 403) {
+            this.btn.textContent = `× Permission denied`;
+            _MsgBox__WEBPACK_IMPORTED_MODULE_5__.msgBox.error(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_你的账号已经被Pixiv限制'));
+            return;
+        }
         if (this.addIndex < this.addTagList.length - 1) {
             this.addIndex++;
             this.btn.textContent = `${this.addIndex} / ${this.addTagList.length}`;
@@ -27317,7 +27356,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
 /* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 // 作品页面内的快速收藏功能
+
 
 
 
@@ -27464,9 +27505,12 @@ class QuickBookmark {
         // 然后再由下载器发送收藏请求
         // 因为下载器的收藏按钮具有添加标签、非公开收藏等功能，所以要在后面执行，覆盖掉 Pixiv 原生收藏的效果
         window.setTimeout(async () => {
-            const res = await _Bookmark__WEBPACK_IMPORTED_MODULE_5__.bookmark.add(id, type, _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.extractTags(this.workData));
-            if (res !== 429) {
-                // 收藏成功之后
+            const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_5__.bookmark.add(id, type, _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.extractTags(this.workData));
+            if (status === 403) {
+                _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error(`403 Forbidden, ${_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_你的账号已经被Pixiv限制')}`);
+                return;
+            }
+            if (status !== 429) {
                 this.isBookmarked = true;
                 this.redQuickBookmarkBtn();
             }
