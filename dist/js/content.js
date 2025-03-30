@@ -1221,12 +1221,21 @@ class CheckUnsupportBrowser {
             },
             FireFox: function () {
                 // 本扩展不支持 Firefox，在其上使用会遇到一些问题
-                // if (navigator.userAgent.includes('Firefox')) {
-                _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_检测到在Firefox浏览器上使用'), {
-                    title: _Config__WEBPACK_IMPORTED_MODULE_0__.Config.appName,
-                });
-                return true;
-                // }
+                if (navigator.userAgent.includes('Firefox')) {
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_检测到在Firefox浏览器上使用'), {
+                        title: _Config__WEBPACK_IMPORTED_MODULE_0__.Config.appName,
+                    });
+                    return true;
+                }
+                return false;
+            },
+            Yandex: function () {
+                if (navigator.userAgent.includes('YaBrowser')) {
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_yandex浏览器的警告'), {
+                        title: _Config__WEBPACK_IMPORTED_MODULE_0__.Config.appName,
+                    });
+                    return true;
+                }
                 return false;
             },
             All: function () {
@@ -1257,9 +1266,6 @@ class CheckUnsupportBrowser {
                 _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(msg);
                 return;
             }
-        }
-        if (navigator.userAgent.includes('YaBrowser')) {
-            _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_yandex浏览器的警告'));
         }
     }
 }
@@ -7873,14 +7879,16 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.3.3';
+        this.flag = '17.3.4';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_支持在Pixiv的新版主页里使用')}</span>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
+      <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
       `;
             // <strong>
             // <span>✨${lang.transl('_新增设置项')}:</span>
@@ -21351,13 +21359,13 @@ class WorkPublishTime {
     bindEvents() {
         // 获取图像作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 126120000
-            this.crawlData(126130000, 128613281);
+            // 上次记录到 128610000
+            this.crawlData(128620000, 128778610);
         });
         // 获取小说作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 23790003
-            this.crawlData(23800003, 24369730, 'novels');
+            // 上次记录到 24360000
+            this.crawlData(24370000, 24408183, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -26326,14 +26334,6 @@ P.S. Работы заблокированных пользователей не
         '「ユーザーブロックリスト」のユーザーから作品を削除する',
         '"사용자 차단 목록"에 있는 사용자의 작품을 제거합니다.',
         'Удалить работы пользователей из «Черного списка пользователей»',
-    ],
-    _支持在Pixiv的新版主页里使用: [
-        '支持在 Pixiv 的新版主页里使用。',
-        '支援在 Pixiv 的新版主頁裡使用。',
-        'Supported in the new homepage of Pixiv.',
-        'Pixivの新ホームページに対応しました。',
-        'Pixiv의 새로운 홈페이지에서 지원됩니다.',
-        'Поддерживается на новой домашней странице Pixiv.',
     ],
     _检测到在Firefox浏览器上使用: [
         `你好！下载器检测到它运行在 Firefox 浏览器上。<br>
@@ -45257,6 +45257,22 @@ const illustsData = [
     [128590000, 1742882400000],
     [128600000, 1742904000000],
     [128610000, 1742918340000],
+    [128620000, 1742956140000],
+    [128630000, 1742983260000],
+    [128640000, 1742999160000],
+    [128650000, 1743028740000],
+    [128660000, 1743062400000],
+    [128670000, 1743080580000],
+    [128680000, 1743101160000],
+    [128690000, 1743139560000],
+    [128700001, 1743162240000],
+    [128710000, 1743176700000],
+    [128720000, 1743211440000],
+    [128730000, 1743236820000],
+    [128740000, 1743253320000],
+    [128750000, 1743269760000],
+    [128760000, 1743303780000],
+    [128770000, 1743325200000],
 ];
 
 
@@ -47710,6 +47726,10 @@ const novelData = [
     [24340001, 1742641717000],
     [24350000, 1742732626000],
     [24360000, 1742827561000],
+    [24370000, 1742936180000],
+    [24380001, 1743059607000],
+    [24390000, 1743163982000],
+    [24400000, 1743257072000],
 ];
 
 
