@@ -20,6 +20,10 @@ font-family: win-bug-omega, system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu
 
 所以我对下载器设置了相同的字体，使其维持原样（微软雅黑）。
 
+例外：对于下载器面板上的 textarea 类型的输入框，其字体使用 `sans-serif`，也就是 Noto Sans SC。这是因为这些输入框里有大量的文字，而 Noto Sans SC 的字体没有微软雅黑那样撑的很大，看起来会更舒服。
+
+至于下载器面板上的普通文字，使用微软雅黑是为了在低 PPI 屏幕上看的更清晰易读。
+
 ### 🐛修复了在新版首页里，无法高亮关注的用户的 bug
 
 这是因为下载器需要先检测用户是否登录了 Pixiv 账号，然后才会高亮关注的用户。
