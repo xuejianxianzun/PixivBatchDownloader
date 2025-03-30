@@ -94,6 +94,8 @@ abstract class InitPageBase {
       text: '_抓取多少页面',
       tip: '_从本页开始下载提示',
       rangTip: '_数字提示1',
+      min: 1,
+      max: -1,
     })
   }
 

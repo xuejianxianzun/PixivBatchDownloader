@@ -125,7 +125,7 @@ class BookmarkAfterDL {
       }
 
       // 当抓取结果很少时，不使用慢速收藏
-      await bookmark.add(
+      const status = await bookmark.add(
         id.toString(),
         data.type !== 3 ? 'illusts' : 'novels',
         data.tags,
@@ -136,6 +136,14 @@ class BookmarkAfterDL {
       this.successCount++
 
       this.showProgress()
+
+      if (status === 403) {
+        log.error(
+          `Add bookmark: ${id}, Error: 403 Forbidden, ${lang.transl(
+            '_你的账号已经被Pixiv限制'
+          )}`
+        )
+      }
 
       resolve()
     })

@@ -234,6 +234,7 @@ class Tools {
   }
 
   static getLoggedUserID() {
+    // 移动端
     if (Config.mobile) {
       const match = document.head.innerHTML.match(/'user_id', (\d*)/)
       if (match && match.length > 1) {
@@ -241,7 +242,18 @@ class Tools {
       }
     }
 
-    // 在新版页面里，从 head 里的 script 里匹配用户 id
+    // 在新版首页里，从 script 里匹配用户 id
+    if (
+      window.location.pathname === '/' ||
+      window.location.pathname === '/en/'
+    ) {
+      const match = document.head.innerHTML.match(/user_id:'(\d*)'/)
+      if (match && match.length > 1) {
+        return match[1]
+      }
+    }
+
+    // 在新版其他页面里，从 head 里的 script 里匹配用户 id
     const match = document.head.innerHTML.match(/'user_id', "(\d*)"/)
     if (match && match.length > 1) {
       return match[1]

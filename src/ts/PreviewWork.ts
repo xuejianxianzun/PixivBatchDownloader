@@ -90,7 +90,7 @@ class PreviewWork {
           EVT.fire('showPreviewWorkDetailPanel', this.workData)
         }
 
-        this.sendUrls()
+        this.sendURLs()
 
         this._show = true
         showOriginSizeImage.hide()
@@ -156,7 +156,9 @@ class PreviewWork {
       const show = ugoira ? settings.previewUgoira : settings.PreviewWork
       show && this.readyShow()
 
-      el.addEventListener('mousewheel', this.onWheelScroll)
+      el.addEventListener('mousewheel', this.onWheelScroll, {
+        passive: false,
+      })
     })
 
     artworkThumbnail.onLeave((el: HTMLElement) => {
@@ -330,9 +332,15 @@ class PreviewWork {
       }
     })
 
-    this.wrap.addEventListener('mousewheel', (ev) => {
-      this.overThumb && this.onWheelScroll(ev)
-    })
+    this.wrap.addEventListener(
+      'mousewheel',
+      (ev) => {
+        this.overThumb && this.onWheelScroll(ev)
+      },
+      {
+        passive: false,
+      }
+    )
 
     window.addEventListener(
       EVT.list.wheelScrollSwitchPreviewImage,
@@ -429,14 +437,19 @@ class PreviewWork {
       bgColor: Colors.bgBlue,
     })
 
-    const res = await bookmark.add(
+    const status = await bookmark.add(
       this.workData.body.illustId,
       'illusts',
       Tools.extractTags(this.workData!)
     )
 
-    if (res === 200) {
+    if (status === 200) {
       toast.success(lang.transl('_已收藏'))
+    }
+
+    if (status === 403) {
+      toast.error(`403 Forbidden, ${lang.transl('_你的账号已经被Pixiv限制')}`)
+      return
     }
 
     // 将作品缩略图上的收藏按钮变成红色
@@ -523,7 +536,7 @@ class PreviewWork {
       return
     }
 
-    const url = this.replaceUrl(this.workData!.body.urls[settings.prevWorkSize])
+    const url = this.replaceURL(this.workData!.body.urls[settings.prevWorkSize])
     const size = await this.getImageSize(url)
 
     // getImageSize 可能需要花费比较长的时间。有时候在 getImageSize 之前是要显示 wrap 的，但是之后鼠标移出，需要隐藏 wrap，再之后 getImageSize 才执行完毕。
@@ -667,7 +680,12 @@ class PreviewWork {
         text.push(`${this.index + 1}/${body.pageCount}`)
       }
 
-      text.push(body.bookmarkCount.toString())
+      // 显示收藏数量
+      text.push(`${body.bookmarkCount.toString()} <svg viewBox="0 0 12 12" width="12" height="12"><path fill="currentColor" d="
+      M9,0.75 C10.6568542,0.75 12,2.09314575 12,3.75 C12,6.68851315 10.0811423,9.22726429 6.24342696,11.3662534
+      L6.24342863,11.3662564 C6.09210392,11.4505987 5.90790324,11.4505988 5.75657851,11.3662565
+      C1.9188595,9.22726671 0,6.68851455 0,3.75 C1.1324993e-16,2.09314575 1.34314575,0.75 3,0.75
+      C4.12649824,0.75 5.33911281,1.60202454 6,2.66822994 C6.66088719,1.60202454 7.87350176,0.75 9,0.75 Z"></path></svg>`)
 
       // 加载原图时，可以获取到每张图片的真实尺寸
       if (settings.prevWorkSize === 'original') {
@@ -708,7 +726,7 @@ class PreviewWork {
     this.wrap.setAttribute('style', styleArray.join(''))
 
     // 每次显示图片后，传递图片的 url
-    this.sendUrls()
+    this.sendURLs()
 
     // 预览动图
     if (settings.previewUgoira && this.workData.body.illustType === 2) {
@@ -723,11 +741,11 @@ class PreviewWork {
     }
   }
 
-  private replaceUrl(url: string) {
+  private replaceURL(url: string) {
     return url.replace('p0', `p${this.index}`)
   }
 
-  private sendUrls() {
+  private sendURLs() {
     const data = this.workData
     if (!data) {
       return
@@ -737,8 +755,8 @@ class PreviewWork {
     // 而且对于第一张之后的图片，加载“普通”尺寸的图片时，无法获取“原图”的尺寸。
     showOriginSizeImage.setData(
       {
-        original: this.replaceUrl(data.body.urls.original),
-        regular: this.replaceUrl(data.body.urls.regular),
+        original: this.replaceURL(data.body.urls.original),
+        regular: this.replaceURL(data.body.urls.regular),
       },
       data,
       this.index
