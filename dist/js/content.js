@@ -11463,7 +11463,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     // 返回包含作品列表的 ul 元素
     findWorksWrap() {
         let wrap = null;
-        // 对于已经查找过的情况，直接定位到钙元素
+        // 对于已经查找过的情况，直接定位到该元素
         const old = document.querySelector(`#${this.workListWrapID}`);
         if (old) {
             wrap = old;
@@ -11482,10 +11482,14 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             }
             else {
                 // 新版页面里没有 #root 了，所以需要使用别的方法
-                // 先查找作品列表里的作品链接，然后向上查找 UL 元素
-                const workLink = document.querySelector('li a[data-gtm-user-id]');
-                if (workLink) {
-                    wrap = workLink.closest('ul');
+                // 先查找作品列表里最后一个作品链接，然后向上查找 UL 元素
+                // 为什么用最后一个作品，而不是第一个作品：
+                // 有时在作品列表上方会显示“热门作品”和“成为pixiv高级会员”按钮的板块
+                // 如果使用第一个作品，就会选择到这个板块，而非其下方真正的作品列表
+                const works = document.querySelectorAll('li a[data-gtm-user-id]');
+                if (works.length > 0) {
+                    const lastWork = Array.from(works).pop();
+                    wrap = lastWork.closest('ul');
                 }
             }
         }
