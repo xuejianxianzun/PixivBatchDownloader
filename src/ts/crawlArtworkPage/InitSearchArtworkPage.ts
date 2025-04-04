@@ -694,11 +694,13 @@ class InitSearchArtworkPage extends InitPageBase {
             </div>
             <!--图片部分-->
             <div class="imgWrap">
-            <img src="${settings.replaceSquareThumb
-        ? Tools.convertThumbURLTo540px(data.thumb)
-        : data.thumb
-      }" alt="${data.title
-      }" style="object-fit: contain; object-position: center center;">
+            <img src="${
+              settings.replaceSquareThumb
+                ? Tools.convertThumbURLTo540px(data.thumb)
+                : data.thumb
+            }" alt="${
+              data.title
+            }" style="object-fit: contain; object-position: center center;">
               <!-- 动图 svg -->
               ${ugoiraHTML}
               </div>
@@ -720,7 +722,8 @@ class InitSearchArtworkPage extends InitPageBase {
         </div>
       </div>
       <!--标题名-->
-      <a target="_blank" class="titleLink" href="/artworks/${data.idNum}">${data.title
+      <a target="_blank" class="titleLink" href="/artworks/${data.idNum}">${
+        data.title
       }</a>
       <!--底部-->
       <div class="bottomBar">
