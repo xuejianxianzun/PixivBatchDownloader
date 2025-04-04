@@ -42,7 +42,7 @@ class InitSearchArtworkPage extends InitPageBase {
     this.init()
   }
 
-  private readonly worksWrapSelector = '#root section ul'
+  private readonly workListWrapID = 'workListWrap'
   private readonly listClass = 'searchList'
   private readonly multipleClass = 'multiplePart'
   private readonly ugoiraClass = 'ugoiraPart'
@@ -156,7 +156,7 @@ class InitSearchArtworkPage extends InitPageBase {
     const bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
 
     bookmarkAllBtn.addEventListener('click', () => {
-      const listWrap = this.getWorksWrap()
+      const listWrap = this.findWorksWrap()
       if (listWrap) {
         const list = listWrap.querySelectorAll('li')
         // 被二次筛选过滤掉的作品会被隐藏，所以批量添加收藏时，过滤掉隐藏的作品
@@ -550,18 +550,42 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   // 返回包含作品列表的 ul 元素
-  private getWorksWrap() {
-    const test = document.querySelectorAll(this.worksWrapSelector)
-    if (test.length > 0) {
-      if (test.length > 2) {
-        // 大于 2 的情况是在搜索页的首页，或者小说页面
-        return test[2] as HTMLUListElement
-      }
+  private findWorksWrap() {
+    let wrap: HTMLUListElement | null = null
 
-      // 在插画、漫画、artworks 页面只有两个 ul 或者一个
-      return test[test.length - 1] as HTMLUListElement
+    // 对于已经查找过的情况，直接定位到钙元素
+    const old = document.querySelector(`#${this.workListWrapID}`)
+    if (old) {
+      wrap = old as HTMLUListElement
+    } else {
+      // 重新查找
+
+      // 旧版页面里
+      const test = document.querySelectorAll('#root section ul')
+      if (test.length > 0) {
+        if (test.length > 2) {
+          // 大于 2 的情况是在搜索页的首页，或者小说页面
+          wrap = test[2] as HTMLUListElement
+        }
+
+        // 在插画、漫画、artworks 页面只有两个 ul 或者一个
+        wrap = test[test.length - 1] as HTMLUListElement
+      } else {
+        // 新版页面里没有 #root 了，所以需要使用别的方法
+        // 先查找作品列表里的作品链接，然后向上查找 UL 元素
+        const workLink = document.querySelector('li a[data-gtm-user-id]')
+        if (workLink) {
+          wrap = workLink.closest('ul')!
+        }
+      }
     }
-    return null
+
+    // 查找到作品列表后，添加自定义的 ID，方便后续查找它
+    if (wrap) {
+      wrap.id = this.workListWrapID
+    }
+
+    return wrap
   }
 
   // 显示抓取到的作品数量
@@ -670,13 +694,11 @@ class InitSearchArtworkPage extends InitPageBase {
             </div>
             <!--图片部分-->
             <div class="imgWrap">
-            <img src="${
-              settings.replaceSquareThumb
-                ? Tools.convertThumbURLTo540px(data.thumb)
-                : data.thumb
-            }" alt="${
-              data.title
-            }" style="object-fit: contain; object-position: center center;">
+            <img src="${settings.replaceSquareThumb
+        ? Tools.convertThumbURLTo540px(data.thumb)
+        : data.thumb
+      }" alt="${data.title
+      }" style="object-fit: contain; object-position: center center;">
               <!-- 动图 svg -->
               ${ugoiraHTML}
               </div>
@@ -698,8 +720,7 @@ class InitSearchArtworkPage extends InitPageBase {
         </div>
       </div>
       <!--标题名-->
-      <a target="_blank" class="titleLink" href="/artworks/${data.idNum}">${
-        data.title
+      <a target="_blank" class="titleLink" href="/artworks/${data.idNum}">${data.title
       }</a>
       <!--底部-->
       <div class="bottomBar">
@@ -745,7 +766,7 @@ class InitSearchArtworkPage extends InitPageBase {
     if (!settings.previewResult || !this.crawlStartBySelf) {
       return
     }
-    this.worksWrap = this.getWorksWrap()
+    this.worksWrap = this.findWorksWrap()
     if (this.worksWrap) {
       this.worksWrap.innerHTML = ''
     }
@@ -757,8 +778,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 传递作品 id 列表，从页面上的作品列表里移除这些作品
   private removeWorks(idList: string[]) {
-    // #root section ul .searchList
-    const listSelector = `${this.worksWrapSelector} .${this.listClass}`
+    const listSelector = `#${this.workListWrapID} .${this.listClass}`
     const lists = document.querySelectorAll(
       listSelector
     ) as NodeListOf<HTMLLIElement>

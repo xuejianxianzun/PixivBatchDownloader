@@ -10858,7 +10858,7 @@ __webpack_require__.r(__webpack_exports__);
 class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.worksWrapSelector = '#root section ul';
+        this.workListWrapID = 'workListWrap';
         this.listClass = 'searchList';
         this.multipleClass = 'multiplePart';
         this.ugoiraClass = 'ugoiraPart';
@@ -11178,7 +11178,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         const bookmarkAllBtn = _Tools__WEBPACK_IMPORTED_MODULE_12__.Tools.addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_收藏本页面的所有作品');
         const bookmarkAll = new _pageFunciton_BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_13__.BookmarkAllWorks(bookmarkAllBtn);
         bookmarkAllBtn.addEventListener('click', () => {
-            const listWrap = this.getWorksWrap();
+            const listWrap = this.findWorksWrap();
             if (listWrap) {
                 const list = listWrap.querySelectorAll('li');
                 // 被二次筛选过滤掉的作品会被隐藏，所以批量添加收藏时，过滤掉隐藏的作品
@@ -11448,24 +11448,46 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         _store_Store__WEBPACK_IMPORTED_MODULE_8__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_15__.Utils.sortByProperty('bmk'));
     }
     // 返回包含作品列表的 ul 元素
-    getWorksWrap() {
-        const test = document.querySelectorAll(this.worksWrapSelector);
-        if (test.length > 0) {
-            if (test.length > 2) {
-                // 大于 2 的情况是在搜索页的首页，或者小说页面
-                return test[2];
-            }
-            // 在插画、漫画、artworks 页面只有两个 ul 或者一个
-            return test[test.length - 1];
+    findWorksWrap() {
+        let wrap = null;
+        // 对于已经查找过的情况，直接定位到钙元素
+        const old = document.querySelector(`#${this.workListWrapID}`);
+        if (old) {
+            wrap = old;
         }
-        return null;
+        else {
+            // 重新查找
+            // 旧版页面里
+            const test = document.querySelectorAll('#root section ul');
+            if (test.length > 0) {
+                if (test.length > 2) {
+                    // 大于 2 的情况是在搜索页的首页，或者小说页面
+                    wrap = test[2];
+                }
+                // 在插画、漫画、artworks 页面只有两个 ul 或者一个
+                wrap = test[test.length - 1];
+            }
+            else {
+                // 新版页面里没有 #root 了，所以需要使用别的方法
+                // 先查找作品列表里的作品链接，然后向上查找 UL 元素
+                const workLink = document.querySelector('li a[data-gtm-user-id]');
+                if (workLink) {
+                    wrap = workLink.closest('ul');
+                }
+            }
+        }
+        // 查找到作品列表后，添加自定义的 ID，方便后续查找它
+        if (wrap) {
+            wrap.id = this.workListWrapID;
+        }
+        return wrap;
     }
     // 清空预览作品的列表，在开始抓取时和作品抓取完毕时使用
     clearPreview() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.previewResult || !this.crawlStartBySelf) {
             return;
         }
-        this.worksWrap = this.getWorksWrap();
+        this.worksWrap = this.findWorksWrap();
         if (this.worksWrap) {
             this.worksWrap.innerHTML = '';
         }
@@ -11476,8 +11498,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     }
     // 传递作品 id 列表，从页面上的作品列表里移除这些作品
     removeWorks(idList) {
-        // #root section ul .searchList
-        const listSelector = `${this.worksWrapSelector} .${this.listClass}`;
+        const listSelector = `#${this.workListWrapID} .${this.listClass}`;
         const lists = document.querySelectorAll(listSelector);
         for (const li of lists) {
             if (li.dataset.id && idList.includes(li.dataset.id)) {
