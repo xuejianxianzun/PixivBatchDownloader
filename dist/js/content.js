@@ -21359,12 +21359,12 @@ class WorkPublishTime {
     bindEvents() {
         // 获取图像作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 128610000
+            // 上次记录到 128770000
             this.crawlData(128620000, 128778610);
         });
         // 获取小说作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 24360000
+            // 上次记录到 24400000
             this.crawlData(24370000, 24408183, 'novels');
         });
     }
@@ -27301,6 +27301,7 @@ class FastScreen {
             '50000users入り',
             '100000users入り',
         ];
+        this.insertPoint = 'afterend';
         this.create();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
@@ -27312,11 +27313,29 @@ class FastScreen {
             this.destroy();
         });
     }
+    // 判断插入点的元素有没有加载出来
+    findTarget() {
+        if (_Config__WEBPACK_IMPORTED_MODULE_4__.Config.mobile) {
+            return document.querySelector('.search-header');
+        }
+        else {
+            // PC 端现在正在改版，需要处理不同的情况
+            // 改版前的情况
+            let target = document.querySelector('#root>div');
+            if (target) {
+                this.insertPoint = 'afterend';
+                return target;
+            }
+            else {
+                // 改版后的情况
+                this.insertPoint = 'afterbegin';
+                return document.body;
+            }
+        }
+    }
     // 添加快速筛选功能
     create() {
-        // 判断插入点的元素有没有加载出来
-        const selector = _Config__WEBPACK_IMPORTED_MODULE_4__.Config.mobile ? '.search-header' : '#root>div';
-        const target = document.querySelector(selector);
+        const target = this.findTarget();
         if (!target) {
             setTimeout(() => {
                 this.create();
@@ -27333,7 +27352,7 @@ class FastScreen {
             this.fastScreenArea.appendChild(btn);
         });
         _Theme__WEBPACK_IMPORTED_MODULE_2__.theme.register(this.fastScreenArea);
-        target.insertAdjacentElement('afterend', this.fastScreenArea);
+        target.insertAdjacentElement(this.insertPoint, this.fastScreenArea);
         this.setDisplay();
     }
     // 设置是否显示快速筛选区域
