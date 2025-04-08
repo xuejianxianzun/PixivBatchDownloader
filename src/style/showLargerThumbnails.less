@@ -7,6 +7,16 @@
 // Home 首页
 // https://www.pixiv.net/
 body[data-page-type='0'] {
+  #root {
+    // 正在举办的比赛 板块
+    .hkzusx{
+      align-items: center;
+    }
+    .liyNwX {
+      width: auto !important;
+      height: auto !important;
+    }
+  }
 
   // 每个板块的最外层容器元素可能被设置了固定宽度，导致图片尺寸固定，或者容器不能完全显示里面的内容
   // 需要解除宽度限制
@@ -35,9 +45,15 @@ body[data-page-type='0'] {
   .bkRoSP,
   .fhUcsb,
   .cCkJMN,
-  .hjtPnz {
+  .hjtPnz,
+  .jELUak {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .jtUPOE {
+    align-items: center;
   }
 
   // ul li
@@ -80,6 +96,10 @@ body[data-page-type='0'] {
   // 在新版首页里，把 精选新作 的宽度设置为 100%。因为它原本的样式只占页面中间的一部分
   .homeFriendsNewWorks>div:nth-child(2) {
     --carousel-width: unset !important;
+  }
+
+  .homeFriendsNewWorks ul {
+    align-items: center;
   }
 
   .homeFriendsNewWorks ul>div,
@@ -212,7 +232,7 @@ body[data-page-type='1'] {
 }
 
 // UserHome 用户主页
-// https://www.pixiv.net/users/18095070/manga
+// https://www.pixiv.net/users/18095070
 // 这个测试网址里除了插画、漫画，还有约稿，比较齐全
 body[data-page-type='2'] {
   #root {
@@ -249,7 +269,7 @@ body[data-page-type='2'] {
     height: 100%;
   }
 
-  .dizBQv{
+  .dizBQv {
     padding: 0;
   }
 
@@ -258,9 +278,15 @@ body[data-page-type='2'] {
   .hxfsRR,
   .jRyeAs {
     flex-direction: column;
+    align-items: start;
     max-width: 540px;
   }
 
+  .iHrRmI,
+  .jtUPOE,
+  .gmoaNn {
+    align-items: center;
+  }
 
   .fKsmTC,
   .gYUunk {
@@ -285,6 +311,10 @@ body[data-page-type='2'] {
   .buGhFj {
     display: flex;
     flex-wrap: wrap;
+  }
+
+  .jELUak {
+    align-items: center;
   }
 
   // ul li
@@ -338,6 +368,9 @@ body[data-page-type='4'] {
 
   // ul
   // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
+  .jtUPOE {
+    align-items: center;
+  }
 
   // ul li
   // 解除作品项目的宽度限制
@@ -418,6 +451,7 @@ body[data-page-type='5'] {
   // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
   .iwHaa-d {
     display: flex;
+    align-items: center;
   }
 
   // ul li
@@ -565,9 +599,12 @@ body[data-page-type='10'] {
 
   // ul
   // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
-  .jELUak {
+  .jELUak,
+  .jtUPOE {
     display: flex;
+    align-items: center;
   }
+
 
   // ul li
   // 解除作品项目的宽度限制
@@ -611,6 +648,7 @@ body[data-page-type='11'] {
   .iXWLAI {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
   }
 
   // ul li
@@ -684,6 +722,7 @@ body[data-page-type='12'] {
   .fhUcsb {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
   }
 
   // ul li
@@ -765,6 +804,10 @@ body[data-page-type='21'] {
   .jlWuvS {
     display: flex;
     flex-wrap: wrap;
+  }
+
+  .jlWuvS {
+    align-items: center;
   }
 
   // ul li

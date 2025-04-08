@@ -6,6 +6,13 @@ body[data-page-type='0'] {
   /* 推荐作品 li */
   /* 很多新版页面的作品列表都要把 margin 改小一些，从 12 改为 10，否则在 125% 缩放时，因为宽度不够，一排原本能显示 6 个的，变得只能显示 5 个*/
 }
+body[data-page-type='0'] #root .hkzusx {
+  align-items: center;
+}
+body[data-page-type='0'] #root .liyNwX {
+  width: auto !important;
+  height: auto !important;
+}
 body[data-page-type='0'] .bgPpJb,
 body[data-page-type='0'] div.gtm-toppage-thumbnail-illustration-recommend-tag-zone > div > div,
 body[data-page-type='0'] .bYCbxa,
@@ -24,9 +31,14 @@ body[data-page-type='0'] li iframe {
 body[data-page-type='0'] .bkRoSP,
 body[data-page-type='0'] .fhUcsb,
 body[data-page-type='0'] .cCkJMN,
-body[data-page-type='0'] .hjtPnz {
+body[data-page-type='0'] .hjtPnz,
+body[data-page-type='0'] .jELUak {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
+}
+body[data-page-type='0'] .jtUPOE {
+  align-items: center;
 }
 body[data-page-type='0'] li[size='1'],
 body[data-page-type='0'] li[size='1'] > div {
@@ -52,6 +64,9 @@ body[data-page-type='0'] div.gVidFA div[width='184'] a div img {
 }
 body[data-page-type='0'] .homeFriendsNewWorks > div:nth-child(2) {
   --carousel-width: unset !important;
+}
+body[data-page-type='0'] .homeFriendsNewWorks ul {
+  align-items: center;
 }
 body[data-page-type='0'] .homeFriendsNewWorks ul > div,
 body[data-page-type='0'] .homeFriendsNewWorks ul > li {
@@ -179,7 +194,13 @@ body[data-page-type='2'] .dizBQv {
 body[data-page-type='2'] .hxfsRR,
 body[data-page-type='2'] .jRyeAs {
   flex-direction: column;
+  align-items: start;
   max-width: 540px;
+}
+body[data-page-type='2'] .iHrRmI,
+body[data-page-type='2'] .jtUPOE,
+body[data-page-type='2'] .gmoaNn {
+  align-items: center;
 }
 body[data-page-type='2'] .fKsmTC,
 body[data-page-type='2'] .gYUunk {
@@ -195,6 +216,9 @@ body[data-page-type='2'] .bgPpJb {
 body[data-page-type='2'] .buGhFj {
   display: flex;
   flex-wrap: wrap;
+}
+body[data-page-type='2'] .jELUak {
+  align-items: center;
 }
 body[data-page-type='2'] li[size='1'],
 body[data-page-type='2'] li[size='1'] > div {
@@ -229,6 +253,9 @@ body[data-page-type='4'] .eVpyzU {
 body[data-page-type='4'] .bgPpJb,
 body[data-page-type='4'] .cDZIoX {
   width: auto !important;
+}
+body[data-page-type='4'] .jtUPOE {
+  align-items: center;
 }
 body[data-page-type='4'] li[size='1'],
 body[data-page-type='4'] li[size='1'] > div {
@@ -286,6 +313,7 @@ body[data-page-type='5'] .dizBQv {
 }
 body[data-page-type='5'] .iwHaa-d {
   display: flex;
+  align-items: center;
 }
 body[data-page-type='5'] .iwHaa-d > li,
 body[data-page-type='5'] .iwHaa-d > li > div {
@@ -383,8 +411,10 @@ body[data-page-type='10'] .cwAKCq {
 body[data-page-type='10'] .bgPpJb {
   width: 100% !important;
 }
-body[data-page-type='10'] .jELUak {
+body[data-page-type='10'] .jELUak,
+body[data-page-type='10'] .jtUPOE {
   display: flex;
+  align-items: center;
 }
 body[data-page-type='10'] .jELUak > li,
 body[data-page-type='10'] .jELUak > li > div,
@@ -413,6 +443,7 @@ body[data-page-type='11'] .fhUcsb,
 body[data-page-type='11'] .iXWLAI {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
 }
 body[data-page-type='11'] .iXWLAI > li,
 body[data-page-type='11'] .iXWLAI > li > div {
@@ -457,6 +488,7 @@ body[data-page-type='12'] .hairtM {
 body[data-page-type='12'] .fhUcsb {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
 }
 body[data-page-type='12'] .jELUak > li,
 body[data-page-type='12'] .jELUak > li > div {
@@ -510,6 +542,9 @@ body[data-page-type='21'] .buGhFj,
 body[data-page-type='21'] .jlWuvS {
   display: flex;
   flex-wrap: wrap;
+}
+body[data-page-type='21'] .jlWuvS {
+  align-items: center;
 }
 body[data-page-type='21'] .jELUak > li,
 body[data-page-type='21'] .jELUak > li > div {
