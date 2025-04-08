@@ -1,9 +1,21 @@
 /* 显示更大的缩略图 */
-ul div[data-mouseover] a img {
+ul li div[data-mouseover] a img {
   position: relative;
   width: auto !important;
   height: auto !important;
   max-height: 540px;
+}
+body[data-page-type='-1'] .cwAKCq {
+  width: auto;
+}
+body[data-page-type='-1'] .jtUPOE {
+  display: flex;
+  align-items: center;
+}
+body[data-page-type='-1'] .JaPty,
+body[data-page-type='-1'] .liyNwX {
+  width: auto !important;
+  height: auto !important;
 }
 body[data-page-type='0'] {
   /* img */
@@ -56,7 +68,6 @@ body[data-page-type='0'] div[width='184'] {
   height: auto !important;
 }
 body[data-page-type='0'] div[width='184'] a div img,
-body[data-page-type='0'] li div[data-mouseover] a img,
 body[data-page-type='0'] .jercGe {
   position: relative;
   width: auto !important;
@@ -262,6 +273,7 @@ body[data-page-type='4'] .bgPpJb,
 body[data-page-type='4'] .cDZIoX {
   width: auto !important;
 }
+body[data-page-type='4'] .jELUak,
 body[data-page-type='4'] .jtUPOE {
   align-items: center;
 }

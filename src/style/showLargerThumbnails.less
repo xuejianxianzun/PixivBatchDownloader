@@ -6,11 +6,32 @@
 
 // 使用一个通用的选择器，放大图片，这个不容易失效。
 // 但是 Pixiv 改版时其父级元素的 className 也会变，所以改版后父级还是得修复
-ul div[data-mouseover] a img {
+// 使用 div[data-mouseover] a img 时需要在前面加上选择器，限定其生效范围
+// 因为有些不需要放大的缩略图也符合这个选择器，如：
+// 1. 鼠标放在作者名字上时，显示的作者信息里的 3 个缩略图
+// 2. 约稿页面里，“已关注且正在接稿的创作者”里每个作者的 3 个缩略图
+ul li div[data-mouseover] a img {
   position: relative;
   width: auto !important;
   height: auto !important;
   max-height: 540px;
+}
+
+// 不支持的页面
+body[data-page-type='-1'] {
+  .cwAKCq {
+    width: auto;
+  }
+  .jtUPOE {
+    display: flex;
+    align-items: center;
+  }
+
+  .JaPty,
+  .liyNwX {
+    width: auto !important;
+    height: auto !important;
+  }
 }
 
 // Home 首页
@@ -84,10 +105,7 @@ body[data-page-type='0'] {
 
   /* img */
   /* div[width="184"] a div img */
-  // 使用 div[data-mouseover] a img 时需要在前面加上选择器，限定其范围
-  // 因为鼠标放在作者名字上时，显示的作者信息里的 3 个缩略图也符合这个选择器。需要排除这里
   div[width='184'] a div img,
-  li div[data-mouseover] a img,
   .jercGe {
     position: relative;
     width: auto !important;
@@ -379,6 +397,7 @@ body[data-page-type='4'] {
 
   // ul
   // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
+  .jELUak,
   .jtUPOE {
     align-items: center;
   }
