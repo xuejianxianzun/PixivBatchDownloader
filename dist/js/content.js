@@ -7645,16 +7645,14 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.3.4';
+        this.flag = '17.4.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复了因Pixiv变化而失效的显示更大的缩略图功能')}</span>
       `;
             // <strong>
             // <span>✨${lang.transl('_新增设置项')}:</span>
@@ -26224,6 +26222,14 @@ This downloader does not support Firefox and may encounter some problems. I will
         `Привет! Загрузчик обнаружил, что он запущен в браузере Firefox. <br>
 Кто-то опубликовал это расширение в магазине расширений Firefox (ADD-ONS), но не я. <br>
 Этот загрузчик не поддерживает Firefox и может вызывать некоторые проблемы. Я не буду это за тебя исправлять.`,
+    ],
+    _修复了因Pixiv变化而失效的显示更大的缩略图功能: [
+        '修复了因 Pixiv 变化而失效的一些增强功能，比如“显示更大的缩略图”、“高亮关注的用户”等功能。',
+        '修復了因 Pixiv 變化而失效的一些增強功能，比如“顯示更大的縮圖”、“高亮關注的使用者”等功能。',
+        'Fixed some enhancements that were invalid due to Pixiv changes, such as "show larger thumbnails", "highlight followed users", etc.',
+        '「サムネイルを大きく表示する」「フォローしているユーザーを強調表示する」など、Pixiv の変更により無効になっていたいくつかの拡張機能を修正しました。',
+        'Pixiv 변경으로 인해 유효하지 않았던 "더 큰 썸네일 표시", "팔로우한 사용자 강조 표시" 등 몇 가지 향상된 기능을 수정했습니다.',
+        'Исправлены некоторые улучшения, которые были недействительны из-за изменений Pixiv, такие как «показывать увеличенные миниатюры», «выделять подписчиков» и т. д.',
     ],
 };
 
