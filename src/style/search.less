@@ -38,19 +38,23 @@
 
 .searchList {
   margin: 0;
+
   .searchContent {
     width: 184px;
     margin: 0px;
+
     .searchImgArea {
       position: relative;
       margin-bottom: 4px;
       border-radius: 8px;
       overflow: hidden;
+
       .searchImgAreaContent {
         position: relative;
         z-index: 0;
         width: 184px;
         height: 184px;
+
         .topbar {
           position: absolute;
           top: 0px;
@@ -61,12 +65,15 @@
           align-items: flex-start;
           z-index: 1;
           padding: 4px 4px 0px;
+
           .r18Part {
             display: flex;
             align-items: flex-start;
             flex-flow: row wrap;
+
             .child {
               margin-right: 2px;
+
               .text {
                 color: rgb(245, 245, 245);
                 font-weight: bold;
@@ -78,8 +85,10 @@
               }
             }
           }
+
           .multiplePart {
             margin-left: auto;
+
             .child {
               display: flex;
               -webkit-box-align: center;
@@ -94,14 +103,17 @@
               padding: 0px 6px;
               background: rgba(0, 0, 0, 0.32);
               border-radius: 10px;
+
               .span1 {
                 margin-right: 2px;
+
                 .span2 {
                   display: inline-flex;
                   vertical-align: top;
                   -webkit-box-align: center;
                   align-items: center;
                   height: 10px;
+
                   .multipleSvg {
                     stroke: none;
                     fill: currentcolor;
@@ -115,6 +127,7 @@
             }
           }
         }
+
         .imgWrap {
           position: relative;
           display: flex;
@@ -124,6 +137,7 @@
           justify-content: center;
           width: 100%;
           height: 100%;
+
           &::before {
             content: '';
             position: absolute;
@@ -135,6 +149,7 @@
             background-color: rgba(0, 0, 0, 0.02);
             border-radius: 4px;
           }
+
           img {
             max-height: 550px;
             width: 100%;
@@ -143,11 +158,13 @@
             border-radius: 4px;
             transition: opacity 0.2s ease 0s;
           }
+
           .ugoiraPart {
             .ugoiraCircle {
               fill: rgb(0, 0, 0);
               fill-opacity: 0.4;
             }
+
             position: absolute;
             stroke: none;
             fill: rgb(255, 255, 255);
@@ -162,11 +179,13 @@
     .bookmarked {
       color: rgb(255, 64, 96) !important;
       fill: rgb(255, 64, 96) !important;
+
       & * {
         color: rgb(255, 64, 96) !important;
         fill: rgb(255, 64, 96) !important;
       }
     }
+
     .bmkCount {
       display: flex;
       position: absolute;
@@ -180,6 +199,7 @@
       padding: 2px 5px;
       border-radius: 5px;
     }
+
     .bmkBtnWrap {
       position: absolute;
       bottom: 0px;
@@ -188,6 +208,7 @@
       display: flex;
       -webkit-box-pack: end;
       justify-content: flex-end;
+
       .bmkBtn {
         display: block;
         box-sizing: content-box;
@@ -201,6 +222,7 @@
         border-style: none;
         border-color: initial;
         border-image: initial;
+
         .bmkBtnSvg {
           box-sizing: border-box;
           line-height: 0;
@@ -210,6 +232,7 @@
           transition:
             color 0.2s ease 0s,
             fill 0.2s ease 0s;
+
           .path2 {
             fill: rgb(255, 255, 255);
             transition: fill 0.2s ease 0s;
@@ -217,6 +240,7 @@
         }
       }
     }
+
     .titleLink {
       display: inline-block;
       max-width: 100%;
@@ -229,26 +253,30 @@
       overflow: hidden;
       text-decoration: none;
       transition: color 0.2s ease 0s;
+
       &:visited {
         color: rgb(173, 173, 173);
       }
     }
+
     .bottomBar {
       display: flex;
       -webkit-box-align: center;
       align-items: center;
       width: 100%;
     }
+
     .userInfo {
       display: flex;
       -webkit-box-align: center;
       align-items: center;
+
       .userName {
         display: flex;
         max-width: 164px;
         line-height: 16px;
         font-size: 14px;
-        color: rgb(173, 173, 173);
+        color: rgb(31, 31, 31);
         text-overflow: ellipsis;
         white-space: nowrap;
         text-decoration: none;
@@ -263,6 +291,7 @@
   background: #fff;
   padding: 6px;
   font-size: 14px;
+
   #crawlTagListTextArea {
     box-sizing: border-box;
     display: block;
@@ -272,11 +301,13 @@
     padding: 4px;
     margin: 0 auto 8px;
   }
+
   #crawlTagListTip {
     width: 600px;
     margin: 0 auto 8px;
     color: #666;
   }
+
   #crawlTagListBtnsWrap {
     width: 600px;
     margin: 0 auto 8px;
@@ -293,30 +324,37 @@
       border-radius: 5px;
       border: none;
       margin-right: 10px;
+
       &:hover,
       &:active {
         opacity: 0.8;
       }
     }
+
     #crawlTagListBtn {
       background: @themeBlue;
     }
+
     #clearTagListBtn {
       background: #ff4060;
     }
   }
+
   #tagListWrap {
     width: 600px;
     margin: 0 auto 8px;
+
     p {
       color: #666;
       margin: 14px 0 12px;
       font-weight: bold;
     }
+
     ul {
       display: flex;
       align-items: center;
       flex-wrap: wrap;
+
       li {
         list-style: none;
         -webkit-text-size-adjust: 100%;

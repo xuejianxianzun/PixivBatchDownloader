@@ -4454,6 +4454,8 @@ __webpack_require__.r(__webpack_exports__);
 
 // 所有页面类型及对应的数字编号
 // 可以通过 pageType.list 使用
+// 不能删除已有的页面类型，也不能调整顺序，只能在最后新增
+// 否则就会导致数字编号对应的页面类型和之前不一样，产生问题
 var PageName;
 (function (PageName) {
     PageName[PageName["Unsupported"] = -1] = "Unsupported";
@@ -4490,6 +4492,7 @@ class PageType {
         // 所有页面类型
         this.list = PageName;
         this.type = this.getType();
+        document.body.dataset.pageType = this.type.toString();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch, () => {
             this.checkTypeChange();
         });
@@ -4593,6 +4596,7 @@ class PageType {
     checkTypeChange() {
         const old = this.type;
         this.type = this.getType();
+        document.body.dataset.pageType = this.type.toString();
         if (this.type !== old) {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('pageSwitchedTypeChange', this.type);
         }
@@ -7379,7 +7383,8 @@ class ShowLargerThumbnails {
             }
         }
         // 在新版首页里，额外查找 推荐作品
-        if (sectionList[2] && ['/', '/en/'].includes(window.location.pathname)) {
+        if (sectionList[2] &&
+            ['/', '/en/', '/illustration'].includes(window.location.pathname)) {
             const allLi = sectionList[2].querySelectorAll('ul li');
             if (allLi.length > 1) {
                 sectionList[2].classList.add('homeRecommendedWorks');
@@ -7388,6 +7393,17 @@ class ShowLargerThumbnails {
                 allLi.forEach((li) => {
                     if (li.querySelector('a[href^="/novel"]')) {
                         li.classList.add('novelLI');
+                    }
+                });
+                // 推荐作品里，最前面两个 li 元素可能是空的，也可能有个含有 iframe 的元素。
+                // 当下载器把 ul 设置为 display: flex; 之后，需要移除这些元素，否则它们会占据一些宽度
+                allLi.forEach((li) => {
+                    if (li.childElementCount === 0) {
+                        li.remove();
+                    }
+                    const iframe = li.querySelector('iframe');
+                    if (iframe) {
+                        iframe.remove();
                     }
                 });
             }
@@ -9039,7 +9055,6 @@ class Tools {
     // 在小说页面，以及某些特定页面里，不启用"显示更大的缩略图"和“横图占用二倍宽度”功能
     static notEnabledShowLargerThumb() {
         if (window.location.pathname.includes('/novel') ||
-            window.location.pathname.includes('/ranking_area') ||
             window.location.hostname.includes('pixivision.net')) {
             return true;
         }
@@ -9851,7 +9866,9 @@ class InitAreaRankingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         super();
         this.init();
     }
-    initAny() { }
+    initAny() {
+        this.replaceSmallThumb();
+    }
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取本页作品', '_抓取本页作品Title').addEventListener('click', () => {
             this.readyCrawl();
@@ -9859,6 +9876,25 @@ class InitAreaRankingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     }
     setFormOption() {
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__.options.hideOption([1]);
+    }
+    // 把地区排行榜里原本很小的缩略图替换成更大的缩略图
+    // 原本的：
+    // https://i.pximg.net/c/150x150/img-master/img/2025/03/29/02/47/17/128713029_p0_master1200.jpg
+    // 替换成：
+    // https://i.pximg.net/img-master/img/2025/03/29/02/47/17/128713029_p0_master1200.jpg
+    replaceSmallThumb() {
+        window.setTimeout(() => {
+            const allImage = document.querySelectorAll('.ranking-item img');
+            if (allImage.length === 0) {
+                return this.replaceSmallThumb();
+            }
+            allImage.forEach((img) => {
+                // 当前视图里的 img 会加载，直接替换
+                img.src = img.src.replace('/c/150x150', '');
+                // 当前视图外的 img 是懒加载，需要替换 data-src 属性里的值
+                img.dataset.src = img.dataset.src.replace('/c/150x150', '');
+            });
+        }, 1000);
     }
     async getIdList() {
         const allPicArea = document.querySelectorAll('.ranking-item>.work_wrapper');
@@ -9914,7 +9950,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _CrawlRecommendWorks__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./CrawlRecommendWorks */ "./src/ts/crawlArtworkPage/CrawlRecommendWorks.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 //初始化 artwork 作品页
+
 
 
 
@@ -9935,7 +9973,36 @@ class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.I
         1 抓取旧作品
         */
         this.crawlRelated = false; // 是否下载相关作品
+        this.artworkWrapID = 'XZArtworkWrap';
+        this.contentWrapID = 'XZContentWrap';
         this.init();
+    }
+    initAny() {
+        this.findArtworkWrap();
+    }
+    /**查找作品区域（左右两个板块）的父元素 */
+    // 为其添加特定的 ID，以避免下载器设置的样式因为 Pixiv 改版而失效
+    findArtworkWrap() {
+        window.clearInterval(this.timer);
+        this.timer = window.setInterval(() => {
+            if (_PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.list.Artwork) {
+                window.clearInterval(this.timer);
+                return;
+            }
+            const warp = document.querySelector(`#${this.artworkWrapID}`);
+            if (warp) {
+                return;
+            }
+            // main 是作品区域左侧内容的元素
+            const main = document.querySelector('main');
+            if (main && main.parentElement) {
+                // main 的父元素是作品区域的父元素，包含左侧 main 元素和右侧的 aside 元素
+                const wrap = main.parentElement;
+                wrap.id = this.artworkWrapID;
+                // main 的祖父元素是作品区域和相关作品区域的父元素
+                wrap.parentElement.id = this.contentWrapID;
+            }
+        }, 1000);
     }
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_从本页开始抓取new').addEventListener('click', () => {
@@ -13171,6 +13238,21 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_清空已保存的抓取结果').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('clearSavedCrawl');
         });
+    }
+    initAny() {
+        this.removeAD();
+    }
+    removeAD() {
+        // 查找首页的“推荐作品”里的广告元素，将其移除
+        window.setTimeout(() => {
+            const findAD = document.body.querySelector('.homeRecommendedWorks div[id^="adsdk"]');
+            if (findAD) {
+                findAD.closest('li')?.remove();
+            }
+            else {
+                return this.removeAD();
+            }
+        }, 1000);
     }
     setFormOption() {
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__.options.hideOption([1]);

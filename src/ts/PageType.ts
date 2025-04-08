@@ -4,6 +4,8 @@ import { secretSignal } from './utils/SecretSignal'
 
 // 所有页面类型及对应的数字编号
 // 可以通过 pageType.list 使用
+// 不能删除已有的页面类型，也不能调整顺序，只能在最后新增
+// 否则就会导致数字编号对应的页面类型和之前不一样，产生问题
 enum PageName {
   Unsupported = -1,
   Home,
@@ -36,6 +38,7 @@ enum PageName {
 class PageType {
   constructor() {
     this.type = this.getType()
+    document.body.dataset.pageType = this.type.toString()
 
     window.addEventListener(EVT.list.pageSwitch, () => {
       this.checkTypeChange()
@@ -143,6 +146,8 @@ class PageType {
   private checkTypeChange() {
     const old = this.type
     this.type = this.getType()
+    document.body.dataset.pageType = this.type.toString()
+
     if (this.type !== old) {
       EVT.fire('pageSwitchedTypeChange', this.type)
     } else {

@@ -512,7 +512,6 @@ class Tools {
   static notEnabledShowLargerThumb() {
     if (
       window.location.pathname.includes('/novel') ||
-      window.location.pathname.includes('/ranking_area') ||
       window.location.hostname.includes('pixivision.net')
     ) {
       return true
