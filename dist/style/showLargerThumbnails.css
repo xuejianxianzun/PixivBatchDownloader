@@ -159,21 +159,34 @@ body[data-page-type='2'] .eVpyzU,
 body[data-page-type='2'] .dBbGoM,
 body[data-page-type='2'] .gqvfWY,
 body[data-page-type='2'] .cABUbk,
-body[data-page-type='2'] .leKCEy {
-  width: 100%;
-  max-width: 100%;
-}
+body[data-page-type='2'] .leKCEy,
 body[data-page-type='2'] .pGIKk,
 body[data-page-type='2'] .hbpcMJ,
 body[data-page-type='2'] .eVpyzU {
   width: 92vw;
   max-width: unset;
 }
+body[data-page-type='2'] div[width="288"],
+body[data-page-type='2'] .kXjhXr,
+body[data-page-type='2'] .hxfsRR,
+body[data-page-type='2'] .jRyeAs {
+  width: 100%;
+  height: 100%;
+}
+body[data-page-type='2'] .dizBQv {
+  padding: 0;
+}
+body[data-page-type='2'] .hxfsRR,
+body[data-page-type='2'] .jRyeAs {
+  flex-direction: column;
+  max-width: 540px;
+}
 body[data-page-type='2'] .fKsmTC,
 body[data-page-type='2'] .gYUunk {
   width: 92vw;
 }
-body[data-page-type='2'] .jUPNzm {
+body[data-page-type='2'] .jUPNzm,
+body[data-page-type='2'] .wJpxo {
   padding: 72px;
 }
 body[data-page-type='2'] .bgPpJb {

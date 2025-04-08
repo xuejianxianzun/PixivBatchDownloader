@@ -7,10 +7,11 @@
 // Home 首页
 // https://www.pixiv.net/
 body[data-page-type='0'] {
+
   // 每个板块的最外层容器元素可能被设置了固定宽度，导致图片尺寸固定，或者容器不能完全显示里面的内容
   // 需要解除宽度限制
   .bgPpJb,
-  div.gtm-toppage-thumbnail-illustration-recommend-tag-zone > div > div,
+  div.gtm-toppage-thumbnail-illustration-recommend-tag-zone>div>div,
   .bYCbxa,
   .cwAKCq {
     width: auto !important;
@@ -43,7 +44,7 @@ body[data-page-type='0'] {
   // 解除作品项目的宽度限制
   // 这些元素原本设置了 width: 184px;
   li[size='1'],
-  li[size='1'] > div {
+  li[size='1']>div {
     width: auto !important;
   }
 
@@ -77,12 +78,12 @@ body[data-page-type='0'] {
   /* 下载器会尝试给 精选新作 和 已关注用户的作品 的容器添加自定义的 class，避免其频繁改版而失效 */
 
   // 在新版首页里，把 精选新作 的宽度设置为 100%。因为它原本的样式只占页面中间的一部分
-  .homeFriendsNewWorks > div:nth-child(2) {
+  .homeFriendsNewWorks>div:nth-child(2) {
     --carousel-width: unset !important;
   }
 
-  .homeFriendsNewWorks ul > div,
-  .homeFriendsNewWorks ul > li {
+  .homeFriendsNewWorks ul>div,
+  .homeFriendsNewWorks ul>li {
     display: flex !important;
     width: auto;
     max-width: 540px;
@@ -90,21 +91,21 @@ body[data-page-type='0'] {
     flex-shrink: 0;
   }
 
-  .homeFriendsNewWorks ul > div > div,
-  .homeFriendsNewWorks ul > li > div {
+  .homeFriendsNewWorks ul>div>div,
+  .homeFriendsNewWorks ul>li>div {
     display: flex !important;
     flex-direction: column !important;
     width: auto !important;
   }
 
-  .homeFriendsNewWorks ul > div > div > div,
-  .homeFriendsNewWorks ul > li > div > div {
+  .homeFriendsNewWorks ul>div>div>div,
+  .homeFriendsNewWorks ul>li>div>div {
     display: flex !important;
     flex-direction: column !important;
   }
 
   // 新版首页的推荐作品
-  .homeRecommendedWorks ul > li {
+  .homeRecommendedWorks ul>li {
     display: flex !important;
     max-width: 540px;
     max-height: 600px;
@@ -112,19 +113,19 @@ body[data-page-type='0'] {
     margin: 12px;
   }
 
-  .homeRecommendedWorks ul > li > div {
+  .homeRecommendedWorks ul>li>div {
     display: flex !important;
     flex-direction: column !important;
     width: 100% !important;
   }
 
   // 增加小说的宽度
-  .homeRecommendedWorks ul > li.novelLI {
+  .homeRecommendedWorks ul>li.novelLI {
     width: 100% !important;
   }
 
   // 在推荐作品里，小说和图片的区别不明显。我把小说的背景颜色设置为浅棕色，这样就能一眼看出来
-  .homeRecommendedWorks ul > li.novelLI > div > div > div:nth-child(1) {
+  .homeRecommendedWorks ul>li.novelLI>div>div>div:nth-child(1) {
     background-color: #d1bfa2;
   }
 
@@ -145,6 +146,7 @@ body[data-page-type='0'] {
 // https://www.pixiv.net/artworks/127936646
 body[data-page-type='1'] {
   #root {
+
     // 上半部分（作品区域）左右两列的父元素
     .dkdRNk,
     #XZArtworkWrap {
@@ -178,7 +180,7 @@ body[data-page-type='1'] {
   // 加宽底部的“相关作品”区域宽度
   .kIrKyI,
   .bgPpJb,
-  div[data-gtm-recommend-zone='new-illust-detail'] > div > div {
+  div[data-gtm-recommend-zone='new-illust-detail']>div>div {
     width: 94vw;
   }
 
@@ -189,7 +191,7 @@ body[data-page-type='1'] {
   // 解除作品项目的宽度限制
   // 这些元素原本设置了 width: 184px;
   li[size='1'],
-  li[size='1'] > div {
+  li[size='1']>div {
     width: auto !important;
   }
 
@@ -214,6 +216,7 @@ body[data-page-type='1'] {
 // 这个测试网址里除了插画、漫画，还有约稿，比较齐全
 body[data-page-type='2'] {
   #root {
+
     // 取消作品列表容器的宽度限制
     .cDZIoX,
     .jRsJMY {
@@ -230,11 +233,7 @@ body[data-page-type='2'] {
   .dBbGoM,
   .gqvfWY,
   .cABUbk,
-  .leKCEy {
-    width: 100%;
-    max-width: 100%;
-  }
-
+  .leKCEy,
   .pGIKk,
   .hbpcMJ,
   .eVpyzU {
@@ -242,14 +241,36 @@ body[data-page-type='2'] {
     max-width: unset;
   }
 
+  div[width="288"],
+  .kXjhXr,
+  .hxfsRR,
+  .jRyeAs {
+    width: 100%;
+    height: 100%;
+  }
+
+  .dizBQv{
+    padding: 0;
+  }
+
+  // 精选作品元素，其直接子元素是图片和作品信息
+  // 因为我把图片放大了，所以让作品信息显示在图片下方
+  .hxfsRR,
+  .jRyeAs {
+    flex-direction: column;
+    max-width: 540px;
+  }
+
+
   .fKsmTC,
   .gYUunk {
     width: 92vw;
   }
 
   /* 画师顶部三个精选作品 */
-  // 减少两侧的 padding
-  .jUPNzm {
+  // 设置两侧的 padding
+  .jUPNzm,
+  .wJpxo {
     padding: 72px;
   }
 
@@ -270,7 +291,7 @@ body[data-page-type='2'] {
   // 解除作品项目的宽度限制
   // 这些元素原本设置了 width: 184px;
   li[size='1'],
-  li[size='1'] > div {
+  li[size='1']>div {
     width: auto !important;
   }
 
@@ -295,6 +316,7 @@ body[data-page-type='2'] {
 // Bookmark 收藏页面
 // https://www.pixiv.net/bookmark.php
 body[data-page-type='4'] {
+
   /* 主页、收藏 一栏取消宽度限制 */
   /* 插画·漫画、小说 分类一栏取消宽度限制 */
   /* 作品列表 取消宽度限制 */
@@ -321,7 +343,7 @@ body[data-page-type='4'] {
   // 解除作品项目的宽度限制
   // 这些元素原本设置了 width: 184px;
   li[size='1'],
-  li[size='1'] > div {
+  li[size='1']>div {
     width: auto !important;
   }
 
@@ -344,8 +366,10 @@ body[data-page-type='4'] {
 // ArtworkSearch 图像作品的搜索页面
 // https://www.pixiv.net/tags/vtuber/artworks?s_mode=s_tag
 body[data-page-type='5'] {
+
   // 在旧版页面里
   #root {
+
     /* ul */
     // 原本是网格布局，改为 flex 布局
     .krFoBL,
@@ -399,8 +423,8 @@ body[data-page-type='5'] {
   // ul li
   // 解除作品项目的宽度限制
   // 这些元素原本设置了 width: 184px;
-  .iwHaa-d > li,
-  .iwHaa-d > li > div {
+  .iwHaa-d>li,
+  .iwHaa-d>li>div {
     width: auto !important;
   }
 
@@ -444,6 +468,7 @@ body[data-page-type='5'] {
 // AreaRanking 地区排行榜
 // https://www.pixiv.net/ranking_area.php?type=state&no=0
 body[data-page-type='6'] {
+
   // 解除列表容器的宽度限制
   .ranking-items.old {
     padding: 0;
@@ -495,6 +520,7 @@ body[data-page-type='6'] {
 // ArtworkRanking 图片类型作品的排行榜
 // https://www.pixiv.net/ranking.php?mode=daily
 body[data-page-type='7'] {
+
   // 解除列表容器的宽度限制
   #wrapper,
   .layout-body,
@@ -525,6 +551,7 @@ body[data-page-type='7'] {
 // NewArtworkBookmark 已关注用户的新作品
 // https://www.pixiv.net/bookmark_new_illust.php
 body[data-page-type='10'] {
+
   // 解除列表容器的宽度限制
   .gqvfWY,
   .bYCbxa,
@@ -545,8 +572,8 @@ body[data-page-type='10'] {
   // ul li
   // 解除作品项目的宽度限制
   // 这些元素原本设置了 width: 184px;
-  .jELUak > li,
-  .jELUak > li > div,
+  .jELUak>li,
+  .jELUak>li>div,
   .JaPty {
     width: auto !important;
   }
@@ -571,6 +598,7 @@ body[data-page-type='10'] {
 // Discover 发现页面
 // https://www.pixiv.net/discovery
 body[data-page-type='11'] {
+
   // 解除列表容器的宽度限制
   .YXoqY,
   .ldgmym {
@@ -588,15 +616,15 @@ body[data-page-type='11'] {
   // ul li
   // 解除作品项目的宽度限制
   // 这些元素原本设置了 width: 184px;
-  .iXWLAI > li,
-  .iXWLAI > li > div {
+  .iXWLAI>li,
+  .iXWLAI>li>div {
     width: auto !important;
   }
 
   // ul li div[size="184"]
   // 解除 img 父级元素的宽度限制
   div[size='184'],
-  div[size='184'] > div {
+  div[size='184']>div {
     width: auto !important;
     height: auto !important;
   }
@@ -642,6 +670,7 @@ body[data-page-type='11'] {
 // NewArtwork 大家的新作品
 // https://www.pixiv.net/new_illust.php
 body[data-page-type='12'] {
+
   // 解除列表容器的宽度限制
   .ldgmym,
   .YXoqY,
@@ -660,8 +689,8 @@ body[data-page-type='12'] {
   // ul li
   // 解除作品项目的宽度限制
   // 这些元素原本设置了 width: 184px;
-  .jELUak > li,
-  .jELUak > li > div {
+  .jELUak>li,
+  .jELUak>li>div {
     width: auto !important;
   }
 
@@ -677,6 +706,7 @@ body[data-page-type='12'] {
 // Following 关注的用户
 // https://www.pixiv.net/users/96661459/following
 body[data-page-type='20'] {
+
   // 解除列表容器的宽度限制
   .gqvfWY,
   .bYCbxa,
@@ -703,7 +733,7 @@ body[data-page-type='20'] {
   // div
   // 解除作品缩略图元素里 div 的宽度限制
   // 这些元素原本设置了 width: 184px;
-  section ul > div > div > div,
+  section ul>div>div>div,
   .eajBeO,
   .fLGndj,
   div[width='184'] {
@@ -723,6 +753,7 @@ body[data-page-type='20'] {
 // Request 约稿
 // https://www.pixiv.net/request
 body[data-page-type='21'] {
+
   // 解除列表容器的宽度限制
   .fKsmTC {
     width: 92vw;
@@ -739,8 +770,8 @@ body[data-page-type='21'] {
   // ul li
   // 解除作品项目的宽度限制
   // 这些元素原本设置了 width: 184px;
-  .jELUak > li,
-  .jELUak > li > div {
+  .jELUak>li,
+  .jELUak>li>div {
     width: auto !important;
   }
 
@@ -756,6 +787,7 @@ body[data-page-type='21'] {
 // DiscoverUsers 发现用户
 // https://www.pixiv.net/discovery/users
 body[data-page-type='23'] {
+
   // 解除列表容器的宽度限制
   .ldgmym,
   .bYCbxa {
@@ -782,8 +814,8 @@ body[data-page-type='23'] {
   // 解除作品缩略图元素里 div 的宽度限制
   // 这些元素原本设置了 width: 184px;
   .hUitRq,
-  .hUitRq > div,
-  .hUitRq > div > div {
+  .hUitRq>div,
+  .hUitRq>div>div {
     width: auto !important;
     height: auto !important;
   }
@@ -799,6 +831,7 @@ body[data-page-type='23'] {
 // 在所有具有 #root 的页面里的规则
 // 也就是改版前的页面。新版页面里不需要这些规则。
 #root {
+
   // 首页的推荐作品
   .homeRecommendedWorks ul {
     display: flex;
@@ -859,13 +892,13 @@ body[data-page-type='23'] {
   .janQPj,
   .gFXJBU,
   .cWMKYW,
-  div[data-gtm-recommend-zone='discovery'] ul > li > div {
+  div[data-gtm-recommend-zone='discovery'] ul>li>div {
     width: 100% !important;
   }
 
   /* div[width="184"] */
   /* 给图片外面的容器设置最小高度，否则图片没加载出来时高度太小了，收藏按钮都只显示一半*/
-  div[data-gtm-recommend-zone='discovery'] ul div[size='184'] > div,
+  div[data-gtm-recommend-zone='discovery'] ul div[size='184']>div,
   .fxGVAF {
     min-height: 100px;
     width: auto !important;
@@ -937,7 +970,7 @@ body[data-page-type='23'] {
     mask-image: unset !important;
   }
 
-  .jCNiwq > div {
+  .jCNiwq>div {
     display: none;
   }
 
@@ -1026,7 +1059,7 @@ body[data-page-type='23'] {
   }
 
   .jlWuvS .jdIpfd,
-  .jlWuvS li > div,
+  .jlWuvS li>div,
   .fHNABj {
     display: flex;
     flex-direction: column;
@@ -1034,7 +1067,7 @@ body[data-page-type='23'] {
 
   /* 取消约稿页面容器的宽度限制 */
   .hHwhak,
-  .hHwhak > div,
+  .hHwhak>div,
   .iSHgSV,
   .kCIgXV,
   .eDubME,
@@ -1084,7 +1117,7 @@ body[data-page-type='23'] {
     align-items: center;
   }
 
-  .hLhHDu > div {
+  .hLhHDu>div {
     width: auto;
     flex-shrink: 0;
     max-width: 540px;
