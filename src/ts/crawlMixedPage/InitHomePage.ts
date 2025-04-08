@@ -72,6 +72,24 @@ class InitHomePage extends InitPageBase {
     })
   }
 
+  protected initAny() {
+    this.removeAD()
+  }
+
+  private removeAD() {
+    // 查找首页的“推荐作品”里的广告元素，将其移除
+    window.setTimeout(() => {
+      const findAD = document.body.querySelector(
+        '.homeRecommendedWorks div[id^="adsdk"]'
+      )
+      if (findAD) {
+        findAD.closest('li')?.remove()
+      } else {
+        return this.removeAD()
+      }
+    }, 1000)
+  }
+
   protected setFormOption() {
     options.hideOption([1])
   }

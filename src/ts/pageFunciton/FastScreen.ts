@@ -35,12 +35,29 @@ class FastScreen {
     '100000users入り',
   ]
 
+  private insertPoint: 'afterend' | 'afterbegin' = 'afterend'
+  // 判断插入点的元素有没有加载出来
+  private findTarget() {
+    if (Config.mobile) {
+      return document.querySelector('.search-header') as HTMLDivElement
+    } else {
+      // PC 端现在正在改版，需要处理不同的情况
+      // 改版前的情况
+      let target = document.querySelector('#root>div') as HTMLDivElement
+      if (target) {
+        this.insertPoint = 'afterend'
+        return target
+      } else {
+        // 改版后的情况
+        this.insertPoint = 'afterbegin'
+        return document.body
+      }
+    }
+  }
+
   // 添加快速筛选功能
   private create() {
-    // 判断插入点的元素有没有加载出来
-    const selector = Config.mobile ? '.search-header' : '#root>div'
-    const target = document.querySelector(selector) as HTMLDivElement
-
+    const target = this.findTarget()
     if (!target) {
       setTimeout(() => {
         this.create()
@@ -61,7 +78,7 @@ class FastScreen {
 
     theme.register(this.fastScreenArea)
 
-    target.insertAdjacentElement('afterend', this.fastScreenArea)
+    target.insertAdjacentElement(this.insertPoint, this.fastScreenArea)
 
     this.setDisplay()
   }

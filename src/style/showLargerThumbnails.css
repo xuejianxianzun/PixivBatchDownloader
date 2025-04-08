@@ -32,7 +32,10 @@ body[data-page-type='0'] #root .liyNwX {
   height: auto !important;
 }
 body[data-page-type='0'] .bgPpJb,
-body[data-page-type='0'] div.gtm-toppage-thumbnail-illustration-recommend-tag-zone > div > div,
+body[data-page-type='0']
+  div.gtm-toppage-thumbnail-illustration-recommend-tag-zone
+  > div
+  > div,
 body[data-page-type='0'] .bYCbxa,
 body[data-page-type='0'] .cwAKCq {
   width: auto !important;
@@ -121,7 +124,13 @@ body[data-page-type='0'] .homeRecommendedWorks ul > li > div {
 body[data-page-type='0'] .homeRecommendedWorks ul > li.novelLI {
   width: 100% !important;
 }
-body[data-page-type='0'] .homeRecommendedWorks ul > li.novelLI > div > div > div:nth-child(1) {
+body[data-page-type='0']
+  .homeRecommendedWorks
+  ul
+  > li.novelLI
+  > div
+  > div
+  > div:nth-child(1) {
   background-color: #d1bfa2;
 }
 body[data-page-type='0'] .kxmdLh,
@@ -165,7 +174,10 @@ body[data-page-type='1'] #XZContentWrap {
 }
 body[data-page-type='1'] .kIrKyI,
 body[data-page-type='1'] .bgPpJb,
-body[data-page-type='1'] div[data-gtm-recommend-zone='new-illust-detail'] > div > div {
+body[data-page-type='1']
+  div[data-gtm-recommend-zone='new-illust-detail']
+  > div
+  > div {
   width: 94vw;
 }
 body[data-page-type='1'] li[size='1'],
@@ -366,7 +378,11 @@ body[data-page-type='5'] .searchList {
 body[data-page-type='5'] .searchList .searchContent {
   width: auto !important;
 }
-body[data-page-type='5'] .searchList .searchContent .searchImgArea .searchImgAreaContent {
+body[data-page-type='5']
+  .searchList
+  .searchContent
+  .searchImgArea
+  .searchImgAreaContent {
   width: auto !important;
   height: auto !important;
 }
@@ -417,7 +433,10 @@ body[data-page-type='7'] .ranking-items.adjust .ranking-item {
   width: auto !important;
   margin: 0 30px 40px;
 }
-body[data-page-type='7'] .ranking-items.adjust .ranking-item .ranking-image-item {
+body[data-page-type='7']
+  .ranking-items.adjust
+  .ranking-item
+  .ranking-image-item {
   width: auto !important;
 }
 body[data-page-type='7'] .ranking-items.adjust .work img {

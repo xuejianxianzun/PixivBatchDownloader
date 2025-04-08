@@ -104,7 +104,6 @@ class FormSettings {
       'removeAtFromUsername',
       'showPreviewWorkTip',
       'showLargerThumbnails',
-      'doubleWidthThumb',
       'wheelScrollSwitchImageOnPreviewWork',
       'swicthImageByKeyboard',
       'doNotDownloadLastImageOfMultiImageWork',
