@@ -1708,106 +1708,6 @@ class CopyToClipboard {
 
 /***/ }),
 
-/***/ "./src/ts/DoubleWidthThumb.ts":
-/*!************************************!*\
-  !*** ./src/ts/DoubleWidthThumb.ts ***!
-  \************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _FindHorizontalImageWrap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./FindHorizontalImageWrap */ "./src/ts/FindHorizontalImageWrap.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-
-
-
-
-
-// 如果一个作品的缩略图是横图，则把这个缩略图的容器的宽度设置为默认宽度的 2 倍
-// 注意：必须开启“替换方形缩略图以显示图片比例”，“横图占用二倍宽度”的功能才能生效
-class DoubleWidthThumb {
-    constructor() {
-        /* 双倍宽度的图片的 id（由下载器添加这个 id） */
-        this.addId = 'doubleWidth';
-        this.styleId = 'doubleWidthStyle';
-        this.css = `#doubleWidth {width: 30% !important;}
-  #doubleWidth > div, #doubleWidth div[width="184"] {width: 100% !important;}`;
-        this.bindEvents();
-    }
-    bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
-            const data = ev.detail.data;
-            if (data.name === 'doubleWidthThumb') {
-                // 如果开启了父级设置“显示更大的缩略图”，以及这个设置，则必须开启“替换方形缩略图以显示图片比例”
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.showLargerThumbnails &&
-                    _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.doubleWidthThumb &&
-                    !_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.replaceSquareThumb) {
-                    (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.setSetting)('replaceSquareThumb', true);
-                }
-                this.setCss();
-            }
-            if (data.name === 'showLargerThumbnails') {
-                this.setCss();
-            }
-            // 如果关闭了“替换方形缩略图以显示图片比例”，则需要关闭这个设置，因为这个设置无法生效
-            if (data.name === 'replaceSquareThumb') {
-                if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.replaceSquareThumb && _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.doubleWidthThumb) {
-                    (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.setSetting)('doubleWidthThumb', false);
-                }
-            }
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch, () => {
-            this.setCss();
-        });
-        // 如果一个缩略图是横图，则在它的容器上添加特定 id
-        _FindHorizontalImageWrap__WEBPACK_IMPORTED_MODULE_3__.findHorizontalImageWrap.onFind((wrap) => {
-            if (!wrap.id) {
-                if (_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.UserHome) {
-                    // 在用户主页上，可能会错误的匹配到“精选”部分，在三个缩略图的父元素上添加 id
-                    // 这里排除这种情况
-                    const li = wrap.querySelector('li');
-                    if (li) {
-                        return;
-                    }
-                }
-                wrap.id = this.addId;
-            }
-        });
-    }
-    setCss() {
-        if (_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.notEnabledShowLargerThumb()) {
-            return this.removeStyle();
-        }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.replaceSquareThumb &&
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.showLargerThumbnails &&
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.doubleWidthThumb) {
-            this.addStyle();
-        }
-        else {
-            this.removeStyle();
-        }
-    }
-    addStyle() {
-        if (document.querySelector('#' + this.styleId)) {
-            return;
-        }
-        const el = document.createElement('style');
-        el.id = this.styleId;
-        el.innerHTML = this.css;
-        document.body.append(el);
-    }
-    removeStyle() {
-        const el = document.querySelector('#' + this.styleId);
-        el && el.remove();
-    }
-}
-new DoubleWidthThumb();
-
-
-/***/ }),
-
 /***/ "./src/ts/EVT.ts":
 /*!***********************!*\
   !*** ./src/ts/EVT.ts ***!
@@ -2492,173 +2392,6 @@ class FileName {
     }
 }
 const fileName = new FileName();
-
-
-
-/***/ }),
-
-/***/ "./src/ts/FindHorizontalImageWrap.ts":
-/*!*******************************************!*\
-  !*** ./src/ts/FindHorizontalImageWrap.ts ***!
-  \*******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   findHorizontalImageWrap: () => (/* binding */ findHorizontalImageWrap)
-/* harmony export */ });
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-
-// 查找横图作品的缩略图和容器
-class FindHorizontalImageWrap {
-    constructor() {
-        // 寻找作品缩略图的容器时使用的选择器
-        // 并不是所有容器都需要处理，只需要处理应用了“显示更大的缩略图”的容器
-        // 有些缩略图并不会被放大，也就不用处理它们的容器
-        this.workWrapSelectors = ['.searchList', 'li[size="1"]', 'ul>div'];
-        this.onFindCB = [];
-        this.obBody();
-    }
-    // 首先会动态生成 li（或者是包含很多 li 的容器元素）
-    // 但是此时 li 里面没有 img 标签，而是用一个 figure 标签占位
-    // 然后先为一些 li 生成里面的 img 标签（在用户主页会先给首屏显示的 li 生成 img 标签，但是在其他页面也有可能直接为所有 li 生成 img）
-    // 有时候当页面滚动到下面的 li 的时候，才会生成里面的 img 标签
-    // observer 可以捕获到添加的 img 标签，并且有 src 属性
-    // 如果开启了下载器的替换方形缩略图功能，则捕获到的 src 是替换后的
-    // 如果 img 的 src 是在缓存里的（并且没有禁用缓存），则捕获到它时就已经 complete 了
-    // 首页的“关注用户・好P友的作品”和排行榜区域这样的横向滚动区域是分多次添加的：
-    // 1. 页面加载时，这块区域是一次性添加的，添加的是最外层的 div，里面包含了作品列表，但只有前 8 个作品，后面是一些空壳容器
-    // 2. 当用户向右滚动时，动态添加后续作品，此时既会添加单个 img 元素来填充空壳容器，还会添加单个的新的空壳容器（div）
-    obBody() {
-        const ob = new MutationObserver((mutations) => {
-            for (const mutation of mutations) {
-                if (mutation.addedNodes.length > 0) {
-                    for (const el of mutation.addedNodes) {
-                        // 从添加的元素里寻找缩略图容器
-                        const e = el;
-                        const wrapList = [];
-                        // 如果添加的是单个的 li，，则判断它是不是缩略图容器
-                        if (e.nodeName === 'LI') {
-                            if (e.getAttribute('size') === '1' ||
-                                e.querySelector('div[width="184"]') ||
-                                e.classList.contains('searchList')) {
-                                wrapList.push(e);
-                            }
-                        }
-                        else if (e.nodeName === 'IMG' && e.src) {
-                            if (_PageType__WEBPACK_IMPORTED_MODULE_0__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_0__.pageType.list.ArtworkSearch) {
-                                // 在搜索页面里，添加的元素是 img 而不是其容器 li
-                                const li = e.closest('li');
-                                if (li) {
-                                    this.readyCheckImage(e, li);
-                                }
-                            }
-                            else {
-                                // 在其他页面里（主要是首页），横向滚动区域里的一些作品是动态添加 img 元素的，寻找其父元素
-                                const parent = e.closest('ul>div');
-                                if (parent) {
-                                    this.readyCheckImage(e, parent);
-                                }
-                            }
-                        }
-                        else if (e.nodeType === 1) {
-                            // 如果添加的不是 li，则尝试在子元素里寻找缩略图容器
-                            for (const selector of this.workWrapSelectors) {
-                                const elList = e.querySelectorAll(selector);
-                                for (const el of elList) {
-                                    wrapList.push(el);
-                                }
-                                // 如果这个选择器查找到了元素，就不再查找下一个选择器，以免重复查找
-                                if (elList.length > 0) {
-                                    break;
-                                }
-                            }
-                            // 如果前面没有找到缩略图容器，则尝试其他办法
-                            // 注意，这里使用的选择器不是容器本身的选择器，而是容器的子元素，所以需要单独处理
-                            // if (wrapList.length === 0) {
-                            //   const elList = e.querySelectorAll('div[width="184"]')
-                            //   for (const el of elList) {
-                            //     if(el.parentNode?.nodeName === 'LI'){
-                            //       wrapList.push(el.parentNode as HTMLLIElement)
-                            //     }
-                            //   }
-                            // }
-                        }
-                        // 监视缩略图容器
-                        for (const wrap of wrapList) {
-                            this.obWorkWrap(wrap);
-                        }
-                    }
-                }
-            }
-        });
-        ob.observe(document.body, {
-            childList: true,
-            subtree: true,
-        });
-    }
-    // 监视作品缩略图容器内部的 img 元素
-    obWorkWrap(wrap) {
-        // 已经有 img 元素的情况
-        if (_PageType__WEBPACK_IMPORTED_MODULE_0__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_0__.pageType.list.ArtworkSearch) {
-            // .searchList 是下载器在搜索页面生成的元素，里面一开始就有 img 元素，所以不需要监视
-            if (wrap.classList.contains('searchList') || wrap.nodeName === 'LI') {
-                const img = wrap.querySelector('img');
-                this.readyCheckImage(img, wrap);
-                return;
-            }
-        }
-        // 如果是动态生成 img 的情况，则需要对 wrap 使用监视器
-        const ob = new MutationObserver((records) => {
-            for (const record of records) {
-                // 生成作品缩略图内部的 img 时，addedNodes 数组里只有 img 标签这一个元素
-                if (record.addedNodes.length === 1 &&
-                    record.addedNodes[0].nodeName === 'IMG') {
-                    const img = record.addedNodes[0];
-                    this.readyCheckImage(img, wrap, ob);
-                }
-            }
-        });
-        ob.observe(wrap, {
-            childList: true,
-            subtree: true,
-        });
-    }
-    // 当图片加载完成时检查它的宽高，并取消监视
-    readyCheckImage(img, wrap, ob) {
-        if (img?.complete) {
-            this.checkImage(img, wrap);
-            ob && ob.disconnect();
-        }
-        else {
-            img &&
-                (img.onload = () => {
-                    this.checkImage(img, wrap);
-                    ob && ob.disconnect();
-                });
-        }
-    }
-    // 当 img 加载完成后，计算 img 是横图还是竖图
-    checkImage(img, wrap) {
-        if (!img.src.includes('1200.jpg')) {
-            return;
-        }
-        if (img.naturalWidth / img.naturalHeight > 1) {
-            this.find(wrap);
-        }
-    }
-    // 注册回调函数
-    onFind(cb) {
-        this.onFindCB.push(cb);
-    }
-    // 当找到横图的容器时会执行回调函数
-    find(wrap) {
-        for (const cb of this.onFindCB) {
-            cb(wrap);
-        }
-    }
-}
-const findHorizontalImageWrap = new FindHorizontalImageWrap();
 
 
 
@@ -29683,12 +29416,6 @@ const formHtml = `<form class="settingForm">
     <span class="settingNameStyle1" data-xztext="_显示更大的缩略图"></span>
     <input type="checkbox" name="showLargerThumbnails" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch" tabindex="0"></span>
-
-    <span class="subOptionWrap" data-show="showLargerThumbnails">
-    <label for="doubleWidthThumb" data-xztext="_横图占用二倍宽度"></label>
-    <input type="checkbox" name="doubleWidthThumb" id="doubleWidthThumb" class="need_beautify checkbox_switch" checked>
-    <span class="beautify_switch" tabindex="0"></span>
-    </span>
     </p>
     
     <p class="option" data-no="63">
@@ -30106,7 +29833,6 @@ class FormSettings {
                 'removeAtFromUsername',
                 'showPreviewWorkTip',
                 'showLargerThumbnails',
-                'doubleWidthThumb',
                 'wheelScrollSwitchImageOnPreviewWork',
                 'swicthImageByKeyboard',
                 'doNotDownloadLastImageOfMultiImageWork',
@@ -31136,7 +30862,6 @@ class Settings {
             setUserNameList: {},
             removeAtFromUsername: false,
             showLargerThumbnails: false,
-            doubleWidthThumb: true,
             wheelScrollSwitchImageOnPreviewWork: true,
             swicthImageByKeyboard: true,
             doNotDownloadLastImageOfMultiImageWork: false,
@@ -49151,30 +48876,29 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_15__);
 /* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
 /* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
-/* harmony import */ var _DoubleWidthThumb__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./DoubleWidthThumb */ "./src/ts/DoubleWidthThumb.ts");
-/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
-/* harmony import */ var _showDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./showDownloadBtnOnThumb */ "./src/ts/showDownloadBtnOnThumb.ts");
-/* harmony import */ var _RemoveBlockedUsersWork__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./RemoveBlockedUsersWork */ "./src/ts/RemoveBlockedUsersWork.ts");
-/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
-/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
-/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
-/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
-/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
-/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
-/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _download_SaveWorkDescription__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/SaveWorkDescription */ "./src/ts/download/SaveWorkDescription.ts");
-/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
-/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
-/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
-/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
-/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
-/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
+/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
+/* harmony import */ var _showDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./showDownloadBtnOnThumb */ "./src/ts/showDownloadBtnOnThumb.ts");
+/* harmony import */ var _RemoveBlockedUsersWork__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./RemoveBlockedUsersWork */ "./src/ts/RemoveBlockedUsersWork.ts");
+/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
+/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
+/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
+/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
+/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
+/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
+/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
+/* harmony import */ var _download_SaveWorkDescription__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/SaveWorkDescription */ "./src/ts/download/SaveWorkDescription.ts");
+/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
+/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
+/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
+/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
+/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
+/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -49203,7 +48927,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
+// import './DoubleWidthThumb'
 
 
 
