@@ -154,6 +154,12 @@ body[data-page-type='1'] #root #XZArtworkWrap {
 body[data-page-type='1'] #root .dkjfqS {
   padding: 0 !important;
 }
+body[data-page-type='1'] .gtm-illust-recommend-zone ul,
+body[data-page-type='1'] .jELUak {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
 body[data-page-type='1'] #XZContentWrap,
 body[data-page-type='1'] .pEkOH {
   padding: 0;
