@@ -94,7 +94,10 @@ class ShowLargerThumbnails {
     }
 
     // 在新版首页里，额外查找 推荐作品
-    if (sectionList[2] && ['/', '/en/'].includes(window.location.pathname)) {
+    if (
+      sectionList[2] &&
+      ['/', '/en/', '/illustration'].includes(window.location.pathname)
+    ) {
       const allLi = sectionList[2].querySelectorAll('ul li')
       if (allLi.length > 1) {
         sectionList[2].classList.add('homeRecommendedWorks')
@@ -104,6 +107,18 @@ class ShowLargerThumbnails {
         allLi.forEach((li) => {
           if (li.querySelector('a[href^="/novel"]')) {
             li.classList.add('novelLI')
+          }
+        })
+
+        // 推荐作品里，最前面两个 li 元素可能是空的，也可能有个含有 iframe 的元素。
+        // 当下载器把 ul 设置为 display: flex; 之后，需要移除这些元素，否则它们会占据一些宽度
+        allLi.forEach((li) => {
+          if (li.childElementCount === 0) {
+            li.remove()
+          }
+          const iframe = li.querySelector('iframe')
+          if (iframe) {
+            iframe.remove()
           }
         })
       }

@@ -1,559 +1,1225 @@
 /* 显示更大的缩略图 */
-/* 下载器替换默认的缩略图时，使用的的图片宽高最大是 540px */
-/* 需要注意的是，普通模式和夜间模式的图片 className 不同。所以修改后需要在两个模式下都测试效果。现在普通模式是 erYaF，夜间模式是 eCFXg*/
+// 下载器替换默认的缩略图时，使用的的图片宽高最大是 540px
+// #root 元素是旧版页面里的规则，Pixiv 改版后的页面里已经没有了，但还有些用户依然是旧版页面
+// 所以 #root 里面的规则现在还需要保留。
+// 变化：以前普通模式和夜间模式的图片 className 不同，所以修改后需要在两个模式下都测试效果。现在是相同的了。
 
-/* 作品列表外部容器，取消它们的宽度限制 */
-.iClkCH,
-.gTaKE,
-.dkDhZO,
-.FIoEP,
-.cFnmRM,
-.egRndR,
-.cziSru,
-.fwKwiN,
-.kzVVzC,
-.sc-5ab8209a-1,
-.drrFnc,
-.sc-5ab8209a-2,
-.hbbJkA,
-.ggHNyV,
-.dkjfqS,
-.hairtM {
-  width: auto !important;
-  min-width: 1224px;
-  max-width: unset !important;
-}
-
-// 发现页面的外层容器
-.ldgmym,
-.YXoqY {
-  width: auto !important;
-  min-width: 1224px;
-  max-width: 94vw !important;
-}
-
-// 一些外层容器元素可能被设置了固定宽度，导致图片尺寸固定，或者容器不能完全显示里面的内容
-// 这里解除限制
-.liyNwX,
-.gClOXE,
-.sc-11m5zdr-2,
-.hkRLSu,
-.fgSNcI,
-.gFXOjb,
-.cDZIoX,
-.cwAKCq {
-  width: auto !important;
-}
-
-.hkRLSu,
-.fgSNcI {
-  padding: 0 50px;
-}
-
-/* display: grid 的 ul */
-.kpXxgm,
-.fmesiH,
-.fhUcsb,
-div[data-gtm-recommend-zone='discovery'] ul {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-/* li 的直接子元素 */
-.jDiQFZ,
-.janQPj,
-.gFXJBU,
-.cWMKYW,
-div[data-gtm-recommend-zone='discovery'] ul > li > div {
-  width: 100% !important;
-}
-
-/* div[width="184"] */
-/* 给图片外面的容器设置最小高度，否则图片没加载出来时高度太小了，收藏按钮都只显示一半*/
-div[data-gtm-recommend-zone='discovery'] ul div[size='184'] > div,
-.fxGVAF {
-  min-height: 100px;
-  width: auto !important;
-  height: auto !important;
-}
-
-/* div[width="184"] a */
-/* 这是 img 外部的 a 标签，让它继承父元素的高度。否则有时 img 始终是最大高度 540px，导致图片高度自动居中失效 */
-// width: 100%; 是为了让尺寸较小（如 320px）的图片铺满容器宽度
-div[data-gtm-recommend-zone='discovery'] ul div[size='184'] a,
-.fGjAxR {
-  display: inline-flex;
-  height: 100%;
-  width: 100%;
-}
-
-/* div[width="184"] a div */
-/* img 的直接父级元素 div */
-div[data-gtm-recommend-zone='discovery'] ul div[size='184'] a:first-child,
-.cYUezH {
-  height: auto !important;
-}
-
-/* nav 里的这个元素是横向滚动区域里的，不能设置它的高度为 auto，否则它的高度就是图片的高度，图片就无法垂直居中了 */
-nav .cYUezH {
-  height: 100% !important;
-}
-
-/* 作品页面大图下面的横向小图列表，保持其原宽高。因为这里的元素是绝对定位设置了 left 的，如果下载器改变了内容的宽度，就会导致 left 不准确，显示出错*/
-main nav div .erYaF,
-main figcaption .lgccrd,
-main nav div .eCFXg,
-main figcaption .eCFXg {
-  height: 100% !important;
-  width: 136px !important;
-}
-
-/* 搜索框下拉面板底部的缩略图列表保持原宽高，不然只能显示一部分 */
-main figcaption .lgccrd .erYaF,
-main figcaption .lgccrd .eCFXg,
-.eHTuWt .erYaF,
-.eHTuWt .eCFXg,
-div[width='104'] .erYaF,
-div[width='104'] .eCFXg {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-/* div[width="184"] a div img */
-/* img */
-.erYaF,
-.eCFXg,
-.cdrSgJ,
-.zdawJ,
-.cdrSgJ {
+// 使用一个通用的选择器，放大图片，这个不容易失效。
+// 但是 Pixiv 改版时其父级元素的 className 也会变，所以改版后父级还是得修复
+// 使用 div[data-mouseover] a img 时需要在前面加上选择器，限定其生效范围
+// 因为有些不需要放大的缩略图也符合这个选择器，如：
+// 1. 鼠标放在作者名字上时，显示的作者信息里的 3 个缩略图
+// 2. 约稿页面里，“已关注且正在接稿的创作者”里每个作者的 3 个缩略图
+ul li div[data-mouseover] a img {
+  position: relative;
   width: auto !important;
   height: auto !important;
   max-height: 540px;
 }
 
-/* 顶部 tag 列表部分，减少左侧 padding */
-.eYOHvS,
-.beTVzC {
-  padding-left: 70px !important;
+// 不支持的页面
+body[data-page-type='-1'] {
+  .cwAKCq {
+    width: auto;
+  }
+  .jtUPOE {
+    display: flex;
+    align-items: center;
+  }
+
+  .JaPty,
+  .liyNwX {
+    width: auto !important;
+    height: auto !important;
+  }
 }
 
-/* 发现页面点击关注后出现的横向区域，取消其遮罩元素和两侧的透明元素，这样可以增加其横向显示范围 */
-.jCNiwq {
-  mask-image: unset !important;
+// Home 首页
+// https://www.pixiv.net/
+body[data-page-type='0'] {
+  #root {
+    // 正在举办的比赛 板块
+    .hkzusx {
+      align-items: center;
+    }
+
+    .liyNwX {
+      width: auto !important;
+      height: auto !important;
+    }
+  }
+
+  // 每个板块的最外层容器元素可能被设置了固定宽度，导致图片尺寸固定，或者容器不能完全显示里面的内容
+  // 需要解除宽度限制
+  .bgPpJb,
+  div.gtm-toppage-thumbnail-illustration-recommend-tag-zone > div > div,
+  .bYCbxa,
+  .cwAKCq {
+    width: auto !important;
+  }
+
+  .ldgmym {
+    width: 92vw;
+  }
+
+  // 正在举办的比赛里的 div，解除宽度 184px 的限制
+  .eajBeO {
+    width: auto !important;
+  }
+
+  li iframe {
+    display: none !important;
+  }
+
+  // ul
+  // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
+  .bkRoSP,
+  .fhUcsb,
+  .cCkJMN,
+  .hjtPnz,
+  .jELUak {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .jtUPOE,
+  .kAeevZ {
+    align-items: center;
+  }
+
+  // ul li
+  // 解除作品项目的宽度限制
+  // 这些元素原本设置了 width: 184px;
+  li[size='1'],
+  li[size='1'] > div {
+    width: auto !important;
+  }
+
+  // ul li div[width="184"]
+  // 解除 img 父级元素的宽度限制
+  div[width='184'] {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* img */
+  /* div[width="184"] a div img */
+  div[width='184'] a div img,
+  .jercGe {
+    position: relative;
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
+  }
+
+  // 首页的“插画约稿作品”区域，加大元素高度，稍微加大里面的图片
+  div.gVidFA {
+    height: 400px;
+  }
+
+  div.gVidFA div[width='184'] a div img {
+    max-width: 260px;
+    max-height: 260px;
+  }
+
+  /* 下载器会尝试给 精选新作 和 已关注用户的作品 的容器添加自定义的 class，避免其频繁改版而失效 */
+
+  // 在新版首页里，把 精选新作 的宽度设置为 100%。因为它原本的样式只占页面中间的一部分
+  .homeFriendsNewWorks > div:nth-child(2) {
+    --carousel-width: unset !important;
+  }
+
+  .homeFriendsNewWorks ul {
+    align-items: center;
+  }
+
+  .homeFriendsNewWorks ul > div,
+  .homeFriendsNewWorks ul > li {
+    display: flex !important;
+    width: auto;
+    max-width: 540px;
+    max-height: 600px;
+    flex-shrink: 0;
+  }
+
+  .homeFriendsNewWorks ul > div > div,
+  .homeFriendsNewWorks ul > li > div {
+    display: flex !important;
+    flex-direction: column !important;
+    width: auto !important;
+  }
+
+  .homeFriendsNewWorks ul > div > div > div,
+  .homeFriendsNewWorks ul > li > div > div {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  // 新版首页的推荐作品
+  .homeRecommendedWorks ul > li {
+    display: flex !important;
+    max-width: 540px;
+    max-height: 600px;
+    flex-shrink: 0;
+    margin: 12px;
+  }
+
+  .homeRecommendedWorks ul > li > div {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  // 增加小说的宽度
+  .homeRecommendedWorks ul > li.novelLI {
+    width: 100% !important;
+  }
+
+  // 在推荐作品里，小说和图片的区别不明显。我把小说的背景颜色设置为浅棕色，这样就能一眼看出来
+  .homeRecommendedWorks ul > li.novelLI > div > div > div:nth-child(1) {
+    background-color: #d1bfa2;
+  }
+
+  /* 推荐作品 li */
+  /* 很多新版页面的作品列表都要把 margin 改小一些，从 12 改为 10，否则在 125% 缩放时，因为宽度不够，一排原本能显示 6 个的，变得只能显示 5 个*/
+  .kxmdLh,
+  .dgeelW,
+  .flkRKs,
+  .jexggF {
+    margin: 10px !important;
+    width: auto !important;
+    max-width: 540px;
+    max-height: 600px;
+  }
 }
 
-.jCNiwq > div {
-  display: none;
+// Artwork 插画/漫画/动图页面
+// https://www.pixiv.net/artworks/127936646
+body[data-page-type='1'] {
+  #root {
+    // 上半部分（作品区域）左右两列的父元素
+    .dkdRNk,
+    #XZArtworkWrap {
+      padding: 0;
+      justify-content: center;
+    }
+
+    .dkjfqS {
+      padding: 0 !important;
+    }
+  }
+
+  // 相关作品的 ul 元素
+  .gtm-illust-recommend-zone ul,
+  .jELUak {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  // 每个板块的最外层容器元素可能被设置了固定宽度，导致图片尺寸固定，或者容器不能完全显示里面的内容
+  // 需要解除宽度限制
+  // 这是整个页面内容的容器
+  #XZContentWrap,
+  .pEkOH {
+    padding: 0;
+    width: auto !important;
+    max-width: unset !important;
+  }
+
+  // 让上半部分（作品区域）保持原本的宽度和居中显示
+  .hvOssX,
+  #XZContentWrap {
+    max-width: 1224px;
+    margin: 24px auto 0;
+    justify-content: center;
+  }
+
+  // 加宽底部的“相关作品”区域宽度
+  .kIrKyI,
+  .bgPpJb,
+  div[data-gtm-recommend-zone='new-illust-detail'] > div > div {
+    width: 94vw;
+  }
+
+  // ul
+  // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
+
+  // ul li
+  // 解除作品项目的宽度限制
+  // 这些元素原本设置了 width: 184px;
+  li[size='1'],
+  li[size='1'] > div {
+    width: auto !important;
+  }
+
+  // ul li div[width="184"]
+  // 解除 img 父级元素的宽度限制
+  div[width='184'] {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* img */
+  /* div[width="184"] a div img */
+  div[width='184'] a div img {
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
+  }
 }
 
-.hkzusx .eYOHvS {
-  padding-right: 70px !important;
+// UserHome 用户主页
+// https://www.pixiv.net/users/18095070
+// 这个测试网址里除了插画、漫画，还有约稿，比较齐全
+body[data-page-type='2'] {
+  #root {
+    // 取消作品列表容器的宽度限制
+    .cDZIoX,
+    .jRsJMY {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+
+  /* 主页、插画、收藏 一栏取消宽度限制 */
+  /* 作品列表顶部的 tag 列表取消宽度限制 */
+  /* 精选作品的标题栏取消宽度限制 */
+  .gqvfWY,
+  .eVpyzU,
+  .dBbGoM,
+  .gqvfWY,
+  .cABUbk,
+  .leKCEy,
+  .pGIKk,
+  .hbpcMJ,
+  .eVpyzU {
+    width: 92vw;
+    max-width: unset;
+  }
+
+  div[width='288'],
+  .kXjhXr,
+  .hxfsRR,
+  .jRyeAs {
+    width: 100%;
+    height: 100%;
+  }
+
+  .dizBQv {
+    padding: 0;
+  }
+
+  // 精选作品元素，其直接子元素是图片和作品信息
+  // 因为我把图片放大了，所以让作品信息显示在图片下方
+  .hxfsRR,
+  .jRyeAs {
+    flex-direction: column;
+    align-items: start;
+    max-width: 540px;
+  }
+
+  .iHrRmI,
+  .jtUPOE,
+  .gmoaNn {
+    align-items: center;
+  }
+
+  .fKsmTC,
+  .gYUunk {
+    width: 92vw;
+  }
+
+  /* 画师顶部三个精选作品 */
+  // 设置两侧的 padding
+  .jUPNzm,
+  .wJpxo {
+    padding: 0 72px;
+  }
+
+  // 每个板块的最外层容器元素可能被设置了固定宽度，导致图片尺寸固定，或者容器不能完全显示里面的内容
+  // 需要解除宽度限制
+  .bgPpJb {
+    width: auto !important;
+  }
+
+  // ul
+  // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
+  .buGhFj {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .jELUak {
+    align-items: center;
+  }
+
+  // ul li
+  // 解除作品项目的宽度限制
+  // 这些元素原本设置了 width: 184px;
+  li[size='1'],
+  li[size='1'] > div {
+    width: auto !important;
+  }
+
+  // ul li div[width="184"]
+  // 解除 img 父级元素的宽度限制
+  div[width='184'] {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* img */
+  /* div[width="184"] a div img */
+  div[width='184'] a div img,
+  a[data-gtm-value] img {
+    position: relative;
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
+  }
 }
 
-/* 通用部分结束 */
+// Bookmark 收藏页面
+// https://www.pixiv.net/bookmark.php
+body[data-page-type='4'] {
+  /* 主页、收藏 一栏取消宽度限制 */
+  /* 插画·漫画、小说 分类一栏取消宽度限制 */
+  /* 作品列表 取消宽度限制 */
+  .gqvfWY,
+  .bYCbxa,
+  .eVpyzU,
+  .hbpcMJ,
+  .eVpyzU {
+    width: 92vw;
+    max-width: 100%;
+  }
 
-/* 首页 */
-/* 让顶部一栏最新作品居中 */
-.sc-1kr69jw-0 {
-  align-items: center;
+  // 每个板块的最外层容器元素可能被设置了固定宽度，导致图片尺寸固定，或者容器不能完全显示里面的内容
+  // 需要解除宽度限制
+  .bgPpJb,
+  .cDZIoX {
+    width: auto !important;
+  }
+
+  // ul
+  // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
+  .jELUak,
+  .jtUPOE {
+    align-items: center;
+  }
+
+  // ul li
+  // 解除作品项目的宽度限制
+  // 这些元素原本设置了 width: 184px;
+  li[size='1'],
+  li[size='1'] > div {
+    width: auto !important;
+  }
+
+  // ul li div[width="184"]
+  // 解除 img 父级元素的宽度限制
+  div[width='184'] {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* img */
+  /* div[width="184"] a div img */
+  div[width='184'] a div img {
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
+  }
 }
 
-/* 关注用户・好P友的作品 左右两侧的占位符元素 */
-.hkzusx div[style] {
-  flex-shrink: 0;
+// ArtworkSearch 图像作品的搜索页面
+// https://www.pixiv.net/tags/vtuber/artworks?s_mode=s_tag
+body[data-page-type='5'] {
+  // 在旧版页面里
+  #root {
+    /* ul */
+    // 原本是网格布局，改为 flex 布局
+    .krFoBL,
+    .hdRpMN {
+      gap: 0 !important;
+      display: flex !important;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    /* li */
+    .krFoBL li,
+    .hdRpMN li {
+      margin: 10px !important;
+      flex-grow: 0;
+      flex-shrink: 1;
+      width: auto !important;
+      max-width: 540px;
+      max-height: 600px;
+    }
+  }
+
+  /* 取消宽度限制 */
+  .gqvfWY,
+  .bYCbxa,
+  .hbpcMJ {
+    width: 92vw;
+    max-width: 100%;
+  }
+
+  // 每个板块的最外层容器元素可能被设置了固定宽度，导致图片尺寸固定，或者容器不能完全显示里面的内容
+  // 需要解除宽度限制
+  .bgPpJb {
+    width: auto !important;
+  }
+
+  // 顶部的 tag 列表
+  .jUPNzm,
+  .dizBQv {
+    padding: 0 70px;
+    max-width: 92vw;
+    min-width: unset;
+  }
+
+  // ul
+  // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
+  .iwHaa-d {
+    display: flex;
+    align-items: center;
+  }
+
+  // ul li
+  // 解除作品项目的宽度限制
+  // 这些元素原本设置了 width: 184px;
+  .iwHaa-d > li,
+  .iwHaa-d > li > div {
+    width: auto !important;
+  }
+
+  // ul li div[width="184"]
+  // 解除 img 父级元素的宽度限制
+  div[width='184'],
+  .liyNwX {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* img */
+  /* div[width="184"] a div img */
+  div[width='184'] a div img {
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
+  }
+
+  /* 下载器预览搜索结果时添加的列表元素 */
+  #workListWrap {
+    display: flex;
+  }
+
+  .searchList {
+    width: auto !important;
+    max-width: 540px;
+    max-height: 600px;
+  }
+
+  .searchList .searchContent {
+    width: auto !important;
+  }
+
+  .searchList .searchContent .searchImgArea .searchImgAreaContent {
+    width: auto !important;
+    height: auto !important;
+  }
 }
 
-/**推荐作品*/
-.hjtPnz,
-.bpXOJR {
-  display: flex !important;
-  overflow: auto;
-  flex-wrap: wrap;
+// AreaRanking 地区排行榜
+// https://www.pixiv.net/ranking_area.php?type=state&no=0
+body[data-page-type='6'] {
+  // 解除列表容器的宽度限制
+  .ranking-items.old {
+    padding: 0;
+    width: auto !important;
+  }
+
+  // 图片左侧的编号
+  .ranking-items.old .ranking-item .rank {
+    left: 20px;
+  }
+
+  // 图片右侧的作品信息
+  .ranking-items.old .ranking-item .data {
+    position: absolute;
+    top: 20px;
+    margin-left: 660px;
+    color: #666;
+  }
+
+  // 缩略图上层 div
+  // 解除作品项目的宽度限制
+  // 这些元素原本设置了 width: 184px;
+  .ranking-items.old .ranking-item .work_wrapper {
+    width: auto !important;
+    position: relative;
+    left: 0;
+    right: 0;
+    margin-left: 90px;
+    text-align: left;
+  }
+
+  // div a
+  // 解除 img 父级元素的宽度限制
+  ._work.work {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* img */
+  // div a img
+  .ranking-items.old .ranking-item ._thumbnail {
+    width: auto !important;
+    height: auto !important;
+    max-width: 540px;
+    max-height: 540px;
+  }
 }
 
-.hjtPnz li,
-.bpXOJR li {
-  margin-bottom: 26px;
+// ArtworkRanking 图片类型作品的排行榜
+// https://www.pixiv.net/ranking.php?mode=daily
+body[data-page-type='7'] {
+  // 解除列表容器的宽度限制
+  #wrapper,
+  .layout-body,
+  .layout-a,
+  .layout-b {
+    width: 92vw;
+  }
+
+  // 缩略图列表元素
+  .ranking-items.adjust .ranking-item {
+    width: auto !important;
+    margin: 0 30px 40px;
+  }
+
+  // a 的父元素
+  .ranking-items.adjust .ranking-item .ranking-image-item {
+    width: auto !important;
+  }
+
+  /* img */
+  .ranking-items.adjust .work img {
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
+  }
 }
 
-/* 缩略图 li */
-/* 首页还有不少地方的作品缩略图容器列表也都是这个 class */
-/* max-height 需要比 max-width 更大一些，因为图片的下方还要显示标题等信息，也要占据空间 */
-.bgeGyS,
-.hcLnhb,
-.hhoRzm,
-.dgeelW {
-  display: flex !important;
-  width: auto;
-  max-width: 540px;
-  max-height: 600px;
-  flex-shrink: 0;
+// NewArtworkBookmark 已关注用户的新作品
+// https://www.pixiv.net/bookmark_new_illust.php
+body[data-page-type='10'] {
+  // 解除列表容器的宽度限制
+  .gqvfWY,
+  .bYCbxa,
+  .cwAKCq {
+    width: 92vw;
+  }
+
+  .bgPpJb {
+    width: 100% !important;
+  }
+
+  // ul
+  // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
+  .jELUak,
+  .jtUPOE {
+    display: flex;
+    align-items: center;
+  }
+
+  // ul li
+  // 解除作品项目的宽度限制
+  // 这些元素原本设置了 width: 184px;
+  .jELUak > li,
+  .jELUak > li > div,
+  .JaPty {
+    width: auto !important;
+  }
+
+  // ul li div[width="184"]
+  // 解除 img 父级元素的宽度限制
+  div[width='184'],
+  .liyNwX {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* img */
+  /* div[width="184"] a div img */
+  div[width='184'] a div img {
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
+  }
 }
 
-.bgeGyS .jDiQFZ,
-.hcLnhb .jDiQFZ,
-.hhoRzm .jDiQFZ,
-.dgeelW > div {
-  display: flex !important;
-  flex-direction: column !important;
+// Discover 发现页面
+// https://www.pixiv.net/discovery
+body[data-page-type='11'] {
+  // 解除列表容器的宽度限制
+  .YXoqY,
+  .ldgmym {
+    width: 92vw;
+  }
+
+  // ul
+  // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
+  .fhUcsb,
+  .iXWLAI {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  // ul li
+  // 解除作品项目的宽度限制
+  // 这些元素原本设置了 width: 184px;
+  .iXWLAI > li,
+  .iXWLAI > li > div {
+    width: auto !important;
+  }
+
+  // ul li div[size="184"]
+  // 解除 img 父级元素的宽度限制
+  div[size='184'],
+  div[size='184'] > div {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* img */
+  /* div[size="184"] a div img */
+  div[size='184'] a div img {
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
+  }
+
+  // 下面处理收藏作品后，出现的“相关作品”列表区域
+  // 取消左右两侧的灰色遮罩
+  .bZWHGA {
+    mask-image: unset !important;
+  }
+
+  // 减少左侧无效区域
+  .bQUZAm {
+    width: 100px;
+  }
+
+  // ul
+  // 原本里面的图片是全部一排，现在减小宽度，使原本被因此的图片可以竖排下来
+  .dHJLGd {
+    display: flex;
+    flex-wrap: wrap;
+    width: 94vw;
+  }
+
+  // ul li
+  .foiHAA {
+    margin-bottom: 24px;
+  }
+
+  // ul li div
+  .hUitRq {
+    width: auto !important;
+  }
 }
 
-.bgeGyS .jDiQFZ .hYfnPb,
-.hcLnhb .jDiQFZ .hYfnPb,
-.hhoRzm .jDiQFZ .hYfnPb,
-.dgeelW > div > div {
-  display: flex !important;
+// NewArtwork 大家的新作品
+// https://www.pixiv.net/new_illust.php
+body[data-page-type='12'] {
+  // 解除列表容器的宽度限制
+  .ldgmym,
+  .YXoqY,
+  .hairtM {
+    width: 92vw;
+    max-width: 92vw;
+  }
+
+  // ul
+  // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
+  .fhUcsb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  // ul li
+  // 解除作品项目的宽度限制
+  // 这些元素原本设置了 width: 184px;
+  .jELUak > li,
+  .jELUak > li > div {
+    width: auto !important;
+  }
+
+  /* img */
+  .cEpkIn {
+    position: relative;
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
+  }
 }
 
-// 注意：上面不能改成 .bgeGyS  div:first-child div:first-child 的形式，因为这样会导致错误的匹配，导致其他某些部分乱版（例如首页的 推荐用户 区域）
+// Following 关注的用户
+// https://www.pixiv.net/users/96661459/following
+body[data-page-type='20'] {
+  // 解除列表容器的宽度限制
+  .gqvfWY,
+  .bYCbxa,
+  .bqInRE {
+    width: 92vw;
+  }
 
-/* 下载器会尝试给 精选新作 和 已关注用户的作品 的容器添加自定义的 class，避免其频繁改版而失效 */
+  .gClOXE {
+    width: 100%;
+  }
 
-// 在新版首页里，把 精选新作 的宽度设置为 100%。因为它原本的样式只占页面中间的一部分
-.homeFriendsNewWorks > div:nth-child(2) {
-  --carousel-width: unset !important;
+  // ul
+  // 作品列表容器。它本来就是 flex 布局，所以只需要设置交叉轴对齐方式为 center
+  // 另外放大缩略图后，最右侧的图片可能会有一部分超出屏幕，所以设置 overflow: auto
+  section ul,
+  .kAeevZ,
+  .hkzusx {
+    align-items: center;
+    max-width: 50vw;
+    overflow: auto;
+    padding-right: 0 !important;
+  }
+
+  // div
+  // 解除作品缩略图元素里 div 的宽度限制
+  // 这些元素原本设置了 width: 184px;
+  section ul > div > div > div,
+  .eajBeO,
+  .fLGndj,
+  div[width='184'] {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* img */
+  .iaqWlq,
+  div[width='184'] img {
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
+  }
 }
 
-.homeFriendsNewWorks ul > div,
-.homeFriendsNewWorks ul > li {
-  display: flex !important;
-  width: auto;
-  max-width: 540px;
-  max-height: 600px;
-  flex-shrink: 0;
+// Request 约稿
+// https://www.pixiv.net/request
+body[data-page-type='21'] {
+  // 解除列表容器的宽度限制
+  .fKsmTC {
+    width: 92vw;
+  }
+
+  // ul
+  // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
+  .buGhFj,
+  .jlWuvS {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .jlWuvS {
+    align-items: center;
+  }
+
+  // ul li
+  // 解除作品项目的宽度限制
+  // 这些元素原本设置了 width: 184px;
+  .jELUak > li,
+  .jELUak > li > div {
+    width: auto !important;
+  }
+
+  /* img */
+  .bFEhwX {
+    position: relative;
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
+  }
 }
 
-.homeFriendsNewWorks ul > div > div,
-.homeFriendsNewWorks ul > li > div {
-  display: flex !important;
-  flex-direction: column !important;
-  width: auto !important;
+// DiscoverUsers 发现用户
+// https://www.pixiv.net/discovery/users
+body[data-page-type='23'] {
+  // 解除列表容器的宽度限制
+  .ldgmym,
+  .bYCbxa {
+    width: 92vw;
+  }
+
+  // 每个用户的内容分为左右两块，左侧是用户信息，右侧是图片列表
+  // 这个就是图片列表容器，取消其宽度限制
+  .hSrLET {
+    width: auto !important;
+  }
+
+  // ul
+  // 作品列表容器。它本来就是 flex 布局，所以只需要设置交叉轴对齐方式为 center
+  // 另外放大缩略图后，最右侧的图片可能会有一部分超出屏幕，所以设置 overflow: auto
+  .gLWzLO {
+    align-items: center;
+    max-width: 70vw;
+    overflow: auto;
+    padding-right: 0 !important;
+  }
+
+  // div
+  // 解除作品缩略图元素里 div 的宽度限制
+  // 这些元素原本设置了 width: 184px;
+  .hUitRq,
+  .hUitRq > div,
+  .hUitRq > div > div {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* img */
+  .leoqXH {
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
+  }
 }
 
-.homeFriendsNewWorks ul > div > div > div,
-.homeFriendsNewWorks ul > li > div > div {
-  display: flex !important;
-  flex-direction: column !important;
-}
+// 在所有具有 #root 的页面里的规则
+// 也就是改版前的页面。新版页面里不需要这些规则。
+#root {
+  // 首页的推荐作品
+  .homeRecommendedWorks ul {
+    display: flex;
+    flex-wrap: wrap;
+  }
 
-// 新版首页的推荐作品
-.homeRecommendedWorks ul > li {
-  display: flex !important;
-  max-width: 540px;
-  max-height: 600px;
-  flex-shrink: 0;
-  flex-grow: 1;
-}
+  // 第一个 li 是有个 iframe 子元素的没用的元素，隐藏掉，否则它会占据一个作品的宽度
+  .homeRecommendedWorks ul li:first-child {
+    display: none !important;
+  }
 
-.homeRecommendedWorks ul > li > div {
-  display: flex !important;
-  flex-direction: column !important;
-  width: 100% !important;
-}
+  /* 作品列表外部容器，取消它们的宽度限制 */
+  .iClkCH,
+  .gTaKE,
+  .dkDhZO,
+  .FIoEP,
+  .cFnmRM,
+  .egRndR,
+  .cziSru,
+  .fwKwiN,
+  .kzVVzC,
+  .sc-5ab8209a-1,
+  .drrFnc,
+  .sc-5ab8209a-2,
+  .hbbJkA,
+  .ggHNyV,
+  .dkjfqS,
+  .hairtM {
+    width: auto !important;
+    min-width: 1224px;
+    max-width: unset !important;
+  }
 
-// 增加小说的宽度
-.homeRecommendedWorks ul > li.novelLI {
-  width: 100% !important;
-}
+  // 发现页面的外层容器
+  .ldgmym,
+  .YXoqY {
+    width: auto !important;
+    min-width: 1224px;
+    max-width: 94vw !important;
+  }
 
-// 在推荐作品里，小说和图片的区别不明显。我把小说的背景颜色设置为浅棕色，这样就能一眼看出来
-.homeRecommendedWorks ul > li.novelLI > div > div > div:nth-child(1) {
-  background-color: #d1bfa2;
-}
+  .hkRLSu,
+  .fgSNcI {
+    padding: 0 50px;
+  }
 
-/* 推荐作品 li */
-/* 很多新版页面的作品列表都要把 margin 改小一些，从 12 改为 10，否则在 125% 缩放时，因为宽度不够，一排原本能显示 6 个的，变得只能显示 5 个*/
-.kxmdLh,
-.dgeelW,
-.flkRKs,
-.jexggF {
-  margin: 10px !important;
-  width: auto !important;
-  max-width: 540px;
-  max-height: 600px;
-}
+  /* display: grid 的 ul */
+  .kpXxgm,
+  .fmesiH,
+  .fhUcsb,
+  div[data-gtm-recommend-zone='discovery'] ul {
+    display: flex;
+    flex-wrap: wrap;
+  }
 
-/* 排行榜一栏，取消固定高度，否则无法水平居中 */
-.kJiNJl {
-  width: auto !important;
-  height: auto !important;
-}
+  /* li 的直接子元素 */
+  .jDiQFZ,
+  .janQPj,
+  .gFXJBU,
+  .cWMKYW,
+  div[data-gtm-recommend-zone='discovery'] ul > li > div {
+    width: 100% !important;
+  }
 
-/* 画师主页 */
+  /* div[width="184"] */
+  /* 给图片外面的容器设置最小高度，否则图片没加载出来时高度太小了，收藏按钮都只显示一半*/
+  div[data-gtm-recommend-zone='discovery'] ul div[size='184'] > div,
+  .fxGVAF {
+    min-height: 100px;
+    width: auto !important;
+    height: auto !important;
+  }
 
-/* 主页、插画、收藏 一栏取消宽度限制 */
-/* 作品列表顶部的 tag 列表取消宽度限制 */
-/* 精选作品的标题栏取消宽度限制 */
-.hbpcMJ,
-.jRsJMY,
-.dBbGoM {
-  max-width: unset !important;
-}
+  /* div[width="184"] a */
+  /* 这是 img 外部的 a 标签，让它继承父元素的高度。否则有时 img 始终是最大高度 540px，导致图片高度自动居中失效 */
+  // width: 100%; 是为了让尺寸较小（如 320px）的图片铺满容器宽度
+  div[data-gtm-recommend-zone='discovery'] ul div[size='184'] a,
+  .fGjAxR {
+    display: inline-flex;
+    height: 100%;
+    width: 100%;
+  }
 
-/* 画师顶部三个精选作品 */
-.jRyeAs {
-  align-items: flex-start !important;
-  flex-direction: column;
-  height: auto !important;
-}
+  /* div[width="184"] a div */
+  /* img 的直接父级元素 div */
+  div[data-gtm-recommend-zone='discovery'] ul div[size='184'] a:first-child,
+  .cYUezH {
+    height: auto !important;
+  }
 
-.bXiBTe {
-  align-items: center !important;
-  justify-content: center !important;
-}
+  /* nav 里的这个元素是横向滚动区域里的，不能设置它的高度为 auto，否则它的高度就是图片的高度，图片就无法垂直居中了 */
+  nav .cYUezH {
+    height: 100% !important;
+  }
 
-/* ul */
-.jtUPOE {
-  /* 使里面的 li 水平居中 */
-  align-items: center;
-}
+  /* 作品页面大图下面的横向小图列表，保持其原宽高。因为这里的元素是绝对定位设置了 left 的，如果下载器改变了内容的宽度，就会导致 left 不准确，显示出错*/
+  main nav div .erYaF,
+  main figcaption .lgccrd,
+  main nav div .eCFXg,
+  main figcaption .eCFXg {
+    height: 100% !important;
+    width: 136px !important;
+  }
 
-/* li */
-.jtUPOE li {
-  margin: 10px !important;
-  width: auto;
-  max-width: 540px;
-  max-height: 600px;
-}
+  /* 搜索框下拉面板底部的缩略图列表保持原宽高，不然只能显示一部分 */
+  main figcaption .lgccrd .erYaF,
+  main figcaption .lgccrd .eCFXg,
+  .eHTuWt .erYaF,
+  .eHTuWt .eCFXg,
+  div[width='104'] .erYaF,
+  div[width='104'] .eCFXg {
+    width: 100% !important;
+    height: 100% !important;
+  }
 
-/* 搜索页面 */
-/* ul */
-.krFoBL,
-.hdRpMN {
-  // 原本是网格布局，改为 flex 布局
-  gap: 0 !important;
-  display: flex !important;
-  flex-wrap: wrap;
-  align-items: center;
-}
+  /* div[width="184"] a div img */
+  /* img */
+  .erYaF,
+  .eCFXg,
+  .cdrSgJ,
+  .zdawJ,
+  .cdrSgJ {
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
+  }
 
-/* li */
-.krFoBL li,
-.hdRpMN li {
-  margin: 10px !important;
-  flex-grow: 0;
-  flex-shrink: 1;
-  width: auto !important;
-  max-width: 540px;
-  max-height: 600px;
-}
+  /* 顶部 tag 列表部分，减少左侧 padding */
+  .eYOHvS,
+  .beTVzC {
+    padding-left: 70px !important;
+  }
 
-/* 下载器预览搜索结果时添加的列表元素 */
-.searchList {
-  width: auto !important;
-  max-width: 540px;
-  max-height: 600px;
-}
+  /* 发现页面点击关注后出现的横向区域，取消其遮罩元素和两侧的透明元素，这样可以增加其横向显示范围 */
+  .jCNiwq {
+    mask-image: unset !important;
+  }
 
-.searchList .searchContent {
-  width: auto !important;
-}
+  .jCNiwq > div {
+    display: none;
+  }
 
-.searchList .searchContent .searchImgArea .searchImgAreaContent {
-  width: auto !important;
-  height: auto !important;
-}
+  .hkzusx .eYOHvS {
+    padding-right: 70px !important;
+  }
 
-/* 作品页面 */
-/* 作品详情部分和相关作品的共同父元素，取消它的宽度限制 */
-.dljKTo {
-  max-width: unset !important;
-}
+  /* 通用部分结束 */
 
-/* 对作品详情部分应用宽度限制 */
-.dkdRNk {
-  max-width: 1224px;
-  margin-left: auto;
-  margin-right: auto;
-}
+  /* 大家的新作 */
+  /* ul */
+  .bQBCgz {
+    // 原本是网格布局，改为 flex 布局
+    gap: 0 !important;
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+  }
 
-/* 这样相关作品部分就没有宽度限制了，缩略图可以放大 */
-/* 相关作品的 li */
-.fDaNEv {
-  width: auto !important;
-  max-width: 540px;
-  max-height: 600px;
-  margin: 10px !important;
-}
+  /* li */
+  .bQBCgz li {
+    margin: 12px !important;
+    flex-grow: 0;
+    flex-shrink: 1;
+    width: auto !important;
+    margin: 10px !important;
+    max-width: 540px;
+    max-height: 600px;
+  }
 
-/* 已关注用户的新作品 li */
-.KwpMC {
-  width: auto !important;
-  margin: 10px !important;
-  max-width: 540px;
-  max-height: 600px;
-}
+  /* 关注页面里，解除每个用户右侧的作品列表显示宽度限制 */
+  .eCoDTv {
+    width: auto !important;
+  }
 
-/* 大家的新作 */
-/* ul */
-.bQBCgz {
-  // 原本是网格布局，改为 flex 布局
-  gap: 0 !important;
-  display: flex !important;
-  flex-wrap: wrap;
-  align-items: center;
-}
+  /* 排行榜页面，解除宽度限制 */
+  #wrapper,
+  .layout-body {
+    width: auto !important;
+  }
 
-/* li */
-.bQBCgz li {
-  margin: 12px !important;
-  flex-grow: 0;
-  flex-shrink: 1;
-  width: auto !important;
-  margin: 10px !important;
-  max-width: 540px;
-  max-height: 600px;
-}
+  .ranking-items.adjust {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center;
+  }
 
-/* 关注页面里，解除每个用户右侧的作品列表显示宽度限制 */
-.eCoDTv {
-  width: auto !important;
-}
+  /* 排行榜页面的缩略图尺寸最大是 400px */
+  /* 现在设置一排 5 个缩略图 */
+  .ranking-item {
+    display: inline-flex !important;
+    flex-direction: column !important;
+    width: 18% !important;
+    max-width: 540px;
+    margin: 10px 1%;
+    max-height: 500px;
+  }
 
-/* 排行榜页面，解除宽度限制 */
-#wrapper,
-.layout-body {
-  width: auto !important;
-}
+  .ranking-items.adjust .ranking-item .ranking-image-item,
+  .ranking-items.adjust .work,
+  .ranking-items.adjust ._layout-thumbnail {
+    width: 100% !important;
+  }
 
-.ranking-items.adjust {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  align-items: center;
-}
+  /*把缩略图放大一些，并且始终完整显示 */
+  .ranking-items.adjust .work img {
+    width: 100%;
+    display: block;
+    max-height: 400px !important;
+    max-width: 400px !important;
+    object-fit: contain;
+    object-position: center;
+  }
 
-/* 排行榜页面的缩略图尺寸最大是 400px */
-/* 现在设置一排 5 个缩略图 */
-.ranking-item {
-  display: inline-flex !important;
-  flex-direction: column !important;
-  width: 18% !important;
-  max-width: 540px;
-  margin: 10px 1%;
-  max-height: 500px;
-}
+  /* 约稿页面 */
 
-.ranking-items.adjust .ranking-item .ranking-image-item,
-.ranking-items.adjust .work,
-.ranking-items.adjust ._layout-thumbnail {
-  width: 100% !important;
-}
+  .jlWuvS {
+    display: flex;
+    flex-wrap: wrap;
+  }
 
-/*把缩略图放大一些，并且始终完整显示 */
-.ranking-items.adjust .work img {
-  width: 100%;
-  display: block;
-  max-height: 400px !important;
-  max-width: 400px !important;
-  object-fit: contain;
-  object-position: center;
-}
+  .jlWuvS li,
+  .dwiunr,
+  .hOMcwd {
+    margin: 26px;
+  }
 
-/* 约稿页面 */
+  .jlWuvS .jdIpfd,
+  .jlWuvS li > div,
+  .fHNABj {
+    display: flex;
+    flex-direction: column;
+  }
 
-.jlWuvS {
-  display: flex;
-  flex-wrap: wrap;
-}
+  /* 取消约稿页面容器的宽度限制 */
+  .hHwhak,
+  .hHwhak > div,
+  .iSHgSV,
+  .kCIgXV,
+  .eDubME,
+  .requestContainer {
+    width: auto !important;
+    min-width: 1224px;
+    padding-left: 36px;
+    padding-right: 36px;
+  }
 
-.jlWuvS li,
-.dwiunr,
-.hOMcwd {
-  margin: 26px;
-}
+  /* 作品缩略图列表容器的 ul */
+  .jsLfYP,
+  .fmesiH {
+    align-items: center;
+  }
 
-.jlWuvS .jdIpfd,
-.jlWuvS li > div,
-.fHNABj {
-  display: flex;
-  flex-direction: column;
-}
+  .jsLfYP li,
+  .fmesiH li {
+    width: auto !important;
+    margin: 10px !important;
+    max-width: 540px;
+    max-height: 600px;
+  }
 
-/* 取消约稿页面容器的宽度限制 */
-.hHwhak,
-.hHwhak > div,
-.iSHgSV,
-.kCIgXV,
-.eDubME,
-.requestContainer {
-  width: auto !important;
-  min-width: 1224px;
-  padding-left: 36px;
-  padding-right: 36px;
-}
+  /* 取消约稿页面 img 的绝对定位，否则其父元素不会被图片撑开 */
+  .zdawJ,
+  .cdrSgJ,
+  .ieJNnF,
+  .brFRzf,
+  a[data-gtm-value] img,
+  .gtm-request-creator-recommend-post-link-work img,
+  .gtm-complete-request-portal-work-link-illust img,
+  .gtm-complete-request-portal-work-link-manga img {
+    position: unset !important;
+    max-height: 540px;
+  }
 
-/* 作品缩略图列表容器的 ul */
-.jsLfYP,
-.fmesiH {
-  align-items: center;
-}
+  /* 发现页面 */
+  /* 取消容器的宽度限制 */
+  .gTaKEp {
+    width: auto !important;
+  }
 
-.jsLfYP li,
-.fmesiH li {
-  width: auto !important;
-  margin: 10px !important;
-  max-width: 540px;
-  max-height: 600px;
-}
+  /* 收藏一个作品后，出现的相关作品列表 */
+  .hLhHDu {
+    display: flex !important;
+    align-items: center;
+  }
 
-/* 取消约稿页面 img 的绝对定位，否则其父元素不会被图片撑开 */
-.zdawJ,
-.cdrSgJ,
-.ieJNnF,
-.brFRzf,
-a[data-gtm-value] img,
-.gtm-request-creator-recommend-post-link-work img,
-.gtm-complete-request-portal-work-link-illust img,
-.gtm-complete-request-portal-work-link-manga img {
-  position: unset !important;
-  max-height: 540px;
-}
+  .hLhHDu > div {
+    width: auto;
+    flex-shrink: 0;
+    max-width: 540px;
+    max-height: 600px;
+  }
 
-/* 发现页面 */
-/* 取消容器的宽度限制 */
-.gTaKEp {
-  width: auto !important;
-}
+  /* 使比赛页面的主体部分居中 */
+  .one_column {
+    margin: 0 auto;
+  }
 
-/* 收藏一个作品后，出现的相关作品列表 */
-.hLhHDu {
-  display: flex !important;
-  align-items: center;
-}
+  /* 使动态页面、活动页面的主体部分居中 */
+  #wrapper #contents {
+    margin: 0 auto;
+    width: 970px;
+  }
 
-.hLhHDu > div {
-  width: auto;
-  flex-shrink: 0;
-  max-width: 540px;
-  max-height: 600px;
-}
+  /* 使群组页面的主体部分居中 */
+  #wrapper #page-group {
+    margin: 0 auto;
+    width: 970px;
+  }
 
-/* 使比赛页面的主体部分居中 */
-.one_column {
-  margin: 0 auto;
-}
+  // 在作品页面里收藏作品后，大图下面出现的推荐作品列表
+  // 这一横排的最外层元素取消固定高度，否则如果图片高度比较高，超出它的高度限制，就会遮挡下面的文字
+  .kblezP,
+  .sc-a4p1vl-0 {
+    height: auto !important;
+  }
 
-/* 使动态页面、活动页面的主体部分居中 */
-#wrapper #contents {
-  margin: 0 auto;
-  width: 970px;
-}
-
-/* 使群组页面的主体部分居中 */
-#wrapper #page-group {
-  margin: 0 auto;
-  width: 970px;
-}
-
-// 在作品页面里收藏作品后，大图下面出现的推荐作品列表
-// 这一横排的最外层元素取消固定高度，否则如果图片高度比较高，超出它的高度限制，就会遮挡下面的文字
-.kblezP,
-.sc-a4p1vl-0 {
-  height: auto !important;
-}
-
-// 推荐作品的图片列表的父元素，这条规则让图片水平居中对齐
-.kOHspG,
-.sc-a4p1vl-3 {
-  align-items: center;
+  // 推荐作品的图片列表的父元素，这条规则让图片水平居中对齐
+  .kOHspG,
+  .sc-a4p1vl-3 {
+    align-items: center;
+  }
 }

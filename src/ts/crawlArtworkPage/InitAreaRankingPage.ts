@@ -12,8 +12,9 @@ class InitAreaRankingPage extends InitPageBase {
     super()
     this.init()
   }
-
-  protected initAny() {}
+  protected initAny() {
+    this.replaceSmallThumb()
+  }
 
   protected addCrawlBtns() {
     Tools.addBtn(
@@ -28,6 +29,29 @@ class InitAreaRankingPage extends InitPageBase {
 
   protected setFormOption() {
     options.hideOption([1])
+  }
+
+  // 把地区排行榜里原本很小的缩略图替换成更大的缩略图
+  // 原本的：
+  // https://i.pximg.net/c/150x150/img-master/img/2025/03/29/02/47/17/128713029_p0_master1200.jpg
+  // 替换成：
+  // https://i.pximg.net/img-master/img/2025/03/29/02/47/17/128713029_p0_master1200.jpg
+  private replaceSmallThumb() {
+    window.setTimeout(() => {
+      const allImage = document.querySelectorAll(
+        '.ranking-item img'
+      ) as NodeListOf<HTMLImageElement>
+      if (allImage.length === 0) {
+        return this.replaceSmallThumb()
+      }
+
+      allImage.forEach((img) => {
+        // 当前视图里的 img 会加载，直接替换
+        img.src = img.src.replace('/c/150x150', '')
+        // 当前视图外的 img 是懒加载，需要替换 data-src 属性里的值
+        img.dataset.src = img.dataset.src!.replace('/c/150x150', '')
+      })
+    }, 1000)
   }
 
   protected async getIdList() {
