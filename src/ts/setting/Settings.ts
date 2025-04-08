@@ -210,7 +210,6 @@ interface XzSetting {
   }
   removeAtFromUsername: boolean
   showLargerThumbnails: boolean
-  doubleWidthThumb: boolean
   wheelScrollSwitchImageOnPreviewWork: boolean
   swicthImageByKeyboard: boolean
   /**不抓取多图作品的最后一张图片 */
@@ -451,7 +450,6 @@ class Settings {
     setUserNameList: {},
     removeAtFromUsername: false,
     showLargerThumbnails: false,
-    doubleWidthThumb: true,
     wheelScrollSwitchImageOnPreviewWork: true,
     swicthImageByKeyboard: true,
     doNotDownloadLastImageOfMultiImageWork: false,

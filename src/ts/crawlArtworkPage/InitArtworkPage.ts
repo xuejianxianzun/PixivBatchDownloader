@@ -10,6 +10,7 @@ import { API } from '../API'
 import { log } from '../Log'
 import { Utils } from '../utils/Utils'
 import './CrawlRecommendWorks'
+import { pageType } from '../PageType'
 
 class InitArtworkPage extends InitPageBase {
   constructor() {
@@ -25,6 +26,39 @@ class InitArtworkPage extends InitPageBase {
   */
 
   private crawlRelated: boolean = false // 是否下载相关作品
+
+  protected initAny(): void {
+    this.findArtworkWrap()
+  }
+
+  private readonly artworkWrapID = 'XZArtworkWrap'
+  private readonly contentWrapID = 'XZContentWrap'
+  private timer?: number
+
+  /**查找作品区域（左右两个板块）的父元素 */
+  // 为其添加特定的 ID，以避免下载器设置的样式因为 Pixiv 改版而失效
+  private findArtworkWrap() {
+    window.clearInterval(this.timer)
+    this.timer = window.setInterval(() => {
+      if (pageType.type !== pageType.list.Artwork) {
+        window.clearInterval(this.timer)
+        return
+      }
+      const warp = document.querySelector(`#${this.artworkWrapID}`)
+      if (warp) {
+        return
+      }
+      // main 是作品区域左侧内容的元素
+      const main = document.querySelector('main')
+      if (main && main.parentElement) {
+        // main 的父元素是作品区域的父元素，包含左侧 main 元素和右侧的 aside 元素
+        const wrap = main.parentElement
+        wrap.id = this.artworkWrapID
+        // main 的祖父元素是作品区域和相关作品区域的父元素
+        wrap.parentElement!.id = this.contentWrapID
+      }
+    }, 1000)
+  }
 
   protected addCrawlBtns() {
     Tools.addBtn(

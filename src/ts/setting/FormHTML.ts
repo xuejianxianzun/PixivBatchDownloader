@@ -998,12 +998,6 @@ export const formHtml = `<form class="settingForm">
     <span class="settingNameStyle1" data-xztext="_显示更大的缩略图"></span>
     <input type="checkbox" name="showLargerThumbnails" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch" tabindex="0"></span>
-
-    <span class="subOptionWrap" data-show="showLargerThumbnails">
-    <label for="doubleWidthThumb" data-xztext="_横图占用二倍宽度"></label>
-    <input type="checkbox" name="doubleWidthThumb" id="doubleWidthThumb" class="need_beautify checkbox_switch" checked>
-    <span class="beautify_switch" tabindex="0"></span>
-    </span>
     </p>
     
     <p class="option" data-no="63">

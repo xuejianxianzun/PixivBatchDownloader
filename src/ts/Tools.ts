@@ -242,11 +242,8 @@ class Tools {
       }
     }
 
-    // 在新版首页里，从 script 里匹配用户 id
-    if (
-      window.location.pathname === '/' ||
-      window.location.pathname === '/en/'
-    ) {
+    // 在 2025 年 4 月初的改版之后，从 script 里匹配用户 id
+    {
       const match = document.head.innerHTML.match(/user_id:'(\d*)'/)
       if (match && match.length > 1) {
         return match[1]
@@ -516,7 +513,6 @@ class Tools {
   static notEnabledShowLargerThumb() {
     if (
       window.location.pathname.includes('/novel') ||
-      window.location.pathname.includes('/ranking_area') ||
       window.location.hostname.includes('pixivision.net')
     ) {
       return true
