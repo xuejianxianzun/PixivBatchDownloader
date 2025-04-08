@@ -2,6 +2,7 @@ import { EVT } from './EVT'
 import { settings, setSetting } from './setting/Settings'
 import { Tools } from './Tools'
 import { findHorizontalImageWrap } from './FindHorizontalImageWrap'
+import { pageType } from './PageType'
 
 // 如果一个作品的缩略图是横图，则把这个缩略图的容器的宽度设置为默认宽度的 2 倍
 // 注意：必须开启“替换方形缩略图以显示图片比例”，“横图占用二倍宽度”的功能才能生效
@@ -51,6 +52,15 @@ class DoubleWidthThumb {
     // 如果一个缩略图是横图，则在它的容器上添加特定 id
     findHorizontalImageWrap.onFind((wrap: HTMLElement) => {
       if (!wrap.id) {
+        if (pageType.type === pageType.list.UserHome) {
+          // 在用户主页上，可能会错误的匹配到“精选”部分，在三个缩略图的父元素上添加 id
+          // 这里排除这种情况
+          const li = wrap.querySelector('li')
+          if (li) {
+            return
+          }
+        }
+        
         wrap.id = this.addId
       }
     })

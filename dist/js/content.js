@@ -1719,6 +1719,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _FindHorizontalImageWrap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./FindHorizontalImageWrap */ "./src/ts/FindHorizontalImageWrap.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+
 
 
 
@@ -1762,6 +1764,14 @@ class DoubleWidthThumb {
         // 如果一个缩略图是横图，则在它的容器上添加特定 id
         _FindHorizontalImageWrap__WEBPACK_IMPORTED_MODULE_3__.findHorizontalImageWrap.onFind((wrap) => {
             if (!wrap.id) {
+                if (_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.UserHome) {
+                    // 在用户主页上，可能会错误的匹配到“精选”部分，在三个缩略图的父元素上添加 id
+                    // 这里排除这种情况
+                    const li = wrap.querySelector('li');
+                    if (li) {
+                        return;
+                    }
+                }
                 wrap.id = this.addId;
             }
         });
