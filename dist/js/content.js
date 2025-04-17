@@ -6103,14 +6103,6 @@ class SelectWork {
         this.clearBtn = document.createElement('button'); // 清空选择的作品的按钮
         this.selectedWorkFlagClass = 'selectedWorkFlag'; // 给已选择的作品添加标记时使用的 class
         this.positionValue = ['relative', 'absolute', 'fixed']; // 标记元素需要父元素拥有这些定位属性
-        // 不同页面里的作品列表容器的选择器可能不同，这里储存所有页面里会使用到的的选择器
-        // root 是大部分页面通用的; js-mount-point-discovery 是发现页面使用的
-        this.worksWrapperSelectorList = [
-            '#root',
-            '#js-mount-point-discovery',
-        ];
-        // 储存当前页面使用的选择器
-        this.usedWorksWrapperSelector = this.worksWrapperSelectorList[0];
         // 储存当前页面的作品列表容器
         this.worksWrapper = document.body;
         this.ob = undefined;
@@ -6201,15 +6193,7 @@ class SelectWork {
         };
         // 每次页面切换之后，查找新的作品列表容器并保存
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.pageSwitch, () => {
-            let worksWrapper = null;
-            for (const selector of this.worksWrapperSelectorList) {
-                worksWrapper = document.querySelector(selector);
-                if (worksWrapper) {
-                    this.usedWorksWrapperSelector = selector;
-                    break;
-                }
-            }
-            this.worksWrapper = worksWrapper || document.body;
+            this.worksWrapper = document.body;
         });
         // 每次页面切换之后，查找新显示的作品里是否有之前被选择的作品，如果有则为其添加标记
         // 因为 pixiv 的页面切换会导致作品列表变化，之前添加的标记也就没有了，需要重新添加
@@ -6451,10 +6435,10 @@ class SelectWork {
             }
             let el;
             if (type === 'novels') {
-                el = document.querySelector(`${this.usedWorksWrapperSelector} a[href="/novel/show.php?id=${id}"]`);
+                el = document.querySelector(`body a[href="/novel/show.php?id=${id}"]`);
             }
             else {
-                el = document.querySelector(`${this.usedWorksWrapperSelector} a[href="/artworks/${id}"]`);
+                el = document.querySelector(`body a[href="/artworks/${id}"]`);
             }
             if (el) {
                 // 如果在当前页面查找到了选择的作品，就给它添加标记
