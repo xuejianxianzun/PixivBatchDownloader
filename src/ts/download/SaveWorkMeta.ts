@@ -101,7 +101,11 @@ class SaveWorkMeta {
     fileContent.push(
       this.addMeta('xRestrict', Tools.getXRestrictText(data.xRestrict)!)
     )
-    fileContent.push(this.addMeta('AI', Tools.getAITypeText(data.aiType || 0)))
+
+    const checkAITag = data.tags.includes('AI生成')
+    fileContent.push(
+      this.addMeta('AI', Tools.getAITypeText(checkAITag ? 2 : data.aiType || 0))
+    )
     fileContent.push(this.addMeta('User', data.user))
     fileContent.push(this.addMeta('UserID', data.userId))
     fileContent.push(this.addMeta('Title', data.title))

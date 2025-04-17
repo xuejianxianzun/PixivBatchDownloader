@@ -77,14 +77,6 @@ class SelectWork {
   private selectedWorkFlagClass = 'selectedWorkFlag' // 给已选择的作品添加标记时使用的 class
   private positionValue = ['relative', 'absolute', 'fixed'] // 标记元素需要父元素拥有这些定位属性
 
-  // 不同页面里的作品列表容器的选择器可能不同，这里储存所有页面里会使用到的的选择器
-  // root 是大部分页面通用的; js-mount-point-discovery 是发现页面使用的
-  private worksWrapperSelectorList: string[] = [
-    '#root',
-    '#js-mount-point-discovery',
-  ]
-  // 储存当前页面使用的选择器
-  private usedWorksWrapperSelector = this.worksWrapperSelectorList[0]
   // 储存当前页面的作品列表容器
   private worksWrapper: HTMLElement = document.body
   private ob: MutationObserver | undefined = undefined
@@ -163,15 +155,7 @@ class SelectWork {
 
     // 每次页面切换之后，查找新的作品列表容器并保存
     window.addEventListener(EVT.list.pageSwitch, () => {
-      let worksWrapper: HTMLElement | null = null
-      for (const selector of this.worksWrapperSelectorList) {
-        worksWrapper = document.querySelector(selector)
-        if (worksWrapper) {
-          this.usedWorksWrapperSelector = selector
-          break
-        }
-      }
-      this.worksWrapper = worksWrapper || document.body
+      this.worksWrapper = document.body
     })
 
     // 每次页面切换之后，查找新显示的作品里是否有之前被选择的作品，如果有则为其添加标记
@@ -477,13 +461,9 @@ class SelectWork {
 
       let el: HTMLAnchorElement | null
       if (type === 'novels') {
-        el = document.querySelector(
-          `${this.usedWorksWrapperSelector} a[href="/novel/show.php?id=${id}"]`
-        )
+        el = document.querySelector(`body a[href="/novel/show.php?id=${id}"]`)
       } else {
-        el = document.querySelector(
-          `${this.usedWorksWrapperSelector} a[href="/artworks/${id}"]`
-        )
+        el = document.querySelector(`body a[href="/artworks/${id}"]`)
       }
 
       if (el) {

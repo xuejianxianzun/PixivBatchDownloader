@@ -78,7 +78,7 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
   }
 
   // 搜索页面里的插画作品选择器
-  private readonly worksSelector = '#root section ul li'
+  private readonly worksSelector = 'section ul li'
 
   /**检查当前页面上的作品元素 */
   private findAllWorks() {

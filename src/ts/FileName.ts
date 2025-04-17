@@ -373,7 +373,7 @@ class FileName {
         safe: true,
       },
       '{AI}': {
-        value: data.aiType === 2 ? 'AI' : '',
+        value: data.aiType === 2 || data.tags.includes('AI生成') ? 'AI' : '',
         prefix: '',
         safe: true,
       },
