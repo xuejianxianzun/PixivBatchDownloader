@@ -3111,7 +3111,7 @@ class FileName {
         // 8 添加后缀名
         result += extResult;
         // 9 返回结果
-        return result;
+        return _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.removeEmojis(result);
     }
 }
 const fileName = new FileName();
@@ -49782,6 +49782,10 @@ class Utils {
         url = url.split('?')[0]; // 移除可能存在的查询字符串
         const array = url.split('.');
         return array[array.length - 1];
+    }
+    /**传入字符串，移除其中的所有 emoji 文字 */
+    static removeEmojis(str) {
+        return str.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '');
     }
 }
 // 不安全的字符，这里多数是控制字符，需要替换掉

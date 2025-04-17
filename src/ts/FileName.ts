@@ -524,7 +524,7 @@ class FileName {
     result += extResult
 
     // 9 返回结果
-    return result
+    return Utils.removeEmojis(result)
   }
 }
 

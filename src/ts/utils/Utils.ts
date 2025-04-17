@@ -475,6 +475,14 @@ class Utils {
     const array = url.split('.')
     return array[array.length - 1]
   }
+
+  /**传入字符串，移除其中的所有 emoji 文字 */
+  static removeEmojis(str: string) {
+    return str.replace(
+      /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu,
+      ''
+    )
+  }
 }
 
 export { Utils }
