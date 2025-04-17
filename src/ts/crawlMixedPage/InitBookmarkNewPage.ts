@@ -1,4 +1,4 @@
-// 初始化 关注的用户的新作品页面
+// 初始化 关注的用户的新作品页面 和 好P友的新作品页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
 import { lang } from '../Lang'
@@ -14,7 +14,6 @@ import {
   BookMarkNewNovelData,
 } from '../crawl/CrawlResult'
 import { states } from '../store/States'
-import { Config } from '../Config'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { settings } from '../setting/Settings'
 
@@ -24,10 +23,11 @@ class InitBookmarkNewPage extends InitPageBase {
     this.init()
   }
 
-  protected type: 'illust' | 'novel' = 'illust'
+  protected workType: 'illust' | 'novel' = 'illust'
+  /** bookmark 是关注的用户的新作品；mypixiv 是好P友的新作品 */
+  protected pageType: 'bookmark' | 'mypixiv' = 'bookmark'
   protected tag = ''
   protected r18 = false
-  protected newVer = false
   // 这次抓取任务最多可以抓取到多少个作品
   protected crawlWorksMaxNumber = 0
   // 裁剪 API 返回的作品数据时的偏移量
@@ -74,29 +74,21 @@ class InitBookmarkNewPage extends InitPageBase {
   protected nextStep() {
     this.setSlowCrawl()
 
-    this.type = window.location.pathname.includes('/novel') ? 'novel' : 'illust'
+    this.workType = window.location.pathname.includes('/novel')
+      ? 'novel'
+      : 'illust'
+    this.pageType = window.location.pathname.includes('/mypixiv')
+      ? 'mypixiv'
+      : 'bookmark'
     this.tag = Utils.getURLSearchField(window.location.href, 'tag')
     this.r18 = location.pathname.includes('r18')
-    this.newVer = !document.querySelector('h1')
     // 根据页数计算最多抓取多少个作品。新版一页 60 个作品，旧版一页 20 个作品
-    this.crawlWorksMaxNumber = this.crawlNumber * (this.newVer ? 60 : 20)
+    this.crawlWorksMaxNumber = this.crawlNumber * 60
 
     // 设置 API 里发起请求的页数
     const p = Utils.getURLSearchField(location.href, 'p')
     const pageNo = parseInt(p) || 1
-    if (this.newVer) {
-      // 新版页面里，由于 API 返回的就是这一页的作品，所以直接获取地址栏的页码就可以
-      this.startpageNo = pageNo
-    } else {
-      // 旧版页面里，由于 API 一页会返回相当于旧版 3 页的数据，所以不能直接使用地址栏的页码
-      // 例如用户在旧版页面的第 5 页开始抓取，实质上是从第 81 个作品开始抓取。所以 API 里要从第 2 页开始抓取（第 61 - 120 个作品），并且设置偏移量为 20
-      // API 里开始抓取的页数，向上取整
-      this.startpageNo = Math.ceil((pageNo * 20) / 60)
-      // 计算 API 返回的 60 个数据里，可以保留多少个
-      const howManyLeft = this.startpageNo * 60 - (pageNo - 1) * 20
-      // 计算偏移量
-      this.firstOffset = 60 - howManyLeft
-    }
+    this.startpageNo = pageNo
 
     this.getIdList()
   }
@@ -110,7 +102,16 @@ class InitBookmarkNewPage extends InitPageBase {
 
     let data
     try {
-      data = await API.getBookmarkNewWorkData(this.type, p, this.tag, this.r18)
+      if (this.pageType === 'bookmark') {
+        data = await API.getBookmarkNewWorkData(
+          this.workType,
+          p,
+          this.tag,
+          this.r18
+        )
+      } else {
+        data = await API.getMyPixivNewWorkData(this.workType, p)
+      }
     } catch (error) {
       this.getIdList()
       return
@@ -120,7 +121,7 @@ class InitBookmarkNewPage extends InitPageBase {
       return this.getIdListFinished()
     }
 
-    let worksData = data.body.thumbnails[this.type]
+    let worksData = data.body.thumbnails[this.workType]
 
     // 检查数据，如果数据为空，或者和上一页的数据重复，说明已经不需要继续抓取了
     if (worksData.length === 0 || this.firstWorkId === worksData[0].id) {
@@ -131,25 +132,11 @@ class InitBookmarkNewPage extends InitPageBase {
       this.firstWorkId = worksData[0].id
     }
 
-    // 旧版页面可能需要对 API 返回的数据进行裁剪
-    if (!this.newVer) {
-      // 使用偏移量移除不需要的数据（仅一次）
-      if (this.firstOffset > 0) {
-        worksData = worksData.slice(this.firstOffset)
-        this.firstOffset = 0
-      }
-      // 计算还有多少个作品需要抓取，然后裁剪数组，避免抓取结果超出预定的数量
-      const needCrawl = this.crawlWorksMaxNumber - this.crawledWorksNumber
-      if (needCrawl < worksData.length) {
-        worksData = worksData.slice(0, needCrawl)
-      }
-    }
-
     this.crawledWorksNumber += worksData.length
 
     // 过滤作品
     // 过滤插画·漫画
-    if (this.type === 'illust') {
+    if (this.workType === 'illust') {
       for (const data of <BookMarkNewIllustData[]>worksData) {
         if (data.isAdContainer) {
           continue

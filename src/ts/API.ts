@@ -398,6 +398,16 @@ class API {
     return this.sendGetRequest(url)
   }
 
+  /** 获取好P友的最新作品 */
+  static getMyPixivNewWorkData(
+    type: 'illust' | 'novel',
+    p: number,
+    lang = 'zh'
+  ): Promise<BookMarkNewData> {
+    const url = `https://www.pixiv.net/ajax/mypixiv_latest/${type}?p=${p}&lang=${lang}`
+    return this.sendGetRequest(url)
+  }
+
   /**获取小说系列的数据，注意只是系列本身的数据，没有系列里每部小说的数据 */
   static getNovelSeriesData(
     series_id: number | string

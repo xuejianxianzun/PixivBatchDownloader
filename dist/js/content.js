@@ -243,6 +243,11 @@ class API {
         const url = `https://www.pixiv.net/ajax/follow_latest/${type}?p=${p}&tag=${tag}&mode=${r18 ? 'r18' : 'all'}&lang=${lang}`;
         return this.sendGetRequest(url);
     }
+    /** 获取好P友的最新作品 */
+    static getMyPixivNewWorkData(type, p, lang = 'zh') {
+        const url = `https://www.pixiv.net/ajax/mypixiv_latest/${type}?p=${p}&lang=${lang}`;
+        return this.sendGetRequest(url);
+    }
     /**获取小说系列的数据，注意只是系列本身的数据，没有系列里每部小说的数据 */
     static getNovelSeriesData(series_id) {
         const url = `https://www.pixiv.net/ajax/novel/series/${series_id}`;
@@ -4287,7 +4292,8 @@ class PageType {
             return PageName.BookmarkDetail;
         }
         else if (url.includes('/bookmark_new_illust.php') ||
-            url.includes('/bookmark_new_illust_r18.php')) {
+            url.includes('/bookmark_new_illust_r18.php') ||
+            url.includes('/mypixiv_new_illust.php')) {
             return PageName.NewArtworkBookmark;
         }
         else if (pathname === '/discovery' ||
@@ -4310,7 +4316,8 @@ class PageType {
         else if (pathname === '/novel/ranking.php') {
             return PageName.NovelRanking;
         }
-        else if (pathname.startsWith('/novel/bookmark_new')) {
+        else if (pathname.startsWith('/novel/bookmark_new') ||
+            pathname.startsWith('/novel/mypixiv_new.php')) {
             return PageName.NewNovelBookmark;
         }
         else if (pathname.startsWith('/novel/new')) {
@@ -11670,7 +11677,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-// 初始化 关注的用户的新作品页面
+// 初始化 关注的用户的新作品页面 和 好P友的新作品页面
 
 
 
@@ -11687,10 +11694,11 @@ __webpack_require__.r(__webpack_exports__);
 class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.type = 'illust';
+        this.workType = 'illust';
+        /** bookmark 是关注的用户的新作品；mypixiv 是好P友的新作品 */
+        this.pageType = 'bookmark';
         this.tag = '';
         this.r18 = false;
-        this.newVer = false;
         // 这次抓取任务最多可以抓取到多少个作品
         this.crawlWorksMaxNumber = 0;
         // 裁剪 API 返回的作品数据时的偏移量
@@ -11726,29 +11734,20 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     }
     nextStep() {
         this.setSlowCrawl();
-        this.type = window.location.pathname.includes('/novel') ? 'novel' : 'illust';
+        this.workType = window.location.pathname.includes('/novel')
+            ? 'novel'
+            : 'illust';
+        this.pageType = window.location.pathname.includes('/mypixiv')
+            ? 'mypixiv'
+            : 'bookmark';
         this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.getURLSearchField(window.location.href, 'tag');
         this.r18 = location.pathname.includes('r18');
-        this.newVer = !document.querySelector('h1');
         // 根据页数计算最多抓取多少个作品。新版一页 60 个作品，旧版一页 20 个作品
-        this.crawlWorksMaxNumber = this.crawlNumber * (this.newVer ? 60 : 20);
+        this.crawlWorksMaxNumber = this.crawlNumber * 60;
         // 设置 API 里发起请求的页数
         const p = _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.getURLSearchField(location.href, 'p');
         const pageNo = parseInt(p) || 1;
-        if (this.newVer) {
-            // 新版页面里，由于 API 返回的就是这一页的作品，所以直接获取地址栏的页码就可以
-            this.startpageNo = pageNo;
-        }
-        else {
-            // 旧版页面里，由于 API 一页会返回相当于旧版 3 页的数据，所以不能直接使用地址栏的页码
-            // 例如用户在旧版页面的第 5 页开始抓取，实质上是从第 81 个作品开始抓取。所以 API 里要从第 2 页开始抓取（第 61 - 120 个作品），并且设置偏移量为 20
-            // API 里开始抓取的页数，向上取整
-            this.startpageNo = Math.ceil((pageNo * 20) / 60);
-            // 计算 API 返回的 60 个数据里，可以保留多少个
-            const howManyLeft = this.startpageNo * 60 - (pageNo - 1) * 20;
-            // 计算偏移量
-            this.firstOffset = 60 - howManyLeft;
-        }
+        this.startpageNo = pageNo;
         this.getIdList();
     }
     async getIdList() {
@@ -11758,7 +11757,12 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         let p = this.startpageNo + this.listPageFinished;
         let data;
         try {
-            data = await _API__WEBPACK_IMPORTED_MODULE_6__.API.getBookmarkNewWorkData(this.type, p, this.tag, this.r18);
+            if (this.pageType === 'bookmark') {
+                data = await _API__WEBPACK_IMPORTED_MODULE_6__.API.getBookmarkNewWorkData(this.workType, p, this.tag, this.r18);
+            }
+            else {
+                data = await _API__WEBPACK_IMPORTED_MODULE_6__.API.getMyPixivNewWorkData(this.workType, p);
+            }
         }
         catch (error) {
             this.getIdList();
@@ -11767,7 +11771,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         if (_store_States__WEBPACK_IMPORTED_MODULE_10__.states.stopCrawl) {
             return this.getIdListFinished();
         }
-        let worksData = data.body.thumbnails[this.type];
+        let worksData = data.body.thumbnails[this.workType];
         // 检查数据，如果数据为空，或者和上一页的数据重复，说明已经不需要继续抓取了
         if (worksData.length === 0 || this.firstWorkId === worksData[0].id) {
             _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取完成'));
@@ -11777,23 +11781,10 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             // 如果数据没有重复，则保存第一个作品的 id
             this.firstWorkId = worksData[0].id;
         }
-        // 旧版页面可能需要对 API 返回的数据进行裁剪
-        if (!this.newVer) {
-            // 使用偏移量移除不需要的数据（仅一次）
-            if (this.firstOffset > 0) {
-                worksData = worksData.slice(this.firstOffset);
-                this.firstOffset = 0;
-            }
-            // 计算还有多少个作品需要抓取，然后裁剪数组，避免抓取结果超出预定的数量
-            const needCrawl = this.crawlWorksMaxNumber - this.crawledWorksNumber;
-            if (needCrawl < worksData.length) {
-                worksData = worksData.slice(0, needCrawl);
-            }
-        }
         this.crawledWorksNumber += worksData.length;
         // 过滤作品
         // 过滤插画·漫画
-        if (this.type === 'illust') {
+        if (this.workType === 'illust') {
             for (const data of worksData) {
                 if (data.isAdContainer) {
                     continue;
