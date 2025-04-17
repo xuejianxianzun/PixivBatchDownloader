@@ -415,11 +415,6 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Home) {
                 continue;
             }
-            // div[size="131"] 只在 发现-推荐用户 页面里使用。当关注一个用户后，底部显示的推荐用户的作品是这个选择器
-            if (selector === 'div[size="131"]' &&
-                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.DiscoverUsers) {
-                continue;
-            }
             // div[type="illust"] 只在约稿页面使用
             // 因为已知问题：在收藏页面里， div[type="illust"] 嵌套了子元素 div[width="184"]
             // 这会导致重复绑定（在不同元素上）
@@ -2984,7 +2979,7 @@ class FileName {
                 safe: true,
             },
             '{AI}': {
-                value: data.aiType === 2 ? 'AI' : '',
+                value: data.aiType === 2 || data.tags.includes('AI生成') ? 'AI' : '',
                 prefix: '',
                 safe: true,
             },
@@ -3244,8 +3239,8 @@ class HighlightFollowingUsers {
                 document.documentElement.setAttribute('data-xzpagetheme', this.pageTheme);
             }
         });
-        // 在作品页内，作品大图下方和右侧的作者名字变化时，监视器无法监测到变化，尤其是右侧的名字
-        // 所以用定时器执行
+        // 在作品页内，切换到另一个作者的作品时，作者名字会变化，需要重新设置高亮状态
+        // 但是监视器无法监测到变化，尤其是右侧的名字，所以使用定时器执行
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, () => {
             if (!_Config__WEBPACK_IMPORTED_MODULE_9__.Config.mobile &&
                 (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Artwork ||
@@ -3257,8 +3252,8 @@ class HighlightFollowingUsers {
                     if (time > 5000) {
                         window.clearInterval(timer);
                     }
-                    const leftA = document.querySelectorAll('#root main a[href*=user]');
-                    const rightA = document.querySelectorAll('#root main+aside a[href*=user]');
+                    const leftA = document.querySelectorAll('main section a[href*=user]');
+                    const rightA = document.querySelectorAll('main+aside a[href*=user]');
                     const allA = Array.from(leftA).concat(Array.from(rightA));
                     this.makeHighlight(allA);
                 }, interval);
@@ -6158,7 +6153,8 @@ class PreviewWork {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.showPreviewWorkTip) {
             const text = [];
             const body = this.workData.body;
-            if (body.aiType === 2) {
+            if (body.aiType === 2 ||
+                body.tags.tags.some((tag) => tag.tag === 'AI生成')) {
                 text.push('AI');
             }
             if (body.pageCount > 1) {
@@ -6351,7 +6347,8 @@ class PreviewWorkDetailInfo {
             r18HTML = '<span class="r18">R-18G</span>';
         }
         let aiHTML = '';
-        if (workData.body.aiType === 2) {
+        if (workData.body.aiType === 2 ||
+            workData.body.tags.tags.some((tag) => tag.tag === 'AI生成')) {
             aiHTML = '<span class="ai">AI</span>';
         }
         wrap.innerHTML = `
@@ -6439,13 +6436,14 @@ class PreviewWorkDetailInfo {
     copyTXT(workData) {
         // 组织输出的内容
         const tags = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.extractTags(workData).map((tag) => `#${tag}`);
+        const checkAITag = workData.body.tags.tags.some((tag) => tag.tag === 'AI生成');
         const array = [];
         const body = workData.body;
         array.push(`ID\n${body.id}`);
         array.push(`URL\nhttps://www.pixiv.net/artworks/${body.id}`);
         array.push(`Original\n${body.urls?.original}`);
         array.push(`xRestrict\n${_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getXRestrictText(body.xRestrict)}`);
-        array.push(`AI\n${_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getAITypeText(body.aiType)}`);
+        array.push(`AI\n${_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getAITypeText(checkAITag ? 2 : body.aiType)}`);
         array.push(`User\n${body.userName}`);
         array.push(`UserID\n${body.userId}`);
         array.push(`Title\n${body.title}`);
@@ -6892,14 +6890,6 @@ class SelectWork {
         this.clearBtn = document.createElement('button'); // 清空选择的作品的按钮
         this.selectedWorkFlagClass = 'selectedWorkFlag'; // 给已选择的作品添加标记时使用的 class
         this.positionValue = ['relative', 'absolute', 'fixed']; // 标记元素需要父元素拥有这些定位属性
-        // 不同页面里的作品列表容器的选择器可能不同，这里储存所有页面里会使用到的的选择器
-        // root 是大部分页面通用的; js-mount-point-discovery 是发现页面使用的
-        this.worksWrapperSelectorList = [
-            '#root',
-            '#js-mount-point-discovery',
-        ];
-        // 储存当前页面使用的选择器
-        this.usedWorksWrapperSelector = this.worksWrapperSelectorList[0];
         // 储存当前页面的作品列表容器
         this.worksWrapper = document.body;
         this.ob = undefined;
@@ -7024,15 +7014,7 @@ class SelectWork {
         };
         // 每次页面切换之后，查找新的作品列表容器并保存
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.pageSwitch, () => {
-            let worksWrapper = null;
-            for (const selector of this.worksWrapperSelectorList) {
-                worksWrapper = document.querySelector(selector);
-                if (worksWrapper) {
-                    this.usedWorksWrapperSelector = selector;
-                    break;
-                }
-            }
-            this.worksWrapper = worksWrapper || document.body;
+            this.worksWrapper = document.body;
         });
         // 每次页面切换之后，查找新显示的作品里是否有之前被选择的作品，如果有则为其添加标记
         // 因为 pixiv 的页面切换会导致作品列表变化，之前添加的标记也就没有了，需要重新添加
@@ -7353,10 +7335,10 @@ class SelectWork {
             }
             let el;
             if (type === 'novels') {
-                el = document.querySelector(`${this.usedWorksWrapperSelector} a[href="/novel/show.php?id=${id}"]`);
+                el = document.querySelector(`body a[href="/novel/show.php?id=${id}"]`);
             }
             else {
-                el = document.querySelector(`${this.usedWorksWrapperSelector} a[href="/artworks/${id}"]`);
+                el = document.querySelector(`body a[href="/artworks/${id}"]`);
             }
             if (el) {
                 // 如果在当前页面查找到了选择的作品，就给它添加标记
@@ -12459,27 +12441,14 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }
         else {
             // 重新查找
-            // 旧版页面里
-            const test = document.querySelectorAll('#root section ul');
-            if (test.length > 0) {
-                if (test.length > 2) {
-                    // 大于 2 的情况是在搜索页的首页，或者小说页面
-                    wrap = test[2];
-                }
-                // 在插画、漫画、artworks 页面只有两个 ul 或者一个
-                wrap = test[test.length - 1];
-            }
-            else {
-                // 新版页面里没有 #root 了，所以需要使用别的方法
-                // 先查找作品列表里最后一个作品链接，然后向上查找 UL 元素
-                // 为什么用最后一个作品，而不是第一个作品：
-                // 有时在作品列表上方会显示“热门作品”和“成为pixiv高级会员”按钮的板块
-                // 如果使用第一个作品，就会选择到这个板块，而非其下方真正的作品列表
-                const works = document.querySelectorAll('li a[data-gtm-user-id]');
-                if (works.length > 0) {
-                    const lastWork = Array.from(works).pop();
-                    wrap = lastWork.closest('ul');
-                }
+            // 先查找作品列表里最后一个作品链接，然后向上查找 UL 元素
+            // 为什么用最后一个作品，而不是第一个作品：
+            // 有时在作品列表上方会显示“热门作品”和“成为pixiv高级会员”按钮的板块
+            // 如果使用第一个作品，就会选择到这个板块，而非其下方真正的作品列表
+            const works = document.querySelectorAll('li a[data-gtm-user-id]');
+            if (works.length > 0) {
+                const lastWork = Array.from(works).pop();
+                wrap = lastWork.closest('ul');
             }
         }
         // 查找到作品列表后，添加自定义的 ID，方便后续查找它
@@ -15434,7 +15403,7 @@ __webpack_require__.r(__webpack_exports__);
 class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.worksWrapSelector = '#root section>div ul';
+        this.worksWrapSelector = 'section>div ul';
         this.option = {};
         this.worksNoPerPage = 30; // 每个页面有多少个作品
         this.needCrawlPageCount = 0; // 一共有有多少个列表页面
@@ -15497,7 +15466,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         bookmarkAllBtn.addEventListener('click', () => {
             const listWrap = this.getWorksWrap();
             if (listWrap) {
-                const list = document.querySelectorAll('#root section>div ul>li');
+                const list = document.querySelectorAll('section>div ul>li');
                 if (list.length > 0) {
                     bookmarkAll.sendWorkList(list, 'novels');
                 }
@@ -19113,7 +19082,8 @@ class ExportResult2CSV {
                         result = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getXRestrictText(result) || '';
                     }
                     if (field.name === 'AI') {
-                        result = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getAITypeText(d.aiType || 0);
+                        const checkAITag = d.tags.includes('AI生成');
+                        result = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getAITypeText(checkAITag ? 2 : d.aiType || 0);
                     }
                     bodyItem.push(result);
                 }
@@ -20456,7 +20426,8 @@ class SaveWorkMeta {
         }
         fileContent.push(this.addMeta('Thumbnail', data.thumb));
         fileContent.push(this.addMeta('xRestrict', _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getXRestrictText(data.xRestrict)));
-        fileContent.push(this.addMeta('AI', _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getAITypeText(data.aiType || 0)));
+        const checkAITag = data.tags.includes('AI生成');
+        fileContent.push(this.addMeta('AI', _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getAITypeText(checkAITag ? 2 : data.aiType || 0)));
         fileContent.push(this.addMeta('User', data.user));
         fileContent.push(this.addMeta('UserID', data.userId));
         fileContent.push(this.addMeta('Title', data.title));
@@ -21553,7 +21524,7 @@ class Filter {
         if (!this.checkDownTypeByAge(option.xRestrict)) {
             return false;
         }
-        if (!this.checkAIWorkType(option.aiType)) {
+        if (!this.checkAIWorkType(option.aiType, option.tags)) {
             return false;
         }
         // 检查单图、多图的下载
@@ -21859,7 +21830,10 @@ class Filter {
                 return true;
         }
     }
-    checkAIWorkType(aiType) {
+    checkAIWorkType(aiType, tags) {
+        if (tags?.includes('AI生成')) {
+            return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.AIGenerated;
+        }
         switch (aiType) {
             case 0:
                 return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.UnknownAI;
@@ -28390,18 +28364,8 @@ class FastScreen {
             return document.querySelector('.search-header');
         }
         else {
-            // PC 端现在正在改版，需要处理不同的情况
-            // 改版前的情况
-            let target = document.querySelector('#root>div');
-            if (target) {
-                this.insertPoint = 'afterend';
-                return target;
-            }
-            else {
-                // 改版后的情况
-                this.insertPoint = 'afterbegin';
-                return document.body;
-            }
+            this.insertPoint = 'afterbegin';
+            return document.body;
         }
     }
     // 添加快速筛选功能
@@ -28709,7 +28673,7 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
         // this.findAllWorks()
         this.showTip = false;
         // 搜索页面里的插画作品选择器
-        this.worksSelector = '#root section ul li';
+        this.worksSelector = 'section ul li';
         this.createObserver(document.body);
         this.bindEvents();
     }

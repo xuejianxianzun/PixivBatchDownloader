@@ -29,7 +29,7 @@ class InitSearchNovelPage extends InitPageBase {
     crawlTagList.init()
   }
 
-  private readonly worksWrapSelector = '#root section>div ul'
+  private readonly worksWrapSelector = 'section>div ul'
 
   private option: SearchOption = {}
   private readonly worksNoPerPage = 30 // 每个页面有多少个作品
@@ -93,7 +93,7 @@ class InitSearchNovelPage extends InitPageBase {
       const listWrap = this.getWorksWrap()
       if (listWrap) {
         const list = document.querySelectorAll(
-          '#root section>div ul>li'
+          'section>div ul>li'
         ) as NodeListOf<HTMLLIElement>
         if (list.length > 0) {
           bookmarkAll.sendWorkList(list, 'novels')

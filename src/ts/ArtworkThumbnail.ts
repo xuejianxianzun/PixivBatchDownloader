@@ -64,14 +64,6 @@ class ArtworkThumbnail extends WorkThumbnail {
         continue
       }
 
-      // div[size="131"] 只在 发现-推荐用户 页面里使用。当关注一个用户后，底部显示的推荐用户的作品是这个选择器
-      if (
-        selector === 'div[size="131"]' &&
-        pageType.type !== pageType.list.DiscoverUsers
-      ) {
-        continue
-      }
-
       // div[type="illust"] 只在约稿页面使用
       // 因为已知问题：在收藏页面里， div[type="illust"] 嵌套了子元素 div[width="184"]
       // 这会导致重复绑定（在不同元素上）

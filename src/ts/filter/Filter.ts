@@ -93,7 +93,7 @@ class Filter {
       return false
     }
 
-    if (!this.checkAIWorkType(option.aiType)) {
+    if (!this.checkAIWorkType(option.aiType, option.tags)) {
       return false
     }
 
@@ -487,7 +487,14 @@ class Filter {
     }
   }
 
-  private checkAIWorkType(aiType?: FilterOption['aiType']) {
+  private checkAIWorkType(
+    aiType?: FilterOption['aiType'],
+    tags?: FilterOption['tags']
+  ) {
+    if (tags?.includes('AI生成')) {
+      return settings.AIGenerated
+    }
+
     switch (aiType) {
       case 0:
         return settings.UnknownAI

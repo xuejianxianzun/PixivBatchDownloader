@@ -120,7 +120,10 @@ class PreviewWorkDetailInfo {
     }
 
     let aiHTML = ''
-    if (workData.body.aiType === 2) {
+    if (
+      workData.body.aiType === 2 ||
+      workData.body.tags.tags.some((tag) => tag.tag === 'AI生成')
+    ) {
       aiHTML = '<span class="ai">AI</span>'
     }
 
@@ -234,6 +237,9 @@ class PreviewWorkDetailInfo {
   private copyTXT(workData: ArtworkData) {
     // 组织输出的内容
     const tags = Tools.extractTags(workData).map((tag) => `#${tag}`)
+    const checkAITag = workData.body.tags.tags.some(
+      (tag) => tag.tag === 'AI生成'
+    )
 
     const array: string[] = []
     const body = workData.body
@@ -241,7 +247,7 @@ class PreviewWorkDetailInfo {
     array.push(`URL\nhttps://www.pixiv.net/artworks/${body.id}`)
     array.push(`Original\n${body.urls?.original}`)
     array.push(`xRestrict\n${Tools.getXRestrictText(body.xRestrict)}`)
-    array.push(`AI\n${Tools.getAITypeText(body.aiType)}`)
+    array.push(`AI\n${Tools.getAITypeText(checkAITag ? 2 : body.aiType)}`)
     array.push(`User\n${body.userName}`)
     array.push(`UserID\n${body.userId}`)
     array.push(`Title\n${body.title}`)
