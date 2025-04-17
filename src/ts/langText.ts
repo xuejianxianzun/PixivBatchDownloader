@@ -4926,12 +4926,12 @@ This downloader does not support Firefox and may encounter some problems. I will
     'Исправлены некоторые улучшения, которые были недействительны из-за изменений Pixiv, такие как «показывать увеличенные миниатюры», «выделять подписчиков» и т. д.',
   ],
   _支持抓取好P友的作品: [
-    '支持抓取“好P友”页面里的作品：<br>https://www.pixiv.net/mypixiv_new_illust.php',
-    '支援抓取“好P友”頁面裡的作品：<br>https://www.pixiv.net/mypixiv_new_illust.php',
-    'Supports crawling works from the "My pixiv" page:<br>https://www.pixiv.net/mypixiv_new_illust.php',
-    '「マイピクの作品」ページからの作品のクロールをサポートします:<br>https://www.pixiv.net/mypixiv_new_illust.php',
-    '"마이픽 작품" 페이지에서 크롤링 작업을 지원합니다.<br>https://www.pixiv.net/mypixiv_new_illust.php',
-    'Поддерживает сканирование работ со страницы «My pixiv»:<br>https://www.pixiv.net/mypixiv_new_illust.php',
+    '支持抓取“好P友”页面里的作品：<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>',
+    '支援抓取“好P友”頁面裡的作品：<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>',
+    'Supports crawling works from the "My pixiv" page:<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>',
+    '「マイピクの作品」ページからの作品のクロールをサポートします:<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>',
+    '"마이픽 작품" 페이지에서 크롤링 작업을 지원합니다.<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>https://www.pixiv.net/mypixiv_new_illust.php',
+    'Поддерживает сканирование работ со страницы «My pixiv»:<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>',
   ],
 }
 
