@@ -2521,8 +2521,8 @@ class HighlightFollowingUsers {
                 document.documentElement.setAttribute('data-xzpagetheme', this.pageTheme);
             }
         });
-        // 在作品页内，作品大图下方和右侧的作者名字变化时，监视器无法监测到变化，尤其是右侧的名字
-        // 所以用定时器执行
+        // 在作品页内，切换到另一个作者的作品时，作者名字会变化，需要重新设置高亮状态
+        // 但是监视器无法监测到变化，尤其是右侧的名字，所以使用定时器执行
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, () => {
             if (!_Config__WEBPACK_IMPORTED_MODULE_9__.Config.mobile &&
                 (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Artwork ||
@@ -2534,8 +2534,8 @@ class HighlightFollowingUsers {
                     if (time > 5000) {
                         window.clearInterval(timer);
                     }
-                    const leftA = document.querySelectorAll('#root main a[href*=user]');
-                    const rightA = document.querySelectorAll('#root main+aside a[href*=user]');
+                    const leftA = document.querySelectorAll('main section a[href*=user]');
+                    const rightA = document.querySelectorAll('main+aside a[href*=user]');
                     const allA = Array.from(leftA).concat(Array.from(rightA));
                     this.makeHighlight(allA);
                 }, interval);
