@@ -681,7 +681,10 @@ class PreviewWork {
       const text: string[] = []
       const body = this.workData.body
 
-      if (body.aiType === 2) {
+      if (
+        body.aiType === 2 ||
+        body.tags.tags.some((tag) => tag.tag === 'AI生成')
+      ) {
         text.push('AI')
       }
 

@@ -2256,7 +2256,7 @@ class FileName {
                 safe: true,
             },
             '{AI}': {
-                value: data.aiType === 2 ? 'AI' : '',
+                value: data.aiType === 2 || data.tags.includes('AI生成') ? 'AI' : '',
                 prefix: '',
                 safe: true,
             },
@@ -5364,7 +5364,8 @@ class PreviewWork {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.showPreviewWorkTip) {
             const text = [];
             const body = this.workData.body;
-            if (body.aiType === 2) {
+            if (body.aiType === 2 ||
+                body.tags.tags.some((tag) => tag.tag === 'AI生成')) {
                 text.push('AI');
             }
             if (body.pageCount > 1) {
@@ -5557,7 +5558,8 @@ class PreviewWorkDetailInfo {
             r18HTML = '<span class="r18">R-18G</span>';
         }
         let aiHTML = '';
-        if (workData.body.aiType === 2) {
+        if (workData.body.aiType === 2 ||
+            workData.body.tags.tags.some((tag) => tag.tag === 'AI生成')) {
             aiHTML = '<span class="ai">AI</span>';
         }
         wrap.innerHTML = `
@@ -5645,13 +5647,14 @@ class PreviewWorkDetailInfo {
     copyTXT(workData) {
         // 组织输出的内容
         const tags = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.extractTags(workData).map((tag) => `#${tag}`);
+        const checkAITag = workData.body.tags.tags.some((tag) => tag.tag === 'AI生成');
         const array = [];
         const body = workData.body;
         array.push(`ID\n${body.id}`);
         array.push(`URL\nhttps://www.pixiv.net/artworks/${body.id}`);
         array.push(`Original\n${body.urls?.original}`);
         array.push(`xRestrict\n${_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getXRestrictText(body.xRestrict)}`);
-        array.push(`AI\n${_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getAITypeText(body.aiType)}`);
+        array.push(`AI\n${_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getAITypeText(checkAITag ? 2 : body.aiType)}`);
         array.push(`User\n${body.userName}`);
         array.push(`UserID\n${body.userId}`);
         array.push(`Title\n${body.title}`);
@@ -17905,7 +17908,8 @@ class ExportResult2CSV {
                         result = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getXRestrictText(result) || '';
                     }
                     if (field.name === 'AI') {
-                        result = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getAITypeText(d.aiType || 0);
+                        const checkAITag = d.tags.includes('AI生成');
+                        result = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getAITypeText(checkAITag ? 2 : d.aiType || 0);
                     }
                     bodyItem.push(result);
                 }
@@ -19248,7 +19252,8 @@ class SaveWorkMeta {
         }
         fileContent.push(this.addMeta('Thumbnail', data.thumb));
         fileContent.push(this.addMeta('xRestrict', _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getXRestrictText(data.xRestrict)));
-        fileContent.push(this.addMeta('AI', _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getAITypeText(data.aiType || 0)));
+        const checkAITag = data.tags.includes('AI生成');
+        fileContent.push(this.addMeta('AI', _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getAITypeText(checkAITag ? 2 : data.aiType || 0)));
         fileContent.push(this.addMeta('User', data.user));
         fileContent.push(this.addMeta('UserID', data.userId));
         fileContent.push(this.addMeta('Title', data.title));
@@ -20338,7 +20343,7 @@ class Filter {
         if (!this.checkDownTypeByAge(option.xRestrict)) {
             return false;
         }
-        if (!this.checkAIWorkType(option.aiType)) {
+        if (!this.checkAIWorkType(option.aiType, option.tags)) {
             return false;
         }
         // 检查单图、多图的下载
@@ -20644,7 +20649,10 @@ class Filter {
                 return true;
         }
     }
-    checkAIWorkType(aiType) {
+    checkAIWorkType(aiType, tags) {
+        if (tags?.includes('AI生成')) {
+            return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.AIGenerated;
+        }
         switch (aiType) {
             case 0:
                 return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.UnknownAI;
