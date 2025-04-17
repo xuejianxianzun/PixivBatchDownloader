@@ -105,7 +105,8 @@ class PageType {
       return PageName.BookmarkDetail
     } else if (
       url.includes('/bookmark_new_illust.php') ||
-      url.includes('/bookmark_new_illust_r18.php')
+      url.includes('/bookmark_new_illust_r18.php') ||
+      url.includes('/mypixiv_new_illust.php')
     ) {
       return PageName.NewArtworkBookmark
     } else if (
@@ -126,7 +127,10 @@ class PageType {
       return PageName.NovelSeries
     } else if (pathname === '/novel/ranking.php') {
       return PageName.NovelRanking
-    } else if (pathname.startsWith('/novel/bookmark_new')) {
+    } else if (
+      pathname.startsWith('/novel/bookmark_new') ||
+      pathname.startsWith('/novel/mypixiv_new.php')
+    ) {
       return PageName.NewNovelBookmark
     } else if (pathname.startsWith('/novel/new')) {
       return PageName.NewNovel
