@@ -7634,14 +7634,17 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.4.0';
+        this.flag = '17.5.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复了因Pixiv变化而失效的显示更大的缩略图功能')}</span>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_支持抓取好P友的作品')}</span>
+      <br>
+      <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
       `;
             // <strong>
             // <span>✨${lang.transl('_新增设置项')}:</span>
@@ -26195,6 +26198,14 @@ This downloader does not support Firefox and may encounter some problems. I will
         '「サムネイルを大きく表示する」「フォローしているユーザーを強調表示する」など、Pixiv の変更により無効になっていたいくつかの拡張機能を修正しました。',
         'Pixiv 변경으로 인해 유효하지 않았던 "더 큰 썸네일 표시", "팔로우한 사용자 강조 표시" 등 몇 가지 향상된 기능을 수정했습니다.',
         'Исправлены некоторые улучшения, которые были недействительны из-за изменений Pixiv, такие как «показывать увеличенные миниатюры», «выделять подписчиков» и т. д.',
+    ],
+    _支持抓取好P友的作品: [
+        '支持抓取“好P友”页面里的作品：<br>https://www.pixiv.net/mypixiv_new_illust.php',
+        '支援抓取“好P友”頁面裡的作品：<br>https://www.pixiv.net/mypixiv_new_illust.php',
+        'Supports crawling works from the "My pixiv" page:<br>https://www.pixiv.net/mypixiv_new_illust.php',
+        '「マイピクの作品」ページからの作品のクロールをサポートします:<br>https://www.pixiv.net/mypixiv_new_illust.php',
+        '"마이픽 작품" 페이지에서 크롤링 작업을 지원합니다.<br>https://www.pixiv.net/mypixiv_new_illust.php',
+        'Поддерживает сканирование работ со страницы «My pixiv»:<br>https://www.pixiv.net/mypixiv_new_illust.php',
     ],
 };
 
