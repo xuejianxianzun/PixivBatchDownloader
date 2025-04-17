@@ -11264,27 +11264,14 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }
         else {
             // 重新查找
-            // 旧版页面里
-            const test = document.querySelectorAll('#root section ul');
-            if (test.length > 0) {
-                if (test.length > 2) {
-                    // 大于 2 的情况是在搜索页的首页，或者小说页面
-                    wrap = test[2];
-                }
-                // 在插画、漫画、artworks 页面只有两个 ul 或者一个
-                wrap = test[test.length - 1];
-            }
-            else {
-                // 新版页面里没有 #root 了，所以需要使用别的方法
-                // 先查找作品列表里最后一个作品链接，然后向上查找 UL 元素
-                // 为什么用最后一个作品，而不是第一个作品：
-                // 有时在作品列表上方会显示“热门作品”和“成为pixiv高级会员”按钮的板块
-                // 如果使用第一个作品，就会选择到这个板块，而非其下方真正的作品列表
-                const works = document.querySelectorAll('li a[data-gtm-user-id]');
-                if (works.length > 0) {
-                    const lastWork = Array.from(works).pop();
-                    wrap = lastWork.closest('ul');
-                }
+            // 先查找作品列表里最后一个作品链接，然后向上查找 UL 元素
+            // 为什么用最后一个作品，而不是第一个作品：
+            // 有时在作品列表上方会显示“热门作品”和“成为pixiv高级会员”按钮的板块
+            // 如果使用第一个作品，就会选择到这个板块，而非其下方真正的作品列表
+            const works = document.querySelectorAll('li a[data-gtm-user-id]');
+            if (works.length > 0) {
+                const lastWork = Array.from(works).pop();
+                wrap = lastWork.closest('ul');
             }
         }
         // 查找到作品列表后，添加自定义的 ID，方便后续查找它
@@ -14239,7 +14226,7 @@ __webpack_require__.r(__webpack_exports__);
 class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.worksWrapSelector = '#root section>div ul';
+        this.worksWrapSelector = 'section>div ul';
         this.option = {};
         this.worksNoPerPage = 30; // 每个页面有多少个作品
         this.needCrawlPageCount = 0; // 一共有有多少个列表页面
@@ -14302,7 +14289,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         bookmarkAllBtn.addEventListener('click', () => {
             const listWrap = this.getWorksWrap();
             if (listWrap) {
-                const list = document.querySelectorAll('#root section>div ul>li');
+                const list = document.querySelectorAll('section>div ul>li');
                 if (list.length > 0) {
                     bookmarkAll.sendWorkList(list, 'novels');
                 }

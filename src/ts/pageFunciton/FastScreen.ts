@@ -41,10 +41,10 @@ class FastScreen {
     if (Config.mobile) {
       return document.querySelector('.search-header') as HTMLDivElement
     } else {
-        this.insertPoint = 'afterbegin'
-        return document.body
-      }
+      this.insertPoint = 'afterbegin'
+      return document.body
     }
+  }
 
   // 添加快速筛选功能
   private create() {

@@ -559,28 +559,14 @@ class InitSearchArtworkPage extends InitPageBase {
       wrap = old as HTMLUListElement
     } else {
       // 重新查找
-
-      // 旧版页面里
-      const test = document.querySelectorAll('#root section ul')
-      if (test.length > 0) {
-        if (test.length > 2) {
-          // 大于 2 的情况是在搜索页的首页，或者小说页面
-          wrap = test[2] as HTMLUListElement
-        }
-
-        // 在插画、漫画、artworks 页面只有两个 ul 或者一个
-        wrap = test[test.length - 1] as HTMLUListElement
-      } else {
-        // 新版页面里没有 #root 了，所以需要使用别的方法
-        // 先查找作品列表里最后一个作品链接，然后向上查找 UL 元素
-        // 为什么用最后一个作品，而不是第一个作品：
-        // 有时在作品列表上方会显示“热门作品”和“成为pixiv高级会员”按钮的板块
-        // 如果使用第一个作品，就会选择到这个板块，而非其下方真正的作品列表
-        const works = document.querySelectorAll('li a[data-gtm-user-id]')
-        if (works.length > 0) {
-          const lastWork = Array.from(works).pop()!
-          wrap = lastWork.closest('ul')!
-        }
+      // 先查找作品列表里最后一个作品链接，然后向上查找 UL 元素
+      // 为什么用最后一个作品，而不是第一个作品：
+      // 有时在作品列表上方会显示“热门作品”和“成为pixiv高级会员”按钮的板块
+      // 如果使用第一个作品，就会选择到这个板块，而非其下方真正的作品列表
+      const works = document.querySelectorAll('li a[data-gtm-user-id]')
+      if (works.length > 0) {
+        const lastWork = Array.from(works).pop()!
+        wrap = lastWork.closest('ul')!
       }
     }
 
