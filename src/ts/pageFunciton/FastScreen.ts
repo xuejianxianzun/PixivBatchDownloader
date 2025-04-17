@@ -41,19 +41,10 @@ class FastScreen {
     if (Config.mobile) {
       return document.querySelector('.search-header') as HTMLDivElement
     } else {
-      // PC 端现在正在改版，需要处理不同的情况
-      // 改版前的情况
-      let target = document.querySelector('#root>div') as HTMLDivElement
-      if (target) {
-        this.insertPoint = 'afterend'
-        return target
-      } else {
-        // 改版后的情况
         this.insertPoint = 'afterbegin'
         return document.body
       }
     }
-  }
 
   // 添加快速筛选功能
   private create() {
