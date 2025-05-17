@@ -1278,7 +1278,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     <br>
     我的邀请码：GYjQWDob
     <br><br>
-    下载器 QQ 群：675174717
+    下载器 QQ 群：674991373
     <br><br>
     在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a>
     <br><br>
