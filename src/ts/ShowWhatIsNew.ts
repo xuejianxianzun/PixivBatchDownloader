@@ -17,7 +17,7 @@ class ShowWhatIsNew {
     window.addEventListener(EVT.list.settingInitialized, () => {
       // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
       let msg = `
-      <span>${lang.transl('_支持抓取好P友的作品')}</span>
+      <span>${lang.transl('_为下载器的设置项添加了更多提示')}</span>
       <br>
       <br>
       <span>${lang.transl('_修复已知问题')}</span>
@@ -40,6 +40,7 @@ class ShowWhatIsNew {
       // <span>${lang.transl('_修复已知问题')}</span>
       // <span>${lang.transl('_优化性能和用户体验')}</span>
       // <span>${lang.transl('_其他优化')}</span>
+      // <span>${lang.transl('_为下载器的设置项添加了更多提示')}</span>
 
       // 在更新说明的下方显示赞助提示
       msg += `
