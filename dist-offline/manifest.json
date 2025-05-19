@@ -48,7 +48,6 @@
   },
   "permissions": [
     "downloads",
-    "downloads.shelf",
     "storage",
     "declarativeNetRequestWithHostAccess",
     "webRequest"

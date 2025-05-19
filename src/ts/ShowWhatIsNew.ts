@@ -19,11 +19,9 @@ class ShowWhatIsNew {
       let msg = `
       <span>💡${lang.transl('_为下载器的设置项添加了更多提示')}</span>
       <br>
-      <br>
       <span>🗑️${lang.transl('_移除设置项')}${lang.transl(
         '_添加命名标记前缀'
       )}</span>
-      <br>
       <br>
       <span>🗑️${lang.transl('_移除设置项')}${lang.transl(
         '_隐藏浏览器底部的下载栏'
