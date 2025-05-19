@@ -109,7 +109,6 @@ class FormSettings {
       'downloadNovelCoverImage',
       'downloadNovelEmbeddedImage',
       'previewUgoira',
-      'hiddenBrowserDownloadBar',
       'slowCrawl',
       'downloadOnClickBookmark',
       'downloadOnClickLike',

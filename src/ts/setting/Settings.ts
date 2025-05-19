@@ -216,7 +216,6 @@ interface XzSetting {
   downloadNovelCoverImage: boolean
   downloadNovelEmbeddedImage: boolean
   previewUgoira: boolean
-  hiddenBrowserDownloadBar: boolean
   tipPreviewWork: boolean
   tipHotkeysViewLargeImage: boolean
   /**定时抓取的间隔时间，注意单位是分钟而不是毫秒 */
@@ -453,7 +452,6 @@ class Settings {
     downloadNovelCoverImage: true,
     downloadNovelEmbeddedImage: true,
     previewUgoira: true,
-    hiddenBrowserDownloadBar: false,
     tipPreviewWork: true,
     tipHotkeysViewLargeImage: true,
     timedCrawlInterval: 120,

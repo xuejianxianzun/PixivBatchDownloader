@@ -996,12 +996,6 @@ export const formHtml = `<form class="settingForm">
     <button class="textButton gray1" type="button" id="deduplicationHelp" data-xztext="_提示"></button>
     </p>
 
-    <p class="option" data-no="73">
-    <span class="settingNameStyle1" data-xztext="_隐藏浏览器底部的下载栏"></span>
-    <input type="checkbox" name="hiddenBrowserDownloadBar" class="need_beautify checkbox_switch">
-    <span class="beautify_switch" tabindex="0"></span>
-    </p>
-
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </p>

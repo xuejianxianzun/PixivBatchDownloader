@@ -5293,14 +5293,14 @@ This downloader does not support Firefox and may encounter some problems. I will
     'Поддерживает сканирование работ со страницы «My pixiv»:<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>',
   ],
   _为下载器的设置项添加了更多提示: [
-    `为下载器的设置项添加了更详细的提示。`,
-    `為下載器的設定項添加了更詳細的提示。`,
-    `Added more detailed tips for the downloader settings.`,
-    `ダウンローダー設定に関するより詳細なヒントを追加しました。`,
-    `다운로더 설정에 대한 더 자세한 팁을 추가했습니다.`,
-    `Добавлены более подробные советы по настройкам загрузчика.`,
+    `为下载器的设置项添加了更详细的提示`,
+    `為下載器的設定項添加了更詳細的提示`,
+    `Added more detailed tips for the downloader settings`,
+    `ダウンローダー設定に関するより詳細なヒントを追加しました`,
+    `다운로더 설정에 대한 더 자세한 팁을 추가했습니다`,
+    `Добавлены более подробные советы по настройкам загрузчика`,
   ],
-  _移除设置项:[
+  _移除设置项: [
     '移除设置项：',
     '移除設定項：',
     'Remove the settings item: ',

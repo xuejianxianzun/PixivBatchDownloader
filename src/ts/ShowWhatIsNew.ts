@@ -11,16 +11,23 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '17.5.00'
+  private flag = '17.6.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
       let msg = `
-      <span>${lang.transl('_为下载器的设置项添加了更多提示')}</span>
+      <span>💡${lang.transl('_为下载器的设置项添加了更多提示')}</span>
       <br>
       <br>
-      <span>${lang.transl('_修复已知问题')}</span>
+      <span>🗑️${lang.transl('_移除设置项')}${lang.transl(
+        '_添加命名标记前缀'
+      )}</span>
+      <br>
+      <br>
+      <span>🗑️${lang.transl('_移除设置项')}${lang.transl(
+        '_隐藏浏览器底部的下载栏'
+      )}</span>
       `
 
       // <strong>
@@ -28,6 +35,7 @@ class ShowWhatIsNew {
       // <span>✨${lang.transl('_新增功能')}:</span>
       // <span class="blue">${lang.transl('_下载间隔')}</span>
       // </strong>
+      // <span>🗑${lang.transl('_移除设置项')}${lang.transl('_隐藏浏览器底部的下载栏')}</span>
 
       // ${lang.transl(
       //   '_你可以在更多选项卡的xx分类里找到它',

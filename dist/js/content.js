@@ -2363,37 +2363,6 @@ const fileName = new FileName();
 
 /***/ }),
 
-/***/ "./src/ts/HiddenBrowserDownloadBar.ts":
-/*!********************************************!*\
-  !*** ./src/ts/HiddenBrowserDownloadBar.ts ***!
-  \********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-
-class HiddenBrowserDownloadBar {
-    constructor() {
-        this.bindEvents();
-    }
-    bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
-            const data = ev.detail.data;
-            if (data.name === 'hiddenBrowserDownloadBar') {
-                chrome.runtime.sendMessage({
-                    msg: 'setShelfEnabled',
-                    value: !data.value,
-                });
-                // 如果这个设置为 true，则应该向后台传递 false
-            }
-        });
-    }
-}
-new HiddenBrowserDownloadBar();
-
-
-/***/ }),
-
 /***/ "./src/ts/HighlightFollowingUsers.ts":
 /*!*******************************************!*\
   !*** ./src/ts/HighlightFollowingUsers.ts ***!
@@ -7600,23 +7569,27 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.5.00';
+        this.flag = '17.6.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_为下载器的设置项添加了更多提示')}</span>
+      <span>💡${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_为下载器的设置项添加了更多提示')}</span>
       <br>
       <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
+      <span>🗑️${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_移除设置项')}${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_添加命名标记前缀')}</span>
+      <br>
+      <br>
+      <span>🗑️${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_移除设置项')}${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_隐藏浏览器底部的下载栏')}</span>
       `;
             // <strong>
             // <span>✨${lang.transl('_新增设置项')}:</span>
             // <span>✨${lang.transl('_新增功能')}:</span>
             // <span class="blue">${lang.transl('_下载间隔')}</span>
             // </strong>
+            // <span>🗑${lang.transl('_移除设置项')}${lang.transl('_隐藏浏览器底部的下载栏')}</span>
             // ${lang.transl(
             //   '_你可以在更多选项卡的xx分类里找到它',
             //   lang.transl('_下载')
@@ -26533,12 +26506,12 @@ This downloader does not support Firefox and may encounter some problems. I will
         'Поддерживает сканирование работ со страницы «My pixiv»:<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>',
     ],
     _为下载器的设置项添加了更多提示: [
-        `为下载器的设置项添加了更详细的提示。`,
-        `為下載器的設定項添加了更詳細的提示。`,
-        `Added more detailed tips for the downloader settings.`,
-        `ダウンローダー設定に関するより詳細なヒントを追加しました。`,
-        `다운로더 설정에 대한 더 자세한 팁을 추가했습니다.`,
-        `Добавлены более подробные советы по настройкам загрузчика.`,
+        `为下载器的设置项添加了更详细的提示`,
+        `為下載器的設定項添加了更詳細的提示`,
+        `Added more detailed tips for the downloader settings`,
+        `ダウンローダー設定に関するより詳細なヒントを追加しました`,
+        `다운로더 설정에 대한 더 자세한 팁을 추가했습니다`,
+        `Добавлены более подробные советы по настройкам загрузчика`,
     ],
     _移除设置项: [
         '移除设置项：',
@@ -29741,12 +29714,6 @@ const formHtml = `<form class="settingForm">
     <button class="textButton gray1" type="button" id="deduplicationHelp" data-xztext="_提示"></button>
     </p>
 
-    <p class="option" data-no="73">
-    <span class="settingNameStyle1" data-xztext="_隐藏浏览器底部的下载栏"></span>
-    <input type="checkbox" name="hiddenBrowserDownloadBar" class="need_beautify checkbox_switch">
-    <span class="beautify_switch" tabindex="0"></span>
-    </p>
-
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </p>
@@ -30233,7 +30200,6 @@ class FormSettings {
                 'downloadNovelCoverImage',
                 'downloadNovelEmbeddedImage',
                 'previewUgoira',
-                'hiddenBrowserDownloadBar',
                 'slowCrawl',
                 'downloadOnClickBookmark',
                 'downloadOnClickLike',
@@ -31261,7 +31227,6 @@ class Settings {
             downloadNovelCoverImage: true,
             downloadNovelEmbeddedImage: true,
             previewUgoira: true,
-            hiddenBrowserDownloadBar: false,
             tipPreviewWork: true,
             tipHotkeysViewLargeImage: true,
             timedCrawlInterval: 120,
@@ -49369,8 +49334,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
 /* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
 /* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _HiddenBrowserDownloadBar__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./HiddenBrowserDownloadBar */ "./src/ts/HiddenBrowserDownloadBar.ts");
-/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
+/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -49418,7 +49382,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 // import './CheckNewVersion'
-
 
 
 
