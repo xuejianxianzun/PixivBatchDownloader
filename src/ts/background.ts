@@ -1,13 +1,6 @@
 import { DonwloadListData, SendToBackEndData } from './download/DownloadType.d'
 import './ManageFollowing'
 
-// 隐藏或显示浏览器底部的下载栏
-chrome.runtime.onMessage.addListener((data, sender) => {
-  if (data.msg === 'setShelfEnabled') {
-    chrome.downloads.setShelfEnabled(data.value)
-  }
-})
-
 // 当点击扩展图标时，显示/隐藏下载面板
 chrome.action.onClicked.addListener(function (tab) {
   // 在本程序没有权限的页面上点击扩展图标时，url 始终是 undefined，此时不发送消息
