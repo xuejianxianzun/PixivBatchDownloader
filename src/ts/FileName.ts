@@ -146,11 +146,6 @@ class FileName {
           temp = Utils.replaceUnsafeStr(temp)
         }
 
-        // 添加标记前缀
-        if (settings.tagNameToFileName) {
-          temp = val.prefix + temp
-        }
-
         // 将标记替换成结果，如果有重复的标记，全部替换
         result = result.replace(new RegExp(key, 'g'), temp)
       }
@@ -229,66 +224,54 @@ class FileName {
     const cfg = {
       '{p_title}': {
         value: store.title,
-        prefix: '',
         safe: false,
       },
       '{page_title}': {
         value: store.title,
-        prefix: '',
         safe: false,
       },
       '{p_tag}': {
         value: store.tag,
-        prefix: '',
         safe: false,
       },
       '{page_tag}': {
         value: store.tag,
-        prefix: '',
         safe: false,
       },
       '{id}': {
         value: this.createId(data, p_num),
-        prefix: '',
         safe: true,
       },
       '{id_num}': {
         value: data.idNum || parseInt(data.id),
-        prefix: '',
         safe: true,
       },
       '{p_num}': {
         value: !allNameRule.includes('{p_num}') ? null : p_num,
-        prefix: '',
         safe: true,
       },
       '{rank}': {
         value: !allNameRule.includes('{rank}')
           ? null
           : this.createRank(data.rank),
-        prefix: '',
         safe: true,
       },
       '{title}': {
         value: data.title,
-        prefix: 'title_',
         safe: false,
       },
       '{user}': {
         value: this.RemoveAtFromUsername(
           settings.setUserNameList[data.userId] || data.user
         ),
-        prefix: 'user_',
         safe: false,
       },
       '{userid}': {
         value: data.userId,
-        prefix: 'uid_',
         safe: true,
       },
       '{user_id}': {
         value: data.userId,
-        prefix: 'uid_',
         safe: true,
       },
       '{px}': {
@@ -297,104 +280,86 @@ class FileName {
           : data.fullWidth
           ? data.fullWidth + 'x' + data.fullHeight
           : '',
-        prefix: '',
         safe: true,
       },
       '{tags}': {
         value: !allNameRule.includes('{tags}')
           ? null
           : data.tags.join(settings.tagsSeparator),
-        prefix: 'tags_',
         safe: false,
       },
       '{tags_translate}': {
         value: !allNameRule.includes('{tags_translate}')
           ? null
           : data.tagsWithTransl.join(settings.tagsSeparator),
-        prefix: 'tags_',
         safe: false,
       },
       '{tags_transl_only}': {
         value: !allNameRule.includes('{tags_transl_only}')
           ? null
           : data.tagsTranslOnly.join(settings.tagsSeparator),
-        prefix: 'tags_',
         safe: false,
       },
       '{bmk}': {
         value: data.bmk,
-        prefix: 'bmk_',
         safe: true,
       },
       '{bmk_id}': {
         value: data.bmkId || '',
-        prefix: 'bmk-id_',
         safe: true,
       },
       '{bmk_1000}': {
         value: this.getBKM1000(data.bmk),
-        prefix: 'bmk_',
         safe: true,
       },
       '{like}': {
         value: data.likeCount,
-        prefix: 'like_',
         safe: true,
       },
       '{view}': {
         value: data.viewCount,
-        prefix: 'view_',
         safe: true,
       },
       '{date}': {
         value: !allNameRule.includes('{date}')
           ? null
           : DateFormat.format(data.date, settings.dateFormat),
-        prefix: '',
         safe: false,
       },
       '{upload_date}': {
         value: !allNameRule.includes('{upload_date}')
           ? null
           : DateFormat.format(data.uploadDate, settings.dateFormat),
-        prefix: '',
         safe: false,
       },
       '{task_date}': {
         value: !allNameRule.includes('{task_date}')
           ? null
           : DateFormat.format(store.crawlCompleteTime, settings.dateFormat),
-        prefix: '',
         safe: false,
       },
       '{type}': {
         value: Config.worksTypeName[data.type],
-        prefix: '',
         safe: true,
       },
       '{AI}': {
         value: data.aiType === 2 || data.tags.includes('AI生成') ? 'AI' : '',
-        prefix: '',
         safe: true,
       },
       '{series_title}': {
         value: data.seriesTitle || '',
-        prefix: '',
         safe: false,
       },
       '{series_order}': {
         value: data.seriesOrder === null ? '' : '#' + data.seriesOrder,
-        prefix: '',
         safe: true,
       },
       '{series_id}': {
         value: data.seriesId,
-        prefix: '',
         safe: true,
       },
       '{sl}': {
         value: data.sl ?? 0,
-        prefix: '',
         safe: true,
       },
     }

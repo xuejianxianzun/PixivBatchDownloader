@@ -97,7 +97,11 @@ class PreviewWork {
         this.showWrap()
         window.clearTimeout(this.delayHiddenTimer)
         if (!Config.mobile) {
-          showHelp.show('tipPreviewWork', lang.transl('_预览作品的快捷键说明'))
+          showHelp.show(
+            'tipPreviewWork',
+            lang.transl('_预览作品的快捷键说明'),
+            lang.transl('_预览作品')
+          )
         }
       }
     } else {
