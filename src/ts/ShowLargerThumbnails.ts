@@ -101,6 +101,9 @@ class ShowLargerThumbnails {
       const allLi = sectionList[2].querySelectorAll('ul li')
       if (allLi.length > 1) {
         sectionList[2].classList.add('homeRecommendedWorks')
+        sectionList[2].parentElement!.classList.add(
+          'homeRecommendedWorksParent'
+        )
 
         // 并且需要查找里面的小说作品，然后找到其 li 元素。
         // 这样可以给小说的 li 添加 width:100%，否则小说的宽度就是原本的样子，和大图片的视觉效果不一致
