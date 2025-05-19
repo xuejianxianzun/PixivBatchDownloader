@@ -32,6 +32,8 @@ https://groups.google.com/a/chromium.org/g/chromium-extensions/c/CMz8_t9YgL4
 
 之前的群因为有些人发色图导致信用降低，无法通过群号搜索了。所以我建了个新群。
 
+### 🕑更新了作品发布时间数据
+
 ## 17.5.0 2025/04/17
 
 ### ✨支持了“好P友的新作品”页面
