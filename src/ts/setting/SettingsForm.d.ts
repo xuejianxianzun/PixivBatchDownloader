@@ -36,7 +36,6 @@ export interface SettingsForm extends HTMLFormElement {
   downloadThread: HTMLInputElement
   userSetName: HTMLInputElement
   fileNameSelect: HTMLSelectElement
-  tagNameToFileName: HTMLInputElement
   noSerialNo: HTMLInputElement
   workDir: HTMLInputElement
   workDirFileNumber: HTMLInputElement

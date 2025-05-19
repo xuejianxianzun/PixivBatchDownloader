@@ -2052,10 +2052,6 @@ class FileName {
                 if (!val.safe) {
                     temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.replaceUnsafeStr(temp);
                 }
-                // 添加标记前缀
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagNameToFileName) {
-                    temp = val.prefix + temp;
-                }
                 // 将标记替换成结果，如果有重复的标记，全部替换
                 result = result.replace(new RegExp(key, 'g'), temp);
             }
@@ -2119,64 +2115,52 @@ class FileName {
         const cfg = {
             '{p_title}': {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.title,
-                prefix: '',
                 safe: false,
             },
             '{page_title}': {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.title,
-                prefix: '',
                 safe: false,
             },
             '{p_tag}': {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.tag,
-                prefix: '',
                 safe: false,
             },
             '{page_tag}': {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.tag,
-                prefix: '',
                 safe: false,
             },
             '{id}': {
                 value: this.createId(data, p_num),
-                prefix: '',
                 safe: true,
             },
             '{id_num}': {
                 value: data.idNum || parseInt(data.id),
-                prefix: '',
                 safe: true,
             },
             '{p_num}': {
                 value: !allNameRule.includes('{p_num}') ? null : p_num,
-                prefix: '',
                 safe: true,
             },
             '{rank}': {
                 value: !allNameRule.includes('{rank}')
                     ? null
                     : this.createRank(data.rank),
-                prefix: '',
                 safe: true,
             },
             '{title}': {
                 value: data.title,
-                prefix: 'title_',
                 safe: false,
             },
             '{user}': {
                 value: this.RemoveAtFromUsername(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.setUserNameList[data.userId] || data.user),
-                prefix: 'user_',
                 safe: false,
             },
             '{userid}': {
                 value: data.userId,
-                prefix: 'uid_',
                 safe: true,
             },
             '{user_id}': {
                 value: data.userId,
-                prefix: 'uid_',
                 safe: true,
             },
             '{px}': {
@@ -2185,104 +2169,86 @@ class FileName {
                     : data.fullWidth
                         ? data.fullWidth + 'x' + data.fullHeight
                         : '',
-                prefix: '',
                 safe: true,
             },
             '{tags}': {
                 value: !allNameRule.includes('{tags}')
                     ? null
                     : data.tags.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagsSeparator),
-                prefix: 'tags_',
                 safe: false,
             },
             '{tags_translate}': {
                 value: !allNameRule.includes('{tags_translate}')
                     ? null
                     : data.tagsWithTransl.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagsSeparator),
-                prefix: 'tags_',
                 safe: false,
             },
             '{tags_transl_only}': {
                 value: !allNameRule.includes('{tags_transl_only}')
                     ? null
                     : data.tagsTranslOnly.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagsSeparator),
-                prefix: 'tags_',
                 safe: false,
             },
             '{bmk}': {
                 value: data.bmk,
-                prefix: 'bmk_',
                 safe: true,
             },
             '{bmk_id}': {
                 value: data.bmkId || '',
-                prefix: 'bmk-id_',
                 safe: true,
             },
             '{bmk_1000}': {
                 value: this.getBKM1000(data.bmk),
-                prefix: 'bmk_',
                 safe: true,
             },
             '{like}': {
                 value: data.likeCount,
-                prefix: 'like_',
                 safe: true,
             },
             '{view}': {
                 value: data.viewCount,
-                prefix: 'view_',
                 safe: true,
             },
             '{date}': {
                 value: !allNameRule.includes('{date}')
                     ? null
                     : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__.DateFormat.format(data.date, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
-                prefix: '',
                 safe: false,
             },
             '{upload_date}': {
                 value: !allNameRule.includes('{upload_date}')
                     ? null
                     : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__.DateFormat.format(data.uploadDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
-                prefix: '',
                 safe: false,
             },
             '{task_date}': {
                 value: !allNameRule.includes('{task_date}')
                     ? null
                     : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__.DateFormat.format(_store_Store__WEBPACK_IMPORTED_MODULE_3__.store.crawlCompleteTime, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
-                prefix: '',
                 safe: false,
             },
             '{type}': {
                 value: _Config__WEBPACK_IMPORTED_MODULE_4__.Config.worksTypeName[data.type],
-                prefix: '',
                 safe: true,
             },
             '{AI}': {
                 value: data.aiType === 2 || data.tags.includes('AI生成') ? 'AI' : '',
-                prefix: '',
                 safe: true,
             },
             '{series_title}': {
                 value: data.seriesTitle || '',
-                prefix: '',
                 safe: false,
             },
             '{series_order}': {
                 value: data.seriesOrder === null ? '' : '#' + data.seriesOrder,
-                prefix: '',
                 safe: true,
             },
             '{series_id}': {
                 value: data.seriesId,
-                prefix: '',
                 safe: true,
             },
             '{sl}': {
                 value: data.sl ?? 0,
-                prefix: '',
                 safe: true,
             },
         };
@@ -22553,7 +22519,9 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     <br>
     我的邀请码：GYjQWDob
     <br><br>
-    下载器 QQ 群：675174717
+    下载器 QQ 群：674991373
+    <br>
+    如果你有一些问题想要问我，可以加群后直接私聊我。发在群里有时我不能及时看到。
     <br><br>
     在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a>
     <br><br>
@@ -26572,6 +26540,14 @@ This downloader does not support Firefox and may encounter some problems. I will
         `다운로더 설정에 대한 더 자세한 팁을 추가했습니다.`,
         `Добавлены более подробные советы по настройкам загрузчика.`,
     ],
+    _移除设置项: [
+        '移除设置项：',
+        '移除設定項：',
+        'Remove the settings item: ',
+        '設定項目を削除します: ',
+        '설정 항목을 제거합니다. ',
+        'Удалить пункт настроек: ',
+    ],
 };
 
 
@@ -29494,15 +29470,6 @@ const formHtml = `<form class="settingForm">
     </span>
     </p>
 
-    <p class="option" data-no="14">
-    <span class="has_tip settingNameStyle1" data-xztip="_添加字段名称提示">
-    <span data-xztext="_添加命名标记前缀"></span>
-    <span class="gray1"> ? </span>
-    </span>
-    <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch">
-    <span class="beautify_switch" tabindex="0"></span>
-    </p>
-
     <p class="option" data-no="29">
     <span class="has_tip settingNameStyle1" data-xztip="_文件名长度限制的说明">
     <span data-xztext="_文件名长度限制"></span>
@@ -30218,7 +30185,6 @@ class FormSettings {
                 'needTagSwitch',
                 'notNeedTagSwitch',
                 'magnifier',
-                'tagNameToFileName',
                 'noSerialNo',
                 'createFolderByTag',
                 'workDir',
@@ -31156,7 +31122,6 @@ class Settings {
             downloadThread: 5,
             userSetName: '{page_title}/{id}',
             namingRuleList: [],
-            tagNameToFileName: false,
             workDir: false,
             workDirFileNumber: 1,
             workDirNameRule: '{id_num}',

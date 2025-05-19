@@ -85,7 +85,6 @@ interface XzSetting {
   downloadThread: number
   userSetName: string
   namingRuleList: string[]
-  tagNameToFileName: boolean
   workDir: boolean
   workDirFileNumber: number
   workDirNameRule: string
@@ -315,7 +314,6 @@ class Settings {
     downloadThread: 5,
     userSetName: '{page_title}/{id}',
     namingRuleList: [],
-    tagNameToFileName: false,
     workDir: false,
     workDirFileNumber: 1,
     workDirNameRule: '{id_num}',

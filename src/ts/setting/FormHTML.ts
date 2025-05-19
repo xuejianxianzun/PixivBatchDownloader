@@ -725,15 +725,6 @@ export const formHtml = `<form class="settingForm">
     </span>
     </p>
 
-    <p class="option" data-no="14">
-    <span class="has_tip settingNameStyle1" data-xztip="_添加字段名称提示">
-    <span data-xztext="_添加命名标记前缀"></span>
-    <span class="gray1"> ? </span>
-    </span>
-    <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch">
-    <span class="beautify_switch" tabindex="0"></span>
-    </p>
-
     <p class="option" data-no="29">
     <span class="has_tip settingNameStyle1" data-xztip="_文件名长度限制的说明">
     <span data-xztext="_文件名长度限制"></span>

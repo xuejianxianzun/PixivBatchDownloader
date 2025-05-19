@@ -5300,6 +5300,14 @@ This downloader does not support Firefox and may encounter some problems. I will
     `다운로더 설정에 대한 더 자세한 팁을 추가했습니다.`,
     `Добавлены более подробные советы по настройкам загрузчика.`,
   ],
+  _移除设置项:[
+    '移除设置项：',
+    '移除設定項：',
+    'Remove the settings item: ',
+    '設定項目を削除します: ',
+    '설정 항목을 제거합니다. ',
+    'Удалить пункт настроек: ',
+  ],
 }
 
 export { langText }

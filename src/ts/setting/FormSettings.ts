@@ -61,7 +61,6 @@ class FormSettings {
       'needTagSwitch',
       'notNeedTagSwitch',
       'magnifier',
-      'tagNameToFileName',
       'noSerialNo',
       'createFolderByTag',
       'workDir',
