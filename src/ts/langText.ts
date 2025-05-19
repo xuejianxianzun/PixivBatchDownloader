@@ -449,6 +449,7 @@ And so on. <br>`,
     '움직이는 일러스트',
     'Ugoira(гиф)',
   ],
+  _小说: ['小说', '小說', 'Novel', '小説', '소설', 'Новеллы'],
   _动图保存格式: [
     '<span class="key">动图</span>保存格式',
     '<span class="key">動圖</span>儲存格式',
@@ -457,13 +458,37 @@ And so on. <br>`,
     '<span class="key">움직이는 일러스트</span> 작품 저장 형식',
     'Сохранить <span class="key">Ugoira</span> как',
   ],
-  _动图保存格式title: [
-    '下载动图时，可以把它转换成视频文件',
-    '下載動圖時，可轉換為影片檔。',
-    'When you download a ugoira work, you can convert it to a video file.',
-    'うごイラをダウンロードするとき、動画に変換することができます。',
-    '움직이는 일러스트 작품을 다운로드 하면, 동영상 파일로 변환할 수 있습니다.',
-    'Когда вы скачиваете произведение ugoira, вы можете конвертировать его в видеофайл.',
+  _动图保存格式的说明: [
+    `Pixiv 的动图的源文件是一个 Zip 压缩文件，里面包含了多张静态图片。下载器可以把它转换成其他格式。<br>
+WebM 视频的体积最小，而且画质损失不明显。它是预设的选择。<br>
+GIF 图片的兼容性最好，但是体积比较大，而且画质也比较差，不推荐。<br>
+APNG 图片是无损压缩，画质最好，但体积通常是最大的。<br>
+Zip 文件是源文件。`,
+    `Pixiv 的動圖的原始檔是一個 Zip 壓縮檔案，裡面包含了多張靜態圖片。下載器可以把它轉換成其他格式。<br>
+WebM 影片的體積最小，而且畫質損失不明顯。它是預設的選擇。<br>
+GIF 圖片的相容性最好，但是體積比較大，而且畫質也比較差，不推薦。<br>
+APNG 圖片是無失真壓縮，畫質最好，但體積通常是最大的。<br>
+Zip 檔案是原始檔。`,
+    `The source file of Pixiv's animated image is a Zip compressed file containing multiple static images. The downloader can convert it to other formats. <br>
+WebM video has the smallest size and the image quality loss is not obvious. It is the default choice. <br>
+GIF images have the best compatibility, but they are larger in size and the image quality is also poor, so they are not recommended. <br>
+APNG images are lossless compression, with the best image quality, but usually the largest in size. <br>
+The Zip file is the source file.`,
+    `Pixivのアニメーション画像のソースファイルは、複数の静止画を含むZip圧縮ファイルです。ダウンローダーで他の形式に変換できます。<br>
+WebM動画はファイルサイズが最も小さく、画質の劣化も目立ちません。デフォルトの選択肢です。<br>
+GIF画像は互換性が最も優れていますが、ファイルサイズが大きく、画質も劣るため、あまりお勧めできません。<br>
+APNG画像はロスレス圧縮で、画質は最も優れていますが、ファイルサイズが最も大きくなります。<br>
+Zipファイルがソースファイルです。`,
+    `Pixiv 애니메이션 이미지의 원본 파일은 여러 개의 정적 이미지가 포함된 Zip 압축 파일입니다. 다운로더는 이를 다른 형식으로 변환할 수 있습니다. <br>
+WebM 비디오는 크기가 가장 작고 화질 저하가 눈에 띄지 않습니다. 기본 선택 사항입니다. <br>
+GIF 이미지는 호환성이 가장 뛰어나지만, 크기가 크고 화질이 좋지 않아 권장하지 않습니다. <br>
+APNG 이미지는 무손실 압축으로 화질이 가장 좋지만 일반적으로 크기가 가장 큽니다. <br>
+Zip 파일이 원본 파일입니다.`,
+    `Исходный файл анимированного изображения Pixiv — это сжатый файл Zip, содержащий несколько статических изображений. Загрузчик может конвертировать его в другие форматы. <br>
+Видео WebM имеет наименьший размер, и потеря качества изображения неочевидна. Это выбор по умолчанию. <br>
+Изображения GIF имеют лучшую совместимость, но они больше по размеру, а качество изображения также плохое, поэтому они не рекомендуются. <br>
+Изображения APNG — это сжатие без потерь, с наилучшим качеством изображения, но обычно самые большие по размеру. <br>
+Файл Zip является исходным файлом.`,
   ],
   _webmVideo: [
     'WebM 视频',
@@ -1013,12 +1038,24 @@ And so on. <br>`,
     'Если работа создана с помощью ИИ, выведите <span class="blue">AI</span>',
   ],
   _命名标记提醒: [
-    '你可以使用多个标记，并且可以在标记之间添加自定义文字。例如：pixiv/{id}-{title}-user {user}<br>为了防止文件名重复，命名规则里必须含有 {id} 或者 {id_num}{p_num}。',
-    '你可以使用多個標記，並且可以在標記之間新增自定義文字。例如：pixiv/{id}-{title}-user {user}<br>為了防止檔名重複，命名規則裡必須含有 {id} 或者 {id_num}{p_num}。',
-    'You can use multiple tags and add custom text between tags. For example: pixiv/{id}-{title}-user {user}<br>To prevent duplicate file names, the naming rule must contain {id} or {id_num}{p_num}.',
-    '複数のタグを使用し、タグの間にカスタム テキストを追加できます。例: pixiv/{id}-{title}-user {user}<br>ファイル名の重複を防ぐために、命名規則に {id} または {id_num}{p_num} を含める必要があります。',
-    '여러 태그를 사용하고 태그 사이에 사용자 정의 텍스트를 추가할 수 있습니다. 예: pixiv/{id}-{title}-user {user}<br>파일 이름 중복을 방지하려면 명명 규칙에 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.',
-    'Вы можете использовать несколько тегов и добавлять собственный текст между тегами. Например: pixiv/{id}-{title}-user {user}<br>Чтобы предотвратить дублирование имен файлов, правило именования должно содержать {id} или {id_num}{p_num}.',
+    `你可以使用多个标记，并且可以在标记之间添加自定义文字。例如：pixiv/{id}-title {title}-user {user}<br>
+    如果你想把 AI 生成的作品放到单独的文件夹里，可以使用 {AI} 建立文件夹。例如：{user}/{AI}/{id}<br>
+    为了防止文件名重复，命名规则里必须含有 {id} 或者 {id_num}{p_num}。`,
+    `你可以使用多個標記，並且可以在標記之間新增自定義文字。例如：pixiv/{id}-title {title}-user {user}<br>
+    如果你想把 AI 生成的作品放到單獨的資料夾裡，可以使用 {AI} 建立資料夾。例如：{user}/{AI}/{id}<br>
+    為了防止檔名重複，命名規則裡必須含有 {id} 或者 {id_num}{p_num}。`,
+    `You can use multiple tags and add custom text between tags. For example: pixiv/{id}-title {title}-user {user}<br>
+    If you want to put AI-generated works in a separate folder, you can use {AI} to create a folder. For example: {user}/{AI}/{id}<br>
+    To prevent duplicate file names, the naming rule must contain {id} or {id_num}{p_num}.`,
+    `複数のタグを使用し、タグの間にカスタム テキストを追加できます。例: pixiv/{id}-title {title}-user {user}<br>
+    AI生成作品を別のフォルダに入れたい場合は、{AI}を使ってフォルダを作成することができます。例: {user}/{AI}/{id}<br>
+    ファイル名の重複を防ぐために、命名規則に {id} または {id_num}{p_num} を含める必要があります。`,
+    `여러 태그를 사용하고 태그 사이에 사용자 정의 텍스트를 추가할 수 있습니다. 예: pixiv/{id}-title {title}-user {user}<br>
+    AI가 생성한 작품을 별도의 폴더에 넣고 싶다면, {AI}를 사용해 폴더를 만들 수 있습니다. 예: {user}/{AI}/{id}<br>
+    파일 이름 중복을 방지하려면 명명 규칙에 {id} 또는 {id_num}{p_num}이 포함되어야 합니다.`,
+    `Вы можете использовать несколько тегов и добавлять собственный текст между тегами. Например: pixiv/{id}-title {title}-user {user}<br>
+    Если вы хотите поместить созданные ИИ работы в отдельную папку, вы можете использовать {AI} для создания папки. Например: {пользователь}/{AI}/{id}<br>
+    Чтобы предотвратить дублирование имен файлов, правило именования должно содержать {id} или {id_num}{p_num}.`,
   ],
   _有些标记并不总是可用的提醒: [
     '有些标记并不总是可用，有时它们可能什么都不输出。',
@@ -1241,7 +1278,9 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     <br>
     我的邀请码：GYjQWDob
     <br><br>
-    下载器 QQ 群：675174717
+    下载器 QQ 群：674991373
+    <br>
+    如果你有一些问题想要问我，可以加群后直接私聊我。发在群里有时我不能及时看到。
     <br><br>
     在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a>
     <br><br>
@@ -1788,12 +1827,24 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '<span class="key">Предварительный просмотр</span> результатов фильтрации на странице поиска',
   ],
   _预览搜索结果说明: [
-    '下载器可以把符合条件的作品显示在当前页面上，并且按照收藏数量从高到低排序。<br>如果抓取结果太多导致页面崩溃，请关闭这个功能。<br>启用预览功能时，下载器不会自动开始下载。',
-    '下載器可以把符合條件的作品顯示在當前頁面上，並且按照收藏數量從高到低排序。<br>如果擷取結果太多導致頁面當掉，請關閉這個功能。<br>啟用預覽功能時，下載器不會自動開始下載。',
-    'The downloader can display eligible works on the current page and sort them from high to low according to the number of bookmarks.<br>If too many crawling results cause the page to crash, turn off this feature.<br>When the preview feature is enabled, the downloader does not start downloading automatically.',
-    'ダウンローダーは、対象となる作品を現在のページに表示し、コレクション数に応じて上位から下位に並べ替えることができます。<br>クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。<br>プレビュー機能を有効にすると、ダウンロードは自動的に開始されません。',
-    '다운로더는 현재 페이지에 적합한 작품을 표시하고 컬렉션 수에 따라 높은 순으로 정렬할 수 있습니다.<br>긁어오기 결과가 너무 많아서 페이지가 충돌하면 이 기능을 꺼주세요.<br> 미리보기를 사용하면 다운로드가 자동으로 시작되지 않습니다.',
-    'Загрузчик может отображать подходящие произведения на текущей странице и сортировать их по возрастанию в зависимости от количества коллекций.<br>Пожалуйста, отключите эту функцию, если слишком большое количество результатов просмотра приводит к сбою страницы.<br>Загрузчик не начинает автоматическую загрузку, если включена функция предварительного просмотра.',
+    `在搜索页面（/tags/）里抓取时，下载器可以把抓取到的作品显示在当前页面上，并且按照收藏数量从高到低排序。<br>
+    启用预览功能时，下载器不会自动开始下载，这是为了让用户可以对抓取结果再次进行筛选。<br>
+    你可以设置最多显示多少个预览。如果预览的数量太多，可能会导致页面崩溃。`,
+    `在搜尋頁面（/tags/）裡抓取時，下載器可以把抓取到的作品顯示在當前頁面上，並且按照收藏數量從高到低排序。<br>
+    啟用預覽功能時，下載器不會自動開始下載，這是為了讓使用者可以對抓取結果再次進行篩選。<br>
+    你可以設定顯示多少個預覽。如果預覽的數量太多，可能會導致頁面崩潰。`,
+    `When crawling in the search page (/tags/), the downloader can display the crawled works on the current page and sort them from high to low according to the number of bookmarks. <br>
+    When the preview function is enabled, the downloader will not automatically start downloading, so that users can filter the crawled results again. <br>
+    You can set how many previews to display. If there are too many previews, the page may crash.`,
+    `検索ページ（/tags/）をクロールする際、ダウンローダーはクロールした作品を現在のページに表示し、ブックマーク数の多い順に並べ替えることができます。<br>
+プレビュー機能を有効にすると、ダウンローダーは自動的にダウンロードを開始せず、ユーザーはクロール結果を再度絞り込むことができます。<br>
+表示するプレビューの数を設定できます。プレビューが多すぎると、ページがクラッシュする可能性があります。`,
+    `검색 페이지(/tags/)에서 크롤링할 때, 다운로더는 크롤링된 작품을 현재 페이지에 표시하고 북마크 수에 따라 높은 순위부터 낮은 순위까지 ​​정렬할 수 있습니다. <br>
+미리보기 기능을 활성화하면 다운로더가 자동으로 다운로드를 시작하지 않으므로 사용자는 크롤링된 결과를 다시 필터링할 수 있습니다. <br>
+표시할 미리보기 개수를 설정할 수 있습니다. 미리보기가 너무 많으면 페이지가 다운될 수 있습니다.`,
+    `При сканировании страницы поиска (/tags/) загрузчик может отображать просканированные работы на текущей странице и сортировать их от большего к меньшему в соответствии с количеством закладок. <br>
+Когда функция предварительного просмотра включена, загрузчик не будет автоматически начинать загрузку, чтобы пользователи могли снова отфильтровать просканированные результаты. <br>
+Вы можете установить количество отображаемых предварительных просмотров. Если предварительных просмотров будет слишком много, страница может выйти из строя.`,
   ],
   _提示启用预览搜索页面的筛选结果时不会自动开始下载: [
     '由于启用了“预览搜索页面的筛选结果”，本次抓取完成后，下载器不会自动开始下载。<br>这是为了让用户可以在抓取后进一步筛选抓取结果。',
@@ -1906,13 +1957,24 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '동시에 <span class="key">변환할</span> 움직이는 일러스트 수',
     'Сколько анимаций <span class="key">преобразуется</span> одновременно',
   ],
-  _同时转换多少个动图警告: [
-    '同时转换多个动图会增加资源占用。',
-    '同時轉換多個動圖會增加資源占用。',
-    'Converting multiple animations at the same time will increase resource consumption. ',
-    '複数の動画を同時に変換すると、リソースの占有が増加します。',
-    '여러 움직이는 일러스트를 동시에 변환하면 리소스가 더 많이 사용됩니다.',
-    'Одновременное преобразование нескольких анимаций увеличит потребление ресурсов. ',
+  _同时转换多少个动图的说明: [
+    `同时转换多个动图会增加资源占用。<br>
+    建议不超过3。`,
+    `同時轉換多個動圖會增加資源占用。<br>
+    建議不超過3。
+    `,
+    `Converting multiple animations at the same time will increase resource consumption.<br>
+    It is recommended not to exceed 3.
+    `,
+    `複数の動画を同時に変換すると、リソースの占有が増加します。<br>
+    3 を超えないことが推奨されます。
+    `,
+    `여러 움직이는 일러스트를 동시에 변환하면 리소스가 더 많이 사용됩니다.<br>
+    3을 초과하지 않는 것이 좋습니다.
+    `,
+    `Одновременное преобразование нескольких анимаций увеличит потребление ресурсов.<br>
+    Рекомендуется не превышать 3.
+    `,
   ],
   _提示: ['提示', '提示', 'Tip', 'ヒント', '팁', 'Совет'],
   _fanboxDownloader: [
@@ -1939,6 +2001,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '파일 <span class="key">크기</span> 제한',
     'Ограничение <span class="key">размера</span> файла',
   ],
+  _文件体积限制的说明: [
+    `如果一个文件的体积不符合要求，下载器就不会下载它。`,
+    `如果一個檔案的體積不符合要求，下載器就不會下載它。`,
+    `If a file does not meet the required size, the downloader will not download it.`,
+    `ファイルが必要なサイズを満たしていない場合、ダウンローダーはファイルをダウンロードしません。`,
+    `파일이 필요한 크기에 맞지 않으면 다운로더가 해당 파일을 다운로드하지 않습니다.`,
+    `Если файл не соответствует требуемому размеру, загрузчик не загрузит его.`,
+  ],
   _不符合要求的文件不会被保存: [
     '不符合要求的文件不会被保存。',
     '不會儲存不符合要求的檔案。',
@@ -1947,7 +2017,6 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '요구 사항을 충족하지 않는 파일은 저장되지 않습니다.',
     'Файлы, не соответствующие требованиям, не будут сохранены',
   ],
-  _小说: ['小说', '小說', 'Novel', '小説', '소설', 'Новеллы'],
   _抓取系列小说: [
     '抓取系列小说',
     '擷取系列小說',
@@ -1972,6 +2041,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '<span class="key">소설</span>저장 형식',
     'Сохранить <span class="key">новеллу</span> как',
   ],
+  _小说保存格式的说明: [
+    'TXT 是纯文本文件。选择 TXT 格式时，小说里的图片会单独保存。<br>EPUB 是电子书格式，小说里的图片会内嵌到 EPUB 文件里。',
+    'TXT 是純文字檔案。選擇 TXT 格式時，小說裡的圖片會單獨儲存。<br>EPUB 是電子書格式，小說裡的圖片會內嵌到 EPUB 檔案裡。',
+    'TXT is a plain text file. When you select TXT format, the pictures in the novel will be saved separately. <br>EPUB is an e-book format, and the pictures in the novel will be embedded in the EPUB file.',
+    'TXTはプレーンテキストファイルです。TXT形式を選択すると、小説内の画像は別途保存されます。<br>EPUBは電子書籍形式で、小説内の画像はEPUBファイルに埋め込まれます。',
+    'TXT는 일반 텍스트 파일입니다. TXT 형식을 선택하면 소설의 그림이 별도로 저장됩니다. <br>EPUB는 전자책 형식이며, 소설의 그림이 EPUB 파일에 포함됩니다.',
+    'TXT — это простой текстовый файл. При выборе формата TXT изображения в романе будут сохранены отдельно. <br>EPUB — это формат электронной книги, и изображения в романе будут встроены в файл EPUB.',
+  ],
   _在小说里保存元数据: [
     '在小说里保存<span class="key">元数据</span>',
     '在小說裡儲存<span class="key">元資料</span>',
@@ -1981,12 +2058,12 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     'Сохранить <span class="key">метаданные</span> новеллы',
   ],
   _在小说里保存元数据提示: [
-    '把作者、网址等信息保存到小说里',
-    '將作者、網址等資訊儲存到小說裡',
-    'Save the author, URL and other information in the file',
-    '作者やURLなどの情報をファイルの中に保存します。',
-    '작가, URL, 그 외 정보를 소설 내에 저장합니다.',
-    'Сохранить автора, URL и другую информацию в файле',
+    '把小说的标题、作者、标签等信息保存到小说开头。',
+    '把小說的標題、作者、標籤等資訊儲存到小說開頭。',
+    `Save the novel's title, author, tags and other information to the beginning of the novel.`,
+    '小説のタイトル、著者、タグなどの情報を小説の冒頭に保存します。',
+    '소설의 제목, 저자, 태그 및 기타 정보를 소설의 시작 부분에 저장합니다.',
+    'Сохраните название романа, автора, теги и другую информацию в начале романа.',
   ],
   _正在下载小说中的插画: [
     '正在下载小说中的插画 {}',
@@ -2018,7 +2095,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '因为输出内容太多，已经为您保存到文件。',
     '因為輸出內容太多，已經為你儲存到檔案。',
     'Because the output is too much, it has been saved to a file.',
-    '出力内容が多いため、txt ファイルに保存しました。',
+    '出力内容が多いため、TXT ファイルに保存しました。',
     '출력 내용이 너무 많아, 파일로 저장했습니다.',
     'Так как выход слишком большой, он был сохранен в файл',
   ],
@@ -2031,12 +2108,89 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     'Не загружать <span class="key">дубликаты</span> файлов',
   ],
   _不下载重复文件的提示: [
-    '下载器会保存自己的下载记录，以避免下载重复的文件。<br>你可以清除浏览器的下载记录，这不会影响下载器的下载记录。<br>当你清除 Cookie 及其他网站数据时，下载器的记录也会被清除。',
-    '下載器會儲存自己的下載紀錄，以避免下載重複的檔案。<br>你可以清除瀏覽器的下載記錄，這不會影響下載器的下載記錄。<br>當你清除 Cookie 及其他網站資料時，下載器的記錄也會被清除。',
-    `The downloader will save its download record to avoid downloading duplicate files.<br>You can clear the browser's download history, which will not affect the downloader's download record.<br>When you clear cookies and other site data, the downloader's records will also be cleared.`,
-    'ダウンローダーは独自のダウンロード履歴を保存して、重複ファイルのダウンロードを回避する。<br>ブラウザのダウンロード履歴をクリアできますが、ダウンローダのダウンロード記録には影響しません。<br>cookie と他のサイトデータを削除すると、ダウンローダーの記録も削除されます。',
-    '다운로더가 중복되는 파일을 다운로드하지 않도록 자신의 다운로드 기록을 저장합니다.<br>브라우저의 다운로드 기록을 지울 수 있으며 이는 다운로더의 다운로드 기록에 영향을 미치지 않습니다.<br>쿠키와 다른 사이트 데이터를 지울 때 다운로드 기록도 삭제됩니다.',
-    'Загрузчик хранит собственную историю загрузок, чтобы избежать загрузки дубликатов файлов.<br> Вы можете очистить историю загрузок вашего браузера, и это не повлияет на историю загрузок загрузчика.<br> Когда вы очищаете cookies и другие данные веб-сайта, история загрузчика также будет очищена.<br>',
+    `下载器会保存自己的下载记录。每个下载成功（保存到硬盘）的文件都会保存一条下载记录。下载失败的文件不会产生下载记录。<br>
+    如果你启用了“不下载重复文件”功能，那么下载器会在下载每一个文件前检查下载记录，如果它是重复文件，下载器就会跳过它（不下载它）。<br>
+    <br>
+    有两种方式判断一个文件是否是重复文件：<br>
+    - “严格”模式会对比三个条件：作品的 ID、上传日期、文件名。如果三个条件都相同，则是重复文件。<br>
+    - “宽松”模式只会对比作品 ID 和上传日期，不会对比文件名。如果你希望在修改了文件名规则之后，依然可以跳过之前下载过的文件，则可以选择“宽松”模式。<br>
+    <br>
+    补充说明：<br>
+    - 这不是一个可靠的功能。下载器没有权限读取硬盘上的文件，所以只能依赖自己保存的下载记录。如果你把下载过的文件删除了，下载器是不会知道的，依然会认为文件下载过，从而跳过下载。如果有时你确实需要重新下载，可以关闭此功能。<br>
+    - 下载器的下载记录保存在浏览器的 IndexedDB 里。它不是浏览器的下载记录，所以清除浏览器的下载记录不会影响此功能。额外提一句，如果浏览器的下载记录太多，会导致浏览器在启动时卡住一段时间。如果你遇到了此问题，应该清除浏览器的下载记录。<br>
+    - 注意：清除浏览器的数据时，清除“Cookie 及其他网站数据”会导致下载器的下载记录被清空！如果你要清理此项，可以提前导出下载记录，以避免丢失下载记录。<br>
+    - 如果你使用多个设备或浏览器，可以点击“导出”按钮导出下载器的下载记录，然后在新的设备上导入。<br>
+    - 如果你想清空下载器的下载记录，可以点击此设置右边的“清除”按钮。<br>
+    `,
+    `下載器會儲存自己的下載記錄。每個下載成功（儲存到硬碟）的檔案都會儲存一條下載記錄。下載失敗的檔案不會產生下載記錄。<br>
+    如果你啟用了“不下載重複檔案”功能，那麼下載器會在下載每一個檔案前檢查下載記錄，如果它是重複檔案，下載器就會跳過它（不下載它）。<br>
+    <br>
+    有兩種方式判斷一個檔案是否是重複檔案：<br>
+    - “嚴格”模式會對比三個條件：作品的 ID、上傳日期、檔名。如果三個條件都相同，則是重複檔案。<br>
+    - “寬鬆”模式只會對比作品 ID 和上傳日期，不會對比檔名。如果你希望在修改了檔名規則之後，依然可以跳過之前下載過的檔案，則可以選擇“寬鬆”模式。<br>
+    <br>
+    補充說明：<br>
+    - 這不是一個可靠的功能。下載器沒有許可權讀取硬碟上的檔案，所以只能依賴自己儲存的下載記錄。如果你把下載過的檔案刪除了，下載器是不會知道的，依然會認為檔案下載過，從而跳過下載。如果有時你確實需要重新下載，可以關閉此功能。<br>
+    - 下載器的下載記錄儲存在瀏覽器的 IndexedDB 裡。它不是瀏覽器的下載記錄，所以清除瀏覽器的下載記錄不會影響此功能。額外提一句，如果瀏覽器的下載記錄太多，會導致瀏覽器在啟動時卡住一段時間。如果你遇到了此問題，應該清除瀏覽器的下載記錄。<br>
+    - 注意：清除瀏覽器的資料時，清除“Cookie 及其他網站資料”會導致下載器的下載記錄被清空！如果你要清理此項，可以提前匯出下載記錄，以避免丟失下載記錄。<br>
+    - 如果你使用多個裝置或瀏覽器，可以點選“匯出”按鈕匯出下載器的下載記錄，然後在新的裝置上匯入。<br>
+    - 如果你想清空下載器的下載記錄，可以點選此設定右邊的“清除”按鈕。<br>
+    `,
+    `This downloader will save its own download history. Each file that is successfully downloaded (saved to disk) will have a download record saved. Files that fail to download will not have a download record. <br>
+If you enable the "Do not download duplicate files" feature, the downloader will check the download record before downloading each file. If it is a duplicate file, the downloader will skip it (not download it). <br>
+<br>
+There are two ways to determine whether a file is a duplicate file: <br>
+- "Strict" mode will compare three conditions: work ID, upload date, file name. If all three conditions are the same, it is a duplicate file. <br>
+- "Loose" mode will only compare work ID and upload date, not file name. If you want to be able to skip previously downloaded files after modifying the file name rules, you can choose "Loose" mode. <br>
+<br>
+Additional notes: <br>
+- This is not a reliable feature. The downloader does not have permission to read files on the disk, so it can only rely on its own saved download records. If you delete a downloaded file, the downloader will not know and will still think that the file has been downloaded and skip the download. If you do need to re-download sometimes, you can turn this feature off. <br>
+- The download history of the Downloader is saved in the browser's IndexedDB. It is not the browser's download history, so clearing the browser's download history will not affect this feature. As an extra note, if the browser has too many download history, it will cause the browser to get stuck for a while when it starts. If you encounter this problem, you should clear the browser's download history. <br>
+- Note: When clearing the browser's data, clearing "Cookies and other website data" will cause the Downloader's download history to be cleared! If you want to clear this item, you can export the download history in advance to avoid losing the download history. <br>
+- If you use multiple devices or browsers, you can click the "Export" button to export the Downloader's download history, and then import it on a new device. <br>
+- If you want to clear the Downloader's download history, you can click the "Clear" button to the right of this setting. <br>
+`,
+    `このダウンローダーは独自のダウンロード履歴を保存します。正常にダウンロード（ディスクに保存）されたファイルにはダウンロード記録が保存されます。ダウンロードに失敗したファイルにはダウンロード記録は保存されません。<br>
+「重複ファイルをダウンロードしない」機能を有効にすると、ダウンローダーは各ファイルをダウンロードする前にダウンロード記録を確認します。重複ファイルの場合は、ダウンローダーはそのファイルをスキップ（ダウンロードしない）します。<br>
+<br>
+ファイルが重複ファイルかどうかを判断する方法は2つあります。<br>
+- 「厳密」モードでは、作品ID、アップロード日、ファイル名の3つの条件を比較します。3つの条件がすべて一致する場合、重複ファイルと判断されます。<br>
+- 「緩い」モードでは、作品IDとアップロード日のみを比較し、ファイル名は比較しません。ファイル名ルールを変更した上で、以前にダウンロードしたファイルをスキップしたい場合は、「緩い」モードを選択できます。<br>
+<br>
+補足事項：<br>
+- これは信頼できる機能ではありません。ダウンローダーはディスク上のファイルを読み取る権限がないため、保存されたダウンロード記録のみに依存します。ダウンロード済みのファイルを削除しても、ダウンローダーはそれを認識できず、ファイルがダウンロード済みであると認識してダウンロードをスキップします。再ダウンロードが必要な場合は、この機能をオフにすることができます。<br>
+- ダウンローダーのダウンロード履歴はブラウザのIndexedDBに保存されます。これはブラウザのダウンロード履歴ではないため、ブラウザのダウンロード履歴を消去してもこの機能には影響しません。なお、ブラウザにダウンロード履歴が多すぎると、起動時にしばらくフリーズすることがあります。この問題が発生した場合は、ブラウザのダウンロード履歴を消去することをお勧めします。<br>
+- 注：ブラウザのデータを消去する際に、「Cookieとその他のウェブサイトデータ」を消去すると、ダウンローダーのダウンロード履歴も消去されます。この項目を消去する場合は、ダウンロード履歴の損失を防ぐために、事前にダウンロード履歴をエクスポートしておくことをお勧めします。 <br>
+- 複数のデバイスやブラウザを使用している場合は、「エクスポート」ボタンをクリックしてダウンローダーのダウンロード履歴をエクスポートし、新しいデバイスにインポートすることができます。<br>
+- ダウンローダーのダウンロード履歴を消去したい場合は、この設定の右側にある「クリア」ボタンをクリックしてください。<br>
+`,
+    `이 다운로더는 자체 다운로드 기록을 저장합니다. 성공적으로 다운로드된(디스크에 저장된) 각 파일에는 다운로드 기록이 저장됩니다. 다운로드에 실패한 파일에는 다운로드 기록이 없습니다. <br>
+"중복 파일 다운로드 안 함" 기능을 활성화하면 다운로더는 각 파일을 다운로드하기 전에 다운로드 기록을 확인합니다. 중복 파일인 경우, 다운로더는 해당 파일을 건너뜁니다(다운로드하지 않습니다). <br>
+<br>
+파일이 중복 파일인지 확인하는 방법은 두 가지가 있습니다. <br>
+- "엄격" 모드는 작업 ID, 업로드 날짜, 파일 이름의 세 가지 조건을 비교합니다. 세 가지 조건이 모두 동일하면 중복 파일입니다. <br>
+- "느슨한" 모드는 작업 ID와 업로드 날짜만 비교하며 파일 이름은 비교하지 않습니다. 파일 이름 규칙을 수정한 후 이전에 다운로드한 파일을 건너뛰려면 "느슨한" 모드를 선택하세요. <br>
+<br>
+추가 참고 사항: <br>
+- 이 기능은 신뢰할 수 없습니다. 다운로더는 디스크에 있는 파일을 읽을 권한이 없으므로 자체 저장된 다운로드 기록에만 의존합니다. 다운로드한 파일을 삭제하면 다운로더는 해당 파일이 다운로드된 것으로 인식하지 못하고 다운로드를 건너뜁니다. 다시 다운로드해야 하는 경우 이 기능을 끌 수 있습니다. <br>
+- 다운로더의 다운로드 기록은 브라우저의 IndexedDB에 저장됩니다. 브라우저의 다운로드 기록이 아니므로 브라우저의 다운로드 기록을 삭제해도 이 기능에는 영향을 미치지 않습니다. 참고로, 브라우저에 다운로드 기록이 너무 많으면 브라우저가 시작 시 잠시 멈춥니다. 이 문제가 발생하면 브라우저의 다운로드 기록을 삭제해야 합니다. <br>
+- 참고: 브라우저 데이터를 삭제할 때 "쿠키 및 기타 웹사이트 데이터"를 삭제하면 다운로더의 다운로드 기록이 삭제됩니다! 이 항목을 삭제하려면 다운로드 기록을 미리 내보내어 다운로드 기록이 손실되는 것을 방지할 수 있습니다. <br>
+- 여러 기기 또는 브라우저를 사용하는 경우, "내보내기" 버튼을 클릭하여 다운로더의 다운로드 기록을 내보낸 후 새 기기로 가져올 수 있습니다. <br>
+- 다운로더의 다운로드 기록을 지우려면 이 설정 오른쪽에 있는 "지우기" 버튼을 클릭하세요. <br>
+`,
+    `Этот загрузчик сохранит собственную историю загрузок. Каждый успешно загруженный файл (сохраненный на диск) будет иметь сохраненную запись загрузки. Файлы, которые не удалось загрузить, не будут иметь записи загрузки. <br>
+Если вы включите функцию «Не загружать дублирующиеся файлы», загрузчик будет проверять запись загрузки перед загрузкой каждого файла. Если это дубликат файла, загрузчик пропустит его (не загрузит). <br>
+<br>
+Есть два способа определить, является ли файл дубликатом: <br>
+- «Строгий» режим будет сравнивать три условия: идентификатор работы, дату загрузки, имя файла. Если все три условия одинаковы, это дубликат файла. <br>
+- «Свободный» режим будет сравнивать только идентификатор работы и дату загрузки, но не имя файла. Если вы хотите иметь возможность пропускать ранее загруженные файлы после изменения правил имен файлов, вы можете выбрать «Свободный» режим. <br>
+<br>
+Дополнительные примечания: <br>
+- Это ненадежная функция. Загрузчик не имеет разрешения на чтение файлов на диске, поэтому он может полагаться только на свои собственные сохраненные записи загрузок. Если вы удалите загруженный файл, загрузчик не узнает об этом и все равно будет думать, что файл был загружен, и пропустит загрузку. Если вам иногда нужно повторно загрузить файл, вы можете отключить эту функцию. <br>
+- История загрузок Загрузчика сохраняется в IndexedDB браузера. Это не история загрузок браузера, поэтому очистка истории загрузок браузера не повлияет на эту функцию. В качестве дополнительного примечания, если у браузера слишком много истории загрузок, это приведет к тому, что браузер зависнет на некоторое время при запуске. Если вы столкнулись с этой проблемой, вам следует очистить историю загрузок браузера. <br>
+- Примечание: при очистке данных браузера очистка «Файлов cookie и других данных веб-сайтов» приведет к очистке истории загрузок Загрузчика! Если вы хотите очистить этот элемент, вы можете заранее экспортировать историю загрузок, чтобы не потерять историю загрузок. <br>
+- Если вы используете несколько устройств или браузеров, вы можете нажать кнопку «Экспорт», чтобы экспортировать историю загрузок Downloader, а затем импортировать ее на новое устройство. <br>
+- Если вы хотите очистить историю загрузок Downloader, вы можете нажать кнопку «Очистить» справа от этой настройки. <br>`,
   ],
   _策略: [
     '策略：',
@@ -2211,6 +2365,38 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     'ファイル名の長さ制限',
     '파일명 <span class="key">길이</span> 제한',
     'Лимит <span class="key">длины</span> имени файла',
+  ],
+  _文件名长度限制的说明: [
+    `如果文件名超长，浏览器可能会显示另存为窗口，让用户手动处理。<br>
+    通常你不需要启用这个设置，因为 Windows 上的浏览器通常会自动截断超长的部分。<br>
+    但是在其他操作系统里，或者把文件保存到网络驱动器时，浏览器可能不会自动截断文件名，从而出现另存为窗口。<br>
+    如果你认为有必要，可以启用此设置，下载器会截断文件名里超长的部分。<br>
+    建议设置小于 256 的数字。默认值是 200。`,
+    `如果檔名超長，瀏覽器可能會顯示另存為視窗，讓使用者手動處理。<br>
+    通常你不需要啟用這個設定，因為 Windows 上的瀏覽器通常會自動截斷超長的部分。<br>
+    但是在其他作業系統裡，或者把檔案儲存到網路驅動器時，瀏覽器可能不會自動截斷檔名，從而出現另存為視窗。<br>
+    如果你認為有必要，可以啟用此設定，下載器會截斷檔名裡超長的部分。<br>
+    建議設定小於 256 的數字。預設值是 200。`,
+    `If the file name is too long, the browser may display a Save As window for the user to manually process it. <br>
+Usually you don't need to enable this setting, because browsers on Windows usually automatically truncate the overlong part. <br>
+However, on other operating systems, or when saving files to a network drive, the browser may not automatically truncate the file name, and the Save As window may appear. <br>
+If you think it is necessary, you can enable this setting and the downloader will truncate the overlong part of the file name. <br>
+It is recommended to set a number less than 256, the default value is 200.`,
+    `ファイル名が長すぎる場合、ブラウザはユーザーが手動で処理できるように「名前を付けて保存」ウィンドウを表示することがあります。<br>
+通常、Windows のブラウザは長すぎる部分を自動的に切り捨てるため、この設定を有効にする必要はありません。<br>
+ただし、他のオペレーティングシステムの場合、またはファイルをネットワークドライブに保存する場合、ブラウザはファイル名を自動的に切り捨てず、「名前を付けて保存」ウィンドウが表示されることがあります。<br>
+必要と思われる場合は、この設定を有効にすると、ダウンローダーはファイル名の長すぎる部分を切り捨てます。<br>
+256 未満の数値を設定することをお勧めします。デフォルト値は 200 です。`,
+    `파일 이름이 너무 길면 브라우저에 사용자가 직접 처리할 수 있는 '다른 이름으로 저장' 창이 표시될 수 있습니다. <br>
+일반적으로 Windows 브라우저는 긴 부분을 자동으로 잘라내기 때문에 이 설정을 활성화할 필요가 없습니다. <br>
+하지만 다른 운영 체제에서 파일을 저장하거나 네트워크 드라이브에 저장할 때 브라우저가 파일 이름을 자동으로 자르지 않고 '다른 이름으로 저장' 창이 나타날 수 있습니다. <br>
+필요하다고 생각되면 이 설정을 활성화하여 다운로더가 파일 이름의 긴 부분을 잘라냅니다. <br>
+256보다 작은 값으로 설정하는 것이 좋으며, 기본값은 200입니다.`,
+    `Если имя файла слишком длинное, браузер может отобразить окно «Сохранить как», чтобы пользователь мог вручную обработать его. <br>
+Обычно вам не нужно включать этот параметр, поскольку браузеры в Windows обычно автоматически обрезают слишком длинную часть. <br>
+Однако в других операционных системах или при сохранении файлов на сетевой диск браузер может не автоматически обрезать имя файла, и может появиться окно «Сохранить как». <br>
+Если вы считаете это необходимым, вы можете включить этот параметр, и загрузчик обрежет слишком длинную часть имени файла. <br>
+Рекомендуется устанавливать число меньше 256, значение по умолчанию — 200.`,
   ],
   _标签分隔符号: [
     '标签<span class="key">分隔</span>符号',
@@ -2413,6 +2599,26 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '다운로더의 <span class="key">북마크</span> 기능 (☆)',
     `Функция сбора загрузчика (✩)`,
   ],
+  _收藏设置的说明: [
+    `有时你会看到下载器添加的收藏按钮 (✩)，点击这个按钮可以收藏作品。<br>
+    你可以选择是否附带作品的 tags，以及是否公开。<br>
+    另外，使用下载器批量收藏作品时也会使用此设置。`,
+    `有時你會看到下載器新增的收藏按鈕 (✩)，點選這個按鈕可以收藏作品。<br>
+    你可以選擇是否附帶作品的 tags，以及是否公開。<br>
+    另外，使用下載器批次收藏作品時也會使用此設定。`,
+    `Sometimes you'll see a bookmark button (✩) added by the downloader, which you can click to bookmark the work. <br>
+You can choose whether to include tags for the work, and whether to make it public.<br>
+This setting is also used when you use the Downloader to bookmark works in batches.`,
+    `ダウンロードした作品にはブックマークボタン（✩）が表示されることがあります。このボタンをクリックすると、作品をブックマークできます。<br>
+作品にタグを付けるかどうか、また公開するかどうかを選択できます。<br>
+この設定は、ダウンローダーを使用して作品を一括でブックマークする場合にも使用されます。`,
+    `다운로더에서 북마크 버튼(✩)을 추가하는 경우가 있는데, 이 버튼을 클릭하면 작품을 북마크할 수 있습니다. <br>
+작품에 태그를 포함할지 여부와 공개 여부를 선택할 수 있습니다.<br>
+이 설정은 다운로더를 사용하여 작품을 일괄적으로 북마크할 때도 사용됩니다.`,
+    `Иногда вы увидите кнопку закладки (✩), добавленную загрузчиком, которую вы можете нажать, чтобы добавить работу в закладки. <br>
+Вы можете выбрать, следует ли включать теги для работы и следует ли делать ее общедоступной.<br>
+Эта настройка также используется при использовании Загрузчика для добавления закладок в пакетном режиме.`,
+  ],
   _下载器的收藏按钮默认会添加作品的标签: [
     '点击 <span class="blue">✩</span> 按钮时，下载器会收藏这个作品并且附带它的标签。',
     '點選 <span class="blue">✩</span> 按鈕時，下載器會收藏這個作品並且附帶它的標籤。',
@@ -2446,12 +2652,18 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '<span class="key">Блок</span> списка пользователей ',
   ],
   _用户阻止名单的说明: [
-    '不下载这些用户的作品。需要输入用户 id。如果有多个用户 id，使用英文逗号,分割。',
-    '不下載這些使用者的作品。需要輸入使用者 id。若有多個使用者 id，使用半形逗號（,）分隔。',
-    'The works of these users will not be downloaded. Need to type the user ID. If there are multiple user ID, use comma (,) separated.',
-    'これらのユーザーの作品はダウンロードしません。ユーザー ID が必要です。複数のユーザ ID は "," で区切ってください。',
-    '이 유저들의 작품은 다운로드되지 않습니다. 유저 ID를 입력해야 합니다.<br>여러 유저 ID가 있는 경우 쉼표(,)로 구분합니다.',
-    'Работы этих пользователей не будут загружаться. Необходимо ввести идентификатор пользователя. Если имеется несколько идентификаторов пользователя, используйте разделение запятыми (,).',
+    `不下载这些用户的作品。需要输入用户 id。<br>
+    如果有多个用户 id，使用英文逗号,分割。`,
+    `不下載這些使用者的作品。需要輸入使用者 id。<br>
+    若有多個使用者 id，使用半形逗號（,）分隔。`,
+    `The works of these users will not be downloaded. Need to type the user ID.<br>
+    If there are multiple user ID, use comma (,) separated.`,
+    `これらのユーザーの作品はダウンロードしません。ユーザー ID が必要です。<br>
+    複数のユーザ ID は "," で区切ってください。`,
+    `이 유저들의 작품은 다운로드되지 않습니다. 유저 ID를 입력해야 합니다.<br>
+    여러 유저 ID가 있는 경우 쉼표(,)로 구분합니다.`,
+    `Работы этих пользователей не будут загружаться. Необходимо ввести идентификатор пользователя.<br>
+    Если имеется несколько идентификаторов пользователя, используйте разделение запятыми (,).`,
   ],
   _全部: ['全部', '全部', 'All', '全部', '전부', 'Все'],
   _任一: ['任一', '任一', 'One', '何れか', '하나만', 'Один'],
@@ -2470,6 +2682,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '<span class="key">設定</span>の管理',
     '<span class="key">설정</span> 관리',
     'Изменение <span class="key">настроек</span>',
+  ],
+  _管理设置的说明: [
+    `你可以管理下载器的设置，比如导出以备份设置、分享给别人、重置设置。`,
+    `你可以管理下載器的設定，比如匯出以備份設定、分享給別人、重置設定。`,
+    `You can manage the Downloader settings, such as exporting to back up your settings, sharing with others, and resetting your settings.`,
+    `設定をバックアップするためのエクスポート、他のユーザーとの共有、設定のリセットなど、ダウンローダーの設定を管理できます。`,
+    `다운로더 설정을 관리할 수 있습니다. 예를 들어, 설정을 백업하기 위한 내보내기, 다른 사람과 공유하기, 설정을 재설정할 수 있습니다.`,
+    `Вы можете управлять настройками Downloader, такими как экспорт для резервного копирования ваших настроек, предоставление общего доступа другим лицам и сброс ваших настроек.`,
   ],
   _导出设置: [
     '导出设置',
@@ -2623,7 +2843,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '작품마다 <span class="key">별도</span>의 디렉토리 생성',
     'Создайте отдельную папку для <span class="key">каждой</span> работы',
   ],
-  _为作品建立单独的文件夹说明: [
+  _用idm_num代替id: [
     '这里应该使用 {id_num} 代替 {id}',
     '這裡應該使用 {id_num} 代替 {id}',
     'Here {id_num} should be used instead of {id}',
@@ -2678,6 +2898,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '特定のユーザーに対して<span class="key">タグ</span>をブロック',
     '특정 유저에 대한 차단 <span class="key">태그</span>',
     'Блокировать <span class="key">теги</span> для определенных пользователей',
+  ],
+  _针对特定用户屏蔽tag的提示: [
+    '例如，抓取用户 123456 的作品时，排除特定的标签。',
+    '例如，抓取使用者 123456 的作品時，排除特定的標籤。',
+    'For example, when crawling the works of user 123456, exclude specific tags.',
+    'たとえば、ユーザー 123456 の作品をクロールする場合は、特定のタグを除外します。',
+    '예를 들어, 사용자 123456의 작품을 크롤링할 때 특정 태그를 제외합니다.',
+    'Например, при сканировании работ пользователя 123456 исключите определенные теги.',
   ],
   _展开收起: [
     '展开/收起',
@@ -2798,6 +3026,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '<span class="key">배경</span> 이미지',
     '<span class="key">Фоновое</span> изображение',
   ],
+  _背景图片的说明: [
+    `你可以选择一张本地图片作为下载器的背景图片。`,
+    `你可以選擇一張本地圖片作為下載器的背景圖片。`,
+    `You can select a local image as the background image of the downloader.`,
+    `ダウンローダーの背景画像としてローカル画像を選択できます。`,
+    `다운로더의 배경 이미지로 로컬 이미지를 선택할 수 있습니다.`,
+    `Вы можете выбрать локальное изображение в качестве фонового изображения загрузчика.`,
+  ],
   _选择文件: [
     '选择文件',
     '選擇檔案',
@@ -2831,6 +3067,32 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '作品種類に応じてフォルダを自動作成',
     '작품 <span class="key">유형</span>에 따라 자동으로 디렉토리 생성',
     'Создание папок на основе <span class="key">вида</span> работы',
+  ],
+  _根据作品类型自动建立文件夹的说明: [
+    `插画的文件夹名字：Illustration<br>
+漫画的文件夹名字：Manga<br>
+动图的文件夹名字：Ugoira<br>
+小说的文件夹名字：Novel`,
+    `插畫的資料夾名字：Illustration<br>
+漫畫的資料夾名字：Manga<br>
+動圖的資料夾名字：Ugoira<br>
+小說的資料夾名字：Novel`,
+    `Illustration folder name: Illustration<br>
+Manga folder name: Manga<br>
+Ugoira folder name: Ugoira<br>
+Novel folder name: Novel`,
+    `イラストフォルダ名：Illustration<br>
+漫画フォルダ名：Manga<br>
+うごイラフォルダ名：Ugoira<br>
+小説フォルダ名: Novel`,
+    `일러스트 폴더 이름: Illustration<br>
+만화 폴더 이름: Manga<br>
+움직이는 일러스트 폴더 이름: Ugoira<br>
+소설 폴더 이름: Novel`,
+    `Имя папки с Иллюстрации: Illustration<br>
+Имя папки Манга: Manga<br>
+Имя папки Ugoira(гиф): Ugoira<br>
+Имя папки Новеллы: Novel`,
   ],
   _使用第一个匹配的tag建立文件夹: [
     '使用第一个匹配的<span class="key">标签</span>建立文件夹',
@@ -2920,6 +3182,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     'タブ切り替え方式',
     '<span class="key">탭</span> 전환 방식',
     'Как переключать <span class="key">вкладки</span>',
+  ],
+  _选项卡切换方式的说明: [
+    `设置如何切换下载器顶部的三个选项卡。`,
+    `設定如何切換下載器頂部的三個選項卡。`,
+    `Sets how to switch between the three tabs at the top of the Downloader.`,
+    `ダウンローダーの上部にある 3 つのタブを切り替える方法を設定します。`,
+    `다운로더 상단의 세 개 탭 사이를 전환하는 방법을 설정합니다.`,
+    `Устанавливает способ переключения между тремя вкладками в верхней части Загрузчика.`,
   ],
   _鼠标经过: [
     '鼠标经过',
@@ -3012,6 +3282,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '검색 페이지에 빠른 <span class="key">검색</span> 영역 추가',
     'Добавить область быстрого <span class="key">поиска</span> на странице поиска',
   ],
+  _在搜索页面添加快捷搜索区域的说明: [
+    `在搜索页面（/tags/）的顶部，下载器可以显示一些收藏数量标签，例如“10000users入り”，点击就可以把它添加到搜索的标签的后面。`,
+    `在搜尋頁面（/tags/）的頂部，下載器可以顯示一些收藏數量標籤，例如“10000users入り”，點選就可以把它新增到搜尋的標籤的後面。`,
+    `At the top of the search page (/tags/), the downloader can display some bookmarks tags, such as "10000users入り", and you can click it to add it after the searched tag.`,
+    `検索ページの上部 (/tags/) に、ダウンローダーは「10000users入り」などのお気に入りのタグをいくつか表示し、それをクリックして検索したタグの後に追加することができます。`,
+    `검색 페이지 상단(/tags/)에서 다운로더는 "10000users入り"와 같은 즐겨찾는 태그를 표시할 수 있으며, 이를 클릭하면 검색한 태그 뒤에 추가할 수 있습니다.`,
+    `В верхней части страницы поиска (/tags/) загрузчик может отображать некоторые избранные теги, например «10000users入り», и вы можете щелкнуть по нему, чтобы добавить его после искомого тега.`,
+  ],
   _保存作品的元数据: [
     '保存作品的<span class="key">元数据</span>',
     '儲存作品的<span class="key">元資料</span>',
@@ -3021,12 +3299,12 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     'Сохранить <span class="key">метаданные</span> работы',
   ],
   _保存作品的元数据说明: [
-    '为每个作品建立一个 txt 文件保存它的元数据',
-    '為每個作品建立一個 txt 檔案儲存它的元資料',
-    'Create a txt file for each work to save its metadata',
-    '作品ごとに txt ファイルを作成して、メタデータを保存します',
-    '각 작품에 대한 메타데이터를 저장하는 txt 파일 생성',
-    'Создайте txt-файл для каждой работы, чтобы сохранить ее метаданные',
+    '为每个作品生成一个 TXT 文件，保存它的元数据。',
+    '為每個作品生成一個 TXT 檔案，儲存它的元資料。',
+    'Generates a TXT file for each work, storing its metadata.',
+    '各作品のメタデータを保存する TXT ファイルを生成し、',
+    '각 작품에 대한 TXT 파일을 생성하여 해당 메타데이터를 저장합니다.',
+    'Создает TXT-файл для каждой работы, сохраняя ее метаданные.',
   ],
   _在不同的页面类型中使用不同的命名规则: [
     '在不同的页面类型中使用<span class="key">不同</span>的命名规则',
@@ -3045,12 +3323,12 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     'Показать <span class="key">расширенные</span> настройки',
   ],
   _显示高级设置说明: [
-    '被隐藏的设置仍然会发挥作用',
-    '被隱藏的設定仍然會發揮作用',
-    'Hidden settings will still work',
-    '隠していた設定がそのまま機能する',
-    '숨겨진 설정은 계속 작동합니다.',
-    'Скрытые настройки будут работать',
+    `下载器默认隐藏了一些设置。点击以显示所有设置。<br>被隐藏的设置依然会生效。`,
+    `下載器預設隱藏了一些設定。點選以顯示所有設定。<br>被隱藏的設定依然會生效。`,
+    `The Downloader hides some settings by default. Click to show all settings. <br>Hidden settings will still work.`,
+    `ダウンローダーはデフォルトで一部の設定を非表示にしています。クリックするとすべての設定が表示されます。<br>非表示の設定も引き続き機能します。`,
+    `다운로더는 기본적으로 일부 설정을 숨깁니다. 모든 설정을 표시하려면 클릭하세요. <br>숨겨진 설정도 계속 작동합니다.`,
+    `Загрузчик скрывает некоторые настройки по умолчанию. Щелкните, чтобы показать все настройки. <br>Скрытые настройки будут работать.`,
   ],
   _状态码为0的错误提示: [
     '下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（通常是 C 盘）（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。如果你使用 Nginx 或者 Apache 反代理访问 pixiv，请换成梯子。<br><br>3. 可以尝试重启浏览器，或者禁用此扩展然后重新启用，并刷新这个标签页。',
@@ -3068,6 +3346,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '다운로드가 완료되면 <span class="key">알림</span> 표시',
     'Показать <span class="key">уведомление</span> после завершения загрузки',
   ],
+  _下载完成后显示通知的说明: [
+    '当所有文件下载完成后显示一条系统通知。可能会请求通知权限。',
+    '當所有檔案下載完成後顯示一條系統通知。可能會請求通知許可權。',
+    'Show a system notification when all files have been downloaded. May require notification permission.',
+    'すべてのファイルのダウンロードが完了したらシステム通知を表示します。通知の許可が必要になる場合があります。',
+    '모든 파일이 다운로드되면 시스템 알림을 표시합니다. 알림 권한이 필요할 수 있습니다.',
+    'Показывать системное уведомление, когда все файлы будут загружены. Может потребоваться разрешение на уведомление.',
+  ],
   _高亮显示关键字: [
     '<span class="key">高亮</span>显示关键字',
     '<span class="key">標明</span>顯示關鍵字',
@@ -3075,6 +3361,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     'キーワードを強調表示',
     '<span class="key">강조</span> 키워드 표시',
     '<span class="key">Выделить</span> ключевые слова',
+  ],
+  _高亮显示关键字的说明: [
+    `在下载器的设置里高亮显示关键字，以便你可以快速找到需要的设置。<br>在部分语言里无效，因为我不熟悉这些语言，所以我没有设置高亮的文字。`,
+    `在下載器的設定裡高亮顯示關鍵字，以便你可以快速找到需要的設定。<br>在部分語言裡無效，因為我不熟悉這些語言，所以我沒有設定高亮的文字。`,
+    `Highlight keywords in the downloader settings so you can quickly find the settings you need. <br>It doesn't work in some languages, because I'm not familiar with these languages, so I didn't set the highlighted text.`,
+    `ダウンローダー設定でキーワードを強調表示して、必要な設定をすばやく見つけられるようにします。<br>一部の言語では機能しません。これらの言語に精通していないため、強調表示されたテキストを設定しませんでした。`,
+    `다운로더 설정에서 키워드를 강조 표시하면 필요한 설정을 빠르게 찾을 수 있습니다.<br>일부 언어에서는 작동하지 않습니다. 해당 언어에 익숙하지 않아서 강조 표시된 텍스트를 설정하지 않았습니다.`,
+    `Выделите ключевые слова в настройках загрузчика, чтобы можно было быстро найти нужные настройки. <br>Это не работает на некоторых языках, так как я не знаком с этими языками, поэтому я не устанавливал выделение текста.`,
   ],
   _抓取标签列表: [
     '抓取标签列表',
@@ -3140,6 +3434,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '자동으로 긁어오기 결과 <span class="key">내보내기</span>',
     'Автоматически <span class="key">экспортировать</span> результаты сканирования',
   ],
+  _自动导出抓取结果的说明: [
+    '抓取完成后自动导出抓取结果。<br>可以使用两种格式：CSV 格式易于阅读，JSON 格式则可以用于导入抓取结果。',
+    '抓取完成後自動匯出抓取結果。<br>可以使用兩種格式：CSV 格式易於閱讀，JSON 格式則可以用於匯入抓取結果。',
+    'The crawl results can be automatically exported when the crawl is completed. <br>Two formats are available: CSV format is easy to read, and JSON format can be used to import crawl results.',
+    'クロールが完了すると、クロール結果が自動的にエクスポートされます。 <br>簡単に読める CSV とクロール結果をインポートするための JSON の 2 つの形式が利用可能です。',
+    '크롤링이 완료되면 크롤링 결과가 자동으로 내보내집니다. <br>두 가지 형식을 사용할 수 있습니다. 읽기 쉬운 CSV 형식과 크롤링 결과를 가져오는 JSON 형식입니다.',
+    'После завершения сканирования результаты сканирования автоматически экспортируются. <br>Доступны два формата: CSV для удобного чтения и JSON для импорта результатов сканирования.',
+  ],
   _抓取结果: [
     '抓取结果',
     '擷取結果',
@@ -3164,6 +3466,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '作品のプレビュー',
     '작품 <span class="key">미리보기</span>',
     '<span class="key">Превью</span> работает',
+  ],
+  _预览作品的说明: [
+    `当鼠标放在图片的缩略图上时，下载器可以显示更大的图片。`,
+    `當滑鼠放在圖片的縮圖上時，下載器可以顯示更大的圖片。`,
+    `When you hover the mouse over the image thumbnail, the downloader can display a larger image.`,
+    `画像のサムネイルの上にマウスを置くと、ダウンローダーはより大きな画像を表示できます。`,
+    `이미지 섬네일 위에 마우스를 올려 놓으면 다운로더가 더 큰 이미지를 표시합니다.`,
+    `При наведении указателя мыши на миниатюру изображения загрузчик может отобразить увеличенное изображение.`,
   ],
   _点击鼠标左键可以关闭预览图: [
     '点击鼠标左键可以关闭预览图',
@@ -3311,6 +3621,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '이미지 종횡비를 표시하기 위해 정사각형 <span class="key">썸네일</span> 교체',
     'Замените квадратные <span class="key">миниатюры</span>, чтобы показать соотношение сторон изображения',
   ],
+  _替换方形缩略图以显示图片比例的说明: [
+    `Pixiv 的缩略图是正方形的，不能看到图片的全貌，也看不出是横图还是竖图。<br>下载器可以显示完整的缩略图，以显示图片比例。`,
+    `Pixiv 的縮圖是正方形的，不能看到圖片的全貌，也看不出是橫圖還是豎圖。<br>下載器可以顯示完整的縮圖，以顯示圖片比例。`,
+    `Pixiv's thumbnails are square, so you can't see the whole picture or whether it's horizontal or vertical. <br>The downloader can display the full thumbnail to show the image ratio.`,
+    `Pixivのサムネイルは正方形なので、全体像や縦横比の確認ができません。<br>ダウンローダーではサムネイル全体を表示することで画像の比率を確認できます。`,
+    `Pixiv의 썸네일은 정사각형이므로 전체 그림을 볼 수 없고 가로인지 세로인지도 알 수 없습니다. <br>다운로더는 이미지 비율을 보여주기 위해 전체 썸네일을 표시할 수 있습니다.`,
+    `Миниатюры Pixiv квадратные, поэтому вы не можете увидеть всю картинку или определить, горизонтальная она или вертикальная. <br>Загрузчик может отобразить полную миниатюру, чтобы показать соотношение сторон изображения.`,
+  ],
   _只有一个抓取结果时不建立文件夹: [
     '只有一个抓取结果时<span class="key">不建立</span>文件夹',
     '只有一個擷取結果時<span class="key">不建立</span>資料夾',
@@ -3318,6 +3636,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     'クロール結果が１つのみの場合、フォルダを作成しない',
     '긁어오기 결과가 하나일 때 디렉토리 <span class="key">생성하지 않기</span>',
     'Когда есть только один результат сканирования, <span class="key">никакая</span> папка не создается',
+  ],
+  _只有一个抓取结果时不建立文件夹的提示: [
+    '当只有一个抓取结果时生效。',
+    '當只有一個抓取結果時生效。',
+    'Takes effect when there is only one crawl result.',
+    'クロール結果が 1 つだけの場合に有効になります。',
+    '크롤링 결과가 하나만 있는 경우 적용됩니다.',
+    'Вступает в силу, когда есть только один результат сканирования.',
   ],
   _搜索页面页数限制: [
     '由于 pixiv 的限制，下载器最多只能抓取到第 {} 页。',
@@ -3493,6 +3819,15 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '<span class="key">더 큰</span> 썸네일 표시',
     'Показывать <span class="key">большие</span> миниатюры',
   ],
+  _显示更大的缩略图的说明: [
+    'Pixiv 默认的缩略图比较小，下载器可以显示更大的缩略图以方便预览。<br>这个功能不太稳定，因为 Pixiv 的代码更新可能会导致此功能部分失效。',
+    'Pixiv 預設的縮圖比較小，下載器可以顯示更大的縮圖以方便預覽。<br>這個功能不太穩定，因為 Pixiv 的程式碼更新可能會導致此功能部分失效。',
+    `Pixiv's default thumbnails are relatively small, and the downloader can display larger thumbnails for easier preview.<br>This feature is not very stable, because Pixiv's code updates may cause this feature to partially fail.`,
+    'Pixiv のデフォルトのサムネイルは比較的小さく、ダウンローダーはプレビューを容易にするために大きなサムネイルを表示できます。<br>この機能はあまり安定しておらず、Pixiv のコード更新によりこの機能が部分的に失敗する可能性があります。',
+    'Pixiv의 기본 썸네일은 비교적 작고, 다운로더는 더 큰 썸네일을 표시하여 더 쉽게 미리 볼 수 있습니다.<br>이 기능은 그다지 안정적이지 않습니다. Pixiv의 코드 업데이트로 인해 이 기능이 부분적으로 실패할 수 있기 때문입니다.',
+    'Миниатюры Pixiv по умолчанию относительно небольшие, а загрузчик может отображать более крупные миниатюры для более удобного предварительного просмотра.<br>Эта функция не очень стабильна, поскольку обновления кода Pixiv могут привести к частичному сбою этой функции.',
+  ],
+
   _横图占用二倍宽度: [
     '横图占用二倍宽度',
     '橫圖佔用二倍寬度',
@@ -3717,6 +4052,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '정기적으로 자동으로 크롤링 및 다운로드를 시작합니다.',
     'Автоматически запускать сканирование и загрузку через регулярные промежутки времени',
   ],
+  _定时抓取的间隔时间的说明: [
+    '在一些页面里有“定时抓取”按钮，即每隔一定时间，自动开始抓取和下载。<br>你可以在这里设置每次抓取的间隔时间。',
+    '在一些頁面裡有“定時抓取”按鈕，即每隔一定時間，自動開始抓取和下載。<br>你可以在這裡設定每次抓取的間隔時間。',
+    'There is a "Timed crawl" button on some pages, which automatically starts crawling and downloading at a certain interval. <br>You can set the interval time for each crawl here.',
+    '一部のページには「時限クロール」ボタンがあり、一定の間隔で自動的にクロールとダウンロードを開始します。<br>ここで、各クロールの間隔時間を設定できます。',
+    '일부 페이지에는 "시간 제한 크롤링" 버튼이 있는데, 이를 누르면 일정 간격으로 크롤링과 다운로드가 자동으로 시작됩니다. <br>여기에서 각 크롤링의 간격을 설정할 수 있습니다.',
+    'На некоторых страницах есть кнопка «Сканирование по таймеру», которая автоматически запускает сканирование и загрузку с определенным интервалом. <br>Здесь вы можете установить интервал времени для каждого сканирования.',
+  ],
   _定时抓取已启动的提示: [
     '定时抓取已启动，间隔时间：{} 分钟。<br>如果你想修改间隔时间，可以在“更多”选项卡里修改设置：定时抓取的间隔时间。',
     '定時抓取已啟動，間隔時間：{} 分鐘。<br>如果你想修改間隔時間，可以在“更多”選項卡里修改設定：定時抓取的間隔時間。',
@@ -3871,12 +4214,12 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '<span class="key">Замедлить</span> сканирование',
   ],
   _减慢抓取速度的说明: [
-    '减慢抓取速度可以避免在抓取时被 Pixiv 临时限制。但是会增加抓取时间。',
-    '減慢抓取速度可以避免在抓取時被 Pixiv 臨時限制。但是會增加抓取時間。',
-    'Slow down the crawl to avoid being temporarily restricted by Pixiv while crawling. But this will increase the crawl time.',
-    'クロール中にPixivによって一時的に制限されないように、クロールを遅くします。 ただし、これによりクロール時間が長くなります。',
-    '크롤링하는 동안 Pixiv에 의해 일시적으로 제한되지 않도록 크롤링 속도를 늦춥니다. 그러나 이것은 크롤링 시간을 증가시킵니다.',
-    'Замедлить сканирование, чтобы избежать временного ограничения Pixiv во время сканирования. Это увеличит время сканирования.',
+    '减慢抓取速度可以避免在抓取时被 Pixiv 临时限制（429状态码）。<br>这会增加抓取时间。',
+    '減慢抓取速度可以避免在抓取時被 Pixiv 臨時限制（429狀態碼）。<br>這會增加抓取時間。',
+    'Slowing down the crawl speed can help avoid Pixiv temporarily blocking your crawl (429 status code). <br>This will increase crawl time.',
+    'クロール速度を遅くすることで、クロール中にPixivに一時的にブロックされること（ステータスコード429）を回避できます。 <br>これによりクロール時間が長くなります。',
+    '크롤링 속도를 늦추면 크롤링 중에 Pixiv에 의해 일시적으로 차단되는 현상(상태 코드 429)을 피할 수 있습니다. <br>이렇게 하면 크롤링 시간이 늘어납니다.',
+    'Замедление скорости сканирования поможет избежать временной блокировки Pixiv (код статуса 429) во время сканирования. <br>Это увеличит время сканирования.',
   ],
   _作品数量: [
     '作品数量',
@@ -4446,6 +4789,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '작업 ID 목록을 가져온 후 ID 목록을 내보내고 작업을 중지합니다',
     'После получения списка идентификаторов работ экспортируйте список идентификаторов и остановите задачу',
   ],
+  _导出ID列表的说明: [
+    '此时只会运行抓取，不会开始下载。<br>并且会忽略大多数过滤条件。',
+    '此時只會執行抓取，不會開始下載。<br>並且會忽略大多數過濾條件。',
+    'Only a crawl will be run, no download will be started. <br>Most filters are ignored.',
+    'この時点ではフェッチのみが実行され、ダウンロードは開始されません。 <br>ほとんどのフィルターは無視されます。',
+    '지금은 가져오기만 실행되고 다운로드는 시작되지 않습니다. <br>대부분의 필터는 무시됩니다.',
+    'В этот раз будет запущена только выборка, загрузка не начнется. <br>Большинство фильтров игнорируются.',
+  ],
   _导入的用户ID数量: [
     '导入的用户 ID 数量：',
     '匯入的使用者 ID 數量：',
@@ -4542,6 +4893,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '멀티 이미지 작품 페이지에서 썸네일 목록을 표시',
     'На рабочей странице с несколькими изображениями отобразите список эскизов',
   ],
+  _在多图作品页面里显示缩略图列表的说明: [
+    `在多图作品页面里（/artworks/)，下载器可以显示每一张图片的预览图。`,
+    `在多圖作品頁面裡（/artworks/)，下載器可以顯示每一張圖片的預覽圖。`,
+    `On a multi-image artwork page (/artworks/), the downloader can display a preview of each image.`,
+    `複数画像のアートワーク ページ (/artworks/) では、ダウンローダーは各画像のプレビューを表示できます。`,
+    `여러 이미지로 구성된 아트워크 페이지(/artworks/)에서 다운로더는 각 이미지의 미리보기를 표시할 수 있습니다.`,
+    `На странице с несколькими изображениями (/artworks/) загрузчик может отображать предварительный просмотр каждого изображения.`,
+  ],
   _提交: ['提交', '提交', 'Submit', '提出する', '제출하다', 'Подавать'],
   _已导出被删除的作品的ID列表: [
     '已导出被删除的作品的 ID 列表',
@@ -4600,12 +4959,12 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     'Удалить работы подписавшихся пользователей со страницы поиска',
   ],
   _在搜索页面里移除已关注用户的作品的说明: [
-    '这样只会显示未关注用户的作品，便于你发现新的喜欢的用户。<br>只在搜索页面里生效。',
-    '這樣只會顯示未關注使用者的作品，便於你發現新的喜歡的使用者。<br>只在搜尋頁面裡生效。',
-    'This will only display the works of unfollowed users, making it easier for you to discover new users you like.<br>Only takes effect on the search page.',
-    'フォローを解除しているユーザーの作品のみが表示されるので、新たに好みのユーザーを見つけやすくなります。<br>検索ページでのみ有効です。',
-    '팔로우하지 않은 사용자의 작품만 표시되므로 마음에 드는 새로운 사용자를 더 쉽게 찾을 수 있습니다.<br>검색 페이지에만 적용됩니다.',
-    'При этом будут отображаться только работы пользователей, на которых вы не подписаны, что облегчит вам поиск новых пользователей, которые вам нравятся.<br>Действует только на странице поиска.',
+    '这样只会显示未关注用户的作品，便于你发现新的喜欢的用户。<br>只在搜索页面（/tags/）里生效。',
+    '這樣只會顯示未關注使用者的作品，便於你發現新的喜歡的使用者。<br>只在搜尋頁面（/tags/）裡生效。',
+    'This will only display the works of unfollowed users, making it easier for you to discover new users you like.<br>Only works on the search page (/tags/).',
+    'フォローを解除しているユーザーの作品のみが表示されるので、新たに好みのユーザーを見つけやすくなります。<br>検索ページ (/tags/) でのみ機能します。',
+    '팔로우하지 않은 사용자의 작품만 표시되므로 마음에 드는 새로운 사용자를 더 쉽게 찾을 수 있습니다.<br>검색 페이지(/tags/)에서만 작동합니다.',
+    'При этом будут отображаться только работы пользователей, на которых вы не подписаны, что облегчит вам поиск новых пользователей, которые вам нравятся.<br>Работает только на странице поиска (/tags/).',
   ],
   _使用方向键和空格键切换图片: [
     '使用方向键和空格键切换图片',
@@ -4777,12 +5136,12 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     'Сохраняйте каждую работу отдельно',
   ],
   _简介的Links标记: [
-    `如果作品简介里含有超链接，下载器会在文件名末尾添加 'links' 标记`,
+    `把每个作品的简介保存到单独的 TXT 文件里。<br>如果作品简介里含有超链接，下载器会在文件名末尾添加 'links' 标记`,
     `如果作品說明裡含有超連結，下載器會在檔名末尾新增 'links' 標記`,
-    `If the work description contains hyperlinks, the downloader will add a 'links' tag at the end of the file name`,
-    `作品の説明にハイパーリンクが含まれている場合、ダウンローダーはファイル名の末尾に「links」タグを追加します。`,
-    `작업 설명에 하이퍼링크가 포함된 경우 다운로더는 파일 이름 끝에 'links' 태그를 추가합니다.`,
-    `Если описание работы содержит гиперссылки, загрузчик добавит тег «links» в конце имени файла.`,
+    `Save each work's description in a separate TXT file.<br>If the work description contains hyperlinks, the downloader will add a 'links' tag at the end of the file name`,
+    `各作品の説明を別々の TXT ファイルに保存します。 <br>作品の説明にハイパーリンクが含まれている場合、ダウンローダーはファイル名の末尾に「links」タグを追加します。`,
+    `각 작품에 대한 설명을 별도의 TXT 파일로 저장합니다. <br>작업 설명에 하이퍼링크가 포함된 경우 다운로더는 파일 이름 끝에 'links' 태그를 추가합니다.`,
+    `Сохраните описание каждой работы в отдельном TXT-файле. <br>Если описание работы содержит гиперссылки, загрузчик добавит тег «links» в конце имени файла.`,
   ],
   _汇总到一个文件: [
     '汇总到一个文件',
@@ -4932,6 +5291,22 @@ This downloader does not support Firefox and may encounter some problems. I will
     '「マイピクの作品」ページからの作品のクロールをサポートします:<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>',
     '"마이픽 작품" 페이지에서 크롤링 작업을 지원합니다.<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>https://www.pixiv.net/mypixiv_new_illust.php',
     'Поддерживает сканирование работ со страницы «My pixiv»:<br><a href="https://www.pixiv.net/mypixiv_new_illust.php" target="_blank">https://www.pixiv.net/mypixiv_new_illust.php</a>',
+  ],
+  _为下载器的设置项添加了更多提示: [
+    `为下载器的设置项添加了更详细的提示`,
+    `為下載器的設定項添加了更詳細的提示`,
+    `Added more detailed tips for the downloader settings`,
+    `ダウンローダー設定に関するより詳細なヒントを追加しました`,
+    `다운로더 설정에 대한 더 자세한 팁을 추가했습니다`,
+    `Добавлены более подробные советы по настройкам загрузчика`,
+  ],
+  _移除设置项: [
+    '移除设置项：',
+    '移除設定項：',
+    'Remove the settings item: ',
+    '設定項目を削除します: ',
+    '설정 항목을 제거합니다. ',
+    'Удалить пункт настроек: ',
   ],
 }
 

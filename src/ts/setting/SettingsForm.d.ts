@@ -36,7 +36,6 @@ export interface SettingsForm extends HTMLFormElement {
   downloadThread: HTMLInputElement
   userSetName: HTMLInputElement
   fileNameSelect: HTMLSelectElement
-  tagNameToFileName: HTMLInputElement
   noSerialNo: HTMLInputElement
   workDir: HTMLInputElement
   workDirFileNumber: HTMLInputElement
@@ -125,7 +124,6 @@ export interface SettingsForm extends HTMLFormElement {
   downloadNovelCoverImage: HTMLInputElement
   downloadNovelEmbeddedImage: HTMLInputElement
   previewUgoira: HTMLInputElement
-  hiddenBrowserDownloadBar: HTMLInputElement
   userRatioLimit: HTMLInputElement
   timedCrawlInterval: HTMLInputElement
   slowCrawl: HTMLInputElement

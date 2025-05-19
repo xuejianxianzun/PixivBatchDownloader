@@ -245,6 +245,16 @@ class Form {
       })
     })
 
+    // 显示不下载重复文件的提示
+    const deduplicationHelp = this.form.querySelector(
+      '#deduplicationHelp'
+    ) as HTMLButtonElement
+    deduplicationHelp.addEventListener('click', () => {
+      msgBox.show(lang.transl('_不下载重复文件的提示'), {
+        title: lang.transl('_不下载重复文件'),
+      })
+    })
+
     // 输入框获得焦点时自动选择文本（文件名输入框例外）
     const centerInputs: NodeListOf<HTMLInputElement> =
       this.form.querySelectorAll('input[type=text]')
