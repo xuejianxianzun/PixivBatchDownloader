@@ -1270,9 +1270,9 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     <br><br>
     梯子推荐：
     <br>
-    如果你需要一个机场（梯子）的话，可以试试我现在用的机场：魔法喵 <a href="https://magicm.cc/#/register?code=GYjQWDob" title="魔法喵" target="_blank">https://magicm.cc</a>，性价比很高，9.9 元 768 GB 流量（倍率都是 1x），而且速度很快，下载国外网盘的文件时可以跑满我的带宽（70 MB/s）。
+    如果你需要一个机场（梯子）的话，可以试试我现在用的机场：魔法喵 <a href="https://mofacgb.cc/register?code=GYjQWDob" title="魔法喵" target="_blank">https://mofacgb.cc</a>，性价比很高，9.9 元 768 GB 流量（倍率都是 1x），而且下载速度很快（下载速率上限是 800 Mbps）。下载 Pixiv、Fanbox 的文件建议使用“日本 2”节点。
     <br>
-    如果上面的网址打不开，可以访问地址发布页：<a href="https://magicm.click" title="魔法喵" target="_blank">https://magicm.click</a>
+    如果上面的网址打不开，可以访问地址发布页：<a href="https://mofmiao.com" title="魔法喵" target="_blank">https://mofmiao.com</a>
     <br>
     你也可以查看我写的使用体验：<a href="https://saber.love/?p=12736" title="魔法喵使用体验" target="_blank">魔法喵使用体验</a>
     <br>
