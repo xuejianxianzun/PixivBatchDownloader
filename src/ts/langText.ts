@@ -4781,6 +4781,67 @@ Novel folder name: Novel`,
     'ID 목록 가져오기',
     'Список идентификаторов импорта',
   ],
+  _导入ID列表的说明: [
+    `请选择一个 JSON 文件。它的代码格式如下：
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type 可以是 "illusts" 或 "novel"。`,
+    `請選擇一個 JSON 檔案。它的程式碼格式如下：<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type 可以是 "illusts" 或 "novel"。`,
+    `Please select a JSON file. Its code format is as follows:
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type can be "illusts" or "novel".`,
+    `JSONファイルを選択してください。コード形式は次のとおりです。
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type は "illusts" または "novel" です。`,
+    `JSON 파일을 선택하세요. 코드 형식은 다음과 같습니다.
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type 은 "illusts" 또는 "novel"이 될 수 있습니다.`,
+    `Пожалуйста, выберите файл JSON. Формат его кода следующий:
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type может быть "illusts" или "novel".`,
+  ],
   _导出ID列表: [
     '获取作品 ID 列表后导出 <span class="key">ID 列表</span>，并停止任务',
     '獲取作品 ID 列表後匯出 <span class="key">ID 列表</span>，並停止任務',

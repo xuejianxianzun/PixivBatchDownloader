@@ -3620,7 +3620,7 @@ class Log {
         this.wrap = document.createElement('div'); // 日志容器的区域，当日志条数很多时，会产生多个日志容器
         this.activeLogWrapID = 'logWrap';
         this.logWrapClassName = 'logWrap'; // 日志容器的类名，只负责样式
-        this.logWrapFlag = 'logWrapFlag'; // 日志容器的标志类名，当需要查找日志区域时，使用这个类名
+        this.logWrapFlag = 'logWrapFlag'; // 日志容器的标志，当需要查找日志区域时，使用这个类名而不是 logWrap，因为其他元素可能也具有 logWrap 类名，以应用其样式。
         this.logContent = document.createElement('div'); // 日志主体区域，这个指针始终指向最新的那个日志容器内部
         /**会刷新的日志所使用的元素，可以传入 flag 来设置多条用于刷新日志的元素 */
         this.refresh = {
@@ -3893,16 +3893,16 @@ class MsgBox {
         }
     }
     show(msg, arg) {
-        this.create(Object.assign({}, arg, { msg: msg }));
+        return this.create(Object.assign({}, arg, { msg: msg }));
     }
     success(msg, arg) {
-        this.create(Object.assign({ color: this.typeColor.success }, arg, { msg: msg }));
+        return this.create(Object.assign({ color: this.typeColor.success }, arg, { msg: msg }));
     }
     warning(msg, arg) {
-        this.create(Object.assign({ color: this.typeColor.warning }, arg, { msg: msg }));
+        return this.create(Object.assign({ color: this.typeColor.warning }, arg, { msg: msg }));
     }
     error(msg, arg) {
-        this.create(Object.assign({ color: this.typeColor.error }, arg, { msg: msg }));
+        return this.create(Object.assign({ color: this.typeColor.error }, arg, { msg: msg }));
     }
     create(data) {
         const wrap = document.createElement('div');
@@ -3915,27 +3915,30 @@ class MsgBox {
             colorStyle = `style="color:${data.color}"`;
         }
         wrap.innerHTML = `
-        <p class="title" ${colorStyle}>${data.title || ''}</p>
-        <p class="content" ${colorStyle}>${data.msg}</p>
-        <button class="btn" type="button">${data.btn || _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_确定')}</button>
+        <div class="title" ${colorStyle}>${data.title || ''}</div>
+        <div class="content" ${colorStyle}>${data.msg}</div>
+        ${data.hiddenBtn
+            ? ''
+            : `<button class="btn" type="button">${data.btn || _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_确定')}</button>`}
       `;
         _Theme__WEBPACK_IMPORTED_MODULE_2__.theme.register(wrap);
         _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.register(wrap);
-        const btn = wrap.querySelector('.btn');
-        if (btn) {
-            wrap.addEventListener('click', (ev) => {
-                ev.stopPropagation();
-            });
+        wrap.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.closeCenterPanel, () => {
+            this.remove(wrap);
+        });
+        document.body.append(wrap);
+        if (!data.hiddenBtn) {
+            const btn = wrap.querySelector('.btn');
             btn.addEventListener('click', () => {
                 this.remove(wrap);
             });
-            window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.closeCenterPanel, () => {
-                this.remove(wrap);
-            });
+            btn.focus();
         }
-        document.body.append(wrap);
-        btn.focus();
         _BG__WEBPACK_IMPORTED_MODULE_4__.bg.useBG(wrap);
+        return wrap;
     }
     remove(el) {
         el && el.parentNode && el.parentNode.removeChild(el);
@@ -12997,10 +13000,10 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
             return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_本次操作已取消'));
         }
         // 提示抓取范围，便于用户分批次抓取的时候查看
+        // 这里使用的是一个单独的元素，而非在日志里输出。因为日志区域可能会被清空，导致提示消失
         const tip = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间') + `: ${start} - ${end}`;
         this.idRangeTip.textContent = tip;
         this.idRangeTip.style.display = 'block';
-        // 不要在这里使用 log.log ，因为之后开始抓取时，日志区域会被清空，所以用户在日志区域里看不到这个提示
         // 生成 id 列表
         const ids = [];
         while (start <= end) {
@@ -13020,7 +13023,32 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         }
         _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('crawlIdList', idList);
     }
+    async awaitClickBtn() {
+        return new Promise((resolve) => {
+            // 显示提示信息
+            const msgWrap = _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入ID列表的说明'), {
+                title: _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入ID列表'),
+            });
+            const content = msgWrap.querySelector('.content');
+            content.innerHTML = content.innerHTML + '<br><br>';
+            // 添加一个按钮并等待点击
+            const btn = document.createElement('button');
+            btn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_选择文件');
+            btn.setAttribute('style', `border: revert; background-color: revert;`);
+            content.append(btn);
+            btn.addEventListener('click', () => {
+                resolve();
+                msgWrap.remove();
+            });
+        });
+    }
     async importIDList() {
+        _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('closeCenterPanel');
+        await this.awaitClickBtn();
+        if (_store_States__WEBPACK_IMPORTED_MODULE_13__.states.busy) {
+            _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
+            return;
+        }
         const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.loadJSONFile().catch((err) => {
             return _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.error(err);
         }));
@@ -13041,6 +13069,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         }
         _Log__WEBPACK_IMPORTED_MODULE_12__.log.success('✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入ID列表'));
         _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.reset();
+        this.finishedRequest = 0;
         _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList = loadedJSON;
         this.crawlImportIDList();
     }
@@ -25993,6 +26022,67 @@ Novel folder name: Novel`,
         'インポートIDリスト',
         'ID 목록 가져오기',
         'Список идентификаторов импорта',
+    ],
+    _导入ID列表的说明: [
+        `请选择一个 JSON 文件。它的代码格式如下：
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type 可以是 "illusts" 或 "novel"。`,
+        `請選擇一個 JSON 檔案。它的程式碼格式如下：<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type 可以是 "illusts" 或 "novel"。`,
+        `Please select a JSON file. Its code format is as follows:
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type can be "illusts" or "novel".`,
+        `JSONファイルを選択してください。コード形式は次のとおりです。
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type は "illusts" または "novel" です。`,
+        `JSON 파일을 선택하세요. 코드 형식은 다음과 같습니다.
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type 은 "illusts" 또는 "novel"이 될 수 있습니다.`,
+        `Пожалуйста, выберите файл JSON. Формат его кода следующий:
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type может быть "illusts" или "novel".`,
     ],
     _导出ID列表: [
         '获取作品 ID 列表后导出 <span class="key">ID 列表</span>，并停止任务',
