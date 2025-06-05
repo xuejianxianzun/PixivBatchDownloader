@@ -9,6 +9,7 @@ interface MsgOptional {
   btn?: string
   title?: string
   color?: string
+  hiddenBtn?: boolean
 }
 
 export interface Msg {
@@ -16,6 +17,7 @@ export interface Msg {
   msg: string
   btn?: string
   color?: string
+  hiddenBtn?: boolean
 }
 
 // 简单的消息框
@@ -84,23 +86,23 @@ class MsgBox {
   }
 
   public show(msg: string, arg?: MsgOptional) {
-    this.create(Object.assign({}, arg, { msg: msg }))
+    return this.create(Object.assign({}, arg, { msg: msg }))
   }
 
   public success(msg: string, arg?: MsgOptional) {
-    this.create(
+    return this.create(
       Object.assign({ color: this.typeColor.success }, arg, { msg: msg })
     )
   }
 
   public warning(msg: string, arg?: MsgOptional) {
-    this.create(
+    return this.create(
       Object.assign({ color: this.typeColor.warning }, arg, { msg: msg })
     )
   }
 
   public error(msg: string, arg?: MsgOptional) {
-    this.create(
+    return this.create(
       Object.assign({ color: this.typeColor.error }, arg, { msg: msg })
     )
   }
@@ -118,36 +120,43 @@ class MsgBox {
     }
 
     wrap.innerHTML = `
-        <p class="title" ${colorStyle}>${data.title || ''}</p>
-        <p class="content" ${colorStyle}>${data.msg}</p>
-        <button class="btn" type="button">${
-          data.btn || lang.transl('_确定')
-        }</button>
+        <div class="title" ${colorStyle}>${data.title || ''}</div>
+        <div class="content" ${colorStyle}>${data.msg}</div>
+        ${
+          data.hiddenBtn
+            ? ''
+            : `<button class="btn" type="button">${
+                data.btn || lang.transl('_确定')
+              }</button>`
+        }
       `
 
     theme.register(wrap)
     lang.register(wrap)
 
-    const btn = wrap.querySelector('.btn') as HTMLButtonElement
+    wrap.addEventListener('click', (ev) => {
+      ev.stopPropagation()
+    })
 
-    if (btn) {
-      wrap.addEventListener('click', (ev) => {
-        ev.stopPropagation()
-      })
+    window.addEventListener(EVT.list.closeCenterPanel, () => {
+      this.remove(wrap)
+    })
+
+    document.body.append(wrap)
+
+    if (!data.hiddenBtn) {
+      const btn = wrap.querySelector('.btn') as HTMLButtonElement
 
       btn.addEventListener('click', () => {
         this.remove(wrap)
       })
 
-      window.addEventListener(EVT.list.closeCenterPanel, () => {
-        this.remove(wrap)
-      })
+      btn.focus()
     }
 
-    document.body.append(wrap)
-    btn.focus()
-
     bg.useBG(wrap)
+
+    return wrap
   }
 
   private remove(el: HTMLDivElement) {

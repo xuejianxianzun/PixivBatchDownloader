@@ -416,7 +416,7 @@
   max-width: 164px;
   line-height: 16px;
   font-size: 14px;
-  color: #adadad;
+  color: #1f1f1f;
   text-overflow: ellipsis;
   white-space: nowrap;
   text-decoration: none;
@@ -2777,6 +2777,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
 }
 .id_range_tip {
   display: none;
+  padding: 14px;
   text-align: center;
   margin: 10px auto;
   position: relative;

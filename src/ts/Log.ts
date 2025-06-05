@@ -45,7 +45,8 @@ class Log {
 
   private wrap = document.createElement('div') // 日志容器的区域，当日志条数很多时，会产生多个日志容器
   private activeLogWrapID = 'logWrap'
-  private logWrapClassName = 'logWrap'
+  private logWrapClassName = 'logWrap' // 日志容器的类名，只负责样式
+  private logWrapFlag = 'logWrapFlag' // 日志容器的标志，当需要查找日志区域时，使用这个类名而不是 logWrap，因为其他元素可能也具有 logWrap 类名，以应用其样式。
   private logContent = document.createElement('div') // 日志主体区域，这个指针始终指向最新的那个日志容器内部
   /**会刷新的日志所使用的元素，可以传入 flag 来设置多条用于刷新日志的元素 */
   private refresh: { [key: string]: HTMLElement } = {
@@ -178,7 +179,7 @@ class Log {
     if (test === null) {
       this.wrap = document.createElement('div')
       this.wrap.id = this.activeLogWrapID
-      this.wrap.classList.add(this.logWrapClassName)
+      this.wrap.classList.add(this.logWrapClassName, this.logWrapFlag)
       this.logContent = document.createElement('div')
       this.logContent.classList.add('beautify_scrollbar', 'logContent')
       if (Config.mobile) {
@@ -195,7 +196,7 @@ class Log {
   /**移除所有日志区域 */
   public remove() {
     this.count = 0
-    const allLogWrap = document.querySelectorAll(`.${this.logWrapClassName}`)
+    const allLogWrap = document.querySelectorAll(`.${this.logWrapFlag}`)
     allLogWrap.forEach((wrap) => wrap.remove())
   }
 
