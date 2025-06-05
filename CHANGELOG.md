@@ -4,57 +4,11 @@ TODO:
 - 日语文本需要加粗显示关键字，但是我不懂日语，所以现在下载器的语言设置为日语时，不会显示加粗的关键字。
 - 自动合并系列小说
 
-## next
+## 17.6.1 2025/06/05
 
-### 移除文件名中的特殊字符和 Emoji
+### 🐛修复了首页里“抓取 ID 区间”开始后，没有显示提示的问题
 
-总结常见的需要移除的字符范围：
-
-ASCII 控制字符：U+0000 到 U+001F 和 U+007F
-Windows 保留字符：<, >, :, ", /, \, |, ?, *
-其他潜在问题字符：非打印字符、不可见字符、零宽度字符等。
-
-以下代码会：
-
-移除控制字符和 Windows 禁止的字符。
-将不可见字符或问题字符替换为下划线（_）或其他安全字符。
-可选地修剪文件名开头和结尾的空格。
-
-```js
-function sanitizeFilename(filename) {
-  // 定义需要移除或替换的字符
-  return filename
-    // 移除 ASCII 控制字符 (U+0000 到 U+001F, U+007F)
-    .replace(/[\u0000-\u001F\u007F]/g, '')
-    // 移除 Windows 保留字符
-    .replace(/[<>:"\/\\|?*]/g, '')
-    // 移除零宽度空格和其他不可见字符
-    .replace(/[\u200B-\u200F\u202A-\u202E]/g, '')
-    // 移除其他非打印字符（可选）
-    .replace(/[\u0080-\u009F]/g, '')
-    // 修剪首尾空格
-    .trim()
-    // 将剩余的非法或不安全字符替换为下划线
-    .replace(/[^a-zA-Z0-9._-]/g, '_')
-    // 确保文件名不为空，若为空则返回默认值
-    || 'unnamed_file';
-}
-
-// 测试用例
-const testFilenames = [
-  'test<file>.txt',
-  'hello\nworld.doc',
-  'my\file:name*.pdf',
-  '  spaces  .txt',
-  'zero\u200Bwidth.txt',
-  '\u0000invalid.txt',
-  'normal_file.txt'
-];
-
-testFilenames.forEach(name => {
-  console.log(`Original: ${name} -> Sanitized: ${sanitizeFilename(name)}`);
-});
-```
+开始抓取后，顶部会有显示一条提示，例如“抓取 ID 区间: 100 - 200”。之前某次修改导致这个提示不会显示了，现在修复。
 
 ## 17.6.0 2025/05/19
 
