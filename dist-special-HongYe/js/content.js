@@ -4407,7 +4407,8 @@ class Log {
     constructor() {
         this.wrap = document.createElement('div'); // 日志容器的区域，当日志条数很多时，会产生多个日志容器
         this.activeLogWrapID = 'logWrap';
-        this.logWrapClassName = 'logWrap';
+        this.logWrapClassName = 'logWrap'; // 日志容器的类名，只负责样式
+        this.logWrapFlag = 'logWrapFlag'; // 日志容器的标志，当需要查找日志区域时，使用这个类名而不是 logWrap，因为其他元素可能也具有 logWrap 类名，以应用其样式。
         this.logContent = document.createElement('div'); // 日志主体区域，这个指针始终指向最新的那个日志容器内部
         /**会刷新的日志所使用的元素，可以传入 flag 来设置多条用于刷新日志的元素 */
         this.refresh = {
@@ -4523,7 +4524,7 @@ class Log {
         if (test === null) {
             this.wrap = document.createElement('div');
             this.wrap.id = this.activeLogWrapID;
-            this.wrap.classList.add(this.logWrapClassName);
+            this.wrap.classList.add(this.logWrapClassName, this.logWrapFlag);
             this.logContent = document.createElement('div');
             this.logContent.classList.add('beautify_scrollbar', 'logContent');
             if (_Config__WEBPACK_IMPORTED_MODULE_10__.Config.mobile) {
@@ -4539,7 +4540,7 @@ class Log {
     /**移除所有日志区域 */
     remove() {
         this.count = 0;
-        const allLogWrap = document.querySelectorAll(`.${this.logWrapClassName}`);
+        const allLogWrap = document.querySelectorAll(`.${this.logWrapFlag}`);
         allLogWrap.forEach((wrap) => wrap.remove());
     }
     // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部
@@ -4681,16 +4682,16 @@ class MsgBox {
         }
     }
     show(msg, arg) {
-        this.create(Object.assign({}, arg, { msg: msg }));
+        return this.create(Object.assign({}, arg, { msg: msg }));
     }
     success(msg, arg) {
-        this.create(Object.assign({ color: this.typeColor.success }, arg, { msg: msg }));
+        return this.create(Object.assign({ color: this.typeColor.success }, arg, { msg: msg }));
     }
     warning(msg, arg) {
-        this.create(Object.assign({ color: this.typeColor.warning }, arg, { msg: msg }));
+        return this.create(Object.assign({ color: this.typeColor.warning }, arg, { msg: msg }));
     }
     error(msg, arg) {
-        this.create(Object.assign({ color: this.typeColor.error }, arg, { msg: msg }));
+        return this.create(Object.assign({ color: this.typeColor.error }, arg, { msg: msg }));
     }
     create(data) {
         const wrap = document.createElement('div');
@@ -4703,27 +4704,30 @@ class MsgBox {
             colorStyle = `style="color:${data.color}"`;
         }
         wrap.innerHTML = `
-        <p class="title" ${colorStyle}>${data.title || ''}</p>
-        <p class="content" ${colorStyle}>${data.msg}</p>
-        <button class="btn" type="button">${data.btn || _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_确定')}</button>
+        <div class="title" ${colorStyle}>${data.title || ''}</div>
+        <div class="content" ${colorStyle}>${data.msg}</div>
+        ${data.hiddenBtn
+            ? ''
+            : `<button class="btn" type="button">${data.btn || _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_确定')}</button>`}
       `;
         _Theme__WEBPACK_IMPORTED_MODULE_2__.theme.register(wrap);
         _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.register(wrap);
-        const btn = wrap.querySelector('.btn');
-        if (btn) {
-            wrap.addEventListener('click', (ev) => {
-                ev.stopPropagation();
-            });
+        wrap.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.closeCenterPanel, () => {
+            this.remove(wrap);
+        });
+        document.body.append(wrap);
+        if (!data.hiddenBtn) {
+            const btn = wrap.querySelector('.btn');
             btn.addEventListener('click', () => {
                 this.remove(wrap);
             });
-            window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.closeCenterPanel, () => {
-                this.remove(wrap);
-            });
+            btn.focus();
         }
-        document.body.append(wrap);
-        btn.focus();
         _BG__WEBPACK_IMPORTED_MODULE_4__.bg.useBG(wrap);
+        return wrap;
     }
     remove(el) {
         el && el.parentNode && el.parentNode.removeChild(el);
@@ -7848,13 +7852,13 @@ class ShowLargerThumbnails {
         // css 内容来自 style/showLargerThumbnails.css
         this.css = '';
         this.styleId = 'ShowLargerThumbnails';
-        this.findFriendsWrap = false;
+        this.needFind = true;
         if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
             return;
         }
         this.loadCssText();
         this.bindEvents();
-        this.findFriendsWrapEl();
+        this.findSpecialEl();
     }
     async loadCssText() {
         const css = await fetch(chrome.runtime.getURL('style/showLargerThumbnails.css'));
@@ -7868,13 +7872,26 @@ class ShowLargerThumbnails {
                 this.setCss();
             }
         });
+        // 切换页面时，允许重新查找特定元素
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, () => {
             this.setCss();
-            this.findFriendsWrap = false;
+            this.needFind = true;
         });
+        // 当页面元素变化时，允许重新查找。
+        // 这主要是因为切换页面时，下载器可能先查找到了目标元素，但之后页面内容马上发生了变化，移除了目标元素。
+        // 所以当元素变化时，需要重新查找，否则偶尔会显示异常
+        const targetNode = document.querySelector('body');
+        const observer = new MutationObserver(() => {
+            this.needFind = true;
+        });
+        observer.observe(targetNode, {
+            childList: true,
+            subtree: true,
+        });
+        // 循环查找
         window.setInterval(() => {
-            this.findFriendsWrapEl();
-        }, 1000);
+            this.findSpecialEl();
+        }, 500);
     }
     setCss() {
         if (!this.css) {
@@ -7898,46 +7915,184 @@ class ShowLargerThumbnails {
         const el = document.querySelector('#' + this.styleId);
         el && el.remove();
     }
-    // 在首页一些特定容器，为其添加自定义的 className
-    findFriendsWrapEl() {
-        if (this.findFriendsWrap || _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Home) {
+    /** 在某些页面里超找一些特定容器，为其添加自定义的 className **/
+    findSpecialEl() {
+        if (this.needFind === false) {
             return;
         }
-        const sectionList = document.querySelectorAll('section');
-        if (sectionList.length === 0) {
-            return;
-        }
-        if (sectionList[1]) {
-            // 查找 精选新作 和 已关注用户的作品 的 section 父元素
-            if (sectionList[1].querySelector('ul div')) {
-                sectionList[1].classList.add('homeFriendsNewWorks');
-                this.findFriendsWrap = true;
+        // 首页
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Home) {
+            const sectionList = document.querySelectorAll('section');
+            if (sectionList.length === 0) {
+                return;
+            }
+            if (sectionList[1]) {
+                // 查找 精选新作 和 已关注用户的作品 的 section 父元素
+                if (sectionList[1].querySelector('ul div')) {
+                    sectionList[1].classList.add('homeFriendsNewWorks');
+                    this.needFind = false;
+                }
+            }
+            // 在漫画页面里，查找 推荐作品
+            if (window.location.pathname.includes('/manga')) {
+                const allLi = sectionList[2]?.querySelectorAll('ul li');
+                if (allLi.length > 1) {
+                    sectionList[2].classList.add('homeRecommendedWorks');
+                    sectionList[2].parentElement.classList.add('homeRecommendedWorksParent');
+                    const ul = sectionList[2].querySelector('ul');
+                    ul.classList.add('homeRecommendedWorksUL');
+                    // 宽度为 1224px 的容器
+                    ul.parentElement.classList.add('homeRecommendedWorksULWrapper');
+                }
+            }
+            // 查找“正在举办的比赛”
+            const testA = document.querySelector('section li a[href*="/contest"]');
+            if (testA) {
+                // 查找这个章节，然后查找显示的几张图片的 UL 元素
+                const wrapper = testA.closest('section');
+                const ul = wrapper?.querySelector('ul');
+                ul?.classList.add('contestWorksUL');
+            }
+            // 在新版首页里，额外查找 推荐作品
+            if (sectionList[2] &&
+                ['/', '/en/', '/illustration'].includes(window.location.pathname)) {
+                const allLi = sectionList[2].querySelectorAll('ul li');
+                if (allLi.length > 1) {
+                    sectionList[2].classList.add('homeRecommendedWorks');
+                    sectionList[2].parentElement.classList.add('homeRecommendedWorksParent');
+                    // 并且需要查找里面的小说作品，然后找到其 li 元素。
+                    // 这样可以给小说的 li 添加 width:100%，否则小说的宽度就是原本的样子，和大图片的视觉效果不一致
+                    allLi.forEach((li) => {
+                        if (li.querySelector('a[href^="/novel"]')) {
+                            li.classList.add('novelLI');
+                        }
+                    });
+                    // 推荐作品里，最前面两个 li 元素可能是空的，也可能有个含有 iframe 的元素。
+                    // 当下载器把 ul 设置为 display: flex; 之后，需要移除这些元素，否则它们会占据一些宽度
+                    allLi.forEach((li) => {
+                        if (li.childElementCount === 0) {
+                            li.remove();
+                        }
+                        const iframe = li.querySelector('iframe');
+                        if (iframe) {
+                            iframe.remove();
+                        }
+                    });
+                }
             }
         }
-        // 在新版首页里，额外查找 推荐作品
-        if (sectionList[2] &&
-            ['/', '/en/', '/illustration'].includes(window.location.pathname)) {
-            const allLi = sectionList[2].querySelectorAll('ul li');
-            if (allLi.length > 1) {
-                sectionList[2].classList.add('homeRecommendedWorks');
-                // 并且需要查找里面的小说作品，然后找到其 li 元素。
-                // 这样可以给小说的 li 添加 width:100%，否则小说的宽度就是原本的样子，和大图片的视觉效果不一致
-                allLi.forEach((li) => {
-                    if (li.querySelector('a[href^="/novel"]')) {
-                        li.classList.add('novelLI');
+        // 画师主页
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.UserHome) {
+            // 查找“插画·漫画”的父级 div（宽度为 1224px 的那个）
+            const li = document.querySelector('li[size="1"]');
+            if (li) {
+                const target = li.parentElement.parentElement;
+                if (target.nodeName === 'DIV') {
+                    target.classList.add('userHomeWrapper');
+                    this.needFind = false;
+                }
+            }
+            // 查找精选作品
+            const allFeatured = document.querySelectorAll('div[width="288"]');
+            for (const div of allFeatured) {
+                // 每个精选作品的内容分为左右两部分，左侧是缩略图，右侧是作品信息
+                // 区分左右，并查找其父元素 li
+                div.parentElement.classList.add('featuredLeft');
+                div.parentElement.nextElementSibling.classList.add('featuredRight');
+                const li = div.closest('li');
+                if (li) {
+                    li.classList.add('featuredLI');
+                    // 查找有很大 padding 的父元素
+                    li.closest('div').classList.add('featuredPadding');
+                }
+            }
+            // 查找作品列表上方的 tag 列表
+            const a = document.querySelector('a[status="normal"]');
+            if (a) {
+                a.parentElement.parentElement.parentElement.classList.add('userHomeTagList');
+            }
+        }
+        //  收藏页面
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Bookmark) {
+            // 查找宽度为 1224px 的父元素
+            // 首先查找 li[size="1"]，并且需要判断里面的链接是 illust，而非 novel
+            const li = document.querySelector('li[size="1"]');
+            if (li) {
+                const illustLink = li.querySelector('a[href^="/artworks/"]');
+                if (!illustLink) {
+                    return;
+                }
+                li.parentElement.classList.add('worksUL');
+                li.parentElement.parentElement.classList.add('worksWrapper');
+                this.needFind = false;
+            }
+            // 查找“主页、插画、漫画、收藏”一栏的导航栏
+            const nav = document.querySelector('nav');
+            nav?.parentElement.classList.add('navBar');
+        }
+        //  搜索页面、Tag 页面
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.ArtworkSearch) {
+            // 查找作品列表的 UL 元素，将其从 grid 布局改为 flex 布局
+            // 在 tag 首页，可能有两个作品缩略图区域，第一个是“热门作品”，第二个才是普通的作品列表
+            const ulList = document.querySelectorAll('section ul');
+            for (const ul of ulList) {
+                if (ul.querySelector('div[width="184"]')) {
+                    ul.classList.add('worksUL');
+                    this.needFind = false;
+                }
+            }
+        }
+        // 已关注用户的新作品
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.NewArtworkBookmark) {
+            if (window.location.pathname.includes('/novel') === false) {
+                // 查找 UL 的父级 div（宽度为 1224px 的那个）
+                const li = document.querySelector('li[size="1"]');
+                if (li) {
+                    li.parentElement.classList.add('worksUL');
+                    const target = li.parentElement.parentElement;
+                    if (target.nodeName === 'DIV') {
+                        target.classList.add('worksWrapper');
+                        this.needFind = false;
                     }
-                });
-                // 推荐作品里，最前面两个 li 元素可能是空的，也可能有个含有 iframe 的元素。
-                // 当下载器把 ul 设置为 display: flex; 之后，需要移除这些元素，否则它们会占据一些宽度
-                allLi.forEach((li) => {
-                    if (li.childElementCount === 0) {
-                        li.remove();
-                    }
-                    const iframe = li.querySelector('iframe');
-                    if (iframe) {
-                        iframe.remove();
-                    }
-                });
+                }
+            }
+        }
+        //  发现页面
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Discover) {
+            // 查找作品列表的 UL 元素
+            // 因为会有多个板块，所以需要多次查找
+            const ulList = document.querySelectorAll('ul');
+            for (const ul of ulList) {
+                if (ul.querySelector('div[type="illust"]')) {
+                    ul.classList.add('worksUL');
+                    this.needFind = false;
+                }
+            }
+            // 收藏作品后出现的“相关作品”区域
+            // 寻找作品列表 ul 元素的上、下 div 元素，左侧是占位符，右侧是遮罩
+            const els = document.querySelectorAll('ul + div');
+            els.forEach((div) => {
+                div.parentElement.classList.add('ul-father');
+            });
+        }
+        //  发现用户页面
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.DiscoverUsers) {
+            // 查找宽度为 1224px 的容器的父元素，解除它的所有直接子元素的宽度限制
+            const els = document.querySelectorAll('.bg-background1');
+            const name = 'wrapperwrapper';
+            // 先把所有符合条件的都移除目标 className，再对最后一个添加目标 className
+            els.forEach((el) => el.classList.remove(name));
+            els[els.length - 1].classList.add(name);
+            // 查找作品列表的 UL 元素
+            // 因为会有多个板块，所以需要多次查找
+            const ulList = document.querySelectorAll('ul');
+            for (const ul of ulList) {
+                const work = ul.querySelector('div[type="illust"]');
+                if (work) {
+                    const ul = work.closest('ul');
+                    ul?.classList.add('worksUL');
+                    this.needFind = false;
+                }
             }
         }
     }
@@ -8427,20 +8582,14 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.6.0';
+        this.flag = '17.6.1';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
-      <span>💡${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_为下载器的设置项添加了更多提示')}</span>
-      <br>
-      <br>
-      <span>🗑️${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_移除设置项')}${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_添加命名标记前缀')}</span>
-      <br>
-      <br>
-      <span>🗑️${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_移除设置项')}${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_隐藏浏览器底部的下载栏')}</span>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
       `;
             // <strong>
             // <span>✨${lang.transl('_新增设置项')}:</span>
@@ -9592,7 +9741,7 @@ class Tools {
         }
         return false;
     }
-    // 在小说页面，以及某些特定页面里，不启用"显示更大的缩略图"和“横图占用二倍宽度”功能
+    // 在小说页面，以及某些特定页面里，不启用"显示更大的缩略图"功能
     static notEnabledShowLargerThumb() {
         if (window.location.pathname.includes('/novel') ||
             window.location.hostname.includes('pixivision.net')) {
@@ -14127,10 +14276,10 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
             return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_本次操作已取消'));
         }
         // 提示抓取范围，便于用户分批次抓取的时候查看
+        // 这里使用的是一个单独的元素，而非在日志里输出。因为日志区域可能会被清空，导致提示消失
         const tip = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取id区间') + `: ${start} - ${end}`;
         this.idRangeTip.textContent = tip;
         this.idRangeTip.style.display = 'block';
-        // 不要在这里使用 log.log ，因为之后开始抓取时，日志区域会被清空，所以用户在日志区域里看不到这个提示
         // 生成 id 列表
         const ids = [];
         while (start <= end) {
@@ -14150,7 +14299,32 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         }
         _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('crawlIdList', idList);
     }
+    async awaitClickBtn() {
+        return new Promise((resolve) => {
+            // 显示提示信息
+            const msgWrap = _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入ID列表的说明'), {
+                title: _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入ID列表'),
+            });
+            const content = msgWrap.querySelector('.content');
+            content.innerHTML = content.innerHTML + '<br><br>';
+            // 添加一个按钮并等待点击
+            const btn = document.createElement('button');
+            btn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_选择文件');
+            btn.setAttribute('style', `border: revert; background-color: revert;`);
+            content.append(btn);
+            btn.addEventListener('click', () => {
+                resolve();
+                msgWrap.remove();
+            });
+        });
+    }
     async importIDList() {
+        _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('closeCenterPanel');
+        await this.awaitClickBtn();
+        if (_store_States__WEBPACK_IMPORTED_MODULE_13__.states.busy) {
+            _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
+            return;
+        }
         const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.loadJSONFile().catch((err) => {
             return _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.error(err);
         }));
@@ -14171,6 +14345,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         }
         _Log__WEBPACK_IMPORTED_MODULE_12__.log.success('✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入ID列表'));
         _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.reset();
+        this.finishedRequest = 0;
         _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.idList = loadedJSON;
         this.crawlImportIDList();
     }
@@ -22286,13 +22461,13 @@ class WorkPublishTime {
     bindEvents() {
         // 获取图像作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 130590000
-            this.crawlData(129420000, 130595730);
+            // 上次记录到 131220000
+            this.crawlData(130600000, 131229053);
         });
         // 获取小说作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 24820000
-            this.crawlData(24560000, 24820164, 'novels');
+            // 上次记录到 24970000
+            this.crawlData(24830000, 24972432, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -23635,9 +23810,9 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     <br><br>
     梯子推荐：
     <br>
-    如果你需要一个机场（梯子）的话，可以试试我现在用的机场：魔法喵 <a href="https://magicm.cc/#/register?code=GYjQWDob" title="魔法喵" target="_blank">https://magicm.cc</a>，性价比很高，9.9 元 768 GB 流量（倍率都是 1x），而且速度很快，下载国外网盘的文件时可以跑满我的带宽（70 MB/s）。
+    如果你需要一个机场（梯子）的话，可以试试我现在用的机场：魔法喵 <a href="https://mofacgb.cc/register?code=GYjQWDob" title="魔法喵" target="_blank">https://mofacgb.cc</a>，性价比很高，9.9 元 768 GB 流量（倍率都是 1x），而且下载速度很快（下载速率上限是 800 Mbps）。下载 Pixiv、Fanbox 的文件建议使用“日本 2”节点。
     <br>
-    如果上面的网址打不开，可以访问地址发布页：<a href="https://magicm.click" title="魔法喵" target="_blank">https://magicm.click</a>
+    如果上面的网址打不开，可以访问地址发布页：<a href="https://mofmiao.com" title="魔法喵" target="_blank">https://mofmiao.com</a>
     <br>
     你也可以查看我写的使用体验：<a href="https://saber.love/?p=12736" title="魔法喵使用体验" target="_blank">魔法喵使用体验</a>
     <br>
@@ -26192,14 +26367,6 @@ Novel folder name: Novel`,
         'Pixiv의 기본 썸네일은 비교적 작고, 다운로더는 더 큰 썸네일을 표시하여 더 쉽게 미리 볼 수 있습니다.<br>이 기능은 그다지 안정적이지 않습니다. Pixiv의 코드 업데이트로 인해 이 기능이 부분적으로 실패할 수 있기 때문입니다.',
         'Миниатюры Pixiv по умолчанию относительно небольшие, а загрузчик может отображать более крупные миниатюры для более удобного предварительного просмотра.<br>Эта функция не очень стабильна, поскольку обновления кода Pixiv могут привести к частичному сбою этой функции.',
     ],
-    _横图占用二倍宽度: [
-        '横图占用二倍宽度',
-        '橫圖佔用二倍寬度',
-        'Horizontal image takes up double the width',
-        '水平方向の画像は幅の2倍を占めます',
-        '가로 그림은 두 배의 너비를 차지',
-        'Горизонтальное изображение занимает вдвое большую ширину',
-    ],
     _该功能默认启用: [
         '这个功能默认启用。',
         '這個功能預設啟用。',
@@ -27144,6 +27311,67 @@ Novel folder name: Novel`,
         'インポートIDリスト',
         'ID 목록 가져오기',
         'Список идентификаторов импорта',
+    ],
+    _导入ID列表的说明: [
+        `请选择一个 JSON 文件。它的代码格式如下：
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type 可以是 "illusts" 或 "novel"。`,
+        `請選擇一個 JSON 檔案。它的程式碼格式如下：<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type 可以是 "illusts" 或 "novel"。`,
+        `Please select a JSON file. Its code format is as follows:
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type can be "illusts" or "novel".`,
+        `JSONファイルを選択してください。コード形式は次のとおりです。
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type は "illusts" または "novel" です。`,
+        `JSON 파일을 선택하세요. 코드 형식은 다음과 같습니다.
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type 은 "illusts" 또는 "novel"이 될 수 있습니다.`,
+        `Пожалуйста, выберите файл JSON. Формат его кода следующий:
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type может быть "illusts" или "novel".`,
     ],
     _导出ID列表: [
         '获取作品 ID 列表后导出 <span class="key">ID 列表</span>，并停止任务',
@@ -46854,6 +47082,69 @@ const illustsData = [
     [130570001, 1747596240000],
     [130580000, 1747633920000],
     [130590000, 1747655820000],
+    [130600000, 1747670220000],
+    [130610000, 1747706400000],
+    [130620000, 1747735200000],
+    [130630001, 1747750680000],
+    [130640000, 1747777560000],
+    [130650000, 1747813140000],
+    [130660002, 1747831680000],
+    [130670000, 1747847520000],
+    [130680000, 1747887420000],
+    [130690000, 1747913040000],
+    [130700000, 1747927800000],
+    [130710000, 1747963020000],
+    [130720000, 1747993680000],
+    [130730000, 1748009040000],
+    [130740000, 1748031840000],
+    [130750000, 1748061900000],
+    [130760001, 1748082600000],
+    [130770000, 1748096400000],
+    [130780000, 1748118060000],
+    [130790000, 1748147400000],
+    [130800000, 1748166120000],
+    [130810000, 1748179380000],
+    [130820000, 1748194260000],
+    [130830000, 1748231220000],
+    [130840000, 1748256840000],
+    [130850000, 1748271300000],
+    [130860001, 1748300400000],
+    [130870001, 1748335260000],
+    [130880000, 1748351460000],
+    [130890000, 1748368380000],
+    [130900000, 1748406960000],
+    [130910000, 1748431200000],
+    [130920000, 1748444820000],
+    [130930000, 1748476800000],
+    [130940000, 1748509200000],
+    [130950000, 1748524680000],
+    [130960000, 1748543160000],
+    [130970000, 1748581380000],
+    [130980001, 1748603880000],
+    [130990000, 1748617260000],
+    [131000000, 1748645700000],
+    [131010000, 1748670960000],
+    [131020000, 1748689080000],
+    [131030000, 1748701920000],
+    [131040000, 1748720400000],
+    [131050000, 1748748840000],
+    [131060000, 1748768280000],
+    [131070000, 1748781420000],
+    [131080000, 1748793600000],
+    [131090001, 1748828220000],
+    [131100000, 1748856600000],
+    [131110000, 1748871240000],
+    [131120000, 1748889960000],
+    [131130001, 1748926680000],
+    [131140000, 1748949360000],
+    [131150000, 1748962920000],
+    [131160000, 1748993400000],
+    [131170001, 1749026940000],
+    [131180000, 1749042420000],
+    [131190000, 1749058740000],
+    [131200000, 1749097140000],
+    [131210000, 1749121920000],
+    [131220000, 1749135960000],
 ];
 
 
@@ -49353,6 +49644,21 @@ const novelData = [
     [24800000, 1747480215000],
     [24810000, 1747569547000],
     [24820000, 1747663152000],
+    [24830000, 1747767341000],
+    [24840002, 1747896380000],
+    [24850000, 1748002544000],
+    [24860001, 1748093834000],
+    [24870000, 1748178344000],
+    [24880000, 1748271184000],
+    [24890002, 1748384982000],
+    [24900000, 1748496150000],
+    [24910002, 1748597783000],
+    [24920001, 1748687094000],
+    [24930001, 1748769266000],
+    [24940000, 1748859574000],
+    [24950000, 1748950535000],
+    [24960000, 1749042637000],
+    [24970000, 1749134229000],
 ];
 
 

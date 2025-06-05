@@ -199,10 +199,10 @@ class InitHomePage extends InitPageBase {
     }
 
     // 提示抓取范围，便于用户分批次抓取的时候查看
+    // 这里使用的是一个单独的元素，而非在日志里输出。因为日志区域可能会被清空，导致提示消失
     const tip = lang.transl('_抓取id区间') + `: ${start} - ${end}`
     this.idRangeTip.textContent = tip
     this.idRangeTip.style.display = 'block'
-    // 不要在这里使用 log.log ，因为之后开始抓取时，日志区域会被清空，所以用户在日志区域里看不到这个提示
 
     // 生成 id 列表
     const ids: string[] = []
@@ -227,7 +227,38 @@ class InitHomePage extends InitPageBase {
     EVT.fire('crawlIdList', idList)
   }
 
+  private async awaitClickBtn(): Promise<void> {
+    return new Promise((resolve) => {
+      // 显示提示信息
+      const msgWrap = msgBox.show(lang.transl('_导入ID列表的说明'), {
+        title: lang.transl('_导入ID列表'),
+      })
+      const content = msgWrap.querySelector('.content') as HTMLDivElement
+      content.innerHTML = content.innerHTML + '<br><br>'
+
+      // 添加一个按钮并等待点击
+      const btn = document.createElement('button')
+      btn.textContent = lang.transl('_选择文件')
+      btn.setAttribute('style', `border: revert; background-color: revert;`)
+      content.append(btn)
+
+      btn.addEventListener('click', () => {
+        resolve()
+        msgWrap.remove()
+      })
+    })
+  }
+
   private async importIDList() {
+    EVT.fire('closeCenterPanel')
+
+    await this.awaitClickBtn()
+
+    if (states.busy) {
+      toast.error(lang.transl('_当前任务尚未完成'))
+      return
+    }
+
     const loadedJSON = (await Utils.loadJSONFile().catch((err) => {
       return msgBox.error(err)
     })) as IDData[]
@@ -252,6 +283,8 @@ class InitHomePage extends InitPageBase {
     log.success('✓ ' + lang.transl('_导入ID列表'))
 
     store.reset()
+
+    this.finishedRequest = 0
 
     store.idList = loadedJSON
 
