@@ -508,7 +508,7 @@ class Tools {
     return false
   }
 
-  // 在小说页面，以及某些特定页面里，不启用"显示更大的缩略图"和“横图占用二倍宽度”功能
+  // 在小说页面，以及某些特定页面里，不启用"显示更大的缩略图"功能
   static notEnabledShowLargerThumb() {
     if (
       window.location.pathname.includes('/novel') ||

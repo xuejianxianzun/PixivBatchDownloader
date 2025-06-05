@@ -1270,9 +1270,9 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     <br><br>
     梯子推荐：
     <br>
-    如果你需要一个机场（梯子）的话，可以试试我现在用的机场：魔法喵 <a href="https://magicm.cc/#/register?code=GYjQWDob" title="魔法喵" target="_blank">https://magicm.cc</a>，性价比很高，9.9 元 768 GB 流量（倍率都是 1x），而且速度很快，下载国外网盘的文件时可以跑满我的带宽（70 MB/s）。
+    如果你需要一个机场（梯子）的话，可以试试我现在用的机场：魔法喵 <a href="https://mofacgb.cc/register?code=GYjQWDob" title="魔法喵" target="_blank">https://mofacgb.cc</a>，性价比很高，9.9 元 768 GB 流量（倍率都是 1x），而且下载速度很快（下载速率上限是 800 Mbps）。下载 Pixiv、Fanbox 的文件建议使用“日本 2”节点。
     <br>
-    如果上面的网址打不开，可以访问地址发布页：<a href="https://magicm.click" title="魔法喵" target="_blank">https://magicm.click</a>
+    如果上面的网址打不开，可以访问地址发布页：<a href="https://mofmiao.com" title="魔法喵" target="_blank">https://mofmiao.com</a>
     <br>
     你也可以查看我写的使用体验：<a href="https://saber.love/?p=12736" title="魔法喵使用体验" target="_blank">魔法喵使用体验</a>
     <br>
@@ -3827,15 +3827,6 @@ Novel folder name: Novel`,
     'Pixiv의 기본 썸네일은 비교적 작고, 다운로더는 더 큰 썸네일을 표시하여 더 쉽게 미리 볼 수 있습니다.<br>이 기능은 그다지 안정적이지 않습니다. Pixiv의 코드 업데이트로 인해 이 기능이 부분적으로 실패할 수 있기 때문입니다.',
     'Миниатюры Pixiv по умолчанию относительно небольшие, а загрузчик может отображать более крупные миниатюры для более удобного предварительного просмотра.<br>Эта функция не очень стабильна, поскольку обновления кода Pixiv могут привести к частичному сбою этой функции.',
   ],
-
-  _横图占用二倍宽度: [
-    '横图占用二倍宽度',
-    '橫圖佔用二倍寬度',
-    'Horizontal image takes up double the width',
-    '水平方向の画像は幅の2倍を占めます',
-    '가로 그림은 두 배의 너비를 차지',
-    'Горизонтальное изображение занимает вдвое большую ширину',
-  ],
   _该功能默认启用: [
     '这个功能默认启用。',
     '這個功能預設啟用。',
@@ -4780,6 +4771,67 @@ Novel folder name: Novel`,
     'インポートIDリスト',
     'ID 목록 가져오기',
     'Список идентификаторов импорта',
+  ],
+  _导入ID列表的说明: [
+    `请选择一个 JSON 文件。它的代码格式如下：
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type 可以是 "illusts" 或 "novel"。`,
+    `請選擇一個 JSON 檔案。它的程式碼格式如下：<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type 可以是 "illusts" 或 "novel"。`,
+    `Please select a JSON file. Its code format is as follows:
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type can be "illusts" or "novel".`,
+    `JSONファイルを選択してください。コード形式は次のとおりです。
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type は "illusts" または "novel" です。`,
+    `JSON 파일을 선택하세요. 코드 형식은 다음과 같습니다.
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type 은 "illusts" 또는 "novel"이 될 수 있습니다.`,
+    `Пожалуйста, выберите файл JSON. Формат его кода следующий:
+<pre>
+[
+  { "id": "130827095", "type": "illusts" },
+  { "id": "130816057", "type": "illusts" },
+  { "id": "130811075", "type": "novel" },
+  { "id": "130808918", "type": "novel" }
+]
+</pre>
+type может быть "illusts" или "novel".`,
   ],
   _导出ID列表: [
     '获取作品 ID 列表后导出 <span class="key">ID 列表</span>，并停止任务',

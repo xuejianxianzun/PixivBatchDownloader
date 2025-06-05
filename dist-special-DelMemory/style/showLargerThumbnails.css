@@ -5,6 +5,9 @@ ul li div[data-mouseover] a img {
   height: auto !important;
   max-height: 540px;
 }
+ul li div[data-mouseover][size='131'] a img {
+  max-width: 100%;
+}
 body[data-page-type='-1'] .cwAKCq {
   width: auto;
 }
@@ -110,7 +113,8 @@ body[data-page-type='0'] .homeFriendsNewWorks ul > li > div > div {
   display: flex !important;
   flex-direction: column !important;
 }
-body[data-page-type='0'] .homeRecommendedWorksParent {
+body[data-page-type='0'] .homeRecommendedWorksParent,
+body[data-page-type='0'] .homeRecommendedWorksULWrapper {
   width: 92vw;
 }
 body[data-page-type='0'] .homeRecommendedWorks ul > li {
@@ -139,6 +143,10 @@ body[data-page-type='0'] .jexggF {
   width: auto !important;
   max-width: 540px;
   max-height: 600px;
+}
+body[data-page-type='0'] .contestWorksUL > div > div {
+  width: auto !important;
+  height: auto !important;
 }
 body[data-page-type='1'] {
   /* img */
@@ -184,14 +192,16 @@ body[data-page-type='2'] {
   /* 主页、插画、收藏 一栏取消宽度限制 */
   /* 作品列表顶部的 tag 列表取消宽度限制 */
   /* 精选作品的标题栏取消宽度限制 */
-  /* 画师顶部三个精选作品 */
   /* img */
   /* div[width="184"] a div img */
 }
+body[data-page-type='2'] .navBar,
+body[data-page-type='2'] .userHomeTagList,
+body[data-page-type='2'] .userHomeWrapper,
+body[data-page-type='2'] .mdzxv,
 body[data-page-type='2'] .gqvfWY,
 body[data-page-type='2'] .eVpyzU,
 body[data-page-type='2'] .dBbGoM,
-body[data-page-type='2'] .gqvfWY,
 body[data-page-type='2'] .cABUbk,
 body[data-page-type='2'] .leKCEy,
 body[data-page-type='2'] .pGIKk,
@@ -202,7 +212,6 @@ body[data-page-type='2'] .eVpyzU {
 }
 body[data-page-type='2'] div[width='288'],
 body[data-page-type='2'] .kXjhXr,
-body[data-page-type='2'] .hxfsRR,
 body[data-page-type='2'] .jRyeAs {
   width: 100%;
   height: 100%;
@@ -210,11 +219,18 @@ body[data-page-type='2'] .jRyeAs {
 body[data-page-type='2'] .dizBQv {
   padding: 0;
 }
-body[data-page-type='2'] .hxfsRR,
-body[data-page-type='2'] .jRyeAs {
+body[data-page-type='2'] .featuredPadding {
+  padding: 0 72px;
+}
+body[data-page-type='2'] .featuredLI > div {
   flex-direction: column;
   align-items: start;
   max-width: 540px;
+  width: auto;
+  height: auto;
+}
+body[data-page-type='2'] .bgPpJb {
+  width: auto !important;
 }
 body[data-page-type='2'] .iHrRmI,
 body[data-page-type='2'] .jtUPOE,
@@ -224,13 +240,6 @@ body[data-page-type='2'] .gmoaNn {
 body[data-page-type='2'] .fKsmTC,
 body[data-page-type='2'] .gYUunk {
   width: 92vw;
-}
-body[data-page-type='2'] .jUPNzm,
-body[data-page-type='2'] .wJpxo {
-  padding: 0 72px;
-}
-body[data-page-type='2'] .bgPpJb {
-  width: auto !important;
 }
 body[data-page-type='2'] .buGhFj {
   display: flex;
@@ -242,6 +251,7 @@ body[data-page-type='2'] .jELUak {
 body[data-page-type='2'] li[size='1'],
 body[data-page-type='2'] li[size='1'] > div {
   width: auto !important;
+  max-width: 540px;
 }
 body[data-page-type='2'] div[width='184'] {
   width: auto !important;
@@ -261,6 +271,8 @@ body[data-page-type='4'] {
   /* img */
   /* div[width="184"] a div img */
 }
+body[data-page-type='4'] .worksWrapper,
+body[data-page-type='4'] .navBar,
 body[data-page-type='4'] .gqvfWY,
 body[data-page-type='4'] .bYCbxa,
 body[data-page-type='4'] .eVpyzU,
@@ -296,6 +308,7 @@ body[data-page-type='5'] {
   /* div[width="184"] a div img */
   /* 下载器预览搜索结果时添加的列表元素 */
 }
+body[data-page-type='5'] .worksWrapper,
 body[data-page-type='5'] .gqvfWY,
 body[data-page-type='5'] .bYCbxa,
 body[data-page-type='5'] .hbpcMJ {
@@ -311,16 +324,15 @@ body[data-page-type='5'] .dizBQv {
   max-width: 92vw;
   min-width: unset;
 }
-body[data-page-type='5'] .iwHaa-d {
+body[data-page-type='5'] .worksUL {
   display: flex;
   align-items: center;
 }
-body[data-page-type='5'] .iwHaa-d > li,
-body[data-page-type='5'] .iwHaa-d > li > div {
+body[data-page-type='5'] .worksUL > li,
+body[data-page-type='5'] .worksUL > li > div {
   width: auto !important;
 }
-body[data-page-type='5'] div[width='184'],
-body[data-page-type='5'] .liyNwX {
+body[data-page-type='5'] div[width='184'] {
   width: auto !important;
   height: auto !important;
 }
@@ -328,6 +340,14 @@ body[data-page-type='5'] div[width='184'] a div img {
   width: auto !important;
   height: auto !important;
   max-height: 540px;
+}
+body[data-page-type='5'] aside ul {
+  mask: unset;
+}
+body[data-page-type='5'] aside li > div,
+body[data-page-type='5'] div[width='104'] {
+  width: auto !important;
+  height: auto !important;
 }
 body[data-page-type='5'] #workListWrap {
   display: flex;
@@ -403,26 +423,21 @@ body[data-page-type='10'] {
   /* img */
   /* div[width="184"] a div img */
 }
+body[data-page-type='10'] .worksWrapper,
 body[data-page-type='10'] .gqvfWY,
 body[data-page-type='10'] .bYCbxa,
 body[data-page-type='10'] .cwAKCq {
   width: 92vw;
 }
-body[data-page-type='10'] .bgPpJb {
-  width: 100% !important;
-}
-body[data-page-type='10'] .jELUak,
-body[data-page-type='10'] .jtUPOE {
+body[data-page-type='10'] .worksUL {
   display: flex;
   align-items: center;
 }
-body[data-page-type='10'] .jELUak > li,
-body[data-page-type='10'] .jELUak > li > div,
-body[data-page-type='10'] .JaPty {
+body[data-page-type='10'] .worksUL > li,
+body[data-page-type='10'] .worksUL > li > div {
   width: auto !important;
 }
-body[data-page-type='10'] div[width='184'],
-body[data-page-type='10'] .liyNwX {
+body[data-page-type='10'] div[width='184'] {
   width: auto !important;
   height: auto !important;
 }
@@ -439,14 +454,15 @@ body[data-page-type='11'] .YXoqY,
 body[data-page-type='11'] .ldgmym {
   width: 92vw;
 }
+body[data-page-type='11'] .worksUL,
 body[data-page-type='11'] .fhUcsb,
 body[data-page-type='11'] .iXWLAI {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
 }
-body[data-page-type='11'] .iXWLAI > li,
-body[data-page-type='11'] .iXWLAI > li > div {
+body[data-page-type='11'] .worksUL li,
+body[data-page-type='11'] .worksUL li > div {
   width: auto !important;
 }
 body[data-page-type='11'] div[size='184'],
@@ -459,21 +475,25 @@ body[data-page-type='11'] div[size='184'] a div img {
   height: auto !important;
   max-height: 540px;
 }
+body[data-page-type='11'] .ul-father,
 body[data-page-type='11'] .bZWHGA {
   mask-image: unset !important;
+  padding: 0 60px;
 }
-body[data-page-type='11'] .bQUZAm {
-  width: 100px;
+body[data-page-type='11'] .ul-father > div {
+  display: none;
 }
+body[data-page-type='11'] .worksUL,
 body[data-page-type='11'] .dHJLGd {
   display: flex;
   flex-wrap: wrap;
   width: 94vw;
 }
+body[data-page-type='11'] .worksUL li,
 body[data-page-type='11'] .foiHAA {
   margin-bottom: 24px;
 }
-body[data-page-type='11'] .hUitRq {
+body[data-page-type='11'] .worksUL li > div {
   width: auto !important;
 }
 body[data-page-type='12'] {
@@ -556,9 +576,7 @@ body[data-page-type='21'] .bFEhwX {
   height: auto !important;
   max-height: 540px;
 }
-body[data-page-type='23'] {
-  /* img */
-}
+body[data-page-type='23'] .wrapperwrapper > div,
 body[data-page-type='23'] .ldgmym,
 body[data-page-type='23'] .bYCbxa {
   width: 92vw;
@@ -566,20 +584,14 @@ body[data-page-type='23'] .bYCbxa {
 body[data-page-type='23'] .hSrLET {
   width: auto !important;
 }
-body[data-page-type='23'] .gLWzLO {
+body[data-page-type='23'] .worksUL {
   align-items: center;
   max-width: 70vw;
   overflow: auto;
   padding-right: 0 !important;
 }
-body[data-page-type='23'] .hUitRq,
-body[data-page-type='23'] .hUitRq > div,
-body[data-page-type='23'] .hUitRq > div > div {
+body[data-page-type='23'] .worksUL > div > div > div,
+body[data-page-type='23'] div[type='illust'] > div {
   width: auto !important;
   height: auto !important;
-}
-body[data-page-type='23'] .leoqXH {
-  width: auto !important;
-  height: auto !important;
-  max-height: 540px;
 }
