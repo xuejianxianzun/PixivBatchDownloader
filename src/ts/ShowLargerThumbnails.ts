@@ -127,7 +127,7 @@ class ShowLargerThumbnails {
 
       // 查找“正在举办的比赛”
       const testA = document.querySelector('section li a[href*="/contest"]')
-      if(testA){
+      if (testA) {
         // 查找这个章节，然后查找显示的几张图片的 UL 元素
         const wrapper = testA.closest('section')
         const ul = wrapper?.querySelector('ul')
@@ -272,7 +272,7 @@ class ShowLargerThumbnails {
       // 收藏作品后出现的“相关作品”区域
       // 寻找作品列表 ul 元素的上、下 div 元素，左侧是占位符，右侧是遮罩
       const els = document.querySelectorAll('ul + div')
-      els.forEach(div => {
+      els.forEach((div) => {
         div.parentElement!.classList.add('ul-father')
       })
     }
@@ -283,7 +283,7 @@ class ShowLargerThumbnails {
       const els = document.querySelectorAll('.bg-background1')
       const name = 'wrapperwrapper'
       // 先把所有符合条件的都移除目标 className，再对最后一个添加目标 className
-      els.forEach(el => el.classList.remove(name))
+      els.forEach((el) => el.classList.remove(name))
       els[els.length - 1].classList.add(name)
 
       // 查找作品列表的 UL 元素
