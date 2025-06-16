@@ -27674,7 +27674,7 @@ class DisplayThumbnailListOnMultiImageWorkPage {
             wrap.id = this.ID;
             _Theme__WEBPACK_IMPORTED_MODULE_0__.theme.register(wrap);
             wrap.style.display = 'block';
-            target.insertAdjacentElement('beforebegin', wrap);
+            target.insertAdjacentElement('afterbegin', wrap);
         }
     }
 }
