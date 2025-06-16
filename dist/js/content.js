@@ -376,6 +376,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
         }
         else {
             this.selectors = [
+                '#viewerWarpper li',
                 'div[width="136"]',
                 'div[width="131"]',
                 'div[size="131"]',
@@ -413,6 +414,11 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
         // 如果在查找到某个选择器之后，不再查找剩余的选择器，就可能会遗漏一部分缩略图。
         // 但是，这有可能会导致事件的重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
         for (const selector of this.selectors) {
+            // #viewerWarpper li 是下载器在多图作品页面里添加的缩略图列表
+            if (selector === '#viewerWarpper li' &&
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Artwork) {
+                continue;
+            }
             // div[size="184"] 只在 发现 和 发现-推荐用户 和 新版首页 里使用
             if (selector === 'div[size="184"]' &&
                 _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Discover &&
@@ -1326,6 +1332,10 @@ __webpack_require__.r(__webpack_exports__);
 // 定义一些常量
 // 用户不可以修改这里的配置
 class Config {
+    /**检测 ImageViewer 生成的 li 元素，以便其他模块进行一些特殊处理 */
+    static checkImageViewerLI(el) {
+        return el?.classList.contains(this.ImageViewerLI);
+    }
 }
 /**使用输出面板显示内容时，如果文件数量大于这个值，就不再显示内容，而是保存到 txt 文件 */
 Config.outputMax = 5000;
@@ -1347,6 +1357,8 @@ Config.worksNumberLimit = 9999999999;
 Config.retryTime = 200000;
 /**浏览器是否处于移动端模式 */
 Config.mobile = navigator.userAgent.includes('Mobile');
+/**ImageViewer 生成的 li 元素的 className */
+Config.ImageViewerLI = 'xz-thumb-li';
 
 
 
@@ -2710,7 +2722,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
 /* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 /// <reference path = "./ImageViewer.d.ts" />
+
 
 
 
@@ -2832,7 +2846,9 @@ class ImageViewer {
                     // 生成 UL 里面的缩略图列表
                     let html = [];
                     for (let index = 0; index < body.pageCount; index++) {
-                        const str = `<li><img src="${_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.convertThumbURLTo540px(body.urls.thumb.replace('p0', 'p' + index))}" data-src="${this.firstImageURL.replace('p0', 'p' + index)}"></li>`;
+                        const str = `<li data-index="${index}" class="${_Config__WEBPACK_IMPORTED_MODULE_11__.Config.ImageViewerLI}"><img src="${_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.convertThumbURLTo540px(body.urls.thumb.replace('p0', 'p' + index))}" data-src="${this.firstImageURL.replace('p0', 'p' + index)}">
+            <a href="${window.location.href}"></a>
+            </li>`;
                         html.push(str);
                     }
                     this.viewerUl.innerHTML = html.join('');
@@ -4838,7 +4854,8 @@ class PreviewWork {
                     return;
                 }
                 // 显示作品的详细信息
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.PreviewWorkDetailInfo) {
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.PreviewWorkDetailInfo &&
+                    _Config__WEBPACK_IMPORTED_MODULE_15__.Config.checkImageViewerLI(this.workEL) === false) {
                     _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('showPreviewWorkDetailPanel', this.workData);
                 }
                 this.sendURLs();
@@ -4889,6 +4906,11 @@ class PreviewWork {
                 this.show = false;
                 // 设置 index
                 this.index = this.indexHistory[id] || 0;
+            }
+            // 在在多图作品的缩略图列表上触发时，使用 data-index 属性的值作为 index
+            if (_Config__WEBPACK_IMPORTED_MODULE_15__.Config.checkImageViewerLI(el)) {
+                const _index = Number.parseInt(el.dataset.index);
+                this.index = _index;
             }
             this.workId = id;
             this.workEL = el;
@@ -6756,6 +6778,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+
 
 
 
@@ -6812,11 +6836,19 @@ class ShowDownloadBtnOnThumbOnDesktop {
                     type: 'illusts',
                     id: this.currentWorkId,
                 };
+                // 在多图作品的缩略图列表上触发时，获取 data-index 属性的值，只下载这一张图片
+                if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.checkImageViewerLI(this.workEL)) {
+                    const _index = Number.parseInt(this.workEL.dataset.index);
+                    _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.setDownloadOnlyPart(Number.parseInt(this.currentWorkId), [
+                        _index,
+                    ]);
+                }
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [IDData]);
             }
         });
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__.artworkThumbnail.onEnter((el, id) => {
             this.currentWorkId = id;
+            this.workEL = el;
             this.showBtn(el);
         });
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__.artworkThumbnail.onLeave(() => {
@@ -6836,9 +6868,12 @@ class ShowDownloadBtnOnThumbOnDesktop {
                 (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.magnifierPosition === 'left' ? 0 : rect.width - this.btnSize) +
                 'px';
         let top = window.scrollY + rect.top;
-        // 如果显示了放大按钮，就需要加大 top，让下载按钮显示在放大按钮下面
+        // 如果显示了放大按钮，就需要增加 top 值，让下载按钮显示在放大按钮下面
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.magnifier) {
-            top = top + this.btnSize + 8;
+            // 在多图作品的缩略图列表上触发时，下载器不会显示放大按钮，也就不需要增加 top 值
+            if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.checkImageViewerLI(target) === false) {
+                top = top + this.btnSize + 8;
+            }
         }
         this.btn.style.top = top + 'px';
         this.btn.style.display = 'flex';
@@ -6879,6 +6914,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+
+
 
 
 
@@ -6909,6 +6948,11 @@ class ShowDownloadBtnOnThumbOnMobile {
                     type: 'illusts',
                     id: id,
                 };
+                // 在多图作品的缩略图列表上触发时，获取 data-index 属性的值，只下载这一张图片
+                if (_Config__WEBPACK_IMPORTED_MODULE_4__.Config.checkImageViewerLI(el)) {
+                    const _index = Number.parseInt(el.dataset.index);
+                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.setDownloadOnlyPart(Number.parseInt(id), [_index]);
+                }
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [IDData]);
             });
         });
@@ -7887,6 +7931,11 @@ class ShowZoomBtnOnThumb {
             return;
         }
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.magnifier) {
+            return;
+        }
+        // 在多图作品的缩略图列表上触发时，不显示放大镜按钮
+        // 因为点击这些缩略图就会调用图片查看器，这和点击放大镜的功能是相同的
+        if (_Config__WEBPACK_IMPORTED_MODULE_4__.Config.checkImageViewerLI(target)) {
             return;
         }
         window.clearTimeout(this.hiddenBtnTimer);

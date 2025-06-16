@@ -13,6 +13,7 @@ class ArtworkThumbnail extends WorkThumbnail {
       this.selectors = ['.works-item-illust']
     } else {
       this.selectors = [
+        '#viewerWarpper li',
         'div[width="136"]',
         'div[width="131"]',
         'div[size="131"]',
@@ -54,6 +55,14 @@ class ArtworkThumbnail extends WorkThumbnail {
     // 如果在查找到某个选择器之后，不再查找剩余的选择器，就可能会遗漏一部分缩略图。
     // 但是，这有可能会导致事件的重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
     for (const selector of this.selectors) {
+      // #viewerWarpper li 是下载器在多图作品页面里添加的缩略图列表
+      if (
+        selector === '#viewerWarpper li' &&
+        pageType.type !== pageType.list.Artwork
+      ) {
+        continue
+      }
+
       // div[size="184"] 只在 发现 和 发现-推荐用户 和 新版首页 里使用
       if (
         selector === 'div[size="184"]' &&

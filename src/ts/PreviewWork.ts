@@ -105,7 +105,10 @@ class PreviewWork {
         }
 
         // 显示作品的详细信息
-        if (settings.PreviewWorkDetailInfo) {
+        if (
+          settings.PreviewWorkDetailInfo &&
+          Config.checkImageViewerLI(this.workEL) === false
+        ) {
           EVT.fire('showPreviewWorkDetailPanel', this.workData)
         }
 
@@ -168,6 +171,13 @@ class PreviewWork {
         // 设置 index
         this.index = this.indexHistory[id] || 0
       }
+
+      // 在在多图作品的缩略图列表上触发时，使用 data-index 属性的值作为 index
+      if (Config.checkImageViewerLI(el)) {
+        const _index = Number.parseInt(el.dataset!.index!)
+        this.index = _index
+      }
+
       this.workId = id
       this.workEL = el
 
