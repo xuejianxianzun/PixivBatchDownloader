@@ -9,8 +9,9 @@ import { Tools } from '../Tools'
 import { API } from '../API'
 import { log } from '../Log'
 import { Utils } from '../utils/Utils'
-import './CrawlRecommendWorks'
 import { pageType } from '../PageType'
+import './CrawlRecommendWorks'
+import '../pageFunciton/ShowDownloadBtnOnMultiImageWorkPage'
 
 class InitArtworkPage extends InitPageBase {
   constructor() {

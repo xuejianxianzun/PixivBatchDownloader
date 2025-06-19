@@ -216,6 +216,11 @@ body[data-page-type='0'] {
 // Artwork 插画/漫画/动图页面
 // https://www.pixiv.net/artworks/127936646
 body[data-page-type='1'] {
+  // 加宽底部的“相关作品”区域宽度
+  .gtm-illust-recommend-zone > div > div {
+    width: 94vw;
+  }
+
   // 相关作品的 ul 元素
   .gtm-illust-recommend-zone ul,
   .jELUak {
@@ -240,13 +245,6 @@ body[data-page-type='1'] {
     max-width: 1224px;
     margin: 24px auto 0;
     justify-content: center;
-  }
-
-  // 加宽底部的“相关作品”区域宽度
-  .kIrKyI,
-  .bgPpJb,
-  div[data-gtm-recommend-zone='new-illust-detail'] > div > div {
-    width: 94vw;
   }
 
   // ul

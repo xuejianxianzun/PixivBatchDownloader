@@ -9850,9 +9850,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _CrawlRecommendWorks__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./CrawlRecommendWorks */ "./src/ts/crawlArtworkPage/CrawlRecommendWorks.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _CrawlRecommendWorks__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./CrawlRecommendWorks */ "./src/ts/crawlArtworkPage/CrawlRecommendWorks.ts");
+/* harmony import */ var _pageFunciton_ShowDownloadBtnOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../pageFunciton/ShowDownloadBtnOnMultiImageWorkPage */ "./src/ts/pageFunciton/ShowDownloadBtnOnMultiImageWorkPage.ts");
 //初始化 artwork 作品页
+
 
 
 
@@ -9886,7 +9888,7 @@ class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.I
     findArtworkWrap() {
         window.clearInterval(this.timer);
         this.timer = window.setInterval(() => {
-            if (_PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.list.Artwork) {
+            if (_PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_9__.pageType.list.Artwork) {
                 window.clearInterval(this.timer);
                 return;
             }
@@ -28377,6 +28379,136 @@ new SaveUserCover();
 
 /***/ }),
 
+/***/ "./src/ts/pageFunciton/ShowDownloadBtnOnMultiImageWorkPage.ts":
+/*!********************************************************************!*\
+  !*** ./src/ts/pageFunciton/ShowDownloadBtnOnMultiImageWorkPage.ts ***!
+  \********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+
+
+
+
+
+
+// 在多图作品页面里，当用户点击“查看全部”按钮显示所有图片时，在每张图片上显示下载按钮，点击按钮可以下载这张图片
+class ShowDownloadBtnOnMultiImageWorkPage {
+    constructor() {
+        this.flagClassName = 'downloadBtnOnMultiImageWorkPage';
+        this.styleClassName = 'downloadBtnOnThumb';
+        if (_Config__WEBPACK_IMPORTED_MODULE_1__.Config.mobile) {
+            return;
+        }
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.setInterval(() => {
+            this.check();
+        }, 300);
+    }
+    check() {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork) {
+            return;
+        }
+        const AList = this.getAList();
+        if (AList.length > 0) {
+            this.addBtn(AList);
+        }
+    }
+    /**选择包含 img 元素的 a 元素 */
+    getAList() {
+        // 在单图页面里，这个选择器是一直存在的，就是大图区域
+        // 在多图页面里，这个选择器一开始不存在，只有在点击“查看全部”按钮后才有，是每张图片的 a 标签
+        const selector = 'a.gtm-expand-full-size-illust';
+        const AList = document.querySelectorAll(selector);
+        return AList;
+    }
+    addBtn(AList) {
+        AList.forEach((a, index) => {
+            // 如果没有添加过按钮
+            if (a.querySelector(`.${this.flagClassName}`) === null) {
+                // 添加按钮
+                const btn = this.createBtn();
+                if (index === 0) {
+                    btn.style.top = `${this.addFirstBtnOffset()}px`;
+                }
+                a.style.position = 'relative';
+                a.appendChild(btn);
+                // 点击按钮时发送下载任务
+                btn.addEventListener('click', (ev) => {
+                    // 因为 a 被 Pixiv 绑定了事件，点击它会显示大图
+                    // 所以需要阻止按钮的冒泡，否则会触发 a 的事件，导致大图显示
+                    ev.stopPropagation();
+                    ev.preventDefault();
+                    const id = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId();
+                    // 从 a.href 里提取出序号
+                    // https://i.pximg.net/img-original/img/2025/03/14/00/41/16/128179900_p0.png
+                    // 提取结果为 0
+                    const p = a.href.split('_p').pop()?.split('.')[0];
+                    const IDData = {
+                        type: 'illusts',
+                        id,
+                    };
+                    _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.setDownloadOnlyPart(Number.parseInt(id), [
+                        Number.parseInt(p || '0'),
+                    ]);
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [IDData]);
+                }, {
+                    capture: true,
+                    passive: false,
+                });
+            }
+        });
+    }
+    /**判断第一个按钮是否应该下移一定距离。返回值是 top 的数值 */
+    addFirstBtnOffset() {
+        const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.get(_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId());
+        // 单图作品不需要处理。PS：有些漫画也是单图的
+        if (!data || data.body.pageCount === 1) {
+            return 0;
+        }
+        // 对于多图插画作品，由于第一张图片的右上角会显示 Pixiv 原本的图片编号，如 “1/5”，
+        // 所以需要将第一个按钮下移一定距离，避免遮挡住图片编号
+        if (data.body.illustType === 0) {
+            return 34;
+        }
+        // 对于多图漫画作品，如果图片是竖图的话就不会与编号区域重叠，只有横图有可能会重叠
+        // 所以判断是横图的话才需要下移。并且由于漫画展开后的图片编号位置不同，需要下移更多距离
+        // 图片宽度的临界值：
+        // 编号区域的容器宽度最大值是 1224px。当页面宽度不够时，容器宽度会随之缩小
+        // 如果图片宽度接近或达到容器宽度，右侧就会与编号重叠
+        // 但这个临界值不是固定的，我假设页面宽度为 1024px，此时图片宽度为 900px 时就会与编号重叠
+        if (data.body.illustType === 1 && data.body.width > 900 && data.body.width >= data.body.height) {
+            return 60;
+        }
+        return 0;
+    }
+    createBtn() {
+        const btn = document.createElement('button');
+        btn.classList.add(this.flagClassName, this.styleClassName);
+        // 这个按钮复用了 styleClassName 的样式，但需要覆写一些样式
+        btn.style.display = 'flex';
+        btn.style.left = 'unset';
+        btn.style.right = '0';
+        btn.innerHTML = `
+    <svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-download"></use>
+</svg>`;
+        return btn;
+    }
+}
+new ShowDownloadBtnOnMultiImageWorkPage();
+
+
+/***/ }),
+
 /***/ "./src/ts/setting/ConvertOldSettings.ts":
 /*!**********************************************!*\
   !*** ./src/ts/setting/ConvertOldSettings.ts ***!
@@ -32163,8 +32295,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   cacheWorkData: () => (/* binding */ cacheWorkData)
 /* harmony export */ });
 // 本程序有多个模块需要在抓取流程之外获取作品数据
-// 为了避免重复发起请求，以及解决浏览器有时候不读取缓存的问题，所以在这里缓存一些作品数据
-// 即使下载器获取过某个作品的数据，但是以后再次请求时，浏览器也有可能不会读取缓存，而是重新发起请求。
+// 为了避免重复发起请求，所以在这里缓存一些作品数据
+// 还有个原因：即使下载器获取过某个作品的数据，但是以后再次请求时，浏览器也有可能不会读取缓存，而是重新发起请求。使用缓存的数据可以避免重复发起请求
 class CacheWorkData {
     constructor() {
         this.cache = [];

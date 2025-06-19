@@ -1493,7 +1493,7 @@
 .logWrap {
   font-family: win-bug-omega, system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
   position: relative;
-  z-index: 1;
+  z-index: 0;
   width: 100%;
   color: #333;
   background: #fff;
@@ -1676,7 +1676,7 @@ iframe[name='expandedFooter'] {
   display: flex;
   flex-basis: 23%;
   height: 200px;
-  margin: 1%;
+  margin: 1.4% 1%;
   justify-content: center;
   flex-shrink: 0;
 }
