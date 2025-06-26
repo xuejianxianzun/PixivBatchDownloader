@@ -44,14 +44,19 @@ class Log {
   }
 
   private wrap = document.createElement('div') // 日志容器的区域，当日志条数很多时，会产生多个日志容器
-  private activeLogWrapID = 'logWrap'
+  private activeLogWrapID = 'logWrap' // 当前活跃的日志容器的 id，也是最新的一个日志容器
+  private logContent = document.createElement('div') // 日志的主体区域，始终指向最新的那个日志容器内部
   private logWrapClassName = 'logWrap' // 日志容器的类名，只负责样式
   private logWrapFlag = 'logWrapFlag' // 日志容器的标志，当需要查找日志区域时，使用这个类名而不是 logWrap，因为其他元素可能也具有 logWrap 类名，以应用其样式。
-  private logContent = document.createElement('div') // 日志主体区域，这个指针始终指向最新的那个日志容器内部
-  /**会刷新的日志所使用的元素，可以传入 flag 来设置多条用于刷新日志的元素 */
+
+  /**储存会刷新的日志所使用的元素，可以传入 flag 来区分多个刷新区域 */
+  // 每个刷新区域使用一个 span 元素，里面的文本会变化
+  // 通常用于显示进度，例如 0/10, 1/10, 2/10... 10/10
+  // 如果不传入 flag，那么所有的刷新内容会共用 default 的 span 元素
   private refresh: { [key: string]: HTMLElement } = {
     default: document.createElement('span'),
   }
+
   /**不同日志等级的字体颜色 */
   private readonly levelColor = [
     'inherit',
@@ -104,7 +109,8 @@ class Log {
       // 如果页面上的日志条数超过指定数量，则生成一个新的日志区域
       // 因为日志数量太多的话会占用很大的内存。同时显示 8000 条日志可能占用接近 1 GB 的内存
       if (this.count >= this.max) {
-        // 移除 id 属性，下次输出日志时查找不到日志区域，就会新建一个
+        // 移除 id 属性，也就是 this.activeLogWrapID
+        // 下次输出日志时查找不到这个 id，就会新建一个日志区域
         this.wrap.removeAttribute('id')
         this.count = 0
       }
@@ -164,11 +170,10 @@ class Log {
     this.add(str, 3, br, keepShow, refreshFlag)
   }
 
-  /**将刷新的日志元素持久化 */
-  // 刷新区域通常用于显示进度，例如 0/10, 1/10, 2/10... 10/10
-  // 它们使用同一个 span 元素，并且同时只能存在一个刷新区域
-  // 当显示 10/10 的时候，进度就不会再变化了，此时应该将其“持久化”。生成一个新的 span 元素作为新的刷新区域
-  // 这样如果后续又需要显示刷新的元素，不会影响之前已完成“持久化”的日志
+  /**将一条刷新的日志元素持久化 */
+  // 例如当某个进度显示到 10/10 的时候，就不会再变化了，此时应该将其持久化
+  // 其实就是下载器解除了对它的引用，这样它的内容就不会再变化了
+  // 并且下载器会为这个 flag 生成一个新的 span 元素待用
   public persistentRefresh(refreshFlag: string = 'default') {
     this.refresh[refreshFlag] = document.createElement('span')
   }

@@ -3,6 +3,7 @@ import { EVT } from './EVT'
 import { pageType } from './PageType'
 import { settings } from './setting/Settings'
 import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 
 class ShowLargerThumbnails {
   constructor() {
@@ -77,10 +78,8 @@ class ShowLargerThumbnails {
       return
     }
 
-    const el = document.createElement('style')
+    const el = Utils.addStyle(this.css)
     el.id = this.styleId
-    el.innerHTML = this.css
-    document.body.append(el)
   }
 
   private removeStyle() {

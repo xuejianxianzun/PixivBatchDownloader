@@ -473,8 +473,10 @@ abstract class InitPageBase {
           this.afterGetWorksData()
         }
       } else {
-        // 请求失败，没有获得服务器的返回数据，一般都是
+        // 请求失败，一般是
         // TypeError: Failed to fetch
+        // 或者 Failed to load resource: net::ERR_CONNECTION_CLOSED
+        // 对于这种请求没能成功发送的错误，会输出 null
         // 此外这里也会捕获到 save 作品数据时的错误（如果有）
         console.error(error)
 

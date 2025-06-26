@@ -3634,11 +3634,14 @@ __webpack_require__.r(__webpack_exports__);
 class Log {
     constructor() {
         this.wrap = document.createElement('div'); // 日志容器的区域，当日志条数很多时，会产生多个日志容器
-        this.activeLogWrapID = 'logWrap';
+        this.activeLogWrapID = 'logWrap'; // 当前活跃的日志容器的 id，也是最新的一个日志容器
+        this.logContent = document.createElement('div'); // 日志的主体区域，始终指向最新的那个日志容器内部
         this.logWrapClassName = 'logWrap'; // 日志容器的类名，只负责样式
         this.logWrapFlag = 'logWrapFlag'; // 日志容器的标志，当需要查找日志区域时，使用这个类名而不是 logWrap，因为其他元素可能也具有 logWrap 类名，以应用其样式。
-        this.logContent = document.createElement('div'); // 日志主体区域，这个指针始终指向最新的那个日志容器内部
-        /**会刷新的日志所使用的元素，可以传入 flag 来设置多条用于刷新日志的元素 */
+        /**储存会刷新的日志所使用的元素，可以传入 flag 来区分多个刷新区域 */
+        // 每个刷新区域使用一个 span 元素，里面的文本会变化
+        // 通常用于显示进度，例如 0/10, 1/10, 2/10... 10/10
+        // 如果不传入 flag，那么所有的刷新内容会共用 default 的 span 元素
         this.refresh = {
             default: document.createElement('span'),
         };
@@ -3707,7 +3710,8 @@ class Log {
             // 如果页面上的日志条数超过指定数量，则生成一个新的日志区域
             // 因为日志数量太多的话会占用很大的内存。同时显示 8000 条日志可能占用接近 1 GB 的内存
             if (this.count >= this.max) {
-                // 移除 id 属性，下次输出日志时查找不到日志区域，就会新建一个
+                // 移除 id 属性，也就是 this.activeLogWrapID
+                // 下次输出日志时查找不到这个 id，就会新建一个日志区域
                 this.wrap.removeAttribute('id');
                 this.count = 0;
             }
@@ -3737,11 +3741,10 @@ class Log {
     error(str, br = 1, keepShow = true, refreshFlag = 'default') {
         this.add(str, 3, br, keepShow, refreshFlag);
     }
-    /**将刷新的日志元素持久化 */
-    // 刷新区域通常用于显示进度，例如 0/10, 1/10, 2/10... 10/10
-    // 它们使用同一个 span 元素，并且同时只能存在一个刷新区域
-    // 当显示 10/10 的时候，进度就不会再变化了，此时应该将其“持久化”。生成一个新的 span 元素作为新的刷新区域
-    // 这样如果后续又需要显示刷新的元素，不会影响之前已完成“持久化”的日志
+    /**将一条刷新的日志元素持久化 */
+    // 例如当某个进度显示到 10/10 的时候，就不会再变化了，此时应该将其持久化
+    // 其实就是下载器解除了对它的引用，这样它的内容就不会再变化了
+    // 并且下载器会为这个 flag 生成一个新的 span 元素待用
     persistentRefresh(refreshFlag = 'default') {
         this.refresh[refreshFlag] = document.createElement('span');
     }
@@ -7051,6 +7054,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -7115,10 +7120,8 @@ class ShowLargerThumbnails {
         if (document.querySelector('#' + this.styleId)) {
             return;
         }
-        const el = document.createElement('style');
+        const el = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.addStyle(this.css);
         el.id = this.styleId;
-        el.innerHTML = this.css;
-        document.body.append(el);
     }
     removeStyle() {
         const el = document.querySelector('#' + this.styleId);
@@ -15121,8 +15124,10 @@ class InitPageBase {
                 }
             }
             else {
-                // 请求失败，没有获得服务器的返回数据，一般都是
+                // 请求失败，一般是
                 // TypeError: Failed to fetch
+                // 或者 Failed to load resource: net::ERR_CONNECTION_CLOSED
+                // 对于这种请求没能成功发送的错误，会输出 null
                 // 此外这里也会捕获到 save 作品数据时的错误（如果有）
                 console.error(error);
                 // 再次发送这个请求
@@ -49438,9 +49443,10 @@ class Utils {
     }
     // 动态添加 css 样式
     static addStyle(css) {
-        const e = document.createElement('style');
-        e.innerHTML = css;
-        document.body.append(e);
+        const el = document.createElement('style');
+        el.innerHTML = css;
+        document.body.append(el);
+        return el;
     }
     // 加载一个图片，当 onload 事件发生之后返回 img 元素
     static async loadImg(url) {

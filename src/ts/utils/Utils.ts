@@ -249,9 +249,10 @@ class Utils {
 
   // 动态添加 css 样式
   static addStyle(css: string) {
-    const e = document.createElement('style')
-    e.innerHTML = css
-    document.body.append(e)
+    const el = document.createElement('style')
+    el.innerHTML = css
+    document.body.append(el)
+    return el
   }
 
   // 加载一个图片，当 onload 事件发生之后返回 img 元素
