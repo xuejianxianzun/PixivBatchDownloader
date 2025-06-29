@@ -5,6 +5,7 @@ import { pageType } from '../PageType'
 import { store } from '../store/Store'
 import { IDData } from '../store/StoreType'
 import { cacheWorkData } from '../store/CacheWorkData'
+import { settings } from '../setting/Settings'
 
 // 在多图作品页面里，当用户点击“查看全部”按钮显示所有图片时，在每张图片上显示下载按钮，点击按钮可以下载这张图片
 class ShowDownloadBtnOnMultiImageWorkPage {
@@ -130,8 +131,14 @@ class ShowDownloadBtnOnMultiImageWorkPage {
     btn.classList.add(this.flagClassName, this.styleClassName)
     // 这个按钮复用了 styleClassName 的样式，但需要覆写一些样式
     btn.style.display = 'flex'
-    btn.style.left = 'unset'
-    btn.style.right = '0'
+    // 根据“在作品缩略图上显示放大按钮”的位置设置，将按钮显示在左侧或右侧
+    if (settings.magnifierPosition === 'left') {
+      btn.style.left = '0'
+      btn.style.right = 'unset'
+    } else {
+      btn.style.left = 'unset'
+      btn.style.right = '0'
+    }
 
     btn.innerHTML = `
     <svg class="icon" aria-hidden="true">

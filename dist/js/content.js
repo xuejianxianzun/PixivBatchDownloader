@@ -3639,7 +3639,7 @@ class Log {
     constructor() {
         /**每个日志区域显示多少条日志 */
         // 如果日志条数超出最大值，下载器会创建多个日志区域
-        this.max = 10;
+        this.max = 200;
         /**最新的日志区域里的日志条数。刷新的日志不会计入 */
         this.count = 0;
         this.logWrap = document.createElement('div'); // 日志容器的区域，当日志条数很多时，会产生多个日志容器。默认是隐藏的（display: none）
@@ -3660,7 +3660,7 @@ class Log {
         /** 保存日志历史。刷新的日志不会保存 */
         this.record = [];
         this.toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
-        /**日志区域是否显示（即 display:block）。默认是 display:none */
+        /**日志区域是否显示（即 display 为 block 或者 none）*/
         this._show = false;
         /**最新一个日志区域在视口里是否可见。注意这不是判断 display，而是可见性（或者说是交叉状态）。
          * 当它符合可见条件为 true，否则为 false。
@@ -3718,7 +3718,6 @@ class Log {
         }
     }
     set show(value) {
-        this._show = value;
         if (value) {
             // 显示所有日志区域
             this.showAll();
@@ -3729,6 +3728,7 @@ class Log {
             this.hideAll();
             this.logBtnShow = true;
         }
+        this._show = value;
     }
     get show() {
         return this._show;
@@ -3902,10 +3902,9 @@ class Log {
             _Theme__WEBPACK_IMPORTED_MODULE_1__.theme.register(this.logWrap);
             // 虽然可以应用背景图片，但是由于日志区域比较狭长，背景图片的视觉效果不佳，看起来比较粗糙，所以还是不应用背景图片了
             // bg.useBG(this.wrap, 0.9)
-            // 此时的 this.show 是上一个日志区域的显示状态
             // 使新创建的日志区域的显示状态与上一个日志区域保持一致
+            // 如果这就是第一个日志区域，则是默认隐藏的
             this.show = this.show;
-            // 上面创建的 div 元素是 dispaly:none 的，即默认不显示
             // 如果上一个日志区域是显示的，就需要设置 this.show = true 使新的区域也显示
             // 这就是为什么要执行 this.show = this.show
             // 监听新的日志区域的可见性
@@ -3918,6 +3917,7 @@ class Log {
         const allLogWrap = document.querySelectorAll(`.${this.logWrapFlag}`);
         allLogWrap.forEach((wrap) => wrap.remove());
         this.count = 0;
+        this.show = false;
         this.logBtnShow = false;
         this.isVisible = false;
     }
@@ -28585,6 +28585,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+
 
 
 
@@ -28690,8 +28692,15 @@ class ShowDownloadBtnOnMultiImageWorkPage {
         btn.classList.add(this.flagClassName, this.styleClassName);
         // 这个按钮复用了 styleClassName 的样式，但需要覆写一些样式
         btn.style.display = 'flex';
-        btn.style.left = 'unset';
-        btn.style.right = '0';
+        // 根据“在作品缩略图上显示放大按钮”的位置设置，将按钮显示在左侧或右侧
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.magnifierPosition === 'left') {
+            btn.style.left = '0';
+            btn.style.right = 'unset';
+        }
+        else {
+            btn.style.left = 'unset';
+            btn.style.right = '0';
+        }
         btn.innerHTML = `
     <svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-download"></use>

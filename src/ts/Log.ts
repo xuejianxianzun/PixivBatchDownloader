@@ -351,10 +351,9 @@ class Log {
       // 虽然可以应用背景图片，但是由于日志区域比较狭长，背景图片的视觉效果不佳，看起来比较粗糙，所以还是不应用背景图片了
       // bg.useBG(this.wrap, 0.9)
 
-      // 此时的 this.show 是上一个日志区域的显示状态
       // 使新创建的日志区域的显示状态与上一个日志区域保持一致
+      // 如果这就是第一个日志区域，则是默认隐藏的
       this.show = this.show
-      // 上面创建的 div 元素是 dispaly:none 的，即默认不显示
       // 如果上一个日志区域是显示的，就需要设置 this.show = true 使新的区域也显示
       // 这就是为什么要执行 this.show = this.show
 
@@ -374,6 +373,7 @@ class Log {
     allLogWrap.forEach((wrap) => wrap.remove())
 
     this.count = 0
+    this.show = false
     this.logBtnShow = false
     this.isVisible = false
   }
