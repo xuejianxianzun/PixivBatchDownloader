@@ -114,7 +114,11 @@ class ShowDownloadBtnOnMultiImageWorkPage {
     // 编号区域的容器宽度最大值是 1224px。当页面宽度不够时，容器宽度会随之缩小
     // 如果图片宽度接近或达到容器宽度，右侧就会与编号重叠
     // 但这个临界值不是固定的，我假设页面宽度为 1024px，此时图片宽度为 900px 时就会与编号重叠
-    if (data.body.illustType === 1 && data.body.width > 900 && data.body.width >= data.body.height) {
+    if (
+      data.body.illustType === 1 &&
+      data.body.width > 900 &&
+      data.body.width >= data.body.height
+    ) {
       return 60
     }
 

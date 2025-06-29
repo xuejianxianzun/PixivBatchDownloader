@@ -3530,6 +3530,10 @@ class ListenPageSwitch {
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('pageSwitch');
             });
         });
+        // 虽然我想过获取变化前后的 URL 进行对比，以排除仅是锚点变化的情况
+        // 例如在漫画页面里点击“阅读作品”后，网址后面会添加 '#1'
+        // 如果可以对比 URL 的前后变化，就能排除这种状态，不触发 pageSwitch 事件
+        // 但是要获取变化前的 URL，需要手动记录。因为无论是 popstate 事件还是 pushState 操作，浏览器原生 API 都不直接提供变化前的 URL 信息，所以我懒得做这个判断了
     }
 }
 new ListenPageSwitch();
@@ -3633,9 +3637,15 @@ __webpack_require__.r(__webpack_exports__);
 // 日志
 class Log {
     constructor() {
-        this.wrap = document.createElement('div'); // 日志容器的区域，当日志条数很多时，会产生多个日志容器
+        /**每个日志区域显示多少条日志 */
+        // 如果日志条数超出最大值，下载器会创建多个日志区域
+        this.max = 10;
+        /**最新的日志区域里的日志条数。刷新的日志不会计入 */
+        this.count = 0;
+        this.logWrap = document.createElement('div'); // 日志容器的区域，当日志条数很多时，会产生多个日志容器。默认是隐藏的（display: none）
         this.activeLogWrapID = 'logWrap'; // 当前活跃的日志容器的 id，也是最新的一个日志容器
         this.logContent = document.createElement('div'); // 日志的主体区域，始终指向最新的那个日志容器内部
+        this.logContentClassName = 'logContent'; // 日志主体区域的类名
         this.logWrapClassName = 'logWrap'; // 日志容器的类名，只负责样式
         this.logWrapFlag = 'logWrapFlag'; // 日志容器的标志，当需要查找日志区域时，使用这个类名而不是 logWrap，因为其他元素可能也具有 logWrap 类名，以应用其样式。
         /**储存会刷新的日志所使用的元素，可以传入 flag 来区分多个刷新区域 */
@@ -3645,23 +3655,37 @@ class Log {
         this.refresh = {
             default: document.createElement('span'),
         };
-        /**不同日志等级的字体颜色 */
+        /**页面顶部的“显示日志”按钮，点击之后会显示日志区域 */
+        this.logBtn = document.createElement('div');
+        /** 保存日志历史。刷新的日志不会保存 */
+        this.record = [];
+        this.toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
+        /**日志区域是否显示（即 display:block）。默认是 display:none */
+        this._show = false;
+        /**最新一个日志区域在视口里是否可见。注意这不是判断 display，而是可见性（或者说是交叉状态）。
+         * 当它符合可见条件为 true，否则为 false。
+         * 注意：在 PC 端页面里需要完全可见；在移动端页面里只需要部分可见，当然完全可见也可以。
+         * 这是因为在移动端页面里，下载器右侧的悬浮按钮经常会显示在日志区域上方，导致日志区域永远只有部分可见。
+         */
+        this.isVisible = false;
+        /**不同日志等级的文字颜色 */
         this.levelColor = [
             'inherit',
             _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textSuccess,
             _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textWarning,
             _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textError,
         ];
-        /**每个日志区域允许显示多少条日志 */
-        this.max = 300;
-        /**日志条数。刷新的日志不会计入 */
-        this.count = 0;
-        /** 保存日志历史。刷新的日志不会保存 */
-        this.record = [];
-        this.toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
-        this.scrollToBottom();
+        this.createLogBtn();
+        // 因为日志区域限制了最大高度，可能会出现滚动条
+        // 所以使用定时器，使日志总是滚动到底部
+        window.setInterval(() => {
+            if (this.toBottom && this.show) {
+                this.logContent.scrollTop = this.logContent.scrollHeight;
+                this.toBottom = false;
+            }
+        }, 500);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.clearLog, () => {
-            this.remove();
+            this.removeAll();
         });
         const clearRecordEvents = [_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.clearLog, _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop];
         clearRecordEvents.forEach((evt) => {
@@ -3681,6 +3705,34 @@ class Log {
             }
         });
     }
+    /**显示或隐藏顶部的“显示日志”按钮 */
+    // 它默认是 opacity: 0，即不可见
+    set logBtnShow(value) {
+        if (value) {
+            if (this.count > 0 && window.scrollY <= 10) {
+                this.logBtn.classList.add('show');
+            }
+        }
+        else {
+            this.logBtn.classList.remove('show');
+        }
+    }
+    set show(value) {
+        this._show = value;
+        if (value) {
+            // 显示所有日志区域
+            this.showAll();
+            this.logBtnShow = false;
+        }
+        else {
+            // 隐藏当前日志区域。至于以前的区域，不需要处理
+            this.hideAll();
+            this.logBtnShow = true;
+        }
+    }
+    get show() {
+        return this._show;
+    }
     // 添加日志
     /*
     str 日志文本
@@ -3695,7 +3747,7 @@ class Log {
     3 error
     */
     add(str, level, br, keepShow, refreshFlag = 'default') {
-        this.checkElement();
+        this.createLogArea();
         let span = document.createElement('span');
         if (!keepShow) {
             if (this.refresh[refreshFlag] === undefined) {
@@ -3712,8 +3764,9 @@ class Log {
             if (this.count >= this.max) {
                 // 移除 id 属性，也就是 this.activeLogWrapID
                 // 下次输出日志时查找不到这个 id，就会新建一个日志区域
-                this.wrap.removeAttribute('id');
-                this.count = 0;
+                this.logWrap.removeAttribute('id');
+                // 滚动到底部
+                this.logContent.scrollTop = this.logContent.scrollHeight;
             }
         }
         span.innerHTML = str;
@@ -3748,39 +3801,140 @@ class Log {
     persistentRefresh(refreshFlag = 'default') {
         this.refresh[refreshFlag] = document.createElement('span');
     }
-    checkElement() {
-        // 如果日志区域没有被添加到页面上，则添加
-        let test = document.getElementById(this.activeLogWrapID);
-        if (test === null) {
-            this.wrap = document.createElement('div');
-            this.wrap.id = this.activeLogWrapID;
-            this.wrap.classList.add(this.logWrapClassName, this.logWrapFlag);
-            this.logContent = document.createElement('div');
-            this.logContent.classList.add('beautify_scrollbar', 'logContent');
-            if (_Config__WEBPACK_IMPORTED_MODULE_10__.Config.mobile) {
-                this.wrap.classList.add('mobile');
+    /**在页面顶部创建一个“显示日志”按钮 */
+    createLogBtn() {
+        const html = `<div id="logBtn" class="logBtn"><span data-xztext="_显示日志"></span>&nbsp;<span>(L)</span></div>`;
+        document.body.insertAdjacentHTML('beforebegin', html);
+        this.logBtn = document.getElementById('logBtn');
+        const text = this.logBtn.firstElementChild;
+        _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.register(text);
+        // 在“显示日志”按钮上触发这些事件时，显示日志区域
+        const showEvents = ['click', 'mouseover', 'touchstart'];
+        showEvents.forEach((evt) => {
+            this.logBtn.addEventListener(evt, () => {
+                this.logBtnShow = false;
+                this.show = true;
+            });
+        });
+        // 定时检查是否应该显示“显示日志”按钮
+        window.setInterval(() => {
+            if (this.show === false) {
+                this.logBtnShow = true;
             }
-            this.wrap.append(this.logContent);
-            document.body.insertAdjacentElement('beforebegin', this.wrap);
-            _Theme__WEBPACK_IMPORTED_MODULE_1__.theme.register(this.wrap);
+        }, 100);
+        /**当页面滚动一定距离后，隐藏“显示日志”按钮 */
+        const hideLogBtn = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.debounce(() => {
+            if (window.scrollY > 10) {
+                this.logBtnShow = false;
+            }
+        }, 100);
+        window.addEventListener('scroll', () => {
+            hideLogBtn();
+        });
+        // 按快捷键 L 显示/隐藏日志区域
+        window.addEventListener('keydown', (ev) => {
+            if (ev.code !== 'KeyL') {
+                return;
+            }
+            if (ev.ctrlKey || ev.altKey || ev.metaKey) {
+                return;
+            }
+            if (ev.target) {
+                const target = ev.target;
+                if (target.tagName === 'INPUT' ||
+                    target.tagName === 'TEXTAREA' ||
+                    target.isContentEditable) {
+                    return;
+                }
+            }
+            ev.preventDefault();
+            if (this.count === 0) {
+                _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_没有日志'), {
+                    position: 'center',
+                });
+                return;
+            }
+            // 需要显示日志的情况：
+            // 日志是隐藏的，或者不完全可见，则跳转到页面顶部，并显示日志
+            // 这两个判断条件其实是等价的，因为当元素为 display: none 时，
+            // IntersectionObserver 的回调始终返回 isIntersecting: false
+            // 不过判断 this.show 更加直接一些
+            if (this.show === false || this.isVisible === false) {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth',
+                });
+                this.show = true;
+            }
+            else {
+                // 如果日志完全可见，则隐藏日志区域
+                this.show = false;
+            }
+        });
+    }
+    /**创建新的日志区域 */
+    createLogArea() {
+        // 先检查是否存在日志区域
+        let test = document.getElementById(this.activeLogWrapID);
+        // 创建日志区域
+        if (test === null) {
+            this.count = 0;
+            this.isVisible = false;
+            const logWrap = document.createElement('div');
+            logWrap.id = this.activeLogWrapID;
+            logWrap.classList.add(this.logWrapClassName, this.logWrapFlag);
+            const logContent = document.createElement('div');
+            logContent.classList.add(this.logContentClassName, 'beautify_scrollbar');
+            if (_Config__WEBPACK_IMPORTED_MODULE_10__.Config.mobile) {
+                logWrap.classList.add('mobile');
+            }
+            logWrap.append(logContent);
+            // 点击日志区域两侧的空白处，可以隐藏日志区域
+            logWrap.addEventListener('click', (ev) => {
+                if (ev.target === logWrap) {
+                    this.show = false;
+                }
+            });
+            // 添加到 body 前面
+            this.logWrap = logWrap;
+            this.logContent = logContent;
+            document.body.insertAdjacentElement('beforebegin', this.logWrap);
+            _Theme__WEBPACK_IMPORTED_MODULE_1__.theme.register(this.logWrap);
             // 虽然可以应用背景图片，但是由于日志区域比较狭长，背景图片的视觉效果不佳，看起来比较粗糙，所以还是不应用背景图片了
             // bg.useBG(this.wrap, 0.9)
+            // 此时的 this.show 是上一个日志区域的显示状态
+            // 使新创建的日志区域的显示状态与上一个日志区域保持一致
+            this.show = this.show;
+            // 上面创建的 div 元素是 dispaly:none 的，即默认不显示
+            // 如果上一个日志区域是显示的，就需要设置 this.show = true 使新的区域也显示
+            // 这就是为什么要执行 this.show = this.show
+            // 监听新的日志区域的可见性
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.observeElement(this.logWrap, (value) => {
+                this.isVisible = value;
+            }, _Config__WEBPACK_IMPORTED_MODULE_10__.Config.mobile ? 0 : 1);
         }
     }
-    /**移除所有日志区域 */
-    remove() {
-        this.count = 0;
+    removeAll() {
         const allLogWrap = document.querySelectorAll(`.${this.logWrapFlag}`);
         allLogWrap.forEach((wrap) => wrap.remove());
+        this.count = 0;
+        this.logBtnShow = false;
+        this.isVisible = false;
     }
-    // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部
-    scrollToBottom() {
-        window.setInterval(() => {
-            if (this.toBottom) {
-                this.logContent.scrollTop = this.logContent.scrollHeight;
-                this.toBottom = false;
+    showAll() {
+        const allLogWrap = document.querySelectorAll(`.${this.logWrapFlag}`);
+        allLogWrap.forEach((wrap) => {
+            wrap.style.display = 'block';
+            // 把内容滚动到底部
+            const logContent = wrap.querySelector(`.${this.logContentClassName}`);
+            if (logContent) {
+                logContent.scrollTop = logContent.scrollHeight;
             }
-        }, 500);
+        });
+    }
+    hideAll() {
+        const allLogWrap = document.querySelectorAll(`.${this.logWrapFlag}`);
+        allLogWrap.forEach((wrap) => (wrap.style.display = 'none'));
     }
     export() {
         const data = [];
@@ -3813,13 +3967,13 @@ class Log {
         }
         const fileName = `log-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.getPageTitle())}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(_utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__.DateFormat.format(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.crawlCompleteTime, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.dateFormat))}.html`;
         const content = `<!DOCTYPE html>
-<html>
-<body>
-<div id="logWrap">
-${data.join('\n')}
-</div>
-</body>
-</html>`;
+        <html>
+        <body>
+        <div id="logWrap">
+        ${data.join('\n')}
+        </div>
+        </body>
+        </html>`;
         const blob = new Blob([content], {
             type: 'text/html',
         });
@@ -8315,8 +8469,18 @@ class Toast {
         // 默认的中间点是窗口的中间
         let centerPoint = window.innerWidth / 2;
         if (arg.position === 'mouse') {
-            // 把中间点设置为鼠标所处的位置
-            centerPoint = this.mousePosition.x;
+            // 检查 x、y 都等于 0 的情况
+            // 这通常出现在页面刷新后，鼠标还没有移动，因此这两个值是默认值
+            // 例如刷新页面后，不移动鼠标，而是直接按快捷键下载作品，就会出现这种情况
+            // 这会导致按钮出现在页面左上角（0,0）的位置，影响体验
+            // 此时将 position 改为 center
+            if (this.mousePosition.x === 0 && this.mousePosition.y === 0) {
+                arg.position = 'center';
+            }
+            else {
+                // 把中间点设置为鼠标所处的位置
+                centerPoint = this.mousePosition.x;
+            }
         }
         // 设置 left
         const rect = span.getBoundingClientRect();
@@ -14797,8 +14961,16 @@ class InitPageBase {
         // 如果在 init 方法中绑定了全局事件，并且该事件只适用于当前页面类型，那么应该在 destroy 中解绑事件。
         // 注册当前页面的 destroy 函数
         _pageFunciton_DestroyManager__WEBPACK_IMPORTED_MODULE_15__.destroyManager.register(this.destroy.bind(this));
-        // 切换页面时，如果任务已经完成，则移除日志区域
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('clearLogAfterPageSwitch', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.pageSwitch, () => {
+        // 页面类型变化时（pageSwitchedTypeChange），如果任务已经完成，则移除日志区域
+        // 如果不判断页面类型变化，那么会在查看漫画时出现问题
+        // 因为漫画页面和查看漫画的页面是两个网址
+        // 例如下面是一个漫画的网址：
+        // https://www.pixiv.net/artworks/130798699
+        // 在查看漫画时，网址后面会加上 #1:
+        // https://www.pixiv.net/artworks/130798699#1
+        // 这会触发 pageSwitch 事件（它不判断页面类型是否变化）
+        // 如果此时移除日志，就会导致日志被意外清除
+        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('clearLogAfterPageSwitch', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.pageSwitchedTypeChange, () => {
             if (!_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
                 _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
             }
@@ -26828,6 +27000,22 @@ This downloader does not support Firefox and may encounter some problems. I will
         '설정 항목을 제거합니다. ',
         'Удалить пункт настроек: ',
     ],
+    _显示日志: [
+        '显示日志',
+        '顯示日誌',
+        'Show Log',
+        'ログを表示',
+        '로그 표시',
+        'Показать журнал',
+    ],
+    _没有日志: [
+        '没有日志',
+        '沒有日誌',
+        'No logs',
+        'ログなし',
+        '로그 없음',
+        'Нет журналов',
+    ],
 };
 
 
@@ -28490,7 +28678,9 @@ class ShowDownloadBtnOnMultiImageWorkPage {
         // 编号区域的容器宽度最大值是 1224px。当页面宽度不够时，容器宽度会随之缩小
         // 如果图片宽度接近或达到容器宽度，右侧就会与编号重叠
         // 但这个临界值不是固定的，我假设页面宽度为 1024px，此时图片宽度为 900px 时就会与编号重叠
-        if (data.body.illustType === 1 && data.body.width > 900 && data.body.width >= data.body.height) {
+        if (data.body.illustType === 1 &&
+            data.body.width > 900 &&
+            data.body.width >= data.body.height) {
             return 60;
         }
         return 0;
@@ -31703,7 +31893,7 @@ class Settings {
             removeWorksOfFollowedUsersOnSearchPage: false,
             tipExportAndImportBookmark: true,
             saveWorkDescription: false,
-            saveEachDescription: false,
+            saveEachDescription: true,
             summarizeDescription: false,
             slowCrawlDealy: 1600,
             downloadInterval: 0,
@@ -49629,6 +49819,26 @@ class Utils {
         url = url.split('?')[0]; // 移除可能存在的查询字符串
         const array = url.split('.');
         return array[array.length - 1];
+    }
+    /**检测元素在视口中是否可见
+     * threshold 为 0 时，只要有部分可见就返回 true
+     * threshold 为 1 时，需要全部可见才会返回 true
+     */
+    static observeElement(el, callback, threshold) {
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    callback(true); // 元素进入视口
+                }
+                else {
+                    callback(false); // 元素不在视口
+                }
+            });
+        }, {
+            root: null,
+            threshold: threshold,
+        });
+        observer.observe(el);
     }
 }
 // 不安全的字符，这里多数是控制字符，需要替换掉

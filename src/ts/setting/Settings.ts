@@ -491,7 +491,7 @@ class Settings {
     removeWorksOfFollowedUsersOnSearchPage: false,
     tipExportAndImportBookmark: true,
     saveWorkDescription: false,
-    saveEachDescription: false,
+    saveEachDescription: true,
     summarizeDescription: false,
     slowCrawlDealy: 1600,
     downloadInterval: 0,

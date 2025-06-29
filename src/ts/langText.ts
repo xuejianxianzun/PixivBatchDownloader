@@ -5360,6 +5360,22 @@ This downloader does not support Firefox and may encounter some problems. I will
     '설정 항목을 제거합니다. ',
     'Удалить пункт настроек: ',
   ],
+  _显示日志: [
+    '显示日志',
+    '顯示日誌',
+    'Show Log',
+    'ログを表示',
+    '로그 표시',
+    'Показать журнал',
+  ],
+  _没有日志: [
+    '没有日志',
+    '沒有日誌',
+    'No logs',
+    'ログなし',
+    '로그 없음',
+    'Нет журналов',
+  ],
 }
 
 export { langText }
