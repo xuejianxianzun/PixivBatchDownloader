@@ -878,9 +878,13 @@ body[data-page-type='20'] {
 // https://www.pixiv.net/request
 body[data-page-type='21'] {
   // 解除列表容器的宽度限制
-  .fKsmTC {
+  .fKsmTC,
+  .requestContainer,
+  .worksWrapper {
     width: 92vw;
   }
+
+  // 约稿页面
 
   // ul
   // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
@@ -894,6 +898,41 @@ body[data-page-type='21'] {
   // 为作者卡片之类的元素添加边距，因为上面的规则会让它们挨在一起，没有间距
   section ul > div {
     margin: 24px;
+  }
+
+  // 正在接稿中用户的作品
+  // https://www.pixiv.net/request/creators/works/illust
+  // 已完成的约稿页面
+  // https://www.pixiv.net/request/complete/illust
+
+  // ul
+  // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
+  .worksUL {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  // ul li
+  // 解除作品项目的宽度限制
+  .worksUL > li {
+    max-width: 540px;
+    width: auto !important;
+  }
+
+  // 解除 img 父级元素 184px 的宽度限制
+  .worksUL > li > div > div {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* img */
+  /* div[width="184"] a div img */
+  .worksUL > li > div > div a > img {
+    position: relative;
+    width: auto !important;
+    height: auto !important;
+    max-height: 540px;
   }
 }
 

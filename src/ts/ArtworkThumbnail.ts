@@ -31,6 +31,7 @@ class ArtworkThumbnail extends WorkThumbnail {
         'li>div>div:first-child',
         'li>div>div:first-child>div',
         'li>div>div>div:first-child',
+        '.worksUL li>div>div:first-child',
         'div[data-ga4-entity-id^="illust"]>div:nth-child(2)',
         'div[data-ga4-entity-id^="manga"]>div:nth-child(2)',
       ]
@@ -41,8 +42,17 @@ class ArtworkThumbnail extends WorkThumbnail {
       // data-ga4-entity-id="novel/18205969"
     }
 
-    this.findThumbnail(document.body)
     this.createObserver(document.body)
+
+    // 立即查找一次元素
+    this.findThumbnail(document.body)
+    // 之后在某些页面里定时查找
+    const findOnPageType = [pageType.list.Request]
+    window.setInterval(() => {
+      if (document.hidden === false && findOnPageType.includes(pageType.type)) {
+        this.findThumbnail(document.body)
+      }
+    }, 1000)
   }
 
   protected readonly selectors: string[] = []
@@ -93,8 +103,10 @@ class ArtworkThumbnail extends WorkThumbnail {
       }
 
       // 只在 约稿 页面里使用
+      // .worksUL li>div>div:first-child 是在“已完成的约稿”里使用的
       if (
-        selector === 'li>div>div:first-child>div' &&
+        (selector === 'li>div>div:first-child>div' ||
+          selector === '.worksUL li>div>div:first-child') &&
         pageType.type !== pageType.list.Request
       ) {
         continue

@@ -620,7 +620,13 @@ body[data-page-type='20'] div[width='184'] img {
   height: auto !important;
   max-height: 540px;
 }
-body[data-page-type='21'] .fKsmTC {
+body[data-page-type='21'] {
+  /* img */
+  /* div[width="184"] a div img */
+}
+body[data-page-type='21'] .fKsmTC,
+body[data-page-type='21'] .requestContainer,
+body[data-page-type='21'] .worksWrapper {
   width: 92vw;
 }
 body[data-page-type='21'] section ul {
@@ -630,6 +636,25 @@ body[data-page-type='21'] section ul {
 }
 body[data-page-type='21'] section ul > div {
   margin: 24px;
+}
+body[data-page-type='21'] .worksUL {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+body[data-page-type='21'] .worksUL > li {
+  max-width: 540px;
+  width: auto !important;
+}
+body[data-page-type='21'] .worksUL > li > div > div {
+  width: auto !important;
+  height: auto !important;
+}
+body[data-page-type='21'] .worksUL > li > div > div a > img {
+  position: relative;
+  width: auto !important;
+  height: auto !important;
+  max-height: 540px;
 }
 body[data-page-type='23'] .wrapperwrapper > div,
 body[data-page-type='23'] .ldgmym,

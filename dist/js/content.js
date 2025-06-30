@@ -394,6 +394,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 'li>div>div:first-child',
                 'li>div>div:first-child>div',
                 'li>div>div>div:first-child',
+                '.worksUL li>div>div:first-child',
                 'div[data-ga4-entity-id^="illust"]>div:nth-child(2)',
                 'div[data-ga4-entity-id^="manga"]>div:nth-child(2)',
             ];
@@ -403,8 +404,16 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
             // 这里还会显示小说，但小说的含有 novel 关键词，可以区别开来，例如：
             // data-ga4-entity-id="novel/18205969"
         }
-        this.findThumbnail(document.body);
         this.createObserver(document.body);
+        // 立即查找一次元素
+        this.findThumbnail(document.body);
+        // 之后在某些页面里定时查找
+        const findOnPageType = [_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request];
+        window.setInterval(() => {
+            if (document.hidden === false && findOnPageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type)) {
+                this.findThumbnail(document.body);
+            }
+        }, 1000);
     }
     findThumbnail(parent) {
         if (!parent.querySelectorAll) {
@@ -440,7 +449,9 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 continue;
             }
             // 只在 约稿 页面里使用
-            if (selector === 'li>div>div:first-child>div' &&
+            // .worksUL li>div>div:first-child 是在“已完成的约稿”里使用的
+            if ((selector === 'li>div>div:first-child>div' ||
+                selector === '.worksUL li>div>div:first-child') &&
                 _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request) {
                 continue;
             }
@@ -7251,11 +7262,11 @@ class ShowLargerThumbnails {
         // 当页面元素变化时，允许重新查找。
         // 这主要是因为切换页面时，下载器可能先查找到了目标元素，但之后页面内容马上发生了变化，移除了目标元素。
         // 所以当元素变化时，需要重新查找，否则偶尔会显示异常
-        const targetNode = document.querySelector('body');
+        const body = document.querySelector('body');
         const observer = new MutationObserver(() => {
             this.needFind = true;
         });
-        observer.observe(targetNode, {
+        observer.observe(body, {
             childList: true,
             subtree: true,
         });
@@ -7461,6 +7472,38 @@ class ShowLargerThumbnails {
                     const ul = work.closest('ul');
                     ul?.classList.add('worksUL');
                     this.needFind = false;
+                }
+            }
+        }
+        // 约稿页面，分为数种子页面
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Request) {
+            // 正在接稿中用户的作品
+            // https://www.pixiv.net/request/creators/works/illust
+            // 已完成的约稿页面
+            // https://www.pixiv.net/request/complete/illust
+            if (window.location.pathname.includes('/request/complete') ||
+                window.location.pathname.includes('/request/creators')) {
+                // 首先查找作品列表的 UL 元素
+                const illustLink = document.querySelector('ul li a[href^="/artworks/"]');
+                if (!illustLink) {
+                    return;
+                }
+                const ul = illustLink.closest('ul');
+                ul.classList.add('worksUL');
+                // 查找容器元素
+                // ul 的祖父元素是个 div，这个 div 里面的 3 个div 都是容器元素
+                const grandfather = ul.parentElement.parentElement;
+                grandfather.childNodes.forEach((div) => div.classList.add('worksWrapper'));
+                this.needFind = false;
+            }
+            else {
+                // 约稿页面
+                // 为作品容器添加自定义 className
+                const allSection = document.querySelectorAll('section');
+                for (const section of allSection) {
+                    if (section.parentElement?.nodeName == 'DIV') {
+                        section.parentElement.classList.add('requestContainer');
+                    }
                 }
             }
         }
@@ -15532,28 +15575,31 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   InitRequestPage: () => (/* binding */ InitRequestPage)
 /* harmony export */ });
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
+
+
 
 
 // 投稿页面
-class InitRequestPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_1__.InitPageBase {
+class InitRequestPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_3__.InitPageBase {
     constructor() {
         super();
         this.init();
     }
     initAny() {
-        // 为作品容器添加自定义 className，让显示更大的缩率图功能不那么容易失效
-        const allSection = document.querySelectorAll('section');
-        for (const section of allSection) {
-            if (section.parentElement?.nodeName == 'DIV') {
-                section.parentElement.classList.add('requestContainer');
+        // 约稿页面 和 已完成的约稿页面 互相切换时，需要重新隐藏第一个选项
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch, () => {
+            if (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request) {
+                this.setFormOption();
             }
-        }
+        });
     }
     addCrawlBtns() { }
     setFormOption() {
-        _setting_Options__WEBPACK_IMPORTED_MODULE_0__.options.hideOption([1]);
+        _setting_Options__WEBPACK_IMPORTED_MODULE_2__.options.hideOption([1]);
     }
 }
 

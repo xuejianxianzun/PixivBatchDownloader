@@ -134,6 +134,25 @@ PS：该功能目前只能在电脑端页面里使用。我没有将其适配到
 
 现在我把 z-index 改为 0 以解决此问题。
 
+### 😊对约稿页面的一些子页面进行了有限的支持
+
+约稿页面现在依然不支持批量下载（比如一次下载多少页），一方面是我懒，另一方面确实必要性不大，我觉得约稿页面就是得挑着看的，没必要全部下载。
+
+不过其他一些功能支持了更多页面。比如预览作品、快速下载单个作品、显示更大的缩略图等。
+
+之前只支持约稿页面：
+https://www.pixiv.net/request
+
+现在在下面两个页面里也可以使用了：
+
+1. 正在接稿中用户的作品：
+https://www.pixiv.net/request/creators/works/illust
+
+2. 已完成的约稿页面：
+https://www.pixiv.net/request/complete/illust
+
+因为这两个页面里是大量的作品列表，所以我进行了支持。
+
 ### 🐞修复了预览作品时，快速连续按两次 C 可能会下载所有图片的问题
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/497
