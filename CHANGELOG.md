@@ -166,6 +166,8 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/497
 
 ### 🐞修复了一些页面里“显示更大的缩略图”显示异常的问题
 
+### 🕑更新了作品发布时间数据
+
 ## 17.6.1 2025/06/05
 
 ### 🐞修复了一些页面里“显示更大的缩略图”显示异常的问题
