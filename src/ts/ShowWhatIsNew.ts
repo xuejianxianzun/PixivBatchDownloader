@@ -11,21 +11,32 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '17.6.1'
+  private flag = '17.7.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-      let msg = `
+      let msg = `<strong><span>✨${lang.transl('_新增功能')}:</span></strong>
+      <br>
+      <span>${lang.transl('_在作品页面里为每张图片添加下载按钮')}</span>
+      <br>
+      <br>
+      <strong><span>⚙️${lang.transl('_行为变更')}:</span></strong>
+      <br>
+      <span>${lang.transl('_现在下载器会默认隐藏网页顶部的日志')}</span>
+      <br>
+      <br>
       <span>${lang.transl('_修复已知问题')}</span>
+      <br>
+      <br>
+      <span>${lang.transl('_优化性能和用户体验')}</span>
       `
 
-      // <strong>
-      // <span>✨${lang.transl('_新增设置项')}:</span>
-      // <span>✨${lang.transl('_新增功能')}:</span>
+      // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong
+      // <strong><span>✨${lang.transl('_新增功能')}:</span></strong
+      // <strong><span>⚙️${lang.transl('_行为变更')}:</span></strong>
+      // <span>🗑${lang.transl('_移除设置项')}</span>
       // <span class="blue">${lang.transl('_下载间隔')}</span>
-      // </strong>
-      // <span>🗑${lang.transl('_移除设置项')}${lang.transl('_隐藏浏览器底部的下载栏')}</span>
 
       // ${lang.transl(
       //   '_你可以在更多选项卡的xx分类里找到它',
@@ -38,7 +49,6 @@ class ShowWhatIsNew {
       // <span>${lang.transl('_修复已知问题')}</span>
       // <span>${lang.transl('_优化性能和用户体验')}</span>
       // <span>${lang.transl('_其他优化')}</span>
-      // <span>${lang.transl('_为下载器的设置项添加了更多提示')}</span>
 
       // 在更新说明的下方显示赞助提示
       msg += `

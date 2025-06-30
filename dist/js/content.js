@@ -7951,21 +7951,32 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.6.1';
+        this.flag = '17.7.0';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `
+            let msg = `<strong><span>✨${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</span></strong>
+      <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在作品页面里为每张图片添加下载按钮')}</span>
+      <br>
+      <br>
+      <strong><span>⚙️${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_行为变更')}:</span></strong>
+      <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_现在下载器会默认隐藏网页顶部的日志')}</span>
+      <br>
+      <br>
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
+      <br>
+      <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
       `;
-            // <strong>
-            // <span>✨${lang.transl('_新增设置项')}:</span>
-            // <span>✨${lang.transl('_新增功能')}:</span>
+            // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong
+            // <strong><span>✨${lang.transl('_新增功能')}:</span></strong
+            // <strong><span>⚙️${lang.transl('_行为变更')}:</span></strong>
+            // <span>🗑${lang.transl('_移除设置项')}</span>
             // <span class="blue">${lang.transl('_下载间隔')}</span>
-            // </strong>
-            // <span>🗑${lang.transl('_移除设置项')}${lang.transl('_隐藏浏览器底部的下载栏')}</span>
             // ${lang.transl(
             //   '_你可以在更多选项卡的xx分类里找到它',
             //   lang.transl('_下载')
@@ -7976,7 +7987,6 @@ class ShowWhatIsNew {
             // <span>${lang.transl('_修复已知问题')}</span>
             // <span>${lang.transl('_优化性能和用户体验')}</span>
             // <span>${lang.transl('_其他优化')}</span>
-            // <span>${lang.transl('_为下载器的设置项添加了更多提示')}</span>
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -27045,6 +27055,30 @@ This downloader does not support Firefox and may encounter some problems. I will
         'ログなし',
         '로그 없음',
         'Нет журналов',
+    ],
+    _在作品页面里为每张图片添加下载按钮: [
+        '在插画和漫画页面里，下载器会为每张图片添加一个下载按钮。当你只需要下载特定图片时很有用。',
+        '在插畫和漫畫頁面裡，下載器會為每張圖片新增一個下載按鈕。當你只需要下載特定圖片時很有用。',
+        'On the illustration and manga pages, the downloader will add a download button for each image. Useful when you only need to download specific images.',
+        'イラストページとマンガページでは、各画像にダウンロードボタンが表示されます。特定の画像のみをダウンロードしたい場合に便利です。',
+        '일러스트와 만화 페이지에서는 다운로더가 각 이미지에 대한 다운로드 버튼을 추가합니다. 특정 이미지만 다운로드해야 할 때 유용합니다.',
+        'На страницах иллюстраций и манги загрузчик добавит кнопку загрузки для каждого изображения. Полезно, когда вам нужно загрузить только определенные изображения.',
+    ],
+    _行为变更: [
+        '行为变更',
+        '行為變更',
+        'Behavior changes',
+        '動作の変更',
+        '동작 변경 사항',
+        'Изменения поведения',
+    ],
+    _现在下载器会默认隐藏网页顶部的日志: [
+        '现在下载器会默认隐藏网页顶部的日志。你可以使用一个按钮或快捷键 (L) 来查看日志。',
+        '現在下載器會預設隱藏網頁頂部的日誌。你可以使用一個按鈕或快捷鍵 (L) 來檢視日誌。',
+        'Downloader now hides the log at the top of the page by default. You can view the log using a button or keyboard shortcut (L).',
+        'ダウンローダーは、デフォルトでページ上部のログを非表示にするようになりました。ログはボタンまたはキーボードショートカット（L）を使用して表示できます。',
+        '다운로더는 이제 기본적으로 페이지 상단의 로그를 숨깁니다. 버튼이나 키보드 단축키(L)를 사용하여 로그를 볼 수 있습니다.',
+        'Загрузчик теперь скрывает журнал в верхней части страницы по умолчанию. Вы можете просмотреть журнал с помощью кнопки или сочетания клавиш (L).',
     ],
 };
 
