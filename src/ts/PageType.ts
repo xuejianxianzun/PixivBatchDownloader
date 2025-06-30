@@ -172,7 +172,7 @@ class PageType {
       },
       {
         type: PageName.Artwork,
-        url: 'https://www.pixiv.net/artworks/108271116',
+        url: 'https://www.pixiv.net/artworks/62751951',
       },
       {
         type: PageName.UserHome,

@@ -392,6 +392,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 '._work.item',
                 'div[type="illust"]',
                 'li>div>div:first-child',
+                'li>div>div:first-child>div',
                 'li>div>div>div:first-child',
                 'div[data-ga4-entity-id^="illust"]>div:nth-child(2)',
                 'div[data-ga4-entity-id^="manga"]>div:nth-child(2)',
@@ -433,12 +434,14 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request) {
                 continue;
             }
-            // li>div>div:first-child 只在 约稿 和 大家的新作 页面里使用
-            // 已知问题：画师主页顶部的“精选”作品会被两个选择器查找到：li>div>div:first-child 和 div[width="288"]
-            // 如果不限制在特定页面里使用，就会导致这部分作品被重复绑定
+            // 只在 大家的新作 页面里使用
             if (selector === 'li>div>div:first-child' &&
-                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request &&
                 _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtwork) {
+                continue;
+            }
+            // 只在 约稿 页面里使用
+            if (selector === 'li>div>div:first-child>div' &&
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request) {
                 continue;
             }
             // 这些选择器只在新版首页使用
@@ -4474,7 +4477,7 @@ class PageType {
             },
             {
                 type: PageName.Artwork,
-                url: 'https://www.pixiv.net/artworks/108271116',
+                url: 'https://www.pixiv.net/artworks/62751951',
             },
             {
                 type: PageName.UserHome,

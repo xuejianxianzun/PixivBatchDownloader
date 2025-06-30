@@ -29,6 +29,7 @@ class ArtworkThumbnail extends WorkThumbnail {
         '._work.item',
         'div[type="illust"]',
         'li>div>div:first-child',
+        'li>div>div:first-child>div',
         'li>div>div>div:first-child',
         'div[data-ga4-entity-id^="illust"]>div:nth-child(2)',
         'div[data-ga4-entity-id^="manga"]>div:nth-child(2)',
@@ -83,13 +84,18 @@ class ArtworkThumbnail extends WorkThumbnail {
         continue
       }
 
-      // li>div>div:first-child 只在 约稿 和 大家的新作 页面里使用
-      // 已知问题：画师主页顶部的“精选”作品会被两个选择器查找到：li>div>div:first-child 和 div[width="288"]
-      // 如果不限制在特定页面里使用，就会导致这部分作品被重复绑定
+      // 只在 大家的新作 页面里使用
       if (
         selector === 'li>div>div:first-child' &&
-        pageType.type !== pageType.list.Request &&
         pageType.type !== pageType.list.NewArtwork
+      ) {
+        continue
+      }
+
+      // 只在 约稿 页面里使用
+      if (
+        selector === 'li>div>div:first-child>div' &&
+        pageType.type !== pageType.list.Request
       ) {
         continue
       }
