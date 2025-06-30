@@ -7,6 +7,7 @@ import { lang } from './Lang'
 import { IDData } from './store/StoreType'
 import { Colors } from './Colors'
 import { Config } from './Config'
+import { store } from './store/Store'
 
 // 在图片作品的缩略图上显示下载按钮，点击按钮会直接下载这个作品
 class ShowDownloadBtnOnThumbOnDesktop {
@@ -25,6 +26,7 @@ class ShowDownloadBtnOnThumbOnDesktop {
   private readonly btnSize = 32
 
   private currentWorkId = '' // 保存触发事件的缩略图的作品 id
+  private workEL?: HTMLElement // 保存触发事件的缩略图的作品元素
 
   private hiddenBtnTimer = 0 // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
   private hiddenBtnDelay = 100
@@ -72,12 +74,22 @@ class ShowDownloadBtnOnThumbOnDesktop {
           type: 'illusts',
           id: this.currentWorkId,
         }
+
+        // 在多图作品的缩略图列表上触发时，获取 data-index 属性的值，只下载这一张图片
+        if (Config.checkImageViewerLI(this.workEL)) {
+          const _index = Number.parseInt(this.workEL!.dataset!.index!)
+          store.setDownloadOnlyPart(Number.parseInt(this.currentWorkId), [
+            _index,
+          ])
+        }
+
         EVT.fire('crawlIdList', [IDData])
       }
     })
 
     artworkThumbnail.onEnter((el: HTMLElement, id: string) => {
       this.currentWorkId = id
+      this.workEL = el
       this.showBtn(el)
     })
 
@@ -101,9 +113,12 @@ class ShowDownloadBtnOnThumbOnDesktop {
       'px'
 
     let top = window.scrollY + rect.top
-    // 如果显示了放大按钮，就需要加大 top，让下载按钮显示在放大按钮下面
+    // 如果显示了放大按钮，就需要增加 top 值，让下载按钮显示在放大按钮下面
     if (settings.magnifier) {
-      top = top + this.btnSize + 8
+      // 在多图作品的缩略图列表上触发时，下载器不会显示放大按钮，也就不需要增加 top 值
+      if (Config.checkImageViewerLI(target) === false) {
+        top = top + this.btnSize + 8
+      }
     }
     this.btn.style.top = top + 'px'
 

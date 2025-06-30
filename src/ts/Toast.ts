@@ -153,8 +153,17 @@ class Toast {
     let centerPoint = window.innerWidth / 2
 
     if (arg.position === 'mouse') {
-      // 把中间点设置为鼠标所处的位置
-      centerPoint = this.mousePosition.x
+      // 检查 x、y 都等于 0 的情况
+      // 这通常出现在页面刷新后，鼠标还没有移动，因此这两个值是默认值
+      // 例如刷新页面后，不移动鼠标，而是直接按快捷键下载作品，就会出现这种情况
+      // 这会导致按钮出现在页面左上角（0,0）的位置，影响体验
+      // 此时将 position 改为 center
+      if (this.mousePosition.x === 0 && this.mousePosition.y === 0) {
+        arg.position = 'center'
+      } else {
+        // 把中间点设置为鼠标所处的位置
+        centerPoint = this.mousePosition.x
+      }
     }
 
     // 设置 left

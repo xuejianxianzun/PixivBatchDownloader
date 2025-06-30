@@ -1,33 +1,37 @@
 #viewerWarpper {
   position: relative;
-  margin: 30px auto 15px;
-  overflow: hidden;
-  padding: 16px 0 100px 0;
+  margin: 0;
+  margin-top: 40px;
+  padding: 40px 10px;
   display: none;
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;
 
   ul {
-    max-width: 568px;
-    margin: 24px auto;
-    padding: 0 16px 3px;
+    margin: 0;
+    padding: 0;
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    flex-wrap: nowrap;
-    overflow: auto;
+    flex-wrap: wrap;
   }
 
   li {
     display: flex;
+    flex-basis: 23%;
+    height: 200px;
+    margin: 1.4% 1%;
+    justify-content: center;
     flex-shrink: 0;
-    margin-right: 8px;
-    overflow: hidden;
 
     img {
+      object-fit: contain;
+      max-width: 100%;
       cursor: pointer;
-      max-height: 144px;
-      width: auto;
+    }
+
+    a {
+      display: none;
     }
   }
 }
@@ -80,6 +84,7 @@
       font-size: 12px;
       line-height: 24px;
       transition: all 1s;
+
       &::marker {
         content: none;
       }
@@ -88,9 +93,11 @@
 
   .viewer-navbar {
     background: rgba(0, 0, 0, 0.3);
+
     .viewer-list {
       li {
         width: 50px !important;
+
         img {
           width: 50px !important;
           height: 50px !important;

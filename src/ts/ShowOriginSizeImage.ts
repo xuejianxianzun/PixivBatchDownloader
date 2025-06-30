@@ -190,7 +190,7 @@ class ShowOriginSizeImage {
     window.addEventListener(
       'keydown',
       (ev) => {
-        // 预览大图时，可以使用快捷键 D 下载这个作品
+        // 查看大图时，可以使用快捷键 D 下载这个作品
         if (ev.code === 'KeyD' && this.show) {
           EVT.fire('crawlIdList', [
             {
@@ -200,7 +200,7 @@ class ShowOriginSizeImage {
           ])
         }
 
-        // 预览作品时，可以使用快捷键 C 仅下载当前显示的图片
+        // 查看大图时，可以使用快捷键 C 仅下载当前显示的图片
         if (ev.code === 'KeyC' && this.show) {
           ev.stopPropagation()
 

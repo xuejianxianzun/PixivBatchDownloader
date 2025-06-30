@@ -1,3 +1,5 @@
+import { EVT } from '../EVT'
+import { pageType } from '../PageType'
 import { options } from '../setting/Options'
 import { InitPageBase } from './InitPageBase'
 
@@ -9,13 +11,12 @@ class InitRequestPage extends InitPageBase {
   }
 
   protected initAny() {
-    // 为作品容器添加自定义 className，让显示更大的缩率图功能不那么容易失效
-    const allSection = document.querySelectorAll('section')
-    for (const section of allSection) {
-      if (section.parentElement?.nodeName == 'DIV') {
-        section.parentElement.classList.add('requestContainer')
+    // 约稿页面 和 已完成的约稿页面 互相切换时，需要重新隐藏第一个选项
+    window.addEventListener(EVT.list.pageSwitch, () => {
+      if (pageType.type === pageType.list.Request) {
+        this.setFormOption()
       }
-    }
+    })
   }
 
   protected addCrawlBtns() {}
