@@ -28,6 +28,7 @@ import { timedCrawl } from './TimedCrawl'
 import '../pageFunciton/QuickBookmark'
 import '../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
+import { cacheWorkData } from '../store/CacheWorkData'
 
 abstract class InitPageBase {
   protected crawlNumber = 0 // 要抓取的个数/页数
@@ -58,12 +59,24 @@ abstract class InitPageBase {
     // 注册当前页面的 destroy 函数
     destroyManager.register(this.destroy.bind(this))
 
-    // 切换页面时，如果任务已经完成，则移除日志区域
-    EVT.bindOnce('clearLogAfterPageSwitch', EVT.list.pageSwitch, () => {
-      if (!states.busy) {
-        EVT.fire('clearLog')
+    // 页面类型变化时（pageSwitchedTypeChange），如果任务已经完成，则移除日志区域
+    // 如果不判断页面类型变化，那么会在查看漫画时出现问题
+    // 因为漫画页面和查看漫画的页面是两个网址
+    // 例如下面是一个漫画的网址：
+    // https://www.pixiv.net/artworks/130798699
+    // 在查看漫画时，网址后面会加上 #1:
+    // https://www.pixiv.net/artworks/130798699#1
+    // 这会触发 pageSwitch 事件（它不判断页面类型是否变化）
+    // 如果此时移除日志，就会导致日志被意外清除
+    EVT.bindOnce(
+      'clearLogAfterPageSwitch',
+      EVT.list.pageSwitchedTypeChange,
+      () => {
+        if (!states.busy) {
+          EVT.fire('clearLog')
+        }
       }
-    })
+    )
 
     EVT.bindOnce('crawlCompleteTime', EVT.list.crawlComplete, () => {
       states.crawlCompleteTime = new Date().getTime()
@@ -263,9 +276,20 @@ abstract class InitPageBase {
   // 这个方法是为了让其他模块可以传递 id 列表，直接进行下载。
   // 这个类的子类没有必要使用这个方法。当子类需要直接指定 id 列表时，修改自己的 getIdList 方法即可。
   protected async crawlIdList(idList: IDData[]) {
+    // 对 idList 进行去重
+    // 这是因为有些用户可能会连续、快速的重复建立下载（比如在预览时迅速的连续按两次 C 键）
+    const ids: string[] = []
+    const _idList: IDData[] = []
+    for (const i of idList) {
+      if (ids.includes(i.id) === false) {
+        ids.push(i.id)
+        _idList.push(i)
+      }
+    }
+
     // 如果下载器正忙则把 id 列表添加到等待队列中
     if (states.busy) {
-      store.waitingIdList.push(...idList)
+      store.waitingIdList.push(..._idList)
       toast.show(lang.transl('_下载器正忙这次请求已开始排队'), {
         bgColor: Colors.bgBlue,
       })
@@ -298,7 +322,7 @@ abstract class InitPageBase {
       // 传递 id 列表下载时，不显示下载面板
       states.quickCrawl = true
 
-      store.idList = idList
+      store.idList = _idList
 
       this.getIdListFinished()
     }
@@ -395,6 +419,23 @@ abstract class InitPageBase {
     }
 
     // 开始抓取作品数据
+
+    // 当快速下载单个作品时，优先从缓存读取
+    // 其实缓存数据里的某些值可能不是作品的最新值了，但是下载单个作品时，通常距离缓存时没过去多久
+    // 所以就使用缓存了
+    // 这通常是由 crawlIdList 触发的，比如：
+    // 在作品页里快速下载这个作品；预览图片时按快捷键下载；点击缩略图右上角的下载按钮
+    if (states.quickCrawl && store.idList.length === 1) {
+      const data = cacheWorkData.get(store.idList[0].id)
+      if (data) {
+        store.idList = []
+        await saveArtworkData.save(data)
+        return this.crawlFinished()
+      }
+    }
+
+    // 如果没有缓存，或者要抓取多个作品，则进行真正的抓取
+    // getWorksData 里不使用缓存的数据，它始终会发送请求
     for (let i = 0; i < this.ajaxThread; i++) {
       window.setTimeout(() => {
         store.idList.length > 0 ? this.getWorksData() : this.afterGetWorksData()
@@ -447,7 +488,7 @@ abstract class InitPageBase {
 
     try {
       const unlisted = pageType.type === pageType.list.Unlisted
-      // 这里不能使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
+      // 这里不使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
       if (idData.type === 'novels') {
         const data = await API.getNovelData(id, unlisted)
         await saveNovelData.save(data)
@@ -473,8 +514,10 @@ abstract class InitPageBase {
           this.afterGetWorksData()
         }
       } else {
-        // 请求失败，没有获得服务器的返回数据，一般都是
+        // 请求失败，一般是
         // TypeError: Failed to fetch
+        // 或者 Failed to load resource: net::ERR_CONNECTION_CLOSED
+        // 对于这种请求没能成功发送的错误，会输出 null
         // 此外这里也会捕获到 save 作品数据时的错误（如果有）
         console.error(error)
 

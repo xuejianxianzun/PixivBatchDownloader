@@ -1,0 +1,96 @@
+#viewerWarpper {
+  position: relative;
+  margin: 0;
+  margin-top: 40px;
+  padding: 40px 10px;
+  display: none;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+#viewerWarpper ul {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+}
+#viewerWarpper li {
+  display: flex;
+  flex-basis: 23%;
+  height: 200px;
+  margin: 1.4% 1%;
+  justify-content: center;
+  flex-shrink: 0;
+}
+#viewerWarpper li img {
+  object-fit: contain;
+  max-width: 100%;
+  cursor: pointer;
+}
+#viewerWarpper li a {
+  display: none;
+}
+.viewer-backdrop {
+  background: rgba(0, 0, 0, 0.8) !important;
+}
+.viewer-backdrop .viewer-canvas {
+  background: rgba(0, 0, 0, 0.8) !important;
+}
+.viewer-backdrop .viewer-toolbar .viewer-next,
+.viewer-backdrop .viewer-toolbar .viewer-prev {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 100px;
+  width: 100px;
+  overflow: hidden;
+}
+.viewer-backdrop .viewer-toolbar .viewer-prev {
+  position: fixed;
+  left: -70px;
+  top: 40%;
+}
+.viewer-backdrop .viewer-toolbar .viewer-prev::before {
+  top: 40px;
+  left: 70px;
+  position: absolute;
+}
+.viewer-backdrop .viewer-toolbar .viewer-next {
+  position: fixed;
+  right: -70px;
+  top: 40%;
+}
+.viewer-backdrop .viewer-toolbar .viewer-next::before {
+  left: 10px;
+  top: 40px;
+  position: absolute;
+}
+.viewer-backdrop .viewer-toolbar .viewer-add-btn {
+  color: #fff;
+  font-size: 12px;
+  line-height: 24px;
+  transition: all 1s;
+}
+.viewer-backdrop .viewer-toolbar .viewer-add-btn::marker {
+  content: none;
+}
+.viewer-backdrop .viewer-navbar {
+  background: rgba(0, 0, 0, 0.3);
+}
+.viewer-backdrop .viewer-navbar .viewer-list li {
+  width: 50px !important;
+}
+.viewer-backdrop .viewer-navbar .viewer-list li img {
+  width: 50px !important;
+  height: 50px !important;
+  transform: unset !important;
+  object-fit: contain;
+  object-position: center center;
+}
+.rotate360 {
+  transform: rotate(360deg);
+}
+.theme-dark#viewerWarpper {
+  border: none;
+}

@@ -73,7 +73,7 @@ class DisplayThumbnailListOnMultiImageWorkPage {
       wrap.id = this.ID
       theme.register(wrap)
       wrap.style.display = 'block'
-      target.insertAdjacentElement('beforebegin', wrap)
+      target.insertAdjacentElement('afterbegin', wrap)
     }
   }
 }

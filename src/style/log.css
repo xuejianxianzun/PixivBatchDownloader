@@ -1,0 +1,76 @@
+.logWrap {
+  font-family:
+    win-bug-omega,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    Ubuntu,
+    Cantarell,
+    'Noto Sans',
+    'Hiragino Kaku Gothic ProN',
+    Meiryo,
+    sans-serif;
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  display: none;
+  color: #333;
+  background: #fff;
+}
+.logContent {
+  width: 100%;
+  max-width: 950px;
+  max-height: 300px;
+  overflow-y: scroll;
+  margin: 0 auto;
+  padding: 10px 0;
+  font-size: 14px;
+}
+.logContent br {
+  display: inline;
+}
+.logContent a {
+  color: #0ea8ef;
+}
+.logBtn {
+  position: fixed;
+  top: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-block;
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+  background-color: #29b3f3;
+  color: white;
+  padding: 8px 10px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  z-index: 1;
+  transition: opacity 0.3s;
+}
+.logBtn.show {
+  opacity: 1;
+  pointer-events: initial;
+}
+.theme-dark.logWrap {
+  background: #222;
+  color: #fff;
+}
+.xzBG.logWrap {
+  background: #222;
+  color: #fff;
+  text-shadow: #003247 0px 0px 2px;
+}
+.xzBG.logWrap .logContent * {
+  color: #fff !important;
+}
+.xzBG.logWrap .xzBGLayer {
+  filter: blur(2px);
+}
+.logWrap.mobile {
+  font-size: 16px;
+  font-family: sans-serif;
+  padding: 10px 10px;
+}
