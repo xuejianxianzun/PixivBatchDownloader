@@ -93,7 +93,14 @@ class ShowZoomBtnOnThumb {
     if (this.doNotShowBtn) {
       return
     }
+
     if (!settings.magnifier) {
+      return
+    }
+
+    // 在多图作品的缩略图列表上触发时，不显示放大镜按钮
+    // 因为点击这些缩略图就会调用图片查看器，这和点击放大镜的功能是相同的
+    if (Config.checkImageViewerLI(target)) {
       return
     }
 

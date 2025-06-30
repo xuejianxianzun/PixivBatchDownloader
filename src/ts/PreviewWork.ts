@@ -51,6 +51,20 @@ class PreviewWork {
   // 保存每个预览过的作品的 index。当用户再次预览这个作品时，可以恢复上次的进度
   private indexHistory: { [key: string]: number } = {}
 
+  /**切换页面后，在一定时间内（500 ms）不允许触发图片预览功能 */
+  // 这是为了缓解有时新页面加载后，会显示旧页面里的图片的预览的问题。
+  // 触发方式是：先点击一个作品，然后快速把鼠标移动到相邻的另一个作品上面
+  // 在点击第一个作品后，会打开它的页面，但这需要一定的加载时间
+  // 所以旧页面上的内容依然会存在一段时间，不会立即消失（这就是触发 BUG 的窗口期）
+  // 在此期间把鼠标移动到另一个作品上面，就可能触发它的预览
+  // 之后新页面加载出来了，但另一个作品的预览也显示出来了
+  // 所以我设置了一个延迟时间来缓解此问题，使其出现频率大幅下降
+  private dontShowAfterPageSwitch = false
+  // PS：新页面加载的时间越久，越容易出现这个问题，因为窗口期变长了
+  // 如果点击作品后，很快就加载了新的页面内容，那就不容易触发此问题
+  // PS：点击超链接之后，浏览器地址栏里的 URL 是立即变化的，也就是立即触发了 pageSwitch 事件，
+  // 但页面内容需要时间来加载，所以不能用 pageSwitch 事件来解决此问题，因为在它触发之后是有窗口期的
+
   // 延迟显示预览区域的定时器
   // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片，这是为了避免浪费网络资源
   private delayShowTimer: number | undefined = undefined
@@ -85,8 +99,16 @@ class PreviewWork {
       if (!this.workData || this.workData.body.id !== this.workId) {
         this.readyShow()
       } else {
+        // 准备显示预览
+        if (this.dontShowAfterPageSwitch) {
+          return
+        }
+
         // 显示作品的详细信息
-        if (settings.PreviewWorkDetailInfo) {
+        if (
+          settings.PreviewWorkDetailInfo &&
+          Config.checkImageViewerLI(this.workEL) === false
+        ) {
           EVT.fire('showPreviewWorkDetailPanel', this.workData)
         }
 
@@ -139,7 +161,7 @@ class PreviewWork {
 
   private bindEvents() {
     artworkThumbnail.onEnter((el: HTMLElement, id: string) => {
-      if (this.dontShowAgain) {
+      if (this.dontShowAgain || this.dontShowAfterPageSwitch) {
         return
       }
       // 当鼠标进入到不同作品时
@@ -149,6 +171,13 @@ class PreviewWork {
         // 设置 index
         this.index = this.indexHistory[id] || 0
       }
+
+      // 在在多图作品的缩略图列表上触发时，使用 data-index 属性的值作为 index
+      if (Config.checkImageViewerLI(el)) {
+        const _index = Number.parseInt(el.dataset!.index!)
+        this.index = _index
+      }
+
       this.workId = id
       this.workEL = el
 
@@ -297,6 +326,13 @@ class PreviewWork {
       window.addEventListener(evt, () => {
         this.show = false
       })
+    })
+
+    window.addEventListener(EVT.list.pageSwitch, () => {
+      this.dontShowAfterPageSwitch = true
+      window.setTimeout(() => {
+        this.dontShowAfterPageSwitch = false
+      }, 500)
     })
 
     // 当作品的详情面板隐藏时，鼠标位置可能在作品缩略图之外。所以此时需要检测鼠标位置，决定是否需要隐藏预览图

@@ -19,6 +19,7 @@ ul li div[data-mouseover] a img {
 // 不放大这里的图片
 ul li div[data-mouseover][size='131'] a img {
   max-width: 100%;
+  max-height: 131px;
 }
 
 // 不支持的页面
@@ -60,11 +61,19 @@ body[data-page-type='0'] {
     // 解除宽度 184px 的限制
     li div {
       width: auto !important;
+
+      // 隐藏它的 before，因为 pixiv 给 before 设置了 padding-top: 100%;
+      // 会导致 div 被撑到最大高度 540px
+      &::before {
+        padding: 0;
+        display: none;
+      }
     }
   }
 
   // 新版首页的推荐作品板块
-  .ldgmym {
+  .ldgmym,
+  .gtm-toppage-thumbnail-manga-recommend-works-zone > div > div {
     width: 92vw;
   }
 
@@ -75,6 +84,12 @@ body[data-page-type='0'] {
 
   li iframe {
     display: none !important;
+  }
+
+  // 使插画、漫画首页里，一些板块里的缩略图垂直居中对齐
+  .gtm-toppage-thumbnail-illustration-recommend-tag-zone ul,
+  .gtm-toppage-thumbnail-manga-recommend-works-zone ul {
+    align-items: center;
   }
 
   // ul
@@ -149,6 +164,11 @@ body[data-page-type='0'] {
     max-width: 540px;
     max-height: 600px;
     flex-shrink: 0;
+    margin: 14px auto;
+  }
+
+  .homeFriendsNewWorks ul > div {
+    margin: 14px;
   }
 
   .homeFriendsNewWorks ul > div > div,
@@ -158,10 +178,24 @@ body[data-page-type='0'] {
     width: auto !important;
   }
 
+  // 上面是插画首页里 已关注用户的作品 里的 div
+  // 下面是漫画首页里 已关注用户的作品 里的 div
   .homeFriendsNewWorks ul > div > div > div,
   .homeFriendsNewWorks ul > li > div > div {
     display: flex !important;
     flex-direction: column !important;
+  }
+
+  // 隐藏漫画首页里的广告元素，否则它会显示为一大块空白
+  .homeFriendsNewWorks ul > li div[id^='adsdk'] {
+    display: none !important;
+  }
+
+  // 2025-07-01 现在首页的“精选新作”里的左右切换按钮始终不会显示，但其他三种页面里正常
+  // 不清楚这是不是 pixiv 自己的代码问题，这里我让按钮始终显示
+  .homeFriendsNewWorks .absolute button {
+    opacity: 1;
+    pointer-events: initial;
   }
 
   // 新版首页的推荐作品
@@ -174,14 +208,21 @@ body[data-page-type='0'] {
     display: flex !important;
     max-width: 540px;
     max-height: 600px;
-    flex-shrink: 0;
     margin: 12px;
+    flex-shrink: 1;
   }
 
   .homeRecommendedWorks ul > li > div {
     display: flex !important;
     flex-direction: column !important;
     width: 100% !important;
+  }
+
+  // 2025-07-01 发现首页的推荐作品的图片是正常高度，但其外面的 div 是最大高度 540px
+  // 原来是 pixiv 给它的 before 设置了 padding-top: 100%; 导致的
+  .homeRecommendedWorks ul > li > div > div::before {
+    padding: 0;
+    display: none;
   }
 
   // 增加小说的宽度
@@ -207,6 +248,10 @@ body[data-page-type='0'] {
   }
 
   // 正在举办的比赛
+  .contestWorksUL {
+    align-items: center;
+  }
+
   .contestWorksUL > div > div {
     width: auto !important;
     height: auto !important;
@@ -216,6 +261,11 @@ body[data-page-type='0'] {
 // Artwork 插画/漫画/动图页面
 // https://www.pixiv.net/artworks/127936646
 body[data-page-type='1'] {
+  // 加宽底部的“相关作品”区域宽度
+  .gtm-illust-recommend-zone > div > div {
+    width: 94vw;
+  }
+
   // 相关作品的 ul 元素
   .gtm-illust-recommend-zone ul,
   .jELUak {
@@ -240,13 +290,6 @@ body[data-page-type='1'] {
     max-width: 1224px;
     margin: 24px auto 0;
     justify-content: center;
-  }
-
-  // 加宽底部的“相关作品”区域宽度
-  .kIrKyI,
-  .bgPpJb,
-  div[data-gtm-recommend-zone='new-illust-detail'] > div > div {
-    width: 94vw;
   }
 
   // ul
@@ -299,6 +342,13 @@ body[data-page-type='2'] {
     max-width: unset;
   }
 
+  // 2025-07-01 发现的问题，pixiv 改版后，作品缩略图的 li 在交叉轴上变成顶部对齐了，
+  // 导致横图和竖图一样是从顶部对齐的，视觉上不均衡
+  // 现在改为居中对齐
+  .userHomeWrapper ul {
+    align-items: center;
+  }
+
   div[width='288'],
   .kXjhXr,
   .jRyeAs {
@@ -314,6 +364,11 @@ body[data-page-type='2'] {
   // 设置两侧的 padding
   .featuredPadding {
     padding: 0 72px;
+
+    // 让三个精选作品垂直居中对齐
+    & > ul {
+      align-items: center;
+    }
   }
 
   // 因为我把图片放大了，所以让作品信息显示在图片下方
@@ -323,6 +378,10 @@ body[data-page-type='2'] {
     max-width: 540px;
     width: auto;
     height: auto;
+  }
+
+  .featuredLI .featuredRight {
+    margin-top: 10px;
   }
 
   // 每个板块的最外层容器元素可能被设置了固定宽度，导致图片尺寸固定，或者容器不能完全显示里面的内容
@@ -408,8 +467,8 @@ body[data-page-type='4'] {
 
   // ul
   // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
-  .jELUak,
-  .jtUPOE {
+  .worksUL {
+    display: flex;
     align-items: center;
   }
 
@@ -497,6 +556,11 @@ body[data-page-type='5'] {
   // 取消右侧的遮罩
   aside ul {
     mask: unset;
+  }
+
+  // 隐藏热门作品右侧的“成为pixiv高级会员”宣传文字
+  aside ul + div {
+    display: none;
   }
 
   // 取消宽度限制，以显示更大的缩略图
@@ -739,7 +803,7 @@ body[data-page-type='12'] {
 
   // ul
   // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
-  .fhUcsb {
+  section ul {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -748,13 +812,13 @@ body[data-page-type='12'] {
   // ul li
   // 解除作品项目的宽度限制
   // 这些元素原本设置了 width: 184px;
-  .jELUak > li,
-  .jELUak > li > div {
+  section ul > li,
+  section ul > li > div {
     width: auto !important;
   }
 
   /* img */
-  .cEpkIn {
+  section ul > li > div a img {
     position: relative;
     width: auto !important;
     height: auto !important;
@@ -814,32 +878,57 @@ body[data-page-type='20'] {
 // https://www.pixiv.net/request
 body[data-page-type='21'] {
   // 解除列表容器的宽度限制
-  .fKsmTC {
+  .fKsmTC,
+  .requestContainer,
+  .worksWrapper {
     width: 92vw;
   }
 
+  // 约稿页面
+
   // ul
   // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
-  .buGhFj,
-  .jlWuvS {
+  // 注意这个选择器会选择到图片列表之外的元素，例如作者卡片
+  section ul {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
   }
 
-  .jlWuvS {
+  // 为作者卡片之类的元素添加边距，因为上面的规则会让它们挨在一起，没有间距
+  section ul > div {
+    margin: 24px;
+  }
+
+  // 正在接稿中用户的作品
+  // https://www.pixiv.net/request/creators/works/illust
+  // 已完成的约稿页面
+  // https://www.pixiv.net/request/complete/illust
+
+  // ul
+  // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
+  .worksUL {
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
   }
 
   // ul li
   // 解除作品项目的宽度限制
-  // 这些元素原本设置了 width: 184px;
-  .jELUak > li,
-  .jELUak > li > div {
+  .worksUL > li {
+    max-width: 540px;
     width: auto !important;
   }
 
+  // 解除 img 父级元素 184px 的宽度限制
+  .worksUL > li > div > div {
+    width: auto !important;
+    height: auto !important;
+  }
+
   /* img */
-  .bFEhwX {
+  /* div[width="184"] a div img */
+  .worksUL > li > div > div a > img {
     position: relative;
     width: auto !important;
     height: auto !important;

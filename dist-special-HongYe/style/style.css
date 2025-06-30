@@ -1511,15 +1511,16 @@
 .logWrap {
   font-family: win-bug-omega, system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
   position: relative;
-  z-index: 1;
+  z-index: 0;
   width: 100%;
+  display: none;
   color: #333;
   background: #fff;
 }
 .logContent {
   width: 100%;
   max-width: 950px;
-  max-height: 200px;
+  max-height: 300px;
   overflow-y: scroll;
   margin: 0 auto;
   padding: 10px 0;
@@ -1530,6 +1531,27 @@
 }
 .logContent a {
   color: #0ea8ef;
+}
+.logBtn {
+  position: fixed;
+  top: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-block;
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+  background-color: #29b3f3;
+  color: white;
+  padding: 8px 10px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  z-index: 1;
+  transition: opacity 0.3s;
+}
+.logBtn.show {
+  opacity: 1;
+  pointer-events: initial;
 }
 .theme-dark.logWrap {
   background: #222;
@@ -1675,33 +1697,36 @@ iframe[name='expandedFooter'] {
 }
 #viewerWarpper {
   position: relative;
-  margin: 30px auto 15px;
-  overflow: hidden;
-  padding: 16px 0 100px 0;
+  margin: 0;
+  margin-top: 40px;
+  padding: 40px 10px;
   display: none;
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;
 }
 #viewerWarpper ul {
-  max-width: 568px;
-  margin: 24px auto;
-  padding: 0 16px 3px;
+  margin: 0;
+  padding: 0;
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  flex-wrap: nowrap;
-  overflow: auto;
+  flex-wrap: wrap;
 }
 #viewerWarpper li {
   display: flex;
+  flex-basis: 23%;
+  height: 200px;
+  margin: 1.4% 1%;
+  justify-content: center;
   flex-shrink: 0;
-  margin-right: 8px;
-  overflow: hidden;
 }
 #viewerWarpper li img {
+  object-fit: contain;
+  max-width: 100%;
   cursor: pointer;
-  max-height: 144px;
-  width: auto;
+}
+#viewerWarpper li a {
+  display: none;
 }
 .viewer-backdrop {
   background: rgba(0, 0, 0, 0.8) !important;

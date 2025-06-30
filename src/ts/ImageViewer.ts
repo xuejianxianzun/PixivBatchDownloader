@@ -12,9 +12,10 @@ import { cacheWorkData } from './store/CacheWorkData'
 import { Colors } from './Colors'
 import { downloadOnClickBookmark } from './download/DownloadOnClickBookmark'
 import { pageType } from './PageType'
+import { Config } from './Config'
 
 // 所有参数
-interface Config {
+interface InitConfig {
   // 作品 id
   // 默认从 url 中获取作品 id
   workId: string
@@ -63,7 +64,7 @@ class ImageViewer {
   private firstImageURL = '' // 第一张图片的 url
 
   // 默认配置
-  private cfg: Config = {
+  private cfg: InitConfig = {
     workId: Tools.getIllustId(),
     imageNumber: 2,
     imageSize: 'original',
@@ -177,12 +178,13 @@ class ImageViewer {
           // 生成 UL 里面的缩略图列表
           let html: string[] = []
           for (let index = 0; index < body.pageCount; index++) {
-            const str = `<li><img src="${Tools.convertThumbURLTo540px(
+            const str = `<li data-index="${index}" class="${
+              Config.ImageViewerLI
+            }"><img src="${Tools.convertThumbURLTo540px(
               body.urls.thumb.replace('p0', 'p' + index)
-            )}" data-src="${this.firstImageURL.replace(
-              'p0',
-              'p' + index
-            )}"></li>`
+            )}" data-src="${this.firstImageURL.replace('p0', 'p' + index)}">
+            <a href="${window.location.href}"></a>
+            </li>`
             html.push(str)
           }
           this.viewerUl.innerHTML = html.join('')

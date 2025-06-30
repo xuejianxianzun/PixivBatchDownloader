@@ -13,6 +13,7 @@ class ArtworkThumbnail extends WorkThumbnail {
       this.selectors = ['.works-item-illust']
     } else {
       this.selectors = [
+        '#viewerWarpper li',
         'div[width="136"]',
         'div[width="131"]',
         'div[size="131"]',
@@ -28,7 +29,9 @@ class ArtworkThumbnail extends WorkThumbnail {
         '._work.item',
         'div[type="illust"]',
         'li>div>div:first-child',
+        'li>div>div:first-child>div',
         'li>div>div>div:first-child',
+        '.worksUL li>div>div:first-child',
         'div[data-ga4-entity-id^="illust"]>div:nth-child(2)',
         'div[data-ga4-entity-id^="manga"]>div:nth-child(2)',
       ]
@@ -39,8 +42,17 @@ class ArtworkThumbnail extends WorkThumbnail {
       // data-ga4-entity-id="novel/18205969"
     }
 
-    this.findThumbnail(document.body)
     this.createObserver(document.body)
+
+    // 立即查找一次元素
+    this.findThumbnail(document.body)
+    // 之后在某些页面里定时查找
+    const findOnPageType = [pageType.list.Request]
+    window.setInterval(() => {
+      if (document.hidden === false && findOnPageType.includes(pageType.type)) {
+        this.findThumbnail(document.body)
+      }
+    }, 1000)
   }
 
   protected readonly selectors: string[] = []
@@ -54,6 +66,14 @@ class ArtworkThumbnail extends WorkThumbnail {
     // 如果在查找到某个选择器之后，不再查找剩余的选择器，就可能会遗漏一部分缩略图。
     // 但是，这有可能会导致事件的重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
     for (const selector of this.selectors) {
+      // #viewerWarpper li 是下载器在多图作品页面里添加的缩略图列表
+      if (
+        selector === '#viewerWarpper li' &&
+        pageType.type !== pageType.list.Artwork
+      ) {
+        continue
+      }
+
       // div[size="184"] 只在 发现 和 发现-推荐用户 和 新版首页 里使用
       if (
         selector === 'div[size="184"]' &&
@@ -74,13 +94,20 @@ class ArtworkThumbnail extends WorkThumbnail {
         continue
       }
 
-      // li>div>div:first-child 只在 约稿 和 大家的新作 页面里使用
-      // 已知问题：画师主页顶部的“精选”作品会被两个选择器查找到：li>div>div:first-child 和 div[width="288"]
-      // 如果不限制在特定页面里使用，就会导致这部分作品被重复绑定
+      // 只在 大家的新作 页面里使用
       if (
         selector === 'li>div>div:first-child' &&
-        pageType.type !== pageType.list.Request &&
         pageType.type !== pageType.list.NewArtwork
+      ) {
+        continue
+      }
+
+      // 只在 约稿 页面里使用
+      // .worksUL li>div>div:first-child 是在“已完成的约稿”里使用的
+      if (
+        (selector === 'li>div>div:first-child>div' ||
+          selector === '.worksUL li>div>div:first-child') &&
+        pageType.type !== pageType.list.Request
       ) {
         continue
       }
