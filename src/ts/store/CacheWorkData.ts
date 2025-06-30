@@ -6,7 +6,7 @@ import { ArtworkData } from '../crawl/CrawlResult'
 class CacheWorkData {
   private cache: ArtworkData[] = []
   // 一个图像作品的数据大约是 5 KB
-  private readonly max = 100
+  private readonly max = 200
 
   public set(data: ArtworkData) {
     if (this.has(data.body.id)) {

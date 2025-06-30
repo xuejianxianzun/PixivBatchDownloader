@@ -7702,7 +7702,7 @@ class ShowOriginSizeImage {
             }
         });
         window.addEventListener('keydown', (ev) => {
-            // 预览大图时，可以使用快捷键 D 下载这个作品
+            // 查看大图时，可以使用快捷键 D 下载这个作品
             if (ev.code === 'KeyD' && this.show) {
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [
                     {
@@ -7711,7 +7711,7 @@ class ShowOriginSizeImage {
                     },
                 ]);
             }
-            // 预览作品时，可以使用快捷键 C 仅下载当前显示的图片
+            // 查看大图时，可以使用快捷键 C 仅下载当前显示的图片
             if (ev.code === 'KeyC' && this.show) {
                 ev.stopPropagation();
                 if (this.workData.body.pageCount > 1) {
@@ -14907,7 +14907,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _pageFunciton_QuickBookmark__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../pageFunciton/QuickBookmark */ "./src/ts/pageFunciton/QuickBookmark.ts");
 /* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 // 初始化所有页面抓取流程的基类
+
 
 
 
@@ -15128,9 +15130,19 @@ class InitPageBase {
     // 这个方法是为了让其他模块可以传递 id 列表，直接进行下载。
     // 这个类的子类没有必要使用这个方法。当子类需要直接指定 id 列表时，修改自己的 getIdList 方法即可。
     async crawlIdList(idList) {
+        // 对 idList 进行去重
+        // 这是因为有些用户可能会连续、快速的重复建立下载（比如在预览时迅速的连续按两次 C 键）
+        const ids = [];
+        const _idList = [];
+        for (const i of idList) {
+            if (ids.includes(i.id) === false) {
+                ids.push(i.id);
+                _idList.push(i);
+            }
+        }
         // 如果下载器正忙则把 id 列表添加到等待队列中
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.waitingIdList.push(...idList);
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.waitingIdList.push(..._idList);
             _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器正忙这次请求已开始排队'), {
                 bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
             });
@@ -15154,7 +15166,7 @@ class InitPageBase {
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = false;
             // 传递 id 列表下载时，不显示下载面板
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.quickCrawl = true;
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = idList;
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = _idList;
             this.getIdListFinished();
         }
     }
@@ -15227,6 +15239,21 @@ class InitPageBase {
             this.ajaxThread = Math.min(this.ajaxThreadsDefault, _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length);
         }
         // 开始抓取作品数据
+        // 当快速下载单个作品时，优先从缓存读取
+        // 其实缓存数据里的某些值可能不是作品的最新值了，但是下载单个作品时，通常距离缓存时没过去多久
+        // 所以就使用缓存了
+        // 这通常是由 crawlIdList 触发的，比如：
+        // 在作品页里快速下载这个作品；预览图片时按快捷键下载；点击缩略图右上角的下载按钮
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.quickCrawl && _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length === 1) {
+            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id);
+            if (data) {
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = [];
+                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__.saveArtworkData.save(data);
+                return this.crawlFinished();
+            }
+        }
+        // 如果没有缓存，或者要抓取多个作品，则进行真正的抓取
+        // getWorksData 里不使用缓存的数据，它始终会发送请求
         for (let i = 0; i < this.ajaxThread; i++) {
             window.setTimeout(() => {
                 _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0 ? this.getWorksData() : this.afterGetWorksData();
@@ -15266,7 +15293,7 @@ class InitPageBase {
         }
         try {
             const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.Unlisted;
-            // 这里不能使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
+            // 这里不使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
             if (idData.type === 'novels') {
                 const data = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getNovelData(id, unlisted);
                 await _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_11__.saveNovelData.save(data);
@@ -32505,7 +32532,7 @@ class CacheWorkData {
     constructor() {
         this.cache = [];
         // 一个图像作品的数据大约是 5 KB
-        this.max = 100;
+        this.max = 200;
     }
     set(data) {
         if (this.has(data.body.id)) {
