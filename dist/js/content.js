@@ -28740,10 +28740,9 @@ class ShowDownloadBtnOnMultiImageWorkPage {
             // 如果没有添加过按钮
             if (a.querySelector(`.${this.flagClassName}`) === null) {
                 // 添加按钮
+                const top = this.addBtnOffset();
                 const btn = this.createBtn();
-                if (index === 0) {
-                    btn.style.top = `${this.addFirstBtnOffset()}px`;
-                }
+                btn.style.top = `${top}px`;
                 a.style.position = 'relative';
                 a.appendChild(btn);
                 // 点击按钮时发送下载任务
@@ -28772,15 +28771,19 @@ class ShowDownloadBtnOnMultiImageWorkPage {
             }
         });
     }
-    /**判断第一个按钮是否应该下移一定距离。返回值是 top 的数值 */
-    addFirstBtnOffset() {
+    /**判断按钮是否应该下移一定距离，避免挡住页码。返回值是 top 的数值 */
+    addBtnOffset() {
+        // 如果按钮显示在左上角就不需要加 top，因为页码是显示在图片右上角的
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.magnifierPosition === 'left') {
+            return 0;
+        }
         const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.get(_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId());
         // 单图作品不需要处理。PS：有些漫画也是单图的
         if (!data || data.body.pageCount === 1) {
             return 0;
         }
-        // 对于多图插画作品，由于第一张图片的右上角会显示 Pixiv 原本的图片编号，如 “1/5”，
-        // 所以需要将第一个按钮下移一定距离，避免遮挡住图片编号
+        // 对于多图插画作品，由于图片的右上角会显示 Pixiv 原本的图片编号，如 “1/5”，
+        // 所以需要将按钮下移一定距离，避免遮挡住图片编号
         if (data.body.illustType === 0) {
             return 34;
         }
