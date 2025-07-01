@@ -98,6 +98,11 @@ class Log {
   private _show = false
 
   private set show(value: boolean) {
+    // 对于红叶的版本，始终显示顶部日志
+    if (value === false) {
+      value = true
+    }
+
     if (value) {
       // 显示所有日志区域
       this.showAll()
