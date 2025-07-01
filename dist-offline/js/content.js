@@ -28814,9 +28814,8 @@ class ShowDownloadBtnOnMultiImageWorkPage {
             if (a.querySelector(`.${this.flagClassName}`) === null) {
                 // 添加按钮
                 const btn = this.createBtn();
-                if (index === 0) {
-                    btn.style.top = `${this.addFirstBtnOffset()}px`;
-                }
+                const top = this.addBtnOffset();
+                btn.style.top = `${top}px`;
                 a.style.position = 'relative';
                 a.appendChild(btn);
                 // 点击按钮时发送下载任务
@@ -28845,30 +28844,26 @@ class ShowDownloadBtnOnMultiImageWorkPage {
             }
         });
     }
-    /**判断第一个按钮是否应该下移一定距离。返回值是 top 的数值 */
-    addFirstBtnOffset() {
+    /**判断按钮是否应该下移一定距离，避免挡住图片编号。返回值是 top 的数值 */
+    addBtnOffset() {
         const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.get(_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId());
         // 单图作品不需要处理。PS：有些漫画也是单图的
         if (!data || data.body.pageCount === 1) {
             return 0;
         }
-        // 对于多图插画作品，由于第一张图片的右上角会显示 Pixiv 原本的图片编号，如 “1/5”，
-        // 所以需要将第一个按钮下移一定距离，避免遮挡住图片编号
+        // 对于多图插画作品，由于图片的右上角会显示 Pixiv 原本的图片编号，如 “1/5”，
+        // 所以需要将按钮下移一定距离，避免遮挡住图片编号
         if (data.body.illustType === 0) {
+            // 对于插画作品，如果按钮显示在左上角就不需要加 top
+            // 因为图片编号是显示在图片右上角的，左上角没什么元素会被遮挡
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.magnifierPosition === 'left') {
+                return 0;
+            }
             return 34;
         }
-        // 对于多图漫画作品，如果图片是竖图的话就不会与编号区域重叠，只有横图有可能会重叠
-        // 所以判断是横图的话才需要下移。并且由于漫画展开后的图片编号位置不同，需要下移更多距离
-        // 图片宽度的临界值：
-        // 编号区域的容器宽度最大值是 1224px。当页面宽度不够时，容器宽度会随之缩小
-        // 如果图片宽度接近或达到容器宽度，右侧就会与编号重叠
-        // 但这个临界值不是固定的，我假设页面宽度为 1024px，此时图片宽度为 900px 时就会与编号重叠
-        if (data.body.illustType === 1 &&
-            data.body.width > 900 &&
-            data.body.width >= data.body.height) {
-            return 60;
-        }
-        return 0;
+        // 对于多图漫画作品，始终设置 60px 的 top
+        // 因为左上角有个返回按钮，右上角是图片编号，所以不管显示在左侧还是右侧都要加 top 值
+        return 60;
     }
     createBtn() {
         const btn = document.createElement('button');
