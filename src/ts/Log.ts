@@ -10,6 +10,7 @@ import { Utils } from './utils/Utils'
 import { settings } from './setting/Settings'
 import { DateFormat } from './utils/DateFormat'
 import { Config } from './Config'
+import { pageType } from './PageType'
 
 // 日志
 class Log {
@@ -80,6 +81,19 @@ class Log {
   /**显示或隐藏顶部的“显示日志”按钮 */
   // 它默认是 opacity: 0，即不可见
   private set logBtnShow(value: boolean) {
+    // 在图像作品页面里，如果处于漫画页面里的阅读模式（检测特定的 a 元素），则不显示按钮。网址如：
+    // https://www.pixiv.net/artworks/130919451#1
+    // 这是因为即使用户之前已经把页面滚动了一部分（按钮是隐藏的），但点击“阅读全部”后，按钮就会显示出来
+    // 但实际上在阅读时不应该显示按钮，所以特殊处理一下
+    if (
+      pageType.type === pageType.list.Artwork &&
+      /#\d/.test(window.location.hash) &&
+      document.querySelector('a.gtm-expand-full-size-illust')
+    ) {
+      this.logBtn.classList.remove('show')
+      return
+    }
+
     if (value) {
       if (this.count > 0 && window.scrollY <= 10) {
         this.logBtn.classList.add('show')
@@ -293,7 +307,7 @@ class Log {
 
       if (this.count === 0) {
         toast.warning(lang.transl('_没有日志'), {
-          position: 'center',
+          position: 'mouse',
         })
         return
       }
