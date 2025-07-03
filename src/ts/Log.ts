@@ -303,7 +303,7 @@ class Log {
 
       if (this.count === 0) {
         toast.warning(lang.transl('_没有日志'), {
-          position: 'center',
+          position: 'mouse',
         })
         return
       }

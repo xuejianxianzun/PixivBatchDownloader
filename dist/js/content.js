@@ -3892,7 +3892,7 @@ class Log {
             ev.preventDefault();
             if (this.count === 0) {
                 _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_没有日志'), {
-                    position: 'center',
+                    position: 'mouse',
                 });
                 return;
             }
