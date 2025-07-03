@@ -3523,8 +3523,26 @@ __webpack_require__.r(__webpack_exports__);
 // 监听页面的无刷新切换
 class ListenPageSwitch {
     constructor() {
+        this.nowURL = '';
+        this.nowURL = window.location.href;
         this.supportListenHistory();
         this.listenPageSwitch();
+    }
+    saveURL(url) {
+        // 保存 URL 时，截断 hash
+        return url.split('#')[0];
+        // 这是为了应对漫画页面里 hash 变化的情况
+        // 漫画页面的网址默认是没有 hash 的：
+        // https://www.pixiv.net/artworks/130919451
+        // 当点击“阅读作品”之后，会产生 hash：
+        // https://www.pixiv.net/artworks/130919451#1
+        // 这不应该被视为页面切换了，所以移除 hash 部分，让网址保持一致
+        // 注意：不需要移除 ? 后面的查询字符串，这主要会出现在 tag 搜索页面和有页码的时候，如 ?p=1
+        // 因为查询字符串变化后，页面内容会变化，所以应该视为不同的网址
+        // 同时带有两者时，查询字符串在前，hash 在后，如：
+        // https://www.pixiv.net/user/3698796/series/61267?p=3#seriesContents
+        // 这是因为查询字符串会影响页面的内容，而 hash 通常不会影响页面的内容，只是负责跳转显示位置
+        // 或者显示/隐藏漫画阅读部分的元素
     }
     // 为监听 url 变化的事件提供支持
     supportListenHistory() {
@@ -3541,13 +3559,13 @@ class ListenPageSwitch {
         ;
         ['pushState', 'popstate', 'replaceState'].forEach((item) => {
             window.addEventListener(item, () => {
-                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('pageSwitch');
+                const now = this.saveURL(window.location.href);
+                if (now !== this.nowURL) {
+                    this.nowURL = now;
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('pageSwitch');
+                }
             });
         });
-        // 虽然我想过获取变化前后的 URL 进行对比，以排除仅是锚点变化的情况
-        // 例如在漫画页面里点击“阅读作品”后，网址后面会添加 '#1'
-        // 如果可以对比 URL 的前后变化，就能排除这种状态，不触发 pageSwitch 事件
-        // 但是要获取变化前的 URL，需要手动记录。因为无论是 popstate 事件还是 pushState 操作，浏览器原生 API 都不直接提供变化前的 URL 信息，所以我懒得做这个判断了
     }
 }
 new ListenPageSwitch();
@@ -15016,16 +15034,8 @@ class InitPageBase {
         // 如果在 init 方法中绑定了全局事件，并且该事件只适用于当前页面类型，那么应该在 destroy 中解绑事件。
         // 注册当前页面的 destroy 函数
         _pageFunciton_DestroyManager__WEBPACK_IMPORTED_MODULE_15__.destroyManager.register(this.destroy.bind(this));
-        // 页面类型变化时（pageSwitchedTypeChange），如果任务已经完成，则移除日志区域
-        // 如果不判断页面类型变化，那么会在查看漫画时出现问题
-        // 因为漫画页面和查看漫画的页面是两个网址
-        // 例如下面是一个漫画的网址：
-        // https://www.pixiv.net/artworks/130798699
-        // 在查看漫画时，网址后面会加上 #1:
-        // https://www.pixiv.net/artworks/130798699#1
-        // 这会触发 pageSwitch 事件（它不判断页面类型是否变化）
-        // 如果此时移除日志，就会导致日志被意外清除
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('clearLogAfterPageSwitch', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.pageSwitchedTypeChange, () => {
+        // 页面切换后，如果任务已经完成，则移除日志区域
+        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('clearLogAfterPageSwitch', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.pageSwitch, () => {
             if (!_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
                 _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
             }
@@ -28771,6 +28781,7 @@ class ShowDownloadBtnOnMultiImageWorkPage {
         });
     }
     /**判断按钮是否应该下移一定距离，避免挡住图片编号。返回值是 top 的数值 */
+    // 由于现在按钮会显示在图片外侧，很少会挡住图片编号了，所以这个方法现在没有使用了
     addBtnOffset() {
         const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.get(_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getIllustId());
         // 单图作品不需要处理。PS：有些漫画也是单图的
