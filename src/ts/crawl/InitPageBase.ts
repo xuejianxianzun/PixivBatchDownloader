@@ -59,24 +59,12 @@ abstract class InitPageBase {
     // 注册当前页面的 destroy 函数
     destroyManager.register(this.destroy.bind(this))
 
-    // 页面类型变化时（pageSwitchedTypeChange），如果任务已经完成，则移除日志区域
-    // 如果不判断页面类型变化，那么会在查看漫画时出现问题
-    // 因为漫画页面和查看漫画的页面是两个网址
-    // 例如下面是一个漫画的网址：
-    // https://www.pixiv.net/artworks/130798699
-    // 在查看漫画时，网址后面会加上 #1:
-    // https://www.pixiv.net/artworks/130798699#1
-    // 这会触发 pageSwitch 事件（它不判断页面类型是否变化）
-    // 如果此时移除日志，就会导致日志被意外清除
-    EVT.bindOnce(
-      'clearLogAfterPageSwitch',
-      EVT.list.pageSwitchedTypeChange,
-      () => {
-        if (!states.busy) {
-          EVT.fire('clearLog')
-        }
+    // 页面切换后，如果任务已经完成，则移除日志区域
+    EVT.bindOnce('clearLogAfterPageSwitch', EVT.list.pageSwitch, () => {
+      if (!states.busy) {
+        EVT.fire('clearLog')
       }
-    )
+    })
 
     EVT.bindOnce('crawlCompleteTime', EVT.list.crawlComplete, () => {
       states.crawlCompleteTime = new Date().getTime()

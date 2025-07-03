@@ -54,9 +54,11 @@ class ShowDownloadBtnOnMultiImageWorkPage {
       if (a.querySelector(`.${this.flagClassName}`) === null) {
         // 添加按钮
         const btn = this.createBtn()
-        const top = this.addBtnOffset()
-        btn.style.top = `${top}px`
+        // const top = this.addBtnOffset()
+        // btn.style.top = `${top}px`
+        // 设置父元素的样式
         a.style.position = 'relative'
+        a.parentElement!.style.overflow = 'unset'
         a.appendChild(btn)
 
         // 点击按钮时发送下载任务
@@ -94,6 +96,7 @@ class ShowDownloadBtnOnMultiImageWorkPage {
   }
 
   /**判断按钮是否应该下移一定距离，避免挡住图片编号。返回值是 top 的数值 */
+  // 由于现在按钮会显示在图片外侧，很少会挡住图片编号了，所以这个方法现在没有使用了
   private addBtnOffset() {
     const data = cacheWorkData.get(Tools.getIllustId())
 
@@ -125,11 +128,11 @@ class ShowDownloadBtnOnMultiImageWorkPage {
     btn.style.display = 'flex'
     // 根据“在作品缩略图上显示放大按钮”的位置设置，将按钮显示在左侧或右侧
     if (settings.magnifierPosition === 'left') {
-      btn.style.left = '0'
+      btn.style.left = '-32px'
       btn.style.right = 'unset'
     } else {
       btn.style.left = 'unset'
-      btn.style.right = '0'
+      btn.style.right = '-32px'
     }
 
     btn.innerHTML = `
