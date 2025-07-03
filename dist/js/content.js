@@ -3637,6 +3637,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+
 
 
 
@@ -3722,6 +3724,14 @@ class Log {
     /**显示或隐藏顶部的“显示日志”按钮 */
     // 它默认是 opacity: 0，即不可见
     set logBtnShow(value) {
+        // 在图像作品页面里，如果处于漫画页面里的阅读模式（检测特定的 a 元素），则不显示按钮。网址如：
+        // https://www.pixiv.net/artworks/130919451#1
+        // 这是因为即使用户之前已经把页面滚动了一部分（按钮是隐藏的），但点击“阅读全部”后，按钮就会显示出来
+        // 但实际上在阅读时不应该显示按钮，所以特殊处理一下
+        if (_PageType__WEBPACK_IMPORTED_MODULE_11__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_11__.pageType.list.Artwork && /#\d/.test(window.location.hash) && document.querySelector('a.gtm-expand-full-size-illust')) {
+            this.logBtn.classList.remove('show');
+            return;
+        }
         if (value) {
             if (this.count > 0 && window.scrollY <= 10) {
                 this.logBtn.classList.add('show');
@@ -7994,26 +8004,13 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.7.0';
+        this.flag = '17.7.2';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<strong><span>✨${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</span></strong>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在作品页面里为每张图片添加下载按钮')}</span>
-      <br>
-      <br>
-      <strong><span>⚙️${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_行为变更')}:</span></strong>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_现在下载器会默认隐藏网页顶部的日志')}</span>
-      <br>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
-      <br>
-      <br>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
+            let msg = `<span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
       `;
             // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong
             // <strong><span>✨${lang.transl('_新增功能')}:</span></strong
@@ -28741,9 +28738,11 @@ class ShowDownloadBtnOnMultiImageWorkPage {
             if (a.querySelector(`.${this.flagClassName}`) === null) {
                 // 添加按钮
                 const btn = this.createBtn();
-                const top = this.addBtnOffset();
-                btn.style.top = `${top}px`;
+                // const top = this.addBtnOffset()
+                // btn.style.top = `${top}px`
+                // 设置父元素的样式
                 a.style.position = 'relative';
+                a.parentElement.style.overflow = 'unset';
                 a.appendChild(btn);
                 // 点击按钮时发送下载任务
                 btn.addEventListener('click', (ev) => {
@@ -28799,12 +28798,12 @@ class ShowDownloadBtnOnMultiImageWorkPage {
         btn.style.display = 'flex';
         // 根据“在作品缩略图上显示放大按钮”的位置设置，将按钮显示在左侧或右侧
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.magnifierPosition === 'left') {
-            btn.style.left = '0';
+            btn.style.left = '-32px';
             btn.style.right = 'unset';
         }
         else {
             btn.style.left = 'unset';
-            btn.style.right = '0';
+            btn.style.right = '-32px';
         }
         btn.innerHTML = `
     <svg class="icon" aria-hidden="true">
