@@ -3746,7 +3746,9 @@ class Log {
         // https://www.pixiv.net/artworks/130919451#1
         // 这是因为即使用户之前已经把页面滚动了一部分（按钮是隐藏的），但点击“阅读全部”后，按钮就会显示出来
         // 但实际上在阅读时不应该显示按钮，所以特殊处理一下
-        if (_PageType__WEBPACK_IMPORTED_MODULE_11__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_11__.pageType.list.Artwork && /#\d/.test(window.location.hash) && document.querySelector('a.gtm-expand-full-size-illust')) {
+        if (_PageType__WEBPACK_IMPORTED_MODULE_11__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_11__.pageType.list.Artwork &&
+            /#\d/.test(window.location.hash) &&
+            document.querySelector('a.gtm-expand-full-size-illust')) {
             this.logBtn.classList.remove('show');
             return;
         }

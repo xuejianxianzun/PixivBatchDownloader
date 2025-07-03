@@ -27,7 +27,6 @@ class ListenPageSwitch {
     // https://www.pixiv.net/user/3698796/series/61267?p=3#seriesContents
     // 这是因为查询字符串会影响页面的内容，而 hash 通常不会影响页面的内容，只是负责跳转显示位置
     // 或者显示/隐藏漫画阅读部分的元素
-
   }
 
   // 为监听 url 变化的事件提供支持

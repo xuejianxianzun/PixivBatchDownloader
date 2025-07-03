@@ -60,15 +60,11 @@ abstract class InitPageBase {
     destroyManager.register(this.destroy.bind(this))
 
     // 页面切换后，如果任务已经完成，则移除日志区域
-    EVT.bindOnce(
-      'clearLogAfterPageSwitch',
-      EVT.list.pageSwitch,
-      () => {
-        if (!states.busy) {
-          EVT.fire('clearLog')
-        }
+    EVT.bindOnce('clearLogAfterPageSwitch', EVT.list.pageSwitch, () => {
+      if (!states.busy) {
+        EVT.fire('clearLog')
       }
-    )
+    })
 
     EVT.bindOnce('crawlCompleteTime', EVT.list.crawlComplete, () => {
       states.crawlCompleteTime = new Date().getTime()
