@@ -1587,13 +1587,13 @@
   overflow: auto;
   font-size: 14px;
   line-height: 1.7;
-  color: #555;
+  color: #474747;
   text-align: left;
 }
 .xz_msg_box .btn {
   cursor: pointer;
   background: #0ea8ef;
-  box-shadow: #2ca6df 0px 0px 2px;
+  box-shadow: #2ca6df 1px 1px 1px;
   color: #fff;
   border: none;
   text-align: center;
@@ -1633,7 +1633,7 @@
   color: #c7e9ff !important;
 }
 .xzBG.xz_msg_box .content {
-  text-shadow: #003247 0px 0px 2px;
+  text-shadow: #003247 1px 1px 1px;
 }
 .xzBG.xz_msg_box .xzBGLayer {
   filter: blur(1px);

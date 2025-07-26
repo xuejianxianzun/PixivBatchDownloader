@@ -4205,7 +4205,7 @@ class MsgBox {
             colorStyle = `style="color:${data.color}"`;
         }
         wrap.innerHTML = `
-        <div class="title" ${colorStyle}>${data.title || ''}</div>
+        <div class="title" ${colorStyle}>${data.title || _Config__WEBPACK_IMPORTED_MODULE_5__.Config.appName}</div>
         <div class="content" ${colorStyle}>${data.msg}</div>
         ${data.hiddenBtn
             ? ''
@@ -9946,6 +9946,1081 @@ const workToolBar = new WorkToolBar();
 
 /***/ }),
 
+/***/ "./src/ts/crawl/InitPageBase.ts":
+/*!**************************************!*\
+  !*** ./src/ts/crawl/InitPageBase.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   InitPageBase: () => (/* binding */ InitPageBase)
+/* harmony export */ });
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../store/SaveArtworkData */ "./src/ts/store/SaveArtworkData.ts");
+/* harmony import */ var _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../store/SaveNovelData */ "./src/ts/store/SaveNovelData.ts");
+/* harmony import */ var _filter_Mute__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../filter/Mute */ "./src/ts/filter/Mute.ts");
+/* harmony import */ var _StopCrawl__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./StopCrawl */ "./src/ts/crawl/StopCrawl.ts");
+/* harmony import */ var _SelectWork__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../SelectWork */ "./src/ts/SelectWork.ts");
+/* harmony import */ var _pageFunciton_DestroyManager__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../pageFunciton/DestroyManager */ "./src/ts/pageFunciton/DestroyManager.ts");
+/* harmony import */ var _VipSearchOptimize__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./VipSearchOptimize */ "./src/ts/crawl/VipSearchOptimize.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _TimedCrawl__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
+/* harmony import */ var _pageFunciton_QuickBookmark__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../pageFunciton/QuickBookmark */ "./src/ts/pageFunciton/QuickBookmark.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+// 初始化所有页面抓取流程的基类
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class InitPageBase {
+    constructor() {
+        this.crawlNumber = 0; // 要抓取的个数/页数
+        this.maxCount = 1000; // 当前页面类型最多有多少个页面/作品
+        this.startpageNo = 1; // 列表页开始抓取时的页码，只在 api 需要页码时使用
+        this.listPageFinished = 0; // 记录一共抓取了多少个列表页
+        this.ajaxThreadsDefault = 10; // 抓取作品数据时的并发请求数量默认值，也是最大值
+        this.ajaxThread = this.ajaxThreadsDefault; // 抓取时的并发请求数
+        this.finishedRequest = 0; // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
+        this.crawlFinishBecauseStopCrawl = false;
+        this.log429ErrorTip = _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.debounce(() => {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取被限制时返回空结果的提示'));
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl) {
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示启用减慢抓取速度功能'));
+            }
+        }, 500);
+    }
+    // 子组件必须调用 init 方法，并且不可以修改 init 方法
+    init() {
+        this.setFormOption();
+        this.addCrawlBtns();
+        this.addAnyElement();
+        this.initAny();
+        // 如果在 init 方法中绑定了全局事件，并且该事件只适用于当前页面类型，那么应该在 destroy 中解绑事件。
+        // 注册当前页面的 destroy 函数
+        _pageFunciton_DestroyManager__WEBPACK_IMPORTED_MODULE_15__.destroyManager.register(this.destroy.bind(this));
+        // 页面切换后，如果任务已经完成，则移除日志区域
+        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('clearLogAfterPageSwitch', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.pageSwitch, () => {
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
+                _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
+            }
+        });
+        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('crawlCompleteTime', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.crawlComplete, () => {
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.crawlCompleteTime = new Date().getTime();
+        });
+        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('downloadCompleteTime', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.downloadComplete, () => {
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.downloadCompleteTime = new Date().getTime();
+        });
+        // 监听下载 id 列表的事件
+        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('crawlIdList', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.crawlIdList, (ev) => {
+            const idList = ev.detail.data;
+            if (idList) {
+                this.crawlIdList(idList);
+            }
+            // 通过 bindOnce 绑定的 this 是执行此代码时通过这个虚拟类生成的实例，这个 this 是不会变化的
+            // 但是这个虚拟类会产生多个实例，所以这里调用 this 的方法时，要求这个方法与具体实例无关，不受实例变化影响
+            // 也就是说即使页面类型变化并且生成了新的实例，调用旧实例上的这个方法也依然会正常运行
+            // 如果某个方法做不到这一点, 就不要在这里调用。
+            // 基于此，在这里修改 this 上的属性是不合适的，因为每个新实例都会复制这个虚拟类上的属性，它们是独立的
+        });
+    }
+    // 设置表单里的选项。主要是设置页数，并隐藏不需要的选项。
+    setFormOption() {
+        // 个数/页数选项的提示
+        _setting_Options__WEBPACK_IMPORTED_MODULE_7__.options.setWantPageTip({
+            text: '_抓取多少页面',
+            tip: '_从本页开始下载提示',
+            rangTip: '_数字提示1',
+            min: 1,
+            max: -1,
+        });
+    }
+    // 添加抓取区域的默认按钮，可以被子类覆写
+    addCrawlBtns() {
+        _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
+            this.readyCrawl();
+        });
+    }
+    // 添加其他任意元素（如果有）
+    addAnyElement() { }
+    // 初始化任意内容
+    // 如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里
+    // 通常用来初始化特有的组件、功能、事件、状态等
+    initAny() { }
+    // 销毁初始化页面时添加的元素和事件，恢复设置项等
+    destroy() {
+        _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.clearSlot('crawlBtns');
+        _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.clearSlot('otherBtns');
+    }
+    // 作品个数/页数的输入不合法
+    getWantPageError() {
+        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('wrongSetting');
+        const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载数量错误');
+        _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
+        throw new Error(msg);
+    }
+    // 在某些页面检查页数/个数设置
+    // 可以为 -1，或者大于 0
+    checkWantPageInput(crawlPartTip, crawlAllTip) {
+        const want = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.wantPageArr[_PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type];
+        // 如果比 1 小，并且不是 -1，则不通过
+        if ((want < 1 && want !== -1) || isNaN(want)) {
+            // 比 1 小的数里，只允许 -1 , 0 也不行
+            throw this.getWantPageError();
+        }
+        if (want >= 1) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(crawlPartTip.replace('{}', want.toString()));
+        }
+        else if (want === -1) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(crawlAllTip);
+        }
+        return want;
+    }
+    // 在某些页面检查页数/个数设置，要求必须大于 0
+    // 参数 max 为最大值
+    // 参数 page 指示单位是“页”（页面）还是“个”（作品个数）
+    checkWantPageInputGreater0(max, page) {
+        const want = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.wantPageArr[_PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type];
+        if (want > 0) {
+            const result = Math.min(want, max);
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl(page ? '_从本页开始下载x页' : '_从本页开始下载x个', result.toString()));
+            return result;
+        }
+        else {
+            throw this.getWantPageError();
+        }
+    }
+    // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
+    getWantPage() { }
+    // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
+    getMultipleSetting() {
+        // 获取作品张数设置
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.firstFewImagesSwitch) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(`${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品只下载前几张图片')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.firstFewImages}`);
+        }
+    }
+    /**在日志上显示任意提示 */
+    showTip() {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.removeWorksOfFollowedUsersOnSearchPage &&
+            (_PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.ArtworkSearch ||
+                _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.NovelSearch)) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在搜索页面里移除已关注用户的作品'));
+        }
+    }
+    setSlowCrawl() {
+        _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl;
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
+        }
+    }
+    confirmRecrawl() {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length > 0) {
+            // 如果已经有抓取结果，则检查这些抓取结果是否已被下载过
+            // 如果没有被下载过，则显示提醒
+            if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.crawlCompleteTime > _store_States__WEBPACK_IMPORTED_MODULE_9__.states.downloadCompleteTime) {
+                const _confirm = window.confirm(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_已有抓取结果时进行提醒'));
+                return _confirm;
+            }
+        }
+        return true;
+    }
+    // 准备正常进行抓取，执行一些检查
+    async readyCrawl() {
+        // 检查是否可以开始抓取
+        // states.busy 表示下载器正在抓取或正在下载
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
+            _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前任务尚未完成'));
+            return;
+        }
+        // 下载器空闲，此时检查是否有已存在的抓取结果
+        if (!this.confirmRecrawl()) {
+            return;
+        }
+        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
+        _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
+            position: 'center',
+        });
+        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlStart');
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.isPixiv()) {
+            await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__.mute.getMuteSettings();
+        }
+        this.getWantPage();
+        this.getMultipleSetting();
+        this.showTip();
+        this.finishedRequest = 0;
+        this.crawlFinishBecauseStopCrawl = false;
+        _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = false;
+        // 进入第一个抓取流程
+        this.nextStep();
+    }
+    // 基于传递的 id 列表直接开始抓取
+    // 这个方法是为了让其他模块可以传递 id 列表，直接进行下载。
+    // 这个类的子类没有必要使用这个方法。当子类需要直接指定 id 列表时，修改自己的 getIdList 方法即可。
+    async crawlIdList(idList) {
+        // 对 idList 进行去重
+        // 这是因为有些用户可能会连续、快速的重复建立下载（比如在预览时迅速的连续按两次 C 键）
+        const ids = [];
+        const _idList = [];
+        for (const i of idList) {
+            if (ids.includes(i.id) === false) {
+                ids.push(i.id);
+                _idList.push(i);
+            }
+        }
+        // 如果下载器正忙则把 id 列表添加到等待队列中
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.waitingIdList.push(..._idList);
+            _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器正忙这次请求已开始排队'), {
+                bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
+            });
+        }
+        else {
+            if (!this.confirmRecrawl()) {
+                return;
+            }
+            _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
+            _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
+                bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
+            });
+            _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlStart');
+            if (_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.isPixiv()) {
+                await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__.mute.getMuteSettings();
+            }
+            this.getMultipleSetting();
+            this.finishedRequest = 0;
+            this.crawlFinishBecauseStopCrawl = false;
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = false;
+            // 传递 id 列表下载时，不显示下载面板
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.quickCrawl = true;
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = _idList;
+            this.getIdListFinished();
+        }
+    }
+    // 当可以开始抓取时，进入下一个流程。默认情况下，开始获取作品列表。如有不同，由子类具体定义
+    nextStep() {
+        this.getIdList();
+    }
+    // 获取 id 列表，由各个子类具体定义
+    getIdList() { }
+    // id 列表获取完毕，开始抓取作品内容页
+    async getIdListFinished() {
+        _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = false;
+        this.resetGetIdListStatus();
+        // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则直接剔除它
+        // 现在这里能够检查这些过滤条件：
+        // 1. 检查 id 是否符合 id 范围条件
+        // 2. 检查 id 的发布时间是否符合时间范围条件
+        // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，
+        // 但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
+        const filteredIDList = [];
+        for (const idData of _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList) {
+            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
+                id: idData.id,
+                workTypeString: idData.type,
+                workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
+            });
+            if (check) {
+                filteredIDList.push(idData);
+            }
+        }
+        _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = filteredIDList;
+        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('getIdListFinished');
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl || _store_States__WEBPACK_IMPORTED_MODULE_9__.states.bookmarkMode) {
+            return;
+        }
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length === 0) {
+            return this.noResult();
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.persistentRefresh();
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前作品个数', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length.toString()));
+        // 导出 ID 列表，并停止抓取
+        if ((_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportIDList || _store_States__WEBPACK_IMPORTED_MODULE_9__.states.exportIDList) && _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.isPixiv()) {
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy = false;
+            _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('stopCrawl');
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_已停止抓取'));
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportIDList) {
+                const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList);
+                for (const result of resultList) {
+                    _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.downloadFile(result.url, `ID list-total ${result.total}-from ${_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageTitle()}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
+                }
+                const msg = '✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出ID列表');
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(msg);
+                _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.success(msg);
+            }
+            return;
+        }
+        // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
+        // return states.busy = false
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始获取作品信息'));
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl &&
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawlOnWorksNumber) {
+            // 慢速抓取
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = true;
+            this.ajaxThread = 1;
+        }
+        else {
+            // 全速抓取
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = false;
+            this.ajaxThread = Math.min(this.ajaxThreadsDefault, _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length);
+        }
+        // 开始抓取作品数据
+        // 当快速下载单个作品时，优先从缓存读取
+        // 其实缓存数据里的某些值可能不是作品的最新值了，但是下载单个作品时，通常距离缓存时没过去多久
+        // 所以就使用缓存了
+        // 这通常是由 crawlIdList 触发的，比如：
+        // 在作品页里快速下载这个作品；预览图片时按快捷键下载；点击缩略图右上角的下载按钮
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.quickCrawl && _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length === 1) {
+            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id);
+            if (data) {
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = [];
+                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__.saveArtworkData.save(data);
+                return this.crawlFinished();
+            }
+        }
+        // 如果没有缓存，或者要抓取多个作品，则进行真正的抓取
+        // getWorksData 里不使用缓存的数据，它始终会发送请求
+        for (let i = 0; i < this.ajaxThread; i++) {
+            window.setTimeout(() => {
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0 ? this.getWorksData() : this.afterGetWorksData();
+            }, 0);
+        }
+    }
+    // 重设抓取作品列表时使用的变量或标记
+    resetGetIdListStatus() { }
+    // 获取作品的数据
+    async getWorksData(idData) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
+            return this.crawlFinished();
+        }
+        idData = idData || _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
+        if (!idData) {
+            return this.afterGetWorksData();
+        }
+        const id = idData.id;
+        if (!id) {
+            const msg = 'Error: work id is invalid!';
+            _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
+            throw new Error(msg);
+        }
+        // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则跳过它
+        // 现在这里能够检查这些过滤条件：
+        // 1. 检查 id 是否符合 id 范围条件
+        // 2. 检查 id 的发布时间是否符合时间范围条件
+        // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，
+        // 但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
+        const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
+            id,
+            workTypeString: idData.type,
+            workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
+        });
+        if (!check) {
+            return this.afterGetWorksData();
+        }
+        try {
+            const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.Unlisted;
+            // 这里不使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
+            if (idData.type === 'novels') {
+                const data = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getNovelData(id, unlisted);
+                await _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_11__.saveNovelData.save(data);
+                this.afterGetWorksData(data);
+            }
+            else {
+                const data = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getArtworkData(id, unlisted);
+                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__.saveArtworkData.save(data);
+                this.afterGetWorksData(data);
+            }
+        }
+        catch (error) {
+            // 当 API 里的网络请求的状态码异常时，会 reject，被这里捕获
+            if (error.status) {
+                // 请求成功，但状态码不正常
+                this.logErrorStatus(error.status, idData);
+                if (error.status === 500 || error.status === 429) {
+                    // 如果状态码 500 或 429，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
+                    this.log429ErrorTip();
+                    window.setTimeout(() => {
+                        this.getWorksData(idData);
+                    }, _Config__WEBPACK_IMPORTED_MODULE_22__.Config.retryTime);
+                    return;
+                }
+                else {
+                    this.afterGetWorksData();
+                }
+            }
+            else {
+                // 请求失败，一般是
+                // TypeError: Failed to fetch
+                // 或者 Failed to load resource: net::ERR_CONNECTION_CLOSED
+                // 对于这种请求没能成功发送的错误，会输出 null
+                // 此外这里也会捕获到 save 作品数据时的错误（如果有）
+                console.error(error);
+                // 再次发送这个请求
+                window.setTimeout(() => {
+                    this.getWorksData(idData);
+                }, 2000);
+            }
+        }
+    }
+    // 每当获取完一个作品的信息
+    async afterGetWorksData(data) {
+        this.logResultNumber();
+        // 抓取可能中途停止，此时保留抓取结果
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
+            return this.crawlFinished();
+        }
+        // 如果会员搜索优化策略指示停止抓取，则立即进入完成状态
+        if (data && (await _VipSearchOptimize__WEBPACK_IMPORTED_MODULE_16__.vipSearchOptimize.checkBookmarkCount(data))) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'));
+            // 指示抓取已停止
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = true;
+            return this.crawlFinished();
+        }
+        // 在进行下一次抓取前，预先检查这个 id 是否符合过滤条件
+        // 如果它不符合过滤条件，则立刻跳过它，这样也不会发送请求来获取这个作品的数据
+        // 这样可以加快抓取速度
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0) {
+            const nextIDData = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0];
+            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
+                id: nextIDData.id,
+                workTypeString: nextIDData.type,
+                workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(nextIDData.type),
+            });
+            if (!check) {
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
+                return this.getWorksData();
+            }
+        }
+        // 如果存在下一个作品，则继续抓取
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode) {
+                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__.setTimeoutWorker.set(() => {
+                    this.getWorksData();
+                }, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawlDealy);
+            }
+            else {
+                this.getWorksData();
+            }
+        }
+        else {
+            // 没有剩余作品，统计此后有多少个完成的请求
+            this.finishedRequest++;
+            // 所有请求都执行完毕
+            if (this.finishedRequest === this.ajaxThread) {
+                this.crawlFinished();
+            }
+        }
+    }
+    // 抓取完毕
+    crawlFinished() {
+        // 当下载器没有处于慢速抓取模式时，会使用 10 个并发请求
+        // 此时如果第一个请求触发了停止抓取 states.stopCrawl，这 10 个都会进入这里
+        // 所以我设置了个一次性的标记，防止重复执行这里的代码
+        if (this.crawlFinishBecauseStopCrawl) {
+            return;
+        }
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
+            this.crawlFinishBecauseStopCrawl = true;
+        }
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length === 0) {
+            return this.noResult();
+        }
+        _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.crawlCompleteTime = new Date();
+        // 对文件进行排序
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.setFileDownloadOrder) {
+            // 按照用户设置的规则进行排序
+            const scheme = new Map([
+                ['ID', 'id'],
+                ['bookmarkCount', 'bmk'],
+                ['bookmarkID', 'bmkId'],
+            ]);
+            let key = scheme.get(_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrderSortBy);
+            // 在搜索页面预览抓取结果时，始终按收藏数量排序
+            if (_PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.ArtworkSearch &&
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.previewResult) {
+                key = 'bmk';
+            }
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.sortByProperty(key, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrder));
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.sortByProperty(key, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrder));
+        }
+        else {
+            // 如果用户未设置排序规则，则每个页面自行处理排序逻辑
+            this.sortResult();
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_共抓取到n个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.resultMeta.length.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_共抓取到n个文件', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取完毕'), 2);
+        // 发出抓取完毕的信号
+        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlComplete');
+        // 自动导出抓取结果
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoExportResult &&
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoExportResultNumber) {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoExportResultCSV) {
+                _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('exportCSV');
+            }
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoExportResultJSON) {
+                _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('exportResult');
+            }
+        }
+    }
+    // 网络请求状态异常时输出提示
+    logErrorStatus(status, idData) {
+        const isNovel = idData.type === 'novels';
+        const workLink = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.createWorkLink(idData.id, !isNovel);
+        switch (status) {
+            case 0:
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码0'));
+                break;
+            case 400:
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码400'));
+                break;
+            case 401:
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码401'));
+                break;
+            case 403:
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码403'));
+                break;
+            case 404:
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码404'));
+                break;
+            case 429:
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码429'));
+                break;
+            case 500:
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码500'));
+                break;
+            default:
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_无权访问', workLink) + `HTTP status code: ${status}`);
+                break;
+        }
+    }
+    // 每当抓取了一个作品之后，输出提示
+    logResultNumber() {
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(`${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_待处理')} ${_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length}, ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_共抓取到n个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.resultMeta.length.toString())}`, 1, false);
+    }
+    // 抓取结果为 0 时输出提示
+    noResult() {
+        // 先触发 crawlComplete，后触发 crawlEmpty。这样便于其他组件处理 crawlEmpty 这个例外情况
+        // 如果触发顺序反过来，那么最后执行的都是 crawlComplete，可能会覆盖对 crawlEmpty 的处理
+        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlComplete');
+        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlEmpty');
+        const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取结果为零');
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg, 2);
+        _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
+    }
+    // 抓取完成后，对结果进行排序
+    sortResult() { }
+    /**定时抓取的按钮 */
+    addStartTimedCrawlBtn(cb) {
+        _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_定时抓取', '_定时抓取说明').addEventListener('click', () => {
+            _TimedCrawl__WEBPACK_IMPORTED_MODULE_23__.timedCrawl.start(cb);
+        });
+    }
+    /**取消定时抓取的按钮 */
+    addCancelTimedCrawlBtn() {
+        const btn = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgWarning, '_取消定时抓取');
+        btn.style.display = 'none';
+        btn.addEventListener('click', () => {
+            _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('cancelTimedCrawl');
+            btn.style.display = 'none';
+        });
+        // 启动定时抓取之后，显示取消定时抓取的按钮
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.startTimedCrawl, () => {
+            btn.style.display = 'flex';
+        });
+    }
+}
+
+
+
+/***/ }),
+
+/***/ "./src/ts/crawl/InitRequestPage.ts":
+/*!*****************************************!*\
+  !*** ./src/ts/crawl/InitRequestPage.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   InitRequestPage: () => (/* binding */ InitRequestPage)
+/* harmony export */ });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
+
+
+
+
+// 投稿页面
+class InitRequestPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_3__.InitPageBase {
+    constructor() {
+        super();
+        this.init();
+    }
+    initAny() {
+        // 约稿页面 和 已完成的约稿页面 互相切换时，需要重新隐藏第一个选项
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch, () => {
+            if (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request) {
+                this.setFormOption();
+            }
+        });
+    }
+    addCrawlBtns() { }
+    setFormOption() {
+        _setting_Options__WEBPACK_IMPORTED_MODULE_2__.options.hideOption([1]);
+    }
+}
+
+
+
+/***/ }),
+
+/***/ "./src/ts/crawl/InitUnsupportedPage.ts":
+/*!*********************************************!*\
+  !*** ./src/ts/crawl/InitUnsupportedPage.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   InitUnsupportedPage: () => (/* binding */ InitUnsupportedPage)
+/* harmony export */ });
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
+
+
+// 初始化不支持的页面类型
+class InitUnsupportedPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_1__.InitPageBase {
+    constructor() {
+        super();
+        this.init();
+    }
+    // 在不支持的页面类型里，不会添加专门用于当前页面的抓取按钮
+    // 只会由 SelectWork 模块添加通用的“手动抓取”功能
+    addCrawlBtns() { }
+    setFormOption() {
+        _setting_Options__WEBPACK_IMPORTED_MODULE_0__.options.hideOption([1]);
+    }
+}
+
+
+
+/***/ }),
+
+/***/ "./src/ts/crawl/StopCrawl.ts":
+/*!***********************************!*\
+  !*** ./src/ts/crawl/StopCrawl.ts ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+
+
+
+
+
+
+
+class StopCrawl {
+    constructor() {
+        this.addBtn();
+        this.bindEvents();
+    }
+    addBtn() {
+        this.btn = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.addBtn('stopCrawl', _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgRed, '_停止抓取');
+        this.hide();
+        this.btn.addEventListener('click', () => {
+            this.hide();
+            const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已停止抓取');
+            _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(msg);
+            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('stopCrawl');
+            _store_States__WEBPACK_IMPORTED_MODULE_6__.states.stopCrawl = true;
+        });
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlStart, () => {
+            this.show();
+        });
+        const hiddenEvents = [_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.stopCrawl];
+        hiddenEvents.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.hide();
+            });
+        });
+    }
+    hide() {
+        this.btn.style.display = 'none';
+    }
+    show() {
+        this.btn.style.display = 'flex';
+    }
+}
+new StopCrawl();
+
+
+/***/ }),
+
+/***/ "./src/ts/crawl/TimedCrawl.ts":
+/*!************************************!*\
+  !*** ./src/ts/crawl/TimedCrawl.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   timedCrawl: () => (/* binding */ timedCrawl)
+/* harmony export */ });
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Input__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Input */ "./src/ts/Input.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+
+
+
+
+
+
+
+
+class TimedCrawl {
+    constructor() {
+        this.time = 0;
+        /**定时器可用的最大延迟时间，这里计算为分钟 */
+        // https://developer.mozilla.org/zh-CN/docs/Web/API/setTimeout#%E6%9C%80%E5%A4%A7%E5%BB%B6%E6%97%B6%E5%80%BC
+        // max: 2147483647 / 60 / 1000
+        this.timeMinuteMax = 35791;
+        /**这次抓取是否是由本模块发起的 */
+        this.crawlBySelf = false;
+        this.bindEvents();
+    }
+    /**启动定时抓取任务。
+     *
+     * 只能有 1 个定时抓取任务，如果重复调用此方法，后传递的回调函数会覆盖之前的回调函数。
+     */
+    async start(cb) {
+        const input = new _Input__WEBPACK_IMPORTED_MODULE_6__.Input({
+            instruction: `${_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取的间隔时间2')} (${_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_分钟')})`,
+            value: _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval.toString(),
+            width: 500,
+        });
+        const value = await input.submit();
+        if (!value) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_本次操作已取消'));
+        }
+        const number = Number.parseInt(value);
+        if (isNaN(number)) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_参数不合法本次操作已取消'));
+        }
+        if (number > this.timeMinuteMax) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取的时间超过最大值') +
+                this.timeMinuteMax +
+                _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_分钟'));
+            return;
+        }
+        if (number < 1) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取的时间最小值'));
+            return;
+        }
+        (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.setSetting)('timedCrawlInterval', number);
+        this.reset();
+        this.callback = cb;
+        this.execute();
+        _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.fire('startTimedCrawl');
+        const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取已启动的提示', _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval.toString());
+        _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.show(msg +
+            '<br><br>' +
+            _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取的推荐用法') +
+            '<br><br>' +
+            _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取已启动的提示2'));
+        _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(msg);
+    }
+    execute() {
+        this.time = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval * 60 * 1000;
+        this.timer = window.setTimeout(() => {
+            if (!this.callback) {
+                return;
+            }
+            this.crawlBySelf = true;
+            _store_States__WEBPACK_IMPORTED_MODULE_5__.states.quickCrawl = true;
+            this.callback();
+            this.execute();
+        }, this.time);
+    }
+    reset() {
+        this.callback = undefined;
+        window.clearTimeout(this.timer);
+        this.crawlBySelf = false;
+        _store_States__WEBPACK_IMPORTED_MODULE_5__.states.quickCrawl = false;
+    }
+    bindEvents() {
+        // 当抓取结果为空，或者下载中止、完成时复位标记
+        const resetCrawlBySelf = [
+            _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.crawlEmpty,
+            _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.downloadStop,
+            _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.downloadPause,
+            _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.downloadComplete,
+            _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.downloadCancel,
+        ];
+        for (const ev of resetCrawlBySelf) {
+            window.addEventListener(ev, () => {
+                window.setTimeout(() => {
+                    // 需要延迟执行，在日志提示显示之后再复位状态
+                    this.crawlBySelf = false;
+                }, 50);
+            });
+        }
+        // 显示一些提示
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.crawlStart, () => {
+            if (!this.crawlBySelf) {
+                return;
+            }
+            _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_开始定时抓取'));
+            _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前时间') + new Date().toLocaleString());
+        });
+        const tipWaitNextCrawl = [_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.crawlEmpty, _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.downloadComplete];
+        for (const ev of tipWaitNextCrawl) {
+            window.addEventListener(ev, () => {
+                window.setTimeout(() => {
+                    if (this.crawlBySelf) {
+                        _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前时间') + new Date().toLocaleString());
+                        _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_等待下一次定时抓取'));
+                    }
+                }, 0);
+            });
+        }
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.cancelTimedCrawl, () => {
+            this.reset();
+            const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_已取消定时抓取');
+            _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.success(msg);
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.pageSwitch, () => {
+            if (!this.callback) {
+                return;
+            }
+            this.reset();
+            const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_因为URL变化取消定时抓取任务');
+            _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.error(msg);
+        });
+    }
+}
+const timedCrawl = new TimedCrawl();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/crawl/VipSearchOptimize.ts":
+/*!*******************************************!*\
+  !*** ./src/ts/crawl/VipSearchOptimize.ts ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   vipSearchOptimize: () => (/* binding */ vipSearchOptimize)
+/* harmony export */ });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+
+
+
+
+
+
+// 当 Pixiv 会员在搜索页面按热门度排序，并且设置了收藏数量时，可以进行优化以减少不必要的抓取
+// 原理：当会员使用热门度排序时，Pixiv 返回的数据是按收藏数量从高到低排序的。（但不是严格一致，经常有少量作品顺序不对）
+// 假如会员用户在下载器里设置了收藏数量大于 10000，那么当查找到小于 10000 收藏的作品时，就可以考虑停止抓取作品了，因为后面的作品都是收藏数量低于 10000 的了
+class VipSearchOptimize {
+    constructor() {
+        // 在哪些页面上启用
+        this.enablePageType = [
+            _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkSearch,
+            _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelSearch,
+        ];
+        // 小说搜索页面的列表数据中本身就含有每个作品的收藏数，但是依然需要在这个模块里进行优化处理
+        // 只有会员才能使用的排序方式（按热门度排序）
+        this.vipOrders = [
+            'popular_d',
+            'popular_male_d',
+            'popular_female_d',
+        ];
+        // popular_d 受全站欢迎
+        // popular_male_d 受男性欢迎
+        // popular_female_d 受女性欢迎
+        // 是否对这次抓取使用优化策略
+        this.vipSearchOptimize = false;
+        this.filterFailed = 0; // 连续检查失败的数量。在检查作品是否满足收藏条件时，如果满足就将此计数清零；如果不满足就自增
+        this.checkNumber = 20; // 连续多少个作品未达到要求时，停止抓取。这是一个猜测值
+        this.bindEvents();
+    }
+    // 设置 checkNumber 的原因：Pixiv 按热门度排序返回的数据其实并不是严格按照收藏数量排序的。所以设置一个数字作为处理这个情况的手段：连续多少个作品都不满足要求时，认为后续都是不满足要求的
+    bindEvents() {
+        // 启动抓取时设置是否启用优化策略
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
+            this.vipSearchOptimize = this.setVipOptimize();
+            // console.log('vipSearchOptimize: ', this.vipSearchOptimize)
+        });
+        // 抓取完毕时重置状态
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, () => {
+            this.reset();
+        });
+    }
+    reset() {
+        this.vipSearchOptimize = false;
+        this.filterFailed = 0;
+    }
+    /**在抓取列表页阶段，每隔一定页数，接收最后一个作品的 id，检查它的收藏数量，如果收藏数低于指定值，则停止抓取
+     *
+     * 返回值 true 表示停止抓取
+     */
+    async checkWork(id, workType) {
+        return new Promise(async (resolve) => {
+            // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
+            if (!this.vipSearchOptimize || !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumSwitch) {
+                return resolve(false);
+            }
+            let bmk = 99999999;
+            if (workType === 'novels') {
+                const data = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getNovelData(id);
+                bmk = data.body.bookmarkCount;
+            }
+            else {
+                const data = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getArtworkData(id);
+                bmk = data.body.bookmarkCount;
+            }
+            const check = bmk >= _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumMin;
+            console.log(bmk);
+            if (!check) {
+                console.log('抽查的作品收藏数量低于最低要求，停止抓取');
+                return resolve(true);
+            }
+            return resolve(false);
+        });
+    }
+    /**在抓取作品详情阶段，接收作品数据，判断收藏数量是否达到要求，并据此指示是否应该停止抓取作品
+     *
+     * 返回值 true 表示停止抓取
+     */
+    async checkBookmarkCount(data) {
+        // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
+        if (!this.vipSearchOptimize || !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumSwitch) {
+            return false;
+        }
+        // 连续多少个作品没有达到要求，则停止抓取
+        if (this.filterFailed >= this.checkNumber) {
+            return true;
+        }
+        // 在按热门度排序时，作品是按收藏数量从高到低排列的。因此检查作品的收藏数量是否满足用户设置的最小收藏数量
+        const check = data.body.bookmarkCount >= _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumMin;
+        // 如果作品的收藏数量小于用户要求的最低收藏数量，那么它就不符合要求
+        // 这里不会检查用户设置的最大收藏数量，也不检查日均收藏数量，否则可能在某些情况下出现误判
+        // 假设用户设置的收藏数量条件为： >= 100 && <= 200 如果检查最大收藏数量，那么排在最前面的许多作品都不符合要求
+        // 所以只检查最小收藏数量
+        if (!check) {
+            this.filterFailed++;
+        }
+        else {
+            this.filterFailed = 0;
+        }
+        if (this.filterFailed >= this.checkNumber) {
+            console.log(`连续 ${this.checkNumber} 个作品没有达到要求，停止抓取`);
+        }
+        return this.filterFailed >= this.checkNumber;
+    }
+    // 设置是否启用优化策略
+    setVipOptimize() {
+        // 判断页面类型
+        if (!this.enablePageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type)) {
+            return false;
+        }
+        // 判断是否是会员
+        if (!_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.isPremium()) {
+            return false;
+        }
+        // 判断 order 方式
+        const order = _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.getURLSearchField(window.location.href, 'order');
+        // 无排序方式
+        if (!order) {
+            return false;
+        }
+        const vipOrder = this.vipOrders.includes(order);
+        // 不是按热门度排序
+        if (!vipOrder) {
+            return false;
+        }
+        // 按热门度排序
+        // 判断是否启用了收藏数设置，如果是，则启用会员搜索优化
+        return _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumSwitch;
+    }
+}
+const vipSearchOptimize = new VipSearchOptimize();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/crawlArtworkPage/CrawlRecommendWorks.ts":
 /*!********************************************************!*\
   !*** ./src/ts/crawlArtworkPage/CrawlRecommendWorks.ts ***!
@@ -15016,1081 +16091,6 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
 
 /***/ }),
 
-/***/ "./src/ts/crawl/InitPageBase.ts":
-/*!**************************************!*\
-  !*** ./src/ts/crawl/InitPageBase.ts ***!
-  \**************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   InitPageBase: () => (/* binding */ InitPageBase)
-/* harmony export */ });
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../store/SaveArtworkData */ "./src/ts/store/SaveArtworkData.ts");
-/* harmony import */ var _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../store/SaveNovelData */ "./src/ts/store/SaveNovelData.ts");
-/* harmony import */ var _filter_Mute__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../filter/Mute */ "./src/ts/filter/Mute.ts");
-/* harmony import */ var _StopCrawl__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./StopCrawl */ "./src/ts/crawl/StopCrawl.ts");
-/* harmony import */ var _SelectWork__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../SelectWork */ "./src/ts/SelectWork.ts");
-/* harmony import */ var _pageFunciton_DestroyManager__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../pageFunciton/DestroyManager */ "./src/ts/pageFunciton/DestroyManager.ts");
-/* harmony import */ var _VipSearchOptimize__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./VipSearchOptimize */ "./src/ts/crawl/VipSearchOptimize.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _TimedCrawl__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
-/* harmony import */ var _pageFunciton_QuickBookmark__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../pageFunciton/QuickBookmark */ "./src/ts/pageFunciton/QuickBookmark.ts");
-/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
-/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
-/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
-// 初始化所有页面抓取流程的基类
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class InitPageBase {
-    constructor() {
-        this.crawlNumber = 0; // 要抓取的个数/页数
-        this.maxCount = 1000; // 当前页面类型最多有多少个页面/作品
-        this.startpageNo = 1; // 列表页开始抓取时的页码，只在 api 需要页码时使用
-        this.listPageFinished = 0; // 记录一共抓取了多少个列表页
-        this.ajaxThreadsDefault = 10; // 抓取作品数据时的并发请求数量默认值，也是最大值
-        this.ajaxThread = this.ajaxThreadsDefault; // 抓取时的并发请求数
-        this.finishedRequest = 0; // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
-        this.crawlFinishBecauseStopCrawl = false;
-        this.log429ErrorTip = _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.debounce(() => {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取被限制时返回空结果的提示'));
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl) {
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示启用减慢抓取速度功能'));
-            }
-        }, 500);
-    }
-    // 子组件必须调用 init 方法，并且不可以修改 init 方法
-    init() {
-        this.setFormOption();
-        this.addCrawlBtns();
-        this.addAnyElement();
-        this.initAny();
-        // 如果在 init 方法中绑定了全局事件，并且该事件只适用于当前页面类型，那么应该在 destroy 中解绑事件。
-        // 注册当前页面的 destroy 函数
-        _pageFunciton_DestroyManager__WEBPACK_IMPORTED_MODULE_15__.destroyManager.register(this.destroy.bind(this));
-        // 页面切换后，如果任务已经完成，则移除日志区域
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('clearLogAfterPageSwitch', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.pageSwitch, () => {
-            if (!_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
-                _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
-            }
-        });
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('crawlCompleteTime', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.crawlComplete, () => {
-            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.crawlCompleteTime = new Date().getTime();
-        });
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('downloadCompleteTime', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.downloadComplete, () => {
-            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.downloadCompleteTime = new Date().getTime();
-        });
-        // 监听下载 id 列表的事件
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('crawlIdList', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.crawlIdList, (ev) => {
-            const idList = ev.detail.data;
-            if (idList) {
-                this.crawlIdList(idList);
-            }
-            // 通过 bindOnce 绑定的 this 是执行此代码时通过这个虚拟类生成的实例，这个 this 是不会变化的
-            // 但是这个虚拟类会产生多个实例，所以这里调用 this 的方法时，要求这个方法与具体实例无关，不受实例变化影响
-            // 也就是说即使页面类型变化并且生成了新的实例，调用旧实例上的这个方法也依然会正常运行
-            // 如果某个方法做不到这一点, 就不要在这里调用。
-            // 基于此，在这里修改 this 上的属性是不合适的，因为每个新实例都会复制这个虚拟类上的属性，它们是独立的
-        });
-    }
-    // 设置表单里的选项。主要是设置页数，并隐藏不需要的选项。
-    setFormOption() {
-        // 个数/页数选项的提示
-        _setting_Options__WEBPACK_IMPORTED_MODULE_7__.options.setWantPageTip({
-            text: '_抓取多少页面',
-            tip: '_从本页开始下载提示',
-            rangTip: '_数字提示1',
-            min: 1,
-            max: -1,
-        });
-    }
-    // 添加抓取区域的默认按钮，可以被子类覆写
-    addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
-            this.readyCrawl();
-        });
-    }
-    // 添加其他任意元素（如果有）
-    addAnyElement() { }
-    // 初始化任意内容
-    // 如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里
-    // 通常用来初始化特有的组件、功能、事件、状态等
-    initAny() { }
-    // 销毁初始化页面时添加的元素和事件，恢复设置项等
-    destroy() {
-        _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.clearSlot('crawlBtns');
-        _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.clearSlot('otherBtns');
-    }
-    // 作品个数/页数的输入不合法
-    getWantPageError() {
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('wrongSetting');
-        const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载数量错误');
-        _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
-        throw new Error(msg);
-    }
-    // 在某些页面检查页数/个数设置
-    // 可以为 -1，或者大于 0
-    checkWantPageInput(crawlPartTip, crawlAllTip) {
-        const want = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.wantPageArr[_PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type];
-        // 如果比 1 小，并且不是 -1，则不通过
-        if ((want < 1 && want !== -1) || isNaN(want)) {
-            // 比 1 小的数里，只允许 -1 , 0 也不行
-            throw this.getWantPageError();
-        }
-        if (want >= 1) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(crawlPartTip.replace('{}', want.toString()));
-        }
-        else if (want === -1) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(crawlAllTip);
-        }
-        return want;
-    }
-    // 在某些页面检查页数/个数设置，要求必须大于 0
-    // 参数 max 为最大值
-    // 参数 page 指示单位是“页”（页面）还是“个”（作品个数）
-    checkWantPageInputGreater0(max, page) {
-        const want = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.wantPageArr[_PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type];
-        if (want > 0) {
-            const result = Math.min(want, max);
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl(page ? '_从本页开始下载x页' : '_从本页开始下载x个', result.toString()));
-            return result;
-        }
-        else {
-            throw this.getWantPageError();
-        }
-    }
-    // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
-    getWantPage() { }
-    // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
-    getMultipleSetting() {
-        // 获取作品张数设置
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.firstFewImagesSwitch) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(`${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品只下载前几张图片')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.firstFewImages}`);
-        }
-    }
-    /**在日志上显示任意提示 */
-    showTip() {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.removeWorksOfFollowedUsersOnSearchPage &&
-            (_PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.ArtworkSearch ||
-                _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.NovelSearch)) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在搜索页面里移除已关注用户的作品'));
-        }
-    }
-    setSlowCrawl() {
-        _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl;
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
-        }
-    }
-    confirmRecrawl() {
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length > 0) {
-            // 如果已经有抓取结果，则检查这些抓取结果是否已被下载过
-            // 如果没有被下载过，则显示提醒
-            if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.crawlCompleteTime > _store_States__WEBPACK_IMPORTED_MODULE_9__.states.downloadCompleteTime) {
-                const _confirm = window.confirm(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_已有抓取结果时进行提醒'));
-                return _confirm;
-            }
-        }
-        return true;
-    }
-    // 准备正常进行抓取，执行一些检查
-    async readyCrawl() {
-        // 检查是否可以开始抓取
-        // states.busy 表示下载器正在抓取或正在下载
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
-            _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前任务尚未完成'));
-            return;
-        }
-        // 下载器空闲，此时检查是否有已存在的抓取结果
-        if (!this.confirmRecrawl()) {
-            return;
-        }
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
-        _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
-            position: 'center',
-        });
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlStart');
-        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.isPixiv()) {
-            await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__.mute.getMuteSettings();
-        }
-        this.getWantPage();
-        this.getMultipleSetting();
-        this.showTip();
-        this.finishedRequest = 0;
-        this.crawlFinishBecauseStopCrawl = false;
-        _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = false;
-        // 进入第一个抓取流程
-        this.nextStep();
-    }
-    // 基于传递的 id 列表直接开始抓取
-    // 这个方法是为了让其他模块可以传递 id 列表，直接进行下载。
-    // 这个类的子类没有必要使用这个方法。当子类需要直接指定 id 列表时，修改自己的 getIdList 方法即可。
-    async crawlIdList(idList) {
-        // 对 idList 进行去重
-        // 这是因为有些用户可能会连续、快速的重复建立下载（比如在预览时迅速的连续按两次 C 键）
-        const ids = [];
-        const _idList = [];
-        for (const i of idList) {
-            if (ids.includes(i.id) === false) {
-                ids.push(i.id);
-                _idList.push(i);
-            }
-        }
-        // 如果下载器正忙则把 id 列表添加到等待队列中
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.waitingIdList.push(..._idList);
-            _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器正忙这次请求已开始排队'), {
-                bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
-            });
-        }
-        else {
-            if (!this.confirmRecrawl()) {
-                return;
-            }
-            _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
-            _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
-                bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
-            });
-            _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlStart');
-            if (_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.isPixiv()) {
-                await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__.mute.getMuteSettings();
-            }
-            this.getMultipleSetting();
-            this.finishedRequest = 0;
-            this.crawlFinishBecauseStopCrawl = false;
-            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = false;
-            // 传递 id 列表下载时，不显示下载面板
-            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.quickCrawl = true;
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = _idList;
-            this.getIdListFinished();
-        }
-    }
-    // 当可以开始抓取时，进入下一个流程。默认情况下，开始获取作品列表。如有不同，由子类具体定义
-    nextStep() {
-        this.getIdList();
-    }
-    // 获取 id 列表，由各个子类具体定义
-    getIdList() { }
-    // id 列表获取完毕，开始抓取作品内容页
-    async getIdListFinished() {
-        _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = false;
-        this.resetGetIdListStatus();
-        // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则直接剔除它
-        // 现在这里能够检查这些过滤条件：
-        // 1. 检查 id 是否符合 id 范围条件
-        // 2. 检查 id 的发布时间是否符合时间范围条件
-        // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，
-        // 但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
-        const filteredIDList = [];
-        for (const idData of _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList) {
-            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
-                id: idData.id,
-                workTypeString: idData.type,
-                workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
-            });
-            if (check) {
-                filteredIDList.push(idData);
-            }
-        }
-        _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = filteredIDList;
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('getIdListFinished');
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl || _store_States__WEBPACK_IMPORTED_MODULE_9__.states.bookmarkMode) {
-            return;
-        }
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length === 0) {
-            return this.noResult();
-        }
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.persistentRefresh();
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前作品个数', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length.toString()));
-        // 导出 ID 列表，并停止抓取
-        if ((_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportIDList || _store_States__WEBPACK_IMPORTED_MODULE_9__.states.exportIDList) && _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.isPixiv()) {
-            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy = false;
-            _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('stopCrawl');
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_已停止抓取'));
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportIDList) {
-                const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList);
-                for (const result of resultList) {
-                    _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.downloadFile(result.url, `ID list-total ${result.total}-from ${_Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getPageTitle()}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
-                }
-                const msg = '✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出ID列表');
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(msg);
-                _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.success(msg);
-            }
-            return;
-        }
-        // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
-        // return states.busy = false
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始获取作品信息'));
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl &&
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawlOnWorksNumber) {
-            // 慢速抓取
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
-            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = true;
-            this.ajaxThread = 1;
-        }
-        else {
-            // 全速抓取
-            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = false;
-            this.ajaxThread = Math.min(this.ajaxThreadsDefault, _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length);
-        }
-        // 开始抓取作品数据
-        // 当快速下载单个作品时，优先从缓存读取
-        // 其实缓存数据里的某些值可能不是作品的最新值了，但是下载单个作品时，通常距离缓存时没过去多久
-        // 所以就使用缓存了
-        // 这通常是由 crawlIdList 触发的，比如：
-        // 在作品页里快速下载这个作品；预览图片时按快捷键下载；点击缩略图右上角的下载按钮
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.quickCrawl && _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length === 1) {
-            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id);
-            if (data) {
-                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = [];
-                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__.saveArtworkData.save(data);
-                return this.crawlFinished();
-            }
-        }
-        // 如果没有缓存，或者要抓取多个作品，则进行真正的抓取
-        // getWorksData 里不使用缓存的数据，它始终会发送请求
-        for (let i = 0; i < this.ajaxThread; i++) {
-            window.setTimeout(() => {
-                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0 ? this.getWorksData() : this.afterGetWorksData();
-            }, 0);
-        }
-    }
-    // 重设抓取作品列表时使用的变量或标记
-    resetGetIdListStatus() { }
-    // 获取作品的数据
-    async getWorksData(idData) {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
-            return this.crawlFinished();
-        }
-        idData = idData || _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
-        if (!idData) {
-            return this.afterGetWorksData();
-        }
-        const id = idData.id;
-        if (!id) {
-            const msg = 'Error: work id is invalid!';
-            _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
-            throw new Error(msg);
-        }
-        // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则跳过它
-        // 现在这里能够检查这些过滤条件：
-        // 1. 检查 id 是否符合 id 范围条件
-        // 2. 检查 id 的发布时间是否符合时间范围条件
-        // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，
-        // 但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
-        const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
-            id,
-            workTypeString: idData.type,
-            workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
-        });
-        if (!check) {
-            return this.afterGetWorksData();
-        }
-        try {
-            const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.Unlisted;
-            // 这里不使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
-            if (idData.type === 'novels') {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getNovelData(id, unlisted);
-                await _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_11__.saveNovelData.save(data);
-                this.afterGetWorksData(data);
-            }
-            else {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getArtworkData(id, unlisted);
-                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__.saveArtworkData.save(data);
-                this.afterGetWorksData(data);
-            }
-        }
-        catch (error) {
-            // 当 API 里的网络请求的状态码异常时，会 reject，被这里捕获
-            if (error.status) {
-                // 请求成功，但状态码不正常
-                this.logErrorStatus(error.status, idData);
-                if (error.status === 500 || error.status === 429) {
-                    // 如果状态码 500 或 429，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
-                    this.log429ErrorTip();
-                    window.setTimeout(() => {
-                        this.getWorksData(idData);
-                    }, _Config__WEBPACK_IMPORTED_MODULE_22__.Config.retryTime);
-                    return;
-                }
-                else {
-                    this.afterGetWorksData();
-                }
-            }
-            else {
-                // 请求失败，一般是
-                // TypeError: Failed to fetch
-                // 或者 Failed to load resource: net::ERR_CONNECTION_CLOSED
-                // 对于这种请求没能成功发送的错误，会输出 null
-                // 此外这里也会捕获到 save 作品数据时的错误（如果有）
-                console.error(error);
-                // 再次发送这个请求
-                window.setTimeout(() => {
-                    this.getWorksData(idData);
-                }, 2000);
-            }
-        }
-    }
-    // 每当获取完一个作品的信息
-    async afterGetWorksData(data) {
-        this.logResultNumber();
-        // 抓取可能中途停止，此时保留抓取结果
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
-            return this.crawlFinished();
-        }
-        // 如果会员搜索优化策略指示停止抓取，则立即进入完成状态
-        if (data && (await _VipSearchOptimize__WEBPACK_IMPORTED_MODULE_16__.vipSearchOptimize.checkBookmarkCount(data))) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'));
-            // 指示抓取已停止
-            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = true;
-            return this.crawlFinished();
-        }
-        // 在进行下一次抓取前，预先检查这个 id 是否符合过滤条件
-        // 如果它不符合过滤条件，则立刻跳过它，这样也不会发送请求来获取这个作品的数据
-        // 这样可以加快抓取速度
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0) {
-            const nextIDData = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0];
-            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
-                id: nextIDData.id,
-                workTypeString: nextIDData.type,
-                workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(nextIDData.type),
-            });
-            if (!check) {
-                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
-                return this.getWorksData();
-            }
-        }
-        // 如果存在下一个作品，则继续抓取
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0) {
-            if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode) {
-                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__.setTimeoutWorker.set(() => {
-                    this.getWorksData();
-                }, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawlDealy);
-            }
-            else {
-                this.getWorksData();
-            }
-        }
-        else {
-            // 没有剩余作品，统计此后有多少个完成的请求
-            this.finishedRequest++;
-            // 所有请求都执行完毕
-            if (this.finishedRequest === this.ajaxThread) {
-                this.crawlFinished();
-            }
-        }
-    }
-    // 抓取完毕
-    crawlFinished() {
-        // 当下载器没有处于慢速抓取模式时，会使用 10 个并发请求
-        // 此时如果第一个请求触发了停止抓取 states.stopCrawl，这 10 个都会进入这里
-        // 所以我设置了个一次性的标记，防止重复执行这里的代码
-        if (this.crawlFinishBecauseStopCrawl) {
-            return;
-        }
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
-            this.crawlFinishBecauseStopCrawl = true;
-        }
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length === 0) {
-            return this.noResult();
-        }
-        _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.crawlCompleteTime = new Date();
-        // 对文件进行排序
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.setFileDownloadOrder) {
-            // 按照用户设置的规则进行排序
-            const scheme = new Map([
-                ['ID', 'id'],
-                ['bookmarkCount', 'bmk'],
-                ['bookmarkID', 'bmkId'],
-            ]);
-            let key = scheme.get(_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrderSortBy);
-            // 在搜索页面预览抓取结果时，始终按收藏数量排序
-            if (_PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.ArtworkSearch &&
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.previewResult) {
-                key = 'bmk';
-            }
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.sortByProperty(key, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrder));
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.sortByProperty(key, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.downloadOrder));
-        }
-        else {
-            // 如果用户未设置排序规则，则每个页面自行处理排序逻辑
-            this.sortResult();
-        }
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_共抓取到n个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.resultMeta.length.toString()));
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_共抓取到n个文件', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length.toString()));
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取完毕'), 2);
-        // 发出抓取完毕的信号
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlComplete');
-        // 自动导出抓取结果
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoExportResult &&
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoExportResultNumber) {
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoExportResultCSV) {
-                _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('exportCSV');
-            }
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.autoExportResultJSON) {
-                _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('exportResult');
-            }
-        }
-    }
-    // 网络请求状态异常时输出提示
-    logErrorStatus(status, idData) {
-        const isNovel = idData.type === 'novels';
-        const workLink = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.createWorkLink(idData.id, !isNovel);
-        switch (status) {
-            case 0:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码0'));
-                break;
-            case 400:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码400'));
-                break;
-            case 401:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码401'));
-                break;
-            case 403:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码403'));
-                break;
-            case 404:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码404'));
-                break;
-            case 429:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码429'));
-                break;
-            case 500:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码500'));
-                break;
-            default:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_无权访问', workLink) + `HTTP status code: ${status}`);
-                break;
-        }
-    }
-    // 每当抓取了一个作品之后，输出提示
-    logResultNumber() {
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(`${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_待处理')} ${_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length}, ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_共抓取到n个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.resultMeta.length.toString())}`, 1, false);
-    }
-    // 抓取结果为 0 时输出提示
-    noResult() {
-        // 先触发 crawlComplete，后触发 crawlEmpty。这样便于其他组件处理 crawlEmpty 这个例外情况
-        // 如果触发顺序反过来，那么最后执行的都是 crawlComplete，可能会覆盖对 crawlEmpty 的处理
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlComplete');
-        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlEmpty');
-        const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取结果为零');
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg, 2);
-        _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
-    }
-    // 抓取完成后，对结果进行排序
-    sortResult() { }
-    /**定时抓取的按钮 */
-    addStartTimedCrawlBtn(cb) {
-        _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_定时抓取', '_定时抓取说明').addEventListener('click', () => {
-            _TimedCrawl__WEBPACK_IMPORTED_MODULE_23__.timedCrawl.start(cb);
-        });
-    }
-    /**取消定时抓取的按钮 */
-    addCancelTimedCrawlBtn() {
-        const btn = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgWarning, '_取消定时抓取');
-        btn.style.display = 'none';
-        btn.addEventListener('click', () => {
-            _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('cancelTimedCrawl');
-            btn.style.display = 'none';
-        });
-        // 启动定时抓取之后，显示取消定时抓取的按钮
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.startTimedCrawl, () => {
-            btn.style.display = 'flex';
-        });
-    }
-}
-
-
-
-/***/ }),
-
-/***/ "./src/ts/crawl/InitRequestPage.ts":
-/*!*****************************************!*\
-  !*** ./src/ts/crawl/InitRequestPage.ts ***!
-  \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   InitRequestPage: () => (/* binding */ InitRequestPage)
-/* harmony export */ });
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
-
-
-
-
-// 投稿页面
-class InitRequestPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_3__.InitPageBase {
-    constructor() {
-        super();
-        this.init();
-    }
-    initAny() {
-        // 约稿页面 和 已完成的约稿页面 互相切换时，需要重新隐藏第一个选项
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch, () => {
-            if (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request) {
-                this.setFormOption();
-            }
-        });
-    }
-    addCrawlBtns() { }
-    setFormOption() {
-        _setting_Options__WEBPACK_IMPORTED_MODULE_2__.options.hideOption([1]);
-    }
-}
-
-
-
-/***/ }),
-
-/***/ "./src/ts/crawl/InitUnsupportedPage.ts":
-/*!*********************************************!*\
-  !*** ./src/ts/crawl/InitUnsupportedPage.ts ***!
-  \*********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   InitUnsupportedPage: () => (/* binding */ InitUnsupportedPage)
-/* harmony export */ });
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
-
-
-// 初始化不支持的页面类型
-class InitUnsupportedPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_1__.InitPageBase {
-    constructor() {
-        super();
-        this.init();
-    }
-    // 在不支持的页面类型里，不会添加专门用于当前页面的抓取按钮
-    // 只会由 SelectWork 模块添加通用的“手动抓取”功能
-    addCrawlBtns() { }
-    setFormOption() {
-        _setting_Options__WEBPACK_IMPORTED_MODULE_0__.options.hideOption([1]);
-    }
-}
-
-
-
-/***/ }),
-
-/***/ "./src/ts/crawl/StopCrawl.ts":
-/*!***********************************!*\
-  !*** ./src/ts/crawl/StopCrawl.ts ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-
-
-
-
-
-
-
-class StopCrawl {
-    constructor() {
-        this.addBtn();
-        this.bindEvents();
-    }
-    addBtn() {
-        this.btn = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.addBtn('stopCrawl', _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgRed, '_停止抓取');
-        this.hide();
-        this.btn.addEventListener('click', () => {
-            this.hide();
-            const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已停止抓取');
-            _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(msg);
-            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(msg);
-            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('stopCrawl');
-            _store_States__WEBPACK_IMPORTED_MODULE_6__.states.stopCrawl = true;
-        });
-    }
-    bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlStart, () => {
-            this.show();
-        });
-        const hiddenEvents = [_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.stopCrawl];
-        hiddenEvents.forEach((evt) => {
-            window.addEventListener(evt, () => {
-                this.hide();
-            });
-        });
-    }
-    hide() {
-        this.btn.style.display = 'none';
-    }
-    show() {
-        this.btn.style.display = 'flex';
-    }
-}
-new StopCrawl();
-
-
-/***/ }),
-
-/***/ "./src/ts/crawl/TimedCrawl.ts":
-/*!************************************!*\
-  !*** ./src/ts/crawl/TimedCrawl.ts ***!
-  \************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   timedCrawl: () => (/* binding */ timedCrawl)
-/* harmony export */ });
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Input__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Input */ "./src/ts/Input.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-
-
-
-
-
-
-
-
-class TimedCrawl {
-    constructor() {
-        this.time = 0;
-        /**定时器可用的最大延迟时间，这里计算为分钟 */
-        // https://developer.mozilla.org/zh-CN/docs/Web/API/setTimeout#%E6%9C%80%E5%A4%A7%E5%BB%B6%E6%97%B6%E5%80%BC
-        // max: 2147483647 / 60 / 1000
-        this.timeMinuteMax = 35791;
-        /**这次抓取是否是由本模块发起的 */
-        this.crawlBySelf = false;
-        this.bindEvents();
-    }
-    /**启动定时抓取任务。
-     *
-     * 只能有 1 个定时抓取任务，如果重复调用此方法，后传递的回调函数会覆盖之前的回调函数。
-     */
-    async start(cb) {
-        const input = new _Input__WEBPACK_IMPORTED_MODULE_6__.Input({
-            instruction: `${_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取的间隔时间2')} (${_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_分钟')})`,
-            value: _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval.toString(),
-            width: 500,
-        });
-        const value = await input.submit();
-        if (!value) {
-            return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_本次操作已取消'));
-        }
-        const number = Number.parseInt(value);
-        if (isNaN(number)) {
-            return _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_参数不合法本次操作已取消'));
-        }
-        if (number > this.timeMinuteMax) {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取的时间超过最大值') +
-                this.timeMinuteMax +
-                _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_分钟'));
-            return;
-        }
-        if (number < 1) {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取的时间最小值'));
-            return;
-        }
-        (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.setSetting)('timedCrawlInterval', number);
-        this.reset();
-        this.callback = cb;
-        this.execute();
-        _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.fire('startTimedCrawl');
-        const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取已启动的提示', _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval.toString());
-        _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.show(msg +
-            '<br><br>' +
-            _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取的推荐用法') +
-            '<br><br>' +
-            _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_定时抓取已启动的提示2'));
-        _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(msg);
-    }
-    execute() {
-        this.time = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.timedCrawlInterval * 60 * 1000;
-        this.timer = window.setTimeout(() => {
-            if (!this.callback) {
-                return;
-            }
-            this.crawlBySelf = true;
-            _store_States__WEBPACK_IMPORTED_MODULE_5__.states.quickCrawl = true;
-            this.callback();
-            this.execute();
-        }, this.time);
-    }
-    reset() {
-        this.callback = undefined;
-        window.clearTimeout(this.timer);
-        this.crawlBySelf = false;
-        _store_States__WEBPACK_IMPORTED_MODULE_5__.states.quickCrawl = false;
-    }
-    bindEvents() {
-        // 当抓取结果为空，或者下载中止、完成时复位标记
-        const resetCrawlBySelf = [
-            _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.crawlEmpty,
-            _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.downloadStop,
-            _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.downloadPause,
-            _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.downloadComplete,
-            _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.downloadCancel,
-        ];
-        for (const ev of resetCrawlBySelf) {
-            window.addEventListener(ev, () => {
-                window.setTimeout(() => {
-                    // 需要延迟执行，在日志提示显示之后再复位状态
-                    this.crawlBySelf = false;
-                }, 50);
-            });
-        }
-        // 显示一些提示
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.crawlStart, () => {
-            if (!this.crawlBySelf) {
-                return;
-            }
-            _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_开始定时抓取'));
-            _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前时间') + new Date().toLocaleString());
-        });
-        const tipWaitNextCrawl = [_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.crawlEmpty, _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.downloadComplete];
-        for (const ev of tipWaitNextCrawl) {
-            window.addEventListener(ev, () => {
-                window.setTimeout(() => {
-                    if (this.crawlBySelf) {
-                        _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前时间') + new Date().toLocaleString());
-                        _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_等待下一次定时抓取'));
-                    }
-                }, 0);
-            });
-        }
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.cancelTimedCrawl, () => {
-            this.reset();
-            const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_已取消定时抓取');
-            _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(msg);
-            _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.success(msg);
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.pageSwitch, () => {
-            if (!this.callback) {
-                return;
-            }
-            this.reset();
-            const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_因为URL变化取消定时抓取任务');
-            _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(msg);
-            _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.error(msg);
-        });
-    }
-}
-const timedCrawl = new TimedCrawl();
-
-
-
-/***/ }),
-
-/***/ "./src/ts/crawl/VipSearchOptimize.ts":
-/*!*******************************************!*\
-  !*** ./src/ts/crawl/VipSearchOptimize.ts ***!
-  \*******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   vipSearchOptimize: () => (/* binding */ vipSearchOptimize)
-/* harmony export */ });
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-
-
-
-
-
-
-// 当 Pixiv 会员在搜索页面按热门度排序，并且设置了收藏数量时，可以进行优化以减少不必要的抓取
-// 原理：当会员使用热门度排序时，Pixiv 返回的数据是按收藏数量从高到低排序的。（但不是严格一致，经常有少量作品顺序不对）
-// 假如会员用户在下载器里设置了收藏数量大于 10000，那么当查找到小于 10000 收藏的作品时，就可以考虑停止抓取作品了，因为后面的作品都是收藏数量低于 10000 的了
-class VipSearchOptimize {
-    constructor() {
-        // 在哪些页面上启用
-        this.enablePageType = [
-            _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkSearch,
-            _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelSearch,
-        ];
-        // 小说搜索页面的列表数据中本身就含有每个作品的收藏数，但是依然需要在这个模块里进行优化处理
-        // 只有会员才能使用的排序方式（按热门度排序）
-        this.vipOrders = [
-            'popular_d',
-            'popular_male_d',
-            'popular_female_d',
-        ];
-        // popular_d 受全站欢迎
-        // popular_male_d 受男性欢迎
-        // popular_female_d 受女性欢迎
-        // 是否对这次抓取使用优化策略
-        this.vipSearchOptimize = false;
-        this.filterFailed = 0; // 连续检查失败的数量。在检查作品是否满足收藏条件时，如果满足就将此计数清零；如果不满足就自增
-        this.checkNumber = 20; // 连续多少个作品未达到要求时，停止抓取。这是一个猜测值
-        this.bindEvents();
-    }
-    // 设置 checkNumber 的原因：Pixiv 按热门度排序返回的数据其实并不是严格按照收藏数量排序的。所以设置一个数字作为处理这个情况的手段：连续多少个作品都不满足要求时，认为后续都是不满足要求的
-    bindEvents() {
-        // 启动抓取时设置是否启用优化策略
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
-            this.vipSearchOptimize = this.setVipOptimize();
-            // console.log('vipSearchOptimize: ', this.vipSearchOptimize)
-        });
-        // 抓取完毕时重置状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, () => {
-            this.reset();
-        });
-    }
-    reset() {
-        this.vipSearchOptimize = false;
-        this.filterFailed = 0;
-    }
-    /**在抓取列表页阶段，每隔一定页数，接收最后一个作品的 id，检查它的收藏数量，如果收藏数低于指定值，则停止抓取
-     *
-     * 返回值 true 表示停止抓取
-     */
-    async checkWork(id, workType) {
-        return new Promise(async (resolve) => {
-            // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
-            if (!this.vipSearchOptimize || !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumSwitch) {
-                return resolve(false);
-            }
-            let bmk = 99999999;
-            if (workType === 'novels') {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getNovelData(id);
-                bmk = data.body.bookmarkCount;
-            }
-            else {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getArtworkData(id);
-                bmk = data.body.bookmarkCount;
-            }
-            const check = bmk >= _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumMin;
-            console.log(bmk);
-            if (!check) {
-                console.log('抽查的作品收藏数量低于最低要求，停止抓取');
-                return resolve(true);
-            }
-            return resolve(false);
-        });
-    }
-    /**在抓取作品详情阶段，接收作品数据，判断收藏数量是否达到要求，并据此指示是否应该停止抓取作品
-     *
-     * 返回值 true 表示停止抓取
-     */
-    async checkBookmarkCount(data) {
-        // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
-        if (!this.vipSearchOptimize || !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumSwitch) {
-            return false;
-        }
-        // 连续多少个作品没有达到要求，则停止抓取
-        if (this.filterFailed >= this.checkNumber) {
-            return true;
-        }
-        // 在按热门度排序时，作品是按收藏数量从高到低排列的。因此检查作品的收藏数量是否满足用户设置的最小收藏数量
-        const check = data.body.bookmarkCount >= _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumMin;
-        // 如果作品的收藏数量小于用户要求的最低收藏数量，那么它就不符合要求
-        // 这里不会检查用户设置的最大收藏数量，也不检查日均收藏数量，否则可能在某些情况下出现误判
-        // 假设用户设置的收藏数量条件为： >= 100 && <= 200 如果检查最大收藏数量，那么排在最前面的许多作品都不符合要求
-        // 所以只检查最小收藏数量
-        if (!check) {
-            this.filterFailed++;
-        }
-        else {
-            this.filterFailed = 0;
-        }
-        if (this.filterFailed >= this.checkNumber) {
-            console.log(`连续 ${this.checkNumber} 个作品没有达到要求，停止抓取`);
-        }
-        return this.filterFailed >= this.checkNumber;
-    }
-    // 设置是否启用优化策略
-    setVipOptimize() {
-        // 判断页面类型
-        if (!this.enablePageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type)) {
-            return false;
-        }
-        // 判断是否是会员
-        if (!_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.isPremium()) {
-            return false;
-        }
-        // 判断 order 方式
-        const order = _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.getURLSearchField(window.location.href, 'order');
-        // 无排序方式
-        if (!order) {
-            return false;
-        }
-        const vipOrder = this.vipOrders.includes(order);
-        // 不是按热门度排序
-        if (!vipOrder) {
-            return false;
-        }
-        // 按热门度排序
-        // 判断是否启用了收藏数设置，如果是，则启用会员搜索优化
-        return _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.BMKNumSwitch;
-    }
-}
-const vipSearchOptimize = new VipSearchOptimize();
-
-
-
-/***/ }),
-
 /***/ "./src/ts/download/BookmarkAfterDL.ts":
 /*!********************************************!*\
   !*** ./src/ts/download/BookmarkAfterDL.ts ***!
@@ -16840,8 +16840,8 @@ class DownloadControl {
             }
             // UUID 的情况
             if (msg.data?.uuid) {
-                _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_uuid'), 1, false, 'filenameUUID');
-                _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.once(this.msgFlag, _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_uuid'), 'error');
+                _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_uuid'), 1, false, 'filenameUUID');
+                _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.once(this.msgFlag, _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_uuid'), 'show');
             }
             // 文件下载成功
             if (msg.msg === 'downloaded') {
@@ -23026,24 +23026,74 @@ Zip 파일이 원본 파일입니다.`,
         'помощь',
     ],
     _uuid: [
-        `下载器检测到下载后的文件名异常。如果你看到文件名是一串随机的字母和数字，表示有某些扩展程序接管了由下载器建立的下载，导致下载器设置的文件名丢失。<br>
-遇到此问题时，请禁用其他有下载文件的功能的扩展程序。例如：<br>
-Chrono 下载管理器、mage Downloade 等。`,
-        `下載器檢測到下載後的檔名異常。如果你看到檔名是一串隨機的字母和數字，表示有某些擴充套件程式接管了由下載器建立的下載，導致下載器設定的檔名丟失。<br>
-遇到此問題時，請禁用其他有下載檔案的功能的擴充套件程式。例如：<br>
-Chrono 下載管理器、mage Downloade 等。`,
-        `The downloader detected an abnormal file name after downloading. If you see a random string of letters and numbers in the file name, it means that some extensions have taken over the download established by the downloader, causing the file name set by the downloader to be lost. <br>
-When encountering this problem, please disable other extensions that have the function of downloading files. For example: <br>
-Chrono Download Manager, Image Downloader, etc.`,
-        `ダウンローダーはダウンロード後に異常なファイル名を検出しました。ファイル名にランダムな文字と数字の文字列が表示されている場合は、一部の拡張機能がダウンローダーによって確立されたダウンロードを引き継ぎ、ダウンローダーによって設定されたファイル名が失われたことを意味します。<br>
-この問題が発生した場合は、ファイルをダウンロードする機能を持つ他の拡張機能を無効にしてください。例: <br>
-Chrono Download Manager、mage Downloade など。`,
-        `다운로더가 다운로드 후 비정상적인 파일 이름을 감지했습니다. 파일 이름에 임의의 문자와 숫자 문자열이 있는 경우 다운로더가 설정한 다운로드를 일부 확장자가 인수하여 다운로더가 설정한 파일 이름이 손실되었음을 의미합니다. <br>
-이 문제가 발생하면 파일을 다운로드하는 기능이 있는 다른 확장자를 비활성화하세요. 예: <br>
-Chrono Download Manager, Image Downloader 등`,
-        `Загрузчик обнаружил ненормальное имя файла после загрузки. Если вы видите случайную строку букв и цифр в имени файла, это означает, что некоторые расширения взяли на себя загрузку, установленную загрузчиком, в результате чего имя файла, установленное загрузчиком, было потеряно. <br>
-При возникновении этой проблемы, пожалуйста, отключите другие расширения, которые имеют функцию загрузки файлов. Например: <br>
-Chrono Download Manager, Image Downloader и т. д.`,
+        `下载器检测到下载后的文件名可能异常。如果文件名是一串随机的字母和数字，或者没有使用下载器设置里的命名规则，就表示发生了此问题。<br>
+这不是下载器自身的问题，而是被其他扩展程序影响了，导致下载器设置的文件名丢失。<br>
+当你遇到这个问题时，可以考虑下面的处理方法：<br>
+1. 推荐：你可以新建一个浏览器本地用户来使用这个下载器。对于 Chrome 和 Edge 浏览器，你可以点击浏览器右上角的头像图标，然后创建新的个人资料（不需要登录 Google 或 Microsoft 账号）。每个用户都有独立的浏览器窗口，所以你可以为新用户安装这个下载器，并且不要安装其他扩展程序。当你需要下载 Pixiv 或 Fanbox 的文件时，使用这个用户进行下载，就可以避免受到其他扩展程序的影响。
+<br>
+2. 你可以找出导致此问题的扩展程序，并在使用本下载器时，临时禁用它们。这些扩展程序通常具有下载文件、管理下载的功能，例如：IDM Integration Module、Chrono 下载管理器、mage Downloade 等。如果你不确定是哪个扩展导致的，可以先禁用所有扩展，然后一个一个启用，并使用下载器进行下载，这样就可以找出是哪个扩展导致了此问题。<br>
+<br>
+技术细节：<br>
+某些扩展程序会监听 chrome.downloads.onDeterminingFilename 事件，这很容易导致预设的文件名丢失。<br>
+假设本下载器为某个文件设置了自定义文件名：user/image.jpg。<br>
+如果另一个扩展程序监听了 onDeterminingFilename 事件，浏览器会询问它对文件名的建议（使它有机会修改文件名）。问题在于：此时浏览器传递的文件名是默认的（也就是 URL 里的最后一段路径），而不是下载器设置的文件名。<br>
+所以下载器设置的文件名会丢失，并且文件名会变成 URL 里的最后一段路径。<br>`,
+        `下載器檢測到下載後的檔名可能異常。如果檔名是一串隨機的字母和數字，或者沒有使用下載器設定裡的命名規則，就表示發生了此問題。<br>
+這不是下載器自身的問題，而是被其他擴充套件程式影響了，導致下載器設定的檔名丟失。<br>
+當你遇到這個問題時，可以考慮下面的處理方法：<br>
+1. 推薦：你可以新建一個瀏覽器本地使用者來使用這個下載器。對於 Chrome 和 Edge 瀏覽器，你可以點選瀏覽器右上角的頭像圖示，然後建立新的個人資料（不需要登入 Google 或 Microsoft 賬號）。每個使用者都有獨立的瀏覽器視窗，所以你可以為新使用者安裝這個下載器，並且不要安裝其他擴充套件程式。當你需要下載 Pixiv 或 Fanbox 的檔案時，使用這個使用者進行下載，就可以避免受到其他擴充套件程式的影響。
+<br>
+2. 你可以找出導致此問題的擴充套件程式，並在使用本下載器時，臨時禁用它們。這些擴充套件程式通常具有下載檔案、管理下載的功能，例如：IDM Integration Module、Chrono 下載管理器、mage Downloade 等。如果你不確定是哪個擴充套件導致的，可以先禁用所有擴充套件，然後一個一個啟用，並使用下載器進行下載，這樣就可以找出是哪個擴充套件導致了此問題。<br>
+<br>
+技術細節：<br>
+某些擴充套件程式會監聽 chrome.downloads.onDeterminingFilename 事件，這很容易導致預設的檔名丟失。<br>
+假設本下載器為某個檔案設定了自定義檔名：user/image.jpg。<br>
+如果另一個擴充套件程式監聽了 onDeterminingFilename 事件，瀏覽器會詢問它對檔名的建議（使它有機會修改檔名）。問題在於：此時瀏覽器傳遞的檔名是預設的（也就是 URL 裡的最後一段路徑），而不是下載器設定的檔名。<br>
+所以下載器設定的檔名會丟失，並且檔名會變成 URL 裡的最後一段路徑。<br>`,
+        `The downloader detects that the file name after downloading may be abnormal. If the file name is a string of random letters and numbers, or does not use the naming rules in the downloader settings, it means that this problem has occurred. <br>
+This is not a problem with the downloader itself, but it is affected by other extensions, causing the file name set by the downloader to be lost. <br>
+When you encounter this problem, you can consider the following solutions: <br>
+1. Recommended: You can create a new browser local user to use this downloader. For Chrome and Edge browsers, you can click the avatar icon in the upper right corner of the browser and create a new profile (no need to log in to a Google or Microsoft account). Each user has a separate browser window, so you can install this downloader for the new user and do not install other extensions. When you need to download files from Pixiv or Fanbox, use this user to download to avoid being affected by other extensions. <br>
+2. You can find out the extensions that cause this problem and temporarily disable them when using this downloader. These extensions usually have the functions of downloading files and managing downloads, such as: IDM Integration Module, Chrono Download Manager, mage Downloade, etc. If you are not sure which extension is causing the problem, you can find out which extension is causing the problem by disabling all extensions, then enabling them one by one and downloading them using the Downloader. <br>
+<br>
+Technical details: <br>
+Some extensions listen to the chrome.downloads.onDeterminingFilename event, which can easily cause the preset file name to be lost. <br>
+Suppose this Downloader sets a custom file name for a file: user/image.jpg. <br>
+If another extension listens to the onDeterminingFilename event, the browser will ask it for suggestions for the file name (giving it a chance to modify the file name). The problem is: the file name passed by the browser is the default (the last path in the URL), not the file name set by the Downloader. <br>
+So the file name set by the Downloader is lost, and the file name becomes the last path in the URL. <br>`,
+        `ダウンローダーは、ダウンロード後のファイル名が異常である可能性があることを検出しました。ファイル名がランダムな文字と数字の文字列である場合、またはダウンローダー設定の命名規則を使用していない場合は、この問題が発生していることを意味します。<br>
+これはダウンローダー自体の問題ではなく、他の拡張機能の影響を受け、ダウンローダーによって設定されたファイル名が失われています。<br>
+この問題が発生した場合は、以下の解決策を検討してください。<br>
+1. 推奨：このダウンローダーを使用するために、新しいブラウザローカルユーザーを作成できます。ChromeおよびEdgeブラウザの場合、ブラウザの右上隅にあるアバターアイコンをクリックして、新しいプロファイルを作成できます（GoogleまたはMicrosoftアカウントにログインする必要はありません）。ユーザーごとにブラウザウィンドウが異なりますので、新しいユーザー用にこのダウンローダーをインストールし、他の拡張機能はインストールしないでください。PixivやFanboxからファイルをダウンロードする必要がある場合は、他の拡張機能の影響を受けないように、このユーザーを使用してダウンロードしてください。 <br>
+2. この問題の原因となっている拡張機能を特定し、このダウンローダーを使用する際に一時的に無効にすることができます。これらの拡張機能は通常、ファイルのダウンロードとダウンロード管理の機能を備えています。例としては、IDM Integration Module、Chrono Download Manager、mage Downloade などがあります。どの拡張機能が問題の原因となっているのかわからない場合は、すべての拡張機能を無効にしてから、1つずつ有効にしてダウンローダーを使用してダウンロードすることで、どの拡張機能が問題の原因となっているのかを特定できます。<br>
+<br>
+技術的な詳細: <br>
+一部の拡張機能は chrome.downloads.onDeterminingFilename イベントをリッスンしており、これによりプリセットされたファイル名が失われる場合があります。<br>
+このダウンローダーがファイルにカスタムファイル名（user/image.jpg）を設定するとします。<br>
+別の拡張機能が onDeterminingFilename イベントをリッスンしている場合、ブラウザはその拡張機能にファイル名の候補を尋ねます（これにより、拡張機能はファイル名を変更する機会を得ます）。問題は、ブラウザから渡されるファイル名がデフォルト（URL の最後のパス）であり、ダウンローダーによって設定されたファイル名ではないことです。<br>
+そのため、ダウンローダーによって設定されたファイル名は失われ、ファイル名が URL の最後のパスになります。<br>`,
+        `다운로더가 다운로드 후 파일 이름이 비정상적일 수 있음을 감지했습니다. 파일 이름이 임의의 문자와 숫자로 구성되어 있거나 다운로더 설정의 명명 규칙을 사용하지 않는 경우 이 문제가 발생했음을 의미합니다. <br>
+이 문제는 다운로더 자체의 문제가 아니라 다른 확장 프로그램의 영향을 받아 다운로더에서 설정한 파일 이름이 손실되는 것입니다. <br>
+이 문제가 발생하면 다음 해결 방법을 고려해 보세요. <br>
+1. 권장 사항: 이 다운로더를 사용할 새 브라우저 로컬 사용자를 만들 수 있습니다. Chrome 및 Edge 브라우저의 경우 브라우저 오른쪽 상단의 아바타 아이콘을 클릭하고 새 프로필을 만들 수 있습니다(Google 또는 Microsoft 계정에 로그인할 필요 없음). 각 사용자는 별도의 브라우저 창을 사용하므로 새 사용자를 위해 이 다운로더를 설치하고 다른 확장 프로그램을 설치하지 않아도 됩니다. Pixiv 또는 Fanbox에서 파일을 다운로드해야 하는 경우 다른 확장 프로그램의 영향을 받지 않도록 이 사용자를 사용하여 다운로드하세요. <br>
+2. 이 문제를 일으키는 확장 프로그램을 찾아 이 다운로더를 사용할 때 일시적으로 비활성화할 수 있습니다. 이러한 확장 프로그램은 일반적으로 IDM 통합 모듈, Chrono Download Manager, mage Downloade 등과 같이 파일 다운로드 및 다운로드 관리 기능을 제공합니다. 어떤 확장 프로그램이 문제를 일으키는지 확실하지 않은 경우, 모든 확장 프로그램을 비활성화한 후 하나씩 활성화하고 다운로더를 사용하여 다운로드하면 어떤 확장 프로그램이 문제를 일으키는지 확인할 수 있습니다. <br>
+<br>
+기술 세부 정보: <br>
+일부 확장 프로그램은 chrome.downloads.onDeterminingFilename 이벤트를 수신하는데, 이로 인해 미리 설정된 파일 이름이 쉽게 손실될 수 있습니다. <br>
+이 다운로더가 파일에 사용자 지정 파일 이름(user/image.jpg)을 설정한다고 가정해 보겠습니다. <br>
+다른 확장 프로그램이 onDeterminingFilename 이벤트를 수신하는 경우, 브라우저는 해당 확장 프로그램에 파일 이름을 제안하도록 요청하여 파일 이름을 수정할 수 있는 기회를 제공합니다. 문제는 브라우저에서 전달된 파일 이름이 다운로더에서 설정한 파일 이름이 아니라 기본값(URL의 마지막 경로)이라는 것입니다. <br>
+따라서 다운로더에서 설정한 파일 이름은 사라지고, 파일 이름이 URL의 마지막 경로가 됩니다. <br>`,
+        `Загрузчик обнаруживает, что имя файла после загрузки может быть ненормальным. Если имя файла представляет собой строку случайных букв и цифр или не использует правила именования в настройках загрузчика, это означает, что возникла эта проблема. <br>
+Это не проблема самого загрузчика, но на нее влияют другие расширения, что приводит к потере имени файла, установленного загрузчиком. <br>
+Если вы столкнулись с этой проблемой, вы можете рассмотреть следующие решения: <br>
+1. Рекомендуется: вы можете создать нового локального пользователя браузера для использования этого загрузчика. Для браузеров Chrome и Edge вы можете нажать на значок аватара в правом верхнем углу браузера и создать новый профиль (не нужно входить в учетную запись Google или Microsoft). У каждого пользователя есть отдельное окно браузера, поэтому вы можете установить этот загрузчик для нового пользователя и не устанавливать другие расширения. Если вам нужно скачать файлы с Pixiv или Fanbox, используйте этого пользователя для загрузки, чтобы избежать влияния других расширений. <br>
+2. Вы можете узнать, какие расширения вызывают эту проблему, и временно отключить их при использовании этого загрузчика. Эти расширения обычно выполняют функции загрузки файлов и управления загрузками, например: IDM Integration Module, Chrono Download Manager, mage Downloade и т. д. Если вы не уверены, какое именно расширение вызывает проблему, вы можете выяснить это, отключив все расширения, а затем включив их по одному и загрузив их с помощью загрузчика. <br>
+<br>
+Технические подробности: <br>
+Некоторые расширения обрабатывают событие chrome.downloads.onDeterminingFilename, что может легко привести к потере предустановленного имени файла. <br>
+Предположим, этот загрузчик задаёт пользовательское имя для файла: user/image.jpg. <br>
+Если другое расширение обрабатывают событие onDeterminingFilename, браузер запросит у него варианты имени файла (что даёт ему возможность изменить имя файла). Проблема в том, что браузер передал имя файла по умолчанию (последний путь в URL), а не имя файла, заданное загрузчиком. <br>
+Поэтому имя файла, заданное загрузчиком, теряется, и имя файла становится последним путем в URL. <br>`,
     ],
     _账户可能被封禁的警告: [
         `<strong>警告</strong>：频繁和大量的抓取（和下载）可能会导致你的 Pixiv 账号被封禁。<br>
@@ -50476,7 +50526,7 @@ const img2ico = new ImageToIcon();
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
 (() => {
 /*!***************************!*\
   !*** ./src/ts/content.ts ***!
