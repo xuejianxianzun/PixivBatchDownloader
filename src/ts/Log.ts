@@ -259,12 +259,16 @@ class Log {
     // 在“显示日志”按钮上触发这些事件时，显示日志区域
     const showEvents = ['click', 'mouseover', 'touchstart']
     showEvents.forEach((evt) => {
-      this.logBtn.addEventListener(evt, () => {
-        this.logBtnShow = false
-        this.show = true
-      }, {
-        passive: false
-      })
+      this.logBtn.addEventListener(
+        evt,
+        () => {
+          this.logBtnShow = false
+          this.show = true
+        },
+        {
+          passive: false,
+        }
+      )
     })
 
     // 定时检查是否应该显示“显示日志”按钮

@@ -36,13 +36,13 @@ export interface DonwloadSkipData {
   id: string
   type?: Result['type']
   reason:
-  | 'duplicate'
-  | 'size'
-  | 'color'
-  | 'widthHeight'
-  | '404'
-  | '500'
-  | 'excludedType'
+    | 'duplicate'
+    | 'size'
+    | 'color'
+    | 'widthHeight'
+    | '404'
+    | '500'
+    | 'excludedType'
 }
 
 // 所有任务的信息

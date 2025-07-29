@@ -55,7 +55,11 @@ class ShowDuplicateLog {
       return
     }
 
-    const msg = `<span style="color:${Colors.textWarning}">${lang.transl('_因为不下载重复文件跳过了x个文件', this.records.length.toString())} : </span><br>` + this.records.join(', ')
+    const msg =
+      `<span style="color:${Colors.textWarning}">${lang.transl(
+        '_因为不下载重复文件跳过了x个文件',
+        this.records.length.toString()
+      )} : </span><br>` + this.records.join(', ')
     log.log(msg, 1, false, 'showDuplicateLog')
 
     if (this.delayReset) {
@@ -63,7 +67,6 @@ class ShowDuplicateLog {
       this.delayReset = false
     }
   }
-
 }
 
 new ShowDuplicateLog()

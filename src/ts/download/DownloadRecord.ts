@@ -74,7 +74,7 @@ class DownloadRecord {
       const successData = ev.detail.data as DonwloadSuccessData
       // console.log(successData)
       // 如果文件名异常，不保存这个下载记录，以便用户之后重新下载这个文件
-      if(successData.uuid){
+      if (successData.uuid) {
         return
       }
 

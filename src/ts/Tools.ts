@@ -12,10 +12,10 @@ type artworkDataTagsItem = {
   userId: string
   romaji: string
   translation?:
-  | {
-    en: string
-  }
-  | undefined
+    | {
+        en: string
+      }
+    | undefined
   userName: string
 }
 
@@ -294,7 +294,7 @@ class Tools {
     if (document.body) {
       document.body.insertAdjacentElement('afterbegin', el)
     } else {
-      ; (
+      ;(
         document.querySelector('.newindex-inner')! ||
         document.querySelector('.layout-body')!
       ).insertAdjacentElement('beforebegin', el)
@@ -536,8 +536,10 @@ class Tools {
     if (array[1] !== undefined) {
       p = Number.parseInt(array[1]) + 1
     }
-    
-    const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}${hasP ? `#${p}` : ''}`
+
+    const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}${
+      hasP ? `#${p}` : ''
+    }`
     return `<a href="${href}" target="_blank">${id}</a>`
   }
 
@@ -760,11 +762,11 @@ class Tools {
         })
         if (target === 'ImageBitmap') {
           const map = await createImageBitmap(blob)
-            ; (result as ImageBitmap[]).push(map)
+          ;(result as ImageBitmap[]).push(map)
         } else if (target === 'img') {
           const url = URL.createObjectURL(blob)
           const img = await Utils.loadImg(url)
-            ; (result as HTMLImageElement[]).push(img)
+          ;(result as HTMLImageElement[]).push(img)
         }
         ++i
       }
