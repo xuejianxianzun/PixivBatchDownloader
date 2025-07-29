@@ -18,6 +18,7 @@ import { progressBar } from './ProgressBar'
 import { downloadStates } from './DownloadStates'
 import { ShowDownloadStates } from './ShowDownloadStates'
 import { ShowSkipCount } from './ShowSkipCount'
+import './ShowDuplicateLog'
 import { ShowConvertCount } from './ShowConvertCount'
 import { BookmarkAfterDL } from './BookmarkAfterDL'
 import { states } from '../store/States'
@@ -166,8 +167,8 @@ class DownloadControl {
 
       // UUID 的情况
       if (msg.data?.uuid) {
-        log.error(lang.transl('_uuid'), 1, false, 'filenameUUID')
-        msgBox.once(this.msgFlag, lang.transl('_uuid'), 'error')
+        log.log(lang.transl('_uuid'), 1, false, 'filenameUUID')
+        msgBox.once(this.msgFlag, lang.transl('_uuid'), 'show')
       }
 
       // 文件下载成功
