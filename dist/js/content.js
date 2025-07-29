@@ -3858,6 +3858,8 @@ class Log {
             this.logBtn.addEventListener(evt, () => {
                 this.logBtnShow = false;
                 this.show = true;
+            }, {
+                passive: false
             });
         });
         // 定时检查是否应该显示“显示日志”按钮
@@ -9209,8 +9211,16 @@ class Tools {
      * @returns 超链接（A 标签）
      */
     static createWorkLink(id, artwork = true) {
-        const idNum = typeof id === 'number' ? id : Number.parseInt(id);
-        const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}`;
+        // 对于图像作品，在作品页面链接后面添加 #p+1 可以在打开页面后，定位到对应的图片
+        const array = id.toString().split('_p');
+        const idNum = array[0];
+        // 如果有 p，则把 p+1，因为页面里的图片 hash 是从 1 开始的
+        const hasP = array[1] !== undefined;
+        let p = 0;
+        if (array[1] !== undefined) {
+            p = Number.parseInt(array[1]) + 1;
+        }
+        const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}${hasP ? `#${p}` : ''}`;
         return `<a href="${href}" target="_blank">${id}</a>`;
     }
     // 传入用户 id，生成用户页面的超链接
@@ -16321,8 +16331,9 @@ class Download {
         if (duplicate) {
             return this.skipDownload({
                 id: arg.id,
+                type: arg.result.type,
                 reason: 'duplicate',
-            }, _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_跳过下载因为', _Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.createWorkLink(arg.id, arg.result.type !== 3)) + _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_不下载重复文件'));
+            });
         }
         // 如果是动图，再次检查是否排除了动图
         // 因为有时候用户在抓取时没有排除动图，但是在下载时排除了动图。所以下载时需要再次检查
@@ -16636,17 +16647,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/download/DownloadStates.ts");
 /* harmony import */ var _ShowDownloadStates__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ShowDownloadStates */ "./src/ts/download/ShowDownloadStates.ts");
 /* harmony import */ var _ShowSkipCount__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowSkipCount */ "./src/ts/download/ShowSkipCount.ts");
-/* harmony import */ var _ShowConvertCount__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ShowConvertCount */ "./src/ts/download/ShowConvertCount.ts");
-/* harmony import */ var _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./BookmarkAfterDL */ "./src/ts/download/BookmarkAfterDL.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _CheckWarningMessage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./CheckWarningMessage */ "./src/ts/download/CheckWarningMessage.ts");
-/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _ShowDuplicateLog__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ShowDuplicateLog */ "./src/ts/download/ShowDuplicateLog.ts");
+/* harmony import */ var _ShowConvertCount__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowConvertCount */ "./src/ts/download/ShowConvertCount.ts");
+/* harmony import */ var _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./BookmarkAfterDL */ "./src/ts/download/BookmarkAfterDL.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _CheckWarningMessage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./CheckWarningMessage */ "./src/ts/download/CheckWarningMessage.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
 // 下载控制
+
 
 
 
@@ -16698,11 +16711,11 @@ class DownloadControl {
         const skipTipWrap = this.wrapper.querySelector('.skip_tip');
         new _ShowSkipCount__WEBPACK_IMPORTED_MODULE_11__.ShowSkipCount(skipTipWrap);
         const convertTipWrap = this.wrapper.querySelector('.convert_tip');
-        new _ShowConvertCount__WEBPACK_IMPORTED_MODULE_12__.ShowConvertCount(convertTipWrap);
+        new _ShowConvertCount__WEBPACK_IMPORTED_MODULE_13__.ShowConvertCount(convertTipWrap);
         // 只在 p 站内启用下载后收藏的功能
-        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_17__.Utils.isPixiv()) {
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__.Utils.isPixiv()) {
             const bmkAfterDLTipWrap = this.wrapper.querySelector('.bmkAfterDL_tip');
-            new _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_13__.BookmarkAfterDL(bmkAfterDLTipWrap);
+            new _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_14__.BookmarkAfterDL(bmkAfterDLTipWrap);
         }
     }
     bindEvents() {
@@ -16743,7 +16756,7 @@ class DownloadControl {
             window.clearTimeout(this.checkDownloadTimeoutTimer);
             this.checkDownloadTimeoutTimer = window.setTimeout(() => {
                 const msg = _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_可能发生了错误请刷新页面重试');
-                _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.once('mayError', msg, 'warning');
+                _MsgBox__WEBPACK_IMPORTED_MODULE_20__.msgBox.once('mayError', msg, 'warning');
                 _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(msg, 1, false, 'mayError');
             }, 5000);
         });
@@ -16768,7 +16781,7 @@ class DownloadControl {
             // UUID 的情况
             if (msg.data?.uuid) {
                 _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_uuid'), 1, false, 'filenameUUID');
-                _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.once(this.msgFlag, _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_uuid'), 'show');
+                _MsgBox__WEBPACK_IMPORTED_MODULE_20__.msgBox.once(this.msgFlag, _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_uuid'), 'show');
             }
             // 文件下载成功
             if (msg.msg === 'downloaded') {
@@ -16802,7 +16815,7 @@ class DownloadControl {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadComplete, () => {
             // 如果有等待中的下载任务，则开始下载等待中的任务
             if (_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.waitingIdList.length === 0) {
-                _Toast__WEBPACK_IMPORTED_MODULE_16__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下载完毕2'), {
+                _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下载完毕2'), {
                     position: 'center',
                 });
                 // 通知后台清除保存的此标签页的 idList
@@ -16859,7 +16872,7 @@ class DownloadControl {
     }
     createResultBtns() {
         // 只在 pixiv 上添加这些按钮
-        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_17__.Utils.isPixiv()) {
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__.Utils.isPixiv()) {
             // 导入抓取结果
             this.resultBtns.importJSON = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.addBtn('exportResult', _Colors__WEBPACK_IMPORTED_MODULE_5__.Colors.bgGreen, '_导入抓取结果');
             // 导入抓取结果的按钮始终显示，因为它需要始终可用。
@@ -16880,13 +16893,13 @@ class DownloadControl {
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('exportCSV');
             }, false);
             this.resultBtns.exportCSV.addEventListener('mouseenter', () => {
-                _ShowHelp__WEBPACK_IMPORTED_MODULE_21__.showHelp.show('tipCSV', _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_导出CSV文件的提示'));
+                _ShowHelp__WEBPACK_IMPORTED_MODULE_22__.showHelp.show('tipCSV', _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_导出CSV文件的提示'));
             }, false);
         }
     }
     // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
     readyDownload() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.busy || _store_States__WEBPACK_IMPORTED_MODULE_14__.states.mergeNovel) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_15__.states.busy || _store_States__WEBPACK_IMPORTED_MODULE_15__.states.mergeNovel) {
             return;
         }
         if (_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result.length === 0) {
@@ -16902,29 +16915,29 @@ class DownloadControl {
         this.setDownloaded();
         this.setDownloadThread();
         // 在插画漫画搜索页面里，如果启用了“预览搜索页面的筛选结果”
-        if (_PageType__WEBPACK_IMPORTED_MODULE_18__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_18__.pageType.list.ArtworkSearch &&
+        if (_PageType__WEBPACK_IMPORTED_MODULE_19__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_19__.pageType.list.ArtworkSearch &&
             _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.previewResult) {
             // “预览搜索页面的筛选结果”会阻止自动开始下载。但是一些情况例外
             // 允许快速抓取发起的下载请求自动开始下载
             // 允许由抓取标签列表功能发起的下载请求自动开始下载
-            if (!_store_States__WEBPACK_IMPORTED_MODULE_14__.states.quickCrawl && !_store_States__WEBPACK_IMPORTED_MODULE_14__.states.crawlTagList) {
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_15__.states.quickCrawl && !_store_States__WEBPACK_IMPORTED_MODULE_15__.states.crawlTagList) {
                 return;
             }
         }
         // 自动开始下载的情况
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.autoStartDownload ||
-            _store_States__WEBPACK_IMPORTED_MODULE_14__.states.quickCrawl ||
-            _store_States__WEBPACK_IMPORTED_MODULE_14__.states.crawlTagList) {
+            _store_States__WEBPACK_IMPORTED_MODULE_15__.states.quickCrawl ||
+            _store_States__WEBPACK_IMPORTED_MODULE_15__.states.crawlTagList) {
             this.startDownload();
         }
     }
     // 开始下载
     startDownload() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.busy) {
-            return _Toast__WEBPACK_IMPORTED_MODULE_16__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_当前任务尚未完成'));
+        if (_store_States__WEBPACK_IMPORTED_MODULE_15__.states.busy) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_当前任务尚未完成'));
         }
         if (_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result.length === 0) {
-            return _Toast__WEBPACK_IMPORTED_MODULE_16__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_没有可用的抓取结果'));
+            return _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_没有可用的抓取结果'));
         }
         if (this.pause) {
             // 从上次中断的位置继续下载
@@ -16937,7 +16950,7 @@ class DownloadControl {
             _DownloadStates__WEBPACK_IMPORTED_MODULE_9__.downloadStates.init();
         }
         this.reset();
-        _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.resetOnce(this.msgFlag);
+        _MsgBox__WEBPACK_IMPORTED_MODULE_20__.msgBox.resetOnce(this.msgFlag);
         this.setDownloaded();
         this.taskBatch = new Date().getTime(); // 修改本批下载任务的标记
         this.setDownloadThread();
@@ -16949,7 +16962,7 @@ class DownloadControl {
             }, 0);
         }
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_正在下载中'));
-        if (_Config__WEBPACK_IMPORTED_MODULE_15__.Config.mobile) {
+        if (_Config__WEBPACK_IMPORTED_MODULE_16__.Config.mobile) {
             _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_Kiwi浏览器可能不能建立文件夹的bug'));
         }
     }
@@ -16964,7 +16977,7 @@ class DownloadControl {
         }
         if (this.pause === false) {
             // 如果正在下载中
-            if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.busy) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_15__.states.busy) {
                 this.pause = true;
                 _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_已暂停'), 2);
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('downloadPause');
@@ -17019,11 +17032,11 @@ class DownloadControl {
     setDownloadThread() {
         const setThread = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.downloadThread;
         if (setThread < 1 ||
-            setThread > _Config__WEBPACK_IMPORTED_MODULE_15__.Config.downloadThreadMax ||
+            setThread > _Config__WEBPACK_IMPORTED_MODULE_16__.Config.downloadThreadMax ||
             isNaN(setThread)) {
             // 如果数值非法，则重设为默认值
-            this.thread = _Config__WEBPACK_IMPORTED_MODULE_15__.Config.downloadThreadMax;
-            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('downloadThread', _Config__WEBPACK_IMPORTED_MODULE_15__.Config.downloadThreadMax);
+            this.thread = _Config__WEBPACK_IMPORTED_MODULE_16__.Config.downloadThreadMax;
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('downloadThread', _Config__WEBPACK_IMPORTED_MODULE_16__.Config.downloadThreadMax);
         }
         else {
             this.thread = setThread; // 设置为用户输入的值
@@ -17713,8 +17726,7 @@ class DownloadRecord {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadSuccess, (ev) => {
             const successData = ev.detail.data;
             // console.log(successData)
-            // 如果文件名异常，则不保存这个下载记录，以便用户之后重新下载这个文件
-            // 文件名异常时，真实的文件名和下载器生成的文件名不一致，所以此时不应该保存下载记录
+            // 如果文件名异常，不保存这个下载记录，以便用户之后重新下载这个文件
             if (successData.uuid) {
                 return;
             }
@@ -19848,6 +19860,81 @@ class ShowDownloadStates {
     }
 }
 
+
+
+/***/ }),
+
+/***/ "./src/ts/download/ShowDuplicateLog.ts":
+/*!*********************************************!*\
+  !*** ./src/ts/download/ShowDuplicateLog.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
+
+
+
+
+
+
+/**在日志里显示因为“不下载重复文件”而跳过下载的文件的列表 */
+// 以前是每跳过一个文件就显示一条日志，但这样经常会占据太多日志版面
+// 所以现在改成集中到一条日志里显示
+class ShowDuplicateLog {
+    constructor() {
+        this.records = [];
+        this.delayReset = false;
+        this.output = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.debounce(this.showLog.bind(this), 500);
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.skipDownload, (ev) => {
+            const skipData = ev.detail.data;
+            if (skipData.reason === 'duplicate') {
+                const link = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.createWorkLink(skipData.id, skipData.type !== 3);
+                this.records.push(link);
+                this.output();
+            }
+        });
+        const resetEvents = [
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadComplete,
+        ];
+        resetEvents.forEach((ev) => {
+            window.addEventListener(ev, () => {
+                // 下载完成后，延迟清除保存的记录
+                // 这是因为输出日志时使用了防抖，有些数据会在下一次输出时才会显示，所以不能立即清除记录
+                if (ev === 'downloadComplete') {
+                    this.delayReset = true;
+                }
+                else {
+                    // 在抓取完成和下载停止时，立即清除保存的记录
+                    // 因为此时之前的记录已经完全没用了
+                    this.records = [];
+                }
+            });
+        });
+    }
+    showLog() {
+        if (this.records.length === 0 || document.hidden) {
+            return;
+        }
+        const msg = `<span style="color:${_Colors__WEBPACK_IMPORTED_MODULE_5__.Colors.textWarning}">${_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_因为不下载重复文件跳过了x个文件', this.records.length.toString())} : </span><br>` + this.records.join(', ');
+        _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(msg, 1, false, 'showDuplicateLog');
+        if (this.delayReset) {
+            this.records = [];
+            this.delayReset = false;
+        }
+    }
+}
+new ShowDuplicateLog();
 
 
 /***/ }),
@@ -23897,6 +23984,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
         '重複ファイルをダウンロードしない',
         '<span class="key">중복</span>파일 다운로드하지 않기',
         'Не загружать <span class="key">дубликаты</span> файлов',
+    ],
+    _因为不下载重复文件跳过了x个文件: [
+        `因为不下载重复文件，跳过了 {} 个文件`,
+        `因為不下載重複檔案，跳過了 {} 個檔案`,
+        `Skipped {} files because duplicate files are not downloaded`,
+        `重複ファイルをダウンロードしないため、{} 個のファイルをスキップしました`,
+        `중복 파일을 다운로드하지 않아 {}개의 파일을 건너뛰었습니다.`,
+        `Пропущено {} файлов, потому что повторяющиеся файлы не загружаются`,
     ],
     _不下载重复文件的提示: [
         `下载器会保存自己的下载记录。每个下载成功（保存到硬盘）的文件都会保存一条下载记录。下载失败的文件不会产生下载记录。<br>

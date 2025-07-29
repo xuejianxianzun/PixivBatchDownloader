@@ -72,12 +72,9 @@ class Download {
       return this.skipDownload(
         {
           id: arg.id,
+          type: arg.result.type,
           reason: 'duplicate',
         },
-        lang.transl(
-          '_跳过下载因为',
-          Tools.createWorkLink(arg.id, arg.result.type !== 3)
-        ) + lang.transl('_不下载重复文件')
       )
     }
 

@@ -1,16 +1,5 @@
 .logWrap {
-  font-family:
-    win-bug-omega,
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    Ubuntu,
-    Cantarell,
-    'Noto Sans',
-    'Hiragino Kaku Gothic ProN',
-    Meiryo,
-    sans-serif;
+  font-family: win-bug-omega, system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
   position: relative;
   z-index: 0;
   width: 100%;
@@ -26,6 +15,9 @@
   margin: 0 auto;
   padding: 10px 0;
   font-size: 14px;
+}
+.logContent span {
+  word-break: break-word;
 }
 .logContent br {
   display: inline;

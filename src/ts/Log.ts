@@ -262,6 +262,8 @@ class Log {
       this.logBtn.addEventListener(evt, () => {
         this.logBtnShow = false
         this.show = true
+      }, {
+        passive: false
       })
     })
 
