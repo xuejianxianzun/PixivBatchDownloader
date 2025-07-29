@@ -527,8 +527,19 @@ class Tools {
    * @returns 超链接（A 标签）
    */
   static createWorkLink(id: number | string, artwork = true) {
-    const idNum = typeof id === 'number' ? id : Number.parseInt(id)
-    const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}`
+    // 对于图像作品，在作品页面链接后面添加 #p+1 可以在打开页面后，定位到对应的图片
+    const array = id.toString().split('_p')
+    const idNum = array[0]
+    // 如果有 p，则把 p+1，因为页面里的图片 hash 是从 1 开始的
+    const hasP = array[1] !== undefined
+    let p = 0
+    if (array[1] !== undefined) {
+      p = Number.parseInt(array[1]) + 1
+    }
+
+    const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}${
+      hasP ? `#${p}` : ''
+    }`
     return `<a href="${href}" target="_blank">${id}</a>`
   }
 

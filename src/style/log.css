@@ -27,6 +27,9 @@
   padding: 10px 0;
   font-size: 14px;
 }
+.logContent span {
+  word-break: break-word;
+}
 .logContent br {
   display: inline;
 }

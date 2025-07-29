@@ -34,6 +34,7 @@ export interface DonwloadSuccessData {
 
 export interface DonwloadSkipData {
   id: string
+  type?: Result['type']
   reason:
     | 'duplicate'
     | 'size'

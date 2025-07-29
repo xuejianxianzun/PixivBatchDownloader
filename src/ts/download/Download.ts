@@ -69,16 +69,11 @@ class Download {
     // 检查是否是重复文件
     const duplicate = await downloadRecord.checkDeduplication(arg.result)
     if (duplicate) {
-      return this.skipDownload(
-        {
-          id: arg.id,
-          reason: 'duplicate',
-        },
-        lang.transl(
-          '_跳过下载因为',
-          Tools.createWorkLink(arg.id, arg.result.type !== 3)
-        ) + lang.transl('_不下载重复文件')
-      )
+      return this.skipDownload({
+        id: arg.id,
+        type: arg.result.type,
+        reason: 'duplicate',
+      })
     }
 
     // 如果是动图，再次检查是否排除了动图

@@ -3931,6 +3931,8 @@ class Log {
             this.logBtn.addEventListener(evt, () => {
                 this.logBtnShow = false;
                 this.show = true;
+            }, {
+                passive: false,
             });
         });
         // 定时检查是否应该显示“显示日志”按钮
@@ -8097,13 +8099,17 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.7.2';
+        this.flag = '17.7.4';
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
-            let msg = `<span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
+            let msg = `
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_扩展程序升到x版本', this.flag)}</span>
+      <br>
+      <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
       `;
             // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong
             // <strong><span>✨${lang.transl('_新增功能')}:</span></strong
@@ -9282,8 +9288,16 @@ class Tools {
      * @returns 超链接（A 标签）
      */
     static createWorkLink(id, artwork = true) {
-        const idNum = typeof id === 'number' ? id : Number.parseInt(id);
-        const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}`;
+        // 对于图像作品，在作品页面链接后面添加 #p+1 可以在打开页面后，定位到对应的图片
+        const array = id.toString().split('_p');
+        const idNum = array[0];
+        // 如果有 p，则把 p+1，因为页面里的图片 hash 是从 1 开始的
+        const hasP = array[1] !== undefined;
+        let p = 0;
+        if (array[1] !== undefined) {
+            p = Number.parseInt(array[1]) + 1;
+        }
+        const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}${hasP ? `#${p}` : ''}`;
         return `<a href="${href}" target="_blank">${id}</a>`;
     }
     // 传入用户 id，生成用户页面的超链接
@@ -16394,8 +16408,9 @@ class Download {
         if (duplicate) {
             return this.skipDownload({
                 id: arg.id,
+                type: arg.result.type,
                 reason: 'duplicate',
-            }, _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_跳过下载因为', _Tools__WEBPACK_IMPORTED_MODULE_14__.Tools.createWorkLink(arg.id, arg.result.type !== 3)) + _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_不下载重复文件'));
+            });
         }
         // 如果是动图，再次检查是否排除了动图
         // 因为有时候用户在抓取时没有排除动图，但是在下载时排除了动图。所以下载时需要再次检查
@@ -16709,17 +16724,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/download/DownloadStates.ts");
 /* harmony import */ var _ShowDownloadStates__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./ShowDownloadStates */ "./src/ts/download/ShowDownloadStates.ts");
 /* harmony import */ var _ShowSkipCount__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowSkipCount */ "./src/ts/download/ShowSkipCount.ts");
-/* harmony import */ var _ShowConvertCount__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ShowConvertCount */ "./src/ts/download/ShowConvertCount.ts");
-/* harmony import */ var _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./BookmarkAfterDL */ "./src/ts/download/BookmarkAfterDL.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _CheckWarningMessage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./CheckWarningMessage */ "./src/ts/download/CheckWarningMessage.ts");
-/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _ShowDuplicateLog__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ShowDuplicateLog */ "./src/ts/download/ShowDuplicateLog.ts");
+/* harmony import */ var _ShowConvertCount__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowConvertCount */ "./src/ts/download/ShowConvertCount.ts");
+/* harmony import */ var _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./BookmarkAfterDL */ "./src/ts/download/BookmarkAfterDL.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _CheckWarningMessage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./CheckWarningMessage */ "./src/ts/download/CheckWarningMessage.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
 // 下载控制
+
 
 
 
@@ -16771,11 +16788,11 @@ class DownloadControl {
         const skipTipWrap = this.wrapper.querySelector('.skip_tip');
         new _ShowSkipCount__WEBPACK_IMPORTED_MODULE_11__.ShowSkipCount(skipTipWrap);
         const convertTipWrap = this.wrapper.querySelector('.convert_tip');
-        new _ShowConvertCount__WEBPACK_IMPORTED_MODULE_12__.ShowConvertCount(convertTipWrap);
+        new _ShowConvertCount__WEBPACK_IMPORTED_MODULE_13__.ShowConvertCount(convertTipWrap);
         // 只在 p 站内启用下载后收藏的功能
-        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_17__.Utils.isPixiv()) {
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__.Utils.isPixiv()) {
             const bmkAfterDLTipWrap = this.wrapper.querySelector('.bmkAfterDL_tip');
-            new _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_13__.BookmarkAfterDL(bmkAfterDLTipWrap);
+            new _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_14__.BookmarkAfterDL(bmkAfterDLTipWrap);
         }
     }
     bindEvents() {
@@ -16816,7 +16833,7 @@ class DownloadControl {
             window.clearTimeout(this.checkDownloadTimeoutTimer);
             this.checkDownloadTimeoutTimer = window.setTimeout(() => {
                 const msg = _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_可能发生了错误请刷新页面重试');
-                _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.once('mayError', msg, 'warning');
+                _MsgBox__WEBPACK_IMPORTED_MODULE_20__.msgBox.once('mayError', msg, 'warning');
                 _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(msg, 1, false, 'mayError');
             }, 5000);
         });
@@ -16841,7 +16858,7 @@ class DownloadControl {
             // UUID 的情况
             if (msg.data?.uuid) {
                 _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_uuid'), 1, false, 'filenameUUID');
-                _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.once(this.msgFlag, _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_uuid'), 'show');
+                _MsgBox__WEBPACK_IMPORTED_MODULE_20__.msgBox.once(this.msgFlag, _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_uuid'), 'show');
             }
             // 文件下载成功
             if (msg.msg === 'downloaded') {
@@ -16875,7 +16892,7 @@ class DownloadControl {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadComplete, () => {
             // 如果有等待中的下载任务，则开始下载等待中的任务
             if (_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.waitingIdList.length === 0) {
-                _Toast__WEBPACK_IMPORTED_MODULE_16__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下载完毕2'), {
+                _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下载完毕2'), {
                     position: 'center',
                 });
                 // 通知后台清除保存的此标签页的 idList
@@ -16932,7 +16949,7 @@ class DownloadControl {
     }
     createResultBtns() {
         // 只在 pixiv 上添加这些按钮
-        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_17__.Utils.isPixiv()) {
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__.Utils.isPixiv()) {
             // 导入抓取结果
             this.resultBtns.importJSON = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.addBtn('exportResult', _Colors__WEBPACK_IMPORTED_MODULE_5__.Colors.bgGreen, '_导入抓取结果');
             // 导入抓取结果的按钮始终显示，因为它需要始终可用。
@@ -16953,13 +16970,13 @@ class DownloadControl {
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('exportCSV');
             }, false);
             this.resultBtns.exportCSV.addEventListener('mouseenter', () => {
-                _ShowHelp__WEBPACK_IMPORTED_MODULE_21__.showHelp.show('tipCSV', _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_导出CSV文件的提示'));
+                _ShowHelp__WEBPACK_IMPORTED_MODULE_22__.showHelp.show('tipCSV', _Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_导出CSV文件的提示'));
             }, false);
         }
     }
     // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
     readyDownload() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.busy || _store_States__WEBPACK_IMPORTED_MODULE_14__.states.mergeNovel) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_15__.states.busy || _store_States__WEBPACK_IMPORTED_MODULE_15__.states.mergeNovel) {
             return;
         }
         if (_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result.length === 0) {
@@ -16975,29 +16992,29 @@ class DownloadControl {
         this.setDownloaded();
         this.setDownloadThread();
         // 在插画漫画搜索页面里，如果启用了“预览搜索页面的筛选结果”
-        if (_PageType__WEBPACK_IMPORTED_MODULE_18__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_18__.pageType.list.ArtworkSearch &&
+        if (_PageType__WEBPACK_IMPORTED_MODULE_19__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_19__.pageType.list.ArtworkSearch &&
             _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.previewResult) {
             // “预览搜索页面的筛选结果”会阻止自动开始下载。但是一些情况例外
             // 允许快速抓取发起的下载请求自动开始下载
             // 允许由抓取标签列表功能发起的下载请求自动开始下载
-            if (!_store_States__WEBPACK_IMPORTED_MODULE_14__.states.quickCrawl && !_store_States__WEBPACK_IMPORTED_MODULE_14__.states.crawlTagList) {
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_15__.states.quickCrawl && !_store_States__WEBPACK_IMPORTED_MODULE_15__.states.crawlTagList) {
                 return;
             }
         }
         // 自动开始下载的情况
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.autoStartDownload ||
-            _store_States__WEBPACK_IMPORTED_MODULE_14__.states.quickCrawl ||
-            _store_States__WEBPACK_IMPORTED_MODULE_14__.states.crawlTagList) {
+            _store_States__WEBPACK_IMPORTED_MODULE_15__.states.quickCrawl ||
+            _store_States__WEBPACK_IMPORTED_MODULE_15__.states.crawlTagList) {
             this.startDownload();
         }
     }
     // 开始下载
     startDownload() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.busy) {
-            return _Toast__WEBPACK_IMPORTED_MODULE_16__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_当前任务尚未完成'));
+        if (_store_States__WEBPACK_IMPORTED_MODULE_15__.states.busy) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_当前任务尚未完成'));
         }
         if (_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result.length === 0) {
-            return _Toast__WEBPACK_IMPORTED_MODULE_16__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_没有可用的抓取结果'));
+            return _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_没有可用的抓取结果'));
         }
         if (this.pause) {
             // 从上次中断的位置继续下载
@@ -17010,7 +17027,7 @@ class DownloadControl {
             _DownloadStates__WEBPACK_IMPORTED_MODULE_9__.downloadStates.init();
         }
         this.reset();
-        _MsgBox__WEBPACK_IMPORTED_MODULE_19__.msgBox.resetOnce(this.msgFlag);
+        _MsgBox__WEBPACK_IMPORTED_MODULE_20__.msgBox.resetOnce(this.msgFlag);
         this.setDownloaded();
         this.taskBatch = new Date().getTime(); // 修改本批下载任务的标记
         this.setDownloadThread();
@@ -17022,7 +17039,7 @@ class DownloadControl {
             }, 0);
         }
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_正在下载中'));
-        if (_Config__WEBPACK_IMPORTED_MODULE_15__.Config.mobile) {
+        if (_Config__WEBPACK_IMPORTED_MODULE_16__.Config.mobile) {
             _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_Kiwi浏览器可能不能建立文件夹的bug'));
         }
     }
@@ -17037,7 +17054,7 @@ class DownloadControl {
         }
         if (this.pause === false) {
             // 如果正在下载中
-            if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.busy) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_15__.states.busy) {
                 this.pause = true;
                 _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_已暂停'), 2);
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('downloadPause');
@@ -17092,11 +17109,11 @@ class DownloadControl {
     setDownloadThread() {
         const setThread = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.downloadThread;
         if (setThread < 1 ||
-            setThread > _Config__WEBPACK_IMPORTED_MODULE_15__.Config.downloadThreadMax ||
+            setThread > _Config__WEBPACK_IMPORTED_MODULE_16__.Config.downloadThreadMax ||
             isNaN(setThread)) {
             // 如果数值非法，则重设为默认值
-            this.thread = _Config__WEBPACK_IMPORTED_MODULE_15__.Config.downloadThreadMax;
-            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('downloadThread', _Config__WEBPACK_IMPORTED_MODULE_15__.Config.downloadThreadMax);
+            this.thread = _Config__WEBPACK_IMPORTED_MODULE_16__.Config.downloadThreadMax;
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('downloadThread', _Config__WEBPACK_IMPORTED_MODULE_16__.Config.downloadThreadMax);
         }
         else {
             this.thread = setThread; // 设置为用户输入的值
@@ -17785,6 +17802,11 @@ class DownloadRecord {
         // 当有文件下载完成时，存储这个任务的记录
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadSuccess, (ev) => {
             const successData = ev.detail.data;
+            // console.log(successData)
+            // 如果文件名异常，不保存这个下载记录，以便用户之后重新下载这个文件
+            if (successData.uuid) {
+                return;
+            }
             const result = _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.findResult(successData.id);
             result && this.addRecord(result);
         });
@@ -19919,6 +19941,81 @@ class ShowDownloadStates {
 
 /***/ }),
 
+/***/ "./src/ts/download/ShowDuplicateLog.ts":
+/*!*********************************************!*\
+  !*** ./src/ts/download/ShowDuplicateLog.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
+
+
+
+
+
+
+/**在日志里显示因为“不下载重复文件”而跳过下载的文件的列表 */
+// 以前是每跳过一个文件就显示一条日志，但这样经常会占据太多日志版面
+// 所以现在改成集中到一条日志里显示
+class ShowDuplicateLog {
+    constructor() {
+        this.records = [];
+        this.delayReset = false;
+        this.output = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.debounce(this.showLog.bind(this), 500);
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.skipDownload, (ev) => {
+            const skipData = ev.detail.data;
+            if (skipData.reason === 'duplicate') {
+                const link = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.createWorkLink(skipData.id, skipData.type !== 3);
+                this.records.push(link);
+                this.output();
+            }
+        });
+        const resetEvents = [
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadComplete,
+        ];
+        resetEvents.forEach((ev) => {
+            window.addEventListener(ev, () => {
+                // 下载完成后，延迟清除保存的记录
+                // 这是因为输出日志时使用了防抖，有些数据会在下一次输出时才会显示，所以不能立即清除记录
+                if (ev === 'downloadComplete') {
+                    this.delayReset = true;
+                }
+                else {
+                    // 在抓取完成和下载停止时，立即清除保存的记录
+                    // 因为此时之前的记录已经完全没用了
+                    this.records = [];
+                }
+            });
+        });
+    }
+    showLog() {
+        if (this.records.length === 0 || document.hidden) {
+            return;
+        }
+        const msg = `<span style="color:${_Colors__WEBPACK_IMPORTED_MODULE_5__.Colors.textWarning}">${_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_因为不下载重复文件跳过了x个文件', this.records.length.toString())} : </span><br>` + this.records.join(', ');
+        _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(msg, 1, false, 'showDuplicateLog');
+        if (this.delayReset) {
+            this.records = [];
+            this.delayReset = false;
+        }
+    }
+}
+new ShowDuplicateLog();
+
+
+/***/ }),
+
 /***/ "./src/ts/download/ShowRemainingDownloadOnTitle.ts":
 /*!*********************************************************!*\
   !*** ./src/ts/download/ShowRemainingDownloadOnTitle.ts ***!
@@ -21730,12 +21827,12 @@ class WorkPublishTime {
         // 获取图像作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
             // 上次记录到 132170000
-            this.crawlData(132170000, 131229053);
+            this.crawlData(132180000, 133270898);
         });
         // 获取小说作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
             // 上次记录到 25200000
-            this.crawlData(24830000, 24972432, 'novels');
+            this.crawlData(25210000, 25447874, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -23964,6 +24061,14 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
         '重複ファイルをダウンロードしない',
         '<span class="key">중복</span>파일 다운로드하지 않기',
         'Не загружать <span class="key">дубликаты</span> файлов',
+    ],
+    _因为不下载重复文件跳过了x个文件: [
+        `因为不下载重复文件，跳过了 {} 个文件`,
+        `因為不下載重複檔案，跳過了 {} 個檔案`,
+        `Skipped {} files because duplicate files are not downloaded`,
+        `重複ファイルをダウンロードしないため、{} 個のファイルをスキップしました`,
+        `중복 파일을 다운로드하지 않아 {}개의 파일을 건너뛰었습니다.`,
+        `Пропущено {} файлов, потому что повторяющиеся файлы не загружаются`,
     ],
     _不下载重复文件的提示: [
         `下载器会保存自己的下载记录。每个下载成功（保存到硬盘）的文件都会保存一条下载记录。下载失败的文件不会产生下载记录。<br>
@@ -27257,6 +27362,14 @@ This downloader does not support Firefox and may encounter some problems. I will
         'ダウンローダーは、デフォルトでページ上部のログを非表示にするようになりました。ログはボタンまたはキーボードショートカット（L）を使用して表示できます。',
         '다운로더는 이제 기본적으로 페이지 상단의 로그를 숨깁니다. 버튼이나 키보드 단축키(L)를 사용하여 로그를 볼 수 있습니다.',
         'Загрузчик теперь скрывает журнал в верхней части страницы по умолчанию. Вы можете просмотреть журнал с помощью кнопки или сочетания клавиш (L).',
+    ],
+    _扩展程序升到x版本: [
+        '此扩展程序已经升级到 {} 版本。',
+        '此擴充程式已經升級到 {} 版本。',
+        'This extension has been upgraded to version {}.',
+        'この拡張機能はバージョン {} にアップグレードされました。',
+        '이 확장 프로그램이 {} 버전으로 업그레이드되었습니다.',
+        'Это расширение было обновлено до версии {}.',
     ],
 };
 
@@ -46728,6 +46841,116 @@ const illustsData = [
     [132150000, 1751272860000],
     [132160000, 1751288040000],
     [132170000, 1751300280000],
+    [132180000, 1751336100000],
+    [132190000, 1751362440000],
+    [132200000, 1751376840000],
+    [132210001, 1751396100000],
+    [132220000, 1751432700000],
+    [132230000, 1751455200000],
+    [132240000, 1751468460000],
+    [132250000, 1751500020000],
+    [132260000, 1751531940000],
+    [132270000, 1751547780000],
+    [132280000, 1751565300000],
+    [132290000, 1751602920000],
+    [132300000, 1751626140000],
+    [132310000, 1751639580000],
+    [132320000, 1751663040000],
+    [132330001, 1751691000000],
+    [132340000, 1751710080000],
+    [132350001, 1751723880000],
+    [132360001, 1751742780000],
+    [132370000, 1751772060000],
+    [132380003, 1751791980000],
+    [132390000, 1751805120000],
+    [132400000, 1751816400000],
+    [132410000, 1751847060000],
+    [132420000, 1751876460000],
+    [132430000, 1751891580000],
+    [132440000, 1751903340000],
+    [132450000, 1751937540000],
+    [132460000, 1751965440000],
+    [132470000, 1751980860000],
+    [132480000, 1751997180000],
+    [132490000, 1752033600000],
+    [132500000, 1752057900000],
+    [132510000, 1752071520000],
+    [132520000, 1752098460000],
+    [132530000, 1752131160000],
+    [132540000, 1752149640000],
+    [132550001, 1752162960000],
+    [132560000, 1752198660000],
+    [132570000, 1752225780000],
+    [132580000, 1752240480000],
+    [132590000, 1752257100000],
+    [132600000, 1752289200000],
+    [132610000, 1752310800000],
+    [132620000, 1752325440000],
+    [132630000, 1752339600000],
+    [132640000, 1752372540000],
+    [132650000, 1752393660000],
+    [132660001, 1752408300000],
+    [132670000, 1752420480000],
+    [132680000, 1752453540000],
+    [132690000, 1752483180000],
+    [132700001, 1752498600000],
+    [132710000, 1752515280000],
+    [132720000, 1752553800000],
+    [132730000, 1752577320000],
+    [132740000, 1752591600000],
+    [132750000, 1752620400000],
+    [132760000, 1752652500000],
+    [132770000, 1752669240000],
+    [132780000, 1752683820000],
+    [132790000, 1752721740000],
+    [132800000, 1752748200000],
+    [132810000, 1752763200000],
+    [132820000, 1752792360000],
+    [132830000, 1752825420000],
+    [132840000, 1752842580000],
+    [132850000, 1752857400000],
+    [132860000, 1752892320000],
+    [132870001, 1752915120000],
+    [132880000, 1752930240000],
+    [132890000, 1752945120000],
+    [132900000, 1752977700000],
+    [132910000, 1752999300000],
+    [132920000, 1753014720000],
+    [132930001, 1753027680000],
+    [132940000, 1753060140000],
+    [132950001, 1753083060000],
+    [132960001, 1753098960000],
+    [132970000, 1753111140000],
+    [132980000, 1753143180000],
+    [132990000, 1753173840000],
+    [133000000, 1753190100000],
+    [133010000, 1753207860000],
+    [133020000, 1753245480000],
+    [133030000, 1753268520000],
+    [133040000, 1753282800000],
+    [133050000, 1753313880000],
+    [133060000, 1753345800000],
+    [133070000, 1753362600000],
+    [133080000, 1753380240000],
+    [133090000, 1753417380000],
+    [133100000, 1753440960000],
+    [133110001, 1753454520000],
+    [133120000, 1753480320000],
+    [133130000, 1753507200000],
+    [133140000, 1753526940000],
+    [133150000, 1753540800000],
+    [133160000, 1753566300000],
+    [133170000, 1753591980000],
+    [133180000, 1753610580000],
+    [133190000, 1753624260000],
+    [133200000, 1753642860000],
+    [133210000, 1753678440000],
+    [133220000, 1753701000000],
+    [133230002, 1753714920000],
+    [133240000, 1753746120000],
+    [133250000, 1753776660000],
+    [133260000, 1753793880000],
+    [133270001, 1753809420000],
 ];
 
 
@@ -49265,6 +49488,30 @@ const novelsData = [
     [25180002, 1751117415000],
     [25190000, 1751204931000],
     [25200000, 1751295906000],
+    [25210000, 1751415024000],
+    [25220001, 1751535662000],
+    [25230002, 1751636904000],
+    [25240000, 1751726549000],
+    [25250000, 1751812870000],
+    [25260000, 1751900405000],
+    [25270000, 1752022395000],
+    [25280000, 1752134942000],
+    [25290000, 1752234314000],
+    [25300000, 1752327313000],
+    [25310000, 1752415732000],
+    [25320002, 1752520727000],
+    [25330000, 1752647704000],
+    [25340000, 1752754364000],
+    [25350000, 1752851521000],
+    [25360003, 1752946301000],
+    [25370000, 1753050684000],
+    [25380001, 1753126208000],
+    [25390001, 1753251670000],
+    [25400000, 1753358513000],
+    [25410001, 1753454717000],
+    [25420000, 1753544687000],
+    [25430000, 1753631099000],
+    [25440000, 1753735620000],
 ];
 
 
