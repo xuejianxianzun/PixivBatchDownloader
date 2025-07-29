@@ -72,6 +72,12 @@ class DownloadRecord {
     // 当有文件下载完成时，存储这个任务的记录
     window.addEventListener(EVT.list.downloadSuccess, (ev: CustomEventInit) => {
       const successData = ev.detail.data as DonwloadSuccessData
+      // console.log(successData)
+      // 如果文件名异常，不保存这个下载记录，以便用户之后重新下载这个文件
+      if(successData.uuid){
+        return
+      }
+
       const result = store.findResult(successData.id)
       result && this.addRecord(result)
     })

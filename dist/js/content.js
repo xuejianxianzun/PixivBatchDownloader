@@ -17712,6 +17712,12 @@ class DownloadRecord {
         // 当有文件下载完成时，存储这个任务的记录
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadSuccess, (ev) => {
             const successData = ev.detail.data;
+            // console.log(successData)
+            // 如果文件名异常，则不保存这个下载记录，以便用户之后重新下载这个文件
+            // 文件名异常时，真实的文件名和下载器生成的文件名不一致，所以此时不应该保存下载记录
+            if (successData.uuid) {
+                return;
+            }
             const result = _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.findResult(successData.id);
             result && this.addRecord(result);
         });
