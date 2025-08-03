@@ -128,7 +128,7 @@ class InitRankingArtworkPage extends InitPageBase {
     let data: RankingData
     try {
       data = await API.getRankingData(this.option)
-    } catch (error) {
+    } catch (error: Error | any) {
       if (error.status === 404) {
         // 如果发生了404错误，则中断抓取，直接下载已有部分。因为可能确实没有下一部分了
         console.log('404错误，直接下载已有部分')

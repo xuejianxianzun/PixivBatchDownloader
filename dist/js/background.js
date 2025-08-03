@@ -1,21 +1,17 @@
 /******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
 /***/ "./src/ts/ManageFollowing.ts":
 /*!***********************************!*\
   !*** ./src/ts/ManageFollowing.ts ***!
   \***********************************/
-/***/ (() => {
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
+__webpack_require__.r(__webpack_exports__);
 // 这是一个后台脚本
 class ManageFollowing {
     constructor() {
-        this.store = 'following';
-        this.data = [];
-        /**当状态为 locked 时，如果需要增加或删除某个关注的用户，则将其放入等待队列 */
-        this.queue = [];
-        this.status = 'idle';
-        this.updateTaskTabID = 0;
         this.restore();
         chrome.runtime.onInstalled.addListener(async () => {
             // 每次更新或刷新扩展时尝试读取数据，如果数据不存在则设置数据
@@ -138,6 +134,12 @@ class ManageFollowing {
         this.checkDeadlock();
         this.clearUnusedData();
     }
+    store = 'following';
+    data = [];
+    /**当状态为 locked 时，如果需要增加或删除某个关注的用户，则将其放入等待队列 */
+    queue = [];
+    status = 'idle';
+    updateTaskTabID = 0;
     async restore() {
         if (this.status !== 'idle') {
             return;
@@ -278,6 +280,7 @@ class ManageFollowing {
 new ManageFollowing();
 
 
+
 /***/ })
 
 /******/ 	});
@@ -307,35 +310,6 @@ new ManageFollowing();
 /******/ 	}
 /******/ 	
 /************************************************************************/
-/******/ 	/* webpack/runtime/compat get default export */
-/******/ 	(() => {
-/******/ 		// getDefaultExport function for compatibility with non-harmony modules
-/******/ 		__webpack_require__.n = (module) => {
-/******/ 			var getter = module && module.__esModule ?
-/******/ 				() => (module['default']) :
-/******/ 				() => (module);
-/******/ 			__webpack_require__.d(getter, { a: getter });
-/******/ 			return getter;
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/define property getters */
-/******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
-/******/ 		__webpack_require__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 				}
-/******/ 			}
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/make namespace object */
 /******/ 	(() => {
 /******/ 		// define __esModule on exports
@@ -349,15 +323,13 @@ new ManageFollowing();
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry needs to be wrapped in an IIFE because it needs to be in strict mode.
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
 (() => {
-"use strict";
 /*!******************************!*\
   !*** ./src/ts/background.ts ***!
   \******************************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ManageFollowing__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ManageFollowing */ "./src/ts/ManageFollowing.ts");
-/* harmony import */ var _ManageFollowing__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_ManageFollowing__WEBPACK_IMPORTED_MODULE_0__);
 
 // 当点击扩展图标时，显示/隐藏下载面板
 chrome.action.onClicked.addListener(function (tab) {

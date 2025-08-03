@@ -486,7 +486,7 @@ abstract class InitPageBase {
         await saveArtworkData.save(data)
         this.afterGetWorksData(data)
       }
-    } catch (error) {
+    } catch (error: Error | any) {
       // 当 API 里的网络请求的状态码异常时，会 reject，被这里捕获
       if (error.status) {
         // 请求成功，但状态码不正常

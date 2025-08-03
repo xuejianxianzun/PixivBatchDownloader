@@ -182,7 +182,7 @@ class DownloadNovelEmbeddedImage {
         }
 
         return resolve(idList)
-      } catch (error) {
+      } catch (error: Error | any) {
         if (error.status) {
           // 请求成功，但状态码不正常
           if (error.status === 500 || error.status === 429) {

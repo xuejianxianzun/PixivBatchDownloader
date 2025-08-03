@@ -86,7 +86,7 @@ class API {
         }
         return fetch(`https://www.pixiv.net/ajax/${type}/bookmarks/add`, {
             method: 'POST',
-            credentials: 'same-origin',
+            credentials: 'same-origin', // 附带 cookie
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json; charset=utf-8',
@@ -101,7 +101,7 @@ class API {
             : `del=1&book_id=${bookmarkID}`;
         return fetch(`https://www.pixiv.net/ajax/${type}/bookmarks/delete`, {
             method: 'POST',
-            credentials: 'same-origin',
+            credentials: 'same-origin', // 附带 cookie
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
@@ -325,7 +325,7 @@ class API {
         return new Promise(async (resolve) => {
             const response = await fetch(`https://www.pixiv.net/bookmark_add.php`, {
                 method: 'POST',
-                credentials: 'same-origin',
+                credentials: 'same-origin', // 附带 cookie
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
@@ -369,7 +369,6 @@ __webpack_require__.r(__webpack_exports__);
 class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThumbnail {
     constructor() {
         super();
-        this.selectors = [];
         if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
             // 移动端的作品选择器就这一个
             this.selectors = ['.works-item-illust'];
@@ -415,6 +414,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
             }
         }, 1000);
     }
+    selectors = [];
     findThumbnail(parent) {
         if (!parent.querySelectorAll) {
             return;
@@ -509,25 +509,18 @@ __webpack_require__.r(__webpack_exports__);
 
 class BG {
     constructor() {
-        this.list = [];
-        this.bgModeflagClassName = 'xzBG';
-        this.bgLayerClassName = 'xzBGLayer';
-        this.bgUrl = '';
-        this.DBName = 'PBDBG';
-        this.DBVer = 1;
-        this.storeName = 'bg';
-        this.keyName = 'bg';
-        // 在数据库升级事件里创建表
-        this.onUpdate = (db) => {
-            if (!db.objectStoreNames.contains(this.storeName)) {
-                db.createObjectStore(this.storeName, {
-                    keyPath: 'key',
-                });
-            }
-        };
         this.IDB = new _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__.IndexedDB();
         this.init();
     }
+    list = [];
+    bgModeflagClassName = 'xzBG';
+    bgLayerClassName = 'xzBGLayer';
+    bgUrl = '';
+    IDB;
+    DBName = 'PBDBG';
+    DBVer = 1;
+    storeName = 'bg';
+    keyName = 'bg';
     async init() {
         this.bindEvents();
         await this.initDB();
@@ -536,6 +529,14 @@ class BG {
     async initDB() {
         await this.IDB.open(this.DBName, this.DBVer, this.onUpdate);
     }
+    // 在数据库升级事件里创建表
+    onUpdate = (db) => {
+        if (!db.objectStoreNames.contains(this.storeName)) {
+            db.createObjectStore(this.storeName, {
+                keyPath: 'key',
+            });
+        }
+    };
     createBGLayer(wrap) {
         const div = document.createElement('div');
         div.classList.add(this.bgLayerClassName);
@@ -679,11 +680,12 @@ __webpack_require__.r(__webpack_exports__);
 
 class BoldKeywords {
     constructor(wrap) {
-        this.className = 'showBlobKeywords';
         this.wrap = wrap;
         this.bindEvent();
         this.setClassName();
     }
+    wrap;
+    className = 'showBlobKeywords';
     bindEvent() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
@@ -736,10 +738,6 @@ __webpack_require__.r(__webpack_exports__);
 // 对 API.addBookmark 进行封装
 class Bookmark {
     constructor() {
-        /** 接收到需要排队的任务时增加计数 */
-        this.taskID = 0;
-        /**叫号的号码，当 add 方法的 slowly 参数为 true 时，需要等待叫号到它才能执行 */
-        this.nextTaskID = 1;
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadComplete, () => {
             if (this.taskID > this.nextTaskID) {
                 const msg = _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_收藏任务尚未完成请等待');
@@ -758,6 +756,10 @@ class Bookmark {
             ? await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(id)
             : await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelData(id);
     }
+    /** 接收到需要排队的任务时增加计数 */
+    taskID = 0;
+    /**叫号的号码，当 add 方法的 slowly 参数为 true 时，需要等待叫号到它才能执行 */
+    nextTaskID = 1;
     /**添加收藏
      *
      * 可选参数 tags：可以直接传入这个作品的 tag 列表
@@ -948,10 +950,6 @@ var Tabbar;
 // 中间面板
 class CenterPanel {
     constructor() {
-        this.updateActiveClass = 'updateActiveClass';
-        this.TitleActiveClass = 'active';
-        this.titleAnimationElClassList = ['tab1', 'tab2', 'tab3'];
-        this.allLangFlag = [];
         this.addCenterPanel();
         _Theme__WEBPACK_IMPORTED_MODULE_3__.theme.register(this.centerPanel);
         _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.register(this.centerPanel);
@@ -962,6 +960,13 @@ class CenterPanel {
         this.setLangFlag();
         this.bindEvents();
     }
+    centerPanel;
+    updateLink;
+    updateActiveClass = 'updateActiveClass';
+    allTabTitle; // 选项卡的标题区域
+    TitleActiveClass = 'active';
+    titleAnimationEl;
+    titleAnimationElClassList = ['tab1', 'tab2', 'tab3'];
     // 添加中间面板
     addCenterPanel() {
         const centerPanelHTML = `
@@ -1030,6 +1035,7 @@ class CenterPanel {
             this.centerPanel.classList.add('mobile');
         }
     }
+    allLangFlag = [];
     setLangFlag() {
         this.allLangFlag.forEach((flag) => {
             this.centerPanel.classList.remove(flag);
@@ -1091,7 +1097,9 @@ class CenterPanel {
             let msg = _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_常见问题说明') + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_账户可能被封禁的警告');
             if (_Config__WEBPACK_IMPORTED_MODULE_4__.Config.mobile) {
                 msg =
-                    msg + '<br><br>' + _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_Kiwi浏览器可能不能建立文件夹的bug');
+                    msg +
+                        '<br><br>' +
+                        _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_移动端浏览器可能不会建立文件夹的说明');
             }
             _MsgBox__WEBPACK_IMPORTED_MODULE_5__.msgBox.show(msg, {
                 title: _Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_常见问题'),
@@ -1226,59 +1234,59 @@ __webpack_require__.r(__webpack_exports__);
 // 相关文档： notes/一些国产套壳浏览器使用本程序的情况.md
 class CheckUnsupportBrowser {
     constructor() {
-        this.rules = {
-            // "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.36 SE 2.X MetaSr 1.0"
-            Sougou: function () {
-                return navigator.userAgent.includes(' SE ');
-            },
-            // "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36 Core/1.70.3872.400 QQBrowser/10.8.4455.400"
-            QQ: function () {
-                return navigator.userAgent.includes('QQBrowser');
-            },
-            // "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3947.100 Safari/537.36 2345Explorer/10.21.0.21486"
-            '2345': function () {
-                return navigator.userAgent.includes('2345Explorer');
-            },
-            FireFox: function () {
-                // 本扩展不支持 Firefox，在其上使用会遇到一些问题
-                if (navigator.userAgent.includes('Firefox')) {
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_检测到在Firefox浏览器上使用'), {
-                        title: _Config__WEBPACK_IMPORTED_MODULE_0__.Config.appName,
-                    });
-                    return true;
-                }
-                return false;
-            },
-            Yandex: function () {
-                if (navigator.userAgent.includes('YaBrowser')) {
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_yandex浏览器的警告'), {
-                        title: _Config__WEBPACK_IMPORTED_MODULE_0__.Config.appName,
-                    });
-                    return true;
-                }
-                return false;
-            },
-            All: function () {
-                // 如果这个浏览器的 Chrome 内核的版本号较低，也会显示提示
-                // 为什么设置为 88：
-                // 1. 下载器使用的 Manifest V2 需要的内核版本最低为 79
-                // 2. Cent 浏览器的内核版本是 86，但它即使使用 V2，仍然会在转换 GIF 时出现问题，所以需要提高版本号
-                // 3. 未来升级到 Manifest V3 需要的内核版本最低为 88
-                const minChromeVer = 88;
-                const test = navigator.userAgent.match(/Chrome\/(\d*)/);
-                if (test && test[1]) {
-                    const ver = Number.parseInt(test[1]);
-                    if (ver < minChromeVer) {
-                        return true;
-                    }
-                }
-                return false;
-            },
-        };
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, () => {
             this.check();
         });
     }
+    rules = {
+        // "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.36 SE 2.X MetaSr 1.0"
+        Sougou: function () {
+            return navigator.userAgent.includes(' SE ');
+        },
+        // "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36 Core/1.70.3872.400 QQBrowser/10.8.4455.400"
+        QQ: function () {
+            return navigator.userAgent.includes('QQBrowser');
+        },
+        // "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3947.100 Safari/537.36 2345Explorer/10.21.0.21486"
+        '2345': function () {
+            return navigator.userAgent.includes('2345Explorer');
+        },
+        FireFox: function () {
+            // 本扩展不支持 Firefox，在其上使用会遇到一些问题
+            if (navigator.userAgent.includes('Firefox')) {
+                _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_检测到在Firefox浏览器上使用'), {
+                    title: _Config__WEBPACK_IMPORTED_MODULE_0__.Config.appName,
+                });
+                return true;
+            }
+            return false;
+        },
+        Yandex: function () {
+            if (navigator.userAgent.includes('YaBrowser')) {
+                _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.warning(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_yandex浏览器的警告'), {
+                    title: _Config__WEBPACK_IMPORTED_MODULE_0__.Config.appName,
+                });
+                return true;
+            }
+            return false;
+        },
+        All: function () {
+            // 如果这个浏览器的 Chrome 内核的版本号较低，也会显示提示
+            // 为什么设置为 88：
+            // 1. 下载器使用的 Manifest V2 需要的内核版本最低为 79
+            // 2. Cent 浏览器的内核版本是 86，但它即使使用 V2，仍然会在转换 GIF 时出现问题，所以需要提高版本号
+            // 3. 未来升级到 Manifest V3 需要的内核版本最低为 88
+            const minChromeVer = 88;
+            const test = navigator.userAgent.match(/Chrome\/(\d*)/);
+            if (test && test[1]) {
+                const ver = Number.parseInt(test[1]);
+                if (ver < minChromeVer) {
+                    return true;
+                }
+            }
+            return false;
+        },
+    };
     check() {
         for (const func of Object.values(this.rules)) {
             if (func()) {
@@ -1346,33 +1354,33 @@ __webpack_require__.r(__webpack_exports__);
 // 定义一些常量
 // 用户不可以修改这里的配置
 class Config {
+    /**使用输出面板显示内容时，如果文件数量大于这个值，就不再显示内容，而是保存到 txt 文件 */
+    static outputMax = 5000;
+    /**同时下载的文件数量的最大值 */
+    static downloadThreadMax = 6;
+    /**下载某个文件出错时，最大重试次数 */
+    static retryMax = 10;
+    /**作品类型所对应的字符串名称 */
+    static worksTypeName = ['Illustration', 'Manga', 'Ugoira', 'Novel'];
+    /**程序名 */
+    static appName = 'Powerful Pixiv Downloader';
+    /**下载器储存设置时使用的 key name */
+    static settingStoreName = 'xzSetting';
+    /**按收藏数量过滤作品时，预设的最大收藏数量 */
+    static BookmarkCountLimit = 9999999;
+    /**Pixiv 作品总数量上限 */
+    static worksNumberLimit = 9999999999;
+    /**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
+    static retryTime = 200000;
+    /**浏览器是否处于移动端模式 */
+    static mobile = navigator.userAgent.includes('Mobile');
+    /**ImageViewer 生成的 li 元素的 className */
+    static ImageViewerLI = 'xz-thumb-li';
     /**检测 ImageViewer 生成的 li 元素，以便其他模块进行一些特殊处理 */
     static checkImageViewerLI(el) {
         return el?.classList.contains(this.ImageViewerLI);
     }
 }
-/**使用输出面板显示内容时，如果文件数量大于这个值，就不再显示内容，而是保存到 txt 文件 */
-Config.outputMax = 5000;
-/**同时下载的文件数量的最大值 */
-Config.downloadThreadMax = 6;
-/**下载某个文件出错时，最大重试次数 */
-Config.retryMax = 10;
-/**作品类型所对应的字符串名称 */
-Config.worksTypeName = ['Illustration', 'Manga', 'Ugoira', 'Novel'];
-/**程序名 */
-Config.appName = 'Powerful Pixiv Downloader';
-/**下载器储存设置时使用的 key name */
-Config.settingStoreName = 'xzSetting';
-/**按收藏数量过滤作品时，预设的最大收藏数量 */
-Config.BookmarkCountLimit = 9999999;
-/**Pixiv 作品总数量上限 */
-Config.worksNumberLimit = 9999999999;
-/**当抓取被 pixiv 限制，返回了空数据时，等待这个时间之后再继续抓取 */
-Config.retryTime = 200000;
-/**浏览器是否处于移动端模式 */
-Config.mobile = navigator.userAgent.includes('Mobile');
-/**ImageViewer 生成的 li 元素的 className */
-Config.ImageViewerLI = 'xz-thumb-li';
 
 
 
@@ -1409,13 +1417,13 @@ __webpack_require__.r(__webpack_exports__);
 // 控制动图转换
 class ConvertUgoira {
     constructor() {
-        this.downloading = true; // 是否在下载。如果下载停止了则不继续转换后续任务，避免浪费资源
-        this._count = 0; // 统计有几个转换任务
-        this.maxCount = 1; // 允许同时运行多少个转换任务
-        this.msgFlag = 'tipConvertUgoira';
         this.setMaxCount();
         this.bindEvents();
     }
+    downloading = true; // 是否在下载。如果下载停止了则不继续转换后续任务，避免浪费资源
+    _count = 0; // 统计有几个转换任务
+    maxCount = 1; // 允许同时运行多少个转换任务
+    msgFlag = 'tipConvertUgoira';
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStart, () => {
             this.downloading = true;
@@ -1575,10 +1583,9 @@ __webpack_require__.r(__webpack_exports__);
 
 class ToGIF {
     constructor() {
-        this.gifWorkerUrl = '';
-        this.MBSize = 1024 * 1024;
         this.loadWorkerJS();
     }
+    gifWorkerUrl = '';
     // 添加转换 GIF 的 worker 文件
     async loadWorkerJS() {
         let gifWorker = await fetch(chrome.runtime.getURL('lib/gif.worker.js'));
@@ -1619,6 +1626,7 @@ class ToGIF {
             gif.render();
         });
     }
+    MBSize = 1024 * 1024;
     /**根据 zip 文件的体积，决定转换动图使的质量 */
     // 使用更小的 quality 可以获得更好的画面质量（颜色质量）
     // 以前下载器使用的都是默认值 10，现在改为体积越小则使用越高的质量，以减少某些动图转换成 GIF 之后色差严重的问题
@@ -1746,166 +1754,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 // 管理自定义事件
 class EVENT {
-    constructor() {
-        this.bindOnceFlagList = [];
-        this.list = {
-            /** 当抓取开始时触发 */
-            crawlStart: 'crawlStart',
-            stopCrawl: 'stopCrawl',
-            /** 让下载器抓取特定的 tag，而不是自动获取当前页面的 tag（仅在 tag 搜索页面有效） */
-            crawlTag: 'crawlTag',
-            /** 当检查到错误的设置时触发 */
-            wrongSetting: 'wrongSetting',
-            /** 当获取作品的 id 列表完成时触发 */
-            getIdListFinished: 'getIdListFinished',
-            /** 获取了作品的 id 列表，需要下载这些 id 列表时使用 */
-            crawlIdList: 'crawlIdList',
-            /** 当抓取完成时触发。不管结果是否为空都会触发 */
-            crawlComplete: 'crawlComplete',
-            /** 当抓取结果为空时触发。触发时机晚于 crawlComplete */
-            crawlEmpty: 'crawlEmpty',
-            /** store 里每存储一个作品的元数据，就触发一次。如果一个元数据产生了多个结果（多图作品），只触发一次 */
-            addResult: 'addResult',
-            /** 当抓取完毕之后，抓取结果又发生变化时触发（比如进行多次筛选、改变设置项等，导致结果变化） */
-            resultChange: 'resultChange',
-            /** 当进行快速抓取时触发 */
-            quickCrawl: 'quickCrawl',
-            /** 抓取完毕后，可以准备开始下载时触发 */
-            /** 它是一个派生事件，可以由多个其他事件触发 */
-            readyDownload: 'readyDownload',
-            /** 下载被取消（取消是在尚未开始下载前触发的，它不同于下载停止） */
-            downloadCancel: 'downloadCancel',
-            /** 开始下载时触发 */
-            downloadStart: 'downloadStart',
-            /** 下载状态变成暂停时触发 */
-            downloadPause: 'downloadPause',
-            /** 请求暂停下载 */
-            requestPauseDownload: 'requestPauseDownload',
-            /** 下载状态变成停止时触发 */
-            downloadStop: 'downloadStop',
-            /** 当文件在下载阶段下载失败时触发 */
-            /** 当动图转换出错时触发 */
-            downloadError: 'downloadError',
-            /** 当一个文件在下载阶段被跳过时触发 */
-            skipDownload: 'skipDownload',
-            /** 当浏览器把一个文件保存到本地失败时触发 */
-            saveFileError: 'saveFileError',
-            /** 当下载的文件传递给浏览器进行保存，并且成功保存之后触发 */
-            /** skipDownload 也会触发这个事件 */
-            downloadSuccess: 'downloadSuccess',
-            /** 下载队列里的所有文件都已经下载并保存完毕，并且没有出错的。如果有出错的，就不会触发这个事件 */
-            downloadComplete: 'downloadComplete',
-            /** 页面切换 */
-            pageSwitch: 'pageSwitch',
-            /** 页面切换，并且页面类型变化 */
-            pageSwitchedTypeChange: 'pageSwitchedTypeChange',
-            /** 页面切换，并且页面类型不变 */
-            pageSwitchedTypeNotChange: 'pageSwitchedTypeNotChange',
-            /** 程序启动时，设置初始化完毕后触发 */
-            settingInitialized: 'settingInitialized',
-            /** 请求重置所有设置 */
-            resetSettings: 'resetSettings',
-            /** 重置所有设置执行完毕 */
-            resetSettingsEnd: 'resetSettingsEnd',
-            /** 请求导出设置 */
-            exportSettings: 'exportSettings',
-            /** 请求导入设置 */
-            importSettings: 'importSettings',
-            /** 重新显示帮助 */
-            resetHelpTip: 'resetHelpTip',
-            /** 当动图转换数量发生变化时触发 */
-            convertChange: 'convertChange',
-            /** 当动图转换成功时触发 */
-            convertSuccess: 'convertSuccess',
-            /** 指示打开中间面板 */
-            openCenterPanel: 'openCenterPanel',
-            /** 指示关闭中间面板 */
-            closeCenterPanel: 'closeCenterPanel',
-            /** 中间面板已打开 */
-            centerPanelOpened: 'centerPanelOpened',
-            /** 中间面板已关闭 */
-            centerPanelClosed: 'centerPanelClosed',
-            /** 当清除多图作品时触发 */
-            clearMultiple: 'clearMultiple',
-            /** 当清除动图作品时触发 */
-            clearUgoira: 'clearUgoira',
-            /** 当手动删除作品时触发 */
-            deleteWork: 'deleteWork',
-            /** 当下载器在页面上创建的作品列表全部完成时触发 */
-            worksUpdate: 'worksUpdate',
-            /** 当需要清空下载记录时触发（只用于检测重复文件的下载记录） */
-            clearDownloadRecord: 'clearDownloadRecord',
-            /** 当需要导出下载记录时触发 */
-            exportDownloadRecord: 'exportDownloadRecord',
-            /** 当需要导入下载记录时触发 */
-            importDownloadRecord: 'importDownloadRecord',
-            /** 当需要清空断点续传的数据时触发 */
-            clearSavedCrawl: 'clearSavedCrawl',
-            /** 当从断点续传数据恢复了下载时触发 */
-            resume: 'resume',
-            /** 当需要导出 csv 文件时触发 */
-            exportCSV: 'exportCSV',
-            /** 当需要导出抓取结果时触发 */
-            exportResult: 'exportResult',
-            /** 当需要导入抓取结果时触发 */
-            importResult: 'importResult',
-            /** 当需要保存用户头像时触发 */
-            saveAvatarImage: 'saveAvatarImage',
-            /** 当需要保存用户头像为图标时触发 */
-            saveAvatarIcon: 'saveAvatarIcon',
-            /** 当需要保存用户背景图片时触发 */
-            saveUserCover: 'saveUserCover',
-            /** 当需要预览文件名时触发 */
-            previewFileName: 'previewFileName',
-            /** 当需要预览 url 时触发 */
-            showURLs: 'showURLs',
-            /** 当需要输出面板输出内容时触发 */
-            output: 'output',
-            /** 当设置表单里的设置项发生变化时触发 */
-            settingChange: 'settingChange',
-            /** 当下载器检测到有新版本时触发 */
-            hasNewVer: 'hasNewVer',
-            /** 进入批量收藏模式时触发 */
-            bookmarkModeStart: 'bookmarkModeStart',
-            /** 批量收藏完成时触发 */
-            bookmarkModeEnd: 'bookmarkModeEnd',
-            /** 需要单独显示信息时触发 */
-            showMsg: 'showMsg',
-            /** 需要显示冒泡提示时触发 */
-            sendToast: 'sendToast',
-            /** 需要清空日志区域时触发 */
-            clearLog: 'clearLog',
-            /** 选择背景图片 */
-            selectBG: 'selectBG',
-            /** 清除背景图片 */
-            clearBG: 'clearBG',
-            /** 点击了下载器在作品缩略图上添加的按钮时触发 */
-            /** 其他按钮监听这个事件后隐藏自己，就可以避免其他按钮出现闪烁、残留的问题 */
-            clickBtnOnThumb: 'clickBtnOnThumb',
-            /** 显示原比例图片时触发 */
-            showOriginSizeImage: 'showOriginSizeImage',
-            /** 语言类型改变时触发 */
-            langChange: 'langChange',
-            /** 开始定时抓取时触发 */
-            startTimedCrawl: 'startTimedCrawl',
-            /** 请求取消定时抓取时触发*/
-            cancelTimedCrawl: 'cancelTimedCrawl',
-            /**当获取到页面的主题颜色时触发 */
-            getPageTheme: 'getPageTheme',
-            /**当下载模块向浏览器发起一个下载请求（保存文件到本地）时触发 */
-            sendBrowserDownload: 'sendBrowserDownload',
-            /**需要显示预览作品详细信息的面板时触发 */
-            showPreviewWorkDetailPanel: 'showPreviewWorkDetailPanel',
-            /**预览作品详细信息的面板关闭后触发 */
-            PreviewWorkDetailPanelClosed: 'PreviewWorkDetailPanelClosed',
-            /**通过鼠标滚轮事件来切换预览图 */
-            wheelScrollSwitchPreviewImage: 'wheelScrollSwitchPreviewImage',
-            /**当结束对一个作品的预览时触发（即预览图窗口消失时触发） */
-            previewEnd: 'previewEnd',
-            /**当关注的用户列表发生变化时触发 */
-            followingUsersChange: 'followingUsersChange',
-        };
-    }
+    bindOnceFlagList = [];
     // 只绑定某个事件一次，用于防止事件重复绑定
     // 通过 flag 确认是否是同一个事件
     // 可以执行多次，不会自动解绑
@@ -1918,6 +1767,163 @@ class EVENT {
             });
         }
     }
+    list = {
+        /** 当抓取开始时触发 */
+        crawlStart: 'crawlStart',
+        stopCrawl: 'stopCrawl',
+        /** 让下载器抓取特定的 tag，而不是自动获取当前页面的 tag（仅在 tag 搜索页面有效） */
+        crawlTag: 'crawlTag',
+        /** 当检查到错误的设置时触发 */
+        wrongSetting: 'wrongSetting',
+        /** 当获取作品的 id 列表完成时触发 */
+        getIdListFinished: 'getIdListFinished',
+        /** 获取了作品的 id 列表，需要下载这些 id 列表时使用 */
+        crawlIdList: 'crawlIdList',
+        /** 当抓取完成时触发。不管结果是否为空都会触发 */
+        crawlComplete: 'crawlComplete',
+        /** 当抓取结果为空时触发。触发时机晚于 crawlComplete */
+        crawlEmpty: 'crawlEmpty',
+        /** store 里每存储一个作品的元数据，就触发一次。如果一个元数据产生了多个结果（多图作品），只触发一次 */
+        addResult: 'addResult',
+        /** 当抓取完毕之后，抓取结果又发生变化时触发（比如进行多次筛选、改变设置项等，导致结果变化） */
+        resultChange: 'resultChange',
+        /** 当进行快速抓取时触发 */
+        quickCrawl: 'quickCrawl',
+        /** 抓取完毕后，可以准备开始下载时触发 */
+        /** 它是一个派生事件，可以由多个其他事件触发 */
+        readyDownload: 'readyDownload',
+        /** 下载被取消（取消是在尚未开始下载前触发的，它不同于下载停止） */
+        downloadCancel: 'downloadCancel',
+        /** 开始下载时触发 */
+        downloadStart: 'downloadStart',
+        /** 下载状态变成暂停时触发 */
+        downloadPause: 'downloadPause',
+        /** 请求暂停下载 */
+        requestPauseDownload: 'requestPauseDownload',
+        /** 下载状态变成停止时触发 */
+        downloadStop: 'downloadStop',
+        /** 当文件在下载阶段下载失败时触发 */
+        /** 当动图转换出错时触发 */
+        downloadError: 'downloadError',
+        /** 当一个文件在下载阶段被跳过时触发 */
+        skipDownload: 'skipDownload',
+        /** 当浏览器把一个文件保存到本地失败时触发 */
+        saveFileError: 'saveFileError',
+        /** 当下载的文件传递给浏览器进行保存，并且成功保存之后触发 */
+        /** skipDownload 也会触发这个事件 */
+        downloadSuccess: 'downloadSuccess',
+        /** 下载队列里的所有文件都已经下载并保存完毕，并且没有出错的。如果有出错的，就不会触发这个事件 */
+        downloadComplete: 'downloadComplete',
+        /** 页面切换 */
+        pageSwitch: 'pageSwitch',
+        /** 页面切换，并且页面类型变化 */
+        pageSwitchedTypeChange: 'pageSwitchedTypeChange',
+        /** 页面切换，并且页面类型不变 */
+        pageSwitchedTypeNotChange: 'pageSwitchedTypeNotChange',
+        /** 程序启动时，设置初始化完毕后触发 */
+        settingInitialized: 'settingInitialized',
+        /** 请求重置所有设置 */
+        resetSettings: 'resetSettings',
+        /** 重置所有设置执行完毕 */
+        resetSettingsEnd: 'resetSettingsEnd',
+        /** 请求导出设置 */
+        exportSettings: 'exportSettings',
+        /** 请求导入设置 */
+        importSettings: 'importSettings',
+        /** 重新显示帮助 */
+        resetHelpTip: 'resetHelpTip',
+        /** 当动图转换数量发生变化时触发 */
+        convertChange: 'convertChange',
+        /** 当动图转换成功时触发 */
+        convertSuccess: 'convertSuccess',
+        /** 指示打开中间面板 */
+        openCenterPanel: 'openCenterPanel',
+        /** 指示关闭中间面板 */
+        closeCenterPanel: 'closeCenterPanel',
+        /** 中间面板已打开 */
+        centerPanelOpened: 'centerPanelOpened',
+        /** 中间面板已关闭 */
+        centerPanelClosed: 'centerPanelClosed',
+        /** 当清除多图作品时触发 */
+        clearMultiple: 'clearMultiple',
+        /** 当清除动图作品时触发 */
+        clearUgoira: 'clearUgoira',
+        /** 当手动删除作品时触发 */
+        deleteWork: 'deleteWork',
+        /** 当下载器在页面上创建的作品列表全部完成时触发 */
+        worksUpdate: 'worksUpdate',
+        /** 当需要清空下载记录时触发（只用于检测重复文件的下载记录） */
+        clearDownloadRecord: 'clearDownloadRecord',
+        /** 当需要导出下载记录时触发 */
+        exportDownloadRecord: 'exportDownloadRecord',
+        /** 当需要导入下载记录时触发 */
+        importDownloadRecord: 'importDownloadRecord',
+        /** 当需要清空断点续传的数据时触发 */
+        clearSavedCrawl: 'clearSavedCrawl',
+        /** 当从断点续传数据恢复了下载时触发 */
+        resume: 'resume',
+        /** 当需要导出 csv 文件时触发 */
+        exportCSV: 'exportCSV',
+        /** 当需要导出抓取结果时触发 */
+        exportResult: 'exportResult',
+        /** 当需要导入抓取结果时触发 */
+        importResult: 'importResult',
+        /** 当需要保存用户头像时触发 */
+        saveAvatarImage: 'saveAvatarImage',
+        /** 当需要保存用户头像为图标时触发 */
+        saveAvatarIcon: 'saveAvatarIcon',
+        /** 当需要保存用户背景图片时触发 */
+        saveUserCover: 'saveUserCover',
+        /** 当需要预览文件名时触发 */
+        previewFileName: 'previewFileName',
+        /** 当需要预览 url 时触发 */
+        showURLs: 'showURLs',
+        /** 当需要输出面板输出内容时触发 */
+        output: 'output',
+        /** 当设置表单里的设置项发生变化时触发 */
+        settingChange: 'settingChange',
+        /** 当下载器检测到有新版本时触发 */
+        hasNewVer: 'hasNewVer',
+        /** 进入批量收藏模式时触发 */
+        bookmarkModeStart: 'bookmarkModeStart',
+        /** 批量收藏完成时触发 */
+        bookmarkModeEnd: 'bookmarkModeEnd',
+        /** 需要单独显示信息时触发 */
+        showMsg: 'showMsg',
+        /** 需要显示冒泡提示时触发 */
+        sendToast: 'sendToast',
+        /** 需要清空日志区域时触发 */
+        clearLog: 'clearLog',
+        /** 选择背景图片 */
+        selectBG: 'selectBG',
+        /** 清除背景图片 */
+        clearBG: 'clearBG',
+        /** 点击了下载器在作品缩略图上添加的按钮时触发 */
+        /** 其他按钮监听这个事件后隐藏自己，就可以避免其他按钮出现闪烁、残留的问题 */
+        clickBtnOnThumb: 'clickBtnOnThumb',
+        /** 显示原比例图片时触发 */
+        showOriginSizeImage: 'showOriginSizeImage',
+        /** 语言类型改变时触发 */
+        langChange: 'langChange',
+        /** 开始定时抓取时触发 */
+        startTimedCrawl: 'startTimedCrawl',
+        /** 请求取消定时抓取时触发*/
+        cancelTimedCrawl: 'cancelTimedCrawl',
+        /**当获取到页面的主题颜色时触发 */
+        getPageTheme: 'getPageTheme',
+        /**当下载模块向浏览器发起一个下载请求（保存文件到本地）时触发 */
+        sendBrowserDownload: 'sendBrowserDownload',
+        /**需要显示预览作品详细信息的面板时触发 */
+        showPreviewWorkDetailPanel: 'showPreviewWorkDetailPanel',
+        /**预览作品详细信息的面板关闭后触发 */
+        PreviewWorkDetailPanelClosed: 'PreviewWorkDetailPanelClosed',
+        /**通过鼠标滚轮事件来切换预览图 */
+        wheelScrollSwitchPreviewImage: 'wheelScrollSwitchPreviewImage',
+        /**当结束对一个作品的预览时触发（即预览图窗口消失时触发） */
+        previewEnd: 'previewEnd',
+        /**当关注的用户列表发生变化时触发 */
+        followingUsersChange: 'followingUsersChange',
+    };
     fire(type, data) {
         const event = new CustomEvent(type, {
             detail: { data: data === undefined ? {} : data },
@@ -1959,14 +1965,9 @@ __webpack_require__.r(__webpack_exports__);
 
 // 生成文件名
 class FileName {
-    constructor() {
-        // 下载器所有的动图格式后缀名
-        this.ugoiraExt = ['zip', 'webm', 'gif', 'png'];
-        this.addStr = '[downloader_add]';
-        // 不能出现在文件名开头的一些特定字符
-        this.checkStartCharList = ['/', ' '];
-        this.atList = ['@', '＠'];
-    }
+    // 下载器所有的动图格式后缀名
+    ugoiraExt = ['zip', 'webm', 'gif', 'png'];
+    addStr = '[downloader_add]';
     // 生成 {rank} 标记的值
     createRank(rank) {
         // 处理空值
@@ -2032,6 +2033,8 @@ class FileName {
         allPart.splice(allPart.length - 1, 0, _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.replaceUnsafeStr(folderName));
         return allPart.join('/');
     }
+    // 不能出现在文件名开头的一些特定字符
+    checkStartCharList = ['/', ' '];
     // 检查文件名开头是否含有特定字符
     checkStartChar(str) {
         for (const check of this.checkStartCharList) {
@@ -2052,6 +2055,7 @@ class FileName {
         }
         return str;
     }
+    atList = ['@', '＠'];
     RemoveAtFromUsername(name) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.removeAtFromUsername) {
             return name;
@@ -2418,17 +2422,6 @@ __webpack_require__.r(__webpack_exports__);
 
 class HighlightFollowingUsers {
     constructor() {
-        this.pageTheme = '';
-        /**当前登录用户的关注用户列表 */
-        this.following = [];
-        /**当前登录用户的关注用户总数 */
-        this.total = 0;
-        this.highlightClassName = 'pbdHighlightFollowing';
-        // 检查包含用户 id 的链接，并且需要以 id 结束
-        // 这是因为 id 之后还有字符的链接是不需要的，例如：
-        // https://www.pixiv.net/en/users/17207914/artworks
-        // 下载器只匹配用户主页的链接，不匹配用户子页面的链接
-        this.checkUserLinkReg = /\/users\/(\d+)$/;
         if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.isPixiv()) {
             return;
         }
@@ -2514,6 +2507,13 @@ class HighlightFollowingUsers {
             }
         });
     }
+    pageTheme = '';
+    /**当前登录用户的关注用户列表 */
+    following = [];
+    /**当前登录用户的关注用户总数 */
+    total = 0;
+    checkUpdateTimer;
+    highlightClassName = 'pbdHighlightFollowing';
     async receiveData(list) {
         const thisUserData = list.find((data) => data.user === _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.loggedUserID);
         if (thisUserData) {
@@ -2608,6 +2608,11 @@ class HighlightFollowingUsers {
             });
         }
     }
+    // 检查包含用户 id 的链接，并且需要以 id 结束
+    // 这是因为 id 之后还有字符的链接是不需要的，例如：
+    // https://www.pixiv.net/en/users/17207914/artworks
+    // 下载器只匹配用户主页的链接，不匹配用户子页面的链接
+    checkUserLinkReg = /\/users\/(\d+)$/;
     makeHighlight(aList) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.highlightFollowingUsers) {
             return;
@@ -2756,22 +2761,26 @@ class ImageViewer {
     // new() 不会创建图片查看器，需要再手动执行 init()
     // 这是因为有的模块需要获取异步操作之后生成的元素，但是构造函数无法返回异步操作，所以使用 init() 进行包装
     constructor(cfg) {
-        this.viewerUl = document.createElement('ul'); // 图片列表的 ul 元素
-        this.show = false; // 当前查看器实例是否处于显示状态
-        this.isOriginalSize = false; // 是否原尺寸显示图片
-        this.pageCount = 1;
-        this.firstImageURL = ''; // 第一张图片的 url
-        // 默认配置
-        this.cfg = {
-            workId: _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getIllustId(),
-            imageNumber: 2,
-            imageSize: 'original',
-            autoStart: false,
-            showLoading: false,
-        };
-        this.addBtnClass = 'viewer-add-btn';
         this.cfg = Object.assign(this.cfg, cfg);
     }
+    myViewer; // 查看器
+    viewerWarpper; // 图片列表的容器
+    viewerUl = document.createElement('ul'); // 图片列表的 ul 元素
+    show = false; // 当前查看器实例是否处于显示状态
+    isOriginalSize = false; // 是否原尺寸显示图片
+    // 图片查看器初始化时，会获取作品数据，保存到这个成员
+    workData;
+    pageCount = 1;
+    firstImageURL = ''; // 第一张图片的 url
+    // 默认配置
+    cfg = {
+        workId: _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getIllustId(),
+        imageNumber: 2,
+        imageSize: 'original',
+        autoStart: false,
+        showLoading: false,
+    };
+    addBtnClass = 'viewer-add-btn';
     async init() {
         // 删除旧的图片查看器元素
         const oldViewerContainer = document.querySelector('.viewer-container');
@@ -3225,21 +3234,21 @@ __webpack_require__.r(__webpack_exports__);
 class Input {
     /**所有选项皆是可选的 */
     constructor(option) {
-        this.defultOption = {
-            width: 600,
-            type: 'input',
-            rows: 3,
-            instruction: '',
-            placeholder: '',
-            value: '',
-            submitButtonText: _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_提交'),
-        };
-        this.value = '';
-        this.id = '';
-        this.submitted = false;
-        this.cancelled = false;
         this.init(option);
     }
+    defultOption = {
+        width: 600,
+        type: 'input',
+        rows: 3,
+        instruction: '',
+        placeholder: '',
+        value: '',
+        submitButtonText: _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_提交'),
+    };
+    value = '';
+    id = '';
+    submitted = false;
+    cancelled = false;
     init(option) {
         const _option = Object.assign(this.defultOption, option || {});
         this.value = _option.value;
@@ -3368,22 +3377,23 @@ __webpack_require__.r(__webpack_exports__);
 // 语言类
 class Lang {
     constructor() {
-        this.langTypes = ['zh-cn', 'zh-tw', 'en', 'ja', 'ko', 'ru'];
-        this.flagIndex = new Map([
-            ['zh-cn', 0],
-            ['zh-tw', 1],
-            ['en', 2],
-            ['ja', 3],
-            ['ko', 4],
-            ['ru', 5],
-        ]);
-        // 保存注册的元素
-        // 在注册的元素里设置特殊的标记，让本模块可以动态更新其文本
-        this.elList = [];
         this.htmlLangType = this.getHtmlLangType();
         this.type = this.htmlLangType;
         this.bindEvents();
     }
+    // 用户在下载器设置里选择的语言
+    type;
+    // 用户在 Pixiv 使用的语言。不会动态变化
+    htmlLangType;
+    langTypes = ['zh-cn', 'zh-tw', 'en', 'ja', 'ko', 'ru'];
+    flagIndex = new Map([
+        ['zh-cn', 0],
+        ['zh-tw', 1],
+        ['en', 2],
+        ['ja', 3],
+        ['ko', 4],
+        ['ru', 5],
+    ]);
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
@@ -3402,6 +3412,14 @@ class Lang {
     }
     // 获取页面使用的语言，返回语言标记
     getHtmlLangType() {
+        // 单独对俄语进行一次检测
+        // 因为现在 Pixiv 官方没有提供俄语选项，因此无法从 html 标签上获取到 ru 属性
+        // 因此需要从 navigator.language 判断是否为俄语用户
+        if (navigator.language.startsWith('ru') ||
+            navigator.languages.includes('ru') ||
+            navigator.languages.includes('ru-RU')) {
+            return 'ru';
+        }
         const flag = document.documentElement.lang;
         switch (flag) {
             case 'zh':
@@ -3416,6 +3434,9 @@ class Lang {
                 return 'zh-tw'; // 繁體中文
             case 'ko':
                 return 'ko'; // 한국어
+            case 'ru':
+            case 'ru-RU':
+                return 'ru'; // Русский
             default:
                 return 'en'; // English
         }
@@ -3429,6 +3450,9 @@ class Lang {
         arg.forEach((val) => (content = content.replace('{}', val)));
         return content;
     }
+    // 保存注册的元素
+    // 在注册的元素里设置特殊的标记，让本模块可以动态更新其文本
+    elList = [];
     register(el) {
         this.elList.push(el);
         this.handleMark(el);
@@ -3523,11 +3547,11 @@ __webpack_require__.r(__webpack_exports__);
 // 监听页面的无刷新切换
 class ListenPageSwitch {
     constructor() {
-        this.nowURL = '';
         this.nowURL = window.location.href;
         this.supportListenHistory();
         this.listenPageSwitch();
     }
+    nowURL = '';
     saveURL(url) {
         // 保存 URL 时，截断 hash
         return url.split('#')[0];
@@ -3587,9 +3611,8 @@ __webpack_require__.r(__webpack_exports__);
 
 // loading 图标
 class Loading {
-    constructor() {
-        this.id = 'xzLoadingWrap';
-        this.html = `
+    id = 'xzLoadingWrap';
+    html = `
   <div id="xzLoadingWrap">
     <div class="iconWrap">
     <svg class="icon" aria-hidden="true">
@@ -3597,8 +3620,7 @@ class Loading {
     </svg>
     </div>
   </div>`;
-        this._show = false;
-    }
+    _show = false;
     set show(val) {
         this._show = val;
         this._show ? this.showEl() : this.hiddenEl();
@@ -3671,44 +3693,6 @@ __webpack_require__.r(__webpack_exports__);
 // 日志
 class Log {
     constructor() {
-        /**每个日志区域显示多少条日志 */
-        // 如果日志条数超出最大值，下载器会创建多个日志区域
-        this.max = 200;
-        /**最新的日志区域里的日志条数。刷新的日志不会计入 */
-        this.count = 0;
-        this.logWrap = document.createElement('div'); // 日志容器的区域，当日志条数很多时，会产生多个日志容器。默认是隐藏的（display: none）
-        this.activeLogWrapID = 'logWrap'; // 当前活跃的日志容器的 id，也是最新的一个日志容器
-        this.logContent = document.createElement('div'); // 日志的主体区域，始终指向最新的那个日志容器内部
-        this.logContentClassName = 'logContent'; // 日志主体区域的类名
-        this.logWrapClassName = 'logWrap'; // 日志容器的类名，只负责样式
-        this.logWrapFlag = 'logWrapFlag'; // 日志容器的标志，当需要查找日志区域时，使用这个类名而不是 logWrap，因为其他元素可能也具有 logWrap 类名，以应用其样式。
-        /**储存会刷新的日志所使用的元素，可以传入 flag 来区分多个刷新区域 */
-        // 每个刷新区域使用一个 span 元素，里面的文本会变化
-        // 通常用于显示进度，例如 0/10, 1/10, 2/10... 10/10
-        // 如果不传入 flag，那么所有的刷新内容会共用 default 的 span 元素
-        this.refresh = {
-            default: document.createElement('span'),
-        };
-        /**页面顶部的“显示日志”按钮，点击之后会显示日志区域 */
-        this.logBtn = document.createElement('div');
-        /** 保存日志历史。刷新的日志不会保存 */
-        this.record = [];
-        this.toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
-        /**日志区域是否显示（即 display 为 block 或者 none）*/
-        this._show = false;
-        /**最新一个日志区域在视口里是否可见。注意这不是判断 display，而是可见性（或者说是交叉状态）。
-         * 当它符合可见条件为 true，否则为 false。
-         * 注意：在 PC 端页面里需要完全可见；在移动端页面里只需要部分可见，当然完全可见也可以。
-         * 这是因为在移动端页面里，下载器右侧的悬浮按钮经常会显示在日志区域上方，导致日志区域永远只有部分可见。
-         */
-        this.isVisible = false;
-        /**不同日志等级的文字颜色 */
-        this.levelColor = [
-            'inherit',
-            _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textSuccess,
-            _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textWarning,
-            _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textError,
-        ];
         this.createLogBtn();
         // 因为日志区域限制了最大高度，可能会出现滚动条
         // 所以使用定时器，使日志总是滚动到底部
@@ -3739,6 +3723,26 @@ class Log {
             }
         });
     }
+    /**每个日志区域显示多少条日志 */
+    // 如果日志条数超出最大值，下载器会创建多个日志区域
+    max = 200;
+    /**最新的日志区域里的日志条数。刷新的日志不会计入 */
+    count = 0;
+    logWrap = document.createElement('div'); // 日志容器的区域，当日志条数很多时，会产生多个日志容器。默认是隐藏的（display: none）
+    activeLogWrapID = 'logWrap'; // 当前活跃的日志容器的 id，也是最新的一个日志容器
+    logContent = document.createElement('div'); // 日志的主体区域，始终指向最新的那个日志容器内部
+    logContentClassName = 'logContent'; // 日志主体区域的类名
+    logWrapClassName = 'logWrap'; // 日志容器的类名，只负责样式
+    logWrapFlag = 'logWrapFlag'; // 日志容器的标志，当需要查找日志区域时，使用这个类名而不是 logWrap，因为其他元素可能也具有 logWrap 类名，以应用其样式。
+    /**储存会刷新的日志所使用的元素，可以传入 flag 来区分多个刷新区域 */
+    // 每个刷新区域使用一个 span 元素，里面的文本会变化
+    // 通常用于显示进度，例如 0/10, 1/10, 2/10... 10/10
+    // 如果不传入 flag，那么所有的刷新内容会共用 default 的 span 元素
+    refresh = {
+        default: document.createElement('span'),
+    };
+    /**页面顶部的“显示日志”按钮，点击之后会显示日志区域 */
+    logBtn = document.createElement('div');
     /**显示或隐藏顶部的“显示日志”按钮 */
     // 它默认是 opacity: 0，即不可见
     set logBtnShow(value) {
@@ -3761,6 +3765,11 @@ class Log {
             this.logBtn.classList.remove('show');
         }
     }
+    /** 保存日志历史。刷新的日志不会保存 */
+    record = [];
+    toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
+    /**日志区域是否显示（即 display 为 block 或者 none）*/
+    _show = false;
     set show(value) {
         if (value) {
             // 显示所有日志区域
@@ -3777,6 +3786,19 @@ class Log {
     get show() {
         return this._show;
     }
+    /**最新一个日志区域在视口里是否可见。注意这不是判断 display，而是可见性（或者说是交叉状态）。
+     * 当它符合可见条件为 true，否则为 false。
+     * 注意：在 PC 端页面里需要完全可见；在移动端页面里只需要部分可见，当然完全可见也可以。
+     * 这是因为在移动端页面里，下载器右侧的悬浮按钮经常会显示在日志区域上方，导致日志区域永远只有部分可见。
+     */
+    isVisible = false;
+    /**不同日志等级的文字颜色 */
+    levelColor = [
+        'inherit',
+        _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textSuccess,
+        _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textWarning,
+        _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.textError,
+    ];
     // 添加日志
     /*
     str 日志文本
@@ -4063,20 +4085,20 @@ __webpack_require__.r(__webpack_exports__);
 // 简单的消息框
 class MsgBox {
     constructor() {
-        this.typeColor = {
-            success: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.textSuccess,
-            warning: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.textWarning,
-            error: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.textError,
-        };
-        this.onceFlags = [];
         this.bindEvents();
     }
+    typeColor = {
+        success: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.textSuccess,
+        warning: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.textWarning,
+        error: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.textError,
+    };
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.showMsg, (ev) => {
             const msg = ev.detail.data;
             this.create(msg);
         });
     }
+    onceFlags = [];
     /** 在当前标签页中只会显示一次的消息
      */
     once(flag, msg, type = 'show', arg) {
@@ -4191,7 +4213,6 @@ __webpack_require__.r(__webpack_exports__);
 class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThumbnail {
     constructor() {
         super();
-        this.selectors = [];
         if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
             // 移动端的作品选择器就这一个
             this.selectors = ['.works-item-novel'];
@@ -4213,6 +4234,7 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
         this.findThumbnail(document.body);
         this.createObserver(document.body);
     }
+    selectors = [];
     findThumbnail(parent) {
         if (!parent.querySelectorAll) {
             return;
@@ -4295,11 +4317,11 @@ __webpack_require__.r(__webpack_exports__);
 // 页面右侧的按钮，点击可以打开中间面板
 class OpenCenterPanel {
     constructor() {
-        this.btn = document.createElement('button');
         this.addBtn();
         this.show();
         this.bindEvents();
     }
+    btn = document.createElement('button');
     addBtn() {
         this.btn = document.createElement('button');
         this.btn.classList.add('rightButton');
@@ -4388,10 +4410,6 @@ var PageName;
 // 获取页面类型
 class PageType {
     constructor() {
-        // 当前页面类型
-        this.type = PageName.Unsupported;
-        // 所有页面类型
-        this.list = PageName;
         this.type = this.getType();
         document.body.dataset.pageType = this.type.toString();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch, () => {
@@ -4401,6 +4419,10 @@ class PageType {
             this.openAllTestPage();
         });
     }
+    // 当前页面类型
+    type = PageName.Unsupported;
+    // 所有页面类型
+    list = PageName;
     getType() {
         const url = window.location.href;
         const pathname = window.location.pathname;
@@ -4639,68 +4661,6 @@ __webpack_require__.r(__webpack_exports__);
 // 预览动图
 class PreviewUgoira {
     constructor(id, canvasWrap, prevSize, wrapWidth, wrapHeight) {
-        this.prevSize = 'regular';
-        /**完整的 zip 文件的字节数 */
-        this.zipLength = 0;
-        /** 用固定的字节数分割出多个文件片段 */
-        this.rangeSize = 500000;
-        /**保存每个文件片段的请求头的值
-         * 字符串格式如 'bytes=0-499999'
-         */
-        this.rangeList = [];
-        /**把分段加载的 zip 文件合并，保存到这个容器 */
-        this.zipContent = new ArrayBuffer(0);
-        /**所有文件片段是否都加载完毕 */
-        this.loadend = false;
-        /**每个 jpg 文件内容的开始位置 */
-        this.jpgContentIndexList = [];
-        /**每个 jpg 文件的数据。按照图片在压缩包里的顺序，储存对应的数据 */
-        this.jpgFileList = [];
-        // jpg 文件名的长度固定为 10 个字节 000000.jpg
-        this.jpgNameLength = 10;
-        this.wrapWidth = 0;
-        this.wrapHeight = 0;
-        this.canvas = document.createElement('canvas');
-        this.canvasCon = this.canvas.getContext('2d');
-        this.canvasIsAppend = false;
-        this.width = 0;
-        this.height = 0;
-        this.destroyed = false;
-        this.playIndex = 0;
-        this.playDelay = 0;
-        this.lastPlayTime = 0;
-        this.animationID = 0;
-        this.play = (timestamp) => {
-            if (this.lastPlayTime === 0) {
-                this.lastPlayTime = timestamp;
-            }
-            // 计算自上次执行之后，是否到了该执行下一次动画的时间
-            if (timestamp - this.lastPlayTime >= this.playDelay) {
-                // 如果要播放的图片尚未加载完成，则等到下一次动画帧再执行
-                const img = this.jpgFileList[this.playIndex].img;
-                if (!img.complete) {
-                    return (this.animationID = window.requestAnimationFrame(this.play));
-                }
-                this.canvasCon.drawImage(img, 0, 0, this.width, this.height);
-                // 绘制出第一张图片之后，才能显示 canvas 并隐藏之前的 img
-                // 如果过早的隐藏 img 并显示 canvas，会导致闪烁（因为 img 先隐藏，此时 canvas 还没有绘制图像）
-                if (this.playIndex === 0) {
-                    this.canvas.style.display = 'inline-block';
-                    const img = this.canvasWrap.querySelector('img');
-                    if (img) {
-                        img.style.display = 'none';
-                    }
-                }
-                this.playDelay = this.jpgFileList[this.playIndex].delay;
-                this.playIndex++;
-                if (this.playIndex > this.jpgFileList.length - 1) {
-                    this.playIndex = 0;
-                }
-                // 记录最后一次执行动画的时间
-                this.lastPlayTime = timestamp;
-            }
-            this.animationID = window.requestAnimationFrame(this.play);
-        };
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.previewUgoira) {
             return;
         }
@@ -4711,6 +4671,40 @@ class PreviewUgoira {
         wrapHeight && (this.wrapHeight = wrapHeight);
         this.start();
     }
+    /**作品 id */
+    id;
+    /**这个动图的 meta 数据 */
+    meta;
+    prevSize = 'regular';
+    /**要使用的动图压缩包的 URL */
+    zipURL;
+    /**完整的 zip 文件的字节数 */
+    zipLength = 0;
+    /** 用固定的字节数分割出多个文件片段 */
+    rangeSize = 500000;
+    /**保存每个文件片段的请求头的值
+     * 字符串格式如 'bytes=0-499999'
+     */
+    rangeList = [];
+    /**把分段加载的 zip 文件合并，保存到这个容器 */
+    zipContent = new ArrayBuffer(0);
+    /**所有文件片段是否都加载完毕 */
+    loadend = false;
+    /**每个 jpg 文件内容的开始位置 */
+    jpgContentIndexList = [];
+    /**每个 jpg 文件的数据。按照图片在压缩包里的顺序，储存对应的数据 */
+    jpgFileList = [];
+    // jpg 文件名的长度固定为 10 个字节 000000.jpg
+    jpgNameLength = 10;
+    canvasWrap;
+    wrapWidth = 0;
+    wrapHeight = 0;
+    canvas = document.createElement('canvas');
+    canvasCon = this.canvas.getContext('2d');
+    canvasIsAppend = false;
+    width = 0;
+    height = 0;
+    destroyed = false;
     async start() {
         // 获取这个动图的 meta 数据
         this.meta = await this.getMeta(this.id);
@@ -4905,6 +4899,41 @@ class PreviewUgoira {
         this.canvas.width = this.width;
         this.canvas.height = this.height;
     }
+    playIndex = 0;
+    playDelay = 0;
+    lastPlayTime = 0;
+    animationID = 0;
+    play = (timestamp) => {
+        if (this.lastPlayTime === 0) {
+            this.lastPlayTime = timestamp;
+        }
+        // 计算自上次执行之后，是否到了该执行下一次动画的时间
+        if (timestamp - this.lastPlayTime >= this.playDelay) {
+            // 如果要播放的图片尚未加载完成，则等到下一次动画帧再执行
+            const img = this.jpgFileList[this.playIndex].img;
+            if (!img.complete) {
+                return (this.animationID = window.requestAnimationFrame(this.play));
+            }
+            this.canvasCon.drawImage(img, 0, 0, this.width, this.height);
+            // 绘制出第一张图片之后，才能显示 canvas 并隐藏之前的 img
+            // 如果过早的隐藏 img 并显示 canvas，会导致闪烁（因为 img 先隐藏，此时 canvas 还没有绘制图像）
+            if (this.playIndex === 0) {
+                this.canvas.style.display = 'inline-block';
+                const img = this.canvasWrap.querySelector('img');
+                if (img) {
+                    img.style.display = 'none';
+                }
+            }
+            this.playDelay = this.jpgFileList[this.playIndex].delay;
+            this.playIndex++;
+            if (this.playIndex > this.jpgFileList.length - 1) {
+                this.playIndex = 0;
+            }
+            // 记录最后一次执行动画的时间
+            this.lastPlayTime = timestamp;
+        }
+        this.animationID = window.requestAnimationFrame(this.play);
+    };
     setSize(width, height) {
         // 当用户移动鼠标时，ShowOriginSizeImage 会频繁触发 setSize
         // 如果频繁的重设尺寸，会导致动画闪烁。所以判断只在有必要时才重设尺寸
@@ -4980,64 +5009,54 @@ __webpack_require__.r(__webpack_exports__);
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
     constructor() {
-        // 预览作品的容器的元素
-        this.wrapId = 'previewWorkWrap';
-        this.img = document.createElement('img');
-        this.border = 4; // border 占据的空间
-        this.tipId = 'previewWorkTip';
-        this.tipHeight = 22;
-        // 保存当前鼠标经过的缩略图的数据
-        this.workId = '';
-        // 显示作品中的第几张图片
-        this.index = 0;
-        // 保存每个预览过的作品的 index。当用户再次预览这个作品时，可以恢复上次的进度
-        this.indexHistory = {};
-        /**切换页面后，在一定时间内（500 ms）不允许触发图片预览功能 */
-        // 这是为了缓解有时新页面加载后，会显示旧页面里的图片的预览的问题。
-        // 触发方式是：先点击一个作品，然后快速把鼠标移动到相邻的另一个作品上面
-        // 在点击第一个作品后，会打开它的页面，但这需要一定的加载时间
-        // 所以旧页面上的内容依然会存在一段时间，不会立即消失（这就是触发 BUG 的窗口期）
-        // 在此期间把鼠标移动到另一个作品上面，就可能触发它的预览
-        // 之后新页面加载出来了，但另一个作品的预览也显示出来了
-        // 所以我设置了一个延迟时间来缓解此问题，使其出现频率大幅下降
-        this.dontShowAfterPageSwitch = false;
-        // PS：新页面加载的时间越久，越容易出现这个问题，因为窗口期变长了
-        // 如果点击作品后，很快就加载了新的页面内容，那就不容易触发此问题
-        // PS：点击超链接之后，浏览器地址栏里的 URL 是立即变化的，也就是立即触发了 pageSwitch 事件，
-        // 但页面内容需要时间来加载，所以不能用 pageSwitch 事件来解决此问题，因为在它触发之后是有窗口期的
-        // 延迟显示预览区域的定时器
-        // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片，这是为了避免浪费网络资源
-        this.delayShowTimer = undefined;
-        // 延迟隐藏预览区域的定时器
-        this.delayHiddenTimer = undefined;
-        // 当用户点击预览图使预览图隐藏时，不再显示这个作品的预览图（切换作品可以解除限制）
-        this.dontShowAgain = false;
-        // 是否允许预览区域遮挡作品缩略图
-        this.allowOverThumb = true;
-        // 当前预览图是否遮挡了作品缩略图
-        this.overThumb = false;
-        this._show = false;
-        // 当鼠标滚轮滚动时，切换显示的图片
-        // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
-        this.swicthImageByMouse = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.throttle(() => {
-            const up = this.wheelEvent.deltaY < 0;
-            this.swicthImage(up ? 'prev' : 'next');
-        }, 100);
-        this.onWheelScroll = (ev) => {
-            if (this.show &&
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.wheelScrollSwitchImageOnPreviewWork &&
-                this.workData.body.pageCount > 1) {
-                ev.preventDefault();
-                this.wheelEvent = ev;
-                this.swicthImageByMouse();
-            }
-        };
         if (_Config__WEBPACK_IMPORTED_MODULE_15__.Config.mobile) {
             return;
         }
         this.createElements();
         this.bindEvents();
     }
+    // 预览作品的容器的元素
+    wrapId = 'previewWorkWrap';
+    wrap;
+    img = document.createElement('img');
+    border = 4; // border 占据的空间
+    tipId = 'previewWorkTip';
+    tip;
+    tipHeight = 22;
+    // 保存当前鼠标经过的缩略图的数据
+    workId = '';
+    workEL;
+    workData;
+    // 显示作品中的第几张图片
+    index = 0;
+    // 保存每个预览过的作品的 index。当用户再次预览这个作品时，可以恢复上次的进度
+    indexHistory = {};
+    /**切换页面后，在一定时间内（500 ms）不允许触发图片预览功能 */
+    // 这是为了缓解有时新页面加载后，会显示旧页面里的图片的预览的问题。
+    // 触发方式是：先点击一个作品，然后快速把鼠标移动到相邻的另一个作品上面
+    // 在点击第一个作品后，会打开它的页面，但这需要一定的加载时间
+    // 所以旧页面上的内容依然会存在一段时间，不会立即消失（这就是触发 BUG 的窗口期）
+    // 在此期间把鼠标移动到另一个作品上面，就可能触发它的预览
+    // 之后新页面加载出来了，但另一个作品的预览也显示出来了
+    // 所以我设置了一个延迟时间来缓解此问题，使其出现频率大幅下降
+    dontShowAfterPageSwitch = false;
+    // PS：新页面加载的时间越久，越容易出现这个问题，因为窗口期变长了
+    // 如果点击作品后，很快就加载了新的页面内容，那就不容易触发此问题
+    // PS：点击超链接之后，浏览器地址栏里的 URL 是立即变化的，也就是立即触发了 pageSwitch 事件，
+    // 但页面内容需要时间来加载，所以不能用 pageSwitch 事件来解决此问题，因为在它触发之后是有窗口期的
+    // 延迟显示预览区域的定时器
+    // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片，这是为了避免浪费网络资源
+    delayShowTimer = undefined;
+    // 延迟隐藏预览区域的定时器
+    delayHiddenTimer = undefined;
+    // 当用户点击预览图使预览图隐藏时，不再显示这个作品的预览图（切换作品可以解除限制）
+    dontShowAgain = false;
+    // 是否允许预览区域遮挡作品缩略图
+    allowOverThumb = true;
+    // 当前预览图是否遮挡了作品缩略图
+    overThumb = false;
+    previewUgoira;
+    _show = false;
     get show() {
         return this._show;
     }
@@ -5319,6 +5338,13 @@ class PreviewWork {
             }
         }
     }
+    wheelEvent;
+    // 当鼠标滚轮滚动时，切换显示的图片
+    // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
+    swicthImageByMouse = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.throttle(() => {
+        const up = this.wheelEvent.deltaY < 0;
+        this.swicthImage(up ? 'prev' : 'next');
+    }, 100);
     swicthImage(operate) {
         const count = this.workData.body.pageCount;
         if (operate === 'prev') {
@@ -5340,6 +5366,15 @@ class PreviewWork {
         this.indexHistory[this.workId] = this.index;
         this.showWrap();
     }
+    onWheelScroll = (ev) => {
+        if (this.show &&
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.wheelScrollSwitchImageOnPreviewWork &&
+            this.workData.body.pageCount > 1) {
+            ev.preventDefault();
+            this.wheelEvent = ev;
+            this.swicthImageByMouse();
+        }
+    };
     async addBookmark() {
         if (this.workData?.body.illustId === undefined) {
             return;
@@ -5662,15 +5697,15 @@ __webpack_require__.r(__webpack_exports__);
 // 这个模块由 PreviewWork 提供作品数据，这样可以避免一些重复代码
 class PreviewWorkDetailInfo {
     constructor() {
-        // 因为预览作品模块里没有保存鼠标位置，所以本模块需要自己保存鼠标位置
-        this.mouseX = 0;
-        this.mouseY = 0;
-        this.show = false;
-        // 保存当前预览的作品 ID，避免在一个预览图上多次显示这个详情面板
-        // 当预览图的窗口消失时，会重置这个 ID
-        this.showWorkID = '';
         this.bindEvents();
     }
+    // 因为预览作品模块里没有保存鼠标位置，所以本模块需要自己保存鼠标位置
+    mouseX = 0;
+    mouseY = 0;
+    show = false;
+    // 保存当前预览的作品 ID，避免在一个预览图上多次显示这个详情面板
+    // 当预览图的窗口消失时，会重置这个 ID
+    showWorkID = '';
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.showPreviewWorkDetailPanel, (ev) => {
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.PreviewWorkDetailInfo) {
@@ -5896,75 +5931,12 @@ __webpack_require__.r(__webpack_exports__);
 
 class RemoveBlockedUsersWork {
     constructor() {
-        // 当 Pixiv 语言设置为英语时，用户链接以 /en 开头，如
-        // href="/en/users/277602"
-        // 所以需要使用 *=
-        this.userLinkSelector = 'a[href*="/users/"]';
-        // 在用户主页和作品页面里，不移除这个用户自己的作品
-        this.dontRemoveCurrentUser = [
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.UserHome,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Bookmark,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.ArtworkSeries,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Novel,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NovelSeries,
-        ];
-        this.check = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.debounce(() => {
-            if (document.hidden ||
-                !_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.userBlockList ||
-                !_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.removeBlockedUsersWork ||
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.blockList.length === 0) {
-                return;
-            }
-            let currentUserID = '';
-            if (this.dontRemoveCurrentUser.includes(_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type)) {
-                // 在不移除当前页面的作者自己的作品时，等待页面资源加载完成后再检查
-                // 否则一开始 Tools.getCurrentPageUserID 可能会获取到错误的用户 ID
-                // 例如这个作品：
-                // https://www.pixiv.net/artworks/123098863
-                // 它的简介里含有另一个作者的主页链接
-                // 在 complete 之前执行 getCurrentPageUserID 时，正确的用户主页元素还不存在，
-                // 此时会获取到简介里的作者链接，也就是错误的 currentUserID
-                // 这会导致下载器移除当前页面作者自己的一些元素（虽然不是作品元素，但也不应该移除）
-                if (document.readyState !== 'complete') {
-                    return;
-                }
-                currentUserID = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getCurrentPageUserID();
-            }
-            const allUserLink = document.body.querySelectorAll(this.userLinkSelector);
-            const removedUsers = new Map();
-            for (const link of allUserLink) {
-                // 在用户主页和作品页面里，不移除这个用户自己的元素
-                const userID = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getUserID(link.href);
-                if (userID === currentUserID) {
-                    continue;
-                }
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.blockList.includes(userID)) {
-                    // 查找用户链接的父元素，来移除这个作品，或者作品列表的容器
-                    this.findContainerEl(link).remove();
-                    // 保存记录
-                    // 有时候一个作者有 2 个链接，第一个是头像，没有用户名（textContent），第二个有用户名
-                    // 所以第二次添加它的记录时才能保存用户名
-                    const name = removedUsers.get(userID);
-                    if (!name) {
-                        // 如果没有获取到用户名，则更新。有用户名的话就不需要更新了
-                        removedUsers.set(userID, link.textContent || '');
-                    }
-                }
-            }
-            // 输出日志
-            const logText = [];
-            removedUsers.forEach((name, id) => {
-                logText.push(_Lang__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_移除了用户xxx的作品', `<a href="/users/${id}" target="blank">${name || id}</a>`));
-            });
-            if (logText.length > 0) {
-                _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(logText.join('<br>'));
-            }
-        }, 200);
-        // 作品或作品列表元素的选择器
-        this.containerSelectors = ['li', 'ul>div'];
         this.bindEvents();
     }
+    // 当 Pixiv 语言设置为英语时，用户链接以 /en 开头，如
+    // href="/en/users/277602"
+    // 所以需要使用 *=
+    userLinkSelector = 'a[href*="/users/"]';
     bindEvents() {
         // 当初始化时，以及用户修改了屏蔽列表时进行检查
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
@@ -6004,6 +5976,69 @@ class RemoveBlockedUsersWork {
             subtree: true,
         });
     }
+    // 在用户主页和作品页面里，不移除这个用户自己的作品
+    dontRemoveCurrentUser = [
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.UserHome,
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Bookmark,
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork,
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.ArtworkSeries,
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Novel,
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NovelSeries,
+    ];
+    check = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.debounce(() => {
+        if (document.hidden ||
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.userBlockList ||
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.removeBlockedUsersWork ||
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.blockList.length === 0) {
+            return;
+        }
+        let currentUserID = '';
+        if (this.dontRemoveCurrentUser.includes(_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type)) {
+            // 在不移除当前页面的作者自己的作品时，等待页面资源加载完成后再检查
+            // 否则一开始 Tools.getCurrentPageUserID 可能会获取到错误的用户 ID
+            // 例如这个作品：
+            // https://www.pixiv.net/artworks/123098863
+            // 它的简介里含有另一个作者的主页链接
+            // 在 complete 之前执行 getCurrentPageUserID 时，正确的用户主页元素还不存在，
+            // 此时会获取到简介里的作者链接，也就是错误的 currentUserID
+            // 这会导致下载器移除当前页面作者自己的一些元素（虽然不是作品元素，但也不应该移除）
+            if (document.readyState !== 'complete') {
+                return;
+            }
+            currentUserID = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getCurrentPageUserID();
+        }
+        const allUserLink = document.body.querySelectorAll(this.userLinkSelector);
+        const removedUsers = new Map();
+        for (const link of allUserLink) {
+            // 在用户主页和作品页面里，不移除这个用户自己的元素
+            const userID = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getUserID(link.href);
+            if (userID === currentUserID) {
+                continue;
+            }
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.blockList.includes(userID)) {
+                // 查找用户链接的父元素，来移除这个作品，或者作品列表的容器
+                this.findContainerEl(link).remove();
+                // 保存记录
+                // 有时候一个作者有 2 个链接，第一个是头像，没有用户名（textContent），第二个有用户名
+                // 所以第二次添加它的记录时才能保存用户名
+                const name = removedUsers.get(userID);
+                if (!name) {
+                    // 如果没有获取到用户名，则更新。有用户名的话就不需要更新了
+                    removedUsers.set(userID, link.textContent || '');
+                }
+            }
+        }
+        // 输出日志
+        const logText = [];
+        removedUsers.forEach((name, id) => {
+            logText.push(_Lang__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_移除了用户xxx的作品', `<a href="/users/${id}" target="blank">${name || id}</a>`));
+        });
+        if (logText.length > 0) {
+            _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(logText.join('<br>'));
+        }
+    }, 200);
+    // 作品或作品列表元素的选择器
+    containerSelectors = ['li', 'ul>div'];
     // li
     // 非常广泛
     // ul>div
@@ -6219,8 +6254,6 @@ __webpack_require__.r(__webpack_exports__);
 
 class RequestSponsorship {
     constructor() {
-        // 30 * 24 * 60 * 60 * 1000
-        this.interval = 2592000000;
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, () => {
             // 赋予初始值
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.requestSponsorshipTime === 0) {
@@ -6231,6 +6264,8 @@ class RequestSponsorship {
             }, 10000);
         });
     }
+    // 30 * 24 * 60 * 60 * 1000
+    interval = 2592000000;
     check() {
         const now = new Date().getTime();
         if (now >= _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.requestSponsorshipTime) {
@@ -6282,28 +6317,6 @@ __webpack_require__.r(__webpack_exports__);
 // 手动选择作品，图片作品和小说都可以选择
 class SelectWork {
     constructor() {
-        this.created = false;
-        this.selectorId = 'selectWorkEl';
-        this.left = 0;
-        this.top = 0;
-        this.half = 10; // 指示器的一半宽度（用于设置位置）
-        this._start = false;
-        this._pause = false;
-        this._tempHide = false; // 打开下载面板时临时隐藏。这个变量只会影响选择器的 display
-        this.controlBtn = document.createElement('button'); // 启动、暂停、继续选择的按钮
-        this.crawlBtn = document.createElement('button'); // 抓取选择的作品的按钮，并且会退出选择模式
-        this.clearBtn = document.createElement('button'); // 清空选择的作品的按钮
-        this.selectedWorkFlagClass = 'selectedWorkFlag'; // 给已选择的作品添加标记时使用的 class
-        this.positionValue = ['relative', 'absolute', 'fixed']; // 标记元素需要父元素拥有这些定位属性
-        // 储存当前页面的作品列表容器
-        this.worksWrapper = document.body;
-        this.ob = undefined;
-        this.idList = [];
-        this.sendCrawl = false; // 它用来判断抓取的是不是选择的作品。抓取选择的作品时激活此标记；当触发下一次的抓取完成事件时，表示已经抓取了选择的作品。
-        this.crawled = false; // 是否已经抓取了选择的作品
-        this.svg = `<svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-select"></use>
-</svg>`;
         const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.list.Unlisted;
         if (!this.created && _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.isPixiv() && !unlisted) {
             this.created = true;
@@ -6312,6 +6325,15 @@ class SelectWork {
             this.bindEvents();
         }
     }
+    created = false;
+    selector; // 用于选择作品的指示器
+    selectorId = 'selectWorkEl';
+    left = 0;
+    top = 0;
+    half = 10; // 指示器的一半宽度（用于设置位置）
+    _start = false;
+    _pause = false;
+    _tempHide = false; // 打开下载面板时临时隐藏。这个变量只会影响选择器的 display
     get start() {
         return this._start;
     }
@@ -6339,6 +6361,21 @@ class SelectWork {
         this._tempHide = bool;
         this.updateSelectorEl();
     }
+    controlBtn = document.createElement('button'); // 启动、暂停、继续选择的按钮
+    crawlBtn = document.createElement('button'); // 抓取选择的作品的按钮，并且会退出选择模式
+    clearBtn = document.createElement('button'); // 清空选择的作品的按钮
+    selectedWorkFlagClass = 'selectedWorkFlag'; // 给已选择的作品添加标记时使用的 class
+    positionValue = ['relative', 'absolute', 'fixed']; // 标记元素需要父元素拥有这些定位属性
+    // 储存当前页面的作品列表容器
+    worksWrapper = document.body;
+    ob = undefined;
+    idList = [];
+    sendCrawl = false; // 它用来判断抓取的是不是选择的作品。抓取选择的作品时激活此标记；当触发下一次的抓取完成事件时，表示已经抓取了选择的作品。
+    crawled = false; // 是否已经抓取了选择的作品
+    svg = `<svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-select"></use>
+</svg>`;
+    bindEscEvent;
     bindEvents() {
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_8__.artworkThumbnail.onClick((el, id, ev) => {
             this.clickThumbnail(el, id, ev, 'illusts');
@@ -6670,18 +6707,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 class SetTimeoutWorker {
     constructor() {
-        // 因为 worker 的代码很短，所以直接储存在这里，避免从网络加载导致的延迟问题
-        this.workerCode = `onmessage = (ev) => {
+        this.createWorker();
+    }
+    // 因为 worker 的代码很短，所以直接储存在这里，避免从网络加载导致的延迟问题
+    workerCode = `onmessage = (ev) => {
     setTimeout(() => {
       postMessage({
         id: ev.data.id
       })
     }, ev.data.time)
   }`;
-        this.list = [];
-        this.timerId = 0;
-        this.createWorker();
-    }
+    worker;
     createWorker() {
         const blob = new Blob([this.workerCode]);
         this.worker = new Worker(URL.createObjectURL(blob));
@@ -6693,6 +6729,8 @@ class SetTimeoutWorker {
             }
         });
     }
+    list = [];
+    timerId = 0;
     set(callback, time) {
         const data = {
             id: this.timerId,
@@ -6741,9 +6779,39 @@ __webpack_require__.r(__webpack_exports__);
 // 为某些用户设置固定的用户名，或者别名
 class SetUserName {
     constructor() {
-        this.slotName = 'setUserNameSlot';
-        this._addWrapShow = false;
-        this.wrapHTML = `
+        this.createWrap();
+        _Theme__WEBPACK_IMPORTED_MODULE_4__.theme.register(this.wrap);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.wrap);
+        this.bindEvents();
+    }
+    slotName = 'setUserNameSlot';
+    wrap; // 最外层元素
+    expandBtn; // 展开/折叠 按钮
+    totalSpan; // 显示规则数量
+    showAddBtn; // 添加 按钮，点击显示添加区域
+    addWrap; // 用于添加新项目的区域
+    addInputUid; // 用于添加新项目的 uid 的输入框
+    addInputName; // 用于添加新项目的 name 的输入框
+    addBtn; // 添加 按钮
+    cancelBtn; // 取消 按钮
+    listWrap; // 列表区域容器
+    _addWrapShow = false;
+    set addWrapShow(val) {
+        this._addWrapShow = val;
+        if (val) {
+            this.addWrap.style.display = 'block';
+            this.addInputUid.focus();
+        }
+        else {
+            this.addWrap.style.display = 'none';
+            this.addInputUid.value = '';
+            this.addInputName.value = '';
+        }
+    }
+    get addWrapShow() {
+        return this._addWrapShow;
+    }
+    wrapHTML = `
   <span class="setUserNameWrap">
 
     <span class="controlBar">
@@ -6785,26 +6853,6 @@ class SetUserName {
     </div>
   </span>
   `;
-        this.createWrap();
-        _Theme__WEBPACK_IMPORTED_MODULE_4__.theme.register(this.wrap);
-        _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.wrap);
-        this.bindEvents();
-    }
-    set addWrapShow(val) {
-        this._addWrapShow = val;
-        if (val) {
-            this.addWrap.style.display = 'block';
-            this.addInputUid.focus();
-        }
-        else {
-            this.addWrap.style.display = 'none';
-            this.addInputUid.value = '';
-            this.addInputName.value = '';
-        }
-    }
-    get addWrapShow() {
-        return this._addWrapShow;
-    }
     // 创建列表外部的容器，静态 html
     createWrap() {
         this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.useSlot(this.slotName, this.wrapHTML);
@@ -6990,12 +7038,6 @@ __webpack_require__.r(__webpack_exports__);
 // 在图片作品的缩略图上显示下载按钮，点击按钮会直接下载这个作品
 class ShowDownloadBtnOnThumbOnDesktop {
     constructor() {
-        this.btnId = 'downloadBtnOnThumb';
-        this.btnSize = 32;
-        this.currentWorkId = ''; // 保存触发事件的缩略图的作品 id
-        this.hiddenBtnTimer = 0; // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
-        this.hiddenBtnDelay = 100;
-        this.doNotShowBtn = false; // 当点击了按钮后，进入此状态，此状态中不会显示按钮
         if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.mobile) {
             return;
         }
@@ -7003,6 +7045,14 @@ class ShowDownloadBtnOnThumbOnDesktop {
         this.addBtn();
         this.bindEvents();
     }
+    btn;
+    btnId = 'downloadBtnOnThumb';
+    btnSize = 32;
+    currentWorkId = ''; // 保存触发事件的缩略图的作品 id
+    workEL; // 保存触发事件的缩略图的作品元素
+    hiddenBtnTimer = 0; // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
+    hiddenBtnDelay = 100;
+    doNotShowBtn = false; // 当点击了按钮后，进入此状态，此状态中不会显示按钮
     // 此状态是为了解决这个问题：点击了按钮之后，按钮会被隐藏，隐藏之后，鼠标下方就是图片缩略图区域，这会触发缩略图的鼠标事件，导致按钮马上就又显示了出来。所以点击按钮之后设置这个状态，在其为 true 的期间不会显示按钮。过一段时间再把它复位。复位所需的时间很短，因为只要能覆盖这段时间就可以了：从隐藏按钮开始算起，到缩略图触发鼠标事件结束。
     addBtn() {
         const btn = document.createElement('button');
@@ -7128,12 +7178,13 @@ __webpack_require__.r(__webpack_exports__);
 // 在图片作品的缩略图上显示下载按钮，点击按钮会直接下载这个作品
 class ShowDownloadBtnOnThumbOnMobile {
     constructor() {
-        this.className = 'downloadBtnOnThumb';
-        this.size = 32;
         // 在移动端，由于没有 mouseover 事件，
         // 所以只能每个作品缩略图分别添加一个下载按钮
         this.bindEvents();
     }
+    className = 'downloadBtnOnThumb';
+    size = 32;
+    styleElement;
     bindEvents() {
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__.artworkThumbnail.onFound((el, id) => {
             if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.showDownloadBtnOnThumb) {
@@ -7263,10 +7314,6 @@ __webpack_require__.r(__webpack_exports__);
 
 class ShowLargerThumbnails {
     constructor() {
-        // css 内容来自 style/showLargerThumbnails.css
-        this.css = '';
-        this.styleId = 'ShowLargerThumbnails';
-        this.needFind = true;
         if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
             return;
         }
@@ -7274,6 +7321,10 @@ class ShowLargerThumbnails {
         this.bindEvents();
         this.findSpecialEl();
     }
+    // css 内容来自 style/showLargerThumbnails.css
+    css = '';
+    styleId = 'ShowLargerThumbnails';
+    needFind = true;
     async loadCssText() {
         const css = await fetch(chrome.runtime.getURL('style/showLargerThumbnails.css'));
         this.css = await css.text();
@@ -7567,10 +7618,10 @@ __webpack_require__.r(__webpack_exports__);
 
 class ShowNotification {
     constructor() {
-        this.iconURL = '';
         this.iconURL = chrome.runtime.getURL('icon/logo128.png');
         this.bindEvents();
     }
+    iconURL = '';
     bindEvents() {
         // 当用户开启“下载完成后显示通知”的提示时，请求权限
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
@@ -7643,62 +7694,50 @@ __webpack_require__.r(__webpack_exports__);
 
 class ShowOriginSizeImage {
     constructor() {
-        this.urls = {
-            original: '',
-            regular: '',
-        };
-        // 显示作品中的第几张图片
-        this.index = 0;
-        // 原比例查看图片的容器的元素
-        this.wrapId = 'originSizeWrap';
-        this.defaultSize = 1200;
-        this.border = 4; // wrap 的 border 占据的空间
-        // 不可以把 left、top 设置为负值，否则超出屏幕的区域无法查看
-        // 所以通过修改 margin 来达到定位的效果
-        this.style = {
-            imgW: this.defaultSize,
-            imgH: this.defaultSize,
-            width: this.defaultSize,
-            height: this.defaultSize,
-            mt: 0,
-            ml: 0,
-        };
-        this.defaultStyle = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.deepCopy(this.style);
-        this.zoomList = [
-            0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5,
-        ];
-        this.zoomIndex = 6;
-        // 默认的缩放比例为 1
-        this.zoom = this.zoomList[this.zoomIndex];
-        this.testImg = new Image();
-        this.getImageSizeTimer = 0;
-        // 定义当鼠标移动 1 像素时，wrap 移动多少像素
-        this.onePxMove = 10;
-        this.moveX = 0;
-        this.moveY = 0;
-        this._show = false;
-        this.showTimer = 0;
-        this.rightClickBeforeShow = false;
-        this.readyShow = (ev) => {
-            window.clearTimeout(this.showTimer);
-            // 当预览区域显示之后，在作品缩略图上长按鼠标右键，显示原尺寸图片
-            // 0 左键 1 滚轮 2 右键
-            if (ev.button === 2) {
-                this.showTimer = window.setTimeout(() => {
-                    this.rightClickBeforeShow = true;
-                    this.initWrap(ev);
-                }, 500);
-            }
-        };
-        this.cancelReadyShow = (ev) => {
-            window.clearTimeout(this.showTimer);
-        };
         if (_Config__WEBPACK_IMPORTED_MODULE_8__.Config.mobile) {
             return;
         }
         this.createElements();
         this.bindEvents();
     }
+    urls = {
+        original: '',
+        regular: '',
+    };
+    workData;
+    // 显示作品中的第几张图片
+    index = 0;
+    // 原比例查看图片的容器的元素
+    wrapId = 'originSizeWrap';
+    wrap;
+    img;
+    defaultSize = 1200;
+    border = 4; // wrap 的 border 占据的空间
+    // 不可以把 left、top 设置为负值，否则超出屏幕的区域无法查看
+    // 所以通过修改 margin 来达到定位的效果
+    style = {
+        imgW: this.defaultSize,
+        imgH: this.defaultSize,
+        width: this.defaultSize,
+        height: this.defaultSize,
+        mt: 0,
+        ml: 0,
+    };
+    defaultStyle = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.deepCopy(this.style);
+    zoomList = [
+        0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5,
+    ];
+    zoomIndex = 6;
+    // 默认的缩放比例为 1
+    zoom = this.zoomList[this.zoomIndex];
+    testImg = new Image();
+    getImageSizeTimer = 0;
+    // 定义当鼠标移动 1 像素时，wrap 移动多少像素
+    onePxMove = 10;
+    moveX = 0;
+    moveY = 0;
+    previewUgoira;
+    _show = false;
     get show() {
         return this._show;
     }
@@ -7725,6 +7764,8 @@ class ShowOriginSizeImage {
             }
         }
     }
+    showTimer = 0;
+    rightClickBeforeShow = false;
     createElements() {
         this.wrap = document.createElement('div');
         this.wrap.id = this.wrapId;
@@ -7811,6 +7852,20 @@ class ShowOriginSizeImage {
             }
         }, true);
     }
+    readyShow = (ev) => {
+        window.clearTimeout(this.showTimer);
+        // 当预览区域显示之后，在作品缩略图上长按鼠标右键，显示原尺寸图片
+        // 0 左键 1 滚轮 2 右键
+        if (ev.button === 2) {
+            this.showTimer = window.setTimeout(() => {
+                this.rightClickBeforeShow = true;
+                this.initWrap(ev);
+            }, 500);
+        }
+    };
+    cancelReadyShow = (ev) => {
+        window.clearTimeout(this.showTimer);
+    };
     async getImage(url) {
         window.clearInterval(this.getImageSizeTimer);
         this.testImg.src = '';
@@ -8026,9 +8081,9 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '17.7.4';
         this.bindEvents();
     }
+    flag = '17.7.4';
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
@@ -8096,18 +8151,19 @@ __webpack_require__.r(__webpack_exports__);
 // 在作品缩略图上显示放大按钮，点击按钮会调用图片查看器来查看大图
 class ShowZoomBtnOnThumb {
     constructor() {
-        this.btnId = 'zoomBtnOnThumb';
-        this.btnSize = [32, 32];
-        this.hiddenBtnTimer = 0; // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
-        this.hiddenBtnDelay = 100;
-        this.currentWorkId = ''; // 显示放大按钮时，保存触发事件的作品 id
-        this.doNotShowBtn = false; // 当点击了放大按钮后，进入此状态，此状态中不会显示放大按钮
         if (_Config__WEBPACK_IMPORTED_MODULE_4__.Config.mobile) {
             return;
         }
         this.addBtn();
         this.bindEvents();
     }
+    btn;
+    btnId = 'zoomBtnOnThumb';
+    btnSize = [32, 32];
+    hiddenBtnTimer = 0; // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
+    hiddenBtnDelay = 100;
+    currentWorkId = ''; // 显示放大按钮时，保存触发事件的作品 id
+    doNotShowBtn = false; // 当点击了放大按钮后，进入此状态，此状态中不会显示放大按钮
     // 此状态是为了解决这个问题：点击了放大按钮之后，按钮会被隐藏，隐藏之后，鼠标下方就是图片缩略图区域，这会触发缩略图的鼠标事件，导致放大按钮马上就又显示了出来。所以点击放大按钮之后设置这个状态，在其为 true 的期间不会显示放大按钮。过一段时间再把它复位。复位所需的时间很短，因为只要能覆盖这段时间就可以了：从隐藏放大按钮开始算起，到缩略图触发鼠标事件结束。
     addBtn() {
         const btn = document.createElement('button');
@@ -8227,31 +8283,31 @@ __webpack_require__.r(__webpack_exports__);
 // 下载器的主题默认跟随页面主题。如果用户设置了下载器主题，则不再跟随页面主题
 class Theme {
     constructor() {
-        this.allTheme = ['white', 'dark'];
-        this.defaultTheme = 'white'; // 默认主题
-        this.theme = 'white'; // 保存当前使用的主题
-        this.settingTheme = ''; // 保存用户设置的下载器主题
-        // 主题标记以及对应的 className
-        // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
-        // 默认主题 white 是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
-        this.classNameMap = new Map([
-            ['white', ''],
-            ['dark', 'theme-dark'],
-        ]);
-        this.selector = '#gtm-var-theme-kind'; // 通过这个选择器查找含有主题标记的元素
-        this.timer = 0;
-        // 页面上储存的主题标记，与本组件里的主题的对应关系
-        this.htmlFlagMap = new Map([
-            ['', 'white'],
-            ['default', 'white'],
-            ['light', 'white'],
-            ['dark', 'dark'],
-        ]);
-        this.elList = []; // 保存已注册的元素
         if (_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.isPixiv()) {
             this.bindEvents();
         }
     }
+    allTheme = ['white', 'dark'];
+    defaultTheme = 'white'; // 默认主题
+    theme = 'white'; // 保存当前使用的主题
+    settingTheme = ''; // 保存用户设置的下载器主题
+    // 主题标记以及对应的 className
+    // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
+    // 默认主题 white 是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
+    classNameMap = new Map([
+        ['white', ''],
+        ['dark', 'theme-dark'],
+    ]);
+    selector = '#gtm-var-theme-kind'; // 通过这个选择器查找含有主题标记的元素
+    timer = 0;
+    // 页面上储存的主题标记，与本组件里的主题的对应关系
+    htmlFlagMap = new Map([
+        ['', 'white'],
+        ['default', 'white'],
+        ['light', 'white'],
+        ['dark', 'dark'],
+    ]);
+    elList = []; // 保存已注册的元素
     bindEvents() {
         // 主题设置变化时修改主题
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
@@ -8407,6 +8463,7 @@ class Tip {
         this.addTipEl();
         this.bindEvents();
     }
+    tipEl;
     addTipEl() {
         this.tipEl = document.createElement('div');
         this.tipEl.id = 'tip';
@@ -8469,49 +8526,49 @@ __webpack_require__.r(__webpack_exports__);
 // 适用于无需用户进行确认的提示
 class Toast {
     constructor() {
-        this.defaultCfg = {
-            msg: '',
-            color: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.white,
-            bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgBrightBlue,
-            dealy: 1500,
-            enter: 'up',
-            leave: 'fade',
-            position: 'mouse',
-        };
-        this.successCfg = {
-            msg: '',
-            color: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.white,
-            bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgSuccess,
-            dealy: 1500,
-            enter: 'up',
-            leave: 'fade',
-            position: 'mouse',
-        };
-        this.warningCfg = {
-            msg: '',
-            color: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.white,
-            bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgWarning,
-            dealy: 1500,
-            enter: 'up',
-            leave: 'fade',
-            position: 'mouse',
-        };
-        this.errorCfg = {
-            msg: '',
-            color: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.white,
-            bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgError,
-            dealy: 1500,
-            enter: 'up',
-            leave: 'fade',
-            position: 'mouse',
-        };
-        this.tipClassName = 'xzToast';
-        this.mousePosition = { x: 0, y: 0 };
-        this.minTop = 20;
-        this.once = 1; // 每一帧移动多少像素
-        this.total = 20; // 移动多少像素后消失
         this.bindEvents();
     }
+    defaultCfg = {
+        msg: '',
+        color: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.white,
+        bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgBrightBlue,
+        dealy: 1500,
+        enter: 'up',
+        leave: 'fade',
+        position: 'mouse',
+    };
+    successCfg = {
+        msg: '',
+        color: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.white,
+        bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgSuccess,
+        dealy: 1500,
+        enter: 'up',
+        leave: 'fade',
+        position: 'mouse',
+    };
+    warningCfg = {
+        msg: '',
+        color: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.white,
+        bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgWarning,
+        dealy: 1500,
+        enter: 'up',
+        leave: 'fade',
+        position: 'mouse',
+    };
+    errorCfg = {
+        msg: '',
+        color: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.white,
+        bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgError,
+        dealy: 1500,
+        enter: 'up',
+        leave: 'fade',
+        position: 'mouse',
+    };
+    tipClassName = 'xzToast';
+    mousePosition = { x: 0, y: 0 };
+    minTop = 20;
+    once = 1; // 每一帧移动多少像素
+    total = 20; // 移动多少像素后消失
     bindEvents() {
         // 必须是监听 mousemove 而不是 click
         window.addEventListener('mousemove', (ev) => {
@@ -8684,16 +8741,16 @@ __webpack_require__.r(__webpack_exports__);
 // 获取和保存 token
 class Token {
     constructor() {
-        this.tokenStore = 'xzToken';
-        this.timeStore = 'xzTokenTime';
-        this.updateURL = 'https://www.pixiv.net/artworks/62751951';
-        this.interval = 300000; // 两次更新之间的最小时间间隔。目前设置为 5 分钟
         if (_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.isPixiv()) {
             this.token = this.getToken();
             this.updateToken();
             this.bindEvents();
         }
     }
+    tokenStore = 'xzToken';
+    timeStore = 'xzTokenTime';
+    updateURL = 'https://www.pixiv.net/artworks/62751951';
+    token;
     bindEvents() {
         // 重置设置时重新获取一次 token
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resetSettingsEnd, () => {
@@ -8704,6 +8761,7 @@ class Token {
         const token = localStorage.getItem(this.tokenStore);
         return token ? token : '';
     }
+    interval = 300000; // 两次更新之间的最小时间间隔。目前设置为 5 分钟
     async updateToken() {
         const nowTime = new Date().getTime();
         const lastTimeStr = localStorage.getItem(this.timeStore);
@@ -8781,16 +8839,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class Tools {
-    constructor() {
-        // 简介里的链接目前有这 3 种，其中站内链接缩写需要替换成完整的 URL，否则将其转换为文本时，只会留下缩写，丢失了链接。
-        // 1. 站内作品链接，但是 a 标签内的字符并不是链接本身，而是缩写。需要处理
-        this.link1 = `<a href=\"https://www.pixiv.net/artworks/117285658\">illust/117285658</a>`;
-        // 测试用的作品： https://www.pixiv.net/artworks/117386033 其简介是这种链接
-        // 2. 表里如一的链接，href 和 a 标签内的字符一样。不需要处理，因为 htmlToText 方法会去掉 a 标签只留下文字
-        this.link2 = `<a href=\"https://asanagi.fanbox.cc/posts/7683248\" target=\"_blank\">https://asanagi.fanbox.cc/posts/7683248</a>`;
-        // 3. 站外链接，有 jump.php 的。不需要处理，因为 htmlToText 方法会去掉 a 标签只留下文字
-        this.link3 = `<a href=\"/jump.php?https%3A%2F%2Ffantia.jp%2Fposts%2F2649580\" target=\"_blank\">https://fantia.jp/posts/2649580</a>`;
-    }
     // 把结果中的动图排列到最前面
     static sortUgoiraFirst(a, b) {
         if (a.type === 2 && b.type !== 2) {
@@ -8918,6 +8966,7 @@ class Tools {
             return this.getNovelId(a.href);
         }
     }
+    static userIDRegExp = /\/users\/(\d+)/;
     static getUserID(url) {
         const test = url.match(this.userIDRegExp);
         if (test && test.length > 1) {
@@ -9094,6 +9143,7 @@ class Tools {
     static isArtworkData(data) {
         return data.body.illustType !== undefined;
     }
+    static chineseRegexp = /[一-龥]/;
     /**从作品数据里提取出 tag 列表
      *
      * 可选参数 type:
@@ -9162,6 +9212,7 @@ class Tools {
             .replace('custom1200', 'square1200')
             .replace('p0', 'p' + no);
     }
+    static convertThumbURLReg = /img\/(.*)_.*1200/;
     static convertThumbURLTo540px(url) {
         // 'https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2021/10/26/00/00/08/93686259_p0_custom1200.jpg'
         // 'https://i.pximg.net/c/250x250_80_a2/img-master/img/2019/06/23/17/29/27/75369283_square1200.jpg'
@@ -9238,6 +9289,16 @@ class Tools {
         const href = `https://www.pixiv.net/users/${idNum}`;
         return `<a href="${href}" target="_blank">${idNum}</a>`;
     }
+    // 简介里的链接目前有这 3 种，其中站内链接缩写需要替换成完整的 URL，否则将其转换为文本时，只会留下缩写，丢失了链接。
+    // 1. 站内作品链接，但是 a 标签内的字符并不是链接本身，而是缩写。需要处理
+    link1 = `<a href=\"https://www.pixiv.net/artworks/117285658\">illust/117285658</a>`;
+    // 测试用的作品： https://www.pixiv.net/artworks/117386033 其简介是这种链接
+    // 2. 表里如一的链接，href 和 a 标签内的字符一样。不需要处理，因为 htmlToText 方法会去掉 a 标签只留下文字
+    link2 = `<a href=\"https://asanagi.fanbox.cc/posts/7683248\" target=\"_blank\">https://asanagi.fanbox.cc/posts/7683248</a>`;
+    // 3. 站外链接，有 jump.php 的。不需要处理，因为 htmlToText 方法会去掉 a 标签只留下文字
+    link3 = `<a href=\"/jump.php?https%3A%2F%2Ffantia.jp%2Fposts%2F2649580\" target=\"_blank\">https://fantia.jp/posts/2649580</a>`;
+    static ATagRegexp = /<a href.*?\/a>/g;
+    static matchHref = /"(http[s].*?)"/;
     /** 处理简介里缩写的 A 标签，将其替换成完整 URL */
     static replaceATag(str) {
         // 匹配所有 A 标签
@@ -9454,6 +9515,14 @@ class Tools {
                 return undefined;
         }
     }
+    static AIMark = new Map([
+        ['zh-cn', 'AI生成'],
+        ['zh-tw', 'AI生成'],
+        ['en', 'AI-generated'],
+        ['ja', 'AI生成'],
+        ['ko', 'AI 생성'],
+        ['ru', 'сгенерированный ИИ'],
+    ]);
     /**如果一个作品是 AI 生成的，则返回特定的字符串标记
      *
      * 这个标记就是作品页面里和标签列表显示在一起的字符串
@@ -9493,32 +9562,19 @@ class Tools {
         const result = group.reverse().join(',');
         return result;
     }
+    static xRestrictMap = new Map([
+        [0, 'AllAges'],
+        [1, 'R-18'],
+        [2, 'R-18G'],
+    ]);
     static getXRestrictText(number) {
         return this.xRestrictMap.get(number);
     }
+    static AIType = ['Unknown', 'No', 'Yes'];
     static getAITypeText(number) {
         return this.AIType[number];
     }
 }
-Tools.userIDRegExp = /\/users\/(\d+)/;
-Tools.chineseRegexp = /[一-龥]/;
-Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
-Tools.ATagRegexp = /<a href.*?\/a>/g;
-Tools.matchHref = /"(http[s].*?)"/;
-Tools.AIMark = new Map([
-    ['zh-cn', 'AI生成'],
-    ['zh-tw', 'AI生成'],
-    ['en', 'AI-generated'],
-    ['ja', 'AI生成'],
-    ['ko', 'AI 생성'],
-    ['ru', 'сгенерированный ИИ'],
-]);
-Tools.xRestrictMap = new Map([
-    [0, 'AllAges'],
-    [1, 'R-18'],
-    [2, 'R-18G'],
-]);
-Tools.AIType = ['Unknown', 'No', 'Yes'];
 
 
 
@@ -9618,16 +9674,14 @@ __webpack_require__.r(__webpack_exports__);
 
 // 查找作品的缩略图，当鼠标进入、移出时等动作触发时执行回调函数
 class WorkThumbnail {
-    constructor() {
-        /**作品缩略图的选择器 */
-        // 选择器的元素必须含有作品的超链接（超链接可以在这个元素上，也可以在这个元素的子元素上）
-        this.selectors = [];
-        this.foundCallback = [];
-        this.enterCallback = [];
-        this.leaveCallback = [];
-        this.clickCallback = [];
-        this.bookmarkBtnCallback = [];
-    }
+    /**作品缩略图的选择器 */
+    // 选择器的元素必须含有作品的超链接（超链接可以在这个元素上，也可以在这个元素的子元素上）
+    selectors = [];
+    foundCallback = [];
+    enterCallback = [];
+    leaveCallback = [];
+    clickCallback = [];
+    bookmarkBtnCallback = [];
     /**查找缩略图右下角的收藏按钮 */
     findBookmarkBtn(el) {
         if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
@@ -9790,12 +9844,14 @@ __webpack_require__.r(__webpack_exports__);
 // 注意：处于自己的作品页面里的时候，是没有收藏和点赞按钮的
 class WorkToolBar {
     constructor() {
-        this.flag = 'xzToolbar'; // 在工具栏上添加的标记
-        this.timer = 0; // 获取元素用的定时器
-        this.callbackList = [];
         this.init();
         this.bindEvents();
     }
+    toolbar; // 工具栏容器
+    flag = 'xzToolbar'; // 在工具栏上添加的标记
+    pixivBMKDiv; // pixiv 的心形收藏按钮
+    likeBtn; // 点赞按钮
+    timer = 0; // 获取元素用的定时器
     async init() {
         this.toolbar = undefined;
         this.pixivBMKDiv = undefined;
@@ -9869,6 +9925,7 @@ class WorkToolBar {
             this.executionCB();
         }
     }
+    callbackList = [];
     /**注册回调函数
      *
      * 当 WorkToolBar 模块获取到了所有需要的元素时，会执行回调函数，并把以下元素作为参数传入：
@@ -9955,22 +10012,14 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class InitPageBase {
-    constructor() {
-        this.crawlNumber = 0; // 要抓取的个数/页数
-        this.maxCount = 1000; // 当前页面类型最多有多少个页面/作品
-        this.startpageNo = 1; // 列表页开始抓取时的页码，只在 api 需要页码时使用
-        this.listPageFinished = 0; // 记录一共抓取了多少个列表页
-        this.ajaxThreadsDefault = 10; // 抓取作品数据时的并发请求数量默认值，也是最大值
-        this.ajaxThread = this.ajaxThreadsDefault; // 抓取时的并发请求数
-        this.finishedRequest = 0; // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
-        this.crawlFinishBecauseStopCrawl = false;
-        this.log429ErrorTip = _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.debounce(() => {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取被限制时返回空结果的提示'));
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl) {
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示启用减慢抓取速度功能'));
-            }
-        }, 500);
-    }
+    crawlNumber = 0; // 要抓取的个数/页数
+    maxCount = 1000; // 当前页面类型最多有多少个页面/作品
+    startpageNo = 1; // 列表页开始抓取时的页码，只在 api 需要页码时使用
+    listPageFinished = 0; // 记录一共抓取了多少个列表页
+    ajaxThreadsDefault = 10; // 抓取作品数据时的并发请求数量默认值，也是最大值
+    ajaxThread = this.ajaxThreadsDefault; // 抓取时的并发请求数
+    finishedRequest = 0; // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
+    crawlFinishBecauseStopCrawl = false;
     // 子组件必须调用 init 方法，并且不可以修改 init 方法
     init() {
         this.setFormOption();
@@ -10271,6 +10320,12 @@ class InitPageBase {
     }
     // 重设抓取作品列表时使用的变量或标记
     resetGetIdListStatus() { }
+    log429ErrorTip = _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.debounce(() => {
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取被限制时返回空结果的提示'));
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawl) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示启用减慢抓取速度功能'));
+        }
+    }, 500);
     // 获取作品的数据
     async getWorksData(idData) {
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
@@ -10618,6 +10673,7 @@ class StopCrawl {
         this.addBtn();
         this.bindEvents();
     }
+    btn;
     addBtn() {
         this.btn = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.addBtn('stopCrawl', _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgRed, '_停止抓取');
         this.hide();
@@ -10681,15 +10737,17 @@ __webpack_require__.r(__webpack_exports__);
 
 class TimedCrawl {
     constructor() {
-        this.time = 0;
-        /**定时器可用的最大延迟时间，这里计算为分钟 */
-        // https://developer.mozilla.org/zh-CN/docs/Web/API/setTimeout#%E6%9C%80%E5%A4%A7%E5%BB%B6%E6%97%B6%E5%80%BC
-        // max: 2147483647 / 60 / 1000
-        this.timeMinuteMax = 35791;
-        /**这次抓取是否是由本模块发起的 */
-        this.crawlBySelf = false;
         this.bindEvents();
     }
+    callback;
+    time = 0;
+    timer;
+    /**定时器可用的最大延迟时间，这里计算为分钟 */
+    // https://developer.mozilla.org/zh-CN/docs/Web/API/setTimeout#%E6%9C%80%E5%A4%A7%E5%BB%B6%E6%97%B6%E5%80%BC
+    // max: 2147483647 / 60 / 1000
+    timeMinuteMax = 35791;
+    /**这次抓取是否是由本模块发起的 */
+    crawlBySelf = false;
     /**启动定时抓取任务。
      *
      * 只能有 1 个定时抓取任务，如果重复调用此方法，后传递的回调函数会覆盖之前的回调函数。
@@ -10835,27 +10893,27 @@ __webpack_require__.r(__webpack_exports__);
 // 假如会员用户在下载器里设置了收藏数量大于 10000，那么当查找到小于 10000 收藏的作品时，就可以考虑停止抓取作品了，因为后面的作品都是收藏数量低于 10000 的了
 class VipSearchOptimize {
     constructor() {
-        // 在哪些页面上启用
-        this.enablePageType = [
-            _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkSearch,
-            _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelSearch,
-        ];
-        // 小说搜索页面的列表数据中本身就含有每个作品的收藏数，但是依然需要在这个模块里进行优化处理
-        // 只有会员才能使用的排序方式（按热门度排序）
-        this.vipOrders = [
-            'popular_d',
-            'popular_male_d',
-            'popular_female_d',
-        ];
-        // popular_d 受全站欢迎
-        // popular_male_d 受男性欢迎
-        // popular_female_d 受女性欢迎
-        // 是否对这次抓取使用优化策略
-        this.vipSearchOptimize = false;
-        this.filterFailed = 0; // 连续检查失败的数量。在检查作品是否满足收藏条件时，如果满足就将此计数清零；如果不满足就自增
-        this.checkNumber = 20; // 连续多少个作品未达到要求时，停止抓取。这是一个猜测值
         this.bindEvents();
     }
+    // 在哪些页面上启用
+    enablePageType = [
+        _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkSearch,
+        _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelSearch,
+    ];
+    // 小说搜索页面的列表数据中本身就含有每个作品的收藏数，但是依然需要在这个模块里进行优化处理
+    // 只有会员才能使用的排序方式（按热门度排序）
+    vipOrders = [
+        'popular_d',
+        'popular_male_d',
+        'popular_female_d',
+    ];
+    // popular_d 受全站欢迎
+    // popular_male_d 受男性欢迎
+    // popular_female_d 受女性欢迎
+    // 是否对这次抓取使用优化策略
+    vipSearchOptimize = false;
+    filterFailed = 0; // 连续检查失败的数量。在检查作品是否满足收藏条件时，如果满足就将此计数清零；如果不满足就自增
+    checkNumber = 20; // 连续多少个作品未达到要求时，停止抓取。这是一个猜测值
     // 设置 checkNumber 的原因：Pixiv 按热门度排序返回的数据其实并不是严格按照收藏数量排序的。所以设置一个数字作为处理这个情况的手段：连续多少个作品都不满足要求时，认为后续都是不满足要求的
     bindEvents() {
         // 启动抓取时设置是否启用优化策略
@@ -10980,9 +11038,6 @@ __webpack_require__.r(__webpack_exports__);
 // 在作品页面里，点击收藏按钮后会出现推荐作品。这个模块用于抓取推荐作品
 class CrawlRecommendWorks {
     constructor() {
-        this.linkSelector = '.gtm-illust-recommend-thumbnail-link';
-        this.found = false;
-        this.IDList = [];
         this.timer = window.setInterval(() => {
             this.foundTarget();
         }, 300);
@@ -10991,9 +11046,13 @@ class CrawlRecommendWorks {
     get checkSelector() {
         return _Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile ? '.recommend-slidein-booster' : 'figcaption h2';
     }
+    linkSelector = '.gtm-illust-recommend-thumbnail-link';
     get datasetFlag() {
         return _Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile ? 'gtmRecommendIllustId' : 'gtmValue';
     }
+    found = false;
+    timer;
+    IDList = [];
     foundTarget() {
         if (this.found || _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork) {
             return;
@@ -11198,20 +11257,21 @@ __webpack_require__.r(__webpack_exports__);
 class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.crawlDirection = 0; // 抓取方向，指示抓取新作品还是旧作品
-        /*
-        -1 抓取新作品
-        0 不设置抓取方向
-        1 抓取旧作品
-        */
-        this.crawlRelated = false; // 是否下载相关作品
-        this.artworkWrapID = 'XZArtworkWrap';
-        this.contentWrapID = 'XZContentWrap';
         this.init();
     }
+    crawlDirection = 0; // 抓取方向，指示抓取新作品还是旧作品
+    /*
+    -1 抓取新作品
+    0 不设置抓取方向
+    1 抓取旧作品
+    */
+    crawlRelated = false; // 是否下载相关作品
     initAny() {
         this.findArtworkWrap();
     }
+    artworkWrapID = 'XZArtworkWrap';
+    contentWrapID = 'XZContentWrap';
+    timer;
     /**查找作品区域（左右两个板块）的父元素 */
     // 为其添加特定的 ID，以避免下载器设置的样式因为 Pixiv 改版而失效
     findArtworkWrap() {
@@ -11389,9 +11449,9 @@ __webpack_require__.r(__webpack_exports__);
 class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.seriesId = '';
         this.init();
     }
+    seriesId = '';
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
@@ -11668,11 +11728,11 @@ __webpack_require__.r(__webpack_exports__);
 class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.option = this.resetOption();
-        this.limitMax = 20; // 每次请求的数量最大是 20
-        this.fetchCount = 0; // 已请求的作品数量
         this.init();
     }
+    option = this.resetOption();
+    limitMax = 20; // 每次请求的数量最大是 20
+    fetchCount = 0; // 已请求的作品数量
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_开始抓取', '_下载大家的新作品').addEventListener('click', () => {
             this.readyCrawl();
@@ -11702,7 +11762,7 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
     resetOption() {
         return {
             lastId: '0',
-            limit: '20',
+            limit: '20', // 每次请求的数量，可以比 20 小
             type: '',
             r18: '',
         };
@@ -11962,10 +12022,10 @@ __webpack_require__.r(__webpack_exports__);
 class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.pageCount = 10; // 排行榜的页数
-        this.option = this.resetOption();
         this.init();
     }
+    pageCount = 10; // 排行榜的页数
+    option = this.resetOption();
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取本排行榜作品', '_抓取本排行榜作品Title').addEventListener('click', () => {
             this.readyCrawl();
@@ -12170,286 +12230,48 @@ __webpack_require__.r(__webpack_exports__);
 class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.workListWrapID = 'workListWrap';
-        this.listClass = 'searchList';
-        this.multipleClass = 'multiplePart';
-        this.ugoiraClass = 'ugoiraPart';
-        this.addBMKBtnClass = 'bmkBtn';
-        this.bookmarkedClass = 'bookmarked';
-        this.countSelector = 'section h3+div span';
-        this.worksType = '';
-        this.option = {};
-        this.worksNoPerPage = 60; // 每个页面有多少个作品
-        this.needCrawlPageCount = 0; // 需要抓取多少个列表页面
-        this.sendCrawlTaskCount = 0; // 发送抓取请求之前会自增，用于计算要抓取的页码。不是请求完成后自增
-        this.allOption = [
-            'order',
-            'type',
-            'wlt',
-            'wgt',
-            'hlt',
-            'hgt',
-            'ratio',
-            'tool',
-            's_mode',
-            'mode',
-            'scd',
-            'ecd',
-            'blt',
-            'bgt',
-            'work_lang',
-            'ai_type',
-        ];
-        this.resultMeta = []; // 每次“开始筛选”完成后，储存当时所有结果，以备“在结果中筛选”使用
-        this.worksWrap = null;
-        this.deleteId = 0; // 手动删除时，要删除的作品的 id
-        this.causeResultChange = ['firstFewImagesSwitch', 'firstFewImages']; // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
-        this.crawlStartBySelf = false; // 这次抓取是否是由当前页面的“开始抓取”按钮发起的
-        this.previewCount = 0; // 共显示了多少个作品的预览图
-        this.showPreviewLimitTip = false; // 当预览数量达到上限时显示一次提示
-        // 储存预览搜索结果的元素
-        this.workPreviewBuffer = document.createDocumentFragment();
-        this.tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_15__.Utils.debounce(() => {
-            _Log__WEBPACK_IMPORTED_MODULE_9__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取被限制时返回空结果的提示'));
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.slowCrawl) {
-                _Log__WEBPACK_IMPORTED_MODULE_9__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示启用减慢抓取速度功能'));
-            }
-        }, 1000);
-        this.onSettingChange = (event) => {
-            if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.crawlTagList) {
-                return;
-            }
-            const data = event.detail.data;
-            if (this.causeResultChange.includes(data.name)) {
-                if (_store_Store__WEBPACK_IMPORTED_MODULE_8__.store.result.length > 0) {
-                    this.reAddResult();
-                    _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('resultChange');
-                }
-            }
-        };
-        // 抓取完成后，保存结果的元数据，并重新添加抓取结果
-        this.onCrawlFinish = () => {
-            // 有些操作也会触发抓取完毕的事件，但不应该调整搜索页面的结果。
-            if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.crawlTagList || _store_States__WEBPACK_IMPORTED_MODULE_14__.states.quickCrawl) {
-                return;
-            }
-            if (!this.crawlStartBySelf) {
-                return;
-            }
-            this.resultMeta = [..._store_Store__WEBPACK_IMPORTED_MODULE_8__.store.resultMeta];
-            // 在搜索页面抓取完毕之后，作品数据会按照收藏数量排序。所以这里需要清空之前的预览，重新生成预览
-            this.clearPreview();
-            this.reAddResult();
-            this.showPreview();
-            // 解绑创建作品元素的事件
-            window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.addResult, this.createPreview);
-            this.crawlStartBySelf = false;
-            setTimeout(() => {
-                _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('worksUpdate');
-            }, 0);
-        };
-        // 显示抓取到的作品数量
-        this.showCount = () => {
-            if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.crawlTagList || !_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.previewResult) {
-                return;
-            }
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.previewResult && this.countEl) {
-                const count = this.resultMeta.length || _store_Store__WEBPACK_IMPORTED_MODULE_8__.store.resultMeta.length;
-                this.countEl.textContent = count.toString();
-            }
-        };
-        // 生成抓取结果对应的作品元素
-        this.createPreview = (event) => {
-            if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.crawlTagList) {
-                return;
-            }
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.previewResult || !this.worksWrap) {
-                return;
-            }
-            // 检查显示的预览数量是否达到上限
-            if (this.previewCount >= _setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.previewResultLimit) {
-                if (!this.showPreviewLimitTip) {
-                    const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_预览搜索结果的数量达到上限的提示');
-                    _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_17__.msgBox.warning(msg);
-                    this.showPreviewLimitTip = true;
-                }
-                return;
-            }
-            this.previewCount++;
-            const data = event.detail.data;
-            let r18Text = '';
-            if (data.xRestrict === 1) {
-                r18Text = 'R-18';
-            }
-            if (data.xRestrict === 2) {
-                r18Text = 'R-18G';
-            }
-            let r18HTML = r18Text
-                ? `
-      <div class="r18Part">
-        <div class="child">
-          <div class="text">${r18Text}</div>
-        </div>
-      </div>`
-                : '';
-            let multipleHTML = '';
-            if (data.pageCount > 1) {
-                multipleHTML = `
-        <div class="${this.multipleClass}">
-          <div class="child">
-            <span class="span1">
-              <span class="span2">
-              <svg viewBox="0 0 9 10" size="9" class="multipleSvg">
-                <path d="M8,3 C8.55228475,3 9,3.44771525 9,4 L9,9 C9,9.55228475 8.55228475,10 8,10 L3,10
-                C2.44771525,10 2,9.55228475 2,9 L6,9 C7.1045695,9 8,8.1045695 8,7 L8,3 Z M1,1 L6,1
-                C6.55228475,1 7,1.44771525 7,2 L7,7 C7,7.55228475 6.55228475,8 6,8 L1,8 C0.44771525,8
-                0,7.55228475 0,7 L0,2 C0,1.44771525 0.44771525,1 1,1 Z" transform=""></path>
-                </svg>
-              </span>
-            </span>
-            <span>${data.pageCount}</span>
-          </div>  
-        </div>`;
-            }
-            let ugoiraHTML = '';
-            if (data.ugoiraInfo) {
-                ugoiraHTML = `
-        <svg viewBox="0 0 24 24" class="${this.ugoiraClass}" style="width: 48px; height: 48px;">
-        <circle cx="12" cy="12" r="10" class="ugoiraCircle"></circle>
-          <path d="M9,8.74841664 L9,15.2515834 C9,15.8038681 9.44771525,16.2515834 10,16.2515834
-              C10.1782928,16.2515834 10.3533435,16.2039156 10.5070201,16.1135176 L16.0347118,12.8619342
-              C16.510745,12.5819147 16.6696454,11.969013 16.3896259,11.4929799
-              C16.3034179,11.3464262 16.1812655,11.2242738 16.0347118,11.1380658 L10.5070201,7.88648243
-              C10.030987,7.60646294 9.41808527,7.76536339 9.13806578,8.24139652
-              C9.04766776,8.39507316 9,8.57012386 9,8.74841664 Z"></path>
-        </svg>`;
-            }
-            // 添加收藏的作品，让收藏图标变红
-            const bookmarkedFlag = data.bookmarked ? this.bookmarkedClass : '';
-            const html = `
-    <div class="searchContent">
-      <div class="searchImgArea">
-        <div width="184" height="184" class="searchImgAreaContent">
-          <a target="_blank" class="imgAreaLink" href="/artworks/${data.idNum}">
-            <!--顶部横幅-->
-            <div class="topbar">
-
-            <!--R-18 标记-->
-            ${r18HTML}
-
-            <!--多图作品标记-->
-            ${multipleHTML}
-              
-            </div>
-            <!--图片部分-->
-            <div class="imgWrap">
-            <img src="${_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.replaceSquareThumb
-                ? _Tools__WEBPACK_IMPORTED_MODULE_12__.Tools.convertThumbURLTo540px(data.thumb)
-                : data.thumb}" alt="${data.title}" style="object-fit: contain; object-position: center center;">
-              <!-- 动图 svg -->
-              ${ugoiraHTML}
-              </div>
-          </a>
-          <!--添加显示收藏数-->
-          <div class="bmkCount">${data.bmk}</div>
-          <!--收藏按钮-->
-          <div class="bmkBtnWrap">
-            <div class="">
-            <button type="button" class="${this.addBMKBtnClass}">
-            <svg viewBox="0 0 1024 1024" width="32" height="32" class="bmkBtnSvg ${bookmarkedFlag}">
-            <path d="M958.733019 411.348626 659.258367 353.59527 511.998465 85.535095 364.741633 353.59527 65.265958 411.348626 273.72878 634.744555 235.88794 938.463881 511.998465 808.479435 788.091594 938.463881 750.250754 634.744555Z" p-id="1106" class="path2"></path>
-            <path d="M959.008 406.016l-308-47.008L512 64 372.992 359.008l-308 47.008 223.008 228-52.992 324L512 805.024l276.992 152.992-52.992-324zM512 740L304 856.992l40-235.008-179.008-182.016 242.016-32 104.992-224 104 224 240.992 34.016L680 622.976l36.992 235.008z" p-id="919"></path>
-            </svg>
-            </button>
-            </div>
-          </div>
-        <!--收藏按钮结束-->
-        </div>
-      </div>
-      <!--标题名-->
-      <a target="_blank" class="titleLink" href="/artworks/${data.idNum}">${data.title}</a>
-      <!--底部-->
-      <div class="bottomBar">
-      <!--作者信息-->
-      <div class="userInfo">
-          <a target="_blank" href="/users/${data.userId}">
-            <div class="userName">${data.user}</div>
-          </a>
-        </div>
-      </div>
-    </div>
-    `;
-            // 相比 pixiv 原本的作品预览区域，这里去掉了作者头像的部分，因为抓取到的数据里没有作者头像。
-            // 生成预览元素
-            const li = document.createElement('li');
-            li.classList.add(this.listClass);
-            li.dataset.id = data.idNum.toString();
-            li.innerHTML = html;
-            // 绑定收藏按钮的事件
-            const addBMKBtn = li.querySelector(`.${this.addBMKBtnClass}`);
-            const bookmarkedClass = this.bookmarkedClass;
-            addBMKBtn.addEventListener('click', function () {
-                // 添加收藏
-                const e = new CustomEvent('addBMK', {
-                    detail: { data: { id: data.idNum, tags: data.tags, el: addBMKBtn } },
-                });
-                window.dispatchEvent(e);
-                // 下载这个作品
-                _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_22__.downloadOnClickBookmark.send(data.idNum.toString());
-            });
-            // 添加到缓冲中
-            this.workPreviewBuffer.append(li);
-        };
-        // 清除多图作品
-        this.clearMultiple = () => {
-            this.filterResult((data) => {
-                return data.pageCount <= 1;
-            });
-        };
-        // 清除动图作品
-        this.clearUgoira = () => {
-            this.filterResult((data) => {
-                return !data.ugoiraInfo;
-            });
-        };
-        // 手动删除作品
-        this.deleteWork = (event) => {
-            const el = event.detail.data;
-            this.deleteId = parseInt(el.dataset.id);
-            this.filterResult((data) => {
-                return data.idNum !== this.deleteId;
-            });
-        };
-        this.addBookmark = async (event) => {
-            const data = event.detail.data;
-            for (const r of _store_Store__WEBPACK_IMPORTED_MODULE_8__.store.result) {
-                if (r.idNum === data.id) {
-                    const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_18__.bookmark.add(data.id.toString(), 'illusts', data.tags);
-                    if (status === 200) {
-                        // 同步数据
-                        r.bookmarked = true;
-                        this.resultMeta.forEach((result) => {
-                            if (result.idNum === data.id) {
-                                result.bookmarked = true;
-                            }
-                        });
-                        data.el.classList.add(this.bookmarkedClass);
-                    }
-                    if (status === 403) {
-                        _Toast__WEBPACK_IMPORTED_MODULE_16__.toast.error(`403 Forbidden, ${_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_你的账号已经被Pixiv限制')}`);
-                    }
-                    break;
-                }
-            }
-        };
-        this.crawlTag = () => {
-            if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.crawlTagList) {
-                this.readyCrawl();
-            }
-        };
         this.init();
     }
+    workListWrapID = 'workListWrap';
+    listClass = 'searchList';
+    multipleClass = 'multiplePart';
+    ugoiraClass = 'ugoiraPart';
+    addBMKBtnClass = 'bmkBtn';
+    bookmarkedClass = 'bookmarked';
+    countSelector = 'section h3+div span';
+    countEl;
+    worksType = '';
+    option = {};
+    worksNoPerPage = 60; // 每个页面有多少个作品
+    needCrawlPageCount = 0; // 需要抓取多少个列表页面
+    sendCrawlTaskCount = 0; // 发送抓取请求之前会自增，用于计算要抓取的页码。不是请求完成后自增
+    allOption = [
+        'order',
+        'type',
+        'wlt',
+        'wgt',
+        'hlt',
+        'hgt',
+        'ratio',
+        'tool',
+        's_mode',
+        'mode',
+        'scd',
+        'ecd',
+        'blt',
+        'bgt',
+        'work_lang',
+        'ai_type',
+    ];
+    resultMeta = []; // 每次“开始筛选”完成后，储存当时所有结果，以备“在结果中筛选”使用
+    worksWrap = null;
+    deleteId = 0; // 手动删除时，要删除的作品的 id
+    causeResultChange = ['firstFewImagesSwitch', 'firstFewImages']; // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
+    crawlStartBySelf = false; // 这次抓取是否是由当前页面的“开始抓取”按钮发起的
+    previewCount = 0; // 共显示了多少个作品的预览图
+    showPreviewLimitTip = false; // 当预览数量达到上限时显示一次提示
+    // 储存预览搜索结果的元素
+    workPreviewBuffer = document.createDocumentFragment();
     setFormOption() {
         const isPremium = _Tools__WEBPACK_IMPORTED_MODULE_12__.Tools.isPremium();
         // 个数/页数选项的提示
@@ -12651,6 +12473,12 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }, _Config__WEBPACK_IMPORTED_MODULE_21__.Config.retryTime);
         // 限制时间大约是 3 分钟，这里为了保险起见，设置了更大的延迟时间。
     }
+    tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_15__.Utils.debounce(() => {
+        _Log__WEBPACK_IMPORTED_MODULE_9__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取被限制时返回空结果的提示'));
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.slowCrawl) {
+            _Log__WEBPACK_IMPORTED_MODULE_9__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示启用减慢抓取速度功能'));
+        }
+    }, 1000);
     /**获取作品 id 列表（列表页数据） */
     // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
     async getIdList(p) {
@@ -12759,6 +12587,39 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         _store_Store__WEBPACK_IMPORTED_MODULE_8__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_15__.Utils.sortByProperty('bmk'));
         _store_Store__WEBPACK_IMPORTED_MODULE_8__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_15__.Utils.sortByProperty('bmk'));
     }
+    onSettingChange = (event) => {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.crawlTagList) {
+            return;
+        }
+        const data = event.detail.data;
+        if (this.causeResultChange.includes(data.name)) {
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_8__.store.result.length > 0) {
+                this.reAddResult();
+                _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('resultChange');
+            }
+        }
+    };
+    // 抓取完成后，保存结果的元数据，并重新添加抓取结果
+    onCrawlFinish = () => {
+        // 有些操作也会触发抓取完毕的事件，但不应该调整搜索页面的结果。
+        if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.crawlTagList || _store_States__WEBPACK_IMPORTED_MODULE_14__.states.quickCrawl) {
+            return;
+        }
+        if (!this.crawlStartBySelf) {
+            return;
+        }
+        this.resultMeta = [..._store_Store__WEBPACK_IMPORTED_MODULE_8__.store.resultMeta];
+        // 在搜索页面抓取完毕之后，作品数据会按照收藏数量排序。所以这里需要清空之前的预览，重新生成预览
+        this.clearPreview();
+        this.reAddResult();
+        this.showPreview();
+        // 解绑创建作品元素的事件
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.addResult, this.createPreview);
+        this.crawlStartBySelf = false;
+        setTimeout(() => {
+            _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('worksUpdate');
+        }, 0);
+    };
     // 返回包含作品列表的 ul 元素
     findWorksWrap() {
         let wrap = null;
@@ -12785,6 +12646,159 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }
         return wrap;
     }
+    // 显示抓取到的作品数量
+    showCount = () => {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.crawlTagList || !_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.previewResult) {
+            return;
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.previewResult && this.countEl) {
+            const count = this.resultMeta.length || _store_Store__WEBPACK_IMPORTED_MODULE_8__.store.resultMeta.length;
+            this.countEl.textContent = count.toString();
+        }
+    };
+    // 生成抓取结果对应的作品元素
+    createPreview = (event) => {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.crawlTagList) {
+            return;
+        }
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.previewResult || !this.worksWrap) {
+            return;
+        }
+        // 检查显示的预览数量是否达到上限
+        if (this.previewCount >= _setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.previewResultLimit) {
+            if (!this.showPreviewLimitTip) {
+                const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_预览搜索结果的数量达到上限的提示');
+                _Log__WEBPACK_IMPORTED_MODULE_9__.log.warning(msg);
+                _MsgBox__WEBPACK_IMPORTED_MODULE_17__.msgBox.warning(msg);
+                this.showPreviewLimitTip = true;
+            }
+            return;
+        }
+        this.previewCount++;
+        const data = event.detail.data;
+        let r18Text = '';
+        if (data.xRestrict === 1) {
+            r18Text = 'R-18';
+        }
+        if (data.xRestrict === 2) {
+            r18Text = 'R-18G';
+        }
+        let r18HTML = r18Text
+            ? `
+      <div class="r18Part">
+        <div class="child">
+          <div class="text">${r18Text}</div>
+        </div>
+      </div>`
+            : '';
+        let multipleHTML = '';
+        if (data.pageCount > 1) {
+            multipleHTML = `
+        <div class="${this.multipleClass}">
+          <div class="child">
+            <span class="span1">
+              <span class="span2">
+              <svg viewBox="0 0 9 10" size="9" class="multipleSvg">
+                <path d="M8,3 C8.55228475,3 9,3.44771525 9,4 L9,9 C9,9.55228475 8.55228475,10 8,10 L3,10
+                C2.44771525,10 2,9.55228475 2,9 L6,9 C7.1045695,9 8,8.1045695 8,7 L8,3 Z M1,1 L6,1
+                C6.55228475,1 7,1.44771525 7,2 L7,7 C7,7.55228475 6.55228475,8 6,8 L1,8 C0.44771525,8
+                0,7.55228475 0,7 L0,2 C0,1.44771525 0.44771525,1 1,1 Z" transform=""></path>
+                </svg>
+              </span>
+            </span>
+            <span>${data.pageCount}</span>
+          </div>  
+        </div>`;
+        }
+        let ugoiraHTML = '';
+        if (data.ugoiraInfo) {
+            ugoiraHTML = `
+        <svg viewBox="0 0 24 24" class="${this.ugoiraClass}" style="width: 48px; height: 48px;">
+        <circle cx="12" cy="12" r="10" class="ugoiraCircle"></circle>
+          <path d="M9,8.74841664 L9,15.2515834 C9,15.8038681 9.44771525,16.2515834 10,16.2515834
+              C10.1782928,16.2515834 10.3533435,16.2039156 10.5070201,16.1135176 L16.0347118,12.8619342
+              C16.510745,12.5819147 16.6696454,11.969013 16.3896259,11.4929799
+              C16.3034179,11.3464262 16.1812655,11.2242738 16.0347118,11.1380658 L10.5070201,7.88648243
+              C10.030987,7.60646294 9.41808527,7.76536339 9.13806578,8.24139652
+              C9.04766776,8.39507316 9,8.57012386 9,8.74841664 Z"></path>
+        </svg>`;
+        }
+        // 添加收藏的作品，让收藏图标变红
+        const bookmarkedFlag = data.bookmarked ? this.bookmarkedClass : '';
+        const html = `
+    <div class="searchContent">
+      <div class="searchImgArea">
+        <div width="184" height="184" class="searchImgAreaContent">
+          <a target="_blank" class="imgAreaLink" href="/artworks/${data.idNum}">
+            <!--顶部横幅-->
+            <div class="topbar">
+
+            <!--R-18 标记-->
+            ${r18HTML}
+
+            <!--多图作品标记-->
+            ${multipleHTML}
+              
+            </div>
+            <!--图片部分-->
+            <div class="imgWrap">
+            <img src="${_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.replaceSquareThumb
+            ? _Tools__WEBPACK_IMPORTED_MODULE_12__.Tools.convertThumbURLTo540px(data.thumb)
+            : data.thumb}" alt="${data.title}" style="object-fit: contain; object-position: center center;">
+              <!-- 动图 svg -->
+              ${ugoiraHTML}
+              </div>
+          </a>
+          <!--添加显示收藏数-->
+          <div class="bmkCount">${data.bmk}</div>
+          <!--收藏按钮-->
+          <div class="bmkBtnWrap">
+            <div class="">
+            <button type="button" class="${this.addBMKBtnClass}">
+            <svg viewBox="0 0 1024 1024" width="32" height="32" class="bmkBtnSvg ${bookmarkedFlag}">
+            <path d="M958.733019 411.348626 659.258367 353.59527 511.998465 85.535095 364.741633 353.59527 65.265958 411.348626 273.72878 634.744555 235.88794 938.463881 511.998465 808.479435 788.091594 938.463881 750.250754 634.744555Z" p-id="1106" class="path2"></path>
+            <path d="M959.008 406.016l-308-47.008L512 64 372.992 359.008l-308 47.008 223.008 228-52.992 324L512 805.024l276.992 152.992-52.992-324zM512 740L304 856.992l40-235.008-179.008-182.016 242.016-32 104.992-224 104 224 240.992 34.016L680 622.976l36.992 235.008z" p-id="919"></path>
+            </svg>
+            </button>
+            </div>
+          </div>
+        <!--收藏按钮结束-->
+        </div>
+      </div>
+      <!--标题名-->
+      <a target="_blank" class="titleLink" href="/artworks/${data.idNum}">${data.title}</a>
+      <!--底部-->
+      <div class="bottomBar">
+      <!--作者信息-->
+      <div class="userInfo">
+          <a target="_blank" href="/users/${data.userId}">
+            <div class="userName">${data.user}</div>
+          </a>
+        </div>
+      </div>
+    </div>
+    `;
+        // 相比 pixiv 原本的作品预览区域，这里去掉了作者头像的部分，因为抓取到的数据里没有作者头像。
+        // 生成预览元素
+        const li = document.createElement('li');
+        li.classList.add(this.listClass);
+        li.dataset.id = data.idNum.toString();
+        li.innerHTML = html;
+        // 绑定收藏按钮的事件
+        const addBMKBtn = li.querySelector(`.${this.addBMKBtnClass}`);
+        const bookmarkedClass = this.bookmarkedClass;
+        addBMKBtn.addEventListener('click', function () {
+            // 添加收藏
+            const e = new CustomEvent('addBMK', {
+                detail: { data: { id: data.idNum, tags: data.tags, el: addBMKBtn } },
+            });
+            window.dispatchEvent(e);
+            // 下载这个作品
+            _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_22__.downloadOnClickBookmark.send(data.idNum.toString());
+        });
+        // 添加到缓冲中
+        this.workPreviewBuffer.append(li);
+    };
     // 清空预览作品的列表，在开始抓取时和作品抓取完毕时使用
     clearPreview() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.previewResult || !this.crawlStartBySelf) {
@@ -12881,6 +12895,48 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             return _filter_Filter__WEBPACK_IMPORTED_MODULE_6__.filter.check(filterOpt);
         });
     }
+    // 清除多图作品
+    clearMultiple = () => {
+        this.filterResult((data) => {
+            return data.pageCount <= 1;
+        });
+    };
+    // 清除动图作品
+    clearUgoira = () => {
+        this.filterResult((data) => {
+            return !data.ugoiraInfo;
+        });
+    };
+    // 手动删除作品
+    deleteWork = (event) => {
+        const el = event.detail.data;
+        this.deleteId = parseInt(el.dataset.id);
+        this.filterResult((data) => {
+            return data.idNum !== this.deleteId;
+        });
+    };
+    addBookmark = async (event) => {
+        const data = event.detail.data;
+        for (const r of _store_Store__WEBPACK_IMPORTED_MODULE_8__.store.result) {
+            if (r.idNum === data.id) {
+                const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_18__.bookmark.add(data.id.toString(), 'illusts', data.tags);
+                if (status === 200) {
+                    // 同步数据
+                    r.bookmarked = true;
+                    this.resultMeta.forEach((result) => {
+                        if (result.idNum === data.id) {
+                            result.bookmarked = true;
+                        }
+                    });
+                    data.el.classList.add(this.bookmarkedClass);
+                }
+                if (status === 403) {
+                    _Toast__WEBPACK_IMPORTED_MODULE_16__.toast.error(`403 Forbidden, ${_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_你的账号已经被Pixiv限制')}`);
+                }
+                break;
+            }
+        }
+    };
     // 去除覆盖在热门作品上面的会员购买链接
     removeBlockOnHotBar() {
         // 需要重复执行，因为这个链接会生成不止一次
@@ -12894,6 +12950,11 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             }
         }, 300);
     }
+    crawlTag = () => {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.crawlTagList) {
+            this.readyCrawl();
+        }
+    };
 }
 
 
@@ -12929,35 +12990,16 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class CrawlTagList {
-    constructor() {
-        this.bindEventFlag = false;
-        this.EnablPage = [_PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.list.ArtworkSearch, _PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.list.NovelSearch];
-        this._tagList = [];
-        this.storeName = 'crawlTagList';
-        this.wrapId = 'crawlTagListInputWrap';
-        this.onDownloadComplete = () => {
-            window.setTimeout(() => {
-                if (_store_States__WEBPACK_IMPORTED_MODULE_4__.states.crawlTagList) {
-                    this._tagList.shift();
-                    this.tagList = this._tagList;
-                    if (this._tagList.length === 0) {
-                        _store_States__WEBPACK_IMPORTED_MODULE_4__.states.crawlTagList = false;
-                        // 输出提示
-                        this.showTagListWrap.innerHTML = `<span style="color:${_Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.textSuccess}">${_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载完毕')}</span>`;
-                        return;
-                    }
-                    // 继续抓取下一个标签
-                    this.readyCrawl();
-                }
-            }, 0);
-        };
-    }
+    constructor() { }
     init() {
         this.addCrawlBtns();
         this.addElement();
         this.bindEvents();
         this.restoreData();
     }
+    bindEventFlag = false;
+    EnablPage = [_PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.list.ArtworkSearch, _PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.list.NovelSearch];
+    _tagList = [];
     get tagList() {
         return this._tagList;
     }
@@ -12967,6 +13009,13 @@ class CrawlTagList {
         this.showTagList();
         this.toggleWrap(true);
     }
+    storeName = 'crawlTagList';
+    wrap;
+    wrapId = 'crawlTagListInputWrap';
+    input;
+    startCrawlBtn;
+    clearCrawlBtn;
+    showTagListWrap;
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取标签列表').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('closeCenterPanel');
@@ -13028,6 +13077,22 @@ class CrawlTagList {
             }
         });
     }
+    onDownloadComplete = () => {
+        window.setTimeout(() => {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_4__.states.crawlTagList) {
+                this._tagList.shift();
+                this.tagList = this._tagList;
+                if (this._tagList.length === 0) {
+                    _store_States__WEBPACK_IMPORTED_MODULE_4__.states.crawlTagList = false;
+                    // 输出提示
+                    this.showTagListWrap.innerHTML = `<span style="color:${_Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.textSuccess}">${_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载完毕')}</span>`;
+                    return;
+                }
+                // 继续抓取下一个标签
+                this.readyCrawl();
+            }
+        }, 0);
+    };
     checkInput() {
         if (_store_States__WEBPACK_IMPORTED_MODULE_4__.states.busy) {
             return _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
@@ -13189,22 +13254,22 @@ __webpack_require__.r(__webpack_exports__);
 class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.workType = 'illust';
-        /** bookmark 是关注的用户的新作品；mypixiv 是好P友的新作品 */
-        this.pageType = 'bookmark';
-        this.tag = '';
-        this.r18 = false;
-        // 这次抓取任务最多可以抓取到多少个作品
-        this.crawlWorksMaxNumber = 0;
-        // 裁剪 API 返回的作品数据时的偏移量
-        this.firstOffset = 0;
-        // 总计抓取了多少个作品（被裁剪掉的不算）
-        this.crawledWorksNumber = 0;
-        // 每当 API 返回数据时，保存第一个作品的 id，用来判断后面的数据是否出现重复
-        // 如果数据重复就停止抓取，因为后面的每一页的数据都是完全相同的
-        this.firstWorkId = '';
         this.init();
     }
+    workType = 'illust';
+    /** bookmark 是关注的用户的新作品；mypixiv 是好P友的新作品 */
+    pageType = 'bookmark';
+    tag = '';
+    r18 = false;
+    // 这次抓取任务最多可以抓取到多少个作品
+    crawlWorksMaxNumber = 0;
+    // 裁剪 API 返回的作品数据时的偏移量
+    firstOffset = 0;
+    // 总计抓取了多少个作品（被裁剪掉的不算）
+    crawledWorksNumber = 0;
+    // 每当 API 返回数据时，保存第一个作品的 id，用来判断后面的数据是否出现重复
+    // 如果数据重复就停止抓取，因为后面的每一页的数据都是完全相同的
+    firstWorkId = '';
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
@@ -13418,20 +13483,19 @@ __webpack_require__.r(__webpack_exports__);
 class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.idList = []; // 储存从列表页获取到的 id
-        this.bookmarkDataList = [];
-        this.exportList = [];
-        this.type = 'illusts'; // 页面是图片还是小说
-        this.isHide = false; // 当前页面是否显示的是非公开收藏
-        this.requsetNumber = 0; // 根据页数，计算要抓取的作品个数
-        this.filteredNumber = 0; // 记录检查了多少作品（不论结果是否通过都计入）
-        this.onceRequest = 100; // 每次请求多少个数量
-        this.offset = 0; // 每次请求的偏移量
-        // 点击不同的功能按钮时，设定抓取模式
-        this.crawlMode = 'normal';
-        this.bindExportEvent = false;
         this.init();
     }
+    idList = []; // 储存从列表页获取到的 id
+    bookmarkDataList = [];
+    exportList = [];
+    type = 'illusts'; // 页面是图片还是小说
+    isHide = false; // 当前页面是否显示的是非公开收藏
+    requsetNumber = 0; // 根据页数，计算要抓取的作品个数
+    filteredNumber = 0; // 记录检查了多少作品（不论结果是否通过都计入）
+    onceRequest = 100; // 每次请求多少个数量
+    offset = 0; // 每次请求的偏移量
+    // 点击不同的功能按钮时，设定抓取模式
+    crawlMode = 'normal';
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__.Colors.bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
@@ -13552,6 +13616,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         this.offset = 0;
         this.getIdList();
     }
+    bindExportEvent = false;
     exportBookmarkList() {
         if (_store_States__WEBPACK_IMPORTED_MODULE_13__.states.busy || this.crawlMode !== 'normal') {
             _Toast__WEBPACK_IMPORTED_MODULE_15__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_当前任务尚未完成'));
@@ -13903,32 +13968,27 @@ __webpack_require__.r(__webpack_exports__);
 class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.baseOffset = 0; // 开始抓取时，记录初始的偏移量
-        this.onceNumber = 24; // 每页 24 个画师
-        this.pageType = 0; // 页面子类型
-        // 0 我的关注
-        // 1 我的好 P 友
-        // 2 我的粉丝
-        this.getUserListNo = 0; // 获取用户列表时，记录请求的次数
-        this.limit = 100; // 每次请求多少个用户
-        this.totalNeed = Number.MAX_SAFE_INTEGER;
-        this.crawlUserID = '';
-        this.rest = 'show';
-        this.tag = '';
-        this.userList = [];
-        this.index = 0; // getIdList 时，对 userList 的索引
-        this.task = 'crawl';
-        this.CSVData = []; // 储存用户列表，包含 id 和用户名
-        this.importFollowedUserIDs = [];
-        this.homePrefix = 'https://www.pixiv.net/users/'; // 用户主页的通用链接前缀
-        this.stopAddFollow = false;
-        this.sendReqNumber = 0;
-        this.dailyLimit = 1000; // 每天限制关注的数量，以免被封号
-        this.tokenHasUpdated = false;
-        this.need_recaptcha_enterprise_score_token = false;
         this.getPageType();
         this.init();
     }
+    baseOffset = 0; // 开始抓取时，记录初始的偏移量
+    onceNumber = 24; // 每页 24 个画师
+    pageType = 0; // 页面子类型
+    // 0 我的关注
+    // 1 我的好 P 友
+    // 2 我的粉丝
+    getUserListNo = 0; // 获取用户列表时，记录请求的次数
+    limit = 100; // 每次请求多少个用户
+    totalNeed = Number.MAX_SAFE_INTEGER;
+    crawlUserID = '';
+    rest = 'show';
+    tag = '';
+    userList = [];
+    index = 0; // getIdList 时，对 userList 的索引
+    task = 'crawl';
+    CSVData = []; // 储存用户列表，包含 id 和用户名
+    importFollowedUserIDs = [];
+    homePrefix = 'https://www.pixiv.net/users/'; // 用户主页的通用链接前缀
     getPageType() {
         const pathname = window.location.pathname;
         if (pathname.includes('/following')) {
@@ -14164,6 +14224,11 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             return resolve(loadedJSON);
         });
     }
+    stopAddFollow = false;
+    sendReqNumber = 0;
+    dailyLimit = 1000; // 每天限制关注的数量，以免被封号
+    tokenHasUpdated = false;
+    need_recaptcha_enterprise_score_token = false;
     logProgress(current, total, newAdded) {
         _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(`${current} / ${total}, ${_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_新增x个', newAdded.toString())}`, 1, false);
     }
@@ -14411,13 +14476,14 @@ __webpack_require__.r(__webpack_exports__);
 class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.downIdButton = document.createElement('button');
-        this.importIDListButton = document.createElement('button');
-        this.type = 'illusts';
         this.init();
         this.checkPageType();
         this.idRangeTip = this.createidRangeTip();
     }
+    downIdButton = document.createElement('button');
+    importIDListButton = document.createElement('button');
+    idRangeTip;
+    type = 'illusts';
     checkPageType() {
         this.type = window.location.pathname.includes('novel')
             ? 'novels'
@@ -14771,30 +14837,11 @@ var ListType;
 class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.listType = ListType.UserHome; // 当前页面应该获取哪些类型的作品
-        this.onceNumber = 48; // 每页作品个数，插画是 48 个，小说是 30 个
-        this.bookmarkAll = new _pageFunciton_BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_13__.BookmarkAllWorks();
-        this.sendBookmarkIdList = () => {
-            if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.bookmarkMode) {
-                // 将 id 的 type 设置为 illusts 或 novels
-                const list = [];
-                for (const data of _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList) {
-                    if (data.type === 'novels') {
-                        list.push(data);
-                    }
-                    else {
-                        list.push({
-                            type: 'illusts',
-                            id: data.id,
-                        });
-                    }
-                }
-                _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList = []; // 清空这次抓取到的 id 列表
-                this.bookmarkAll.sendIdList(list);
-            }
-        };
         this.init();
     }
+    listType = ListType.UserHome; // 当前页面应该获取哪些类型的作品
+    onceNumber = 48; // 每页作品个数，插画是 48 个，小说是 30 个
+    bookmarkAll = new _pageFunciton_BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_13__.BookmarkAllWorks();
     // 添加中间按钮
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
@@ -14826,6 +14873,25 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.getIdListFinished, this.sendBookmarkIdList);
     }
+    sendBookmarkIdList = () => {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.bookmarkMode) {
+            // 将 id 的 type 设置为 illusts 或 novels
+            const list = [];
+            for (const data of _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList) {
+                if (data.type === 'novels') {
+                    list.push(data);
+                }
+                else {
+                    list.push({
+                        type: 'illusts',
+                        id: data.id,
+                    });
+                }
+            }
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList = []; // 清空这次抓取到的 id 列表
+            this.bookmarkAll.sendIdList(list);
+        }
+    };
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__.options.setWantPageTip({
@@ -15044,17 +15110,18 @@ __webpack_require__.r(__webpack_exports__);
 // 快速抓取
 class QuickCrawl {
     constructor() {
-        this.show = true; // 是否显示
-        // 指定在哪些页面类型里启用
-        this.enablePageType = [
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Novel,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Unlisted,
-        ];
         this.addBtn();
         this.setVisible();
         this.bindEvents();
     }
+    btn;
+    show = true; // 是否显示
+    // 指定在哪些页面类型里启用
+    enablePageType = [
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork,
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Novel,
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Unlisted,
+    ];
     addBtn() {
         // 在右侧添加快速抓取按钮
         this.btn = document.createElement('button');
@@ -15215,11 +15282,11 @@ __webpack_require__.r(__webpack_exports__);
 class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.option = this.resetOption();
-        this.limitMax = 20; // 每次请求的数量最大是 20
-        this.fetchCount = 0; // 已请求的作品数量
         this.init();
     }
+    option = this.resetOption();
+    limitMax = 20; // 每次请求的数量最大是 20
+    fetchCount = 0; // 已请求的作品数量
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_开始抓取', '_下载大家的新作品').addEventListener('click', () => {
             this.readyCrawl();
@@ -15249,7 +15316,7 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
     resetOption() {
         return {
             lastId: '0',
-            limit: '20',
+            limit: '20', // 每次请求的数量，可以比 20 小
             type: '',
             r18: '',
         };
@@ -15366,9 +15433,9 @@ __webpack_require__.r(__webpack_exports__);
 class InitNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.crawlDirection = 0; // 抓取方向，指示抓取新作品还是旧作品
         this.init();
     }
+    crawlDirection = 0; // 抓取方向，指示抓取新作品还是旧作品
     /*
     -1 抓取新作品
     0 不设置抓取方向
@@ -15479,11 +15546,11 @@ __webpack_require__.r(__webpack_exports__);
 class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.seriesId = '';
-        this.limit = 30;
-        this.last = 0;
         this.init();
     }
+    seriesId = '';
+    limit = 30;
+    last = 0;
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取系列小说').addEventListener('click', () => {
             this.readyCrawl();
@@ -15567,9 +15634,9 @@ __webpack_require__.r(__webpack_exports__);
 class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.pageUrlList = [];
         this.init();
     }
+    pageUrlList = [];
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取本排行榜作品', '_抓取本排行榜作品Title').addEventListener('click', () => {
             this.readyCrawl();
@@ -15741,47 +15808,36 @@ __webpack_require__.r(__webpack_exports__);
 class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
-        this.worksWrapSelector = 'section>div ul';
-        this.option = {};
-        this.worksNoPerPage = 30; // 每个页面有多少个作品
-        this.needCrawlPageCount = 0; // 一共有有多少个列表页面
-        this.sendCrawlTaskCount = 0; // 已经抓取了多少个列表页面
-        this.allOption = [
-            'order',
-            'type',
-            'wlt',
-            'wgt',
-            'hlt',
-            'hgt',
-            'ratio',
-            'tool',
-            's_mode',
-            'mode',
-            'scd',
-            'ecd',
-            'blt',
-            'bgt',
-            'tlt',
-            'tgt',
-            'original_only',
-            'work_lang',
-            'ai_type',
-        ];
-        this.tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.debounce(() => {
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_19__.settings.slowCrawl) {
-                _Log__WEBPACK_IMPORTED_MODULE_7__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示启用减慢抓取速度功能'));
-            }
-            _Log__WEBPACK_IMPORTED_MODULE_7__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取被限制时返回空结果的提示'));
-        }, 1000);
-        this.crawlTag = () => {
-            if (_store_States__WEBPACK_IMPORTED_MODULE_15__.states.crawlTagList) {
-                this.readyCrawl();
-            }
-        };
         this.init();
         new _pageFunciton_FastScreen__WEBPACK_IMPORTED_MODULE_8__.FastScreen();
         _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_14__.crawlTagList.init();
     }
+    worksWrapSelector = 'section>div ul';
+    option = {};
+    worksNoPerPage = 30; // 每个页面有多少个作品
+    needCrawlPageCount = 0; // 一共有有多少个列表页面
+    sendCrawlTaskCount = 0; // 已经抓取了多少个列表页面
+    allOption = [
+        'order',
+        'type',
+        'wlt',
+        'wgt',
+        'hlt',
+        'hgt',
+        'ratio',
+        'tool',
+        's_mode',
+        'mode',
+        'scd',
+        'ecd',
+        'blt',
+        'bgt',
+        'tlt',
+        'tgt',
+        'original_only',
+        'work_lang',
+        'ai_type',
+    ];
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
@@ -15925,6 +15981,12 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         }, _Config__WEBPACK_IMPORTED_MODULE_16__.Config.retryTime);
         // 限制时间大约是 3 分钟，这里为了保险起见，设置了更大的延迟时间。
     }
+    tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.debounce(() => {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_19__.settings.slowCrawl) {
+            _Log__WEBPACK_IMPORTED_MODULE_7__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示启用减慢抓取速度功能'));
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_7__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取被限制时返回空结果的提示'));
+    }, 1000);
     // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
     async getIdList(p) {
         if (_store_States__WEBPACK_IMPORTED_MODULE_15__.states.stopCrawl) {
@@ -16026,6 +16088,11 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         _store_Store__WEBPACK_IMPORTED_MODULE_6__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.sortByProperty('bmk'));
         _store_Store__WEBPACK_IMPORTED_MODULE_6__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.sortByProperty('bmk'));
     }
+    crawlTag = () => {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_15__.states.crawlTagList) {
+            this.readyCrawl();
+        }
+    };
 }
 
 
@@ -16057,20 +16124,19 @@ __webpack_require__.r(__webpack_exports__);
 // 当文件下载成功后，收藏这个作品
 class BookmarkAfterDL {
     constructor(tipEl) {
-        // 储存接收到的 id，用于防止对一个作品重复添加收藏
-        // 其实重复添加收藏没什么影响，和只添加一次没区别。为了不浪费网络请求，还是尽量不要重复添加。
-        this.savedIds = [];
-        this.successCount = 0;
-        this.tipEl = document.createElement('span');
-        // 如果之前的下载已完成，那么当下一次开始下载时（也就是新的下载，而不是暂停后继续的下载），则重置状态
-        this.delayReset = false;
-        this.showCompleteTip = true;
         if (tipEl) {
             this.tipEl = tipEl;
             _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.tipEl);
         }
         this.bindEvents();
     }
+    // 储存接收到的 id，用于防止对一个作品重复添加收藏
+    // 其实重复添加收藏没什么影响，和只添加一次没区别。为了不浪费网络请求，还是尽量不要重复添加。
+    savedIds = [];
+    successCount = 0;
+    tipEl = document.createElement('span');
+    // 如果之前的下载已完成，那么当下一次开始下载时（也就是新的下载，而不是暂停后继续的下载），则重置状态
+    delayReset = false;
     // 可选传入一个元素，显示收藏的数量和总数
     bindEvents() {
         // 当有文件下载完成时，提取 id 进行收藏
@@ -16101,6 +16167,7 @@ class BookmarkAfterDL {
             }
         });
     }
+    showCompleteTip = true;
     showProgress() {
         if (this.savedIds.length === 0) {
             _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.tipEl, '');
@@ -16181,17 +16248,17 @@ __webpack_require__.r(__webpack_exports__);
 /** 每下载 100 个文件（是文件不是作品），检查当前用户是否被 pixiv 警告 */
 class CheckWarningMessage {
     constructor() {
-        /**已下载（成功保存到硬盘上）的文件数量
-         *
-         * 这个数字不会重置，除非当前标签页被关闭
-         */
-        this.downloaded = 0;
-        /**每当保存数量增加了指定数量时，进行一次检查 */
-        this.unitNumber = 100;
-        /**上次检查时的下载数量 */
-        this.lastCheckDownloaded = 0;
         this.bindEvents();
     }
+    /**已下载（成功保存到硬盘上）的文件数量
+     *
+     * 这个数字不会重置，除非当前标签页被关闭
+     */
+    downloaded = 0;
+    /**每当保存数量增加了指定数量时，进行一次检查 */
+    unitNumber = 100;
+    /**上次检查时的下载数量 */
+    lastCheckDownloaded = 0;
     bindEvents() {
         // 当有文件保存成功后，计算已下载文件的数量（不会计算跳过的文件）
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadSuccess, () => {
@@ -16305,16 +16372,18 @@ __webpack_require__.r(__webpack_exports__);
 // 不显示在进度条上的下载任务，不在这里处理
 class Download {
     constructor(progressBarIndex, data, downloadStatesIndex) {
-        this.retry = 0; // 重试次数
-        this.lastRequestTime = 0; // 最后一次发起请求的时间戳
-        this.retryInterval = []; // 保存每次到达重试环节时，距离上一次请求的时间差
-        this.sizeChecked = false; // 是否对文件体积进行了检查
-        this.skip = false; // 这个下载是否应该被跳过。如果这个文件不符合某些过滤条件就应该跳过它
-        this.error = false; // 在下载过程中是否出现了无法解决的错误
         this.progressBarIndex = progressBarIndex;
         this.downloadStatesIndex = downloadStatesIndex;
         this.beforeDownload(data);
     }
+    progressBarIndex;
+    downloadStatesIndex;
+    retry = 0; // 重试次数
+    lastRequestTime = 0; // 最后一次发起请求的时间戳
+    retryInterval = []; // 保存每次到达重试环节时，距离上一次请求的时间差
+    sizeChecked = false; // 是否对文件体积进行了检查
+    skip = false; // 这个下载是否应该被跳过。如果这个文件不符合某些过滤条件就应该跳过它
+    error = false; // 在下载过程中是否出现了无法解决的错误
     get cancel() {
         return this.skip || this.error || !_store_States__WEBPACK_IMPORTED_MODULE_13__.states.downloading;
     }
@@ -16688,25 +16757,6 @@ __webpack_require__.r(__webpack_exports__);
 
 class DownloadControl {
     constructor() {
-        this.wrapper = document.createElement('div');
-        /**在插槽里添加的操作抓取结果的按钮 */
-        this.resultBtns = {
-            exportCSV: document.createElement('button'),
-            exportJSON: document.createElement('button'),
-            importJSON: document.createElement('button'),
-        };
-        this.thread = 5; // 同时下载的线程数的默认值
-        // 这里默认设置为 5，是因为国内一些用户的下载速度比较慢，所以不应该同时下载很多文件。
-        // 最大值由 Config.downloadThreadMax 定义
-        this.taskBatch = 0; // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
-        this.taskList = {}; // 下载任务列表，使用下载的文件的 id 做 key，保存下载栏编号和它在下载状态列表中的索引
-        this.errorIdList = []; // 有任务下载失败时，保存 id
-        this.downloaded = 0; // 已下载的任务数量
-        this.stop = false; // 是否已经停止下载
-        this.pause = false; // 是否已经暂停下载
-        this.crawlIdListTimer = undefined;
-        this.checkDownloadTimeoutTimer = undefined;
-        this.msgFlag = 'uuidTip';
         this.createResultBtns();
         this.createDownloadArea();
         this.bindEvents();
@@ -16722,6 +16772,25 @@ class DownloadControl {
             new _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_14__.BookmarkAfterDL(bmkAfterDLTipWrap);
         }
     }
+    wrapper = document.createElement('div');
+    /**在插槽里添加的操作抓取结果的按钮 */
+    resultBtns = {
+        exportCSV: document.createElement('button'),
+        exportJSON: document.createElement('button'),
+        importJSON: document.createElement('button'),
+    };
+    thread = 5; // 同时下载的线程数的默认值
+    // 这里默认设置为 5，是因为国内一些用户的下载速度比较慢，所以不应该同时下载很多文件。
+    // 最大值由 Config.downloadThreadMax 定义
+    taskBatch = 0; // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
+    taskList = {}; // 下载任务列表，使用下载的文件的 id 做 key，保存下载栏编号和它在下载状态列表中的索引
+    errorIdList = []; // 有任务下载失败时，保存 id
+    downloaded = 0; // 已下载的任务数量
+    stop = false; // 是否已经停止下载
+    pause = false; // 是否已经暂停下载
+    crawlIdListTimer = undefined;
+    checkDownloadTimeoutTimer = undefined;
+    msgFlag = 'uuidTip';
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
             this.hideResultBtns();
@@ -16967,7 +17036,7 @@ class DownloadControl {
         }
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_正在下载中'));
         if (_Config__WEBPACK_IMPORTED_MODULE_16__.Config.mobile) {
-            _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_Kiwi浏览器可能不能建立文件夹的bug'));
+            _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_移动端浏览器可能不会建立文件夹的说明'));
         }
     }
     // 暂停下载
@@ -17179,12 +17248,12 @@ __webpack_require__.r(__webpack_exports__);
 
 class DownloadInterval {
     constructor() {
-        /**允许开始下载的时间戳 */
-        // 不管设置里的值是多少，初始值都是 0，即允许第一次下载立即开始
-        // 在开始下载第一个文件后，才会有实际的值
-        this.allowDownloadTime = 0;
         this.bindEvents();
     }
+    /**允许开始下载的时间戳 */
+    // 不管设置里的值是多少，初始值都是 0，即允许第一次下载立即开始
+    // 在开始下载第一个文件后，才会有实际的值
+    allowDownloadTime = 0;
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
@@ -17687,25 +17756,26 @@ __webpack_require__.r(__webpack_exports__);
 // 保存下载记录，用来判断重复下载的文件
 class DownloadRecord {
     constructor() {
-        this.DBName = 'DLRecord';
-        this.DBVer = 1;
-        this.storeNameList = [
-            'record1',
-            'record2',
-            'record3',
-            'record4',
-            'record5',
-            'record6',
-            'record7',
-            'record8',
-            'record9',
-        ]; // 表名的列表
-        this.existedIdList = []; // 检查文件是否重复时，会查询数据库。查询到的数据的 id 会保存到这个列表里。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
-        // 从图片 url 里取出日期字符串的正则表达式
-        this.dateRegExp = /img\/(.*)\//;
         this.IDB = new _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_4__.IndexedDB();
         this.init();
     }
+    IDB;
+    DBName = 'DLRecord';
+    DBVer = 1;
+    storeNameList = [
+        'record1',
+        'record2',
+        'record3',
+        'record4',
+        'record5',
+        'record6',
+        'record7',
+        'record8',
+        'record9',
+    ]; // 表名的列表
+    existedIdList = []; // 检查文件是否重复时，会查询数据库。查询到的数据的 id 会保存到这个列表里。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
+    // 从图片 url 里取出日期字符串的正则表达式
+    dateRegExp = /img\/(.*)\//;
     async init() {
         await this.initDB();
         this.bindEvents();
@@ -18037,9 +18107,9 @@ __webpack_require__.r(__webpack_exports__);
 // 下载状态列表
 class DownloadStates {
     constructor() {
-        this.states = [];
         this.bindEvents();
     }
+    states = [];
     bindEvents() {
         // 初始化下载状态
         const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.resultChange];
@@ -18126,10 +18196,10 @@ __webpack_require__.r(__webpack_exports__);
 // 输出 lst 文件
 class ExportLST {
     constructor() {
-        this.separate = '?/'; // 分隔符
-        this.CRLF = '\r\n'; // 换行符
         this.bindEvents();
     }
+    separate = '?/'; // 分隔符
+    CRLF = '\r\n'; // 换行符
     bindEvents() {
         window.addEventListener('keydown', (ev) => {
             if (ev.altKey && ev.code === 'KeyL') {
@@ -18239,102 +18309,102 @@ __webpack_require__.r(__webpack_exports__);
 // 导出抓取结果为 csv 文件
 class ExportResult2CSV {
     constructor() {
-        // 定义要保存的字段
-        this.fieldCfg = [
-            {
-                name: 'id',
-                index: 'idNum',
-            },
-            {
-                name: 'tags',
-                index: 'tags',
-            },
-            {
-                name: 'tags_transl',
-                index: 'tagsTranslOnly',
-            },
-            {
-                name: 'user',
-                index: 'user',
-            },
-            {
-                name: 'userId',
-                index: 'userId',
-            },
-            {
-                name: 'title',
-                index: 'title',
-            },
-            {
-                name: 'description',
-                index: 'description',
-            },
-            {
-                name: 'type',
-                index: 'type',
-            },
-            {
-                name: 'page',
-                index: 'pageCount',
-            },
-            {
-                name: 'bookmark',
-                index: 'bmk',
-            },
-            {
-                name: 'bookmarked',
-                index: 'bookmarked',
-            },
-            {
-                name: 'likeCount',
-                index: 'likeCount',
-            },
-            {
-                name: 'viewCount',
-                index: 'viewCount',
-            },
-            {
-                name: 'commentCount',
-                index: 'commentCount',
-            },
-            {
-                name: 'width',
-                index: 'fullWidth',
-            },
-            {
-                name: 'height',
-                index: 'fullHeight',
-            },
-            {
-                name: 'xRestrict',
-                index: 'xRestrict',
-            },
-            {
-                name: 'AI',
-                index: 'aiType',
-            },
-            {
-                name: 'date',
-                index: 'date',
-            },
-            {
-                name: 'original',
-                index: 'original',
-            },
-            {
-                name: 'thumb',
-                index: 'thumb',
-            },
-            // fileName 字段的 index 属性可以随便写，因为没有影响。
-            {
-                name: 'fileName',
-                index: 'title',
-            },
-        ];
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.exportCSV, () => {
             this.beforeCreate();
         });
     }
+    // 定义要保存的字段
+    fieldCfg = [
+        {
+            name: 'id',
+            index: 'idNum',
+        },
+        {
+            name: 'tags',
+            index: 'tags',
+        },
+        {
+            name: 'tags_transl',
+            index: 'tagsTranslOnly',
+        },
+        {
+            name: 'user',
+            index: 'user',
+        },
+        {
+            name: 'userId',
+            index: 'userId',
+        },
+        {
+            name: 'title',
+            index: 'title',
+        },
+        {
+            name: 'description',
+            index: 'description',
+        },
+        {
+            name: 'type',
+            index: 'type',
+        },
+        {
+            name: 'page',
+            index: 'pageCount',
+        },
+        {
+            name: 'bookmark',
+            index: 'bmk',
+        },
+        {
+            name: 'bookmarked',
+            index: 'bookmarked',
+        },
+        {
+            name: 'likeCount',
+            index: 'likeCount',
+        },
+        {
+            name: 'viewCount',
+            index: 'viewCount',
+        },
+        {
+            name: 'commentCount',
+            index: 'commentCount',
+        },
+        {
+            name: 'width',
+            index: 'fullWidth',
+        },
+        {
+            name: 'height',
+            index: 'fullHeight',
+        },
+        {
+            name: 'xRestrict',
+            index: 'xRestrict',
+        },
+        {
+            name: 'AI',
+            index: 'aiType',
+        },
+        {
+            name: 'date',
+            index: 'date',
+        },
+        {
+            name: 'original',
+            index: 'original',
+        },
+        {
+            name: 'thumb',
+            index: 'thumb',
+        },
+        // fileName 字段的 index 属性可以随便写，因为没有影响。
+        {
+            name: 'fileName',
+            index: 'title',
+        },
+    ];
     beforeCreate() {
         // 如果没有数据则不执行
         if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length === 0) {
@@ -18685,11 +18755,11 @@ __webpack_require__.r(__webpack_exports__);
 
 class MergeNovel {
     constructor() {
-        this.CRLF = '\n'; // pixiv 小说的换行符
-        /** 这个系列小说的元数据，现在只用在 TXT 里 */
-        this.seriesMeta = '';
         this.init();
     }
+    CRLF = '\n'; // pixiv 小说的换行符
+    /** 这个系列小说的元数据，现在只用在 TXT 里 */
+    seriesMeta = '';
     init() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlComplete, () => {
             window.setTimeout(() => {
@@ -18952,7 +19022,11 @@ __webpack_require__.r(__webpack_exports__);
 // 进度条
 class ProgressBar {
     constructor() {
-        this.wrapHTML = `
+        this.createElements();
+        _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.wrap);
+        this.bindEvents();
+    }
+    wrapHTML = `
   <div class="progressBarWrap">
   <div class="total">
   <span class="text" data-xztext="_下载进度"></span>
@@ -18971,7 +19045,7 @@ class ProgressBar {
   <ul class="progressBarList"></ul>
   </div>
   `;
-        this.barHTML = `<li class="downloadBar">
+    barHTML = `<li class="downloadBar">
   <div class="progressBar progressBar2">
   <div class="progress progress2"></div>
   </div>
@@ -18982,15 +19056,14 @@ class ProgressBar {
   </span>
   </div>
   </li>`;
-        this.allProgressBar = [];
-        this.KB = 1024;
-        this.MB = 1024 * 1024;
-        /**更新子进度条时，使用节流 */
-        this.setProgressThrottle = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.throttle(this.setProgress.bind(this), 200);
-        this.createElements();
-        _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.wrap);
-        this.bindEvents();
-    }
+    wrap;
+    downloadedEl;
+    progressColorEl;
+    listWrap;
+    totalNumberEl;
+    allProgressBar = [];
+    KB = 1024;
+    MB = 1024 * 1024;
     createElements() {
         this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.useSlot('progressBar', this.wrapHTML);
         this.downloadedEl = this.wrap.querySelector('.downloaded');
@@ -19057,6 +19130,8 @@ class ProgressBar {
         const progress = data.loaded / data.total || 0; // 若结果为 NaN 则设为 0
         bar.progress.style.width = progress * 100 + '%';
     }
+    /**更新子进度条时，使用节流 */
+    setProgressThrottle = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.throttle(this.setProgress.bind(this), 200);
     // 让某个子进度条显示警告色
     errorColor(index, show) {
         const bar = this.allProgressBar[index];
@@ -19107,23 +19182,26 @@ __webpack_require__.r(__webpack_exports__);
 // 断点续传。恢复未完成的下载
 class Resume {
     constructor() {
-        this.DBName = 'PBD';
-        this.DBVer = 3;
-        this.metaName = 'taskMeta'; // 下载任务元数据的表名
-        this.dataName = 'taskData'; // 下载任务数据的表名
-        this.statesName = 'taskStates'; // 下载状态列表的表名
-        this.part = []; // 储存每个分段里的数据的数量
-        this.try = 0; // 任务结果是分批储存的，记录每批失败了几次。根据失败次数减少每批的数量
-        // 尝试存储抓取结果时，单次存储的数量不能超过这个数字。因为超过这个数字可能会碰到单次存储的上限
-        // 由于每个结果的体积可能不同，所以这只是一个预估值
-        // 这有助于减少尝试次数。因为存储的思路是存储失败时改为上次数量的 1/2。例如有 100 w 个结果，存储算法会依次尝试存入 100 w、50 w、25 w、12.5 w 以此类推，直到最后有一次能成功存储一批数据。这样的话就进行了 4 次尝试才成功存入一批数据。但通过直接指定一批数据的大小为 onceMax，理想情况下可以只尝试一次就成功存入一批数据。
-        // 非理想情况下，即这个数量的结果已经超过了单次存储上限（目前推测这可能会在大量抓取小说、动图时出现；如果抓取的作品大部分是插画、漫画，这个数量的结果应该不可能超出存储上限），那么这不会减少尝试数量，但因为每次尝试存储的数量不会超过这个数字，这依然有助于减少每次尝试时的资源占用、耗费时间。
-        this.onceMax = 150000;
-        this.putStatesTime = 1000; // 每隔指定时间存储一次最新的下载状态
-        this.needPutStates = false; // 指示是否需要更新存储的下载状态
         this.IDB = new _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_6__.IndexedDB();
         this.init();
     }
+    IDB;
+    DBName = 'PBD';
+    DBVer = 3;
+    metaName = 'taskMeta'; // 下载任务元数据的表名
+    dataName = 'taskData'; // 下载任务数据的表名
+    statesName = 'taskStates'; // 下载状态列表的表名
+    // 本模块所操作的下载数据的 id
+    taskId;
+    part = []; // 储存每个分段里的数据的数量
+    try = 0; // 任务结果是分批储存的，记录每批失败了几次。根据失败次数减少每批的数量
+    // 尝试存储抓取结果时，单次存储的数量不能超过这个数字。因为超过这个数字可能会碰到单次存储的上限
+    // 由于每个结果的体积可能不同，所以这只是一个预估值
+    // 这有助于减少尝试次数。因为存储的思路是存储失败时改为上次数量的 1/2。例如有 100 w 个结果，存储算法会依次尝试存入 100 w、50 w、25 w、12.5 w 以此类推，直到最后有一次能成功存储一批数据。这样的话就进行了 4 次尝试才成功存入一批数据。但通过直接指定一批数据的大小为 onceMax，理想情况下可以只尝试一次就成功存入一批数据。
+    // 非理想情况下，即这个数量的结果已经超过了单次存储上限（目前推测这可能会在大量抓取小说、动图时出现；如果抓取的作品大部分是插画、漫画，这个数量的结果应该不可能超出存储上限），那么这不会减少尝试数量，但因为每次尝试存储的数量不会超过这个数字，这依然有助于减少每次尝试时的资源占用、耗费时间。
+    onceMax = 150000;
+    putStatesTime = 1000; // 每隔指定时间存储一次最新的下载状态
+    needPutStates = false; // 指示是否需要更新存储的下载状态
     async init() {
         if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.isPixiv()) {
             return;
@@ -19468,10 +19546,10 @@ __webpack_require__.r(__webpack_exports__);
 // 为每个作品创建一个 txt 文件，保存这个作品的元数据
 class SaveWorkDescription {
     constructor() {
-        this.savedIds = [];
-        this.hasLinkRegexp = /http[s]:\/\//;
         this.bindEvents();
     }
+    savedIds = [];
+    hasLinkRegexp = /http[s]:\/\//;
     bindEvents() {
         // 当有作品文件下载成功时，保存其元数据
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadSuccess, (ev) => {
@@ -19656,11 +19734,11 @@ __webpack_require__.r(__webpack_exports__);
 // 为每个作品创建一个 txt 文件，保存这个作品的元数据
 class SaveWorkMeta {
     constructor() {
-        // 保存已经下载了元数据的作品的 id
-        this.savedIds = [];
-        this.CRLF = '\n'; // txt 文件中使用的换行符
         this.bindEvents();
     }
+    // 保存已经下载了元数据的作品的 id
+    savedIds = [];
+    CRLF = '\n'; // txt 文件中使用的换行符
     bindEvents() {
         // 当有作品文件下载成功时，保存其元数据
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadSuccess, (ev) => {
@@ -19795,6 +19873,7 @@ class ShowConvertCount {
         _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.register(this.el);
         this.bindEvents();
     }
+    el; // 显示提示文本的容器
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.convertChange, (ev) => {
             const count = ev.detail.data;
@@ -19835,6 +19914,7 @@ class ShowDownloadStates {
         this.el = el;
         this.bindEvents();
     }
+    el;
     bindEvents() {
         for (const ev of [
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlComplete,
@@ -19892,11 +19972,11 @@ __webpack_require__.r(__webpack_exports__);
 // 所以现在改成集中到一条日志里显示
 class ShowDuplicateLog {
     constructor() {
-        this.records = [];
-        this.delayReset = false;
-        this.output = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.debounce(this.showLog.bind(this), 500);
         this.bindEvents();
     }
+    records = [];
+    delayReset = false;
+    output = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.debounce(this.showLog.bind(this), 500);
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.skipDownload, (ev) => {
             const skipData = ev.detail.data;
@@ -19959,8 +20039,6 @@ __webpack_require__.r(__webpack_exports__);
 // 在网页标题上显示剩余下载数量
 class ShowRemainingDownloadOnTitle {
     constructor() {
-        // 保存缓存的字符串，后面会需要在标题中查找缓存的字符串
-        this.str = this.createStr();
         this.bindEvents();
     }
     bindEvents() {
@@ -19985,6 +20063,8 @@ class ShowRemainingDownloadOnTitle {
         }
         return '';
     }
+    // 保存缓存的字符串，后面会需要在标题中查找缓存的字符串
+    str = this.createStr();
     // 检查标题中是否有下载状态的 flag
     // 如果没有，就不会显示剩余数量
     checkStatusFlag() {
@@ -20036,11 +20116,12 @@ __webpack_require__.r(__webpack_exports__);
 // 显示跳过下载的文件数量
 class ShowSkipCount {
     constructor(el) {
-        this.count = 0; // 跳过下载的数量
         this.el = el;
         _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.register(this.el);
         this.bindEvents();
     }
+    count = 0; // 跳过下载的数量
+    el; // 显示提示文本的容器
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
             this.reset();
@@ -20095,11 +20176,9 @@ __webpack_require__.r(__webpack_exports__);
 // 抓取阶段，在网页标题上显示抓取到的结果数量
 class ShowTotalResultOnTitle {
     constructor() {
-        this.enable = false;
-        // 保存缓存的字符串，后面会需要在标题中查找缓存的字符串
-        this.str = this.createStr();
         this.bindEvents();
     }
+    enable = false;
     bindEvents() {
         const enableEvts = [_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.crawlStart, _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.resultChange];
         enableEvts.forEach((evt) => {
@@ -20130,6 +20209,8 @@ class ShowTotalResultOnTitle {
         }
         return '';
     }
+    // 保存缓存的字符串，后面会需要在标题中查找缓存的字符串
+    str = this.createStr();
     // 检查标题中是否有下载状态的 flag
     // 如果没有，就不会显示剩余数量
     checkStatusFlag() {
@@ -20209,6 +20290,8 @@ class ShowStatusOnTitle {
     constructor() {
         this.bindEvents();
     }
+    flashingTimer; // title 闪烁时，使用的定时器
+    pageSwitchTimer; // 页面切换后，检查页面标题是否变化了的定时器
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlStart, () => {
             this.set(Flags.crawling);
@@ -20378,9 +20461,7 @@ __webpack_require__.r(__webpack_exports__);
 // 获取图片中 rgb 三色的平均值，如果很接近就判断为黑白图片
 // 这是一个不太可靠的方法，在少数情况下，彩色图片可能会被误判为黑白图片
 class BlackAndWhiteImage {
-    constructor() {
-        this.latitude = 1; // 宽容度
-    }
+    latitude = 1; // 宽容度
     async check(imgUrl) {
         // 加载图片
         let img;
@@ -20520,9 +20601,35 @@ __webpack_require__.r(__webpack_exports__);
 // 针对特定用户屏蔽 tag
 class BlockTagsForSpecificUser {
     constructor() {
-        this.rules = [];
-        this._addWrapShow = false;
-        this.wrapHTML = `
+        this.createWrap();
+        _Theme__WEBPACK_IMPORTED_MODULE_6__.theme.register(this.wrap);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.wrap);
+        this.bindEvents();
+    }
+    rules = [];
+    wrap; // 最外层元素
+    expandBtn; // 展开/折叠 按钮
+    totalSpan; // 显示规则数量
+    showAddBtn; // 添加 按钮，点击显示添加区域
+    addWrap; // 用于添加新项目的区域
+    addInputUid; // 用于添加新项目的 uid 的输入框
+    addInputTags; // 用于添加新项目的 tags 的输入框
+    addBtn; // 添加 按钮
+    cancelBtn; // 取消 按钮
+    listWrap; // 列表区域容器
+    _addWrapShow = false;
+    set addWrapShow(val) {
+        this._addWrapShow = val;
+        this.addWrap.style.display = val ? 'block' : 'none';
+        if (!val) {
+            this.addInputUid.value = '';
+            this.addInputTags.value = '';
+        }
+    }
+    get addWrapShow() {
+        return this._addWrapShow;
+    }
+    wrapHTML = `
   <div class="blockTagsForSpecificUserWrap">
 
     <div class="controlBar">
@@ -20564,22 +20671,6 @@ class BlockTagsForSpecificUser {
     </div>
   </div>
   `;
-        this.createWrap();
-        _Theme__WEBPACK_IMPORTED_MODULE_6__.theme.register(this.wrap);
-        _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.wrap);
-        this.bindEvents();
-    }
-    set addWrapShow(val) {
-        this._addWrapShow = val;
-        this.addWrap.style.display = val ? 'block' : 'none';
-        if (!val) {
-            this.addInputUid.value = '';
-            this.addInputTags.value = '';
-        }
-    }
-    get addWrapShow() {
-        return this._addWrapShow;
-    }
     // 创建列表外部的容器，静态html
     createWrap() {
         this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.useSlot('blockTagsForSpecificUser', this.wrapHTML);
@@ -20853,11 +20944,6 @@ __webpack_require__.r(__webpack_exports__);
 // 检查作品是否符合过滤条件
 class Filter {
     constructor() {
-        // 检查收藏数要求
-        this.oneDayTime = 24 * 60 * 60 * 1000; // 一天的毫秒数
-        this.minimumTime = 4 * 60 * 60 * 1000; // 检查日均收藏数量时，要求作品发表之后经过的时间大于这个值。因为发表之后经过时间很短的作品，其日均收藏数量非常不可靠，所以对于小于这个值的作品不进行日均收藏数量的检查。
-        // 检查文件体积
-        this.MiB = 1024 * 1024;
         this.bindEvents();
     }
     // 对启用了的过滤选项输出提示
@@ -21275,6 +21361,9 @@ class Filter {
         }
         return false;
     }
+    // 检查收藏数要求
+    oneDayTime = 24 * 60 * 60 * 1000; // 一天的毫秒数
+    minimumTime = 4 * 60 * 60 * 1000; // 检查日均收藏数量时，要求作品发表之后经过的时间大于这个值。因为发表之后经过时间很短的作品，其日均收藏数量非常不可靠，所以对于小于这个值的作品不进行日均收藏数量的检查。
     checkBMK(bmk, date) {
         if (bmk === undefined || !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.BMKNumSwitch) {
             return true;
@@ -21536,6 +21625,8 @@ class Filter {
         // 如果阻止名单里有这个用户 id，则返回 false 表示阻止这个作品
         return !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.blockList.includes(userId);
     }
+    // 检查文件体积
+    MiB = 1024 * 1024;
     checkSize(size) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.sizeSwitch || size === undefined) {
             return true;
@@ -21607,11 +21698,9 @@ __webpack_require__.r(__webpack_exports__);
 
 // 获取用户在 Pixiv 里屏蔽的用户和/或 tag，进行过滤
 class Mute {
-    constructor() {
-        this.userList = [];
-        this.tagList = [];
-        this.got = false; // 是否获取过用户设置
-    }
+    userList = [];
+    tagList = [];
+    got = false; // 是否获取过用户设置
     /**检查传入的 user id 是否包含在用户屏蔽设置里 */
     async checkUser(id) {
         // 检查时，要求至少进行过一次获取用户设置的操作
@@ -21708,16 +21797,16 @@ __webpack_require__.r(__webpack_exports__);
 // 每隔 10000 个作品，获取一次发布时间
 class WorkPublishTime {
     constructor() {
-        // 数据源是二维数组，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
-        // [[20, 1189343647000], [10000, 1190285376000], [20006, 1190613767000]]
-        /**每隔 10000 个作品采集一次数据 */
-        this.gap = 10000;
-        this.illustsLength = 0;
-        this.novelsLength = 0;
         this.illustsLength = _store_WorkPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__.illustsData.length;
         this.novelsLength = _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__.novelsData.length;
         this.bindEvents();
     }
+    // 数据源是二维数组，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
+    // [[20, 1189343647000], [10000, 1190285376000], [20006, 1190613767000]]
+    /**每隔 10000 个作品采集一次数据 */
+    gap = 10000;
+    illustsLength = 0;
+    novelsLength = 0;
     /**获取作品的发布时间范围。
      *
      * 返回值是一个包含 2 个数字的数组，第一个数字是开始时间，第二个数字是结束时间。 */
@@ -21753,12 +21842,12 @@ class WorkPublishTime {
     bindEvents() {
         // 获取图像作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 132170000
+            // 上次记录到 133270001
             this.crawlData(132180000, 133270898);
         });
         // 获取小说作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 25200000
+            // 上次记录到 25440000
             this.crawlData(25210000, 25447874, 'novels');
         });
     }
@@ -26606,13 +26695,13 @@ Novel folder name: Novel`,
         '다음 사용자 목록이 업데이트되었습니다',
         'Список следующих пользователей обновлен',
     ],
-    _Kiwi浏览器可能不能建立文件夹的bug: [
-        '如果你使用的是 Kiwi 浏览器，它可能不会建立文件夹。这是 Kiwi 浏览器的 bug。',
-        '如果你使用的是 Kiwi 瀏覽器，它可能不會建立資料夾。這是 Kiwi 瀏覽器的 bug。',
-        'If you are using the Kiwi browser, it may not create the folder. This is a bug in the Kiwi browser',
-        'Kiwi ブラウザを使用している場合、フォルダが作成されない場合があります。 これは Kiwi ブラウザのバグです。',
-        '키위 브라우저를 사용하는 경우 폴더가 생성되지 않을 수 있습니다. 이것은 Kiwi 브라우저의 버그입니다.',
-        'Если вы используете браузер Kiwi, он может не создать папку. Это баг браузера Киви.',
+    _移动端浏览器可能不会建立文件夹的说明: [
+        '如果你使用的是移动端的浏览器，它可能不会建立文件夹。这不是下载器的问题。',
+        '如果你使用的是移動端的瀏覽器，它可能不會建立資料夾。這不是下載器的問題。',
+        `If you're using a mobile browser, it may not create the folder. This isn't a problem with the downloader.`,
+        'モバイルブラウザをご利用の場合、フォルダが作成されない可能性があります。これはダウンローダーの問題ではありません。',
+        '모바일 브라우저를 사용하는 경우 폴더가 생성되지 않을 수 있습니다. 이는 다운로더 문제가 아닙니다.',
+        'Если вы используете мобильный браузер, папка может не создаться. Это не проблема загрузчика.',
     ],
     _优化移动设备上的用户体验: [
         '优化移动设备上的用户体验。',
@@ -27337,6 +27426,11 @@ class OutputPanel {
         _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.register(this.outputPanel);
         this.bindEvents();
     }
+    outputPanel; // 输出面板
+    outputTitle; // 标题容器
+    outputContent; // 内容容器
+    copyBtn;
+    closeBtn;
     bindEvents() {
         this.closeBtn.addEventListener('click', () => {
             this.close();
@@ -27628,13 +27722,13 @@ __webpack_require__.r(__webpack_exports__);
 
 class BookmarkAllWorks {
     constructor(tipWrap) {
-        this.idList = [];
-        this.bookmarKData = [];
-        this.tipWrap = document.createElement('button');
         if (tipWrap) {
             this.tipWrap = tipWrap;
         }
     }
+    idList = [];
+    bookmarKData = [];
+    tipWrap = document.createElement('button');
     // 传递 workList，这是作品列表元素的合集。代码会尝试分析每个作品元素中的超链接，提取出作品 id
     // 如果传递的作品是本页面上的作品，可以省略 type。代码会根据页面 url 判断是图片还是小说。
     // 如果传递的作品不是本页面上的，为防止误判，需要显式传递 type
@@ -27783,13 +27877,14 @@ __webpack_require__.r(__webpack_exports__);
 // 给收藏页面里的未分类作品批量添加 tag
 class BookmarksAddTag {
     constructor(btn) {
-        this.type = 'illusts'; // 页面是图片还是小说
-        this.addTagList = []; // 需要添加 tag 的作品的数据
-        this.addIndex = 0; // 添加 tag 时的计数
-        this.once = 100; // 一次请求多少个作品的数据
         this.btn = btn;
         this.bindEvents();
     }
+    type = 'illusts'; // 页面是图片还是小说
+    addTagList = []; // 需要添加 tag 的作品的数据
+    addIndex = 0; // 添加 tag 时的计数
+    btn;
+    once = 100; // 一次请求多少个作品的数据
     bindEvents() {
         this.btn.addEventListener('click', () => {
             // 每次点击重置状态
@@ -27921,20 +28016,21 @@ __webpack_require__.r(__webpack_exports__);
 
 class DeleteWorks {
     constructor(worksSelectors) {
-        this.worksSelector = ''; // 选择页面上所有作品的选择器
-        this.multipleSelector = ''; // 多图作品特有的元素的标识
-        this.ugoiraSelector = ''; // 动图作品特有的元素的标识
-        this.delMode = false; // 是否处于手动删除作品状态
-        this.delBtn = document.createElement('button');
-        this.iconId = 'deleteWorkEl';
-        this.left = 0;
-        this.top = 0;
-        this.half = 12;
-        this.deleteWorkCallback = () => { }; // 保存手动删除作品的回调函数，因为可能会多次绑定手动删除事件，所以需要保存传入的 callback 备用
         this.worksSelector = worksSelectors;
         this.icon = this.createDeleteIcon();
         this.bindEvents();
     }
+    worksSelector = ''; // 选择页面上所有作品的选择器
+    multipleSelector = ''; // 多图作品特有的元素的标识
+    ugoiraSelector = ''; // 动图作品特有的元素的标识
+    delMode = false; // 是否处于手动删除作品状态
+    delBtn = document.createElement('button');
+    icon; // 手动删除时，显示一个指示图标
+    iconId = 'deleteWorkEl';
+    left = 0;
+    top = 0;
+    half = 12;
+    deleteWorkCallback = () => { }; // 保存手动删除作品的回调函数，因为可能会多次绑定手动删除事件，所以需要保存传入的 callback 备用
     createDeleteIcon() {
         const el = document.createElement('div');
         el.id = this.iconId;
@@ -28104,10 +28200,10 @@ __webpack_require__.r(__webpack_exports__);
 // 页面把自己的 destory 函数注册到这个类里，当页面类型变化时会自动执行对应
 class DestroyManager {
     constructor() {
-        this.list = new Map();
-        this.lastType = _PageType__WEBPACK_IMPORTED_MODULE_0__.pageType.type;
         this.bindEvents();
     }
+    list = new Map();
+    lastType = _PageType__WEBPACK_IMPORTED_MODULE_0__.pageType.type;
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitchedTypeChange, () => {
             const fun = this.list.get(this.lastType);
@@ -28147,10 +28243,11 @@ __webpack_require__.r(__webpack_exports__);
 
 class DisplayThumbnailListOnMultiImageWorkPage {
     constructor() {
-        this.ID = 'viewerWarpper';
-        this.insertTarget = 'main figcaption';
         this.bindEvents();
     }
+    ID = 'viewerWarpper';
+    insertTarget = 'main figcaption';
+    waitTimer;
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.pageSwitch, () => {
             this.init();
@@ -28232,19 +28329,6 @@ __webpack_require__.r(__webpack_exports__);
 // 在搜索页面按收藏数快速筛选
 class FastScreen {
     constructor() {
-        this.fastScreenArea = document.createElement('div');
-        this.tagList = [
-            '100users入り',
-            '500users入り',
-            '1000users入り',
-            '5000users入り',
-            '10000users入り',
-            '20000users入り',
-            '30000users入り',
-            '50000users入り',
-            '100000users入り',
-        ];
-        this.insertPoint = 'afterend';
         this.create();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
@@ -28256,6 +28340,19 @@ class FastScreen {
             this.destroy();
         });
     }
+    fastScreenArea = document.createElement('div');
+    tagList = [
+        '100users入り',
+        '500users入り',
+        '1000users入り',
+        '5000users入り',
+        '10000users入り',
+        '20000users入り',
+        '30000users入り',
+        '50000users入り',
+        '100000users入り',
+    ];
+    insertPoint = 'afterend';
     // 判断插入点的元素有没有加载出来
     findTarget() {
         if (_Config__WEBPACK_IMPORTED_MODULE_4__.Config.mobile) {
@@ -28357,14 +28454,18 @@ __webpack_require__.r(__webpack_exports__);
 
 class QuickBookmark {
     constructor() {
-        this.isNovel = false;
-        this.btn = document.createElement('a'); // 快速收藏按钮
-        this.btnId = 'quickBookmarkEl'; // 快速收藏按钮的 id
-        this.redClass = 'bookmarkedColor'; // 收藏后的红色的颜色值
         _WorkToolBar__WEBPACK_IMPORTED_MODULE_6__.workToolBar.register((toolbar, pixivBMKDiv, likeBtn) => {
             this.init(toolbar, pixivBMKDiv, likeBtn);
         });
     }
+    isNovel = false;
+    // 初始化时，获取作品数据
+    workData;
+    isBookmarked;
+    ob; // 监视心形收藏按钮变化
+    btn = document.createElement('a'); // 快速收藏按钮
+    btnId = 'quickBookmarkEl'; // 快速收藏按钮的 id
+    redClass = 'bookmarkedColor'; // 收藏后的红色的颜色值
     async init(toolbar, pixivBMKDiv, likeBtn) {
         // 没有 token 就不能进行收藏
         if (!_Token__WEBPACK_IMPORTED_MODULE_3__.token.token) {
@@ -28569,9 +28670,6 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
     constructor() {
         // 初始化时，页面上的作品元素尚未生成，所以不必使用 findAllWorks 方法
         // this.findAllWorks()
-        this.showTip = false;
-        // 搜索页面里的插画作品选择器
-        this.worksSelector = 'section ul li';
         this.createObserver(document.body);
         this.bindEvents();
     }
@@ -28590,6 +28688,7 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
             this.showTip = false;
         });
     }
+    showTip = false;
     // 在每个页面上只显示一次提示
     showTipOnce() {
         if (this.showTip) {
@@ -28622,6 +28721,8 @@ class RemoveWorksOfFollowedUsersOnSearchPage {
             this.showTipOnce();
         }
     }
+    // 搜索页面里的插画作品选择器
+    worksSelector = 'section ul li';
     /**检查当前页面上的作品元素 */
     findAllWorks() {
         if (!this.enable) {
@@ -28878,13 +28979,13 @@ __webpack_require__.r(__webpack_exports__);
 // 在多图作品页面里，当用户点击“查看全部”按钮显示所有图片时，在每张图片上显示下载按钮，点击按钮可以下载这张图片
 class ShowDownloadBtnOnMultiImageWorkPage {
     constructor() {
-        this.flagClassName = 'downloadBtnOnMultiImageWorkPage';
-        this.styleClassName = 'downloadBtnOnThumb';
         if (_Config__WEBPACK_IMPORTED_MODULE_1__.Config.mobile) {
             return;
         }
         this.bindEvents();
     }
+    flagClassName = 'downloadBtnOnMultiImageWorkPage';
+    styleClassName = 'downloadBtnOnThumb';
     bindEvents() {
         window.setInterval(() => {
             this.check();
@@ -29005,38 +29106,36 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 // 为了兼容以前的版本的设置，把旧的设置值转换为新版本的设置值
 class ConvertOldSettings {
-    constructor() {
-        // 旧设置和新设置的对应关系
-        // 为了集中管理，便于使用，写到了一个对象里
-        this.data = {
-            ratio: {
-                '0': 'square',
-                '1': 'horizontal',
-                '2': 'vertical',
-                '3': 'userSet',
-            },
-            idRange: {
-                '1': '>',
-                '2': '<',
-            },
-            widthTag: {
-                '1': 'yes',
-                '-1': 'no',
-            },
-            restrict: {
-                '1': 'yes',
-                '-1': 'no',
-            },
-            userSetLang: {
-                '-1': 'auto',
-                '0': 'zh-cn',
-                '1': 'ja',
-                '2': 'en',
-                '3': 'zh-tw',
-                '4': 'ko',
-            },
-        };
-    }
+    // 旧设置和新设置的对应关系
+    // 为了集中管理，便于使用，写到了一个对象里
+    data = {
+        ratio: {
+            '0': 'square',
+            '1': 'horizontal',
+            '2': 'vertical',
+            '3': 'userSet',
+        },
+        idRange: {
+            '1': '>',
+            '2': '<',
+        },
+        widthTag: {
+            '1': 'yes',
+            '-1': 'no',
+        },
+        restrict: {
+            '1': 'yes',
+            '-1': 'no',
+        },
+        userSetLang: {
+            '-1': 'auto',
+            '0': 'zh-cn',
+            '1': 'ja',
+            '2': 'en',
+            '3': 'zh-tw',
+            '4': 'ko',
+        },
+    };
     // 传递需要转换的设置的键值
     convert(key, value) {
         const map = this.data[key];
@@ -29086,9 +29185,39 @@ __webpack_require__.r(__webpack_exports__);
 // 针对某些用户,不下载他们的多图作品的最后几张图片
 class DoNotDownloadLastFewImages {
     constructor() {
-        this.slotName = 'DoNotDownloadLastFewImagesSlot';
-        this._addWrapShow = false;
-        this.wrapHTML = `
+        this.createWrap();
+        _Theme__WEBPACK_IMPORTED_MODULE_5__.theme.register(this.wrap);
+        _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.register(this.wrap);
+        this.bindEvents();
+    }
+    slotName = 'DoNotDownloadLastFewImagesSlot';
+    wrap; // 最外层元素
+    expandBtn; // 展开/折叠 按钮
+    totalSpan; // 显示规则数量
+    showAddBtn; // 添加 按钮，点击显示添加区域
+    addWrap; // 用于添加新项目的区域
+    addInputUid; // 用于添加新项目的 uid 的输入框
+    addValueInput; // 用于添加新项目的 name 的输入框
+    addBtn; // 添加 按钮
+    cancelBtn; // 取消 按钮
+    listWrap; // 列表区域容器
+    _addWrapShow = false;
+    set addWrapShow(val) {
+        this._addWrapShow = val;
+        if (val) {
+            this.addWrap.style.display = 'block';
+            this.addInputUid.focus();
+        }
+        else {
+            this.addWrap.style.display = 'none';
+            this.addInputUid.value = '';
+            this.addValueInput.value = '';
+        }
+    }
+    get addWrapShow() {
+        return this._addWrapShow;
+    }
+    wrapHTML = `
   <span class="DoNotDownloadLastFewImagesWarp">
 
     <span class="controlBar">
@@ -29130,26 +29259,6 @@ class DoNotDownloadLastFewImages {
     </div>
   </span>
   `;
-        this.createWrap();
-        _Theme__WEBPACK_IMPORTED_MODULE_5__.theme.register(this.wrap);
-        _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.register(this.wrap);
-        this.bindEvents();
-    }
-    set addWrapShow(val) {
-        this._addWrapShow = val;
-        if (val) {
-            this.addWrap.style.display = 'block';
-            this.addInputUid.focus();
-        }
-        else {
-            this.addWrap.style.display = 'none';
-            this.addInputUid.value = '';
-            this.addValueInput.value = '';
-        }
-    }
-    get addWrapShow() {
-        return this._addWrapShow;
-    }
     // 创建列表外部的容器，静态 html
     createWrap() {
         this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.useSlot(this.slotName, this.wrapHTML);
@@ -29394,12 +29503,6 @@ __webpack_require__.r(__webpack_exports__);
 // 设置表单
 class Form {
     constructor() {
-        /**所有的美化表单元素 */
-        // 每个美化的 input 控件后面必定有一个 span 元素
-        // label 和 子选项区域则不一定有
-        this.allBeautifyInput = [];
-        /**一些固定格式的帮助元素 */
-        this.tips = [];
         this.form = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_3__.formHtml);
         _Theme__WEBPACK_IMPORTED_MODULE_5__.theme.register(this.form);
         _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.form);
@@ -29410,6 +29513,13 @@ class Form {
         new _FormSettings__WEBPACK_IMPORTED_MODULE_6__.FormSettings(this.form);
         this.bindEvents();
     }
+    form;
+    /**所有的美化表单元素 */
+    // 每个美化的 input 控件后面必定有一个 span 元素
+    // label 和 子选项区域则不一定有
+    allBeautifyInput = [];
+    /**一些固定格式的帮助元素 */
+    tips = [];
     getElements() {
         // 获取所有的美化控件和它们对应的 span 元素
         const allCheckBox = this.form.querySelectorAll('input[type="checkbox"]');
@@ -31039,174 +31149,175 @@ __webpack_require__.r(__webpack_exports__);
 
 class FormSettings {
     constructor(form) {
-        // 没有填写 userSetName 字段，因为这个字段由 nameRuleManager 管理
-        this.inputFileds = {
-            checkbox: [
-                'downType0',
-                'downType1',
-                'downType2',
-                'downType3',
-                'downAllAges',
-                'downR18',
-                'downR18G',
-                'downSingleImg',
-                'downMultiImg',
-                'downColorImg',
-                'downBlackWhiteImg',
-                'downNotBookmarked',
-                'downBookmarked',
-                'firstFewImagesSwitch',
-                'multiImageWorkImageLimitSwitch',
-                'saveNovelMeta',
-                'BMKNumSwitch',
-                'BMKNumAverageSwitch',
-                'setWHSwitch',
-                'ratioSwitch',
-                'userSetChecked',
-                'postDate',
-                'idRangeSwitch',
-                'needTagSwitch',
-                'notNeedTagSwitch',
-                'magnifier',
-                'noSerialNo',
-                'createFolderByTag',
-                'workDir',
-                'r18Folder',
-                'sizeSwitch',
-                'autoStartDownload',
-                'previewResult',
-                'deduplication',
-                'fileNameLengthLimitSwitch',
-                'bmkAfterDL',
-                'userBlockList',
-                'removeBlockedUsersWork',
-                'blockTagsForSpecificUser',
-                'bgDisplay',
-                'createFolderByType',
-                'createFolderByTypeIllust',
-                'createFolderByTypeManga',
-                'createFolderByTypeUgoira',
-                'createFolderByTypeNovel',
-                'zeroPadding',
-                'showFastSearchArea',
-                'saveMetaType0',
-                'saveMetaType1',
-                'saveMetaType2',
-                'saveMetaType3',
-                'setNameRuleForEachPageType',
-                'showAdvancedSettings',
-                'showNotificationAfterDownloadComplete',
-                'boldKeywords',
-                'autoExportResult',
-                'autoExportResultCSV',
-                'autoExportResultJSON',
-                'PreviewWork',
-                'showDownloadBtnOnThumb',
-                'showOriginImage',
-                'replaceSquareThumb',
-                'notFolderWhenOneFile',
-                'noSerialNoForSingleImg',
-                'noSerialNoForMultiImg',
-                'removeAtFromUsername',
-                'showPreviewWorkTip',
-                'showLargerThumbnails',
-                'wheelScrollSwitchImageOnPreviewWork',
-                'swicthImageByKeyboard',
-                'doNotDownloadLastImageOfMultiImageWork',
-                'downloadNovelCoverImage',
-                'downloadNovelEmbeddedImage',
-                'previewUgoira',
-                'slowCrawl',
-                'downloadOnClickBookmark',
-                'downloadOnClickLike',
-                'exportLog',
-                'exportLogNormal',
-                'exportLogError',
-                'UseDifferentNameRuleIfWorkHasTagSwitch',
-                'AIGenerated',
-                'notAIGenerated',
-                'UnknownAI',
-                'setFileDownloadOrder',
-                'highlightFollowingUsers',
-                'exportIDList',
-                'displayThumbnailListOnMultiImageWorkPage',
-                'PreviewWorkDetailInfo',
-                'removeWorksOfFollowedUsersOnSearchPage',
-                'saveWorkDescription',
-                'saveEachDescription',
-                'summarizeDescription',
-            ],
-            text: [
-                'setWantPage',
-                'firstFewImages',
-                'multiImageWorkImageLimit',
-                'convertUgoiraThread',
-                'BMKNumMin',
-                'BMKNumMax',
-                'BMKNumAverage',
-                'setWidth',
-                'setHeight',
-                'userRatio',
-                'idRangeInput',
-                'needTag',
-                'workDirFileNumber',
-                'r18FolderName',
-                'sizeMin',
-                'sizeMax',
-                'downloadThread',
-                'fileNameLengthLimit',
-                'dateFormat',
-                'tagsSeparator',
-                'bgOpacity',
-                'zeroPaddingLength',
-                'workDirNameRule',
-                'autoExportResultNumber',
-                'previewWorkWait',
-                'previewResultLimit',
-                'timedCrawlInterval',
-                'slowCrawlOnWorksNumber',
-                'exportLogExclude',
-                'PreviewDetailInfoWidth',
-                'slowCrawlDealy',
-                'downloadInterval',
-                'downloadIntervalOnWorksNumber',
-            ],
-            radio: [
-                'ugoiraSaveAs',
-                'novelSaveAs',
-                'widthHeightLimit',
-                'userRatioLimit',
-                'setWidthAndOr',
-                'ratio',
-                'idRange',
-                'magnifierSize',
-                'magnifierPosition',
-                'dupliStrategy',
-                'imageSize',
-                'userSetLang',
-                'restrict',
-                'widthTag',
-                'needTagMode',
-                'theme',
-                'bgPositionY',
-                'switchTabBar',
-                'tagMatchMode',
-                'prevWorkSize',
-                'showOriginImageSize',
-                'exportLogTiming',
-                'downloadOrder',
-                'downloadOrderSortBy',
-            ],
-            textarea: ['notNeedTag', 'blockList', 'createFolderTagList'],
-            datetime: ['postDateStart', 'postDateEnd'],
-        };
-        this.restoreTimer = 0;
         this.form = form;
         _NameRuleManager__WEBPACK_IMPORTED_MODULE_4__.nameRuleManager.registerInput(this.form.userSetName);
         this.bindEvents();
         this.restoreFormSettings();
         this.ListenChange();
     }
+    form;
+    // 没有填写 userSetName 字段，因为这个字段由 nameRuleManager 管理
+    inputFileds = {
+        checkbox: [
+            'downType0',
+            'downType1',
+            'downType2',
+            'downType3',
+            'downAllAges',
+            'downR18',
+            'downR18G',
+            'downSingleImg',
+            'downMultiImg',
+            'downColorImg',
+            'downBlackWhiteImg',
+            'downNotBookmarked',
+            'downBookmarked',
+            'firstFewImagesSwitch',
+            'multiImageWorkImageLimitSwitch',
+            'saveNovelMeta',
+            'BMKNumSwitch',
+            'BMKNumAverageSwitch',
+            'setWHSwitch',
+            'ratioSwitch',
+            'userSetChecked',
+            'postDate',
+            'idRangeSwitch',
+            'needTagSwitch',
+            'notNeedTagSwitch',
+            'magnifier',
+            'noSerialNo',
+            'createFolderByTag',
+            'workDir',
+            'r18Folder',
+            'sizeSwitch',
+            'autoStartDownload',
+            'previewResult',
+            'deduplication',
+            'fileNameLengthLimitSwitch',
+            'bmkAfterDL',
+            'userBlockList',
+            'removeBlockedUsersWork',
+            'blockTagsForSpecificUser',
+            'bgDisplay',
+            'createFolderByType',
+            'createFolderByTypeIllust',
+            'createFolderByTypeManga',
+            'createFolderByTypeUgoira',
+            'createFolderByTypeNovel',
+            'zeroPadding',
+            'showFastSearchArea',
+            'saveMetaType0',
+            'saveMetaType1',
+            'saveMetaType2',
+            'saveMetaType3',
+            'setNameRuleForEachPageType',
+            'showAdvancedSettings',
+            'showNotificationAfterDownloadComplete',
+            'boldKeywords',
+            'autoExportResult',
+            'autoExportResultCSV',
+            'autoExportResultJSON',
+            'PreviewWork',
+            'showDownloadBtnOnThumb',
+            'showOriginImage',
+            'replaceSquareThumb',
+            'notFolderWhenOneFile',
+            'noSerialNoForSingleImg',
+            'noSerialNoForMultiImg',
+            'removeAtFromUsername',
+            'showPreviewWorkTip',
+            'showLargerThumbnails',
+            'wheelScrollSwitchImageOnPreviewWork',
+            'swicthImageByKeyboard',
+            'doNotDownloadLastImageOfMultiImageWork',
+            'downloadNovelCoverImage',
+            'downloadNovelEmbeddedImage',
+            'previewUgoira',
+            'slowCrawl',
+            'downloadOnClickBookmark',
+            'downloadOnClickLike',
+            'exportLog',
+            'exportLogNormal',
+            'exportLogError',
+            'UseDifferentNameRuleIfWorkHasTagSwitch',
+            'AIGenerated',
+            'notAIGenerated',
+            'UnknownAI',
+            'setFileDownloadOrder',
+            'highlightFollowingUsers',
+            'exportIDList',
+            'displayThumbnailListOnMultiImageWorkPage',
+            'PreviewWorkDetailInfo',
+            'removeWorksOfFollowedUsersOnSearchPage',
+            'saveWorkDescription',
+            'saveEachDescription',
+            'summarizeDescription',
+        ],
+        text: [
+            'setWantPage',
+            'firstFewImages',
+            'multiImageWorkImageLimit',
+            'convertUgoiraThread',
+            'BMKNumMin',
+            'BMKNumMax',
+            'BMKNumAverage',
+            'setWidth',
+            'setHeight',
+            'userRatio',
+            'idRangeInput',
+            'needTag',
+            'workDirFileNumber',
+            'r18FolderName',
+            'sizeMin',
+            'sizeMax',
+            'downloadThread',
+            'fileNameLengthLimit',
+            'dateFormat',
+            'tagsSeparator',
+            'bgOpacity',
+            'zeroPaddingLength',
+            'workDirNameRule',
+            'autoExportResultNumber',
+            'previewWorkWait',
+            'previewResultLimit',
+            'timedCrawlInterval',
+            'slowCrawlOnWorksNumber',
+            'exportLogExclude',
+            'PreviewDetailInfoWidth',
+            'slowCrawlDealy',
+            'downloadInterval',
+            'downloadIntervalOnWorksNumber',
+        ],
+        radio: [
+            'ugoiraSaveAs',
+            'novelSaveAs',
+            'widthHeightLimit',
+            'userRatioLimit',
+            'setWidthAndOr',
+            'ratio',
+            'idRange',
+            'magnifierSize',
+            'magnifierPosition',
+            'dupliStrategy',
+            'imageSize',
+            'userSetLang',
+            'restrict',
+            'widthTag',
+            'needTagMode',
+            'theme',
+            'bgPositionY',
+            'switchTabBar',
+            'tagMatchMode',
+            'prevWorkSize',
+            'showOriginImageSize',
+            'exportLogTiming',
+            'downloadOrder',
+            'downloadOrderSortBy',
+        ],
+        textarea: ['notNeedTag', 'blockList', 'createFolderTagList'],
+        datetime: ['postDateStart', 'postDateEnd'],
+    };
+    restoreTimer = 0;
     bindEvents() {
         // 页面切换时，从设置里恢复当前页面的页数/个数
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitchedTypeChange, () => {
@@ -31395,13 +31506,13 @@ __webpack_require__.r(__webpack_exports__);
 // 管理不可见的设置。通过预设的按键，切换其开关状态
 class InvisibleSettings {
     constructor() {
-        // ppdss: Powerful Pixiv Downloader Secret Settings
-        this.cfg = {
-            createFolderBySl: ['ppdss1', 'switchsl', 'kaiguansl'],
-            downloadUgoiraFirst: ['ppdss2', 'dlugoirafirst', 'qw111'],
-        };
         this.register();
     }
+    // ppdss: Powerful Pixiv Downloader Secret Settings
+    cfg = {
+        createFolderBySl: ['ppdss1', 'switchsl', 'kaiguansl'],
+        downloadUgoiraFirst: ['ppdss2', 'dlugoirafirst', 'qw111'],
+    };
     register() {
         for (const [name, codes] of Object.entries(this.cfg)) {
             for (const code of codes) {
@@ -31464,10 +31575,6 @@ __webpack_require__.r(__webpack_exports__);
 // 其他类必须使用 nameRuleManager.rule 存取器来存取命名规则
 class NameRuleManager {
     constructor() {
-        // 所有页面通用的命名规则
-        this.generalRule = '{page_title}/{id}';
-        // 命名规则输入框的集合
-        this.inputList = [];
         this.bindEvents();
     }
     bindEvents() {
@@ -31496,6 +31603,8 @@ class NameRuleManager {
         _Settings__WEBPACK_IMPORTED_MODULE_5__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type] = rule;
         (0,_Settings__WEBPACK_IMPORTED_MODULE_5__.setSetting)('nameRuleForEachPageType', _Settings__WEBPACK_IMPORTED_MODULE_5__.settings.nameRuleForEachPageType);
     }
+    // 所有页面通用的命名规则
+    generalRule = '{page_title}/{id}';
     get rule() {
         if (_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.setNameRuleForEachPageType) {
             let rule = _Settings__WEBPACK_IMPORTED_MODULE_5__.settings.nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type];
@@ -31529,6 +31638,8 @@ class NameRuleManager {
             this.setInputValue();
         }
     }
+    // 命名规则输入框的集合
+    inputList = [];
     // 注册命名规则输入框
     registerInput(input) {
         this.inputList.push(input);
@@ -31617,27 +31728,6 @@ __webpack_require__.r(__webpack_exports__);
 // 控制每个设置的隐藏、显示
 // 设置页数/个数的提示文本
 class Options {
-    constructor() {
-        this.hiddenButtonPages = [
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.AreaRanking,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.ArtworkRanking,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Pixivision,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.BookmarkDetail,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Discover,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtwork,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NovelRanking,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewNovel,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Request,
-            _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Unlisted,
-        ];
-        // 保持显示的选项的 id
-        this.whiteList = [
-            1, 2, 4, 13, 17, 32, 44, 50, 51, 57, 64,
-        ];
-        // 某些页面类型需要隐藏某些选项。当调用 hideOption 方法时，把选项 id 保存起来
-        // 优先级高于 whiteList
-        this.hiddenList = [];
-    }
     init(allOption) {
         this.showSetWantPageTipButton = document.querySelector('.settingForm .showSetWantPageTip');
         this.allOption = allOption;
@@ -31653,6 +31743,28 @@ class Options {
         this.handleShowAdvancedSettings();
         this.bindEvents();
     }
+    showSetWantPageTipButton;
+    hiddenButtonPages = [
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.AreaRanking,
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.ArtworkRanking,
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Pixivision,
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.BookmarkDetail,
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Discover,
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtwork,
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NovelRanking,
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewNovel,
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Request,
+        _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Unlisted,
+    ];
+    allOption;
+    wantPageEls;
+    // 保持显示的选项的 id
+    whiteList = [
+        1, 2, 4, 13, 17, 32, 44, 50, 51, 57, 64,
+    ];
+    // 某些页面类型需要隐藏某些选项。当调用 hideOption 方法时，把选项 id 保存起来
+    // 优先级高于 whiteList
+    hiddenList = [];
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
@@ -31816,14 +31928,6 @@ __webpack_require__.r(__webpack_exports__);
 // 保存和加载命名规则列表
 class SaveNamingRule {
     constructor(ruleInput) {
-        this.limit = 20; // 最大保存数量
-        this._show = false; // 是否显示列表
-        this.html = `
-  <div class="saveNamingRuleWrap">
-  <button class="nameSave textButton has_tip" type="button" data-xztip="_保存命名规则提示" data-xztext="_保存"></button>
-  <button class="nameLoad textButton" type="button" data-xztext="_加载"></button>
-  <ul class="namingRuleList"></ul>
-  </div>`;
         this.ruleInput = ruleInput;
         _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.clearSlot('saveNamingRule');
         const wrap = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.useSlot('saveNamingRule', this.html);
@@ -31835,6 +31939,12 @@ class SaveNamingRule {
         this.createList();
         this.bindEvents();
     }
+    limit = 20; // 最大保存数量
+    saveBtn;
+    loadBtn;
+    listWrap;
+    ruleInput;
+    _show = false; // 是否显示列表
     set show(boolean) {
         this._show = boolean;
         boolean ? this.showListWrap() : this.hideListWrap();
@@ -31915,6 +32025,12 @@ class SaveNamingRule {
     hideListWrap() {
         this.listWrap.style.display = 'none';
     }
+    html = `
+  <div class="saveNamingRuleWrap">
+  <button class="nameSave textButton has_tip" type="button" data-xztip="_保存命名规则提示" data-xztext="_保存"></button>
+  <button class="nameLoad textButton" type="button" data-xztext="_加载"></button>
+  <ul class="namingRuleList"></ul>
+  </div>`;
 }
 
 
@@ -31972,253 +32088,247 @@ __webpack_require__.r(__webpack_exports__);
 
 class Settings {
     constructor() {
-        // 默认设置
-        this.defaultSettings = {
-            setWantPage: -1,
-            wantPageArr: [
-                -1, -1, -1, -1, -1, 1000, -1, 500, -1, 1000, 100, -1, 100, -1, -1, 1000,
-                100, 100, 100, 100, -1,
-            ],
-            firstFewImagesSwitch: false,
-            firstFewImages: 1,
-            multiImageWorkImageLimitSwitch: false,
-            multiImageWorkImageLimit: 10,
-            downType0: true,
-            downType1: true,
-            downType2: true,
-            downType3: true,
-            downAllAges: true,
-            downR18: true,
-            downR18G: true,
-            downSingleImg: true,
-            downMultiImg: true,
-            downColorImg: true,
-            downBlackWhiteImg: true,
-            downNotBookmarked: true,
-            downBookmarked: true,
-            ugoiraSaveAs: 'webm',
-            convertUgoiraThread: 1,
-            needTag: [],
-            notNeedTag: [],
-            autoStartDownload: true,
-            downloadThread: 5,
-            userSetName: 'pixiv/{user}-{user_id}/{id}-{title}',
-            namingRuleList: [],
-            workDir: false,
-            workDirFileNumber: 1,
-            workDirNameRule: '{id_num}',
-            showOptions: true,
-            postDate: false,
-            postDateStart: 1230739200000,
-            postDateEnd: 1893427200000,
-            previewResult: true,
-            previewResultLimit: 3000,
-            BMKNumSwitch: false,
-            BMKNumMin: 0,
-            BMKNumMax: _Config__WEBPACK_IMPORTED_MODULE_4__.Config.BookmarkCountLimit,
-            BMKNumAverageSwitch: false,
-            BMKNumAverage: 600,
-            setWHSwitch: false,
-            widthHeightLimit: '>=',
-            setWidthAndOr: '&',
-            setWidth: 0,
-            setHeight: 0,
-            ratioSwitch: false,
-            ratio: 'horizontal',
-            userSetChecked: false,
-            userRatio: 1.4,
-            userRatioLimit: '>=',
-            idRangeSwitch: false,
-            idRangeInput: 0,
-            idRange: '>',
-            needTagSwitch: false,
-            notNeedTagSwitch: false,
-            noSerialNo: false,
-            filterBlackWhite: false,
-            sizeSwitch: false,
-            sizeMin: 0,
-            sizeMax: 100,
-            novelSaveAs: 'txt',
-            saveNovelMeta: false,
-            deduplication: false,
-            dupliStrategy: 'loose',
-            fileNameLengthLimitSwitch: false,
-            tagsSeparator: ',',
-            fileNameLengthLimit: 200,
-            imageSize: 'original',
-            dateFormat: 'YYYY-MM-DD',
-            userSetLang: 'auto',
-            bmkAfterDL: false,
-            widthTag: 'yes',
-            restrict: 'no',
-            widthTagBoolean: true,
-            restrictBoolean: false,
-            userBlockList: true,
-            removeBlockedUsersWork: true,
-            blockList: [],
-            theme: 'auto',
-            needTagMode: 'all',
-            r18Folder: false,
-            r18FolderName: '[R-18&R-18G]',
-            blockTagsForSpecificUser: false,
-            blockTagsForSpecificUserShowList: true,
-            blockTagsForSpecificUserList: [],
-            magnifier: true,
-            magnifierSize: 'original',
-            magnifierPosition: 'right',
-            bgDisplay: false,
-            bgOpacity: 60,
-            bgPositionY: 'center',
-            createFolderByType: false,
-            createFolderByTypeIllust: false,
-            createFolderByTypeManga: false,
-            createFolderByTypeUgoira: false,
-            createFolderByTypeNovel: false,
-            createFolderByTag: false,
-            createFolderTagList: [],
-            createFolderBySl: false,
-            downloadUgoiraFirst: false,
-            switchTabBar: 'over',
-            zeroPadding: false,
-            zeroPaddingLength: 3,
-            tagMatchMode: 'whole',
-            showFastSearchArea: true,
-            saveMetaType0: false,
-            saveMetaType1: false,
-            saveMetaType2: false,
-            saveMetaType3: false,
-            setNameRuleForEachPageType: false,
-            nameRuleForEachPageType: {
-                '-1': 'pixiv/{user}-{user_id}/{id}-{title}',
-                '0': 'pixiv/{user}-{user_id}/{id}-{title}',
-                '1': 'pixiv/{user}-{user_id}/{id}-{title}',
-                '2': 'pixiv/{user}-{user_id}/{id}-{title}',
-                '3': 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
-                '4': 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
-                '5': 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
-                '6': 'pixiv/{user}-{user_id}/{id}-{title}',
-                '7': 'pixiv/{page_title}/{rank}-{id}-{title}',
-                '8': 'pixiv/{user}-{user_id}/{id}-{title}',
-                '9': 'pixiv/{user}-{user_id}/{id}-{title}',
-                '10': 'pixiv/{user}-{user_id}/{id}-{title}',
-                '11': 'pixiv/{user}-{user_id}/{id}-{title}',
-                '12': 'pixiv/{user}-{user_id}/{id}-{title}',
-                '13': 'pixiv/{user}-{user_id}/{id}-{title}',
-                '14': 'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
-                '15': 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
-                '16': 'pixiv/{page_title}/{rank}-{id}-{title}',
-                '17': 'pixiv/{user}-{user_id}/{id}-{title}',
-                '18': 'pixiv/{user}-{user_id}/{id}-{title}',
-                '19': 'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
-                '20': 'pixiv/{user}-{user_id}/{id}-{title}',
-                '21': 'pixiv/{user}-{user_id}/{id}-{title}',
-            },
-            showAdvancedSettings: false,
-            showNotificationAfterDownloadComplete: false,
-            boldKeywords: true,
-            autoExportResult: false,
-            autoExportResultCSV: true,
-            autoExportResultJSON: false,
-            autoExportResultNumber: 1,
-            PreviewWork: true,
-            showDownloadBtnOnThumb: true,
-            prevWorkSize: 'regular',
-            previewWorkWait: 400,
-            showPreviewWorkTip: true,
-            showOriginImage: true,
-            showOriginImageSize: 'original',
-            tipHowToUse: true,
-            whatIsNewFlag: 'xuejian&saber',
-            replaceSquareThumb: true,
-            notFolderWhenOneFile: false,
-            noSerialNoForSingleImg: true,
-            noSerialNoForMultiImg: true,
-            setUserNameShow: true,
-            setUserNameList: {},
-            removeAtFromUsername: false,
-            showLargerThumbnails: false,
-            wheelScrollSwitchImageOnPreviewWork: true,
-            swicthImageByKeyboard: true,
-            doNotDownloadLastImageOfMultiImageWork: false,
-            downloadNovelCoverImage: true,
-            downloadNovelEmbeddedImage: true,
-            previewUgoira: true,
-            tipPreviewWork: true,
-            tipHotkeysViewLargeImage: true,
-            timedCrawlInterval: 120,
-            slowCrawl: true,
-            slowCrawlOnWorksNumber: 100,
-            downloadOnClickBookmark: false,
-            downloadOnClickLike: false,
-            exportLog: false,
-            exportLogTiming: 'downloadComplete',
-            exportLogNormal: false,
-            exportLogError: true,
-            exportLogExclude: ['404', '429', '500'],
-            DoNotDownloadLastFewImagesShow: false,
-            DoNotDownloadLastFewImagesList: [],
-            UseDifferentNameRuleIfWorkHasTagSwitch: false,
-            UseDifferentNameRuleIfWorkHasTagShow: true,
-            UseDifferentNameRuleIfWorkHasTagList: [],
-            AIGenerated: true,
-            notAIGenerated: true,
-            UnknownAI: true,
-            setFileDownloadOrder: false,
-            downloadOrder: 'desc',
-            downloadOrderSortBy: 'ID',
-            tipAltXToShowControlPanel: true,
-            tipAltSToSelectWork: true,
-            tipAltQToQuickDownload: true,
-            tipBookmarkButton: true,
-            highlightFollowingUsers: true,
-            tipCSV: true,
-            exportIDList: false,
-            tipExportFollowingUserList: true,
-            displayThumbnailListOnMultiImageWorkPage: true,
-            tipBookmarkManage: true,
-            requestSponsorshipTime: 0,
-            PreviewWorkDetailInfo: false,
-            PreviewDetailInfoWidth: 400,
-            removeWorksOfFollowedUsersOnSearchPage: false,
-            tipExportAndImportBookmark: true,
-            saveWorkDescription: false,
-            saveEachDescription: true,
-            summarizeDescription: false,
-            slowCrawlDealy: 1600,
-            downloadInterval: 0,
-            downloadIntervalOnWorksNumber: 120,
-        };
-        this.allSettingKeys = Object.keys(this.defaultSettings);
-        // 值为浮点数的选项
-        this.floatNumberKey = [
-            'userRatio',
-            'sizeMin',
-            'sizeMax',
-            'downloadInterval',
-        ];
-        // 值为整数的选项不必单独列出
-        // 值为数字数组的选项
-        this.numberArrayKeys = ['wantPageArr'];
-        // 值为字符串数组的选项
-        this.stringArrayKeys = [
-            'namingRuleList',
-            'blockList',
-            'needTag',
-            'notNeedTag',
-            'createFolderTagList',
-            'exportLogExclude',
-        ];
-        // 以默认设置作为初始设置
-        this.settings = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.deepCopy(this.defaultSettings);
-        this.store = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.debounce(() => {
-            // chrome.storage.local 的储存上限是 5 MiB（5242880 Byte）
-            chrome.storage.local.set({
-                [_Config__WEBPACK_IMPORTED_MODULE_4__.Config.settingStoreName]: this.settings,
-            });
-        }, 50);
         this.restore();
         this.bindEvents();
     }
+    // 默认设置
+    defaultSettings = {
+        setWantPage: -1,
+        wantPageArr: [
+            -1, -1, -1, -1, -1, 1000, -1, 500, -1, 1000, 100, -1, 100, -1, -1, 1000,
+            100, 100, 100, 100, -1,
+        ],
+        firstFewImagesSwitch: false,
+        firstFewImages: 1,
+        multiImageWorkImageLimitSwitch: false,
+        multiImageWorkImageLimit: 10,
+        downType0: true,
+        downType1: true,
+        downType2: true,
+        downType3: true,
+        downAllAges: true,
+        downR18: true,
+        downR18G: true,
+        downSingleImg: true,
+        downMultiImg: true,
+        downColorImg: true,
+        downBlackWhiteImg: true,
+        downNotBookmarked: true,
+        downBookmarked: true,
+        ugoiraSaveAs: 'webm',
+        convertUgoiraThread: 1,
+        needTag: [],
+        notNeedTag: [],
+        autoStartDownload: true,
+        downloadThread: 5,
+        userSetName: 'pixiv/{user}-{user_id}/{id}-{title}',
+        namingRuleList: [],
+        workDir: false,
+        workDirFileNumber: 1,
+        workDirNameRule: '{id_num}',
+        showOptions: true,
+        postDate: false,
+        postDateStart: 1230739200000,
+        postDateEnd: 1893427200000,
+        previewResult: true,
+        previewResultLimit: 3000,
+        BMKNumSwitch: false,
+        BMKNumMin: 0,
+        BMKNumMax: _Config__WEBPACK_IMPORTED_MODULE_4__.Config.BookmarkCountLimit,
+        BMKNumAverageSwitch: false,
+        BMKNumAverage: 600,
+        setWHSwitch: false,
+        widthHeightLimit: '>=',
+        setWidthAndOr: '&',
+        setWidth: 0,
+        setHeight: 0,
+        ratioSwitch: false,
+        ratio: 'horizontal',
+        userSetChecked: false,
+        userRatio: 1.4,
+        userRatioLimit: '>=',
+        idRangeSwitch: false,
+        idRangeInput: 0,
+        idRange: '>',
+        needTagSwitch: false,
+        notNeedTagSwitch: false,
+        noSerialNo: false,
+        filterBlackWhite: false,
+        sizeSwitch: false,
+        sizeMin: 0,
+        sizeMax: 100,
+        novelSaveAs: 'txt',
+        saveNovelMeta: false,
+        deduplication: false,
+        dupliStrategy: 'loose',
+        fileNameLengthLimitSwitch: false,
+        tagsSeparator: ',',
+        fileNameLengthLimit: 200,
+        imageSize: 'original',
+        dateFormat: 'YYYY-MM-DD',
+        userSetLang: 'auto',
+        bmkAfterDL: false,
+        widthTag: 'yes',
+        restrict: 'no',
+        widthTagBoolean: true,
+        restrictBoolean: false,
+        userBlockList: true,
+        removeBlockedUsersWork: true,
+        blockList: [],
+        theme: 'auto',
+        needTagMode: 'all',
+        r18Folder: false,
+        r18FolderName: '[R-18&R-18G]',
+        blockTagsForSpecificUser: false,
+        blockTagsForSpecificUserShowList: true,
+        blockTagsForSpecificUserList: [],
+        magnifier: true,
+        magnifierSize: 'original',
+        magnifierPosition: 'right',
+        bgDisplay: false,
+        bgOpacity: 60,
+        bgPositionY: 'center',
+        createFolderByType: false,
+        createFolderByTypeIllust: false,
+        createFolderByTypeManga: false,
+        createFolderByTypeUgoira: false,
+        createFolderByTypeNovel: false,
+        createFolderByTag: false,
+        createFolderTagList: [],
+        createFolderBySl: false,
+        downloadUgoiraFirst: false,
+        switchTabBar: 'over',
+        zeroPadding: false,
+        zeroPaddingLength: 3,
+        tagMatchMode: 'whole',
+        showFastSearchArea: true,
+        saveMetaType0: false,
+        saveMetaType1: false,
+        saveMetaType2: false,
+        saveMetaType3: false,
+        setNameRuleForEachPageType: false,
+        nameRuleForEachPageType: {
+            '-1': 'pixiv/{user}-{user_id}/{id}-{title}',
+            '0': 'pixiv/{user}-{user_id}/{id}-{title}',
+            '1': 'pixiv/{user}-{user_id}/{id}-{title}',
+            '2': 'pixiv/{user}-{user_id}/{id}-{title}',
+            '3': 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
+            '4': 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
+            '5': 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
+            '6': 'pixiv/{user}-{user_id}/{id}-{title}',
+            '7': 'pixiv/{page_title}/{rank}-{id}-{title}',
+            '8': 'pixiv/{user}-{user_id}/{id}-{title}',
+            '9': 'pixiv/{user}-{user_id}/{id}-{title}',
+            '10': 'pixiv/{user}-{user_id}/{id}-{title}',
+            '11': 'pixiv/{user}-{user_id}/{id}-{title}',
+            '12': 'pixiv/{user}-{user_id}/{id}-{title}',
+            '13': 'pixiv/{user}-{user_id}/{id}-{title}',
+            '14': 'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
+            '15': 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
+            '16': 'pixiv/{page_title}/{rank}-{id}-{title}',
+            '17': 'pixiv/{user}-{user_id}/{id}-{title}',
+            '18': 'pixiv/{user}-{user_id}/{id}-{title}',
+            '19': 'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
+            '20': 'pixiv/{user}-{user_id}/{id}-{title}',
+            '21': 'pixiv/{user}-{user_id}/{id}-{title}',
+        },
+        showAdvancedSettings: false,
+        showNotificationAfterDownloadComplete: false,
+        boldKeywords: true,
+        autoExportResult: false,
+        autoExportResultCSV: true,
+        autoExportResultJSON: false,
+        autoExportResultNumber: 1,
+        PreviewWork: true,
+        showDownloadBtnOnThumb: true,
+        prevWorkSize: 'regular',
+        previewWorkWait: 400,
+        showPreviewWorkTip: true,
+        showOriginImage: true,
+        showOriginImageSize: 'original',
+        tipHowToUse: true,
+        whatIsNewFlag: 'xuejian&saber',
+        replaceSquareThumb: true,
+        notFolderWhenOneFile: false,
+        noSerialNoForSingleImg: true,
+        noSerialNoForMultiImg: true,
+        setUserNameShow: true,
+        setUserNameList: {},
+        removeAtFromUsername: false,
+        showLargerThumbnails: false,
+        wheelScrollSwitchImageOnPreviewWork: true,
+        swicthImageByKeyboard: true,
+        doNotDownloadLastImageOfMultiImageWork: false,
+        downloadNovelCoverImage: true,
+        downloadNovelEmbeddedImage: true,
+        previewUgoira: true,
+        tipPreviewWork: true,
+        tipHotkeysViewLargeImage: true,
+        timedCrawlInterval: 120,
+        slowCrawl: true,
+        slowCrawlOnWorksNumber: 100,
+        downloadOnClickBookmark: false,
+        downloadOnClickLike: false,
+        exportLog: false,
+        exportLogTiming: 'downloadComplete',
+        exportLogNormal: false,
+        exportLogError: true,
+        exportLogExclude: ['404', '429', '500'],
+        DoNotDownloadLastFewImagesShow: false,
+        DoNotDownloadLastFewImagesList: [],
+        UseDifferentNameRuleIfWorkHasTagSwitch: false,
+        UseDifferentNameRuleIfWorkHasTagShow: true,
+        UseDifferentNameRuleIfWorkHasTagList: [],
+        AIGenerated: true,
+        notAIGenerated: true,
+        UnknownAI: true,
+        setFileDownloadOrder: false,
+        downloadOrder: 'desc',
+        downloadOrderSortBy: 'ID',
+        tipAltXToShowControlPanel: true,
+        tipAltSToSelectWork: true,
+        tipAltQToQuickDownload: true,
+        tipBookmarkButton: true,
+        highlightFollowingUsers: true,
+        tipCSV: true,
+        exportIDList: false,
+        tipExportFollowingUserList: true,
+        displayThumbnailListOnMultiImageWorkPage: true,
+        tipBookmarkManage: true,
+        requestSponsorshipTime: 0,
+        PreviewWorkDetailInfo: false,
+        PreviewDetailInfoWidth: 400,
+        removeWorksOfFollowedUsersOnSearchPage: false,
+        tipExportAndImportBookmark: true,
+        saveWorkDescription: false,
+        saveEachDescription: true,
+        summarizeDescription: false,
+        slowCrawlDealy: 1600,
+        downloadInterval: 0,
+        downloadIntervalOnWorksNumber: 120,
+    };
+    allSettingKeys = Object.keys(this.defaultSettings);
+    // 值为浮点数的选项
+    floatNumberKey = [
+        'userRatio',
+        'sizeMin',
+        'sizeMax',
+        'downloadInterval',
+    ];
+    // 值为整数的选项不必单独列出
+    // 值为数字数组的选项
+    numberArrayKeys = ['wantPageArr'];
+    // 值为字符串数组的选项
+    stringArrayKeys = [
+        'namingRuleList',
+        'blockList',
+        'needTag',
+        'notNeedTag',
+        'createFolderTagList',
+        'exportLogExclude',
+    ];
+    // 以默认设置作为初始设置
+    settings = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.deepCopy(this.defaultSettings);
     bindEvents() {
         // 当设置发生变化时进行本地存储
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, () => {
@@ -32283,6 +32393,12 @@ class Settings {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('settingInitialized');
         });
     }
+    store = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.debounce(() => {
+        // chrome.storage.local 的储存上限是 5 MiB（5242880 Byte）
+        chrome.storage.local.set({
+            [_Config__WEBPACK_IMPORTED_MODULE_4__.Config.settingStoreName]: this.settings,
+        });
+    }, 50);
     // 接收整个设置项，通过循环将其更新到 settings 上
     // 循环设置而不是整个替换的原因：
     // 1. 进行类型转换，如某些设置项是 number ，但是数据来源里是 string，setSetting 可以把它们转换到正确的类型
@@ -32494,9 +32610,39 @@ __webpack_require__.r(__webpack_exports__);
 // 如果作品含有某个标签，则对这个作品使用另一种命名规则
 class UseDifferentNameRuleIfWorkHasTag {
     constructor() {
-        this.slotName = 'UseDifferentNameRuleIfWorkHasTagSlot';
-        this._addWrapShow = false;
-        this.wrapHTML = `
+        this.createWrap();
+        _Theme__WEBPACK_IMPORTED_MODULE_4__.theme.register(this.wrap);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.wrap);
+        this.bindEvents();
+    }
+    slotName = 'UseDifferentNameRuleIfWorkHasTagSlot';
+    wrap; // 最外层元素
+    expandBtn; // 展开/折叠 按钮
+    totalSpan; // 显示规则数量
+    showAddBtn; // 添加 按钮，点击显示添加区域
+    addWrap; // 用于添加新项目的区域
+    addTagsInput; // 用于添加新项目的 Tags 的输入框
+    addRuleInput; // 用于添加新项目的命名规则的输入框
+    addBtn; // 添加 按钮
+    cancelBtn; // 取消 按钮
+    listWrap; // 列表区域容器
+    _addWrapShow = false;
+    set addWrapShow(val) {
+        this._addWrapShow = val;
+        if (val) {
+            this.addWrap.style.display = 'block';
+            this.addTagsInput.focus();
+        }
+        else {
+            this.addWrap.style.display = 'none';
+            this.addTagsInput.value = '';
+            this.addRuleInput.value = '';
+        }
+    }
+    get addWrapShow() {
+        return this._addWrapShow;
+    }
+    wrapHTML = `
   <div class="UseDifferentNameRuleIfWorkHasTagWarp">
 
     <span class="controlBar">
@@ -32538,26 +32684,6 @@ class UseDifferentNameRuleIfWorkHasTag {
     </div>
   </div>
   `;
-        this.createWrap();
-        _Theme__WEBPACK_IMPORTED_MODULE_4__.theme.register(this.wrap);
-        _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.wrap);
-        this.bindEvents();
-    }
-    set addWrapShow(val) {
-        this._addWrapShow = val;
-        if (val) {
-            this.addWrap.style.display = 'block';
-            this.addTagsInput.focus();
-        }
-        else {
-            this.addWrap.style.display = 'none';
-            this.addTagsInput.value = '';
-            this.addRuleInput.value = '';
-        }
-    }
-    get addWrapShow() {
-        return this._addWrapShow;
-    }
     // 创建列表外部的容器，静态 html
     createWrap() {
         this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.useSlot(this.slotName, this.wrapHTML);
@@ -32782,11 +32908,9 @@ __webpack_require__.r(__webpack_exports__);
 // 为了避免重复发起请求，所以在这里缓存一些作品数据
 // 还有个原因：即使下载器获取过某个作品的数据，但是以后再次请求时，浏览器也有可能不会读取缓存，而是重新发起请求。使用缓存的数据可以避免重复发起请求
 class CacheWorkData {
-    constructor() {
-        this.cache = [];
-        // 一个图像作品的数据大约是 5 KB
-        this.max = 200;
-    }
+    cache = [];
+    // 一个图像作品的数据大约是 5 KB
+    max = 200;
     set(data) {
         if (this.has(data.body.id)) {
             return;
@@ -33190,49 +33314,49 @@ __webpack_require__.r(__webpack_exports__);
 // 状态的值通常只由单一的模块修改
 class States {
     constructor() {
-        /**指示 settings 是否初始化完毕 */
-        this.settingInitialized = false;
-        /**表示下载器是否处于繁忙状态
-         *
-         * 繁忙：下载器正在抓取作品，或者正在下载文件，或者正在批量添加收藏
-         */
-        this.busy = false;
-        /**快速下载标记
-         *
-         * 快速下载模式中不会显示下载面板，并且总是会自动开始下载
-         *
-         * 启动快速下载时设为 true，下载完成或中止时复位到 false
-         */
-        this.quickCrawl = false;
-        /**指示是否应该停止抓取 */
-        this.stopCrawl = false;
-        /**在排行榜抓取时，是否只抓取“首次登场”的作品 */
-        // 修改者：InitRankingArtworkPage 模块修改这个状态
-        this.debut = false;
-        /**收藏模式的标记 */
-        // 开始批量收藏时设为 true，收藏完成之后复位到 false
-        this.bookmarkMode = false;
-        /**合并系列小说时使用的标记 */
-        this.mergeNovel = false;
-        /**抓取标签列表时使用的标记 */
-        this.crawlTagList = false;
-        /**是否处于手动选择作品状态 */
-        this.selectWork = false;
-        /**是否处于下载中 */
-        this.downloading = false;
-        /**是否应用慢速抓取模式 */
-        // 由 InitPageBase 修改它的值
-        this.slowCrawlMode = false;
-        /**是否在获取完作品 ID 列表后立即导出，并停止抓取 */
-        // 这和 settings 里的 exportIDList 作用是相同的，但不是持久设置，
-        // 因为它只在某些特定功能上临时使用，之后会被重置
-        this.exportIDList = false;
-        // 保存每次抓取完成和下载完成的时间戳，用来判断这次抓取结果是否已被下载完毕
-        // 因为这两个变量的值不应该随页面切换而改变，所以放在这里而非 initPageBase 里
-        this.crawlCompleteTime = 1;
-        this.downloadCompleteTime = 0;
         this.bindEvents();
     }
+    /**指示 settings 是否初始化完毕 */
+    settingInitialized = false;
+    /**表示下载器是否处于繁忙状态
+     *
+     * 繁忙：下载器正在抓取作品，或者正在下载文件，或者正在批量添加收藏
+     */
+    busy = false;
+    /**快速下载标记
+     *
+     * 快速下载模式中不会显示下载面板，并且总是会自动开始下载
+     *
+     * 启动快速下载时设为 true，下载完成或中止时复位到 false
+     */
+    quickCrawl = false;
+    /**指示是否应该停止抓取 */
+    stopCrawl = false;
+    /**在排行榜抓取时，是否只抓取“首次登场”的作品 */
+    // 修改者：InitRankingArtworkPage 模块修改这个状态
+    debut = false;
+    /**收藏模式的标记 */
+    // 开始批量收藏时设为 true，收藏完成之后复位到 false
+    bookmarkMode = false;
+    /**合并系列小说时使用的标记 */
+    mergeNovel = false;
+    /**抓取标签列表时使用的标记 */
+    crawlTagList = false;
+    /**是否处于手动选择作品状态 */
+    selectWork = false;
+    /**是否处于下载中 */
+    downloading = false;
+    /**是否应用慢速抓取模式 */
+    // 由 InitPageBase 修改它的值
+    slowCrawlMode = false;
+    /**是否在获取完作品 ID 列表后立即导出，并停止抓取 */
+    // 这和 settings 里的 exportIDList 作用是相同的，但不是持久设置，
+    // 因为它只在某些特定功能上临时使用，之后会被重置
+    exportIDList = false;
+    // 保存每次抓取完成和下载完成的时间戳，用来判断这次抓取结果是否已被下载完毕
+    // 因为这两个变量的值不应该随页面切换而改变，所以放在这里而非 initPageBase 里
+    crawlCompleteTime = 1;
+    downloadCompleteTime = 0;
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, () => {
             this.settingInitialized = true;
@@ -33327,71 +33451,25 @@ __webpack_require__.r(__webpack_exports__);
 // 保存抓取结果和其他一些公用数据
 class Store {
     constructor() {
-        this.loggedUserID = '';
-        this.idList = []; // 储存从列表中抓取到的作品的 id
-        this.waitingIdList = []; // 下载器尚未完成本次下载时，如果有新的下载请求，则添加到这里，下载完成后再处理
-        this.resultMeta = [];
-        // 储存抓取结果的元数据，每个作品只会有一条数据
-        // 抓取图片作品时，根据此数据生成每一张图片的数据，也就是生成多个 result
-        // 有一种情况下没有 resultMeta 数据：Resume 也就是恢复未完成的下载时，只恢复了 result，没有生成 resultMeta
-        this.result = []; // 储存抓取结果
-        /**系列小说的设定资料 */
-        this.novelSeriesGlossary = '';
-        this.artworkIDList = []; // 储存抓取到的图片作品的 id 列表，用来避免重复添加
-        this.novelIDList = []; // 储存抓取到的小说作品的 id 列表，用来避免重复添加
-        /**当前登录用户的关注用户列表 */
-        this.followingUserIDList = [];
-        /**记录从每个作品里下载多少个文件 */
-        this.downloadCount = {};
-        this.remainingDownload = 0; // 剩余多少个等待下载和保存的文件
-        this.rankList = {}; // 储存作品在排行榜中的排名
-        this.tag = ''; // 开始抓取时，储存页面此时的 tag
-        this.title = ''; // 开始抓取时，储存页面此时的 title
-        this.URLWhenCrawlStart = ''; // 开始抓取时，储存页面此时的 URL
-        this.crawlCompleteTime = new Date();
-        /**只下载作品里的一部分图片 */
-        this.downloadOnlyPart = {};
-        this.fileDataDefault = {
-            aiType: 0,
-            idNum: 0,
-            id: '',
-            original: '',
-            thumb: '',
-            regular: '',
-            small: '',
-            title: '',
-            description: '',
-            pageCount: 1,
-            index: 0,
-            tags: [],
-            tagsWithTransl: [],
-            tagsTranslOnly: [],
-            user: '',
-            userId: '',
-            fullWidth: 0,
-            fullHeight: 0,
-            ext: '',
-            bmk: 0,
-            bookmarked: false,
-            bmkId: '',
-            date: '',
-            uploadDate: '',
-            type: 0,
-            rank: null,
-            ugoiraInfo: null,
-            seriesTitle: null,
-            seriesOrder: null,
-            seriesId: null,
-            novelMeta: null,
-            likeCount: 0,
-            viewCount: 0,
-            commentCount: 0,
-            xRestrict: 0,
-            sl: null,
-        };
         this.loggedUserID = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getLoggedUserID();
         this.bindEvents();
     }
+    loggedUserID = '';
+    idList = []; // 储存从列表中抓取到的作品的 id
+    waitingIdList = []; // 下载器尚未完成本次下载时，如果有新的下载请求，则添加到这里，下载完成后再处理
+    resultMeta = [];
+    // 储存抓取结果的元数据，每个作品只会有一条数据
+    // 抓取图片作品时，根据此数据生成每一张图片的数据，也就是生成多个 result
+    // 有一种情况下没有 resultMeta 数据：Resume 也就是恢复未完成的下载时，只恢复了 result，没有生成 resultMeta
+    result = []; // 储存抓取结果
+    /**系列小说的设定资料 */
+    novelSeriesGlossary = '';
+    artworkIDList = []; // 储存抓取到的图片作品的 id 列表，用来避免重复添加
+    novelIDList = []; // 储存抓取到的小说作品的 id 列表，用来避免重复添加
+    /**当前登录用户的关注用户列表 */
+    followingUserIDList = [];
+    /**记录从每个作品里下载多少个文件 */
+    downloadCount = {};
     // 恢复未完成的下载之后，生成 downloadCount 数据
     // 因为保存的任务数据里没有 downloadCount，并且恢复数据时也没有生成 downloadCount
     resetDownloadCount() {
@@ -33400,6 +33478,14 @@ class Store {
             this.downloadCount[r.idNum] = (this.downloadCount[r.idNum] || 0) + 1;
         }
     }
+    remainingDownload = 0; // 剩余多少个等待下载和保存的文件
+    rankList = {}; // 储存作品在排行榜中的排名
+    tag = ''; // 开始抓取时，储存页面此时的 tag
+    title = ''; // 开始抓取时，储存页面此时的 title
+    URLWhenCrawlStart = ''; // 开始抓取时，储存页面此时的 URL
+    crawlCompleteTime = new Date();
+    /**只下载作品里的一部分图片 */
+    downloadOnlyPart = {};
     setDownloadOnlyPart(workID, indexList) {
         if (this.downloadOnlyPart[workID]) {
             this.downloadOnlyPart[workID] = Array.from(new Set(this.downloadOnlyPart[workID].concat(indexList)));
@@ -33408,6 +33494,44 @@ class Store {
             this.downloadOnlyPart[workID] = indexList;
         }
     }
+    fileDataDefault = {
+        aiType: 0,
+        idNum: 0,
+        id: '',
+        original: '',
+        thumb: '',
+        regular: '',
+        small: '',
+        title: '',
+        description: '',
+        pageCount: 1,
+        index: 0,
+        tags: [],
+        tagsWithTransl: [],
+        tagsTranslOnly: [],
+        user: '',
+        userId: '',
+        fullWidth: 0,
+        fullHeight: 0,
+        ext: '',
+        bmk: 0,
+        bookmarked: false,
+        bmkId: '',
+        date: '',
+        uploadDate: '',
+        type: 0,
+        rank: null,
+        ugoiraInfo: null,
+        seriesTitle: null,
+        seriesOrder: null,
+        seriesId: null,
+        novelMeta: null,
+        likeCount: 0,
+        viewCount: 0,
+        commentCount: 0,
+        xRestrict: 0,
+        sl: null,
+    };
     // 添加每个作品的数据。只需要传递有值的属性
     // 如果一个作品有多张图片，只需要传递第一张图片的数据。后面的数据会根据设置自动生成
     addResult(data) {
@@ -49468,11 +49592,12 @@ const example = [
 // 如果某个数据是 Array，它不应该包含：1. 嵌套的数组；2. Symbol 类型的数据。
 class CreateCSV {
     constructor() {
-        this.separate = ','; // 分隔符
-        this.CRLF = '\r\n'; // 换行符
-        this.reg = / |\"|,|\n/; // 判断字符串是否需要添加双引号
         this.utf8BOM = this.UTF8BOM();
     }
+    separate = ','; // 分隔符
+    CRLF = '\r\n'; // 换行符
+    utf8BOM; // 在文件头添加 UTF-8 BOM ，避免中文乱码。因为没有 BOM 的话 Excel 会以 ANSI 编码打开文件，导致中文乱码
+    reg = / |\"|,|\n/; // 判断字符串是否需要添加双引号
     // 需要双引号包裹的情况：含有逗号、换行符、空格、双引号。
     // 全角符号不需要添加双引号。
     // 格式化每一行的数据
@@ -49609,35 +49734,35 @@ class DateFormat {
         r = r.replace('ss', ss);
         return r;
     }
+    static months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sept',
+        'Oct',
+        'Nov',
+        'Dec',
+    ];
+    static Months = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+    ];
 }
-DateFormat.months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sept',
-    'Oct',
-    'Nov',
-    'Dec',
-];
-DateFormat.Months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-];
 
 
 
@@ -49655,6 +49780,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 // 封装操作 IndexedDB 的一些公共方法，仅满足本程序使用，并不完善
 class IndexedDB {
+    db;
     async open(DBName, DBVer, onUpgrade) {
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(DBName, DBVer);
@@ -49910,15 +50036,15 @@ __webpack_require__.r(__webpack_exports__);
 // 可以用字母和数字组成隐藏口令，注册到这个模块，当用户输入隐藏口令时执行回调函数
 class SecretSignal {
     constructor() {
-        this.list = [];
-        // 允许的按键：字母键，数字键，小键盘数字键
-        // "KeyX"
-        // "Digit9"
-        // "Numpad1"
-        this.codePrefix = ['Key', 'Digit', 'Numpad'];
-        this.input = '';
         this.bindEvents();
     }
+    list = [];
+    // 允许的按键：字母键，数字键，小键盘数字键
+    // "KeyX"
+    // "Digit9"
+    // "Numpad1"
+    codePrefix = ['Key', 'Digit', 'Numpad'];
+    input = '';
     register(code, cb) {
         this.list.push({
             code,
@@ -49976,6 +50102,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   Utils: () => (/* binding */ Utils)
 /* harmony export */ });
 class Utils {
+    // 不安全的字符，这里多数是控制字符，需要替换掉
+    static unsafeStr = new RegExp(/[\u0000\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g);
+    // 一些需要替换成全角字符的符号，左边是正则表达式的字符
+    static fullWidthDict = [
+        ['\\\\', '＼'],
+        ['/', '／'],
+        [':', '：'],
+        ['\\?', '？'],
+        ['"', '＂'],
+        ['<', '＜'],
+        ['>', '＞'],
+        ['\\*', '＊'],
+        ['\\|', '｜'],
+        ['~', '～'],
+    ];
     // reg 预先创建，而不是运行时创建，因为运行时重复创建太多次了
     // 用正则去掉不安全的字符
     static replaceUnsafeStr(str) {
@@ -49988,6 +50129,20 @@ class Utils {
         }
         return str;
     }
+    /** Windows 保留文件名，不可单独作为文件名，不区分大小写 */
+    static windowsReservedNames = [
+        'CON',
+        'PRN',
+        'AUX',
+        'NUL',
+        'COM1',
+        'LPT1',
+        'LPT2',
+        'LPT3',
+        'COM2',
+        'COM3',
+        'COM4',
+    ];
     /** 检查并处理 Windows 保留文件名。
      * 如果不传递可选参数，则将其替换为空字符串。
      * 如果传递了可选参数，则在其后添加传递的可选参数的值 */
@@ -50376,41 +50531,14 @@ class Utils {
                 }
             });
         }, {
-            root: null,
+            root: null, // 默认使用视口作为根
             threshold: threshold,
+            // threshold 是一个阈值，如果为 0, 那么元素只要有一部分进入视口就触发
+            // 如果为 1, 则需要元素完全可见才会触发
         });
         observer.observe(el);
     }
 }
-// 不安全的字符，这里多数是控制字符，需要替换掉
-Utils.unsafeStr = new RegExp(/[\u0000\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g);
-// 一些需要替换成全角字符的符号，左边是正则表达式的字符
-Utils.fullWidthDict = [
-    ['\\\\', '＼'],
-    ['/', '／'],
-    [':', '：'],
-    ['\\?', '？'],
-    ['"', '＂'],
-    ['<', '＜'],
-    ['>', '＞'],
-    ['\\*', '＊'],
-    ['\\|', '｜'],
-    ['~', '～'],
-];
-/** Windows 保留文件名，不可单独作为文件名，不区分大小写 */
-Utils.windowsReservedNames = [
-    'CON',
-    'PRN',
-    'AUX',
-    'NUL',
-    'COM1',
-    'LPT1',
-    'LPT2',
-    'LPT3',
-    'COM2',
-    'COM3',
-    'COM4',
-];
 
 
 

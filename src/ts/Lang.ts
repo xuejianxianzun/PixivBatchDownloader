@@ -50,7 +50,11 @@ class Lang {
     // 单独对俄语进行一次检测
     // 因为现在 Pixiv 官方没有提供俄语选项，因此无法从 html 标签上获取到 ru 属性
     // 因此需要从 navigator.language 判断是否为俄语用户
-    if (navigator.language.startsWith('ru') || navigator.languages.includes('ru') || navigator.languages.includes('ru-RU')) {
+    if (
+      navigator.language.startsWith('ru') ||
+      navigator.languages.includes('ru') ||
+      navigator.languages.includes('ru-RU')
+    ) {
       return 'ru'
     }
 

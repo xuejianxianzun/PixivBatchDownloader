@@ -408,7 +408,7 @@
   -webkit-text-size-adjust: 100%;
   font-weight: bold;
   font-kerning: normal;
-  font-family: "Noto Sans SC", "Noto Sans", "Segeo UI Mono", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   margin: 0px 8px 12px 0;
   padding: 0px;
   text-align: center;
@@ -474,7 +474,7 @@
   padding: 20px 0px;
   border-radius: 15px;
   overflow: hidden;
-  font-family: "Noto Sans SC", "Noto Sans", "Segeo UI Mono", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 .centerWrap hr {
   border: none;
@@ -679,7 +679,7 @@
   vertical-align: middle;
 }
 .centerWrap .centerWrap_con .settingForm .centerPanelTextArea {
-  font-family: "Noto Sans SC", "Noto Sans", "Segeo UI Mono", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   color: #29b3f3;
   font-size: 14px;
   line-height: 1.5;
@@ -1331,7 +1331,7 @@
   left: 0px !important;
 }
 .lang_ru * {
-  font-family: "Noto Sans SC", "Noto Sans", "Segeo UI Mono", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 @media (max-width: 414px) {
   .centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns button {
@@ -1352,7 +1352,7 @@
   }
 }
 .outputWrap {
-  font-family: "Noto Sans SC", "Noto Sans", "Segeo UI Mono", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   padding: 20px 30px;
   width: 520px;
   background: #fff;
@@ -1488,7 +1488,7 @@
   border-radius: 8px;
 }
 .logWrap {
-  font-family: "Noto Sans SC", "Noto Sans", "Segeo UI Mono", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   position: relative;
   z-index: 0;
   width: 100%;
@@ -1568,7 +1568,7 @@
   left: 50%;
   transform: translate(-50%);
   text-align: center;
-  font-family: "Noto Sans SC", "Noto Sans", "Segeo UI Mono", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 .xz_msg_box p {
   margin: 0;

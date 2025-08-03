@@ -72,7 +72,7 @@ class Mute {
 
         this.got = true
         return resolve(items)
-      } catch (error) {
+      } catch (error: Error | any) {
         // 当请求出错时，视为获取完成。不抛出 reject，否则会导致抓取中止
         this.got = true
         if (error.status === 401) {

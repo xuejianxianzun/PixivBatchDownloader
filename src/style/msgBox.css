@@ -11,7 +11,9 @@
   left: 50%;
   transform: translate(-50%);
   text-align: center;
-  font-family: "Noto Sans SC", "Noto Sans", "Segeo UI Mono", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-family:
+    'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB',
+    'Microsoft YaHei', sans-serif;
 }
 .xz_msg_box p {
   margin: 0;
