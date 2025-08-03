@@ -70,10 +70,10 @@ class DownloadControl {
     exportJSON: HTMLButtonElement
     importJSON: HTMLButtonElement
   } = {
-    exportCSV: document.createElement('button'),
-    exportJSON: document.createElement('button'),
-    importJSON: document.createElement('button'),
-  }
+      exportCSV: document.createElement('button'),
+      exportJSON: document.createElement('button'),
+      importJSON: document.createElement('button'),
+    }
 
   private thread = 5 // 同时下载的线程数的默认值
   // 这里默认设置为 5，是因为国内一些用户的下载速度比较慢，所以不应该同时下载很多文件。
@@ -436,7 +436,7 @@ class DownloadControl {
     log.success(lang.transl('_正在下载中'))
 
     if (Config.mobile) {
-      log.warning(lang.transl('_Kiwi浏览器可能不能建立文件夹的bug'))
+      log.warning(lang.transl('_移动端浏览器可能不会建立文件夹的说明'))
     }
   }
 

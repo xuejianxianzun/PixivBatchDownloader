@@ -68,12 +68,10 @@ class CenterPanel {
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
-        <button class="textButton ${
-          !Config.mobile && 'has_tip'
-        } centerWrap_top_btn centerWrap_close" ${
-          !Config.mobile &&
-          'data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板"'
-        }>
+        <button class="textButton ${!Config.mobile && 'has_tip'
+      } centerWrap_top_btn centerWrap_close" ${!Config.mobile &&
+      'data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板"'
+      }>
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
         </svg>
@@ -209,7 +207,7 @@ class CenterPanel {
           lang.transl('_常见问题说明') + lang.transl('_账户可能被封禁的警告')
         if (Config.mobile) {
           msg =
-            msg + '<br><br>' + lang.transl('_Kiwi浏览器可能不能建立文件夹的bug')
+            msg + '<br><br>' + lang.transl('_移动端浏览器可能不会建立文件夹的说明')
         }
         msgBox.show(msg, {
           title: lang.transl('_常见问题'),

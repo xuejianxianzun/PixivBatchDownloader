@@ -19,6 +19,7 @@
   padding: 20px 0px;
   border-radius: 15px;
   overflow: hidden;
+  font-family: @pixivFontFamily;
 
   hr {
     border: none;
@@ -260,7 +261,7 @@
       }
 
       .centerPanelTextArea {
-        font-family: sans-serif;
+        font-family: @pixivFontFamily;
         color: @beautifyBlue;
         font-size: 14px;
         line-height: 1.5;
@@ -1085,13 +1086,6 @@
   input[name='workDirNameRule'] {
     width: 170px !important;
   }
-
-  &.showBlobKeywords {
-    .key {
-      font-weight: normal !important;
-      color: inherit !important;
-    }
-  }
 }
 
 .lang_ko {
@@ -1111,7 +1105,7 @@
   }
 
   * {
-    font-family: 'NotoSans', sans-serif;
+    font-family: @pixivFontFamily;
   }
 }
 
