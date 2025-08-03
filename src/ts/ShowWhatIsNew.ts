@@ -33,10 +33,11 @@ class ShowWhatIsNew {
       //   '_你可以在更多选项卡的xx分类里找到它',
       //   lang.transl('_下载')
       // )}
-
       // <br>
       // <br>
       // <span>${lang.transl('_该功能默认启用')}</span>
+
+      // <span>${lang.transl('_修复bug')}</span>
       // <span>${lang.transl('_修复已知问题')}</span>
       // <span>${lang.transl('_优化性能和用户体验')}</span>
       // <span>${lang.transl('_其他优化')}</span>
