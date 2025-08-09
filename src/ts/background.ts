@@ -1,21 +1,22 @@
-import { DonwloadListData, SendToBackEndData } from './download/DownloadType.d'
 import './ManageFollowing'
+import { DonwloadListData, SendToBackEndData } from './download/DownloadType.d'
+import browser from 'webextension-polyfill'
 
 // 当点击扩展图标时，显示/隐藏下载面板
-chrome.action.onClicked.addListener(function (tab) {
+browser.action.onClicked.addListener(function (tab) {
   // 在本程序没有权限的页面上点击扩展图标时，url 始终是 undefined，此时不发送消息
   if (!tab.url) {
     return
   }
 
-  chrome.tabs.sendMessage(tab.id!, {
+  browser.tabs.sendMessage(tab.id!, {
     msg: 'click_icon',
   })
 })
 
 // 当扩展被安装、被更新、或者浏览器升级时，初始化数据
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.set({ batchNo: {}, idList: {} })
+browser.runtime.onInstalled.addListener(() => {
+  browser.storage.local.set({ batchNo: {}, idList: {} })
 })
 
 // 存储每个下载任务的数据，这是因为下载完成的顺序和前台发送的顺序可能不一致，所以需要把数据保存起来以供使用
@@ -39,23 +40,41 @@ let idList: idListType = {}
 // 如果不进行持久化存储，如果前台任务处于下载途中，后台 SW 被回收了，那么变量也会被清除。之后前台传递过来的可能还是同一批下载里的任务，但是后台却丢失了记录。这可能会导致下载出现重复文件等异常。
 // 实际上，下载时后台 SW 会持续存在很长时间，不会轻易被回收的。持久化存储只是为了以防万一
 
-// 封装 chrome.storage.local.set。不需要等待回调
 async function setData(data: { [key: string]: any }) {
-  return chrome.storage.local.set(data)
+  return browser.storage.local.set(data)
 }
 
-chrome.runtime.onMessage.addListener(async function (
-  msg: SendToBackEndData,
-  sender
+// 类型守卫，省略了对一些字段的检查
+function isSendToBackEndData(msg: unknown): msg is SendToBackEndData {
+  return (
+    typeof msg === 'object' &&
+    msg !== null &&
+    'msg' in msg &&
+    typeof (msg as any).msg === 'string' &&
+    (('fileUrl' in msg && typeof (msg as any).fileUrl === 'string') ||
+      !('fileUrl' in msg))
+  )
+}
+
+browser.runtime.onMessage.addListener(async function (
+  msg: unknown,
+  sender: browser.Runtime.MessageSender
 ) {
+  // msg 是 SendToBackEndData 类型，但是 webextension-polyfill 的 msg 是 unknown，
+  // 不能直接在上面设置类型为 msg: SendToBackEndData，否则会报错。因此需要使用类型守卫，真麻烦
+  if (!isSendToBackEndData(msg)) {
+    console.warn('收到了无效的消息:', msg)
+    return
+  }
+
   // save_work_file 下载作品的文件
   if (msg.msg === 'save_work_file') {
     // 当处于初始状态时，或者变量被回收了，就从存储中读取数据储存在变量中
     // 之后每当要使用这两个数据时，从变量读取，而不是从存储中获得。这样就解决了数据不同步的问题，而且性能更高
     if (Object.keys(batchNo).length === 0) {
-      const data = await chrome.storage.local.get(['batchNo', 'idList'])
-      batchNo = data.batchNo
-      idList = data.idList
+      const data = await browser.storage.local.get(['batchNo', 'idList'])
+      batchNo = data.batchNo as batchNoType
+      idList = data.idList as idListType
     }
 
     const tabId = sender.tab!.id!
@@ -75,14 +94,14 @@ chrome.runtime.onMessage.addListener(async function (
       setData({ idList })
 
       // 开始下载
-      chrome.downloads.download(
-        {
+      browser.downloads
+        .download({
           url: msg.fileUrl,
           filename: msg.fileName,
           conflictAction: 'overwrite',
           saveAs: false,
-        },
-        (id) => {
+        })
+        .then((id) => {
           // id 是 Chrome 新建立的下载任务的 id
           // 使用下载任务的 id 作为 key 保存数据
           const data = {
@@ -92,8 +111,7 @@ chrome.runtime.onMessage.addListener(async function (
             uuid: false,
           }
           dlData[id] = data
-        }
-      )
+        })
     }
   }
 
@@ -104,7 +122,7 @@ chrome.runtime.onMessage.addListener(async function (
     msg.msg === 'save_novel_cover_file' ||
     msg.msg === 'save_novel_embedded_image'
   ) {
-    chrome.downloads.download({
+    browser.downloads.download({
       url: msg.fileUrl,
       filename: msg.fileName,
       conflictAction: 'overwrite',
@@ -129,7 +147,7 @@ const UUIDRegexp =
 
 // 监听下载变化事件
 // 每个下载会触发两次 onChanged 事件
-chrome.downloads.onChanged.addListener(async function (detail) {
+browser.downloads.onChanged.addListener(async function (detail) {
   // 根据 detail.id 取出保存的数据
   const data = dlData[detail.id]
   if (data) {
@@ -160,7 +178,7 @@ chrome.downloads.onChanged.addListener(async function (detail) {
 
     // 返回信息
     if (msg) {
-      chrome.tabs.sendMessage(data.tabId, { msg, data, err })
+      browser.tabs.sendMessage(data.tabId, { msg, data, err })
       // 清除这个任务的数据
       dlData[detail.id] = null
     }
@@ -172,7 +190,7 @@ async function clearData() {
   for (const key of Object.keys(idList)) {
     const tabId = parseInt(key)
     try {
-      await chrome.tabs.get(tabId)
+      await browser.tabs.get(tabId)
     } catch (error) {
       // 如果建立下载任务的标签页已经不存在，则会触发错误，如：
       // Unchecked runtime.lastError: No tab with id: 1943988409.

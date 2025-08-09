@@ -1,18 +1,6 @@
 # CHANGLOG
 
-## next
 
-我想让一个用 TypeScript 开发的 Chrome 扩展程序兼容 Firefox 浏览器。代码里有一些 chrome. 的 Chrome 专用 API 调用。
-
-我已经安装了 "webextension-polyfill" 包，接下来该怎么修改代码呢？
-
-
-"background": {
-    "service_worker": "js/background.js",
-    "persistent": false
-  },
-
-  'background.persistent' requires manifest version of 2 or lower.
 
 ### 🦊兼容 Firefox 浏览器
 

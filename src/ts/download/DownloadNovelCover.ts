@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill'
 import { lang } from '../Lang'
 import { log } from '../Log'
 import { Utils } from '../utils/Utils'
@@ -39,7 +40,7 @@ class DownloadNovelCover {
   }
 
   private sendDownload(url: string, name: string) {
-    chrome.runtime.sendMessage({
+    browser.runtime.sendMessage({
       msg: 'save_novel_cover_file',
       fileUrl: url,
       fileName: name,

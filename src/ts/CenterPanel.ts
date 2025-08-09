@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill'
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import { states } from './store/States'
@@ -136,7 +137,7 @@ class CenterPanel {
 
   private bindEvents() {
     // 监听点击扩展图标的消息，开关中间面板
-    chrome.runtime.onMessage.addListener((msg) => {
+    browser.runtime.onMessage.addListener((msg: any) => {
       if (msg.msg === 'click_icon') {
         this.toggle()
       }

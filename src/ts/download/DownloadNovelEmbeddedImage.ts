@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill'
 import { API } from '../API'
 import { Config } from '../Config'
 import { lang } from '../Lang'
@@ -237,7 +238,7 @@ class DownloadNovelEmbeddedImage {
   }
 
   private sendDownload(url: string, name: string) {
-    chrome.runtime.sendMessage({
+    browser.runtime.sendMessage({
       msg: 'save_novel_embedded_image',
       fileUrl: url,
       fileName: name,

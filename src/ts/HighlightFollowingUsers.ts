@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill'
 import { API } from './API'
 import { EVT } from './EVT'
 import { pageType } from './PageType'
@@ -9,6 +10,11 @@ import { settings } from './setting/Settings'
 import { toast } from './Toast'
 import { lang } from './Lang'
 import { Config } from './Config'
+
+type Msg = {
+  msg: string
+  data?: List
+}
 
 class HighlightFollowingUsers {
   constructor() {
@@ -22,37 +28,47 @@ class HighlightFollowingUsers {
       this.startMutationObserver()
     }, 0)
 
-    chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
-      if (msg.msg === 'dispathFollowingData') {
-        this.receiveData(msg.data)
-        EVT.fire('followingUsersChange')
+    browser.runtime.onMessage.addListener(
+      (
+        msg: unknown,
+        sender: browser.Runtime.MessageSender,
+        sendResponse: Function
+      ): any => {
+        if (!this.isMsg(msg)) {
+          return false
+        }
+
+        if (msg.msg === 'dispathFollowingData') {
+          this.receiveData(msg.data || [])
+          EVT.fire('followingUsersChange')
+        }
+
+        if (msg.msg === 'updateFollowingData') {
+          this.getList().then((list) => {
+            console.log(lang.transl('_已更新关注用户列表'))
+            toast.success(lang.transl('_已更新关注用户列表'), {
+              position: 'topCenter',
+            })
+
+            browser.runtime.sendMessage({
+              msg: 'setFollowingData',
+              data: {
+                user: store.loggedUserID,
+                following: list,
+                total: this.total,
+              },
+            })
+          })
+        }
+
+        if (msg.msg === 'getLoggedUserID') {
+          sendResponse({ loggedUserID: store.loggedUserID })
+        }
       }
-
-      if (msg.msg === 'updateFollowingData') {
-        const following = await this.getList()
-
-        console.log(lang.transl('_已更新关注用户列表'))
-        toast.success(lang.transl('_已更新关注用户列表'), {
-          position: 'topCenter',
-        })
-
-        chrome.runtime.sendMessage({
-          msg: 'setFollowingData',
-          data: {
-            user: store.loggedUserID,
-            following: following,
-            total: this.total,
-          },
-        })
-      }
-
-      if (msg.msg === 'getLoggedUserID') {
-        sendResponse({ loggedUserID: store.loggedUserID })
-      }
-    })
+    )
 
     if (store.loggedUserID) {
-      chrome.runtime.sendMessage({
+      browser.runtime.sendMessage({
         msg: 'requestFollowingData',
       })
     }
@@ -111,6 +127,11 @@ class HighlightFollowingUsers {
         }
       }
     })
+  }
+
+  // 类型守卫
+  private isMsg(msg: any): msg is Msg {
+    return !!msg.msg
   }
 
   private pageTheme = ''
@@ -240,7 +261,7 @@ class HighlightFollowingUsers {
     if (newTotal !== this.total) {
       // console.log(`关注用户总数量变化 ${this.total} -> ${newTotal}`)
       this.total = newTotal
-      chrome.runtime.sendMessage({
+      browser.runtime.sendMessage({
         msg: 'needUpdateFollowingData',
         user: store.loggedUserID,
       })

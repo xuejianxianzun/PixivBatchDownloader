@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill'
 import { EVT } from '../EVT'
 import { store } from '../store/Store'
 import { DonwloadSuccessData } from './DownloadType'
@@ -148,7 +149,7 @@ class SaveWorkMeta {
 
     // 发送下载请求
     // 因为我偷懒，所以后台不会返回下载状态，默认为下载成功
-    chrome.runtime.sendMessage({
+    browser.runtime.sendMessage({
       msg: 'save_description_file',
       fileUrl: URL.createObjectURL(blob),
       fileName: metaFileName,

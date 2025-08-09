@@ -22,6 +22,7 @@ export interface SendToBackEndData {
   fileName: string
   id: string
   taskBatch: number
+  blob?: Blob
 }
 
 // 浏览器下载时每个任务的信息

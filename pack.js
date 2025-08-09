@@ -7,8 +7,19 @@ const archiver = require('archiver')
 const packName = 'powerfulpixivdownloader-online'
 const distPath = './dist'
 
-// 复制一些文件到发布目录
-async function copys() {
+async function build () {
+  await copys()
+  const _metadata = path.resolve(__dirname, distPath + '_metadata')
+  // 删除 _metadata 目录
+  if (fs.existsSync(_metadata)) {
+    fs.rmdirSync(_metadata, { recursive: true })
+  }
+  // 打包
+  pack()
+}
+
+// 复制必须的文件到发布目录
+async function copys () {
   return new Promise(async (resolve, reject) => {
     // 复制 static 文件夹的内容
     await copy('./src/static', distPath, {
@@ -24,7 +35,7 @@ async function copys() {
       filter: ['manifest.json', 'declarative_net_request_rules.json'],
     })
 
-    // 复制根目录一些文件
+    // 复制根目录的一些文件
     await copy('./', distPath, {
       overwrite: true,
       filter: ['README*.md', 'LICENSE'],
@@ -36,7 +47,7 @@ async function copys() {
 }
 
 // 打包发布目录
-function pack() {
+function pack () {
   const zipName = path.resolve(__dirname, packName + '.zip')
   const output = fs.createWriteStream(zipName)
 
@@ -52,21 +63,20 @@ function pack() {
     console.log(`Pack success`)
   })
 
-  // pipe archive data to the file
   archive.pipe(output)
 
-  // 添加文件夹
-  archive.directory(distPath, packName)
+  // 注意：在 Firefox 里 manifest.json 必须在 zip 的根目录下，所以不能在最外层套一层文件夹
+
+  // 使用 glob 模式打包文件，排除特定子文件夹
+  archive.glob('**/*', {
+    cwd: distPath, // 设置工作目录
+    ignore: [
+      '_metadata/**', // 排除 _metadata 文件夹
+    ],
+    dot: false, // 忽略隐藏文件
+  });
 
   archive.finalize()
 }
 
-// 构建
-async function build() {
-  await copys()
-  pack()
-}
-
 build()
-
-console.log('Start pack')

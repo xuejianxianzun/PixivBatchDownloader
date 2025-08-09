@@ -1,4 +1,4 @@
-// 下载控制
+import browser from 'webextension-polyfill'
 import { EVT } from '../EVT'
 import { Tools } from '../Tools'
 import {
@@ -97,6 +97,11 @@ class DownloadControl {
 
   private readonly msgFlag = 'uuidTip'
 
+  // 类型守卫
+  private isDownloadedMsg(msg: any): msg is DownloadedMsg {
+    return !!msg.msg
+  }
+
   private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
       this.hideResultBtns()
@@ -160,8 +165,12 @@ class DownloadControl {
     })
 
     // 监听浏览器返回的消息
-    chrome.runtime.onMessage.addListener((msg: DownloadedMsg) => {
+    browser.runtime.onMessage.addListener((msg: any) => {
       if (!this.taskBatch) {
+        return
+      }
+
+      if (!this.isDownloadedMsg(msg)) {
         return
       }
 
@@ -227,7 +236,7 @@ class DownloadControl {
         })
 
         // 通知后台清除保存的此标签页的 idList
-        chrome.runtime.sendMessage({
+        browser.runtime.sendMessage({
           msg: 'clearDownloadsTempData',
         })
       } else {

@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill'
 import { EVT } from '../EVT'
 import { store } from '../store/Store'
 import { DonwloadSuccessData } from './DownloadType'
@@ -75,7 +76,7 @@ class SaveWorkDescription {
     }.txt`
 
     // 不检查下载状态，默认下载成功
-    chrome.runtime.sendMessage({
+    browser.runtime.sendMessage({
       msg: 'save_description_file',
       fileUrl: URL.createObjectURL(blob),
       fileName: fileName,
@@ -199,7 +200,7 @@ class SaveWorkDescription {
     }
 
     // 不检查下载状态，默认下载成功
-    chrome.runtime.sendMessage({
+    browser.runtime.sendMessage({
       msg: 'save_description_file',
       fileUrl: URL.createObjectURL(blob),
       fileName: txtName,

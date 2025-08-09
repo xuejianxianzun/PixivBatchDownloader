@@ -11,7 +11,7 @@
     "outDir": "./dist/js",
     "downlevelIteration": true,
     "strict": true,
-    // "types": ["webextension-polyfill"],
+    "types": ["webextension-polyfill"],
     "allowSyntheticDefaultImports": true
   },
   "include": ["./src/ts/*"],

@@ -21,6 +21,9 @@ class Config {
   static readonly retryTime = 200000
   /**浏览器是否处于移动端模式 */
   static readonly mobile = navigator.userAgent.includes('Mobile')
+  /**检测 Firefox 浏览器 */
+  static readonly isFirefox = window.navigator.userAgent.includes('Firefox')
+
   /**ImageViewer 生成的 li 元素的 className */
   static readonly ImageViewerLI = 'xz-thumb-li'
   /**检测 ImageViewer 生成的 li 元素，以便其他模块进行一些特殊处理 */

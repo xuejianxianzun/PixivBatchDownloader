@@ -30,16 +30,6 @@ class CheckUnsupportBrowser {
     '2345': function () {
       return navigator.userAgent.includes('2345Explorer')
     },
-    FireFox: function () {
-      // 本扩展不支持 Firefox，在其上使用会遇到一些问题
-      if (navigator.userAgent.includes('Firefox')) {
-        msgBox.warning(lang.transl('_检测到在Firefox浏览器上使用'), {
-          title: Config.appName,
-        })
-        return true
-      }
-      return false
-    },
     Yandex: function () {
       if (navigator.userAgent.includes('YaBrowser')) {
         msgBox.warning(lang.transl('_yandex浏览器的警告'), {

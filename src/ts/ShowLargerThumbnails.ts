@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill'
 import { Config } from './Config'
 import { EVT } from './EVT'
 import { pageType } from './PageType'
@@ -24,7 +25,7 @@ class ShowLargerThumbnails {
 
   private async loadCssText() {
     const css = await fetch(
-      chrome.runtime.getURL('style/showLargerThumbnails.css')
+      browser.runtime.getURL('style/showLargerThumbnails.css')
     )
     this.css = await css.text()
     this.setCss()
