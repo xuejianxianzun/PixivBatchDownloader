@@ -18,7 +18,7 @@ export interface downloadArgument {
 // 前台向后台发送的任务信息
 export interface SendToBackEndData {
   msg: string
-  fileUrl: string
+  fileURL: string
   fileName: string
   id: string
   taskBatch: number
@@ -27,7 +27,10 @@ export interface SendToBackEndData {
 
 // 浏览器下载时每个任务的信息
 export interface DonwloadSuccessData {
+  /**前台生成的 blob URL */
   url: string
+  /**后台生成的 blob URL，可能为空字符串 */
+  url2: string
   id: string
   tabId: number
   uuid: boolean

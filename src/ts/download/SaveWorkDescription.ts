@@ -10,6 +10,7 @@ import { Tools } from '../Tools'
 import { lang } from '../Lang'
 import { log } from '../Log'
 import { toast } from '../Toast'
+import { Config } from '../Config'
 
 // 为每个作品创建一个 txt 文件，保存这个作品的元数据
 class SaveWorkDescription {
@@ -78,7 +79,8 @@ class SaveWorkDescription {
     // 不检查下载状态，默认下载成功
     browser.runtime.sendMessage({
       msg: 'save_description_file',
-      fileUrl: URL.createObjectURL(blob),
+      blob: Config.isFirefox ? blob : undefined,
+      fileURL: URL.createObjectURL(blob),
       fileName: fileName,
     })
 
@@ -202,7 +204,8 @@ class SaveWorkDescription {
     // 不检查下载状态，默认下载成功
     browser.runtime.sendMessage({
       msg: 'save_description_file',
-      fileUrl: URL.createObjectURL(blob),
+      blob: Config.isFirefox ? blob : undefined,
+      fileURL: URL.createObjectURL(blob),
       fileName: txtName,
     })
 

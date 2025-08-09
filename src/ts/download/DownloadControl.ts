@@ -182,7 +182,6 @@ class DownloadControl {
 
       // 文件下载成功
       if (msg.msg === 'downloaded') {
-        // 释放 BLOBURL
         URL.revokeObjectURL(msg.data.url)
 
         // 发送下载成功的事件

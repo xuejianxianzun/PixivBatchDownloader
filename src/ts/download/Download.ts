@@ -427,7 +427,7 @@ class Download {
     // 因为在 Firefox 里，前台生成的 blob URL 无法在后台里使用 download API 下载，所以直接传递 blob
     const sendData: SendToBackEndData = {
       msg: 'save_work_file',
-      fileUrl: blobURl,
+      fileURL: blobURl,
       fileName: fileName,
       id,
       taskBatch,

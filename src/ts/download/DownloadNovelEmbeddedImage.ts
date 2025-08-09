@@ -22,7 +22,8 @@ type NovelImageData = {
    * 可能的原因 1：当图片是通过引用作品 ID 插入，但这个图片作品已经不存在了（404）
    * 可能的原因 2：当图片是通过引用作品 ID 插入，但下载器获取到作品数据里的 urls 都是 null（通常是因为用户未登录） */
   url: '' | string
-  /**图片的 BLOBURL */
+  blob?: Blob
+  /**图片的 blob URL */
   blobURL?: string
   /**图片在原文中的标记文字，如 [pixivimage:121979383-1]*/
   flag: string
@@ -84,8 +85,15 @@ class DownloadNovelEmbeddedImage {
       if (action === 'mergeNovel') {
         imageName = Utils.replaceUnsafeStr(imageName)
       }
-      this.sendDownload(image.blobURL!, imageName)
+
+      browser.runtime.sendMessage({
+        msg: 'save_novel_embedded_image',
+        blob: Config.isFirefox ? image.blob : undefined,
+        fileURL: image.blobURL!,
+        fileName: imageName,
+      })
     }
+
     log.persistentRefresh('downloadNovelImage' + novelID)
   }
 
@@ -214,35 +222,26 @@ class DownloadNovelEmbeddedImage {
   private async getImageBlobURL(
     image: NovelImageData
   ): Promise<NovelImageData> {
-    return new Promise(async (resolve) => {
-      if (image.url) {
-        let illustration: Blob | undefined = undefined
-        try {
-          illustration = await fetch(image.url).then((response) => {
-            if (response.ok) {
-              return response.blob()
-            }
-          })
-        } catch (error) {
-          console.log(error)
-        }
-        // 如果图片获取失败，不重试
-        if (illustration === undefined) {
-          log.error(`fetch ${image.url} failed`)
-          return resolve(image)
-        }
-        image.blobURL = URL.createObjectURL(illustration)
+    if (image.url) {
+      let illustration: Blob | undefined = undefined
+      try {
+        illustration = await fetch(image.url).then((response) => {
+          if (response.ok) {
+            return response.blob()
+          }
+        })
+      } catch (error) {
+        console.log(error)
       }
-      resolve(image)
-    })
-  }
-
-  private sendDownload(url: string, name: string) {
-    browser.runtime.sendMessage({
-      msg: 'save_novel_embedded_image',
-      fileUrl: url,
-      fileName: name,
-    })
+      // 如果图片获取失败，不重试
+      if (illustration === undefined) {
+        log.error(`fetch ${image.url} failed`)
+        return image
+      }
+      image.blob = illustration
+      image.blobURL = URL.createObjectURL(illustration)
+    }
+    return image
   }
 }
 

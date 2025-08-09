@@ -7,6 +7,7 @@ import { Result } from '../store/StoreType'
 import { settings } from '../setting/Settings'
 import { Utils } from '../utils/Utils'
 import { Tools } from '../Tools'
+import { Config } from '../Config'
 
 // 为每个作品创建一个 txt 文件，保存这个作品的元数据
 class SaveWorkMeta {
@@ -151,7 +152,8 @@ class SaveWorkMeta {
     // 因为我偷懒，所以后台不会返回下载状态，默认为下载成功
     browser.runtime.sendMessage({
       msg: 'save_description_file',
-      fileUrl: URL.createObjectURL(blob),
+      blob: Config.isFirefox ? blob : undefined,
+      fileURL: URL.createObjectURL(blob),
       fileName: metaFileName,
     })
 

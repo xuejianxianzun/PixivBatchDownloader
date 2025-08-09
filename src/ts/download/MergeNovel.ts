@@ -1,5 +1,4 @@
 import { store } from '../store/Store'
-import { Result } from '../store/StoreType'
 import { EVT } from '../EVT'
 import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
@@ -11,6 +10,7 @@ import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
 import { log } from '../Log'
 import { API } from '../API'
 import { NovelSeriesData } from '../crawl/CrawlResult'
+import { Config } from '../Config'
 
 declare const jEpub: any
 
@@ -249,7 +249,7 @@ class MergeNovel {
           throw 'Network response was not ok.'
         }
       )
-      jepub.cover(cover)
+      jepub.cover(Config.isFirefox ? Utils.copyArrayBuffer(cover) : cover)
 
       // 循环添加小说内容
       for (const novelData of novelDataArray) {
@@ -284,11 +284,11 @@ class MergeNovel {
           }
 
           // 加载图片
-          let illustration: Blob | undefined = undefined
+          let illustration: ArrayBuffer | undefined = undefined
           try {
             illustration = await fetch(image.url).then((response) => {
               if (response.ok) {
-                return response.blob()
+                return response.arrayBuffer()
               }
             })
           } catch (error) {
@@ -302,7 +302,12 @@ class MergeNovel {
             )
             continue
           }
-          jepub.image(illustration, imageID)
+          jepub.image(
+            Config.isFirefox
+              ? Utils.copyArrayBuffer(illustration)
+              : illustration,
+            imageID
+          )
 
           // 将小说正文里的图片标记替换为真实的的图片路径，以在 EPUB 里显示
           const ext = Utils.getURLExt(image.url)

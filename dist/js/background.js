@@ -1606,6 +1606,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_1__);
 
 
+/**检测 Firefox 浏览器 */
+const isFirefox = navigator.userAgent.includes('Firefox');
 // 当点击扩展图标时，显示/隐藏下载面板
 webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().action.onClicked.addListener(function (tab) {
     // 在本程序没有权限的页面上点击扩展图标时，url 始终是 undefined，此时不发送消息
@@ -1638,8 +1640,8 @@ function isSendToBackEndData(msg) {
         msg !== null &&
         'msg' in msg &&
         typeof msg.msg === 'string' &&
-        (('fileUrl' in msg && typeof msg.fileUrl === 'string') ||
-            !('fileUrl' in msg)));
+        'fileURL' in msg &&
+        typeof msg.fileURL === 'string');
 }
 webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.addListener(async function (msg, sender) {
     // msg 是 SendToBackEndData 类型，但是 webextension-polyfill 的 msg 是 unknown，
@@ -1670,34 +1672,35 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.a
             // 储存该任务的索引
             idList[tabId].push(msg.id);
             setData({ idList });
+            // 对于 Firefox 浏览器，从 blob 对象生成 URL
+            const newURL = createNewURL(msg.blob);
             // 开始下载
             webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().downloads
                 .download({
-                url: msg.fileUrl,
+                url: newURL || msg.fileURL,
                 filename: msg.fileName,
                 conflictAction: 'overwrite',
                 saveAs: false,
             })
                 .then((id) => {
-                // id 是 Chrome 新建立的下载任务的 id
-                // 使用下载任务的 id 作为 key 保存数据
-                const data = {
-                    url: msg.fileUrl,
+                // id 是新建立的下载项的 id，使用它作为 key 保存数据
+                dlData[id] = {
+                    url: msg.fileURL,
+                    url2: newURL,
                     id: msg.id,
                     tabId: tabId,
                     uuid: false,
                 };
-                dlData[id] = data;
             });
         }
     }
-    // save_description_file 下载作品的元数据/简介 TXT 文件，不需要返回下载状态
-    // save_novel_cover_file 下载小说的封面图片
+    // 有些文件属于某个抓取结果的附加项，本身不在抓取结果 store.result 里，所以也没有它的进度条
+    // 对于这些文件直接下载，不需要回调函数，也不需要返回下载结果
     if (msg.msg === 'save_description_file' ||
         msg.msg === 'save_novel_cover_file' ||
         msg.msg === 'save_novel_embedded_image') {
         webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().downloads.download({
-            url: msg.fileUrl,
+            url: createNewURL(msg.blob) || msg.fileURL,
             filename: msg.fileName,
             conflictAction: 'overwrite',
             saveAs: false,
@@ -1712,14 +1715,21 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.a
         }
     }
 });
+/**对于 Firefox 浏览器，从 blob 对象生成 URL */
+function createNewURL(blob) {
+    if (isFirefox && blob) {
+        return URL.createObjectURL(blob);
+    }
+    return '';
+}
 // 判断文件名是否变成了 UUID 格式。因为文件名处于整个绝对路径的中间，所以没加首尾标记 ^ $
 const UUIDRegexp = /[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}/;
 // 监听下载变化事件
 // 每个下载会触发两次 onChanged 事件
 webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().downloads.onChanged.addListener(async function (detail) {
     // 根据 detail.id 取出保存的数据
-    const data = dlData[detail.id];
-    if (data) {
+    const _dlData = dlData[detail.id];
+    if (_dlData) {
         let msg = '';
         let err = '';
         // 判断当前文件名是否正常。下载时必定会有一次 detail.filename.current 有值
@@ -1727,7 +1737,7 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().downloads.onChanged
             const changedName = detail.filename.current;
             if (changedName.match(UUIDRegexp) !== null) {
                 // 文件名是 UUID
-                data.uuid = true;
+                _dlData.uuid = true;
             }
         }
         if (detail.state && detail.state.current === 'complete') {
@@ -1737,14 +1747,19 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().downloads.onChanged
             msg = 'download_err';
             err = detail.error.current;
             // 当保存一个文件出错时，从任务记录列表里删除它，以便前台重试下载
-            const idIndex = idList[data.tabId].findIndex((val) => val === data.id);
-            idList[data.tabId][idIndex] = '';
+            const idIndex = idList[_dlData.tabId].findIndex((val) => val === _dlData.id);
+            idList[_dlData.tabId][idIndex] = '';
             setData({ idList });
         }
-        // 返回信息
         if (msg) {
-            webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().tabs.sendMessage(data.tabId, { msg, data, err });
+            // 返回信息
+            webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().tabs.sendMessage(_dlData.tabId, { msg, data: _dlData, err });
             // 清除这个任务的数据
+            // 在 Chrome 浏览器的 service_worker 里，URL 上不存在 revokeObjectURL 方法
+            // 所以目前只会在 Firefox 上手动吊销这个 blob URL
+            if (URL.revokeObjectURL) {
+                URL.revokeObjectURL(_dlData.url2);
+            }
             dlData[detail.id] = null;
         }
     }

@@ -50,7 +50,7 @@ class ImageToIcon {
   private async convertImageURL(source: Opt['source']) {
     return new Promise<string>(async (resolve, reject) => {
       if (typeof source === 'string') {
-        // 请求图片，并为其生成 BlobURL，解决图片跨域导致 canvas 污染的问题
+        // 请求图片，并为其生成 blob URL，解决图片跨域导致 canvas 污染的问题
         const res = await fetch(source, {
           method: 'get',
           credentials: 'same-origin',

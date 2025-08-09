@@ -2,6 +2,9 @@ import './ManageFollowing'
 import { DonwloadListData, SendToBackEndData } from './download/DownloadType.d'
 import browser from 'webextension-polyfill'
 
+/**检测 Firefox 浏览器 */
+const isFirefox = navigator.userAgent.includes('Firefox')
+
 // 当点击扩展图标时，显示/隐藏下载面板
 browser.action.onClicked.addListener(function (tab) {
   // 在本程序没有权限的页面上点击扩展图标时，url 始终是 undefined，此时不发送消息
@@ -51,8 +54,8 @@ function isSendToBackEndData(msg: unknown): msg is SendToBackEndData {
     msg !== null &&
     'msg' in msg &&
     typeof (msg as any).msg === 'string' &&
-    (('fileUrl' in msg && typeof (msg as any).fileUrl === 'string') ||
-      !('fileUrl' in msg))
+    'fileURL' in msg &&
+    typeof (msg as any).fileURL === 'string'
   )
 }
 
@@ -93,37 +96,39 @@ browser.runtime.onMessage.addListener(async function (
       idList[tabId].push(msg.id)
       setData({ idList })
 
+      // 对于 Firefox 浏览器，从 blob 对象生成 URL
+      const newURL = createNewURL(msg.blob)
+
       // 开始下载
       browser.downloads
         .download({
-          url: msg.fileUrl,
+          url: newURL || msg.fileURL,
           filename: msg.fileName,
           conflictAction: 'overwrite',
           saveAs: false,
         })
         .then((id) => {
-          // id 是 Chrome 新建立的下载任务的 id
-          // 使用下载任务的 id 作为 key 保存数据
-          const data = {
-            url: msg.fileUrl,
+          // id 是新建立的下载项的 id，使用它作为 key 保存数据
+          dlData[id] = {
+            url: msg.fileURL,
+            url2: newURL,
             id: msg.id,
             tabId: tabId,
             uuid: false,
           }
-          dlData[id] = data
         })
     }
   }
 
-  // save_description_file 下载作品的元数据/简介 TXT 文件，不需要返回下载状态
-  // save_novel_cover_file 下载小说的封面图片
+  // 有些文件属于某个抓取结果的附加项，本身不在抓取结果 store.result 里，所以也没有它的进度条
+  // 对于这些文件直接下载，不需要回调函数，也不需要返回下载结果
   if (
     msg.msg === 'save_description_file' ||
     msg.msg === 'save_novel_cover_file' ||
     msg.msg === 'save_novel_embedded_image'
   ) {
     browser.downloads.download({
-      url: msg.fileUrl,
+      url: createNewURL(msg.blob) || msg.fileURL,
       filename: msg.fileName,
       conflictAction: 'overwrite',
       saveAs: false,
@@ -141,6 +146,15 @@ browser.runtime.onMessage.addListener(async function (
   }
 })
 
+/**对于 Firefox 浏览器，从 blob 对象生成 URL */
+function createNewURL(blob?: Blob) {
+  if (isFirefox && blob) {
+    return URL.createObjectURL(blob)
+  }
+
+  return ''
+}
+
 // 判断文件名是否变成了 UUID 格式。因为文件名处于整个绝对路径的中间，所以没加首尾标记 ^ $
 const UUIDRegexp =
   /[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}/
@@ -149,8 +163,8 @@ const UUIDRegexp =
 // 每个下载会触发两次 onChanged 事件
 browser.downloads.onChanged.addListener(async function (detail) {
   // 根据 detail.id 取出保存的数据
-  const data = dlData[detail.id]
-  if (data) {
+  const _dlData = dlData[detail.id]
+  if (_dlData) {
     let msg = ''
     let err = ''
 
@@ -159,7 +173,7 @@ browser.downloads.onChanged.addListener(async function (detail) {
       const changedName = detail.filename.current
       if (changedName.match(UUIDRegexp) !== null) {
         // 文件名是 UUID
-        data.uuid = true
+        _dlData.uuid = true
       }
     }
 
@@ -171,15 +185,23 @@ browser.downloads.onChanged.addListener(async function (detail) {
       msg = 'download_err'
       err = detail.error.current
       // 当保存一个文件出错时，从任务记录列表里删除它，以便前台重试下载
-      const idIndex = idList[data.tabId].findIndex((val) => val === data.id)
-      idList[data.tabId][idIndex] = ''
+      const idIndex = idList[_dlData.tabId].findIndex(
+        (val) => val === _dlData.id
+      )
+      idList[_dlData.tabId][idIndex] = ''
       setData({ idList })
     }
 
-    // 返回信息
     if (msg) {
-      browser.tabs.sendMessage(data.tabId, { msg, data, err })
+      // 返回信息
+      browser.tabs.sendMessage(_dlData.tabId, { msg, data: _dlData, err })
+
       // 清除这个任务的数据
+      // 在 Chrome 浏览器的 service_worker 里，URL 上不存在 revokeObjectURL 方法
+      // 所以目前只会在 Firefox 上手动吊销这个 blob URL
+      if (URL.revokeObjectURL) {
+        URL.revokeObjectURL(_dlData.url2)
+      }
       dlData[detail.id] = null
     }
   }
