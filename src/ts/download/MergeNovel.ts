@@ -115,7 +115,7 @@ class MergeNovel {
 
     // 生成小说文件并下载
     let file: Blob | null = null
-    const novelName = `${title}-tags_${seriesData.tags}-user_${userName}-seriesId_${seriesData.id}.${settings.novelSaveAs}`
+    const novelName = `${title}-user_${userName}-seriesId_${seriesData.id}-tags_${seriesData.tags}.${settings.novelSaveAs}`
     if (settings.novelSaveAs === 'txt') {
       file = await this.mergeTXT(allNovelData)
       // 保存为 txt 格式时，在这里下载小说内嵌的图片
