@@ -227,7 +227,7 @@ class Utils {
     }
     if (Reflect.has(el, 'length')) {
       // 如果有 length 属性则循环删除。
-      ; (el as NodeListOf<Element>).forEach((el) => {
+      ;(el as NodeListOf<Element>).forEach((el) => {
         if (el.parentNode) {
           el.parentNode.removeChild(el)
         }
@@ -503,16 +503,29 @@ class Utils {
     observer.observe(el)
   }
 
-  // 在 Firefox 浏览器里，需要把 response.arrayBuffer 通过 new ArrayBuffer 来复制一份来使用
+  // 在 Firefox 浏览器里，需要把 response.arrayBuffer 通过 new ArrayBuffer 来复制一份，以通过类型检查
   // 因为 Firefox 把 response.arrayBuffer 视为一个非标准的 ArrayBuffer，尽管它在功能上是等价的。
-  // 注：这个问题同样存在于 response.blob 上
   // 这会导致 buffer instanceof ArrayBuffer 和 ArrayBuffer.isView(buffer) 在 Firefox 上为 false
   // 因此需要使用 new ArrayBuffer 来复制为标准的 ArrayBuffer，以通过类型检查
+  // 注：这个问题同样存在于 response.blob 上
   static copyArrayBuffer(arrayBuffer: ArrayBuffer) {
     const newBuffer = new ArrayBuffer(arrayBuffer.byteLength)
     new Uint8Array(newBuffer).set(new Uint8Array(arrayBuffer))
     arrayBuffer = null as any
     return newBuffer
+  }
+
+  static blobToDataURL(blob: Blob) {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = function () {
+        resolve(this.result as string)
+      }
+      reader.onerror = function () {
+        reject(new Error('Failed to convert blob to DataURL'))
+      }
+      reader.readAsDataURL(blob)
+    })
   }
 }
 

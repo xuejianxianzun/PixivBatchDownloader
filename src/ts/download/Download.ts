@@ -409,29 +409,33 @@ class Download {
   }
 
   // 向浏览器发送下载任务
-  private browserDownload(
+  private async browserDownload(
     blob: Blob,
-    blobURl: string,
+    blobURL: string,
     fileName: string,
     id: string,
     taskBatch: number
   ) {
     // 如果任务已停止，不会向浏览器发送下载任务
     if (this.cancel) {
-      // 释放 bloburl
-      URL.revokeObjectURL(blobURl)
+      // 释放 blob URL
+      URL.revokeObjectURL(blobURL)
       return
     }
 
-    // 仅在 Firefox 浏览器上，向后台传递 blob 对象。
-    // 因为在 Firefox 里，前台生成的 blob URL 无法在后台里使用 download API 下载，所以直接传递 blob
+    let dataURL: string | undefined = undefined
+    if (Config.sendDataURL) {
+      dataURL = await Utils.blobToDataURL(blob)
+    }
+
     const sendData: SendToBackEndData = {
       msg: 'save_work_file',
-      fileURL: blobURl,
       fileName: fileName,
       id,
       taskBatch,
-      blob: Config.isFirefox ? blob : undefined,
+      blobURL,
+      blob: Config.sendBlob ? blob : undefined,
+      dataURL,
     }
 
     try {

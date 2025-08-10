@@ -3,6 +3,7 @@ import { lang } from '../Lang'
 import { log } from '../Log'
 import { Utils } from '../utils/Utils'
 import { Config } from '../Config'
+import { SendToBackEndData } from './DownloadType'
 
 class DownloadNovelCover {
   /**下载小说的封面图片
@@ -17,7 +18,6 @@ class DownloadNovelCover {
     log.log(lang.transl('_下载封面图片'), 1, false, 'downloadNovelCover')
 
     const blob = await this.getCover(coverURL)
-    const url = URL.createObjectURL(blob)
     let coverName = Utils.replaceSuffix(novelName, coverURL)
 
     // 合并系列小说时，文件直接保存在下载目录里，封面图片也保存在下载目录里
@@ -26,12 +26,22 @@ class DownloadNovelCover {
       coverName = Utils.replaceUnsafeStr(coverName)
     }
 
-    browser.runtime.sendMessage({
+    let dataURL: string | undefined = undefined
+    if (Config.sendDataURL) {
+      dataURL = await Utils.blobToDataURL(blob)
+    }
+
+    // 不检查下载状态，默认下载成功
+    const sendData: SendToBackEndData = {
       msg: 'save_novel_cover_file',
-      blob: Config.isFirefox ? blob : undefined,
-      fileURL: url,
       fileName: coverName,
-    })
+      id: 'fake',
+      taskBatch: -1,
+      blobURL: URL.createObjectURL(blob),
+      blob: Config.sendBlob ? blob : undefined,
+      dataURL,
+    }
+    browser.runtime.sendMessage(sendData)
   }
 
   private async getCover(coverURL: string): Promise<Blob> {

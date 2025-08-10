@@ -6,6 +6,7 @@ import { log } from '../Log'
 import { settings } from '../setting/Settings'
 import { Utils } from '../utils/Utils'
 import { downloadInterval } from './DownloadInterval'
+import { SendToBackEndData } from './DownloadType'
 
 type EmbeddedImages = null | {
   [key: string]: string
@@ -23,8 +24,6 @@ type NovelImageData = {
    * 可能的原因 2：当图片是通过引用作品 ID 插入，但下载器获取到作品数据里的 urls 都是 null（通常是因为用户未登录） */
   url: '' | string
   blob?: Blob
-  /**图片的 blob URL */
-  blobURL?: string
   /**图片在原文中的标记文字，如 [pixivimage:121979383-1]*/
   flag: string
   /**标记里的图片 id + 序号部分，如 121979383-1（也可能没有序号） */
@@ -72,7 +71,11 @@ class DownloadNovelEmbeddedImage {
 
       await downloadInterval.wait()
 
-      image = await this.getImageBlobURL(image)
+      image = await this.getImageBlob(image)
+      if (image.blob === undefined) {
+        return
+      }
+
       let imageName = Utils.replaceSuffix(novelName, image.url!)
       // 在文件名末尾加上内嵌图片的 id 和序号
       const array = imageName.split('.')
@@ -86,12 +89,23 @@ class DownloadNovelEmbeddedImage {
         imageName = Utils.replaceUnsafeStr(imageName)
       }
 
-      browser.runtime.sendMessage({
+      const blob = image.blob
+      let dataURL: string | undefined = undefined
+      if (Config.sendDataURL) {
+        dataURL = await Utils.blobToDataURL(blob)
+      }
+
+      // 不检查下载状态，默认下载成功
+      const sendData: SendToBackEndData = {
         msg: 'save_novel_embedded_image',
-        blob: Config.isFirefox ? image.blob : undefined,
-        fileURL: image.blobURL!,
         fileName: imageName,
-      })
+        id: 'fake',
+        taskBatch: -1,
+        blobURL: URL.createObjectURL(blob),
+        blob: Config.sendBlob ? blob : undefined,
+        dataURL,
+      }
+      browser.runtime.sendMessage(sendData)
     }
 
     log.persistentRefresh('downloadNovelImage' + novelID)
@@ -219,9 +233,7 @@ class DownloadNovelEmbeddedImage {
     })
   }
 
-  private async getImageBlobURL(
-    image: NovelImageData
-  ): Promise<NovelImageData> {
+  private async getImageBlob(image: NovelImageData): Promise<NovelImageData> {
     if (image.url) {
       let illustration: Blob | undefined = undefined
       try {
@@ -239,7 +251,6 @@ class DownloadNovelEmbeddedImage {
         return image
       }
       image.blob = illustration
-      image.blobURL = URL.createObjectURL(illustration)
     }
     return image
   }

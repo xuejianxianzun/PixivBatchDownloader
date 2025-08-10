@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill'
 import { EVT } from '../EVT'
 import { store } from '../store/Store'
-import { DonwloadSuccessData } from './DownloadType'
+import { DonwloadSuccessData, SendToBackEndData } from './DownloadType'
 import { fileName } from '../FileName'
 import { Result } from '../store/StoreType'
 import { settings } from '../setting/Settings'
@@ -41,7 +41,7 @@ class SaveWorkDescription {
   }
 
   /**保存单个作品的简介 */
-  private saveOne(id: number) {
+  private async saveOne(id: number) {
     if (!settings.saveWorkDescription || !settings.saveEachDescription) {
       return
     }
@@ -76,13 +76,22 @@ class SaveWorkDescription {
       hasLink ? '-links' : ''
     }.txt`
 
+    let dataURL: string | undefined = undefined
+    if (Config.sendDataURL) {
+      dataURL = await Utils.blobToDataURL(blob)
+    }
+
     // 不检查下载状态，默认下载成功
-    browser.runtime.sendMessage({
+    const sendData: SendToBackEndData = {
       msg: 'save_description_file',
-      blob: Config.isFirefox ? blob : undefined,
-      fileURL: URL.createObjectURL(blob),
       fileName: fileName,
-    })
+      id: 'fake',
+      taskBatch: -1,
+      blobURL: URL.createObjectURL(blob),
+      blob: Config.sendBlob ? blob : undefined,
+      dataURL,
+    }
+    browser.runtime.sendMessage(sendData)
 
     this.savedIds.push(id)
   }
@@ -108,7 +117,7 @@ class SaveWorkDescription {
   }
 
   /**抓取完毕后，把所有简介汇总到一个文件里 */
-  private summary() {
+  private async summary() {
     if (!settings.saveWorkDescription || !settings.summarizeDescription) {
       return
     }
@@ -201,13 +210,22 @@ class SaveWorkDescription {
       txtName = `${firstPath}/${name}-user ${store.resultMeta[0].user}-${title}-${time}.txt`
     }
 
+    let dataURL: string | undefined = undefined
+    if (Config.sendDataURL) {
+      dataURL = await Utils.blobToDataURL(blob)
+    }
+
     // 不检查下载状态，默认下载成功
-    browser.runtime.sendMessage({
+    const sendData: SendToBackEndData = {
       msg: 'save_description_file',
-      blob: Config.isFirefox ? blob : undefined,
-      fileURL: URL.createObjectURL(blob),
       fileName: txtName,
-    })
+      id: 'fake',
+      taskBatch: -1,
+      blobURL: URL.createObjectURL(blob),
+      blob: Config.sendBlob ? blob : undefined,
+      dataURL,
+    }
+    browser.runtime.sendMessage(sendData)
 
     const msg = `✓ ${lang.transl('_保存作品的简介2')}: ${lang.transl(
       '_汇总到一个文件'

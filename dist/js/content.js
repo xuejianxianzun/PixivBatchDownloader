@@ -2583,6 +2583,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Config: () => (/* binding */ Config)
 /* harmony export */ });
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
+
 // 定义一些常量
 // 用户不可以修改这里的配置
 class Config {
@@ -2608,6 +2611,13 @@ class Config {
     static mobile = navigator.userAgent.includes('Mobile');
     /**检测 Firefox 浏览器 */
     static isFirefox = window.navigator.userAgent.includes('Firefox');
+    static sendBlob = this.isFirefox;
+    /** 在 Chrome 的隐私窗口里下载时，需要把 blob 对象转换为 dataURL 发送给后台。
+     * 不能直接传递 blob，因为这样后台 service worker 里接收时变成了空对象，无法使用。
+     * 我试了转换为 ArrayBuffer 同样不能传递，估计是因为不能被 JSON 序列化导致的。
+     * 所以需要转换为 dataURL 再发送
+     */
+    static sendDataURL = !this.isFirefox && (webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().extension).inIncognitoContext;
     /**ImageViewer 生成的 li 元素的 className */
     static ImageViewerLI = 'xz-thumb-li';
     /**检测 ImageViewer 生成的 li 元素，以便其他模块进行一些特殊处理 */
@@ -18003,22 +18013,25 @@ class Download {
         });
     }
     // 向浏览器发送下载任务
-    browserDownload(blob, blobURl, fileName, id, taskBatch) {
+    async browserDownload(blob, blobURL, fileName, id, taskBatch) {
         // 如果任务已停止，不会向浏览器发送下载任务
         if (this.cancel) {
-            // 释放 bloburl
-            URL.revokeObjectURL(blobURl);
+            // 释放 blob URL
+            URL.revokeObjectURL(blobURL);
             return;
         }
-        // 仅在 Firefox 浏览器上，向后台传递 blob 对象。
-        // 因为在 Firefox 里，前台生成的 blob URL 无法在后台里使用 download API 下载，所以直接传递 blob
+        let dataURL = undefined;
+        if (_Config__WEBPACK_IMPORTED_MODULE_12__.Config.sendDataURL) {
+            dataURL = await _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.blobToDataURL(blob);
+        }
         const sendData = {
             msg: 'save_work_file',
-            fileURL: blobURl,
             fileName: fileName,
             id,
             taskBatch,
-            blob: _Config__WEBPACK_IMPORTED_MODULE_12__.Config.isFirefox ? blob : undefined,
+            blobURL,
+            blob: _Config__WEBPACK_IMPORTED_MODULE_12__.Config.sendBlob ? blob : undefined,
+            dataURL,
         };
         try {
             webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
@@ -18705,19 +18718,27 @@ class DownloadNovelCover {
     async download(coverURL, novelName, action = 'downloadNovel') {
         _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_下载封面图片'), 1, false, 'downloadNovelCover');
         const blob = await this.getCover(coverURL);
-        const url = URL.createObjectURL(blob);
         let coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.replaceSuffix(novelName, coverURL);
         // 合并系列小说时，文件直接保存在下载目录里，封面图片也保存在下载目录里
         // 所以要替换掉封面图路径里的斜线
         if (action === 'mergeNovel') {
             coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.replaceUnsafeStr(coverName);
         }
-        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage({
+        let dataURL = undefined;
+        if (_Config__WEBPACK_IMPORTED_MODULE_4__.Config.sendDataURL) {
+            dataURL = await _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.blobToDataURL(blob);
+        }
+        // 不检查下载状态，默认下载成功
+        const sendData = {
             msg: 'save_novel_cover_file',
-            blob: _Config__WEBPACK_IMPORTED_MODULE_4__.Config.isFirefox ? blob : undefined,
-            fileURL: url,
             fileName: coverName,
-        });
+            id: 'fake',
+            taskBatch: -1,
+            blobURL: URL.createObjectURL(blob),
+            blob: _Config__WEBPACK_IMPORTED_MODULE_4__.Config.sendBlob ? blob : undefined,
+            dataURL,
+        };
+        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
     }
     async getCover(coverURL) {
         const res = await fetch(coverURL, {
@@ -18785,7 +18806,10 @@ class DownloadNovelEmbeddedImage {
                 continue;
             }
             await _DownloadInterval__WEBPACK_IMPORTED_MODULE_7__.downloadInterval.wait();
-            image = await this.getImageBlobURL(image);
+            image = await this.getImageBlob(image);
+            if (image.blob === undefined) {
+                return;
+            }
             let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.replaceSuffix(novelName, image.url);
             // 在文件名末尾加上内嵌图片的 id 和序号
             const array = imageName.split('.');
@@ -18797,12 +18821,22 @@ class DownloadNovelEmbeddedImage {
             if (action === 'mergeNovel') {
                 imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.replaceUnsafeStr(imageName);
             }
-            webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage({
+            const blob = image.blob;
+            let dataURL = undefined;
+            if (_Config__WEBPACK_IMPORTED_MODULE_2__.Config.sendDataURL) {
+                dataURL = await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.blobToDataURL(blob);
+            }
+            // 不检查下载状态，默认下载成功
+            const sendData = {
                 msg: 'save_novel_embedded_image',
-                blob: _Config__WEBPACK_IMPORTED_MODULE_2__.Config.isFirefox ? image.blob : undefined,
-                fileURL: image.blobURL,
                 fileName: imageName,
-            });
+                id: 'fake',
+                taskBatch: -1,
+                blobURL: URL.createObjectURL(blob),
+                blob: _Config__WEBPACK_IMPORTED_MODULE_2__.Config.sendBlob ? blob : undefined,
+                dataURL,
+            };
+            webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
         }
         _Log__WEBPACK_IMPORTED_MODULE_4__.log.persistentRefresh('downloadNovelImage' + novelID);
     }
@@ -18915,7 +18949,7 @@ class DownloadNovelEmbeddedImage {
             }
         });
     }
-    async getImageBlobURL(image) {
+    async getImageBlob(image) {
         if (image.url) {
             let illustration = undefined;
             try {
@@ -18934,7 +18968,6 @@ class DownloadNovelEmbeddedImage {
                 return image;
             }
             image.blob = illustration;
-            image.blobURL = URL.createObjectURL(illustration);
         }
         return image;
     }
@@ -20185,7 +20218,7 @@ class MergeNovel {
         }
         // 生成小说文件并下载
         let file = null;
-        const novelName = `${title}-tags_${seriesData.tags}-user_${userName}-seriesId_${seriesData.id}.${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.novelSaveAs}`;
+        const novelName = `${title}-user_${userName}-seriesId_${seriesData.id}-tags_${seriesData.tags}.${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.novelSaveAs}`;
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.novelSaveAs === 'txt') {
             file = await this.mergeTXT(allNovelData);
             // 保存为 txt 格式时，在这里下载小说内嵌的图片
@@ -20946,7 +20979,7 @@ class SaveWorkDescription {
         });
     }
     /**保存单个作品的简介 */
-    saveOne(id) {
+    async saveOne(id) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveWorkDescription || !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveEachDescription) {
             return;
         }
@@ -20972,13 +21005,21 @@ class SaveWorkDescription {
         const hasLink = this.hasLinkRegexp.test(desc);
         const namePart1 = this.createFileName(data);
         const fileName = `${namePart1}-${_Lang__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_简介')}${hasLink ? '-links' : ''}.txt`;
+        let dataURL = undefined;
+        if (_Config__WEBPACK_IMPORTED_MODULE_10__.Config.sendDataURL) {
+            dataURL = await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.blobToDataURL(blob);
+        }
         // 不检查下载状态，默认下载成功
-        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage({
+        const sendData = {
             msg: 'save_description_file',
-            blob: _Config__WEBPACK_IMPORTED_MODULE_10__.Config.isFirefox ? blob : undefined,
-            fileURL: URL.createObjectURL(blob),
             fileName: fileName,
-        });
+            id: 'fake',
+            taskBatch: -1,
+            blobURL: URL.createObjectURL(blob),
+            blob: _Config__WEBPACK_IMPORTED_MODULE_10__.Config.sendBlob ? blob : undefined,
+            dataURL,
+        };
+        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
         this.savedIds.push(id);
     }
     /**返回该作品的文件名（不含后缀名），并且把 id 字符串替换为数字 id */
@@ -20998,7 +21039,7 @@ class SaveWorkDescription {
         return part1;
     }
     /**抓取完毕后，把所有简介汇总到一个文件里 */
-    summary() {
+    async summary() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveWorkDescription || !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.summarizeDescription) {
             return;
         }
@@ -21076,13 +21117,21 @@ class SaveWorkDescription {
             const firstPath = _fileName.split('/')[0];
             txtName = `${firstPath}/${name}-user ${_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.resultMeta[0].user}-${title}-${time}.txt`;
         }
+        let dataURL = undefined;
+        if (_Config__WEBPACK_IMPORTED_MODULE_10__.Config.sendDataURL) {
+            dataURL = await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.blobToDataURL(blob);
+        }
         // 不检查下载状态，默认下载成功
-        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage({
+        const sendData = {
             msg: 'save_description_file',
-            blob: _Config__WEBPACK_IMPORTED_MODULE_10__.Config.isFirefox ? blob : undefined,
-            fileURL: URL.createObjectURL(blob),
             fileName: txtName,
-        });
+            id: 'fake',
+            taskBatch: -1,
+            blobURL: URL.createObjectURL(blob),
+            blob: _Config__WEBPACK_IMPORTED_MODULE_10__.Config.sendBlob ? blob : undefined,
+            dataURL,
+        };
+        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
         const msg = `✓ ${_Lang__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_保存作品的简介2')}: ${_Lang__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_汇总到一个文件')}`;
         _Log__WEBPACK_IMPORTED_MODULE_8__.log.success(msg);
         _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.success(msg);
@@ -21164,7 +21213,7 @@ class SaveWorkMeta {
                 return false;
         }
     }
-    saveMeta(id) {
+    async saveMeta(id) {
         // 如果所有类型的作品都不需要保存元数据
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveMetaType0 &&
             !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveMetaType1 &&
@@ -21225,13 +21274,21 @@ class SaveWorkMeta {
         // 拼接出元数据文件的文件名
         const metaFileName = `${part1}-meta.txt`;
         // 发送下载请求
-        // 因为我偷懒，所以后台不会返回下载状态，默认为下载成功
-        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage({
+        let dataURL = undefined;
+        if (_Config__WEBPACK_IMPORTED_MODULE_7__.Config.sendDataURL) {
+            dataURL = await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.blobToDataURL(blob);
+        }
+        // 不检查下载状态，默认下载成功
+        const sendData = {
             msg: 'save_description_file',
-            blob: _Config__WEBPACK_IMPORTED_MODULE_7__.Config.isFirefox ? blob : undefined,
-            fileURL: URL.createObjectURL(blob),
             fileName: metaFileName,
-        });
+            id: 'fake',
+            taskBatch: -1,
+            blobURL: URL.createObjectURL(blob),
+            blob: _Config__WEBPACK_IMPORTED_MODULE_7__.Config.sendBlob ? blob : undefined,
+            dataURL,
+        };
+        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
         this.savedIds.push(id);
     }
 }
@@ -51957,16 +52014,28 @@ class Utils {
         });
         observer.observe(el);
     }
-    // 在 Firefox 浏览器里，需要把 response.arrayBuffer 通过 new ArrayBuffer 来复制一份来使用
+    // 在 Firefox 浏览器里，需要把 response.arrayBuffer 通过 new ArrayBuffer 来复制一份，以通过类型检查
     // 因为 Firefox 把 response.arrayBuffer 视为一个非标准的 ArrayBuffer，尽管它在功能上是等价的。
-    // 注：这个问题同样存在于 response.blob 上
     // 这会导致 buffer instanceof ArrayBuffer 和 ArrayBuffer.isView(buffer) 在 Firefox 上为 false
     // 因此需要使用 new ArrayBuffer 来复制为标准的 ArrayBuffer，以通过类型检查
+    // 注：这个问题同样存在于 response.blob 上
     static copyArrayBuffer(arrayBuffer) {
         const newBuffer = new ArrayBuffer(arrayBuffer.byteLength);
         new Uint8Array(newBuffer).set(new Uint8Array(arrayBuffer));
         arrayBuffer = null;
         return newBuffer;
+    }
+    static blobToDataURL(blob) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function () {
+                resolve(this.result);
+            };
+            reader.onerror = function () {
+                reject(new Error('Failed to convert blob to DataURL'));
+            };
+            reader.readAsDataURL(blob);
+        });
     }
 }
 
