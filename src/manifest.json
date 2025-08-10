@@ -62,8 +62,7 @@
   "host_permissions": [
     "*://www.pixiv.net/*",
     "*://www.pixivision.net/*",
-    "*://*.pximg.net/*",
-    "*://*.pixiv.cat/*"
+    "*://*.pximg.net/*"
   ],
   "declarative_net_request": {
     "rule_resources": [

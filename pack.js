@@ -1,20 +1,13 @@
-// build 命令
 const fs = require('fs')
 const path = require('path')
 const copy = require('recursive-copy')
 const archiver = require('archiver')
 
-const packName = 'powerfulpixivdownloader-online'
+const packName = 'powerfulpixivdownloader'
 const distPath = './dist'
 
 async function build () {
   await copys()
-  const _metadata = path.resolve(__dirname, distPath + '_metadata')
-  // 删除 _metadata 目录
-  if (fs.existsSync(_metadata)) {
-    fs.rmdirSync(_metadata, { recursive: true })
-  }
-  // 打包
   pack()
 }
 
@@ -65,9 +58,7 @@ function pack () {
 
   archive.pipe(output)
 
-  // 注意：在 Firefox 里 manifest.json 必须在 zip 的根目录下，所以不能在最外层套一层文件夹
-
-  // 使用 glob 模式打包文件，排除特定子文件夹
+  // 使用 glob 模式打包文件
   archive.glob('**/*', {
     cwd: distPath, // 设置工作目录
     ignore: [

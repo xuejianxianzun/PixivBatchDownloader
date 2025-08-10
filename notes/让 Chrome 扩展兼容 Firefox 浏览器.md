@@ -17,6 +17,76 @@ https://extensionworkshop.com/documentation/publish/source-code-submission/
 
 并且测试扩展的步骤也有点麻烦。无语。
 
+
+## 修改 manifest.json
+
+Firefox 虽然也支持 MV 3，但是一些字段和 Chrome 有区别，需要修改 manifest.json。下面只说我遇到的情况，至于完整的区别，虽然官方文档里有个兼容性表格，但是看着费劲，想了解的话不如问 AI。问的时候记得限定为 MV 3 版本，否则 AI 会回答一些 MV 2 里才能用的属性。
+
+### 添加 id 属性
+
+可以在 browser_specific_settings 属性里设置扩展的 id，例如：
+
+```json
+"browser_specific_settings": {
+    "gecko": {
+      "id": "PowerfulPixivDownloader@pixiv.download"
+    }
+  },
+```
+
+虽然这不是必须的，但是自定义一个总比发布时生成的随机 id 要好。id 的值是自定义的，具有独特性即可，常见的格式如 `扩展名@邮箱或域名`。
+
+参见文档：
+什么时候需要附加组件 ID？
+https://extensionworkshop.com/documentation/develop/extensions-and-the-add-on-id/#when-do-you-need-an-add-on-id
+
+### 后台脚本不能使用 service_worker
+
+在 Chrome 扩展 MV 3 里，后台脚本必须使用 service_worker，但 Firefox 不支持，依然需要使用传统的 scripts。下面的配置同时具有这两种方式，以便在两个浏览器里都生效：
+
+```json
+"background": {
+  "preferred_environment": ["service_worker"],
+  "service_worker": "js/background.js",
+  "scripts": ["js/background.js"]
+},
+```
+
+preferred_environment 的作用是：如果 Firefox 以后支持了 service_worker，让它优先使用 service_worker，而非 scripts。
+
+### incognito 模式的区别
+
+incognito 用于设置隐私窗口是否启用独立的后台脚本。
+
+```json
+"incognito": "spanning",
+```
+
+spanning 是默认模式，扩展的后台脚本只有一份，就是主窗口里的。隐身窗口里所使用后台脚本依然是主窗口里的。
+
+还有个 split 即拆分模式，主窗口和隐私窗口的后台脚本是独立的。不过多个隐私窗口似乎会共享一个隐私的后台脚本，所以最多也就只有 2 个后台脚本。
+
+下载器之前使用的是 split，但是 Firefox 只支持 spanning，使用 split 的话会报错，所以下载器也得改成 spanning（其实我直接去掉了 incognito 属性）。
+
+改成 spanning 之后，这个扩展在 Chrome 浏览器的隐私窗口里无法正常下载文件，需要修改代码。因为在 Chrome 浏览器里时，下载器会在前台生成 blob URL 发送给后台脚本下载，但是如果只有一个（主窗口的）后台脚本，那么它无法使用隐私窗口里发来的 blob URL。
+
+解决办法有 2 个：
+1. 在 Chrome 里和原来一样使用 split，让隐私窗口有它自己的后台脚本。但这无法和 Firefox 兼容，必须分成两个单独的 manifest.json 文件。
+2. 保持兼容，只需要一个 manifest.json。但在 Chrome 的隐私窗口里，前台必须向后台发送 blob，然后让后台转换为 DataURL 再下载。
+
+如果用方法 1，每个浏览器需要独立的 manifest.json，很麻烦，因为这意味着为不同的浏览器打包、调试时都得使用不同的命令，生成不同的文件夹。所以我选择方法 2，这样很方便，但是需要为 Chrome 的隐私窗口单独处理，而且当用户在隐私窗口里下载时，会多消耗一些性能。
+
+## 调试扩展
+
+Chrome 在扩展管理页面里可以添加本地扩展的文件夹，在代码重新编译后也可以点击刷新按钮重新加载。但是 Firefox 要麻烦些，因为它的扩展管理页面里只能加载有签名的 zip 或 xpi 包，不能加载未签名的压缩包，也不能加载文件夹。
+
+需要进入“调试附加组件”页面 `about:debugging#/runtime/this-firefox`，才能加载本地扩展（选择扩展的 manifest.json 文件），以及重载扩展、检查背景页面：
+
+![](./images/20250809_151731.png)
+
+我看发布扩展时也挺麻烦，因为下载器的代码是用 webpack 打包了的，所以每次更新时都需要提供源代码和 build 方法，让测试人员手动构建，并要求生成的文件内容一致。还要提交第三方库的仓库网址之类的，这些都是发布 Chrome 扩展时没有的步骤。
+
+
 ## 使用 webextension-polyfill 处理兼容性
 
 Chrome 的扩展程序 API 以 chrome. 开头，Firefox 的扩展程序 API 则是以 browser. 开头。
@@ -124,23 +194,27 @@ function isSendToBackEndData(msg: unknown): msg is SendToBackEndData {
 
 ### 修改下载方式
 
-提示：如果你的扩展是把文件的原始 URL 发送给浏览器下载的话，不需要看这一部分。
+提示：如果你的扩展是把文件的原始 URL 发送给浏览器下载的话，通常不需要看这一部分。
 
 **情况说明：**
 
 这个下载器是在前台页面里下载文件的，下载完之后生成 blob URL 发送给后台脚本，再调用 download API 保存文件。
 
-在 Chrome 里这没问题，但是在 Firefox 里不行。而且也没有错误信息，就单纯是失败，浏览器不会建立下载。
+在 Chrome 里这没问题，但是在 Firefox 里不行。没有错误信息，就单纯是失败，浏览器不会建立下载。
 
-不知道是不是因为后台脚本和前台页面处于不同的环境里，所以后台脚本里无法使用前台生成的 blob URL（但按理说，浏览器是肯定能访问这个 blob URL 的，可能是 Firefox 在后台脚本的机制里做了什么限制）。
+不知道是不是因为后台脚本和前台页面处于不同的环境里，所以后台脚本里无法使用前台生成的 blob URL。按理说，浏览器是肯定能访问这个 blob URL 的，但是前台脚本无法无法直接调用 download API，只能由后端调用，那没法用就是没法用。
 
-由于前台脚本无法直接调用 download API 来尝试让 Firefox 使用前台生成的 blob URL，所以我只能在后台里重新生成 URL。
+所以现在在 Firefox 浏览器里，下载器会把 blob 对象传递给后台脚本，让后台脚本自行生成 blob URL，然后下载。
 
-现在在 Firefox 浏览器上，下载器会把 blob 对象传递给后台脚本，让后台脚本自行生成 blob URL，然后下载。
+**注意：**
+
+在 Chrome 浏览器里，不推荐前台把 blob 发给后台下载，因为 Chrome 的后台脚本是 service_worker，里面没有 `URL.createObjectURL` 方法。虽然有些别的办法，比如后台可以把 blob 转换成 DataURL 来下载，但这样会消耗额外的性能，所以最好还是在前台直接生成 blob URL，发送给后台下载。
+
+而在 Firefox 浏览器里，由于后台无法使用前台发送的 blob URL，所以没的选，只能把 blob 发送给后台。好在现在 Firefox 不支持 service_worker，所以后台脚本是有 DOM 环境的，可以生成 blob URL。如果以后 Firefox 也改成了 service_worker，那就有点麻烦了，也许只能在后台把 blob 转换成 DataURL 了。但这样会增加内存和 CPU 使用率，不到万不得已还是不要用。如果 Firefox 能像 Chrome 一样支持在后台里使用 blob URL，那就舒服多了。
 
 **性能测试：**
 
-我在 2 分钟内从一个画师主页下载了 1.2 GB 图片，浏览器的内存占用没有明显增加。因为我有及时释放 blob URL，所以测试表现符合预期。
+我用 Firefox 浏览器，在 2 分钟内从一个画师主页下载了 1.2 GB 图片，浏览器的内存占用没有明显增加。因为我有及时释放 blob URL，所以测试表现符合预期。
 
 画师 純白可憐(Pale)：
 https://www.pixiv.net/users/20778107
@@ -153,67 +227,13 @@ https://www.pixiv.net/users/20778107
 
 我是用的是 webpack，在本项目中不需要修改打包配置。因为文件里引入了 webextension-polyfill，所以 webpack 在打包时会自动添加它的代码。
 
-## 修改 manifest.json
+## Firefox 的兼容性问题
 
-Firefox 虽然也支持 MV 3，但是一些字段和 Chrome 有区别，需要修改 manifest.json。下面只说我遇到的情况，至于完整的区别，虽然官方文档里有个兼容性表格，但是看着费劲，想了解的话不如问 AI。问的时候记得限定为 MV 3 版本，否则 AI 会回答一些 MV 2 里才能用的属性。
+傻逼 Firefox 浪费生命
 
-### 添加 id 属性
+### 类型检查
 
-可以在 browser_specific_settings 属性里设置扩展的 id，例如：
-
-```json
-"browser_specific_settings": {
-    "gecko": {
-      "id": "PowerfulPixivDownloader@pixiv.download"
-    }
-  },
-```
-
-虽然这不是必须的，但是自定义一个总比发布时生成的随机 id 要好。id 的值是自定义的，具有独特性即可，常见的格式如 `扩展名@邮箱或域名`。
-
-参见文档：
-什么时候需要附加组件 ID？
-https://extensionworkshop.com/documentation/develop/extensions-and-the-add-on-id/#when-do-you-need-an-add-on-id
-
-### 后台脚本不能使用 service_worker
-
-在 Chrome 扩展 MV 3 里，后台脚本必须使用 service_worker，但 Firefox 不支持，依然需要使用传统的 scripts。下面的配置同时具有这两种方式，以便在两个浏览器里都生效：
-
-```json
-"background": {
-  "preferred_environment": ["service_worker"],
-  "service_worker": "js/background.js",
-  "scripts": ["js/background.js"]
-},
-```
-
-preferred_environment 的作用是：如果 Firefox 以后支持了 service_worker，让它优先使用 service_worker，而非 scripts。
-
-### incognito 模式的区别
-
-incognito 用于设置隐私窗口是否启用独立的后台脚本。
-
-```json
-"incognito": "spanning",
-```
-
-spanning 是默认模式，即使有多个窗口（指主窗口和隐私窗口），扩展的后台脚本也只有一份。隐身窗口里的前台操作会发送给唯一的后台脚本。还有个 split 即拆分模式，主窗口和隐私窗口的后台脚本是独立的。
-
-下载器之前使用的是 split，但是 Firefox 只支持 spanning，使用 split 的话会报错。所以下载器只能改成 spanning。目前这会导致下载器无法在隐私窗口里下载文件，之后换个下载方式看能不能解决这个问题。
-
-## 调试扩展
-
-Chrome 在扩展管理页面里可以添加本地扩展的文件夹，在代码重新编译后也可以点击刷新按钮重新加载。但是 Firefox 要麻烦些，因为它的扩展管理页面里只能加载有签名的 zip 或 xpi 包，不能加载未签名的压缩包，也不能加载文件夹。
-
-需要进入“调试附加组件”页面 `about:debugging#/runtime/this-firefox`，才能加载本地扩展（选择扩展的 manifest.json 文件），以及重载扩展、检查背景页面：
-
-![](./images/20250809_151731.png)
-
-我看发布扩展时也挺麻烦，因为下载器的代码是用 webpack 打包了的，所以每次更新时都需要提供源代码和 build 方法，让测试人员手动构建，并要求生成的文件内容一致。还要提交第三方库的仓库网址之类的，这些都是发布 Chrome 扩展时没有的步骤。
-
-### 傻逼 Firefox 浪费生命
-
-一个纯前台的功能在 Chrome 上好好的，在 Firefox 上却会报错。
+一个功能在 Chrome 上好好的，但在 Firefox 上会报错。
 
 我把一个图片加载为 arraybuffer：
 
