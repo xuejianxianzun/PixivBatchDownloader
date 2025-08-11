@@ -189,7 +189,7 @@ class PreviewWork {
       const show = ugoira ? settings.previewUgoira : settings.PreviewWork
       show && this.readyShow()
 
-      el.addEventListener('mousewheel', this.onWheelScroll, {
+      el.addEventListener('wheel', this.onWheelScroll, {
         passive: false,
       })
     })
@@ -206,11 +206,11 @@ class PreviewWork {
         // 如果不延迟隐藏，预览图就会马上消失，无法查看
         this.delayHiddenTimer = window.setTimeout(() => {
           this.show = false
-          el.removeEventListener('mousewheel', this.onWheelScroll)
+          el.removeEventListener('wheel', this.onWheelScroll)
         }, 100)
       } else {
         this.show = false
-        el.removeEventListener('mousewheel', this.onWheelScroll)
+        el.removeEventListener('wheel', this.onWheelScroll)
       }
     })
 
@@ -373,7 +373,7 @@ class PreviewWork {
     })
 
     this.wrap.addEventListener(
-      'mousewheel',
+      'wheel',
       (ev) => {
         this.overThumb && this.onWheelScroll(ev)
       },
@@ -429,7 +429,7 @@ class PreviewWork {
   private wheelEvent?: WheelEvent
 
   // 当鼠标滚轮滚动时，切换显示的图片
-  // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
+  // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 wheel 事件
   private swicthImageByMouse = Utils.throttle(() => {
     const up = this.wheelEvent!.deltaY < 0
     this.swicthImage(up ? 'prev' : 'next')

@@ -6425,7 +6425,7 @@ class PreviewWork {
             const ugoira = el.querySelector('circle');
             const show = ugoira ? _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.previewUgoira : _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.PreviewWork;
             show && this.readyShow();
-            el.addEventListener('mousewheel', this.onWheelScroll, {
+            el.addEventListener('wheel', this.onWheelScroll, {
                 passive: false,
             });
         });
@@ -6440,12 +6440,12 @@ class PreviewWork {
                 // 如果不延迟隐藏，预览图就会马上消失，无法查看
                 this.delayHiddenTimer = window.setTimeout(() => {
                     this.show = false;
-                    el.removeEventListener('mousewheel', this.onWheelScroll);
+                    el.removeEventListener('wheel', this.onWheelScroll);
                 }, 100);
             }
             else {
                 this.show = false;
-                el.removeEventListener('mousewheel', this.onWheelScroll);
+                el.removeEventListener('wheel', this.onWheelScroll);
             }
         });
         window.addEventListener('keydown', (ev) => {
@@ -6577,7 +6577,7 @@ class PreviewWork {
                 this.dontShowAgain = true;
             }
         });
-        this.wrap.addEventListener('mousewheel', (ev) => {
+        this.wrap.addEventListener('wheel', (ev) => {
             this.overThumb && this.onWheelScroll(ev);
         }, {
             passive: false,
@@ -6622,7 +6622,7 @@ class PreviewWork {
     }
     wheelEvent;
     // 当鼠标滚轮滚动时，切换显示的图片
-    // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
+    // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 wheel 事件
     swicthImageByMouse = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.throttle(() => {
         const up = this.wheelEvent.deltaY < 0;
         this.swicthImage(up ? 'prev' : 'next');
@@ -7111,7 +7111,7 @@ class PreviewWorkDetailInfo {
         wrap.addEventListener('mouseleave', () => {
             this.remove(wrap);
         });
-        wrap.addEventListener('mousewheel', (ev) => {
+        wrap.addEventListener('wheel', (ev) => {
             if (this.show) {
                 ev.preventDefault();
                 _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('wheelScrollSwitchPreviewImage', ev);
@@ -9093,7 +9093,7 @@ class ShowOriginSizeImage {
         document.body.addEventListener('click', () => {
             this.show = false;
         });
-        this.wrap.addEventListener('mousewheel', (ev) => {
+        this.wrap.addEventListener('wheel', (ev) => {
             ev.preventDefault();
             // 向上滚 deltaY 是负数（-125），向下滚是正数（125）
             const zoomAdd = ev.deltaY < 0;

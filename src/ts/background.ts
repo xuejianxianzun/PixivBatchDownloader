@@ -61,7 +61,7 @@ browser.runtime.onMessage.addListener(async function (
     return
   }
 
-  console.log(msg)
+  // console.log(msg)
   // 下载作品的文件
   if (msg.msg === 'save_work_file') {
     // 当处于初始状态时，或者变量被回收了，就从存储中读取数据储存在变量中

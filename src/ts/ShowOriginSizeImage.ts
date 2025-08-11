@@ -151,7 +151,7 @@ class ShowOriginSizeImage {
     })
 
     this.wrap.addEventListener(
-      'mousewheel',
+      'wheel',
       (ev) => {
         ev.preventDefault()
         // 向上滚 deltaY 是负数（-125），向下滚是正数（125）
