@@ -28,6 +28,8 @@ class ArtworkThumbnail extends WorkThumbnail {
         '._work',
         '._work.item',
         'div[type="illust"]',
+        // 这是搜索框下拉内容里的作品缩略图
+        'div[type="illust"][size="118"]',
         'li>div>div:first-child',
         'li>div>div:first-child>div',
         'li>div>div>div:first-child',
