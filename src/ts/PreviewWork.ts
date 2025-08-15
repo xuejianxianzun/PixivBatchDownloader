@@ -528,8 +528,16 @@ class PreviewWork {
     this.delayShowTimer = window.setTimeout(async () => {
       if (!cacheWorkData.has(this.workId)) {
         // 如果在缓存中没有找到这个作品的数据，则发起请求
-        const data = await API.getArtworkData(this.workId)
-        cacheWorkData.set(data)
+        try {
+          const data = await API.getArtworkData(this.workId)
+          cacheWorkData.set(data)
+        } catch (error: Error | any) {
+          if (error.status && error.status === 429) {
+            toast.error('429 Error')
+          }
+          this.show = false
+          return
+        }
       }
 
       this.show = true

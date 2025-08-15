@@ -6705,8 +6705,17 @@ class PreviewWork {
         this.delayShowTimer = window.setTimeout(async () => {
             if (!_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.has(this.workId)) {
                 // 如果在缓存中没有找到这个作品的数据，则发起请求
-                const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(this.workId);
-                _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.set(data);
+                try {
+                    const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(this.workId);
+                    _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.set(data);
+                }
+                catch (error) {
+                    if (error.status && error.status === 429) {
+                        _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.error('429 Error');
+                    }
+                    this.show = false;
+                    return;
+                }
             }
             this.show = true;
         }, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.previewWorkWait);
@@ -11345,6 +11354,17 @@ class InitPageBase {
         // 如果在 init 方法中绑定了全局事件，并且该事件只适用于当前页面类型，那么应该在 destroy 中解绑事件。
         // 注册当前页面的 destroy 函数
         _pageFunciton_DestroyManager__WEBPACK_IMPORTED_MODULE_15__.destroyManager.register(this.destroy.bind(this));
+        _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('setSlowCrawlMode', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'slowCrawl' && data.value) {
+                if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.slowCrawlOnWorksNumber) {
+                    // 当用户打开慢速抓取开关时，设置慢速抓取的标记
+                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
+                    _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = true;
+                    this.ajaxThread = 1;
+                }
+            }
+        });
         // 页面切换后，如果任务已经完成，则移除日志区域
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.bindOnce('clearLogAfterPageSwitch', _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.pageSwitch, () => {
             if (!_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
@@ -29928,7 +29948,11 @@ class QuickBookmark {
             oldBtn.remove();
         }
         // 判断这个作品是否收藏过了
-        this.workData = await this.getWorkData();
+        const data = await this.getWorkData();
+        if (data === null) {
+            return;
+        }
+        this.workData = data;
         this.isBookmarked = !!this.workData.body.bookmarkData;
         // 监听心形收藏按钮从未收藏到收藏的变化
         if (!this.isBookmarked) {
@@ -30014,12 +30038,20 @@ class QuickBookmark {
         return btn;
     }
     async getWorkData() {
-        // 这里不能从缓存的数据中获取作品数据，因为作品的收藏状态可能已经发生了变化
-        if (this.isNovel) {
-            return await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelData(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getNovelId());
+        try {
+            // 这里不能从缓存的数据中获取作品数据，因为作品的收藏状态可能已经发生了变化
+            if (this.isNovel) {
+                return await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelData(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getNovelId());
+            }
+            else {
+                return await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getIllustId());
+            }
         }
-        else {
-            return await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getIllustId());
+        catch (error) {
+            if (error.status && error.status === 429) {
+                _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error('429 Error');
+            }
+            return null;
         }
     }
     async addBookmark(pixivBMKDiv, likeBtn) {

@@ -63,7 +63,11 @@ class QuickBookmark {
     }
 
     // 判断这个作品是否收藏过了
-    this.workData = await this.getWorkData()
+    const data = await this.getWorkData()
+    if(data === null){
+      return
+    }
+    this.workData = data as ArtworkData | NovelData
     this.isBookmarked = !!this.workData.body.bookmarkData
 
     // 监听心形收藏按钮从未收藏到收藏的变化
@@ -157,11 +161,18 @@ class QuickBookmark {
   }
 
   private async getWorkData() {
-    // 这里不能从缓存的数据中获取作品数据，因为作品的收藏状态可能已经发生了变化
-    if (this.isNovel) {
-      return await API.getNovelData(Tools.getNovelId())
-    } else {
-      return await API.getArtworkData(Tools.getIllustId())
+    try {
+      // 这里不能从缓存的数据中获取作品数据，因为作品的收藏状态可能已经发生了变化
+      if (this.isNovel) {
+        return await API.getNovelData(Tools.getNovelId())
+      } else {
+        return await API.getArtworkData(Tools.getIllustId())
+      }
+    } catch (error: Error | any) {
+      if (error.status && error.status === 429) {
+        toast.error('429 Error')
+      }
+      return null as any
     }
   }
 
