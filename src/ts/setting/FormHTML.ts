@@ -296,10 +296,10 @@ export const formHtml = `<form class="settingForm">
     <span class="gray1"> ? </span>
     </span>
     <input type="checkbox" name="notNeedTagSwitch" class="need_beautify checkbox_switch">
-    <span class="gray1" data-xztext="_任一"></span>
-    <span class="verticalSplit"></span>
     <span class="beautify_switch" tabindex="0"></span>
     <span class="subOptionWrap" data-show="notNeedTagSwitch">
+    <span class="gray1" data-xztext="_任一"></span>
+    <span class="verticalSplit"></span>
     <input type="radio" id="tagMatchMode1" class="need_beautify radio" name="tagMatchMode" value="partial" checked>
     <span class="beautify_radio" tabindex="0"></span>
     <label for="tagMatchMode1" data-xztext="_部分一致"></label>

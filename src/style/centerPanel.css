@@ -258,6 +258,12 @@
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1.bmkNum {
   width: 60px;
 }
+.centerWrap .centerWrap_con .settingForm p.option button#setMin,
+.centerWrap .centerWrap_con .settingForm p.option button#setMax {
+  height: 22px;
+  line-height: 22px;
+  margin: 2px 0;
+}
 .centerWrap .centerWrap_con .settingForm select {
   width: 80px;
   height: 22px;
