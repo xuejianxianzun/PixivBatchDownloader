@@ -681,9 +681,13 @@
 .centerWrap .centerWrap_con .settingForm p.option .subOptionWrap > * {
   line-height: 26px;
 }
-.centerWrap .centerWrap_con .settingForm p.option[data-no="12"] .subOptionWrap,
-.centerWrap .centerWrap_con .settingForm p.option[data-no="35"] .subOptionWrap,
-.centerWrap .centerWrap_con .settingForm p.option[data-no="43"] .subOptionWrap {
+.centerWrap .centerWrap_con .settingForm p.option[data-no='12'] .subOptionWrap,
+.centerWrap .centerWrap_con .settingForm p.option[data-no='35'] .subOptionWrap,
+.centerWrap .centerWrap_con .settingForm p.option[data-no='39'] .subOptionWrap,
+.centerWrap .centerWrap_con .settingForm p.option[data-no='43'] .subOptionWrap,
+.centerWrap .centerWrap_con .settingForm p.option[data-no='80'] .subOptionWrap,
+.centerWrap .centerWrap_con .settingForm p.option .setUserNameWrap,
+.centerWrap .centerWrap_con .settingForm p.option .DoNotDownloadLastFewImagesWarp {
   flex-basis: 100%;
 }
 .centerWrap .centerWrap_con .settingForm p.option.settingCategoryName {
@@ -768,7 +772,7 @@
 }
 .centerWrap .centerWrap_con .settingForm p button,
 .centerWrap .centerWrap_con .settingForm .controlBar span {
-  vertical-align: middle;
+  line-height: 26px;
 }
 .centerWrap .centerWrap_con .settingForm .centerPanelTextArea {
   font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
@@ -1830,16 +1834,21 @@ iframe[name='expandedFooter'] {
   border: none;
   background: none;
   outline: none;
-  padding: 1px 3px;
+  padding: 0px 3px;
   cursor: pointer;
   color: #666;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .blockTagsForSpecificUserWrap .textButton.add {
-  padding: 1px 8px;
+  padding: 0px 8px;
 }
 .blockTagsForSpecificUserWrap .controlBar {
-  padding: 5px 0;
   color: #666;
+}
+.blockTagsForSpecificUserWrap .controlBar * {
+  line-height: 26px;
 }
 .blockTagsForSpecificUserWrap .addWrap {
   display: none;
@@ -1847,8 +1856,12 @@ iframe[name='expandedFooter'] {
 .blockTagsForSpecificUserWrap .addWrap button.cancel .icon {
   font-size: 1.3em;
 }
+.blockTagsForSpecificUserWrap .addWrap .addUidInput {
+  max-width: 120px;
+}
 .blockTagsForSpecificUserWrap .settingItem {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   padding: 5px 0;
 }
@@ -1859,8 +1872,8 @@ iframe[name='expandedFooter'] {
   color: #444;
 }
 .blockTagsForSpecificUserWrap .settingItem .inputItem.uid input {
-  width: auto;
-  max-width: 100px;
+  width: auto !important;
+  min-width: 100px !important;
 }
 .blockTagsForSpecificUserWrap .settingItem .inputItem.tags {
   flex: 1;
@@ -1869,16 +1882,21 @@ iframe[name='expandedFooter'] {
 }
 .blockTagsForSpecificUserWrap .settingItem .inputItem.tags input {
   flex: 1;
+  width: auto !important;
 }
 .blockTagsForSpecificUserWrap .settingItem .inputItem span {
-  padding-right: 10px;
+  padding-right: 4px;
+  line-height: 26px;
 }
 .blockTagsForSpecificUserWrap .settingItem .btns button:first-child {
-  display: inline-block;
   margin-right: 6px;
 }
 .blockTagsForSpecificUserWrap .settingItem .btns button[data-updaterule] .icon {
   font-size: 1.4em;
+}
+.blockTagsForSpecificUserWrap button.refresh svg {
+  position: relative;
+  top: 1px;
 }
 .theme-dark.blockTagsForSpecificUserWrap div,
 .theme-dark.blockTagsForSpecificUserWrap span {
@@ -1945,17 +1963,22 @@ iframe[name='expandedFooter'] {
   border: none;
   background: none;
   outline: none;
-  padding: 1px 3px;
+  padding: 0px 3px;
   cursor: pointer;
   color: #666;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .setUserNameWrap .textButton.add {
   padding: 1px 8px;
 }
 .setUserNameWrap .controlBar {
   display: inline;
-  padding: 5px 0;
   color: #666;
+}
+.setUserNameWrap .controlBar * {
+  line-height: 26px;
 }
 .setUserNameWrap .addWrap {
   display: none;
@@ -1963,8 +1986,12 @@ iframe[name='expandedFooter'] {
 .setUserNameWrap .addWrap button.cancel .icon {
   font-size: 1.3em;
 }
+.setUserNameWrap .addWrap .addUidInput {
+  max-width: 120px;
+}
 .setUserNameWrap .settingItem {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   padding: 5px 0;
 }
@@ -1975,8 +2002,8 @@ iframe[name='expandedFooter'] {
   color: #444;
 }
 .setUserNameWrap .settingItem .inputItem.uid input {
-  width: auto;
-  max-width: 100px;
+  width: auto !important;
+  min-width: 100px !important;
 }
 .setUserNameWrap .settingItem .inputItem.name {
   flex: 1;
@@ -1986,15 +2013,16 @@ iframe[name='expandedFooter'] {
 }
 .setUserNameWrap .settingItem .inputItem.name input {
   flex: 1;
+  width: auto !important;
 }
 .setUserNameWrap .settingItem .inputItem span {
-  padding-right: 10px;
+  padding-right: 4px;
+  line-height: 26px;
 }
 .setUserNameWrap .settingItem .btns {
   padding-right: 20px;
 }
 .setUserNameWrap .settingItem .btns button:first-child {
-  display: inline-block;
   margin-right: 6px;
 }
 .setUserNameWrap .settingItem .btns button[data-updaterule] .icon {
@@ -2004,23 +2032,24 @@ iframe[name='expandedFooter'] {
   display: flex;
   flex-wrap: wrap;
 }
-.setUserNameWrap .listWrap .settingItem {
-  flex-basis: 50%;
+.setUserNameWrap .listWrap .settingItem button.refresh svg {
+  position: relative;
+  top: 1px;
 }
-.theme-dark.setUserNameWrap div,
-.theme-dark.setUserNameWrap span {
+.setUserNameWrap .theme-dark.setUserNameWrap div,
+.setUserNameWrap .theme-dark.setUserNameWrap span {
   color: #fff !important;
 }
-.theme-dark.setUserNameWrap input::-webkit-input-placeholder,
-.theme-dark.setUserNameWrap textarea::-webkit-input-placeholder {
+.setUserNameWrap .theme-dark.setUserNameWrap input::-webkit-input-placeholder,
+.setUserNameWrap .theme-dark.setUserNameWrap textarea::-webkit-input-placeholder {
   color: #ddd;
 }
-.xzBG .setUserNameWrap div,
-.xzBG .setUserNameWrap span {
+.setUserNameWrap .xzBG .setUserNameWrap div,
+.setUserNameWrap .xzBG .setUserNameWrap span {
   color: #fff !important;
 }
-.xzBG .setUserNameWrap input::-webkit-input-placeholder,
-.xzBG .setUserNameWrap textarea::-webkit-input-placeholder {
+.setUserNameWrap .xzBG .setUserNameWrap input::-webkit-input-placeholder,
+.setUserNameWrap .xzBG .setUserNameWrap textarea::-webkit-input-placeholder {
   color: #ddd;
 }
 .DoNotDownloadLastFewImagesWarp input::-webkit-input-placeholder,
@@ -2037,6 +2066,9 @@ iframe[name='expandedFooter'] {
   padding: 1px 3px;
   cursor: pointer;
   color: #666;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .DoNotDownloadLastFewImagesWarp .textButton.add {
   padding: 1px 8px;
@@ -2046,14 +2078,21 @@ iframe[name='expandedFooter'] {
   padding: 5px 0;
   color: #666;
 }
+.DoNotDownloadLastFewImagesWarp .controlBar * {
+  line-height: 26px;
+}
 .DoNotDownloadLastFewImagesWarp .addWrap {
   display: none;
 }
 .DoNotDownloadLastFewImagesWarp .addWrap button.cancel .icon {
   font-size: 1.3em;
 }
+.DoNotDownloadLastFewImagesWarp .addWrap .addUidInput {
+  max-width: 120px;
+}
 .DoNotDownloadLastFewImagesWarp .settingItem {
   display: flex;
+  flex-wrap: wrap;
   flex-basis: 100%;
   align-items: center;
   padding: 5px 0;
@@ -2065,8 +2104,8 @@ iframe[name='expandedFooter'] {
   color: #444;
 }
 .DoNotDownloadLastFewImagesWarp .settingItem .inputItem.uid input {
-  width: auto;
-  max-width: 100px;
+  width: auto !important;
+  min-width: 100px !important;
 }
 .DoNotDownloadLastFewImagesWarp .settingItem .inputItem.name {
   flex: 1;
@@ -2076,15 +2115,17 @@ iframe[name='expandedFooter'] {
 }
 .DoNotDownloadLastFewImagesWarp .settingItem .inputItem.name input {
   flex: 1;
+  width: auto !important;
 }
 .DoNotDownloadLastFewImagesWarp .settingItem .inputItem span {
-  padding-right: 10px;
+  padding-right: 4px;
+  line-height: 26px;
 }
 .DoNotDownloadLastFewImagesWarp .settingItem .btns {
+  display: flex;
   padding-right: 20px;
 }
 .DoNotDownloadLastFewImagesWarp .settingItem .btns button:first-child {
-  display: inline-block;
   margin-right: 6px;
 }
 .DoNotDownloadLastFewImagesWarp .settingItem .btns button[data-updaterule] .icon {
@@ -2093,6 +2134,10 @@ iframe[name='expandedFooter'] {
 .DoNotDownloadLastFewImagesWarp .listWrap {
   display: flex;
   flex-wrap: wrap;
+}
+.DoNotDownloadLastFewImagesWarp .listWrap .settingItem button.refresh svg {
+  position: relative;
+  top: 1px;
 }
 .theme-dark.DoNotDownloadLastFewImages div,
 .theme-dark.DoNotDownloadLastFewImages span {
@@ -2124,6 +2169,9 @@ iframe[name='expandedFooter'] {
   padding: 1px 3px;
   cursor: pointer;
   color: #666;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .textButton.add {
   padding: 1px 8px;
@@ -2133,6 +2181,9 @@ iframe[name='expandedFooter'] {
   padding: 5px 0;
   color: #666;
 }
+.UseDifferentNameRuleIfWorkHasTagWarp .controlBar * {
+  line-height: 26px;
+}
 .UseDifferentNameRuleIfWorkHasTagWarp .addWrap {
   display: none;
 }
@@ -2141,6 +2192,7 @@ iframe[name='expandedFooter'] {
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .settingItem {
   display: flex;
+  flex-wrap: wrap;
   flex-basis: 100%;
   align-items: center;
   padding: 5px 0;
@@ -2158,6 +2210,7 @@ iframe[name='expandedFooter'] {
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .settingItem .inputItem.tags input {
   flex: 1;
+  width: auto !important;
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .settingItem .inputItem.rule {
   flex: 1;
@@ -2167,15 +2220,17 @@ iframe[name='expandedFooter'] {
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .settingItem .inputItem.rule input {
   flex: 1;
+  width: auto !important;
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .settingItem .inputItem span {
-  padding-right: 10px;
+  padding-right: 4px;
+  line-height: 26px;
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .settingItem .btns {
+  display: flex;
   padding-right: 0px;
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .settingItem .btns button:first-child {
-  display: inline-block;
   margin-right: 6px;
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .settingItem .btns button[data-updaterule] .icon {
@@ -2184,6 +2239,10 @@ iframe[name='expandedFooter'] {
 .UseDifferentNameRuleIfWorkHasTagWarp .listWrap {
   display: flex;
   flex-wrap: wrap;
+}
+.UseDifferentNameRuleIfWorkHasTagWarp .listWrap button.refresh svg {
+  position: relative;
+  top: 1px;
 }
 .theme-dark.DoNotDownloadLastFewImages div,
 .theme-dark.DoNotDownloadLastFewImages span {

@@ -36,7 +36,7 @@ class SetUserName {
     this._addWrapShow = val
 
     if (val) {
-      this.addWrap.style.display = 'block'
+      this.addWrap.style.display = 'flex'
       this.addInputUid.focus()
     } else {
       this.addWrap.style.display = 'none'
@@ -173,13 +173,13 @@ class SetUserName {
       </div>
 
       <div class="btns">
-        <button type="button" class="textButton" data-updateRule="${uid}" data-xztitle="_更新">
+        <button type="button" class="textButton refresh" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-gengxin"></use>
           </svg>
         </button>
 
-        <button type="button" class="textButton" data-deleteRule="${uid}" data-xztitle="_删除">
+        <button type="button" class="textButton delete" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-shanchu1"></use>
           </svg>

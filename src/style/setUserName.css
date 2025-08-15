@@ -1,0 +1,102 @@
+.setUserNameWrap input::-webkit-input-placeholder,
+.setUserNameWrap textarea::-webkit-input-placeholder {
+  color: #999;
+}
+.setUserNameWrap .icon {
+  font-size: 1.2em;
+}
+.setUserNameWrap .textButton {
+  border: none;
+  background: none;
+  outline: none;
+  padding: 0px 3px;
+  cursor: pointer;
+  color: #666;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.setUserNameWrap .textButton.add {
+  padding: 1px 8px;
+}
+.setUserNameWrap .controlBar {
+  display: inline;
+  color: #666;
+}
+.setUserNameWrap .controlBar * {
+  line-height: 26px;
+}
+.setUserNameWrap .addWrap {
+  display: none;
+}
+.setUserNameWrap .addWrap button.cancel .icon {
+  font-size: 1.3em;
+}
+.setUserNameWrap .addWrap .addUidInput {
+  max-width: 120px;
+}
+.setUserNameWrap .settingItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 5px 0;
+}
+.setUserNameWrap .settingItem .inputItem {
+  margin-right: 10px;
+}
+.setUserNameWrap .settingItem .inputItem .label {
+  color: #444;
+}
+.setUserNameWrap .settingItem .inputItem.uid input {
+  width: auto !important;
+  min-width: 100px !important;
+}
+.setUserNameWrap .settingItem .inputItem.name {
+  flex: 1;
+  display: flex;
+  min-width: 100px;
+  max-width: 220px;
+}
+.setUserNameWrap .settingItem .inputItem.name input {
+  flex: 1;
+  width: auto !important;
+}
+.setUserNameWrap .settingItem .inputItem span {
+  padding-right: 4px;
+  line-height: 26px;
+}
+.setUserNameWrap .settingItem .btns {
+  padding-right: 20px;
+}
+.setUserNameWrap .settingItem .btns button:first-child {
+  margin-right: 6px;
+}
+.setUserNameWrap .settingItem .btns button[data-updaterule] .icon {
+  font-size: 1.4em;
+}
+.setUserNameWrap .listWrap {
+  display: flex;
+  flex-wrap: wrap;
+}
+.setUserNameWrap .listWrap .settingItem button.refresh svg {
+  position: relative;
+  top: 1px;
+}
+.setUserNameWrap .theme-dark.setUserNameWrap div,
+.setUserNameWrap .theme-dark.setUserNameWrap span {
+  color: #fff !important;
+}
+.setUserNameWrap .theme-dark.setUserNameWrap input::-webkit-input-placeholder,
+.setUserNameWrap
+  .theme-dark.setUserNameWrap
+  textarea::-webkit-input-placeholder {
+  color: #ddd;
+}
+.setUserNameWrap .xzBG .setUserNameWrap div,
+.setUserNameWrap .xzBG .setUserNameWrap span {
+  color: #fff !important;
+}
+.setUserNameWrap .xzBG .setUserNameWrap input::-webkit-input-placeholder,
+.setUserNameWrap .xzBG .setUserNameWrap textarea::-webkit-input-placeholder {
+  color: #ddd;
+}

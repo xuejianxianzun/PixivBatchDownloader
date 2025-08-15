@@ -8091,7 +8091,7 @@ class SetUserName {
     set addWrapShow(val) {
         this._addWrapShow = val;
         if (val) {
-            this.addWrap.style.display = 'block';
+            this.addWrap.style.display = 'flex';
             this.addInputUid.focus();
         }
         else {
@@ -8212,13 +8212,13 @@ class SetUserName {
       </div>
 
       <div class="btns">
-        <button type="button" class="textButton" data-updateRule="${uid}" data-xztitle="_更新">
+        <button type="button" class="textButton refresh" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-gengxin"></use>
           </svg>
         </button>
 
-        <button type="button" class="textButton" data-deleteRule="${uid}" data-xztitle="_删除">
+        <button type="button" class="textButton delete" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-shanchu1"></use>
           </svg>
@@ -22076,7 +22076,7 @@ class BlockTagsForSpecificUser {
     _addWrapShow = false;
     set addWrapShow(val) {
         this._addWrapShow = val;
-        this.addWrap.style.display = val ? 'block' : 'none';
+        this.addWrap.style.display = val ? 'flex' : 'none';
         if (!val) {
             this.addInputUid.value = '';
             this.addInputTags.value = '';
@@ -22211,13 +22211,13 @@ class BlockTagsForSpecificUser {
 
       <div class="btns">
 
-        <button type="button" class="textButton" data-updateRule="${uid}" data-xztitle="_更新">
+        <button type="button" class="textButton refresh" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-gengxin"></use>
           </svg>
         </button>
 
-        <button type="button" class="textButton" data-deleteRule="${uid}" data-xztitle="_删除">
+        <button type="button" class="textButton delete" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-shanchu1"></use>
           </svg>
@@ -30784,13 +30784,13 @@ class DoNotDownloadLastFewImages {
       </div>
 
       <div class="btns">
-        <button type="button" class="textButton" data-updateRule="${uid}" data-xztitle="_更新">
+        <button type="button" class="textButton refresh" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-gengxin"></use>
           </svg>
         </button>
 
-        <button type="button" class="textButton" data-deleteRule="${uid}" data-xztitle="_删除">
+        <button type="button" class="textButton delete" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-shanchu1"></use>
           </svg>
@@ -34218,13 +34218,13 @@ class UseDifferentNameRuleIfWorkHasTag {
       </div>
 
       <div class="btns">
-        <button type="button" class="textButton" data-updateRule="${id}" data-xztitle="_更新">
+        <button type="button" class="textButton refresh" data-updateRule="${id}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-gengxin"></use>
           </svg>
         </button>
 
-        <button type="button" class="textButton" data-deleteRule="${id}" data-xztitle="_删除">
+        <button type="button" class="textButton delete" data-deleteRule="${id}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-shanchu1"></use>
           </svg>

@@ -1,0 +1,91 @@
+.blockTagsForSpecificUserWrap input::-webkit-input-placeholder,
+.blockTagsForSpecificUserWrap textarea::-webkit-input-placeholder {
+  color: #999;
+}
+.blockTagsForSpecificUserWrap .icon {
+  font-size: 1.2em;
+}
+.blockTagsForSpecificUserWrap .textButton {
+  border: none;
+  background: none;
+  outline: none;
+  padding: 0px 3px;
+  cursor: pointer;
+  color: #666;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.blockTagsForSpecificUserWrap .textButton.add {
+  padding: 0px 8px;
+}
+.blockTagsForSpecificUserWrap .controlBar {
+  color: #666;
+}
+.blockTagsForSpecificUserWrap .controlBar * {
+  line-height: 26px;
+}
+.blockTagsForSpecificUserWrap .addWrap {
+  display: none;
+}
+.blockTagsForSpecificUserWrap .addWrap button.cancel .icon {
+  font-size: 1.3em;
+}
+.blockTagsForSpecificUserWrap .addWrap .addUidInput {
+  max-width: 120px;
+}
+.blockTagsForSpecificUserWrap .settingItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 5px 0;
+}
+.blockTagsForSpecificUserWrap .settingItem .inputItem {
+  margin-right: 10px;
+}
+.blockTagsForSpecificUserWrap .settingItem .inputItem .label {
+  color: #444;
+}
+.blockTagsForSpecificUserWrap .settingItem .inputItem.uid input {
+  width: auto !important;
+  min-width: 100px !important;
+}
+.blockTagsForSpecificUserWrap .settingItem .inputItem.tags {
+  flex: 1;
+  display: flex;
+  max-width: 320px;
+}
+.blockTagsForSpecificUserWrap .settingItem .inputItem.tags input {
+  flex: 1;
+  width: auto !important;
+}
+.blockTagsForSpecificUserWrap .settingItem .inputItem span {
+  padding-right: 4px;
+  line-height: 26px;
+}
+.blockTagsForSpecificUserWrap .settingItem .btns button:first-child {
+  margin-right: 6px;
+}
+.blockTagsForSpecificUserWrap .settingItem .btns button[data-updaterule] .icon {
+  font-size: 1.4em;
+}
+.blockTagsForSpecificUserWrap button.refresh svg {
+  position: relative;
+  top: 1px;
+}
+.theme-dark.blockTagsForSpecificUserWrap div,
+.theme-dark.blockTagsForSpecificUserWrap span {
+  color: #fff !important;
+}
+.theme-dark.blockTagsForSpecificUserWrap input::-webkit-input-placeholder,
+.theme-dark.blockTagsForSpecificUserWrap textarea::-webkit-input-placeholder {
+  color: #ddd;
+}
+.xzBG .blockTagsForSpecificUserWrap div,
+.xzBG .blockTagsForSpecificUserWrap span {
+  color: #fff !important;
+}
+.xzBG .blockTagsForSpecificUserWrap input::-webkit-input-placeholder,
+.xzBG .blockTagsForSpecificUserWrap textarea::-webkit-input-placeholder {
+  color: #ddd;
+}

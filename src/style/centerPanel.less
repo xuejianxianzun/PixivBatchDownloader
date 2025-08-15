@@ -4,8 +4,6 @@
 @sidePadding: 25px;
 // 表单内容区域的最大宽度，小于表单容器宽度，这样可以使内容与右侧滚动条之间留出一定间距
 @formContentWidth: 650px;
-// 表单里每个选项的行高都是 26 px。有些内部元素（特别是按钮）的高度不到 26px，所以我使用 margin 将其占据的高度增加到 26px，以使它们在视觉上垂直居中对齐。
-@height: 26px;
 
 .centerWrap {
   background-color: #fff;
@@ -213,7 +211,7 @@
     .showFileNameTip:focus,
     .textButton:hover,
     .textButton:focus,
-    .help_bar>*:hover,
+    .help_bar > *:hover,
     .updateActiveClass {
       color: @themeBlue !important;
       fill: @themeBlue !important;
@@ -238,7 +236,7 @@
         margin: 2px 0;
 
         // 给内部元素设置统一的行高。否则的话，span 元素没有行高的话，其高度就是字体尺寸（14px），对齐到顶部后太靠上了，与其他元素的中轴线没有对齐
-        &>* {
+        & > * {
           line-height: @height;
           flex-shrink: 0;
         }
@@ -263,17 +261,22 @@
           flex-grow: 1;
           column-gap: 4px;
 
-          &>* {
+          & > * {
             line-height: @height;
           }
         }
 
         // 选项的文字占据左侧空间，subOptionWrap 占据右侧空间
-        // 但是有些 subOptionWrap 需要占满整行宽度（特别是有 textarea 的，因为宽度比较窄的话很影响 textarea 的使用效果）
-        // 所以在需要的时候，让这些 subOptionWrap 另起一行占满宽度
-        &[data-no="12"] .subOptionWrap,
-        &[data-no="35"] .subOptionWrap,
-        &[data-no="43"] .subOptionWrap {
+        // 但是有些 subOptionWrap 需要占满整行宽度。通常有两种情况：
+        // 1. 有 textarea 的，因为宽度比较窄的话很影响 textarea 的使用效果
+        // 2. 有添加列表之类的功能，比如“针对特定用户屏蔽标签”，右侧的元素比较多，空间太小的话很拥挤
+        &[data-no='12'] .subOptionWrap,
+        &[data-no='35'] .subOptionWrap,
+        &[data-no='39'] .subOptionWrap,
+        &[data-no='43'] .subOptionWrap,
+        &[data-no='80'] .subOptionWrap,
+        .setUserNameWrap,
+        .DoNotDownloadLastFewImagesWarp {
           flex-basis: 100%;
         }
 
@@ -373,7 +376,7 @@
 
       p button,
       .controlBar span {
-        vertical-align: middle;
+        line-height: @height;
       }
 
       .centerPanelTextArea {
@@ -468,11 +471,11 @@
         transition: all 0.3s;
       }
 
-      .checkbox_switch:checked+.beautify_switch {
+      .checkbox_switch:checked + .beautify_switch {
         background: @beautifyBlue;
       }
 
-      .checkbox_switch:checked+.beautify_switch::before {
+      .checkbox_switch:checked + .beautify_switch::before {
         margin-left: 11px;
       }
 
@@ -508,7 +511,7 @@
         transform-origin: center;
       }
 
-      .checkbox_common:checked+.beautify_checkbox {
+      .checkbox_common:checked + .beautify_checkbox {
         background: @beautifyBlue;
         border: 1px solid @beautifyBlue;
       }
@@ -517,11 +520,11 @@
         border: 1px solid @beautifyBlue;
       }
 
-      .checkbox_common:checked+.beautify_checkbox::after {
+      .checkbox_common:checked + .beautify_checkbox::after {
         transform: rotate(45deg) scaleY(1);
       }
 
-      .checkbox_common:focus+.beautify_checkbox {
+      .checkbox_common:focus + .beautify_checkbox {
         border: 1px solid @beautifyBlue;
       }
 
@@ -551,7 +554,7 @@
         transition: transform 0.15s ease-in;
       }
 
-      .radio:checked+.beautify_radio {
+      .radio:checked + .beautify_radio {
         background: @beautifyBlue;
         border: 1px solid @beautifyBlue;
       }
@@ -560,7 +563,7 @@
         border: 1px solid @beautifyBlue;
       }
 
-      .radio:checked+.beautify_radio::after {
+      .radio:checked + .beautify_radio::after {
         transform: translate(-50%, -50%) scale(1);
       }
 
@@ -752,7 +755,7 @@
           line-height: @height;
           margin-bottom: 4px;
 
-          &>* {
+          & > * {
             padding-right: 5px;
           }
 
@@ -812,7 +815,7 @@
           align-items: center;
           min-width: 500px;
 
-          &>* {
+          & > * {
             min-height: @liHeight;
             line-height: @liHeight;
           }
@@ -856,7 +859,7 @@
     .help_bar {
       line-height: 24px;
 
-      &>* {
+      & > * {
         padding: 0 3px;
       }
     }
@@ -944,7 +947,7 @@
     .showFileNameTip:focus,
     .textButton:hover,
     .textButton:focus,
-    .help_bar>*:hover,
+    .help_bar > *:hover,
     .updateActiveClass {
       color: @beautifyBlue !important;
       fill: @beautifyBlue !important;
@@ -1005,7 +1008,6 @@
 }
 
 .xzBG {
-
   // 当设置了背景图片时，不管是什么主题，都把中间面板的样式修改为 Dark 主题的样式，并且添加文字阴影，使文字更容易阅读
   &.centerWrap {
     // text-shadow: 0px 0px 5px #015d88;
@@ -1045,7 +1047,7 @@
     .showFileNameTip:focus,
     .textButton:hover,
     .textButton:focus,
-    .help_bar>*:hover,
+    .help_bar > *:hover,
     .updateActiveClass {
       color: #fff !important;
       fill: #fff !important;

@@ -136,8 +136,8 @@ class PreviewWorkDetailInfo {
         <p class="size">${workData.body.width} x ${workData.body.height}</p>
         <p class="bmk">${bmkHTML.join('')}</p>
         <p class="date">${new Date(
-      workData.body.uploadDate
-    ).toLocaleString()}</p>
+          workData.body.uploadDate
+        ).toLocaleString()}</p>
         <p class="buttons"><button class="textButton" id="copyTXT">Copy TXT</button> <button class="textButton" id="copyJSON">Copy JSON</button></p>
         </div>
       `
