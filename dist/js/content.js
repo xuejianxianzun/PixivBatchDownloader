@@ -5838,6 +5838,11 @@ class PageType {
                 type: PageName.ArtworkSearch,
                 url: 'https://www.pixiv.net/tags/%E5%8E%9F%E7%A5%9E/artworks?s_mode=s_tag',
             },
+            // 原神 + 动图 页面
+            {
+                type: PageName.ArtworkSearch,
+                url: 'https://www.pixiv.net/tags/%E5%8E%9F%E7%A5%9E%20%E3%81%86%E3%81%94%E3%82%A4%E3%83%A9/artworks?mode=r18',
+            },
             {
                 type: PageName.AreaRanking,
                 url: 'https://www.pixiv.net/ranking_area.php?type=state&no=0',
@@ -11341,7 +11346,7 @@ class InitPageBase {
     maxCount = 1000; // 当前页面类型最多有多少个页面/作品
     startpageNo = 1; // 列表页开始抓取时的页码，只在 api 需要页码时使用
     listPageFinished = 0; // 记录一共抓取了多少个列表页
-    ajaxThreadsDefault = 10; // 抓取作品数据时的并发请求数量默认值，也是最大值
+    ajaxThreadsDefault = 3; // 抓取作品数据时的并发请求数量默认值，也是最大值
     ajaxThread = this.ajaxThreadsDefault; // 抓取时的并发请求数
     finishedRequest = 0; // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
     crawlFinishBecauseStopCrawl = false;
@@ -11362,6 +11367,8 @@ class InitPageBase {
                     _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
                     _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = true;
                     this.ajaxThread = 1;
+                    // 其实在已经出现 429 错误后，用户才启用这个开关的话是没用的，
+                    // 因为下载器重试请求的时候，已经有多个出错的请求了，下载器没有把这些请求从并发改为单线程
                 }
             }
         });
@@ -33588,8 +33595,8 @@ class Settings {
     defaultSettings = {
         setWantPage: -1,
         wantPageArr: [
-            -1, -1, -1, -1, -1, 1000, -1, 500, -1, 1000, 100, -1, 100, -1, -1, 1000,
-            100, 100, 100, 100, -1,
+            -1, -1, -1, 1, 1, 1, 50, 100, -1, 100, 100, -1, 100, -1, -1, 1,
+            100, 100, 100, 100, 1,
         ],
         firstFewImagesSwitch: false,
         firstFewImages: 1,
@@ -33613,7 +33620,7 @@ class Settings {
         needTag: [],
         notNeedTag: [],
         autoStartDownload: true,
-        downloadThread: 5,
+        downloadThread: 3,
         userSetName: 'pixiv/{user}-{user_id}/{id}-{title}',
         namingRuleList: [],
         workDir: false,

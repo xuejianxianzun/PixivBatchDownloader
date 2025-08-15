@@ -39,7 +39,7 @@ abstract class InitPageBase {
 
   protected listPageFinished = 0 // 记录一共抓取了多少个列表页
 
-  protected readonly ajaxThreadsDefault = 10 // 抓取作品数据时的并发请求数量默认值，也是最大值
+  protected readonly ajaxThreadsDefault = 3 // 抓取作品数据时的并发请求数量默认值，也是最大值
 
   protected ajaxThread = this.ajaxThreadsDefault // 抓取时的并发请求数
 
@@ -69,6 +69,8 @@ abstract class InitPageBase {
           log.warning(lang.transl('_慢速抓取'))
           states.slowCrawlMode = true
           this.ajaxThread = 1
+          // 其实在已经出现 429 错误后，用户才启用这个开关的话是没用的，
+          // 因为下载器重试请求的时候，已经有多个出错的请求了，下载器没有把这些请求从并发改为单线程
         }
       }
     })

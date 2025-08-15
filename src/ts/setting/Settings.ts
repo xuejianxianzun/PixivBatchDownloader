@@ -61,6 +61,7 @@ export interface SettingChangeData {
 
 interface XzSetting {
   setWantPage: number
+  /** wantPageArr 是从 pageType 0 开始的，也就是没有 Unsupported 页面类型里的值 */
   wantPageArr: number[]
   firstFewImagesSwitch: boolean
   firstFewImages: number
@@ -286,8 +287,8 @@ class Settings {
   private readonly defaultSettings: XzSetting = {
     setWantPage: -1,
     wantPageArr: [
-      -1, -1, -1, -1, -1, 1000, -1, 500, -1, 1000, 100, -1, 100, -1, -1, 1000,
-      100, 100, 100, 100, -1,
+      -1, -1, -1, 1, 1, 1, 50, 100, -1, 100, 100, -1, 100, -1, -1, 1,
+      100, 100, 100, 100, 1,
     ],
     firstFewImagesSwitch: false,
     firstFewImages: 1,
@@ -311,7 +312,7 @@ class Settings {
     needTag: [],
     notNeedTag: [],
     autoStartDownload: true,
-    downloadThread: 5,
+    downloadThread: 3,
     userSetName: 'pixiv/{user}-{user_id}/{id}-{title}',
     namingRuleList: [],
     workDir: false,

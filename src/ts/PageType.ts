@@ -186,6 +186,11 @@ class PageType {
         type: PageName.ArtworkSearch,
         url: 'https://www.pixiv.net/tags/%E5%8E%9F%E7%A5%9E/artworks?s_mode=s_tag',
       },
+      // 原神 + 动图 页面
+      {
+        type: PageName.ArtworkSearch,
+        url: 'https://www.pixiv.net/tags/%E5%8E%9F%E7%A5%9E%20%E3%81%86%E3%81%94%E3%82%A4%E3%83%A9/artworks?mode=r18',
+      },
       {
         type: PageName.AreaRanking,
         url: 'https://www.pixiv.net/ranking_area.php?type=state&no=0',
