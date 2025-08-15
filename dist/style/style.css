@@ -687,8 +687,31 @@
   flex-basis: 100%;
 }
 .centerWrap .centerWrap_con .settingForm p.option.settingCategoryName {
-  margin: 12px 0;
+  margin: 14px 0;
   display: block !important;
+  position: relative;
+  text-align: center;
+}
+.centerWrap .centerWrap_con .settingForm p.option.settingCategoryName span {
+  display: inline-block;
+  height: 26px;
+  padding: 0px 20px;
+  line-height: 26px !important;
+  font-size: 1.1em;
+  color: #666;
+  font-weight: bold;
+  background-color: #fff;
+  border-radius: 4px;
+}
+.centerWrap .centerWrap_con .settingForm p.option.settingCategoryName::after {
+  display: block;
+  content: '';
+  position: absolute;
+  top: 14px;
+  width: 100%;
+  height: 1px;
+  background-color: #eee;
+  z-index: -1;
 }
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1 {
   width: 50px;
@@ -1138,32 +1161,6 @@
 }
 .centerWrap .centerWrap_con .help_bar > * {
   padding: 0 3px;
-}
-.centerWrap .settingCategoryName {
-  position: relative;
-  text-align: center;
-  margin: 6px auto;
-}
-.centerWrap .settingCategoryName span {
-  display: inline-block;
-  height: 26px;
-  padding: 0px 20px;
-  line-height: 26px !important;
-  font-size: 1.1em;
-  color: #666;
-  font-weight: bold;
-  background-color: #fff;
-  border-radius: 4px;
-}
-.centerWrap .settingCategoryName::after {
-  display: block;
-  content: '';
-  position: absolute;
-  top: 14px;
-  width: 100%;
-  height: 1px;
-  background-color: #eee;
-  z-index: -1;
 }
 .centerWrap.mobile {
   width: 90vw;
