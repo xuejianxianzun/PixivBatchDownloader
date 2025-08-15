@@ -691,8 +691,8 @@
   flex-basis: 100%;
 }
 .centerWrap .centerWrap_con .settingForm p.option.settingCategoryName {
+  justify-content: center;
   margin: 14px 0;
-  display: block !important;
   position: relative;
   text-align: center;
 }
