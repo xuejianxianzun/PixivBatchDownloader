@@ -2152,7 +2152,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
   _不下载重复文件: [
     '不下载<span class="key">重复</span>文件',
     '不下載<span class="key">重複</span>檔案',
-    'Don`t download <span class="key">duplicate</span> files',
+    'Don\'t download <span class="key">duplicate</span> files',
     '<span class="key">重複</span>ファイルをダウンロードしない',
     '<span class="key">중복</span> 파일 다운로드하지 않기',
     'Не загружать <span class="key">дубликаты</span> файлов',
@@ -4577,7 +4577,7 @@ Novel folder name: Novel`,
   _特定用户的多图作品不下载最后几张图片: [
     '特定用户的多图作品不下载<span class="key">最后几张</span>图片',
     '特定使用者的多圖作品不下載<span class="key">最後幾張</span>圖片',
-    'Don`t download the <span class="key">last few</span> images for specific user`s multi-image works',
+    'Don\'t download the <span class="key">last few</span> images for specific user`s multi-image works',
     '特定のユーザーのマルチイメージ作品の<span class="key">最後のいくつかのイメージ</span>をダウンロードしないでください',
     '특정 사용자의 다중 이미지 작품에 대한 <span class="key">마지막 몇 개</span>의 이미지를 다운로드하지 마십시오',
     'Не загружайте <span class="key">последние несколько</span> изображений для работ с несколькими изображениями конкретного пользователя',

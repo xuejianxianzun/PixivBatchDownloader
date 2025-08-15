@@ -163,7 +163,7 @@ class Options {
   // 在切换不同页面时使用
   public showAllOption() {
     for (const el of this.allOption) {
-      el.style.display = 'block'
+      el.style.display = 'flex'
     }
   }
 
@@ -177,7 +177,7 @@ class Options {
 
   // 显示指定的选项。因为页面无刷新加载，所以一些选项被隐藏后，可能需要再次显示
   public showOption(no: number[]) {
-    this.setOptionDisplay(no, 'block')
+    this.setOptionDisplay(no, 'flex')
   }
 
   // 设置“抓取多少作品/页面” 选项的提示和预设值

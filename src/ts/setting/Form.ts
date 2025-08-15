@@ -296,7 +296,7 @@ class Form {
 
       // 重设子选项区域的显示/隐藏状态
       if (subOption) {
-        subOption.style.display = input.checked ? 'inline' : 'none'
+        subOption.style.display = input.checked ? 'inline-flex' : 'none'
       }
     }
   }

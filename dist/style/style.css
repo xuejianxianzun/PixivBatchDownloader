@@ -624,6 +624,9 @@
 .centerWrap .centerWrap_con slot[data-name='exportResult'] button {
   display: none;
 }
+.centerWrap .centerWrap_con .showFileNameTip {
+  height: 26px;
+}
 .centerWrap .centerWrap_con .centerWrap_top_btn:hover,
 .centerWrap .centerWrap_con .centerWrap_top_btn:focus,
 .centerWrap .centerWrap_con .showFileNameTip:hover,
@@ -647,14 +650,78 @@
   /*--------美化普通的复选框------------*/
   /*--------美化单选框------------*/
 }
-.centerWrap .centerWrap_con .settingForm p.option > *,
-.centerWrap .centerWrap_con .settingForm .setWantPageWrap > * {
+.centerWrap .centerWrap_con .settingForm p.option {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  column-gap: 4px;
+  margin: 2px 0;
+}
+.centerWrap .centerWrap_con .settingForm p.option > * {
+  line-height: 26px;
+  flex-shrink: 0;
+}
+.centerWrap .centerWrap_con .settingForm p.option .beautify_switch,
+.centerWrap .centerWrap_con .settingForm p.option .beautify_checkbox {
+  margin: 6px 0;
+}
+.centerWrap .centerWrap_con .settingForm p.option .beautify_radio {
+  margin: 7px 0;
+}
+.centerWrap .centerWrap_con .settingForm p.option .subOptionWrap {
+  max-width: 100%;
+  min-height: 26px;
+  line-height: 26px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  flex-grow: 1;
+  column-gap: 4px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .subOptionWrap > * {
+  line-height: 26px;
+}
+.centerWrap .centerWrap_con .settingForm p.option[data-no="12"] .subOptionWrap,
+.centerWrap .centerWrap_con .settingForm p.option[data-no="35"] .subOptionWrap,
+.centerWrap .centerWrap_con .settingForm p.option[data-no="43"] .subOptionWrap {
+  flex-basis: 100%;
+}
+.centerWrap .centerWrap_con .settingForm p.option.settingCategoryName {
+  margin: 12px 0;
+  display: block !important;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1 {
+  width: 50px;
+  min-width: 50px;
+  font-size: 14px !important;
+  height: 20px;
   line-height: 20px;
-  vertical-align: middle;
+  margin: 3px 0;
+  text-indent: 4px;
+  box-sizing: border-box;
+  border: none !important;
+  border-bottom: 1px solid #ccc !important;
+  outline: 0;
+  padding: 0 !important;
+  background: none !important;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1:focus,
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1:hover {
+  border-bottom: 1px solid #0096fa !important;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w100 {
+  width: 100px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.postDate {
+  width: 190px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.bmkNum {
+  width: 60px;
 }
 .centerWrap .centerWrap_con .settingForm select {
   width: 80px;
-  height: 20px;
+  height: 22px;
+  margin: 2px 0;
   vertical-align: middle;
   border-radius: 4px;
   border: 1px solid #cccccc;
@@ -665,10 +732,6 @@
 }
 .centerWrap .centerWrap_con .settingForm p * {
   line-height: 1;
-}
-.centerWrap .centerWrap_con .settingForm p > *,
-.centerWrap .centerWrap_con .settingForm p .subOptionWrap > * {
-  vertical-align: middle;
 }
 .centerWrap .centerWrap_con .settingForm p strong,
 .centerWrap .centerWrap_con .settingForm p .key {
@@ -682,11 +745,12 @@
   font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   color: #29b3f3;
   font-size: 14px;
-  line-height: 1.5;
   background: transparent;
-  padding: 5px 5px 1px;
-  width: 100%;
-  min-height: 20px;
+  padding: 0;
+  flex-basis: 100%;
+  flex-grow: 1;
+  min-height: 26px;
+  line-height: 1.7;
   height: auto;
   max-height: 200px;
   resize: none;
@@ -727,7 +791,8 @@
   color: #29b3f3;
 }
 .centerWrap .centerWrap_con .settingForm .beautify_switch {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   width: 24px;
   height: 14px;
   position: relative;
@@ -738,13 +803,10 @@
 }
 .centerWrap .centerWrap_con .settingForm .beautify_switch::before {
   content: '';
-  position: absolute;
-  top: 1px;
   height: 12px;
   width: 12px;
   border-radius: 50%;
   background: #fff;
-  left: 0;
   margin-left: 0px;
   transition: all 0.3s;
 }
@@ -752,7 +814,7 @@
   background: #29b3f3;
 }
 .centerWrap .centerWrap_con .settingForm .checkbox_switch:checked + .beautify_switch::before {
-  margin-left: 12px;
+  margin-left: 11px;
 }
 .centerWrap .centerWrap_con .settingForm .beautify_checkbox {
   display: inline-block;
@@ -762,6 +824,7 @@
   box-sizing: border-box;
   width: 14px;
   height: 14px;
+  margin: 6px 0;
   background-color: #fff;
   z-index: 1;
   transition: all 0.3s;
@@ -835,42 +898,17 @@
 .centerWrap .centerWrap_con .settingForm .right1 {
   position: relative;
 }
-.centerWrap .centerWrap_con .settingForm .setinput_style1 {
-  width: 50px;
-  min-width: 50px;
-  line-height: 20px;
-  font-size: 14px !important;
-  height: 20px;
-  text-indent: 4px;
-  box-sizing: border-box;
-  border: none !important;
-  border-bottom: 1px solid #ccc !important;
-  outline: 0;
-  padding: 0 !important;
-  background: none !important;
-}
-.centerWrap .centerWrap_con .settingForm .setinput_style1:focus,
-.centerWrap .centerWrap_con .settingForm .setinput_style1:hover {
-  border-bottom: 1px solid #0096fa !important;
-}
-.centerWrap .centerWrap_con .settingForm .setinput_style1.w100 {
-  width: 100px;
-}
-.centerWrap .centerWrap_con .settingForm .setinput_style1.postDate {
-  width: 190px;
-}
-.centerWrap .centerWrap_con .settingForm .setinput_style1.bmkNum {
-  width: 60px;
-}
 .centerWrap .centerWrap_con .settingForm .progressBar1,
 .centerWrap .centerWrap_con .settingForm .right1 {
   width: 100%;
 }
 .centerWrap .centerWrap_con .settingForm .fileNameRule {
+  height: 26px;
   min-width: 310px;
 }
 .centerWrap .centerWrap_con .settingForm .setinput_tag {
   min-width: 300px;
+  flex-grow: 1;
 }
 .centerWrap .centerWrap_con .settingForm .showFileNameTip {
   cursor: pointer;
@@ -897,7 +935,7 @@
   justify-content: center;
   text-align: center;
   line-height: 20px;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
   margin-bottom: 8px;
   vertical-align: top;
@@ -1019,18 +1057,22 @@
 }
 .centerWrap .centerWrap_con .settingForm .settingNameStyle1 {
   cursor: pointer;
-  margin-right: 10px;
+  margin-right: 4px;
+  max-width: 650px;
 }
 .centerWrap .centerWrap_con .settingForm .verticalSplit {
   display: inline-block;
   width: 0px;
   height: 16px;
+  margin: 5px 4px;
   border-right: 1px solid #ccc;
-  margin: 0 10px;
 }
 .centerWrap .centerWrap_con .settingForm .saveNamingRuleWrap {
   display: inline-block;
   position: relative;
+}
+.centerWrap .centerWrap_con .settingForm .saveNamingRuleWrap button {
+  height: 26px;
 }
 .centerWrap .centerWrap_con .settingForm .namingRuleList {
   position: absolute;
@@ -2426,6 +2468,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
 #tip {
   color: #fff;
   font-size: 14px;
+  font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   position: fixed;
   z-index: 5001;
   max-width: 500px;

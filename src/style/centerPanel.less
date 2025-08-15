@@ -1,7 +1,11 @@
 @import './var.less';
 
-@contentOffsetWidth: 700px;
+@contentWidth: 700px;
 @sidePadding: 25px;
+// 表单内容区域的最大宽度，小于表单容器宽度，这样可以使内容与右侧滚动条之间留出一定间距
+@formContentWidth: 650px;
+// 表单里每个选项的行高都是 26 px。有些内部元素（特别是按钮）的高度不到 26px，所以我使用 margin 将其占据的高度增加到 26px，以使它们在视觉上垂直居中对齐。
+@height: 26px;
 
 .centerWrap {
   background-color: #fff;
@@ -11,7 +15,7 @@
   z-index: 5000;
   font-size: 14px;
   display: none;
-  width: @contentOffsetWidth;
+  width: @contentWidth;
   left: -350px;
   margin-left: 50%;
   top: 4vh;
@@ -39,8 +43,8 @@
   }
 
   p {
-    line-height: 26px;
-    min-height: 26px;
+    line-height: @height;
+    min-height: @height;
     height: auto;
     margin: 0;
   }
@@ -199,13 +203,17 @@
       display: none;
     }
 
+    .showFileNameTip {
+      height: @height;
+    }
+
     .centerWrap_top_btn:hover,
     .centerWrap_top_btn:focus,
     .showFileNameTip:hover,
     .showFileNameTip:focus,
     .textButton:hover,
     .textButton:focus,
-    .help_bar > *:hover,
+    .help_bar>*:hover,
     .updateActiveClass {
       color: @themeBlue !important;
       fill: @themeBlue !important;
@@ -219,18 +227,99 @@
 
     .settingForm {
       position: relative;
-      // 表单区域设置最大宽度，使其与右侧滚动条保持距离，否则里面的内容会紧贴着滚动条，很难看
-      max-width: 650px;
+      max-width: @formContentWidth;
 
-      p.option > *,
-      .setWantPageWrap > * {
-        line-height: 20px;
-        vertical-align: middle;
+      // 使选项里的元素在交叉轴上（垂直）对齐到顶部
+      p.option {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        column-gap: 4px;
+        margin: 2px 0;
+
+        // 给内部元素设置统一的行高。否则的话，span 元素没有行高的话，其高度就是字体尺寸（14px），对齐到顶部后太靠上了，与其他元素的中轴线没有对齐
+        &>* {
+          line-height: @height;
+          flex-shrink: 0;
+        }
+
+        // 对于美化的复选框，其原本高度是 14px，使用 margin 将其占据的高度撑到 26px
+        .beautify_switch,
+        .beautify_checkbox {
+          margin: 6px 0;
+        }
+
+        .beautify_radio {
+          margin: 7px 0;
+        }
+
+        .subOptionWrap {
+          max-width: 100%;
+          min-height: @height;
+          line-height: @height;
+          display: inline-flex;
+          flex-wrap: wrap;
+          align-items: flex-start;
+          flex-grow: 1;
+          column-gap: 4px;
+
+          &>* {
+            line-height: @height;
+          }
+        }
+
+        // 选项的文字占据左侧空间，subOptionWrap 占据右侧空间
+        // 但是有些 subOptionWrap 需要占满整行宽度（特别是有 textarea 的，因为宽度比较窄的话很影响 textarea 的使用效果）
+        // 所以在需要的时候，让这些 subOptionWrap 另起一行占满宽度
+        &[data-no="12"] .subOptionWrap,
+        &[data-no="35"] .subOptionWrap,
+        &[data-no="43"] .subOptionWrap {
+          flex-basis: 100%;
+        }
+
+        &.settingCategoryName {
+          margin: 12px 0;
+          display: block !important;
+        }
+
+        .setinput_style1 {
+          width: 50px;
+          min-width: 50px;
+          font-size: 14px !important;
+          height: 20px;
+          line-height: 20px;
+          margin: 3px 0;
+          text-indent: 4px;
+          box-sizing: border-box;
+          border: none !important;
+          border-bottom: 1px solid #ccc !important;
+          outline: 0;
+          padding: 0 !important;
+          background: none !important;
+
+          &:focus,
+          &:hover {
+            border-bottom: 1px solid #0096fa !important;
+          }
+
+          &.w100 {
+            width: 100px;
+          }
+
+          &.postDate {
+            width: 190px;
+          }
+
+          &.bmkNum {
+            width: 60px;
+          }
+        }
       }
 
       select {
         width: 80px;
-        height: 20px;
+        height: 22px;
+        margin: 2px 0;
         vertical-align: middle;
         border-radius: 4px;
         border: 1px solid rgb(204, 204, 204);
@@ -243,11 +332,6 @@
 
       p * {
         line-height: 1;
-      }
-
-      p > *,
-      p .subOptionWrap > * {
-        vertical-align: middle;
       }
 
       p strong,
@@ -264,11 +348,12 @@
         font-family: @pixivFontFamily;
         color: @beautifyBlue;
         font-size: 14px;
-        line-height: 1.5;
         background: transparent;
-        padding: 5px 5px 1px;
-        width: 100%;
-        min-height: 20px;
+        padding: 0;
+        flex-basis: 100%;
+        flex-grow: 1;
+        min-height: @height;
+        line-height: 1.7;
         // 在排行榜页面，Pixiv 设置了 textarea 的高度为 20 px，
         // 需要解除限制，否则下载器的输入区域无法撑开高度
         height: auto;
@@ -329,7 +414,8 @@
       }
 
       .beautify_switch {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
         width: 24px;
         height: 14px;
         position: relative;
@@ -342,23 +428,20 @@
 
       .beautify_switch::before {
         content: '';
-        position: absolute;
-        top: 1px;
         height: 12px;
         width: 12px;
         border-radius: 50%;
         background: #fff;
-        left: 0;
         margin-left: 0px;
         transition: all 0.3s;
       }
 
-      .checkbox_switch:checked + .beautify_switch {
+      .checkbox_switch:checked+.beautify_switch {
         background: @beautifyBlue;
       }
 
-      .checkbox_switch:checked + .beautify_switch::before {
-        margin-left: 12px;
+      .checkbox_switch:checked+.beautify_switch::before {
+        margin-left: 11px;
       }
 
       /*--------美化普通的复选框------------*/
@@ -370,6 +453,7 @@
         box-sizing: border-box;
         width: 14px;
         height: 14px;
+        margin: 6px 0;
         background-color: #fff;
         z-index: 1;
         transition: all 0.3s;
@@ -392,7 +476,7 @@
         transform-origin: center;
       }
 
-      .checkbox_common:checked + .beautify_checkbox {
+      .checkbox_common:checked+.beautify_checkbox {
         background: @beautifyBlue;
         border: 1px solid @beautifyBlue;
       }
@@ -401,11 +485,11 @@
         border: 1px solid @beautifyBlue;
       }
 
-      .checkbox_common:checked + .beautify_checkbox::after {
+      .checkbox_common:checked+.beautify_checkbox::after {
         transform: rotate(45deg) scaleY(1);
       }
 
-      .checkbox_common:focus + .beautify_checkbox {
+      .checkbox_common:focus+.beautify_checkbox {
         border: 1px solid @beautifyBlue;
       }
 
@@ -435,7 +519,7 @@
         transition: transform 0.15s ease-in;
       }
 
-      .radio:checked + .beautify_radio {
+      .radio:checked+.beautify_radio {
         background: @beautifyBlue;
         border: 1px solid @beautifyBlue;
       }
@@ -444,7 +528,7 @@
         border: 1px solid @beautifyBlue;
       }
 
-      .radio:checked + .beautify_radio::after {
+      .radio:checked+.beautify_radio::after {
         transform: translate(-50%, -50%) scale(1);
       }
 
@@ -457,49 +541,19 @@
         position: relative;
       }
 
-      .setinput_style1 {
-        width: 50px;
-        min-width: 50px;
-        line-height: 20px;
-        font-size: 14px !important;
-        height: 20px;
-        text-indent: 4px;
-        box-sizing: border-box;
-        border: none !important;
-        border-bottom: 1px solid #ccc !important;
-        outline: 0;
-        padding: 0 !important;
-        background: none !important;
-
-        &:focus,
-        &:hover {
-          border-bottom: 1px solid #0096fa !important;
-        }
-
-        &.w100 {
-          width: 100px;
-        }
-
-        &.postDate {
-          width: 190px;
-        }
-
-        &.bmkNum {
-          width: 60px;
-        }
-      }
-
       .progressBar1,
       .right1 {
         width: 100%;
       }
 
       .fileNameRule {
+        height: @height;
         min-width: 310px;
       }
 
       .setinput_tag {
         min-width: 300px;
+        flex-grow: 1;
       }
 
       .showFileNameTip {
@@ -529,7 +583,7 @@
           justify-content: center;
           text-align: center;
           line-height: 20px;
-          border-radius: 5px;
+          border-radius: 6px;
           cursor: pointer;
           margin-bottom: 8px;
           vertical-align: top;
@@ -663,10 +717,10 @@
         display: none;
 
         .download_status_text_wrap {
-          line-height: 26px;
+          line-height: @height;
           margin-bottom: 4px;
 
-          & > * {
+          &>* {
             padding-right: 5px;
           }
 
@@ -677,22 +731,29 @@
         }
       }
 
+      // 选项名称，设置最大宽度。不设置的话，由于俄语文本的一些选项名特别长，会导致出现横向滚动条
       .settingNameStyle1 {
         cursor: pointer;
-        margin-right: 10px;
+        margin-right: 4px;
+        max-width: @formContentWidth;
       }
 
       .verticalSplit {
         display: inline-block;
         width: 0px;
         height: 16px;
+        // 使其占据的高度达到 26 px
+        margin: 5px 4px;
         border-right: 1px solid #ccc;
-        margin: 0 10px;
       }
 
       .saveNamingRuleWrap {
         display: inline-block;
         position: relative;
+
+        button {
+          height: @height;
+        }
       }
 
       .namingRuleList {
@@ -719,7 +780,7 @@
           align-items: center;
           min-width: 500px;
 
-          & > * {
+          &>* {
             min-height: @liHeight;
             line-height: @liHeight;
           }
@@ -763,7 +824,7 @@
     .help_bar {
       line-height: 24px;
 
-      & > * {
+      &>* {
         padding: 0 3px;
       }
     }
@@ -776,9 +837,9 @@
 
     span {
       display: inline-block;
-      height: 26px;
+      height: @height;
       padding: 0px 20px;
-      line-height: 26px !important;
+      line-height: @height !important;
       font-size: 1.1em;
       color: #666;
       font-weight: bold;
@@ -880,7 +941,7 @@
     .showFileNameTip:focus,
     .textButton:hover,
     .textButton:focus,
-    .help_bar > *:hover,
+    .help_bar>*:hover,
     .updateActiveClass {
       color: @beautifyBlue !important;
       fill: @beautifyBlue !important;
@@ -941,6 +1002,7 @@
 }
 
 .xzBG {
+
   // 当设置了背景图片时，不管是什么主题，都把中间面板的样式修改为 Dark 主题的样式，并且添加文字阴影，使文字更容易阅读
   &.centerWrap {
     // text-shadow: 0px 0px 5px #015d88;
@@ -980,7 +1042,7 @@
     .showFileNameTip:focus,
     .textButton:hover,
     .textButton:focus,
-    .help_bar > *:hover,
+    .help_bar>*:hover,
     .updateActiveClass {
       color: #fff !important;
       fill: #fff !important;

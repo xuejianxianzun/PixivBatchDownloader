@@ -153,7 +153,8 @@ export const formHtml = `<form class="settingForm">
     <input type="checkbox" name="BMKNumAverageSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
     <span class="subOptionWrap" data-show="BMKNumAverageSwitch">
-      <input type="text" name="BMKNumAverage" class="setinput_style1 blue bmkNum" value="600">
+    &gt;=&nbsp;
+    <input type="text" name="BMKNumAverage" class="setinput_style1 blue bmkNum" value="600">
     </span>
     </span>
     </p>
@@ -295,16 +296,16 @@ export const formHtml = `<form class="settingForm">
     <span class="gray1"> ? </span>
     </span>
     <input type="checkbox" name="notNeedTagSwitch" class="need_beautify checkbox_switch">
+    <span class="gray1" data-xztext="_任一"></span>
+    <span class="verticalSplit"></span>
     <span class="beautify_switch" tabindex="0"></span>
     <span class="subOptionWrap" data-show="notNeedTagSwitch">
-    <span class="gray1" data-xztext="_任一"></span>&nbsp;
     <input type="radio" id="tagMatchMode1" class="need_beautify radio" name="tagMatchMode" value="partial" checked>
     <span class="beautify_radio" tabindex="0"></span>
     <label for="tagMatchMode1" data-xztext="_部分一致"></label>
     <input type="radio" id="tagMatchMode2" class="need_beautify radio" name="tagMatchMode" value="whole" checked>
     <span class="beautify_radio" tabindex="0"></span>
     <label for="tagMatchMode2" data-xztext="_完全一致"></label>
-    <br>
     <textarea class="centerPanelTextArea beautify_scrollbar" name="notNeedTag" rows="1" placeholder="tag1,tag2,tag3"></textarea>
     </span>
     </p>
@@ -679,8 +680,6 @@ export const formHtml = `<form class="settingForm">
     <input type="checkbox" name="createFolderByTag" class="need_beautify checkbox_switch" >
     <span class="beautify_switch" tabindex="0"></span>
     <span class="subOptionWrap" data-show="createFolderByTag">
-    <span class="gray1" data-xztext="_tag用逗号分割"></span>
-    <br>
     <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1" placeholder="tag1,tag2,tag3"></textarea>
     </span>
     </p>
@@ -992,8 +991,8 @@ export const formHtml = `<form class="settingForm">
     <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
     <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
     <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
-    </span>
     <button class="textButton gray1" type="button" id="deduplicationHelp" data-xztext="_提示"></button>
+    </span>
     </p>
 
     <p class="option settingCategoryName" data-no="60">
@@ -1085,11 +1084,9 @@ export const formHtml = `<form class="settingForm">
     <input type="radio" name="prevWorkSize" id="prevWorkSize2" class="need_beautify radio" value="regular" checked>
     <span class="beautify_radio" tabindex="0"></span>
     <label for="prevWorkSize2" data-xztext="_普通"></label>
-    </span>
-
     <span class="verticalSplit"></span>
-
     <button type="button" class="gray1 textButton showPreviewWorkTip" data-xztext="_快捷键列表"></button>
+    </span>
     </p>
 
     <p class="previewWorkTip tip" style="display:none">

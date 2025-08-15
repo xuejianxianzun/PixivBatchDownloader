@@ -25531,7 +25531,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     _不下载重复文件: [
         '不下载<span class="key">重复</span>文件',
         '不下載<span class="key">重複</span>檔案',
-        'Don`t download <span class="key">duplicate</span> files',
+        'Don\'t download <span class="key">duplicate</span> files',
         '<span class="key">重複</span>ファイルをダウンロードしない',
         '<span class="key">중복</span> 파일 다운로드하지 않기',
         'Не загружать <span class="key">дубликаты</span> файлов',
@@ -27956,7 +27956,7 @@ Novel folder name: Novel`,
     _特定用户的多图作品不下载最后几张图片: [
         '特定用户的多图作品不下载<span class="key">最后几张</span>图片',
         '特定使用者的多圖作品不下載<span class="key">最後幾張</span>圖片',
-        'Don`t download the <span class="key">last few</span> images for specific user`s multi-image works',
+        'Don\'t download the <span class="key">last few</span> images for specific user`s multi-image works',
         '特定のユーザーのマルチイメージ作品の<span class="key">最後のいくつかのイメージ</span>をダウンロードしないでください',
         '특정 사용자의 다중 이미지 작품에 대한 <span class="key">마지막 몇 개</span>의 이미지를 다운로드하지 마십시오',
         'Не загружайте <span class="key">последние несколько</span> изображений для работ с несколькими изображениями конкретного пользователя',
@@ -31163,7 +31163,7 @@ class Form {
             }
             // 重设子选项区域的显示/隐藏状态
             if (subOption) {
-                subOption.style.display = input.checked ? 'inline' : 'none';
+                subOption.style.display = input.checked ? 'inline-flex' : 'none';
             }
         }
     }
@@ -31350,7 +31350,8 @@ const formHtml = `<form class="settingForm">
     <input type="checkbox" name="BMKNumAverageSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
     <span class="subOptionWrap" data-show="BMKNumAverageSwitch">
-      <input type="text" name="BMKNumAverage" class="setinput_style1 blue bmkNum" value="600">
+    &gt;=&nbsp;
+    <input type="text" name="BMKNumAverage" class="setinput_style1 blue bmkNum" value="600">
     </span>
     </span>
     </p>
@@ -31494,14 +31495,14 @@ const formHtml = `<form class="settingForm">
     <input type="checkbox" name="notNeedTagSwitch" class="need_beautify checkbox_switch">
     <span class="beautify_switch" tabindex="0"></span>
     <span class="subOptionWrap" data-show="notNeedTagSwitch">
-    <span class="gray1" data-xztext="_任一"></span>&nbsp;
     <input type="radio" id="tagMatchMode1" class="need_beautify radio" name="tagMatchMode" value="partial" checked>
     <span class="beautify_radio" tabindex="0"></span>
     <label for="tagMatchMode1" data-xztext="_部分一致"></label>
     <input type="radio" id="tagMatchMode2" class="need_beautify radio" name="tagMatchMode" value="whole" checked>
     <span class="beautify_radio" tabindex="0"></span>
     <label for="tagMatchMode2" data-xztext="_完全一致"></label>
-    <br>
+    <span class="verticalSplit"></span>
+    <span class="gray1" data-xztext="_任一"></span>
     <textarea class="centerPanelTextArea beautify_scrollbar" name="notNeedTag" rows="1" placeholder="tag1,tag2,tag3"></textarea>
     </span>
     </p>
@@ -31876,8 +31877,6 @@ const formHtml = `<form class="settingForm">
     <input type="checkbox" name="createFolderByTag" class="need_beautify checkbox_switch" >
     <span class="beautify_switch" tabindex="0"></span>
     <span class="subOptionWrap" data-show="createFolderByTag">
-    <span class="gray1" data-xztext="_tag用逗号分割"></span>
-    <br>
     <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1" placeholder="tag1,tag2,tag3"></textarea>
     </span>
     </p>
@@ -32189,8 +32188,8 @@ const formHtml = `<form class="settingForm">
     <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
     <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
     <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
-    </span>
     <button class="textButton gray1" type="button" id="deduplicationHelp" data-xztext="_提示"></button>
+    </span>
     </p>
 
     <p class="option settingCategoryName" data-no="60">
@@ -32282,11 +32281,9 @@ const formHtml = `<form class="settingForm">
     <input type="radio" name="prevWorkSize" id="prevWorkSize2" class="need_beautify radio" value="regular" checked>
     <span class="beautify_radio" tabindex="0"></span>
     <label for="prevWorkSize2" data-xztext="_普通"></label>
-    </span>
-
     <span class="verticalSplit"></span>
-
     <button type="button" class="gray1 textButton showPreviewWorkTip" data-xztext="_快捷键列表"></button>
+    </span>
     </p>
 
     <p class="previewWorkTip tip" style="display:none">
@@ -33302,7 +33299,7 @@ class Options {
     // 在切换不同页面时使用
     showAllOption() {
         for (const el of this.allOption) {
-            el.style.display = 'block';
+            el.style.display = 'flex';
         }
     }
     // 隐藏指定的选项。参数是数组，传递设置项的编号。
@@ -33314,7 +33311,7 @@ class Options {
     }
     // 显示指定的选项。因为页面无刷新加载，所以一些选项被隐藏后，可能需要再次显示
     showOption(no) {
-        this.setOptionDisplay(no, 'block');
+        this.setOptionDisplay(no, 'flex');
     }
     // 设置“抓取多少作品/页面” 选项的提示和预设值
     setWantPageTip(arg) {
