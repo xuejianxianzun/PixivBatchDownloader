@@ -9433,7 +9433,7 @@ class ShowWhatIsNew {
     constructor() {
         this.bindEvents();
     }
-    flag = '17.8.0';
+    flag = '17.8.1';
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
