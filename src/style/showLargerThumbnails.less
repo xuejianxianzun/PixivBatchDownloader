@@ -2,6 +2,12 @@
 // 下载器替换默认的缩略图时，使用的的图片宽高最大是 540px
 // 变化：以前普通模式和夜间模式的图片 className 不同，所以修改后需要在两个模式下都测试效果。现在是相同的了。
 
+// 把容器的固定宽度改为 94 vw
+.width94vw{
+  width: 94vw !important;
+  max-width: unset !important;
+}
+
 // 使用一个通用的选择器，放大图片，这个不容易失效。
 // 但是 Pixiv 改版时其父级元素的 className 也会变，所以改版后父级还是得修复
 // 使用 div[data-mouseover] a img 时需要在前面加上选择器，限定其生效范围

@@ -8762,6 +8762,19 @@ class ShowLargerThumbnails {
                 }
             }
         }
+        // artwork 页面
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork) {
+            // 查找底部的 相关作品 或 推荐作品（有些作品的底部是相关作品，有的是推荐作品，我不清楚是什么规律）
+            const ul = document.querySelectorAll('aside ul');
+            if (ul.length > 0) {
+                const useUL = ul[ul.length - 1];
+                const div = useUL.closest('div');
+                if (div) {
+                    div.classList.add('width94vw');
+                    this.needFind = false;
+                }
+            }
+        }
         // 画师主页
         if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.UserHome) {
             // 查找“插画·漫画”的父级 div（宽度为 1224px 的那个）
@@ -28861,10 +28874,16 @@ P.S. Работы заблокированных пользователей не
     ]
 };
 
-// 请根据下面这条中文语句生成一个字符串数组，包含 6 条语句。第 1 条是原文，后面 5 条语句是其他语言的翻译，按顺序分别是：繁体中文、英语、日语、韩语、俄语。
-// 附加处理：如果原语句里有 `<span class="key">关键字</span>` 形式的标记，那么在翻译后的语句里也要加上。
-// 情景提示：这个项目是一个浏览器扩展程序，用于抓取数据和下载文件。这些文本是在网页上显示给用户看的。
-// 输出格式：使用 JavaScript 格式，字符串使用单引号包裹。
+const prompt = `
+请帮我根据把一条中文语句翻译并生成一个字符串数组，一共包含 6 条语句，第 1 条是原文，后面 5 条语句是其他语言的翻译，按顺序分别是：繁体中文、英语、日语、韩语、俄语。
+情景提示：这个项目是一个浏览器扩展程序，用于抓取数据和下载文件。这些文本是在网页上显示给用户看的。
+输出格式：使用 JavaScript 格式，字符串使用单引号包裹。
+备注：
+1. 如果中文语句里有 html 标签，翻译时需要原样保留。
+2. 如果原语句里有 \`<span class="key">关键字</span>\` 形式的标记，那么在翻译后的语句里也要加上。
+中文语句：
+中文中文中文中文中文中文中文中文
+`;
 
 
 /***/ }),

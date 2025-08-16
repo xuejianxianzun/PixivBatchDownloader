@@ -169,6 +169,20 @@ class ShowLargerThumbnails {
       }
     }
 
+    // artwork 页面
+    if (pageType.type === pageType.list.Artwork) {
+      // 查找底部的 相关作品 或 推荐作品（有些作品的底部是相关作品，有的是推荐作品，我不清楚是什么规律）
+      const ul = document.querySelectorAll('aside ul')
+      if (ul.length > 0) {
+        const useUL = ul[ul.length - 1]
+        const div = useUL.closest('div')
+        if (div) {
+          div.classList.add('width94vw')
+          this.needFind = false
+        }
+      }
+    }
+
     // 画师主页
     if (pageType.type === pageType.list.UserHome) {
       // 查找“插画·漫画”的父级 div（宽度为 1224px 的那个）
