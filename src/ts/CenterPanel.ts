@@ -98,7 +98,7 @@ class CenterPanel {
       <button class="textButton gray1" id="showDownTip" type="button" data-xztext="_常见问题"></button>
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank" data-xztext="_wiki"></a>
       <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
-      <a class="gray1" href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank" data-xztext="_fanboxDownloader"></a>
+      <button class="textButton gray1" id="xzFanboxDownloader" type="button" data-xztext="_fanboxDownloader"></button>
       <button class="textButton gray1" id="showPatronTip" type="button" data-xztext="_赞助我"></button>
       <br>
       </div>
@@ -224,6 +224,14 @@ class CenterPanel {
       .addEventListener('click', () =>
         msgBox.show(lang.transl('_赞助方式提示'), {
           title: lang.transl('_赞助我'),
+        })
+      )
+
+    this.centerPanel
+      .querySelector('#xzFanboxDownloader')!
+      .addEventListener('click', () =>
+        msgBox.show(lang.transl('_fanboxDownloader的说明'), {
+          title:'Pixiv Fanbox Downloader',
         })
       )
 
