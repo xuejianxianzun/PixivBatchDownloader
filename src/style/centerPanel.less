@@ -211,7 +211,7 @@
     .showFileNameTip:focus,
     .textButton:hover,
     .textButton:focus,
-    .help_bar>*:hover,
+    .help_bar > *:hover,
     .updateActiveClass {
       color: @themeBlue !important;
       fill: @themeBlue !important;
@@ -236,7 +236,7 @@
         margin: 2px 0;
 
         // 给内部元素设置统一的行高。否则的话，span 元素没有行高的话，其高度就是字体尺寸（14px），对齐到顶部后太靠上了，与其他元素的中轴线没有对齐
-        &>* {
+        & > * {
           line-height: @height;
           flex-shrink: 0;
         }
@@ -261,7 +261,7 @@
           flex-grow: 1;
           column-gap: 4px;
 
-          &>* {
+          & > * {
             line-height: @height;
           }
         }
@@ -471,11 +471,11 @@
         transition: all 0.3s;
       }
 
-      .checkbox_switch:checked+.beautify_switch {
+      .checkbox_switch:checked + .beautify_switch {
         background: @beautifyBlue;
       }
 
-      .checkbox_switch:checked+.beautify_switch::before {
+      .checkbox_switch:checked + .beautify_switch::before {
         margin-left: 11px;
       }
 
@@ -511,7 +511,7 @@
         transform-origin: center;
       }
 
-      .checkbox_common:checked+.beautify_checkbox {
+      .checkbox_common:checked + .beautify_checkbox {
         background: @beautifyBlue;
         border: 1px solid @beautifyBlue;
       }
@@ -520,11 +520,11 @@
         border: 1px solid @beautifyBlue;
       }
 
-      .checkbox_common:checked+.beautify_checkbox::after {
+      .checkbox_common:checked + .beautify_checkbox::after {
         transform: rotate(45deg) scaleY(1);
       }
 
-      .checkbox_common:focus+.beautify_checkbox {
+      .checkbox_common:focus + .beautify_checkbox {
         border: 1px solid @beautifyBlue;
       }
 
@@ -554,7 +554,7 @@
         transition: transform 0.15s ease-in;
       }
 
-      .radio:checked+.beautify_radio {
+      .radio:checked + .beautify_radio {
         background: @beautifyBlue;
         border: 1px solid @beautifyBlue;
       }
@@ -563,7 +563,7 @@
         border: 1px solid @beautifyBlue;
       }
 
-      .radio:checked+.beautify_radio::after {
+      .radio:checked + .beautify_radio::after {
         transform: translate(-50%, -50%) scale(1);
       }
 
@@ -623,7 +623,6 @@
           margin-bottom: 8px;
           vertical-align: top;
           box-shadow: 0 1px 6px #eee;
-
         }
       }
 
@@ -751,7 +750,7 @@
           line-height: @height;
           margin-bottom: 4px;
 
-          &>* {
+          & > * {
             padding-right: 5px;
           }
 
@@ -811,7 +810,7 @@
           align-items: center;
           min-width: 500px;
 
-          &>* {
+          & > * {
             min-height: @liHeight;
             line-height: @liHeight;
           }
@@ -855,19 +854,19 @@
     .help_bar {
       line-height: 24px;
 
-      &>* {
+      & > * {
         padding: 0 3px;
       }
     }
 
     // 导出日志时，排除的关键字的输入框
     // 允许其增加宽度，否则它的宽度很窄
-    input[name="exportLogExclude"] {
+    input[name='exportLogExclude'] {
       width: auto !important;
     }
 
     // 背景图片的不透明度滑动条，调整其占据的高度为 @height
-    input[name="bgOpacity"] {
+    input[name='bgOpacity'] {
       margin: 5px 0;
     }
   }
@@ -954,7 +953,7 @@
     .showFileNameTip:focus,
     .textButton:hover,
     .textButton:focus,
-    .help_bar>*:hover,
+    .help_bar > *:hover,
     .updateActiveClass {
       color: @beautifyBlue !important;
       fill: @beautifyBlue !important;
@@ -1015,7 +1014,6 @@
 }
 
 .xzBG {
-
   // 当设置了背景图片时，不管是什么主题，都把中间面板的样式修改为 Dark 主题的样式，并且添加文字阴影，使文字更容易阅读
   &.centerWrap {
     // text-shadow: 0px 0px 5px #015d88;
@@ -1055,7 +1053,7 @@
     .showFileNameTip:focus,
     .textButton:hover,
     .textButton:focus,
-    .help_bar>*:hover,
+    .help_bar > *:hover,
     .updateActiveClass {
       color: #fff !important;
       fill: #fff !important;

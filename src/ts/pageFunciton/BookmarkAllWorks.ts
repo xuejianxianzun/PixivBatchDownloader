@@ -33,7 +33,7 @@ class BookmarkAllWorks {
       const span = tipWrap.querySelector('span')
       if (span) {
         this.textSpan = span
-      }else{
+      } else {
         this.textSpan = tipWrap
       }
     }

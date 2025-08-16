@@ -4570,12 +4570,18 @@ class Input {
         }
         container.append(input);
         const submitButton = document.createElement('button');
-        submitButton.classList.add('XZInputButton');
-        submitButton.textContent = option.submitButtonText;
+        submitButton.classList.add('XZInputButton', 'hasRippleAnimation');
+        submitButton.innerHTML = `
+      <span>${option.submitButtonText}</span>
+      <span class="ripple"></span>
+    `;
         container.append(submitButton);
         const cancelButton = document.createElement('button');
-        cancelButton.classList.add('XZInputButton', 'cancel');
-        cancelButton.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_取消');
+        cancelButton.classList.add('XZInputButton', 'cancel', 'hasRippleAnimation');
+        cancelButton.innerHTML = `
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_取消')}</span>
+      <span class="ripple"></span>
+    `;
         container.append(cancelButton);
         wrap.append(container);
         // 由于 wrap 宽度要考虑按钮宽度，但按钮宽度不固定，所以要先添加到页面上，获取按钮实际宽度，再调整 wrap 宽度
@@ -9427,12 +9433,18 @@ class ShowWhatIsNew {
     constructor() {
         this.bindEvents();
     }
-    flag = '17.7.4';
+    flag = '17.8.0';
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
             let msg = `
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_扩展程序升到x版本', this.flag)}</span>
+      <br>
+      <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_支持Firefox')}</span>
+      <br>
+      <br>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复已知问题')}</span>
       <br>
       <br>
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
@@ -9462,6 +9474,12 @@ class ShowWhatIsNew {
         });
     }
     show(msg) {
+        // 如果这个标记是初始值，说明这是用户首次安装这个扩展，或者重置了设置，此时不显示版本更新提示
+        // 因为对于新安装的用户来说，没必要显示版本更新提示
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.whatIsNewFlag === 'xuejian&saber') {
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.setSetting)('whatIsNewFlag', this.flag);
+            return;
+        }
         if (_utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.isPixiv() && _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.whatIsNewFlag !== this.flag) {
             _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.show(msg, {
                 title: _Config__WEBPACK_IMPORTED_MODULE_1__.Config.appName + ` ${_Lang__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_最近更新')}`,
@@ -18404,7 +18422,17 @@ class DownloadControl {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('exportCSV');
             }, false);
             this.resultBtns.exportCSV.addEventListener('mouseenter', () => {
-                _ShowHelp__WEBPACK_IMPORTED_MODULE_23__.showHelp.show('tipCSV', _Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_导出CSV文件的提示'));
+                // 鼠标在这个按钮上停留 500 ms 之后，显示提示
+                let timer;
+                this.resultBtns.exportCSV.addEventListener('mouseleave', () => {
+                    window.clearTimeout(timer);
+                });
+                timer = window.setTimeout(() => {
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_21__.msgBox.show(_Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_导出CSV文件的提示'), {
+                        title: _Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_导出csv'),
+                    });
+                    _ShowHelp__WEBPACK_IMPORTED_MODULE_23__.showHelp.show('tipCSV', _Lang__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_导出CSV文件的提示'));
+                }, 500);
             }, false);
         }
     }
@@ -28896,8 +28924,16 @@ P.S. Работы заблокированных пользователей не
         'I created a Fanbox Downloader, but it currently only supports Chromium-based browsers, such as Chrome and Edge.<br>You can install it from the Chrome Web Store:<br><a href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank">Pixiv Fanbox Downloader</a>',
         '私は Fanbox Downloader を作成しましたが、現在は Chromium ベースのブラウザ（例: Chrome、Edge）のみをサポートしています。<br>Chrome Web Store からインストールできます：<br><a href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank">Pixiv Fanbox Downloader</a>',
         '나는 Fanbox Downloader를 만들었지만, 현재는 Chromium 기반 브라우저(예: Chrome, Edge)만 지원합니다.<br>Chrome Web Store에서 설치할 수 있습니다:<br><a href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank">Pixiv Fanbox Downloader</a>',
-        'Я создал Fanbox Downloader, но в настоящее время он поддерживает только браузеры на базе Chromium, такие как Chrome и Edge.<br>Вы можете установить его из Chrome Web Store:<br><a href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank">Pixiv Fanbox Downloader</a>'
-    ]
+        'Я создал Fanbox Downloader, но в настоящее время он поддерживает только браузеры на базе Chromium, такие как Chrome и Edge.<br>Вы можете установить его из Chrome Web Store:<br><a href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank">Pixiv Fanbox Downloader</a>',
+    ],
+    _支持Firefox: [
+        '🦊下载器已经可以在 Firefox 上使用了！🥳<br>从 ADD-ONS 安装：<br><a href="https://addons.mozilla.org/en-US/firefox/addon/adblock-for-youtube/" target="_blank">Powerful Pixiv Downloader</a>',
+        '🦊下載器已經可以在 Firefox 上使用了！🥳<br>從 ADD-ONS 安裝：<br><a href="https://addons.mozilla.org/en-US/firefox/addon/adblock-for-youtube/" target="_blank">Powerful Pixiv Downloader</a>',
+        '🦊The downloader is now available for use on Firefox! 🥳<br>Install from ADD-ONS:<br><a href="https://addons.mozilla.org/en-US/firefox/addon/adblock-for-youtube/" target="_blank">Powerful Pixiv Downloader</a>',
+        '🦊ダウンローダーはすでにFirefoxで使用可能です！🥳<br>ADD-ONSからインストール：<br><a href="https://addons.mozilla.org/en-US/firefox/addon/adblock-for-youtube/" target="_blank">Powerful Pixiv Downloader</a>',
+        '🦊다운로더는 이제 Firefox에서 사용할 수 있습니다! 🥳<br>ADD-ONS에서 설치:<br><a href="https://addons.mozilla.org/en-US/firefox/addon/adblock-for-youtube/" target="_blank">Powerful Pixiv Downloader</a>',
+        '🦊Загрузчик уже доступен для использования в Firefox! 🥳<br>Установить из ADD-ONS:<br><a href="https://addons.mozilla.org/en-US/firefox/addon/adblock-for-youtube/" target="_blank">Powerful Pixiv Downloader</a>',
+    ],
 };
 
 const prompt = `
@@ -33674,8 +33710,8 @@ class Settings {
     defaultSettings = {
         setWantPage: -1,
         wantPageArr: [
-            -1, -1, -1, 1, 1, 1, 50, 100, -1, 100, 100, -1, 100, -1, -1, 1,
-            100, 100, 100, 100, 1,
+            -1, -1, -1, 1, 1, 1, 50, 100, -1, 100, 100, -1, 100, -1, -1, 1, 100, 100,
+            100, 100, 1,
         ],
         firstFewImagesSwitch: false,
         firstFewImages: 1,

@@ -347,7 +347,17 @@ class DownloadControl {
       this.resultBtns.exportCSV.addEventListener(
         'mouseenter',
         () => {
-          showHelp.show('tipCSV', lang.transl('_导出CSV文件的提示'))
+          // 鼠标在这个按钮上停留 500 ms 之后，显示提示
+          let timer: number
+          this.resultBtns.exportCSV.addEventListener('mouseleave', () => {
+            window.clearTimeout(timer)
+          })
+          timer = window.setTimeout(() => {
+            msgBox.show(lang.transl('_导出CSV文件的提示'), {
+              title: lang.transl('_导出csv'),
+            })
+            showHelp.show('tipCSV', lang.transl('_导出CSV文件的提示'))
+          }, 500)
         },
         false
       )

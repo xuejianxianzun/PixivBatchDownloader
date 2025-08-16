@@ -1158,10 +1158,10 @@
 .centerWrap .centerWrap_con .help_bar > * {
   padding: 0 3px;
 }
-.centerWrap .centerWrap_con input[name="exportLogExclude"] {
+.centerWrap .centerWrap_con input[name='exportLogExclude'] {
   width: auto !important;
 }
-.centerWrap .centerWrap_con input[name="bgOpacity"] {
+.centerWrap .centerWrap_con input[name='bgOpacity'] {
   margin: 5px 0;
 }
 .centerWrap.mobile {

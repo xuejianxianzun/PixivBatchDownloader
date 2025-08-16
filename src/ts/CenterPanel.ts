@@ -231,7 +231,7 @@ class CenterPanel {
       .querySelector('#xzFanboxDownloader')!
       .addEventListener('click', () =>
         msgBox.show(lang.transl('_fanboxDownloader的说明'), {
-          title:'Pixiv Fanbox Downloader',
+          title: 'Pixiv Fanbox Downloader',
         })
       )
 

@@ -1,5 +1,7 @@
 .outputWrap {
-  font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-family:
+    'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB',
+    'Microsoft YaHei', sans-serif;
   padding: 20px 30px;
   width: 520px;
   background: #fff;

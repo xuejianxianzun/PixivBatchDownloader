@@ -11,13 +11,19 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '17.7.4'
+  private flag = '17.8.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
       let msg = `
       <span>${lang.transl('_扩展程序升到x版本', this.flag)}</span>
+      <br>
+      <br>
+      <span>${lang.transl('_支持Firefox')}</span>
+      <br>
+      <br>
+      <span>${lang.transl('_修复已知问题')}</span>
       <br>
       <br>
       <span>${lang.transl('_优化性能和用户体验')}</span>
@@ -53,6 +59,13 @@ class ShowWhatIsNew {
   }
 
   private show(msg: string) {
+    // 如果这个标记是初始值，说明这是用户首次安装这个扩展，或者重置了设置，此时不显示版本更新提示
+    // 因为对于新安装的用户来说，没必要显示版本更新提示
+    if (settings.whatIsNewFlag === 'xuejian&saber') {
+      setSetting('whatIsNewFlag', this.flag)
+      return
+    }
+
     if (Utils.isPixiv() && settings.whatIsNewFlag !== this.flag) {
       msgBox.show(msg, {
         title: Config.appName + ` ${lang.transl('_最近更新')}`,

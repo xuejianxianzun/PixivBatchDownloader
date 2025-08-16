@@ -64,7 +64,7 @@ class QuickBookmark {
 
     // 判断这个作品是否收藏过了
     const data = await this.getWorkData()
-    if(data === null){
+    if (data === null) {
       return
     }
     this.workData = data as ArtworkData | NovelData

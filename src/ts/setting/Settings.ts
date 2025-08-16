@@ -287,8 +287,8 @@ class Settings {
   private readonly defaultSettings: XzSetting = {
     setWantPage: -1,
     wantPageArr: [
-      -1, -1, -1, 1, 1, 1, 50, 100, -1, 100, 100, -1, 100, -1, -1, 1,
-      100, 100, 100, 100, 1,
+      -1, -1, -1, 1, 1, 1, 50, 100, -1, 100, 100, -1, 100, -1, -1, 1, 100, 100,
+      100, 100, 1,
     ],
     firstFewImagesSwitch: false,
     firstFewImages: 1,

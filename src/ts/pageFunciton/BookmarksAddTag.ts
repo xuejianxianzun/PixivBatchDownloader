@@ -16,12 +16,12 @@ class BookmarksAddTag {
   constructor(btn: HTMLButtonElement) {
     this.btn = btn
 
-      const span = btn.querySelector('span')
-      if (span) {
-        this.textSpan = span
-      }else{
-        this.textSpan = btn
-      }
+    const span = btn.querySelector('span')
+    if (span) {
+      this.textSpan = span
+    } else {
+      this.textSpan = btn
+    }
 
     this.bindEvents()
   }
