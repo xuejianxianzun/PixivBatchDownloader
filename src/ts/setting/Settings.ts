@@ -364,7 +364,7 @@ class Settings {
     restrict: 'no',
     widthTagBoolean: true,
     restrictBoolean: false,
-    userBlockList: true,
+    userBlockList: false,
     removeBlockedUsersWork: true,
     blockList: [],
     theme: 'auto',

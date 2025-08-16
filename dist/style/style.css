@@ -932,8 +932,7 @@
   width: 100%;
 }
 .centerWrap .centerWrap_con .settingForm .fileNameRule {
-  height: 26px;
-  min-width: 310px;
+  min-width: 310px !important;
 }
 .centerWrap .centerWrap_con .settingForm .setinput_tag {
   min-width: 300px;
