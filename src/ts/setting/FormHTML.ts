@@ -10,7 +10,9 @@ export const formHtml = `<form class="settingForm">
     value = '-1'>
     &nbsp;
     <button class="textButton grayButton" type="button" id="setMin"></button>
+    &nbsp;
     <button class="textButton grayButton" type="button" id="setMax"></button>
+    &nbsp;
     <span class="setWantPageTip2 gray1" data-xztext="_数字提示1"></span>
     <button class="gray1 showSetWantPageTip textButton" type="button" data-xztext="_提示"></button>
     </p>

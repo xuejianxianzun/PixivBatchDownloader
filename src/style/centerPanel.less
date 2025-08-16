@@ -171,7 +171,7 @@
       width: 33.3%;
       height: 2px;
       background: @beautifyBlue;
-      top: 36px;
+      top: 35px;
       left: 0%;
       z-index: 1001;
       transition: left 0.2s;
@@ -241,7 +241,7 @@
           flex-shrink: 0;
         }
 
-        // 对于美化的复选框，其原本高度是 14px，使用 margin 将其占据的高度撑到 26px
+        // 对于美化的复选框，其原本高度是 14px，使用 margin 将其占据的高度撑到 @height
         .beautify_switch,
         .beautify_checkbox {
           margin: 6px 0;
@@ -859,6 +859,17 @@
         padding: 0 3px;
       }
     }
+
+    // 导出日志时，排除的关键字的输入框
+    // 允许其增加宽度，否则它的宽度很窄
+    input[name="exportLogExclude"] {
+      width: auto !important;
+    }
+
+    // 背景图片的不透明度滑动条，调整其占据的高度为 @height
+    input[name="bgOpacity"] {
+      margin: 5px 0;
+    }
   }
 }
 
@@ -950,7 +961,7 @@
     }
 
     .grayButton {
-      background-color: #999;
+      background-color: #aaa;
     }
 
     .grayButton:hover,
@@ -1020,7 +1031,7 @@
 
     .gray1,
     .centerWrap_top_btn {
-      color: #ddd !important;
+      color: #eee !important;
       text-shadow: #003247 0px 0px 2px;
     }
 
@@ -1097,7 +1108,7 @@
 
     .settingCategoryName {
       span {
-        text-shadow: none  !important;
+        text-shadow: none !important;
       }
     }
   }

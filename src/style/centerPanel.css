@@ -141,7 +141,7 @@
   width: 33.3%;
   height: 2px;
   background: #29b3f3;
-  top: 36px;
+  top: 35px;
   left: 0%;
   z-index: 1001;
   transition: left 0.2s;
@@ -702,6 +702,12 @@
 .centerWrap .centerWrap_con .help_bar > * {
   padding: 0 3px;
 }
+.centerWrap .centerWrap_con input[name="exportLogExclude"] {
+  width: auto !important;
+}
+.centerWrap .centerWrap_con input[name="bgOpacity"] {
+  margin: 5px 0;
+}
 .centerWrap.mobile {
   width: 90vw;
   left: -45vw;
@@ -772,7 +778,7 @@
   fill: #29b3f3 !important;
 }
 .theme-dark.centerWrap .grayButton {
-  background-color: #999;
+  background-color: #aaa;
 }
 .theme-dark.centerWrap .grayButton:hover,
 .theme-dark.centerWrap .grayButton:focus {
@@ -819,7 +825,7 @@
 }
 .xzBG.centerWrap .gray1,
 .xzBG.centerWrap .centerWrap_top_btn {
-  color: #ddd !important;
+  color: #eee !important;
   text-shadow: #003247 0px 0px 2px;
 }
 .xzBG.centerWrap .blue,
@@ -876,7 +882,7 @@
   color: #fff;
 }
 .xzBG.centerWrap .settingCategoryName span {
-  text-shadow: none  !important;
+  text-shadow: none !important;
 }
 .showBlobKeywords .key {
   font-weight: bold;
