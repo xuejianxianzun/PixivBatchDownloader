@@ -63,8 +63,14 @@ class CrawlTagList {
     ></textarea>
     <p id="crawlTagListTip" data-xztext="_抓取标签列表的文件夹提示"></p>
     <div id="crawlTagListBtnsWrap">
-      <button id="crawlTagListBtn" data-xztext="_抓取标签列表"></button>
-      <button id="clearTagListBtn" data-xztext="_停止抓取标签列表"></button>
+      <button id="crawlTagListBtn" class="hasRippleAnimation">
+        <span data-xztext="_抓取标签列表"></span>
+        <span class="ripple"></span>
+      </button>
+      <button id="clearTagListBtn" class="hasRippleAnimation">
+        <span data-xztext="_停止抓取标签列表"></span>
+        <span class="ripple"></span>
+      </button>
     </div>
     <div id="tagListWrap">
       <p data-xztext="_等待下载的标签"></p>

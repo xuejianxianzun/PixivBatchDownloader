@@ -1,0 +1,134 @@
+.outputWrap {
+  font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  padding: 20px 30px;
+  width: 520px;
+  background: #fff;
+  border-radius: 15px;
+  z-index: 9999;
+  box-shadow: 0 0 15px #2ca6df;
+  display: none;
+  position: fixed;
+  top: 15%;
+  margin-left: -300px;
+  left: 50%;
+}
+.outputWrap .outputTitle {
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  font-size: 18px;
+  color: #0ea8ef;
+}
+.outputWrap .outputContent {
+  border: 1px solid #ccc;
+  transition: 0.3s;
+  font-size: 14px;
+  margin-top: 20px;
+  padding: 5px 10px;
+  overflow: auto;
+  max-height: 350px;
+  line-height: 20px;
+  min-height: 100px;
+  word-break: break-all;
+}
+.outputWrap .outputContent::selection {
+  background: #0ea8ef;
+  color: #fff;
+}
+.outputWrap .outputContent p.result {
+  margin-bottom: 10px;
+}
+.outputWrap .outputContent .color999 {
+  color: #999;
+}
+.outputWrap .outputContent .colorFolder {
+  color: #0ea8ef;
+}
+.outputWrap .outputContent .color666 {
+  color: #666;
+}
+.outputWrap .outputContent .color000 {
+  color: #000;
+}
+.outputWrap .outputClose {
+  cursor: pointer;
+  position: absolute;
+  font-size: 24px;
+  top: 16px;
+  right: 30px;
+  z-index: 9999;
+  text-align: center;
+  color: #666;
+}
+.outputWrap .outputClose:hover {
+  color: #0ea8ef;
+}
+.outputWrap .outputFooter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.outputWrap .outputCopy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  min-width: 100px;
+  padding: 2px 25px;
+  margin-top: 15px;
+  background: #0ea8ef;
+  color: #fff;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.theme-dark.outputWrap {
+  background: #222;
+  box-shadow: #10506e 0px 0px 15px;
+}
+.theme-dark.outputWrap .outputContent {
+  color: #fff !important;
+}
+.theme-dark.outputWrap .outputContent * {
+  color: #fff !important;
+}
+.outputWrap.mobile {
+  box-sizing: border-box;
+  padding: 20px 30px;
+  width: 92vw;
+  top: 15%;
+  left: 50%;
+  margin-left: -45vw;
+  border-radius: 15px;
+  font-family: sans-serif;
+}
+.outputWrap.mobile .outputContent {
+  border: 1px solid #ccc;
+  transition: 0.3s;
+  font-size: 14px;
+  margin-top: 20px;
+  padding: 5px 10px;
+  overflow: auto;
+  max-height: 350px;
+  line-height: 20px;
+  min-height: 100px;
+  word-break: break-all;
+}
+.outputWrap.mobile .outputClose {
+  width: 40px;
+  height: 40px;
+  top: 10px;
+  right: 30px;
+  z-index: 9999;
+  font-size: 40px;
+}
+.outputWrap.mobile .outputCopy {
+  height: 40px;
+  line-height: 30px;
+  min-width: 100px;
+  padding: 4px 25px;
+  margin-top: 15px;
+  font-size: 16px;
+  border-radius: 8px;
+}

@@ -252,10 +252,10 @@ class DownloadControl {
   private createDownloadArea() {
     const html = `<div class="download_area">
     <div class="centerWrap_btns">
-    <button class="startDownload" type="button" style="background:${Colors.bgBlue};" data-xztext="_开始下载"></button>
-    <button class="pauseDownload" type="button" style="background:${Colors.bgYellow};" data-xztext="_暂停下载"></button>
-    <button class="stopDownload" type="button" style="background:${Colors.bgRed};" data-xztext="_停止下载"></button>
-    <button class="copyUrl" type="button" style="background:${Colors.bgGreen};" data-xztext="_复制url"></button>
+    <button class="startDownload hasRippleAnimation" type="button" style="background:${Colors.bgBlue};"><span data-xztext="_开始下载"></span><span class="ripple"></span></button>
+    <button class="pauseDownload hasRippleAnimation" type="button" style="background:${Colors.bgYellow};"><span data-xztext="_暂停下载"></span><span class="ripple"></span></button>
+    <button class="stopDownload hasRippleAnimation" type="button" style="background:${Colors.bgRed};"><span data-xztext="_停止下载"></span><span class="ripple"></span></button>
+    <button class="copyUrl hasRippleAnimation" type="button" style="background:${Colors.bgGreen};"><span data-xztext="_复制url"></span><span class="ripple"></span></button>
     </div>
     <div class="download_status_text_wrap">
     <span data-xztext="_当前状态"></span>

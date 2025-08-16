@@ -15,6 +15,14 @@ import { msgBox } from '../MsgBox'
 class BookmarksAddTag {
   constructor(btn: HTMLButtonElement) {
     this.btn = btn
+
+      const span = btn.querySelector('span')
+      if (span) {
+        this.textSpan = span
+      }else{
+        this.textSpan = btn
+      }
+
     this.bindEvents()
   }
 
@@ -25,6 +33,7 @@ class BookmarksAddTag {
   private addIndex = 0 // 添加 tag 时的计数
 
   private btn: HTMLButtonElement
+  private textSpan: HTMLSpanElement = document.createElement('span')
 
   private readonly once = 100 // 一次请求多少个作品的数据
 
@@ -35,7 +44,7 @@ class BookmarksAddTag {
       this.addIndex = 0
 
       this.btn.setAttribute('disabled', 'disabled')
-      this.btn.textContent = `Checking`
+      this.textSpan.textContent = `Checking`
 
       if (window.location.pathname.includes('/novel')) {
         this.type = 'novels'
@@ -69,7 +78,7 @@ class BookmarksAddTag {
     ]).catch((error) => {
       // 如果错误码为 403, 可能是在其他用户的页面里
       if (error.status && error.status === 403) {
-        this.btn!.textContent = `× Permission denied`
+        this.textSpan.textContent = `× Permission denied`
       }
       errorFlag = true
       return []
@@ -105,7 +114,7 @@ class BookmarksAddTag {
     if (total >= showData.body.total && total >= hideData.body.total) {
       if (this.addTagList.length === 0) {
         // 如果结果为空，不需要处理
-        this.btn!.textContent = `✓ No need`
+        this.textSpan.textContent = `✓ No need`
         this.btn!.removeAttribute('disabled')
         return
       } else {
@@ -131,19 +140,19 @@ class BookmarksAddTag {
       true
     )
     if (status === 403) {
-      this.btn!.textContent = `× Permission denied`
+      this.textSpan.textContent = `× Permission denied`
       msgBox.error(lang.transl('_你的账号已经被Pixiv限制'))
       return
     }
 
     if (this.addIndex < this.addTagList.length - 1) {
       this.addIndex++
-      this.btn!.textContent = `${this.addIndex} / ${this.addTagList.length}`
+      this.textSpan.textContent = `${this.addIndex} / ${this.addTagList.length}`
       // 继续添加下一个
       return this.addTag()
     } else {
       // 添加完成
-      this.btn!.textContent = `✓ Complete`
+      this.textSpan.textContent = `✓ Complete`
       this.btn!.removeAttribute('disabled')
       toast.success(lang.transl('_收藏作品完毕'))
     }

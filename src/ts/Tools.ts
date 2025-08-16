@@ -344,15 +344,32 @@ class Tools {
     textFlag: string = '',
     titleFlag: string = ''
   ) {
-    const e = document.createElement('button')
-    e.type = 'button'
-    e.style.backgroundColor = bg
-    textFlag && e.setAttribute('data-xztext', textFlag)
-    titleFlag && e.setAttribute('data-xztitle', titleFlag)
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.style.backgroundColor = bg
+    btn.classList.add('hasRippleAnimation')
+    
+    titleFlag && btn.setAttribute('data-xztitle', titleFlag)
 
-    this.useSlot(slot, e)
-    lang.register(e)
-    return e
+    // 把文本添加到内部的 span 里
+    if(textFlag){
+      const span = document.createElement('span')
+      span.setAttribute('data-xztext', textFlag)
+      btn.append(span)
+    }
+    
+    // 添加一个用于显示动画的 span
+    const ripple = document.createElement('span')
+    ripple.classList.add('ripple')
+    btn.append(ripple)
+
+    // 生成的 btn 代码例如：
+    // <button type="button" data-xztitle="${titleFlag}" style="background:${bg};"><span data-xztext="textFlag"></span><span class="ripple"></span></button>
+    
+    // 添加这个按钮
+    this.useSlot(slot, btn)
+    lang.register(btn)
+    return btn
   }
 
   /**获取页面标题 */

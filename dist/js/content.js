@@ -5441,10 +5441,13 @@ class MsgBox {
         }
         wrap.innerHTML = `
         <div class="title" ${colorStyle}>${data.title || _Config__WEBPACK_IMPORTED_MODULE_5__.Config.appName}</div>
-        <div class="content" ${colorStyle}>${data.msg}</div>
+        <div class="content beautify_scrollbar" ${colorStyle}>${data.msg}</div>
         ${data.hiddenBtn
             ? ''
-            : `<button class="btn" type="button">${data.btn || _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_确定')}</button>`}
+            : `<button class="btn hasRippleAnimation" type="button">
+              <span>${data.btn || _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_确定')}</span>
+              <span class="ripple"></span>
+              </button>`}
       `;
         _Theme__WEBPACK_IMPORTED_MODULE_2__.theme.register(wrap);
         _Lang__WEBPACK_IMPORTED_MODULE_3__.lang.register(wrap);
@@ -5460,7 +5463,7 @@ class MsgBox {
             btn.addEventListener('click', () => {
                 this.remove(wrap);
             });
-            btn.focus();
+            // btn.focus()
         }
         _BG__WEBPACK_IMPORTED_MODULE_4__.bg.useBG(wrap);
         return wrap;
@@ -7671,7 +7674,9 @@ class SelectWork {
         this.updateSelectorEl();
     }
     controlBtn = document.createElement('button'); // 启动、暂停、继续选择的按钮
+    controlTextSpan = document.createElement('span'); // 按钮里的文字
     crawlBtn = document.createElement('button'); // 抓取选择的作品的按钮，并且会退出选择模式
+    crawlTextSpan = document.createElement('span'); // 按钮里的文字
     clearBtn = document.createElement('button'); // 清空选择的作品的按钮
     selectedWorkFlagClass = 'selectedWorkFlag'; // 给已选择的作品添加标记时使用的 class
     positionValue = ['relative', 'absolute', 'fixed']; // 标记元素需要父元素拥有这些定位属性
@@ -7776,6 +7781,7 @@ class SelectWork {
     addBtn() {
         this.controlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.addBtn('selectWorkBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_手动选择作品');
         this.controlBtn.setAttribute('title', 'Alt + S');
+        this.controlTextSpan = this.controlBtn.querySelector('span');
         this.updateControlBtn();
         this.clearBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.addBtn('selectWorkBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgRed, '_清空选择的作品');
         this.clearBtn.style.display = 'none';
@@ -7789,11 +7795,12 @@ class SelectWork {
         this.crawlBtn.addEventListener('click', (ev) => {
             this.sendDownload();
         });
+        this.crawlTextSpan = this.crawlBtn.querySelector('span');
     }
     // 切换控制按钮的文字和点击事件
     updateControlBtn() {
         if (!this.start) {
-            _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.controlBtn, '_手动选择作品');
+            _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.controlTextSpan, '_手动选择作品');
             this.controlBtn.onclick = (ev) => {
                 this.startSelect(ev);
                 this.clearBtn.style.display = 'block';
@@ -7804,13 +7811,13 @@ class SelectWork {
         }
         else {
             if (!this.pause) {
-                _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.controlBtn, '_暂停选择');
+                _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.controlTextSpan, '_暂停选择');
                 this.controlBtn.onclick = (ev) => {
                     this.pauseSelect();
                 };
             }
             else {
-                _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.controlBtn, '_继续选择');
+                _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.controlTextSpan, '_继续选择');
                 this.controlBtn.onclick = (ev) => {
                     this.startSelect(ev);
                 };
@@ -7821,11 +7828,11 @@ class SelectWork {
     updateCrawlBtn() {
         this.crawlBtn.style.display = this.start ? 'block' : 'none';
         if (this.idList.length > 0) {
-            _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.crawlBtn, '_抓取选择的作品2', this.idList.length.toString());
+            _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.crawlTextSpan, '_抓取选择的作品2', this.idList.length.toString());
             this.clearBtn.style.display = 'block';
         }
         else {
-            _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.crawlBtn, '_抓取选择的作品');
+            _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.crawlTextSpan, '_抓取选择的作品');
         }
     }
     addId(el, id, type) {
@@ -10457,14 +10464,27 @@ class Tools {
     // 注意 textFlag 和 titleFlag 必须是 LangText 里存在的属性，这是为了能根据语言设置动态切换文本
     // 如果 text 和 title 是直接设置的字符串，那么不应该使用这个方法设置，而是由调用者自行设置
     static addBtn(slot, bg = '', textFlag = '', titleFlag = '') {
-        const e = document.createElement('button');
-        e.type = 'button';
-        e.style.backgroundColor = bg;
-        textFlag && e.setAttribute('data-xztext', textFlag);
-        titleFlag && e.setAttribute('data-xztitle', titleFlag);
-        this.useSlot(slot, e);
-        _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.register(e);
-        return e;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.style.backgroundColor = bg;
+        btn.classList.add('hasRippleAnimation');
+        titleFlag && btn.setAttribute('data-xztitle', titleFlag);
+        // 把文本添加到内部的 span 里
+        if (textFlag) {
+            const span = document.createElement('span');
+            span.setAttribute('data-xztext', textFlag);
+            btn.append(span);
+        }
+        // 添加一个用于显示动画的 span
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        btn.append(ripple);
+        // 生成的 btn 代码例如：
+        // <button type="button" data-xztitle="${titleFlag}" style="background:${bg};"><span data-xztext="textFlag"></span><span class="ripple"></span></button>
+        // 添加这个按钮
+        this.useSlot(slot, btn);
+        _Lang__WEBPACK_IMPORTED_MODULE_1__.lang.register(btn);
+        return btn;
     }
     /**获取页面标题 */
     static getPageTitle() {
@@ -14408,8 +14428,14 @@ class CrawlTagList {
     ></textarea>
     <p id="crawlTagListTip" data-xztext="_抓取标签列表的文件夹提示"></p>
     <div id="crawlTagListBtnsWrap">
-      <button id="crawlTagListBtn" data-xztext="_抓取标签列表"></button>
-      <button id="clearTagListBtn" data-xztext="_停止抓取标签列表"></button>
+      <button id="crawlTagListBtn" class="hasRippleAnimation">
+        <span data-xztext="_抓取标签列表"></span>
+        <span class="ripple"></span>
+      </button>
+      <button id="clearTagListBtn" class="hasRippleAnimation">
+        <span data-xztext="_停止抓取标签列表"></span>
+        <span class="ripple"></span>
+      </button>
     </div>
     <div id="tagListWrap">
       <p data-xztext="_等待下载的标签"></p>
@@ -18321,10 +18347,10 @@ class DownloadControl {
     createDownloadArea() {
         const html = `<div class="download_area">
     <div class="centerWrap_btns">
-    <button class="startDownload" type="button" style="background:${_Colors__WEBPACK_IMPORTED_MODULE_6__.Colors.bgBlue};" data-xztext="_开始下载"></button>
-    <button class="pauseDownload" type="button" style="background:${_Colors__WEBPACK_IMPORTED_MODULE_6__.Colors.bgYellow};" data-xztext="_暂停下载"></button>
-    <button class="stopDownload" type="button" style="background:${_Colors__WEBPACK_IMPORTED_MODULE_6__.Colors.bgRed};" data-xztext="_停止下载"></button>
-    <button class="copyUrl" type="button" style="background:${_Colors__WEBPACK_IMPORTED_MODULE_6__.Colors.bgGreen};" data-xztext="_复制url"></button>
+    <button class="startDownload hasRippleAnimation" type="button" style="background:${_Colors__WEBPACK_IMPORTED_MODULE_6__.Colors.bgBlue};"><span data-xztext="_开始下载"></span><span class="ripple"></span></button>
+    <button class="pauseDownload hasRippleAnimation" type="button" style="background:${_Colors__WEBPACK_IMPORTED_MODULE_6__.Colors.bgYellow};"><span data-xztext="_暂停下载"></span><span class="ripple"></span></button>
+    <button class="stopDownload hasRippleAnimation" type="button" style="background:${_Colors__WEBPACK_IMPORTED_MODULE_6__.Colors.bgRed};"><span data-xztext="_停止下载"></span><span class="ripple"></span></button>
+    <button class="copyUrl hasRippleAnimation" type="button" style="background:${_Colors__WEBPACK_IMPORTED_MODULE_6__.Colors.bgGreen};"><span data-xztext="_复制url"></span><span class="ripple"></span></button>
     </div>
     <div class="download_status_text_wrap">
     <span data-xztext="_当前状态"></span>
@@ -28962,7 +28988,10 @@ class OutputPanel {
     <div class="outputTitle" data-xztext="_输出信息"></div>
     <div class="outputContent beautify_scrollbar"></div>
     <div class="outputFooter">
-    <button class="outputCopy" data-xztext="_复制"></button>
+    <button class="outputCopy hasRippleAnimation">
+      <span data-xztext="_复制"></span>
+      <span class="ripple"></span>
+    </button>
     </div>
     </div>
     `;
@@ -29223,11 +29252,19 @@ class BookmarkAllWorks {
     constructor(tipWrap) {
         if (tipWrap) {
             this.tipWrap = tipWrap;
+            const span = tipWrap.querySelector('span');
+            if (span) {
+                this.textSpan = span;
+            }
+            else {
+                this.textSpan = tipWrap;
+            }
         }
     }
     idList = [];
     bookmarKData = [];
     tipWrap = document.createElement('button');
+    textSpan = document.createElement('span');
     // 传递 workList，这是作品列表元素的合集。代码会尝试分析每个作品元素中的超链接，提取出作品 id
     // 如果传递的作品是本页面上的作品，可以省略 type。代码会根据页面 url 判断是图片还是小说。
     // 如果传递的作品不是本页面上的，为防止误判，需要显式传递 type
@@ -29269,7 +29306,7 @@ class BookmarkAllWorks {
             _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有数据可供使用'));
             return;
         }
-        this.tipWrap.textContent = `Checking`;
+        this.textSpan.textContent = `Checking`;
         this.tipWrap.setAttribute('disabled', 'disabled');
         await this.getTagData();
         await this.addBookmarkAll();
@@ -29279,7 +29316,7 @@ class BookmarkAllWorks {
     async getTagData() {
         return new Promise(async (resolve, reject) => {
             for (const id of this.idList) {
-                this.tipWrap.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`;
+                this.textSpan.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`;
                 try {
                     // 如果作品数量大于一定数量，则启用慢速抓取，以免在获取作品数据时发生 429 错误
                     await new Promise(async (res) => {
@@ -29314,7 +29351,7 @@ class BookmarkAllWorks {
                     // 显示提示，并中止执行
                     _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(msg);
                     _MsgBox__WEBPACK_IMPORTED_MODULE_7__.msgBox.error(msg);
-                    this.tipWrap.textContent = `× Error`;
+                    this.textSpan.textContent = `× Error`;
                     this.tipWrap.removeAttribute('disabled');
                     _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('bookmarkModeEnd');
                     return reject();
@@ -29328,7 +29365,7 @@ class BookmarkAllWorks {
         return new Promise(async (resolve) => {
             let index = 0;
             for (const data of this.bookmarKData) {
-                this.tipWrap.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`;
+                this.textSpan.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`;
                 const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(data.id, data.type, data.tags, undefined, undefined, true);
                 if (status === 403) {
                     _MsgBox__WEBPACK_IMPORTED_MODULE_7__.msgBox.error(`Add bookmark: ${data.id}, Error: 403 Forbidden, ${_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_你的账号已经被Pixiv限制')}`);
@@ -29340,7 +29377,7 @@ class BookmarkAllWorks {
         });
     }
     complete() {
-        this.tipWrap.textContent = `✓ Complete`;
+        this.textSpan.textContent = `✓ Complete`;
         this.tipWrap.removeAttribute('disabled');
         _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_收藏作品完毕'));
         _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('bookmarkModeEnd');
@@ -29378,12 +29415,20 @@ __webpack_require__.r(__webpack_exports__);
 class BookmarksAddTag {
     constructor(btn) {
         this.btn = btn;
+        const span = btn.querySelector('span');
+        if (span) {
+            this.textSpan = span;
+        }
+        else {
+            this.textSpan = btn;
+        }
         this.bindEvents();
     }
     type = 'illusts'; // 页面是图片还是小说
     addTagList = []; // 需要添加 tag 的作品的数据
     addIndex = 0; // 添加 tag 时的计数
     btn;
+    textSpan = document.createElement('span');
     once = 100; // 一次请求多少个作品的数据
     bindEvents() {
         this.btn.addEventListener('click', () => {
@@ -29391,7 +29436,7 @@ class BookmarksAddTag {
             this.addTagList = [];
             this.addIndex = 0;
             this.btn.setAttribute('disabled', 'disabled');
-            this.btn.textContent = `Checking`;
+            this.textSpan.textContent = `Checking`;
             if (window.location.pathname.includes('/novel')) {
                 this.type = 'novels';
             }
@@ -29409,7 +29454,7 @@ class BookmarksAddTag {
         ]).catch((error) => {
             // 如果错误码为 403, 可能是在其他用户的页面里
             if (error.status && error.status === 403) {
-                this.btn.textContent = `× Permission denied`;
+                this.textSpan.textContent = `× Permission denied`;
             }
             errorFlag = true;
             return [];
@@ -29441,7 +29486,7 @@ class BookmarksAddTag {
         if (total >= showData.body.total && total >= hideData.body.total) {
             if (this.addTagList.length === 0) {
                 // 如果结果为空，不需要处理
-                this.btn.textContent = `✓ No need`;
+                this.textSpan.textContent = `✓ No need`;
                 this.btn.removeAttribute('disabled');
                 return;
             }
@@ -29460,19 +29505,19 @@ class BookmarksAddTag {
         const item = this.addTagList[this.addIndex];
         const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_3__.bookmark.add(item.id, this.type, item.tags, true, item.restrict, true);
         if (status === 403) {
-            this.btn.textContent = `× Permission denied`;
+            this.textSpan.textContent = `× Permission denied`;
             _MsgBox__WEBPACK_IMPORTED_MODULE_5__.msgBox.error(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_你的账号已经被Pixiv限制'));
             return;
         }
         if (this.addIndex < this.addTagList.length - 1) {
             this.addIndex++;
-            this.btn.textContent = `${this.addIndex} / ${this.addTagList.length}`;
+            this.textSpan.textContent = `${this.addIndex} / ${this.addTagList.length}`;
             // 继续添加下一个
             return this.addTag();
         }
         else {
             // 添加完成
-            this.btn.textContent = `✓ Complete`;
+            this.textSpan.textContent = `✓ Complete`;
             this.btn.removeAttribute('disabled');
             _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.success(_Lang__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_收藏作品完毕'));
         }

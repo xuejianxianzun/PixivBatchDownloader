@@ -71,7 +71,9 @@ class SelectWork {
   }
 
   private controlBtn: HTMLButtonElement = document.createElement('button') // 启动、暂停、继续选择的按钮
+  private controlTextSpan:HTMLSpanElement = document.createElement('span') // 按钮里的文字
   private crawlBtn: HTMLButtonElement = document.createElement('button') // 抓取选择的作品的按钮，并且会退出选择模式
+  private crawlTextSpan:HTMLSpanElement = document.createElement('span') // 按钮里的文字
   private clearBtn: HTMLButtonElement = document.createElement('button') // 清空选择的作品的按钮
 
   private selectedWorkFlagClass = 'selectedWorkFlag' // 给已选择的作品添加标记时使用的 class
@@ -216,6 +218,7 @@ class SelectWork {
       '_手动选择作品'
     )
     this.controlBtn.setAttribute('title', 'Alt + S')
+    this.controlTextSpan = this.controlBtn.querySelector('span')!
     this.updateControlBtn()
 
     this.clearBtn = Tools.addBtn(
@@ -239,12 +242,14 @@ class SelectWork {
     this.crawlBtn.addEventListener('click', (ev) => {
       this.sendDownload()
     })
+    this.crawlTextSpan = this.crawlBtn.querySelector('span')!
+
   }
 
   // 切换控制按钮的文字和点击事件
   private updateControlBtn() {
     if (!this.start) {
-      lang.updateText(this.controlBtn, '_手动选择作品')
+      lang.updateText(this.controlTextSpan, '_手动选择作品')
       this.controlBtn.onclick = (ev) => {
         this.startSelect(ev)
         this.clearBtn.style.display = 'block'
@@ -257,12 +262,12 @@ class SelectWork {
       }
     } else {
       if (!this.pause) {
-        lang.updateText(this.controlBtn, '_暂停选择')
+        lang.updateText(this.controlTextSpan, '_暂停选择')
         this.controlBtn.onclick = (ev) => {
           this.pauseSelect()
         }
       } else {
-        lang.updateText(this.controlBtn, '_继续选择')
+        lang.updateText(this.controlTextSpan, '_继续选择')
         this.controlBtn.onclick = (ev) => {
           this.startSelect(ev)
         }
@@ -275,13 +280,13 @@ class SelectWork {
     this.crawlBtn.style.display = this.start ? 'block' : 'none'
     if (this.idList.length > 0) {
       lang.updateText(
-        this.crawlBtn,
+        this.crawlTextSpan,
         '_抓取选择的作品2',
         this.idList.length.toString()
       )
       this.clearBtn.style.display = 'block'
     } else {
-      lang.updateText(this.crawlBtn, '_抓取选择的作品')
+      lang.updateText(this.crawlTextSpan, '_抓取选择的作品')
     }
   }
 

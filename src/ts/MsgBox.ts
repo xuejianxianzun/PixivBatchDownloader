@@ -121,13 +121,14 @@ class MsgBox {
 
     wrap.innerHTML = `
         <div class="title" ${colorStyle}>${data.title || Config.appName}</div>
-        <div class="content" ${colorStyle}>${data.msg}</div>
+        <div class="content beautify_scrollbar" ${colorStyle}>${data.msg}</div>
         ${
           data.hiddenBtn
             ? ''
-            : `<button class="btn" type="button">${
-                data.btn || lang.transl('_确定')
-              }</button>`
+            : `<button class="btn hasRippleAnimation" type="button">
+              <span>${data.btn || lang.transl('_确定')}</span>
+              <span class="ripple"></span>
+              </button>`
         }
       `
 
@@ -151,7 +152,7 @@ class MsgBox {
         this.remove(wrap)
       })
 
-      btn.focus()
+      // btn.focus()
     }
 
     bg.useBG(wrap)

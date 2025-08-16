@@ -47,6 +47,7 @@
 }
 
 .beautify_scrollbar {
+
   // 滚动条整体
   // width 是垂直滚动条的宽度，height 是水平滚动条的高度
   &::-webkit-scrollbar {
@@ -84,6 +85,7 @@ div[id^='adsdk'] {
 // 作品页面里，作品大图下方的作品列表导航区域
 .cAicGw,
 main section nav[style] {
+
   // 滚动条整体
   // width 是垂直滚动条的宽度，height 是水平滚动条的高度
   &::-webkit-scrollbar {
@@ -377,5 +379,58 @@ html[data-xzpagetheme='dark'] body .pbdHighlightFollowing * {
 
   &:hover {
     background-color: #0090f0;
+  }
+}
+
+// 按钮动画：模仿水波扩散的效果
+.hasRippleAnimation {
+
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.3s ease;
+
+  &:hover::before,
+  &:focus::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.2);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  &:hover .ripple,
+  &:focus .ripple {
+    animation: ripple-effect 0.6s linear;
+  }
+
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(0);
+    pointer-events: none;
+    width: 100px;
+    height: 100px;
+    left: 50%;
+    top: 50%;
+    transform-origin: center center;
+    margin-left: -50px;
+    margin-top: -50px;
+  }
+}
+
+@keyframes ripple-effect {
+  0% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(4);
+    opacity: 0;
   }
 }

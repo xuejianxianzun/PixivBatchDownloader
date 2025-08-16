@@ -11,9 +11,7 @@
   left: 50%;
   transform: translate(-50%);
   text-align: center;
-  font-family:
-    'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB',
-    'Microsoft YaHei', sans-serif;
+  font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 .xz_msg_box p {
   margin: 0;
@@ -39,15 +37,11 @@
 .xz_msg_box .btn {
   cursor: pointer;
   background: #0ea8ef;
-  box-shadow: #2ca6df 1px 1px 1px;
   color: #fff;
   border: none;
   text-align: center;
   padding: 7px 20px;
   border-radius: 6px;
-}
-.xz_msg_box .btn:hover {
-  font-weight: bold;
 }
 .xz_msg_box a {
   color: #0ea8ef;
