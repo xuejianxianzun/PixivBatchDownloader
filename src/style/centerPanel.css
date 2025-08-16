@@ -805,6 +805,7 @@
   box-shadow: none !important;
 }
 .theme-dark.centerWrap .settingCategoryName span {
+  color: #29b3f3 !important;
   text-shadow: none !important;
 }
 .downloadError {
@@ -882,6 +883,7 @@
   color: #fff;
 }
 .xzBG.centerWrap .settingCategoryName span {
+  color: #29b3f3 !important;
   text-shadow: none !important;
 }
 .showBlobKeywords .key {
