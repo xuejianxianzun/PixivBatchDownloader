@@ -33,7 +33,7 @@
 
 **Powerful Pixiv Downloader**
 
-This is a browser extension for **Chrome** that lets you download images and novels from Pixiv in batch.
+This is a browser extension that lets you download images and novels from Pixiv in batch.
 
 Available languages: Simplified Chinese, Traditional Chinese, Japanese, English、Korean、Russian.
 
@@ -67,9 +67,17 @@ The main function:
 
 ## Online installation
 
-1. **Chromium kernel** browser can install this extension from the **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**.
+Chrome, Edge, and other Chromium-based browsers can install this extension from the **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**.
 
-**Note:** Sometimes the extension on the Chrome Web Store may not be the latest version. If necessary, you can install it offline.
+Firefox browsers can install this extension from **[Add-Ons](https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/)**.
+
+It is recommended to use it on a PC browser.
+
+On Android systems, you can use Kiwi and Edge Canary browsers to install this extension, but they cannot create folders. The Kiwi browser can install it from the Chrome Web Store, while the Edge Canary browser requires installation from a crx file.
+
+Below are the installation steps for the Kiwi browser:
+
+[怎么在安卓上使用](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%9C%A8%E7%BA%BF%E5%AE%89%E8%A3%85?id=android)
 
 ## Offline installation
 

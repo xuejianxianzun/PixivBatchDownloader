@@ -33,7 +33,7 @@
 
 **Powerful Pixiv Downloader**
 
-這是一個 Chrome 瀏覽器擴充功能，用於批次下載 Pixiv 上的圖片和小說。
+這是一個瀏覽器擴充功能，用於批次下載 Pixiv 上的圖片和小說。
 
 可選擇介面語言：简体中文、繁體中文、日本語、English、한국어、Русский。
 
@@ -69,9 +69,15 @@
 
 ## 線上安裝
 
-**Chromium 核心**的瀏覽器可以從 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**  安裝本擴充功能。
+Chrome、Edge 等 Chromium 核心的瀏覽器可以從 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 安裝本擴充套件。
 
-推薦在 PC 瀏覽器上使用。如果你需要在 Android 系統上使用，可以使用 Kiwi 瀏覽器安裝此擴充套件。具體說明：
+Firefox 瀏覽器可以從 **[Add-Ons](https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/)** 安裝本擴充套件。
+
+建議在 PC 瀏覽器上使用。
+
+在 Android 系統上可以使用 Kiwi 和 Edge Canary 瀏覽器安裝此擴充套件，但它們無法建立資料夾。Kiwi 瀏覽器可以從 Chrome Web Store 安裝，而 Edge Canary 瀏覽器需要從 crx 檔案安裝。
+
+以下是 Kiwi 瀏覽器上的安裝步驟：
 
 [怎么在安卓上使用](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%9C%A8%E7%BA%BF%E5%AE%89%E8%A3%85?id=android)
 

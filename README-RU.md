@@ -68,9 +68,17 @@
 
 ## Онлайн установка
 
-1. В браузере **Chromium kernel** это расширение можно установить из раздела **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**.
+Браузеры на базе Chromium, такие как Chrome, Edge и другие, могут установить это расширение из **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**.
 
-**Примечание:** Иногда расширение в Chrome Web Store может быть не самой последней версии. При необходимости вы можете установить его в автономном режиме.
+Браузеры Firefox могут установить это расширение из **[Add-Ons](https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/)**.
+
+Рекомендуется использовать в браузерах на ПК.
+
+На системах Android вы можете использовать браузеры Kiwi и Edge Canary для установки этого расширения, но они не могут создавать папки. Браузер Kiwi можно установить из Chrome Web Store, тогда как для браузера Edge Canary требуется установка из файла crx.
+
+Ниже приведены шаги по установке в браузере Kiwi:
+
+[怎么在安卓上使用](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%9C%A8%E7%BA%BF%E5%AE%89%E8%A3%85?id=android)
 
 ## Автономная установка
 

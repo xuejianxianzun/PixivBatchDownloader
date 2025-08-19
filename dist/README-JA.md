@@ -56,12 +56,21 @@ Powerful Pixiv Downloaderは画像や小説を一括ダウンロード出来る*
 
 ## オンラインでのインストール
 
-1. **Chromiumベース** ブラウザは、**[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**からこの拡張機能をインストールできます。
+Chrome、Edge などの Chromium ベースのブラウザでは、**[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** からこの拡張機能をインストールできます。
 
-**注意：** Chromeウェブストアの拡張機能は最新版では無い場合があります。必要であれば以下のオフラインでのインストールを行ってください。
+Firefox ブラウザでは、**[Add-Ons](https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/)** からこの拡張機能をインストールできます。
+
+PC ブラウザでの使用を推奨します。
+
+Android システムでは、Kiwi および Edge Canary ブラウザを使用してこの拡張機能をインストールできますが、フォルダを作成することはできません。Kiwi ブラウザは Chrome Web Store からインストールでき、Edge Canary ブラウザは crx ファイルからインストールする必要があります。
+
+以下は Kiwi ブラウザでのインストール手順です：
+
+[怎么在安卓上使用](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%9C%A8%E7%BA%BF%E5%AE%89%E8%A3%85?id=android)
 
 ## オフラインでのインストール
-1. 1. リリースページ](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/)から最新版のインストールパッケージをダウンロードし、適当なフォルダに解凍してください。
+
+1. [リリースページ](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/)から最新版のインストールパッケージをダウンロードし、適当なフォルダに解凍してください。
 2. 拡張機能の管理へ入ってください。Chromeはメニューの「その他のツール」-「拡張機能」、Edgeはメニューの「拡張機能」を選択します。
 3. 拡張機能の管理ページで「開発者モード」を有効にしてください。
 4. Chromeでは「パッケージ化されていない拡張機能を読み込む」、Edgeでは   「展開して読み込み」を選択して、インストールパッケージを解凍したフォルダを選択してください。

@@ -2,10 +2,17 @@
 
 添加标记，输出年龄限制
 
+## 17.8.1 2025-08-20
+
+### 🦊在 Readme 和 更新说明里添加 ADD-ONS 链接
+
+下载器的 Firefox 版本已经审核通过，可以安装了：
+
+https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/
+
 ## 17.8.0 2025-08-15
 
 ### 🦊兼容 Firefox 浏览器
-
 
 ### 🚀升级依赖项到最新版
 
