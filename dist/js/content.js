@@ -21241,7 +21241,7 @@ class SaveWorkDescription {
                 if (parts.length >= count) {
                     const path = parts.slice(0, count).join('/');
                     // 在 txt 文件之前添加文件夹路径
-                    txtName = `${path}/${txtName}` + txtName;
+                    txtName = `${path}/${txtName}`;
                 }
             }
         }
