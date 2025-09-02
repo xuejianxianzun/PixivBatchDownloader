@@ -72,9 +72,8 @@ class SaveWorkDescription {
     // 如果简介里含有外链，则在文件名最后添加 links 标记
     const hasLink = this.hasLinkRegexp.test(desc)
     const namePart1 = this.createFileName(data)
-    const fileName = `${namePart1}-${lang.transl('_简介')}${
-      hasLink ? '-links' : ''
-    }.txt`
+    const fileName = `${namePart1}-${lang.transl('_简介')}${hasLink ? '-links' : ''
+      }.txt`
 
     let dataURL: string | undefined = undefined
     if (Config.sendDataURL) {
@@ -204,10 +203,37 @@ class SaveWorkDescription {
     if (notAllSame) {
       txtName = `${name}-${title}-${time}.txt`
     } else {
-      // 如果是同一个画师，则保存到命名规则创建的第一层目录里，并在文件名里添加画师名字
-      const _fileName = fileName.createFileName(store.resultMeta[0])
-      const firstPath = _fileName.split('/')[0]
-      txtName = `${firstPath}/${name}-user ${store.resultMeta[0].user}-${title}-${time}.txt`
+      // 如果是同一个画师
+      // 在文件名里添加画师名字
+      txtName = `${name}-user ${store.resultMeta[0].user}-${title}-${time}.txt`
+      const array = settings.userSetName.split('/')
+      array.pop() // 去掉最后的文件名部分，只保留文件夹部分
+      let folder = ''
+      // 倒序遍历 array
+      // 如果命名规则里含有使用 {user} 建立的文件夹，则把文件保存到这个文件夹里
+      for (let i = array.length - 1; i >= 0; i--) {
+        const part = array[i]
+        // 如果某个部分含有 {user} 则停止，并提取截止到这里的路径
+        // 例如对于命名规则 pixiv/{user}-{user_id}/{id}-{title}
+        // 会保存 pixiv/{user}-{user_id}/ 这个路径
+        if (part.includes('{user')) {
+          folder = array.slice(0, i + 1).join('/')
+          folder += '/' // 补上最后的 /
+          break
+        }
+      }
+      if (folder) {
+        // 查找 / 的数量来统计有几层文件夹
+        const count = (folder.match(/\//g) || []).length
+        // 从文件名里提取对应的文件夹部分
+        const _fileName = fileName.createFileName(store.resultMeta[0])
+        const parts = _fileName.split('/')
+        if (parts.length >= count) {
+          const path = parts.slice(0, count).join('/')
+          // 在 txt 文件之前添加文件夹路径
+          txtName = `${path}/${txtName}` + txtName
+        }
+      }
     }
 
     let dataURL: string | undefined = undefined

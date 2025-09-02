@@ -321,7 +321,7 @@ export const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
   <p class="option" data-no="13">
     <span class="settingNameStyle1" data-xztext="_命名规则"></span>
-    <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{page_title}/{id}">
+    <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="pixiv/{user}-{user_id}/{id}-{title}">
     &nbsp;
     <select name="fileNameSelect" class="beautify_scrollbar">
       <option value="default">…</option>

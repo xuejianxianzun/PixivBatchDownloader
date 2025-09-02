@@ -21213,10 +21213,37 @@ class SaveWorkDescription {
             txtName = `${name}-${title}-${time}.txt`;
         }
         else {
-            // 如果是同一个画师，则保存到命名规则创建的第一层目录里，并在文件名里添加画师名字
-            const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.createFileName(_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.resultMeta[0]);
-            const firstPath = _fileName.split('/')[0];
-            txtName = `${firstPath}/${name}-user ${_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.resultMeta[0].user}-${title}-${time}.txt`;
+            // 如果是同一个画师
+            // 在文件名里添加画师名字
+            txtName = `${name}-user ${_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.resultMeta[0].user}-${title}-${time}.txt`;
+            const array = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.userSetName.split('/');
+            array.pop(); // 去掉最后的文件名部分，只保留文件夹部分
+            let folder = '';
+            // 倒序遍历 array
+            // 如果命名规则里含有使用 {user} 建立的文件夹，则把文件保存到这个文件夹里
+            for (let i = array.length - 1; i >= 0; i--) {
+                const part = array[i];
+                // 如果某个部分含有 {user} 则停止，并提取截止到这里的路径
+                // 例如对于命名规则 pixiv/{user}-{user_id}/{id}-{title}
+                // 会保存 pixiv/{user}-{user_id}/ 这个路径
+                if (part.includes('{user')) {
+                    folder = array.slice(0, i + 1).join('/');
+                    folder += '/'; // 补上最后的 /
+                    break;
+                }
+            }
+            if (folder) {
+                // 查找 / 的数量来统计有几层文件夹
+                const count = (folder.match(/\//g) || []).length;
+                // 从文件名里提取对应的文件夹部分
+                const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.createFileName(_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.resultMeta[0]);
+                const parts = _fileName.split('/');
+                if (parts.length >= count) {
+                    const path = parts.slice(0, count).join('/');
+                    // 在 txt 文件之前添加文件夹路径
+                    txtName = `${path}/${txtName}` + txtName;
+                }
+            }
         }
         let dataURL = undefined;
         if (_Config__WEBPACK_IMPORTED_MODULE_10__.Config.sendDataURL) {
@@ -24594,12 +24621,12 @@ Zip 파일이 원본 파일입니다.`,
         'Доступно, если работа принадлежит к серии.',
     ],
     _文件夹标记PTitle: [
-        '页面标题',
-        '頁面標題',
-        'Page title',
-        'ページタイトル',
-        '페이지 제목',
-        'Заголовок страницы',
+        '开始抓取时的页面标题',
+        '開始抓取時的頁面標題',
+        'Page title when starting the scrape',
+        'スクレイピング開始時のページタイトル',
+        '페이지 스크래핑 시작 시의 페이지 제목',
+        'Заголовок страницы при начале сбора данных'
     ],
     _预览文件名: [
         '预览文件名',
@@ -28770,7 +28797,7 @@ type может быть "illusts" или "novel".`,
         `每隔一定时间开始一次下载。<br>
 默认值为 0，即无限制。<br>
 如果设置为 1 秒钟，那么每小时最多会从 Pixiv 下载 3600 个文件。<br>
-如果你担心因为下载文件太频繁导致账号被 Ban，可以设置大于 0 的数字，以缓解此问题。<br>`,
+如果你担心因为下载文件太频繁导致账号被封禁，可以设置大于 0 的数字，以缓解此问题。<br>`,
         `每隔一定時間開始一次下載。<br>
 預設值為 0，即無限制。<br>
 如果設定為 1 秒鐘，那麼每小時最多會從 Pixiv 下載 3600 個檔案。<br>
@@ -28944,7 +28971,7 @@ const prompt = `
 1. 如果中文语句里有 html 标签，翻译时需要原样保留。
 2. 如果原语句里有 \`<span class="key">关键字</span>\` 形式的标记，那么在翻译后的语句里也要加上。
 中文语句：
-中文中文中文中文中文中文中文中文
+开始抓取时的页面标题
 `;
 
 
@@ -31672,7 +31699,7 @@ const formHtml = `<form class="settingForm">
   <div class="tabsContnet">
   <p class="option" data-no="13">
     <span class="settingNameStyle1" data-xztext="_命名规则"></span>
-    <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{page_title}/{id}">
+    <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="pixiv/{user}-{user_id}/{id}-{title}">
     &nbsp;
     <select name="fileNameSelect" class="beautify_scrollbar">
       <option value="default">…</option>
