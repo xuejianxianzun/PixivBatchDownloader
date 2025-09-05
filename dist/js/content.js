@@ -7776,7 +7776,7 @@ class SelectWork {
             return;
         }
         const show = this.canSelect() && !this.tempHide;
-        this.selector.style.display = show ? 'block' : 'none';
+        this.selector.style.display = show ? 'flex' : 'none';
         // 设置元素的 style 时，如果新的值和旧的值相同（例如：每次都设置 display 为 none），Chrome 会自动优化，此时不会导致节点发生变化。
         // 如果选择器处于隐藏状态，就不会更新其坐标。这样可以优化性能
         if (show) {
@@ -7809,7 +7809,7 @@ class SelectWork {
             _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.controlTextSpan, '_手动选择作品');
             this.controlBtn.onclick = (ev) => {
                 this.startSelect(ev);
-                this.clearBtn.style.display = 'block';
+                this.clearBtn.style.display = 'flex';
                 if (!_Config__WEBPACK_IMPORTED_MODULE_12__.Config.mobile) {
                     _ShowHelp__WEBPACK_IMPORTED_MODULE_11__.showHelp.show('tipAltSToSelectWork', _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快捷键ALTS手动选择作品'));
                 }
@@ -7832,10 +7832,10 @@ class SelectWork {
     }
     // 在选择作品的数量改变时，在抓取按钮上显示作品数量
     updateCrawlBtn() {
-        this.crawlBtn.style.display = this.start ? 'block' : 'none';
+        this.crawlBtn.style.display = this.start ? 'flex' : 'none';
         if (this.idList.length > 0) {
             _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.crawlTextSpan, '_抓取选择的作品2', this.idList.length.toString());
-            this.clearBtn.style.display = 'block';
+            this.clearBtn.style.display = 'flex';
         }
         else {
             _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.crawlTextSpan, '_抓取选择的作品');
