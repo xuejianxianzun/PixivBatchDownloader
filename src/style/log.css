@@ -1,5 +1,7 @@
 .logWrap {
-  font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-family:
+    'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB',
+    'Microsoft YaHei', sans-serif;
   position: relative;
   z-index: 0;
   width: 100%;
@@ -26,7 +28,9 @@
   color: #0ea8ef;
 }
 .logBtn {
-  font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-family:
+    'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB',
+    'Microsoft YaHei', sans-serif;
   position: fixed;
   top: 0px;
   left: 50%;

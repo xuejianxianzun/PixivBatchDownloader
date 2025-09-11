@@ -15,17 +15,12 @@
 <!-- TOC -->
 
 - [简介](#简介)
-- [安装](#安装)
-  - [在线安装](#在线安装)
-  - [离线安装](#离线安装)
+- [在线安装](#在线安装)
+- [离线安装](#离线安装)
 - [Wiki](#wiki)
 - [鸣谢](#鸣谢)
 - [支持和捐助](#支持和捐助)
 - [开发](#开发)
-- [帮助](#帮助)
-  - [常见问题](#常见问题)
-  - [支持的语言](#支持的语言)
-  - [可以使用的页面类型以及测试网址](#可以使用的页面类型以及测试网址)
 - [友情链接](#友情链接)
 
 <!-- /TOC -->
@@ -36,29 +31,29 @@
 
 这是一个浏览器扩展程序，用于批量下载 Pixiv 上的图片和小说。
 
-支持的语言：简体中文、繁體中文、日本語、English、한국어、Русский。
+**支持的语言：** 简体中文、繁體中文、日本語、English、한국어、Русский。
 
-主要功能：
+**主要功能：**
 
-- 批量下载画师的所有作品、你的收藏、你的关注、排行榜、搜索结果等；
-- 一键下载你看到的任何作品；
-- 在页面上手动选择你要下载的作品；
-- 设置过滤条件，筛选你要下载的作品；
+- 批量下载 Pixiv 用户的所有作品、你的收藏、你的关注、排行榜、搜索结果等；
+- 你可以设置多种过滤条件，筛选出你想下载的作品；
+- 使用用户名、作品标题、自定义文本等多种规则建立文件夹；
+- 自定义文件名；
 - 下载插画、漫画、动图、小说；
-- 保存动图为 GIF、WebM、APNG、ZIP 格式；
+- 一键下载你看到的任何作品；
+- 手动选择（多选）你想下载的作品；
+- 定时抓取和下载；
+- 转换动图为 WebM、GIF、APNG 格式；
 - 保存小说为 TXT、EPUB 格式；
-- 使用画师名字、日期、标题等多种数据建立文件夹；
-- 自定义文件名，并进行排序；
-- 在序号前面补 0，使排序不会混乱；
-- 保存用户头像和封面图片；
-- 显示更大的缩略图，查看起来更为轻松；
-- 在缩略图上预览作品大图，查看原图；
-- 保存下载记录，避免重复下载；
+- 保存用户的头像、封面图；
 - 保存下载进度，恢复未完成的下载；
-- 导出作品数据；
+- 保存下载记录，避免重复下载；
 - 批量收藏作品；
-- 为你收藏里的未分类作品添加标签；
-- 定时抓取；
+- 给收藏里的未分类作品添加标签；
+- 多种增强功能，优化 Pixiv 的使用体验和效率；
+- 无需进入作品页面即可预览作品、查看原图；
+- 内置图片查看器，查看多图作品；
+- 高亮关注的用户；
 
 ![PixivBatchDownloader screenshot](./notes/images/ui-zh-0.png)
 
@@ -68,37 +63,23 @@
 
 [在 YouTube 查看视频教程](https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d)
 
-# 安装
-
-## 在线安装
+# 在线安装
 
 Chrome、Edge 等 Chromium 内核的浏览器可以从 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 安装本扩展。
 
 Firefox 浏览器可以从 **[Add-Ons](https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/)** 安装本扩展。
 
-推荐在 PC 浏览器上使用。
+# 离线安装
 
-在 Android 系统上可以使用 Kiwi 和 Edge Canary 浏览器安装此扩展，但是它们无法建立文件夹。Kiwi 浏览器可以从 Chrome Web Store 安装，而 Edge Canary 浏览器需要从 crx 文件安装。
+请查看 Wiki 页面：
+[离线安装](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85)
 
-下面是 kiwi 浏览器上的安装步骤：
-
-[怎么在安卓上使用](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%9C%A8%E7%BA%BF%E5%AE%89%E8%A3%85?id=android)
-
-## 离线安装
-
-如果您不能在线安装，您可以从 [Releases 页面](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest) 离线安装。
-
-[离线安装指南](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85)
-
----------
-
-- 下载的文件会保存在浏览器的下载目录里。
-
-- 请关闭浏览器设置中的“下载前询问每个文件的保存位置”选项，以免在下载时出现弹窗。
+如果你想在 Android 上使用这个扩展，请查看 Wiki 页面：
+[在 Microsoft Edge Canary 浏览器上安装](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/MicrosoftEdgeCanary)
 
 # Wiki
 
-[查看 Wiki](https://xuejianxianzun.github.io/PBDWiki)
+[查看 Wiki](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E7%AE%80%E4%BB%8B)
 
 # 鸣谢
 
@@ -118,17 +99,17 @@ Firefox 浏览器可以从 **[Add-Ons](https://addons.mozilla.org/firefox/addon/
 
 如果您感觉本脚本帮到了您，您可以对我进行支持和捐助，不胜感激 (*╹▽╹*)
 
-1. 国内的众筹赞助平台“爱发电”（类似于 patreon）：
+1. 爱发电：
 
 [https://afdian.com/a/xuejianxianzun](https://afdian.com/a/xuejianxianzun)
 
-2. 可通过微信和支付宝扫码转账：
-
-![支付宝](https://i.loli.net/2019/04/04/5ca5627614396.png) ![微信](https://i.loli.net/2019/04/04/5ca5627630bb4.png)
-
-3. 国外的赞助网站 Patreon：
+2. Patreon：
 
 [https://www.patreon.com/xuejianxianzun](https://www.patreon.com/xuejianxianzun)
+
+3. 你可以通过微信或支付宝扫码转账：
+
+![微信](https://xuejianxianzun.github.io/PBDWiki/zh-cn/images/weixin.png) ![支付宝](https://xuejianxianzun.github.io/PBDWiki/zh-cn/images/alipay.png)
 
 # 开发
 
@@ -163,83 +144,6 @@ npm run build // 执行 fmt、ts、less 命令，并把打包所需的其他文�
 ```
 
 当你修改了代码并且编译之后，代码会被编译到 `dist` 文件夹。你需要在浏览器的扩展管理里刷新离线加载的这个扩展，然后刷新 pixiv 页面，以应用新的代码。
-
-# 帮助
-
-## 常见问题
-
-如果你遇到问题，可以查看下载器面板左下角的“常见问题”，以及 Wiki。
-
-- 如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。
-
-- 如果使用 ssr、v2ray 等工具，下载时开启“全局代理”以提高下载速度。
-
-- 如有其他问题或建议，加欢迎 **QQ 群 674991373** 进行交流。
-
-## 支持的语言
-
-- 简体中文
-- 繁體中文
-- English
-- 日本語
-- 한국어
-- Русский
-
-欢迎您对翻译做出改进，谢谢~
-
-## 可以使用的页面类型以及测试网址
-
-0 [首页](https://www.pixiv.net/)
-
-1 [作品页面](https://www.pixiv.net/artworks/72503012)
-
-2 [插画列表页](https://www.pixiv.net/users/544479/artworks)
-
-2 [小说列表页](https://www.pixiv.net/users/35419040/novels)
-
-2 [Tag 页面](https://www.pixiv.net/users/544479/artworks/%E6%9D%B1%E6%96%B9)
-
-2 [小说 Tag 页面](https://www.pixiv.net/users/35419040/novels/%E6%81%8B%E6%84%9B)
-
-3 [收藏页面-旧版](https://www.pixiv.net/bookmark.php)
-
-4 [收藏页面-新版](https://www.pixiv.net/users/9460149/bookmarks/artworks)
-
-5 [搜索页面](https://www.pixiv.net/tags/saber/artworks?s_mode=s_tag)
-
-6 [地区排行榜](https://www.pixiv.net/ranking_area.php?type=state&no=0)
-
-7 [插画、漫画排行榜](https://www.pixiv.net/ranking.php)
-
-8 [Pixivision](https://www.pixivision.net/zh/a/3190)
-
-9 [收藏作品的详情](https://www.pixiv.net/bookmark_detail.php?id=63148723) （此类页面似乎已经被移除）
-
-10 [关注的新作品](https://www.pixiv.net/bookmark_new_illust.php)
-
-11 [发现](https://www.pixiv.net/discovery)
-
-12 [大家的新作品](https://www.pixiv.net/new_illust.php)
-
-13 [小说页面](https://www.pixiv.net/novel/show.php?id=12771688)
-
-14 [系列小说页面](https://www.pixiv.net/novel/series/1090654)
-
-15 [小说搜索页面](https://www.pixiv.net/tags/%E7%99%BE%E5%90%88/novels)
-
-16 [小说排行榜](https://www.pixiv.net/novel/ranking.php?mode=daily)
-
-17 [关注的新作品-小说](https://www.pixiv.net/novel/bookmark_new.php)
-
-18 [大家的新作品-小说](https://www.pixiv.net/novel/new.php)
-
-19 [漫画系列页面](https://www.pixiv.net/user/3698796/series/61267)
-
-20 [关注](https://www.pixiv.net/users/9460149/following)
-
-21 [约稿](https://www.pixiv.net/request)
-
-22 [仅可由链接浏览](https://www.pixiv.net/artworks/unlisted/CbLRCId2sY3ZzQDqnQj6)
 
 # 友情链接
 
