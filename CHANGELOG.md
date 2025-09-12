@@ -4,6 +4,19 @@
 
 ## next 2025-09-03
 
+### 😊在 Font Family 里添加 Segeo UI 字体
+
+在之前的 FontFamily 里添加了 `'Segeo UI'`，这主要是为了优化英语用户的显示效果。
+
+因为我发现 Windows 的英语版并没有安装 Noto 字体，所以之前的 FontFamily 会使字体跌落到 `Microsoft YaHei`。现在把 `Segeo UI` 添加到前面会取代 `Microsoft YaHei`，视觉效果更好。
+
+现在的 FontFamily 是：
+
+```
+'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono',
+  'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+```
+
 ### 😊优化了汇总的简介文件的保存位置
 
 现在的规则：
