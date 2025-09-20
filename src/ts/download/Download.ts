@@ -152,6 +152,7 @@ class Download {
     // 404, 500 错误，跳过，不会再尝试下载这个文件（因为没有触发 downloadError 事件，所以不会重试下载）
     if (status === 404 || status === 500) {
       log.error(errorMsg)
+      log.error(lang.transl('_下载器不会再重试下载它'))
       return this.skipDownload({
         id: fileId,
         reason: status.toString() as '404' | '500',
@@ -176,6 +177,7 @@ class Download {
     }
 
     // 其他状态码，暂时跳过这个任务，但最后还是会尝试重新下载它
+    log.log(lang.transl('_下载器会暂时跳过它'))
     this.error = true
     EVT.fire('downloadError', fileId)
   }

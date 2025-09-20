@@ -2130,7 +2130,7 @@ class Bookmark {
                         _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_添加收藏失败'), {
                             position: 'center',
                         });
-                        _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(`${_Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.createWorkLink(id, type === 'illusts')} ${_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_添加收藏失败')}. ${_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_错误代码')}${res.status}. ${_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会在几分钟后重试')}`);
+                        _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(`${_Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.createWorkLink(id, type === 'illusts')} ${_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_添加收藏失败')}, ${_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_错误代码')}${res.status}. ${_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会在几分钟后重试')}`);
                         window.setTimeout(() => {
                             return resolve(this.sendRequest(id, type, tags, hide));
                         }, _Config__WEBPACK_IMPORTED_MODULE_1__.Config.retryTime);
@@ -17903,6 +17903,7 @@ class Download {
         // 404, 500 错误，跳过，不会再尝试下载这个文件（因为没有触发 downloadError 事件，所以不会重试下载）
         if (status === 404 || status === 500) {
             _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(errorMsg);
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器不会再重试下载它'));
             return this.skipDownload({
                 id: fileId,
                 reason: status.toString(),
@@ -17925,6 +17926,7 @@ class Download {
             }
         }
         // 其他状态码，暂时跳过这个任务，但最后还是会尝试重新下载它
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Lang__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会暂时跳过它'));
         this.error = true;
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadError', fileId);
     }
@@ -27463,6 +27465,22 @@ Novel folder name: Novel`,
         '{} 다운로드할 수 없습니다, 상태 코드: {}',
         '{} не удалось загрузить, код состояния: {}',
     ],
+    _下载器不会再重试下载它: [
+        '下载器不会重试下载它。如果你有需要的话，可以稍后尝试单独下载这个作品。',
+        '下載器不會重試下載它。如果你有需要的話，可以稍後嘗試單獨下載這個作品。',
+        'The downloader will not retry downloading it. If needed, you can try downloading this work separately later.',
+        'ダウンローダーはそれを再試行してダウンロードしません。必要であれば、後でこの作品を個別にダウンロードしてみることができます。',
+        '다운로더는 그것을 다시 다운로드하지 않습니다. 필요하다면 나중에 이 작품을 개별적으로 다운로드할 수 있습니다.',
+        'Загрузчик не будет пытаться скачать его снова. При необходимости вы можете попробовать скачать эту работу отдельно позже.',
+    ],
+    _下载器会暂时跳过它: [
+        '下载器会暂时跳过它，并在其他文件下载完毕后重试下载它。',
+        '下載器會暫時跳過它，並在其他檔案下載完畢後重試下載它。',
+        'The downloader will temporarily skip it and retry downloading it after other files are downloaded.',
+        'ダウンローダーは一時的にそれをスキップし、他のファイルのダウンロードが完了した後に再試行します。',
+        '다운로더는 일시적으로 그것을 건너뛰고 다른 파일 다운로드가 완료된 후 다시 시도합니다.',
+        'Загрузчик временно пропустит его и попробует скачать снова после завершения загрузки других файлов.',
+    ],
     _作品总数为0: [
         '作品总数为 0，Pixiv 可能拒绝了此次抓取。请稍后重试。',
         '作品總數為 0，Pixiv 可能拒絕了此次抓取。請稍後重試。',
@@ -28962,16 +28980,34 @@ P.S. Работы заблокированных пользователей не
     ],
 };
 
-const prompt = `
-请帮我根据把一条中文语句翻译并生成一个字符串数组，一共包含 6 条语句，第 1 条是原文，后面 5 条语句是其他语言的翻译，按顺序分别是：繁体中文、英语、日语、韩语、俄语。
-情景提示：这个项目是一个浏览器扩展程序，用于抓取数据和下载文件。这些文本是在网页上显示给用户看的。
-输出格式：使用 JavaScript 格式，字符串使用单引号包裹。
-备注：
-1. 如果中文语句里有 html 标签，翻译时需要原样保留。
-2. 如果原语句里有 \`<span class="key">关键字</span>\` 形式的标记，那么在翻译后的语句里也要加上。
-中文语句：
-开始抓取时的页面标题
-`;
+// prompt
+// 请帮我根据把一条中文语句翻译并生成一个字符串数组，一共包含 6 条语句，第 1 条是原文，后面 5 条语句是其他语言的翻译，按顺序分别是：繁体中文、英语、日语、韩语、俄语。
+// 背景说明：
+// 这是一个浏览器扩展程序，它是一个爬虫和下载器，用于从 Pixiv.net 这个网站下载插画、漫画、小说等内容。大多数用户在 PC 端的浏览器上使用它。它有很多设置项，还会显示日志和一些提示消息。
+// 输出格式：
+// - 输出内容保存在一个 JavaScript 代码块里。
+// - 代码的内容就是翻译后的数组。不需要把数组保存到一个变量里。
+// - 翻译的语句后面不需要添加注释。
+// - 字符串使用单引号包裹。
+// - 数组的最后一项后面保留逗号 `,`。
+// 备注：
+// - 如果中文语句里有 html 标签，翻译时需要原样保留。
+// - 如果原语句里有 `<span class="key">关键字</span>` 形式的标记，那么在翻译后的语句里也要加上。
+// - 中文的引号如 `“` 和 `”` 都翻译成英语的引号 `"`。
+// 术语表：
+// - `作品`（指 pixiv 上的投稿）翻译为`work`。
+// - `插画`翻译为`illustration`。
+// - `漫画`翻译为`manga`。
+// - `小说`翻译为`novel`。
+// - `动图`（指 pixiv 上的逐帧动画）翻译为`Ugoira`。
+// - `图片`（对 pixiv 上的图片的统称）翻译为`image`。
+// - `简介`（指作品的介绍信息）翻译为`description`。
+// - `抓取`（让这个下载器爬取作品数据）翻译为`crawl`。
+// - `收藏`（把作品添加到收藏夹，相当于书签）翻译为`bookmark`。
+// - `命名规则`翻译为`naming rule`。
+// - `点击`翻译为`click`。因为这个下载器是为 PC 端网页设计的，所以`点击`指的是鼠标点击，而非点击屏幕。
+// - `下载记录`有两种情况。第一种情况：这个扩展程序会保存自己的下载记录格式，此时应该翻译为`download record`。第二种情况：指浏览器的下载记录，翻译为`download history`。第二种情况比较少。
+// - `发布时间`、`发表时间`、`投稿时间`是相同的意思，应该翻译为`posting time`。
 
 
 /***/ }),
