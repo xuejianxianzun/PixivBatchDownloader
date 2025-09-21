@@ -17569,9 +17569,9 @@ class BookmarkAfterDL {
         this.check();
     }
     successCount = 0;
-    // 储存需要收藏的作品的 ID，防止对同一个作品重复添加收藏，并且其数量就是收藏任务的总数
-    savedIDs = [];
-    // 储存需要添加收藏的作品的 ID。每次收藏时，从这里取出一个 ID 进行收藏。它的数量并不总是等于任务总数
+    // 储存需要收藏的作品的 ID。其数量就是收藏任务的总数
+    IDList = [];
+    // 储存需要收藏的作品的 ID。每次收藏时，从这里取出一个 ID 进行收藏。它的数量并不总是等于任务总数
     queue = [];
     tipEl = document.createElement('span');
     // 如果之前的下载已完成，那么当下一次开始下载时（也就是新的下载，而不是暂停后继续的下载），则重置状态
@@ -17608,12 +17608,12 @@ class BookmarkAfterDL {
     }
     showCompleteTip = true;
     showProgress() {
-        if (this.savedIDs.length === 0) {
+        if (this.IDList.length === 0) {
             _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.tipEl, '');
             return;
         }
-        _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.tipEl, '_已收藏带参数', `${this.successCount}/${this.savedIDs.length}`);
-        if (this.successCount === this.savedIDs.length && this.showCompleteTip) {
+        _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.tipEl, '_已收藏带参数', `${this.successCount}/${this.IDList.length}`);
+        if (this.successCount === this.IDList.length && this.showCompleteTip) {
             // 当全部收藏完成时，只显示一次提示。否则会显示多次
             this.showCompleteTip = false;
             _Log__WEBPACK_IMPORTED_MODULE_6__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品完毕'));
@@ -17621,7 +17621,7 @@ class BookmarkAfterDL {
     }
     reset() {
         this.showCompleteTip = true;
-        this.savedIDs = [];
+        this.IDList = [];
         this.queue = [];
         this.successCount = 0;
         this.tipEl.classList.remove('red');
@@ -17636,12 +17636,12 @@ class BookmarkAfterDL {
         if (typeof id !== 'number') {
             id = Number.parseInt(id);
         }
-        // 检查这个 id 是否已经添加了
-        if (this.savedIDs.includes(id)) {
+        // 检查这个 ID 是否已经添加了
+        if (this.IDList.includes(id)) {
             return;
         }
         this.queue.push(id);
-        this.savedIDs.push(id);
+        this.IDList.push(id);
         this.showProgress();
     }
     busy = false;
@@ -17678,8 +17678,8 @@ class BookmarkAfterDL {
         // successCount 会重置为 0
         // 但之后遗留的 bookmark.add 执行完毕，在这里导致 successCount + 1
         // 这会使已完成数量比开始下载后的新的任务数量多 1，所以需要进行检查，以避免这种情况
-        if (this.successCount > this.savedIDs.length) {
-            this.successCount = this.savedIDs.length;
+        if (this.successCount > this.IDList.length) {
+            this.successCount = this.IDList.length;
         }
         this.showProgress();
         this.busy = false;
@@ -24825,35 +24825,61 @@ So the file name set by the Downloader is lost, and the file name becomes the la
 Поэтому имя файла, заданное загрузчиком, теряется, и имя файла становится последним путем в URL. <br>`,
     ],
     _账户可能被封禁的警告: [
-        `<strong>警告</strong>：频繁和大量的抓取（和下载）可能会导致你的 Pixiv 账号被封禁。<br>
-多数用户不会遇到这个情况，而且下载器默认会减慢抓取的速度。但如果你的账户被封禁，下载器不会承担任何责任。<br>
-如果你计划进行大量的下载，可以考虑注册 Pixiv 小号。<br><br>`,
-        `<strong>警告</strong>：頻繁和大量的抓取（和下載）可能會導致你的 Pixiv 賬號被封禁。<br>
-多數使用者不會遇到這個情況，而且下載器預設會減慢抓取的速度。但如果你的賬戶被封禁，下載器不會承擔任何責任。<br>
-如果你計劃進行大量的下載，可以考慮註冊 Pixiv 小號。<br><br>`,
-        `<strong>Warning</strong>: Frequent and heavy scraping (and downloading) may result in your Pixiv account being banned. <br>
-Most users will not encounter this, and the downloader will slow down scraping by default. However, the downloader will not be held responsible if your account is banned. <br>
-If you plan to do a lot of downloading, consider signing up for a secondary Pixiv account. <br><br>`,
-        `<strong>警告</strong>: 頻繁かつ大量のスクレイピング (およびダウンロード) を行うと、Pixiv アカウントが禁止される可能性があります。 <br>
-ほとんどのユーザーはこの状況に遭遇することはなく、ダウンローダーはデフォルトでクロールを遅くします。ただし、アカウントが禁止された場合、ダウンローダーは責任を負いません。 <br>
-大量のダウンロードを行う予定がある場合は、Pixiv アカウントへのサインアップを検討してください。 <br><br>`,
-        `<strong>경고</strong>: 빈번하고 많은 양의 스크래핑(및 다운로드)을 수행하면 Pixiv 계정이 금지될 수 있습니다. <br>
-대부분의 사용자는 이러한 상황을 겪지 않으며 다운로더는 기본적으로 크롤링 속도를 늦춥니다. 그러나 귀하의 계정이 금지된 경우 다운로더는 책임을 지지 않습니다. <br>
-다운로드를 많이 할 계획이라면 Pixiv 계정에 가입하는 것을 고려해 보세요. <br><br>`,
-        `<strong>Внимание</strong>. Частое и массовое сканирование (и загрузка) может привести к блокировке вашей учетной записи Pixiv. <br>
-Большинство пользователей не столкнутся с такой ситуацией, и загрузчик по умолчанию замедлит сканирование. Но загрузчик не будет нести ответственности, если ваша учетная запись будет заблокирована. <br>
-Если вы планируете загружать много файлов, рассмотрите возможность регистрации учетной записи Pixiv. <br><br>`,
+        `<strong>警告</strong>：频繁和大量的抓取（和下载）可能会导致你的 Pixiv 账号被封禁。
+    <br>
+    多数用户不会遇到这个情况，而且下载器默认会减慢抓取的速度。但如果你的账户被封禁，下载器不会承担任何责任。
+    <br>
+    如果你计划进行大量的下载，可以考虑注册 Pixiv 小号。<br>
+    Wiki 有相关说明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E4%BD%BF%E7%94%A8%E5%B0%8F%E5%8F%B7%E4%B8%8B%E8%BD%BD" target="_blank">使用小号下载</a>
+    <br></br>`,
+        `<strong>警告</strong>：頻繁且大量的抓取（和下載）可能會導致你的 Pixiv 帳號被封禁。
+    <br>
+    多數用戶不會遇到這種情況，而且下載器默認會減慢抓取的速度。但如果你的帳戶被封禁，下載器不會承擔任何責任。
+    <br>
+    如果你計劃進行大量的下載，可以考慮註冊 Pixiv 小號。<br>
+    Wiki 有相關說明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E4%BD%BF%E7%94%A8%E5%B0%8F%E5%8F%B7%E4%B8%8B%E8%BD%BD" target="_blank">使用小號下載</a>
+    <br></br>`,
+        `<strong>Warning</strong>: Frequent and large-scale crawling (and downloading) may lead to your Pixiv account being banned.
+    <br>
+    Most users will not encounter this issue, and the downloader will slow down the crawling speed by default. However, if your account is banned, the downloader will not take any responsibility.
+    <br>
+    If you plan to perform large-scale downloads, consider registering a secondary Pixiv account.<br>
+    The Wiki provides related information: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">Using a Secondary Account for Downloading</a>
+    <br></br>`,
+        `<strong>警告</strong>：頻繁かつ大規模なクロール（およびダウンロード）は、Pixivアカウントの禁止につながる可能性があります。
+    <br>
+    ほとんどのユーザーはこの問題に遭遇しませんが、ダウンローダーはデフォルトでクロールの速度を遅くします。ただし、アカウントが禁止された場合、ダウンローダーは一切の責任を負いません。
+    <br>
+    大規模なダウンロードを計画している場合は、Pixivのサブアカウントを登録することを検討してください。<br>
+    Wikiに関連情報があります：<a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">サブアカウントを使用したダウンロード</a>
+    <br></br>`,
+        `<strong>경고</strong>: 빈번하고 대규모의 크롤링(및 다운로드)은 Pixiv 계정이 차단될 수 있습니다.
+    <br>
+    대부분의 사용자는 이 문제를 겪지 않으며, 다운로더는 기본적으로 크롤링 속도를 늦춥니다. 하지만 계정이 차단되더라도 다운로더는 어떠한 책임도 지지 않습니다.
+    <br>
+    대규모 다운로드를 계획하고 있다면 Pixiv 보조 계정을 등록하는 것을 고려하세요.<br>
+    위키에 관련 정보가 있습니다: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">보조 계정으로 다운로드하기</a>
+    <br></br>`,
+        `<strong>Предупреждение</strong>: Частый и масштабный краулинг (и загрузка) могут привести к блокировке вашего аккаунта Pixiv.
+    <br>
+    Большинство пользователей не сталкиваются с этой проблемой, и загрузчик по умолчанию снижает скорость краулинга. Однако, если ваш аккаунт будет заблокирован, загрузчик не несет за это ответственности.
+    <br>
+    Если вы планируете выполнять масштабные загрузки, рассмотрите возможность регистрации дополнительного аккаунта Pixiv.<br>
+    В Вики есть соответствующая информация: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">Использование дополнительного аккаунта для загрузки</a>
+    <br></br>`,
     ],
     _常见问题说明: [
         `下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。
     <br><br>
-    建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。
+    建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”，否则保存每个文件时都会显示另存为对话框。
     <br><br>
-    如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>还有些扩展会导致下载器不能开始下载。
+    如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展程序。<br>还有些扩展程序会导致下载器不能开始下载。
     <br><br>
-    如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。
+    如果你的浏览器在启动时会停止响应一段时间，你可以清除浏览器的下载记录来解决此问题。
     <br><br>
-    如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。
+    下载器的 Wiki：<a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>
+    <br>
+    <a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">在 Wiki 查看常见问题</a>
     <br><br>
     梯子推荐：
     <br>
@@ -24865,20 +24891,70 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     <br>
     我的邀请码：GYjQWDob
     <br><br>
-    下载器 QQ 群：674991373
+    下载器的 QQ 群：674991373
     <br>
     如果你有一些问题想要问我，可以加群后直接私聊我。发在群里有时我不能及时看到。
+    <br><br>`,
+        `下載的文件保存在瀏覽器的下載目錄裡。如果您想保存到其他位置，需要修改瀏覽器的下載目錄。
     <br><br>
-    在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a>
+    建議您在瀏覽器的下載設置中關閉“下載前詢問每個文件的保存位置”，否則保存每個文件時都會顯示另存為對話框。
     <br><br>
-    中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>
+    如果下載後的文件名異常，請禁用其他具有下載功能的瀏覽器擴展程序。<br>還有一些擴展程序會導致下載器無法開始下載。
     <br><br>
-    `,
-        '下載的檔案儲存在瀏覽器的下載目錄裡。如果你想儲存到其他位置，需要修改瀏覽器的下載目錄。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br>還有些擴充套件會導致下載器不能開始下載。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。<br><br>',
-        `The downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download location. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser's download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities. <br>There are also some extensions that can prevent the downloader from starting the download.<br><br>If your browser stops responding at startup, you can clear your browser's download history.<br><br>`,
-        'ダウンロードされたファイルはブラウザのダウンロード ディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロード場所を変更する必要があります。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br>ダウンローダーがダウンロードを開始するのを妨げる拡張機能もいくつかあります。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。<br><br>',
-        '다운로드한 파일은 브라우저의 다운로드 디렉터리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 위치를 수정해야 합니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요. <br>다운로더가 다운로드를 시작하지 못하게 막는 몇 가지 확장 프로그램도 있습니다.<br><br>시작 시 브라우저가 응답하지 않으면 브라우저의 다운로드 기록을 지울 수 있습니다.<br><br>',
-        'Загруженный файл сохраняется в каталоге загрузки браузера. Если вы хотите сохранить в другое место, вам необходимо изменить место загрузки браузера. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>Если имя файла после загрузки является ненормальным, отключите другие расширения браузера, которые имеют возможности загрузки. <br>Существуют также некоторые расширения, которые могут помешать загрузчику начать загрузку.<br><br>Если ваш браузер перестает отвечать на запросы при запуске, вы можете очистить историю загрузок вашего браузера.<br><br>',
+    如果您的瀏覽器在啟動時會停止響應一段時間，您可以清除瀏覽器的下載記錄來解決此問題。
+    <br><br>
+    下載器的 Wiki：<a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>
+    <br>
+    <a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">在 Wiki 查看常見問題</a>
+    <br><br>`,
+        `Downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download directory.
+    <br><br>
+    It is recommended to disable "Ask where to save each file before downloading" in the browser's download settings, otherwise a save-as dialog will appear for each file.
+    <br><br>
+    If the filenames of downloaded files are abnormal, please disable other browser extensions with download capabilities. <br>Some extensions may also prevent the downloader from starting downloads.
+    <br><br>
+    If your browser stops responding for a while when starting, you can resolve this issue by clearing the browser's download history.
+    <br><br>
+    Downloader Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>
+    <br>
+    <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/FAQ" target="_blank">View FAQs in the Wiki</a>
+    <br><br>`,
+        `ダウンロードしたファイルはブラウザのダウンロードディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロードディレクトリを変更する必要があります。
+    <br><br>
+    ブラウザのダウンロード設定で「ダウンロード前に各ファイルの保存場所を確認する」をオフにすることをお勧めします。そうしないと、ファイルを保存するたびに「名前を付けて保存」ダイアログが表示されます。
+    <br><br>
+    ダウンロードしたファイル名に異常がある場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br>一部の拡張機能はダウンローダーがダウンロードを開始できない原因となることがあります。
+    <br><br>
+    ブラウザが起動時にしばらく応答しない場合、ブラウザのダウンロード履歴をクリアすることでこの問題を解決できます。
+    <br><br>
+    ダウンローダーのWiki：<a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>
+    <br>
+    <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/FAQ" target="_blank">Wikiでよくある質問を確認</a>
+    <br><br>`,
+        `다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 디렉토리를 변경해야 합니다.
+    <br><br>
+    브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치를 묻기"를 비활성화하는 것이 좋습니다. 그렇지 않으면 파일을 저장할 때마다 "다른 이름으로 저장" 대화 상자가 나타납니다.
+    <br><br>
+    다운로드한 파일 이름에 이상이 있는 경우, 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화하십시오. <br>일부 확장 프로그램은 다운로더가 다운로드를 시작하지 못하게 할 수 있습니다.
+    <br><br>
+    브라우저가 시작 시 일정 시간 동안 응답하지 않는 경우, 브라우저의 다운로드 기록을 지워 이 문제를 해결할 수 있습니다.
+    <br><br>
+    다운로더 위키: <a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>
+    <br>
+    <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/FAQ" target="_blank">위키에서 자주 묻는 질문 보기</a>
+    <br><br>`,
+        `Загруженные файлы сохраняются в папке загрузок браузера. Если вы хотите сохранить их в другое место, необходимо изменить папку загрузок в настройках браузера.
+    <br><br>
+    Рекомендуется отключить в настройках загрузки браузера опцию "Запрашивать место сохранения каждого файла перед загрузкой", иначе при сохранении каждого файла будет отображаться диалог "Сохранить как".
+    <br><br>
+    Если имена загруженных файлов выглядят ненормально, пожалуйста, отключите другие расширения браузера с функциями загрузки. <br>Некоторые расширения могут препятствовать началу загрузки загрузчиком.
+    <br><br>
+    Если ваш браузер перестает отвечать на некоторое время при запуске, вы можете решить эту проблему, очистив историю загрузок браузера.
+    <br><br>
+    Вики загрузчика: <a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>
+    <br>
+    <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/FAQ" target="_blank">Просмотр часто задаваемых вопросов в Вики</a>
+    <br><br>`,
     ],
     _正在下载中: [
         '正在下载中',
@@ -26605,12 +26681,66 @@ This setting is also used when you use the Downloader to bookmark works in batch
         'На этот раз запрос начал помещаться в очередь.',
     ],
     _HowToUse: [
-        '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>下载器默认开启了一些增强功能，这可能会导致 Pixiv 的一些页面样式产生变化。你可以在下载器的“更多”标签页中开启或关闭这些功能。<br><br>',
-        '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。如果你想儲存到其他位置，需要修改瀏覽器的下載目錄。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>下載器預設開啟了一些增強功能，這可能會導致 Pixiv 的一些頁面樣式產生變化。你可以在下載器的“更多”標籤頁中開啟或關閉這些功能。<br><br>',
-        `Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download location. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser's download settings.<br><br>The downloader has some enhancements turned on by default, which may cause changes in the style of Pixiv pages. You can turn these features on or off in the "More" tab of the downloader.<br><br>`,
-        'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードされたファイルはブラウザのダウンロード ディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロード場所を変更する必要があります。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンローダーにはデフォルトでいくつかの機能拡張が有効になっており、これにより Pixiv ページのスタイルが変更される可能性があります。 これらの機能は、ダウンローダーの「その他」タブでオンまたはオフにできます。<br><br>',
-        '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.<br><br>다운로드한 파일은 브라우저의 다운로드 디렉터리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 위치를 수정해야 합니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로더에는 기본적으로 몇 가지 향상된 기능이 켜져 있으며 이로 인해 Pixiv 페이지 스타일이 변경될 수 있습니다. 다운로더의 "더 보기" 탭에서 이러한 기능을 켜거나 끌 수 있습니다.<br><br>',
-        'Нажмите синюю кнопку в правой части страницы, чтобы открыть панель загрузчика.<br><br>Загруженный файл сохраняется в каталоге загрузки браузера. Если вы хотите сохранить в другое место, вам необходимо изменить место загрузки браузера.<br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>В загрузчике по умолчанию включены некоторые улучшения, которые могут привести к изменению стиля страниц Pixiv. Вы можете включить или отключить эти функции на вкладке «Дополнительно» загрузчика.<br><br>',
+        `点击网页右侧的蓝色按钮可以打开下载器面板。
+    <br><br>
+    下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。
+    <br><br>
+    建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”，否则保存每个文件时都会显示另存为对话框。
+    <br><br>
+    下载器默认启用了一些增强功能，这可能会导致 Pixiv 的一些页面样式产生变化。你可以在下载器的“更多”标签页里启用或关闭这些功能。
+    <br><br>
+    下载器的 Wiki：<a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
+    <br><br>`,
+        `點擊網頁右側的藍色按鈕可以打開下載器面板。
+    <br><br>
+    下載的文件保存在瀏覽器的下載目錄裡。如果您想保存到其他位置，需要修改瀏覽器的下載目錄。
+    <br><br>
+    建議您在瀏覽器的下載設置中關閉“下載前詢問每個文件的保存位置”，否則保存每個文件時都會顯示另存為對話框。
+    <br><br>
+    下載器默認開啟了一些增強功能，這可能會導致 Pixiv 的一些頁面樣式產生變化。您可以在下載器的“更多”標籤頁中啟用或關閉這些功能。
+    <br><br>
+    下載器的 Wiki：<a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
+    <br><br>`,
+        `Click the blue button on the right side of the webpage to open the downloader panel.
+    <br><br>
+    Downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download directory.
+    <br><br>
+    It is recommended to disable "Ask where to save each file before downloading" in the browser's download settings, otherwise a save-as dialog will appear for each file.
+    <br><br>
+    The downloader enables some enhanced features by default, which may cause changes to the style of some Pixiv pages. You can enable or disable these features in the "More" tab of the downloader.
+    <br><br>
+    Downloader Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
+    <br><br>`,
+        `ウェブページの右側にある青いボタンをクリックすると、ダウンローダーパネルが開きます。
+    <br><br>
+    ダウンロードしたファイルはブラウザのダウンロードディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロードディレクトリを変更する必要があります。
+    <br><br>
+    ブラウザのダウンロード設定で「ダウンロード前に各ファイルの保存場所を確認する」をオフにすることをお勧めします。そうしないと、ファイルを保存するたびに「名前を付けて保存」ダイアログが表示されます。
+    <br><br>
+    ダウンローダーはデフォルトでいくつかの拡張機能を有効にしており、これによりPixivの一部のページのスタイルが変更されることがあります。これらの機能は、ダウンローダーの「その他」タブで有効または無効にできます。
+    <br><br>
+    ダウンローダーのWiki：<a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
+    <br><br>`,
+        `웹페이지 오른쪽의 파란색 버튼을 클릭하면 다운로더 패널이 열립니다.
+    <br><br>
+    다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 디렉토리를 변경해야 합니다.
+    <br><br>
+    브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치를 묻기"를 비활성화하는 것이 좋습니다. 그렇지 않으면 파일을 저장할 때마다 "다른 이름으로 저장" 대화 상자가 나타납니다.
+    <br><br>
+    다운로더는 기본적으로 몇 가지 향상된 기능을 활성화하며, 이로 인해 Pixiv의 일부 페이지 스타일이 변경될 수 있습니다. 이러한 기능은 다운로더의 "더보기" 탭에서 활성화하거나 비활성화할 수 있습니다.
+    <br><br>
+    다운로더 위키: <a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
+    <br><br>`,
+        `Нажмите на синюю кнопку справа на веб-странице, чтобы открыть панель загрузчика.
+    <br><br>
+    Загруженные файлы сохраняются в папке загрузок браузера. Если вы хотите сохранить их в другое место, необходимо изменить папку загрузок в настройках браузера.
+    <br><br>
+    Рекомендуется отключить в настройках загрузки браузера опцию "Запрашивать место сохранения каждого файла перед загрузкой", иначе при сохранении каждого файла будет отображаться диалог "Сохранить как".
+    <br><br>
+    Загрузчик по умолчанию включает некоторые расширенные функции, которые могут привести к изменению стиля некоторых страниц Pixiv. Вы можете включать или отключать эти функции на вкладке "Ещё" в загрузчике.
+    <br><br>
+    Вики загрузчика: <a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
+    <br><br>`,
     ],
     _我知道了: ['我知道了', '我知道了', 'OK', '分かりました', '확인', 'Ок'],
     _背景图片: [
@@ -29016,9 +29146,9 @@ P.S. Работы заблокированных пользователей не
 // 输出格式：
 // - 输出内容保存在一个 JavaScript 代码块里。
 // - 代码的内容就是翻译后的数组。不需要把数组保存到一个变量里。
+// - 字符串使用反引号 ` 包裹。
+// - 数组的最后一项后面保留逗号。
 // - 翻译的语句后面不需要添加注释。
-// - 字符串使用单引号包裹。
-// - 数组的最后一项后面保留逗号 `,`。
 // 备注：
 // - 如果中文语句里有 html 标签，翻译时需要原样保留。
 // - 如果原语句里有 `<span class="key">关键字</span>` 形式的标记，那么在翻译后的语句里也要加上。
