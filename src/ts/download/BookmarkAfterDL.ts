@@ -4,6 +4,7 @@ import { lang } from '../Lang'
 import { EVT } from '../EVT'
 import { DonwloadSuccessData, DonwloadSkipData } from './DownloadType'
 import { bookmark } from '../Bookmark'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { log } from '../Log'
 
 // 当文件下载成功后，收藏这个作品
@@ -15,13 +16,16 @@ class BookmarkAfterDL {
     }
 
     this.bindEvents()
+    this.check()
   }
 
-  // 储存接收到的 id，用于防止对一个作品重复添加收藏
-  // 其实重复添加收藏没什么影响，和只添加一次没区别。为了不浪费网络请求，还是尽量不要重复添加。
-  private savedIds: number[] = []
-
   private successCount = 0
+
+  // 储存需要收藏的作品的 ID。其数量就是收藏任务的总数
+  private IDList: number[] = []
+
+  // 储存需要收藏的作品的 ID。每次收藏时，从这里取出一个 ID 进行收藏。它的数量并不总是等于任务总数
+  private queue: number[] = []
 
   private tipEl: HTMLElement = document.createElement('span')
 
@@ -30,7 +34,7 @@ class BookmarkAfterDL {
 
   // 可选传入一个元素，显示收藏的数量和总数
   private bindEvents() {
-    // 当有文件下载完成时，提取 id 进行收藏
+    // 当有文件下载完成时，提取作品 ID 进行收藏
     window.addEventListener(EVT.list.downloadSuccess, (ev: CustomEventInit) => {
       const successData = ev.detail.data as DonwloadSuccessData
       this.send(Number.parseInt(successData.id))
@@ -65,17 +69,17 @@ class BookmarkAfterDL {
 
   private showCompleteTip = true
   private showProgress() {
-    if (this.savedIds.length === 0) {
+    if (this.IDList.length === 0) {
       lang.updateText(this.tipEl, '')
       return
     }
     lang.updateText(
       this.tipEl,
       '_已收藏带参数',
-      `${this.successCount}/${this.savedIds.length}`
+      `${this.successCount}/${this.IDList.length}`
     )
 
-    if (this.successCount === this.savedIds.length && this.showCompleteTip) {
+    if (this.successCount === this.IDList.length && this.showCompleteTip) {
       // 当全部收藏完成时，只显示一次提示。否则会显示多次
       this.showCompleteTip = false
       log.success(lang.transl('_收藏作品完毕'))
@@ -84,14 +88,15 @@ class BookmarkAfterDL {
 
   private reset() {
     this.showCompleteTip = true
-    this.savedIds = []
+    this.IDList = []
+    this.queue = []
     this.successCount = 0
     this.tipEl.classList.remove('red')
     this.tipEl.classList.add('green')
     this.showProgress()
   }
 
-  // 接收作品 id，开始收藏
+  // 接收作品 ID，开始收藏
   private send(id: number | string) {
     if (!settings.bmkAfterDL) {
       return
@@ -101,52 +106,80 @@ class BookmarkAfterDL {
       id = Number.parseInt(id)
     }
 
-    // 检查这个 id 是否已经添加了
-    if (this.savedIds.includes(id)) {
+    // 检查这个 ID 是否已经添加了
+    if (this.IDList.includes(id)) {
       return
     }
 
-    this.addBookmark(id)
+    this.queue.push(id)
+    this.IDList.push(id)
+    this.showProgress()
+  }
+
+  private busy = false
+
+  private check() {
+    setTimeoutWorker.set(() => {
+      this.addBookmark()
+    }, 200)
   }
 
   // 给所有作品添加收藏（之前收藏过的，新 tag 将覆盖旧 tag）
-  private async addBookmark(id: number) {
-    return new Promise<void>(async (resolve, reject) => {
-      this.savedIds.push(id)
-      this.showProgress()
+  private async addBookmark() {
+    if (this.busy || this.queue.length === 0) {
+      return this.check()
+    }
 
-      // 从 store 里查找这个作品的数据
-      const dataSource =
-        store.resultMeta.length > 0 ? store.resultMeta : store.result
-      const data = dataSource.find((val) => val.idNum === id)
-      if (data === undefined) {
-        log.error(`Not find ${id} in result`)
-        return resolve()
-      }
+    const id = this.queue.shift()
+    if (!id) {
+      return this.check()
+    }
 
-      // 当抓取结果很少时，不使用慢速收藏
-      const status = await bookmark.add(
-        id.toString(),
-        data.type !== 3 ? 'illusts' : 'novels',
-        data.tags,
-        undefined,
-        undefined,
-        store.result.length > 30
+    this.busy = true
+
+    // 从 store 里查找这个作品的数据
+    const dataSource =
+      store.resultMeta.length > 0 ? store.resultMeta : store.result
+    const data = dataSource.find((val) => val.idNum === id)
+    if (data === undefined) {
+      log.error(`Not find ${id} in result`)
+      return this.check()
+    }
+
+    // 添加收藏
+    // 当抓取结果很少时，不使用慢速收藏
+    const status = await bookmark.add(
+      id.toString(),
+      data.type !== 3 ? 'illusts' : 'novels',
+      data.tags,
+      undefined,
+      undefined,
+      store.result.length > 30
+    )
+
+    this.successCount++
+    // 已完成的数量不应该超过任务总数
+    // 特定情况下会导致已完成数量比任务总数多 1，需要修正。原因如下：
+    // 在下载完毕后，收藏尚未完毕（例如进度为 18/48)，并且第 19 个收藏任务已经发送给了 bookmark.add
+    // 在这个收藏任务完成前，用户点击开始下载按钮开始了新一批下载任务，导致执行了 reset
+    // successCount 会重置为 0
+    // 但之后遗留的 bookmark.add 执行完毕，在这里导致 successCount + 1
+    // 这会使已完成数量比开始下载后的新的任务数量多 1，所以需要进行检查，以避免这种情况
+    if (this.successCount > this.IDList.length) {
+      this.successCount = this.IDList.length
+    }
+    this.showProgress()
+    this.busy = false
+
+    if (status === 403) {
+      log.error(
+        `Add bookmark: ${id}, Error: 403 Forbidden, ${lang.transl(
+          '_你的账号已经被Pixiv限制'
+        )}`
       )
-      this.successCount++
+    }
 
-      this.showProgress()
-
-      if (status === 403) {
-        log.error(
-          `Add bookmark: ${id}, Error: 403 Forbidden, ${lang.transl(
-            '_你的账号已经被Pixiv限制'
-          )}`
-        )
-      }
-
-      resolve()
-    })
+    return this.check()
   }
 }
 

@@ -17549,7 +17549,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+
 
 
 
@@ -17564,17 +17566,19 @@ class BookmarkAfterDL {
             _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.tipEl);
         }
         this.bindEvents();
+        this.check();
     }
-    // 储存接收到的 id，用于防止对一个作品重复添加收藏
-    // 其实重复添加收藏没什么影响，和只添加一次没区别。为了不浪费网络请求，还是尽量不要重复添加。
-    savedIds = [];
     successCount = 0;
+    // 储存需要收藏的作品的 ID，防止对同一个作品重复添加收藏，并且其数量就是收藏任务的总数
+    savedIDs = [];
+    // 储存需要添加收藏的作品的 ID。每次收藏时，从这里取出一个 ID 进行收藏。它的数量并不总是等于任务总数
+    queue = [];
     tipEl = document.createElement('span');
     // 如果之前的下载已完成，那么当下一次开始下载时（也就是新的下载，而不是暂停后继续的下载），则重置状态
     delayReset = false;
     // 可选传入一个元素，显示收藏的数量和总数
     bindEvents() {
-        // 当有文件下载完成时，提取 id 进行收藏
+        // 当有文件下载完成时，提取作品 ID 进行收藏
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.downloadSuccess, (ev) => {
             const successData = ev.detail.data;
             this.send(Number.parseInt(successData.id));
@@ -17604,26 +17608,27 @@ class BookmarkAfterDL {
     }
     showCompleteTip = true;
     showProgress() {
-        if (this.savedIds.length === 0) {
+        if (this.savedIDs.length === 0) {
             _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.tipEl, '');
             return;
         }
-        _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.tipEl, '_已收藏带参数', `${this.successCount}/${this.savedIds.length}`);
-        if (this.successCount === this.savedIds.length && this.showCompleteTip) {
+        _Lang__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.tipEl, '_已收藏带参数', `${this.successCount}/${this.savedIDs.length}`);
+        if (this.successCount === this.savedIDs.length && this.showCompleteTip) {
             // 当全部收藏完成时，只显示一次提示。否则会显示多次
             this.showCompleteTip = false;
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品完毕'));
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.success(_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品完毕'));
         }
     }
     reset() {
         this.showCompleteTip = true;
-        this.savedIds = [];
+        this.savedIDs = [];
+        this.queue = [];
         this.successCount = 0;
         this.tipEl.classList.remove('red');
         this.tipEl.classList.add('green');
         this.showProgress();
     }
-    // 接收作品 id，开始收藏
+    // 接收作品 ID，开始收藏
     send(id) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.bmkAfterDL) {
             return;
@@ -17632,32 +17637,56 @@ class BookmarkAfterDL {
             id = Number.parseInt(id);
         }
         // 检查这个 id 是否已经添加了
-        if (this.savedIds.includes(id)) {
+        if (this.savedIDs.includes(id)) {
             return;
         }
-        this.addBookmark(id);
+        this.queue.push(id);
+        this.savedIDs.push(id);
+        this.showProgress();
+    }
+    busy = false;
+    check() {
+        _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_5__.setTimeoutWorker.set(() => {
+            this.addBookmark();
+        }, 200);
     }
     // 给所有作品添加收藏（之前收藏过的，新 tag 将覆盖旧 tag）
-    async addBookmark(id) {
-        return new Promise(async (resolve, reject) => {
-            this.savedIds.push(id);
-            this.showProgress();
-            // 从 store 里查找这个作品的数据
-            const dataSource = _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.resultMeta.length > 0 ? _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.resultMeta : _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result;
-            const data = dataSource.find((val) => val.idNum === id);
-            if (data === undefined) {
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(`Not find ${id} in result`);
-                return resolve();
-            }
-            // 当抓取结果很少时，不使用慢速收藏
-            const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(id.toString(), data.type !== 3 ? 'illusts' : 'novels', data.tags, undefined, undefined, _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length > 30);
-            this.successCount++;
-            this.showProgress();
-            if (status === 403) {
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(`Add bookmark: ${id}, Error: 403 Forbidden, ${_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_你的账号已经被Pixiv限制')}`);
-            }
-            resolve();
-        });
+    async addBookmark() {
+        if (this.busy || this.queue.length === 0) {
+            return this.check();
+        }
+        const id = this.queue.shift();
+        if (!id) {
+            return this.check();
+        }
+        this.busy = true;
+        // 从 store 里查找这个作品的数据
+        const dataSource = _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.resultMeta.length > 0 ? _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.resultMeta : _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result;
+        const data = dataSource.find((val) => val.idNum === id);
+        if (data === undefined) {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(`Not find ${id} in result`);
+            return this.check();
+        }
+        // 添加收藏
+        // 当抓取结果很少时，不使用慢速收藏
+        const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(id.toString(), data.type !== 3 ? 'illusts' : 'novels', data.tags, undefined, undefined, _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length > 30);
+        this.successCount++;
+        // 已完成的数量不应该超过任务总数
+        // 特定情况下会导致已完成数量比任务总数多 1，需要修正。原因如下：
+        // 在下载完毕后，收藏尚未完毕（例如进度为 18/48)，并且第 19 个收藏任务已经发送给了 bookmark.add
+        // 在这个收藏任务完成前，用户点击开始下载按钮开始了新一批下载任务，导致执行了 reset
+        // successCount 会重置为 0
+        // 但之后遗留的 bookmark.add 执行完毕，在这里导致 successCount + 1
+        // 这会使已完成数量比开始下载后的新的任务数量多 1，所以需要进行检查，以避免这种情况
+        if (this.successCount > this.savedIDs.length) {
+            this.successCount = this.savedIDs.length;
+        }
+        this.showProgress();
+        this.busy = false;
+        if (status === 403) {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(`Add bookmark: ${id}, Error: 403 Forbidden, ${_Lang__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_你的账号已经被Pixiv限制')}`);
+        }
+        return this.check();
     }
 }
 
