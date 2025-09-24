@@ -3,10 +3,11 @@ import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { Tools } from '../Tools'
-import { options } from '../setting/Options'
 import { filter, FilterOption } from '../filter/Filter'
 import { store } from '../store/Store'
 import { log } from '../Log'
+import { pageType } from '../PageType'
+import { settings } from '../setting/Settings'
 
 class InitRankingNovelPage extends InitPageBase {
   constructor() {
@@ -29,25 +30,16 @@ class InitRankingNovelPage extends InitPageBase {
 
   protected initAny() {}
 
-  protected setFormOption() {
-    // 个数/页数选项的提示
-    this.maxCount = 100
-
-    options.setWantPageTip({
-      text: '_抓取多少作品',
-      tip: '_想要获取多少个作品',
-      rangTip: `1 - ${this.maxCount}`,
-      min: 1,
-      max: this.maxCount,
-    })
-  }
-
   protected getWantPage() {
     // 检查下载页数的设置
-    this.crawlNumber = this.checkWantPageInput(
-      lang.transl('_下载排行榜前x个作品'),
-      lang.transl('_向下获取所有作品')
-    )
+    this.crawlNumber = settings.crawlNumber[pageType.type].value
+    if (this.crawlNumber === -1) {
+      log.warning(lang.transl('_向下获取所有作品'))
+    } else {
+      log.warning(
+        lang.transl('_下载排行榜前x个作品', this.crawlNumber.toString())
+      )
+    }
     // 如果设置的作品个数是 -1，则设置为下载所有作品
     if (this.crawlNumber === -1) {
       this.crawlNumber = this.maxCount

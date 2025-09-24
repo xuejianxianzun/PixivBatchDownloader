@@ -6,8 +6,8 @@ import { API } from '../API'
 import { store } from '../store/Store'
 import { log } from '../Log'
 import { EVT } from '../EVT'
-import { options } from '../setting/Options'
 import { settings } from '../setting/Settings'
+import '../setting/CrawlNumber'
 import { states } from '../store/States'
 import { saveArtworkData } from '../store/SaveArtworkData'
 import { saveNovelData } from '../store/SaveNovelData'
@@ -49,7 +49,6 @@ abstract class InitPageBase {
 
   // 子组件必须调用 init 方法，并且不可以修改 init 方法
   protected init() {
-    this.setFormOption()
     this.addCrawlBtns()
     this.addAnyElement()
     this.initAny()
@@ -106,18 +105,6 @@ abstract class InitPageBase {
     })
   }
 
-  // 设置表单里的选项。主要是设置页数，并隐藏不需要的选项。
-  protected setFormOption(): void {
-    // 个数/页数选项的提示
-    options.setWantPageTip({
-      text: '_抓取多少页面',
-      tip: '_从本页开始下载提示',
-      rangTip: '_数字提示1',
-      min: 1,
-      max: -1,
-    })
-  }
-
   // 添加抓取区域的默认按钮，可以被子类覆写
   protected addCrawlBtns() {
     Tools.addBtn(
@@ -142,53 +129,6 @@ abstract class InitPageBase {
   protected destroy(): void {
     Tools.clearSlot('crawlBtns')
     Tools.clearSlot('otherBtns')
-  }
-
-  // 作品个数/页数的输入不合法
-  private getWantPageError() {
-    EVT.fire('wrongSetting')
-    const msg = lang.transl('_下载数量错误')
-    msgBox.error(msg)
-    throw new Error(msg)
-  }
-
-  // 在某些页面检查页数/个数设置
-  // 可以为 -1，或者大于 0
-  protected checkWantPageInput(crawlPartTip: string, crawlAllTip: string) {
-    const want = settings.wantPageArr[pageType.type]
-
-    // 如果比 1 小，并且不是 -1，则不通过
-    if ((want < 1 && want !== -1) || isNaN(want)) {
-      // 比 1 小的数里，只允许 -1 , 0 也不行
-      throw this.getWantPageError()
-    }
-
-    if (want >= 1) {
-      log.warning(crawlPartTip.replace('{}', want.toString()))
-    } else if (want === -1) {
-      log.warning(crawlAllTip)
-    }
-
-    return want
-  }
-
-  // 在某些页面检查页数/个数设置，要求必须大于 0
-  // 参数 max 为最大值
-  // 参数 page 指示单位是“页”（页面）还是“个”（作品个数）
-  protected checkWantPageInputGreater0(max: number, page: boolean) {
-    const want = settings.wantPageArr[pageType.type]
-    if (want > 0) {
-      const result = Math.min(want, max)
-      log.warning(
-        lang.transl(
-          page ? '_从本页开始下载x页' : '_从本页开始下载x个',
-          result.toString()
-        )
-      )
-      return result
-    } else {
-      throw this.getWantPageError()
-    }
   }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义

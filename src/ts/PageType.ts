@@ -11,6 +11,10 @@ enum PageName {
   Home,
   Artwork,
   UserHome,
+  // BookmarkLegacy 页面类型已经不存在了，但是必须保留它以避免兼容性问题
+  // 因为有些设置是使用页面类型的数字编号作为键名的
+  // 如果删除这个页面类型，会导致它后面所有页面类型的数字发生变化（例如 Bookmark 会从 4 变成 3）
+  // 这会导致从设置项里取值时，会取到错误的值
   BookmarkLegacy,
   Bookmark,
   ArtworkSearch,
@@ -80,8 +84,6 @@ class PageType {
       } else {
         return PageName.UserHome
       }
-    } else if (pathname.endsWith('bookmark.php')) {
-      return PageName.BookmarkLegacy
     } else if (pathname.includes('/bookmarks/')) {
       return PageName.Bookmark
     } else if (url.includes('/tags/')) {
@@ -160,7 +162,6 @@ class PageType {
   }
 
   private async openAllTestPage() {
-    // 列出要打开的测试页面。不包含已经不存在的页面类型和 Pixivision
     const testPageList: { type: number; url: string }[] = [
       {
         type: PageName.Unsupported,
@@ -179,17 +180,16 @@ class PageType {
         url: 'https://www.pixiv.net/users/89469319',
       },
       {
+        type: PageName.BookmarkLegacy,
+        url: 'https://www.pixiv.net/users/96661459/bookmarks/artworks',
+      },
+      {
         type: PageName.Bookmark,
         url: 'https://www.pixiv.net/users/96661459/bookmarks/artworks',
       },
       {
         type: PageName.ArtworkSearch,
         url: 'https://www.pixiv.net/tags/%E5%8E%9F%E7%A5%9E/artworks?s_mode=s_tag',
-      },
-      // 原神 + 动图 页面
-      {
-        type: PageName.ArtworkSearch,
-        url: 'https://www.pixiv.net/tags/%E5%8E%9F%E7%A5%9E%20%E3%81%86%E3%81%94%E3%82%A4%E3%83%A9/artworks?mode=r18',
       },
       {
         type: PageName.AreaRanking,
@@ -198,6 +198,14 @@ class PageType {
       {
         type: PageName.ArtworkRanking,
         url: 'https://www.pixiv.net/ranking.php',
+      },
+      {
+        type: PageName.Pixivision,
+        url: 'https://www.pixivision.net/zh/a/4537',
+      },
+      {
+        type: PageName.BookmarkDetail,
+        url: 'https://www.pixiv.net/bookmark_detail.php?illust_id=63148723',
       },
       {
         type: PageName.NewArtworkBookmark,
@@ -210,22 +218,6 @@ class PageType {
       {
         type: PageName.NewArtwork,
         url: 'https://www.pixiv.net/new_illust.php',
-      },
-      {
-        type: PageName.ArtworkSeries,
-        url: 'https://www.pixiv.net/user/3698796/series/61267',
-      },
-      {
-        type: PageName.Following,
-        url: 'https://www.pixiv.net/users/96661459/following',
-      },
-      {
-        type: PageName.Request,
-        url: 'https://www.pixiv.net/request',
-      },
-      {
-        type: PageName.Unlisted,
-        url: 'https://www.pixiv.net/artworks/unlisted/eE3fTYaROT9IsZmep386',
       },
       {
         type: PageName.Novel,
@@ -252,6 +244,22 @@ class PageType {
         url: 'https://www.pixiv.net/novel/new.php',
       },
       {
+        type: PageName.ArtworkSeries,
+        url: 'https://www.pixiv.net/user/3698796/series/61267',
+      },
+      {
+        type: PageName.Following,
+        url: 'https://www.pixiv.net/users/96661459/following',
+      },
+      {
+        type: PageName.Request,
+        url: 'https://www.pixiv.net/request',
+      },
+      {
+        type: PageName.Unlisted,
+        url: 'https://www.pixiv.net/artworks/unlisted/eE3fTYaROT9IsZmep386',
+      },
+      {
         type: PageName.DiscoverUsers,
         url: 'https://www.pixiv.net/discovery/users',
       },
@@ -274,4 +282,4 @@ class PageType {
 
 const pageType = new PageType()
 
-export { pageType }
+export { pageType, PageName }

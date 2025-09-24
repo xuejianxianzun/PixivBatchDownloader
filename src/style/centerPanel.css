@@ -15,8 +15,8 @@
   border-radius: 15px;
   overflow: hidden;
   font-family:
-    'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB',
-    'Microsoft YaHei', sans-serif;
+    'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 .centerWrap hr {
   border: none;
@@ -291,8 +291,8 @@
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1.bmkNum {
   width: 60px;
 }
-.centerWrap .centerWrap_con .settingForm p.option button#setMin,
-.centerWrap .centerWrap_con .settingForm p.option button#setMax {
+.centerWrap .centerWrap_con .settingForm p.option button[role='setMin'],
+.centerWrap .centerWrap_con .settingForm p.option button[role='setMax'] {
   height: 22px;
   line-height: 22px;
   margin: 2px 0;
@@ -322,8 +322,8 @@
 }
 .centerWrap .centerWrap_con .settingForm .centerPanelTextArea {
   font-family:
-    'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB',
-    'Microsoft YaHei', sans-serif;
+    'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   color: #29b3f3;
   font-size: 14px;
   background: transparent;
@@ -704,7 +704,7 @@
   color: #0ea8ef;
   display: inline-block;
 }
-.centerWrap .centerWrap_con .settingForm .settingNameStyle1 {
+.centerWrap .centerWrap_con .settingForm .settingNameStyle {
   cursor: pointer;
   margin-right: 4px;
   max-width: 650px;
@@ -1008,8 +1008,8 @@
 }
 .lang_ru * {
   font-family:
-    'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB',
-    'Microsoft YaHei', sans-serif;
+    'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 @media (max-width: 414px) {
   .centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns button {

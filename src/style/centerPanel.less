@@ -343,8 +343,8 @@
           }
         }
 
-        button#setMin,
-        button#setMax {
+        button[role='setMin'],
+        button[role='setMax'] {
           height: 22px;
           line-height: 22px;
           margin: 2px 0;
@@ -761,7 +761,7 @@
       }
 
       // 选项名称，设置最大宽度。不设置的话，由于俄语文本的一些选项名特别长，会导致出现横向滚动条
-      .settingNameStyle1 {
+      .settingNameStyle {
         cursor: pointer;
         margin-right: 4px;
         max-width: @formContentWidth;

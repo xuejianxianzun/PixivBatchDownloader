@@ -2,7 +2,6 @@
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
 import { lang } from '../Lang'
-import { options } from '../setting/Options'
 import { SearchOption } from '../crawl/CrawlArgument'
 import { filter, FilterOption } from '../filter/Filter'
 import { API } from '../API'
@@ -20,6 +19,7 @@ import { Config } from '../Config'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { vipSearchOptimize } from '../crawl/VipSearchOptimize'
 import { settings } from '../setting/Settings'
+import { pageType } from '../PageType'
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {
@@ -102,18 +102,6 @@ class InitSearchNovelPage extends InitPageBase {
     })
   }
 
-  protected setFormOption() {
-    const isPremium = Tools.isPremium()
-    // 个数/页数选项的提示
-    options.setWantPageTip({
-      text: '_抓取多少页面',
-      tip: '_从本页开始下载提示',
-      rangTip: `1 - ${isPremium ? 5000 : 1000}`,
-      min: 1,
-      max: isPremium ? 5000 : 1000,
-    })
-  }
-
   protected initAny() {
     window.addEventListener(EVT.list.crawlTag, this.crawlTag)
   }
@@ -177,10 +165,14 @@ class InitSearchNovelPage extends InitPageBase {
   }
 
   protected getWantPage() {
-    this.crawlNumber = this.checkWantPageInput(
-      lang.transl('_从本页开始下载x页'),
-      lang.transl('_下载所有页面')
-    )
+    this.crawlNumber = settings.crawlNumber[pageType.type].value
+    if (this.crawlNumber === -1) {
+      log.warning(lang.transl('_下载所有页面'))
+    } else {
+      log.warning(
+        lang.transl('_从本页开始下载x页', this.crawlNumber.toString())
+      )
+    }
   }
 
   // 获取搜索页的数据。因为有多处使用，所以进行了封装

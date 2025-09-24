@@ -2,7 +2,6 @@
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
 import { lang } from '../Lang'
-import { options } from '../setting/Options'
 import { DeleteWorks } from '../pageFunciton/DeleteWorks'
 import { EVT } from '../EVT'
 import { SearchOption } from '../crawl/CrawlArgument'
@@ -90,18 +89,6 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 储存预览搜索结果的元素
   private workPreviewBuffer = document.createDocumentFragment()
-
-  protected setFormOption() {
-    const isPremium = Tools.isPremium()
-    // 个数/页数选项的提示
-    options.setWantPageTip({
-      text: '_抓取多少页面',
-      tip: '_从本页开始下载提示',
-      rangTip: `1 - ${isPremium ? 5000 : 1000}`,
-      min: 1,
-      max: isPremium ? 5000 : 1000,
-    })
-  }
 
   protected addCrawlBtns() {
     Tools.addBtn(
@@ -217,10 +204,14 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   protected getWantPage() {
-    this.crawlNumber = this.checkWantPageInput(
-      lang.transl('_从本页开始下载x页'),
-      lang.transl('_下载所有页面')
-    )
+    this.crawlNumber = settings.crawlNumber[pageType.type].value
+    if (this.crawlNumber === -1) {
+      log.warning(lang.transl('_下载所有页面'))
+    } else {
+      log.warning(
+        lang.transl('_从本页开始下载x页', this.crawlNumber.toString())
+      )
+    }
   }
 
   protected async nextStep() {

@@ -235,12 +235,22 @@ class Form {
         })
       })
 
-    // 显示设置页数的提示
+    // 显示抓取多少作品的提示
+    const showSetWantWorkTipButton = this.form.querySelector(
+      '.showSetWantWorkTip'
+    ) as HTMLButtonElement
+    showSetWantWorkTipButton.addEventListener('click', () => {
+      msgBox.show(lang.transl('_抓取多少作品的提示'), {
+        title: lang.transl('_抓取多少作品'),
+      })
+    })
+
+    // 显示抓取多少页面的提示
     const showSetWantPageTipButton = this.form.querySelector(
       '.showSetWantPageTip'
     ) as HTMLButtonElement
     showSetWantPageTipButton.addEventListener('click', () => {
-      msgBox.show(lang.transl('_设置页数的提示'), {
+      msgBox.show(lang.transl('_抓取多少页面的提示'), {
         title: lang.transl('_抓取多少页面'),
       })
     })

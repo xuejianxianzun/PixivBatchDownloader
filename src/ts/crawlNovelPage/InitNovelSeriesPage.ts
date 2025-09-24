@@ -1,7 +1,6 @@
 //初始化小说系列作品页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { options } from '../setting/Options'
 import { store } from '../store/Store'
 import { Tools } from '../Tools'
 import { API } from '../API'
@@ -40,11 +39,6 @@ class InitNovelSeriesPage extends InitPageBase {
   }
 
   protected initAny() {}
-
-  protected setFormOption() {
-    // 隐藏“个数/页数”选项
-    options.hideOption([1])
-  }
 
   protected getWantPage() {}
 

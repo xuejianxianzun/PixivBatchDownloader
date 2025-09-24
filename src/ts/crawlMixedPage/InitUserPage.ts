@@ -2,7 +2,6 @@
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
 import { lang } from '../Lang'
-import { options } from '../setting/Options'
 import { API } from '../API'
 import { store } from '../store/Store'
 import { EVT } from '../EVT'
@@ -18,6 +17,8 @@ import '../pageFunciton/SaveUserCover'
 import { BookmarkAllWorks, IDList } from '../pageFunciton/BookmarkAllWorks'
 import { Utils } from '../utils/Utils'
 import { Config } from '../Config'
+import { pageType } from '../PageType'
+import { settings } from '../setting/Settings'
 
 enum ListType {
   UserHome,
@@ -118,22 +119,15 @@ class InitUserPage extends InitPageBase {
     }
   }
 
-  protected setFormOption() {
-    // 个数/页数选项的提示
-    options.setWantPageTip({
-      text: '_抓取多少页面',
-      tip: '_从本页开始下载提示',
-      rangTip: '_数字提示1',
-      min: 1,
-      max: -1,
-    })
-  }
-
   protected getWantPage() {
-    this.crawlNumber = this.checkWantPageInput(
-      lang.transl('_从本页开始下载x页'),
-      lang.transl('_下载所有页面')
-    )
+    this.crawlNumber = settings.crawlNumber[pageType.type].value
+    if (this.crawlNumber === -1) {
+      log.warning(lang.transl('_下载所有页面'))
+    } else {
+      log.warning(
+        lang.transl('_从本页开始下载x页', this.crawlNumber.toString())
+      )
+    }
   }
 
   protected nextStep() {

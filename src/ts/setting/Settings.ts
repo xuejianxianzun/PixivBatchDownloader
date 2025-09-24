@@ -22,7 +22,7 @@
 // EVT.list.resetSettingsEnd
 // 重置设置之后触发
 // 导入设置之后触发
-// 过程中，每个设置项都会触发一次 settingChange 事件
+// 在执行过程中，每个设置项都会触发一次 settingChange 事件
 
 // 如果打开了多个标签页，每个页面的 settings 数据是相互独立的，在一个页面里修改设置不会影响另一个页面里的设置。
 // 但是持久化保存的数据只有一份：最后一次的设置变化是在哪个页面发生的，就保存哪个页面的 settings 数据。
@@ -37,6 +37,7 @@ import { Config } from '../Config'
 import { secretSignal } from '../utils/SecretSignal'
 import { toast } from '../Toast'
 import { lang } from '../Lang'
+import { PageName } from '../PageType'
 
 export interface BlockTagsForSpecificUserItem {
   uid: number
@@ -53,16 +54,32 @@ type SettingValue =
   | object[]
   | { [key: number]: string }
   | Map<string, string>
+  | { [key in PageName]: CrawlNumberConfig }
 
 export interface SettingChangeData {
   name: SettingKeys
   value: SettingValue
 }
 
+type CrawlNumberConfig = {
+  /**是否显示“抓取多少作品” */
+  work: boolean
+  /**是否显示“抓取多少页面” */
+  page: boolean
+  /**作品/页数的最小值 */
+  min: number
+  /**作品/页数的最大值 */
+  max: number
+  /**储存默认值和用户修改后的值 */
+  value: number
+  /**显示可用范围的提示信息 */
+  tip: string
+}
+
+// 注意：设置里不能使用 Map，因为把设置保存在 chrome.storage 里时会序列化
+// 如果使用 Map，会被转换为 `Object {}`，导致错误
 interface XzSetting {
-  setWantPage: number
-  /** wantPageArr 是从 pageType 0 开始的，也就是没有 Unsupported 页面类型里的值 */
-  wantPageArr: number[]
+  crawlNumber: { [key in PageName]: CrawlNumberConfig }
   firstFewImagesSwitch: boolean
   firstFewImages: number
   multiImageWorkImageLimitSwitch: boolean
@@ -182,9 +199,7 @@ interface XzSetting {
   setNameRuleForEachPageType: boolean
   /** 每个页面类型所使用的命名规则 */
   // 这里应该使用 Map 结构，但是 JSON.stringify 不能处理 Map 类型，所以简化成了 Object
-  nameRuleForEachPageType: {
-    [key: number]: string
-  }
+  nameRuleForEachPageType: { [key in PageName]: string }
   showAdvancedSettings: boolean
   showNotificationAfterDownloadComplete: boolean
   boldKeywords: boolean
@@ -273,7 +288,6 @@ interface XzSetting {
   downloadInterval: number
   downloadIntervalOnWorksNumber: number
 }
-// chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
 type SettingKeys = keyof XzSetting
 
@@ -285,11 +299,208 @@ class Settings {
 
   // 默认设置
   private readonly defaultSettings: XzSetting = {
-    setWantPage: -1,
-    wantPageArr: [
-      -1, -1, -1, 1, 1, 1, 50, 100, -1, 100, 100, -1, 100, -1, -1, 1, 100, 100,
-      100, 100, 1,
-    ],
+    crawlNumber: {
+      [PageName.Unsupported]: {
+        work: false,
+        page: false,
+        min: 0,
+        max: 0,
+        value: 0,
+        tip: '-1',
+      },
+      [PageName.Home]: {
+        work: false,
+        page: false,
+        min: 0,
+        max: 0,
+        value: 0,
+        tip: '1',
+      },
+      [PageName.Artwork]: {
+        work: true,
+        page: false,
+        min: 1,
+        max: -1,
+        value: -1,
+        tip: '_负1或者大于0',
+      },
+      [PageName.UserHome]: {
+        work: false,
+        page: true,
+        min: 1,
+        max: -1,
+        value: -1,
+        tip: '_负1或者大于0',
+      },
+      [PageName.BookmarkLegacy]: {
+        work: false,
+        page: true,
+        min: 1,
+        max: -1,
+        value: -1,
+        tip: '_负1或者大于0',
+      },
+      [PageName.Bookmark]: {
+        work: false,
+        page: true,
+        min: 1,
+        max: -1,
+        value: -1,
+        tip: '_负1或者大于0',
+      },
+      [PageName.ArtworkSearch]: {
+        work: false,
+        page: true,
+        min: 1,
+        max: 5000,
+        value: 1,
+        tip: '1 - 5000',
+      },
+      [PageName.AreaRanking]: {
+        work: true,
+        page: false,
+        min: 1,
+        max: 50,
+        value: 50,
+        tip: '',
+      },
+      [PageName.ArtworkRanking]: {
+        work: true,
+        page: false,
+        min: 1,
+        max: 500,
+        value: 100,
+        tip: '1 - 500',
+      },
+      [PageName.Pixivision]: {
+        work: false,
+        page: false,
+        min: 0,
+        max: 0,
+        value: 0,
+        tip: '',
+      },
+      [PageName.BookmarkDetail]: {
+        work: true,
+        page: false,
+        min: 1,
+        max: 1000,
+        value: 100,
+        tip: '1 - 1000',
+      },
+      [PageName.NewArtworkBookmark]: {
+        work: false,
+        page: true,
+        min: 1,
+        max: 100,
+        value: 100,
+        tip: '1 - 100',
+      },
+      [PageName.Discover]: {
+        work: false,
+        page: false,
+        min: 0,
+        max: 0,
+        value: 0,
+        tip: '',
+      },
+      [PageName.NewArtwork]: {
+        work: true,
+        page: false,
+        min: 1,
+        max: 1000,
+        value: 100,
+        tip: '1 - 1000',
+      },
+      [PageName.Novel]: {
+        work: true,
+        page: false,
+        min: 1,
+        max: -1,
+        value: -1,
+        tip: '_负1或者大于0',
+      },
+      [PageName.NovelSeries]: {
+        work: false,
+        page: false,
+        min: 0,
+        max: 0,
+        value: 0,
+        tip: '',
+      },
+      [PageName.NovelSearch]: {
+        work: false,
+        page: true,
+        min: 1,
+        max: 5000,
+        value: 1,
+        tip: '1 - 5000',
+      },
+      [PageName.NovelRanking]: {
+        work: true,
+        page: false,
+        min: 1,
+        max: 100,
+        value: 100,
+        tip: '1 - 100',
+      },
+      [PageName.NewNovelBookmark]: {
+        work: false,
+        page: true,
+        min: 1,
+        max: 100,
+        value: 100,
+        tip: '1 - 100',
+      },
+      [PageName.NewNovel]: {
+        work: true,
+        page: false,
+        min: 1,
+        max: 1000,
+        value: 100,
+        tip: '1 - 1000',
+      },
+      [PageName.ArtworkSeries]: {
+        work: false,
+        page: true,
+        min: 1,
+        max: 1000,
+        value: 1000,
+        tip: '1 - 1000',
+      },
+      [PageName.Following]: {
+        work: false,
+        page: true,
+        min: 1,
+        max: -1,
+        value: 1,
+        tip: '_负1或者大于0',
+      },
+      [PageName.Request]: {
+        work: false,
+        page: false,
+        min: 0,
+        max: 0,
+        value: 0,
+        tip: '',
+      },
+      [PageName.Unlisted]: {
+        work: false,
+        page: false,
+        min: 0,
+        max: 0,
+        value: 0,
+        tip: '',
+      },
+      [PageName.DiscoverUsers]: {
+        work: false,
+        page: false,
+        min: 0,
+        max: 0,
+        value: 0,
+        tip: '23',
+      },
+    },
     firstFewImagesSwitch: false,
     firstFewImages: 1,
     multiImageWorkImageLimitSwitch: false,
@@ -400,29 +611,35 @@ class Settings {
     saveMetaType3: false,
     setNameRuleForEachPageType: false,
     nameRuleForEachPageType: {
-      '-1': 'pixiv/{user}-{user_id}/{id}-{title}',
-      '0': 'pixiv/{user}-{user_id}/{id}-{title}',
-      '1': 'pixiv/{user}-{user_id}/{id}-{title}',
-      '2': 'pixiv/{user}-{user_id}/{id}-{title}',
-      '3': 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
-      '4': 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
-      '5': 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
-      '6': 'pixiv/{user}-{user_id}/{id}-{title}',
-      '7': 'pixiv/{page_title}/{rank}-{id}-{title}',
-      '8': 'pixiv/{user}-{user_id}/{id}-{title}',
-      '9': 'pixiv/{user}-{user_id}/{id}-{title}',
-      '10': 'pixiv/{user}-{user_id}/{id}-{title}',
-      '11': 'pixiv/{user}-{user_id}/{id}-{title}',
-      '12': 'pixiv/{user}-{user_id}/{id}-{title}',
-      '13': 'pixiv/{user}-{user_id}/{id}-{title}',
-      '14': 'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
-      '15': 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
-      '16': 'pixiv/{page_title}/{rank}-{id}-{title}',
-      '17': 'pixiv/{user}-{user_id}/{id}-{title}',
-      '18': 'pixiv/{user}-{user_id}/{id}-{title}',
-      '19': 'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
-      '20': 'pixiv/{user}-{user_id}/{id}-{title}',
-      '21': 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.Unsupported]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.Home]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.Artwork]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.UserHome]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.BookmarkLegacy]:
+        'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
+      [PageName.Bookmark]: 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
+      [PageName.ArtworkSearch]:
+        'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
+      [PageName.AreaRanking]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.ArtworkRanking]: 'pixiv/{page_title}/{rank}-{id}-{title}',
+      [PageName.Pixivision]: 'pixivision/{page_title}/{id}',
+      [PageName.BookmarkDetail]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.NewArtworkBookmark]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.Discover]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.NewArtwork]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.Novel]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.NovelSeries]:
+        'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
+      [PageName.NovelSearch]: 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
+      [PageName.NovelRanking]: 'pixiv/{page_title}/{rank}-{id}-{title}',
+      [PageName.NewNovelBookmark]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.NewNovel]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.ArtworkSeries]:
+        'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
+      [PageName.Following]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.Request]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.Unlisted]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.DiscoverUsers]: 'pixiv/{user}-{user_id}/{id}-{title}',
     },
     showAdvancedSettings: false,
     showNotificationAfterDownloadComplete: false,
@@ -512,8 +729,8 @@ class Settings {
 
   // 值为整数的选项不必单独列出
 
-  // 值为数字数组的选项
-  private numberArrayKeys = ['wantPageArr']
+  // 值为 number[] 的选项（目前没有）
+  private numberArrayKeys = []
 
   // 值为字符串数组的选项
   private stringArrayKeys = [
@@ -727,26 +944,27 @@ class Settings {
     // 处理数组类型的值
     if (Array.isArray(this.defaultSettings[key])) {
       if (this.stringArrayKeys.includes(key)) {
-        // 字符串转换成 string[]
+        // 把字符串转换成 string[]
         if (valueType === 'string') {
           value = Utils.string2array(value as string)
         }
       }
 
-      if (this.numberArrayKeys.includes(key)) {
-        // 把数组转换成 number[]
-        if (Array.isArray(value)) {
-          value = (value as any[]).map((val: string | number) => {
-            if (typeof val !== 'number') {
-              return Number(val)
-            } else {
-              return val
-            }
-          })
-        } else {
-          return
-        }
-      }
+      // 因为目前 numberArrayKeys 没有任何项，所以这部分代码先注释掉，否则会导致 TS 类型错误
+      // if (this.numberArrayKeys.includes(key)) {
+      //   // 把数组转换成 number[]
+      //   if (Array.isArray(value)) {
+      //     value = (value as any[]).map((val: string | number) => {
+      //       if (typeof val !== 'number') {
+      //         return Number(val)
+      //       } else {
+      //         return val
+      //       }
+      //     })
+      //   } else {
+      //     return
+      //   }
+      // }
     }
 
     // 对于一些不合法的值，重置为默认值

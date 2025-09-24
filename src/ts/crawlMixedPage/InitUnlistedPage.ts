@@ -1,7 +1,6 @@
 //初始化 Unlisted 作品页
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { options } from '../setting/Options'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
 import { IDData } from '../store/StoreType'
@@ -20,10 +19,6 @@ class InitUnlistedPage extends InitPageBase {
         this.readyCrawl()
       }
     )
-  }
-
-  protected setFormOption() {
-    options.hideOption([1])
   }
 
   protected destroy() {

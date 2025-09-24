@@ -741,8 +741,8 @@
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1.bmkNum {
   width: 60px;
 }
-.centerWrap .centerWrap_con .settingForm p.option button#setMin,
-.centerWrap .centerWrap_con .settingForm p.option button#setMax {
+.centerWrap .centerWrap_con .settingForm p.option button[role='setMin'],
+.centerWrap .centerWrap_con .settingForm p.option button[role='setMax'] {
   height: 22px;
   line-height: 22px;
   margin: 2px 0;
@@ -1079,7 +1079,7 @@
   color: #0ea8ef;
   display: inline-block;
 }
-.centerWrap .centerWrap_con .settingForm .settingNameStyle1 {
+.centerWrap .centerWrap_con .settingForm .settingNameStyle {
   cursor: pointer;
   margin-right: 4px;
   max-width: 650px;

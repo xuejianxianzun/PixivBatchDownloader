@@ -2,7 +2,6 @@
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
 import { lang } from '../Lang'
-import { options } from '../setting/Options'
 import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { IDData } from '../store/StoreType'
@@ -88,10 +87,6 @@ class InitHomePage extends InitPageBase {
         return this.removeAD()
       }
     }, 1000)
-  }
-
-  protected setFormOption() {
-    options.hideOption([1])
   }
 
   // 单独添加一个用于提示 id 范围的元素，因为上面的日志显示在日志区域的顶端，不便于查看

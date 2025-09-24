@@ -130,7 +130,6 @@ class FormSettings {
       'summarizeDescription',
     ],
     text: [
-      'setWantPage',
       'firstFewImages',
       'multiImageWorkImageLimit',
       'convertUgoiraThread',
@@ -197,11 +196,6 @@ class FormSettings {
   private restoreTimer = 0
 
   private bindEvents() {
-    // 页面切换时，从设置里恢复当前页面的页数/个数
-    window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
-      this.restoreWantPage()
-    })
-
     window.addEventListener(EVT.list.settingChange, () => {
       window.clearTimeout(this.restoreTimer)
       this.restoreTimer = window.setTimeout(() => {
@@ -214,20 +208,8 @@ class FormSettings {
   // 该函数只应执行一次，否则事件会重复绑定
   private ListenChange() {
     for (const name of this.inputFileds.text) {
-      // 对于某些特定输入框，不使用通用的事件处理函数
-      if (name === 'setWantPage') {
-        continue
-      }
-
       this.saveTextInput(name)
     }
-
-    // setWantPage 变化时，保存到 wantPageArr
-    this.form.setWantPage.addEventListener('change', () => {
-      const temp = Array.from(settings.wantPageArr)
-      temp[pageType.type] = Number.parseInt(this.form.setWantPage.value)
-      setSetting('wantPageArr', temp)
-    })
 
     for (const name of this.inputFileds.textarea) {
       this.saveTextInput(name)
@@ -273,12 +255,6 @@ class FormSettings {
   // 读取设置，恢复到表单里
   private restoreFormSettings() {
     for (const name of this.inputFileds.text) {
-      // setWantPage 需要从 wantPageArr 恢复
-      if (name === 'setWantPage') {
-        this.restoreWantPage()
-        continue
-      }
-
       this.restoreString(name)
     }
 
@@ -376,14 +352,6 @@ class FormSettings {
       // 把时间戳转换成 input 使用的字符串
       const date = settings[name] as number
       this.form[name].value = DateFormat.format(date, 'YYYY-MM-DDThh:mm')
-    }
-  }
-
-  // 从设置里恢复当前页面的页数/个数
-  private restoreWantPage() {
-    const want = settings.wantPageArr[pageType.type]
-    if (want !== undefined) {
-      this.form.setWantPage.value = want.toString()
     }
   }
 }

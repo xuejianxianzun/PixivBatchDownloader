@@ -1760,6 +1760,16 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().downloads.onChanged
             // 返回信息
             webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().tabs.sendMessage(_dlData.tabId, { msg, data: _dlData, err });
             // 清除这个任务的数据
+            const url = dlData[detail.id]?.url;
+            // 吊销 blob URL
+            if (url && url.startsWith('blob:')) {
+                if (typeof URL !== 'undefined' &&
+                    typeof URL.revokeObjectURL === 'function') {
+                    URL.revokeObjectURL(url);
+                }
+            }
+            // 删除保存的数据
+            delete dlData[detail.id];
             dlData[detail.id] = null;
         }
     }
