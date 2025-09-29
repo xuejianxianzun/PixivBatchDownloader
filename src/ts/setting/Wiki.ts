@@ -4,7 +4,18 @@ import { lang } from '../Language'
 /**Wiki 上已经实装的语言 */
 type AvailableLanguages = 'zh-cn' | 'en'
 
-type GroupName = 'Crawl' | 'Download' | 'More-Crawl' | 'More-Naming' | 'More-Download' | 'More-Enhance' | 'More-Others' | 'More-Hidden' | 'Buttons-Crawl' | 'Buttons-Download' | 'Buttons-More'
+type GroupName =
+  | 'Crawl'
+  | 'Download'
+  | 'More-Crawl'
+  | 'More-Naming'
+  | 'More-Download'
+  | 'More-Enhance'
+  | 'More-Others'
+  | 'More-Hidden'
+  | 'Buttons-Crawl'
+  | 'Buttons-Download'
+  | 'Buttons-More'
 
 /**储存每个设置和按钮在 Wiki 上的链接 */
 // 为了方便维护，我没有储存每个设置的 URL，而是储存了分类页面的 URL，以及每个分类下的设置项和按钮的 ID
@@ -55,7 +66,7 @@ class Wiki {
   // 每种语言对应的 Wiki 首页路径
   private readonly home: { [key in AvailableLanguages]: string } = {
     'zh-cn': 'https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/',
-    'en': 'https://xuejianxianzun.github.io/PBDWiki/#/en/',
+    en: 'https://xuejianxianzun.github.io/PBDWiki/#/en/',
   }
 
   /**储存每个设置项/按钮 ID 属于哪个分类 */
@@ -64,21 +75,78 @@ class Wiki {
   // - “更多”分类里的“显示高级设置” 57 放到了 More-Crawl 分类里
   // - 隐藏设置虽然有自己的分类，但是在 Wiki 里统一归纳到了“隐藏设置”页面里，所以它们的 ID 也放到了“More-Hidden”分类里
   private readonly groupConfig: { [key in GroupName]: (string | number)[] } = {
-    Crawl: [0, 1, 2, 44, 81, 6, 23, 21, 51, 3, 47, 5, 7, 8, 9, 10, 11, 12,],
-    Download: [13, 50, 64, 38, 16, 17, 33,],
-    'More-Crawl': [57, 59, 75, 69, 35, 39, 74, 54, 85,],
-    'More-Naming': [65, 19, 42, 43, 22, 46, 29, 83, 67, 66,],
-    'More-Download': [58, 52, 90, 76, 77, 4, 24, 26, 27, 70, 72, 49, 89, 30, 25, 82, 28,],
-    'More-Enhance': [60, 84, 87, 68, 63, 55, 71, 62, 40, 56, 86, 48, 88, 18, 34,],
-    'More-Others': [61, 31, 78, 36, 41, 45, 53, 32, 37,],
-    'More-Hidden': [79, 80,],
-    'Buttons-Crawl': [],
-    'Buttons-Download': [],
-    'Buttons-More': [],
+    Crawl: [0, 1, 2, 44, 81, 6, 23, 21, 51, 3, 47, 5, 7, 8, 9, 10, 11, 12],
+    Download: [13, 50, 64, 38, 16, 17, 33],
+    'More-Crawl': [57, 59, 75, 69, 35, 39, 74, 54, 85],
+    'More-Naming': [65, 19, 42, 43, 22, 46, 29, 83, 67, 66],
+    'More-Download': [
+      58, 52, 90, 76, 77, 4, 24, 26, 27, 70, 72, 49, 89, 30, 25, 82, 28,
+    ],
+    'More-Enhance': [
+      60, 84, 87, 68, 63, 55, 71, 62, 40, 56, 86, 48, 88, 18, 34,
+    ],
+    'More-Others': [61, 31, 78, 36, 41, 45, 53, 32, 37],
+    'More-Hidden': [79, 80],
+    'Buttons-Crawl': [
+      'startCrawling',
+      'stopCrawling',
+      'scheduleCrawling',
+      'cancelScheduledCrawling',
+      'manuallySelectWork',
+      'clearSelectedWork',
+      'crawlSelectedWork',
+      'crawlCurrentPageWork',
+      'startCrawlingFromCurrentPageNew',
+      'startCrawlingFromCurrentPageOld',
+      'crawlRelatedWork',
+      'crawlSimilarImage',
+      'crawlCurrentWork',
+      'crawlImagesOnThisPage',
+      'crawlRankingWork',
+      'crawlDebutWork',
+      'filterResults',
+      'crawlTagList',
+      'exportFollowingListCSV',
+      'exportFollowingListJSON',
+      'batchFollowUser',
+      'crawlById',
+      'crawlIdRange',
+      'importIDList',
+      'crawlSeriesNovel',
+      'mergeSeriesNovel',
+      'clearMultiImageWork',
+      'clearUgoiraWork',
+      'manuallyDeleteWork',
+    ],
+    'Buttons-Download': [
+      'importCrawlResults',
+      'importCrawlResultsJSON',
+      'importCrawlResultsCSV',
+      'previewFileName',
+      'startDownload',
+      'pauseDownload',
+      'stopDownload',
+      'copyURLs',
+    ],
+    'Buttons-More': [
+      'bookmarkAllWorksOnPage',
+      'addTagToUnmarkedWork',
+      'removeTagsFromAllWorksOnPage',
+      'unBookmarkAllWorksOnPage',
+      'unBookmarkAll404Works',
+      'exportBookmarkList',
+      'importBookmarkList',
+      'clearSavedCrawlResult',
+      'saveUserAvatar',
+      'saveUserAvatarAsIcon',
+      'saveUserCoverImage',
+    ],
   }
 
   /**储存每个分类对应的页面 */
-  private readonly groupURL: { [key in AvailableLanguages]: { [key in GroupName]: string } } = {
+  private readonly groupURL: {
+    [key in AvailableLanguages]: { [key in GroupName]: string }
+  } = {
     'zh-cn': {
       Crawl: '设置-抓取',
       Download: '设置-下载',
@@ -92,7 +160,7 @@ class Wiki {
       'Buttons-Download': '按钮-下载',
       'Buttons-More': '按钮-更多',
     },
-    'en': {
+    en: {
       Crawl: 'Settings-Crawl',
       Download: 'Settings-Download',
       'More-Crawl': 'Settings-More-Crawl',
@@ -133,7 +201,6 @@ class Wiki {
       }
     })
   }
-
 }
 
 const wiki = new Wiki()

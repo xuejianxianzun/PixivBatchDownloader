@@ -13,7 +13,7 @@ interface ClipboardItemData {
 
 declare var ClipboardItem: {
   prototype: ClipboardItem
-  new(itemData: ClipboardItemData): ClipboardItem
+  new (itemData: ClipboardItemData): ClipboardItem
 }
 
 interface Clipboard {
@@ -28,16 +28,16 @@ class CopyToClipboard {
       const blob = new Blob([text], { type })
       const data = [new ClipboardItem({ [type]: blob })]
 
-        ; (window.navigator.clipboard as unknown as Clipboard).write(data).then(
-          () => {
-            toast.success(lang.transl('_已复制到剪贴板'))
-            resolve()
-          },
-          () => {
-            toast.error(lang.transl('_写入剪贴板失败'))
-            reject()
-          }
-        )
+      ;(window.navigator.clipboard as unknown as Clipboard).write(data).then(
+        () => {
+          toast.success(lang.transl('_已复制到剪贴板'))
+          resolve()
+        },
+        () => {
+          toast.error(lang.transl('_写入剪贴板失败'))
+          reject()
+        }
+      )
     })
   }
 }

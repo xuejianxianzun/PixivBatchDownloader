@@ -25,13 +25,14 @@ class InitArtworkSeriesPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_开始抓取',
-      '_默认下载多页'
+      '_默认下载多页',
+      'startCrawling'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
   }
 
-  protected initAny() { }
+  protected initAny() {}
 
   protected getWantPage() {
     this.crawlNumber = settings.crawlNumber[pageType.type].value

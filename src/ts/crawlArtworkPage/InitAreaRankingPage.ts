@@ -19,7 +19,8 @@ class InitAreaRankingPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_抓取本页作品',
-      '_抓取本页作品Title'
+      '_抓取本页作品Title',
+      'crawlCurrentPageWork'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })

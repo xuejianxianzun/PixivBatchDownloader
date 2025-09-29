@@ -31,7 +31,8 @@ class InitNewNovelPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_开始抓取',
-      '_下载大家的新作品'
+      '_下载大家的新作品',
+      'startCrawling'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -40,7 +41,7 @@ class InitNewNovelPage extends InitPageBase {
     this.addCancelTimedCrawlBtn()
   }
 
-  protected initAny() { }
+  protected initAny() {}
 
   protected getWantPage() {
     this.crawlNumber = settings.crawlNumber[pageType.type].value

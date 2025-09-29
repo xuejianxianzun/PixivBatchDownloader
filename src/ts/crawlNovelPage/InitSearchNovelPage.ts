@@ -62,7 +62,8 @@ class InitSearchNovelPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_开始抓取',
-      '_默认下载多页'
+      '_默认下载多页',
+      'startCrawling'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -85,7 +86,9 @@ class InitSearchNovelPage extends InitPageBase {
     const bookmarkAllBtn = Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
-      '_收藏本页面的所有作品'
+      '_收藏本页面的所有作品',
+      '',
+      'bookmarkAllWorksOnPage'
     )
     const bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
 

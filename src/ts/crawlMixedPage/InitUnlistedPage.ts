@@ -13,12 +13,15 @@ class InitUnlistedPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, '_抓取此作品').addEventListener(
-      'click',
-      () => {
-        this.readyCrawl()
-      }
-    )
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_抓取此作品',
+      '',
+      'crawlCurrentWork'
+    ).addEventListener('click', () => {
+      this.readyCrawl()
+    })
   }
 
   protected destroy() {

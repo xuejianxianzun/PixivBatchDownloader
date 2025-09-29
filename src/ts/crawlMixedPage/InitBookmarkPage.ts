@@ -62,7 +62,8 @@ class InitBookmarkPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_开始抓取',
-      '_默认下载多页'
+      '_默认下载多页',
+      'startCrawling'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -104,14 +105,18 @@ class InitBookmarkPage extends InitPageBase {
       const btn = Tools.addBtn(
         'otherBtns',
         Colors.bgGreen,
-        '_给未分类作品添加添加tag'
+        '_给未分类作品添加添加tag',
+        '',
+        'addTagToUnmarkedWork'
       )
       new BookmarksAddTag(btn)
 
       Tools.addBtn(
         'otherBtns',
         Colors.bgYellow,
-        '_移除本页面中所有作品的标签'
+        '_移除本页面中所有作品的标签',
+        '',
+        'removeTagsFromAllWorksOnPage'
       ).addEventListener('click', () => {
         this.removeWorksTagsOnThisPage()
       })
@@ -119,7 +124,9 @@ class InitBookmarkPage extends InitPageBase {
       Tools.addBtn(
         'otherBtns',
         Colors.bgRed,
-        '_取消收藏本页面的所有作品'
+        '_取消收藏本页面的所有作品',
+        '',
+        'unBookmarkAllWorksOnPage'
       ).addEventListener('click', () => {
         this.unBookmarkAllWorksOnThisPage()
       })
@@ -127,35 +134,36 @@ class InitBookmarkPage extends InitPageBase {
       Tools.addBtn(
         'otherBtns',
         Colors.bgRed,
-        '_取消收藏所有已被删除的作品'
+        '_取消收藏所有已被删除的作品',
+        '',
+        'unBookmarkAll404Works'
       ).addEventListener('click', () => {
         this.unBookmarkAll404Works()
       })
     }
 
     // 下面的功能按钮在所有人的收藏页面里都可以使用
-
-    const showTip = () => {
-      showHelp.show(
-        'tipExportAndImportBookmark',
-        lang.transl('_同步收藏列表的说明')
-      )
-    }
-
-    const btnExport = Tools.addBtn('otherBtns', Colors.bgGreen, '_导出收藏列表')
+    const btnExport = Tools.addBtn(
+      'otherBtns',
+      Colors.bgGreen,
+      '_导出收藏列表',
+      '',
+      'exportBookmarkList'
+    )
     btnExport.addEventListener('click', () => {
-      showTip()
       this.exportBookmarkList()
     })
 
-    const btnImport = Tools.addBtn('otherBtns', Colors.bgGreen, '_导入收藏列表')
+    const btnImport = Tools.addBtn(
+      'otherBtns',
+      Colors.bgGreen,
+      '_导入收藏列表',
+      '',
+      'importBookmarkList'
+    )
     btnImport.addEventListener('click', () => {
       this.importBookmarkIDList()
     })
-
-    for (const btn of [btnExport, btnImport]) {
-      btn.addEventListener('mouseover', showTip)
-    }
   }
 
   // 移除本页面中所有作品的标签
@@ -254,7 +262,8 @@ class InitBookmarkPage extends InitPageBase {
           for (const result of resultList) {
             Utils.downloadFile(
               result.url,
-              `Bookmark list-total ${result.total
+              `Bookmark list-total ${
+                result.total
               }-from ${Tools.getPageTitle()}-${Utils.replaceUnsafeStr(
                 new Date().toLocaleString()
               )}.json`
@@ -501,8 +510,8 @@ One possible reason: You have been banned from Pixiv.`)
                 (workData as ArtworkCommonData).illustType === undefined
                   ? 'novels'
                   : Tools.getWorkTypeString(
-                    (workData as ArtworkCommonData).illustType
-                  ),
+                      (workData as ArtworkCommonData).illustType
+                    ),
               id: workData.id,
             })
 

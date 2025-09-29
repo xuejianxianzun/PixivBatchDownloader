@@ -178,10 +178,11 @@ class ImageViewer {
           // 生成 UL 里面的缩略图列表
           let html: string[] = []
           for (let index = 0; index < body.pageCount; index++) {
-            const str = `<li data-index="${index}" class="${Config.ImageViewerLI
-              }"><img src="${Tools.convertThumbURLTo540px(
-                body.urls.thumb.replace('p0', 'p' + index)
-              )}" data-src="${this.firstImageURL.replace('p0', 'p' + index)}">
+            const str = `<li data-index="${index}" class="${
+              Config.ImageViewerLI
+            }"><img src="${Tools.convertThumbURLTo540px(
+              body.urls.thumb.replace('p0', 'p' + index)
+            )}" data-src="${this.firstImageURL.replace('p0', 'p' + index)}">
             <a href="${window.location.href}"></a>
             </li>`
             html.push(str)

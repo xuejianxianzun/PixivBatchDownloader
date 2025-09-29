@@ -30,7 +30,8 @@ class InitRankingArtworkPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_抓取本排行榜作品',
-      '_抓取本排行榜作品Title'
+      '_抓取本排行榜作品Title',
+      'crawlRankingWork'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -44,7 +45,8 @@ class InitRankingArtworkPage extends InitPageBase {
         'crawlBtns',
         Colors.bgBlue,
         '_抓取首次登场的作品',
-        '_抓取首次登场的作品Title'
+        '_抓取首次登场的作品Title',
+        'crawlDebutWork'
       ).addEventListener('click', () => {
         states.debut = true
         this.readyCrawl()

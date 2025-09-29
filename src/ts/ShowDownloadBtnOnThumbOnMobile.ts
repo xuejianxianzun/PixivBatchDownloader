@@ -94,7 +94,7 @@ class ShowDownloadBtnOnThumbOnMobile {
   private toggleShowBtns(value: boolean) {
     const btns = document.body.querySelectorAll(`.${this.className}`)
     for (const btn of btns) {
-      ; (btn as HTMLButtonElement).style.display = value ? 'flex' : 'none'
+      ;(btn as HTMLButtonElement).style.display = value ? 'flex' : 'none'
     }
   }
 }

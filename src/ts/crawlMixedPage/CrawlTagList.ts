@@ -10,7 +10,7 @@ import { EVT } from '../EVT'
 import { pageType } from '../PageType'
 
 class CrawlTagList {
-  constructor() { }
+  constructor() {}
 
   public init() {
     this.addCrawlBtns()
@@ -45,15 +45,18 @@ class CrawlTagList {
   private showTagListWrap!: HTMLUListElement
 
   private addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, '_抓取标签列表').addEventListener(
-      'click',
-      () => {
-        EVT.fire('closeCenterPanel')
-        this.toggleWrap(true)
-        // 跳转到页面顶部，否则用户可能看不到输入区域
-        window.scrollTo(0, 0)
-      }
-    )
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_抓取标签列表',
+      '',
+      'crawlTagList'
+    ).addEventListener('click', () => {
+      EVT.fire('closeCenterPanel')
+      this.toggleWrap(true)
+      // 跳转到页面顶部，否则用户可能看不到输入区域
+      window.scrollTo(0, 0)
+    })
   }
 
   private addElement() {
@@ -142,8 +145,9 @@ class CrawlTagList {
         if (this._tagList.length === 0) {
           states.crawlTagList = false
           // 输出提示
-          this.showTagListWrap.innerHTML = `<span style="color:${Colors.textSuccess
-            }">${lang.transl('_下载完毕')}</span>`
+          this.showTagListWrap.innerHTML = `<span style="color:${
+            Colors.textSuccess
+          }">${lang.transl('_下载完毕')}</span>`
           return
         }
 
@@ -180,8 +184,8 @@ class CrawlTagList {
     if (!this.EnablPage.includes(pageType.type)) {
       return msgBox.error(
         lang.transl('_抓取标签列表') +
-        '<br>' +
-        lang.transl('_只能在搜索页面使用')
+          '<br>' +
+          lang.transl('_只能在搜索页面使用')
       )
     }
 

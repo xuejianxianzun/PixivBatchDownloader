@@ -270,16 +270,13 @@ interface XzSetting {
   tipAltQToQuickDownload: boolean
   tipBookmarkButton: boolean
   highlightFollowingUsers: boolean
-  tipCSV: boolean
   exportIDList: boolean
-  tipExportFollowingUserList: boolean
   displayThumbnailListOnMultiImageWorkPage: boolean
   tipBookmarkManage: boolean
   requestSponsorshipTime: number
   PreviewWorkDetailInfo: boolean
   PreviewDetailInfoWidth: number
   removeWorksOfFollowedUsersOnSearchPage: boolean
-  tipExportAndImportBookmark: boolean
   saveWorkDescription: boolean
   saveEachDescription: boolean
   summarizeDescription: boolean
@@ -699,16 +696,13 @@ class Settings {
     tipAltQToQuickDownload: true,
     tipBookmarkButton: true,
     highlightFollowingUsers: true,
-    tipCSV: true,
     exportIDList: false,
-    tipExportFollowingUserList: true,
     displayThumbnailListOnMultiImageWorkPage: true,
     tipBookmarkManage: true,
     requestSponsorshipTime: 0,
     PreviewWorkDetailInfo: false,
     PreviewDetailInfoWidth: 400,
     removeWorksOfFollowedUsersOnSearchPage: false,
-    tipExportAndImportBookmark: true,
     saveWorkDescription: false,
     saveEachDescription: true,
     summarizeDescription: false,
@@ -868,10 +862,7 @@ class Settings {
     this.setSetting('tipAltSToSelectWork', true)
     this.setSetting('tipAltQToQuickDownload', true)
     this.setSetting('tipBookmarkButton', true)
-    this.setSetting('tipCSV', true)
-    this.setSetting('tipExportFollowingUserList', true)
     this.setSetting('tipBookmarkManage', true)
-    this.setSetting('tipExportAndImportBookmark', true)
 
     toast.success('✓ ' + lang.transl('_重新显示帮助'))
   }
@@ -1005,7 +996,7 @@ class Settings {
     }
 
     // 更改设置
-    ; (this.settings[key] as any) = value
+    ;(this.settings[key] as any) = value
 
     // 当修改某些设置时，顺便修改以来它的设置
     if (key === 'widthTag') {

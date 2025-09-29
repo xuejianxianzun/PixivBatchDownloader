@@ -22,13 +22,14 @@ class InitRankingNovelPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_抓取本排行榜作品',
-      '_抓取本排行榜作品Title'
+      '_抓取本排行榜作品Title',
+      'crawlRankingWork'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
   }
 
-  protected initAny() { }
+  protected initAny() {}
 
   protected getWantPage() {
     // 检查下载页数的设置

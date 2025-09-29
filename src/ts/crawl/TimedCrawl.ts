@@ -47,8 +47,8 @@ class TimedCrawl {
     if (number > this.timeMinuteMax) {
       msgBox.error(
         lang.transl('_定时抓取的时间超过最大值') +
-        this.timeMinuteMax +
-        lang.transl('_分钟')
+          this.timeMinuteMax +
+          lang.transl('_分钟')
       )
       return
     }
@@ -71,10 +71,10 @@ class TimedCrawl {
     )
     msgBox.show(
       msg +
-      '<br><br>' +
-      lang.transl('_定时抓取的推荐用法') +
-      '<br><br>' +
-      lang.transl('_定时抓取已启动的提示2')
+        '<br><br>' +
+        lang.transl('_定时抓取的推荐用法') +
+        '<br><br>' +
+        lang.transl('_定时抓取已启动的提示2')
     )
     log.success(msg)
   }

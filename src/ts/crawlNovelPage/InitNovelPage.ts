@@ -24,13 +24,15 @@ class InitNovelPage extends InitPageBase {
   1 抓取旧作品
   */
 
-  protected initAny() { }
+  protected initAny() {}
 
   protected addCrawlBtns() {
     Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
-      '_从本页开始抓取new'
+      '_从本页开始抓取new',
+      '',
+      'startCrawlingFromCurrentPageNew'
     ).addEventListener('click', () => {
       this.crawlDirection = -1
       this.readyCrawl()
@@ -39,7 +41,9 @@ class InitNovelPage extends InitPageBase {
     Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
-      '_从本页开始抓取old'
+      '_从本页开始抓取old',
+      '',
+      'startCrawlingFromCurrentPageOld'
     ).addEventListener('click', () => {
       this.crawlDirection = 1
       this.readyCrawl()

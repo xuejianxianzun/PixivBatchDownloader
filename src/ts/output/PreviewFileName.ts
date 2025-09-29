@@ -18,7 +18,13 @@ class PreviewFileName {
       this.previewFileName()
     })
 
-    const prevBtn = Tools.addBtn('namingBtns', Colors.bgGreen, '_预览文件名')
+    const prevBtn = Tools.addBtn(
+      'namingBtns',
+      Colors.bgGreen,
+      '_预览文件名',
+      '',
+      'previewFileName'
+    )
 
     prevBtn.addEventListener(
       'click',

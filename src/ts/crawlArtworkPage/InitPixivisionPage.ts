@@ -23,7 +23,9 @@ class InitPixivisionPage extends InitPageBase {
       Tools.addBtn(
         'crawlBtns',
         Colors.bgBlue,
-        '_抓取该页面的图片'
+        '_抓取该页面的图片',
+        '',
+        'crawlImagesOnThisPage'
       ).addEventListener(
         'click',
         () => {

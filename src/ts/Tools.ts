@@ -12,10 +12,10 @@ type artworkDataTagsItem = {
   userId: string
   romaji: string
   translation?:
-  | {
-    en: string
-  }
-  | undefined
+    | {
+        en: string
+      }
+    | undefined
   userName: string
 }
 
@@ -294,7 +294,7 @@ class Tools {
     if (document.body) {
       document.body.insertAdjacentElement('afterbegin', el)
     } else {
-      ; (
+      ;(
         document.querySelector('.newindex-inner')! ||
         document.querySelector('.layout-body')!
       ).insertAdjacentElement('beforebegin', el)
@@ -343,9 +343,10 @@ class Tools {
     bg: string,
     text: string,
     title: string,
-    id: string,
+    id: string
   ) {
     const btn = document.createElement('button')
+    id && btn.setAttribute('id', id)
     btn.type = 'button'
     btn.style.backgroundColor = bg
     btn.classList.add('hasRippleAnimation')
@@ -372,15 +373,13 @@ class Tools {
       }
     }
 
-    id && btn.setAttribute('id', id)
-
     // 添加一个用于显示动画的 span
     const ripple = document.createElement('span')
     ripple.classList.add('ripple')
     btn.append(ripple)
 
     // 生成的 btn 代码例如：
-    // <button type="button" data-xztitle="${titleFlag}" style="background:${bg};"><span data-xztext="textFlag"></span><span class="ripple"></span></button>
+    // <button id="${id}" type="button" class="hasRippleAnimation" data-xztitle="${title}" style="background-color: ${bg};"><span data-xztext="${text}">text</span><span class="ripple"></span></button>
 
     // 添加这个按钮
     this.useSlot(slot, btn)
@@ -570,8 +569,9 @@ class Tools {
       p = Number.parseInt(array[1]) + 1
     }
 
-    const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}${hasP ? `#${p}` : ''
-      }`
+    const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}${
+      hasP ? `#${p}` : ''
+    }`
     return `<a href="${href}" target="_blank">${id}</a>`
   }
 
@@ -794,11 +794,11 @@ class Tools {
         })
         if (target === 'ImageBitmap') {
           const map = await createImageBitmap(blob)
-            ; (result as ImageBitmap[]).push(map)
+          ;(result as ImageBitmap[]).push(map)
         } else if (target === 'img') {
           const url = URL.createObjectURL(blob)
           const img = await Utils.loadImg(url)
-            ; (result as HTMLImageElement[]).push(img)
+          ;(result as HTMLImageElement[]).push(img)
         }
         ++i
       }

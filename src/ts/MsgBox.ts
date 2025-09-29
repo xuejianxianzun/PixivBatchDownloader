@@ -29,10 +29,10 @@ class MsgBox {
   private readonly typeColor: {
     [key: string]: Colors
   } = {
-      success: Colors.textSuccess,
-      warning: Colors.textWarning,
-      error: Colors.textError,
-    }
+    success: Colors.textSuccess,
+    warning: Colors.textWarning,
+    error: Colors.textError,
+  }
 
   private bindEvents() {
     window.addEventListener(EVT.list.showMsg, (ev: CustomEventInit) => {
@@ -122,13 +122,14 @@ class MsgBox {
     wrap.innerHTML = `
         <div class="title" ${colorStyle}>${data.title || Config.appName}</div>
         <div class="content beautify_scrollbar" ${colorStyle}>${data.msg}</div>
-        ${data.hiddenBtn
-        ? ''
-        : `<button class="btn hasRippleAnimation" type="button">
+        ${
+          data.hiddenBtn
+            ? ''
+            : `<button class="btn hasRippleAnimation" type="button">
               <span>${data.btn || lang.transl('_确定')}</span>
               <span class="ripple"></span>
               </button>`
-      }
+        }
       `
 
     theme.register(wrap)

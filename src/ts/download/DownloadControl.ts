@@ -70,10 +70,10 @@ class DownloadControl {
     exportJSON: HTMLButtonElement
     importJSON: HTMLButtonElement
   } = {
-      exportCSV: document.createElement('button'),
-      exportJSON: document.createElement('button'),
-      importJSON: document.createElement('button'),
-    }
+    exportCSV: document.createElement('button'),
+    exportJSON: document.createElement('button'),
+    importJSON: document.createElement('button'),
+  }
 
   private thread = 5 // 同时下载的线程数的默认值
   // 这里默认设置为 5，是因为国内一些用户的下载速度比较慢，所以不应该同时下载很多文件。
@@ -252,42 +252,58 @@ class DownloadControl {
   private createDownloadArea() {
     const html = `<div class="download_area">
     <div class="centerWrap_btns">
-    <button class="startDownload hasRippleAnimation" type="button" style="background:${Colors.bgBlue};"><span data-xztext="_开始下载"></span><span class="ripple"></span></button>
-    <button class="pauseDownload hasRippleAnimation" type="button" style="background:${Colors.bgYellow};"><span data-xztext="_暂停下载"></span><span class="ripple"></span></button>
-    <button class="stopDownload hasRippleAnimation" type="button" style="background:${Colors.bgRed};"><span data-xztext="_停止下载"></span><span class="ripple"></span></button>
-    <button class="copyUrl hasRippleAnimation" type="button" style="background:${Colors.bgGreen};"><span data-xztext="_复制url"></span><span class="ripple"></span></button>
+      <slot data-name="downloadControlBtns"></slot>
     </div>
     <div class="download_status_text_wrap">
-    <span data-xztext="_当前状态"></span>
-    <span class="down_status" data-xztext="_未开始下载"></span>
-    <span class="skip_tip warn"></span>
-    <span class="convert_tip warn"></span>
-    <span class="bmkAfterDL_tip green"></span>
+      <span data-xztext="_当前状态"></span>
+      <span class="down_status" data-xztext="_未开始下载"></span>
+      <span class="skip_tip warn"></span>
+      <span class="convert_tip warn"></span>
+      <span class="bmkAfterDL_tip green"></span>
     </div>
     </div>`
 
     this.wrapper = Tools.useSlot('downloadArea', html) as HTMLDivElement
     lang.register(this.wrapper)
 
-    this.wrapper
-      .querySelector('.startDownload')!
-      .addEventListener('click', () => {
-        this.startDownload()
-      })
+    // 添加按钮
+    Tools.addBtn(
+      'downloadControlBtns',
+      Colors.bgBlue,
+      '_开始下载',
+      '',
+      'startDownload'
+    ).addEventListener('click', () => {
+      this.startDownload()
+    })
 
-    this.wrapper
-      .querySelector('.pauseDownload')!
-      .addEventListener('click', () => {
-        this.pauseDownload()
-      })
+    Tools.addBtn(
+      'downloadControlBtns',
+      Colors.bgYellow,
+      '_暂停下载',
+      '',
+      'pauseDownload'
+    ).addEventListener('click', () => {
+      this.pauseDownload()
+    })
 
-    this.wrapper
-      .querySelector('.stopDownload')!
-      .addEventListener('click', () => {
-        this.stopDownload()
-      })
+    Tools.addBtn(
+      'downloadControlBtns',
+      Colors.bgRed,
+      '_停止下载',
+      '',
+      'stopDownload'
+    ).addEventListener('click', () => {
+      this.stopDownload()
+    })
 
-    this.wrapper.querySelector('.copyUrl')!.addEventListener('click', () => {
+    Tools.addBtn(
+      'downloadControlBtns',
+      Colors.bgGreen,
+      '_复制url',
+      '',
+      'copyURLs'
+    ).addEventListener('click', () => {
       EVT.fire('showURLs')
     })
   }
@@ -299,7 +315,9 @@ class DownloadControl {
       this.resultBtns.importJSON = Tools.addBtn(
         'exportResult',
         Colors.bgGreen,
-        '_导入抓取结果'
+        '_导入抓取结果',
+        '',
+        'importCrawlResults'
       )
       // 导入抓取结果的按钮始终显示，因为它需要始终可用。
       // 导出抓取结果的按钮只有在可以准备下载时才显示
@@ -316,7 +334,9 @@ class DownloadControl {
       this.resultBtns.exportJSON = Tools.addBtn(
         'exportResult',
         Colors.bgGreen,
-        '_导出抓取结果'
+        '_导出抓取结果',
+        '',
+        'importCrawlResultsJSON'
       )
       this.resultBtns.exportJSON.style.display = 'none'
 
@@ -332,7 +352,9 @@ class DownloadControl {
       this.resultBtns.exportCSV = Tools.addBtn(
         'exportResult',
         Colors.bgGreen,
-        '_导出csv'
+        '_导出csv',
+        '',
+        'importCrawlResultsCSV'
       )
       this.resultBtns.exportCSV.style.display = 'none'
 
@@ -340,24 +362,6 @@ class DownloadControl {
         'click',
         () => {
           EVT.fire('exportCSV')
-        },
-        false
-      )
-
-      this.resultBtns.exportCSV.addEventListener(
-        'mouseenter',
-        () => {
-          // 鼠标在这个按钮上停留 500 ms 之后，显示提示
-          let timer: number
-          this.resultBtns.exportCSV.addEventListener('mouseleave', () => {
-            window.clearTimeout(timer)
-          })
-          timer = window.setTimeout(() => {
-            msgBox.show(lang.transl('_导出CSV文件的提示'), {
-              title: lang.transl('_导出csv'),
-            })
-            showHelp.show('tipCSV', lang.transl('_导出CSV文件的提示'))
-          }, 500)
         },
         false
       )

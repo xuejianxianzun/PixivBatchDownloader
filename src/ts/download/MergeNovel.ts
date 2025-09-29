@@ -106,7 +106,7 @@ class MergeNovel {
       if (store.novelSeriesGlossary) {
         metaArray.push(
           Utils.htmlToText(Utils.htmlDecode(store.novelSeriesGlossary)) +
-          this.CRLF.repeat(2)
+            this.CRLF.repeat(2)
         )
       }
 

@@ -46,7 +46,8 @@ class InitUserPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_开始抓取',
-      '_默认下载多页'
+      '_默认下载多页',
+      'startCrawling'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -56,34 +57,43 @@ class InitUserPage extends InitPageBase {
   }
 
   protected addAnyElement() {
-    Tools.addBtn('otherBtns', Colors.bgGreen, '_保存用户头像').addEventListener(
-      'click',
-      () => {
-        EVT.fire('saveAvatarImage')
-      }
-    )
+    Tools.addBtn(
+      'otherBtns',
+      Colors.bgGreen,
+      '_保存用户头像',
+      '',
+      'saveUserAvatar'
+    ).addEventListener('click', () => {
+      EVT.fire('saveAvatarImage')
+    })
 
     Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
       '_保存用户头像为图标',
-      '_保存用户头像为图标说明'
+      '_保存用户头像为图标说明',
+      'saveUserAvatarAsIcon'
     ).addEventListener('click', () => {
       EVT.fire('saveAvatarIcon')
     })
 
-    Tools.addBtn('otherBtns', Colors.bgGreen, '_保存用户封面').addEventListener(
-      'click',
-      () => {
-        EVT.fire('saveUserCover')
-      }
-    )
+    Tools.addBtn(
+      'otherBtns',
+      Colors.bgGreen,
+      '_保存用户封面',
+      '',
+      'saveUserCoverImage'
+    ).addEventListener('click', () => {
+      EVT.fire('saveUserCover')
+    })
 
     // 添加收藏本页所有作品的功能
     const bookmarkAllBtn = Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
-      '_收藏本页面的所有作品'
+      '_收藏本页面的所有作品',
+      '',
+      'bookmarkAllWorksOnPage'
     )
     this.bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
 

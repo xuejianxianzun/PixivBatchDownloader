@@ -72,8 +72,9 @@ class SaveWorkDescription {
     // 如果简介里含有外链，则在文件名最后添加 links 标记
     const hasLink = this.hasLinkRegexp.test(desc)
     const namePart1 = this.createFileName(data)
-    const fileName = `${namePart1}-${lang.transl('_简介')}${hasLink ? '-links' : ''
-      }.txt`
+    const fileName = `${namePart1}-${lang.transl('_简介')}${
+      hasLink ? '-links' : ''
+    }.txt`
 
     let dataURL: string | undefined = undefined
     if (Config.sendDataURL) {

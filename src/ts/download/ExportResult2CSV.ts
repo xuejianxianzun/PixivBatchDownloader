@@ -201,8 +201,6 @@ class ExportResult2CSV {
     Utils.downloadFile(csvURL, csvName)
 
     toast.success(lang.transl('_导出成功'))
-
-    showHelp.show('tipCSV', lang.transl('_导出CSV文件的提示'))
   }
 }
 

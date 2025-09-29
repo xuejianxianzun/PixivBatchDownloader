@@ -212,14 +212,14 @@ class DoNotDownloadLastFewImages {
       `input[data-valueInput='${uid}']`
     )! as HTMLInputElement
 
-      // 当输入框发生变化时，进行更新
-      ;[uidInput, valueInput].forEach((el) => {
-        el?.addEventListener('change', () => {
-          if (el.value) {
-            this.updateRule(uid, uidInput.value, valueInput.value, false)
-          }
-        })
+    // 当输入框发生变化时，进行更新
+    ;[uidInput, valueInput].forEach((el) => {
+      el?.addEventListener('change', () => {
+        if (el.value) {
+          this.updateRule(uid, uidInput.value, valueInput.value, false)
+        }
       })
+    })
 
     // 更新规则
     updateRule?.addEventListener('click', () => {

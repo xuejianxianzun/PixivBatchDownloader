@@ -15,7 +15,8 @@ class InitDiscoverPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_抓取当前作品',
-      '_抓取当前作品Title'
+      '_抓取当前作品Title',
+      'crawlCurrentWork'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })

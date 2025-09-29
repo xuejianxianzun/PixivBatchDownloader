@@ -79,7 +79,8 @@ class InitFollowingPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_开始抓取',
-      '_默认下载多页'
+      '_默认下载多页',
+      'startCrawling'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -87,7 +88,9 @@ class InitFollowingPage extends InitPageBase {
     Tools.addBtn(
       'crawlBtns',
       Colors.bgGreen,
-      '_导出关注列表CSV'
+      '_导出关注列表CSV',
+      '',
+      'exportFollowingListCSV'
     ).addEventListener('click', () => {
       this.task = 'exportCSV'
       this.readyCrawl()
@@ -96,23 +99,21 @@ class InitFollowingPage extends InitPageBase {
     const exportButton = Tools.addBtn(
       'crawlBtns',
       Colors.bgGreen,
-      '_导出关注列表'
+      '_导出关注列表',
+      '',
+      'exportFollowingListJSON'
     )
     exportButton.addEventListener('click', () => {
       this.task = 'exportJSON'
       this.readyCrawl()
     })
-    exportButton.addEventListener('mouseenter', () => {
-      showHelp.show(
-        'tipExportFollowingUserList',
-        lang.transl('_导入导出关注用户列表的说明')
-      )
-    })
 
     const batchFollowButton = Tools.addBtn(
       'crawlBtns',
       Colors.bgGreen,
-      '_批量关注用户'
+      '_批量关注用户',
+      '',
+      'batchFollowUser'
     )
     batchFollowButton.addEventListener('click', async () => {
       if (states.busy) {
@@ -157,12 +158,6 @@ class InitFollowingPage extends InitPageBase {
       this.crawlUserID = store.loggedUserID
 
       this.getUserList()
-    })
-    batchFollowButton.addEventListener('mouseenter', () => {
-      showHelp.show(
-        'tipExportFollowingUserList',
-        lang.transl('_导入导出关注用户列表的说明')
-      )
     })
   }
 
@@ -354,7 +349,8 @@ class InitFollowingPage extends InitPageBase {
     const url = URL.createObjectURL(blob)
     Utils.downloadFile(
       url,
-      `following list-total ${this.userList.length
+      `following list-total ${
+        this.userList.length
       }-from user ${Utils.getURLPathField(
         window.location.pathname,
         'users'
@@ -565,8 +561,9 @@ class InitFollowingPage extends InitPageBase {
 
   private async clickFollowButton(userID: string): Promise<HTMLIFrameElement> {
     return new Promise(async (resolve, reject) => {
-      const url = `https://www.pixiv.net/${lang.htmlLangType === 'en' ? 'en/' : ''
-        }users/${userID}`
+      const url = `https://www.pixiv.net/${
+        lang.htmlLangType === 'en' ? 'en/' : ''
+      }users/${userID}`
       const res = await fetch(url)
       // const text = await res.text()
       const iframe = document.createElement('iframe')

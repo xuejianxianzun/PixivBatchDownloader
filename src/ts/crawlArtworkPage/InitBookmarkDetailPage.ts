@@ -20,7 +20,8 @@ class InitBookmarkDetailPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_抓取相似图片',
-      '_抓取相似图片'
+      '_抓取相似图片',
+      'crawlSimilarImage'
     ).addEventListener(
       'click',
       () => {
@@ -30,7 +31,7 @@ class InitBookmarkDetailPage extends InitPageBase {
     )
   }
 
-  protected initAny() { }
+  protected initAny() {}
 
   protected getWantPage() {
     this.crawlNumber = settings.crawlNumber[pageType.type].value

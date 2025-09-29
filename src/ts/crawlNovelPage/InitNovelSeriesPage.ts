@@ -20,22 +20,28 @@ class InitNovelSeriesPage extends InitPageBase {
   private last = 0
 
   protected addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, '_抓取系列小说').addEventListener(
-      'click',
-      () => {
-        this.readyCrawl()
-      }
-    )
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_抓取系列小说',
+      '',
+      'crawlSeriesNovel'
+    ).addEventListener('click', () => {
+      this.readyCrawl()
+    })
   }
 
   protected addAnyElement() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, '_合并系列小说').addEventListener(
-      'click',
-      () => {
-        states.mergeNovel = true
-        this.readyCrawl()
-      }
-    )
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_合并系列小说',
+      '',
+      'mergeSeriesNovel'
+    ).addEventListener('click', () => {
+      states.mergeNovel = true
+      this.readyCrawl()
+    })
   }
 
   protected initAny() {}
