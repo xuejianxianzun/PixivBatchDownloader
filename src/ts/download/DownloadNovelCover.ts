@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { log } from '../Log'
 import { Utils } from '../utils/Utils'
 import { Config } from '../Config'

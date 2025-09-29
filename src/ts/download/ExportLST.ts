@@ -1,7 +1,7 @@
 import { Tools } from '../Tools'
 import { store } from '../store/Store'
 import { fileName } from '../FileName'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Utils } from '../utils/Utils'
 import { toast } from '../Toast'
 

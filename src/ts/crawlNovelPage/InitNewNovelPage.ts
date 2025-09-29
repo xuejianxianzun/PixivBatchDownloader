@@ -1,7 +1,7 @@
 // 初始化 本站的最新作品 小说页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { NewIllustOption } from '../crawl/CrawlArgument.d'
 import { NewNovelData } from '../crawl/CrawlResult.d'
 import { filter, FilterOption } from '../filter/Filter'
@@ -40,7 +40,7 @@ class InitNewNovelPage extends InitPageBase {
     this.addCancelTimedCrawlBtn()
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected getWantPage() {
     this.crawlNumber = settings.crawlNumber[pageType.type].value

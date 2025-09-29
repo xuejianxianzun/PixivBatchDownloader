@@ -1,6 +1,6 @@
 import { Tools } from '../Tools'
 import { EVT } from '../EVT'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Utils } from '../utils/Utils'
 import {
   settings,
@@ -241,14 +241,14 @@ class BlockTagsForSpecificUser {
       `input[data-tagsInput='${uid}']`
     )! as HTMLInputElement
 
-    // 当输入框发生变化时，进行更新
-    ;[uidInput, tagsInput].forEach((el) => {
-      el?.addEventListener('change', () => {
-        if (el.value) {
-          this.updateRule(uid, uidInput.value, tagsInput.value, false)
-        }
+      // 当输入框发生变化时，进行更新
+      ;[uidInput, tagsInput].forEach((el) => {
+        el?.addEventListener('change', () => {
+          if (el.value) {
+            this.updateRule(uid, uidInput.value, tagsInput.value, false)
+          }
+        })
       })
-    })
 
     // 更新按钮
     updateRule?.addEventListener('click', () => {

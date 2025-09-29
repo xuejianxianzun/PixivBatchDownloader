@@ -1,4 +1,4 @@
-import { lang } from './Lang'
+import { lang } from './Language'
 import { log } from './Log'
 import { toast } from './Toast'
 import { states } from './store/States'

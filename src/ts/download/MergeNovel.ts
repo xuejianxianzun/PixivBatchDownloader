@@ -3,7 +3,7 @@ import { EVT } from '../EVT'
 import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
 import { settings } from '../setting/Settings'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { downloadNovelCover } from '../download/DownloadNovelCover'
 import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
@@ -106,7 +106,7 @@ class MergeNovel {
       if (store.novelSeriesGlossary) {
         metaArray.push(
           Utils.htmlToText(Utils.htmlDecode(store.novelSeriesGlossary)) +
-            this.CRLF.repeat(2)
+          this.CRLF.repeat(2)
         )
       }
 

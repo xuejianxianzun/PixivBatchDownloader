@@ -1,6 +1,6 @@
 // 删除页面上的作品
 import { log } from '../Log'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Colors } from '../Colors'
 import { Tools } from '../Tools'
 import { states } from '../store/States'
@@ -35,7 +35,7 @@ class DeleteWorks {
   private top = 0
   private half = 12
 
-  private deleteWorkCallback: Function = () => {} // 保存手动删除作品的回调函数，因为可能会多次绑定手动删除事件，所以需要保存传入的 callback 备用
+  private deleteWorkCallback: Function = () => { } // 保存手动删除作品的回调函数，因为可能会多次绑定手动删除事件，所以需要保存传入的 callback 备用
 
   private createDeleteIcon() {
     const el = document.createElement('div')
@@ -91,7 +91,7 @@ class DeleteWorks {
   }
 
   // 清除多图作品的按钮
-  public addClearMultipleBtn(selector: string, callback: Function = () => {}) {
+  public addClearMultipleBtn(selector: string, callback: Function = () => { }) {
     this.multipleSelector = selector
 
     Tools.addBtn('crawlBtns', Colors.bgRed, '_清除多图作品').addEventListener(
@@ -115,7 +115,7 @@ class DeleteWorks {
   }
 
   // 清除动图作品的按钮
-  public addClearUgoiraBtn(selector: string, callback: Function = () => {}) {
+  public addClearUgoiraBtn(selector: string, callback: Function = () => { }) {
     this.ugoiraSelector = selector
 
     Tools.addBtn('crawlBtns', Colors.bgRed, '_清除动图作品').addEventListener(
@@ -139,7 +139,7 @@ class DeleteWorks {
   }
 
   // 手动删除作品的按钮
-  public addManuallyDeleteBtn(callback: Function = () => {}) {
+  public addManuallyDeleteBtn(callback: Function = () => { }) {
     this.deleteWorkCallback = callback
     this.delBtn = Tools.addBtn(
       'crawlBtns',

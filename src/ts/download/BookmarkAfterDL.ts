@@ -1,6 +1,6 @@
 import { store } from '../store/Store'
 import { settings } from '../setting/Settings'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { EVT } from '../EVT'
 import { DonwloadSuccessData, DonwloadSkipData } from './DownloadType'
 import { bookmark } from '../Bookmark'

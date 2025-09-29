@@ -1,6 +1,6 @@
 import { EVT } from '../EVT'
 import { Tools } from '../Tools'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Config } from '../Config'
 import { store } from '../store/Store'
 import { Result } from '../store/StoreType'

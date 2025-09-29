@@ -1,4 +1,4 @@
-import { lang } from './Lang'
+import { lang } from './Language'
 import { Config } from './Config'
 import { msgBox } from './MsgBox'
 import { Utils } from './utils/Utils'

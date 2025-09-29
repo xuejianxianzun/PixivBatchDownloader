@@ -8,7 +8,7 @@ import { Utils } from './utils/Utils'
 import { List } from './ManageFollowing'
 import { settings } from './setting/Settings'
 import { toast } from './Toast'
-import { lang } from './Lang'
+import { lang } from './Language'
 import { Config } from './Config'
 
 type Msg = {

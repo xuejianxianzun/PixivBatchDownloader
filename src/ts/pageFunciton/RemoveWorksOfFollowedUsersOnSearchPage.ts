@@ -1,7 +1,7 @@
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
 import { store } from '../store/Store'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { log } from '../Log'
 import { EVT } from '../EVT'
 

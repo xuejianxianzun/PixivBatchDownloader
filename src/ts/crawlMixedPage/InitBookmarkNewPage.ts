@@ -1,7 +1,7 @@
 // 初始化 关注的用户的新作品页面 和 好P友的新作品页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { filter, FilterOption } from '../filter/Filter'
 import { API } from '../API'
@@ -52,7 +52,7 @@ class InitBookmarkNewPage extends InitPageBase {
     this.addCancelTimedCrawlBtn()
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected getWantPage() {
     this.crawlNumber = settings.crawlNumber[pageType.type].value

@@ -2,7 +2,7 @@
 import { InitPageBase } from '../crawl/InitPageBase'
 import { API } from '../API'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { IDData } from '../store/StoreType'
 import {
   ArtworkCommonData,
@@ -254,8 +254,7 @@ class InitBookmarkPage extends InitPageBase {
           for (const result of resultList) {
             Utils.downloadFile(
               result.url,
-              `Bookmark list-total ${
-                result.total
+              `Bookmark list-total ${result.total
               }-from ${Tools.getPageTitle()}-${Utils.replaceUnsafeStr(
                 new Date().toLocaleString()
               )}.json`
@@ -502,8 +501,8 @@ One possible reason: You have been banned from Pixiv.`)
                 (workData as ArtworkCommonData).illustType === undefined
                   ? 'novels'
                   : Tools.getWorkTypeString(
-                      (workData as ArtworkCommonData).illustType
-                    ),
+                    (workData as ArtworkCommonData).illustType
+                  ),
               id: workData.id,
             })
 

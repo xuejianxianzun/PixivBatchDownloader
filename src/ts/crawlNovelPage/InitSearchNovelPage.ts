@@ -1,7 +1,7 @@
 // 初始化小说搜索页
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { SearchOption } from '../crawl/CrawlArgument'
 import { filter, FilterOption } from '../filter/Filter'
 import { API } from '../API'

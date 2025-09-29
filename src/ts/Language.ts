@@ -197,4 +197,4 @@ class Lang {
 
 const lang = new Lang()
 
-export { lang }
+export { lang, LangTypes }

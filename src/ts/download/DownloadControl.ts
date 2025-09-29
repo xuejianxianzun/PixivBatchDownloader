@@ -10,7 +10,7 @@ import {
 } from './DownloadType'
 import { store } from '../store/Store'
 import { log } from '../Log'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Colors } from '../Colors'
 import { setSetting, settings } from '../setting/Settings'
 import { Download } from '../download/Download'
@@ -70,10 +70,10 @@ class DownloadControl {
     exportJSON: HTMLButtonElement
     importJSON: HTMLButtonElement
   } = {
-    exportCSV: document.createElement('button'),
-    exportJSON: document.createElement('button'),
-    importJSON: document.createElement('button'),
-  }
+      exportCSV: document.createElement('button'),
+      exportJSON: document.createElement('button'),
+      importJSON: document.createElement('button'),
+    }
 
   private thread = 5 // 同时下载的线程数的默认值
   // 这里默认设置为 5，是因为国内一些用户的下载速度比较慢，所以不应该同时下载很多文件。

@@ -1,5 +1,5 @@
 import { Config } from './Config'
-import { lang } from './Lang'
+import { lang } from './Language'
 import { theme } from './Theme'
 
 interface Option {

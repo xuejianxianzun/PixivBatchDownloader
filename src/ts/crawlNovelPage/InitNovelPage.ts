@@ -1,7 +1,7 @@
 //初始化小说作品页
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { store } from '../store/Store'
 import { userWorksType } from '../crawl/CrawlArgument'
 import { Tools } from '../Tools'
@@ -24,7 +24,7 @@ class InitNovelPage extends InitPageBase {
   1 抓取旧作品
   */
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected addCrawlBtns() {
     Tools.addBtn(

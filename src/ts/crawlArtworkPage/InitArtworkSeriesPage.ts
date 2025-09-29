@@ -2,7 +2,7 @@
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
 import { API } from '../API'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { filter, FilterOption } from '../filter/Filter'
 import { store } from '../store/Store'
@@ -31,7 +31,7 @@ class InitArtworkSeriesPage extends InitPageBase {
     })
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected getWantPage() {
     this.crawlNumber = settings.crawlNumber[pageType.type].value

@@ -5,7 +5,7 @@ import { toWebM } from './ToWebM'
 import { toGIF } from './ToGIF'
 import { toAPNG } from './ToAPNG'
 import { msgBox } from '../MsgBox'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { log } from '../Log'
 
@@ -29,11 +29,11 @@ class ConvertUgoira {
       this.downloading = true
       msgBox.resetOnce(this.msgFlag)
     })
-    ;[EVT.list.downloadPause, EVT.list.downloadStop].forEach((event) => {
-      window.addEventListener(event, () => {
-        this.downloading = false
+      ;[EVT.list.downloadPause, EVT.list.downloadStop].forEach((event) => {
+        window.addEventListener(event, () => {
+          this.downloading = false
+        })
       })
-    })
 
     // 设置发生变化时
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {

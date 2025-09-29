@@ -1,6 +1,6 @@
 import { Config } from './Config'
 import { EVT } from './EVT'
-import { lang } from './Lang'
+import { lang } from './Language'
 import { log } from './Log'
 import { msgBox } from './MsgBox'
 

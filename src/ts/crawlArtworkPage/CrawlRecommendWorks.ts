@@ -1,6 +1,6 @@
 import { Config } from '../Config'
 import { EVT } from '../EVT'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { pageType } from '../PageType'
 import { states } from '../store/States'
 import { IDData } from '../store/StoreType'

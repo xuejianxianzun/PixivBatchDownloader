@@ -1,6 +1,6 @@
 import { EVT } from '../EVT'
 import { Tools } from '../Tools'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { formHtml } from './FormHTML'
 import { SettingsForm } from './SettingsForm'
 import { SaveNamingRule } from './SaveNamingRule'

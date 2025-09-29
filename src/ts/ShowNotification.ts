@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill'
 import { EVT } from './EVT'
-import { lang } from './Lang'
+import { lang } from './Language'
 import { settings } from './setting/Settings'
 import { states } from './store/States'
 import { store } from './store/Store'

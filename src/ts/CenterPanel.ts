@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill'
-import { lang } from './Lang'
+import { lang } from './Language'
 import { EVT } from './EVT'
 import { states } from './store/States'
 import { theme } from './Theme'
@@ -69,12 +69,10 @@ class CenterPanel {
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
-        <button class="textButton ${
-          !Config.mobile && 'has_tip'
-        } centerWrap_top_btn centerWrap_close" ${
-          !Config.mobile &&
-          'data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板"'
-        }>
+        <button class="textButton ${!Config.mobile && 'has_tip'
+      } centerWrap_top_btn centerWrap_close" ${!Config.mobile &&
+      'data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板"'
+      }>
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
         </svg>

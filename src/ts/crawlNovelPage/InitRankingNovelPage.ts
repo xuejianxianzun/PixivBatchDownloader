@@ -1,7 +1,7 @@
 // 初始化小说排行榜页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { filter, FilterOption } from '../filter/Filter'
 import { store } from '../store/Store'
@@ -28,7 +28,7 @@ class InitRankingNovelPage extends InitPageBase {
     })
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected getWantPage() {
     // 检查下载页数的设置

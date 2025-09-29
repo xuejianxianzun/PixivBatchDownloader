@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill'
 import { API } from '../API'
 import { Config } from '../Config'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { log } from '../Log'
 import { settings } from '../setting/Settings'
 import { Utils } from '../utils/Utils'

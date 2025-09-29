@@ -1,7 +1,7 @@
 // 初始化首页
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { IDData } from '../store/StoreType'

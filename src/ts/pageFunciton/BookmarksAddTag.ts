@@ -8,7 +8,7 @@ import {
 } from '../crawl/CrawlResult'
 import { toast } from '../Toast'
 import { bookmark } from '../Bookmark'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { msgBox } from '../MsgBox'
 
 // 给收藏页面里的未分类作品批量添加 tag

@@ -1,7 +1,7 @@
 import { EVT } from '../EVT'
 import { Tools } from '../Tools'
 import { store } from '../store/Store'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Utils } from '../utils/Utils'
 import { toast } from '../Toast'
 import { log } from '../Log'

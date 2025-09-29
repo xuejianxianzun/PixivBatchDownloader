@@ -1,5 +1,5 @@
 import { API } from '../API'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { BookmarkResult } from '../crawl/CrawlResult'
 import { EVT } from '../EVT'
 import { toast } from '../Toast'
@@ -144,9 +144,8 @@ class BookmarkAllWorks {
           }
           let msg = ''
           if (e.status) {
-            msg = `${lang.transl('_发生错误原因')}${lang.transl('_错误代码')}${
-              e.status
-            }. ${lang.transl('_请稍后重试')}`
+            msg = `${lang.transl('_发生错误原因')}${lang.transl('_错误代码')}${e.status
+              }. ${lang.transl('_请稍后重试')}`
           } else {
             msg = `${lang.transl('_发生错误原因')}${lang.transl(
               '_未知错误'

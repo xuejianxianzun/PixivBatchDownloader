@@ -3,7 +3,7 @@ import { settings } from './setting/Settings'
 import { artworkThumbnail } from './ArtworkThumbnail'
 import { states } from './store/States'
 import { toast } from './Toast'
-import { lang } from './Lang'
+import { lang } from './Language'
 import { IDData } from './store/StoreType'
 import { Colors } from './Colors'
 import { Tools } from './Tools'
@@ -94,7 +94,7 @@ class ShowDownloadBtnOnThumbOnMobile {
   private toggleShowBtns(value: boolean) {
     const btns = document.body.querySelectorAll(`.${this.className}`)
     for (const btn of btns) {
-      ;(btn as HTMLButtonElement).style.display = value ? 'flex' : 'none'
+      ; (btn as HTMLButtonElement).style.display = value ? 'flex' : 'none'
     }
   }
 }

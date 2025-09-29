@@ -1,6 +1,6 @@
 import { Tools } from './Tools'
 import { Colors } from './Colors'
-import { lang } from './Lang'
+import { lang } from './Language'
 import { EVT } from './EVT'
 import { states } from './store/States'
 import { IDData, WorkTypeString } from './store/StoreType'
@@ -215,9 +215,9 @@ class SelectWork {
     this.controlBtn = Tools.addBtn(
       'selectWorkBtns',
       Colors.bgGreen,
-      '_手动选择作品'
+      '_手动选择作品',
+      'Alt + S'
     )
-    this.controlBtn.setAttribute('title', 'Alt + S')
     this.controlTextSpan = this.controlBtn.querySelector('span')!
     this.updateControlBtn()
 

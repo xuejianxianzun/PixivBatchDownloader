@@ -1,7 +1,7 @@
 // 初始化用户页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { API } from '../API'
 import { store } from '../store/Store'
 import { EVT } from '../EVT'

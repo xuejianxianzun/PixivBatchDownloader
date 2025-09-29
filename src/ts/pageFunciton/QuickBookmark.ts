@@ -1,7 +1,7 @@
 // 作品页面内的快速收藏功能
 import { API } from '../API'
 import { Tools } from '../Tools'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { token } from '../Token'
 import { pageType } from '../PageType'
 import { ArtworkData, NovelData } from '../crawl/CrawlResult'

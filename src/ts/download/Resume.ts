@@ -1,6 +1,6 @@
 import { EVT } from '../EVT'
 import { log } from '../Log'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { store } from '../store/Store'
 import { states } from '../store/States'
 import { downloadStates, DLStatesI } from './DownloadStates'

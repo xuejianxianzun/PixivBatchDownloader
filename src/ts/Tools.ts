@@ -1,6 +1,6 @@
 import { Config } from './Config'
 import { ArtworkData, NovelData } from './crawl/CrawlResult'
-import { lang } from './Lang'
+import { lang } from './Language'
 import { pageType } from './PageType'
 import { WorkTypeString, Result } from './store/StoreType'
 import { Utils } from './utils/Utils'
@@ -12,10 +12,10 @@ type artworkDataTagsItem = {
   userId: string
   romaji: string
   translation?:
-    | {
-        en: string
-      }
-    | undefined
+  | {
+    en: string
+  }
+  | undefined
   userName: string
 }
 
@@ -294,7 +294,7 @@ class Tools {
     if (document.body) {
       document.body.insertAdjacentElement('afterbegin', el)
     } else {
-      ;(
+      ; (
         document.querySelector('.newindex-inner')! ||
         document.querySelector('.layout-body')!
       ).insertAdjacentElement('beforebegin', el)
@@ -336,27 +336,43 @@ class Tools {
   }
 
   // 创建下载面板上的通用按钮
-  // 注意 textFlag 和 titleFlag 必须是 LangText 里存在的属性，这是为了能根据语言设置动态切换文本
-  // 如果 text 和 title 是直接设置的字符串，那么不应该使用这个方法设置，而是由调用者自行设置
+  // 注意：如果希望按钮的文本和 title 能根据下载器的语言切换，那么对应的参数需要使用 LangText 里存在的属性
+  // 也就是以下划线 _ 开头
   static addBtn(
     slot: string,
-    bg: string = '',
-    textFlag: string = '',
-    titleFlag: string = ''
+    bg: string,
+    text: string,
+    title: string,
+    id: string,
   ) {
     const btn = document.createElement('button')
     btn.type = 'button'
     btn.style.backgroundColor = bg
     btn.classList.add('hasRippleAnimation')
 
-    titleFlag && btn.setAttribute('data-xztitle', titleFlag)
-
     // 把文本添加到内部的 span 里
-    if (textFlag) {
+    if (text) {
       const span = document.createElement('span')
-      span.setAttribute('data-xztext', textFlag)
+      // 判断是否需要翻译
+      if (text.startsWith('_')) {
+        span.setAttribute('data-xztext', text)
+      } else {
+        span.textContent = text
+      }
       btn.append(span)
     }
+
+    // 添加 title 属性
+    if (title) {
+      // 判断是否需要翻译
+      if (title.startsWith('_')) {
+        btn.setAttribute('data-xztitle', title)
+      } else {
+        btn.setAttribute('title', title)
+      }
+    }
+
+    id && btn.setAttribute('id', id)
 
     // 添加一个用于显示动画的 span
     const ripple = document.createElement('span')
@@ -554,9 +570,8 @@ class Tools {
       p = Number.parseInt(array[1]) + 1
     }
 
-    const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}${
-      hasP ? `#${p}` : ''
-    }`
+    const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}${hasP ? `#${p}` : ''
+      }`
     return `<a href="${href}" target="_blank">${id}</a>`
   }
 
@@ -779,11 +794,11 @@ class Tools {
         })
         if (target === 'ImageBitmap') {
           const map = await createImageBitmap(blob)
-          ;(result as ImageBitmap[]).push(map)
+            ; (result as ImageBitmap[]).push(map)
         } else if (target === 'img') {
           const url = URL.createObjectURL(blob)
           const img = await Utils.loadImg(url)
-          ;(result as HTMLImageElement[]).push(img)
+            ; (result as HTMLImageElement[]).push(img)
         }
         ++i
       }

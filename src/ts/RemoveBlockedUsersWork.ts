@@ -4,7 +4,7 @@ import { Tools } from './Tools'
 import { pageType } from './PageType'
 import { log } from './Log'
 import { Utils } from './utils/Utils'
-import { lang } from './Lang'
+import { lang } from './Language'
 
 class RemoveBlockedUsersWork {
   constructor() {

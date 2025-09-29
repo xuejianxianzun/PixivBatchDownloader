@@ -2,7 +2,7 @@
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
 import { API } from '../API'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { RankingOption } from '../crawl/CrawlArgument'

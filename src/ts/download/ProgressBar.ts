@@ -1,7 +1,7 @@
 // 下载进度条
 import { store } from '../store/Store'
 import { Tools } from '../Tools'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { EVT } from '../EVT'
 import { Utils } from '../utils/Utils'
 

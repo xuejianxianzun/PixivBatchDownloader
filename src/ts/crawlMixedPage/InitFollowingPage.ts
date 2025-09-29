@@ -1,7 +1,7 @@
 // 初始化关注页面、好 P 友页面、粉丝页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { API } from '../API'
 import { store } from '../store/Store'
 import { log } from '../Log'
@@ -354,8 +354,7 @@ class InitFollowingPage extends InitPageBase {
     const url = URL.createObjectURL(blob)
     Utils.downloadFile(
       url,
-      `following list-total ${
-        this.userList.length
+      `following list-total ${this.userList.length
       }-from user ${Utils.getURLPathField(
         window.location.pathname,
         'users'
@@ -566,9 +565,8 @@ class InitFollowingPage extends InitPageBase {
 
   private async clickFollowButton(userID: string): Promise<HTMLIFrameElement> {
     return new Promise(async (resolve, reject) => {
-      const url = `https://www.pixiv.net/${
-        lang.htmlLangType === 'en' ? 'en/' : ''
-      }users/${userID}`
+      const url = `https://www.pixiv.net/${lang.htmlLangType === 'en' ? 'en/' : ''
+        }users/${userID}`
       const res = await fetch(url)
       // const text = await res.text()
       const iframe = document.createElement('iframe')

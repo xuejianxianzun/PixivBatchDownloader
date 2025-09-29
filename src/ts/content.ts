@@ -9,7 +9,7 @@
  * E-mail:  xuejianxianzun@gmail.com
  */
 
-import './Lang'
+import './Language'
 import './Theme'
 import './store/States'
 import './setting/Settings'

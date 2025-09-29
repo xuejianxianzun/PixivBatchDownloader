@@ -1,6 +1,6 @@
 import { EVT } from '../EVT'
 import { Tools } from '../Tools'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { theme } from '../Theme'
 import { settings, setSetting } from './Settings'
 import { toast } from '../Toast'

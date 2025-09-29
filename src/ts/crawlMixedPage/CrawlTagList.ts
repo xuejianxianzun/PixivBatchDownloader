@@ -2,7 +2,7 @@
 // 这是个单例类，为了控制其执行时机，需要手动执行 init 方法来进行一部分初始化
 import { Tools } from '../Tools'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { msgBox } from '../MsgBox'
 import { states } from '../store/States'
 import { toast } from '../Toast'
@@ -10,7 +10,7 @@ import { EVT } from '../EVT'
 import { pageType } from '../PageType'
 
 class CrawlTagList {
-  constructor() {}
+  constructor() { }
 
   public init() {
     this.addCrawlBtns()
@@ -142,9 +142,8 @@ class CrawlTagList {
         if (this._tagList.length === 0) {
           states.crawlTagList = false
           // 输出提示
-          this.showTagListWrap.innerHTML = `<span style="color:${
-            Colors.textSuccess
-          }">${lang.transl('_下载完毕')}</span>`
+          this.showTagListWrap.innerHTML = `<span style="color:${Colors.textSuccess
+            }">${lang.transl('_下载完毕')}</span>`
           return
         }
 
@@ -181,8 +180,8 @@ class CrawlTagList {
     if (!this.EnablPage.includes(pageType.type)) {
       return msgBox.error(
         lang.transl('_抓取标签列表') +
-          '<br>' +
-          lang.transl('_只能在搜索页面使用')
+        '<br>' +
+        lang.transl('_只能在搜索页面使用')
       )
     }
 

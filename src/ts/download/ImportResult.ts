@@ -1,6 +1,6 @@
 import { EVT } from '../EVT'
 import { Result } from '../store/StoreType'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
 import { store } from '../store/Store'

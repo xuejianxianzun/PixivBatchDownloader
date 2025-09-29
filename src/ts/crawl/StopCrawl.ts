@@ -1,6 +1,6 @@
 import { Colors } from '../Colors'
 import { EVT } from '../EVT'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { log } from '../Log'
 import { toast } from '../Toast'
 import { Tools } from '../Tools'

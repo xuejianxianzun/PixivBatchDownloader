@@ -1,7 +1,7 @@
 // 初始化 bookmark_detail 页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { API } from '../API'
 import { store } from '../store/Store'
@@ -30,7 +30,7 @@ class InitBookmarkDetailPage extends InitPageBase {
     )
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected getWantPage() {
     this.crawlNumber = settings.crawlNumber[pageType.type].value

@@ -1,7 +1,7 @@
 import { Colors } from '../Colors'
 import { Config } from '../Config'
 import { EVT } from '../EVT'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { pageType } from '../PageType'
 import { showHelp } from '../ShowHelp'
 import { states } from '../store/States'
