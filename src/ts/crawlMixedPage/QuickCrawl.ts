@@ -1,12 +1,9 @@
-import { Colors } from '../Colors'
 import { Config } from '../Config'
 import { EVT } from '../EVT'
 import { lang } from '../Language'
 import { pageType } from '../PageType'
 import { showHelp } from '../ShowHelp'
-import { states } from '../store/States'
 import { IDData } from '../store/StoreType'
-import { toast } from '../Toast'
 import { Tools } from '../Tools'
 
 // 快速抓取

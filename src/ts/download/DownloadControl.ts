@@ -28,7 +28,6 @@ import { Utils } from '../utils/Utils'
 import { pageType } from '../PageType'
 import { msgBox } from '../MsgBox'
 import './CheckWarningMessage'
-import { showHelp } from '../ShowHelp'
 
 class DownloadControl {
   constructor() {
@@ -336,7 +335,7 @@ class DownloadControl {
         Colors.bgGreen,
         '_导出抓取结果',
         '',
-        'importCrawlResultsJSON'
+        'exportCrawlResultsJSON'
       )
       this.resultBtns.exportJSON.style.display = 'none'
 
@@ -354,7 +353,7 @@ class DownloadControl {
         Colors.bgGreen,
         '_导出csv',
         '',
-        'importCrawlResultsCSV'
+        'exportCrawlResultsCSV'
       )
       this.resultBtns.exportCSV.style.display = 'none'
 

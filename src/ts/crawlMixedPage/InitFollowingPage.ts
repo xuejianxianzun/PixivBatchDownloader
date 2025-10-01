@@ -11,7 +11,6 @@ import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { toast } from '../Toast'
-import { showHelp } from '../ShowHelp'
 import { msgBox } from '../MsgBox'
 import { token } from '../Token'
 import { EVT } from '../EVT'
@@ -80,7 +79,7 @@ class InitFollowingPage extends InitPageBase {
       Colors.bgBlue,
       '_开始抓取',
       '_默认下载多页',
-      'startCrawling'
+      'startCrawlingInFollowingPage'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })

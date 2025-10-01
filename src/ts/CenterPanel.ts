@@ -92,6 +92,11 @@ class CenterPanel {
 
       <div class="centerWrap_con beautify_scrollbar">
 
+      <p id="tipOpenWikiLinkWrap">
+        <span data-xztext="_提示查看wiki页面"></span>
+        <button class="gray1 textButton" type="button" data-xztext="_我知道了"></button>
+      </p>
+
       <slot data-name="form"></slot>
 
       <div class="help_bar gray1"> 

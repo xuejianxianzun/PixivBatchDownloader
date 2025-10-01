@@ -3,41 +3,32 @@ import { EVT } from '../EVT'
 import { pageType } from '../PageType'
 import { settings } from './Settings'
 
-/**控制每个设置的隐藏、显示 */
+/**控制每个设置的隐藏和显示 */
 class Options {
   public init(allOption: NodeListOf<HTMLElement>) {
     this.allOption = allOption
-
     this.bindEvents()
   }
 
   private allOption!: NodeListOf<HTMLElement>
 
-  // 始终保持显示的选项
+  /**始终保持显示的选项 */
   private readonly whiteList: number[] = [2, 4, 13, 17, 32, 44, 50, 51, 57, 64]
-
-  // 在某些页面类型需要隐藏一些选项。当调用 hideOption 方法时，把选项编号保存起来
-  // 优先级高于 whiteList
-  private hiddenList: number[] = []
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data as any
       if (data.name === 'showAdvancedSettings') {
         this.handleShowAdvancedSettings()
+        this.alwaysHideSomeOption()
       }
     })
 
-    window.addEventListener(EVT.list.settingInitialized, () => {
-      this.alwaysHideSomeOption()
-    })
-
     window.addEventListener(EVT.list.pageSwitch, () => {
-      this.hiddenList = []
       window.setTimeout(() => {
         this.handleShowAdvancedSettings()
         this.alwaysHideSomeOption()
-      })
+      }, 0)
     })
   }
 
@@ -50,6 +41,17 @@ class Options {
     if (Config.mobile) {
       this.hideOption([18, 68, 55, 71, 62, 40])
     }
+
+    // 大部分设置在 pixivision 里都不适用，所以需要隐藏它们
+    if (pageType.type === pageType.list.Pixivision) {
+      options.hideOption([
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 21, 22, 23,
+        24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46,
+        47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66,
+        67, 68, 69, 70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85,
+        86, 87, 88, 89,
+      ])
+    }
   }
 
   private handleShowAdvancedSettings() {
@@ -61,28 +63,16 @@ class Options {
       const no = Number.parseInt(option.dataset.no)
 
       // 如果需要隐藏高级设置
-      if (
-        !settings.showAdvancedSettings ||
-        pageType.type === pageType.list.Pixivision
-      ) {
-        // 先判断是否在需要隐藏的列表里
-        if (this.hiddenList.includes(no)) {
-          this.hideOption([no])
+      if (!settings.showAdvancedSettings) {
+        // 然后判断是否在白名单里
+        if (this.whiteList.includes(no)) {
+          this.showOption([no])
         } else {
-          // 然后判断是否在白名单里
-          if (this.whiteList.includes(no)) {
-            this.showOption([no])
-          } else {
-            this.hideOption([no])
-          }
+          this.hideOption([no])
         }
       } else {
         // 如果需要显示高级设置
-        if (this.hiddenList.includes(no)) {
-          this.hideOption([no])
-        } else {
-          this.showOption([no])
-        }
+        this.showOption([no])
       }
     }
   }
@@ -117,10 +107,7 @@ class Options {
   }
 
   // 隐藏指定的选项。参数是数组，传递设置项的编号。
-  // 注意：由于这个方法会修改 hiddenList，所以它是有副作用的
-  // 这个方法只应该在其他类里面使用，在这个类里不要直接调用它
   public hideOption(no: number[]) {
-    this.hiddenList = no
     this.setOptionDisplay(no, 'none')
   }
 

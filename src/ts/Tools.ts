@@ -2,6 +2,7 @@ import { Config } from './Config'
 import { ArtworkData, NovelData } from './crawl/CrawlResult'
 import { lang } from './Language'
 import { pageType } from './PageType'
+import { wiki } from './setting/Wiki'
 import { WorkTypeString, Result } from './store/StoreType'
 import { Utils } from './utils/Utils'
 
@@ -381,9 +382,11 @@ class Tools {
     // 生成的 btn 代码例如：
     // <button id="${id}" type="button" class="hasRippleAnimation" data-xztitle="${title}" style="background-color: ${bg};"><span data-xztext="${text}">text</span><span class="ripple"></span></button>
 
-    // 添加这个按钮
+    // 添加这个按钮并注册事件
     this.useSlot(slot, btn)
     lang.register(btn)
+    wiki.registerBtn(btn)
+
     return btn
   }
 

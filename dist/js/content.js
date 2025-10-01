@@ -2251,6 +2251,11 @@ class CenterPanel {
 
       <div class="centerWrap_con beautify_scrollbar">
 
+      <p id="tipOpenWikiLinkWrap">
+        <span data-xztext="_提示查看wiki页面"></span>
+        <button class="gray1 textButton" type="button" data-xztext="_我知道了"></button>
+      </p>
+
       <slot data-name="form"></slot>
 
       <div class="help_bar gray1"> 
@@ -10205,7 +10210,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _setting_Wiki__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Wiki */ "./src/ts/setting/Wiki.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -10251,7 +10258,7 @@ class Tools {
         }
         // 4 旧版收藏页面
         if (nowURL.pathname === '/bookmark.php') {
-            if (parseInt(_utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.getURLSearchField(nowURL.href, 'untagged')) === 1) {
+            if (parseInt(_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.getURLSearchField(nowURL.href, 'untagged')) === 1) {
                 // 旧版 “未分类” tag 是个特殊标记
                 // https://www.pixiv.net/bookmark.php?untagged=1
                 return '未分類';
@@ -10273,12 +10280,12 @@ class Tools {
         }
         // 默认情况，从查询字符串里获取，如下网址
         // https://www.pixiv.net/bookmark.php?tag=R-18
-        return decodeURIComponent(_utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.getURLSearchField(nowURL.href, 'tag'));
+        return decodeURIComponent(_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.getURLSearchField(nowURL.href, 'tag'));
     }
     /**从 url 里获取 artworks id。如果查找不到 id 会返回空字符串 */
     static getIllustId(url) {
         if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Unlisted) {
-            return _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.getURLPathField(window.location.pathname, 'unlisted');
+            return _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.getURLPathField(window.location.pathname, 'unlisted');
         }
         const str = url || window.location.href;
         let test = null;
@@ -10301,7 +10308,7 @@ class Tools {
     // https://www.pixiv.net/novel/show.php?id=12771688
     static getNovelId(url) {
         if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Unlisted) {
-            return _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.getURLPathField(window.location.pathname, 'unlisted');
+            return _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.getURLPathField(window.location.pathname, 'unlisted');
         }
         const str = url || window.location.href;
         let result = '';
@@ -10518,9 +10525,10 @@ class Tools {
         btn.append(ripple);
         // 生成的 btn 代码例如：
         // <button id="${id}" type="button" class="hasRippleAnimation" data-xztitle="${title}" style="background-color: ${bg};"><span data-xztext="${text}">text</span><span class="ripple"></span></button>
-        // 添加这个按钮
+        // 添加这个按钮并注册事件
         this.useSlot(slot, btn);
         _Language__WEBPACK_IMPORTED_MODULE_1__.lang.register(btn);
+        _setting_Wiki__WEBPACK_IMPORTED_MODULE_3__.wiki.registerBtn(btn);
         return btn;
     }
     /**获取页面标题 */
@@ -10862,7 +10870,7 @@ class Tools {
                 }
                 else if (target === 'img') {
                     const url = URL.createObjectURL(blob);
-                    const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.loadImg(url);
+                    const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.loadImg(url);
                     result.push(img);
                 }
                 ++i;
@@ -12384,6 +12392,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Wiki__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Wiki */ "./src/ts/setting/Wiki.ts");
+
 
 
 
@@ -12459,6 +12469,8 @@ class CrawlRecommendWorks {
         const btn = document.createElement('button');
         btn.textContent = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载推荐作品');
         btn.classList.add('blueTextBtn');
+        btn.id = 'downloadRecommendedWorks';
+        _setting_Wiki__WEBPACK_IMPORTED_MODULE_4__.wiki.registerBtn(btn);
         btn.addEventListener('click', () => {
             // 传递 ID 列表时需要复制一份，因为如果直接传递变量，那么这个数组会在抓取之后被清空
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [...this.IDList]);
@@ -13199,11 +13211,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 // 初始化 pixivision 页面
-
 
 
 
@@ -13224,24 +13234,12 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             }, false);
         }
     }
-    initAny() {
-        // 大部分设置在 pixivision 里都不适用，所以需要隐藏它们
-        window.setTimeout(() => {
-            _setting_Options__WEBPACK_IMPORTED_MODULE_3__.options.hideOption([
-                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 21, 22, 23,
-                24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46,
-                47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66,
-                67, 68, 69, 70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85,
-                86, 87, 88, 89,
-            ]);
-        }, 300);
-    }
     nextStep() {
         this.getPixivision();
     }
     // 保存要下载的图片的信息
     addResult(id, url, ext) {
-        _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.addResult({
+        _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.addResult({
             id: id,
             idNum: Number.parseInt(id),
             original: url,
@@ -13301,7 +13299,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
     // 通过加载图片来判断图片的后缀名。pixivision 页面直接获取的图片后缀都是 jpg 的
     async testExtName(url, id) {
         let ext = 'jpg'; // 默认为 jpg
-        await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.loadImg(url).catch(() => {
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.loadImg(url).catch(() => {
             // 如果图片加载失败则把后缀改为 png
             url = url.replace('.jpg', '.png');
             ext = 'png';
@@ -15284,7 +15282,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         }
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_开始抓取', '_默认下载多页', 'startCrawling').addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_开始抓取', '_默认下载多页', 'startCrawlingInFollowingPage').addEventListener('click', () => {
             this.readyCrawl();
         });
         _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导出关注列表CSV', '', 'exportFollowingListCSV').addEventListener('click', () => {
@@ -18243,13 +18241,13 @@ class DownloadControl {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('importResult');
             }, false);
             // 导出抓取结果
-            this.resultBtns.exportJSON = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('exportResult', _Colors__WEBPACK_IMPORTED_MODULE_6__.Colors.bgGreen, '_导出抓取结果', '', 'importCrawlResultsJSON');
+            this.resultBtns.exportJSON = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('exportResult', _Colors__WEBPACK_IMPORTED_MODULE_6__.Colors.bgGreen, '_导出抓取结果', '', 'exportCrawlResultsJSON');
             this.resultBtns.exportJSON.style.display = 'none';
             this.resultBtns.exportJSON.addEventListener('click', () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('exportResult');
             }, false);
             // 导出 csv
-            this.resultBtns.exportCSV = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('exportResult', _Colors__WEBPACK_IMPORTED_MODULE_6__.Colors.bgGreen, '_导出csv', '', 'importCrawlResultsCSV');
+            this.resultBtns.exportCSV = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('exportResult', _Colors__WEBPACK_IMPORTED_MODULE_6__.Colors.bgGreen, '_导出csv', '', 'exportCrawlResultsCSV');
             this.resultBtns.exportCSV.style.display = 'none';
             this.resultBtns.exportCSV.addEventListener('click', () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('exportCSV');
@@ -29072,6 +29070,14 @@ P.S. Работы заблокированных пользователей не
         '🦊다운로더는 이제 Firefox에서 사용할 수 있습니다! 🥳<br>ADD-ONS에서 설치:<br><a href="https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/" target="_blank">Powerful Pixiv Downloader</a>',
         '🦊Загрузчик уже доступен для использования в Firefox! 🥳<br>Установить из ADD-ONS:<br><a href="https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/" target="_blank">Powerful Pixiv Downloader</a>',
     ],
+    _提示查看wiki页面: [
+        `提示：现在你可以更方便的查看每个功能的 Wiki 页面了，只需要点击设置项的名字，或者在纯色按钮上长按，下载器就会打开对应的 Wiki 页面。`,
+        `提示：現在你可以更方便的查看每個功能的 Wiki 頁面了，只需要點擊設定項的名稱，或者在純色按鈕上長按，下載器就會打開對應的 Wiki 頁面。`,
+        `Tip: Now you can view the Wiki page for each feature more conveniently, just click on the setting item's name, or long-press on the solid color button, and the downloader will open the corresponding Wiki page.`,
+        `ヒント：今、各機能のWikiページをより便利に閲覧できます。設定項目の名前をクリックするか、単色ボタンを長押しするだけで、ダウンロードツールが対応するWikiページを開きます。`,
+        `팁: 이제 각 기능의 Wiki 페이지를 더 편리하게 볼 수 있습니다. 설정 항목의 이름을 클릭하거나 단색 버튼을 길게 누르면 다운로더가 해당 Wiki 페이지를 엽니다.`,
+        `Подсказка: Теперь вы можете просматривать страницу Wiki для каждой функции более удобно: просто кликните на название элемента настройки или долго нажмите на кнопку сплошного цвета, и загрузчик откроет соответствующую страницу Wiki。`,
+    ],
 };
 
 // prompt
@@ -33523,34 +33529,28 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-/**控制每个设置的隐藏、显示 */
+/**控制每个设置的隐藏和显示 */
 class Options {
     init(allOption) {
         this.allOption = allOption;
         this.bindEvents();
     }
     allOption;
-    // 始终保持显示的选项
+    /**始终保持显示的选项 */
     whiteList = [2, 4, 13, 17, 32, 44, 50, 51, 57, 64];
-    // 在某些页面类型需要隐藏一些选项。当调用 hideOption 方法时，把选项编号保存起来
-    // 优先级高于 whiteList
-    hiddenList = [];
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name === 'showAdvancedSettings') {
                 this.handleShowAdvancedSettings();
+                this.alwaysHideSomeOption();
             }
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, () => {
-            this.alwaysHideSomeOption();
-        });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, () => {
-            this.hiddenList = [];
             window.setTimeout(() => {
                 this.handleShowAdvancedSettings();
                 this.alwaysHideSomeOption();
-            });
+            }, 0);
         });
     }
     // 总是隐藏某些设置
@@ -33561,6 +33561,16 @@ class Options {
         if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
             this.hideOption([18, 68, 55, 71, 62, 40]);
         }
+        // 大部分设置在 pixivision 里都不适用，所以需要隐藏它们
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Pixivision) {
+            options.hideOption([
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 21, 22, 23,
+                24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46,
+                47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66,
+                67, 68, 69, 70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85,
+                86, 87, 88, 89,
+            ]);
+        }
     }
     handleShowAdvancedSettings() {
         for (const option of this.allOption) {
@@ -33569,30 +33579,18 @@ class Options {
             }
             const no = Number.parseInt(option.dataset.no);
             // 如果需要隐藏高级设置
-            if (!_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.showAdvancedSettings ||
-                _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Pixivision) {
-                // 先判断是否在需要隐藏的列表里
-                if (this.hiddenList.includes(no)) {
-                    this.hideOption([no]);
+            if (!_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.showAdvancedSettings) {
+                // 然后判断是否在白名单里
+                if (this.whiteList.includes(no)) {
+                    this.showOption([no]);
                 }
                 else {
-                    // 然后判断是否在白名单里
-                    if (this.whiteList.includes(no)) {
-                        this.showOption([no]);
-                    }
-                    else {
-                        this.hideOption([no]);
-                    }
+                    this.hideOption([no]);
                 }
             }
             else {
                 // 如果需要显示高级设置
-                if (this.hiddenList.includes(no)) {
-                    this.hideOption([no]);
-                }
-                else {
-                    this.showOption([no]);
-                }
+                this.showOption([no]);
             }
         }
     }
@@ -33623,10 +33621,7 @@ class Options {
         }
     }
     // 隐藏指定的选项。参数是数组，传递设置项的编号。
-    // 注意：由于这个方法会修改 hiddenList，所以它是有副作用的
-    // 这个方法只应该在其他类里面使用，在这个类里不要直接调用它
     hideOption(no) {
-        this.hiddenList = no;
         this.setOptionDisplay(no, 'none');
     }
     // 显示指定的选项。因为页面无刷新加载，所以一些选项被隐藏后，可能需要再次显示
@@ -33810,15 +33805,24 @@ __webpack_require__.r(__webpack_exports__);
 // 当任意一个设置项被赋值时触发（不会区分值是否发生了变化）。这是最常用的事件。
 // 事件的参数里会传递这个设置项的名称和值，可以通过 ev.detail.data 获取，格式如：
 // {name: string, value: any}
-// 如果某个模块要监听特定的设置项，应该使用参数的 name 来判断触发事件的设置项是否是自己需要的设置项
-// 如果不依赖于特定设置项，则应该考虑使用节流或者防抖来限制事件的回调函数的执行频率，防止造成性能问题
+// 如果要监听特定的设置项，应该使用参数的 name 来判断触发事件的设置项是否是自己需要的设置项
+// 如果不依赖于特定设置项，则应该考虑使用节流或者防抖来限制该事件的回调函数的执行频率，以免造成性能问题
+// 示例：
+// window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+//   const data = ev.detail.data as any
+//   if (data.name === 'showAdvancedSettings') { }
+//   if (data.value) { }
+// })
 // EVT.list.settingInitialized
 // 当设置初始化完毕（以及恢复本地储存的设置）之后触发。这个事件在生命周期里只会触发一次。
+// 重置设置不会触发这个事件
 // 过程中，每个设置项都会触发一次 settingChange 事件
+// 最后会触发一次 settingInitialized 事件
 // EVT.list.resetSettingsEnd
 // 重置设置之后触发
 // 导入设置之后触发
 // 在执行过程中，每个设置项都会触发一次 settingChange 事件
+// 最后会触发一次 settingInitialized 事件
 // 如果打开了多个标签页，每个页面的 settings 数据是相互独立的，在一个页面里修改设置不会影响另一个页面里的设置。
 // 但是持久化保存的数据只有一份：最后一次的设置变化是在哪个页面发生的，就保存哪个页面的 settings 数据。
 // 所以当页面刷新时，或者打开新的页面时，会加载设置最后一次发生变化的页面里的 settings 数据
@@ -34248,6 +34252,7 @@ class Settings {
         slowCrawlDealy: 1600,
         downloadInterval: 0,
         downloadIntervalOnWorksNumber: 120,
+        tipOpenWikiLink: true,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的选项
@@ -34384,6 +34389,7 @@ class Settings {
         this.setSetting('tipAltQToQuickDownload', true);
         this.setSetting('tipBookmarkButton', true);
         this.setSetting('tipBookmarkManage', true);
+        this.setSetting('tipOpenWikiLink', true);
         _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success('✓ ' + _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_重新显示帮助'));
     }
     // 重置设置 或者 导入设置
@@ -34820,10 +34826,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+
 
 
 /**储存每个设置和按钮在 Wiki 上的链接 */
-// 为了方便维护，我没有储存每个设置的 URL，而是储存了分类页面的 URL，以及每个分类下的设置项和按钮的 ID
+// 为了方便维护，我储存了分类页面的 URL，以及每个分类下的设置项和按钮的 ID
 // 需要打开 Wiki 的时候，先跳转到分类页面，然后通过锚点跳转到具体的设置（这部分代码已经添加到了 Wiki 里）
 // 这样即使以后 Wiki 上的 URL 发生变化，也不需要修改代码
 // 只在这些情况下需要修改：
@@ -34833,7 +34841,7 @@ class Wiki {
     constructor() {
         this.bindEvnents();
     }
-    // 由于 Wiki 现在只有简体中文和英语，所以对于其他语言都显示英文
+    // 由于 Wiki 现在只有简体中文和英语，所以只返回这两种语言
     useLang() {
         if (_Language__WEBPACK_IMPORTED_MODULE_1__.lang.type === 'zh-cn' || _Language__WEBPACK_IMPORTED_MODULE_1__.lang.type === 'zh-tw') {
             return 'zh-cn';
@@ -34847,12 +34855,17 @@ class Wiki {
     // 之后由 Wiki 页面上的代码定位到具体的设置项
     // 如果传入的 ID 没有找到对应的分类，则返回 Wiki 首页
     link(id) {
+        if (id === undefined) {
+            console.error('link id is undefined');
+            console.trace();
+            return '';
+        }
         const lang = this.nowLang;
         for (const group in this.groupConfig) {
             const groupName = group;
             if (this.groupConfig[groupName].includes(id)) {
                 const home = this.home[lang];
-                const page = this.groupURL[lang][groupName];
+                const page = this.groupPage[lang][groupName];
                 return `${home}${page}?flag=${id}`;
             }
         }
@@ -34866,82 +34879,11 @@ class Wiki {
     home = {
         'zh-cn': 'https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/',
         en: 'https://xuejianxianzun.github.io/PBDWiki/#/en/',
-    };
-    /**储存每个设置项/按钮 ID 属于哪个分类 */
-    // 设置项的 ID 是数字，按钮的 ID 是字符串
-    // 特殊处理：
-    // - “更多”分类里的“显示高级设置” 57 放到了 More-Crawl 分类里
-    // - 隐藏设置虽然有自己的分类，但是在 Wiki 里统一归纳到了“隐藏设置”页面里，所以它们的 ID 也放到了“More-Hidden”分类里
-    groupConfig = {
-        Crawl: [0, 1, 2, 44, 81, 6, 23, 21, 51, 3, 47, 5, 7, 8, 9, 10, 11, 12],
-        Download: [13, 50, 64, 38, 16, 17, 33],
-        'More-Crawl': [57, 59, 75, 69, 35, 39, 74, 54, 85],
-        'More-Naming': [65, 19, 42, 43, 22, 46, 29, 83, 67, 66],
-        'More-Download': [
-            58, 52, 90, 76, 77, 4, 24, 26, 27, 70, 72, 49, 89, 30, 25, 82, 28,
-        ],
-        'More-Enhance': [
-            60, 84, 87, 68, 63, 55, 71, 62, 40, 56, 86, 48, 88, 18, 34,
-        ],
-        'More-Others': [61, 31, 78, 36, 41, 45, 53, 32, 37],
-        'More-Hidden': [79, 80],
-        'Buttons-Crawl': [
-            'startCrawling',
-            'stopCrawling',
-            'scheduleCrawling',
-            'cancelScheduledCrawling',
-            'manuallySelectWork',
-            'clearSelectedWork',
-            'crawlSelectedWork',
-            'crawlCurrentPageWork',
-            'startCrawlingFromCurrentPageNew',
-            'startCrawlingFromCurrentPageOld',
-            'crawlRelatedWork',
-            'crawlSimilarImage',
-            'crawlCurrentWork',
-            'crawlImagesOnThisPage',
-            'crawlRankingWork',
-            'crawlDebutWork',
-            'filterResults',
-            'crawlTagList',
-            'exportFollowingListCSV',
-            'exportFollowingListJSON',
-            'batchFollowUser',
-            'crawlById',
-            'crawlIdRange',
-            'importIDList',
-            'crawlSeriesNovel',
-            'mergeSeriesNovel',
-            'clearMultiImageWork',
-            'clearUgoiraWork',
-            'manuallyDeleteWork',
-        ],
-        'Buttons-Download': [
-            'importCrawlResults',
-            'importCrawlResultsJSON',
-            'importCrawlResultsCSV',
-            'previewFileName',
-            'startDownload',
-            'pauseDownload',
-            'stopDownload',
-            'copyURLs',
-        ],
-        'Buttons-More': [
-            'bookmarkAllWorksOnPage',
-            'addTagToUnmarkedWork',
-            'removeTagsFromAllWorksOnPage',
-            'unBookmarkAllWorksOnPage',
-            'unBookmarkAll404Works',
-            'exportBookmarkList',
-            'importBookmarkList',
-            'clearSavedCrawlResult',
-            'saveUserAvatar',
-            'saveUserAvatarAsIcon',
-            'saveUserCoverImage',
-        ],
+        // 'zh-cn': 'http://localhost:3000/#/zh-cn/',
+        // en: 'http://localhost:3000/#/en/',
     };
     /**储存每个分类对应的页面 */
-    groupURL = {
+    groupPage = {
         'zh-cn': {
             Crawl: '设置-抓取',
             Download: '设置-下载',
@@ -34969,6 +34911,81 @@ class Wiki {
             'Buttons-More': 'Buttons-More',
         },
     };
+    /**储存每个分类里包含哪些设置项/按钮 */
+    // 设置项的 ID 是数字，按钮的 ID 是字符串
+    // 特殊处理：
+    // - “更多”分类里的“显示高级设置”（57）放到了 More-Crawl 分类里
+    // - 隐藏设置虽然有自己的分类，但是在 Wiki 里统一归纳到了“隐藏设置”页面里，所以它们的 ID 也放到了 More-Hidden 分类里
+    groupConfig = {
+        Crawl: [0, 1, 2, 44, 81, 6, 23, 21, 51, 3, 47, 5, 7, 8, 9, 10, 11, 12],
+        Download: [13, 50, 64, 38, 16, 17, 33],
+        'More-Crawl': [57, 59, 75, 69, 35, 39, 74, 54, 85],
+        'More-Naming': [65, 19, 42, 43, 22, 46, 29, 83, 67, 66],
+        'More-Download': [
+            58, 52, 90, 76, 77, 4, 24, 26, 27, 70, 72, 49, 89, 30, 25, 82, 28,
+        ],
+        'More-Enhance': [
+            60, 84, 87, 68, 63, 55, 71, 62, 40, 56, 86, 48, 88, 18, 34,
+        ],
+        'More-Others': [61, 31, 78, 36, 41, 45, 53, 32, 37],
+        'More-Hidden': [79, 80],
+        'Buttons-Crawl': [
+            'startCrawling',
+            'stopCrawling',
+            'scheduleCrawling',
+            'cancelScheduledCrawling',
+            'manuallySelectWork',
+            'clearSelectedWork',
+            'crawlSelectedWork',
+            'crawlCurrentPageWork',
+            'startCrawlingFromCurrentPageNew',
+            'startCrawlingFromCurrentPageOld',
+            'crawlRelatedWork',
+            'downloadRecommendedWorks',
+            'crawlSimilarImage',
+            'crawlCurrentWork',
+            'crawlImagesOnThisPage',
+            'crawlRankingWork',
+            'crawlDebutWork',
+            'filterResults',
+            'crawlTagList',
+            'startCrawlingInFollowingPage',
+            'exportFollowingListCSV',
+            'exportFollowingListJSON',
+            'batchFollowUser',
+            'crawlById',
+            'crawlIdRange',
+            'importIDList',
+            'crawlSeriesNovel',
+            'mergeSeriesNovel',
+            'clearMultiImageWork',
+            'clearUgoiraWork',
+            'manuallyDeleteWork',
+        ],
+        'Buttons-Download': [
+            'importCrawlResults',
+            'exportCrawlResultsJSON',
+            'exportCrawlResultsCSV',
+            'previewFileName',
+            'startDownload',
+            'pauseDownload',
+            'stopDownload',
+            'copyURLs',
+        ],
+        'Buttons-More': [
+            'bookmarkAllWorksOnPage',
+            'addTagToUnmarkedWork',
+            'removeTagsFromAllWorksOnPage',
+            'unBookmarkAllWorksOnPage',
+            'unBookmarkAll404Works',
+            'exportBookmarkList',
+            'importBookmarkList',
+            'clearSavedCrawlResult',
+            'saveUserAvatar',
+            'saveUserAvatarAsIcon',
+            'saveUserCoverImage',
+        ],
+    };
     bindEvnents() {
         // 当语言变化时（用户在设置里修改了语言），修改 FormHTML 里的 URL 为对应的语言
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.langChange, () => {
@@ -34980,7 +34997,53 @@ class Wiki {
                 }, 100);
             }
         });
+        // 获取提示元素
+        window.setTimeout(() => {
+            const el = document.querySelector('p#tipOpenWikiLinkWrap');
+            if (el) {
+                this.tipEl = el;
+                const btn = this.tipEl.querySelector('button');
+                btn.addEventListener('click', () => {
+                    (0,_Settings__WEBPACK_IMPORTED_MODULE_2__.setSetting)('tipOpenWikiLink', false);
+                    this.displayTipEl(false);
+                });
+            }
+        }, 0);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'tipOpenWikiLink') {
+                this.displayTipEl(data.value);
+            }
+        });
     }
+    /**在 btn 上长按鼠标左键，或长按屏幕时，如果持续时间超过 500 ms 还未松开，则打开链接 */
+    registerBtn(btn) {
+        let timer;
+        btn.addEventListener('mousedown', (ev) => {
+            if (ev.button === 0) {
+                timer = window.setTimeout(() => {
+                    this.openLink(btn.id);
+                }, 500);
+            }
+        });
+        btn.addEventListener('mouseup', (ev) => {
+            if (ev.button === 0) {
+                window.clearTimeout(timer);
+            }
+        });
+        btn.addEventListener('touchstart', (ev) => {
+            timer = window.setTimeout(() => {
+                this.openLink(btn.id);
+            }, 500);
+        });
+        btn.addEventListener('touchend', (ev) => {
+            window.clearTimeout(timer);
+        });
+        btn.addEventListener('touchcancel', (ev) => {
+            window.clearTimeout(timer);
+        });
+    }
+    /**当下载器的语言变化时，重设每个设置项的 href 属性 */
     resetWikiLink() {
         // 查找所有 a.settingNameStyle 元素，并把它们的 href 属性修改为对应语言的 URL
         const allLinks = document.querySelectorAll('a.settingNameStyle');
@@ -34993,6 +35056,15 @@ class Wiki {
                 el.setAttribute('href', link);
             }
         });
+    }
+    tipEl;
+    /**控制提示元素的显示和隐藏 */
+    displayTipEl(show) {
+        window.setTimeout(() => {
+            if (this.tipEl) {
+                this.tipEl.style.display = show ? 'block' : 'none';
+            }
+        }, 0);
     }
 }
 const wiki = new Wiki();
