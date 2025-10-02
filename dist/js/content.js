@@ -18149,6 +18149,7 @@ class DownloadControl {
             }
             // UUID 的情况
             if (msg.data?.uuid) {
+                this.pauseDownload();
                 _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_uuid'), 1, false, 'filenameUUID');
                 _MsgBox__WEBPACK_IMPORTED_MODULE_21__.msgBox.once(this.msgFlag, _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_uuid'), 'show');
             }

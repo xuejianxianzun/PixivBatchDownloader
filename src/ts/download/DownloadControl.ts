@@ -177,6 +177,7 @@ class DownloadControl {
       if (msg.data?.uuid) {
         log.log(lang.transl('_uuid'), 1, false, 'filenameUUID')
         msgBox.once(this.msgFlag, lang.transl('_uuid'), 'show')
+        this.pauseDownload()
       }
 
       // 文件下载成功
