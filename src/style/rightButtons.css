@@ -16,31 +16,24 @@
   position: fixed;
   z-index: 1000;
   font-size: 18px;
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  & .icon {
-    vertical-align: middle;
-  }
 }
-
+.rightButton:hover {
+  opacity: 0.8;
+}
+.rightButton .icon {
+  vertical-align: middle;
+}
 #openCenterPanelBtn {
   top: 15%;
   background: #80b9f7;
   background: -webkit-linear-gradient(top, #bce4ff 0%, #35adfd 100%);
 }
-
 #quickCrawlBtn {
   top: 21%;
   background: #0096fa;
   background: -webkit-linear-gradient(top, #47b4ff 0%, #027fd2 100%);
   font-size: 17px;
 }
-
-body.mobile {
-  #quickCrawlBtn {
-    top: 26%;
-  }
+body.mobile #quickCrawlBtn {
+  top: 26%;
 }

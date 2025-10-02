@@ -86,13 +86,13 @@
   max-width: inherit;
   box-sizing: border-box;
   width: 86vw;
-  padding: 5vh 3vw;
   top: 6vh;
-  max-height: 80vh;
+  max-height: 90vh;
   font-size: 16px;
   font-family: sans-serif;
-  padding: 5vw 3vh;
+  padding: 4vh 2vw;
+  margin: 3vh 0;
 }
 .xz_msg_box.mobile .content {
-  max-height: 50vh;
+  max-height: 60vh;
 }

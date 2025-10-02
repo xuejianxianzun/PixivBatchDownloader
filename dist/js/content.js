@@ -2278,6 +2278,7 @@ class CenterPanel {
         this.titleAnimationEl = this.centerPanel.querySelector('.title_active');
         // 设置移动端样式
         if (_Config__WEBPACK_IMPORTED_MODULE_5__.Config.mobile) {
+            document.body.classList.add('mobile');
             this.centerPanel.classList.add('mobile');
         }
     }

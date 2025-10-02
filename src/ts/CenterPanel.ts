@@ -128,6 +128,7 @@ class CenterPanel {
 
     // 设置移动端样式
     if (Config.mobile) {
+      document.body.classList.add('mobile')
       this.centerPanel.classList.add('mobile')
     }
   }
