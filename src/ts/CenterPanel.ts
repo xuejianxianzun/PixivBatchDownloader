@@ -214,10 +214,7 @@ class CenterPanel {
         let msg =
           lang.transl('_常见问题说明') + lang.transl('_账户可能被封禁的警告')
         if (Config.mobile) {
-          msg =
-            msg +
-            '<br><br>' +
-            lang.transl('_移动端浏览器可能不会建立文件夹的说明')
+          msg += lang.transl('_移动端浏览器可能不会建立文件夹的说明')
         }
         msgBox.show(msg, {
           title: lang.transl('_常见问题'),

@@ -12,8 +12,8 @@
   transform: translate(-50%);
   text-align: center;
   font-family:
-    'Noto Sans SC', 'Noto Sans', 'Segeo UI Mono', 'Hiragino Sans GB',
-    'Microsoft YaHei', sans-serif;
+    'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 .xz_msg_box p {
   margin: 0;
@@ -83,10 +83,16 @@
 }
 .xz_msg_box.mobile {
   min-width: inherit;
-  width: 86vw;
   max-width: inherit;
-  padding: 5vw 3vw;
+  box-sizing: border-box;
+  width: 86vw;
+  padding: 5vh 3vw;
   top: 6vh;
+  max-height: 80vh;
   font-size: 16px;
   font-family: sans-serif;
+  padding: 5vw 3vh;
+}
+.xz_msg_box.mobile .content {
+  max-height: 50vh;
 }

@@ -2342,10 +2342,7 @@ class CenterPanel {
             .addEventListener('click', () => {
             let msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_常见问题说明') + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_账户可能被封禁的警告');
             if (_Config__WEBPACK_IMPORTED_MODULE_5__.Config.mobile) {
-                msg =
-                    msg +
-                        '<br><br>' +
-                        _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_移动端浏览器可能不会建立文件夹的说明');
+                msg += _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_移动端浏览器可能不会建立文件夹的说明');
             }
             _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.show(msg, {
                 title: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_常见问题'),
@@ -15170,7 +15167,7 @@ One possible reason: You have been banned from Pixiv.`);
                 }
                 const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.json2Blob(IDList);
                 const url = URL.createObjectURL(blob);
-                _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.downloadFile(url, '404 bookmark ID list.txt');
+                _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.downloadFile(url, '404 bookmark ID list.json');
                 _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已导出被删除的作品的ID列表'));
             }
             const bookmarkDataList = Array.from(this.bookmarkDataList);
@@ -18149,9 +18146,9 @@ class DownloadControl {
             }
             // UUID 的情况
             if (msg.data?.uuid) {
-                this.pauseDownload();
                 _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_uuid'), 1, false, 'filenameUUID');
                 _MsgBox__WEBPACK_IMPORTED_MODULE_21__.msgBox.once(this.msgFlag, _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_uuid'), 'show');
+                this.pauseDownload();
             }
             // 文件下载成功
             if (msg.msg === 'downloaded') {
