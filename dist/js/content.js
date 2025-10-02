@@ -12470,10 +12470,17 @@ class CrawlRecommendWorks {
         if (!target) {
             return;
         }
-        const btn = document.createElement('button');
-        btn.textContent = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载推荐作品');
-        btn.classList.add('blueTextBtn');
-        btn.id = 'downloadRecommendedWorks';
+        const btnHtml = `<button
+  class="blueTextBtn hasRippleAnimation"
+  id="downloadRecommendedWorks"
+  type="button">
+  <span data-xztext="_下载推荐作品"></span><span class="ripple"></span>
+</button>`;
+        document.body.insertAdjacentHTML('beforeend', btnHtml);
+        const btn = document.querySelector('#downloadRecommendedWorks');
+        const span = btn.querySelector('span');
+        span.textContent = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载推荐作品');
+        _Language__WEBPACK_IMPORTED_MODULE_2__.lang.register(span);
         _setting_Wiki__WEBPACK_IMPORTED_MODULE_4__.wiki.registerBtn(btn);
         btn.addEventListener('click', () => {
             // 传递 ID 列表时需要复制一份，因为如果直接传递变量，那么这个数组会在抓取之后被清空
