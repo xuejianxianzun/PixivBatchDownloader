@@ -29864,14 +29864,15 @@ class DeleteWorks {
         this.delMode = !this.delMode;
         this.bindDeleteEvent();
         this.updateDeleteIcon();
+        const span = this.delBtn.querySelector('span');
         if (this.delMode) {
-            _Language__WEBPACK_IMPORTED_MODULE_1__.lang.updateText(this.delBtn, '_退出手动删除');
+            _Language__WEBPACK_IMPORTED_MODULE_1__.lang.updateText(span, '_退出手动删除');
             window.setTimeout(() => {
                 _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('closeCenterPanel');
             }, 100);
         }
         else {
-            _Language__WEBPACK_IMPORTED_MODULE_1__.lang.updateText(this.delBtn, '_手动删除作品');
+            _Language__WEBPACK_IMPORTED_MODULE_1__.lang.updateText(span, '_手动删除作品');
         }
     }
     // 清除多图作品

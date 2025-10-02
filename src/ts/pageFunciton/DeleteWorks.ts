@@ -178,13 +178,14 @@ class DeleteWorks {
 
     this.updateDeleteIcon()
 
+    const span = this.delBtn.querySelector('span')
     if (this.delMode) {
-      lang.updateText(this.delBtn, '_退出手动删除')
+      lang.updateText(span!, '_退出手动删除')
       window.setTimeout(() => {
         EVT.fire('closeCenterPanel')
       }, 100)
     } else {
-      lang.updateText(this.delBtn, '_手动删除作品')
+      lang.updateText(span!, '_手动删除作品')
     }
   }
 
