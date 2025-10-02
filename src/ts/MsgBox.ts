@@ -120,7 +120,7 @@ class MsgBox {
     }
 
     wrap.innerHTML = `
-        <div class="title" ${colorStyle}>${data.title || Config.appName}</div>
+        <div class="title">${data.title || Config.appName}</div>
         <div class="content beautify_scrollbar" ${colorStyle}>${data.msg}</div>
         ${
           data.hiddenBtn

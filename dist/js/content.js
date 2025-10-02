@@ -5445,7 +5445,7 @@ class MsgBox {
             colorStyle = `style="color:${data.color}"`;
         }
         wrap.innerHTML = `
-        <div class="title" ${colorStyle}>${data.title || _Config__WEBPACK_IMPORTED_MODULE_5__.Config.appName}</div>
+        <div class="title">${data.title || _Config__WEBPACK_IMPORTED_MODULE_5__.Config.appName}</div>
         <div class="content beautify_scrollbar" ${colorStyle}>${data.msg}</div>
         ${data.hiddenBtn
             ? ''
