@@ -1,6 +1,9 @@
-import { lang } from '../Lang'
+import browser from 'webextension-polyfill'
+import { lang } from '../Language'
 import { log } from '../Log'
 import { Utils } from '../utils/Utils'
+import { Config } from '../Config'
+import { SendToBackEndData } from './DownloadType'
 
 class DownloadNovelCover {
   /**下载小说的封面图片
@@ -14,7 +17,7 @@ class DownloadNovelCover {
   ) {
     log.log(lang.transl('_下载封面图片'), 1, false, 'downloadNovelCover')
 
-    const url = await this.getCoverBolbURL(coverURL)
+    const blob = await this.getCover(coverURL)
     let coverName = Utils.replaceSuffix(novelName, coverURL)
 
     // 合并系列小说时，文件直接保存在下载目录里，封面图片也保存在下载目录里
@@ -22,28 +25,32 @@ class DownloadNovelCover {
     if (action === 'mergeNovel') {
       coverName = Utils.replaceUnsafeStr(coverName)
     }
-    this.sendDownload(url, coverName)
-  }
 
-  // 生成封面图片的 Blob URL
-  private async getCoverBolbURL(coverURL: string): Promise<string> {
-    return new Promise(async (resolve, reject) => {
-      const res = await fetch(coverURL, {
-        method: 'get',
-        credentials: 'same-origin',
-      })
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      return resolve(url)
-    })
-  }
+    let dataURL: string | undefined = undefined
+    if (Config.sendDataURL) {
+      dataURL = await Utils.blobToDataURL(blob)
+    }
 
-  private sendDownload(url: string, name: string) {
-    chrome.runtime.sendMessage({
+    // 不检查下载状态，默认下载成功
+    const sendData: SendToBackEndData = {
       msg: 'save_novel_cover_file',
-      fileUrl: url,
-      fileName: name,
+      fileName: coverName,
+      id: 'fake',
+      taskBatch: -1,
+      blobURL: URL.createObjectURL(blob),
+      blob: Config.sendBlob ? blob : undefined,
+      dataURL,
+    }
+    browser.runtime.sendMessage(sendData)
+  }
+
+  private async getCover(coverURL: string): Promise<Blob> {
+    const res = await fetch(coverURL, {
+      method: 'get',
+      credentials: 'same-origin',
     })
+    const blob = await res.blob()
+    return blob
   }
 }
 

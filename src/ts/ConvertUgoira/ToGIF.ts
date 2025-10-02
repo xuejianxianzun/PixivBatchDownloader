@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill'
 import { EVT } from '../EVT'
 import { UgoiraInfo } from '../crawl/CrawlResult'
 
@@ -12,7 +13,7 @@ class ToGIF {
 
   // 添加转换 GIF 的 worker 文件
   private async loadWorkerJS() {
-    let gifWorker = await fetch(chrome.runtime.getURL('lib/gif.worker.js'))
+    let gifWorker = await fetch(browser.runtime.getURL('lib/gif.worker.js'))
     const gifWorkerBolb = await gifWorker.blob()
     this.gifWorkerUrl = URL.createObjectURL(gifWorkerBolb)
   }

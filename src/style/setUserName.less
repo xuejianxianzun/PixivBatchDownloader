@@ -1,3 +1,5 @@
+@import './var.less';
+
 .setUserNameWrap {
   input::-webkit-input-placeholder,
   textarea::-webkit-input-placeholder {
@@ -12,9 +14,13 @@
     border: none;
     background: none;
     outline: none;
-    padding: 1px 3px;
+    padding: 0px 3px;
     cursor: pointer;
     color: #666;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
     &.add {
       padding: 1px 8px;
     }
@@ -22,92 +28,118 @@
 
   .controlBar {
     display: inline;
-    padding: 5px 0;
     color: #666;
+  }
+
+  .controlBar * {
+    line-height: @height;
   }
 
   .addWrap {
     display: none;
+    // 默认不显示，显示时为 flex
+    // display: flex;
 
     button.cancel .icon {
       font-size: 1.3em;
+    }
+
+    .addUidInput {
+      max-width: 120px;
     }
   }
 
   .settingItem {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     padding: 5px 0;
+
     .inputItem {
       margin-right: 10px;
+
       .label {
         color: #444;
       }
+
       &.uid {
         input {
-          width: auto;
-          max-width: 100px;
+          width: auto !important;
+          min-width: 100px !important;
         }
       }
+
       &.name {
         flex: 1;
         display: flex;
         min-width: 100px;
         max-width: 220px;
+
         input {
           flex: 1;
+          width: auto !important;
         }
       }
+
       span {
-        padding-right: 10px;
+        padding-right: 4px;
+        line-height: @height;
       }
     }
 
     .btns {
       & button:first-child {
-        display: inline-block;
         margin-right: 6px;
       }
 
       button[data-updaterule] .icon {
         font-size: 1.4em;
       }
+
       padding-right: 20px;
     }
   }
+
   .listWrap {
     display: flex;
     flex-wrap: wrap;
+
     .settingItem {
-      flex-basis: 50%;
+      button.refresh {
+        // 刷新图标显示的靠上，把它下移一些
+        svg {
+          position: relative;
+          top: 1px;
+        }
+      }
     }
   }
-}
 
-.theme-dark {
-  &.setUserNameWrap {
-    div,
-    span {
-      color: #fff !important;
-    }
+  .theme-dark {
+    &.setUserNameWrap {
+      div,
+      span {
+        color: #fff !important;
+      }
 
-    input::-webkit-input-placeholder,
-    textarea::-webkit-input-placeholder {
-      color: #ddd;
+      input::-webkit-input-placeholder,
+      textarea::-webkit-input-placeholder {
+        color: #ddd;
+      }
     }
   }
-}
 
-.xzBG {
-  .setUserNameWrap {
-    div,
-    span {
-      color: #fff !important;
-    }
+  .xzBG {
+    .setUserNameWrap {
+      div,
+      span {
+        color: #fff !important;
+      }
 
-    input::-webkit-input-placeholder,
-    textarea::-webkit-input-placeholder {
-      color: #ddd;
+      input::-webkit-input-placeholder,
+      textarea::-webkit-input-placeholder {
+        color: #ddd;
+      }
     }
   }
 }

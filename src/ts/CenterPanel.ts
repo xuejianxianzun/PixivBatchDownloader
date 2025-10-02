@@ -1,4 +1,5 @@
-import { lang } from './Lang'
+import browser from 'webextension-polyfill'
+import { lang } from './Language'
 import { EVT } from './EVT'
 import { states } from './store/States'
 import { theme } from './Theme'
@@ -91,13 +92,20 @@ class CenterPanel {
 
       <div class="centerWrap_con beautify_scrollbar">
 
+      <p id="tipOpenWikiLinkWrap" style="line-height: 1.6;">
+        <span data-xztext="_提示"></span>
+        <span>: </span>
+        <span data-xztext="_提示查看wiki页面"></span>
+        <button class="gray1 textButton" type="button" data-xztext="_我知道了"></button>
+      </p>
+
       <slot data-name="form"></slot>
 
       <div class="help_bar gray1"> 
       <button class="textButton gray1" id="showDownTip" type="button" data-xztext="_常见问题"></button>
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank" data-xztext="_wiki"></a>
       <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
-      <a class="gray1" href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank" data-xztext="_fanboxDownloader"></a>
+      <button class="textButton gray1" id="xzFanboxDownloader" type="button" data-xztext="_fanboxDownloader"></button>
       <button class="textButton gray1" id="showPatronTip" type="button" data-xztext="_赞助我"></button>
       <br>
       </div>
@@ -122,6 +130,7 @@ class CenterPanel {
 
     // 设置移动端样式
     if (Config.mobile) {
+      document.body.classList.add('mobile')
       this.centerPanel.classList.add('mobile')
     }
   }
@@ -136,7 +145,7 @@ class CenterPanel {
 
   private bindEvents() {
     // 监听点击扩展图标的消息，开关中间面板
-    chrome.runtime.onMessage.addListener((msg) => {
+    browser.runtime.onMessage.addListener((msg: any) => {
       if (msg.msg === 'click_icon') {
         this.toggle()
       }
@@ -208,8 +217,7 @@ class CenterPanel {
         let msg =
           lang.transl('_常见问题说明') + lang.transl('_账户可能被封禁的警告')
         if (Config.mobile) {
-          msg =
-            msg + '<br><br>' + lang.transl('_Kiwi浏览器可能不能建立文件夹的bug')
+          msg += lang.transl('_移动端浏览器可能不会建立文件夹的说明')
         }
         msgBox.show(msg, {
           title: lang.transl('_常见问题'),
@@ -221,6 +229,14 @@ class CenterPanel {
       .addEventListener('click', () =>
         msgBox.show(lang.transl('_赞助方式提示'), {
           title: lang.transl('_赞助我'),
+        })
+      )
+
+    this.centerPanel
+      .querySelector('#xzFanboxDownloader')!
+      .addEventListener('click', () =>
+        msgBox.show(lang.transl('_fanboxDownloader的说明'), {
+          title: 'Pixiv Fanbox Downloader',
         })
       )
 

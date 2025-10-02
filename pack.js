@@ -1,4 +1,3 @@
-// build 命令
 const fs = require('fs')
 const path = require('path')
 const copy = require('recursive-copy')
@@ -7,7 +6,12 @@ const archiver = require('archiver')
 const packName = 'powerfulpixivdownloader-special-DelMemory'
 const distPath = './dist-special-DelMemory'
 
-// 复制一些文件到发布目录
+async function build () {
+  await copys()
+  pack()
+}
+
+// 复制必须的文件到发布目录
 async function copys () {
   return new Promise(async (resolve, reject) => {
     // 复制 static 文件夹的内容
@@ -24,7 +28,7 @@ async function copys () {
       filter: ['manifest.json', 'declarative_net_request_rules.json'],
     })
 
-    // 复制根目录一些文件
+    // 复制根目录的一些文件
     await copy('./', distPath, {
       overwrite: true,
       filter: ['README*.md', 'LICENSE'],
@@ -52,21 +56,18 @@ function pack () {
     console.log(`Pack success`)
   })
 
-  // pipe archive data to the file
   archive.pipe(output)
 
-  // 添加文件夹
-  archive.directory(distPath, packName)
+  // 使用 glob 模式打包文件
+  archive.glob('**/*', {
+    cwd: distPath, // 设置工作目录
+    ignore: [
+      '_metadata/**', // 排除 _metadata 文件夹
+    ],
+    dot: false, // 忽略隐藏文件
+  });
 
   archive.finalize()
 }
 
-// 构建
-async function build () {
-  await copys()
-  pack()
-}
-
 build()
-
-console.log('Start pack')

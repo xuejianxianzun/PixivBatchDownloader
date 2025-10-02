@@ -1,7 +1,7 @@
 import { API } from '../API'
 import { Tools } from '../Tools'
 import { EVT } from '../EVT'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { settings, setSetting } from './Settings'
 import { theme } from '../Theme'
 import { toast } from '../Toast'
@@ -185,13 +185,13 @@ class DoNotDownloadLastFewImages {
       </div>
 
       <div class="btns">
-        <button type="button" class="textButton" data-updateRule="${uid}" data-xztitle="_更新">
+        <button type="button" class="textButton refresh" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-gengxin"></use>
           </svg>
         </button>
 
-        <button type="button" class="textButton" data-deleteRule="${uid}" data-xztitle="_删除">
+        <button type="button" class="textButton delete" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-shanchu1"></use>
           </svg>

@@ -1,5 +1,5 @@
 import { EVT } from '../EVT'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { msgBox } from '../MsgBox'
 import { pageType } from '../PageType'
 import { Utils } from '../utils/Utils'
@@ -48,6 +48,11 @@ class NameRuleManager {
   private readonly generalRule = '{page_title}/{id}'
 
   public get rule() {
+    // 在 Pixivision 页面里，总是使用预设的命名规则
+    if (pageType.type === pageType.list.Pixivision) {
+      return settings.nameRuleForEachPageType[pageType.type]
+    }
+
     if (settings.setNameRuleForEachPageType) {
       let rule = settings.nameRuleForEachPageType[pageType.type]
       if (rule === undefined) {
@@ -61,6 +66,10 @@ class NameRuleManager {
   }
 
   public set rule(str: string) {
+    if (pageType.type === pageType.list.Pixivision) {
+      return
+    }
+
     // 检查传递的命名规则的合法性
     // 为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}
     const check =
@@ -118,6 +127,15 @@ class NameRuleManager {
 
   // 设置输入框的值为当前命名规则
   private setInputValue() {
+    // 在 Pixivision 里，不会保存对命名规则的修改，以避免影响其他页面类型
+    // 这是因为：如果用户没有启用“为每个页面类型设置命名规则”，就会影响到其他页面类型里使用的命名规则
+    if (pageType.type === pageType.list.Pixivision) {
+      this.inputList.forEach((input) => {
+        input.value = settings.nameRuleForEachPageType[pageType.type]
+      })
+      return
+    }
+
     // 如果 settings.nameRuleForEachPageType 里面没有当前页面的 key，值就是 undefined，需要设置为默认值
     const rule = this.rule
     this.inputList.forEach((input) => {

@@ -11,6 +11,9 @@
   left: 50%;
   transform: translate(-50%);
   text-align: center;
+  font-family:
+    'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 .xz_msg_box p {
   margin: 0;
@@ -36,15 +39,11 @@
 .xz_msg_box .btn {
   cursor: pointer;
   background: #0ea8ef;
-  box-shadow: #2ca6df 1px 1px 1px;
   color: #fff;
   border: none;
   text-align: center;
   padding: 7px 20px;
   border-radius: 6px;
-}
-.xz_msg_box .btn:hover {
-  font-weight: bold;
 }
 .xz_msg_box a {
   color: #0ea8ef;
@@ -84,10 +83,16 @@
 }
 .xz_msg_box.mobile {
   min-width: inherit;
-  width: 86vw;
   max-width: inherit;
-  padding: 5vw 3vw;
+  box-sizing: border-box;
+  width: 86vw;
   top: 6vh;
+  max-height: 90vh;
   font-size: 16px;
   font-family: sans-serif;
+  padding: 4vh 2vw;
+  margin: 3vh 0;
+}
+.xz_msg_box.mobile .content {
+  max-height: 60vh;
 }

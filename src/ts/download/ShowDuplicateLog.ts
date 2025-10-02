@@ -1,5 +1,5 @@
 import { EVT } from '../EVT'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { DonwloadSkipData } from './DownloadType'
 import { log } from '../Log'

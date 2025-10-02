@@ -1,6 +1,6 @@
 import { EVT } from '../EVT'
 import { Tools } from '../Tools'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { formHtml } from './FormHTML'
 import { SettingsForm } from './SettingsForm'
 import { SaveNamingRule } from './SaveNamingRule'
@@ -235,12 +235,22 @@ class Form {
         })
       })
 
-    // 显示设置页数的提示
+    // 显示抓取多少作品的提示
+    const showSetWantWorkTipButton = this.form.querySelector(
+      '.showSetWantWorkTip'
+    ) as HTMLButtonElement
+    showSetWantWorkTipButton.addEventListener('click', () => {
+      msgBox.show(lang.transl('_抓取多少作品的提示'), {
+        title: lang.transl('_抓取多少作品'),
+      })
+    })
+
+    // 显示抓取多少页面的提示
     const showSetWantPageTipButton = this.form.querySelector(
       '.showSetWantPageTip'
     ) as HTMLButtonElement
     showSetWantPageTipButton.addEventListener('click', () => {
-      msgBox.show(lang.transl('_设置页数的提示'), {
+      msgBox.show(lang.transl('_抓取多少页面的提示'), {
         title: lang.transl('_抓取多少页面'),
       })
     })
@@ -296,7 +306,7 @@ class Form {
 
       // 重设子选项区域的显示/隐藏状态
       if (subOption) {
-        subOption.style.display = input.checked ? 'inline' : 'none'
+        subOption.style.display = input.checked ? 'inline-flex' : 'none'
       }
     }
   }

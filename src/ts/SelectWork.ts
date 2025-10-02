@@ -1,6 +1,6 @@
 import { Tools } from './Tools'
 import { Colors } from './Colors'
-import { lang } from './Lang'
+import { lang } from './Language'
 import { EVT } from './EVT'
 import { states } from './store/States'
 import { IDData, WorkTypeString } from './store/StoreType'
@@ -71,7 +71,9 @@ class SelectWork {
   }
 
   private controlBtn: HTMLButtonElement = document.createElement('button') // 启动、暂停、继续选择的按钮
+  private controlTextSpan: HTMLSpanElement = document.createElement('span') // 按钮里的文字
   private crawlBtn: HTMLButtonElement = document.createElement('button') // 抓取选择的作品的按钮，并且会退出选择模式
+  private crawlTextSpan: HTMLSpanElement = document.createElement('span') // 按钮里的文字
   private clearBtn: HTMLButtonElement = document.createElement('button') // 清空选择的作品的按钮
 
   private selectedWorkFlagClass = 'selectedWorkFlag' // 给已选择的作品添加标记时使用的 class
@@ -199,7 +201,7 @@ class SelectWork {
 
     const show = this.canSelect() && !this.tempHide
 
-    this.selector.style.display = show ? 'block' : 'none'
+    this.selector.style.display = show ? 'flex' : 'none'
     // 设置元素的 style 时，如果新的值和旧的值相同（例如：每次都设置 display 为 none），Chrome 会自动优化，此时不会导致节点发生变化。
 
     // 如果选择器处于隐藏状态，就不会更新其坐标。这样可以优化性能
@@ -213,15 +215,19 @@ class SelectWork {
     this.controlBtn = Tools.addBtn(
       'selectWorkBtns',
       Colors.bgGreen,
-      '_手动选择作品'
+      '_手动选择作品',
+      'Alt + S',
+      'manuallySelectWork'
     )
-    this.controlBtn.setAttribute('title', 'Alt + S')
+    this.controlTextSpan = this.controlBtn.querySelector('span')!
     this.updateControlBtn()
 
     this.clearBtn = Tools.addBtn(
       'selectWorkBtns',
       Colors.bgRed,
-      '_清空选择的作品'
+      '_清空选择的作品',
+      '',
+      'clearSelectedWork'
     )
     this.clearBtn.style.display = 'none'
     this.clearBtn.addEventListener('click', () => {
@@ -233,21 +239,24 @@ class SelectWork {
     this.crawlBtn = Tools.addBtn(
       'selectWorkBtns',
       Colors.bgBlue,
-      '_抓取选择的作品'
+      '_抓取选择的作品',
+      '',
+      'crawlSelectedWork'
     )
     this.crawlBtn.style.display = 'none'
     this.crawlBtn.addEventListener('click', (ev) => {
       this.sendDownload()
     })
+    this.crawlTextSpan = this.crawlBtn.querySelector('span')!
   }
 
   // 切换控制按钮的文字和点击事件
   private updateControlBtn() {
     if (!this.start) {
-      lang.updateText(this.controlBtn, '_手动选择作品')
+      lang.updateText(this.controlTextSpan, '_手动选择作品')
       this.controlBtn.onclick = (ev) => {
         this.startSelect(ev)
-        this.clearBtn.style.display = 'block'
+        this.clearBtn.style.display = 'flex'
         if (!Config.mobile) {
           showHelp.show(
             'tipAltSToSelectWork',
@@ -257,12 +266,12 @@ class SelectWork {
       }
     } else {
       if (!this.pause) {
-        lang.updateText(this.controlBtn, '_暂停选择')
+        lang.updateText(this.controlTextSpan, '_暂停选择')
         this.controlBtn.onclick = (ev) => {
           this.pauseSelect()
         }
       } else {
-        lang.updateText(this.controlBtn, '_继续选择')
+        lang.updateText(this.controlTextSpan, '_继续选择')
         this.controlBtn.onclick = (ev) => {
           this.startSelect(ev)
         }
@@ -272,16 +281,16 @@ class SelectWork {
 
   // 在选择作品的数量改变时，在抓取按钮上显示作品数量
   private updateCrawlBtn() {
-    this.crawlBtn.style.display = this.start ? 'block' : 'none'
+    this.crawlBtn.style.display = this.start ? 'flex' : 'none'
     if (this.idList.length > 0) {
       lang.updateText(
-        this.crawlBtn,
+        this.crawlTextSpan,
         '_抓取选择的作品2',
         this.idList.length.toString()
       )
-      this.clearBtn.style.display = 'block'
+      this.clearBtn.style.display = 'flex'
     } else {
-      lang.updateText(this.crawlBtn, '_抓取选择的作品')
+      lang.updateText(this.crawlTextSpan, '_抓取选择的作品')
     }
   }
 

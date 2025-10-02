@@ -1,7 +1,9 @@
 @import './var.less';
 
-@contentOffsetWidth: 700px;
+@contentWidth: 700px;
 @sidePadding: 25px;
+// 表单内容区域的最大宽度，小于表单容器宽度，这样可以使内容与右侧滚动条之间留出一定间距
+@formContentWidth: 650px;
 
 .centerWrap {
   background-color: #fff;
@@ -11,7 +13,7 @@
   z-index: 5000;
   font-size: 14px;
   display: none;
-  width: @contentOffsetWidth;
+  width: @contentWidth;
   left: -350px;
   margin-left: 50%;
   top: 4vh;
@@ -19,6 +21,7 @@
   padding: 20px 0px;
   border-radius: 15px;
   overflow: hidden;
+  font-family: @pixivFontFamily;
 
   hr {
     border: none;
@@ -38,8 +41,8 @@
   }
 
   p {
-    line-height: 26px;
-    min-height: 26px;
+    line-height: @height;
+    min-height: @height;
     height: auto;
     margin: 0;
   }
@@ -168,7 +171,7 @@
       width: 33.3%;
       height: 2px;
       background: @beautifyBlue;
-      top: 36px;
+      top: 35px;
       left: 0%;
       z-index: 1001;
       transition: left 0.2s;
@@ -198,6 +201,10 @@
       display: none;
     }
 
+    .showFileNameTip {
+      height: @height;
+    }
+
     .centerWrap_top_btn:hover,
     .centerWrap_top_btn:focus,
     .showFileNameTip:hover,
@@ -218,18 +225,136 @@
 
     .settingForm {
       position: relative;
-      // 表单区域设置最大宽度，使其与右侧滚动条保持距离，否则里面的内容会紧贴着滚动条，很难看
-      max-width: 650px;
+      max-width: @formContentWidth;
 
-      p.option > *,
-      .setWantPageWrap > * {
-        line-height: 20px;
-        vertical-align: middle;
+      // 使选项里的元素在交叉轴上（垂直）对齐到顶部
+      p.option {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        column-gap: 4px;
+        margin: 2px 0;
+
+        // 给内部元素设置统一的行高。否则的话，span 元素没有行高的话，其高度就是字体尺寸（14px），对齐到顶部后太靠上了，与其他元素的中轴线没有对齐
+        & > * {
+          line-height: @height;
+          flex-shrink: 0;
+        }
+
+        // 对于美化的复选框，其原本高度是 14px，使用 margin 将其占据的高度撑到 @height
+        .beautify_switch,
+        .beautify_checkbox {
+          margin: 6px 0;
+        }
+
+        .beautify_radio {
+          margin: 7px 0;
+        }
+
+        .subOptionWrap {
+          max-width: 100%;
+          min-height: @height;
+          line-height: @height;
+          display: inline-flex;
+          flex-wrap: wrap;
+          align-items: flex-start;
+          flex-grow: 1;
+          column-gap: 4px;
+
+          & > * {
+            line-height: @height;
+          }
+        }
+
+        // 选项的文字占据左侧空间，subOptionWrap 占据右侧空间
+        // 但是有些 subOptionWrap 需要占满整行宽度。通常有两种情况：
+        // 1. 有 textarea 的，因为宽度比较窄的话很影响 textarea 的使用效果
+        // 2. 有添加列表之类的功能，比如“针对特定用户屏蔽标签”，右侧的元素比较多，空间太小的话很拥挤
+        &[data-no='12'] .subOptionWrap,
+        &[data-no='35'] .subOptionWrap,
+        &[data-no='39'] .subOptionWrap,
+        &[data-no='43'] .subOptionWrap,
+        &[data-no='80'] .subOptionWrap,
+        .setUserNameWrap,
+        .DoNotDownloadLastFewImagesWarp {
+          flex-basis: 100%;
+        }
+
+        &.settingCategoryName {
+          justify-content: center;
+          margin: 14px 0;
+          position: relative;
+          text-align: center;
+
+          span {
+            display: inline-block;
+            height: @height;
+            padding: 0px 20px;
+            line-height: @height !important;
+            font-size: 1.1em;
+            color: #666;
+            font-weight: bold;
+            background-color: #fff;
+            border-radius: 4px;
+          }
+
+          &::after {
+            display: block;
+            content: '';
+            position: absolute;
+            top: 14px;
+            width: 100%;
+            height: 1px;
+            background-color: #eee;
+            z-index: -1;
+          }
+        }
+
+        .setinput_style1 {
+          width: 50px;
+          min-width: 50px;
+          font-size: 14px !important;
+          height: 20px;
+          line-height: 20px;
+          margin: 3px 0;
+          text-indent: 4px;
+          box-sizing: border-box;
+          border: none !important;
+          border-bottom: 1px solid #ccc !important;
+          outline: 0;
+          padding: 0 !important;
+          background: none !important;
+
+          &:focus,
+          &:hover {
+            border-bottom: 1px solid #0096fa !important;
+          }
+
+          &.w100 {
+            width: 100px;
+          }
+
+          &.postDate {
+            width: 190px;
+          }
+
+          &.bmkNum {
+            width: 60px;
+          }
+        }
+
+        button[role='setMin'],
+        button[role='setMax'] {
+          height: 22px;
+          line-height: 22px;
+          margin: 2px 0;
+        }
       }
 
       select {
         width: 80px;
-        height: 20px;
+        height: 22px;
+        margin: 2px 0;
         vertical-align: middle;
         border-radius: 4px;
         border: 1px solid rgb(204, 204, 204);
@@ -244,11 +369,6 @@
         line-height: 1;
       }
 
-      p > *,
-      p .subOptionWrap > * {
-        vertical-align: middle;
-      }
-
       p strong,
       p .key {
         vertical-align: baseline !important;
@@ -256,18 +376,19 @@
 
       p button,
       .controlBar span {
-        vertical-align: middle;
+        line-height: @height;
       }
 
       .centerPanelTextArea {
-        font-family: sans-serif;
+        font-family: @pixivFontFamily;
         color: @beautifyBlue;
         font-size: 14px;
-        line-height: 1.5;
         background: transparent;
-        padding: 5px 5px 1px;
-        width: 100%;
-        min-height: 20px;
+        padding: 0;
+        flex-basis: 100%;
+        flex-grow: 1;
+        min-height: @height;
+        line-height: 1.7;
         // 在排行榜页面，Pixiv 设置了 textarea 的高度为 20 px，
         // 需要解除限制，否则下载器的输入区域无法撑开高度
         height: auto;
@@ -328,7 +449,8 @@
       }
 
       .beautify_switch {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
         width: 24px;
         height: 14px;
         position: relative;
@@ -341,13 +463,10 @@
 
       .beautify_switch::before {
         content: '';
-        position: absolute;
-        top: 1px;
         height: 12px;
         width: 12px;
         border-radius: 50%;
         background: #fff;
-        left: 0;
         margin-left: 0px;
         transition: all 0.3s;
       }
@@ -357,7 +476,7 @@
       }
 
       .checkbox_switch:checked + .beautify_switch::before {
-        margin-left: 12px;
+        margin-left: 11px;
       }
 
       /*--------美化普通的复选框------------*/
@@ -369,6 +488,7 @@
         box-sizing: border-box;
         width: 14px;
         height: 14px;
+        margin: 6px 0;
         background-color: #fff;
         z-index: 1;
         transition: all 0.3s;
@@ -456,49 +576,18 @@
         position: relative;
       }
 
-      .setinput_style1 {
-        width: 50px;
-        min-width: 50px;
-        line-height: 20px;
-        font-size: 14px !important;
-        height: 20px;
-        text-indent: 4px;
-        box-sizing: border-box;
-        border: none !important;
-        border-bottom: 1px solid #ccc !important;
-        outline: 0;
-        padding: 0 !important;
-        background: none !important;
-
-        &:focus,
-        &:hover {
-          border-bottom: 1px solid #0096fa !important;
-        }
-
-        &.w100 {
-          width: 100px;
-        }
-
-        &.postDate {
-          width: 190px;
-        }
-
-        &.bmkNum {
-          width: 60px;
-        }
-      }
-
       .progressBar1,
       .right1 {
         width: 100%;
       }
 
       .fileNameRule {
-        min-width: 310px;
+        min-width: 310px !important;
       }
 
       .setinput_tag {
         min-width: 300px;
+        flex-grow: 1;
       }
 
       .showFileNameTip {
@@ -528,16 +617,11 @@
           justify-content: center;
           text-align: center;
           line-height: 20px;
-          border-radius: 5px;
+          border-radius: 6px;
           cursor: pointer;
           margin-bottom: 8px;
           vertical-align: top;
           box-shadow: 0 1px 6px #eee;
-
-          &:hover,
-          &:focus {
-            opacity: 0.8;
-          }
         }
       }
 
@@ -662,7 +746,7 @@
         display: none;
 
         .download_status_text_wrap {
-          line-height: 26px;
+          line-height: @height;
           margin-bottom: 4px;
 
           & > * {
@@ -676,22 +760,29 @@
         }
       }
 
-      .settingNameStyle1 {
+      // 选项名称，设置最大宽度。不设置的话，由于俄语文本的一些选项名特别长，会导致出现横向滚动条
+      .settingNameStyle {
         cursor: pointer;
-        margin-right: 10px;
+        margin-right: 4px;
+        max-width: @formContentWidth;
       }
 
       .verticalSplit {
         display: inline-block;
         width: 0px;
         height: 16px;
+        // 使其占据的高度达到 26 px
+        margin: 5px 4px;
         border-right: 1px solid #ccc;
-        margin: 0 10px;
       }
 
       .saveNamingRuleWrap {
         display: inline-block;
         position: relative;
+
+        button {
+          height: @height;
+        }
       }
 
       .namingRuleList {
@@ -766,34 +857,16 @@
         padding: 0 3px;
       }
     }
-  }
 
-  .settingCategoryName {
-    position: relative;
-    text-align: center;
-    margin: 6px auto;
-
-    span {
-      display: inline-block;
-      height: 26px;
-      padding: 0px 20px;
-      line-height: 26px !important;
-      font-size: 1.1em;
-      color: #666;
-      font-weight: bold;
-      background-color: #fff;
-      border-radius: 4px;
+    // 导出日志时，排除的关键字的输入框
+    // 允许其增加宽度，否则它的宽度很窄
+    input[name='exportLogExclude'] {
+      width: auto !important;
     }
 
-    &::after {
-      display: block;
-      content: '';
-      position: absolute;
-      top: 14px;
-      width: 100%;
-      height: 1px;
-      background-color: #eee;
-      z-index: -1;
+    // 背景图片的不透明度滑动条，调整其占据的高度为 @height
+    input[name='bgOpacity'] {
+      margin: 5px 0;
     }
   }
 }
@@ -801,9 +874,11 @@
 .centerWrap.mobile {
   width: 90vw;
   left: -45vw;
-  top: 10vw;
+  top: 10vh;
+  max-height: 80vh;
   font-size: 16px;
   font-family: @MobileFontFamily;
+  overflow: auto;
 
   .centerWrap_head {
     .centerWrap_title {
@@ -886,7 +961,7 @@
     }
 
     .grayButton {
-      background-color: #999;
+      background-color: #aaa;
     }
 
     .grayButton:hover,
@@ -924,8 +999,8 @@
 
     .settingCategoryName {
       span {
-        color: #fff;
-        background-color: #222;
+        color: @beautifyBlue !important;
+        text-shadow: none !important;
       }
     }
   }
@@ -956,7 +1031,7 @@
 
     .gray1,
     .centerWrap_top_btn {
-      color: #ddd !important;
+      color: #eee !important;
       text-shadow: #003247 0px 0px 2px;
     }
 
@@ -1033,8 +1108,16 @@
 
     .settingCategoryName {
       span {
-        color: #fff;
-        background-color: #777;
+        color: @beautifyBlue !important;
+        text-shadow: none !important;
+        // 如果用户设置了背景图片，则使分类名称的背景色变为半透明白色，并添加模糊效果，使其更加美观
+        // 如果不使用半透明白色，而是使用纯白色，则会遮挡住背景图片，影响美观
+        background-color: rgba(255, 255, 255, 0.8) !important;
+        backdrop-filter: blur(3px) !important;
+      }
+
+      &::after {
+        background-color: rgba(255, 255, 255, 0.8) !important;
       }
     }
   }
@@ -1085,13 +1168,6 @@
   input[name='workDirNameRule'] {
     width: 170px !important;
   }
-
-  &.showBlobKeywords {
-    .key {
-      font-weight: normal !important;
-      color: inherit !important;
-    }
-  }
 }
 
 .lang_ko {
@@ -1111,15 +1187,16 @@
   }
 
   * {
-    font-family: 'NotoSans', sans-serif;
+    font-family: @pixivFontFamily;
   }
 }
 
 @media (max-width: 414px) {
   .centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns button {
-    width: 142px;
-    margin-right: 8px;
-    padding: 12px 8px;
+    box-sizing: border-box;
+    flex-basis: 47%;
+    margin-right: 3%;
+    padding: 10px 6px;
   }
 
   .centerWrap .centerWrap_con .settingForm .setinput_style1.fileNameRule {

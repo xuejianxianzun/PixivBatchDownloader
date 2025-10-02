@@ -1,4 +1,8 @@
 /* 显示更大的缩略图 */
+.width94vw {
+  width: 94vw !important;
+  max-width: unset !important;
+}
 ul li div[data-mouseover] a img {
   position: relative;
   width: auto !important;
@@ -8,6 +12,11 @@ ul li div[data-mouseover] a img {
 ul li div[data-mouseover][size='131'] a img {
   max-width: 100%;
   max-height: 131px;
+}
+div[open] a[data-gtm-value] div img {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: revert !important;
 }
 body[data-page-type='-1'] .cwAKCq {
   width: auto;

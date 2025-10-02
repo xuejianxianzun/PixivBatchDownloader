@@ -1,7 +1,8 @@
 // 下载文件，然后发送给浏览器进行保存
+import browser from 'webextension-polyfill'
 import { EVT } from '../EVT'
 import { log } from '../Log'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { fileName } from '../FileName'
 import { convertUgoira } from '../ConvertUgoira/ConvertUgoira'
 import {
@@ -151,6 +152,7 @@ class Download {
     // 404, 500 错误，跳过，不会再尝试下载这个文件（因为没有触发 downloadError 事件，所以不会重试下载）
     if (status === 404 || status === 500) {
       log.error(errorMsg)
+      log.error(lang.transl('_下载器不会再重试下载它'))
       return this.skipDownload({
         id: fileId,
         reason: status.toString() as '404' | '500',
@@ -175,6 +177,7 @@ class Download {
     }
 
     // 其他状态码，暂时跳过这个任务，但最后还是会尝试重新下载它
+    log.log(lang.transl('_下载器会暂时跳过它'))
     this.error = true
     EVT.fire('downloadError', fileId)
   }
@@ -352,14 +355,14 @@ class Download {
       }
 
       // 生成下载链接
-      const blobUrl = URL.createObjectURL(file)
+      const blobURL = URL.createObjectURL(file)
 
       // 对插画、漫画进行颜色检查
       // 在这里进行检查的主要原因：抓取时只会检查单图作品的颜色，不会检查多图作品的颜色。所以多图作品需要在这里进行检查。
       // 另一个原因：如果抓取时没有设置图片的颜色条件，下载时才设置颜色条件，那么就必须在这里进行检查。
       if (arg.result.type === 0 || arg.result.type === 1) {
         const result = await filter.check({
-          mini: blobUrl,
+          mini: blobURL,
         })
         if (!result) {
           return this.skipDownload(
@@ -376,7 +379,7 @@ class Download {
       if (settings.setFileDownloadOrder) {
         await this.waitPreviousFileDownload()
       }
-      this.browserDownload(blobUrl, _fileName, arg.id, arg.taskBatch)
+      this.browserDownload(file, blobURL, _fileName, arg.id, arg.taskBatch)
       xhr = null as any
       file = null as any
     })
@@ -408,29 +411,37 @@ class Download {
   }
 
   // 向浏览器发送下载任务
-  private browserDownload(
-    blobUrl: string,
+  private async browserDownload(
+    blob: Blob,
+    blobURL: string,
     fileName: string,
     id: string,
     taskBatch: number
   ) {
     // 如果任务已停止，不会向浏览器发送下载任务
     if (this.cancel) {
-      // 释放 bloburl
-      URL.revokeObjectURL(blobUrl)
+      // 释放 blob URL
+      URL.revokeObjectURL(blobURL)
       return
+    }
+
+    let dataURL: string | undefined = undefined
+    if (Config.sendDataURL) {
+      dataURL = await Utils.blobToDataURL(blob)
     }
 
     const sendData: SendToBackEndData = {
       msg: 'save_work_file',
-      fileUrl: blobUrl,
       fileName: fileName,
       id,
       taskBatch,
+      blobURL,
+      blob: Config.sendBlob ? blob : undefined,
+      dataURL,
     }
 
     try {
-      chrome.runtime.sendMessage(sendData)
+      browser.runtime.sendMessage(sendData)
       EVT.fire('sendBrowserDownload')
     } catch (error) {
       let msg = `${lang.transl('_发生错误原因')}<br>{}${lang.transl(

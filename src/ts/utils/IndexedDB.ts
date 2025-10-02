@@ -74,7 +74,7 @@ class IndexedDB {
 
   // 向一个存储库中批量添加数据
   public async batchAddData(storeName: string, dataList: any[], key: any) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise<void>(async (resolve, reject) => {
       if (dataList.length === 0) {
         resolve()
       }
@@ -104,7 +104,7 @@ class IndexedDB {
       }
 
       async function insert(data: any) {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
           // 如果 key 已存在，则使用 put
           const type: 'add' | 'put' = existedKeys.includes(data[key])
             ? 'put'
@@ -229,7 +229,7 @@ class IndexedDB {
   }
 
   public async clear(storeNames: string) {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       if (this.db === undefined) {
         reject('Database is not defined')
         return
@@ -254,7 +254,7 @@ class IndexedDB {
     storeNames: string,
     CB: (c: IDBCursorWithValue | null) => void
   ) {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       if (this.db === undefined) {
         reject('Database is not defined')
         return

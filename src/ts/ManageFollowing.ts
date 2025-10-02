@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill'
+
 export interface FollowingData {
   /** 指示这个对象属于哪个用户 id **/
   user: string
@@ -22,6 +24,11 @@ interface SetData {
   total: number
 }
 
+type Msg = {
+  msg: string
+  data?: SetData
+}
+
 interface UserOperate {
   action: '' | 'add' | 'remove'
   loggedUserID: string
@@ -33,9 +40,9 @@ class ManageFollowing {
   constructor() {
     this.restore()
 
-    chrome.runtime.onInstalled.addListener(async () => {
+    browser.runtime.onInstalled.addListener(async () => {
       // 每次更新或刷新扩展时尝试读取数据，如果数据不存在则设置数据
-      const data = await chrome.storage.local.get(this.store)
+      const data = await browser.storage.local.get(this.store)
       if (
         data[this.store] === undefined ||
         Array.isArray(data[this.store]) === false
@@ -44,62 +51,68 @@ class ManageFollowing {
       }
     })
 
-    chrome.runtime.onMessage.addListener(async (msg, sender) => {
-      if (msg.msg === 'requestFollowingData') {
-        this.dispatchFollowingList(sender?.tab)
-      }
+    browser.runtime.onMessage.addListener(
+      async (msg: unknown, sender: browser.Runtime.MessageSender) => {
+        if (!this.isMsg(msg)) {
+          return false
+        }
 
-      if (msg.msg === 'needUpdateFollowingData') {
-        if (this.status === 'locked') {
-          // 查询上次执行更新任务的标签页还是否存在，如果不存在，
-          // 则改为让这次发起请求的标签页执行更新任务
-          const tabs = await this.findAllPixivTab()
-          const find = tabs.find((tab) => tab.id === this.updateTaskTabID)
-          if (!find) {
-            this.updateTaskTabID = sender!.tab!.id!
+        if (msg.msg === 'requestFollowingData') {
+          this.dispatchFollowingList(sender?.tab)
+        }
+
+        if (msg.msg === 'needUpdateFollowingData') {
+          if (this.status === 'locked') {
+            // 查询上次执行更新任务的标签页还是否存在，如果不存在，
+            // 则改为让这次发起请求的标签页执行更新任务
+            const tabs = await this.findAllPixivTab()
+            const find = tabs.find((tab) => tab.id === this.updateTaskTabID)
+            if (!find) {
+              this.updateTaskTabID = sender!.tab!.id!
+            } else {
+              // 如果上次执行更新任务的标签页依然存在，且状态锁定，则拒绝这次请求
+              return
+            }
           } else {
-            // 如果上次执行更新任务的标签页依然存在，且状态锁定，则拒绝这次请求
+            this.updateTaskTabID = sender!.tab!.id!
+          }
+
+          this.status = 'locked'
+
+          browser.tabs.sendMessage(this.updateTaskTabID, {
+            msg: 'updateFollowingData',
+          })
+        }
+
+        if (msg.msg === 'setFollowingData') {
+          const data = msg.data as SetData
+          // 当前台获取新的关注列表完成之后，会发送此消息。
+          // 如果发送消息的页面和发起请求的页面是同一个，则解除锁定状态
+          if (sender!.tab!.id === this.updateTaskTabID) {
+            // set 操作不会被放入等待队列中，而且总是会被立即执行
+            // 这是因为在请求数据的过程中可能产生了其他操作，set 操作的数据可能已经是旧的了
+            // 所以需要先应用 set 里的数据，然后再执行其他操作，在旧数据的基础上进行修改
+            this.setData(data)
+
+            // 如果队列中没有等待的操作，则立即派发数据并储存数据
+            // 如果有等待的操作，则不派发和储存数据，因为稍后队列执行完毕后也会派发和储存数据
+            // 这是为了避免重复派发和储存数据，避免影响性能
+            if (this.queue.length === 0) {
+              this.dispatchFollowingList()
+              this.storage()
+            }
+
+            this.status = 'idle'
             return
           }
-        } else {
-          this.updateTaskTabID = sender!.tab!.id!
+          // 如果不是同一个页面，这个 set 操作会被丢弃
         }
-
-        this.status = 'locked'
-
-        chrome.tabs.sendMessage(this.updateTaskTabID, {
-          msg: 'updateFollowingData',
-        })
       }
-
-      if (msg.msg === 'setFollowingData') {
-        const data = msg.data as SetData
-        // 当前台获取新的关注列表完成之后，会发送此消息。
-        // 如果发送消息的页面和发起请求的页面是同一个，则解除锁定状态
-        if (sender!.tab!.id === this.updateTaskTabID) {
-          // set 操作不会被放入等待队列中，而且总是会被立即执行
-          // 这是因为在请求数据的过程中可能产生了其他操作，set 操作的数据可能已经是旧的了
-          // 所以需要先应用 set 里的数据，然后再执行其他操作，在旧数据的基础上进行修改
-          this.setData(data)
-
-          // 如果队列中没有等待的操作，则立即派发数据并储存数据
-          // 如果有等待的操作，则不派发和储存数据，因为稍后队列执行完毕后也会派发和储存数据
-          // 这是为了避免重复派发和储存数据，避免影响性能
-          if (this.queue.length === 0) {
-            this.dispatchFollowingList()
-            this.storage()
-          }
-
-          this.status = 'idle'
-          return
-        }
-        // 如果不是同一个页面，这个 set 操作会被丢弃
-      }
-    })
+    )
 
     // 监听用户新增或取消一个关注的请求
     // 由于某些逻辑相似，就添加到一个监听器里了
-    chrome.webRequest.onBeforeRequest.addListener(
+    browser.webRequest.onBeforeRequest.addListener(
       (details) => {
         if (details.method === 'POST') {
           if (details?.requestBody?.formData) {
@@ -142,19 +155,17 @@ class ManageFollowing {
             }
 
             // 获取发起请求的标签页里的登录的用户 ID
-            chrome.tabs.sendMessage(
-              details.tabId,
-              {
+            browser.tabs
+              .sendMessage(details.tabId, {
                 msg: 'getLoggedUserID',
-              },
-              (response) => {
+              })
+              .then((response: any) => {
                 if (response?.loggedUserID) {
                   operate.loggedUserID = response.loggedUserID
                   this.queue.push(operate)
                   this.executionQueue()
                 }
-              }
-            )
+              })
           }
         }
       },
@@ -177,6 +188,11 @@ class ManageFollowing {
     this.clearUnusedData()
   }
 
+  // 类型守卫
+  private isMsg(msg: any): msg is Msg {
+    return !!msg.msg
+  }
+
   private readonly store = 'following'
 
   private data: List = []
@@ -194,9 +210,9 @@ class ManageFollowing {
     }
 
     this.status = 'loading'
-    const data = await chrome.storage.local.get(this.store)
+    const data = await browser.storage.local.get(this.store)
     if (data[this.store] && Array.isArray(data[this.store])) {
-      this.data = data[this.store]
+      this.data = data[this.store] as List
       this.status = 'idle'
     } else {
       return setTimeout(() => {
@@ -209,16 +225,16 @@ class ManageFollowing {
    * 可以指定向哪个 tab 派发
    * 如果未指定 tab，则向所有的 pixiv 标签页派发
    */
-  private async dispatchFollowingList(tab?: chrome.tabs.Tab) {
+  private async dispatchFollowingList(tab?: browser.Tabs.Tab) {
     if (tab?.id) {
-      chrome.tabs.sendMessage(tab.id, {
+      browser.tabs.sendMessage(tab.id, {
         msg: 'dispathFollowingData',
         data: this.data,
       })
     } else {
       const tabs = await this.findAllPixivTab()
       for (const tab of tabs) {
-        chrome.tabs.sendMessage(tab.id!, {
+        browser.tabs.sendMessage(tab.id!, {
           msg: 'dispathFollowingData',
           data: this.data,
         })
@@ -231,7 +247,7 @@ class ManageFollowing {
   ) {
     const tabs = await this.findAllPixivTab()
     for (const tab of tabs) {
-      chrome.tabs.sendMessage(tab.id!, {
+      browser.tabs.sendMessage(tab.id!, {
         msg: 'dispatchRecaptchaToken',
         data: recaptcha_enterprise_score_token,
       })
@@ -239,7 +255,7 @@ class ManageFollowing {
   }
 
   private storage() {
-    return chrome.storage.local.set({ following: this.data })
+    return browser.storage.local.set({ following: this.data })
   }
 
   /**执行队列中的所有操作 */
@@ -305,7 +321,7 @@ class ManageFollowing {
   }
 
   private async findAllPixivTab() {
-    const tabs = await chrome.tabs.query({
+    const tabs = await browser.tabs.query({
       url: 'https://*.pixiv.net/*',
     })
     return tabs

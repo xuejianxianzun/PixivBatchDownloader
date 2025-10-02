@@ -173,7 +173,7 @@ class PreviewWorkDetailInfo {
     })
 
     wrap.addEventListener(
-      'mousewheel',
+      'wheel',
       (ev) => {
         if (this.show) {
           ev.preventDefault()

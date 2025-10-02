@@ -1,8 +1,7 @@
 //初始化 artwork 作品页
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
-import { options } from '../setting/Options'
+import { lang } from '../Language'
 import { store } from '../store/Store'
 import { userWorksType } from '../crawl/CrawlArgument'
 import { Tools } from '../Tools'
@@ -12,6 +11,7 @@ import { Utils } from '../utils/Utils'
 import { pageType } from '../PageType'
 import './CrawlRecommendWorks'
 import '../pageFunciton/ShowDownloadBtnOnMultiImageWorkPage'
+import { settings } from '../setting/Settings'
 
 class InitArtworkPage extends InitPageBase {
   constructor() {
@@ -65,7 +65,9 @@ class InitArtworkPage extends InitPageBase {
     Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
-      '_从本页开始抓取new'
+      '_从本页开始抓取new',
+      '',
+      'startCrawlingFromCurrentPageNew'
     ).addEventListener('click', () => {
       this.crawlDirection = -1
       this.readyCrawl()
@@ -74,7 +76,9 @@ class InitArtworkPage extends InitPageBase {
     Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
-      '_从本页开始抓取old'
+      '_从本页开始抓取old',
+      '',
+      'startCrawlingFromCurrentPageOld'
     ).addEventListener('click', () => {
       this.crawlDirection = 1
       this.readyCrawl()
@@ -83,7 +87,9 @@ class InitArtworkPage extends InitPageBase {
     const downRelatedBtn = Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
-      '_抓取相关作品'
+      '_抓取相关作品',
+      '',
+      'crawlRelatedWork'
     )
     downRelatedBtn.addEventListener(
       'click',
@@ -93,17 +99,6 @@ class InitArtworkPage extends InitPageBase {
       },
       false
     )
-  }
-
-  protected setFormOption() {
-    // 个数/页数选项的提示
-    options.setWantPageTip({
-      text: '_抓取多少作品',
-      tip: '_从本页开始下载提示',
-      rangTip: '_数字提示1',
-      min: 1,
-      max: -1,
-    })
   }
 
   protected destroy() {
@@ -118,16 +113,24 @@ class InitArtworkPage extends InitPageBase {
         this.crawlDirection === -1
           ? lang.transl('_从本页开始抓取new')
           : lang.transl('_从本页开始抓取old')
-      this.crawlNumber = this.checkWantPageInput(
-        lang.transl('_从本页开始下载x个'),
-        crawlAllTip
-      )
+      this.crawlNumber = settings.crawlNumber[pageType.type].value
+      if (this.crawlNumber === -1) {
+        log.warning(crawlAllTip)
+      } else {
+        log.warning(
+          lang.transl('_从本页开始下载x个', this.crawlNumber.toString())
+        )
+      }
     } else {
       // 相关作品的提示
-      this.crawlNumber = this.checkWantPageInput(
-        lang.transl('_下载x个相关作品'),
-        lang.transl('_下载所有相关作品')
-      )
+      this.crawlNumber = settings.crawlNumber[pageType.type].value
+      if (this.crawlNumber === -1) {
+        log.warning(lang.transl('_下载所有相关作品'))
+      } else {
+        log.warning(
+          lang.transl('_下载x个相关作品', this.crawlNumber.toString())
+        )
+      }
     }
   }
 

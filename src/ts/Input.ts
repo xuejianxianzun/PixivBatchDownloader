@@ -1,5 +1,5 @@
 import { Config } from './Config'
-import { lang } from './Lang'
+import { lang } from './Language'
 import { theme } from './Theme'
 
 interface Option {
@@ -92,13 +92,19 @@ class Input {
     container.append(input)
 
     const submitButton = document.createElement('button')
-    submitButton.classList.add('XZInputButton')
-    submitButton.textContent = option.submitButtonText!
+    submitButton.classList.add('XZInputButton', 'hasRippleAnimation')
+    submitButton.innerHTML = `
+      <span>${option.submitButtonText}</span>
+      <span class="ripple"></span>
+    `
     container.append(submitButton)
 
     const cancelButton = document.createElement('button')
-    cancelButton.classList.add('XZInputButton', 'cancel')
-    cancelButton.textContent = lang.transl('_取消')
+    cancelButton.classList.add('XZInputButton', 'cancel', 'hasRippleAnimation')
+    cancelButton.innerHTML = `
+      <span>${lang.transl('_取消')}</span>
+      <span class="ripple"></span>
+    `
     container.append(cancelButton)
 
     wrap.append(container)

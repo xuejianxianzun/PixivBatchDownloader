@@ -9,13 +9,12 @@ assignees: ''
 
 **Question self-test**
 
-Please follow the steps below first to see if the problem is resolved:
+Please first follow the steps below to see if the issue is resolved:
 
-1. If the browser is not Chrome or Edge, please use Chrome or Edge browser to install this extension.
-2. If your Chrome or Edge browser is not the latest version, please update your browser.
-3. If this extension is not the latest version, please update to the latest version. The latest version number: ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
-4. Try refreshing the problematic tab, or restart the browser.
-5. Search for the keyword of the problem in the issues list of this repository to see if someone has already reported this problem.
+1. Search the issue's keywords in this repository's issues list to see if it has already been reported.
+2. If your browser is not up to date, please update it.
+3. If your extension is not up to date, please update it.
+4. Try refreshing the tab or restarting your browser.
 
 Before you report a bug, please make sure you have performed the above checks.
 

@@ -1,5 +1,5 @@
 import { EVT } from '../EVT'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { store } from '../store/Store'
 import { Utils } from '../utils/Utils'
 import { Config } from '../Config'
@@ -76,7 +76,10 @@ class OutputPanel {
     <div class="outputTitle" data-xztext="_输出信息"></div>
     <div class="outputContent beautify_scrollbar"></div>
     <div class="outputFooter">
-    <button class="outputCopy" data-xztext="_复制"></button>
+    <button class="outputCopy hasRippleAnimation">
+      <span data-xztext="_复制"></span>
+      <span class="ripple"></span>
+    </button>
     </div>
     </div>
     `

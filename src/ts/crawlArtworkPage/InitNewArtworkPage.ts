@@ -1,8 +1,7 @@
 // 初始化 本站的最新作品 artwork 页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
-import { options } from '../setting/Options'
+import { lang } from '../Language'
 import { NewIllustOption } from '../crawl/CrawlArgument'
 import { NewIllustData } from '../crawl/CrawlResult'
 import { filter, FilterOption } from '../filter/Filter'
@@ -12,9 +11,9 @@ import { log } from '../Log'
 import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
-import { Config } from '../Config'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { settings } from '../setting/Settings'
+import { pageType } from '../PageType'
 
 class InitNewArtworkPage extends InitPageBase {
   constructor() {
@@ -33,7 +32,8 @@ class InitNewArtworkPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_开始抓取',
-      '_下载大家的新作品'
+      '_下载大家的新作品',
+      'startCrawling'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -44,19 +44,9 @@ class InitNewArtworkPage extends InitPageBase {
 
   protected initAny() {}
 
-  protected setFormOption() {
-    // 个数/页数选项的提示
-    options.setWantPageTip({
-      text: '_抓取多少作品',
-      tip: '_想要获取多少个作品',
-      rangTip: `1 - ${this.maxCount}`,
-      min: 1,
-      max: this.maxCount,
-    })
-  }
-
   protected getWantPage() {
-    this.crawlNumber = this.checkWantPageInputGreater0(this.maxCount, false)
+    this.crawlNumber = settings.crawlNumber[pageType.type].value
+    log.warning(lang.transl('_从本页开始下载x个', this.crawlNumber.toString()))
   }
 
   protected nextStep() {

@@ -1,4 +1,4 @@
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { log } from '../Log'
 import { EVT } from '../EVT'
 import { states } from '../store/States'

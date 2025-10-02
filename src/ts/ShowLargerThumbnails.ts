@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill'
 import { Config } from './Config'
 import { EVT } from './EVT'
 import { pageType } from './PageType'
@@ -24,7 +25,7 @@ class ShowLargerThumbnails {
 
   private async loadCssText() {
     const css = await fetch(
-      chrome.runtime.getURL('style/showLargerThumbnails.css')
+      browser.runtime.getURL('style/showLargerThumbnails.css')
     )
     this.css = await css.text()
     this.setCss()
@@ -164,6 +165,20 @@ class ShowLargerThumbnails {
               iframe.remove()
             }
           })
+        }
+      }
+    }
+
+    // artwork 页面
+    if (pageType.type === pageType.list.Artwork) {
+      // 查找底部的 相关作品 或 推荐作品（有些作品的底部是相关作品，有的是推荐作品，我不清楚是什么规律）
+      const ul = document.querySelectorAll('aside ul')
+      if (ul.length > 0) {
+        const useUL = ul[ul.length - 1]
+        const div = useUL.closest('div')
+        if (div) {
+          div.classList.add('width94vw')
+          this.needFind = false
         }
       }
     }

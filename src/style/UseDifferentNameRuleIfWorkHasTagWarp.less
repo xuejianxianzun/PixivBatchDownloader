@@ -1,3 +1,5 @@
+@import './var.less';
+
 .UseDifferentNameRuleIfWorkHasTagWarp {
   input::-webkit-input-placeholder,
   textarea::-webkit-input-placeholder {
@@ -15,6 +17,9 @@
     padding: 1px 3px;
     cursor: pointer;
     color: #666;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
     &.add {
       padding: 1px 8px;
@@ -27,8 +32,14 @@
     color: #666;
   }
 
+  .controlBar * {
+    line-height: @height;
+  }
+
   .addWrap {
     display: none;
+    // 默认不显示，显示时为 flex
+    // display: flex;
 
     button.cancel .icon {
       font-size: 1.3em;
@@ -37,6 +48,7 @@
 
   .settingItem {
     display: flex;
+    flex-wrap: wrap;
     flex-basis: 100%;
     align-items: center;
     padding: 5px 0;
@@ -57,6 +69,7 @@
       &.tags {
         input {
           flex: 1;
+          width: auto !important;
         }
       }
 
@@ -68,17 +81,20 @@
 
         input {
           flex: 1;
+          width: auto !important;
         }
       }
 
       span {
-        padding-right: 10px;
+        padding-right: 4px;
+        line-height: @height;
       }
     }
 
     .btns {
+      display: flex;
+
       & button:first-child {
-        display: inline-block;
         margin-right: 6px;
       }
 
@@ -93,6 +109,14 @@
   .listWrap {
     display: flex;
     flex-wrap: wrap;
+
+    button.refresh {
+      // 刷新图标显示的靠上，把它下移一些
+      svg {
+        position: relative;
+        top: 1px;
+      }
+    }
   }
 }
 

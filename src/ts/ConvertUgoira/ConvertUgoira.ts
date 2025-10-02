@@ -5,7 +5,7 @@ import { toWebM } from './ToWebM'
 import { toGIF } from './ToGIF'
 import { toAPNG } from './ToAPNG'
 import { msgBox } from '../MsgBox'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { log } from '../Log'
 

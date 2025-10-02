@@ -1,7 +1,7 @@
 import { store } from '../store/Store'
 import { EVT } from '../EVT'
 import { fileName } from '../FileName'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Config } from '../Config'
 import { toast } from '../Toast'
 import { Tools } from '../Tools'
@@ -18,7 +18,13 @@ class PreviewFileName {
       this.previewFileName()
     })
 
-    const prevBtn = Tools.addBtn('namingBtns', Colors.bgGreen, '_预览文件名')
+    const prevBtn = Tools.addBtn(
+      'namingBtns',
+      Colors.bgGreen,
+      '_预览文件名',
+      '',
+      'previewFileName'
+    )
 
     prevBtn.addEventListener(
       'click',

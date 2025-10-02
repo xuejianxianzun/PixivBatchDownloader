@@ -1,4 +1,4 @@
-// 下载控制
+import browser from 'webextension-polyfill'
 import { EVT } from '../EVT'
 import { Tools } from '../Tools'
 import {
@@ -10,7 +10,7 @@ import {
 } from './DownloadType'
 import { store } from '../store/Store'
 import { log } from '../Log'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Colors } from '../Colors'
 import { setSetting, settings } from '../setting/Settings'
 import { Download } from '../download/Download'
@@ -28,7 +28,6 @@ import { Utils } from '../utils/Utils'
 import { pageType } from '../PageType'
 import { msgBox } from '../MsgBox'
 import './CheckWarningMessage'
-import { showHelp } from '../ShowHelp'
 
 class DownloadControl {
   constructor() {
@@ -97,6 +96,11 @@ class DownloadControl {
 
   private readonly msgFlag = 'uuidTip'
 
+  // 类型守卫
+  private isDownloadedMsg(msg: any): msg is DownloadedMsg {
+    return !!msg.msg
+  }
+
   private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
       this.hideResultBtns()
@@ -160,8 +164,12 @@ class DownloadControl {
     })
 
     // 监听浏览器返回的消息
-    chrome.runtime.onMessage.addListener((msg: DownloadedMsg) => {
+    browser.runtime.onMessage.addListener((msg: any) => {
       if (!this.taskBatch) {
+        return
+      }
+
+      if (!this.isDownloadedMsg(msg)) {
         return
       }
 
@@ -169,11 +177,11 @@ class DownloadControl {
       if (msg.data?.uuid) {
         log.log(lang.transl('_uuid'), 1, false, 'filenameUUID')
         msgBox.once(this.msgFlag, lang.transl('_uuid'), 'show')
+        this.pauseDownload()
       }
 
       // 文件下载成功
       if (msg.msg === 'downloaded') {
-        // 释放 BLOBURL
         URL.revokeObjectURL(msg.data.url)
 
         // 发送下载成功的事件
@@ -227,7 +235,7 @@ class DownloadControl {
         })
 
         // 通知后台清除保存的此标签页的 idList
-        chrome.runtime.sendMessage({
+        browser.runtime.sendMessage({
           msg: 'clearDownloadsTempData',
         })
       } else {
@@ -244,42 +252,58 @@ class DownloadControl {
   private createDownloadArea() {
     const html = `<div class="download_area">
     <div class="centerWrap_btns">
-    <button class="startDownload" type="button" style="background:${Colors.bgBlue};" data-xztext="_开始下载"></button>
-    <button class="pauseDownload" type="button" style="background:${Colors.bgYellow};" data-xztext="_暂停下载"></button>
-    <button class="stopDownload" type="button" style="background:${Colors.bgRed};" data-xztext="_停止下载"></button>
-    <button class="copyUrl" type="button" style="background:${Colors.bgGreen};" data-xztext="_复制url"></button>
+      <slot data-name="downloadControlBtns"></slot>
     </div>
     <div class="download_status_text_wrap">
-    <span data-xztext="_当前状态"></span>
-    <span class="down_status" data-xztext="_未开始下载"></span>
-    <span class="skip_tip warn"></span>
-    <span class="convert_tip warn"></span>
-    <span class="bmkAfterDL_tip green"></span>
+      <span data-xztext="_当前状态"></span>
+      <span class="down_status" data-xztext="_未开始下载"></span>
+      <span class="skip_tip warn"></span>
+      <span class="convert_tip warn"></span>
+      <span class="bmkAfterDL_tip green"></span>
     </div>
     </div>`
 
     this.wrapper = Tools.useSlot('downloadArea', html) as HTMLDivElement
     lang.register(this.wrapper)
 
-    this.wrapper
-      .querySelector('.startDownload')!
-      .addEventListener('click', () => {
-        this.startDownload()
-      })
+    // 添加按钮
+    Tools.addBtn(
+      'downloadControlBtns',
+      Colors.bgBlue,
+      '_开始下载',
+      '',
+      'startDownload'
+    ).addEventListener('click', () => {
+      this.startDownload()
+    })
 
-    this.wrapper
-      .querySelector('.pauseDownload')!
-      .addEventListener('click', () => {
-        this.pauseDownload()
-      })
+    Tools.addBtn(
+      'downloadControlBtns',
+      Colors.bgYellow,
+      '_暂停下载',
+      '',
+      'pauseDownload'
+    ).addEventListener('click', () => {
+      this.pauseDownload()
+    })
 
-    this.wrapper
-      .querySelector('.stopDownload')!
-      .addEventListener('click', () => {
-        this.stopDownload()
-      })
+    Tools.addBtn(
+      'downloadControlBtns',
+      Colors.bgRed,
+      '_停止下载',
+      '',
+      'stopDownload'
+    ).addEventListener('click', () => {
+      this.stopDownload()
+    })
 
-    this.wrapper.querySelector('.copyUrl')!.addEventListener('click', () => {
+    Tools.addBtn(
+      'downloadControlBtns',
+      Colors.bgGreen,
+      '_复制url',
+      '',
+      'copyURLs'
+    ).addEventListener('click', () => {
       EVT.fire('showURLs')
     })
   }
@@ -291,7 +315,9 @@ class DownloadControl {
       this.resultBtns.importJSON = Tools.addBtn(
         'exportResult',
         Colors.bgGreen,
-        '_导入抓取结果'
+        '_导入抓取结果',
+        '',
+        'importCrawlResults'
       )
       // 导入抓取结果的按钮始终显示，因为它需要始终可用。
       // 导出抓取结果的按钮只有在可以准备下载时才显示
@@ -308,7 +334,9 @@ class DownloadControl {
       this.resultBtns.exportJSON = Tools.addBtn(
         'exportResult',
         Colors.bgGreen,
-        '_导出抓取结果'
+        '_导出抓取结果',
+        '',
+        'exportCrawlResultsJSON'
       )
       this.resultBtns.exportJSON.style.display = 'none'
 
@@ -324,7 +352,9 @@ class DownloadControl {
       this.resultBtns.exportCSV = Tools.addBtn(
         'exportResult',
         Colors.bgGreen,
-        '_导出csv'
+        '_导出csv',
+        '',
+        'exportCrawlResultsCSV'
       )
       this.resultBtns.exportCSV.style.display = 'none'
 
@@ -332,14 +362,6 @@ class DownloadControl {
         'click',
         () => {
           EVT.fire('exportCSV')
-        },
-        false
-      )
-
-      this.resultBtns.exportCSV.addEventListener(
-        'mouseenter',
-        () => {
-          showHelp.show('tipCSV', lang.transl('_导出CSV文件的提示'))
         },
         false
       )
@@ -436,7 +458,7 @@ class DownloadControl {
     log.success(lang.transl('_正在下载中'))
 
     if (Config.mobile) {
-      log.warning(lang.transl('_Kiwi浏览器可能不能建立文件夹的bug'))
+      log.warning(lang.transl('_移动端浏览器可能不会建立文件夹的说明'))
     }
   }
 

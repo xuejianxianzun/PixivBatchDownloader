@@ -6,7 +6,7 @@ import { PreviewUgoira } from './PreviewUgoira'
 import { ArtworkData } from './crawl/CrawlResult'
 import { states } from './store/States'
 import { toast } from './Toast'
-import { lang } from './Lang'
+import { lang } from './Language'
 import { Colors } from './Colors'
 import { showHelp } from './ShowHelp'
 import { store } from './store/Store'
@@ -151,7 +151,7 @@ class ShowOriginSizeImage {
     })
 
     this.wrap.addEventListener(
-      'mousewheel',
+      'wheel',
       (ev) => {
         ev.preventDefault()
         // 向上滚 deltaY 是负数（-125），向下滚是正数（125）

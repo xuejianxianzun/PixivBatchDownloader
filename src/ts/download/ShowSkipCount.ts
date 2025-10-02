@@ -1,5 +1,5 @@
 import { EVT } from '../EVT'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 
 // 显示跳过下载的文件数量
 class ShowSkipCount {

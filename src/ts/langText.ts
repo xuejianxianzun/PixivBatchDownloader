@@ -1,9 +1,9 @@
 import { Config } from './Config'
 
 // 储存下载器使用的多语言文本
-// 在属性名前面加上下划线，和文本内容做出区别
+// 在属性名前面加上下划线
 // {} 是占位符
-// <br> 是换行
+// <br> 和 \n 是换行
 
 const langText = {
   _只下载已收藏: [
@@ -34,15 +34,15 @@ const langText = {
     '<span class="key">不能</span>含有标签',
     '<span class="key">不能</span>含有標籤',
     '<span class="key">Exclude</span> tag',
-    'タグを除外する',
+    'タグを<span class="key">除外</span>する',
     '<span class="key">제외</span> 태그',
     '<span class="key">Исключить</span> ярлык',
   ],
   _排除tag的提示文字: [
-    '您可在下载前设置要排除的标签，这样在下载时将不会下载含有这些标签的作品。不区分大小写；如需排除多个标签，请使用英文逗号分隔。请注意，要排除的标签的优先级大于要包含的标签的优先级。',
-    '可在下載前設定要排除的標籤，下載時將排除含有這些標籤的作品，不區分大小寫；如需排除多個標籤，請使用半形逗號（,）分隔。請注意，要排除的標籤優先於要包含的標籤。',
-    'Before downloading, you can set the tag you want to exclude. Not case sensitive; If you need to set multiple tags, you can use comma (,) separated. The excluded tag takes precedence over the included tag',
-    'ダウンロード前に、除外するタグを設定できます。大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、「,」で区切ってください。除外されたタグは、必要なタグよりも優先されます',
+    '您可在下载前设置要排除的标签，这样在下载时将不会下载含有这些标签的作品。<br>不区分大小写；如需排除多个标签，请使用英文逗号分隔。<br>请注意，要排除的标签的优先级大于要包含的标签的优先级。',
+    '可在下載前設定要排除的標籤，下載時將排除含有這些標籤的作品。<br>不區分大小寫；如需排除多個標籤，請使用半形逗號（,）分隔。<br>請注意，要排除的標籤優先於要包含的標籤。',
+    'Before downloading, you can set the tag you want to exclude. <br>Not case sensitive; If you need to set multiple tags, you can use comma (,) separated. <br>The excluded tag takes precedence over the included tag',
+    'ダウンロード前に、除外するタグを設定できます。<br>大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、「,」で区切ってください。<br>除外されたタグは、必要なタグよりも優先されます',
     '다운로드하기 전에 제외해야 하는 태그를 설정할 수 있습니다. 대소문자를 구분하지 않습니다. 여러 태그를 설정해야 하는 경우 쉼표(,)로 구분합니다. 제외된 태그가 포함된 태그보다 우선합니다.',
     'Перед загрузкой можно задать тег, который необходимо исключить. Не чувствителен к регистру; Если вам нужно задать несколько тегов, вы можете использовать разделение запятыми (,). Исключенный тег имеет приоритет над включенным тегом',
   ],
@@ -58,7 +58,7 @@ const langText = {
     '<span class="key">必须</span>含有标签',
     '<span class="key">必須</span>含有標籤',
     '<span class="key">Include</span> tag',
-    '<span class="key">必要な</span>タグ',
+    '<span class="key">必要</span>なタグ',
     '<span class="key">포함</span> 태그',
     '<span class="key">Включать</span> ярлык',
   ],
@@ -82,9 +82,9 @@ const langText = {
     '图片的宽高<span class="key">比例</span>',
     '圖片的寬高<span class="key">比例</span>',
     'Aspect <span class="key">ratio</span>',
-    '画像の縦横比',
+    '画像の<span class="key">縦横比</span>',
     '<span class="key">종횡비</span>',
-    'Сотношение <span class="key">сторон</span>',
+    'Соотношение <span class="key">сторон</span>',
   ],
   _设置宽高比例Title: [
     '设置宽高比例，也可以手动输入宽高比',
@@ -106,6 +106,14 @@ const langText = {
   _竖图: ['竖图', '豎圖', 'Vertical', '縦長', '세로', 'Вертикальный'],
   _正方形: ['正方形', '正方形', 'Square', '正方形', '정사각형', 'Квадрат(1:1)'],
   _宽高比: ['宽高比', '寬高比', 'Ratio', '縦横比', '종횡비 ', 'Соотношение'],
+  _宽高比的提示: [
+    `宽高比是宽度除以高度得到的数字。<br>宽高比小于 1 时，图片是竖图。<br>宽高比大于 1 时，图片是横图。<br>宽高比越大，图片越扁长。`,
+    `寬高比是寬度除以高度得到的數字。<br>寬高比小於 1 時，圖片是豎圖。<br>寬高比大於 1 時，圖片是橫圖。<br>寬高比越大，圖片越扁長。`,
+    `Aspect ratio is the number obtained by dividing the width by the height.<br>When the aspect ratio is less than 1, the image is portrait.<br>When the aspect ratio is greater than 1, the image is landscape.<br>The larger the aspect ratio, the more elongated the image.`,
+    `アスペクト比は幅を高さで割った値です。<br>アスペクト比が1未満の場合、画像は縦長です。<br>アスペクト比が1より大きい場合、画像は横長です。<br>アスペクト比が大きいほど、画像は横長になります。`,
+    `종횡비는 너비를 높이로 나눈 숫자입니다.<br>종횡비가 1보다 작을 때, 이미지는 세로 이미지입니다.<br>종횡비가 1보다 클 때, 이미지는 가로 이미지입니다.<br>종횡비가 클수록, 이미지는 더 길쭉합니다.`,
+    `Соотношение сторон — это число, полученное делением ширины на высоту.<br>Когда соотношение сторон меньше 1, изображение вертикальное.<br>Когда соотношение сторон больше 1, изображение горизонтальное.<br>Чем больше соотношение сторон, тем более вытянутое изображение.`,
+  ],
   _设置了宽高比之后的提示: [
     '宽高比：{}',
     '寬高比：{}',
@@ -125,8 +133,8 @@ const langText = {
   _图片的宽高: [
     '图片的<span class="key">宽高</span>',
     '圖片的<span class="key">寬高</span>',
-    '<span class="key">width</span> and height',
-    '画像の幅と高さ',
+    '<span class="key">Width</span> and height',
+    '画像の<span class="key">幅と高さ</span>',
     '<span class="key">너비</span> 그리고 높이',
     '<span class="key">Ширина</span> и высота',
   ],
@@ -154,25 +162,25 @@ const langText = {
     '抓取<span class="key">多少</span>作品',
     '擷取<span class="key">多少</span>作品',
     'How <span class="key">many</span> works to crawl',
-    'クロールする作品の数',
+    '<span class="key">クロールする</span>作品の数',
     '긁어올 작품 <span class="key">수</span>',
-    'Какое <span class="key">колличество</span> работ сканировать',
+    'Какое <span class="key">количество</span> работ сканировать',
   ],
   _抓取多少页面: [
     '抓取<span class="key">多少</span>页面',
     '擷取<span class="key">多少</span>頁面',
     'How <span class="key">many</span> pages to crawl',
-    'クロールするページ数',
+    '<span class="key">クロールする</span>ページ数',
     '긁어올 페이지 <span class="key">수</span>',
-    'Какое <span class="key">колличество</span> страниц сканироватьь',
+    'Какое <span class="key">количество</span> страниц сканировать',
   ],
   _收藏数量: [
     '<span class="key">收藏</span>数量',
     '<span class="key">收藏</span>數量',
     'Number of <span class="key">bookmarks</span>',
-    'ブックマークの数',
+    '<span class="key">ブックマーク</span>の数',
     '<span class="key">북마크</span> 수',
-    'Колличество <span class="key">закладок</span>',
+    'Количество <span class="key">закладок</span>',
   ],
   _设置收藏数量的提示: [
     '如果作品的收藏数小于设置的数字，作品不会被下载。',
@@ -246,93 +254,249 @@ const langText = {
     '모든 작품 다운로드',
     'загрузить все работы с этой страницы',
   ],
-  _从本页开始下载提示: [
-    '从当前页面开始下载。<br>如果要限制下载的页数，请输入从 1 开始的数字。<br>1 为仅下载本页，-1 为下载所有页面。',
-    '從當前頁面開始下載。<br>如果要限制下載的頁數，請輸入從 1 開始的數字。<br>1 為僅下載本頁，-1 為下載所有頁面。',
-    'Download from the current page.<br>If you want to set the number of pages to download, type a number starting at 1. <br>1 is to download only this page, -1 to download all pages.',
-    '現在のページからダウンロードしてください。<br>ダウンロードするページを設定する場合は、1から始まる数字を入力してください。<br>1 は現在のページのみをダウンロードする，すべてのページをダウンロードするには -1。',
-    '현재 페이지에서 다운로드합니다.<br>다운로드할 페이지 수를 설정하려면 1로 시작하는 숫자를 입력해주세요.<br>1은 이 페이지만 다운로드합니다, -1은 모든 페이지를 다운로드합니다.',
-    'Загрузка с текущей страницы.<br>Если вы хотите задать количество страниц для загрузки, введите число, начиная с 1. <br>1 - это загрузка только этой страницы, -1 для загрузки всех страниц.',
+  _抓取多少作品的提示: [
+    `你可以设置下载多少个作品。
+<br>
+<br>
+当你位于某个插画或小说的详情页面里，下载器会从当前作品开始抓取（包含当前作品）。
+<br>
+设置为 1 只会抓取当前作品。
+<br>
+设置为 -1 表示不限制抓取数量，下载器会从当前作品开始，抓取到最后一个作品。
+<br>
+<br>
+在其他页面里（例如排行榜页面、关注的用户的新作品页面），下载器会从这一页的第一个作品开始抓取。
+<br>
+设置为 1 只会抓取第 1 个作品。
+<br>
+设置为 -1 表示抓取该页面里的所有作品。
+<br>`,
+    `你可以設定下載多少個作品。
+<br>
+<br>
+當你位於某個插畫或小說的詳情頁面裡，下載器會從當前作品開始抓取（包含當前作品）。
+<br>
+設定為 1 只會抓取當前作品。
+<br>
+設定為 -1 表示不限制抓取數量，下載器會從當前作品開始，抓取到最後一個作品。
+<br>
+<br>
+在其他頁面裡（例如排行榜頁面、關注的用戶的新作品頁面），下載器會從這一頁的第一個作品開始抓取。
+<br>
+設定為 1 只會抓取第 1 個作品。
+<br>
+設定為 -1 表示抓取該頁面裡的所有作品。
+<br>`,
+    `You can set how many works to download.
+<br>
+<br>
+When you are on the detail page of an illustration or novel, the downloader will start crawling from the current work (including the current work).
+<br>
+Setting it to 1 will only crawl the current work.
+<br>
+Setting it to -1 means no limit on the number of works to crawl, and the downloader will crawl from the current work to the last work.
+<br>
+<br>
+On other pages (such as the ranking page or the new works page of followed users), the downloader will start crawling from the first work on that page.
+<br>
+Setting it to 1 will only crawl the first work.
+<br>
+Setting it to -1 means crawling all works on that page.
+<br>`,
+    `ダウンロードする作品の数を設定できます。
+<br>
+<br>
+イラストや小説の詳細ページにいる場合、ダウンローダーは現在の作品からクロールを開始します（現在の作品を含みます）。
+<br>
+1 に設定すると、現在の作品のみをクロールします。
+<br>
+-1 に設定すると、クロールする作品数に制限がなく、ダウンローダーは現在の作品から最後の作品までクロールします。
+<br>
+<br>
+他のページ（たとえばランキングページやフォローしているユーザーの新作ページ）にいる場合、ダウンローダーはそのページの最初の作品からクロールを開始します。
+<br>
+1 に設定すると、最初の作品のみをクロールします。
+<br>
+-1 に設定すると、そのページにあるすべての作品をクロールします。
+<br>`,
+    `다운로드할 작품의 수를 설정할 수 있습니다.
+<br>
+<br>
+일러스트나 소설의 상세 페이지에 있을 때, 다운로더는 현재 작품부터 크롤링을 시작합니다(현재 작품 포함).
+<br>
+1로 설정하면 현재 작품만 크롤링합니다.
+<br>
+-1로 설정하면 크롤링할 작품 수에 제한이 없으며, 다운로더는 현재 작품부터 마지막 작품까지 크롤링합니다.
+<br>
+<br>
+다른 페이지(예: 랭킹 페이지나 팔로우한 사용자의 신규 작품 페이지)에 있을 때, 다운로더는 해당 페이지의 첫 번째 작품부터 크롤링을 시작합니다.
+<br>
+1로 설정하면 첫 번째 작품만 크롤링합니다.
+<br>
+-1로 설정하면 해당 페이지의 모든 작품을 크롤링합니다.
+<br>`,
+    `Вы можете настроить, сколько работ скачать.
+<br>
+<br>
+Когда вы находитесь на странице с подробностями об иллюстрации или романе, загрузчик начнет сбор данных с текущей работы (включая текущую работу).
+<br>
+Установка значения 1 означает, что будет собрана только текущая работа.
+<br>
+Установка значения -1 означает отсутствие ограничений на количество собираемых работ, и загрузчик будет собирать данные от текущей работы до последней.
+<br>
+<br>
+На других страницах (например, на странице рейтинга или странице новых работ пользователей, на которых вы подписаны), загрузчик начнет сбор данных с первой работы на этой странице.
+<br>
+Установка значения 1 означает, что будет собрана только первая работа.
+<br>
+Установка значения -1 означает, что будут собраны все работы на этой странице.
+<br>`,
   ],
-  _设置页数的提示: [
-    `下载器总是从当前页面开始抓取的。
+  _抓取多少页面的提示: [
+    `你可以设置抓取多少个页面里的作品。
 <br>
-如果你在第 1 页，就从第 1 页开始抓取。如果你在第 2 页，就从第 2 页开始抓取。<br>
+下载器总是从当前页面开始抓取的：
 <br>
-默认值 -1 会使下载器抓取到最后一页。<br>
-如果你只需要抓取一部分页面，可以设置抓取的页数：<br>
-设置为 1 只会抓取这一页里的作品。<br>
-设置为 2 会抓取这一页和下一页，以此类推。<br>
+如果你在第 1 页，就从第 1 页开始抓取。如果你在第 2 页，就从第 2 页开始抓取。
 <br>
-如果你有需要的话，可以把抓取大量页面的任务拆分成多次。例如：<br>
-设置抓取的页数为 100，然后从第 1 页开始抓取。下载器会抓取第 0 - 100 页里的作品。<br>
-下载完成后，跳转到第 101 页，开始下一次抓取。下载器会抓取第 101 - 200 页里的作品。<br>
-以此类推。<br>`,
-    `下載器總是從當前頁面開始抓取的。
 <br>
-如果你在第 1 頁，就從第 1 頁開始抓取。如果你在第 2 頁，就從第 2 頁開始抓取。<br>
+设置为 -1 会使下载器抓取到最后一页。
 <br>
-預設值 -1 會使下載器抓取到最後一頁。<br>
-如果你只需要抓取一部分頁面，可以設定抓取的頁數：<br>
-設定為 1 只會抓取這一頁裡的作品。<br>
-設定為 2 會抓取這一頁和下一頁，以此類推。<br>
+如果你只需要抓取一部分页面，可以设置抓取的页数：
 <br>
-如果你有需要的話，可以把抓取大量頁面的任務拆分成多次。例如：<br>
-設定抓取的頁數為 100，然後從第 1 頁開始抓取。下載器會抓取第 0 - 100 頁裡的作品。<br>
-下載完成後，跳轉到第 101 頁，開始下一次抓取。下載器會抓取第 101 - 200 頁裡的作品。<br>
-以此類推。<br>`,
-    `The downloader always starts crawling from the current page.
+设置为 1 只会抓取这一页里的作品。
 <br>
-If you are on page 1, it starts crawling from page 1. If you are on page 2, it starts crawling from page 2. <br>
+设置为 2 会抓取这一页和下一页，以此类推。
 <br>
-The default value of -1 will make the downloader crawl to the last page. <br>
-If you only need to crawl a part of the pages, you can set the number of pages to crawl: <br>
-Set to 1 to crawl only the works on this page. <br>
-Set to 2 to crawl this page and the next page, and so on. <br>
 <br>
-If you need to, you can split the task of crawling a large number of pages into multiple times. For example: <br>
-Set the number of pages to crawl to 100, and start crawling from page 1. The downloader will crawl the works from pages 0 - 100. <br>
-After the download is completed, jump to page 101 and start the next crawl. The downloader will crawl the works from pages 101 - 200. <br>
-And so on. <br>`,
-    `ダウンローダーは常に現在のページからクロールを開始します。
+如果你有需要的话，可以把抓取大量页面的任务拆分成多次。例如：
 <br>
-ページ 1 にいる場合は、ページ 1 からスクレイピングを開始します。 2 ページにいる場合は、2 ページからスクレイピングを開始します。 <br>
+设置抓取的页数为 100，然后从第 1 页开始抓取。下载器会抓取第 1 - 100 页里的作品。
 <br>
-デフォルト値 -1 では、ダウンローダーは最後のページまでクロールします。 <br>
-ページの一部のみをクロールする必要がある場合は、クロールするページ数を設定できます。<br>
-1 に設定すると、このページの作品のみをクロールします。 <br>
-2 に設定すると、このページと次のページなどがクロールされます。 <br>
+下载完成后，跳转到第 101 页，开始下一次抓取。下载器会抓取第 101 - 200 页里的作品。
 <br>
-必要に応じて、大量のページをクロールするタスクを複数回に分割できます。例:<br>
-クロールするページ数を 100 に設定し、1 ページからクロールを開始します。ダウンローダーは、0 ～ 100 ページの作品をクロールします。 <br>
-ダウンロードが完了したら、101 ページに移動して次のクロールを開始します。ダウンローダーは、101 ～ 200 ページの作品を取得します。 <br>
-等々。 <br>`,
-    `다운로더는 항상 현재 페이지에서 크롤링을 시작합니다.
+以此类推。
+<br>`,
+    `你可以設定抓取多少個頁面裡的作品。
 <br>
-1페이지에 있다면 1페이지부터 스크래핑을 시작하세요. 2페이지에 있다면 2페이지부터 스크래핑을 시작하세요. <br>
+下載器總是從當前頁面開始抓取的：
 <br>
-기본값 -1을 사용하면 다운로더가 마지막 페이지로 크롤링됩니다. <br>
-페이지의 일부만 크롤링해야 하는 경우 크롤링할 페이지 수를 설정할 수 있습니다.<br>
-이 페이지의 작품만 크롤링하려면 1로 설정하세요. <br>
-2로 설정하면 이 페이지와 다음 페이지 등을 크롤링합니다. <br>
+如果你在第 1 頁，就從第 1 頁開始抓取。如果你在第 2 頁，就從第 2 頁開始抓取。
 <br>
-필요한 경우 많은 수의 페이지를 크롤링하는 작업을 여러 번 분할할 수 있습니다. 예:<br>
-크롤링할 페이지 수를 100으로 설정한 다음 1페이지부터 크롤링을 시작합니다. 다운로더는 0~100페이지의 작품을 크롤링합니다. <br>
-다운로드가 완료되면 101페이지로 이동하여 다음 크롤링을 시작하세요. 다운로더는 101~200페이지의 작품을 가져옵니다. <br>
-등. <br>`,
-    `Загрузчик всегда начинает сканирование с текущей страницы.
 <br>
-Если вы находитесь на странице 1, начните парсинг с первой страницы. Если вы находитесь на странице 2, начните очистку со страницы 2. <br>
+設定為 -1 會使下載器抓取到最後一頁。
 <br>
-Значение по умолчанию -1 заставит загрузчик просканировать последнюю страницу. <br>
-Если вам нужно просканировать только часть страницы, вы можете указать количество страниц для сканирования:<br>
-Установите значение 1, чтобы сканировать только работы на этой странице. <br>
-При значении 2 будет сканироваться эта страница, следующая страница и т. д. <br>
+如果你只需要抓取一部分頁面，可以設定抓取的頁數：
 <br>
-При необходимости вы можете разделить задачу сканирования большого количества страниц на несколько раз. Например:<br>
-Установите количество страниц для сканирования на 100, а затем начните сканирование со страницы 1. Загрузчик просканирует произведения на страницах 0–100. <br>
-После завершения загрузки перейдите на страницу 101, чтобы начать следующее сканирование. Загрузчик получит работы на страницах 101–200. <br>
-И так далее. <br>`,
+設定為 1 只會抓取這一頁裡的作品。
+<br>
+設定為 2 會抓取這一頁和下一頁，以此類推。
+<br>
+<br>
+如果你有需要的話，可以把抓取大量頁面的任務拆分成多次。例如：
+<br>
+設定抓取的頁數為 100，然後從第 1 頁開始抓取。下載器會抓取第 1 - 100 頁裡的作品。
+<br>
+下載完成後，跳轉到第 101 頁，開始下一次抓取。下載器會抓取第 101 - 200 頁裡的作品。
+<br>
+以此類推。
+<br>`,
+    `You can set how many pages of works to crawl.
+<br>
+The downloader always starts crawling from the current page:
+<br>
+If you are on page 1, it starts crawling from page 1. If you are on page 2, it starts crawling from page 2.
+<br>
+<br>
+Setting it to -1 will make the downloader crawl until the last page.
+<br>
+If you only need to crawl some pages, you can set the number of pages to crawl:
+<br>
+Setting it to 1 will only crawl the works on the current page.
+<br>
+Setting it to 2 will crawl the current page and the next page, and so on.
+<br>
+<br>
+If needed, you can split the task of crawling a large number of pages into multiple sessions. For example:
+<br>
+Set the number of pages to crawl to 100, then start crawling from page 1. The downloader will crawl works from pages 1 to 100.
+<br>
+After the download is complete, navigate to page 101 and start the next crawl. The downloader will crawl works from pages 101 to 200.
+<br>
+And so on.
+<br>`,
+    `何ページ分の作品をクロールするかを設定できます。
+<br>
+ダウンローダーは常に現在のページからクロールを開始します：
+<br>
+1ページ目にいる場合、1ページ目からクロールを開始します。2ページ目にいる場合、2ページ目からクロールを開始します。
+<br>
+<br>
+-1に設定すると、ダウンローダーは最後のページまでクロールします。
+<br>
+一部のページだけをクロールする必要がある場合、クロールするページ数を設定できます：
+<br>
+1に設定すると、現在のページの作品のみをクロールします。
+<br>
+2に設定すると、現在のページと次のページをクロールします。以降も同様です。
+<br>
+<br>
+必要に応じて、大量のページをクロールするタスクを複数回に分けることができます。たとえば：
+<br>
+クロールするページ数を100に設定し、1ページ目からクロールを開始します。ダウンローダーは1ページ目から100ページ目までの作品をクロールします。
+<br>
+ダウンロードが完了したら、101ページ目に移動して次のクロールを開始します。ダウンローダーは101ページ目から200ページ目までの作品をクロールします。
+<br>
+以降も同様です。
+<br>`,
+    `크롤링할 페이지 수를 설정할 수 있습니다.
+<br>
+다운로더는 항상 현재 페이지에서 크롤링을 시작합니다:
+<br>
+1페이지에 있으면 1페이지부터 크롤링을 시작합니다. 2페이지에 있으면 2페이지부터 크롤링을 시작합니다.
+<br>
+<br>
+-1로 설정하면 다운로더가 마지막 페이지까지 크롤링합니다.
+<br>
+일부 페이지만 크롤링해야 하는 경우, 크롤링할 페이지 수를 설정할 수 있습니다:
+<br>
+1로 설정하면 현재 페이지의 작품만 크롤링합니다.
+<br>
+2로 설정하면 현재 페이지와 다음 페이지를 크롤링합니다. 이런 식으로 진행됩니다.
+<br>
+<br>
+필요한 경우, 많은 페이지를 크롤링하는 작업을 여러 번으로 나눌 수 있습니다. 예를 들어:
+<br>
+크롤링할 페이지 수를 100으로 설정하고 1페이지부터 크롤링을 시작합니다. 다운로더는 1페이지부터 100페이지까지의 작품을 크롤링합니다.
+<br>
+다운로드가 완료된 후 101페이지로 이동하여 다음 크롤링을 시작합니다. 다운로더는 101페이지부터 200페이지까지의 작품을 크롤링합니다.
+<br>
+이런 식으로 진행됩니다.
+<br>`,
+    `Вы можете настроить, сколько страниц с работами нужно собрать.
+<br>
+Загрузчик всегда начинает сбор с текущей страницы:
+<br>
+Если вы находитесь на 1-й странице, сбор начнется с 1-й страницы. Если вы на 2-й странице, сбор начнется со 2-й страницы.
+<br>
+<br>
+Установка значения -1 заставит загрузчик собирать данные до последней страницы.
+<br>
+Если вам нужно собрать только часть страниц, вы можете указать количество страниц для сбора:
+<br>
+Установка значения 1 означает, что будут собраны только работы с текущей страницы.
+<br>
+Установка значения 2 означает, что будут собраны работы с текущей страницы и следующей, и так далее.
+<br>
+<br>
+При необходимости задачу сбора большого количества страниц можно разбить на несколько этапов. Например:
+<br>
+Установите количество страниц для сбора равным 100 и начните сбор с 1-й страницы. Загрузчик соберет работы со страниц 1–100.
+<br>
+После завершения загрузки перейдите на 101-ю страницу и начните следующую сессию сбора. Загрузчик соберет работы со страниц 101–200.
+<br>
+И так далее.
+<br>`,
   ],
   _下载所有页面: [
     '下载所有页面',
@@ -454,7 +618,7 @@ And so on. <br>`,
     '<span class="key">动图</span>保存格式',
     '<span class="key">動圖</span>儲存格式',
     'Save the <span class="key">ugoira</span> work as',
-    'うごイラの保存タイプ',
+    '<span class="key">うごイラ</span>の保存タイプ',
     '<span class="key">움직이는 일러스트</span> 작품 저장 형식',
     'Сохранить <span class="key">Ugoira</span> как',
   ],
@@ -854,18 +1018,18 @@ Zip 파일이 원본 파일입니다.`,
     'Правила названий',
   ],
   _设置文件夹名的提示: [
-    `可以使用 '<span class="key">/</span>' 建立文件夹。示例：`,
-    `可以使用斜線（<span class="key">/</span>）建立資料夾。範例：`,
-    `You can create a directory with '<span class="key">/</span>'. Example：`,
-    `フォルダーは '<span class="key">/</span>' で作成できます。例：`,
-    `'<span class="key">/</span>'을 사용하여 디렉토리를 생성할 수 있습니다. 예:`,
-    `Вы можете создать каталог с помощью '<span class="key">/</span>'. Пример:`,
+    '可以使用<span class="key">/</span>建立文件夹。示例：',
+    '可以使用斜線(<span class="key">/</span>)建立資料夾。範例：',
+    'You can create a directory with <span class="key">/</span>. Example:',
+    'フォルダーは<span class="key">/</span>で作成できます。例：',
+    '<span class="key">/</span>을 사용하여 디렉토리를 생성할 수 있습니다. 예:',
+    'Вы можете создать каталог с помощью <span class="key">/</span>. Пример:',
   ],
   _添加命名标记前缀: [
     '添加命名标记<span class="key">前缀</span>',
     '加入命名標記<span class="key">前綴</span>',
     'Add named tag <span class="key">prefix</span>',
-    '前にタグの名前を追加',
+    '<span class="key">前に</span>タグの名前を追加',
     '명명된 태그 추가 <span class="key">접두사</span>',
     'Добавить именованный тег <span class="key">префикс</span>',
   ],
@@ -1114,12 +1278,12 @@ Zip 파일이 원본 파일입니다.`,
     'Доступно, если работа принадлежит к серии.',
   ],
   _文件夹标记PTitle: [
-    '页面标题',
-    '頁面標題',
-    'Page title',
-    'ページタイトル',
-    '페이지 제목',
-    'Заголовок страницы',
+    '开始抓取时的页面标题',
+    '開始抓取時的頁面標題',
+    'Page title when starting the scrape',
+    'スクレイピング開始時のページタイトル',
+    '페이지 스크래핑 시작 시의 페이지 제목',
+    'Заголовок страницы при начале сбора данных',
   ],
   _预览文件名: [
     '预览文件名',
@@ -1133,9 +1297,9 @@ Zip 파일이 원본 파일입니다.`,
     '同时下载<span class="key">数量</span>',
     '同時下載<span class="key">數量</span>',
     'Download <span class="key">thread</span>',
-    '同時ダウンロード数',
+    '<span class="key">同時</span>ダウンロード数',
     '다운로드 <span class="key">쓰레드</span>',
-    'Кол-во <span class="key">потоков</span> на загрузку',
+    'Количество <span class="key">потоков</span> на загрузку',
   ],
   _下载线程的说明: [
     `你可以输入 1-${Config.downloadThreadMax} 之间的数字，设置同时下载的数量`,
@@ -1288,35 +1452,66 @@ So the file name set by the Downloader is lost, and the file name becomes the la
 Поэтому имя файла, заданное загрузчиком, теряется, и имя файла становится последним путем в URL. <br>`,
   ],
   _账户可能被封禁的警告: [
-    `<strong>警告</strong>：频繁和大量的抓取（和下载）可能会导致你的 Pixiv 账号被封禁。<br>
-多数用户不会遇到这个情况，而且下载器默认会减慢抓取的速度。但如果你的账户被封禁，下载器不会承担任何责任。<br>
-如果你计划进行大量的下载，可以考虑注册 Pixiv 小号。<br><br>`,
-    `<strong>警告</strong>：頻繁和大量的抓取（和下載）可能會導致你的 Pixiv 賬號被封禁。<br>
-多數使用者不會遇到這個情況，而且下載器預設會減慢抓取的速度。但如果你的賬戶被封禁，下載器不會承擔任何責任。<br>
-如果你計劃進行大量的下載，可以考慮註冊 Pixiv 小號。<br><br>`,
-    `<strong>Warning</strong>: Frequent and heavy scraping (and downloading) may result in your Pixiv account being banned. <br>
-Most users will not encounter this, and the downloader will slow down scraping by default. However, the downloader will not be held responsible if your account is banned. <br>
-If you plan to do a lot of downloading, consider signing up for a secondary Pixiv account. <br><br>`,
-    `<strong>警告</strong>: 頻繁かつ大量のスクレイピング (およびダウンロード) を行うと、Pixiv アカウントが禁止される可能性があります。 <br>
-ほとんどのユーザーはこの状況に遭遇することはなく、ダウンローダーはデフォルトでクロールを遅くします。ただし、アカウントが禁止された場合、ダウンローダーは責任を負いません。 <br>
-大量のダウンロードを行う予定がある場合は、Pixiv アカウントへのサインアップを検討してください。 <br><br>`,
-    `<strong>경고</strong>: 빈번하고 많은 양의 스크래핑(및 다운로드)을 수행하면 Pixiv 계정이 금지될 수 있습니다. <br>
-대부분의 사용자는 이러한 상황을 겪지 않으며 다운로더는 기본적으로 크롤링 속도를 늦춥니다. 그러나 귀하의 계정이 금지된 경우 다운로더는 책임을 지지 않습니다. <br>
-다운로드를 많이 할 계획이라면 Pixiv 계정에 가입하는 것을 고려해 보세요. <br><br>`,
-    `<strong>Внимание</strong>. Частое и массовое сканирование (и загрузка) может привести к блокировке вашей учетной записи Pixiv. <br>
-Большинство пользователей не столкнутся с такой ситуацией, и загрузчик по умолчанию замедлит сканирование. Но загрузчик не будет нести ответственности, если ваша учетная запись будет заблокирована. <br>
-Если вы планируете загружать много файлов, рассмотрите возможность регистрации учетной записи Pixiv. <br><br>`,
+    `<strong>警告</strong>：频繁和大量的抓取（和下载）可能会导致你的 Pixiv 账号被封禁。
+    <br>
+    多数用户不会遇到这个情况，而且下载器默认会减慢抓取的速度。但如果你的账户被封禁，下载器不会承担任何责任。
+    <br>
+    如果你计划进行大量的下载，可以考虑注册 Pixiv 小号。<br>
+    Wiki 有相关说明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E4%BD%BF%E7%94%A8%E5%B0%8F%E5%8F%B7%E4%B8%8B%E8%BD%BD" target="_blank">使用小号下载</a>
+    <br></br>`,
+
+    `<strong>警告</strong>：頻繁且大量的抓取（和下載）可能會導致你的 Pixiv 帳號被封禁。
+    <br>
+    多數用戶不會遇到這種情況，而且下載器默認會減慢抓取的速度。但如果你的帳戶被封禁，下載器不會承擔任何責任。
+    <br>
+    如果你計劃進行大量的下載，可以考慮註冊 Pixiv 小號。<br>
+    Wiki 有相關說明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E4%BD%BF%E7%94%A8%E5%B0%8F%E5%8F%B7%E4%B8%8B%E8%BD%BD" target="_blank">使用小號下載</a>
+    <br></br>`,
+
+    `<strong>Warning</strong>: Frequent and large-scale crawling (and downloading) may lead to your Pixiv account being banned.
+    <br>
+    Most users will not encounter this issue, and the downloader will slow down the crawling speed by default. However, if your account is banned, the downloader will not take any responsibility.
+    <br>
+    If you plan to perform large-scale downloads, consider registering a secondary Pixiv account.<br>
+    The Wiki provides related information: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">Using a Secondary Account for Downloading</a>
+    <br></br>`,
+
+    `<strong>警告</strong>：頻繁かつ大規模なクロール（およびダウンロード）は、Pixivアカウントの禁止につながる可能性があります。
+    <br>
+    ほとんどのユーザーはこの問題に遭遇しませんが、ダウンローダーはデフォルトでクロールの速度を遅くします。ただし、アカウントが禁止された場合、ダウンローダーは一切の責任を負いません。
+    <br>
+    大規模なダウンロードを計画している場合は、Pixivのサブアカウントを登録することを検討してください。<br>
+    Wikiに関連情報があります：<a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">サブアカウントを使用したダウンロード</a>
+    <br></br>`,
+
+    `<strong>경고</strong>: 빈번하고 대규모의 크롤링(및 다운로드)은 Pixiv 계정이 차단될 수 있습니다.
+    <br>
+    대부분의 사용자는 이 문제를 겪지 않으며, 다운로더는 기본적으로 크롤링 속도를 늦춥니다. 하지만 계정이 차단되더라도 다운로더는 어떠한 책임도 지지 않습니다.
+    <br>
+    대규모 다운로드를 계획하고 있다면 Pixiv 보조 계정을 등록하는 것을 고려하세요.<br>
+    위키에 관련 정보가 있습니다: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">보조 계정으로 다운로드하기</a>
+    <br></br>`,
+
+    `<strong>Предупреждение</strong>: Частый и масштабный краулинг (и загрузка) могут привести к блокировке вашего аккаунта Pixiv.
+    <br>
+    Большинство пользователей не сталкиваются с этой проблемой, и загрузчик по умолчанию снижает скорость краулинга. Однако, если ваш аккаунт будет заблокирован, загрузчик не несет за это ответственности.
+    <br>
+    Если вы планируете выполнять масштабные загрузки, рассмотрите возможность регистрации дополнительного аккаунта Pixiv.<br>
+    В Вики есть соответствующая информация: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading?id=using-secondary-account-for-downloading" target="_blank">Использование дополнительного аккаунта для загрузки</a>
+    <br></br>`,
   ],
   _常见问题说明: [
     `下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。
     <br><br>
-    建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。
+    建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”，否则保存每个文件时都会显示另存为对话框。
     <br><br>
-    如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>还有些扩展会导致下载器不能开始下载。
+    如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展程序。<br>还有些扩展程序会导致下载器不能开始下载。
     <br><br>
-    如果你的浏览器在启动时停止响应，你可以清除浏览器的下载记录。
+    如果你的浏览器在启动时会停止响应一段时间，你可以清除浏览器的下载记录来解决此问题。
     <br><br>
-    如果你使用 V2ray、Clash 等代理软件，可以确认一下 Pixiv 的图片域名（i.pximg.net）是否走了代理，如果没走代理就在代理规则里添加这个域名。
+    下载器的 Wiki：<a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>
+    <br>
+    <a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">在 Wiki 查看常见问题</a>
     <br><br>
     梯子推荐：
     <br>
@@ -1328,20 +1523,75 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     <br>
     我的邀请码：GYjQWDob
     <br><br>
-    下载器 QQ 群：674991373
+    下载器的 QQ 群：674991373
     <br>
     如果你有一些问题想要问我，可以加群后直接私聊我。发在群里有时我不能及时看到。
+    <br><br>`,
+
+    `下載的文件保存在瀏覽器的下載目錄裡。如果您想保存到其他位置，需要修改瀏覽器的下載目錄。
     <br><br>
-    在 Wiki 查看常见问题：<br><a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题</a>
+    建議您在瀏覽器的下載設置中關閉“下載前詢問每個文件的保存位置”，否則保存每個文件時都會顯示另存為對話框。
     <br><br>
-    中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>
+    如果下載後的文件名異常，請禁用其他具有下載功能的瀏覽器擴展程序。<br>還有一些擴展程序會導致下載器無法開始下載。
     <br><br>
-    `,
-    '下載的檔案儲存在瀏覽器的下載目錄裡。如果你想儲存到其他位置，需要修改瀏覽器的下載目錄。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。<br>還有些擴充套件會導致下載器不能開始下載。<br><br>如果你的瀏覽器在啟動時停止響應，你可以清除瀏覽器的下載記錄。<br><br>',
-    `The downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download location. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser\`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities. <br>There are also some extensions that can prevent the downloader from starting the download.<br><br>If your browser stops responding at startup, you can clear your browser\`s download history.<br><br>`,
-    'ダウンロードされたファイルはブラウザのダウンロード ディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロード場所を変更する必要があります。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br>ダウンローダーがダウンロードを開始するのを妨げる拡張機能もいくつかあります。<br><br>起動時にブラウザーが応答しなくなった場合は、ブラウザーのダウンロード履歴を消去できます。<br><br>',
-    '다운로드한 파일은 브라우저의 다운로드 디렉터리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 위치를 수정해야 합니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로드 후 파일명이 이상할 경우 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화해주세요. <br>다운로더가 다운로드를 시작하지 못하게 막는 몇 가지 확장 프로그램도 있습니다.<br><br>시작 시 브라우저가 응답하지 않으면 브라우저의 다운로드 기록을 지울 수 있습니다.<br><br>',
-    'Загруженный файл сохраняется в каталоге загрузки браузера. Если вы хотите сохранить в другое место, вам необходимо изменить место загрузки браузера. <br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>Если имя файла после загрузки является ненормальным, отключите другие расширения браузера, которые имеют возможности загрузки. <br>Существуют также некоторые расширения, которые могут помешать загрузчику начать загрузку.<br><br>Если ваш браузер перестает отвечать на запросы при запуске, вы можете очистить историю загрузок вашего браузера.<br><br>',
+    如果您的瀏覽器在啟動時會停止響應一段時間，您可以清除瀏覽器的下載記錄來解決此問題。
+    <br><br>
+    下載器的 Wiki：<a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>
+    <br>
+    <a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/常见问题" target="_blank">在 Wiki 查看常見問題</a>
+    <br><br>`,
+
+    `Downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download directory.
+    <br><br>
+    It is recommended to disable "Ask where to save each file before downloading" in the browser's download settings, otherwise a save-as dialog will appear for each file.
+    <br><br>
+    If the filenames of downloaded files are abnormal, please disable other browser extensions with download capabilities. <br>Some extensions may also prevent the downloader from starting downloads.
+    <br><br>
+    If your browser stops responding for a while when starting, you can resolve this issue by clearing the browser's download history.
+    <br><br>
+    Downloader Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>
+    <br>
+    <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/FAQ" target="_blank">View FAQs in the Wiki</a>
+    <br><br>`,
+
+    `ダウンロードしたファイルはブラウザのダウンロードディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロードディレクトリを変更する必要があります。
+    <br><br>
+    ブラウザのダウンロード設定で「ダウンロード前に各ファイルの保存場所を確認する」をオフにすることをお勧めします。そうしないと、ファイルを保存するたびに「名前を付けて保存」ダイアログが表示されます。
+    <br><br>
+    ダウンロードしたファイル名に異常がある場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。<br>一部の拡張機能はダウンローダーがダウンロードを開始できない原因となることがあります。
+    <br><br>
+    ブラウザが起動時にしばらく応答しない場合、ブラウザのダウンロード履歴をクリアすることでこの問題を解決できます。
+    <br><br>
+    ダウンローダーのWiki：<a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>
+    <br>
+    <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/FAQ" target="_blank">Wikiでよくある質問を確認</a>
+    <br><br>`,
+
+    `다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 디렉토리를 변경해야 합니다.
+    <br><br>
+    브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치를 묻기"를 비활성화하는 것이 좋습니다. 그렇지 않으면 파일을 저장할 때마다 "다른 이름으로 저장" 대화 상자가 나타납니다.
+    <br><br>
+    다운로드한 파일 이름에 이상이 있는 경우, 다운로드 기능이 있는 다른 브라우저 확장 프로그램을 비활성화하십시오. <br>일부 확장 프로그램은 다운로더가 다운로드를 시작하지 못하게 할 수 있습니다.
+    <br><br>
+    브라우저가 시작 시 일정 시간 동안 응답하지 않는 경우, 브라우저의 다운로드 기록을 지워 이 문제를 해결할 수 있습니다.
+    <br><br>
+    다운로더 위키: <a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>
+    <br>
+    <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/FAQ" target="_blank">위키에서 자주 묻는 질문 보기</a>
+    <br><br>`,
+
+    `Загруженные файлы сохраняются в папке загрузок браузера. Если вы хотите сохранить их в другое место, необходимо изменить папку загрузок в настройках браузера.
+    <br><br>
+    Рекомендуется отключить в настройках загрузки браузера опцию "Запрашивать место сохранения каждого файла перед загрузкой", иначе при сохранении каждого файла будет отображаться диалог "Сохранить как".
+    <br><br>
+    Если имена загруженных файлов выглядят ненормально, пожалуйста, отключите другие расширения браузера с функциями загрузки. <br>Некоторые расширения могут препятствовать началу загрузки загрузчиком.
+    <br><br>
+    Если ваш браузер перестает отвечать на некоторое время при запуске, вы можете решить эту проблему, очистив историю загрузок браузера.
+    <br><br>
+    Вики загрузчика: <a href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">https://xuejianxianzun.github.io/PBDWiki</a>
+    <br>
+    <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/FAQ" target="_blank">Просмотр часто задаваемых вопросов в Вики</a>
+    <br><br>`,
   ],
   _正在下载中: [
     '正在下载中',
@@ -1482,7 +1732,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
   _抓取当前作品: [
     '抓取当前作品',
     '擷取目前作品',
-    'Crawl the current work',
+    'Crawl current works',
     '現在の作品をクロールする',
     '현재 작품 긁어오기',
     'Просканировать текущую работу',
@@ -1506,7 +1756,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
   _清除动图作品: [
     '清除动图作品',
     '清除動圖作品',
-    'Remove ugoira work',
+    'Remove ugoira works',
     'うごイラ作品を削除する',
     '움직이는 일러스트 작품 지우기',
     'Убрать Ugoira(gif) работы',
@@ -1554,7 +1804,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
   _抓取本排行榜作品: [
     '抓取本排行榜作品',
     '擷取本排行榜作品',
-    'Crawl the works in this list',
+    `Crawl this ranking's works`,
     'このリストの作品をクロールする',
     '이 목록의 작품 긁어오기',
     'Просканировать работы из этого списка',
@@ -1586,7 +1836,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
   _抓取该页面的图片: [
     '抓取该页面的图片',
     '擷取該頁面的圖片',
-    'Crawl the image of the page',
+    'Crawl images on this page',
     'ページの画像をクロールする',
     '페이지의 이미지 긁어오기',
     'Просканировать по изображение страницы',
@@ -1607,7 +1857,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '몇 개의 작품을 다운로드하시겠습니까?',
     'Сколько работ вы хотите загрузить?',
   ],
-  _数字提示1: [
+  _负1或者大于0: [
     '-1, 或者大于 0',
     '-1，或是大於 0',
     '-1, or greater than 0',
@@ -1618,7 +1868,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
   _下载大家的新作品: [
     '下载大家的新作品',
     '下載大家的新作品',
-    'Download everyone`s new work',
+    `Download everyone's new work`,
     'みんなの新作をダウンロードする',
     '모두의 새 작품 다운로드',
     'Вседа загружать новые работы',
@@ -1643,7 +1893,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
   _输入id进行抓取的提示文字: [
     '请输入作品 id。如果有多个 id，则以换行分割（即每行一个id）。',
     '請輸入作品 id。如果有多個 id，則以換行分隔（即每行一個 id）。',
-    'Please type the illustration id. If there is more than one id, one id per line.',
+    'Enter work IDs. For multiple IDs, separate them with newlines (one ID per line).',
     'イラストレーターIDを入力してください。 複数の id がある場合は、1 行に 1 つの id を付けます。',
     '일러스트 작품 ID를 입력해주세요. 여러 개의 ID가 있으면 줄을 바꾸어주세요 (한 줄에 한 개의 ID).',
     'Пожалуйста, введите идентификатор иллюстрации. Если идентификаторов несколько, то по одному идентификатору на строку.',
@@ -1651,7 +1901,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
   _输入的ID视为图像ID: [
     '因为这个标签页展示的是图像，所以输入的 ID 会被视为图像作品的 ID。',
     '因為這個標籤頁展示的是圖片，所以輸入的 ID 會被視為圖片作品的 ID。',
-    'Since this tab displays images, the ID entered will be considered the ID of the image work.',
+    'Since this tab displays images, the entered IDs will be treated as image work IDs.',
     'このタブは画像を表示するため、入力したIDが画像作品のIDとなります。',
     '이 탭에는 이미지가 표시되므로 입력한 ID가 해당 이미지 작품의 ID로 간주됩니다.',
     'Поскольку на этой вкладке отображаются изображения, введенный идентификатор будет считаться идентификатором работы с изображением.',
@@ -1659,7 +1909,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
   _输入的ID视为小说ID: [
     '因为这个标签页展示的是小说，所以输入的 ID 会被视为小说作品的 ID。',
     '因為這個標籤頁展示的是小說，所以輸入的 ID 會被視為小說作品的 ID。',
-    'Since this tab displays novels, the ID entered will be treated as the ID of the novel work.',
+    'Since this tab displays novels, the entered IDs will be treated as novel work IDs.',
     'このタブは小説を表示するため、入力したIDは小説作品のIDとして扱われます。',
     '이 탭에는 소설이 표시되므로 입력한 ID는 소설 작품의 ID로 처리됩니다.',
     'Поскольку на этой вкладке отображаются романы, введенный идентификатор будет рассматриваться как идентификатор романа.',
@@ -1701,7 +1951,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '<span class="key">自动</span>开始下载',
     '<span class="key">自動</span>開始下載',
     'Download starts <span class="key">automatically</span>',
-    'ダウンロードは自動的に開始されます',
+    'ダウンロードは<span class="key">自動的</span>に開始されます',
     '<span class="key">자동으로</span> 다운로드 시작',
     'Загрузка начинается <span class="key">автоматически</span>',
   ],
@@ -1724,7 +1974,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
   _最近更新: [
     '最近更新',
     '最近更新',
-    'What`s new',
+    `What's new`,
     '最近更新する',
     '새로운 기능',
     'Что нового',
@@ -1783,8 +2033,8 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
   _投稿时间: [
     '投稿<span class="key">时间</span>',
     '投稿<span class="key">時間</span>',
-    'Posting <span class="key">date</span>',
-    '投稿日時',
+    'Posting <span class="key">time</span>',
+    '<span class="key">投稿</span>日時',
     '게시 <span class="key">날짜</span>',
     '<span class="key">Дата</span> публикации',
   ],
@@ -1872,7 +2122,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '<span class="key">预览</span>搜索页面的筛选结果',
     '<span class="key">預覽</span>搜尋頁面的篩選結果',
     '<span class="key">Preview</span> filter results on search page',
-    '検索ページのフィルタ結果をプレビューします',
+    '検索ページのフィルタ結果を<span class="key">プレビュー</span>します',
     '<span class="key">미리보기</span> 검색 페이지 필터 결과',
     '<span class="key">Предварительный просмотр</span> результатов фильтрации на странице поиска',
   ],
@@ -1947,13 +2197,13 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
   ],
   _抓取: ['抓取', '擷取', 'Crawl', 'クロール', '긁어오기', 'Сканирование'],
   _下载: ['下载', '下載', 'Download', 'ダウンロード', '다운로드', 'Скачивание'],
-  _其他: ['其他', '其他', 'Other', 'その他', '그 외', 'Другие настройки'],
-  _更多: ['更多', '更多', 'More', 'もっと', '더보기', 'Больше'],
+  _其他: ['其他', '其他', 'Others', 'その他', '그 외', 'Другие настройки'],
+  _更多: ['更多', '更多', 'More', 'その他', '더보기', 'Больше'],
   _第一张图不带序号: [
     '第一张图不带<span class="key">序号</span>',
     '第一張圖片不包含<span class="key">序號</span>',
     'The first image without a <span class="key">serial number</span>',
-    '最初のイメージの番号を削除',
+    '最初のイメージの<span class="key">番号</span>を削除',
     '<span class="key">일련번호</span>가 없는 첫 번째 이미지',
     'Первое изображение без <span class="key">серийного номера</span>',
   ],
@@ -2003,7 +2253,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '同时<span class="key">转换</span>多少个动图',
     '同時<span class="key">轉換</span>多少個動圖',
     'How many animations are <span class="key">converted</span> at the same time',
-    '同時変換のうごイラの上限',
+    '同時変換の<span class="key">うごイラ</span>の上限',
     '동시에 <span class="key">변환할</span> 움직이는 일러스트 수',
     'Сколько анимаций <span class="key">преобразуется</span> одновременно',
   ],
@@ -2026,7 +2276,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     Рекомендуется не превышать 3.
     `,
   ],
-  _提示: ['提示', '提示', 'Tip', 'ヒント', '팁', 'Совет'],
+  _提示: ['提示', '提示', 'Tip', 'ヒント', '팁', 'Подсказка'],
   _fanboxDownloader: [
     'Fanbox 下载器',
     'Fanbox 下載器',
@@ -2047,7 +2297,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '文件<span class="key">体积</span>限制',
     '檔案<span class="key">體積</span>限制',
     'File <span class="key">size</span> limit',
-    'ファイルサイズ制限',
+    'ファイル<span class="key">サイズ</span>制限',
     '파일 <span class="key">크기</span> 제한',
     'Ограничение <span class="key">размера</span> файла',
   ],
@@ -2088,7 +2338,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '<span class="key">小說</span>儲存格式',
     'Save the <span class="key">novel</span> as',
     '<span class="key">小説</span>の保存形式',
-    '<span class="key">소설</span>저장 형식',
+    '<span class="key">소설</span> 저장 형식',
     'Сохранить <span class="key">новеллу</span> как',
   ],
   _小说保存格式的说明: [
@@ -2103,7 +2353,7 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
     '在小说里保存<span class="key">元数据</span>',
     '在小說裡儲存<span class="key">元資料</span>',
     'Save <span class="key">metadata</span> in the novel',
-    '小説の中にメタデータを保存する',
+    '小説の中に<span class="key">メタデータ</span>を保存する',
     '소설 내 <span class="key">메타데이터</span> 저장',
     'Сохранить <span class="key">метаданные</span> новеллы',
   ],
@@ -2152,9 +2402,9 @@ If you plan to do a lot of downloading, consider signing up for a secondary Pixi
   _不下载重复文件: [
     '不下载<span class="key">重复</span>文件',
     '不下載<span class="key">重複</span>檔案',
-    'Don`t download <span class="key">duplicate</span> files',
-    '重複ファイルをダウンロードしない',
-    '<span class="key">중복</span>파일 다운로드하지 않기',
+    `Don't download <span class="key">duplicate</span> files`,
+    '<span class="key">重複</span>ファイルをダウンロードしない',
+    '<span class="key">중복</span> 파일 다운로드하지 않기',
     'Не загружать <span class="key">дубликаты</span> файлов',
   ],
   _因为不下载重复文件跳过了x个文件: [
@@ -2414,13 +2664,13 @@ Additional notes: <br>
     '명명 규칙이 저장되었습니다.',
     'Правило наименования сохранено',
   ],
-  _命名: ['命名', '命名', 'Name', '命名', '이름', 'Имя'],
+  _命名: ['命名', '命名', 'Naming', '命名', '이름', 'Имя'],
   _无损: ['无损', '無損', 'Lossless', 'ロスレス', '무손실', 'Без потерь'],
   _文件名长度限制: [
     '文件名<span class="key">长度</span>限制',
     '檔案名稱<span class="key">長度</span>限制',
     'File name <span class="key">length</span> limit',
-    'ファイル名の長さ制限',
+    'ファイル名の<span class="key">長さ</span>制限',
     '파일명 <span class="key">길이</span> 제한',
     'Лимит <span class="key">длины</span> имени файла',
   ],
@@ -2571,7 +2821,7 @@ It is recommended to set a number less than 256, the default value is 200.`,
     '日期和时间<span class="key">格式</span>',
     '日期和時間<span class="key">格式</span>',
     'Date and time <span class="key">format</span>',
-    '日付と時刻の書式',
+    '日付と時刻の<span class="key">書式</span>',
     '날짜 및 시간 <span class="key">형식</span>',
     '<span class="key">Формат</span> даты и времени',
   ],
@@ -2637,7 +2887,7 @@ It is recommended to set a number less than 256, the default value is 200.`,
     '下载之后<span class="key">收藏</span>作品',
     '下載之後<span class="key">收藏</span>作品',
     '<span class="key">Bookmark</span> works after downloading',
-    'ダウンロードした作品をブックマークする',
+    'ダウンロードした作品を<span class="key">ブックマーク</span>する',
     '다운로드 후 작품 <span class="key">북마크</span>',
     '<span class="key">Закладка</span> работает после загрузки',
   ],
@@ -2652,10 +2902,10 @@ It is recommended to set a number less than 256, the default value is 200.`,
   _收藏设置: [
     '下载器的<span class="key">收藏</span>功能 (✩)',
     '下載器的<span class="key">收藏</span>功能 (✩)',
-    `Downloader's <span class="key">bookmark</span> function (✩)`,
+    `Downloader' <span class="key">bookmark</span> function (✩)`,
     'ダウンローダーの<span class="key">ブックマーク</span>機能 (✩)',
     '다운로더의 <span class="key">북마크</span> 기능 (☆)',
-    `Функция сбора загрузчика (✩)`,
+    'Функция <span class="key">закладки</span> загрузчика (✩)',
   ],
   _收藏设置的说明: [
     `有时你会看到下载器添加的收藏按钮 (✩)，点击这个按钮可以收藏作品。<br>
@@ -2705,9 +2955,9 @@ This setting is also used when you use the Downloader to bookmark works in batch
     '用户<span class="key">阻止</span>名单',
     '使用者<span class="key">阻止</span>名單',
     'User <span class="key">block</span> list',
-    'ユーザーブロックリスト',
+    '<span class="key">ユーザー</span>ブロックリスト',
     '유저 <span class="key">차단</span> 목록',
-    '<span class="key">Блок</span> списка пользователей ',
+    '<span class="key">Блок</span> списка пользователей',
   ],
   _用户阻止名单的说明: [
     `不下载这些用户的作品。需要输入用户 id。<br>
@@ -2729,8 +2979,8 @@ This setting is also used when you use the Downloader to bookmark works in batch
     '颜色<span class="key">主题</span>',
     '色彩<span class="key">主題</span>',
     'Color <span class="key">theme</span>',
-    'カラーテーマ',
-    '<class key="key">테마</span>',
+    '<span class="key">カラー</span>テーマ',
+    '<span class="key">테마</span>',
     'Цветовая <span class="key">тема</span>',
   ],
   _管理设置: [
@@ -2792,7 +3042,7 @@ This setting is also used when you use the Downloader to bookmark works in batch
   _导出关注列表CSV: [
     '导出关注的用户列表（CSV）',
     '匯出關注的使用者列表（CSV）',
-    'Export Followed Users List (CSV)',
+    'Export followed users list (CSV)',
     'フォローされているユーザーのリストをエクスポートする（CSV）',
     '팔로우한 사용자 목록 내보내기 (CSV)',
     'Экспорт списка отслеживаемых пользователей (CSV)',
@@ -2800,7 +3050,7 @@ This setting is also used when you use the Downloader to bookmark works in batch
   _导出关注列表: [
     '导出关注的用户列表（JSON）',
     '匯出關注的使用者列表（JSON）',
-    'Export Followed Users List (JSON)',
+    'Export followed users list (JSON)',
     'フォローされているユーザーのリストをエクスポートする（JSON）',
     '팔로우한 사용자 목록 내보내기 (JSON)',
     'Экспорт списка отслеживаемых пользователей (JSON)',
@@ -2897,7 +3147,7 @@ This setting is also used when you use the Downloader to bookmark works in batch
     '为<span class="key">每个</span>作品建立单独的文件夹',
     '為<span class="key">每個</span>作品建立單獨的資料夾',
     'Create a separate folder for <span class="key">each</span> work',
-    '作品ごとに別フォルダを作成',
+    '作品ごとに<span class="key">別</span>フォルダを作成',
     '작품마다 <span class="key">별도</span>의 디렉토리 생성',
     'Создайте отдельную папку для <span class="key">каждой</span> работы',
   ],
@@ -3068,12 +3318,71 @@ This setting is also used when you use the Downloader to bookmark works in batch
     'На этот раз запрос начал помещаться в очередь.',
   ],
   _HowToUse: [
-    '点击页面右侧的蓝色按钮可以打开下载器面板。<br><br>下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>下载器默认开启了一些增强功能，这可能会导致 Pixiv 的一些页面样式产生变化。你可以在下载器的“更多”标签页中开启或关闭这些功能。<br><br>',
-    '點選頁面右側的藍色按鈕可以開啟下載器面板。<br><br>下載的檔案儲存在瀏覽器的下載目錄裡。如果你想儲存到其他位置，需要修改瀏覽器的下載目錄。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>下載器預設開啟了一些增強功能，這可能會導致 Pixiv 的一些頁面樣式產生變化。你可以在下載器的“更多”標籤頁中開啟或關閉這些功能。<br><br>',
-    `Click the blue button on the right side of the page to open the downloader panel.<br><br>The downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download location. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser\`s download settings.<br><br>The downloader has some enhancements turned on by default, which may cause changes in the style of Pixiv pages. You can turn these features on or off in the "More" tab of the downloader.<br><br>`,
-    'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。<br><br>ダウンロードされたファイルはブラウザのダウンロード ディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロード場所を変更する必要があります。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンローダーにはデフォルトでいくつかの機能拡張が有効になっており、これにより Pixiv ページのスタイルが変更される可能性があります。 これらの機能は、ダウンローダーの「その他」タブでオンまたはオフにできます。<br><br>',
-    '페이지 오른쪽에 있는 파란색 버튼을 클릭하면 다운로드 패널이 열립니다.<br><br>다운로드한 파일은 브라우저의 다운로드 디렉터리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 위치를 수정해야 합니다.<br><br>브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것이 좋습니다.<br><br>다운로더에는 기본적으로 몇 가지 향상된 기능이 켜져 있으며 이로 인해 Pixiv 페이지 스타일이 변경될 수 있습니다. 다운로더의 "더 보기" 탭에서 이러한 기능을 켜거나 끌 수 있습니다.<br><br>',
-    'Нажмите синюю кнопку в правой части страницы, чтобы открыть панель загрузчика.<br><br>Загруженный файл сохраняется в каталоге загрузки браузера. Если вы хотите сохранить в другое место, вам необходимо изменить место загрузки браузера.<br><br>Рекомендуется отключить "Спрашивать, куда сохранять каждый файл перед загрузкой" в настройках загрузки браузера.<br><br>В загрузчике по умолчанию включены некоторые улучшения, которые могут привести к изменению стиля страниц Pixiv. Вы можете включить или отключить эти функции на вкладке «Дополнительно» загрузчика.<br><br>',
+    `点击网页右侧的蓝色按钮可以打开下载器面板。
+    <br><br>
+    下载的文件保存在浏览器的下载目录里。如果你想保存到其他位置，需要修改浏览器的下载目录。
+    <br><br>
+    建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”，否则保存每个文件时都会显示另存为对话框。
+    <br><br>
+    下载器默认启用了一些增强功能，这可能会导致 Pixiv 的一些页面样式产生变化。你可以在下载器的“更多”标签页里启用或关闭这些功能。
+    <br><br>
+    下载器的 Wiki：<a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
+    <br><br>`,
+
+    `點擊網頁右側的藍色按鈕可以打開下載器面板。
+    <br><br>
+    下載的文件保存在瀏覽器的下載目錄裡。如果您想保存到其他位置，需要修改瀏覽器的下載目錄。
+    <br><br>
+    建議您在瀏覽器的下載設置中關閉“下載前詢問每個文件的保存位置”，否則保存每個文件時都會顯示另存為對話框。
+    <br><br>
+    下載器默認開啟了一些增強功能，這可能會導致 Pixiv 的一些頁面樣式產生變化。您可以在下載器的“更多”標籤頁中啟用或關閉這些功能。
+    <br><br>
+    下載器的 Wiki：<a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
+    <br><br>`,
+
+    `Click the blue button on the right side of the webpage to open the downloader panel.
+    <br><br>
+    Downloaded files are saved in the browser's download directory. If you want to save them to another location, you need to change the browser's download directory.
+    <br><br>
+    It is recommended to disable "Ask where to save each file before downloading" in the browser's download settings, otherwise a save-as dialog will appear for each file.
+    <br><br>
+    The downloader enables some enhanced features by default, which may cause changes to the style of some Pixiv pages. You can enable or disable these features in the "More" tab of the downloader.
+    <br><br>
+    Downloader Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
+    <br><br>`,
+
+    `ウェブページの右側にある青いボタンをクリックすると、ダウンローダーパネルが開きます。
+    <br><br>
+    ダウンロードしたファイルはブラウザのダウンロードディレクトリに保存されます。別の場所に保存したい場合は、ブラウザのダウンロードディレクトリを変更する必要があります。
+    <br><br>
+    ブラウザのダウンロード設定で「ダウンロード前に各ファイルの保存場所を確認する」をオフにすることをお勧めします。そうしないと、ファイルを保存するたびに「名前を付けて保存」ダイアログが表示されます。
+    <br><br>
+    ダウンローダーはデフォルトでいくつかの拡張機能を有効にしており、これによりPixivの一部のページのスタイルが変更されることがあります。これらの機能は、ダウンローダーの「その他」タブで有効または無効にできます。
+    <br><br>
+    ダウンローダーのWiki：<a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
+    <br><br>`,
+
+    `웹페이지 오른쪽의 파란색 버튼을 클릭하면 다운로더 패널이 열립니다.
+    <br><br>
+    다운로드한 파일은 브라우저의 다운로드 디렉토리에 저장됩니다. 다른 위치에 저장하려면 브라우저의 다운로드 디렉토리를 변경해야 합니다.
+    <br><br>
+    브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치를 묻기"를 비활성화하는 것이 좋습니다. 그렇지 않으면 파일을 저장할 때마다 "다른 이름으로 저장" 대화 상자가 나타납니다.
+    <br><br>
+    다운로더는 기본적으로 몇 가지 향상된 기능을 활성화하며, 이로 인해 Pixiv의 일부 페이지 스타일이 변경될 수 있습니다. 이러한 기능은 다운로더의 "더보기" 탭에서 활성화하거나 비활성화할 수 있습니다.
+    <br><br>
+    다운로더 위키: <a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
+    <br><br>`,
+
+    `Нажмите на синюю кнопку справа на веб-странице, чтобы открыть панель загрузчика.
+    <br><br>
+    Загруженные файлы сохраняются в папке загрузок браузера. Если вы хотите сохранить их в другое место, необходимо изменить папку загрузок в настройках браузера.
+    <br><br>
+    Рекомендуется отключить в настройках загрузки браузера опцию "Запрашивать место сохранения каждого файла перед загрузкой", иначе при сохранении каждого файла будет отображаться диалог "Сохранить как".
+    <br><br>
+    Загрузчик по умолчанию включает некоторые расширенные функции, которые могут привести к изменению стиля некоторых страниц Pixiv. Вы можете включать или отключать эти функции на вкладке "Ещё" в загрузчике.
+    <br><br>
+    Вики загрузчика: <a href="https://xuejianxianzun.github.io/PBDWiki/" target="_blank">https://xuejianxianzun.github.io/PBDWiki/</a>
+    <br><br>`,
   ],
   _我知道了: ['我知道了', '我知道了', 'OK', '分かりました', '확인', 'Ок'],
   _背景图片: [
@@ -3122,7 +3431,7 @@ This setting is also used when you use the Downloader to bookmark works in batch
     '根据作品<span class="key">类型</span>自动建立文件夹',
     '根據作品<span class="key">類型</span>自動建立資料夾',
     'Create folders based on the <span class="key">type</span> of work',
-    '作品種類に応じてフォルダを自動作成',
+    '作品<span class="key">種類</span>に応じてフォルダを自動作成',
     '작품 <span class="key">유형</span>에 따라 자동으로 디렉토리 생성',
     'Создание папок на основе <span class="key">вида</span> работы',
   ],
@@ -3156,7 +3465,7 @@ Novel folder name: Novel`,
     '使用第一个匹配的<span class="key">标签</span>建立文件夹',
     '使用第一個符合的<span class="key">標籤</span>建立資料夾',
     'Create a folder with the first matched <span class="key">tag</span>',
-    '最初の一致するタグにフォルダを作成',
+    '最初の一致する<span class="key">タグ</span>にフォルダを作成',
     '첫 번째 일치하는 <span class="key">태그</span>로 디렉토리 생성',
     'Создать папку с первым совпавшим <span class="key">тегом</span>',
   ],
@@ -3237,7 +3546,7 @@ Novel folder name: Novel`,
     '<span class="key">选项卡</span>切换方式',
     '<span class="key">頁籤</span>切換方式',
     'How to switch <span class="key">tabs</span>',
-    'タブ切り替え方式',
+    '<span class="key">タブ</span>切り替え方式',
     '<span class="key">탭</span> 전환 방식',
     'Как переключать <span class="key">вкладки</span>',
   ],
@@ -3269,7 +3578,7 @@ Novel folder name: Novel`,
     '在序号前面<span class="key">填充 0</span>',
     '在序號前面<span class="key">填充 0</span>',
     '<span class="key">Add 0</span> in front of the serial number',
-    'シリアル番号の前に 0 を記入',
+    'シリアル番号の前に<span class="key">0</span>を記入',
     '일련번호 앞 <span class="key">0 채우기</span>',
     '<span class="key">Добавьте 0</span> перед серийным номером',
   ],
@@ -3309,34 +3618,34 @@ Novel folder name: Novel`,
   _左: ['左', '左', 'Left', '左', '왼쪽', 'Слева'],
   _右: ['右', '右', 'Right', '右', '오른쪽', 'Справа'],
   _多图作品只下载前几张图片: [
-    '多图作品只下载<span class="key">前几张</span>图片',
-    '多圖作品只下載<span class="key">前幾張</span>圖片',
-    'Multi-image works only download the <span class="key">first few</span> images',
-    'マルチ作品は最初の何枚の画像のみをダウンロードする',
-    '여러 이미지 작품은 <span class="key">처음 몇 개</span>의 이미지만 다운로드합니까',
-    'При работе с несколькими изображениями загружаются только <span class="key">первые несколько</span> изображений',
+    `多图作品只抓取<span class="key">前几张</span>图片`,
+    `多圖作品只抓取<span class="key">前幾張</span>圖片`,
+    `Multi-image works only crawl the <span class="key">first few</span> images`,
+    `マルチ画像作品は<span class="key">最初の数枚</span>の画像のみクロールします`,
+    `멀티 이미지 작품은 <span class="key">처음 몇 장</span> 이미지만 크롤링합니다`,
+    `Многоизображные работы загружают только <span class="key">первые несколько</span> изображений`,
   ],
   _多图作品的图片数量上限: [
     '多图作品的图片<span class="key">数量</span>上限',
     '多圖作品的圖片<span class="key">數量</span>上限',
     '<span class="key">Maximum number</span> of images for multi-image works',
-    'マルチ作品の最大画像数',
+    'マルチ作品の<span class="key">最大</span>画像数',
     '여러 이미지 작품의 <span class="key">최대 수</span>',
     '<span class="key">Максимальное количество</span> изображений для работ с несколькими изображениями',
   ],
-  _超出此限制的多图作品不会被下载: [
-    '超出此限制的多图作品不会被下载',
-    '不會下載超出此限制的多圖作品',
-    'Multi-image works exceeding this limit will not be downloaded',
-    'この制限を超えたマルチ作品はダウンロードされません',
-    '이 제한을 초과하는 여러 이미지 작품은 다운로드되지 않습니다.',
-    'Работы с несколькими изображениями, превышающие этот лимит, не будут загружены',
+  _多图作品的图片数量上限提示: [
+    `如果一个多图作品里的图片数量大于设置的数字，下载器就不会抓取这个作品。`,
+    `如果一個多圖作品裡的圖片數量大於設置的數字，下載器就不會抓取這個作品。`,
+    `If the number of images in a multi-image work exceeds the set number, the downloader will not crawl this work.`,
+    `マルチ画像作品の画像数が設定値を超える場合、ダウンロードツールはこの作品をクロールしません。`,
+    `멀티 이미지 작품의 이미지 수가 설정된 숫자를 초과하면, 다운로더는 이 작품을 크롤링하지 않습니다.`,
+    `Если количество изображений в многоизображной работе превышает установленное число, загрузчик не будет скачивать эту работу.`,
   ],
   _在搜索页面添加快捷搜索区域: [
     '在搜索页面添加快捷<span class="key">搜索</span>区域',
     '在搜尋頁面新增快速<span class="key">搜尋</span>區域',
     'Add a quick <span class="key">search</span> area on the search page',
-    '検索ページにクイック検索領域を追加します',
+    '検索ページにクイック<span class="key">検索</span>領域を追加します',
     '검색 페이지에 빠른 <span class="key">검색</span> 영역 추가',
     'Добавить область быстрого <span class="key">поиска</span> на странице поиска',
   ],
@@ -3352,7 +3661,7 @@ Novel folder name: Novel`,
     '保存作品的<span class="key">元数据</span>',
     '儲存作品的<span class="key">元資料</span>',
     'Save the <span class="key">metadata</span> of the work',
-    '作品のメタデータを保存する',
+    '作品の<span class="key">メタデータ</span>を保存する',
     '작품 <span class="key">메타데이터</span> 저장',
     'Сохранить <span class="key">метаданные</span> работы',
   ],
@@ -3368,7 +3677,7 @@ Novel folder name: Novel`,
     '在不同的页面类型中使用<span class="key">不同</span>的命名规则',
     '在不同的頁面類型中使用<span class="key">不同</span>的命名規則',
     'Use <span class="key">different</span> naming rules in different page types',
-    'ページの種類によって異なる命名規則を使用',
+    'ページの種類によって<span class="key">異なる</span>命名規則を使用',
     '페이지 유형에 따라 <span class="key">다른</span> 명명 규칙 사용',
     'Использовать <span class="key">различные</span> правила именования в разных типах страниц',
   ],
@@ -3376,7 +3685,7 @@ Novel folder name: Novel`,
     '显示<span class="key">高级</span>设置',
     '顯示<span class="key">進階</span>設定',
     'Show <span class="key">advanced</span> settings',
-    '詳細設定を表示する',
+    '<span class="key">詳細</span>設定を表示する',
     '<span class="key">고급</span> 설정 보기',
     'Показать <span class="key">расширенные</span> настройки',
   ],
@@ -3400,7 +3709,7 @@ Novel folder name: Novel`,
     '下载完成后显示<span class="key">通知</span>',
     '下載完成後顯示<span class="key">通知</span>',
     'Show <span class="key">notification</span> after download is complete',
-    'ダウンロードが完了した後に通知を表示する',
+    'ダウンロードが完了した後に<span class="key">通知</span>を表示する',
     '다운로드가 완료되면 <span class="key">알림</span> 표시',
     'Показать <span class="key">уведомление</span> после завершения загрузки',
   ],
@@ -3416,7 +3725,7 @@ Novel folder name: Novel`,
     '<span class="key">高亮</span>显示关键字',
     '<span class="key">標明</span>顯示關鍵字',
     '<span class="key">Highlight</span> keywords',
-    'キーワードを強調表示',
+    '<span class="key">強調</span>表示キーワード',
     '<span class="key">강조</span> 키워드 표시',
     '<span class="key">Выделить</span> ключевые слова',
   ],
@@ -3431,7 +3740,7 @@ Novel folder name: Novel`,
   _抓取标签列表: [
     '抓取标签列表',
     '擷取標籤列表',
-    'Crawl a list of tags',
+    'Crawl tag list',
     'タグのリストをクロール',
     '태그 긁어오기',
     'Сканировать список тегов',
@@ -3488,7 +3797,7 @@ Novel folder name: Novel`,
     '自动<span class="key">导出</span>抓取结果',
     '自動<span class="key">匯出</span>擷取結果',
     'Automatically <span class="key">export</span> crawl results',
-    'クロール結果の自動エクスポート',
+    'クロール結果の<span class="key">自動</span>エクスポート',
     '자동으로 긁어오기 결과 <span class="key">내보내기</span>',
     'Автоматически <span class="key">экспортировать</span> результаты сканирования',
   ],
@@ -3521,7 +3830,7 @@ Novel folder name: Novel`,
     '<span class="key">预览</span>作品',
     '<span class="key">預覽</span>作品',
     '<span class="key">Preview</span> works',
-    '作品のプレビュー',
+    '作品の<span class="key">プレビュー</span>',
     '작품 <span class="key">미리보기</span>',
     '<span class="key">Превью</span> работает',
   ],
@@ -3579,7 +3888,7 @@ Novel folder name: Novel`,
     '在缩略图上长按鼠标右键时显示<span class="key">大图</span>',
     '在縮圖上長按滑鼠右鍵時顯示<span class="key">大圖</span>',
     'Long press the right mouse button on the thumbnail to display the <span class="key">large image</span>',
-    'サムネイルでマウスの右ボタンを長押しすると、大きな画像が表示されます。',
+    'サムネイルでマウスの右ボタンを長押しすると、<span class="key">大きな画像</span>が表示されます',
     '썸네일을 마우스 오른쪽 버튼으로 클릭했을 때 <span class="key">큰 이미지</span> 표시',
     'Длительное нажатие правой кнопки мыши на миниатюре для отображения <span class="key">большого изображения</span>',
   ],
@@ -3675,7 +3984,7 @@ Novel folder name: Novel`,
     '替换方形<span class="key">缩略图</span>以显示图片比例',
     '替換方形<span class="key">縮圖</span>以顯示圖片比例',
     'Replace square <span class="key">thumbnails</span> to show image ratio',
-    '正方形のサムネイルを置き換えて、画像のスケールを表示。',
+    '正方形の<span class="key">サムネイル</span>を置き換えて、画像のスケールを表示',
     '이미지 종횡비를 표시하기 위해 정사각형 <span class="key">썸네일</span> 교체',
     'Замените квадратные <span class="key">миниатюры</span>, чтобы показать соотношение сторон изображения',
   ],
@@ -3691,9 +4000,9 @@ Novel folder name: Novel`,
     '只有一个抓取结果时<span class="key">不建立</span>文件夹',
     '只有一個擷取結果時<span class="key">不建立</span>資料夾',
     '<span class="key">Do not create</span> a folder when there is only one crawl result',
-    'クロール結果が１つのみの場合、フォルダを作成しない',
+    'クロール結果が１つのみの場合、<span class="key">フォルダを作成しない</span>',
     '긁어오기 결과가 하나일 때 디렉토리 <span class="key">생성하지 않기</span>',
-    'Когда есть только один результат сканирования, <span class="key">никакая</span> папка не создается',
+    'Когда есть только один результат сканирования, <span class="key">не создавать</span> папку',
   ],
   _只有一个抓取结果时不建立文件夹的提示: [
     '当只有一个抓取结果时生效。',
@@ -3740,7 +4049,7 @@ Novel folder name: Novel`,
     '自定义<span class="key">用户名</span>',
     '自訂<span class="key">使用者名稱</span>',
     'Customize <span class="key">username</span>',
-    'カスタムユーザー名',
+    '<span class="key">カスタム</span>ユーザー名',
     '사용자 정의 <span class="key">유저명</span>',
     'Настроить <span class="key">имя пользователя</span>',
   ],
@@ -3769,7 +4078,7 @@ Novel folder name: Novel`,
     '移除使用者名稱中的 <span class="key">@</span> 和後續字元',
     'Remove <span class="key">@</span> and subsequent characters in username',
     'ユーザー名から <span class="key">@</span> 以降の文字を削除する',
-    '유저명에서 @와 후속 문자 제거',
+    '유저명에서 <span class="key">@</span>와 후속 문자 제거',
     'Удалить <span class="key">@</span> и последующие символы в имени пользователя',
   ],
   _移除用户名中的at和后续字符的说明: [
@@ -3872,8 +4181,8 @@ Novel folder name: Novel`,
   _显示更大的缩略图: [
     '显示<span class="key">更大</span>的缩略图',
     '顯示<span class="key">更大</span>的縮圖',
-    'show <span class="key">larger</span> thumbnails',
-    '大きなサムネイルを表示する',
+    'Show <span class="key">larger</span> thumbnails',
+    '<span class="key">大きな</span>サムネイルを表示する',
     '<span class="key">더 큰</span> 썸네일 표시',
     'Показывать <span class="key">большие</span> миниатюры',
   ],
@@ -3957,6 +4266,22 @@ Novel folder name: Novel`,
     '{} 다운로드할 수 없습니다, 상태 코드: {}',
     '{} не удалось загрузить, код состояния: {}',
   ],
+  _下载器不会再重试下载它: [
+    '下载器不会重试下载它。如果你有需要的话，可以稍后尝试单独下载这个作品。',
+    '下載器不會重試下載它。如果你有需要的話，可以稍後嘗試單獨下載這個作品。',
+    'The downloader will not retry downloading it. If needed, you can try downloading this work separately later.',
+    'ダウンローダーはそれを再試行してダウンロードしません。必要であれば、後でこの作品を個別にダウンロードしてみることができます。',
+    '다운로더는 그것을 다시 다운로드하지 않습니다. 필요하다면 나중에 이 작품을 개별적으로 다운로드할 수 있습니다.',
+    'Загрузчик не будет пытаться скачать его снова. При необходимости вы можете попробовать скачать эту работу отдельно позже.',
+  ],
+  _下载器会暂时跳过它: [
+    '下载器会暂时跳过它，并在其他文件下载完毕后重试下载它。',
+    '下載器會暫時跳過它，並在其他檔案下載完畢後重試下載它。',
+    'The downloader will temporarily skip it and retry downloading it after other files are downloaded.',
+    'ダウンローダーは一時的にそれをスキップし、他のファイルのダウンロードが完了した後に再試行します。',
+    '다운로더는 일시적으로 그것을 건너뛰고 다른 파일 다운로드가 완료된 후 다시 시도합니다.',
+    'Загрузчик временно пропустит его и попробует скачать снова после завершения загрузки других файлов.',
+  ],
   _作品总数为0: [
     '作品总数为 0，Pixiv 可能拒绝了此次抓取。请稍后重试。',
     '作品總數為 0，Pixiv 可能拒絕了此次抓取。請稍後重試。',
@@ -3984,7 +4309,7 @@ Novel folder name: Novel`,
   _年龄限制: [
     '<span class="key">年龄</span>限制',
     '<span class="key">年齡</span>限制',
-    '<span class="key">Age</span> limit',
+    '<span class="key">Age</span> restriction',
     '<span class="key">年齢</span>制限',
     '<span class="key">연령</span> 제한',
     '<span class="key">Возраст</span> ограничение',
@@ -3995,7 +4320,7 @@ Novel folder name: Novel`,
     '<span class="key">Bookmark</span> status',
     '<span class="key">ブックマーク</span>ステータス',
     '<span class="key">북마크</span> 상태',
-    'Статус <span class="key">закладки</span> ',
+    'Статус <span class="key">закладки</span>',
   ],
   _图片色彩: [
     '图片<span class="key">色彩</span>',
@@ -4019,13 +4344,13 @@ Novel folder name: Novel`,
     'Do not crawl the <span class="key">last image</span> of multi-image works',
     'マルチ画像作品の<span class="key">最後の画像</span>をつかまないでください',
     '여러 이미지의 <span class="key">마지막 이미지</span> 긁어오지 않기',
-    'Не сканировать по <span class="key">последние изображения</span> в много картинных работах',
+    'Не сканировать <span class="key">последнее изображение</span> в много картинных работах',
   ],
   _下载小说的封面图片: [
     '下载小说的<span class="key">封面</span>图片',
     '下載小說的<span class="key">封面</span>圖片',
     'Download the <span class="key">cover</span> image of the novel',
-    '小説の<span class="key">表紙画像</span>をダウンロード',
+    '小説の<span class="key">表紙</span>画像をダウンロード',
     '소설 <span class="key">커버</span> 이미지 다운로드',
     'Скачать изображение <span class="key">обложки</span> новеллы',
   ],
@@ -4033,7 +4358,7 @@ Novel folder name: Novel`,
     '<span class="key">预览</span>动图',
     '<span class="key">預覽</span>動圖',
     '<span class="key">Preview</span> Ugoira',
-    'うごイラのプレビュー',
+    '<span class="key">うごイラ</span>のプレビュー',
     '움직이는 일러스트 <span class="key">미리보기</span>',
     '<span class="key">Превью</span> Ugoira(анимации)',
   ],
@@ -4049,7 +4374,7 @@ Novel folder name: Novel`,
     '下载小说里的<span class="key">内嵌</span>图片',
     '下載小說裡的<span class="key">內嵌</span>圖片',
     'Download <span class="key">embedded</span> images in novels',
-    '小説に埋め込まれた画像をダウンロードする',
+    '小説に<span class="key">埋め込まれた</span>画像をダウンロードする',
     '소설에서 <span class="key">인라인</span> 이미지 다운로드',
     'Загрузка <span class="key">вложенных</span> изображений в новеллах',
   ],
@@ -4060,14 +4385,6 @@ Novel folder name: Novel`,
     'その他の最適化。',
     '기타 최적화.',
     'Другие оптимизации.',
-  ],
-  _隐藏浏览器底部的下载栏: [
-    '隐藏浏览器底部的<span class="key">下载栏</span>',
-    '隱藏瀏覽器底部的<span class="key">下載欄</span>',
-    `Hide the <span class="key">download bar</span> at the bottom of the browser`,
-    'ブラウザの下部にあるダウンロードバーを非表示にします',
-    '브라우저 하단의 <span class="key">다운로드 바</span> 숨기기',
-    `Скрыть <span class="key">панель загрузки</span> в нижней части браузера`,
   ],
   _没有可用的抓取结果: [
     '没有可用的抓取结果',
@@ -4138,8 +4455,8 @@ Novel folder name: Novel`,
     '<span class="key">定時</span>抓取的間隔時間',
     'The interval time of <span class="key">timed crawl</span>',
     '<span class="key">時間指定</span>クロールの間隔時間',
-    '정기 크롤링 간격 시간',
-    'Интервальное время сканирования с таймером',
+    '<span class="key">정기</span> 크롤링 간격 시간',
+    'Интервальное время <span class="key">сканирования с таймером</span>',
   ],
   _定时抓取的间隔时间2: [
     '定时抓取的间隔时间',
@@ -4314,7 +4631,7 @@ Novel folder name: Novel`,
     '点击<span class="key">点赞</span>按钮时下载作品',
     '點選<span class="key">點贊</span>按鈕時下載作品',
     'Download a work when you click the <span class="key">like</span> button',
-    '<span class="key">いいね</span> ボタンをクリックすると作品がダウンロードされます',
+    '<span class="key">いいね</span>ボタンをクリックすると作品がダウンロードされます',
     '<span class="key">좋아요</span> 버튼 클릭 시 작품 다운로드',
     'Загрузка произведения при нажатии на кнопку <span class="key">лайк</span>',
   ],
@@ -4537,7 +4854,7 @@ Novel folder name: Novel`,
     '匯出<span class="key">日誌</span>',
     'Export <span class="key">log</span>',
     '<span class="key">ログ</span>のエクスポート',
-    '내보내기 로그',
+    '<span class="key">로그</span> 내보내기',
     'Экспорт <span class="key">журнала</span>',
   ],
   _导出日志成功: [
@@ -4586,14 +4903,14 @@ Novel folder name: Novel`,
     '特定用户的多图作品不下载<span class="key">最后几张</span>图片',
     '特定使用者的多圖作品不下載<span class="key">最後幾張</span>圖片',
     `Don't download the <span class="key">last few</span> images for specific user's multi-image works`,
-    '特定のユーザーのマルチイメージ作品の最後のいくつかのイメージをダウンロードしないでください',
-    '특정 사용자의 다중 이미지 작품에 대한 마지막 몇 개의 이미지를 다운로드하지 마십시오.',
-    'Не загружайте несколько последних изображений для работы с несколькими изображениями конкретного пользователя.',
+    '特定のユーザーのマルチイメージ作品の<span class="key">最後のいくつかのイメージ</span>をダウンロードしないでください',
+    '특정 사용자의 다중 이미지 작품에 대한 <span class="key">마지막 몇 개</span>의 이미지를 다운로드하지 마십시오',
+    'Не загружайте <span class="key">последние несколько</span> изображений для работ с несколькими изображениями конкретного пользователя',
   ],
   _不下载最后几张图片: [
     '不下载最后几张图片',
     '不下載最後幾張圖片',
-    'Do not download the last few images',
+    'Do not download last few images',
     '最後の数枚の画像をダウンロードしない',
     '마지막 몇 개의 이미지를 다운로드하지 마십시오',
     'Не загружайте последние несколько изображений',
@@ -4609,10 +4926,10 @@ Novel folder name: Novel`,
   _如果作品含有某些标签则对这个作品使用另一种命名规则: [
     '如果作品含有某些<span class="key">特定标签</span>，则对这个作品使用另一种命名规则',
     '如果作品含有某些<span class="key">特定標籤</span>，則對這個作品使用另一種命名規則',
-    'Use a different naming rule for the work if it has certain tags',
-    '特定のタグがある場合は、作品に別の命名規則を使用する',
-    '특정 태그가 있는 경우 작업에 다른 명명 규칙을 사용하십시오.',
-    'Используйте другое правило именования для работы, если она имеет определенные теги',
+    'Use a different naming rule for the work if it has certain <span class="key">tags</span>',
+    '特定の<span class="key">タグ</span>がある場合は、作品に別の命名規則を使用する',
+    '특정 <span class="key">태그</span>가 있는 경우 작업에 다른 명명 규칙을 사용하십시오',
+    'Используйте другое правило именования для работы, если она имеет определенные <span class="key">теги</span>',
   ],
   _升级到manifest_v3的提示: [
     '下载器已升级到 Manifest V3。<br>如果你在下载时遇到问题，请打开扩展管理页面，重新加载本扩展。',
@@ -4675,8 +4992,8 @@ Novel folder name: Novel`,
     '檔案下載<span class="key">順序</span>',
     'File download <span class="key">order</span>',
     'ファイルのダウンロード<span class="key">順序</span>',
-    '파일 다운로드 순서',
-    'Порядок загрузки файлов',
+    '파일 다운로드 <span class="key">순서</span>',
+    'Порядок <span class="key">загрузки</span> файлов',
   ],
   _降序: [
     '降序',
@@ -4721,7 +5038,7 @@ Novel folder name: Novel`,
   _收藏数量2: [
     '收藏数量',
     '收藏數量',
-    'Number of bookmarks',
+    'Bookmark count',
     'ブックマークの数',
     '북마크 수',
     'Колличество закладок',
@@ -4746,8 +5063,8 @@ Novel folder name: Novel`,
     '<span class="key">高亮</span>关注的用户',
     '<span class="key">高亮</span>關注的使用者',
     '<span class="key">Highlight</span> following users',
-    'フォローしているユーザーを強調表示する',
-    '다음 사용자 <span class="key">강조표시</span>',
+    '<span class="key">強調</span>表示するフォローしているユーザー',
+    '<span class="key">강조표시</span>하는 팔로우한 사용자',
     '<span class="key">Выделить</span> следующих пользователей',
   ],
   _高亮关注的用户的说明: [
@@ -4774,13 +5091,13 @@ Novel folder name: Novel`,
     '다음 사용자 목록이 업데이트되었습니다',
     'Список следующих пользователей обновлен',
   ],
-  _Kiwi浏览器可能不能建立文件夹的bug: [
-    '如果你使用的是 Kiwi 浏览器，它可能不会建立文件夹。这是 Kiwi 浏览器的 bug。',
-    '如果你使用的是 Kiwi 瀏覽器，它可能不會建立資料夾。這是 Kiwi 瀏覽器的 bug。',
-    'If you are using the Kiwi browser, it may not create the folder. This is a bug in the Kiwi browser',
-    'Kiwi ブラウザを使用している場合、フォルダが作成されない場合があります。 これは Kiwi ブラウザのバグです。',
-    '키위 브라우저를 사용하는 경우 폴더가 생성되지 않을 수 있습니다. 이것은 Kiwi 브라우저의 버그입니다.',
-    'Если вы используете браузер Kiwi, он может не создать папку. Это баг браузера Киви.',
+  _移动端浏览器可能不会建立文件夹的说明: [
+    '如果你使用的是移动端的浏览器，它可能不会建立文件夹。这不是下载器的问题。',
+    '如果你使用的是移動端的瀏覽器，它可能不會建立資料夾。這不是下載器的問題。',
+    `If you're using a mobile browser, it may not create the folder. This isn't a problem with the downloader.`,
+    'モバイルブラウザをご利用の場合、フォルダが作成されない可能性があります。これはダウンローダーの問題ではありません。',
+    '모바일 브라우저를 사용하는 경우 폴더가 생성되지 않을 수 있습니다. 이는 다운로더 문제가 아닙니다.',
+    'Если вы используете мобильный браузер, папка может не создаться. Это не проблема загрузчика.',
   ],
   _优化移动设备上的用户体验: [
     '优化移动设备上的用户体验。',
@@ -4789,14 +5106,6 @@ Novel folder name: Novel`,
     'モバイルデバイスでのユーザーエクスペリエンスを最適化します。',
     '모바일 장치에서 사용자 경험을 최적화합니다.',
     'Оптимизируйте взаимодействие с пользователем на мобильных устройствах.',
-  ],
-  _导出CSV文件的提示: [
-    'CSV 文件的可读性更好，但它不能用于恢复（导入）抓取结果。',
-    'CSV 檔案的可讀性更好，但它不能用於恢復（匯入）抓取結果。',
-    'A CSV file is more readable, but it cannot be used to restore (import) crawl results.',
-    'CSV ファイルは読みやすいですが、クロール結果の復元 (インポート) には使用できません。',
-    'CSV 파일은 더 읽기 쉽지만 크롤링 결과를 복원(가져오기)하는 데 사용할 수 없습니다.',
-    'CSV-файл более удобен для чтения, но его нельзя использовать для восстановления (импорта) результатов сканирования.',
   ],
   _批量收藏作品时减慢速度: [
     '批量收藏作品时减慢速度，以减少 429 错误发生的概率',
@@ -4895,9 +5204,9 @@ type может быть "illusts" или "novel".`,
     '获取作品 ID 列表后导出 <span class="key">ID 列表</span>，并停止任务',
     '獲取作品 ID 列表後匯出 <span class="key">ID 列表</span>，並停止任務',
     'After obtaining the work ID list, export the <span class="key">ID list</span> and stop the task',
-    'ワークIDリストを取得後、IDリストをエクスポートしてタスクを停止する',
-    '작업 ID 목록을 가져온 후 ID 목록을 내보내고 작업을 중지합니다',
-    'После получения списка идентификаторов работ экспортируйте список идентификаторов и остановите задачу',
+    'ワークIDリストを取得後、<span class="key">IDリスト</span>をエクスポートしてタスクを停止する',
+    '작업 ID 목록을 가져온 후 <span class="key">ID 목록</span>을 내보내고 작업을 중지합니다',
+    'После получения списка идентификаторов работ экспортируйте <span class="key">список идентификаторов</span> и остановите задачу',
   ],
   _导出ID列表的说明: [
     '此时只会运行抓取，不会开始下载。<br>并且会忽略大多数过滤条件。',
@@ -4982,7 +5291,7 @@ type может быть "illusts" или "novel".`,
   _修复了显示更大的缩略图失效的问题: [
     '修复了“显示更大的缩略图”失效的问题',
     '修復了“顯示更大的縮圖”失效的問題',
-    'Fixed an issue where "Show Larger Thumbnails" didn\'t work',
+    `Fixed an issue where "Show Larger Thumbnails" didn't work`,
     '「大きなサムネイルを表示」が機能しない問題を修正しました',
     '"큰 축소판 보기"가 작동하지 않는 문제를 수정했습니다.',
     'Исправлена ​​ошибка, из-за которой не работал параметр «Показать увеличенные эскизы».',
@@ -4998,10 +5307,10 @@ type может быть "illusts" или "novel".`,
   _在多图作品页面里显示缩略图列表: [
     '在多图作品页面里显示<span class="key">缩略图</span>列表',
     '在多圖作品頁面裡顯示<span class="key">縮圖</span>列表',
-    'In the multi-image work page, display the <span class="key">thumbnail</span> list',
-    '複数画像作品ページでサムネイル一覧を表示',
-    '멀티 이미지 작품 페이지에서 썸네일 목록을 표시',
-    'На рабочей странице с несколькими изображениями отобразите список эскизов',
+    'Show <span class="key">thumbnail</span> list on multi-image work pages',
+    '複数画像作品ページで<span class="key">サムネイル</span>一覧を表示',
+    '멀티 이미지 작품 페이지에서 <span class="key">썸네일</span> 목록을 표시',
+    'На рабочей странице с несколькими изображениями отобразите список <span class="key">эскизов</span>',
   ],
   _在多图作品页面里显示缩略图列表的说明: [
     `在多图作品页面里（/artworks/)，下载器可以显示每一张图片的预览图。`,
@@ -5032,9 +5341,9 @@ type может быть "illusts" или "novel".`,
     '预览作品的<span class="key">详细</span>信息',
     '預覽作品時的<span class="key">詳細</span>資料',
     'Preview the <span class="key">details</span> of the work',
-    'プレビュー作品の詳細です',
-    '작품의 상세한 정보를 미리보다',
-    'Подробности предварительного показа',
+    'プレビュー作品の<span class="key">詳細</span>です',
+    '작품의 <span class="key">상세한 정보</span>를 미리보다',
+    'Подробности <span class="key">предварительного показа</span>',
   ],
   _预览作品的详细信息的说明: [
     '鼠标放在作品缩略图上即可查看作品数据',
@@ -5064,9 +5373,9 @@ type может быть "illusts" или "novel".`,
     '在搜索页面里<span class="key">移除</span>已关注用户的作品',
     '在搜尋頁面裡<span class="key">移除</span>已關注使用者的作品',
     '<span class="key">Remove</span> the works of followed users from the search page',
-    'フォローしているユーザーの作品を検索ページから削除します',
-    '검색 페이지에서 팔로우한 사용자의 작품을 제거합니다.',
-    'Удалить работы подписавшихся пользователей со страницы поиска',
+    'フォローしているユーザーの作品を検索ページから<span class="key">削除</span>します',
+    '검색 페이지에서 팔로우한 사용자의 작품을 <span class="key">제거</span>합니다',
+    '<span class="key">Удалить</span> работы подписавшихся пользователей со страницы поиска',
   ],
   _在搜索页面里移除已关注用户的作品的说明: [
     '这样只会显示未关注用户的作品，便于你发现新的喜欢的用户。<br>只在搜索页面（/tags/）里生效。',
@@ -5209,8 +5518,8 @@ type может быть "illusts" или "novel".`,
     '儲存作品<span class="key">說明</span>',
     'Save work <span class="key">description</span>',
     '作品<span class="key">説明</span>の保存',
-    '작품 설명 저장',
-    'Сохранить описание работы',
+    '작품 <span class="key">설명</span> 저장',
+    'Сохранить <span class="key">описание</span> работы',
   ],
   _保存作品的简介2: [
     '保存作品简介',
@@ -5298,7 +5607,7 @@ type может быть "illusts" или "novel".`,
     `每隔一定时间开始一次下载。<br>
 默认值为 0，即无限制。<br>
 如果设置为 1 秒钟，那么每小时最多会从 Pixiv 下载 3600 个文件。<br>
-如果你担心因为下载文件太频繁导致账号被 Ban，可以设置大于 0 的数字，以缓解此问题。<br>`,
+如果你担心因为下载文件太频繁导致账号被封禁，可以设置大于 0 的数字，以缓解此问题。<br>`,
     `每隔一定時間開始一次下載。<br>
 預設值為 0，即無限制。<br>
 如果設定為 1 秒鐘，那麼每小時最多會從 Pixiv 下載 3600 個檔案。<br>
@@ -5365,26 +5674,6 @@ P.S. Работы заблокированных пользователей не
     '「ユーザーブロックリスト」のユーザーから作品を削除する',
     '"사용자 차단 목록"에 있는 사용자의 작품을 제거합니다.',
     'Удалить работы пользователей из «Черного списка пользователей»',
-  ],
-  _检测到在Firefox浏览器上使用: [
-    `你好！下载器检测到它运行在 Firefox 浏览器上。<br>
-有人在火狐扩展商店（ADD-ONS）发布了这个扩展，但不是我发布的。<br>
-这个下载器不支持 Firefox，可能会遇到一些问题。我不会为其修复问题。`,
-    `你好！下載器檢測到它執行在 Firefox 瀏覽器上。<br>
-有人在火狐擴充套件商店（ADD-ONS）釋出了這個擴充套件，但不是我釋出的。<br>
-這個下載器不支援 Firefox，可能會遇到一些問題。我不會為其修復問題。`,
-    `Hello! The downloader detects that it is running on the Firefox browser.<br>
-Someone published this extension on the Firefox Add-on Store (ADD-ONS), but not me.<br>
-This downloader does not support Firefox and may encounter some problems. I will not fix problems for it.`,
-    `こんにちは！ダウンローダーは、Firefox ブラウザ上で実行されていることを検出しました。 <br>
-誰かがこの拡張機能を Firefox 拡張機能ストア (ADD-ONS) に公開しましたが、公開したのは私ではありません。 <br>
-このダウンローダーは Firefox をサポートしていないため、問題が発生する可能性があります。私はそれを直してあげません。`,
-    `안녕하세요! 다운로더가 Firefox 브라우저에서 실행 중임을 감지했습니다. <br>
-누군가 이 확장 기능을 Firefox 확장 기능 스토어(추가 기능)에 게시했지만 저는 게시하지 않았습니다. <br>
-이 다운로더는 Firefox를 지원하지 않으므로 몇 가지 문제가 발생할 수 있습니다. 제가 해결해드리지 않을 거예요.`,
-    `Привет! Загрузчик обнаружил, что он запущен в браузере Firefox. <br>
-Кто-то опубликовал это расширение в магазине расширений Firefox (ADD-ONS), но не я. <br>
-Этот загрузчик не поддерживает Firefox и может вызывать некоторые проблемы. Я не буду это за тебя исправлять.`,
   ],
   _修复了因Pixiv变化而失效的显示更大的缩略图功能: [
     '修复了因 Pixiv 变化而失效的一些增强功能，比如“显示更大的缩略图”、“高亮关注的用户”等功能。',
@@ -5466,6 +5755,80 @@ This downloader does not support Firefox and may encounter some problems. I will
     '이 확장 프로그램이 {} 버전으로 업그레이드되었습니다.',
     'Это расширение было обновлено до версии {}.',
   ],
+  _fanboxDownloader的说明: [
+    '我制作了一个 Fanbox Downloader，不过目前它只支持 Chromium 内核的浏览器，例如 Chrome、Edge。<br>你可以从 Chrome Web Store 安装它：<br><a href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank">Pixiv Fanbox Downloader</a>',
+    '我製作了一個 Fanbox Downloader，不過目前它只支援 Chromium 内核的瀏覽器，例如 Chrome、Edge。<br>你可以從 Chrome Web Store 安裝它：<br><a href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank">Pixiv Fanbox Downloader</a>',
+    'I created a Fanbox Downloader, but it currently only supports Chromium-based browsers, such as Chrome and Edge.<br>You can install it from the Chrome Web Store:<br><a href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank">Pixiv Fanbox Downloader</a>',
+    '私は Fanbox Downloader を作成しましたが、現在は Chromium ベースのブラウザ（例: Chrome、Edge）のみをサポートしています。<br>Chrome Web Store からインストールできます：<br><a href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank">Pixiv Fanbox Downloader</a>',
+    '나는 Fanbox Downloader를 만들었지만, 현재는 Chromium 기반 브라우저(예: Chrome, Edge)만 지원합니다.<br>Chrome Web Store에서 설치할 수 있습니다:<br><a href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank">Pixiv Fanbox Downloader</a>',
+    'Я создал Fanbox Downloader, но в настоящее время он поддерживает только браузеры на базе Chromium, такие как Chrome и Edge.<br>Вы можете установить его из Chrome Web Store:<br><a href="https://chrome.google.com/webstore/detail/pixiv-fanbox-downloader/ihnfpdchjnmlehnoeffgcbakfmdjcckn" target="_blank">Pixiv Fanbox Downloader</a>',
+  ],
+  _支持Firefox: [
+    '🦊下载器已经可以在 Firefox 上使用了！🥳<br>从 ADD-ONS 安装：<br><a href="https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/" target="_blank">Powerful Pixiv Downloader</a>',
+    '🦊下載器已經可以在 Firefox 上使用了！🥳<br>從 ADD-ONS 安裝：<br><a href="https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/" target="_blank">Powerful Pixiv Downloader</a>',
+    '🦊The downloader is now available for use on Firefox! 🥳<br>Install from ADD-ONS:<br><a href="https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/" target="_blank">Powerful Pixiv Downloader</a>',
+    '🦊ダウンローダーはすでにFirefoxで使用可能です！🥳<br>ADD-ONSからインストール：<br><a href="https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/" target="_blank">Powerful Pixiv Downloader</a>',
+    '🦊다운로더는 이제 Firefox에서 사용할 수 있습니다! 🥳<br>ADD-ONS에서 설치:<br><a href="https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/" target="_blank">Powerful Pixiv Downloader</a>',
+    '🦊Загрузчик уже доступен для использования в Firefox! 🥳<br>Установить из ADD-ONS:<br><a href="https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/" target="_blank">Powerful Pixiv Downloader</a>',
+  ],
+  _提示查看wiki页面: [
+    `现在你可以更方便的查看每个功能的 Wiki 页面了，只需要点击设置项的名字，或者在纯色按钮上长按，下载器就会打开对应的 Wiki 页面。`,
+    `現在你可以更方便的查看每個功能的 Wiki 頁面了，只需要點擊設定項的名稱，或者在純色按鈕上長按，下載器就會打開對應的 Wiki 頁面。`,
+    `Now you can view the Wiki page for each feature more conveniently, just click on the setting item's name, or long-press on the solid color button, and the downloader will open the corresponding Wiki page.`,
+    `今、各機能のWikiページをより便利に閲覧できます。設定項目の名前をクリックするか、単色ボタンを長押しするだけで、ダウンロードツールが対応するWikiページを開きます。`,
+    ` 이제 각 기능의 Wiki 페이지를 더 편리하게 볼 수 있습니다. 설정 항목의 이름을 클릭하거나 단색 버튼을 길게 누르면 다운로더가 해당 Wiki 페이지를 엽니다.`,
+    `Теперь вы можете просматривать страницу Wiki для каждой функции более удобно: просто кликните на название элемента настройки или долго нажмите на кнопку сплошного цвета, и загрузчик откроет соответствующую страницу Wiki。`,
+  ],
+  _提示使用小号下载: [
+    `本次任务需要抓取的作品数量比较多，您可以考虑使用小号进行抓取和下载，以减少大号被封禁的风险。<br>您可以在 Wiki 查看相关说明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E4%BD%BF%E7%94%A8%E5%B0%8F%E5%8F%B7%E4%B8%8B%E8%BD%BD" target="_blank">使用小号下载</a>`,
+    `本次任務需要抓取的作品數量比較多，您可以考慮使用小號進行抓取和下載，以減少大號被封禁的風險。<br>您可以在 Wiki 查看相關說明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E4%BD%BF%E7%94%A8%E5%B0%8F%E5%8F%B7%E4%B8%8B%E8%BD%BD" target="_blank">使用小號下載</a>`,
+    `This task requires crawling a large number of works. You may consider using an alt account for crawling and downloading to reduce the risk of your main account being banned. <br>You can view the relevant instructions in the Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">Using Secondary Account for Downloading</a>`,
+    `今回のタスクでは、クロールする作品の数がかなり多いです。小号を使用してクロールとダウンロードを行うことを検討してください。これにより、大号がブロックされるリスクを低減できます。<br>Wiki で関連する説明を確認できます：<a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">小号でダウンロード</a>`,
+    `이번 작업에서 크롤링할 작품 수가 많습니다. 대본 계정이 차단될 위험을 줄이기 위해 작은 계정을 사용하여 크롤링과 다운로드를 고려해보세요. <br>Wiki에서 관련 설명을 확인할 수 있습니다: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">작은 계정으로 다운로드</a>`,
+    `Эта задача требует загрузки большого количества работ. Вы можете рассмотреть использование альтернативного аккаунта для загрузки и скачивания, чтобы снизить риск блокировки основного аккаунта. <br>Вы можете ознакомиться с соответствующими инструкциями в Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">Скачивание с альтернативным аккаунтом</a>`,
+  ],
+  _版本更新说明17_9_0: [
+    `<strong>注意：</strong>这次更新后，“抓取多少页面”和“抓取多少作品”这两个设置被重置为了默认值。如果你需要的话可以重新修改它们的值。`,
+    `<strong>注意：</strong>這次更新後，「抓取多少頁面」和「抓取多少作品」這兩個設置被重置為了默認值。如果你需要的話可以重新修改它們的值。`,
+    `<strong>Note:</strong> After this update, the settings for "crawl how many pages" and "crawl how many works" have been reset to default values. If needed, you can modify their values again.`,
+    `<strong>注意：</strong>この更新後、「クロールするページ数」と「クロールする作品数」の2つの設定がデフォルト値にリセットされました。必要に応じて値を再変更できます。`,
+    `<strong>주의:</strong> 이번 업데이트 후, "크롤링할 페이지 수"와 "크롤링할 작품 수" 이 두 설정이 기본값으로 재설정되었습니다. 필요하다면 값을 다시 수정할 수 있습니다.`,
+    `<strong>Внимание:</strong> После этого обновления настройки «количество страниц для краулинга» и «количество работ для краулинга» были сброшены на значения по умолчанию. При необходимости вы можете изменить их значения заново.`,
+  ],
 }
 
 export { langText }
+
+// prompt
+
+// 请帮我根据把一条中文语句翻译并生成一个字符串数组，一共包含 6 条语句，第 1 条是原文，后面 5 条语句是其他语言的翻译，按顺序分别是：繁体中文、英语、日语、韩语、俄语。
+
+// 背景说明：
+// 这是一个浏览器扩展程序，它是一个爬虫和下载器，用于从 Pixiv.net 这个网站下载插画、漫画、小说等内容。大多数用户在 PC 端的浏览器上使用它。它有很多设置项，还会显示日志和一些提示消息。
+
+// 输出格式：
+// - 输出内容保存在一个 JavaScript 代码块里。
+// - 代码的内容就是翻译后的数组。不需要把数组保存到一个变量里。
+// - 字符串使用反引号 ` 包裹。
+// - 数组的最后一项后面保留逗号。
+// - 翻译的语句后面不需要添加注释。
+
+// 备注：
+// - 如果中文语句里有 html 标签，翻译时需要原样保留。
+// - 如果原语句里有 `<span class="key">关键字</span>` 形式的标记，那么在翻译后的语句里也要加上。
+// - 中文的引号如 `“` 和 `”` 都翻译成英语的引号 `"`。
+
+// 术语表：
+// - `作品`（指 pixiv 上的投稿）翻译为`work`。
+// - `插画`翻译为`illustration`。
+// - `漫画`翻译为`manga`。
+// - `小说`翻译为`novel`。
+// - `动图`（指 pixiv 上的逐帧动画）翻译为`Ugoira`。
+// - `图片`（对 pixiv 上的图片的统称）翻译为`image`。
+// - `简介`（指作品的介绍信息）翻译为`description`。
+// - `抓取`（让这个下载器爬取作品数据）翻译为`crawl`。
+// - `收藏`（把作品添加到收藏夹，相当于书签）翻译为`bookmark`。
+// - `命名规则`翻译为`naming rule`。
+// - `点击`翻译为`click`。因为这个下载器是为 PC 端网页设计的，所以`点击`指的是鼠标点击，而非点击屏幕。
+// - `下载记录`有两种情况。第一种情况：这个扩展程序会保存自己的下载记录格式，此时应该翻译为`download record`。第二种情况：指浏览器的下载记录，翻译为`download history`。第二种情况比较少。
+// - `发布时间`、`发表时间`、`投稿时间`是相同的意思，应该翻译为`posting time`。

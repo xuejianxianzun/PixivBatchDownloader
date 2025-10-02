@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill'
 import { EVT } from './EVT'
 import { Utils } from './utils/Utils'
 
@@ -31,9 +32,7 @@ class CheckNewVersion {
     }
 
     // 获取本地扩展的版本号
-    const manifest = await fetch(chrome.runtime.getURL('manifest.json'))
-    const manifestJson = await manifest.json()
-    const manifestVer = manifestJson.version
+    const manifestVer = browser.runtime.getManifest().version
 
     // 比较大小
     const latestVer = localStorage.getItem(verName)
