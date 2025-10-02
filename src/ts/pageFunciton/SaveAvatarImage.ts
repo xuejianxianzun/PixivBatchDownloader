@@ -1,4 +1,4 @@
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { API } from '../API'
 import { log } from '../Log'
 import { Tools } from '../Tools'

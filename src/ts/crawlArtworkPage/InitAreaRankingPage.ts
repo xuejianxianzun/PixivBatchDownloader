@@ -1,9 +1,7 @@
 // 初始化地区排行榜页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
 import { Tools } from '../Tools'
-import { options } from '../setting/Options'
 import { filter, FilterOption } from '../filter/Filter'
 import { store } from '../store/Store'
 
@@ -21,14 +19,11 @@ class InitAreaRankingPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_抓取本页作品',
-      '_抓取本页作品Title'
+      '_抓取本页作品Title',
+      'crawlCurrentPageWork'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
-  }
-
-  protected setFormOption() {
-    options.hideOption([1])
   }
 
   // 把地区排行榜里原本很小的缩略图替换成更大的缩略图

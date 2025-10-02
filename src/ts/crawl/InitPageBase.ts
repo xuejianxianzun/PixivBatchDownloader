@@ -1,13 +1,13 @@
 // 初始化所有页面抓取流程的基类
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Colors } from '../Colors'
 import { Tools } from '../Tools'
 import { API } from '../API'
 import { store } from '../store/Store'
 import { log } from '../Log'
 import { EVT } from '../EVT'
-import { options } from '../setting/Options'
 import { settings } from '../setting/Settings'
+import '../setting/CrawlNumber'
 import { states } from '../store/States'
 import { saveArtworkData } from '../store/SaveArtworkData'
 import { saveNovelData } from '../store/SaveNovelData'
@@ -39,7 +39,7 @@ abstract class InitPageBase {
 
   protected listPageFinished = 0 // 记录一共抓取了多少个列表页
 
-  protected readonly ajaxThreadsDefault = 10 // 抓取作品数据时的并发请求数量默认值，也是最大值
+  protected readonly ajaxThreadsDefault = 3 // 抓取作品数据时的并发请求数量默认值，也是最大值
 
   protected ajaxThread = this.ajaxThreadsDefault // 抓取时的并发请求数
 
@@ -49,7 +49,6 @@ abstract class InitPageBase {
 
   // 子组件必须调用 init 方法，并且不可以修改 init 方法
   protected init() {
-    this.setFormOption()
     this.addCrawlBtns()
     this.addAnyElement()
     this.initAny()
@@ -58,6 +57,24 @@ abstract class InitPageBase {
 
     // 注册当前页面的 destroy 函数
     destroyManager.register(this.destroy.bind(this))
+
+    EVT.bindOnce(
+      'setSlowCrawlMode',
+      EVT.list.settingChange,
+      (ev: CustomEventInit) => {
+        const data = ev.detail.data as any
+        if (data.name === 'slowCrawl' && data.value) {
+          if (store.idList.length > settings.slowCrawlOnWorksNumber) {
+            // 当用户打开慢速抓取开关时，设置慢速抓取的标记
+            log.warning(lang.transl('_慢速抓取'))
+            states.slowCrawlMode = true
+            this.ajaxThread = 1
+            // 其实在已经出现 429 错误后，用户才启用这个开关的话是没用的，
+            // 因为下载器重试请求的时候，已经有多个出错的请求了，下载器没有把这些请求从并发改为单线程
+          }
+        }
+      }
+    )
 
     // 页面切换后，如果任务已经完成，则移除日志区域
     EVT.bindOnce('clearLogAfterPageSwitch', EVT.list.pageSwitch, () => {
@@ -88,25 +105,14 @@ abstract class InitPageBase {
     })
   }
 
-  // 设置表单里的选项。主要是设置页数，并隐藏不需要的选项。
-  protected setFormOption(): void {
-    // 个数/页数选项的提示
-    options.setWantPageTip({
-      text: '_抓取多少页面',
-      tip: '_从本页开始下载提示',
-      rangTip: '_数字提示1',
-      min: 1,
-      max: -1,
-    })
-  }
-
   // 添加抓取区域的默认按钮，可以被子类覆写
   protected addCrawlBtns() {
     Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
       '_开始抓取',
-      '_默认下载多页'
+      '_默认下载多页',
+      'startCrawling'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -124,53 +130,6 @@ abstract class InitPageBase {
   protected destroy(): void {
     Tools.clearSlot('crawlBtns')
     Tools.clearSlot('otherBtns')
-  }
-
-  // 作品个数/页数的输入不合法
-  private getWantPageError() {
-    EVT.fire('wrongSetting')
-    const msg = lang.transl('_下载数量错误')
-    msgBox.error(msg)
-    throw new Error(msg)
-  }
-
-  // 在某些页面检查页数/个数设置
-  // 可以为 -1，或者大于 0
-  protected checkWantPageInput(crawlPartTip: string, crawlAllTip: string) {
-    const want = settings.wantPageArr[pageType.type]
-
-    // 如果比 1 小，并且不是 -1，则不通过
-    if ((want < 1 && want !== -1) || isNaN(want)) {
-      // 比 1 小的数里，只允许 -1 , 0 也不行
-      throw this.getWantPageError()
-    }
-
-    if (want >= 1) {
-      log.warning(crawlPartTip.replace('{}', want.toString()))
-    } else if (want === -1) {
-      log.warning(crawlAllTip)
-    }
-
-    return want
-  }
-
-  // 在某些页面检查页数/个数设置，要求必须大于 0
-  // 参数 max 为最大值
-  // 参数 page 指示单位是“页”（页面）还是“个”（作品个数）
-  protected checkWantPageInputGreater0(max: number, page: boolean) {
-    const want = settings.wantPageArr[pageType.type]
-    if (want > 0) {
-      const result = Math.min(want, max)
-      log.warning(
-        lang.transl(
-          page ? '_从本页开始下载x页' : '_从本页开始下载x个',
-          result.toString()
-        )
-      )
-      return result
-    } else {
-      throw this.getWantPageError()
-    }
   }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
@@ -357,6 +316,11 @@ abstract class InitPageBase {
       return this.noResult()
     }
 
+    // 如果要抓取的作品数量超过指定数量（目前为 100 页），则显示使用小号抓取的提示
+    if (store.idList.length > 4800) {
+      log.warning(lang.transl('_提示使用小号下载'))
+    }
+
     log.persistentRefresh()
     log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
 
@@ -486,7 +450,7 @@ abstract class InitPageBase {
         await saveArtworkData.save(data)
         this.afterGetWorksData(data)
       }
-    } catch (error) {
+    } catch (error: Error | any) {
       // 当 API 里的网络请求的状态码异常时，会 reject，被这里捕获
       if (error.status) {
         // 请求成功，但状态码不正常
@@ -708,7 +672,8 @@ abstract class InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_定时抓取',
-      '_定时抓取说明'
+      '_定时抓取说明',
+      'scheduleCrawling'
     ).addEventListener('click', () => {
       timedCrawl.start(cb)
     })
@@ -716,7 +681,13 @@ abstract class InitPageBase {
 
   /**取消定时抓取的按钮 */
   protected addCancelTimedCrawlBtn() {
-    const btn = Tools.addBtn('crawlBtns', Colors.bgWarning, '_取消定时抓取')
+    const btn = Tools.addBtn(
+      'crawlBtns',
+      Colors.bgWarning,
+      '_取消定时抓取',
+      '',
+      'cancelScheduledCrawling'
+    )
     btn.style.display = 'none'
 
     btn.addEventListener('click', () => {

@@ -5,7 +5,6 @@ import { pageType } from './PageType'
 import { InitHomePage } from './crawlMixedPage/InitHomePage'
 import { InitArtworkPage } from './crawlArtworkPage/InitArtworkPage'
 import { InitUserPage } from './crawlMixedPage/InitUserPage'
-import { InitBookmarkLegacyPage } from './crawlMixedPage/InitBookmarkLegacyPage'
 import { InitBookmarkPage } from './crawlMixedPage/InitBookmarkPage'
 import { InitSearchArtworkPage } from './crawlArtworkPage/InitSearchArtworkPage'
 import { InitAreaRankingPage } from './crawlArtworkPage/InitAreaRankingPage'
@@ -46,8 +45,6 @@ class InitPage {
         return new InitArtworkPage()
       case pageType.list.UserHome:
         return new InitUserPage()
-      case pageType.list.BookmarkLegacy:
-        return new InitBookmarkLegacyPage()
       case pageType.list.Bookmark:
         return new InitBookmarkPage()
       case pageType.list.ArtworkSearch:

@@ -1,4 +1,4 @@
-import { lang } from './Lang'
+import { lang } from './Language'
 import { toast } from './Toast'
 
 interface ClipboardItem {

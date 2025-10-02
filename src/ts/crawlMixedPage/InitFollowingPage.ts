@@ -1,8 +1,7 @@
 // 初始化关注页面、好 P 友页面、粉丝页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
-import { options } from '../setting/Options'
+import { lang } from '../Language'
 import { API } from '../API'
 import { store } from '../store/Store'
 import { log } from '../Log'
@@ -10,14 +9,13 @@ import { Tools } from '../Tools'
 import { createCSV } from '../utils/CreateCSV'
 import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
-import { Config } from '../Config'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { toast } from '../Toast'
-import { showHelp } from '../ShowHelp'
 import { msgBox } from '../MsgBox'
 import { token } from '../Token'
 import { EVT } from '../EVT'
 import { settings } from '../setting/Settings'
+import { pageType } from '../PageType'
 
 interface UserInfo {
   userId: string
@@ -80,7 +78,8 @@ class InitFollowingPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_开始抓取',
-      '_默认下载多页'
+      '_默认下载多页',
+      'startCrawlingInFollowingPage'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -88,7 +87,9 @@ class InitFollowingPage extends InitPageBase {
     Tools.addBtn(
       'crawlBtns',
       Colors.bgGreen,
-      '_导出关注列表CSV'
+      '_导出关注列表CSV',
+      '',
+      'exportFollowingListCSV'
     ).addEventListener('click', () => {
       this.task = 'exportCSV'
       this.readyCrawl()
@@ -97,23 +98,21 @@ class InitFollowingPage extends InitPageBase {
     const exportButton = Tools.addBtn(
       'crawlBtns',
       Colors.bgGreen,
-      '_导出关注列表'
+      '_导出关注列表',
+      '',
+      'exportFollowingListJSON'
     )
     exportButton.addEventListener('click', () => {
       this.task = 'exportJSON'
       this.readyCrawl()
     })
-    exportButton.addEventListener('mouseenter', () => {
-      showHelp.show(
-        'tipExportFollowingUserList',
-        lang.transl('_导入导出关注用户列表的说明')
-      )
-    })
 
     const batchFollowButton = Tools.addBtn(
       'crawlBtns',
       Colors.bgGreen,
-      '_批量关注用户'
+      '_批量关注用户',
+      '',
+      'batchFollowUser'
     )
     batchFollowButton.addEventListener('click', async () => {
       if (states.busy) {
@@ -159,30 +158,17 @@ class InitFollowingPage extends InitPageBase {
 
       this.getUserList()
     })
-    batchFollowButton.addEventListener('mouseenter', () => {
-      showHelp.show(
-        'tipExportFollowingUserList',
-        lang.transl('_导入导出关注用户列表的说明')
-      )
-    })
-  }
-
-  protected setFormOption() {
-    // 个数/页数选项的提示
-    options.setWantPageTip({
-      text: '_抓取多少页面',
-      tip: '_从本页开始下载提示',
-      rangTip: '_数字提示1',
-      min: 1,
-      max: -1,
-    })
   }
 
   protected getWantPage() {
-    this.crawlNumber = this.checkWantPageInput(
-      lang.transl('_从本页开始下载x页'),
-      lang.transl('_下载所有页面')
-    )
+    this.crawlNumber = settings.crawlNumber[pageType.type].value
+    if (this.crawlNumber === -1) {
+      log.warning(lang.transl('_下载所有页面'))
+    } else {
+      log.warning(
+        lang.transl('_从本页开始下载x页', this.crawlNumber.toString())
+      )
+    }
   }
 
   protected nextStep() {

@@ -2,14 +2,15 @@
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
 import { API } from '../API'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Tools } from '../Tools'
-import { options } from '../setting/Options'
 import { filter, FilterOption } from '../filter/Filter'
 import { store } from '../store/Store'
 import { log } from '../Log'
 import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
+import { pageType } from '../PageType'
+import { settings } from '../setting/Settings'
 
 class InitArtworkSeriesPage extends InitPageBase {
   constructor() {
@@ -24,7 +25,8 @@ class InitArtworkSeriesPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_开始抓取',
-      '_默认下载多页'
+      '_默认下载多页',
+      'startCrawling'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -32,25 +34,9 @@ class InitArtworkSeriesPage extends InitPageBase {
 
   protected initAny() {}
 
-  protected setFormOption() {
-    // 个数/页数选项的提示
-    // 这个系列漫画有 252 页：
-    // https://www.pixiv.net/user/1001918/series/5915?p=252
-    // 所以我把最大页数设置为了 1000
-    // 不知道是否有超过 1000 页的
-    this.maxCount = 1000
-
-    options.setWantPageTip({
-      text: '_抓取多少页面',
-      tip: '_从本页开始下载提示',
-      rangTip: `1 - ${this.maxCount}`,
-      min: 1,
-      max: this.maxCount,
-    })
-  }
-
   protected getWantPage() {
-    this.crawlNumber = this.checkWantPageInputGreater0(this.maxCount, true)
+    this.crawlNumber = settings.crawlNumber[pageType.type].value
+    log.warning(lang.transl('_从本页开始下载x页', this.crawlNumber.toString()))
   }
 
   protected nextStep() {

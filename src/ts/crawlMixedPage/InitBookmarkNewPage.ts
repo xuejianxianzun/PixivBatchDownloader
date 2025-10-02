@@ -1,9 +1,8 @@
 // 初始化 关注的用户的新作品页面 和 好P友的新作品页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Tools } from '../Tools'
-import { options } from '../setting/Options'
 import { filter, FilterOption } from '../filter/Filter'
 import { API } from '../API'
 import { store } from '../store/Store'
@@ -16,6 +15,7 @@ import {
 import { states } from '../store/States'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { settings } from '../setting/Settings'
+import { pageType } from '../PageType'
 
 class InitBookmarkNewPage extends InitPageBase {
   constructor() {
@@ -43,7 +43,8 @@ class InitBookmarkNewPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_开始抓取',
-      '_默认下载多页'
+      '_默认下载多页',
+      'startCrawling'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -54,21 +55,9 @@ class InitBookmarkNewPage extends InitPageBase {
 
   protected initAny() {}
 
-  protected setFormOption() {
-    // 个数/页数选项的提示
-    this.maxCount = 100
-
-    options.setWantPageTip({
-      text: '_抓取多少页面',
-      tip: '_从本页开始下载提示',
-      rangTip: `1 - ${this.maxCount}`,
-      min: 1,
-      max: this.maxCount,
-    })
-  }
-
   protected getWantPage() {
-    this.crawlNumber = this.checkWantPageInputGreater0(this.maxCount, true)
+    this.crawlNumber = settings.crawlNumber[pageType.type].value
+    log.warning(lang.transl('_从本页开始下载x页', this.crawlNumber.toString()))
   }
 
   protected nextStep() {

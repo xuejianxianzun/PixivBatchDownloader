@@ -1,8 +1,7 @@
 // 初始化 artwork 搜索页
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
-import { options } from '../setting/Options'
+import { lang } from '../Language'
 import { DeleteWorks } from '../pageFunciton/DeleteWorks'
 import { EVT } from '../EVT'
 import { SearchOption } from '../crawl/CrawlArgument'
@@ -91,24 +90,13 @@ class InitSearchArtworkPage extends InitPageBase {
   // 储存预览搜索结果的元素
   private workPreviewBuffer = document.createDocumentFragment()
 
-  protected setFormOption() {
-    const isPremium = Tools.isPremium()
-    // 个数/页数选项的提示
-    options.setWantPageTip({
-      text: '_抓取多少页面',
-      tip: '_从本页开始下载提示',
-      rangTip: `1 - ${isPremium ? 5000 : 1000}`,
-      min: 1,
-      max: isPremium ? 5000 : 1000,
-    })
-  }
-
   protected addCrawlBtns() {
     Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
       '_开始抓取',
-      '_默认下载多页'
+      '_默认下载多页',
+      'startCrawling'
     ).addEventListener('click', () => {
       this.resultMeta = []
       this.crawlStartBySelf = true
@@ -126,7 +114,8 @@ class InitSearchArtworkPage extends InitPageBase {
       'crawlBtns',
       Colors.bgGreen,
       '_在结果中筛选',
-      '_在结果中筛选说明'
+      '_在结果中筛选说明',
+      'filterResults'
     ).addEventListener('click', () => {
       this.screenInResult()
     })
@@ -151,7 +140,9 @@ class InitSearchArtworkPage extends InitPageBase {
     const bookmarkAllBtn = Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
-      '_收藏本页面的所有作品'
+      '_收藏本页面的所有作品',
+      '',
+      'bookmarkAllWorksOnPage'
     )
     const bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
 
@@ -217,10 +208,14 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   protected getWantPage() {
-    this.crawlNumber = this.checkWantPageInput(
-      lang.transl('_从本页开始下载x页'),
-      lang.transl('_下载所有页面')
-    )
+    this.crawlNumber = settings.crawlNumber[pageType.type].value
+    if (this.crawlNumber === -1) {
+      log.warning(lang.transl('_下载所有页面'))
+    } else {
+      log.warning(
+        lang.transl('_从本页开始下载x页', this.crawlNumber.toString())
+      )
+    }
   }
 
   protected async nextStep() {

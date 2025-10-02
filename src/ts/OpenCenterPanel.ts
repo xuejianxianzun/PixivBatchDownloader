@@ -1,5 +1,5 @@
 import { EVT } from './EVT'
-import { lang } from './Lang'
+import { lang } from './Language'
 
 // 页面右侧的按钮，点击可以打开中间面板
 class OpenCenterPanel {

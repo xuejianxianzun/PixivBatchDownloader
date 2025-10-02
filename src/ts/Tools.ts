@@ -1,8 +1,9 @@
 import { API } from './API'
 import { Config } from './Config'
 import { ArtworkData, NovelData } from './crawl/CrawlResult'
-import { lang } from './Lang'
+import { lang } from './Language'
 import { pageType } from './PageType'
+import { wiki } from './setting/Wiki'
 import { WorkTypeString, Result } from './store/StoreType'
 import { Utils } from './utils/Utils'
 
@@ -337,23 +338,57 @@ class Tools {
   }
 
   // 创建下载面板上的通用按钮
-  // 注意 textFlag 和 titleFlag 必须是 LangText 里存在的属性，这是为了能根据语言设置动态切换文本
-  // 如果 text 和 title 是直接设置的字符串，那么不应该使用这个方法设置，而是由调用者自行设置
+  // 注意：如果希望按钮的文本和 title 能根据下载器的语言切换，那么对应的参数需要使用 LangText 里存在的属性
+  // 也就是以下划线 _ 开头
   static addBtn(
     slot: string,
-    bg: string = '',
-    textFlag: string = '',
-    titleFlag: string = ''
+    bg: string,
+    text: string,
+    title: string,
+    id: string
   ) {
-    const e = document.createElement('button')
-    e.type = 'button'
-    e.style.backgroundColor = bg
-    textFlag && e.setAttribute('data-xztext', textFlag)
-    titleFlag && e.setAttribute('data-xztitle', titleFlag)
+    const btn = document.createElement('button')
+    id && btn.setAttribute('id', id)
+    btn.type = 'button'
+    btn.style.backgroundColor = bg
+    btn.classList.add('hasRippleAnimation')
 
-    this.useSlot(slot, e)
-    lang.register(e)
-    return e
+    // 把文本添加到内部的 span 里
+    if (text) {
+      const span = document.createElement('span')
+      // 判断是否需要翻译
+      if (text.startsWith('_')) {
+        span.setAttribute('data-xztext', text)
+      } else {
+        span.textContent = text
+      }
+      btn.append(span)
+    }
+
+    // 添加 title 属性
+    if (title) {
+      // 判断是否需要翻译
+      if (title.startsWith('_')) {
+        btn.setAttribute('data-xztitle', title)
+      } else {
+        btn.setAttribute('title', title)
+      }
+    }
+
+    // 添加一个用于显示动画的 span
+    const ripple = document.createElement('span')
+    ripple.classList.add('ripple')
+    btn.append(ripple)
+
+    // 生成的 btn 代码例如：
+    // <button id="${id}" type="button" class="hasRippleAnimation" data-xztitle="${title}" style="background-color: ${bg};"><span data-xztext="${text}">text</span><span class="ripple"></span></button>
+
+    // 添加这个按钮并注册事件
+    this.useSlot(slot, btn)
+    lang.register(btn)
+    wiki.registerBtn(btn)
+
+    return btn
   }
 
   /**获取页面标题 */
@@ -528,8 +563,19 @@ class Tools {
    * @returns 超链接（A 标签）
    */
   static createWorkLink(id: number | string, artwork = true) {
-    const idNum = typeof id === 'number' ? id : Number.parseInt(id)
-    const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}`
+    // 对于图像作品，在作品页面链接后面添加 #p+1 可以在打开页面后，定位到对应的图片
+    const array = id.toString().split('_p')
+    const idNum = array[0]
+    // 如果有 p，则把 p+1，因为页面里的图片 hash 是从 1 开始的
+    const hasP = array[1] !== undefined
+    let p = 0
+    if (array[1] !== undefined) {
+      p = Number.parseInt(array[1]) + 1
+    }
+
+    const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}${
+      hasP ? `#${p}` : ''
+    }`
     return `<a href="${href}" target="_blank">${id}</a>`
   }
 

@@ -24,7 +24,7 @@ class ToAPNG {
         ctx.drawImage(imageBitmap, 0, 0)
         // 从画布获取图像绘制后的 Uint8ClampedArray buffer
         const buff = ctx.getImageData(0, 0, width, height).data.buffer
-        arrayBuffList.push(buff)
+        arrayBuffList.push(buff as any)
       })
       const delayList = info.frames.map((frame) => frame.delay)
 

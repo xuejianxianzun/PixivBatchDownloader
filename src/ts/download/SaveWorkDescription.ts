@@ -1,14 +1,16 @@
+import browser from 'webextension-polyfill'
 import { EVT } from '../EVT'
 import { store } from '../store/Store'
-import { DonwloadSuccessData } from './DownloadType'
+import { DonwloadSuccessData, SendToBackEndData } from './DownloadType'
 import { fileName } from '../FileName'
 import { Result } from '../store/StoreType'
 import { settings } from '../setting/Settings'
 import { Utils } from '../utils/Utils'
 import { Tools } from '../Tools'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { log } from '../Log'
 import { toast } from '../Toast'
+import { Config } from '../Config'
 
 // 为每个作品创建一个 txt 文件，保存这个作品的元数据
 class SaveWorkDescription {
@@ -39,7 +41,7 @@ class SaveWorkDescription {
   }
 
   /**保存单个作品的简介 */
-  private saveOne(id: number) {
+  private async saveOne(id: number) {
     if (!settings.saveWorkDescription || !settings.saveEachDescription) {
       return
     }
@@ -74,12 +76,22 @@ class SaveWorkDescription {
       hasLink ? '-links' : ''
     }.txt`
 
+    let dataURL: string | undefined = undefined
+    if (Config.sendDataURL) {
+      dataURL = await Utils.blobToDataURL(blob)
+    }
+
     // 不检查下载状态，默认下载成功
-    chrome.runtime.sendMessage({
+    const sendData: SendToBackEndData = {
       msg: 'save_description_file',
-      fileUrl: URL.createObjectURL(blob),
       fileName: fileName,
-    })
+      id: 'fake',
+      taskBatch: -1,
+      blobURL: URL.createObjectURL(blob),
+      blob: Config.sendBlob ? blob : undefined,
+      dataURL,
+    }
+    browser.runtime.sendMessage(sendData)
 
     this.savedIds.push(id)
   }
@@ -105,7 +117,7 @@ class SaveWorkDescription {
   }
 
   /**抓取完毕后，把所有简介汇总到一个文件里 */
-  private summary() {
+  private async summary() {
     if (!settings.saveWorkDescription || !settings.summarizeDescription) {
       return
     }
@@ -192,18 +204,55 @@ class SaveWorkDescription {
     if (notAllSame) {
       txtName = `${name}-${title}-${time}.txt`
     } else {
-      // 如果是同一个画师，则保存到命名规则创建的第一层目录里，并在文件名里添加画师名字
-      const _fileName = fileName.createFileName(store.resultMeta[0])
-      const firstPath = _fileName.split('/')[0]
-      txtName = `${firstPath}/${name}-user ${store.resultMeta[0].user}-${title}-${time}.txt`
+      // 如果是同一个画师
+      // 在文件名里添加画师名字
+      txtName = `${name}-user ${store.resultMeta[0].user}-${title}-${time}.txt`
+      const array = settings.userSetName.split('/')
+      array.pop() // 去掉最后的文件名部分，只保留文件夹部分
+      let folder = ''
+      // 倒序遍历 array
+      // 如果命名规则里含有使用 {user} 建立的文件夹，则把文件保存到这个文件夹里
+      for (let i = array.length - 1; i >= 0; i--) {
+        const part = array[i]
+        // 如果某个部分含有 {user} 则停止，并提取截止到这里的路径
+        // 例如对于命名规则 pixiv/{user}-{user_id}/{id}-{title}
+        // 会保存 pixiv/{user}-{user_id}/ 这个路径
+        if (part.includes('{user')) {
+          folder = array.slice(0, i + 1).join('/')
+          folder += '/' // 补上最后的 /
+          break
+        }
+      }
+      if (folder) {
+        // 查找 / 的数量来统计有几层文件夹
+        const count = (folder.match(/\//g) || []).length
+        // 从文件名里提取对应的文件夹部分
+        const _fileName = fileName.createFileName(store.resultMeta[0])
+        const parts = _fileName.split('/')
+        if (parts.length >= count) {
+          const path = parts.slice(0, count).join('/')
+          // 在 txt 文件之前添加文件夹路径
+          txtName = `${path}/${txtName}`
+        }
+      }
+    }
+
+    let dataURL: string | undefined = undefined
+    if (Config.sendDataURL) {
+      dataURL = await Utils.blobToDataURL(blob)
     }
 
     // 不检查下载状态，默认下载成功
-    chrome.runtime.sendMessage({
+    const sendData: SendToBackEndData = {
       msg: 'save_description_file',
-      fileUrl: URL.createObjectURL(blob),
       fileName: txtName,
-    })
+      id: 'fake',
+      taskBatch: -1,
+      blobURL: URL.createObjectURL(blob),
+      blob: Config.sendBlob ? blob : undefined,
+      dataURL,
+    }
+    browser.runtime.sendMessage(sendData)
 
     const msg = `✓ ${lang.transl('_保存作品的简介2')}: ${lang.transl(
       '_汇总到一个文件'

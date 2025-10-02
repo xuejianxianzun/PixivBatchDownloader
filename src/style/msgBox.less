@@ -1,3 +1,5 @@
+@import './var.less';
+
 .xz_msg_box {
   background: #fff;
   box-shadow: 0 0 15px @boxShadowBlue;
@@ -11,6 +13,7 @@
   left: 50%;
   transform: translate(-50%);
   text-align: center;
+  font-family: @pixivFontFamily;
 
   p {
     margin: 0;
@@ -33,22 +36,19 @@
     overflow: auto;
     font-size: 14px;
     line-height: 1.7;
-    color: #555;
+    color: #474747;
     text-align: left;
   }
 
   .btn {
     cursor: pointer;
     background: @themeBlue;
-    box-shadow: @boxShadowBlue 0px 0px 2px;
+    // box-shadow: @boxShadowBlue 1px 1px 1px;
     color: #fff;
     border: none;
     text-align: center;
     padding: 7px 20px;
     border-radius: 6px;
-    &:hover {
-      font-weight: bold;
-    }
   }
 
   a {
@@ -92,7 +92,7 @@
     }
 
     .content {
-      text-shadow: #003247 0px 0px 2px;
+      text-shadow: #003247 1px 1px 1px;
     }
 
     .xzBGLayer {
@@ -104,10 +104,16 @@
 
 .xz_msg_box.mobile {
   min-width: inherit;
-  width: 86vw;
   max-width: inherit;
-  padding: 5vw 3vw;
+  box-sizing: border-box;
+  width: 86vw;
   top: 6vh;
+  max-height: 90vh;
   font-size: 16px;
   font-family: @MobileFontFamily;
+  padding: 4vh 2vw;
+  margin: 3vh 0;
+  .content {
+    max-height: 60vh;
+  }
 }

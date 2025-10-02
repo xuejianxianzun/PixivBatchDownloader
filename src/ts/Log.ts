@@ -2,7 +2,7 @@ import { EVT } from './EVT'
 import { theme } from './Theme'
 import { Colors } from './Colors'
 import { bg } from './BG'
-import { lang } from './Lang'
+import { lang } from './Language'
 import { store } from './store/Store'
 import { toast } from './Toast'
 import { Tools } from './Tools'
@@ -265,10 +265,16 @@ class Log {
     // 在“显示日志”按钮上触发这些事件时，显示日志区域
     const showEvents = ['click', 'mouseover', 'touchstart']
     showEvents.forEach((evt) => {
-      this.logBtn.addEventListener(evt, () => {
-        this.logBtnShow = false
-        this.show = true
-      })
+      this.logBtn.addEventListener(
+        evt,
+        () => {
+          this.logBtnShow = false
+          this.show = true
+        },
+        {
+          passive: false,
+        }
+      )
     })
 
     // 定时检查是否应该显示“显示日志”按钮

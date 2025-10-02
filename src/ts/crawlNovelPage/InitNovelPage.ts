@@ -1,13 +1,15 @@
 //初始化小说作品页
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
-import { options } from '../setting/Options'
+import { lang } from '../Language'
 import { store } from '../store/Store'
 import { userWorksType } from '../crawl/CrawlArgument'
 import { Tools } from '../Tools'
 import { API } from '../API'
 import { Utils } from '../utils/Utils'
+import { log } from '../Log'
+import { pageType } from '../PageType'
+import { settings } from '../setting/Settings'
 
 class InitNovelPage extends InitPageBase {
   constructor() {
@@ -28,7 +30,9 @@ class InitNovelPage extends InitPageBase {
     Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
-      '_从本页开始抓取new'
+      '_从本页开始抓取new',
+      '',
+      'startCrawlingFromCurrentPageNew'
     ).addEventListener('click', () => {
       this.crawlDirection = -1
       this.readyCrawl()
@@ -37,21 +41,12 @@ class InitNovelPage extends InitPageBase {
     Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
-      '_从本页开始抓取old'
+      '_从本页开始抓取old',
+      '',
+      'startCrawlingFromCurrentPageOld'
     ).addEventListener('click', () => {
       this.crawlDirection = 1
       this.readyCrawl()
-    })
-  }
-
-  protected setFormOption() {
-    // 个数/页数选项的提示
-    options.setWantPageTip({
-      text: '_抓取多少作品',
-      tip: '_从本页开始下载提示',
-      rangTip: '_数字提示1',
-      min: 1,
-      max: -1,
     })
   }
 
@@ -66,10 +61,14 @@ class InitNovelPage extends InitPageBase {
       this.crawlDirection === -1
         ? lang.transl('_从本页开始抓取new')
         : lang.transl('_从本页开始抓取old')
-    this.crawlNumber = this.checkWantPageInput(
-      lang.transl('_从本页开始下载x个'),
-      crawlAllTip
-    )
+    this.crawlNumber = settings.crawlNumber[pageType.type].value
+    if (this.crawlNumber === -1) {
+      log.warning(crawlAllTip)
+    } else {
+      log.warning(
+        lang.transl('_从本页开始下载x个', this.crawlNumber.toString())
+      )
+    }
   }
 
   protected async getIdList() {

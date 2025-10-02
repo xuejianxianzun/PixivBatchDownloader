@@ -1,8 +1,13 @@
 {
   "name": "Powerful Pixiv Downloader HongYe",
-  "version": "17.7.2",
+  "version": "17.9.0",
   "manifest_version": 3,
   "description": "强大的 Pixiv 批量下载器。Powerful Pixiv batch downloader. 強力な Pixiv ダウンローダー。",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "PowerfulPixivDownloader@pixiv.download"
+    }
+  },
   "icons": {
     "16": "icon/logo16.png",
     "32": "icon/logo32.png",
@@ -30,8 +35,8 @@
         "lib/jepub.js",
         "lib/pako.min.js",
         "lib/UPNG.js",
-        "js/content.js",
-        "lib/iconfont.js"
+        "lib/iconfont.js",
+        "js/content.js"
       ],
       "matches": ["*://www.pixiv.net/*"],
       "run_at": "document_end"
@@ -44,7 +49,9 @@
     }
   ],
   "background": {
-    "service_worker": "js/background.js"
+    "preferred_environment": ["service_worker"],
+    "service_worker": "js/background.js",
+    "scripts": ["js/background.js"]
   },
   "permissions": [
     "downloads",
@@ -55,8 +62,7 @@
   "host_permissions": [
     "*://www.pixiv.net/*",
     "*://www.pixivision.net/*",
-    "*://*.pximg.net/*",
-    "*://*.pixiv.cat/*"
+    "*://*.pximg.net/*"
   ],
   "declarative_net_request": {
     "rule_resources": [
@@ -79,6 +85,5 @@
       "matches": ["*://www.pixiv.net/*", "*://www.pixivision.net/*"]
     }
   ],
-  "incognito": "split",
   "homepage_url": "https://github.com/xuejianxianzun/PixivBatchDownloader"
 }

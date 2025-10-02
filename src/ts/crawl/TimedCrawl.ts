@@ -1,5 +1,5 @@
 import { setSetting, settings } from '../setting/Settings'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { msgBox } from '../MsgBox'
 import { log } from '../Log'
 import { EVT } from '../EVT'

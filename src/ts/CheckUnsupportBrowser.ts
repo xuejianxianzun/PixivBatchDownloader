@@ -1,6 +1,6 @@
 import { Config } from './Config'
 import { EVT } from './EVT'
-import { lang } from './Lang'
+import { lang } from './Language'
 import { log } from './Log'
 import { msgBox } from './MsgBox'
 
@@ -29,16 +29,6 @@ class CheckUnsupportBrowser {
     // "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3947.100 Safari/537.36 2345Explorer/10.21.0.21486"
     '2345': function () {
       return navigator.userAgent.includes('2345Explorer')
-    },
-    FireFox: function () {
-      // 本扩展不支持 Firefox，在其上使用会遇到一些问题
-      if (navigator.userAgent.includes('Firefox')) {
-        msgBox.warning(lang.transl('_检测到在Firefox浏览器上使用'), {
-          title: Config.appName,
-        })
-        return true
-      }
-      return false
     },
     Yandex: function () {
       if (navigator.userAgent.includes('YaBrowser')) {

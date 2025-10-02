@@ -1,11 +1,13 @@
 // 初始化 bookmark_detail 页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Tools } from '../Tools'
-import { options } from '../setting/Options'
 import { API } from '../API'
 import { store } from '../store/Store'
+import { log } from '../Log'
+import { pageType } from '../PageType'
+import { settings } from '../setting/Settings'
 
 class InitBookmarkDetailPage extends InitPageBase {
   constructor() {
@@ -18,7 +20,8 @@ class InitBookmarkDetailPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_抓取相似图片',
-      '_抓取相似图片'
+      '_抓取相似图片',
+      'crawlSimilarImage'
     ).addEventListener(
       'click',
       () => {
@@ -30,19 +33,9 @@ class InitBookmarkDetailPage extends InitPageBase {
 
   protected initAny() {}
 
-  protected setFormOption() {
-    // 个数/页数选项的提示
-    options.setWantPageTip({
-      text: '_抓取多少作品',
-      tip: '_想要获取多少个作品',
-      rangTip: `1 - ${this.maxCount}`,
-      min: 1,
-      max: this.maxCount,
-    })
-  }
-
   protected getWantPage() {
-    this.crawlNumber = this.checkWantPageInputGreater0(this.maxCount, false)
+    this.crawlNumber = settings.crawlNumber[pageType.type].value
+    log.warning(lang.transl('_从本页开始下载x个', this.crawlNumber.toString()))
   }
 
   // 获取相似的作品列表

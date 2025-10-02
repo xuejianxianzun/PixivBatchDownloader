@@ -2,11 +2,15 @@ const path = require('path')
 
 module.exports = {
   mode: 'development',
+  devtool: 'source-map',
   entry: {
     content: './src/ts/content.ts',
     background: './src/ts/background.ts',
   },
-  devtool: 'source-map',
+  output: {
+    filename: '[name].js',
+    path: path.resolve(__dirname, 'dist-special-HongYe/js'),
+  },
   module: {
     rules: [
       {
@@ -18,9 +22,5 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.js'],
-  },
-  output: {
-    filename: '[name].js',
-    path: path.resolve(__dirname, 'dist-special-HongYe/js'),
   },
 }

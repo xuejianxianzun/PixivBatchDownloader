@@ -1,6 +1,6 @@
 import { API } from '../API'
 import { EVT } from '../EVT'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { msgBox } from '../MsgBox'
 
 /** 每下载 100 个文件（是文件不是作品），检查当前用户是否被 pixiv 警告 */

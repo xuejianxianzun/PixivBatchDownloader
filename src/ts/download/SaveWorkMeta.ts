@@ -1,11 +1,13 @@
+import browser from 'webextension-polyfill'
 import { EVT } from '../EVT'
 import { store } from '../store/Store'
-import { DonwloadSuccessData } from './DownloadType'
+import { DonwloadSuccessData, SendToBackEndData } from './DownloadType'
 import { fileName } from '../FileName'
 import { Result } from '../store/StoreType'
 import { settings } from '../setting/Settings'
 import { Utils } from '../utils/Utils'
 import { Tools } from '../Tools'
+import { Config } from '../Config'
 
 // 为每个作品创建一个 txt 文件，保存这个作品的元数据
 class SaveWorkMeta {
@@ -62,7 +64,7 @@ class SaveWorkMeta {
     }
   }
 
-  private saveMeta(id: number) {
+  private async saveMeta(id: number) {
     // 如果所有类型的作品都不需要保存元数据
     if (
       !settings.saveMetaType0 &&
@@ -147,12 +149,23 @@ class SaveWorkMeta {
     const metaFileName = `${part1}-meta.txt`
 
     // 发送下载请求
-    // 因为我偷懒，所以后台不会返回下载状态，默认为下载成功
-    chrome.runtime.sendMessage({
+
+    let dataURL: string | undefined = undefined
+    if (Config.sendDataURL) {
+      dataURL = await Utils.blobToDataURL(blob)
+    }
+
+    // 不检查下载状态，默认下载成功
+    const sendData: SendToBackEndData = {
       msg: 'save_description_file',
-      fileUrl: URL.createObjectURL(blob),
       fileName: metaFileName,
-    })
+      id: 'fake',
+      taskBatch: -1,
+      blobURL: URL.createObjectURL(blob),
+      blob: Config.sendBlob ? blob : undefined,
+      dataURL,
+    }
+    browser.runtime.sendMessage(sendData)
 
     this.savedIds.push(id)
   }

@@ -1,6 +1,6 @@
 import { store } from '../store/Store'
 import { EVT } from '../EVT'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { settings } from '../setting/Settings'
 import { toast } from '../Toast'
 import { Config } from '../Config'

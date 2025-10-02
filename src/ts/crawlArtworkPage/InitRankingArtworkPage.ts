@@ -2,10 +2,9 @@
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
 import { API } from '../API'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { EVT } from '../EVT'
-import { options } from '../setting/Options'
 import { RankingOption } from '../crawl/CrawlArgument'
 import { RankingData } from '../crawl/CrawlResult'
 import { filter, FilterOption } from '../filter/Filter'
@@ -13,6 +12,8 @@ import { store } from '../store/Store'
 import { log } from '../Log'
 import { states } from '../store/States'
 import { Utils } from '../utils/Utils'
+import { pageType } from '../PageType'
+import { settings } from '../setting/Settings'
 
 class InitRankingArtworkPage extends InitPageBase {
   constructor() {
@@ -29,7 +30,8 @@ class InitRankingArtworkPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_抓取本排行榜作品',
-      '_抓取本排行榜作品Title'
+      '_抓取本排行榜作品Title',
+      'crawlRankingWork'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -43,7 +45,8 @@ class InitRankingArtworkPage extends InitPageBase {
         'crawlBtns',
         Colors.bgBlue,
         '_抓取首次登场的作品',
-        '_抓取首次登场的作品Title'
+        '_抓取首次登场的作品Title',
+        'crawlDebutWork'
       ).addEventListener('click', () => {
         states.debut = true
         this.readyCrawl()
@@ -56,19 +59,6 @@ class InitRankingArtworkPage extends InitPageBase {
     // 因为 debut 只在抓取阶段被过滤器使用，所以抓取完成后就可以复位
     window.addEventListener(EVT.list.crawlComplete, () => {
       states.debut = false
-    })
-  }
-
-  protected setFormOption() {
-    // 个数/页数选项的提示
-    this.maxCount = 500
-
-    options.setWantPageTip({
-      text: '_抓取多少作品',
-      tip: '_想要获取多少个作品',
-      rangTip: `1 - ${this.maxCount}`,
-      min: 1,
-      max: this.maxCount,
     })
   }
 
@@ -93,10 +83,14 @@ class InitRankingArtworkPage extends InitPageBase {
   protected getWantPage() {
     this.listPageFinished = 0
     // 检查下载页数的设置
-    this.crawlNumber = this.checkWantPageInput(
-      lang.transl('_下载排行榜前x个作品'),
-      lang.transl('_向下获取所有作品')
-    )
+    this.crawlNumber = settings.crawlNumber[pageType.type].value
+    if (this.crawlNumber === -1) {
+      log.warning(lang.transl('_向下获取所有作品'))
+    } else {
+      log.warning(
+        lang.transl('_下载排行榜前x个作品', this.crawlNumber.toString())
+      )
+    }
     // 如果设置的作品个数是 -1，则设置为下载所有作品
     if (this.crawlNumber === -1) {
       this.crawlNumber = 500
@@ -128,7 +122,7 @@ class InitRankingArtworkPage extends InitPageBase {
     let data: RankingData
     try {
       data = await API.getRankingData(this.option)
-    } catch (error) {
+    } catch (error: Error | any) {
       if (error.status === 404) {
         // 如果发生了404错误，则中断抓取，直接下载已有部分。因为可能确实没有下一部分了
         console.log('404错误，直接下载已有部分')

@@ -1,6 +1,6 @@
 import { Colors } from '../Colors'
 import { EVT } from '../EVT'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 
 // 显示下载状态
 class ShowDownloadStates {

@@ -1,8 +1,7 @@
 // 初始化首页
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
-import { options } from '../setting/Options'
+import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { IDData } from '../store/StoreType'
@@ -41,13 +40,21 @@ class InitHomePage extends InitPageBase {
     this.downIdButton = Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
-      '_输入id进行抓取'
+      '_输入id进行抓取',
+      '',
+      'crawlById'
     )
     this.downIdButton.addEventListener('click', () => {
       this.inputIDList()
     })
 
-    const crawlIdRange = Tools.addBtn('crawlBtns', Colors.bgBlue, '_抓取id区间')
+    const crawlIdRange = Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_抓取id区间',
+      '',
+      'crawlIdRange'
+    )
     crawlIdRange.addEventListener('click', () => {
       this.crawlIdRange()
     })
@@ -55,7 +62,9 @@ class InitHomePage extends InitPageBase {
     this.importIDListButton = Tools.addBtn(
       'crawlBtns',
       Colors.bgGreen,
-      '_导入ID列表'
+      '_导入ID列表',
+      '',
+      'importIDList'
     )
     this.importIDListButton.addEventListener('click', () => {
       this.importIDList()
@@ -66,7 +75,9 @@ class InitHomePage extends InitPageBase {
     Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
-      '_清空已保存的抓取结果'
+      '_清空已保存的抓取结果',
+      '',
+      'clearSavedCrawlResult'
     ).addEventListener('click', () => {
       EVT.fire('clearSavedCrawl')
     })
@@ -88,10 +99,6 @@ class InitHomePage extends InitPageBase {
         return this.removeAD()
       }
     }, 1000)
-  }
-
-  protected setFormOption() {
-    options.hideOption([1])
   }
 
   // 单独添加一个用于提示 id 范围的元素，因为上面的日志显示在日志区域的顶端，不便于查看

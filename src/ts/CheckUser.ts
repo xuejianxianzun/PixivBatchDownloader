@@ -1,7 +1,7 @@
 import { API } from './API'
 import { EVT } from './EVT'
 import { Input } from './Input'
-import { lang } from './Lang'
+import { lang } from './Language'
 import { pageType } from './PageType'
 import { toast } from './Toast'
 import { Tools } from './Tools'

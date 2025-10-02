@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill'
+
 // 定义一些常量
 // 用户不可以修改这里的配置
 class Config {
@@ -22,6 +24,16 @@ class Config {
   static readonly retryTime = 200000
   /**浏览器是否处于移动端模式 */
   static readonly mobile = navigator.userAgent.includes('Mobile')
+  /**检测 Firefox 浏览器 */
+  static readonly isFirefox = window.navigator.userAgent.includes('Firefox')
+  static readonly sendBlob = this.isFirefox
+  /** 在 Chrome 的隐私窗口里下载时，需要把 blob 对象转换为 dataURL 发送给后台。
+   * 不能直接传递 blob，因为这样后台 service worker 里接收时变成了空对象，无法使用。
+   * 我试了转换为 ArrayBuffer 同样不能传递，估计是因为不能被 JSON 序列化导致的。
+   * 所以需要转换为 dataURL 再发送
+   */
+  static readonly sendDataURL =
+    !this.isFirefox && browser.extension.inIncognitoContext
   /**ImageViewer 生成的 li 元素的 className */
   static readonly ImageViewerLI = 'xz-thumb-li'
   /**检测 ImageViewer 生成的 li 元素，以便其他模块进行一些特殊处理 */

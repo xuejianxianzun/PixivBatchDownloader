@@ -1,5 +1,5 @@
 import { API } from '../API'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { BookmarkResult } from '../crawl/CrawlResult'
 import { EVT } from '../EVT'
 import { toast } from '../Toast'
@@ -29,6 +29,13 @@ class BookmarkAllWorks {
   constructor(tipWrap?: HTMLElement) {
     if (tipWrap) {
       this.tipWrap = tipWrap
+
+      const span = tipWrap.querySelector('span')
+      if (span) {
+        this.textSpan = span
+      } else {
+        this.textSpan = tipWrap
+      }
     }
   }
 
@@ -36,7 +43,8 @@ class BookmarkAllWorks {
 
   private bookmarKData: BookmarkData[] = []
 
-  public tipWrap: HTMLElement = document.createElement('button')
+  private tipWrap: HTMLElement = document.createElement('button')
+  private textSpan: HTMLSpanElement = document.createElement('span')
 
   // 传递 workList，这是作品列表元素的合集。代码会尝试分析每个作品元素中的超链接，提取出作品 id
   // 如果传递的作品是本页面上的作品，可以省略 type。代码会根据页面 url 判断是图片还是小说。
@@ -91,7 +99,7 @@ class BookmarkAllWorks {
       return
     }
 
-    this.tipWrap.textContent = `Checking`
+    this.textSpan.textContent = `Checking`
     this.tipWrap.setAttribute('disabled', 'disabled')
 
     await this.getTagData()
@@ -103,7 +111,7 @@ class BookmarkAllWorks {
   private async getTagData() {
     return new Promise<void>(async (resolve, reject) => {
       for (const id of this.idList) {
-        this.tipWrap.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`
+        this.textSpan.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`
 
         try {
           // 如果作品数量大于一定数量，则启用慢速抓取，以免在获取作品数据时发生 429 错误
@@ -148,7 +156,7 @@ class BookmarkAllWorks {
           // 显示提示，并中止执行
           log.error(msg)
           msgBox.error(msg)
-          this.tipWrap.textContent = `× Error`
+          this.textSpan.textContent = `× Error`
           this.tipWrap.removeAttribute('disabled')
           EVT.fire('bookmarkModeEnd')
           return reject()
@@ -164,7 +172,7 @@ class BookmarkAllWorks {
     return new Promise<void>(async (resolve) => {
       let index = 0
       for (const data of this.bookmarKData) {
-        this.tipWrap.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`
+        this.textSpan.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`
 
         const status = await bookmark.add(
           data.id,
@@ -191,7 +199,7 @@ class BookmarkAllWorks {
   }
 
   private complete() {
-    this.tipWrap.textContent = `✓ Complete`
+    this.textSpan.textContent = `✓ Complete`
     this.tipWrap.removeAttribute('disabled')
     toast.success(lang.transl('_收藏作品完毕'))
     EVT.fire('bookmarkModeEnd')

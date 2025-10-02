@@ -1,8 +1,7 @@
 // 初始化用户页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
-import { lang } from '../Lang'
-import { options } from '../setting/Options'
+import { lang } from '../Language'
 import { API } from '../API'
 import { store } from '../store/Store'
 import { EVT } from '../EVT'
@@ -18,6 +17,8 @@ import '../pageFunciton/SaveUserCover'
 import { BookmarkAllWorks, IDList } from '../pageFunciton/BookmarkAllWorks'
 import { Utils } from '../utils/Utils'
 import { Config } from '../Config'
+import { pageType } from '../PageType'
+import { settings } from '../setting/Settings'
 
 enum ListType {
   UserHome,
@@ -45,7 +46,8 @@ class InitUserPage extends InitPageBase {
       'crawlBtns',
       Colors.bgBlue,
       '_开始抓取',
-      '_默认下载多页'
+      '_默认下载多页',
+      'startCrawling'
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -55,34 +57,43 @@ class InitUserPage extends InitPageBase {
   }
 
   protected addAnyElement() {
-    Tools.addBtn('otherBtns', Colors.bgGreen, '_保存用户头像').addEventListener(
-      'click',
-      () => {
-        EVT.fire('saveAvatarImage')
-      }
-    )
+    Tools.addBtn(
+      'otherBtns',
+      Colors.bgGreen,
+      '_保存用户头像',
+      '',
+      'saveUserAvatar'
+    ).addEventListener('click', () => {
+      EVT.fire('saveAvatarImage')
+    })
 
     Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
       '_保存用户头像为图标',
-      '_保存用户头像为图标说明'
+      '_保存用户头像为图标说明',
+      'saveUserAvatarAsIcon'
     ).addEventListener('click', () => {
       EVT.fire('saveAvatarIcon')
     })
 
-    Tools.addBtn('otherBtns', Colors.bgGreen, '_保存用户封面').addEventListener(
-      'click',
-      () => {
-        EVT.fire('saveUserCover')
-      }
-    )
+    Tools.addBtn(
+      'otherBtns',
+      Colors.bgGreen,
+      '_保存用户封面',
+      '',
+      'saveUserCoverImage'
+    ).addEventListener('click', () => {
+      EVT.fire('saveUserCover')
+    })
 
     // 添加收藏本页所有作品的功能
     const bookmarkAllBtn = Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
-      '_收藏本页面的所有作品'
+      '_收藏本页面的所有作品',
+      '',
+      'bookmarkAllWorksOnPage'
     )
     this.bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
 
@@ -118,22 +129,15 @@ class InitUserPage extends InitPageBase {
     }
   }
 
-  protected setFormOption() {
-    // 个数/页数选项的提示
-    options.setWantPageTip({
-      text: '_抓取多少页面',
-      tip: '_从本页开始下载提示',
-      rangTip: '_数字提示1',
-      min: 1,
-      max: -1,
-    })
-  }
-
   protected getWantPage() {
-    this.crawlNumber = this.checkWantPageInput(
-      lang.transl('_从本页开始下载x页'),
-      lang.transl('_下载所有页面')
-    )
+    this.crawlNumber = settings.crawlNumber[pageType.type].value
+    if (this.crawlNumber === -1) {
+      log.warning(lang.transl('_下载所有页面'))
+    } else {
+      log.warning(
+        lang.transl('_从本页开始下载x页', this.crawlNumber.toString())
+      )
+    }
   }
 
   protected nextStep() {

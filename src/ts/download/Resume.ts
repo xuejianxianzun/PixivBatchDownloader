@@ -1,6 +1,6 @@
 import { EVT } from '../EVT'
 import { log } from '../Log'
-import { lang } from '../Lang'
+import { lang } from '../Language'
 import { store } from '../store/Store'
 import { states } from '../store/States'
 import { downloadStates, DLStatesI } from './DownloadStates'
@@ -289,7 +289,7 @@ class Resume {
           // 任务数据没有添加完毕，继续添加
           resolve(this.saveTaskData())
         }
-      } catch (error) {
+      } catch (error: Error | any) {
         // 当存储失败时
         console.error(error)
         if (error.target && error.target.error && error.target.error.message) {

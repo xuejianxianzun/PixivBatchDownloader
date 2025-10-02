@@ -1,7 +1,7 @@
 /// <reference path = "./ImageViewer.d.ts" />
 import { API } from './API'
 import { EVT } from './EVT'
-import { lang } from './Lang'
+import { lang } from './Language'
 import { loading } from './Loading'
 import { states } from './store/States'
 import { toast } from './Toast'
