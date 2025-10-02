@@ -131,7 +131,7 @@ export const formHtml = `
       </span>
     </p>
     <p class="option" data-no="47">
-      <a href="${wiki.link(47)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_超出此限制的多图作品不会被下载">
+      <a href="${wiki.link(47)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品的图片数量上限提示">
         <span data-xztext="_多图作品的图片数量上限"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -185,6 +185,7 @@ export const formHtml = `
         <input type="radio" name="widthHeightLimit" id="widthHeightLimit3" class="need_beautify radio" value="<=">
         <span class="beautify_radio" tabindex="0"></span>
         <label for="widthHeightLimit3">&lt;=</label>
+        <span class="verticalSplit"></span>
         <span data-xztext="_宽度"></span>
         <input type="text" name="setWidth" class="setinput_style1 blue" value="0">
         <input type="radio" name="setWidthAndOr" id="setWidth_AndOr1" class="need_beautify radio" value="&" checked>
@@ -216,7 +217,10 @@ export const formHtml = `
         <label for="ratio0" data-xztext="_正方形"></label>
         <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
         <span class="beautify_radio" tabindex="0"></span>
-        <label for="ratio3" data-xztext="_宽高比"></label>
+        <span class="has_tip settingNameStyle" data-xztip="_宽高比的提示">
+          <label for="ratio3" style="padding: 0;" data-xztext="_宽高比"></label>
+          <span class="gray1"> ? </span>
+        </span>
         <!-- 这里使用了一个不可见的开关 userSetChecked，用来根据 radio 的值来控制子选项的显示或隐藏 -->
         <input type="checkbox" name="userSetChecked" class="need_beautify checkbox_switch" style="display:none;">
         <span class="beautify_switch" tabindex="0" style="display:none;"></span>

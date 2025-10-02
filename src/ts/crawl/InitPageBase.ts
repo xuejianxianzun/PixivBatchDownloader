@@ -316,6 +316,11 @@ abstract class InitPageBase {
       return this.noResult()
     }
 
+    // 如果要抓取的作品数量超过指定数量（目前为 100 页），则显示使用小号抓取的提示
+    if (store.idList.length > 4800) {
+      log.warning(lang.transl('_提示使用小号下载'))
+    }
+
     log.persistentRefresh()
     log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
 
