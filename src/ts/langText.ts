@@ -2276,7 +2276,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     Рекомендуется не превышать 3.
     `,
   ],
-  _提示: ['提示', '提示', 'Tip', 'ヒント', '팁', 'Совет'],
+  _提示: ['提示', '提示', 'Tip', 'ヒント', '팁', 'Подсказка'],
   _fanboxDownloader: [
     'Fanbox 下载器',
     'Fanbox 下載器',
@@ -5772,12 +5772,12 @@ P.S. Работы заблокированных пользователей не
     '🦊Загрузчик уже доступен для использования в Firefox! 🥳<br>Установить из ADD-ONS:<br><a href="https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/" target="_blank">Powerful Pixiv Downloader</a>',
   ],
   _提示查看wiki页面: [
-    `提示：现在你可以更方便的查看每个功能的 Wiki 页面了，只需要点击设置项的名字，或者在纯色按钮上长按，下载器就会打开对应的 Wiki 页面。`,
-    `提示：現在你可以更方便的查看每個功能的 Wiki 頁面了，只需要點擊設定項的名稱，或者在純色按鈕上長按，下載器就會打開對應的 Wiki 頁面。`,
-    `Tip: Now you can view the Wiki page for each feature more conveniently, just click on the setting item's name, or long-press on the solid color button, and the downloader will open the corresponding Wiki page.`,
-    `ヒント：今、各機能のWikiページをより便利に閲覧できます。設定項目の名前をクリックするか、単色ボタンを長押しするだけで、ダウンロードツールが対応するWikiページを開きます。`,
-    `팁: 이제 각 기능의 Wiki 페이지를 더 편리하게 볼 수 있습니다. 설정 항목의 이름을 클릭하거나 단색 버튼을 길게 누르면 다운로더가 해당 Wiki 페이지를 엽니다.`,
-    `Подсказка: Теперь вы можете просматривать страницу Wiki для каждой функции более удобно: просто кликните на название элемента настройки или долго нажмите на кнопку сплошного цвета, и загрузчик откроет соответствующую страницу Wiki。`,
+    `现在你可以更方便的查看每个功能的 Wiki 页面了，只需要点击设置项的名字，或者在纯色按钮上长按，下载器就会打开对应的 Wiki 页面。`,
+    `現在你可以更方便的查看每個功能的 Wiki 頁面了，只需要點擊設定項的名稱，或者在純色按鈕上長按，下載器就會打開對應的 Wiki 頁面。`,
+    `Now you can view the Wiki page for each feature more conveniently, just click on the setting item's name, or long-press on the solid color button, and the downloader will open the corresponding Wiki page.`,
+    `今、各機能のWikiページをより便利に閲覧できます。設定項目の名前をクリックするか、単色ボタンを長押しするだけで、ダウンロードツールが対応するWikiページを開きます。`,
+    ` 이제 각 기능의 Wiki 페이지를 더 편리하게 볼 수 있습니다. 설정 항목의 이름을 클릭하거나 단색 버튼을 길게 누르면 다운로더가 해당 Wiki 페이지를 엽니다.`,
+    `Теперь вы можете просматривать страницу Wiki для каждой функции более удобно: просто кликните на название элемента настройки или долго нажмите на кнопку сплошного цвета, и загрузчик откроет соответствующую страницу Wiki。`,
   ],
   _提示使用小号下载: [
     `本次任务需要抓取的作品数量比较多，您可以考虑使用小号进行抓取和下载，以减少大号被封禁的风险。<br>您可以在 Wiki 查看相关说明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E4%BD%BF%E7%94%A8%E5%B0%8F%E5%8F%B7%E4%B8%8B%E8%BD%BD" target="_blank">使用小号下载</a>`,
@@ -5786,6 +5786,14 @@ P.S. Работы заблокированных пользователей не
     `今回のタスクでは、クロールする作品の数がかなり多いです。小号を使用してクロールとダウンロードを行うことを検討してください。これにより、大号がブロックされるリスクを低減できます。<br>Wiki で関連する説明を確認できます：<a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">小号でダウンロード</a>`,
     `이번 작업에서 크롤링할 작품 수가 많습니다. 대본 계정이 차단될 위험을 줄이기 위해 작은 계정을 사용하여 크롤링과 다운로드를 고려해보세요. <br>Wiki에서 관련 설명을 확인할 수 있습니다: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">작은 계정으로 다운로드</a>`,
     `Эта задача требует загрузки большого количества работ. Вы можете рассмотреть использование альтернативного аккаунта для загрузки и скачивания, чтобы снизить риск блокировки основного аккаунта. <br>Вы можете ознакомиться с соответствующими инструкциями в Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">Скачивание с альтернативным аккаунтом</a>`,
+  ],
+  _版本更新说明17_9_0: [
+    `<strong>注意：</strong>这次更新后，“抓取多少页面”和“抓取多少作品”这两个设置被重置为了默认值。如果你需要的话可以重新修改它们的值。`,
+    `<strong>注意：</strong>這次更新後，「抓取多少頁面」和「抓取多少作品」這兩個設置被重置為了默認值。如果你需要的話可以重新修改它們的值。`,
+    `<strong>Note:</strong> After this update, the settings for "crawl how many pages" and "crawl how many works" have been reset to default values. If needed, you can modify their values again.`,
+    `<strong>注意：</strong>この更新後、「クロールするページ数」と「クロールする作品数」の2つの設定がデフォルト値にリセットされました。必要に応じて値を再変更できます。`,
+    `<strong>주의:</strong> 이번 업데이트 후, "크롤링할 페이지 수"와 "크롤링할 작품 수" 이 두 설정이 기본값으로 재설정되었습니다. 필요하다면 값을 다시 수정할 수 있습니다.`,
+    `<strong>Внимание:</strong> После этого обновления настройки «количество страниц для краулинга» и «количество работ для краулинга» были сброшены на значения по умолчанию. При необходимости вы можете изменить их значения заново.`,
   ],
 }
 

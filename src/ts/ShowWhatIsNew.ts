@@ -11,7 +11,7 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '17.8.1'
+  private flag = '17.9.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
@@ -20,13 +20,13 @@ class ShowWhatIsNew {
       <span>${lang.transl('_扩展程序升到x版本', this.flag)}</span>
       <br>
       <br>
-      <span>${lang.transl('_支持Firefox')}</span>
-      <br>
-      <br>
-      <span>${lang.transl('_修复已知问题')}</span>
+      <span>${lang.transl('_提示查看wiki页面')}</span>
       <br>
       <br>
       <span>${lang.transl('_优化性能和用户体验')}</span>
+      <br>
+      <br>
+      <span>${lang.transl('_版本更新说明17_9_0')}</span>
       `
 
       // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong

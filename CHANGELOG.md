@@ -56,6 +56,8 @@
 
 修复了一些按钮重叠、一行只能显示一个按钮、面板显示不全等问题。
 
+### 😊优化了一些提示信息
+
 ### 😊在 Font Family 里添加 Segeo UI 字体
 
 在之前的 FontFamily 里添加了 `'Segeo UI'`，这主要是为了优化英语用户的显示效果。
@@ -65,8 +67,7 @@
 现在的 FontFamily 是：
 
 ```
-'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono',
-  'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 ```
 
 ### 😊优化了汇总的简介文件的保存位置
@@ -78,6 +79,8 @@
 2. 如果简介数据来自同一个画师，则分为 2 种情况：
 - 如果命名规则里的某个文件夹里含有 `{user}`，下载器会把汇总文件保存到这个文件夹里。对于默认的命名规则 `pixiv/{user}-{user_id}/{id}-{title}`，下载器会将汇总文件保存到 `pixiv/{user}-{user_id}/` 里。
 - 如果命名规则里的文件夹都不包含 `{user}`，下载器会将其直接保存到浏览器的下载目录里。
+
+### 🕑更新了作品发布时间数据
 
 ## 17.8.1 2025-08-20
 
