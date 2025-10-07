@@ -2,11 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "sourceMap": true,
     "outDir": "./dist/js",
     "downlevelIteration": true,
@@ -14,6 +10,9 @@
     "types": ["webextension-polyfill"],
     "allowSyntheticDefaultImports": true
   },
-  "include": ["./src/ts/*"],
+  "include": [
+    "./src/ts/*",
+    "src/ts/buttonOnThumb/DownloadBtnOnThumbOnMobile.ts"
+  ],
   "exclude": ["node_modules"]
 }

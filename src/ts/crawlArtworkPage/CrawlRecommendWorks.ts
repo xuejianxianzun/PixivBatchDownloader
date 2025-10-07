@@ -107,7 +107,6 @@ class CrawlRecommendWorks {
       '#downloadRecommendedWorks'
     ) as HTMLButtonElement
     const span = btn.querySelector('span') as HTMLSpanElement
-    span.textContent = lang.transl('_下载推荐作品')
     lang.register(span)
     wiki.registerBtn(btn)
 

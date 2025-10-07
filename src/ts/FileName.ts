@@ -66,7 +66,7 @@ class FileName {
   }
 
   // 返回收藏数的简化显示
-  private getBKM1000(bmk: number): string {
+  public getBKM1000(bmk: number): string {
     if (bmk < 1000) {
       return '0+'
     } else {

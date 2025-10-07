@@ -1,24 +1,24 @@
-import { EVT } from './EVT'
-import { settings } from './setting/Settings'
-import { artworkThumbnail } from './ArtworkThumbnail'
-import { states } from './store/States'
-import { toast } from './Toast'
-import { lang } from './Language'
-import { IDData } from './store/StoreType'
-import { Colors } from './Colors'
-import { Tools } from './Tools'
-import { Config } from './Config'
-import { store } from './store/Store'
+import { EVT } from '../EVT'
+import { settings } from '../setting/Settings'
+import { artworkThumbnail } from '../ArtworkThumbnail'
+import { IDData } from '../store/StoreType'
+import { Tools } from '../Tools'
+import { Config } from '../Config'
+import { store } from '../store/Store'
 
 // 在图片作品的缩略图上显示下载按钮，点击按钮会直接下载这个作品
-class ShowDownloadBtnOnThumbOnMobile {
+// 这个模块只在移动端页面上运行
+class DownloadBtnOnThumbOnMobile {
   constructor() {
+    if (!Config.mobile) {
+      return
+    }
     // 在移动端，由于没有 mouseover 事件，
     // 所以只能每个作品缩略图分别添加一个下载按钮
     this.bindEvents()
   }
 
-  private readonly className = 'downloadBtnOnThumb'
+  private readonly btnId = 'downloadBtnOnThumb'
   private readonly size = 32
   private styleElement?: HTMLStyleElement
 
@@ -62,7 +62,8 @@ class ShowDownloadBtnOnThumbOnMobile {
 
   private addBtn(target: HTMLElement) {
     const btn = document.createElement('button')
-    btn.classList.add(this.className)
+    btn.id = this.btnId
+    btn.classList.add('btnOnThumb')
     btn.innerHTML = `
     <svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-download"></use>
@@ -92,11 +93,11 @@ class ShowDownloadBtnOnThumbOnMobile {
   }
 
   private toggleShowBtns(value: boolean) {
-    const btns = document.body.querySelectorAll(`.${this.className}`)
+    const btns = document.body.querySelectorAll(`#${this.btnId}`)
     for (const btn of btns) {
       ;(btn as HTMLButtonElement).style.display = value ? 'flex' : 'none'
     }
   }
 }
 
-export { ShowDownloadBtnOnThumbOnMobile }
+new DownloadBtnOnThumbOnMobile()

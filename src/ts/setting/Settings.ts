@@ -218,6 +218,7 @@ interface XzSetting {
   autoExportResultNumber: number
   PreviewWork: boolean
   showDownloadBtnOnThumb: boolean
+  showCopyBtnOnThumb: boolean
   prevWorkSize: 'original' | 'regular'
   previewWorkWait: number
   showPreviewWorkTip: boolean
@@ -294,6 +295,7 @@ interface XzSetting {
   downloadInterval: number
   downloadIntervalOnWorksNumber: number
   tipOpenWikiLink: boolean
+  copyWorkInfoFormat: string
 }
 
 type SettingKeys = keyof XzSetting
@@ -657,6 +659,7 @@ class Settings {
     autoExportResultNumber: 1,
     PreviewWork: true,
     showDownloadBtnOnThumb: true,
+    showCopyBtnOnThumb: true,
     prevWorkSize: 'regular',
     previewWorkWait: 400,
     showPreviewWorkTip: true,
@@ -720,6 +723,7 @@ class Settings {
     downloadInterval: 0,
     downloadIntervalOnWorksNumber: 120,
     tipOpenWikiLink: true,
+    copyWorkInfoFormat: '{id}{lf}{title}{lf}{tags}{lf}{url}',
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

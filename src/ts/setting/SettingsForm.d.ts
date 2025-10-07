@@ -106,6 +106,8 @@ export interface SettingsForm extends HTMLFormElement {
   autoExportResultNumber: HTMLInputElement
   PreviewWork: HTMLInputElement
   showDownloadBtnOnThumb: HTMLInputElement
+  showCopyBtnOnThumb: HTMLInputElement
+  copyWorkInfoFormat: HTMLInputElement
   prevWorkSize: HTMLInputElement
   previewWorkWait: HTMLInputElement
   showPreviewWorkTip: HTMLInputElement
