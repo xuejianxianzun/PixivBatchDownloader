@@ -169,8 +169,8 @@ class CrawlNumber {
           }
         }
 
-        // 如果之前保存的值大于当前页面的最大值，则将其改为当前页面的最大值
-        if (cfg.value > max) {
+        // 如果默认的最大值不是 -1 而是具体的数字，并且之前保存的值大于当前页面的最大值，则将其改为当前页面的最大值
+        if (max !== -1 && cfg.value > max) {
           cfg.value = max
           setSetting('crawlNumber', settings.crawlNumber)
         }
