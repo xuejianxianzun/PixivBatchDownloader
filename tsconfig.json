@@ -11,8 +11,7 @@
     "allowSyntheticDefaultImports": true
   },
   "include": [
-    "./src/ts/*",
-    "src/ts/buttonOnThumb/DownloadBtnOnThumbOnMobile.ts"
+    "./src/ts/*"
   ],
   "exclude": ["node_modules"]
 }
