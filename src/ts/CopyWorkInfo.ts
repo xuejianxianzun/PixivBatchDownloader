@@ -47,14 +47,14 @@ class CopyWorkInfo {
   // - 不需要处理不能作为文件名的特殊字符
   // - 不需要建立文件夹，所以不需要处理非法的文件夹路径
   // - 忽略某些命名设置，例如第一张图不带序号、移除用户名中的 @ 符号、创建文件夹相关的设置等
-  // - 额外添加了 {lf} 和 {url} 标记
+  // - 额外添加了 {n} 和 {url} 标记
   // - 在每个标签前面加上 # 符号
   // - {id} 等同于 {id_num}，是纯数字
   // - {p_num} 总是 0
   private convert(data: ArtworkData | NovelData) {
-    const body = data.body
-    const title = Tools.getPageTitle()
+    const page_title = Tools.getPageTitle()
     const page_tag = Tools.getTagFromURL()
+    const body = data.body
     const type = 'illustType' in body ? body.illustType : 3
     const tags = Tools.extractTags(data).map((str) => '#' + str)
     const tagsWithTransl = Tools.extractTags(data, 'both').map(
@@ -63,11 +63,14 @@ class CopyWorkInfo {
     const tagsTranslOnly = Tools.extractTags(data, 'transl').map(
       (str) => '#' + str
     )
+    const seriesNavData = body.seriesNavData
+    const lf = '\n'
+
     const cfg = {
-      '{lf}': '\n',
+      '{n}': lf,
       '{url}': `https://www.pixiv.net/${type === 3 ? 'n' : 'artworks'}/${body.id}`,
-      '{p_title}': title,
-      '{page_title}': title,
+      '{p_title}': page_title,
+      '{page_title}': page_title,
       '{p_tag}': page_tag,
       '{page_tag}': page_tag,
       '{id}': body.id,
@@ -92,19 +95,24 @@ class CopyWorkInfo {
       '{task_date}': DateFormat.format(new Date(), settings.dateFormat),
       '{type}': Config.worksTypeName[type],
       '{AI}': body.aiType === 2 || tags.includes('AI生成') ? 'AI' : '',
-      '{series_title}': (body as any).seriesTitle || '',
-      '{series_order}': (body as any).seriesOrder
-        ? '#' + (body as any).seriesOrder
-        : '',
-      '{series_id}': (body as any).seriesId || '',
-      '{sl}': (body as any).sl ?? 0,
+      '{series_title}': seriesNavData ? seriesNavData.title : '',
+      '{series_order}': seriesNavData ? '#' + seriesNavData.order : '',
+      '{series_id}': seriesNavData ? seriesNavData.seriesId : '',
+      '{sl}': 'sl' in body ? body.sl : '',
     }
 
+    // 替换标记
     let str = settings.copyWorkInfoFormat
     Object.entries(cfg).forEach(([key, val]) => {
-      console.log(`${key}\t${val}`)
-      str = str.replace(new RegExp(key, 'g'), val)
+      // console.log(`${key}\t${val}`)
+      str = str.replace(new RegExp(key, 'g'), val as string)
     })
+    // 以换行符分割，如果某一行的内容是空字符串，则移除这一行
+    // 这是为了防止某个标记为空时，产生连续的换行。例如 {AI}{n} 标记可能会产生连续的换行
+    str = str
+      .split(lf)
+      .filter((str) => str !== '')
+      .join(lf)
     return str
   }
 

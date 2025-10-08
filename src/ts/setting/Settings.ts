@@ -296,6 +296,7 @@ interface XzSetting {
   downloadIntervalOnWorksNumber: number
   tipOpenWikiLink: boolean
   copyWorkInfoFormat: string
+  tipCopyWorkInfoButton: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -723,7 +724,8 @@ class Settings {
     downloadInterval: 0,
     downloadIntervalOnWorksNumber: 120,
     tipOpenWikiLink: true,
-    copyWorkInfoFormat: '{id}{lf}{title}{lf}{tags}{lf}{url}',
+    copyWorkInfoFormat: '{id}{n}{title}{n}{tags}{n}{url}',
+    tipCopyWorkInfoButton: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -879,6 +881,7 @@ class Settings {
     this.setSetting('tipBookmarkButton', true)
     this.setSetting('tipBookmarkManage', true)
     this.setSetting('tipOpenWikiLink', true)
+    this.setSetting('tipCopyWorkInfoButton', true)
 
     toast.success('✓ ' + lang.transl('_重新显示帮助'))
   }

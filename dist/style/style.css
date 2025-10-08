@@ -2528,6 +2528,22 @@ main section nav[style]::-webkit-scrollbar-thumb {
   text-decoration: none;
   display: block;
 }
+#copyBtnOnWorkPage {
+  padding: 0;
+  padding-top: 3px;
+  margin-right: 16px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+#copyBtnOnWorkPage:hover,
+#copyBtnOnWorkPage:active {
+  color: #0ea8ef;
+}
+#copyBtnOnWorkPage svg {
+  width: 1.6em;
+  height: 1.6em;
+}
 html[data-xzpagetheme='white'] #quickBookmarkEl {
   color: #1f1f1f;
 }

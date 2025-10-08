@@ -107,6 +107,25 @@ main section nav[style] {
   display: block;
 }
 
+#copyBtnOnWorkPage {
+  padding: 0;
+  padding-top: 3px;
+  margin-right: 16px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+
+  &:hover,
+  &:active {
+    color: @themeBlue;
+  }
+
+  svg {
+    width: 1.6em;
+    height: 1.6em;
+  }
+}
+
 html[data-xzpagetheme='white'] #quickBookmarkEl {
   color: #1f1f1f;
 }

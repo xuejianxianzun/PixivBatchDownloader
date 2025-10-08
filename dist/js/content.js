@@ -2970,42 +2970,6 @@ const toWebM = new ToWebM();
 
 /***/ }),
 
-/***/ "./src/ts/CopyToClipboard.ts":
-/*!***********************************!*\
-  !*** ./src/ts/CopyToClipboard.ts ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   CopyToClipboard: () => (/* binding */ CopyToClipboard)
-/* harmony export */ });
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-
-
-class CopyToClipboard {
-    static setClipboard(text) {
-        return new Promise((resolve, reject) => {
-            const type = 'text/plain';
-            const blob = new Blob([text], { type });
-            const data = [new ClipboardItem({ [type]: blob })];
-            window.navigator.clipboard.write(data).then(() => {
-                _Toast__WEBPACK_IMPORTED_MODULE_1__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_已复制到剪贴板'));
-                resolve();
-            }, () => {
-                _Toast__WEBPACK_IMPORTED_MODULE_1__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_写入剪贴板失败'));
-                reject();
-            });
-        });
-    }
-}
-
-
-
-/***/ }),
-
 /***/ "./src/ts/CopyWorkInfo.ts":
 /*!********************************!*\
   !*** ./src/ts/CopyWorkInfo.ts ***!
@@ -3075,23 +3039,25 @@ class CopyWorkInfo {
     // - 不需要处理不能作为文件名的特殊字符
     // - 不需要建立文件夹，所以不需要处理非法的文件夹路径
     // - 忽略某些命名设置，例如第一张图不带序号、移除用户名中的 @ 符号、创建文件夹相关的设置等
-    // - 额外添加了 {lf} 和 {url} 标记
+    // - 额外添加了 {n} 和 {url} 标记
     // - 在每个标签前面加上 # 符号
     // - {id} 等同于 {id_num}，是纯数字
     // - {p_num} 总是 0
     convert(data) {
-        const body = data.body;
-        const title = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getPageTitle();
+        const page_title = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getPageTitle();
         const page_tag = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getTagFromURL();
+        const body = data.body;
         const type = 'illustType' in body ? body.illustType : 3;
         const tags = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data).map((str) => '#' + str);
         const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data, 'both').map((str) => '#' + str);
         const tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data, 'transl').map((str) => '#' + str);
+        const seriesNavData = body.seriesNavData;
+        const lf = '\n';
         const cfg = {
-            '{lf}': '\n',
+            '{n}': lf,
             '{url}': `https://www.pixiv.net/${type === 3 ? 'n' : 'artworks'}/${body.id}`,
-            '{p_title}': title,
-            '{page_title}': title,
+            '{p_title}': page_title,
+            '{page_title}': page_title,
             '{p_tag}': page_tag,
             '{page_tag}': page_tag,
             '{id}': body.id,
@@ -3116,18 +3082,23 @@ class CopyWorkInfo {
             '{task_date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_10__.DateFormat.format(new Date(), _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.dateFormat),
             '{type}': _Config__WEBPACK_IMPORTED_MODULE_1__.Config.worksTypeName[type],
             '{AI}': body.aiType === 2 || tags.includes('AI生成') ? 'AI' : '',
-            '{series_title}': body.seriesTitle || '',
-            '{series_order}': body.seriesOrder
-                ? '#' + body.seriesOrder
-                : '',
-            '{series_id}': body.seriesId || '',
-            '{sl}': body.sl ?? 0,
+            '{series_title}': seriesNavData ? seriesNavData.title : '',
+            '{series_order}': seriesNavData ? '#' + seriesNavData.order : '',
+            '{series_id}': seriesNavData ? seriesNavData.seriesId : '',
+            '{sl}': 'sl' in body ? body.sl : '',
         };
+        // 替换标记
         let str = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.copyWorkInfoFormat;
         Object.entries(cfg).forEach(([key, val]) => {
-            console.log(`${key}\t${val}`);
+            // console.log(`${key}\t${val}`)
             str = str.replace(new RegExp(key, 'g'), val);
         });
+        // 以换行符分割，如果某一行的内容是空字符串，则移除这一行
+        // 这是为了防止某个标记为空时，产生连续的换行。例如 {AI}{n} 标记可能会产生连续的换行
+        str = str
+            .split(lf)
+            .filter((str) => str !== '')
+            .join(lf);
         return str;
     }
     getPX(body) {
@@ -7144,8 +7115,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _CopyToClipboard__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./CopyToClipboard */ "./src/ts/CopyToClipboard.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+
 
 
 
@@ -7347,18 +7320,20 @@ class PreviewWorkDetailInfo {
         array.push(`UserID\n${body.userId}`);
         array.push(`Title\n${body.title}`);
         if (body.description) {
-            array.push(`Description\n${_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.htmlToText(_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.replaceATag(_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.htmlDecode(body.description)))}`);
+            array.push(`Description\n${_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlToText(_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.replaceATag(_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlDecode(body.description)))}`);
         }
         array.push(`Tags\n${tags.join('\n')}`);
         array.push(`Size\n${body.width} x ${body.height}`);
         array.push(`Bookmark\n${body.bookmarkCount}`);
         array.push(`Date\n${new Date(body.uploadDate).toLocaleString()}`);
         const text = array.join('\n\n');
-        _CopyToClipboard__WEBPACK_IMPORTED_MODULE_4__.CopyToClipboard.setClipboard(text);
+        window.navigator.clipboard.writeText(text);
+        _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_已复制到剪贴板'));
     }
     copyJSON(workData) {
         const text = JSON.stringify(workData, null, 2);
-        _CopyToClipboard__WEBPACK_IMPORTED_MODULE_4__.CopyToClipboard.setClipboard(text);
+        window.navigator.clipboard.writeText(text);
+        _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_已复制到剪贴板'));
     }
 }
 const previewWorkDetailInfo = new PreviewWorkDetailInfo();
@@ -11462,10 +11437,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _TimedCrawl__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
 /* harmony import */ var _pageFunciton_QuickBookmark__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../pageFunciton/QuickBookmark */ "./src/ts/pageFunciton/QuickBookmark.ts");
-/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
-/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
-/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _pageFunciton_CopyButtonOnWorkPage__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../pageFunciton/CopyButtonOnWorkPage */ "./src/ts/pageFunciton/CopyButtonOnWorkPage.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 // 初始化所有页面抓取流程的基类
+
 
 
 
@@ -11753,7 +11730,7 @@ class InitPageBase {
         // 这通常是由 crawlIdList 触发的，比如：
         // 在作品页里快速下载这个作品；预览图片时按快捷键下载；点击缩略图右上角的下载按钮
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.quickCrawl && _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length === 1) {
-            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id);
+            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id);
             if (data) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = [];
                 await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__.saveArtworkData.save(data);
@@ -11882,7 +11859,7 @@ class InitPageBase {
         // 如果存在下一个作品，则继续抓取
         if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0) {
             if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode) {
-                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__.setTimeoutWorker.set(() => {
+                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_27__.setTimeoutWorker.set(() => {
                     this.getWorksData();
                 }, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
             }
@@ -25332,12 +25309,12 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         'Это ID неверно',
     ],
     _快速收藏: [
-        '快速收藏 (Ctrl + B)',
-        '快速收藏 (Ctrl + B)',
-        'Quick bookmarks (Ctrl + B)',
-        'クイックブックマーク (Ctrl + B)',
-        '빠른 북마크 (Ctrl + B)',
-        'Быстрые закладки (Ctrl + B)',
+        '快速收藏 (Alt + B)',
+        '快速收藏 (Alt + B)',
+        'Quick bookmarks (Alt + B)',
+        'クイックブックマーク (Alt + B)',
+        '빠른 북마크 (Alt + B)',
+        'Быстрые закладки (Alt + B)',
     ],
     _启用: ['启用', '啟用', 'Enable', '有効にする', '활성화', 'Включить'],
     _自动开始下载: [
@@ -29215,7 +29192,7 @@ P.S. Работы заблокированных пользователей не
         `명명 규칙의 모든 태그를 사용할 수 있으며, 사용자 정의 문자(예: 공백, 밑줄 등)를 입력할 수도 있습니다.<br>또한, 이러한 태그를 사용할 수 있습니다:`,
         `Вы можете использовать все теги из правила именования, а также вводить пользовательские символы, такие как пробелы, подчеркивания и т.д.<br>Кроме того, вы можете использовать эти теги:`,
     ],
-    _lf标记的说明: [
+    _换行标记的说明: [
         `换行`,
         `換行`,
         `Line break`,
@@ -29238,6 +29215,22 @@ P.S. Работы заблокированных пользователей не
         `コピー済み`,
         `복사됨`,
         `Скопировано`,
+    ],
+    _复制摘要数据: [
+        `复制摘要数据 (ALt + C)`,
+        `複製摘要資料 (ALt + C)`,
+        `Copy summary data (ALt + C)`,
+        `要約データをコピー (ALt + C)`,
+        `요약 데이터 복사 (ALt + C)`,
+        `Копировать данные сводки (ALt + C)`,
+    ],
+    _相关设置: [
+        `相关设置`,
+        `相關設定`,
+        `Related settings`,
+        `関連設定`,
+        `관련 설정`,
+        `Связанные настройки,`,
     ],
 };
 
@@ -29289,8 +29282,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _CopyToClipboard__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../CopyToClipboard */ "./src/ts/CopyToClipboard.ts");
-
 
 
 
@@ -29331,7 +29322,8 @@ class OutputPanel {
         // 复制输出内容
         this.copyBtn.addEventListener('click', () => {
             const text = this.outputContent.innerText.replaceAll('\n\n', '\n');
-            _CopyToClipboard__WEBPACK_IMPORTED_MODULE_8__.CopyToClipboard.setClipboard(text);
+            window.navigator.clipboard.writeText(text);
+            _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_已复制到剪贴板'));
             window.setTimeout(() => {
                 this.close();
             }, 100);
@@ -29887,6 +29879,90 @@ class BookmarksAddTag {
 
 /***/ }),
 
+/***/ "./src/ts/pageFunciton/CopyButtonOnWorkPage.ts":
+/*!*****************************************************!*\
+  !*** ./src/ts/pageFunciton/CopyButtonOnWorkPage.ts ***!
+  \*****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
+/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+
+
+
+
+
+
+
+// 在作品页面里添加复制按钮
+class CopyButtonOnWorkPage {
+    constructor() {
+        _WorkToolBar__WEBPACK_IMPORTED_MODULE_3__.workToolBar.register((toolbar, pixivBMKDiv, likeBtn) => {
+            window.setTimeout(() => {
+                this.init(likeBtn);
+            }, 0);
+        });
+    }
+    btnId = 'copyBtnOnWorkPage';
+    async init(likeBtn) {
+        // 删除可能存在的旧按钮
+        const oldBtn = document.body.querySelector('#' + this.btnId);
+        if (oldBtn) {
+            oldBtn.remove();
+        }
+        // 添加复制按钮
+        let btn = this.createBtn();
+        _Language__WEBPACK_IMPORTED_MODULE_1__.lang.register(btn);
+        likeBtn.parentElement.insertAdjacentElement('beforebegin', btn);
+        // 把按钮添加到点赞按钮的前面。由于 toolbar 里的按钮是倒序显示，所以复制按钮会显示在点赞按钮的右边
+        btn.addEventListener('click', () => {
+            const isNovel = _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Novel;
+            const idData = {
+                id: isNovel ? _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getNovelId() : _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getIllustId(),
+                type: isNovel ? 'novels' : 'illusts',
+            };
+            _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_6__.copyWorkInfo.receive(idData);
+            const msg = `${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_显示复制按钮的提示')}
+      <br>
+      ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_相关设置')}: ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_显示复制按钮')}
+      <br>
+      ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_增强'))}`;
+            _ShowHelp__WEBPACK_IMPORTED_MODULE_4__.showHelp.show('tipCopyWorkInfoButton', msg);
+        });
+        // 使用快捷键 Alt + C 点击复制按钮
+        window.addEventListener('keydown', (ev) => {
+            if (ev.code === 'KeyC' && ev.altKey) {
+                btn && btn.click();
+            }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.pageSwitch, () => {
+            btn = null;
+        });
+    }
+    //　创建复制按钮
+    createBtn() {
+        const btn = document.createElement('button');
+        btn.id = this.btnId;
+        btn.innerHTML = `
+    <svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-copy"></use>
+</svg>`;
+        btn.dataset.xztitle = '_复制摘要数据';
+        return btn;
+    }
+}
+new CopyButtonOnWorkPage();
+
+
+/***/ }),
+
 /***/ "./src/ts/pageFunciton/DeleteWorks.ts":
 /*!********************************************!*\
   !*** ./src/ts/pageFunciton/DeleteWorks.ts ***!
@@ -30350,7 +30426,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-// 作品页面内的快速收藏功能
 
 
 
@@ -30362,6 +30437,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+// 在作品页面里添加快速收藏按钮
 class QuickBookmark {
     constructor() {
         _WorkToolBar__WEBPACK_IMPORTED_MODULE_6__.workToolBar.register((toolbar, pixivBMKDiv, likeBtn) => {
@@ -30457,9 +30533,10 @@ class QuickBookmark {
                 _ShowHelp__WEBPACK_IMPORTED_MODULE_8__.showHelp.show('tipBookmarkButton', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器的收藏按钮默认会添加作品的标签'));
             });
         }
-        // 使用快捷键 Ctrl + B 点击快速收藏按钮
+        // 使用快捷键 Alt + B 和 Ctrl + B 来点击快速收藏按钮
+        // 以前是 Ctrl + B，现在我改成了 Alt + B。为了保持用户的操作习惯，所以保留了 Ctrl + B
         window.addEventListener('keydown', (ev) => {
-            if (ev.code === 'KeyB' && ev.ctrlKey) {
+            if (ev.code === 'KeyB' && (ev.altKey || ev.ctrlKey)) {
                 this.btn && this.btn.click();
             }
         });
@@ -32919,18 +32996,18 @@ const formHtml = `
       <span class="subOptionWrap" data-show="showCopyBtnOnThumb">
         <span data-xztext="_内容格式"></span>
         &nbsp;
-        <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:250px;" value="{id}{lf}{title}{lf}{tags}{lf}{url}">
+        <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:250px;" value="{id}{n}{title}{n}{tags}{n}{url}">
         <button type="button" class="gray1 textButton showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
       </span>
     </p>
     <p class="copyWorkInfoFormatTip tip" style="display:none">
       <span data-xztext="_复制内容的格式的提示"></span>
       <br>
-      <span class="blue">{lf}</span>
-      <span data-xztext="_lf标记的说明"></span>
-      <br>
       <span class="blue">{url}</span>
       <span data-xztext="_url标记的说明"></span>
+      <br>
+      <span class="blue">{n}</span>
+      <span data-xztext="_换行标记的说明"></span>
       <br>
     </p>
     <p class="option" data-no="86">
@@ -34449,7 +34526,8 @@ class Settings {
         downloadInterval: 0,
         downloadIntervalOnWorksNumber: 120,
         tipOpenWikiLink: true,
-        copyWorkInfoFormat: '{id}{lf}{title}{lf}{tags}{lf}{url}',
+        copyWorkInfoFormat: '{id}{n}{title}{n}{tags}{n}{url}',
+        tipCopyWorkInfoButton: true,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的选项
@@ -34587,6 +34665,7 @@ class Settings {
         this.setSetting('tipBookmarkButton', true);
         this.setSetting('tipBookmarkManage', true);
         this.setSetting('tipOpenWikiLink', true);
+        this.setSetting('tipCopyWorkInfoButton', true);
         _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success('✓ ' + _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_重新显示帮助'));
     }
     // 重置设置 或者 导入设置

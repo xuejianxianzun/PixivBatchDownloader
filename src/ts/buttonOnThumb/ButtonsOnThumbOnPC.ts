@@ -5,8 +5,6 @@ import { Config } from '../Config'
 import { ImageViewer } from '../ImageViewer'
 import { IDData } from '../store/StoreType'
 import { store } from '../store/Store'
-import { toast } from '../Toast'
-import { lang } from '../Language'
 import { copyWorkInfo } from '../CopyWorkInfo'
 
 type BtnConfig = {

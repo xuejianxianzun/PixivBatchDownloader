@@ -1055,18 +1055,18 @@ export const formHtml = `
       <span class="subOptionWrap" data-show="showCopyBtnOnThumb">
         <span data-xztext="_内容格式"></span>
         &nbsp;
-        <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:250px;" value="{id}{lf}{title}{lf}{tags}{lf}{url}">
+        <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:250px;" value="{id}{n}{title}{n}{tags}{n}{url}">
         <button type="button" class="gray1 textButton showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
       </span>
     </p>
     <p class="copyWorkInfoFormatTip tip" style="display:none">
       <span data-xztext="_复制内容的格式的提示"></span>
       <br>
-      <span class="blue">{lf}</span>
-      <span data-xztext="_lf标记的说明"></span>
-      <br>
       <span class="blue">{url}</span>
       <span data-xztext="_url标记的说明"></span>
+      <br>
+      <span class="blue">{n}</span>
+      <span data-xztext="_换行标记的说明"></span>
       <br>
     </p>
     <p class="option" data-no="86">
