@@ -6,6 +6,7 @@ import { showHelp } from '../ShowHelp'
 import { EVT } from '../EVT'
 import { IDData } from '../store/StoreType'
 import { copyWorkInfo } from '../CopyWorkInfo'
+import { Config } from '../Config'
 
 // 在作品页面里添加复制按钮
 class CopyButtonOnWorkPage {
@@ -35,8 +36,14 @@ class CopyButtonOnWorkPage {
     // 添加复制按钮
     let btn = this.createBtn()
     lang.register(btn)
-    likeBtn.parentElement!.insertAdjacentElement('beforebegin', btn)
-    // 把按钮添加到点赞按钮的前面。由于 toolbar 里的按钮是倒序显示，所以复制按钮会显示在点赞按钮的右边
+
+    if (Config.mobile) {
+      likeBtn.insertAdjacentElement('afterend', btn)
+    } else {
+      // 在 PC 端页面里，把按钮添加到点赞按钮的前面。
+      // 由于 PC 端的 toolbar 按钮是倒序显示，所以复制按钮会显示在点赞按钮的右边
+      likeBtn.parentElement!.insertAdjacentElement('beforebegin', btn)
+    }
 
     btn.addEventListener('click', () => {
       const isNovel = pageType.type === pageType.list.Novel

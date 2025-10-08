@@ -114,6 +114,8 @@ main section nav[style] {
   display: inline-flex;
   align-items: center;
   cursor: pointer;
+  background: none;
+  border: none;
 
   &:hover,
   &:active {
@@ -123,6 +125,26 @@ main section nav[style] {
   svg {
     width: 1.6em;
     height: 1.6em;
+  }
+}
+
+body.mobile {
+  #copyBtnOnWorkPage {
+    padding: 0;
+    margin: 6px 4px 4px;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+
+    &:hover,
+    &:active {
+      color: @themeBlue;
+    }
+
+    svg {
+      width: 2.1em;
+      height: 2.1em;
+    }
   }
 }
 

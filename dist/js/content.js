@@ -11055,16 +11055,17 @@ class WorkToolBar {
         }
         this.toolbar = toolbar;
         // 在移动端不要给工具栏添加自定义 class 名，因为切换页面时元素没重新生成，class 还在
+        // toolbar 里有 4 个按钮，但是有 5 个 div，第 3 个是空 div，不知道为什么
         const divs = toolbar.querySelectorAll('div');
-        if (divs.length !== 4) {
+        if (divs.length !== 5) {
             return;
         }
         // 只在正常模式下（有 4 个按钮）时工作
         // 如果在自己的作品页面里，就只有 1 个分享按钮
-        // 获取心形收藏按钮的 div
-        this.pixivBMKDiv = divs[1];
-        // 获取点赞按钮
+        // 点赞按钮的 div
         this.likeBtn = divs[0];
+        // 心形收藏按钮的 div
+        this.pixivBMKDiv = divs[1];
         // 全部获取完毕
         if (this.pixivBMKDiv && this.likeBtn) {
             window.clearInterval(this.timer);
@@ -29894,6 +29895,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -29920,8 +29923,14 @@ class CopyButtonOnWorkPage {
         // 添加复制按钮
         let btn = this.createBtn();
         _Language__WEBPACK_IMPORTED_MODULE_1__.lang.register(btn);
-        likeBtn.parentElement.insertAdjacentElement('beforebegin', btn);
-        // 把按钮添加到点赞按钮的前面。由于 toolbar 里的按钮是倒序显示，所以复制按钮会显示在点赞按钮的右边
+        if (_Config__WEBPACK_IMPORTED_MODULE_7__.Config.mobile) {
+            likeBtn.insertAdjacentElement('afterend', btn);
+        }
+        else {
+            // 在 PC 端页面里，把按钮添加到点赞按钮的前面。
+            // 由于 PC 端的 toolbar 按钮是倒序显示，所以复制按钮会显示在点赞按钮的右边
+            likeBtn.parentElement.insertAdjacentElement('beforebegin', btn);
+        }
         btn.addEventListener('click', () => {
             const isNovel = _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Novel;
             const idData = {

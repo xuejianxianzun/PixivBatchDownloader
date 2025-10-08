@@ -2535,6 +2535,8 @@ main section nav[style]::-webkit-scrollbar-thumb {
   display: inline-flex;
   align-items: center;
   cursor: pointer;
+  background: none;
+  border: none;
 }
 #copyBtnOnWorkPage:hover,
 #copyBtnOnWorkPage:active {
@@ -2543,6 +2545,21 @@ main section nav[style]::-webkit-scrollbar-thumb {
 #copyBtnOnWorkPage svg {
   width: 1.6em;
   height: 1.6em;
+}
+body.mobile #copyBtnOnWorkPage {
+  padding: 0;
+  margin: 6px 4px 4px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+body.mobile #copyBtnOnWorkPage:hover,
+body.mobile #copyBtnOnWorkPage:active {
+  color: #0ea8ef;
+}
+body.mobile #copyBtnOnWorkPage svg {
+  width: 2.1em;
+  height: 2.1em;
 }
 html[data-xzpagetheme='white'] #quickBookmarkEl {
   color: #1f1f1f;
