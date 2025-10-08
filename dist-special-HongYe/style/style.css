@@ -2600,6 +2600,39 @@ main section nav[style]::-webkit-scrollbar-thumb {
   text-decoration: none;
   display: block;
 }
+#copyBtnOnWorkPage {
+  padding: 0;
+  padding-top: 3px;
+  margin-right: 16px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+#copyBtnOnWorkPage:hover,
+#copyBtnOnWorkPage:active {
+  color: #0ea8ef;
+}
+#copyBtnOnWorkPage svg {
+  width: 1.6em;
+  height: 1.6em;
+}
+body.mobile #copyBtnOnWorkPage {
+  padding: 0;
+  margin: 6px 4px 4px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+body.mobile #copyBtnOnWorkPage:hover,
+body.mobile #copyBtnOnWorkPage:active {
+  color: #0ea8ef;
+}
+body.mobile #copyBtnOnWorkPage svg {
+  width: 2.1em;
+  height: 2.1em;
+}
 html[data-xzpagetheme='white'] #quickBookmarkEl {
   color: #1f1f1f;
 }
@@ -2732,30 +2765,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   width: 100%;
   height: auto;
 }
-#zoomBtnOnThumb {
-  position: absolute;
-  z-index: 99998;
-  left: 0px;
-  top: 0px;
-  width: 32px;
-  height: 32px;
-  border: none;
-  padding: 0;
-  text-align: center;
-  background-color: #29b3f3;
-  border-radius: 4px;
-  color: #fff;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  overflow: hidden;
-  font-size: 22px;
-}
-#zoomBtnOnThumb:hover {
-  opacity: 0.8;
-}
-.downloadBtnOnThumb {
+.btnOnThumb {
   position: absolute;
   z-index: 99999;
   left: 0px;
@@ -2775,8 +2785,11 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   overflow: hidden;
   font-size: 22px;
 }
-.downloadBtnOnThumb:hover {
+.btnOnThumb:hover {
   opacity: 0.8;
+}
+.btnOnThumb#zoomBtnOnThumb {
+  z-index: 99998;
 }
 .xzBGLayer {
   position: absolute;

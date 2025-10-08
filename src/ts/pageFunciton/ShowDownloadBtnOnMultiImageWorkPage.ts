@@ -18,7 +18,6 @@ class ShowDownloadBtnOnMultiImageWorkPage {
   }
 
   private readonly flagClassName = 'downloadBtnOnMultiImageWorkPage'
-  private readonly styleClassName = 'downloadBtnOnThumb'
 
   private bindEvents() {
     window.setInterval(() => {
@@ -123,7 +122,7 @@ class ShowDownloadBtnOnMultiImageWorkPage {
 
   private createBtn(): HTMLButtonElement {
     const btn = document.createElement('button')
-    btn.classList.add(this.flagClassName, this.styleClassName)
+    btn.classList.add(this.flagClassName, 'btnOnThumb')
     // 这个按钮复用了 styleClassName 的样式，但需要覆写一些样式
     btn.style.display = 'flex'
     // 根据“在作品缩略图上显示放大按钮”的位置设置，将按钮显示在左侧或右侧

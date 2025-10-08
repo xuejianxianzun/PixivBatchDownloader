@@ -218,6 +218,7 @@ interface XzSetting {
   autoExportResultNumber: number
   PreviewWork: boolean
   showDownloadBtnOnThumb: boolean
+  showCopyBtnOnThumb: boolean
   prevWorkSize: 'original' | 'regular'
   previewWorkWait: number
   showPreviewWorkTip: boolean
@@ -295,6 +296,8 @@ interface XzSetting {
   downloadInterval: number
   downloadIntervalOnWorksNumber: number
   tipOpenWikiLink: boolean
+  copyWorkInfoFormat: string
+  tipCopyWorkInfoButton: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -658,6 +661,7 @@ class Settings {
     autoExportResultNumber: 1,
     PreviewWork: true,
     showDownloadBtnOnThumb: true,
+    showCopyBtnOnThumb: true,
     prevWorkSize: 'regular',
     previewWorkWait: 400,
     showPreviewWorkTip: true,
@@ -722,6 +726,8 @@ class Settings {
     downloadInterval: 0,
     downloadIntervalOnWorksNumber: 120,
     tipOpenWikiLink: true,
+    copyWorkInfoFormat: '{id}{n}{title}{n}{tags}{n}{url}',
+    tipCopyWorkInfoButton: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -877,6 +883,7 @@ class Settings {
     this.setSetting('tipBookmarkButton', true)
     this.setSetting('tipBookmarkManage', true)
     this.setSetting('tipOpenWikiLink', true)
+    this.setSetting('tipCopyWorkInfoButton', true)
 
     toast.success('✓ ' + lang.transl('_重新显示帮助'))
   }

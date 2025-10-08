@@ -96,11 +96,20 @@ class CrawlRecommendWorks {
       return
     }
 
-    const btn = document.createElement('button')
-    btn.textContent = lang.transl('_下载推荐作品')
-    btn.classList.add('blueTextBtn')
-    btn.id = 'downloadRecommendedWorks'
+    const btnHtml = `<button
+  class="blueTextBtn hasRippleAnimation"
+  id="downloadRecommendedWorks"
+  type="button">
+  <span data-xztext="_下载推荐作品"></span><span class="ripple"></span>
+</button>`
+    document.body.insertAdjacentHTML('beforeend', btnHtml)
+    const btn = document.querySelector(
+      '#downloadRecommendedWorks'
+    ) as HTMLButtonElement
+    const span = btn.querySelector('span') as HTMLSpanElement
+    lang.register(span)
     wiki.registerBtn(btn)
+
     btn.addEventListener('click', () => {
       // 传递 ID 列表时需要复制一份，因为如果直接传递变量，那么这个数组会在抓取之后被清空
       EVT.fire('crawlIdList', [...this.IDList])

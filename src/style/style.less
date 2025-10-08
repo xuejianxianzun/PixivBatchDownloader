@@ -108,6 +108,47 @@ main section nav[style] {
   display: block;
 }
 
+#copyBtnOnWorkPage {
+  padding: 0;
+  padding-top: 3px;
+  margin-right: 16px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  background: none;
+  border: none;
+
+  &:hover,
+  &:active {
+    color: @themeBlue;
+  }
+
+  svg {
+    width: 1.6em;
+    height: 1.6em;
+  }
+}
+
+body.mobile {
+  #copyBtnOnWorkPage {
+    padding: 0;
+    margin: 6px 4px 4px;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+
+    &:hover,
+    &:active {
+      color: @themeBlue;
+    }
+
+    svg {
+      width: 2.1em;
+      height: 2.1em;
+    }
+  }
+}
+
 html[data-xzpagetheme='white'] #quickBookmarkEl {
   color: #1f1f1f;
 }
@@ -259,35 +300,9 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   }
 }
 
-#zoomBtnOnThumb {
+.btnOnThumb {
   position: absolute;
-  z-index: 99998;
-  display: none;
-  left: 0px;
-  top: 0px;
-  width: 32px;
-  height: 32px;
-  border: none;
-  padding: 0;
-  text-align: center;
-  background-color: @beautifyBlue;
-  border-radius: 4px;
-  color: #fff;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  overflow: hidden;
-  font-size: 22px;
-
-  &:hover {
-    opacity: 0.8;
-  }
-}
-
-.downloadBtnOnThumb {
-  position: absolute;
-  // 如果使用 fixed，将导致页面滚动时按钮停留在原地，这是不好的体验
+  // 如果使用 fixed，将导致页面滚动时按钮停留在原地，造成不好的体验，所以使用 absolute
   z-index: 99999;
   display: none;
   left: 0px;
@@ -309,6 +324,10 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
 
   &:hover {
     opacity: 0.8;
+  }
+
+  &#zoomBtnOnThumb {
+    z-index: 99998;
   }
 }
 

@@ -201,6 +201,15 @@ class Form {
         Utils.toggleEl(document.querySelector('.fileNameTip')! as HTMLElement)
       )
 
+    // 显示复制内容的格式的提示
+    this.form
+      .querySelector('.showCopyWorkInfoFormatTip')!
+      .addEventListener('click', () =>
+        Utils.toggleEl(
+          document.querySelector('.copyWorkInfoFormatTip')! as HTMLElement
+        )
+      )
+
     // 显示日期格式提示
     this.form
       .querySelector('.showDateTip')!

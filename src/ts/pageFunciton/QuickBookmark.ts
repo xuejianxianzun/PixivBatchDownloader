@@ -1,4 +1,3 @@
-// 作品页面内的快速收藏功能
 import { API } from '../API'
 import { Tools } from '../Tools'
 import { lang } from '../Language'
@@ -14,6 +13,7 @@ import { toast } from '../Toast'
 
 type WorkType = 'illusts' | 'novels'
 
+// 在作品页面里添加快速收藏按钮
 class QuickBookmark {
   constructor() {
     workToolBar.register(
@@ -134,9 +134,10 @@ class QuickBookmark {
       })
     }
 
-    // 使用快捷键 Ctrl + B 点击快速收藏按钮
+    // 使用快捷键 Alt + B 和 Ctrl + B 来点击快速收藏按钮
+    // 以前是 Ctrl + B，现在我改成了 Alt + B。为了保持用户的操作习惯，所以保留了 Ctrl + B
     window.addEventListener('keydown', (ev) => {
-      if (ev.code === 'KeyB' && ev.ctrlKey) {
+      if (ev.code === 'KeyB' && (ev.altKey || ev.ctrlKey)) {
         this.btn && this.btn.click()
       }
     })

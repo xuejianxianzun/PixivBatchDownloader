@@ -3,8 +3,9 @@ import { theme } from './Theme'
 import { settings } from './setting/Settings'
 import { ArtworkData } from './crawl/CrawlResult'
 import { Tools } from './Tools'
-import { CopyToClipboard } from './CopyToClipboard'
 import { Utils } from './utils/Utils'
+import { lang } from './Language'
+import { toast } from './Toast'
 
 // 预览作品的详细信息
 // 这个模块由 PreviewWork 提供作品数据，这样可以避免一些重复代码
@@ -264,12 +265,14 @@ class PreviewWorkDetailInfo {
     array.push(`Date\n${new Date(body.uploadDate).toLocaleString()}`)
 
     const text = array.join('\n\n')
-    CopyToClipboard.setClipboard(text)
+    window.navigator.clipboard.writeText(text)
+    toast.success(lang.transl('_已复制到剪贴板'))
   }
 
   private copyJSON(workData: ArtworkData) {
     const text = JSON.stringify(workData, null, 2)
-    CopyToClipboard.setClipboard(text)
+    window.navigator.clipboard.writeText(text)
+    toast.success(lang.transl('_已复制到剪贴板'))
   }
 }
 

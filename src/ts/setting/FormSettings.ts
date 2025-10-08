@@ -95,6 +95,7 @@ class FormSettings {
       'autoExportResultJSON',
       'PreviewWork',
       'showDownloadBtnOnThumb',
+      'showCopyBtnOnThumb',
       'showOriginImage',
       'replaceSquareThumb',
       'notFolderWhenOneFile',
@@ -163,6 +164,7 @@ class FormSettings {
       'slowCrawlDealy',
       'downloadInterval',
       'downloadIntervalOnWorksNumber',
+      'copyWorkInfoFormat',
     ],
     radio: [
       'ugoiraSaveAs',
