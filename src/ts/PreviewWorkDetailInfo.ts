@@ -130,16 +130,21 @@ class PreviewWorkDetailInfo {
 
     wrap.innerHTML = `
         <div class="content">
-        <p class="flags">${r18HTML} ${aiHTML}</p>
-        <p class="title">${workData.body.title}</p>
-        <p class="desc">${workData.body.description}</p>
-        <p class="tags">${tagsHTML.join('')}</p>
-        <p class="size">${workData.body.width} x ${workData.body.height}</p>
-        <p class="bmk">${bmkHTML.join('')}</p>
-        <p class="date">${new Date(
-          workData.body.uploadDate
-        ).toLocaleString()}</p>
-        <p class="buttons"><button class="textButton" id="copyTXT">Copy TXT</button> <button class="textButton" id="copyJSON">Copy JSON</button></p>
+          <p class="flags">${r18HTML} ${aiHTML}</p>
+          <p class="title">${workData.body.title}</p>
+          <p class="desc">${workData.body.description}</p>
+          <p class="tags">${tagsHTML.join('')}</p>
+          <p class="size">${workData.body.width} x ${workData.body.height}</p>
+          <p class="bmk">${bmkHTML.join('')}</p>
+          <p class="date">${new Date(
+            workData.body.uploadDate
+          ).toLocaleString()}</p>
+          <p class="buttons">
+            <button class="textButton" id="copyTXT">Copy TXT</button>
+            <button class="textButton" id="copyJSON">Copy JSON</button>
+            <button class="textButton" id="copyURL">Copy URL</button>
+            <button class="textButton" id="copyURL">Copy URL</button>
+          </p>
         </div>
       `
 
