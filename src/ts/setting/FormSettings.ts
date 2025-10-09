@@ -130,6 +130,7 @@ class FormSettings {
       'saveWorkDescription',
       'saveEachDescription',
       'summarizeDescription',
+      'copyThumb',
     ],
     text: [
       'firstFewImages',

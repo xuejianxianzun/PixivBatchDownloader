@@ -136,8 +136,12 @@ class SaveArtworkData {
           aiType: body.aiType,
           id: body.id,
           idNum: idNum,
+          // 动图的 body.urls 里的属性、图片尺寸与插画、漫画一致
           thumb: body.urls.thumb,
           pageCount: pageCount,
+          // 对于动图，当用户设置了不下载原图时，下载器会保存尺寸较小的 zip 文件（如果有）
+          // meta.body.originalSrc 和 meta.body.src 都是 zip 文件
+          // 前者是完整尺寸，后者是 600x600 的
           original: meta.body.originalSrc,
           regular: meta.body.src,
           small: meta.body.src,
