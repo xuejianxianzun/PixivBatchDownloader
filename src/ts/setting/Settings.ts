@@ -728,7 +728,7 @@ class Settings {
     downloadIntervalOnWorksNumber: 120,
     tipOpenWikiLink: true,
     copyWorkInfoFormat:
-      'id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}',
+      'Title={title}{n}Tag={tags}{n}{url}{n}',
     copyThumb: true,
     tipCopyWorkInfoButton: true,
   }
@@ -1020,7 +1020,7 @@ class Settings {
     }
 
     // 更改设置
-    ;(this.settings[key] as any) = value
+    ; (this.settings[key] as any) = value
 
     // 当修改某些设置时，顺便修改以来它的设置
     if (key === 'widthTag') {

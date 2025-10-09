@@ -451,7 +451,7 @@ export const formHtml = `
         <span class="verticalSplit"></span>
         <span data-xztext="_内容格式"></span>
         &nbsp;
-        <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:250px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
+        <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:250px;" value="Title={title}{n}Tag={tags}{n}{url}{n}">
         <button type="button" class="gray1 textButton showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
       </span>
     </p>

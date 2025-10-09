@@ -3861,28 +3861,30 @@ class CopyWorkInfo {
     // - 不需要建立文件夹，所以不需要处理非法的文件夹路径
     // - 忽略某些命名设置，例如第一张图不带序号、移除用户名中的 @ 符号、创建文件夹相关的设置等
     // - 额外添加了 {n} 和 {url} 标记
-    // - 在每个标签前面加上 # 符号
     // - {id} 等同于 {id_num}，是纯数字
     // - {p_num} 总是 0
+    // 红叶版本的区别：不会在每个标签前面加上 # 符号
     convert(data, format = 'text') {
         const page_title = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getPageTitle();
         const page_tag = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getTagFromURL();
         const body = data.body;
         const type = 'illustType' in body ? body.illustType : 3;
-        const tags = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data).map((str) => '#' + str);
-        const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data, 'both').map((str) => '#' + str);
-        const tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data, 'transl').map((str) => '#' + str);
+        const tags = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data);
+        const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data, 'both');
+        const tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data, 'transl');
         // 如果作品是 AI 生成的，但是 Tags 里没有 AI 生成的标签，则添加
         const aiMarkString = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getAIGeneratedMark(body.aiType);
-        const AITag = '#' + aiMarkString;
         if (aiMarkString) {
-            if (tags.includes(AITag) === false) {
-                tags.unshift(AITag);
-                tagsWithTransl.unshift(AITag);
-                tagsTranslOnly.unshift(AITag);
+            if (tags.includes(aiMarkString) === false) {
+                tags.unshift(aiMarkString);
+                tagsWithTransl.unshift(aiMarkString);
+                tagsTranslOnly.unshift(aiMarkString);
             }
         }
-        const AI = body.aiType === 2 || tags.includes(AITag);
+        let AI = body.aiType === 2;
+        if (aiMarkString) {
+            AI = AI || tags.includes(aiMarkString);
+        }
         const seriesNavData = body.seriesNavData;
         // 在 html 格式里，使用 <br> 换行
         const lf = format === 'text' ? '\n' : '<br>';
