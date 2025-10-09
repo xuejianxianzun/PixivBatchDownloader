@@ -120,6 +120,9 @@ class CopyWorkInfo {
       // 写入混合内容
       await navigator.clipboard.write([clipboardItem])
 
+      // 还有一种方法是把 html 内容写入到一个 div 里，然后使用 document.execCommand('copy') 复制
+      // 但这个方法依然无法在 Telegram 里同时粘贴图片和文本
+
       // 踩了一些坑：
       // 1. 要复制混合内容的话（图片+文本），需要把内容放在一个 ClipboardItem 里
       // 不能分别放在两个 ClipboardItem 里，最后在 write 里混合。因为 Chrome 尚未实现此功能
@@ -165,6 +168,19 @@ class CopyWorkInfo {
     const tagsTranslOnly = Tools.extractTags(data, 'transl').map(
       (str) => '#' + str
     )
+
+    // 如果作品是 AI 生成的，但是 Tags 里没有 AI 生成的标签，则添加
+    const aiMarkString = Tools.getAIGeneratedMark(body.aiType)
+    const AITag = '#' + aiMarkString
+    if (aiMarkString) {
+      if (tags.includes(AITag) === false) {
+        tags.unshift(AITag)
+        tagsWithTransl.unshift(AITag)
+        tagsTranslOnly.unshift(AITag)
+      }
+    }
+    const AI = body.aiType === 2 || tags.includes(AITag)
+
     const seriesNavData = body.seriesNavData
 
     // 在 html 格式里，使用 <br> 换行
@@ -233,7 +249,7 @@ class CopyWorkInfo {
       '{upload_date}': DateFormat.format(body.uploadDate, settings.dateFormat),
       '{task_date}': DateFormat.format(new Date(), settings.dateFormat),
       '{type}': Config.worksTypeName[type],
-      '{AI}': body.aiType === 2 || tags.includes('AI生成') ? 'AI' : '',
+      '{AI}': AI ? 'AI' : '',
       '{series_title}': seriesTitle,
       '{series_order}': seriesNavData ? '#' + seriesNavData.order : '',
       '{series_id}': seriesNavData ? seriesNavData.seriesId : '',
