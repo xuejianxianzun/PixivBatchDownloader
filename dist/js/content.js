@@ -3029,12 +3029,98 @@ class CopyWorkInfo {
             }
         }
     }
-    copy(data) {
-        const str = this.convert(data);
-        navigator.clipboard.writeText(str);
+    async copy(data) {
+        let imageUrl = '';
+        if ('illustType' in data.body) {
+            // 对于图片作品，使用 1200px 的普通尺寸图片
+            imageUrl = data.body.urls.regular;
+        }
+        else {
+            // 对于小说，使用封面图片
+            imageUrl = data.body.coverUrl;
+        }
+        const text = this.convert(data, 'text');
+        const html = this.convert(data, 'html');
+        await this.copyMixedContent(imageUrl, text, html);
         _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已复制'));
     }
-    /** 把用户设置的规则转换成结果 */
+    async copyMixedContent(imageUrl, plainText, htmlText) {
+        try {
+            let dataUrl = '';
+            const needCopyThumb = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.copyThumb && imageUrl;
+            if (needCopyThumb) {
+                _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_正在加载缩略图'));
+                // 先使用 fetch 获取图片的 Blob
+                // 这可以解决 Tainted canvases 的问题，但现在没有使用 canvas 了
+                const blob = await fetch(imageUrl).then((res) => res.blob());
+                // 然后把图片的 Blob 转换为 DataURL
+                dataUrl = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+            }
+            // 然后使用 canvas 把图片的 Blob 转换为 png 格式的 Blob
+            // const image = new Image()
+            // image.src = URL.createObjectURL(blob)
+            // await new Promise((resolve) => (image.onload = resolve))
+            // const canvas = document.createElement('canvas')
+            // canvas.width = image.width
+            // canvas.height = image.height
+            // const ctx = canvas.getContext('2d')
+            // if (!ctx) {
+            //   throw new Error('Failed to get canvas context')
+            // }
+            // ctx.drawImage(image, 0, 0)
+            // 现在不需要使用 imageBlob 了
+            // const imageBlob = await new Promise<Blob>((resolve, reject) => {
+            //   canvas.toBlob((blob) => {
+            //     if (blob) {
+            //       resolve(blob)
+            //     } else {
+            //       reject(new Error('Failed to convert canvas to blob'))
+            //     }
+            //   }, 'image/png')
+            // })
+            // 构造 HTML 内容
+            const imgTag = dataUrl ? `<img src="${dataUrl}" /><br>` : '';
+            const htmlContent = `<div>${imgTag}${htmlText}</div>`;
+            const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
+            // 构造纯文本内容
+            const textBlob = new Blob([plainText], { type: 'text/plain' });
+            const clipboardItem = new ClipboardItem({
+                // 复制富文本格式，这样在 QQ、Word 等软件里粘贴时，才能同时粘贴图片和文本
+                'text/html': htmlBlob,
+                // 复制纯文本内容是为了提供兼容性。在某些不支持解析富文本格式的软件里，可以粘贴纯文本内容
+                'text/plain': textBlob,
+                // 不使用图片格式，因为某些软件会优先粘贴图片内容，导致其他内容被忽略，也就是不会粘贴文本内容
+                // 'image/png': imageBlob,
+            });
+            // 写入混合内容
+            await navigator.clipboard.write([clipboardItem]);
+            // 踩了一些坑：
+            // 1. 要复制混合内容的话（图片+文本），需要把内容放在一个 ClipboardItem 里
+            // 不能分别放在两个 ClipboardItem 里，最后在 write 里混合。因为 Chrome 尚未实现此功能
+            // 2. 图片的 MIME 必须为 png。虽然理论上支持 jpeg，但是 Chrome 尚未实现对 jpeg 的支持
+            // 3. 缩略图的网址是 i.pximg.net，与页面网址 pixiv.net 不同，
+            // 所以无法直接用缩略图网址作为 img.src，然后渲染到 canvas 得到 imageBlob，因为浏览器会报错：
+            // Uncaught SecurityError: Failed to execute 'toBlob' on 'HTMLCanvasElement': Tainted canvases may not be exported.
+            // 4. 即使成功复制了图片+文本，但在粘贴到其他应用（如 QQ、Word）时，可能只会粘贴图片或文本的其中之一。
+            // 这是因为复制的内容的格式与某些软件所要求的格式不同。
+            // 在 QQ 和 Word 里，粘贴的优先级是 text/html > image/png > text/plain
+            // 在许多应用程序里粘贴时，如果存在多种内容格式，只会粘贴优先级最高的那一项内容
+            // 如果只使用 text/html，可以兼容 QQ、微信、Word，但是在 Telegram、网页的 textarea 里存在问题，不会粘贴出任何内容
+            // 这可能是因为这些地方不支持解析 html 格式的富文本
+            // 为了提高兼容性，同时复制了 text/plain 内容，这样至少可以粘贴文本
+        }
+        catch (err) {
+            _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_复制失败'));
+            console.error('复制失败:', err);
+            console.trace();
+        }
+    }
+    /** 把用户设置的内容格式转换成文本，目标格式可选纯文本或 html */
     // 需要处理命名标记，这类似于生成文件名，但有所不同，因为此时：
     // - 不需要处理不能作为文件名的特殊字符
     // - 不需要建立文件夹，所以不需要处理非法的文件夹路径
@@ -3043,7 +3129,7 @@ class CopyWorkInfo {
     // - 在每个标签前面加上 # 符号
     // - {id} 等同于 {id_num}，是纯数字
     // - {p_num} 总是 0
-    convert(data) {
+    convert(data, format = 'text') {
         const page_title = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getPageTitle();
         const page_tag = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getTagFromURL();
         const body = data.body;
@@ -3052,22 +3138,56 @@ class CopyWorkInfo {
         const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data, 'both').map((str) => '#' + str);
         const tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data, 'transl').map((str) => '#' + str);
         const seriesNavData = body.seriesNavData;
-        const lf = '\n';
+        // 在 html 格式里，使用 <br> 换行
+        const lf = format === 'text' ? '\n' : '<br>';
+        // 在 html 格式里，给作品的 url 加上超链接
+        // 使用 n、i 缩写，一方面是因为简短，另一方面是因为在 QQ 里，缩写没有被屏蔽，可以点击链接直接打开
+        // 如果把 i 换成完整的 artworks，会被 QQ 屏蔽，点击链接会被拦截
+        const link = `https://www.pixiv.net/${type === 3 ? 'n' : 'i'}/${body.id}`;
+        const url = format === 'text' ? link : `<a href="${link}" target="_blank">${link}</a>`;
+        // 在 html 格式里，给作品 id 也加上超链接
+        const id = format === 'text'
+            ? body.id
+            : `<a href="${link}" target="_blank">${body.id}</a>`;
+        // 在 html 格式里，给作者名字和作者 id 也加上超链接
+        const userLink = `https://www.pixiv.net/users/${body.userId}`;
+        const user = format === 'text'
+            ? body.userName
+            : `<a href="${userLink}" target="_blank">${body.userName}</a>`;
+        const userID = format === 'text'
+            ? body.userId
+            : `<a href="${userLink}" target="_blank">${body.userId}</a>`;
+        // 在 html 格式里，给系列标题也加上超链接
+        let seriesTitle = '';
+        if (seriesNavData) {
+            if (format === 'text') {
+                seriesTitle = seriesNavData.title;
+            }
+            else {
+                // 图像系列和小说系列的网址格式不同，需要分别处理
+                if (type !== 3) {
+                    seriesTitle = `<a href="https://www.pixiv.net/user/${body.userId}/series/${seriesNavData.seriesId}" target="_blank">${seriesNavData.title}</a>`;
+                }
+                else {
+                    seriesTitle = `<a href="https://www.pixiv.net/novel/series/${seriesNavData.seriesId}" target="_blank">${seriesNavData.title}</a>`;
+                }
+            }
+        }
         const cfg = {
             '{n}': lf,
-            '{url}': `https://www.pixiv.net/${type === 3 ? 'n' : 'artworks'}/${body.id}`,
+            '{url}': url,
             '{p_title}': page_title,
             '{page_title}': page_title,
-            '{p_tag}': page_tag,
-            '{page_tag}': page_tag,
-            '{id}': body.id,
-            '{id_num}': body.id,
+            '{p_tag}': '#' + page_tag,
+            '{page_tag}': '#' + page_tag,
+            '{id}': id,
+            '{id_num}': id,
             '{p_num}': 0,
             '{rank}': 'rank' in data.body ? `#${data.body.rank}` : '',
             '{title}': body.title,
-            '{user}': body.userName,
-            '{userid}': body.userId,
-            '{user_id}': body.userId,
+            '{user}': user,
+            '{userid}': userID,
+            '{user_id}': userID,
             '{px}': this.getPX(body),
             '{tags}': tags.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.tagsSeparator),
             '{tags_translate}': tagsWithTransl.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.tagsSeparator),
@@ -3082,7 +3202,7 @@ class CopyWorkInfo {
             '{task_date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_10__.DateFormat.format(new Date(), _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.dateFormat),
             '{type}': _Config__WEBPACK_IMPORTED_MODULE_1__.Config.worksTypeName[type],
             '{AI}': body.aiType === 2 || tags.includes('AI生成') ? 'AI' : '',
-            '{series_title}': seriesNavData ? seriesNavData.title : '',
+            '{series_title}': seriesTitle,
             '{series_order}': seriesNavData ? '#' + seriesNavData.order : '',
             '{series_id}': seriesNavData ? seriesNavData.seriesId : '',
             '{sl}': 'sl' in body ? body.sl : '',
@@ -29162,12 +29282,12 @@ P.S. Работы заблокированных пользователей не
         `<strong>Внимание:</strong> После этого обновления настройки «количество страниц для краулинга» и «количество работ для краулинга» были сброшены на значения по умолчанию. При необходимости вы можете изменить их значения заново.`,
     ],
     _显示复制按钮: [
-        `显示复制按钮`,
-        `顯示複製按鈕`,
-        `Show copy button`,
-        `コピーボタンを表示`,
-        `복사 버튼 표시`,
-        `Показать кнопку копирования`,
+        `显示<span class="key">复制</span>按钮`,
+        `顯示<span class="key">複製</span>按鈕`,
+        `Show <span class="key">Copy</span> button`,
+        `<span class="key">コピー</span>ボタンを表示`,
+        `<span class="key">복사</span> 버튼 표시`,
+        `Показать кнопку <span class="key">Копировать</span>`,
     ],
     _显示复制按钮的提示: [
         `下载器会在作品缩略图上和作品页面内显示一个复制按钮，点击它就可以复制作品的一些数据。<br>你可以自定义要复制的数据和格式。`,
@@ -29217,6 +29337,14 @@ P.S. Работы заблокированных пользователей не
         `복사됨`,
         `Скопировано`,
     ],
+    _复制失败: [
+        '复制失败',
+        '複製失敗',
+        'Copy failed',
+        'コピー失敗',
+        '복사 실패',
+        'Копирование не удалось',
+    ],
     _复制摘要数据: [
         `复制摘要数据 (ALt + C)`,
         `複製摘要資料 (ALt + C)`,
@@ -29233,10 +29361,26 @@ P.S. Работы заблокированных пользователей не
         `관련 설정`,
         `Связанные настройки,`,
     ],
+    _复制缩略图: [
+        `复制缩略图`,
+        `複製縮略圖`,
+        `Copy thumbnail`,
+        `サムネイルをコピー`,
+        `썸네일 복사`,
+        `Копировать миниатюру`,
+    ],
+    _正在加载缩略图: [
+        `正在加载缩略图`,
+        `正在載入縮略圖`,
+        `Loading thumbnail`,
+        `サムネイルを読み込み中`,
+        `썸네일 로딩 중`,
+        `Загрузка миниатюры`,
+    ],
 };
 
 // prompt
-// 请帮我根据把一条中文语句翻译并生成一个字符串数组，一共包含 6 条语句，第 1 条是原文，后面 5 条语句是其他语言的翻译，按顺序分别是：繁体中文、英语、日语、韩语、俄语。
+// 我有一些中文语句需要翻译，稍后我会把语句发给你。翻译结果保存在一个 js 的 string[] 里，它包含 6 条 string，第 1 条是原文，后 5 条是其他语言的翻译，按顺序分别是：繁体中文、英语、日语、韩语、俄语。
 // 背景说明：
 // 这是一个浏览器扩展程序，它是一个爬虫和下载器，用于从 Pixiv.net 这个网站下载插画、漫画、小说等内容。大多数用户在 PC 端的浏览器上使用它。它有很多设置项，还会显示日志和一些提示消息。
 // 输出格式：
@@ -33003,9 +33147,13 @@ const formHtml = `
       <input type="checkbox" name="showCopyBtnOnThumb" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="showCopyBtnOnThumb">
+        <label for="copyThumb" class="has_tip" data-xztext="_复制缩略图"></label>
+        <input type="checkbox" name="copyThumb" id="copyThumb" class="need_beautify checkbox_switch" checked>
+        <span class="beautify_switch" tabindex="0"></span>
+        <span class="verticalSplit"></span>
         <span data-xztext="_内容格式"></span>
         &nbsp;
-        <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:250px;" value="{id}{n}{title}{n}{tags}{n}{url}">
+        <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:250px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
         <button type="button" class="gray1 textButton showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
       </span>
     </p>
@@ -33347,6 +33495,7 @@ class FormSettings {
             'saveWorkDescription',
             'saveEachDescription',
             'summarizeDescription',
+            'copyThumb',
         ],
         text: [
             'firstFewImages',
@@ -34535,7 +34684,8 @@ class Settings {
         downloadInterval: 0,
         downloadIntervalOnWorksNumber: 120,
         tipOpenWikiLink: true,
-        copyWorkInfoFormat: '{id}{n}{title}{n}{tags}{n}{url}',
+        copyWorkInfoFormat: 'id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}',
+        copyThumb: true,
         tipCopyWorkInfoButton: true,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
@@ -35540,8 +35690,12 @@ class SaveArtworkData {
                     aiType: body.aiType,
                     id: body.id,
                     idNum: idNum,
+                    // 动图的 body.urls 里的属性、图片尺寸与插画、漫画一致
                     thumb: body.urls.thumb,
                     pageCount: pageCount,
+                    // 对于动图，当用户设置了不下载原图时，下载器会保存尺寸较小的 zip 文件（如果有）
+                    // meta.body.originalSrc 和 meta.body.src 都是 zip 文件
+                    // 前者是完整尺寸，后者是 600x600 的
                     original: meta.body.originalSrc,
                     regular: meta.body.src,
                     small: meta.body.src,
