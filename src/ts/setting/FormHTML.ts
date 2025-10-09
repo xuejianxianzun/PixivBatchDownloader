@@ -445,11 +445,25 @@ export const formHtml = `
       <input type="checkbox" name="showCopyBtnOnThumb" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="showCopyBtnOnThumb">
+        <label for="copyThumb" class="has_tip" data-xztext="_复制缩略图"></label>
+        <input type="checkbox" name="copyThumb" id="copyThumb" class="need_beautify checkbox_switch" checked>
+        <span class="beautify_switch" tabindex="0"></span>
+        <span class="verticalSplit"></span>
         <span data-xztext="_内容格式"></span>
         &nbsp;
-        <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:250px;" value="{id}{n}{title}{n}{tags}{n}{url}">
+        <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:250px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
         <button type="button" class="gray1 textButton showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
       </span>
+    </p>
+    <p class="copyWorkInfoFormatTip tip" style="display:none">
+      <span data-xztext="_复制内容的格式的提示"></span>
+      <br>
+      <span class="blue">{url}</span>
+      <span data-xztext="_url标记的说明"></span>
+      <br>
+      <span class="blue">{n}</span>
+      <span data-xztext="_换行标记的说明"></span>
+      <br>
     </p>
     <p class="copyWorkInfoFormatTip tip" style="display:none">
       <span data-xztext="_复制内容的格式的提示"></span>
@@ -1076,34 +1090,6 @@ export const formHtml = `
       <a href="${wiki.link(56)}" target="_blank" class="settingNameStyle" data-xztext="_在作品缩略图上显示下载按钮"></a>
       <input type="checkbox" name="showDownloadBtnOnThumb" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-    </p>
-    <p class="option" data-no="14">
-      <a href="${wiki.link(14)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示复制按钮的提示">
-        <span data-xztext="_显示复制按钮"></span>
-        <span class="gray1"> ? </span>
-      </a>
-      <input type="checkbox" name="showCopyBtnOnThumb" class="need_beautify checkbox_switch">
-      <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="showCopyBtnOnThumb">
-        <label for="copyThumb" class="has_tip" data-xztext="_复制缩略图"></label>
-        <input type="checkbox" name="copyThumb" id="copyThumb" class="need_beautify checkbox_switch" checked>
-        <span class="beautify_switch" tabindex="0"></span>
-        <span class="verticalSplit"></span>
-        <span data-xztext="_内容格式"></span>
-        &nbsp;
-        <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:250px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
-        <button type="button" class="gray1 textButton showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
-      </span>
-    </p>
-    <p class="copyWorkInfoFormatTip tip" style="display:none">
-      <span data-xztext="_复制内容的格式的提示"></span>
-      <br>
-      <span class="blue">{url}</span>
-      <span data-xztext="_url标记的说明"></span>
-      <br>
-      <span class="blue">{n}</span>
-      <span data-xztext="_换行标记的说明"></span>
-      <br>
     </p>
     <p class="option" data-no="86">
       <a href="${wiki.link(86)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在多图作品页面里显示缩略图列表的说明">
