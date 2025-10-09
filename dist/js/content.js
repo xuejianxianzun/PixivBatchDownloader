@@ -3047,7 +3047,11 @@ class CopyWorkInfo {
     async copyMixedContent(imageUrl, plainText, htmlText) {
         try {
             let dataUrl = '';
-            const needCopyThumb = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.copyThumb && imageUrl;
+            // 在移动端页面上，不启用“复制缩略图”功能。
+            // 虽然在移动端可以复制图片+文本的混合内容，但是无法粘贴图片。
+            // 图片会显示为一个 OBJ 小方块，只有下方的文字可以正常显示
+            // 我在手机上的 QQ、微信、Telegram 里测试都是如此，所以在移动端没有必要复制缩略图
+            const needCopyThumb = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.copyThumb && imageUrl && !_Config__WEBPACK_IMPORTED_MODULE_1__.Config.mobile;
             if (needCopyThumb) {
                 _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_正在加载缩略图'));
                 // 先使用 fetch 获取图片的 Blob

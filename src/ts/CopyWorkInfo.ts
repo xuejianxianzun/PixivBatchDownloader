@@ -59,7 +59,11 @@ class CopyWorkInfo {
   ) {
     try {
       let dataUrl = ''
-      const needCopyThumb = settings.copyThumb && imageUrl
+      // 在移动端页面上，不启用“复制缩略图”功能。
+      // 虽然在移动端可以复制图片+文本的混合内容，但是无法粘贴图片。
+      // 图片会显示为一个 OBJ 小方块，只有下方的文字可以正常显示
+      // 我在手机上的 QQ、微信、Telegram 里测试都是如此，所以在移动端没有必要复制缩略图
+      const needCopyThumb = settings.copyThumb && imageUrl && !Config.mobile
       if (needCopyThumb) {
         toast.show(lang.transl('_正在加载缩略图'))
         // 先使用 fetch 获取图片的 Blob
