@@ -296,6 +296,7 @@ interface XzSetting {
   downloadIntervalOnWorksNumber: number
   tipOpenWikiLink: boolean
   copyWorkInfoFormat: string
+  copyThumb: boolean
   tipCopyWorkInfoButton: boolean
 }
 
@@ -724,7 +725,9 @@ class Settings {
     downloadInterval: 0,
     downloadIntervalOnWorksNumber: 120,
     tipOpenWikiLink: true,
-    copyWorkInfoFormat: '{id}{n}{title}{n}{tags}{n}{url}',
+    copyWorkInfoFormat:
+      'id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}',
+    copyThumb: true,
     tipCopyWorkInfoButton: true,
   }
 
