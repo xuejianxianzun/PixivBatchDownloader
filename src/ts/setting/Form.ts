@@ -196,42 +196,42 @@ class Form {
 
     // 显示命名字段提示
     this.form
-      .querySelector('.showFileNameTip')!
+      .querySelector('#showFileNameTip')!
       .addEventListener('click', () =>
-        Utils.toggleEl(document.querySelector('.fileNameTip')! as HTMLElement)
+        Utils.toggleEl(document.querySelector('#fileNameTip')! as HTMLElement)
       )
 
     // 显示复制内容的格式的提示
     this.form
-      .querySelector('.showCopyWorkInfoFormatTip')!
+      .querySelector('#showCopyWorkInfoFormatTip')!
       .addEventListener('click', () =>
         Utils.toggleEl(
-          document.querySelector('.copyWorkInfoFormatTip')! as HTMLElement
+          document.querySelector('#copyWorkInfoFormatTip')! as HTMLElement
         )
       )
 
     // 显示日期格式提示
     this.form
-      .querySelector('.showDateTip')!
+      .querySelector('#showDateTip')!
       .addEventListener('click', () =>
-        Utils.toggleEl(document.querySelector('.dateFormatTip')! as HTMLElement)
+        Utils.toggleEl(document.querySelector('#dateFormatTip')! as HTMLElement)
       )
 
     // 显示标签分隔提示
     this.form
-      .querySelector('.showTagsSeparatorTip')!
+      .querySelector('#showTagsSeparatorTip')!
       .addEventListener('click', () =>
         Utils.toggleEl(
-          document.querySelector('.tagsSeparatorTip')! as HTMLElement
+          document.querySelector('#tagsSeparatorTip')! as HTMLElement
         )
       )
 
-    // 显示标签分隔提示
+    // 显示预览作品的快捷键列表
     this.form
-      .querySelector('.showPreviewWorkTip')!
+      .querySelector('#showPreviewWorkShortcutTip')!
       .addEventListener('click', () =>
         Utils.toggleEl(
-          document.querySelector('.previewWorkTip')! as HTMLElement
+          document.querySelector('#previewWorkShortcutTip')! as HTMLElement
         )
       )
 
