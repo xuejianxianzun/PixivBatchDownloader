@@ -19,15 +19,8 @@ class CopyWorkInfo {
     const unlisted = pageType.type === pageType.list.Unlisted
     try {
       // 这里不使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
-      if (idData.type === 'novels') {
-        const data = await API.getNovelData(id, unlisted)
-        await saveNovelData.save(data)
-        this.copy(data)
-      } else {
-        const data = await API.getArtworkData(id, unlisted)
-        await saveArtworkData.save(data)
-        this.copy(data)
-      }
+      const data = await API[idData.type === 'novels' ? 'getNovelData' : 'getArtworkData'](id, unlisted)
+      this.copy(data)
     } catch (error: Error | any) {
       if (error.status) {
         toast.error(

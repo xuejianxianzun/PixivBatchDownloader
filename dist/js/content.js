@@ -2988,13 +2988,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./store/SaveArtworkData */ "./src/ts/store/SaveArtworkData.ts");
-/* harmony import */ var _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./store/SaveNovelData */ "./src/ts/store/SaveNovelData.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
-
-
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
 
 
 
@@ -3011,23 +3007,15 @@ class CopyWorkInfo {
         const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_5__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_5__.pageType.list.Unlisted;
         try {
             // 这里不使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
-            if (idData.type === 'novels') {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelData(id, unlisted);
-                await _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_8__.saveNovelData.save(data);
-                this.copy(data);
-            }
-            else {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(id, unlisted);
-                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_7__.saveArtworkData.save(data);
-                this.copy(data);
-            }
+            const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API[idData.type === 'novels' ? 'getNovelData' : 'getArtworkData'](id, unlisted);
+            this.copy(data);
         }
         catch (error) {
             if (error.status) {
-                _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.error(`${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取作品数据失败')}: ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_错误代码')} ${error.status}`);
+                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(`${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取作品数据失败')}: ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_错误代码')} ${error.status}`);
             }
             else {
-                _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取作品数据失败'));
+                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取作品数据失败'));
             }
         }
     }
@@ -3060,10 +3048,10 @@ class CopyWorkInfo {
                     ? data.body.urls.regular
                     : data.body.coverUrl;
                 if (!imageUrl) {
-                    _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_错误') + ': ' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_没有找到可用的图片网址'));
+                    _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_错误') + ': ' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_没有找到可用的图片网址'));
                     return;
                 }
-                _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_正在加载缩略图'));
+                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_正在加载缩略图'));
                 // 先使用 fetch 获取图片的 Blob
                 // 这可以解决 Tainted canvases 的问题
                 const jpgBlob = await fetch(imageUrl).then((res) => res.blob());
@@ -3127,7 +3115,7 @@ class CopyWorkInfo {
             }
             const clipboardItem = new ClipboardItem(copyData);
             await navigator.clipboard.write([clipboardItem]);
-            _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已复制'));
+            _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已复制'));
             // 复制混合内容（富文本）还有一种方法：
             // 是把 html 内容写入到一个隐藏的 contenteditable div 里，然后使用 document.execCommand('copy') 复制
             // 但这个方法的效果和上面的方法一致，在各个软件里粘贴时的表现是一样的，所以没必要使用
@@ -3172,15 +3160,15 @@ class CopyWorkInfo {
     // - {id} 等同于 {id_num}，是纯数字
     // - {p_num} 总是 0
     convertTextFormat(data, format = 'text') {
-        const page_title = _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.getPageTitle();
-        const page_tag = _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.getTagFromURL();
+        const page_title = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getPageTitle();
+        const page_tag = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getTagFromURL();
         const body = data.body;
         const type = 'illustType' in body ? body.illustType : 3;
-        const tags = _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.extractTags(data).map((str) => '#' + str);
-        const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.extractTags(data, 'both').map((str) => '#' + str);
-        const tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.extractTags(data, 'transl').map((str) => '#' + str);
+        const tags = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data).map((str) => '#' + str);
+        const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data, 'both').map((str) => '#' + str);
+        const tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data, 'transl').map((str) => '#' + str);
         // 如果作品是 AI 生成的，但是 Tags 里没有 AI 生成的标签，则添加
-        const aiMarkString = _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.getAIGeneratedMark(body.aiType);
+        const aiMarkString = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getAIGeneratedMark(body.aiType);
         const AITag = '#' + aiMarkString;
         if (aiMarkString) {
             if (tags.includes(AITag) === false) {
@@ -3250,9 +3238,9 @@ class CopyWorkInfo {
             '{bmk_1000}': _FileName__WEBPACK_IMPORTED_MODULE_2__.fileName.getBKM1000(body.bookmarkCount),
             '{like}': body.likeCount,
             '{view}': body.viewCount,
-            '{date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_11__.DateFormat.format(body.createDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.dateFormat),
-            '{upload_date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_11__.DateFormat.format(body.uploadDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.dateFormat),
-            '{task_date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_11__.DateFormat.format(new Date(), _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.dateFormat),
+            '{date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__.DateFormat.format(body.createDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.dateFormat),
+            '{upload_date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__.DateFormat.format(body.uploadDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.dateFormat),
+            '{task_date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__.DateFormat.format(new Date(), _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.dateFormat),
             '{type}': _Config__WEBPACK_IMPORTED_MODULE_1__.Config.worksTypeName[type],
             '{AI}': AI ? 'AI' : '',
             '{series_title}': seriesTitle,
