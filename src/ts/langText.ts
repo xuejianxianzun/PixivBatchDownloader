@@ -879,12 +879,12 @@ Zip 파일이 원본 파일입니다.`,
     'Код ошибки: 429 (Слишком много запросов). Загрузчик будет повторять вытаскивание.',
   ],
   _错误代码: [
-    '错误代码：',
-    '錯誤程式碼：',
-    'Error code: ',
-    'エラー コード: ',
-    '오류 코드: ',
-    'Код ошибки: ',
+    '错误代码',
+    '錯誤程式碼',
+    'Error code',
+    'エラー コード',
+    '오류 코드',
+    'Код ошибки',
   ],
   _作品页状态码500: [
     'Pixiv 拒绝返回数据 (500)。下载器会重新抓取它。',
@@ -1995,6 +1995,14 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     'ファイル {} のダウンロードを失敗しました',
     '파일 {} 다운로드 실패',
     'Загрузка файла {} не удалась',
+  ],
+  _获取作品数据失败: [
+    `获取作品数据失败`,
+    `獲取作品數據失敗`,
+    `Failed to fetch work data`,
+    `作品データの取得に失敗`,
+    `작품 데이터 가져오기 실패`,
+    `Не удалось получить данные работы`,
   ],
   _是否重置设置: [
     '是否重置设置？',
@@ -4883,6 +4891,14 @@ Novel folder name: Novel`,
   ],
   _正常: ['正常', '正常', 'Normal', '普通', '정상', 'Обычный'],
   _错误: ['错误', '錯誤', 'Error', 'エラー', '오류', 'Ошибка'],
+  _没有找到可用的图片网址: [
+    `没有找到可用的图片网址`,
+    `沒有找到可用的圖片網址`,
+    `No available image URLs found`,
+    `利用可能な画像URLが見つかりません`,
+    `사용 가능한 이미지 URL을 찾을 수 없습니다`,
+    `Доступные URL изображений не найдены`,
+  ],
   _排除关键字: [
     '排除关键字',
     '排除關鍵字',
@@ -5795,13 +5811,21 @@ P.S. Работы заблокированных пользователей не
     `<strong>주의:</strong> 이번 업데이트 후, "크롤링할 페이지 수"와 "크롤링할 작품 수" 이 두 설정이 기본값으로 재설정되었습니다. 필요하다면 값을 다시 수정할 수 있습니다.`,
     `<strong>Внимание:</strong> После этого обновления настройки «количество страниц для краулинга» и «количество работ для краулинга» были сброшены на значения по умолчанию. При необходимости вы можете изменить их значения заново.`,
   ],
-  _显示复制按钮: [
-    `显示<span class="key">复制</span>按钮`,
-    `顯示<span class="key">複製</span>按鈕`,
-    `Show <span class="key">Copy</span> button`,
-    `<span class="key">コピー</span>ボタンを表示`,
-    `<span class="key">복사</span> 버튼 표시`,
-    `Показать кнопку <span class="key">Копировать</span>`,
+  _复制按钮: [
+    `<span class="key">复制</span>按钮`,
+    `<span class="key">複製</span>按鈕`,
+    `<span class="key">Copy</span> button`,
+    `<span class="key">コピー</span>ボタン`,
+    `<span class="key">복사</span> 버튼`,
+    `<span class="key">Копировать</span> кнопку`,
+  ],
+  _在缩略图上显示: [
+    `在缩略图上显示`,
+    `在縮略圖上顯示`,
+    `Display on thumbnail`,
+    `サムネイルに表示`,
+    `썸네일에 표시`,
+    `Отображать на миниатюре`,
   ],
   _显示复制按钮的提示: [
     `下载器会在作品缩略图上和作品页面内显示一个复制按钮，点击它就可以复制作品的一些数据。<br>你可以自定义要复制的数据和格式。`,
@@ -5820,12 +5844,36 @@ P.S. Работы заблокированных пользователей не
     `Формат содержимого`,
   ],
   _复制内容的格式的提示: [
-    `你可以使用命名规则里的所有标签，也可以输入自定义字符，例如空格、下划线等。<br>另外，你还可以使用这些标签：`,
-    `你可以使用命名規則裡的所有標籤，也可以輸入自訂字元，例如空格、下劃線等。<br>另外，你還可以使用這些標籤：`,
-    `You can use all the tags in the naming rule, or input custom characters, such as spaces, underscores, etc.<br>Additionally, you can also use these tags:`,
-    `命名規則内のすべてのタグを使用できます。また、カスタム文字、例えばスペース、アンダースコアなどを入力することもできます。<br>さらに、これらのタグも使用できます：`,
-    `명명 규칙의 모든 태그를 사용할 수 있으며, 사용자 정의 문자(예: 공백, 밑줄 등)를 입력할 수도 있습니다.<br>또한, 이러한 태그를 사용할 수 있습니다:`,
-    `Вы можете использовать все теги из правила именования, а также вводить пользовательские символы, такие как пробелы, подчеркивания и т.д.<br>Кроме того, вы можете использовать эти теги:`,
+    `你可以设置文字内容的格式，这会影响 <span class="blue">text/plain</span> 和 <span class="blue">text/html</span> 格式复制的内容。
+<br>
+你可以使用命名规则里的所有标签，也可以输入自定义字符，例如空格、下划线、每个标签的名称。
+<br>
+另外，你还可以使用这些标签：`,
+    `你可以設定文字內容的格式，這會影響 <span class="blue">text/plain</span> 和 <span class="blue">text/html</span> 格式複製的內容。
+<br>
+你可以使用命名規則裡的所有標籤，也可以輸入自訂字符，例如空格、下劃線、每個標籤的名稱。
+<br>
+另外，你還可以使用這些標籤：`,
+    `You can set the format of the text content, which will affect the content copied in <span class="blue">text/plain</span> and <span class="blue">text/html</span> formats.
+<br>
+You can use all tags from the naming rule, or input custom characters, such as spaces, underscores, the name of each tag.
+<br>
+Additionally, you can use these tags:`,
+    `テキスト内容の形式を設定できます。これにより、<span class="blue">text/plain</span> および <span class="blue">text/html</span> 形式でコピーされる内容に影響します。
+<br>
+命名規則内のすべてのタグを使用できます。また、カスタム文字を入力することもでき、例えばスペース、アンダースコア、各タグの名前です。
+<br>
+さらに、これらのタグを使用できます：`,
+    `텍스트 내용의 형식을 설정할 수 있으며, 이는 <span class="blue">text/plain</span> 및 <span class="blue">text/html</span> 형식으로 복사되는 내용에 영향을 미칩니다.
+<br>
+명명 규칙의 모든 태그를 사용할 수 있으며, 사용자 정의 문자를 입력할 수도 있습니다. 예를 들어 공백, 밑줄, 각 태그의 이름.
+<br>
+또한, 이러한 태그를 사용할 수 있습니다:`,
+    `Вы можете установить формат текстового содержимого, что повлияет на содержимое, копируемое в форматах <span class="blue">text/plain</span> и <span class="blue">text/html</span>.
+<br>
+Вы можете использовать все теги из правила именования, а также вводить пользовательские символы, такие как пробелы, подчеркивания, имя каждого тега.
+<br>
+Кроме того, вы можете использовать эти теги:`,
   ],
   _换行标记的说明: [
     `换行`,
@@ -5873,7 +5921,15 @@ P.S. Работы заблокированных пользователей не
     `Related settings`,
     `関連設定`,
     `관련 설정`,
-    `Связанные настройки,`,
+    `Связанные настройки`,
+  ],
+  _复制内容: [
+    `复制内容`,
+    `複製內容`,
+    `Copy content`,
+    `内容をコピー`,
+    `내용 복사`,
+    `Копировать содержимое`,
   ],
   _复制缩略图: [
     `复制缩略图`,
@@ -5883,6 +5939,382 @@ P.S. Работы заблокированных пользователей не
     `썸네일 복사`,
     `Копировать миниатюру`,
   ],
+  _复制文本: [
+    `复制文本`,
+    `複製文字`,
+    `Copy text`,
+    `テキストをコピー`,
+    `텍스트 복사`,
+    `Копировать текст`,
+  ],
+  _对复制的内容的说明: [
+    `你可以根据自己的需要选择复制的内容。
+<br>
+<br>
+<strong>每种格式的说明：</strong>
+<br>
+- <span class="blue">image/png</span> 复制作品的缩略图。默认未选择，因为它在某些社交软件里的优先级太高，会导致 <span class="blue">text/html</span> 格式的内容被忽略。
+<br>
+- <span class="blue">text/plain</span> 复制作品的文字信息。几乎所有应用程序都支持粘贴纯文本内容。
+<br>
+- <span class="blue">text/html</span> 同时复制作品的缩略图和文字信息。这是富文本格式，同时包含了上面两种内容。
+<br>
+<br>
+<strong>提示：</strong>
+<br>
+- 这个功能在设计时的重点是同时复制图片和文字内容（<span class="blue">text/html</span>），以便于分享或存档，但实际效果取决于目标应用。有些应用可能不支持此格式，或者无法正确显示图片。
+<br>
+- 你可以同时选择多种格式，也就是同时复制多种内容。但是当你在应用程序里粘贴时，应用程序只会使用其中<strong>一种</strong>内容，也就是优先级最高的格式。其他格式的内容会被忽略。
+<br>
+- 在不同的应用程序里，优先级可能会不同。这与下载器无关。
+<br>
+- 例如：如果你同时复制了 <span class="blue">image/png</span> 和 <span class="blue">text/html</span> 内容，某些应用程序会使用前者，但某些应用程序可能会使用后者。如果粘贴的内容不符合你的预期，你可以取消选择其中一种格式。
+<br>
+<br>
+<strong>一些具体的例子：</strong>
+<br>
+<br>
+浏览器：
+<br>
+网页上的输入区域默认只能粘贴纯文本内容，也就是 <span class="blue">text/plain</span>。
+<br>
+某些网页应用程序可能有针对性优化，例如在 Discord 里你可以粘贴图片 <span class="blue">image/png</span>；在 Gmail 里你可以同时粘贴图片和文字，也就是 <span class="blue">text/html</span>。
+<br>
+<br>
+Microsoft Word：
+<br>
+它会优先采用 <span class="blue">text/html</span> 格式的内容，其次是 <span class="blue">image/png</span>，最后是 <span class="blue">text/plain</span>。
+<br>
+<br>
+Telegram：
+<br>
+它不支持 <span class="blue">text/html</span> 格式，所以你无法在 Telegram 里同时粘贴图片和文字。
+<br>
+其他格式的优先级是：<span class="blue">image/png</span>、<span class="blue">text/plain</span>。
+<br>
+<br>
+QQ、微信：
+<br>
+它们的优先级是：<span class="blue">image/png</span>、<span class="blue">text/html</span>、<span class="blue">text/plain</span>。
+<br>
+如果你想在 QQ、微信里同时粘贴图片和文字，应该选择 <span class="blue">text/html</span>，并且取消勾选 <span class="blue">image/png</span>，否则它们只会粘贴图片。
+<br>
+但是 QQ 的当前版本 9.9.21 存在 Bug，粘贴图文混合内容时，图片会加载失败，并导致消息发送失败。QQ 的旧版本和微信没有上述的 Bug。
+<br>
+如果你遇到了这个 Bug，可以从 QQ 官网下载 9.9.20 版本的安装文件:
+<br>
+<a href="https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.20_250616_x64_01.exe" target="_blank" rel="noopener noreferrer">https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.20_250616_x64_01.exe</a>
+<br>
+然后退出 QQ，安装旧版本的 exe 文件，就可以发送图文混合消息了。
+<br>
+<br>
+Android 应用：
+<br>
+Android 上的某些应用虽然可以粘贴 <span class="blue">text/html</span> 内容，但图片可能无法显示。
+<br>
+<br>`,
+    `你可以根據自己的需要選擇複製的內容。
+<br>
+<br>
+<strong>每種格式的說明：</strong>
+<br>
+- <span class="blue">image/png</span> 複製作品的縮略圖。預設未選擇，因為它在某些社交軟體裡的優先級太高，會導致 <span class="blue">text/html</span> 格式的內容被忽略。
+<br>
+- <span class="blue">text/plain</span> 複製作品的文字資訊。幾乎所有應用程式都支援貼上純文字內容。
+<br>
+- <span class="blue">text/html</span> 同時複製作品的縮略圖和文字資訊。這是富文字格式，同時包含了上面兩種內容。
+<br>
+<br>
+<strong>提示：</strong>
+<br>
+- 這個功能在設計時的重點是同時複製圖片和文字內容（<span class="blue">text/html</span>），以便於分享或存檔，但實際效果取決於目標應用。有些應用可能不支援此格式，或者無法正確顯示圖片。
+<br>
+- 你可以同時選擇多種格式，也就是同時複製多種內容。但是當你在應用程式裡貼上時，應用程式只會使用其中<strong>一種</strong>內容，也就是優先級最高的格式。其他格式的內容會被忽略。
+<br>
+- 在不同的應用程式裡，優先級可能會不同。這與下載器無關。
+<br>
+- 例如：如果你同時複製了 <span class="blue">image/png</span> 和 <span class="blue">text/html</span> 內容，某些應用程式會使用前者，但某些應用程式可能會使用後者。如果貼上的內容不符合你的預期，你可以取消選擇其中一種格式。
+<br>
+<br>
+<strong>一些具體的例子：</strong>
+<br>
+<br>
+瀏覽器：
+<br>
+網頁上的輸入區域預設只能貼上純文字內容，也就是 <span class="blue">text/plain</span>。
+<br>
+某些網頁應用程式可能有針對性優化，例如在 Discord 裡你可以貼上圖片 <span class="blue">image/png</span>；在 Gmail 裡你可以同時貼上圖片和文字，也就是 <span class="blue">text/html</span>。
+<br>
+<br>
+Microsoft Word：
+<br>
+它會優先採用 <span class="blue">text/html</span> 格式的內容，其次是 <span class="blue">image/png</span>，最後是 <span class="blue">text/plain</span>。
+<br>
+<br>
+Telegram：
+<br>
+它不支援 <span class="blue">text/html</span> 格式，所以你無法在 Telegram 裡同時貼上圖片和文字。
+<br>
+其他格式的優先級是：<span class="blue">image/png</span>、<span class="blue">text/plain</span>。
+<br>
+<br>
+QQ、微信：
+<br>
+它們的優先級是：<span class="blue">image/png</span>、<span class="blue">text/html</span>、<span class="blue">text/plain</span>。
+<br>
+如果你想在 QQ、微信裡同時貼上圖片和文字，應該選擇 <span class="blue">text/html</span>，並且取消勾選 <span class="blue">image/png</span>，否則它們只會貼上圖片。
+<br>
+但是 QQ 的當前版本 9.9.21 存在 Bug，貼上圖文混合內容時，圖片會載入失敗，並導致訊息發送失敗。QQ 的舊版本和微信沒有上述的 Bug。
+<br>
+如果你遇到了這個 Bug，可以從 QQ 官網下載 9.9.20 版本的安裝文件:
+<br>
+<a href="https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.20_250616_x64_01.exe" target="_blank" rel="noopener noreferrer">https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.20_250616_x64_01.exe</a>
+<br>
+然後退出 QQ，安裝舊版本的 exe 文件，就可以發送圖文混合訊息了。
+<br>
+<br>
+Android 應用：
+<br>
+Android 上的某些應用雖然可以貼上 <span class="blue">text/html</span> 內容，但圖片可能無法顯示。
+<br>
+<br>`,
+    `You can select the content to copy based on your needs.
+<br>
+<br>
+<strong>Explanation of each format:</strong>
+<br>
+- <span class="blue">image/png</span> Copies the work's thumbnail. Not selected by default, because its priority in some social software is too high, which may cause the <span class="blue">text/html</span> format content to be ignored.
+<br>
+- <span class="blue">text/plain</span> Copies the work's text information. Almost all applications support pasting plain text content.
+<br>
+- <span class="blue">text/html</span> Copies both the work's thumbnail and text information simultaneously. This is a rich text format that includes both of the above contents.
+<br>
+<br>
+<strong>Tips:</strong>
+<br>
+- The focus of this feature's design is to copy both image and text content simultaneously (<span class="blue">text/html</span>), for easy sharing or archiving, but the actual effect depends on the target application. Some applications may not support this format or may not display the image correctly.
+<br>
+- You can select multiple formats at the same time, which means copying multiple contents simultaneously. However, when you paste in an application, the application will only use <strong>one</strong> of them, namely the format with the highest priority. The content of other formats will be ignored.
+<br>
+- The priority may differ in different applications. This has nothing to do with the downloader.
+<br>
+- For example: If you copy both <span class="blue">image/png</span> and <span class="blue">text/html</span> content, some applications will use the former, but some may use the latter. If the pasted content does not meet your expectations, you can unselect one of the formats.
+<br>
+<br>
+<strong>Some specific examples:</strong>
+<br>
+<br>
+Browser:
+<br>
+The input area on a webpage can only paste plain text content by default, which is <span class="blue">text/plain</span>.
+<br>
+Some web applications may have targeted optimizations, for example, in Discord you can paste images <span class="blue">image/png</span>; in Gmail you can paste both images and text, which is <span class="blue">text/html</span>.
+<br>
+<br>
+Microsoft Word:
+<br>
+It prioritizes the <span class="blue">text/html</span> format content, followed by <span class="blue">image/png</span>, and finally <span class="blue">text/plain</span>.
+<br>
+<br>
+Telegram:
+<br>
+It does not support the <span class="blue">text/html</span> format, so you cannot paste both images and text in Telegram at the same time.
+<br>
+The priority of other formats is: <span class="blue">image/png</span>, <span class="blue">text/plain</span>.
+<br>
+<br>
+QQ, WeChat:
+<br>
+Their priority is: <span class="blue">image/png</span>, <span class="blue">text/html</span>, <span class="blue">text/plain</span>.
+<br>
+If you want to paste both images and text in QQ or WeChat, you should select <span class="blue">text/html</span> and uncheck <span class="blue">image/png</span>; otherwise, they will only paste the image.
+<br>
+<br>
+Android apps:
+<br>
+Some apps on Android can paste <span class="blue">text/html</span> content, but the image may not display properly.
+<br>
+<br>`,
+    `自分のニーズに応じてコピーする内容を選択できます。
+<br>
+<br>
+<strong>各フォーマットの説明：</strong>
+<br>
+- <span class="blue">image/png</span> 作品のサムネイルをコピーします。デフォルトでは選択されていません。特定のソーシャルソフトウェアでの優先度が非常に高いため、<span class="blue">text/html</span> 形式の内容が無視される可能性があるからです。
+<br>
+- <span class="blue">text/plain</span> 作品のテキスト情報をコピーします。ほぼすべてのアプリケーションがプレーンテキスト内容の貼り付けをサポートしています。
+<br>
+- <span class="blue">text/html</span> 作品のサムネイルとテキスト情報を同時にコピーします。これはリッチテキスト形式で、上記の2つの内容の両方を含んでいます。
+<br>
+<br>
+<strong>ヒント：</strong>
+<br>
+- この機能の設計の焦点は、画像とテキスト内容を同時にコピーすること（<span class="blue">text/html</span>）で、共有やアーカイブを容易にしますが、実際の効果は対象アプリケーションに依存します。一部のアプリケーションはこの形式をサポートしていないか、画像を正しく表示できない場合があります。
+<br>
+- 複数のフォーマットを同時に選択できます。つまり、複数の内容を同時にコピーします。ただし、アプリケーションに貼り付けると、アプリケーションはその中で<strong>1つ</strong>のみを使用します。つまり、優先度が最も高いフォーマットです。他のフォーマット的内容は無視されます。
+<br>
+- 異なるアプリケーションでは優先度が異なる可能性があります。これはダウンロードツールとは関係ありません。
+<br>
+- 例： <span class="blue">image/png</span> と <span class="blue">text/html</span> の両方をコピーした場合、一部のアプリケーションは前者を使用しますが、一部のアプリケーションは後者を使用する可能性があります。貼り付けられた内容が期待に沿わない場合、フォーマットの1つを選択解除できます。
+<br>
+<br>
+<strong>具体的な例：</strong>
+<br>
+<br>
+ブラウザ：
+<br>
+ウェブページの入力エリアはデフォルトでプレーンテキスト内容のみ貼り付け可能で、<span class="blue">text/plain</span> です。
+<br>
+一部のウェブアプリケーションは対象を最適化している可能性があり、例えば Discord では画像 <span class="blue">image/png</span> を貼り付けられます；Gmail では画像とテキストの両方を同時に貼り付けられます。つまり <span class="blue">text/html</span> です。
+<br>
+<br>
+Microsoft Word：
+<br>
+<span class="blue">text/html</span> 形式の内容を優先し、次に <span class="blue">image/png</span>、最後に <span class="blue">text/plain</span> を採用します。
+<br>
+<br>
+Telegram：
+<br>
+<span class="blue">text/html</span> 形式をサポートしていないため、Telegram で画像とテキストを同時に貼り付けることはできません。
+<br>
+他のフォーマットの優先度は：<span class="blue">image/png</span>、<span class="blue">text/plain</span>。
+<br>
+<br>
+QQ、WeChat：
+<br>
+優先度は：<span class="blue">image/png</span>、<span class="blue">text/html</span>、<span class="blue">text/plain</span>。
+<br>
+QQ や WeChat で画像とテキストを同時に貼り付けたい場合、<span class="blue">text/html</span> を選択し、<span class="blue">image/png</span> のチェックを外してください。さもないと画像のみが貼り付けられます。
+<br>
+<br>
+Android アプリ：
+<br>
+Android の一部のアプリは <span class="blue">text/html</span> 内容を貼り付けられますが、画像が正しく表示されない場合があります。
+<br>
+<br>`,
+    `자신의 필요에 따라 복사할 내용을 선택할 수 있습니다.
+<br>
+<br>
+<strong>각 형식의 설명:</strong>
+<br>
+- <span class="blue">image/png</span> 작품의 썸네일을 복사합니다. 기본적으로 선택되지 않으며, 일부 소셜 소프트웨어에서 우선순위가 너무 높아 <span class="blue">text/html</span> 형식의 내용이 무시될 수 있기 때문입니다.
+<br>
+- <span class="blue">text/plain</span> 작품의 텍스트 정보를 복사합니다. 거의 모든 응용 프로그램이 순수 텍스트 내용을 붙여넣기를 지원합니다.
+<br>
+- <span class="blue">text/html</span> 작품의 썸네일과 텍스트 정보를 동시에 복사합니다. 이는 리치 텍스트 형식으로 위의 두 가지 내용을 모두 포함합니다.
+<br>
+<br>
+<strong>팁:</strong>
+<br>
+- 이 기능의 설계 초점은 이미지와 텍스트 내용을 동시에 복사하는 것(<span class="blue">text/html</span>)으로, 공유나 아카이빙을 용이하게 하지만 실제 효과는 대상 응용 프로그램에 따라 다릅니다. 일부 응용 프로그램은 이 형식을 지원하지 않거나 이미지를 올바르게 표시하지 못할 수 있습니다.
+<br>
+- 여러 형식을 동시에 선택할 수 있으며, 이는 여러 내용을 동시에 복사하는 것을 의미합니다. 그러나 응용 프로그램에 붙여넣을 때 응용 프로그램은 그중 <strong>하나</strong>만 사용합니다. 즉, 우선순위가 가장 높은 형식입니다. 다른 형식의 내용은 무시됩니다.
+<br>
+- 다른 응용 프로그램에서는 우선순위가 다를 수 있습니다. 이는 다운로더와 무관합니다.
+<br>
+- 예: <span class="blue">image/png</span>과 <span class="blue">text/html</span> 내용을 동시에 복사하면 일부 응용 프로그램은 전자를 사용하지만 일부는 후자를 사용할 수 있습니다. 붙여넣은 내용이 기대에 맞지 않으면 해당 형식 중 하나를 선택 해제할 수 있습니다.
+<br>
+<br>
+<strong>구체적인 예시:</strong>
+<br>
+<br>
+브라우저:
+<br>
+웹페이지의 입력 영역은 기본적으로 순수 텍스트 내용만 붙여넣을 수 있으며, 이는 <span class="blue">text/plain</span>입니다.
+<br>
+일부 웹 응용 프로그램은 대상에 맞게 최적화될 수 있으며, 예를 들어 Discord에서는 이미지 <span class="blue">image/png</span>을 붙여넣을 수 있습니다; Gmail에서는 이미지와 텍스트를 동시에 붙여넣을 수 있으며, 이는 <span class="blue">text/html</span>입니다.
+<br>
+<br>
+Microsoft Word:
+<br>
+<span class="blue">text/html</span> 형식의 내용을 우선 채택하며, 그 다음 <span class="blue">image/png</span>, 마지막으로 <span class="blue">text/plain</span>입니다.
+<br>
+<br>
+Telegram:
+<br>
+<span class="blue">text/html</span> 형식을 지원하지 않으므로 Telegram에서 이미지와 텍스트를 동시에 붙여넣을 수 없습니다.
+<br>
+다른 형식의 우선순위는: <span class="blue">image/png</span>, <span class="blue">text/plain</span>.
+<br>
+<br>
+QQ, WeChat:
+<br>
+우선순위는: <span class="blue">image/png</span>, <span class="blue">text/html</span>, <span class="blue">text/plain</span>.
+<br>
+QQ나 WeChat에서 이미지와 텍스트를 동시에 붙여넣고 싶다면 <span class="blue">text/html</span>을 선택하고 <span class="blue">image/png</span>의 체크를 해제하세요. 그렇지 않으면 이미지만 붙여넣습니다.
+<br>
+<br>
+Android 앱:
+<br>
+Android의 일부 앱은 <span class="blue">text/html</span> 내용을 붙여넣을 수 있지만 이미지가 제대로 표시되지 않을 수 있습니다。
+<br>
+<br>`,
+    `Вы можете выбрать содержимое для копирования в соответствии со своими потребностями.
+<br>
+<br>
+<strong>Описание каждого формата:</strong>
+<br>
+- <span class="blue">image/png</span> Копирует миниатюру работы. По умолчанию не выбрано, поскольку его приоритет в некоторых социальных программах слишком высок, что может привести к игнорированию содержимого формата <span class="blue">text/html</span>.
+<br>
+- <span class="blue">text/plain</span> Копирует текстовую информацию работы. Почти все приложения поддерживают вставку чистого текстового содержимого.
+<br>
+- <span class="blue">text/html</span> Одновременно копирует миниатюру работы и текстовую информацию. Это формат rich text, который включает оба вышеуказанных содержимых.
+<br>
+<br>
+<strong>Советы:</strong>
+<br>
+- Основной акцент в дизайне этой функции — одновременное копирование изображения и текстового содержимого (<span class="blue">text/html</span>) для удобного обмена или архивирования, но реальный эффект зависит от целевого приложения. Некоторые приложения могут не поддерживать этот формат или не отображать изображение правильно.
+<br>
+- Вы можете выбрать несколько форматов одновременно, что означает копирование нескольких содержимых. Однако при вставке в приложение оно использует только <strong>одно</strong> из них — формат с наивысшим приоритетом. Содержимое других форматов будет проигнорировано.
+<br>
+- В разных приложениях приоритет может отличаться. Это не связано с загрузчиком.
+<br>
+- Например: если вы скопируете содержимое <span class="blue">image/png</span> и <span class="blue">text/html</span>, некоторые приложения будут использовать первое, но другие — второе. Если вставленное содержимое не соответствует вашим ожиданиям, вы можете отменить выбор одного из форматов.
+<br>
+<br>
+<strong>Некоторые конкретные примеры:</strong>
+<br>
+<br>
+Браузер:
+<br>
+Область ввода на веб-странице по умолчанию может вставлять только чистый текст, то есть <span class="blue">text/plain</span>.
+<br>
+Некоторые веб-приложения могут иметь целевую оптимизацию, например, в Discord вы можете вставить изображение <span class="blue">image/png</span>; в Gmail вы можете вставить изображение и текст одновременно, то есть <span class="blue">text/html</span>.
+<br>
+<br>
+Microsoft Word:
+<br>
+Он отдаст предпочтение содержимому формата <span class="blue">text/html</span>, затем <span class="blue">image/png</span>, и наконец <span class="blue">text/plain</span>.
+<br>
+<br>
+Telegram:
+<br>
+Он не поддерживает формат <span class="blue">text/html</span>, поэтому вы не можете вставить изображение и текст одновременно в Telegram.
+<br>
+Приоритет других форматов: <span class="blue">image/png</span>, <span class="blue">text/plain</span>.
+<br>
+<br>
+QQ, WeChat:
+<br>
+Их приоритет: <span class="blue">image/png</span>, <span class="blue">text/html</span>, <span class="blue">text/plain</span>.
+<br>
+Если вы хотите вставить изображение и текст одновременно в QQ или WeChat, выберите <span class="blue">text/html</span> и снимите галочку с <span class="blue">image/png</span>; иначе они вставят только изображение.
+<br>
+<br>
+Приложения для Android:
+<br>
+Некоторые приложения на Android могут вставлять содержимое <span class="blue">text/html</span>, но изображение может не отображаться правильно。
+<br>
+<br>`,
+  ],
+  _文本格式: [
+    `文本格式`,
+    `文字格式`,
+    `Text format`,
+    `テキスト形式`,
+    `텍스트 형식`,
+    `Текстовый формат`,
+  ],
   _正在加载缩略图: [
     `正在加载缩略图`,
     `正在載入縮略圖`,
@@ -5890,6 +6322,16 @@ P.S. Работы заблокированных пользователей не
     `サムネイルを読み込み中`,
     `썸네일 로딩 중`,
     `Загрузка миниатюры`,
+  ],
+  _说明: [`说明`, `說明`, `Explanation`, `説明`, `설명`, `Описание`],
+  _帮助: [`帮助`, `幫助`, `Help`, `ヘルプ`, `도움말`, `Справка`],
+  _至少需要选择一种复制格式: [
+    `至少需要选择一种复制格式`,
+    `至少需要選擇一種複製格式`,
+    `At least one copy format must be selected`,
+    `少なくとも1つのコピー形式を選択する必要があります`,
+    `최소 한 가지 복사 형식을 선택해야 합니다`,
+    `Необходимо выбрать хотя бы один формат копирования`,
   ],
 }
 
@@ -5906,7 +6348,7 @@ export { langText }
 // - 输出内容保存在一个 JavaScript 代码块里。
 // - 代码的内容就是翻译后的数组。不需要把数组保存到一个变量里。
 // - 字符串使用反引号 ` 包裹。
-// - 数组的最后一项后面保留逗号。
+// - 数组的最后一条语句后面需要添加逗号。这是 JS 语法里数组项后面的逗号，不要添加到语句里。
 // - 翻译的语句后面不需要添加注释。
 
 // 备注：

@@ -75,7 +75,7 @@
   .textButton {
     border: none;
     background: none;
-    padding: 1px 6px;
+    padding: 0px 6px;
     cursor: pointer;
   }
 
@@ -871,6 +871,14 @@
   }
 }
 
+.centerWrap.theme-white {
+  // 对于选项名称，在默认的亮色主题里，设置更深的文字颜色，以和选项的内容做出区分
+  // 目前选项名称是 #333, 选项内容是 #444
+  p.option > .settingNameStyle {
+    color: #333;
+  }
+}
+
 .centerWrap.mobile {
   width: 90vw;
   left: -45vw;
@@ -924,201 +932,197 @@
   }
 }
 
-.theme-dark {
-  &.centerWrap {
-    background: #222;
-    box-shadow: @darkBoxShadow 0px 0px 15px;
+.centerWrap.theme-dark {
+  background: #222;
+  box-shadow: @darkBoxShadow 0px 0px 15px;
+  color: #fff;
+
+  p.option > .settingNameStyle {
+    color: inherit;
+  }
+
+  button,
+  .tip {
+    color: #fff;
+  }
+
+  .gray1 {
+    color: #bbb;
+  }
+
+  .blue,
+  .has_tip:hover,
+  label:hover,
+  .title.active,
+  .title:hover,
+  .down_status {
+    color: @beautifyBlue !important;
+  }
+
+  .centerWrap_top_btn:hover,
+  .centerWrap_top_btn:focus,
+  .showFileNameTip:hover,
+  .showFileNameTip:focus,
+  .textButton:hover,
+  .textButton:focus,
+  .help_bar > *:hover,
+  .updateActiveClass {
+    color: @beautifyBlue !important;
+    fill: @beautifyBlue !important;
+  }
+
+  .grayButton {
+    background-color: #aaa;
+  }
+
+  .grayButton:hover,
+  .grayButton:focus {
+    background: @beautifyBlue;
+    color: #fff !important;
+  }
+
+  .saveNamingRuleWrap {
     color: #fff;
 
-    button,
-    .tip {
+    button {
       color: #fff;
     }
 
-    .gray1 {
-      color: #bbb;
-    }
+    .namingRuleList {
+      background: #222;
+      box-shadow: @darkBoxShadow 0px 0px 10px;
 
-    .blue,
-    .has_tip:hover,
-    label:hover,
-    .title.active,
-    .title:hover,
-    .down_status {
-      color: @beautifyBlue !important;
-    }
-
-    .centerWrap_top_btn:hover,
-    .centerWrap_top_btn:focus,
-    .showFileNameTip:hover,
-    .showFileNameTip:focus,
-    .textButton:hover,
-    .textButton:focus,
-    .help_bar > *:hover,
-    .updateActiveClass {
-      color: @beautifyBlue !important;
-      fill: @beautifyBlue !important;
-    }
-
-    .grayButton {
-      background-color: #aaa;
-    }
-
-    .grayButton:hover,
-    .grayButton:focus {
-      background: @beautifyBlue;
-      color: #fff !important;
-    }
-
-    .saveNamingRuleWrap {
-      color: #fff;
-
-      button {
+      li {
         color: #fff;
       }
 
-      .namingRuleList {
-        background: #222;
-        box-shadow: @darkBoxShadow 0px 0px 10px;
-
-        li {
-          color: #fff;
-        }
-
-        li:hover {
-          background: #333;
-        }
+      li:hover {
+        background: #333;
       }
     }
+  }
 
-    .centerWrap_btns {
-      & button {
-        box-shadow: none !important;
-      }
+  .centerWrap_btns {
+    & button {
+      box-shadow: none !important;
     }
+  }
 
-    .settingCategoryName {
-      span {
-        color: @beautifyBlue !important;
-        text-shadow: none !important;
-      }
+  .settingCategoryName {
+    span {
+      color: @beautifyBlue !important;
+      text-shadow: none !important;
     }
   }
 }
 
-.downloadError {
-  color: rgb(255, 160, 160);
-}
+// 当设置了背景图片时，不管是什么主题，都把中间面板的样式修改为 Dark 主题的样式，并且添加文字阴影，使文字更容易阅读
+.centerWrap.xzBG {
+  // text-shadow: 0px 0px 5px #015d88;
+  text-shadow: #003247 0px 0px 2px;
 
-.patronText {
-  display: none;
-}
+  box-shadow: @darkBoxShadow 0px 0px 15px;
+  background: #222;
+  color: #fff;
 
-.xzBG {
-  // 当设置了背景图片时，不管是什么主题，都把中间面板的样式修改为 Dark 主题的样式，并且添加文字阴影，使文字更容易阅读
-  &.centerWrap {
-    // text-shadow: 0px 0px 5px #015d88;
+  p.option > .settingNameStyle {
+    color: inherit;
+  }
+
+  button,
+  .tip {
+    color: #fff;
+  }
+
+  .gray1,
+  .centerWrap_top_btn {
+    color: #eee !important;
     text-shadow: #003247 0px 0px 2px;
+  }
 
-    box-shadow: @darkBoxShadow 0px 0px 15px;
-    background: #222;
+  .blue,
+  .has_tip:hover,
+  label,
+  label:hover,
+  .title.active,
+  .title:hover,
+  .down_status,
+  .centerPanelTextArea,
+  .download_status_text_wrap span {
+    // color: @beautifyBlue !important;
+    color: #fff !important;
+  }
+
+  .centerWrap_top_btn:hover,
+  .centerWrap_top_btn:focus,
+  .showFileNameTip:hover,
+  .showFileNameTip:focus,
+  .textButton:hover,
+  .textButton:focus,
+  .help_bar > *:hover,
+  .updateActiveClass {
+    color: #fff !important;
+    fill: #fff !important;
+  }
+
+  .grayButton {
+    background-color: #666;
+  }
+
+  .grayButton:hover,
+  .grayButton:focus {
+    background: @beautifyBlue;
+    color: #fff !important;
+  }
+
+  .centerWrap_con {
+    .settingForm select {
+      background: transparent;
+    }
+  }
+
+  .progressBar {
+    background-color: #6e9dad !important;
+  }
+
+  .saveNamingRuleWrap {
     color: #fff;
 
-    button,
-    .tip {
+    button {
+      color: #fff;
+      text-shadow: none;
+    }
+
+    .namingRuleList {
+      text-shadow: none;
+      opacity: 0.9 !important;
+    }
+  }
+
+  .centerWrap_btns {
+    & button {
+      box-shadow: none !important;
+    }
+  }
+
+  &.showBlobKeywords {
+    .key {
       color: #fff;
     }
+  }
 
-    .gray1,
-    .centerWrap_top_btn {
-      color: #eee !important;
-      text-shadow: #003247 0px 0px 2px;
+  .settingCategoryName {
+    span {
+      color: @beautifyBlue !important;
+      text-shadow: none !important;
+      // 如果用户设置了背景图片，则使分类名称的背景色变为半透明白色，并添加模糊效果，使其更加美观
+      // 如果不使用半透明白色，而是使用纯白色，则会遮挡住背景图片，影响美观
+      background-color: rgba(255, 255, 255, 0.8) !important;
+      backdrop-filter: blur(3px) !important;
     }
 
-    .blue,
-    .has_tip:hover,
-    label,
-    label:hover,
-    .title.active,
-    .title:hover,
-    .down_status,
-    .centerPanelTextArea,
-    .download_status_text_wrap span {
-      // color: @beautifyBlue !important;
-      color: #fff !important;
-    }
-
-    .centerWrap_top_btn:hover,
-    .centerWrap_top_btn:focus,
-    .showFileNameTip:hover,
-    .showFileNameTip:focus,
-    .textButton:hover,
-    .textButton:focus,
-    .help_bar > *:hover,
-    .updateActiveClass {
-      color: #fff !important;
-      fill: #fff !important;
-    }
-
-    .grayButton {
-      background-color: #666;
-    }
-
-    .grayButton:hover,
-    .grayButton:focus {
-      background: @beautifyBlue;
-      color: #fff !important;
-    }
-
-    .centerWrap_con {
-      .settingForm select {
-        background: transparent;
-      }
-    }
-
-    .progressBar {
-      background-color: #6e9dad !important;
-    }
-
-    .saveNamingRuleWrap {
-      color: #fff;
-
-      button {
-        color: #fff;
-        text-shadow: none;
-      }
-
-      .namingRuleList {
-        text-shadow: none;
-        opacity: 0.9 !important;
-      }
-    }
-
-    .centerWrap_btns {
-      & button {
-        box-shadow: none !important;
-      }
-    }
-
-    &.showBlobKeywords {
-      .key {
-        color: #fff;
-      }
-    }
-
-    .settingCategoryName {
-      span {
-        color: @beautifyBlue !important;
-        text-shadow: none !important;
-        // 如果用户设置了背景图片，则使分类名称的背景色变为半透明白色，并添加模糊效果，使其更加美观
-        // 如果不使用半透明白色，而是使用纯白色，则会遮挡住背景图片，影响美观
-        background-color: rgba(255, 255, 255, 0.8) !important;
-        backdrop-filter: blur(3px) !important;
-      }
-
-      &::after {
-        background-color: rgba(255, 255, 255, 0.8) !important;
-      }
+    &::after {
+      background-color: rgba(255, 255, 255, 0.8) !important;
     }
   }
 }
@@ -1128,6 +1132,10 @@
     font-weight: bold;
     color: @themeBlue;
   }
+}
+
+.downloadError {
+  color: rgb(255, 160, 160);
 }
 
 .theme-dark {

@@ -235,6 +235,17 @@ class Form {
         )
       )
 
+    // 下面是通过 msgBox 显示的帮助
+
+    // 显示复制按钮所复制的内容的提示
+    this.form
+      .querySelector('#showCopyWorkDataTip')!
+      .addEventListener('click', () => {
+        msgBox.show(lang.transl('_对复制的内容的说明'), {
+          title: lang.transl('_复制内容'),
+        })
+      })
+
     // 显示用户阻止名单的提示
     this.form
       .querySelector('#showRemoveBlockedUsersWorkTip')!

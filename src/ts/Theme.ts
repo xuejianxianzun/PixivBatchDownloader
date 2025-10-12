@@ -20,17 +20,14 @@ class Theme {
 
   private settingTheme = '' // 保存用户设置的下载器主题
 
+  private elList: Element[] = [] // 保存已注册的元素
+
   // 主题标记以及对应的 className
   // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
-  // 默认主题 white 是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
   private readonly classNameMap = new Map([
-    ['white', ''],
+    ['white', 'theme-white'],
     ['dark', 'theme-dark'],
   ])
-
-  private readonly selector = '#gtm-var-theme-kind' // 通过这个选择器查找含有主题标记的元素
-
-  private timer = 0
 
   // 页面上储存的主题标记，与本组件里的主题的对应关系
   private readonly htmlFlagMap: Map<string, ThemeName> = new Map([
@@ -40,7 +37,8 @@ class Theme {
     ['dark', 'dark'],
   ])
 
-  private elList: Element[] = [] // 保存已注册的元素
+  private readonly selector = '#gtm-var-theme-kind' // 通过这个选择器查找含有主题标记的元素
+  private timer = 0
 
   private bindEvents() {
     // 主题设置变化时修改主题

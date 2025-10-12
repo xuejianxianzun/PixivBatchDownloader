@@ -1,3 +1,5 @@
+@import './var.less';
+
 .xz_PreviewWorkDetailPanel {
   background: #fff;
   box-shadow: 0 0 15px @boxShadowBlue;
@@ -101,16 +103,35 @@
       color: #999;
     }
 
+    .buttons {
+      display: flex;
+      align-items: center;
+    }
+
     .textButton {
       font-size: 12px;
       color: #999;
       background: none;
-      padding: 1px 2px;
+      padding: 0px 2px;
+      margin-right: 6px;
       cursor: pointer;
       border: none;
+      height: 2em;
+      max-height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
 
       &:hover {
         color: rgb(14, 168, 239);
+      }
+
+      &#copyBtn {
+        padding: 0 4px;
+        svg {
+          width: 1.4em;
+          height: 1.4em;
+        }
       }
     }
   }
@@ -134,7 +155,7 @@
       }
 
       .origin a {
-        color: #3d7699;
+        color: rgb(14, 168, 239);
       }
 
       .transl a {

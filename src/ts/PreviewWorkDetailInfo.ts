@@ -6,6 +6,7 @@ import { Tools } from './Tools'
 import { Utils } from './utils/Utils'
 import { lang } from './Language'
 import { toast } from './Toast'
+import { copyWorkInfo } from './CopyWorkInfo'
 
 // 预览作品的详细信息
 // 这个模块由 PreviewWork 提供作品数据，这样可以避免一些重复代码
@@ -143,19 +144,35 @@ class PreviewWorkDetailInfo {
             <button class="textButton" id="copyTXT">Copy TXT</button>
             <button class="textButton" id="copyJSON">Copy JSON</button>
             <button class="textButton" id="copyURL">Copy URL</button>
-            <button class="textButton" id="copyURL">Copy URL</button>
+            <button class="textButton" id="copyBtn">
+              <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-copy"></use>
+              </svg>
+            </button>
           </p>
         </div>
       `
 
     // 按钮功能
-    const copyTXT = wrap.querySelector('#copyTXT') as HTMLButtonElement
-    copyTXT.addEventListener('click', () => {
+    wrap.querySelector('#copyTXT')!.addEventListener('click', () => {
       this.copyTXT(workData)
     })
-    const copyJSON = wrap.querySelector('#copyJSON') as HTMLButtonElement
-    copyJSON.addEventListener('click', () => {
+
+    wrap.querySelector('#copyJSON')!.addEventListener('click', () => {
       this.copyJSON(workData)
+    })
+
+    wrap.querySelector('#copyURL')!.addEventListener('click', () => {
+      const url = `https://www.pixiv.net/i/${workData.body.id}`
+      window.navigator.clipboard.writeText(url)
+      toast.success(lang.transl('_已复制到剪贴板'))
+    })
+
+    wrap.querySelector('#copyBtn')!.addEventListener('click', () => {
+      copyWorkInfo.receive({
+        id: workData.body.id,
+        type: 'illusts',
+      })
     })
 
     // 取消超链接的跳转确认，也就是把跳转链接替换为真正的链接

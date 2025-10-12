@@ -1047,21 +1047,30 @@ export const formHtml = `
     </p>
     <p class="option" data-no="14">
       <a href="${wiki.link(14)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示复制按钮的提示">
-        <span data-xztext="_显示复制按钮"></span>
+        <span data-xztext="_复制按钮"></span>
         <span class="gray1"> ? </span>
       </a>
-      <input type="checkbox" name="showCopyBtnOnThumb" class="need_beautify checkbox_switch">
+      <label for="showCopyBtnOnThumb" data-xztext="_在缩略图上显示"></label>
+      <input type="checkbox" name="showCopyBtnOnThumb" id="showCopyBtnOnThumb" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="showCopyBtnOnThumb">
-        <label for="copyThumb" class="has_tip" data-xztext="_复制缩略图"></label>
-        <input type="checkbox" name="copyThumb" id="copyThumb" class="need_beautify checkbox_switch" checked>
-        <span class="beautify_switch" tabindex="0"></span>
-        <span class="verticalSplit"></span>
-        <span data-xztext="_内容格式"></span>
-        &nbsp;
-        <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:250px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
-        <button type="button" class="gray1 textButton showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
-      </span>
+      <span class="verticalSplit"></span>
+      
+      <span data-xztext="_复制内容"></span>:&nbsp;
+      <input type="checkbox" name="copyFormatImage" id="setCopyFormatImage" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="setCopyFormatImage">image/png</label>
+      <input type="checkbox" name="copyFormatText" id="setCopyFormatText" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="setCopyFormatText">text/plain</label>
+      <input type="checkbox" name="copyFormatHtml" id="setCopyFormatHtml" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="setCopyFormatHtml">text/html</label>
+      <button type="button" class="gray1 textButton" id="showCopyWorkDataTip" data-xztext="_帮助"></button>
+      <span class="verticalSplit"></span>
+      
+      <span data-xztext="_文本格式"></span>:&nbsp;
+      <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:100%;max-width:350px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
+      <button type="button" class="gray1 textButton showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
     </p>
     <p class="copyWorkInfoFormatTip tip" style="display:none">
       <span data-xztext="_复制内容的格式的提示"></span>
