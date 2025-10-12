@@ -518,7 +518,7 @@ body.mobile #quickCrawlBtn {
 .centerWrap .textButton {
   border: none;
   background: none;
-  padding: 1px 6px;
+  padding: 0px 6px;
   cursor: pointer;
 }
 .centerWrap .grayButton {
@@ -1166,6 +1166,9 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con input[name='bgOpacity'] {
   margin: 5px 0;
 }
+.centerWrap.theme-white p.option > .settingNameStyle {
+  color: #333;
+}
 .centerWrap.mobile {
   width: 90vw;
   left: -45vw;
@@ -1206,154 +1209,157 @@ body.mobile #quickCrawlBtn {
   line-height: 24px;
   padding: 12px 16px;
 }
-.theme-dark.centerWrap {
+.centerWrap.theme-dark {
   background: #222;
   box-shadow: #10506e 0px 0px 15px;
   color: #fff;
 }
-.theme-dark.centerWrap button,
-.theme-dark.centerWrap .tip {
+.centerWrap.theme-dark p.option > .settingNameStyle {
+  color: inherit;
+}
+.centerWrap.theme-dark button,
+.centerWrap.theme-dark .tip {
   color: #fff;
 }
-.theme-dark.centerWrap .gray1 {
+.centerWrap.theme-dark .gray1 {
   color: #bbb;
 }
-.theme-dark.centerWrap .blue,
-.theme-dark.centerWrap .has_tip:hover,
-.theme-dark.centerWrap label:hover,
-.theme-dark.centerWrap .title.active,
-.theme-dark.centerWrap .title:hover,
-.theme-dark.centerWrap .down_status {
+.centerWrap.theme-dark .blue,
+.centerWrap.theme-dark .has_tip:hover,
+.centerWrap.theme-dark label:hover,
+.centerWrap.theme-dark .title.active,
+.centerWrap.theme-dark .title:hover,
+.centerWrap.theme-dark .down_status {
   color: #29b3f3 !important;
 }
-.theme-dark.centerWrap .centerWrap_top_btn:hover,
-.theme-dark.centerWrap .centerWrap_top_btn:focus,
-.theme-dark.centerWrap .showFileNameTip:hover,
-.theme-dark.centerWrap .showFileNameTip:focus,
-.theme-dark.centerWrap .textButton:hover,
-.theme-dark.centerWrap .textButton:focus,
-.theme-dark.centerWrap .help_bar > *:hover,
-.theme-dark.centerWrap .updateActiveClass {
+.centerWrap.theme-dark .centerWrap_top_btn:hover,
+.centerWrap.theme-dark .centerWrap_top_btn:focus,
+.centerWrap.theme-dark .showFileNameTip:hover,
+.centerWrap.theme-dark .showFileNameTip:focus,
+.centerWrap.theme-dark .textButton:hover,
+.centerWrap.theme-dark .textButton:focus,
+.centerWrap.theme-dark .help_bar > *:hover,
+.centerWrap.theme-dark .updateActiveClass {
   color: #29b3f3 !important;
   fill: #29b3f3 !important;
 }
-.theme-dark.centerWrap .grayButton {
+.centerWrap.theme-dark .grayButton {
   background-color: #aaa;
 }
-.theme-dark.centerWrap .grayButton:hover,
-.theme-dark.centerWrap .grayButton:focus {
+.centerWrap.theme-dark .grayButton:hover,
+.centerWrap.theme-dark .grayButton:focus {
   background: #29b3f3;
   color: #fff !important;
 }
-.theme-dark.centerWrap .saveNamingRuleWrap {
+.centerWrap.theme-dark .saveNamingRuleWrap {
   color: #fff;
 }
-.theme-dark.centerWrap .saveNamingRuleWrap button {
+.centerWrap.theme-dark .saveNamingRuleWrap button {
   color: #fff;
 }
-.theme-dark.centerWrap .saveNamingRuleWrap .namingRuleList {
+.centerWrap.theme-dark .saveNamingRuleWrap .namingRuleList {
   background: #222;
   box-shadow: #10506e 0px 0px 10px;
 }
-.theme-dark.centerWrap .saveNamingRuleWrap .namingRuleList li {
+.centerWrap.theme-dark .saveNamingRuleWrap .namingRuleList li {
   color: #fff;
 }
-.theme-dark.centerWrap .saveNamingRuleWrap .namingRuleList li:hover {
+.centerWrap.theme-dark .saveNamingRuleWrap .namingRuleList li:hover {
   background: #333;
 }
-.theme-dark.centerWrap .centerWrap_btns button {
+.centerWrap.theme-dark .centerWrap_btns button {
   box-shadow: none !important;
 }
-.theme-dark.centerWrap .settingCategoryName span {
+.centerWrap.theme-dark .settingCategoryName span {
   color: #29b3f3 !important;
   text-shadow: none !important;
 }
-.downloadError {
-  color: #ffa0a0;
-}
-.patronText {
-  display: none;
-}
-.xzBG.centerWrap {
+.centerWrap.xzBG {
   text-shadow: #003247 0px 0px 2px;
   box-shadow: #10506e 0px 0px 15px;
   background: #222;
   color: #fff;
 }
-.xzBG.centerWrap button,
-.xzBG.centerWrap .tip {
+.centerWrap.xzBG p.option > .settingNameStyle {
+  color: inherit;
+}
+.centerWrap.xzBG button,
+.centerWrap.xzBG .tip {
   color: #fff;
 }
-.xzBG.centerWrap .gray1,
-.xzBG.centerWrap .centerWrap_top_btn {
+.centerWrap.xzBG .gray1,
+.centerWrap.xzBG .centerWrap_top_btn {
   color: #eee !important;
   text-shadow: #003247 0px 0px 2px;
 }
-.xzBG.centerWrap .blue,
-.xzBG.centerWrap .has_tip:hover,
-.xzBG.centerWrap label,
-.xzBG.centerWrap label:hover,
-.xzBG.centerWrap .title.active,
-.xzBG.centerWrap .title:hover,
-.xzBG.centerWrap .down_status,
-.xzBG.centerWrap .centerPanelTextArea,
-.xzBG.centerWrap .download_status_text_wrap span {
+.centerWrap.xzBG .blue,
+.centerWrap.xzBG .has_tip:hover,
+.centerWrap.xzBG label,
+.centerWrap.xzBG label:hover,
+.centerWrap.xzBG .title.active,
+.centerWrap.xzBG .title:hover,
+.centerWrap.xzBG .down_status,
+.centerWrap.xzBG .centerPanelTextArea,
+.centerWrap.xzBG .download_status_text_wrap span {
   color: #fff !important;
 }
-.xzBG.centerWrap .centerWrap_top_btn:hover,
-.xzBG.centerWrap .centerWrap_top_btn:focus,
-.xzBG.centerWrap .showFileNameTip:hover,
-.xzBG.centerWrap .showFileNameTip:focus,
-.xzBG.centerWrap .textButton:hover,
-.xzBG.centerWrap .textButton:focus,
-.xzBG.centerWrap .help_bar > *:hover,
-.xzBG.centerWrap .updateActiveClass {
+.centerWrap.xzBG .centerWrap_top_btn:hover,
+.centerWrap.xzBG .centerWrap_top_btn:focus,
+.centerWrap.xzBG .showFileNameTip:hover,
+.centerWrap.xzBG .showFileNameTip:focus,
+.centerWrap.xzBG .textButton:hover,
+.centerWrap.xzBG .textButton:focus,
+.centerWrap.xzBG .help_bar > *:hover,
+.centerWrap.xzBG .updateActiveClass {
   color: #fff !important;
   fill: #fff !important;
 }
-.xzBG.centerWrap .grayButton {
+.centerWrap.xzBG .grayButton {
   background-color: #666;
 }
-.xzBG.centerWrap .grayButton:hover,
-.xzBG.centerWrap .grayButton:focus {
+.centerWrap.xzBG .grayButton:hover,
+.centerWrap.xzBG .grayButton:focus {
   background: #29b3f3;
   color: #fff !important;
 }
-.xzBG.centerWrap .centerWrap_con .settingForm select {
+.centerWrap.xzBG .centerWrap_con .settingForm select {
   background: transparent;
 }
-.xzBG.centerWrap .progressBar {
+.centerWrap.xzBG .progressBar {
   background-color: #6e9dad !important;
 }
-.xzBG.centerWrap .saveNamingRuleWrap {
+.centerWrap.xzBG .saveNamingRuleWrap {
   color: #fff;
 }
-.xzBG.centerWrap .saveNamingRuleWrap button {
+.centerWrap.xzBG .saveNamingRuleWrap button {
   color: #fff;
   text-shadow: none;
 }
-.xzBG.centerWrap .saveNamingRuleWrap .namingRuleList {
+.centerWrap.xzBG .saveNamingRuleWrap .namingRuleList {
   text-shadow: none;
   opacity: 0.9 !important;
 }
-.xzBG.centerWrap .centerWrap_btns button {
+.centerWrap.xzBG .centerWrap_btns button {
   box-shadow: none !important;
 }
-.xzBG.centerWrap.showBlobKeywords .key {
+.centerWrap.xzBG.showBlobKeywords .key {
   color: #fff;
 }
-.xzBG.centerWrap .settingCategoryName span {
+.centerWrap.xzBG .settingCategoryName span {
   color: #29b3f3 !important;
   text-shadow: none !important;
   background-color: rgba(255, 255, 255, 0.8) !important;
   backdrop-filter: blur(3px) !important;
 }
-.xzBG.centerWrap .settingCategoryName::after {
+.centerWrap.xzBG .settingCategoryName::after {
   background-color: rgba(255, 255, 255, 0.8) !important;
 }
 .showBlobKeywords .key {
   font-weight: bold;
   color: #0ea8ef;
+}
+.downloadError {
+  color: #ffa0a0;
 }
 .theme-dark.showBlobKeywords .key {
   color: #42c3ff;
@@ -1981,7 +1987,7 @@ iframe[name='expandedFooter'] {
   justify-content: center;
 }
 .setUserNameWrap .textButton.add {
-  padding: 1px 8px;
+  padding: 0px 8px;
 }
 .setUserNameWrap .controlBar {
   display: inline;
@@ -2073,7 +2079,7 @@ iframe[name='expandedFooter'] {
   border: none;
   background: none;
   outline: none;
-  padding: 1px 3px;
+  padding: 0px 3px;
   cursor: pointer;
   color: #666;
   display: inline-flex;
@@ -2081,7 +2087,7 @@ iframe[name='expandedFooter'] {
   justify-content: center;
 }
 .DoNotDownloadLastFewImagesWarp .textButton.add {
-  padding: 1px 8px;
+  padding: 0px 8px;
 }
 .DoNotDownloadLastFewImagesWarp .controlBar {
   display: inline;
@@ -2184,7 +2190,7 @@ iframe[name='expandedFooter'] {
   justify-content: center;
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .textButton.add {
-  padding: 1px 8px;
+  padding: 0px 8px;
 }
 .UseDifferentNameRuleIfWorkHasTagWarp .controlBar {
   display: inline;
@@ -2442,16 +2448,33 @@ iframe[name='expandedFooter'] {
   font-size: 12px;
   color: #999;
 }
+.xz_PreviewWorkDetailPanel .content .buttons {
+  display: flex;
+  align-items: center;
+}
 .xz_PreviewWorkDetailPanel .content .textButton {
   font-size: 12px;
   color: #999;
   background: none;
-  padding: 1px 2px;
+  padding: 0px 2px;
+  margin-right: 6px;
   cursor: pointer;
   border: none;
+  height: 2em;
+  max-height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .xz_PreviewWorkDetailPanel .content .textButton:hover {
   color: #0ea8ef;
+}
+.xz_PreviewWorkDetailPanel .content .textButton#copyBtn {
+  padding: 0 4px;
+}
+.xz_PreviewWorkDetailPanel .content .textButton#copyBtn svg {
+  width: 1.4em;
+  height: 1.4em;
 }
 .xz_PreviewWorkDetailPanel a {
   color: #0ea8ef;
@@ -2468,7 +2491,7 @@ iframe[name='expandedFooter'] {
   color: #fff;
 }
 .theme-dark.xz_PreviewWorkDetailPanel .content .origin a {
-  color: #3d7699;
+  color: #0ea8ef;
 }
 .theme-dark.xz_PreviewWorkDetailPanel .content .transl a {
   color: #ccc;

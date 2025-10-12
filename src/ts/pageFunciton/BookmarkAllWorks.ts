@@ -144,7 +144,7 @@ class BookmarkAllWorks {
           }
           let msg = ''
           if (e.status) {
-            msg = `${lang.transl('_发生错误原因')}${lang.transl('_错误代码')}${
+            msg = `${lang.transl('_发生错误原因')}${lang.transl('_错误代码')}: ${
               e.status
             }. ${lang.transl('_请稍后重试')}`
           } else {

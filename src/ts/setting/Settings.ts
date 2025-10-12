@@ -218,7 +218,6 @@ interface XzSetting {
   autoExportResultNumber: number
   PreviewWork: boolean
   showDownloadBtnOnThumb: boolean
-  showCopyBtnOnThumb: boolean
   prevWorkSize: 'original' | 'regular'
   previewWorkWait: number
   showPreviewWorkTip: boolean
@@ -296,7 +295,10 @@ interface XzSetting {
   downloadIntervalOnWorksNumber: number
   tipOpenWikiLink: boolean
   copyWorkInfoFormat: string
-  copyThumb: boolean
+  showCopyBtnOnThumb: boolean
+  copyFormatImage: boolean
+  copyFormatText: boolean
+  copyFormatHtml: boolean
   tipCopyWorkInfoButton: boolean
 }
 
@@ -661,7 +663,6 @@ class Settings {
     autoExportResultNumber: 1,
     PreviewWork: true,
     showDownloadBtnOnThumb: true,
-    showCopyBtnOnThumb: true,
     prevWorkSize: 'regular',
     previewWorkWait: 400,
     showPreviewWorkTip: true,
@@ -727,7 +728,10 @@ class Settings {
     tipOpenWikiLink: true,
     copyWorkInfoFormat:
       'id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}',
-    copyThumb: true,
+    showCopyBtnOnThumb: true,
+    copyFormatImage: false,
+    copyFormatText: true,
+    copyFormatHtml: true,
     tipCopyWorkInfoButton: true,
   }
 

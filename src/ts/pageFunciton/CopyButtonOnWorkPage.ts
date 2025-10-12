@@ -55,7 +55,7 @@ class CopyButtonOnWorkPage {
 
       const msg = `${lang.transl('_显示复制按钮的提示')}
       <br>
-      ${lang.transl('_相关设置')}: ${lang.transl('_显示复制按钮')}
+      ${lang.transl('_相关设置')}: ${lang.transl('_复制按钮')}
       <br>
       ${lang.transl('_你可以在更多选项卡的xx分类里找到它', lang.transl('_增强'))}`
       showHelp.show('tipCopyWorkInfoButton', msg)
