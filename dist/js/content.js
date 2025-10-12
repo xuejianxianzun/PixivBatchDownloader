@@ -32511,24 +32511,24 @@ class Form {
         }
         // 显示命名字段提示
         this.form
-            .querySelector('.showFileNameTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('.fileNameTip')));
+            .querySelector('#showFileNameTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#fileNameTip')));
         // 显示复制内容的格式的提示
         this.form
-            .querySelector('.showCopyWorkInfoFormatTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('.copyWorkInfoFormatTip')));
+            .querySelector('#showCopyWorkInfoFormatTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#copyWorkInfoFormatTip')));
         // 显示日期格式提示
         this.form
-            .querySelector('.showDateTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('.dateFormatTip')));
+            .querySelector('#showDateTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#dateFormatTip')));
         // 显示标签分隔提示
         this.form
-            .querySelector('.showTagsSeparatorTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('.tagsSeparatorTip')));
-        // 显示标签分隔提示
+            .querySelector('#showTagsSeparatorTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#tagsSeparatorTip')));
+        // 显示预览作品的快捷键列表
         this.form
-            .querySelector('.showPreviewWorkTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('.previewWorkTip')));
+            .querySelector('#showPreviewWorkShortcutTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#previewWorkShortcutTip')));
         // 下面是通过 msgBox 显示的帮助
         // 显示复制按钮所复制的内容的提示
         this.form
@@ -32985,9 +32985,9 @@ const formHtml = `
       </select>
       &nbsp;
       <slot data-name="saveNamingRule"></slot>
-      <button class="showFileNameTip textButton" type="button" data-xztext="_提示"></button>
+      <button class="showFileNameTip textButton" id="showFileNameTip" type="button" data-xztext="_提示"></button>
     </p>
-    <p class="fileNameTip tip">
+    <p class="fileNameTip tip" id="fileNameTip">
       <span data-xztext="_设置文件夹名的提示"></span>
       <span>{user}<span class="key">/</span>{id}</span>
       <br>
@@ -33339,9 +33339,9 @@ const formHtml = `
     <p class="option" data-no="83">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(83)}" target="_blank" class="settingNameStyle" data-xztext="_标签分隔符号"></a>
       <input type="text" name="tagsSeparator" class="setinput_style1 blue" value=",">
-      <button type="button" class="gray1 textButton showTagsSeparatorTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton" id="showTagsSeparatorTip" data-xztext="_提示"></button>
     </p>
-    <p class="tagsSeparatorTip tip" style="display:none">
+    <p class="tip" id="tagsSeparatorTip" style="display:none">
       <span data-xztext="_标签分隔符号提示"></span>
     </p>
     <p class="option" data-no="67">
@@ -33619,10 +33619,10 @@ const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label for="prevWorkSize2" data-xztext="_普通"></label>
         <span class="verticalSplit"></span>
-        <button type="button" class="gray1 textButton showPreviewWorkTip" data-xztext="_快捷键列表"></button>
+        <button type="button" class="gray1 textButton" id="showPreviewWorkShortcutTip" data-xztext="_快捷键列表"></button>
       </span>
     </p>
-    <p class="previewWorkTip tip" style="display:none">
+    <p class="tip" id="previewWorkShortcutTip" style="display:none">
       <span data-xztext="_预览作品的快捷键说明"></span>
     </p>
     <p class="option" data-no="71">
@@ -33696,9 +33696,9 @@ const formHtml = `
       
       <span data-xztext="_文本格式"></span>:&nbsp;
       <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:100%;max-width:350px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
-      <button type="button" class="gray1 textButton showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton" id="showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
     </p>
-    <p class="copyWorkInfoFormatTip tip" style="display:none">
+    <p class="tip" id="copyWorkInfoFormatTip" style="display:none">
       <span data-xztext="_复制内容的格式的提示"></span>
       <br>
       <span class="blue">{url}</span>
@@ -33781,9 +33781,9 @@ const formHtml = `
     <p class="option" data-no="31">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(31)}" target="_blank" class="settingNameStyle" data-xztext="_日期格式"></a>
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
-      <button type="button" class="gray1 textButton showDateTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton" id="showDateTip" data-xztext="_提示"></button>
     </p>
-    <p class="dateFormatTip tip" style="display:none">
+    <p class="tip" id="dateFormatTip" style="display:none">
       <span data-xztext="_日期格式提示"></span>
       <br>
       <span class="blue">YYYY</span> <span>2021</span>
