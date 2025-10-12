@@ -4,6 +4,8 @@
   position: fixed;
   z-index: 100001;
   min-width: 100px;
+  max-height: 60vh;
+  overflow: auto;
   padding: 16px 20px;
   border-radius: 8px;
   top: 0;

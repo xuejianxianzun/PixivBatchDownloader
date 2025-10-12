@@ -33571,19 +33571,6 @@ const formHtml = `
       <input type="checkbox" name="highlightFollowingUsers" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
     </p>
-    <p class="option" data-no="87">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(87)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览作品的详细信息的说明">
-        <span data-xztext="_预览作品的详细信息"></span>
-        <span class="gray1"> ? </span>
-      </a>
-      <input type="checkbox" name="PreviewWorkDetailInfo" class="need_beautify checkbox_switch">
-      <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="PreviewWorkDetailInfo">
-        <span data-xztext="_显示区域宽度"></span>&nbsp;
-        <input type="text" name="PreviewDetailInfoWidth" class="setinput_style1 blue" value="500" style="width:40px;min-width: 40px;">
-        <span>&nbsp;px</span>
-      </span>
-    </p>
     <p class="option" data-no="68">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(68)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示更大的缩略图的说明">
         <span data-xztext="_显示更大的缩略图"></span>
@@ -33728,6 +33715,19 @@ const formHtml = `
       </a>
       <input type="checkbox" name="displayThumbnailListOnMultiImageWorkPage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
+    </p>
+    <p class="option" data-no="87">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(87)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览作品的详细信息的说明">
+        <span data-xztext="_预览作品的详细信息"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="PreviewWorkDetailInfo" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="PreviewWorkDetailInfo">
+        <span data-xztext="_显示区域宽度"></span>&nbsp;
+        <input type="text" name="PreviewDetailInfoWidth" class="setinput_style1 blue" value="500" style="width:40px;min-width: 40px;">
+        <span>&nbsp;px</span>
+      </span>
     </p>
     <p class="option" data-no="48">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(48)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在搜索页面添加快捷搜索区域的说明">
