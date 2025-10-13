@@ -193,6 +193,7 @@ class FormSettings {
       'exportLogTiming',
       'downloadOrder',
       'downloadOrderSortBy',
+      'copyImageSize',
     ],
     textarea: ['notNeedTag', 'blockList', 'createFolderTagList'],
     datetime: ['postDateStart', 'postDateEnd'],

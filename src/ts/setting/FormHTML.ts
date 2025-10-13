@@ -1054,6 +1054,15 @@ export const formHtml = `
       <label for="setCopyFormatHtml">text/html</label>
       <button type="button" class="gray1 textButton" id="showCopyWorkDataTip" data-xztext="_帮助"></button>
       <span class="verticalSplit"></span>
+
+      <span class="settingNameStyle" data-xztext="_图片尺寸2"></span>
+      <input type="radio" name="copyImageSize" id="copyImageSize1" class="need_beautify radio" value="original">
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="copyImageSize1" data-xztext="_原图"></label>
+      <input type="radio" name="copyImageSize" id="copyImageSize2" class="need_beautify radio" value="regular" checked>
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="copyImageSize2" data-xztext="_普通"></label>
+      <span class="verticalSplit"></span>
       
       <span data-xztext="_文本格式"></span>:&nbsp;
       <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:100%;max-width:350px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">

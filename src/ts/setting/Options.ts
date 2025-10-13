@@ -39,7 +39,7 @@ class Options {
     // 某些设置在移动端不会生效，所以隐藏它们
     // 主要是和作品缩略图相关的一些设置、增强功能
     if (Config.mobile) {
-      this.hideOption([14, 18, 68, 55, 71, 62, 40])
+      this.hideOption([18, 68, 55, 71, 62, 40])
     }
 
     // 大部分设置在 pixivision 里都不适用，所以需要隐藏它们
