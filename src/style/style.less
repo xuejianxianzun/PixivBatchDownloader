@@ -260,18 +260,61 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
 #previewWorkTip {
   background-color: @beautifyBlue;
   color: #fff;
-  height: 22px;
-  // 因为摘要信息上面有 border，两者在视觉上是连在一起的，所以 line-height 要小一些，使文字向上提一些
-  line-height: 21px;
-  overflow: hidden;
+  height: 23px;
+  line-height: 20px;
   display: none;
+  // display: flex;
+  align-items: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-family: @pixivFontFamily;
 
   span {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    max-height: 22px;
     font-size: 14px;
     padding: 0 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    flex-shrink: 0;
+    flex-grow: 0;
+
+    &:last-child {
+      // 允许最后一项缩小尺寸（简介文本）
+      flex-shrink: 1;
+    }
+
+    &.flag {
+      align-items: center;
+      height: 18px;
+      font-weight: bold;
+      font-size: 11px;
+      border-radius: 4px;
+      margin: 0 3px;
+
+      svg {
+        padding-right: 4px;
+      }
+    }
+
+    &.r18 {
+      background: @colorR18;
+    }
+
+    &.ai {
+      background: @colorAi;
+    }
+
+    &.index {
+      background: #0d5ee9;
+    }
+
+    &.bmk {
+      background: #e69d00;
+    }
 
     a {
       color: #fff;

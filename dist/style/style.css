@@ -2389,16 +2389,17 @@ iframe[name='expandedFooter'] {
   margin: 4px 0;
 }
 .xz_PreviewWorkDetailPanel .content .flags span {
-  padding: 0px 4px;
+  box-sizing: border-box;
+  line-height: 18px;
+  padding: 3px 6px;
   border-radius: 4px;
   color: #ffffff;
   font-weight: bold;
-  font-size: 10px;
-  line-height: 16px;
+  font-size: 11px;
   user-select: none;
 }
 .xz_PreviewWorkDetailPanel .content .flags .r18 {
-  background: #ff4060;
+  background: #f63d5b;
 }
 .xz_PreviewWorkDetailPanel .content .flags .ai {
   background: #b036f6;
@@ -2686,16 +2687,52 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
 #previewWorkTip {
   background-color: #29b3f3;
   color: #fff;
-  height: 22px;
-  line-height: 21px;
+  height: 23px;
+  line-height: 20px;
   display: none;
+  align-items: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 #previewWorkTip span {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  max-height: 22px;
   font-size: 14px;
   padding: 0 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+#previewWorkTip span:last-child {
+  flex-shrink: 1;
+}
+#previewWorkTip span.flag {
+  align-items: center;
+  height: 18px;
+  font-weight: bold;
+  font-size: 11px;
+  border-radius: 4px;
+  margin: 0 3px;
+}
+#previewWorkTip span.flag svg {
+  padding-right: 4px;
+}
+#previewWorkTip span.r18 {
+  background: #f63d5b;
+}
+#previewWorkTip span.ai {
+  background: #b036f6;
+}
+#previewWorkTip span.index {
+  background: #0d5ee9;
+}
+#previewWorkTip span.bmk {
+  background: #e69d00;
 }
 #previewWorkTip span a {
   color: #fff;

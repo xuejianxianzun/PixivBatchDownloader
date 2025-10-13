@@ -6646,7 +6646,7 @@ class PreviewWork {
     border = 4; // border 占据的空间
     tipId = 'previewWorkTip';
     tip;
-    tipHeight = 22;
+    tipHeight = 23;
     // 保存当前鼠标经过的缩略图的数据
     workId = '';
     workEL;
@@ -7226,19 +7226,34 @@ class PreviewWork {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.showPreviewWorkTip) {
             const text = [];
             const body = this.workData.body;
+            if (body.pageCount > 1) {
+                text.push(`<span class="index flag">
+          <svg viewBox="0 0 10 10" width="12" height="12"><path fill="currentColor" d="M8,3 C8.55228475,3 9,3.44771525 9,4 L9,9 C9,9.55228475 8.55228475,10 8,10 L3,10
+    C2.44771525,10 2,9.55228475 2,9 L6,9 C7.1045695,9 8,8.1045695 8,7 L8,3 Z M1,1 L6,1
+    C6.55228475,1 7,1.44771525 7,2 L7,7 C7,7.55228475 6.55228475,8 6,8 L1,8 C0.44771525,8
+    0,7.55228475 0,7 L0,2 C0,1.44771525 0.44771525,1 1,1 Z"></path></svg>
+    ${this.index + 1}/${body.pageCount}
+    </span>`);
+            }
             if (body.aiType === 2 ||
                 body.tags.tags.some((tag) => tag.tag === 'AI生成')) {
-                text.push('AI');
+                text.push('<span class="ai flag">AI</span>');
             }
-            if (body.pageCount > 1) {
-                text.push(`${this.index + 1}/${body.pageCount}`);
+            if (body.xRestrict === 1) {
+                text.push('<span class="r18 flag">R-18</span>');
+            }
+            else if (body.xRestrict === 2) {
+                text.push('<span class="r18 flag">R-18G</span>');
             }
             // 显示收藏数量
-            text.push(`${body.bookmarkCount.toString()} <svg viewBox="0 0 12 12" width="12" height="12"><path fill="currentColor" d="
+            text.push(`<span class="bmk flag">
+        <svg viewBox="0 0 12 12" width="12" height="12"><path fill="currentColor" d="
       M9,0.75 C10.6568542,0.75 12,2.09314575 12,3.75 C12,6.68851315 10.0811423,9.22726429 6.24342696,11.3662534
       L6.24342863,11.3662564 C6.09210392,11.4505987 5.90790324,11.4505988 5.75657851,11.3662565
       C1.9188595,9.22726671 0,6.68851455 0,3.75 C1.1324993e-16,2.09314575 1.34314575,0.75 3,0.75
-      C4.12649824,0.75 5.33911281,1.60202454 6,2.66822994 C6.66088719,1.60202454 7.87350176,0.75 9,0.75 Z"></path></svg>`);
+      C4.12649824,0.75 5.33911281,1.60202454 6,2.66822994 C6.66088719,1.60202454 7.87350176,0.75 9,0.75 Z"></path></svg>
+      ${body.bookmarkCount.toString()}
+      </span>`);
             // 加载原图时，可以获取到每张图片的真实尺寸
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.prevWorkSize === 'original') {
                 text.push(`${w}x${h}`);
@@ -7250,13 +7265,17 @@ class PreviewWork {
             }
             text.push(_utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__.DateFormat.format(body.createDate, 'YYYY/MM/DD'));
             text.push(body.title);
-            text.push(body.description);
+            // 把简介里的换行替换成空格。因为简介区域只有一行，为了尽量多的显示简介文本，所以取消换行
+            text.push(body.description.replaceAll('<br />', '&nbsp;'));
             this.tip.innerHTML = text
                 .map((str) => {
+                if (str.startsWith('<span')) {
+                    return str;
+                }
                 return `<span>${str}</span>`;
             })
                 .join('');
-            this.tip.style.display = 'block';
+            this.tip.style.display = 'flex';
         }
         else {
             this.tip.style.display = 'none';
