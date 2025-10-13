@@ -2130,7 +2130,7 @@ class Bookmark {
                         _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_添加收藏失败'), {
                             position: 'center',
                         });
-                        _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(`${_Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.createWorkLink(id, type === 'illusts')} ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_添加收藏失败')}, ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_错误代码')}${res.status}. ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会在几分钟后重试')}`);
+                        _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(`${_Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.createWorkLink(id, type === 'illusts')} ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_添加收藏失败')}, ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_错误代码')}: ${res.status}. ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会在几分钟后重试')}`);
                         window.setTimeout(() => {
                             return resolve(this.sendRequest(id, type, tags, hide));
                         }, _Config__WEBPACK_IMPORTED_MODULE_1__.Config.retryTime);
@@ -3714,14 +3714,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./FileName */ "./src/ts/FileName.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./store/SaveArtworkData */ "./src/ts/store/SaveArtworkData.ts");
-/* harmony import */ var _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./store/SaveNovelData */ "./src/ts/store/SaveNovelData.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
-
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
 
 
 
@@ -3735,127 +3733,162 @@ __webpack_require__.r(__webpack_exports__);
 class CopyWorkInfo {
     async receive(idData) {
         const id = idData.id;
-        const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Unlisted;
+        const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_5__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_5__.pageType.list.Unlisted;
         try {
             // 这里不使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
-            if (idData.type === 'novels') {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelData(id, unlisted);
-                await _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_7__.saveNovelData.save(data);
-                this.copy(data);
-            }
-            else {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getArtworkData(id, unlisted);
-                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_6__.saveArtworkData.save(data);
-                this.copy(data);
-            }
+            const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API[idData.type === 'novels' ? 'getNovelData' : 'getArtworkData'](id, unlisted);
+            this.copy(data);
         }
         catch (error) {
             if (error.status) {
-                _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.error(`Error: ${error.status}`);
+                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(`${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取作品数据失败')}: ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_错误代码')} ${error.status}`);
             }
             else {
-                _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.error(`Failed to request work data`);
+                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取作品数据失败'));
             }
         }
+    }
+    // 类型守卫
+    isImageWork(data) {
+        return 'illustType' in data.body;
     }
     async copy(data) {
-        let imageUrl = '';
-        if ('illustType' in data.body) {
-            // 对于图片作品，使用 1200px 的普通尺寸图片
-            imageUrl = data.body.urls.regular;
-        }
-        else {
-            // 对于小说，使用封面图片
-            imageUrl = data.body.coverUrl;
-        }
-        const text = this.convert(data, 'text');
-        const html = this.convert(data, 'html');
-        await this.copyMixedContent(imageUrl, text, html);
-        _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已复制'));
-    }
-    async copyMixedContent(imageUrl, plainText, htmlText) {
-        try {
-            let dataUrl = '';
-            // 在移动端页面上，不启用“复制缩略图”功能。
-            // 虽然在移动端可以复制图片+文本的混合内容，但是无法粘贴图片。
-            // 图片会显示为一个 OBJ 小方块，只有下方的文字可以正常显示
-            // 我在手机上的 QQ、微信、Telegram 里测试都是如此，所以在移动端没有必要复制缩略图
-            const needCopyThumb = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.copyThumb && imageUrl && !_Config__WEBPACK_IMPORTED_MODULE_1__.Config.mobile;
-            if (needCopyThumb) {
-                _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_正在加载缩略图'));
-                // 先使用 fetch 获取图片的 Blob
-                // 这可以解决 Tainted canvases 的问题，但现在没有使用 canvas 了
-                const blob = await fetch(imageUrl).then((res) => res.blob());
-                // 然后把图片的 Blob 转换为 DataURL
-                dataUrl = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(blob);
-                });
-            }
-            // 然后使用 canvas 把图片的 Blob 转换为 png 格式的 Blob
-            // const image = new Image()
-            // image.src = URL.createObjectURL(blob)
-            // await new Promise((resolve) => (image.onload = resolve))
-            // const canvas = document.createElement('canvas')
-            // canvas.width = image.width
-            // canvas.height = image.height
-            // const ctx = canvas.getContext('2d')
-            // if (!ctx) {
-            //   throw new Error('Failed to get canvas context')
-            // }
-            // ctx.drawImage(image, 0, 0)
-            // 现在不需要使用 imageBlob 了
-            // const imageBlob = await new Promise<Blob>((resolve, reject) => {
-            //   canvas.toBlob((blob) => {
-            //     if (blob) {
-            //       resolve(blob)
-            //     } else {
-            //       reject(new Error('Failed to convert canvas to blob'))
-            //     }
-            //   }, 'image/png')
-            // })
-            // 构造 HTML 内容
-            const imgTag = dataUrl ? `<img src="${dataUrl}" /><br>` : '';
-            const htmlContent = `<div>${imgTag}${htmlText}</div>`;
-            const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
-            // 构造纯文本内容
-            const textBlob = new Blob([plainText], { type: 'text/plain' });
-            const clipboardItem = new ClipboardItem({
-                // 复制富文本格式，这样在 QQ、Word 等软件里粘贴时，才能同时粘贴图片和文本
-                'text/html': htmlBlob,
-                // 复制纯文本内容是为了提供兼容性。在某些不支持解析富文本格式的软件里，可以粘贴纯文本内容
-                'text/plain': textBlob,
-                // 不使用图片格式，因为某些软件会优先粘贴图片内容，导致其他内容被忽略，也就是不会粘贴文本内容
-                // 'image/png': imageBlob,
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatImage &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatHtml &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatText) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_至少需要选择一种复制格式'), {
+                title: _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_复制失败'),
             });
-            // 写入混合内容
+            return;
+        }
+        try {
+            const copyData = {};
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatText) {
+                // 构造纯文本内容
+                const plainText = this.convertTextFormat(data, 'text');
+                const textBlob = new Blob([plainText], { type: 'text/plain' });
+                copyData['text/plain'] = textBlob;
+            }
+            const needCopyImage = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatImage || _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatHtml;
+            if (needCopyImage) {
+                // 图片作品使用 1200px 的普通尺寸图片或原图（根据用户设置）
+                // 不过对于动图来说，各个尺寸的图片其实都是小图
+                // 小说作品总是使用封面图片
+                const imageUrl = this.isImageWork(data)
+                    ? data.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyImageSize]
+                    : data.body.coverUrl;
+                if (!imageUrl) {
+                    _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_错误') + ': ' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_没有找到可用的图片网址'));
+                    return;
+                }
+                const name = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyImageSize === 'original'
+                    ? '_正在加载图片'
+                    : '_正在加载缩略图';
+                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl(name));
+                // 先使用 fetch 获取图片的 Blob
+                // 这可以解决 Tainted canvases 的问题
+                const imageBlob = await fetch(imageUrl).then((res) => res.blob());
+                // 添加 image/png 内容
+                // 缩略图的格式都是 jpg，但 Chrome 目前不支持复制 image/jpeg 内容，所以需要转换成 png 格式
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatImage) {
+                    // 使用 canvas 把图片的 Blob 转换为 png 格式的 Blob
+                    const image = new Image();
+                    const url = URL.createObjectURL(imageBlob);
+                    image.src = url;
+                    await new Promise((resolve) => (image.onload = resolve));
+                    const canvas = document.createElement('canvas');
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) {
+                        throw new Error('Failed to get canvas context');
+                    }
+                    ctx.drawImage(image, 0, 0);
+                    const pngBlob = await new Promise((resolve, reject) => {
+                        canvas.toBlob((blob) => {
+                            if (blob) {
+                                resolve(blob);
+                            }
+                            else {
+                                reject(new Error('Failed to convert canvas to blob'));
+                            }
+                        }, 'image/png');
+                    });
+                    URL.revokeObjectURL(url);
+                    // 添加 'image/png' 类型的内容，也就是 CF_DIB
+                    // 注意：某些软件如 QQ、微信、Telegram 会优先粘贴图片内容。
+                    // 当存在 'image/png' 内容时，会导致其他内容被忽略，也就是只会粘贴图片，不会粘贴文本
+                    copyData['image/png'] = pngBlob;
+                }
+                // 添加 text/html 内容
+                // 此时图片转换成了 DataURL，所以可以复制 jpg 文件，不需要转换成 png 格式
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatHtml) {
+                    // 把图片的 Blob 转换为 DataURL
+                    const dataUrl = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(imageBlob);
+                    });
+                    // 构造富文本内容
+                    // 这样在 Word、微信里粘贴时，可以同时粘贴图片和文本
+                    // 本来在 QQ 里也可以，但是最新版 QQ 里粘贴图文混合内容时，图片会在发送时加载失败
+                    const htmlText = this.convertTextFormat(data, 'html');
+                    // 使用 br 换行。如果使用 p 标签包裹文本，会导致文本和 img 中间有一个多余的换行
+                    const htmlContent = `<div><img src="${dataUrl}"><br>${htmlText}</div>`;
+                    const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
+                    copyData['text/html'] = htmlBlob;
+                }
+                // // 构造 RTF 格式内容，同时包含图片和文字内容
+                // Chrome 141 版本尚不支持复制 RTF 内容，可用性检测为 false，实际执行也报错不支持写入 rtf 格式
+                // 所以这部分代码注释掉了
+                // ClipboardItem.supports('text/rtf')
+                // const rtfContent = await this.generateRtfWithImage(blob, htmlText, blob.type as 'image/png' | 'image/jpeg');
+                // const rtfBlob = new Blob([rtfContent], { type: 'text/rtf' });
+                // copyData['text/rtf'] = rtfBlob
+            }
+            const clipboardItem = new ClipboardItem(copyData);
             await navigator.clipboard.write([clipboardItem]);
-            // 还有一种方法是把 html 内容写入到一个 div 里，然后使用 document.execCommand('copy') 复制
-            // 但这个方法依然无法在 Telegram 里同时粘贴图片和文本
-            // 踩了一些坑：
-            // 1. 要复制混合内容的话（图片+文本），需要把内容放在一个 ClipboardItem 里
-            // 不能分别放在两个 ClipboardItem 里，最后在 write 里混合。因为 Chrome 尚未实现此功能
-            // 2. 图片的 MIME 必须为 png。虽然理论上支持 jpeg，但是 Chrome 尚未实现对 jpeg 的支持
+            _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已复制'));
+            // 复制混合内容（富文本）还有一种方法：
+            // 是把 html 内容写入到一个隐藏的 contenteditable div 里，然后使用 document.execCommand('copy') 复制
+            // 但这个方法的效果和上面的方法一致，在各个软件里粘贴时的表现是一样的，所以没必要使用
+            // 踩的一些坑：
+            // 1. 要复制混合内容的话（图片+文本），需要把内容放在一个 ClipboardItem 里。
+            // 不能分别放在两个 ClipboardItem 里，最后在 write 里混合。因为 Chrome 尚未实现此功能。
+            // 2. 图片的 MIME 必须为 png。虽然理论上支持 jpeg，但是 Chrome 尚未实现对 jpeg 的支持，复制时会报错。
             // 3. 缩略图的网址是 i.pximg.net，与页面网址 pixiv.net 不同，
             // 所以无法直接用缩略图网址作为 img.src，然后渲染到 canvas 得到 imageBlob，因为浏览器会报错：
             // Uncaught SecurityError: Failed to execute 'toBlob' on 'HTMLCanvasElement': Tainted canvases may not be exported.
-            // 4. 即使成功复制了图片+文本，但在粘贴到其他应用（如 QQ、Word）时，可能只会粘贴图片或文本的其中之一。
-            // 这是因为复制的内容的格式与某些软件所要求的格式不同。
-            // 在 QQ 和 Word 里，粘贴的优先级是 text/html > image/png > text/plain
-            // 在许多应用程序里粘贴时，如果存在多种内容格式，只会粘贴优先级最高的那一项内容
-            // 如果只使用 text/html，可以兼容 QQ、微信、Word，但是在 Telegram、网页的 textarea 里存在问题，不会粘贴出任何内容
-            // 这可能是因为这些地方不支持解析 html 格式的富文本
-            // 为了提高兼容性，同时复制了 text/plain 内容，这样至少可以粘贴文本
+            // 4. 即使成功复制了图片+文本，但在粘贴到其他应用时，可能只会粘贴图片或文本的其中之一。
+            // 这是因为复制的内容的格式与某些软件所要求的格式不同，并且有些软件只会粘贴优先级最高的内容。
+            // 在 Word 里，粘贴的优先级是 text/html > image/png > text/plain。它会优先粘贴 text/html（如果有），并忽略其他内容
+            // image/png 在许多通讯软件里（我测试了 QQ、微信、Telegram）的优先级最高。如果有 image/png 的话，就会粘贴图片，并忽略其他内容
+            // text/html 可以同时复制图片和文本，可以兼容 QQ、微信、Word，但是在 Telegram 和网页的 textarea 里无法粘贴，可见 Telegram 不支持 text/html。
+            // text/plain 的兼容性最好，但无法携带图片内容。
+            // 5. 在 Windows 上的最新版 QQ 9.9.21 里，复制富文本 text/html 内容，在 QQ 里粘贴后发送时，会显示图片“加载失败”，并导致消息发送失败。
+            // 但是在上个版本的 QQ 里，以及在当前的微信里是正常的。我觉得这应该是 QQ 在最新版本里产生的 bug。
+            // 现在我尝试了把复制的图片从 jpeg 格式改为 png、把 jpeg 图片转换为 png 格式再复制、修改 html 内容只保留 img 标签、构造 RTF 格式并复制、使用另一种复制方法，都无法解决
+            // 目前解决办法只有一种：在复制项里添加 'image/png' 类型，这样在 QQ 里可以粘贴并发送，但是这样会导致在 QQ 里只能粘贴图片，不会粘贴文字
+            // 因为在 QQ 里粘贴时，'image/png' 的优先级是最高的，其他类型的内容会被忽略
         }
         catch (err) {
-            _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_复制失败'));
+            // 复制失败时会显示报错信息，我见过的有两种情况：
+            // 1. 用户点击复制按钮后切换到了其他应用，导致网页失去了焦点，这会导致下载器写入剪贴板失败
+            // 2. 用户排除了所有复制格式，导致复制了空对象。不过这个情况现在我会预先检查
+            // 3. 由于这个 try catch 也包含了网络请求部分，所以网络请求出错应该也会在这里显示详细信息
+            let msg = err.toString();
+            if (msg.includes('Document is not focused')) {
+                msg = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_复制时网页需要处于焦点状态');
+            }
+            _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(msg, {
+                title: _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_复制失败'),
+            });
             console.error('复制失败:', err);
             console.trace();
         }
     }
-    /** 把用户设置的内容格式转换成文本，目标格式可选纯文本或 html */
+    /** 把用户设置的文本格式转换成实际文本，目标格式可选纯文本或 html */
     // 需要处理命名标记，这类似于生成文件名，但有所不同，因为此时：
     // - 不需要处理不能作为文件名的特殊字符
     // - 不需要建立文件夹，所以不需要处理非法的文件夹路径
@@ -3864,16 +3897,16 @@ class CopyWorkInfo {
     // - {id} 等同于 {id_num}，是纯数字
     // - {p_num} 总是 0
     // 红叶版本的区别：不会在每个标签前面加上 # 符号
-    convert(data, format = 'text') {
-        const page_title = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getPageTitle();
-        const page_tag = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getTagFromURL();
+    convertTextFormat(data, format = 'text') {
+        const page_title = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getPageTitle();
+        const page_tag = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getTagFromURL();
         const body = data.body;
         const type = 'illustType' in body ? body.illustType : 3;
-        const tags = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data);
-        const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data, 'both');
-        const tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data, 'transl');
+        const tags = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data);
+        const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data, 'both');
+        const tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data, 'transl');
         // 如果作品是 AI 生成的，但是 Tags 里没有 AI 生成的标签，则添加
-        const aiMarkString = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getAIGeneratedMark(body.aiType);
+        const aiMarkString = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getAIGeneratedMark(body.aiType);
         if (aiMarkString) {
             if (tags.includes(aiMarkString) === false) {
                 tags.unshift(aiMarkString);
@@ -3937,17 +3970,17 @@ class CopyWorkInfo {
             '{userid}': userID,
             '{user_id}': userID,
             '{px}': this.getPX(body),
-            '{tags}': tags.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.tagsSeparator),
-            '{tags_translate}': tagsWithTransl.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.tagsSeparator),
-            '{tags_transl_only}': tagsTranslOnly.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.tagsSeparator),
+            '{tags}': tags.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.tagsSeparator),
+            '{tags_translate}': tagsWithTransl.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.tagsSeparator),
+            '{tags_transl_only}': tagsTranslOnly.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.tagsSeparator),
             '{bmk}': body.bookmarkCount,
             '{bmk_id}': body.bookmarkData ? body.bookmarkData.id : '',
             '{bmk_1000}': _FileName__WEBPACK_IMPORTED_MODULE_2__.fileName.getBKM1000(body.bookmarkCount),
             '{like}': body.likeCount,
             '{view}': body.viewCount,
-            '{date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_10__.DateFormat.format(body.createDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.dateFormat),
-            '{upload_date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_10__.DateFormat.format(body.uploadDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.dateFormat),
-            '{task_date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_10__.DateFormat.format(new Date(), _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.dateFormat),
+            '{date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__.DateFormat.format(body.createDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.dateFormat),
+            '{upload_date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__.DateFormat.format(body.uploadDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.dateFormat),
+            '{task_date}': _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__.DateFormat.format(new Date(), _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.dateFormat),
             '{type}': _Config__WEBPACK_IMPORTED_MODULE_1__.Config.worksTypeName[type],
             '{AI}': AI ? 'AI' : '',
             '{series_title}': seriesTitle,
@@ -3956,13 +3989,14 @@ class CopyWorkInfo {
             '{sl}': 'sl' in body ? body.sl : '',
         };
         // 替换标记
-        let str = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.copyWorkInfoFormat;
+        let str = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyWorkInfoFormat;
         Object.entries(cfg).forEach(([key, val]) => {
             // console.log(`${key}\t${val}`)
             str = str.replace(new RegExp(key, 'g'), val);
         });
         // 以换行符分割，如果某一行的内容是空字符串，则移除这一行
-        // 这是为了防止某个标记为空时，产生连续的换行。例如 {AI}{n} 标记可能会产生连续的换行
+        // 这是为了防止某个标记为空时，产生连续的换行
+        // 例如 {AI} 标记的结果为空时，{AI}{n} 就会产生一个空白的换行
         str = str
             .split(lf)
             .filter((str) => str !== '')
@@ -3974,6 +4008,39 @@ class CopyWorkInfo {
             return body.width + 'x' + body.height;
         }
         return '';
+    }
+    // RTF 生成函数
+    async generateRtfWithImage(imageBlob, text, imageType = 'image/jpeg') {
+        // 获取图片尺寸
+        const img = new Image();
+        const imageUrl = URL.createObjectURL(imageBlob);
+        img.src = imageUrl;
+        const { width, height } = await new Promise((resolve) => {
+            img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+        });
+        URL.revokeObjectURL(imageUrl);
+        // 转换图片为 hex (PNG 假设)
+        const arrayBuffer = await imageBlob.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+        const hex = Array.from(uint8Array)
+            .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+            .join(''); // 无空格，大写
+        // Twips: 假设 72 DPI，1440 twips/inch
+        const picwgoal = Math.round((width * 1440) / 72);
+        const pichgoal = Math.round((height * 1440) / 72);
+        // RTF 模板：简单结构，文本 + 图片
+        const blipType = imageType === 'image/jpeg' ? '\\jpegblip' : '\\pngblip';
+        const rtf = `{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Arial;}}\\f0\\fs24 ${this.escapeRtfText(text)} {\\pict\\${blipType}\\picwgoal${picwgoal}\\pichgoal${pichgoal} ${hex}}\\par }`;
+        return rtf;
+    }
+    // 转义 RTF 文本（简单版，处理常见字符）
+    escapeRtfText(text) {
+        return text
+            .replace(/\\/g, '\\\\') // 反斜杠
+            .replace(/{/g, '\\{') // 花括号
+            .replace(/}/g, '\\}') // 花括号
+            .replace(/\n/g, '\\par ') // 换行
+            .replace(/\r/g, ''); // 忽略
     }
 }
 const copyWorkInfo = new CopyWorkInfo();
@@ -8058,6 +8125,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+
 
 
 
@@ -8165,24 +8234,42 @@ class PreviewWorkDetailInfo {
         }
         wrap.innerHTML = `
         <div class="content">
-        <p class="flags">${r18HTML} ${aiHTML}</p>
-        <p class="title">${workData.body.title}</p>
-        <p class="desc">${workData.body.description}</p>
-        <p class="tags">${tagsHTML.join('')}</p>
-        <p class="size">${workData.body.width} x ${workData.body.height}</p>
-        <p class="bmk">${bmkHTML.join('')}</p>
-        <p class="date">${new Date(workData.body.uploadDate).toLocaleString()}</p>
-        <p class="buttons"><button class="textButton" id="copyTXT">Copy TXT</button> <button class="textButton" id="copyJSON">Copy JSON</button></p>
+          <p class="flags">${r18HTML} ${aiHTML}</p>
+          <p class="title">${workData.body.title}</p>
+          <p class="desc">${workData.body.description}</p>
+          <p class="tags">${tagsHTML.join('')}</p>
+          <p class="size">${workData.body.width} x ${workData.body.height}</p>
+          <p class="bmk">${bmkHTML.join('')}</p>
+          <p class="date">${new Date(workData.body.uploadDate).toLocaleString()}</p>
+          <p class="buttons">
+            <button class="textButton" id="copyTXT">Copy TXT</button>
+            <button class="textButton" id="copyJSON">Copy JSON</button>
+            <button class="textButton" id="copyURL">Copy URL</button>
+            <button class="textButton" id="copyBtn">
+              <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-copy"></use>
+              </svg>
+            </button>
+          </p>
         </div>
       `;
         // 按钮功能
-        const copyTXT = wrap.querySelector('#copyTXT');
-        copyTXT.addEventListener('click', () => {
+        wrap.querySelector('#copyTXT').addEventListener('click', () => {
             this.copyTXT(workData);
         });
-        const copyJSON = wrap.querySelector('#copyJSON');
-        copyJSON.addEventListener('click', () => {
+        wrap.querySelector('#copyJSON').addEventListener('click', () => {
             this.copyJSON(workData);
+        });
+        wrap.querySelector('#copyURL').addEventListener('click', () => {
+            const url = `https://www.pixiv.net/i/${workData.body.id}`;
+            window.navigator.clipboard.writeText(url);
+            _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_已复制到剪贴板'));
+        });
+        wrap.querySelector('#copyBtn').addEventListener('click', () => {
+            _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_7__.copyWorkInfo.receive({
+                id: workData.body.id,
+                type: 'illusts',
+            });
         });
         // 取消超链接的跳转确认，也就是把跳转链接替换为真正的链接
         const allLink = wrap.querySelectorAll('a');
@@ -10408,15 +10495,13 @@ class Theme {
     defaultTheme = 'white'; // 默认主题
     theme = 'white'; // 保存当前使用的主题
     settingTheme = ''; // 保存用户设置的下载器主题
+    elList = []; // 保存已注册的元素
     // 主题标记以及对应的 className
     // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
-    // 默认主题 white 是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
     classNameMap = new Map([
-        ['white', ''],
+        ['white', 'theme-white'],
         ['dark', 'theme-dark'],
     ]);
-    selector = '#gtm-var-theme-kind'; // 通过这个选择器查找含有主题标记的元素
-    timer = 0;
     // 页面上储存的主题标记，与本组件里的主题的对应关系
     htmlFlagMap = new Map([
         ['', 'white'],
@@ -10424,7 +10509,8 @@ class Theme {
         ['light', 'white'],
         ['dark', 'dark'],
     ]);
-    elList = []; // 保存已注册的元素
+    selector = '#gtm-var-theme-kind'; // 通过这个选择器查找含有主题标记的元素
+    timer = 0;
     bindEvents() {
         // 主题设置变化时修改主题
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
@@ -25566,12 +25652,12 @@ Zip 파일이 원본 파일입니다.`,
         'Код ошибки: 429 (Слишком много запросов). Загрузчик будет повторять вытаскивание.',
     ],
     _错误代码: [
-        '错误代码：',
-        '錯誤程式碼：',
-        'Error code: ',
-        'エラー コード: ',
-        '오류 코드: ',
-        'Код ошибки: ',
+        '错误代码',
+        '錯誤程式碼',
+        'Error code',
+        'エラー コード',
+        '오류 코드',
+        'Код ошибки',
     ],
     _作品页状态码500: [
         'Pixiv 拒绝返回数据 (500)。下载器会重新抓取它。',
@@ -26672,6 +26758,14 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         'ファイル {} のダウンロードを失敗しました',
         '파일 {} 다운로드 실패',
         'Загрузка файла {} не удалась',
+    ],
+    _获取作品数据失败: [
+        `获取作品数据失败`,
+        `獲取作品數據失敗`,
+        `Failed to fetch work data`,
+        `作品データの取得に失敗`,
+        `작품 데이터 가져오기 실패`,
+        `Не удалось получить данные работы`,
     ],
     _是否重置设置: [
         '是否重置设置？',
@@ -29555,6 +29649,14 @@ Novel folder name: Novel`,
     ],
     _正常: ['正常', '正常', 'Normal', '普通', '정상', 'Обычный'],
     _错误: ['错误', '錯誤', 'Error', 'エラー', '오류', 'Ошибка'],
+    _没有找到可用的图片网址: [
+        `没有找到可用的图片网址`,
+        `沒有找到可用的圖片網址`,
+        `No available image URLs found`,
+        `利用可能な画像URLが見つかりません`,
+        `사용 가능한 이미지 URL을 찾을 수 없습니다`,
+        `Доступные URL изображений не найдены`,
+    ],
     _排除关键字: [
         '排除关键字',
         '排除關鍵字',
@@ -30467,21 +30569,29 @@ P.S. Работы заблокированных пользователей не
         `<strong>주의:</strong> 이번 업데이트 후, "크롤링할 페이지 수"와 "크롤링할 작품 수" 이 두 설정이 기본값으로 재설정되었습니다. 필요하다면 값을 다시 수정할 수 있습니다.`,
         `<strong>Внимание:</strong> После этого обновления настройки «количество страниц для краулинга» и «количество работ для краулинга» были сброшены на значения по умолчанию. При необходимости вы можете изменить их значения заново.`,
     ],
-    _显示复制按钮: [
-        `显示<span class="key">复制</span>按钮`,
-        `顯示<span class="key">複製</span>按鈕`,
-        `Show <span class="key">Copy</span> button`,
-        `<span class="key">コピー</span>ボタンを表示`,
-        `<span class="key">복사</span> 버튼 표시`,
-        `Показать кнопку <span class="key">Копировать</span>`,
+    _复制按钮: [
+        `<span class="key">复制</span>按钮`,
+        `<span class="key">複製</span>按鈕`,
+        `<span class="key">Copy</span> button`,
+        `<span class="key">コピー</span>ボタン`,
+        `<span class="key">복사</span> 버튼`,
+        `<span class="key">Копировать</span> кнопку`,
+    ],
+    _在缩略图上显示: [
+        `在缩略图上显示`,
+        `在縮略圖上顯示`,
+        `Display on thumbnail`,
+        `サムネイルに表示`,
+        `썸네일에 표시`,
+        `Отображать на миниатюре`,
     ],
     _显示复制按钮的提示: [
-        `下载器会在作品缩略图上和作品页面内显示一个复制按钮，点击它就可以复制作品的一些数据。<br>你可以自定义要复制的数据和格式。`,
-        `下載器會在作品縮略圖上和作品頁面內顯示一個複製按鈕，點擊它就可以複製作品的一些資料。<br>你可以自訂要複製的資料和格式。`,
-        `The downloader will display a copy button on the work thumbnail and within the work page. Clicking it allows you to copy some data of the work. <br>You can customize the data and format to be copied.`,
-        `ダウンロードツールは作品のサムネイル上と作品ページ内にコピーボタンを表示します。それをクリックすると作品のデータをコピーできます。<br>コピーするデータと形式をカスタマイズできます。`,
-        `다운로더는 작품 썸네일 위와 작품 페이지 내에 복사 버튼을 표시합니다. 클릭하면 작품의 일부 데이터를 복사할 수 있습니다. <br>복사할 데이터와 형식을 사용자 지정할 수 있습니다.`,
-        `Загрузчик отобразит кнопку копирования на миниатюре работы и внутри страницы работы. Нажатие на неё позволит скопировать некоторые данные работы. <br>Вы можете настроить данные и формат для копирования.`,
+        `下载器会在作品缩略图上和作品页面内显示一个复制按钮，点击它就可以复制作品的图片和一些数据。你可以自定义要复制的数据和格式。`,
+        `下載器會在作品縮圖上和作品頁面內顯示一個複製按鈕，點擊它就可以複製作品的圖片和一些資料。你可以自訂要複製的資料和格式。`,
+        `The downloader will display a copy button on the work thumbnail and within the work page. Clicking it allows you to copy the work's image and some data. You can customize the data and format to be copied.`,
+        `ダウンロードツールは、作品のサムネイルと作品ページ内にコピーボタンを表示します。これをクリックすると、作品の画像と一部のデータをコピーできます。コピーするデータとフォーマットをカスタマイズできます。`,
+        `다운로더는 작품 썸네일과 작품 페이지 내에 복사 버튼을 표시합니다. 클릭하면 작품의 이미지와 일부 데이터를 복사할 수 있습니다. 복사할 데이터와 형식을 사용자 지정할 수 있습니다.`,
+        `Загрузчик отображает кнопку копирования на миниатюре работы и внутри страницы работы. Нажатие на неё позволяет скопировать изображение работы и некоторые данные. Вы можете настроить данные и формат для копирования.`,
     ],
     _内容格式: [
         `内容格式`,
@@ -30492,12 +30602,36 @@ P.S. Работы заблокированных пользователей не
         `Формат содержимого`,
     ],
     _复制内容的格式的提示: [
-        `你可以使用命名规则里的所有标签，也可以输入自定义字符，例如空格、下划线等。<br>另外，你还可以使用这些标签：`,
-        `你可以使用命名規則裡的所有標籤，也可以輸入自訂字元，例如空格、下劃線等。<br>另外，你還可以使用這些標籤：`,
-        `You can use all the tags in the naming rule, or input custom characters, such as spaces, underscores, etc.<br>Additionally, you can also use these tags:`,
-        `命名規則内のすべてのタグを使用できます。また、カスタム文字、例えばスペース、アンダースコアなどを入力することもできます。<br>さらに、これらのタグも使用できます：`,
-        `명명 규칙의 모든 태그를 사용할 수 있으며, 사용자 정의 문자(예: 공백, 밑줄 등)를 입력할 수도 있습니다.<br>또한, 이러한 태그를 사용할 수 있습니다:`,
-        `Вы можете использовать все теги из правила именования, а также вводить пользовательские символы, такие как пробелы, подчеркивания и т.д.<br>Кроме того, вы можете использовать эти теги:`,
+        `你可以设置文字内容的格式，这会影响 <span class="blue">text/plain</span> 和 <span class="blue">text/html</span> 格式复制的内容。
+<br>
+你可以使用命名规则里的所有标签，也可以输入自定义字符，例如空格、下划线、每个标签的名称。
+<br>
+另外，你还可以使用这些标签：`,
+        `你可以設定文字內容的格式，這會影響 <span class="blue">text/plain</span> 和 <span class="blue">text/html</span> 格式複製的內容。
+<br>
+你可以使用命名規則裡的所有標籤，也可以輸入自訂字符，例如空格、下劃線、每個標籤的名稱。
+<br>
+另外，你還可以使用這些標籤：`,
+        `You can set the format of the text content, which will affect the content copied in <span class="blue">text/plain</span> and <span class="blue">text/html</span> formats.
+<br>
+You can use all tags from the naming rule, or input custom characters, such as spaces, underscores, the name of each tag.
+<br>
+Additionally, you can use these tags:`,
+        `テキスト内容の形式を設定できます。これにより、<span class="blue">text/plain</span> および <span class="blue">text/html</span> 形式でコピーされる内容に影響します。
+<br>
+命名規則内のすべてのタグを使用できます。また、カスタム文字を入力することもでき、例えばスペース、アンダースコア、各タグの名前です。
+<br>
+さらに、これらのタグを使用できます：`,
+        `텍스트 내용의 형식을 설정할 수 있으며, 이는 <span class="blue">text/plain</span> 및 <span class="blue">text/html</span> 형식으로 복사되는 내용에 영향을 미칩니다.
+<br>
+명명 규칙의 모든 태그를 사용할 수 있으며, 사용자 정의 문자를 입력할 수도 있습니다. 예를 들어 공백, 밑줄, 각 태그의 이름.
+<br>
+또한, 이러한 태그를 사용할 수 있습니다:`,
+        `Вы можете установить формат текстового содержимого, что повлияет на содержимое, копируемое в форматах <span class="blue">text/plain</span> и <span class="blue">text/html</span>.
+<br>
+Вы можете использовать все теги из правила именования, а также вводить пользовательские символы, такие как пробелы, подчеркивания, имя каждого тега.
+<br>
+Кроме того, вы можете использовать эти теги:`,
     ],
     _换行标记的说明: [
         `换行`,
@@ -30531,6 +30665,14 @@ P.S. Работы заблокированных пользователей не
         '복사 실패',
         'Копирование не удалось',
     ],
+    _复制时网页需要处于焦点状态: [
+        `复制时，网页需要处于焦点状态。`,
+        `複製時，網頁需要處於焦點狀態。`,
+        `When copying, the webpage needs to be in a focused state.`,
+        `コピーする際は、ウェブページがフォーカス状態である必要があります。`,
+        `복사할 때 웹페이지가 포커스 상태여야 합니다.`,
+        `При копировании веб-страница должна находиться в состоянии фокуса。`,
+    ],
     _复制摘要数据: [
         `复制摘要数据 (ALt + C)`,
         `複製摘要資料 (ALt + C)`,
@@ -30545,7 +30687,15 @@ P.S. Работы заблокированных пользователей не
         `Related settings`,
         `関連設定`,
         `관련 설정`,
-        `Связанные настройки,`,
+        `Связанные настройки`,
+    ],
+    _复制内容: [
+        `复制内容`,
+        `複製內容`,
+        `Copy content`,
+        `内容をコピー`,
+        `내용 복사`,
+        `Копировать содержимое`,
     ],
     _复制缩略图: [
         `复制缩略图`,
@@ -30555,6 +30705,382 @@ P.S. Работы заблокированных пользователей не
         `썸네일 복사`,
         `Копировать миниатюру`,
     ],
+    _复制文本: [
+        `复制文本`,
+        `複製文字`,
+        `Copy text`,
+        `テキストをコピー`,
+        `텍스트 복사`,
+        `Копировать текст`,
+    ],
+    _对复制的内容的说明: [
+        `你可以根据自己的需要选择复制的内容。
+<br>
+<br>
+<strong>每种格式的说明：</strong>
+<br>
+- <span class="blue">image/png</span> 复制作品的图片。默认未选择，因为它在某些社交软件里的优先级太高，会导致 <span class="blue">text/html</span> 格式的内容被忽略。
+<br>
+- <span class="blue">text/plain</span> 复制作品的文字信息。几乎所有应用程序都支持粘贴纯文本内容。
+<br>
+- <span class="blue">text/html</span> 同时复制作品的图片和文字信息。这是富文本格式，同时包含了上面两种内容。
+<br>
+<br>
+<strong>提示：</strong>
+<br>
+- 这个功能在设计时的重点是同时复制图片和文字内容（<span class="blue">text/html</span>），以便于分享或存档，但实际效果取决于目标应用。有些应用可能不支持此格式，或者无法正确显示图片。
+<br>
+- 你可以同时选择多种格式，也就是同时复制多种内容。但是当你在应用程序里粘贴时，应用程序只会使用其中<strong>一种</strong>内容，也就是优先级最高的格式。其他格式的内容会被忽略。
+<br>
+- 在不同的应用程序里，优先级可能会不同。这与下载器无关。
+<br>
+- 例如：如果你同时复制了 <span class="blue">image/png</span> 和 <span class="blue">text/html</span> 内容，某些应用程序会使用前者，但某些应用程序可能会使用后者。如果粘贴的内容不符合你的预期，你可以取消选择其中一种格式。
+<br>
+<br>
+<strong>一些具体的例子：</strong>
+<br>
+<br>
+浏览器：
+<br>
+网页上的输入区域默认只能粘贴纯文本内容，也就是 <span class="blue">text/plain</span>。
+<br>
+某些网页应用程序可能有针对性优化，例如在 Discord 里你可以粘贴图片 <span class="blue">image/png</span>；在 Gmail 里你可以同时粘贴图片和文字，也就是 <span class="blue">text/html</span>。
+<br>
+<br>
+Microsoft Word：
+<br>
+它会优先采用 <span class="blue">text/html</span> 格式的内容，其次是 <span class="blue">image/png</span>，最后是 <span class="blue">text/plain</span>。
+<br>
+<br>
+Telegram：
+<br>
+它不支持 <span class="blue">text/html</span> 格式，所以你无法在 Telegram 里同时粘贴图片和文字。
+<br>
+其他格式的优先级是：<span class="blue">image/png</span>、<span class="blue">text/plain</span>。
+<br>
+<br>
+QQ、微信：
+<br>
+它们的优先级是：<span class="blue">image/png</span>、<span class="blue">text/html</span>、<span class="blue">text/plain</span>。
+<br>
+如果你想在 QQ、微信里同时粘贴图片和文字，应该选择 <span class="blue">text/html</span>，并且取消勾选 <span class="blue">image/png</span>，否则它们只会粘贴图片。
+<br>
+但是 QQ 的当前版本 9.9.21 存在 Bug，粘贴图文混合内容时，图片会加载失败，并导致消息发送失败。QQ 的旧版本和微信没有上述的 Bug。
+<br>
+如果你遇到了这个 Bug，可以从 QQ 官网下载 9.9.20 版本的安装文件:
+<br>
+<a href="https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.20_250616_x64_01.exe" target="_blank" rel="noopener noreferrer">https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.20_250616_x64_01.exe</a>
+<br>
+然后退出 QQ，安装旧版本的 exe 文件，就可以发送图文混合消息了。
+<br>
+<br>
+Android 应用：
+<br>
+Android 上的某些应用虽然可以粘贴 <span class="blue">text/html</span> 内容，但图片可能无法显示。
+<br>
+<br>`,
+        `你可以根據自己的需要選擇複製的內容。
+<br>
+<br>
+<strong>每種格式的說明：</strong>
+<br>
+- <span class="blue">image/png</span> 複製作品的圖片。預設未選擇，因為它在某些社交軟體裡的優先級太高，會導致 <span class="blue">text/html</span> 格式的內容被忽略。
+<br>
+- <span class="blue">text/plain</span> 複製作品的文字資訊。幾乎所有應用程式都支援貼上純文字內容。
+<br>
+- <span class="blue">text/html</span> 同時複製作品的圖片和文字資訊。這是富文字格式，同時包含了上面兩種內容。
+<br>
+<br>
+<strong>提示：</strong>
+<br>
+- 這個功能在設計時的重點是同時複製圖片和文字內容（<span class="blue">text/html</span>），以便於分享或存檔，但實際效果取決於目標應用。有些應用可能不支援此格式，或者無法正確顯示圖片。
+<br>
+- 你可以同時選擇多種格式，也就是同時複製多種內容。但是當你在應用程式裡貼上時，應用程式只會使用其中<strong>一種</strong>內容，也就是優先級最高的格式。其他格式的內容會被忽略。
+<br>
+- 在不同的應用程式裡，優先級可能會不同。這與下載器無關。
+<br>
+- 例如：如果你同時複製了 <span class="blue">image/png</span> 和 <span class="blue">text/html</span> 內容，某些應用程式會使用前者，但某些應用程式可能會使用後者。如果貼上的內容不符合你的預期，你可以取消選擇其中一種格式。
+<br>
+<br>
+<strong>一些具體的例子：</strong>
+<br>
+<br>
+瀏覽器：
+<br>
+網頁上的輸入區域預設只能貼上純文字內容，也就是 <span class="blue">text/plain</span>。
+<br>
+某些網頁應用程式可能有針對性優化，例如在 Discord 裡你可以貼上圖片 <span class="blue">image/png</span>；在 Gmail 裡你可以同時貼上圖片和文字，也就是 <span class="blue">text/html</span>。
+<br>
+<br>
+Microsoft Word：
+<br>
+它會優先採用 <span class="blue">text/html</span> 格式的內容，其次是 <span class="blue">image/png</span>，最後是 <span class="blue">text/plain</span>。
+<br>
+<br>
+Telegram：
+<br>
+它不支援 <span class="blue">text/html</span> 格式，所以你無法在 Telegram 裡同時貼上圖片和文字。
+<br>
+其他格式的優先級是：<span class="blue">image/png</span>、<span class="blue">text/plain</span>。
+<br>
+<br>
+QQ、微信：
+<br>
+它們的優先級是：<span class="blue">image/png</span>、<span class="blue">text/html</span>、<span class="blue">text/plain</span>。
+<br>
+如果你想在 QQ、微信裡同時貼上圖片和文字，應該選擇 <span class="blue">text/html</span>，並且取消勾選 <span class="blue">image/png</span>，否則它們只會貼上圖片。
+<br>
+但是 QQ 的當前版本 9.9.21 存在 Bug，貼上圖文混合內容時，圖片會載入失敗，並導致訊息發送失敗。QQ 的舊版本和微信沒有上述的 Bug。
+<br>
+如果你遇到了這個 Bug，可以從 QQ 官網下載 9.9.20 版本的安裝文件:
+<br>
+<a href="https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.20_250616_x64_01.exe" target="_blank" rel="noopener noreferrer">https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.20_250616_x64_01.exe</a>
+<br>
+然後退出 QQ，安裝舊版本的 exe 文件，就可以發送圖文混合訊息了。
+<br>
+<br>
+Android 應用：
+<br>
+Android 上的某些應用雖然可以貼上 <span class="blue">text/html</span> 內容，但圖片可能無法顯示。
+<br>
+<br>`,
+        `You can select the content to copy based on your needs.
+<br>
+<br>
+<strong>Explanation of each format:</strong>
+<br>
+- <span class="blue">image/png</span> Copies the image of the work. Not selected by default, because it has too high priority in some social software, which can cause the <span class="blue">text/html</span> format content to be ignored.
+<br>
+- <span class="blue">text/plain</span> Copies the text information of the work. Almost all applications support pasting plain text content.
+<br>
+- <span class="blue">text/html</span> Copies both the image and text information of the work. This is rich text format, which includes both of the above contents.
+<br>
+<br>
+<strong>Tips:</strong>
+<br>
+- The focus of this feature's design is to copy both image and text content simultaneously (<span class="blue">text/html</span>), for easy sharing or archiving, but the actual effect depends on the target application. Some applications may not support this format or may not display the image correctly.
+<br>
+- You can select multiple formats at the same time, which means copying multiple contents simultaneously. However, when you paste in an application, the application will only use <strong>one</strong> of them, namely the format with the highest priority. The content of other formats will be ignored.
+<br>
+- The priority may differ in different applications. This has nothing to do with the downloader.
+<br>
+- For example: If you copy both <span class="blue">image/png</span> and <span class="blue">text/html</span> content, some applications will use the former, but some may use the latter. If the pasted content does not meet your expectations, you can unselect one of the formats.
+<br>
+<br>
+<strong>Some specific examples:</strong>
+<br>
+<br>
+Browser:
+<br>
+The input area on a webpage can only paste plain text content by default, which is <span class="blue">text/plain</span>.
+<br>
+Some web applications may have targeted optimizations, for example, in Discord you can paste images <span class="blue">image/png</span>; in Gmail you can paste both images and text, which is <span class="blue">text/html</span>.
+<br>
+<br>
+Microsoft Word:
+<br>
+It prioritizes the <span class="blue">text/html</span> format content, followed by <span class="blue">image/png</span>, and finally <span class="blue">text/plain</span>.
+<br>
+<br>
+Telegram:
+<br>
+It does not support the <span class="blue">text/html</span> format, so you cannot paste both images and text in Telegram at the same time.
+<br>
+The priority of other formats is: <span class="blue">image/png</span>, <span class="blue">text/plain</span>.
+<br>
+<br>
+QQ, WeChat:
+<br>
+Their priority is: <span class="blue">image/png</span>, <span class="blue">text/html</span>, <span class="blue">text/plain</span>.
+<br>
+If you want to paste both images and text in QQ or WeChat, you should select <span class="blue">text/html</span> and uncheck <span class="blue">image/png</span>; otherwise, they will only paste the image.
+<br>
+<br>
+Android apps:
+<br>
+Some apps on Android can paste <span class="blue">text/html</span> content, but the image may not display properly.
+<br>
+<br>`,
+        `自分のニーズに応じてコピーする内容を選択できます。
+<br>
+<br>
+<strong>各フォーマットの説明：</strong>
+<br>
+- <span class="blue">image/png</span> 作品の画像をコピーします。デフォルトでは選択されていません。一部のソーシャルソフトウェアで優先度が高すぎるため、<span class="blue">text/html</span> 形式のコンテンツが無視される可能性があります。
+<br>
+- <span class="blue">text/plain</span> 作品のテキスト情報をコピーします。ほぼすべてのアプリケーションがプレーンテキストコンテンツの貼り付けをサポートしています。
+<br>
+- <span class="blue">text/html</span> 作品の画像とテキスト情報を同時にコピーします。これはリッチテキスト形式で、上記の2つのコンテンツの両方を含みます。
+<br>
+<br>
+<strong>ヒント：</strong>
+<br>
+- この機能の設計の焦点は、画像とテキスト内容を同時にコピーすること（<span class="blue">text/html</span>）で、共有やアーカイブを容易にしますが、実際の効果は対象アプリケーションに依存します。一部のアプリケーションはこの形式をサポートしていないか、画像を正しく表示できない場合があります。
+<br>
+- 複数のフォーマットを同時に選択できます。つまり、複数の内容を同時にコピーします。ただし、アプリケーションに貼り付けると、アプリケーションはその中で<strong>1つ</strong>のみを使用します。つまり、優先度が最も高いフォーマットです。他のフォーマット的内容は無視されます。
+<br>
+- 異なるアプリケーションでは優先度が異なる可能性があります。これはダウンロードツールとは関係ありません。
+<br>
+- 例： <span class="blue">image/png</span> と <span class="blue">text/html</span> の両方をコピーした場合、一部のアプリケーションは前者を使用しますが、一部のアプリケーションは後者を使用する可能性があります。貼り付けられた内容が期待に沿わない場合、フォーマットの1つを選択解除できます。
+<br>
+<br>
+<strong>具体的な例：</strong>
+<br>
+<br>
+ブラウザ：
+<br>
+ウェブページの入力エリアはデフォルトでプレーンテキスト内容のみ貼り付け可能で、<span class="blue">text/plain</span> です。
+<br>
+一部のウェブアプリケーションは対象を最適化している可能性があり、例えば Discord では画像 <span class="blue">image/png</span> を貼り付けられます；Gmail では画像とテキストの両方を同時に貼り付けられます。つまり <span class="blue">text/html</span> です。
+<br>
+<br>
+Microsoft Word：
+<br>
+<span class="blue">text/html</span> 形式の内容を優先し、次に <span class="blue">image/png</span>、最後に <span class="blue">text/plain</span> を採用します。
+<br>
+<br>
+Telegram：
+<br>
+<span class="blue">text/html</span> 形式をサポートしていないため、Telegram で画像とテキストを同時に貼り付けることはできません。
+<br>
+他のフォーマットの優先度は：<span class="blue">image/png</span>、<span class="blue">text/plain</span>。
+<br>
+<br>
+QQ、WeChat：
+<br>
+優先度は：<span class="blue">image/png</span>、<span class="blue">text/html</span>、<span class="blue">text/plain</span>。
+<br>
+QQ や WeChat で画像とテキストを同時に貼り付けたい場合、<span class="blue">text/html</span> を選択し、<span class="blue">image/png</span> のチェックを外してください。さもないと画像のみが貼り付けられます。
+<br>
+<br>
+Android アプリ：
+<br>
+Android の一部のアプリは <span class="blue">text/html</span> 内容を貼り付けられますが、画像が正しく表示されない場合があります。
+<br>
+<br>`,
+        `자신의 필요에 따라 복사할 내용을 선택할 수 있습니다.
+<br>
+<br>
+<strong>각 형식의 설명:</strong>
+<br>
+- <span class="blue">image/png</span> 작품의 이미지를 복사합니다. 기본적으로 선택되지 않음. 일부 소셜 소프트웨어에서 우선순위가 너무 높아 <span class="blue">text/html</span> 형식의 콘텐츠가 무시될 수 있기 때문입니다.
+<br>
+- <span class="blue">text/plain</span> 작품의 텍스트 정보를 복사합니다. 거의 모든 애플리케이션이 플레인 텍스트 콘텐츠의 붙여넣기를 지원합니다.
+<br>
+- <span class="blue">text/html</span> 작품의 이미지와 텍스트 정보를 동시에 복사합니다. 이는 리치 텍스트 형식으로, 위의 두 가지 콘텐츠를 모두 포함합니다.
+<br>
+<br>
+<strong>팁:</strong>
+<br>
+- 이 기능의 설계 초점은 이미지와 텍스트 내용을 동시에 복사하는 것(<span class="blue">text/html</span>)으로, 공유나 아카이빙을 용이하게 하지만 실제 효과는 대상 응용 프로그램에 따라 다릅니다. 일부 응용 프로그램은 이 형식을 지원하지 않거나 이미지를 올바르게 표시하지 못할 수 있습니다.
+<br>
+- 여러 형식을 동시에 선택할 수 있으며, 이는 여러 내용을 동시에 복사하는 것을 의미합니다. 그러나 응용 프로그램에 붙여넣을 때 응용 프로그램은 그중 <strong>하나</strong>만 사용합니다. 즉, 우선순위가 가장 높은 형식입니다. 다른 형식의 내용은 무시됩니다.
+<br>
+- 다른 응용 프로그램에서는 우선순위가 다를 수 있습니다. 이는 다운로더와 무관합니다.
+<br>
+- 예: <span class="blue">image/png</span>과 <span class="blue">text/html</span> 내용을 동시에 복사하면 일부 응용 프로그램은 전자를 사용하지만 일부는 후자를 사용할 수 있습니다. 붙여넣은 내용이 기대에 맞지 않으면 해당 형식 중 하나를 선택 해제할 수 있습니다.
+<br>
+<br>
+<strong>구체적인 예시:</strong>
+<br>
+<br>
+브라우저:
+<br>
+웹페이지의 입력 영역은 기본적으로 순수 텍스트 내용만 붙여넣을 수 있으며, 이는 <span class="blue">text/plain</span>입니다.
+<br>
+일부 웹 응용 프로그램은 대상에 맞게 최적화될 수 있으며, 예를 들어 Discord에서는 이미지 <span class="blue">image/png</span>을 붙여넣을 수 있습니다; Gmail에서는 이미지와 텍스트를 동시에 붙여넣을 수 있으며, 이는 <span class="blue">text/html</span>입니다.
+<br>
+<br>
+Microsoft Word:
+<br>
+<span class="blue">text/html</span> 형식의 내용을 우선 채택하며, 그 다음 <span class="blue">image/png</span>, 마지막으로 <span class="blue">text/plain</span>입니다.
+<br>
+<br>
+Telegram:
+<br>
+<span class="blue">text/html</span> 형식을 지원하지 않으므로 Telegram에서 이미지와 텍스트를 동시에 붙여넣을 수 없습니다.
+<br>
+다른 형식의 우선순위는: <span class="blue">image/png</span>, <span class="blue">text/plain</span>.
+<br>
+<br>
+QQ, WeChat:
+<br>
+우선순위는: <span class="blue">image/png</span>, <span class="blue">text/html</span>, <span class="blue">text/plain</span>.
+<br>
+QQ나 WeChat에서 이미지와 텍스트를 동시에 붙여넣고 싶다면 <span class="blue">text/html</span>을 선택하고 <span class="blue">image/png</span>의 체크를 해제하세요. 그렇지 않으면 이미지만 붙여넣습니다.
+<br>
+<br>
+Android 앱:
+<br>
+Android의 일부 앱은 <span class="blue">text/html</span> 내용을 붙여넣을 수 있지만 이미지가 제대로 표시되지 않을 수 있습니다。
+<br>
+<br>`,
+        `Вы можете выбрать содержимое для копирования в соответствии со своими потребностями.
+<br>
+<br>
+<strong>Описание каждого формата:</strong>
+<br>
+- <span class="blue">image/png</span> Копирует изображение работы. По умолчанию не выбрано, поскольку в некоторых социальных программах его приоритет слишком высок, что может привести к игнорированию содержимого в формате <span class="blue">text/html</span>.
+<br>
+- <span class="blue">text/plain</span> Копирует текстовую информацию работы. Почти все приложения поддерживают вставку содержимого в формате обычного текста.
+<br>
+- <span class="blue">text/html</span> Копирует как изображение, так и текстовую информацию работы. Это формат расширенного текста, который включает оба вышеуказанных содержимых.
+<br>
+<br>
+<strong>Советы:</strong>
+<br>
+- Основной акцент в дизайне этой функции — одновременное копирование изображения и текстового содержимого (<span class="blue">text/html</span>) для удобного обмена или архивирования, но реальный эффект зависит от целевого приложения. Некоторые приложения могут не поддерживать этот формат или не отображать изображение правильно.
+<br>
+- Вы можете выбрать несколько форматов одновременно, что означает копирование нескольких содержимых. Однако при вставке в приложение оно использует только <strong>одно</strong> из них — формат с наивысшим приоритетом. Содержимое других форматов будет проигнорировано.
+<br>
+- В разных приложениях приоритет может отличаться. Это не связано с загрузчиком.
+<br>
+- Например: если вы скопируете содержимое <span class="blue">image/png</span> и <span class="blue">text/html</span>, некоторые приложения будут использовать первое, но другие — второе. Если вставленное содержимое не соответствует вашим ожиданиям, вы можете отменить выбор одного из форматов.
+<br>
+<br>
+<strong>Некоторые конкретные примеры:</strong>
+<br>
+<br>
+Браузер:
+<br>
+Область ввода на веб-странице по умолчанию может вставлять только чистый текст, то есть <span class="blue">text/plain</span>.
+<br>
+Некоторые веб-приложения могут иметь целевую оптимизацию, например, в Discord вы можете вставить изображение <span class="blue">image/png</span>; в Gmail вы можете вставить изображение и текст одновременно, то есть <span class="blue">text/html</span>.
+<br>
+<br>
+Microsoft Word:
+<br>
+Он отдаст предпочтение содержимому формата <span class="blue">text/html</span>, затем <span class="blue">image/png</span>, и наконец <span class="blue">text/plain</span>.
+<br>
+<br>
+Telegram:
+<br>
+Он не поддерживает формат <span class="blue">text/html</span>, поэтому вы не можете вставить изображение и текст одновременно в Telegram.
+<br>
+Приоритет других форматов: <span class="blue">image/png</span>, <span class="blue">text/plain</span>.
+<br>
+<br>
+QQ, WeChat:
+<br>
+Их приоритет: <span class="blue">image/png</span>, <span class="blue">text/html</span>, <span class="blue">text/plain</span>.
+<br>
+Если вы хотите вставить изображение и текст одновременно в QQ или WeChat, выберите <span class="blue">text/html</span> и снимите галочку с <span class="blue">image/png</span>; иначе они вставят только изображение.
+<br>
+<br>
+Приложения для Android:
+<br>
+Некоторые приложения на Android могут вставлять содержимое <span class="blue">text/html</span>, но изображение может не отображаться правильно。
+<br>
+<br>`,
+    ],
+    _文本格式: [
+        `文本格式`,
+        `文字格式`,
+        `Text format`,
+        `テキスト形式`,
+        `텍스트 형식`,
+        `Текстовый формат`,
+    ],
     _正在加载缩略图: [
         `正在加载缩略图`,
         `正在載入縮略圖`,
@@ -30562,6 +31088,24 @@ P.S. Работы заблокированных пользователей не
         `サムネイルを読み込み中`,
         `썸네일 로딩 중`,
         `Загрузка миниатюры`,
+    ],
+    _正在加载图片: [
+        `正在加载图片`,
+        `正在載入圖片`,
+        `Loading image`,
+        `画像を読み込んでいます`,
+        `이미지 로딩 중`,
+        `Загружается изображение`,
+    ],
+    _说明: [`说明`, `說明`, `Explanation`, `説明`, `설명`, `Описание`],
+    _帮助: [`帮助`, `幫助`, `Help`, `ヘルプ`, `도움말`, `Справка`],
+    _至少需要选择一种复制格式: [
+        `至少需要选择一种复制格式`,
+        `至少需要選擇一種複製格式`,
+        `At least one copy format must be selected`,
+        `少なくとも1つのコピー形式を選択する必要があります`,
+        `최소 한 가지 복사 형식을 선택해야 합니다`,
+        `Необходимо выбрать хотя бы один формат копирования`,
     ],
 };
 
@@ -30573,7 +31117,7 @@ P.S. Работы заблокированных пользователей не
 // - 输出内容保存在一个 JavaScript 代码块里。
 // - 代码的内容就是翻译后的数组。不需要把数组保存到一个变量里。
 // - 字符串使用反引号 ` 包裹。
-// - 数组的最后一项后面保留逗号。
+// - 数组的最后一条语句后面需要添加逗号。这是 JS 语法里数组项后面的逗号，不要添加到语句里。
 // - 翻译的语句后面不需要添加注释。
 // 备注：
 // - 如果中文语句里有 html 标签，翻译时需要原样保留。
@@ -31025,7 +31569,7 @@ class BookmarkAllWorks {
                     const e = error;
                     let msg = '';
                     if (e.status) {
-                        msg = `${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_发生错误原因')}${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_错误代码')}${e.status}. ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_请稍后重试')}`;
+                        msg = `${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_发生错误原因')}${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_错误代码')}: ${e.status}. ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_请稍后重试')}`;
                     }
                     else {
                         msg = `${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_发生错误原因')}${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_未知错误')}${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_请稍后重试')}`;
@@ -31270,7 +31814,7 @@ class CopyButtonOnWorkPage {
             _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_6__.copyWorkInfo.receive(idData);
             const msg = `${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_显示复制按钮的提示')}
       <br>
-      ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_相关设置')}: ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_显示复制按钮')}
+      ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_相关设置')}: ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_复制按钮')}
       <br>
       ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_增强'))}`;
             _ShowHelp__WEBPACK_IMPORTED_MODULE_4__.showHelp.show('tipCopyWorkInfoButton', msg);
@@ -33161,24 +33705,33 @@ class Form {
         }
         // 显示命名字段提示
         this.form
-            .querySelector('.showFileNameTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('.fileNameTip')));
+            .querySelector('#showFileNameTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#fileNameTip')));
         // 显示复制内容的格式的提示
         this.form
-            .querySelector('.showCopyWorkInfoFormatTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('.copyWorkInfoFormatTip')));
+            .querySelector('#showCopyWorkInfoFormatTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#copyWorkInfoFormatTip')));
         // 显示日期格式提示
         this.form
-            .querySelector('.showDateTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('.dateFormatTip')));
+            .querySelector('#showDateTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#dateFormatTip')));
         // 显示标签分隔提示
         this.form
-            .querySelector('.showTagsSeparatorTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('.tagsSeparatorTip')));
-        // 显示标签分隔提示
+            .querySelector('#showTagsSeparatorTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#tagsSeparatorTip')));
+        // 显示预览作品的快捷键列表
         this.form
-            .querySelector('.showPreviewWorkTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('.previewWorkTip')));
+            .querySelector('#showPreviewWorkShortcutTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#previewWorkShortcutTip')));
+        // 下面是通过 msgBox 显示的帮助
+        // 显示复制按钮所复制的内容的提示
+        this.form
+            .querySelector('#showCopyWorkDataTip')
+            .addEventListener('click', () => {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_对复制的内容的说明'), {
+                title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_复制内容'),
+            });
+        });
         // 显示用户阻止名单的提示
         this.form
             .querySelector('#showRemoveBlockedUsersWorkTip')
@@ -33626,9 +34179,9 @@ const formHtml = `
       </select>
       &nbsp;
       <slot data-name="saveNamingRule"></slot>
-      <button class="showFileNameTip textButton" type="button" data-xztext="_提示"></button>
+      <button class="showFileNameTip textButton" id="showFileNameTip" type="button" data-xztext="_提示"></button>
     </p>
-    <p class="fileNameTip tip">
+    <p class="fileNameTip tip" id="fileNameTip">
       <span data-xztext="_设置文件夹名的提示"></span>
       <span>{user}<span class="key">/</span>{id}</span>
       <br>
@@ -33716,44 +34269,6 @@ const formHtml = `
       <br>
       <span class="blue">{p_num}</span>
       <span data-xztext="_命名标记p_num"></span>
-    </p>
-    <p class="option" data-no="14">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(14)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示复制按钮的提示">
-        <span data-xztext="_显示复制按钮"></span>
-        <span class="gray1"> ? </span>
-      </a>
-      <input type="checkbox" name="showCopyBtnOnThumb" class="need_beautify checkbox_switch">
-      <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="showCopyBtnOnThumb">
-        <label for="copyThumb" class="has_tip" data-xztext="_复制缩略图"></label>
-        <input type="checkbox" name="copyThumb" id="copyThumb" class="need_beautify checkbox_switch" checked>
-        <span class="beautify_switch" tabindex="0"></span>
-        <span class="verticalSplit"></span>
-        <span data-xztext="_内容格式"></span>
-        &nbsp;
-        <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:250px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
-        <button type="button" class="gray1 textButton showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
-      </span>
-    </p>
-    <p class="copyWorkInfoFormatTip tip" style="display:none">
-      <span data-xztext="_复制内容的格式的提示"></span>
-      <br>
-      <span class="blue">{url}</span>
-      <span data-xztext="_url标记的说明"></span>
-      <br>
-      <span class="blue">{n}</span>
-      <span data-xztext="_换行标记的说明"></span>
-      <br>
-    </p>
-    <p class="copyWorkInfoFormatTip tip" style="display:none">
-      <span data-xztext="_复制内容的格式的提示"></span>
-      <br>
-      <span class="blue">{url}</span>
-      <span data-xztext="_url标记的说明"></span>
-      <br>
-      <span class="blue">{n}</span>
-      <span data-xztext="_换行标记的说明"></span>
-      <br>
     </p>
     <p class="option" data-no="50">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(50)}" target="_blank" class="settingNameStyle" data-xztext="_在不同的页面类型中使用不同的命名规则"></a>
@@ -34018,9 +34533,9 @@ const formHtml = `
     <p class="option" data-no="83">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(83)}" target="_blank" class="settingNameStyle" data-xztext="_标签分隔符号"></a>
       <input type="text" name="tagsSeparator" class="setinput_style1 blue" value=",">
-      <button type="button" class="gray1 textButton showTagsSeparatorTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton" id="showTagsSeparatorTip" data-xztext="_提示"></button>
     </p>
-    <p class="tagsSeparatorTip tip" style="display:none">
+    <p class="tip" id="tagsSeparatorTip" style="display:none">
       <span data-xztext="_标签分隔符号提示"></span>
     </p>
     <p class="option" data-no="67">
@@ -34258,19 +34773,6 @@ const formHtml = `
       <input type="checkbox" name="highlightFollowingUsers" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
     </p>
-    <p class="option" data-no="87">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(87)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览作品的详细信息的说明">
-        <span data-xztext="_预览作品的详细信息"></span>
-        <span class="gray1"> ? </span>
-      </a>
-      <input type="checkbox" name="PreviewWorkDetailInfo" class="need_beautify checkbox_switch">
-      <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="PreviewWorkDetailInfo">
-        <span data-xztext="_显示区域宽度"></span>&nbsp;
-        <input type="text" name="PreviewDetailInfoWidth" class="setinput_style1 blue" value="500" style="width:40px;min-width: 40px;">
-        <span>&nbsp;px</span>
-      </span>
-    </p>
     <p class="option" data-no="68">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(68)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示更大的缩略图的说明">
         <span data-xztext="_显示更大的缩略图"></span>
@@ -34319,10 +34821,10 @@ const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label for="prevWorkSize2" data-xztext="_普通"></label>
         <span class="verticalSplit"></span>
-        <button type="button" class="gray1 textButton showPreviewWorkTip" data-xztext="_快捷键列表"></button>
+        <button type="button" class="gray1 textButton" id="showPreviewWorkShortcutTip" data-xztext="_快捷键列表"></button>
       </span>
     </p>
-    <p class="previewWorkTip tip" style="display:none">
+    <p class="tip" id="previewWorkShortcutTip" style="display:none">
       <span data-xztext="_预览作品的快捷键说明"></span>
     </p>
     <p class="option" data-no="71">
@@ -34371,6 +34873,52 @@ const formHtml = `
       <input type="checkbox" name="showDownloadBtnOnThumb" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
     </p>
+    <p class="option" data-no="14">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(14)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示复制按钮的提示">
+        <span data-xztext="_复制按钮"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <label for="showCopyBtnOnThumb" data-xztext="_在缩略图上显示"></label>
+      <input type="checkbox" name="showCopyBtnOnThumb" id="showCopyBtnOnThumb" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="verticalSplit"></span>
+      
+      <span data-xztext="_复制内容"></span>:&nbsp;
+      <input type="checkbox" name="copyFormatImage" id="setCopyFormatImage" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="setCopyFormatImage">image/png</label>
+      <input type="checkbox" name="copyFormatText" id="setCopyFormatText" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="setCopyFormatText">text/plain</label>
+      <input type="checkbox" name="copyFormatHtml" id="setCopyFormatHtml" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="setCopyFormatHtml">text/html</label>
+      <button type="button" class="gray1 textButton" id="showCopyWorkDataTip" data-xztext="_帮助"></button>
+      <span class="verticalSplit"></span>
+
+      <span class="settingNameStyle" data-xztext="_图片尺寸2"></span>
+      <input type="radio" name="copyImageSize" id="copyImageSize1" class="need_beautify radio" value="original">
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="copyImageSize1" data-xztext="_原图"></label>
+      <input type="radio" name="copyImageSize" id="copyImageSize2" class="need_beautify radio" value="regular" checked>
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="copyImageSize2" data-xztext="_普通"></label>
+      <span class="verticalSplit"></span>
+      
+      <span data-xztext="_文本格式"></span>:&nbsp;
+      <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:100%;max-width:350px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
+      <button type="button" class="gray1 textButton" id="showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
+    </p>
+    <p class="tip" id="copyWorkInfoFormatTip" style="display:none">
+      <span data-xztext="_复制内容的格式的提示"></span>
+      <br>
+      <span class="blue">{url}</span>
+      <span data-xztext="_url标记的说明"></span>
+      <br>
+      <span class="blue">{n}</span>
+      <span data-xztext="_换行标记的说明"></span>
+      <br>
+    </p>
     <p class="option" data-no="86">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(86)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在多图作品页面里显示缩略图列表的说明">
         <span data-xztext="_在多图作品页面里显示缩略图列表"></span>
@@ -34378,6 +34926,19 @@ const formHtml = `
       </a>
       <input type="checkbox" name="displayThumbnailListOnMultiImageWorkPage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
+    </p>
+    <p class="option" data-no="87">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(87)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览作品的详细信息的说明">
+        <span data-xztext="_预览作品的详细信息"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="PreviewWorkDetailInfo" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="PreviewWorkDetailInfo">
+        <span data-xztext="_显示区域宽度"></span>&nbsp;
+        <input type="text" name="PreviewDetailInfoWidth" class="setinput_style1 blue" value="500" style="width:40px;min-width: 40px;">
+        <span>&nbsp;px</span>
+      </span>
     </p>
     <p class="option" data-no="48">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(48)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在搜索页面添加快捷搜索区域的说明">
@@ -34431,9 +34992,9 @@ const formHtml = `
     <p class="option" data-no="31">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(31)}" target="_blank" class="settingNameStyle" data-xztext="_日期格式"></a>
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
-      <button type="button" class="gray1 textButton showDateTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton" id="showDateTip" data-xztext="_提示"></button>
     </p>
-    <p class="dateFormatTip tip" style="display:none">
+    <p class="tip" id="dateFormatTip" style="display:none">
       <span data-xztext="_日期格式提示"></span>
       <br>
       <span class="blue">YYYY</span> <span>2021</span>
@@ -34665,7 +35226,6 @@ class FormSettings {
             'autoExportResultJSON',
             'PreviewWork',
             'showDownloadBtnOnThumb',
-            'showCopyBtnOnThumb',
             'showOriginImage',
             'replaceSquareThumb',
             'notFolderWhenOneFile',
@@ -34700,7 +35260,10 @@ class FormSettings {
             'saveWorkDescription',
             'saveEachDescription',
             'summarizeDescription',
-            'copyThumb',
+            'copyFormatImage',
+            'copyFormatText',
+            'copyFormatHtml',
+            'showCopyBtnOnThumb',
         ],
         text: [
             'firstFewImages',
@@ -34762,6 +35325,7 @@ class FormSettings {
             'exportLogTiming',
             'downloadOrder',
             'downloadOrderSortBy',
+            'copyImageSize',
         ],
         textarea: ['notNeedTag', 'blockList', 'createFolderTagList'],
         datetime: ['postDateStart', 'postDateEnd'],
@@ -35194,7 +35758,7 @@ class Options {
         // 某些设置在移动端不会生效，所以隐藏它们
         // 主要是和作品缩略图相关的一些设置、增强功能
         if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
-            this.hideOption([14, 18, 68, 55, 71, 62, 40]);
+            this.hideOption([18, 68, 55, 71, 62, 40]);
         }
         // 大部分设置在 pixivision 里都不适用，所以需要隐藏它们
         if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Pixivision) {
@@ -35825,7 +36389,6 @@ class Settings {
         autoExportResultNumber: 1,
         PreviewWork: true,
         showDownloadBtnOnThumb: true,
-        showCopyBtnOnThumb: true,
         prevWorkSize: 'regular',
         previewWorkWait: 400,
         showPreviewWorkTip: true,
@@ -35890,9 +36453,13 @@ class Settings {
         downloadInterval: 0,
         downloadIntervalOnWorksNumber: 120,
         tipOpenWikiLink: true,
-        copyWorkInfoFormat: 'id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}',
-        copyThumb: true,
+        copyWorkInfoFormat: 'Title={title}{n}Tag={tags}{n}{url}{n}',
+        showCopyBtnOnThumb: true,
+        copyFormatImage: false,
+        copyFormatText: true,
+        copyFormatHtml: true,
         tipCopyWorkInfoButton: true,
+        copyImageSize: 'regular',
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的选项

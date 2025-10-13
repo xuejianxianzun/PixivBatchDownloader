@@ -218,7 +218,6 @@ interface XzSetting {
   autoExportResultNumber: number
   PreviewWork: boolean
   showDownloadBtnOnThumb: boolean
-  showCopyBtnOnThumb: boolean
   prevWorkSize: 'original' | 'regular'
   previewWorkWait: number
   showPreviewWorkTip: boolean
@@ -297,8 +296,12 @@ interface XzSetting {
   downloadIntervalOnWorksNumber: number
   tipOpenWikiLink: boolean
   copyWorkInfoFormat: string
-  copyThumb: boolean
+  showCopyBtnOnThumb: boolean
+  copyFormatImage: boolean
+  copyFormatText: boolean
+  copyFormatHtml: boolean
   tipCopyWorkInfoButton: boolean
+  copyImageSize: 'original' | 'regular'
 }
 
 type SettingKeys = keyof XzSetting
@@ -662,7 +665,6 @@ class Settings {
     autoExportResultNumber: 1,
     PreviewWork: true,
     showDownloadBtnOnThumb: true,
-    showCopyBtnOnThumb: true,
     prevWorkSize: 'regular',
     previewWorkWait: 400,
     showPreviewWorkTip: true,
@@ -727,10 +729,13 @@ class Settings {
     downloadInterval: 0,
     downloadIntervalOnWorksNumber: 120,
     tipOpenWikiLink: true,
-    copyWorkInfoFormat:
-      'Title={title}{n}Tag={tags}{n}{url}{n}',
-    copyThumb: true,
+    copyWorkInfoFormat: 'Title={title}{n}Tag={tags}{n}{url}{n}',
+    showCopyBtnOnThumb: true,
+    copyFormatImage: false,
+    copyFormatText: true,
+    copyFormatHtml: true,
     tipCopyWorkInfoButton: true,
+    copyImageSize: 'regular',
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -1020,7 +1025,7 @@ class Settings {
     }
 
     // 更改设置
-    ; (this.settings[key] as any) = value
+    ;(this.settings[key] as any) = value
 
     // 当修改某些设置时，顺便修改以来它的设置
     if (key === 'widthTag') {
