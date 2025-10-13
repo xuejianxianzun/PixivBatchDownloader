@@ -110,6 +110,7 @@ export interface SettingsForm extends HTMLFormElement {
   copyFormatText: HTMLInputElement
   copyFormatHtml: HTMLInputElement
   copyFormatImage: HTMLInputElement
+  copyImageSize: HTMLInputElement
   showCopyBtnOnThumb: HTMLInputElement
   prevWorkSize: HTMLInputElement
   previewWorkWait: HTMLInputElement

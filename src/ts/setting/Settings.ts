@@ -300,6 +300,7 @@ interface XzSetting {
   copyFormatText: boolean
   copyFormatHtml: boolean
   tipCopyWorkInfoButton: boolean
+  copyImageSize: 'original' | 'regular'
 }
 
 type SettingKeys = keyof XzSetting
@@ -733,6 +734,7 @@ class Settings {
     copyFormatText: true,
     copyFormatHtml: true,
     tipCopyWorkInfoButton: true,
+    copyImageSize: 'regular',
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

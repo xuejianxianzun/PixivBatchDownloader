@@ -5828,12 +5828,12 @@ P.S. Работы заблокированных пользователей не
     `Отображать на миниатюре`,
   ],
   _显示复制按钮的提示: [
-    `下载器会在作品缩略图上和作品页面内显示一个复制按钮，点击它就可以复制作品的一些数据。<br>你可以自定义要复制的数据和格式。`,
-    `下載器會在作品縮略圖上和作品頁面內顯示一個複製按鈕，點擊它就可以複製作品的一些資料。<br>你可以自訂要複製的資料和格式。`,
-    `The downloader will display a copy button on the work thumbnail and within the work page. Clicking it allows you to copy some data of the work. <br>You can customize the data and format to be copied.`,
-    `ダウンロードツールは作品のサムネイル上と作品ページ内にコピーボタンを表示します。それをクリックすると作品のデータをコピーできます。<br>コピーするデータと形式をカスタマイズできます。`,
-    `다운로더는 작품 썸네일 위와 작품 페이지 내에 복사 버튼을 표시합니다. 클릭하면 작품의 일부 데이터를 복사할 수 있습니다. <br>복사할 데이터와 형식을 사용자 지정할 수 있습니다.`,
-    `Загрузчик отобразит кнопку копирования на миниатюре работы и внутри страницы работы. Нажатие на неё позволит скопировать некоторые данные работы. <br>Вы можете настроить данные и формат для копирования.`,
+    `下载器会在作品缩略图上和作品页面内显示一个复制按钮，点击它就可以复制作品的图片和一些数据。你可以自定义要复制的数据和格式。`,
+    `下載器會在作品縮圖上和作品頁面內顯示一個複製按鈕，點擊它就可以複製作品的圖片和一些資料。你可以自訂要複製的資料和格式。`,
+    `The downloader will display a copy button on the work thumbnail and within the work page. Clicking it allows you to copy the work's image and some data. You can customize the data and format to be copied.`,
+    `ダウンロードツールは、作品のサムネイルと作品ページ内にコピーボタンを表示します。これをクリックすると、作品の画像と一部のデータをコピーできます。コピーするデータとフォーマットをカスタマイズできます。`,
+    `다운로더는 작품 썸네일과 작품 페이지 내에 복사 버튼을 표시합니다. 클릭하면 작품의 이미지와 일부 데이터를 복사할 수 있습니다. 복사할 데이터와 형식을 사용자 지정할 수 있습니다.`,
+    `Загрузчик отображает кнопку копирования на миниатюре работы и внутри страницы работы. Нажатие на неё позволяет скопировать изображение работы и некоторые данные. Вы можете настроить данные и формат для копирования.`,
   ],
   _内容格式: [
     `内容格式`,
@@ -5907,6 +5907,14 @@ Additionally, you can use these tags:`,
     '복사 실패',
     'Копирование не удалось',
   ],
+  _复制时网页需要处于焦点状态: [
+    `复制时，网页需要处于焦点状态。`,
+    `複製時，網頁需要處於焦點狀態。`,
+    `When copying, the webpage needs to be in a focused state.`,
+    `コピーする際は、ウェブページがフォーカス状態である必要があります。`,
+    `복사할 때 웹페이지가 포커스 상태여야 합니다.`,
+    `При копировании веб-страница должна находиться в состоянии фокуса。`,
+  ],
   _复制摘要数据: [
     `复制摘要数据 (ALt + C)`,
     `複製摘要資料 (ALt + C)`,
@@ -5953,11 +5961,11 @@ Additionally, you can use these tags:`,
 <br>
 <strong>每种格式的说明：</strong>
 <br>
-- <span class="blue">image/png</span> 复制作品的缩略图。默认未选择，因为它在某些社交软件里的优先级太高，会导致 <span class="blue">text/html</span> 格式的内容被忽略。
+- <span class="blue">image/png</span> 复制作品的图片。默认未选择，因为它在某些社交软件里的优先级太高，会导致 <span class="blue">text/html</span> 格式的内容被忽略。
 <br>
 - <span class="blue">text/plain</span> 复制作品的文字信息。几乎所有应用程序都支持粘贴纯文本内容。
 <br>
-- <span class="blue">text/html</span> 同时复制作品的缩略图和文字信息。这是富文本格式，同时包含了上面两种内容。
+- <span class="blue">text/html</span> 同时复制作品的图片和文字信息。这是富文本格式，同时包含了上面两种内容。
 <br>
 <br>
 <strong>提示：</strong>
@@ -6018,11 +6026,11 @@ Android 上的某些应用虽然可以粘贴 <span class="blue">text/html</span>
 <br>
 <strong>每種格式的說明：</strong>
 <br>
-- <span class="blue">image/png</span> 複製作品的縮略圖。預設未選擇，因為它在某些社交軟體裡的優先級太高，會導致 <span class="blue">text/html</span> 格式的內容被忽略。
+- <span class="blue">image/png</span> 複製作品的圖片。預設未選擇，因為它在某些社交軟體裡的優先級太高，會導致 <span class="blue">text/html</span> 格式的內容被忽略。
 <br>
 - <span class="blue">text/plain</span> 複製作品的文字資訊。幾乎所有應用程式都支援貼上純文字內容。
 <br>
-- <span class="blue">text/html</span> 同時複製作品的縮略圖和文字資訊。這是富文字格式，同時包含了上面兩種內容。
+- <span class="blue">text/html</span> 同時複製作品的圖片和文字資訊。這是富文字格式，同時包含了上面兩種內容。
 <br>
 <br>
 <strong>提示：</strong>
@@ -6083,11 +6091,11 @@ Android 上的某些應用雖然可以貼上 <span class="blue">text/html</span>
 <br>
 <strong>Explanation of each format:</strong>
 <br>
-- <span class="blue">image/png</span> Copies the work's thumbnail. Not selected by default, because its priority in some social software is too high, which may cause the <span class="blue">text/html</span> format content to be ignored.
+- <span class="blue">image/png</span> Copies the image of the work. Not selected by default, because it has too high priority in some social software, which can cause the <span class="blue">text/html</span> format content to be ignored.
 <br>
-- <span class="blue">text/plain</span> Copies the work's text information. Almost all applications support pasting plain text content.
+- <span class="blue">text/plain</span> Copies the text information of the work. Almost all applications support pasting plain text content.
 <br>
-- <span class="blue">text/html</span> Copies both the work's thumbnail and text information simultaneously. This is a rich text format that includes both of the above contents.
+- <span class="blue">text/html</span> Copies both the image and text information of the work. This is rich text format, which includes both of the above contents.
 <br>
 <br>
 <strong>Tips:</strong>
@@ -6140,11 +6148,11 @@ Some apps on Android can paste <span class="blue">text/html</span> content, but 
 <br>
 <strong>各フォーマットの説明：</strong>
 <br>
-- <span class="blue">image/png</span> 作品のサムネイルをコピーします。デフォルトでは選択されていません。特定のソーシャルソフトウェアでの優先度が非常に高いため、<span class="blue">text/html</span> 形式の内容が無視される可能性があるからです。
+- <span class="blue">image/png</span> 作品の画像をコピーします。デフォルトでは選択されていません。一部のソーシャルソフトウェアで優先度が高すぎるため、<span class="blue">text/html</span> 形式のコンテンツが無視される可能性があります。
 <br>
-- <span class="blue">text/plain</span> 作品のテキスト情報をコピーします。ほぼすべてのアプリケーションがプレーンテキスト内容の貼り付けをサポートしています。
+- <span class="blue">text/plain</span> 作品のテキスト情報をコピーします。ほぼすべてのアプリケーションがプレーンテキストコンテンツの貼り付けをサポートしています。
 <br>
-- <span class="blue">text/html</span> 作品のサムネイルとテキスト情報を同時にコピーします。これはリッチテキスト形式で、上記の2つの内容の両方を含んでいます。
+- <span class="blue">text/html</span> 作品の画像とテキスト情報を同時にコピーします。これはリッチテキスト形式で、上記の2つのコンテンツの両方を含みます。
 <br>
 <br>
 <strong>ヒント：</strong>
@@ -6197,11 +6205,11 @@ Android の一部のアプリは <span class="blue">text/html</span> 内容を�
 <br>
 <strong>각 형식의 설명:</strong>
 <br>
-- <span class="blue">image/png</span> 작품의 썸네일을 복사합니다. 기본적으로 선택되지 않으며, 일부 소셜 소프트웨어에서 우선순위가 너무 높아 <span class="blue">text/html</span> 형식의 내용이 무시될 수 있기 때문입니다.
+- <span class="blue">image/png</span> 작품의 이미지를 복사합니다. 기본적으로 선택되지 않음. 일부 소셜 소프트웨어에서 우선순위가 너무 높아 <span class="blue">text/html</span> 형식의 콘텐츠가 무시될 수 있기 때문입니다.
 <br>
-- <span class="blue">text/plain</span> 작품의 텍스트 정보를 복사합니다. 거의 모든 응용 프로그램이 순수 텍스트 내용을 붙여넣기를 지원합니다.
+- <span class="blue">text/plain</span> 작품의 텍스트 정보를 복사합니다. 거의 모든 애플리케이션이 플레인 텍스트 콘텐츠의 붙여넣기를 지원합니다.
 <br>
-- <span class="blue">text/html</span> 작품의 썸네일과 텍스트 정보를 동시에 복사합니다. 이는 리치 텍스트 형식으로 위의 두 가지 내용을 모두 포함합니다.
+- <span class="blue">text/html</span> 작품의 이미지와 텍스트 정보를 동시에 복사합니다. 이는 리치 텍스트 형식으로, 위의 두 가지 콘텐츠를 모두 포함합니다.
 <br>
 <br>
 <strong>팁:</strong>
@@ -6254,11 +6262,11 @@ Android의 일부 앱은 <span class="blue">text/html</span> 내용을 붙여넣
 <br>
 <strong>Описание каждого формата:</strong>
 <br>
-- <span class="blue">image/png</span> Копирует миниатюру работы. По умолчанию не выбрано, поскольку его приоритет в некоторых социальных программах слишком высок, что может привести к игнорированию содержимого формата <span class="blue">text/html</span>.
+- <span class="blue">image/png</span> Копирует изображение работы. По умолчанию не выбрано, поскольку в некоторых социальных программах его приоритет слишком высок, что может привести к игнорированию содержимого в формате <span class="blue">text/html</span>.
 <br>
-- <span class="blue">text/plain</span> Копирует текстовую информацию работы. Почти все приложения поддерживают вставку чистого текстового содержимого.
+- <span class="blue">text/plain</span> Копирует текстовую информацию работы. Почти все приложения поддерживают вставку содержимого в формате обычного текста.
 <br>
-- <span class="blue">text/html</span> Одновременно копирует миниатюру работы и текстовую информацию. Это формат rich text, который включает оба вышеуказанных содержимых.
+- <span class="blue">text/html</span> Копирует как изображение, так и текстовую информацию работы. Это формат расширенного текста, который включает оба вышеуказанных содержимых.
 <br>
 <br>
 <strong>Советы:</strong>
@@ -6322,6 +6330,14 @@ QQ, WeChat:
     `サムネイルを読み込み中`,
     `썸네일 로딩 중`,
     `Загрузка миниатюры`,
+  ],
+  _正在加载图片: [
+    `正在加载图片`,
+    `正在載入圖片`,
+    `Loading image`,
+    `画像を読み込んでいます`,
+    `이미지 로딩 중`,
+    `Загружается изображение`,
   ],
   _说明: [`说明`, `說明`, `Explanation`, `説明`, `설명`, `Описание`],
   _帮助: [`帮助`, `幫助`, `Help`, `ヘルプ`, `도움말`, `Справка`],

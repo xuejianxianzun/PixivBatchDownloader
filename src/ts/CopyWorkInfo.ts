@@ -19,7 +19,9 @@ class CopyWorkInfo {
     const unlisted = pageType.type === pageType.list.Unlisted
     try {
       // 这里不使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
-      const data = await API[idData.type === 'novels' ? 'getNovelData' : 'getArtworkData'](id, unlisted)
+      const data = await API[
+        idData.type === 'novels' ? 'getNovelData' : 'getArtworkData'
+      ](id, unlisted)
       this.copy(data)
     } catch (error: Error | any) {
       if (error.status) {
@@ -66,10 +68,11 @@ class CopyWorkInfo {
 
       const needCopyImage = settings.copyFormatImage || settings.copyFormatHtml
       if (needCopyImage) {
-        // 对于图片作品，使用 1200px 的普通尺寸图片
-        // 对于小说，使用封面图片
+        // 图片作品使用 1200px 的普通尺寸图片或原图（根据用户设置）
+        // 不过对于动图来说，各个尺寸的图片其实都是小图
+        // 小说作品总是使用封面图片
         const imageUrl = this.isImageWork(data)
-          ? data.body.urls.regular
+          ? data.body.urls[settings.copyImageSize]
           : data.body.coverUrl
         if (!imageUrl) {
           toast.error(
@@ -77,19 +80,22 @@ class CopyWorkInfo {
           )
           return
         }
-
-        toast.show(lang.transl('_正在加载缩略图'))
+        const name =
+          settings.copyImageSize === 'original'
+            ? '_正在加载图片'
+            : '_正在加载缩略图'
+        toast.show(lang.transl(name))
 
         // 先使用 fetch 获取图片的 Blob
         // 这可以解决 Tainted canvases 的问题
-        const jpgBlob = await fetch(imageUrl).then((res) => res.blob())
+        const imageBlob = await fetch(imageUrl).then((res) => res.blob())
 
         // 添加 image/png 内容
         // 缩略图的格式都是 jpg，但 Chrome 目前不支持复制 image/jpeg 内容，所以需要转换成 png 格式
         if (settings.copyFormatImage) {
           // 使用 canvas 把图片的 Blob 转换为 png 格式的 Blob
           const image = new Image()
-          const url = URL.createObjectURL(jpgBlob)
+          const url = URL.createObjectURL(imageBlob)
           image.src = url
           await new Promise((resolve) => (image.onload = resolve))
 
@@ -126,14 +132,15 @@ class CopyWorkInfo {
             const reader = new FileReader()
             reader.onloadend = () => resolve(reader.result as string)
             reader.onerror = reject
-            reader.readAsDataURL(jpgBlob)
+            reader.readAsDataURL(imageBlob)
           })
 
           // 构造富文本内容
           // 这样在 Word、微信里粘贴时，可以同时粘贴图片和文本
           // 本来在 QQ 里也可以，但是最新版 QQ 里粘贴图文混合内容时，图片会在发送时加载失败
           const htmlText = this.convertTextFormat(data, 'html')
-          const htmlContent = `<div><img src="${dataUrl}"><p>${htmlText}</p></div>`
+          // 使用 br 换行。如果使用 p 标签包裹文本，会导致文本和 img 中间有一个多余的换行
+          const htmlContent = `<div><img src="${dataUrl}"><br>${htmlText}</div>`
           const htmlBlob = new Blob([htmlContent], { type: 'text/html' })
           copyData['text/html'] = htmlBlob
         }
@@ -178,7 +185,11 @@ class CopyWorkInfo {
       // 1. 用户点击复制按钮后切换到了其他应用，导致网页失去了焦点，这会导致下载器写入剪贴板失败
       // 2. 用户排除了所有复制格式，导致复制了空对象。不过这个情况现在我会预先检查
       // 3. 由于这个 try catch 也包含了网络请求部分，所以网络请求出错应该也会在这里显示详细信息
-      msgBox.error(err as any, {
+      let msg = (err as any).toString() as string
+      if (msg.includes('Document is not focused')) {
+        msg = lang.transl('_复制时网页需要处于焦点状态')
+      }
+      msgBox.error(msg, {
         title: lang.transl('_复制失败'),
       })
       console.error('复制失败:', err)

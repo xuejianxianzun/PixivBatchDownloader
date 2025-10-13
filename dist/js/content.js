@@ -3042,25 +3042,29 @@ class CopyWorkInfo {
             }
             const needCopyImage = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatImage || _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatHtml;
             if (needCopyImage) {
-                // 对于图片作品，使用 1200px 的普通尺寸图片
-                // 对于小说，使用封面图片
+                // 图片作品使用 1200px 的普通尺寸图片或原图（根据用户设置）
+                // 不过对于动图来说，各个尺寸的图片其实都是小图
+                // 小说作品总是使用封面图片
                 const imageUrl = this.isImageWork(data)
-                    ? data.body.urls.regular
+                    ? data.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyImageSize]
                     : data.body.coverUrl;
                 if (!imageUrl) {
                     _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_错误') + ': ' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_没有找到可用的图片网址'));
                     return;
                 }
-                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_正在加载缩略图'));
+                const name = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyImageSize === 'original'
+                    ? '_正在加载图片'
+                    : '_正在加载缩略图';
+                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl(name));
                 // 先使用 fetch 获取图片的 Blob
                 // 这可以解决 Tainted canvases 的问题
-                const jpgBlob = await fetch(imageUrl).then((res) => res.blob());
+                const imageBlob = await fetch(imageUrl).then((res) => res.blob());
                 // 添加 image/png 内容
                 // 缩略图的格式都是 jpg，但 Chrome 目前不支持复制 image/jpeg 内容，所以需要转换成 png 格式
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatImage) {
                     // 使用 canvas 把图片的 Blob 转换为 png 格式的 Blob
                     const image = new Image();
-                    const url = URL.createObjectURL(jpgBlob);
+                    const url = URL.createObjectURL(imageBlob);
                     image.src = url;
                     await new Promise((resolve) => (image.onload = resolve));
                     const canvas = document.createElement('canvas');
@@ -3095,13 +3099,14 @@ class CopyWorkInfo {
                         const reader = new FileReader();
                         reader.onloadend = () => resolve(reader.result);
                         reader.onerror = reject;
-                        reader.readAsDataURL(jpgBlob);
+                        reader.readAsDataURL(imageBlob);
                     });
                     // 构造富文本内容
                     // 这样在 Word、微信里粘贴时，可以同时粘贴图片和文本
                     // 本来在 QQ 里也可以，但是最新版 QQ 里粘贴图文混合内容时，图片会在发送时加载失败
                     const htmlText = this.convertTextFormat(data, 'html');
-                    const htmlContent = `<div><img src="${dataUrl}"><p>${htmlText}</p></div>`;
+                    // 使用 br 换行。如果使用 p 标签包裹文本，会导致文本和 img 中间有一个多余的换行
+                    const htmlContent = `<div><img src="${dataUrl}"><br>${htmlText}</div>`;
                     const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
                     copyData['text/html'] = htmlBlob;
                 }
@@ -3143,7 +3148,11 @@ class CopyWorkInfo {
             // 1. 用户点击复制按钮后切换到了其他应用，导致网页失去了焦点，这会导致下载器写入剪贴板失败
             // 2. 用户排除了所有复制格式，导致复制了空对象。不过这个情况现在我会预先检查
             // 3. 由于这个 try catch 也包含了网络请求部分，所以网络请求出错应该也会在这里显示详细信息
-            _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(err, {
+            let msg = err.toString();
+            if (msg.includes('Document is not focused')) {
+                msg = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_复制时网页需要处于焦点状态');
+            }
+            _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(msg, {
                 title: _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_复制失败'),
             });
             console.error('复制失败:', err);
@@ -29408,12 +29417,12 @@ P.S. Работы заблокированных пользователей не
         `Отображать на миниатюре`,
     ],
     _显示复制按钮的提示: [
-        `下载器会在作品缩略图上和作品页面内显示一个复制按钮，点击它就可以复制作品的一些数据。<br>你可以自定义要复制的数据和格式。`,
-        `下載器會在作品縮略圖上和作品頁面內顯示一個複製按鈕，點擊它就可以複製作品的一些資料。<br>你可以自訂要複製的資料和格式。`,
-        `The downloader will display a copy button on the work thumbnail and within the work page. Clicking it allows you to copy some data of the work. <br>You can customize the data and format to be copied.`,
-        `ダウンロードツールは作品のサムネイル上と作品ページ内にコピーボタンを表示します。それをクリックすると作品のデータをコピーできます。<br>コピーするデータと形式をカスタマイズできます。`,
-        `다운로더는 작품 썸네일 위와 작품 페이지 내에 복사 버튼을 표시합니다. 클릭하면 작품의 일부 데이터를 복사할 수 있습니다. <br>복사할 데이터와 형식을 사용자 지정할 수 있습니다.`,
-        `Загрузчик отобразит кнопку копирования на миниатюре работы и внутри страницы работы. Нажатие на неё позволит скопировать некоторые данные работы. <br>Вы можете настроить данные и формат для копирования.`,
+        `下载器会在作品缩略图上和作品页面内显示一个复制按钮，点击它就可以复制作品的图片和一些数据。你可以自定义要复制的数据和格式。`,
+        `下載器會在作品縮圖上和作品頁面內顯示一個複製按鈕，點擊它就可以複製作品的圖片和一些資料。你可以自訂要複製的資料和格式。`,
+        `The downloader will display a copy button on the work thumbnail and within the work page. Clicking it allows you to copy the work's image and some data. You can customize the data and format to be copied.`,
+        `ダウンロードツールは、作品のサムネイルと作品ページ内にコピーボタンを表示します。これをクリックすると、作品の画像と一部のデータをコピーできます。コピーするデータとフォーマットをカスタマイズできます。`,
+        `다운로더는 작품 썸네일과 작품 페이지 내에 복사 버튼을 표시합니다. 클릭하면 작품의 이미지와 일부 데이터를 복사할 수 있습니다. 복사할 데이터와 형식을 사용자 지정할 수 있습니다.`,
+        `Загрузчик отображает кнопку копирования на миниатюре работы и внутри страницы работы. Нажатие на неё позволяет скопировать изображение работы и некоторые данные. Вы можете настроить данные и формат для копирования.`,
     ],
     _内容格式: [
         `内容格式`,
@@ -29487,6 +29496,14 @@ Additionally, you can use these tags:`,
         '복사 실패',
         'Копирование не удалось',
     ],
+    _复制时网页需要处于焦点状态: [
+        `复制时，网页需要处于焦点状态。`,
+        `複製時，網頁需要處於焦點狀態。`,
+        `When copying, the webpage needs to be in a focused state.`,
+        `コピーする際は、ウェブページがフォーカス状態である必要があります。`,
+        `복사할 때 웹페이지가 포커스 상태여야 합니다.`,
+        `При копировании веб-страница должна находиться в состоянии фокуса。`,
+    ],
     _复制摘要数据: [
         `复制摘要数据 (ALt + C)`,
         `複製摘要資料 (ALt + C)`,
@@ -29533,11 +29550,11 @@ Additionally, you can use these tags:`,
 <br>
 <strong>每种格式的说明：</strong>
 <br>
-- <span class="blue">image/png</span> 复制作品的缩略图。默认未选择，因为它在某些社交软件里的优先级太高，会导致 <span class="blue">text/html</span> 格式的内容被忽略。
+- <span class="blue">image/png</span> 复制作品的图片。默认未选择，因为它在某些社交软件里的优先级太高，会导致 <span class="blue">text/html</span> 格式的内容被忽略。
 <br>
 - <span class="blue">text/plain</span> 复制作品的文字信息。几乎所有应用程序都支持粘贴纯文本内容。
 <br>
-- <span class="blue">text/html</span> 同时复制作品的缩略图和文字信息。这是富文本格式，同时包含了上面两种内容。
+- <span class="blue">text/html</span> 同时复制作品的图片和文字信息。这是富文本格式，同时包含了上面两种内容。
 <br>
 <br>
 <strong>提示：</strong>
@@ -29598,11 +29615,11 @@ Android 上的某些应用虽然可以粘贴 <span class="blue">text/html</span>
 <br>
 <strong>每種格式的說明：</strong>
 <br>
-- <span class="blue">image/png</span> 複製作品的縮略圖。預設未選擇，因為它在某些社交軟體裡的優先級太高，會導致 <span class="blue">text/html</span> 格式的內容被忽略。
+- <span class="blue">image/png</span> 複製作品的圖片。預設未選擇，因為它在某些社交軟體裡的優先級太高，會導致 <span class="blue">text/html</span> 格式的內容被忽略。
 <br>
 - <span class="blue">text/plain</span> 複製作品的文字資訊。幾乎所有應用程式都支援貼上純文字內容。
 <br>
-- <span class="blue">text/html</span> 同時複製作品的縮略圖和文字資訊。這是富文字格式，同時包含了上面兩種內容。
+- <span class="blue">text/html</span> 同時複製作品的圖片和文字資訊。這是富文字格式，同時包含了上面兩種內容。
 <br>
 <br>
 <strong>提示：</strong>
@@ -29663,11 +29680,11 @@ Android 上的某些應用雖然可以貼上 <span class="blue">text/html</span>
 <br>
 <strong>Explanation of each format:</strong>
 <br>
-- <span class="blue">image/png</span> Copies the work's thumbnail. Not selected by default, because its priority in some social software is too high, which may cause the <span class="blue">text/html</span> format content to be ignored.
+- <span class="blue">image/png</span> Copies the image of the work. Not selected by default, because it has too high priority in some social software, which can cause the <span class="blue">text/html</span> format content to be ignored.
 <br>
-- <span class="blue">text/plain</span> Copies the work's text information. Almost all applications support pasting plain text content.
+- <span class="blue">text/plain</span> Copies the text information of the work. Almost all applications support pasting plain text content.
 <br>
-- <span class="blue">text/html</span> Copies both the work's thumbnail and text information simultaneously. This is a rich text format that includes both of the above contents.
+- <span class="blue">text/html</span> Copies both the image and text information of the work. This is rich text format, which includes both of the above contents.
 <br>
 <br>
 <strong>Tips:</strong>
@@ -29720,11 +29737,11 @@ Some apps on Android can paste <span class="blue">text/html</span> content, but 
 <br>
 <strong>各フォーマットの説明：</strong>
 <br>
-- <span class="blue">image/png</span> 作品のサムネイルをコピーします。デフォルトでは選択されていません。特定のソーシャルソフトウェアでの優先度が非常に高いため、<span class="blue">text/html</span> 形式の内容が無視される可能性があるからです。
+- <span class="blue">image/png</span> 作品の画像をコピーします。デフォルトでは選択されていません。一部のソーシャルソフトウェアで優先度が高すぎるため、<span class="blue">text/html</span> 形式のコンテンツが無視される可能性があります。
 <br>
-- <span class="blue">text/plain</span> 作品のテキスト情報をコピーします。ほぼすべてのアプリケーションがプレーンテキスト内容の貼り付けをサポートしています。
+- <span class="blue">text/plain</span> 作品のテキスト情報をコピーします。ほぼすべてのアプリケーションがプレーンテキストコンテンツの貼り付けをサポートしています。
 <br>
-- <span class="blue">text/html</span> 作品のサムネイルとテキスト情報を同時にコピーします。これはリッチテキスト形式で、上記の2つの内容の両方を含んでいます。
+- <span class="blue">text/html</span> 作品の画像とテキスト情報を同時にコピーします。これはリッチテキスト形式で、上記の2つのコンテンツの両方を含みます。
 <br>
 <br>
 <strong>ヒント：</strong>
@@ -29777,11 +29794,11 @@ Android の一部のアプリは <span class="blue">text/html</span> 内容を�
 <br>
 <strong>각 형식의 설명:</strong>
 <br>
-- <span class="blue">image/png</span> 작품의 썸네일을 복사합니다. 기본적으로 선택되지 않으며, 일부 소셜 소프트웨어에서 우선순위가 너무 높아 <span class="blue">text/html</span> 형식의 내용이 무시될 수 있기 때문입니다.
+- <span class="blue">image/png</span> 작품의 이미지를 복사합니다. 기본적으로 선택되지 않음. 일부 소셜 소프트웨어에서 우선순위가 너무 높아 <span class="blue">text/html</span> 형식의 콘텐츠가 무시될 수 있기 때문입니다.
 <br>
-- <span class="blue">text/plain</span> 작품의 텍스트 정보를 복사합니다. 거의 모든 응용 프로그램이 순수 텍스트 내용을 붙여넣기를 지원합니다.
+- <span class="blue">text/plain</span> 작품의 텍스트 정보를 복사합니다. 거의 모든 애플리케이션이 플레인 텍스트 콘텐츠의 붙여넣기를 지원합니다.
 <br>
-- <span class="blue">text/html</span> 작품의 썸네일과 텍스트 정보를 동시에 복사합니다. 이는 리치 텍스트 형식으로 위의 두 가지 내용을 모두 포함합니다.
+- <span class="blue">text/html</span> 작품의 이미지와 텍스트 정보를 동시에 복사합니다. 이는 리치 텍스트 형식으로, 위의 두 가지 콘텐츠를 모두 포함합니다.
 <br>
 <br>
 <strong>팁:</strong>
@@ -29834,11 +29851,11 @@ Android의 일부 앱은 <span class="blue">text/html</span> 내용을 붙여넣
 <br>
 <strong>Описание каждого формата:</strong>
 <br>
-- <span class="blue">image/png</span> Копирует миниатюру работы. По умолчанию не выбрано, поскольку его приоритет в некоторых социальных программах слишком высок, что может привести к игнорированию содержимого формата <span class="blue">text/html</span>.
+- <span class="blue">image/png</span> Копирует изображение работы. По умолчанию не выбрано, поскольку в некоторых социальных программах его приоритет слишком высок, что может привести к игнорированию содержимого в формате <span class="blue">text/html</span>.
 <br>
-- <span class="blue">text/plain</span> Копирует текстовую информацию работы. Почти все приложения поддерживают вставку чистого текстового содержимого.
+- <span class="blue">text/plain</span> Копирует текстовую информацию работы. Почти все приложения поддерживают вставку содержимого в формате обычного текста.
 <br>
-- <span class="blue">text/html</span> Одновременно копирует миниатюру работы и текстовую информацию. Это формат rich text, который включает оба вышеуказанных содержимых.
+- <span class="blue">text/html</span> Копирует как изображение, так и текстовую информацию работы. Это формат расширенного текста, который включает оба вышеуказанных содержимых.
 <br>
 <br>
 <strong>Советы:</strong>
@@ -29902,6 +29919,14 @@ QQ, WeChat:
         `サムネイルを読み込み中`,
         `썸네일 로딩 중`,
         `Загрузка миниатюры`,
+    ],
+    _正在加载图片: [
+        `正在加载图片`,
+        `正在載入圖片`,
+        `Loading image`,
+        `画像を読み込んでいます`,
+        `이미지 로딩 중`,
+        `Загружается изображение`,
     ],
     _说明: [`说明`, `說明`, `Explanation`, `説明`, `설명`, `Описание`],
     _帮助: [`帮助`, `幫助`, `Help`, `ヘルプ`, `도움말`, `Справка`],
@@ -33693,6 +33718,15 @@ const formHtml = `
       <label for="setCopyFormatHtml">text/html</label>
       <button type="button" class="gray1 textButton" id="showCopyWorkDataTip" data-xztext="_帮助"></button>
       <span class="verticalSplit"></span>
+
+      <span class="settingNameStyle" data-xztext="_图片尺寸2"></span>
+      <input type="radio" name="copyImageSize" id="copyImageSize1" class="need_beautify radio" value="original">
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="copyImageSize1" data-xztext="_原图"></label>
+      <input type="radio" name="copyImageSize" id="copyImageSize2" class="need_beautify radio" value="regular" checked>
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="copyImageSize2" data-xztext="_普通"></label>
+      <span class="verticalSplit"></span>
       
       <span data-xztext="_文本格式"></span>:&nbsp;
       <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:100%;max-width:350px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
@@ -34113,6 +34147,7 @@ class FormSettings {
             'exportLogTiming',
             'downloadOrder',
             'downloadOrderSortBy',
+            'copyImageSize',
         ],
         textarea: ['notNeedTag', 'blockList', 'createFolderTagList'],
         datetime: ['postDateStart', 'postDateEnd'],
@@ -34545,7 +34580,7 @@ class Options {
         // 某些设置在移动端不会生效，所以隐藏它们
         // 主要是和作品缩略图相关的一些设置、增强功能
         if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
-            this.hideOption([14, 18, 68, 55, 71, 62, 40]);
+            this.hideOption([18, 68, 55, 71, 62, 40]);
         }
         // 大部分设置在 pixivision 里都不适用，所以需要隐藏它们
         if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Pixivision) {
@@ -35245,6 +35280,7 @@ class Settings {
         copyFormatText: true,
         copyFormatHtml: true,
         tipCopyWorkInfoButton: true,
+        copyImageSize: 'regular',
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的选项
