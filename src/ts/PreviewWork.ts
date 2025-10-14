@@ -19,6 +19,7 @@ import { previewWorkDetailInfo } from './PreviewWorkDetailInfo'
 import { Tools } from './Tools'
 import { bookmark } from './Bookmark'
 import { pageType } from './PageType'
+import { copyWorkInfo } from './CopyWorkInfo'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -223,7 +224,7 @@ class PreviewWork {
           return
         }
 
-        // 当用户按下 Alt 时，只响应 P 键
+        // 当用户按下 Alt 时
         if (ev.altKey) {
           // 可以使用 Alt + P 快捷键来启用/禁用此功能
           if (ev.code === 'KeyP') {
@@ -236,7 +237,21 @@ class PreviewWork {
               const msg = 'Preview works - Off'
               toast.warning(msg)
             }
-          } else {
+            return
+          } else if (ev.code === 'KeyC') {
+            // 使用快捷键 Alt + C 调用复制功能
+            if (this.show && this.workData) {
+              //在预览时按下的话需要阻止传播，因为在作品页面里也监听了 Alt + C，需要避免多次执行。
+              ev.stopPropagation()
+              ev.preventDefault()
+              copyWorkInfo.receive(
+                {
+                  type: 'illusts',
+                  id: this.workData!.body.id,
+                },
+                this.index
+              )
+            }
             return
           }
         }

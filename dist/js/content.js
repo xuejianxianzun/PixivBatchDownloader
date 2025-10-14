@@ -3002,13 +3002,14 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class CopyWorkInfo {
-    async receive(idData) {
+    /**接收作品 ID 数据，可选参数 p 用于指定复制哪一张图片  */
+    async receive(idData, p) {
         const id = idData.id;
         const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_5__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_5__.pageType.list.Unlisted;
         try {
             // 这里不使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
             const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API[idData.type === 'novels' ? 'getNovelData' : 'getArtworkData'](id, unlisted);
-            this.copy(data);
+            this.copy(data, p);
         }
         catch (error) {
             if (error.status) {
@@ -3023,7 +3024,7 @@ class CopyWorkInfo {
     isImageWork(data) {
         return 'illustType' in data.body;
     }
-    async copy(data) {
+    async copy(data, p) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatImage &&
             !_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatHtml &&
             !_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatText) {
@@ -3036,18 +3037,25 @@ class CopyWorkInfo {
             const copyData = {};
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatText) {
                 // 构造纯文本内容
-                const plainText = this.convertTextFormat(data, 'text');
+                const plainText = this.convertTextFormat(data, 'text', p);
                 const textBlob = new Blob([plainText], { type: 'text/plain' });
                 copyData['text/plain'] = textBlob;
             }
             const needCopyImage = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatImage || _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyFormatHtml;
             if (needCopyImage) {
-                // 图片作品使用 1200px 的普通尺寸图片或原图（根据用户设置）
-                // 不过对于动图来说，各个尺寸的图片其实都是小图
-                // 小说作品总是使用封面图片
-                const imageUrl = this.isImageWork(data)
-                    ? data.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyImageSize]
-                    : data.body.coverUrl;
+                let imageUrl = '';
+                if (this.isImageWork(data)) {
+                    // 图片作品使用 1200px 的普通尺寸图片或原图（根据用户设置）
+                    // 不过对于动图来说，各个尺寸的图片其实都是小图
+                    imageUrl = data.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.copyImageSize];
+                    if (p !== undefined && [0, 1].includes(data.body.illustType)) {
+                        imageUrl = imageUrl.replace('p0', `p${p}`);
+                    }
+                }
+                else {
+                    // 小说作品总是使用封面图片
+                    imageUrl = data.body.coverUrl;
+                }
                 if (!imageUrl) {
                     _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_错误') + ': ' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_没有找到可用的图片网址'));
                     return;
@@ -3104,7 +3112,7 @@ class CopyWorkInfo {
                     // 构造富文本内容
                     // 这样在 Word、微信里粘贴时，可以同时粘贴图片和文本
                     // 本来在 QQ 里也可以，但是最新版 QQ 里粘贴图文混合内容时，图片会在发送时加载失败
-                    const htmlText = this.convertTextFormat(data, 'html');
+                    const htmlText = this.convertTextFormat(data, 'html', p);
                     // 使用 br 换行。如果使用 p 标签包裹文本，会导致文本和 img 中间有一个多余的换行
                     const htmlContent = `<div><img src="${dataUrl}"><br>${htmlText}</div>`;
                     const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
@@ -3166,9 +3174,7 @@ class CopyWorkInfo {
     // - 忽略某些命名设置，例如第一张图不带序号、移除用户名中的 @ 符号、创建文件夹相关的设置等
     // - 额外添加了 {n} 和 {url} 标记
     // - 在每个标签前面加上 # 符号
-    // - {id} 等同于 {id_num}，是纯数字
-    // - {p_num} 总是 0
-    convertTextFormat(data, format = 'text') {
+    convertTextFormat(data, format = 'text', p) {
         const page_title = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getPageTitle();
         const page_tag = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getTagFromURL();
         const body = data.body;
@@ -3195,10 +3201,11 @@ class CopyWorkInfo {
         // 如果把 i 换成完整的 artworks，会被 QQ 屏蔽，点击链接会被拦截
         const link = `https://www.pixiv.net/${type === 3 ? 'n' : 'i'}/${body.id}`;
         const url = format === 'text' ? link : `<a href="${link}" target="_blank">${link}</a>`;
+        const idNum = body.id;
+        // 对于 {id} 标记，如果 p > 0 才会添加 _p0 格式的后缀
+        const id = `${idNum}${p ? '_p' + p : ''}`;
         // 在 html 格式里，给作品 id 也加上超链接
-        const id = format === 'text'
-            ? body.id
-            : `<a href="${link}" target="_blank">${body.id}</a>`;
+        const _id = format === 'text' ? id : `<a href="${link}" target="_blank">${id}</a>`;
         // 在 html 格式里，给作者名字和作者 id 也加上超链接
         const userLink = `https://www.pixiv.net/users/${body.userId}`;
         const user = format === 'text'
@@ -3230,9 +3237,9 @@ class CopyWorkInfo {
             '{page_title}': page_title,
             '{p_tag}': '#' + page_tag,
             '{page_tag}': '#' + page_tag,
-            '{id}': id,
-            '{id_num}': id,
-            '{p_num}': 0,
+            '{id}': _id,
+            '{id_num}': idNum,
+            '{p_num}': p || 0,
             '{rank}': 'rank' in data.body ? `#${data.body.rank}` : '',
             '{title}': body.title,
             '{user}': user,
@@ -6610,6 +6617,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+
 
 
 
@@ -6796,7 +6805,7 @@ class PreviewWork {
             if (ev.ctrlKey) {
                 return;
             }
-            // 当用户按下 Alt 时，只响应 P 键
+            // 当用户按下 Alt 时
             if (ev.altKey) {
                 // 可以使用 Alt + P 快捷键来启用/禁用此功能
                 if (ev.code === 'KeyP') {
@@ -6810,8 +6819,19 @@ class PreviewWork {
                         const msg = 'Preview works - Off';
                         _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.warning(msg);
                     }
+                    return;
                 }
-                else {
+                else if (ev.code === 'KeyC') {
+                    // 使用快捷键 Alt + C 调用复制功能
+                    if (this.show && this.workData) {
+                        //在预览时按下的话需要阻止传播，因为在作品页面里也监听了 Alt + C，需要避免多次执行。
+                        ev.stopPropagation();
+                        ev.preventDefault();
+                        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_20__.copyWorkInfo.receive({
+                            type: 'illusts',
+                            id: this.workData.body.id,
+                        }, this.index);
+                    }
                     return;
                 }
             }
@@ -29035,59 +29055,65 @@ type может быть "illusts" или "novel".`,
     ],
     _预览作品的快捷键说明: [
         `<span class="blue">Alt</span> + <span class="blue">P</span> 关闭/启用预览作品功能<br>
-    当你查看预览图时，可以使用如下快捷键：<br>
-    <span class="blue">B</span>(ookmark) 收藏预览的作品<br>
-    <span class="blue">C</span>(urrent) 下载当前预览的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
-    <span class="blue">D</span>(ownload) 下载当前预览的作品（如果这个作品里有多张图片，默认会全部下载）<br>
-    <span class="blue">Esc</span> 关闭预览图<br>
-    <span class="blue">← ↑</span> 上一张图片<br>
-    <span class="blue">→ ↓</span> 下一张图片<br>
-    <span class="blue">空格键</span> 下一张图片`,
+当你查看预览图时，可以使用如下快捷键：<br>
+<span class="blue">B</span>(ookmark) 收藏预览的作品<br>
+<span class="blue">C</span>(urrent) 下载当前预览的图片（如果这个作品里有多张图片，只会下载当前这一张）<br>
+<span class="blue">D</span>(ownload) 下载当前预览的作品（如果这个作品里有多张图片，默认会全部下载）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> 复制当前预览的图片和作品信息<br>
+<span class="blue">Esc</span> 关闭预览图<br>
+<span class="blue">← ↑</span> 上一张图片<br>
+<span class="blue">→ ↓</span> 下一张图片<br>
+<span class="blue">空格键</span> 下一张图片`,
         `<span class="blue">Alt</span> + <span class="blue">P</span> 關閉/啟用預覽作品功能<br>
-    當你檢視預覽圖時，可以使用如下快捷鍵：<br>
-    <span class="blue">B</span>(ookmark) 收藏預覽的作品<br>
-    <span class="blue">C</span>(urrent) 下載當前預覽的圖片<br>
-    <span class="blue">D</span>(ownload) 下載當前預覽的作品<br>
-    <span class="blue">Esc</span> 關閉預覽圖<br>
-    <span class="blue">← ↑</span> 上一張圖片<br>
-    <span class="blue">→ ↓</span> 下一張圖片<br>
-    <span class="blue">空格鍵</span> 下一張圖片`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> Turn off/enable the preview function<br>
-    When you view the preview, you can use the following shortcut keys:<br>
-    <span class="blue">B</span>(ookmark) Bookmark previewed work<br>
-    <span class="blue">C</span>(urrent) Download the currently previewed image<br>
-    <span class="blue">D</span>(download) Download the currently previewed work<br>
-    <span class="blue">Esc</span> Close preview<br>
-    <span class="blue">← ↑</span> Previous image<br>
-    <span class="blue">→ ↓</span> Next image<br>
-    <span class="blue">Space bar</span> Next image`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> プレビュー機能をオフ/有効にします<br>
-    プレビューを表示するときは、次のショートカット キーを使用できます。<br>
-    <span class="blue">B</span>(ookmark) プレビューした作品をブックマークします<br>
-    <span class="blue">C</span>(urrent) 現在プレビューされている画像をダウンロードします<br>
-    <span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロードします<br>
-    <span class="blue">Esc</span> プレビューを閉じる<br>
-    <span class="blue">← ↑</span> 前の画像<br>
-    <span class="blue">→ ↓</span> 次の画像<br>
-    <span class="blue">スペースバー</span> 次の画像`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> 미리보기 기능 끄기/활성화<br>
-    미리보기를 볼 때 다음 단축키를 사용할 수 있습니다.<br>
-    <span class="blue">B</span>(ookmark) 북마크 미리보기 작업<br>
-    <span class="blue">C</span>(urrent) 현재 미리보기 이미지 다운로드<br>
-    <span class="blue">D</span>(ownload) 현재 미리보기된 작품 다운로드<br>
-    <span class="blue">Esc</span> 미리보기 닫기<br>
-    <span class="blue">← ↑</span> 이전 이미지<br>
-    <span class="blue">→ ↓</span> 다음 이미지<br>
-    <span class="blue">스페이스바</span> 다음 이미지`,
-        `<span class="blue">Alt</span> + <span class="blue">P</span> Выключить/включить функцию предварительного просмотра<br>
-    При предварительном просмотре вы можете использовать следующие сочетания клавиш:<br>
-    <span class="blue">B</span>(ookmark) Добавить в закладки предварительно просмотренную работу<br>
-    <span class="blue">C</span>(urrent) Загрузите просматриваемое в данный момент изображение<br>
-    <span class="blue">D</span>(ownload) Загрузите просматриваемую в данный момент работу<br>
-    <span class="blue">Esc</span> Закрыть предварительный просмотр<br>
-    <span class="blue"> ← ↑</span> Предыдущее изображение<br>
-    <span class="blue">→ ↓</span> Следующее изображение<br>
-    <span class="blue">Пробел</span> Следующее изображение`,
+當你查看預覽圖時，可以使用如下快捷鍵：<br>
+<span class="blue">B</span>(ookmark) 收藏預覽的作品<br>
+<span class="blue">C</span>(urrent) 下載當前預覽的圖片（如果這個作品裡有多張圖片，只會下載當前這一張）<br>
+<span class="blue">D</span>(ownload) 下載當前預覽的作品（如果這個作品裡有多張圖片，預設會全部下載）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> 複製當前預覽的圖片和作品資訊<br>
+<span class="blue">Esc</span> 關閉預覽圖<br>
+<span class="blue">← ↑</span> 上一張圖片<br>
+<span class="blue">→ ↓</span> 下一張圖片<br>
+<span class="blue">空格鍵</span> 下一張圖片`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> Toggle preview work function on/off<br>
+When viewing the preview image, you can use the following shortcut keys:<br>
+<span class="blue">B</span>(ookmark) Bookmark the previewed work<br>
+<span class="blue">C</span>(urrent) Download the currently previewed image (if the work has multiple images, only the current one will be downloaded)<br>
+<span class="blue">D</span>(ownload) Download the currently previewed work (if the work has multiple images, all will be downloaded by default)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> Copy the currently previewed image and work information<br>
+<span class="blue">Esc</span> Close the preview image<br>
+<span class="blue">← ↑</span> Previous image<br>
+<span class="blue">→ ↓</span> Next image<br>
+<span class="blue">Spacebar</span> Next image`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> プレビュー作品機能のオン/オフ<br>
+プレビュー画像を表示しているときに、以下のショートカットキーを使用できます：<br>
+<span class="blue">B</span>(ookmark) プレビュー中の作品をブックマーク<br>
+<span class="blue">C</span>(urrent) 現在プレビュー中の画像をダウンロード（作品に複数の画像がある場合、現在表示中のものだけがダウンロードされます）<br>
+<span class="blue">D</span>(ownload) 現在プレビュー中の作品をダウンロード（作品に複数の画像がある場合、デフォルトですべてダウンロードされます）<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> 現在プレビュー中の画像と作品情報をコピー<br>
+<span class="blue">Esc</span> プレビュー画像を閉じる<br>
+<span class="blue">← ↑</span> 前の画像<br>
+<span class="blue">→ ↓</span> 次の画像<br>
+<span class="blue">スペースキー</span> 次の画像`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> 미리보기 작품 기능 끄기/켜기<br>
+미리보기 이미지를 볼 때 다음 단축키를 사용할 수 있습니다:<br>
+<span class="blue">B</span>(ookmark) 미리보기 중인 작품을 북마크<br>
+<span class="blue">C</span>(urrent) 현재 미리보기 중인 이미지를 다운로드 (작품에 여러 이미지가 있으면 현재 이 하나만 다운로드)<br>
+<span class="blue">D</span>(ownload) 현재 미리보기 중인 작품을 다운로드 (작품에 여러 이미지가 있으면 기본적으로 모두 다운로드)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> 현재 미리보기 중인 이미지와 작품 정보를 복사<br>
+<span class="blue">Esc</span> 미리보기 이미지 닫기<br>
+<span class="blue">← ↑</span> 이전 이미지<br>
+<span class="blue">→ ↓</span> 다음 이미지<br>
+<span class="blue">스페이스바</span> 다음 이미지`,
+        `<span class="blue">Alt</span> + <span class="blue">P</span> Включить/выключить функцию предпросмотра работы<br>
+При просмотре изображения предпросмотра вы можете использовать следующие комбинации клавиш:<br>
+<span class="blue">B</span>(ookmark) Добавить предпросматриваемую работу в закладки<br>
+<span class="blue">C</span>(urrent) Скачать изображение текущего предпросмотра (если в работе несколько изображений, будет скачано только текущее)<br>
+<span class="blue">D</span>(ownload) Скачать работу текущего предпросмотра (если в работе несколько изображений, по умолчанию все будут скачаны)<br>
+<span class="blue">Alt</span> + <span class="blue">C</span> Скопировать изображение текущего предпросмотра и информацию о работе<br>
+<span class="blue">Esc</span> Закрыть изображение предпросмотра<br>
+<span class="blue">← ↑</span> Предыдущее изображение<br>
+<span class="blue">→ ↓</span> Следующее изображение<br>
+<span class="blue">Пробел</span> Следующее изображение`,
     ],
     _导出收藏列表: [
         '导出收藏列表（JSON）',
@@ -29436,12 +29462,36 @@ P.S. Работы заблокированных пользователей не
         `Отображать на миниатюре`,
     ],
     _显示复制按钮的提示: [
-        `下载器会在作品缩略图上和作品页面内显示一个复制按钮，点击它就可以复制作品的图片和一些数据。你可以自定义要复制的数据和格式。`,
-        `下載器會在作品縮圖上和作品頁面內顯示一個複製按鈕，點擊它就可以複製作品的圖片和一些資料。你可以自訂要複製的資料和格式。`,
-        `The downloader will display a copy button on the work thumbnail and within the work page. Clicking it allows you to copy the work's image and some data. You can customize the data and format to be copied.`,
-        `ダウンロードツールは、作品のサムネイルと作品ページ内にコピーボタンを表示します。これをクリックすると、作品の画像と一部のデータをコピーできます。コピーするデータとフォーマットをカスタマイズできます。`,
-        `다운로더는 작품 썸네일과 작품 페이지 내에 복사 버튼을 표시합니다. 클릭하면 작품의 이미지와 일부 데이터를 복사할 수 있습니다. 복사할 데이터와 형식을 사용자 지정할 수 있습니다.`,
-        `Загрузчик отображает кнопку копирования на миниатюре работы и внутри страницы работы. Нажатие на неё позволяет скопировать изображение работы и некоторые данные. Вы можете настроить данные и формат для копирования.`,
+        `下载器会在作品缩略图上和作品页面内显示一个复制按钮，点击它就可以复制作品的图片和一些数据。
+<br>
+你可以自定义要复制的数据和格式。
+<br>
+在作品页面里，以及预览作品时，你可以按快捷键 Alt + C 进行复制。`,
+        `下載器會在作品縮圖上和作品頁面內顯示一個複製按鈕，點擊它就可以複製作品的圖片和一些資料。
+<br>
+你可以自訂要複製的資料和格式。
+<br>
+在作品頁面裡，以及預覽作品時，你可以按快捷鍵 Alt + C 進行複製。`,
+        `The downloader will display a copy button on the work thumbnail and within the work page. Clicking it allows you to copy the work's image and some data.
+<br>
+You can customize the data and format to be copied.
+<br>
+On the work page, and when previewing a work, you can use the shortcut key Alt + C to copy.`,
+        `ダウンロードツールは、作品のサムネイルと作品ページ内にコピーボタンを表示します。これをクリックすると、作品の画像と一部のデータをコピーできます。
+<br>
+コピーするデータとフォーマットをカスタマイズできます。
+<br>
+作品ページ内、および作品をプレビューする際は、ショートカットキー Alt + C を押してコピーできます。`,
+        `다운로더는 작품 썸네일과 작품 페이지 내에 복사 버튼을 표시합니다. 클릭하면 작품의 이미지와 일부 데이터를 복사할 수 있습니다.
+<br>
+복사할 데이터와 형식을 사용자 지정할 수 있습니다.
+<br>
+작품 페이지에서, 그리고 작품을 미리보기할 때, 단축키 Alt + C를 눌러 복사할 수 있습니다.`,
+        `Загрузчик отображает кнопку копирования на миниатюре работы и внутри страницы работы. Нажатие на неё позволяет скопировать изображение работы и некоторые данные.
+<br>
+Вы можете настроить данные и формат для копирования.
+<br>
+На странице работы, а также при предпросмотре работы, вы можете использовать комбинацию клавиш Alt + C для копирования.`,
     ],
     _内容格式: [
         `内容格式`,
@@ -29566,6 +29616,8 @@ Additionally, you can use these tags:`,
     _对复制的内容的说明: [
         `你可以根据自己的需要选择复制的内容。
 <br>
+在作品页面里，以及预览作品时，你可以按快捷键 <span class="blue">Alt</span> + <span class="blue">C</span> 进行复制。
+<br>
 <br>
 <strong>每种格式的说明：</strong>
 <br>
@@ -29608,6 +29660,8 @@ Telegram：
 <br>
 其他格式的优先级是：<span class="blue">image/png</span>、<span class="blue">text/plain</span>。
 <br>
+如果你想在 Telegram 里粘贴图片，需要选择 <span class="blue">image/png</span> 格式。
+<br>
 <br>
 QQ、微信：
 <br>
@@ -29627,9 +29681,10 @@ QQ、微信：
 Android 应用：
 <br>
 Android 上的某些应用虽然可以粘贴 <span class="blue">text/html</span> 内容，但图片可能无法显示。
-<br>
 <br>`,
         `你可以根據自己的需要選擇複製的內容。
+<br>
+在作品頁面裡，以及預覽作品時，你可以按快捷鍵 <span class="blue">Alt</span> + <span class="blue">C</span> 進行複製。
 <br>
 <br>
 <strong>每種格式的說明：</strong>
@@ -29673,6 +29728,8 @@ Telegram：
 <br>
 其他格式的優先級是：<span class="blue">image/png</span>、<span class="blue">text/plain</span>。
 <br>
+如果你想在 Telegram 裡貼上圖片，需要選擇 <span class="blue">image/png</span> 格式。
+<br>
 <br>
 QQ、微信：
 <br>
@@ -29692,9 +29749,10 @@ QQ、微信：
 Android 應用：
 <br>
 Android 上的某些應用雖然可以貼上 <span class="blue">text/html</span> 內容，但圖片可能無法顯示。
-<br>
 <br>`,
-        `You can select the content to copy based on your needs.
+        `You can select the content to copy according to your own needs.
+<br>
+On the work page, and when previewing a work, you can use the shortcut key <span class="blue">Alt</span> + <span class="blue">C</span> to copy.
 <br>
 <br>
 <strong>Explanation of each format:</strong>
@@ -29708,13 +29766,13 @@ Android 上的某些應用雖然可以貼上 <span class="blue">text/html</span>
 <br>
 <strong>Tips:</strong>
 <br>
-- The focus of this feature's design is to copy both image and text content simultaneously (<span class="blue">text/html</span>), for easy sharing or archiving, but the actual effect depends on the target application. Some applications may not support this format or may not display the image correctly.
+- The focus of this feature in design is to copy both image and text content simultaneously (<span class="blue">text/html</span>), for easy sharing or archiving, but the actual effect depends on the target application. Some applications may not support this format, or may not display the image correctly.
 <br>
-- You can select multiple formats at the same time, which means copying multiple contents simultaneously. However, when you paste in an application, the application will only use <strong>one</strong> of them, namely the format with the highest priority. The content of other formats will be ignored.
+- You can select multiple formats at the same time, which means copying multiple contents simultaneously. However, when you paste in the application, the application will only use <strong>one</strong> of them, which is the format with the highest priority. The content of other formats will be ignored.
 <br>
 - The priority may differ in different applications. This has nothing to do with the downloader.
 <br>
-- For example: If you copy both <span class="blue">image/png</span> and <span class="blue">text/html</span> content, some applications will use the former, but some may use the latter. If the pasted content does not meet your expectations, you can unselect one of the formats.
+- For example: If you copy both <span class="blue">image/png</span> and <span class="blue">text/html</span> content at the same time, some applications will use the former, but some applications may use the latter. If the pasted content does not meet your expectations, you can unselect one of the formats.
 <br>
 <br>
 <strong>Some specific examples:</strong>
@@ -29722,14 +29780,14 @@ Android 上的某些應用雖然可以貼上 <span class="blue">text/html</span>
 <br>
 Browser:
 <br>
-The input area on a webpage can only paste plain text content by default, which is <span class="blue">text/plain</span>.
+The input area on the webpage can only paste plain text content by default, which is <span class="blue">text/plain</span>.
 <br>
 Some web applications may have targeted optimizations, for example, in Discord you can paste images <span class="blue">image/png</span>; in Gmail you can paste both images and text, which is <span class="blue">text/html</span>.
 <br>
 <br>
 Microsoft Word:
 <br>
-It prioritizes the <span class="blue">text/html</span> format content, followed by <span class="blue">image/png</span>, and finally <span class="blue">text/plain</span>.
+It will prioritize the <span class="blue">text/html</span> format content, followed by <span class="blue">image/png</span>, and finally <span class="blue">text/plain</span>.
 <br>
 <br>
 Telegram:
@@ -29738,20 +29796,23 @@ It does not support the <span class="blue">text/html</span> format, so you canno
 <br>
 The priority of other formats is: <span class="blue">image/png</span>, <span class="blue">text/plain</span>.
 <br>
+If you want to paste images in Telegram, you need to select the <span class="blue">image/png</span> format.
+<br>
 <br>
 QQ, WeChat:
 <br>
 Their priority is: <span class="blue">image/png</span>, <span class="blue">text/html</span>, <span class="blue">text/plain</span>.
 <br>
-If you want to paste both images and text in QQ or WeChat, you should select <span class="blue">text/html</span> and uncheck <span class="blue">image/png</span>; otherwise, they will only paste the image.
+If you want to paste both images and text in QQ or WeChat, you should select <span class="blue">text/html</span> and uncheck <span class="blue">image/png</span>, otherwise they will only paste the image.
 <br>
 <br>
 Android apps:
 <br>
-Some apps on Android can paste <span class="blue">text/html</span> content, but the image may not display properly.
-<br>
+Some apps on Android can paste <span class="blue">text/html</span> content, but the images may not display.
 <br>`,
         `自分のニーズに応じてコピーする内容を選択できます。
+<br>
+作品ページ内、および作品をプレビューする際は、ショートカットキー <span class="blue">Alt</span> + <span class="blue">C</span> を押してコピーできます。
 <br>
 <br>
 <strong>各フォーマットの説明：</strong>
@@ -29765,13 +29826,13 @@ Some apps on Android can paste <span class="blue">text/html</span> content, but 
 <br>
 <strong>ヒント：</strong>
 <br>
-- この機能の設計の焦点は、画像とテキスト内容を同時にコピーすること（<span class="blue">text/html</span>）で、共有やアーカイブを容易にしますが、実際の効果は対象アプリケーションに依存します。一部のアプリケーションはこの形式をサポートしていないか、画像を正しく表示できない場合があります。
+- この機能の設計時の重点は、画像とテキストコンテンツを同時にコピーすること（<span class="blue">text/html</span>）で、共有やアーカイブを容易にしますが、実際の効果は対象アプリケーションに依存します。一部のアプリケーションはこの形式をサポートしないか、画像を正しく表示できない可能性があります。
 <br>
-- 複数のフォーマットを同時に選択できます。つまり、複数の内容を同時にコピーします。ただし、アプリケーションに貼り付けると、アプリケーションはその中で<strong>1つ</strong>のみを使用します。つまり、優先度が最も高いフォーマットです。他のフォーマット的内容は無視されます。
+- 複数のフォーマットを同時に選択できます。つまり、複数のコンテンツを同時にコピーします。ただし、アプリケーションに貼り付けると、アプリケーションはその中から<strong>1つ</strong>のみを使用します。つまり、優先度が最も高いフォーマットです。他のフォーマットのコンテンツは無視されます。
 <br>
-- 異なるアプリケーションでは優先度が異なる可能性があります。これはダウンロードツールとは関係ありません。
+- 異なるアプリケーションでは優先度が異なる場合があります。これはダウンロードツールとは関係ありません。
 <br>
-- 例： <span class="blue">image/png</span> と <span class="blue">text/html</span> の両方をコピーした場合、一部のアプリケーションは前者を使用しますが、一部のアプリケーションは後者を使用する可能性があります。貼り付けられた内容が期待に沿わない場合、フォーマットの1つを選択解除できます。
+- 例： <span class="blue">image/png</span> と <span class="blue">text/html</span> のコンテンツを同時にコピーした場合、一部のアプリケーションは前者を使用しますが、他のアプリケーションは後者を使用する可能性があります。貼り付けられたコンテンツが期待通りでない場合、そのフォーマットの選択を解除できます。
 <br>
 <br>
 <strong>具体的な例：</strong>
@@ -29779,36 +29840,39 @@ Some apps on Android can paste <span class="blue">text/html</span> content, but 
 <br>
 ブラウザ：
 <br>
-ウェブページの入力エリアはデフォルトでプレーンテキスト内容のみ貼り付け可能で、<span class="blue">text/plain</span> です。
+ウェブページの入力領域は、デフォルトでプレーンテキストコンテンツ、つまり <span class="blue">text/plain</span> のみを貼り付けられます。
 <br>
-一部のウェブアプリケーションは対象を最適化している可能性があり、例えば Discord では画像 <span class="blue">image/png</span> を貼り付けられます；Gmail では画像とテキストの両方を同時に貼り付けられます。つまり <span class="blue">text/html</span> です。
+一部のウェブアプリケーションは対象を最適化しており、例えば Discord では画像 <span class="blue">image/png</span> を貼り付けられます。Gmail では画像とテキストを同時に貼り付けられます。つまり <span class="blue">text/html</span> です。
 <br>
 <br>
 Microsoft Word：
 <br>
-<span class="blue">text/html</span> 形式の内容を優先し、次に <span class="blue">image/png</span>、最後に <span class="blue">text/plain</span> を採用します。
+<span class="blue">text/html</span> 形式のコンテンツを優先的に採用し、次に <span class="blue">image/png</span>、最後に <span class="blue">text/plain</span> です。
 <br>
 <br>
 Telegram：
 <br>
-<span class="blue">text/html</span> 形式をサポートしていないため、Telegram で画像とテキストを同時に貼り付けることはできません。
+<span class="blue">text/html</span> 形式をサポートしていないため、Telegram で画像とテキストを同時に貼り付けられません。
 <br>
 他のフォーマットの優先度は：<span class="blue">image/png</span>、<span class="blue">text/plain</span>。
 <br>
+Telegram で画像を貼り付けたい場合は、<span class="blue">image/png</span> 形式を選択する必要があります。
 <br>
-QQ、WeChat：
+<br>
+QQ、微信：
 <br>
 優先度は：<span class="blue">image/png</span>、<span class="blue">text/html</span>、<span class="blue">text/plain</span>。
 <br>
-QQ や WeChat で画像とテキストを同時に貼り付けたい場合、<span class="blue">text/html</span> を選択し、<span class="blue">image/png</span> のチェックを外してください。さもないと画像のみが貼り付けられます。
+QQ や微信で画像とテキストを同時に貼り付けたい場合は、<span class="blue">text/html</span> を選択し、<span class="blue">image/png</span> のチェックを外してください。さもないと画像のみが貼り付けられます。
 <br>
 <br>
 Android アプリ：
 <br>
-Android の一部のアプリは <span class="blue">text/html</span> 内容を貼り付けられますが、画像が正しく表示されない場合があります。
-<br>
+Android の一部のアプリは <span class="blue">text/html</span> コンテンツを貼り付けられますが、画像が表示されない場合があります。
 <br>`,
         `자신의 필요에 따라 복사할 내용을 선택할 수 있습니다.
+<br>
+작품 페이지에서, 그리고 작품을 미리보기할 때, 단축키 <span class="blue">Alt</span> + <span class="blue">C</span>를 눌러 복사할 수 있습니다.
 <br>
 <br>
 <strong>각 형식의 설명:</strong>
@@ -29822,13 +29886,13 @@ Android の一部のアプリは <span class="blue">text/html</span> 内容を�
 <br>
 <strong>팁:</strong>
 <br>
-- 이 기능의 설계 초점은 이미지와 텍스트 내용을 동시에 복사하는 것(<span class="blue">text/html</span>)으로, 공유나 아카이빙을 용이하게 하지만 실제 효과는 대상 응용 프로그램에 따라 다릅니다. 일부 응용 프로그램은 이 형식을 지원하지 않거나 이미지를 올바르게 표시하지 못할 수 있습니다.
+- 이 기능의 설계 시 초점은 이미지와 텍스트 콘텐츠를 동시에 복사하는 것(<span class="blue">text/html</span>)으로, 공유나 아카이빙을 쉽게 하기 위한 것입니다. 하지만 실제 효과는 대상 애플리케이션에 따라 다릅니다. 일부 애플리케이션은 이 형식을 지원하지 않거나 이미지를 올바르게 표시하지 못할 수 있습니다.
 <br>
-- 여러 형식을 동시에 선택할 수 있으며, 이는 여러 내용을 동시에 복사하는 것을 의미합니다. 그러나 응용 프로그램에 붙여넣을 때 응용 프로그램은 그중 <strong>하나</strong>만 사용합니다. 즉, 우선순위가 가장 높은 형식입니다. 다른 형식의 내용은 무시됩니다.
+- 여러 형식을 동시에 선택할 수 있습니다. 즉, 여러 콘텐츠를 동시에 복사합니다. 그러나 애플리케이션에 붙여넣을 때, 애플리케이션은 그 중 <strong>하나</strong>만 사용합니다. 즉, 우선순위가 가장 높은 형식입니다. 다른 형식의 콘텐츠는 무시됩니다.
 <br>
-- 다른 응용 프로그램에서는 우선순위가 다를 수 있습니다. 이는 다운로더와 무관합니다.
+- 다른 애플리케이션에서는 우선순위가 다를 수 있습니다. 이는 다운로더와 무관합니다.
 <br>
-- 예: <span class="blue">image/png</span>과 <span class="blue">text/html</span> 내용을 동시에 복사하면 일부 응용 프로그램은 전자를 사용하지만 일부는 후자를 사용할 수 있습니다. 붙여넣은 내용이 기대에 맞지 않으면 해당 형식 중 하나를 선택 해제할 수 있습니다.
+- 예: <span class="blue">image/png</span>과 <span class="blue">text/html</span> 콘텐츠를 동시에 복사한 경우, 일부 애플리케이션은 전자를 사용하지만, 일부는 후자를 사용할 수 있습니다. 붙여넣은 콘텐츠가 예상과 다르면 해당 형식 중 하나를 선택 해제할 수 있습니다.
 <br>
 <br>
 <strong>구체적인 예시:</strong>
@@ -29836,39 +29900,42 @@ Android の一部のアプリは <span class="blue">text/html</span> 内容を�
 <br>
 브라우저:
 <br>
-웹페이지의 입력 영역은 기본적으로 순수 텍스트 내용만 붙여넣을 수 있으며, 이는 <span class="blue">text/plain</span>입니다.
+웹페이지의 입력 영역은 기본적으로 플레인 텍스트 콘텐츠, 즉 <span class="blue">text/plain</span>만 붙여넣을 수 있습니다.
 <br>
-일부 웹 응용 프로그램은 대상에 맞게 최적화될 수 있으며, 예를 들어 Discord에서는 이미지 <span class="blue">image/png</span>을 붙여넣을 수 있습니다; Gmail에서는 이미지와 텍스트를 동시에 붙여넣을 수 있으며, 이는 <span class="blue">text/html</span>입니다.
+일부 웹 애플리케이션은 대상에 최적화되어 있으며, 예를 들어 Discord에서는 이미지 <span class="blue">image/png</span>을 붙여넣을 수 있습니다. Gmail에서는 이미지와 텍스트를 동시에 붙여넣을 수 있습니다. 즉 <span class="blue">text/html</span>입니다.
 <br>
 <br>
 Microsoft Word:
 <br>
-<span class="blue">text/html</span> 형식의 내용을 우선 채택하며, 그 다음 <span class="blue">image/png</span>, 마지막으로 <span class="blue">text/plain</span>입니다.
+<span class="blue">text/html</span> 형식의 콘텐츠를 우선적으로 채택하며, 그 다음은 <span class="blue">image/png</span>, 마지막은 <span class="blue">text/plain</span>입니다.
 <br>
 <br>
 Telegram:
 <br>
-<span class="blue">text/html</span> 형식을 지원하지 않으므로 Telegram에서 이미지와 텍스트를 동시에 붙여넣을 수 없습니다.
+<span class="blue">text/html</span> 형식을 지원하지 않으므로, Telegram에서 이미지와 텍스트를 동시에 붙여넣을 수 없습니다.
 <br>
 다른 형식의 우선순위는: <span class="blue">image/png</span>, <span class="blue">text/plain</span>.
 <br>
+Telegram에서 이미지를 붙여넣고 싶다면 <span class="blue">image/png</span> 형식을 선택해야 합니다.
 <br>
-QQ, WeChat:
+<br>
+QQ, 위챗:
 <br>
 우선순위는: <span class="blue">image/png</span>, <span class="blue">text/html</span>, <span class="blue">text/plain</span>.
 <br>
-QQ나 WeChat에서 이미지와 텍스트를 동시에 붙여넣고 싶다면 <span class="blue">text/html</span>을 선택하고 <span class="blue">image/png</span>의 체크를 해제하세요. 그렇지 않으면 이미지만 붙여넣습니다.
+QQ나 위챗에서 이미지와 텍스트를 동시에 붙여넣고 싶다면 <span class="blue">text/html</span>을 선택하고 <span class="blue">image/png</span>의 체크를 해제하세요. 그렇지 않으면 이미지만 붙여넣어집니다.
 <br>
 <br>
 Android 앱:
 <br>
-Android의 일부 앱은 <span class="blue">text/html</span> 내용을 붙여넣을 수 있지만 이미지가 제대로 표시되지 않을 수 있습니다。
-<br>
+Android의 일부 앱은 <span class="blue">text/html</span> 콘텐츠를 붙여넣을 수 있지만, 이미지가 표시되지 않을 수 있습니다.
 <br>`,
         `Вы можете выбрать содержимое для копирования в соответствии со своими потребностями.
 <br>
+На странице работы, а также при предпросмотре работы, вы можете использовать комбинацию клавиш <span class="blue">Alt</span> + <span class="blue">C</span> для копирования.
 <br>
-<strong>Описание каждого формата:</strong>
+<br>
+<strong>Объяснение каждого формата:</strong>
 <br>
 - <span class="blue">image/png</span> Копирует изображение работы. По умолчанию не выбрано, поскольку в некоторых социальных программах его приоритет слишком высок, что может привести к игнорированию содержимого в формате <span class="blue">text/html</span>.
 <br>
@@ -29879,13 +29946,13 @@ Android의 일부 앱은 <span class="blue">text/html</span> 내용을 붙여넣
 <br>
 <strong>Советы:</strong>
 <br>
-- Основной акцент в дизайне этой функции — одновременное копирование изображения и текстового содержимого (<span class="blue">text/html</span>) для удобного обмена или архивирования, но реальный эффект зависит от целевого приложения. Некоторые приложения могут не поддерживать этот формат или не отображать изображение правильно.
+- Основной акцент в дизайне этой функции — одновременное копирование изображения и текстового содержимого (<span class="blue">text/html</span>) для удобного обмена или архивирования, но фактический эффект зависит от целевого приложения. Некоторые приложения могут не поддерживать этот формат или не отображать изображение корректно.
 <br>
-- Вы можете выбрать несколько форматов одновременно, что означает копирование нескольких содержимых. Однако при вставке в приложение оно использует только <strong>одно</strong> из них — формат с наивысшим приоритетом. Содержимое других форматов будет проигнорировано.
+- Вы можете выбрать несколько форматов одновременно, что означает одновременное копирование нескольких содержимых. Однако при вставке в приложение приложение использует только <strong>одно</strong> из них — то, у которого наивысший приоритет. Содержимое других форматов будет игнорироваться.
 <br>
-- В разных приложениях приоритет может отличаться. Это не связано с загрузчиком.
+- Приоритет может различаться в разных приложениях. Это не связано с загрузчиком.
 <br>
-- Например: если вы скопируете содержимое <span class="blue">image/png</span> и <span class="blue">text/html</span>, некоторые приложения будут использовать первое, но другие — второе. Если вставленное содержимое не соответствует вашим ожиданиям, вы можете отменить выбор одного из форматов.
+- Например: если вы одновременно скопируете содержимое <span class="blue">image/png</span> и <span class="blue">text/html</span>, некоторые приложения будут использовать первое, а другие — второе. Если вставленное содержимое не соответствует вашим ожиданиям, вы можете отменить выбор одного из форматов.
 <br>
 <br>
 <strong>Некоторые конкретные примеры:</strong>
@@ -29893,34 +29960,35 @@ Android의 일부 앱은 <span class="blue">text/html</span> 내용을 붙여넣
 <br>
 Браузер:
 <br>
-Область ввода на веб-странице по умолчанию может вставлять только чистый текст, то есть <span class="blue">text/plain</span>.
+Область ввода на веб-странице по умолчанию может вставлять только содержимое в формате обычного текста, то есть <span class="blue">text/plain</span>.
 <br>
-Некоторые веб-приложения могут иметь целевую оптимизацию, например, в Discord вы можете вставить изображение <span class="blue">image/png</span>; в Gmail вы можете вставить изображение и текст одновременно, то есть <span class="blue">text/html</span>.
+Некоторые веб-приложения могут иметь целевую оптимизацию, например, в Discord вы можете вставлять изображения <span class="blue">image/png</span>; в Gmail вы можете вставлять как изображения, так и текст, то есть <span class="blue">text/html</span>.
 <br>
 <br>
 Microsoft Word:
 <br>
-Он отдаст предпочтение содержимому формата <span class="blue">text/html</span>, затем <span class="blue">image/png</span>, и наконец <span class="blue">text/plain</span>.
+Он будет отдавать предпочтение содержимому в формате <span class="blue">text/html</span>, затем <span class="blue">image/png</span>, и наконец <span class="blue">text/plain</span>.
 <br>
 <br>
 Telegram:
 <br>
-Он не поддерживает формат <span class="blue">text/html</span>, поэтому вы не можете вставить изображение и текст одновременно в Telegram.
+Он не поддерживает формат <span class="blue">text/html</span>, поэтому вы не можете вставлять в Telegram одновременно изображение и текст.
 <br>
 Приоритет других форматов: <span class="blue">image/png</span>, <span class="blue">text/plain</span>.
+<br>
+Если вы хотите вставлять изображения в Telegram, нужно выбрать формат <span class="blue">image/png</span>.
 <br>
 <br>
 QQ, WeChat:
 <br>
 Их приоритет: <span class="blue">image/png</span>, <span class="blue">text/html</span>, <span class="blue">text/plain</span>.
 <br>
-Если вы хотите вставить изображение и текст одновременно в QQ или WeChat, выберите <span class="blue">text/html</span> и снимите галочку с <span class="blue">image/png</span>; иначе они вставят только изображение.
+Если вы хотите вставлять в QQ или WeChat одновременно изображение и текст, выберите <span class="blue">text/html</span> и снимите галочку с <span class="blue">image/png</span>, иначе они вставят только изображение.
 <br>
 <br>
 Приложения для Android:
 <br>
-Некоторые приложения на Android могут вставлять содержимое <span class="blue">text/html</span>, но изображение может не отображаться правильно。
-<br>
+Некоторые приложения на Android могут вставлять содержимое <span class="blue">text/html</span>, но изображения могут не отображаться.
 <br>`,
     ],
     _文本格式: [

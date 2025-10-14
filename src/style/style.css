@@ -2574,12 +2574,13 @@ iframe[name='expandedFooter'] {
   margin: 4px 0;
 }
 .xz_PreviewWorkDetailPanel .content .flags span {
-  padding: 0px 4px;
+  box-sizing: border-box;
+  line-height: 18px;
+  padding: 3px 6px;
   border-radius: 4px;
   color: #ffffff;
   font-weight: bold;
-  font-size: 10px;
-  line-height: 16px;
+  font-size: 11px;
   user-select: none;
 }
 .xz_PreviewWorkDetailPanel .content .flags .r18 {
@@ -2920,7 +2921,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   background: #0d5ee9;
 }
 #previewWorkTip span.bmk {
-  background: #e69d00;
+  background: #eda200;
 }
 #previewWorkTip span a {
   color: #fff;
