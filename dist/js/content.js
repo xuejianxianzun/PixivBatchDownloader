@@ -9572,7 +9572,7 @@ class ShowWhatIsNew {
     constructor() {
         this.bindEvents();
     }
-    flag = '17.9.0';
+    flag = '18.0.0';
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
@@ -9580,16 +9580,22 @@ class ShowWhatIsNew {
       <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_扩展程序升到x版本', this.flag)}</span>
       <br>
       <br>
-      <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示查看wiki页面')}</span>
+      <strong><span>✨${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</span></strong>
+      <br>
+      ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_显示复制按钮的提示')}
+      <br>
+      ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_相关设置')}: ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_复制按钮')}
+      <br>
+      ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_增强'))}
       <br>
       <br>
-      <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化性能和用户体验')}</span>
+      <span>😊${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化用户体验')}</span>
       <br>
       <br>
-      <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_版本更新说明17_9_0')}</span>
+      <span>🐞${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复bug')}</span>
       `;
-            // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong
-            // <strong><span>✨${lang.transl('_新增功能')}:</span></strong
+            // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong>
+            // <strong><span>✨${lang.transl('_新增功能')}:</span></strong>
             // <strong><span>⚙️${lang.transl('_行为变更')}:</span></strong>
             // <span>🗑${lang.transl('_移除设置项')}</span>
             // <span class="blue">${lang.transl('_下载间隔')}</span>
@@ -9600,10 +9606,11 @@ class ShowWhatIsNew {
             // <br>
             // <br>
             // <span>${lang.transl('_该功能默认启用')}</span>
-            // <span>${lang.transl('_修复bug')}</span>
-            // <span>${lang.transl('_修复已知问题')}</span>
-            // <span>${lang.transl('_优化性能和用户体验')}</span>
-            // <span>${lang.transl('_其他优化')}</span>
+            // <span>😊${lang.transl('_优化用户体验')}</span>
+            // <span>😊${lang.transl('_优化性能和用户体验')}</span>
+            // <span>😊${lang.transl('_其他优化')}</span>
+            // <span>🐞${lang.transl('_修复bug')}</span>
+            // <span>🐞${lang.transl('_修复已知问题')}</span>
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -28279,6 +28286,14 @@ Novel folder name: Novel`,
         '성능과 사용자 경험을 최적화합니다.',
         'Оптимизация производительности и пользовательского опыта',
     ],
+    _优化用户体验: [
+        `优化用户体验`,
+        `優化使用者體驗`,
+        `Optimize User Experience`,
+        `ユーザーエクスペリエンスの最適化`,
+        `사용자 경험 최적화`,
+        `Оптимизация пользовательского опыта`,
+    ],
     _修复bug: [
         '修复 bug',
         '修復 bug',
@@ -29437,14 +29452,6 @@ P.S. Работы заблокированных пользователей не
         `이번 작업에서 크롤링할 작품 수가 많습니다. 대본 계정이 차단될 위험을 줄이기 위해 작은 계정을 사용하여 크롤링과 다운로드를 고려해보세요. <br>Wiki에서 관련 설명을 확인할 수 있습니다: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">작은 계정으로 다운로드</a>`,
         `Эта задача требует загрузки большого количества работ. Вы можете рассмотреть использование альтернативного аккаунта для загрузки и скачивания, чтобы снизить риск блокировки основного аккаунта. <br>Вы можете ознакомиться с соответствующими инструкциями в Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/Using-Secondary-Account-for-Downloading" target="_blank">Скачивание с альтернативным аккаунтом</a>`,
     ],
-    _版本更新说明17_9_0: [
-        `<strong>注意：</strong>这次更新后，“抓取多少页面”和“抓取多少作品”这两个设置被重置为了默认值。如果你需要的话可以重新修改它们的值。`,
-        `<strong>注意：</strong>這次更新後，「抓取多少頁面」和「抓取多少作品」這兩個設置被重置為了默認值。如果你需要的話可以重新修改它們的值。`,
-        `<strong>Note:</strong> After this update, the settings for "crawl how many pages" and "crawl how many works" have been reset to default values. If needed, you can modify their values again.`,
-        `<strong>注意：</strong>この更新後、「クロールするページ数」と「クロールする作品数」の2つの設定がデフォルト値にリセットされました。必要に応じて値を再変更できます。`,
-        `<strong>주의:</strong> 이번 업데이트 후, "크롤링할 페이지 수"와 "크롤링할 작품 수" 이 두 설정이 기본값으로 재설정되었습니다. 필요하다면 값을 다시 수정할 수 있습니다.`,
-        `<strong>Внимание:</strong> После этого обновления настройки «количество страниц для краулинга» и «количество работ для краулинга» были сброшены на значения по умолчанию. При необходимости вы можете изменить их значения заново.`,
-    ],
     _复制按钮: [
         `<span class="key">复制</span>按钮`,
         `<span class="key">複製</span>按鈕`,
@@ -29466,32 +29473,32 @@ P.S. Работы заблокированных пользователей не
 <br>
 你可以自定义要复制的数据和格式。
 <br>
-在作品页面里，以及预览作品时，你可以按快捷键 Alt + C 进行复制。`,
+在作品页面里，以及预览作品时，你可以按快捷键 <span class="blue">Alt + C</span> 进行复制。`,
         `下載器會在作品縮圖上和作品頁面內顯示一個複製按鈕，點擊它就可以複製作品的圖片和一些資料。
 <br>
 你可以自訂要複製的資料和格式。
 <br>
-在作品頁面裡，以及預覽作品時，你可以按快捷鍵 Alt + C 進行複製。`,
+在作品頁面裡，以及預覽作品時，你可以按快捷鍵 <span class="blue">Alt + C</span> 進行複製。`,
         `The downloader will display a copy button on the work thumbnail and within the work page. Clicking it allows you to copy the work's image and some data.
 <br>
 You can customize the data and format to be copied.
 <br>
-On the work page, and when previewing a work, you can use the shortcut key Alt + C to copy.`,
+On the work page, and when previewing a work, you can use the shortcut key <span class="blue">Alt + C</span> to copy.`,
         `ダウンロードツールは、作品のサムネイルと作品ページ内にコピーボタンを表示します。これをクリックすると、作品の画像と一部のデータをコピーできます。
 <br>
 コピーするデータとフォーマットをカスタマイズできます。
 <br>
-作品ページ内、および作品をプレビューする際は、ショートカットキー Alt + C を押してコピーできます。`,
+作品ページ内、および作品をプレビューする際は、ショートカットキー <span class="blue">Alt + C</span> を押してコピーできます。`,
         `다운로더는 작품 썸네일과 작품 페이지 내에 복사 버튼을 표시합니다. 클릭하면 작품의 이미지와 일부 데이터를 복사할 수 있습니다.
 <br>
 복사할 데이터와 형식을 사용자 지정할 수 있습니다.
 <br>
-작품 페이지에서, 그리고 작품을 미리보기할 때, 단축키 Alt + C를 눌러 복사할 수 있습니다.`,
+작품 페이지에서, 그리고 작품을 미리보기할 때, 단축키 <span class="blue">Alt + C</span>를 눌러 복사할 수 있습니다.`,
         `Загрузчик отображает кнопку копирования на миниатюре работы и внутри страницы работы. Нажатие на неё позволяет скопировать изображение работы и некоторые данные.
 <br>
 Вы можете настроить данные и формат для копирования.
 <br>
-На странице работы, а также при предпросмотре работы, вы можете использовать комбинацию клавиш Alt + C для копирования.`,
+На странице работы, а также при предпросмотре работы, вы можете использовать комбинацию клавиш <span class="blue">Alt + C</span> для копирования.`,
     ],
     _内容格式: [
         `内容格式`,
