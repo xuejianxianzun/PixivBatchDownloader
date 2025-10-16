@@ -12,11 +12,8 @@ export const formHtml = `
         <span class="textTip" data-xztext="_抓取多少作品"></span>
       </a>
       <input type="text" name="setWantWork" class="setinput_style1 blue" value="-1">
-      &nbsp;
-      <button class="textButton grayButton" type="button" role="setMin"></button>
-      &nbsp;
+      <button class="textButton grayButton mr0" type="button" role="setMin"></button>
       <button class="textButton grayButton" type="button" role="setMax"></button>
-      &nbsp;
       <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
       <button class="gray1 showSetWantWorkTip textButton" type="button" data-xztext="_提示"></button>
     </p>
@@ -25,11 +22,8 @@ export const formHtml = `
         <span class="textTip" data-xztext="_抓取多少页面"></span>
       </a>
       <input type="text" name="setWantPage" class="setinput_style1 blue" value="-1">
-      &nbsp;
-      <button class="textButton grayButton" type="button" role="setMin"></button>
-      &nbsp;
+      <button class="textButton grayButton mr0" type="button" role="setMin"></button>
       <button class="textButton grayButton" type="button" role="setMax"></button>
-      &nbsp;
       <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
       <button class="gray1 showSetWantPageTip textButton" type="button" data-xztext="_提示"></button>
     </p>
@@ -264,8 +258,12 @@ export const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="postDate">
         <input type="datetime-local" name="postDateStart" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
-        &nbsp;-&nbsp;
+        <button class="textButton grayButton mr0" type="button" role="setDate" data-for="postDateStart" data-value="2009-01-01T00:00" data-xztext="_过去"></button>
+        <button class="textButton grayButton" type="button" role="setDate" data-for="postDateStart" data-value="now" data-xztext="_现在"></button>
+        -&nbsp;
         <input type="datetime-local" name="postDateEnd" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
+        <button class="textButton grayButton mr0" type="button" role="setDate" data-for="postDateEnd" data-value="now" data-xztext="_现在"></button>
+        <button class="textButton grayButton" type="button" role="setDate" data-for="postDateEnd" data-value="2100-01-01T00:00" data-xztext="_未来"></button>
       </span>
     </p>
     <p class="option" data-no="11">

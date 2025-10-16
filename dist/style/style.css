@@ -523,9 +523,10 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap .grayButton {
   background: #eee;
-  border-radius: 3px;
+  color: #333;
+  border-radius: 4px;
   padding: 0px 6px;
-  margin-right: 8px;
+  margin: 0 4px;
 }
 .centerWrap .grayButton:hover {
   background: #29b3f3;
@@ -739,16 +740,14 @@ body.mobile #quickCrawlBtn {
   width: 100px;
 }
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1.postDate {
-  width: 190px;
+  width: 160px;
 }
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1.bmkNum {
   width: 60px;
 }
 .centerWrap .centerWrap_con .settingForm p.option button[role='setMin'],
 .centerWrap .centerWrap_con .settingForm p.option button[role='setMax'] {
-  height: 22px;
-  line-height: 22px;
-  margin: 2px 0;
+  margin: 0 4px;
 }
 .centerWrap .centerWrap_con .settingForm select {
   width: 80px;
@@ -2525,6 +2524,9 @@ iframe[name='expandedFooter'] {
   fill: currentColor;
   overflow: hidden;
 }
+.mr0 {
+  margin-right: 0 !important;
+}
 .beautify_scrollbar::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -2714,8 +2716,9 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
 #previewWorkTip span.flag {
   align-items: center;
   height: 18px;
+  line-height: 18px;
   font-weight: bold;
-  font-size: 11px;
+  font-size: 12px;
   border-radius: 4px;
   margin: 0 3px;
 }

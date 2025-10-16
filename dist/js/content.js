@@ -30025,15 +30025,17 @@ QQ, WeChat:
         `최소 한 가지 복사 형식을 선택해야 합니다`,
         `Необходимо выбрать хотя бы один формат копирования`,
     ],
+    _过去: [`过去`, `過去`, `Past`, `過去`, `과거`, `Прошлое`],
+    _现在: [`现在`, `現在`, `Now`, `今`, `지금`, `Сейчас`],
+    _未来: [`未来`, `未來`, `Future`, `未来`, `미래`, `Будущее`],
 };
 
 // prompt
-// 我有一些中文语句需要翻译，稍后我会把语句发给你。翻译结果保存在一个 js 的 string[] 里，它包含 6 条 string，第 1 条是原文，后 5 条是其他语言的翻译，按顺序分别是：繁体中文、英语、日语、韩语、俄语。
+// 我有一些中文语句需要翻译，稍后我会把语句发给你。翻译结果保存在一个 js 的 string[] 里，输出为 js 代码块。这个数组包含 6 条 string，第 1 条是原文，后 5 条是其他语言的翻译，按顺序分别是：繁体中文、英语、日语、韩语、俄语。
 // 背景说明：
 // 这是一个浏览器扩展程序，它是一个爬虫和下载器，用于从 Pixiv.net 这个网站下载插画、漫画、小说等内容。大多数用户在 PC 端的浏览器上使用它。它有很多设置项，还会显示日志和一些提示消息。
 // 输出格式：
-// - 输出内容保存在一个 JavaScript 代码块里。
-// - 代码的内容就是翻译后的数组。不需要把数组保存到一个变量里。
+// - 不需要把数组保存到变量里。
 // - 字符串使用反引号 ` 包裹。
 // - 数组的最后一条语句后面需要添加逗号。这是 JS 语法里数组项后面的逗号，不要添加到语句里。
 // - 翻译的语句后面不需要添加注释。
@@ -30732,10 +30734,11 @@ class CopyButtonOnWorkPage {
             _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_6__.copyWorkInfo.receive(idData);
             const msg = `${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_显示复制按钮的提示')}
       <br>
+      <br>
       ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_相关设置')}: ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_复制按钮')}
       <br>
       ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_增强'))}`;
-            _ShowHelp__WEBPACK_IMPORTED_MODULE_4__.showHelp.show('tipCopyWorkInfoButton', msg);
+            _ShowHelp__WEBPACK_IMPORTED_MODULE_4__.showHelp.show('tipCopyWorkInfoButton', msg, _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_复制按钮'));
         });
         // 使用快捷键 Alt + C 点击复制按钮
         window.addEventListener('keydown', (ev) => {
@@ -32474,6 +32477,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+
 
 
 
@@ -32491,7 +32496,6 @@ class Form {
         this.form = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_3__.formHtml);
         _Theme__WEBPACK_IMPORTED_MODULE_5__.theme.register(this.form);
         _Language__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.form);
-        this.getElements();
         const allOptions = this.form.querySelectorAll('.option');
         _setting_Options__WEBPACK_IMPORTED_MODULE_9__.options.init(allOptions);
         new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_4__.SaveNamingRule(this.form.userSetName);
@@ -32499,14 +32503,43 @@ class Form {
         this.bindEvents();
     }
     form;
+    bindEvents() {
+        this.bindBeautifyInput();
+        this.bindFunctionBtn();
+        this.showToggleTip();
+        this.showMsgTip();
+        // 输入框获得焦点时自动选择文本（命名规则的输入框例外）
+        const centerInputs = this.form.querySelectorAll('input[type=text]');
+        for (const el of centerInputs) {
+            if (el.name !== 'userSetName') {
+                el.addEventListener('focus', function () {
+                    this.select();
+                });
+            }
+        }
+        // 把下拉框的选择项插入到文本框里
+        const from = this.form.fileNameSelect;
+        const to = this.form.userSetName;
+        from.addEventListener('change', () => {
+            if (from.value !== 'default') {
+                // 把选择项插入到光标位置，并设置新的光标位置
+                const position = to.selectionStart;
+                to.value =
+                    to.value.substring(0, position) +
+                        from.value +
+                        to.value.substring(position);
+                to.selectionStart = position + from.value.length;
+                to.selectionEnd = position + from.value.length;
+                to.focus();
+            }
+        });
+    }
     /**所有的美化表单元素 */
     // 每个美化的 input 控件后面必定有一个 span 元素
-    // label 和 子选项区域则不一定有
+    // label 和子选项区域可能有，也可能没有
     allBeautifyInput = [];
-    /**一些固定格式的帮助元素 */
-    tips = [];
-    getElements() {
-        // 获取所有的美化控件和它们对应的 span 元素
+    /**查找所有需要美化的表单控件，并绑定事件 */
+    bindBeautifyInput() {
         const allCheckBox = this.form.querySelectorAll('input[type="checkbox"]');
         const allRadio = this.form.querySelectorAll('input[type="radio"]');
         const checkboxAndRadio = [allCheckBox, allRadio];
@@ -32516,53 +32549,131 @@ class Form {
                 if (input.classList.contains('checkbox_switch')) {
                     subOption = this.form.querySelector(`.subOptionWrap[data-show="${input.name}"]`);
                 }
-                this.allBeautifyInput.push({
-                    input: input,
-                    span: input.nextElementSibling,
-                    label: this.form.querySelector(`label[for="${input.id}"]`),
-                    subOption: subOption,
-                });
-            });
-        }
-        // 获取所有在表单上直接显示的提示元素
-        for (const item of this.tips) {
-            const wrap = this.form.querySelector('#' + item.wrapID);
-            if (wrap) {
-                item.wrap = wrap;
-            }
-        }
-    }
-    bindEvents() {
-        // 为美化的表单控件绑定事件
-        for (const item of this.allBeautifyInput) {
-            const { input, span } = item;
-            // 点击美化元素时，点击真实的 input 控件
-            span.addEventListener('click', () => {
-                input.click();
-            });
-            // 当美化元素获得焦点，并且用户按下了回车或空格键时，点击真实的 input 控件
-            span.addEventListener('keydown', (event) => {
-                if ((event.code === 'Enter' || event.code === 'Space') &&
-                    event.target === span) {
-                    event.stopPropagation();
-                    event.preventDefault();
+                const span = input.nextElementSibling;
+                // 点击美化元素时，点击真实的 input 控件
+                span.addEventListener('click', () => {
                     input.click();
-                }
+                });
+                // 当美化元素获得焦点，并且用户按下了回车或空格键时，点击真实的 input 控件
+                span.addEventListener('keydown', (event) => {
+                    if ((event.code === 'Enter' || event.code === 'Space') &&
+                        event.target === span) {
+                        event.stopPropagation();
+                        event.preventDefault();
+                        input.click();
+                    }
+                });
+                this.allBeautifyInput.push({
+                    input,
+                    span,
+                    label: this.form.querySelector(`label[for="${input.id}"]`),
+                    subOption,
+                });
             });
         }
         // 设置变化或者重置时，重新设置美化状态
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.debounce(() => {
-            this.initFormBeautify();
-            this.showTips();
+            this.initBeautifyInput();
         }, 50));
-        // 用户点击“我知道了”按钮之后不再显示对应的提示
-        for (const item of this.tips) {
-            if (item.wrap) {
-                const btn = item.wrap.querySelector('button');
-                btn.addEventListener('click', () => {
-                    (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.setSetting)(item.settingName, false);
-                });
+    }
+    // 设置表单里的美化元素的状态
+    initBeautifyInput() {
+        for (const item of this.allBeautifyInput) {
+            const { input, span, label, subOption } = item;
+            // 重设 label 的高亮状态
+            if (label) {
+                const method = input.checked ? 'add' : 'remove';
+                label.classList[method]('active');
             }
+            // 重设子选项区域的显示/隐藏状态
+            if (subOption) {
+                subOption.style.display = input.checked ? 'inline-flex' : 'none';
+            }
+        }
+    }
+    /**点击一些按钮时，切换显示对应的帮助区域 */
+    showToggleTip() {
+        // 显示命名字段提示
+        this.form
+            .querySelector('#showFileNameTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#fileNameTip')));
+        // 显示复制内容的格式的提示
+        this.form
+            .querySelector('#showCopyWorkInfoFormatTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#copyWorkInfoFormatTip')));
+        // 显示日期格式提示
+        this.form
+            .querySelector('#showDateTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#dateFormatTip')));
+        // 显示标签分隔提示
+        this.form
+            .querySelector('#showTagsSeparatorTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#tagsSeparatorTip')));
+        // 显示预览作品的快捷键列表
+        this.form
+            .querySelector('#showPreviewWorkShortcutTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#previewWorkShortcutTip')));
+    }
+    /**点击一些按钮时，通过 msgBox 显示帮助 */
+    showMsgTip() {
+        // 显示复制按钮所复制的内容的提示
+        this.form
+            .querySelector('#showCopyWorkDataTip')
+            .addEventListener('click', () => {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_对复制的内容的说明'), {
+                title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_复制内容'),
+            });
+        });
+        // 显示用户阻止名单的提示
+        this.form
+            .querySelector('#showRemoveBlockedUsersWorkTip')
+            .addEventListener('click', () => {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_用户阻止名单的说明2'), {
+                title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_用户阻止名单'),
+            });
+        });
+        // 显示抓取多少作品的提示
+        const showSetWantWorkTipButton = this.form.querySelector('.showSetWantWorkTip');
+        showSetWantWorkTipButton.addEventListener('click', () => {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取多少作品的提示'), {
+                title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取多少作品'),
+            });
+        });
+        // 显示抓取多少页面的提示
+        const showSetWantPageTipButton = this.form.querySelector('.showSetWantPageTip');
+        showSetWantPageTipButton.addEventListener('click', () => {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取多少页面的提示'), {
+                title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取多少页面'),
+            });
+        });
+        // 显示不下载重复文件的提示
+        const deduplicationHelp = this.form.querySelector('#deduplicationHelp');
+        deduplicationHelp.addEventListener('click', () => {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_不下载重复文件的提示'), {
+                title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_不下载重复文件'),
+            });
+        });
+    }
+    /**绑定功能按钮，点击按钮后会执行特定操作 */
+    bindFunctionBtn() {
+        // 投稿时间的输入框后面有 now 按钮，点击之后会把对应的输入框的值设置为现在
+        const setNowBtns = this.form.querySelectorAll('button[role="setDate"]');
+        for (const btn of setNowBtns) {
+            btn.addEventListener('click', () => {
+                const name = btn.dataset.for;
+                const input = this.form.querySelector(`input[name="${name}"]`);
+                if (input) {
+                    // 根据 data-value 的标记修改 input 的值
+                    // 可能是 now，或者是预设的日期时间值
+                    const flag = btn.dataset.value;
+                    let value = flag;
+                    if (flag === 'now') {
+                        value = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_11__.DateFormat.format(new Date(), 'YYYY-MM-DDThh:mm');
+                    }
+                    input.value = value;
+                    (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.setSetting)(name, value);
+                }
+            });
         }
         // 选择背景图片
         {
@@ -32621,115 +32732,6 @@ class Form {
                 });
             }
         }
-        // 显示命名字段提示
-        this.form
-            .querySelector('#showFileNameTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#fileNameTip')));
-        // 显示复制内容的格式的提示
-        this.form
-            .querySelector('#showCopyWorkInfoFormatTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#copyWorkInfoFormatTip')));
-        // 显示日期格式提示
-        this.form
-            .querySelector('#showDateTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#dateFormatTip')));
-        // 显示标签分隔提示
-        this.form
-            .querySelector('#showTagsSeparatorTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#tagsSeparatorTip')));
-        // 显示预览作品的快捷键列表
-        this.form
-            .querySelector('#showPreviewWorkShortcutTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#previewWorkShortcutTip')));
-        // 下面是通过 msgBox 显示的帮助
-        // 显示复制按钮所复制的内容的提示
-        this.form
-            .querySelector('#showCopyWorkDataTip')
-            .addEventListener('click', () => {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_对复制的内容的说明'), {
-                title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_复制内容'),
-            });
-        });
-        // 显示用户阻止名单的提示
-        this.form
-            .querySelector('#showRemoveBlockedUsersWorkTip')
-            .addEventListener('click', () => {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_用户阻止名单的说明2'), {
-                title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_用户阻止名单'),
-            });
-        });
-        // 显示抓取多少作品的提示
-        const showSetWantWorkTipButton = this.form.querySelector('.showSetWantWorkTip');
-        showSetWantWorkTipButton.addEventListener('click', () => {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取多少作品的提示'), {
-                title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取多少作品'),
-            });
-        });
-        // 显示抓取多少页面的提示
-        const showSetWantPageTipButton = this.form.querySelector('.showSetWantPageTip');
-        showSetWantPageTipButton.addEventListener('click', () => {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取多少页面的提示'), {
-                title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取多少页面'),
-            });
-        });
-        // 显示不下载重复文件的提示
-        const deduplicationHelp = this.form.querySelector('#deduplicationHelp');
-        deduplicationHelp.addEventListener('click', () => {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_不下载重复文件的提示'), {
-                title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_不下载重复文件'),
-            });
-        });
-        // 输入框获得焦点时自动选择文本（文件名输入框例外）
-        const centerInputs = this.form.querySelectorAll('input[type=text]');
-        for (const el of centerInputs) {
-            if (el.name !== 'userSetName') {
-                el.addEventListener('focus', function () {
-                    this.select();
-                });
-            }
-        }
-        // 把下拉框的选择项插入到文本框里
-        const from = this.form.fileNameSelect;
-        const to = this.form.userSetName;
-        from.addEventListener('change', () => {
-            if (from.value !== 'default') {
-                // 把选择项插入到光标位置,并设置新的光标位置
-                const position = to.selectionStart;
-                to.value =
-                    to.value.substring(0, position) +
-                        from.value +
-                        to.value.substring(position);
-                to.selectionStart = position + from.value.length;
-                to.selectionEnd = position + from.value.length;
-                to.focus();
-            }
-        });
-    }
-    // 设置表单里的美化元素的状态
-    initFormBeautify() {
-        for (const item of this.allBeautifyInput) {
-            const { input, span, label, subOption } = item;
-            // 重设 label 的高亮状态
-            if (label) {
-                const method = input.checked ? 'add' : 'remove';
-                label.classList[method]('active');
-            }
-            // 重设子选项区域的显示/隐藏状态
-            if (subOption) {
-                subOption.style.display = input.checked ? 'inline-flex' : 'none';
-            }
-        }
-    }
-    // 是否显示提示
-    showTips() {
-        for (const item of this.tips) {
-            if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.isPixiv()) {
-                item.wrap.style.display = 'none';
-            }
-            else {
-                item.wrap.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings[item.settingName] ? 'block' : 'none';
-            }
-        }
     }
 }
 new Form();
@@ -32763,11 +32765,8 @@ const formHtml = `
         <span class="textTip" data-xztext="_抓取多少作品"></span>
       </a>
       <input type="text" name="setWantWork" class="setinput_style1 blue" value="-1">
-      &nbsp;
-      <button class="textButton grayButton" type="button" role="setMin"></button>
-      &nbsp;
+      <button class="textButton grayButton mr0" type="button" role="setMin"></button>
       <button class="textButton grayButton" type="button" role="setMax"></button>
-      &nbsp;
       <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
       <button class="gray1 showSetWantWorkTip textButton" type="button" data-xztext="_提示"></button>
     </p>
@@ -32776,11 +32775,8 @@ const formHtml = `
         <span class="textTip" data-xztext="_抓取多少页面"></span>
       </a>
       <input type="text" name="setWantPage" class="setinput_style1 blue" value="-1">
-      &nbsp;
-      <button class="textButton grayButton" type="button" role="setMin"></button>
-      &nbsp;
+      <button class="textButton grayButton mr0" type="button" role="setMin"></button>
       <button class="textButton grayButton" type="button" role="setMax"></button>
-      &nbsp;
       <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
       <button class="gray1 showSetWantPageTip textButton" type="button" data-xztext="_提示"></button>
     </p>
@@ -33015,8 +33011,12 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="postDate">
         <input type="datetime-local" name="postDateStart" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
-        &nbsp;-&nbsp;
+        <button class="textButton grayButton mr0" type="button" role="setDate" data-for="postDateStart" data-value="2009-01-01T00:00" data-xztext="_过去"></button>
+        <button class="textButton grayButton" type="button" role="setDate" data-for="postDateStart" data-value="now" data-xztext="_现在"></button>
+        -&nbsp;
         <input type="datetime-local" name="postDateEnd" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
+        <button class="textButton grayButton mr0" type="button" role="setDate" data-for="postDateEnd" data-value="now" data-xztext="_现在"></button>
+        <button class="textButton grayButton" type="button" role="setDate" data-for="postDateEnd" data-value="2100-01-01T00:00" data-xztext="_未来"></button>
       </span>
     </p>
     <p class="option" data-no="11">
@@ -35183,8 +35183,10 @@ class Settings {
         workDirNameRule: '{id_num}',
         showOptions: true,
         postDate: false,
+        // 2009 年 1 月 1 日
         postDateStart: 1230739200000,
-        postDateEnd: 1893427200000,
+        // 2100 年 1 月 1 日
+        postDateEnd: 4102416000000,
         previewResult: true,
         previewResultLimit: 3000,
         BMKNumSwitch: false,

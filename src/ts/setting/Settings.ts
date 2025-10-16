@@ -545,8 +545,10 @@ class Settings {
     workDirNameRule: '{id_num}',
     showOptions: true,
     postDate: false,
+    // 2009 年 1 月 1 日
     postDateStart: 1230739200000,
-    postDateEnd: 1893427200000,
+    // 2100 年 1 月 1 日
+    postDateEnd: 4102416000000,
     previewResult: true,
     previewResultLimit: 3000,
     BMKNumSwitch: false,

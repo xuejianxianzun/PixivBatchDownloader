@@ -14,9 +14,7 @@
   padding: 20px 0px;
   border-radius: 15px;
   overflow: hidden;
-  font-family:
-    'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono',
-    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 .centerWrap hr {
   border: none;
@@ -66,9 +64,10 @@
 }
 .centerWrap .grayButton {
   background: #eee;
-  border-radius: 3px;
+  color: #333;
+  border-radius: 4px;
   padding: 0px 6px;
-  margin-right: 8px;
+  margin: 0 4px;
 }
 .centerWrap .grayButton:hover {
   background: #29b3f3;
@@ -229,11 +228,7 @@
 .centerWrap .centerWrap_con .settingForm p.option[data-no='43'] .subOptionWrap,
 .centerWrap .centerWrap_con .settingForm p.option[data-no='80'] .subOptionWrap,
 .centerWrap .centerWrap_con .settingForm p.option .setUserNameWrap,
-.centerWrap
-  .centerWrap_con
-  .settingForm
-  p.option
-  .DoNotDownloadLastFewImagesWarp {
+.centerWrap .centerWrap_con .settingForm p.option .DoNotDownloadLastFewImagesWarp {
   flex-basis: 100%;
 }
 .centerWrap .centerWrap_con .settingForm p.option.settingCategoryName {
@@ -286,16 +281,14 @@
   width: 100px;
 }
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1.postDate {
-  width: 190px;
+  width: 160px;
 }
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1.bmkNum {
   width: 60px;
 }
 .centerWrap .centerWrap_con .settingForm p.option button[role='setMin'],
 .centerWrap .centerWrap_con .settingForm p.option button[role='setMax'] {
-  height: 22px;
-  line-height: 22px;
-  margin: 2px 0;
+  margin: 0 4px;
 }
 .centerWrap .centerWrap_con .settingForm select {
   width: 80px;
@@ -321,9 +314,7 @@
   line-height: 26px;
 }
 .centerWrap .centerWrap_con .settingForm .centerPanelTextArea {
-  font-family:
-    'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono',
-    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   color: #29b3f3;
   font-size: 14px;
   background: transparent;
@@ -391,18 +382,10 @@
   margin-left: 0px;
   transition: all 0.3s;
 }
-.centerWrap
-  .centerWrap_con
-  .settingForm
-  .checkbox_switch:checked
-  + .beautify_switch {
+.centerWrap .centerWrap_con .settingForm .checkbox_switch:checked + .beautify_switch {
   background: #29b3f3;
 }
-.centerWrap
-  .centerWrap_con
-  .settingForm
-  .checkbox_switch:checked
-  + .beautify_switch::before {
+.centerWrap .centerWrap_con .settingForm .checkbox_switch:checked + .beautify_switch::before {
   margin-left: 11px;
 }
 .centerWrap .centerWrap_con .settingForm .beautify_checkbox {
@@ -434,29 +417,17 @@
   transition: all 0.2s;
   transform-origin: center;
 }
-.centerWrap
-  .centerWrap_con
-  .settingForm
-  .checkbox_common:checked
-  + .beautify_checkbox {
+.centerWrap .centerWrap_con .settingForm .checkbox_common:checked + .beautify_checkbox {
   background: #29b3f3;
   border: 1px solid #29b3f3;
 }
 .centerWrap .centerWrap_con .settingForm .beautify_checkbox:hover {
   border: 1px solid #29b3f3;
 }
-.centerWrap
-  .centerWrap_con
-  .settingForm
-  .checkbox_common:checked
-  + .beautify_checkbox::after {
+.centerWrap .centerWrap_con .settingForm .checkbox_common:checked + .beautify_checkbox::after {
   transform: rotate(45deg) scaleY(1);
 }
-.centerWrap
-  .centerWrap_con
-  .settingForm
-  .checkbox_common:focus
-  + .beautify_checkbox {
+.centerWrap .centerWrap_con .settingForm .checkbox_common:focus + .beautify_checkbox {
   border: 1px solid #29b3f3;
 }
 .centerWrap .centerWrap_con .settingForm .beautify_radio {
@@ -489,11 +460,7 @@
 .centerWrap .centerWrap_con .settingForm .beautify_radio:hover {
   border: 1px solid #29b3f3;
 }
-.centerWrap
-  .centerWrap_con
-  .settingForm
-  .radio:checked
-  + .beautify_radio::after {
+.centerWrap .centerWrap_con .settingForm .radio:checked + .beautify_radio::after {
   transform: translate(-50%, -50%) scale(1);
 }
 .centerWrap .centerWrap_con .settingForm li {
@@ -603,12 +570,7 @@
   width: 100%;
   text-align: center;
 }
-.centerWrap
-  .centerWrap_con
-  .settingForm
-  .progressBarWrap
-  .totalNumberWrap
-  span {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .totalNumberWrap span {
   position: initial;
 }
 .centerWrap .centerWrap_con .settingForm .progressBarWrap .progressBarList {
@@ -616,48 +578,23 @@
   margin: 0;
   padding-left: 0;
 }
-.centerWrap
-  .centerWrap_con
-  .settingForm
-  .progressBarWrap
-  .progressBarList
-  .downloadBar {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .progressBarList .downloadBar {
   position: relative;
   width: 100%;
   padding: 5px 0;
   height: 22px;
   box-sizing: content-box;
 }
-.centerWrap
-  .centerWrap_con
-  .settingForm
-  .progressBarWrap
-  .progressBarList
-  .progressBar2 {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .progressBarList .progressBar2 {
   width: 100%;
 }
-.centerWrap
-  .centerWrap_con
-  .settingForm
-  .progressBarWrap
-  .progressBarList
-  .progress2 {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .progressBarList .progress2 {
   width: 0;
 }
-.centerWrap
-  .centerWrap_con
-  .settingForm
-  .progressBarWrap
-  .progressBarList
-  .progressTip2 {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .progressBarList .progressTip2 {
   width: 100%;
 }
-.centerWrap
-  .centerWrap_con
-  .settingForm
-  .progressBarWrap
-  .progressBarList
-  .fileName {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .progressBarList .fileName {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -665,12 +602,7 @@
   padding: 0 10px;
   flex: 1;
 }
-.centerWrap
-  .centerWrap_con
-  .settingForm
-  .progressBarWrap
-  .progressBarList
-  .loadedWrap {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .progressBarList .loadedWrap {
   display: flex;
   align-items: center;
   padding: 0 10px;
@@ -679,28 +611,14 @@
 .centerWrap .centerWrap_con .settingForm .download_area {
   display: none;
 }
-.centerWrap
-  .centerWrap_con
-  .settingForm
-  .download_area
-  .download_status_text_wrap {
+.centerWrap .centerWrap_con .settingForm .download_area .download_status_text_wrap {
   line-height: 26px;
   margin-bottom: 4px;
 }
-.centerWrap
-  .centerWrap_con
-  .settingForm
-  .download_area
-  .download_status_text_wrap
-  > * {
+.centerWrap .centerWrap_con .settingForm .download_area .download_status_text_wrap > * {
   padding-right: 5px;
 }
-.centerWrap
-  .centerWrap_con
-  .settingForm
-  .download_area
-  .download_status_text_wrap
-  .down_status {
+.centerWrap .centerWrap_con .settingForm .download_area .download_status_text_wrap .down_status {
   color: #0ea8ef;
   display: inline-block;
 }
@@ -1015,9 +933,7 @@
   left: 0px !important;
 }
 .lang_ru * {
-  font-family:
-    'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono',
-    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-family: 'Noto Sans SC', 'Noto Sans', 'Segeo UI', 'Segeo UI Mono', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 @media (max-width: 414px) {
   .centerWrap.mobile .centerWrap_con .settingForm .centerWrap_btns button {
