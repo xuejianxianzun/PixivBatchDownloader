@@ -194,11 +194,17 @@ class CrawlNumber {
   }
 
   private bindEvents() {
-    // 页面初始化时，重设两个设置
-    window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
-      setTimeout(() => {
-        this.setOption()
-      }, 0)
+    // 页面初始化时、导入或重置设置时，重置抓取数量的选项
+    const resetEvents = [
+      EVT.list.pageSwitchedTypeChange,
+      EVT.list.resetSettingsEnd,
+    ]
+    resetEvents.forEach((event) => {
+      window.addEventListener(event, () => {
+        setTimeout(() => {
+          this.setOption()
+        }, 0)
+      })
     })
   }
 }

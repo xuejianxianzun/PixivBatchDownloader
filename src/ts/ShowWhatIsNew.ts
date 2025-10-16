@@ -11,7 +11,7 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '17.9.0'
+  private flag = '18.0.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
@@ -20,17 +20,23 @@ class ShowWhatIsNew {
       <span>${lang.transl('_扩展程序升到x版本', this.flag)}</span>
       <br>
       <br>
-      <span>${lang.transl('_提示查看wiki页面')}</span>
+      <strong><span>✨${lang.transl('_新增功能')}:</span></strong>
+      <br>
+      ${lang.transl('_显示复制按钮的提示')}
+      <br>
+      ${lang.transl('_相关设置')}: ${lang.transl('_复制按钮')}
+      <br>
+      ${lang.transl('_你可以在更多选项卡的xx分类里找到它', lang.transl('_增强'))}
       <br>
       <br>
-      <span>${lang.transl('_优化性能和用户体验')}</span>
+      <span>😊${lang.transl('_优化用户体验')}</span>
       <br>
       <br>
-      <span>${lang.transl('_版本更新说明17_9_0')}</span>
+      <span>🐞${lang.transl('_修复bug')}</span>
       `
 
-      // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong
-      // <strong><span>✨${lang.transl('_新增功能')}:</span></strong
+      // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong>
+      // <strong><span>✨${lang.transl('_新增功能')}:</span></strong>
       // <strong><span>⚙️${lang.transl('_行为变更')}:</span></strong>
       // <span>🗑${lang.transl('_移除设置项')}</span>
       // <span class="blue">${lang.transl('_下载间隔')}</span>
@@ -43,10 +49,11 @@ class ShowWhatIsNew {
       // <br>
       // <span>${lang.transl('_该功能默认启用')}</span>
 
-      // <span>${lang.transl('_修复bug')}</span>
-      // <span>${lang.transl('_修复已知问题')}</span>
-      // <span>${lang.transl('_优化性能和用户体验')}</span>
-      // <span>${lang.transl('_其他优化')}</span>
+      // <span>😊${lang.transl('_优化用户体验')}</span>
+      // <span>😊${lang.transl('_优化性能和用户体验')}</span>
+      // <span>😊${lang.transl('_其他优化')}</span>
+      // <span>🐞${lang.transl('_修复bug')}</span>
+      // <span>🐞${lang.transl('_修复已知问题')}</span>
 
       // 在更新说明的下方显示赞助提示
       msg += `

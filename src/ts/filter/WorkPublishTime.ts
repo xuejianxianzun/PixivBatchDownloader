@@ -61,14 +61,14 @@ class WorkPublishTime {
   private bindEvents() {
     // 获取图像作品的数据
     secretSignal.register('ppdtask1', () => {
-      // 上次记录到 135800000
-      this.crawlData(133910000, 135808305)
+      // 上次记录到 136360000
+      this.crawlData(135810000, 136362631)
     })
 
     // 获取小说作品的数据
     secretSignal.register('ppdtask2', () => {
-      // 上次记录到 26080000
-      this.crawlData(25610000, 26083378, 'novels')
+      // 上次记录到 26210000
+      this.crawlData(26090000, 26215159, 'novels')
     })
   }
 
@@ -77,7 +77,7 @@ class WorkPublishTime {
     end: number,
     type: 'illusts' | 'novels' = 'illusts'
   ): Promise<number[][]> {
-    console.log('start crawl time data')
+    console.log(`start crawl ${type} time data`)
     const result: number[][] = []
 
     const min_illust = 20 // 最早的插画作品

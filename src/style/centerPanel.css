@@ -66,9 +66,10 @@
 }
 .centerWrap .grayButton {
   background: #eee;
-  border-radius: 3px;
+  color: #333;
+  border-radius: 4px;
   padding: 0px 6px;
-  margin-right: 8px;
+  margin: 0 4px;
 }
 .centerWrap .grayButton:hover {
   background: #29b3f3;
@@ -286,16 +287,14 @@
   width: 100px;
 }
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1.postDate {
-  width: 190px;
+  width: 160px;
 }
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1.bmkNum {
   width: 60px;
 }
 .centerWrap .centerWrap_con .settingForm p.option button[role='setMin'],
 .centerWrap .centerWrap_con .settingForm p.option button[role='setMax'] {
-  height: 22px;
-  line-height: 22px;
-  margin: 2px 0;
+  margin: 0 4px;
 }
 .centerWrap .centerWrap_con .settingForm select {
   width: 80px;

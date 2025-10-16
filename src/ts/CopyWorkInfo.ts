@@ -6,15 +6,14 @@ import { lang } from './Language'
 import { msgBox } from './MsgBox'
 import { pageType } from './PageType'
 import { settings } from './setting/Settings'
-import { saveArtworkData } from './store/SaveArtworkData'
-import { saveNovelData } from './store/SaveNovelData'
 import { IDData } from './store/StoreType'
 import { toast } from './Toast'
 import { Tools } from './Tools'
 import { DateFormat } from './utils/DateFormat'
 
 class CopyWorkInfo {
-  public async receive(idData: IDData) {
+  /**接收作品 ID 数据，可选参数 p 用于指定复制哪一张图片  */
+  public async receive(idData: IDData, p?: number) {
     const id = idData.id
     const unlisted = pageType.type === pageType.list.Unlisted
     try {
@@ -22,7 +21,7 @@ class CopyWorkInfo {
       const data = await API[
         idData.type === 'novels' ? 'getNovelData' : 'getArtworkData'
       ](id, unlisted)
-      this.copy(data)
+      this.copy(data, p)
     } catch (error: Error | any) {
       if (error.status) {
         toast.error(
@@ -39,7 +38,7 @@ class CopyWorkInfo {
     return 'illustType' in data.body
   }
 
-  private async copy(data: ArtworkData | NovelData) {
+  private async copy(data: ArtworkData | NovelData, p?: number) {
     if (
       !settings.copyFormatImage &&
       !settings.copyFormatHtml &&
@@ -61,19 +60,25 @@ class CopyWorkInfo {
 
       if (settings.copyFormatText) {
         // 构造纯文本内容
-        const plainText = this.convertTextFormat(data, 'text')
+        const plainText = this.convertTextFormat(data, 'text', p)
         const textBlob = new Blob([plainText], { type: 'text/plain' })
         copyData['text/plain'] = textBlob
       }
 
       const needCopyImage = settings.copyFormatImage || settings.copyFormatHtml
       if (needCopyImage) {
-        // 图片作品使用 1200px 的普通尺寸图片或原图（根据用户设置）
-        // 不过对于动图来说，各个尺寸的图片其实都是小图
-        // 小说作品总是使用封面图片
-        const imageUrl = this.isImageWork(data)
-          ? data.body.urls[settings.copyImageSize]
-          : data.body.coverUrl
+        let imageUrl = ''
+        if (this.isImageWork(data)) {
+          // 图片作品使用 1200px 的普通尺寸图片或原图（根据用户设置）
+          // 不过对于动图来说，各个尺寸的图片其实都是小图
+          imageUrl = data.body.urls[settings.copyImageSize]
+          if (p !== undefined && [0, 1].includes(data.body.illustType)) {
+            imageUrl = imageUrl.replace('p0', `p${p}`)
+          }
+        } else {
+          // 小说作品总是使用封面图片
+          imageUrl = data.body.coverUrl
+        }
         if (!imageUrl) {
           toast.error(
             lang.transl('_错误') + ': ' + lang.transl('_没有找到可用的图片网址')
@@ -138,7 +143,7 @@ class CopyWorkInfo {
           // 构造富文本内容
           // 这样在 Word、微信里粘贴时，可以同时粘贴图片和文本
           // 本来在 QQ 里也可以，但是最新版 QQ 里粘贴图文混合内容时，图片会在发送时加载失败
-          const htmlText = this.convertTextFormat(data, 'html')
+          const htmlText = this.convertTextFormat(data, 'html', p)
           // 使用 br 换行。如果使用 p 标签包裹文本，会导致文本和 img 中间有一个多余的换行
           const htmlContent = `<div><img src="${dataUrl}"><br>${htmlText}</div>`
           const htmlBlob = new Blob([htmlContent], { type: 'text/html' })
@@ -203,12 +208,12 @@ class CopyWorkInfo {
   // - 不需要建立文件夹，所以不需要处理非法的文件夹路径
   // - 忽略某些命名设置，例如第一张图不带序号、移除用户名中的 @ 符号、创建文件夹相关的设置等
   // - 额外添加了 {n} 和 {url} 标记
-  // - {id} 等同于 {id_num}，是纯数字
-  // - {p_num} 总是 0
+  // - 在每个标签前面加上 # 符号
   // 红叶版本的区别：不会在每个标签前面加上 # 符号
   private convertTextFormat(
     data: ArtworkData | NovelData,
-    format: 'text' | 'html' = 'text'
+    format: 'text' | 'html' = 'text',
+    p?: number
   ) {
     const page_title = Tools.getPageTitle()
     const page_tag = Tools.getTagFromURL()
@@ -242,11 +247,14 @@ class CopyWorkInfo {
     const link = `https://www.pixiv.net/${type === 3 ? 'n' : 'i'}/${body.id}`
     const url =
       format === 'text' ? link : `<a href="${link}" target="_blank">${link}</a>`
+
+    const idNum = body.id
+    // 对于 {id} 标记，如果 p > 0 才会添加 _p0 格式的后缀
+    const id = `${idNum}${p ? '_p' + p : ''}`
     // 在 html 格式里，给作品 id 也加上超链接
-    const id =
-      format === 'text'
-        ? body.id
-        : `<a href="${link}" target="_blank">${body.id}</a>`
+    const _id =
+      format === 'text' ? id : `<a href="${link}" target="_blank">${id}</a>`
+
     // 在 html 格式里，给作者名字和作者 id 也加上超链接
     const userLink = `https://www.pixiv.net/users/${body.userId}`
     const user =
@@ -257,6 +265,7 @@ class CopyWorkInfo {
       format === 'text'
         ? body.userId
         : `<a href="${userLink}" target="_blank">${body.userId}</a>`
+
     // 在 html 格式里，给系列标题也加上超链接
     let seriesTitle = ''
     if (seriesNavData) {
@@ -279,9 +288,9 @@ class CopyWorkInfo {
       '{page_title}': page_title,
       '{p_tag}': '#' + page_tag,
       '{page_tag}': '#' + page_tag,
-      '{id}': id,
-      '{id_num}': id,
-      '{p_num}': 0,
+      '{id}': _id,
+      '{id_num}': idNum,
+      '{p_num}': p || 0,
       '{rank}': 'rank' in data.body ? `#${data.body.rank}` : '',
       '{title}': body.title,
       '{user}': user,
