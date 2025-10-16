@@ -32130,11 +32130,14 @@ class CrawlNumber {
         });
     }
     bindEvents() {
-        // 页面初始化时，重设两个设置
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitchedTypeChange, () => {
-            setTimeout(() => {
-                this.setOption();
-            }, 0);
+        // 页面初始化时、导入或重置设置时，重置抓取数量的选项
+        const resetEvents = [_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitchedTypeChange, _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resetSettingsEnd];
+        resetEvents.forEach((event) => {
+            window.addEventListener(event, () => {
+                setTimeout(() => {
+                    this.setOption();
+                }, 0);
+            });
         });
     }
 }
@@ -34922,15 +34925,16 @@ __webpack_require__.r(__webpack_exports__);
 //   if (data.value) { }
 // })
 // EVT.list.settingInitialized
-// 当设置初始化完毕（以及恢复本地储存的设置）之后触发。这个事件在生命周期里只会触发一次。
-// 重置设置不会触发这个事件
-// 过程中，每个设置项都会触发一次 settingChange 事件
+// 当设置初始化完毕之后触发。此时所有设置项都已经恢复了之前储存的值（如果没有储存的设置，则使用默认设置）。
+// 在执行过程中，每个设置项都会触发一次 settingChange 事件
 // 最后会触发一次 settingInitialized 事件
+// 在前台脚本的生命周期里，这个事件只会触发一次
+// 注意：重置设置不会触发这个事件
 // EVT.list.resetSettingsEnd
 // 重置设置之后触发
 // 导入设置之后触发
 // 在执行过程中，每个设置项都会触发一次 settingChange 事件
-// 最后会触发一次 settingInitialized 事件
+// 最后会触发一次 resetSettingsEnd 事件
 // 如果打开了多个标签页，每个页面的 settings 数据是相互独立的，在一个页面里修改设置不会影响另一个页面里的设置。
 // 但是持久化保存的数据只有一份：最后一次的设置变化是在哪个页面发生的，就保存哪个页面的 settings 数据。
 // 所以当页面刷新时，或者打开新的页面时，会加载设置最后一次发生变化的页面里的 settings 数据

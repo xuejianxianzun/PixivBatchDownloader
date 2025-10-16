@@ -127,78 +127,81 @@ class CrawlNumber {
   /**显示或隐藏设置，并设置内部一些元素的值 */
   private setOption() {
     const cfg = this.getCfg()
-    ;[this.work, this.page].forEach((item) => {
-      if (cfg[item.name]) {
-        item.self.style.display = 'flex'
+      ;[this.work, this.page].forEach((item) => {
+        if (cfg[item.name]) {
+          item.self.style.display = 'flex'
 
-        // 在搜索页面里，页数的最大值有两种情况：
-        // 如果用户不是 Pixiv 会员（高级用户），最大值是 1000。如果是会员，则最大值是 5000。
-        // cfg 里的最大值固定为 5000，但是在显示范围提示时，根据实际情况显示
-        let max = cfg.max
-        let tip = cfg.tip
-        if (
-          pageType.type === PageName.ArtworkSearch ||
-          pageType.type === PageName.NovelSearch
-        ) {
-          const isPremium = Tools.isPremium()
-          max = isPremium ? 5000 : 1000
-          tip = `1 - ${max}`
-        }
-
-        // 在排行榜页面里
-        if (
-          pageType.type === PageName.ArtworkRanking ||
-          pageType.type === PageName.NovelRanking
-        ) {
-          // 如果分类为 R-18，则只有 100 个作品
+          // 在搜索页面里，页数的最大值有两种情况：
+          // 如果用户不是 Pixiv 会员（高级用户），最大值是 1000。如果是会员，则最大值是 5000。
+          // cfg 里的最大值固定为 5000，但是在显示范围提示时，根据实际情况显示
+          let max = cfg.max
+          let tip = cfg.tip
           if (
-            location.href.includes('mode=weekly_r18') ||
-            location.href.includes('mode=daily_r18')
+            pageType.type === PageName.ArtworkSearch ||
+            pageType.type === PageName.NovelSearch
           ) {
-            max = 100
+            const isPremium = Tools.isPremium()
+            max = isPremium ? 5000 : 1000
             tip = `1 - ${max}`
           }
-          // 如果分类为 R-18G，或者 AI 日榜，则只有 50 个作品
+
+          // 在排行榜页面里
           if (
-            location.href.includes('mode=r18g') ||
-            location.href.includes('mode=daily_ai') ||
-            location.href.includes('mode=daily_r18_ai')
+            pageType.type === PageName.ArtworkRanking ||
+            pageType.type === PageName.NovelRanking
           ) {
-            max = 50
-            tip = `1 - ${max}`
+            // 如果分类为 R-18，则只有 100 个作品
+            if (
+              location.href.includes('mode=weekly_r18') ||
+              location.href.includes('mode=daily_r18')
+            ) {
+              max = 100
+              tip = `1 - ${max}`
+            }
+            // 如果分类为 R-18G，或者 AI 日榜，则只有 50 个作品
+            if (
+              location.href.includes('mode=r18g') ||
+              location.href.includes('mode=daily_ai') ||
+              location.href.includes('mode=daily_r18_ai')
+            ) {
+              max = 50
+              tip = `1 - ${max}`
+            }
           }
-        }
 
-        // 如果默认的最大值不是 -1 而是具体的数字，并且之前保存的值大于当前页面的最大值，则将其改为当前页面的最大值
-        if (max !== -1 && cfg.value > max) {
-          cfg.value = max
-          setSetting('crawlNumber', settings.crawlNumber)
-        }
+          // 如果默认的最大值不是 -1 而是具体的数字，并且之前保存的值大于当前页面的最大值，则将其改为当前页面的最大值
+          if (max !== -1 && cfg.value > max) {
+            cfg.value = max
+            setSetting('crawlNumber', settings.crawlNumber)
+          }
 
-        item.input.value = cfg.value.toString()
-        item.minBtn.textContent = cfg.min.toString()
-        item.maxBtn.textContent = max.toString()
+          item.input.value = cfg.value.toString()
+          item.minBtn.textContent = cfg.min.toString()
+          item.maxBtn.textContent = max.toString()
 
-        // 设置提示范围的文字
-        // 如果以下划线 _ 开头，则需要翻译
-        if (tip.startsWith('_')) {
-          lang.updateText(item.tip, tip)
+          // 设置提示范围的文字
+          // 如果以下划线 _ 开头，则需要翻译
+          if (tip.startsWith('_')) {
+            lang.updateText(item.tip, tip)
+          } else {
+            lang.updateText(item.tip, '')
+            item.tip.textContent = tip
+          }
         } else {
-          lang.updateText(item.tip, '')
-          item.tip.textContent = tip
+          item.self.style.display = 'none'
         }
-      } else {
-        item.self.style.display = 'none'
-      }
-    })
+      })
   }
 
   private bindEvents() {
-    // 页面初始化时，重设两个设置
-    window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
-      setTimeout(() => {
-        this.setOption()
-      }, 0)
+    // 页面初始化时、导入或重置设置时，重置抓取数量的选项
+    const resetEvents = [EVT.list.pageSwitchedTypeChange, EVT.list.resetSettingsEnd]
+    resetEvents.forEach((event) => {
+      window.addEventListener(event, () => {
+        setTimeout(() => {
+          this.setOption()
+        }, 0)
+      })
     })
   }
 }
