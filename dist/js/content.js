@@ -9171,6 +9171,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ShowHelp */ "./src/ts/ShowHelp.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+
 
 
 
@@ -9309,32 +9311,36 @@ class ShowOriginSizeImage {
             }
         });
         window.addEventListener('keydown', (ev) => {
-            // 查看大图时，可以使用快捷键 D 下载这个作品
-            if (ev.code === 'KeyD' && this.show) {
-                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [
-                    {
-                        type: 'illusts',
-                        id: this.workData.body.id,
-                    },
-                ]);
+            if (!this.show) {
+                return;
             }
-            // 查看大图时，可以使用快捷键 C 仅下载当前显示的图片
-            if (ev.code === 'KeyC' && this.show) {
+            const idData = {
+                type: 'illusts',
+                id: this.workData.body.id,
+            };
+            // 使用快捷键 D 下载这个作品
+            if (ev.code === 'KeyD') {
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
+            }
+            if (ev.code === 'KeyC') {
                 ev.stopPropagation();
-                if (this.workData.body.pageCount > 1) {
-                    _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.setDownloadOnlyPart(Number.parseInt(this.workData.body.id), [
-                        this.index,
-                    ]);
+                // 使用快捷键 Alt + C 调用复制功能
+                if (ev.altKey) {
+                    ev.preventDefault();
+                    _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_9__.copyWorkInfo.receive(idData, this.index);
                 }
-                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [
-                    {
-                        type: 'illusts',
-                        id: this.workData.body.id,
-                    },
-                ]);
+                else {
+                    // 使用快捷键 C 下载当前显示的这张图片
+                    if (this.workData.body.pageCount > 1) {
+                        _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.setDownloadOnlyPart(Number.parseInt(idData.id), [
+                            this.index,
+                        ]);
+                    }
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
+                }
             }
             // 按 Esc 键时取消预览
-            if (ev.code === 'Escape' && this.show) {
+            if (ev.code === 'Escape') {
                 this.show = false;
                 ev.stopPropagation();
             }
@@ -28038,12 +28044,48 @@ Novel folder name: Novel`,
         'Результаты сканирования недоступны',
     ],
     _查看作品大图时的快捷键: [
-        '查看作品大图时，按快捷键 <span class="blue">D</span> 可以下载这个作品。<br>按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。',
-        '檢視作品大圖時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。<br>按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。',
-        'When viewing the large image of the work, press the shortcut key <span class="blue">D</span> to download the work.<br>Press the shortcut key <span class="blue">C</span> to download only the currently displayed image.',
-        '作品の大きな画像をご覧になる場合、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。<br>ショートカット キー <span class="blue">C</span> を押して、現在表示されている画像のみをダウンロードします。',
-        '작품의 큰 그림을 볼 때 단축키 <span class="blue">D</span>를 누르면 작품을 다운로드할 수 있습니다. <br>현재 표시된 이미지만 다운로드하려면 단축키 <span class="blue">C</span>를 누르세요.',
-        'При просмотре большого изображения работы нажмите горячую клавишу <span class="blue">D</span>, чтобы загрузить работу. <br>Нажмите горячую клавишу <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.',
+        `查看作品大图时，按快捷键 <span class="blue">D</span> 可以下载这个作品。
+    <br>
+    按快捷键 <span class="blue">C</span> 仅下载当前显示的这张图片。
+    <br>
+    <span class="blue">Alt</span> + <span class="blue">C</span> 复制当前预览的图片和作品信息。
+    <br>
+    `,
+        `檢視作品大圖時，按快捷鍵 <span class="blue">D</span> 可以下載這個作品。
+    <br>
+    按快捷鍵 <span class="blue">C</span> 僅下載當前顯示的這張圖片。
+    <br>
+    <span class="blue">Alt</span> + <span class="blue">C</span> 複製當前預覽的圖片和作品資訊。
+    <br>
+    `,
+        `When viewing the large image of the work, press the shortcut key <span class="blue">D</span> to download the work.
+    <br>
+    Press the shortcut key <span class="blue">C</span> to download only the currently displayed image.
+    <br>
+    <span class="blue">Alt</span> + <span class="blue">C</span> Copy the currently previewed image and work information.
+    <br>
+    `,
+        `作品の大きな画像をご覧になる場合、ショートカット キー <span class="blue">D</span> を押すと、作品をダウンロードできます。
+    <br>
+    ショートカット キー <span class="blue">C</span> を押して、現在表示されている画像のみをダウンロードします。
+    <br>
+    <span class="blue">Alt</span> + <span class="blue">C</span> 現在プレビュー中の画像と作品情報をコピー。
+    <br>
+    `,
+        `작품의 큰 그림을 볼 때 단축키 <span class="blue">D</span>를 누르면 작품을 다운로드할 수 있습니다. 
+    <br>
+    현재 표시된 이미지만 다운로드하려면 단축키 <span class="blue">C</span>를 누르세요.
+    <br>
+    <span class="blue">Alt</span> + <span class="blue">C</span> 현재 미리보기 중인 이미지와 작품 정보를 복사.
+    <br>
+    `,
+        `При просмотре большого изображения работы нажмите горячую клавишу <span class="blue">D</span>, чтобы загрузить работу. 
+    <br>
+    Нажмите горячую клавишу <span class="blue">C</span>, чтобы загрузить только отображаемое в данный момент изображение.
+    <br>
+    <span class="blue">Alt</span> + <span class="blue">C</span> Скопировать изображение текущего предпросмотра и информацию о работе.
+    <br>
+    `,
     ],
     _定时抓取: [
         '定时抓取',
@@ -29630,6 +29672,8 @@ Additionally, you can use these tags:`,
 <br>
 - <span class="blue">image/png</span> 复制作品的图片。默认未选择，因为它在某些社交软件里的优先级太高，会导致 <span class="blue">text/html</span> 格式的内容被忽略。
 <br>
+你可以选择复制原图还是缩略图。注意：有些图片的原图可能很大（例如超过 30 MiB），在某些应用程序里可能无法粘贴。
+<br>
 - <span class="blue">text/plain</span> 复制作品的文字信息。几乎所有应用程序都支持粘贴纯文本内容。
 <br>
 - <span class="blue">text/html</span> 同时复制作品的图片和文字信息。这是富文本格式，同时包含了上面两种内容。
@@ -29697,6 +29741,8 @@ Android 上的某些应用虽然可以粘贴 <span class="blue">text/html</span>
 <strong>每種格式的說明：</strong>
 <br>
 - <span class="blue">image/png</span> 複製作品的圖片。預設未選擇，因為它在某些社交軟體裡的優先級太高，會導致 <span class="blue">text/html</span> 格式的內容被忽略。
+<br>
+你可以選擇複製原圖還是縮略圖。注意：有些圖片的原圖可能很大（例如超過 30 MiB），在某些應用程式裡可能無法貼上。
 <br>
 - <span class="blue">text/plain</span> 複製作品的文字資訊。幾乎所有應用程式都支援貼上純文字內容。
 <br>
@@ -29766,6 +29812,8 @@ On the work page, and when previewing a work, you can use the shortcut key <span
 <br>
 - <span class="blue">image/png</span> Copies the image of the work. Not selected by default, because it has too high priority in some social software, which can cause the <span class="blue">text/html</span> format content to be ignored.
 <br>
+You can choose to copy the original image or the thumbnail. Note: Some original images may be very large (e.g., over 30 MiB), and may not be pasteable in certain applications.
+<br>
 - <span class="blue">text/plain</span> Copies the text information of the work. Almost all applications support pasting plain text content.
 <br>
 - <span class="blue">text/html</span> Copies both the image and text information of the work. This is rich text format, which includes both of the above contents.
@@ -29825,6 +29873,8 @@ Some apps on Android can paste <span class="blue">text/html</span> content, but 
 <strong>各フォーマットの説明：</strong>
 <br>
 - <span class="blue">image/png</span> 作品の画像をコピーします。デフォルトでは選択されていません。一部のソーシャルソフトウェアで優先度が高すぎるため、<span class="blue">text/html</span> 形式のコンテンツが無視される可能性があります。
+<br>
+原画像かサムネイルかを選択してコピーできます。注意：一部の画像の原画像は非常に大きい場合があります（例：30 MiBを超える）、一部のアプリケーションでは貼り付けられない可能性があります。
 <br>
 - <span class="blue">text/plain</span> 作品のテキスト情報をコピーします。ほぼすべてのアプリケーションがプレーンテキストコンテンツの貼り付けをサポートしています。
 <br>
@@ -29886,6 +29936,8 @@ Android の一部のアプリは <span class="blue">text/html</span> コンテ�
 <br>
 - <span class="blue">image/png</span> 작품의 이미지를 복사합니다. 기본적으로 선택되지 않음. 일부 소셜 소프트웨어에서 우선순위가 너무 높아 <span class="blue">text/html</span> 형식의 콘텐츠가 무시될 수 있기 때문입니다.
 <br>
+원본 이미지나 썸네일을 복사할 수 있습니다. 주의: 일부 이미지의 원본 이미지는 매우 클 수 있습니다(예: 30 MiB 초과), 일부 애플리케이션에서는 붙여넣기가 불가능할 수 있습니다.
+<br>
 - <span class="blue">text/plain</span> 작품의 텍스트 정보를 복사합니다. 거의 모든 애플리케이션이 플레인 텍스트 콘텐츠의 붙여넣기를 지원합니다.
 <br>
 - <span class="blue">text/html</span> 작품의 이미지와 텍스트 정보를 동시에 복사합니다. 이는 리치 텍스트 형식으로, 위의 두 가지 콘텐츠를 모두 포함합니다.
@@ -29945,6 +29997,8 @@ Android의 일부 앱은 <span class="blue">text/html</span> 콘텐츠를 붙여
 <strong>Объяснение каждого формата:</strong>
 <br>
 - <span class="blue">image/png</span> Копирует изображение работы. По умолчанию не выбрано, поскольку в некоторых социальных программах его приоритет слишком высок, что может привести к игнорированию содержимого в формате <span class="blue">text/html</span>.
+<br>
+Вы можете выбрать копирование оригинального изображения или миниатюры. Примечание: Некоторые оригинальные изображения могут быть очень большими (например, более 30 MiB), и в некоторых приложениях их может быть невозможно вставить.
 <br>
 - <span class="blue">text/plain</span> Копирует текстовую информацию работы. Почти все приложения поддерживают вставку содержимого в формате обычного текста.
 <br>
@@ -32622,6 +32676,10 @@ class Form {
         this.form
             .querySelector('#showTagsSeparatorTip')
             .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#tagsSeparatorTip')));
+        // 显示长按鼠标右键查看大图时的快捷键列表
+        this.form
+            .querySelector('#showShowOriginImageShortcutTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#showOriginImageShortcutTip')));
         // 显示预览作品的快捷键列表
         this.form
             .querySelector('#showPreviewWorkShortcutTip')
@@ -33466,7 +33524,7 @@ const formHtml = `
       <input type="text" name="tagsSeparator" class="setinput_style1 blue" value=",">
       <button type="button" class="gray1 textButton" id="showTagsSeparatorTip" data-xztext="_提示"></button>
     </p>
-    <p class="tip" id="tagsSeparatorTip" style="display:none">
+    <p class="tip" id="tagsSeparatorTip">
       <span data-xztext="_标签分隔符号提示"></span>
     </p>
     <p class="option" data-no="67">
@@ -33747,7 +33805,7 @@ const formHtml = `
         <button type="button" class="gray1 textButton" id="showPreviewWorkShortcutTip" data-xztext="_快捷键列表"></button>
       </span>
     </p>
-    <p class="tip" id="previewWorkShortcutTip" style="display:none">
+    <p class="tip" id="previewWorkShortcutTip">
       <span data-xztext="_预览作品的快捷键说明"></span>
     </p>
     <p class="option" data-no="71">
@@ -33767,7 +33825,12 @@ const formHtml = `
         <input type="radio" name="showOriginImageSize" id="showOriginImageSize2" class="need_beautify radio" value="regular" checked>
         <span class="beautify_radio" tabindex="0"></span>
         <label for="showOriginImageSize2" data-xztext="_普通"></label>
+        <span class="verticalSplit"></span>
+        <button type="button" class="gray1 textButton" id="showShowOriginImageShortcutTip" data-xztext="_快捷键列表"></button>
       </span>
+    </p>
+    <p class="tip" id="showOriginImageShortcutTip">
+      <span data-xztext="_查看作品大图时的快捷键"></span>
     </p>
     <p class="option" data-no="40">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(40)}" target="_blank" class="settingNameStyle" data-xztext="_在作品缩略图上显示放大按钮"></a>
@@ -33832,7 +33895,7 @@ const formHtml = `
       <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:100%;max-width:350px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
       <button type="button" class="gray1 textButton" id="showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
     </p>
-    <p class="tip" id="copyWorkInfoFormatTip" style="display:none">
+    <p class="tip" id="copyWorkInfoFormatTip">
       <span data-xztext="_复制内容的格式的提示"></span>
       <br>
       <span class="blue">{url}</span>
@@ -33917,7 +33980,7 @@ const formHtml = `
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
       <button type="button" class="gray1 textButton" id="showDateTip" data-xztext="_提示"></button>
     </p>
-    <p class="tip" id="dateFormatTip" style="display:none">
+    <p class="tip" id="dateFormatTip">
       <span data-xztext="_日期格式提示"></span>
       <br>
       <span class="blue">YYYY</span> <span>2021</span>

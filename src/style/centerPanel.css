@@ -40,7 +40,8 @@
   margin: 0;
 }
 .centerWrap .tip {
-  color: #999;
+  display: none;
+  color: #888;
 }
 .centerWrap .blue {
   color: #0ea8ef !important;

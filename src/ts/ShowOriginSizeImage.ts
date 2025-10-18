@@ -11,6 +11,8 @@ import { Colors } from './Colors'
 import { showHelp } from './ShowHelp'
 import { store } from './store/Store'
 import { Config } from './Config'
+import { IDData } from './store/StoreType'
+import { copyWorkInfo } from './CopyWorkInfo'
 
 interface Style {
   imgW: number
@@ -190,36 +192,40 @@ class ShowOriginSizeImage {
     window.addEventListener(
       'keydown',
       (ev) => {
-        // 查看大图时，可以使用快捷键 D 下载这个作品
-        if (ev.code === 'KeyD' && this.show) {
-          EVT.fire('crawlIdList', [
-            {
-              type: 'illusts',
-              id: this.workData!.body.id,
-            },
-          ])
+        if (!this.show) {
+          return
         }
 
-        // 查看大图时，可以使用快捷键 C 仅下载当前显示的图片
-        if (ev.code === 'KeyC' && this.show) {
+        const idData: IDData = {
+          type: 'illusts',
+          id: this.workData!.body.id,
+        }
+
+        // 使用快捷键 D 下载这个作品
+        if (ev.code === 'KeyD') {
+          EVT.fire('crawlIdList', [idData])
+        }
+
+        if (ev.code === 'KeyC') {
           ev.stopPropagation()
+          // 使用快捷键 Alt + C 调用复制功能
+          if (ev.altKey) {
+            ev.preventDefault()
+            copyWorkInfo.receive(idData, this.index)
+          } else {
+            // 使用快捷键 C 下载当前显示的这张图片
+            if (this.workData!.body.pageCount > 1) {
+              store.setDownloadOnlyPart(Number.parseInt(idData.id), [
+                this.index,
+              ])
+            }
 
-          if (this.workData!.body.pageCount > 1) {
-            store.setDownloadOnlyPart(Number.parseInt(this.workData!.body.id), [
-              this.index,
-            ])
+            EVT.fire('crawlIdList', [idData])
           }
-
-          EVT.fire('crawlIdList', [
-            {
-              type: 'illusts',
-              id: this.workData!.body.id,
-            },
-          ])
         }
 
         // 按 Esc 键时取消预览
-        if (ev.code === 'Escape' && this.show) {
+        if (ev.code === 'Escape') {
           this.show = false
           ev.stopPropagation()
         }

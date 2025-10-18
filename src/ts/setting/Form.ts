@@ -182,6 +182,15 @@ class Form {
         )
       )
 
+    // 显示长按鼠标右键查看大图时的快捷键列表
+    this.form
+      .querySelector('#showShowOriginImageShortcutTip')!
+      .addEventListener('click', () =>
+        Utils.toggleEl(
+          document.querySelector('#showOriginImageShortcutTip')! as HTMLElement
+        )
+      )
+
     // 显示预览作品的快捷键列表
     this.form
       .querySelector('#showPreviewWorkShortcutTip')!
