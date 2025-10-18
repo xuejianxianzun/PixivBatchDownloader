@@ -18457,6 +18457,13 @@ class DownloadControl {
                 const msg = _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_可能发生了错误请刷新页面重试');
                 _MsgBox__WEBPACK_IMPORTED_MODULE_21__.msgBox.once('mayError', msg, 'warning');
                 _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(msg, 1, false, 'mayError');
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.autoStartDownload) {
+                    // 如果启用了自动开始下载，则在一段时间后自动刷新页面，尝试恢复下载
+                    this.pauseDownload();
+                    window.setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                }
             }, 5000);
         });
         const clearDownloadTimeoutTimerList = [
@@ -28592,14 +28599,6 @@ Novel folder name: Novel`,
         '키워드 제외',
         'Исключить ключевые слова',
     ],
-    _Chrome108版本转换WebM失败的问题: [
-        '从 Chrome 108 版本开始，浏览器的一些变化导致下载器转换 WebM 视频失败。<br>现已修复转换功能。',
-        '從 Chrome 108 版本開始，瀏覽器的一些變化導致下載器轉換 WebM 影片失敗。<br>現已修復轉換功能。',
-        'Starting with Chrome version 108, some changes in the browser caused the downloader to fail to convert WebM videos. <br>The conversion function is now fixed.',
-        'Chrome バージョン 108 以降、ブラウザーの一部の変更により、ダウンローダーが WebM ビデオの変換に失敗しました。 <br>変換機能を修正しました。',
-        'Chrome 버전 108부터 브라우저의 일부 변경으로 인해 다운로더가 WebM 비디오를 변환하지 못했습니다. <br>변환 기능이 수정되었습니다.',
-        'Начиная с Chrome версии 108, некоторые изменения в браузере приводили к тому, что загрузчик не мог конвертировать видео WebM. <br>Функция преобразования теперь исправлена.',
-    ],
     _特定用户的多图作品不下载最后几张图片: [
         '特定用户的多图作品不下载<span class="key">最后几张</span>图片',
         '特定使用者的多圖作品不下載<span class="key">最後幾張</span>圖片',
@@ -29335,14 +29334,6 @@ If you are worried that your account will be banned due to downloading files too
 Значение по умолчанию — 0, что означает отсутствие ограничений. <br>
 Если установлено значение 1 секунда, с Pixiv будет загружено максимум 3600 файлов в час. <br>
 Если вы беспокоитесь, что ваш аккаунт будет заблокирован из-за слишком частой загрузки файлов, вы можете установить число больше 0, чтобы решить эту проблему. <br>`,
-    ],
-    _更新说明v1714: [
-        '修复了发现（discovery）页面里的一些问题',
-        '修復了發現（discovery）頁面裡的一些問題',
-        'Fixed some issues in the discovery page',
-        '発見ページのいくつかの問題を修正しました',
-        '검색 페이지의 일부 문제를 수정했습니다.（discovery page）',
-        'Исправлены некоторые проблемы на странице открытий.',
     ],
     _从页面上移除他们的作品: [
         '从页面上移除他们的作品',
