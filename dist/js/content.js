@@ -2121,6 +2121,7 @@ class Bookmark {
                     // 当发生 400 错误时重试
                     case 400:
                         await _Token__WEBPACK_IMPORTED_MODULE_8__.token.reset();
+                        await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sleep(3000);
                         return resolve(this.sendRequest(id, type, tags, hide));
                     case 404:
                         _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(`${id} 404 Not Found`);
@@ -4340,7 +4341,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
 /// <reference path = "./ImageViewer.d.ts" />
+
+
 
 
 
@@ -4370,6 +4375,7 @@ class ImageViewer {
     workData;
     pageCount = 1;
     firstImageURL = ''; // 第一张图片的 url
+    index = 0; // 当前查看的图片索引
     // 默认配置
     cfg = {
         workId: _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getIllustId(),
@@ -4385,48 +4391,61 @@ class ImageViewer {
         oldViewerContainer && oldViewerContainer.remove();
         const wrap = await this.createImageList();
         if (wrap) {
-            this.bindHotKey();
+            this.bindShortcuts();
             this.configureViewer();
         }
         return wrap;
     }
     // 事件会重复绑定，设计如此，这是因为每次绑定时的 this 是不同的，必须重新绑定。而且不会冲突
-    bindHotKey() {
-        // 按 F 进入/退出 1:1 查看模式
-        document.addEventListener('keydown', (event) => {
-            if (event.code === 'KeyF') {
-                if (this.show) {
+    bindShortcuts() {
+        document.addEventListener('keydown', (ev) => {
+            if (!this.show) {
+                return;
+            }
+            // 不需要 Alt 的快捷键
+            if (!ev.altKey) {
+                // 按 F 进入/退出 1:1 查看模式
+                if (ev.code === 'KeyF') {
                     this.isOriginalSize = !this.isOriginalSize;
                     this.setOriginalSize();
                 }
-            }
-        });
-        // 按 Alt + B 收藏当前作品
-        // 因为 Pixiv 会在按下 B 键时收藏当前作品，所以下载器不能使用 B 键。尝试阻止 Pixiv 的事件但是没有成功
-        document.addEventListener('keydown', (event) => {
-            if (event.altKey && event.code === 'KeyB') {
-                if (this.show) {
-                    this.addBookmark();
+                else if (ev.code === 'KeyC') {
+                    // 按 C 下载当前查看的图片
+                    ev.stopPropagation();
+                    this.download(this.index);
+                }
+                else if (ev.code === 'KeyD') {
+                    // 按 D 下载这个作品
+                    this.download();
                 }
             }
-        });
-        // 按 D 下载当前作品
-        document.addEventListener('keydown', (event) => {
-            if (event.code === 'KeyD') {
-                if (this.show) {
-                    this.download();
+            else {
+                // 需要 Alt 的快捷键
+                if (ev.code === 'KeyB') {
+                    // 按 Alt + B 收藏当前作品
+                    // 因为 Pixiv 会在按下 B 键时收藏当前作品，所以下载器不能使用 B 键。尝试阻止 Pixiv 的事件但是没有成功
+                    // 阻止冒泡，这主要是因为作品页面内，按 B 会触发作品内容下方的快速收藏按钮，需要避免
+                    ev.stopPropagation();
+                    this.addBookmark();
+                }
+                else if (ev.code === 'KeyC') {
+                    // 按 Alt + C 复制当前作品的信息
+                    // 阻止冒泡，这主要是因为作品页面内，按 Alt + C 会触发作品内容下方的复制按钮，需要避免
+                    ev.stopPropagation();
+                    this.copy();
                 }
             }
         });
         // 监听左右方向键，防止在看图时，左右方向键导致 Pixiv 切换作品
-        window.addEventListener('keydown', (event) => {
-            if (event.code === 'ArrowLeft' || event.code === 'ArrowRight') {
-                if (this.show) {
+        window.addEventListener('keydown', (ev) => {
+            if (this.show) {
+                if (ev.code === 'ArrowLeft' || ev.code === 'ArrowRight') {
                     // 阻止事件冒泡
-                    event.stopPropagation();
+                    ev.stopPropagation();
+                    ev.preventDefault();
                     // 控制切换到上一张或者下一张
                     // true 表示启用循环切换
-                    event.code === 'ArrowLeft'
+                    ev.code === 'ArrowLeft'
                         ? this.myViewer.prev(true)
                         : this.myViewer.next(true);
                 }
@@ -4480,10 +4499,18 @@ class ImageViewer {
     }
     // 配置图片查看器
     configureViewer() {
+        const setIndex = (index) => {
+            this.index = index;
+        };
         // 图片查看器显示之后
         this.viewerUl.addEventListener('shown', () => {
             this.show = true;
+            // 添加自定义的按钮
+            // 由于这些按钮是添加到查看器原本的 1:1 按钮后面的，所以按钮的显示顺序是倒序的
+            // 也就是说先添加的按钮显示在最右侧，后添加的按钮显示在最左侧（位于 1:1 按钮后面）
             this.addDownloadBtn();
+            this.addDownloadCurrentImageBtn();
+            this.addCopyBtn();
             this.addBookmarkBtn();
             // 如果图片数量只有 1 个，则不显示缩略图一栏
             const navbar = document.querySelector('.viewer-navbar');
@@ -4544,6 +4571,9 @@ class ImageViewer {
             },
             url(image) {
                 return image.dataset.src;
+            },
+            view(ev) {
+                setIndex(ev.detail.index);
             },
             viewed(ev) {
                 handleToTop();
@@ -4627,18 +4657,52 @@ class ImageViewer {
             console.error('Add btn failed');
         }
     }
-    // 在图片查看器里添加下载按钮
+    // 在图片查看器里添加下载这个作品的按钮
     addDownloadBtn() {
         const li = document.createElement('li');
         li.setAttribute('role', 'button');
-        li.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载') + ' (D)');
+        li.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载这个作品') + ' (D)');
         li.classList.add(this.addBtnClass);
-        li.textContent = '↓';
+        li.textContent = '↓↓↓';
         li.id = 'imageViewerDownloadBtn';
         this.addBtn(li);
         li.addEventListener('click', () => {
             this.download();
         });
+    }
+    // 在图片查看器里添加下载当前查看的图片的按钮
+    addDownloadCurrentImageBtn() {
+        const li = document.createElement('li');
+        li.setAttribute('role', 'button');
+        li.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载这张图片') + ' (C)');
+        li.classList.add(this.addBtnClass);
+        li.textContent = '↓';
+        li.id = 'imageViewerDownloadCurrentImageBtn';
+        this.addBtn(li);
+        li.addEventListener('click', () => {
+            this.download(this.index);
+        });
+    }
+    copy() {
+        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_13__.copyWorkInfo.receive({
+            id: this.cfg.workId,
+            type: 'illusts',
+        }, this.index);
+    }
+    // 在图片查看器里添加复制按钮
+    addCopyBtn() {
+        const li = document.createElement('li');
+        li.setAttribute('role', 'button');
+        li.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_复制摘要数据'));
+        li.classList.add(this.addBtnClass);
+        li.textContent = '↓';
+        li.id = 'imageViewerCopyBtn';
+        li.innerHTML = `
+    <svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-copy"></use>
+</svg>`;
+        this.addBtn(li);
+        li.addEventListener('click', this.copy.bind(this));
     }
     // 在图片查看器里添加收藏按钮
     addBookmarkBtn() {
@@ -4670,14 +4734,23 @@ class ImageViewer {
             _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(`403 Forbidden, ${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_你的账号已经被Pixiv限制')}`);
         }
     }
-    // 下载当前查看的作品
-    download() {
-        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [
-            {
-                id: this.cfg.workId,
-                type: 'illusts',
-            },
-        ]);
+    /**下载当前查看的作品。如果传入参数 p，则只下载指定的这张图片 */
+    download(p) {
+        if (this.workData && this.workData.body.id === this.cfg.workId) {
+            if (p !== undefined) {
+                if (this.workData.body.pageCount > 1) {
+                    _store_Store__WEBPACK_IMPORTED_MODULE_12__.store.setDownloadOnlyPart(Number.parseInt(this.cfg.workId), [
+                        this.index,
+                    ]);
+                }
+            }
+            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [
+                {
+                    id: this.cfg.workId,
+                    type: 'illusts',
+                },
+            ]);
+        }
     }
 }
 
@@ -30080,6 +30153,22 @@ QQ, WeChat:
     _过去: [`过去`, `過去`, `Past`, `過去`, `과거`, `Прошлое`],
     _现在: [`现在`, `現在`, `Now`, `今`, `지금`, `Сейчас`],
     _未来: [`未来`, `未來`, `Future`, `未来`, `미래`, `Будущее`],
+    _下载这个作品: [
+        `下载这个作品`,
+        `下載這個作品`,
+        `Download this work`,
+        `この作品をダウンロード`,
+        `이 작품 다운로드`,
+        `Скачать эту работу,`,
+    ],
+    _下载这张图片: [
+        `下载这张图片`,
+        `下載這張圖片`,
+        `Download this image`,
+        `この画像をダウンロード`,
+        `이 이미지 다운로드`,
+        `Скачать это изображение`,
+    ],
 };
 
 // prompt
@@ -30087,6 +30176,7 @@ QQ, WeChat:
 // 背景说明：
 // 这是一个浏览器扩展程序，它是一个爬虫和下载器，用于从 Pixiv.net 这个网站下载插画、漫画、小说等内容。大多数用户在 PC 端的浏览器上使用它。它有很多设置项，还会显示日志和一些提示消息。
 // 输出格式：
+// - 输出为一个 js 代码块。
 // - 不需要把数组保存到变量里。
 // - 字符串使用反引号 ` 包裹。
 // - 数组的最后一条语句后面需要添加逗号。这是 JS 语法里数组项后面的逗号，不要添加到语句里。
@@ -33864,10 +33954,10 @@ const formHtml = `
       <input type="checkbox" name="copyFormatImage" id="setCopyFormatImage" class="need_beautify checkbox_common">
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setCopyFormatImage">image/png</label>
-      <input type="checkbox" name="copyFormatText" id="setCopyFormatText" class="need_beautify checkbox_common">
+      <input type="checkbox" name="copyFormatText" id="setCopyFormatText" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setCopyFormatText">text/plain</label>
-      <input type="checkbox" name="copyFormatHtml" id="setCopyFormatHtml" class="need_beautify checkbox_common">
+      <input type="checkbox" name="copyFormatHtml" id="setCopyFormatHtml" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setCopyFormatHtml">text/html</label>
       <button type="button" class="gray1 textButton" id="showCopyWorkDataTip" data-xztext="_帮助"></button>

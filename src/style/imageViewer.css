@@ -75,6 +75,11 @@
 .viewer-backdrop .viewer-toolbar .viewer-add-btn::marker {
   content: none;
 }
+.viewer-backdrop .viewer-toolbar #imageViewerCopyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 .viewer-backdrop .viewer-navbar {
   background: rgba(0, 0, 0, 0.3);
 }

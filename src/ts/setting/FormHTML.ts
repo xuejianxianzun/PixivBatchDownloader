@@ -1049,10 +1049,10 @@ export const formHtml = `
       <input type="checkbox" name="copyFormatImage" id="setCopyFormatImage" class="need_beautify checkbox_common">
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setCopyFormatImage">image/png</label>
-      <input type="checkbox" name="copyFormatText" id="setCopyFormatText" class="need_beautify checkbox_common">
+      <input type="checkbox" name="copyFormatText" id="setCopyFormatText" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setCopyFormatText">text/plain</label>
-      <input type="checkbox" name="copyFormatHtml" id="setCopyFormatHtml" class="need_beautify checkbox_common">
+      <input type="checkbox" name="copyFormatHtml" id="setCopyFormatHtml" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setCopyFormatHtml">text/html</label>
       <button type="button" class="gray1 textButton" id="showCopyWorkDataTip" data-xztext="_帮助"></button>
