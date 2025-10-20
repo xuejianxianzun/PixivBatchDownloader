@@ -7,7 +7,7 @@ import { IDData } from '../store/StoreType'
 import { cacheWorkData } from '../store/CacheWorkData'
 import { settings } from '../setting/Settings'
 
-// 在多图作品页面里，当用户点击“查看全部”按钮显示所有图片时，在每张图片上显示下载按钮，点击按钮可以下载这张图片
+/** 在多图作品页面里，当用户点击“查看全部”按钮显示所有图片时，在每张图片上显示下载按钮，点击按钮可以下载这张图片 */
 class ShowDownloadBtnOnMultiImageWorkPage {
   constructor() {
     if (Config.mobile) {

@@ -2633,10 +2633,6 @@ class Config {
     static sendDataURL = !this.isFirefox && (webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().extension).inIncognitoContext;
     /**ImageViewer 生成的 li 元素的 className */
     static ImageViewerLI = 'xz-thumb-li';
-    /**检测 ImageViewer 生成的 li 元素，以便其他模块进行一些特殊处理 */
-    static checkImageViewerLI(el) {
-        return el?.classList.contains(this.ImageViewerLI);
-    }
 }
 
 
@@ -6691,6 +6687,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+
 
 
 
@@ -6783,7 +6781,7 @@ class PreviewWork {
                 }
                 // 显示作品的详细信息
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.PreviewWorkDetailInfo &&
-                    _Config__WEBPACK_IMPORTED_MODULE_15__.Config.checkImageViewerLI(this.workEL) === false) {
+                    _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_21__.displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL) === false) {
                     _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('showPreviewWorkDetailPanel', this.workData);
                 }
                 this.sendURLs();
@@ -6836,7 +6834,7 @@ class PreviewWork {
                 this.index = this.indexHistory[id] || 0;
             }
             // 在在多图作品的缩略图列表上触发时，使用 data-index 属性的值作为 index
-            if (_Config__WEBPACK_IMPORTED_MODULE_15__.Config.checkImageViewerLI(el)) {
+            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_21__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
                 const _index = Number.parseInt(el.dataset.index);
                 this.index = _index;
             }
@@ -11454,6 +11452,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ImageViewer__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../ImageViewer */ "./src/ts/ImageViewer.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+
+
 
 
 
@@ -11477,21 +11479,24 @@ class ButtonsOnThumbOnPC {
             order: 1,
             icon: 'icon-zoom',
             btn: document.createElement('button'),
+            title: '_图片查看器',
             show: () => _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.magnifier,
         },
         {
-            id: 'downloadBtnOnThumb',
-            order: 2,
-            icon: 'icon-download',
-            btn: document.createElement('button'),
-            show: () => _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.showDownloadBtnOnThumb,
-        },
-        {
             id: 'copyBtnOnThumb',
-            order: 3,
+            order: 2,
             icon: 'icon-copy',
             btn: document.createElement('button'),
+            title: '_复制图片和摘要',
             show: () => _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.showCopyBtnOnThumb,
+        },
+        {
+            id: 'downloadBtnOnThumb',
+            order: 3,
+            icon: 'icon-download',
+            btn: document.createElement('button'),
+            title: '_下载',
+            show: () => _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.showDownloadBtnOnThumb,
         },
     ];
     btnSize = 32;
@@ -11551,6 +11556,8 @@ class ButtonsOnThumbOnPC {
     <svg class="icon" aria-hidden="true">
   <use xlink:href="#${config.icon}"></use>
 </svg>`;
+        btn.dataset.xztitle = config.title;
+        _Language__WEBPACK_IMPORTED_MODULE_8__.lang.register(btn);
         document.body.appendChild(btn);
         return btn;
     }
@@ -11571,7 +11578,7 @@ class ButtonsOnThumbOnPC {
                 id: this.currentWorkId,
             };
             // 在多图作品的缩略图列表上触发时，获取 data-index 属性的值，只下载这一张图片
-            if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.checkImageViewerLI(this.workEL)) {
+            if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_7__.displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL)) {
                 const index = Number.parseInt(this.workEL.dataset.index);
                 _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.setDownloadOnlyPart(Number.parseInt(this.currentWorkId), [index]);
             }
@@ -11593,10 +11600,10 @@ class ButtonsOnThumbOnPC {
         // 记录有几个按钮需要显示，用于设置按钮的位置（top 值）
         let order = 0;
         const rect = this.workEL.getBoundingClientRect();
-        const imageViewerLI = _Config__WEBPACK_IMPORTED_MODULE_3__.Config.checkImageViewerLI(this.workEL);
+        const imageViewerLI = _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_7__.displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL);
         for (const config of this.list) {
-            // 在多图作品页面里的缩略图列表上触发时，只显示下载按钮，不显示其他按钮
-            if (imageViewerLI && config.id !== 'downloadBtnOnThumb') {
+            // 在多图作品页面里的缩略图列表上触发时，不显示放大按钮，因为点击图片即可放大
+            if (imageViewerLI && config.id === 'zoomBtnOnThumb') {
                 continue;
             }
             if (config.show()) {
@@ -11657,6 +11664,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+
 
 
 
@@ -11695,7 +11704,7 @@ class DownloadBtnOnThumbOnMobile {
                     id: id,
                 };
                 // 在多图作品的缩略图列表上触发时，获取 data-index 属性的值，只下载这一张图片
-                if (_Config__WEBPACK_IMPORTED_MODULE_4__.Config.checkImageViewerLI(el)) {
+                if (_pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_6__.displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
                     const _index = Number.parseInt(el.dataset.index);
                     _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.setDownloadOnlyPart(Number.parseInt(id), [_index]);
                 }
@@ -26512,6 +26521,22 @@ It is recommended to set a number less than 256, the default value is 200.`,
         '이미지 크기',
         'Размер изображения',
     ],
+    _查看的图片尺寸: [
+        `查看的图片尺寸`,
+        `查看的圖片尺寸`,
+        `View image dimensions`,
+        `閲覧した画像のサイズ`,
+        `본 이미지 크기`,
+        `Размеры просматриваемого изображения`,
+    ],
+    _图片查看器: [
+        `图片查看器`,
+        `圖片查看器`,
+        `Image viewer`,
+        `画像ビューア`,
+        `이미지 뷰어`,
+        `Просмотрщик изображений`,
+    ],
     _原图: ['原图', '原圖', 'Original', 'Original', '원본', 'Оригинал'],
     _普通: ['普通', '普通', 'Regular', 'Regular', '레귤러', 'Обычный'],
     _小图: ['小图', '小圖', 'Small', 'Small', '스몰', 'Маленький'],
@@ -30169,6 +30194,14 @@ QQ, WeChat:
         `이 이미지 다운로드`,
         `Скачать это изображение`,
     ],
+    _复制图片和摘要: [
+        `复制图片和摘要`,
+        `複製圖片和摘要`,
+        `Copy image and description`,
+        `画像と説明をコピー`,
+        `이미지와 설명 복사`,
+        `Копировать изображение и описание`,
+    ],
 };
 
 // prompt
@@ -31159,12 +31192,17 @@ const destroyManager = new DestroyManager();
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   displayThumbnailListOnMultiImageWorkPage: () => (/* binding */ displayThumbnailListOnMultiImageWorkPage)
+/* harmony export */ });
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _ImageViewer__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../ImageViewer */ "./src/ts/ImageViewer.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+
 
 
 
@@ -31230,8 +31268,13 @@ class DisplayThumbnailListOnMultiImageWorkPage {
             target.insertAdjacentElement('afterbegin', wrap);
         }
     }
+    /**检查目标元素是否是 ImageViewer 生成的 li 元素，以便进行特殊处理 */
+    checkLI(el) {
+        return el?.classList.contains(_Config__WEBPACK_IMPORTED_MODULE_6__.Config.ImageViewerLI);
+    }
 }
-new DisplayThumbnailListOnMultiImageWorkPage();
+const displayThumbnailListOnMultiImageWorkPage = new DisplayThumbnailListOnMultiImageWorkPage();
+
 
 
 /***/ }),
@@ -33926,7 +33969,7 @@ const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label for="magnifierPosition2" data-xztext="_右"></label>
         <span class="verticalSplit"></span>
-        <span class="settingNameStyle" data-xztext="_图片尺寸2"></span>
+        <span class="settingNameStyle" data-xztext="_查看的图片尺寸"></span>
         <input type="radio" name="magnifierSize" id="magnifierSize1" class="need_beautify radio" value="original">
         <span class="beautify_radio" tabindex="0"></span>
         <label for="magnifierSize1" data-xztext="_原图"></label>

@@ -20,6 +20,7 @@ import { Tools } from './Tools'
 import { bookmark } from './Bookmark'
 import { pageType } from './PageType'
 import { copyWorkInfo } from './CopyWorkInfo'
+import { displayThumbnailListOnMultiImageWorkPage } from './pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -108,7 +109,7 @@ class PreviewWork {
         // 显示作品的详细信息
         if (
           settings.PreviewWorkDetailInfo &&
-          Config.checkImageViewerLI(this.workEL) === false
+          displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL) === false
         ) {
           EVT.fire('showPreviewWorkDetailPanel', this.workData)
         }
@@ -174,7 +175,7 @@ class PreviewWork {
       }
 
       // 在在多图作品的缩略图列表上触发时，使用 data-index 属性的值作为 index
-      if (Config.checkImageViewerLI(el)) {
+      if (displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
         const _index = Number.parseInt(el.dataset!.index!)
         this.index = _index
       }

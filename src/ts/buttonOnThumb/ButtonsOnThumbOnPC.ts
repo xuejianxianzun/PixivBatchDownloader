@@ -6,14 +6,19 @@ import { ImageViewer } from '../ImageViewer'
 import { IDData } from '../store/StoreType'
 import { store } from '../store/Store'
 import { copyWorkInfo } from '../CopyWorkInfo'
+import {displayThumbnailListOnMultiImageWorkPage} from '../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
+import { langText } from '../langText'
+import { lang } from '../Language'
 
 type BtnConfig = {
   id: 'zoomBtnOnThumb' | 'downloadBtnOnThumb' | 'copyBtnOnThumb'
   order: number
   icon: string
   btn: HTMLButtonElement
+  title: keyof typeof langText
   show: () => boolean
 }
+
 type BtnList = BtnConfig[]
 
 // 在图片作品的缩略图上显示一些按钮
@@ -34,21 +39,24 @@ class ButtonsOnThumbOnPC {
       order: 1,
       icon: 'icon-zoom',
       btn: document.createElement('button'),
+      title: '_图片查看器',
       show: () => settings.magnifier,
     },
     {
-      id: 'downloadBtnOnThumb',
-      order: 2,
-      icon: 'icon-download',
-      btn: document.createElement('button'),
-      show: () => settings.showDownloadBtnOnThumb,
-    },
-    {
       id: 'copyBtnOnThumb',
-      order: 3,
+      order: 2,
       icon: 'icon-copy',
       btn: document.createElement('button'),
+      title: '_复制图片和摘要',
       show: () => settings.showCopyBtnOnThumb,
+    },
+    {
+      id: 'downloadBtnOnThumb',
+      order: 3,
+      icon: 'icon-download',
+      btn: document.createElement('button'),
+      title: '_下载',
+      show: () => settings.showDownloadBtnOnThumb,
     },
   ]
 
@@ -120,7 +128,10 @@ class ButtonsOnThumbOnPC {
     <svg class="icon" aria-hidden="true">
   <use xlink:href="#${config.icon}"></use>
 </svg>`
+    btn.dataset.xztitle =  config.title
+    lang.register(btn)
     document.body.appendChild(btn)
+    
     return btn
   }
 
@@ -141,7 +152,7 @@ class ButtonsOnThumbOnPC {
       }
 
       // 在多图作品的缩略图列表上触发时，获取 data-index 属性的值，只下载这一张图片
-      if (Config.checkImageViewerLI(this.workEL)) {
+      if (displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL)) {
         const index = Number.parseInt(this.workEL!.dataset!.index!)
         store.setDownloadOnlyPart(Number.parseInt(this.currentWorkId), [index])
       }
@@ -165,11 +176,11 @@ class ButtonsOnThumbOnPC {
     // 记录有几个按钮需要显示，用于设置按钮的位置（top 值）
     let order = 0
     const rect = this.workEL!.getBoundingClientRect()
-    const imageViewerLI = Config.checkImageViewerLI(this.workEL)
+    const imageViewerLI = displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL)
 
     for (const config of this.list) {
-      // 在多图作品页面里的缩略图列表上触发时，只显示下载按钮，不显示其他按钮
-      if (imageViewerLI && config.id !== 'downloadBtnOnThumb') {
+      // 在多图作品页面里的缩略图列表上触发时，不显示放大按钮，因为点击图片即可放大
+      if (imageViewerLI && config.id === 'zoomBtnOnThumb') {
         continue
       }
 

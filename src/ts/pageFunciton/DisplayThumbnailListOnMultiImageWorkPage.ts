@@ -4,6 +4,7 @@ import { pageType } from '../PageType'
 import { settings } from '../setting/Settings'
 import { EVT } from '../EVT'
 import { ImageViewer } from '../ImageViewer'
+import { Config } from '../Config'
 
 class DisplayThumbnailListOnMultiImageWorkPage {
   constructor() {
@@ -76,6 +77,13 @@ class DisplayThumbnailListOnMultiImageWorkPage {
       target.insertAdjacentElement('afterbegin', wrap)
     }
   }
+
+  
+  /**检查目标元素是否是 ImageViewer 生成的 li 元素，以便进行特殊处理 */
+  public checkLI(el?: HTMLElement) {
+    return el?.classList.contains(Config.ImageViewerLI)
+  }
 }
 
-new DisplayThumbnailListOnMultiImageWorkPage()
+const displayThumbnailListOnMultiImageWorkPage = new DisplayThumbnailListOnMultiImageWorkPage()
+export { displayThumbnailListOnMultiImageWorkPage }

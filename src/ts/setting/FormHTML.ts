@@ -1021,7 +1021,7 @@ export const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label for="magnifierPosition2" data-xztext="_右"></label>
         <span class="verticalSplit"></span>
-        <span class="settingNameStyle" data-xztext="_图片尺寸2"></span>
+        <span class="settingNameStyle" data-xztext="_查看的图片尺寸"></span>
         <input type="radio" name="magnifierSize" id="magnifierSize1" class="need_beautify radio" value="original">
         <span class="beautify_radio" tabindex="0"></span>
         <label for="magnifierSize1" data-xztext="_原图"></label>
