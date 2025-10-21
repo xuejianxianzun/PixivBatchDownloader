@@ -82,7 +82,7 @@ class ImageViewer {
   // 事件会重复绑定，设计如此，这是因为每次绑定时的 this 是不同的，必须重新绑定。而且不会冲突
   private bindShortcuts() {
     document.addEventListener('keydown', (ev) => {
-      if (!this.show) {
+      if (!this.show || ev.ctrlKey || ev.shiftKey || ev.metaKey) {
         return
       }
 

@@ -128,6 +128,10 @@ class SelectWork {
 
     // 可以使用 Alt + S 快捷键来模拟点击控制按钮
     window.addEventListener('keydown', (ev) => {
+      if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
+        return
+      }
+
       if (ev.altKey && ev.code === 'KeyS') {
         this.controlBtn.click()
       }

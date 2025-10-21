@@ -290,11 +290,7 @@ class Log {
 
     // 按快捷键 L 显示/隐藏日志区域
     window.addEventListener('keydown', (ev) => {
-      if (ev.code !== 'KeyL') {
-        return
-      }
-
-      if (ev.ctrlKey || ev.altKey || ev.metaKey) {
+      if (ev.code !== 'KeyL' || ev.ctrlKey || ev.altKey || ev.metaKey) {
         return
       }
 

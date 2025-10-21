@@ -192,7 +192,7 @@ class ShowOriginSizeImage {
     window.addEventListener(
       'keydown',
       (ev) => {
-        if (!this.show) {
+        if (!this.show || ev.ctrlKey || ev.shiftKey || ev.metaKey) {
           return
         }
 

@@ -4391,7 +4391,7 @@ class ImageViewer {
     // 事件会重复绑定，设计如此，这是因为每次绑定时的 this 是不同的，必须重新绑定。而且不会冲突
     bindShortcuts() {
         document.addEventListener('keydown', (ev) => {
-            if (!this.show) {
+            if (!this.show || ev.ctrlKey || ev.shiftKey || ev.metaKey) {
                 return;
             }
             // 不需要 Alt 的快捷键
@@ -5586,10 +5586,7 @@ class Log {
         });
         // 按快捷键 L 显示/隐藏日志区域
         window.addEventListener('keydown', (ev) => {
-            if (ev.code !== 'KeyL') {
-                return;
-            }
-            if (ev.ctrlKey || ev.altKey || ev.metaKey) {
+            if (ev.code !== 'KeyL' || ev.ctrlKey || ev.altKey || ev.metaKey) {
                 return;
             }
             if (ev.target) {
@@ -6881,7 +6878,7 @@ class PreviewWork {
         window.addEventListener('keydown', (ev) => {
             // 当用户按下 Ctrl 时，不启用下载器的热键，以避免快捷键冲突或重复生效
             // 例如，预览作品时按 C 可以下载，但是当用户按下 Ctrl + C 时其实是想复制，此时不应该下载
-            if (ev.ctrlKey) {
+            if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
                 return;
             }
             // 当用户按下 Alt 时
@@ -8183,6 +8180,9 @@ class SelectWork {
         });
         // 可以使用 Alt + S 快捷键来模拟点击控制按钮
         window.addEventListener('keydown', (ev) => {
+            if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
+                return;
+            }
             if (ev.altKey && ev.code === 'KeyS') {
                 this.controlBtn.click();
             }
@@ -9390,7 +9390,7 @@ class ShowOriginSizeImage {
             }
         });
         window.addEventListener('keydown', (ev) => {
-            if (!this.show) {
+            if (!this.show || ev.ctrlKey || ev.shiftKey || ev.metaKey) {
                 return;
             }
             const idData = {
@@ -31112,6 +31112,9 @@ class CopyButtonOnWorkPage {
         });
         // 使用快捷键 Alt + C 点击复制按钮
         window.addEventListener('keydown', (ev) => {
+            if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
+                return;
+            }
             if (ev.code === 'KeyC' && ev.altKey) {
                 btn && btn.click();
             }
