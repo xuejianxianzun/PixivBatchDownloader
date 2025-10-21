@@ -3,7 +3,6 @@ import { API } from './API'
 import { EVT } from './EVT'
 import { lang } from './Language'
 import { loading } from './Loading'
-import { states } from './store/States'
 import { toast } from './Toast'
 import { Tools } from './Tools'
 import { ArtworkData } from './crawl/CrawlResult'
@@ -12,43 +11,36 @@ import { cacheWorkData } from './store/CacheWorkData'
 import { Colors } from './Colors'
 import { downloadOnClickBookmark } from './download/DownloadOnClickBookmark'
 import { pageType } from './PageType'
-import { Config } from './Config'
+import { store } from './store/Store'
+import { copyWorkInfo } from './CopyWorkInfo'
 
-// 所有参数
 interface InitConfig {
-  // 作品 id
-  // 默认从 url 中获取作品 id
+  /** 作品 id，如果为空从会 url 中获取作品 id */
   workId: string
-  // 图片最少有多少张时才会启用查看器
-  // 默认为 2
-  imageNumber: number
-  // 查看大图时，显示哪种尺寸的图片
-  // 默认为 original
+  /** 初始化时显示哪一张图片。如果不传入的话，Viewer 会自行处理。
+   *
+   * 如果用户是点击与 Viewer 绑定的缩略图来启动 Viewer 的话，Viewer 会自动设置这个值为点击的图片索引。
+   *
+   * 但是目前下载器里不存在这种情况（用户点击的缩略图或按钮与 Viewer 是解耦的），所以如果不传入这个值，Viewer 会默认显示第一张图片（索引 0）。
+   */
+  initialViewIndex?: number
+  /** 查看大图时，显示哪种尺寸的图片，默认为 original */
   imageSize: 'original' | 'regular' | 'small'
-  // 初始化之后，是否直接启动查看器
-  // 默认为 false
+  /** 初始化之后，是否直接启动查看器，默认为 false */
   autoStart: boolean
-  // 获取作品数据期间，是否显示 loading 动画
-  // 默认为 false
+  /** 获取作品数据期间，是否显示 loading 动画，默认为 false */
   showLoading: boolean
 }
 
-// 可选参数
-interface ConfigOptional {
-  workId?: string
-  imageNumber?: number
-  imageSize?: 'original' | 'regular' | 'small'
-  autoStart?: boolean
-  showLoading?: boolean
-}
+// 所有参数都是可选的
+type ConfigOptional = Partial<InitConfig>
 
 // 对 Viewer 进行修改以供下载器使用
 // 原版是接收页面上已存在的缩略图列表，但在下载器里它需要从作品 id 获取数据，生成缩略图列表。并且需要进行一些改造
 class ImageViewer {
-  // new() 不会创建图片查看器，需要再手动执行 init()
-  // 这是因为有的模块需要获取异步操作之后生成的元素，但是构造函数无法返回异步操作，所以使用 init() 进行包装
   constructor(cfg: ConfigOptional) {
     this.cfg = Object.assign(this.cfg, cfg)
+    this.init()
   }
 
   private myViewer!: Viewer // 查看器
@@ -62,11 +54,11 @@ class ImageViewer {
   private workData: ArtworkData | undefined
   private pageCount = 1
   private firstImageURL = '' // 第一张图片的 url
+  private index = 0 // 当前查看的图片索引
 
   // 默认配置
   private cfg: InitConfig = {
     workId: Tools.getIllustId(),
-    imageNumber: 2,
     imageSize: 'original',
     autoStart: false,
     showLoading: false,
@@ -81,39 +73,46 @@ class ImageViewer {
 
     const wrap = await this.createImageList()
     if (wrap) {
-      this.bindHotKey()
+      this.bindShortcuts()
       this.configureViewer()
     }
     return wrap
   }
 
   // 事件会重复绑定，设计如此，这是因为每次绑定时的 this 是不同的，必须重新绑定。而且不会冲突
-  private bindHotKey() {
-    // 按 F 进入/退出 1:1 查看模式
-    document.addEventListener('keydown', (event) => {
-      if (event.code === 'KeyF') {
-        if (this.show) {
+  private bindShortcuts() {
+    document.addEventListener('keydown', (ev) => {
+      if (!this.show || ev.ctrlKey || ev.shiftKey || ev.metaKey) {
+        return
+      }
+
+      // 不需要 Alt 的快捷键
+      if (!ev.altKey) {
+        // 按 F 进入/退出 1:1 查看模式
+        if (ev.code === 'KeyF') {
           this.isOriginalSize = !this.isOriginalSize
           this.setOriginalSize()
-        }
-      }
-    })
-
-    // 按 Alt + B 收藏当前作品
-    // 因为 Pixiv 会在按下 B 键时收藏当前作品，所以下载器不能使用 B 键。尝试阻止 Pixiv 的事件但是没有成功
-    document.addEventListener('keydown', (event) => {
-      if (event.altKey && event.code === 'KeyB') {
-        if (this.show) {
-          this.addBookmark()
-        }
-      }
-    })
-
-    // 按 D 下载当前作品
-    document.addEventListener('keydown', (event) => {
-      if (event.code === 'KeyD') {
-        if (this.show) {
+        } else if (ev.code === 'KeyC') {
+          // 按 C 下载当前查看的图片
+          ev.stopPropagation()
+          this.download(this.index)
+        } else if (ev.code === 'KeyD') {
+          // 按 D 下载这个作品
           this.download()
+        }
+      } else {
+        // 需要 Alt 的快捷键
+        if (ev.code === 'KeyB') {
+          // 按 Alt + B 收藏当前作品
+          // 因为 Pixiv 会在按下 B 键时收藏当前作品，所以下载器不能使用 B 键。尝试阻止 Pixiv 的事件但是没有成功
+          // 阻止冒泡，这主要是因为作品页面内，按 B 会触发作品内容下方的快速收藏按钮，需要避免
+          ev.stopPropagation()
+          this.addBookmark()
+        } else if (ev.code === 'KeyC') {
+          // 按 Alt + C 复制当前作品的信息
+          // 阻止冒泡，这主要是因为作品页面内，按 Alt + C 会触发作品内容下方的复制按钮，需要避免
+          ev.stopPropagation()
+          this.copy()
         }
       }
     })
@@ -121,14 +120,15 @@ class ImageViewer {
     // 监听左右方向键，防止在看图时，左右方向键导致 Pixiv 切换作品
     window.addEventListener(
       'keydown',
-      (event) => {
-        if (event.code === 'ArrowLeft' || event.code === 'ArrowRight') {
-          if (this.show) {
+      (ev) => {
+        if (this.show) {
+          if (ev.code === 'ArrowLeft' || ev.code === 'ArrowRight') {
             // 阻止事件冒泡
-            event.stopPropagation()
+            ev.stopPropagation()
+            ev.preventDefault()
             // 控制切换到上一张或者下一张
             // true 表示启用循环切换
-            event.code === 'ArrowLeft'
+            ev.code === 'ArrowLeft'
               ? this.myViewer.prev(true)
               : this.myViewer.next(true)
           }
@@ -162,33 +162,33 @@ class ImageViewer {
         body.illustType === 1 ||
         body.illustType === 2
       ) {
-        // 如果图片数量达到指定值，则会创建创建缩略图，启用图片查看器
-        if (body.pageCount >= this.cfg.imageNumber) {
-          this.pageCount = body.pageCount
-          this.firstImageURL =
-            body.urls[this.cfg.imageSize] || body.urls.original
+        // 创建缩略图列表
+        this.pageCount = body.pageCount
+        this.firstImageURL = body.urls[this.cfg.imageSize] || body.urls.original
 
-          // 缩略图列表的结构： div > ul > li > img
-          this.viewerWarpper = document.createElement('div')
-          this.viewerUl = document.createElement('ul')
-          this.viewerUl.classList.add('beautify_scrollbar')
-          this.viewerWarpper.appendChild(this.viewerUl)
-          this.viewerWarpper.style.display = 'none'
+        // 缩略图列表的结构： div > ul > li > img + a
+        this.viewerWarpper = document.createElement('div')
+        this.viewerUl = document.createElement('ul')
+        this.viewerUl.classList.add('beautify_scrollbar')
+        this.viewerWarpper.appendChild(this.viewerUl)
+        this.viewerWarpper.style.display = 'none'
 
-          // 生成 UL 里面的缩略图列表
-          let html: string[] = []
-          for (let index = 0; index < body.pageCount; index++) {
-            const str = `<li data-index="${index}" class="${
-              Config.ImageViewerLI
-            }"><img src="${Tools.convertThumbURLTo540px(
-              body.urls.thumb.replace('p0', 'p' + index)
-            )}" data-src="${this.firstImageURL.replace('p0', 'p' + index)}">
-            <a href="${window.location.href}"></a>
+        // 生成 UL 里面的缩略图列表
+        let html: string[] = []
+        for (let index = 0; index < body.pageCount; index++) {
+          const thumb = Tools.convertThumbURLTo540px(
+            body.urls.thumb.replace('p0', 'p' + index)
+          )
+          const imgUrl = this.firstImageURL.replace('p0', 'p' + index)
+          const imageName = imgUrl.split('/').pop()
+          // img 的 alt 属性会在 viewer 的 title 里显示为图片名称
+          const str = `<li data-index="${index}">
+              <img src="${thumb}" data-src="${imgUrl}" alt="${imageName}" />
+              <a href="${window.location.href}"></a>
             </li>`
-            html.push(str)
-          }
-          this.viewerUl.innerHTML = html.join('')
+          html.push(str)
         }
+        this.viewerUl.innerHTML = html.join('')
       }
 
       return resolve(this.viewerWarpper)
@@ -197,33 +197,25 @@ class ImageViewer {
 
   // 配置图片查看器
   private configureViewer() {
+    const setIndex = (index: number) => {
+      this.index = index
+    }
+
     // 图片查看器显示之后
     this.viewerUl.addEventListener('shown', () => {
       this.show = true
-      this.addDownloadBtn()
+      // 添加自定义的按钮
+      this.addOneToOneBtn()
       this.addBookmarkBtn()
+      this.addCopyBtn()
+      this.addDownloadCurrentImageBtn()
+      this.addDownloadBtn()
 
       // 如果图片数量只有 1 个，则不显示缩略图一栏
       const navbar = document.querySelector('.viewer-navbar') as HTMLDivElement
       if (navbar) {
-        // 控制不透明度，这样它依然会占据空间，不会导致工具栏下移
+        // 设置不透明度为 0，这样它依然会占据空间，不会导致工具栏下移
         navbar.style.opacity = this.pageCount > 1 ? '1' : '0'
-      }
-
-      // 点击 1：1 按钮时
-      const oneToOne = document.querySelector('.viewer-one-to-one')
-      if (oneToOne) {
-        oneToOne.setAttribute('title', lang.transl('_原始尺寸') + ' (F)')
-        oneToOne.addEventListener(
-          'click',
-          (ev) => {
-            // 阻止冒泡，否则放大过程中会多一次闪烁（推测可能是这个按钮原有的事件导致的，停止冒泡之后就好了）
-            ev.stopPropagation()
-            this.isOriginalSize = !this.isOriginalSize
-            this.setOriginalSize()
-          },
-          true
-        )
       }
     })
 
@@ -251,12 +243,11 @@ class ImageViewer {
     const handleToTop = this.moveToTop.bind(this)
     const pageCount = this.pageCount
     const firstImageURL = this.firstImageURL
-
-    this.myViewer = new Viewer(this.viewerUl, {
+    const option: Viewer.Options = {
       toolbar: {
         zoomIn: 0,
         zoomOut: 0,
-        oneToOne: 1,
+        oneToOne: 0,
         reset: 0,
         prev: 1,
         play: {
@@ -272,6 +263,10 @@ class ImageViewer {
 
       url(image: HTMLImageElement) {
         return image.dataset.src!
+      },
+
+      view(ev) {
+        setIndex(ev.detail.index)
       },
 
       viewed(ev) {
@@ -291,11 +286,17 @@ class ImageViewer {
       // 取消一些动画，比如切换图片时，图片从小变大出现的动画
       transition: false,
       keyboard: true,
-      // 不显示 title（图片名和宽高信息）
-      title: false,
+      // 显示 title（图片名和宽高信息）
+      title: true,
       // 不显示缩放比例
       tooltip: false,
-    })
+    }
+    // initialViewIndex 在有值的时候才能设置。如果没有值就设置的话会出错
+    if (this.cfg.initialViewIndex !== undefined) {
+      option.initialViewIndex = this.cfg.initialViewIndex
+    }
+
+    this.myViewer = new Viewer(this.viewerUl, option)
 
     // 预加载第一张图片
     const img = new Image()
@@ -358,23 +359,39 @@ class ImageViewer {
       return
     }
 
-    const one2one = last.querySelector('.viewer-one-to-one')
-    if (one2one) {
-      return one2one.insertAdjacentElement('afterend', btn) as HTMLElement
+    const toolbar = last.querySelector('.viewer-toolbar ul')
+    if (toolbar) {
+      toolbar.append(btn)
+      return btn
     } else {
       console.error('Add btn failed')
     }
   }
 
-  // 在图片查看器里添加下载按钮
+  // 添加 1:1 按钮
+  private addOneToOneBtn() {
+    const li = document.createElement('li')
+    li.setAttribute('role', 'button')
+    li.setAttribute('title', lang.transl('_原始尺寸') + ' (F)')
+    li.classList.add(this.addBtnClass)
+    li.textContent = '1:1'
+    li.id = 'imageViewer1To1Btn'
+    this.addBtn(li)
+
+    li.addEventListener('click', () => {
+      this.isOriginalSize = !this.isOriginalSize
+      this.setOriginalSize()
+    })
+  }
+
+  // 添加下载这个作品的按钮
   private addDownloadBtn() {
     const li = document.createElement('li')
     li.setAttribute('role', 'button')
-    li.setAttribute('title', lang.transl('_下载') + ' (D)')
+    li.setAttribute('title', lang.transl('_下载这个作品') + ' (D)')
     li.classList.add(this.addBtnClass)
-    li.textContent = '↓'
+    li.textContent = '↓↓↓'
     li.id = 'imageViewerDownloadBtn'
-
     this.addBtn(li)
 
     li.addEventListener('click', () => {
@@ -382,18 +399,61 @@ class ImageViewer {
     })
   }
 
-  // 在图片查看器里添加收藏按钮
-  private addBookmarkBtn() {
-    const btn = document.createElement('li')
-    btn.setAttribute('role', 'button')
-    btn.setAttribute('title', lang.transl('_收藏') + ' (Alt + B)')
-    btn.classList.add(this.addBtnClass)
-    btn.style.fontSize = '14px'
-    btn.textContent = '✩'
-    btn.id = 'imageViewerBookmarkBtn'
-    this.addBtn(btn)
+  // 添加下载当前查看的图片的按钮
+  private addDownloadCurrentImageBtn() {
+    const li = document.createElement('li')
+    li.setAttribute('role', 'button')
+    li.setAttribute('title', lang.transl('_下载这张图片') + ' (C)')
+    li.classList.add(this.addBtnClass)
+    li.textContent = '↓'
+    li.id = 'imageViewerDownloadCurrentImageBtn'
+    this.addBtn(li)
 
-    btn.addEventListener('click', async () => {
+    li.addEventListener('click', () => {
+      this.download(this.index)
+    })
+  }
+
+  private copy() {
+    copyWorkInfo.receive(
+      {
+        id: this.cfg.workId,
+        type: 'illusts',
+      },
+      this.index
+    )
+  }
+
+  // 添加复制按钮
+  private addCopyBtn() {
+    const li = document.createElement('li')
+    li.setAttribute('role', 'button')
+    li.setAttribute('title', lang.transl('_复制摘要数据'))
+    li.classList.add(this.addBtnClass)
+    li.textContent = '↓'
+    li.id = 'imageViewerCopyBtn'
+    li.innerHTML = `
+    <svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-copy"></use>
+</svg>`
+    this.addBtn(li)
+
+    li.addEventListener('click', this.copy.bind(this))
+  }
+
+  // 添加收藏按钮
+  private addBookmarkBtn() {
+    const li = document.createElement('li')
+    li.setAttribute('role', 'button')
+    li.setAttribute('title', lang.transl('_收藏') + ' (Alt + B)')
+    li.classList.add(this.addBtnClass)
+    // 这个五角星显示的比较小，需要单独加大字号
+    li.style.fontSize = '20px'
+    li.textContent = '✩'
+    li.id = 'imageViewerBookmarkBtn'
+    this.addBtn(li)
+
+    li.addEventListener('click', async () => {
       // 添加收藏
       this.addBookmark()
 
@@ -423,14 +483,24 @@ class ImageViewer {
     }
   }
 
-  // 下载当前查看的作品
-  private download() {
-    EVT.fire('crawlIdList', [
-      {
-        id: this.cfg.workId,
-        type: 'illusts',
-      },
-    ])
+  /**下载当前查看的作品。如果传入参数 p，则只下载指定的这张图片 */
+  private download(p?: number) {
+    if (this.workData && this.workData.body.id === this.cfg.workId) {
+      if (p !== undefined) {
+        if (this.workData!.body.pageCount > 1) {
+          store.setDownloadOnlyPart(Number.parseInt(this.cfg.workId), [
+            this.index,
+          ])
+        }
+      }
+
+      EVT.fire('crawlIdList', [
+        {
+          id: this.cfg.workId,
+          type: 'illusts',
+        },
+      ])
+    }
   }
 }
 

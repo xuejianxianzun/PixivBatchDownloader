@@ -146,6 +146,13 @@ class DownloadControl {
         const msg = lang.transl('_可能发生了错误请刷新页面重试')
         msgBox.once('mayError', msg, 'warning')
         log.warning(msg, 1, false, 'mayError')
+        if (settings.autoStartDownload) {
+          // 如果启用了自动开始下载，则在一段时间后自动刷新页面，尝试恢复下载
+          this.pauseDownload()
+          window.setTimeout(() => {
+            window.location.reload()
+          }, 3000)
+        }
       }, 5000)
     })
 

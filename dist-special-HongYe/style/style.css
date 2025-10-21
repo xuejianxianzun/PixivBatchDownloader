@@ -515,7 +515,8 @@ body.mobile #quickCrawlBtn {
   margin: 0;
 }
 .centerWrap .tip {
-  color: #999;
+  display: none;
+  color: #888;
 }
 .centerWrap .blue {
   color: #0ea8ef !important;
@@ -1762,6 +1763,8 @@ iframe[name='expandedFooter'] {
 }
 #viewerWarpper {
   position: relative;
+  max-height: 62vh;
+  overflow: auto;
   margin: 0;
   margin-top: 40px;
   padding: 40px 10px;
@@ -1796,6 +1799,15 @@ iframe[name='expandedFooter'] {
 .viewer-backdrop {
   background: rgba(0, 0, 0, 0.8) !important;
 }
+.viewer-backdrop .viewer-title {
+  color: #ddd;
+  font-size: 13px;
+  height: 16px;
+  line-height: 16px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.7);
+}
 .viewer-backdrop .viewer-canvas {
   background: rgba(0, 0, 0, 0.8) !important;
 }
@@ -1807,6 +1819,10 @@ iframe[name='expandedFooter'] {
   height: 100px;
   width: 100px;
   overflow: hidden;
+}
+.viewer-backdrop .viewer-toolbar .viewer-next:hover,
+.viewer-backdrop .viewer-toolbar .viewer-prev:hover {
+  background-color: #29b3f3 !important;
 }
 .viewer-backdrop .viewer-toolbar .viewer-prev {
   position: fixed;
@@ -1828,14 +1844,32 @@ iframe[name='expandedFooter'] {
   top: 40px;
   position: absolute;
 }
+.viewer-backdrop .viewer-toolbar ul > li {
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+}
 .viewer-backdrop .viewer-toolbar .viewer-add-btn {
+  color: #eee;
+  font-size: 13px;
+  margin: 0 2px;
+}
+.viewer-backdrop .viewer-toolbar .viewer-add-btn:hover {
   color: #fff;
-  font-size: 12px;
-  line-height: 24px;
-  transition: all 1s;
+  background-color: #29b3f3;
 }
 .viewer-backdrop .viewer-toolbar .viewer-add-btn::marker {
   content: none;
+}
+.viewer-backdrop .viewer-toolbar .viewer-add-btn svg {
+  width: 16px;
+  height: 16px;
+}
+.viewer-backdrop .viewer-toolbar #imageViewerCopyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .viewer-backdrop .viewer-navbar {
   background: rgba(0, 0, 0, 0.3);

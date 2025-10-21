@@ -5,6 +5,7 @@ import { IDData } from '../store/StoreType'
 import { Tools } from '../Tools'
 import { Config } from '../Config'
 import { store } from '../store/Store'
+import { displayThumbnailListOnMultiImageWorkPage } from '../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 
 // 在图片作品的缩略图上显示下载按钮，点击按钮会直接下载这个作品
 // 这个模块只在移动端页面上运行
@@ -42,7 +43,7 @@ class DownloadBtnOnThumbOnMobile {
         }
 
         // 在多图作品的缩略图列表上触发时，获取 data-index 属性的值，只下载这一张图片
-        if (Config.checkImageViewerLI(el)) {
+        if (displayThumbnailListOnMultiImageWorkPage.checkLI(el)) {
           const _index = Number.parseInt(el.dataset!.index!)
           store.setDownloadOnlyPart(Number.parseInt(id), [_index])
         }

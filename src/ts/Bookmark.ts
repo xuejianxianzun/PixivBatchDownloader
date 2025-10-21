@@ -216,6 +216,7 @@ class Bookmark {
           // 当发生 400 错误时重试
           case 400:
             await token.reset()
+            await Utils.sleep(3000)
             return resolve(this.sendRequest(id, type, tags, hide))
           case 404:
             log.error(`${id} 404 Not Found`)

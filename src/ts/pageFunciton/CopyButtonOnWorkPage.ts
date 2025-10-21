@@ -64,6 +64,10 @@ class CopyButtonOnWorkPage {
 
     // 使用快捷键 Alt + C 点击复制按钮
     window.addEventListener('keydown', (ev) => {
+      if (ev.ctrlKey || ev.shiftKey || ev.metaKey) {
+        return
+      }
+
       if (ev.code === 'KeyC' && ev.altKey) {
         btn && btn.click()
       }
