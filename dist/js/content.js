@@ -7591,7 +7591,7 @@ class PreviewWorkDetailInfo {
             }
         }
         // 设置样式
-        wrap.classList.add('xz_PreviewWorkDetailPanel');
+        wrap.classList.add('xz_PreviewWorkDetailPanel', 'beautify_scrollbar');
         wrap.style.width = _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.PreviewDetailInfoWidth + 'px';
         wrap.addEventListener('click', () => {
             this.remove(wrap);
@@ -31500,8 +31500,8 @@ class DisplayThumbnailListOnMultiImageWorkPage {
                 // 缩略图列表的结构： div#viewerWarpper > ul > li.xz-thumb-li > img + a
                 const warpper = document.createElement('div');
                 warpper.id = this.wrapperID;
-                warpper.classList.add('beautify_scrollbar');
                 const ul = document.createElement('ul');
+                ul.classList.add('beautify_scrollbar');
                 warpper.appendChild(ul);
                 _Theme__WEBPACK_IMPORTED_MODULE_0__.theme.register(warpper);
                 // 生成 li 元素列表

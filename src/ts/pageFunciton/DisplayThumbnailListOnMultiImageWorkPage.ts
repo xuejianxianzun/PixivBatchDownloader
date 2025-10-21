@@ -114,8 +114,8 @@ class DisplayThumbnailListOnMultiImageWorkPage {
         // 缩略图列表的结构： div#viewerWarpper > ul > li.xz-thumb-li > img + a
         const warpper = document.createElement('div')
         warpper.id = this.wrapperID
-        warpper.classList.add('beautify_scrollbar')
         const ul = document.createElement('ul')
+        ul.classList.add('beautify_scrollbar')
         warpper.appendChild(ul)
         theme.register(warpper)
 
