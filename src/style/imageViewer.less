@@ -1,5 +1,9 @@
+@import './var.less';
+
 #viewerWarpper {
   position: relative;
+  max-height: 62vh;
+  overflow: auto;
   margin: 0;
   margin-top: 40px;
   padding: 40px 10px;
@@ -39,6 +43,17 @@
 .viewer-backdrop {
   background: rgba(0, 0, 0, 0.8) !important;
 
+  // 图片名称和分辨率
+  .viewer-title {
+    color: #ddd;
+    font-size: 13px;
+    height: 16px;
+    line-height: 16px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.7);
+  }
+
   .viewer-canvas {
     background: rgba(0, 0, 0, 0.8) !important;
   }
@@ -52,6 +67,9 @@
       height: 100px;
       width: 100px;
       overflow: hidden;
+      &:hover {
+        background-color: @beautifyBlue !important;
+      }
     }
 
     .viewer-prev {
@@ -78,15 +96,33 @@
       }
     }
 
-    // 这是下载器添加的下载按钮
+    // 所有按钮（包括下载器添加的按钮）
+    ul > li {
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      text-align: center;
+    }
+
+    // 下载器添加的按钮
     .viewer-add-btn {
-      color: #fff;
-      font-size: 12px;
-      line-height: 24px;
-      transition: all 1s;
+      color: #eee;
+      font-size: 13px;
+      margin: 0 2px;
+      // transition: all .5s;
+
+      &:hover {
+        color: #fff;
+        background-color: @beautifyBlue;
+      }
 
       &::marker {
         content: none;
+      }
+
+      svg {
+        width: 16px;
+        height: 16px;
       }
     }
 

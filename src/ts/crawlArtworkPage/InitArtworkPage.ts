@@ -10,7 +10,7 @@ import { log } from '../Log'
 import { Utils } from '../utils/Utils'
 import { pageType } from '../PageType'
 import './CrawlRecommendWorks'
-import '../pageFunciton/ShowDownloadBtnOnMultiImageWorkPage'
+import '../buttonsOnThumb/ButtonsOnArtworkPage'
 import { settings } from '../setting/Settings'
 
 class InitArtworkPage extends InitPageBase {

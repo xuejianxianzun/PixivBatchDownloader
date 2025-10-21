@@ -40,20 +40,21 @@ export interface ToastArgOptional {
 }
 
 // 完整的参数
-interface ToastArg {
-  msg: string
-  color: string
-  bgColor: string
-  dealy: number
-  enter: 'up' | 'fade' | 'none'
-  leave: 'up' | 'fade' | 'none'
-  position: 'topCenter' | 'center' | 'mouse'
-}
+// 把所有可选参数变成必须的，并添加 msg 属性
+type ToastArg = Required<
+  {
+    msg: string
+  } & ToastArgOptional
+>
 
 // 轻提示，只显示文字和背景颜色
 // 适用于无需用户进行确认的提示
 class Toast {
   constructor() {
+    this.successCfg.bgColor = Colors.bgSuccess
+    this.warningCfg.bgColor = Colors.bgWarning
+    this.errorCfg.bgColor = Colors.bgError
+
     this.bindEvents()
   }
 
@@ -61,41 +62,15 @@ class Toast {
     msg: '',
     color: Colors.white,
     bgColor: Colors.bgBrightBlue,
-    dealy: 1500,
+    stay: 1500,
     enter: 'up',
     leave: 'fade',
     position: 'mouse',
   }
 
-  private readonly successCfg: ToastArg = {
-    msg: '',
-    color: Colors.white,
-    bgColor: Colors.bgSuccess,
-    dealy: 1500,
-    enter: 'up',
-    leave: 'fade',
-    position: 'mouse',
-  }
-
-  private readonly warningCfg: ToastArg = {
-    msg: '',
-    color: Colors.white,
-    bgColor: Colors.bgWarning,
-    dealy: 1500,
-    enter: 'up',
-    leave: 'fade',
-    position: 'mouse',
-  }
-
-  private readonly errorCfg: ToastArg = {
-    msg: '',
-    color: Colors.white,
-    bgColor: Colors.bgError,
-    dealy: 1500,
-    enter: 'up',
-    leave: 'fade',
-    position: 'mouse',
-  }
+  private readonly successCfg: ToastArg = Utils.deepCopy(this.defaultCfg)
+  private readonly warningCfg: ToastArg = Utils.deepCopy(this.defaultCfg)
+  private readonly errorCfg: ToastArg = Utils.deepCopy(this.defaultCfg)
 
   private readonly tipClassName = 'xzToast'
 
@@ -213,7 +188,7 @@ class Toast {
       } else {
         this.leave(span, arg.leave, lastTop)
       }
-    }, arg.dealy)
+    }, arg.stay)
   }
 
   // 提示出现的动画

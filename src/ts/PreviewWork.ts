@@ -109,7 +109,8 @@ class PreviewWork {
         // 显示作品的详细信息
         if (
           settings.PreviewWorkDetailInfo &&
-          displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL) === false
+          displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL) ===
+            false
         ) {
           EVT.fire('showPreviewWorkDetailPanel', this.workData)
         }

@@ -6,18 +6,14 @@ import { bg } from './BG'
 import { Config } from './Config'
 
 interface MsgOptional {
-  btn?: string
   title?: string
   color?: string
   hiddenBtn?: boolean
+  btn?: string
 }
 
-export interface Msg {
-  title?: string
+export type Msg = MsgOptional & {
   msg: string
-  btn?: string
-  color?: string
-  hiddenBtn?: boolean
 }
 
 // 简单的消息框
