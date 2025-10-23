@@ -18731,16 +18731,21 @@ class DownloadControl {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.sendBrowserDownload, () => {
             window.clearTimeout(this.checkDownloadTimeoutTimer);
             this.checkDownloadTimeoutTimer = window.setTimeout(() => {
-                const msg = _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_可能发生了错误请刷新页面重试');
-                _MsgBox__WEBPACK_IMPORTED_MODULE_21__.msgBox.once('mayError', msg, 'warning');
-                _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(msg, 1, false, 'mayError');
+                let msg = _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_可能发生了错误请刷新页面重试');
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.autoStartDownload) {
                     // 如果启用了自动开始下载，则在一段时间后自动刷新页面，尝试恢复下载
                     this.pauseDownload();
                     window.setTimeout(() => {
                         window.location.reload();
-                    }, 3000);
+                        // 等待一定时间，以便让用户可以进行操作
+                    }, 5000);
+                    msg =
+                        msg +
+                            '<br><br>' +
+                            _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_下载器会在几秒后自动刷新页面以重试下载');
                 }
+                _MsgBox__WEBPACK_IMPORTED_MODULE_21__.msgBox.once('mayError', msg, 'warning');
+                _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(msg, 1, false, 'mayError');
             }, 5000);
         });
         const clearDownloadTimeoutTimerList = [
@@ -29296,6 +29301,14 @@ type может быть "illusts" или "novel".`,
         'エラーが発生した可能性があります。 <br>ダウンロードの進行が進まない場合は、ページを更新して再試行するか、ブラウザを再起動してください。',
         '오류가 발생했을 수 있습니다. <br>다운로드 진행이 중단되면 페이지를 새로 고친 후 다시 시도하거나 브라우저를 다시 시작하세요.',
         'Возможно, произошла ошибка. <br>Если процесс загрузки завис, обновите страницу и повторите попытку или перезапустите браузер.',
+    ],
+    _下载器会在几秒后自动刷新页面以重试下载: [
+        `下载器会在几秒后自动刷新页面以重试下载。如果你不想让下载器刷新页面，可以关闭“自动开始下载”开关。`,
+        `下載器會在幾秒後自動刷新頁面以重試下載。如果你不想讓下載器刷新頁面，可以關閉「自動開始下載」開關。`,
+        `The downloader will automatically refresh the page in a few seconds to retry the download. If you do not want the downloader to refresh the page, you can turn off the "Auto Start Download" switch.`,
+        `ダウンロードツールは、数秒後にページを自動的に更新してダウンロードを再試行します。ダウンロードツールがページを更新したくない場合、「自動開始ダウンロード」スイッチをオフにできます。`,
+        `다운로더는 몇 초 후에 페이지를 자동으로 새로 고쳐 다운로드를 다시 시도합니다. 다운로더가 페이지를 새로 고치지 않게 하려면 "자동 시작 다운로드" 스위치를 끄세요.`,
+        `Загрузчик автоматически обновит страницу через несколько секунд, чтобы повторить попытку загрузки. Если вы не хотите, чтобы загрузчик обновлял страницу, отключите переключатель "Автоматический запуск загрузки".`,
     ],
     _在多图作品页面里显示缩略图列表: [
         '在多图作品页面里显示<span class="key">缩略图</span>列表',
