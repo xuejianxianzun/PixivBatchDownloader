@@ -8934,6 +8934,17 @@ class ShowLargerThumbnails {
         }
         // 首页
         if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Home) {
+            {
+                // 在插画首页，查找作品板块的父元素
+                const sectionList = document.querySelectorAll('div>section');
+                sectionList.forEach((section) => {
+                    // 第一个选择器判断排行榜下方的多个作品列表区域，第二个下载器判断排行榜区域
+                    if (section.querySelector('ul li[size="1"] div[width]') ||
+                        section.querySelector('ul div a.gtm-toppage-thumbnail-illustration-ranking-daily')) {
+                        section.parentElement.classList.add('homeWorksSectionParent');
+                    }
+                });
+            }
             const sectionList = document.querySelectorAll('section');
             if (sectionList.length === 0) {
                 return;
@@ -8942,6 +8953,7 @@ class ShowLargerThumbnails {
                 // 查找 精选新作 和 已关注用户的作品 的 section 父元素
                 if (sectionList[1].querySelector('ul div')) {
                     sectionList[1].classList.add('homeFriendsNewWorks');
+                    sectionList[1].parentElement.classList.add('homeFriendsNewWorksParent');
                     this.needFind = false;
                 }
             }
@@ -9001,7 +9013,7 @@ class ShowLargerThumbnails {
                 const useUL = ul[ul.length - 1];
                 const div = useUL.closest('div');
                 if (div) {
-                    div.classList.add('width94vw');
+                    div.classList.add('width92vw');
                     this.needFind = false;
                 }
             }
@@ -9013,7 +9025,11 @@ class ShowLargerThumbnails {
             if (li) {
                 const target = li.parentElement.parentElement;
                 if (target.nodeName === 'DIV') {
-                    target.classList.add('userHomeWrapper');
+                    // 这是 ul 元素的父元素
+                    target.classList.add('userHomeULParent');
+                    // 这是作品列表和其上“插画·漫画”横幅的共同父元素
+                    const parent = target.parentElement.parentElement;
+                    parent.classList.add('userHomeWrapper');
                     this.needFind = false;
                 }
             }
@@ -9039,6 +9055,12 @@ class ShowLargerThumbnails {
         }
         //  收藏页面
         if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Bookmark) {
+            // 查找每个作品列表区域的共同父元素
+            // 也就是 div>section 的 div，然后给它添加自定义 className
+            const sectionList = document.querySelectorAll('div>section');
+            if (sectionList.length > 0) {
+                sectionList[0].parentElement.classList.add('sectionParentDiv');
+            }
             // 查找宽度为 1224px 的父元素
             // 首先查找 li[size="1"]，并且需要判断里面的链接是 illust，而非 novel
             const li = document.querySelector('li[size="1"]');
@@ -9057,12 +9079,19 @@ class ShowLargerThumbnails {
         }
         //  搜索页面、Tag 页面
         if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.ArtworkSearch) {
+            // 查找每个作品列表区域的共同父元素
+            // 也就是 div>section 的 div，然后给它添加自定义 className
+            const sectionList = document.querySelectorAll('div>section');
+            if (sectionList.length > 0) {
+                sectionList[0].parentElement.classList.add('sectionParentDiv');
+            }
             // 查找作品列表的 UL 元素，将其从 grid 布局改为 flex 布局
             // 在 tag 首页，可能有两个作品缩略图区域，第一个是“热门作品”，第二个才是普通的作品列表
             const ulList = document.querySelectorAll('section ul');
             for (const ul of ulList) {
                 if (ul.querySelector('div[width="184"]')) {
                     ul.classList.add('worksUL');
+                    ul.parentElement.classList.add('worksULParent');
                     this.needFind = false;
                 }
             }
@@ -9070,6 +9099,12 @@ class ShowLargerThumbnails {
         // 已关注用户的新作品
         if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtworkBookmark) {
             if (window.location.pathname.includes('/novel') === false) {
+                // 查找每个作品列表区域的共同父元素
+                // 也就是 div>section 的 div，然后给它添加自定义 className
+                const sectionList = document.querySelectorAll('div>section');
+                if (sectionList.length > 0) {
+                    sectionList[0].parentElement.classList.add('sectionParentDiv');
+                }
                 // 查找 UL 的父级 div（宽度为 1224px 的那个）
                 const li = document.querySelector('li[size="1"]');
                 if (li) {
@@ -9090,6 +9125,7 @@ class ShowLargerThumbnails {
             for (const ul of ulList) {
                 if (ul.querySelector('div[type="illust"]')) {
                     ul.classList.add('worksUL');
+                    ul.parentElement.classList.add('worksWrapper');
                     this.needFind = false;
                 }
             }
@@ -9120,6 +9156,15 @@ class ShowLargerThumbnails {
                 }
             }
         }
+        // 关注页面
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Following) {
+            // 查找每个作品列表区域的共同父元素
+            // 也就是 div>section 的 div，然后给它添加自定义 className
+            const sectionList = document.querySelectorAll('div>section');
+            if (sectionList.length > 0) {
+                sectionList[0].parentElement.classList.add('sectionParentDiv');
+            }
+        }
         // 约稿页面，分为数种子页面
         if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Request) {
             // 正在接稿中用户的作品
@@ -9138,7 +9183,10 @@ class ShowLargerThumbnails {
                 // 查找容器元素
                 // ul 的祖父元素是个 div，这个 div 里面的 3 个div 都是容器元素
                 const grandfather = ul.parentElement.parentElement;
-                grandfather.childNodes.forEach((div) => div.classList.add('worksWrapper'));
+                grandfather.childNodes.forEach((div) => {
+                    div.classList.add('worksWrapper');
+                    div.parentElement.classList.add('width92vw');
+                });
                 this.needFind = false;
             }
             else {
@@ -9657,7 +9705,7 @@ class ShowWhatIsNew {
     constructor() {
         this.bindEvents();
     }
-    flag = '18.0.0';
+    flag = '18.0.1';
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
@@ -9665,19 +9713,7 @@ class ShowWhatIsNew {
       <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_扩展程序升到x版本', this.flag)}</span>
       <br>
       <br>
-      <strong><span>✨${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</span></strong>
-      <br>
-      ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_显示复制按钮的提示')}
-      <br>
-      ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_相关设置')}: ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_复制按钮')}
-      <br>
-      ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_增强'))}
-      <br>
-      <br>
-      <span>😊${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化用户体验')}</span>
-      <br>
-      <br>
-      <span>🐞${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复bug')}</span>
+      <span>🐞${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复了显示更大的缩略图的功能异常的问题')}</span>
       `;
             // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong>
             // <strong><span>✨${lang.transl('_新增功能')}:</span></strong>
@@ -30409,6 +30445,14 @@ QQ, WeChat:
         `画像と説明をコピー`,
         `이미지와 설명 복사`,
         `Копировать изображение и описание`,
+    ],
+    _修复了显示更大的缩略图的功能异常的问题: [
+        `最近 Pixiv 的网页代码发生了变化，导致“显示更大的缩略图”功能的显示效果异常。现已修复。`,
+        `最近 Pixiv 的網頁代碼發生了變化，導致「顯示更大的縮略圖」功能的顯示效果異常。現已修復。`,
+        `Recently, changes in Pixiv's webpage code caused abnormal display effects for the "Show Larger Thumbnails" feature. It has now been fixed.`,
+        `最近、Pixivのウェブページコードに変更があり、「より大きなサムネイルを表示」機能の表示効果に異常が発生しました。現在は修正済みです。`,
+        `최근 Pixiv의 웹페이지 코드가 변경되어 "더 큰 썸네일 표시" 기능의 표시 효과에 이상이 발생했습니다. 이제 수정되었습니다.`,
+        `Недавно в коде веб-страницы Pixiv произошли изменения, что привело к аномальному отображению функции «Показать большие миниатюры». Теперь это исправлено.`,
     ],
 };
 

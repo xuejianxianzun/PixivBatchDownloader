@@ -11,7 +11,7 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '18.0.0'
+  private flag = '18.0.1'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
@@ -20,19 +20,7 @@ class ShowWhatIsNew {
       <span>${lang.transl('_扩展程序升到x版本', this.flag)}</span>
       <br>
       <br>
-      <strong><span>✨${lang.transl('_新增功能')}:</span></strong>
-      <br>
-      ${lang.transl('_显示复制按钮的提示')}
-      <br>
-      ${lang.transl('_相关设置')}: ${lang.transl('_复制按钮')}
-      <br>
-      ${lang.transl('_你可以在更多选项卡的xx分类里找到它', lang.transl('_增强'))}
-      <br>
-      <br>
-      <span>😊${lang.transl('_优化用户体验')}</span>
-      <br>
-      <br>
-      <span>🐞${lang.transl('_修复bug')}</span>
+      <span>🐞${lang.transl('_修复了显示更大的缩略图的功能异常的问题')}</span>
       `
 
       // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong>
