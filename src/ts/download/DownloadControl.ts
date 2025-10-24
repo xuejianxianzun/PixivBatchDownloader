@@ -143,19 +143,10 @@ class DownloadControl {
     window.addEventListener(EVT.list.sendBrowserDownload, () => {
       window.clearTimeout(this.checkDownloadTimeoutTimer)
       this.checkDownloadTimeoutTimer = window.setTimeout(() => {
-        let msg = lang.transl('_可能发生了错误请刷新页面重试')
-        if (settings.autoStartDownload) {
-          // 如果启用了自动开始下载，则在一段时间后自动刷新页面，尝试恢复下载
-          this.pauseDownload()
-          window.setTimeout(() => {
-            window.location.reload()
-            // 等待一定时间，以便让用户可以进行操作
-          }, 5000)
-          msg =
-            msg +
-            '<br><br>' +
-            lang.transl('_下载器会在几秒后自动刷新页面以重试下载')
-        }
+        const msg =
+          lang.transl('_可能发生了错误请刷新页面重试') +
+          '<br><br>' +
+          lang.transl('_下载卡住的提示')
         msgBox.once('mayError', msg, 'warning')
         log.warning(msg, 1, false, 'mayError')
       }, 5000)
