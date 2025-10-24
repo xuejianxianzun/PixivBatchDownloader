@@ -9732,6 +9732,7 @@ class ShowWhatIsNew {
             // <span>😊${lang.transl('_其他优化')}</span>
             // <span>🐞${lang.transl('_修复bug')}</span>
             // <span>🐞${lang.transl('_修复已知问题')}</span>
+            // <span>🐞${lang.transl('_修复了显示更大的缩略图的功能异常的问题')}</span>
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -18767,7 +18768,7 @@ class DownloadControl {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.sendBrowserDownload, () => {
             window.clearTimeout(this.checkDownloadTimeoutTimer);
             this.checkDownloadTimeoutTimer = window.setTimeout(() => {
-                let msg = _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_可能发生了错误请刷新页面重试') +
+                const msg = _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_可能发生了错误请刷新页面重试') +
                     '<br><br>' +
                     _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_下载卡住的提示');
                 _MsgBox__WEBPACK_IMPORTED_MODULE_21__.msgBox.once('mayError', msg, 'warning');
