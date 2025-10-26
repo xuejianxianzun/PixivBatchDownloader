@@ -6071,34 +6071,58 @@ __webpack_require__.r(__webpack_exports__);
 // 否则就会导致数字编号对应的页面类型和之前不一样，产生问题
 var PageName;
 (function (PageName) {
+    /** 不支持的页面 */
     PageName[PageName["Unsupported"] = -1] = "Unsupported";
+    /** 主页 */
     PageName[PageName["Home"] = 0] = "Home";
+    /** 插画详情页面 */
     PageName[PageName["Artwork"] = 1] = "Artwork";
+    /** 用户主页 */
     PageName[PageName["UserHome"] = 2] = "UserHome";
     // BookmarkLegacy 页面类型已经不存在了，但是必须保留它以避免兼容性问题
     // 因为有些设置是使用页面类型的数字编号作为键名的
     // 如果删除这个页面类型，会导致它后面所有页面类型的数字发生变化（例如 Bookmark 会从 4 变成 3）
     // 这会导致从设置项里取值时，会取到错误的值
+    /** 旧版收藏页面，现已被 Bookmark 页面取代 */
     PageName[PageName["BookmarkLegacy"] = 3] = "BookmarkLegacy";
+    /** 收藏页面 */
     PageName[PageName["Bookmark"] = 4] = "Bookmark";
+    /** 插画搜索页面 */
     PageName[PageName["ArtworkSearch"] = 5] = "ArtworkSearch";
+    /** 地区排行榜 */
     PageName[PageName["AreaRanking"] = 6] = "AreaRanking";
+    /** 插画排行榜 */
     PageName[PageName["ArtworkRanking"] = 7] = "ArtworkRanking";
     PageName[PageName["Pixivision"] = 8] = "Pixivision";
+    /** 收藏后的详情页面，现在基本不会用到 */
     PageName[PageName["BookmarkDetail"] = 9] = "BookmarkDetail";
+    /** 已关注用户的心作品 - 插画 */
     PageName[PageName["NewArtworkBookmark"] = 10] = "NewArtworkBookmark";
+    /** 发现页面 */
     PageName[PageName["Discover"] = 11] = "Discover";
+    /** 大家的新作 - 插画 */
     PageName[PageName["NewArtwork"] = 12] = "NewArtwork";
+    /** 小说详情页面 */
     PageName[PageName["Novel"] = 13] = "Novel";
+    /** 小说系列作品目录页 */
     PageName[PageName["NovelSeries"] = 14] = "NovelSeries";
+    /** 小说搜索页面 */
     PageName[PageName["NovelSearch"] = 15] = "NovelSearch";
+    /** 小说排行榜 */
     PageName[PageName["NovelRanking"] = 16] = "NovelRanking";
+    /** 已关注用户的心作品 - 小说 */
     PageName[PageName["NewNovelBookmark"] = 17] = "NewNovelBookmark";
+    /** 大家的新作 - 小说 */
     PageName[PageName["NewNovel"] = 18] = "NewNovel";
+    /** 插画系列作品目录页 */
     PageName[PageName["ArtworkSeries"] = 19] = "ArtworkSeries";
+    /** 关注的用户 */
     PageName[PageName["Following"] = 20] = "Following";
+    /** 约稿 */
     PageName[PageName["Request"] = 21] = "Request";
+    /** 不公开的作品 */
     PageName[PageName["Unlisted"] = 22] = "Unlisted";
+    /** 发现页面 - 推荐用户 */
     PageName[PageName["DiscoverUsers"] = 23] = "DiscoverUsers";
 })(PageName || (PageName = {}));
 // 获取页面类型
@@ -11991,6 +12015,84 @@ new DownloadBtnOnThumbOnMobile();
 
 /***/ }),
 
+/***/ "./src/ts/crawl/CrawlLatestFewWorks.ts":
+/*!*********************************************!*\
+  !*** ./src/ts/crawl/CrawlLatestFewWorks.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   crawlLatestFewWorks: () => (/* binding */ crawlLatestFewWorks)
+/* harmony export */ });
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
+
+
+
+
+/**抓取每个用户最新的几个作品 */
+class CrawlLatestFewWorks {
+    constructor() {
+        this.bindEvents();
+    }
+    // 仅在特定页面启用：关注页面
+    enablePageType = [_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Following];
+    get enable() {
+        return this.enablePageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type);
+    }
+    get canUse() {
+        return (this.enable &&
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.crawlLatestFewWorks &&
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.crawlLatestFewWorksNumber > 0);
+    }
+    bindEvents() {
+        // 在不启用的页面类型里，隐藏这个设置项
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, this.hideOption);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, this.hideOption);
+    }
+    hideOption() {
+        // 在公开版本里，这个设置项始终隐藏
+        // if (!this.enable) {
+        window.setTimeout(() => {
+            _setting_Options__WEBPACK_IMPORTED_MODULE_4__.options.hideOption([15]);
+        }, 0);
+        // }
+    }
+    showLog() {
+        if (this.canUse) {
+            _Log__WEBPACK_IMPORTED_MODULE_0__.log.warning(`${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取每个用户最新的几个作品')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.crawlLatestFewWorksNumber} `);
+        }
+    }
+    filter(idList) {
+        if (this.canUse) {
+            // 把 id 按照大小倒序排序，取出最新的几个作品（id 数字最大的几个）
+            const sorted = idList.toSorted((a, b) => {
+                return parseInt(b.id) - parseInt(a.id);
+            });
+            const needNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.crawlLatestFewWorksNumber;
+            const newIdList = [];
+            for (let i = 0; i < Math.min(needNumber, sorted.length); i++) {
+                newIdList.push(sorted[i]);
+            }
+            return newIdList;
+        }
+        return idList;
+    }
+}
+const crawlLatestFewWorks = new CrawlLatestFewWorks();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/crawl/InitPageBase.ts":
 /*!**************************************!*\
   !*** ./src/ts/crawl/InitPageBase.ts ***!
@@ -12031,7 +12133,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
 /* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
 // 初始化所有页面抓取流程的基类
+
 
 
 
@@ -12139,7 +12243,7 @@ class InitPageBase {
     getMultipleSetting() {
         // 获取作品张数设置
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.firstFewImagesSwitch) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品只下载前几张图片')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.firstFewImages}`);
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品只下载前几张图片')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.firstFewImages}`);
         }
     }
     /**在日志上显示任意提示 */
@@ -12189,6 +12293,7 @@ class InitPageBase {
             await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__.mute.getMuteSettings();
         }
         this.getWantPage();
+        _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_29__.crawlLatestFewWorks.showLog();
         this.getMultipleSetting();
         this.showTip();
         this.finishedRequest = 0;
@@ -15874,7 +15979,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../crawl/CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
 // 初始化关注页面、好 P 友页面、粉丝页面
+
 
 
 
@@ -16306,6 +16413,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         let idList = [];
         try {
             idList = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getUserWorksByType(this.userList[this.index]);
+            idList = _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_17__.crawlLatestFewWorks.filter(idList);
         }
         catch {
             this.getIdList();
@@ -30553,6 +30661,14 @@ QQ, WeChat:
         `최근 Pixiv의 웹페이지 코드가 변경되어 "더 큰 썸네일 표시" 기능의 표시 효과에 이상이 발생했습니다. 이제 수정되었습니다.`,
         `Недавно в коде веб-страницы Pixiv произошли изменения, что привело к аномальному отображению функции «Показать большие миниатюры». Теперь это исправлено.`,
     ],
+    _抓取每个用户最新的几个作品: [
+        `抓取每个用户最新的几个作品`,
+        `抓取每個用戶最新的幾個作品`,
+        `Crawl the latest few works for each user`,
+        `各ユーザーの最新の数作品をクロール`,
+        `각 사용자의 최신 몇 개 작품 크롤`,
+        `Захватить последние несколько работ каждого пользователя,`,
+    ],
 };
 
 // prompt
@@ -33330,6 +33446,17 @@ const formHtml = `
       <input type="checkbox" name="showAdvancedSettings" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
     </p>
+    <p class="option" data-no="15">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(15)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
+        <span data-xztext="_抓取每个用户最新的几个作品"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="crawlLatestFewWorks" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="crawlLatestFewWorks">
+        <input type="text" name="crawlLatestFewWorksNumber" class="setinput_style1 blue" value="10">
+      </span>
+    </p>
     <p class="option" data-no="3">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(3)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
         <span data-xztext="_多图作品只下载前几张图片"></span>
@@ -33474,11 +33601,11 @@ const formHtml = `
       <input type="checkbox" name="postDate" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="postDate">
-        <input type="datetime-local" name="postDateStart" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
+        <input type="datetime-local" name="postDateStart" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="2009-01-01T00:00">
         <button class="textButton grayButton mr0" type="button" role="setDate" data-for="postDateStart" data-value="2009-01-01T00:00" data-xztext="_过去"></button>
         <button class="textButton grayButton" type="button" role="setDate" data-for="postDateStart" data-value="now" data-xztext="_现在"></button>
         -&nbsp;
-        <input type="datetime-local" name="postDateEnd" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
+        <input type="datetime-local" name="postDateEnd" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="2100-01-01T00:00">
         <button class="textButton grayButton mr0" type="button" role="setDate" data-for="postDateEnd" data-value="now" data-xztext="_现在"></button>
         <button class="textButton grayButton" type="button" role="setDate" data-for="postDateEnd" data-value="2100-01-01T00:00" data-xztext="_未来"></button>
       </span>
@@ -34315,7 +34442,7 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="PreviewWorkDetailInfo">
         <span data-xztext="_显示区域宽度"></span>&nbsp;
-        <input type="text" name="PreviewDetailInfoWidth" class="setinput_style1 blue" value="500" style="width:40px;min-width: 40px;">
+        <input type="text" name="PreviewDetailInfoWidth" class="setinput_style1 blue" value="400" style="width:40px;min-width: 40px;">
         <span>&nbsp;px</span>
       </span>
     </p>
@@ -34642,6 +34769,7 @@ class FormSettings {
             'copyFormatText',
             'copyFormatHtml',
             'showCopyBtnOnThumb',
+            'crawlLatestFewWorks',
         ],
         text: [
             'firstFewImages',
@@ -34677,6 +34805,7 @@ class FormSettings {
             'downloadInterval',
             'downloadIntervalOnWorksNumber',
             'copyWorkInfoFormat',
+            'crawlLatestFewWorksNumber',
         ],
         radio: [
             'ugoiraSaveAs',
@@ -35140,7 +35269,7 @@ class Options {
         }
         // 大部分设置在 pixivision 里都不适用，所以需要隐藏它们
         if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Pixivision) {
-            options.hideOption([
+            this.hideOption([
                 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22,
                 23, 24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44,
                 46, 47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
@@ -35840,6 +35969,8 @@ class Settings {
         copyFormatHtml: true,
         tipCopyWorkInfoButton: true,
         copyImageSize: 'regular',
+        crawlLatestFewWorks: false,
+        crawlLatestFewWorksNumber: 10,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的选项
@@ -36081,6 +36212,9 @@ class Settings {
         }
         if (key === 'fileNameLengthLimit' && value < 1) {
             value = this.defaultSettings[key];
+        }
+        if (key === 'crawlLatestFewWorksNumber' && value < 1) {
+            value = 1;
         }
         if (key === 'setWidthAndOr' && value === '') {
             value = this.defaultSettings[key];
@@ -36516,7 +36650,7 @@ class Wiki {
             60, 84, 87, 68, 63, 55, 71, 62, 40, 56, 86, 48, 88, 18, 34, 14,
         ],
         'More-Others': [61, 31, 78, 36, 41, 45, 53, 32, 37],
-        'More-Hidden': [79, 80],
+        'More-Hidden': [79, 80, 14],
         'Buttons-Crawl': [
             'startCrawling',
             'stopCrawling',

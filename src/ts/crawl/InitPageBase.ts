@@ -30,6 +30,7 @@ import '../pageFunciton/CopyButtonOnWorkPage'
 import '../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { cacheWorkData } from '../store/CacheWorkData'
+import { crawlLatestFewWorks } from './CrawlLatestFewWorks'
 
 abstract class InitPageBase {
   protected crawlNumber = 0 // 要抓取的个数/页数
@@ -141,7 +142,7 @@ abstract class InitPageBase {
     // 获取作品张数设置
     if (settings.firstFewImagesSwitch) {
       log.warning(
-        `${lang.transl('_多图作品只下载前几张图片')} ${settings.firstFewImages}`
+        `${lang.transl('_多图作品只下载前几张图片')}: ${settings.firstFewImages}`
       )
     }
   }
@@ -205,6 +206,8 @@ abstract class InitPageBase {
     }
 
     this.getWantPage()
+
+    crawlLatestFewWorks.showLog()
 
     this.getMultipleSetting()
 

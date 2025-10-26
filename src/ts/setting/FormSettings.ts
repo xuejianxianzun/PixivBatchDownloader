@@ -132,6 +132,7 @@ class FormSettings {
       'copyFormatText',
       'copyFormatHtml',
       'showCopyBtnOnThumb',
+      'crawlLatestFewWorks',
     ],
     text: [
       'firstFewImages',
@@ -167,6 +168,7 @@ class FormSettings {
       'downloadInterval',
       'downloadIntervalOnWorksNumber',
       'copyWorkInfoFormat',
+      'crawlLatestFewWorksNumber',
     ],
     radio: [
       'ugoiraSaveAs',

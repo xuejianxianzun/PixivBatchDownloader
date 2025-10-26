@@ -127,7 +127,7 @@ class Wiki {
       60, 84, 87, 68, 63, 55, 71, 62, 40, 56, 86, 48, 88, 18, 34, 14,
     ],
     'More-Others': [61, 31, 78, 36, 41, 45, 53, 32, 37],
-    'More-Hidden': [79, 80],
+    'More-Hidden': [79, 80, 14],
     'Buttons-Crawl': [
       'startCrawling',
       'stopCrawling',

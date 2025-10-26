@@ -302,6 +302,8 @@ interface XzSetting {
   copyFormatHtml: boolean
   tipCopyWorkInfoButton: boolean
   copyImageSize: 'original' | 'regular'
+  crawlLatestFewWorks: boolean
+  crawlLatestFewWorksNumber: number
 }
 
 type SettingKeys = keyof XzSetting
@@ -738,6 +740,8 @@ class Settings {
     copyFormatHtml: true,
     tipCopyWorkInfoButton: true,
     copyImageSize: 'regular',
+    crawlLatestFewWorks: false,
+    crawlLatestFewWorksNumber: 10,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -1012,6 +1016,10 @@ class Settings {
 
     if (key === 'fileNameLengthLimit' && (value as number) < 1) {
       value = this.defaultSettings[key]
+    }
+
+    if (key === 'crawlLatestFewWorksNumber' && (value as number) < 1) {
+      value = 1
     }
 
     if (key === 'setWidthAndOr' && value === '') {
