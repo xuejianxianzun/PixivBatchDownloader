@@ -6875,34 +6875,58 @@ __webpack_require__.r(__webpack_exports__);
 // 否则就会导致数字编号对应的页面类型和之前不一样，产生问题
 var PageName;
 (function (PageName) {
+    /** 不支持的页面 */
     PageName[PageName["Unsupported"] = -1] = "Unsupported";
+    /** 主页 */
     PageName[PageName["Home"] = 0] = "Home";
+    /** 插画详情页面 */
     PageName[PageName["Artwork"] = 1] = "Artwork";
+    /** 用户主页 */
     PageName[PageName["UserHome"] = 2] = "UserHome";
     // BookmarkLegacy 页面类型已经不存在了，但是必须保留它以避免兼容性问题
     // 因为有些设置是使用页面类型的数字编号作为键名的
     // 如果删除这个页面类型，会导致它后面所有页面类型的数字发生变化（例如 Bookmark 会从 4 变成 3）
     // 这会导致从设置项里取值时，会取到错误的值
+    /** 旧版收藏页面，现已被 Bookmark 页面取代 */
     PageName[PageName["BookmarkLegacy"] = 3] = "BookmarkLegacy";
+    /** 收藏页面 */
     PageName[PageName["Bookmark"] = 4] = "Bookmark";
+    /** 插画搜索页面 */
     PageName[PageName["ArtworkSearch"] = 5] = "ArtworkSearch";
+    /** 地区排行榜 */
     PageName[PageName["AreaRanking"] = 6] = "AreaRanking";
+    /** 插画排行榜 */
     PageName[PageName["ArtworkRanking"] = 7] = "ArtworkRanking";
     PageName[PageName["Pixivision"] = 8] = "Pixivision";
+    /** 收藏后的详情页面，现在基本不会用到 */
     PageName[PageName["BookmarkDetail"] = 9] = "BookmarkDetail";
+    /** 已关注用户的心作品 - 插画 */
     PageName[PageName["NewArtworkBookmark"] = 10] = "NewArtworkBookmark";
+    /** 发现页面 */
     PageName[PageName["Discover"] = 11] = "Discover";
+    /** 大家的新作 - 插画 */
     PageName[PageName["NewArtwork"] = 12] = "NewArtwork";
+    /** 小说详情页面 */
     PageName[PageName["Novel"] = 13] = "Novel";
+    /** 小说系列作品目录页 */
     PageName[PageName["NovelSeries"] = 14] = "NovelSeries";
+    /** 小说搜索页面 */
     PageName[PageName["NovelSearch"] = 15] = "NovelSearch";
+    /** 小说排行榜 */
     PageName[PageName["NovelRanking"] = 16] = "NovelRanking";
+    /** 已关注用户的心作品 - 小说 */
     PageName[PageName["NewNovelBookmark"] = 17] = "NewNovelBookmark";
+    /** 大家的新作 - 小说 */
     PageName[PageName["NewNovel"] = 18] = "NewNovel";
+    /** 插画系列作品目录页 */
     PageName[PageName["ArtworkSeries"] = 19] = "ArtworkSeries";
+    /** 关注的用户 */
     PageName[PageName["Following"] = 20] = "Following";
+    /** 约稿 */
     PageName[PageName["Request"] = 21] = "Request";
+    /** 不公开的作品 */
     PageName[PageName["Unlisted"] = 22] = "Unlisted";
+    /** 发现页面 - 推荐用户 */
     PageName[PageName["DiscoverUsers"] = 23] = "DiscoverUsers";
 })(PageName || (PageName = {}));
 // 获取页面类型
@@ -8395,7 +8419,7 @@ class PreviewWorkDetailInfo {
             }
         }
         // 设置样式
-        wrap.classList.add('xz_PreviewWorkDetailPanel');
+        wrap.classList.add('xz_PreviewWorkDetailPanel', 'beautify_scrollbar');
         wrap.style.width = _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.PreviewDetailInfoWidth + 'px';
         wrap.addEventListener('click', () => {
             this.remove(wrap);
@@ -9815,6 +9839,17 @@ class ShowLargerThumbnails {
         }
         // 首页
         if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Home) {
+            {
+                // 在插画首页，查找作品板块的父元素
+                const sectionList = document.querySelectorAll('div>section');
+                sectionList.forEach((section) => {
+                    // 第一个选择器判断排行榜下方的多个作品列表区域，第二个下载器判断排行榜区域
+                    if (section.querySelector('ul li[size="1"] div[width]') ||
+                        section.querySelector('ul div a.gtm-toppage-thumbnail-illustration-ranking-daily')) {
+                        section.parentElement.classList.add('homeWorksSectionParent');
+                    }
+                });
+            }
             const sectionList = document.querySelectorAll('section');
             if (sectionList.length === 0) {
                 return;
@@ -9823,6 +9858,7 @@ class ShowLargerThumbnails {
                 // 查找 精选新作 和 已关注用户的作品 的 section 父元素
                 if (sectionList[1].querySelector('ul div')) {
                     sectionList[1].classList.add('homeFriendsNewWorks');
+                    sectionList[1].parentElement.classList.add('homeFriendsNewWorksParent');
                     this.needFind = false;
                 }
             }
@@ -9882,7 +9918,7 @@ class ShowLargerThumbnails {
                 const useUL = ul[ul.length - 1];
                 const div = useUL.closest('div');
                 if (div) {
-                    div.classList.add('width94vw');
+                    div.classList.add('width92vw');
                     this.needFind = false;
                 }
             }
@@ -9894,7 +9930,11 @@ class ShowLargerThumbnails {
             if (li) {
                 const target = li.parentElement.parentElement;
                 if (target.nodeName === 'DIV') {
-                    target.classList.add('userHomeWrapper');
+                    // 这是 ul 元素的父元素
+                    target.classList.add('userHomeULParent');
+                    // 这是作品列表和其上“插画·漫画”横幅的共同父元素
+                    const parent = target.parentElement.parentElement;
+                    parent.classList.add('userHomeWrapper');
                     this.needFind = false;
                 }
             }
@@ -9920,6 +9960,12 @@ class ShowLargerThumbnails {
         }
         //  收藏页面
         if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Bookmark) {
+            // 查找每个作品列表区域的共同父元素
+            // 也就是 div>section 的 div，然后给它添加自定义 className
+            const sectionList = document.querySelectorAll('div>section');
+            if (sectionList.length > 0) {
+                sectionList[0].parentElement.classList.add('sectionParentDiv');
+            }
             // 查找宽度为 1224px 的父元素
             // 首先查找 li[size="1"]，并且需要判断里面的链接是 illust，而非 novel
             const li = document.querySelector('li[size="1"]');
@@ -9938,12 +9984,19 @@ class ShowLargerThumbnails {
         }
         //  搜索页面、Tag 页面
         if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.ArtworkSearch) {
+            // 查找每个作品列表区域的共同父元素
+            // 也就是 div>section 的 div，然后给它添加自定义 className
+            const sectionList = document.querySelectorAll('div>section');
+            if (sectionList.length > 0) {
+                sectionList[0].parentElement.classList.add('sectionParentDiv');
+            }
             // 查找作品列表的 UL 元素，将其从 grid 布局改为 flex 布局
             // 在 tag 首页，可能有两个作品缩略图区域，第一个是“热门作品”，第二个才是普通的作品列表
             const ulList = document.querySelectorAll('section ul');
             for (const ul of ulList) {
                 if (ul.querySelector('div[width="184"]')) {
                     ul.classList.add('worksUL');
+                    ul.parentElement.classList.add('worksULParent');
                     this.needFind = false;
                 }
             }
@@ -9951,6 +10004,12 @@ class ShowLargerThumbnails {
         // 已关注用户的新作品
         if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtworkBookmark) {
             if (window.location.pathname.includes('/novel') === false) {
+                // 查找每个作品列表区域的共同父元素
+                // 也就是 div>section 的 div，然后给它添加自定义 className
+                const sectionList = document.querySelectorAll('div>section');
+                if (sectionList.length > 0) {
+                    sectionList[0].parentElement.classList.add('sectionParentDiv');
+                }
                 // 查找 UL 的父级 div（宽度为 1224px 的那个）
                 const li = document.querySelector('li[size="1"]');
                 if (li) {
@@ -9971,6 +10030,7 @@ class ShowLargerThumbnails {
             for (const ul of ulList) {
                 if (ul.querySelector('div[type="illust"]')) {
                     ul.classList.add('worksUL');
+                    ul.parentElement.classList.add('worksWrapper');
                     this.needFind = false;
                 }
             }
@@ -10001,6 +10061,15 @@ class ShowLargerThumbnails {
                 }
             }
         }
+        // 关注页面
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Following) {
+            // 查找每个作品列表区域的共同父元素
+            // 也就是 div>section 的 div，然后给它添加自定义 className
+            const sectionList = document.querySelectorAll('div>section');
+            if (sectionList.length > 0) {
+                sectionList[0].parentElement.classList.add('sectionParentDiv');
+            }
+        }
         // 约稿页面，分为数种子页面
         if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Request) {
             // 正在接稿中用户的作品
@@ -10019,7 +10088,10 @@ class ShowLargerThumbnails {
                 // 查找容器元素
                 // ul 的祖父元素是个 div，这个 div 里面的 3 个div 都是容器元素
                 const grandfather = ul.parentElement.parentElement;
-                grandfather.childNodes.forEach((div) => div.classList.add('worksWrapper'));
+                grandfather.childNodes.forEach((div) => {
+                    div.classList.add('worksWrapper');
+                    div.parentElement.classList.add('width92vw');
+                });
                 this.needFind = false;
             }
             else {
@@ -10538,7 +10610,7 @@ class ShowWhatIsNew {
     constructor() {
         this.bindEvents();
     }
-    flag = '18.0.0';
+    flag = '18.0.1';
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
@@ -10546,19 +10618,7 @@ class ShowWhatIsNew {
       <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_扩展程序升到x版本', this.flag)}</span>
       <br>
       <br>
-      <strong><span>✨${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增功能')}:</span></strong>
-      <br>
-      ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_显示复制按钮的提示')}
-      <br>
-      ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_相关设置')}: ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_复制按钮')}
-      <br>
-      ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_增强'))}
-      <br>
-      <br>
-      <span>😊${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化用户体验')}</span>
-      <br>
-      <br>
-      <span>🐞${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复bug')}</span>
+      <span>🐞${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复了显示更大的缩略图的功能异常的问题')}</span>
       `;
             // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong>
             // <strong><span>✨${lang.transl('_新增功能')}:</span></strong>
@@ -10577,6 +10637,7 @@ class ShowWhatIsNew {
             // <span>😊${lang.transl('_其他优化')}</span>
             // <span>🐞${lang.transl('_修复bug')}</span>
             // <span>🐞${lang.transl('_修复已知问题')}</span>
+            // <span>🐞${lang.transl('_修复了显示更大的缩略图的功能异常的问题')}</span>
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -12965,6 +13026,83 @@ new DownloadBtnOnThumbOnMobile();
 
 /***/ }),
 
+/***/ "./src/ts/crawl/CrawlLatestFewWorks.ts":
+/*!*********************************************!*\
+  !*** ./src/ts/crawl/CrawlLatestFewWorks.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   crawlLatestFewWorks: () => (/* binding */ crawlLatestFewWorks)
+/* harmony export */ });
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
+
+
+
+
+/**抓取每个用户最新的几个作品 */
+class CrawlLatestFewWorks {
+    constructor() {
+        this.bindEvents();
+    }
+    // 仅在特定页面启用：关注页面
+    enablePageType = [_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Following];
+    get enable() {
+        return this.enablePageType.includes(_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type);
+    }
+    get canUse() {
+        return (this.enable &&
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.crawlLatestFewWorks &&
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.crawlLatestFewWorksNumber > 0);
+    }
+    bindEvents() {
+        // 在不启用的页面类型里，隐藏这个设置项
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, this.hideOption);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, this.hideOption);
+    }
+    hideOption() {
+        if (!this.enable) {
+            window.setTimeout(() => {
+                _setting_Options__WEBPACK_IMPORTED_MODULE_4__.options.hideOption([15]);
+            }, 0);
+        }
+    }
+    showLog() {
+        if (this.canUse) {
+            _Log__WEBPACK_IMPORTED_MODULE_0__.log.warning(`${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取每个用户最新的几个作品')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.crawlLatestFewWorksNumber} `);
+        }
+    }
+    filter(idList) {
+        if (this.canUse) {
+            // 把 id 按照大小倒序排序，取出最新的几个作品（id 数字最大的几个）
+            const sorted = idList.toSorted((a, b) => {
+                return parseInt(b.id) - parseInt(a.id);
+            });
+            const needNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.crawlLatestFewWorksNumber;
+            const newIdList = [];
+            for (let i = 0; i < Math.min(needNumber, sorted.length); i++) {
+                newIdList.push(sorted[i]);
+            }
+            return newIdList;
+        }
+        return idList;
+    }
+}
+const crawlLatestFewWorks = new CrawlLatestFewWorks();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/crawl/InitPageBase.ts":
 /*!**************************************!*\
   !*** ./src/ts/crawl/InitPageBase.ts ***!
@@ -13005,7 +13143,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
 /* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
 // 初始化所有页面抓取流程的基类
+
 
 
 
@@ -13113,7 +13253,7 @@ class InitPageBase {
     getMultipleSetting() {
         // 获取作品张数设置
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.firstFewImagesSwitch) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品只下载前几张图片')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.firstFewImages}`);
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品只下载前几张图片')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.firstFewImages}`);
         }
     }
     /**在日志上显示任意提示 */
@@ -13163,6 +13303,7 @@ class InitPageBase {
             await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__.mute.getMuteSettings();
         }
         this.getWantPage();
+        _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_29__.crawlLatestFewWorks.showLog();
         this.getMultipleSetting();
         this.showTip();
         this.finishedRequest = 0;
@@ -16993,7 +17134,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../crawl/CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
 // 初始化关注页面、好 P 友页面、粉丝页面
+
 
 
 
@@ -17425,6 +17568,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         let idList = [];
         try {
             idList = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getUserWorksByType(this.userList[this.index]);
+            idList = _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_17__.crawlLatestFewWorks.filter(idList);
         }
         catch {
             this.getIdList();
@@ -19887,16 +20031,11 @@ class DownloadControl {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.sendBrowserDownload, () => {
             window.clearTimeout(this.checkDownloadTimeoutTimer);
             this.checkDownloadTimeoutTimer = window.setTimeout(() => {
-                const msg = _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_可能发生了错误请刷新页面重试');
+                const msg = _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_可能发生了错误请刷新页面重试') +
+                    '<br><br>' +
+                    _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_下载卡住的提示');
                 _MsgBox__WEBPACK_IMPORTED_MODULE_21__.msgBox.once('mayError', msg, 'warning');
                 _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(msg, 1, false, 'mayError');
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.autoStartDownload) {
-                    // 如果启用了自动开始下载，则在一段时间后自动刷新页面，尝试恢复下载
-                    this.pauseDownload();
-                    window.setTimeout(() => {
-                        window.location.reload();
-                    }, 3000);
-                }
             }, 5000);
         });
         const clearDownloadTimeoutTimerList = [
@@ -30474,6 +30613,122 @@ type может быть "illusts" или "novel".`,
         '오류가 발생했을 수 있습니다. <br>다운로드 진행이 중단되면 페이지를 새로 고친 후 다시 시도하거나 브라우저를 다시 시작하세요.',
         'Возможно, произошла ошибка. <br>Если процесс загрузки завис, обновите страницу и повторите попытку или перезапустите браузер.',
     ],
+    _下载卡住的提示: [
+        `有些用户可能会遇到下载卡住的问题：文件的下载进度条达到 100% 后，需要等待一段时间才能保存到硬盘上，也可能始终无法保存。这个问题可能与浏览器或者硬盘有关，而且有多种原因都可以导致此问题。
+<br>
+我没有遇到过这个问题（实际上多数用户应该都不会经常遇到这个问题）。如果你遇到了这个问题，可以尝试以下操作，其中一些方法已经被验证过是有效的。
+<br>
+1. 刷新这个网页，让下载器重试下载。
+<br>
+2. 点击暂停下载按钮，然后点击开始下载按钮。
+<br>
+3. 打开浏览器的扩展管理页面，点击这个扩展的刷新按钮来重新加载它，然后刷新这个网页并重试下载。
+<br>
+4. 如果这个浏览器下载文件时的保存位置是机械硬盘，你可以尝试修改下载位置为固态硬盘（SSD）。这对一些用户很有效。
+<br>
+5. 如果你打开了很多标签页，可以关闭一些标签页以减轻浏览器的负载。有些用户在打开很多标签页时下载会卡住（文件下载之后需要等待 10 秒钟才能保存），但在打开少量标签页时没有此问题。
+<br>
+6. 你可以点击浏览器菜单栏上的用户头像按钮，添加新的用户配置（即新建一个浏览器本地用户），然后打开新用户的浏览器窗口，在里面安装和使用这个下载器。
+<br>
+7. 卸载这个浏览器并重新安装它，或者安装一个新的浏览器。
+<br>
+8. 清除浏览器的下载记录，然后重启浏览器。这个方法可能无效，但清理不需要的下载记录是有益的。提示：如果浏览器的下载记录很多，会导致浏览器在启动时、打开下载管理页面时卡住一段时间，并可能导致其他潜在问题。`,
+        `有些用戶可能會遇到下載卡住的問題：檔案的下載進度條達到 100% 後，需要等待一段時間才能保存到硬碟上，也可能始終無法保存。這個問題可能與瀏覽器或者硬碟有關，而且有多種原因都可以導致此問題。
+<br>
+我沒有遇到過這個問題（實際上多數用戶應該都不會經常遇到這個問題）。如果你遇到了這個問題，可以嘗試以下操作，其中一些方法已經被驗證過是有效的。
+<br>
+1. 刷新這個網頁，讓下載器重試下載。
+<br>
+2. 點擊暫停下載按鈕，然後點擊開始下載按鈕。
+<br>
+3. 打開瀏覽器的擴展管理頁面，點擊這個擴展的刷新按鈕來重新載入它，然後刷新這個網頁並重試下載。
+<br>
+4. 如果這個瀏覽器下載檔案時的保存位置是機械硬碟，你可以嘗試修改下載位置為固態硬碟（SSD）。這對一些用戶很有效。
+<br>
+5. 如果你打開了很多標籤頁，可以關閉一些標籤頁以減輕瀏覽器的負載。有些用戶在打開很多標籤頁時下載會卡住（檔案下載之後需要等待 10 秒鐘才能保存），但在打開少量標籤頁時沒有此問題。
+<br>
+6. 你可以點擊瀏覽器選單欄上的用戶頭像按鈕，添加新的用戶配置（即新建一個瀏覽器本地用戶），然後打開新用戶的瀏覽器視窗，在裡面安裝和使用這個下載器。
+<br>
+7. 卸載這個瀏覽器並重新安裝它，或者安裝一個新的瀏覽器。
+<br>
+8. 清除瀏覽器的下載記錄，然後重啟瀏覽器。這個方法可能無效，但清理不需要的下載記錄是有益的。提示：如果瀏覽器的下載記錄很多，會導致瀏覽器在啟動時、打開下載管理頁面時卡住一段時間，並可能導致其他潛在問題。`,
+        `Some users may encounter a download stuck issue: after the file's download progress bar reaches 100%, it may take some time to save to the hard drive, or it may never save. This issue may be related to the browser or hard drive, and there can be multiple causes.
+<br>
+I haven't encountered this issue (in fact, most users probably won't encounter it frequently). If you encounter this issue, you can try the following operations, some of which have been verified to be effective.
+<br>
+1. Refresh this webpage to let the downloader retry the download.
+<br>
+2. Click the pause download button, then click the start download button.
+<br>
+3. Open the browser's extension management page, click the refresh button for this extension to reload it, then refresh this webpage and retry the download.
+<br>
+4. If the browser's download save location is a mechanical hard drive, you can try changing the download location to a solid-state drive (SSD). This is effective for some users.
+<br>
+5. If you have many tabs open, you can close some tabs to reduce the browser's load. Some users experience download stuck when many tabs are open (waiting 10 seconds after file download to save), but not when fewer tabs are open.
+<br>
+6. You can click the user avatar button in the browser menu bar, add a new user profile (i.e., create a new browser local user), then open a new user's browser window, install and use this downloader in it.
+<br>
+7. Uninstall this browser and reinstall it, or install a new browser.
+<br>
+8. Clear the browser's download history, then restart the browser. This method may not work, but clearing unnecessary download history is beneficial. Tip: If the browser's download history is large, it can cause the browser to freeze for a while when starting or opening the download management page, and may lead to other potential issues.`,
+        `一部のユーザーはダウンロードが停止する問題に遭遇する可能性があります：ファイルのダウンロード進捗バーが 100% に達した後、ハードドライブに保存されるまでにしばらく時間がかかる場合があり、または保存されない場合があります。この問題はブラウザまたはハードドライブに関連している可能性があり、複数の原因が考えられます。
+<br>
+私はこの問題に遭遇したことがありません（実際、ほとんどのユーザーは頻繁にこの問題に遭遇しないはずです）。この問題に遭遇した場合は、以下の操作を試してみてください。これらの方法の一部は有効であることが検証されています。
+<br>
+1. このウェブページを更新して、ダウンロードツールにダウンロードを再試行させます。
+<br>
+2. ダウンロード一時停止ボタンをクリックし、次にダウンロード開始ボタンをクリックします。
+<br>
+3. ブラウザの拡張機能管理ページを開き、この拡張機能の更新ボタンをクリックして再読み込みし、次にこのウェブページを更新してダウンロードを再試行します。
+<br>
+4. ブラウザのダウンロード保存場所が機械式ハードドライブの場合、ダウンロード場所をソリッドステートドライブ（SSD）に変更してみてください。これが一部のユーザーに対して効果的です。
+<br>
+5. 多くのタブを開いている場合、いくつかのタブを閉じてブラウザの負荷を軽減してください。一部のユーザーは多くのタブを開いているときにダウンロードが停止します（ファイルダウンロード後に保存されるまでに 10 秒待機）、しかし少ないタブではこの問題が発生しません。
+<br>
+6. ブラウザのメニュー バーのユーザー アバター ボタンをクリックして、新しいユーザー プロファイル（つまり、新しいブラウザローカルユーザー）を追加し、新規ユーザーのブラウザ ウィンドウを開いて、このダウンロードツールをインストールして使用します。
+<br>
+7. このブラウザをアンインストールして再インストールするか、新しいブラウザをインストールします。
+<br>
+8. ブラウザのダウンロード履歴をクリアし、ブラウザを再起動します。この方法は効果がない場合がありますが、不要なダウンロード履歴をクリアすることは有益です。ヒント：ブラウザのダウンロード履歴が多い場合、起動時やダウンロード管理ページを開く際に一時的にフリーズし、他の潜在的な問題を引き起こす可能性があります。`,
+        `일부 사용자는 다운로드가 멈추는 문제를 겪을 수 있습니다: 파일의 다운로드 진행률이 100%에 도달한 후 하드 드라이브에 저장되는 데 시간이 걸리거나, 저장되지 않을 수 있습니다. 이 문제는 브라우저나 하드 드라이브와 관련이 있을 수 있으며, 여러 원인이 있을 수 있습니다.
+<br>
+저는 이 문제를 겪어본 적이 없습니다 (사실 대부분의 사용자는 자주 이 문제를 겪지 않을 것입니다). 이 문제를 겪는다면 다음 작업을 시도해 보세요. 이 중 일부 방법은 효과가 검증되었습니다.
+<br>
+1. 이 웹페이지를 새로 고침하여 다운로더가 다운로드를 다시 시도하도록 합니다.
+<br>
+2. 다운로드 일시 중지 버튼을 클릭한 후 다운로드 시작 버튼을 클릭합니다.
+<br>
+3. 브라우저의 확장 프로그램 관리 페이지로 이동하여 이 확장 프로그램의 새로 고침 버튼을 클릭해 다시 로드한 다음, 이 웹페이지를 새로 고침하고 다운로드를 다시 시도합니다.
+<br>
+4. 브라우저의 다운로드 저장 위치가 기계식 하드 드라이브라면, 다운로드 위치를 솔리드 스테이트 드라이브(SSD)로 변경해 보세요. 이는 일부 사용자에게 효과적입니다.
+<br>
+5. 많은 탭을 열어두었다면 일부 탭을 닫아 브라우저의 부하를 줄여보세요. 일부 사용자는 많은 탭을 열어두었을 때 다운로드가 멈추며 (파일 다운로드 후 10초 대기해야 저장됨), 적은 탭일 때는 문제가 없습니다.
+<br>
+6. 브라우저 메뉴 모음의 사용자 아바타 버튼을 클릭하여 새 사용자 프로필(즉, 새 브라우저 로컬 사용자)을 추가한 후, 새 사용자의 브라우저 창을 열고 그 안에서 이 다운로더를 설치하고 사용합니다.
+<br>
+7. 이 브라우저를 제거하고 재설치하거나, 새 브라우저를 설치합니다.
+<br>
+8. 브라우저의 다운로드 기록을 지우고 브라우저를 재시작합니다. 이 방법은 효과가 없을 수 있지만, 불필요한 다운로드 기록을 정리하는 것은 유익합니다. 팁: 브라우저의 다운로드 기록이 많으면 시작 시나 다운로드 관리 페이지 열 때 잠시 멈추며, 다른 잠재적 문제를 일으킬 수 있습니다.`,
+        `Некоторые пользователи могут столкнуться с проблемой зависания загрузки: после достижения полосой прогресса загрузки файла 100% может потребоваться некоторое время для сохранения на жесткий диск, или файл может так и не сохраниться. Эта проблема может быть связана с браузером или жестким диском, и её могут вызывать различные причины.
+<br>
+Я не сталкивался с этой проблемой (на самом деле, большинство пользователей, вероятно, не сталкиваются с ней часто). Если вы столкнулись с этой проблемой, попробуйте следующие действия, некоторые из которых были проверены на эффективность.
+<br>
+1. Обновите эту веб-страницу, чтобы загрузчик повторил попытку загрузки.
+<br>
+2. Нажмите кнопку паузы загрузки, затем кнопку запуска загрузки.
+<br>
+3. Откройте страницу управления расширениями браузера, нажмите кнопку обновления для этого расширения, чтобы перезагрузить его, затем обновите эту веб-страницу и повторите попытку загрузки.
+<br>
+4. Если место сохранения файлов в этом браузере — механический жесткий диск, попробуйте изменить место загрузки на твердотельный накопитель (SSD). Это эффективно для некоторых пользователей.
+<br>
+5. Если у вас открыто много вкладок, закройте некоторые из них, чтобы снизить нагрузку на браузер. Некоторые пользователи сталкиваются с зависанием загрузки при открытии многих вкладок (нужно ждать 10 секунд после загрузки файла для сохранения), но при меньшем количестве вкладок проблема отсутствует.
+<br>
+6. Вы можете нажать кнопку аватара пользователя в панели меню браузера, добавить новый профиль пользователя (т.е. создать нового локального пользователя браузера), затем открыть окно браузера нового пользователя и установить и использовать этот загрузчик в нём.
+<br>
+7. Удалите этот браузер и переустановите его или установите новый браузер.
+<br>
+8. Очистите историю загрузок браузера, затем перезапустите браузер. Этот метод может не сработать, но очистка ненужной истории загрузок полезна. Совет: Если история загрузок браузера велика, это может привести к зависанию браузера при запуске или открытии страницы управления загрузками на некоторое время и вызвать другие потенциальные проблемы.`,
+    ],
     _在多图作品页面里显示缩略图列表: [
         '在多图作品页面里显示<span class="key">缩略图</span>列表',
         '在多圖作品頁面裡顯示<span class="key">縮圖</span>列表',
@@ -31573,6 +31828,22 @@ QQ, WeChat:
         `画像と説明をコピー`,
         `이미지와 설명 복사`,
         `Копировать изображение и описание`,
+    ],
+    _修复了显示更大的缩略图的功能异常的问题: [
+        `最近 Pixiv 的网页代码发生了变化，导致“显示更大的缩略图”功能的显示效果异常。现已修复。`,
+        `最近 Pixiv 的網頁代碼發生了變化，導致「顯示更大的縮略圖」功能的顯示效果異常。現已修復。`,
+        `Recently, changes in Pixiv's webpage code caused abnormal display effects for the "Show Larger Thumbnails" feature. It has now been fixed.`,
+        `最近、Pixivのウェブページコードに変更があり、「より大きなサムネイルを表示」機能の表示効果に異常が発生しました。現在は修正済みです。`,
+        `최근 Pixiv의 웹페이지 코드가 변경되어 "더 큰 썸네일 표시" 기능의 표시 효과에 이상이 발생했습니다. 이제 수정되었습니다.`,
+        `Недавно в коде веб-страницы Pixiv произошли изменения, что привело к аномальному отображению функции «Показать большие миниатюры». Теперь это исправлено.`,
+    ],
+    _抓取每个用户最新的几个作品: [
+        `抓取每个用户最新的几个作品`,
+        `抓取每個用戶最新的幾個作品`,
+        `Crawl the latest few works for each user`,
+        `各ユーザーの最新の数作品をクロール`,
+        `각 사용자의 최신 몇 개 작품 크롤`,
+        `Захватить последние несколько работ каждого пользователя,`,
     ],
 };
 
@@ -32677,8 +32948,8 @@ class DisplayThumbnailListOnMultiImageWorkPage {
                 // 缩略图列表的结构： div#viewerWarpper > ul > li.xz-thumb-li > img + a
                 const warpper = document.createElement('div');
                 warpper.id = this.wrapperID;
-                warpper.classList.add('beautify_scrollbar');
                 const ul = document.createElement('ul');
+                ul.classList.add('beautify_scrollbar');
                 warpper.appendChild(ul);
                 _Theme__WEBPACK_IMPORTED_MODULE_0__.theme.register(warpper);
                 // 生成 li 元素列表
@@ -34351,6 +34622,17 @@ const formHtml = `
       <input type="checkbox" name="showAdvancedSettings" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
     </p>
+    <p class="option" data-no="15">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(15)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
+        <span data-xztext="_抓取每个用户最新的几个作品"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="crawlLatestFewWorks" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="crawlLatestFewWorks">
+        <input type="text" name="crawlLatestFewWorksNumber" class="setinput_style1 blue" value="10">
+      </span>
+    </p>
     <p class="option" data-no="3">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(3)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
         <span data-xztext="_多图作品只下载前几张图片"></span>
@@ -34495,11 +34777,11 @@ const formHtml = `
       <input type="checkbox" name="postDate" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="postDate">
-        <input type="datetime-local" name="postDateStart" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
+        <input type="datetime-local" name="postDateStart" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="2009-01-01T00:00">
         <button class="textButton grayButton mr0" type="button" role="setDate" data-for="postDateStart" data-value="2009-01-01T00:00" data-xztext="_过去"></button>
         <button class="textButton grayButton" type="button" role="setDate" data-for="postDateStart" data-value="now" data-xztext="_现在"></button>
         -&nbsp;
-        <input type="datetime-local" name="postDateEnd" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
+        <input type="datetime-local" name="postDateEnd" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="2100-01-01T00:00">
         <button class="textButton grayButton mr0" type="button" role="setDate" data-for="postDateEnd" data-value="now" data-xztext="_现在"></button>
         <button class="textButton grayButton" type="button" role="setDate" data-for="postDateEnd" data-value="2100-01-01T00:00" data-xztext="_未来"></button>
       </span>
@@ -35344,7 +35626,7 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="PreviewWorkDetailInfo">
         <span data-xztext="_显示区域宽度"></span>&nbsp;
-        <input type="text" name="PreviewDetailInfoWidth" class="setinput_style1 blue" value="500" style="width:40px;min-width: 40px;">
+        <input type="text" name="PreviewDetailInfoWidth" class="setinput_style1 blue" value="400" style="width:40px;min-width: 40px;">
         <span>&nbsp;px</span>
       </span>
     </p>
@@ -35672,6 +35954,7 @@ class FormSettings {
             'copyFormatText',
             'copyFormatHtml',
             'showCopyBtnOnThumb',
+            'crawlLatestFewWorks',
         ],
         text: [
             'firstFewImages',
@@ -35707,6 +35990,7 @@ class FormSettings {
             'downloadInterval',
             'downloadIntervalOnWorksNumber',
             'copyWorkInfoFormat',
+            'crawlLatestFewWorksNumber',
         ],
         radio: [
             'ugoiraSaveAs',
@@ -36170,7 +36454,7 @@ class Options {
         }
         // 大部分设置在 pixivision 里都不适用，所以需要隐藏它们
         if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Pixivision) {
-            options.hideOption([
+            this.hideOption([
                 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22,
                 23, 24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44,
                 46, 47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
@@ -36871,6 +37155,8 @@ class Settings {
         copyFormatHtml: true,
         tipCopyWorkInfoButton: true,
         copyImageSize: 'regular',
+        crawlLatestFewWorks: false,
+        crawlLatestFewWorksNumber: 10,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的选项
@@ -37112,6 +37398,9 @@ class Settings {
         }
         if (key === 'fileNameLengthLimit' && value < 1) {
             value = this.defaultSettings[key];
+        }
+        if (key === 'crawlLatestFewWorksNumber' && value < 1) {
+            value = 1;
         }
         if (key === 'setWidthAndOr' && value === '') {
             value = this.defaultSettings[key];
@@ -37547,7 +37836,7 @@ class Wiki {
             60, 84, 87, 68, 63, 55, 71, 62, 40, 56, 86, 48, 88, 18, 34, 14,
         ],
         'More-Others': [61, 31, 78, 36, 41, 45, 53, 32, 37],
-        'More-Hidden': [79, 80],
+        'More-Hidden': [79, 80, 14],
         'Buttons-Crawl': [
             'startCrawling',
             'stopCrawling',

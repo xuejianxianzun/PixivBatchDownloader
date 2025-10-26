@@ -2,9 +2,9 @@
 // 下载器替换默认的缩略图时，使用的的图片宽高最大是 540px
 // 变化：以前普通模式和夜间模式的图片 className 不同，所以修改后需要在两个模式下都测试效果。现在是相同的了。
 
-// 把容器的固定宽度改为 94 vw
-.width94vw {
-  width: 94vw !important;
+// 把容器的固定宽度改为 92 vw
+.width92vw {
+  width: 92vw !important;
   max-width: unset !important;
 }
 
@@ -68,6 +68,7 @@ body[data-page-type='0'] {
 
   // 新版首页的精选新作板块
   .homeFriendsNewWorks > div,
+  .homeWorksSectionParent,
   section[data-ga4-label='new_works_content'] > div {
     width: 92vw;
     max-width: 92vw;
@@ -87,7 +88,7 @@ body[data-page-type='0'] {
 
   // 新版首页的推荐作品板块
   .ldgmym,
-  .gtm-toppage-thumbnail-manga-recommend-works-zone > div > div {
+  .homeRecommendedWorks > div > div {
     width: 92vw;
   }
 
@@ -102,7 +103,7 @@ body[data-page-type='0'] {
 
   // 使插画、漫画首页里，一些板块里的缩略图垂直居中对齐
   .gtm-toppage-thumbnail-illustration-recommend-tag-zone ul,
-  .gtm-toppage-thumbnail-manga-recommend-works-zone ul {
+  .homeRecommendedWorks ul {
     align-items: center;
   }
 
@@ -112,7 +113,8 @@ body[data-page-type='0'] {
   .fhUcsb,
   .cCkJMN,
   .hjtPnz,
-  .jELUak {
+  .jELUak,
+  .homeRecommendedWorks ul {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -159,8 +161,11 @@ body[data-page-type='0'] {
   }
 
   /* 下载器会尝试给 精选新作 和 已关注用户的作品 的容器添加自定义的 class，避免其频繁改版而失效 */
+  .homeFriendsNewWorksParent {
+    margin: 0 auto;
+  }
 
-  // 在新版首页里，把 精选新作 的宽度设置为 100%。因为它原本的样式只占页面中间的一部分
+  .homeFriendsNewWorksParent,
   .homeFriendsNewWorks > div:nth-child(2) {
     --carousel-width: unset !important;
     width: 92vw;
@@ -244,6 +249,11 @@ body[data-page-type='0'] {
     width: 100% !important;
   }
 
+  // 小说封面的父元素需要设置高度，否则其高度为 0
+  .homeRecommendedWorks ul > li.novelLI > div > div:nth-child(1) {
+    height: 500px;
+  }
+
   // 在推荐作品里，小说和图片的区别不明显。我把小说的背景颜色设置为浅棕色，这样就能一眼看出来
   .homeRecommendedWorks ul > li.novelLI > div > div > div:nth-child(1) {
     background-color: #d1bfa2;
@@ -270,6 +280,11 @@ body[data-page-type='0'] {
     width: auto !important;
     height: auto !important;
   }
+
+  // 漫画首页里的“推荐作品”区域加宽
+  .gtm-toppage-thumbnail-manga-recommend-works-zone > div > div {
+    width: 92vw !important;
+  }
 }
 
 // Artwork 插画/漫画/动图页面
@@ -291,16 +306,14 @@ body[data-page-type='1'] {
   // 每个板块的最外层容器元素可能被设置了固定宽度，导致图片尺寸固定，或者容器不能完全显示里面的内容
   // 需要解除宽度限制
   // 这是整个页面内容的容器
-  #XZContentWrap,
-  .pEkOH {
+  #XZContentWrap {
     padding: 0;
     width: auto !important;
     max-width: unset !important;
   }
 
   // 让上半部分（作品区域）保持原本的宽度和居中显示
-  .hvOssX,
-  #XZContentWrap {
+  #XZArtworkWrap {
     max-width: 1224px;
     margin: 24px auto 0;
     justify-content: center;
@@ -343,6 +356,7 @@ body[data-page-type='2'] {
   .navBar,
   .userHomeTagList,
   .userHomeWrapper,
+  .userHomeULParent,
   .mdzxv,
   .gqvfWY,
   .eVpyzU,
@@ -359,7 +373,7 @@ body[data-page-type='2'] {
   // 2025-07-01 发现的问题，pixiv 改版后，作品缩略图的 li 在交叉轴上变成顶部对齐了，
   // 导致横图和竖图一样是从顶部对齐的，视觉上不均衡
   // 现在改为居中对齐
-  .userHomeWrapper ul {
+  .userHomeULParent ul {
     align-items: center;
   }
 
@@ -461,6 +475,7 @@ body[data-page-type='4'] {
   /* 主页、收藏 一栏取消宽度限制 */
   /* 插画·漫画、小说 分类一栏取消宽度限制 */
   /* 作品列表 取消宽度限制 */
+  .sectionParentDiv,
   .worksWrapper,
   .navBar,
   .gqvfWY,
@@ -514,7 +529,9 @@ body[data-page-type='4'] {
 // https://www.pixiv.net/tags/vtuber/artworks?s_mode=s_tag
 body[data-page-type='5'] {
   /* 取消宽度限制 */
+  .sectionParentDiv,
   .worksWrapper,
+  .worksULParent,
   .gqvfWY,
   .bYCbxa,
   .hbpcMJ {
@@ -690,6 +707,7 @@ body[data-page-type='7'] {
 // https://www.pixiv.net/bookmark_new_illust.php
 body[data-page-type='10'] {
   // 解除列表容器的宽度限制
+  .sectionParentDiv,
   .worksWrapper,
   .gqvfWY,
   .bYCbxa,
@@ -733,6 +751,11 @@ body[data-page-type='11'] {
   // 解除列表容器的宽度限制
   .YXoqY,
   .ldgmym {
+    width: 92vw;
+  }
+
+  // worksUL 的父元素
+  .worksWrapper {
     width: 92vw;
   }
 
@@ -844,24 +867,20 @@ body[data-page-type='12'] {
 // https://www.pixiv.net/users/96661459/following
 body[data-page-type='20'] {
   // 解除列表容器的宽度限制
-  .gqvfWY,
-  .bYCbxa,
-  .bqInRE {
+  .sectionParentDiv {
     width: 92vw;
   }
 
   // 这个页面里左侧是用户信息，右侧是用户的插画
   // 这个选择器解除右侧插画区域的宽度限制
-  .jtFuQW {
+  .sectionParentDiv > section > div > div > div > div:last-child {
     width: 100%;
   }
 
   // ul
   // 作品列表容器。它本来就是 flex 布局，所以只需要设置交叉轴对齐方式为 center
   // 另外放大缩略图后，最右侧的图片可能会有一部分超出屏幕，所以设置 overflow: auto
-  section ul,
-  .kAeevZ,
-  .hkzusx {
+  section ul {
     align-items: center;
     max-width: 70vw;
     overflow: auto;
@@ -872,15 +891,12 @@ body[data-page-type='20'] {
   // 解除作品缩略图元素里 div 的宽度限制
   // 这些元素原本设置了 width: 184px;
   section ul > div > div > div,
-  .eajBeO,
-  .fLGndj,
   div[width='184'] {
     width: auto !important;
     height: auto !important;
   }
 
   /* img */
-  .iaqWlq,
   div[width='184'] img {
     width: auto !important;
     height: auto !important;
@@ -962,7 +978,7 @@ body[data-page-type='23'] {
 
   // 每个用户的内容分为左右两块，左侧是用户信息，右侧是图片列表
   // 这个就是右侧的图片列表容器，取消其宽度限制
-  .hSrLET {
+  li.border-border > div > div:last-child {
     width: auto !important;
   }
 

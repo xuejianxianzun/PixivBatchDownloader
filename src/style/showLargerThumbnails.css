@@ -1,6 +1,6 @@
 /* 显示更大的缩略图 */
-.width94vw {
-  width: 94vw !important;
+.width92vw {
+  width: 92vw !important;
   max-width: unset !important;
 }
 ul li div[data-mouseover] a img {
@@ -47,11 +47,13 @@ body[data-page-type='0'] .cwAKCq {
   width: auto !important;
 }
 body[data-page-type='0'] .homeFriendsNewWorks > div,
+body[data-page-type='0'] .homeWorksSectionParent,
 body[data-page-type='0'] section[data-ga4-label='new_works_content'] > div {
   width: 92vw;
   max-width: 92vw;
 }
 body[data-page-type='0'] .homeFriendsNewWorks > div li div,
+body[data-page-type='0'] .homeWorksSectionParent li div,
 body[data-page-type='0']
   section[data-ga4-label='new_works_content']
   > div
@@ -60,6 +62,7 @@ body[data-page-type='0']
   width: auto !important;
 }
 body[data-page-type='0'] .homeFriendsNewWorks > div li div::before,
+body[data-page-type='0'] .homeWorksSectionParent li div::before,
 body[data-page-type='0']
   section[data-ga4-label='new_works_content']
   > div
@@ -69,10 +72,7 @@ body[data-page-type='0']
   display: none;
 }
 body[data-page-type='0'] .ldgmym,
-body[data-page-type='0']
-  .gtm-toppage-thumbnail-manga-recommend-works-zone
-  > div
-  > div {
+body[data-page-type='0'] .homeRecommendedWorks > div > div {
   width: 92vw;
 }
 body[data-page-type='0'] .eajBeO {
@@ -84,14 +84,15 @@ body[data-page-type='0'] li iframe {
 body[data-page-type='0']
   .gtm-toppage-thumbnail-illustration-recommend-tag-zone
   ul,
-body[data-page-type='0'] .gtm-toppage-thumbnail-manga-recommend-works-zone ul {
+body[data-page-type='0'] .homeRecommendedWorks ul {
   align-items: center;
 }
 body[data-page-type='0'] .bkRoSP,
 body[data-page-type='0'] .fhUcsb,
 body[data-page-type='0'] .cCkJMN,
 body[data-page-type='0'] .hjtPnz,
-body[data-page-type='0'] .jELUak {
+body[data-page-type='0'] .jELUak,
+body[data-page-type='0'] .homeRecommendedWorks ul {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -122,6 +123,10 @@ body[data-page-type='0'] div.gVidFA div[width='184'] a div img {
   max-width: 260px;
   max-height: 260px;
 }
+body[data-page-type='0'] .homeFriendsNewWorksParent {
+  margin: 0 auto;
+}
+body[data-page-type='0'] .homeFriendsNewWorksParent,
 body[data-page-type='0'] .homeFriendsNewWorks > div:nth-child(2) {
   --carousel-width: unset !important;
   width: 92vw;
@@ -188,6 +193,14 @@ body[data-page-type='0']
   ul
   > li.novelLI
   > div
+  > div:nth-child(1) {
+  height: 500px;
+}
+body[data-page-type='0']
+  .homeRecommendedWorks
+  ul
+  > li.novelLI
+  > div
   > div
   > div:nth-child(1) {
   background-color: #d1bfa2;
@@ -208,6 +221,12 @@ body[data-page-type='0'] .contestWorksUL > div > div {
   width: auto !important;
   height: auto !important;
 }
+body[data-page-type='0']
+  .gtm-toppage-thumbnail-manga-recommend-works-zone
+  > div
+  > div {
+  width: 92vw !important;
+}
 body[data-page-type='1'] {
   /* img */
   /* div[width="184"] a div img */
@@ -221,14 +240,12 @@ body[data-page-type='1'] .jELUak {
   flex-wrap: wrap;
   align-items: center;
 }
-body[data-page-type='1'] #XZContentWrap,
-body[data-page-type='1'] .pEkOH {
+body[data-page-type='1'] #XZContentWrap {
   padding: 0;
   width: auto !important;
   max-width: unset !important;
 }
-body[data-page-type='1'] .hvOssX,
-body[data-page-type='1'] #XZContentWrap {
+body[data-page-type='1'] #XZArtworkWrap {
   max-width: 1224px;
   margin: 24px auto 0;
   justify-content: center;
@@ -256,6 +273,7 @@ body[data-page-type='2'] {
 body[data-page-type='2'] .navBar,
 body[data-page-type='2'] .userHomeTagList,
 body[data-page-type='2'] .userHomeWrapper,
+body[data-page-type='2'] .userHomeULParent,
 body[data-page-type='2'] .mdzxv,
 body[data-page-type='2'] .gqvfWY,
 body[data-page-type='2'] .eVpyzU,
@@ -268,7 +286,7 @@ body[data-page-type='2'] .eVpyzU {
   width: 92vw;
   max-width: unset;
 }
-body[data-page-type='2'] .userHomeWrapper ul {
+body[data-page-type='2'] .userHomeULParent ul {
   align-items: center;
 }
 body[data-page-type='2'] div[width='288'],
@@ -338,6 +356,7 @@ body[data-page-type='4'] {
   /* img */
   /* div[width="184"] a div img */
 }
+body[data-page-type='4'] .sectionParentDiv,
 body[data-page-type='4'] .worksWrapper,
 body[data-page-type='4'] .navBar,
 body[data-page-type='4'] .gqvfWY,
@@ -375,7 +394,9 @@ body[data-page-type='5'] {
   /* div[width="184"] a div img */
   /* 下载器预览搜索结果时添加的列表元素 */
 }
+body[data-page-type='5'] .sectionParentDiv,
 body[data-page-type='5'] .worksWrapper,
+body[data-page-type='5'] .worksULParent,
 body[data-page-type='5'] .gqvfWY,
 body[data-page-type='5'] .bYCbxa,
 body[data-page-type='5'] .hbpcMJ {
@@ -500,6 +521,7 @@ body[data-page-type='10'] {
   /* img */
   /* div[width="184"] a div img */
 }
+body[data-page-type='10'] .sectionParentDiv,
 body[data-page-type='10'] .worksWrapper,
 body[data-page-type='10'] .gqvfWY,
 body[data-page-type='10'] .bYCbxa,
@@ -529,6 +551,9 @@ body[data-page-type='11'] {
 }
 body[data-page-type='11'] .YXoqY,
 body[data-page-type='11'] .ldgmym {
+  width: 92vw;
+}
+body[data-page-type='11'] .worksWrapper {
   width: 92vw;
 }
 body[data-page-type='11'] .worksUL,
@@ -600,30 +625,29 @@ body[data-page-type='12'] section ul > li > div a img {
 body[data-page-type='20'] {
   /* img */
 }
-body[data-page-type='20'] .gqvfWY,
-body[data-page-type='20'] .bYCbxa,
-body[data-page-type='20'] .bqInRE {
+body[data-page-type='20'] .sectionParentDiv {
   width: 92vw;
 }
-body[data-page-type='20'] .jtFuQW {
+body[data-page-type='20']
+  .sectionParentDiv
+  > section
+  > div
+  > div
+  > div
+  > div:last-child {
   width: 100%;
 }
-body[data-page-type='20'] section ul,
-body[data-page-type='20'] .kAeevZ,
-body[data-page-type='20'] .hkzusx {
+body[data-page-type='20'] section ul {
   align-items: center;
   max-width: 70vw;
   overflow: auto;
   padding-right: 0 !important;
 }
 body[data-page-type='20'] section ul > div > div > div,
-body[data-page-type='20'] .eajBeO,
-body[data-page-type='20'] .fLGndj,
 body[data-page-type='20'] div[width='184'] {
   width: auto !important;
   height: auto !important;
 }
-body[data-page-type='20'] .iaqWlq,
 body[data-page-type='20'] div[width='184'] img {
   width: auto !important;
   height: auto !important;
@@ -670,7 +694,7 @@ body[data-page-type='23'] .ldgmym,
 body[data-page-type='23'] .bYCbxa {
   width: 92vw;
 }
-body[data-page-type='23'] .hSrLET {
+body[data-page-type='23'] li.border-border > div > div:last-child {
   width: auto !important;
 }
 body[data-page-type='23'] .worksUL {

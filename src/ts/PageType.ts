@@ -7,34 +7,58 @@ import { secretSignal } from './utils/SecretSignal'
 // 不能删除已有的页面类型，也不能调整顺序，只能在最后新增
 // 否则就会导致数字编号对应的页面类型和之前不一样，产生问题
 enum PageName {
+  /** 不支持的页面 */
   Unsupported = -1,
+  /** 主页 */
   Home,
+  /** 插画详情页面 */
   Artwork,
+  /** 用户主页 */
   UserHome,
   // BookmarkLegacy 页面类型已经不存在了，但是必须保留它以避免兼容性问题
   // 因为有些设置是使用页面类型的数字编号作为键名的
   // 如果删除这个页面类型，会导致它后面所有页面类型的数字发生变化（例如 Bookmark 会从 4 变成 3）
   // 这会导致从设置项里取值时，会取到错误的值
+  /** 旧版收藏页面，现已被 Bookmark 页面取代 */
   BookmarkLegacy,
+  /** 收藏页面 */
   Bookmark,
+  /** 插画搜索页面 */
   ArtworkSearch,
+  /** 地区排行榜 */
   AreaRanking,
+  /** 插画排行榜 */
   ArtworkRanking,
   Pixivision,
+  /** 收藏后的详情页面，现在基本不会用到 */
   BookmarkDetail,
+  /** 已关注用户的心作品 - 插画 */
   NewArtworkBookmark,
+  /** 发现页面 */
   Discover,
+  /** 大家的新作 - 插画 */
   NewArtwork,
+  /** 小说详情页面 */
   Novel,
+  /** 小说系列作品目录页 */
   NovelSeries,
+  /** 小说搜索页面 */
   NovelSearch,
+  /** 小说排行榜 */
   NovelRanking,
+  /** 已关注用户的心作品 - 小说 */
   NewNovelBookmark,
+  /** 大家的新作 - 小说 */
   NewNovel,
+  /** 插画系列作品目录页 */
   ArtworkSeries,
+  /** 关注的用户 */
   Following,
+  /** 约稿 */
   Request,
+  /** 不公开的作品 */
   Unlisted,
+  /** 发现页面 - 推荐用户 */
   DiscoverUsers,
 }
 

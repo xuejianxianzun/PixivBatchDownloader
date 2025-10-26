@@ -16,6 +16,7 @@ import { token } from '../Token'
 import { EVT } from '../EVT'
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
+import { crawlLatestFewWorks } from '../crawl/CrawlLatestFewWorks'
 
 interface UserInfo {
   userId: string
@@ -592,6 +593,7 @@ class InitFollowingPage extends InitPageBase {
     let idList = []
     try {
       idList = await API.getUserWorksByType(this.userList[this.index])
+      idList = crawlLatestFewWorks.filter(idList)
     } catch {
       this.getIdList()
       return

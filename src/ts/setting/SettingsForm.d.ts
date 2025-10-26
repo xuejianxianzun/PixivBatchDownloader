@@ -160,4 +160,6 @@ export interface SettingsForm extends HTMLFormElement {
   slowCrawlDealy: HTMLInputElement
   downloadInterval: HTMLInputElement
   downloadIntervalOnWorksNumber: HTMLInputElement
+  crawlLatestFewWorks: HTMLInputElement
+  crawlLatestFewWorksNumber: HTMLInputElement
 }

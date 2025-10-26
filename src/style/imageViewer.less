@@ -2,8 +2,6 @@
 
 #viewerWarpper {
   position: relative;
-  max-height: 62vh;
-  overflow: auto;
   margin: 0;
   margin-top: 40px;
   padding: 40px 10px;
@@ -12,6 +10,14 @@
   border-bottom: 1px solid #eee;
 
   ul {
+    // 这个高度是为了在有 3 排缩略图时可以全部显示，不会出现滚动条
+    // 对于全是竖图的作品，就是当图片数量为 9 - 12 时
+    // 例如：https://www.pixiv.net/artworks/136489375
+    // 不过只在我的电脑上测试过，我的浏览器最大化时，页面的 vh 是 1017。
+    // 如果某些用户的 vh 比较小（可能是分辨率低，或者浏览器是窗口化的），那么依然可能会出现滚动条
+    // 不过在逻辑分辨率为 1080p 的屏幕上应该都没问题
+    max-height: 68vh;
+    overflow: auto;
     margin: 0;
     padding: 0;
     display: flex;

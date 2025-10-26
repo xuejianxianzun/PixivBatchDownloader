@@ -184,7 +184,7 @@ class PreviewWorkDetailInfo {
     }
 
     // 设置样式
-    wrap.classList.add('xz_PreviewWorkDetailPanel')
+    wrap.classList.add('xz_PreviewWorkDetailPanel', 'beautify_scrollbar')
     wrap.style.width = settings.PreviewDetailInfoWidth + 'px'
 
     wrap.addEventListener('click', () => {
