@@ -29,16 +29,19 @@ class CrawlLatestFewWorks {
 
   private bindEvents() {
     // 在不启用的页面类型里，隐藏这个设置项
-    window.addEventListener(EVT.list.settingInitialized, this.hideOption)
-    window.addEventListener(EVT.list.pageSwitch, this.hideOption)
+    window.addEventListener(
+      EVT.list.settingInitialized,
+      this.hideOption.bind(this)
+    )
+    window.addEventListener(EVT.list.pageSwitch, this.hideOption.bind(this))
   }
 
   private hideOption() {
     // 在公开版本里，这个设置项始终隐藏
     // if (!this.enable) {
-      window.setTimeout(() => {
-        options.hideOption([15])
-      }, 0)
+    window.setTimeout(() => {
+      options.hideOption([15])
+    }, 0)
     // }
   }
 

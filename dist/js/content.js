@@ -12055,8 +12055,8 @@ class CrawlLatestFewWorks {
     }
     bindEvents() {
         // 在不启用的页面类型里，隐藏这个设置项
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, this.hideOption);
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, this.hideOption);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, this.hideOption.bind(this));
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, this.hideOption.bind(this));
     }
     hideOption() {
         // 在公开版本里，这个设置项始终隐藏
