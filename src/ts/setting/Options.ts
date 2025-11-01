@@ -13,7 +13,9 @@ class Options {
   private allOption!: NodeListOf<HTMLElement>
 
   /**始终保持显示的选项 */
-  private readonly whiteList: number[] = [2, 4, 13, 17, 32, 44, 50, 51, 57, 64]
+  private readonly whiteList: number[] = [
+    2, 4, 13, 17, 20, 32, 44, 50, 51, 57, 64,
+  ]
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {

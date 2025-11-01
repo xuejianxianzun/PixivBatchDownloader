@@ -9729,7 +9729,7 @@ class ShowWhatIsNew {
     constructor() {
         this.bindEvents();
     }
-    flag = '18.0.1';
+    flag = '18.1.0';
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
@@ -9737,7 +9737,15 @@ class ShowWhatIsNew {
       <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_扩展程序升到x版本', this.flag)}</span>
       <br>
       <br>
-      <span>🐞${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复了显示更大的缩略图的功能异常的问题')}</span>
+      <strong><span>✨${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增设置项')}:</span></strong>
+      <br>
+      <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_把文件保存到用户上次选择的位置')}</span>
+      <br>
+      <br>
+      <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_默认未启用')}</span>
+      <br>
+      ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在xx选项卡里找到它', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载'))}
+      <br>
       `;
             // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong>
             // <strong><span>✨${lang.transl('_新增功能')}:</span></strong>
@@ -9750,7 +9758,14 @@ class ShowWhatIsNew {
             // )}
             // <br>
             // <br>
+            // ${lang.transl(
+            //   '_你可以在xx选项卡里找到它',
+            //   lang.transl('_下载')
+            // )}
+            // <br>
+            // <br>
             // <span>${lang.transl('_该功能默认启用')}</span>
+            // <span>${lang.transl('_默认未启用')}</span>
             // <span>😊${lang.transl('_优化用户体验')}</span>
             // <span>😊${lang.transl('_优化性能和用户体验')}</span>
             // <span>😊${lang.transl('_其他优化')}</span>
@@ -18720,6 +18735,19 @@ class Download {
             blob: _Config__WEBPACK_IMPORTED_MODULE_12__.Config.sendBlob ? blob : undefined,
             dataURL,
         };
+        // 使用 a.download 来下载文件时，不调用 downloads API
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.rememberTheLastSaveLocation) {
+            // 移除文件夹，只保留文件名部分，因为这种方式不支持建立文件夹
+            // 路径符号 / 会被浏览器处理成 _，例如：
+            // pixiv/mojo-94576902/136825223_p0-藤田ことね🎃.png 会变成：
+            // pixiv_mojo-94576902_136825223_p0-藤田ことね🎃.png
+            // 所以我只保留了文件名部分
+            const lastName = fileName.split('/').pop();
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.downloadFile(blobURL, lastName);
+            sendData.msg = 'save_work_file_a_download';
+            webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
+            return;
+        }
         try {
             webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('sendBrowserDownload');
@@ -28307,6 +28335,14 @@ Novel folder name: Novel`,
         'Вы можете найти его в разделе "Еще". вкладка → "{}" категория. ("Показать расширенные настройки" необходимо сначала включить)',
     ],
     _你可以在xx选项卡里找到它: [
+        '你可以在“{}”选项卡里找到它。',
+        '你可以在“{}”選項卡裡找到它。',
+        'You can find it in the "{}" tab.',
+        '「{}」タブにあります。',
+        '"{}" 탭에서 찾을 수 있습니다.',
+        'Вы можете найти его на вкладке "{}".',
+    ],
+    _你可以在xx选项卡里找到它并需要启用高级设置: [
         '你可以在“{}”选项卡里找到它。（需要先启用“显示高级设置”）',
         '你可以在“{}”選項卡裡找到它。（需要先啟用“顯示進階設定”）',
         'You can find it in the "{}" tab. ("Show advanced settings" needs to be enabled first)',
@@ -30661,12 +30697,126 @@ QQ, WeChat:
         `Недавно в коде веб-страницы Pixiv произошли изменения, что привело к аномальному отображению функции «Показать большие миниатюры». Теперь это исправлено.`,
     ],
     _抓取每个用户最新的几个作品: [
-        `抓取每个用户最新的几个作品`,
-        `抓取每個用戶最新的幾個作品`,
-        `Crawl the latest few works for each user`,
-        `各ユーザーの最新の数作品をクロール`,
-        `각 사용자의 최신 몇 개 작품 크롤`,
-        `Захватить последние несколько работ каждого пользователя,`,
+        `抓取每个用户<span class="key">最新</span>的几个作品`,
+        `抓取每個用戶<span class="key">最新</span>的幾個作品`,
+        `Crawl the <span class="key">latest</span> few works of each user`,
+        `各ユーザーの<span class="key">最新</span>の数作品をクロール`,
+        `각 사용자별 <span class="key">최신</span> 몇 작품 크롤링`,
+        `Собрать последние несколько работ каждого пользователя,`,
+    ],
+    _把文件保存到用户上次选择的位置: [
+        `把文件保存到用户上次<span class="key">选择</span>的位置`,
+        `把檔案保存到用戶上次<span class="key">選擇</span>的位置`,
+        `Save file to the user's last <span class="key">selected</span> location`,
+        `ファイルをユーザーが最後に<span class="key">選択</span>した場所に保存`,
+        `파일을 사용자가 마지막으로 <span class="key">선택</span>한 위치에 저장`,
+        `Сохранить файл в последнем <span class="key">выбранном</span> пользователем месте`,
+    ],
+    _使用前请先查看提示: [
+        `使用前请先查看提示`,
+        `使用前請先查看提示`,
+        `View the tip before use`,
+        `使用前にヒントを確認してください`,
+        `사용 전에 힌트 확인하세요`,
+        `Просмотрите подсказку перед использованием`,
+    ],
+    _把文件保存到用户上次选择的位置的说明: [
+        `我不推荐启用这个设置，除非你已经阅读了下面的说明。
+<br>
+<br>
+这个设置是为喜欢<strong>手动保存文件</strong>的用户设计的，他们喜欢使用“另存为”对话框来保存文件，并希望下载器能记住上次保存的位置。
+<br>
+<br>
+如果你想使用这个功能，需要注意：
+<br>
+- 要让这个设置正确工作，必须在浏览器的下载设置里启用“每次下载文件时都询问保存位置”，否则浏览器不会显示另存为对话框，并且文件会保存到浏览器设置里的保存位置（而非上次选择的位置）。
+<br>
+- 如果你关闭了浏览器的“每次下载文件时都询问保存位置”设置，那么也应该关闭这个设置。
+<br>
+- 如果你启用了这个设置，下载器<strong>不会创建文件夹</strong>，只会设置文件名。这是因为实现“记住上次保存位置”的效果需要使用 a 标签的 download 属性来下载文件，此时不能创建文件夹。
+<br>
+- 如果你启用了这个设置，下载器总是默认这个文件下载成功（即使你取消保存这个文件也是如此）。这是为了简化处理。
+<br>`,
+        `我不推薦啟用這個設置，除非你已經閱讀了下面的說明。
+<br>
+<br>
+這個設置是為喜歡<strong>手動保存文件</strong>的用戶設計的，他們喜歡使用「另存為」對話框來保存文件，並希望下載器能記住上次保存的位置。
+<br>
+<br>
+如果你想使用這個功能，需要注意：
+<br>
+- 要讓這個設置正確工作，必須在瀏覽器的下載設置裡啟用「每次下載文件時都詢問保存位置」，否則瀏覽器不會顯示另存為對話框，並且文件會保存到瀏覽器設置裡的保存位置（而非上次選擇的位置）。
+<br>
+- 如果你關閉了瀏覽器的「每次下載文件時都詢問保存位置」設置，那麼也應該關閉這個設置。
+<br>
+- 如果你啟用了這個設置，下載器<strong>不會創建文件夾</strong>，只會設置文件名。這是因為實現「記住上次保存位置」的效果需要使用 a 標籤的 download 屬性來下載文件，此時不能創建文件夾。
+<br>
+- 如果你啟用了這個設置，下載器總是默認這個文件下載成功（即使你取消保存這個文件也是如此）。這是為了簡化處理。
+<br>`,
+        `I do not recommend enabling this setting unless you have read the following instructions.
+<br>
+<br>
+This setting is designed for users who prefer <strong>manually saving files</strong>. They like to use the "Save As" dialog to save files and hope the downloader can remember the last save location.
+<br>
+<br>
+If you want to use this feature, please note:
+<br>
+- To make this setting work correctly, you must enable "Ask where to save each file before downloading" in your browser's download settings. Otherwise, the browser will not display the Save As dialog, and the file will be saved to the browser's default save location (not the last selected location).
+<br>
+- If you disable "Ask where to save each file before downloading" in the browser, you should also disable this setting.
+<br>
+- If you enable this setting, the downloader <strong>will not create folders</strong> and will only set the filename. This is because implementing the "remember last save location" effect requires using the download attribute of the a tag to download the file, at which point folders cannot be created.
+<br>
+- If you enable this setting, the downloader always assumes the file download is successful (even if you cancel saving the file). This is to simplify the handling.
+<br>`,
+        `この設定を有効にすることを推奨しません。以下の説明を読み終えるまでは有効にしないでください。
+<br>
+<br>
+この設定は、<strong>ファイルを手動で保存</strong>することを好むユーザーのために設計されています。彼らは「名前を付けて保存」ダイアログを使用してファイルを保存し、ダウンロードツールが前回の保存場所を記憶することを望んでいます。
+<br>
+<br>
+この機能を使用したい場合、以下の点に注意してください：
+<br>
+- この設定を正しく動作させるには、ブラウザのダウンロード設定で「ファイルをダウンロードする前に保存場所を毎回尋ねる」を有効にする必要があります。そうしないと、ブラウザは「名前を付けて保存」ダイアログを表示せず、ファイルはブラウザ設定の保存場所（前回選択した場所ではなく）に保存されます。
+<br>
+- ブラウザの「ファイルをダウンロードする前に保存場所を毎回尋ねる」設定を無効にした場合、この設定も無効にしてください。
+<br>
+- この設定を有効にすると、ダウンロードツールは<strong>フォルダを作成しません</strong>。ファイル名のみを設定します。これは、「前回の保存場所を記憶」する効果を実現するために、a タグの download 属性を使用してファイルをダウンロードする必要があるためで、その時点ではフォルダを作成できません。
+<br>
+- この設定を有効にすると、ダウンロードツールは常にこのファイルのダウンロードが成功したものとみなします（ファイルを保存せずにキャンセルした場合でも同様です）。これは処理を簡素化するためです。
+<br>`,
+        `이 설정을 활성화하는 것을 권장하지 않습니다. 아래 설명을 읽을 때까지 활성화하지 마세요.
+<br>
+<br>
+이 설정은 <strong>파일을 수동으로 저장</strong>하는 것을 선호하는 사용자들을 위해 설계되었습니다. 그들은 "다른 이름으로 저장" 대화 상자를 사용하여 파일을 저장하고, 다운로더가 마지막 저장 위치를 기억하기를 원합니다.
+<br>
+<br>
+이 기능을 사용하려면 다음 사항에 주의하세요:
+<br>
+- 이 설정이 제대로 작동하려면 브라우저의 다운로드 설정에서 "각 파일 다운로드 전에 저장 위치를 묻기"를 활성화해야 합니다. 그렇지 않으면 브라우저가 "다른 이름으로 저장" 대화 상자를 표시하지 않고, 파일은 브라우저 설정의 기본 저장 위치(마지막 선택한 위치가 아님)에 저장됩니다.
+<br>
+- 브라우저의 "각 파일 다운로드 전에 저장 위치를 묻기" 설정을 비활성화한 경우, 이 설정도 비활성화하세요.
+<br>
+- 이 설정을 활성화하면 다운로더는 <strong>폴더를 생성하지 않습니다</strong>. 파일 이름만 설정합니다. 이는 "마지막 저장 위치 기억" 효과를 구현하기 위해 a 태그의 download 속성을 사용하여 파일을 다운로드해야 하기 때문으로, 그 시점에서 폴더를 생성할 수 없습니다.
+<br>
+- 이 설정을 활성화하면 다운로더는 항상 이 파일의 다운로드가 성공했다고 가정합니다(파일 저장을 취소한 경우에도 마찬가지입니다). 이는 처리를 단순화하기 위함입니다.
+<br>`,
+        `Я не рекомендую включать эту настройку, если вы не прочитали следующие инструкции.
+<br>
+<br>
+Эта настройка предназначена для пользователей, которые предпочитают <strong>вручную сохранять файлы</strong>. Они любят использовать диалог «Сохранить как» для сохранения файлов и надеются, что загрузчик запомнит последнее место сохранения.
+<br>
+<br>
+Если вы хотите использовать эту функцию, обратите внимание на следующее:
+<br>
+- Чтобы эта настройка работала правильно, в настройках загрузок браузера необходимо включить опцию «Спрашивать, куда сохранять каждый файл перед загрузкой». В противном случае браузер не покажет диалог «Сохранить как», и файл будет сохранен в место по умолчанию в настройках браузера (а не в последнее выбранное место).
+<br>
+- Если вы отключили опцию «Спрашивать, куда сохранять каждый файл перед загрузкой» в браузере, то эту настройку тоже следует отключить.
+<br>
+- Если вы включили эту настройку, загрузчик <strong>не будет создавать папки</strong> и будет устанавливать только имя файла. Это потому, что для реализации эффекта «запомнить последнее место сохранения» требуется использовать атрибут download тега a для загрузки файла, и в этот момент папки создать нельзя.
+<br>
+- Если вы включили эту настройку, загрузчик всегда считает, что загрузка файла прошла успешно (даже если вы отменили сохранение файла). Это сделано для упрощения обработки.
+<br>`,
     ],
 };
 
@@ -33195,6 +33345,14 @@ class Form {
     }
     /**点击一些按钮时，通过 msgBox 显示帮助 */
     showMsgTip() {
+        // 把文件保存到用户上次选择的位置的说明
+        this.form
+            .querySelector('#showRememberTheLastSaveLocationTip')
+            .addEventListener('click', () => {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_把文件保存到用户上次选择的位置的说明'), {
+                title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_把文件保存到用户上次选择的位置'),
+            });
+        });
         // 显示复制按钮所复制的内容的提示
         this.form
             .querySelector('#showCopyWorkDataTip')
@@ -33334,7 +33492,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 // 设置项编号从 0 开始，现在最大是 90
-// 目前没有使用的编号: 15, 20, 73
+// 目前没有使用的编号: 73
 // 有些设置曾经使用过这些编号，但后来被移除了，所以这些编号就空缺了。在以后添加新设置时，可以考虑使用这些空缺的编号
 const formHtml = `
 <form class="settingForm">
@@ -33811,8 +33969,17 @@ const formHtml = `
         <span data-xztext="_自动开始下载"></span>
         <span class="gray1"> ? </span>
       </a>
-      <input type="checkbox" name="autoStartDownload" id="setQuietDownload" class="need_beautify checkbox_switch" checked>
+      <input type="checkbox" name="autoStartDownload" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
+    </p>
+    <p class="option" data-no="20">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(20)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用前请先查看提示">
+        <span data-xztext="_把文件保存到用户上次选择的位置"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="rememberTheLastSaveLocation" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch" tabindex="0"></span>
+      <button type="button" class="gray1 textButton" id="showRememberTheLastSaveLocationTip" data-xztext="_提示"></button>
     </p>
     <p class="option" data-no="33">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(33)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载之后收藏作品的提示">
@@ -34769,6 +34936,7 @@ class FormSettings {
             'copyFormatHtml',
             'showCopyBtnOnThumb',
             'crawlLatestFewWorks',
+            'rememberTheLastSaveLocation',
         ],
         text: [
             'firstFewImages',
@@ -35242,7 +35410,9 @@ class Options {
     }
     allOption;
     /**始终保持显示的选项 */
-    whiteList = [2, 4, 13, 17, 32, 44, 50, 51, 57, 64];
+    whiteList = [
+        2, 4, 13, 17, 20, 32, 44, 50, 51, 57, 64,
+    ];
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
@@ -35970,6 +36140,7 @@ class Settings {
         copyImageSize: 'regular',
         crawlLatestFewWorks: false,
         crawlLatestFewWorksNumber: 10,
+        rememberTheLastSaveLocation: false,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的选项

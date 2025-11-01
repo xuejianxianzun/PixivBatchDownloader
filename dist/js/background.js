@@ -1688,6 +1688,21 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.a
             });
         }
     }
+    // 使用 a.download 来下载文件时，不调用 downloads API，并且直接返回下载成功的模拟数据
+    if (msg.msg === 'save_work_file_a_download') {
+        const tabId = sender.tab.id;
+        const data = {
+            msg: 'downloaded',
+            data: {
+                url: '',
+                id: msg.id,
+                tabId,
+                uuid: false,
+            },
+            err: '',
+        };
+        webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().tabs.sendMessage(tabId, data);
+    }
     // 有些文件属于某个抓取结果的附加项，本身不在抓取结果 store.result 里，所以也没有它的进度条
     // 对于这些文件直接下载，不需要回调函数，也不需要返回下载结果
     if (msg.msg === 'save_description_file' ||

@@ -203,6 +203,15 @@ class Form {
 
   /**点击一些按钮时，通过 msgBox 显示帮助 */
   private showMsgTip() {
+    // 把文件保存到用户上次选择的位置的说明
+    this.form
+      .querySelector('#showRememberTheLastSaveLocationTip')!
+      .addEventListener('click', () => {
+        msgBox.show(lang.transl('_把文件保存到用户上次选择的位置的说明'), {
+          title: lang.transl('_把文件保存到用户上次选择的位置'),
+        })
+      })
+
     // 显示复制按钮所复制的内容的提示
     this.form
       .querySelector('#showCopyWorkDataTip')!

@@ -304,6 +304,7 @@ interface XzSetting {
   copyImageSize: 'original' | 'regular'
   crawlLatestFewWorks: boolean
   crawlLatestFewWorksNumber: number
+  rememberTheLastSaveLocation: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -742,6 +743,7 @@ class Settings {
     copyImageSize: 'regular',
     crawlLatestFewWorks: false,
     crawlLatestFewWorksNumber: 10,
+    rememberTheLastSaveLocation: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
