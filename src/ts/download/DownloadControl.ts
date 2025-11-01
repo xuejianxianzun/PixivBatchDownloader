@@ -145,11 +145,10 @@ class DownloadControl {
       this.checkDownloadTimeoutTimer = window.setTimeout(() => {
         const msg =
           lang.transl('_可能发生了错误请刷新页面重试') +
-          '<br><br>' +
+          '<br>' +
           lang.transl('_下载卡住的提示')
-        msgBox.once('mayError', msg, 'warning')
         log.warning(msg, 1, false, 'mayError')
-      }, 5000)
+      }, 30000)
     })
 
     const clearDownloadTimeoutTimerList = [

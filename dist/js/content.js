@@ -18877,11 +18877,10 @@ class DownloadControl {
             window.clearTimeout(this.checkDownloadTimeoutTimer);
             this.checkDownloadTimeoutTimer = window.setTimeout(() => {
                 const msg = _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_可能发生了错误请刷新页面重试') +
-                    '<br><br>' +
+                    '<br>' +
                     _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_下载卡住的提示');
-                _MsgBox__WEBPACK_IMPORTED_MODULE_21__.msgBox.once('mayError', msg, 'warning');
                 _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(msg, 1, false, 'mayError');
-            }, 5000);
+            }, 30000);
         });
         const clearDownloadTimeoutTimerList = [
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadComplete,
