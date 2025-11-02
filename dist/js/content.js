@@ -35413,40 +35413,26 @@ class Options {
     whiteList = [
         2, 4, 13, 17, 20, 32, 44, 50, 51, 57, 64,
     ];
+    newOptions = [14, 15, 20];
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name === 'showAdvancedSettings') {
-                this.handleShowAdvancedSettings();
-                this.alwaysHideSomeOption();
+                this.display();
             }
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, () => {
             window.setTimeout(() => {
-                this.handleShowAdvancedSettings();
-                this.alwaysHideSomeOption();
+                this.display();
             }, 0);
         });
     }
-    // 总是隐藏某些设置
-    alwaysHideSomeOption() {
-        this.hideOption([79, 80]);
-        // 某些设置在移动端不会生效，所以隐藏它们
-        // 主要是和作品缩略图相关的一些设置、增强功能
-        if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
-            this.hideOption([18, 68, 55, 71, 62, 40]);
-        }
-        // 大部分设置在 pixivision 里都不适用，所以需要隐藏它们
-        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Pixivision) {
-            this.hideOption([
-                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22,
-                23, 24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44,
-                46, 47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
-                66, 67, 68, 69, 70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84,
-                85, 86, 87, 88, 89,
-            ]);
-        }
+    display() {
+        this.handleShowAdvancedSettings();
+        this.alwaysHideSomeOption();
+        this.showNewFlag();
     }
+    /**根据显示/隐藏高级设置来处理每个选项的显示与隐藏 */
     handleShowAdvancedSettings() {
         for (const option of this.allOption) {
             if (option.dataset.no === undefined) {
@@ -35468,6 +35454,32 @@ class Options {
                 this.showOption([no]);
             }
         }
+    }
+    /**总是隐藏某些设置 */
+    alwaysHideSomeOption() {
+        this.hideOption([15, 79, 80]);
+        // 某些设置在移动端不会生效，所以隐藏它们
+        // 主要是和作品缩略图相关的一些设置、增强功能
+        if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
+            this.hideOption([18, 68, 55, 71, 62, 40]);
+        }
+        // 大部分设置在 pixivision 里都不适用，所以需要隐藏它们
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Pixivision) {
+            this.hideOption([
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22,
+                23, 24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44,
+                46, 47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
+                66, 67, 68, 69, 70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84,
+                85, 86, 87, 88, 89,
+            ]);
+        }
+    }
+    /**显示 new 角标 */
+    showNewFlag() {
+        this.newOptions.forEach((no) => {
+            const el = this.getOption(no);
+            el.classList.add('new');
+        });
     }
     // 使用编号获取指定选项的元素
     getOption(no) {
