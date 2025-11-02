@@ -6,7 +6,7 @@ import {
   ArtworkData,
   UgoiraMetaData,
   RecommendData,
-  RankingData,
+  RankingImageWorkData,
   RecommenderData,
   SearchData,
   NewIllustData,
@@ -24,6 +24,7 @@ import {
   LatestMessageData,
   NovelSeriesContentData,
   NovelInsertIllusts,
+  RankingNovelData,
 } from './crawl/CrawlResult'
 
 import {
@@ -295,9 +296,11 @@ class API {
     return this.sendGetRequest(url)
   }
 
-  // 获取排行榜数据
+  /**获取插画、漫画、动画排行榜数据 */
   // 排行榜数据基本是一批 50 条作品信息
-  static getRankingData(option: RankingOption): Promise<RankingData> {
+  static getRankingDataImageWork(
+    option: RankingOption
+  ): Promise<RankingImageWorkData> {
     let url = `https://www.pixiv.net/ranking.php?mode=${option.mode}&p=${option.p}&format=json`
 
     // 把可选项添加到 url 里
@@ -312,6 +315,29 @@ class API {
     }
 
     url = temp.toString()
+
+    return this.sendGetRequest(url)
+  }
+
+  /**获取小说排行榜数据。参数 p 是页码，一页包含 50 个小说 */
+  static getRankingDataNovel(
+    mode: string,
+    date: string | null,
+    p: number
+  ): Promise<RankingNovelData> {
+    // 完整的 url 示例：
+    // https://www.pixiv.net/ajax/ranking/novel?mode=daily&date=20251030&p=2&lang=zh
+
+    // 基础 URL
+    let url = `https://www.pixiv.net/ajax/ranking/novel?mode=${mode}`
+
+    // 动态添加 date 参数
+    if (date) {
+      url += `&date=${date}`
+    }
+
+    // 添加其他参数
+    url += `&p=${p}&lang=zh`
 
     return this.sendGetRequest(url)
   }

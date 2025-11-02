@@ -730,8 +730,8 @@ class Settings {
     saveEachDescription: true,
     summarizeDescription: false,
     slowCrawlDealy: 1600,
-    downloadInterval: 0,
-    downloadIntervalOnWorksNumber: 120,
+    downloadInterval: 1,
+    downloadIntervalOnWorksNumber: 150,
     tipOpenWikiLink: true,
     copyWorkInfoFormat:
       'id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}',

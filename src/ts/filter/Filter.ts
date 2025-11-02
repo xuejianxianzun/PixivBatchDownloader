@@ -27,6 +27,7 @@ export interface FilterOption {
   pageCount?: number
   tags?: string[]
   bookmarkCount?: number
+  /**是否已收藏。虽然可以传递对象，但在判断时只会判断是否为真 */
   bookmarkData?: any
   width?: number
   height?: number

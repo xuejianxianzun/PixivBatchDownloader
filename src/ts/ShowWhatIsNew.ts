@@ -24,11 +24,12 @@ class ShowWhatIsNew {
       <br>
       <span>${lang.transl('_把文件保存到用户上次选择的位置')}</span>
       <br>
-      <br>
       <span>${lang.transl('_默认未启用')}</span>
       <br>
       ${lang.transl('_你可以在xx选项卡里找到它', lang.transl('_下载'))}
       <br>
+      <br>
+      <span>😊${lang.transl('_优化用户体验')}</span>
       `
 
       // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong>

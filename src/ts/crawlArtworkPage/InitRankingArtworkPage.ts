@@ -6,7 +6,7 @@ import { lang } from '../Language'
 import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { RankingOption } from '../crawl/CrawlArgument'
-import { RankingData } from '../crawl/CrawlResult'
+import { RankingImageWorkData } from '../crawl/CrawlResult'
 import { filter, FilterOption } from '../filter/Filter'
 import { store } from '../store/Store'
 import { log } from '../Log'
@@ -119,9 +119,9 @@ class InitRankingArtworkPage extends InitPageBase {
     this.option.p = this.startpageNo + this.listPageFinished
 
     // 发起请求，获取作品列表
-    let data: RankingData
+    let data: RankingImageWorkData
     try {
-      data = await API.getRankingData(this.option)
+      data = await API.getRankingDataImageWork(this.option)
     } catch (error: Error | any) {
       if (error.status === 404) {
         // 如果发生了404错误，则中断抓取，直接下载已有部分。因为可能确实没有下一部分了

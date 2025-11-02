@@ -754,7 +754,7 @@ export const formHtml = `
         <span data-xztext="_下载间隔"></span>
         <span class="gray1"> ? </span>
       </a>
-      <span data-xztext="_当作品数量大于"></span>
+      <span data-xztext="_当文件数量大于"></span>
       <input type="text" name="downloadIntervalOnWorksNumber" class="setinput_style1 blue" value="120">
       <span class="verticalSplit"></span>
       <span data-xztext="_间隔时间"></span>

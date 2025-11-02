@@ -1410,9 +1410,9 @@ class API {
         const url = `https://www.pixiv.net/ajax/illust/${id}/recommend/init?limit=18`;
         return this.sendGetRequest(url);
     }
-    // 获取排行榜数据
+    /**获取插画、漫画、动画排行榜数据 */
     // 排行榜数据基本是一批 50 条作品信息
-    static getRankingData(option) {
+    static getRankingDataImageWork(option) {
         let url = `https://www.pixiv.net/ranking.php?mode=${option.mode}&p=${option.p}&format=json`;
         // 把可选项添加到 url 里
         let temp = new URL(url);
@@ -1424,6 +1424,20 @@ class API {
             temp.searchParams.set('date', option.date);
         }
         url = temp.toString();
+        return this.sendGetRequest(url);
+    }
+    /**获取小说排行榜数据。参数 p 是页码，一页包含 50 个小说 */
+    static getRankingDataNovel(mode, date, p) {
+        // 完整的 url 示例：
+        // https://www.pixiv.net/ajax/ranking/novel?mode=daily&date=20251030&p=2&lang=zh
+        // 基础 URL
+        let url = `https://www.pixiv.net/ajax/ranking/novel?mode=${mode}`;
+        // 动态添加 date 参数
+        if (date) {
+            url += `&date=${date}`;
+        }
+        // 添加其他参数
+        url += `&p=${p}&lang=zh`;
         return this.sendGetRequest(url);
     }
     // 获取收藏后的相似作品数据
@@ -4787,13 +4801,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawlNovelPage_InitNovelSeriesPage__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./crawlNovelPage/InitNovelSeriesPage */ "./src/ts/crawlNovelPage/InitNovelSeriesPage.ts");
 /* harmony import */ var _crawlNovelPage_InitSearchNovelPage__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./crawlNovelPage/InitSearchNovelPage */ "./src/ts/crawlNovelPage/InitSearchNovelPage.ts");
 /* harmony import */ var _crawlNovelPage_InitRankingNovelPage__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./crawlNovelPage/InitRankingNovelPage */ "./src/ts/crawlNovelPage/InitRankingNovelPage.ts");
-/* harmony import */ var _crawlNovelPage_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./crawlNovelPage/InitNewNovelPage */ "./src/ts/crawlNovelPage/InitNewNovelPage.ts");
-/* harmony import */ var _crawlArtworkPage_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./crawlArtworkPage/InitArtworkSeriesPage */ "./src/ts/crawlArtworkPage/InitArtworkSeriesPage.ts");
-/* harmony import */ var _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./crawlMixedPage/InitFollowingPage */ "./src/ts/crawlMixedPage/InitFollowingPage.ts");
-/* harmony import */ var _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./crawl/InitUnsupportedPage */ "./src/ts/crawl/InitUnsupportedPage.ts");
-/* harmony import */ var _crawlMixedPage_InitUnlistedPage__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./crawlMixedPage/InitUnlistedPage */ "./src/ts/crawlMixedPage/InitUnlistedPage.ts");
-/* harmony import */ var _crawl_InitRequestPage__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./crawl/InitRequestPage */ "./src/ts/crawl/InitRequestPage.ts");
+/* harmony import */ var _crawlNovelPage_InitRankingNovelPageNew__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./crawlNovelPage/InitRankingNovelPageNew */ "./src/ts/crawlNovelPage/InitRankingNovelPageNew.ts");
+/* harmony import */ var _crawlNovelPage_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./crawlNovelPage/InitNewNovelPage */ "./src/ts/crawlNovelPage/InitNewNovelPage.ts");
+/* harmony import */ var _crawlArtworkPage_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./crawlArtworkPage/InitArtworkSeriesPage */ "./src/ts/crawlArtworkPage/InitArtworkSeriesPage.ts");
+/* harmony import */ var _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./crawlMixedPage/InitFollowingPage */ "./src/ts/crawlMixedPage/InitFollowingPage.ts");
+/* harmony import */ var _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./crawl/InitUnsupportedPage */ "./src/ts/crawl/InitUnsupportedPage.ts");
+/* harmony import */ var _crawlMixedPage_InitUnlistedPage__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./crawlMixedPage/InitUnlistedPage */ "./src/ts/crawlMixedPage/InitUnlistedPage.ts");
+/* harmony import */ var _crawl_InitRequestPage__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./crawl/InitRequestPage */ "./src/ts/crawl/InitRequestPage.ts");
 // 根据页面类型来初始化抓取流程和一些特定的功能
+
 
 
 
@@ -4861,23 +4877,25 @@ class InitPage {
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelSearch:
                 return new _crawlNovelPage_InitSearchNovelPage__WEBPACK_IMPORTED_MODULE_16__.InitSearchNovelPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelRanking:
-                return new _crawlNovelPage_InitRankingNovelPage__WEBPACK_IMPORTED_MODULE_17__.InitRankingNovelPage();
+                // 查找旧版小说排行榜的页码区域，判断页面是旧版还是新版
+                const old = document.querySelector('.pager-container');
+                return old ? new _crawlNovelPage_InitRankingNovelPage__WEBPACK_IMPORTED_MODULE_17__.InitRankingNovelPage() : new _crawlNovelPage_InitRankingNovelPageNew__WEBPACK_IMPORTED_MODULE_18__.InitRankingNovelPageNew();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewNovelBookmark:
                 return new _crawlMixedPage_InitBookmarkNewPage__WEBPACK_IMPORTED_MODULE_11__.InitBookmarkNewPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewNovel:
-                return new _crawlNovelPage_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_18__.InitNewNovelPage();
+                return new _crawlNovelPage_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_19__.InitNewNovelPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkSeries:
-                return new _crawlArtworkPage_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_19__.InitArtworkSeriesPage();
+                return new _crawlArtworkPage_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_20__.InitArtworkSeriesPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Following:
-                return new _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_20__.InitFollowingPage();
+                return new _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_21__.InitFollowingPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Unlisted:
-                return new _crawlMixedPage_InitUnlistedPage__WEBPACK_IMPORTED_MODULE_22__.InitUnlistedPage();
+                return new _crawlMixedPage_InitUnlistedPage__WEBPACK_IMPORTED_MODULE_23__.InitUnlistedPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request:
-                return new _crawl_InitRequestPage__WEBPACK_IMPORTED_MODULE_23__.InitRequestPage();
+                return new _crawl_InitRequestPage__WEBPACK_IMPORTED_MODULE_24__.InitRequestPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.DiscoverUsers:
-                return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_21__.InitUnsupportedPage();
+                return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__.InitUnsupportedPage();
             default:
-                return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_21__.InitUnsupportedPage();
+                return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__.InitUnsupportedPage();
         }
     }
 }
@@ -9741,11 +9759,12 @@ class ShowWhatIsNew {
       <br>
       <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_把文件保存到用户上次选择的位置')}</span>
       <br>
-      <br>
       <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_默认未启用')}</span>
       <br>
       ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在xx选项卡里找到它', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载'))}
       <br>
+      <br>
+      <span>😊${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化用户体验')}</span>
       `;
             // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong>
             // <strong><span>✨${lang.transl('_新增功能')}:</span></strong>
@@ -14198,7 +14217,7 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         // 发起请求，获取作品列表
         let data;
         try {
-            data = await _API__WEBPACK_IMPORTED_MODULE_2__.API.getRankingData(this.option);
+            data = await _API__WEBPACK_IMPORTED_MODULE_2__.API.getRankingDataImageWork(this.option);
         }
         catch (error) {
             if (error.status === 404) {
@@ -17645,7 +17664,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-// 初始化小说排行榜页面
 
 
 
@@ -17655,18 +17673,34 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+// 旧版小说排行榜页面，加载页面源码并从中获取数据
 class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
         this.init();
     }
     pageUrlList = [];
+    page = 1;
+    /**在小说列表的右上角有个下拉菜单，可以选择小说的语言。
+     * 但是 API 获取小说时是不区分语言的，这个下拉菜单选择的语言只是对 API 的结果进行过滤，
+     * 在网页上只显示对应语言的小说。
+     */
+    selectLang = '';
+    /**检查了多少个小说 */
+    checkTotal = 0;
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取本排行榜作品', '_抓取本排行榜作品Title', 'crawlRankingWork').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
-    initAny() { }
+    initAny() {
+        // 移除 Pixiv 高级会员的广告横幅元素
+        const ads = document.querySelectorAll('a[href^="/premium/lead/lp/"]');
+        ads.forEach((ad) => {
+            ;
+            ad.style.display = 'none';
+        });
+    }
     getWantPage() {
         // 检查下载页数的设置
         this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.type].value;
@@ -17697,12 +17731,32 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
     }
     nextStep() {
         this.getPageUrl();
+        // 处理 url 如：
+        // https://www.pixiv.net/novel/ranking.php?mode=weekly_r18&p=2&date=20251031
+        const url = new URL(window.location.href);
+        // 获取当前页码
+        const p = url.searchParams.get('p');
+        if (p) {
+            this.page = Number.parseInt(p);
+        }
+        else {
+            // 如果没有 p 参数，则默认为第 1 页
+            this.page = 1;
+        }
+        // 获取当前显示的小说语言，也就是小说列表右上角的下拉框里选择的语言
+        // pixiv 会把用户选择的语言标记保存到本地存储里。如果选择“所有语种”则值是 ''
+        const value = window.localStorage.getItem('rankinglanguageFilterSetting');
+        if (value !== null) {
+            // 在旧版页面里，这个储存的字符串额外添加了双引号，值是
+            // '"ja"' 或 '""' 这样。需要移除双引号
+            this.selectLang = value.replaceAll('"', '');
+        }
         this.getIdList();
     }
     async getIdList() {
         let dom;
         try {
-            const res = await fetch(this.pageUrlList[this.listPageFinished]);
+            const res = await fetch(this.pageUrlList[this.page - 1]);
             const text = await res.text();
             const parse = new DOMParser();
             dom = parse.parseFromString(text, 'text/html');
@@ -17711,15 +17765,13 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
             this.getIdList();
             return;
         }
+        this.page++;
         this.listPageFinished++;
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_排行榜进度', this.listPageFinished.toString()), 1, false);
         const rankingItem = dom.querySelectorAll('._ranking-items>div[id]');
         // 检查每个作品的信息
         for (const item of rankingItem) {
             const rank = parseInt(item.querySelector('h1').innerText);
-            // 检查是否已经抓取到了指定数量的作品
-            if (rank > this.crawlNumber) {
-                return this.getIdListFinished();
-            }
             // https://www.pixiv.net/novel/show.php?id=12831389
             const link = item.querySelector('.imgbox a').href;
             const id = parseInt(link.split('id=')[1]);
@@ -17744,15 +17796,26 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
                 bookmarkData: bookmarked,
                 userId: userId,
             };
-            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__.filter.check(filterOpt)) {
+            // item 上有语言标记，使用它来过滤小说
+            let checkLang = true;
+            if (this.selectLang && item.dataset.language) {
+                checkLang = item.dataset.language === this.selectLang;
+            }
+            if (!checkLang) {
+                _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器根据你选择的语言排除了一些作品', this.selectLang), 1, false, 'excludeNovelByUserSelectLanguage');
+            }
+            if ((await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__.filter.check(filterOpt)) && checkLang) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.setRankList(id.toString(), rank);
                 _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
                     type: 'novels',
                     id: id.toString(),
                 });
             }
+            this.checkTotal++;
+            if (this.checkTotal >= this.crawlNumber) {
+                return this.getIdListFinished();
+            }
         }
-        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_排行榜进度', this.listPageFinished.toString()), 1, false);
         // 抓取完毕
         if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length >= this.crawlNumber ||
             this.listPageFinished === this.pageUrlList.length) {
@@ -17765,6 +17828,205 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
     }
     resetGetIdListStatus() {
         this.pageUrlList = [];
+        this.checkTotal = 0;
+        this.listPageFinished = 0;
+    }
+}
+
+
+
+/***/ }),
+
+/***/ "./src/ts/crawlNovelPage/InitRankingNovelPageNew.ts":
+/*!**********************************************************!*\
+  !*** ./src/ts/crawlNovelPage/InitRankingNovelPageNew.ts ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   InitRankingNovelPageNew: () => (/* binding */ InitRankingNovelPageNew)
+/* harmony export */ });
+/* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
+/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+
+
+
+
+
+
+
+
+
+
+
+// 新版小说排行榜页面
+// Pixiv 的更新是批量推送的，有些用户已经是新版页面，但也有很多用户还是旧版页面。
+// 由于旧版的用户无法使用新版的 API（会返回 404），所以新版和旧版需要分开处理
+class InitRankingNovelPageNew extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
+    constructor() {
+        super();
+        this.init();
+    }
+    addCrawlBtns() {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取本排行榜作品', '_抓取本排行榜作品Title', 'crawlRankingWork').addEventListener('click', () => {
+            this.readyCrawl();
+        });
+    }
+    initAny() {
+        // 移除 Pixiv 高级会员的广告横幅元素
+        const ads = document.querySelectorAll('a[href^="/premium/lead/lp/"]');
+        ads.forEach((ad) => {
+            ;
+            ad.style.display = 'none';
+        });
+    }
+    getWantPage() {
+        // 检查下载页数的设置
+        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.type].value;
+        if (this.crawlNumber === -1) {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_向下获取所有作品'));
+        }
+        else {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载排行榜前x个作品', this.crawlNumber.toString()));
+        }
+        // 如果设置的作品个数是 -1，则设置为下载所有作品
+        if (this.crawlNumber === -1) {
+            this.crawlNumber = this.maxCount;
+        }
+    }
+    // 这 3 种排行榜只有全年龄，没有 R-18 分类：
+    // 本月、新人、原创
+    // 这 5 种排行榜有全年龄和 R-18 两种分类：
+    // 今日、本周、AI生成、受男性欢迎、受女性欢迎
+    // 这 1 种排行榜有 R-18G 分类：
+    // 本周
+    // 所以一共有 14 种排行榜分类：8 种全年龄，5 种 R-18，1 种 R-18G
+    mode = 'daily';
+    date = null;
+    page = 1;
+    /**在小说列表的右上角有个下拉菜单，可以选择小说的语言。
+     * 但是 API 获取小说时是不区分语言的，这个下拉菜单选择的语言只是对 API 的结果进行过滤，
+     * 在网页上只显示对应语言的小说。
+     */
+    selectLang = '';
+    /**检查了多少个小说 */
+    checkTotal = 0;
+    nextStep() {
+        this.getParams();
+        this.getIdList();
+    }
+    getParams() {
+        // 处理 url 如：
+        // https://www.pixiv.net/novel/ranking.php?mode=weekly_r18&p=2&date=20251031
+        const url = new URL(window.location.href);
+        // 获取排行榜模式
+        // 如果没有 mode 参数，则是默认的今日排行榜
+        this.mode = url.searchParams.get('mode') || 'daily';
+        // 获取日期
+        // 如果没有日期则不设置默认值，由 pixiv 处理
+        this.date = url.searchParams.get('date');
+        // 获取当前页码
+        const p = url.searchParams.get('p');
+        if (p) {
+            this.page = Number.parseInt(p);
+        }
+        else {
+            // 如果没有 p 参数，则默认为第 1 页
+            this.page = 1;
+        }
+        // 大部分小说排行榜都是 100 个作品。一页 50 个作品，一共有 2 页
+        // “AI生成”的排行榜只有 50 个作品，所以只有 1 页
+        // 获取当前显示的小说语言，也就是小说列表右上角的下拉框里选择的语言
+        // pixiv 会把用户选择的语言标记保存到本地存储里。如果选择“所有语种”则值是 ''
+        const value = window.localStorage.getItem('rankinglanguageFilterSetting');
+        if (value !== null) {
+            this.selectLang = value;
+        }
+    }
+    async getIdList() {
+        try {
+            const json = await _API__WEBPACK_IMPORTED_MODULE_9__.API.getRankingDataNovel(this.mode, this.date, this.page);
+            this.listPageFinished++;
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_排行榜进度', this.listPageFinished.toString()), 1, false);
+            const display_a = json.body.display_a;
+            let list = display_a.rank_a;
+            // list 可能是数组，也可能是有数字编号的对象，所以使用下标来取值
+            // 目前一页最多有 50 条小说数据，所以 length 是 50
+            const length = 50;
+            for (let i = 0; i < length; i++) {
+                const novel = list[i];
+                // 注意：有些小说可能会被作者删除，所以排行榜的数据里也就没有它。在页面上显示时，也会直接跳过它的排名编号。
+                // 2 页本来应该有 100 个作品，但有时可能只有 99 个，所以会有空值
+                if (novel === undefined) {
+                    continue;
+                }
+                const filterOpt = {
+                    id: novel.id,
+                    workType: 3,
+                    tags: novel.tag_a,
+                    bookmarkCount: novel.bookmark_count,
+                    bookmarkData: novel.is_bookmarked,
+                    userId: novel.user_id,
+                };
+                let checkLang = true;
+                if (this.selectLang) {
+                    checkLang = novel.language === this.selectLang;
+                }
+                if (!checkLang) {
+                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器根据你选择的语言排除了一些作品', this.selectLang), 1, false, 'excludeNovelByUserSelectLanguage');
+                }
+                if ((await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__.filter.check(filterOpt)) && checkLang) {
+                    const id = novel.id.toString();
+                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.setRankList(id, Number.parseInt(novel.rank));
+                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
+                        type: 'novels',
+                        id: id,
+                    });
+                }
+                this.checkTotal++;
+                if (this.checkTotal >= this.crawlNumber) {
+                    return this.getIdListFinished();
+                }
+            }
+            // 抓取完毕
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length >= this.crawlNumber || display_a.next === null) {
+                this.getIdListFinished();
+            }
+            else {
+                // 继续抓取
+                this.page = display_a.next;
+                this.getIdList();
+            }
+        }
+        catch (error) {
+            if (error.status === 404) {
+                // 如果发生了404错误，则中断抓取，直接下载已有部分。因为可能确实没有这一页了
+                console.log('404错误，直接下载已有部分');
+                this.getIdListFinished();
+            }
+            // 429 错误时延迟重试
+            if (error.status === 429) {
+                this.log429ErrorTip();
+                window.setTimeout(() => {
+                    this.getIdList();
+                }, _Config__WEBPACK_IMPORTED_MODULE_10__.Config.retryTime);
+            }
+            return;
+        }
+    }
+    resetGetIdListStatus() {
+        this.checkTotal = 0;
         this.listPageFinished = 0;
     }
 }
@@ -24362,7 +24624,15 @@ const langText = {
         'загрузить все работы с этой страницы',
     ],
     _抓取多少作品的提示: [
-        `你可以设置下载多少个作品。
+        `你可以设置抓取多少个作品。
+<br>
+<br>
+注意：如果你修改了默认的抓取过滤条件，那么可能会有一些作品被排除。
+<br>
+例如：你设置为抓取 10 个作品，其中有 6 个被排除了，那么下载器就只会保留满足条件的 4 个。
+<br>
+<br>
+对不同使用场景的说明：
 <br>
 <br>
 当你位于某个插画或小说的详情页面里，下载器会从当前作品开始抓取（包含当前作品）。
@@ -24378,85 +24648,125 @@ const langText = {
 <br>
 设置为 -1 表示抓取该页面里的所有作品。
 <br>`,
-        `你可以設定下載多少個作品。
+        `你可以設置抓取多少個作品。
+<br>
+<br>
+注意：如果你修改了預設的抓取過濾條件，那麼可能會有一些作品被排除。
+<br>
+例如：你設置為抓取 10 個作品，其中有 6 個被排除了，那麼下載器就只會保留滿足條件的 4 個。
+<br>
+<br>
+對不同使用場景的說明：
 <br>
 <br>
 當你位於某個插畫或小說的詳情頁面裡，下載器會從當前作品開始抓取（包含當前作品）。
 <br>
-設定為 1 只會抓取當前作品。
+設置為 1 只會抓取當前作品。
 <br>
-設定為 -1 表示不限制抓取數量，下載器會從當前作品開始，抓取到最後一個作品。
+設置為 -1 表示不限制抓取數量，下載器會從當前作品開始，抓取到最後一個作品。
 <br>
 <br>
 在其他頁面裡（例如排行榜頁面、關注的用戶的新作品頁面），下載器會從這一頁的第一個作品開始抓取。
 <br>
-設定為 1 只會抓取第 1 個作品。
+設置為 1 只會抓取第 1 個作品。
 <br>
-設定為 -1 表示抓取該頁面裡的所有作品。
+設置為 -1 表示抓取該頁面裡的所有作品。
 <br>`,
-        `You can set how many works to download.
+        `You can set how many works to crawl.
 <br>
 <br>
-When you are on the detail page of an illustration or novel, the downloader will start crawling from the current work (including the current work).
+Note: If you modify the default crawl filter conditions, some works may be excluded.
 <br>
-Setting it to 1 will only crawl the current work.
-<br>
-Setting it to -1 means no limit on the number of works to crawl, and the downloader will crawl from the current work to the last work.
+For example: If you set to crawl 10 works, and 6 of them are excluded, the downloader will only keep the 4 that meet the conditions.
 <br>
 <br>
-On other pages (such as the ranking page or the new works page of followed users), the downloader will start crawling from the first work on that page.
+Explanation for different usage scenarios:
 <br>
-Setting it to 1 will only crawl the first work.
 <br>
-Setting it to -1 means crawling all works on that page.
+When you are on the detail page of a certain illustration or novel, the downloader will start crawling from the current work (including the current work).
+<br>
+Setting to 1 will only crawl the current work.
+<br>
+Setting to -1 means no limit on the number of crawls; the downloader will start from the current work and crawl to the last work.
+<br>
+<br>
+On other pages (e.g., ranking page, followed user's new works page), the downloader will start crawling from the first work on this page.
+<br>
+Setting to 1 will only crawl the 1st work.
+<br>
+Setting to -1 means crawl all works on this page.
 <br>`,
-        `ダウンロードする作品の数を設定できます。
+        `作品のクロール数を設定できます。
 <br>
 <br>
-イラストや小説の詳細ページにいる場合、ダウンローダーは現在の作品からクロールを開始します（現在の作品を含みます）。
+注意：デフォルトのクロールフィルター条件を変更した場合、いくつかの作品が除外される可能性があります。
 <br>
-1 に設定すると、現在の作品のみをクロールします。
-<br>
--1 に設定すると、クロールする作品数に制限がなく、ダウンローダーは現在の作品から最後の作品までクロールします。
+例：クロール数を10に設定し、そのうち6つが除外された場合、ダウンロードツールは条件を満たす4つだけを保持します。
 <br>
 <br>
-他のページ（たとえばランキングページやフォローしているユーザーの新作ページ）にいる場合、ダウンローダーはそのページの最初の作品からクロールを開始します。
+異なる使用シナリオの説明：
 <br>
-1 に設定すると、最初の作品のみをクロールします。
 <br>
--1 に設定すると、そのページにあるすべての作品をクロールします。
+特定のイラストまたは小説の詳細ページにいる場合、ダウンロードツールは現在の作品からクロールを開始します（現在の作品を含む）。
+<br>
+1に設定すると、現在の作品のみをクロールします。
+<br>
+-1に設定すると、クロール数の制限がなく、ダウンロードツールは現在の作品から最後の作品までクロールします。
+<br>
+<br>
+他のページ（例：ランキングページ、フォロー中のユーザーの新着作品ページ）では、ダウンロードツールはこのページの最初の作品からクロールを開始します。
+<br>
+1に設定すると、最初の作品のみをクロールします。
+<br>
+-1に設定すると、このページのすべての作品をクロールします。
 <br>`,
-        `다운로드할 작품의 수를 설정할 수 있습니다.
+        `작품 크롤링 수를 설정할 수 있습니다.
 <br>
 <br>
-일러스트나 소설의 상세 페이지에 있을 때, 다운로더는 현재 작품부터 크롤링을 시작합니다(현재 작품 포함).
+주의: 기본 크롤링 필터 조건을 수정하면 일부 작품이 제외될 수 있습니다.
+<br>
+예: 크롤링 10개 작품으로 설정하고 그 중 6개가 제외되면, 다운로더는 조건을 만족하는 4개만 유지합니다.
+<br>
+<br>
+다른 사용 시나리오에 대한 설명:
+<br>
+<br>
+특정 일러스트나 소설의 상세 페이지에 있을 때, 다운로더는 현재 작품부터 크롤링을 시작합니다(현재 작품 포함).
 <br>
 1로 설정하면 현재 작품만 크롤링합니다.
 <br>
--1로 설정하면 크롤링할 작품 수에 제한이 없으며, 다운로더는 현재 작품부터 마지막 작품까지 크롤링합니다.
+-1로 설정하면 크롤링 수 제한이 없으며, 다운로더는 현재 작품부터 마지막 작품까지 크롤링합니다.
 <br>
 <br>
-다른 페이지(예: 랭킹 페이지나 팔로우한 사용자의 신규 작품 페이지)에 있을 때, 다운로더는 해당 페이지의 첫 번째 작품부터 크롤링을 시작합니다.
+다른 페이지(예: 랭킹 페이지, 팔로우한 사용자의 신작 페이지)에서 다운로더는 이 페이지의 첫 번째 작품부터 크롤링을 시작합니다.
 <br>
 1로 설정하면 첫 번째 작품만 크롤링합니다.
 <br>
--1로 설정하면 해당 페이지의 모든 작품을 크롤링합니다.
+-1로 설정하면 이 페이지의 모든 작품을 크롤링합니다.
 <br>`,
-        `Вы можете настроить, сколько работ скачать.
+        `Вы можете установить, сколько работ захватывать.
 <br>
 <br>
-Когда вы находитесь на странице с подробностями об иллюстрации или романе, загрузчик начнет сбор данных с текущей работы (включая текущую работу).
+Внимание: Если вы измените условия фильтрации захвата по умолчанию, некоторые работы могут быть исключены.
 <br>
-Установка значения 1 означает, что будет собрана только текущая работа.
-<br>
-Установка значения -1 означает отсутствие ограничений на количество собираемых работ, и загрузчик будет собирать данные от текущей работы до последней.
+Например: Если вы установите захват 10 работ, и 6 из них исключены, загрузчик сохранит только 4, соответствующие условиям.
 <br>
 <br>
-На других страницах (например, на странице рейтинга или странице новых работ пользователей, на которых вы подписаны), загрузчик начнет сбор данных с первой работы на этой странице.
+Пояснение для разных сценариев использования:
 <br>
-Установка значения 1 означает, что будет собрана только первая работа.
 <br>
-Установка значения -1 означает, что будут собраны все работы на этой странице.
+Когда вы находитесь на странице деталей определенной иллюстрации или романа, загрузчик начнет захват с текущей работы (включая текущую работу).
+<br>
+Установка на 1 захватит только текущую работу.
+<br>
+Установка на -1 означает отсутствие ограничения на количество захватов, загрузчик начнет с текущей работы и захватит до последней работы.
+<br>
+<br>
+На других страницах (например, странице рейтинга, странице новых работ следуемого пользователя), загрузчик начнет захват с первой работы на этой странице.
+<br>
+Установка на 1 захватит только 1-ю работу.
+<br>
+Установка на -1 означает захват всех работ на этой странице.
 <br>`,
     ],
     _抓取多少页面的提示: [
@@ -24818,7 +25128,7 @@ Zip 파일이 원본 파일입니다.`,
         'Сканированные {} пользователи',
     ],
     _排行榜进度: [
-        '已抓取本页面第{}部分',
+        '已抓取本页面第 {} 部分',
         '已擷取本頁面第 {} 部分',
         'Part {} of this page has been crawled',
         'このページの第　{}　部がクロールされました',
@@ -24890,12 +25200,12 @@ Zip 파일이 원본 파일입니다.`,
         'Список страниц просканирован',
     ],
     _抓取结果为零: [
-        '抓取完毕，但没有找到符合筛选条件的作品。<br>请检查“抓取”相关的设置。',
-        '擷取完畢，但沒有找到符合篩選條件的作品。<br>請檢查“抓取”相關的設定。',
-        'Crawl complete but did not find works that match the filter criteria.<br>Please check the settings related to Crawl.',
-        'クロールは終了しましたが、フィルタ条件に一致する作品が見つかりませんでした。<br>クロールに関する設定を確認してください。',
-        '긁어오기가 완료되었지만 필터 조건과 일치하는 작품을 찾지 못했습니다.<br>크롤링 관련 설정을 확인하세요.',
-        'Вытаскивание завершено, но не найдены работы, соответствующие критериям фильтра.<br>Пожалуйста, проверьте настройки, связанные со сканированием.',
+        `抓取完毕，但没有找到符合筛选条件的作品。<br>请检查“抓取”相关的设置，并查看日志里显示的信息。`,
+        `抓取完畢，但沒有找到符合篩選條件的作品。<br>請檢查「抓取」相關的設置，並查看日誌裡顯示的資訊。`,
+        `Crawling completed, but no works matching the filter conditions were found.<br>Please check the "crawl"-related settings and view the information displayed in the log.`,
+        `クロールが完了しましたが、フィルター条件に一致する作品が見つかりませんでした。<br>「クロール」関連の設定を確認し、ログに表示される情報をご覧ください。`,
+        `크롤링이 완료되었으나, 필터 조건에 맞는 작품을 찾을 수 없습니다.<br>"크롤" 관련 설정을 확인하고 로그에 표시된 정보를 확인하세요。`,
+        `Кроулинг завершен, но работы, соответствующие условиям фильтрации, не найдены。<br>Проверьте настройки, связанные с "crawl", и просмотрите информацию, отображаемую в журнале。`,
     ],
     _当前任务尚未完成: [
         '当前任务尚未完成',
@@ -28763,6 +29073,14 @@ Novel folder name: Novel`,
         '작품 수가 지정된 수를 초과하면 활성화됩니다.',
         'Включается, когда количество работ превышает указанное количество:',
     ],
+    _当文件数量大于: [
+        `当文件数量超过指定数量时启用：`,
+        `當檔案數量超過指定數量時啟用：`,
+        `Enable when the number of files exceeds the specified number:`,
+        `ファイル数が指定数を超えたときに有効にする：`,
+        `파일 수가 지정된 수를 초과할 때 활성화:`,
+        `Включить, когда количество файлов превышает указанное:`,
+    ],
     _慢速抓取: [
         '慢速抓取，以避免触发 429 限制',
         '慢速抓取，以避免觸發 429 限制',
@@ -29895,29 +30213,29 @@ When viewing the preview image, you can use the following shortcut keys:<br>
     _秒: ['秒', '秒', 'seconds', '秒', '초', 'секунд'],
     _下载间隔的说明: [
         `每隔一定时间开始一次下载。<br>
-默认值为 0，即无限制。<br>
-如果设置为 1 秒钟，那么每小时最多会从 Pixiv 下载 3600 个文件。<br>
-如果你担心因为下载文件太频繁导致账号被封禁，可以设置大于 0 的数字，以缓解此问题。<br>`,
+如果把间隔时间设置为 0，下载器就不会添加延迟时间。<br>
+如果设置为 1 秒（默认值），那么每小时最多会下载 3600 个抓取结果（不计算附带下载的文件，例如小说的封面图片和内嵌的图片）。<br>
+这是因为连续下载很多文件（特别是小说）时，你的 Pixiv 账号可能会被警告或封禁。设置间隔时间可以缓解此问题。<br>`,
         `每隔一定時間開始一次下載。<br>
-預設值為 0，即無限制。<br>
-如果設定為 1 秒鐘，那麼每小時最多會從 Pixiv 下載 3600 個檔案。<br>
-如果你擔心因為下載檔案太頻繁導致賬號被 Ban，可以設定大於 0 的數字，以緩解此問題。<br>`,
-        `Start a download every certain time. <br>
-The default value is 0, which means no limit. <br>
-If set to 1 second, a maximum of 3,600 files will be downloaded from Pixiv per hour. <br>
-If you are worried that your account will be banned due to downloading files too frequently, you can set a number greater than 0 to alleviate this problem. <br>`,
-        `一定時間ごとにダウンロードを開始します。<br>
-デフォルト値は 0 で、制限なしを意味します。<br>
-1 秒に設定すると、Pixiv から 1 時間あたり最大 3,600 ファイルがダウンロードされます。<br>
-頻繁にファイルをダウンロードしすぎてアカウントが禁止されるのではないかと心配な場合は、0 より大きい数値を設定することでこの問題を軽減できます。<br>`,
-        `특정 시간마다 다운로드를 시작합니다. <br>
-기본값은 0으로, 제한이 없음을 의미합니다. <br>
-1초로 설정하면 Pixiv에서 시간당 최대 3,600개의 파일이 다운로드됩니다. <br>
-파일을 너무 자주 다운로드해서 계정이 금지될까 걱정된다면 0보다 큰 숫자를 설정하여 이 문제를 완화할 수 있습니다. <br>`,
-        `Начинать загрузку каждый определенный момент времени. <br>
-Значение по умолчанию — 0, что означает отсутствие ограничений. <br>
-Если установлено значение 1 секунда, с Pixiv будет загружено максимум 3600 файлов в час. <br>
-Если вы беспокоитесь, что ваш аккаунт будет заблокирован из-за слишком частой загрузки файлов, вы можете установить число больше 0, чтобы решить эту проблему. <br>`,
+如果把間隔時間設置為 0，下載器就不會添加延遲時間。<br>
+如果設置為 1 秒（默認值），那麼每小時最多會下載 3600 個抓取結果（不計算附帶下載的文件，例如小說的封面圖片和內嵌的圖片）。<br>
+這是因為連續下載很多文件（特別是小說）時，你的 Pixiv 賬號可能會被警告或封禁。設置間隔時間可以緩解此問題。<br>`,
+        `Start a download every certain interval of time.<br>
+If the interval time is set to 0, the downloader will not add delay time.<br>
+If set to 1 second (default value), then up to 3600 crawl results will be downloaded per hour (not counting attached download files, such as novel cover images and embedded images).<br>
+This is because when continuously downloading many files (especially novels), your Pixiv account may be warned or banned. Setting the interval time can alleviate this issue.<br>`,
+        `一定の間隔でダウンロードを開始します。<br>
+間隔時間を 0 に設定すると、ダウンロードツールは遅延時間を追加しません。<br>
+1 秒（デフォルト値）に設定すると、1 時間あたり最大 3600 個のクロール結果をダウンロードします（小説の表紙画像や埋め込み画像などの付属ダウンロードファイルは計算に含めません）。<br>
+これは、連続して多くのファイル（特に小説）をダウンロードすると、Pixiv アカウントが警告またはBANされる可能性があるためです。間隔時間を設定することで、この問題を緩和できます。<br>`,
+        `일정 간격으로 다운로드를 시작합니다.<br>
+간격 시간을 0으로 설정하면 다운로더가 지연 시간을 추가하지 않습니다.<br>
+1초(기본값)로 설정하면, 시간당 최대 3600개의 크롤 결과(소설 표지 이미지나 내장 이미지와 같은 부수적 다운로드 파일은 계산하지 않음)를 다운로드합니다.<br>
+이는 많은 파일(특히 소설)을 연속으로 다운로드하면 Pixiv 계정이 경고되거나 차단될 수 있기 때문입니다. 간격 시간을 설정하면 이 문제를 완화할 수 있습니다.<br>`,
+        `Запускать загрузку через определенные интервалы времени.<br>
+Если установить время интервала на 0, загрузчик не добавит задержку.<br>
+Если установить на 1 секунду (значение по умолчанию), то максимум 3600 результатов захвата будет загружено в час (не считая дополнительные файлы для загрузки, такие как обложки романов и встроенные изображения).<br>
+Это потому, что при непрерывной загрузке множества файлов (особенно романов) ваш аккаунт Pixiv может быть предупрежден или заблокирован. Установка интервала времени может смягчить эту проблему.<br>`,
     ],
     _从页面上移除他们的作品: [
         '从页面上移除他们的作品',
@@ -30817,6 +31135,14 @@ If you want to use this feature, please note:
 <br>
 - Если вы включили эту настройку, загрузчик всегда считает, что загрузка файла прошла успешно (даже если вы отменили сохранение файла). Это сделано для упрощения обработки.
 <br>`,
+    ],
+    _下载器根据你选择的语言排除了一些作品: [
+        `注意：下载器根据你选择的语言 {} 排除了一些作品。`,
+        `注意：下載器根據你選擇的語言 {} 排除了一些作品。`,
+        `Note: The downloader excluded some works based on the selected language {}.`,
+        `注意：ダウンロードツールが選択した言語 {} に基づいて、いくつかの作品を除外しました。`,
+        `주의: 다운로더가 선택한 언어 {}에 따라 일부 작품을 제외했습니다.`,
+        `Внимание: Загрузчик исключил некоторые работы на основе выбранного языка {}.`,
     ],
 };
 
@@ -34244,7 +34570,7 @@ const formHtml = `
         <span data-xztext="_下载间隔"></span>
         <span class="gray1"> ? </span>
       </a>
-      <span data-xztext="_当作品数量大于"></span>
+      <span data-xztext="_当文件数量大于"></span>
       <input type="text" name="downloadIntervalOnWorksNumber" class="setinput_style1 blue" value="120">
       <span class="verticalSplit"></span>
       <span data-xztext="_间隔时间"></span>
@@ -36140,8 +36466,8 @@ class Settings {
         saveEachDescription: true,
         summarizeDescription: false,
         slowCrawlDealy: 1600,
-        downloadInterval: 0,
-        downloadIntervalOnWorksNumber: 120,
+        downloadInterval: 1,
+        downloadIntervalOnWorksNumber: 150,
         tipOpenWikiLink: true,
         copyWorkInfoFormat: 'id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}',
         showCopyBtnOnThumb: true,
