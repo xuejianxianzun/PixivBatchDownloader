@@ -707,8 +707,10 @@ export interface RankingImageWorkData {
   content: string
   page: number
   prev: boolean
-  /** 下一页的页码。如果这就是最后一页，则 next 为 null */
-  next: number | null
+  /** 下一页的页码。如果这就是最后一页，则 next 为 false */
+  // 这与小说排行榜里的 next 有所不同，小说排行榜里没有下一页时，值是 null 而不是 false
+  // 为了防止 pixiv 混用这些 falsy 值，在判断“没有下一页时”我直接使用 !next 取反，而不使用全等符号 ===
+  next: number | false
   date: string
   prev_date: string
   next_date: boolean

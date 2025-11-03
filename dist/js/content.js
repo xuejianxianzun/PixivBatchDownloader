@@ -10736,11 +10736,12 @@ class Tools {
         }
         // 在一个页面类型里多次抓取时，标题里会包含上一次的抓取结果数量
         // 处理：
-        // [pixiv] 10 插画今日排行榜 2025年11月2日
-        // 把“[pixiv] 10 ”替换成“[pixiv] ”以去掉抓取结果数量的数字
+        // '[pixiv] 10 插画今日排行榜 2025年11月2日' 去掉 '10 '
         // 处理：
-        // “25 [pixiv]发现”去掉开头的数字
-        result = result.replace(/\[pixiv\] \d+ /, '[pixiv] ').replace(/\d+ \[pixiv\]/, '[pixiv]');
+        // '25 [pixiv]发现' 去掉开头的数字
+        result = result
+            .replace(/\[pixiv\] \d+ /, '[pixiv] ')
+            .replace(/\d+ \[pixiv\]/, '[pixiv]');
         return result;
     }
     // 自定义的类型保护
@@ -14196,6 +14197,7 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         });
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取首次登场的作品', '_抓取首次登场的作品Title', 'crawlDebutWork').addEventListener('click', () => {
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.debut = true;
+            _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_抓取首次登场的作品'));
             this.readyCrawl();
         });
     }
@@ -14215,10 +14217,14 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
             _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sortByProperty('rank', 'asc'));
         }
     }
-    option = this.resetOption();
-    resetOption() {
-        return { mode: 'daily', p: 1, worksType: '', date: '' };
-    }
+    option = {
+        mode: 'daily',
+        p: 1,
+        worksType: '',
+        date: '',
+    };
+    /**检查了多少个小说 */
+    checkTotal = 0;
     getWantPage() {
         this.listPageFinished = 0;
         // 检查下载页数的设置
@@ -14235,20 +14241,31 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         }
     }
     nextStep() {
-        // 设置 option 信息
-        // mode 必须有值，其他字段有没有都行
-        this.option = this.resetOption();
-        this.option.mode = _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.getURLSearchField(location.href, 'mode') || 'daily';
-        this.option.worksType = _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.getURLSearchField(location.href, 'content');
-        this.option.date = _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.getURLSearchField(location.href, 'date');
-        this.startpageNo = 1;
+        this.getParams();
         this.getIdList();
+    }
+    getParams() {
+        // URL 可能没有附带任何查询参数，也可能有最多 4 个查询参数
+        // https://www.pixiv.net/ranking.php
+        // https://www.pixiv.net/ranking.php?mode=daily_r18&content=all&date=20251101&p=2
+        const url = new URL(window.location.href);
+        // 设置 option 里的参数
+        this.option.mode = url.searchParams.get('mode') || 'daily';
+        this.option.worksType = url.searchParams.get('content') || 'all';
+        this.option.date = url.searchParams.get('date') || undefined;
+        const p = url.searchParams.get('p');
+        if (p) {
+            this.option.p = Number.parseInt(p);
+        }
+        else {
+            // 如果没有 p 参数，则默认为第 1 页
+            this.option.p = 1;
+        }
     }
     async getIdList() {
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
             return this.getIdListFinished();
         }
-        this.option.p = this.startpageNo + this.listPageFinished;
         // 发起请求，获取作品列表
         let data;
         try {
@@ -14273,12 +14290,9 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
             return this.getIdListFinished();
         }
         this.listPageFinished++;
+        _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_排行榜进度', this.listPageFinished.toString()), 1, false);
         const contents = data.contents; // 取出作品信息列表
         for (const data of contents) {
-            // 检查是否已经抓取到了指定数量的作品
-            if (data.rank > this.crawlNumber) {
-                return this.getIdListFinished();
-            }
             const pageCount = parseInt(data.illust_page_count);
             // 目前这个数据里并没有包含收藏数量，所以在这里没办法检查收藏数量要求
             const filterOpt = {
@@ -14299,19 +14313,24 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
                     id: data.illust_id.toString(),
                 });
             }
+            this.checkTotal++;
+            if (this.checkTotal >= this.crawlNumber) {
+                return this.getIdListFinished();
+            }
         }
-        _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_排行榜进度', this.listPageFinished.toString()), 1, false);
         // 抓取完毕
-        if (data.next === null) {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_7__.store.idList.length >= this.crawlNumber || !data.next) {
             this.getIdListFinished();
         }
         else {
             // 继续抓取
+            this.option.p = data.next;
             this.getIdList();
         }
     }
     resetGetIdListStatus() {
         this.listPageFinished = 0;
+        this.checkTotal = 0;
     }
 }
 
@@ -18056,7 +18075,7 @@ class InitRankingNovelPageNew extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODU
                 }
             }
             // 抓取完毕
-            if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length >= this.crawlNumber || display_a.next === null) {
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length >= this.crawlNumber || !display_a.next) {
                 this.getIdListFinished();
             }
             else {

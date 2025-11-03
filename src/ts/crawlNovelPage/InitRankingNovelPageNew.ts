@@ -191,7 +191,7 @@ class InitRankingNovelPageNew extends InitPageBase {
       }
 
       // 抓取完毕
-      if (store.idList.length >= this.crawlNumber || display_a.next === null) {
+      if (store.idList.length >= this.crawlNumber || !display_a.next) {
         this.getIdListFinished()
       } else {
         // 继续抓取

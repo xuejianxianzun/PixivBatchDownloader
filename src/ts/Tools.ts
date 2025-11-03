@@ -407,7 +407,9 @@ class Tools {
     // '[pixiv] 10 插画今日排行榜 2025年11月2日' 去掉 '10 '
     // 处理：
     // '25 [pixiv]发现' 去掉开头的数字
-    result = result.replace(/\[pixiv\] \d+ /, '[pixiv] ').replace(/\d+ \[pixiv\]/, '[pixiv]')
+    result = result
+      .replace(/\[pixiv\] \d+ /, '[pixiv] ')
+      .replace(/\d+ \[pixiv\]/, '[pixiv]')
 
     return result
   }
