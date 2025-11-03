@@ -31,9 +31,7 @@ class ShowWhatIsNew {
       <br>
       <span>😊${lang.transl('_适配了新版排行榜页面')}</span>
       <br>
-      <br>
       <span>😊${lang.transl('_修复bug')}</span>
-      <br>
       <br>
       <span>😊${lang.transl('_优化用户体验')}</span>
       `
