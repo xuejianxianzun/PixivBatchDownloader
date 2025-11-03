@@ -41,11 +41,7 @@ class InitRankingNovelPage extends InitPageBase {
   }
 
   protected initAny() {
-    // 移除 Pixiv 高级会员的广告横幅元素
-    const ads = document.querySelectorAll('a[href^="/premium/lead/lp/"]')
-    ads.forEach((ad) => {
-      ;(ad as HTMLElement).style.display = 'none'
-    })
+    Tools.hiddenPremiumAD()
   }
 
   protected getWantPage() {

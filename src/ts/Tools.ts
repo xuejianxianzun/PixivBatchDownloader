@@ -508,6 +508,7 @@ class Tools {
     // 'https://i.pximg.net/c/250x250_80_a2/img-master/img/2019/06/23/17/29/27/75369283_square1200.jpg'
     // 排行榜页面的图片 URL 如：
     // 'https://i.pximg.net/c/240x480/img-master/img/2022/08/01/17/59/39/100156836_p0_master1200.jpg'
+    // 'https://i.pximg.net/c/480x960/img-master/img/2025/11/01/00/00/22/136937607_p0_master1200.jpg'
     const test = url.match(this.convertThumbURLReg)
     if (!test || !test[1]) {
       return url
@@ -932,6 +933,14 @@ class Tools {
 
   static getAITypeText(number: number) {
     return this.AIType[number]
+  }
+
+  /**移除 Pixiv 高级会员的广告横幅元素 */
+  static hiddenPremiumAD() {
+    const ads = document.querySelectorAll(
+      'a[href^="/premium/lead/lp/"]'
+    ) as NodeListOf<HTMLAnchorElement>
+    ads.forEach((ad) => (ad.style.display = 'none'))
   }
 }
 

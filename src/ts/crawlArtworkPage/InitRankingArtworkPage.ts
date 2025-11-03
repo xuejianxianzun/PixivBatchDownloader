@@ -55,6 +55,8 @@ class InitRankingArtworkPage extends InitPageBase {
   }
 
   protected initAny() {
+    Tools.hiddenPremiumAD()
+
     // 抓取完成后，复位 debut 标记
     // 因为 debut 只在抓取阶段被过滤器使用，所以抓取完成后就可以复位
     window.addEventListener(EVT.list.crawlComplete, () => {

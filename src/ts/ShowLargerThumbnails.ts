@@ -408,6 +408,26 @@ class ShowLargerThumbnails {
         }
       }
     }
+
+    // 图像作品的排行榜页面
+    // https://www.pixiv.net/ranking.php?mode=daily&content=illust
+    if (pageType.type === pageType.list.ArtworkRanking) {
+      // 查找作品列表，li id="1" 这样的元素就是作品缩略图，其 id 就是排名
+      const thumbList = document.querySelectorAll('ol li[id]')
+      if (thumbList.length > 0) {
+        thumbList[0].parentElement!.classList.add('worksUL', 'width92vw')
+        thumbList[0].parentElement!.parentElement!.classList.add('width92vw')
+      }
+
+      // 查找以 adsdk 开头的广告元素，隐藏它以及父元素
+      const ads = document.querySelectorAll(
+        'div[id^="adsdk"]'
+      ) as NodeListOf<HTMLElement>
+      ads.forEach((ad) => {
+        ad.style.display = 'none'
+        ad.parentElement!.style.display = 'none'
+      })
+    }
   }
 }
 

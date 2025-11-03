@@ -1644,6 +1644,8 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 '.worksUL li>div>div:first-child',
                 'div[data-ga4-entity-id^="illust"]>div:nth-child(2)',
                 'div[data-ga4-entity-id^="manga"]>div:nth-child(2)',
+                // 在新版搜索页面里使用
+                'li[id]>div:nth-child(2)',
             ];
             // div[data-ga4-entity-id^="illust"]>div:nth-child(2) 匹配新版首页的插画作品区域
             // 即显示在页面左半边的作品缩略图。它们的元素里含有此类特征：
@@ -1708,6 +1710,10 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 selector === 'div[data-ga4-entity-id^="illust"]>div:nth-child(2)' ||
                 selector === 'div[data-ga4-entity-id^="manga"]>div:nth-child(2)') &&
                 _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Home) {
+                continue;
+            }
+            if (selector === 'li[id]>div:nth-child(2)' &&
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkRanking) {
                 continue;
             }
             const elements = parent.querySelectorAll(selector);
@@ -7974,41 +7980,49 @@ __webpack_require__.r(__webpack_exports__);
 class ReplaceSquareThumb {
     constructor() {
         this.bindEvents();
-        this.observer();
-    }
-    isDisable() {
-        return window.location.pathname.startsWith('/group');
     }
     bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
-            const data = ev.detail.data;
-            if (data.name === 'replaceSquareThumb') {
-                if (data.value) {
-                    this.replaceAllImage();
-                }
-            }
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, (ev) => {
+            // 在 settingInitialized 时执行，此时所有设置都已经从本地存储中恢复
+            // 之前是在 settingChange 事件里监听到 replaceSquareThumb 变化时执行
+            // 但是本模块在排行榜页面里还需要判断 settings.showLargerThumbnails
+            // 它的默认值是 false，但用户可能把它修改为 true
+            // 之前执行时，showLargerThumbnails 还是内置的默认值 false，尚未恢复为用户储存的值，
+            // 这导致一些图片被跳过处理，我一开始没有意识到是这个原因，浪费了一些时间才找到原因
+            this.replaceAllImage();
+            this.observer();
         });
     }
     replaceAllImage() {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.replaceSquareThumb ||
             _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type == _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkRanking) {
-            const allImage = document.querySelectorAll('img');
+            const allImage = document.body.querySelectorAll('img');
             allImage.forEach((img) => this.replace(img));
         }
     }
+    get disable() {
+        return window.location.pathname.startsWith('/group');
+    }
+    /**在排行榜页面进行特殊处理 */
+    // 排行榜里的缩略图本来就是保持了比例的，不需要替换其缩略图。但是排行榜里的缩略图原本尺寸较小，当用户启用了“显示更大的缩略图”之后，缩略图被放大后显得模糊，此时需要替换成更大尺寸的缩略图。
+    get handleArtworkRanking() {
+        return (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkRanking &&
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.showLargerThumbnails);
+    }
     replace(img) {
-        if (!img.src || img.dataset.index || this.isDisable()) {
+        if (!img.src || img.dataset.index || this.disable) {
             return;
         }
         const src = img.src;
+        // 排除不需要替换的图片
         if (!src.endsWith('square1200.jpg') && !src.endsWith('custom1200.jpg')) {
-            if (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkRanking &&
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.showLargerThumbnails) {
-                // 排行榜里的缩略图本来就是保持了比例的，不需要替换其缩略图。
-                // 但是排行榜里的缩略图原本尺寸较小，当用户启用了“显示更大的缩略图”之后，缩略图被放大后显得模糊，此时需要替换成更大尺寸的缩略图。
-                // 排行榜页面的图片 URL 比较特别，末尾是 master1200，如下：
+            // 排行榜页面里的图片 URL 后缀不一样，需要特别处理
+            if (this.handleArtworkRanking) {
+                // 旧版排行榜页面的图片 URL 如下：
                 // 'https://i.pximg.net/c/240x480/img-master/img/2022/08/01/17/59/39/100156836_p0_master1200.jpg'
-                if (!src.includes('240x480')) {
+                // 新版排行榜页面的图片 URL 如下，最大尺寸是 480 px：
+                // https://i.pximg.net/c/480x960/img-master/img/2025/11/01/00/00/22/136937607_p0_master1200.jpg
+                if (!src.includes('240x480') && !src.includes('480x960')) {
                     return;
                 }
             }
@@ -8016,6 +8030,7 @@ class ReplaceSquareThumb {
                 return;
             }
         }
+        // 替换 src
         img.src = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.convertThumbURLTo540px(src);
         img.style.objectFit = 'contain';
     }
@@ -9241,6 +9256,22 @@ class ShowLargerThumbnails {
                     }
                 }
             }
+        }
+        // 图像作品的排行榜页面
+        // https://www.pixiv.net/ranking.php?mode=daily&content=illust
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.ArtworkRanking) {
+            // 查找作品列表，li id="1" 这样的元素就是作品缩略图，其 id 就是排名
+            const thumbList = document.querySelectorAll('ol li[id]');
+            if (thumbList.length > 0) {
+                thumbList[0].parentElement.classList.add('worksUL', 'width92vw');
+                thumbList[0].parentElement.parentElement.classList.add('width92vw');
+            }
+            // 查找以 adsdk 开头的广告元素，隐藏它以及父元素
+            const ads = document.querySelectorAll('div[id^="adsdk"]');
+            ads.forEach((ad) => {
+                ad.style.display = 'none';
+                ad.parentElement.style.display = 'none';
+            });
         }
     }
 }
@@ -10789,6 +10820,7 @@ class Tools {
         // 'https://i.pximg.net/c/250x250_80_a2/img-master/img/2019/06/23/17/29/27/75369283_square1200.jpg'
         // 排行榜页面的图片 URL 如：
         // 'https://i.pximg.net/c/240x480/img-master/img/2022/08/01/17/59/39/100156836_p0_master1200.jpg'
+        // 'https://i.pximg.net/c/480x960/img-master/img/2025/11/01/00/00/22/136937607_p0_master1200.jpg'
         const test = url.match(this.convertThumbURLReg);
         if (!test || !test[1]) {
             return url;
@@ -11144,6 +11176,11 @@ class Tools {
     static AIType = ['Unknown', 'No', 'Yes'];
     static getAITypeText(number) {
         return this.AIType[number];
+    }
+    /**移除 Pixiv 高级会员的广告横幅元素 */
+    static hiddenPremiumAD() {
+        const ads = document.querySelectorAll('a[href^="/premium/lead/lp/"]');
+        ads.forEach((ad) => (ad.style.display = 'none'));
     }
 }
 
@@ -14159,6 +14196,7 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         }
     }
     initAny() {
+        _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.hiddenPremiumAD();
         // 抓取完成后，复位 debut 标记
         // 因为 debut 只在抓取阶段被过滤器使用，所以抓取完成后就可以复位
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.crawlComplete, () => {
@@ -17694,12 +17732,7 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
         });
     }
     initAny() {
-        // 移除 Pixiv 高级会员的广告横幅元素
-        const ads = document.querySelectorAll('a[href^="/premium/lead/lp/"]');
-        ads.forEach((ad) => {
-            ;
-            ad.style.display = 'none';
-        });
+        _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.hiddenPremiumAD();
     }
     getWantPage() {
         // 检查下载页数的设置
@@ -17884,12 +17917,7 @@ class InitRankingNovelPageNew extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODU
         });
     }
     initAny() {
-        // 移除 Pixiv 高级会员的广告横幅元素
-        const ads = document.querySelectorAll('a[href^="/premium/lead/lp/"]');
-        ads.forEach((ad) => {
-            ;
-            ad.style.display = 'none';
-        });
+        _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.hiddenPremiumAD();
     }
     getWantPage() {
         // 检查下载页数的设置
