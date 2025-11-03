@@ -24400,12 +24400,12 @@ class WorkPublishTime {
         // 获取图像作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
             // 上次记录到 136360000
-            this.crawlData(135810000, 136362631);
+            this.crawlData(136370000, 137063807);
         });
         // 获取小说作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
             // 上次记录到 26210000
-            this.crawlData(26090000, 26215159, 'novels');
+            this.crawlData(26220000, 26367917, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
