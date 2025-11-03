@@ -660,19 +660,15 @@ body.mobile #quickCrawlBtn {
   margin: 2px 0;
 }
 .centerWrap .centerWrap_con .settingForm p.option.new::before {
-  content: 'New';
-  font-weight: bold;
-  color: #29b3f3;
-  color: #00c0fa;
+  content: '✨';
   position: absolute;
-  text-align: center;
-  font-size: 9px;
-  width: 24px;
-  left: -14px;
-  top: -2px;
-  transform: rotate(-30deg);
-  transform-origin: 0% 100%;
   z-index: 1;
+  width: 24px;
+  left: -22px;
+  height: 26px;
+  top: -1px;
+  text-align: center;
+  font-size: 1.1em;
 }
 .centerWrap .centerWrap_con .settingForm p.option > * {
   line-height: 26px;

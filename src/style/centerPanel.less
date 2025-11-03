@@ -239,20 +239,16 @@
         margin: 2px 0;
 
         &.new::before {
-          // 在左上角显示一个 new 角标
-          content: 'New';
-          font-weight: bold;
-          color: @beautifyBlue;
-          color: #00c0fa;
+          // 在左上角显示 new 标记
+          content: '✨';
           position: absolute;
-          text-align: center;
-          font-size: 9px;
-          width: 24px;
-          left: -14px;
-          top: -2px;
-          transform: rotate(-30deg);
-          transform-origin: 0% 100%;
           z-index: 1;
+          width: 24px;
+          left: -22px;
+          height: 26px;
+          top: -1px;
+          text-align: center;
+          font-size: 1.1em;
         }
 
         // 给内部元素设置统一的行高。否则的话，span 元素没有行高的话，其高度就是字体尺寸（14px），对齐到顶部后太靠上了，与其他元素的中轴线没有对齐
