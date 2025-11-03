@@ -7982,12 +7982,17 @@ class ReplaceSquareThumb {
         this.bindEvents();
     }
     bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'replaceSquareThumb' && data.value) {
+                this.replaceAllImage();
+            }
+        });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, (ev) => {
             // 在 settingInitialized 时执行，此时所有设置都已经从本地存储中恢复
-            // 之前是在 settingChange 事件里监听到 replaceSquareThumb 变化时执行
-            // 但是本模块在排行榜页面里还需要判断 settings.showLargerThumbnails
+            // 这是因为本模块在排行榜页面里还需要判断 settings.showLargerThumbnails
             // 它的默认值是 false，但用户可能把它修改为 true
-            // 之前执行时，showLargerThumbnails 还是内置的默认值 false，尚未恢复为用户储存的值，
+            // 之前只监听了上面的 settingChange 事件，导致代码执行时 showLargerThumbnails 还是内置的默认值 false，尚未恢复为用户储存的值，
             // 这导致一些图片被跳过处理，我一开始没有意识到是这个原因，浪费了一些时间才找到原因
             this.replaceAllImage();
             this.observer();
@@ -36180,6 +36185,7 @@ __webpack_require__.r(__webpack_exports__);
 // 最后会触发一次 settingInitialized 事件
 // 在前台脚本的生命周期里，这个事件只会触发一次
 // 注意：重置设置不会触发这个事件
+// 如果某个模块里需要使用多个设置项，建议绑定这个事件，以确保所有设置都已经恢复了储存的值
 // EVT.list.resetSettingsEnd
 // 重置设置之后触发
 // 导入设置之后触发
