@@ -36,22 +36,16 @@ class InitRankingArtworkPage extends InitPageBase {
       this.readyCrawl()
     })
 
-    // 判断当前页面是否有“首次登场”标记
-    const debutModes = ['daily', 'daily_r18', 'rookie', '']
-    const mode = Utils.getURLSearchField(location.href, 'mode')
-
-    if (debutModes.includes(mode)) {
-      Tools.addBtn(
-        'crawlBtns',
-        Colors.bgBlue,
-        '_抓取首次登场的作品',
-        '_抓取首次登场的作品Title',
-        'crawlDebutWork'
-      ).addEventListener('click', () => {
-        states.debut = true
-        this.readyCrawl()
-      })
-    }
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_抓取首次登场的作品',
+      '_抓取首次登场的作品Title',
+      'crawlDebutWork'
+    ).addEventListener('click', () => {
+      states.debut = true
+      this.readyCrawl()
+    })
   }
 
   protected initAny() {

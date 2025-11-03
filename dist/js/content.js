@@ -14185,15 +14185,10 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取本排行榜作品', '_抓取本排行榜作品Title', 'crawlRankingWork').addEventListener('click', () => {
             this.readyCrawl();
         });
-        // 判断当前页面是否有“首次登场”标记
-        const debutModes = ['daily', 'daily_r18', 'rookie', ''];
-        const mode = _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.getURLSearchField(location.href, 'mode');
-        if (debutModes.includes(mode)) {
-            _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取首次登场的作品', '_抓取首次登场的作品Title', 'crawlDebutWork').addEventListener('click', () => {
-                _store_States__WEBPACK_IMPORTED_MODULE_9__.states.debut = true;
-                this.readyCrawl();
-            });
-        }
+        _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取首次登场的作品', '_抓取首次登场的作品Title', 'crawlDebutWork').addEventListener('click', () => {
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.debut = true;
+            this.readyCrawl();
+        });
     }
     initAny() {
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.hiddenPremiumAD();
