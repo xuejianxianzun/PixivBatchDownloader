@@ -707,7 +707,8 @@ export interface RankingImageWorkData {
   content: string
   page: number
   prev: boolean
-  next: number
+  /** 下一页的页码。如果这就是最后一页，则 next 为 null */
+  next: number | null
   date: string
   prev_date: string
   next_date: boolean

@@ -14,17 +14,15 @@ import { states } from '../store/States'
 import { Utils } from '../utils/Utils'
 import { pageType } from '../PageType'
 import { settings } from '../setting/Settings'
+import { Config } from '../Config'
+import { nameRuleManager } from '../setting/NameRuleManager'
+import { Result } from '../store/StoreType'
 
 class InitRankingArtworkPage extends InitPageBase {
   constructor() {
     super()
     this.init()
   }
-
-  private pageCount: number = 10 // 排行榜的页数
-
-  private option: RankingOption = this.resetOption()
-
   protected addCrawlBtns() {
     Tools.addBtn(
       'crawlBtns',
@@ -58,22 +56,19 @@ class InitRankingArtworkPage extends InitPageBase {
     })
   }
 
-  private resetOption(): RankingOption {
-    return { mode: 'daily', p: 1, worksType: '', date: '' }
+  // 抓取完成后，对结果进行排序
+  protected sortResult() {
+    // 如果用户在命名规则里使用了 {rank}，则按照 rank 排序
+    if (nameRuleManager.rule.includes('{rank}')) {
+      store.result.sort(Utils.sortByProperty('rank', 'asc'))
+      store.resultMeta.sort(Utils.sortByProperty('rank', 'asc'))
+    }
   }
 
-  private setPartNum() {
-    // 设置页数。排行榜页面一页有50张作品，当页面到达底部时会加载下一页
-    if (location.pathname.includes('r18g')) {
-      // r18g 只有1个榜单，固定1页
-      this.pageCount = 1
-    } else if (location.pathname.includes('_r18')) {
-      // r18 模式，这里的6是最大值，有的排行榜并没有6页
-      this.pageCount = 6
-    } else {
-      // 普通模式，这里的10也是最大值。如果实际没有10页，则在检测到404页面的时候停止抓取下一页
-      this.pageCount = 10
-    }
+  private option: RankingOption = this.resetOption()
+
+  private resetOption(): RankingOption {
+    return { mode: 'daily', p: 1, worksType: '', date: '' }
   }
 
   protected getWantPage() {
@@ -95,7 +90,7 @@ class InitRankingArtworkPage extends InitPageBase {
 
   protected nextStep() {
     // 设置 option 信息
-    // mode 一定要有值，其他字段不需要一定有值
+    // mode 必须有值，其他字段有没有都行
     this.option = this.resetOption()
     this.option.mode = Utils.getURLSearchField(location.href, 'mode') || 'daily'
     this.option.worksType = Utils.getURLSearchField(location.href, 'content')
@@ -103,7 +98,6 @@ class InitRankingArtworkPage extends InitPageBase {
 
     this.startpageNo = 1
 
-    this.setPartNum()
     this.getIdList()
   }
 
@@ -123,6 +117,14 @@ class InitRankingArtworkPage extends InitPageBase {
         // 如果发生了404错误，则中断抓取，直接下载已有部分。因为可能确实没有下一部分了
         console.log('404错误，直接下载已有部分')
         this.getIdListFinished()
+      }
+
+      // 429 错误时延迟重试
+      if (error.status === 429) {
+        this.log429ErrorTip()
+        window.setTimeout(() => {
+          this.getIdList()
+        }, Config.retryTime)
       }
 
       return
@@ -172,7 +174,7 @@ class InitRankingArtworkPage extends InitPageBase {
     )
 
     // 抓取完毕
-    if (this.listPageFinished === this.pageCount) {
+    if (data.next === null) {
       this.getIdListFinished()
     } else {
       // 继续抓取

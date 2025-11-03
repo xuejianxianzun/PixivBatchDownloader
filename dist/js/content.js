@@ -14160,7 +14160,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../setting/NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
 // 初始化 artwork 排行榜页面
+
+
 
 
 
@@ -14179,8 +14183,6 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         super();
         this.init();
     }
-    pageCount = 10; // 排行榜的页数
-    option = this.resetOption();
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取本排行榜作品', '_抓取本排行榜作品Title', 'crawlRankingWork').addEventListener('click', () => {
             this.readyCrawl();
@@ -14198,23 +14200,17 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.debut = false;
         });
     }
+    // 抓取完成后，对结果进行排序
+    sortResult() {
+        // 如果用户在命名规则里使用了 {rank}，则按照 rank 排序
+        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_14__.nameRuleManager.rule.includes('{rank}')) {
+            _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sortByProperty('rank', 'asc'));
+            _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sortByProperty('rank', 'asc'));
+        }
+    }
+    option = this.resetOption();
     resetOption() {
         return { mode: 'daily', p: 1, worksType: '', date: '' };
-    }
-    setPartNum() {
-        // 设置页数。排行榜页面一页有50张作品，当页面到达底部时会加载下一页
-        if (location.pathname.includes('r18g')) {
-            // r18g 只有1个榜单，固定1页
-            this.pageCount = 1;
-        }
-        else if (location.pathname.includes('_r18')) {
-            // r18 模式，这里的6是最大值，有的排行榜并没有6页
-            this.pageCount = 6;
-        }
-        else {
-            // 普通模式，这里的10也是最大值。如果实际没有10页，则在检测到404页面的时候停止抓取下一页
-            this.pageCount = 10;
-        }
     }
     getWantPage() {
         this.listPageFinished = 0;
@@ -14233,13 +14229,12 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
     }
     nextStep() {
         // 设置 option 信息
-        // mode 一定要有值，其他字段不需要一定有值
+        // mode 必须有值，其他字段有没有都行
         this.option = this.resetOption();
         this.option.mode = _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.getURLSearchField(location.href, 'mode') || 'daily';
         this.option.worksType = _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.getURLSearchField(location.href, 'content');
         this.option.date = _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.getURLSearchField(location.href, 'date');
         this.startpageNo = 1;
-        this.setPartNum();
         this.getIdList();
     }
     async getIdList() {
@@ -14257,6 +14252,13 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
                 // 如果发生了404错误，则中断抓取，直接下载已有部分。因为可能确实没有下一部分了
                 console.log('404错误，直接下载已有部分');
                 this.getIdListFinished();
+            }
+            // 429 错误时延迟重试
+            if (error.status === 429) {
+                this.log429ErrorTip();
+                window.setTimeout(() => {
+                    this.getIdList();
+                }, _Config__WEBPACK_IMPORTED_MODULE_13__.Config.retryTime);
             }
             return;
         }
@@ -14293,7 +14295,7 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         }
         _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_排行榜进度', this.listPageFinished.toString()), 1, false);
         // 抓取完毕
-        if (this.listPageFinished === this.pageCount) {
+        if (data.next === null) {
             this.getIdListFinished();
         }
         else {
@@ -17697,6 +17699,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
 
 
 
@@ -17728,6 +17734,14 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
     }
     initAny() {
         _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.hiddenPremiumAD();
+    }
+    // 抓取完成后，对结果进行排序
+    sortResult() {
+        // 如果用户在命名规则里使用了 {rank}，则按照 rank 排序
+        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_9__.nameRuleManager.rule.includes('{rank}')) {
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sortByProperty('rank', 'asc'));
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sortByProperty('rank', 'asc'));
+        }
     }
     getWantPage() {
         // 检查下载页数的设置
@@ -17887,6 +17901,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../setting/NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
 
 
 
@@ -17913,6 +17931,14 @@ class InitRankingNovelPageNew extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODU
     }
     initAny() {
         _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.hiddenPremiumAD();
+    }
+    // 抓取完成后，对结果进行排序
+    sortResult() {
+        // 如果用户在命名规则里使用了 {rank}，则按照 rank 排序
+        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_11__.nameRuleManager.rule.includes('{rank}')) {
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_12__.Utils.sortByProperty('rank', 'asc'));
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_12__.Utils.sortByProperty('rank', 'asc'));
+        }
     }
     getWantPage() {
         // 检查下载页数的设置
@@ -38064,11 +38090,7 @@ class Store {
         this.rankList[id] = rank;
     }
     findResult(id) {
-        for (const result of this.result) {
-            if (result.id === id) {
-                return result;
-            }
-        }
+        return this.result.find((item) => item.id === id);
     }
     reset() {
         this.resultMeta = [];

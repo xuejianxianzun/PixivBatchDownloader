@@ -10,6 +10,8 @@ import { settings } from '../setting/Settings'
 import { API } from '../API'
 import { Config } from '../Config'
 import { NovelItem } from '../crawl/CrawlResult.d'
+import { nameRuleManager } from '../setting/NameRuleManager'
+import { Utils } from '../utils/Utils'
 
 // 新版小说排行榜页面
 // Pixiv 的更新是批量推送的，有些用户已经是新版页面，但也有很多用户还是旧版页面。
@@ -34,6 +36,15 @@ class InitRankingNovelPageNew extends InitPageBase {
 
   protected initAny() {
     Tools.hiddenPremiumAD()
+  }
+
+  // 抓取完成后，对结果进行排序
+  protected sortResult() {
+    // 如果用户在命名规则里使用了 {rank}，则按照 rank 排序
+    if (nameRuleManager.rule.includes('{rank}')) {
+      store.result.sort(Utils.sortByProperty('rank', 'asc'))
+      store.resultMeta.sort(Utils.sortByProperty('rank', 'asc'))
+    }
   }
 
   protected getWantPage() {
