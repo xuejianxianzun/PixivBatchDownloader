@@ -9795,6 +9795,12 @@ class ShowWhatIsNew {
       ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你可以在xx选项卡里找到它', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载'))}
       <br>
       <br>
+      <span>😊${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_适配了新版排行榜页面')}</span>
+      <br>
+      <br>
+      <span>😊${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复bug')}</span>
+      <br>
+      <br>
       <span>😊${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化用户体验')}</span>
       `;
             // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong>
@@ -17870,7 +17876,8 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
                 checkLang = item.dataset.language === this.selectLang;
             }
             if (!checkLang) {
-                _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器根据你选择的语言排除了一些作品', this.selectLang), 1, false, 'excludeNovelByUserSelectLanguage');
+                _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器排除了一些作品原因') +
+                    _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_作品的语言不符合你选择的语言', this.selectLang), 1, false, 'excludeNovelByUserSelectLanguage');
             }
             if ((await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__.filter.check(filterOpt)) && checkLang) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.setRankList(id.toString(), rank);
@@ -18059,7 +18066,8 @@ class InitRankingNovelPageNew extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODU
                     checkLang = novel.language === this.selectLang;
                 }
                 if (!checkLang) {
-                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器根据你选择的语言排除了一些作品', this.selectLang), 1, false, 'excludeNovelByUserSelectLanguage');
+                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器排除了一些作品原因') +
+                        _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_作品的语言不符合你选择的语言', this.selectLang), 1, false, 'excludeNovelByUserSelectLanguage');
                 }
                 if ((await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__.filter.check(filterOpt)) && checkLang) {
                     const id = novel.id.toString();
@@ -23496,84 +23504,111 @@ class Filter {
     async check(option) {
         // 检查下载的作品类型设置
         if (!this.checkDownType(option.workType)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品类型'), 1, false, 'excludeWorkByWorkType');
             return false;
         }
         if (!this.checkDownTypeByAge(option.xRestrict)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_年龄限制'), 1, false, 'excludeWorkByAge');
             return false;
         }
         if (!this.checkAIWorkType(option.aiType, option.tags)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_AI作品'), 1, false, 'excludeWorkByAIType');
             return false;
         }
         // 检查单图、多图的下载
         if (!this.checkPageCount(option.workType, option.pageCount)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_图片数量'), 1, false, 'excludeWorkByPageCount');
             return false;
         }
-        // 检查单图、多图的下载
+        // 检查多图作品的图片数量限制
         if (!this.checkMultiImageWorkImageLimit(option.workType, option.pageCount)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品的图片数量上限'), 1, false, 'excludeWorkByMultiImageWorkImageLimit');
             return false;
         }
         // 检查收藏和未收藏的要求
         if (!this.checkDownTypeByBmked(option.bookmarkData)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_收藏状态'), 1, false, 'excludeWorkByAge');
             return false;
         }
         // 检查收藏数要求
         if (!this.checkBMK(option.bookmarkCount, option.createDate)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_收藏数量'), 1, false, 'excludeWorkByBookmarkCount');
             return false;
         }
         // 检查要排除的 tag
         if (!this.checkExcludeTag(option.tags)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_不能含有tag'), 1, false, 'excludeWorkByExcludeTag');
             return false;
         }
         // 检查必须包含的 tag
         if (!this.checkIncludeTag(option.tags)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_必须含有tag'), 1, false, 'excludeWorkByIncludeTag');
             return false;
         }
         // 检查宽高设置
         if (!this.checkWidthHeight(option.width, option.height)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_图片的宽高'), 1, false, 'excludeWorkByWidthHeight');
             return false;
         }
         // 检查宽高比设置
         if (!this.checkRatio(option.width, option.height)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_图片的宽高比例'), 1, false, 'excludeWorkByRatio');
             return false;
         }
         // 检查 id 范围设置
         if (!this.checkIdRange(option.id)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_id范围'), 1, false, 'excludeWorkByIdRange');
             return false;
         }
         // 检查用户在 Pixiv 的屏蔽设定
         if (!(await this.checkMuteUser(option.userId))) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你屏蔽了这个用户'), 1, false, 'excludeWorkByMuteUser');
             return false;
         }
         if (!(await this.checkMuteTag(option.tags))) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你屏蔽了它的标签'), 1, false, 'excludeWorkByMuteTag');
             return false;
         }
         // 检查用户阻止名单
         if (!this.checkBlockList(option.userId)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_用户阻止名单'), 1, false, 'excludeWorkByBlockList');
             return false;
         }
         // 检查针对特定用户屏蔽的 tags
         if (!this.checkBlockTagsForSpecificUser(option.userId, option.tags)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_针对特定用户屏蔽tag'), 1, false, 'excludeWorkByBlockTagsForSpecificUser');
             return false;
         }
         // 检查投稿时间设置
         if (!this.checkPostDate(option.createDate)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_投稿时间'), 1, false, 'excludeWorkByPostDate');
             return false;
         }
         // 检查投稿时间设置
         if (!this.checkIdPublishTime(option.id, option.workTypeString)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_投稿时间'), 1, false, 'excludeWorkByPostDate');
             return false;
         }
         // 检查首次登场设置
         if (!this.checkDebut(option.yes_rank)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_它不是首次登场的作品'), 1, false, 'excludeWorkByDebut');
             return false;
         }
         // 检查文件体积设置
-        if (!this.checkSize(option.size)) {
+        if (!this.checkFileSize(option.size)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_文件体积限制'), 1, false, 'excludeWorkByFileSize');
             return false;
         }
         // 检查黑白图片
         // 这一步需要加载图片，需要较长的时间，较多的资源占用，所以放到最后检查
         if (!(await this.checkBlackWhite(option.mini))) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_图片色彩'), 1, false, 'excludeWorkByBlackWhite');
             return false;
         }
         return true;
@@ -24147,7 +24182,7 @@ class Filter {
     }
     // 检查文件体积
     MiB = 1024 * 1024;
-    checkSize(size) {
+    checkFileSize(size) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.sizeSwitch || size === undefined) {
             return true;
         }
@@ -31063,7 +31098,7 @@ QQ, WeChat:
         `Download this work`,
         `この作品をダウンロード`,
         `이 작품 다운로드`,
-        `Скачать эту работу,`,
+        `Скачать эту работу`,
     ],
     _下载这张图片: [
         `下载这张图片`,
@@ -31095,7 +31130,7 @@ QQ, WeChat:
         `Crawl the <span class="key">latest</span> few works of each user`,
         `各ユーザーの<span class="key">最新</span>の数作品をクロール`,
         `각 사용자별 <span class="key">최신</span> 몇 작품 크롤링`,
-        `Собрать последние несколько работ каждого пользователя,`,
+        `Собрать последние несколько работ каждого пользователя`,
     ],
     _把文件保存到用户上次选择的位置: [
         `把文件保存到用户上次<span class="key">选择</span>的位置`,
@@ -31211,13 +31246,53 @@ If you want to use this feature, please note:
 - Если вы включили эту настройку, загрузчик всегда считает, что загрузка файла прошла успешно (даже если вы отменили сохранение файла). Это сделано для упрощения обработки.
 <br>`,
     ],
-    _下载器根据你选择的语言排除了一些作品: [
-        `注意：下载器根据你选择的语言 {} 排除了一些作品。`,
-        `注意：下載器根據你選擇的語言 {} 排除了一些作品。`,
-        `Note: The downloader excluded some works based on the selected language {}.`,
-        `注意：ダウンロードツールが選択した言語 {} に基づいて、いくつかの作品を除外しました。`,
-        `주의: 다운로더가 선택한 언어 {}에 따라 일부 작품을 제외했습니다.`,
-        `Внимание: Загрузчик исключил некоторые работы на основе выбранного языка {}.`,
+    _下载器排除了一些作品原因: [
+        `下载器排除了一些作品，原因：`,
+        `下載器排除了一些作品，原因：`,
+        `The downloader excluded some works, reason:`,
+        `ダウンロードツールがいくつかの作品を除外しました、理由：`,
+        `다운로더가 일부 작품을 제외했습니다, 이유:`,
+        `Загрузчик исключил некоторые работы, причина:`,
+    ],
+    _作品的语言不符合你选择的语言: [
+        `作品的语言不符合你选择的语言 {}`,
+        `作品的語言不符合你選擇的語言 {}`,
+        `The language of the work does not match the selected language {}`,
+        `作品の言語が選択した言語 {} に一致しません`,
+        `작품의 언어가 선택한 언어 {}와 일치하지 않습니다`,
+        `Язык работы не соответствует выбранному языку {}`,
+    ],
+    _你屏蔽了这个用户: [
+        `你屏蔽了这个用户`,
+        `你靜音了這個用戶`,
+        `You muted this user`,
+        `このユーザーをミュートしました`,
+        `이 사용자를 음소거했습니다`,
+        `Вы заглушили этого пользователя`,
+    ],
+    _你屏蔽了它的标签: [
+        `你屏蔽了它的标签`,
+        `你靜音了它的標籤`,
+        `You muted its tags`,
+        `この作品のタグをミュートしました`,
+        `이 작품의 태그를 음소거했습니다`,
+        `Вы заглушили его теги`,
+    ],
+    _它不是首次登场的作品: [
+        `它不是首次登场的作品`,
+        `它不是首次登場的作品`,
+        `It is not a debut work`,
+        `これはデビュー作品ではありません`,
+        `이것은 데뷔 작품이 아닙니다`,
+        `Это не дебютная работа`,
+    ],
+    _适配了新版排行榜页面: [
+        `适配了新版排行榜页面`,
+        `適配了新版排行榜頁面`,
+        `Adapted to the new ranking page`,
+        `新版ランキングページに対応しました`,
+        `새 버전 랭킹 페이지에 적응했습니다`,
+        `Адаптировано к новой странице рейтинга,`,
     ],
 };
 

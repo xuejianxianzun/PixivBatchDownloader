@@ -29,6 +29,12 @@ class ShowWhatIsNew {
       ${lang.transl('_你可以在xx选项卡里找到它', lang.transl('_下载'))}
       <br>
       <br>
+      <span>😊${lang.transl('_适配了新版排行榜页面')}</span>
+      <br>
+      <br>
+      <span>😊${lang.transl('_修复bug')}</span>
+      <br>
+      <br>
       <span>😊${lang.transl('_优化用户体验')}</span>
       `
 

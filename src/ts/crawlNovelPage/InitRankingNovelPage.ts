@@ -181,7 +181,8 @@ class InitRankingNovelPage extends InitPageBase {
       }
       if (!checkLang) {
         log.warning(
-          lang.transl('_下载器根据你选择的语言排除了一些作品', this.selectLang),
+          lang.transl('_下载器排除了一些作品原因') +
+            lang.transl('_作品的语言不符合你选择的语言', this.selectLang),
           1,
           false,
           'excludeNovelByUserSelectLanguage'

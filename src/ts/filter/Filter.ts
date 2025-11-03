@@ -87,105 +87,238 @@ class Filter {
   public async check(option: FilterOption): Promise<boolean> {
     // 检查下载的作品类型设置
     if (!this.checkDownType(option.workType)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_作品类型'),
+        1,
+        false,
+        'excludeWorkByWorkType'
+      )
       return false
     }
 
     if (!this.checkDownTypeByAge(option.xRestrict)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_年龄限制'),
+        1,
+        false,
+        'excludeWorkByAge'
+      )
       return false
     }
 
     if (!this.checkAIWorkType(option.aiType, option.tags)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_AI作品'),
+        1,
+        false,
+        'excludeWorkByAIType'
+      )
       return false
     }
 
     // 检查单图、多图的下载
     if (!this.checkPageCount(option.workType, option.pageCount)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_图片数量'),
+        1,
+        false,
+        'excludeWorkByPageCount'
+      )
       return false
     }
 
-    // 检查单图、多图的下载
+    // 检查多图作品的图片数量限制
     if (
       !this.checkMultiImageWorkImageLimit(option.workType, option.pageCount)
     ) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_多图作品的图片数量上限'),
+        1,
+        false,
+        'excludeWorkByMultiImageWorkImageLimit'
+      )
       return false
     }
 
     // 检查收藏和未收藏的要求
     if (!this.checkDownTypeByBmked(option.bookmarkData)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_收藏状态'),
+        1,
+        false,
+        'excludeWorkByAge'
+      )
       return false
     }
 
     // 检查收藏数要求
     if (!this.checkBMK(option.bookmarkCount, option.createDate)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_收藏数量'),
+        1,
+        false,
+        'excludeWorkByBookmarkCount'
+      )
       return false
     }
 
     // 检查要排除的 tag
     if (!this.checkExcludeTag(option.tags)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_不能含有tag'),
+        1,
+        false,
+        'excludeWorkByExcludeTag'
+      )
       return false
     }
 
     // 检查必须包含的 tag
     if (!this.checkIncludeTag(option.tags)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_必须含有tag'),
+        1,
+        false,
+        'excludeWorkByIncludeTag'
+      )
       return false
     }
 
     // 检查宽高设置
     if (!this.checkWidthHeight(option.width, option.height)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_图片的宽高'),
+        1,
+        false,
+        'excludeWorkByWidthHeight'
+      )
       return false
     }
 
     // 检查宽高比设置
     if (!this.checkRatio(option.width, option.height)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_图片的宽高比例'),
+        1,
+        false,
+        'excludeWorkByRatio'
+      )
       return false
     }
 
     // 检查 id 范围设置
     if (!this.checkIdRange(option.id)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_id范围'),
+        1,
+        false,
+        'excludeWorkByIdRange'
+      )
       return false
     }
 
     // 检查用户在 Pixiv 的屏蔽设定
     if (!(await this.checkMuteUser(option.userId))) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_你屏蔽了这个用户'),
+        1,
+        false,
+        'excludeWorkByMuteUser'
+      )
       return false
     }
+
     if (!(await this.checkMuteTag(option.tags))) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_你屏蔽了它的标签'),
+        1,
+        false,
+        'excludeWorkByMuteTag'
+      )
       return false
     }
 
     // 检查用户阻止名单
     if (!this.checkBlockList(option.userId)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_用户阻止名单'),
+        1,
+        false,
+        'excludeWorkByBlockList'
+      )
       return false
     }
 
     // 检查针对特定用户屏蔽的 tags
     if (!this.checkBlockTagsForSpecificUser(option.userId, option.tags)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_针对特定用户屏蔽tag'),
+        1,
+        false,
+        'excludeWorkByBlockTagsForSpecificUser'
+      )
       return false
     }
 
     // 检查投稿时间设置
     if (!this.checkPostDate(option.createDate)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_投稿时间'),
+        1,
+        false,
+        'excludeWorkByPostDate'
+      )
       return false
     }
 
     // 检查投稿时间设置
     if (!this.checkIdPublishTime(option.id, option.workTypeString)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_投稿时间'),
+        1,
+        false,
+        'excludeWorkByPostDate'
+      )
       return false
     }
 
     // 检查首次登场设置
     if (!this.checkDebut(option.yes_rank)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_它不是首次登场的作品'),
+        1,
+        false,
+        'excludeWorkByDebut'
+      )
       return false
     }
 
     // 检查文件体积设置
-    if (!this.checkSize(option.size)) {
+    if (!this.checkFileSize(option.size)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_文件体积限制'),
+        1,
+        false,
+        'excludeWorkByFileSize'
+      )
       return false
     }
 
     // 检查黑白图片
     // 这一步需要加载图片，需要较长的时间，较多的资源占用，所以放到最后检查
     if (!(await this.checkBlackWhite(option.mini))) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_图片色彩'),
+        1,
+        false,
+        'excludeWorkByBlackWhite'
+      )
       return false
     }
 
@@ -909,7 +1042,7 @@ class Filter {
 
   // 检查文件体积
   private readonly MiB = 1024 * 1024
-  private checkSize(size: FilterOption['size']) {
+  private checkFileSize(size: FilterOption['size']) {
     if (!settings.sizeSwitch || size === undefined) {
       return true
     }
