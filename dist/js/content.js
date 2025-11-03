@@ -10734,6 +10734,13 @@ class Tools {
         if (result.startsWith(' ')) {
             result = result.replace(/ */, '');
         }
+        // 在一个页面类型里多次抓取时，标题里会包含上一次的抓取结果数量
+        // 处理：
+        // [pixiv] 10 插画今日排行榜 2025年11月2日
+        // 把“[pixiv] 10 ”替换成“[pixiv] ”以去掉抓取结果数量的数字
+        // 处理：
+        // “25 [pixiv]发现”去掉开头的数字
+        result = result.replace(/\[pixiv\] \d+ /, '[pixiv] ').replace(/\d+ \[pixiv\]/, '[pixiv]');
         return result;
     }
     // 自定义的类型保护
