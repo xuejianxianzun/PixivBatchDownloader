@@ -6259,14 +6259,6 @@ QQ、微信：
 <br>
 如果你想在 QQ、微信里同时粘贴图片和文字，应该选择 <span class="blue">text/html</span>，并且取消勾选 <span class="blue">image/png</span>，否则它们只会粘贴图片。
 <br>
-但是 QQ 的当前版本 9.9.21 存在 Bug，粘贴图文混合内容时，图片会加载失败，并导致消息发送失败。QQ 的旧版本和微信没有上述的 Bug。
-<br>
-如果你遇到了这个 Bug，可以从 QQ 官网下载 9.9.20 版本的安装文件:
-<br>
-<a href="https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.20_250616_x64_01.exe" target="_blank" rel="noopener noreferrer">https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.20_250616_x64_01.exe</a>
-<br>
-然后退出 QQ，安装旧版本的 exe 文件，就可以发送图文混合消息了。
-<br>
 <br>
 Android 应用：
 <br>
@@ -6328,14 +6320,6 @@ QQ、微信：
 它們的優先級是：<span class="blue">image/png</span>、<span class="blue">text/html</span>、<span class="blue">text/plain</span>。
 <br>
 如果你想在 QQ、微信裡同時貼上圖片和文字，應該選擇 <span class="blue">text/html</span>，並且取消勾選 <span class="blue">image/png</span>，否則它們只會貼上圖片。
-<br>
-但是 QQ 的當前版本 9.9.21 存在 Bug，貼上圖文混合內容時，圖片會載入失敗，並導致訊息發送失敗。QQ 的舊版本和微信沒有上述的 Bug。
-<br>
-如果你遇到了這個 Bug，可以從 QQ 官網下載 9.9.20 版本的安裝文件:
-<br>
-<a href="https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.20_250616_x64_01.exe" target="_blank" rel="noopener noreferrer">https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.20_250616_x64_01.exe</a>
-<br>
-然後退出 QQ，安裝舊版本的 exe 文件，就可以發送圖文混合訊息了。
 <br>
 <br>
 Android 應用：
@@ -6829,6 +6813,14 @@ If you want to use this feature, please note:
     `新版ランキングページに対応しました`,
     `새 버전 랭킹 페이지에 적응했습니다`,
     `Адаптировано к новой странице рейтинга,`,
+  ],
+  _QQ修复了粘贴问题的提醒: [
+    `对使用下载器的“复制功能”的用户的提醒：<br> QQ 之前的版本存在 Bug，无法粘贴下载器复制的图文混合内容（text/html）。最近（11月5日）QQ 的新版本修复了此问题，请及时更新。`,
+    `對使用下載器的「複製功能」的用戶的提醒：<br> QQ 之前的版本存在 Bug，無法貼上下載器複製的圖文混合內容（text/html）。最近（11月5日）QQ 的新版本修復了此問題，請及時更新。`,
+    `Reminder for users using the downloader's "copy function":<br> Previous versions of QQ had a bug that prevented pasting the mixed image-text content (text/html) copied by the downloader. The latest version of QQ (November 5th) has fixed this issue, please update promptly.`,
+    `ダウンロードツールの「コピー機能」を使用するユーザーへのリマインダー：<br> QQ の以前のバージョンにはバグがあり、ダウンロードツールでコピーした画像とテキストの混合コンテンツ（text/html）を貼り付けできませんでした。最近（11月5日）の QQ の新バージョンでこの問題が修正されました。速やかに更新してください。`,
+    `다운로더의 "복사 기능"을 사용하는 사용자에게 알림:<br> QQ 이전 버전에는 버그가 있어 다운로더가 복사한 이미지-텍스트 혼합 콘텐츠(text/html)를 붙여넣을 수 없습니다. 최근(11월 5일) QQ 새 버전에서 이 문제가 수정되었습니다. 즉시 업데이트하세요.`,
+    `Напоминание для пользователей, использующих функцию "копирования" загрузчика:<br> В предыдущих версиях QQ была ошибка, из-за которой нельзя было вставить смешанный контент с изображениями и текстом (text/html), скопированный загрузчиком. В последней версии QQ (5 ноября) эта проблема исправлена, пожалуйста, обновите timely.`,
   ],
 }
 
