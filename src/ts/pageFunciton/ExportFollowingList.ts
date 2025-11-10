@@ -66,6 +66,7 @@ class ExportFollowingList {
   }
 
   protected getWantPage() {
+    log.warning(lang.transl('_注意这个任务遵从抓取多少页面的设置'))
     this.crawlPageNumber = settings.crawlNumber[pageType.type].value
     if (this.crawlPageNumber === -1) {
       log.warning(lang.transl('_下载所有页面'))
@@ -158,6 +159,7 @@ class ExportFollowingList {
 
     const users = res.body.users
 
+    // console.log(users.length, offset)
     if (users.length === 0) {
       // 用户列表抓取完毕
       return this.getUserListComplete()

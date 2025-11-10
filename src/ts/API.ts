@@ -545,11 +545,13 @@ class API {
   }
 
   /**关注一个用户 */
-  // recaptcha_enterprise_score_token 对于有些用户是不需要的，不过传递空值是允许的
+  // restrict: false 为公开关注，true 为非公开关注
+  // recaptcha_enterprise_score_token 对于有些用户是不需要的。允许传递空值
   static async addFollowingUser(
     userID: string,
     token: string,
-    recaptcha_enterprise_score_token?: string
+    restrict = false,
+    recaptcha_enterprise_score_token = ''
   ): Promise<number> {
     return new Promise(async (resolve) => {
       const response = await fetch(`https://www.pixiv.net/bookmark_add.php`, {
@@ -560,7 +562,7 @@ class API {
           'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
           'x-csrf-token': token,
         },
-        body: `mode=add&type=user&user_id=${userID}&tag=&restrict=0&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
+        body: `mode=add&type=user&user_id=${userID}&tag=&restrict=${restrict ? 0 : 1}&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
       })
       // 如果操作成功，则返回值是 []
       // 如果用户不存在，返回值是该用户主页的网页源码

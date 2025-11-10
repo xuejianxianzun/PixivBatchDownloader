@@ -1565,8 +1565,9 @@ class API {
         return this.sendGetRequest(`https://www.pixiv.net/rpc/index.php?mode=latest_message_threads2&num=${number}&offset=0`);
     }
     /**关注一个用户 */
-    // recaptcha_enterprise_score_token 对于有些用户是不需要的，不过传递空值是允许的
-    static async addFollowingUser(userID, token, recaptcha_enterprise_score_token) {
+    // restrict: false 为公开关注，true 为非公开关注
+    // recaptcha_enterprise_score_token 对于有些用户是不需要的。允许传递空值
+    static async addFollowingUser(userID, token, restrict = false, recaptcha_enterprise_score_token = '') {
         return new Promise(async (resolve) => {
             const response = await fetch(`https://www.pixiv.net/bookmark_add.php`, {
                 method: 'POST',
@@ -1576,7 +1577,7 @@ class API {
                     'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
                     'x-csrf-token': token,
                 },
-                body: `mode=add&type=user&user_id=${userID}&tag=&restrict=0&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
+                body: `mode=add&type=user&user_id=${userID}&tag=&restrict=${restrict ? 0 : 1}&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
             });
             // 如果操作成功，则返回值是 []
             // 如果用户不存在，返回值是该用户主页的网页源码
@@ -12710,7 +12711,7 @@ class InitPageBase {
                 _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码400'));
                 break;
             case 401:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码401'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_请您登录Pixiv账号然后重试_401'));
                 break;
             case 403:
                 _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码403'));
@@ -16063,18 +16064,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../Token */ "./src/ts/Token.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../crawl/CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
-/* harmony import */ var _pageFunciton_ExportFollowingList__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../pageFunciton/ExportFollowingList */ "./src/ts/pageFunciton/ExportFollowingList.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../crawl/CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
+/* harmony import */ var _pageFunciton_ExportFollowingList__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../pageFunciton/ExportFollowingList */ "./src/ts/pageFunciton/ExportFollowingList.ts");
+/* harmony import */ var _pageFunciton_BatchFollowUser__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../pageFunciton/BatchFollowUser */ "./src/ts/pageFunciton/BatchFollowUser.ts");
 // 初始化关注页面、好 P 友页面、粉丝页面
-
-
-
 
 
 
@@ -16107,18 +16102,13 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     tag = '';
     userList = [];
     index = 0; // getIdList 时，对 userList 的索引
-    task = 'crawl';
-    importFollowedUserIDs = [];
     getPageType() {
-        const pathname = window.location.pathname;
-        if (pathname.includes('/following')) {
-            this.pageType = 'following';
-        }
-        else if (pathname.includes('/mypixiv')) {
-            this.pageType = 'mypixiv';
-        }
-        else if (pathname.includes('/followers')) {
-            this.pageType = 'followers';
+        const allType = ['following', 'mypixiv', 'followers'];
+        for (const type of allType) {
+            if (window.location.pathname.includes('/' + type)) {
+                this.pageType = type;
+                break;
+            }
         }
     }
     addCrawlBtns() {
@@ -16126,47 +16116,19 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             this.readyCrawl();
         });
         _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导出关注列表CSV', '', 'exportFollowingListCSV').addEventListener('click', () => {
-            _pageFunciton_ExportFollowingList__WEBPACK_IMPORTED_MODULE_17__.exportFollowingList.start('csv');
+            _pageFunciton_ExportFollowingList__WEBPACK_IMPORTED_MODULE_13__.exportFollowingList.start('csv');
         });
         const exportButton = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导出关注列表JSON', '', 'exportFollowingListJSON');
         exportButton.addEventListener('click', () => {
-            _pageFunciton_ExportFollowingList__WEBPACK_IMPORTED_MODULE_17__.exportFollowingList.start('json');
+            _pageFunciton_ExportFollowingList__WEBPACK_IMPORTED_MODULE_13__.exportFollowingList.start('json');
         });
         const batchFollowButton = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_批量关注用户', '', 'batchFollowUser');
         batchFollowButton.addEventListener('click', async () => {
-            if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.busy) {
-                return _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
-            }
-            if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.loggedUserID === '') {
-                return _MsgBox__WEBPACK_IMPORTED_MODULE_11__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_作品页状态码401'));
-            }
-            _EVT__WEBPACK_IMPORTED_MODULE_13__.EVT.fire('clearLog');
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_批量关注用户'));
-            this.importFollowedUserIDs = await this.importUserList();
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入的用户ID数量') + this.importFollowedUserIDs.length);
-            if (this.importFollowedUserIDs.length === 0) {
-                return _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_本次任务已全部完成'));
-            }
-            this.stopAddFollow = false;
-            this.sendReqNumber = 0;
-            // 导入关注列表后，需要获取关注的所有用户列表，以便在添加关注时跳过已关注的，节约时间
-            this.task = 'batchFollow';
-            _store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode = true;
-            _store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl = false;
-            _EVT__WEBPACK_IMPORTED_MODULE_13__.EVT.fire('crawlStart');
-            // 批量添加关注时，获取所有关注的用户
-            this.crawlNumber = -1;
-            // 设置页面类型，始终获取关注的用户列表
-            this.pageType = 'following';
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_正在加载关注用户列表'));
-            this.readyGet();
-            // 始终抓取自己的关注列表，而非别人的，因为添加关注时，需要和自己的关注列表进行对比
-            this.crawlUserID = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.loggedUserID;
-            this.getUserList();
+            _pageFunciton_BatchFollowUser__WEBPACK_IMPORTED_MODULE_14__.batchFollowUser.start();
         });
     }
     getWantPage() {
-        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_14__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_15__.pageType.type].value;
+        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_11__.pageType.type].value;
         if (this.crawlNumber === -1) {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载所有页面'));
         }
@@ -16254,199 +16216,12 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     }
     async getUserListComplete() {
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前有x个用户', this.userList.length.toString()));
-        // 在批量关注用户时，抓取结果为 0 并不影响继续执行
-        if (this.userList.length === 0 && this.task !== 'batchFollow') {
+        if (this.userList.length === 0) {
             return this.getIdListFinished();
-        }
-        if (this.task === 'batchFollow') {
-            await this.batchFollow();
-            this.stopCrawl();
-            return;
         }
         this.getIdList();
     }
-    stopCrawl() {
-        _store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode = false;
-        _store_States__WEBPACK_IMPORTED_MODULE_8__.states.busy = false;
-        this.resetGetIdListStatus();
-        _EVT__WEBPACK_IMPORTED_MODULE_13__.EVT.fire('stopCrawl');
-    }
-    async importUserList() {
-        return new Promise(async (resolve) => {
-            const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.loadJSONFile().catch((err) => {
-                return _MsgBox__WEBPACK_IMPORTED_MODULE_11__.msgBox.error(err);
-            }));
-            if (!loadedJSON) {
-                return resolve([]);
-            }
-            // 要求是数组并且为 string[]
-            if (!Array.isArray(loadedJSON) ||
-                loadedJSON.length === 0 ||
-                typeof loadedJSON[0] !== 'string') {
-                _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_格式错误'));
-                return resolve([]);
-            }
-            return resolve(loadedJSON);
-        });
-    }
-    stopAddFollow = false;
-    sendReqNumber = 0;
-    dailyLimit = 1000; // 每天限制关注的数量，以免被封号
-    tokenHasUpdated = false;
-    need_recaptcha_enterprise_score_token = false;
-    logProgress(current, total, newAdded) {
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(`${current} / ${total}, ${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_新增x个', newAdded.toString())}`, 1, false);
-    }
-    async batchFollow() {
-        return new Promise(async (resolve, reject) => {
-            const taskName = _Language__WEBPACK_IMPORTED_MODULE_2__.lang
-                .transl('_批量关注用户')
-                .replace('（JSON）', '')
-                .replace('(JSON)', '');
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(taskName);
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_慢速执行以避免引起429错误'));
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示可以重新执行批量关注任务'));
-            let followed = 0;
-            let number = 0;
-            const total = this.importFollowedUserIDs.length;
-            for (const userID of this.importFollowedUserIDs) {
-                this.logProgress(number, total, this.sendReqNumber);
-                if (this.stopAddFollow) {
-                    const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_任务已中止');
-                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_11__.msgBox.error(msg);
-                    return resolve();
-                }
-                if (this.sendReqNumber >= this.dailyLimit) {
-                    this.stopAddFollow = true;
-                    const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_新增的关注用户达到每日限制', this.dailyLimit.toString());
-                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_11__.msgBox.error(msg);
-                    return resolve();
-                }
-                number++;
-                if (this.userList.includes(userID) === false) {
-                    this.sendReqNumber++;
-                    await this.addFollow(userID);
-                }
-                else {
-                    followed++;
-                }
-            }
-            this.logProgress(number, total, this.sendReqNumber);
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('✓ ' + taskName);
-            _MsgBox__WEBPACK_IMPORTED_MODULE_11__.msgBox.success('✓ ' + taskName);
-            return resolve();
-        });
-    }
-    clearIframe(iframe) {
-        iframe.src = 'about:blank';
-        iframe.remove();
-        iframe = null;
-        console.log('清理iframe');
-        // 下载器每生成一个 iframe，Pixiv 的脚本也会创建一个 iframe，一并清除
-        const allIframe = document.querySelectorAll('body>iframe');
-        for (const frame of allIframe) {
-            if (frame?.src.includes('criteo.com')) {
-                frame.remove();
-            }
-        }
-    }
-    async addFollow(userID) {
-        return new Promise(async (resolve) => {
-            // 需要携带 need_recaptcha_enterprise_score_token 时，用 iframe 加载网页然后点击关注按钮
-            if (this.need_recaptcha_enterprise_score_token) {
-                const iframe = await this.clickFollowButton(userID);
-                this.clearIframe(iframe);
-                return resolve(200);
-            }
-            // 不需要携带 need_recaptcha_enterprise_score_token 时可以直接添加关注
-            const status = await _API__WEBPACK_IMPORTED_MODULE_3__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_12__.token.token);
-            if (status !== 200) {
-                const errorMsg = `Error: ${_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.createUserLink(userID)} Status: ${status}`;
-                if (status === 404) {
-                    // 404 可能的原因：
-                    // 1. token 无效
-                    // 2. 该用户不存在
-                    if (this.tokenHasUpdated === true) {
-                        _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(errorMsg);
-                    }
-                    else {
-                        // 404 时尝试重新获取 token，然后重试请求（仅执行一次）
-                        this.tokenHasUpdated = true;
-                        await _Token__WEBPACK_IMPORTED_MODULE_12__.token.reset();
-                        await _API__WEBPACK_IMPORTED_MODULE_3__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_12__.token.token);
-                    }
-                }
-                else if (status === 400) {
-                    // 400 是需要传递 recaptcha_enterprise_score_token 的时候，它的值为空或错误
-                    // 此时发出一次错误提醒，并重试添加关注
-                    this.need_recaptcha_enterprise_score_token = true;
-                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_模拟用户点击'));
-                    const iframe = await this.clickFollowButton(userID);
-                    this.clearIframe(iframe);
-                    return resolve(200);
-                }
-                else if (status === 403) {
-                    // 403 是访问权限已经被限制
-                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(errorMsg);
-                    const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_你的账号已经被Pixiv限制');
-                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_11__.msgBox.error(msg);
-                    this.stopAddFollow = true;
-                    return resolve(status);
-                }
-                else {
-                    // 其他错误
-                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(errorMsg);
-                }
-            }
-            // 慢速执行
-            // 关注用户的 API 也会触发 429 错误，此时获取作品数据的话会返回 429，
-            // 但是关注用户的 API 依然返回 200，并且返回值也正常，但实际上关注用户的操作失败了。无法判断到底有没有关注成功
-            // 所以需要限制添加的速度。我用 1400ms 依然会触发 429，所以需要使用更大的时间间隔，以确保不会触发 429
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__.setTimeoutWorker.set(() => {
-                return resolve(status);
-            }, _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.rangeRandom(2500, 3600));
-        });
-    }
-    fun(userID, iframe) {
-        return new Promise(async (resolve) => {
-            // 等待一段时间，默认操作完成。但是如果此时一些请求尚未完成，可能会被取消。所以这个时间最好稍大一点
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__.setTimeoutWorker.set(() => {
-                return resolve(iframe);
-            }, _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.rangeRandom(2500, 3600));
-            const button = iframe.contentDocument?.querySelector('button[data-click-label]');
-            if (button) {
-                button.click();
-                console.log(userID + ' click');
-            }
-            else {
-                const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_没有找到关注按钮的提示', _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.createUserLink(userID));
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg);
-                return resolve(iframe);
-            }
-        });
-    }
-    async clickFollowButton(userID) {
-        return new Promise(async (resolve, reject) => {
-            const url = `https://www.pixiv.net/${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.htmlLangType === 'en' ? 'en/' : ''}users/${userID}`;
-            const res = await fetch(url);
-            // const text = await res.text()
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            document.body.append(iframe);
-            // iframe.srcdoc = text
-            iframe.src = url;
-            // 在一定时间后，强制执行回调，不管 iframe.onload 的状态。
-            // 因为有时一些广告脚本可能会加载失败，导致很久才能进入 onload。那样会等待太久。
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__.setTimeoutWorker.set(async () => {
-                const _iframe = await this.fun(userID, iframe);
-                return resolve(_iframe);
-            }, _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.rangeRandom(2500, 3600));
-        });
-    }
-    // 获取用户的 id 列表
+    // 获取用户 id 列表
     async getIdList() {
         if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
             return this.getIdListFinished();
@@ -16454,7 +16229,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         let idList = [];
         try {
             idList = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getUserWorksByType(this.userList[this.index]);
-            idList = _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_16__.crawlLatestFewWorks.filter(idList);
+            idList = _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_12__.crawlLatestFewWorks.filter(idList);
         }
         catch {
             this.getIdList();
@@ -16472,7 +16247,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode) {
             _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__.setTimeoutWorker.set(() => {
                 this.getIdList();
-            }, _setting_Settings__WEBPACK_IMPORTED_MODULE_14__.settings.slowCrawlDealy);
+            }, _setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.slowCrawlDealy);
         }
         else {
             this.getIdList();
@@ -16480,8 +16255,6 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     }
     resetGetIdListStatus() {
         this.userList = [];
-        this.task = 'crawl';
-        this.importFollowedUserIDs = [];
         this.getUserListNo = 0;
         this.index = 0;
     }
@@ -24256,7 +24029,8 @@ class Mute {
                 // 当请求出错时，视为获取完成。不抛出 reject，否则会导致抓取中止
                 this.got = true;
                 if (error.status === 401) {
-                    console.error('get mute settings error ' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_作品页状态码401'));
+                    console.error('get mute settings error ' +
+                        _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_请您登录Pixiv账号然后重试_401'));
                 }
                 return resolve(error.status);
             }
@@ -25312,7 +25086,7 @@ Zip 파일이 원본 파일입니다.`,
         '이 작품은 삭제되었습니다 (400)',
         'Работа была удалена (400)',
     ],
-    _作品页状态码401: [
+    _请您登录Pixiv账号然后重试_401: [
         '请您登录 Pixiv 账号然后重试。(401)',
         '請您登入 Pixiv 帳號後重試。(401)',
         'Please log in to your Pixiv account and try again. (401)',
@@ -31241,6 +31015,30 @@ If you want to use this feature, please note:
         `유사한 작업이 실행 중입니다. 이전 작업이 완료될 때까지 기다려 주세요.`,
         `Аналогичная задача выполняется. Пожалуйста, подождите завершения предыдущей задачи.`,
     ],
+    _注意这个任务遵从抓取多少页面的设置: [
+        `注意：这个任务遵从“抓取多少页面”的设置，并且是从当前页面（可能不是第 1 页）开始抓取的。`,
+        `注意：這個任務遵從「抓取多少頁面」的設置，並且是從當前頁面（可能不是第 1 頁）開始抓取的。`,
+        `Note: This task follows the "Number of pages to crawl" setting and starts crawling from the current page (which may not be page 1).`,
+        `注意：このタスクは「クロールするページ数」の設定に従い、現在のページ（1ページ目ではない可能性があります）からクロールを開始します。`,
+        `주의: 이 작업은 "크롤링할 페이지 수" 설정을 따르며, 현재 페이지(1페이지가 아닐 수 있음)부터 크롤링을 시작합니다.`,
+        `Примечание: Эта задача следует настройке «Количество страниц для краулинга» и начинается с текущей страницы (которая может не быть первой).`,
+    ],
+    _添加为公开关注的提示: [
+        `由于当前页面显示的是公开关注，所以下载器也会把用户添加为公开关注。`,
+        `由於當前頁面顯示的是公開關注，所以下載器也會把用戶添加為公開關注。`,
+        `Since the current page displays public follows, the downloader will also add users as public follows.`,
+        `現在のページが公開フォロー表示のため、ダウンロードツールもユーザーを公開フォローとして追加します。`,
+        `현재 페이지가 공개 팔로우를 표시하므로, 다운로더도 사용자를 공개 팔로우로 추가합니다.`,
+        `Поскольку текущая страница отображает публичные подписки, загрузчик также добавит пользователей как публичные подписки。`,
+    ],
+    _添加为非公开关注的提示: [
+        `由于当前页面显示的是非公开关注，所以下载器也会把用户添加为非公开关注。`,
+        `由於當前頁面顯示的是非公開關注，所以下載器也會把用戶添加為非公開關注。`,
+        `Since the current page displays private follows, the downloader will also add users as private follows.`,
+        `現在のページが非公開フォロー表示のため、ダウンロードツールもユーザーを非公開フォローとして追加します。`,
+        `현재 페이지가 비공개 팔로우를 표시하므로, 다운로더도 사용자를 비공개 팔로우로 추가합니다.`,
+        `Поскольку текущая страница отображает приватные подписки, загрузчик также добавит пользователей как приватные подписки。`,
+    ],
 };
 
 // prompt
@@ -31573,6 +31371,338 @@ class ShowURLs {
     }
 }
 new ShowURLs();
+
+
+/***/ }),
+
+/***/ "./src/ts/pageFunciton/BatchFollowUser.ts":
+/*!************************************************!*\
+  !*** ./src/ts/pageFunciton/BatchFollowUser.ts ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   batchFollowUser: () => (/* binding */ batchFollowUser)
+/* harmony export */ });
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Token */ "./src/ts/Token.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+
+
+
+
+
+
+
+
+
+
+
+class BatchFollowUser {
+    busy = false;
+    baseOffset = 0; // 开始抓取时，记录初始的偏移量
+    onceNumber = 24; // 每页 24 个用户
+    rest = 'show';
+    tag = '';
+    currentUserId = '';
+    requestTimes = 0; // 获取用户列表时，记录请求的次数
+    limit = 100; // 每次请求多少个用户
+    totalNeed = Number.MAX_SAFE_INTEGER;
+    userList = [];
+    importFollowedUserIDs = [];
+    async start() {
+        if (this.busy) {
+            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_有同类任务正在执行请等待之前的任务完成'));
+            return;
+        }
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_8__.store.loggedUserID === '') {
+            return _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_请您登录Pixiv账号然后重试_401'));
+        }
+        this.busy = true;
+        this.reset();
+        this.importFollowedUserIDs = await this.importUserList();
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入的用户ID数量') + this.importFollowedUserIDs.length);
+        if (this.importFollowedUserIDs.length === 0) {
+            return _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_本次任务已全部完成'));
+        }
+        this.stopAddFollow = false;
+        this.sendReqNumber = 0;
+        // 显示提示
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_批量关注用户'));
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_正在加载关注用户列表'));
+        // 总是慢速抓取
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
+        this.readyGet();
+    }
+    readyGet() {
+        // 始终抓取自己的关注列表，而非别人的，因为添加关注时，需要和自己的关注列表进行对比
+        this.currentUserId = _store_Store__WEBPACK_IMPORTED_MODULE_8__.store.loggedUserID;
+        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.getURLPathField(window.location.pathname, 'following');
+        this.rest = location.href.includes('rest=hide') ? 'hide' : 'show';
+        if (this.rest === 'show') {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_添加为公开关注的提示'));
+        }
+        else {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_添加为非公开关注的提示'));
+        }
+        // 获取抓取开始时的页码
+        const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.getURLSearchField(location.href, 'p');
+        // 计算开始抓取时的偏移量
+        if (nowPage !== '') {
+            this.baseOffset = (parseInt(nowPage) - 1) * this.onceNumber;
+        }
+        else {
+            this.baseOffset = 0;
+        }
+        // 理论上应该获取所有关注的用户，即 baseOffset 固定为 0。这是为了避免不必要的重复关注
+        // 目前的代码是从用户所在的页面抓取到最后一页，这样如果用户不在第一页，就不能获取所有关注的用户
+        // 不过这是有意为之的，如果用户想跳过“先获取所有关注的用户的”的步骤，可以在最后一页执行
+        // 这样可以节省时间
+        // 要抓取多少个用户
+        // 批量添加关注时，该数字没有限制
+        this.totalNeed = Number.MAX_SAFE_INTEGER;
+        // 获取当前页面的用户 id
+        const test = /users\/(\d*)\//.exec(location.href);
+        if (test && test.length > 1) {
+            this.currentUserId = test[1];
+        }
+        else {
+            const msg = `Get the user's own id failed`;
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg, 2);
+            throw new Error(msg);
+        }
+        this.getUserList();
+    }
+    // 获取关注的用户列表
+    async getUserList() {
+        const offset = this.baseOffset + this.requestTimes * this.limit;
+        let res;
+        try {
+            res = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getFollowingList(this.currentUserId, this.rest, this.tag, offset);
+        }
+        catch {
+            this.getUserList();
+            return;
+        }
+        const users = res.body.users;
+        // 用户列表抓取完毕
+        if (users.length === 0) {
+            return this.getUserListComplete();
+        }
+        for (const userData of users) {
+            this.userList.push(userData.userId);
+            // 抓取到了指定数量的用户
+            if (this.userList.length >= this.totalNeed) {
+                return this.getUserListComplete();
+            }
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.userList.length.toString()), 1, false, 'batchFollowGetUserListProgress');
+        this.requestTimes++;
+        // 获取下一批用户列表
+        window.setTimeout(() => {
+            this.getUserList();
+        }, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.slowCrawlDealy);
+    }
+    async getUserListComplete() {
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.userList.length.toString()));
+        // 在批量关注用户时，不需要关心”已关注的用户“的数量是不是 0
+        await this.batchFollow();
+        this.busy = false;
+    }
+    reset() {
+        this.userList = [];
+        this.requestTimes = 0;
+    }
+    async importUserList() {
+        return new Promise(async (resolve) => {
+            const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.loadJSONFile().catch((err) => {
+                return _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(err);
+            }));
+            if (!loadedJSON) {
+                return resolve([]);
+            }
+            // 要求是数组并且为 string[]
+            if (!Array.isArray(loadedJSON) ||
+                loadedJSON.length === 0 ||
+                typeof loadedJSON[0] !== 'string') {
+                _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_格式错误'));
+                return resolve([]);
+            }
+            return resolve(loadedJSON);
+        });
+    }
+    stopAddFollow = false;
+    sendReqNumber = 0;
+    dailyLimit = 1000; // 每天限制关注的数量，以免被封号
+    tokenHasUpdated = false;
+    need_recaptcha_enterprise_score_token = false;
+    logProgress(current, total, newAdded) {
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${current} / ${total}, ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增x个', newAdded.toString())}`, 1, false);
+    }
+    async batchFollow() {
+        return new Promise(async (resolve, reject) => {
+            const taskName = _Language__WEBPACK_IMPORTED_MODULE_0__.lang
+                .transl('_批量关注用户')
+                .replace('（JSON）', '')
+                .replace('(JSON)', '');
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(taskName);
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速执行以避免引起429错误'));
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示可以重新执行批量关注任务'));
+            let followed = 0;
+            let number = 0;
+            const total = this.importFollowedUserIDs.length;
+            for (const userID of this.importFollowedUserIDs) {
+                this.logProgress(number, total, this.sendReqNumber);
+                if (this.stopAddFollow) {
+                    const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务已中止');
+                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
+                    return resolve();
+                }
+                if (this.sendReqNumber >= this.dailyLimit) {
+                    this.stopAddFollow = true;
+                    const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增的关注用户达到每日限制', this.dailyLimit.toString());
+                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
+                    return resolve();
+                }
+                number++;
+                if (this.userList.includes(userID) === false) {
+                    this.sendReqNumber++;
+                    await this.addFollow(userID);
+                }
+                else {
+                    followed++;
+                }
+            }
+            this.logProgress(number, total, this.sendReqNumber);
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.success('✓ ' + taskName);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.success('✓ ' + taskName);
+            return resolve();
+        });
+    }
+    clearIframe(iframe) {
+        iframe.src = 'about:blank';
+        iframe.remove();
+        iframe = null;
+        console.log('清理iframe');
+        // 下载器每生成一个 iframe，Pixiv 的脚本也会创建一个 iframe，一并清除
+        const allIframe = document.querySelectorAll('body>iframe');
+        for (const frame of allIframe) {
+            if (frame?.src.includes('criteo.com')) {
+                frame.remove();
+            }
+        }
+    }
+    async addFollow(userID) {
+        return new Promise(async (resolve) => {
+            // 需要携带 need_recaptcha_enterprise_score_token 时，用 iframe 加载网页然后点击关注按钮
+            if (this.need_recaptcha_enterprise_score_token) {
+                const iframe = await this.loadIframe(userID);
+                this.clearIframe(iframe);
+                return resolve(200);
+            }
+            // 不需要携带 need_recaptcha_enterprise_score_token 时可以直接添加关注
+            const status = await _API__WEBPACK_IMPORTED_MODULE_5__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_9__.token.token, this.rest === 'show');
+            if (status !== 200) {
+                const errorMsg = `Error: ${_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID)} Status: ${status}`;
+                if (status === 404) {
+                    // 404 可能的原因：
+                    // 1. token 无效
+                    // 2. 该用户不存在
+                    if (this.tokenHasUpdated === true) {
+                        _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(errorMsg);
+                    }
+                    else {
+                        // 404 时尝试重新获取 token，然后重试请求（仅执行一次）
+                        this.tokenHasUpdated = true;
+                        await _Token__WEBPACK_IMPORTED_MODULE_9__.token.reset();
+                        await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(1000);
+                        await _API__WEBPACK_IMPORTED_MODULE_5__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_9__.token.token, this.rest === 'show');
+                    }
+                }
+                else if (status === 400) {
+                    // 400 是需要传递 recaptcha_enterprise_score_token 的时候，它的值为空或错误
+                    // 此时发出一次错误提醒，并重试添加关注
+                    this.need_recaptcha_enterprise_score_token = true;
+                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_模拟用户点击'));
+                    const iframe = await this.loadIframe(userID);
+                    this.clearIframe(iframe);
+                    return resolve(200);
+                }
+                else if (status === 403) {
+                    // 403 是访问权限已经被限制
+                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(errorMsg);
+                    const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你的账号已经被Pixiv限制');
+                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
+                    this.stopAddFollow = true;
+                    return resolve(status);
+                }
+                else {
+                    // 其他错误
+                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(errorMsg);
+                }
+            }
+            // 慢速执行
+            // 关注用户的 API 也会触发 429 错误，此时获取作品数据的话会返回 429，
+            // 但是关注用户的 API 依然返回 200，并且返回值也正常，但实际上关注用户的操作失败了。无法判断到底有没有关注成功
+            // 所以需要限制添加的速度。我用 1400ms 依然会触发 429，所以需要使用更大的时间间隔，以确保不会触发 429
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(() => {
+                return resolve(status);
+            }, _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
+        });
+    }
+    clickFollowBtn(userID, iframe) {
+        return new Promise(async (resolve) => {
+            // 等待一段时间，默认操作完成。但是如果此时一些请求尚未完成，可能会被取消。所以这个时间最好稍大一点
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(() => {
+                return resolve(iframe);
+            }, _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
+            const button = iframe.contentDocument?.querySelector('button[data-click-label]');
+            if (button) {
+                button.click();
+                console.log(userID + ' click');
+            }
+            else {
+                const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有找到关注按钮的提示', _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID));
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+                return resolve(iframe);
+            }
+        });
+    }
+    // 加载指定用户的的主页，然后查找关注按钮并点击
+    async loadIframe(userID) {
+        return new Promise(async (resolve, reject) => {
+            const url = `https://www.pixiv.net/${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.htmlLangType === 'en' ? 'en/' : ''}users/${userID}`;
+            const res = await fetch(url);
+            // const text = await res.text()
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            document.body.append(iframe);
+            // iframe.srcdoc = text
+            iframe.src = url;
+            // 在一定时间后，强制执行回调，不管 iframe.onload 的状态。
+            // 因为有时一些广告脚本可能会加载失败，导致很久才能进入 onload。那样会等待太久。
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(async () => {
+                const _iframe = await this.clickFollowBtn(userID, iframe);
+                return resolve(_iframe);
+            }, _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
+        });
+    }
+}
+const batchFollowUser = new BatchFollowUser();
+
 
 
 /***/ }),
@@ -32445,6 +32575,7 @@ class ExportFollowingList {
         this.readyGet();
     }
     getWantPage() {
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_注意这个任务遵从抓取多少页面的设置'));
         this.crawlPageNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type].value;
         if (this.crawlPageNumber === -1) {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载所有页面'));
@@ -32524,6 +32655,7 @@ class ExportFollowingList {
             return this.getUserListComplete();
         }
         const users = res.body.users;
+        // console.log(users.length, offset)
         if (users.length === 0) {
             // 用户列表抓取完毕
             return this.getUserListComplete();

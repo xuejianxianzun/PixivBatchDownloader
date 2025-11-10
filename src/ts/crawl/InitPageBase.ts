@@ -617,7 +617,9 @@ abstract class InitPageBase {
         break
 
       case 401:
-        log.error(workLink + ' ' + lang.transl('_作品页状态码401'))
+        log.error(
+          workLink + ' ' + lang.transl('_请您登录Pixiv账号然后重试_401')
+        )
         break
 
       case 403:
