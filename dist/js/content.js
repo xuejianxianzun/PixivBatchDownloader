@@ -16060,17 +16060,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/CreateCSV */ "./src/ts/utils/CreateCSV.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../Token */ "./src/ts/Token.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../crawl/CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../Token */ "./src/ts/Token.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../crawl/CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
+/* harmony import */ var _pageFunciton_ExportFollowingList__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../pageFunciton/ExportFollowingList */ "./src/ts/pageFunciton/ExportFollowingList.ts");
 // 初始化关注页面、好 P 友页面、粉丝页面
 
 
@@ -16098,10 +16098,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     }
     baseOffset = 0; // 开始抓取时，记录初始的偏移量
     onceNumber = 24; // 每页 24 个画师
-    pageType = 0; // 页面子类型
-    // 0 我的关注
-    // 1 我的好 P 友
-    // 2 我的粉丝
+    pageType = 'following';
     getUserListNo = 0; // 获取用户列表时，记录请求的次数
     limit = 100; // 每次请求多少个用户
     totalNeed = Number.MAX_SAFE_INTEGER;
@@ -16111,19 +16108,17 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     userList = [];
     index = 0; // getIdList 时，对 userList 的索引
     task = 'crawl';
-    CSVData = []; // 储存用户列表，包含 id 和用户名
     importFollowedUserIDs = [];
-    homePrefix = 'https://www.pixiv.net/users/'; // 用户主页的通用链接前缀
     getPageType() {
         const pathname = window.location.pathname;
         if (pathname.includes('/following')) {
-            this.pageType = 0;
+            this.pageType = 'following';
         }
         else if (pathname.includes('/mypixiv')) {
-            this.pageType = 1;
+            this.pageType = 'mypixiv';
         }
         else if (pathname.includes('/followers')) {
-            this.pageType = 2;
+            this.pageType = 'followers';
         }
     }
     addCrawlBtns() {
@@ -16131,23 +16126,21 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             this.readyCrawl();
         });
         _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导出关注列表CSV', '', 'exportFollowingListCSV').addEventListener('click', () => {
-            this.task = 'exportCSV';
-            this.readyCrawl();
+            _pageFunciton_ExportFollowingList__WEBPACK_IMPORTED_MODULE_17__.exportFollowingList.start('csv');
         });
-        const exportButton = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导出关注列表', '', 'exportFollowingListJSON');
+        const exportButton = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导出关注列表JSON', '', 'exportFollowingListJSON');
         exportButton.addEventListener('click', () => {
-            this.task = 'exportJSON';
-            this.readyCrawl();
+            _pageFunciton_ExportFollowingList__WEBPACK_IMPORTED_MODULE_17__.exportFollowingList.start('json');
         });
         const batchFollowButton = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_批量关注用户', '', 'batchFollowUser');
         batchFollowButton.addEventListener('click', async () => {
-            if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
-                return _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
+            if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.busy) {
+                return _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
             }
             if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.loggedUserID === '') {
-                return _MsgBox__WEBPACK_IMPORTED_MODULE_12__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_作品页状态码401'));
+                return _MsgBox__WEBPACK_IMPORTED_MODULE_11__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_作品页状态码401'));
             }
-            _EVT__WEBPACK_IMPORTED_MODULE_14__.EVT.fire('clearLog');
+            _EVT__WEBPACK_IMPORTED_MODULE_13__.EVT.fire('clearLog');
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_批量关注用户'));
             this.importFollowedUserIDs = await this.importUserList();
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入的用户ID数量') + this.importFollowedUserIDs.length);
@@ -16158,13 +16151,13 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             this.sendReqNumber = 0;
             // 导入关注列表后，需要获取关注的所有用户列表，以便在添加关注时跳过已关注的，节约时间
             this.task = 'batchFollow';
-            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = true;
-            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = false;
-            _EVT__WEBPACK_IMPORTED_MODULE_14__.EVT.fire('crawlStart');
+            _store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode = true;
+            _store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl = false;
+            _EVT__WEBPACK_IMPORTED_MODULE_13__.EVT.fire('crawlStart');
             // 批量添加关注时，获取所有关注的用户
             this.crawlNumber = -1;
-            // 把页面类型设置为 0，始终获取关注的用户列表
-            this.pageType = 0;
+            // 设置页面类型，始终获取关注的用户列表
+            this.pageType = 'following';
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_正在加载关注用户列表'));
             this.readyGet();
             // 始终抓取自己的关注列表，而非别人的，因为添加关注时，需要和自己的关注列表进行对比
@@ -16173,7 +16166,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         });
     }
     getWantPage() {
-        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_15__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_16__.pageType.type].value;
+        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_14__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_15__.pageType.type].value;
         if (this.crawlNumber === -1) {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载所有页面'));
         }
@@ -16190,9 +16183,9 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     }
     readyGet() {
         this.rest = location.href.includes('rest=hide') ? 'hide' : 'show';
-        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.getURLPathField(window.location.pathname, 'following');
+        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.getURLPathField(window.location.pathname, 'following');
         // 获取抓取开始时的页码
-        const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.getURLSearchField(location.href, 'p');
+        const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.getURLSearchField(location.href, 'p');
         // 计算开始抓取时的偏移量
         if (nowPage !== '') {
             this.baseOffset = (parseInt(nowPage) - 1) * this.onceNumber;
@@ -16218,20 +16211,20 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     }
     // 获取用户列表
     async getUserList() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
             return this.getUserListComplete();
         }
         const offset = this.baseOffset + this.getUserListNo * this.limit;
         let res;
         try {
             switch (this.pageType) {
-                case 0:
+                case 'following':
                     res = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getFollowingList(this.crawlUserID, this.rest, this.tag, offset);
                     break;
-                case 1:
+                case 'mypixiv':
                     res = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getMyPixivList(this.crawlUserID, offset);
                     break;
-                case 2:
+                case 'followers':
                     res = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getFollowersList(this.crawlUserID, offset);
                     break;
             }
@@ -16240,7 +16233,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             this.getUserList();
             return;
         }
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
             return this.getUserListComplete();
         }
         const users = res.body.users;
@@ -16250,15 +16243,6 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         }
         for (const userData of users) {
             this.userList.push(userData.userId);
-            if (this.task === 'exportCSV') {
-                this.CSVData.push({
-                    userId: userData.userId,
-                    userName: userData.userName,
-                    homePage: this.homePrefix + userData.userId,
-                    userComment: userData.userComment,
-                    profileImageUrl: userData.profileImageUrl,
-                });
-            }
             if (this.userList.length >= this.totalNeed) {
                 // 抓取到了指定数量的用户
                 return this.getUserListComplete();
@@ -16274,22 +16258,6 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         if (this.userList.length === 0 && this.task !== 'batchFollow') {
             return this.getIdListFinished();
         }
-        if (this.task === 'exportCSV') {
-            this.exportCSV();
-            const msg = '✓ ' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导出关注列表CSV');
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(msg);
-            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(msg);
-            this.stopCrawl();
-            return;
-        }
-        if (this.task === 'exportJSON') {
-            this.exportJSON();
-            const msg = '✓ ' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导出关注列表');
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(msg);
-            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(msg);
-            this.stopCrawl();
-            return;
-        }
         if (this.task === 'batchFollow') {
             await this.batchFollow();
             this.stopCrawl();
@@ -16298,33 +16266,15 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         this.getIdList();
     }
     stopCrawl() {
-        _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = false;
-        _store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy = false;
+        _store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode = false;
+        _store_States__WEBPACK_IMPORTED_MODULE_8__.states.busy = false;
         this.resetGetIdListStatus();
-        _EVT__WEBPACK_IMPORTED_MODULE_14__.EVT.fire('stopCrawl');
-    }
-    exportCSV() {
-        // 添加用户信息
-        const data = this.CSVData.map((item) => {
-            return Object.values(item);
-        });
-        // 添加用户信息的标题字段
-        data.unshift(Object.keys(this.CSVData[0]));
-        const csv = _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_7__.createCSV.create(data);
-        const csvURL = URL.createObjectURL(csv);
-        const csvName = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.getPageTitle();
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.downloadFile(csvURL, _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.replaceUnsafeStr(csvName) + '.csv');
-    }
-    exportJSON() {
-        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.json2Blob(this.userList);
-        const url = URL.createObjectURL(blob);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.downloadFile(url, `following list-total ${this.userList.length}-from user ${_utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.getURLPathField(window.location.pathname, 'users')}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
-        URL.revokeObjectURL(url);
+        _EVT__WEBPACK_IMPORTED_MODULE_13__.EVT.fire('stopCrawl');
     }
     async importUserList() {
         return new Promise(async (resolve) => {
-            const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.loadJSONFile().catch((err) => {
-                return _MsgBox__WEBPACK_IMPORTED_MODULE_12__.msgBox.error(err);
+            const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.loadJSONFile().catch((err) => {
+                return _MsgBox__WEBPACK_IMPORTED_MODULE_11__.msgBox.error(err);
             }));
             if (!loadedJSON) {
                 return resolve([]);
@@ -16333,7 +16283,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             if (!Array.isArray(loadedJSON) ||
                 loadedJSON.length === 0 ||
                 typeof loadedJSON[0] !== 'string') {
-                _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_格式错误'));
+                _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_格式错误'));
                 return resolve([]);
             }
             return resolve(loadedJSON);
@@ -16364,14 +16314,14 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
                 if (this.stopAddFollow) {
                     const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_任务已中止');
                     _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_12__.msgBox.error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_11__.msgBox.error(msg);
                     return resolve();
                 }
                 if (this.sendReqNumber >= this.dailyLimit) {
                     this.stopAddFollow = true;
                     const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_新增的关注用户达到每日限制', this.dailyLimit.toString());
                     _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_12__.msgBox.error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_11__.msgBox.error(msg);
                     return resolve();
                 }
                 number++;
@@ -16385,7 +16335,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             }
             this.logProgress(number, total, this.sendReqNumber);
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('✓ ' + taskName);
-            _MsgBox__WEBPACK_IMPORTED_MODULE_12__.msgBox.success('✓ ' + taskName);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_11__.msgBox.success('✓ ' + taskName);
             return resolve();
         });
     }
@@ -16411,7 +16361,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
                 return resolve(200);
             }
             // 不需要携带 need_recaptcha_enterprise_score_token 时可以直接添加关注
-            const status = await _API__WEBPACK_IMPORTED_MODULE_3__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_13__.token.token);
+            const status = await _API__WEBPACK_IMPORTED_MODULE_3__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_12__.token.token);
             if (status !== 200) {
                 const errorMsg = `Error: ${_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.createUserLink(userID)} Status: ${status}`;
                 if (status === 404) {
@@ -16424,8 +16374,8 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
                     else {
                         // 404 时尝试重新获取 token，然后重试请求（仅执行一次）
                         this.tokenHasUpdated = true;
-                        await _Token__WEBPACK_IMPORTED_MODULE_13__.token.reset();
-                        await _API__WEBPACK_IMPORTED_MODULE_3__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_13__.token.token);
+                        await _Token__WEBPACK_IMPORTED_MODULE_12__.token.reset();
+                        await _API__WEBPACK_IMPORTED_MODULE_3__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_12__.token.token);
                     }
                 }
                 else if (status === 400) {
@@ -16442,7 +16392,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
                     _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(errorMsg);
                     const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_你的账号已经被Pixiv限制');
                     _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_12__.msgBox.error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_11__.msgBox.error(msg);
                     this.stopAddFollow = true;
                     return resolve(status);
                 }
@@ -16455,7 +16405,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             // 关注用户的 API 也会触发 429 错误，此时获取作品数据的话会返回 429，
             // 但是关注用户的 API 依然返回 200，并且返回值也正常，但实际上关注用户的操作失败了。无法判断到底有没有关注成功
             // 所以需要限制添加的速度。我用 1400ms 依然会触发 429，所以需要使用更大的时间间隔，以确保不会触发 429
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(() => {
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__.setTimeoutWorker.set(() => {
                 return resolve(status);
             }, _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.rangeRandom(2500, 3600));
         });
@@ -16463,7 +16413,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     fun(userID, iframe) {
         return new Promise(async (resolve) => {
             // 等待一段时间，默认操作完成。但是如果此时一些请求尚未完成，可能会被取消。所以这个时间最好稍大一点
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(() => {
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__.setTimeoutWorker.set(() => {
                 return resolve(iframe);
             }, _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.rangeRandom(2500, 3600));
             const button = iframe.contentDocument?.querySelector('button[data-click-label]');
@@ -16490,7 +16440,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             iframe.src = url;
             // 在一定时间后，强制执行回调，不管 iframe.onload 的状态。
             // 因为有时一些广告脚本可能会加载失败，导致很久才能进入 onload。那样会等待太久。
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(async () => {
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__.setTimeoutWorker.set(async () => {
                 const _iframe = await this.fun(userID, iframe);
                 return resolve(_iframe);
             }, _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.rangeRandom(2500, 3600));
@@ -16498,19 +16448,19 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     }
     // 获取用户的 id 列表
     async getIdList() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
             return this.getIdListFinished();
         }
         let idList = [];
         try {
             idList = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getUserWorksByType(this.userList[this.index]);
-            idList = _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_17__.crawlLatestFewWorks.filter(idList);
+            idList = _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_16__.crawlLatestFewWorks.filter(idList);
         }
         catch {
             this.getIdList();
             return;
         }
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
             return this.getIdListFinished();
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.concat(idList);
@@ -16519,10 +16469,10 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         if (this.index >= this.userList.length) {
             return this.getIdListFinished();
         }
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode) {
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(() => {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode) {
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__.setTimeoutWorker.set(() => {
                 this.getIdList();
-            }, _setting_Settings__WEBPACK_IMPORTED_MODULE_15__.settings.slowCrawlDealy);
+            }, _setting_Settings__WEBPACK_IMPORTED_MODULE_14__.settings.slowCrawlDealy);
         }
         else {
             this.getIdList();
@@ -16531,14 +16481,13 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     resetGetIdListStatus() {
         this.userList = [];
         this.task = 'crawl';
-        this.CSVData = [];
         this.importFollowedUserIDs = [];
         this.getUserListNo = 0;
         this.index = 0;
     }
     sortResult() {
         // 把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
-        _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.sortByProperty('id'));
+        _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sortByProperty('id'));
     }
 }
 
@@ -27578,13 +27527,29 @@ This setting is also used when you use the Downloader to bookmark works in batch
         '팔로우한 사용자 목록 내보내기 (CSV)',
         'Экспорт списка отслеживаемых пользователей (CSV)',
     ],
-    _导出关注列表: [
+    _导出关注列表JSON: [
         '导出关注的用户列表（JSON）',
         '匯出關注的使用者列表（JSON）',
         'Export followed users list (JSON)',
         'フォローされているユーザーのリストをエクスポートする（JSON）',
         '팔로우한 사용자 목록 내보내기 (JSON)',
         'Экспорт списка отслеживаемых пользователей (JSON)',
+    ],
+    _开始抓取用户列表: [
+        `开始抓取用户列表`,
+        `開始抓取用戶列表`,
+        `Start crawling user list`,
+        `ユーザーリストのクローリングを開始`,
+        `사용자 목록 크롤링 시작`,
+        `Начать краулинг списка пользователей`,
+    ],
+    _用户数量为0: [
+        `用户数量为 0`,
+        `用戶數量為 0`,
+        `Number of users is 0`,
+        `ユーザー数 0`,
+        `사용자 수 0`,
+        `Количество пользователей 0`,
     ],
     _批量关注用户: [
         '批量关注用户（JSON）',
@@ -31260,14 +31225,6 @@ If you want to use this feature, please note:
         `이것은 데뷔 작품이 아닙니다`,
         `Это не дебютная работа`,
     ],
-    _适配了新版排行榜页面: [
-        `适配了新版排行榜页面`,
-        `適配了新版排行榜頁面`,
-        `Adapted to the new ranking page`,
-        `新版ランキングページに対応しました`,
-        `새 버전 랭킹 페이지에 적응했습니다`,
-        `Адаптировано к новой странице рейтинга,`,
-    ],
     _QQ修复了粘贴问题的提醒: [
         `对使用下载器的“复制功能”的用户的提醒：<br> QQ 之前的版本存在 Bug，无法粘贴下载器复制的图文混合内容（text/html）。最近（11月5日）QQ 的新版本修复了此问题，请及时更新。`,
         `對使用下載器的「複製功能」的用戶的提醒：<br> QQ 之前的版本存在 Bug，無法貼上下載器複製的圖文混合內容（text/html）。最近（11月5日）QQ 的新版本修復了此問題，請及時更新。`,
@@ -31275,6 +31232,14 @@ If you want to use this feature, please note:
         `ダウンロードツールの「コピー機能」を使用するユーザーへのリマインダー：<br> QQ の以前のバージョンにはバグがあり、ダウンロードツールでコピーした画像とテキストの混合コンテンツ（text/html）を貼り付けできませんでした。最近（11月5日）の QQ の新バージョンでこの問題が修正されました。速やかに更新してください。`,
         `다운로더의 "복사 기능"을 사용하는 사용자에게 알림:<br> QQ 이전 버전에는 버그가 있어 다운로더가 복사한 이미지-텍스트 혼합 콘텐츠(text/html)를 붙여넣을 수 없습니다. 최근(11월 5일) QQ 새 버전에서 이 문제가 수정되었습니다. 즉시 업데이트하세요.`,
         `Напоминание для пользователей, использующих функцию "копирования" загрузчика:<br> В предыдущих версиях QQ была ошибка, из-за которой нельзя было вставить смешанный контент с изображениями и текстом (text/html), скопированный загрузчиком. В последней версии QQ (5 ноября) эта проблема исправлена, пожалуйста, обновите timely.`,
+    ],
+    _有同类任务正在执行请等待之前的任务完成: [
+        `有同类任务正在执行，请等待之前的任务完成。`,
+        `有同類任務正在執行，請等待之前的任務完成。`,
+        `A similar task is currently running. Please wait for the previous task to complete.`,
+        `同種のタスクが実行中です。前のタスクが完了するまでお待ちください。`,
+        `유사한 작업이 실행 중입니다. 이전 작업이 완료될 때까지 기다려 주세요.`,
+        `Аналогичная задача выполняется. Пожалуйста, подождите завершения предыдущей задачи.`,
     ],
 };
 
@@ -32405,6 +32370,240 @@ class DisplayThumbnailListOnMultiImageWorkPage {
     }
 }
 const displayThumbnailListOnMultiImageWorkPage = new DisplayThumbnailListOnMultiImageWorkPage();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/pageFunciton/ExportFollowingList.ts":
+/*!****************************************************!*\
+  !*** ./src/ts/pageFunciton/ExportFollowingList.ts ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   exportFollowingList: () => (/* binding */ exportFollowingList)
+/* harmony export */ });
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/CreateCSV */ "./src/ts/utils/CreateCSV.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
+
+
+
+
+
+
+
+
+
+
+class ExportFollowingList {
+    busy = false;
+    baseOffset = 0; // 开始抓取时，记录初始的偏移量
+    onceNumber = 24; // 每页 24 个用户
+    crawlPageNumber = 1; // 需要抓取多少个页面
+    // 页面子类型：我的关注 | 我的好 P 友 | 我的粉丝
+    pageType = 'following';
+    rest = 'show';
+    tag = '';
+    currentUserId = '';
+    requestTimes = 0; // 获取用户列表时，记录请求的次数
+    limit = 100; // 每次请求多少个用户
+    totalNeed = Number.MAX_SAFE_INTEGER;
+    // csv 的内容更丰富，json 只包含用户 id 列表，所以默认导出 csv 格式
+    format = 'csv';
+    CSVData = []; // 储存用户列表，包含 id 和用户名
+    // 用户主页的通用链接前缀
+    homePrefix = 'https://www.pixiv.net/users/';
+    userList = [];
+    start(format) {
+        if (this.busy) {
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_有同类任务正在执行请等待之前的任务完成'));
+            return;
+        }
+        this.busy = true;
+        this.format = format;
+        // 显示提示
+        const log1 = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl(format === 'csv' ? '_导出关注列表CSV' : '_导出关注列表JSON');
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(log1);
+        const log2 = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取用户列表');
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(log2);
+        _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.show(log2);
+        // 总是慢速抓取
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
+        this.readyGet();
+    }
+    getWantPage() {
+        this.crawlPageNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type].value;
+        if (this.crawlPageNumber === -1) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载所有页面'));
+        }
+        else {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_从本页开始下载x页', this.crawlPageNumber.toString()));
+        }
+    }
+    getPageType() {
+        const pathname = window.location.pathname;
+        if (pathname.includes('/following')) {
+            this.pageType = 'following';
+        }
+        else if (pathname.includes('/mypixiv')) {
+            this.pageType = 'mypixiv';
+        }
+        else if (pathname.includes('/followers')) {
+            this.pageType = 'followers';
+        }
+    }
+    readyGet() {
+        this.getWantPage();
+        this.getPageType();
+        this.rest = location.href.includes('rest=hide') ? 'hide' : 'show';
+        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLPathField(window.location.pathname, 'following');
+        // 获取抓取开始时的页码
+        const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLSearchField(location.href, 'p');
+        // 计算开始抓取时的偏移量
+        if (nowPage !== '') {
+            this.baseOffset = (parseInt(nowPage) - 1) * this.onceNumber;
+        }
+        else {
+            this.baseOffset = 0;
+        }
+        // 要抓取多少个用户
+        this.totalNeed = Number.MAX_SAFE_INTEGER;
+        if (this.crawlPageNumber !== -1) {
+            this.totalNeed = this.onceNumber * this.crawlPageNumber;
+        }
+        // 获取当前页面的用户 id
+        const test = /users\/(\d*)\//.exec(location.href);
+        if (test && test.length > 1) {
+            this.currentUserId = test[1];
+        }
+        else {
+            const msg = `Get the user's own id failed`;
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg, 2);
+            throw new Error(msg);
+        }
+        this.getUserList();
+    }
+    // 获取用户列表
+    async getUserList() {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_7__.states.stopCrawl) {
+            return this.getUserListComplete();
+        }
+        const offset = this.baseOffset + this.requestTimes * this.limit;
+        let res;
+        try {
+            switch (this.pageType) {
+                case 'following':
+                    res = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getFollowingList(this.currentUserId, this.rest, this.tag, offset);
+                    break;
+                case 'mypixiv':
+                    res = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getMyPixivList(this.currentUserId, offset);
+                    break;
+                case 'followers':
+                    res = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getFollowersList(this.currentUserId, offset);
+                    break;
+            }
+        }
+        catch {
+            this.getUserList();
+            return;
+        }
+        if (_store_States__WEBPACK_IMPORTED_MODULE_7__.states.stopCrawl) {
+            return this.getUserListComplete();
+        }
+        const users = res.body.users;
+        if (users.length === 0) {
+            // 用户列表抓取完毕
+            return this.getUserListComplete();
+        }
+        for (const userData of users) {
+            this.userList.push(userData.userId);
+            if (this.format === 'csv') {
+                this.CSVData.push({
+                    userId: userData.userId,
+                    userName: userData.userName,
+                    homePage: this.homePrefix + userData.userId,
+                    userComment: userData.userComment,
+                    profileImageUrl: userData.profileImageUrl,
+                });
+            }
+            if (this.userList.length >= this.totalNeed) {
+                // 抓取到了指定数量的用户
+                return this.getUserListComplete();
+            }
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.userList.length.toString()), 1, false, 'exportFollowingListProgress');
+        this.requestTimes++;
+        // 获取下一批用户列表
+        window.setTimeout(() => {
+            this.getUserList();
+        }, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.slowCrawlDealy);
+    }
+    async getUserListComplete() {
+        this.busy = false;
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.userList.length.toString()));
+        // 在批量关注用户时，抓取结果为 0 并不影响继续执行
+        if (this.userList.length === 0) {
+            const msg = '✓ ' +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_用户数量为0') +
+                ', ' +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有可用的抓取结果');
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_9__.msgBox.warning(msg);
+        }
+        else {
+            if (this.format === 'csv') {
+                this.exportCSV();
+                const msg = '✓ ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出关注列表CSV');
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(msg);
+                _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg);
+            }
+            if (this.format === 'json') {
+                this.exportJSON();
+                const msg = '✓ ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出关注列表JSON');
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(msg);
+                _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg);
+            }
+        }
+        this.reset();
+    }
+    exportCSV() {
+        // 添加用户信息
+        const data = this.CSVData.map((item) => {
+            return Object.values(item);
+        });
+        // 添加用户信息的标题字段
+        data.unshift(Object.keys(this.CSVData[0]));
+        const csv = _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_6__.createCSV.create(data);
+        const csvURL = URL.createObjectURL(csv);
+        const csvName = _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.getPageTitle();
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(csvURL, _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(csvName) + '.csv');
+    }
+    exportJSON() {
+        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.json2Blob(this.userList);
+        const url = URL.createObjectURL(blob);
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(url, `following list-total ${this.userList.length}-from user ${_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLPathField(window.location.pathname, 'users')}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
+        URL.revokeObjectURL(url);
+    }
+    reset() {
+        this.userList = [];
+        this.CSVData = [];
+        this.requestTimes = 0;
+    }
+}
+const exportFollowingList = new ExportFollowingList();
 
 
 

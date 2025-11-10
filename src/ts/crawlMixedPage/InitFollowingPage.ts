@@ -6,7 +6,6 @@ import { API } from '../API'
 import { store } from '../store/Store'
 import { log } from '../Log'
 import { Tools } from '../Tools'
-import { createCSV } from '../utils/CreateCSV'
 import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
@@ -17,16 +16,10 @@ import { EVT } from '../EVT'
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
 import { crawlLatestFewWorks } from '../crawl/CrawlLatestFewWorks'
+import { exportFollowingList } from '../pageFunciton/ExportFollowingList'
 
-interface UserInfo {
-  userId: string
-  userName: string
-  homePage: string
-  userComment: string
-  profileImageUrl: string
-}
-
-type PageType = 0 | 1 | 2
+// 页面子类型：我的关注 | 我的好 P 友 | 我的粉丝
+type PageType = 'following' | 'mypixiv' | 'followers'
 
 class InitFollowingPage extends InitPageBase {
   constructor() {
@@ -38,11 +31,7 @@ class InitFollowingPage extends InitPageBase {
   private baseOffset = 0 // 开始抓取时，记录初始的偏移量
   private readonly onceNumber = 24 // 每页 24 个画师
 
-  private pageType: PageType = 0 // 页面子类型
-  // 0 我的关注
-  // 1 我的好 P 友
-  // 2 我的粉丝
-
+  private pageType: PageType = 'following'
   private getUserListNo = 0 // 获取用户列表时，记录请求的次数
   private readonly limit = 100 // 每次请求多少个用户
 
@@ -55,22 +44,18 @@ class InitFollowingPage extends InitPageBase {
 
   private index = 0 // getIdList 时，对 userList 的索引
 
-  private task: 'crawl' | 'exportCSV' | 'exportJSON' | 'batchFollow' = 'crawl'
-
-  private CSVData: UserInfo[] = [] // 储存用户列表，包含 id 和用户名
+  private task: 'crawl' | 'batchFollow' = 'crawl'
 
   private importFollowedUserIDs: string[] = []
-
-  private readonly homePrefix = 'https://www.pixiv.net/users/' // 用户主页的通用链接前缀
 
   private getPageType() {
     const pathname = window.location.pathname
     if (pathname.includes('/following')) {
-      this.pageType = 0
+      this.pageType = 'following'
     } else if (pathname.includes('/mypixiv')) {
-      this.pageType = 1
+      this.pageType = 'mypixiv'
     } else if (pathname.includes('/followers')) {
-      this.pageType = 2
+      this.pageType = 'followers'
     }
   }
 
@@ -92,20 +77,18 @@ class InitFollowingPage extends InitPageBase {
       '',
       'exportFollowingListCSV'
     ).addEventListener('click', () => {
-      this.task = 'exportCSV'
-      this.readyCrawl()
+      exportFollowingList.start('csv')
     })
 
     const exportButton = Tools.addBtn(
       'crawlBtns',
       Colors.bgGreen,
-      '_导出关注列表',
+      '_导出关注列表JSON',
       '',
       'exportFollowingListJSON'
     )
     exportButton.addEventListener('click', () => {
-      this.task = 'exportJSON'
-      this.readyCrawl()
+      exportFollowingList.start('json')
     })
 
     const batchFollowButton = Tools.addBtn(
@@ -148,8 +131,8 @@ class InitFollowingPage extends InitPageBase {
 
       // 批量添加关注时，获取所有关注的用户
       this.crawlNumber = -1
-      // 把页面类型设置为 0，始终获取关注的用户列表
-      this.pageType = 0
+      // 设置页面类型，始终获取关注的用户列表
+      this.pageType = 'following'
 
       log.log(lang.transl('_正在加载关注用户列表'))
       this.readyGet()
@@ -221,7 +204,7 @@ class InitFollowingPage extends InitPageBase {
     let res
     try {
       switch (this.pageType) {
-        case 0:
+        case 'following':
           res = await API.getFollowingList(
             this.crawlUserID,
             this.rest,
@@ -229,10 +212,10 @@ class InitFollowingPage extends InitPageBase {
             offset
           )
           break
-        case 1:
+        case 'mypixiv':
           res = await API.getMyPixivList(this.crawlUserID, offset)
           break
-        case 2:
+        case 'followers':
           res = await API.getFollowersList(this.crawlUserID, offset)
           break
       }
@@ -254,16 +237,6 @@ class InitFollowingPage extends InitPageBase {
 
     for (const userData of users) {
       this.userList.push(userData.userId)
-
-      if (this.task === 'exportCSV') {
-        this.CSVData.push({
-          userId: userData.userId,
-          userName: userData.userName,
-          homePage: this.homePrefix + userData.userId,
-          userComment: userData.userComment,
-          profileImageUrl: userData.profileImageUrl,
-        })
-      }
 
       if (this.userList.length >= this.totalNeed) {
         // 抓取到了指定数量的用户
@@ -289,26 +262,6 @@ class InitFollowingPage extends InitPageBase {
       return this.getIdListFinished()
     }
 
-    if (this.task === 'exportCSV') {
-      this.exportCSV()
-      const msg = '✓ ' + lang.transl('_导出关注列表CSV')
-      log.success(msg)
-      toast.success(msg)
-
-      this.stopCrawl()
-      return
-    }
-
-    if (this.task === 'exportJSON') {
-      this.exportJSON()
-      const msg = '✓ ' + lang.transl('_导出关注列表')
-      log.success(msg)
-      toast.success(msg)
-
-      this.stopCrawl()
-      return
-    }
-
     if (this.task === 'batchFollow') {
       await this.batchFollow()
       this.stopCrawl()
@@ -325,38 +278,6 @@ class InitFollowingPage extends InitPageBase {
     this.resetGetIdListStatus()
 
     EVT.fire('stopCrawl')
-  }
-
-  private exportCSV() {
-    // 添加用户信息
-    const data: string[][] = this.CSVData.map((item) => {
-      return Object.values(item)
-    })
-
-    // 添加用户信息的标题字段
-    data.unshift(Object.keys(this.CSVData[0]))
-
-    const csv = createCSV.create(data)
-    const csvURL = URL.createObjectURL(csv)
-
-    const csvName = Tools.getPageTitle()
-
-    Utils.downloadFile(csvURL, Utils.replaceUnsafeStr(csvName) + '.csv')
-  }
-
-  private exportJSON() {
-    const blob = Utils.json2Blob(this.userList)
-    const url = URL.createObjectURL(blob)
-    Utils.downloadFile(
-      url,
-      `following list-total ${
-        this.userList.length
-      }-from user ${Utils.getURLPathField(
-        window.location.pathname,
-        'users'
-      )}-${Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`
-    )
-    URL.revokeObjectURL(url)
   }
 
   private async importUserList(): Promise<string[]> {
@@ -632,7 +553,6 @@ class InitFollowingPage extends InitPageBase {
   protected resetGetIdListStatus() {
     this.userList = []
     this.task = 'crawl'
-    this.CSVData = []
     this.importFollowedUserIDs = []
     this.getUserListNo = 0
     this.index = 0
