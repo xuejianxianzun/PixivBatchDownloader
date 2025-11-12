@@ -19169,6 +19169,7 @@ class DownloadControl {
                 this.createDownload(i);
             }, 0);
         }
+        _Toast__WEBPACK_IMPORTED_MODULE_18__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_开始下载'));
         _Log__WEBPACK_IMPORTED_MODULE_4__.log.success(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_正在下载中'));
         if (_Config__WEBPACK_IMPORTED_MODULE_17__.Config.mobile) {
             _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_移动端浏览器可能不会建立文件夹的说明'));
