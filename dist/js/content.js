@@ -6963,6 +6963,8 @@ class PreviewWork {
             }
             // 使用 Esc 键关闭当前预览
             if (ev.code === 'Escape' && this.show) {
+                ev.stopPropagation();
+                ev.preventDefault();
                 this.show = false;
                 // 并且不再显示这个作品的预览图，否则如果鼠标依然位于这个作品上，就会马上再次显示缩略图了
                 // 当鼠标移出这个作品的缩略图之后会取消此限制
@@ -7024,7 +7026,10 @@ class PreviewWork {
                     this.swicthImage(prev ? 'prev' : 'next');
                 }
             }
-        }, true);
+        }, {
+            capture: true,
+            passive: false,
+        });
         const hiddenEvtList = [
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch,
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.centerPanelOpened,
@@ -8458,13 +8463,13 @@ class SelectWork {
             this.clearIdList();
         }
         this.bindEscEvent = this.escEvent.bind(this);
-        document.addEventListener('keyup', this.bindEscEvent);
+        window.addEventListener('keydown', this.bindEscEvent);
         _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('closeCenterPanel');
     }
     pauseSelect() {
         this.pause = true;
         this.bindEscEvent &&
-            document.removeEventListener('keyup', this.bindEscEvent);
+            window.removeEventListener('keydown', this.bindEscEvent);
     }
     canSelect() {
         return this.start && !this.pause;

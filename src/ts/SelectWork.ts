@@ -409,7 +409,7 @@ class SelectWork {
     }
 
     this.bindEscEvent = this.escEvent.bind(this)
-    document.addEventListener('keyup', this.bindEscEvent)
+    window.addEventListener('keydown', this.bindEscEvent)
 
     EVT.fire('closeCenterPanel')
   }
@@ -417,7 +417,7 @@ class SelectWork {
   private pauseSelect() {
     this.pause = true
     this.bindEscEvent &&
-      document.removeEventListener('keyup', this.bindEscEvent)
+      window.removeEventListener('keydown', this.bindEscEvent)
   }
 
   private canSelect() {
