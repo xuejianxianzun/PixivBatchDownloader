@@ -1,4 +1,3 @@
-// 初始化小说排行榜页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../Colors'
 import { lang } from '../Language'
@@ -8,7 +7,10 @@ import { store } from '../store/Store'
 import { log } from '../Log'
 import { pageType } from '../PageType'
 import { settings } from '../setting/Settings'
+import { nameRuleManager } from '../setting/NameRuleManager'
+import { Utils } from '../utils/Utils'
 
+// 旧版小说排行榜页面，加载页面源码并从中获取数据
 class InitRankingNovelPage extends InitPageBase {
   constructor() {
     super()
@@ -16,6 +18,17 @@ class InitRankingNovelPage extends InitPageBase {
   }
 
   private pageUrlList: string[] = []
+
+  private page = 1
+
+  /**在小说列表的右上角有个下拉菜单，可以选择小说的语言。
+   * 但是 API 获取小说时是不区分语言的，这个下拉菜单选择的语言只是对 API 的结果进行过滤，
+   * 在网页上只显示对应语言的小说。
+   */
+  private selectLang = ''
+
+  /**检查了多少个小说 */
+  private checkTotal = 0
 
   protected addCrawlBtns() {
     Tools.addBtn(
@@ -29,7 +42,18 @@ class InitRankingNovelPage extends InitPageBase {
     })
   }
 
-  protected initAny() {}
+  protected initAny() {
+    Tools.hiddenPremiumAD()
+  }
+
+  // 抓取完成后，对结果进行排序
+  protected sortResult() {
+    // 如果用户在命名规则里使用了 {rank}，则按照 rank 排序
+    if (nameRuleManager.rule.includes('{rank}')) {
+      store.result.sort(Utils.sortByProperty('rank', 'asc'))
+      store.resultMeta.sort(Utils.sortByProperty('rank', 'asc'))
+    }
+  }
 
   protected getWantPage() {
     // 检查下载页数的设置
@@ -64,13 +88,36 @@ class InitRankingNovelPage extends InitPageBase {
 
   protected nextStep() {
     this.getPageUrl()
+
+    // 处理 url 如：
+    // https://www.pixiv.net/novel/ranking.php?mode=weekly_r18&p=2&date=20251031
+    const url = new URL(window.location.href)
+
+    // 获取当前页码
+    const p = url.searchParams.get('p')
+    if (p) {
+      this.page = Number.parseInt(p!)
+    } else {
+      // 如果没有 p 参数，则默认为第 1 页
+      this.page = 1
+    }
+
+    // 获取当前显示的小说语言，也就是小说列表右上角的下拉框里选择的语言
+    // pixiv 会把用户选择的语言标记保存到本地存储里。如果选择“所有语种”则值是 ''
+    const value = window.localStorage.getItem('rankinglanguageFilterSetting')
+    if (value !== null) {
+      // 在旧版页面里，这个储存的字符串额外添加了双引号，值是
+      // '"ja"' 或 '""' 这样。需要移除双引号
+      this.selectLang = value.replaceAll('"', '')
+    }
+
     this.getIdList()
   }
 
   protected async getIdList() {
     let dom: Document
     try {
-      const res = await fetch(this.pageUrlList[this.listPageFinished])
+      const res = await fetch(this.pageUrlList[this.page - 1])
       const text = await res.text()
       const parse = new DOMParser()
       dom = parse.parseFromString(text, 'text/html')
@@ -79,7 +126,14 @@ class InitRankingNovelPage extends InitPageBase {
       return
     }
 
+    this.page++
     this.listPageFinished++
+
+    log.log(
+      lang.transl('_排行榜进度', this.listPageFinished.toString()),
+      1,
+      false
+    )
 
     const rankingItem = dom.querySelectorAll(
       '._ranking-items>div[id]'
@@ -88,11 +142,6 @@ class InitRankingNovelPage extends InitPageBase {
     // 检查每个作品的信息
     for (const item of rankingItem) {
       const rank = parseInt(item.querySelector('h1')!.innerText)
-      // 检查是否已经抓取到了指定数量的作品
-      if (rank > this.crawlNumber) {
-        return this.getIdListFinished()
-      }
-
       // https://www.pixiv.net/novel/show.php?id=12831389
       const link = (item.querySelector('.imgbox a') as HTMLAnchorElement)!.href
       const id = parseInt(link.split('id=')[1])
@@ -125,7 +174,22 @@ class InitRankingNovelPage extends InitPageBase {
         userId: userId,
       }
 
-      if (await filter.check(filterOpt)) {
+      // item 上有语言标记，使用它来过滤小说
+      let checkLang = true
+      if (this.selectLang && item.dataset.language) {
+        checkLang = item.dataset.language === this.selectLang
+      }
+      if (!checkLang) {
+        log.warning(
+          lang.transl('_下载器排除了一些作品原因') +
+            lang.transl('_作品的语言不符合你选择的语言', this.selectLang),
+          1,
+          false,
+          'excludeNovelByUserSelectLanguage'
+        )
+      }
+
+      if ((await filter.check(filterOpt)) && checkLang) {
         store.setRankList(id.toString(), rank)
 
         store.idList.push({
@@ -133,13 +197,12 @@ class InitRankingNovelPage extends InitPageBase {
           id: id.toString(),
         })
       }
-    }
 
-    log.log(
-      lang.transl('_排行榜进度', this.listPageFinished.toString()),
-      1,
-      false
-    )
+      this.checkTotal++
+      if (this.checkTotal >= this.crawlNumber) {
+        return this.getIdListFinished()
+      }
+    }
 
     // 抓取完毕
     if (
@@ -155,6 +218,7 @@ class InitRankingNovelPage extends InitPageBase {
 
   protected resetGetIdListStatus() {
     this.pageUrlList = []
+    this.checkTotal = 0
     this.listPageFinished = 0
   }
 }

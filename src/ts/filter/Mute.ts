@@ -77,7 +77,8 @@ class Mute {
         this.got = true
         if (error.status === 401) {
           console.error(
-            'get mute settings error ' + lang.transl('_作品页状态码401')
+            'get mute settings error ' +
+              lang.transl('_请您登录Pixiv账号然后重试_401')
           )
         }
         return resolve(error.status)

@@ -670,11 +670,23 @@ body.mobile #quickCrawlBtn {
   /*--------美化单选框------------*/
 }
 .centerWrap .centerWrap_con .settingForm p.option {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   column-gap: 4px;
   margin: 2px 0;
+}
+.centerWrap .centerWrap_con .settingForm p.option.new::before {
+  content: '✨';
+  position: absolute;
+  z-index: 1;
+  width: 24px;
+  left: -22px;
+  height: 26px;
+  top: -1px;
+  text-align: center;
+  font-size: 1.1em;
 }
 .centerWrap .centerWrap_con .settingForm p.option > * {
   line-height: 26px;
@@ -1235,6 +1247,9 @@ body.mobile #quickCrawlBtn {
 .centerWrap.theme-dark p.option > .settingNameStyle {
   color: inherit;
 }
+.centerWrap.theme-dark p.option.new::before {
+  color: #fff !important;
+}
 .centerWrap.theme-dark button,
 .centerWrap.theme-dark .tip {
   color: #fff;
@@ -1300,6 +1315,9 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap.xzBG p.option > .settingNameStyle {
   color: inherit;
+}
+.centerWrap.xzBG p.option.new::before {
+  color: #fff !important;
 }
 .centerWrap.xzBG button,
 .centerWrap.xzBG .tip {

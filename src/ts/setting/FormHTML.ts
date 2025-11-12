@@ -2,7 +2,7 @@ import { Config } from '../Config'
 import { wiki } from './Wiki'
 
 // 设置项编号从 0 开始，现在最大是 90
-// 目前没有使用的编号: 15, 20, 73
+// 目前没有使用的编号: 73
 // 有些设置曾经使用过这些编号，但后来被移除了，所以这些编号就空缺了。在以后添加新设置时，可以考虑使用这些空缺的编号
 export const formHtml = `
 <form class="settingForm">
@@ -479,8 +479,17 @@ export const formHtml = `
         <span data-xztext="_自动开始下载"></span>
         <span class="gray1"> ? </span>
       </a>
-      <input type="checkbox" name="autoStartDownload" id="setQuietDownload" class="need_beautify checkbox_switch" checked>
+      <input type="checkbox" name="autoStartDownload" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
+    </p>
+    <p class="option" data-no="20">
+      <a href="${wiki.link(20)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用前请先查看提示">
+        <span data-xztext="_把文件保存到用户上次选择的位置"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="rememberTheLastSaveLocation" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch" tabindex="0"></span>
+      <button type="button" class="gray1 textButton" id="showRememberTheLastSaveLocationTip" data-xztext="_提示"></button>
     </p>
     <p class="option" data-no="33">
       <a href="${wiki.link(33)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载之后收藏作品的提示">
@@ -745,7 +754,7 @@ export const formHtml = `
         <span data-xztext="_下载间隔"></span>
         <span class="gray1"> ? </span>
       </a>
-      <span data-xztext="_当作品数量大于"></span>
+      <span data-xztext="_当文件数量大于"></span>
       <input type="text" name="downloadIntervalOnWorksNumber" class="setinput_style1 blue" value="120">
       <span class="verticalSplit"></span>
       <span data-xztext="_间隔时间"></span>

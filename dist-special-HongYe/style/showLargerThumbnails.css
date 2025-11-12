@@ -465,23 +465,32 @@ body[data-page-type='6'] .ranking-items.old .ranking-item ._thumbnail {
 body[data-page-type='7'] {
   /* img */
 }
+body[data-page-type='7'] div[id^='adsdk'] {
+  display: none !important;
+}
+body[data-page-type='7'] .width92vw,
 body[data-page-type='7'] #wrapper,
 body[data-page-type='7'] .layout-body,
 body[data-page-type='7'] .layout-a,
 body[data-page-type='7'] .layout-b {
-  width: 92vw;
+  width: 92vw !important;
 }
+body[data-page-type='7'] li[id],
 body[data-page-type='7'] .ranking-items.adjust .ranking-item {
   width: auto !important;
+  max-width: unset !important;
+}
+body[data-page-type='7'] .ranking-items.adjust .ranking-item {
   margin: 0 30px 40px;
 }
 body[data-page-type='7'] .ranking-items.adjust .ranking-item .ranking-image-item {
   width: auto !important;
 }
+body[data-page-type='7'] li[id] a img,
 body[data-page-type='7'] .ranking-items.adjust .work img {
   width: auto !important;
   height: auto !important;
-  max-height: 540px;
+  max-height: 540px !important;
 }
 body[data-page-type='10'] {
   /* img */

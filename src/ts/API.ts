@@ -6,7 +6,7 @@ import {
   ArtworkData,
   UgoiraMetaData,
   RecommendData,
-  RankingData,
+  RankingImageWorkData,
   RecommenderData,
   SearchData,
   NewIllustData,
@@ -24,6 +24,7 @@ import {
   LatestMessageData,
   NovelSeriesContentData,
   NovelInsertIllusts,
+  RankingNovelData,
 } from './crawl/CrawlResult'
 
 import {
@@ -295,9 +296,11 @@ class API {
     return this.sendGetRequest(url)
   }
 
-  // 获取排行榜数据
+  /**获取插画、漫画、动画排行榜数据 */
   // 排行榜数据基本是一批 50 条作品信息
-  static getRankingData(option: RankingOption): Promise<RankingData> {
+  static getRankingDataImageWork(
+    option: RankingOption
+  ): Promise<RankingImageWorkData> {
     let url = `https://www.pixiv.net/ranking.php?mode=${option.mode}&p=${option.p}&format=json`
 
     // 把可选项添加到 url 里
@@ -312,6 +315,29 @@ class API {
     }
 
     url = temp.toString()
+
+    return this.sendGetRequest(url)
+  }
+
+  /**获取小说排行榜数据。参数 p 是页码，一页包含 50 个小说 */
+  static getRankingDataNovel(
+    mode: string,
+    date: string | null,
+    p: number
+  ): Promise<RankingNovelData> {
+    // 完整的 url 示例：
+    // https://www.pixiv.net/ajax/ranking/novel?mode=daily&date=20251030&p=2&lang=zh
+
+    // 基础 URL
+    let url = `https://www.pixiv.net/ajax/ranking/novel?mode=${mode}`
+
+    // 动态添加 date 参数
+    if (date) {
+      url += `&date=${date}`
+    }
+
+    // 添加其他参数
+    url += `&p=${p}&lang=zh`
 
     return this.sendGetRequest(url)
   }
@@ -519,11 +545,13 @@ class API {
   }
 
   /**关注一个用户 */
-  // recaptcha_enterprise_score_token 对于有些用户是不需要的，不过传递空值是允许的
+  // restrict: false 为公开关注，true 为非公开关注
+  // recaptcha_enterprise_score_token 对于有些用户是不需要的。允许传递空值
   static async addFollowingUser(
     userID: string,
     token: string,
-    recaptcha_enterprise_score_token?: string
+    restrict = false,
+    recaptcha_enterprise_score_token = ''
   ): Promise<number> {
     return new Promise(async (resolve) => {
       const response = await fetch(`https://www.pixiv.net/bookmark_add.php`, {
@@ -534,7 +562,7 @@ class API {
           'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
           'x-csrf-token': token,
         },
-        body: `mode=add&type=user&user_id=${userID}&tag=&restrict=0&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
+        body: `mode=add&type=user&user_id=${userID}&tag=&restrict=${restrict ? 0 : 1}&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
       })
       // 如果操作成功，则返回值是 []
       // 如果用户不存在，返回值是该用户主页的网页源码

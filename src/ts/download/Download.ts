@@ -440,6 +440,20 @@ class Download {
       dataURL,
     }
 
+    // 使用 a.download 来下载文件时，不调用 downloads API
+    if (settings.rememberTheLastSaveLocation) {
+      // 移除文件夹，只保留文件名部分，因为这种方式不支持建立文件夹
+      // 路径符号 / 会被浏览器处理成 _，例如：
+      // pixiv/mojo-94576902/136825223_p0-藤田ことね🎃.png 会变成：
+      // pixiv_mojo-94576902_136825223_p0-藤田ことね🎃.png
+      // 所以我只保留了文件名部分
+      const lastName = fileName.split('/').pop()
+      Utils.downloadFile(blobURL, lastName!)
+      sendData.msg = 'save_work_file_a_download'
+      browser.runtime.sendMessage(sendData)
+      return
+    }
+
     try {
       browser.runtime.sendMessage(sendData)
       EVT.fire('sendBrowserDownload')

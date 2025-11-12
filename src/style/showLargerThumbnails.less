@@ -676,17 +676,28 @@ body[data-page-type='6'] {
 // ArtworkRanking 图片类型作品的排行榜
 // https://www.pixiv.net/ranking.php?mode=daily
 body[data-page-type='7'] {
+  // 隐藏广告区域（有时它没有任何内容，只是单纯占据一段空间）
+  div[id^='adsdk'] {
+    display: none !important;
+  }
+
   // 解除列表容器的宽度限制
+  .width92vw,
   #wrapper,
   .layout-body,
   .layout-a,
   .layout-b {
-    width: 92vw;
+    width: 92vw !important;
   }
 
   // 缩略图列表元素
+  li[id],
   .ranking-items.adjust .ranking-item {
     width: auto !important;
+    max-width: unset !important;
+  }
+
+  .ranking-items.adjust .ranking-item {
     margin: 0 30px 40px;
   }
 
@@ -696,10 +707,11 @@ body[data-page-type='7'] {
   }
 
   /* img */
+  li[id] a img,
   .ranking-items.adjust .work img {
     width: auto !important;
     height: auto !important;
-    max-height: 540px;
+    max-height: 540px !important;
   }
 }
 

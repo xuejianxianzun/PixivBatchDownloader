@@ -661,7 +661,7 @@ export interface RecommendData {
   }
 }
 
-export interface RankingData {
+export interface RankingImageWorkData {
   contents: [
     {
       title: string
@@ -707,11 +707,161 @@ export interface RankingData {
   content: string
   page: number
   prev: boolean
-  next: number
+  /** 下一页的页码。如果这就是最后一页，则 next 为 false */
+  // 这与小说排行榜里的 next 有所不同，小说排行榜里没有下一页时，值是 null 而不是 false
+  // 为了防止 pixiv 混用这些 falsy 值，在判断“没有下一页时”我直接使用 !next 取反，而不使用全等符号 ===
+  next: number | false
   date: string
   prev_date: string
   next_date: boolean
   rank_total: number
+}
+
+export interface RankingNovelData {
+  error: boolean
+  body: {
+    display_a: DisplayA
+    /**如果这个排行榜的数据是一定天数范围（如周榜或月榜），则会有 start 和 end */
+    // 具体有这些排行榜：本周、本月、新人、原创、AI生成
+    start: string | null
+    end: string | null
+    /** 如果这个排行榜的数据是某一天的（而非一周），则会有 date，值如 "2025年11月1日"*/
+    // 具体有这些排行榜：今日、受男性欢迎、受女性欢迎
+    date: string | null
+    /** 排行榜的名字，例如 "[pixiv] 小说 今日排行榜"，但并未在网页中使用 */
+    h_title: string
+    zoneConfig: ZoneConfig
+  }
+  /**只有出现错误时才会有 message，正常时没有 */
+  message?: '不在排行榜统计范围内'
+}
+
+interface DisplayA {
+  /**储存排行榜里每篇小说的摘要数据。注意：不包含正文内容。
+   * 目前在有些排行榜里返回的是数组，有些排行榜（新人）里返回的是类数组对象（但没有 length 属性）
+   */
+  rank_a: NovelItem[] | { number: NovelItem }
+  /**这个排行榜的标记，例如 "daily"、"weekly" */
+  mode: string
+  /**也许是被屏蔽的作品的数量，通常为 0 */
+  muted_count: number
+  /**第几页。值为 1 或 2 */
+  page: number
+  /**设置网页标题，以及 head 里的一些标签 */
+  title: string
+  /**储存每个页码及其排名范围的描述。在新版页面里应该是用不到了 */
+  page_a: { 1: '1-50位'; 2: '51-100位' }
+  /** 上一页的页码。如果这就是第一页，则 prev 为 null */
+  prev: number | null
+  /** 下一页的页码。如果这就是最后一页，则 next 为 null */
+  next: number | null
+  /**返回数据里的日期的上一天，总是有值。值如 "20251031" */
+  prev_date: string
+  /**返回数据里的日期的第二天。如果日期是今天，则为 null。值如 "20251101" */
+  next_date: string | null
+  /**年龄限制？似乎总是 '2', 不管是全年龄还是 R-18，它的值都是 '2' */
+  x_restrict: string
+  /**是否为 R18 页面。在全年龄时为 false，R-18 时为 true */
+  is_r18_page: boolean
+  /**不清楚是什么作用，似乎总是 1 */
+  header_bnr_ranking: number
+  /**设置 head 里的一些标签，不用管 */
+  meta_ogp: {
+    description: string
+    image: string
+    title: string
+  }
+  /**分享到推特时使用的一些标语和图片 */
+  twitter_card: TwitterCard
+  /**包含了小说排行榜里每一种分类的 mode、name、url */
+  ranking_header: RankingHeader
+}
+
+export interface NovelItem {
+  /**这个小说在排行榜里的排名，如 '1'、'2'。根据排行榜不同，返回的数据类型也不同 */
+  rank: string | number
+  id: string
+  title: string
+  /**创建日期，值如 "2025-10-31 00:24" */
+  create_date: string
+  user_id: string
+  user_name: string
+  /**用户头像图片 */
+  profile_img: string
+  /**作品简介（完整版） */
+  comment: string
+  /**作品是否公开。'0' 是公开，'1' 是非公开  */
+  restrict: '0' | '1'
+  /**指示作品是全年龄的还是 R-18 */
+  x_restrict: '0' | '1'
+  /**似乎总是 '0' */
+  is_original: '0'
+  /**小说的语言，如 "zh-cn"、"ja" */
+  language: string
+  /**字数，就是在页面里显示的字数 */
+  character_count: string
+  /**词数？不知道用在什么地方 */
+  word_count: string
+  /**是否为 AI 生成。'0' 无标记（早期作品），'1' 不是，'2' 是 */
+  ai_type: '0' | '1' | '2'
+  /**tag 列表 */
+  tag_a: string[]
+  /**小说的封面图片 */
+  url: string
+  /**小说的系列 id。如果不属于某个系列，则为 0 */
+  series_id: 0 | number
+  /**小说的系列标题。如果不属于某个系列，则为 null */
+  series_title: string | null
+  /**小说的类别，'0' 为原创。似乎大部分都是 '0' */
+  genre: string
+  /**阅读时间，单位是秒。在页面上显示时会被转换成分钟 */
+  reading_time: number
+  /** 是否添加了进度标记（即在第几页打了标记）。如果没有添加过标记则是 null，否则就是标记所在的页数，如 1、2*/
+  marker: null | number
+  /**收藏数量 */
+  bookmark_count: number
+  /** 是否已收藏 */
+  is_bookmarked: boolean
+  /**是否可以收藏 */
+  bookmarkable: boolean
+  /**书签 ID。收藏之后才会有这个属性，值为字符串数字，如 "3336362557" */
+  bookmark_id?: string
+  /**是否公开收藏。收藏之后才会有这个属性，'0' 是公开收藏，'1' 是非公开收藏 */
+  bookmark_restrict?: '0' | '1'
+}
+
+interface TwitterCard {
+  card: string
+  site: string
+  description: string
+  image: string
+  title: string
+}
+
+interface RankingHeader {
+  general: RankingMode[]
+  r18: RankingMode[]
+}
+
+interface RankingMode {
+  mode: string
+  name: string
+  url: string
+}
+
+interface ZoneConfig {
+  header: {
+    url: string
+  }
+  footer: {
+    url: string
+  }
+  logo: {
+    url: string
+  }
+  ad_logo: {
+    url: string
+  }
 }
 
 // 收藏后的相似作品数据
@@ -1266,8 +1416,10 @@ export interface FollowingResponse {
       followed: boolean
       isBlocking: boolean
       isMypixiv: boolean
-      illusts: []
-      novels: []
+      /**实际上我并没有检查这项数据是否完全符合 ArtworkCommonData，不过大致差不多  */
+      illusts: ArtworkCommonData[]
+      /**实际上我并没有检查这项数据是否完全符合 NovelCommonData，不过大致差不多  */
+      novels: NovelCommonData[]
     }[]
     total: number
     followUserTags: string[]

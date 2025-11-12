@@ -1410,9 +1410,9 @@ class API {
         const url = `https://www.pixiv.net/ajax/illust/${id}/recommend/init?limit=18`;
         return this.sendGetRequest(url);
     }
-    // 获取排行榜数据
+    /**获取插画、漫画、动画排行榜数据 */
     // 排行榜数据基本是一批 50 条作品信息
-    static getRankingData(option) {
+    static getRankingDataImageWork(option) {
         let url = `https://www.pixiv.net/ranking.php?mode=${option.mode}&p=${option.p}&format=json`;
         // 把可选项添加到 url 里
         let temp = new URL(url);
@@ -1424,6 +1424,20 @@ class API {
             temp.searchParams.set('date', option.date);
         }
         url = temp.toString();
+        return this.sendGetRequest(url);
+    }
+    /**获取小说排行榜数据。参数 p 是页码，一页包含 50 个小说 */
+    static getRankingDataNovel(mode, date, p) {
+        // 完整的 url 示例：
+        // https://www.pixiv.net/ajax/ranking/novel?mode=daily&date=20251030&p=2&lang=zh
+        // 基础 URL
+        let url = `https://www.pixiv.net/ajax/ranking/novel?mode=${mode}`;
+        // 动态添加 date 参数
+        if (date) {
+            url += `&date=${date}`;
+        }
+        // 添加其他参数
+        url += `&p=${p}&lang=zh`;
         return this.sendGetRequest(url);
     }
     // 获取收藏后的相似作品数据
@@ -1551,8 +1565,9 @@ class API {
         return this.sendGetRequest(`https://www.pixiv.net/rpc/index.php?mode=latest_message_threads2&num=${number}&offset=0`);
     }
     /**关注一个用户 */
-    // recaptcha_enterprise_score_token 对于有些用户是不需要的，不过传递空值是允许的
-    static async addFollowingUser(userID, token, recaptcha_enterprise_score_token) {
+    // restrict: false 为公开关注，true 为非公开关注
+    // recaptcha_enterprise_score_token 对于有些用户是不需要的。允许传递空值
+    static async addFollowingUser(userID, token, restrict = false, recaptcha_enterprise_score_token = '') {
         return new Promise(async (resolve) => {
             const response = await fetch(`https://www.pixiv.net/bookmark_add.php`, {
                 method: 'POST',
@@ -1562,7 +1577,7 @@ class API {
                     'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
                     'x-csrf-token': token,
                 },
-                body: `mode=add&type=user&user_id=${userID}&tag=&restrict=0&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
+                body: `mode=add&type=user&user_id=${userID}&tag=&restrict=${restrict ? 0 : 1}&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
             });
             // 如果操作成功，则返回值是 []
             // 如果用户不存在，返回值是该用户主页的网页源码
@@ -1630,6 +1645,8 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 '.worksUL li>div>div:first-child',
                 'div[data-ga4-entity-id^="illust"]>div:nth-child(2)',
                 'div[data-ga4-entity-id^="manga"]>div:nth-child(2)',
+                // 在新版搜索页面里使用
+                'li[id]>div:nth-child(2)',
             ];
             // div[data-ga4-entity-id^="illust"]>div:nth-child(2) 匹配新版首页的插画作品区域
             // 即显示在页面左半边的作品缩略图。它们的元素里含有此类特征：
@@ -1694,6 +1711,10 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 selector === 'div[data-ga4-entity-id^="illust"]>div:nth-child(2)' ||
                 selector === 'div[data-ga4-entity-id^="manga"]>div:nth-child(2)') &&
                 _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Home) {
+                continue;
+            }
+            if (selector === 'li[id]>div:nth-child(2)' &&
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkRanking) {
                 continue;
             }
             const elements = parent.querySelectorAll(selector);
@@ -5586,13 +5607,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawlNovelPage_InitNovelSeriesPage__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./crawlNovelPage/InitNovelSeriesPage */ "./src/ts/crawlNovelPage/InitNovelSeriesPage.ts");
 /* harmony import */ var _crawlNovelPage_InitSearchNovelPage__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./crawlNovelPage/InitSearchNovelPage */ "./src/ts/crawlNovelPage/InitSearchNovelPage.ts");
 /* harmony import */ var _crawlNovelPage_InitRankingNovelPage__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./crawlNovelPage/InitRankingNovelPage */ "./src/ts/crawlNovelPage/InitRankingNovelPage.ts");
-/* harmony import */ var _crawlNovelPage_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./crawlNovelPage/InitNewNovelPage */ "./src/ts/crawlNovelPage/InitNewNovelPage.ts");
-/* harmony import */ var _crawlArtworkPage_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./crawlArtworkPage/InitArtworkSeriesPage */ "./src/ts/crawlArtworkPage/InitArtworkSeriesPage.ts");
-/* harmony import */ var _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./crawlMixedPage/InitFollowingPage */ "./src/ts/crawlMixedPage/InitFollowingPage.ts");
-/* harmony import */ var _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./crawl/InitUnsupportedPage */ "./src/ts/crawl/InitUnsupportedPage.ts");
-/* harmony import */ var _crawlMixedPage_InitUnlistedPage__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./crawlMixedPage/InitUnlistedPage */ "./src/ts/crawlMixedPage/InitUnlistedPage.ts");
-/* harmony import */ var _crawl_InitRequestPage__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./crawl/InitRequestPage */ "./src/ts/crawl/InitRequestPage.ts");
+/* harmony import */ var _crawlNovelPage_InitRankingNovelPageNew__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./crawlNovelPage/InitRankingNovelPageNew */ "./src/ts/crawlNovelPage/InitRankingNovelPageNew.ts");
+/* harmony import */ var _crawlNovelPage_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./crawlNovelPage/InitNewNovelPage */ "./src/ts/crawlNovelPage/InitNewNovelPage.ts");
+/* harmony import */ var _crawlArtworkPage_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./crawlArtworkPage/InitArtworkSeriesPage */ "./src/ts/crawlArtworkPage/InitArtworkSeriesPage.ts");
+/* harmony import */ var _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./crawlMixedPage/InitFollowingPage */ "./src/ts/crawlMixedPage/InitFollowingPage.ts");
+/* harmony import */ var _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./crawl/InitUnsupportedPage */ "./src/ts/crawl/InitUnsupportedPage.ts");
+/* harmony import */ var _crawlMixedPage_InitUnlistedPage__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./crawlMixedPage/InitUnlistedPage */ "./src/ts/crawlMixedPage/InitUnlistedPage.ts");
+/* harmony import */ var _crawl_InitRequestPage__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./crawl/InitRequestPage */ "./src/ts/crawl/InitRequestPage.ts");
 // 根据页面类型来初始化抓取流程和一些特定的功能
+
 
 
 
@@ -5660,23 +5683,25 @@ class InitPage {
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelSearch:
                 return new _crawlNovelPage_InitSearchNovelPage__WEBPACK_IMPORTED_MODULE_16__.InitSearchNovelPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelRanking:
-                return new _crawlNovelPage_InitRankingNovelPage__WEBPACK_IMPORTED_MODULE_17__.InitRankingNovelPage();
+                // 查找旧版小说排行榜的页码区域，判断页面是旧版还是新版
+                const old = document.querySelector('.pager-container');
+                return old ? new _crawlNovelPage_InitRankingNovelPage__WEBPACK_IMPORTED_MODULE_17__.InitRankingNovelPage() : new _crawlNovelPage_InitRankingNovelPageNew__WEBPACK_IMPORTED_MODULE_18__.InitRankingNovelPageNew();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewNovelBookmark:
                 return new _crawlMixedPage_InitBookmarkNewPage__WEBPACK_IMPORTED_MODULE_11__.InitBookmarkNewPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewNovel:
-                return new _crawlNovelPage_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_18__.InitNewNovelPage();
+                return new _crawlNovelPage_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_19__.InitNewNovelPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkSeries:
-                return new _crawlArtworkPage_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_19__.InitArtworkSeriesPage();
+                return new _crawlArtworkPage_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_20__.InitArtworkSeriesPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Following:
-                return new _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_20__.InitFollowingPage();
+                return new _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_21__.InitFollowingPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Unlisted:
-                return new _crawlMixedPage_InitUnlistedPage__WEBPACK_IMPORTED_MODULE_22__.InitUnlistedPage();
+                return new _crawlMixedPage_InitUnlistedPage__WEBPACK_IMPORTED_MODULE_23__.InitUnlistedPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Request:
-                return new _crawl_InitRequestPage__WEBPACK_IMPORTED_MODULE_23__.InitRequestPage();
+                return new _crawl_InitRequestPage__WEBPACK_IMPORTED_MODULE_24__.InitRequestPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.DiscoverUsers:
-                return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_21__.InitUnsupportedPage();
+                return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__.InitUnsupportedPage();
             default:
-                return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_21__.InitUnsupportedPage();
+                return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__.InitUnsupportedPage();
         }
     }
 }
@@ -5726,8 +5751,8 @@ class Input {
         this.id = `input` + new Date().getTime();
         this.create(_option);
     }
-    create(option) {
-        const example = `<div class="XZInputWrap ?:mobile" id="input1691811888224">
+    wrapHtmlExample = `
+  <div class="XZInputWrap ?:mobile" id="input1691811888224">
     <p class="XZInputInstruction">instruction</p>
     <div class="XZInputContainer">
       <input type="text" class="XZInput" value="default" placeholder="tip" />
@@ -5736,6 +5761,7 @@ class Input {
       <button class="XZInputButton cancel">Cancel</button>
     </div>
   </div>`;
+    create(option) {
         const wrap = document.createElement('div');
         wrap.classList.add('XZInputWrap');
         _Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile && wrap.classList.add('mobile');
@@ -8767,41 +8793,54 @@ __webpack_require__.r(__webpack_exports__);
 class ReplaceSquareThumb {
     constructor() {
         this.bindEvents();
-        this.observer();
-    }
-    isDisable() {
-        return window.location.pathname.startsWith('/group');
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
-            if (data.name === 'replaceSquareThumb') {
-                if (data.value) {
-                    this.replaceAllImage();
-                }
+            if (data.name === 'replaceSquareThumb' && data.value) {
+                this.replaceAllImage();
             }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, (ev) => {
+            // 在 settingInitialized 时执行，此时所有设置都已经从本地存储中恢复
+            // 这是因为本模块在排行榜页面里还需要判断 settings.showLargerThumbnails
+            // 它的默认值是 false，但用户可能把它修改为 true
+            // 之前只监听了上面的 settingChange 事件，导致代码执行时 showLargerThumbnails 还是内置的默认值 false，尚未恢复为用户储存的值，
+            // 这导致一些图片被跳过处理，我一开始没有意识到是这个原因，浪费了一些时间才找到原因
+            this.replaceAllImage();
+            this.observer();
         });
     }
     replaceAllImage() {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.replaceSquareThumb ||
             _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type == _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkRanking) {
-            const allImage = document.querySelectorAll('img');
+            const allImage = document.body.querySelectorAll('img');
             allImage.forEach((img) => this.replace(img));
         }
     }
+    get disable() {
+        return window.location.pathname.startsWith('/group');
+    }
+    /**在排行榜页面进行特殊处理 */
+    // 排行榜里的缩略图本来就是保持了比例的，不需要替换其缩略图。但是排行榜里的缩略图原本尺寸较小，当用户启用了“显示更大的缩略图”之后，缩略图被放大后显得模糊，此时需要替换成更大尺寸的缩略图。
+    get handleArtworkRanking() {
+        return (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkRanking &&
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.showLargerThumbnails);
+    }
     replace(img) {
-        if (!img.src || img.dataset.index || this.isDisable()) {
+        if (!img.src || img.dataset.index || this.disable) {
             return;
         }
         const src = img.src;
+        // 排除不需要替换的图片
         if (!src.endsWith('square1200.jpg') && !src.endsWith('custom1200.jpg')) {
-            if (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.ArtworkRanking &&
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.showLargerThumbnails) {
-                // 排行榜里的缩略图本来就是保持了比例的，不需要替换其缩略图。
-                // 但是排行榜里的缩略图原本尺寸较小，当用户启用了“显示更大的缩略图”之后，缩略图被放大后显得模糊，此时需要替换成更大尺寸的缩略图。
-                // 排行榜页面的图片 URL 比较特别，末尾是 master1200，如下：
+            // 排行榜页面里的图片 URL 后缀不一样，需要特别处理
+            if (this.handleArtworkRanking) {
+                // 旧版排行榜页面的图片 URL 如下：
                 // 'https://i.pximg.net/c/240x480/img-master/img/2022/08/01/17/59/39/100156836_p0_master1200.jpg'
-                if (!src.includes('240x480')) {
+                // 新版排行榜页面的图片 URL 如下，最大尺寸是 480 px：
+                // https://i.pximg.net/c/480x960/img-master/img/2025/11/01/00/00/22/136937607_p0_master1200.jpg
+                if (!src.includes('240x480') && !src.includes('480x960')) {
                     return;
                 }
             }
@@ -8809,6 +8848,7 @@ class ReplaceSquareThumb {
                 return;
             }
         }
+        // 替换 src
         img.src = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.convertThumbURLTo540px(src);
         img.style.objectFit = 'contain';
     }
@@ -10105,6 +10145,22 @@ class ShowLargerThumbnails {
                 }
             }
         }
+        // 图像作品的排行榜页面
+        // https://www.pixiv.net/ranking.php?mode=daily&content=illust
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.ArtworkRanking) {
+            // 查找作品列表，li id="1" 这样的元素就是作品缩略图，其 id 就是排名
+            const thumbList = document.querySelectorAll('ol li[id]');
+            if (thumbList.length > 0) {
+                thumbList[0].parentElement.classList.add('worksUL', 'width92vw');
+                thumbList[0].parentElement.parentElement.classList.add('width92vw');
+            }
+            // 查找以 adsdk 开头的广告元素，隐藏它以及父元素
+            const ads = document.querySelectorAll('div[id^="adsdk"]');
+            ads.forEach((ad) => {
+                ad.style.display = 'none';
+                ad.parentElement.style.display = 'none';
+            });
+        }
     }
 }
 new ShowLargerThumbnails();
@@ -10610,7 +10666,7 @@ class ShowWhatIsNew {
     constructor() {
         this.bindEvents();
     }
-    flag = '18.0.1';
+    flag = '18.1.0';
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 消息文本要写在 settingInitialized 事件回调里，否则它们可能会被翻译成错误的语言
@@ -10618,8 +10674,10 @@ class ShowWhatIsNew {
       <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_扩展程序升到x版本', this.flag)}</span>
       <br>
       <br>
-      <span>🐞${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复了显示更大的缩略图的功能异常的问题')}</span>
       `;
+            if (_Language__WEBPACK_IMPORTED_MODULE_0__.lang.type === 'zh-cn') {
+                msg += `<span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_QQ修复了粘贴问题的提醒')}</span>`;
+            }
             // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong>
             // <strong><span>✨${lang.transl('_新增功能')}:</span></strong>
             // <strong><span>⚙️${lang.transl('_行为变更')}:</span></strong>
@@ -10631,12 +10689,17 @@ class ShowWhatIsNew {
             // )}
             // <br>
             // <br>
+            // ${lang.transl(
+            //   '_你可以在xx选项卡里找到它',
+            //   lang.transl('_下载')
+            // )}
+            // <br>
+            // <br>
             // <span>${lang.transl('_该功能默认启用')}</span>
+            // <span>${lang.transl('_默认未启用')}</span>
             // <span>😊${lang.transl('_优化用户体验')}</span>
-            // <span>😊${lang.transl('_优化性能和用户体验')}</span>
-            // <span>😊${lang.transl('_其他优化')}</span>
             // <span>🐞${lang.transl('_修复bug')}</span>
-            // <span>🐞${lang.transl('_修复已知问题')}</span>
+            // <span>😊${lang.transl('_优化性能和用户体验')}</span>
             // <span>🐞${lang.transl('_修复了显示更大的缩略图的功能异常的问题')}</span>
             // 在更新说明的下方显示赞助提示
             msg += `
@@ -11552,6 +11615,14 @@ class Tools {
         if (result.startsWith(' ')) {
             result = result.replace(/ */, '');
         }
+        // 在一个页面类型里多次抓取时，标题里会包含上一次的抓取结果数量
+        // 处理：
+        // '[pixiv] 10 插画今日排行榜 2025年11月2日' 去掉 '10 '
+        // 处理：
+        // '25 [pixiv]发现' 去掉开头的数字
+        result = result
+            .replace(/\[pixiv\] \d+ /, '[pixiv] ')
+            .replace(/\d+ \[pixiv\]/, '[pixiv]');
         return result;
     }
     // 自定义的类型保护
@@ -11638,6 +11709,7 @@ class Tools {
         // 'https://i.pximg.net/c/250x250_80_a2/img-master/img/2019/06/23/17/29/27/75369283_square1200.jpg'
         // 排行榜页面的图片 URL 如：
         // 'https://i.pximg.net/c/240x480/img-master/img/2022/08/01/17/59/39/100156836_p0_master1200.jpg'
+        // 'https://i.pximg.net/c/480x960/img-master/img/2025/11/01/00/00/22/136937607_p0_master1200.jpg'
         const test = url.match(this.convertThumbURLReg);
         if (!test || !test[1]) {
             return url;
@@ -12005,6 +12077,11 @@ class Tools {
     static AIType = ['Unknown', 'No', 'Yes'];
     static getAITypeText(number) {
         return this.AIType[number];
+    }
+    /**移除 Pixiv 高级会员的广告横幅元素 */
+    static hiddenPremiumAD() {
+        const ads = document.querySelectorAll('a[href^="/premium/lead/lp/"]');
+        ads.forEach((ad) => (ad.style.display = 'none'));
     }
 }
 
@@ -13645,7 +13722,7 @@ class InitPageBase {
                 _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码400'));
                 break;
             case 401:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码401'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_请您登录Pixiv账号然后重试_401'));
                 break;
             case 403:
                 _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码403'));
@@ -15244,7 +15321,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../setting/NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
 // 初始化 artwork 排行榜页面
+
+
 
 
 
@@ -15263,47 +15344,40 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         super();
         this.init();
     }
-    pageCount = 10; // 排行榜的页数
-    option = this.resetOption();
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取本排行榜作品', '_抓取本排行榜作品Title', 'crawlRankingWork').addEventListener('click', () => {
             this.readyCrawl();
         });
-        // 判断当前页面是否有“首次登场”标记
-        const debutModes = ['daily', 'daily_r18', 'rookie', ''];
-        const mode = _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.getURLSearchField(location.href, 'mode');
-        if (debutModes.includes(mode)) {
-            _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取首次登场的作品', '_抓取首次登场的作品Title', 'crawlDebutWork').addEventListener('click', () => {
-                _store_States__WEBPACK_IMPORTED_MODULE_9__.states.debut = true;
-                this.readyCrawl();
-            });
-        }
+        _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取首次登场的作品', '_抓取首次登场的作品Title', 'crawlDebutWork').addEventListener('click', () => {
+            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.debut = true;
+            _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_抓取首次登场的作品'));
+            this.readyCrawl();
+        });
     }
     initAny() {
+        _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.hiddenPremiumAD();
         // 抓取完成后，复位 debut 标记
         // 因为 debut 只在抓取阶段被过滤器使用，所以抓取完成后就可以复位
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.crawlComplete, () => {
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.debut = false;
         });
     }
-    resetOption() {
-        return { mode: 'daily', p: 1, worksType: '', date: '' };
-    }
-    setPartNum() {
-        // 设置页数。排行榜页面一页有50张作品，当页面到达底部时会加载下一页
-        if (location.pathname.includes('r18g')) {
-            // r18g 只有1个榜单，固定1页
-            this.pageCount = 1;
-        }
-        else if (location.pathname.includes('_r18')) {
-            // r18 模式，这里的6是最大值，有的排行榜并没有6页
-            this.pageCount = 6;
-        }
-        else {
-            // 普通模式，这里的10也是最大值。如果实际没有10页，则在检测到404页面的时候停止抓取下一页
-            this.pageCount = 10;
+    // 抓取完成后，对结果进行排序
+    sortResult() {
+        // 如果用户在命名规则里使用了 {rank}，则按照 rank 排序
+        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_14__.nameRuleManager.rule.includes('{rank}')) {
+            _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sortByProperty('rank', 'asc'));
+            _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sortByProperty('rank', 'asc'));
         }
     }
+    option = {
+        mode: 'daily',
+        p: 1,
+        worksType: '',
+        date: '',
+    };
+    /**检查了多少个小说 */
+    checkTotal = 0;
     getWantPage() {
         this.listPageFinished = 0;
         // 检查下载页数的设置
@@ -15320,25 +15394,35 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         }
     }
     nextStep() {
-        // 设置 option 信息
-        // mode 一定要有值，其他字段不需要一定有值
-        this.option = this.resetOption();
-        this.option.mode = _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.getURLSearchField(location.href, 'mode') || 'daily';
-        this.option.worksType = _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.getURLSearchField(location.href, 'content');
-        this.option.date = _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.getURLSearchField(location.href, 'date');
-        this.startpageNo = 1;
-        this.setPartNum();
+        this.getParams();
         this.getIdList();
+    }
+    getParams() {
+        // URL 可能没有附带任何查询参数，也可能有最多 4 个查询参数
+        // https://www.pixiv.net/ranking.php
+        // https://www.pixiv.net/ranking.php?mode=daily_r18&content=all&date=20251101&p=2
+        const url = new URL(window.location.href);
+        // 设置 option 里的参数
+        this.option.mode = url.searchParams.get('mode') || 'daily';
+        this.option.worksType = url.searchParams.get('content') || 'all';
+        this.option.date = url.searchParams.get('date') || undefined;
+        const p = url.searchParams.get('p');
+        if (p) {
+            this.option.p = Number.parseInt(p);
+        }
+        else {
+            // 如果没有 p 参数，则默认为第 1 页
+            this.option.p = 1;
+        }
     }
     async getIdList() {
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
             return this.getIdListFinished();
         }
-        this.option.p = this.startpageNo + this.listPageFinished;
         // 发起请求，获取作品列表
         let data;
         try {
-            data = await _API__WEBPACK_IMPORTED_MODULE_2__.API.getRankingData(this.option);
+            data = await _API__WEBPACK_IMPORTED_MODULE_2__.API.getRankingDataImageWork(this.option);
         }
         catch (error) {
             if (error.status === 404) {
@@ -15346,18 +15430,22 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
                 console.log('404错误，直接下载已有部分');
                 this.getIdListFinished();
             }
+            // 429 错误时延迟重试
+            if (error.status === 429) {
+                this.log429ErrorTip();
+                window.setTimeout(() => {
+                    this.getIdList();
+                }, _Config__WEBPACK_IMPORTED_MODULE_13__.Config.retryTime);
+            }
             return;
         }
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
             return this.getIdListFinished();
         }
         this.listPageFinished++;
+        _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_排行榜进度', this.listPageFinished.toString()), 1, false);
         const contents = data.contents; // 取出作品信息列表
         for (const data of contents) {
-            // 检查是否已经抓取到了指定数量的作品
-            if (data.rank > this.crawlNumber) {
-                return this.getIdListFinished();
-            }
             const pageCount = parseInt(data.illust_page_count);
             // 目前这个数据里并没有包含收藏数量，所以在这里没办法检查收藏数量要求
             const filterOpt = {
@@ -15378,19 +15466,24 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
                     id: data.illust_id.toString(),
                 });
             }
+            this.checkTotal++;
+            if (this.checkTotal >= this.crawlNumber) {
+                return this.getIdListFinished();
+            }
         }
-        _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_排行榜进度', this.listPageFinished.toString()), 1, false);
         // 抓取完毕
-        if (this.listPageFinished === this.pageCount) {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_7__.store.idList.length >= this.crawlNumber || !data.next) {
             this.getIdListFinished();
         }
         else {
             // 继续抓取
+            this.option.p = data.next;
             this.getIdList();
         }
     }
     resetGetIdListStatus() {
         this.listPageFinished = 0;
+        this.checkTotal = 0;
     }
 }
 
@@ -17124,20 +17217,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/CreateCSV */ "./src/ts/utils/CreateCSV.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../Token */ "./src/ts/Token.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../crawl/CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../crawl/CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
+/* harmony import */ var _pageFunciton_ExportFollowingList__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../pageFunciton/ExportFollowingList */ "./src/ts/pageFunciton/ExportFollowingList.ts");
+/* harmony import */ var _pageFunciton_BatchFollowUser__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../pageFunciton/BatchFollowUser */ "./src/ts/pageFunciton/BatchFollowUser.ts");
+/* harmony import */ var _pageFunciton_FilterInactiveUsers__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../pageFunciton/FilterInactiveUsers */ "./src/ts/pageFunciton/FilterInactiveUsers.ts");
 // 初始化关注页面、好 P 友页面、粉丝页面
-
-
 
 
 
@@ -17162,10 +17251,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     }
     baseOffset = 0; // 开始抓取时，记录初始的偏移量
     onceNumber = 24; // 每页 24 个画师
-    pageType = 0; // 页面子类型
-    // 0 我的关注
-    // 1 我的好 P 友
-    // 2 我的粉丝
+    pageType = 'following';
     getUserListNo = 0; // 获取用户列表时，记录请求的次数
     limit = 100; // 每次请求多少个用户
     totalNeed = Number.MAX_SAFE_INTEGER;
@@ -17174,20 +17260,13 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     tag = '';
     userList = [];
     index = 0; // getIdList 时，对 userList 的索引
-    task = 'crawl';
-    CSVData = []; // 储存用户列表，包含 id 和用户名
-    importFollowedUserIDs = [];
-    homePrefix = 'https://www.pixiv.net/users/'; // 用户主页的通用链接前缀
     getPageType() {
-        const pathname = window.location.pathname;
-        if (pathname.includes('/following')) {
-            this.pageType = 0;
-        }
-        else if (pathname.includes('/mypixiv')) {
-            this.pageType = 1;
-        }
-        else if (pathname.includes('/followers')) {
-            this.pageType = 2;
+        const allType = ['following', 'mypixiv', 'followers'];
+        for (const type of allType) {
+            if (window.location.pathname.includes('/' + type)) {
+                this.pageType = type;
+                break;
+            }
         }
     }
     addCrawlBtns() {
@@ -17195,49 +17274,20 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             this.readyCrawl();
         });
         _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导出关注列表CSV', '', 'exportFollowingListCSV').addEventListener('click', () => {
-            this.task = 'exportCSV';
-            this.readyCrawl();
+            _pageFunciton_ExportFollowingList__WEBPACK_IMPORTED_MODULE_13__.exportFollowingList.start('csv');
         });
-        const exportButton = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导出关注列表', '', 'exportFollowingListJSON');
-        exportButton.addEventListener('click', () => {
-            this.task = 'exportJSON';
-            this.readyCrawl();
+        _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导出关注列表JSON', '', 'exportFollowingListJSON').addEventListener('click', () => {
+            _pageFunciton_ExportFollowingList__WEBPACK_IMPORTED_MODULE_13__.exportFollowingList.start('json');
         });
-        const batchFollowButton = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_批量关注用户', '', 'batchFollowUser');
-        batchFollowButton.addEventListener('click', async () => {
-            if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
-                return _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前任务尚未完成'));
-            }
-            if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.loggedUserID === '') {
-                return _MsgBox__WEBPACK_IMPORTED_MODULE_12__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_作品页状态码401'));
-            }
-            _EVT__WEBPACK_IMPORTED_MODULE_14__.EVT.fire('clearLog');
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_批量关注用户'));
-            this.importFollowedUserIDs = await this.importUserList();
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入的用户ID数量') + this.importFollowedUserIDs.length);
-            if (this.importFollowedUserIDs.length === 0) {
-                return _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_本次任务已全部完成'));
-            }
-            this.stopAddFollow = false;
-            this.sendReqNumber = 0;
-            // 导入关注列表后，需要获取关注的所有用户列表，以便在添加关注时跳过已关注的，节约时间
-            this.task = 'batchFollow';
-            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = true;
-            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl = false;
-            _EVT__WEBPACK_IMPORTED_MODULE_14__.EVT.fire('crawlStart');
-            // 批量添加关注时，获取所有关注的用户
-            this.crawlNumber = -1;
-            // 把页面类型设置为 0，始终获取关注的用户列表
-            this.pageType = 0;
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_正在加载关注用户列表'));
-            this.readyGet();
-            // 始终抓取自己的关注列表，而非别人的，因为添加关注时，需要和自己的关注列表进行对比
-            this.crawlUserID = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.loggedUserID;
-            this.getUserList();
+        _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_批量关注用户', '', 'batchFollowUser').addEventListener('click', async () => {
+            _pageFunciton_BatchFollowUser__WEBPACK_IMPORTED_MODULE_14__.batchFollowUser.start();
+        });
+        _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgWarning, '_筛选不活跃的用户', '', 'filterInactiveUsers').addEventListener('click', async () => {
+            _pageFunciton_FilterInactiveUsers__WEBPACK_IMPORTED_MODULE_15__.filterInactiveUsers.start();
         });
     }
     getWantPage() {
-        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_15__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_16__.pageType.type].value;
+        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_11__.pageType.type].value;
         if (this.crawlNumber === -1) {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载所有页面'));
         }
@@ -17254,9 +17304,9 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     }
     readyGet() {
         this.rest = location.href.includes('rest=hide') ? 'hide' : 'show';
-        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.getURLPathField(window.location.pathname, 'following');
+        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.getURLPathField(window.location.pathname, 'following');
         // 获取抓取开始时的页码
-        const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.getURLSearchField(location.href, 'p');
+        const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.getURLSearchField(location.href, 'p');
         // 计算开始抓取时的偏移量
         if (nowPage !== '') {
             this.baseOffset = (parseInt(nowPage) - 1) * this.onceNumber;
@@ -17282,20 +17332,20 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     }
     // 获取用户列表
     async getUserList() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
             return this.getUserListComplete();
         }
         const offset = this.baseOffset + this.getUserListNo * this.limit;
         let res;
         try {
             switch (this.pageType) {
-                case 0:
+                case 'following':
                     res = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getFollowingList(this.crawlUserID, this.rest, this.tag, offset);
                     break;
-                case 1:
+                case 'mypixiv':
                     res = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getMyPixivList(this.crawlUserID, offset);
                     break;
-                case 2:
+                case 'followers':
                     res = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getFollowersList(this.crawlUserID, offset);
                     break;
             }
@@ -17304,7 +17354,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
             this.getUserList();
             return;
         }
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
             return this.getUserListComplete();
         }
         const users = res.body.users;
@@ -17314,15 +17364,6 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         }
         for (const userData of users) {
             this.userList.push(userData.userId);
-            if (this.task === 'exportCSV') {
-                this.CSVData.push({
-                    userId: userData.userId,
-                    userName: userData.userName,
-                    homePage: this.homePrefix + userData.userId,
-                    userComment: userData.userComment,
-                    profileImageUrl: userData.profileImageUrl,
-                });
-            }
             if (this.userList.length >= this.totalNeed) {
                 // 抓取到了指定数量的用户
                 return this.getUserListComplete();
@@ -17334,247 +17375,26 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     }
     async getUserListComplete() {
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前有x个用户', this.userList.length.toString()));
-        // 在批量关注用户时，抓取结果为 0 并不影响继续执行
-        if (this.userList.length === 0 && this.task !== 'batchFollow') {
+        if (this.userList.length === 0) {
             return this.getIdListFinished();
-        }
-        if (this.task === 'exportCSV') {
-            this.exportCSV();
-            const msg = '✓ ' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导出关注列表CSV');
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(msg);
-            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(msg);
-            this.stopCrawl();
-            return;
-        }
-        if (this.task === 'exportJSON') {
-            this.exportJSON();
-            const msg = '✓ ' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导出关注列表');
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(msg);
-            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(msg);
-            this.stopCrawl();
-            return;
-        }
-        if (this.task === 'batchFollow') {
-            await this.batchFollow();
-            this.stopCrawl();
-            return;
         }
         this.getIdList();
     }
-    stopCrawl() {
-        _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = false;
-        _store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy = false;
-        this.resetGetIdListStatus();
-        _EVT__WEBPACK_IMPORTED_MODULE_14__.EVT.fire('stopCrawl');
-    }
-    exportCSV() {
-        // 添加用户信息
-        const data = this.CSVData.map((item) => {
-            return Object.values(item);
-        });
-        // 添加用户信息的标题字段
-        data.unshift(Object.keys(this.CSVData[0]));
-        const csv = _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_7__.createCSV.create(data);
-        const csvURL = URL.createObjectURL(csv);
-        const csvName = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.getPageTitle();
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.downloadFile(csvURL, _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.replaceUnsafeStr(csvName) + '.csv');
-    }
-    exportJSON() {
-        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.json2Blob(this.userList);
-        const url = URL.createObjectURL(blob);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.downloadFile(url, `following list-total ${this.userList.length}-from user ${_utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.getURLPathField(window.location.pathname, 'users')}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
-        URL.revokeObjectURL(url);
-    }
-    async importUserList() {
-        return new Promise(async (resolve) => {
-            const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.loadJSONFile().catch((err) => {
-                return _MsgBox__WEBPACK_IMPORTED_MODULE_12__.msgBox.error(err);
-            }));
-            if (!loadedJSON) {
-                return resolve([]);
-            }
-            // 要求是数组并且为 string[]
-            if (!Array.isArray(loadedJSON) ||
-                loadedJSON.length === 0 ||
-                typeof loadedJSON[0] !== 'string') {
-                _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_格式错误'));
-                return resolve([]);
-            }
-            return resolve(loadedJSON);
-        });
-    }
-    stopAddFollow = false;
-    sendReqNumber = 0;
-    dailyLimit = 1000; // 每天限制关注的数量，以免被封号
-    tokenHasUpdated = false;
-    need_recaptcha_enterprise_score_token = false;
-    logProgress(current, total, newAdded) {
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(`${current} / ${total}, ${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_新增x个', newAdded.toString())}`, 1, false);
-    }
-    async batchFollow() {
-        return new Promise(async (resolve, reject) => {
-            const taskName = _Language__WEBPACK_IMPORTED_MODULE_2__.lang
-                .transl('_批量关注用户')
-                .replace('（JSON）', '')
-                .replace('(JSON)', '');
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(taskName);
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_慢速执行以避免引起429错误'));
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示可以重新执行批量关注任务'));
-            let followed = 0;
-            let number = 0;
-            const total = this.importFollowedUserIDs.length;
-            for (const userID of this.importFollowedUserIDs) {
-                this.logProgress(number, total, this.sendReqNumber);
-                if (this.stopAddFollow) {
-                    const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_任务已中止');
-                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_12__.msgBox.error(msg);
-                    return resolve();
-                }
-                if (this.sendReqNumber >= this.dailyLimit) {
-                    this.stopAddFollow = true;
-                    const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_新增的关注用户达到每日限制', this.dailyLimit.toString());
-                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_12__.msgBox.error(msg);
-                    return resolve();
-                }
-                number++;
-                if (this.userList.includes(userID) === false) {
-                    this.sendReqNumber++;
-                    await this.addFollow(userID);
-                }
-                else {
-                    followed++;
-                }
-            }
-            this.logProgress(number, total, this.sendReqNumber);
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('✓ ' + taskName);
-            _MsgBox__WEBPACK_IMPORTED_MODULE_12__.msgBox.success('✓ ' + taskName);
-            return resolve();
-        });
-    }
-    clearIframe(iframe) {
-        iframe.src = 'about:blank';
-        iframe.remove();
-        iframe = null;
-        console.log('清理iframe');
-        // 下载器每生成一个 iframe，Pixiv 的脚本也会创建一个 iframe，一并清除
-        const allIframe = document.querySelectorAll('body>iframe');
-        for (const frame of allIframe) {
-            if (frame?.src.includes('criteo.com')) {
-                frame.remove();
-            }
-        }
-    }
-    async addFollow(userID) {
-        return new Promise(async (resolve) => {
-            // 需要携带 need_recaptcha_enterprise_score_token 时，用 iframe 加载网页然后点击关注按钮
-            if (this.need_recaptcha_enterprise_score_token) {
-                const iframe = await this.clickFollowButton(userID);
-                this.clearIframe(iframe);
-                return resolve(200);
-            }
-            // 不需要携带 need_recaptcha_enterprise_score_token 时可以直接添加关注
-            const status = await _API__WEBPACK_IMPORTED_MODULE_3__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_13__.token.token);
-            if (status !== 200) {
-                const errorMsg = `Error: ${_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.createUserLink(userID)} Status: ${status}`;
-                if (status === 404) {
-                    // 404 可能的原因：
-                    // 1. token 无效
-                    // 2. 该用户不存在
-                    if (this.tokenHasUpdated === true) {
-                        _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(errorMsg);
-                    }
-                    else {
-                        // 404 时尝试重新获取 token，然后重试请求（仅执行一次）
-                        this.tokenHasUpdated = true;
-                        await _Token__WEBPACK_IMPORTED_MODULE_13__.token.reset();
-                        await _API__WEBPACK_IMPORTED_MODULE_3__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_13__.token.token);
-                    }
-                }
-                else if (status === 400) {
-                    // 400 是需要传递 recaptcha_enterprise_score_token 的时候，它的值为空或错误
-                    // 此时发出一次错误提醒，并重试添加关注
-                    this.need_recaptcha_enterprise_score_token = true;
-                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_模拟用户点击'));
-                    const iframe = await this.clickFollowButton(userID);
-                    this.clearIframe(iframe);
-                    return resolve(200);
-                }
-                else if (status === 403) {
-                    // 403 是访问权限已经被限制
-                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(errorMsg);
-                    const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_你的账号已经被Pixiv限制');
-                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg);
-                    _MsgBox__WEBPACK_IMPORTED_MODULE_12__.msgBox.error(msg);
-                    this.stopAddFollow = true;
-                    return resolve(status);
-                }
-                else {
-                    // 其他错误
-                    _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(errorMsg);
-                }
-            }
-            // 慢速执行
-            // 关注用户的 API 也会触发 429 错误，此时获取作品数据的话会返回 429，
-            // 但是关注用户的 API 依然返回 200，并且返回值也正常，但实际上关注用户的操作失败了。无法判断到底有没有关注成功
-            // 所以需要限制添加的速度。我用 1400ms 依然会触发 429，所以需要使用更大的时间间隔，以确保不会触发 429
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(() => {
-                return resolve(status);
-            }, _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.rangeRandom(2500, 3600));
-        });
-    }
-    fun(userID, iframe) {
-        return new Promise(async (resolve) => {
-            // 等待一段时间，默认操作完成。但是如果此时一些请求尚未完成，可能会被取消。所以这个时间最好稍大一点
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(() => {
-                return resolve(iframe);
-            }, _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.rangeRandom(2500, 3600));
-            const button = iframe.contentDocument?.querySelector('button[data-click-label]');
-            if (button) {
-                button.click();
-                console.log(userID + ' click');
-            }
-            else {
-                const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_没有找到关注按钮的提示', _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.createUserLink(userID));
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg);
-                return resolve(iframe);
-            }
-        });
-    }
-    async clickFollowButton(userID) {
-        return new Promise(async (resolve, reject) => {
-            const url = `https://www.pixiv.net/${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.htmlLangType === 'en' ? 'en/' : ''}users/${userID}`;
-            const res = await fetch(url);
-            // const text = await res.text()
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            document.body.append(iframe);
-            // iframe.srcdoc = text
-            iframe.src = url;
-            // 在一定时间后，强制执行回调，不管 iframe.onload 的状态。
-            // 因为有时一些广告脚本可能会加载失败，导致很久才能进入 onload。那样会等待太久。
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(async () => {
-                const _iframe = await this.fun(userID, iframe);
-                return resolve(_iframe);
-            }, _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.rangeRandom(2500, 3600));
-        });
-    }
-    // 获取用户的 id 列表
+    // 获取用户 id 列表
     async getIdList() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
             return this.getIdListFinished();
         }
         let idList = [];
         try {
             idList = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getUserWorksByType(this.userList[this.index]);
-            idList = _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_17__.crawlLatestFewWorks.filter(idList);
+            idList = _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_12__.crawlLatestFewWorks.filter(idList);
         }
         catch {
             this.getIdList();
             return;
         }
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.stopCrawl) {
             return this.getIdListFinished();
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.concat(idList);
@@ -17583,10 +17403,10 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         if (this.index >= this.userList.length) {
             return this.getIdListFinished();
         }
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode) {
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(() => {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_8__.states.slowCrawlMode) {
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_9__.setTimeoutWorker.set(() => {
                 this.getIdList();
-            }, _setting_Settings__WEBPACK_IMPORTED_MODULE_15__.settings.slowCrawlDealy);
+            }, _setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.slowCrawlDealy);
         }
         else {
             this.getIdList();
@@ -17594,15 +17414,12 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     }
     resetGetIdListStatus() {
         this.userList = [];
-        this.task = 'crawl';
-        this.CSVData = [];
-        this.importFollowedUserIDs = [];
         this.getUserListNo = 0;
         this.index = 0;
     }
     sortResult() {
         // 把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
-        _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_8__.Utils.sortByProperty('id'));
+        _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sortByProperty('id'));
     }
 }
 
@@ -18785,7 +18602,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-// 初始化小说排行榜页面
+/* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 
 
 
@@ -18795,18 +18613,39 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+
+// 旧版小说排行榜页面，加载页面源码并从中获取数据
 class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
         this.init();
     }
     pageUrlList = [];
+    page = 1;
+    /**在小说列表的右上角有个下拉菜单，可以选择小说的语言。
+     * 但是 API 获取小说时是不区分语言的，这个下拉菜单选择的语言只是对 API 的结果进行过滤，
+     * 在网页上只显示对应语言的小说。
+     */
+    selectLang = '';
+    /**检查了多少个小说 */
+    checkTotal = 0;
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取本排行榜作品', '_抓取本排行榜作品Title', 'crawlRankingWork').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
-    initAny() { }
+    initAny() {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.hiddenPremiumAD();
+    }
+    // 抓取完成后，对结果进行排序
+    sortResult() {
+        // 如果用户在命名规则里使用了 {rank}，则按照 rank 排序
+        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_9__.nameRuleManager.rule.includes('{rank}')) {
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sortByProperty('rank', 'asc'));
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sortByProperty('rank', 'asc'));
+        }
+    }
     getWantPage() {
         // 检查下载页数的设置
         this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.type].value;
@@ -18837,12 +18676,32 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
     }
     nextStep() {
         this.getPageUrl();
+        // 处理 url 如：
+        // https://www.pixiv.net/novel/ranking.php?mode=weekly_r18&p=2&date=20251031
+        const url = new URL(window.location.href);
+        // 获取当前页码
+        const p = url.searchParams.get('p');
+        if (p) {
+            this.page = Number.parseInt(p);
+        }
+        else {
+            // 如果没有 p 参数，则默认为第 1 页
+            this.page = 1;
+        }
+        // 获取当前显示的小说语言，也就是小说列表右上角的下拉框里选择的语言
+        // pixiv 会把用户选择的语言标记保存到本地存储里。如果选择“所有语种”则值是 ''
+        const value = window.localStorage.getItem('rankinglanguageFilterSetting');
+        if (value !== null) {
+            // 在旧版页面里，这个储存的字符串额外添加了双引号，值是
+            // '"ja"' 或 '""' 这样。需要移除双引号
+            this.selectLang = value.replaceAll('"', '');
+        }
         this.getIdList();
     }
     async getIdList() {
         let dom;
         try {
-            const res = await fetch(this.pageUrlList[this.listPageFinished]);
+            const res = await fetch(this.pageUrlList[this.page - 1]);
             const text = await res.text();
             const parse = new DOMParser();
             dom = parse.parseFromString(text, 'text/html');
@@ -18851,15 +18710,13 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
             this.getIdList();
             return;
         }
+        this.page++;
         this.listPageFinished++;
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_排行榜进度', this.listPageFinished.toString()), 1, false);
         const rankingItem = dom.querySelectorAll('._ranking-items>div[id]');
         // 检查每个作品的信息
         for (const item of rankingItem) {
             const rank = parseInt(item.querySelector('h1').innerText);
-            // 检查是否已经抓取到了指定数量的作品
-            if (rank > this.crawlNumber) {
-                return this.getIdListFinished();
-            }
             // https://www.pixiv.net/novel/show.php?id=12831389
             const link = item.querySelector('.imgbox a').href;
             const id = parseInt(link.split('id=')[1]);
@@ -18884,15 +18741,27 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
                 bookmarkData: bookmarked,
                 userId: userId,
             };
-            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__.filter.check(filterOpt)) {
+            // item 上有语言标记，使用它来过滤小说
+            let checkLang = true;
+            if (this.selectLang && item.dataset.language) {
+                checkLang = item.dataset.language === this.selectLang;
+            }
+            if (!checkLang) {
+                _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器排除了一些作品原因') +
+                    _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_作品的语言不符合你选择的语言', this.selectLang), 1, false, 'excludeNovelByUserSelectLanguage');
+            }
+            if ((await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__.filter.check(filterOpt)) && checkLang) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.setRankList(id.toString(), rank);
                 _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
                     type: 'novels',
                     id: id.toString(),
                 });
             }
+            this.checkTotal++;
+            if (this.checkTotal >= this.crawlNumber) {
+                return this.getIdListFinished();
+            }
         }
-        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_排行榜进度', this.listPageFinished.toString()), 1, false);
         // 抓取完毕
         if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length >= this.crawlNumber ||
             this.listPageFinished === this.pageUrlList.length) {
@@ -18905,6 +18774,213 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
     }
     resetGetIdListStatus() {
         this.pageUrlList = [];
+        this.checkTotal = 0;
+        this.listPageFinished = 0;
+    }
+}
+
+
+
+/***/ }),
+
+/***/ "./src/ts/crawlNovelPage/InitRankingNovelPageNew.ts":
+/*!**********************************************************!*\
+  !*** ./src/ts/crawlNovelPage/InitRankingNovelPageNew.ts ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   InitRankingNovelPageNew: () => (/* binding */ InitRankingNovelPageNew)
+/* harmony export */ });
+/* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
+/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../setting/NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 新版小说排行榜页面
+// Pixiv 的更新是批量推送的，有些用户已经是新版页面，但也有很多用户还是旧版页面。
+// 由于旧版的用户无法使用新版的 API（会返回 404），所以新版和旧版需要分开处理
+class InitRankingNovelPageNew extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
+    constructor() {
+        super();
+        this.init();
+    }
+    addCrawlBtns() {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取本排行榜作品', '_抓取本排行榜作品Title', 'crawlRankingWork').addEventListener('click', () => {
+            this.readyCrawl();
+        });
+    }
+    initAny() {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.hiddenPremiumAD();
+    }
+    // 抓取完成后，对结果进行排序
+    sortResult() {
+        // 如果用户在命名规则里使用了 {rank}，则按照 rank 排序
+        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_11__.nameRuleManager.rule.includes('{rank}')) {
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_12__.Utils.sortByProperty('rank', 'asc'));
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_12__.Utils.sortByProperty('rank', 'asc'));
+        }
+    }
+    getWantPage() {
+        // 检查下载页数的设置
+        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.type].value;
+        if (this.crawlNumber === -1) {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_向下获取所有作品'));
+        }
+        else {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载排行榜前x个作品', this.crawlNumber.toString()));
+        }
+        // 如果设置的作品个数是 -1，则设置为下载所有作品
+        if (this.crawlNumber === -1) {
+            this.crawlNumber = this.maxCount;
+        }
+    }
+    // 这 3 种排行榜只有全年龄，没有 R-18 分类：
+    // 本月、新人、原创
+    // 这 5 种排行榜有全年龄和 R-18 两种分类：
+    // 今日、本周、AI生成、受男性欢迎、受女性欢迎
+    // 这 1 种排行榜有 R-18G 分类：
+    // 本周
+    // 所以一共有 14 种排行榜分类：8 种全年龄，5 种 R-18，1 种 R-18G
+    mode = 'daily';
+    date = null;
+    page = 1;
+    /**在小说列表的右上角有个下拉菜单，可以选择小说的语言。
+     * 但是 API 获取小说时是不区分语言的，这个下拉菜单选择的语言只是对 API 的结果进行过滤，
+     * 在网页上只显示对应语言的小说。
+     */
+    selectLang = '';
+    /**检查了多少个小说 */
+    checkTotal = 0;
+    nextStep() {
+        this.getParams();
+        this.getIdList();
+    }
+    getParams() {
+        // 处理 url 如：
+        // https://www.pixiv.net/novel/ranking.php?mode=weekly_r18&p=2&date=20251031
+        const url = new URL(window.location.href);
+        // 获取排行榜模式
+        // 如果没有 mode 参数，则是默认的今日排行榜
+        this.mode = url.searchParams.get('mode') || 'daily';
+        // 获取日期
+        // 如果没有日期则不设置默认值，由 pixiv 处理
+        this.date = url.searchParams.get('date');
+        // 获取当前页码
+        const p = url.searchParams.get('p');
+        if (p) {
+            this.page = Number.parseInt(p);
+        }
+        else {
+            // 如果没有 p 参数，则默认为第 1 页
+            this.page = 1;
+        }
+        // 大部分小说排行榜都是 100 个作品。一页 50 个作品，一共有 2 页
+        // “AI生成”的排行榜只有 50 个作品，所以只有 1 页
+        // 获取当前显示的小说语言，也就是小说列表右上角的下拉框里选择的语言
+        // pixiv 会把用户选择的语言标记保存到本地存储里。如果选择“所有语种”则值是 ''
+        const value = window.localStorage.getItem('rankinglanguageFilterSetting');
+        if (value !== null) {
+            this.selectLang = value;
+        }
+    }
+    async getIdList() {
+        try {
+            const json = await _API__WEBPACK_IMPORTED_MODULE_9__.API.getRankingDataNovel(this.mode, this.date, this.page);
+            this.listPageFinished++;
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_排行榜进度', this.listPageFinished.toString()), 1, false);
+            const display_a = json.body.display_a;
+            let list = display_a.rank_a;
+            // list 可能是数组，也可能是有数字编号的对象，所以使用下标来取值
+            // 目前一页最多有 50 条小说数据，所以 length 是 50
+            const length = 50;
+            for (let i = 0; i < length; i++) {
+                const novel = list[i];
+                // 注意：有些小说可能会被作者删除，所以排行榜的数据里也就没有它。在页面上显示时，也会直接跳过它的排名编号。
+                // 2 页本来应该有 100 个作品，但有时可能只有 99 个，所以会有空值
+                if (novel === undefined) {
+                    continue;
+                }
+                const filterOpt = {
+                    id: novel.id,
+                    workType: 3,
+                    tags: novel.tag_a,
+                    bookmarkCount: novel.bookmark_count,
+                    bookmarkData: novel.is_bookmarked,
+                    userId: novel.user_id,
+                };
+                let checkLang = true;
+                if (this.selectLang) {
+                    checkLang = novel.language === this.selectLang;
+                }
+                if (!checkLang) {
+                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器排除了一些作品原因') +
+                        _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_作品的语言不符合你选择的语言', this.selectLang), 1, false, 'excludeNovelByUserSelectLanguage');
+                }
+                if ((await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__.filter.check(filterOpt)) && checkLang) {
+                    const id = novel.id.toString();
+                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.setRankList(id, Number.parseInt(novel.rank));
+                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
+                        type: 'novels',
+                        id: id,
+                    });
+                }
+                this.checkTotal++;
+                if (this.checkTotal >= this.crawlNumber) {
+                    return this.getIdListFinished();
+                }
+            }
+            // 抓取完毕
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length >= this.crawlNumber || !display_a.next) {
+                this.getIdListFinished();
+            }
+            else {
+                // 继续抓取
+                this.page = display_a.next;
+                this.getIdList();
+            }
+        }
+        catch (error) {
+            if (error.status === 404) {
+                // 如果发生了404错误，则中断抓取，直接下载已有部分。因为可能确实没有这一页了
+                console.log('404错误，直接下载已有部分');
+                this.getIdListFinished();
+            }
+            // 429 错误时延迟重试
+            if (error.status === 429) {
+                this.log429ErrorTip();
+                window.setTimeout(() => {
+                    this.getIdList();
+                }, _Config__WEBPACK_IMPORTED_MODULE_10__.Config.retryTime);
+            }
+            return;
+        }
+    }
+    resetGetIdListStatus() {
+        this.checkTotal = 0;
         this.listPageFinished = 0;
     }
 }
@@ -19875,6 +19951,19 @@ class Download {
             blob: _Config__WEBPACK_IMPORTED_MODULE_12__.Config.sendBlob ? blob : undefined,
             dataURL,
         };
+        // 使用 a.download 来下载文件时，不调用 downloads API
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.rememberTheLastSaveLocation) {
+            // 移除文件夹，只保留文件名部分，因为这种方式不支持建立文件夹
+            // 路径符号 / 会被浏览器处理成 _，例如：
+            // pixiv/mojo-94576902/136825223_p0-藤田ことね🎃.png 会变成：
+            // pixiv_mojo-94576902_136825223_p0-藤田ことね🎃.png
+            // 所以我只保留了文件名部分
+            const lastName = fileName.split('/').pop();
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.downloadFile(blobURL, lastName);
+            sendData.msg = 'save_work_file_a_download';
+            webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
+            return;
+        }
         try {
             webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('sendBrowserDownload');
@@ -20032,11 +20121,10 @@ class DownloadControl {
             window.clearTimeout(this.checkDownloadTimeoutTimer);
             this.checkDownloadTimeoutTimer = window.setTimeout(() => {
                 const msg = _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_可能发生了错误请刷新页面重试') +
-                    '<br><br>' +
+                    '<br>' +
                     _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_下载卡住的提示');
-                _MsgBox__WEBPACK_IMPORTED_MODULE_21__.msgBox.once('mayError', msg, 'warning');
                 _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(msg, 1, false, 'mayError');
-            }, 5000);
+            }, 30000);
         });
         const clearDownloadTimeoutTimerList = [
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadComplete,
@@ -24294,28 +24382,36 @@ class Filter {
     async check(option) {
         // 检查下载的作品类型设置
         if (!this.checkDownType(option.workType)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品类型'), 1, false, 'excludeWorkByWorkType');
             return false;
         }
         if (!this.checkDownTypeByAge(option.xRestrict)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_年龄限制'), 1, false, 'excludeWorkByAge');
             return false;
         }
         if (!this.checkAIWorkType(option.aiType, option.tags)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_AI作品'), 1, false, 'excludeWorkByAIType');
             return false;
         }
         // 检查单图、多图的下载
         if (!this.checkPageCount(option.workType, option.pageCount)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_图片数量'), 1, false, 'excludeWorkByPageCount');
             return false;
         }
-        // 检查单图、多图的下载
+        // 检查多图作品的图片数量限制
         if (!this.checkMultiImageWorkImageLimit(option.workType, option.pageCount)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品的图片数量上限'), 1, false, 'excludeWorkByMultiImageWorkImageLimit');
             return false;
         }
         // 检查收藏和未收藏的要求
         if (!this.checkDownTypeByBmked(option.bookmarkData)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_收藏状态'), 1, false, 'excludeWorkByAge');
             return false;
         }
         // 检查收藏数要求
         if (!this.checkBMK(option.bookmarkCount, option.createDate)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_收藏数量'), 1, false, 'excludeWorkByBookmarkCount');
             return false;
         }
         // 检查要排除的 tag
@@ -24324,25 +24420,34 @@ class Filter {
         }
         // 检查必须包含的 tag
         if (!this.checkIncludeTag(option.tags)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_必须含有tag'), 1, false, 'excludeWorkByIncludeTag');
             return false;
         }
         // 检查宽高设置
         if (!this.checkWidthHeight(option.width, option.height)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_图片的宽高'), 1, false, 'excludeWorkByWidthHeight');
             return false;
         }
         // 检查宽高比设置
         if (!this.checkRatio(option.width, option.height)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_图片的宽高比例'), 1, false, 'excludeWorkByRatio');
             return false;
         }
         // 检查 id 范围设置
         if (!this.checkIdRange(option.id)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_id范围'), 1, false, 'excludeWorkByIdRange');
             return false;
         }
         // 检查用户在 Pixiv 的屏蔽设定
         if (!(await this.checkMuteUser(option.userId))) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你屏蔽了这个用户'), 1, false, 'excludeWorkByMuteUser');
             return false;
         }
         if (!(await this.checkMuteTag(option.tags))) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你屏蔽了它的标签'), 1, false, 'excludeWorkByMuteTag');
             return false;
         }
         // 检查用户阻止名单
@@ -24355,23 +24460,29 @@ class Filter {
         }
         // 检查投稿时间设置
         if (!this.checkPostDate(option.createDate)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_投稿时间'), 1, false, 'excludeWorkByPostDate');
             return false;
         }
         // 检查投稿时间设置
         if (!this.checkIdPublishTime(option.id, option.workTypeString)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_投稿时间'), 1, false, 'excludeWorkByPostDate');
             return false;
         }
         // 检查首次登场设置
         if (!this.checkDebut(option.yes_rank)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_它不是首次登场的作品'), 1, false, 'excludeWorkByDebut');
             return false;
         }
         // 检查文件体积设置
-        if (!this.checkSize(option.size)) {
+        if (!this.checkFileSize(option.size)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_文件体积限制'), 1, false, 'excludeWorkByFileSize');
             return false;
         }
         // 检查黑白图片
         // 这一步需要加载图片，需要较长的时间，较多的资源占用，所以放到最后检查
         if (!(await this.checkBlackWhite(option.mini))) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_图片色彩'), 1, false, 'excludeWorkByBlackWhite');
             return false;
         }
         return true;
@@ -24954,7 +25065,7 @@ class Filter {
     }
     // 检查文件体积
     MiB = 1024 * 1024;
-    checkSize(size) {
+    checkFileSize(size) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.sizeSwitch || size === undefined) {
             return true;
         }
@@ -25094,7 +25205,8 @@ class Mute {
                 // 当请求出错时，视为获取完成。不抛出 reject，否则会导致抓取中止
                 this.got = true;
                 if (error.status === 401) {
-                    console.error('get mute settings error ' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_作品页状态码401'));
+                    console.error('get mute settings error ' +
+                        _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_请您登录Pixiv账号然后重试_401'));
                 }
                 return resolve(error.status);
             }
@@ -25176,13 +25288,13 @@ class WorkPublishTime {
     bindEvents() {
         // 获取图像作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 136360000
-            this.crawlData(135810000, 136362631);
+            // 上次记录到 137060000
+            this.crawlData(136370000, 137063807);
         });
         // 获取小说作品的数据
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 26210000
-            this.crawlData(26090000, 26215159, 'novels');
+            // 上次记录到 26360000
+            this.crawlData(26220000, 26367917, 'novels');
         });
     }
     async crawlData(start, end, type = 'illusts') {
@@ -25511,7 +25623,15 @@ const langText = {
         'загрузить все работы с этой страницы',
     ],
     _抓取多少作品的提示: [
-        `你可以设置下载多少个作品。
+        `你可以设置抓取多少个作品。
+<br>
+<br>
+注意：如果你修改了默认的抓取过滤条件，那么可能会有一些作品被排除。
+<br>
+例如：你设置为抓取 10 个作品，其中有 6 个被排除了，那么下载器就只会保留满足条件的 4 个。
+<br>
+<br>
+对不同使用场景的说明：
 <br>
 <br>
 当你位于某个插画或小说的详情页面里，下载器会从当前作品开始抓取（包含当前作品）。
@@ -25527,85 +25647,125 @@ const langText = {
 <br>
 设置为 -1 表示抓取该页面里的所有作品。
 <br>`,
-        `你可以設定下載多少個作品。
+        `你可以設置抓取多少個作品。
+<br>
+<br>
+注意：如果你修改了預設的抓取過濾條件，那麼可能會有一些作品被排除。
+<br>
+例如：你設置為抓取 10 個作品，其中有 6 個被排除了，那麼下載器就只會保留滿足條件的 4 個。
+<br>
+<br>
+對不同使用場景的說明：
 <br>
 <br>
 當你位於某個插畫或小說的詳情頁面裡，下載器會從當前作品開始抓取（包含當前作品）。
 <br>
-設定為 1 只會抓取當前作品。
+設置為 1 只會抓取當前作品。
 <br>
-設定為 -1 表示不限制抓取數量，下載器會從當前作品開始，抓取到最後一個作品。
+設置為 -1 表示不限制抓取數量，下載器會從當前作品開始，抓取到最後一個作品。
 <br>
 <br>
 在其他頁面裡（例如排行榜頁面、關注的用戶的新作品頁面），下載器會從這一頁的第一個作品開始抓取。
 <br>
-設定為 1 只會抓取第 1 個作品。
+設置為 1 只會抓取第 1 個作品。
 <br>
-設定為 -1 表示抓取該頁面裡的所有作品。
+設置為 -1 表示抓取該頁面裡的所有作品。
 <br>`,
-        `You can set how many works to download.
+        `You can set how many works to crawl.
 <br>
 <br>
-When you are on the detail page of an illustration or novel, the downloader will start crawling from the current work (including the current work).
+Note: If you modify the default crawl filter conditions, some works may be excluded.
 <br>
-Setting it to 1 will only crawl the current work.
-<br>
-Setting it to -1 means no limit on the number of works to crawl, and the downloader will crawl from the current work to the last work.
+For example: If you set to crawl 10 works, and 6 of them are excluded, the downloader will only keep the 4 that meet the conditions.
 <br>
 <br>
-On other pages (such as the ranking page or the new works page of followed users), the downloader will start crawling from the first work on that page.
+Explanation for different usage scenarios:
 <br>
-Setting it to 1 will only crawl the first work.
 <br>
-Setting it to -1 means crawling all works on that page.
+When you are on the detail page of a certain illustration or novel, the downloader will start crawling from the current work (including the current work).
+<br>
+Setting to 1 will only crawl the current work.
+<br>
+Setting to -1 means no limit on the number of crawls; the downloader will start from the current work and crawl to the last work.
+<br>
+<br>
+On other pages (e.g., ranking page, followed user's new works page), the downloader will start crawling from the first work on this page.
+<br>
+Setting to 1 will only crawl the 1st work.
+<br>
+Setting to -1 means crawl all works on this page.
 <br>`,
-        `ダウンロードする作品の数を設定できます。
+        `作品のクロール数を設定できます。
 <br>
 <br>
-イラストや小説の詳細ページにいる場合、ダウンローダーは現在の作品からクロールを開始します（現在の作品を含みます）。
+注意：デフォルトのクロールフィルター条件を変更した場合、いくつかの作品が除外される可能性があります。
 <br>
-1 に設定すると、現在の作品のみをクロールします。
-<br>
--1 に設定すると、クロールする作品数に制限がなく、ダウンローダーは現在の作品から最後の作品までクロールします。
+例：クロール数を10に設定し、そのうち6つが除外された場合、ダウンロードツールは条件を満たす4つだけを保持します。
 <br>
 <br>
-他のページ（たとえばランキングページやフォローしているユーザーの新作ページ）にいる場合、ダウンローダーはそのページの最初の作品からクロールを開始します。
+異なる使用シナリオの説明：
 <br>
-1 に設定すると、最初の作品のみをクロールします。
 <br>
--1 に設定すると、そのページにあるすべての作品をクロールします。
+特定のイラストまたは小説の詳細ページにいる場合、ダウンロードツールは現在の作品からクロールを開始します（現在の作品を含む）。
+<br>
+1に設定すると、現在の作品のみをクロールします。
+<br>
+-1に設定すると、クロール数の制限がなく、ダウンロードツールは現在の作品から最後の作品までクロールします。
+<br>
+<br>
+他のページ（例：ランキングページ、フォロー中のユーザーの新着作品ページ）では、ダウンロードツールはこのページの最初の作品からクロールを開始します。
+<br>
+1に設定すると、最初の作品のみをクロールします。
+<br>
+-1に設定すると、このページのすべての作品をクロールします。
 <br>`,
-        `다운로드할 작품의 수를 설정할 수 있습니다.
+        `작품 크롤링 수를 설정할 수 있습니다.
 <br>
 <br>
-일러스트나 소설의 상세 페이지에 있을 때, 다운로더는 현재 작품부터 크롤링을 시작합니다(현재 작품 포함).
+주의: 기본 크롤링 필터 조건을 수정하면 일부 작품이 제외될 수 있습니다.
+<br>
+예: 크롤링 10개 작품으로 설정하고 그 중 6개가 제외되면, 다운로더는 조건을 만족하는 4개만 유지합니다.
+<br>
+<br>
+다른 사용 시나리오에 대한 설명:
+<br>
+<br>
+특정 일러스트나 소설의 상세 페이지에 있을 때, 다운로더는 현재 작품부터 크롤링을 시작합니다(현재 작품 포함).
 <br>
 1로 설정하면 현재 작품만 크롤링합니다.
 <br>
--1로 설정하면 크롤링할 작품 수에 제한이 없으며, 다운로더는 현재 작품부터 마지막 작품까지 크롤링합니다.
+-1로 설정하면 크롤링 수 제한이 없으며, 다운로더는 현재 작품부터 마지막 작품까지 크롤링합니다.
 <br>
 <br>
-다른 페이지(예: 랭킹 페이지나 팔로우한 사용자의 신규 작품 페이지)에 있을 때, 다운로더는 해당 페이지의 첫 번째 작품부터 크롤링을 시작합니다.
+다른 페이지(예: 랭킹 페이지, 팔로우한 사용자의 신작 페이지)에서 다운로더는 이 페이지의 첫 번째 작품부터 크롤링을 시작합니다.
 <br>
 1로 설정하면 첫 번째 작품만 크롤링합니다.
 <br>
--1로 설정하면 해당 페이지의 모든 작품을 크롤링합니다.
+-1로 설정하면 이 페이지의 모든 작품을 크롤링합니다.
 <br>`,
-        `Вы можете настроить, сколько работ скачать.
+        `Вы можете установить, сколько работ захватывать.
 <br>
 <br>
-Когда вы находитесь на странице с подробностями об иллюстрации или романе, загрузчик начнет сбор данных с текущей работы (включая текущую работу).
+Внимание: Если вы измените условия фильтрации захвата по умолчанию, некоторые работы могут быть исключены.
 <br>
-Установка значения 1 означает, что будет собрана только текущая работа.
-<br>
-Установка значения -1 означает отсутствие ограничений на количество собираемых работ, и загрузчик будет собирать данные от текущей работы до последней.
+Например: Если вы установите захват 10 работ, и 6 из них исключены, загрузчик сохранит только 4, соответствующие условиям.
 <br>
 <br>
-На других страницах (например, на странице рейтинга или странице новых работ пользователей, на которых вы подписаны), загрузчик начнет сбор данных с первой работы на этой странице.
+Пояснение для разных сценариев использования:
 <br>
-Установка значения 1 означает, что будет собрана только первая работа.
 <br>
-Установка значения -1 означает, что будут собраны все работы на этой странице.
+Когда вы находитесь на странице деталей определенной иллюстрации или романа, загрузчик начнет захват с текущей работы (включая текущую работу).
+<br>
+Установка на 1 захватит только текущую работу.
+<br>
+Установка на -1 означает отсутствие ограничения на количество захватов, загрузчик начнет с текущей работы и захватит до последней работы.
+<br>
+<br>
+На других страницах (например, странице рейтинга, странице новых работ следуемого пользователя), загрузчик начнет захват с первой работы на этой странице.
+<br>
+Установка на 1 захватит только 1-ю работу.
+<br>
+Установка на -1 означает захват всех работ на этой странице.
 <br>`,
     ],
     _抓取多少页面的提示: [
@@ -25958,6 +26118,14 @@ Zip 파일이 원본 파일입니다.`,
         '현재 {}명의 유저가 있습니다',
         'В настоящее время существует {} пользователей',
     ],
+    _当前有x个符合条件的用户: [
+        `当前有 {} 个符合条件的用户`,
+        `當前有 {} 個符合條件的用戶`,
+        `Currently there are {} qualifying users`,
+        `現在、条件に合うユーザーが {} 人います`,
+        `현재 {}명의 조건에 맞는 사용자가 있습니다`,
+        `Сейчас {} подходящих пользователей`,
+    ],
     _已抓取x个用户: [
         '已抓取 {} 个用户',
         '已擷取 {} 個使用者',
@@ -25967,7 +26135,7 @@ Zip 파일이 원본 파일입니다.`,
         'Сканированные {} пользователи',
     ],
     _排行榜进度: [
-        '已抓取本页面第{}部分',
+        '已抓取本页面第 {} 部分',
         '已擷取本頁面第 {} 部分',
         'Part {} of this page has been crawled',
         'このページの第　{}　部がクロールされました',
@@ -26039,12 +26207,12 @@ Zip 파일이 원본 파일입니다.`,
         'Список страниц просканирован',
     ],
     _抓取结果为零: [
-        '抓取完毕，但没有找到符合筛选条件的作品。<br>请检查“抓取”相关的设置。',
-        '擷取完畢，但沒有找到符合篩選條件的作品。<br>請檢查“抓取”相關的設定。',
-        'Crawl complete but did not find works that match the filter criteria.<br>Please check the settings related to Crawl.',
-        'クロールは終了しましたが、フィルタ条件に一致する作品が見つかりませんでした。<br>クロールに関する設定を確認してください。',
-        '긁어오기가 완료되었지만 필터 조건과 일치하는 작품을 찾지 못했습니다.<br>크롤링 관련 설정을 확인하세요.',
-        'Вытаскивание завершено, но не найдены работы, соответствующие критериям фильтра.<br>Пожалуйста, проверьте настройки, связанные со сканированием.',
+        `抓取完毕，但没有找到符合筛选条件的作品。<br>请检查“抓取”相关的设置，并查看日志里显示的信息。`,
+        `抓取完畢，但沒有找到符合篩選條件的作品。<br>請檢查「抓取」相關的設置，並查看日誌裡顯示的資訊。`,
+        `Crawling completed, but no works matching the filter conditions were found.<br>Please check the "crawl"-related settings and view the information displayed in the log.`,
+        `クロールが完了しましたが、フィルター条件に一致する作品が見つかりませんでした。<br>「クロール」関連の設定を確認し、ログに表示される情報をご覧ください。`,
+        `크롤링이 완료되었으나, 필터 조건에 맞는 작품을 찾을 수 없습니다.<br>"크롤" 관련 설정을 확인하고 로그에 표시된 정보를 확인하세요。`,
+        `Кроулинг завершен, но работы, соответствующие условиям фильтрации, не найдены。<br>Проверьте настройки, связанные с "crawl", и просмотрите информацию, отображаемую в журнале。`,
     ],
     _当前任务尚未完成: [
         '当前任务尚未完成',
@@ -26102,7 +26270,7 @@ Zip 파일이 원본 파일입니다.`,
         '이 작품은 삭제되었습니다 (400)',
         'Работа была удалена (400)',
     ],
-    _作品页状态码401: [
+    _请您登录Pixiv账号然后重试_401: [
         '请您登录 Pixiv 账号然后重试。(401)',
         '請您登入 Pixiv 帳號後重試。(401)',
         'Please log in to your Pixiv account and try again. (401)',
@@ -28317,13 +28485,29 @@ This setting is also used when you use the Downloader to bookmark works in batch
         '팔로우한 사용자 목록 내보내기 (CSV)',
         'Экспорт списка отслеживаемых пользователей (CSV)',
     ],
-    _导出关注列表: [
+    _导出关注列表JSON: [
         '导出关注的用户列表（JSON）',
         '匯出關注的使用者列表（JSON）',
         'Export followed users list (JSON)',
         'フォローされているユーザーのリストをエクスポートする（JSON）',
         '팔로우한 사용자 목록 내보내기 (JSON)',
         'Экспорт списка отслеживаемых пользователей (JSON)',
+    ],
+    _开始抓取用户列表: [
+        `开始抓取用户列表`,
+        `開始抓取用戶列表`,
+        `Start crawling user list`,
+        `ユーザーリストのクローリングを開始`,
+        `사용자 목록 크롤링 시작`,
+        `Начать краулинг списка пользователей`,
+    ],
+    _用户数量为0: [
+        `用户数量为 0`,
+        `用戶數量為 0`,
+        `Number of users is 0`,
+        `ユーザー数 0`,
+        `사용자 수 0`,
+        `Количество пользователей 0`,
     ],
     _批量关注用户: [
         '批量关注用户（JSON）',
@@ -29484,6 +29668,14 @@ Novel folder name: Novel`,
         'Вы можете найти его в разделе "Еще". вкладка → "{}" категория. ("Показать расширенные настройки" необходимо сначала включить)',
     ],
     _你可以在xx选项卡里找到它: [
+        '你可以在“{}”选项卡里找到它。',
+        '你可以在“{}”選項卡裡找到它。',
+        'You can find it in the "{}" tab.',
+        '「{}」タブにあります。',
+        '"{}" 탭에서 찾을 수 있습니다.',
+        'Вы можете найти его на вкладке "{}".',
+    ],
+    _你可以在xx选项卡里找到它并需要启用高级设置: [
         '你可以在“{}”选项卡里找到它。（需要先启用“显示高级设置”）',
         '你可以在“{}”選項卡裡找到它。（需要先啟用“顯示進階設定”）',
         'You can find it in the "{}" tab. ("Show advanced settings" needs to be enabled first)',
@@ -29903,6 +30095,14 @@ Novel folder name: Novel`,
         '作品数が規定数を超えた場合に有効：',
         '작품 수가 지정된 수를 초과하면 활성화됩니다.',
         'Включается, когда количество работ превышает указанное количество:',
+    ],
+    _当文件数量大于: [
+        `当文件数量超过指定数量时启用：`,
+        `當檔案數量超過指定數量時啟用：`,
+        `Enable when the number of files exceeds the specified number:`,
+        `ファイル数が指定数を超えたときに有効にする：`,
+        `파일 수가 지정된 수를 초과할 때 활성화:`,
+        `Включить, когда количество файлов превышает указанное:`,
     ],
     _慢速抓取: [
         '慢速抓取，以避免触发 429 限制',
@@ -31036,29 +31236,29 @@ When viewing the preview image, you can use the following shortcut keys:<br>
     _秒: ['秒', '秒', 'seconds', '秒', '초', 'секунд'],
     _下载间隔的说明: [
         `每隔一定时间开始一次下载。<br>
-默认值为 0，即无限制。<br>
-如果设置为 1 秒钟，那么每小时最多会从 Pixiv 下载 3600 个文件。<br>
-如果你担心因为下载文件太频繁导致账号被封禁，可以设置大于 0 的数字，以缓解此问题。<br>`,
+如果把间隔时间设置为 0，下载器就不会添加延迟时间。<br>
+如果设置为 1 秒（默认值），那么每小时最多会下载 3600 个抓取结果（不计算附带下载的文件，例如小说的封面图片和内嵌的图片）。<br>
+这是因为连续下载很多文件（特别是小说）时，你的 Pixiv 账号可能会被警告或封禁。设置间隔时间可以缓解此问题。<br>`,
         `每隔一定時間開始一次下載。<br>
-預設值為 0，即無限制。<br>
-如果設定為 1 秒鐘，那麼每小時最多會從 Pixiv 下載 3600 個檔案。<br>
-如果你擔心因為下載檔案太頻繁導致賬號被 Ban，可以設定大於 0 的數字，以緩解此問題。<br>`,
-        `Start a download every certain time. <br>
-The default value is 0, which means no limit. <br>
-If set to 1 second, a maximum of 3,600 files will be downloaded from Pixiv per hour. <br>
-If you are worried that your account will be banned due to downloading files too frequently, you can set a number greater than 0 to alleviate this problem. <br>`,
-        `一定時間ごとにダウンロードを開始します。<br>
-デフォルト値は 0 で、制限なしを意味します。<br>
-1 秒に設定すると、Pixiv から 1 時間あたり最大 3,600 ファイルがダウンロードされます。<br>
-頻繁にファイルをダウンロードしすぎてアカウントが禁止されるのではないかと心配な場合は、0 より大きい数値を設定することでこの問題を軽減できます。<br>`,
-        `특정 시간마다 다운로드를 시작합니다. <br>
-기본값은 0으로, 제한이 없음을 의미합니다. <br>
-1초로 설정하면 Pixiv에서 시간당 최대 3,600개의 파일이 다운로드됩니다. <br>
-파일을 너무 자주 다운로드해서 계정이 금지될까 걱정된다면 0보다 큰 숫자를 설정하여 이 문제를 완화할 수 있습니다. <br>`,
-        `Начинать загрузку каждый определенный момент времени. <br>
-Значение по умолчанию — 0, что означает отсутствие ограничений. <br>
-Если установлено значение 1 секунда, с Pixiv будет загружено максимум 3600 файлов в час. <br>
-Если вы беспокоитесь, что ваш аккаунт будет заблокирован из-за слишком частой загрузки файлов, вы можете установить число больше 0, чтобы решить эту проблему. <br>`,
+如果把間隔時間設置為 0，下載器就不會添加延遲時間。<br>
+如果設置為 1 秒（默認值），那麼每小時最多會下載 3600 個抓取結果（不計算附帶下載的文件，例如小說的封面圖片和內嵌的圖片）。<br>
+這是因為連續下載很多文件（特別是小說）時，你的 Pixiv 賬號可能會被警告或封禁。設置間隔時間可以緩解此問題。<br>`,
+        `Start a download every certain interval of time.<br>
+If the interval time is set to 0, the downloader will not add delay time.<br>
+If set to 1 second (default value), then up to 3600 crawl results will be downloaded per hour (not counting attached download files, such as novel cover images and embedded images).<br>
+This is because when continuously downloading many files (especially novels), your Pixiv account may be warned or banned. Setting the interval time can alleviate this issue.<br>`,
+        `一定の間隔でダウンロードを開始します。<br>
+間隔時間を 0 に設定すると、ダウンロードツールは遅延時間を追加しません。<br>
+1 秒（デフォルト値）に設定すると、1 時間あたり最大 3600 個のクロール結果をダウンロードします（小説の表紙画像や埋め込み画像などの付属ダウンロードファイルは計算に含めません）。<br>
+これは、連続して多くのファイル（特に小説）をダウンロードすると、Pixiv アカウントが警告またはBANされる可能性があるためです。間隔時間を設定することで、この問題を緩和できます。<br>`,
+        `일정 간격으로 다운로드를 시작합니다.<br>
+간격 시간을 0으로 설정하면 다운로더가 지연 시간을 추가하지 않습니다.<br>
+1초(기본값)로 설정하면, 시간당 최대 3600개의 크롤 결과(소설 표지 이미지나 내장 이미지와 같은 부수적 다운로드 파일은 계산하지 않음)를 다운로드합니다.<br>
+이는 많은 파일(특히 소설)을 연속으로 다운로드하면 Pixiv 계정이 경고되거나 차단될 수 있기 때문입니다. 간격 시간을 설정하면 이 문제를 완화할 수 있습니다.<br>`,
+        `Запускать загрузку через определенные интервалы времени.<br>
+Если установить время интервала на 0, загрузчик не добавит задержку.<br>
+Если установить на 1 секунду (значение по умолчанию), то максимум 3600 результатов захвата будет загружено в час (не считая дополнительные файлы для загрузки, такие как обложки романов и встроенные изображения).<br>
+Это потому, что при непрерывной загрузке множества файлов (особенно романов) ваш аккаунт Pixiv может быть предупрежден или заблокирован. Установка интервала времени может смягчить эту проблему.<br>`,
     ],
     _从页面上移除他们的作品: [
         '从页面上移除他们的作品',
@@ -31436,14 +31636,6 @@ QQ、微信：
 <br>
 如果你想在 QQ、微信里同时粘贴图片和文字，应该选择 <span class="blue">text/html</span>，并且取消勾选 <span class="blue">image/png</span>，否则它们只会粘贴图片。
 <br>
-但是 QQ 的当前版本 9.9.21 存在 Bug，粘贴图文混合内容时，图片会加载失败，并导致消息发送失败。QQ 的旧版本和微信没有上述的 Bug。
-<br>
-如果你遇到了这个 Bug，可以从 QQ 官网下载 9.9.20 版本的安装文件:
-<br>
-<a href="https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.20_250616_x64_01.exe" target="_blank" rel="noopener noreferrer">https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.20_250616_x64_01.exe</a>
-<br>
-然后退出 QQ，安装旧版本的 exe 文件，就可以发送图文混合消息了。
-<br>
 <br>
 Android 应用：
 <br>
@@ -31505,14 +31697,6 @@ QQ、微信：
 它們的優先級是：<span class="blue">image/png</span>、<span class="blue">text/html</span>、<span class="blue">text/plain</span>。
 <br>
 如果你想在 QQ、微信裡同時貼上圖片和文字，應該選擇 <span class="blue">text/html</span>，並且取消勾選 <span class="blue">image/png</span>，否則它們只會貼上圖片。
-<br>
-但是 QQ 的當前版本 9.9.21 存在 Bug，貼上圖文混合內容時，圖片會載入失敗，並導致訊息發送失敗。QQ 的舊版本和微信沒有上述的 Bug。
-<br>
-如果你遇到了這個 Bug，可以從 QQ 官網下載 9.9.20 版本的安裝文件:
-<br>
-<a href="https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.20_250616_x64_01.exe" target="_blank" rel="noopener noreferrer">https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.20_250616_x64_01.exe</a>
-<br>
-然後退出 QQ，安裝舊版本的 exe 文件，就可以發送圖文混合訊息了。
 <br>
 <br>
 Android 應用：
@@ -31811,7 +31995,7 @@ QQ, WeChat:
         `Download this work`,
         `この作品をダウンロード`,
         `이 작품 다운로드`,
-        `Скачать эту работу,`,
+        `Скачать эту работу`,
     ],
     _下载这张图片: [
         `下载这张图片`,
@@ -31838,12 +32022,262 @@ QQ, WeChat:
         `Недавно в коде веб-страницы Pixiv произошли изменения, что привело к аномальному отображению функции «Показать большие миниатюры». Теперь это исправлено.`,
     ],
     _抓取每个用户最新的几个作品: [
-        `抓取每个用户最新的几个作品`,
-        `抓取每個用戶最新的幾個作品`,
-        `Crawl the latest few works for each user`,
-        `各ユーザーの最新の数作品をクロール`,
-        `각 사용자의 최신 몇 개 작품 크롤`,
-        `Захватить последние несколько работ каждого пользователя,`,
+        `抓取每个用户<span class="key">最新</span>的几个作品`,
+        `抓取每個用戶<span class="key">最新</span>的幾個作品`,
+        `Crawl the <span class="key">latest</span> few works of each user`,
+        `各ユーザーの<span class="key">最新</span>の数作品をクロール`,
+        `각 사용자별 <span class="key">최신</span> 몇 작품 크롤링`,
+        `Собрать последние несколько работ каждого пользователя`,
+    ],
+    _把文件保存到用户上次选择的位置: [
+        `把文件保存到用户上次<span class="key">选择</span>的位置`,
+        `把檔案保存到用戶上次<span class="key">選擇</span>的位置`,
+        `Save file to the user's last <span class="key">selected</span> location`,
+        `ファイルをユーザーが最後に<span class="key">選択</span>した場所に保存`,
+        `파일을 사용자가 마지막으로 <span class="key">선택</span>한 위치에 저장`,
+        `Сохранить файл в последнем <span class="key">выбранном</span> пользователем месте`,
+    ],
+    _使用前请先查看提示: [
+        `使用前请先查看提示`,
+        `使用前請先查看提示`,
+        `View the tip before use`,
+        `使用前にヒントを確認してください`,
+        `사용 전에 힌트 확인하세요`,
+        `Просмотрите подсказку перед использованием`,
+    ],
+    _把文件保存到用户上次选择的位置的说明: [
+        `我不推荐启用这个设置，除非你已经阅读了下面的说明。
+<br>
+<br>
+这个设置是为喜欢<strong>手动保存文件</strong>的用户设计的，他们喜欢使用“另存为”对话框来保存文件，并希望下载器能记住上次保存的位置。
+<br>
+<br>
+如果你想使用这个功能，需要注意：
+<br>
+- 要让这个设置正确工作，必须在浏览器的下载设置里启用“每次下载文件时都询问保存位置”，否则浏览器不会显示另存为对话框，并且文件会保存到浏览器设置里的保存位置（而非上次选择的位置）。
+<br>
+- 如果你关闭了浏览器的“每次下载文件时都询问保存位置”设置，那么也应该关闭这个设置。
+<br>
+- 如果你启用了这个设置，下载器<strong>不会创建文件夹</strong>，只会设置文件名。这是因为实现“记住上次保存位置”的效果需要使用 a 标签的 download 属性来下载文件，此时不能创建文件夹。
+<br>
+- 如果你启用了这个设置，下载器总是默认这个文件下载成功（即使你取消保存这个文件也是如此）。这是为了简化处理。
+<br>`,
+        `我不推薦啟用這個設置，除非你已經閱讀了下面的說明。
+<br>
+<br>
+這個設置是為喜歡<strong>手動保存文件</strong>的用戶設計的，他們喜歡使用「另存為」對話框來保存文件，並希望下載器能記住上次保存的位置。
+<br>
+<br>
+如果你想使用這個功能，需要注意：
+<br>
+- 要讓這個設置正確工作，必須在瀏覽器的下載設置裡啟用「每次下載文件時都詢問保存位置」，否則瀏覽器不會顯示另存為對話框，並且文件會保存到瀏覽器設置裡的保存位置（而非上次選擇的位置）。
+<br>
+- 如果你關閉了瀏覽器的「每次下載文件時都詢問保存位置」設置，那麼也應該關閉這個設置。
+<br>
+- 如果你啟用了這個設置，下載器<strong>不會創建文件夾</strong>，只會設置文件名。這是因為實現「記住上次保存位置」的效果需要使用 a 標籤的 download 屬性來下載文件，此時不能創建文件夾。
+<br>
+- 如果你啟用了這個設置，下載器總是默認這個文件下載成功（即使你取消保存這個文件也是如此）。這是為了簡化處理。
+<br>`,
+        `I do not recommend enabling this setting unless you have read the following instructions.
+<br>
+<br>
+This setting is designed for users who prefer <strong>manually saving files</strong>. They like to use the "Save As" dialog to save files and hope the downloader can remember the last save location.
+<br>
+<br>
+If you want to use this feature, please note:
+<br>
+- To make this setting work correctly, you must enable "Ask where to save each file before downloading" in your browser's download settings. Otherwise, the browser will not display the Save As dialog, and the file will be saved to the browser's default save location (not the last selected location).
+<br>
+- If you disable "Ask where to save each file before downloading" in the browser, you should also disable this setting.
+<br>
+- If you enable this setting, the downloader <strong>will not create folders</strong> and will only set the filename. This is because implementing the "remember last save location" effect requires using the download attribute of the a tag to download the file, at which point folders cannot be created.
+<br>
+- If you enable this setting, the downloader always assumes the file download is successful (even if you cancel saving the file). This is to simplify the handling.
+<br>`,
+        `この設定を有効にすることを推奨しません。以下の説明を読み終えるまでは有効にしないでください。
+<br>
+<br>
+この設定は、<strong>ファイルを手動で保存</strong>することを好むユーザーのために設計されています。彼らは「名前を付けて保存」ダイアログを使用してファイルを保存し、ダウンロードツールが前回の保存場所を記憶することを望んでいます。
+<br>
+<br>
+この機能を使用したい場合、以下の点に注意してください：
+<br>
+- この設定を正しく動作させるには、ブラウザのダウンロード設定で「ファイルをダウンロードする前に保存場所を毎回尋ねる」を有効にする必要があります。そうしないと、ブラウザは「名前を付けて保存」ダイアログを表示せず、ファイルはブラウザ設定の保存場所（前回選択した場所ではなく）に保存されます。
+<br>
+- ブラウザの「ファイルをダウンロードする前に保存場所を毎回尋ねる」設定を無効にした場合、この設定も無効にしてください。
+<br>
+- この設定を有効にすると、ダウンロードツールは<strong>フォルダを作成しません</strong>。ファイル名のみを設定します。これは、「前回の保存場所を記憶」する効果を実現するために、a タグの download 属性を使用してファイルをダウンロードする必要があるためで、その時点ではフォルダを作成できません。
+<br>
+- この設定を有効にすると、ダウンロードツールは常にこのファイルのダウンロードが成功したものとみなします（ファイルを保存せずにキャンセルした場合でも同様です）。これは処理を簡素化するためです。
+<br>`,
+        `이 설정을 활성화하는 것을 권장하지 않습니다. 아래 설명을 읽을 때까지 활성화하지 마세요.
+<br>
+<br>
+이 설정은 <strong>파일을 수동으로 저장</strong>하는 것을 선호하는 사용자들을 위해 설계되었습니다. 그들은 "다른 이름으로 저장" 대화 상자를 사용하여 파일을 저장하고, 다운로더가 마지막 저장 위치를 기억하기를 원합니다.
+<br>
+<br>
+이 기능을 사용하려면 다음 사항에 주의하세요:
+<br>
+- 이 설정이 제대로 작동하려면 브라우저의 다운로드 설정에서 "각 파일 다운로드 전에 저장 위치를 묻기"를 활성화해야 합니다. 그렇지 않으면 브라우저가 "다른 이름으로 저장" 대화 상자를 표시하지 않고, 파일은 브라우저 설정의 기본 저장 위치(마지막 선택한 위치가 아님)에 저장됩니다.
+<br>
+- 브라우저의 "각 파일 다운로드 전에 저장 위치를 묻기" 설정을 비활성화한 경우, 이 설정도 비활성화하세요.
+<br>
+- 이 설정을 활성화하면 다운로더는 <strong>폴더를 생성하지 않습니다</strong>. 파일 이름만 설정합니다. 이는 "마지막 저장 위치 기억" 효과를 구현하기 위해 a 태그의 download 속성을 사용하여 파일을 다운로드해야 하기 때문으로, 그 시점에서 폴더를 생성할 수 없습니다.
+<br>
+- 이 설정을 활성화하면 다운로더는 항상 이 파일의 다운로드가 성공했다고 가정합니다(파일 저장을 취소한 경우에도 마찬가지입니다). 이는 처리를 단순화하기 위함입니다.
+<br>`,
+        `Я не рекомендую включать эту настройку, если вы не прочитали следующие инструкции.
+<br>
+<br>
+Эта настройка предназначена для пользователей, которые предпочитают <strong>вручную сохранять файлы</strong>. Они любят использовать диалог «Сохранить как» для сохранения файлов и надеются, что загрузчик запомнит последнее место сохранения.
+<br>
+<br>
+Если вы хотите использовать эту функцию, обратите внимание на следующее:
+<br>
+- Чтобы эта настройка работала правильно, в настройках загрузок браузера необходимо включить опцию «Спрашивать, куда сохранять каждый файл перед загрузкой». В противном случае браузер не покажет диалог «Сохранить как», и файл будет сохранен в место по умолчанию в настройках браузера (а не в последнее выбранное место).
+<br>
+- Если вы отключили опцию «Спрашивать, куда сохранять каждый файл перед загрузкой» в браузере, то эту настройку тоже следует отключить.
+<br>
+- Если вы включили эту настройку, загрузчик <strong>не будет создавать папки</strong> и будет устанавливать только имя файла. Это потому, что для реализации эффекта «запомнить последнее место сохранения» требуется использовать атрибут download тега a для загрузки файла, и в этот момент папки создать нельзя.
+<br>
+- Если вы включили эту настройку, загрузчик всегда считает, что загрузка файла прошла успешно (даже если вы отменили сохранение файла). Это сделано для упрощения обработки.
+<br>`,
+    ],
+    _下载器排除了一些作品原因: [
+        `下载器排除了一些作品，原因：`,
+        `下載器排除了一些作品，原因：`,
+        `The downloader excluded some works, reason:`,
+        `ダウンロードツールがいくつかの作品を除外しました、理由：`,
+        `다운로더가 일부 작품을 제외했습니다, 이유:`,
+        `Загрузчик исключил некоторые работы, причина:`,
+    ],
+    _作品的语言不符合你选择的语言: [
+        `作品的语言不符合你选择的语言 {}`,
+        `作品的語言不符合你選擇的語言 {}`,
+        `The language of the work does not match the selected language {}`,
+        `作品の言語が選択した言語 {} に一致しません`,
+        `작품의 언어가 선택한 언어 {}와 일치하지 않습니다`,
+        `Язык работы не соответствует выбранному языку {}`,
+    ],
+    _你屏蔽了这个用户: [
+        `你屏蔽了这个用户`,
+        `你靜音了這個用戶`,
+        `You muted this user`,
+        `このユーザーをミュートしました`,
+        `이 사용자를 음소거했습니다`,
+        `Вы заглушили этого пользователя`,
+    ],
+    _你屏蔽了它的标签: [
+        `你屏蔽了它的标签`,
+        `你靜音了它的標籤`,
+        `You muted its tags`,
+        `この作品のタグをミュートしました`,
+        `이 작품의 태그를 음소거했습니다`,
+        `Вы заглушили его теги`,
+    ],
+    _它不是首次登场的作品: [
+        `它不是首次登场的作品`,
+        `它不是首次登場的作品`,
+        `It is not a debut work`,
+        `これはデビュー作品ではありません`,
+        `이것은 데뷔 작품이 아닙니다`,
+        `Это не дебютная работа`,
+    ],
+    _QQ修复了粘贴问题的提醒: [
+        `对使用下载器的“复制功能”的用户的提醒：<br> QQ 之前的版本存在 Bug，无法粘贴下载器复制的图文混合内容（text/html）。最近（11月5日）QQ 的新版本修复了此问题，请及时更新。`,
+        `對使用下載器的「複製功能」的用戶的提醒：<br> QQ 之前的版本存在 Bug，無法貼上下載器複製的圖文混合內容（text/html）。最近（11月5日）QQ 的新版本修復了此問題，請及時更新。`,
+        `Reminder for users using the downloader's "copy function":<br> Previous versions of QQ had a bug that prevented pasting the mixed image-text content (text/html) copied by the downloader. The latest version of QQ (November 5th) has fixed this issue, please update promptly.`,
+        `ダウンロードツールの「コピー機能」を使用するユーザーへのリマインダー：<br> QQ の以前のバージョンにはバグがあり、ダウンロードツールでコピーした画像とテキストの混合コンテンツ（text/html）を貼り付けできませんでした。最近（11月5日）の QQ の新バージョンでこの問題が修正されました。速やかに更新してください。`,
+        `다운로더의 "복사 기능"을 사용하는 사용자에게 알림:<br> QQ 이전 버전에는 버그가 있어 다운로더가 복사한 이미지-텍스트 혼합 콘텐츠(text/html)를 붙여넣을 수 없습니다. 최근(11월 5일) QQ 새 버전에서 이 문제가 수정되었습니다. 즉시 업데이트하세요.`,
+        `Напоминание для пользователей, использующих функцию "копирования" загрузчика:<br> В предыдущих версиях QQ была ошибка, из-за которой нельзя было вставить смешанный контент с изображениями и текстом (text/html), скопированный загрузчиком. В последней версии QQ (5 ноября) эта проблема исправлена, пожалуйста, обновите timely.`,
+    ],
+    _有同类任务正在执行请等待之前的任务完成: [
+        `有同类任务正在执行，请等待之前的任务完成。`,
+        `有同類任務正在執行，請等待之前的任務完成。`,
+        `A similar task is currently running. Please wait for the previous task to complete.`,
+        `同種のタスクが実行中です。前のタスクが完了するまでお待ちください。`,
+        `유사한 작업이 실행 중입니다. 이전 작업이 완료될 때까지 기다려 주세요.`,
+        `Аналогичная задача выполняется. Пожалуйста, подождите завершения предыдущей задачи.`,
+    ],
+    _注意这个任务遵从抓取多少页面的设置: [
+        `注意：这个任务遵从“抓取多少页面”的设置，并且是从当前页面（可能不是第 1 页）开始抓取的。`,
+        `注意：這個任務遵從「抓取多少頁面」的設置，並且是從當前頁面（可能不是第 1 頁）開始抓取的。`,
+        `Note: This task follows the "Number of pages to crawl" setting and starts crawling from the current page (which may not be page 1).`,
+        `注意：このタスクは「クロールするページ数」の設定に従い、現在のページ（1ページ目ではない可能性があります）からクロールを開始します。`,
+        `주의: 이 작업은 "크롤링할 페이지 수" 설정을 따르며, 현재 페이지(1페이지가 아닐 수 있음)부터 크롤링을 시작합니다.`,
+        `Примечание: Эта задача следует настройке «Количество страниц для краулинга» и начинается с текущей страницы (которая может не быть первой).`,
+    ],
+    _添加为公开关注的提示: [
+        `由于当前页面显示的是公开关注，所以下载器也会把用户添加为公开关注。`,
+        `由於當前頁面顯示的是公開關注，所以下載器也會把用戶添加為公開關注。`,
+        `Since the current page displays public follows, the downloader will also add users as public follows.`,
+        `現在のページが公開フォロー表示のため、ダウンロードツールもユーザーを公開フォローとして追加します。`,
+        `현재 페이지가 공개 팔로우를 표시하므로, 다운로더도 사용자를 공개 팔로우로 추가합니다.`,
+        `Поскольку текущая страница отображает публичные подписки, загрузчик также добавит пользователей как публичные подписки。`,
+    ],
+    _添加为非公开关注的提示: [
+        `由于当前页面显示的是非公开关注，所以下载器也会把用户添加为非公开关注。`,
+        `由於當前頁面顯示的是非公開關注，所以下載器也會把用戶添加為非公開關注。`,
+        `Since the current page displays private follows, the downloader will also add users as private follows.`,
+        `現在のページが非公開フォロー表示のため、ダウンロードツールもユーザーを非公開フォローとして追加します。`,
+        `현재 페이지가 비공개 팔로우를 표시하므로, 다운로더도 사용자를 비공개 팔로우로 추가합니다.`,
+        `Поскольку текущая страница отображает приватные подписки, загрузчик также добавит пользователей как приватные подписки。`,
+    ],
+    _筛选不活跃的用户: [
+        `筛选不活跃的用户`,
+        `篩選不活躍的用戶`,
+        `Filter inactive users`,
+        `非アクティブなユーザーをフィルタリング`,
+        `비활성 사용자 필터링`,
+        `Фильтрация неактивных пользователей`,
+    ],
+    _筛选不活跃的用户的输入提示: [
+        `请输入一个表示时间的数字（单位是月，每月按 30 天计算），下载器会对每个用户进行筛选，并列出符合条件的用户：
+<br>
+- 没有任何作品的用户
+<br>
+- 在指定时间内没有发表过新作品的用户（即不活跃的用户）。附加说明：如果一个用户既有插画作品也有小说作品，那么需要他在这段时间内未发表任何作品才会列出他。`,
+        `請輸入一個表示時間的數字（單位是月，每月按 30 天計算），下載器會對每個用戶進行篩選，並列出符合條件的用戶：
+<br>
+- 沒有任何作品的用戶
+<br>
+- 在指定時間內沒有發表過新作品的用戶（即不活躍的用戶）。附加說明：如果一個用戶既有插畫作品也有小說作品，那麼需要他在這段時間內未發表任何作品才會列出他。`,
+        `Please enter a number representing time (in months, each month calculated as 30 days). The downloader will filter each user and list those who meet the conditions:
+<br>
+- Users with no works
+<br>
+- Users who have not posted any new works within the specified time (i.e., inactive users). Additional note: If a user has both illustration works and novel works, they need to have not posted any works during this period to be listed.`,
+        `時間を表す数字（単位：月、1ヶ月あたり30日として計算）を入力してください。ダウンロードツールは各ユーザーをフィルタリングし、条件を満たすユーザーをリストアップします：
+<br>
+- 作品が全くないユーザー
+<br>
+- 指定期間内に新しい作品を投稿していないユーザー（つまり非アクティブユーザー）。追加説明：ユーザーがイラスト作品と小説作品の両方を持っている場合、この期間内にどの作品も投稿していない場合にのみリストアップされます。`,
+        `시간을 나타내는 숫자(단위: 개월, 매월 30일로 계산)를 입력하세요. 다운로더는 각 사용자를 필터링하고 조건에 맞는 사용자를 나열합니다:
+<br>
+- 작품이 없는 사용자
+<br>
+- 지정 시간 내에 새로운 작품을 게시하지 않은 사용자(즉, 비활성 사용자). 추가 설명: 사용자가 일러스트 작품과 소설 작품을 모두 가지고 있는 경우, 이 기간 동안 어떤 작품도 게시하지 않아야 나열됩니다.`,
+        `Введите число, обозначающее время (в месяцах, каждый месяц рассчитывается как 30 дней). Загрузчик отфильтрует каждого пользователя и выведет список тех, кто соответствует условиям:
+<br>
+- Пользователи без каких-либо работ
+<br>
+- Пользователи, которые не публиковали новые работы в указанный период (т.е. неактивные пользователи). Дополнительное замечание: Если пользователь имеет как иллюстрации, так и романы, то он будет включен в список только если не публиковал никаких работ в этот период.`,
+    ],
+    _没有作品的用户: [
+        `没有作品的用户`,
+        `沒有作品的用戶`,
+        `Users with no works`,
+        `作品がないユーザー`,
+        `작품이 없는 사용자`,
+        `Пользователи без работ`,
+    ],
+    _最近不活跃的用户: [
+        `最近不活跃的用户`,
+        `最近不活躍的用戶`,
+        `Recently inactive users`,
+        `最近非アクティブなユーザー`,
+        `최근 비활성 사용자`,
+        `Недавно неактивные пользователи`,
     ],
 };
 
@@ -32177,6 +32611,338 @@ class ShowURLs {
     }
 }
 new ShowURLs();
+
+
+/***/ }),
+
+/***/ "./src/ts/pageFunciton/BatchFollowUser.ts":
+/*!************************************************!*\
+  !*** ./src/ts/pageFunciton/BatchFollowUser.ts ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   batchFollowUser: () => (/* binding */ batchFollowUser)
+/* harmony export */ });
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Token */ "./src/ts/Token.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+
+
+
+
+
+
+
+
+
+
+
+class BatchFollowUser {
+    busy = false;
+    baseOffset = 0; // 开始抓取时，记录初始的偏移量
+    onceNumber = 24; // 每页 24 个用户
+    rest = 'show';
+    tag = '';
+    currentUserId = '';
+    requestTimes = 0; // 获取用户列表时，记录请求的次数
+    limit = 100; // 每次请求多少个用户
+    totalNeed = Number.MAX_SAFE_INTEGER;
+    userList = [];
+    importFollowedUserIDs = [];
+    async start() {
+        if (this.busy) {
+            _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_有同类任务正在执行请等待之前的任务完成'));
+            return;
+        }
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_8__.store.loggedUserID === '') {
+            return _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_请您登录Pixiv账号然后重试_401'));
+        }
+        this.busy = true;
+        this.reset();
+        this.importFollowedUserIDs = await this.importUserList();
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入的用户ID数量') + this.importFollowedUserIDs.length);
+        if (this.importFollowedUserIDs.length === 0) {
+            return _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_本次任务已全部完成'));
+        }
+        this.stopAddFollow = false;
+        this.sendReqNumber = 0;
+        // 显示提示
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_批量关注用户'));
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_正在加载关注用户列表'));
+        // 总是慢速抓取
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
+        this.readyGet();
+    }
+    readyGet() {
+        // 始终抓取自己的关注列表，而非别人的，因为添加关注时，需要和自己的关注列表进行对比
+        this.currentUserId = _store_Store__WEBPACK_IMPORTED_MODULE_8__.store.loggedUserID;
+        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.getURLPathField(window.location.pathname, 'following');
+        this.rest = location.href.includes('rest=hide') ? 'hide' : 'show';
+        if (this.rest === 'show') {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_添加为公开关注的提示'));
+        }
+        else {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_添加为非公开关注的提示'));
+        }
+        // 获取抓取开始时的页码
+        const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.getURLSearchField(location.href, 'p');
+        // 计算开始抓取时的偏移量
+        if (nowPage !== '') {
+            this.baseOffset = (parseInt(nowPage) - 1) * this.onceNumber;
+        }
+        else {
+            this.baseOffset = 0;
+        }
+        // 理论上应该获取所有关注的用户，即 baseOffset 固定为 0。这是为了避免不必要的重复关注
+        // 目前的代码是从用户所在的页面抓取到最后一页，这样如果用户不在第一页，就不能获取所有关注的用户
+        // 不过这是有意为之的，如果用户想跳过“先获取所有关注的用户的”的步骤，可以在最后一页执行
+        // 这样可以节省时间
+        // 要抓取多少个用户
+        // 批量添加关注时，该数字没有限制
+        this.totalNeed = Number.MAX_SAFE_INTEGER;
+        // 获取当前页面的用户 id
+        const test = /users\/(\d*)\//.exec(location.href);
+        if (test && test.length > 1) {
+            this.currentUserId = test[1];
+        }
+        else {
+            const msg = `Get the user's own id failed`;
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg, 2);
+            throw new Error(msg);
+        }
+        this.getUserList();
+    }
+    // 获取关注的用户列表
+    async getUserList() {
+        const offset = this.baseOffset + this.requestTimes * this.limit;
+        let res;
+        try {
+            res = await _API__WEBPACK_IMPORTED_MODULE_5__.API.getFollowingList(this.currentUserId, this.rest, this.tag, offset);
+        }
+        catch {
+            this.getUserList();
+            return;
+        }
+        const users = res.body.users;
+        // 用户列表抓取完毕
+        if (users.length === 0) {
+            return this.getUserListComplete();
+        }
+        for (const userData of users) {
+            this.userList.push(userData.userId);
+            // 抓取到了指定数量的用户
+            if (this.userList.length >= this.totalNeed) {
+                return this.getUserListComplete();
+            }
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.userList.length.toString()), 1, false, 'batchFollowGetUserListProgress');
+        this.requestTimes++;
+        // 获取下一批用户列表
+        window.setTimeout(() => {
+            this.getUserList();
+        }, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.slowCrawlDealy);
+    }
+    async getUserListComplete() {
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.userList.length.toString()));
+        // 在批量关注用户时，不需要关心”已关注的用户“的数量是不是 0
+        await this.batchFollow();
+        this.busy = false;
+    }
+    reset() {
+        this.userList = [];
+        this.requestTimes = 0;
+    }
+    async importUserList() {
+        return new Promise(async (resolve) => {
+            const loadedJSON = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.loadJSONFile().catch((err) => {
+                return _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(err);
+            }));
+            if (!loadedJSON) {
+                return resolve([]);
+            }
+            // 要求是数组并且为 string[]
+            if (!Array.isArray(loadedJSON) ||
+                loadedJSON.length === 0 ||
+                typeof loadedJSON[0] !== 'string') {
+                _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_格式错误'));
+                return resolve([]);
+            }
+            return resolve(loadedJSON);
+        });
+    }
+    stopAddFollow = false;
+    sendReqNumber = 0;
+    dailyLimit = 1000; // 每天限制关注的数量，以免被封号
+    tokenHasUpdated = false;
+    need_recaptcha_enterprise_score_token = false;
+    logProgress(current, total, newAdded) {
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${current} / ${total}, ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增x个', newAdded.toString())}`, 1, false, 'batchFollowUserProgress');
+    }
+    async batchFollow() {
+        return new Promise(async (resolve, reject) => {
+            const taskName = _Language__WEBPACK_IMPORTED_MODULE_0__.lang
+                .transl('_批量关注用户')
+                .replace('（JSON）', '')
+                .replace('(JSON)', '');
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(taskName);
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速执行以避免引起429错误'));
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示可以重新执行批量关注任务'));
+            let followed = 0;
+            let number = 0;
+            const total = this.importFollowedUserIDs.length;
+            for (const userID of this.importFollowedUserIDs) {
+                this.logProgress(number, total, this.sendReqNumber);
+                if (this.stopAddFollow) {
+                    const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务已中止');
+                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
+                    return resolve();
+                }
+                if (this.sendReqNumber >= this.dailyLimit) {
+                    this.stopAddFollow = true;
+                    const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增的关注用户达到每日限制', this.dailyLimit.toString());
+                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
+                    return resolve();
+                }
+                number++;
+                if (this.userList.includes(userID) === false) {
+                    this.sendReqNumber++;
+                    await this.addFollow(userID);
+                }
+                else {
+                    followed++;
+                }
+            }
+            this.logProgress(number, total, this.sendReqNumber);
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.success('✓ ' + taskName);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.success('✓ ' + taskName);
+            return resolve();
+        });
+    }
+    clearIframe(iframe) {
+        iframe.src = 'about:blank';
+        iframe.remove();
+        iframe = null;
+        console.log('清理iframe');
+        // 下载器每生成一个 iframe，Pixiv 的脚本也会创建一个 iframe，一并清除
+        const allIframe = document.querySelectorAll('body>iframe');
+        for (const frame of allIframe) {
+            if (frame?.src.includes('criteo.com')) {
+                frame.remove();
+            }
+        }
+    }
+    async addFollow(userID) {
+        return new Promise(async (resolve) => {
+            // 需要携带 need_recaptcha_enterprise_score_token 时，用 iframe 加载网页然后点击关注按钮
+            if (this.need_recaptcha_enterprise_score_token) {
+                const iframe = await this.loadIframe(userID);
+                this.clearIframe(iframe);
+                return resolve(200);
+            }
+            // 不需要携带 need_recaptcha_enterprise_score_token 时可以直接添加关注
+            const status = await _API__WEBPACK_IMPORTED_MODULE_5__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_9__.token.token, this.rest === 'show');
+            if (status !== 200) {
+                const errorMsg = `Error: ${_Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID)} Status: ${status}`;
+                if (status === 404) {
+                    // 404 可能的原因：
+                    // 1. token 无效
+                    // 2. 该用户不存在
+                    if (this.tokenHasUpdated === true) {
+                        _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(errorMsg);
+                    }
+                    else {
+                        // 404 时尝试重新获取 token，然后重试请求（仅执行一次）
+                        this.tokenHasUpdated = true;
+                        await _Token__WEBPACK_IMPORTED_MODULE_9__.token.reset();
+                        await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.sleep(1000);
+                        await _API__WEBPACK_IMPORTED_MODULE_5__.API.addFollowingUser(userID, _Token__WEBPACK_IMPORTED_MODULE_9__.token.token, this.rest === 'show');
+                    }
+                }
+                else if (status === 400) {
+                    // 400 是需要传递 recaptcha_enterprise_score_token 的时候，它的值为空或错误
+                    // 此时发出一次错误提醒，并重试添加关注
+                    this.need_recaptcha_enterprise_score_token = true;
+                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_模拟用户点击'));
+                    const iframe = await this.loadIframe(userID);
+                    this.clearIframe(iframe);
+                    return resolve(200);
+                }
+                else if (status === 403) {
+                    // 403 是访问权限已经被限制
+                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(errorMsg);
+                    const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_你的账号已经被Pixiv限制');
+                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(msg);
+                    this.stopAddFollow = true;
+                    return resolve(status);
+                }
+                else {
+                    // 其他错误
+                    _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(errorMsg);
+                }
+            }
+            // 慢速执行
+            // 关注用户的 API 也会触发 429 错误，此时获取作品数据的话会返回 429，
+            // 但是关注用户的 API 依然返回 200，并且返回值也正常，但实际上关注用户的操作失败了。无法判断到底有没有关注成功
+            // 所以需要限制添加的速度。我用 1400ms 依然会触发 429，所以需要使用更大的时间间隔，以确保不会触发 429
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(() => {
+                return resolve(status);
+            }, _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
+        });
+    }
+    clickFollowBtn(userID, iframe) {
+        return new Promise(async (resolve) => {
+            // 等待一段时间，默认操作完成。但是如果此时一些请求尚未完成，可能会被取消。所以这个时间最好稍大一点
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(() => {
+                return resolve(iframe);
+            }, _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
+            const button = iframe.contentDocument?.querySelector('button[data-click-label]');
+            if (button) {
+                button.click();
+                console.log(userID + ' click');
+            }
+            else {
+                const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有找到关注按钮的提示', _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID));
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+                return resolve(iframe);
+            }
+        });
+    }
+    // 加载指定用户的的主页，然后查找关注按钮并点击
+    async loadIframe(userID) {
+        return new Promise(async (resolve, reject) => {
+            const url = `https://www.pixiv.net/${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.htmlLangType === 'en' ? 'en/' : ''}users/${userID}`;
+            const res = await fetch(url);
+            // const text = await res.text()
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            document.body.append(iframe);
+            // iframe.srcdoc = text
+            iframe.src = url;
+            // 在一定时间后，强制执行回调，不管 iframe.onload 的状态。
+            // 因为有时一些广告脚本可能会加载失败，导致很久才能进入 onload。那样会等待太久。
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_10__.setTimeoutWorker.set(async () => {
+                const _iframe = await this.clickFollowBtn(userID, iframe);
+                return resolve(_iframe);
+            }, _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.rangeRandom(2500, 3600));
+        });
+    }
+}
+const batchFollowUser = new BatchFollowUser();
+
 
 
 /***/ }),
@@ -32979,6 +33745,233 @@ const displayThumbnailListOnMultiImageWorkPage = new DisplayThumbnailListOnMulti
 
 /***/ }),
 
+/***/ "./src/ts/pageFunciton/ExportFollowingList.ts":
+/*!****************************************************!*\
+  !*** ./src/ts/pageFunciton/ExportFollowingList.ts ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   exportFollowingList: () => (/* binding */ exportFollowingList)
+/* harmony export */ });
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/CreateCSV */ "./src/ts/utils/CreateCSV.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
+
+
+
+
+
+
+
+
+
+class ExportFollowingList {
+    busy = false;
+    baseOffset = 0; // 开始抓取时，记录初始的偏移量
+    onceNumber = 24; // 每页 24 个用户
+    crawlPageNumber = 1; // 需要抓取多少个页面
+    // 页面子类型：我的关注 | 我的好 P 友 | 我的粉丝
+    pageType = 'following';
+    rest = 'show';
+    tag = '';
+    currentUserId = '';
+    requestTimes = 0; // 获取用户列表时，记录请求的次数
+    limit = 100; // 每次请求多少个用户
+    totalNeed = Number.MAX_SAFE_INTEGER;
+    // csv 的内容更丰富，json 只包含用户 id 列表，所以默认导出 csv 格式
+    format = 'csv';
+    CSVData = []; // 储存用户列表，包含 id 和用户名
+    // 用户主页的通用链接前缀
+    homePrefix = 'https://www.pixiv.net/users/';
+    userList = [];
+    start(format) {
+        if (this.busy) {
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_有同类任务正在执行请等待之前的任务完成'));
+            return;
+        }
+        this.busy = true;
+        this.format = format;
+        // 显示提示
+        const log1 = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl(format === 'csv' ? '_导出关注列表CSV' : '_导出关注列表JSON');
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(log1);
+        const log2 = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取用户列表');
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(log2);
+        _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.show(log2);
+        // 总是慢速抓取
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
+        this.readyGet();
+    }
+    getWantPage() {
+        this.crawlPageNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type].value;
+        if (this.crawlPageNumber === -1) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载所有页面'));
+        }
+        else {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_注意这个任务遵从抓取多少页面的设置'));
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_从本页开始下载x页', this.crawlPageNumber.toString()));
+        }
+    }
+    getPageType() {
+        const pathname = window.location.pathname;
+        if (pathname.includes('/following')) {
+            this.pageType = 'following';
+        }
+        else if (pathname.includes('/mypixiv')) {
+            this.pageType = 'mypixiv';
+        }
+        else if (pathname.includes('/followers')) {
+            this.pageType = 'followers';
+        }
+    }
+    readyGet() {
+        this.getWantPage();
+        this.getPageType();
+        this.rest = location.href.includes('rest=hide') ? 'hide' : 'show';
+        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLPathField(window.location.pathname, 'following');
+        // 获取抓取开始时的页码
+        const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLSearchField(location.href, 'p');
+        // 计算开始抓取时的偏移量
+        if (nowPage !== '') {
+            this.baseOffset = (parseInt(nowPage) - 1) * this.onceNumber;
+        }
+        else {
+            this.baseOffset = 0;
+        }
+        // 要抓取多少个用户
+        this.totalNeed = Number.MAX_SAFE_INTEGER;
+        if (this.crawlPageNumber !== -1) {
+            this.totalNeed = this.onceNumber * this.crawlPageNumber;
+        }
+        // 获取当前页面的用户 id
+        const test = /users\/(\d*)\//.exec(location.href);
+        if (test && test.length > 1) {
+            this.currentUserId = test[1];
+        }
+        else {
+            const msg = `Get the user's own id failed`;
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg, 2);
+            throw new Error(msg);
+        }
+        this.getUserList();
+    }
+    // 获取用户列表
+    async getUserList() {
+        const offset = this.baseOffset + this.requestTimes * this.limit;
+        let res;
+        try {
+            switch (this.pageType) {
+                case 'following':
+                    res = await _API__WEBPACK_IMPORTED_MODULE_7__.API.getFollowingList(this.currentUserId, this.rest, this.tag, offset);
+                    break;
+                case 'mypixiv':
+                    res = await _API__WEBPACK_IMPORTED_MODULE_7__.API.getMyPixivList(this.currentUserId, offset);
+                    break;
+                case 'followers':
+                    res = await _API__WEBPACK_IMPORTED_MODULE_7__.API.getFollowersList(this.currentUserId, offset);
+                    break;
+            }
+        }
+        catch {
+            this.getUserList();
+            return;
+        }
+        const users = res.body.users;
+        // console.log(users.length, offset)
+        if (users.length === 0) {
+            // 用户列表抓取完毕
+            return this.getUserListComplete();
+        }
+        for (const userData of users) {
+            this.userList.push(userData.userId);
+            if (this.format === 'csv') {
+                this.CSVData.push({
+                    userId: userData.userId,
+                    userName: userData.userName,
+                    homePage: this.homePrefix + userData.userId,
+                    userComment: userData.userComment,
+                    profileImageUrl: userData.profileImageUrl,
+                });
+            }
+            if (this.userList.length >= this.totalNeed) {
+                // 抓取到了指定数量的用户
+                return this.getUserListComplete();
+            }
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.userList.length.toString()), 1, false, 'exportFollowingListProgress');
+        this.requestTimes++;
+        // 获取下一批用户列表
+        window.setTimeout(() => {
+            this.getUserList();
+        }, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.slowCrawlDealy);
+    }
+    getUserListComplete() {
+        this.busy = false;
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.userList.length.toString()));
+        if (this.userList.length === 0) {
+            const msg = '✓ ' +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_用户数量为0') +
+                ', ' +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有可用的抓取结果');
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_8__.msgBox.warning(msg);
+        }
+        else {
+            if (this.format === 'csv') {
+                this.exportCSV();
+                const msg = '✓ ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出关注列表CSV');
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(msg);
+                _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg);
+            }
+            if (this.format === 'json') {
+                this.exportJSON();
+                const msg = '✓ ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出关注列表JSON');
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(msg);
+                _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg);
+            }
+        }
+        this.reset();
+    }
+    exportCSV() {
+        // 添加用户信息
+        const data = this.CSVData.map((item) => {
+            return Object.values(item);
+        });
+        // 添加用户信息的标题字段
+        data.unshift(Object.keys(this.CSVData[0]));
+        const csv = _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_6__.createCSV.create(data);
+        const csvURL = URL.createObjectURL(csv);
+        const csvName = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getPageTitle();
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(csvURL, _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(csvName) + '.csv');
+    }
+    exportJSON() {
+        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.json2Blob(this.userList);
+        const url = URL.createObjectURL(blob);
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(url, `following list-total ${this.userList.length}-from user ${_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLPathField(window.location.pathname, 'users')}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
+        URL.revokeObjectURL(url);
+    }
+    reset() {
+        this.userList = [];
+        this.CSVData = [];
+        this.requestTimes = 0;
+    }
+}
+const exportFollowingList = new ExportFollowingList();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/pageFunciton/FastScreen.ts":
 /*!*******************************************!*\
   !*** ./src/ts/pageFunciton/FastScreen.ts ***!
@@ -33091,6 +34084,357 @@ class FastScreen {
         this.fastScreenArea.remove();
     }
 }
+
+
+
+/***/ }),
+
+/***/ "./src/ts/pageFunciton/FilterInactiveUsers.ts":
+/*!****************************************************!*\
+  !*** ./src/ts/pageFunciton/FilterInactiveUsers.ts ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   filterInactiveUsers: () => (/* binding */ filterInactiveUsers)
+/* harmony export */ });
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Input__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Input */ "./src/ts/Input.ts");
+
+
+
+
+
+
+
+
+
+// 筛选不活跃（在最近一段时间内没有发表新作品）的用户
+class FilterInactiveUsers {
+    busy = false;
+    baseOffset = 0; // 开始抓取时，记录初始的偏移量
+    onceNumber = 24; // 每页 24 个用户
+    crawlPageNumber = 1; // 需要抓取多少个页面
+    // 页面子类型：我的关注 | 我的好 P 友 | 我的粉丝
+    pageType = 'following';
+    rest = 'show';
+    tag = '';
+    currentUserId = '';
+    requestTimes = 0; // 获取用户列表时，记录请求的次数
+    limit = 100; // 每次请求多少个用户
+    totalNeed = Number.MAX_SAFE_INTEGER;
+    /**要求用户在这个时间之后有新作品，否则就是不活跃的用户 */
+    time = 0;
+    /**已经抓取了多少个用户（未过滤） */
+    numberOfCrawledUsers = 0;
+    // 储存符合条件的用户
+    //**没有作品的用户 */
+    userNoWork = [];
+    //**最近不活跃的用户 */
+    userInactive = [];
+    /**一共储存了多少个用户 */
+    get total() {
+        return this.userNoWork.length + this.userInactive.length;
+    }
+    async start() {
+        if (this.busy) {
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_有同类任务正在执行请等待之前的任务完成'));
+            return;
+        }
+        const input = new _Input__WEBPACK_IMPORTED_MODULE_8__.Input({
+            instruction: `${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_筛选不活跃的用户的输入提示')}`,
+            value: '6',
+            width: 500,
+        });
+        const value = await input.submit();
+        if (!value) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_本次操作已取消'));
+        }
+        const number = Number.parseInt(value);
+        if (isNaN(number) || number <= 0) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_参数不合法本次操作已取消'));
+        }
+        this.time = new Date().getTime() - number * 30 * 24 * 60 * 60 * 1000;
+        this.busy = true;
+        // 显示提示
+        const log1 = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_筛选不活跃的用户');
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(log1);
+        _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning(log1);
+        const log2 = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取用户列表');
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(log2);
+        // 总是慢速抓取
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
+        this.readyGet();
+    }
+    getWantPage() {
+        this.crawlPageNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type].value;
+        if (this.crawlPageNumber === -1) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载所有页面'));
+        }
+        else {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_注意这个任务遵从抓取多少页面的设置'));
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_从本页开始下载x页', this.crawlPageNumber.toString()));
+        }
+    }
+    getPageType() {
+        const pathname = window.location.pathname;
+        if (pathname.includes('/following')) {
+            this.pageType = 'following';
+        }
+        else if (pathname.includes('/mypixiv')) {
+            this.pageType = 'mypixiv';
+        }
+        else if (pathname.includes('/followers')) {
+            this.pageType = 'followers';
+        }
+    }
+    readyGet() {
+        this.getWantPage();
+        this.getPageType();
+        this.rest = location.href.includes('rest=hide') ? 'hide' : 'show';
+        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLPathField(window.location.pathname, 'following');
+        // 获取抓取开始时的页码
+        const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLSearchField(location.href, 'p');
+        // 计算开始抓取时的偏移量
+        if (nowPage !== '') {
+            this.baseOffset = (parseInt(nowPage) - 1) * this.onceNumber;
+        }
+        else {
+            this.baseOffset = 0;
+        }
+        // 要抓取多少个用户
+        this.totalNeed = Number.MAX_SAFE_INTEGER;
+        if (this.crawlPageNumber !== -1) {
+            this.totalNeed = this.onceNumber * this.crawlPageNumber;
+        }
+        // 获取当前页面的用户 id
+        const test = /users\/(\d*)\//.exec(location.href);
+        if (test && test.length > 1) {
+            this.currentUserId = test[1];
+        }
+        else {
+            const msg = `Get the user's own id failed`;
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg, 2);
+            throw new Error(msg);
+        }
+        this.getUserList();
+    }
+    // 获取用户列表
+    async getUserList() {
+        const offset = this.baseOffset + this.requestTimes * this.limit;
+        let res;
+        try {
+            switch (this.pageType) {
+                case 'following':
+                    res = await _API__WEBPACK_IMPORTED_MODULE_6__.API.getFollowingList(this.currentUserId, this.rest, this.tag, offset);
+                    break;
+                case 'mypixiv':
+                    res = await _API__WEBPACK_IMPORTED_MODULE_6__.API.getMyPixivList(this.currentUserId, offset);
+                    break;
+                case 'followers':
+                    res = await _API__WEBPACK_IMPORTED_MODULE_6__.API.getFollowersList(this.currentUserId, offset);
+                    break;
+            }
+        }
+        catch {
+            this.getUserList();
+            return;
+        }
+        const users = res.body.users;
+        if (users.length === 0) {
+            // 用户列表抓取完毕
+            return this.getUserListComplete();
+        }
+        for (const userData of users) {
+            this.check(userData);
+            this.numberOfCrawledUsers++;
+            if (this.numberOfCrawledUsers >= this.totalNeed) {
+                // 抓取到了指定数量的用户
+                return this.getUserListComplete();
+            }
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个符合条件的用户', this.total.toString()), 1, false, 'filterInactiveUsersProgress');
+        this.requestTimes++;
+        // 获取下一批用户列表
+        window.setTimeout(() => {
+            this.getUserList();
+        }, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.slowCrawlDealy);
+    }
+    async getUserListComplete() {
+        this.busy = false;
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个符合条件的用户', this.total.toString()));
+        // 在批量关注用户时，抓取结果为 0 并不影响继续执行
+        if (this.total === 0) {
+            const msg = '✓ ' +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_用户数量为0') +
+                ', ' +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有可用的抓取结果');
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_7__.msgBox.warning(msg);
+        }
+        else {
+            this.exportResult();
+            const msg = '✓ ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_筛选不活跃的用户');
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg);
+        }
+        this.reset();
+    }
+    check(userData) {
+        // 如果该用户没有任何作品
+        if (userData.illusts.length === 0 && userData.novels.length === 0) {
+            this.userNoWork.push({
+                id: userData.userId,
+                name: userData.userName,
+            });
+            return;
+        }
+        // 如果有插画或小说中的任何一种作品，则检查其发布时间
+        const noNewIllust = this.checkNoNewWork('illust', userData.illusts);
+        const noNewNovel = this.checkNoNewWork('novel', userData.novels);
+        if (noNewIllust && noNewNovel) {
+            this.userInactive.push({
+                id: userData.userId,
+                name: userData.userName,
+            });
+            // if (userData.illusts.length > 0 && userData.novels.length > 0) {
+            //   console.log('该用户有两种作品并且不活跃', userData.userId)
+            // }
+        }
+    }
+    checkNoNewWork(type, workData) {
+        if (workData.length === 0) {
+            return true;
+        }
+        // 查找最近发表的作品的 id
+        const idList = workData.map((work) => Number.parseInt(work.id));
+        const maxId = Math.max(...idList).toString();
+        // 获取它的数据
+        const work = workData.find((work) => work.id === maxId);
+        const createTime = new Date(work.createDate).getTime();
+        return createTime < this.time;
+    }
+    exportResult() {
+        const noWorkUsersHtml = this.userNoWork.map((user) => `<li><a href="https://www.pixiv.net/users/${user.id}" target="_blank">${user.name}</a></li>`);
+        const inactiveUsersHtml = this.userInactive.map((user) => `<li><a href="https://www.pixiv.net/users/${user.id}" target="_blank">${user.name}</a></li>`);
+        const bgColor = '#222';
+        const html = `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_筛选不活跃的用户')}</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        font-size: 14px;
+      }
+      body {
+        background-color: ${bgColor};
+        color: #fff;
+        font-size: 1.2rem;
+      }
+      a {
+        color: #00a6ef;
+        text-decoration: none;
+      }
+      a:visited {
+        color: #b733f8;
+      }
+      .usersWrap {
+        width: 90vw;
+        max-height: 95vh;
+        margin: 3vh auto 0;
+        display: flex;
+        justify-content: space-between;
+      }
+      .list {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        flex-basis: 50%;
+        flex-shrink: 0;
+        flex-grow: 0;
+        overflow-y: auto;
+      }
+      .list:nth-child(1) {
+        border-right: #aaa 1px solid;
+      }
+      .list .title {
+        font-size: 1.4rem;
+        flex-grow: 0;
+      }
+      .list ul {
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-start;
+      }
+      .list .title,
+      .list li {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        list-style: none;
+        min-height: 40px;
+        padding: 4px 0;
+        line-height: 32px;
+        text-align: center;
+      }
+      .list li {
+        flex-basis: 33%;
+        word-break: break-all;
+        flex-grow: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="usersWrap">
+      <div class="list">
+        <div class="title">${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有作品的用户')}（${this.userNoWork.length}）</div>
+        <ul>
+            ${noWorkUsersHtml.join('')}
+        </ul>
+      </div>
+      <div class="list">
+        <div class="title">${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_最近不活跃的用户')}（${this.userInactive.length}）</div>
+        <ul>
+            ${inactiveUsersHtml.join('')}
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>
+`;
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+    }
+    reset() {
+        this.requestTimes = 0;
+        this.numberOfCrawledUsers = 0;
+        this.userNoWork = [];
+        this.userInactive = [];
+    }
+}
+const filterInactiveUsers = new FilterInactiveUsers();
 
 
 
@@ -34372,6 +35716,14 @@ class Form {
     }
     /**点击一些按钮时，通过 msgBox 显示帮助 */
     showMsgTip() {
+        // 把文件保存到用户上次选择的位置的说明
+        this.form
+            .querySelector('#showRememberTheLastSaveLocationTip')
+            .addEventListener('click', () => {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_把文件保存到用户上次选择的位置的说明'), {
+                title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_把文件保存到用户上次选择的位置'),
+            });
+        });
         // 显示复制按钮所复制的内容的提示
         this.form
             .querySelector('#showCopyWorkDataTip')
@@ -34511,7 +35863,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 // 设置项编号从 0 开始，现在最大是 90
-// 目前没有使用的编号: 15, 20, 73
+// 目前没有使用的编号: 73
 // 有些设置曾经使用过这些编号，但后来被移除了，所以这些编号就空缺了。在以后添加新设置时，可以考虑使用这些空缺的编号
 const formHtml = `
 <form class="settingForm">
@@ -34988,8 +36340,17 @@ const formHtml = `
         <span data-xztext="_自动开始下载"></span>
         <span class="gray1"> ? </span>
       </a>
-      <input type="checkbox" name="autoStartDownload" id="setQuietDownload" class="need_beautify checkbox_switch" checked>
+      <input type="checkbox" name="autoStartDownload" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
+    </p>
+    <p class="option" data-no="20">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(20)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用前请先查看提示">
+        <span data-xztext="_把文件保存到用户上次选择的位置"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="rememberTheLastSaveLocation" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch" tabindex="0"></span>
+      <button type="button" class="gray1 textButton" id="showRememberTheLastSaveLocationTip" data-xztext="_提示"></button>
     </p>
     <p class="option" data-no="33">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(33)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载之后收藏作品的提示">
@@ -35254,7 +36615,7 @@ const formHtml = `
         <span data-xztext="_下载间隔"></span>
         <span class="gray1"> ? </span>
       </a>
-      <span data-xztext="_当作品数量大于"></span>
+      <span data-xztext="_当文件数量大于"></span>
       <input type="text" name="downloadIntervalOnWorksNumber" class="setinput_style1 blue" value="120">
       <span class="verticalSplit"></span>
       <span data-xztext="_间隔时间"></span>
@@ -35955,6 +37316,7 @@ class FormSettings {
             'copyFormatHtml',
             'showCopyBtnOnThumb',
             'crawlLatestFewWorks',
+            'rememberTheLastSaveLocation',
         ],
         text: [
             'firstFewImages',
@@ -36428,41 +37790,29 @@ class Options {
     }
     allOption;
     /**始终保持显示的选项 */
-    whiteList = [2, 4, 13, 17, 32, 44, 50, 51, 57, 64];
+    whiteList = [
+        2, 4, 13, 17, 20, 32, 44, 50, 51, 57, 64,
+    ];
+    newOptions = [14, 15, 20];
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name === 'showAdvancedSettings') {
-                this.handleShowAdvancedSettings();
-                this.alwaysHideSomeOption();
+                this.display();
             }
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, () => {
             window.setTimeout(() => {
-                this.handleShowAdvancedSettings();
-                this.alwaysHideSomeOption();
+                this.display();
             }, 0);
         });
     }
-    // 总是隐藏某些设置
-    alwaysHideSomeOption() {
-        // this.hideOption([79, 80])
-        // 某些设置在移动端不会生效，所以隐藏它们
-        // 主要是和作品缩略图相关的一些设置、增强功能
-        if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
-            this.hideOption([18, 68, 55, 71, 62, 40]);
-        }
-        // 大部分设置在 pixivision 里都不适用，所以需要隐藏它们
-        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Pixivision) {
-            this.hideOption([
-                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22,
-                23, 24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44,
-                46, 47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
-                66, 67, 68, 69, 70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84,
-                85, 86, 87, 88, 89,
-            ]);
-        }
+    display() {
+        this.handleShowAdvancedSettings();
+        this.alwaysHideSomeOption();
+        this.showNewFlag();
     }
+    /**根据显示/隐藏高级设置来处理每个选项的显示与隐藏 */
     handleShowAdvancedSettings() {
         for (const option of this.allOption) {
             if (option.dataset.no === undefined) {
@@ -36484,6 +37834,32 @@ class Options {
                 this.showOption([no]);
             }
         }
+    }
+    /**总是隐藏某些设置 */
+    alwaysHideSomeOption() {
+        // this.hideOption([15, 79, 80])
+        // 某些设置在移动端不会生效，所以隐藏它们
+        // 主要是和作品缩略图相关的一些设置、增强功能
+        if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
+            this.hideOption([18, 68, 55, 71, 62, 40]);
+        }
+        // 大部分设置在 pixivision 里都不适用，所以需要隐藏它们
+        if (_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.list.Pixivision) {
+            this.hideOption([
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 21, 22,
+                23, 24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44,
+                46, 47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
+                66, 67, 68, 69, 70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84,
+                85, 86, 87, 88, 89,
+            ]);
+        }
+    }
+    /**显示 new 角标 */
+    showNewFlag() {
+        this.newOptions.forEach((no) => {
+            const el = this.getOption(no);
+            el.classList.add('new');
+        });
     }
     // 使用编号获取指定选项的元素
     getOption(no) {
@@ -36710,6 +38086,7 @@ __webpack_require__.r(__webpack_exports__);
 // 最后会触发一次 settingInitialized 事件
 // 在前台脚本的生命周期里，这个事件只会触发一次
 // 注意：重置设置不会触发这个事件
+// 如果某个模块里需要使用多个设置项，建议绑定这个事件，以确保所有设置都已经恢复了储存的值
 // EVT.list.resetSettingsEnd
 // 重置设置之后触发
 // 导入设置之后触发
@@ -37145,8 +38522,8 @@ class Settings {
         saveEachDescription: true,
         summarizeDescription: false,
         slowCrawlDealy: 1600,
-        downloadInterval: 0,
-        downloadIntervalOnWorksNumber: 120,
+        downloadInterval: 1,
+        downloadIntervalOnWorksNumber: 150,
         tipOpenWikiLink: true,
         copyWorkInfoFormat: 'Title={title}{n}Tag={tags}{n}{url}{n}',
         showCopyBtnOnThumb: true,
@@ -37157,6 +38534,7 @@ class Settings {
         copyImageSize: 'regular',
         crawlLatestFewWorks: false,
         crawlLatestFewWorksNumber: 10,
+        rememberTheLastSaveLocation: false,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的选项
@@ -37826,7 +39204,7 @@ class Wiki {
     // - 隐藏设置虽然有自己的分类，但是在 Wiki 里统一归纳到了“隐藏设置”页面里，所以它们的 ID 也放到了 More-Hidden 分类里
     groupConfig = {
         Crawl: [0, 1, 2, 44, 81, 6, 23, 21, 51, 3, 47, 5, 7, 8, 9, 10, 11, 12],
-        Download: [13, 50, 64, 38, 16, 17, 33],
+        Download: [13, 50, 64, 38, 16, 17, 33, 20],
         'More-Crawl': [57, 59, 75, 69, 35, 39, 74, 54, 85],
         'More-Naming': [65, 19, 42, 43, 22, 46, 29, 83, 67, 66],
         'More-Download': [
@@ -37836,7 +39214,7 @@ class Wiki {
             60, 84, 87, 68, 63, 55, 71, 62, 40, 56, 86, 48, 88, 18, 34, 14,
         ],
         'More-Others': [61, 31, 78, 36, 41, 45, 53, 32, 37],
-        'More-Hidden': [79, 80, 14],
+        'More-Hidden': [79, 80, 14, 15],
         'Buttons-Crawl': [
             'startCrawling',
             'stopCrawling',
@@ -38719,11 +40097,7 @@ class Store {
         this.rankList[id] = rank;
     }
     findResult(id) {
-        for (const result of this.result) {
-            if (result.id === id) {
-                return result;
-            }
-        }
+        return this.result.find((item) => item.id === id);
     }
     reset() {
         this.resultMeta = [];
@@ -52408,6 +53782,76 @@ const illustsData = [
     [136340000, 1760600580000],
     [136350000, 1760617800000],
     [136360000, 1760631900000],
+    [136370000, 1760669940000],
+    [136380000, 1760695200000],
+    [136390000, 1760709060000],
+    [136400000, 1760726640000],
+    [136410000, 1760757540000],
+    [136420000, 1760779080000],
+    [136430000, 1760793420000],
+    [136440000, 1760808240000],
+    [136450000, 1760840160000],
+    [136460000, 1760860800000],
+    [136470001, 1760875260000],
+    [136480000, 1760886720000],
+    [136490000, 1760916540000],
+    [136500000, 1760947980000],
+    [136510000, 1760964360000],
+    [136520000, 1760979000000],
+    [136530000, 1761016620000],
+    [136540000, 1761042420000],
+    [136550000, 1761056640000],
+    [136560000, 1761082860000],
+    [136570001, 1761117240000],
+    [136580000, 1761135600000],
+    [136590000, 1761150780000],
+    [136600000, 1761189060000],
+    [136610000, 1761215400000],
+    [136620000, 1761230520000],
+    [136630001, 1761259080000],
+    [136640002, 1761292080000],
+    [136650000, 1761308760000],
+    [136660000, 1761322800000],
+    [136670000, 1761355920000],
+    [136680000, 1761379440000],
+    [136690000, 1761394800000],
+    [136700000, 1761407820000],
+    [136710000, 1761439080000],
+    [136720001, 1761461160000],
+    [136730000, 1761476700000],
+    [136740000, 1761489120000],
+    [136750000, 1761512640000],
+    [136760000, 1761546720000],
+    [136770001, 1761566280000],
+    [136780000, 1761579000000],
+    [136790000, 1761612000000],
+    [136800000, 1761642120000],
+    [136810000, 1761657960000],
+    [136820000, 1761677340000],
+    [136830000, 1761713040000],
+    [136840000, 1761736320000],
+    [136850000, 1761750060000],
+    [136860000, 1761778860000],
+    [136870000, 1761811380000],
+    [136880000, 1761827640000],
+    [136890000, 1761838980000],
+    [136900000, 1761865800000],
+    [136910000, 1761891840000],
+    [136920000, 1761906540000],
+    [136930000, 1761916080000],
+    [136940000, 1761924660000],
+    [136950000, 1761949500000],
+    [136960000, 1761972720000],
+    [136970000, 1761991860000],
+    [136980000, 1762005600000],
+    [136990000, 1762024320000],
+    [137000001, 1762053720000],
+    [137010000, 1762074240000],
+    [137020000, 1762088340000],
+    [137030000, 1762101660000],
+    [137040001, 1762133400000],
+    [137050000, 1762156380000],
+    [137060000, 1762171920000],
 ];
 
 
@@ -55047,6 +56491,21 @@ const novelsData = [
     [26190002, 1760384437000],
     [26200003, 1760500178000],
     [26210000, 1760602831000],
+    [26220000, 1760704636000],
+    [26230002, 1760801121000],
+    [26240000, 1760891369000],
+    [26250001, 1761032120000],
+    [26260000, 1761138001000],
+    [26270003, 1761253377000],
+    [26280000, 1761366247000],
+    [26290000, 1761453161000],
+    [26300000, 1761548441000],
+    [26310002, 1761648274000],
+    [26320000, 1761742714000],
+    [26330000, 1761836444000],
+    [26340000, 1761922746000],
+    [26350002, 1762011020000],
+    [26360000, 1762102728000],
 ];
 
 

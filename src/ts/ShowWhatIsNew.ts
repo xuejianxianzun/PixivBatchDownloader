@@ -11,7 +11,7 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '18.0.1'
+  private flag = '18.1.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
@@ -20,8 +20,11 @@ class ShowWhatIsNew {
       <span>${lang.transl('_扩展程序升到x版本', this.flag)}</span>
       <br>
       <br>
-      <span>🐞${lang.transl('_修复了显示更大的缩略图的功能异常的问题')}</span>
       `
+
+      if (lang.type === 'zh-cn') {
+        msg += `<span>${lang.transl('_QQ修复了粘贴问题的提醒')}</span>`
+      }
 
       // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong>
       // <strong><span>✨${lang.transl('_新增功能')}:</span></strong>
@@ -35,13 +38,18 @@ class ShowWhatIsNew {
       // )}
       // <br>
       // <br>
+      // ${lang.transl(
+      //   '_你可以在xx选项卡里找到它',
+      //   lang.transl('_下载')
+      // )}
+      // <br>
+      // <br>
       // <span>${lang.transl('_该功能默认启用')}</span>
+      // <span>${lang.transl('_默认未启用')}</span>
 
       // <span>😊${lang.transl('_优化用户体验')}</span>
-      // <span>😊${lang.transl('_优化性能和用户体验')}</span>
-      // <span>😊${lang.transl('_其他优化')}</span>
       // <span>🐞${lang.transl('_修复bug')}</span>
-      // <span>🐞${lang.transl('_修复已知问题')}</span>
+      // <span>😊${lang.transl('_优化性能和用户体验')}</span>
       // <span>🐞${lang.transl('_修复了显示更大的缩略图的功能异常的问题')}</span>
 
       // 在更新说明的下方显示赞助提示

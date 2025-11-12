@@ -134,6 +134,7 @@ class FormSettings {
       'copyFormatHtml',
       'showCopyBtnOnThumb',
       'crawlLatestFewWorks',
+      'rememberTheLastSaveLocation',
     ],
     text: [
       'firstFewImages',

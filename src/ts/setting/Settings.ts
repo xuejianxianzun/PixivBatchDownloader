@@ -27,6 +27,7 @@
 // 最后会触发一次 settingInitialized 事件
 // 在前台脚本的生命周期里，这个事件只会触发一次
 // 注意：重置设置不会触发这个事件
+// 如果某个模块里需要使用多个设置项，建议绑定这个事件，以确保所有设置都已经恢复了储存的值
 
 // EVT.list.resetSettingsEnd
 // 重置设置之后触发
@@ -305,6 +306,7 @@ interface XzSetting {
   copyImageSize: 'original' | 'regular'
   crawlLatestFewWorks: boolean
   crawlLatestFewWorksNumber: number
+  rememberTheLastSaveLocation: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -731,8 +733,8 @@ class Settings {
     saveEachDescription: true,
     summarizeDescription: false,
     slowCrawlDealy: 1600,
-    downloadInterval: 0,
-    downloadIntervalOnWorksNumber: 120,
+    downloadInterval: 1,
+    downloadIntervalOnWorksNumber: 150,
     tipOpenWikiLink: true,
     copyWorkInfoFormat: 'Title={title}{n}Tag={tags}{n}{url}{n}',
     showCopyBtnOnThumb: true,
@@ -743,6 +745,7 @@ class Settings {
     copyImageSize: 'regular',
     crawlLatestFewWorks: false,
     crawlLatestFewWorksNumber: 10,
+    rememberTheLastSaveLocation: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

@@ -231,11 +231,25 @@
 
       // 使选项里的元素在交叉轴上（垂直）对齐到顶部
       p.option {
+        position: relative;
         display: flex;
         flex-wrap: wrap;
         align-items: flex-start;
         column-gap: 4px;
         margin: 2px 0;
+
+        &.new::before {
+          // 在左上角显示 new 标记
+          content: '✨';
+          position: absolute;
+          z-index: 1;
+          width: 24px;
+          left: -22px;
+          height: 26px;
+          top: -1px;
+          text-align: center;
+          font-size: 1.1em;
+        }
 
         // 给内部元素设置统一的行高。否则的话，span 元素没有行高的话，其高度就是字体尺寸（14px），对齐到顶部后太靠上了，与其他元素的中轴线没有对齐
         & > * {
@@ -943,6 +957,10 @@
     color: inherit;
   }
 
+  p.option.new::before {
+    color: #fff !important;
+  }
+
   button,
   .tip {
     color: #fff;
@@ -1029,6 +1047,10 @@
 
   p.option > .settingNameStyle {
     color: inherit;
+  }
+
+  p.option.new::before {
+    color: #fff !important;
   }
 
   button,

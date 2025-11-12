@@ -23,9 +23,11 @@ export interface downloadArgument {
 export interface SendToBackEndData {
   msg: string
   fileName: string
+  /**作品 id*/
   id: string
   taskBatch: number
   blob?: Blob
+  /**blobURL 必定有值 */
   blobURL: string
   dataURL?: string
 }

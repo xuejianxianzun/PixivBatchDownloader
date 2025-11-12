@@ -162,4 +162,5 @@ export interface SettingsForm extends HTMLFormElement {
   downloadIntervalOnWorksNumber: HTMLInputElement
   crawlLatestFewWorks: HTMLInputElement
   crawlLatestFewWorksNumber: HTMLInputElement
+  rememberTheLastSaveLocation: HTMLInputElement
 }

@@ -223,11 +223,7 @@ class Store {
   }
 
   public findResult(id: string) {
-    for (const result of this.result) {
-      if (result.id === id) {
-        return result
-      }
-    }
+    return this.result.find((item) => item.id === id)
   }
 
   public reset() {
