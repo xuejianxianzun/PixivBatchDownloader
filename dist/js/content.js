@@ -4952,8 +4952,8 @@ class Input {
         this.id = `input` + new Date().getTime();
         this.create(_option);
     }
-    create(option) {
-        const example = `<div class="XZInputWrap ?:mobile" id="input1691811888224">
+    wrapHtmlExample = `
+  <div class="XZInputWrap ?:mobile" id="input1691811888224">
     <p class="XZInputInstruction">instruction</p>
     <div class="XZInputContainer">
       <input type="text" class="XZInput" value="default" placeholder="tip" />
@@ -4962,6 +4962,7 @@ class Input {
       <button class="XZInputButton cancel">Cancel</button>
     </div>
   </div>`;
+    create(option) {
         const wrap = document.createElement('div');
         wrap.classList.add('XZInputWrap');
         _Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile && wrap.classList.add('mobile');
@@ -16069,7 +16070,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawl_CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../crawl/CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
 /* harmony import */ var _pageFunciton_ExportFollowingList__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../pageFunciton/ExportFollowingList */ "./src/ts/pageFunciton/ExportFollowingList.ts");
 /* harmony import */ var _pageFunciton_BatchFollowUser__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../pageFunciton/BatchFollowUser */ "./src/ts/pageFunciton/BatchFollowUser.ts");
+/* harmony import */ var _pageFunciton_FilterInactiveUsers__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../pageFunciton/FilterInactiveUsers */ "./src/ts/pageFunciton/FilterInactiveUsers.ts");
 // 初始化关注页面、好 P 友页面、粉丝页面
+
 
 
 
@@ -16118,13 +16121,14 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导出关注列表CSV', '', 'exportFollowingListCSV').addEventListener('click', () => {
             _pageFunciton_ExportFollowingList__WEBPACK_IMPORTED_MODULE_13__.exportFollowingList.start('csv');
         });
-        const exportButton = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导出关注列表JSON', '', 'exportFollowingListJSON');
-        exportButton.addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_导出关注列表JSON', '', 'exportFollowingListJSON').addEventListener('click', () => {
             _pageFunciton_ExportFollowingList__WEBPACK_IMPORTED_MODULE_13__.exportFollowingList.start('json');
         });
-        const batchFollowButton = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_批量关注用户', '', 'batchFollowUser');
-        batchFollowButton.addEventListener('click', async () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgGreen, '_批量关注用户', '', 'batchFollowUser').addEventListener('click', async () => {
             _pageFunciton_BatchFollowUser__WEBPACK_IMPORTED_MODULE_14__.batchFollowUser.start();
+        });
+        _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgWarning, '_筛选不活跃的用户', '', 'filterInactiveUsers').addEventListener('click', async () => {
+            _pageFunciton_FilterInactiveUsers__WEBPACK_IMPORTED_MODULE_15__.filterInactiveUsers.start();
         });
     }
     getWantPage() {
@@ -24942,6 +24946,14 @@ Zip 파일이 원본 파일입니다.`,
         '현재 {}명의 유저가 있습니다',
         'В настоящее время существует {} пользователей',
     ],
+    _当前有x个符合条件的用户: [
+        `当前有 {} 个符合条件的用户`,
+        `當前有 {} 個符合條件的用戶`,
+        `Currently there are {} qualifying users`,
+        `現在、条件に合うユーザーが {} 人います`,
+        `현재 {}명의 조건에 맞는 사용자가 있습니다`,
+        `Сейчас {} подходящих пользователей`,
+    ],
     _已抓取x个用户: [
         '已抓取 {} 个用户',
         '已擷取 {} 個使用者',
@@ -31039,6 +31051,62 @@ If you want to use this feature, please note:
         `현재 페이지가 비공개 팔로우를 표시하므로, 다운로더도 사용자를 비공개 팔로우로 추가합니다.`,
         `Поскольку текущая страница отображает приватные подписки, загрузчик также добавит пользователей как приватные подписки。`,
     ],
+    _筛选不活跃的用户: [
+        `筛选不活跃的用户`,
+        `篩選不活躍的用戶`,
+        `Filter inactive users`,
+        `非アクティブなユーザーをフィルタリング`,
+        `비활성 사용자 필터링`,
+        `Фильтрация неактивных пользователей`,
+    ],
+    _筛选不活跃的用户的输入提示: [
+        `请输入一个表示时间的数字（单位是月，每月按 30 天计算），下载器会对每个用户进行筛选，并列出符合条件的用户：
+<br>
+- 没有任何作品的用户
+<br>
+- 在指定时间内没有发表过新作品的用户（即不活跃的用户）。附加说明：如果一个用户既有插画作品也有小说作品，那么需要他在这段时间内未发表任何作品才会列出他。`,
+        `請輸入一個表示時間的數字（單位是月，每月按 30 天計算），下載器會對每個用戶進行篩選，並列出符合條件的用戶：
+<br>
+- 沒有任何作品的用戶
+<br>
+- 在指定時間內沒有發表過新作品的用戶（即不活躍的用戶）。附加說明：如果一個用戶既有插畫作品也有小說作品，那麼需要他在這段時間內未發表任何作品才會列出他。`,
+        `Please enter a number representing time (in months, each month calculated as 30 days). The downloader will filter each user and list those who meet the conditions:
+<br>
+- Users with no works
+<br>
+- Users who have not posted any new works within the specified time (i.e., inactive users). Additional note: If a user has both illustration works and novel works, they need to have not posted any works during this period to be listed.`,
+        `時間を表す数字（単位：月、1ヶ月あたり30日として計算）を入力してください。ダウンロードツールは各ユーザーをフィルタリングし、条件を満たすユーザーをリストアップします：
+<br>
+- 作品が全くないユーザー
+<br>
+- 指定期間内に新しい作品を投稿していないユーザー（つまり非アクティブユーザー）。追加説明：ユーザーがイラスト作品と小説作品の両方を持っている場合、この期間内にどの作品も投稿していない場合にのみリストアップされます。`,
+        `시간을 나타내는 숫자(단위: 개월, 매월 30일로 계산)를 입력하세요. 다운로더는 각 사용자를 필터링하고 조건에 맞는 사용자를 나열합니다:
+<br>
+- 작품이 없는 사용자
+<br>
+- 지정 시간 내에 새로운 작품을 게시하지 않은 사용자(즉, 비활성 사용자). 추가 설명: 사용자가 일러스트 작품과 소설 작품을 모두 가지고 있는 경우, 이 기간 동안 어떤 작품도 게시하지 않아야 나열됩니다.`,
+        `Введите число, обозначающее время (в месяцах, каждый месяц рассчитывается как 30 дней). Загрузчик отфильтрует каждого пользователя и выведет список тех, кто соответствует условиям:
+<br>
+- Пользователи без каких-либо работ
+<br>
+- Пользователи, которые не публиковали новые работы в указанный период (т.е. неактивные пользователи). Дополнительное замечание: Если пользователь имеет как иллюстрации, так и романы, то он будет включен в список только если не публиковал никаких работ в этот период.`,
+    ],
+    _没有作品的用户: [
+        `没有作品的用户`,
+        `沒有作品的用戶`,
+        `Users with no works`,
+        `作品がないユーザー`,
+        `작품이 없는 사용자`,
+        `Пользователи без работ`,
+    ],
+    _最近不活跃的用户: [
+        `最近不活跃的用户`,
+        `最近不活躍的用戶`,
+        `Recently inactive users`,
+        `最近非アクティブなユーザー`,
+        `최근 비활성 사용자`,
+        `Недавно неактивные пользователи`,
+    ],
 };
 
 // prompt
@@ -31547,7 +31615,7 @@ class BatchFollowUser {
     tokenHasUpdated = false;
     need_recaptcha_enterprise_score_token = false;
     logProgress(current, total, newAdded) {
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${current} / ${total}, ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增x个', newAdded.toString())}`, 1, false);
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${current} / ${total}, ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_新增x个', newAdded.toString())}`, 1, false, 'batchFollowUserProgress');
     }
     async batchFollow() {
         return new Promise(async (resolve, reject) => {
@@ -32523,11 +32591,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/CreateCSV */ "./src/ts/utils/CreateCSV.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 
 
 
@@ -32575,12 +32641,12 @@ class ExportFollowingList {
         this.readyGet();
     }
     getWantPage() {
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_注意这个任务遵从抓取多少页面的设置'));
         this.crawlPageNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type].value;
         if (this.crawlPageNumber === -1) {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载所有页面'));
         }
         else {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_注意这个任务遵从抓取多少页面的设置'));
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_从本页开始下载x页', this.crawlPageNumber.toString()));
         }
     }
@@ -32629,30 +32695,24 @@ class ExportFollowingList {
     }
     // 获取用户列表
     async getUserList() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_7__.states.stopCrawl) {
-            return this.getUserListComplete();
-        }
         const offset = this.baseOffset + this.requestTimes * this.limit;
         let res;
         try {
             switch (this.pageType) {
                 case 'following':
-                    res = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getFollowingList(this.currentUserId, this.rest, this.tag, offset);
+                    res = await _API__WEBPACK_IMPORTED_MODULE_7__.API.getFollowingList(this.currentUserId, this.rest, this.tag, offset);
                     break;
                 case 'mypixiv':
-                    res = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getMyPixivList(this.currentUserId, offset);
+                    res = await _API__WEBPACK_IMPORTED_MODULE_7__.API.getMyPixivList(this.currentUserId, offset);
                     break;
                 case 'followers':
-                    res = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getFollowersList(this.currentUserId, offset);
+                    res = await _API__WEBPACK_IMPORTED_MODULE_7__.API.getFollowersList(this.currentUserId, offset);
                     break;
             }
         }
         catch {
             this.getUserList();
             return;
-        }
-        if (_store_States__WEBPACK_IMPORTED_MODULE_7__.states.stopCrawl) {
-            return this.getUserListComplete();
         }
         const users = res.body.users;
         // console.log(users.length, offset)
@@ -32683,17 +32743,16 @@ class ExportFollowingList {
             this.getUserList();
         }, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.slowCrawlDealy);
     }
-    async getUserListComplete() {
+    getUserListComplete() {
         this.busy = false;
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.userList.length.toString()));
-        // 在批量关注用户时，抓取结果为 0 并不影响继续执行
         if (this.userList.length === 0) {
             const msg = '✓ ' +
                 _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_用户数量为0') +
                 ', ' +
                 _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有可用的抓取结果');
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(msg);
-            _MsgBox__WEBPACK_IMPORTED_MODULE_9__.msgBox.warning(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_8__.msgBox.warning(msg);
         }
         else {
             if (this.format === 'csv') {
@@ -32720,7 +32779,7 @@ class ExportFollowingList {
         data.unshift(Object.keys(this.CSVData[0]));
         const csv = _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_6__.createCSV.create(data);
         const csvURL = URL.createObjectURL(csv);
-        const csvName = _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.getPageTitle();
+        const csvName = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getPageTitle();
         _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(csvURL, _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(csvName) + '.csv');
     }
     exportJSON() {
@@ -32853,6 +32912,357 @@ class FastScreen {
         this.fastScreenArea.remove();
     }
 }
+
+
+
+/***/ }),
+
+/***/ "./src/ts/pageFunciton/FilterInactiveUsers.ts":
+/*!****************************************************!*\
+  !*** ./src/ts/pageFunciton/FilterInactiveUsers.ts ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   filterInactiveUsers: () => (/* binding */ filterInactiveUsers)
+/* harmony export */ });
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Input__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Input */ "./src/ts/Input.ts");
+
+
+
+
+
+
+
+
+
+// 筛选不活跃（在最近一段时间内没有发表新作品）的用户
+class FilterInactiveUsers {
+    busy = false;
+    baseOffset = 0; // 开始抓取时，记录初始的偏移量
+    onceNumber = 24; // 每页 24 个用户
+    crawlPageNumber = 1; // 需要抓取多少个页面
+    // 页面子类型：我的关注 | 我的好 P 友 | 我的粉丝
+    pageType = 'following';
+    rest = 'show';
+    tag = '';
+    currentUserId = '';
+    requestTimes = 0; // 获取用户列表时，记录请求的次数
+    limit = 100; // 每次请求多少个用户
+    totalNeed = Number.MAX_SAFE_INTEGER;
+    /**要求用户在这个时间之后有新作品，否则就是不活跃的用户 */
+    time = 0;
+    /**已经抓取了多少个用户（未过滤） */
+    numberOfCrawledUsers = 0;
+    // 储存符合条件的用户
+    //**没有作品的用户 */
+    userNoWork = [];
+    //**最近不活跃的用户 */
+    userInactive = [];
+    /**一共储存了多少个用户 */
+    get total() {
+        return this.userNoWork.length + this.userInactive.length;
+    }
+    async start() {
+        if (this.busy) {
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_有同类任务正在执行请等待之前的任务完成'));
+            return;
+        }
+        const input = new _Input__WEBPACK_IMPORTED_MODULE_8__.Input({
+            instruction: `${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_筛选不活跃的用户的输入提示')}`,
+            value: '6',
+            width: 500,
+        });
+        const value = await input.submit();
+        if (!value) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_本次操作已取消'));
+        }
+        const number = Number.parseInt(value);
+        if (isNaN(number) || number <= 0) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_参数不合法本次操作已取消'));
+        }
+        this.time = new Date().getTime() - number * 30 * 24 * 60 * 60 * 1000;
+        this.busy = true;
+        // 显示提示
+        const log1 = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_筛选不活跃的用户');
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(log1);
+        _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning(log1);
+        const log2 = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取用户列表');
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(log2);
+        // 总是慢速抓取
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
+        this.readyGet();
+    }
+    getWantPage() {
+        this.crawlPageNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type].value;
+        if (this.crawlPageNumber === -1) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载所有页面'));
+        }
+        else {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_注意这个任务遵从抓取多少页面的设置'));
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_从本页开始下载x页', this.crawlPageNumber.toString()));
+        }
+    }
+    getPageType() {
+        const pathname = window.location.pathname;
+        if (pathname.includes('/following')) {
+            this.pageType = 'following';
+        }
+        else if (pathname.includes('/mypixiv')) {
+            this.pageType = 'mypixiv';
+        }
+        else if (pathname.includes('/followers')) {
+            this.pageType = 'followers';
+        }
+    }
+    readyGet() {
+        this.getWantPage();
+        this.getPageType();
+        this.rest = location.href.includes('rest=hide') ? 'hide' : 'show';
+        this.tag = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLPathField(window.location.pathname, 'following');
+        // 获取抓取开始时的页码
+        const nowPage = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLSearchField(location.href, 'p');
+        // 计算开始抓取时的偏移量
+        if (nowPage !== '') {
+            this.baseOffset = (parseInt(nowPage) - 1) * this.onceNumber;
+        }
+        else {
+            this.baseOffset = 0;
+        }
+        // 要抓取多少个用户
+        this.totalNeed = Number.MAX_SAFE_INTEGER;
+        if (this.crawlPageNumber !== -1) {
+            this.totalNeed = this.onceNumber * this.crawlPageNumber;
+        }
+        // 获取当前页面的用户 id
+        const test = /users\/(\d*)\//.exec(location.href);
+        if (test && test.length > 1) {
+            this.currentUserId = test[1];
+        }
+        else {
+            const msg = `Get the user's own id failed`;
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg, 2);
+            throw new Error(msg);
+        }
+        this.getUserList();
+    }
+    // 获取用户列表
+    async getUserList() {
+        const offset = this.baseOffset + this.requestTimes * this.limit;
+        let res;
+        try {
+            switch (this.pageType) {
+                case 'following':
+                    res = await _API__WEBPACK_IMPORTED_MODULE_6__.API.getFollowingList(this.currentUserId, this.rest, this.tag, offset);
+                    break;
+                case 'mypixiv':
+                    res = await _API__WEBPACK_IMPORTED_MODULE_6__.API.getMyPixivList(this.currentUserId, offset);
+                    break;
+                case 'followers':
+                    res = await _API__WEBPACK_IMPORTED_MODULE_6__.API.getFollowersList(this.currentUserId, offset);
+                    break;
+            }
+        }
+        catch {
+            this.getUserList();
+            return;
+        }
+        const users = res.body.users;
+        if (users.length === 0) {
+            // 用户列表抓取完毕
+            return this.getUserListComplete();
+        }
+        for (const userData of users) {
+            this.check(userData);
+            this.numberOfCrawledUsers++;
+            if (this.numberOfCrawledUsers >= this.totalNeed) {
+                // 抓取到了指定数量的用户
+                return this.getUserListComplete();
+            }
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个符合条件的用户', this.total.toString()), 1, false, 'filterInactiveUsersProgress');
+        this.requestTimes++;
+        // 获取下一批用户列表
+        window.setTimeout(() => {
+            this.getUserList();
+        }, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.slowCrawlDealy);
+    }
+    async getUserListComplete() {
+        this.busy = false;
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个符合条件的用户', this.total.toString()));
+        // 在批量关注用户时，抓取结果为 0 并不影响继续执行
+        if (this.total === 0) {
+            const msg = '✓ ' +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_用户数量为0') +
+                ', ' +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有可用的抓取结果');
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(msg);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_7__.msgBox.warning(msg);
+        }
+        else {
+            this.exportResult();
+            const msg = '✓ ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_筛选不活跃的用户');
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg);
+        }
+        this.reset();
+    }
+    check(userData) {
+        // 如果该用户没有任何作品
+        if (userData.illusts.length === 0 && userData.novels.length === 0) {
+            this.userNoWork.push({
+                id: userData.userId,
+                name: userData.userName,
+            });
+            return;
+        }
+        // 如果有插画或小说中的任何一种作品，则检查其发布时间
+        const noNewIllust = this.checkNoNewWork('illust', userData.illusts);
+        const noNewNovel = this.checkNoNewWork('novel', userData.novels);
+        if (noNewIllust && noNewNovel) {
+            this.userInactive.push({
+                id: userData.userId,
+                name: userData.userName,
+            });
+            // if (userData.illusts.length > 0 && userData.novels.length > 0) {
+            //   console.log('该用户有两种作品并且不活跃', userData.userId)
+            // }
+        }
+    }
+    checkNoNewWork(type, workData) {
+        if (workData.length === 0) {
+            return true;
+        }
+        // 查找最近发表的作品的 id
+        const idList = workData.map((work) => Number.parseInt(work.id));
+        const maxId = Math.max(...idList).toString();
+        // 获取它的数据
+        const work = workData.find((work) => work.id === maxId);
+        const createTime = new Date(work.createDate).getTime();
+        return createTime < this.time;
+    }
+    exportResult() {
+        const noWorkUsersHtml = this.userNoWork.map((user) => `<li><a href="https://www.pixiv.net/users/${user.id}" target="_blank">${user.name}</a></li>`);
+        const inactiveUsersHtml = this.userInactive.map((user) => `<li><a href="https://www.pixiv.net/users/${user.id}" target="_blank">${user.name}</a></li>`);
+        const bgColor = '#222';
+        const html = `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_筛选不活跃的用户')}</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        font-size: 14px;
+      }
+      body {
+        background-color: ${bgColor};
+        color: #fff;
+        font-size: 1.2rem;
+      }
+      a {
+        color: #00a6ef;
+        text-decoration: none;
+      }
+      a:visited {
+        color: #b733f8;
+      }
+      .usersWrap {
+        width: 90vw;
+        max-height: 95vh;
+        margin: 3vh auto 0;
+        display: flex;
+        justify-content: space-between;
+      }
+      .list {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        flex-basis: 50%;
+        flex-shrink: 0;
+        flex-grow: 0;
+        overflow-y: auto;
+      }
+      .list:nth-child(1) {
+        border-right: #aaa 1px solid;
+      }
+      .list .title {
+        font-size: 1.4rem;
+        flex-grow: 0;
+      }
+      .list ul {
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-start;
+      }
+      .list .title,
+      .list li {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        list-style: none;
+        min-height: 40px;
+        padding: 4px 0;
+        line-height: 32px;
+        text-align: center;
+      }
+      .list li {
+        flex-basis: 33%;
+        word-break: break-all;
+        flex-grow: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="usersWrap">
+      <div class="list">
+        <div class="title">${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有作品的用户')}（${this.userNoWork.length}）</div>
+        <ul>
+            ${noWorkUsersHtml.join('')}
+        </ul>
+      </div>
+      <div class="list">
+        <div class="title">${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_最近不活跃的用户')}（${this.userInactive.length}）</div>
+        <ul>
+            ${inactiveUsersHtml.join('')}
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>
+`;
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+    }
+    reset() {
+        this.requestTimes = 0;
+        this.numberOfCrawledUsers = 0;
+        this.userNoWork = [];
+        this.userInactive = [];
+    }
+}
+const filterInactiveUsers = new FilterInactiveUsers();
 
 
 

@@ -155,7 +155,7 @@ class BatchFollowUser {
     this.busy = false
   }
 
-  protected reset() {
+  private reset() {
     this.userList = []
     this.requestTimes = 0
   }
@@ -193,7 +193,8 @@ class BatchFollowUser {
     log.log(
       `${current} / ${total}, ${lang.transl('_新增x个', newAdded.toString())}`,
       1,
-      false
+      false,
+      'batchFollowUserProgress'
     )
   }
 

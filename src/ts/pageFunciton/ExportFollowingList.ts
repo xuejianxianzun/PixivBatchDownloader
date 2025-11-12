@@ -66,11 +66,11 @@ class ExportFollowingList {
   }
 
   protected getWantPage() {
-    log.warning(lang.transl('_注意这个任务遵从抓取多少页面的设置'))
     this.crawlPageNumber = settings.crawlNumber[pageType.type].value
     if (this.crawlPageNumber === -1) {
       log.warning(lang.transl('_下载所有页面'))
     } else {
+      log.warning(lang.transl('_注意这个任务遵从抓取多少页面的设置'))
       log.warning(
         lang.transl('_从本页开始下载x页', this.crawlPageNumber.toString())
       )
@@ -124,12 +124,7 @@ class ExportFollowingList {
 
   // 获取用户列表
   private async getUserList() {
-    if (states.stopCrawl) {
-      return this.getUserListComplete()
-    }
-
     const offset = this.baseOffset + this.requestTimes * this.limit
-
     let res
     try {
       switch (this.pageType) {
@@ -151,10 +146,6 @@ class ExportFollowingList {
     } catch {
       this.getUserList()
       return
-    }
-
-    if (states.stopCrawl) {
-      return this.getUserListComplete()
     }
 
     const users = res.body.users
@@ -198,11 +189,10 @@ class ExportFollowingList {
     }, settings.slowCrawlDealy)
   }
 
-  private async getUserListComplete() {
+  private getUserListComplete() {
     this.busy = false
     log.log(lang.transl('_当前有x个用户', this.userList.length.toString()))
 
-    // 在批量关注用户时，抓取结果为 0 并不影响继续执行
     if (this.userList.length === 0) {
       const msg =
         '✓ ' +
@@ -262,7 +252,7 @@ class ExportFollowingList {
     URL.revokeObjectURL(url)
   }
 
-  protected reset() {
+  private reset() {
     this.userList = []
     this.CSVData = []
     this.requestTimes = 0

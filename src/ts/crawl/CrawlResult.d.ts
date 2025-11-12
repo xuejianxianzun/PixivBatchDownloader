@@ -1416,8 +1416,10 @@ export interface FollowingResponse {
       followed: boolean
       isBlocking: boolean
       isMypixiv: boolean
-      illusts: []
-      novels: []
+      /**实际上我并没有检查这项数据是否完全符合 ArtworkCommonData，不过大致差不多  */
+      illusts: ArtworkCommonData[]
+      /**实际上我并没有检查这项数据是否完全符合 NovelCommonData，不过大致差不多  */
+      novels: NovelCommonData[]
     }[]
     total: number
     followUserTags: string[]

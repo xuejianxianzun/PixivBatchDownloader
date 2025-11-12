@@ -14,6 +14,7 @@ import { pageType } from '../PageType'
 import { crawlLatestFewWorks } from '../crawl/CrawlLatestFewWorks'
 import { exportFollowingList } from '../pageFunciton/ExportFollowingList'
 import { batchFollowUser } from '../pageFunciton/BatchFollowUser'
+import { filterInactiveUsers } from '../pageFunciton/FilterInactiveUsers'
 
 // 页面子类型：我的关注 | 我的好 P 友 | 我的粉丝
 type PageType = 'following' | 'mypixiv' | 'followers'
@@ -71,26 +72,34 @@ class InitFollowingPage extends InitPageBase {
       exportFollowingList.start('csv')
     })
 
-    const exportButton = Tools.addBtn(
+    Tools.addBtn(
       'crawlBtns',
       Colors.bgGreen,
       '_导出关注列表JSON',
       '',
       'exportFollowingListJSON'
-    )
-    exportButton.addEventListener('click', () => {
+    ).addEventListener('click', () => {
       exportFollowingList.start('json')
     })
 
-    const batchFollowButton = Tools.addBtn(
+    Tools.addBtn(
       'crawlBtns',
       Colors.bgGreen,
       '_批量关注用户',
       '',
       'batchFollowUser'
-    )
-    batchFollowButton.addEventListener('click', async () => {
+    ).addEventListener('click', async () => {
       batchFollowUser.start()
+    })
+
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgWarning,
+      '_筛选不活跃的用户',
+      '',
+      'filterInactiveUsers'
+    ).addEventListener('click', async () => {
+      filterInactiveUsers.start()
     })
   }
 
