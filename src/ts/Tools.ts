@@ -566,13 +566,7 @@ class Tools {
   }
 
   // 传入作品 id，生成作品页面的超链接
-  /**
-   *
-   * @param id 作品 id
-   * @param artwork true 图像作品； false 小说作品。默认为图像作品
-   * @returns 超链接（A 标签）
-   */
-  static createWorkLink(id: number | string, artwork = true) {
+  static createWorkLink(id: number | string, title?: string, artwork = true) {
     // 对于图像作品，在作品页面链接后面添加 #p+1 可以在打开页面后，定位到对应的图片
     const array = id.toString().split('_p')
     const idNum = array[0]
@@ -586,7 +580,7 @@ class Tools {
     const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}${
       hasP ? `#${p}` : ''
     }`
-    return `<a href="${href}" target="_blank">${id}</a>`
+    return `<a href="${href}" target="_blank">${title || id}</a>`
   }
 
   // 传入用户 id，生成用户页面的超链接

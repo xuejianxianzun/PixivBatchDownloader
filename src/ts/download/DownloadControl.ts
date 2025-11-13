@@ -457,6 +457,7 @@ class DownloadControl {
       }, 0)
     }
 
+    toast.show(lang.transl('_开始下载'))
     log.success(lang.transl('_正在下载中'))
 
     if (Config.mobile) {

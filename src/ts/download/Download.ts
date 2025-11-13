@@ -1,4 +1,3 @@
-// 下载文件，然后发送给浏览器进行保存
 import browser from 'webextension-polyfill'
 import { EVT } from '../EVT'
 import { log } from '../Log'
@@ -20,8 +19,6 @@ import { Config } from '../Config'
 import { msgBox } from '../MsgBox'
 import { states } from '../store/States'
 import { Tools } from '../Tools'
-import { downloadNovelEmbeddedImage } from './DownloadNovelEmbeddedImage'
-import { downloadNovelCover } from './DownloadNovelCover'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { downloadStates } from './DownloadStates'
 import { downloadInterval } from './DownloadInterval'
@@ -195,33 +192,19 @@ class Download {
     if (arg.result.type === 3) {
       // 小说
       if (arg.result.novelMeta) {
-        // 下载小说的封面图片
-        if (
-          settings.downloadNovelCoverImage &&
-          arg.result.novelMeta?.coverUrl
-        ) {
-          await downloadInterval.wait()
-          await downloadNovelCover.download(
-            arg.result.novelMeta.coverUrl,
-            _fileName,
-            'downloadNovel'
-          )
-        }
-
         // 生成小说文件
-        // 另外，如果小说保存为 EPUB 格式，此步骤里会下载内嵌的图片
-        // 并且会再次下载小说的封面图（因为要嵌入到 EPUB 文件里）
-        let blob: Blob = await MakeNovelFile.make(arg.result.novelMeta)
-        url = URL.createObjectURL(blob)
-
-        // 如果小说保存为 TXT 格式，在这里下载内嵌的图片
-        if (settings.novelSaveAs === 'txt') {
-          await downloadNovelEmbeddedImage.TXT(
-            arg.result.novelMeta.id,
-            arg.result.novelMeta.content,
-            arg.result.novelMeta.embeddedImages,
+        if (settings.novelSaveAs === 'epub') {
+          const blob: Blob = await MakeNovelFile.makeEPUB(
+            arg.result.novelMeta,
             _fileName
           )
+          url = URL.createObjectURL(blob)
+        } else {
+          const blob: Blob = await MakeNovelFile.makeTXT(
+            arg.result.novelMeta,
+            _fileName
+          )
+          url = URL.createObjectURL(blob)
         }
       } else {
         throw new Error('Not found novelMeta')

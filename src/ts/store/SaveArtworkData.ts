@@ -68,7 +68,7 @@ class SaveArtworkData {
         // 插画或漫画
         const imgUrl = body.urls.original // 作品的原图 URL
         if (imgUrl === null) {
-          log.error(`${Tools.createWorkLink(body.id, true)} URLs are null`)
+          log.error(`${Tools.createWorkLink(body.id)} URLs are null`)
           return
         }
 

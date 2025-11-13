@@ -321,7 +321,7 @@ abstract class InitPageBase {
     }
 
     // 如果要抓取的作品数量超过指定数量（目前为 100 页），则显示使用小号抓取的提示
-    if (store.idList.length > 4800) {
+    if (store.idList.length > 6000) {
       log.warning(lang.transl('_提示使用小号下载'))
     }
 
@@ -606,7 +606,7 @@ abstract class InitPageBase {
   // 网络请求状态异常时输出提示
   private logErrorStatus(status: number, idData: IDData) {
     const isNovel = idData.type === 'novels'
-    const workLink = Tools.createWorkLink(idData.id, !isNovel)
+    const workLink = Tools.createWorkLink(idData.id, '', !isNovel)
     switch (status) {
       case 0:
         log.error(workLink + ' ' + lang.transl('_作品页状态码0'))

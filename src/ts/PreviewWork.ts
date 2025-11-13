@@ -260,6 +260,8 @@ class PreviewWork {
 
         // 使用 Esc 键关闭当前预览
         if (ev.code === 'Escape' && this.show) {
+          ev.stopPropagation()
+          ev.preventDefault()
           this.show = false
           // 并且不再显示这个作品的预览图，否则如果鼠标依然位于这个作品上，就会马上再次显示缩略图了
           // 当鼠标移出这个作品的缩略图之后会取消此限制
@@ -331,7 +333,10 @@ class PreviewWork {
           }
         }
       },
-      true
+      {
+        capture: true,
+        passive: false,
+      }
     )
 
     const hiddenEvtList = [

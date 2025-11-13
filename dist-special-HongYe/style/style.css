@@ -83,6 +83,9 @@
 .selectedWorkFlag .icon {
   color: #29b3f3;
   vertical-align: baseline;
+  border-radius: 50%;
+  background-color: yellow;
+  box-shadow: 0px 0px 6px yellow;
 }
 .selectedWorkFlag::after {
   content: '';
