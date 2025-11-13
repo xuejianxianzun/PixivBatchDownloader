@@ -24,7 +24,7 @@ class ShowDuplicateLog {
     window.addEventListener(EVT.list.skipDownload, (ev: CustomEventInit) => {
       const skipData = ev.detail.data as DonwloadSkipData
       if (skipData.reason === 'duplicate') {
-        const link = Tools.createWorkLink(skipData.id, skipData.type !== 3)
+        const link = Tools.createWorkLink(skipData.id, '', skipData.type !== 3)
         this.records.push(link)
         this.output()
       }

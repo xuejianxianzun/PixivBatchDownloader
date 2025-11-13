@@ -1,5 +1,4 @@
 import browser from 'webextension-polyfill'
-import { lang } from '../Language'
 import { log } from '../Log'
 import { Utils } from '../utils/Utils'
 import { Config } from '../Config'
@@ -15,9 +14,11 @@ class DownloadNovelCover {
     novelName: string,
     action: 'downloadNovel' | 'mergeNovel' = 'downloadNovel'
   ) {
-    log.log(lang.transl('_下载封面图片'), 1, false, 'downloadNovelCover')
+    const blob = await this.getCover(coverURL, 'blob')
+    if (blob === null) {
+      return
+    }
 
-    const blob = await this.getCover(coverURL)
     let coverName = Utils.replaceSuffix(novelName, coverURL)
 
     // 合并系列小说时，文件直接保存在下载目录里，封面图片也保存在下载目录里
@@ -44,13 +45,43 @@ class DownloadNovelCover {
     browser.runtime.sendMessage(sendData)
   }
 
-  private async getCover(coverURL: string): Promise<Blob> {
-    const res = await fetch(coverURL, {
-      method: 'get',
-      credentials: 'same-origin',
-    })
-    const blob = await res.blob()
-    return blob
+  /**最多重试一定次数，避免无限重试 */
+  private readonly retryMax = 5
+
+  public async getCover(
+    url: string,
+    type: 'blob',
+    retry?: number
+  ): Promise<Blob | null>
+  public async getCover(
+    url: string,
+    type: 'arrayBuffer',
+    retry?: number
+  ): Promise<ArrayBuffer | null>
+  public async getCover(
+    url: string,
+    type: 'blob' | 'arrayBuffer',
+    retry = 0
+  ): Promise<Blob | ArrayBuffer | null> {
+    try {
+      const res = await fetch(url, {
+        method: 'get',
+        credentials: 'same-origin',
+      })
+      if (!res.ok) {
+        throw new Error(`${res.status} ${res.statusText}`)
+      }
+      const data = await res[type]()
+      return data
+    } catch (error) {
+      retry++
+      console.log(retry, url)
+      if (retry > this.retryMax) {
+        log.error(`fetch ${url} failed`)
+        return null
+      }
+      return this.getCover(url, type as any, retry)
+    }
   }
 }
 

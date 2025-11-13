@@ -53,7 +53,7 @@ class BlackAndWhiteImage {
           console.log(`Load image error! url: ${url}`)
         })
         // 如果 fetch 加载图片失败，res 会是 undefined
-        if (!res) {
+        if (!res || !res.ok) {
           return reject()
         }
         const blob = await res.blob()

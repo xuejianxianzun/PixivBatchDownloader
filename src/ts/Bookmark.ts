@@ -228,7 +228,7 @@ class Bookmark {
             })
 
             log.error(
-              `${Tools.createWorkLink(id, type === 'illusts')} ${lang.transl(
+              `${Tools.createWorkLink(id, '', type === 'illusts')} ${lang.transl(
                 '_添加收藏失败'
               )}, ${lang.transl('_错误代码')}: ${res.status}. ${lang.transl(
                 '_下载器会在几分钟后重试'
