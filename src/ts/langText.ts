@@ -2413,7 +2413,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     `소설 데이터 가져오는 중 {}`,
     `Получение данных романа {}`,
   ],
-  _系列的简介: [`简介`, `簡介`, `Caption`, `キャプション`, `캡션`, `Подпись`],
+  _系列简介: [`简介`, `簡介`, `Caption`, `キャプション`, `캡션`, `Подпись`],
   _设定资料: [
     `设定资料`,
     `設定資料`,
@@ -2453,6 +2453,14 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     `シリーズ小説のメタデータ部分終了`,
     `시리즈 소설의 메타데이터 부분 종료`,
     `Конец раздела метаданных серии романов`,
+  ],
+  _更新日期: [
+    `更新日期`,
+    `更新日期`,
+    `Update date`,
+    `更新日`,
+    `업데이트 날짜`,
+    `Дата обновления`,
   ],
   _小说保存格式: [
     '<span class="key">小说</span>保存格式',

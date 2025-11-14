@@ -79,7 +79,7 @@ class SaveNovelData {
         metaDescription,
         tagsA.join('\n')
       )
-      meta = metaArr.join('\n\n') + '\n\n\n'
+      meta = metaArr.join('\n\n') + '\n\n'
 
       // 提取嵌入的图片资源
       const embeddedImages = Tools.extractEmbeddedImages(data)

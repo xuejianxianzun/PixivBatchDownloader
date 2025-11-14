@@ -13,7 +13,6 @@ class InitNovelSeriesPage extends InitPageBase {
     this.init()
   }
 
-  private seriesId: string = ''
   private readonly limit = 30
   private last = 0
 
@@ -43,13 +42,13 @@ class InitNovelSeriesPage extends InitPageBase {
   }
 
   protected async nextStep() {
-    this.seriesId = Utils.getURLPathField(window.location.pathname, 'series')
     this.getIdList()
   }
 
   protected async getIdList() {
+    const seriesId = Utils.getURLPathField(window.location.pathname, 'series')
     const seriesData = await API.getNovelSeriesContent(
-      this.seriesId,
+      seriesId,
       this.limit,
       this.last,
       'asc'
@@ -74,7 +73,6 @@ class InitNovelSeriesPage extends InitPageBase {
   }
 
   protected resetGetIdListStatus() {
-    this.seriesId = ''
     this.last = 0
   }
 }

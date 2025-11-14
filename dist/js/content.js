@@ -11001,6 +11001,9 @@ class Tools {
     }
     /**把所有换行符统一成 <br/>（包括 \n）, 之后统一替换为 <p> 与 </p>，以对应 EPUB 文本惯例 */
     static replaceEPUBTextWithP(str) {
+        if (!str) {
+            return '';
+        }
         return ('<p>' +
             str
                 .replaceAll(/&/g, '&amp;')
@@ -17113,10 +17116,11 @@ class GetNovelGlossarys {
                     array.push('\n\n');
                 }
                 array.push('----------------------------------------');
+                array.push('\n\n');
             }
         }
         if (array.length > 0) {
-            return array.join('') + '\n\n';
+            return array.join('');
         }
         return '';
     }
@@ -17419,7 +17423,6 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         super();
         this.init();
     }
-    seriesId = '';
     limit = 30;
     last = 0;
     addCrawlBtns() {
@@ -17434,11 +17437,11 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         });
     }
     async nextStep() {
-        this.seriesId = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLPathField(window.location.pathname, 'series');
         this.getIdList();
     }
     async getIdList() {
-        const seriesData = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getNovelSeriesContent(this.seriesId, this.limit, this.last, 'asc');
+        const seriesId = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLPathField(window.location.pathname, 'series');
+        const seriesData = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getNovelSeriesContent(seriesId, this.limit, this.last, 'asc');
         const list = seriesData.body.page.seriesContents;
         for (const item of list) {
             _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.idList.push({
@@ -17456,7 +17459,6 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         }
     }
     resetGetIdListStatus() {
-        this.seriesId = '';
         this.last = 0;
     }
 }
@@ -20891,7 +20893,7 @@ class MakeNovelFile {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.saveNovelMeta) {
             content =
                 data.meta +
-                    `\n----- ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下面是正文')} -----\n` +
+                    `----- ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下面是正文')} -----\n\n` +
                     data.content;
         }
         // 替换换行标签，移除 html 标签
@@ -20907,9 +20909,10 @@ class MakeNovelFile {
         let content = data.content;
         // 添加元数据
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.saveNovelMeta) {
+            // data.meta 末尾已经有 2 个 \n 了，所以前面不需要添加 \n
             content =
                 data.meta +
-                    `\n----- ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下面是正文')} -----\n` +
+                    `----- ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下面是正文')} -----\n\n` +
                     data.content;
         }
         // 统一替换添加 <p> 与 </p>， 以对应 EPUB 文本的惯例
@@ -20991,6 +20994,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _crawlNovelPage_GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../crawlNovelPage/GetNovelGlossarys */ "./src/ts/crawlNovelPage/GetNovelGlossarys.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+
 
 
 
@@ -21015,6 +21020,7 @@ class MergeNovel {
     }
     seriesId = '';
     seriesTitle = '';
+    seriesUpdateDate = '';
     seriesCaption = '';
     seriesGlossary = '';
     seriesTags = [];
@@ -21024,6 +21030,8 @@ class MergeNovel {
     limit = 30;
     last = 0;
     CRLF = '\n'; // 小说的换行符
+    CRLF2 = '\n\n';
+    br2 = '<br/><br/>';
     async merge() {
         _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_合并系列小说'));
         _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_开始抓取'), {
@@ -21047,6 +21055,7 @@ class MergeNovel {
         this.seriesTitle = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(seriesData.title));
         this.seriesCaption = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlDecode(seriesData.caption));
         this.seriesTags = seriesData.tags;
+        this.seriesUpdateDate = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_13__.DateFormat.format(seriesData.updateDate);
         // 生成小说文件并下载
         let file = null;
         const novelName = `${this.seriesTitle}-user_${this.userName}-seriesId_${this.seriesId}-tags_${seriesData.tags}.${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.novelSaveAs}`;
@@ -21081,7 +21090,6 @@ class MergeNovel {
             return this.getIdList();
         }
         // 获取完毕
-        console.log('idList.length', this.novelIdList.length);
     }
     /** 获取所有小说数据，然后储存必须的数据 */
     async getNovelData() {
@@ -21094,6 +21102,7 @@ class MergeNovel {
             const novelData = {
                 id: data.body.id,
                 no: data.body.seriesNavData.order,
+                updateDate: _utils_DateFormat__WEBPACK_IMPORTED_MODULE_13__.DateFormat.format(data.body.uploadDate),
                 title: _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(data.body.title),
                 tags: _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractTags(data),
                 description: _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlDecode(data.body.description)),
@@ -21105,7 +21114,6 @@ class MergeNovel {
         }
         // 按照小说的序号进行升序排列
         this.allNovelData.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.sortByProperty('no', 'asc'));
-        console.log('allNovelData.length', this.allNovelData.length);
     }
     async mergeTXT(novelName) {
         return new Promise(async (resolve, reject) => {
@@ -21114,11 +21122,11 @@ class MergeNovel {
                 await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_7__.downloadNovelEmbeddedImage.TXT(data.id, data.title, data.content, data.embeddedImages, novelName, 'mergeNovel');
             }
             // 合并文本内容
-            const result = [];
-            // 添加元数据
+            const text = [];
+            // 添加系列的元数据
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveNovelMeta) {
                 const a = [];
-                const CRLF_2 = this.CRLF.repeat(2);
+                const CRLF_2 = this.CRLF2;
                 // 系列标题
                 a.push(this.seriesTitle);
                 a.push(CRLF_2);
@@ -21129,6 +21137,9 @@ class MergeNovel {
                 const link = `https://www.pixiv.net/novel/series/${this.seriesId}`;
                 a.push(link);
                 a.push(CRLF_2);
+                // 更新日期
+                a.push(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_更新日期') + ': ' + this.seriesUpdateDate);
+                a.push(CRLF_2);
                 // 系列 tags
                 if (this.seriesTags.length > 0) {
                     const tags = this.seriesTags.map((tag) => `#${tag}`).join(', ');
@@ -21137,7 +21148,7 @@ class MergeNovel {
                 }
                 // 系列简介
                 if (this.seriesCaption) {
-                    a.push(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_系列的简介') + ': ');
+                    a.push(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_系列简介') + ': ');
                     a.push(CRLF_2);
                     a.push(this.seriesCaption);
                     a.push(CRLF_2);
@@ -21147,41 +21158,45 @@ class MergeNovel {
                     a.push(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_设定资料') + ': ');
                     a.push(CRLF_2);
                     a.push(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlDecode(this.seriesGlossary)));
-                    // seriesGlossary 结尾有换行 \n\n，所以这里不需要再添加换行
+                    // seriesGlossary 结尾有两个\n，这里再添加一个以增大空白区域，和其他部分做出区分
+                    a.push(this.CRLF);
                 }
                 a.push(`----- ${_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_系列小说的元数据部分结束')} -----`);
-                a.push(CRLF_2);
+                a.push(this.CRLF.repeat(3));
                 // 合并
-                result.push(a.join(''));
+                text.push(a.join(''));
             }
             // 添加每篇小说的内容
             for (const data of this.allNovelData) {
                 // 添加章节名
-                result.push(`${this.chapterNo(data.no)} ${data.title}`);
-                result.push(this.CRLF.repeat(2));
-                // 添加元数据，内容包含：
+                text.push(`${this.chapterNo(data.no)} ${data.title}`);
+                text.push(this.CRLF2);
+                // 添加小说的元数据，内容包含：
                 // url 小说的 URL
+                // date 小说的更新日期
                 // tags 小说的标签列表
                 // description 小说的简介
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveNovelMeta) {
                     const url = `https://www.pixiv.net/novel/show.php?id=${data.id}`;
-                    result.push(url);
-                    result.push(this.CRLF.repeat(2));
+                    text.push(url);
+                    text.push(this.CRLF2);
+                    text.push(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_更新日期') + ': ' + data.updateDate);
+                    text.push(this.CRLF2);
                     const tags = `${data.tags.map((tag) => `#${tag}`).join(this.CRLF)}`;
-                    result.push(tags);
-                    result.push(this.CRLF.repeat(2));
-                    result.push(data.description);
-                    result.push(this.CRLF.repeat(2));
-                    result.push(`----- ${_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下面是正文')} -----`);
-                    result.push(this.CRLF.repeat(2));
+                    text.push(tags);
+                    text.push(this.CRLF2);
+                    text.push(data.description);
+                    text.push(this.CRLF2);
+                    text.push(`----- ${_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下面是正文')} -----`);
+                    text.push(this.CRLF2);
                 }
                 // 添加正文
                 // 替换换行标签，移除 html 标签
-                result.push(data.content.replace(/<br \/>/g, this.CRLF).replace(/<\/?.+?>/g, ''));
+                text.push(data.content.replace(/<br \/>/g, this.CRLF).replace(/<\/?.+?>/g, ''));
                 // 在正文结尾添加换行标记，使得不同章节之间区分开来
-                result.push(this.CRLF.repeat(4));
+                text.push(this.CRLF.repeat(4));
             }
-            const blob = new Blob(result, {
+            const blob = new Blob(text, {
                 type: 'text/plain',
             });
             return resolve(blob);
@@ -21190,22 +21205,35 @@ class MergeNovel {
     mergeEPUB(seriesData) {
         return new Promise(async (resolve, reject) => {
             const link = `https://www.pixiv.net/novel/series/${this.seriesId}`;
-            let seriesDescription = this.handleEPUBDescription(this.seriesCaption);
+            let description = this.handleEPUBDescription(this.seriesCaption);
             // 现在生成的 EPUB 小说里有个“信息”页面，会显示如下数据（就是在下面的 jepub.init 里定义的）：
             // title 系列标题
             // author 作者
             // publisher 系列小说的 URL
             // tags 系列小说的标签列表
             // description 系列小说的简介
-            // 所以如果需要保存系列小说的元数据，那么把上面未包含的数据添加到 description 里即可
+            // 元数据里不属于以上分类的，都放到 description 里即可，会在信息页面里显示出来
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveNovelMeta) {
+                const otherMeta = [];
+                // 添加 date
+                otherMeta.push(`${_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_更新日期')}: ${this.seriesUpdateDate}`);
+                otherMeta.push(this.br2);
+                // 添加简介
+                if (description) {
+                    console.log(description);
+                    otherMeta.push(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_系列简介') + ': ');
+                    otherMeta.push(this.br2);
+                    otherMeta.push(description);
+                    otherMeta.push(this.br2);
+                }
                 // 添加设定资料
                 if (this.seriesGlossary) {
-                    seriesDescription =
-                        seriesDescription +
-                            '<br/><br/>' +
-                            this.handleEPUBDescription(this.seriesGlossary);
+                    otherMeta.push(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_设定资料') + ': ');
+                    otherMeta.push(this.br2);
+                    otherMeta.push(this.handleEPUBDescription(this.seriesGlossary));
+                    otherMeta.push(this.br2);
                 }
+                description = otherMeta.join('');
             }
             const jepub = new jEpub();
             jepub.init({
@@ -21222,10 +21250,10 @@ class MergeNovel {
                 author: this.userName,
                 publisher: link,
                 tags: this.seriesTags,
-                description: seriesDescription,
+                description: description,
             });
             jepub.uuid(link);
-            jepub.date(new Date(seriesData.updateDate));
+            jepub.date(new Date(this.seriesUpdateDate));
             // 添加这个系列的封面图片到 epub 文件里
             const coverUrl = seriesData.cover.urls.original;
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadNovelCoverImage && coverUrl) {
@@ -21254,14 +21282,16 @@ class MergeNovel {
                 }
                 // 添加每篇小说的元数据，内容包含：
                 // url 小说的 URL
+                // date 小说的更新日期
                 // tags 小说的标签列表
                 // description 小说的简介
                 let metaHtml = '';
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveNovelMeta) {
                     const url = `https://www.pixiv.net/novel/show.php?id=${data.id}`;
                     const link = `<p><a href="${url}" target="_blank">${url}</a></p>`;
+                    const date = `<p>${_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_更新日期') + ': ' + data.updateDate}</p>`;
                     const tags = `<p>${data.tags.map((tag) => `#${tag}`).join('<br/>')}</p>`;
-                    const meta = `${link}${tags}${_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.replaceEPUBText(data.description)}`;
+                    const meta = `${link}${date}${tags}${_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.replaceEPUBText(data.description)}`;
                     metaHtml =
                         meta +
                             `<br/><br/>----- ${_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下面是正文')} -----<br/><br/>`;
@@ -26744,7 +26774,7 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         `소설 데이터 가져오는 중 {}`,
         `Получение данных романа {}`,
     ],
-    _系列的简介: [`简介`, `簡介`, `Caption`, `キャプション`, `캡션`, `Подпись`],
+    _系列简介: [`简介`, `簡介`, `Caption`, `キャプション`, `캡션`, `Подпись`],
     _设定资料: [
         `设定资料`,
         `設定資料`,
@@ -26784,6 +26814,14 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         `シリーズ小説のメタデータ部分終了`,
         `시리즈 소설의 메타데이터 부분 종료`,
         `Конец раздела метаданных серии романов`,
+    ],
+    _更新日期: [
+        `更新日期`,
+        `更新日期`,
+        `Update date`,
+        `更新日`,
+        `업데이트 날짜`,
+        `Дата обновления`,
     ],
     _小说保存格式: [
         '<span class="key">小说</span>保存格式',
@@ -38692,7 +38730,7 @@ class SaveNovelData {
             const metaDescription = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.replaceEPUBDescription(_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlToText(description));
             const date = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__.DateFormat.format(body.createDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.dateFormat);
             metaArr.push(title, user, pageUrl, date, metaDescription, tagsA.join('\n'));
-            meta = metaArr.join('\n\n') + '\n\n\n';
+            meta = metaArr.join('\n\n') + '\n\n';
             // 提取嵌入的图片资源
             const embeddedImages = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.extractEmbeddedImages(data);
             // 保存作品信息

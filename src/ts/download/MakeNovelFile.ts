@@ -78,7 +78,7 @@ class MakeNovelFile {
     if (settings.saveNovelMeta) {
       content =
         data.meta +
-        `\n----- ${lang.transl('_下面是正文')} -----\n` +
+        `----- ${lang.transl('_下面是正文')} -----\n\n` +
         data.content
     }
 
@@ -100,9 +100,10 @@ class MakeNovelFile {
 
     // 添加元数据
     if (settings.saveNovelMeta) {
+      // data.meta 末尾已经有 2 个 \n 了，所以前面不需要添加 \n
       content =
         data.meta +
-        `\n----- ${lang.transl('_下面是正文')} -----\n` +
+        `----- ${lang.transl('_下面是正文')} -----\n\n` +
         data.content
     }
 

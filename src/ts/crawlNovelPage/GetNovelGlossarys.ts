@@ -55,10 +55,11 @@ class GetNovelGlossarys {
           array.push('\n\n')
         }
         array.push('----------------------------------------')
+        array.push('\n\n')
       }
     }
     if (array.length > 0) {
-      return array.join('') + '\n\n'
+      return array.join('')
     }
     return ''
   }
