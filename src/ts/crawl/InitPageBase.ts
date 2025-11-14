@@ -444,9 +444,11 @@ abstract class InitPageBase {
 
     try {
       const unlisted = pageType.type === pageType.list.Unlisted
-      // 这里不使用 cacheWorkData中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
+      // 这里不使用 cacheWorkData 中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
       if (idData.type === 'novels') {
         const data = await API.getNovelData(id, unlisted)
+        if (data.body.seriesNavData?.seriesId) {
+        }
         await saveNovelData.save(data)
         this.afterGetWorksData(data)
       } else {

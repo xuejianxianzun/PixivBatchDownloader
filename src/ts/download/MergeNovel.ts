@@ -1,7 +1,6 @@
 import { store } from '../store/Store'
 import { EVT } from '../EVT'
 import { Utils } from '../utils/Utils'
-import { states } from '../store/States'
 import { settings } from '../setting/Settings'
 import { lang } from '../Language'
 import { Tools } from '../Tools'
@@ -11,10 +10,12 @@ import { log } from '../Log'
 import { API } from '../API'
 import { NovelSeriesData } from '../crawl/CrawlResult'
 import { Config } from '../Config'
+import { toast } from '../Toast'
+import { getNovelGlossarys } from '../crawlNovelPage/GetNovelGlossarys'
 
 declare const jEpub: any
 
-// 单个小说的数据
+/** 储存每个小说的必要数据 */
 interface NovelData {
   id: string
   /**小说在系列中的排序，是从 1 开始的数字 */
@@ -30,132 +31,149 @@ interface NovelData {
 }
 
 class MergeNovel {
-  constructor() {
-    this.init()
-  }
-
-  private readonly CRLF = '\n' // pixiv 小说的换行符
-
-  /** 这个系列小说的元数据，现在只用在 TXT 里 */
-  private seriesMeta = ''
-
-  private init() {
-    window.addEventListener(EVT.list.crawlComplete, () => {
-      window.setTimeout(() => {
-        if (states.mergeNovel) {
-          this.merge()
-        }
-      }, 0)
-    })
-  }
-
-  private async merge() {
-    if (
-      store.resultMeta.length === 0 ||
-      store.resultMeta[0].novelMeta === null
-    ) {
-      states.mergeNovel = false
+  constructor(seriesId: string | number) {
+    if (!seriesId) {
+      toast.error(`seriesId is undefined`)
       return
     }
 
-    // 因为结果里的小说顺序可能是乱的，所以需要按照小说的序号对结果进行排序
-    const allResult = store.resultMeta.sort(
-      Utils.sortByProperty('seriesOrder', 'asc')
-    )
+    this.seriesId = seriesId.toString()
+    this.merge()
+  }
 
-    // 汇总小说数据
-    const allNovelData: NovelData[] = []
-    for (const result of allResult) {
-      allNovelData.push({
-        id: result.id,
-        no: result.seriesOrder!,
-        title: Utils.replaceUnsafeStr(result.title),
-        tags: result.novelMeta!.tags,
-        content: result.novelMeta!.content,
-        coverUrl: result.novelMeta!.coverUrl,
-        embeddedImages: result.novelMeta!.embeddedImages,
-        description: result.novelMeta!.description,
-      })
+  private seriesId = ''
+  private seriesTitle = ''
+  private seriesCaption = ''
+  private seriesGlossary = ''
+  private seriesTags: string[] = []
+  private userName = ''
+
+  private novelIdList: string[] = []
+  private allNovelData: NovelData[] = []
+  private readonly limit = 30
+  private last = 0
+  private readonly CRLF = '\n' // 小说的换行符
+
+  public async merge() {
+    log.log(lang.transl('_合并系列小说'))
+    toast.show(lang.transl('_开始抓取'), {
+      position: 'center',
+    })
+    EVT.fire('closeCenterPanel')
+
+    log.log(lang.transl('_获取小说列表'))
+    await this.getIdList()
+    await this.getNovelData()
+
+    // 获取这个系列的设定资料
+    if (settings.saveNovelMeta) {
+      log.log(lang.transl('_获取设定资料'))
+      const data = await getNovelGlossarys.getGlossarys(this.seriesId)
+      this.seriesGlossary = getNovelGlossarys.storeGlossaryText(data)
     }
 
-    // 获取这个系列本身的资料
-    const seriesDataJSON = await API.getNovelSeriesData(
-      store.resultMeta[0].seriesId!
-    )
+    // 获取这个系列本身的详细数据
+    log.log(lang.transl('_获取系列数据'))
+    const seriesDataJSON = await API.getNovelSeriesData(this.seriesId)
     const seriesData = seriesDataJSON.body
-
-    // 生成系列小说元数据的文本
-    this.seriesMeta = ''
-
-    const title = Tools.replaceEPUBTitle(
-      Utils.replaceUnsafeStr(seriesData.title)
-    )
-    const userName = Tools.replaceEPUBText(
+    this.userName = Tools.replaceEPUBText(
       Utils.replaceUnsafeStr(seriesData.userName)
     )
-    if (settings.saveNovelMeta) {
-      const metaArray: string[] = []
-      // 系列标题
-      metaArray.push(title)
-      // 作者
-      metaArray.push(userName)
-      // 系列网址
-      const link = `https://www.pixiv.net/novel/series/${seriesData.id}`
-      metaArray.push(link + this.CRLF)
-
-      const description = Utils.htmlToText(Utils.htmlDecode(seriesData.caption))
-      metaArray.push(description + this.CRLF.repeat(2))
-
-      // 设定资料
-      if (store.novelSeriesGlossary) {
-        metaArray.push(
-          Utils.htmlToText(Utils.htmlDecode(store.novelSeriesGlossary)) +
-          this.CRLF.repeat(2)
-        )
-      }
-
-      this.seriesMeta = metaArray.join(this.CRLF)
-    }
+    this.seriesTitle = Tools.replaceEPUBTitle(
+      Utils.replaceUnsafeStr(seriesData.title)
+    )
+    this.seriesCaption = Utils.htmlToText(Utils.htmlDecode(seriesData.caption))
+    this.seriesTags = seriesData.tags
 
     // 生成小说文件并下载
     let file: Blob | null = null
-    const novelName = `${title}-user_${userName}-seriesId_${seriesData.id}-tags_${seriesData.tags}.${settings.novelSaveAs}`
+    const novelName = `${this.seriesTitle}-user_${this.userName}-seriesId_${this.seriesId}-tags_${seriesData.tags}.${settings.novelSaveAs}`
     if (settings.novelSaveAs === 'txt') {
-      file = await this.mergeTXT(allNovelData, novelName)
+      file = await this.mergeTXT(novelName)
     } else {
-      file = await this.mergeEPUB(allNovelData, seriesData)
+      file = await this.mergeEPUB(seriesData)
     }
 
-    // 下载系列小说的封面图片
+    // 下载系列小说的封面图片，保存到单独的文件
     const coverUrl = seriesData.cover.urls.original
     if (settings.downloadNovelCoverImage && coverUrl) {
-      this.logDownloadSeriesCover(seriesData.id, seriesData.title)
+      this.logDownloadSeriesCover()
       await downloadNovelCover.download(coverUrl, novelName, 'mergeNovel')
     }
 
     const url = URL.createObjectURL(file)
     Utils.downloadFile(url, Utils.replaceUnsafeStr(novelName))
 
-    states.mergeNovel = false
     EVT.fire('downloadComplete')
     log.success(lang.transl('_下载完毕'), 2)
 
     store.reset()
   }
 
-  private async mergeTXT(
-    novelDataArray: NovelData[],
-    novelName: string
-  ): Promise<Blob> {
+  /** 获取这个系列里所有小说的 id */
+  private async getIdList(): Promise<void> {
+    const seriesData = await API.getNovelSeriesContent(
+      this.seriesId,
+      this.limit,
+      this.last,
+      'asc'
+    )
+
+    const list = seriesData.body.page.seriesContents
+    list.forEach((item) => {
+      this.novelIdList.push(item.id)
+    })
+
+    this.last += list.length
+
+    // 如果这一次返回的作品数量达到了每批限制，可能这次没有请求完，继续请求后续的数据
+    if (list.length === this.limit) {
+      return this.getIdList()
+    }
+    // 获取完毕
+  }
+
+  /** 获取所有小说数据，然后储存必须的数据 */
+  private async getNovelData() {
+    const total = this.novelIdList.length
+    let count = 0
+
+    for (const id of this.novelIdList) {
+      count++
+      log.log(
+        lang.transl('_获取小说数据进度', `${count} / ${total}`),
+        1,
+        false,
+        'getNovelDataProgress' + this.seriesId
+      )
+
+      const data = await API.getNovelData(id)
+      const novelData: NovelData = {
+        id: data.body.id,
+        no: data.body.seriesNavData!.order,
+        title: Utils.replaceUnsafeStr(data.body.title),
+        tags: Tools.extractTags(data),
+        description: Utils.htmlToText(Utils.htmlDecode(data.body.description)),
+        content: Tools.replaceNovelContentFlag(data.body.content),
+        coverUrl: data.body.coverUrl,
+        embeddedImages: Tools.extractEmbeddedImages(data),
+      }
+      this.allNovelData.push(novelData)
+    }
+
+    // 按照小说的序号进行升序排列
+    this.allNovelData.sort(Utils.sortByProperty('no', 'asc'))
+  }
+
+  private async mergeTXT(novelName: string): Promise<Blob> {
     return new Promise(async (resolve, reject) => {
       // 保存为 txt 格式时，在这里下载小说内嵌的图片
-      for (const result of store.resultMeta) {
-        const meta = result.novelMeta!
+      for (const data of this.allNovelData) {
         await downloadNovelEmbeddedImage.TXT(
-          meta.id,
-          meta.title,
-          meta.content,
-          meta.embeddedImages,
+          data.id,
+          data.title,
+          data.content,
+          data.embeddedImages,
           novelName,
           'mergeNovel'
         )
@@ -163,15 +181,54 @@ class MergeNovel {
 
       // 合并文本内容
       const result: string[] = []
+
+      // 添加元数据
       if (settings.saveNovelMeta) {
-        result.push(this.seriesMeta)
+        const a: string[] = []
+        const CRLF_2 = this.CRLF.repeat(2)
+        // 系列标题
+        a.push(this.seriesTitle)
+        a.push(CRLF_2)
+        // 作者
+        a.push(this.userName)
+        a.push(CRLF_2)
+        // 系列网址
+        const link = `https://www.pixiv.net/novel/series/${this.seriesId}`
+        a.push(link)
+        a.push(CRLF_2)
+        // 系列 tags
+        if (this.seriesTags.length > 0) {
+          const tags = this.seriesTags.map((tag) => `#${tag}`).join(', ')
+          a.push(tags)
+          a.push(CRLF_2)
+        }
+        // 系列简介
+        if (this.seriesCaption) {
+          a.push(lang.transl('_系列的简介') + ': ')
+          a.push(CRLF_2)
+          a.push(this.seriesCaption)
+          a.push(CRLF_2)
+        }
+        // 设定资料
+        if (this.seriesGlossary) {
+          a.push(lang.transl('_设定资料') + ': ')
+          a.push(CRLF_2)
+          a.push(Utils.htmlToText(Utils.htmlDecode(this.seriesGlossary)))
+          // seriesGlossary 结尾有换行 \n\n，所以这里不需要再添加换行
+        }
+        a.push(`----- ${lang.transl('_系列小说的元数据部分结束')} -----`)
+        a.push(CRLF_2)
+
+        // 合并
+        result.push(a.join(''))
       }
 
-      for (const data of novelDataArray) {
+      // 添加每篇小说的内容
+      for (const data of this.allNovelData) {
         // 添加章节名
         result.push(`${this.chapterNo(data.no)} ${data.title}`)
         result.push(this.CRLF.repeat(2))
-        // 添加每篇小说的元数据，内容包含：
+        // 添加元数据，内容包含：
         // url 小说的 URL
         // tags 小说的标签列表
         // description 小说的简介
@@ -203,19 +260,10 @@ class MergeNovel {
     })
   }
 
-  private mergeEPUB(
-    novelDataArray: NovelData[],
-    seriesData: NovelSeriesData['body']
-  ): Promise<Blob> {
+  private mergeEPUB(seriesData: NovelSeriesData['body']): Promise<Blob> {
     return new Promise(async (resolve, reject) => {
-      const link = `https://www.pixiv.net/novel/series/${seriesData.id}`
-      const title = Tools.replaceEPUBTitle(
-        Utils.replaceUnsafeStr(seriesData.title)
-      )
-      const userName = Tools.replaceEPUBText(
-        Utils.replaceUnsafeStr(seriesData.userName)
-      )
-      let description = this.handleEPUBDescription(seriesData.caption)
+      const link = `https://www.pixiv.net/novel/series/${this.seriesId}`
+      let seriesDescription = this.handleEPUBDescription(this.seriesCaption)
 
       // 现在生成的 EPUB 小说里有个“信息”页面，会显示如下数据（就是在下面的 jepub.init 里定义的）：
       // title 系列标题
@@ -226,11 +274,12 @@ class MergeNovel {
 
       // 所以如果需要保存系列小说的元数据，那么把上面未包含的数据添加到 description 里即可
       if (settings.saveNovelMeta) {
-        if (store.novelSeriesGlossary) {
-          description =
-            description +
+        // 添加设定资料
+        if (this.seriesGlossary) {
+          seriesDescription =
+            seriesDescription +
             '<br/><br/>' +
-            this.handleEPUBDescription(store.novelSeriesGlossary)
+            this.handleEPUBDescription(this.seriesGlossary)
         }
       }
 
@@ -245,20 +294,20 @@ class MergeNovel {
           info: lang.transl('_Information'),
           note: 'Notes',
         },
-        title: title,
-        author: userName,
+        title: this.seriesTitle,
+        author: this.userName,
         publisher: link,
-        tags: seriesData.tags,
-        description: description,
+        tags: this.seriesTags,
+        description: seriesDescription,
       })
 
       jepub.uuid(link)
       jepub.date(new Date(seriesData.updateDate))
 
-      // 添加这个系列的封面图片
+      // 添加这个系列的封面图片到 epub 文件里
       const coverUrl = seriesData.cover.urls.original
       if (settings.downloadNovelCoverImage && coverUrl) {
-        this.logDownloadSeriesCover(seriesData.id, seriesData.title)
+        this.logDownloadSeriesCover()
         const cover = await downloadNovelCover.getCover(coverUrl, 'arrayBuffer')
         if (cover) {
           jepub.cover(Config.isFirefox ? Utils.copyArrayBuffer(cover) : cover)
@@ -266,28 +315,34 @@ class MergeNovel {
       }
 
       // 循环添加小说内容
-      for (const novelData of novelDataArray) {
-        let content = Tools.replaceEPUBTextWithP(novelData.content)
-        const novelId = novelData.id
+      for (const data of this.allNovelData) {
+        let content = Tools.replaceEPUBTextWithP(data.content)
+        const novelId = data.id
 
         // 添加每篇小说的封面图片
         let coverHtml = ''
-        if (settings.downloadNovelCoverImage && novelData.coverUrl) {
+        if (settings.downloadNovelCoverImage && data.coverUrl) {
           log.log(
             lang.transl(
               '_下载小说的封面图片的提示',
-              Tools.createWorkLink(novelData.id, novelData.title, false)
+              Tools.createWorkLink(novelId, data.title, false)
             ),
             1,
             false,
-            'downloadNovelCover' + novelData.id
+            'downloadNovelCover' + novelId
           )
           // 下载器使用的 jepub.js 库只能为整个 epub 文件添加一个封面图片，不能为单个章节设置封面图片
           // 所以需要手动添加图片，然后添加图片对应的 html 代码
-          const cover = await downloadNovelCover.getCover(novelData.coverUrl, 'arrayBuffer')
+          const cover = await downloadNovelCover.getCover(
+            data.coverUrl,
+            'arrayBuffer'
+          )
           if (cover) {
-            const imageId = 'cover-' + novelData.id
-            jepub.image(Config.isFirefox ? Utils.copyArrayBuffer(cover) : cover, imageId)
+            const imageId = 'cover-' + novelId
+            jepub.image(
+              Config.isFirefox ? Utils.copyArrayBuffer(cover) : cover,
+              imageId
+            )
             coverHtml = `<p><img src="assets/${imageId}.jpg" /></p>`
           }
         }
@@ -298,12 +353,13 @@ class MergeNovel {
         // description 小说的简介
         let metaHtml = ''
         if (settings.saveNovelMeta) {
-          const url = `https://www.pixiv.net/novel/show.php?id=${novelData.id}`
+          const url = `https://www.pixiv.net/novel/show.php?id=${data.id}`
           const link = `<p><a href="${url}" target="_blank">${url}</a></p>`
-          const tags = `<p>${novelData.tags.map((tag) => `#${tag}`).join('<br/>')}</p>`
+          const tags = `<p>${data.tags.map((tag) => `#${tag}`).join('<br/>')}</p>`
 
-          const meta =`${link}${tags}${Tools.replaceEPUBText(novelData.description)}` 
-          metaHtml = meta +
+          const meta = `${link}${tags}${Tools.replaceEPUBText(data.description)}`
+          metaHtml =
+            meta +
             `<br/><br/>----- ${lang.transl('_下面是正文')} -----<br/><br/>`
         }
 
@@ -313,19 +369,17 @@ class MergeNovel {
         // 添加小说里的图片
         content = await downloadNovelEmbeddedImage.EPUB(
           novelId,
-          novelData.title,
+          data.title,
           content,
-          novelData.embeddedImages,
+          data.embeddedImages,
           jepub
         )
 
-        const title = Tools.replaceEPUBTitle(
-          Utils.replaceUnsafeStr(novelData.title)
-        )
+        const title = Tools.replaceEPUBTitle(Utils.replaceUnsafeStr(data.title))
 
         // 添加正文，这会在 EPUB 里生成一个新的章节
         // 实际上会生成一个对应的 html 文件，如 OEBPS/page-0.html
-        jepub.add(`${this.chapterNo(novelData.no)} ${title}`, content)
+        jepub.add(`${this.chapterNo(data.no)} ${title}`, content)
       }
 
       const blob = await jepub.generate('blob', (metadata: any) => {
@@ -361,15 +415,15 @@ class MergeNovel {
     // 我还尝试过使用 #1 这样的编号，但是这种方式并不可靠，有的小说可以分章有的小说不可以
   }
 
-  private logDownloadSeriesCover(seriseId: string, seriseTitle: string) {
-    const link = `<a href="https://www.pixiv.net/novel/series/${seriseId}" target="_blank">${seriseTitle}</a>`
+  private logDownloadSeriesCover() {
+    const link = `<a href="https://www.pixiv.net/novel/series/${this.seriesId}" target="_blank">${this.seriesTitle}</a>`
     log.log(
       lang.transl('_下载系列小说的封面图片', link),
       1,
       false,
-      'downloadSeriesNovelCover' + seriseId
+      'downloadSeriesNovelCover' + this.seriesId
     )
   }
 }
 
-new MergeNovel()
+export { MergeNovel }

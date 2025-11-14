@@ -82,15 +82,7 @@ class SaveNovelData {
       meta = metaArr.join('\n\n') + '\n\n\n'
 
       // 提取嵌入的图片资源
-      let embeddedImages: null | {
-        [key: string]: string
-      } = null
-      if (body.textEmbeddedImages) {
-        embeddedImages = {}
-        for (const [id, value] of Object.entries(body.textEmbeddedImages)) {
-          embeddedImages[id] = value.urls.original
-        }
-      }
+      const embeddedImages = Tools.extractEmbeddedImages(data)
 
       // 保存作品信息
       store.addResult({
@@ -123,7 +115,7 @@ class SaveNovelData {
         novelMeta: {
           id: body.id,
           title: title,
-          content: this.replaceFlag(body.content),
+          content: Tools.replaceNovelContentFlag(body.content),
           description: metaDescription,
           coverUrl: body.coverUrl,
           createDate: body.createDate,
@@ -135,59 +127,6 @@ class SaveNovelData {
         xRestrict: body.xRestrict,
       })
     }
-  }
-
-  // '[[jumpuri:予約ページ>https://www.amazon.co.jp/dp/4758092486]]'
-  // 替换成
-  // '予約ページ（https://www.amazon.co.jp/dp/4758092486）'
-  private replaceJumpuri(str: string) {
-    let reg = /\[\[jumpuri:(.*?)>(.*?)\]\]/g
-    let temp
-    while ((temp = reg.exec(str))) {
-      str = str.replace(temp[0], `${temp[1].trim()}（${temp[2].trim()}）`)
-      reg.lastIndex = 0
-    }
-
-    return str
-  }
-
-  // > '[[rb:莉莉丝 > Lilith]]'
-  // 替换成
-  // '莉莉丝（Lilith）'
-  private replaceRb(str: string) {
-    let reg = /\[\[rb:(.*?)>(.*?)\]\]/g
-    let temp
-    while ((temp = reg.exec(str))) {
-      str = str.replace(temp[0], `${temp[1].trim()}（${temp[2].trim()}）`)
-      reg.lastIndex = 0
-    }
-    return str
-  }
-
-  // > '[chapter:标题]'
-  // 替换成
-  // '标题'
-  private replaceChapter(str: string) {
-    const reg = /\[chapter:(.*?)\]/g
-    let temp
-    while ((temp = reg.exec(str))) {
-      str = str.replace(temp[0], temp[1])
-      reg.lastIndex = 0
-    }
-    return str
-  }
-
-  /**对小说里的一些标记进行替换 */
-  private replaceFlag(str: string) {
-    str = this.replaceJumpuri(str)
-
-    str = str.replace(/\[jump:.*?\]/g, '')
-
-    str = this.replaceRb(str)
-
-    str = this.replaceChapter(str)
-
-    return str
   }
 }
 

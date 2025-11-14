@@ -55,7 +55,6 @@ class GetNovelGlossarys {
           array.push('\n\n')
         }
         array.push('----------------------------------------')
-        array.push('\n\n')
       }
     }
     if (array.length > 0) {

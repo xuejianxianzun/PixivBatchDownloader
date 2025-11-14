@@ -461,6 +461,10 @@ class Utils {
 
   // textarea.value 不会转换 <br /> 等 html 标记
   static htmlDecode(str: string) {
+    if (!str) {
+      return ''
+    }
+
     const textarea = document.createElement('textarea')
     textarea.innerHTML = str
     return textarea.value

@@ -36,9 +36,6 @@ class States {
   // 开始批量收藏时设为 true，收藏完成之后复位到 false
   public bookmarkMode = false
 
-  /**合并系列小说时使用的标记 */
-  public mergeNovel = false
-
   /**抓取标签列表时使用的标记 */
   public crawlTagList = false
 

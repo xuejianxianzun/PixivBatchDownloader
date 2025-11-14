@@ -23,9 +23,6 @@ class Store {
 
   public result: Result[] = [] // 储存抓取结果
 
-  /**系列小说的设定资料 */
-  public novelSeriesGlossary = ''
-
   private artworkIDList: number[] = [] // 储存抓取到的图片作品的 id 列表，用来避免重复添加
   private novelIDList: number[] = [] // 储存抓取到的小说作品的 id 列表，用来避免重复添加
 
@@ -235,7 +232,6 @@ class Store {
     this.waitingIdList = []
     this.rankList = {}
     this.remainingDownload = 0
-    this.novelSeriesGlossary = ''
     this.tag = Tools.getTagFromURL()
     this.title = Tools.getPageTitle()
   }

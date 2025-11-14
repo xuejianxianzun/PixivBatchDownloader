@@ -76,7 +76,10 @@ class MakeNovelFile {
 
     // 添加元数据
     if (settings.saveNovelMeta) {
-      content = data.meta + `\n----- ${lang.transl('_下面是正文')} -----\n` + data.content
+      content =
+        data.meta +
+        `\n----- ${lang.transl('_下面是正文')} -----\n` +
+        data.content
     }
 
     // 替换换行标签，移除 html 标签
@@ -97,7 +100,10 @@ class MakeNovelFile {
 
     // 添加元数据
     if (settings.saveNovelMeta) {
-      content = data.meta + `\n----- ${lang.transl('_下面是正文')} -----\n` + data.content
+      content =
+        data.meta +
+        `\n----- ${lang.transl('_下面是正文')} -----\n` +
+        data.content
     }
 
     // 统一替换添加 <p> 与 </p>， 以对应 EPUB 文本的惯例

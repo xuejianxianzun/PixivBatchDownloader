@@ -641,6 +641,69 @@ class Tools {
     return str
   }
 
+  /** 从小说数据里提取嵌入的图片资源 **/
+  static extractEmbeddedImages(data: NovelData) {
+    let imags: null | {
+      [key: string]: string
+    } = null
+    if (data.body.textEmbeddedImages) {
+      imags = {}
+      for (const [id, value] of Object.entries(data.body.textEmbeddedImages)) {
+        imags[id] = value.urls.original
+      }
+    }
+    return imags
+  }
+
+  /**对小说正文里的一些标记进行替换 */
+  static replaceNovelContentFlag(str: string) {
+    str = this.replaceJumpuri(str)
+    str = str.replace(/\[jump:.*?\]/g, '')
+    str = this.replaceRb(str)
+    str = this.replaceChapter(str)
+    return str
+  }
+
+  // '[[jumpuri:予約ページ>https://www.amazon.co.jp/dp/4758092486]]'
+  // 替换成
+  // '予約ページ（https://www.amazon.co.jp/dp/4758092486）'
+  static replaceJumpuri(str: string) {
+    let reg = /\[\[jumpuri:(.*?)>(.*?)\]\]/g
+    let temp
+    while ((temp = reg.exec(str))) {
+      str = str.replace(temp[0], `${temp[1].trim()}（${temp[2].trim()}）`)
+      reg.lastIndex = 0
+    }
+
+    return str
+  }
+
+  // > '[[rb:莉莉丝 > Lilith]]'
+  // 替换成
+  // '莉莉丝（Lilith）'
+  static replaceRb(str: string) {
+    let reg = /\[\[rb:(.*?)>(.*?)\]\]/g
+    let temp
+    while ((temp = reg.exec(str))) {
+      str = str.replace(temp[0], `${temp[1].trim()}（${temp[2].trim()}）`)
+      reg.lastIndex = 0
+    }
+    return str
+  }
+
+  // > '[chapter:标题]'
+  // 替换成
+  // '标题'
+  static replaceChapter(str: string) {
+    const reg = /\[chapter:(.*?)\]/g
+    let temp
+    while ((temp = reg.exec(str))) {
+      str = str.replace(temp[0], temp[1])
+      reg.lastIndex = 0
+    }
+    return str
+  }
+
   /**替换 EPUB 文本里的特殊字符和换行符 */
   // 换行符必须放在最后处理，以免其 < 符号被替换
   // 把所有换行符统一成 <br/>（包括 \n）
