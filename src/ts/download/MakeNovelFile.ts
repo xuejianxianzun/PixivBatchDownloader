@@ -72,9 +72,13 @@ class MakeNovelFile {
 
     this.busy = false
 
-    let content = settings.saveNovelMeta
-      ? data.meta + data.content
-      : data.content
+    let content = data.content
+
+    // 添加元数据
+    if (settings.saveNovelMeta) {
+      content = data.meta + `\n----- ${lang.transl('_下面是正文')} -----\n` + data.content
+    }
+
     // 替换换行标签，移除 html 标签
     content = content.replace(/<br \/>/g, '\n').replace(/<\/?.+?>/g, '')
 
@@ -89,9 +93,13 @@ class MakeNovelFile {
 
     await this.downloadCover(data.id, data.title, data.coverUrl, filename)
 
-    let content = settings.saveNovelMeta
-      ? data.meta + data.content
-      : data.content
+    let content = data.content
+
+    // 添加元数据
+    if (settings.saveNovelMeta) {
+      content = data.meta + `\n----- ${lang.transl('_下面是正文')} -----\n` + data.content
+    }
+
     // 统一替换添加 <p> 与 </p>， 以对应 EPUB 文本的惯例
     content = Tools.replaceEPUBTextWithP(content)
 
@@ -102,9 +110,8 @@ class MakeNovelFile {
     const novelURL = `https://www.pixiv.net/novel/show.php?id=${data.id}`
 
     // 开始生成 EPUB 文件
-    const date = DateFormat.format(data.createDate, settings.dateFormat)
-
     const jepub = new jEpub()
+    const date = DateFormat.format(data.createDate, settings.dateFormat)
     jepub.init({
       i18n: lang.type,
       // 对 EPUB 左侧的一些文字进行本地化

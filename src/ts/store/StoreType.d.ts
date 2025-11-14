@@ -125,6 +125,7 @@ export interface NovelMeta {
   embeddedImages: null | {
     [key: string]: string
   }
+  /**小说的元数据，其末尾有 3 个换行 \n */
   meta: string
   tags: string[]
 }

@@ -655,8 +655,7 @@ class Tools {
       .replace(/\n/g, '<br/>')
   }
 
-  // 把所有换行符统一成 <br/>（包括 \n）
-  // 之后统一替换为 <p> 与 </p>，以对应 EPUB 文本惯例
+  /**把所有换行符统一成 <br/>（包括 \n）, 之后统一替换为 <p> 与 </p>，以对应 EPUB 文本惯例 */
   static replaceEPUBTextWithP(str: string) {
     return (
       '<p>' +

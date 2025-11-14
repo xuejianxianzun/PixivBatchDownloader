@@ -93,7 +93,6 @@ class SaveNovelData {
       }
 
       // 保存作品信息
-
       store.addResult({
         aiType: body.aiType,
         id: id,
@@ -178,10 +177,8 @@ class SaveNovelData {
     return str
   }
 
-  // 对小说里的一些标记进行替换
+  /**对小说里的一些标记进行替换 */
   private replaceFlag(str: string) {
-    str = str.replace(/\[newpage\]/g, '')
-
     str = this.replaceJumpuri(str)
 
     str = str.replace(/\[jump:.*?\]/g, '')

@@ -134,8 +134,9 @@ class DownloadNovelEmbeddedImage {
       )
 
       // 将小说正文里的图片标记替换为真实的的图片路径，以在 EPUB 里显示
-      // [uploadedimage:17995414]
-      // <img src="assets/17995414.png"></img>
+      // 例如把
+      // [uploadedimage:17995414] 替换成
+      // <img src="assets/17995414.png" />
       // 小说页面的文件是 OEBPS/page-0.html
       // 小说里的图片保存在 OEBPS/assets 文件夹里（封面图除外，它直接保存在 OEBPS/cover-image.jpg）
       // 注意：img src 的 assets 前面不要添加相对位置的符号： ./
