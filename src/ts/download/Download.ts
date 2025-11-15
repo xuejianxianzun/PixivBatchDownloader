@@ -13,7 +13,7 @@ import { progressBar } from './ProgressBar'
 import { filter } from '../filter/Filter'
 import { downloadRecord } from './DownloadRecord'
 import { settings } from '../setting/Settings'
-import { MakeNovelFile } from './MakeNovelFile'
+import { makeNovelFile } from './MakeNovelFile'
 import { Utils } from '../utils/Utils'
 import { Config } from '../Config'
 import { msgBox } from '../MsgBox'
@@ -194,13 +194,13 @@ class Download {
       if (arg.result.novelMeta) {
         // 生成小说文件
         if (settings.novelSaveAs === 'epub') {
-          const blob: Blob = await MakeNovelFile.makeEPUB(
+          const blob: Blob = await makeNovelFile.makeEPUB(
             arg.result.novelMeta,
             _fileName
           )
           url = URL.createObjectURL(blob)
         } else {
-          const blob: Blob = await MakeNovelFile.makeTXT(
+          const blob: Blob = await makeNovelFile.makeTXT(
             arg.result.novelMeta,
             _fileName
           )

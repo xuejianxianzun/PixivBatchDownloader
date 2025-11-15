@@ -14,7 +14,7 @@ declare const jEpub: any
 
 class MakeNovelFile {
   /** 下载小说的封面图片 */
-  static async downloadCover(
+  private async downloadCover(
     id: string,
     title: string,
     url: string,
@@ -41,8 +41,8 @@ class MakeNovelFile {
   // 1. 如果图片体积都比较大，或者用户网络较差时，会增加图片下载失败的几率
   // 2. 如果图片体积都比较小，下载会迅速完成，这会导致下载频率很高，增大了账号被 Pixiv 警告、封禁的风险
   // 因此下载图片期间需要使用单例执行
-  static busy = false
-  static waitForIdle(): Promise<void> {
+  private busy = false
+  private waitForIdle(): Promise<void> {
     return new Promise((resolve) => {
       const check = () => {
         if (!this.busy) {
@@ -55,7 +55,7 @@ class MakeNovelFile {
     })
   }
 
-  static async makeTXT(data: NovelMeta, filename: string) {
+  public async makeTXT(data: NovelMeta, filename: string) {
     await this.waitForIdle()
     this.busy = true
 
@@ -77,9 +77,9 @@ class MakeNovelFile {
     // 添加元数据
     if (settings.saveNovelMeta) {
       content =
-        data.meta +
+        this.makeMeta(data) +
         `----- ${lang.transl('_下面是正文')} -----\n\n` +
-        data.content
+        content
     }
 
     // 替换换行标签，移除 html 标签
@@ -90,7 +90,7 @@ class MakeNovelFile {
     })
   }
 
-  static async makeEPUB(data: NovelMeta, filename: string): Promise<Blob> {
+  public async makeEPUB(data: NovelMeta, filename: string): Promise<Blob> {
     await this.waitForIdle()
     this.busy = true
 
@@ -100,11 +100,10 @@ class MakeNovelFile {
 
     // 添加元数据
     if (settings.saveNovelMeta) {
-      // data.meta 末尾已经有 2 个 \n 了，所以前面不需要添加 \n
       content =
-        data.meta +
+        this.makeMeta(data) +
         `----- ${lang.transl('_下面是正文')} -----\n\n` +
-        data.content
+        content
     }
 
     // 统一替换添加 <p> 与 </p>， 以对应 EPUB 文本的惯例
@@ -177,6 +176,29 @@ class MakeNovelFile {
     })
     return blob
   }
+
+  /** 生成 meta 数据，每条数据之间有两个换行 \n，结尾也有两个换行 \n */
+  private makeMeta(data: NovelMeta) {
+    const array: string[] = []
+    const date = DateFormat.format(data.uploadDate, settings.dateFormat)
+    // meta 依次是：
+    // 标题
+    // 作者名
+    // url
+    // 更新日期
+    // tag 列表
+    // 简介
+    array.push(
+      data.title,
+      data.userName,
+      `https://www.pixiv.net/novel/show.php?id=${data.id}`,
+      date,
+      data.tags.map((tag) => `#${tag}`).join('\n'),
+      data.description
+    )
+    return array.join('\n\n') + '\n\n'
+  }
 }
 
-export { MakeNovelFile }
+const makeNovelFile = new MakeNovelFile()
+export { makeNovelFile }

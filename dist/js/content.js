@@ -18649,11 +18649,11 @@ class Download {
             if (arg.result.novelMeta) {
                 // 生成小说文件
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.novelSaveAs === 'epub') {
-                    const blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_10__.MakeNovelFile.makeEPUB(arg.result.novelMeta, _fileName);
+                    const blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_10__.makeNovelFile.makeEPUB(arg.result.novelMeta, _fileName);
                     url = URL.createObjectURL(blob);
                 }
                 else {
-                    const blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_10__.MakeNovelFile.makeTXT(arg.result.novelMeta, _fileName);
+                    const blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_10__.makeNovelFile.makeTXT(arg.result.novelMeta, _fileName);
                     url = URL.createObjectURL(blob);
                 }
             }
@@ -20830,7 +20830,7 @@ new ImportResult();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   MakeNovelFile: () => (/* binding */ MakeNovelFile)
+/* harmony export */   makeNovelFile: () => (/* binding */ makeNovelFile)
 /* harmony export */ });
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
@@ -20854,7 +20854,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class MakeNovelFile {
     /** 下载小说的封面图片 */
-    static async downloadCover(id, title, url, filename) {
+    async downloadCover(id, title, url, filename) {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.downloadNovelCoverImage && url) {
             _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载小说的封面图片的提示', _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.createWorkLink(id, title, false)), 1, false, 'downloadNovelCover' + id);
             await _DownloadInterval__WEBPACK_IMPORTED_MODULE_5__.downloadInterval.wait();
@@ -20867,8 +20867,8 @@ class MakeNovelFile {
     // 1. 如果图片体积都比较大，或者用户网络较差时，会增加图片下载失败的几率
     // 2. 如果图片体积都比较小，下载会迅速完成，这会导致下载频率很高，增大了账号被 Pixiv 警告、封禁的风险
     // 因此下载图片期间需要使用单例执行
-    static busy = false;
-    static waitForIdle() {
+    busy = false;
+    waitForIdle() {
         return new Promise((resolve) => {
             const check = () => {
                 if (!this.busy) {
@@ -20881,7 +20881,7 @@ class MakeNovelFile {
             check();
         });
     }
-    static async makeTXT(data, filename) {
+    async makeTXT(data, filename) {
         await this.waitForIdle();
         this.busy = true;
         await this.downloadCover(data.id, data.title, data.coverUrl, filename);
@@ -20892,9 +20892,9 @@ class MakeNovelFile {
         // 添加元数据
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.saveNovelMeta) {
             content =
-                data.meta +
+                this.makeMeta(data) +
                     `----- ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下面是正文')} -----\n\n` +
-                    data.content;
+                    content;
         }
         // 替换换行标签，移除 html 标签
         content = content.replace(/<br \/>/g, '\n').replace(/<\/?.+?>/g, '');
@@ -20902,18 +20902,17 @@ class MakeNovelFile {
             type: 'text/plain',
         });
     }
-    static async makeEPUB(data, filename) {
+    async makeEPUB(data, filename) {
         await this.waitForIdle();
         this.busy = true;
         await this.downloadCover(data.id, data.title, data.coverUrl, filename);
         let content = data.content;
         // 添加元数据
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.saveNovelMeta) {
-            // data.meta 末尾已经有 2 个 \n 了，所以前面不需要添加 \n
             content =
-                data.meta +
+                this.makeMeta(data) +
                     `----- ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下面是正文')} -----\n\n` +
-                    data.content;
+                    content;
         }
         // 统一替换添加 <p> 与 </p>， 以对应 EPUB 文本的惯例
         content = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.replaceEPUBTextWithP(content);
@@ -20964,7 +20963,22 @@ class MakeNovelFile {
         });
         return blob;
     }
+    /** 生成 meta 数据，每条数据之间有两个换行 \n，结尾也有两个换行 \n */
+    makeMeta(data) {
+        const array = [];
+        const date = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_6__.DateFormat.format(data.uploadDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat);
+        // meta 依次是：
+        // 标题
+        // 作者名
+        // url
+        // 更新日期
+        // tag 列表
+        // 简介
+        array.push(data.title, data.userName, `https://www.pixiv.net/novel/show.php?id=${data.id}`, date, data.tags.map((tag) => `#${tag}`).join('\n'), data.description);
+        return array.join('\n\n') + '\n\n';
+    }
 }
+const makeNovelFile = new MakeNovelFile();
 
 
 
@@ -21168,7 +21182,7 @@ class MergeNovel {
             }
             // 添加每篇小说的内容
             for (const data of this.allNovelData) {
-                // 添加章节名
+                // 添加章节名（标题）
                 text.push(`${this.chapterNo(data.no)} ${data.title}`);
                 text.push(this.CRLF2);
                 // 添加小说的元数据，内容包含：
@@ -38668,8 +38682,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
-
 
 
 
@@ -38715,7 +38727,6 @@ class SaveNovelData {
             const seriesTitle = body.seriesNavData ? body.seriesNavData.title : '';
             const seriesOrder = body.seriesNavData ? body.seriesNavData.order : null;
             // 保存小说的一些元数据
-            let meta = '';
             let metaArr = [];
             const pageUrl = `https://www.pixiv.net/novel/show.php?id=${id}`;
             const tagsA = [];
@@ -38727,10 +38738,7 @@ class SaveNovelData {
             // metaDescription 保存在 novelMeta.description 和 novelMeta.meta 里
             // 它会在生成的小说里显示，供读者阅读，所以移除了 html 标签，只保留纯文本
             // 处理后，换行标记是 \n 而不是 <br/>
-            const metaDescription = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.replaceEPUBDescription(_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlToText(description));
-            const date = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__.DateFormat.format(body.createDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.dateFormat);
-            metaArr.push(title, user, pageUrl, date, metaDescription, tagsA.join('\n'));
-            meta = metaArr.join('\n\n') + '\n\n';
+            const descriptionNoHtmlTag = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.replaceEPUBDescription(_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlToText(description));
             // 提取嵌入的图片资源
             const embeddedImages = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.extractEmbeddedImages(data);
             // 保存作品信息
@@ -38765,12 +38773,12 @@ class SaveNovelData {
                     id: body.id,
                     title: title,
                     content: _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.replaceNovelContentFlag(body.content),
-                    description: metaDescription,
+                    description: descriptionNoHtmlTag,
                     coverUrl: body.coverUrl,
                     createDate: body.createDate,
+                    uploadDate: body.uploadDate,
                     userName: body.userName,
                     embeddedImages: embeddedImages,
-                    meta: meta,
                     tags: tags,
                 },
                 xRestrict: body.xRestrict,

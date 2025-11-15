@@ -236,7 +236,7 @@ class MergeNovel {
 
       // 添加每篇小说的内容
       for (const data of this.allNovelData) {
-        // 添加章节名
+        // 添加章节名（标题）
         text.push(`${this.chapterNo(data.no)} ${data.title}`)
         text.push(this.CRLF2)
         // 添加小说的元数据，内容包含：
