@@ -42,7 +42,8 @@ class DownloadNovelEmbeddedImage {
     content: string,
     embeddedImages: EmbeddedImages,
     novelName: string,
-    action: 'downloadNovel' | 'mergeNovel' = 'downloadNovel'
+    action: 'downloadNovel' | 'mergeNovel' = 'downloadNovel',
+    interval = 0
   ) {
     const imageList = await this.getImageList(novelId, content, embeddedImages)
 
@@ -57,7 +58,11 @@ class DownloadNovelEmbeddedImage {
         continue
       }
 
-      await downloadInterval.wait()
+      if (interval) {
+        await Utils.sleep(interval)
+      } else {
+        await downloadInterval.wait()
+      }
 
       const blob = await this.getImage(image.url, 'blob')
       if (blob === null) {
@@ -104,9 +109,11 @@ class DownloadNovelEmbeddedImage {
     novelTitle: string,
     content: string,
     embeddedImages: EmbeddedImages,
-    jepub: any
+    jepub: any,
+    interval = 0
   ) {
     const imageList = await this.getImageList(novelId, content, embeddedImages)
+
     let current = 1
     const total = imageList.length
     for (const image of imageList) {
@@ -120,7 +127,11 @@ class DownloadNovelEmbeddedImage {
       }
 
       // 加载图片
-      await downloadInterval.wait()
+      if (interval) {
+        await Utils.sleep(interval)
+      } else {
+        await downloadInterval.wait()
+      }
 
       const buffer = await this.getImage(image.url, 'arrayBuffer')
       // 如果图片获取失败，将正文里它对应的标记替换为提示文字
@@ -251,17 +262,9 @@ class DownloadNovelEmbeddedImage {
       } catch (error: Error | any) {
         if (error.status) {
           // 请求成功，但状态码不正常
-          if (error.status === 500 || error.status === 429) {
-            log.error(lang.transl('_抓取被限制时返回空结果的提示'))
-            window.setTimeout(() => {
-              return this.getImageList(novelID, content, embeddedImages)
-            }, Config.retryTime)
-            return
-          } else {
-            // 其他状态码，尚不清楚实际会遇到什么情况，最可能的是作品被删除（404 ）了吧
-            // 此时直接返回数据（不会下载图片，但是后续会在正文里显示对应的提示）
-            return resolve(idList)
-          }
+          // 最可能的是作品被删除（404 ）了
+          // 此时直接返回数据（不会下载图片，但是后续会在正文里显示对应的提示）
+          return resolve(idList)
         } else {
           // 请求失败，没有获得服务器的返回数据，一般都是
           // TypeError: Failed to fetch
@@ -285,7 +288,7 @@ class DownloadNovelEmbeddedImage {
     log.log(
       lang.transl(
         '_正在下载小说x中的插画x',
-        Tools.createWorkLink(id, title, false),
+        Tools.createWorkLink(id, title, 'novel'),
         `${current} / ${total}`
       ),
       1,
@@ -322,9 +325,9 @@ class DownloadNovelEmbeddedImage {
       return data
     } catch (error) {
       retry++
-      console.log(retry, url)
+      // console.log(retry, url)
       if (retry > this.retryMax) {
-        log.error(`fetch ${url} failed`)
+        log.error(`${lang.transl('_下载小说里的图片失败')}: ${url}`)
         return null
       }
       // 重试下载

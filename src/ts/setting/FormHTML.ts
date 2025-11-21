@@ -2,8 +2,6 @@ import { Config } from '../Config'
 import { wiki } from './Wiki'
 
 // 设置项编号从 0 开始，现在最大是 90
-// 目前没有使用的编号: 73
-// 有些设置曾经使用过这些编号，但后来被移除了，所以这些编号就空缺了。在以后添加新设置时，可以考虑使用这些空缺的编号
 export const formHtml = `
 <form class="settingForm">
   <div class="tabsContnet">
@@ -811,6 +809,20 @@ export const formHtml = `
       <input type="radio" name="novelSaveAs" id="novelSaveAs2" class="need_beautify radio" value="epub">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="novelSaveAs2"> EPUB </label>
+    </p>
+    <p class="option" data-no="73">
+      <a href="${wiki.link(73)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动合并系列小说的说明">
+        <span data-xztext="_自动合并系列小说"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="autoMergeNovel" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="autoMergeNovel">
+        <label for="skipNovelsInSeriesWhenAutoMerge" data-xztext="_不再单独下载系列里的小说" class="has_tip" data-xztip="_不再单独下载系列里的小说的说明"></label>
+        <span class="gray1"> ? &nbsp;</span>
+        <input type="checkbox" name="skipNovelsInSeriesWhenAutoMerge" id="skipNovelsInSeriesWhenAutoMerge" class="need_beautify checkbox_switch" checked>
+        <span class="beautify_switch" tabindex="0"></span>
+      </span>
     </p>
     <p class="option" data-no="27">
       <a href="${wiki.link(27)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在小说里保存元数据提示">

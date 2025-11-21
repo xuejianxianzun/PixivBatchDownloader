@@ -36,8 +36,10 @@ import {
 } from './crawl/CrawlArgument'
 
 import { IDData } from './store/StoreType'
+import { Config } from './Config'
+import { EVT } from './EVT'
 
-/** 点击 like 按钮的返回数据 */
+/** 点击 like 按钮时返回的数据 */
 interface LikeResponse {
   error: boolean
   message: '' | string
@@ -49,62 +51,62 @@ interface LikeResponse {
 }
 
 class API {
-  // 发送 get 请求，返回 json 数据，抛出异常
-  static sendGetRequest<T>(url: string): Promise<T> {
+  // API 里的所有请求都从这里转发，以简化代码，并方便统一处理错误
+  // 429 错误会自动重试，其他错误会 reject
+  static fetch<T>(
+    url: string,
+    init?: RequestInit,
+    format: 'json' | 'text' = 'json'
+  ): Promise<T> {
+    // 默认发送 get 请求
+    init = init || {
+      method: 'get',
+      credentials: 'same-origin',
+    }
     return new Promise((resolve, reject) => {
-      fetch(url, {
-        method: 'get',
-        credentials: 'same-origin',
-      })
-        .then((response) => {
+      // 虽然添加了重试次数参数，但实际上没有使用，因为现在只会对 429 错误重试，而且重试频率很低，所以我没有限制重试次数，会无限重试
+      // 之前的代码是使用 fetch.then().then().catch() 链的，在第一个 then 里调用 this.fetch() 来重试
+      // 现在改为使用一个内部函数来发送请求，并把请求从链式改为 async/await 形式，使用尾递归来重试，看起来更加清晰
+      const attemptRequest = async (tryCount = 0) => {
+        try {
+          const response = await fetch(url, init)
           // response.ok 的状态码范围是 200-299
           if (response.ok) {
-            return response.json()
+            // 请求成功，直接返回数据
+            const data = await response[format]()
+            return resolve(data)
           } else {
             // 请求成功但状态码异常
-            reject({
+            EVT.fire('requestStatusError', {
               status: response.status,
-              statusText: response.statusText,
+              url: url,
             })
-            switch (response.status) {
-              case 400:
-                return console.error(
-                  'Status Code: 400（Bad Request）。服务器无法理解此请求'
-                )
-              case 401:
-                return console.error(
-                  'Status Code: 401（Unauthorized）。您可能需要登录 Pixiv 账号'
-                )
-              case 403:
-                return console.error(
-                  'Status Code: 403（Forbidden）。服务器拒绝了这个请求'
-                )
-              case 404:
-                return console.error(
-                  'Status Code: 404（Not Found）。服务器找不到请求的资源'
-                )
-              case 500:
-                return console.error(
-                  'Status Code: 500（Internal Server Error）。服务器内部错误'
-                )
-              case 503:
-                return console.error(
-                  'Status Code: 503（Service Unavailable）。服务器忙或者在维护'
-                )
-              default:
-                return console.error(
-                  `请求的状态不正确，状态码：${response.status}`
-                )
+            // 对于 429 状态码，自动重试，直到成功或者出现其他错误
+            // 所以在其他模块里调用 API 时，不需要自行处理 429 错误
+            // 以前隔 200 秒重试经常可以成功，但现在时间似乎有所增加，而且不同的账号也不一样。
+            // 有些账号需要重试 2、3 次，但有些账号（近期抓取和下载了大量文件）可能要重试 6 次（即等待 20 分钟）才能成功
+            if (response.status === 429) {
+              // 等待一段时间后，通过尾递归重试请求
+              // console.log(`429 tryCount ${tryCount}`)
+              await new Promise((res) =>
+                window.setTimeout(res, Config.retryTime)
+              )
+              await attemptRequest(tryCount + 1)
+            } else {
+              // 对于其他状态码，不会重试
+              console.error(`Status Code: ${response.status}`)
+              return reject({
+                status: response.status,
+                statusText: response.statusText,
+              })
             }
           }
-        })
-        .then((data) => {
-          resolve(data)
-        })
-        .catch((error) => {
-          // 请求失败
+        } catch (error) {
           reject(error)
-        })
+        }
+      }
+
+      attemptRequest()
     })
   }
 
@@ -121,7 +123,7 @@ class API {
       hide ? 'hide' : 'show'
     }&rdm=${Math.random()}`
 
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   // 添加收藏
@@ -151,7 +153,8 @@ class API {
       }
     }
 
-    return fetch(`https://www.pixiv.net/ajax/${type}/bookmarks/add`, {
+    const url = `https://www.pixiv.net/ajax/${type}/bookmarks/add`
+    const init: RequestInit = {
       method: 'POST',
       credentials: 'same-origin', // 附带 cookie
       headers: {
@@ -160,7 +163,8 @@ class API {
         'x-csrf-token': token,
       },
       body: JSON.stringify(body),
-    })
+    }
+    return this.fetch(url, init)
   }
 
   static async deleteBookmark(
@@ -173,7 +177,8 @@ class API {
         ? `bookmark_id=${bookmarkID}`
         : `del=1&book_id=${bookmarkID}`
 
-    return fetch(`https://www.pixiv.net/ajax/${type}/bookmarks/delete`, {
+    const url = `https://www.pixiv.net/ajax/${type}/bookmarks/delete`
+    const init: RequestInit = {
       method: 'POST',
       credentials: 'same-origin', // 附带 cookie
       headers: {
@@ -182,7 +187,8 @@ class API {
         'x-csrf-token': token,
       },
       body: bodyStr,
-    })
+    }
+    return this.fetch(url, init)
   }
 
   // 获取关注的用户列表
@@ -195,7 +201,7 @@ class API {
     lang = 'zh'
   ): Promise<FollowingResponse> {
     const url = `https://www.pixiv.net/ajax/user/${id}/following?offset=${offset}&limit=${limit}&rest=${rest}&tag=${tag}&lang=${lang}`
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   // 获取好 P 友列表
@@ -206,7 +212,7 @@ class API {
     lang = 'zh'
   ): Promise<FollowingResponse> {
     const url = `https://www.pixiv.net/ajax/user/${id}/mypixiv?offset=${offset}&limit=${limit}&lang=${lang}`
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   // 获取粉丝列表
@@ -217,7 +223,7 @@ class API {
     lang = 'zh'
   ): Promise<FollowingResponse> {
     const url = `https://www.pixiv.net/ajax/user/${id}/followers?offset=${offset}&limit=${limit}&lang=${lang}`
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   // 获取用户信息
@@ -225,7 +231,7 @@ class API {
     // full=1 在画师的作品列表页使用，获取详细信息
     // full=0 在作品页内使用，只获取少量信息
     const url = `https://www.pixiv.net/ajax/user/${id}?full=1`
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   // 获取用户指定类型的作品列表
@@ -238,15 +244,19 @@ class API {
     let result: IDData[] = []
     const url = `https://www.pixiv.net/ajax/user/${id}/profile/all`
 
-    let data: UserProfileAllData = await this.sendGetRequest(url)
-    for (const type of typeSet.values()) {
-      const idList = Object.keys(data.body[type])
-      for (const id of idList) {
-        result.push({
-          type,
-          id,
-        })
+    try {
+      const data: UserProfileAllData = await this.fetch(url)
+      for (const type of typeSet.values()) {
+        const idList = Object.keys(data.body[type])
+        for (const id of idList) {
+          result.push({
+            type,
+            id,
+          })
+        }
       }
+    } catch (error) {
+      return result
     }
 
     return result
@@ -264,36 +274,38 @@ class API {
   ): Promise<UserImageWorksWithTag | UserNovelsWithTag> {
     // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=100
     const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${limit}`
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   // 获取插画 漫画 动图 的详细信息
+  // 额外添加了时间戳，以避免在短时间内获取同一作品数据时，浏览器直接使用缓存的数据
   static getArtworkData(id: string, unlisted = false): Promise<ArtworkData> {
     const url = `https://www.pixiv.net/ajax/illust/${
       unlisted ? 'unlisted/' : ''
-    }${id}`
-    return this.sendGetRequest(url)
+    }${id}?time=${new Date().getTime()}`
+    return this.fetch(url)
   }
 
   // 获取动图的元数据
   static getUgoiraMeta(id: string): Promise<UgoiraMetaData> {
     const url = `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   // 获取小说的详细信息
+  // 额外添加了时间戳，以避免在短时间内获取同一作品数据时，浏览器直接使用缓存的数据
   static getNovelData(id: string, unlisted = false): Promise<NovelData> {
     const url = `https://www.pixiv.net/ajax/novel/${
       unlisted ? 'unlisted/' : ''
-    }${id}`
-    return this.sendGetRequest(url)
+    }${id}?time=${new Date().getTime()}`
+    return this.fetch(url)
   }
 
   // 获取相关作品
   static getRelatedData(id: string): Promise<RecommendData> {
     // 最后的 18 是预加载首屏的多少个作品的信息，和下载并没有关系
     const url = `https://www.pixiv.net/ajax/illust/${id}/recommend/init?limit=18`
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   /**获取插画、漫画、动画排行榜数据 */
@@ -316,7 +328,7 @@ class API {
 
     url = temp.toString()
 
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   /**获取小说排行榜数据。参数 p 是页码，一页包含 50 个小说 */
@@ -339,7 +351,7 @@ class API {
     // 添加其他参数
     url += `&p=${p}&lang=zh`
 
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   // 获取收藏后的相似作品数据
@@ -349,7 +361,7 @@ class API {
     number: number
   ): Promise<RecommenderData> {
     const url = `/rpc/recommender.php?type=illust&sample_illusts=${id}&num_recommendations=${number}`
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   // 获取搜索数据
@@ -373,7 +385,7 @@ class API {
     }
     url = temp.toString()
 
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   static getNovelSearchData(
@@ -395,19 +407,19 @@ class API {
     }
     url = temp.toString()
 
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   // 获取大家的新作品的数据
   static getNewIllustData(option: NewIllustOption): Promise<NewIllustData> {
     const url = `https://www.pixiv.net/ajax/illust/new?lastId=${option.lastId}&limit=${option.limit}&type=${option.type}&r18=${option.r18}`
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   // 获取大家的新作小说的数据
   static getNewNovleData(option: NewIllustOption): Promise<NewNovelData> {
     const url = `https://www.pixiv.net/ajax/novel/new?lastId=${option.lastId}&limit=${option.limit}&r18=${option.r18}`
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   // 获取关注的用户的新作品的数据
@@ -421,7 +433,7 @@ class API {
     const url = `https://www.pixiv.net/ajax/follow_latest/${type}?p=${p}&tag=${tag}&mode=${
       r18 ? 'r18' : 'all'
     }&lang=${lang}`
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   /** 获取好P友的最新作品 */
@@ -431,7 +443,7 @@ class API {
     lang = 'zh'
   ): Promise<BookMarkNewData> {
     const url = `https://www.pixiv.net/ajax/mypixiv_latest/${type}?p=${p}&lang=${lang}`
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   /**获取小说系列的数据，注意只是系列本身的数据，没有系列里每部小说的数据 */
@@ -439,7 +451,7 @@ class API {
     series_id: number | string
   ): Promise<NovelSeriesData> {
     const url = `https://www.pixiv.net/ajax/novel/series/${series_id}`
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   /**获取小说系列作品里每个作品的详细数据（但是没有小说正文内容） */
@@ -451,7 +463,7 @@ class API {
     order_by = 'asc'
   ): Promise<NovelSeriesContentData> {
     const url = `https://www.pixiv.net/ajax/novel/series_content/${series_id}?limit=${limit}&last_order=${last_order}&order_by=${order_by}`
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   // 获取系列信息
@@ -462,7 +474,7 @@ class API {
     pageNo: number
   ): Promise<SeriesData> {
     const url = `https://www.pixiv.net/ajax/series/${series_id}?p=${pageNo}`
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   // 点赞
@@ -481,7 +493,9 @@ class API {
         novel_id: id,
       }
     }
-    const r = await fetch(`https://www.pixiv.net/ajax/${type}/like`, {
+
+    const url = `https://www.pixiv.net/ajax/${type}/like`
+    const init: RequestInit = {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -490,15 +504,12 @@ class API {
       },
       credentials: 'same-origin',
       body: JSON.stringify(data),
-    })
-    const json = (await r.json()) as LikeResponse
-    return json
+    }
+    return this.fetch(url, init)
   }
 
   static async getMuteSettings(): Promise<muteData> {
-    return this.sendGetRequest(
-      `https://www.pixiv.net/ajax/mute/items?context=setting`
-    )
+    return this.fetch(`https://www.pixiv.net/ajax/mute/items?context=setting`)
   }
 
   /**获取小说里引用的插画的数据，可以一次传递多个插画 id（需要带序号） */
@@ -515,14 +526,14 @@ class API {
       parameters.join('&')
     // 组合好的 url 里可能包含多个 id[]=123456789 参数，如：
     // https://www.pixiv.net/ajax/novel/22894530/insert_illusts?id%5B%5D=121979383-1&id%5B%5D=121979454-1&id%5B%5D=121979665-1
-    return this.sendGetRequest(url)
+    return this.fetch(url)
   }
 
   /**获取系列小说的设定资料 */
   static async getNovelSeriesGlossary(
     seriesId: string | number
   ): Promise<NovelSeriesGlossary> {
-    return this.sendGetRequest(
+    return this.fetch(
       `https://www.pixiv.net/ajax/novel/series/${seriesId}/glossary`
     )
   }
@@ -532,14 +543,14 @@ class API {
     seriesId: string | number,
     itemId: string | number
   ): Promise<NovelSeriesGlossaryItem> {
-    return this.sendGetRequest(
+    return this.fetch(
       `https://www.pixiv.net/ajax/novel/series/${seriesId}/glossary/item/${itemId}`
     )
   }
 
   /**获取用户最近的几条消息 */
   static async getLatestMessage(number: number): Promise<LatestMessageData> {
-    return this.sendGetRequest(
+    return this.fetch(
       `https://www.pixiv.net/rpc/index.php?mode=latest_message_threads2&num=${number}&offset=0`
     )
   }
@@ -554,7 +565,8 @@ class API {
     recaptcha_enterprise_score_token = ''
   ): Promise<number> {
     return new Promise(async (resolve) => {
-      const response = await fetch(`https://www.pixiv.net/bookmark_add.php`, {
+      const url = `https://www.pixiv.net/bookmark_add.php`
+      const init: RequestInit = {
         method: 'POST',
         credentials: 'same-origin', // 附带 cookie
         headers: {
@@ -563,13 +575,18 @@ class API {
           'x-csrf-token': token,
         },
         body: `mode=add&type=user&user_id=${userID}&tag=&restrict=${restrict ? 0 : 1}&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
-      })
-      // 如果操作成功，则返回值是 []
-      // 如果用户不存在，返回值是该用户主页的网页源码
-      // 如果 token 错误，返回值是一个包含错误提示的 JSON 对象
-      // 所以这里需要转换为 text
-      await response.text()
-      return resolve(response.status)
+      }
+
+      try {
+        // 如果操作成功，则返回值是 []
+        // 如果用户不存在，返回值是该用户主页的网页源码
+        // 如果 token 错误，返回值是一个包含错误提示的 JSON 对象
+        // 所以这里需要转换为 text，如果转换为 json 的话会导致抛出错误
+        await this.fetch(url, init, 'text')
+        return resolve(200)
+      } catch (error: Error | any) {
+        return resolve(error.status || 0)
+      }
     })
   }
 }

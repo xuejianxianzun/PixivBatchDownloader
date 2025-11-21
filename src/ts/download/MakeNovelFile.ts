@@ -24,7 +24,7 @@ class MakeNovelFile {
       log.log(
         lang.transl(
           '_下载小说的封面图片的提示',
-          Tools.createWorkLink(id, title, false)
+          Tools.createWorkLink(id, title, 'novel')
         ),
         1,
         false,
@@ -35,12 +35,12 @@ class MakeNovelFile {
     }
   }
 
-  // 设置单例执行（主要是在下载图片时启用限制），禁止并发执行。
+  // 建立串行机制（主要是在下载图片时启用限制），禁止并发执行。
   // 这是因为本模块里的两个 make 方法是被 Download 调用的
   // 有几个同时下载数量，就会产生几个并发调用，这会导致下载器同时下载多个小说里的图片。这样不好：
   // 1. 如果图片体积都比较大，或者用户网络较差时，会增加图片下载失败的几率
   // 2. 如果图片体积都比较小，下载会迅速完成，这会导致下载频率很高，增大了账号被 Pixiv 警告、封禁的风险
-  // 因此下载图片期间需要使用单例执行
+  // 因此下载图片期间同时只执行一个任务
   private busy = false
   private waitForIdle(): Promise<void> {
     return new Promise((resolve) => {
@@ -48,7 +48,7 @@ class MakeNovelFile {
         if (!this.busy) {
           resolve()
         } else {
-          setTimeout(check, 50)
+          window.setTimeout(check, 50)
         }
       }
       check()

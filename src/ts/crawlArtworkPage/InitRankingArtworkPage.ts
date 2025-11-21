@@ -129,20 +129,10 @@ class InitRankingArtworkPage extends InitPageBase {
       data = await API.getRankingDataImageWork(this.option)
     } catch (error: Error | any) {
       if (error.status === 404) {
-        // 如果发生了404错误，则中断抓取，直接下载已有部分。因为可能确实没有下一部分了
+        // 如果发生了404错误，可能确实没有这一页了，也就是说数据已经获取完毕了
         console.log('404错误，直接下载已有部分')
-        this.getIdListFinished()
       }
-
-      // 429 错误时延迟重试
-      if (error.status === 429) {
-        this.log429ErrorTip()
-        window.setTimeout(() => {
-          this.getIdList()
-        }, Config.retryTime)
-      }
-
-      return
+      return this.getIdListFinished()
     }
 
     if (states.stopCrawl) {
@@ -158,27 +148,27 @@ class InitRankingArtworkPage extends InitPageBase {
     )
 
     const contents = data.contents // 取出作品信息列表
-    for (const data of contents) {
-      const pageCount = parseInt(data.illust_page_count)
+    for (const work of contents) {
+      const pageCount = parseInt(work.illust_page_count)
       // 目前这个数据里并没有包含收藏数量，所以在这里没办法检查收藏数量要求
       const filterOpt: FilterOption = {
-        id: data.illust_id,
-        workType: parseInt(data.illust_type) as any,
-        tags: data.tags,
+        id: work.illust_id,
+        workType: parseInt(work.illust_type) as any,
+        tags: work.tags,
         pageCount: pageCount,
-        bookmarkData: data.is_bookmarked,
-        width: pageCount === 1 ? data.width : 0,
-        height: pageCount === 1 ? data.height : 0,
-        yes_rank: data.yes_rank,
-        userId: data.user_id.toString(),
+        bookmarkData: work.is_bookmarked,
+        width: pageCount === 1 ? work.width : 0,
+        height: pageCount === 1 ? work.height : 0,
+        yes_rank: work.yes_rank,
+        userId: work.user_id.toString(),
       }
 
       if (await filter.check(filterOpt)) {
-        store.setRankList(data.illust_id.toString(), data.rank)
+        store.setRankList(work.illust_id.toString(), work.rank)
 
         store.idList.push({
-          type: Tools.getWorkTypeString(data.illust_type),
-          id: data.illust_id.toString(),
+          type: Tools.getWorkTypeString(work.illust_type),
+          id: work.illust_id.toString(),
         })
       }
 

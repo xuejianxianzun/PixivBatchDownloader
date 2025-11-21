@@ -1,4 +1,3 @@
-import { store } from '../store/Store'
 import { EVT } from '../EVT'
 import { Utils } from '../utils/Utils'
 import { settings } from '../setting/Settings'
@@ -13,13 +12,19 @@ import { Config } from '../Config'
 import { toast } from '../Toast'
 import { getNovelGlossarys } from '../crawlNovelPage/GetNovelGlossarys'
 import { DateFormat } from '../utils/DateFormat'
+import { pageType } from '../PageType'
+import { cacheWorkData } from '../store/CacheWorkData'
 
 declare const jEpub: any
 
-/** 储存每个小说的必要数据 */
-interface NovelData {
+/** 储存每个小说的必要数据。这是从完整数据里提取的部分摘要数据 */
+interface NovelSummary {
   id: string
-  /**小说在系列中的排序，是从 1 开始的数字 */
+  /**小说在系列中的排序。通常是从 1 开始的数字，但也有例外（从大于 1 的数字开始） */
+  // 例如：https://www.pixiv.net/novel/series/649007
+  // 它的两篇小说虽然在系列页面显示的是正常的 #1、#2（因为只有这两篇小说）
+  // 但是小说页面里显示的却是 #9 和 #10
+  // 小说数据里的 order 确实是 9 和 10，下载器以小说数据里的为准
   no: number
   title: string
   updateDate: string
@@ -33,16 +38,6 @@ interface NovelData {
 }
 
 class MergeNovel {
-  constructor(seriesId: string | number) {
-    if (!seriesId) {
-      toast.error(`seriesId is undefined`)
-      return
-    }
-
-    this.seriesId = seriesId.toString()
-    this.merge()
-  }
-
   private seriesId = ''
   private seriesTitle = ''
   private seriesUpdateDate = ''
@@ -52,32 +47,80 @@ class MergeNovel {
   private userName = ''
 
   private novelIdList: string[] = []
-  private allNovelData: NovelData[] = []
+  private allNovelData: NovelSummary[] = []
   private readonly limit = 30
   private last = 0
+  private slowMode = false
+
   private readonly CRLF = '\n' // 小说的换行符
   private readonly CRLF2 = '\n\n'
   private readonly br2 = '<br/><br/>'
 
-  public async merge() {
-    log.log(lang.transl('_合并系列小说'))
-    toast.show(lang.transl('_开始抓取'), {
-      position: 'center',
-    })
-    EVT.fire('closeCenterPanel')
+  // 由于每个系列里都可能含有多个小说和图片，所以下载器可能会发送很多请求。为了避免触发 Pixiv 的警告，下载器在合并时总是会添加间隔时间，以降低发送请求的频率。
+
+  /** 抓取时的间隔时间，最低为 2400 ms。这不会触发 429 错误 */
+  // 我尝试过更低的延迟时间，例如 2000, 没有触发 429 错误，但依然被警告了，所以增加到 2400
+  private get crawlInterval() {
+    return Math.max(2400, settings.slowCrawlDealy)
+  }
+  /** 下载文件时的间隔时间，最低为 2000 ms */
+  private get downloadInterval() {
+    return Math.max(2000, settings.downloadInterval)
+  }
+
+  /**每次请求之间等待一段时间 */
+  private async sleep(time: number) {
+    this.slowMode && (await Utils.sleep(time))
+  }
+
+  /** 合并系列小说。返回值是合并完成后所包含的小说数量（不包含 404 的小说） */
+  public async merge(
+    seriesId: string | number,
+    seriesTitle?: string,
+    autoMerge: boolean = false
+  ): Promise<number> {
+    if (!seriesId) {
+      toast.error(`seriesId is undefined`)
+      return 0
+    }
+
+    this.seriesId = seriesId.toString()
+    this.seriesTitle = seriesTitle || ''
+    this.slowMode = autoMerge
+    const link = `<a href="https://www.pixiv.net/novel/series/${this.seriesId}" target="_blank">${this.seriesTitle || this.seriesId}</a>`
+    log.log(`📚${lang.transl('_合并系列小说')} ${link}`)
+
+    // 在小说系列页面里执行时，关闭设置面板
+    // 在其他页面类型里不关闭设置面板，因为在其他页面里可能需要合并多个系列小说，会导致多次关闭设置面板。这可能会影响用户正常使用设置面板
+    if (pageType.type === pageType.list.NovelSeries) {
+      EVT.fire('closeCenterPanel')
+    }
 
     log.log(lang.transl('_获取小说列表'))
-    await this.getIdList()
+    // 只在第一个发送网络请求的步骤里使用 try catch 即可
+    // 因为最常见的错误是 404, 如果遇到 404, 这一步就可以检查出来，不必向下执行了
+    try {
+      await this.sleep(this.crawlInterval)
+      await this.getNovelIds()
+    } catch (error) {
+      log.error(`❌${lang.transl('_发生错误取消合并这个系列小说')} ${link}`)
+      return 0
+    }
+
     await this.getNovelData()
 
     // 获取这个系列的设定资料
     if (settings.saveNovelMeta) {
       log.log(lang.transl('_获取设定资料'))
-      const data = await getNovelGlossarys.getGlossarys(this.seriesId)
+      const data = await getNovelGlossarys.getGlossarys(
+        this.seriesId,
+        this.crawlInterval
+      )
       this.seriesGlossary = getNovelGlossarys.storeGlossaryText(data)
     }
 
     // 获取这个系列本身的详细数据
+    await this.sleep(this.crawlInterval)
     log.log(lang.transl('_获取系列数据'))
     const seriesDataJSON = await API.getNovelSeriesData(this.seriesId)
     const seriesData = seriesDataJSON.body
@@ -93,7 +136,7 @@ class MergeNovel {
 
     // 生成小说文件并下载
     let file: Blob | null = null
-    const novelName = `${this.seriesTitle}-user_${this.userName}-seriesId_${this.seriesId}-tags_${seriesData.tags}.${settings.novelSaveAs}`
+    const novelName = `series-${this.userName}-${this.seriesTitle}-user_${this.userName}-seriesId_${this.seriesId}-tags_${seriesData.tags}.${settings.novelSaveAs}`
     if (settings.novelSaveAs === 'txt') {
       file = await this.mergeTXT(novelName)
     } else {
@@ -104,20 +147,23 @@ class MergeNovel {
     const coverUrl = seriesData.cover.urls.original
     if (settings.downloadNovelCoverImage && coverUrl) {
       this.logDownloadSeriesCover()
+      // 在 mergeEPUB 里会先加载一遍封面图片，所以这里有可能会从缓存加载，就不需要添加等待时间
+      // 只有当保存格式为 txt 时，才需要在这里再下载一次封面图片
+      if (settings.novelSaveAs === 'txt') {
+        await this.sleep(this.downloadInterval)
+      }
       await downloadNovelCover.download(coverUrl, novelName, 'mergeNovel')
     }
 
     const url = URL.createObjectURL(file)
     Utils.downloadFile(url, Utils.replaceUnsafeStr(novelName))
-
-    EVT.fire('downloadComplete')
-    log.success(lang.transl('_下载完毕'), 2)
-
-    store.reset()
+    log.success(`✅${lang.transl('_已合并系列小说')} ${link}`)
+    URL.revokeObjectURL(url)
+    return this.allNovelData.length
   }
 
   /** 获取这个系列里所有小说的 id */
-  private async getIdList(): Promise<void> {
+  private async getNovelIds(): Promise<void> {
     const seriesData = await API.getNovelSeriesContent(
       this.seriesId,
       this.limit,
@@ -134,7 +180,7 @@ class MergeNovel {
 
     // 如果这一次返回的作品数量达到了每批限制，可能这次没有请求完，继续请求后续的数据
     if (list.length === this.limit) {
-      return this.getIdList()
+      return this.getNovelIds()
     }
     // 获取完毕
   }
@@ -145,6 +191,8 @@ class MergeNovel {
     let count = 0
 
     for (const id of this.novelIdList) {
+      // 自动合并系列小说时，可能会连续不断的合并多个系列，这些系列可能包含非常多的小说，所以需要添加等待时间，以减小出现 429 错误的概率
+      // 另外获取设定资料时也有可能需要发送多个请求，但并不总是需要多次请求，所以获取设定资料时没有添加等待时间
       count++
       log.log(
         lang.transl('_获取小说数据进度', `${count} / ${total}`),
@@ -153,8 +201,22 @@ class MergeNovel {
         'getNovelDataProgress' + this.seriesId
       )
 
-      const data = await API.getNovelData(id)
-      const novelData: NovelData = {
+      // 优先从缓存中获取数据
+      let data = cacheWorkData.get(id, 'novel')
+      if (!data) {
+        try {
+          // 发送请求
+          await this.sleep(this.crawlInterval)
+          data = await API.getNovelData(id)
+          cacheWorkData.set(data)
+        } catch (error: Error | any) {
+          // 请求小说的数据出错时跳过它，不重试（通常是 404 错误，没有必要重试）
+          log.error(lang.transl('_跳过这个小说'))
+          continue
+        }
+      }
+
+      const novelData: NovelSummary = {
         id: data.body.id,
         no: data.body.seriesNavData!.order,
         updateDate: DateFormat.format(data.body.uploadDate),
@@ -167,6 +229,7 @@ class MergeNovel {
       }
       this.allNovelData.push(novelData)
     }
+    log.persistentRefresh('getNovelDataProgress' + this.seriesId)
 
     // 按照小说的序号进行升序排列
     this.allNovelData.sort(Utils.sortByProperty('no', 'asc'))
@@ -176,13 +239,16 @@ class MergeNovel {
     return new Promise(async (resolve, reject) => {
       // 保存为 txt 格式时，在这里下载小说内嵌的图片
       for (const data of this.allNovelData) {
+        // 虽然 downloadNovelEmbeddedImage 里会使用“下载间隔”设置，但是在自动合并系列小说时，抓取结果的数量可能比较少，没有达到生效条件，所以实际上不会等待
+        // 因此这里需要单独添加等待时间。考虑到 Pixiv 对下载文件的限制没有调用 API 那么严格，所以间隔时间设置为 1 秒应该没问题
         await downloadNovelEmbeddedImage.TXT(
           data.id,
           data.title,
           data.content,
           data.embeddedImages,
           novelName,
-          'mergeNovel'
+          'mergeNovel',
+          this.downloadInterval
         )
       }
 
@@ -294,7 +360,6 @@ class MergeNovel {
         otherMeta.push(this.br2)
         // 添加简介
         if (description) {
-          console.log(description)
           otherMeta.push(lang.transl('_系列简介') + ': ')
           otherMeta.push(this.br2)
           otherMeta.push(description)
@@ -334,6 +399,7 @@ class MergeNovel {
       // 添加这个系列的封面图片到 epub 文件里
       const coverUrl = seriesData.cover.urls.original
       if (settings.downloadNovelCoverImage && coverUrl) {
+        await this.sleep(this.downloadInterval)
         this.logDownloadSeriesCover()
         const cover = await downloadNovelCover.getCover(coverUrl, 'arrayBuffer')
         if (cover) {
@@ -349,14 +415,12 @@ class MergeNovel {
         // 添加每篇小说的封面图片
         let coverHtml = ''
         if (settings.downloadNovelCoverImage && data.coverUrl) {
+          await this.sleep(this.downloadInterval)
           log.log(
             lang.transl(
               '_下载小说的封面图片的提示',
-              Tools.createWorkLink(novelId, data.title, false)
-            ),
-            1,
-            false,
-            'downloadNovelCover' + novelId
+              Tools.createWorkLink(novelId, data.title, 'novel')
+            )
           )
           // 下载器使用的 jepub.js 库只能为整个 epub 文件添加一个封面图片，不能为单个章节设置封面图片
           // 所以需要手动添加图片，然后添加图片对应的 html 代码
@@ -401,7 +465,8 @@ class MergeNovel {
           data.title,
           content,
           data.embeddedImages,
-          jepub
+          jepub,
+          this.downloadInterval
         )
 
         const title = Tools.replaceEPUBTitle(Utils.replaceUnsafeStr(data.title))
@@ -434,24 +499,19 @@ class MergeNovel {
   // 在 TXT 格式的小说里添加章节编号，可以使小说阅读软件能够识别章节，以及显示章节导航，提高阅读体验
   // 对于 EPUB 格式的小说，由于其内部自带分章结构，所以并不依赖这里的章节编号
   private chapterNo(number: number | string) {
-    // 如果是中文用户，返回“第N章”。这样最容易被国内的小说阅读软件识别出来
+    // 对于中文区，使用“第N章”。这样最容易被国内的小说阅读软件识别出来
     if (lang.type === 'zh-cn' || lang.type === 'zh-tw' || lang.type === 'ja') {
       return `第${number}章`
     } else {
-      // 对于其他地区，返回 `Chapter N`。但是由于我没有使用过国外的小说阅读软件，所以并不清楚是否能够起到分章作用
+      // 对于其他地区，使用 `Chapter N`。但是由于我没有使用过国外的小说阅读软件，所以并不清楚效果如何
       return `Chapter ${number}`
     }
-    // 我还尝试过使用 #1 这样的编号，但是这种方式并不可靠，有的小说可以分章有的小说不可以
+    // 我还尝试过使用 #1 这样的编号，但是阅读器对这种编号的识别情况不够好
   }
 
   private logDownloadSeriesCover() {
     const link = `<a href="https://www.pixiv.net/novel/series/${this.seriesId}" target="_blank">${this.seriesTitle}</a>`
-    log.log(
-      lang.transl('_下载系列小说的封面图片', link),
-      1,
-      false,
-      'downloadSeriesNovelCover' + this.seriesId
-    )
+    log.log(lang.transl('_下载系列小说的封面图片', link))
   }
 }
 

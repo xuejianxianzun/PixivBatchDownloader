@@ -6,7 +6,6 @@ import { token } from './Token'
 import { states } from './store/States'
 import { WorkBookmarkData } from './Bookmark'
 import { setTimeoutWorker } from './SetTimeoutWorker'
-import { Config } from './Config'
 import { settings } from './setting/Settings'
 
 class UnBookmarkWorks {
@@ -23,7 +22,6 @@ class UnBookmarkWorks {
     const total = list.length
     log.log(lang.transl('_当前作品个数', total.toString()))
 
-    // 尚不清楚 deleteBookmark 使用的 API 是否会被计入 429 限制里
     // 当操作的作品数量大于一页（48 个作品）时，使用慢速抓取
     const slowMode = total > 48
 

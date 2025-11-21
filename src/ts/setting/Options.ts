@@ -3,6 +3,11 @@ import { EVT } from '../EVT'
 import { pageType } from '../PageType'
 import { settings } from './Settings'
 
+type NewOption = {
+  id: number
+  time: number
+}
+
 /**控制每个设置的隐藏和显示 */
 class Options {
   public init(allOption: NodeListOf<HTMLElement>) {
@@ -17,7 +22,35 @@ class Options {
     2, 4, 13, 17, 20, 32, 44, 50, 51, 57, 64,
   ]
 
-  private readonly newOptions: number[] = [14, 15, 20]
+  // 90 天内添加的设置项，显示 new 角标
+  private readonly now = Date.now()
+  private readonly newRange = 1000 * 60 * 60 * 24 * 90
+  private readonly newOptions: NewOption[] = [
+    {
+      // 复制按钮
+      id: 14,
+      // 2025-10-22
+      time: 1761091200000,
+    },
+    {
+      // 抓取每个用户最新的几个作品
+      id: 15,
+      // 2025-11-04
+      time: 1762214400000,
+    },
+    {
+      // 把文件保存到用户上次选择的位置
+      id: 20,
+      // 2025-11-04
+      time: 1762214400000,
+    },
+    {
+      // 自动合并系列小说
+      id: 73,
+      // 2025-11-17
+      time: 1763337600000,
+    },
+  ]
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
@@ -37,7 +70,7 @@ class Options {
   private display() {
     this.handleShowAdvancedSettings()
     this.alwaysHideSomeOption()
-    this.showNewFlag()
+    this.showNewIcon()
   }
 
   /**根据显示/隐藏高级设置来处理每个选项的显示与隐藏 */
@@ -87,10 +120,12 @@ class Options {
   }
 
   /**显示 new 角标 */
-  private showNewFlag() {
-    this.newOptions.forEach((no) => {
-      const el = this.getOption(no)
-      el.classList.add('new')
+  private showNewIcon() {
+    this.newOptions.forEach((option) => {
+      if (this.now - option.time <= this.newRange) {
+        const el = this.getOption(option.id)
+        el.classList.add('new')
+      }
     })
   }
 

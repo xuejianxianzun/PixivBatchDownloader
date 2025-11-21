@@ -34,11 +34,16 @@ export interface SendToBackEndData {
 
 // 浏览器下载时每个任务的信息
 export interface DonwloadSuccessData {
-  /**前台生成的 blob URL */
-  url: string
+  /** 前台生成的 blob URL */
+  blobURLFront: string
+  /** 后台也可能会生成 blob URL（主要是在 Firefox 浏览器里） */
+  blobURLBack: string
+  /** 作品 id */
   id: string
   tabId: number
   uuid: boolean
+  /** 当该标记为 true 时，后台不会向前台返回这个文件的下载结果（即不会向前台发送消息）  */
+  noReply?: boolean
 }
 
 export interface DonwloadSkipData {

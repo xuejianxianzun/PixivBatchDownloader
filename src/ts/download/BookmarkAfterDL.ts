@@ -56,6 +56,7 @@ class BookmarkAfterDL {
     })
 
     window.addEventListener(EVT.list.downloadComplete, () => {
+      this.showCompleteLog = true
       this.delayReset = true
     })
 
@@ -67,7 +68,10 @@ class BookmarkAfterDL {
     })
   }
 
-  private showCompleteTip = true
+  /** 当所有的收藏任务都完成后，显示一条日志 */
+  // 只有当所有文件都下载完毕后才会显示这条日志
+  private showCompleteLog = false
+
   private showProgress() {
     if (this.IDList.length === 0) {
       lang.updateText(this.tipEl, '')
@@ -79,17 +83,20 @@ class BookmarkAfterDL {
       `${this.successCount}/${this.IDList.length}`
     )
 
-    if (this.successCount === this.IDList.length && this.showCompleteTip) {
-      // 当全部收藏完成时，只显示一次提示。否则会显示多次
-      this.showCompleteTip = false
+    if (
+      this.showCompleteLog &&
+      this.successCount > 0 &&
+      this.successCount === this.IDList.length
+    ) {
+      this.showCompleteLog = false
       log.success(lang.transl('_收藏作品完毕'))
     }
   }
 
   private reset() {
-    this.showCompleteTip = true
     this.IDList = []
     this.queue = []
+    this.showCompleteLog = false
     this.successCount = 0
     this.tipEl.classList.remove('red')
     this.tipEl.classList.add('green')
@@ -148,6 +155,7 @@ class BookmarkAfterDL {
 
     // 添加收藏
     // 当抓取结果很少时，不使用慢速收藏
+    // 如果抓取结果大于 30 个，则使用慢速收藏1
     const status = await bookmark.add(
       id.toString(),
       data.type !== 3 ? 'illusts' : 'novels',

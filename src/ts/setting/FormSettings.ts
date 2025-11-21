@@ -134,6 +134,8 @@ class FormSettings {
       'showCopyBtnOnThumb',
       'crawlLatestFewWorks',
       'rememberTheLastSaveLocation',
+      'autoMergeNovel',
+      'skipNovelsInSeriesWhenAutoMerge',
     ],
     text: [
       'firstFewImages',

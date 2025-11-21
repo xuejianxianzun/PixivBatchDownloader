@@ -198,20 +198,10 @@ class InitRankingNovelPageNew extends InitPageBase {
       }
     } catch (error: Error | any) {
       if (error.status === 404) {
-        // 如果发生了404错误，则中断抓取，直接下载已有部分。因为可能确实没有这一页了
+        // 如果发生了404错误，可能确实没有这一页了，也就是说数据已经获取完毕了
         console.log('404错误，直接下载已有部分')
-        this.getIdListFinished()
       }
-
-      // 429 错误时延迟重试
-      if (error.status === 429) {
-        this.log429ErrorTip()
-        window.setTimeout(() => {
-          this.getIdList()
-        }, Config.retryTime)
-      }
-
-      return
+      return this.getIdListFinished()
     }
   }
 

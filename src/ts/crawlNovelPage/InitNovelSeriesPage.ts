@@ -37,7 +37,13 @@ class InitNovelSeriesPage extends InitPageBase {
       'mergeSeriesNovel'
     ).addEventListener('click', () => {
       const seriesId = Utils.getURLPathField(window.location.pathname, 'series')
-      new MergeNovel(seriesId)
+      let seriseTitle = ''
+      // 尝试获取系列标题
+      const meta = document.querySelector('meta[property="twitter:title"]')
+      if (meta) {
+        seriseTitle = meta.getAttribute('content') || ''
+      }
+      new MergeNovel().merge(seriesId, seriseTitle)
     })
   }
 

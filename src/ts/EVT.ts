@@ -180,6 +180,8 @@ class EVENT {
     previewEnd: 'previewEnd',
     /**当关注的用户列表发生变化时触发 */
     followingUsersChange: 'followingUsersChange',
+    /**网络请求错误，并且有状态码 */
+    requestStatusError: 'requestStatusError',
   }
 
   /** 触发自定义事件，大部分事件都不需要携带数据
@@ -283,6 +285,11 @@ class EVENT {
   public fire(type: 'showPreviewWorkDetailPanel', data: ArtworkData): void
 
   public fire(type: 'wheelScrollSwitchPreviewImage', data: Event): void
+
+  public fire(
+    type: 'requestStatusError',
+    data: { status: number; url: string }
+  ): void
 
   public fire(
     type: 'PreviewWorkDetailPanelClosed',

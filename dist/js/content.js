@@ -1243,57 +1243,70 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   API: () => (/* binding */ API)
 /* harmony export */ });
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+
+
 class API {
-    // 发送 get 请求，返回 json 数据，抛出异常
-    static sendGetRequest(url) {
+    // API 里的所有请求都从这里转发，以简化代码，并方便统一处理错误
+    // 429 错误会自动重试，其他错误会 reject
+    static fetch(url, init, format = 'json') {
+        // 默认发送 get 请求
+        init = init || {
+            method: 'get',
+            credentials: 'same-origin',
+        };
         return new Promise((resolve, reject) => {
-            fetch(url, {
-                method: 'get',
-                credentials: 'same-origin',
-            })
-                .then((response) => {
-                // response.ok 的状态码范围是 200-299
-                if (response.ok) {
-                    return response.json();
-                }
-                else {
-                    // 请求成功但状态码异常
-                    reject({
-                        status: response.status,
-                        statusText: response.statusText,
-                    });
-                    switch (response.status) {
-                        case 400:
-                            return console.error('Status Code: 400（Bad Request）。服务器无法理解此请求');
-                        case 401:
-                            return console.error('Status Code: 401（Unauthorized）。您可能需要登录 Pixiv 账号');
-                        case 403:
-                            return console.error('Status Code: 403（Forbidden）。服务器拒绝了这个请求');
-                        case 404:
-                            return console.error('Status Code: 404（Not Found）。服务器找不到请求的资源');
-                        case 500:
-                            return console.error('Status Code: 500（Internal Server Error）。服务器内部错误');
-                        case 503:
-                            return console.error('Status Code: 503（Service Unavailable）。服务器忙或者在维护');
-                        default:
-                            return console.error(`请求的状态不正确，状态码：${response.status}`);
+            // 虽然添加了重试次数参数，但实际上没有使用，因为现在只会对 429 错误重试，而且重试频率很低，所以我没有限制重试次数，会无限重试
+            // 之前的代码是使用 fetch.then().then().catch() 链的，在第一个 then 里调用 this.fetch() 来重试
+            // 现在改为使用一个内部函数来发送请求，并把请求从链式改为 async/await 形式，使用尾递归来重试，看起来更加清晰
+            const attemptRequest = async (tryCount = 0) => {
+                try {
+                    const response = await fetch(url, init);
+                    // response.ok 的状态码范围是 200-299
+                    if (response.ok) {
+                        // 请求成功，直接返回数据
+                        const data = await response[format]();
+                        return resolve(data);
+                    }
+                    else {
+                        // 请求成功但状态码异常
+                        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('requestStatusError', {
+                            status: response.status,
+                            url: url,
+                        });
+                        // 对于 429 状态码，自动重试，直到成功或者出现其他错误
+                        // 所以在其他模块里调用 API 时，不需要自行处理 429 错误
+                        // 以前隔 200 秒重试经常可以成功，但现在时间似乎有所增加，而且不同的账号也不一样。
+                        // 有些账号需要重试 2、3 次，但有些账号（近期抓取和下载了大量文件）可能要重试 6 次（即等待 20 分钟）才能成功
+                        if (response.status === 429) {
+                            // 等待一段时间后，通过尾递归重试请求
+                            // console.log(`429 tryCount ${tryCount}`)
+                            await new Promise((res) => window.setTimeout(res, _Config__WEBPACK_IMPORTED_MODULE_0__.Config.retryTime));
+                            await attemptRequest(tryCount + 1);
+                        }
+                        else {
+                            // 对于其他状态码，不会重试
+                            console.error(`Status Code: ${response.status}`);
+                            return reject({
+                                status: response.status,
+                                statusText: response.statusText,
+                            });
+                        }
                     }
                 }
-            })
-                .then((data) => {
-                resolve(data);
-            })
-                .catch((error) => {
-                // 请求失败
-                reject(error);
-            });
+                catch (error) {
+                    reject(error);
+                }
+            };
+            attemptRequest();
         });
     }
     // 获取收藏数据
     // 这个 api 返回的作品列表顺序是按收藏顺序由近期到早期排列的
     static async getBookmarkData(userID, type = 'illusts', tag, offset, hide = false) {
         const url = `https://www.pixiv.net/ajax/user/${userID}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${hide ? 'hide' : 'show'}&rdm=${Math.random()}`;
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     // 添加收藏
     static async addBookmark(id, type, tags, hide, token) {
@@ -1315,7 +1328,8 @@ class API {
                 tags: tags,
             };
         }
-        return fetch(`https://www.pixiv.net/ajax/${type}/bookmarks/add`, {
+        const url = `https://www.pixiv.net/ajax/${type}/bookmarks/add`;
+        const init = {
             method: 'POST',
             credentials: 'same-origin', // 附带 cookie
             headers: {
@@ -1324,13 +1338,15 @@ class API {
                 'x-csrf-token': token,
             },
             body: JSON.stringify(body),
-        });
+        };
+        return this.fetch(url, init);
     }
     static async deleteBookmark(bookmarkID, type, token) {
         const bodyStr = type === 'illusts'
             ? `bookmark_id=${bookmarkID}`
             : `del=1&book_id=${bookmarkID}`;
-        return fetch(`https://www.pixiv.net/ajax/${type}/bookmarks/delete`, {
+        const url = `https://www.pixiv.net/ajax/${type}/bookmarks/delete`;
+        const init = {
             method: 'POST',
             credentials: 'same-origin', // 附带 cookie
             headers: {
@@ -1339,29 +1355,30 @@ class API {
                 'x-csrf-token': token,
             },
             body: bodyStr,
-        });
+        };
+        return this.fetch(url, init);
     }
     // 获取关注的用户列表
     static getFollowingList(id, rest = 'show', tag = '', offset = 0, limit = 100, lang = 'zh') {
         const url = `https://www.pixiv.net/ajax/user/${id}/following?offset=${offset}&limit=${limit}&rest=${rest}&tag=${tag}&lang=${lang}`;
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     // 获取好 P 友列表
     static getMyPixivList(id, offset = 0, limit = 100, lang = 'zh') {
         const url = `https://www.pixiv.net/ajax/user/${id}/mypixiv?offset=${offset}&limit=${limit}&lang=${lang}`;
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     // 获取粉丝列表
     static getFollowersList(id, offset = 0, limit = 100, lang = 'zh') {
         const url = `https://www.pixiv.net/ajax/user/${id}/followers?offset=${offset}&limit=${limit}&lang=${lang}`;
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     // 获取用户信息
     static getUserProfile(id) {
         // full=1 在画师的作品列表页使用，获取详细信息
         // full=0 在作品页内使用，只获取少量信息
         const url = `https://www.pixiv.net/ajax/user/${id}?full=1`;
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     // 获取用户指定类型的作品列表
     // 返回作品的 id 列表，不包含详细信息
@@ -1369,15 +1386,20 @@ class API {
         let typeSet = new Set(type);
         let result = [];
         const url = `https://www.pixiv.net/ajax/user/${id}/profile/all`;
-        let data = await this.sendGetRequest(url);
-        for (const type of typeSet.values()) {
-            const idList = Object.keys(data.body[type]);
-            for (const id of idList) {
-                result.push({
-                    type,
-                    id,
-                });
+        try {
+            const data = await this.fetch(url);
+            for (const type of typeSet.values()) {
+                const idList = Object.keys(data.body[type]);
+                for (const id of idList) {
+                    result.push({
+                        type,
+                        id,
+                    });
+                }
             }
+        }
+        catch (error) {
+            return result;
         }
         return result;
     }
@@ -1387,28 +1409,30 @@ class API {
     static getUserWorksByTypeWithTag(id, type, tag, offset = 0, limit = 100) {
         // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=100
         const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${limit}`;
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     // 获取插画 漫画 动图 的详细信息
+    // 额外添加了时间戳，以避免在短时间内获取同一作品数据时，浏览器直接使用缓存的数据
     static getArtworkData(id, unlisted = false) {
-        const url = `https://www.pixiv.net/ajax/illust/${unlisted ? 'unlisted/' : ''}${id}`;
-        return this.sendGetRequest(url);
+        const url = `https://www.pixiv.net/ajax/illust/${unlisted ? 'unlisted/' : ''}${id}?time=${new Date().getTime()}`;
+        return this.fetch(url);
     }
     // 获取动图的元数据
     static getUgoiraMeta(id) {
         const url = `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`;
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     // 获取小说的详细信息
+    // 额外添加了时间戳，以避免在短时间内获取同一作品数据时，浏览器直接使用缓存的数据
     static getNovelData(id, unlisted = false) {
-        const url = `https://www.pixiv.net/ajax/novel/${unlisted ? 'unlisted/' : ''}${id}`;
-        return this.sendGetRequest(url);
+        const url = `https://www.pixiv.net/ajax/novel/${unlisted ? 'unlisted/' : ''}${id}?time=${new Date().getTime()}`;
+        return this.fetch(url);
     }
     // 获取相关作品
     static getRelatedData(id) {
         // 最后的 18 是预加载首屏的多少个作品的信息，和下载并没有关系
         const url = `https://www.pixiv.net/ajax/illust/${id}/recommend/init?limit=18`;
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     /**获取插画、漫画、动画排行榜数据 */
     // 排行榜数据基本是一批 50 条作品信息
@@ -1424,7 +1448,7 @@ class API {
             temp.searchParams.set('date', option.date);
         }
         url = temp.toString();
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     /**获取小说排行榜数据。参数 p 是页码，一页包含 50 个小说 */
     static getRankingDataNovel(mode, date, p) {
@@ -1438,13 +1462,13 @@ class API {
         }
         // 添加其他参数
         url += `&p=${p}&lang=zh`;
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     // 获取收藏后的相似作品数据
     // 需要传入作品 id 和要抓取的数量。但是实际获取到的数量会比指定的数量少一些
     static getRecommenderData(id, number) {
         const url = `/rpc/recommender.php?type=illust&sample_illusts=${id}&num_recommendations=${number}`;
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     // 获取搜索数据
     static getSearchData(word, type = 'artworks', p = 1, option = {}) {
@@ -1458,7 +1482,7 @@ class API {
             }
         }
         url = temp.toString();
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     static getNovelSearchData(word, p = 1, option = {}) {
         // 基础的 url
@@ -1471,45 +1495,45 @@ class API {
             }
         }
         url = temp.toString();
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     // 获取大家的新作品的数据
     static getNewIllustData(option) {
         const url = `https://www.pixiv.net/ajax/illust/new?lastId=${option.lastId}&limit=${option.limit}&type=${option.type}&r18=${option.r18}`;
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     // 获取大家的新作小说的数据
     static getNewNovleData(option) {
         const url = `https://www.pixiv.net/ajax/novel/new?lastId=${option.lastId}&limit=${option.limit}&r18=${option.r18}`;
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     // 获取关注的用户的新作品的数据
     static getBookmarkNewWorkData(type, p, tag = '', r18, lang = 'zh') {
         const url = `https://www.pixiv.net/ajax/follow_latest/${type}?p=${p}&tag=${tag}&mode=${r18 ? 'r18' : 'all'}&lang=${lang}`;
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     /** 获取好P友的最新作品 */
     static getMyPixivNewWorkData(type, p, lang = 'zh') {
         const url = `https://www.pixiv.net/ajax/mypixiv_latest/${type}?p=${p}&lang=${lang}`;
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     /**获取小说系列的数据，注意只是系列本身的数据，没有系列里每部小说的数据 */
     static getNovelSeriesData(series_id) {
         const url = `https://www.pixiv.net/ajax/novel/series/${series_id}`;
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     /**获取小说系列作品里每个作品的详细数据（但是没有小说正文内容） */
     // 这个 api 目前一批最多只能返回 30 个作品的数据，所以可能需要多次获取
     static getNovelSeriesContent(series_id, limit = 30, last_order, order_by = 'asc') {
         const url = `https://www.pixiv.net/ajax/novel/series_content/${series_id}?limit=${limit}&last_order=${last_order}&order_by=${order_by}`;
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     // 获取系列信息
     // 这个接口的数据结构里同时有 illust （包含漫画）和 novel 系列数据
     // 恍惚记得有插画系列来着，但是没找到对应的网址，难道是记错了？
     static getSeriesData(series_id, pageNo) {
         const url = `https://www.pixiv.net/ajax/series/${series_id}?p=${pageNo}`;
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     // 点赞
     static async addLike(id, type, token) {
@@ -1524,7 +1548,8 @@ class API {
                 novel_id: id,
             };
         }
-        const r = await fetch(`https://www.pixiv.net/ajax/${type}/like`, {
+        const url = `https://www.pixiv.net/ajax/${type}/like`;
+        const init = {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -1533,12 +1558,11 @@ class API {
             },
             credentials: 'same-origin',
             body: JSON.stringify(data),
-        });
-        const json = (await r.json());
-        return json;
+        };
+        return this.fetch(url, init);
     }
     static async getMuteSettings() {
-        return this.sendGetRequest(`https://www.pixiv.net/ajax/mute/items?context=setting`);
+        return this.fetch(`https://www.pixiv.net/ajax/mute/items?context=setting`);
     }
     /**获取小说里引用的插画的数据，可以一次传递多个插画 id（需要带序号） */
     // illustsIDs 形式例如：[70551567,99760571-1,99760571-130]
@@ -1550,26 +1574,27 @@ class API {
             parameters.join('&');
         // 组合好的 url 里可能包含多个 id[]=123456789 参数，如：
         // https://www.pixiv.net/ajax/novel/22894530/insert_illusts?id%5B%5D=121979383-1&id%5B%5D=121979454-1&id%5B%5D=121979665-1
-        return this.sendGetRequest(url);
+        return this.fetch(url);
     }
     /**获取系列小说的设定资料 */
     static async getNovelSeriesGlossary(seriesId) {
-        return this.sendGetRequest(`https://www.pixiv.net/ajax/novel/series/${seriesId}/glossary`);
+        return this.fetch(`https://www.pixiv.net/ajax/novel/series/${seriesId}/glossary`);
     }
     /**获取系列小说某条设定资料的详细信息 */
     static async getNovelSeriesGlossaryItem(seriesId, itemId) {
-        return this.sendGetRequest(`https://www.pixiv.net/ajax/novel/series/${seriesId}/glossary/item/${itemId}`);
+        return this.fetch(`https://www.pixiv.net/ajax/novel/series/${seriesId}/glossary/item/${itemId}`);
     }
     /**获取用户最近的几条消息 */
     static async getLatestMessage(number) {
-        return this.sendGetRequest(`https://www.pixiv.net/rpc/index.php?mode=latest_message_threads2&num=${number}&offset=0`);
+        return this.fetch(`https://www.pixiv.net/rpc/index.php?mode=latest_message_threads2&num=${number}&offset=0`);
     }
     /**关注一个用户 */
     // restrict: false 为公开关注，true 为非公开关注
     // recaptcha_enterprise_score_token 对于有些用户是不需要的。允许传递空值
     static async addFollowingUser(userID, token, restrict = false, recaptcha_enterprise_score_token = '') {
         return new Promise(async (resolve) => {
-            const response = await fetch(`https://www.pixiv.net/bookmark_add.php`, {
+            const url = `https://www.pixiv.net/bookmark_add.php`;
+            const init = {
                 method: 'POST',
                 credentials: 'same-origin', // 附带 cookie
                 headers: {
@@ -1578,13 +1603,18 @@ class API {
                     'x-csrf-token': token,
                 },
                 body: `mode=add&type=user&user_id=${userID}&tag=&restrict=${restrict ? 0 : 1}&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
-            });
-            // 如果操作成功，则返回值是 []
-            // 如果用户不存在，返回值是该用户主页的网页源码
-            // 如果 token 错误，返回值是一个包含错误提示的 JSON 对象
-            // 所以这里需要转换为 text
-            await response.text();
-            return resolve(response.status);
+            };
+            try {
+                // 如果操作成功，则返回值是 []
+                // 如果用户不存在，返回值是该用户主页的网页源码
+                // 如果 token 错误，返回值是一个包含错误提示的 JSON 对象
+                // 所以这里需要转换为 text，如果转换为 json 的话会导致抛出错误
+                await this.fetch(url, init, 'text');
+                return resolve(200);
+            }
+            catch (error) {
+                return resolve(error.status || 0);
+            }
         });
     }
 }
@@ -1972,17 +2002,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   bookmark: () => (/* binding */ bookmark)
 /* harmony export */ });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
-/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Token */ "./src/ts/Token.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
-
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Token */ "./src/ts/Token.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
 
 
 
@@ -1996,11 +2024,11 @@ __webpack_require__.r(__webpack_exports__);
 // 对 API.addBookmark 进行封装
 class Bookmark {
     constructor() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.downloadComplete, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadComplete, () => {
             if (this.taskID > this.nextTaskID) {
-                const msg = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_收藏任务尚未完成请等待');
-                _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(msg);
-                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning(msg, {
+                const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏任务尚未完成请等待');
+                _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(msg);
+                _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.warning(msg, {
                     position: 'center',
                 });
             }
@@ -2032,20 +2060,20 @@ class Bookmark {
      */
     async add(id, type, tags, needAddTag, restrict, slowly) {
         return new Promise(async (resolve, reject) => {
-            const _needAddTag = needAddTag === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.widthTagBoolean : !!needAddTag;
+            const _needAddTag = needAddTag === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.widthTagBoolean : !!needAddTag;
             if (_needAddTag) {
                 // 需要添加 tags
                 if (tags === undefined) {
                     // 如果未传递 tags，则请求作品数据来获取 tags
                     const data = await this.getWorkData(type, id);
-                    tags = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.extractTags(data);
+                    tags = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data);
                 }
             }
             else {
                 // 不需要添加 tags
                 tags = [];
             }
-            const _restrict = restrict === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.restrictBoolean : !!restrict;
+            const _restrict = restrict === undefined ? _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.restrictBoolean : !!restrict;
             // 立即执行的情况
             if (!slowly) {
                 const status = await this.sendRequest(id, type, tags, _restrict);
@@ -2054,11 +2082,11 @@ class Bookmark {
             // 需要排队的情况
             const NO = ++this.taskID;
             await this.waitCallMe(NO);
-            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_5__.setTimeoutWorker.set(async () => {
+            _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_4__.setTimeoutWorker.set(async () => {
                 const status = await this.sendRequest(id, type, tags, _restrict);
                 this.nextTaskID++;
                 return resolve(status);
-            }, _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.slowCrawlDealy);
+            }, _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.slowCrawlDealy);
         });
     }
     async waitCallMe(NO) {
@@ -2067,7 +2095,7 @@ class Bookmark {
                 return resolve(NO);
             }
             else {
-                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_5__.setTimeoutWorker.set(() => {
+                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_4__.setTimeoutWorker.set(() => {
                     return resolve(this.waitCallMe(NO));
                 }, 300);
             }
@@ -2091,14 +2119,14 @@ class Bookmark {
                         restrict: workData.bookmarkData?.private || false,
                     });
                 }
-                _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(result.length.toString(), 1, false);
+                _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(result.length.toString(), 1, false);
                 offset += onceOffset;
                 if (data.body.works.length === 0) {
                     break;
                 }
-                await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.slowCrawlDealy);
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.slowCrawlDealy);
             }
-            _Log__WEBPACK_IMPORTED_MODULE_4__.log.persistentRefresh();
+            _Log__WEBPACK_IMPORTED_MODULE_3__.log.persistentRefresh();
             resolve(result);
         });
     }
@@ -2116,52 +2144,49 @@ class Bookmark {
             const find = oldList.find((old) => old.id === data.id && old.type === data.type);
             if (!find) {
                 await this.add(data.id, data.type, data.tags, undefined, undefined, true);
+                // 慢速收藏（添加等待时间）
             }
             else {
                 skip++;
                 console.log('已收藏');
             }
             added++;
-            tip = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_收藏作品') + ` ${added}/${list.length}`;
+            tip = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品') + ` ${added}/${list.length}`;
             if (skip > 0) {
-                tip = tip + `, ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_跳过x个', skip.toString())}`;
+                tip = tip + `, ${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_跳过x个', skip.toString())}`;
             }
-            _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(tip, 1, false);
+            _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(tip, 1, false);
         }
-        _Log__WEBPACK_IMPORTED_MODULE_4__.log.persistentRefresh();
-        const msg = '✓ ' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_收藏作品完毕');
-        _Log__WEBPACK_IMPORTED_MODULE_4__.log.success(msg);
-        _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(msg, {
+        _Log__WEBPACK_IMPORTED_MODULE_3__.log.persistentRefresh();
+        const msg = '✓ ' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品完毕');
+        _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success(msg, {
             position: 'center',
         });
     }
     async sendRequest(id, type, tags, hide) {
-        return new Promise(async (resolve) => {
-            _API__WEBPACK_IMPORTED_MODULE_0__.API.addBookmark(id, type, tags, hide, _Token__WEBPACK_IMPORTED_MODULE_8__.token.token).then(async (res) => {
-                switch (res.status) {
+        try {
+            await _API__WEBPACK_IMPORTED_MODULE_0__.API.addBookmark(id, type, tags, hide, _Token__WEBPACK_IMPORTED_MODULE_7__.token.token);
+            return 200;
+        }
+        catch (error) {
+            if (error.status) {
+                const status = error.status;
+                switch (status) {
                     // 当发生 400 错误时重试
                     case 400:
-                        await _Token__WEBPACK_IMPORTED_MODULE_8__.token.reset();
-                        await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sleep(3000);
-                        return resolve(this.sendRequest(id, type, tags, hide));
-                    case 404:
-                        _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(`${id} 404 Not Found`);
-                        return resolve(res.status);
-                    case 429:
-                    case 500:
-                        _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_添加收藏失败'), {
-                            position: 'center',
+                        await _Token__WEBPACK_IMPORTED_MODULE_7__.token.reset();
+                        await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.sleep(3000);
+                        return new Promise((retryResolve, retryReject) => {
+                            this.sendRequest(id, type, tags, hide).then(retryResolve, retryReject);
                         });
-                        _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(`${_Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.createWorkLink(id, '', type === 'illusts')} ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_添加收藏失败')}, ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_错误代码')}: ${res.status}. ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器会在几分钟后重试')}`);
-                        window.setTimeout(() => {
-                            return resolve(this.sendRequest(id, type, tags, hide));
-                        }, _Config__WEBPACK_IMPORTED_MODULE_1__.Config.retryTime);
-                        break;
-                    default:
-                        return resolve(res.status);
+                    case 404:
+                        _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(`${id} 404 Not Found`);
+                        return status;
                 }
-            });
-        });
+            }
+            return 0;
+        }
     }
 }
 const bookmark = new Bookmark();
@@ -2761,7 +2786,7 @@ class ConvertUgoira {
     async webm(file, info, id) {
         const delayTooLarge = info.frames.find((item) => item.delay > 32767);
         if (delayTooLarge) {
-            const msg = _Language__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_动图不能转换为WEBM视频的提示', _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createWorkLink(id, '', true));
+            const msg = _Language__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_动图不能转换为WEBM视频的提示', _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createWorkLink(id, '', 'artwork'));
             _MsgBox__WEBPACK_IMPORTED_MODULE_5__.msgBox.warning(msg);
             _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(msg);
             return await this.start(file, info, 'gif');
@@ -3024,12 +3049,7 @@ class CopyWorkInfo {
             this.copy(data, p);
         }
         catch (error) {
-            if (error.status) {
-                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(`${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取作品数据失败')}: ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_错误代码')} ${error.status}`);
-            }
-            else {
-                _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取作品数据失败'));
-            }
+            _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取作品数据失败'));
         }
     }
     // 类型守卫
@@ -3519,6 +3539,8 @@ class EVENT {
         previewEnd: 'previewEnd',
         /**当关注的用户列表发生变化时触发 */
         followingUsersChange: 'followingUsersChange',
+        /**网络请求错误，并且有状态码 */
+        requestStatusError: 'requestStatusError',
     };
     fire(type, data) {
         const event = new CustomEvent(type, {
@@ -4168,6 +4190,7 @@ class HighlightFollowingUsers {
                 // 例如 toal 是 3522，实际上获取到的可能是 3483 个，再往后都是空数组了
                 break;
             }
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
         }
         return ids;
     }
@@ -6736,6 +6759,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
 /* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./crawl/LogErrorStatus */ "./src/ts/crawl/LogErrorStatus.ts");
+
 
 
 
@@ -6809,6 +6834,8 @@ class PreviewWork {
     overThumb = false;
     previewUgoira;
     _show = false;
+    /**是否处于准备显示预览图的阶段。当准备显示时为 true，已显示、以及隐藏预览图时为 fasle */
+    isReadyShow = false;
     get show() {
         return this._show;
     }
@@ -6834,6 +6861,7 @@ class PreviewWork {
                     _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('showPreviewWorkDetailPanel', this.workData);
                 }
                 this.sendURLs();
+                this.isReadyShow = false;
                 this._show = true;
                 _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__.showOriginSizeImage.hide();
                 this.showWrap();
@@ -6848,6 +6876,7 @@ class PreviewWork {
             window.clearTimeout(this.delayShowTimer);
             window.clearTimeout(this.delayHiddenTimer);
             this.overThumb = false;
+            this.isReadyShow = false;
             this._show = false;
             this.dontShowAgain = false;
             this.wrap.style.display = 'none';
@@ -6901,6 +6930,7 @@ class PreviewWork {
             });
         });
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__.artworkThumbnail.onLeave((el) => {
+            this.isReadyShow = false;
             // 当鼠标离开作品缩略图时，有可能是因为显示了作品详细信息的面板。此时让预览图保持显示
             if (_PreviewWorkDetailInfo__WEBPACK_IMPORTED_MODULE_16__.previewWorkDetailInfo.show) {
                 return;
@@ -6919,6 +6949,7 @@ class PreviewWork {
                 el.removeEventListener('wheel', this.onWheelScroll);
             }
         });
+        // 绑定按键
         window.addEventListener('keydown', (ev) => {
             // 当用户按下 Ctrl 时，不启用下载器的热键，以避免快捷键冲突或重复生效
             // 例如，预览作品时按 C 可以下载，但是当用户按下 Ctrl + C 时其实是想复制，此时不应该下载
@@ -7039,6 +7070,13 @@ class PreviewWork {
             window.setTimeout(() => {
                 this.dontShowAfterPageSwitch = false;
             }, 500);
+        });
+        _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_22__.logErrorStatus.listen((status, url) => {
+            if (this.isReadyShow && status === 429 && url.includes(this.workId)) {
+                _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_状态码429的提示'), {
+                    position: 'mouse',
+                });
+            }
         });
         // 当作品的详情面板隐藏时，鼠标位置可能在作品缩略图之外。所以此时需要检测鼠标位置，决定是否需要隐藏预览图
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.PreviewWorkDetailPanelClosed, (ev) => {
@@ -7187,6 +7225,7 @@ class PreviewWork {
         }
     }
     readyShow() {
+        this.isReadyShow = true;
         this.delayShowTimer = window.setTimeout(async () => {
             if (!_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.has(this.workId)) {
                 // 如果在缓存中没有找到这个作品的数据，则发起请求
@@ -7195,9 +7234,6 @@ class PreviewWork {
                     _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__.cacheWorkData.set(data);
                 }
                 catch (error) {
-                    if (error.status && error.status === 429) {
-                        _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.error('429 Error');
-                    }
                     this.show = false;
                     return;
                 }
@@ -9792,13 +9828,20 @@ class ShowWhatIsNew {
       <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_扩展程序升到x版本', this.flag)}</span>
       <br>
       <br>
+      <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_版本更新内容1820')}</span>
+      <br>
+      <br>
+      <span>🐞 ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复bug')}</span>
+      <br>
+      <br>
+      <span>😊 ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化用户体验')}</span>
       `;
             if (_Language__WEBPACK_IMPORTED_MODULE_0__.lang.type === 'zh-cn') {
                 msg += `<span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_QQ修复了粘贴问题的提醒')}</span>`;
             }
-            // <strong><span>✨${lang.transl('_新增设置项')}:</span></strong>
-            // <strong><span>✨${lang.transl('_新增功能')}:</span></strong>
-            // <strong><span>⚙️${lang.transl('_行为变更')}:</span></strong>
+            // <strong><span>✨ ${lang.transl('_新增设置项')}:</span></strong>
+            // <strong><span>✨ ${lang.transl('_新增功能')}:</span></strong>
+            // <strong><span>⚙️ ${lang.transl('_行为变更')}:</span></strong>
             // <span>🗑${lang.transl('_移除设置项')}</span>
             // <span class="blue">${lang.transl('_下载间隔')}</span>
             // ${lang.transl(
@@ -9815,10 +9858,10 @@ class ShowWhatIsNew {
             // <br>
             // <span>${lang.transl('_该功能默认启用')}</span>
             // <span>${lang.transl('_默认未启用')}</span>
-            // <span>😊${lang.transl('_优化用户体验')}</span>
-            // <span>🐞${lang.transl('_修复bug')}</span>
-            // <span>😊${lang.transl('_优化性能和用户体验')}</span>
-            // <span>🐞${lang.transl('_修复了显示更大的缩略图的功能异常的问题')}</span>
+            // <span>🐞 ${lang.transl('_修复bug')}</span>
+            // <span>🐞 ${lang.transl('_修复了显示更大的缩略图的功能异常的问题')}</span>
+            // <span>😊 ${lang.transl('_优化用户体验')}</span>
+            // <span>😊 ${lang.transl('_优化性能和用户体验')}</span>
             // 在更新说明的下方显示赞助提示
             msg += `
       <br>
@@ -10867,7 +10910,7 @@ class Tools {
         return false;
     }
     // 传入作品 id，生成作品页面的超链接
-    static createWorkLink(id, title, artwork = true) {
+    static createWorkLink(id, title, type = 'artwork') {
         // 对于图像作品，在作品页面链接后面添加 #p+1 可以在打开页面后，定位到对应的图片
         const array = id.toString().split('_p');
         const idNum = array[0];
@@ -10877,7 +10920,7 @@ class Tools {
         if (array[1] !== undefined) {
             p = Number.parseInt(array[1]) + 1;
         }
-        const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}${hasP ? `#${p}` : ''}`;
+        const href = `https://www.pixiv.net/${type === 'artwork' ? 'i' : 'n'}/${idNum}${hasP ? `#${p}` : ''}`;
         return `<a href="${href}" target="_blank">${title || id}</a>`;
     }
     // 传入用户 id，生成用户页面的超链接
@@ -11282,7 +11325,6 @@ class UnBookmarkWorks {
         _store_States__WEBPACK_IMPORTED_MODULE_5__.states.busy = true;
         const total = list.length;
         _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前作品个数', total.toString()));
-        // 尚不清楚 deleteBookmark 使用的 API 是否会被计入 429 限制里
         // 当操作的作品数量大于一页（48 个作品）时，使用慢速抓取
         const slowMode = total > 48;
         let progress = 0;
@@ -12253,14 +12295,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _TimedCrawl__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
-/* harmony import */ var _pageFunciton_QuickBookmark__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../pageFunciton/QuickBookmark */ "./src/ts/pageFunciton/QuickBookmark.ts");
-/* harmony import */ var _pageFunciton_CopyButtonOnWorkPage__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../pageFunciton/CopyButtonOnWorkPage */ "./src/ts/pageFunciton/CopyButtonOnWorkPage.ts");
-/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
-/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
-/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
-/* harmony import */ var _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
+/* harmony import */ var _TimedCrawl__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
+/* harmony import */ var _pageFunciton_QuickBookmark__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../pageFunciton/QuickBookmark */ "./src/ts/pageFunciton/QuickBookmark.ts");
+/* harmony import */ var _pageFunciton_CopyButtonOnWorkPage__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../pageFunciton/CopyButtonOnWorkPage */ "./src/ts/pageFunciton/CopyButtonOnWorkPage.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
+/* harmony import */ var _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ../download/AutoMergeNovel */ "./src/ts/download/AutoMergeNovel.ts");
 // 初始化所有页面抓取流程的基类
 
 
@@ -12317,8 +12359,6 @@ class InitPageBase {
                     _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
                     _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = true;
                     this.ajaxThread = 1;
-                    // 其实在已经出现 429 错误后，用户才启用这个开关的话是没用的，
-                    // 因为下载器重试请求的时候，已经有多个出错的请求了，下载器没有把这些请求从并发改为单线程
                 }
             }
         });
@@ -12380,6 +12420,9 @@ class InitPageBase {
                 _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.NovelSearch)) {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_在搜索页面里移除已关注用户的作品'));
         }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.autoMergeNovel) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_自动合并系列小说'));
+        }
     }
     setSlowCrawl() {
         _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawl;
@@ -12420,7 +12463,7 @@ class InitPageBase {
             await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__.mute.getMuteSettings();
         }
         this.getWantPage();
-        _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_29__.crawlLatestFewWorks.showLog();
+        _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_28__.crawlLatestFewWorks.showLog();
         this.getMultipleSetting();
         this.showTip();
         this.finishedRequest = 0;
@@ -12552,7 +12595,7 @@ class InitPageBase {
         // 这通常是由 crawlIdList 触发的，比如：
         // 在作品页里快速下载这个作品；预览图片时按快捷键下载；点击缩略图右上角的下载按钮
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.quickCrawl && _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length === 1) {
-            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id);
+            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id);
             if (data) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = [];
                 await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__.saveArtworkData.save(data);
@@ -12569,12 +12612,6 @@ class InitPageBase {
     }
     // 重设抓取作品列表时使用的变量或标记
     resetGetIdListStatus() { }
-    log429ErrorTip = _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.debounce(() => {
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取被限制时返回空结果的提示'));
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawl) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示启用减慢抓取速度功能'));
-        }
-    }, 500);
     // 获取作品的数据
     async getWorksData(idData) {
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
@@ -12606,15 +12643,31 @@ class InitPageBase {
         }
         try {
             const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.Unlisted;
-            // 这里不使用 cacheWorkData 中的缓存数据，因为某些数据（如作品的收藏状态）可能已经发生变化
             if (idData.type === 'novels') {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getNovelData(id, unlisted);
-                if (data.body.seriesNavData?.seriesId) {
+                // 小说数据尝试从缓存中获取，这是因为“自动合并系列小说”里也需要获取小说数据。
+                // 如果不使用缓存，则必定会导致一个小说发送两次请求
+                // 使用缓存有负面影响：作品的某些数据（如收藏数量）在它被缓存之后可能已经发生变化
+                // 但通常问题不大
+                let data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(id, 'novel');
+                if (!data) {
+                    data = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getNovelData(id, unlisted);
+                    _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.set(data);
                 }
-                await _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_11__.saveNovelData.save(data);
+                // 自动合并系列小说
+                const seriesId = data.body.seriesNavData?.seriesId;
+                const canMerge = seriesId && _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.autoMergeNovel;
+                if (canMerge) {
+                    const seriseTitle = data.body.seriesNavData?.title;
+                    await _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_29__.autoMergeNovel.merge(seriesId, seriseTitle);
+                }
+                // 如果这个小说不会被合并，或者即使合并也不跳过它，则保存到抓取结果里
+                if (!canMerge || !_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.skipNovelsInSeriesWhenAutoMerge) {
+                    await _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_11__.saveNovelData.save(data);
+                }
                 this.afterGetWorksData(data);
             }
             else {
+                // 获取图像作品时，不使用缓存的数据，因为目前在一次抓取里不会重复请求同一个图像作品
                 const data = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getArtworkData(id, unlisted);
                 await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__.saveArtworkData.save(data);
                 this.afterGetWorksData(data);
@@ -12624,25 +12677,15 @@ class InitPageBase {
             // 当 API 里的网络请求的状态码异常时，会 reject，被这里捕获
             if (error.status) {
                 // 请求成功，但状态码不正常
-                this.logErrorStatus(error.status, idData);
-                if (error.status === 500 || error.status === 429) {
-                    // 如果状态码 500 或 429，获取不到作品数据，可能是被 pixiv 限制了，等待一段时间后再次发送这个请求
-                    this.log429ErrorTip();
-                    window.setTimeout(() => {
-                        this.getWorksData(idData);
-                    }, _Config__WEBPACK_IMPORTED_MODULE_22__.Config.retryTime);
-                    return;
-                }
-                else {
-                    this.afterGetWorksData();
-                }
+                // 不重试
+                this.afterGetWorksData();
             }
             else {
                 // 请求失败，一般是
                 // TypeError: Failed to fetch
                 // 或者 Failed to load resource: net::ERR_CONNECTION_CLOSED
                 // 对于这种请求没能成功发送的错误，会输出 null
-                // 此外这里也会捕获到 save 作品数据时的错误（如果有）
+                // 注意：这里也会捕获到 save 作品数据时的错误（如果有）
                 console.error(error);
                 // 再次发送这个请求
                 window.setTimeout(() => {
@@ -12682,8 +12725,18 @@ class InitPageBase {
         }
         // 如果存在下一个作品，则继续抓取
         if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0) {
+            // 如果下一个作品是小说，先检查缓存里是否有它的数据
+            // 如果有缓存数据就不需要添加间隔时间，因为小说会使用缓存的数据，不必发送请求
+            const nextIDData = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0];
+            if (nextIDData && nextIDData.type === 'novels') {
+                const cache = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(nextIDData.id, 'novel');
+                if (cache) {
+                    return this.getWorksData();
+                }
+            }
+            // 如果要实际发送请求，则根据慢速抓取设置，决定是否添加间隔时间
             if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode) {
-                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_27__.setTimeoutWorker.set(() => {
+                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__.setTimeoutWorker.set(() => {
                     this.getWorksData();
                 }, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
             }
@@ -12752,40 +12805,9 @@ class InitPageBase {
             }
         }
     }
-    // 网络请求状态异常时输出提示
-    logErrorStatus(status, idData) {
-        const isNovel = idData.type === 'novels';
-        const workLink = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.createWorkLink(idData.id, '', !isNovel);
-        switch (status) {
-            case 0:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码0'));
-                break;
-            case 400:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码400'));
-                break;
-            case 401:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_请您登录Pixiv账号然后重试_401'));
-                break;
-            case 403:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码403'));
-                break;
-            case 404:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码404'));
-                break;
-            case 429:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码429'));
-                break;
-            case 500:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_作品页状态码500'));
-                break;
-            default:
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_无权访问', workLink) + `HTTP status code: ${status}`);
-                break;
-        }
-    }
     // 每当抓取了一个作品之后，输出提示
     logResultNumber() {
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_待处理')} ${_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length}, ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_共抓取到n个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.resultMeta.length.toString())}`, 1, false);
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取进度')}: ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_待处理')} ${_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length}, ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_共抓取到n个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.resultMeta.length.toString())}`, 1, false);
     }
     // 抓取结果为 0 时输出提示
     noResult() {
@@ -12793,7 +12815,11 @@ class InitPageBase {
         // 如果触发顺序反过来，那么最后执行的都是 crawlComplete，可能会覆盖对 crawlEmpty 的处理
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlComplete');
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlEmpty');
-        const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取结果为零');
+        let msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取结果为零');
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.autoMergeNovel && _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.skipNovelsInSeriesWhenAutoMerge) {
+            msg +=
+                '<br>' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取结果为零并且启用了自动合并系列小说时的提示');
+        }
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg, 2);
         _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
     }
@@ -12802,7 +12828,7 @@ class InitPageBase {
     /**定时抓取的按钮 */
     addStartTimedCrawlBtn(cb) {
         _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_定时抓取', '_定时抓取说明', 'scheduleCrawling').addEventListener('click', () => {
-            _TimedCrawl__WEBPACK_IMPORTED_MODULE_23__.timedCrawl.start(cb);
+            _TimedCrawl__WEBPACK_IMPORTED_MODULE_22__.timedCrawl.start(cb);
         });
     }
     /**取消定时抓取的按钮 */
@@ -12874,6 +12900,136 @@ class InitUnsupportedPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Ini
     // 只会由 SelectWork 模块添加通用的“手动抓取”功能
     addCrawlBtns() { }
 }
+
+
+
+/***/ }),
+
+/***/ "./src/ts/crawl/LogErrorStatus.ts":
+/*!****************************************!*\
+  !*** ./src/ts/crawl/LogErrorStatus.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   logErrorStatus: () => (/* binding */ logErrorStatus)
+/* harmony export */ });
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+
+
+
+
+
+
+// 网络请求状态异常时输出日志
+class LogErrorStatus {
+    constructor() {
+        this.bindEvents();
+    }
+    bindEvents() {
+        // 短时间内可能触发多次错误（例如获取作品数据时是 3 个并发请求）
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.requestStatusError, (ev) => {
+            // console.log(ev.detail.data)
+            const { status, url } = ev.detail.data;
+            /** 对特定 API 错误显示更友好的提示 */
+            let isSpecialHandle = false;
+            // 判断是否是获取作品数据的 API（url 如下所示）
+            // 如果是，则输出具体的日志
+            // https://www.pixiv.net/ajax/illust/86583637
+            // https://www.pixiv.net/ajax/novel/24482163
+            const matchIllust = url.match(/ajax\/illust\/(\d+)/);
+            if (matchIllust && matchIllust.length > 1) {
+                this.logErrorWithWorkLink(status, matchIllust[1], 'artwork');
+                isSpecialHandle = true;
+            }
+            const matchNovel = url.match(/ajax\/novel\/(\d+)/);
+            if (matchNovel && matchNovel.length > 1) {
+                this.logErrorWithWorkLink(status, matchNovel[1], 'novel');
+                isSpecialHandle = true;
+            }
+            // 判断是否是添加收藏的请求
+            // https://www.pixiv.net/ajax/novels/bookmarks/add
+            if (url.includes('/bookmarks/add')) {
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error('_添加收藏失败');
+                isSpecialHandle = true;
+            }
+            // 判断是否是获取关注列表的请求
+            // https://www.pixiv.net/ajax/user/103852206/following?offset=0&limit=24&rest=show&tag=&lang=zh
+            if (url.includes('/following')) {
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_获取关注列表失败'));
+                isSpecialHandle = true;
+            }
+            // 如果不符合特殊处理的情况，则输出通用的提示
+            if (!isSpecialHandle) {
+                const link = `<a href="${url}" target="_blank">${url}</a>`;
+                const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_网络错误状态码为x网址为y', status.toString(), link);
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+            }
+            // 429 错误时，显示额外的提示
+            if (status === 429) {
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器会等待几分钟然后重试'));
+                this.tipSlowCrawl();
+            }
+            this.listenerList.forEach((cb) => {
+                cb(status, url);
+            });
+        });
+    }
+    tipSlowCrawl = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.debounce(() => {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.slowCrawl) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示启用减慢抓取速度功能'));
+        }
+    }, 500);
+    listenerList = [];
+    /** 当发生错误时执行回调。回调函数会接收到两个参数：status 和 url */
+    // 这主要是为了处理调用 API 的发起方无法获取 429 状态的问题。
+    // 因为 API 通常不会返回 429 错误码，所以调用方如果想在发生 429 错误时进行不同于该模块的针对性处理，
+    // 可以注册回调函数，然后自行处理
+    listen(cb) {
+        this.listenerList.push(cb);
+    }
+    logErrorWithWorkLink(status, id, type = 'artwork') {
+        const workLink = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.createWorkLink(id, '', type);
+        switch (status) {
+            case 0:
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_状态码0的提示'));
+                break;
+            case 400:
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_状态码400的提示'));
+                break;
+            case 401:
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_状态码401的提示'));
+                break;
+            case 403:
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_状态码403的提示'));
+                break;
+            case 404:
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_状态码404的提示'));
+                break;
+            case 429:
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_状态码429的提示'));
+                break;
+            case 500:
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_状态码500的提示'));
+                break;
+            case 503:
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_状态码503的提示'));
+                break;
+            default:
+                const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_网络错误状态码为x网址为y', status.toString(), workLink);
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
+                break;
+        }
+    }
+}
+const logErrorStatus = new LogErrorStatus();
 
 
 
@@ -14218,10 +14374,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../setting/NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
+/* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../setting/NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
 // 初始化 artwork 排行榜页面
-
 
 
 
@@ -14262,7 +14416,7 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
     // 抓取完成后，对结果进行排序
     sortResult() {
         // 如果用户在命名规则里使用了 {rank}，则按照 rank 排序
-        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_14__.nameRuleManager.rule.includes('{rank}')) {
+        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_13__.nameRuleManager.rule.includes('{rank}')) {
             _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sortByProperty('rank', 'asc'));
             _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sortByProperty('rank', 'asc'));
         }
@@ -14323,18 +14477,10 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         }
         catch (error) {
             if (error.status === 404) {
-                // 如果发生了404错误，则中断抓取，直接下载已有部分。因为可能确实没有下一部分了
+                // 如果发生了404错误，可能确实没有这一页了，也就是说数据已经获取完毕了
                 console.log('404错误，直接下载已有部分');
-                this.getIdListFinished();
             }
-            // 429 错误时延迟重试
-            if (error.status === 429) {
-                this.log429ErrorTip();
-                window.setTimeout(() => {
-                    this.getIdList();
-                }, _Config__WEBPACK_IMPORTED_MODULE_13__.Config.retryTime);
-            }
-            return;
+            return this.getIdListFinished();
         }
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
             return this.getIdListFinished();
@@ -14342,25 +14488,25 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         this.listPageFinished++;
         _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_排行榜进度', this.listPageFinished.toString()), 1, false);
         const contents = data.contents; // 取出作品信息列表
-        for (const data of contents) {
-            const pageCount = parseInt(data.illust_page_count);
+        for (const work of contents) {
+            const pageCount = parseInt(work.illust_page_count);
             // 目前这个数据里并没有包含收藏数量，所以在这里没办法检查收藏数量要求
             const filterOpt = {
-                id: data.illust_id,
-                workType: parseInt(data.illust_type),
-                tags: data.tags,
+                id: work.illust_id,
+                workType: parseInt(work.illust_type),
+                tags: work.tags,
                 pageCount: pageCount,
-                bookmarkData: data.is_bookmarked,
-                width: pageCount === 1 ? data.width : 0,
-                height: pageCount === 1 ? data.height : 0,
-                yes_rank: data.yes_rank,
-                userId: data.user_id.toString(),
+                bookmarkData: work.is_bookmarked,
+                width: pageCount === 1 ? work.width : 0,
+                height: pageCount === 1 ? work.height : 0,
+                yes_rank: work.yes_rank,
+                userId: work.user_id.toString(),
             };
             if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__.filter.check(filterOpt)) {
-                _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.setRankList(data.illust_id.toString(), data.rank);
+                _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.setRankList(work.illust_id.toString(), work.rank);
                 _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.idList.push({
-                    type: _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.getWorkTypeString(data.illust_type),
-                    id: data.illust_id.toString(),
+                    type: _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.getWorkTypeString(work.illust_type),
+                    id: work.illust_id.toString(),
                 });
             }
             this.checkTotal++;
@@ -14694,7 +14840,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_14__.Utils.debounce(() => {
         _Log__WEBPACK_IMPORTED_MODULE_8__.log.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取被限制时返回空结果的提示'));
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.slowCrawl) {
-            _Log__WEBPACK_IMPORTED_MODULE_8__.log.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示启用减慢抓取速度功能'));
+            _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示启用减慢抓取速度功能'));
         }
     }, 1000);
     /**获取作品 id 列表（列表页数据） */
@@ -14764,7 +14910,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         // 因为如果作品被过滤掉了，就不会储存在 store.idList 里
         if (this.listPageFinished > 0 && this.listPageFinished % 10 === 0) {
             if (data.data.length > 0) {
-                console.log(`已抓取 ${this.listPageFinished} 页，检查最后一个作品的收藏数量`);
+                // console.log(
+                //   `已抓取 ${this.listPageFinished} 页，检查最后一个作品的收藏数量`
+                // )
                 const lastWork = data.data[data.data.length - 1];
                 const check = await _crawl_VipSearchOptimize__WEBPACK_IMPORTED_MODULE_24__.vipSearchOptimize.checkWork(lastWork.id, 'illusts');
                 if (check) {
@@ -17078,13 +17226,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getNovelGlossarys: () => (/* binding */ getNovelGlossarys)
 /* harmony export */ });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 class GetNovelGlossarys {
     /**获取系列小说的设定资料 */
-    async getGlossarys(seriesId) {
+    async getGlossarys(seriesId, interval = 0) {
         return new Promise(async (resolve, reject) => {
             // 先获取设定资料的分类、每条设定资料的简略数据
             // 注意此时每条设定资料缺少 detail 数据（此时为 null）
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.sleep(interval);
             const glossaryData = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelSeriesGlossary(seriesId);
             const result = glossaryData.body.categories;
             if (result.length === 0) {
@@ -17093,6 +17244,7 @@ class GetNovelGlossarys {
             // 请求每条设定资料的详细数据
             for (const categorie of result) {
                 for (const item of categorie.items) {
+                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.sleep(interval);
                     const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelSeriesGlossaryItem(item.seriesId, item.id);
                     item.detail = data.body.item.detail;
                 }
@@ -17433,7 +17585,13 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     addAnyElement() {
         _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_合并系列小说', '', 'mergeSeriesNovel').addEventListener('click', () => {
             const seriesId = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLPathField(window.location.pathname, 'series');
-            new _download_MergeNovel__WEBPACK_IMPORTED_MODULE_6__.MergeNovel(seriesId);
+            let seriseTitle = '';
+            // 尝试获取系列标题
+            const meta = document.querySelector('meta[property="twitter:title"]');
+            if (meta) {
+                seriseTitle = meta.getAttribute('content') || '';
+            }
+            new _download_MergeNovel__WEBPACK_IMPORTED_MODULE_6__.MergeNovel().merge(seriesId, seriseTitle);
         });
     }
     async nextStep() {
@@ -17689,10 +17847,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../setting/NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-
+/* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../setting/NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 
 
 
@@ -17724,9 +17880,9 @@ class InitRankingNovelPageNew extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODU
     // 抓取完成后，对结果进行排序
     sortResult() {
         // 如果用户在命名规则里使用了 {rank}，则按照 rank 排序
-        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_11__.nameRuleManager.rule.includes('{rank}')) {
-            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_12__.Utils.sortByProperty('rank', 'asc'));
-            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_12__.Utils.sortByProperty('rank', 'asc'));
+        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_10__.nameRuleManager.rule.includes('{rank}')) {
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.sortByProperty('rank', 'asc'));
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.sortByProperty('rank', 'asc'));
         }
     }
     getWantPage() {
@@ -17850,18 +18006,10 @@ class InitRankingNovelPageNew extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODU
         }
         catch (error) {
             if (error.status === 404) {
-                // 如果发生了404错误，则中断抓取，直接下载已有部分。因为可能确实没有这一页了
+                // 如果发生了404错误，可能确实没有这一页了，也就是说数据已经获取完毕了
                 console.log('404错误，直接下载已有部分');
-                this.getIdListFinished();
             }
-            // 429 错误时延迟重试
-            if (error.status === 429) {
-                this.log429ErrorTip();
-                window.setTimeout(() => {
-                    this.getIdList();
-                }, _Config__WEBPACK_IMPORTED_MODULE_10__.Config.retryTime);
-            }
-            return;
+            return this.getIdListFinished();
         }
     }
     resetGetIdListStatus() {
@@ -18099,7 +18247,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     }
     tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.debounce(() => {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_18__.settings.slowCrawl) {
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示启用减慢抓取速度功能'));
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示启用减慢抓取速度功能'));
         }
         _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取被限制时返回空结果的提示'));
     }, 1000);
@@ -18163,7 +18311,9 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         // 因为如果作品被过滤掉了，就不会储存在 store.idList 里
         if (this.listPageFinished > 0 && this.listPageFinished % 10 === 0) {
             if (data.data.length > 0) {
-                console.log(`已抓取 ${this.listPageFinished} 页，检查最后一个作品的收藏数量`);
+                // console.log(
+                //   `已抓取 ${this.listPageFinished} 页，检查最后一个作品的收藏数量`
+                // )
                 const lastWork = data.data[data.data.length - 1];
                 const check = await _crawl_VipSearchOptimize__WEBPACK_IMPORTED_MODULE_17__.vipSearchOptimize.checkWork(lastWork.id, 'novels');
                 if (check) {
@@ -18210,6 +18360,165 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         }
     };
 }
+
+
+
+/***/ }),
+
+/***/ "./src/ts/download/AutoMergeNovel.ts":
+/*!*******************************************!*\
+  !*** ./src/ts/download/AutoMergeNovel.ts ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   autoMergeNovel: () => (/* binding */ autoMergeNovel)
+/* harmony export */ });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _MergeNovel__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./MergeNovel */ "./src/ts/download/MergeNovel.ts");
+
+
+
+
+
+
+// 抓取小说时，如果某个小说属于系列小说，则合并这个系列小说
+class AutoMergeNovel {
+    constructor() {
+        this.bindEvents();
+    }
+    /** 等待队列。因为合并小说时使用了任务队列，每次只执行一个任务，所以需要有等待队列 */
+    // 合并小说时经常需要发送很多请求并下载很多图片，所以不能并发执行，以免因为频繁的请求和下载导致账号被封禁
+    // 在执行过程中，等待队列里的 id 数量会变化，范围是 0 - 同时抓取的数量
+    // 例如同时抓取数量为 3 的话，一开始的 3 个小说可能都属于系列，就会导致等待队列里有 3 个系列 id
+    // 等到抓取完毕时，等待队列会变成空的
+    pendingQueue = [];
+    /** 已完成的队列 */
+    // 抓取完毕时，已完成的队列里的 id 数量就是合并了多少个系列的数量
+    completedQueue = [];
+    /** 正在合并（尚未完成）的系列 id */
+    workingId = '';
+    /* *保存系列 id 和它对应的标题，用于在日志里显示**/
+    idTitleMap = {};
+    /** 指示是否可以工作 */
+    stop = true;
+    /** 在本次抓取任务里，自动合并的系列里一共包含多少篇小说 */
+    novelTotal = 0;
+    /** 添加系列 id，需要避免重复添加。返回值表示是否添加了这个 id。如果返回值为 false，说明这个 id 已存在 */
+    push(seriesId) {
+        if (this.pendingQueue.includes(seriesId) ||
+            this.completedQueue.includes(seriesId)) {
+            return false;
+        }
+        this.pendingQueue.push(seriesId);
+        return true;
+    }
+    /** 获取下一个系列 id 进行处理。这个 id 依然存在于 pendingQueue 里，等到合并完成后才会移除它 */
+    async next() {
+        return new Promise((resolve) => {
+            const check = () => {
+                if (this.pendingQueue.length > 0 &&
+                    this.pendingQueue[0] !== this.workingId) {
+                    return resolve(this.pendingQueue[0]);
+                }
+                else {
+                    window.setTimeout(check, 100);
+                }
+            };
+            check();
+        });
+    }
+    async merge(seriesId, seriesTitle) {
+        if (!seriesId) {
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error('seriesId is undefined');
+            return;
+        }
+        if (this.stop) {
+            console.log('auto merge stopped');
+            return;
+        }
+        const absent = this.push(seriesId);
+        if (!absent) {
+            return;
+        }
+        this.idTitleMap[seriesId] = seriesTitle || '';
+        this.showTip();
+        this.workingId = await this.next();
+        const seriesTitleLog = this.idTitleMap[this.workingId];
+        const novelTotal = await new _MergeNovel__WEBPACK_IMPORTED_MODULE_5__.MergeNovel().merge(this.workingId, seriesTitleLog, true);
+        // 调试用：跳过合并过程，节省时间
+        // log.log(`skip merge ${this.workingId} ${seriesTitleLog}`)
+        // await Utils.sleep(1000)
+        // const novelTotal = 0
+        if (this.stop) {
+            console.log('auto merge stopped');
+            return;
+        }
+        this.novelTotal += novelTotal;
+        // shift() 所移除的 id 就是 this.workingId
+        this.pendingQueue.shift();
+        this.workingId && this.completedQueue.push(this.workingId);
+        this.workingId = '';
+    }
+    enableTip = true;
+    bindEvents() {
+        // 抓取完毕、抓取停止时，重置一些状态
+        // 当抓取停止时，如果当前正在合并一个系列，那么它会正常完成，不会被取消。剩余的合并任务会取消（因为等待队列会被清空）
+        const stopEvents = [_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.stopCrawl];
+        stopEvents.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                window.setTimeout(() => {
+                    const completed = this.completedQueue.length;
+                    if (completed > 0) {
+                        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_本次抓取一共合并了x个系列小说包含y篇小说', completed.toString(), this.novelTotal.toString()));
+                    }
+                    if (evt === _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.stopCrawl && this.workingId) {
+                        _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_提示有一个系列正在合并中'));
+                    }
+                    this.reset();
+                }, 10);
+            });
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
+            this.stop = false;
+        });
+    }
+    reset() {
+        this.stop = true;
+        // 允许再次显示提示
+        this.enableTip = true;
+        // 重置队列
+        // 由于自动合并是与抓取串行（交替进行）的，所以抓取完毕时，自动合并的任务也肯定全部完成了，所以可以重置状态
+        // 重置是为了在重复抓取时可以重复合并同一个系列
+        // 如果不重置的话，由于队列里已经存在了这个系列 id，那么在重复抓取时就会导致不会再合并这个系列
+        this.pendingQueue = [];
+        this.completedQueue = [];
+        this.workingId = '';
+        this.idTitleMap = {};
+        this.novelTotal = 0;
+    }
+    showTip() {
+        // 每次抓取期间只显示一次提示
+        if (this.enableTip) {
+            this.enableTip = false;
+            // 在窗口中间显示轻提示，这是因为“开始抓取”的提示也位于中间，保持一致
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_自动合并系列小说'), {
+                position: 'center',
+            });
+            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_自动合并系列小说时提示会添加间隔时间'));
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.skipNovelsInSeriesWhenAutoMerge) {
+                _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_不再单独下载系列里的小说'));
+            }
+        }
+    }
+}
+const autoMergeNovel = new AutoMergeNovel();
 
 
 
@@ -18279,6 +18588,7 @@ class BookmarkAfterDL {
             this.reset();
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.downloadComplete, () => {
+            this.showCompleteLog = true;
             this.delayReset = true;
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.downloadStart, () => {
@@ -18288,23 +18598,26 @@ class BookmarkAfterDL {
             }
         });
     }
-    showCompleteTip = true;
+    /** 当所有的收藏任务都完成后，显示一条日志 */
+    // 只有当所有文件都下载完毕后才会显示这条日志
+    showCompleteLog = false;
     showProgress() {
         if (this.IDList.length === 0) {
             _Language__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.tipEl, '');
             return;
         }
         _Language__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.tipEl, '_已收藏带参数', `${this.successCount}/${this.IDList.length}`);
-        if (this.successCount === this.IDList.length && this.showCompleteTip) {
-            // 当全部收藏完成时，只显示一次提示。否则会显示多次
-            this.showCompleteTip = false;
+        if (this.showCompleteLog &&
+            this.successCount > 0 &&
+            this.successCount === this.IDList.length) {
+            this.showCompleteLog = false;
             _Log__WEBPACK_IMPORTED_MODULE_6__.log.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品完毕'));
         }
     }
     reset() {
-        this.showCompleteTip = true;
         this.IDList = [];
         this.queue = [];
+        this.showCompleteLog = false;
         this.successCount = 0;
         this.tipEl.classList.remove('red');
         this.tipEl.classList.add('green');
@@ -18351,6 +18664,7 @@ class BookmarkAfterDL {
         }
         // 添加收藏
         // 当抓取结果很少时，不使用慢速收藏
+        // 如果抓取结果大于 30 个，则使用慢速收藏1
         const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_4__.bookmark.add(id.toString(), data.type !== 3 ? 'illusts' : 'novels', data.tags, undefined, undefined, _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.result.length > 30);
         this.successCount++;
         // 已完成的数量不应该超过任务总数
@@ -18406,6 +18720,9 @@ class CheckWarningMessage {
     unitNumber = 100;
     /**上次检查时的下载数量 */
     lastCheckDownloaded = 0;
+    /** 检查过去 1 小时内的消息 */
+    // 如果警告消息的时间过去比较久了，则不再显示提示消息，否则就会无限提示了
+    checkTimeRange = 1 * 60 * 60 * 1000;
     bindEvents() {
         // 当有文件保存成功后，计算已下载文件的数量（不会计算跳过的文件）
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadSuccess, () => {
@@ -18418,7 +18735,7 @@ class CheckWarningMessage {
             this.lastCheckDownloaded = this.downloaded;
             const result = await this.check();
             if (result) {
-                _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_过度访问警告警告') + '<br>' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已暂停'));
+                _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_过度访问警告') + '<br>' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已暂停'));
                 return _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('requestPauseDownload');
             }
         }
@@ -18446,10 +18763,7 @@ class CheckWarningMessage {
                         // 如果找到了官方账号发送的警告消息，则判断时间
                         const now = new Date().getTime();
                         const msgTime = Number.parseInt(msgData.modified_at + '000');
-                        // 如果这是 1 小时内的消息，则视为有效的警告消息
-                        // 如果警告消息的时间过去比较久了，则不再显示提示消息，否则就会无限提示了
-                        // 在进行大量下载时，pixiv 的警告消息可能会延迟几十分钟发送
-                        if (now - msgTime < 60 * 60 * 1000) {
+                        if (now - msgTime < this.checkTimeRange) {
                             return resolve(true);
                         }
                     }
@@ -18606,7 +18920,7 @@ class Download {
     // 当重试达到最大次数时
     afterReTryMax(status, fileId) {
         const errorMsg = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_作品id无法下载带状态码', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(fileId), status.toString());
-        // 404, 500 错误，跳过，不会再尝试下载这个文件（因为没有触发 downloadError 事件，所以不会重试下载）
+        // 发生 404 500 错误时跳过这个作品。因为没有触发 downloadError 事件，所以不会重试下载它
         if (status === 404 || status === 500) {
             _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(errorMsg);
             _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载器不会再重试下载它'));
@@ -19029,7 +19343,7 @@ class DownloadControl {
             }
             // 文件下载成功
             if (msg.msg === 'downloaded') {
-                URL.revokeObjectURL(msg.data.url);
+                URL.revokeObjectURL(msg.data.blobURLFront);
                 // 发送下载成功的事件
                 _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadSuccess', msg.data);
                 this.downloadOrSkipAFile(msg.data);
@@ -19499,6 +19813,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+
 
 
 
@@ -19508,6 +19824,7 @@ class DownloadNovelCover {
      *
      * 默认是正常下载小说的情况，可以设置为合并系列小说的情况
      */
+    // 这个模块内部没有添加间隔时间，由调用者负责添加间隔时间
     async download(coverURL, novelName, action = 'downloadNovel') {
         const blob = await this.getCover(coverURL, 'blob');
         if (blob === null) {
@@ -19553,7 +19870,7 @@ class DownloadNovelCover {
             retry++;
             console.log(retry, url);
             if (retry > this.retryMax) {
-                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(`fetch ${url} failed`);
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(`${_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下载小说封面失败')}: ${url}`);
                 return null;
             }
             return this.getCover(url, type, retry);
@@ -19602,7 +19919,7 @@ class DownloadNovelEmbeddedImage {
      *
      * 默认是正常下载小说的情况，可以设置为合并系列小说的情况
      */
-    async TXT(novelId, novelTitle, content, embeddedImages, novelName, action = 'downloadNovel') {
+    async TXT(novelId, novelTitle, content, embeddedImages, novelName, action = 'downloadNovel', interval = 0) {
         const imageList = await this.getImageList(novelId, content, embeddedImages);
         let current = 1;
         const total = imageList.length;
@@ -19614,7 +19931,12 @@ class DownloadNovelEmbeddedImage {
                 _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(`image ${image.id} not found`);
                 continue;
             }
-            await _DownloadInterval__WEBPACK_IMPORTED_MODULE_7__.downloadInterval.wait();
+            if (interval) {
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.sleep(interval);
+            }
+            else {
+                await _DownloadInterval__WEBPACK_IMPORTED_MODULE_7__.downloadInterval.wait();
+            }
             const blob = await this.getImage(image.url, 'blob');
             if (blob === null) {
                 continue;
@@ -19649,7 +19971,7 @@ class DownloadNovelEmbeddedImage {
         _Log__WEBPACK_IMPORTED_MODULE_4__.log.persistentRefresh('downloadNovelImage' + novelId);
     }
     /**小说保存为 epub 时，内嵌到 Epub 对象里 */
-    async EPUB(novelId, novelTitle, content, embeddedImages, jepub) {
+    async EPUB(novelId, novelTitle, content, embeddedImages, jepub, interval = 0) {
         const imageList = await this.getImageList(novelId, content, embeddedImages);
         let current = 1;
         const total = imageList.length;
@@ -19662,7 +19984,12 @@ class DownloadNovelEmbeddedImage {
                 continue;
             }
             // 加载图片
-            await _DownloadInterval__WEBPACK_IMPORTED_MODULE_7__.downloadInterval.wait();
+            if (interval) {
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.sleep(interval);
+            }
+            else {
+                await _DownloadInterval__WEBPACK_IMPORTED_MODULE_7__.downloadInterval.wait();
+            }
             const buffer = await this.getImage(image.url, 'arrayBuffer');
             // 如果图片获取失败，将正文里它对应的标记替换为提示文字
             if (buffer === null) {
@@ -19774,18 +20101,9 @@ class DownloadNovelEmbeddedImage {
             catch (error) {
                 if (error.status) {
                     // 请求成功，但状态码不正常
-                    if (error.status === 500 || error.status === 429) {
-                        _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_抓取被限制时返回空结果的提示'));
-                        window.setTimeout(() => {
-                            return this.getImageList(novelID, content, embeddedImages);
-                        }, _Config__WEBPACK_IMPORTED_MODULE_2__.Config.retryTime);
-                        return;
-                    }
-                    else {
-                        // 其他状态码，尚不清楚实际会遇到什么情况，最可能的是作品被删除（404 ）了吧
-                        // 此时直接返回数据（不会下载图片，但是后续会在正文里显示对应的提示）
-                        return resolve(idList);
-                    }
+                    // 最可能的是作品被删除（404 ）了
+                    // 此时直接返回数据（不会下载图片，但是后续会在正文里显示对应的提示）
+                    return resolve(idList);
                 }
                 else {
                     // 请求失败，没有获得服务器的返回数据，一般都是
@@ -19800,7 +20118,7 @@ class DownloadNovelEmbeddedImage {
         });
     }
     logProgress(id, title, current, total) {
-        _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_正在下载小说x中的插画x', _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.createWorkLink(id, title, false), `${current} / ${total}`), 1, false, 'downloadNovelImage' + id);
+        _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_正在下载小说x中的插画x', _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.createWorkLink(id, title, 'novel'), `${current} / ${total}`), 1, false, 'downloadNovelImage' + id);
     }
     /**最多重试一定次数，避免无限重试 */
     retryMax = 5;
@@ -19815,9 +20133,9 @@ class DownloadNovelEmbeddedImage {
         }
         catch (error) {
             retry++;
-            console.log(retry, url);
+            // console.log(retry, url)
             if (retry > this.retryMax) {
-                _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(`fetch ${url} failed`);
+                _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(`${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载小说里的图片失败')}: ${url}`);
                 return null;
             }
             // 重试下载
@@ -20856,17 +21174,17 @@ class MakeNovelFile {
     /** 下载小说的封面图片 */
     async downloadCover(id, title, url, filename) {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.downloadNovelCoverImage && url) {
-            _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载小说的封面图片的提示', _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.createWorkLink(id, title, false)), 1, false, 'downloadNovelCover' + id);
+            _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载小说的封面图片的提示', _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.createWorkLink(id, title, 'novel')), 1, false, 'downloadNovelCover' + id);
             await _DownloadInterval__WEBPACK_IMPORTED_MODULE_5__.downloadInterval.wait();
             await _DownloadNovelCover__WEBPACK_IMPORTED_MODULE_8__.downloadNovelCover.download(url, filename, 'downloadNovel');
         }
     }
-    // 设置单例执行（主要是在下载图片时启用限制），禁止并发执行。
+    // 建立串行机制（主要是在下载图片时启用限制），禁止并发执行。
     // 这是因为本模块里的两个 make 方法是被 Download 调用的
     // 有几个同时下载数量，就会产生几个并发调用，这会导致下载器同时下载多个小说里的图片。这样不好：
     // 1. 如果图片体积都比较大，或者用户网络较差时，会增加图片下载失败的几率
     // 2. 如果图片体积都比较小，下载会迅速完成，这会导致下载频率很高，增大了账号被 Pixiv 警告、封禁的风险
-    // 因此下载图片期间需要使用单例执行
+    // 因此下载图片期间同时只执行一个任务
     busy = false;
     waitForIdle() {
         return new Promise((resolve) => {
@@ -20875,7 +21193,7 @@ class MakeNovelFile {
                     resolve();
                 }
                 else {
-                    setTimeout(check, 50);
+                    window.setTimeout(check, 50);
                 }
             };
             check();
@@ -20995,20 +21313,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   MergeNovel: () => (/* binding */ MergeNovel)
 /* harmony export */ });
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../download/DownloadNovelCover */ "./src/ts/download/DownloadNovelCover.ts");
-/* harmony import */ var _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./DownloadNovelEmbeddedImage */ "./src/ts/download/DownloadNovelEmbeddedImage.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _crawlNovelPage_GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../crawlNovelPage/GetNovelGlossarys */ "./src/ts/crawlNovelPage/GetNovelGlossarys.ts");
-/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../download/DownloadNovelCover */ "./src/ts/download/DownloadNovelCover.ts");
+/* harmony import */ var _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./DownloadNovelEmbeddedImage */ "./src/ts/download/DownloadNovelEmbeddedImage.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _crawlNovelPage_GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../crawlNovelPage/GetNovelGlossarys */ "./src/ts/crawlNovelPage/GetNovelGlossarys.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+
 
 
 
@@ -21024,14 +21344,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class MergeNovel {
-    constructor(seriesId) {
-        if (!seriesId) {
-            _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.error(`seriesId is undefined`);
-            return;
-        }
-        this.seriesId = seriesId.toString();
-        this.merge();
-    }
     seriesId = '';
     seriesTitle = '';
     seriesUpdateDate = '';
@@ -21043,37 +21355,72 @@ class MergeNovel {
     allNovelData = [];
     limit = 30;
     last = 0;
+    slowMode = false;
     CRLF = '\n'; // 小说的换行符
     CRLF2 = '\n\n';
     br2 = '<br/><br/>';
-    async merge() {
-        _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_合并系列小说'));
-        _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_开始抓取'), {
-            position: 'center',
-        });
-        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('closeCenterPanel');
-        _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_获取小说列表'));
-        await this.getIdList();
+    // 由于每个系列里都可能含有多个小说和图片，所以下载器可能会发送很多请求。为了避免触发 Pixiv 的警告，下载器在合并时总是会添加间隔时间，以降低发送请求的频率。
+    /** 抓取时的间隔时间，最低为 2400 ms。这不会触发 429 错误 */
+    // 我尝试过更低的延迟时间，例如 2000, 没有触发 429 错误，但依然被警告了，所以增加到 2400
+    get crawlInterval() {
+        return Math.max(2400, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.slowCrawlDealy);
+    }
+    /** 下载文件时的间隔时间，最低为 2000 ms */
+    get downloadInterval() {
+        return Math.max(2000, _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.downloadInterval);
+    }
+    /**每次请求之间等待一段时间 */
+    async sleep(time) {
+        this.slowMode && (await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.sleep(time));
+    }
+    /** 合并系列小说。返回值是合并完成后所包含的小说数量（不包含 404 的小说） */
+    async merge(seriesId, seriesTitle, autoMerge = false) {
+        if (!seriesId) {
+            _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error(`seriesId is undefined`);
+            return 0;
+        }
+        this.seriesId = seriesId.toString();
+        this.seriesTitle = seriesTitle || '';
+        this.slowMode = autoMerge;
+        const link = `<a href="https://www.pixiv.net/novel/series/${this.seriesId}" target="_blank">${this.seriesTitle || this.seriesId}</a>`;
+        _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(`📚${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_合并系列小说')} ${link}`);
+        // 在小说系列页面里执行时，关闭设置面板
+        // 在其他页面类型里不关闭设置面板，因为在其他页面里可能需要合并多个系列小说，会导致多次关闭设置面板。这可能会影响用户正常使用设置面板
+        if (_PageType__WEBPACK_IMPORTED_MODULE_13__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_13__.pageType.list.NovelSeries) {
+            _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('closeCenterPanel');
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取小说列表'));
+        // 只在第一个发送网络请求的步骤里使用 try catch 即可
+        // 因为最常见的错误是 404, 如果遇到 404, 这一步就可以检查出来，不必向下执行了
+        try {
+            await this.sleep(this.crawlInterval);
+            await this.getNovelIds();
+        }
+        catch (error) {
+            _Log__WEBPACK_IMPORTED_MODULE_7__.log.error(`❌${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_发生错误取消合并这个系列小说')} ${link}`);
+            return 0;
+        }
         await this.getNovelData();
         // 获取这个系列的设定资料
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveNovelMeta) {
-            _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_获取设定资料'));
-            const data = await _crawlNovelPage_GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_12__.getNovelGlossarys.getGlossarys(this.seriesId);
-            this.seriesGlossary = _crawlNovelPage_GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_12__.getNovelGlossarys.storeGlossaryText(data);
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta) {
+            _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取设定资料'));
+            const data = await _crawlNovelPage_GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_11__.getNovelGlossarys.getGlossarys(this.seriesId, this.crawlInterval);
+            this.seriesGlossary = _crawlNovelPage_GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_11__.getNovelGlossarys.storeGlossaryText(data);
         }
         // 获取这个系列本身的详细数据
-        _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_获取系列数据'));
-        const seriesDataJSON = await _API__WEBPACK_IMPORTED_MODULE_9__.API.getNovelSeriesData(this.seriesId);
+        await this.sleep(this.crawlInterval);
+        _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取系列数据'));
+        const seriesDataJSON = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getNovelSeriesData(this.seriesId);
         const seriesData = seriesDataJSON.body;
-        this.userName = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(seriesData.userName));
-        this.seriesTitle = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(seriesData.title));
-        this.seriesCaption = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlDecode(seriesData.caption));
+        this.userName = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceUnsafeStr(seriesData.userName));
+        this.seriesTitle = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceUnsafeStr(seriesData.title));
+        this.seriesCaption = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlDecode(seriesData.caption));
         this.seriesTags = seriesData.tags;
-        this.seriesUpdateDate = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_13__.DateFormat.format(seriesData.updateDate);
+        this.seriesUpdateDate = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__.DateFormat.format(seriesData.updateDate);
         // 生成小说文件并下载
         let file = null;
-        const novelName = `${this.seriesTitle}-user_${this.userName}-seriesId_${this.seriesId}-tags_${seriesData.tags}.${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.novelSaveAs}`;
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.novelSaveAs === 'txt') {
+        const novelName = `series-${this.userName}-${this.seriesTitle}-user_${this.userName}-seriesId_${this.seriesId}-tags_${seriesData.tags}.${_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.novelSaveAs}`;
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.novelSaveAs === 'txt') {
             file = await this.mergeTXT(novelName);
         }
         else {
@@ -21081,19 +21428,24 @@ class MergeNovel {
         }
         // 下载系列小说的封面图片，保存到单独的文件
         const coverUrl = seriesData.cover.urls.original;
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadNovelCoverImage && coverUrl) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.downloadNovelCoverImage && coverUrl) {
             this.logDownloadSeriesCover();
-            await _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_6__.downloadNovelCover.download(coverUrl, novelName, 'mergeNovel');
+            // 在 mergeEPUB 里会先加载一遍封面图片，所以这里有可能会从缓存加载，就不需要添加等待时间
+            // 只有当保存格式为 txt 时，才需要在这里再下载一次封面图片
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.novelSaveAs === 'txt') {
+                await this.sleep(this.downloadInterval);
+            }
+            await _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_5__.downloadNovelCover.download(coverUrl, novelName, 'mergeNovel');
         }
         const url = URL.createObjectURL(file);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.downloadFile(url, _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(novelName));
-        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadComplete');
-        _Log__WEBPACK_IMPORTED_MODULE_8__.log.success(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下载完毕'), 2);
-        _store_Store__WEBPACK_IMPORTED_MODULE_0__.store.reset();
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.downloadFile(url, _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceUnsafeStr(novelName));
+        _Log__WEBPACK_IMPORTED_MODULE_7__.log.success(`✅${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已合并系列小说')} ${link}`);
+        URL.revokeObjectURL(url);
+        return this.allNovelData.length;
     }
     /** 获取这个系列里所有小说的 id */
-    async getIdList() {
-        const seriesData = await _API__WEBPACK_IMPORTED_MODULE_9__.API.getNovelSeriesContent(this.seriesId, this.limit, this.last, 'asc');
+    async getNovelIds() {
+        const seriesData = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getNovelSeriesContent(this.seriesId, this.limit, this.last, 'asc');
         const list = seriesData.body.page.seriesContents;
         list.forEach((item) => {
             this.novelIdList.push(item.id);
@@ -21101,7 +21453,7 @@ class MergeNovel {
         this.last += list.length;
         // 如果这一次返回的作品数量达到了每批限制，可能这次没有请求完，继续请求后续的数据
         if (list.length === this.limit) {
-            return this.getIdList();
+            return this.getNovelIds();
         }
         // 获取完毕
     }
@@ -21110,35 +21462,54 @@ class MergeNovel {
         const total = this.novelIdList.length;
         let count = 0;
         for (const id of this.novelIdList) {
+            // 自动合并系列小说时，可能会连续不断的合并多个系列，这些系列可能包含非常多的小说，所以需要添加等待时间，以减小出现 429 错误的概率
+            // 另外获取设定资料时也有可能需要发送多个请求，但并不总是需要多次请求，所以获取设定资料时没有添加等待时间
             count++;
-            _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_获取小说数据进度', `${count} / ${total}`), 1, false, 'getNovelDataProgress' + this.seriesId);
-            const data = await _API__WEBPACK_IMPORTED_MODULE_9__.API.getNovelData(id);
+            _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取小说数据进度', `${count} / ${total}`), 1, false, 'getNovelDataProgress' + this.seriesId);
+            // 优先从缓存中获取数据
+            let data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_14__.cacheWorkData.get(id, 'novel');
+            if (!data) {
+                try {
+                    // 发送请求
+                    await this.sleep(this.crawlInterval);
+                    data = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getNovelData(id);
+                    _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_14__.cacheWorkData.set(data);
+                }
+                catch (error) {
+                    // 请求小说的数据出错时跳过它，不重试（通常是 404 错误，没有必要重试）
+                    _Log__WEBPACK_IMPORTED_MODULE_7__.log.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_跳过这个小说'));
+                    continue;
+                }
+            }
             const novelData = {
                 id: data.body.id,
                 no: data.body.seriesNavData.order,
-                updateDate: _utils_DateFormat__WEBPACK_IMPORTED_MODULE_13__.DateFormat.format(data.body.uploadDate),
-                title: _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(data.body.title),
-                tags: _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractTags(data),
-                description: _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlDecode(data.body.description)),
-                content: _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.replaceNovelContentFlag(data.body.content),
+                updateDate: _utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__.DateFormat.format(data.body.uploadDate),
+                title: _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceUnsafeStr(data.body.title),
+                tags: _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.extractTags(data),
+                description: _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlDecode(data.body.description)),
+                content: _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.replaceNovelContentFlag(data.body.content),
                 coverUrl: data.body.coverUrl,
-                embeddedImages: _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractEmbeddedImages(data),
+                embeddedImages: _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.extractEmbeddedImages(data),
             };
             this.allNovelData.push(novelData);
         }
+        _Log__WEBPACK_IMPORTED_MODULE_7__.log.persistentRefresh('getNovelDataProgress' + this.seriesId);
         // 按照小说的序号进行升序排列
-        this.allNovelData.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.sortByProperty('no', 'asc'));
+        this.allNovelData.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.sortByProperty('no', 'asc'));
     }
     async mergeTXT(novelName) {
         return new Promise(async (resolve, reject) => {
             // 保存为 txt 格式时，在这里下载小说内嵌的图片
             for (const data of this.allNovelData) {
-                await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_7__.downloadNovelEmbeddedImage.TXT(data.id, data.title, data.content, data.embeddedImages, novelName, 'mergeNovel');
+                // 虽然 downloadNovelEmbeddedImage 里会使用“下载间隔”设置，但是在自动合并系列小说时，抓取结果的数量可能比较少，没有达到生效条件，所以实际上不会等待
+                // 因此这里需要单独添加等待时间。考虑到 Pixiv 对下载文件的限制没有调用 API 那么严格，所以间隔时间设置为 1 秒应该没问题
+                await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_6__.downloadNovelEmbeddedImage.TXT(data.id, data.title, data.content, data.embeddedImages, novelName, 'mergeNovel', this.downloadInterval);
             }
             // 合并文本内容
             const text = [];
             // 添加系列的元数据
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveNovelMeta) {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta) {
                 const a = [];
                 const CRLF_2 = this.CRLF2;
                 // 系列标题
@@ -21152,7 +21523,7 @@ class MergeNovel {
                 a.push(link);
                 a.push(CRLF_2);
                 // 更新日期
-                a.push(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_更新日期') + ': ' + this.seriesUpdateDate);
+                a.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_更新日期') + ': ' + this.seriesUpdateDate);
                 a.push(CRLF_2);
                 // 系列 tags
                 if (this.seriesTags.length > 0) {
@@ -21162,20 +21533,20 @@ class MergeNovel {
                 }
                 // 系列简介
                 if (this.seriesCaption) {
-                    a.push(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_系列简介') + ': ');
+                    a.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_系列简介') + ': ');
                     a.push(CRLF_2);
                     a.push(this.seriesCaption);
                     a.push(CRLF_2);
                 }
                 // 设定资料
                 if (this.seriesGlossary) {
-                    a.push(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_设定资料') + ': ');
+                    a.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_设定资料') + ': ');
                     a.push(CRLF_2);
-                    a.push(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlDecode(this.seriesGlossary)));
+                    a.push(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlDecode(this.seriesGlossary)));
                     // seriesGlossary 结尾有两个\n，这里再添加一个以增大空白区域，和其他部分做出区分
                     a.push(this.CRLF);
                 }
-                a.push(`----- ${_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_系列小说的元数据部分结束')} -----`);
+                a.push(`----- ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_系列小说的元数据部分结束')} -----`);
                 a.push(this.CRLF.repeat(3));
                 // 合并
                 text.push(a.join(''));
@@ -21190,18 +21561,18 @@ class MergeNovel {
                 // date 小说的更新日期
                 // tags 小说的标签列表
                 // description 小说的简介
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveNovelMeta) {
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta) {
                     const url = `https://www.pixiv.net/novel/show.php?id=${data.id}`;
                     text.push(url);
                     text.push(this.CRLF2);
-                    text.push(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_更新日期') + ': ' + data.updateDate);
+                    text.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_更新日期') + ': ' + data.updateDate);
                     text.push(this.CRLF2);
                     const tags = `${data.tags.map((tag) => `#${tag}`).join(this.CRLF)}`;
                     text.push(tags);
                     text.push(this.CRLF2);
                     text.push(data.description);
                     text.push(this.CRLF2);
-                    text.push(`----- ${_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下面是正文')} -----`);
+                    text.push(`----- ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下面是正文')} -----`);
                     text.push(this.CRLF2);
                 }
                 // 添加正文
@@ -21227,22 +21598,21 @@ class MergeNovel {
             // tags 系列小说的标签列表
             // description 系列小说的简介
             // 元数据里不属于以上分类的，都放到 description 里即可，会在信息页面里显示出来
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveNovelMeta) {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta) {
                 const otherMeta = [];
                 // 添加 date
-                otherMeta.push(`${_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_更新日期')}: ${this.seriesUpdateDate}`);
+                otherMeta.push(`${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_更新日期')}: ${this.seriesUpdateDate}`);
                 otherMeta.push(this.br2);
                 // 添加简介
                 if (description) {
-                    console.log(description);
-                    otherMeta.push(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_系列简介') + ': ');
+                    otherMeta.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_系列简介') + ': ');
                     otherMeta.push(this.br2);
                     otherMeta.push(description);
                     otherMeta.push(this.br2);
                 }
                 // 添加设定资料
                 if (this.seriesGlossary) {
-                    otherMeta.push(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_设定资料') + ': ');
+                    otherMeta.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_设定资料') + ': ');
                     otherMeta.push(this.br2);
                     otherMeta.push(this.handleEPUBDescription(this.seriesGlossary));
                     otherMeta.push(this.br2);
@@ -21251,13 +21621,13 @@ class MergeNovel {
             }
             const jepub = new jEpub();
             jepub.init({
-                i18n: _Language__WEBPACK_IMPORTED_MODULE_4__.lang.type,
+                i18n: _Language__WEBPACK_IMPORTED_MODULE_3__.lang.type,
                 // 对 EPUB 左侧的一些文字进行本地化
                 i18n_config: {
-                    code: _Language__WEBPACK_IMPORTED_MODULE_4__.lang.type,
+                    code: _Language__WEBPACK_IMPORTED_MODULE_3__.lang.type,
                     cover: 'Cover',
-                    toc: _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_目录'),
-                    info: _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_Information'),
+                    toc: _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_目录'),
+                    info: _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_Information'),
                     note: 'Notes',
                 },
                 title: this.seriesTitle,
@@ -21270,27 +21640,29 @@ class MergeNovel {
             jepub.date(new Date(this.seriesUpdateDate));
             // 添加这个系列的封面图片到 epub 文件里
             const coverUrl = seriesData.cover.urls.original;
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadNovelCoverImage && coverUrl) {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.downloadNovelCoverImage && coverUrl) {
+                await this.sleep(this.downloadInterval);
                 this.logDownloadSeriesCover();
-                const cover = await _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_6__.downloadNovelCover.getCover(coverUrl, 'arrayBuffer');
+                const cover = await _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_5__.downloadNovelCover.getCover(coverUrl, 'arrayBuffer');
                 if (cover) {
-                    jepub.cover(_Config__WEBPACK_IMPORTED_MODULE_10__.Config.isFirefox ? _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.copyArrayBuffer(cover) : cover);
+                    jepub.cover(_Config__WEBPACK_IMPORTED_MODULE_9__.Config.isFirefox ? _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.copyArrayBuffer(cover) : cover);
                 }
             }
             // 循环添加小说内容
             for (const data of this.allNovelData) {
-                let content = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.replaceEPUBTextWithP(data.content);
+                let content = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.replaceEPUBTextWithP(data.content);
                 const novelId = data.id;
                 // 添加每篇小说的封面图片
                 let coverHtml = '';
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadNovelCoverImage && data.coverUrl) {
-                    _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下载小说的封面图片的提示', _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.createWorkLink(novelId, data.title, false)), 1, false, 'downloadNovelCover' + novelId);
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.downloadNovelCoverImage && data.coverUrl) {
+                    await this.sleep(this.downloadInterval);
+                    _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载小说的封面图片的提示', _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.createWorkLink(novelId, data.title, 'novel')));
                     // 下载器使用的 jepub.js 库只能为整个 epub 文件添加一个封面图片，不能为单个章节设置封面图片
                     // 所以需要手动添加图片，然后添加图片对应的 html 代码
-                    const cover = await _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_6__.downloadNovelCover.getCover(data.coverUrl, 'arrayBuffer');
+                    const cover = await _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_5__.downloadNovelCover.getCover(data.coverUrl, 'arrayBuffer');
                     if (cover) {
                         const imageId = 'cover-' + novelId;
-                        jepub.image(_Config__WEBPACK_IMPORTED_MODULE_10__.Config.isFirefox ? _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.copyArrayBuffer(cover) : cover, imageId);
+                        jepub.image(_Config__WEBPACK_IMPORTED_MODULE_9__.Config.isFirefox ? _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.copyArrayBuffer(cover) : cover, imageId);
                         coverHtml = `<p><img src="assets/${imageId}.jpg" /></p>`;
                     }
                 }
@@ -21300,21 +21672,21 @@ class MergeNovel {
                 // tags 小说的标签列表
                 // description 小说的简介
                 let metaHtml = '';
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveNovelMeta) {
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta) {
                     const url = `https://www.pixiv.net/novel/show.php?id=${data.id}`;
                     const link = `<p><a href="${url}" target="_blank">${url}</a></p>`;
-                    const date = `<p>${_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_更新日期') + ': ' + data.updateDate}</p>`;
+                    const date = `<p>${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_更新日期') + ': ' + data.updateDate}</p>`;
                     const tags = `<p>${data.tags.map((tag) => `#${tag}`).join('<br/>')}</p>`;
-                    const meta = `${link}${date}${tags}${_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.replaceEPUBText(data.description)}`;
+                    const meta = `${link}${date}${tags}${_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.replaceEPUBText(data.description)}`;
                     metaHtml =
                         meta +
-                            `<br/><br/>----- ${_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下面是正文')} -----<br/><br/>`;
+                            `<br/><br/>----- ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下面是正文')} -----<br/><br/>`;
                 }
                 // 组合封面图片和简介，使封面图片位于所有文字内容之前
                 content = coverHtml + metaHtml + content;
                 // 添加小说里的图片
-                content = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_7__.downloadNovelEmbeddedImage.EPUB(novelId, data.title, content, data.embeddedImages, jepub);
-                const title = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(data.title));
+                content = await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_6__.downloadNovelEmbeddedImage.EPUB(novelId, data.title, content, data.embeddedImages, jepub, this.downloadInterval);
+                const title = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceUnsafeStr(data.title));
                 // 添加正文，这会在 EPUB 里生成一个新的章节
                 // 实际上会生成一个对应的 html 文件，如 OEBPS/page-0.html
                 jepub.add(`${this.chapterNo(data.no)} ${title}`, content);
@@ -21330,25 +21702,25 @@ class MergeNovel {
      *
      * 这些字符串通常是作品简介、设定资料等，可能包含 html 代码、特殊符号 */
     handleEPUBDescription(htmlString) {
-        return _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.replaceEPUBTextWithP(_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.replaceEPUBDescription(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.htmlDecode(htmlString))));
+        return _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.replaceEPUBTextWithP(_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.replaceEPUBDescription(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlDecode(htmlString))));
     }
     // 在每个小说的开头加上章节编号
     // 在 TXT 格式的小说里添加章节编号，可以使小说阅读软件能够识别章节，以及显示章节导航，提高阅读体验
     // 对于 EPUB 格式的小说，由于其内部自带分章结构，所以并不依赖这里的章节编号
     chapterNo(number) {
-        // 如果是中文用户，返回“第N章”。这样最容易被国内的小说阅读软件识别出来
-        if (_Language__WEBPACK_IMPORTED_MODULE_4__.lang.type === 'zh-cn' || _Language__WEBPACK_IMPORTED_MODULE_4__.lang.type === 'zh-tw' || _Language__WEBPACK_IMPORTED_MODULE_4__.lang.type === 'ja') {
+        // 对于中文区，使用“第N章”。这样最容易被国内的小说阅读软件识别出来
+        if (_Language__WEBPACK_IMPORTED_MODULE_3__.lang.type === 'zh-cn' || _Language__WEBPACK_IMPORTED_MODULE_3__.lang.type === 'zh-tw' || _Language__WEBPACK_IMPORTED_MODULE_3__.lang.type === 'ja') {
             return `第${number}章`;
         }
         else {
-            // 对于其他地区，返回 `Chapter N`。但是由于我没有使用过国外的小说阅读软件，所以并不清楚是否能够起到分章作用
+            // 对于其他地区，使用 `Chapter N`。但是由于我没有使用过国外的小说阅读软件，所以并不清楚效果如何
             return `Chapter ${number}`;
         }
-        // 我还尝试过使用 #1 这样的编号，但是这种方式并不可靠，有的小说可以分章有的小说不可以
+        // 我还尝试过使用 #1 这样的编号，但是阅读器对这种编号的识别情况不够好
     }
     logDownloadSeriesCover() {
         const link = `<a href="https://www.pixiv.net/novel/series/${this.seriesId}" target="_blank">${this.seriesTitle}</a>`;
-        _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下载系列小说的封面图片', link), 1, false, 'downloadSeriesNovelCover' + this.seriesId);
+        _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载系列小说的封面图片', link));
     }
 }
 
@@ -22407,7 +22779,7 @@ class ShowDuplicateLog {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.skipDownload, (ev) => {
             const skipData = ev.detail.data;
             if (skipData.reason === 'duplicate') {
-                const link = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.createWorkLink(skipData.id, '', skipData.type !== 3);
+                const link = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.createWorkLink(skipData.id, '', skipData.type === 3 ? 'novel' : 'artwork');
                 this.records.push(link);
                 this.output();
             }
@@ -24222,8 +24594,7 @@ class Mute {
                 // 当请求出错时，视为获取完成。不抛出 reject，否则会导致抓取中止
                 this.got = true;
                 if (error.status === 401) {
-                    console.error('get mute settings error ' +
-                        _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_请您登录Pixiv账号然后重试_401'));
+                    console.error('get mute settings error ' + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_状态码401的提示'));
                 }
                 return resolve(error.status);
             }
@@ -25231,6 +25602,14 @@ Zip 파일이 원본 파일입니다.`,
         `크롤링이 완료되었으나, 필터 조건에 맞는 작품을 찾을 수 없습니다.<br>"크롤" 관련 설정을 확인하고 로그에 표시된 정보를 확인하세요。`,
         `Кроулинг завершен, но работы, соответствующие условиям фильтрации, не найдены。<br>Проверьте настройки, связанные с "crawl", и просмотрите информацию, отображаемую в журнале。`,
     ],
+    _抓取结果为零并且启用了自动合并系列小说时的提示: [
+        `另外，当你启用了“自动合并系列小说”，并且抓取的作品全部属于系列小说时，没有单独的抓取结果可能是正常的。`,
+        `另外，當你啟用了「自動合併系列小說」，並且抓取的作品全部屬於系列小說時，沒有單獨的抓取結果可能是正常的。`,
+        `Additionally, when you enable "Automatically merge series novels" and all crawled works belong to series novels, having no separate crawl results may be normal.`,
+        `また、「自動的にシリーズ小説をマージ」を有効にし、クロールした作品がすべてシリーズ小説に属する場合、個別のクロール結果がないのは正常な可能性があります。`,
+        `또한, "시리즈 소설 자동 병합"을 활성화하고 크롤링한 작품이 모두 시리즈 소설에 속할 때, 개별 크롤링 결과가 없을 수 있습니다. 이는 정상입니다.`,
+        `Кроме того, когда вы включаете «Автоматическое объединение серий романов» и все краулленные работы принадлежат сериям романов, отсутствие отдельных результатов краулинга может быть нормальным.`,
+    ],
     _当前任务尚未完成: [
         '当前任务尚未完成',
         '目前工作尚未完成',
@@ -25271,7 +25650,7 @@ Zip 파일이 원본 파일입니다.`,
         '{}에 접근 권한이 없습니다, 이 작업을 건너뜁니다.',
         'Нет доступа {}, пропуск.',
     ],
-    _作品页状态码0: [
+    _状态码0的提示: [
         '请求的 URL 不可访问 (0)',
         '要求的 URL 無法存取 (0)',
         'The requested URL is not accessible (0)',
@@ -25279,45 +25658,77 @@ Zip 파일이 원본 파일입니다.`,
         '요청한 URL에 접근할 수 없습니다 (0)',
         'Запрашиваемый URL недоступен (0)',
     ],
-    _作品页状态码400: [
-        '该作品已被删除 (400)',
-        '該作品已被刪除 (400)',
-        'The work has been deleted (400)',
-        '作品は削除されました (400)',
-        '이 작품은 삭제되었습니다 (400)',
-        'Работа была удалена (400)',
+    _状态码400的提示: [
+        `请求无效，可能是格式错误，或者请求的资源已经不存在（400 Bad Request）`,
+        `請求無效，可能是格式錯誤，或者請求的資源已經不存在（400 Bad Request）`,
+        `Invalid request, possibly due to format error, or the requested resource no longer exists (400 Bad Request)`,
+        `無効なリクエストです。フォーマットエラー、またはリクエストされたリソースがすでに存在しない可能性があります（400 Bad Request）`,
+        `잘못된 요청, 형식 오류일 수 있거나 요청한 리소스가 이미 존재하지 않을 수 있습니다(400 Bad Request)`,
+        `Недействительный запрос, возможно, ошибка формата или запрашиваемый ресурс уже не существует (400 Bad Request)`,
     ],
-    _请您登录Pixiv账号然后重试_401: [
-        '请您登录 Pixiv 账号然后重试。(401)',
-        '請您登入 Pixiv 帳號後重試。(401)',
-        'Please log in to your Pixiv account and try again. (401)',
-        'Pixiv アカウントにログインして、もう一度お試しください。(401)',
-        'Pixiv 계정에 로그인 후 다시 시도해주세요. (401)',
-        'Пожалуйста, войдите в свою учетную запись Pixiv и попробуйте еще раз. (401)',
+    _状态码401的提示: [
+        `未授权，请您登录 Pixiv 账号然后重试（401 Unauthorized）`,
+        `未授權，請您登錄 Pixiv 帳號然後重試（401 Unauthorized）`,
+        `Unauthorized, please log in to your Pixiv account and try again (401 Unauthorized)`,
+        `未承認です。Pixiv アカウントにログインして再試行してください（401 Unauthorized）`,
+        `권한 없음, Pixiv 계정에 로그인한 후 다시 시도해 주세요 (401 Unauthorized)`,
+        `Не авторизовано, пожалуйста, войдите в аккаунт Pixiv и попробуйте снова (401 Unauthorized)`,
     ],
-    _作品页状态码403: [
-        '无权访问请求的 URL (403)',
-        '沒有權限存取要求的 URL (403)',
-        'Have no access to the requested URL (403)',
-        'リクエストされた URL にアクセスできない (403)',
-        '요청한 URL에 접근 권한이 없습니다 (403)',
-        'Нет доступа к запрашиваемому URL (403)',
+    _状态码403的提示: [
+        `禁止访问。您可能没有权限访问这个 URL（403 Forbidden）`,
+        `禁止訪問。您可能沒有權限訪問這個 URL（403 Forbidden）`,
+        `Access forbidden. You may not have permission to access this URL (403 Forbidden)`,
+        `アクセス禁止。この URL にアクセスする権限がない可能性があります（403 Forbidden）`,
+        `접근 금지. 이 URL에 접근할 권한이 없을 수 있습니다(403 Forbidden)`,
+        `Доступ запрещен. Возможно, у вас нет прав доступа к этому URL (403 Forbidden)`,
     ],
-    _作品页状态码404: [
-        '404 not found',
-        '404 not found',
-        '404 not found',
-        '404 not found',
-        '404 not found',
-        '404 not found',
+    _状态码404的提示: [
+        `要获取的数据不存在（404 Not Found）`,
+        `要獲取的數據不存在（404 Not Found）`,
+        `The data to be retrieved does not exist (404 Not Found)`,
+        `取得するデータが存在しません（404 Not Found）`,
+        `가져올 데이터가 존재하지 않습니다(404 Not Found)`,
+        `Данные для получения не существуют (404 Not Found)`,
     ],
-    _作品页状态码429: [
-        '错误代码：429（请求数量过多）。下载器会重新抓取它。',
-        '錯誤程式碼：429（請求數量過多）。下載器会重新抓取它。',
-        'Error code: 429 (Too many requests). The downloader will re-crawl it.',
-        'エラー コード: 429 (要求が多すぎます)。ダウンローダーはそれを再クロールします。',
-        '오류 코드: 429(요청이 너무 많음). 다운로더가 다시 크롤링합니다.',
-        'Код ошибки: 429 (Слишком много запросов). Загрузчик будет повторять вытаскивание.',
+    _状态码429下载器会重试的提示: [
+        `请求太频繁（429 Too Many Requests）。下载器会等待几分钟，然后重试该请求`,
+        `請求太頻繁（429 Too Many Requests）。下載器會等待幾分鐘，然後重試該請求`,
+        `Too many requests (429 Too Many Requests). The downloader will wait a few minutes and then retry the request`,
+        `リクエストが多すぎます（429 Too Many Requests）。ダウンロードツールは数分間待機してから、このリクエストを再試行します`,
+        `요청이 너무 빈번합니다(429 Too Many Requests). 다운로더가 몇 분 동안 기다린 후 해당 요청을 재시도합니다`,
+        `Слишком много запросов (429 Too Many Requests). Загрузчик подождёт несколько минут, а затем повторит запрос`,
+    ],
+    _状态码429的提示: [
+        `请求太频繁（429 Too Many Requests）`,
+        `請求太頻繁（429 Too Many Requests）`,
+        `Too many requests (429 Too Many Requests)`,
+        `リクエストが多すぎます（429 Too Many Requests）`,
+        `요청이 너무 빈번합니다(429 Too Many Requests)`,
+        `Слишком много запросов (429 Too Many Requests)`,
+    ],
+    _下载器会等待几分钟然后重试: [
+        `下载器会等待几分钟，然后重试该请求`,
+        `下載器會等待幾分鐘，然後重試該請求`,
+        `The downloader will wait a few minutes and then retry the request`,
+        `ダウンロードツールは数分間待機してから、このリクエストを再試行します`,
+        `다운로더가 몇 분 동안 기다린 후 해당 요청을 재시도합니다`,
+        `Загрузчик подождёт несколько минут, а затем повторит запрос`,
+    ],
+    _状态码500的提示: [
+        `服务器处理该请求时发生了错误（500 Internal Server Error）`,
+        `伺服器處理該請求時發生了錯誤（500 Internal Server Error）`,
+        `An error occurred while the server was processing this request (500 Internal Server Error)`,
+        `サーバーがこのリクエストを処理中にエラーが発生しました（500 Internal Server Error）`,
+        `서버가 이 요청을 처리하는 동안 오류가 발생했습니다(500 Internal Server Error)`,
+        `Во время обработки этого запроса сервером произошла ошибка (500 Internal Server Error)`,
+    ],
+    _状态码503的提示: [
+        `服务器目前无法处理该请求（503 Service Unavailable）`,
+        `伺服器目前無法處理該請求（503 Service Unavailable）`,
+        `The server is currently unable to process this request (503 Service Unavailable)`,
+        `サーバーが現在このリクエストを処理できません（503 Service Unavailable）`,
+        `서버가 현재 이 요청을 처리할 수 없습니다(503 Service Unavailable)`,
+        `Сервер в настоящее время не может обработать этот запрос (503 Service Unavailable)`,
     ],
     _错误代码: [
         '错误代码',
@@ -25327,13 +25738,13 @@ Zip 파일이 원본 파일입니다.`,
         '오류 코드',
         'Код ошибки',
     ],
-    _作品页状态码500: [
-        'Pixiv 拒绝返回数据 (500)。下载器会重新抓取它。',
-        'Pixiv 拒絕返回資料 (500)。下載器会重新抓取它。',
-        'Pixiv refuses to return data (500). The downloader will re-crawl it.',
-        'ピクシブはデータの返却を拒否します (500)。ダウンローダーはそれを再クロールします。',
-        'pixiv는 데이터 반환을 거부합니다 (500). 다운로더가 다시 크롤링합니다.',
-        'Pixiv отказывается возвращать данные (500). Загрузчик будет повторять вытаскивание.',
+    _网络错误状态码为x网址为y: [
+        `网络错误，状态码 {}，网址：<br>{}`,
+        `網路錯誤，狀態碼 {}，網址：<br>{}`,
+        `Network error, status code {}, URL: <br>{}`,
+        `ネットワークエラー、ステータスコード {}、URL: <br>{}`,
+        `네트워크 오류, 상태 코드 {}, URL: <br>{}`,
+        `Сетевая ошибка, код состояния {}, URL: <br>{}`,
     ],
     _正在抓取: [
         '正在抓取，请等待……',
@@ -26369,13 +26780,21 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         '올바르지 않은 ID',
         'Это ID неверно',
     ],
-    _快速收藏: [
+    _快速收藏AltB: [
         '快速收藏 (Alt + B)',
         '快速收藏 (Alt + B)',
         'Quick bookmarks (Alt + B)',
         'クイックブックマーク (Alt + B)',
         '빠른 북마크 (Alt + B)',
         'Быстрые закладки (Alt + B)',
+    ],
+    _取消收藏AltB: [
+        `取消收藏(Alt + B)`,
+        `取消收藏(Alt + B)`,
+        `Cancel bookmark (Alt + B)`,
+        `ブックマークをキャンセル(Alt + B)`,
+        `북마크 취소(Alt + B)`,
+        `Отменить закладку (Alt + B)`,
     ],
     _启用: ['启用', '啟用', 'Enable', '有効にする', '활성화', 'Включить'],
     _自动开始下载: [
@@ -26772,6 +27191,14 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         '시리즈 소설 합치기',
         'Объединить серию новелл',
     ],
+    _已合并系列小说: [
+        `已合并系列小说`,
+        `已合併系列小說`,
+        `Series novels merged`,
+        `シリーズ小説をマージ済み`,
+        `시리즈 소설 병합됨`,
+        `Серии романов объединены`,
+    ],
     _获取小说列表: [
         `获取小说列表`,
         `獲取小說列表`,
@@ -26780,6 +27207,14 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         `소설 목록 가져오기`,
         `Получить список романов`,
     ],
+    _发生错误取消合并这个系列小说: [
+        `发生错误，取消合并这个系列小说`,
+        `發生錯誤，取消合併這個系列小說`,
+        `An error occurred, cancel merging this novel series`,
+        `エラーが発生しました。このシリーズ小説のマージをキャンセル`,
+        `오류가 발생했습니다. 이 시리즈 소설 병합 취소`,
+        `Произошла ошибка, отменить слияние этой серии романов`,
+    ],
     _获取小说数据进度: [
         `获取小说数据 {}`,
         `獲取小說數據 {}`,
@@ -26787,6 +27222,30 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         `小説データを取得中 {}`,
         `소설 데이터 가져오는 중 {}`,
         `Получение данных романа {}`,
+    ],
+    _跳过这个小说: [
+        `跳过这个小说`,
+        `跳過這個小說`,
+        `Skip this novel`,
+        `この小説をスキップ`,
+        `이 소설 건너뛰기`,
+        `Пропустить этот роман`,
+    ],
+    _下载小说封面失败: [
+        `下载小说封面失败`,
+        `下載小說封面失敗`,
+        `Failed to download novel cover`,
+        `小説の表紙のダウンロードに失敗しました`,
+        `소설 표지 다운로드 실패`,
+        `Не удалось скачать обложку романа`,
+    ],
+    _下载小说里的图片失败: [
+        `下载小说里的图片失败`,
+        `下載小說裡的圖片失敗`,
+        `Failed to download images in the novel`,
+        `小説内の画像のダウンロードに失敗しました`,
+        `소설 내 이미지 다운로드 실패`,
+        `Не удалось скачать изображения в романе`,
     ],
     _系列简介: [`简介`, `簡介`, `Caption`, `キャプション`, `캡션`, `Подпись`],
     _设定资料: [
@@ -27575,6 +28034,14 @@ This setting is also used when you use the Downloader to bookmark works in batch
         '작품의 일일 평균 북마크 수를 설정할 수 있습니다. 조건을 만족한 작품은 다운로드됩니다.',
         'Вы можете установить среднесуточное количество закладок в работах. Работы, удовлетворяющие условиям, будут загружены.',
     ],
+    _获取关注列表失败: [
+        `获取关注列表失败`,
+        `獲取關注列表失敗`,
+        `Failed to retrieve following list`,
+        `フォロー一覧の取得に失敗`,
+        `팔로우 목록 가져오기 실패`,
+        `Не удалось получить список подписок`,
+    ],
     _导出关注列表CSV: [
         '导出关注的用户列表（CSV）',
         '匯出關注的使用者列表（CSV）',
@@ -27734,6 +28201,14 @@ This setting is also used when you use the Downloader to bookmark works in batch
         'ユーザーカバーの保存',
         '유저 커버 저장',
         'Сохранить обложку пользователя',
+    ],
+    _抓取进度: [
+        `抓取进度`,
+        `抓取進度`,
+        `Crawling progress`,
+        `クローリング進捗`,
+        `크롤링 진행`,
+        `Прогресс краулинга`,
     ],
     _待处理: [
         '待处理',
@@ -28909,13 +29384,13 @@ Novel folder name: Novel`,
         '움직이는 일러스트 <span class="key">미리보기</span>',
         '<span class="key">Превью</span> Ugoira(анимации)',
     ],
-    _过度访问警告警告: [
-        '下载器检测到你可能收到了 pixiv 的警告消息，这通常是因为过度下载导致的。<br><strong>当你再次被警告时，你会被 Pixiv 封号。</strong><br>我建议你减少下载数量，或者使用新的账号进行下载。',
-        '下載器檢測到你可能收到了 pixiv 的警告訊息，這通常是因為過度下載導致的。<br><strong>當你再次被警告時，你會被 Pixiv 封號。</strong><br>我建議你減少下載數量，或者使用新的賬號進行下載。',
-        'The downloader has detected that you may have received a warning message from pixiv, usually due to excessive downloads.<br><strong>When you are warned again, you will be banned from Pixiv. </strong><br>I suggest you reduce your downloads, or use a new account to download.',
-        'ダウンロードが多すぎるため、pixivから警告メッセージが届いた可能性があることをダウンローダーが検出しました。<br><strong>再度警告を受けた場合、Pixivから追放されます。 </strong><br>ダウンロード数を減らすか、新しいアカウントを使用してダウンロードすることをお勧めします。',
-        '다운로더는 일반적으로 과도한 다운로드로 인해 pixiv에서 경고 메시지를 수신했을 수 있음을 감지했습니다.<br><strong>다시 경고를 받으면 Pixiv에서 차단됩니다. </strong><br>다운로드를 줄이거나 새 계정을 사용하여 다운로드하는 것이 좋습니다.',
-        'Программа загрузки обнаружила, что вы могли получить предупреждающее сообщение от pixiv, обычно из-за чрезмерной загрузки.<br><strong>Когда вы снова получите предупреждение, вы будете заблокированы в Pixiv. </strong><br>Я предлагаю вам сократить количество загрузок или использовать новую учетную запись для загрузки.',
+    _过度访问警告: [
+        `下载器检测到你可能收到了 Pixiv 的警告消息（站内信），这通常是因为过度下载导致的。<br>多次被警告可能会导致你的 Pixiv 账号被封禁。<br>下载器已暂停下载。<br>你可以在 Wiki 查看更详细的说明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%AE%89%E8%A3%85%E4%B9%8B%E5%90%8E?id=%E5%A4%A7%E9%87%8F%E4%B8%8B%E8%BD%BD%E5%8F%AF%E8%83%BD%E5%AF%BC%E8%87%B4%E4%BD%A0%E7%9A%84%E8%B4%A6%E5%8F%B7%E8%A2%AB%E5%B0%81%E7%A6%81" target="_blank" class="blue">大量下载可能导致你的账号被封禁</a>`,
+        `下載器檢測到你可能收到了 Pixiv 的警告消息（站內信），這通常是因為過度下載導致的。<br>多次被警告可能會導致你的 Pixiv 帳號被封禁。<br>下載器已暫停下載。<br>你可以在 Wiki 查看更詳細的說明：<a href="https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E5%AE%89%E8%A3%85%E4%B9%8B%E5%90%8E?id=%E5%A4%A7%E9%87%8F%E4%B8%8B%E8%BD%BD%E5%8F%AF%E8%83%BD%E5%AF%BC%E8%87%B4%E4%BD%A0%E7%9A%84%E8%B4%A6%E5%8F%B7%E8%A2%AB%E5%B0%81%E7%A6%81" target="_blank" class="blue">大量下载可能导致你的账号被封禁</a>`,
+        `The downloader has detected that you may have received a warning message from Pixiv (in-site message), which is usually caused by excessive downloading.<br>Being warned multiple times may lead to your Pixiv account being banned.<br>The downloader has paused downloading.<br>You can view more detailed instructions in the Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/AfterInstallation?id=large-downloads-may-lead-to-your-account-being-banned" target="_blank" class="blue">Large Downloads May Lead to Your Account Being Banned</a>`,
+        `ダウンロードツールが Pixiv からの警告メッセージ（サイト内メッセージ）を受信した可能性を検出しました。これは通常、過度なダウンロードが原因です。<br>複数回の警告は Pixiv アカウントの凍結につながる可能性があります。<br>ダウンロードツールはダウンロードを一時停止しました。<br>Wiki で詳細な説明を確認できます：<a href="https://xuejianxianzun.github.io/PBDWiki/#/en/AfterInstallation?id=large-downloads-may-lead-to-your-account-being-banned" target="_blank" class="blue">Large Downloads May Lead to Your Account Being Banned</a>`,
+        `다운로더가 Pixiv의 경고 메시지(사이트 내 메시지)를 받았을 가능성을 감지했습니다. 이는 보통 과도한 다운로드로 인한 것입니다.<br>여러 번 경고를 받으면 Pixiv 계정이 차단될 수 있습니다.<br>다운로더가 다운로드를 일시 중지했습니다.<br>Wiki에서 더 자세한 설명을 확인할 수 있습니다: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/AfterInstallation?id=large-downloads-may-lead-to-your-account-being-banned" target="_blank" class="blue">Large Downloads May Lead to Your Account Being Banned</a>`,
+        `Загрузчик обнаружил, что вы, возможно, получили предупреждение от Pixiv (сообщение на сайте), что обычно вызвано чрезмерной загрузкой.<br>Многократные предупреждения могут привести к блокировке вашего аккаунта Pixiv.<br>Загрузчик приостановил загрузку.<br>Вы можете просмотреть более подробные инструкции в Wiki: <a href="https://xuejianxianzun.github.io/PBDWiki/#/en/AfterInstallation?id=large-downloads-may-lead-to-your-account-being-banned" target="_blank" class="blue">Large Downloads May Lead to Your Account Being Banned</a>`,
     ],
     _下载小说里的内嵌图片: [
         '下载小说里的<span class="key">内嵌</span>图片',
@@ -29345,6 +29820,14 @@ Novel folder name: Novel`,
         '作品のブックマークを解除',
         '작품 북마크 해제',
         'Снять закладку с работ',
+    ],
+    _已取消收藏: [
+        `已取消收藏`,
+        `已取消收藏`,
+        `Bookmark canceled`,
+        `ブックマークをキャンセルしました`,
+        `북마크 취소됨`,
+        `Закладка отменена`,
     ],
     _收藏页面里的按钮: [
         '当你在自己的收藏页面时，可以在“更多”选项卡里看到这个按钮。',
@@ -31369,6 +31852,96 @@ If you want to use this feature, please note:
         `최근 비활성 사용자`,
         `Недавно неактивные пользователи`,
     ],
+    _自动合并系列小说: [
+        `自动合并系列小说`,
+        `自動合併系列小說`,
+        `Automatically merge series novels`,
+        `シリーズ小説を自動的にマージ`,
+        `시리즈 소설 자동 병합`,
+        `Автоматическое объединение серий романов`,
+    ],
+    _自动合并系列小说的说明: [
+        `抓取作品时，如果一个小说属于某个系列，就自动抓取这个系列里的所有小说并且合并。`,
+        `抓取作品時，如果一個小說屬於某個系列，就自動抓取這個系列裡的所有小說並且合併。`,
+        `When crawling works, if a novel belongs to a series, automatically crawl all novels in that series and merge them.`,
+        `作品をクロールする際、小説がシリーズに属する場合、そのシリーズ内のすべての小説を自動的にクロールしてマージします。`,
+        `작품을 크롤링할 때, 소설이 특정 시리즈에 속하면 해당 시리즈의 모든 소설을 자동으로 크롤링하여 병합합니다.`,
+        `При краулинге работ, если роман принадлежит серии, автоматически краулить все романы в этой серии и объединять их.`,
+    ],
+    _不再单独下载系列里的小说: [
+        `不再单独下载系列里的小说`,
+        `不再單獨下載系列裡的小說`,
+        `No longer download novels in the series individually`,
+        `シリーズ内の小説を個別にダウンロードしない`,
+        `시리즈 내 소설을 개별적으로 다운로드하지 않음`,
+        `Больше не скачивать романы в серии по отдельности`,
+    ],
+    _不再单独下载系列里的小说的说明: [
+        `当你启用了“自动合并系列小说”时，通常没有必要单独下载系列里的小说，因为它们已经包含在合并后的小说文件里了。<br>如果你仍然想下载它们，可以取消选择这个子设置项。`,
+        `當你啟用了「自動合併系列小說」時，通常沒有必要單獨下載系列裡的小說，因為它們已經包含在合併後的小說檔案裡了。<br>如果你仍然想下載它們，可以取消選擇這個子設置項。`,
+        `When you enable "Automatically merge series novels", there is usually no need to download novels in the series individually, as they are already included in the merged novel file.<br>If you still want to download them, you can uncheck this sub-setting.`,
+        `「自動的にシリーズ小説をマージ」を有効にすると、通常、シリーズ内の小説を個別にダウンロードする必要はありません。それらはすでにマージされた小説ファイルに含まれています。<br>それでもダウンロードしたい場合は、このサブ設定をオフにできます。`,
+        `"시리즈 소설 자동 병합"을 활성화하면, 시리즈 내 소설을 개별적으로 다운로드할 필요가 거의 없습니다. 왜냐하면 그것들이 이미 병합된 소설 파일에 포함되어 있기 때문입니다.<br>그래도 다운로드하고 싶다면 이 하위 설정을 해제할 수 있습니다.`,
+        `При включении «Автоматическое объединение серий романов» обычно нет необходимости скачивать романы в серии по отдельности, поскольку они уже включены в объединенный файл романа.<br>Если вы все же хотите скачать их, вы можете отменить выбор этого поднастройки.`,
+    ],
+    _自动合并系列小说时提示会添加间隔时间: [
+        `开始自动合并系列小说<br>由于每个系列里都可能含有多个小说和图片，所以下载器可能会发送很多请求。为了避免触发 Pixiv 的警告，下载器在合并时总是会添加间隔时间，以降低发送请求的频率`,
+        `開始自動合併系列小說<br>由於每個系列裡都可能含有複數小說和圖片，所以下載器可能會發送很多請求。為了避免觸發 Pixiv 的警告，下載器在合併時總是會添加間隔時間，以降低發送請求的頻率`,
+        `Starting to automatically merge series novels<br>Since each series may contain multiple novels and images, the downloader may send many requests. To avoid triggering Pixiv's warnings, the downloader always adds interval time during merging to reduce the frequency of sending requests`,
+        `シリーズ小説の自動マージを開始します<br>各シリーズには複数の小説と画像が含まれる可能性があるため、ダウンロードツールは多くのリクエストを送信する可能性があります。Pixiv の警告を回避するために、マージ中に常に間隔時間を追加して、リクエスト送信の頻度を下げます`,
+        `시리즈 소설 자동 병합 시작<br>각 시리즈에 여러 소설과 이미지가 포함될 수 있으므로, 다운로더가 많은 요청을 보낼 수 있습니다. Pixiv의 경고를 피하기 위해, 병합 시 항상 간격 시간을 추가하여 요청 전송 빈도를 낮춥니다`,
+        `Начинается автоматическое объединение серий романов<br>Поскольку каждая серия может содержать несколько романов и изображений, загрузчик может отправить много запросов. Чтобы избежать срабатывания предупреждений Pixiv, загрузчик всегда добавляет интервалы времени во время объединения, чтобы снизить частоту отправки запросов`,
+    ],
+    _本次抓取一共合并了x个系列小说: [
+        `本次抓取一共合并了 {} 个系列小说`,
+        `本次抓取一共合併了 {} 個系列小說`,
+        `This crawling merged a total of {} series novels`,
+        `今回のクロールで合計 {} 個のシリーズ小説がマージされました`,
+        `이번 크롤링에서 총 {} 개의 시리즈 소설이 병합되었습니다`,
+        `В этом краулинге было объединено всего {} серий романов`,
+    ],
+    _本次抓取一共合并了x个系列小说包含y篇小说: [
+        `本次抓取一共合并了 {} 个系列小说，包含 {} 篇小说`,
+        `本次抓取一共合併了 {} 個系列小說，包含 {} 篇小說`,
+        `This crawl merged a total of {} novel series, containing {} novels`,
+        `今回のクロールで合計 {} 個のシリーズ小説をマージしました。{} 件の小説を含みます`,
+        `이번 크롤링에서 총 {}개의 시리즈 소설을 병합했습니다. {}편의 소설을 포함합니다`,
+        `В этом крауле всего было объединено {} серий романов, содержащих {} романов`,
+    ],
+    _提示有一个系列正在合并中: [
+        `注意：有一个系列正在合并中，它会继续工作直到完成合并。如果你不需要它了，可以刷新这个页面`,
+        `注意：有一個系列正在合併中，它會繼續工作直到完成合併。如果你不需要它了，可以刷新這個頁面`,
+        `Note: There is a series currently being merged, and it will continue working until the merge is complete. If you no longer need it, you can refresh this page`,
+        `注意：シリーズが1つマージ中です。マージが完了するまで作業を続けます。それが必要なくなったら、このページを更新できます`,
+        `주의: 시리즈 하나가 병합 중입니다. 병합이 완료될 때까지 작업을 계속합니다. 더 이상 필요하지 않으면 이 페이지를 새로고침할 수 있습니다`,
+        `Примечание: Одна серия в процессе объединения, она продолжит работу до завершения объединения. Если он вам больше не нужен, вы можете обновить эту страницу`,
+    ],
+    _版本更新内容1820: [
+        `📖 优化了保存小说时的内容
+<br><br>
+✨ 作品页面里的快速收藏按钮 (✩) 添加了取消收藏的功能<br>如果该作品已经被收藏，点击该按钮 (✩) 可以取消收藏。
+<br><br>`,
+        `📖 優化了保存小說時的內容
+<br><br>
+✨ 作品頁面裡的快速收藏按鈕 (✩) 添加了取消收藏的功能<br>如果該作品已經被收藏，點擊該按鈕 (✩) 可以取消收藏。
+<br><br>`,
+        `📖 Optimized the content when saving novels
+<br><br>
+✨ Added unbookmark function to the quick bookmark button (✩) on the work page<br>If the work is already bookmarked, clicking this button (✩) can unbookmark it.
+<br><br>`,
+        `📖 小説保存時のコンテンツを最適化
+<br><br>
+✨ 作品ページのクイックブックマークボタン (✩) にブックマーク解除機能を追加<br>その作品がすでにブックマークされている場合、このボタン (✩) をクリックしてブックマークを解除できます。
+<br><br>`,
+        `📖 소설 저장 시 내용 최적화
+<br><br>
+✨ 작품 페이지의 빠른 북마크 버튼 (✩) 에 북마크 취소 기능 추가<br>해당 작품이 이미 북마크된 경우, 이 버튼 (✩) 을 클릭하여 북마크를 취소할 수 있습니다.
+<br><br>`,
+        `📖 Оптимизировано содержимое при сохранении романов
+<br><br>
+✨ Добавлена функция отмены закладки для быстрой кнопки закладки (✩) на странице работы<br>Если работа уже добавлена в закладки, нажатие на эту кнопку (✩) позволит удалить её из закладок.
+<br><br>`,
+    ],
 };
 
 // prompt
@@ -31756,7 +32329,7 @@ class BatchFollowUser {
             return;
         }
         if (_store_Store__WEBPACK_IMPORTED_MODULE_8__.store.loggedUserID === '') {
-            return _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_请您登录Pixiv账号然后重试_401'));
+            return _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_状态码401的提示'));
         }
         this.busy = true;
         this.reset();
@@ -32159,7 +32732,6 @@ class BookmarkAllWorks {
                     });
                 }
                 catch (error) {
-                    // 捕获错误，主要是为了处理 429 错误。但是现在只会提示，没有重试。因为需要过 3 分钟之后才能重试成功，等待时间太长了
                     const e = error;
                     let msg = '';
                     if (e.status) {
@@ -33549,6 +34121,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../crawl/LogErrorStatus */ "./src/ts/crawl/LogErrorStatus.ts");
+
 
 
 
@@ -33566,15 +34140,33 @@ class QuickBookmark {
         _WorkToolBar__WEBPACK_IMPORTED_MODULE_6__.workToolBar.register((toolbar, pixivBMKDiv, likeBtn) => {
             this.init(toolbar, pixivBMKDiv, likeBtn);
         });
+        _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_11__.logErrorStatus.listen((status, url) => {
+            const id = this.workData?.body?.id;
+            if (id && url.includes(id) && status === 429) {
+                _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_状态码429的提示'), {
+                    position: 'mouse',
+                });
+            }
+        });
     }
     isNovel = false;
     // 初始化时，获取作品数据
     workData;
-    isBookmarked;
+    // 是否已收藏
+    _isBookmarked;
+    get isBookmarked() {
+        return this._isBookmarked || false;
+    }
+    set isBookmarked(value) {
+        this._isBookmarked = value;
+        this.setBtnStyle();
+    }
     ob; // 监视心形收藏按钮变化
-    btn = document.createElement('a'); // 快速收藏按钮
+    btn = document.createElement('button'); // 快速收藏按钮
     btnId = 'quickBookmarkEl'; // 快速收藏按钮的 id
     redClass = 'bookmarkedColor'; // 收藏后的红色的颜色值
+    pixivBMKDiv;
+    likeBtn;
     async init(toolbar, pixivBMKDiv, likeBtn) {
         // 没有 token 就不能进行收藏
         if (!_Token__WEBPACK_IMPORTED_MODULE_3__.token.token) {
@@ -33584,6 +34176,8 @@ class QuickBookmark {
             _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Novel) {
             return;
         }
+        this.pixivBMKDiv = pixivBMKDiv;
+        this.likeBtn = likeBtn;
         this.isNovel = _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Novel;
         // 删除可能存在的旧的快速收藏按钮
         const oldBtn = toolbar.querySelector('#' + this.btnId);
@@ -33596,6 +34190,9 @@ class QuickBookmark {
             return;
         }
         this.workData = data;
+        // 添加快速收藏按钮
+        this.createBtn();
+        toolbar.insertBefore(this.btn, toolbar.childNodes[3]);
         this.isBookmarked = !!this.workData.body.bookmarkData;
         // 监听心形收藏按钮从未收藏到收藏的变化
         if (!this.isBookmarked) {
@@ -33608,7 +34205,6 @@ class QuickBookmark {
                             const added = change.addedNodes;
                             if (added.length > 0 && added[0].nodeName === 'A') {
                                 this.isBookmarked = true;
-                                this.redQuickBookmarkBtn();
                             }
                         }
                     }
@@ -33627,11 +34223,9 @@ class QuickBookmark {
                 this.ob = new MutationObserver((mutations) => {
                     if (path.getAttribute('fill') === '#FF4060') {
                         this.isBookmarked = true;
-                        this.redQuickBookmarkBtn();
                     }
                     else {
                         this.isBookmarked = false;
-                        this.resetQuickBookmarkBtn();
                     }
                 });
                 this.ob.observe(path, {
@@ -33640,27 +34234,29 @@ class QuickBookmark {
                 });
             }
         }
-        // 添加快速收藏按钮
-        this.btn = this.createBtn();
-        _Language__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.btn);
-        toolbar.insertBefore(this.btn, toolbar.childNodes[3]);
-        if (this.isBookmarked) {
-            this.redQuickBookmarkBtn();
-        }
-        else {
-            this.btn.addEventListener('click', () => {
-                // 添加收藏
-                this.addBookmark(pixivBMKDiv, likeBtn);
-                // 下载这个作品
-                this.sendDownload();
-                _ShowHelp__WEBPACK_IMPORTED_MODULE_8__.showHelp.show('tipBookmarkButton', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器的收藏按钮默认会添加作品的标签'));
-            });
-        }
         // 使用快捷键 Alt + B 和 Ctrl + B 来点击快速收藏按钮
         // 以前是 Ctrl + B，现在我改成了 Alt + B。为了保持用户的操作习惯，所以保留了 Ctrl + B
         window.addEventListener('keydown', (ev) => {
             if (ev.code === 'KeyB' && (ev.altKey || ev.ctrlKey)) {
+                ev.preventDefault();
+                ev.stopPropagation();
                 this.btn && this.btn.click();
+            }
+        }, true);
+    }
+    //　创建快速收藏按钮
+    createBtn() {
+        this.btn = document.createElement('button');
+        this.btn.id = this.btnId;
+        this.btn.textContent = '✩';
+        this.btn.addEventListener('click', () => {
+            if (this.isBookmarked) {
+                this.delBookmark();
+            }
+            else {
+                this.addBookmark(this.pixivBMKDiv, this.likeBtn);
+                this.sendDownload();
+                _ShowHelp__WEBPACK_IMPORTED_MODULE_8__.showHelp.show('tipBookmarkButton', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器的收藏按钮默认会添加作品的标签'));
             }
         });
     }
@@ -33671,15 +34267,6 @@ class QuickBookmark {
         else {
             _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_7__.downloadOnClickBookmark.send(this.workData.body.id, 'novels');
         }
-    }
-    //　创建快速收藏按钮
-    createBtn() {
-        const btn = document.createElement('a');
-        btn.id = this.btnId;
-        btn.textContent = '✩';
-        btn.href = 'javascript:void(0)';
-        btn.dataset.xztitle = '_快速收藏';
-        return btn;
     }
     async getWorkData() {
         try {
@@ -33692,9 +34279,6 @@ class QuickBookmark {
             }
         }
         catch (error) {
-            if (error.status && error.status === 429) {
-                _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error('429 Error');
-            }
             return null;
         }
     }
@@ -33721,32 +34305,36 @@ class QuickBookmark {
             }
             if (status !== 429) {
                 this.isBookmarked = true;
-                this.redQuickBookmarkBtn();
+                _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已收藏'), { position: 'mouse' });
             }
         }, 100);
+    }
+    async delBookmark() {
+        const data = await this.getWorkData();
+        if (data) {
+            this.workData = data;
+            if (this.workData.body.bookmarkData) {
+                const bmkId = this.workData.body.bookmarkData.id;
+                await _API__WEBPACK_IMPORTED_MODULE_0__.API.deleteBookmark(bmkId, this.isNovel ? 'novels' : 'illusts', _Token__WEBPACK_IMPORTED_MODULE_3__.token.token);
+                this.isBookmarked = false;
+                _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已取消收藏'), { position: 'mouse' });
+            }
+        }
     }
     // 点赞这个作品
     like(type, id, likeBtn) {
         _API__WEBPACK_IMPORTED_MODULE_0__.API.addLike(id, type, _Token__WEBPACK_IMPORTED_MODULE_3__.token.token);
         likeBtn.style.color = '#0096fa';
     }
-    getEditBookmarkLink() {
-        if (this.isNovel) {
-            return `/novel/bookmark_add.php?id=${_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getNovelId()}`;
+    setBtnStyle() {
+        if (this.isBookmarked) {
+            this.btn.classList.add(this.redClass);
+            this.btn.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_取消收藏AltB'));
         }
         else {
-            return `/bookmark_add.php?type=illust&illust_id=${_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getIllustId()}`;
+            this.btn.classList.remove(this.redClass);
+            this.btn.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快速收藏AltB'));
         }
-    }
-    // 如果这个作品已收藏，则改变快速收藏按钮
-    redQuickBookmarkBtn() {
-        this.btn.classList.add(this.redClass);
-        this.btn.href = this.getEditBookmarkLink();
-    }
-    // 如果这个作品从已收藏变成未收藏，则改变快速收藏按钮
-    resetQuickBookmarkBtn() {
-        this.btn.classList.remove(this.redClass);
-        this.btn.href = 'javascript:void(0)';
     }
     clickPixivBMKBtn(pixivBMKDiv) {
         if (_Config__WEBPACK_IMPORTED_MODULE_9__.Config.mobile) {
@@ -34953,8 +35541,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 // 设置项编号从 0 开始，现在最大是 90
-// 目前没有使用的编号: 73
-// 有些设置曾经使用过这些编号，但后来被移除了，所以这些编号就空缺了。在以后添加新设置时，可以考虑使用这些空缺的编号
 const formHtml = `
 <form class="settingForm">
   <div class="tabsContnet">
@@ -35763,6 +36349,20 @@ const formHtml = `
       <span class="beautify_radio" tabindex="0"></span>
       <label for="novelSaveAs2"> EPUB </label>
     </p>
+    <p class="option" data-no="73">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(73)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动合并系列小说的说明">
+        <span data-xztext="_自动合并系列小说"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="autoMergeNovel" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="autoMergeNovel">
+        <label for="skipNovelsInSeriesWhenAutoMerge" data-xztext="_不再单独下载系列里的小说" class="has_tip" data-xztip="_不再单独下载系列里的小说的说明"></label>
+        <span class="gray1"> ? &nbsp;</span>
+        <input type="checkbox" name="skipNovelsInSeriesWhenAutoMerge" id="skipNovelsInSeriesWhenAutoMerge" class="need_beautify checkbox_switch" checked>
+        <span class="beautify_switch" tabindex="0"></span>
+      </span>
+    </p>
     <p class="option" data-no="27">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(27)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在小说里保存元数据提示">
         <span data-xztext="_在小说里保存元数据"></span>
@@ -36398,6 +36998,8 @@ class FormSettings {
             'showCopyBtnOnThumb',
             'crawlLatestFewWorks',
             'rememberTheLastSaveLocation',
+            'autoMergeNovel',
+            'skipNovelsInSeriesWhenAutoMerge',
         ],
         text: [
             'firstFewImages',
@@ -36874,7 +37476,35 @@ class Options {
     whiteList = [
         2, 4, 13, 17, 20, 32, 44, 50, 51, 57, 64,
     ];
-    newOptions = [14, 15, 20];
+    // 90 天内添加的设置项，显示 new 角标
+    now = Date.now();
+    newRange = 1000 * 60 * 60 * 24 * 90;
+    newOptions = [
+        {
+            // 复制按钮
+            id: 14,
+            // 2025-10-22
+            time: 1761091200000,
+        },
+        {
+            // 抓取每个用户最新的几个作品
+            id: 15,
+            // 2025-11-04
+            time: 1762214400000,
+        },
+        {
+            // 把文件保存到用户上次选择的位置
+            id: 20,
+            // 2025-11-04
+            time: 1762214400000,
+        },
+        {
+            // 自动合并系列小说
+            id: 73,
+            // 2025-11-17
+            time: 1763337600000,
+        },
+    ];
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
             const data = ev.detail.data;
@@ -36891,7 +37521,7 @@ class Options {
     display() {
         this.handleShowAdvancedSettings();
         this.alwaysHideSomeOption();
-        this.showNewFlag();
+        this.showNewIcon();
     }
     /**根据显示/隐藏高级设置来处理每个选项的显示与隐藏 */
     handleShowAdvancedSettings() {
@@ -36936,10 +37566,12 @@ class Options {
         }
     }
     /**显示 new 角标 */
-    showNewFlag() {
-        this.newOptions.forEach((no) => {
-            const el = this.getOption(no);
-            el.classList.add('new');
+    showNewIcon() {
+        this.newOptions.forEach((option) => {
+            if (this.now - option.time <= this.newRange) {
+                const el = this.getOption(option.id);
+                el.classList.add('new');
+            }
         });
     }
     // 使用编号获取指定选项的元素
@@ -37457,7 +38089,7 @@ class Settings {
         sizeMin: 0,
         sizeMax: 100,
         novelSaveAs: 'txt',
-        saveNovelMeta: false,
+        saveNovelMeta: true,
         deduplication: false,
         dupliStrategy: 'loose',
         fileNameLengthLimitSwitch: false,
@@ -37615,6 +38247,8 @@ class Settings {
         crawlLatestFewWorks: false,
         crawlLatestFewWorksNumber: 10,
         rememberTheLastSaveLocation: false,
+        autoMergeNovel: false,
+        skipNovelsInSeriesWhenAutoMerge: true,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的选项
@@ -38455,8 +39089,10 @@ __webpack_require__.r(__webpack_exports__);
 // 还有个原因：即使下载器获取过某个作品的数据，但是以后再次请求时，浏览器也有可能不会读取缓存，而是重新发起请求。使用缓存的数据可以避免重复发起请求
 class CacheWorkData {
     cache = [];
+    // max 的值是个粗略的数字，并没有预设使用场景
+    max = 6000;
     // 一个图像作品的数据大约是 5 KB
-    max = 200;
+    // 小说的数据通常更大，因为包含了小说的正文。通常是几十 KB
     set(data) {
         if (this.has(data.body.id)) {
             return;
@@ -38466,8 +39102,11 @@ class CacheWorkData {
         }
         this.cache.push(data);
     }
-    get(id) {
-        return this.cache.find((val) => val.body.id === id);
+    get(id, type = 'artwork') {
+        return this.cache.find((val) => {
+            const key = type === 'novel' ? 'content' : 'illustType';
+            return val.body.id === id && key in val.body;
+        });
     }
     has(id) {
         return this.cache.some((val) => val.body.id === id);
@@ -56857,18 +57496,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
 /* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
 /* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _download_SaveWorkDescription__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/SaveWorkDescription */ "./src/ts/download/SaveWorkDescription.ts");
-/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
-/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
-/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
-/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
-/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
+/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
+/* harmony import */ var _download_SaveWorkDescription__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/SaveWorkDescription */ "./src/ts/download/SaveWorkDescription.ts");
+/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
+/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
+/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
+/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
+/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -56879,7 +57517,6 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
-
 
 
 

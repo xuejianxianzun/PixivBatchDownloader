@@ -1608,7 +1608,7 @@ __webpack_require__.r(__webpack_exports__);
 
 // 当点击扩展图标时，显示/隐藏下载面板
 webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().action.onClicked.addListener(function (tab) {
-    // 在本程序没有权限的页面上点击扩展图标时，url 始终是 undefined，此时不发送消息
+    // 如果在本程序没有权限的页面上点击扩展图标，url 始终是 undefined，此时不发送消息
     if (!tab.url) {
         return;
     }
@@ -1645,6 +1645,7 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.a
         return;
     }
     // console.log(msg)
+    const tabId = sender.tab.id;
     // 下载作品的文件
     if (msg.msg === 'save_work_file') {
         // 当处于初始状态时，或者变量被回收了，就从存储中读取数据储存在变量中
@@ -1654,7 +1655,6 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.a
             batchNo = data.batchNo;
             idList = data.idList;
         }
-        const tabId = sender.tab.id;
         // 如果开始了新一批的下载，重设批次编号，并清空下载索引
         if (batchNo[tabId] !== msg.taskBatch) {
             batchNo[tabId] = msg.taskBatch;
@@ -1678,9 +1678,9 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.a
             })
                 .then((id) => {
                 // id 是新建立的下载项的 id，使用它作为 key 保存数据
-                // 注意：这里保存的 url 是前台生成的 blob URL，用于下载后让前台吊销该 blob URL
                 dlData[id] = {
-                    url: msg.blobURL,
+                    blobURLFront: msg.blobURL,
+                    blobURLBack: _url.startsWith('blob:') ? _url : '',
                     id: msg.id,
                     tabId: tabId,
                     uuid: false,
@@ -1704,16 +1704,27 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.a
         webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().tabs.sendMessage(tabId, data);
     }
     // 有些文件属于某个抓取结果的附加项，本身不在抓取结果 store.result 里，所以也没有它的进度条
-    // 对于这些文件直接下载，不需要回调函数，也不需要返回下载结果
+    // 对于这些文件直接下载，不需要返回下载结果
     if (msg.msg === 'save_description_file' ||
         msg.msg === 'save_novel_cover_file' ||
         msg.msg === 'save_novel_embedded_image') {
         const _url = await getFileURL(msg);
-        webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().downloads.download({
+        webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().downloads
+            .download({
             url: _url,
             filename: msg.fileName,
             conflictAction: 'overwrite',
             saveAs: false,
+        })
+            .then((id) => {
+            dlData[id] = {
+                blobURLFront: msg.blobURL,
+                blobURLBack: _url.startsWith('blob:') ? _url : '',
+                id: msg.id,
+                tabId: tabId,
+                uuid: false,
+                noReply: true,
+            };
         });
     }
     if (msg.msg === 'clearDownloadsTempData') {
@@ -1741,6 +1752,14 @@ async function getFileURL(msg) {
     }
     console.error('没有找到可用的下载 URL 或数据');
     return '';
+}
+function revokeBlobURL(url) {
+    if (url && url.startsWith('blob:')) {
+        if (typeof URL !== 'undefined' &&
+            typeof URL.revokeObjectURL === 'function') {
+            URL.revokeObjectURL(url);
+        }
+    }
 }
 // 判断文件名是否变成了 UUID 格式。因为文件名处于整个绝对路径的中间，所以没加首尾标记 ^ $
 const UUIDRegexp = /[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}/;
@@ -1773,16 +1792,12 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().downloads.onChanged
         }
         if (msg) {
             // 返回信息
-            webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().tabs.sendMessage(_dlData.tabId, { msg, data: _dlData, err });
-            // 清除这个任务的数据
-            const url = dlData[detail.id]?.url;
-            // 吊销 blob URL
-            if (url && url.startsWith('blob:')) {
-                if (typeof URL !== 'undefined' &&
-                    typeof URL.revokeObjectURL === 'function') {
-                    URL.revokeObjectURL(url);
-                }
+            if (!_dlData.noReply) {
+                webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().tabs.sendMessage(_dlData.tabId, { msg, data: _dlData, err });
             }
+            // 吊销前后台生成的 blob URL
+            revokeBlobURL(_dlData?.blobURLFront);
+            revokeBlobURL(_dlData?.blobURLBack);
             // 删除保存的数据
             delete dlData[detail.id];
             dlData[detail.id] = null;

@@ -21,6 +21,7 @@ import { bookmark } from './Bookmark'
 import { pageType } from './PageType'
 import { copyWorkInfo } from './CopyWorkInfo'
 import { displayThumbnailListOnMultiImageWorkPage } from './pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
+import { logErrorStatus } from './crawl/LogErrorStatus'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -87,6 +88,9 @@ class PreviewWork {
 
   private _show = false
 
+  /**是否处于准备显示预览图的阶段。当准备显示时为 true，已显示、以及隐藏预览图时为 fasle */
+  private isReadyShow = false
+
   private get show() {
     return this._show
   }
@@ -117,6 +121,7 @@ class PreviewWork {
 
         this.sendURLs()
 
+        this.isReadyShow = false
         this._show = true
         showOriginSizeImage.hide()
         this.showWrap()
@@ -134,6 +139,7 @@ class PreviewWork {
       window.clearTimeout(this.delayShowTimer)
       window.clearTimeout(this.delayHiddenTimer)
       this.overThumb = false
+      this.isReadyShow = false
       this._show = false
       this.dontShowAgain = false
       this.wrap.style.display = 'none'
@@ -198,6 +204,7 @@ class PreviewWork {
     })
 
     artworkThumbnail.onLeave((el: HTMLElement) => {
+      this.isReadyShow = false
       // 当鼠标离开作品缩略图时，有可能是因为显示了作品详细信息的面板。此时让预览图保持显示
       if (previewWorkDetailInfo.show) {
         return
@@ -217,6 +224,7 @@ class PreviewWork {
       }
     })
 
+    // 绑定按键
     window.addEventListener(
       'keydown',
       (ev) => {
@@ -355,6 +363,14 @@ class PreviewWork {
       window.setTimeout(() => {
         this.dontShowAfterPageSwitch = false
       }, 500)
+    })
+
+    logErrorStatus.listen((status: number, url: string) => {
+      if (this.isReadyShow && status === 429 && url.includes(this.workId)) {
+        toast.error(lang.transl('_状态码429的提示'), {
+          position: 'mouse',
+        })
+      }
     })
 
     // 当作品的详情面板隐藏时，鼠标位置可能在作品缩略图之外。所以此时需要检测鼠标位置，决定是否需要隐藏预览图
@@ -547,6 +563,7 @@ class PreviewWork {
   }
 
   private readyShow() {
+    this.isReadyShow = true
     this.delayShowTimer = window.setTimeout(async () => {
       if (!cacheWorkData.has(this.workId)) {
         // 如果在缓存中没有找到这个作品的数据，则发起请求
@@ -554,9 +571,6 @@ class PreviewWork {
           const data = await API.getArtworkData(this.workId)
           cacheWorkData.set(data)
         } catch (error: Error | any) {
-          if (error.status && error.status === 429) {
-            toast.error('429 Error')
-          }
           this.show = false
           return
         }

@@ -1,5 +1,6 @@
 import { API } from '../API'
 import { GlossaryItem, NovelSeriesGlossaryItem } from '../crawl/CrawlResult'
+import { Utils } from '../utils/Utils'
 
 interface GlossaryResult {
   id: string
@@ -11,11 +12,13 @@ interface GlossaryResult {
 class GetNovelGlossarys {
   /**获取系列小说的设定资料 */
   public async getGlossarys(
-    seriesId: string | number
+    seriesId: string | number,
+    interval = 0
   ): Promise<GlossaryResult[]> {
     return new Promise(async (resolve, reject) => {
       // 先获取设定资料的分类、每条设定资料的简略数据
       // 注意此时每条设定资料缺少 detail 数据（此时为 null）
+      await Utils.sleep(interval)
       const glossaryData = await API.getNovelSeriesGlossary(seriesId)
       const result = glossaryData.body.categories as unknown as GlossaryResult[]
 
@@ -26,6 +29,7 @@ class GetNovelGlossarys {
       // 请求每条设定资料的详细数据
       for (const categorie of result) {
         for (const item of categorie.items) {
+          await Utils.sleep(interval)
           const data = await API.getNovelSeriesGlossaryItem(
             item.seriesId,
             item.id

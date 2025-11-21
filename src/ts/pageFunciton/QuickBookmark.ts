@@ -10,6 +10,7 @@ import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
 import { showHelp } from '../ShowHelp'
 import { Config } from '../Config'
 import { toast } from '../Toast'
+import { logErrorStatus } from '../crawl/LogErrorStatus'
 
 type WorkType = 'illusts' | 'novels'
 
@@ -25,17 +26,36 @@ class QuickBookmark {
         this.init(toolbar, pixivBMKDiv, likeBtn)
       }
     )
+
+    logErrorStatus.listen((status: number, url: string) => {
+      const id = this.workData?.body?.id
+      if (id && url.includes(id) && status === 429) {
+        toast.error(lang.transl('_状态码429的提示'), {
+          position: 'mouse',
+        })
+      }
+    })
   }
 
   private isNovel = false
   // 初始化时，获取作品数据
   private workData: ArtworkData | NovelData | undefined
-  private isBookmarked: boolean | undefined
+  // 是否已收藏
+  private _isBookmarked: boolean | undefined
+  private get isBookmarked(): boolean {
+    return this._isBookmarked || false
+  }
+  private set isBookmarked(value: boolean) {
+    this._isBookmarked = value
+    this.setBtnStyle()
+  }
 
   private ob: MutationObserver | undefined // 监视心形收藏按钮变化
-  private btn: HTMLAnchorElement = document.createElement('a') // 快速收藏按钮
+  private btn: HTMLButtonElement = document.createElement('button') // 快速收藏按钮
   private readonly btnId = 'quickBookmarkEl' // 快速收藏按钮的 id
   private readonly redClass = 'bookmarkedColor' // 收藏后的红色的颜色值
+  private pixivBMKDiv?: HTMLDivElement
+  private likeBtn?: HTMLButtonElement
 
   private async init(
     toolbar: HTMLDivElement,
@@ -54,6 +74,9 @@ class QuickBookmark {
       return
     }
 
+    this.pixivBMKDiv = pixivBMKDiv
+    this.likeBtn = likeBtn
+
     this.isNovel = pageType.type === pageType.list.Novel
 
     // 删除可能存在的旧的快速收藏按钮
@@ -68,8 +91,12 @@ class QuickBookmark {
       return
     }
     this.workData = data as ArtworkData | NovelData
-    this.isBookmarked = !!this.workData.body.bookmarkData
 
+    // 添加快速收藏按钮
+    this.createBtn()
+    toolbar.insertBefore(this.btn, toolbar.childNodes[3])
+
+    this.isBookmarked = !!this.workData.body.bookmarkData
     // 监听心形收藏按钮从未收藏到收藏的变化
     if (!this.isBookmarked) {
       if (!Config.mobile) {
@@ -81,7 +108,6 @@ class QuickBookmark {
               const added = change.addedNodes
               if (added.length > 0 && added[0].nodeName === 'A') {
                 this.isBookmarked = true
-                this.redQuickBookmarkBtn()
               }
             }
           }
@@ -99,10 +125,8 @@ class QuickBookmark {
         this.ob = new MutationObserver((mutations) => {
           if (path.getAttribute('fill') === '#FF4060') {
             this.isBookmarked = true
-            this.redQuickBookmarkBtn()
           } else {
             this.isBookmarked = false
-            this.resetQuickBookmarkBtn()
           }
         })
         this.ob.observe(path, {
@@ -112,33 +136,36 @@ class QuickBookmark {
       }
     }
 
-    // 添加快速收藏按钮
-    this.btn = this.createBtn()
-    lang.register(this.btn)
-    toolbar.insertBefore(this.btn, toolbar.childNodes[3])
+    // 使用快捷键 Alt + B 和 Ctrl + B 来点击快速收藏按钮
+    // 以前是 Ctrl + B，现在我改成了 Alt + B。为了保持用户的操作习惯，所以保留了 Ctrl + B
+    window.addEventListener(
+      'keydown',
+      (ev) => {
+        if (ev.code === 'KeyB' && (ev.altKey || ev.ctrlKey)) {
+          ev.preventDefault()
+          ev.stopPropagation()
+          this.btn && this.btn.click()
+        }
+      },
+      true
+    )
+  }
 
-    if (this.isBookmarked) {
-      this.redQuickBookmarkBtn()
-    } else {
-      this.btn.addEventListener('click', () => {
-        // 添加收藏
-        this.addBookmark(pixivBMKDiv, likeBtn)
-
-        // 下载这个作品
+  //　创建快速收藏按钮
+  private createBtn() {
+    this.btn = document.createElement('button')
+    this.btn.id = this.btnId
+    this.btn.textContent = '✩'
+    this.btn.addEventListener('click', () => {
+      if (this.isBookmarked) {
+        this.delBookmark()
+      } else {
+        this.addBookmark(this.pixivBMKDiv!, this.likeBtn!)
         this.sendDownload()
-
         showHelp.show(
           'tipBookmarkButton',
           lang.transl('_下载器的收藏按钮默认会添加作品的标签')
         )
-      })
-    }
-
-    // 使用快捷键 Alt + B 和 Ctrl + B 来点击快速收藏按钮
-    // 以前是 Ctrl + B，现在我改成了 Alt + B。为了保持用户的操作习惯，所以保留了 Ctrl + B
-    window.addEventListener('keydown', (ev) => {
-      if (ev.code === 'KeyB' && (ev.altKey || ev.ctrlKey)) {
-        this.btn && this.btn.click()
       }
     })
   }
@@ -151,16 +178,6 @@ class QuickBookmark {
     }
   }
 
-  //　创建快速收藏按钮
-  private createBtn() {
-    const btn = document.createElement('a')
-    btn.id = this.btnId
-    btn.textContent = '✩'
-    btn.href = 'javascript:void(0)'
-    btn.dataset.xztitle = '_快速收藏'
-    return btn
-  }
-
   private async getWorkData() {
     try {
       // 这里不能从缓存的数据中获取作品数据，因为作品的收藏状态可能已经发生了变化
@@ -170,9 +187,6 @@ class QuickBookmark {
         return await API.getArtworkData(Tools.getIllustId())
       }
     } catch (error: Error | any) {
-      if (error.status && error.status === 429) {
-        toast.error('429 Error')
-      }
       return null as any
     }
   }
@@ -213,9 +227,26 @@ class QuickBookmark {
 
       if (status !== 429) {
         this.isBookmarked = true
-        this.redQuickBookmarkBtn()
+        toast.success(lang.transl('_已收藏'), { position: 'mouse' })
       }
     }, 100)
+  }
+
+  private async delBookmark() {
+    const data = await this.getWorkData()
+    if (data) {
+      this.workData = data as ArtworkData | NovelData
+      if (this.workData.body.bookmarkData) {
+        const bmkId = this.workData.body.bookmarkData.id
+        await API.deleteBookmark(
+          bmkId,
+          this.isNovel ? 'novels' : 'illusts',
+          token.token
+        )
+        this.isBookmarked = false
+        toast.success(lang.transl('_已取消收藏'), { position: 'mouse' })
+      }
+    }
   }
 
   // 点赞这个作品
@@ -224,24 +255,14 @@ class QuickBookmark {
     likeBtn.style.color = '#0096fa'
   }
 
-  private getEditBookmarkLink() {
-    if (this.isNovel) {
-      return `/novel/bookmark_add.php?id=${Tools.getNovelId()}`
+  private setBtnStyle() {
+    if (this.isBookmarked) {
+      this.btn.classList.add(this.redClass)
+      this.btn.setAttribute('title', lang.transl('_取消收藏AltB'))
     } else {
-      return `/bookmark_add.php?type=illust&illust_id=${Tools.getIllustId()}`
+      this.btn.classList.remove(this.redClass)
+      this.btn.setAttribute('title', lang.transl('_快速收藏AltB'))
     }
-  }
-
-  // 如果这个作品已收藏，则改变快速收藏按钮
-  private redQuickBookmarkBtn() {
-    this.btn.classList.add(this.redClass)
-    this.btn.href = this.getEditBookmarkLink()
-  }
-
-  // 如果这个作品从已收藏变成未收藏，则改变快速收藏按钮
-  private resetQuickBookmarkBtn() {
-    this.btn.classList.remove(this.redClass)
-    this.btn.href = 'javascript:void(0)'
   }
 
   private clickPixivBMKBtn(pixivBMKDiv: HTMLDivElement) {

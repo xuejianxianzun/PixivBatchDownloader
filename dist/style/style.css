@@ -1577,14 +1577,15 @@ body.mobile #quickCrawlBtn {
   display: none;
   color: #333;
   background: #fff;
+  padding: 10px 0px;
 }
 .logContent {
-  width: 100%;
+  width: 96vw;
   max-width: 950px;
   max-height: 300px;
   overflow-y: scroll;
   margin: 0 auto;
-  padding: 10px 20px;
+  margin-bottom: 20px;
   font-size: 14px;
 }
 .logContent span {

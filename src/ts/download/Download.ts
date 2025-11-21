@@ -146,7 +146,7 @@ class Download {
       Tools.createWorkLink(fileId),
       status.toString()
     )
-    // 404, 500 错误，跳过，不会再尝试下载这个文件（因为没有触发 downloadError 事件，所以不会重试下载）
+    // 发生 404 500 错误时跳过这个作品。因为没有触发 downloadError 事件，所以不会重试下载它
     if (status === 404 || status === 500) {
       log.error(errorMsg)
       log.error(lang.transl('_下载器不会再重试下载它'))

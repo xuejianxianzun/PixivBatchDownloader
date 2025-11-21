@@ -1,5 +1,4 @@
 import { API } from './API'
-import { Config } from './Config'
 import { ArtworkCommonData, BookmarkResult } from './crawl/CrawlResult'
 import { EVT } from './EVT'
 import { lang } from './Language'
@@ -184,6 +183,7 @@ class Bookmark {
           undefined,
           true
         )
+        // 慢速收藏（添加等待时间）
       } else {
         skip++
         console.log('已收藏')
@@ -209,41 +209,31 @@ class Bookmark {
     type: 'illusts' | 'novels',
     tags: string[],
     hide: boolean
-  ) {
-    return new Promise<number>(async (resolve) => {
-      API.addBookmark(id, type, tags, hide, token.token).then(async (res) => {
-        switch (res.status) {
+  ): Promise<number> {
+    try {
+      await API.addBookmark(id, type, tags, hide, token.token)
+      return 200
+    } catch (error: Error | any) {
+      if (error.status) {
+        const status = error.status
+        switch (status) {
           // 当发生 400 错误时重试
           case 400:
             await token.reset()
             await Utils.sleep(3000)
-            return resolve(this.sendRequest(id, type, tags, hide))
+            return new Promise<number>((retryResolve, retryReject) => {
+              this.sendRequest(id, type, tags, hide).then(
+                retryResolve as any,
+                retryReject
+              )
+            })
           case 404:
             log.error(`${id} 404 Not Found`)
-            return resolve(res.status)
-          case 429:
-          case 500:
-            toast.error(lang.transl('_添加收藏失败'), {
-              position: 'center',
-            })
-
-            log.error(
-              `${Tools.createWorkLink(id, '', type === 'illusts')} ${lang.transl(
-                '_添加收藏失败'
-              )}, ${lang.transl('_错误代码')}: ${res.status}. ${lang.transl(
-                '_下载器会在几分钟后重试'
-              )}`
-            )
-
-            window.setTimeout(() => {
-              return resolve(this.sendRequest(id, type, tags, hide))
-            }, Config.retryTime)
-            break
-          default:
-            return resolve(res.status)
+            return status
         }
-      })
-    })
+      }
+      return 0
+    }
   }
 }
 

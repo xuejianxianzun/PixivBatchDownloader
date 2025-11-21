@@ -306,6 +306,9 @@ interface XzSetting {
   crawlLatestFewWorks: boolean
   crawlLatestFewWorksNumber: number
   rememberTheLastSaveLocation: boolean
+  autoMergeNovel: boolean
+  /** 自动合并系列小说时，如果一篇小说属于某个系列，则不下载它（因为合并后的小说里会包含这篇小说，所以没必要重复下载） */
+  skipNovelsInSeriesWhenAutoMerge: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -582,7 +585,7 @@ class Settings {
     sizeMin: 0,
     sizeMax: 100,
     novelSaveAs: 'txt',
-    saveNovelMeta: false,
+    saveNovelMeta: true,
     deduplication: false,
     dupliStrategy: 'loose',
     fileNameLengthLimitSwitch: false,
@@ -745,6 +748,8 @@ class Settings {
     crawlLatestFewWorks: false,
     crawlLatestFewWorksNumber: 10,
     rememberTheLastSaveLocation: false,
+    autoMergeNovel: false,
+    skipNovelsInSeriesWhenAutoMerge: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

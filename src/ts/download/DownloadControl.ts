@@ -184,7 +184,7 @@ class DownloadControl {
 
       // 文件下载成功
       if (msg.msg === 'downloaded') {
-        URL.revokeObjectURL(msg.data.url)
+        URL.revokeObjectURL(msg.data.blobURLFront)
 
         // 发送下载成功的事件
         EVT.fire('downloadSuccess', msg.data)

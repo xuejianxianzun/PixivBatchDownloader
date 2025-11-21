@@ -137,7 +137,6 @@ class BookmarkAllWorks {
             )
           })
         } catch (error) {
-          // 捕获错误，主要是为了处理 429 错误。但是现在只会提示，没有重试。因为需要过 3 分钟之后才能重试成功，等待时间太长了
           const e = error as {
             status: number
             statusText: string

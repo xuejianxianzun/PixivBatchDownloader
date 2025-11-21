@@ -3,7 +3,7 @@ import { ArtworkData, NovelData } from './crawl/CrawlResult'
 import { lang } from './Language'
 import { pageType } from './PageType'
 import { wiki } from './setting/Wiki'
-import { WorkTypeString, Result } from './store/StoreType'
+import { WorkTypeString, Result, IDData } from './store/StoreType'
 import { Utils } from './utils/Utils'
 
 type artworkDataTagsItem = {
@@ -565,7 +565,11 @@ class Tools {
   }
 
   // 传入作品 id，生成作品页面的超链接
-  static createWorkLink(id: number | string, title?: string, artwork = true) {
+  static createWorkLink(
+    id: number | string,
+    title?: string,
+    type: 'artwork' | 'novel' = 'artwork'
+  ) {
     // 对于图像作品，在作品页面链接后面添加 #p+1 可以在打开页面后，定位到对应的图片
     const array = id.toString().split('_p')
     const idNum = array[0]
@@ -576,7 +580,7 @@ class Tools {
       p = Number.parseInt(array[1]) + 1
     }
 
-    const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}${
+    const href = `https://www.pixiv.net/${type === 'artwork' ? 'i' : 'n'}/${idNum}${
       hasP ? `#${p}` : ''
     }`
     return `<a href="${href}" target="_blank">${title || id}</a>`

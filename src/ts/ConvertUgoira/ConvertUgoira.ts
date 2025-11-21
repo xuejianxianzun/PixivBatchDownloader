@@ -110,7 +110,7 @@ class ConvertUgoira {
     if (delayTooLarge) {
       const msg = lang.transl(
         '_动图不能转换为WEBM视频的提示',
-        Tools.createWorkLink(id, '', true)
+        Tools.createWorkLink(id, '', 'artwork')
       )
       msgBox.warning(msg)
       log.warning(msg)

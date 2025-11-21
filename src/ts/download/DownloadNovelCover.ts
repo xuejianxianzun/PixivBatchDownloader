@@ -3,12 +3,14 @@ import { log } from '../Log'
 import { Utils } from '../utils/Utils'
 import { Config } from '../Config'
 import { SendToBackEndData } from './DownloadType'
+import { lang } from '../Language'
 
 class DownloadNovelCover {
   /**下载小说的封面图片
    *
    * 默认是正常下载小说的情况，可以设置为合并系列小说的情况
    */
+  // 这个模块内部没有添加间隔时间，由调用者负责添加间隔时间
   public async download(
     coverURL: string,
     novelName: string,
@@ -77,7 +79,7 @@ class DownloadNovelCover {
       retry++
       console.log(retry, url)
       if (retry > this.retryMax) {
-        log.error(`fetch ${url} failed`)
+        log.error(`${lang.transl('_下载小说封面失败')}: ${url}`)
         return null
       }
       return this.getCover(url, type as any, retry)

@@ -41,7 +41,8 @@
       "matches": ["*://www.pixiv.net/*"],
       "exclude_matches": [
         "*://www.pixiv.net/ajax*",
-        "*://www.pixiv.net/*format=json*"
+        "*://www.pixiv.net/*format=json*",
+        "*://www.pixiv.net/*messages*"
       ],
       "run_at": "document_end"
     },

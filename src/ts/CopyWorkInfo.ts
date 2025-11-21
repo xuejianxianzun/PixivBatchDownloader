@@ -23,13 +23,7 @@ class CopyWorkInfo {
       ](id, unlisted)
       this.copy(data, p)
     } catch (error: Error | any) {
-      if (error.status) {
-        toast.error(
-          `${lang.transl('_获取作品数据失败')}: ${lang.transl('_错误代码')} ${error.status}`
-        )
-      } else {
-        toast.error(lang.transl('_获取作品数据失败'))
-      }
+      toast.error(lang.transl('_获取作品数据失败'))
     }
   }
 
