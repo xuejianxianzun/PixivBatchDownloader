@@ -103,7 +103,7 @@ class DownloadNovelEmbeddedImage {
     log.persistentRefresh('downloadNovelImage' + novelId)
   }
 
-  /**小说保存为 epub 时，内嵌到 Epub 对象里 */
+  /**小说保存为 epub 时，内嵌到 Epub 对象里。返回值是个对象：size 是图片体积总数，content 是替换后的正文内容 */
   public async EPUB(
     novelId: string,
     novelTitle: string,
@@ -111,9 +111,13 @@ class DownloadNovelEmbeddedImage {
     embeddedImages: EmbeddedImages,
     jepub: any,
     interval = 0
-  ) {
+  ): Promise<{
+    size: number
+    content: string
+  }> {
     const imageList = await this.getImageList(novelId, content, embeddedImages)
 
+    let size = 0
     let current = 1
     const total = imageList.length
     for (const image of imageList) {
@@ -143,6 +147,7 @@ class DownloadNovelEmbeddedImage {
         Config.isFirefox ? Utils.copyArrayBuffer(buffer) : buffer,
         imageID
       )
+      size += buffer.byteLength
 
       // 将小说正文里的图片标记替换为真实的的图片路径，以在 EPUB 里显示
       // 例如把
@@ -160,9 +165,12 @@ class DownloadNovelEmbeddedImage {
       const imgTag = `<br/><img src="assets/${imageID}.${ext}" /><br/>`
       content = content.replaceAll(image.flag, imgTag)
     }
+
     log.persistentRefresh('downloadNovelImage' + novelId)
-    // 由于 content 是 string 而非对象，是按值传递的，所以需要返回它
-    return content
+    return {
+      size,
+      content,
+    }
   }
 
   // 获取正文里上传的图片 id 和引用的图片 id

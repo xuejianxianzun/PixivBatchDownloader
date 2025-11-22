@@ -156,7 +156,7 @@ class MakeNovelFile {
     const novelId = data.id
 
     // 下载小说里的内嵌图片
-    content = await downloadNovelEmbeddedImage.EPUB(
+    const value  = await downloadNovelEmbeddedImage.EPUB(
       novelId,
       data.title,
       content,
@@ -168,6 +168,7 @@ class MakeNovelFile {
 
     // 添加正文，这会在 EPUB 里生成一个新的章节
     // 实际上会生成对应的 html 文件，如 OEBPS/page-0.html
+    content = value.content
     jepub.add(title, content)
 
     const blob = await jepub.generate('blob', (metadata: any) => {

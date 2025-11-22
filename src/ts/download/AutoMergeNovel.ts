@@ -1,8 +1,6 @@
 import { EVT } from '../EVT'
 import { lang } from '../Language'
 import { log } from '../Log'
-import { FastScreen } from '../pageFunciton/FastScreen'
-import { pageType } from '../PageType'
 import { settings } from '../setting/Settings'
 import { toast } from '../Toast'
 import { Utils } from '../utils/Utils'

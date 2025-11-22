@@ -14,6 +14,7 @@ import { getNovelGlossarys } from '../crawlNovelPage/GetNovelGlossarys'
 import { DateFormat } from '../utils/DateFormat'
 import { pageType } from '../PageType'
 import { cacheWorkData } from '../store/CacheWorkData'
+import { setTimeoutWorker } from '../SetTimeoutWorker'
 
 declare const jEpub: any
 
@@ -70,7 +71,9 @@ class MergeNovel {
 
   /**每次请求之间等待一段时间 */
   private async sleep(time: number) {
-    this.slowMode && (await Utils.sleep(time))
+    if(this.slowMode){
+      return new Promise((res) => setTimeoutWorker.set(res, time))
+    }
   }
 
   /** 合并系列小说。返回值是合并完成后所包含的小说数量（不包含 404 的小说） */
@@ -87,6 +90,7 @@ class MergeNovel {
     this.seriesId = seriesId.toString()
     this.seriesTitle = seriesTitle || ''
     this.slowMode = autoMerge
+
     const link = `<a href="https://www.pixiv.net/novel/series/${this.seriesId}" target="_blank">${this.seriesTitle || this.seriesId}</a>`
     log.log(`📚${lang.transl('_合并系列小说')} ${link}`)
 
@@ -136,11 +140,14 @@ class MergeNovel {
 
     // 生成小说文件并下载
     let file: Blob | null = null
-    const novelName = `series-${this.userName}-${this.seriesTitle}-user_${this.userName}-seriesId_${this.seriesId}-tags_${seriesData.tags}.${settings.novelSaveAs}`
+    let novelName = `series-${this.userName}-${this.seriesTitle}-user_${this.userName}-seriesId_${this.seriesId}-tags_${seriesData.tags}.${settings.novelSaveAs}`
     if (settings.novelSaveAs === 'txt') {
       file = await this.mergeTXT(novelName)
+      const url = URL.createObjectURL(file)
+      Utils.downloadFile(url, Utils.replaceUnsafeStr(novelName))
+      URL.revokeObjectURL(url)
     } else {
-      file = await this.mergeEPUB(seriesData)
+      await this.mergeEPUB(seriesData, novelName)
     }
 
     // 下载系列小说的封面图片，保存到单独的文件
@@ -155,84 +162,9 @@ class MergeNovel {
       await downloadNovelCover.download(coverUrl, novelName, 'mergeNovel')
     }
 
-    const url = URL.createObjectURL(file)
-    Utils.downloadFile(url, Utils.replaceUnsafeStr(novelName))
+    // 合并完成
     log.success(`✅${lang.transl('_已合并系列小说')} ${link}`)
-    URL.revokeObjectURL(url)
     return this.allNovelData.length
-  }
-
-  /** 获取这个系列里所有小说的 id */
-  private async getNovelIds(): Promise<void> {
-    const seriesData = await API.getNovelSeriesContent(
-      this.seriesId,
-      this.limit,
-      this.last,
-      'asc'
-    )
-
-    const list = seriesData.body.page.seriesContents
-    list.forEach((item) => {
-      this.novelIdList.push(item.id)
-    })
-
-    this.last += list.length
-
-    // 如果这一次返回的作品数量达到了每批限制，可能这次没有请求完，继续请求后续的数据
-    if (list.length === this.limit) {
-      return this.getNovelIds()
-    }
-    // 获取完毕
-  }
-
-  /** 获取所有小说数据，然后储存必须的数据 */
-  private async getNovelData() {
-    const total = this.novelIdList.length
-    let count = 0
-
-    for (const id of this.novelIdList) {
-      // 自动合并系列小说时，可能会连续不断的合并多个系列，这些系列可能包含非常多的小说，所以需要添加等待时间，以减小出现 429 错误的概率
-      // 另外获取设定资料时也有可能需要发送多个请求，但并不总是需要多次请求，所以获取设定资料时没有添加等待时间
-      count++
-      log.log(
-        lang.transl('_获取小说数据进度', `${count} / ${total}`),
-        1,
-        false,
-        'getNovelDataProgress' + this.seriesId
-      )
-
-      // 优先从缓存中获取数据
-      let data = cacheWorkData.get(id, 'novel')
-      if (!data) {
-        try {
-          // 发送请求
-          await this.sleep(this.crawlInterval)
-          data = await API.getNovelData(id)
-          cacheWorkData.set(data)
-        } catch (error: Error | any) {
-          // 请求小说的数据出错时跳过它，不重试（通常是 404 错误，没有必要重试）
-          log.error(lang.transl('_跳过这个小说'))
-          continue
-        }
-      }
-
-      const novelData: NovelSummary = {
-        id: data.body.id,
-        no: data.body.seriesNavData!.order,
-        updateDate: DateFormat.format(data.body.uploadDate),
-        title: Utils.replaceUnsafeStr(data.body.title),
-        tags: Tools.extractTags(data),
-        description: Utils.htmlToText(Utils.htmlDecode(data.body.description)),
-        content: Tools.replaceNovelContentFlag(data.body.content),
-        coverUrl: data.body.coverUrl,
-        embeddedImages: Tools.extractEmbeddedImages(data),
-      }
-      this.allNovelData.push(novelData)
-    }
-    log.persistentRefresh('getNovelDataProgress' + this.seriesId)
-
-    // 按照小说的序号进行升序排列
-    this.allNovelData.sort(Utils.sortByProperty('no', 'asc'))
   }
 
   private async mergeTXT(novelName: string): Promise<Blob> {
@@ -340,40 +272,56 @@ class MergeNovel {
     })
   }
 
-  private mergeEPUB(seriesData: NovelSeriesData['body']): Promise<Blob> {
-    return new Promise(async (resolve, reject) => {
-      const link = `https://www.pixiv.net/novel/series/${this.seriesId}`
-      let description = this.handleEPUBDescription(this.seriesCaption)
+  // 生成的 EPUB 文件在这个方法里自行保存
+  private async mergeEPUB(seriesData: NovelSeriesData['body'], novelName: string): Promise<void> {
+    // 生成一些在每个文件里固定不变的数据
+    const link = `https://www.pixiv.net/novel/series/${this.seriesId}`
+    const date = new Date(this.seriesUpdateDate)
+    let description = this.handleEPUBDescription(this.seriesCaption)
 
-      // 现在生成的 EPUB 小说里有个“信息”页面，会显示如下数据（就是在下面的 jepub.init 里定义的）：
-      // title 系列标题
-      // author 作者
-      // publisher 系列小说的 URL
-      // tags 系列小说的标签列表
-      // description 系列小说的简介
-
-      // 元数据里不属于以上分类的，都放到 description 里即可，会在信息页面里显示出来
-      if (settings.saveNovelMeta) {
-        const otherMeta: string[] = []
-        // 添加 date
-        otherMeta.push(`${lang.transl('_更新日期')}: ${this.seriesUpdateDate}`)
+    // 生成元数据
+    // EPUB 小说里有个“信息”页面，会显示如下数据（就是在下面的 jepub.init 里定义的）：
+    // title 系列标题
+    // author 作者
+    // publisher 系列小说的 URL
+    // tags 系列小说的标签列表
+    // description 系列小说的简介
+    // 元数据里不属于以上分类的，都放到 description 里即可，会在信息页面里显示出来
+    if (settings.saveNovelMeta) {
+      const otherMeta: string[] = []
+      // 添加 date
+      otherMeta.push(`${lang.transl('_更新日期')}: ${this.seriesUpdateDate}`)
+      otherMeta.push(this.br2)
+      // 添加简介
+      if (description) {
+        otherMeta.push(lang.transl('_系列简介') + ': ')
         otherMeta.push(this.br2)
-        // 添加简介
-        if (description) {
-          otherMeta.push(lang.transl('_系列简介') + ': ')
-          otherMeta.push(this.br2)
-          otherMeta.push(description)
-          otherMeta.push(this.br2)
-        }
-        // 添加设定资料
-        if (this.seriesGlossary) {
-          otherMeta.push(lang.transl('_设定资料') + ': ')
-          otherMeta.push(this.br2)
-          otherMeta.push(this.handleEPUBDescription(this.seriesGlossary))
-          otherMeta.push(this.br2)
-        }
-        description = otherMeta.join('')
+        otherMeta.push(description)
+        otherMeta.push(this.br2)
       }
+      // 添加设定资料
+      if (this.seriesGlossary) {
+        otherMeta.push(lang.transl('_设定资料') + ': ')
+        otherMeta.push(this.br2)
+        otherMeta.push(this.handleEPUBDescription(this.seriesGlossary))
+        otherMeta.push(this.br2)
+      }
+      description = otherMeta.join('')
+    }
+
+    // 每次创建 EPUB 文件时，从第几篇小说开始添加
+    let index = 0
+
+    // 把创建 EPUB 的步骤放到一个函数里，方便在需要分割文件时多次调用
+    const generateEPUB = async () => {
+      this.pushSizeLog()
+
+      // 记录 description 的体积，其实文本的体积（包括简介、正文）通常都很小，记录与否都影响不大
+      // 在一次测试里，700 个系列小说里只有 1 篇的正文体积超过了 10 MiB
+      // 另外：使用 length 并不准确，因为 1 个 length 的实际字节数可能是 1 - 4（ASCII、变音标记、中文、emoji）
+      // 如果文本不是 ASCII 字符，那么 length 是小于实际的文件体积的
+      // 追求准确的话应该使用 TextEncoder 编码然后获取 length，但这里影响不大，就无所谓了
+      this.addSize(description.length)
 
       const jepub = new jEpub()
       jepub.init({
@@ -392,24 +340,24 @@ class MergeNovel {
         tags: this.seriesTags,
         description: description,
       })
-
       jepub.uuid(link)
-      jepub.date(new Date(this.seriesUpdateDate))
+      jepub.date(date)
 
-      // 添加这个系列的封面图片到 epub 文件里
+      // 添加这个系列的封面图片到 EPUB 文件里
       const coverUrl = seriesData.cover.urls.original
       if (settings.downloadNovelCoverImage && coverUrl) {
         await this.sleep(this.downloadInterval)
         this.logDownloadSeriesCover()
         const cover = await downloadNovelCover.getCover(coverUrl, 'arrayBuffer')
         if (cover) {
+          this.addSize(cover.byteLength)
           jepub.cover(Config.isFirefox ? Utils.copyArrayBuffer(cover) : cover)
         }
       }
 
       // 循环添加小说内容
-      for (const data of this.allNovelData) {
-        let content = Tools.replaceEPUBTextWithP(data.content)
+      for (; index < this.allNovelData.length; index++) {
+        const data = this.allNovelData[index]
         const novelId = data.id
 
         // 添加每篇小说的封面图片
@@ -422,13 +370,14 @@ class MergeNovel {
               Tools.createWorkLink(novelId, data.title, 'novel')
             )
           )
-          // 下载器使用的 jepub.js 库只能为整个 epub 文件添加一个封面图片，不能为单个章节设置封面图片
+          // 下载器使用的 jepub.js 库只能为整个 EPUB 文件添加一个封面图片，不能为单个章节设置封面图片
           // 所以需要手动添加图片，然后添加图片对应的 html 代码
           const cover = await downloadNovelCover.getCover(
             data.coverUrl,
             'arrayBuffer'
           )
           if (cover) {
+            this.addSize(cover.byteLength)
             const imageId = 'cover-' + novelId
             jepub.image(
               Config.isFirefox ? Utils.copyArrayBuffer(cover) : cover,
@@ -457,10 +406,11 @@ class MergeNovel {
         }
 
         // 组合封面图片和简介，使封面图片位于所有文字内容之前
+        let content = Tools.replaceEPUBTextWithP(data.content)
         content = coverHtml + metaHtml + content
 
         // 添加小说里的图片
-        content = await downloadNovelEmbeddedImage.EPUB(
+        const value = await downloadNovelEmbeddedImage.EPUB(
           novelId,
           data.title,
           content,
@@ -468,20 +418,195 @@ class MergeNovel {
           jepub,
           this.downloadInterval
         )
-
-        const title = Tools.replaceEPUBTitle(Utils.replaceUnsafeStr(data.title))
+        content = value.content
 
         // 添加正文，这会在 EPUB 里生成一个新的章节
         // 实际上会生成一个对应的 html 文件，如 OEBPS/page-0.html
+        const title = Tools.replaceEPUBTitle(Utils.replaceUnsafeStr(data.title))
         jepub.add(`${this.chapterNo(data.no)} ${title}`, content)
+
+        // 如果添加了所有小说
+        if (index === this.allNovelData.length - 1) {
+          await this.saveEPUBFile(jepub, novelName, true)
+          return
+        } else {
+          // 如果还有未添加的小说
+          // 检查文件体积
+          this.addSize(content.length)
+          this.addSize(value.size)
+          const limit = this.checkSizeLimit()
+          // 如果文件体积达到限制，就保存这个 EPUB 文件
+          if (limit) {
+            await this.saveEPUBFile(jepub, novelName)
+            // 生成新的 EPUB 文件
+            index++
+            return generateEPUB()
+          }
+        }
+        // 如果不满足保存 EPUB 文件的条件，就会继续循环
+      }
+    }
+
+    await generateEPUB()
+  }
+
+  /** 获取这个系列里所有小说的 id */
+  private async getNovelIds(): Promise<void> {
+    const seriesData = await API.getNovelSeriesContent(
+      this.seriesId,
+      this.limit,
+      this.last,
+      'asc'
+    )
+
+    const list = seriesData.body.page.seriesContents
+    list.forEach((item) => {
+      this.novelIdList.push(item.id)
+    })
+
+    this.last += list.length
+
+    // 如果这一次返回的作品数量达到了每批限制，可能这次没有请求完，继续请求后续的数据
+    if (list.length === this.limit) {
+      return this.getNovelIds()
+    }
+    // 获取完毕
+  }
+
+  /** 获取所有小说数据，然后储存必须的数据 */
+  private async getNovelData() {
+    const total = this.novelIdList.length
+    let count = 0
+
+    for (const id of this.novelIdList) {
+      // 自动合并系列小说时，可能会连续不断的合并多个系列，这些系列可能包含非常多的小说，所以需要添加等待时间，以减小出现 429 错误的概率
+      // 另外获取设定资料时也有可能需要发送多个请求，但并不总是需要多次请求，所以获取设定资料时没有添加等待时间
+      count++
+      log.log(
+        lang.transl('_获取小说数据进度', `${count} / ${total}`),
+        1,
+        false,
+        'getNovelDataProgress' + this.seriesId
+      )
+
+      // 优先从缓存中获取数据
+      let data = cacheWorkData.get(id, 'novel')
+      if (!data) {
+        try {
+          // 发送请求
+          await this.sleep(this.crawlInterval)
+          data = await API.getNovelData(id)
+          cacheWorkData.set(data)
+        } catch (error: Error | any) {
+          // 请求小说的数据出错时跳过它，不重试（通常是 404 错误，没有必要重试）
+          log.error(lang.transl('_跳过这个小说'))
+          continue
+        }
       }
 
-      const blob = await jepub.generate('blob', (metadata: any) => {
-        // console.log('progression: ' + metadata.percent.toFixed(2) + ' %');
-        // if (metadata.currentFile) console.log('current file = ' + metadata.currentFile);
-      })
-      resolve(blob)
+      const novelData: NovelSummary = {
+        id: data.body.id,
+        no: data.body.seriesNavData!.order,
+        updateDate: DateFormat.format(data.body.uploadDate),
+        title: Utils.replaceUnsafeStr(data.body.title),
+        tags: Tools.extractTags(data),
+        description: Utils.htmlToText(Utils.htmlDecode(data.body.description)),
+        content: Tools.replaceNovelContentFlag(data.body.content),
+        coverUrl: data.body.coverUrl,
+        embeddedImages: Tools.extractEmbeddedImages(data),
+      }
+      this.allNovelData.push(novelData)
+    }
+    log.persistentRefresh('getNovelDataProgress' + this.seriesId)
+
+    // 按照小说的序号进行升序排列
+    this.allNovelData.sort(Utils.sortByProperty('no', 'asc'))
+  }
+
+  /** 限制单个 EPUB 文件的大小 */
+  // 每当添加完一篇小说的文件，就检查这个 EPUB 文件的体积是否超出了限制，如果超出就保存它，然后新建一个 EPUB 文件继续添加
+  // 这样最终会生成多个 EPUB 文件，文件名后面会添加 part1, part2 之类的后缀
+  // 目前体积限制为 100 MiB，这主要是担心手机上的阅读器打开大体积的 EPUB 文件时可能会出现性能问题
+  // 实际可用的体积上限取决于 jszip.min.js 的限制，通常文件体积不能超过 2 GiB
+  // 在之前的几次测试里，650 个 EPUB 文件（未分割）里只有 7 个文件的体积超过了 100 MiB，其中只有 1 个超过了 200 MiB
+  // 所以绝大多数的系列小说都不需要分割。之所以添加分割功能，是因为遇到了一个体积非常大的系列小说：
+  // https://www.pixiv.net/novel/series/7708974
+  // 含有 1150 张插画，这些插画的总体积高达 3.96 GB。之前没有分割，会因为体积过大导致 jszip 报错，进而导致程序卡住
+  // 虽然这么大的系列小说很罕见，但不得不处理。要成功下载它就必须分割成多个文件。
+  // 分割之后它生成了 28 个 EPUB 文件，总体积 3.74 GB（因为 jszip 压缩了文件，所以体积比未压缩时小。解压后是完全相同的）
+  // 注意：检查体积时是以单篇小说为单位的，所以以下情况会生成超过 100 MiB 的 EPUB 文件：
+  // 1. 单篇小说的体积已经超出限制（例如 200 MiB）
+  // 2. 添加了多篇小说时，最后一篇导致总体积超出限制。例如 90 + 60，或者 30 + 30 + 50 的情况
+  private readonly epubSizeLimit = 100 * 1024 * 1024
+
+  /** 保存每个部分的体积日志。只有当保存格式是 EPUB 时才会用到 */
+  // 一开始会添加第一项，如果体积达到了限制才会添加下一项
+  private sizeLog: {
+    /** 这是第几个文件，从 0 开始 */
+    part: number,
+    /** 这个文件里的文件总体积 */
+    size: number,
+    /** 这个部分是否正在被使用。有多个部分时，只有最后一项是使用中的 */
+    inUse: boolean
+  }[] = []
+
+  /** 每次创建 EPUB 文件时，就添加一条体积的记录 */
+  private pushSizeLog() {
+    // 把之前已有的记录标记为不使用
+    this.sizeLog.forEach(item => item.inUse = false)
+    // 添加新的记录
+    this.sizeLog.push({
+      part: this.sizeLog.length,
+      size: 0,
+      inUse: true,
     })
+  }
+
+  private addSize(size: number) {
+    const current = this.sizeLog.find(item => item.inUse)
+    if (current) {
+      current.size += size
+    }
+  }
+
+  private checkSizeLimit(): boolean {
+    const current = this.sizeLog.find(item => item.inUse)
+    if (current) {
+      return current.size >= this.epubSizeLimit
+    }
+    return false
+  }
+
+  private async saveEPUBFile(jepub: any, name: string, complete: boolean = false) {
+    // 判断是否需要添加 part 标记
+    let addPartFlag = true
+    // 如果已经添加了所有小说，并且只有一条 size 记录，说明这个 EPUB 文件里包含了所有小说，所以无须添加 part 标记
+    if (complete && this.sizeLog.length === 1) {
+      addPartFlag = false
+    }
+
+    // 在后缀名前面添加 part 编号
+    if (addPartFlag) {
+      let part = 0
+      const current = this.sizeLog.find(item => item.inUse)
+      if (current) {
+        part = current.part
+      }
+      const nameArray = name.split('.' + settings.novelSaveAs)
+      name = `${nameArray[0]} part${part + 1}.${settings.novelSaveAs}`
+    }
+
+    // 保存文件
+    const blob = await jepub.generate('blob', (metadata: any) => { })
+    const url = URL.createObjectURL(blob)
+    Utils.downloadFile(url, Utils.replaceUnsafeStr(name))
+    // console.log('split EPUB file saved:', name)
+    URL.revokeObjectURL(url)
+
+    // 当这个系列里的所有小说都下载完毕后，如果它被分割成了多个文件，则显示提示日志
+    if (complete && this.sizeLog.length > 1) {
+      log.warning(lang.transl('_由于这个系列小说里的图片体积很大所以分割成了x个文件', this.sizeLog.length.toString()))
+    }
   }
 
   /** 处理从 Pixiv API 里取得的字符串，将其转换为可以安全的用于 EPUB 小说的 description 的内容
