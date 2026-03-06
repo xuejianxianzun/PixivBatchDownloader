@@ -130,6 +130,11 @@ class MergeNovel {
       return 0
     }
 
+    // 在获取每篇小说的数据之前，检查是否需要应用抓取间隔时间
+    if (this.novelIdList.length > settings.slowCrawlOnWorksNumber) {
+      this.slowMode = true
+    }
+
     await this.getAllNovelData()
 
     // 获取这个系列的设定资料

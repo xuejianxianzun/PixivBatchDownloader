@@ -71,7 +71,6 @@ class FormSettings {
       'autoStartDownload',
       'previewResult',
       'deduplication',
-      'fileNameLengthLimitSwitch',
       'bmkAfterDL',
       'userBlockList',
       'removeBlockedUsersWork',
@@ -141,6 +140,7 @@ class FormSettings {
       'autoMergeNovel',
       'skipNovelsInSeriesWhenAutoMerge',
       'filterSearchResults',
+      'fullNameLengthLimitSwitch',
     ],
     text: [
       'firstFewImages',
@@ -159,7 +159,6 @@ class FormSettings {
       'sizeMin',
       'sizeMax',
       'downloadThread',
-      'fileNameLengthLimit',
       'dateFormat',
       'tagsSeparator',
       'bgOpacity',
@@ -177,6 +176,7 @@ class FormSettings {
       'downloadIntervalOnWorksNumber',
       'copyWorkInfoFormat',
       'crawlLatestFewWorksNumber',
+      'fullNameLengthLimit',
     ],
     radio: [
       'ugoiraSaveAs',
@@ -364,6 +364,9 @@ class FormSettings {
   // 恢复值为 string 的设置项
   private restoreString(name: SettingKeys) {
     if (settings[name] !== undefined) {
+      // if (this.form[name] === undefined) {
+      //   console.log(name)
+      // }
       this.form[name].value = settings[name].toString()
     }
   }

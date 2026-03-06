@@ -714,14 +714,15 @@ export const formHtml = `
       </span>
     </p>
     <p class="option" data-no="29">
-      <a href="${wiki.link(29)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_文件名长度限制的说明">
+      <a href="${wiki.link(29)}" target="_blank" class="settingNameStyle">
         <span data-xztext="_文件名长度限制"></span>
-        <span class="gray1"> ? </span>
       </a>
-      <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
+      <input type="checkbox" name="fullNameLengthLimitSwitch" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
-        <input type="text" name="fileNameLengthLimit" class="setinput_style1 blue" value="200">
+
+      <span class="subOptionWrap" data-show="fullNameLengthLimitSwitch">
+        <input type="text" name="fullNameLengthLimit" class="setinput_style1 blue" value="220">
+      <button type="button" class="gray1 textButton" id="showPathLengthLimitTip" data-xztext="_帮助"></button>
       </span>
     </p>
     <p class="option" data-no="83">

@@ -3638,6 +3638,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+
+
 
 
 
@@ -3941,7 +3945,7 @@ class FileName {
             result = result.split('/').pop();
         }
         // 7 处理文件名长度限制
-        result = this.lengthLimit(result, extResult);
+        result = this.lengthLimit(result, extResult, cfg['{id}'].value);
         // 8 添加后缀名
         result += extResult;
         // 9 返回结果
@@ -4110,21 +4114,56 @@ class FileName {
         result = paths.join('/');
         return result;
     }
-    /** 处理文件名长度限制 */
-    // 不计算文件夹的长度，只计算 文件名+后缀名 部分
-    // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
-    lengthLimit(result, ext) {
-        const extLength = ext.length;
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.fileNameLengthLimitSwitch) {
-            let limit = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.fileNameLengthLimit;
-            const allPart = result.split('/');
-            const lastIndex = allPart.length - 1;
-            if (allPart[lastIndex].length + extLength > limit) {
-                const subString = allPart[lastIndex].substring(0, limit - extLength);
-                allPart[lastIndex] = subString.trim();
-            }
-            result = allPart.join('/');
+    /** 处理文件名长度限制
+     * @param result 全路径，但不包含扩展名
+     * @param ext 扩展名，包含 .，例如 '.jpg'
+     * @param id 文件名里必须包含的具有唯一性的字符。如果文件名被截断，那么它必然会包含 id，以避免文件名重复
+     */
+    lengthLimit(result, ext, id) {
+        const fullName = result + ext;
+        let excess = fullName.length - _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.fullNameLengthLimit;
+        if (excess <= 0) {
+            return result;
         }
+        // 文件名超长
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.fullNameLengthLimitSwitch) {
+            // 如果用户未启用此设置，则显示提示
+            _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_9__.lang.transl('_文件名可能超长的提示', _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.fullNameLengthLimit.toString(), fullName), 1, false, 'tipFullNameTooLong');
+            return result;
+        }
+        // 开始截断
+        // 倒序遍历每一项
+        // 优先截断文件名，这是为了尽量保留文件夹的名字完整。因为截断文件夹名字的话，可能会导致一个文件夹产生多个长度不同的版本，导致生成多个不同文件夹，用户体验很差
+        // 如果必须截断文件夹名字，那么优先截断内层文件夹，这样可以尽量保持外层文件夹的完整。因为一旦外层文件夹被截断，那么它就成了一个分歧点，其后的文件夹都在它里面。为了避免文件变得非常散乱，必须尽量保持外层文件夹的完整
+        const allPart = result.split('/');
+        const lastIndex = allPart.length - 1;
+        for (let i = lastIndex; i >= 0; i--) {
+            if (excess <= 0) {
+                break;
+            }
+            if (i === lastIndex) {
+                // 截断文件名，但最少保留 id 的长度
+                const fileName = allPart[i];
+                const subLength = Math.max(fileName.length - excess, id.length);
+                let subString = fileName.substring(0, subLength).trim();
+                // 如果文件名截断之后没有包含 id（可能是因为 id 被部分或全部截断了），则把它重设为 id
+                if (id && subString.includes(id) === false) {
+                    subString = id;
+                    // 显示提示
+                }
+                allPart[i] = subString;
+            }
+            else {
+                // 截断文件夹的名字，但至少保留 20 个字符
+                const subLength = Math.max(allPart[i].length - excess, 20);
+                allPart[i] = allPart[i].substring(0, subLength).trim();
+            }
+            // 每次遍历都可能会修改当前项的内容， 所以需要重新计算超出的长度
+            result = allPart.join('/');
+            excess = result.length + ext.length - _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.fullNameLengthLimit;
+        }
+        // 如果处理过后依然超长，那就是极端情况了，暂不处理，因为我也没有更好的方法
+        _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_9__.lang.transl('_下载器截断了一些文件名的提示', fullName), 1, false, 'tipTruncatedFullName');
         return result;
     }
 }
@@ -21020,6 +21059,7 @@ class DownloadControl {
             this.pauseDownload();
         });
         // 如果下载器让浏览器保存文件到本地，但是之后没有收到回应（不知道文件是否有成功保存），这会导致下载进度卡住
+        // 常见原因：浏览器显示了另存为窗口，但用户一直没有处理（即另存为窗口一直显示），所以浏览器不会告诉下载器文件的保存结果，导致等待超时
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.sendBrowserDownload, () => {
             window.clearTimeout(this.checkDownloadTimeoutTimer);
             this.checkDownloadTimeoutTimer = window.setTimeout(() => {
@@ -21027,7 +21067,7 @@ class DownloadControl {
                     '<br>' +
                     _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_下载卡住的提示');
                 _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(msg, 1, false, 'mayError');
-            }, 30000);
+            }, 300000);
         });
         const clearDownloadTimeoutTimerList = [
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadComplete,
@@ -23121,6 +23161,10 @@ class MergeNovel {
             _Log__WEBPACK_IMPORTED_MODULE_7__.log.error(`❌${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_发生错误取消合并这个系列小说')} ${link}`);
             return 0;
         }
+        // 在获取每篇小说的数据之前，检查是否需要应用抓取间隔时间
+        if (this.novelIdList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.slowCrawlOnWorksNumber) {
+            this.slowMode = true;
+        }
         await this.getAllNovelData();
         // 获取这个系列的设定资料
         if (this.novelIdList.length > 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta) {
@@ -23774,7 +23818,7 @@ class MergeNovelFileName {
         const extResult = '.' + cfg['{ext}'].value;
         // 截断文件名的时候移除后缀名部分，然后再添加回来，以避免发生截断后缀名的情况
         let part1 = name.split(extResult)[0];
-        part1 = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.lengthLimit(part1, extResult);
+        part1 = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.lengthLimit(part1, extResult, cfg['{series_id}'].value);
         name = part1 + extResult;
         // 返回结果
         return name;
@@ -29938,36 +29982,70 @@ Additional notes: <br>
         'Лимит <span class="key">длины</span> имени файла',
     ],
     _文件名长度限制的说明: [
-        `如果文件名超长，浏览器可能会显示另存为窗口，让用户手动处理。<br>
-    通常你不需要启用这个设置，因为 Windows 上的浏览器通常会自动截断超长的部分。<br>
-    但是在其他操作系统里，或者把文件保存到网络驱动器时，浏览器可能不会自动截断文件名，从而出现另存为窗口。<br>
-    如果你认为有必要，可以启用此设置，下载器会截断文件名里超长的部分。<br>
-    建议设置小于 256 的数字。默认值是 200。`,
-        `如果檔名超長，瀏覽器可能會顯示另存為視窗，讓使用者手動處理。<br>
-    通常你不需要啟用這個設定，因為 Windows 上的瀏覽器通常會自動截斷超長的部分。<br>
-    但是在其他作業系統裡，或者把檔案儲存到網路驅動器時，瀏覽器可能不會自動截斷檔名，從而出現另存為視窗。<br>
-    如果你認為有必要，可以啟用此設定，下載器會截斷檔名裡超長的部分。<br>
-    建議設定小於 256 的數字。預設值是 200。`,
-        `If the file name is too long, the browser may display a Save As window for the user to manually process it. <br>
-Usually you don't need to enable this setting, because browsers on Windows usually automatically truncate the overlong part. <br>
-However, on other operating systems, or when saving files to a network drive, the browser may not automatically truncate the file name, and the Save As window may appear. <br>
-If you think it is necessary, you can enable this setting and the downloader will truncate the overlong part of the file name. <br>
-It is recommended to set a number less than 256, the default value is 200.`,
-        `ファイル名が長すぎる場合、ブラウザはユーザーが手動で処理できるように「名前を付けて保存」ウィンドウを表示することがあります。<br>
-通常、Windows のブラウザは長すぎる部分を自動的に切り捨てるため、この設定を有効にする必要はありません。<br>
-ただし、他のオペレーティングシステムの場合、またはファイルをネットワークドライブに保存する場合、ブラウザはファイル名を自動的に切り捨てず、「名前を付けて保存」ウィンドウが表示されることがあります。<br>
-必要と思われる場合は、この設定を有効にすると、ダウンローダーはファイル名の長すぎる部分を切り捨てます。<br>
-256 未満の数値を設定することをお勧めします。デフォルト値は 200 です。`,
-        `파일 이름이 너무 길면 브라우저에 사용자가 직접 처리할 수 있는 '다른 이름으로 저장' 창이 표시될 수 있습니다. <br>
-일반적으로 Windows 브라우저는 긴 부분을 자동으로 잘라내기 때문에 이 설정을 활성화할 필요가 없습니다. <br>
-하지만 다른 운영 체제에서 파일을 저장하거나 네트워크 드라이브에 저장할 때 브라우저가 파일 이름을 자동으로 자르지 않고 '다른 이름으로 저장' 창이 나타날 수 있습니다. <br>
-필요하다고 생각되면 이 설정을 활성화하여 다운로더가 파일 이름의 긴 부분을 잘라냅니다. <br>
-256보다 작은 값으로 설정하는 것이 좋으며, 기본값은 200입니다.`,
-        `Если имя файла слишком длинное, браузер может отобразить окно «Сохранить как», чтобы пользователь мог вручную обработать его. <br>
-Обычно вам не нужно включать этот параметр, поскольку браузеры в Windows обычно автоматически обрезают слишком длинную часть. <br>
-Однако в других операционных системах или при сохранении файлов на сетевой диск браузер может не автоматически обрезать имя файла, и может появиться окно «Сохранить как». <br>
-Если вы считаете это необходимым, вы можете включить этот параметр, и загрузчик обрежет слишком длинную часть имени файла. <br>
-Рекомендуется устанавливать число меньше 256, значение по умолчанию — 200.`,
+        `如果文件或文件夹的名字超长，浏览器可能无法自动保存文件，并且会显示另存为窗口让用户手动保存。这不仅影响了用户体验，而且如果用户没有及时操作，还会导致下载进度卡住。<br>
+    如果该设置启用，那么下载器会检查文件全名的字数（包含所有的文件夹和文件名），如果字数超出了长度限制，下载器会截断一些字符，让浏览器可以自动保存文件，不再显示另存为窗口。<br>
+    下载器会优先截断文件名，其次截断文件夹的名字（如果有必要的话）。<br>
+    默认值是 220，最大值是 250。不建议设置太大的值。`,
+        `如果檔案或資料夾的名稱超長，瀏覽器可能無法自動儲存檔案，並且會顯示另存為視窗讓使用者手動儲存。這不僅影響了使用者體驗，而且如果使用者沒有及時操作，還會導致下載進度卡住。<br>
+    如果該設定啟用，那麼下載器會檢查檔案全名的字數（包含所有的資料夾和檔名），如果字數超出了長度限制，下載器會截斷一些字元，讓瀏覽器可以自動儲存檔案，不再顯示另存為視窗。<br>
+    下載器會優先截斷檔名，其次截斷資料夾的名字（如果有必要的話）。<br>
+    預設值是 220，最大值是 250。不建議設定太大的值。`,
+        `If the file or folder name is too long, the browser may not be able to save the file automatically and will display a "Save As" dialog for manual saving. This not only affects the user experience, but if the user does not respond in time, it can also cause the download progress to get stuck.<br>
+    If this setting is enabled, the downloader will check the total character count of the full file path (including all folders and the filename). If it exceeds the length limit, the downloader will truncate some characters so the browser can save the file automatically without showing the "Save As" dialog.<br>
+    The downloader prioritizes truncating the filename, and then truncates folder names if necessary.<br>
+    The default value is 220, and the maximum value is 250. It is not recommended to set a value that is too large.`,
+        `ファイルまたはフォルダー名が長すぎる場合、ブラウザがファイルを自動保存できず、「名前を付けて保存」ダイアログが表示されて手動保存が必要になります。これはユーザー体験を損なうだけでなく、ユーザーがすぐに対応しない場合、ダウンロードの進行が止まってしまう可能性もあります。<br>
+    この設定を有効にすると、ダウンロードツールはファイルのフルパス全体の文字数（すべてのフォルダーとファイル名を含む）をチェックし、長さ制限を超えた場合、一部の文字を切り捨ててブラウザが自動保存できるようにします。これにより「名前を付けて保存」ダイアログが表示されなくなります。<br>
+    ダウンロードツールはまずファイル名を優先的に切り捨て、次に必要に応じてフォルダー名を切り捨てます。<br>
+    デフォルト値は 220、最大値は 250 です。あまり大きな値を設定することは推奨されません。`,
+        `파일이나 폴더 이름이 너무 길면 브라우저가 파일을 자동으로 저장하지 못하고 "다른 이름으로 저장" 창을 띄워 수동으로 저장하게 됩니다. 이는 사용자 경험을 저해할 뿐만 아니라, 사용자가 즉시 조작하지 않으면 다운로드 진행이 멈춰버릴 수도 있습니다.<br>
+    이 설정을 활성화하면 다운로더는 파일 전체 경로의 글자 수(모든 폴더와 파일명을 포함)를 확인하고, 길이 제한을 초과할 경우 일부 문자를 잘라내어 브라우저가 자동으로 파일을 저장할 수 있게 합니다. 이렇게 하면 "다른 이름으로 저장" 창이 더 이상 나타나지 않습니다.<br>
+    다운로더는 우선 파일명을 잘라내고, 필요 시 폴더 이름을 잘라냅니다.<br>
+    기본값은 220이며, 최대값은 250입니다. 너무 큰 값을 설정하는 것은 권장하지 않습니다。`,
+        `Если имя файла или папки слишком длинное, браузер может не сохранить файл автоматически и покажет окно «Сохранить как» для ручного сохранения. Это не только ухудшает пользовательский опыт, но и может привести к зависанию прогресса загрузки, если пользователь не отреагирует вовремя.<br>
+    При включении этой настройки загрузчик проверяет общее количество символов в полном пути файла (включая все папки и имя файла). Если оно превышает ограничение, загрузчик усекает часть символов, чтобы браузер смог автоматически сохранить файл без показа окна «Сохранить как».<br>
+    Загрузчик сначала усекает имя файла, а при необходимости — имена папок.<br>
+    Значение по умолчанию — 220, максимальное — 250. Не рекомендуется устанавливать слишком большое значение.`,
+    ],
+    _文件名可能超长的提示: [
+        `一些文件的全名超过了 {} 个字符，但你没有启用“文件名长度限制”。这可能会导致浏览器显示“另存为”窗口，让你手动保存文件。<br>
+    文件名：{}<br>
+    如果你遇到了此问题，可以先暂停下载，然后尝试下面的方法：<br>
+    1. 修改命名规则，移除导致文件名超长的命名标签。这些标签通常是 {tags}、{page_title}，有时它们可能会产生很多字符。<br>
+    2. 启用“文件名长度限制”设置，让下载器截断文件夹或文件的名称，使文件可以正常保存。`,
+        `一些檔案的全名超過了 {} 個字元，但你沒有啟用「檔名長度限制」。這可能會導致瀏覽器顯示「另存為」視窗，讓你手動儲存檔案。<br>
+    檔名：{}<br>
+    如果你遇到了此問題，可以先暫停下載，然後嘗試下面的方法：<br>
+    1. 修改命名規則，移除導致檔名超長的命名標記。這些標記通常是 {tags}、{page_title}，有時它們可能會產生很多字元。<br>
+    2. 啟用「檔名長度限制」設定，讓下載器截斷資料夾或檔案的名稱，使檔案可以正常儲存。`,
+        `Some files have full names exceeding {} characters, but you have not enabled "Filename Length Limit". This may cause the browser to display a "Save As" dialog, requiring you to save the file manually.<br>
+    Filename: {}<br>
+    If you encounter this issue, you can first pause the download and then try the following methods:<br>
+    1. Modify the naming rule and remove naming tags that cause the filename to be too long. These tags are usually {tags}, {page_title}, and sometimes they can generate a lot of characters.<br>
+    2. Enable the "Filename Length Limit" setting so the downloader truncates folder or file names, allowing files to be saved normally.`,
+        `一部のファイルのフルネームが {} 文字を超えていますが、「ファイル名長さ制限」を有効にしていません。これによりブラウザが「名前を付けて保存」ダイアログを表示し、手動で保存する必要が生じる可能性があります。<br>
+    ファイル名：{}<br>
+    この問題に遭遇した場合、まずダウンロードを一時停止してから以下の方法をお試しください：<br>
+    1. 命名ルールを変更し、ファイル名を長くする命名タグを削除してください。これらのタグは通常 {tags}、{page_title} で、場合によっては非常に多くの文字を生成します。<br>
+    2. 「ファイル名長さ制限」設定を有効にすると、ダウンロードツールがフォルダーまたはファイル名を切り詰め、ファイルが正常に保存されるようになります。`,
+        `일부 파일의 전체 이름이 {}자를 초과했지만 "파일 이름 길이 제한"을 활성화하지 않았습니다. 이로 인해 브라우저가 "다른 이름으로 저장" 창을 표시하여 수동으로 파일을 저장해야 할 수 있습니다.<br>
+    파일명: {}<br>
+    이 문제가 발생했다면 먼저 다운로드를 일시 중지한 후 아래 방법을 시도해 보세요:<br>
+    1. 명명 규칙을 수정하여 파일명을 길게 만드는 명명 태그를 제거하세요. 이러한 태그는 보통 {tags}, {page_title}이며 때로는 많은 문자를 생성할 수 있습니다.<br>
+    2. "파일 이름 길이 제한" 설정을 활성화하면 다운로더가 폴더 또는 파일 이름을 잘라내어 파일이 정상적으로 저장되도록 합니다。`,
+        `Некоторые файлы имеют полные имена, превышающие {} символов, но у вас не включена настройка «Ограничение длины имени файла». Это может привести к тому, что браузер покажет окно «Сохранить как», и вам придётся сохранять файл вручную.<br>
+    Имя файла: {}<br>
+    Если вы столкнулись с этой проблемой, сначала приостановите загрузку, а затем попробуйте следующие способы:<br>
+    1. Измените правило именования и удалите теги именования, которые приводят к чрезмерной длине имени файла. Обычно это {tags}, {page_title}, иногда они могут генерировать очень много символов.<br>
+    2. Включите настройку «Ограничение длины имени файла», чтобы загрузчик усечал имена папок или файлов, позволяя сохранять их нормально.`,
+    ],
+    _下载器截断了一些文件名的提示: [
+        `一些文件名的字符数量超过了“文件名长度限制”里的值，所以下载器截断了一些字符。原文件名：{}`,
+        `一些檔名的字元數量超過了「檔名長度限制」裡的值，所以下載器截斷了一些字元。原檔名：{}`,
+        `Some filenames exceeded the value in "Filename Length Limit", so the downloader truncated some characters. Original filename: {}`,
+        `一部のファイル名の文字数が「ファイル名長さ制限」の値を超えたため、ダウンロードツールが一部の文字を切り詰めました。元のファイル名：{}`,
+        `일부 파일명의 글자 수가 "파일 이름 길이 제한" 값보다 초과되어 다운로더가 일부 문자를 잘랐습니다. 원본 파일명: {}`,
+        `Некоторые имена файлов превысили значение в настройке «Ограничение длины имени файла», поэтому загрузчик укоротил некоторые символы. Исходное имя файла: {}`,
     ],
     _标签分隔符号: [
         '标签<span class="key">分隔</span>符号',
@@ -34709,8 +34787,8 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
         `Область журнала по умолчанию <span class="key">видимость</span>`,
     ],
     _日志区域的默认可见性的说明: [
-        `显示当下载器在页面顶部输出日志时，你可以控制日志区域默认显示还是隐藏。`,
-        `顯示當下載器在頁面頂部輸出日誌時，你可以控制日誌區域預設顯示還是隱藏。`,
+        `当下载器在页面顶部输出日志时，你可以控制日志区域默认显示还是隐藏。`,
+        `當下載器在頁面頂部輸出日誌時，你可以控制日誌區域預設顯示還是隱藏。`,
         `When the downloader outputs logs at the top of the page, you can control whether the log area is shown or hidden by default.`,
         `ダウンロードツールがページ上部にログを出力する際、ログ領域のデフォルト表示（表示／非表示）を制御できます。`,
         `다운로더가 페이지 상단에 로그를 출력할 때, 로그 영역의 기본 표시 또는 숨김을 제어할 수 있습니다。`,
@@ -37946,6 +38024,14 @@ class Form {
     showMsgWhenClick() {
         // 过滤搜索页面的作品的说明
         this.form
+            .querySelector('#showPathLengthLimitTip')
+            .addEventListener('click', () => {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_文件名长度限制的说明'), {
+                title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_文件名长度限制'),
+            });
+        });
+        // 过滤搜索页面的作品的说明
+        this.form
             .querySelector('#showFilterSearchResultsTip')
             .addEventListener('click', () => {
             _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_过滤搜索页面的作品的说明'), {
@@ -38835,14 +38921,15 @@ const formHtml = `
       </span>
     </p>
     <p class="option" data-no="29">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(29)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_文件名长度限制的说明">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(29)}" target="_blank" class="settingNameStyle">
         <span data-xztext="_文件名长度限制"></span>
-        <span class="gray1"> ? </span>
       </a>
-      <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
+      <input type="checkbox" name="fullNameLengthLimitSwitch" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
-        <input type="text" name="fileNameLengthLimit" class="setinput_style1 blue" value="200">
+
+      <span class="subOptionWrap" data-show="fullNameLengthLimitSwitch">
+        <input type="text" name="fullNameLengthLimit" class="setinput_style1 blue" value="220">
+      <button type="button" class="gray1 textButton" id="showPathLengthLimitTip" data-xztext="_帮助"></button>
       </span>
     </p>
     <p class="option" data-no="83">
@@ -39635,7 +39722,6 @@ class FormSettings {
             'autoStartDownload',
             'previewResult',
             'deduplication',
-            'fileNameLengthLimitSwitch',
             'bmkAfterDL',
             'userBlockList',
             'removeBlockedUsersWork',
@@ -39705,6 +39791,7 @@ class FormSettings {
             'autoMergeNovel',
             'skipNovelsInSeriesWhenAutoMerge',
             'filterSearchResults',
+            'fullNameLengthLimitSwitch',
         ],
         text: [
             'firstFewImages',
@@ -39723,7 +39810,6 @@ class FormSettings {
             'sizeMin',
             'sizeMax',
             'downloadThread',
-            'fileNameLengthLimit',
             'dateFormat',
             'tagsSeparator',
             'bgOpacity',
@@ -39741,6 +39827,7 @@ class FormSettings {
             'downloadIntervalOnWorksNumber',
             'copyWorkInfoFormat',
             'crawlLatestFewWorksNumber',
+            'fullNameLengthLimit',
         ],
         radio: [
             'ugoiraSaveAs',
@@ -39906,6 +39993,9 @@ class FormSettings {
     // 恢复值为 string 的设置项
     restoreString(name) {
         if (_Settings__WEBPACK_IMPORTED_MODULE_1__.settings[name] !== undefined) {
+            // if (this.form[name] === undefined) {
+            //   console.log(name)
+            // }
             this.form[name].value = _Settings__WEBPACK_IMPORTED_MODULE_1__.settings[name].toString();
         }
     }
@@ -40846,9 +40936,10 @@ class Settings {
         saveNovelMeta: true,
         deduplication: false,
         dupliStrategy: 'loose',
-        fileNameLengthLimitSwitch: false,
         tagsSeparator: ',',
-        fileNameLengthLimit: 200,
+        fullNameLengthLimitSwitch: true,
+        /** 完整文件名（包含文件夹、文件名、扩展名）的长度限制，默认值是 220 */
+        fullNameLengthLimit: 220,
         imageSize: 'original',
         dateFormat: 'YYYY-MM-DD',
         userSetLang: 'auto',
@@ -41259,8 +41350,15 @@ class Settings {
         if (key === 'firstFewImages' && value < 1) {
             value = this.defaultSettings[key];
         }
-        if (key === 'fileNameLengthLimit' && value < 1) {
-            value = this.defaultSettings[key];
+        if (key === 'fullNameLengthLimit') {
+            // 考虑到 id 的长度已经达到了十几位，所以不允许设置小于 20 的值
+            if (value < 20) {
+                value = this.defaultSettings[key];
+            }
+            // 虽然理论上限是 256 个字符，但是盘符、路径符号、以及浏览器下载目录都会占据长度，所以实际上限制在 250
+            if (value > 250) {
+                value = 250;
+            }
         }
         if (key === 'crawlLatestFewWorksNumber' && value < 1) {
             value = 1;

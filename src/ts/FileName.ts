@@ -7,6 +7,8 @@ import { Config } from './Config'
 import { DateFormat } from './utils/DateFormat'
 import { Utils } from './utils/Utils'
 import { Tools } from './Tools'
+import { log } from './Log'
+import { lang } from './Language'
 
 // 生成文件名
 class FileName {
@@ -332,7 +334,7 @@ class FileName {
     }
 
     // 7 处理文件名长度限制
-    result = this.lengthLimit(result, extResult)
+    result = this.lengthLimit(result, extResult, cfg['{id}'].value)
 
     // 8 添加后缀名
     result += extResult
@@ -529,23 +531,76 @@ class FileName {
     return result
   }
 
-  /** 处理文件名长度限制 */
-  // 不计算文件夹的长度，只计算 文件名+后缀名 部分
-  // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
-  public lengthLimit(result: string, ext: string) {
-    const extLength = ext.length
-    if (settings.fileNameLengthLimitSwitch) {
-      let limit = settings.fileNameLengthLimit
-      const allPart = result.split('/')
-      const lastIndex = allPart.length - 1
+  /** 处理文件名长度限制
+   * @param result 全路径，但不包含扩展名
+   * @param ext 扩展名，包含 .，例如 '.jpg'
+   * @param id 文件名里必须包含的具有唯一性的字符。如果文件名被截断，那么它必然会包含 id，以避免文件名重复
+   */
+  public lengthLimit(result: string, ext: string, id: string) {
+    const fullName = result + ext
+    let excess = fullName.length - settings.fullNameLengthLimit
 
-      if (allPart[lastIndex].length + extLength > limit) {
-        const subString = allPart[lastIndex].substring(0, limit - extLength)
-        allPart[lastIndex] = subString.trim()
+    if (excess <= 0) {
+      return result
+    }
+
+    // 文件名超长
+    if (!settings.fullNameLengthLimitSwitch) {
+      // 如果用户未启用此设置，则显示提示
+      log.warning(
+        lang.transl(
+          '_文件名可能超长的提示',
+          settings.fullNameLengthLimit.toString(),
+          fullName
+        ),
+        1,
+        false,
+        'tipFullNameTooLong'
+      )
+      return result
+    }
+
+    // 开始截断
+    // 倒序遍历每一项
+    // 优先截断文件名，这是为了尽量保留文件夹的名字完整。因为截断文件夹名字的话，可能会导致一个文件夹产生多个长度不同的版本，导致生成多个不同文件夹，用户体验很差
+    // 如果必须截断文件夹名字，那么优先截断内层文件夹，这样可以尽量保持外层文件夹的完整。因为一旦外层文件夹被截断，那么它就成了一个分歧点，其后的文件夹都在它里面。为了避免文件变得非常散乱，必须尽量保持外层文件夹的完整
+    const allPart = result.split('/')
+    const lastIndex = allPart.length - 1
+    for (let i = lastIndex; i >= 0; i--) {
+      if (excess <= 0) {
+        break
       }
 
+      if (i === lastIndex) {
+        // 截断文件名，但最少保留 id 的长度
+        const fileName = allPart[i]
+        const subLength = Math.max(fileName.length - excess, id.length)
+        let subString = fileName.substring(0, subLength).trim()
+        // 如果文件名截断之后没有包含 id（可能是因为 id 被部分或全部截断了），则把它重设为 id
+        if (id && subString.includes(id) === false) {
+          subString = id
+          // 显示提示
+        }
+        allPart[i] = subString
+      } else {
+        // 截断文件夹的名字，但至少保留 20 个字符
+        const subLength = Math.max(allPart[i].length - excess, 20)
+        allPart[i] = allPart[i].substring(0, subLength).trim()
+      }
+
+      // 每次遍历都可能会修改当前项的内容， 所以需要重新计算超出的长度
       result = allPart.join('/')
+      excess = result.length + ext.length - settings.fullNameLengthLimit
     }
+
+    // 如果处理过后依然超长，那就是极端情况了，暂不处理，因为我也没有更好的方法
+    log.warning(
+      lang.transl('_下载器截断了一些文件名的提示', fullName),
+      1,
+      false,
+      'tipTruncatedFullName'
+    )
+
     return result
   }
 }

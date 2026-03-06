@@ -54,9 +54,7 @@ export interface SettingsForm extends HTMLFormElement {
   saveNovelMeta: HTMLInputElement
   deduplication: HTMLInputElement
   dupliStrategy: RadioNodeList
-  fileNameLengthLimitSwitch: HTMLInputElement
   tagsSeparator: HTMLInputElement
-  fileNameLengthLimit: HTMLInputElement
   imageSize: RadioNodeList
   dateFormat: HTMLInputElement
   userSetLang: RadioNodeList
@@ -169,4 +167,6 @@ export interface SettingsForm extends HTMLFormElement {
   seriesNovelNameRule: HTMLInputElement
   filterSearchResults: HTMLInputElement
   logVisibleDefault: HTMLInputElement
+  fullNameLengthLimitSwitch: HTMLInputElement
+  fullNameLengthLimit: HTMLInputElement
 }

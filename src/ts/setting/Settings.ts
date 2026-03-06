@@ -153,9 +153,9 @@ interface XzSetting {
   saveNovelMeta: boolean
   deduplication: boolean
   dupliStrategy: 'strict' | 'loose'
-  fileNameLengthLimitSwitch: boolean
   tagsSeparator: ',' | '#' | '^' | '&' | '_'
-  fileNameLengthLimit: number
+  fullNameLengthLimitSwitch: boolean
+  fullNameLengthLimit: number
   /** 图片尺寸。original 原图, regular 普通, small 小图, thumb 方形缩略图 */
   imageSize: 'original' | 'regular' | 'small' | 'thumb'
   dateFormat: string
@@ -620,9 +620,10 @@ class Settings {
     saveNovelMeta: true,
     deduplication: false,
     dupliStrategy: 'loose',
-    fileNameLengthLimitSwitch: false,
     tagsSeparator: ',',
-    fileNameLengthLimit: 200,
+    fullNameLengthLimitSwitch: true,
+    /** 完整文件名（包含文件夹、文件名、扩展名）的长度限制，默认值是 220 */
+    fullNameLengthLimit: 220,
     imageSize: 'original',
     dateFormat: 'YYYY-MM-DD',
     userSetLang: 'auto',
@@ -1076,8 +1077,15 @@ class Settings {
       value = this.defaultSettings[key]
     }
 
-    if (key === 'fileNameLengthLimit' && (value as number) < 1) {
-      value = this.defaultSettings[key]
+    if (key === 'fullNameLengthLimit') {
+      // 考虑到 id 的长度已经达到了十几位，所以不允许设置小于 20 的值
+      if ((value as number) < 20) {
+        value = this.defaultSettings[key]
+      }
+      // 虽然理论上限是 256 个字符，但是盘符、路径符号、以及浏览器下载目录都会占据长度，所以实际上限制在 250
+      if ((value as number) > 250) {
+        value = 250
+      }
     }
 
     if (key === 'crawlLatestFewWorksNumber' && (value as number) < 1) {

@@ -142,7 +142,7 @@ class MergeNovelFileName {
     const extResult = '.' + cfg['{ext}'].value
     // 截断文件名的时候移除后缀名部分，然后再添加回来，以避免发生截断后缀名的情况
     let part1 = name.split(extResult)[0]
-    part1 = fileName.lengthLimit(part1, extResult)
+    part1 = fileName.lengthLimit(part1, extResult, cfg['{series_id}'].value)
     name = part1 + extResult
 
     // 返回结果

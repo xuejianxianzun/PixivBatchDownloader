@@ -215,6 +215,15 @@ class Form {
   private showMsgWhenClick() {
     // 过滤搜索页面的作品的说明
     this.form
+      .querySelector('#showPathLengthLimitTip')!
+      .addEventListener('click', () => {
+        msgBox.show(lang.transl('_文件名长度限制的说明'), {
+          title: lang.transl('_文件名长度限制'),
+        })
+      })
+
+    // 过滤搜索页面的作品的说明
+    this.form
       .querySelector('#showFilterSearchResultsTip')!
       .addEventListener('click', () => {
         msgBox.show(lang.transl('_过滤搜索页面的作品的说明'), {

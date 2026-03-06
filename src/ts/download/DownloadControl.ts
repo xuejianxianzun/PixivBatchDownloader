@@ -140,6 +140,7 @@ class DownloadControl {
     })
 
     // 如果下载器让浏览器保存文件到本地，但是之后没有收到回应（不知道文件是否有成功保存），这会导致下载进度卡住
+    // 常见原因：浏览器显示了另存为窗口，但用户一直没有处理（即另存为窗口一直显示），所以浏览器不会告诉下载器文件的保存结果，导致等待超时
     window.addEventListener(EVT.list.sendBrowserDownload, () => {
       window.clearTimeout(this.checkDownloadTimeoutTimer)
       this.checkDownloadTimeoutTimer = window.setTimeout(() => {
@@ -148,7 +149,7 @@ class DownloadControl {
           '<br>' +
           lang.transl('_下载卡住的提示')
         log.warning(msg, 1, false, 'mayError')
-      }, 30000)
+      }, 300000)
     })
 
     const clearDownloadTimeoutTimerList = [
