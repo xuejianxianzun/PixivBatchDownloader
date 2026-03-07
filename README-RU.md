@@ -59,7 +59,7 @@
 
 # Онлайн-установка
 
-Браузеры с ядром Chromium, такие как Chrome и Edge, могут установить это расширение из **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**.
+Браузеры с ядром Chromium, такие как Chrome и Edge, могут установить это расширение из **[Chrome Web Store](https://chromewebstore.google.com/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**.
 
 Браузеры Firefox могут установить это расширение из **[Add-Ons](https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/)**.
 

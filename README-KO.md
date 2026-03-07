@@ -60,7 +60,7 @@
 
 # 온라인 설치
 
-Chrome, Edge 등 Chromium 코어 브라우저는 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 에서 이 확장 프로그램을 설치할 수 있습니다.
+Chrome, Edge 등 Chromium 코어 브라우저는 **[Chrome Web Store](https://chromewebstore.google.com/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 에서 이 확장 프로그램을 설치할 수 있습니다.
 
 Firefox 브라우저는 **[Add-Ons](https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/)** 에서 이 확장 프로그램을 설치할 수 있습니다.
 

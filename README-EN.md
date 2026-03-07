@@ -60,7 +60,7 @@ This is a browser extension that lets you download images and novels from Pixiv 
 
 # Online Installation
 
-Browsers with Chromium core, such as Chrome and Edge, can install this extension from the **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**.
+Browsers with Chromium core, such as Chrome and Edge, can install this extension from the **[Chrome Web Store](https://chromewebstore.google.com/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**.
 
 Firefox browsers can install this extension from **[Add-Ons](https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/)**.
 

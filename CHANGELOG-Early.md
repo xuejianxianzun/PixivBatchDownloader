@@ -197,7 +197,7 @@ Uncaught (in promise) Error: Could not establish connection. Receiving end does 
 由于 Edge 审核速度太慢（通常需要一周以上），并且这次重要更新（14.2.0版本）审核失败了，所以我已将这个扩展程序从 Edge 扩展商店下架。
 
 如果你的 Powerful Pixiv Downloader 是从 Edge 外接程序安装的，你可以先卸载它，然后从 Chrome Web Store 安装：
-https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh
+https://chromewebstore.google.com/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh
 
 如果你需要备份 Powerful Pixiv Downloader 的一些数据，请参照以下步骤。（非必须，如果你不需要备份数据请忽略）
 

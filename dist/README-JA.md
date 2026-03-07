@@ -60,7 +60,7 @@ Powerful Pixiv Downloaderは画像や小説を一括ダウンロード出来る*
 
 # オンラインインストール
 
-Chrome、EdgeなどのChromiumコアのブラウザは、**[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** からこの拡張機能をインストールできます。
+Chrome、EdgeなどのChromiumコアのブラウザは、**[Chrome Web Store](https://chromewebstore.google.com/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** からこの拡張機能をインストールできます。
 
 Firefoxブラウザは、**[Add-Ons](https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/)** からこの拡張機能をインストールできます。
 

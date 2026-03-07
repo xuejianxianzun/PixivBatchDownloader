@@ -62,7 +62,7 @@
 
 # 線上安裝
 
-Chrome、Edge 等 Chromium 內核的瀏覽器可從 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 安裝本擴展。
+Chrome、Edge 等 Chromium 內核的瀏覽器可從 **[Chrome Web Store](https://chromewebstore.google.com/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 安裝本擴展。
 
 Firefox 瀏覽器可從 **[Add-Ons](https://addons.mozilla.org/firefox/addon/powerfulpixivdownloader/)** 安裝本擴展。
 
