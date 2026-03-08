@@ -721,7 +721,7 @@ export const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
 
       <span class="subOptionWrap" data-show="fullNameLengthLimitSwitch">
-        <input type="text" name="fullNameLengthLimit" class="setinput_style1 blue" value="220">
+        <input type="text" name="fullNameLengthLimit" class="setinput_style1 blue" value="210">
       <button type="button" class="gray1 textButton" id="showPathLengthLimitTip" data-xztext="_帮助"></button>
       </span>
     </p>

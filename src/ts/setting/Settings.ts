@@ -622,8 +622,8 @@ class Settings {
     dupliStrategy: 'loose',
     tagsSeparator: ',',
     fullNameLengthLimitSwitch: true,
-    /** 完整文件名（包含文件夹、文件名、扩展名）的长度限制，默认值是 220 */
-    fullNameLengthLimit: 220,
+    /** 完整文件名（包含文件夹、文件名、扩展名）的长度限制 */
+    fullNameLengthLimit: 210,
     imageSize: 'original',
     dateFormat: 'YYYY-MM-DD',
     userSetLang: 'auto',

@@ -4114,8 +4114,13 @@ class FileName {
         result = paths.join('/');
         return result;
     }
+    // 文件名超长的一种测试情况：
+    // https://www.pixiv.net/search?q=%E3%83%AB%E3%82%B7%E3%82%A2%20-%E3%83%AB%E3%83%BC%E3%82%B7%E3%83%BC%28%E3%82%A8%E3%83%83%E3%82%B8%E3%83%A9%E3%83%B3%E3%83%8A%E3%83%BC%E3%82%BA%29%20-Cyberpunk%20-Edgerunners%20-%E3%82%B5%E3%82%A4%E3%83%90%E3%83%BC%E3%83%91%E3%83%B3%E3%82%AF2077%20-%E3%82%A8%E3%83%83%E3%82%B8%E3%83%A9%E3%83%B3%E3%83%8A%E3%83%BC%E3%82%BA%20-CyberpunkEdgerunners%20-%E3%82%B5%E3%82%A4%E3%83%90%E3%83%BC%E3%83%91%E3%83%B3%E3%82%AF%20-%E3%83%AB%E3%83%BC%E3%82%B7%E3%82%A3%E3%83%BB%E3%83%8F%E3%83%BC%E3%83%88%E3%83%95%E3%82%A3%E3%83%AA%E3%82%A2%20-%E3%83%95%E3%82%A7%E3%82%A2%E3%83%AA%E3%83%BC%E3%83%86%E3%82%A4%E3%83%AB%20-FAIRYTAIL%20-Fairy_Tail%20-Lucy_Loud%20-LucyLoud%20-%E3%83%A9%E3%82%A6%E3%83%89%E3%83%8F%E3%82%A6%E3%82%B9%20-The_Loud_House%20-theloudhouse%20-ElfenLied%20-Elfen_Lied%20-%E3%82%A8%E3%83%AB%E3%83%95%E3%82%A7%E3%83%B3%E3%83%AA%E3%83%BC%E3%83%88%20-VirtualYoutuber&s_mode=tag&type=artwork&ai_type=1
+    // 这是一个用户报告的问题，他搜索的标签列表非常长（因为排除了很多标签）：
+    // ルシア -ルーシー(エッジランナーズ) -Cyberpunk -Edgerunners -サイバーパンク2077 -エッジランナーズ -CyberpunkEdgerunners -サイバーパンク -ルーシィ・ハートフィリア -フェアリーテイル -FAIRYTAIL -Fairy_Tail -Lucy_Loud -LucyLoud -ラウドハウス -The_Loud_House -theloudhouse -ElfenLied -Elfen_Lied -エルフェンリート -VirtualYoutuber
+    // 这导致单个 {tags}、{page_title} 标签就会导致文件夹或文件名超长。
     /** 处理文件名长度限制
-     * @param result 全路径，但不包含扩展名
+     * @param result 全路径（包含所有文件夹、斜线、文件名），但不包含扩展名
      * @param ext 扩展名，包含 .，例如 '.jpg'
      * @param id 文件名里必须包含的具有唯一性的字符。如果文件名被截断，那么它必然会包含 id，以避免文件名重复
      */
@@ -4141,29 +4146,44 @@ class FileName {
             if (excess <= 0) {
                 break;
             }
-            if (i === lastIndex) {
+            if (i === lastIndex && allPart[i].length > id.length) {
                 // 截断文件名，但最少保留 id 的长度
-                const fileName = allPart[i];
-                const subLength = Math.max(fileName.length - excess, id.length);
-                let subString = fileName.substring(0, subLength).trim();
+                const end = Math.max(allPart[i].length - excess, id.length);
+                let subString = allPart[i].substring(0, end).trim();
                 // 如果文件名截断之后没有包含 id（可能是因为 id 被部分或全部截断了），则把它重设为 id
                 if (id && subString.includes(id) === false) {
                     subString = id;
-                    // 显示提示
                 }
-                allPart[i] = subString;
+                // 在文件名末尾添加省略号告诉用户这里被截断了。使用 … 而非三个点 ...，因为 ... 不能用在路径结尾，会导致文件名不合法
+                allPart[i] = subString + '…';
             }
             else {
-                // 截断文件夹的名字，但至少保留 20 个字符
-                const subLength = Math.max(allPart[i].length - excess, 20);
-                allPart[i] = allPart[i].substring(0, subLength).trim();
+                // 截断文件夹的名字，但至少保留 25 个字符
+                // 使用这个数字是因为一些较短的文件夹名字可能小于这个字数，不会被截断
+                // 例如默认的命名规则 pixiv/{user}-{user_id}/{id}-{title} 里，{user}-{user_id} 几乎不会超过 25 个字符
+                // PS：fullNameLengthLimit 的默认值是 210。首先选择 25 的倍数 200，然后加上一些余量（因为路径分割符号 / 需要占据 1 个字符长度）
+                const minLength = 25;
+                if (allPart[i].length > minLength) {
+                    // 计算截断的终点位置，并向下舍入到 minLength 的整倍数
+                    // 假设原本的终点位置是 46，它会被调整到 25
+                    // 这是为了尽量避免一些文件夹长度的微小差别导致产生多个不同文件夹的问题
+                    // 例如对于文件路径：A/B/C.jpg，如果路径 B 的字数较少且不固定（可能在 8 - 25 之间浮动），它不会被截断
+                    // 之后需要截断 A 的时候，A 的终点位置会被 B 影响，产生许多不同长度的文件夹
+                    // 所以我使用 minLength 的倍数作为阈值，截断后的文件夹长度会是 25、50、75...，只会有几种不同长度
+                    // 另外，这个处理会导致下载器截断的字符数量比理论需要的更多，所以最后保留的字数通常会小于限制值
+                    let end = Math.max(allPart[i].length - excess, minLength);
+                    // 调整为 minLength 的倍数，并减去省略号的 1 个长度
+                    end = end - (end % minLength) - 1 - 1;
+                    allPart[i] = allPart[i].substring(0, end).trim() + '…';
+                }
             }
             // 每次遍历都可能会修改当前项的内容， 所以需要重新计算超出的长度
             result = allPart.join('/');
             excess = result.length + ext.length - _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.fullNameLengthLimit;
         }
-        // 如果处理过后依然超长，那就是极端情况了，暂不处理，因为我也没有更好的方法
         _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_9__.lang.transl('_下载器截断了一些文件名的提示', fullName), 1, false, 'tipTruncatedFullName');
+        // 如果处理过后依然超长，那就是极端情况了，暂不处理，因为我也没有更好的方法
+        // console.log(result.length)
         return result;
     }
 }
@@ -29982,30 +30002,30 @@ Additional notes: <br>
         'Лимит <span class="key">длины</span> имени файла',
     ],
     _文件名长度限制的说明: [
-        `如果文件或文件夹的名字超长，浏览器可能无法自动保存文件，并且会显示另存为窗口让用户手动保存。这不仅影响了用户体验，而且如果用户没有及时操作，还会导致下载进度卡住。<br>
-    如果该设置启用，那么下载器会检查文件全名的字数（包含所有的文件夹和文件名），如果字数超出了长度限制，下载器会截断一些字符，让浏览器可以自动保存文件，不再显示另存为窗口。<br>
-    下载器会优先截断文件名，其次截断文件夹的名字（如果有必要的话）。<br>
-    默认值是 220，最大值是 250。不建议设置太大的值。`,
-        `如果檔案或資料夾的名稱超長，瀏覽器可能無法自動儲存檔案，並且會顯示另存為視窗讓使用者手動儲存。這不僅影響了使用者體驗，而且如果使用者沒有及時操作，還會導致下載進度卡住。<br>
-    如果該設定啟用，那麼下載器會檢查檔案全名的字數（包含所有的資料夾和檔名），如果字數超出了長度限制，下載器會截斷一些字元，讓瀏覽器可以自動儲存檔案，不再顯示另存為視窗。<br>
-    下載器會優先截斷檔名，其次截斷資料夾的名字（如果有必要的話）。<br>
-    預設值是 220，最大值是 250。不建議設定太大的值。`,
-        `If the file or folder name is too long, the browser may not be able to save the file automatically and will display a "Save As" dialog for manual saving. This not only affects the user experience, but if the user does not respond in time, it can also cause the download progress to get stuck.<br>
-    If this setting is enabled, the downloader will check the total character count of the full file path (including all folders and the filename). If it exceeds the length limit, the downloader will truncate some characters so the browser can save the file automatically without showing the "Save As" dialog.<br>
-    The downloader prioritizes truncating the filename, and then truncates folder names if necessary.<br>
-    The default value is 220, and the maximum value is 250. It is not recommended to set a value that is too large.`,
-        `ファイルまたはフォルダー名が長すぎる場合、ブラウザがファイルを自動保存できず、「名前を付けて保存」ダイアログが表示されて手動保存が必要になります。これはユーザー体験を損なうだけでなく、ユーザーがすぐに対応しない場合、ダウンロードの進行が止まってしまう可能性もあります。<br>
+        `如果文件或文件夹的名字超长，浏览器可能无法自动保存文件，并且会显示另存为窗口让用户手动保存。这不仅影响了用户体验，而且如果用户没有及时操作，还会导致下载进度卡住。<br><br>
+    启用这个设置之后，下载器会检查文件全名的字数（包含所有的文件夹和文件名），如果字数超出了长度限制，下载器会截断一些字符，让浏览器可以自动保存文件，不再显示另存为窗口。<br>
+    下载器会优先截断文件名，其次截断文件夹的名字（如果有必要的话）。<br><br>
+    默认值是 210，最大值是 250。不建议设置太大的值。<br>有时 210 可能依然太大，如果你遇到了问题，可以减小这个值。`,
+        `如果檔案或資料夾的名稱超長，瀏覽器可能無法自動儲存檔案，並且會顯示另存為視窗讓使用者手動儲存。這不僅影響了使用者體驗，而且如果使用者沒有及時操作，還會導致下載進度卡住。<br><br>
+    啟用這個設定之後，下載器會檢查檔案全名的字數（包含所有的資料夾和檔名），如果字數超出了長度限制，下載器會截斷一些字元，讓瀏覽器可以自動儲存檔案，不再顯示另存為視窗。<br>
+    下載器會優先截斷檔名，其次截斷資料夾的名字（如果有必要的話）。<br><br>
+    預設值是 210，最大值是 250。不建議設定太大的值。<br>有時 210 可能依然太大，如果你遇到了問題，可以減小這個值。`,
+        `If the file or folder name is too long, the browser may fail to save the file automatically and will display a "Save As" dialog for manual saving. This not only affects user experience, but if the user does not respond promptly, it can also cause the download progress to stall.<br><br>
+    After enabling this setting, the downloader will check the total character count of the full file path (including all folders and the filename). If it exceeds the length limit, the downloader will truncate some characters so the browser can automatically save the file without showing the "Save As" dialog.<br>
+    The downloader prioritizes truncating the filename first, then truncates folder names if necessary.<br><br>
+    The default value is 210, and the maximum value is 250. It is not recommended to set a value that is too large.<br>Sometimes 210 may still be too big; if you encounter issues, you can reduce this value.`,
+        `ファイルまたはフォルダー名が長すぎる場合、ブラウザがファイルを自動保存できず、「名前を付けて保存」ダイアログが表示され、手動保存が必要になります。これはユーザー体験を損なうだけでなく、ユーザーがすぐに対応しない場合、ダウンロードの進行が止まってしまう可能性もあります。<br><br>
     この設定を有効にすると、ダウンロードツールはファイルのフルパス全体の文字数（すべてのフォルダーとファイル名を含む）をチェックし、長さ制限を超えた場合、一部の文字を切り捨ててブラウザが自動保存できるようにします。これにより「名前を付けて保存」ダイアログが表示されなくなります。<br>
-    ダウンロードツールはまずファイル名を優先的に切り捨て、次に必要に応じてフォルダー名を切り捨てます。<br>
-    デフォルト値は 220、最大値は 250 です。あまり大きな値を設定することは推奨されません。`,
-        `파일이나 폴더 이름이 너무 길면 브라우저가 파일을 자동으로 저장하지 못하고 "다른 이름으로 저장" 창을 띄워 수동으로 저장하게 됩니다. 이는 사용자 경험을 저해할 뿐만 아니라, 사용자가 즉시 조작하지 않으면 다운로드 진행이 멈춰버릴 수도 있습니다.<br>
-    이 설정을 활성화하면 다운로더는 파일 전체 경로의 글자 수(모든 폴더와 파일명을 포함)를 확인하고, 길이 제한을 초과할 경우 일부 문자를 잘라내어 브라우저가 자동으로 파일을 저장할 수 있게 합니다. 이렇게 하면 "다른 이름으로 저장" 창이 더 이상 나타나지 않습니다.<br>
-    다운로더는 우선 파일명을 잘라내고, 필요 시 폴더 이름을 잘라냅니다.<br>
-    기본값은 220이며, 최대값은 250입니다. 너무 큰 값을 설정하는 것은 권장하지 않습니다。`,
-        `Если имя файла или папки слишком длинное, браузер может не сохранить файл автоматически и покажет окно «Сохранить как» для ручного сохранения. Это не только ухудшает пользовательский опыт, но и может привести к зависанию прогресса загрузки, если пользователь не отреагирует вовремя.<br>
-    При включении этой настройки загрузчик проверяет общее количество символов в полном пути файла (включая все папки и имя файла). Если оно превышает ограничение, загрузчик усекает часть символов, чтобы браузер смог автоматически сохранить файл без показа окна «Сохранить как».<br>
-    Загрузчик сначала усекает имя файла, а при необходимости — имена папок.<br>
-    Значение по умолчанию — 220, максимальное — 250. Не рекомендуется устанавливать слишком большое значение.`,
+    ダウンロードツールはまずファイル名を優先的に切り捨て、次に必要に応じてフォルダー名を切り捨てます。<br><br>
+    デフォルト値は 210、最大値は 250 です。あまり大きな値を設定することは推奨されません。<br>210 でもまだ大きい場合があるため、問題が発生した場合は値を小さくしてください。`,
+        `파일이나 폴더 이름이 너무 길면 브라우저가 파일을 자동으로 저장하지 못하고 "다른 이름으로 저장" 창을 띄워 수동 저장을 요구합니다. 이는 사용자 경험을 저해할 뿐만 아니라 사용자가 즉시 대응하지 않으면 다운로드 진행이 멈출 수도 있습니다.<br><br>
+    이 설정을 활성화하면 다운로더는 파일 전체 경로의 글자 수(모든 폴더와 파일명을 포함)를 확인하고, 길이 제한을 초과할 경우 일부 문자를 잘라내어 브라우저가 자동으로 파일을 저장할 수 있게 합니다. 이렇게 하면 "다른 이름으로 저장" 창이 나타나지 않습니다.<br>
+    다운로더는 우선 파일명을 잘라내고, 필요 시 폴더 이름을 잘라냅니다.<br><br>
+    기본값은 210이며, 최대값은 250입니다. 너무 큰 값을 설정하는 것은 권장하지 않습니다.<br>때때로 210도 여전히 클 수 있으니 문제가 발생하면 이 값을 줄여보세요。`,
+        `Если имя файла или папки слишком длинное, браузер может не сохранить файл автоматически и покажет окно «Сохранить как» для ручного сохранения. Это не только ухудшает пользовательский опыт, но и может привести к зависанию прогресса загрузки, если пользователь не отреагирует вовремя.<br><br>
+    После включения этой настройки загрузчик проверяет общее количество символов в полном пути файла (включая все папки и имя файла). Если оно превышает ограничение, загрузчик усекает часть символов, чтобы браузер смог автоматически сохранить файл без показа окна «Сохранить как».<br>
+    Загрузчик сначала усекает имя файла, а при необходимости — имена папок.<br><br>
+    Значение по умолчанию — 210, максимальное — 250. Не рекомендуется устанавливать слишком большое значение.<br>Иногда даже 210 может быть слишком большим; если возникнут проблемы, уменьшите это значение.`,
     ],
     _文件名可能超长的提示: [
         `一些文件的全名超过了 {} 个字符，但你没有启用“文件名长度限制”。这可能会导致浏览器显示“另存为”窗口，让你手动保存文件。<br>
@@ -38928,7 +38948,7 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
 
       <span class="subOptionWrap" data-show="fullNameLengthLimitSwitch">
-        <input type="text" name="fullNameLengthLimit" class="setinput_style1 blue" value="220">
+        <input type="text" name="fullNameLengthLimit" class="setinput_style1 blue" value="210">
       <button type="button" class="gray1 textButton" id="showPathLengthLimitTip" data-xztext="_帮助"></button>
       </span>
     </p>
@@ -40938,8 +40958,8 @@ class Settings {
         dupliStrategy: 'loose',
         tagsSeparator: ',',
         fullNameLengthLimitSwitch: true,
-        /** 完整文件名（包含文件夹、文件名、扩展名）的长度限制，默认值是 220 */
-        fullNameLengthLimit: 220,
+        /** 完整文件名（包含文件夹、文件名、扩展名）的长度限制 */
+        fullNameLengthLimit: 210,
         imageSize: 'original',
         dateFormat: 'YYYY-MM-DD',
         userSetLang: 'auto',
