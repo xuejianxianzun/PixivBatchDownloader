@@ -1685,6 +1685,9 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 '._module-carousel-container>div',
                 // 首页-插画-瞩目的企划目录里的作品
                 'li[size="1"]',
+                // 新版首页里的推荐作品，很奇怪，直接打开首页时是第一种选择器，切换到其他分类再切换回来是第二种选择器
+                'div[style="width:184px"]',
+                'div[style="width: 184px;"]',
             ];
             // div[data-ga4-entity-id^="illust"]>div:nth-child(2) 匹配新版首页的插画作品区域
             // 即显示在页面左半边的作品缩略图。它们的元素里含有此类特征：
@@ -1756,6 +1759,8 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
             }
             // 这些选择器只在新版首页使用
             if ((selector === 'li>div>div>div:first-child' ||
+                selector === 'div[style="width:184px"]' ||
+                selector === 'div[style="width: 184px;"]' ||
                 selector === 'div[data-ga4-entity-id^="illust"]>div:nth-child(2)' ||
                 selector === 'div[data-ga4-entity-id^="manga"]>div:nth-child(2)') &&
                 _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Home) {
@@ -4118,7 +4123,7 @@ class FileName {
     // https://www.pixiv.net/search?q=%E3%83%AB%E3%82%B7%E3%82%A2%20-%E3%83%AB%E3%83%BC%E3%82%B7%E3%83%BC%28%E3%82%A8%E3%83%83%E3%82%B8%E3%83%A9%E3%83%B3%E3%83%8A%E3%83%BC%E3%82%BA%29%20-Cyberpunk%20-Edgerunners%20-%E3%82%B5%E3%82%A4%E3%83%90%E3%83%BC%E3%83%91%E3%83%B3%E3%82%AF2077%20-%E3%82%A8%E3%83%83%E3%82%B8%E3%83%A9%E3%83%B3%E3%83%8A%E3%83%BC%E3%82%BA%20-CyberpunkEdgerunners%20-%E3%82%B5%E3%82%A4%E3%83%90%E3%83%BC%E3%83%91%E3%83%B3%E3%82%AF%20-%E3%83%AB%E3%83%BC%E3%82%B7%E3%82%A3%E3%83%BB%E3%83%8F%E3%83%BC%E3%83%88%E3%83%95%E3%82%A3%E3%83%AA%E3%82%A2%20-%E3%83%95%E3%82%A7%E3%82%A2%E3%83%AA%E3%83%BC%E3%83%86%E3%82%A4%E3%83%AB%20-FAIRYTAIL%20-Fairy_Tail%20-Lucy_Loud%20-LucyLoud%20-%E3%83%A9%E3%82%A6%E3%83%89%E3%83%8F%E3%82%A6%E3%82%B9%20-The_Loud_House%20-theloudhouse%20-ElfenLied%20-Elfen_Lied%20-%E3%82%A8%E3%83%AB%E3%83%95%E3%82%A7%E3%83%B3%E3%83%AA%E3%83%BC%E3%83%88%20-VirtualYoutuber&s_mode=tag&type=artwork&ai_type=1
     // 这是一个用户报告的问题，他搜索的标签列表非常长（因为排除了很多标签）：
     // ルシア -ルーシー(エッジランナーズ) -Cyberpunk -Edgerunners -サイバーパンク2077 -エッジランナーズ -CyberpunkEdgerunners -サイバーパンク -ルーシィ・ハートフィリア -フェアリーテイル -FAIRYTAIL -Fairy_Tail -Lucy_Loud -LucyLoud -ラウドハウス -The_Loud_House -theloudhouse -ElfenLied -Elfen_Lied -エルフェンリート -VirtualYoutuber
-    // 这导致单个 {tags}、{page_title} 标签就会导致文件夹或文件名超长。
+    // 这导致单个 {page_tag}、{page_title}、{tags} 标签就会导致文件夹或文件名超长。
     /** 处理文件名长度限制
      * @param result 全路径（包含所有文件夹、斜线、文件名），但不包含扩展名
      * @param ext 扩展名，包含 .，例如 '.jpg'

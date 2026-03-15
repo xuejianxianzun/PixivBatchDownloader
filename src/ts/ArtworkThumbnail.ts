@@ -46,6 +46,9 @@ class ArtworkThumbnail extends WorkThumbnail {
         '._module-carousel-container>div',
         // 首页-插画-瞩目的企划目录里的作品
         'li[size="1"]',
+        // 新版首页里的推荐作品，很奇怪，直接打开首页时是第一种选择器，切换到其他分类再切换回来是第二种选择器
+        'div[style="width:184px"]',
+        'div[style="width: 184px;"]',
       ]
       // div[data-ga4-entity-id^="illust"]>div:nth-child(2) 匹配新版首页的插画作品区域
       // 即显示在页面左半边的作品缩略图。它们的元素里含有此类特征：
@@ -141,6 +144,8 @@ class ArtworkThumbnail extends WorkThumbnail {
       // 这些选择器只在新版首页使用
       if (
         (selector === 'li>div>div>div:first-child' ||
+          selector === 'div[style="width:184px"]' ||
+          selector === 'div[style="width: 184px;"]' ||
           selector === 'div[data-ga4-entity-id^="illust"]>div:nth-child(2)' ||
           selector === 'div[data-ga4-entity-id^="manga"]>div:nth-child(2)') &&
         pageType.type !== pageType.list.Home

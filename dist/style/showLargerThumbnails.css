@@ -70,6 +70,9 @@ body[data-page-type='0'] .ldgmym,
 body[data-page-type='0'] .homeRecommendedWorks > div > div {
   width: 92vw;
 }
+body[data-page-type='0'] .homeRecommendedWorks a[data-ga4-label='thumbnail_link'] div > img {
+  position: relative;
+}
 body[data-page-type='0'] ul.grid-cols-6 {
   grid-template-columns: auto !important;
 }
