@@ -36714,18 +36714,20 @@ class FastScreen {
         const fullTag = firstTag + ' ' + fastTag;
         // 用组合后的 tag 替换掉当前网址里的 tag
         let newURL = location.href.replace(encodeURIComponent(nowTag), encodeURIComponent(fullTag));
+        const u = new URL(newURL);
         // 如果 url 路径的 tags/ 后面没有子路径，代表是在“顶部”分类。
         // “顶部”分类里始终是严格的搜索模式，即使添加 s_mode=s_tag 也无效，这经常会导致搜索结果为 0。所以如果分类是“顶部”，就自动修改为“插画·漫画”分类以获取更多搜索结果。
         // “顶部”分类的 url 示例
         // https://www.pixiv.net/tags/%E9%9B%AA%E8%8A%B1%E3%83%A9%E3%83%9F%E3%82%A3%2010000users%E5%85%A5%E3%82%8A?s_mode=s_tag
-        const str = new URL(newURL).pathname.split('tags/')[1];
-        if (str.includes('/') === false) {
-            // 在 tag 后面添加“插画·漫画”分类的路径
-            newURL = newURL.replace(str, str + '/artworks');
+        if (u.pathname.includes('tags/')) {
+            const str = u.pathname.split('tags/')[1];
+            if (str?.includes('/') === false) {
+                // 在 tag 后面添加“插画·漫画”分类的路径
+                u.pathname = u.pathname.replace(str, str + '/artworks');
+            }
+            // 设置宽松的搜索模式 s_mode=s_tag
+            u.searchParams.set('s_mode', 's_tag');
         }
-        // 设置宽松的搜索模式 s_mode=s_tag
-        const u = new URL(newURL);
-        u.searchParams.set('s_mode', 's_tag');
         location.href = u.toString();
     }
     destroy() {
