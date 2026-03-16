@@ -1232,6 +1232,86 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /***/ }),
 
+/***/ "./src/ts/CheckDownloadCount.ts":
+/*!**************************************!*\
+  !*** ./src/ts/CheckDownloadCount.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
+
+// 这是一个 SW 脚本
+// 每隔 24 小时查询一次下载记录数量，如果超过指定数量则向 Content Script 发送提示消息
+// 已知问题：查询下载记录时，Chrome 可以查询所有下载记录，但 Firefox 只会从活跃的下载记录里查询。
+// 如果一些下载记录的时间较久，且文件已经不存在，那么 Firefox 通常不会返回它们，所以下载器查询不到这些记录
+// 这意味着在 Firefox 上，查询结果的数量比实际数量少
+const lastCheckKey = 'lastDownloadCountCheck';
+const limit = 2000;
+const interval = 24 * 60 * 60 * 1000;
+// SW 每次启动时读取上一次检查到时间戳，如果超过 24 小时未检查则进行检查
+setTimeout(async () => {
+    const lastCheck = await loadLastCheckTime();
+    const now = Date.now();
+    if (!lastCheck || now - lastCheck.time > interval) {
+        await queryDownloadCount();
+    }
+}, 5000);
+// 检查下载记录数量是否超过指定值
+async function queryDownloadCount() {
+    try {
+        const items = await webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().downloads.search({
+            limit,
+        });
+        if (items.length >= limit) {
+            await sendWarningToAllTabs();
+        }
+        // 无论是否触发警告，都保存本次检查时间戳
+        await saveLastCheckTime();
+    }
+    catch (error) {
+        console.error('检查下载记录数量时出错', error);
+    }
+}
+// 保存本次检查时间戳到 storage.local
+async function saveLastCheckTime() {
+    await webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().storage.local.set({
+        [lastCheckKey]: {
+            time: Date.now(),
+        },
+    });
+}
+// 从 storage.local 读取上次检查时间戳
+async function loadLastCheckTime() {
+    const result = (await webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().storage.local.get(lastCheckKey));
+    return result[lastCheckKey] || null;
+}
+// 向前台标签页发送消息
+async function sendWarningToAllTabs() {
+    const message = {
+        message: 'highDownloadCountWarning',
+        data: { count: limit },
+    };
+    const tabs = await webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().tabs.query({
+        url: 'https://*.pixiv.net/*',
+    });
+    for (const tab of tabs) {
+        if (tab.id !== undefined) {
+            try {
+                webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().tabs.sendMessage(tab.id, message);
+            }
+            catch (_) {
+                // 该标签页没有监听器（未注入 content script），忽略
+            }
+        }
+    }
+}
+
+
+/***/ }),
+
 /***/ "./src/ts/ManageFollowing.ts":
 /*!***********************************!*\
   !*** ./src/ts/ManageFollowing.ts ***!
@@ -1696,23 +1776,25 @@ var __webpack_exports__ = {};
   \******************************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ManageFollowing__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ManageFollowing */ "./src/ts/ManageFollowing.ts");
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _CheckDownloadCount__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./CheckDownloadCount */ "./src/ts/CheckDownloadCount.ts");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_2__);
+
 
 
 // 当点击扩展图标时，显示/隐藏下载面板
-webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().action.onClicked.addListener(function (tab) {
+webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().action.onClicked.addListener(function (tab) {
     // 如果在本程序没有权限的页面上点击扩展图标，url 始终是 undefined，此时不发送消息
     if (!tab.url) {
         return;
     }
-    webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().tabs.sendMessage(tab.id, {
+    webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().tabs.sendMessage(tab.id, {
         msg: 'click_icon',
     });
 });
 // 当扩展被安装、被更新、或者浏览器升级时，初始化数据
-webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onInstalled.addListener(() => {
-    webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().storage.local.set({ batchNo: {}, idList: {} });
+webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().runtime.onInstalled.addListener(() => {
+    webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().storage.local.set({ batchNo: {}, idList: {} });
 });
 // 存储每个下载任务的数据，这是因为下载完成的顺序和前台发送的顺序可能不一致，所以需要把数据保存起来以供使用
 const dlData = {};
@@ -1724,14 +1806,14 @@ let idList = {};
 // 如果不进行持久化存储，如果前台任务处于下载途中，后台 SW 被回收了，那么变量也会被清除。之后前台传递过来的可能还是同一批下载里的任务，但是后台却丢失了记录。这可能会导致下载出现重复文件等异常。
 // 实际上，下载时后台 SW 会持续存在很长时间，不会轻易被回收的。持久化存储只是为了以防万一
 async function setData(data) {
-    return webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().storage.local.set(data);
+    return webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().storage.local.set(data);
 }
 // 类型守卫，这是为了通过类型检查，所以只要求有 msg 属性
 // 如果检查了其他属性，那么对于只有 msg 属性的简单消息就会不通过。所以不检查其他属性
 function isMsg(msg) {
     return !!msg.msg;
 }
-webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.addListener(async function (msg, sender) {
+webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().runtime.onMessage.addListener(async function (msg, sender) {
     // msg 是 SendToBackEndData 类型，但是 webextension-polyfill 的 msg 是 unknown，
     // 不能直接在上面设置类型为 msg: SendToBackEndData，否则会报错。因此需要使用类型守卫，真麻烦
     if (!isMsg(msg)) {
@@ -1746,7 +1828,7 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.a
         // 当处于初始状态时，或者变量被回收了，就从存储中读取数据储存在变量中
         // 之后每当要使用这两个数据时，从变量读取，而不是从存储中获得。这样就解决了数据不同步的问题，而且性能更高
         if (Object.keys(batchNo).length === 0) {
-            const data = await webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().storage.local.get(['batchNo', 'idList']);
+            const data = await webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().storage.local.get(['batchNo', 'idList']);
             batchNo = data.batchNo;
             idList = data.idList;
         }
@@ -1764,7 +1846,7 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.a
             setData({ idList });
             // 开始下载
             const _url = await getFileURL(msg);
-            webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().downloads
+            webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().downloads
                 .download({
                 url: _url,
                 filename: msg.fileName,
@@ -1790,7 +1872,7 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.a
         msg.msg === 'save_novel_embedded_image' ||
         msg.msg === 'save_novel_series_file') {
         const _url = await getFileURL(msg);
-        webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().downloads
+        webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().downloads
             .download({
             url: _url,
             filename: msg.fileName,
@@ -1821,7 +1903,7 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.a
             },
             err: '',
         };
-        webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().tabs.sendMessage(tabId, data);
+        webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().tabs.sendMessage(tabId, data);
     }
     if (msg.msg === 'clearDownloadsTempData') {
         if (sender.tab?.id) {
@@ -1862,7 +1944,7 @@ function revokeBlobURL(url) {
 const UUIDRegexp = /[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}/;
 // 监听下载变化事件
 // 每个下载会触发两次 onChanged 事件
-webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().downloads.onChanged.addListener(async function (detail) {
+webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().downloads.onChanged.addListener(async function (detail) {
     // 根据 detail.id 取出保存的数据
     const _dlData = dlData[detail.id];
     if (_dlData) {
@@ -1890,7 +1972,7 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().downloads.onChanged
         if (msg) {
             // 返回信息
             if (!_dlData.noReply) {
-                webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().tabs.sendMessage(_dlData.tabId, { msg, data: _dlData, err });
+                webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().tabs.sendMessage(_dlData.tabId, { msg, data: _dlData, err });
             }
             // 吊销前后台生成的 blob URL
             revokeBlobURL(_dlData?.blobURLFront);
@@ -1906,7 +1988,7 @@ async function clearData() {
     for (const key of Object.keys(idList)) {
         const tabId = parseInt(key);
         try {
-            await webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().tabs.get(tabId);
+            await webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().tabs.get(tabId);
         }
         catch (error) {
             // 如果建立下载任务的标签页已经不存在，则会触发错误，如：

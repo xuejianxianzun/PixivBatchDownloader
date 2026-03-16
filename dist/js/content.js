@@ -20987,6 +20987,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _CheckWarningMessage__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./CheckWarningMessage */ "./src/ts/download/CheckWarningMessage.ts");
+/* harmony import */ var _DownloadCountWarning__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./DownloadCountWarning */ "./src/ts/download/DownloadCountWarning.ts");
+
 
 
 
@@ -21486,6 +21488,41 @@ class DownloadControl {
     }
 }
 new DownloadControl();
+
+
+/***/ }),
+
+/***/ "./src/ts/download/DownloadCountWarning.ts":
+/*!*************************************************!*\
+  !*** ./src/ts/download/DownloadCountWarning.ts ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+
+
+
+// 当接收到 SW 发送的特定消息时，显示提示
+class DownloadCountWarning {
+    constructor() {
+        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.onMessage.addListener((msg) => {
+            console.log(msg, msg);
+            const _msg = msg;
+            if (_msg.message === 'highDownloadCountWarning') {
+                this.tip(_msg.data.count);
+            }
+        });
+    }
+    tip(count) {
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示下载记录数量太多', count.toString()));
+    }
+}
+new DownloadCountWarning();
 
 
 /***/ }),
@@ -34918,6 +34955,32 @@ The downloader will now apply the "Must contain tags" and "Must not contain tags
 <br>
 <strong>😊При объединении серий романов теперь можно применять фильтры по тегам</strong><br>
 Теперь при объединении серий романов загрузчик применяет два фильтра: «Должен содержать теги» и «Не должен содержать теги». Это позволяет пользователям отфильтровывать ненужные романы с помощью указанных тегов。`,
+    ],
+    _提示下载记录数量太多: [
+        `提示：建议您清理浏览器的下载记录。<br>
+    为什么您会看到这个提示：<br>
+    如果浏览器的下载记录数量太多，会导致浏览器在启动时卡住（无响应）一段时间。下载记录越多，卡住的时间就越长。<br>
+    下载器的用户可能会从 Pixiv 下载很多文件，产生大量下载记录，容易导致这个问题。但很多用户不知道该问题的原因，所以下载器每隔 24 小时会查询一次浏览器的下载记录数量，当数量超过 {} 时就会显示这个提示。`,
+        `提示：建議您清理瀏覽器的下載記錄。<br>
+    為什麼您會看到這個提示：<br>
+    如果瀏覽器的下載記錄數量太多，會導致瀏覽器在啟動時卡住（無回應）一段時間。下載記錄越多，卡住的時間就越長。<br>
+    下載器的使用者可能會從 Pixiv 下載很多檔案，產生大量下載記錄，容易導致這個問題。但很多使用者不知道該問題的原因，所以下載器每隔 24 小時會查詢一次瀏覽器的下載記錄數量，當數量超過 {} 時就會顯示這個提示。`,
+        `Tip: It is recommended to clear your browser's download history.<br>
+    Why you are seeing this tip:<br>
+    If there are too many download records in the browser, it can cause the browser to freeze (become unresponsive) for a period of time when starting up. The more download records there are, the longer the freeze lasts.<br>
+    Users of the downloader may download a large number of files from Pixiv, generating a lot of download records, which can easily cause this issue. However, many users are unaware of the cause, so the downloader checks the number of browser download records once every 24 hours. When the number exceeds {}, this tip will be displayed.`,
+        `ヒント：ブラウザのダウンロード履歴をクリアすることをおすすめします。<br>
+    このヒントが表示される理由：<br>
+    ブラウザのダウンロード履歴が多すぎると、ブラウザ起動時にフリーズ（無反応）する時間が発生します。ダウンロード履歴が多いほど、フリーズ時間が長くなります。<br>
+    ダウンロードツールのユーザーは Pixiv から大量のファイルをダウンロードすることが多く、多くのダウンロード履歴が発生しやすく、この問題を引き起こしやすいです。しかし多くのユーザーが原因を知らないため、ダウンロードツールは 24 時間ごとに 1 回ブラウザのダウンロード履歴数を確認し、数が {} を超えるとこのヒントを表示します。`,
+        `팁: 브라우저의 다운로드 기록을 정리하는 것을 권장합니다.<br>
+    이 팁이 표시되는 이유:<br>
+    브라우저의 다운로드 기록이 너무 많으면 브라우저 시작 시 일정 시간 동안 멈춤(무응답)이 발생합니다. 다운로드 기록이 많을수록 멈춤 시간이 길어집니다.<br>
+    다운로더 사용자는 Pixiv에서 많은 파일을 다운로드하여 대량의 다운로드 기록을 생성할 수 있어 이 문제가 쉽게 발생합니다. 하지만 많은 사용자가 원인을 모르기 때문에 다운로더는 24시간마다 한 번 브라우저 다운로드 기록 수를 확인하며, 수가 {}를 초과하면 이 팁을 표시합니다.`,
+        `Подсказка: Рекомендуется очистить историю загрузок браузера.<br>
+    Почему вы видите эту подсказку:<br>
+    Если в браузере слишком много записей о загрузках, при запуске браузер может зависнуть (стать неотзывчивым) на некоторое время. Чем больше записей о загрузках, тем дольше длится зависание.<br>
+    Пользователи загрузчика часто скачивают много файлов с Pixiv, создавая большое количество записей о загрузках, что легко приводит к этой проблеме. Однако многие пользователи не знают причины, поэтому загрузчик каждые 24 часа проверяет количество записей о загрузках в браузере и показывает эту подсказку, когда количество превышает {}.`,
     ],
 };
 

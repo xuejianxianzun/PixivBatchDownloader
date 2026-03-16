@@ -1,4 +1,5 @@
 import './ManageFollowing'
+import './CheckDownloadCount'
 import { DonwloadListData, SendToBackEndData } from './download/DownloadType.d'
 import browser from 'webextension-polyfill'
 
