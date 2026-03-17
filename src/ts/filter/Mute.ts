@@ -51,10 +51,10 @@ class Mute {
           if (item.enabled === false) {
             continue
           }
-          if (item.type === 'user') {
+          if (item.type === 'user' && !this.userList.includes(item.value)) {
             this.userList.push(item.value)
           }
-          if (item.type === 'tag') {
+          if (item.type === 'tag' && !this.tagList.includes(item.value)) {
             this.tagList.push(item.value)
           }
         }

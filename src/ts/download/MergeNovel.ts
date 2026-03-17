@@ -131,8 +131,12 @@ class MergeNovel {
     }
 
     // 在获取每篇小说的数据之前，检查是否需要应用抓取间隔时间
-    if (this.novelIdList.length > settings.slowCrawlOnWorksNumber) {
+    if (
+      !this.slowMode &&
+      this.novelIdList.length > settings.slowCrawlOnWorksNumber
+    ) {
       this.slowMode = true
+      log.warning(lang.transl('_慢速抓取'))
     }
 
     await this.getAllNovelData()

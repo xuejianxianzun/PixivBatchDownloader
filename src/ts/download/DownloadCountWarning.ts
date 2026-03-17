@@ -7,7 +7,7 @@ import { lang } from '../Language'
 class DownloadCountWarning {
   constructor() {
     browser.runtime.onMessage.addListener((msg: any) => {
-      console.log(msg, msg)
+      // console.log(msg, msg)
       const _msg = msg as Msg
       if (_msg.message === 'highDownloadCountWarning') {
         this.tip(_msg.data.count)

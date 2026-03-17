@@ -21511,7 +21511,7 @@ __webpack_require__.r(__webpack_exports__);
 class DownloadCountWarning {
     constructor() {
         webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.onMessage.addListener((msg) => {
-            console.log(msg, msg);
+            // console.log(msg, msg)
             const _msg = msg;
             if (_msg.message === 'highDownloadCountWarning') {
                 this.tip(_msg.data.count);
@@ -23224,8 +23224,9 @@ class MergeNovel {
             return 0;
         }
         // 在获取每篇小说的数据之前，检查是否需要应用抓取间隔时间
-        if (this.novelIdList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.slowCrawlOnWorksNumber) {
+        if (!this.slowMode && this.novelIdList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.slowCrawlOnWorksNumber) {
             this.slowMode = true;
+            _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_慢速抓取'));
         }
         await this.getAllNovelData();
         // 获取这个系列的设定资料
@@ -26887,10 +26888,10 @@ class Mute {
                     if (item.enabled === false) {
                         continue;
                     }
-                    if (item.type === 'user') {
+                    if (item.type === 'user' && !this.userList.includes(item.value)) {
                         this.userList.push(item.value);
                     }
-                    if (item.type === 'tag') {
+                    if (item.type === 'tag' && !this.tagList.includes(item.value)) {
                         this.tagList.push(item.value);
                     }
                 }
