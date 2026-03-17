@@ -50,12 +50,12 @@ class QuickBookmark {
     this.setBtnStyle()
   }
 
-  private ob: MutationObserver | undefined // 监视心形收藏按钮变化
   private btn: HTMLButtonElement = document.createElement('button') // 快速收藏按钮
   private readonly btnId = 'quickBookmarkEl' // 快速收藏按钮的 id
   private readonly redClass = 'bookmarkedColor' // 收藏后的红色的颜色值
   private pixivBMKDiv?: HTMLDivElement
   private likeBtn?: HTMLButtonElement
+  private obPixivBMKDiv: MutationObserver | undefined // 监视心形收藏按钮变化
 
   private async init(
     toolbar: HTMLDivElement,
@@ -102,7 +102,7 @@ class QuickBookmark {
       if (!Config.mobile) {
         // 桌面端
         // 没有收藏时，心形按钮的第一个子元素是 button。收藏之后，button 被移除，然后添加一个 a 标签
-        this.ob = new MutationObserver((mutations) => {
+        this.obPixivBMKDiv = new MutationObserver((mutations) => {
           for (const change of mutations) {
             if (change.type === 'childList') {
               const added = change.addedNodes
@@ -112,7 +112,7 @@ class QuickBookmark {
             }
           }
         })
-        this.ob.observe(pixivBMKDiv, {
+        this.obPixivBMKDiv.observe(pixivBMKDiv, {
           childList: true,
         })
       } else {
@@ -122,14 +122,14 @@ class QuickBookmark {
         if (!path) {
           return
         }
-        this.ob = new MutationObserver((mutations) => {
+        this.obPixivBMKDiv = new MutationObserver((mutations) => {
           if (path.getAttribute('fill') === '#FF4060') {
             this.isBookmarked = true
           } else {
             this.isBookmarked = false
           }
         })
-        this.ob.observe(path, {
+        this.obPixivBMKDiv.observe(path, {
           attributes: true,
           attributeFilter: ['fill'],
         })
@@ -160,8 +160,18 @@ class QuickBookmark {
       if (this.isBookmarked) {
         this.delBookmark()
       } else {
-        this.addBookmark(this.pixivBMKDiv!, this.likeBtn!)
-        this.sendDownload()
+        let pixivBMKBtn: HTMLDivElement | HTMLButtonElement | null =
+          this.pixivBMKDiv!
+        if (!Config.mobile) {
+          pixivBMKBtn = this.pixivBMKDiv!.querySelector('button')
+        }
+        this.addBookmark(pixivBMKBtn, this.likeBtn!)
+
+        // 只有当找不到 Pixiv 自身的收藏按钮时，才由快速收藏按钮触发下载
+        if (!pixivBMKBtn) {
+          this.sendDownload()
+        }
+
         showHelp.show(
           'tipBookmarkButton',
           lang.transl('_下载器的收藏按钮默认会添加作品的标签')
@@ -170,6 +180,9 @@ class QuickBookmark {
     })
   }
 
+  /** 点击快速收藏按钮时，触发“点击收藏按钮时下载作品”功能 */
+  // 点击快速收藏按钮时，下载器会点击 Pixiv 原本的收藏按钮，而后者也绑定了这个下载事件
+  // 所以需要注意避免造成重复下载
   private sendDownload() {
     if (Tools.isArtworkData(this.workData!)) {
       downloadOnClickBookmark.send(this.workData!.body.illustId)
@@ -192,7 +205,7 @@ class QuickBookmark {
   }
 
   private async addBookmark(
-    pixivBMKDiv: HTMLDivElement,
+    pixivBMKBtn: HTMLDivElement | HTMLButtonElement | null,
     likeBtn: HTMLButtonElement
   ) {
     const type = this.isNovel ? 'novels' : 'illusts'
@@ -207,9 +220,11 @@ class QuickBookmark {
       return
     }
 
-    // 先模拟点击 Pixiv 原本的收藏按钮，这样可以显示推荐作品
+    // 先模拟点击 Pixiv 原本的收藏按钮，这是为了显示推荐作品
     // 这会发送一次 Pixiv 原生的收藏请求
-    this.clickPixivBMKBtn(pixivBMKDiv)
+    pixivBMKBtn?.click()
+    // 取消监听心形收藏按钮的变化
+    this.obPixivBMKDiv && this.obPixivBMKDiv.disconnect()
 
     // 然后再由下载器发送收藏请求
     // 因为下载器的收藏按钮具有添加标签、非公开收藏等功能，所以要在后面执行，覆盖掉 Pixiv 原生收藏的效果
@@ -249,6 +264,7 @@ class QuickBookmark {
   }
 
   // 点赞这个作品
+  // 没有点击点赞按钮，因此不会触发点赞按钮上的事件
   private like(type: WorkType, id: string, likeBtn: HTMLButtonElement) {
     try {
       API.addLike(id, type, token.token)
@@ -264,17 +280,6 @@ class QuickBookmark {
       this.btn.classList.remove(this.redClass)
       this.btn.setAttribute('title', lang.transl('_快速收藏AltB'))
     }
-  }
-
-  private clickPixivBMKBtn(pixivBMKDiv: HTMLDivElement) {
-    if (Config.mobile) {
-      pixivBMKDiv && pixivBMKDiv.click()
-    } else {
-      const btn = pixivBMKDiv.querySelector('button')
-      btn && btn.click()
-    }
-    // 取消监听心形收藏按钮的变化
-    this.ob && this.ob.disconnect()
   }
 }
 

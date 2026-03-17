@@ -33,6 +33,10 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/591
 
 在新版搜索页面里（`search/`）里，顶部的快速筛选标签点击后没有反应。这是因为以前的代码没有考虑到新版 URL，导出代码运行时出错，现在修复。
 
+### 🐞修复了点击快速收藏按钮时，会触发两次“点击收藏按钮时下载作品”功能的问题
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/541
+
 ### 😊现在下载器会检测浏览器的下载记录数量，如果数量太多会显示日志提示
 
 如果浏览器的下载记录数量太多，会导致浏览器在启动时卡住（无响应）一段时间。下载记录越多，卡住的时间就越长。

@@ -23224,7 +23224,8 @@ class MergeNovel {
             return 0;
         }
         // 在获取每篇小说的数据之前，检查是否需要应用抓取间隔时间
-        if (!this.slowMode && this.novelIdList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.slowCrawlOnWorksNumber) {
+        if (!this.slowMode &&
+            this.novelIdList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.slowCrawlOnWorksNumber) {
             this.slowMode = true;
             _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_慢速抓取'));
         }
@@ -36862,12 +36863,12 @@ class QuickBookmark {
         this._isBookmarked = value;
         this.setBtnStyle();
     }
-    ob; // 监视心形收藏按钮变化
     btn = document.createElement('button'); // 快速收藏按钮
     btnId = 'quickBookmarkEl'; // 快速收藏按钮的 id
     redClass = 'bookmarkedColor'; // 收藏后的红色的颜色值
     pixivBMKDiv;
     likeBtn;
+    obPixivBMKDiv; // 监视心形收藏按钮变化
     async init(toolbar, pixivBMKDiv, likeBtn) {
         // 没有 token 就不能进行收藏
         if (!_Token__WEBPACK_IMPORTED_MODULE_3__.token.token) {
@@ -36900,7 +36901,7 @@ class QuickBookmark {
             if (!_Config__WEBPACK_IMPORTED_MODULE_9__.Config.mobile) {
                 // 桌面端
                 // 没有收藏时，心形按钮的第一个子元素是 button。收藏之后，button 被移除，然后添加一个 a 标签
-                this.ob = new MutationObserver((mutations) => {
+                this.obPixivBMKDiv = new MutationObserver((mutations) => {
                     for (const change of mutations) {
                         if (change.type === 'childList') {
                             const added = change.addedNodes;
@@ -36910,7 +36911,7 @@ class QuickBookmark {
                         }
                     }
                 });
-                this.ob.observe(pixivBMKDiv, {
+                this.obPixivBMKDiv.observe(pixivBMKDiv, {
                     childList: true,
                 });
             }
@@ -36921,7 +36922,7 @@ class QuickBookmark {
                 if (!path) {
                     return;
                 }
-                this.ob = new MutationObserver((mutations) => {
+                this.obPixivBMKDiv = new MutationObserver((mutations) => {
                     if (path.getAttribute('fill') === '#FF4060') {
                         this.isBookmarked = true;
                     }
@@ -36929,7 +36930,7 @@ class QuickBookmark {
                         this.isBookmarked = false;
                     }
                 });
-                this.ob.observe(path, {
+                this.obPixivBMKDiv.observe(path, {
                     attributes: true,
                     attributeFilter: ['fill'],
                 });
@@ -36955,12 +36956,22 @@ class QuickBookmark {
                 this.delBookmark();
             }
             else {
-                this.addBookmark(this.pixivBMKDiv, this.likeBtn);
-                this.sendDownload();
+                let pixivBMKBtn = this.pixivBMKDiv;
+                if (!_Config__WEBPACK_IMPORTED_MODULE_9__.Config.mobile) {
+                    pixivBMKBtn = this.pixivBMKDiv.querySelector('button');
+                }
+                this.addBookmark(pixivBMKBtn, this.likeBtn);
+                // 只有当找不到 Pixiv 自身的收藏按钮时，才由快速收藏按钮触发下载
+                if (!pixivBMKBtn) {
+                    this.sendDownload();
+                }
                 _ShowHelp__WEBPACK_IMPORTED_MODULE_8__.showHelp.show('tipBookmarkButton', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器的收藏按钮默认会添加作品的标签'));
             }
         });
     }
+    /** 点击快速收藏按钮时，触发“点击收藏按钮时下载作品”功能 */
+    // 点击快速收藏按钮时，下载器会点击 Pixiv 原本的收藏按钮，而后者也绑定了这个下载事件
+    // 所以需要注意避免造成重复下载
     sendDownload() {
         if (_Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.isArtworkData(this.workData)) {
             _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_7__.downloadOnClickBookmark.send(this.workData.body.illustId);
@@ -36983,7 +36994,7 @@ class QuickBookmark {
             return null;
         }
     }
-    async addBookmark(pixivBMKDiv, likeBtn) {
+    async addBookmark(pixivBMKBtn, likeBtn) {
         const type = this.isNovel ? 'novels' : 'illusts';
         const id = this.isNovel ? _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getNovelId() : _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getIllustId();
         // 移动端不自动点赞和设置点赞按钮的颜色，因为切换作品后元素没有重新生成，样式会依旧存在
@@ -36993,9 +37004,11 @@ class QuickBookmark {
         if (this.isBookmarked) {
             return;
         }
-        // 先模拟点击 Pixiv 原本的收藏按钮，这样可以显示推荐作品
+        // 先模拟点击 Pixiv 原本的收藏按钮，这是为了显示推荐作品
         // 这会发送一次 Pixiv 原生的收藏请求
-        this.clickPixivBMKBtn(pixivBMKDiv);
+        pixivBMKBtn?.click();
+        // 取消监听心形收藏按钮的变化
+        this.obPixivBMKDiv && this.obPixivBMKDiv.disconnect();
         // 然后再由下载器发送收藏请求
         // 因为下载器的收藏按钮具有添加标签、非公开收藏等功能，所以要在后面执行，覆盖掉 Pixiv 原生收藏的效果
         window.setTimeout(async () => {
@@ -37022,6 +37035,7 @@ class QuickBookmark {
         }
     }
     // 点赞这个作品
+    // 没有点击点赞按钮，因此不会触发点赞按钮上的事件
     like(type, id, likeBtn) {
         try {
             _API__WEBPACK_IMPORTED_MODULE_0__.API.addLike(id, type, _Token__WEBPACK_IMPORTED_MODULE_3__.token.token);
@@ -37038,17 +37052,6 @@ class QuickBookmark {
             this.btn.classList.remove(this.redClass);
             this.btn.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快速收藏AltB'));
         }
-    }
-    clickPixivBMKBtn(pixivBMKDiv) {
-        if (_Config__WEBPACK_IMPORTED_MODULE_9__.Config.mobile) {
-            pixivBMKDiv && pixivBMKDiv.click();
-        }
-        else {
-            const btn = pixivBMKDiv.querySelector('button');
-            btn && btn.click();
-        }
-        // 取消监听心形收藏按钮的变化
-        this.ob && this.ob.disconnect();
     }
 }
 new QuickBookmark();
