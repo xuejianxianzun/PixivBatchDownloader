@@ -89,7 +89,7 @@ class MergeNovel {
   public async merge(
     seriesId: string | number,
     seriesTitle?: string,
-    autoMerge: boolean = false
+    slowMode: boolean = false
   ): Promise<number> {
     if (!seriesId) {
       toast.error(`seriesId is undefined`)
@@ -98,7 +98,7 @@ class MergeNovel {
 
     this.seriesId = seriesId.toString()
     this.seriesTitle = seriesTitle || ''
-    this.slowMode = autoMerge
+    this.slowMode = slowMode
 
     const link = `<a href="https://www.pixiv.net/novel/series/${this.seriesId}" target="_blank">${this.seriesTitle || this.seriesId}</a>`
     log.log(`📚${lang.transl('_合并系列小说')} ${link}`)
@@ -130,6 +130,11 @@ class MergeNovel {
       return 0
     }
 
+    if (this.novelIdList.length === 0) {
+      log.warning(`✅${lang.transl('_跳过合并系列小说')} ${link}`)
+      return 0
+    }
+
     // 在获取每篇小说的数据之前，检查是否需要应用抓取间隔时间
     if (
       !this.slowMode &&
@@ -142,7 +147,7 @@ class MergeNovel {
     await this.getAllNovelData()
 
     // 获取这个系列的设定资料
-    if (this.novelIdList.length > 0 && settings.saveNovelMeta) {
+    if (settings.saveNovelMeta) {
       log.log(lang.transl('_获取设定资料'))
       const data = await getNovelGlossarys.getGlossarys(
         this.seriesId,

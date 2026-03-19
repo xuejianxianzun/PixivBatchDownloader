@@ -21,14 +21,14 @@ import { vipSearchOptimize } from '../crawl/VipSearchOptimize'
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
 import '../filter/FilterSearchResults'
+import { NovelSearchDataItem } from '../crawl/CrawlResult'
+import { MergeNovel } from '../download/MergeNovel'
 
 // 用于测试抓取的 URL：
-// 搜索小说作品的两种 URL：
 // https://www.pixiv.net/tags/%E5%8E%9F%E7%A5%9E/novels?order=date&mode=r18&scd=2025-02-10&ecd=2026-02-10&wlt=20000&wgt=79999&ai_type=1
 // https://www.pixiv.net/search?q=%E5%8E%9F%E7%A5%9E&s_mode=tag&type=novel&order=date&mode=r18&scd=2025-02-10&ecd=2026-02-10&wlt=20000&wgt=79999&ai_type=1
-// 在测试小说时，不必启用“整合相同系列的作品”和“整合相同作者的作品”，因为这可能导致页面上显示的数量少于实际小说的数量
-// 例如 3 个小说可能只显示为 2 个项目
-// 下载器抓取的是单篇小说，所以数量会是 3 个，与页面上显示的 2 个不符。所以为了测试更直观，便于对比，就不启用这两个条件了
+// 按系列整合：
+// https://www.pixiv.net/search?s_mode=tag_tc&type=novel&q=%E3%83%90%E3%83%BC%E3%83%81%E3%83%A3%E3%83%ABYouTuber%201000users%E5%85%A5%E3%82%8A
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {
@@ -83,9 +83,14 @@ class InitSearchNovelPage extends InitPageBase {
     'original_only',
 
     // 是否整合相同系列的作品
-    // 无此参数则不整合
+    // 0 或者无此参数则不整合
     // 1  整合相同系列的作品
     'gs',
+
+    // 是否整合相同作者的作品
+    // 0 或者无此参数则不整合
+    // 1 按作者整合
+    'csw',
 
     // 是否仅限支持单词置换的作品
     // 无此参数则不限制
@@ -148,6 +153,11 @@ class InitSearchNovelPage extends InitPageBase {
         }
 
         if (list.length > 0) {
+          // 整合相同系列的作品时，提示只会收藏单篇小说
+          if (window.location.href.includes('gs=1')) {
+            log.warning(lang.transl('_提示只会收藏单篇小说'))
+          }
+
           bookmarkAll.sendWorkList(list, 'novels')
         }
       }
@@ -168,6 +178,10 @@ class InitSearchNovelPage extends InitPageBase {
   protected async nextStep() {
     this.setSlowCrawl()
     this.initFetchURL()
+
+    if (this.option.gs === '1') {
+      log.warning(lang.transl('_提示按系列下载而非按作品下载'))
+    }
 
     // 计算应该抓取多少页
     const data = await this.getSearchData(1)
@@ -264,9 +278,6 @@ class InitSearchNovelPage extends InitPageBase {
       }
     })
 
-    // 抓取时始终关闭“以系列为单位显示”
-    this.option.gs = '0'
-
     // 如果 url 里没有显式指定标签匹配模式，则使用 完全一致 模式
     // 因为在这种情况下，pixiv 默认使用的就是 完全一致
     if (!this.option.s_mode) {
@@ -308,6 +319,20 @@ class InitSearchNovelPage extends InitPageBase {
     log.error(lang.transl('_抓取被限制时返回空结果的提示'))
   }, 1000)
 
+  /** 如果数据是单篇小说，则返回其 id；如果数据是系列小说，返回 undefined */
+  private getNovelId(data: NovelSearchDataItem) {
+    // 如果未启用“整合系列作品”
+    if (data.isOneshot === undefined) {
+      return data.id
+    }
+    // 如果启用了“整合系列作品”，且为单篇小说
+    if (data.isOneshot) {
+      return data.novelId
+    }
+    // 如果启用了“整合系列作品”，且为系列小说，则无法返回单篇小说的 id
+    return undefined
+  }
+
   // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
   protected async getIdList(p?: number): Promise<void> {
     if (states.stopCrawl) {
@@ -319,7 +344,7 @@ class InitSearchNovelPage extends InitPageBase {
       this.sendCrawlTaskCount++
     }
 
-    // 发起请求，获取列表页
+    // 获取列表页的数据
     let data
     try {
       data = await this.getSearchData(p)
@@ -338,33 +363,35 @@ class InitSearchNovelPage extends InitPageBase {
     }
 
     const worksData = data.data
+    // 注意：由于此时用户启用了“整合系列作品”，所以每项数据可能是单篇完结小说，也可能是系列小说，需要注意区分
     for (const work of worksData) {
+      const novelId = this.getNovelId(work)
       const filterOpt: FilterOption = {
         aiType: work.aiType,
-        createDate: work.createDate,
-        id: work.id,
-        bookmarkData: work.bookmarkData,
-        bookmarkCount: work.bookmarkCount,
+        createDate: work.createDate || work.createDateTime,
+        id: novelId,
+        // 只检查单篇小说的收藏数据。系列小说本身没有收藏数据，所以不进行检查。
+        // PS：此时系列小说也有 bookmarkData，但其数字不是每篇小说的收藏数量之和，我不清楚这个数字怎么来的
+        bookmarkData: novelId ? work.bookmarkData : undefined,
+        bookmarkCount: novelId ? work.bookmarkCount : undefined,
         workType: 3,
-        tags: work.tags,
+        // 只检查单篇小说的 tags，如果是系列小说则不检查。因为此时系列数据里的 tags 是它里面第一篇小说的 tags，不能用来对整个系列进行过滤
+        tags: novelId ? work.tags : undefined,
         userId: work.userId,
         xRestrict: work.xRestrict,
       }
 
       if (await filter.check(filterOpt)) {
-        store.idList.push({
-          id: work.id,
-          type: 'novels',
-        })
-
-        // idListWithPageNo.add(
-        //   pageType.type,
-        //   {
-        //     type: 'novels',
-        //     id: work.id,
-        //   },
-        //   p
-        // )
+        // 过滤通过后，如果这份数据是单篇小说，则保存它的 id
+        if (novelId) {
+          store.idList.push({
+            id: novelId,
+            type: 'novels',
+          })
+        } else {
+          // 如果是系列小说，则合并它
+          await new MergeNovel().merge(work.id, work.title, true)
+        }
       }
     }
 
@@ -380,11 +407,16 @@ class InitSearchNovelPage extends InitPageBase {
         //   `已抓取 ${this.listPageFinished} 页，检查最后一个作品的收藏数量`
         // )
         const lastWork = data.data[data.data.length - 1]
-        const check = await vipSearchOptimize.checkWork(lastWork.id, 'novels')
-        if (check) {
-          log.log(lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'))
-          log.log(lang.transl('_列表页抓取完成'))
-          return this.getIdListFinished()
+        // 如果不是系列小说，才进行这项检查
+        // 如果是系列小说，则不进行检查（虽然系列小说的数据里含有最后一篇小说的 id，但不能用于这项检查）
+        const novelId = this.getNovelId(lastWork)
+        if (novelId) {
+          const check = await vipSearchOptimize.checkWork(novelId, 'novels')
+          if (check) {
+            log.log(lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'))
+            log.log(lang.transl('_列表页抓取完成'))
+            return this.getIdListFinished()
+          }
         }
       }
     }

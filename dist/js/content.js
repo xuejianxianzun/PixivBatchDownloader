@@ -8806,8 +8806,7 @@ __webpack_require__.r(__webpack_exports__);
 // 手动选择作品，图片作品和小说都可以选择
 class SelectWork {
     constructor() {
-        const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.list.Unlisted;
-        if (!this.created && _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.isPixiv() && !unlisted) {
+        if (!this.created && _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.isPixiv()) {
             this.created = true;
             this.selector = this.createSelectorEl();
             this.addBtn();
@@ -8823,6 +8822,7 @@ class SelectWork {
     _start = false;
     _pause = false;
     _tempHide = false; // 打开下载面板时临时隐藏。这个变量只会影响选择器的 display
+    disablePageList = [_PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.list.Unlisted];
     get start() {
         return this._start;
     }
@@ -8981,6 +8981,13 @@ class SelectWork {
         if (!this.start) {
             _Language__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.controlTextSpan, '_手动选择作品');
             this.controlBtn.onclick = (ev) => {
+                const disable = this.disablePageList.includes(_PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.type);
+                if (disable) {
+                    _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_不支持在此页面上手动选择作品'), {
+                        title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_手动选择作品'),
+                    });
+                    return;
+                }
                 this.startSelect(ev);
                 this.clearBtn.style.display = 'flex';
                 if (!_Config__WEBPACK_IMPORTED_MODULE_12__.Config.mobile) {
@@ -11531,10 +11538,11 @@ class Tools {
         }
     }
     static isPremium() {
-        // 在 body 的一个 script 标签里包含有当前用户是否是会员的信息
+        // 在某个 script 标签里包含有当前用户是否是会员的信息
         // premium: 'yes'
         // premium: 'no'
-        const test = document.body.innerHTML.match(/premium: '(\w+)'/);
+        const test = document.head.innerHTML.match(/premium:'(\w+)'/) ||
+            document.body.innerHTML.match(/premium: '(\w+)'/);
         if (test && test.length > 1) {
             return test[1] === 'yes';
         }
@@ -19754,6 +19762,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _filter_FilterSearchResults__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../filter/FilterSearchResults */ "./src/ts/filter/FilterSearchResults.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
 // 初始化小说搜索页
 
 
@@ -19776,13 +19785,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
 // 用于测试抓取的 URL：
-// 搜索小说作品的两种 URL：
 // https://www.pixiv.net/tags/%E5%8E%9F%E7%A5%9E/novels?order=date&mode=r18&scd=2025-02-10&ecd=2026-02-10&wlt=20000&wgt=79999&ai_type=1
 // https://www.pixiv.net/search?q=%E5%8E%9F%E7%A5%9E&s_mode=tag&type=novel&order=date&mode=r18&scd=2025-02-10&ecd=2026-02-10&wlt=20000&wgt=79999&ai_type=1
-// 在测试小说时，不必启用“整合相同系列的作品”和“整合相同作者的作品”，因为这可能导致页面上显示的数量少于实际小说的数量
-// 例如 3 个小说可能只显示为 2 个项目
-// 下载器抓取的是单篇小说，所以数量会是 3 个，与页面上显示的 2 个不符。所以为了测试更直观，便于对比，就不启用这两个条件了
+// 按系列整合：
+// https://www.pixiv.net/search?s_mode=tag_tc&type=novel&q=%E3%83%90%E3%83%BC%E3%83%81%E3%83%A3%E3%83%ABYouTuber%201000users%E5%85%A5%E3%82%8A
 class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
@@ -19829,9 +19837,13 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         // 1  只显示原创作品
         'original_only',
         // 是否整合相同系列的作品
-        // 无此参数则不整合
+        // 0 或者无此参数则不整合
         // 1  整合相同系列的作品
         'gs',
+        // 是否整合相同作者的作品
+        // 0 或者无此参数则不整合
+        // 1 按作者整合
+        'csw',
         // 是否仅限支持单词置换的作品
         // 无此参数则不限制
         // 1  只显示支持单词置换的作品
@@ -19869,6 +19881,10 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                     list = document.querySelectorAll('div[data-ga4-label="works_content"]>div:last-child>div');
                 }
                 if (list.length > 0) {
+                    // 整合相同系列的作品时，提示只会收藏单篇小说
+                    if (window.location.href.includes('gs=1')) {
+                        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示只会收藏单篇小说'));
+                    }
                     bookmarkAll.sendWorkList(list, 'novels');
                 }
             }
@@ -19885,6 +19901,9 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     async nextStep() {
         this.setSlowCrawl();
         this.initFetchURL();
+        if (this.option.gs === '1') {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示按系列下载而非按作品下载'));
+        }
         // 计算应该抓取多少页
         const data = await this.getSearchData(1);
         // 计算总页数
@@ -19968,8 +19987,6 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                 }
             }
         });
-        // 抓取时始终关闭“以系列为单位显示”
-        this.option.gs = '0';
         // 如果 url 里没有显式指定标签匹配模式，则使用 完全一致 模式
         // 因为在这种情况下，pixiv 默认使用的就是 完全一致
         if (!this.option.s_mode) {
@@ -20004,6 +20021,19 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         }
         _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取被限制时返回空结果的提示'));
     }, 1000);
+    /** 如果数据是单篇小说，则返回其 id；如果数据是系列小说，返回 undefined */
+    getNovelId(data) {
+        // 如果未启用“整合系列作品”
+        if (data.isOneshot === undefined) {
+            return data.id;
+        }
+        // 如果启用了“整合系列作品”，且为单篇小说
+        if (data.isOneshot) {
+            return data.novelId;
+        }
+        // 如果启用了“整合系列作品”，且为系列小说，则无法返回单篇小说的 id
+        return undefined;
+    }
     // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
     async getIdList(p) {
         if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.stopCrawl) {
@@ -20013,7 +20043,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             p = this.startpageNo + this.sendCrawlTaskCount;
             this.sendCrawlTaskCount++;
         }
-        // 发起请求，获取列表页
+        // 获取列表页的数据
         let data;
         try {
             data = await this.getSearchData(p);
@@ -20030,31 +20060,35 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             return this.getIdListFinished();
         }
         const worksData = data.data;
+        // 注意：由于此时用户启用了“整合系列作品”，所以每项数据可能是单篇完结小说，也可能是系列小说，需要注意区分
         for (const work of worksData) {
+            const novelId = this.getNovelId(work);
             const filterOpt = {
                 aiType: work.aiType,
-                createDate: work.createDate,
-                id: work.id,
-                bookmarkData: work.bookmarkData,
-                bookmarkCount: work.bookmarkCount,
+                createDate: work.createDate || work.createDateTime,
+                id: novelId,
+                // 只检查单篇小说的收藏数据。系列小说本身没有收藏数据，所以不进行检查。
+                // PS：此时系列小说也有 bookmarkData，但其数字不是每篇小说的收藏数量之和，我不清楚这个数字怎么来的
+                bookmarkData: novelId ? work.bookmarkData : undefined,
+                bookmarkCount: novelId ? work.bookmarkCount : undefined,
                 workType: 3,
-                tags: work.tags,
+                // 只检查单篇小说的 tags，如果是系列小说则不检查。因为此时系列数据里的 tags 是它里面第一篇小说的 tags，不能用来对整个系列进行过滤
+                tags: novelId ? work.tags : undefined,
                 userId: work.userId,
                 xRestrict: work.xRestrict,
             };
             if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_3__.filter.check(filterOpt)) {
-                _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
-                    id: work.id,
-                    type: 'novels',
-                });
-                // idListWithPageNo.add(
-                //   pageType.type,
-                //   {
-                //     type: 'novels',
-                //     id: work.id,
-                //   },
-                //   p
-                // )
+                // 过滤通过后，如果这份数据是单篇小说，则保存它的 id
+                if (novelId) {
+                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
+                        id: novelId,
+                        type: 'novels',
+                    });
+                }
+                else {
+                    // 如果是系列小说，则合并它
+                    await new _download_MergeNovel__WEBPACK_IMPORTED_MODULE_21__.MergeNovel().merge(work.id, work.title, true);
+                }
             }
         }
         this.listPageFinished++;
@@ -20068,11 +20102,16 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                 //   `已抓取 ${this.listPageFinished} 页，检查最后一个作品的收藏数量`
                 // )
                 const lastWork = data.data[data.data.length - 1];
-                const check = await _crawl_VipSearchOptimize__WEBPACK_IMPORTED_MODULE_17__.vipSearchOptimize.checkWork(lastWork.id, 'novels');
-                if (check) {
-                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'));
-                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取完成'));
-                    return this.getIdListFinished();
+                // 如果不是系列小说，才进行这项检查
+                // 如果是系列小说，则不进行检查（虽然系列小说的数据里含有最后一篇小说的 id，但不能用于这项检查）
+                const novelId = this.getNovelId(lastWork);
+                if (novelId) {
+                    const check = await _crawl_VipSearchOptimize__WEBPACK_IMPORTED_MODULE_17__.vipSearchOptimize.checkWork(novelId, 'novels');
+                    if (check) {
+                        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_后续作品低于最低收藏数量要求跳过后续作品'));
+                        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取完成'));
+                        return this.getIdListFinished();
+                    }
                 }
             }
         }
@@ -23193,14 +23232,14 @@ class MergeNovel {
         }
     }
     /** 合并系列小说。返回值是合并完成后所包含的小说数量（不包含 404 的小说） */
-    async merge(seriesId, seriesTitle, autoMerge = false) {
+    async merge(seriesId, seriesTitle, slowMode = false) {
         if (!seriesId) {
             _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.error(`seriesId is undefined`);
             return 0;
         }
         this.seriesId = seriesId.toString();
         this.seriesTitle = seriesTitle || '';
-        this.slowMode = autoMerge;
+        this.slowMode = slowMode;
         const link = `<a href="https://www.pixiv.net/novel/series/${this.seriesId}" target="_blank">${this.seriesTitle || this.seriesId}</a>`;
         _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(`📚${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_合并系列小说')} ${link}`);
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.novelSaveAs === 'txt') {
@@ -23223,6 +23262,10 @@ class MergeNovel {
             _Log__WEBPACK_IMPORTED_MODULE_7__.log.error(`❌${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_发生错误取消合并这个系列小说')} ${link}`);
             return 0;
         }
+        if (this.novelIdList.length === 0) {
+            _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(`✅${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_跳过合并系列小说')} ${link}`);
+            return 0;
+        }
         // 在获取每篇小说的数据之前，检查是否需要应用抓取间隔时间
         if (!this.slowMode &&
             this.novelIdList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.slowCrawlOnWorksNumber) {
@@ -23231,7 +23274,7 @@ class MergeNovel {
         }
         await this.getAllNovelData();
         // 获取这个系列的设定资料
-        if (this.novelIdList.length > 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta) {
             _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取设定资料'));
             const data = await _crawlNovelPage_GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_11__.getNovelGlossarys.getGlossarys(this.seriesId, this.crawlInterval);
             this.seriesGlossary = _crawlNovelPage_GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_11__.getNovelGlossarys.storeGlossaryText(data);
@@ -29590,6 +29633,14 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         `시리즈 소설 병합됨`,
         `Серии романов объединены`,
     ],
+    _跳过合并系列小说: [
+        `跳过合并系列小说`,
+        `跳過合併系列小說`,
+        `Skip merging novel series`,
+        `シリーズ小説のマージをスキップ`,
+        `시리즈 소설 병합 건너뛰기`,
+        `Пропустить объединение серий романов`,
+    ],
     _获取小说列表: [
         `获取小说列表`,
         `獲取小說列表`,
@@ -30524,6 +30575,14 @@ This setting is also used when you use the Downloader to bookmark works in batch
         '手動で作品を選ぶ',
         '수동 선택',
         'Ручной выбор',
+    ],
+    _不支持在此页面上手动选择作品: [
+        `不支持在此页面上手动选择作品，因为没有合适的目标。`,
+        `不支援在此頁面上手動選擇作品，因為沒有合適的目標。`,
+        `Manual selection of works is not supported on this page because there is no suitable target.`,
+        `このページでは適切な対象がないため、手動で作品を選択することはサポートされていません。`,
+        `이 페이지에서는 적합한 대상이 없어 작품을 수동으로 선택할 수 없습니다.`,
+        `На этой странице не поддерживается ручной выбор работ, поскольку нет подходящей цели.`,
     ],
     _快捷键ALTS手动选择作品: [
         '你可以使用快捷键 <span class="blue">Alt</span> + <span class="blue">S</span> 开始或暂停手动选择作品。<br>选择完毕之后，打开下载器面板，点击“抓取选择的作品”。',
@@ -34983,6 +35042,34 @@ The downloader will now apply the "Must contain tags" and "Must not contain tags
     Почему вы видите эту подсказку:<br>
     Если в браузере слишком много записей о загрузках, при запуске браузер может зависнуть (стать неотзывчивым) на некоторое время. Чем больше записей о загрузках, тем дольше длится зависание.<br>
     Пользователи загрузчика часто скачивают много файлов с Pixiv, создавая большое количество записей о загрузках, что легко приводит к этой проблеме. Однако многие пользователи не знают причины, поэтому загрузчик каждые 24 часа проверяет количество записей о загрузках в браузере и показывает эту подсказку, когда количество превышает {}.`,
+    ],
+    _提示按系列下载而非按作品下载: [
+        `该页面里的小说是以系列为单位显示的，通常既有系列小说，也有单篇完结小说。<br>
+对于该页面里的系列小说：下载器在抓取时就会自动合并系列小说，并且不会单独保存系列里的单篇小说。系列小说不会出现在抓取结果里。<br>
+对于该页面里的单篇完结小说：下载器会在抓取完毕后统一下载。`,
+        `該頁面裡的小說是以系列為單位顯示的，通常既有系列小說，也有單篇完結小說。<br>
+對於該頁面裡的系列小說：下載器在抓取時就會自動合併系列小說，並且不會單獨保存系列裡的單篇小說。系列小說不會出現在抓取結果裡。<br>
+對於該頁面裡的單篇完結小說：下載器會在抓取完畢後統一下載。`,
+        `Novels on this page are displayed by series units, typically including both series novels and standalone completed novels.<br>
+For series novels on this page: The downloader automatically merges the series during crawling and will not save individual chapters from the series separately. Series novels will not appear in the crawl results.<br>
+For standalone completed novels on this page: The downloader will download them all together after crawling is complete.`,
+        `このページの小説はシリーズ単位で表示されており、通常シリーズ小説と単発完結小説の両方が含まれています。<br>
+このページのシリーズ小説について：ダウンロードツールはクロール時にシリーズ小説を自動的にマージし、シリーズ内の個別エピソードを単独で保存しません。シリーズ小説はクロール結果に表示されません。<br>
+このページの単発完結小説について：ダウンロードツールはクロール完了後に一括でダウンロードします。`,
+        `이 페이지의 소설은 시리즈 단위로 표시되며, 보통 시리즈 소설과 단편 완결 소설이 모두 포함되어 있습니다.<br>
+이 페이지의 시리즈 소설: 다운로더는 크롤링 시 시리즈 소설을 자동으로 병합하며, 시리즈 내 개별 편을 따로 저장하지 않습니다. 시리즈 소설은 크롤링 결과에 나타나지 않습니다.<br>
+이 페이지의 단편 완결 소설: 다운로더는 크롤링 완료 후 일괄 다운로드합니다。`,
+        `На этой странице романы отображаются по сериям, обычно включая как серии романов, так и отдельные завершённые произведения.<br>
+Для серий романов на этой странице: загрузчик автоматически объединяет серию во время краулинга и не сохраняет отдельные главы серии по отдельности. Серии романов не появятся в результатах краулинга.<br>
+Для отдельных завершённых романов на этой странице: загрузчик скачает их все разом после завершения краулинга.`,
+    ],
+    _提示只会收藏单篇小说: [
+        `这个页面里可能有系列小说。下载器会跳过系列小说，只收藏单篇小说。`,
+        `這個頁面裡可能有系列小說。下載器會跳過系列小說，只收藏單篇小說。`,
+        `This page may contain novel series. The downloader will skip series novels and only bookmark standalone novels.`,
+        `このページにはシリーズ小説が含まれる可能性があります。ダウンロードツールはシリーズ小説をスキップし、単発小説のみをブックマークします。`,
+        `이 페이지에는 시리즈 소설이 포함될 수 있습니다. 다운로더는 시리즈 소설을 건너뛰고 단편 소설만 북마크합니다.`,
+        `На этой странице могут быть серии романов. Загрузчик пропустит серии романов и добавит в закладки только отдельные романы.`,
     ],
 };
 

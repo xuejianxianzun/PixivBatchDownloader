@@ -881,15 +881,67 @@ export interface NovelSearchData {
   error: boolean
   body: {
     novel: {
-      data: (NovelCommonData & {
-        isUnlisted: boolean
-        profileImageUrl: string
-        createDate: string
-        updateDate: string
-      })[]
+      data: NovelSearchDataItem[]
       total: number
     }
   }
+}
+
+export type NovelSearchDataItem = NovelCommonData &
+  NovelSearchDataOnlyInSeries & {
+    isUnlisted: boolean
+    profileImageUrl: string
+    createDate: string
+    updateDate: string
+    /** 是否是单篇完结小说。只有当整合系列作品时才有这个属性。
+     *
+     * 如果为 true 说明它是单篇小说，false 说明是系列小说。undefined 说明用户没有启用“整合系列作品”。
+     *
+     * 后面有些属性依赖 isOneshot 属性，所以它们也是只有在整合系列作品时才会出现的属性 */
+    isOneshot?: boolean
+    /** 该单篇完结小说的发布时间。当 isOneshot 为 true 时才会有这个属性。 */
+    // 格式如："2026-03-18T01:51:34+09:00"
+    publishedDateTime?: string
+    /** 该单篇完结小说的 id。当 isOneshot 为 true 时才会有这个属性。 */
+    novelId?: string
+    /** 系列里第一篇小说的创建时间。只有当整合系列作品时才有这个属性，也就是 isOneshot 不为 undefined */
+    // 注意：在整合系列作品时，需要使用 createDateTime 而不是 createDate，因为此时没有 createDate 属性
+    createDateTime?: string
+    /** 总字数。只有当整合系列作品时才有这个属性，也就是 isOneshot 不为 undefined */
+    textLength?: number
+    /**只有当整合系列作品时才有这个属性，也就是 isOneshot 不为 undefined */
+    publishedTextLength?: number
+    /**只有当整合系列作品时才有这个属性，也就是 isOneshot 不为 undefined */
+    publishedWordCount?: number
+    /**只有当整合系列作品时才有这个属性，也就是 isOneshot 不为 undefined */
+    publishedReadingTime?: number
+    /** 如果没有整合系列作品，则每篇小说都有这个属性（因为是单篇小说的数据）。如果是系列小说的数据，则没有这个属性，因为不能收藏小说的系列 */
+    // isOneshot 为 false 时没有这个属性，为 true 或 undefined 时有这个属性
+    bookmarkData?: null | {
+      id: string
+      private: boolean
+    }
+    /** 与上一个属性相同：isOneshot 为 false 时没有这个属性，为 true 或 undefined 时有这个属性 */
+    isBookmarkable?: boolean
+  }
+
+// 当用户启用了整合系列作品时，并且这项数据属于系列作品时，会有这些特有的属性
+interface NovelSearchDataOnlyInSeries {
+  /** 该系列是否完结。当 isOneshot 为 false 时才会有这个属性 */
+  isConcluded?: boolean
+  /** 该系列里含有多少篇小说。当 isOneshot 为 false 时才会有这个属性 */
+  episodeCount?: number
+  /** 该系列里已发布了多少篇小说。当 isOneshot 为 false 时才会有这个属性 */
+  publishedEpisodeCount?: number
+  /** 该系列小说里最后一次发布的时间。当 isOneshot 为 false 时才会有这个属性。 */
+  // 格式如："2026-03-18T01:51:34+09:00"
+  latestPublishDateTime?: string
+  /** 该系列里最新一篇小说的 id。当 isOneshot 为 false 时才会有这个属性 */
+  latestEpisodeId?: number
+  /** 是否在追更。当 isOneshot 为 false 时才会有这个属性 */
+  isWatched?: boolean
+  /** 是否打开了通知。当 isOneshot 为 false 时才会有这个属性 */
+  isNotifying?: boolean
 }
 
 // 大家的新作小说的数据格式
@@ -974,6 +1026,7 @@ export interface NovelCommonData {
   }
   createDate: string
   description: string
+  /** 如果这份数据是单篇小说，那么 id 是单篇 id。如果这份数据是系列小说，则 id 是系列 id */
   id: string
   isBookmarkable: boolean
   isUnlisted: boolean
@@ -991,6 +1044,10 @@ export interface NovelCommonData {
   restrict: 0 | 1 | 2
   tags: string[]
   textCount: number
+  wordCount: number
+  readingTime: number
+  useWordCount: boolean
+  /** 如果这份数据是单篇小说，那么 title 是单篇小说的标题。如果这份数据是系列小说，则是系列标题 */
   title: string
   titleCaptionTranslation: {
     workTitle: string | null

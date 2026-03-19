@@ -16,8 +16,9 @@ import { Config } from './Config'
 // 手动选择作品，图片作品和小说都可以选择
 class SelectWork {
   constructor() {
-    const unlisted = pageType.type === pageType.list.Unlisted
-    if (!this.created && Utils.isPixiv() && !unlisted) {
+    // 符合条件时才会创建“手动选择作品”的按钮
+    // 注意：由于这个初始化步骤只会执行一次，所以如果在这里不创建按钮的话，之后即使切换到符合条件的页面里，也依然是没有按钮的
+    if (!this.created && Utils.isPixiv()) {
       this.created = true
       this.selector = this.createSelectorEl()
       this.addBtn()
@@ -36,6 +37,8 @@ class SelectWork {
   private _start = false
   private _pause = false
   private _tempHide = false // 打开下载面板时临时隐藏。这个变量只会影响选择器的 display
+
+  private disablePageList = [pageType.list.Unlisted]
 
   get start() {
     return this._start
@@ -259,6 +262,14 @@ class SelectWork {
     if (!this.start) {
       lang.updateText(this.controlTextSpan, '_手动选择作品')
       this.controlBtn.onclick = (ev) => {
+        const disable = this.disablePageList.includes(pageType.type)
+        if (disable) {
+          msgBox.warning(lang.transl('_不支持在此页面上手动选择作品'), {
+            title: lang.transl('_手动选择作品'),
+          })
+          return
+        }
+
         this.startSelect(ev)
         this.clearBtn.style.display = 'flex'
         if (!Config.mobile) {
