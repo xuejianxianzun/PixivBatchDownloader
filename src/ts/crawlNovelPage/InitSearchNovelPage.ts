@@ -180,7 +180,7 @@ class InitSearchNovelPage extends InitPageBase {
     this.initFetchURL()
 
     if (this.option.gs === '1') {
-      log.warning(lang.transl('_提示按系列下载而非按作品下载'))
+      log.warning(lang.transl('_提示优先下载系列小说'))
     }
 
     // 计算应该抓取多少页

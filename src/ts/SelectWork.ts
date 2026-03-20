@@ -12,6 +12,13 @@ import { novelThumbnail } from './NovelThumbnail'
 import { pageType } from './PageType'
 import { showHelp } from './ShowHelp'
 import { Config } from './Config'
+import { log } from './Log'
+import { MergeNovel } from './download/MergeNovel'
+
+type IDItem = IDData & {
+  isSeries?: boolean
+  title?: string
+}
 
 // 手动选择作品，图片作品和小说都可以选择
 class SelectWork {
@@ -86,7 +93,7 @@ class SelectWork {
   private worksWrapper: HTMLElement = document.body
   private ob: MutationObserver | undefined = undefined
 
-  private idList: IDData[] = []
+  private idList: IDItem[] = []
 
   private sendCrawl = false // 它用来判断抓取的是不是选择的作品。抓取选择的作品时激活此标记；当触发下一次的抓取完成事件时，表示已经抓取了选择的作品。
   private crawled = false // 是否已经抓取了选择的作品
@@ -102,9 +109,11 @@ class SelectWork {
       this.clickThumbnail(el, id, ev, 'illusts')
     })
 
-    novelThumbnail.onClick((el: HTMLElement, id: string, ev: Event) => {
-      this.clickThumbnail(el, id, ev, 'novels')
-    })
+    novelThumbnail.onClick(
+      (el: HTMLElement, id: string, ev: Event, isSeries: boolean) => {
+        this.clickThumbnail(el, id, ev, 'novels', isSeries)
+      }
+    )
 
     document.body.addEventListener(
       Config.mobile ? 'touchend' : 'click',
@@ -309,15 +318,35 @@ class SelectWork {
     }
   }
 
-  private addId(el: HTMLElement, id: string, type: WorkTypeString) {
+  private addId(
+    el: HTMLElement,
+    id: string,
+    type: WorkTypeString,
+    isSeries = false
+  ) {
     const index = this.idList.findIndex((item) => {
       return item.id === id && item.type === type
     })
-    // 添加这个 id
+
     if (index === -1) {
+      // 如果是系列 id，则尝试从 A 标签里获取系列标题
+      let seriesTitle = ''
+      if (isSeries) {
+        const aList = el.querySelectorAll(`a[href*="${id}"]`)
+        for (const a of aList) {
+          if (a.textContent) {
+            seriesTitle = a.textContent
+            break
+          }
+        }
+      }
+
+      // 添加这个 id
       this.idList.push({
         id,
         type,
+        isSeries,
+        title: seriesTitle,
       })
       this.crawled = false
       this.addSelectedFlag(el, id)
@@ -333,7 +362,8 @@ class SelectWork {
     el: HTMLElement,
     id: string,
     ev: Event,
-    type: WorkTypeString
+    type: WorkTypeString,
+    isSeries = false
   ) {
     if (!this.canSelect()) {
       return
@@ -361,7 +391,7 @@ class SelectWork {
     // 阻止默认事件，否则会进入作品页面，导致无法在当前页面继续选择
     ev.preventDefault()
     ev.stopPropagation()
-    this.addId(el, id, type)
+    this.addId(el, id, type, isSeries)
   }
 
   private clickElement(el: HTMLElement, ev: Event) {
@@ -388,6 +418,15 @@ class SelectWork {
       ev.preventDefault()
       ev.stopPropagation()
       this.addId(el.parentElement!, novelId, 'novels')
+      return
+    }
+
+    // 如果没有查找到小说 id，可能是系列小说，此时尝试查找系列 id
+    const seriesId = Tools.getNovelSeriesId(href)
+    if (seriesId) {
+      ev.preventDefault()
+      ev.stopPropagation()
+      this.addId(el.parentElement!, seriesId, 'novels', true)
       return
     }
   }
@@ -436,17 +475,43 @@ class SelectWork {
   }
 
   // 抓取选择的作品，这会自动暂停手动选择作品
-  private sendDownload() {
+  private async sendDownload() {
+    if (this.idList.length === 0) {
+      return toast.warning(lang.transl('_没有数据可供使用'))
+    }
+
+    if (states.busy) {
+      return toast.warning(lang.transl('_下载器正忙忽略本次操作'))
+    }
+
     this.pauseSelect()
 
-    if (this.idList.length > 0) {
-      // 传递 id 列表时，将其转换成一个新的数组。否则传递的是引用，外部的一些操作可能会影响内部的 id 列表
-      EVT.fire('crawlIdList', Array.from(this.idList))
+    // 优先合并系列小说，因为系列小说不是单个作品，需要单独处理
+    const novelSeries = this.idList.filter(
+      (item) => item.type === 'novels' && item.isSeries
+    )
+    if (novelSeries.length > 0) {
+      toast.show(lang.transl('_合并系列小说'), {
+        bgColor: Colors.bgBlue,
+      })
+      log.warning(lang.transl('_提示选择的作品里有一些系列小说'))
 
+      EVT.fire('closeCenterPanel')
+      this.crawled = false
+
+      for (const series of novelSeries) {
+        await new MergeNovel().merge(series.id, series.title, true)
+      }
+
+      this.crawled = true
+    }
+
+    // 然后抓取作品
+    const works = this.idList.filter((item) => item.isSeries !== true)
+    if (works.length > 0) {
+      EVT.fire('crawlIdList', works)
       this.sendCrawl = true
       this.crawled = false
-    } else {
-      toast.error(lang.transl('_没有数据可供使用'))
     }
   }
 

@@ -8790,6 +8790,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowHelp */ "./src/ts/ShowHelp.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+
+
 
 
 
@@ -8806,6 +8810,8 @@ __webpack_require__.r(__webpack_exports__);
 // 手动选择作品，图片作品和小说都可以选择
 class SelectWork {
     constructor() {
+        // 符合条件时才会创建“手动选择作品”的按钮
+        // 注意：由于这个初始化步骤只会执行一次，所以如果在这里不创建按钮的话，之后即使切换到符合条件的页面里，也依然是没有按钮的
         if (!this.created && _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.isPixiv()) {
             this.created = true;
             this.selector = this.createSelectorEl();
@@ -8871,8 +8877,8 @@ class SelectWork {
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_8__.artworkThumbnail.onClick((el, id, ev) => {
             this.clickThumbnail(el, id, ev, 'illusts');
         });
-        _NovelThumbnail__WEBPACK_IMPORTED_MODULE_9__.novelThumbnail.onClick((el, id, ev) => {
-            this.clickThumbnail(el, id, ev, 'novels');
+        _NovelThumbnail__WEBPACK_IMPORTED_MODULE_9__.novelThumbnail.onClick((el, id, ev, isSeries) => {
+            this.clickThumbnail(el, id, ev, 'novels', isSeries);
         });
         document.body.addEventListener(_Config__WEBPACK_IMPORTED_MODULE_12__.Config.mobile ? 'touchend' : 'click', (ev) => {
             this.clickElement(ev.target, ev);
@@ -9021,15 +9027,28 @@ class SelectWork {
             _Language__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.crawlTextSpan, '_抓取选择的作品');
         }
     }
-    addId(el, id, type) {
+    addId(el, id, type, isSeries = false) {
         const index = this.idList.findIndex((item) => {
             return item.id === id && item.type === type;
         });
-        // 添加这个 id
         if (index === -1) {
+            // 如果是系列 id，则尝试从 A 标签里获取系列标题
+            let seriesTitle = '';
+            if (isSeries) {
+                const aList = el.querySelectorAll(`a[href*="${id}"]`);
+                for (const a of aList) {
+                    if (a.textContent) {
+                        seriesTitle = a.textContent;
+                        break;
+                    }
+                }
+            }
+            // 添加这个 id
             this.idList.push({
                 id,
                 type,
+                isSeries,
+                title: seriesTitle,
             });
             this.crawled = false;
             this.addSelectedFlag(el, id);
@@ -9041,7 +9060,7 @@ class SelectWork {
         }
         this.updateCrawlBtn();
     }
-    clickThumbnail(el, id, ev, type) {
+    clickThumbnail(el, id, ev, type, isSeries = false) {
         if (!this.canSelect()) {
             return;
         }
@@ -9061,7 +9080,7 @@ class SelectWork {
         // 阻止默认事件，否则会进入作品页面，导致无法在当前页面继续选择
         ev.preventDefault();
         ev.stopPropagation();
-        this.addId(el, id, type);
+        this.addId(el, id, type, isSeries);
     }
     clickElement(el, ev) {
         if (!this.canSelect()) {
@@ -9084,6 +9103,14 @@ class SelectWork {
             ev.preventDefault();
             ev.stopPropagation();
             this.addId(el.parentElement, novelId, 'novels');
+            return;
+        }
+        // 如果没有查找到小说 id，可能是系列小说，此时尝试查找系列 id
+        const seriesId = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getNovelSeriesId(href);
+        if (seriesId) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            this.addId(el.parentElement, seriesId, 'novels', true);
             return;
         }
     }
@@ -9124,16 +9151,34 @@ class SelectWork {
         return this.start && !this.pause;
     }
     // 抓取选择的作品，这会自动暂停手动选择作品
-    sendDownload() {
+    async sendDownload() {
+        if (this.idList.length === 0) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_没有数据可供使用'));
+        }
+        if (_store_States__WEBPACK_IMPORTED_MODULE_4__.states.busy) {
+            return _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器正忙忽略本次操作'));
+        }
         this.pauseSelect();
-        if (this.idList.length > 0) {
-            // 传递 id 列表时，将其转换成一个新的数组。否则传递的是引用，外部的一些操作可能会影响内部的 id 列表
-            _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('crawlIdList', Array.from(this.idList));
+        // 优先合并系列小说，因为系列小说不是单个作品，需要单独处理
+        const novelSeries = this.idList.filter((item) => item.type === 'novels' && item.isSeries);
+        if (novelSeries.length > 0) {
+            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_合并系列小说'), {
+                bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
+            });
+            _Log__WEBPACK_IMPORTED_MODULE_13__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示选择的作品里有一些系列小说'));
+            _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('closeCenterPanel');
+            this.crawled = false;
+            for (const series of novelSeries) {
+                await new _download_MergeNovel__WEBPACK_IMPORTED_MODULE_14__.MergeNovel().merge(series.id, series.title, true);
+            }
+            this.crawled = true;
+        }
+        // 然后抓取作品
+        const works = this.idList.filter((item) => item.isSeries !== true);
+        if (works.length > 0) {
+            _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('crawlIdList', works);
             this.sendCrawl = true;
             this.crawled = false;
-        }
-        else {
-            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_没有数据可供使用'));
         }
     }
     // 给这个作品添加标记
@@ -11157,6 +11202,17 @@ class Tools {
         const str = url || window.location.href;
         let result = '';
         const test = str.match(/novel\/show.php\?id=(\d*)?/);
+        if (test && test.length > 1) {
+            result = test[1];
+        }
+        return result;
+    }
+    /**从 url 里获取系列小说的 id。如果查找不到会返回空字符串 */
+    // https://www.pixiv.net/novel/series/11721618
+    static getNovelSeriesId(url) {
+        const str = url || window.location.href;
+        let result = '';
+        const test = str.match(/novel\/series\/(\d*)?/);
         if (test && test.length > 1) {
             result = test[1];
         }
@@ -19902,7 +19958,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         this.setSlowCrawl();
         this.initFetchURL();
         if (this.option.gs === '1') {
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示按系列下载而非按作品下载'));
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示优先下载系列小说'));
         }
         // 计算应该抓取多少页
         const data = await this.getSearchData(1);
@@ -27120,7 +27176,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 
 // 储存下载器使用的多语言文本
-// 在属性名前面加上下划线
+// 在属性名前面添加下划线
+// 目前每条语句有 6 种翻译，按顺序排列，依次是：简体中文、繁体中文、英语、日语、韩语、俄语
 // {} 是占位符
 // <br> 和 \n 是换行
 const langText = {
@@ -35043,25 +35100,25 @@ The downloader will now apply the "Must contain tags" and "Must not contain tags
     Если в браузере слишком много записей о загрузках, при запуске браузер может зависнуть (стать неотзывчивым) на некоторое время. Чем больше записей о загрузках, тем дольше длится зависание.<br>
     Пользователи загрузчика часто скачивают много файлов с Pixiv, создавая большое количество записей о загрузках, что легко приводит к этой проблеме. Однако многие пользователи не знают причины, поэтому загрузчик каждые 24 часа проверяет количество записей о загрузках в браузере и показывает эту подсказку, когда количество превышает {}.`,
     ],
-    _提示按系列下载而非按作品下载: [
-        `该页面里的小说是以系列为单位显示的，通常既有系列小说，也有单篇完结小说。<br>
-对于该页面里的系列小说：下载器在抓取时就会自动合并系列小说，并且不会单独保存系列里的单篇小说。系列小说不会出现在抓取结果里。<br>
-对于该页面里的单篇完结小说：下载器会在抓取完毕后统一下载。`,
-        `該頁面裡的小說是以系列為單位顯示的，通常既有系列小說，也有單篇完結小說。<br>
-對於該頁面裡的系列小說：下載器在抓取時就會自動合併系列小說，並且不會單獨保存系列裡的單篇小說。系列小說不會出現在抓取結果裡。<br>
-對於該頁面裡的單篇完結小說：下載器會在抓取完畢後統一下載。`,
-        `Novels on this page are displayed by series units, typically including both series novels and standalone completed novels.<br>
-For series novels on this page: The downloader automatically merges the series during crawling and will not save individual chapters from the series separately. Series novels will not appear in the crawl results.<br>
-For standalone completed novels on this page: The downloader will download them all together after crawling is complete.`,
-        `このページの小説はシリーズ単位で表示されており、通常シリーズ小説と単発完結小説の両方が含まれています。<br>
-このページのシリーズ小説について：ダウンロードツールはクロール時にシリーズ小説を自動的にマージし、シリーズ内の個別エピソードを単独で保存しません。シリーズ小説はクロール結果に表示されません。<br>
-このページの単発完結小説について：ダウンロードツールはクロール完了後に一括でダウンロードします。`,
-        `이 페이지의 소설은 시리즈 단위로 표시되며, 보통 시리즈 소설과 단편 완결 소설이 모두 포함되어 있습니다.<br>
-이 페이지의 시리즈 소설: 다운로더는 크롤링 시 시리즈 소설을 자동으로 병합하며, 시리즈 내 개별 편을 따로 저장하지 않습니다. 시리즈 소설은 크롤링 결과에 나타나지 않습니다.<br>
-이 페이지의 단편 완결 소설: 다운로더는 크롤링 완료 후 일괄 다운로드합니다。`,
-        `На этой странице романы отображаются по сериям, обычно включая как серии романов, так и отдельные завершённые произведения.<br>
-Для серий романов на этой странице: загрузчик автоматически объединяет серию во время краулинга и не сохраняет отдельные главы серии по отдельности. Серии романов не появятся в результатах краулинга.<br>
-Для отдельных завершённых романов на этой странице: загрузчик скачает их все разом после завершения краулинга.`,
+    _提示优先下载系列小说: [
+        `由于你启用了“整合系列作品”的搜索条件，所以该页面里通常有两种结果：系列小说和单篇完结小说。<br>
+下载器在抓取时会优先下载系列小说；当抓取完成时，下载器已经下载了所有系列小说。<br>
+抓取完成后才会下载单篇小说。抓取结果里只有单篇小说，没有系列小说。`,
+        `由於你啟用了「整合系列作品」的搜尋條件，所以該頁面裡通常有兩種結果：系列小說和單篇完結小說。<br>
+下載器在抓取時會優先下載系列小說；當抓取完成時，下載器已經下載了所有系列小說。<br>
+抓取完成後才會下載單篇小說。抓取結果裡只有單篇小說，沒有系列小說。`,
+        `Because you have enabled the "Integrate series works" search condition, this page typically has two types of results: series novels and standalone completed novels.<br>
+The downloader prioritizes downloading series novels during crawling; by the time crawling is complete, all series novels have already been downloaded.<br>
+Standalone novels are downloaded only after crawling is finished. The crawl results contain only standalone novels, with no series novels included.`,
+        `「シリーズ作品を統合する」検索条件を有効にしたため、このページには通常2種類の結果があります：シリーズ小説と単発完結小説。<br>
+ダウンロードツールはクロール時にシリーズ小説を優先的にダウンロードします。クロールが完了した時点ですでにすべてのシリーズ小説がダウンロードされています。<br>
+クロール完了後に単発小説がダウンロードされます。クロール結果には単発小説のみが含まれ、シリーズ小説は表示されません。`,
+        `"시리즈 작품 통합" 검색 조건을 활성화했기 때문에 이 페이지에는 보통 두 가지 결과가 있습니다: 시리즈 소설과 단편 완결 소설.<br>
+다운로더는 크롤링 시 시리즈 소설을 우선적으로 다운로드하며, 크롤링이 완료되면 이미 모든 시리즈 소설이 다운로드된 상태입니다.<br>
+크롤링 완료 후에 단편 소설이 다운로드됩니다. 크롤링 결과에는 단편 소설만 포함되며 시리즈 소설은 없습니다.`,
+        `Поскольку вы включили условие поиска «Интегрировать серии работ», на этой странице обычно присутствуют два типа результатов: серии романов и отдельные завершённые романы.<br>
+Загрузчик при краулинге отдаёт приоритет скачиванию серий романов; к моменту завершения краулинга все серии романов уже скачаны.<br>
+Отдельные романы скачиваются только после завершения краулинга. В результатах краулинга присутствуют только отдельные романы, серии романов в них не отображаются.`,
     ],
     _提示只会收藏单篇小说: [
         `这个页面里可能有系列小说。下载器会跳过系列小说，只收藏单篇小说。`,
@@ -35070,6 +35127,14 @@ For standalone completed novels on this page: The downloader will download them 
         `このページにはシリーズ小説が含まれる可能性があります。ダウンロードツールはシリーズ小説をスキップし、単発小説のみをブックマークします。`,
         `이 페이지에는 시리즈 소설이 포함될 수 있습니다. 다운로더는 시리즈 소설을 건너뛰고 단편 소설만 북마크합니다.`,
         `На этой странице могут быть серии романов. Загрузчик пропустит серии романов и добавит в закладки только отдельные романы.`,
+    ],
+    _提示选择的作品里有一些系列小说: [
+        `你选择的作品里有一些系列小说，下载器会优先合并系列小说。`,
+        `你選擇的作品裡有一些系列小說，下載器會優先合併系列小說。`,
+        `Some of the works you selected are novel series, and the downloader will prioritize merging the series novels.`,
+        `選択した作品の中にシリーズ小説が含まれています。ダウンロードツールはシリーズ小説を優先的にマージします。`,
+        `선택한 작품 중 일부가 시리즈 소설입니다. 다운로더는 시리즈 소설을 우선적으로 병합합니다.`,
+        `В выбранных вами работах есть серии романов, загрузчик будет в первую очередь объединять серии романов.`,
     ],
 };
 

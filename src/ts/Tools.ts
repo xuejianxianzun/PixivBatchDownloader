@@ -148,6 +148,20 @@ class Tools {
     return result
   }
 
+  /**从 url 里获取系列小说的 id。如果查找不到会返回空字符串 */
+  // https://www.pixiv.net/novel/series/11721618
+  static getNovelSeriesId(url?: string) {
+    const str = url || window.location.href
+    let result = ''
+
+    const test = str.match(/novel\/series\/(\d*)?/)
+    if (test && test.length > 1) {
+      result = test[1]
+    }
+
+    return result
+  }
+
   /**从 DOM 元素中获取作品的 id
    *
    * 如果查找不到 id 会返回空字符串
