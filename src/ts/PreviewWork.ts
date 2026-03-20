@@ -266,17 +266,7 @@ class PreviewWork {
           }
         }
 
-        // 使用 Esc 键关闭当前预览
-        if (ev.code === 'Escape' && this.show) {
-          ev.stopPropagation()
-          ev.preventDefault()
-          this.show = false
-          // 并且不再显示这个作品的预览图，否则如果鼠标依然位于这个作品上，就会马上再次显示缩略图了
-          // 当鼠标移出这个作品的缩略图之后会取消此限制
-          this.dontShowAgain = true
-        }
-
-        // 翻页时关闭当前预览
+        // 按翻页键时关闭当前预览
         // 这是为了处理边界情况。常见的触发方式是预览一个横图作品，且鼠标处于预览图之上
         // 此时翻页的话，虽然作品区域已经变化，但由于鼠标一直停留在预览图上，预览图就不会消失
         // 此时需要强制关闭预览
@@ -286,8 +276,32 @@ class PreviewWork {
           }
         }
 
+        if (!this.show) {
+          return
+        }
+
+        // 使用 Esc 键关闭当前预览
+        if (ev.code === 'Escape') {
+          ev.stopPropagation()
+          ev.preventDefault()
+          this.show = false
+          // 并且不再显示这个作品的预览图，否则如果鼠标依然位于这个作品上，就会马上再次显示缩略图了
+          // 当鼠标移出这个作品的缩略图之后会取消此限制
+          this.dontShowAgain = true
+        }
+
+        // 如果显示预览时，焦点在输入框里，下面的单按键输入会导致在输入框里输入文字
+        // 所以检测焦点元素，如果是输入框则使其失去焦点
+        // 测试案例：点击页面顶部的搜索框，或者点击作品页面里的评论框，然后预览作品并测试按键
+        const activeEl = document.activeElement
+        if (activeEl?.tagName === 'INPUT' || activeEl?.tagName === 'TEXTAREA') {
+          ;(activeEl as HTMLElement).blur()
+        }
+
         // 预览作品时，可以使用快捷键 D 下载这个作品
-        if (ev.code === 'KeyD' && this.show) {
+        if (ev.code === 'KeyD') {
+          ev.preventDefault()
+          ev.stopPropagation()
           EVT.fire('crawlIdList', [
             {
               type: 'illusts',
@@ -297,8 +311,9 @@ class PreviewWork {
         }
 
         // 预览作品时，可以使用快捷键 C 仅下载当前显示的图片
-        if (ev.code === 'KeyC' && this.show) {
+        if (ev.code === 'KeyC') {
           // 在作品页面内按 C 时，Pixiv 会把焦点定位到评论输入框里，这里阻止此行为
+          ev.preventDefault()
           ev.stopPropagation()
 
           if (this.workData!.body.pageCount > 1) {
@@ -316,8 +331,9 @@ class PreviewWork {
         }
 
         // 预览作品时，可以使用快捷键 B 收藏这个作品
-        if (ev.code === 'KeyB' && this.show) {
+        if (ev.code === 'KeyB') {
           // 阻止 Pixiv 对按下 B 键的行为
+          ev.preventDefault()
           ev.stopPropagation()
           this.addBookmark()
         }
@@ -330,7 +346,7 @@ class PreviewWork {
           ev.code === 'ArrowDown' ||
           ev.code === 'Space'
         ) {
-          if (this.show && settings.swicthImageByKeyboard) {
+          if (settings.swicthImageByKeyboard) {
             // 阻止事件冒泡和默认事件
             // 阻止事件冒泡用来阻止 Pixiv 使用左右键来切换作品的功能
             // 阻止默认事件用来阻止上下键和空格键滚动页面的功能

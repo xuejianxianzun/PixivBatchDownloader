@@ -6938,6 +6938,10 @@ class PageType {
                 url: 'https://www.pixiv.net/search?q=%E5%8E%9F%E7%A5%9E&s_mode=tag&type=novel&order=date&mode=r18&scd=2025-02-10&ecd=2026-02-10&wlt=20000&wgt=79999&ai_type=1',
             },
             {
+                type: PageName.NovelSearch,
+                url: 'https://www.pixiv.net/search?q=%E3%83%90%E3%83%BC%E3%83%81%E3%83%A3%E3%83%ABYouTuber%201000users%E5%85%A5%E3%82%8A&s_mode=tag_tc&type=novel&gs=1',
+            },
+            {
                 type: PageName.NovelRanking,
                 url: 'https://www.pixiv.net/novel/ranking.php?mode=daily',
             },
@@ -7574,15 +7578,6 @@ class PreviewWork {
                     return;
                 }
             }
-            // 使用 Esc 键关闭当前预览
-            if (ev.code === 'Escape' && this.show) {
-                ev.stopPropagation();
-                ev.preventDefault();
-                this.show = false;
-                // 并且不再显示这个作品的预览图，否则如果鼠标依然位于这个作品上，就会马上再次显示缩略图了
-                // 当鼠标移出这个作品的缩略图之后会取消此限制
-                this.dontShowAgain = true;
-            }
             // 翻页时关闭当前预览
             // 这是为了处理边界情况。常见的触发方式是预览一个横图作品，且鼠标处于预览图之上
             // 此时翻页的话，虽然作品区域已经变化，但由于鼠标一直停留在预览图上，预览图就不会消失
@@ -7592,8 +7587,30 @@ class PreviewWork {
                     this.show = false;
                 }
             }
+            if (!this.show) {
+                return;
+            }
+            // 使用 Esc 键关闭当前预览
+            if (ev.code === 'Escape') {
+                ev.stopPropagation();
+                ev.preventDefault();
+                this.show = false;
+                // 并且不再显示这个作品的预览图，否则如果鼠标依然位于这个作品上，就会马上再次显示缩略图了
+                // 当鼠标移出这个作品的缩略图之后会取消此限制
+                this.dontShowAgain = true;
+            }
+            // 如果显示预览时，焦点在输入框里，下面的单按键输入会导致在输入框里输入文字
+            // 所以检测焦点元素，如果是输入框则使其失去焦点
+            // 测试案例：点击页面顶部的搜索框，或者点击作品页面里的评论框，然后预览作品并测试按键
+            const activeEl = document.activeElement;
+            if (activeEl?.tagName === 'INPUT' || activeEl?.tagName === 'TEXTAREA') {
+                ;
+                activeEl.blur();
+            }
             // 预览作品时，可以使用快捷键 D 下载这个作品
-            if (ev.code === 'KeyD' && this.show) {
+            if (ev.code === 'KeyD') {
+                ev.preventDefault();
+                ev.stopPropagation();
                 _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [
                     {
                         type: 'illusts',
@@ -7602,8 +7619,9 @@ class PreviewWork {
                 ]);
             }
             // 预览作品时，可以使用快捷键 C 仅下载当前显示的图片
-            if (ev.code === 'KeyC' && this.show) {
+            if (ev.code === 'KeyC') {
                 // 在作品页面内按 C 时，Pixiv 会把焦点定位到评论输入框里，这里阻止此行为
+                ev.preventDefault();
                 ev.stopPropagation();
                 if (this.workData.body.pageCount > 1) {
                     _store_Store__WEBPACK_IMPORTED_MODULE_14__.store.setDownloadOnlyPart(Number.parseInt(this.workData.body.id), [
@@ -7618,8 +7636,9 @@ class PreviewWork {
                 ]);
             }
             // 预览作品时，可以使用快捷键 B 收藏这个作品
-            if (ev.code === 'KeyB' && this.show) {
+            if (ev.code === 'KeyB') {
                 // 阻止 Pixiv 对按下 B 键的行为
+                ev.preventDefault();
                 ev.stopPropagation();
                 this.addBookmark();
             }
@@ -7629,7 +7648,7 @@ class PreviewWork {
                 ev.code === 'ArrowUp' ||
                 ev.code === 'ArrowDown' ||
                 ev.code === 'Space') {
-                if (this.show && _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.swicthImageByKeyboard) {
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.swicthImageByKeyboard) {
                     // 阻止事件冒泡和默认事件
                     // 阻止事件冒泡用来阻止 Pixiv 使用左右键来切换作品的功能
                     // 阻止默认事件用来阻止上下键和空格键滚动页面的功能
@@ -19846,7 +19865,7 @@ __webpack_require__.r(__webpack_exports__);
 // https://www.pixiv.net/tags/%E5%8E%9F%E7%A5%9E/novels?order=date&mode=r18&scd=2025-02-10&ecd=2026-02-10&wlt=20000&wgt=79999&ai_type=1
 // https://www.pixiv.net/search?q=%E5%8E%9F%E7%A5%9E&s_mode=tag&type=novel&order=date&mode=r18&scd=2025-02-10&ecd=2026-02-10&wlt=20000&wgt=79999&ai_type=1
 // 按系列整合：
-// https://www.pixiv.net/search?s_mode=tag_tc&type=novel&q=%E3%83%90%E3%83%BC%E3%83%81%E3%83%A3%E3%83%ABYouTuber%201000users%E5%85%A5%E3%82%8A
+// https://www.pixiv.net/search?q=%E3%83%90%E3%83%BC%E3%83%81%E3%83%A3%E3%83%ABYouTuber%201000users%E5%85%A5%E3%82%8A&s_mode=tag_tc&type=novel&gs=1
 class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();

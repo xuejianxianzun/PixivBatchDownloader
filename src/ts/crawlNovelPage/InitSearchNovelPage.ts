@@ -28,7 +28,7 @@ import { MergeNovel } from '../download/MergeNovel'
 // https://www.pixiv.net/tags/%E5%8E%9F%E7%A5%9E/novels?order=date&mode=r18&scd=2025-02-10&ecd=2026-02-10&wlt=20000&wgt=79999&ai_type=1
 // https://www.pixiv.net/search?q=%E5%8E%9F%E7%A5%9E&s_mode=tag&type=novel&order=date&mode=r18&scd=2025-02-10&ecd=2026-02-10&wlt=20000&wgt=79999&ai_type=1
 // 按系列整合：
-// https://www.pixiv.net/search?s_mode=tag_tc&type=novel&q=%E3%83%90%E3%83%BC%E3%83%81%E3%83%A3%E3%83%ABYouTuber%201000users%E5%85%A5%E3%82%8A
+// https://www.pixiv.net/search?q=%E3%83%90%E3%83%BC%E3%83%81%E3%83%A3%E3%83%ABYouTuber%201000users%E5%85%A5%E3%82%8A&s_mode=tag_tc&type=novel&gs=1
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {
