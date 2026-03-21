@@ -9,7 +9,7 @@ import { bg } from './BG'
 import './OpenCenterPanel'
 import { settings } from './setting/Settings'
 import { BoldKeywords } from './BoldKeywords'
-import { showOneTimeTip } from './showOneTimeTip'
+import { showOneTimeMsg } from './ShowOneTimeMsg'
 import { store } from './store/Store'
 
 // 选项卡的名称和索引
@@ -70,12 +70,10 @@ class CenterPanel {
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
-        <button class="textButton ${
-          !Config.mobile && 'has_tip'
-        } centerWrap_top_btn centerWrap_close" ${
-          !Config.mobile &&
-          'data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板"'
-        }>
+        <button class="textButton ${!Config.mobile && 'has_tip'
+      } centerWrap_top_btn centerWrap_close" ${!Config.mobile &&
+      'data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板"'
+      }>
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
         </svg>
@@ -160,7 +158,7 @@ class CenterPanel {
     })
 
     window.addEventListener(EVT.list.settingInitialized, () => {
-      showOneTimeTip.show(
+      showOneTimeMsg.show(
         'tipHowToUse',
         lang.transl('_HowToUse') + lang.transl('_账户可能被封禁的警告')
       )
@@ -183,7 +181,7 @@ class CenterPanel {
       .addEventListener('click', () => {
         EVT.fire('closeCenterPanel')
         if (!Config.mobile) {
-          showOneTimeTip.show(
+          showOneTimeMsg.show(
             'tipAltXToShowControlPanel',
             lang.transl('_快捷键ALTX显示隐藏控制面板')
           )

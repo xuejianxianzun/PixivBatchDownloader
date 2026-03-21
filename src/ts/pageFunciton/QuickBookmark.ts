@@ -7,7 +7,7 @@ import { ArtworkData, NovelData } from '../crawl/CrawlResult'
 import { bookmark } from '../Bookmark'
 import { workToolBar } from '../WorkToolBar'
 import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
-import { showOneTimeTip } from '../showOneTimeTip'
+import { showOneTimeMsg } from '../ShowOneTimeMsg'
 import { Config } from '../Config'
 import { toast } from '../Toast'
 import { logErrorStatus } from '../crawl/LogErrorStatus'
@@ -172,7 +172,7 @@ class QuickBookmark {
           this.sendDownload()
         }
 
-        showOneTimeTip.show(
+        showOneTimeMsg.show(
           'tipBookmarkButton',
           lang.transl('_下载器的收藏按钮默认会添加作品的标签')
         )
@@ -269,7 +269,7 @@ class QuickBookmark {
     try {
       API.addLike(id, type, token.token)
       likeBtn.style.color = '#0096fa'
-    } catch (error: Error | any) {}
+    } catch (error: Error | any) { }
   }
 
   private setBtnStyle() {

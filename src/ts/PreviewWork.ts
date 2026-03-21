@@ -12,7 +12,7 @@ import { toast } from './Toast'
 import { lang } from './Language'
 import { Colors } from './Colors'
 import { DateFormat } from './utils/DateFormat'
-import { showOneTimeTip } from './showOneTimeTip'
+import { showOneTimeMsg } from './ShowOneTimeMsg'
 import { store } from './store/Store'
 import { Config } from './Config'
 import { previewWorkDetailInfo } from './PreviewWorkDetailInfo'
@@ -114,7 +114,7 @@ class PreviewWork {
         if (
           settings.PreviewWorkDetailInfo &&
           displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL) ===
-            false
+          false
         ) {
           EVT.fire('showPreviewWorkDetailPanel', this.workData)
         }
@@ -127,7 +127,7 @@ class PreviewWork {
         this.showWrap()
         window.clearTimeout(this.delayHiddenTimer)
         if (!Config.mobile) {
-          showOneTimeTip.show(
+          showOneTimeMsg.show(
             'tipPreviewWork',
             lang.transl('_预览作品的快捷键说明'),
             lang.transl('_预览作品')
@@ -295,7 +295,7 @@ class PreviewWork {
         // 测试案例：点击页面顶部的搜索框，或者点击作品页面里的评论框，然后预览作品并测试按键
         const activeEl = document.activeElement
         if (activeEl?.tagName === 'INPUT' || activeEl?.tagName === 'TEXTAREA') {
-          ;(activeEl as HTMLElement).blur()
+          ; (activeEl as HTMLElement).blur()
         }
 
         // 预览作品时，可以使用快捷键 D 下载这个作品

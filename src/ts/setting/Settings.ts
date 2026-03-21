@@ -953,7 +953,7 @@ class Settings {
   }
 
   // 有些帮助信息是只显示一次的，这里可以让它们再次显示
-  // 主要是通过 showOneTimeTip.show 显示的帮助
+  // 主要是通过 showOneTimeMsg.show 显示的帮助
   private resetHelpTip() {
     this.setSetting('tipHowToUse', true)
     this.setSetting('tipAltXToShowControlPanel', true)
@@ -1116,7 +1116,7 @@ class Settings {
     }
 
     // 更改设置
-    ;(this.settings[key] as any) = value
+    ; (this.settings[key] as any) = value
 
     // 当修改某些设置时，顺便修改依赖它的设置
     if (key === 'widthTag') {

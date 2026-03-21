@@ -24,7 +24,7 @@ import { unBookmarkWorks } from '../UnBookmarkWorks'
 import { removeWorksTagsInBookmarks } from '../RemoveWorksTagsInBookmarks'
 import { EVT } from '../EVT'
 import { WorkBookmarkData, bookmark } from '../Bookmark'
-import { showOneTimeTip } from '../showOneTimeTip'
+import { showOneTimeMsg } from '../ShowOneTimeMsg'
 import { msgBox } from '../MsgBox'
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
@@ -91,7 +91,7 @@ class InitBookmarkPage extends InitPageBase {
 
     // 显示提示
     window.setTimeout(() => {
-      showOneTimeTip.show(
+      showOneTimeMsg.show(
         'tipBookmarkManage',
         lang.transl('_在收藏页面里提示有辅助功能可用')
       )
@@ -262,8 +262,7 @@ class InitBookmarkPage extends InitPageBase {
           for (const result of resultList) {
             Utils.downloadFile(
               result.url,
-              `Bookmark list-total ${
-                result.total
+              `Bookmark list-total ${result.total
               }-from ${Tools.getPageTitle()}-${Utils.replaceUnsafeStr(
                 new Date().toLocaleString()
               )}.json`
@@ -510,8 +509,8 @@ One possible reason: You have been banned from Pixiv.`)
                 (workData as ArtworkCommonData).illustType === undefined
                   ? 'novels'
                   : Tools.getWorkTypeString(
-                      (workData as ArtworkCommonData).illustType
-                    ),
+                    (workData as ArtworkCommonData).illustType
+                  ),
               id: workData.id,
             })
 

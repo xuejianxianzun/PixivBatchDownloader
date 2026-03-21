@@ -8,7 +8,7 @@ import { states } from './store/States'
 import { toast } from './Toast'
 import { lang } from './Language'
 import { Colors } from './Colors'
-import { showOneTimeTip } from './showOneTimeTip'
+import { showOneTimeMsg } from './ShowOneTimeMsg'
 import { store } from './store/Store'
 import { Config } from './Config'
 import { IDData } from './store/StoreType'
@@ -93,7 +93,7 @@ class ShowOriginSizeImage {
       EVT.fire('showOriginSizeImage')
       this.wrap.style.display = 'block'
       if (!Config.mobile) {
-        showOneTimeTip.show(
+        showOneTimeMsg.show(
           'tipHotkeysViewLargeImage',
           lang.transl('_查看作品大图时的快捷键')
         )
