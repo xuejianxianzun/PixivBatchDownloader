@@ -43,6 +43,9 @@ body[data-page-type='0'] .bYCbxa,
 body[data-page-type='0'] .cwAKCq {
   width: auto !important;
 }
+body[data-page-type='0'] .novelLI .absolute {
+  position: relative !important;
+}
 body[data-page-type='0'] .homeFriendsNewWorks > div,
 body[data-page-type='0'] .homeWorksSectionParent,
 body[data-page-type='0'] section[data-ga4-label='new_works_content'] > div {

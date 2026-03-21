@@ -65,6 +65,11 @@ body[data-page-type='0'] {
   .cwAKCq {
     width: auto !important;
   }
+  
+  // 这是首页 - 推荐作品 里的小说元素里的 className，需要改变其原本的 absolute 定位，否则手动选择之后图片会不显示
+  .novelLI .absolute{
+    position: relative !important;
+  }
 
   // 新版首页的精选新作板块
   .homeFriendsNewWorks > div,

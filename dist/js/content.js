@@ -7578,7 +7578,7 @@ class PreviewWork {
                     return;
                 }
             }
-            // 翻页时关闭当前预览
+            // 按翻页键时关闭当前预览
             // 这是为了处理边界情况。常见的触发方式是预览一个横图作品，且鼠标处于预览图之上
             // 此时翻页的话，虽然作品区域已经变化，但由于鼠标一直停留在预览图上，预览图就不会消失
             // 此时需要强制关闭预览
@@ -8525,7 +8525,7 @@ class RemoveBlockedUsersWork {
         }
     }, 200);
     // 作品或作品列表元素的选择器
-    containerSelectors = ['li', 'ul>div'];
+    containerSelectors = ['li', 'ul>div', '.worksUL > div'];
     // li
     // 非常广泛
     // ul>div

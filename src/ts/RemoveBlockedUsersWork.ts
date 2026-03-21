@@ -141,7 +141,7 @@ class RemoveBlockedUsersWork {
   }, 200)
 
   // 作品或作品列表元素的选择器
-  private containerSelectors = ['li', 'ul>div']
+  private containerSelectors = ['li', 'ul > div', '.worksUL > div']
 
   // li
   // 非常广泛
