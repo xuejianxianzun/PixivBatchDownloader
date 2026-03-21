@@ -391,6 +391,7 @@ body[data-page-type='5'] nav[data-ga4-label='tags_carousel'] > div > div:first-c
   display: none;
 }
 body[data-page-type='5'] .\[width\:calc\(var\(--columns\)\*80px\+\(var\(--columns\)-1\)\*24px\)\],
+body[data-page-type='5'] .sectionParentDiv,
 body[data-page-type='5'] .worksWrapper,
 body[data-page-type='5'] .worksULParent,
 body[data-page-type='5'] .gqvfWY,

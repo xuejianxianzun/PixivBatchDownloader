@@ -8525,11 +8525,19 @@ class RemoveBlockedUsersWork {
         }
     }, 200);
     // 作品或作品列表元素的选择器
-    containerSelectors = ['li', 'ul > div', '.worksUL > div'];
+    containerSelectors = [
+        'li',
+        'ul > div',
+        'div[data-ga4-label="work_content"]',
+        '.worksUL > div',
+    ];
     // li
     // 非常广泛
     // ul>div
     // 主要是首页里的元素，如 关注用户・好P友的作品 等。其他页面里也有一些地方是这个选择器
+    // div[data-ga4-label="work_content"]
+    // 新版首页下半部分的单个作品大图区域
+    // 这里作者在上面，大图在下面，这个选择器是共同父元素
     findContainerEl(link) {
         let container = null;
         // 在某些页面里使用特定的选择器
