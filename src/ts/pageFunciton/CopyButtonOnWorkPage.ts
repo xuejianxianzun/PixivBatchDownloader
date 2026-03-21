@@ -2,7 +2,7 @@ import { Tools } from '../Tools'
 import { lang } from '../Language'
 import { pageType } from '../PageType'
 import { workToolBar } from '../WorkToolBar'
-import { showHelp } from '../ShowHelp'
+import { showOneTimeTip } from '../showOneTimeTip'
 import { EVT } from '../EVT'
 import { IDData } from '../store/StoreType'
 import { copyWorkInfo } from '../CopyWorkInfo'
@@ -59,7 +59,11 @@ class CopyButtonOnWorkPage {
       ${lang.transl('_相关设置')}: ${lang.transl('_复制按钮')}
       <br>
       ${lang.transl('_你可以在更多选项卡的xx分类里找到它', lang.transl('_增强'))}`
-      showHelp.show('tipCopyWorkInfoButton', msg, lang.transl('_复制按钮'))
+      showOneTimeTip.show(
+        'tipCopyWorkInfoButton',
+        msg,
+        lang.transl('_复制按钮')
+      )
     })
 
     // 使用快捷键 Alt + C 点击复制按钮

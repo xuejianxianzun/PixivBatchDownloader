@@ -135,9 +135,9 @@ class MsgBox {
       ev.stopPropagation()
     })
 
-    window.addEventListener(EVT.list.closeCenterPanel, () => {
-      this.remove(wrap)
-    })
+    // window.addEventListener(EVT.list.closeCenterPanel, () => {
+    //   this.remove(wrap)
+    // })
 
     document.body.append(wrap)
 

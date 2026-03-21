@@ -9,7 +9,7 @@ import { bg } from './BG'
 import './OpenCenterPanel'
 import { settings } from './setting/Settings'
 import { BoldKeywords } from './BoldKeywords'
-import { showHelp } from './ShowHelp'
+import { showOneTimeTip } from './showOneTimeTip'
 import { store } from './store/Store'
 
 // 选项卡的名称和索引
@@ -93,6 +93,13 @@ class CenterPanel {
 
       <div class="centerWrap_con beautify_scrollbar">
 
+        <p id="tipCloseAskFileSaveLocation" style="line-height: 1.6;">
+        <span data-xztext="_提示"></span>
+        <span>: </span>
+        <span data-xztext="_建议您关闭询问文件保存位置"></span>
+        <button class="gray1 textButton" type="button" data-xztext="_我知道了"></button>
+      </p>
+
       <p id="tipOpenWikiLinkWrap" style="line-height: 1.6;">
         <span data-xztext="_提示"></span>
         <span>: </span>
@@ -153,7 +160,7 @@ class CenterPanel {
     })
 
     window.addEventListener(EVT.list.settingInitialized, () => {
-      showHelp.show(
+      showOneTimeTip.show(
         'tipHowToUse',
         lang.transl('_HowToUse') + lang.transl('_账户可能被封禁的警告')
       )
@@ -176,7 +183,7 @@ class CenterPanel {
       .addEventListener('click', () => {
         EVT.fire('closeCenterPanel')
         if (!Config.mobile) {
-          showHelp.show(
+          showOneTimeTip.show(
             'tipAltXToShowControlPanel',
             lang.transl('_快捷键ALTX显示隐藏控制面板')
           )

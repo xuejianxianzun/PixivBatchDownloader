@@ -201,26 +201,6 @@ class Wiki {
         }, 100)
       }
     })
-
-    // 获取提示元素
-    window.setTimeout(() => {
-      const el = document.querySelector('p#tipOpenWikiLinkWrap')
-      if (el) {
-        this.tipEl = el as HTMLElement
-        const btn = this.tipEl.querySelector('button')
-        btn!.addEventListener('click', () => {
-          setSetting('tipOpenWikiLink', false)
-          this.displayTipEl(false)
-        })
-      }
-    }, 0)
-
-    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
-      const data = ev.detail.data as any
-      if (data.name === 'tipOpenWikiLink') {
-        this.displayTipEl(data.value)
-      }
-    })
   }
 
   /**在 btn 上长按鼠标左键，或长按屏幕时，如果持续时间超过 500 ms 还未松开，则打开链接 */
@@ -264,17 +244,6 @@ class Wiki {
         el.setAttribute('href', link)
       }
     })
-  }
-
-  private tipEl?: HTMLElement
-
-  /**控制提示元素的显示和隐藏 */
-  private displayTipEl(show: boolean) {
-    window.setTimeout(() => {
-      if (this.tipEl) {
-        this.tipEl.style.display = show ? 'block' : 'none'
-      }
-    }, 0)
   }
 }
 

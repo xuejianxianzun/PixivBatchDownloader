@@ -2266,7 +2266,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _OpenCenterPanel__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./OpenCenterPanel */ "./src/ts/OpenCenterPanel.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _BoldKeywords__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./BoldKeywords */ "./src/ts/BoldKeywords.ts");
-/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _showOneTimeTip__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./showOneTimeTip */ "./src/ts/showOneTimeTip.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
 
 
@@ -2351,6 +2351,13 @@ class CenterPanel {
 
       <div class="centerWrap_con beautify_scrollbar">
 
+        <p id="tipCloseAskFileSaveLocation" style="line-height: 1.6;">
+        <span data-xztext="_提示"></span>
+        <span>: </span>
+        <span data-xztext="_建议您关闭询问文件保存位置"></span>
+        <button class="gray1 textButton" type="button" data-xztext="_我知道了"></button>
+      </p>
+
       <p id="tipOpenWikiLinkWrap" style="line-height: 1.6;">
         <span data-xztext="_提示"></span>
         <span>: </span>
@@ -2399,7 +2406,7 @@ class CenterPanel {
             }
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.settingInitialized, () => {
-            _ShowHelp__WEBPACK_IMPORTED_MODULE_11__.showHelp.show('tipHowToUse', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_HowToUse') + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_账户可能被封禁的警告'));
+            _showOneTimeTip__WEBPACK_IMPORTED_MODULE_11__.showOneTimeTip.show('tipHowToUse', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_HowToUse') + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_账户可能被封禁的警告'));
         });
         // 使用快捷键 Alt + x 切换中间面板显示隐藏
         window.addEventListener('keydown', (ev) => {
@@ -2413,7 +2420,7 @@ class CenterPanel {
             .addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('closeCenterPanel');
             if (!_Config__WEBPACK_IMPORTED_MODULE_5__.Config.mobile) {
-                _ShowHelp__WEBPACK_IMPORTED_MODULE_11__.showHelp.show('tipAltXToShowControlPanel', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_快捷键ALTX显示隐藏控制面板'));
+                _showOneTimeTip__WEBPACK_IMPORTED_MODULE_11__.showOneTimeTip.show('tipAltXToShowControlPanel', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_快捷键ALTX显示隐藏控制面板'));
             }
         });
         // 开始抓取作品时，隐藏
@@ -6378,9 +6385,9 @@ class MsgBox {
         wrap.addEventListener('click', (ev) => {
             ev.stopPropagation();
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.closeCenterPanel, () => {
-            this.remove(wrap);
-        });
+        // window.addEventListener(EVT.list.closeCenterPanel, () => {
+        //   this.remove(wrap)
+        // })
         document.body.append(wrap);
         if (!data.hiddenBtn) {
             const btn = wrap.querySelector('.btn');
@@ -7342,7 +7349,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
-/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _showOneTimeTip__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./showOneTimeTip */ "./src/ts/showOneTimeTip.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 /* harmony import */ var _PreviewWorkDetailInfo__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./PreviewWorkDetailInfo */ "./src/ts/PreviewWorkDetailInfo.ts");
@@ -7459,7 +7466,7 @@ class PreviewWork {
                 this.showWrap();
                 window.clearTimeout(this.delayHiddenTimer);
                 if (!_Config__WEBPACK_IMPORTED_MODULE_15__.Config.mobile) {
-                    _ShowHelp__WEBPACK_IMPORTED_MODULE_13__.showHelp.show('tipPreviewWork', _Language__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品的快捷键说明'), _Language__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品'));
+                    _showOneTimeTip__WEBPACK_IMPORTED_MODULE_13__.showOneTimeTip.show('tipPreviewWork', _Language__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品的快捷键说明'), _Language__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品'));
                 }
             }
         }
@@ -8815,7 +8822,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
 /* harmony import */ var _NovelThumbnail__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./NovelThumbnail */ "./src/ts/NovelThumbnail.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _showOneTimeTip__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./showOneTimeTip */ "./src/ts/showOneTimeTip.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
 /* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
@@ -9024,7 +9031,7 @@ class SelectWork {
                 this.startSelect(ev);
                 this.clearBtn.style.display = 'flex';
                 if (!_Config__WEBPACK_IMPORTED_MODULE_12__.Config.mobile) {
-                    _ShowHelp__WEBPACK_IMPORTED_MODULE_11__.showHelp.show('tipAltSToSelectWork', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快捷键ALTS手动选择作品'));
+                    _showOneTimeTip__WEBPACK_IMPORTED_MODULE_11__.showOneTimeTip.show('tipAltSToSelectWork', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快捷键ALTS手动选择作品'));
                 }
             };
         }
@@ -9591,43 +9598,6 @@ new SetUserName();
 
 /***/ }),
 
-/***/ "./src/ts/ShowHelp.ts":
-/*!****************************!*\
-  !*** ./src/ts/ShowHelp.ts ***!
-  \****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   showHelp: () => (/* binding */ showHelp)
-/* harmony export */ });
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-
-
-
-
-// 用消息框显示一次性的提示
-class ShowHelp {
-    show(settingKey, msg, title) {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings[settingKey] === true) {
-            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)(settingKey, false);
-            _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.show(msg, {
-                title: title ? title : _Config__WEBPACK_IMPORTED_MODULE_1__.Config.appName + ' Help',
-                btn: _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_我知道了'),
-            });
-        }
-    }
-}
-const showHelp = new ShowHelp();
-
-
-
-/***/ }),
-
 /***/ "./src/ts/ShowLargerThumbnails.ts":
 /*!****************************************!*\
   !*** ./src/ts/ShowLargerThumbnails.ts ***!
@@ -10113,7 +10083,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
 /* harmony import */ var _PreviewUgoira__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./PreviewUgoira */ "./src/ts/PreviewUgoira.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _showOneTimeTip__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./showOneTimeTip */ "./src/ts/showOneTimeTip.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 /* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
@@ -10182,7 +10152,7 @@ class ShowOriginSizeImage {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('showOriginSizeImage');
             this.wrap.style.display = 'block';
             if (!_Config__WEBPACK_IMPORTED_MODULE_8__.Config.mobile) {
-                _ShowHelp__WEBPACK_IMPORTED_MODULE_6__.showHelp.show('tipHotkeysViewLargeImage', _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_查看作品大图时的快捷键'));
+                _showOneTimeTip__WEBPACK_IMPORTED_MODULE_6__.showOneTimeTip.show('tipHotkeysViewLargeImage', _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_查看作品大图时的快捷键'));
             }
             // 预览动图
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.previewUgoira && this.workData?.body.illustType === 2) {
@@ -13318,7 +13288,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 /* harmony import */ var _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
 /* harmony import */ var _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ../download/AutoMergeNovel */ "./src/ts/download/AutoMergeNovel.ts");
+/* harmony import */ var _showOneTimeTip__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ../showOneTimeTip */ "./src/ts/showOneTimeTip.ts");
 // 初始化所有页面抓取流程的基类
+
 
 
 
@@ -13472,6 +13444,7 @@ class InitPageBase {
         // 其实不清空通常也没有问题，但是考虑到定时抓取功能、以及其他一些行为可能会产生大量日志，
         // 一直不清空的话会导致日志数量持续增加，占据的内存也会增加
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
+        _showOneTimeTip__WEBPACK_IMPORTED_MODULE_30__.showOneTimeTip.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'));
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
         _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
             position: 'center',
@@ -13516,6 +13489,7 @@ class InitPageBase {
                 return;
             }
             _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
+            _showOneTimeTip__WEBPACK_IMPORTED_MODULE_30__.showOneTimeTip.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'));
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
             _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
                 bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
@@ -17002,7 +16976,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _RemoveWorksTagsInBookmarks__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../RemoveWorksTagsInBookmarks */ "./src/ts/RemoveWorksTagsInBookmarks.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
-/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _showOneTimeTip__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../showOneTimeTip */ "./src/ts/showOneTimeTip.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
@@ -17069,7 +17043,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         }
         // 显示提示
         window.setTimeout(() => {
-            _ShowHelp__WEBPACK_IMPORTED_MODULE_19__.showHelp.show('tipBookmarkManage', _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_在收藏页面里提示有辅助功能可用'));
+            _showOneTimeTip__WEBPACK_IMPORTED_MODULE_19__.showOneTimeTip.show('tipBookmarkManage', _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_在收藏页面里提示有辅助功能可用'));
         }, 1000);
         // 有些功能按钮只能在用户自己的页面里使用
         // 判断这个收藏页面是不是用户自己的页面
@@ -18921,7 +18895,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _showOneTimeTip__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../showOneTimeTip */ "./src/ts/showOneTimeTip.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 
 
@@ -18961,7 +18935,7 @@ class QuickCrawl {
         this.btn.addEventListener('click', () => {
             this.sendDownload();
             if (!_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
-                _ShowHelp__WEBPACK_IMPORTED_MODULE_4__.showHelp.show('tipAltQToQuickDownload', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快捷键ALTQ快速下载本页作品'));
+                _showOneTimeTip__WEBPACK_IMPORTED_MODULE_4__.showOneTimeTip.show('tipAltQToQuickDownload', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快捷键ALTQ快速下载本页作品'));
             }
         }, false);
         // 使用快捷键 Alt + Q 启动快速抓取
@@ -35161,6 +35135,14 @@ When the user enables the search condition "Integrate Identical Series", the dow
 <br>
 <strong>😊Оптимизирован пользовательский опыт</strong><br>`,
     ],
+    _建议您关闭询问文件保存位置: [
+        `强烈建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”，否则保存每个文件时都会显示另存为对话框。`,
+        `強烈建議您在瀏覽器的下載設定中關閉「下載前詢問每個檔案的儲存位置」，否則儲存每個檔案時都會顯示另存為對話框。`,
+        `It is strongly recommended to disable "Ask where to save each file before downloading" in your browser's download settings, otherwise the "Save As" dialog will appear for every file saved.`,
+        `ブラウザのダウンロード設定で「ダウンロード前に各ファイルの保存先を確認する」をオフにすることを強くおすすめします。そうしないと、すべてのファイル保存時に「名前を付けて保存」ダイアログが表示されます。`,
+        `브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것을 강력히 권장합니다. 그렇지 않으면 모든 파일 저장 시 "다른 이름으로 저장" 대화상자가 표시됩니다.`,
+        `Настоятельно рекомендуется отключить в настройках загрузки браузера опцию «Спрашивать, куда сохранять каждый файл перед загрузкой», иначе для каждого сохраняемого файла будет появляться диалог «Сохранить как».`,
+    ],
 };
 
 // prompt
@@ -36160,7 +36142,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
-/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _showOneTimeTip__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../showOneTimeTip */ "./src/ts/showOneTimeTip.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
@@ -36212,7 +36194,7 @@ class CopyButtonOnWorkPage {
       ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_相关设置')}: ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_复制按钮')}
       <br>
       ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_增强'))}`;
-            _ShowHelp__WEBPACK_IMPORTED_MODULE_4__.showHelp.show('tipCopyWorkInfoButton', msg, _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_复制按钮'));
+            _showOneTimeTip__WEBPACK_IMPORTED_MODULE_4__.showOneTimeTip.show('tipCopyWorkInfoButton', msg, _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_复制按钮'));
         });
         // 使用快捷键 Alt + C 点击复制按钮
         window.addEventListener('keydown', (ev) => {
@@ -36997,7 +36979,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
 /* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
-/* harmony import */ var _ShowHelp__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../ShowHelp */ "./src/ts/ShowHelp.ts");
+/* harmony import */ var _showOneTimeTip__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../showOneTimeTip */ "./src/ts/showOneTimeTip.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../crawl/LogErrorStatus */ "./src/ts/crawl/LogErrorStatus.ts");
@@ -37142,7 +37124,7 @@ class QuickBookmark {
                 if (!pixivBMKBtn) {
                     this.sendDownload();
                 }
-                _ShowHelp__WEBPACK_IMPORTED_MODULE_8__.showHelp.show('tipBookmarkButton', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器的收藏按钮默认会添加作品的标签'));
+                _showOneTimeTip__WEBPACK_IMPORTED_MODULE_8__.showOneTimeTip.show('tipBookmarkButton', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器的收藏按钮默认会添加作品的标签'));
             }
         });
     }
@@ -38175,6 +38157,7 @@ class Form {
     bindEvents() {
         this.bindBeautifyInput();
         this.bindFunctionBtn();
+        this.displayTipArea();
         this.toggleHelpArea();
         this.showMsgWhenClick();
         // 输入框获得焦点时自动选择文本（命名规则的输入框例外）
@@ -38259,6 +38242,38 @@ class Form {
                 subOption.style.display = input.checked ? 'inline-flex' : 'none';
             }
         }
+    }
+    /** 有些提示区域是默认显示的，用户点击“我知道了”按钮之后改为隐藏 */
+    tipAreaConfig = [
+        {
+            key: 'tipCloseAskFileSaveLocation',
+            selector: 'p#tipCloseAskFileSaveLocation'
+        },
+        {
+            key: 'tipOpenWikiLink',
+            selector: 'p#tipOpenWikiLinkWrap'
+        },
+    ];
+    /** 根据设置来显示或隐藏一些提示 */
+    displayTipArea() {
+        this.tipAreaConfig.forEach(item => {
+            const el = document.querySelector(item.selector);
+            if (el) {
+                // 点击“我知道了”按钮之后隐藏提示区域
+                const btn = el.querySelector('button');
+                btn.addEventListener('click', () => {
+                    (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.setSetting)(item.key, false);
+                    el.style.display = 'none';
+                });
+                // 监听设置变化
+                window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
+                    const data = ev.detail.data;
+                    if (data.name === item.key) {
+                        el.style.display = data.value ? 'block' : 'none';
+                    }
+                });
+            }
+        });
     }
     /**点击一些按钮时，切换显示对应的帮助区域 */
     toggleHelpArea() {
@@ -41373,6 +41388,8 @@ class Settings {
         seriesNovelNameRule: 'novel series/{page_tag}/{series_title}-{series_id}-{user}-{part}-{tags}.{ext}',
         filterSearchResults: false,
         logVisibleDefault: 'show',
+        tipCloseAskFileSaveLocation: true,
+        tipCloseAskFileSaveLocationOnce: true,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的选项
@@ -41508,7 +41525,7 @@ class Settings {
         _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_导入成功'));
     }
     // 有些帮助信息是只显示一次的，这里可以让它们再次显示
-    // 主要是通过 showHelp.show 显示的帮助
+    // 主要是通过 showOneTimeTip.show 显示的帮助
     resetHelpTip() {
         this.setSetting('tipHowToUse', true);
         this.setSetting('tipAltXToShowControlPanel', true);
@@ -41519,6 +41536,8 @@ class Settings {
         this.setSetting('tipBookmarkButton', true);
         this.setSetting('tipBookmarkManage', true);
         this.setSetting('tipOpenWikiLink', true);
+        this.setSetting('tipCloseAskFileSaveLocationOnce', true);
+        this.setSetting('tipCloseAskFileSaveLocation', true);
         this.setSetting('tipCopyWorkInfoButton', true);
         _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_重新显示帮助'));
     }
@@ -41970,8 +41989,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
-
 
 
 /**储存每个设置和按钮在 Wiki 上的链接 */
@@ -42145,24 +42162,6 @@ class Wiki {
                 }, 100);
             }
         });
-        // 获取提示元素
-        window.setTimeout(() => {
-            const el = document.querySelector('p#tipOpenWikiLinkWrap');
-            if (el) {
-                this.tipEl = el;
-                const btn = this.tipEl.querySelector('button');
-                btn.addEventListener('click', () => {
-                    (0,_Settings__WEBPACK_IMPORTED_MODULE_2__.setSetting)('tipOpenWikiLink', false);
-                    this.displayTipEl(false);
-                });
-            }
-        }, 0);
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
-            const data = ev.detail.data;
-            if (data.name === 'tipOpenWikiLink') {
-                this.displayTipEl(data.value);
-            }
-        });
     }
     /**在 btn 上长按鼠标左键，或长按屏幕时，如果持续时间超过 500 ms 还未松开，则打开链接 */
     registerBtn(btn) {
@@ -42205,17 +42204,45 @@ class Wiki {
             }
         });
     }
-    tipEl;
-    /**控制提示元素的显示和隐藏 */
-    displayTipEl(show) {
-        window.setTimeout(() => {
-            if (this.tipEl) {
-                this.tipEl.style.display = show ? 'block' : 'none';
-            }
-        }, 0);
-    }
 }
 const wiki = new Wiki();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/showOneTimeTip.ts":
+/*!**********************************!*\
+  !*** ./src/ts/showOneTimeTip.ts ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   showOneTimeTip: () => (/* binding */ showOneTimeTip)
+/* harmony export */ });
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
+
+
+class ShowOneTimeHelp {
+    /** 用 msgBox 显示一次性的提示。显示之后会自动修改设置，以后不再显示 */
+    show(settingKey, msg, title) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings[settingKey] === true) {
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)(settingKey, false);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.show(msg, {
+                title: title ? title : _Config__WEBPACK_IMPORTED_MODULE_1__.Config.appName + ' Help',
+                btn: _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_我知道了'),
+            });
+        }
+    }
+}
+const showOneTimeTip = new ShowOneTimeHelp();
 
 
 

@@ -36,6 +36,7 @@ class Form {
   private bindEvents() {
     this.bindBeautifyInput()
     this.bindFunctionBtn()
+    this.displayTipArea()
     this.toggleHelpArea()
     this.showMsgWhenClick()
 
@@ -147,6 +148,46 @@ class Form {
         subOption.style.display = input.checked ? 'inline-flex' : 'none'
       }
     }
+  }
+
+  /** 有些提示区域是默认显示的，用户点击“我知道了”按钮之后改为隐藏 */
+  private readonly tipAreaConfig: { key: SettingKeys; selector: string }[] = [
+    {
+      key: 'tipCloseAskFileSaveLocation',
+      selector: 'p#tipCloseAskFileSaveLocation',
+    },
+    {
+      key: 'tipOpenWikiLink',
+      selector: 'p#tipOpenWikiLinkWrap',
+    },
+  ]
+
+  /** 根据设置来显示或隐藏一些提示 */
+  private displayTipArea() {
+    this.tipAreaConfig.forEach((item) => {
+      const el: HTMLElement = document.querySelector(
+        item.selector
+      ) as HTMLElement
+      if (el) {
+        // 点击“我知道了”按钮之后隐藏提示区域
+        const btn = el.querySelector('button')
+        btn!.addEventListener('click', () => {
+          setSetting(item.key, false)
+          el.style.display = 'none'
+        })
+
+        // 监听设置变化
+        window.addEventListener(
+          EVT.list.settingChange,
+          (ev: CustomEventInit) => {
+            const data = ev.detail.data as any
+            if (data.name === item.key) {
+              el.style.display = data.value ? 'block' : 'none'
+            }
+          }
+        )
+      }
+    })
   }
 
   /**点击一些按钮时，切换显示对应的帮助区域 */

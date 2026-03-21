@@ -24,7 +24,7 @@ import { unBookmarkWorks } from '../UnBookmarkWorks'
 import { removeWorksTagsInBookmarks } from '../RemoveWorksTagsInBookmarks'
 import { EVT } from '../EVT'
 import { WorkBookmarkData, bookmark } from '../Bookmark'
-import { showHelp } from '../ShowHelp'
+import { showOneTimeTip } from '../showOneTimeTip'
 import { msgBox } from '../MsgBox'
 import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
@@ -91,7 +91,7 @@ class InitBookmarkPage extends InitPageBase {
 
     // 显示提示
     window.setTimeout(() => {
-      showHelp.show(
+      showOneTimeTip.show(
         'tipBookmarkManage',
         lang.transl('_在收藏页面里提示有辅助功能可用')
       )

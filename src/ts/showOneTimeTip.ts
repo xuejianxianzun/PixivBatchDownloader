@@ -3,8 +3,8 @@ import { Config } from './Config'
 import { msgBox } from './MsgBox'
 import { settings, setSetting, SettingKeys } from './setting/Settings'
 
-// 用消息框显示一次性的提示
-class ShowHelp {
+class ShowOneTimeHelp {
+  /** 用 msgBox 显示一次性的提示。显示之后会自动修改设置，以后不再显示 */
   public show(settingKey: SettingKeys, msg: string, title?: string) {
     if (settings[settingKey] === true) {
       setSetting(settingKey, false)
@@ -16,5 +16,5 @@ class ShowHelp {
   }
 }
 
-const showHelp = new ShowHelp()
-export { showHelp }
+const showOneTimeTip = new ShowOneTimeHelp()
+export { showOneTimeTip }

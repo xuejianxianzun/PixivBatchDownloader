@@ -2,7 +2,7 @@ import { Config } from '../Config'
 import { EVT } from '../EVT'
 import { lang } from '../Language'
 import { pageType } from '../PageType'
-import { showHelp } from '../ShowHelp'
+import { showOneTimeTip } from '../showOneTimeTip'
 import { IDData } from '../store/StoreType'
 import { Tools } from '../Tools'
 
@@ -45,7 +45,7 @@ class QuickCrawl {
       () => {
         this.sendDownload()
         if (!Config.mobile) {
-          showHelp.show(
+          showOneTimeTip.show(
             'tipAltQToQuickDownload',
             lang.transl('_快捷键ALTQ快速下载本页作品')
           )

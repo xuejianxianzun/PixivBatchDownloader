@@ -12,7 +12,7 @@ import { toast } from './Toast'
 import { lang } from './Language'
 import { Colors } from './Colors'
 import { DateFormat } from './utils/DateFormat'
-import { showHelp } from './ShowHelp'
+import { showOneTimeTip } from './showOneTimeTip'
 import { store } from './store/Store'
 import { Config } from './Config'
 import { previewWorkDetailInfo } from './PreviewWorkDetailInfo'
@@ -127,7 +127,7 @@ class PreviewWork {
         this.showWrap()
         window.clearTimeout(this.delayHiddenTimer)
         if (!Config.mobile) {
-          showHelp.show(
+          showOneTimeTip.show(
             'tipPreviewWork',
             lang.transl('_预览作品的快捷键说明'),
             lang.transl('_预览作品')

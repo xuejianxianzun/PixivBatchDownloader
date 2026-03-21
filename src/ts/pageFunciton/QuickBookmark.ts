@@ -7,7 +7,7 @@ import { ArtworkData, NovelData } from '../crawl/CrawlResult'
 import { bookmark } from '../Bookmark'
 import { workToolBar } from '../WorkToolBar'
 import { downloadOnClickBookmark } from '../download/DownloadOnClickBookmark'
-import { showHelp } from '../ShowHelp'
+import { showOneTimeTip } from '../showOneTimeTip'
 import { Config } from '../Config'
 import { toast } from '../Toast'
 import { logErrorStatus } from '../crawl/LogErrorStatus'
@@ -172,7 +172,7 @@ class QuickBookmark {
           this.sendDownload()
         }
 
-        showHelp.show(
+        showOneTimeTip.show(
           'tipBookmarkButton',
           lang.transl('_下载器的收藏按钮默认会添加作品的标签')
         )

@@ -31,6 +31,7 @@ import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { cacheWorkData } from '../store/CacheWorkData'
 import { crawlLatestFewWorks } from './CrawlLatestFewWorks'
 import { autoMergeNovel } from '../download/AutoMergeNovel'
+import { showOneTimeTip } from '../showOneTimeTip'
 
 abstract class InitPageBase {
   protected crawlNumber = 0 // 要抓取的个数/页数
@@ -199,6 +200,11 @@ abstract class InitPageBase {
     // 一直不清空的话会导致日志数量持续增加，占据的内存也会增加
     EVT.fire('clearLog')
 
+    showOneTimeTip.show(
+      'tipCloseAskFileSaveLocationOnce',
+      lang.transl('_建议您关闭询问文件保存位置')
+    )
+
     log.success('🚀' + lang.transl('_开始抓取'))
     toast.show(lang.transl('_开始抓取'), {
       position: 'center',
@@ -255,6 +261,11 @@ abstract class InitPageBase {
       }
 
       EVT.fire('clearLog')
+
+      showOneTimeTip.show(
+        'tipCloseAskFileSaveLocationOnce',
+        lang.transl('_建议您关闭询问文件保存位置')
+      )
 
       log.success('🚀' + lang.transl('_开始抓取'))
       toast.show(lang.transl('_开始抓取'), {

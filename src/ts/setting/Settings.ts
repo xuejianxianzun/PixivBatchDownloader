@@ -317,6 +317,8 @@ interface XzSetting {
   seriesNovelNameRule: string
   filterSearchResults: boolean
   logVisibleDefault: 'show' | 'hide'
+  tipCloseAskFileSaveLocation: boolean
+  tipCloseAskFileSaveLocationOnce: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -792,6 +794,8 @@ class Settings {
       'novel series/{page_tag}/{series_title}-{series_id}-{user}-{part}-{tags}.{ext}',
     filterSearchResults: false,
     logVisibleDefault: 'show',
+    tipCloseAskFileSaveLocation: true,
+    tipCloseAskFileSaveLocationOnce: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -949,7 +953,7 @@ class Settings {
   }
 
   // 有些帮助信息是只显示一次的，这里可以让它们再次显示
-  // 主要是通过 showHelp.show 显示的帮助
+  // 主要是通过 showOneTimeTip.show 显示的帮助
   private resetHelpTip() {
     this.setSetting('tipHowToUse', true)
     this.setSetting('tipAltXToShowControlPanel', true)
@@ -960,6 +964,8 @@ class Settings {
     this.setSetting('tipBookmarkButton', true)
     this.setSetting('tipBookmarkManage', true)
     this.setSetting('tipOpenWikiLink', true)
+    this.setSetting('tipCloseAskFileSaveLocationOnce', true)
+    this.setSetting('tipCloseAskFileSaveLocation', true)
     this.setSetting('tipCopyWorkInfoButton', true)
 
     toast.success(lang.transl('_重新显示帮助'))

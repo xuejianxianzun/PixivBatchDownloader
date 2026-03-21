@@ -10,7 +10,7 @@ import { Utils } from './utils/Utils'
 import { artworkThumbnail } from './ArtworkThumbnail'
 import { novelThumbnail } from './NovelThumbnail'
 import { pageType } from './PageType'
-import { showHelp } from './ShowHelp'
+import { showOneTimeTip } from './showOneTimeTip'
 import { Config } from './Config'
 import { log } from './Log'
 import { MergeNovel } from './download/MergeNovel'
@@ -282,7 +282,7 @@ class SelectWork {
         this.startSelect(ev)
         this.clearBtn.style.display = 'flex'
         if (!Config.mobile) {
-          showHelp.show(
+          showOneTimeTip.show(
             'tipAltSToSelectWork',
             lang.transl('_快捷键ALTS手动选择作品')
           )
