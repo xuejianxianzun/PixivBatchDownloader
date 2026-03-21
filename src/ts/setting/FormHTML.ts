@@ -467,16 +467,7 @@ export const formHtml = `
       <input type="checkbox" name="notFolderWhenOneFile" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
     </p>
-    <p class="option" data-no="38">
-      <a href="${wiki.link(38)}" target="_blank" class="settingNameStyle" data-xztext="_把r18作品存入指定的文件夹里"></a>
-      <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch">
-      <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="r18Folder">
-        <span data-xztext="_目录名"></span>
-        <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
-        <button type="button" class="gray1 textButton" id="showR18FolderNameTip" data-xztext="_提示"></button>
-      </span>
-    </p>
+
     <p class="option" data-no="16">
       <a href="${wiki.link(16)}" target="_blank" class="settingNameStyle">
         <span data-xztext="_下载线程"></span>
@@ -685,6 +676,18 @@ export const formHtml = `
         <slot data-name="UseDifferentNameRuleIfWorkHasTagSlot"></slot>
       </span>
     </p>
+    
+    <p class="option" data-no="38">
+      <a href="${wiki.link(38)}" target="_blank" class="settingNameStyle" data-xztext="_把r18作品存入指定的文件夹里"></a>
+      <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="r18Folder">
+        <span data-xztext="_目录名"></span>
+        <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
+        <button type="button" class="gray1 textButton" id="showR18FolderNameTip" data-xztext="_提示"></button>
+      </span>
+    </p>
+    
     <p class="option" data-no="22">
       <a href="${wiki.link(22)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_第一张图不带序号说明">
         <span data-xztext="_第一张图不带序号"></span>

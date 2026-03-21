@@ -38247,16 +38247,16 @@ class Form {
     tipAreaConfig = [
         {
             key: 'tipCloseAskFileSaveLocation',
-            selector: 'p#tipCloseAskFileSaveLocation'
+            selector: 'p#tipCloseAskFileSaveLocation',
         },
         {
             key: 'tipOpenWikiLink',
-            selector: 'p#tipOpenWikiLinkWrap'
+            selector: 'p#tipOpenWikiLinkWrap',
         },
     ];
     /** 根据设置来显示或隐藏一些提示 */
     displayTipArea() {
-        this.tipAreaConfig.forEach(item => {
+        this.tipAreaConfig.forEach((item) => {
             const el = document.querySelector(item.selector);
             if (el) {
                 // 点击“我知道了”按钮之后隐藏提示区域
@@ -38960,16 +38960,7 @@ const formHtml = `
       <input type="checkbox" name="notFolderWhenOneFile" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
     </p>
-    <p class="option" data-no="38">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(38)}" target="_blank" class="settingNameStyle" data-xztext="_把r18作品存入指定的文件夹里"></a>
-      <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch">
-      <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="r18Folder">
-        <span data-xztext="_目录名"></span>
-        <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
-        <button type="button" class="gray1 textButton" id="showR18FolderNameTip" data-xztext="_提示"></button>
-      </span>
-    </p>
+
     <p class="option" data-no="16">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(16)}" target="_blank" class="settingNameStyle">
         <span data-xztext="_下载线程"></span>
@@ -39178,6 +39169,18 @@ const formHtml = `
         <slot data-name="UseDifferentNameRuleIfWorkHasTagSlot"></slot>
       </span>
     </p>
+    
+    <p class="option" data-no="38">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(38)}" target="_blank" class="settingNameStyle" data-xztext="_把r18作品存入指定的文件夹里"></a>
+      <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="r18Folder">
+        <span data-xztext="_目录名"></span>
+        <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
+        <button type="button" class="gray1 textButton" id="showR18FolderNameTip" data-xztext="_提示"></button>
+      </span>
+    </p>
+    
     <p class="option" data-no="22">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(22)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_第一张图不带序号说明">
         <span data-xztext="_第一张图不带序号"></span>
@@ -42079,9 +42082,9 @@ class Wiki {
     // - 隐藏设置虽然有自己的分类，但是在 Wiki 里统一归纳到了“隐藏设置”页面里，所以它们的 ID 也放到了 More-Hidden 分类里
     groupConfig = {
         Crawl: [0, 1, 2, 44, 81, 6, 23, 21, 51, 3, 47, 5, 7, 8, 9, 10, 11, 12],
-        Download: [13, 50, 64, 38, 16, 17, 33, 20],
+        Download: [13, 50, 64, 16, 17, 33, 20],
         'More-Crawl': [57, 59, 75, 69, 35, 39, 74, 54, 85],
-        'More-Naming': [65, 19, 42, 43, 22, 46, 29, 83, 67, 66],
+        'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66],
         'More-Download': [
             58, 52, 90, 91, 76, 77, 4, 24, 26, 27, 70, 72, 73, 49, 89, 30, 25, 82, 28,
         ],
