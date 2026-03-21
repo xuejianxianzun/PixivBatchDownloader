@@ -1387,13 +1387,16 @@ export interface NovelSeriesContentData {
         tags: string[]
         restrict: 0 | 1 | 2
         xRestrict: 0 | 1 | 2
+        aiType: 0 | 1 | 2
         isOriginal: boolean
         textLength: number
-        bookmarkCount: number
         url: string
+        createDate: string
+        updateDate: string
         uploadTimestamp: number
         reuploadTimestamp: number
         isBookmarkable: boolean
+        bookmarkCount: number
         bookmarkData: null | {
           id: string
           private: boolean

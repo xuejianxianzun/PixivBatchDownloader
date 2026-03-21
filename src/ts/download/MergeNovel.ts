@@ -505,9 +505,15 @@ class MergeNovel {
 
     const list = seriesContents.body.page.seriesContents
     for (const item of list) {
-      // 应用标签过滤器
       const check = await filter.check({
+        id: item.id,
+        aiType: item.aiType,
+        xRestrict: item.xRestrict,
         tags: item.tags,
+        userId: item.userId,
+        bookmarkData: item.bookmarkData,
+        bookmarkCount: item.bookmarkCount,
+        createDate: item.createDate,
       })
       if (check) {
         this.novelIdList.push(item.id)
@@ -586,6 +592,7 @@ class MergeNovel {
 
       // 应用标签过滤器
       const check = await filter.check({
+        xRestrict: data.body.xRestrict,
         tags,
       })
       const novelId = data.body.id

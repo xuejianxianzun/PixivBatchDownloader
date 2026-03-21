@@ -23638,9 +23638,15 @@ class MergeNovel {
         const seriesContents = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getNovelSeriesContent(this.seriesId, this.limit, this.last, 'asc');
         const list = seriesContents.body.page.seriesContents;
         for (const item of list) {
-            // 应用标签过滤器
             const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_18__.filter.check({
+                id: item.id,
+                aiType: item.aiType,
+                xRestrict: item.xRestrict,
                 tags: item.tags,
+                userId: item.userId,
+                bookmarkData: item.bookmarkData,
+                bookmarkCount: item.bookmarkCount,
+                createDate: item.createDate,
             });
             if (check) {
                 this.novelIdList.push(item.id);
@@ -23707,6 +23713,7 @@ class MergeNovel {
             }
             // 应用标签过滤器
             const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_18__.filter.check({
+                xRestrict: data.body.xRestrict,
                 tags,
             });
             const novelId = data.body.id;
@@ -35043,24 +35050,24 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     Пользователи загрузчика часто скачивают много файлов с Pixiv, создавая большое количество записей о загрузках, что легко приводит к этой проблеме. Однако многие пользователи не знают причины, поэтому загрузчик каждые 24 часа проверяет количество записей о загрузках в браузере и показывает эту подсказку, когда количество превышает {}.`,
     ],
     _提示优先下载系列小说: [
-        `由于你启用了“整合系列作品”的搜索条件，所以该页面里通常有两种结果：系列小说和单篇完结小说。<br>
-下载器在抓取时会优先下载系列小说；当抓取完成时，下载器已经下载了所有系列小说。<br>
-抓取完成后才会下载单篇小说。抓取结果里只有单篇小说，没有系列小说。`,
-        `由於你啟用了「整合系列作品」的搜尋條件，所以該頁面裡通常有兩種結果：系列小說和單篇完結小說。<br>
-下載器在抓取時會優先下載系列小說；當抓取完成時，下載器已經下載了所有系列小說。<br>
-抓取完成後才會下載單篇小說。抓取結果裡只有單篇小說，沒有系列小說。`,
-        `Because you have enabled the "Integrate series works" search condition, this page typically has two types of results: series novels and standalone completed novels.<br>
-The downloader prioritizes downloading series novels during crawling; by the time crawling is complete, all series novels have already been downloaded.<br>
-Standalone novels are downloaded only after crawling is finished. The crawl results contain only standalone novels, with no series novels included.`,
-        `「シリーズ作品を統合する」検索条件を有効にしたため、このページには通常2種類の結果があります：シリーズ小説と単発完結小説。<br>
-ダウンロードツールはクロール時にシリーズ小説を優先的にダウンロードします。クロールが完了した時点ですでにすべてのシリーズ小説がダウンロードされています。<br>
-クロール完了後に単発小説がダウンロードされます。クロール結果には単発小説のみが含まれ、シリーズ小説は表示されません。`,
-        `"시리즈 작품 통합" 검색 조건을 활성화했기 때문에 이 페이지에는 보통 두 가지 결과가 있습니다: 시리즈 소설과 단편 완결 소설.<br>
-다운로더는 크롤링 시 시리즈 소설을 우선적으로 다운로드하며, 크롤링이 완료되면 이미 모든 시리즈 소설이 다운로드된 상태입니다.<br>
-크롤링 완료 후에 단편 소설이 다운로드됩니다. 크롤링 결과에는 단편 소설만 포함되며 시리즈 소설은 없습니다.`,
-        `Поскольку вы включили условие поиска «Интегрировать серии работ», на этой странице обычно присутствуют два типа результатов: серии романов и отдельные завершённые романы.<br>
-Загрузчик при краулинге отдаёт приоритет скачиванию серий романов; к моменту завершения краулинга все серии романов уже скачаны.<br>
-Отдельные романы скачиваются только после завершения краулинга. В результатах краулинга присутствуют только отдельные романы, серии романов в них не отображаются.`,
+        `提示：由于你启用了“整合系列作品”的搜索条件，所以该页面里有两种内容：系列小说和单篇完结小说。<br>
+下载器在抓取到系列小说时会立即下载它，单篇小说则保存到抓取结果里。<br>
+当抓取完成时，下载器已经下载了所有系列小说，只剩下单篇小说尚未下载。`,
+        `提示：由於你啟用了「整合系列作品」的搜尋條件，所以該頁面裡有兩種內容：系列小說和單篇完結小說。<br>
+下載器在抓取到系列小說時會立即下載它，單篇小說則保存到抓取結果裡。<br>
+當抓取完成時，下載器已經下載了所有系列小說，只剩下單篇小說尚未下載。`,
+        `Tip: Since you have enabled the "Integrate Series Works" search condition, this page contains two types of content: series novels and standalone completed novels.<br>
+When the downloader encounters a series novel during crawling, it will download it immediately; standalone novels are saved to the crawl results.<br>
+By the time crawling is complete, the downloader has already downloaded all series novels, leaving only the standalone novels yet to be downloaded.`,
+        `ヒント：「シリーズ作品を統合する」検索条件を有効にしたため、このページには2種類のコンテンツがあります：シリーズ小説と単発完結小説。<br>
+ダウンロードツールはクロール中にシリーズ小説を取得するとすぐにダウンロードします。単発小説はクロール結果に保存されます。<br>
+クロール完了時には、すべてのシリーズ小説がすでにダウンロードされており、残っているのは単発小説のみです。`,
+        `팁: "시리즈 작품 통합" 검색 조건을 활성화했기 때문에 이 페이지에는 두 가지 콘텐츠가 있습니다: 시리즈 소설과 단편 완결 소설.<br>
+다운로더는 크롤링 중 시리즈 소설을 발견하면 즉시 다운로드하며, 단편 소설은 크롤링 결과에 저장됩니다.<br>
+크롤링이 완료되면 모든 시리즈 소설은 이미 다운로드되었고, 남은 것은 단편 소설뿐입니다.`,
+        `Подсказка: Поскольку вы включили условие поиска «Интегрировать серии работ», на этой странице присутствуют два типа контента: серии романов и отдельные завершённые романы.<br>
+Когда загрузчик во время краулинга находит серию романов, он сразу её скачивает; отдельные романы сохраняются в результаты краулинга.<br>
+К моменту завершения краулинга загрузчик уже скачал все серии романов, и остались только отдельные романы, которые ещё не скачаны.`,
     ],
     _提示只会收藏单篇小说: [
         `这个页面里可能有系列小说。下载器会跳过系列小说，只收藏单篇小说。`,
@@ -35085,7 +35092,7 @@ Standalone novels are downloaded only after crawling is finished. The crawl resu
 2. 之前该功能只会截断文件名，现在也可能会截断文件夹的名字（如果有必要）。<br>
 <br>
 <strong>✨适配了小说搜索页面的“整合相同系列”条件</strong><br>
-当用户启用了搜索条件“整合相同系列”时，下载器的抓取结果会用户看到的内容保持一致。<br>
+当用户启用了搜索条件“整合相同系列”时，下载器的抓取结果会与用户看到的内容保持一致。<br>
 <br>
 <strong>🐞修复了多个 Bug</strong><br>
 <br>
