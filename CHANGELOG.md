@@ -41,6 +41,10 @@ PS：顺便还适配了“整合相同作者”的条件。
 
 现在修复。
 
+### 🐞修复了点击快速收藏按钮时，会触发两次“点击收藏按钮时下载作品”功能的问题
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/541
+
 ### 🐞修复了搜索页面顶部的快速筛选标签失效的问题
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/591
@@ -51,9 +55,9 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/591
 
 之前搜索页面的代码变化导致了此问题。现在修复。
 
-### 🐞修复了点击快速收藏按钮时，会触发两次“点击收藏按钮时下载作品”功能的问题
+### 🐞修复了预览搜索结果时，缩略图可能重叠的问题
 
-https://github.com/xuejianxianzun/PixivBatchDownloader/issues/541
+如果预览搜索结果时没有启用“显示更大的缩略图”，会因为缺少一些样式导致预览图错位重叠，现在修复。
 
 ### 😊如果浏览器的下载记录数量太多，下载器会显示提示
 
