@@ -10515,7 +10515,7 @@ class ShowWhatIsNew {
     constructor() {
         this.bindEvents();
     }
-    flag = '18.4.0';
+    flag = '18.5.0';
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 在 settingInitialized 事件触发后生成消息，如果时间较早，可能会被翻译成错误的语言
@@ -10523,10 +10523,7 @@ class ShowWhatIsNew {
       <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_扩展程序升到x版本', this.flag)}</span>
       <br>
       <br>
-      <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_更新说明1840')}</span>
-      <br>
-      <br>
-      <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化用户体验')}</span>
+      <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_更新说明1850')}</span>
       `;
             // <strong><span>✨ ${lang.transl('_新增设置项')}:</span></strong>
             // <strong><span>✨ ${lang.transl('_新增功能')}:</span></strong>
@@ -35019,80 +35016,6 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
         `이 시리즈 내의 모든 소설이 제외되었습니다`,
         `Все романы в этой серии были исключены`,
     ],
-    _更新说明1840: [
-        `<strong>✨新设置：日志区域的默认可见性</strong><br>
-当下载器在页面顶部输出日志时，你可以控制日志区域默认显示还是隐藏。默认值是显示。<br>
-你可以在“更多”-“其他”分类里找到这个设置。<br>
-<br>
-<strong>✨新功能：查找已注销的用户</strong><br>
-下载器在关注页面（/following）里添加了此功能，你可以查找已注销的用户。<br>
-注意：这个功能不能查找以前注销的用户，只能查找此功能推出之后注销的用户。<br>
-<br>
-<strong>🐞修复了更新关注列表过于频繁的问题</strong><br>
-<br>
-<strong>😊合并系列小说时，可以应用标签过滤条件了</strong><br>
-现在下载器在合并系列小说时，会应用“必须含有标签”和“不能含有标签”两个过滤器。这样用户就可以通过指定标签来过滤掉不需要的小说了。`,
-        `<strong>✨新設置：日誌區域的預設可見性</strong><br>
-當下載器在頁面頂部輸出日誌時，你可以控制日誌區域預設顯示還是隱藏。預設值是顯示。<br>
-你可以在「更多」-「其他」分類裡找到這個設定。<br>
-<br>
-<strong>✨新功能：查找已註銷的用戶</strong><br>
-下載器在關注頁面（/following）裡添加了此功能，你可以查找已註銷的用戶。<br>
-注意：這個功能不能查找以前註銷的用戶，只能查找此功能推出之後註銷的用戶。<br>
-<br>
-<strong>🐞修復了更新關注列表過於頻繁的問題</strong><br>
-<br>
-<strong>😊合併系列小說時，可以應用標籤過濾條件了</strong><br>
-現在下載器在合併系列小說時，會應用「必須含有標籤」和「不能含有標籤」兩個過濾器。這樣用戶就可以通過指定標籤來過濾掉不需要的小說了。`,
-        `<strong>✨New Setting: Default Visibility of Log Area</strong><br>
-When the downloader outputs logs at the top of the page, you can control whether the log area is shown or hidden by default. The default value is Show.<br>
-You can find this setting in the "More" - "Other" category.<br>
-<br>
-<strong>✨New Feature: Find Deactivated Users</strong><br>
-The downloader has added this feature on the following page (/following). You can now find deactivated users.<br>
-Note: This feature cannot find users who deactivated before, it can only detect users who deactivated after this feature was released.<br>
-<br>
-<strong>🐞Fixed the issue of updating the following list too frequently</strong><br>
-<br>
-<strong>😊When merging novel series, tag filtering conditions can now be applied</strong><br>
-The downloader will now apply the "Must contain tags" and "Must not contain tags" filters when merging novel series. This allows users to filter out unwanted novels by specifying tags.`,
-        `<strong>✨新設定：ログ領域のデフォルト可視性</strong><br>
-ダウンロードツールがページ上部にログを出力する際、ログ領域のデフォルト表示（表示／非表示）を制御できます。デフォルト値は表示です。<br>
-この設定は「その他」-「その他」カテゴリで確認できます。<br>
-<br>
-<strong>✨新機能：退会済みユーザーを検索</strong><br>
-ダウンロードツールはフォロー中ページ（/following）にこの機能を追加しました。退会済みユーザーを検索できます。<br>
-注意：この機能は以前に退会したユーザーを検索できず、この機能リリース後（2026年3月）に退会したユーザーのみ検出可能です。<br>
-<br>
-<strong>🐞フォロー一覧の更新が頻繁すぎる問題を修正</strong><br>
-<br>
-<strong>😊シリーズ小説のマージ時にタグフィルターを適用可能に</strong><br>
-シリーズ小説をマージする際、「必須タグ」と「除外タグ」のフィルターが適用されるようになりました。これにより、指定したタグで不要な小説をフィルタリングできます。`,
-        `<strong>✨새 설정: 로그 영역의 기본 가시성</strong><br>
-다운로더가 페이지 상단에 로그를 출력할 때, 로그 영역의 기본 표시(표시/숨김)를 제어할 수 있습니다. 기본값은 표시입니다.<br>
-이 설정은 "더보기" - "기타" 카테고리에서 찾을 수 있습니다.<br>
-<br>
-<strong>✨새 기능: 탈퇴한 사용자 찾기</strong><br>
-다운로더가 팔로잉 페이지(/following)에 이 기능을 추가했습니다. 탈퇴한 사용자를 검색할 수 있습니다.<br>
-주의: 이 기능은 이전에 탈퇴한 사용자는 찾을 수 없으며, 기능 출시 이후에 탈퇴한 사용자만 확인할 수 있습니다.<br>
-<br>
-<strong>🐞팔로잉 목록 업데이트가 너무 빈번한 문제 수정</strong><br>
-<br>
-<strong>😊시리즈 소설 병합 시 태그 필터 적용 가능</strong><br>
-이제 시리즈 소설을 병합할 때 "필수 태그"와 "제외 태그" 필터를 적용할 수 있습니다. 이를 통해 원하지 않는 소설을 태그로 필터링할 수 있습니다。`,
-        `<strong>✨Новый параметр: Видимость области журнала по умолчанию</strong><br>
-Когда загрузчик выводит логи в верхней части страницы, вы можете управлять, будет ли область журнала отображаться или скрываться по умолчанию. Значение по умолчанию — Показать.<br>
-Вы можете найти эту настройку в категории «Больше» — «Другое».<br>
-<br>
-<strong>✨Новая функция: Поиск деактивированных пользователей</strong><br>
-Загрузчик добавил эту функцию на странице подписок (/following). Теперь вы можете находить деактивированных пользователей.<br>
-Внимание: Эта функция не может находить пользователей, которые деактивировали аккаунт раньше, она может обнаруживать только тех, кто сделал это после выпуска функции.<br>
-<br>
-<strong>🐞Исправлена проблема слишком частого обновления списка подписок</strong><br>
-<br>
-<strong>😊При объединении серий романов теперь можно применять фильтры по тегам</strong><br>
-Теперь при объединении серий романов загрузчик применяет два фильтра: «Должен содержать теги» и «Не должен содержать теги». Это позволяет пользователям отфильтровывать ненужные романы с помощью указанных тегов。`,
-    ],
     _提示下载记录数量太多: [
         `提示：建议您清理浏览器的下载记录。<br>
     为什么您会看到这个提示：<br>
@@ -35154,6 +35077,74 @@ Standalone novels are downloaded only after crawling is finished. The crawl resu
         `選択した作品の中にシリーズ小説が含まれています。ダウンロードツールはシリーズ小説を優先的にマージします。`,
         `선택한 작품 중 일부가 시리즈 소설입니다. 다운로더는 시리즈 소설을 우선적으로 병합합니다.`,
         `В выбранных вами работах есть серии романов, загрузчик будет в первую очередь объединять серии романов.`,
+    ],
+    _更新说明1850: [
+        `<strong>🔧调整了“文件名长度限制”设置</strong><br>
+当文件名或文件夹的名字太长时，浏览器可能会显示另存为窗口让用户手动处理。为了减少这种情况，下载器对“文件名长度限制”设置进行了修改：<br>
+1. 该设置现在默认启用。文件的完整路径（包含文件夹和文件名）被限制在 210 个字符之内。<br>
+2. 之前该功能只会截断文件名，现在也可能会截断文件夹的名字（如果有必要）。<br>
+<br>
+<strong>✨适配了小说搜索页面的“整合相同系列”条件</strong><br>
+当用户启用了搜索条件“整合相同系列”时，下载器的抓取结果会用户看到的内容保持一致。<br>
+<br>
+<strong>🐞修复了多个 Bug</strong><br>
+<br>
+<strong>😊优化用户体验</strong><br>`,
+        `<strong>🔧調整了「檔名長度限制」設定</strong><br>
+當檔名或資料夾的名稱太長時，瀏覽器可能會顯示另存為視窗讓使用者手動處理。為了減少這種情況，下載器對「檔名長度限制」設定進行了修改：<br>
+1. 該設定現在預設啟用。檔案的完整路徑（包含資料夾和檔名）被限制在 210 個字元以內。<br>
+2. 之前該功能只會截斷檔名，現在也可能會截斷資料夾的名稱（如果有必要的話）。<br>
+<br>
+<strong>✨適配了小說搜尋頁面的「整合相同系列」條件</strong><br>
+當使用者啟用了搜尋條件「整合相同系列」時，下載器的抓取結果會與使用者看到的內容保持一致。<br>
+<br>
+<strong>🐞修復了多個 Bug</strong><br>
+<br>
+<strong>😊優化使用者體驗</strong><br>`,
+        `<strong>🔧Adjusted the "Filename Length Limit" setting</strong><br>
+When filenames or folder names are too long, the browser may display a "Save As" dialog for manual handling. To reduce this occurrence, the downloader has modified the "Filename Length Limit" setting as follows:<br>
+1. This setting is now enabled by default. The full file path (including folders and filename) is limited to within 210 characters.<br>
+2. Previously this function only truncated filenames; now it may also truncate folder names if necessary.<br>
+<br>
+<strong>✨Adapted to the "Integrate Identical Series" condition on the novel search page</strong><br>
+When the user enables the search condition "Integrate Identical Series", the downloader's crawl results will be consistent with what the user sees on the page.<br>
+<br>
+<strong>🐞Fixed multiple bugs</strong><br>
+<br>
+<strong>😊Improved user experience</strong><br>`,
+        `<strong>🔧「ファイル名長さ制限」設定を調整しました</strong><br>
+ファイル名やフォルダー名が長すぎる場合、ブラウザが「名前を付けて保存」ダイアログを表示して手動処理を求めることがあります。この状況を減らすため、ダウンロードツールは「ファイル名長さ制限」設定を以下のように変更しました：<br>
+1. この設定はデフォルトで有効になりました。ファイルのフルパス（フォルダーとファイル名を含む）は210文字以内に制限されます。<br>
+2. 以前はこの機能がファイル名のみを切り詰めていましたが、必要に応じてフォルダー名も切り詰められるようになりました。<br>
+<br>
+<strong>✨小説検索ページの「同一シリーズを統合」条件に対応しました</strong><br>
+ユーザーが検索条件「同一シリーズを統合」を有効にした場合、ダウンロードツールのクロール結果はユーザーが見ている内容と一致するようになりました。<br>
+<br>
+<strong>🐞複数のバグを修正</strong><br>
+<br>
+<strong>😊ユーザー体験を最適化</strong><br>`,
+        `<strong>🔧"파일 이름 길이 제한" 설정 조정</strong><br>
+파일 이름이나 폴더 이름이 너무 길면 브라우저가 "다른 이름으로 저장" 창을 띄워 수동으로 처리하게 될 수 있습니다. 이런 상황을 줄이기 위해 다운로더는 "파일 이름 길이 제한" 설정을 다음과 같이 수정했습니다:<br>
+1. 이 설정이 이제 기본으로 활성화됩니다. 파일의 전체 경로(폴더와 파일명 포함)는 210자 이내로 제한됩니다.<br>
+2. 이전에는 파일명만 잘랐지만, 필요 시 폴더 이름도 잘라내도록 변경되었습니다.<br>
+<br>
+<strong>✨소설 검색 페이지의 "동일 시리즈 통합" 조건에 적응</strong><br>
+사용자가 "동일 시리즈 통합" 검색 조건을 활성화했을 때, 다운로더의 크롤링 결과가 사용자가 보는 내용과 일치하게 되었습니다.<br>
+<br>
+<strong>🐞여러 버그 수정</strong><br>
+<br>
+<strong>😊사용자 경험 최적화</strong><br>`,
+        `<strong>🔧Настроен параметр «Ограничение длины имени файла»</strong><br>
+Когда имя файла или папки слишком длинное, браузер может показывать окно «Сохранить как» для ручного сохранения. Чтобы уменьшить такие случаи, загрузчик изменил настройку «Ограничение длины имени файла» следующим образом:<br>
+1. Эта настройка теперь включена по умолчанию. Полный путь файла (включая папки и имя файла) ограничен 210 символами.<br>
+2. Ранее функция усечала только имя файла, теперь при необходимости усекаются и имена папок.<br>
+<br>
+<strong>✨Адаптировано к условию «Интегрировать одинаковые серии» на странице поиска романов</strong><br>
+Когда пользователь включает условие поиска «Интегрировать одинаковые серии», результаты краулинга загрузчика будут соответствовать тому, что видит пользователь на странице.<br>
+<br>
+<strong>🐞Исправлено несколько багов</strong><br>
+<br>
+<strong>😊Оптимизирован пользовательский опыт</strong><br>`,
     ],
 };
 

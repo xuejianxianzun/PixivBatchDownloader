@@ -11,7 +11,7 @@ class ShowWhatIsNew {
     this.bindEvents()
   }
 
-  private flag = '18.4.0'
+  private flag = '18.5.0'
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
@@ -20,10 +20,7 @@ class ShowWhatIsNew {
       <span>${lang.transl('_扩展程序升到x版本', this.flag)}</span>
       <br>
       <br>
-      <span>${lang.transl('_更新说明1840')}</span>
-      <br>
-      <br>
-      <span>${lang.transl('_优化用户体验')}</span>
+      <span>${lang.transl('_更新说明1850')}</span>
       `
 
       // <strong><span>✨ ${lang.transl('_新增设置项')}:</span></strong>
