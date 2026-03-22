@@ -2612,6 +2612,9 @@ iframe[name='expandedFooter'] {
 .mr0 {
   margin-right: 0 !important;
 }
+.mr4 {
+  margin-right: 4px !important;
+}
 .beautify_scrollbar::-webkit-scrollbar {
   width: 10px;
   height: 10px;

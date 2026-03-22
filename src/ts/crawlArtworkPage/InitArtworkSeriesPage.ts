@@ -85,6 +85,7 @@ class InitArtworkSeriesPage extends InitPageBase {
         aiType: work.aiType,
         id: work.id,
         tags: work.tags,
+        title: work.title,
         bookmarkData: !!work.bookmarkData,
         width: work.pageCount === 1 ? work.width : 0,
         height: work.pageCount === 1 ? work.height : 0,

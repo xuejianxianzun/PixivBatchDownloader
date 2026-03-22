@@ -44,6 +44,8 @@ class SaveNovelData {
       id: body.id,
       workType: illustType,
       tags: tags,
+      title: body.title,
+      seriesTitle: body.seriesNavData?.title || '',
       bookmarkCount: bmk,
       bookmarkData: body.bookmarkData,
       userId: body.userId,
@@ -64,8 +66,8 @@ class SaveNovelData {
       const rank = rankData ? rankData : null
 
       // 系列标题和序号
-      const seriesTitle = body.seriesNavData ? body.seriesNavData.title : ''
-      const seriesOrder = body.seriesNavData ? body.seriesNavData.order : null
+      const seriesTitle = body.seriesNavData?.title || ''
+      const seriesOrder = body.seriesNavData?.order || null
 
       // 这个 description 是保存到抓取结果里的，尽量保持原样，所以保留了 html 标签
       const description = Utils.htmlDecode(body.description)

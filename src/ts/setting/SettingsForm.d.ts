@@ -169,4 +169,9 @@ export interface SettingsForm extends HTMLFormElement {
   logVisibleDefault: HTMLInputElement
   fullNameLengthLimitSwitch: HTMLInputElement
   fullNameLengthLimit: HTMLInputElement
+  titleIncludeSwitch: HTMLInputElement
+  titleIncludeList: HTMLInputElement
+  titleExcludeSwitch: HTMLInputElement
+  titleExcludeList: HTMLInputElement
+  alsoCheckSeriesTitle: HTMLInputElement
 }

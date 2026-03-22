@@ -262,7 +262,8 @@ class InitBookmarkPage extends InitPageBase {
           for (const result of resultList) {
             Utils.downloadFile(
               result.url,
-              `Bookmark list-total ${result.total
+              `Bookmark list-total ${
+                result.total
               }-from ${Tools.getPageTitle()}-${Utils.replaceUnsafeStr(
                 new Date().toLocaleString()
               )}.json`
@@ -495,6 +496,7 @@ One possible reason: You have been banned from Pixiv.`)
             aiType: workData.aiType,
             id: workData.id,
             tags: workData.tags,
+            title: workData.title,
             bookmarkData: workData.bookmarkData,
             createDate: workData.createDate,
             userId: workData.userId,
@@ -509,8 +511,8 @@ One possible reason: You have been banned from Pixiv.`)
                 (workData as ArtworkCommonData).illustType === undefined
                   ? 'novels'
                   : Tools.getWorkTypeString(
-                    (workData as ArtworkCommonData).illustType
-                  ),
+                      (workData as ArtworkCommonData).illustType
+                    ),
               id: workData.id,
             })
 

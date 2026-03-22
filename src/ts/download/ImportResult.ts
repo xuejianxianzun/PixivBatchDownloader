@@ -55,6 +55,7 @@ class ImportResult {
         workType: result.type,
         pageCount: result.pageCount,
         tags: result.tagsWithTransl,
+        title: result.title,
         bookmarkCount: result.bmk,
         bookmarkData: result.bookmarked,
         width: result.pageCount === 1 ? result.fullWidth : 0,

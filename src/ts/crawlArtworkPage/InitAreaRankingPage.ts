@@ -65,9 +65,14 @@ class InitAreaRankingPage extends InitPageBase {
         ? bookmarkBtn.classList.contains('on')
         : false
 
+      // 获取标题
+      const title =
+        img.closest('.ranking-item')?.querySelector('h2 a')?.textContent || ''
+
       const filterOpt: FilterOption = {
-        id: id,
-        tags: tags,
+        id,
+        tags,
+        title,
         bookmarkData: bookmarked,
       }
 

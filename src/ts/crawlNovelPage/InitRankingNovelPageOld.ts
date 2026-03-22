@@ -11,7 +11,7 @@ import { nameRuleManager } from '../setting/NameRuleManager'
 import { Utils } from '../utils/Utils'
 
 // 旧版小说排行榜页面，加载页面源码并从中获取数据
-class InitRankingNovelPage extends InitPageBase {
+class InitRankingNovelPageOld extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -222,4 +222,4 @@ class InitRankingNovelPage extends InitPageBase {
     this.listPageFinished = 0
   }
 }
-export { InitRankingNovelPage }
+export { InitRankingNovelPageOld }

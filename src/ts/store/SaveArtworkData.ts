@@ -55,6 +55,8 @@ class SaveArtworkData {
       id: body.id,
       workType: body.illustType,
       tags: tagsWithTransl,
+      title: body.title,
+      seriesTitle: body.seriesNavData?.title || '',
       pageCount: body.pageCount,
       bookmarkCount: bmk,
       bookmarkData: body.bookmarkData,
@@ -80,8 +82,9 @@ class SaveArtworkData {
       const rankData = store.getRankList(body.id)
       const rank = rankData ? rankData : null
 
-      const seriesTitle = body.seriesNavData ? body.seriesNavData.title : ''
-      const seriesOrder = body.seriesNavData ? body.seriesNavData.order : null
+      // 系列标题和序号
+      const seriesTitle = body.seriesNavData?.title || ''
+      const seriesOrder = body.seriesNavData?.order || null
 
       // 保存作品信息
       const description = Utils.htmlDecode(body.description)

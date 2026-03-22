@@ -99,8 +99,16 @@ class MergeNovel {
     this.seriesId = seriesId.toString()
     this.seriesTitle = seriesTitle || ''
     this.slowMode = slowMode
-
     const link = `<a href="https://www.pixiv.net/novel/series/${this.seriesId}" target="_blank">${this.seriesTitle || this.seriesId}</a>`
+
+    if (seriesTitle) {
+      const check = await filter.check({ seriesTitle: seriesTitle })
+      if (!check) {
+        log.warning(`✅${lang.transl('_跳过合并系列小说')} ${link}`)
+        return 0
+      }
+    }
+
     log.log(`📚${lang.transl('_合并系列小说')} ${link}`)
 
     if (settings.novelSaveAs === 'txt') {
@@ -510,6 +518,8 @@ class MergeNovel {
         aiType: item.aiType,
         xRestrict: item.xRestrict,
         tags: item.tags,
+        title: item.title,
+        seriesTitle: this.seriesTitle || '',
         userId: item.userId,
         bookmarkData: item.bookmarkData,
         bookmarkCount: item.bookmarkCount,
@@ -591,6 +601,7 @@ class MergeNovel {
       }
 
       // 应用标签过滤器
+      // 虽然这里也能检查其他过滤条件，但没有必要，因为前面已经检查过了
       const check = await filter.check({
         xRestrict: data.body.xRestrict,
         tags,

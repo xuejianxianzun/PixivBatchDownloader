@@ -377,6 +377,8 @@ class InitSearchNovelPage extends InitPageBase {
         workType: 3,
         // 只检查单篇小说的 tags，如果是系列小说则不检查。因为此时系列数据里的 tags 是它里面第一篇小说的 tags，不能用来对整个系列进行过滤
         tags: novelId ? work.tags : undefined,
+        title: novelId ? work.title : undefined,
+        seriesTitle: novelId ? undefined : work.title,
         userId: work.userId,
         xRestrict: work.xRestrict,
       }

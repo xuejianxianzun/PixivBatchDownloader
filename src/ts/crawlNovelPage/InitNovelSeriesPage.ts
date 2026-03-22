@@ -6,6 +6,7 @@ import { Tools } from '../Tools'
 import { API } from '../API'
 import { Utils } from '../utils/Utils'
 import { MergeNovel } from '../download/MergeNovel'
+import { EVT } from '../EVT'
 
 class InitNovelSeriesPage extends InitPageBase {
   constructor() {
@@ -36,6 +37,7 @@ class InitNovelSeriesPage extends InitPageBase {
       '',
       'mergeSeriesNovel'
     ).addEventListener('click', () => {
+      EVT.fire('closeCenterPanel')
       const seriesId = Utils.getURLPathField(window.location.pathname, 'series')
       let seriseTitle = ''
       // 尝试获取系列标题

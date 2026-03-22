@@ -554,6 +554,7 @@ class InitSearchArtworkPage extends InitPageBase {
         bookmarkData: work.bookmarkData,
         workType: work.illustType,
         tags: work.tags,
+        title: work.title,
         userId: work.userId,
         xRestrict: work.xRestrict,
       }
@@ -1010,6 +1011,7 @@ class InitSearchArtworkPage extends InitPageBase {
         workType: data.type,
         pageCount: data.pageCount,
         tags: data.tags,
+        title: data.title,
         bookmarkCount: data.bmk,
         bookmarkData: data.bookmarked,
         width: data.pageCount === 1 ? data.fullWidth : 0,

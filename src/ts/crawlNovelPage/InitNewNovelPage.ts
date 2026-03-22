@@ -111,6 +111,7 @@ class InitNewNovelPage extends InitPageBase {
         bookmarkCount: nowData.bookmarkCount,
         workType: 3,
         tags: nowData.tags,
+        title: nowData.title,
         userId: nowData.userId,
         createDate: nowData.createDate,
         xRestrict: nowData.xRestrict,

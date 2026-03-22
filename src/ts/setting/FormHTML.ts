@@ -1,7 +1,7 @@
 import { Config } from '../Config'
 import { wiki } from './Wiki'
 
-// 设置项编号从 0 开始，现在最大是 93
+// 设置项编号从 0 开始，现在最大是 95
 export const formHtml = `
 <form class="settingForm">
   <div class="tabsContnet">
@@ -292,6 +292,7 @@ export const formHtml = `
         <input type="text" name="needTag" class="setinput_style1 blue setinput_tag" placeholder="tag1,tag2,tag3">
       </span>
     </p>
+
     <p class="option" data-no="12">
       <a href="${wiki.link(12)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_排除tag的提示文字">
         <span data-xztext="_不能含有tag"></span>
@@ -311,6 +312,38 @@ export const formHtml = `
         <textarea class="centerPanelTextArea beautify_scrollbar" name="notNeedTag" rows="1" placeholder="tag1,tag2,tag3"></textarea>
       </span>
     </p>
+    
+    <p class="option" data-no="94">
+      <a href="${wiki.link(94)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_标题必须含有的说明">
+        <span data-xztext="_标题必须含有"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="titleIncludeSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+
+      <span class="subOptionWrap" data-show="titleIncludeSwitch">
+        <textarea class="centerPanelTextArea beautify_scrollbar" name="titleIncludeList" rows="1" placeholder="word1,word2,word3"></textarea>
+      </span>
+    </p>
+
+    <p class="option" data-no="95">
+      <a href="${wiki.link(95)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_标题不能含有的说明">
+        <span data-xztext="_标题不能含有"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="titleExcludeSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      
+      <span class="subOptionWrap" data-show="titleExcludeSwitch">
+        <textarea class="centerPanelTextArea beautify_scrollbar" name="titleExcludeList" rows="1" placeholder="word1,word2,word3"></textarea>
+
+        <label for="alsoCheckSeriesTitle" class="has_tip" data-xztext="_也检查系列标题" data-xztip="_也检查系列标题的说明"></label>
+        <span class="gray1 mr4"> ? </span>
+        <input type="checkbox" name="alsoCheckSeriesTitle" id="alsoCheckSeriesTitle" class="need_beautify checkbox_switch" checked>
+        <span class="beautify_switch" tabindex="0"></span>
+      </span>
+    </p>
+    
     <div class="centerWrap_btns">
       <slot data-name="stopCrawl"></slot>
       <slot data-name="crawlBtns"></slot>

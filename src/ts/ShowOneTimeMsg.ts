@@ -17,4 +17,4 @@ class ShowOneTimeMsg {
 }
 
 const showOneTimeMsg = new ShowOneTimeMsg()
-export { showOneTimeMsg  }
+export { showOneTimeMsg }

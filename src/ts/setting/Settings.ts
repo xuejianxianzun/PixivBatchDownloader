@@ -319,6 +319,11 @@ interface XzSetting {
   logVisibleDefault: 'show' | 'hide'
   tipCloseAskFileSaveLocation: boolean
   tipCloseAskFileSaveLocationOnce: boolean
+  titleIncludeSwitch: boolean
+  titleIncludeList: string[]
+  titleExcludeSwitch: boolean
+  titleExcludeList: string[]
+  alsoCheckSeriesTitle: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -796,6 +801,11 @@ class Settings {
     logVisibleDefault: 'show',
     tipCloseAskFileSaveLocation: true,
     tipCloseAskFileSaveLocationOnce: true,
+    titleIncludeSwitch: false,
+    titleIncludeList: [],
+    titleExcludeSwitch: false,
+    titleExcludeList: [],
+    alsoCheckSeriesTitle: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -821,6 +831,8 @@ class Settings {
     'notNeedTag',
     'createFolderTagList',
     'exportLogExclude',
+    'titleIncludeList',
+    'titleExcludeList',
   ]
 
   // 以默认设置作为初始设置
@@ -1116,7 +1128,7 @@ class Settings {
     }
 
     // 更改设置
-    ; (this.settings[key] as any) = value
+    ;(this.settings[key] as any) = value
 
     // 当修改某些设置时，顺便修改依赖它的设置
     if (key === 'widthTag') {

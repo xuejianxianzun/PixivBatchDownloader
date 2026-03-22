@@ -140,6 +140,7 @@ class InitBookmarkNewPage extends InitPageBase {
           bookmarkData: data.bookmarkData,
           workType: data.illustType,
           tags: data.tags,
+          title: data.title,
           userId: data.userId,
           xRestrict: data.xRestrict,
         }
@@ -159,6 +160,7 @@ class InitBookmarkNewPage extends InitPageBase {
           id: data.id,
           workType: 3,
           tags: data.tags,
+          title: data.title,
           bookmarkCount: data.bookmarkCount,
           bookmarkData: data.bookmarkData,
           userId: data.userId,

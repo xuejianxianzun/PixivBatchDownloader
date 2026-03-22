@@ -120,12 +120,12 @@ abstract class InitPageBase {
   }
 
   // 添加其他任意元素（如果有）
-  protected addAnyElement(): void { }
+  protected addAnyElement(): void {}
 
   // 初始化任意内容
   // 如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里
   // 通常用来初始化特有的组件、功能、事件、状态等
-  protected initAny() { }
+  protected initAny() {}
 
   // 销毁初始化页面时添加的元素和事件，恢复设置项等
   protected destroy(): void {
@@ -134,7 +134,7 @@ abstract class InitPageBase {
   }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
-  protected getWantPage() { }
+  protected getWantPage() {}
 
   // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
   protected getMultipleSetting() {
@@ -301,7 +301,7 @@ abstract class InitPageBase {
   }
 
   // 获取 id 列表，由各个子类具体定义
-  protected getIdList() { }
+  protected getIdList() {}
 
   /** 检查该用户是否被屏蔽了。如果被屏蔽，则不抓取他的作品，以避免发送不必要的抓取请求 */
   protected async checkUserId(userId: string) {
@@ -362,7 +362,8 @@ abstract class InitPageBase {
         for (const result of resultList) {
           Utils.downloadFile(
             result.url,
-            `ID list-total ${result.total
+            `ID list-total ${
+              result.total
             }-from ${Tools.getPageTitle()}-${Utils.replaceUnsafeStr(
               new Date().toLocaleString()
             )}.json`
@@ -422,7 +423,7 @@ abstract class InitPageBase {
   }
 
   // 重设抓取作品列表时使用的变量或标记
-  protected resetGetIdListStatus() { }
+  protected resetGetIdListStatus() {}
 
   // 获取作品的数据
   protected async getWorksData(idData?: IDData): Promise<void> {
@@ -446,8 +447,9 @@ abstract class InitPageBase {
     // 现在这里能够检查这些过滤条件：
     // 1. 检查 id 是否符合 id 范围条件
     // 2. 检查 id 的发布时间是否符合时间范围条件
-    // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，
-    // 但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
+    // 3. 区分图像作品和小说。
+    // 注意：在某些情况下，下载器只能确定一个作品是图像还是小说，但不能区分它具体是图像里的哪一种类型（插画、漫画、动图）
+    // 所以这里不能检查具体的图像类型，只能检查是图像还是小说
     const check = await filter.check({
       id,
       workTypeString: idData.type,
@@ -675,7 +677,7 @@ abstract class InitPageBase {
   }
 
   // 抓取完成后，对结果进行排序
-  protected sortResult() { }
+  protected sortResult() {}
 
   /**定时抓取的按钮 */
   protected addStartTimedCrawlBtn(cb: Function) {

@@ -2266,7 +2266,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _OpenCenterPanel__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./OpenCenterPanel */ "./src/ts/OpenCenterPanel.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _BoldKeywords__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./BoldKeywords */ "./src/ts/BoldKeywords.ts");
-/* harmony import */ var _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./showOneTimeHelp */ "./src/ts/showOneTimeHelp.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
 
 
@@ -2406,7 +2406,7 @@ class CenterPanel {
             }
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.settingInitialized, () => {
-            _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_11__.showOneTimeHelp.show('tipHowToUse', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_HowToUse') + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_账户可能被封禁的警告'));
+            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_11__.showOneTimeMsg.show('tipHowToUse', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_HowToUse') + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_账户可能被封禁的警告'));
         });
         // 使用快捷键 Alt + x 切换中间面板显示隐藏
         window.addEventListener('keydown', (ev) => {
@@ -2420,7 +2420,7 @@ class CenterPanel {
             .addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('closeCenterPanel');
             if (!_Config__WEBPACK_IMPORTED_MODULE_5__.Config.mobile) {
-                _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_11__.showOneTimeHelp.show('tipAltXToShowControlPanel', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_快捷键ALTX显示隐藏控制面板'));
+                _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_11__.showOneTimeMsg.show('tipAltXToShowControlPanel', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_快捷键ALTX显示隐藏控制面板'));
             }
         });
         // 开始抓取作品时，隐藏
@@ -5250,7 +5250,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawlNovelPage_InitNovelPage__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./crawlNovelPage/InitNovelPage */ "./src/ts/crawlNovelPage/InitNovelPage.ts");
 /* harmony import */ var _crawlNovelPage_InitNovelSeriesPage__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./crawlNovelPage/InitNovelSeriesPage */ "./src/ts/crawlNovelPage/InitNovelSeriesPage.ts");
 /* harmony import */ var _crawlNovelPage_InitSearchNovelPage__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./crawlNovelPage/InitSearchNovelPage */ "./src/ts/crawlNovelPage/InitSearchNovelPage.ts");
-/* harmony import */ var _crawlNovelPage_InitRankingNovelPage__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./crawlNovelPage/InitRankingNovelPage */ "./src/ts/crawlNovelPage/InitRankingNovelPage.ts");
+/* harmony import */ var _crawlNovelPage_InitRankingNovelPageOld__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./crawlNovelPage/InitRankingNovelPageOld */ "./src/ts/crawlNovelPage/InitRankingNovelPageOld.ts");
 /* harmony import */ var _crawlNovelPage_InitRankingNovelPageNew__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./crawlNovelPage/InitRankingNovelPageNew */ "./src/ts/crawlNovelPage/InitRankingNovelPageNew.ts");
 /* harmony import */ var _crawlNovelPage_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./crawlNovelPage/InitNewNovelPage */ "./src/ts/crawlNovelPage/InitNewNovelPage.ts");
 /* harmony import */ var _crawlArtworkPage_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./crawlArtworkPage/InitArtworkSeriesPage */ "./src/ts/crawlArtworkPage/InitArtworkSeriesPage.ts");
@@ -5333,7 +5333,9 @@ class InitPage {
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelRanking:
                 // 查找旧版小说排行榜的页码区域，判断页面是旧版还是新版
                 const old = document.querySelector('.pager-container');
-                return old ? new _crawlNovelPage_InitRankingNovelPage__WEBPACK_IMPORTED_MODULE_17__.InitRankingNovelPage() : new _crawlNovelPage_InitRankingNovelPageNew__WEBPACK_IMPORTED_MODULE_18__.InitRankingNovelPageNew();
+                return old
+                    ? new _crawlNovelPage_InitRankingNovelPageOld__WEBPACK_IMPORTED_MODULE_17__.InitRankingNovelPageOld()
+                    : new _crawlNovelPage_InitRankingNovelPageNew__WEBPACK_IMPORTED_MODULE_18__.InitRankingNovelPageNew();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewNovelBookmark:
                 return new _crawlMixedPage_InitBookmarkNewPage__WEBPACK_IMPORTED_MODULE_11__.InitBookmarkNewPage();
             case _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewNovel:
@@ -7349,7 +7351,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
-/* harmony import */ var _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./showOneTimeHelp */ "./src/ts/showOneTimeHelp.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 /* harmony import */ var _PreviewWorkDetailInfo__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./PreviewWorkDetailInfo */ "./src/ts/PreviewWorkDetailInfo.ts");
@@ -7466,7 +7468,7 @@ class PreviewWork {
                 this.showWrap();
                 window.clearTimeout(this.delayHiddenTimer);
                 if (!_Config__WEBPACK_IMPORTED_MODULE_15__.Config.mobile) {
-                    _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_13__.showOneTimeHelp.show('tipPreviewWork', _Language__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品的快捷键说明'), _Language__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品'));
+                    _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_13__.showOneTimeMsg.show('tipPreviewWork', _Language__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品的快捷键说明'), _Language__WEBPACK_IMPORTED_MODULE_10__.lang.transl('_预览作品'));
                 }
             }
         }
@@ -8822,7 +8824,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
 /* harmony import */ var _NovelThumbnail__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./NovelThumbnail */ "./src/ts/NovelThumbnail.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./showOneTimeHelp */ "./src/ts/showOneTimeHelp.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
 /* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
@@ -9031,7 +9033,7 @@ class SelectWork {
                 this.startSelect(ev);
                 this.clearBtn.style.display = 'flex';
                 if (!_Config__WEBPACK_IMPORTED_MODULE_12__.Config.mobile) {
-                    _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_11__.showOneTimeHelp.show('tipAltSToSelectWork', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快捷键ALTS手动选择作品'));
+                    _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_11__.showOneTimeMsg.show('tipAltSToSelectWork', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快捷键ALTS手动选择作品'));
                 }
             };
         }
@@ -10066,6 +10068,43 @@ new ShowNotification();
 
 /***/ }),
 
+/***/ "./src/ts/ShowOneTimeMsg.ts":
+/*!**********************************!*\
+  !*** ./src/ts/ShowOneTimeMsg.ts ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   showOneTimeMsg: () => (/* binding */ showOneTimeMsg)
+/* harmony export */ });
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
+
+
+class ShowOneTimeMsg {
+    /** 用 msgBox 显示一次性的提示。显示之后会自动修改设置，以后不再显示 */
+    show(settingKey, msg, title) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings[settingKey] === true) {
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)(settingKey, false);
+            _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.show(msg, {
+                title: title ? title : _Config__WEBPACK_IMPORTED_MODULE_1__.Config.appName + ' Help',
+                btn: _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_我知道了'),
+            });
+        }
+    }
+}
+const showOneTimeMsg = new ShowOneTimeMsg();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/ShowOriginSizeImage.ts":
 /*!***************************************!*\
   !*** ./src/ts/ShowOriginSizeImage.ts ***!
@@ -10083,7 +10122,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ArtworkThumbnail */ "./src/ts/ArtworkThumbnail.ts");
 /* harmony import */ var _PreviewUgoira__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./PreviewUgoira */ "./src/ts/PreviewUgoira.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./showOneTimeHelp */ "./src/ts/showOneTimeHelp.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 /* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
@@ -10152,7 +10191,7 @@ class ShowOriginSizeImage {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('showOriginSizeImage');
             this.wrap.style.display = 'block';
             if (!_Config__WEBPACK_IMPORTED_MODULE_8__.Config.mobile) {
-                _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_6__.showOneTimeHelp.show('tipHotkeysViewLargeImage', _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_查看作品大图时的快捷键'));
+                _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_6__.showOneTimeMsg.show('tipHotkeysViewLargeImage', _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_查看作品大图时的快捷键'));
             }
             // 预览动图
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.previewUgoira && this.workData?.body.illustType === 2) {
@@ -13288,7 +13327,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 /* harmony import */ var _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
 /* harmony import */ var _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ../download/AutoMergeNovel */ "./src/ts/download/AutoMergeNovel.ts");
-/* harmony import */ var _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ../showOneTimeHelp */ "./src/ts/showOneTimeHelp.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
 // 初始化所有页面抓取流程的基类
 
 
@@ -13444,7 +13483,7 @@ class InitPageBase {
         // 其实不清空通常也没有问题，但是考虑到定时抓取功能、以及其他一些行为可能会产生大量日志，
         // 一直不清空的话会导致日志数量持续增加，占据的内存也会增加
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
-        _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_30__.showOneTimeHelp.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'));
+        _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'));
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
         _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
             position: 'center',
@@ -13489,7 +13528,7 @@ class InitPageBase {
                 return;
             }
             _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
-            _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_30__.showOneTimeHelp.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'));
+            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'));
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
             _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
                 bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
@@ -13629,8 +13668,9 @@ class InitPageBase {
         // 现在这里能够检查这些过滤条件：
         // 1. 检查 id 是否符合 id 范围条件
         // 2. 检查 id 的发布时间是否符合时间范围条件
-        // 3. 区分图像作品和小说。注意：因为在某些情况下，下载器只能确定一个作品是图像还是小说，
-        // 但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
+        // 3. 区分图像作品和小说。
+        // 注意：在某些情况下，下载器只能确定一个作品是图像还是小说，但不能区分它具体是图像里的哪一种类型（插画、漫画、动图）
+        // 所以这里不能检查具体的图像类型，只能检查是图像还是小说
         const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
             id,
             workTypeString: idData.type,
@@ -14606,9 +14646,12 @@ class InitAreaRankingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             const bookmarked = bookmarkBtn
                 ? bookmarkBtn.classList.contains('on')
                 : false;
+            // 获取标题
+            const title = img.closest('.ranking-item')?.querySelector('h2 a')?.textContent || '';
             const filterOpt = {
-                id: id,
-                tags: tags,
+                id,
+                tags,
+                title,
                 bookmarkData: bookmarked,
             };
             if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_3__.filter.check(filterOpt)) {
@@ -14918,6 +14961,7 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 aiType: work.aiType,
                 id: work.id,
                 tags: work.tags,
+                title: work.title,
                 bookmarkData: !!work.bookmarkData,
                 width: work.pageCount === 1 ? work.width : 0,
                 height: work.pageCount === 1 ? work.height : 0,
@@ -15210,6 +15254,7 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
                 bookmarkData: nowData.bookmarkData,
                 workType: nowData.illustType,
                 tags: nowData.tags,
+                title: nowData.title,
                 userId: nowData.userId,
                 createDate: nowData.createDate,
                 xRestrict: nowData.xRestrict,
@@ -15510,6 +15555,7 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
                 id: work.illust_id,
                 workType: parseInt(work.illust_type),
                 tags: work.tags,
+                title: work.title,
                 pageCount: pageCount,
                 bookmarkData: work.is_bookmarked,
                 width: pageCount === 1 ? work.width : 0,
@@ -16016,6 +16062,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 bookmarkData: work.bookmarkData,
                 workType: work.illustType,
                 tags: work.tags,
+                title: work.title,
                 userId: work.userId,
                 xRestrict: work.xRestrict,
             };
@@ -16403,6 +16450,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 workType: data.type,
                 pageCount: data.pageCount,
                 tags: data.tags,
+                title: data.title,
                 bookmarkCount: data.bmk,
                 bookmarkData: data.bookmarked,
                 width: data.pageCount === 1 ? data.fullWidth : 0,
@@ -16881,6 +16929,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                     bookmarkData: data.bookmarkData,
                     workType: data.illustType,
                     tags: data.tags,
+                    title: data.title,
                     userId: data.userId,
                     xRestrict: data.xRestrict,
                 };
@@ -16900,6 +16949,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                     id: data.id,
                     workType: 3,
                     tags: data.tags,
+                    title: data.title,
                     bookmarkCount: data.bookmarkCount,
                     bookmarkData: data.bookmarkData,
                     userId: data.userId,
@@ -16976,7 +17026,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _RemoveWorksTagsInBookmarks__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../RemoveWorksTagsInBookmarks */ "./src/ts/RemoveWorksTagsInBookmarks.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
-/* harmony import */ var _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../showOneTimeHelp */ "./src/ts/showOneTimeHelp.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
@@ -17043,7 +17093,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         }
         // 显示提示
         window.setTimeout(() => {
-            _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_19__.showOneTimeHelp.show('tipBookmarkManage', _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_在收藏页面里提示有辅助功能可用'));
+            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_19__.showOneTimeMsg.show('tipBookmarkManage', _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_在收藏页面里提示有辅助功能可用'));
         }, 1000);
         // 有些功能按钮只能在用户自己的页面里使用
         // 判断这个收藏页面是不是用户自己的页面
@@ -17324,6 +17374,7 @@ One possible reason: You have been banned from Pixiv.`);
                         aiType: workData.aiType,
                         id: workData.id,
                         tags: workData.tags,
+                        title: workData.title,
                         bookmarkData: workData.bookmarkData,
                         createDate: workData.createDate,
                         userId: workData.userId,
@@ -18895,7 +18946,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../showOneTimeHelp */ "./src/ts/showOneTimeHelp.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 
 
@@ -18935,7 +18986,7 @@ class QuickCrawl {
         this.btn.addEventListener('click', () => {
             this.sendDownload();
             if (!_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
-                _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_4__.showOneTimeHelp.show('tipAltQToQuickDownload', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快捷键ALTQ快速下载本页作品'));
+                _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_4__.showOneTimeMsg.show('tipAltQToQuickDownload', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_快捷键ALTQ快速下载本页作品'));
             }
         }, false);
         // 使用快捷键 Alt + Q 启动快速抓取
@@ -19157,6 +19208,7 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
                 bookmarkCount: nowData.bookmarkCount,
                 workType: 3,
                 tags: nowData.tags,
+                title: nowData.title,
                 userId: nowData.userId,
                 createDate: nowData.createDate,
                 xRestrict: nowData.xRestrict,
@@ -19324,7 +19376,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 //初始化小说系列作品页面
+
 
 
 
@@ -19346,6 +19400,7 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     }
     addAnyElement() {
         _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_合并系列小说', '', 'mergeSeriesNovel').addEventListener('click', () => {
+            _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('closeCenterPanel');
             const seriesId = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLPathField(window.location.pathname, 'series');
             let seriseTitle = '';
             // 尝试获取系列标题
@@ -19387,16 +19442,213 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
 
 /***/ }),
 
-/***/ "./src/ts/crawlNovelPage/InitRankingNovelPage.ts":
-/*!*******************************************************!*\
-  !*** ./src/ts/crawlNovelPage/InitRankingNovelPage.ts ***!
-  \*******************************************************/
+/***/ "./src/ts/crawlNovelPage/InitRankingNovelPageNew.ts":
+/*!**********************************************************!*\
+  !*** ./src/ts/crawlNovelPage/InitRankingNovelPageNew.ts ***!
+  \**********************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   InitRankingNovelPage: () => (/* binding */ InitRankingNovelPage)
+/* harmony export */   InitRankingNovelPageNew: () => (/* binding */ InitRankingNovelPageNew)
+/* harmony export */ });
+/* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
+/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../setting/NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
+
+
+
+
+
+
+
+
+
+
+// 新版小说排行榜页面
+// Pixiv 的更新是批量推送的，有些用户已经是新版页面，但也有很多用户还是旧版页面。
+// 由于旧版的用户无法使用新版的 API（会返回 404），所以新版和旧版需要分开处理
+class InitRankingNovelPageNew extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
+    constructor() {
+        super();
+        this.init();
+    }
+    addCrawlBtns() {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取本排行榜作品', '_抓取本排行榜作品Title', 'crawlRankingWork').addEventListener('click', () => {
+            this.readyCrawl();
+        });
+    }
+    initAny() {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.hiddenPremiumAD();
+    }
+    // 抓取完成后，对结果进行排序
+    sortResult() {
+        // 如果用户在命名规则里使用了 {rank}，则按照 rank 排序
+        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_10__.nameRuleManager.rule.includes('{rank}')) {
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.sortByProperty('rank', 'asc'));
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.sortByProperty('rank', 'asc'));
+        }
+    }
+    getWantPage() {
+        // 检查下载页数的设置
+        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.type].value;
+        if (this.crawlNumber === -1) {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_向下获取所有作品'));
+        }
+        else {
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载排行榜前x个作品', this.crawlNumber.toString()));
+        }
+        // 如果设置的作品个数是 -1，则设置为下载所有作品
+        if (this.crawlNumber === -1) {
+            this.crawlNumber = this.maxCount;
+        }
+    }
+    // 这 3 种排行榜只有全年龄，没有 R-18 分类：
+    // 本月、新人、原创
+    // 这 5 种排行榜有全年龄和 R-18 两种分类：
+    // 今日、本周、AI生成、受男性欢迎、受女性欢迎
+    // 这 1 种排行榜有 R-18G 分类：
+    // 本周
+    // 所以一共有 14 种排行榜分类：8 种全年龄，5 种 R-18，1 种 R-18G
+    mode = 'daily';
+    date = null;
+    page = 1;
+    /**在小说列表的右上角有个下拉菜单，可以选择小说的语言。
+     * 但是 API 获取小说时是不区分语言的，这个下拉菜单选择的语言只是对 API 的结果进行过滤，
+     * 在网页上只显示对应语言的小说。
+     */
+    selectLang = '';
+    /**检查了多少个小说 */
+    checkTotal = 0;
+    nextStep() {
+        this.getParams();
+        this.getIdList();
+    }
+    getParams() {
+        // 处理 url 如：
+        // https://www.pixiv.net/novel/ranking.php?mode=weekly_r18&p=2&date=20251031
+        const url = new URL(window.location.href);
+        // 获取排行榜模式
+        // 如果没有 mode 参数，则是默认的今日排行榜
+        this.mode = url.searchParams.get('mode') || 'daily';
+        // 获取日期
+        // 如果没有日期则不设置默认值，由 pixiv 处理
+        this.date = url.searchParams.get('date');
+        // 获取当前页码
+        const p = url.searchParams.get('p');
+        if (p) {
+            this.page = Number.parseInt(p);
+        }
+        else {
+            // 如果没有 p 参数，则默认为第 1 页
+            this.page = 1;
+        }
+        // 大部分小说排行榜都是 100 个作品。一页 50 个作品，一共有 2 页
+        // “AI生成”的排行榜只有 50 个作品，所以只有 1 页
+        // 获取当前显示的小说语言，也就是小说列表右上角的下拉框里选择的语言
+        // pixiv 会把用户选择的语言标记保存到本地存储里。如果选择“所有语种”则值是 ''
+        const value = window.localStorage.getItem('rankinglanguageFilterSetting');
+        if (value !== null) {
+            this.selectLang = value;
+        }
+    }
+    async getIdList() {
+        try {
+            const json = await _API__WEBPACK_IMPORTED_MODULE_9__.API.getRankingDataNovel(this.mode, this.date, this.page);
+            this.listPageFinished++;
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_排行榜进度', this.listPageFinished.toString()), 1, false);
+            const display_a = json.body.display_a;
+            let list = display_a.rank_a;
+            // list 可能是数组，也可能是有数字编号的对象，所以使用下标来取值
+            // 目前一页最多有 50 条小说数据，所以 length 是 50
+            const length = 50;
+            for (let i = 0; i < length; i++) {
+                const novel = list[i];
+                // 注意：有些小说可能会被作者删除，所以排行榜的数据里也就没有它。在页面上显示时，也会直接跳过它的排名编号。
+                // 2 页本来应该有 100 个作品，但有时可能只有 99 个，所以会有空值
+                if (novel === undefined) {
+                    continue;
+                }
+                const filterOpt = {
+                    id: novel.id,
+                    workType: 3,
+                    tags: novel.tag_a,
+                    title: novel.title,
+                    bookmarkCount: novel.bookmark_count,
+                    bookmarkData: novel.is_bookmarked,
+                    userId: novel.user_id,
+                };
+                let checkLang = true;
+                if (this.selectLang) {
+                    checkLang = novel.language === this.selectLang;
+                }
+                if (!checkLang) {
+                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器排除了一些作品原因') +
+                        _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_作品的语言不符合你选择的语言', this.selectLang), 1, false, 'excludeNovelByUserSelectLanguage');
+                }
+                if ((await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__.filter.check(filterOpt)) && checkLang) {
+                    const id = novel.id.toString();
+                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.setRankList(id, Number.parseInt(novel.rank));
+                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
+                        type: 'novels',
+                        id: id,
+                    });
+                }
+                this.checkTotal++;
+                if (this.checkTotal >= this.crawlNumber) {
+                    return this.getIdListFinished();
+                }
+            }
+            // 抓取完毕
+            if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length >= this.crawlNumber || !display_a.next) {
+                this.getIdListFinished();
+            }
+            else {
+                // 继续抓取
+                this.page = display_a.next;
+                this.getIdList();
+            }
+        }
+        catch (error) {
+            if (error.status === 404) {
+                // 如果发生了404错误，可能确实没有这一页了，也就是说数据已经获取完毕了
+                console.log('404错误，直接下载已有部分');
+            }
+            return this.getIdListFinished();
+        }
+    }
+    resetGetIdListStatus() {
+        this.checkTotal = 0;
+        this.listPageFinished = 0;
+    }
+}
+
+
+
+/***/ }),
+
+/***/ "./src/ts/crawlNovelPage/InitRankingNovelPageOld.ts":
+/*!**********************************************************!*\
+  !*** ./src/ts/crawlNovelPage/InitRankingNovelPageOld.ts ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   InitRankingNovelPageOld: () => (/* binding */ InitRankingNovelPageOld)
 /* harmony export */ });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
@@ -19421,7 +19673,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 // 旧版小说排行榜页面，加载页面源码并从中获取数据
-class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
+class InitRankingNovelPageOld extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
     constructor() {
         super();
         this.init();
@@ -19579,202 +19831,6 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
     }
     resetGetIdListStatus() {
         this.pageUrlList = [];
-        this.checkTotal = 0;
-        this.listPageFinished = 0;
-    }
-}
-
-
-
-/***/ }),
-
-/***/ "./src/ts/crawlNovelPage/InitRankingNovelPageNew.ts":
-/*!**********************************************************!*\
-  !*** ./src/ts/crawlNovelPage/InitRankingNovelPageNew.ts ***!
-  \**********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   InitRankingNovelPageNew: () => (/* binding */ InitRankingNovelPageNew)
-/* harmony export */ });
-/* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
-/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Colors */ "./src/ts/Colors.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../setting/NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-
-
-
-
-
-
-
-
-
-
-
-
-// 新版小说排行榜页面
-// Pixiv 的更新是批量推送的，有些用户已经是新版页面，但也有很多用户还是旧版页面。
-// 由于旧版的用户无法使用新版的 API（会返回 404），所以新版和旧版需要分开处理
-class InitRankingNovelPageNew extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPageBase {
-    constructor() {
-        super();
-        this.init();
-    }
-    addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_抓取本排行榜作品', '_抓取本排行榜作品Title', 'crawlRankingWork').addEventListener('click', () => {
-            this.readyCrawl();
-        });
-    }
-    initAny() {
-        _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.hiddenPremiumAD();
-    }
-    // 抓取完成后，对结果进行排序
-    sortResult() {
-        // 如果用户在命名规则里使用了 {rank}，则按照 rank 排序
-        if (_setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_10__.nameRuleManager.rule.includes('{rank}')) {
-            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.result.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.sortByProperty('rank', 'asc'));
-            _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.sortByProperty('rank', 'asc'));
-        }
-    }
-    getWantPage() {
-        // 检查下载页数的设置
-        this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.type].value;
-        if (this.crawlNumber === -1) {
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_向下获取所有作品'));
-        }
-        else {
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载排行榜前x个作品', this.crawlNumber.toString()));
-        }
-        // 如果设置的作品个数是 -1，则设置为下载所有作品
-        if (this.crawlNumber === -1) {
-            this.crawlNumber = this.maxCount;
-        }
-    }
-    // 这 3 种排行榜只有全年龄，没有 R-18 分类：
-    // 本月、新人、原创
-    // 这 5 种排行榜有全年龄和 R-18 两种分类：
-    // 今日、本周、AI生成、受男性欢迎、受女性欢迎
-    // 这 1 种排行榜有 R-18G 分类：
-    // 本周
-    // 所以一共有 14 种排行榜分类：8 种全年龄，5 种 R-18，1 种 R-18G
-    mode = 'daily';
-    date = null;
-    page = 1;
-    /**在小说列表的右上角有个下拉菜单，可以选择小说的语言。
-     * 但是 API 获取小说时是不区分语言的，这个下拉菜单选择的语言只是对 API 的结果进行过滤，
-     * 在网页上只显示对应语言的小说。
-     */
-    selectLang = '';
-    /**检查了多少个小说 */
-    checkTotal = 0;
-    nextStep() {
-        this.getParams();
-        this.getIdList();
-    }
-    getParams() {
-        // 处理 url 如：
-        // https://www.pixiv.net/novel/ranking.php?mode=weekly_r18&p=2&date=20251031
-        const url = new URL(window.location.href);
-        // 获取排行榜模式
-        // 如果没有 mode 参数，则是默认的今日排行榜
-        this.mode = url.searchParams.get('mode') || 'daily';
-        // 获取日期
-        // 如果没有日期则不设置默认值，由 pixiv 处理
-        this.date = url.searchParams.get('date');
-        // 获取当前页码
-        const p = url.searchParams.get('p');
-        if (p) {
-            this.page = Number.parseInt(p);
-        }
-        else {
-            // 如果没有 p 参数，则默认为第 1 页
-            this.page = 1;
-        }
-        // 大部分小说排行榜都是 100 个作品。一页 50 个作品，一共有 2 页
-        // “AI生成”的排行榜只有 50 个作品，所以只有 1 页
-        // 获取当前显示的小说语言，也就是小说列表右上角的下拉框里选择的语言
-        // pixiv 会把用户选择的语言标记保存到本地存储里。如果选择“所有语种”则值是 ''
-        const value = window.localStorage.getItem('rankinglanguageFilterSetting');
-        if (value !== null) {
-            this.selectLang = value;
-        }
-    }
-    async getIdList() {
-        try {
-            const json = await _API__WEBPACK_IMPORTED_MODULE_9__.API.getRankingDataNovel(this.mode, this.date, this.page);
-            this.listPageFinished++;
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_排行榜进度', this.listPageFinished.toString()), 1, false);
-            const display_a = json.body.display_a;
-            let list = display_a.rank_a;
-            // list 可能是数组，也可能是有数字编号的对象，所以使用下标来取值
-            // 目前一页最多有 50 条小说数据，所以 length 是 50
-            const length = 50;
-            for (let i = 0; i < length; i++) {
-                const novel = list[i];
-                // 注意：有些小说可能会被作者删除，所以排行榜的数据里也就没有它。在页面上显示时，也会直接跳过它的排名编号。
-                // 2 页本来应该有 100 个作品，但有时可能只有 99 个，所以会有空值
-                if (novel === undefined) {
-                    continue;
-                }
-                const filterOpt = {
-                    id: novel.id,
-                    workType: 3,
-                    tags: novel.tag_a,
-                    bookmarkCount: novel.bookmark_count,
-                    bookmarkData: novel.is_bookmarked,
-                    userId: novel.user_id,
-                };
-                let checkLang = true;
-                if (this.selectLang) {
-                    checkLang = novel.language === this.selectLang;
-                }
-                if (!checkLang) {
-                    _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器排除了一些作品原因') +
-                        _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_作品的语言不符合你选择的语言', this.selectLang), 1, false, 'excludeNovelByUserSelectLanguage');
-                }
-                if ((await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__.filter.check(filterOpt)) && checkLang) {
-                    const id = novel.id.toString();
-                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.setRankList(id, Number.parseInt(novel.rank));
-                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
-                        type: 'novels',
-                        id: id,
-                    });
-                }
-                this.checkTotal++;
-                if (this.checkTotal >= this.crawlNumber) {
-                    return this.getIdListFinished();
-                }
-            }
-            // 抓取完毕
-            if (_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.length >= this.crawlNumber || !display_a.next) {
-                this.getIdListFinished();
-            }
-            else {
-                // 继续抓取
-                this.page = display_a.next;
-                this.getIdList();
-            }
-        }
-        catch (error) {
-            if (error.status === 404) {
-                // 如果发生了404错误，可能确实没有这一页了，也就是说数据已经获取完毕了
-                console.log('404错误，直接下载已有部分');
-            }
-            return this.getIdListFinished();
-        }
-    }
-    resetGetIdListStatus() {
         this.checkTotal = 0;
         this.listPageFinished = 0;
     }
@@ -20128,6 +20184,8 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                 workType: 3,
                 // 只检查单篇小说的 tags，如果是系列小说则不检查。因为此时系列数据里的 tags 是它里面第一篇小说的 tags，不能用来对整个系列进行过滤
                 tags: novelId ? work.tags : undefined,
+                title: novelId ? work.title : undefined,
+                seriesTitle: novelId ? undefined : work.title,
                 userId: work.userId,
                 xRestrict: work.xRestrict,
             };
@@ -23001,6 +23059,7 @@ class ImportResult {
                 workType: result.type,
                 pageCount: result.pageCount,
                 tags: result.tagsWithTransl,
+                title: result.title,
                 bookmarkCount: result.bmk,
                 bookmarkData: result.bookmarked,
                 width: result.pageCount === 1 ? result.fullWidth : 0,
@@ -23295,6 +23354,13 @@ class MergeNovel {
         this.seriesTitle = seriesTitle || '';
         this.slowMode = slowMode;
         const link = `<a href="https://www.pixiv.net/novel/series/${this.seriesId}" target="_blank">${this.seriesTitle || this.seriesId}</a>`;
+        if (seriesTitle) {
+            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_18__.filter.check({ seriesTitle: seriesTitle });
+            if (!check) {
+                _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(`✅${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_跳过合并系列小说')} ${link}`);
+                return 0;
+            }
+        }
         _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(`📚${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_合并系列小说')} ${link}`);
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.novelSaveAs === 'txt') {
             // 如果用户选择的保存格式是 txt，显示提示。因为很多小说阅读器都无法识别 txt 里的章节标记
@@ -23625,6 +23691,8 @@ class MergeNovel {
                 aiType: item.aiType,
                 xRestrict: item.xRestrict,
                 tags: item.tags,
+                title: item.title,
+                seriesTitle: this.seriesTitle || '',
                 userId: item.userId,
                 bookmarkData: item.bookmarkData,
                 bookmarkCount: item.bookmarkCount,
@@ -23694,6 +23762,7 @@ class MergeNovel {
                 _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.unshiftTag(tags, aiMarkString);
             }
             // 应用标签过滤器
+            // 虽然这里也能检查其他过滤条件，但没有必要，因为前面已经检查过了
             const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_18__.filter.check({
                 xRestrict: data.body.xRestrict,
                 tags,
@@ -26045,7 +26114,12 @@ class Filter {
     constructor() {
         this.bindEvents();
     }
-    // 对启用了的过滤选项输出提示
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.crawlStart, () => {
+            this.showTip();
+        });
+    }
+    /** 在日志里输出已启用的过滤选项 */
     showTip() {
         this.getDownType();
         this.getDownTypeByAge();
@@ -26061,13 +26135,15 @@ class Filter {
         this.getPostDate();
         this.getIncludeTag();
         this.getExcludeTag();
+        this.getTitleInclude();
+        this.getTitleExclude();
+        this.getBlockList();
+        this.getSize();
         if (_store_States__WEBPACK_IMPORTED_MODULE_3__.states.debut) {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取首次登场的作品Title'));
         }
-        this.getBlockList();
-        this.getSize();
     }
-    /**检查作品是否符合过滤器的要求，返回值 false 表示作品不符合要求，true 表示符合要求 */
+    /**检查作品是否符合过滤器的要求，返回值 false 表示不保留这个作品，true 表示保留这个作品 */
     // 注意：这是一个异步函数，所以要使用 await 获取检查结果
     // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
     // 每个过滤器函数里都必须检查参数为 undefined 的情况
@@ -26115,6 +26191,19 @@ class Filter {
         // 检查必须包含的 tag
         if (!this.checkIncludeTag(option.tags)) {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_必须含有tag'), 1, false, 'excludeWorkByIncludeTag');
+            return false;
+        }
+        if (!this.checkExcludeTitle(option.title)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_标题不能含有'), 1, false, 'excludeWorkByExcludeTitle');
+            return false;
+        }
+        if (!this.checkExcludeSeriesTitle(option.seriesTitle)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_系列标题不能含有'), 1, false, 'excludeWorkByExcludeSeriesTitle');
+            return false;
+        }
+        if (!this.checkIncludeTitle(option.title)) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_标题必须含有'), 1, false, 'excludeWorkByIncludeTitle');
             return false;
         }
         // 检查宽高设置
@@ -26185,7 +26274,7 @@ class Filter {
         return true;
     }
     // ---------------- get ----------------
-    // 提示下载的作品类型设置
+    /** 提示下载的作品类型设置 */
     getDownType() {
         // 如果全部排除则取消任务
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downType0 &&
@@ -26233,7 +26322,7 @@ class Filter {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_排除作品类型') + tips.join(', '));
         }
     }
-    // 提示图像颜色设置
+    /** 提示图像颜色设置 */
     getDownTypeByColor() {
         // 如果全部排除则取消任务
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downColorImg && !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downBlackWhiteImg) {
@@ -26246,7 +26335,7 @@ class Filter {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_排除作品类型') + tips.join(', '));
         }
     }
-    // 提示下载收藏和未收藏作品的设置
+    /** 提示下载收藏和未收藏作品的设置 */
     getDownTypeByBmked() {
         // 如果全部排除则取消任务
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downNotBookmarked && !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downBookmarked) {
@@ -26259,7 +26348,7 @@ class Filter {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_排除作品类型') + tips.join(', '));
         }
     }
-    // 提示多图作品的图片数量限制
+    /** 提示多图作品的图片数量限制 */
     getMultiImageWorkImageLimit() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.multiImageWorkImageLimitSwitch) {
             return;
@@ -26270,7 +26359,7 @@ class Filter {
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.multiImageWorkImageLimit);
         }
     }
-    // 提示必须包含的tag
+    /** 提示必须包含的tag */
     getIncludeTag() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.needTagSwitch) {
             return;
@@ -26279,7 +26368,7 @@ class Filter {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_设置了必须tag之后的提示') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.needTag.toString());
         }
     }
-    // 提示要排除的tag
+    /** 提示要排除的tag */
     getExcludeTag() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.notNeedTagSwitch) {
             return;
@@ -26288,7 +26377,29 @@ class Filter {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_设置了排除tag之后的提示') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.notNeedTag.toString());
         }
     }
-    // 提示宽高设置
+    /** 提示标题必须包含 */
+    getTitleInclude() {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.titleIncludeSwitch) {
+            return;
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.titleIncludeList.length > 0) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_标题必须含有') +
+                ': ' +
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.titleIncludeList.join(','));
+        }
+    }
+    /** 提示标题不能包含 */
+    getTitleExclude() {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.titleExcludeSwitch) {
+            return;
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.titleExcludeList.length > 0) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_标题不能含有') +
+                ': ' +
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.titleExcludeList.join(','));
+        }
+    }
+    /** 提示宽高设置 */
     getSetWh() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.setWHSwitch) {
             return;
@@ -26301,7 +26412,7 @@ class Filter {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(text);
         }
     }
-    // 提示输入的收藏数
+    /** 提示输入的收藏数 */
     getBMKNum() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.BMKNumSwitch) {
             return;
@@ -26319,7 +26430,7 @@ class Filter {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_日均收藏数量')} >= ${average}`);
         }
     }
-    // 提示宽高比设置
+    /** 提示宽高比设置 */
     getRatio() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.ratioSwitch) {
             return;
@@ -26341,14 +26452,14 @@ class Filter {
                 break;
         }
     }
-    // 提示 id 范围设置
+    /** 提示 id 范围设置 */
     getIdRange() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.idRangeSwitch) {
             return;
         }
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(`id ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.idRange} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.idRangeInput}`);
     }
-    // 提示投稿时间设置
+    /** 提示投稿时间设置 */
     getPostDate() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.postDate) {
             return;
@@ -26363,7 +26474,7 @@ class Filter {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_时间范围')}: ${start} - ${end}`);
         }
     }
-    // 提示文件体积设置
+    /** 提示文件体积设置 */
     getSize() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.sizeSwitch) {
             return;
@@ -26384,7 +26495,7 @@ class Filter {
         }
     }
     // ---------------- check ----------------
-    // 检查下载的作品类型设置
+    /** 检查下载的作品类型设置 */
     checkDownType(workType) {
         switch (workType) {
             case -1:
@@ -26428,7 +26539,7 @@ class Filter {
                 return true;
         }
     }
-    // 检查多图作品的图片数量限制
+    /** 检查多图作品的图片数量限制 */
     checkMultiImageWorkImageLimit(workType, pageCount) {
         // 此过滤条件只检查插画和漫画，只对多图作品生效。如果图片数量小于 2 则不检查
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.multiImageWorkImageLimitSwitch ||
@@ -26440,7 +26551,7 @@ class Filter {
         }
         return pageCount <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.multiImageWorkImageLimit;
     }
-    // 依据图片数量，检查下载的作品类型
+    /** 依据图片数量，检查下载的作品类型 */
     checkPageCount(workType, pageCount) {
         if (workType === undefined || pageCount === undefined) {
             return true;
@@ -26457,7 +26568,7 @@ class Filter {
         }
         return false;
     }
-    // 检查过滤黑白图像设置
+    /** 检查过滤黑白图像设置 */
     async checkBlackWhite(imgUrl) {
         // 如果没有图片网址，或者没有排除任何一个选项，则不检查
         if (!imgUrl || (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downColorImg && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downBlackWhiteImg)) {
@@ -26468,7 +26579,7 @@ class Filter {
         return ((result && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downBlackWhiteImg) ||
             (!result && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downColorImg));
     }
-    // 检查作品是否符合已收藏、未收藏作品的设置
+    /** 检查作品是否符合已收藏、未收藏作品的设置 */
     checkDownTypeByBmked(bookmarked) {
         // 如果没有参数，或者都没有排除
         if (bookmarked === undefined) {
@@ -26487,9 +26598,9 @@ class Filter {
         }
         return false;
     }
-    // 检查收藏数要求
     oneDayTime = 24 * 60 * 60 * 1000; // 一天的毫秒数
     minimumTime = 4 * 60 * 60 * 1000; // 检查日均收藏数量时，要求作品发表之后经过的时间大于这个值。因为发表之后经过时间很短的作品，其日均收藏数量非常不可靠，所以对于小于这个值的作品不进行日均收藏数量的检查。
+    /** 检查收藏数要求 */
     checkBMK(bmk, date) {
         if (bmk === undefined || !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.BMKNumSwitch) {
             return true;
@@ -26515,7 +26626,7 @@ class Filter {
         // 返回结果。收藏数量和日均收藏并不互斥，两者只要有一个满足条件就会保留这个作品
         return checkNumber || checkAverage;
     }
-    // 检查作品是否符合包含 tag 的条件。返回值表示是否保留这个作品。
+    /** 检查作品是否符合包含 tag 的条件。返回值表示是否保留这个作品。 */
     checkIncludeTag(tags) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.needTagSwitch ||
             _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.needTag.length === 0 ||
@@ -26566,7 +26677,7 @@ class Filter {
         }
         return result;
     }
-    // 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。
+    /** 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。 */
     checkExcludeTag(tags) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.notNeedTagSwitch ||
             _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.notNeedTag.length === 0 ||
@@ -26606,7 +26717,50 @@ class Filter {
         }
         return true;
     }
-    // 检查作品是否符合过滤宽高的条件
+    /** 检查作品标题是否含有不能包含的字符 */
+    checkExcludeTitle(title) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.titleExcludeSwitch ||
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.titleExcludeList.length === 0 ||
+            !title) {
+            return true;
+        }
+        for (const word of _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.titleExcludeList) {
+            if (title.includes(word.toLowerCase())) {
+                return false;
+            }
+        }
+        return true;
+    }
+    /** 检查系列标题是否含有必须的字符 */
+    checkExcludeSeriesTitle(seriesTitle) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.alsoCheckSeriesTitle ||
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.titleExcludeSwitch ||
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.titleExcludeList.length === 0 ||
+            !seriesTitle) {
+            return true;
+        }
+        for (const word of _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.titleExcludeList) {
+            if (seriesTitle.includes(word.toLowerCase())) {
+                return false;
+            }
+        }
+        return true;
+    }
+    /** 检查作品标题是否含有必须的字符 */
+    checkIncludeTitle(title) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.titleIncludeSwitch ||
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.titleIncludeList.length === 0 ||
+            !title) {
+            return true;
+        }
+        for (const word of _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.titleIncludeList) {
+            if (title.includes(word.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /** 检查作品是否符合过滤宽高的条件 */
     checkWidthHeight(width, height) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.setWHSwitch ||
             width === undefined ||
@@ -26649,7 +26803,7 @@ class Filter {
             }
         }
     }
-    // 检查作品是否符合宽高比条件
+    /** 检查作品是否符合宽高比条件 */
     checkRatio(width, height) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.ratioSwitch ||
             width === undefined ||
@@ -26676,7 +26830,7 @@ class Filter {
                 }
         }
     }
-    // 检查 id 范围设置
+    /** 检查 id 范围设置 */
     checkIdRange(id) {
         if (id === undefined || !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.idRangeSwitch) {
             return true;
@@ -26696,7 +26850,7 @@ class Filter {
             return nowId < setId;
         }
     }
-    // 检查投稿时间设置
+    /** 检查投稿时间设置 */
     checkPostDate(date) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.postDate || date === undefined) {
             return true;
@@ -26751,8 +26905,8 @@ class Filter {
         // 如果阻止名单里有这个用户 id，则返回 false 表示阻止这个作品
         return !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.blockList.includes(userId);
     }
-    // 检查文件体积
     MiB = 1024 * 1024;
+    /** 检查文件体积 */
     checkFileSize(size) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.sizeSwitch || size === undefined) {
             return true;
@@ -26787,15 +26941,10 @@ class Filter {
         // 对结果取反
         return !_BlockTagsForSpecificUser__WEBPACK_IMPORTED_MODULE_7__.blockTagsForSpecificUser.check(userId, tags);
     }
-    // 如果设置项的值不合法，则显示提示
+    /** 如果设置项的值不合法，显示提示 */
     showWarning(msg) {
         _EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.fire('wrongSetting');
         _MsgBox__WEBPACK_IMPORTED_MODULE_8__.msgBox.error(msg);
-    }
-    bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__.EVT.list.crawlStart, () => {
-            this.showTip();
-        });
     }
 }
 const filter = new Filter();
@@ -26877,6 +27026,7 @@ class FilterSearchResults {
                             workType: work.illustType,
                             workTypeString: _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getWorkTypeString(work.illustType),
                             tags: work.tags,
+                            title: work.title,
                             bookmarkData: work.bookmarkData,
                             createDate: work.createDate,
                             width: work.width,
@@ -26895,6 +27045,7 @@ class FilterSearchResults {
                             workType: 3,
                             workTypeString: 'novels',
                             tags: work.tags,
+                            title: work.title,
                             bookmarkData: work.bookmarkData,
                             userId: work.userId,
                             createDate: work.createDate,
@@ -35143,6 +35294,100 @@ When the user enables the search condition "Integrate Identical Series", the dow
         `브라우저의 다운로드 설정에서 "다운로드 전에 각 파일의 저장 위치 확인"을 끄는 것을 강력히 권장합니다. 그렇지 않으면 모든 파일 저장 시 "다른 이름으로 저장" 대화상자가 표시됩니다.`,
         `Настоятельно рекомендуется отключить в настройках загрузки браузера опцию «Спрашивать, куда сохранять каждый файл перед загрузкой», иначе для каждого сохраняемого файла будет появляться диалог «Сохранить как».`,
     ],
+    _标题必须含有: [
+        `<span class="key">标题</span>必须含有`,
+        `<span class="key">標題</span>必須含有`,
+        `<span class="key">Title</span> must contain`,
+        `<span class="key">タイトル</span>は必ず含む`,
+        `<span class="key">제목</span> 반드시 포함`,
+        `<span class="key">Заголовок</span> должен содержать`,
+    ],
+    _标题必须含有的说明: [
+        `你可以要求作品的标题里必须含有特定字符。不区分大小写。<br>
+你可以设置多条字符，每条之间使用逗号(,)分割。<br>
+匹配模式是 “任一”，即只要标题里含有任意一条设置的字符，就可以通过检查。`,
+        `你可以要求作品的標題裡必須含有特定字元。不區分大小寫。<br>
+你可以設定多條字元，每條之間使用逗號(,)分割。<br>
+匹配模式是「任一」，即只要標題裡含有任意一條設定的字元，就可以通过檢查。`,
+        `You can require that the work's title must contain specific characters. Case-insensitive.<br>
+You can set multiple strings, separated by commas (,).<br>
+The matching mode is "any one", meaning as long as the title contains any one of the specified strings, it will pass the check.`,
+        `作品のタイトルに特定の文字列を必ず含めるよう要求できます。大文字小文字は区別しません。<br>
+複数の文字列を設定でき、それぞれをカンマ(,)で区切ります。<br>
+マッチングモードは「いずれか」で、設定した文字列のいずれか一つでもタイトルに含まれていれば条件を満たします。`,
+        `작품 제목에 특정 문자를 반드시 포함하도록 요구할 수 있습니다. 대소문자 구분 없음.<br>
+여러 문자열을 설정할 수 있으며, 각 문자열은 쉼표(,)로 구분합니다.<br>
+매칭 모드는 "하나라도"로, 제목에 설정한 문자열 중 하나라도 포함되어 있으면 조건을 통과합니다.`,
+        `Вы можете потребовать, чтобы в названии работы обязательно содержались определённые символы. Без учёта регистра.<br>
+Можно задать несколько строк, разделяя их запятыми (,).<br>
+Режим соответствия — «любой», то есть достаточно, чтобы в названии присутствовала хотя бы одна из указанных строк, и проверка будет пройдена.`,
+    ],
+    _标题不能含有: [
+        `<span class="key">标题</span>不能含有`,
+        `<span class="key">標題</span>不能含有`,
+        `<span class="key">Title</span> must not contain`,
+        `<span class="key">タイトル</span>は含まない`,
+        `<span class="key">제목</span> 포함하지 않음`,
+        `<span class="key">Заголовок</span> не должен содержать`,
+    ],
+    _标题不能含有的说明: [
+        `你可以要求作品的标题里不能含有特定字符。不区分大小写。<br>
+你可以设置多条字符，每条之间使用逗号(,)分割。<br>
+匹配模式是 “任一”，即只要标题里含有任意一条设置的字符，下载器就不会抓取它。<br>
+排除的优先级大于包含的优先级。`,
+        `你可以要求作品的標題裡不能含有特定字元。不區分大小寫。<br>
+你可以設定多條字元，每條之間使用逗號(,)分割。<br>
+匹配模式是「任一」，即只要標題裡含有任意一條設定的字元，下載器就不會抓取它。<br>
+排除的優先級大於包含的優先級。`,
+        `You can require that the work's title must not contain specific characters. Case-insensitive.<br>
+You can set multiple strings, separated by commas (,).<br>
+The matching mode is "any one", meaning if the title contains any one of the specified strings, the downloader will not crawl it.<br>
+Exclusion takes priority over inclusion.`,
+        `作品のタイトルに特定の文字列を含まないよう要求できます。大文字小文字は区別しません。<br>
+複数の文字列を設定でき、それぞれをカンマ(,)で区切ります。<br>
+マッチングモードは「いずれか」で、設定した文字列のいずれか一つでもタイトルに含まれている場合、ダウンロードツールはその作品をクロールしません。<br>
+除外条件の優先度が包含条件より高くなります。`,
+        `작품 제목에 특정 문자를 포함하지 않도록 요구할 수 있습니다. 대소문자 구분 없음.<br>
+여러 문자열을 설정할 수 있으며, 각 문자열은 쉼표(,)로 구분합니다.<br>
+매칭 모드는 "하나라도"로, 제목에 설정한 문자열 중 하나라도 포함되어 있으면 다운로더가 해당 작품을 크롤링하지 않습니다.<br>
+제외 조건의 우선순위가 포함 조건보다 높습니다.`,
+        `Вы можете потребовать, чтобы в названии работы не содержались определённые символы. Без учёта регистра.<br>
+Можно задать несколько строк, разделяя их запятыми (,).<br>
+Режим соответствия — «любой», то есть если в названии присутствует хотя бы одна из указанных строк, загрузчик не будет краулить эту работу.<br>
+Условия исключения имеют приоритет над условиями включения.`,
+    ],
+    _系列标题不能含有: [
+        `系列标题不能含有`,
+        `系列標題不能含有`,
+        `Series title must not contain`,
+        `シリーズタイトルは含まない`,
+        `시리즈 제목 포함하지 않음`,
+        `Заголовок серии не должен содержать`,
+    ],
+    _也检查系列标题: [
+        `也检查系列标题`,
+        `也檢查系列標題`,
+        `Also check series title`,
+        `シリーズタイトルもチェック`,
+        `시리즈 제목도 확인`,
+        `Также проверять заголовок серии`,
+    ],
+    _也检查系列标题的说明: [
+        `如果作品属于一个系列，启用此设置可以同时检查系列标题是否符合条件。`,
+        `如果作品屬於一個系列，啟用此設定可以同時檢查系列標題是否符合條件。`,
+        `If the work belongs to a series, enabling this setting will also check if the series title meets the conditions.`,
+        `作品がシリーズに属する場合、この設定を有効にするとシリーズタイトルも条件に合致するかチェックされます。`,
+        `작품이 시리즈에 속할 경우, 이 설정을 활성화하면 시리즈 제목도 조건을 충족하는지 함께 확인합니다.`,
+        `Если работа входит в серию, включение этой настройки позволит также проверить, соответствует ли заголовок серии условиям.`,
+    ],
+    _跳过这个系列: [
+        `跳过这个系列`,
+        `跳過這個系列`,
+        `Skip this series`,
+        `このシリーズをスキップ`,
+        `이 시리즈 건너뛰기`,
+        `Пропустить эту серию`,
+    ],
 };
 
 // prompt
@@ -36142,7 +36387,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
-/* harmony import */ var _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../showOneTimeHelp */ "./src/ts/showOneTimeHelp.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
@@ -36194,7 +36439,7 @@ class CopyButtonOnWorkPage {
       ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_相关设置')}: ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_复制按钮')}
       <br>
       ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_你可以在更多选项卡的xx分类里找到它', _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_增强'))}`;
-            _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_4__.showOneTimeHelp.show('tipCopyWorkInfoButton', msg, _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_复制按钮'));
+            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_4__.showOneTimeMsg.show('tipCopyWorkInfoButton', msg, _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_复制按钮'));
         });
         // 使用快捷键 Alt + C 点击复制按钮
         window.addEventListener('keydown', (ev) => {
@@ -36979,7 +37224,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
 /* harmony import */ var _download_DownloadOnClickBookmark__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../download/DownloadOnClickBookmark */ "./src/ts/download/DownloadOnClickBookmark.ts");
-/* harmony import */ var _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../showOneTimeHelp */ "./src/ts/showOneTimeHelp.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../crawl/LogErrorStatus */ "./src/ts/crawl/LogErrorStatus.ts");
@@ -37124,7 +37369,7 @@ class QuickBookmark {
                 if (!pixivBMKBtn) {
                     this.sendDownload();
                 }
-                _showOneTimeHelp__WEBPACK_IMPORTED_MODULE_8__.showOneTimeHelp.show('tipBookmarkButton', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器的收藏按钮默认会添加作品的标签'));
+                _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_8__.showOneTimeMsg.show('tipBookmarkButton', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器的收藏按钮默认会添加作品的标签'));
             }
         });
     }
@@ -38494,7 +38739,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Wiki__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Wiki */ "./src/ts/setting/Wiki.ts");
 
 
-// 设置项编号从 0 开始，现在最大是 93
+// 设置项编号从 0 开始，现在最大是 95
 const formHtml = `
 <form class="settingForm">
   <div class="tabsContnet">
@@ -38785,6 +39030,7 @@ const formHtml = `
         <input type="text" name="needTag" class="setinput_style1 blue setinput_tag" placeholder="tag1,tag2,tag3">
       </span>
     </p>
+
     <p class="option" data-no="12">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(12)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_排除tag的提示文字">
         <span data-xztext="_不能含有tag"></span>
@@ -38804,6 +39050,38 @@ const formHtml = `
         <textarea class="centerPanelTextArea beautify_scrollbar" name="notNeedTag" rows="1" placeholder="tag1,tag2,tag3"></textarea>
       </span>
     </p>
+    
+    <p class="option" data-no="94">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(94)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_标题必须含有的说明">
+        <span data-xztext="_标题必须含有"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="titleIncludeSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+
+      <span class="subOptionWrap" data-show="titleIncludeSwitch">
+        <textarea class="centerPanelTextArea beautify_scrollbar" name="titleIncludeList" rows="1" placeholder="word1,word2,word3"></textarea>
+      </span>
+    </p>
+
+    <p class="option" data-no="95">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(95)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_标题不能含有的说明">
+        <span data-xztext="_标题不能含有"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="titleExcludeSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      
+      <span class="subOptionWrap" data-show="titleExcludeSwitch">
+        <textarea class="centerPanelTextArea beautify_scrollbar" name="titleExcludeList" rows="1" placeholder="word1,word2,word3"></textarea>
+
+        <label for="alsoCheckSeriesTitle" class="has_tip" data-xztext="_也检查系列标题" data-xztip="_也检查系列标题的说明"></label>
+        <span class="gray1 mr4"> ? </span>
+        <input type="checkbox" name="alsoCheckSeriesTitle" id="alsoCheckSeriesTitle" class="need_beautify checkbox_switch" checked>
+        <span class="beautify_switch" tabindex="0"></span>
+      </span>
+    </p>
+    
     <div class="centerWrap_btns">
       <slot data-name="stopCrawl"></slot>
       <slot data-name="crawlBtns"></slot>
@@ -40081,6 +40359,9 @@ class FormSettings {
             'skipNovelsInSeriesWhenAutoMerge',
             'filterSearchResults',
             'fullNameLengthLimitSwitch',
+            'titleIncludeSwitch',
+            'titleExcludeSwitch',
+            'alsoCheckSeriesTitle',
         ],
         text: [
             'firstFewImages',
@@ -40151,6 +40432,8 @@ class FormSettings {
             'blockList',
             'createFolderTagList',
             'seriesNovelNameRule',
+            'titleIncludeList',
+            'titleExcludeList',
         ],
         datetime: ['postDateStart', 'postDateEnd'],
     };
@@ -41393,6 +41676,11 @@ class Settings {
         logVisibleDefault: 'show',
         tipCloseAskFileSaveLocation: true,
         tipCloseAskFileSaveLocationOnce: true,
+        titleIncludeSwitch: false,
+        titleIncludeList: [],
+        titleExcludeSwitch: false,
+        titleExcludeList: [],
+        alsoCheckSeriesTitle: false,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的选项
@@ -41413,6 +41701,8 @@ class Settings {
         'notNeedTag',
         'createFolderTagList',
         'exportLogExclude',
+        'titleIncludeList',
+        'titleExcludeList',
     ];
     // 以默认设置作为初始设置
     settings = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.deepCopy(this.defaultSettings);
@@ -41528,7 +41818,7 @@ class Settings {
         _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_导入成功'));
     }
     // 有些帮助信息是只显示一次的，这里可以让它们再次显示
-    // 主要是通过 showOneTimeHelp.show 显示的帮助
+    // 主要是通过 showOneTimeMsg.show 显示的帮助
     resetHelpTip() {
         this.setSetting('tipHowToUse', true);
         this.setSetting('tipAltXToShowControlPanel', true);
@@ -42214,43 +42504,6 @@ const wiki = new Wiki();
 
 /***/ }),
 
-/***/ "./src/ts/showOneTimeHelp.ts":
-/*!***********************************!*\
-  !*** ./src/ts/showOneTimeHelp.ts ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   showOneTimeHelp: () => (/* binding */ showOneTimeHelp)
-/* harmony export */ });
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-
-
-
-
-class ShowOneTimeHelp {
-    /** 用 msgBox 显示一次性的提示。显示之后会自动修改设置，以后不再显示 */
-    show(settingKey, msg, title) {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings[settingKey] === true) {
-            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)(settingKey, false);
-            _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.show(msg, {
-                title: title ? title : _Config__WEBPACK_IMPORTED_MODULE_1__.Config.appName + ' Help',
-                btn: _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_我知道了'),
-            });
-        }
-    }
-}
-const showOneTimeHelp = new ShowOneTimeHelp();
-
-
-
-/***/ }),
-
 /***/ "./src/ts/store/CacheWorkData.ts":
 /*!***************************************!*\
   !*** ./src/ts/store/CacheWorkData.ts ***!
@@ -42367,6 +42620,8 @@ class SaveArtworkData {
             id: body.id,
             workType: body.illustType,
             tags: tagsWithTransl,
+            title: body.title,
+            seriesTitle: body.seriesNavData?.title || '',
             pageCount: body.pageCount,
             bookmarkCount: bmk,
             bookmarkData: body.bookmarkData,
@@ -42389,8 +42644,9 @@ class SaveArtworkData {
             // 保存作品在排行榜上的编号
             const rankData = _Store__WEBPACK_IMPORTED_MODULE_3__.store.getRankList(body.id);
             const rank = rankData ? rankData : null;
-            const seriesTitle = body.seriesNavData ? body.seriesNavData.title : '';
-            const seriesOrder = body.seriesNavData ? body.seriesNavData.order : null;
+            // 系列标题和序号
+            const seriesTitle = body.seriesNavData?.title || '';
+            const seriesOrder = body.seriesNavData?.order || null;
             // 保存作品信息
             const description = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.htmlDecode(body.description);
             if (body.illustType === 0 || body.illustType === 1) {
@@ -42560,6 +42816,8 @@ class SaveNovelData {
             id: body.id,
             workType: illustType,
             tags: tags,
+            title: body.title,
+            seriesTitle: body.seriesNavData?.title || '',
             bookmarkCount: bmk,
             bookmarkData: body.bookmarkData,
             userId: body.userId,
@@ -42577,8 +42835,8 @@ class SaveNovelData {
             const rankData = _Store__WEBPACK_IMPORTED_MODULE_1__.store.getRankList(id);
             const rank = rankData ? rankData : null;
             // 系列标题和序号
-            const seriesTitle = body.seriesNavData ? body.seriesNavData.title : '';
-            const seriesOrder = body.seriesNavData ? body.seriesNavData.order : null;
+            const seriesTitle = body.seriesNavData?.title || '';
+            const seriesOrder = body.seriesNavData?.order || null;
             // 这个 description 是保存到抓取结果里的，尽量保持原样，所以保留了 html 标签
             const description = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlDecode(body.description);
             // descriptionNoHtmlTag 保存在 novelMeta.description 里

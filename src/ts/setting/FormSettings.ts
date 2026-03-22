@@ -141,6 +141,9 @@ class FormSettings {
       'skipNovelsInSeriesWhenAutoMerge',
       'filterSearchResults',
       'fullNameLengthLimitSwitch',
+      'titleIncludeSwitch',
+      'titleExcludeSwitch',
+      'alsoCheckSeriesTitle',
     ],
     text: [
       'firstFewImages',
@@ -211,6 +214,8 @@ class FormSettings {
       'blockList',
       'createFolderTagList',
       'seriesNovelNameRule',
+      'titleIncludeList',
+      'titleExcludeList',
     ],
     datetime: ['postDateStart', 'postDateEnd'],
   }

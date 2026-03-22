@@ -153,6 +153,7 @@ class InitRankingNovelPageNew extends InitPageBase {
           id: novel.id,
           workType: 3,
           tags: novel.tag_a,
+          title: novel.title,
           bookmarkCount: novel.bookmark_count,
           bookmarkData: novel.is_bookmarked,
           userId: novel.user_id,

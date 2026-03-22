@@ -37,6 +37,8 @@ export interface FilterOption {
   size?: number
   userId?: string
   xRestrict?: 0 | 1 | 2
+  title?: string
+  seriesTitle?: string
 }
 
 // 检查作品是否符合过滤条件
@@ -45,7 +47,13 @@ class Filter {
     this.bindEvents()
   }
 
-  // 对启用了的过滤选项输出提示
+  private bindEvents() {
+    window.addEventListener(EVT.list.crawlStart, () => {
+      this.showTip()
+    })
+  }
+
+  /** 在日志里输出已启用的过滤选项 */
   private showTip() {
     this.getDownType()
     this.getDownTypeByAge()
@@ -53,33 +61,25 @@ class Filter {
     this.getDownTypeByImgCount()
     this.getDownTypeByColor()
     this.getDownTypeByBmked()
-
     this.getMultiImageWorkImageLimit()
-
     this.getBMKNum()
-
     this.getSetWh()
-
     this.getRatio()
-
     this.getIdRange()
-
     this.getPostDate()
-
     this.getIncludeTag()
-
     this.getExcludeTag()
+    this.getTitleInclude()
+    this.getTitleExclude()
+    this.getBlockList()
+    this.getSize()
 
     if (states.debut) {
       log.warning(lang.transl('_抓取首次登场的作品Title'))
     }
-
-    this.getBlockList()
-
-    this.getSize()
   }
 
-  /**检查作品是否符合过滤器的要求，返回值 false 表示作品不符合要求，true 表示符合要求 */
+  /**检查作品是否符合过滤器的要求，返回值 false 表示不保留这个作品，true 表示保留这个作品 */
   // 注意：这是一个异步函数，所以要使用 await 获取检查结果
   // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
   // 每个过滤器函数里都必须检查参数为 undefined 的情况
@@ -181,6 +181,37 @@ class Filter {
         1,
         false,
         'excludeWorkByIncludeTag'
+      )
+      return false
+    }
+
+    if (!this.checkExcludeTitle(option.title)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_标题不能含有'),
+        1,
+        false,
+        'excludeWorkByExcludeTitle'
+      )
+      return false
+    }
+
+    if (!this.checkExcludeSeriesTitle(option.seriesTitle)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_系列标题不能含有'),
+        1,
+        false,
+        'excludeWorkByExcludeSeriesTitle'
+      )
+      return false
+    }
+
+    if (!this.checkIncludeTitle(option.title)) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') + lang.transl('_标题必须含有'),
+        1,
+        false,
+        'excludeWorkByIncludeTitle'
       )
       return false
     }
@@ -327,7 +358,7 @@ class Filter {
 
   // ---------------- get ----------------
 
-  // 提示下载的作品类型设置
+  /** 提示下载的作品类型设置 */
   private getDownType() {
     // 如果全部排除则取消任务
     if (
@@ -387,7 +418,7 @@ class Filter {
     }
   }
 
-  // 提示图像颜色设置
+  /** 提示图像颜色设置 */
   private getDownTypeByColor() {
     // 如果全部排除则取消任务
     if (!settings.downColorImg && !settings.downBlackWhiteImg) {
@@ -403,7 +434,7 @@ class Filter {
     }
   }
 
-  // 提示下载收藏和未收藏作品的设置
+  /** 提示下载收藏和未收藏作品的设置 */
   private getDownTypeByBmked() {
     // 如果全部排除则取消任务
     if (!settings.downNotBookmarked && !settings.downBookmarked) {
@@ -419,7 +450,7 @@ class Filter {
     }
   }
 
-  // 提示多图作品的图片数量限制
+  /** 提示多图作品的图片数量限制 */
   private getMultiImageWorkImageLimit() {
     if (!settings.multiImageWorkImageLimitSwitch) {
       return
@@ -434,7 +465,7 @@ class Filter {
     }
   }
 
-  // 提示必须包含的tag
+  /** 提示必须包含的tag */
   private getIncludeTag() {
     if (!settings.needTagSwitch) {
       return
@@ -447,7 +478,7 @@ class Filter {
     }
   }
 
-  // 提示要排除的tag
+  /** 提示要排除的tag */
   private getExcludeTag() {
     if (!settings.notNeedTagSwitch) {
       return
@@ -460,7 +491,37 @@ class Filter {
     }
   }
 
-  // 提示宽高设置
+  /** 提示标题必须包含 */
+  private getTitleInclude() {
+    if (!settings.titleIncludeSwitch) {
+      return
+    }
+
+    if (settings.titleIncludeList.length > 0) {
+      log.warning(
+        lang.transl('_标题必须含有') +
+          ': ' +
+          settings.titleIncludeList.join(',')
+      )
+    }
+  }
+
+  /** 提示标题不能包含 */
+  private getTitleExclude() {
+    if (!settings.titleExcludeSwitch) {
+      return
+    }
+
+    if (settings.titleExcludeList.length > 0) {
+      log.warning(
+        lang.transl('_标题不能含有') +
+          ': ' +
+          settings.titleExcludeList.join(',')
+      )
+    }
+  }
+
+  /** 提示宽高设置 */
   private getSetWh() {
     if (!settings.setWHSwitch) {
       return
@@ -479,7 +540,7 @@ class Filter {
     }
   }
 
-  // 提示输入的收藏数
+  /** 提示输入的收藏数 */
   private getBMKNum() {
     if (!settings.BMKNumSwitch) {
       return
@@ -502,7 +563,7 @@ class Filter {
     }
   }
 
-  // 提示宽高比设置
+  /** 提示宽高比设置 */
   private getRatio() {
     if (!settings.ratioSwitch) {
       return
@@ -534,7 +595,7 @@ class Filter {
     }
   }
 
-  // 提示 id 范围设置
+  /** 提示 id 范围设置 */
   private getIdRange() {
     if (!settings.idRangeSwitch) {
       return
@@ -543,7 +604,7 @@ class Filter {
     log.warning(`id ${settings.idRange} ${settings.idRangeInput}`)
   }
 
-  // 提示投稿时间设置
+  /** 提示投稿时间设置 */
   private getPostDate() {
     if (!settings.postDate) {
       return
@@ -559,7 +620,7 @@ class Filter {
     }
   }
 
-  // 提示文件体积设置
+  /** 提示文件体积设置 */
   private getSize() {
     if (!settings.sizeSwitch) {
       return
@@ -588,7 +649,7 @@ class Filter {
 
   // ---------------- check ----------------
 
-  // 检查下载的作品类型设置
+  /** 检查下载的作品类型设置 */
   private checkDownType(workType: FilterOption['workType']) {
     switch (workType) {
       case -1:
@@ -639,7 +700,7 @@ class Filter {
     }
   }
 
-  // 检查多图作品的图片数量限制
+  /** 检查多图作品的图片数量限制 */
   private checkMultiImageWorkImageLimit(
     workType: FilterOption['workType'],
     pageCount: FilterOption['pageCount']
@@ -658,7 +719,7 @@ class Filter {
     return pageCount <= settings.multiImageWorkImageLimit
   }
 
-  // 依据图片数量，检查下载的作品类型
+  /** 依据图片数量，检查下载的作品类型 */
   private checkPageCount(
     workType: FilterOption['workType'],
     pageCount: FilterOption['pageCount']
@@ -683,7 +744,7 @@ class Filter {
     return false
   }
 
-  // 检查过滤黑白图像设置
+  /** 检查过滤黑白图像设置 */
   private async checkBlackWhite(imgUrl: FilterOption['mini']) {
     // 如果没有图片网址，或者没有排除任何一个选项，则不检查
     if (!imgUrl || (settings.downColorImg && settings.downBlackWhiteImg)) {
@@ -699,7 +760,7 @@ class Filter {
     )
   }
 
-  // 检查作品是否符合已收藏、未收藏作品的设置
+  /** 检查作品是否符合已收藏、未收藏作品的设置 */
   private checkDownTypeByBmked(bookmarked: any) {
     // 如果没有参数，或者都没有排除
     if (bookmarked === undefined) {
@@ -721,9 +782,10 @@ class Filter {
     return false
   }
 
-  // 检查收藏数要求
   private readonly oneDayTime = 24 * 60 * 60 * 1000 // 一天的毫秒数
   private readonly minimumTime = 4 * 60 * 60 * 1000 // 检查日均收藏数量时，要求作品发表之后经过的时间大于这个值。因为发表之后经过时间很短的作品，其日均收藏数量非常不可靠，所以对于小于这个值的作品不进行日均收藏数量的检查。
+
+  /** 检查收藏数要求 */
   private checkBMK(
     bmk: FilterOption['bookmarkCount'],
     date: FilterOption['createDate']
@@ -759,7 +821,7 @@ class Filter {
     return checkNumber || checkAverage
   }
 
-  // 检查作品是否符合包含 tag 的条件。返回值表示是否保留这个作品。
+  /** 检查作品是否符合包含 tag 的条件。返回值表示是否保留这个作品。 */
   private checkIncludeTag(tags: FilterOption['tags']) {
     if (
       !settings.needTagSwitch ||
@@ -816,7 +878,7 @@ class Filter {
     return result
   }
 
-  // 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。
+  /** 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。 */
   private checkExcludeTag(tags: FilterOption['tags']) {
     if (
       !settings.notNeedTagSwitch ||
@@ -861,7 +923,65 @@ class Filter {
     return true
   }
 
-  // 检查作品是否符合过滤宽高的条件
+  /** 检查作品标题是否含有不能包含的字符 */
+  private checkExcludeTitle(title: FilterOption['title']) {
+    if (
+      !settings.titleExcludeSwitch ||
+      settings.titleExcludeList.length === 0 ||
+      !title
+    ) {
+      return true
+    }
+
+    for (const word of settings.titleExcludeList) {
+      if (title.includes(word.toLowerCase())) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+  /** 检查系列标题是否含有必须的字符 */
+  private checkExcludeSeriesTitle(seriesTitle: FilterOption['seriesTitle']) {
+    if (
+      !settings.alsoCheckSeriesTitle ||
+      !settings.titleExcludeSwitch ||
+      settings.titleExcludeList.length === 0 ||
+      !seriesTitle
+    ) {
+      return true
+    }
+
+    for (const word of settings.titleExcludeList) {
+      if (seriesTitle.includes(word.toLowerCase())) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+  /** 检查作品标题是否含有必须的字符 */
+  private checkIncludeTitle(title: FilterOption['title']) {
+    if (
+      !settings.titleIncludeSwitch ||
+      settings.titleIncludeList.length === 0 ||
+      !title
+    ) {
+      return true
+    }
+
+    for (const word of settings.titleIncludeList) {
+      if (title.includes(word.toLowerCase())) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  /** 检查作品是否符合过滤宽高的条件 */
   private checkWidthHeight(
     width: FilterOption['width'],
     height: FilterOption['height']
@@ -908,7 +1028,7 @@ class Filter {
     }
   }
 
-  // 检查作品是否符合宽高比条件
+  /** 检查作品是否符合宽高比条件 */
   private checkRatio(
     width: FilterOption['width'],
     height: FilterOption['height']
@@ -942,7 +1062,7 @@ class Filter {
     }
   }
 
-  // 检查 id 范围设置
+  /** 检查 id 范围设置 */
   private checkIdRange(id: FilterOption['id']) {
     if (id === undefined || !settings.idRangeSwitch) {
       return true
@@ -964,7 +1084,7 @@ class Filter {
     }
   }
 
-  // 检查投稿时间设置
+  /** 检查投稿时间设置 */
   private checkPostDate(date: FilterOption['createDate']) {
     if (!settings.postDate || date === undefined) {
       return true
@@ -1040,8 +1160,8 @@ class Filter {
     return !settings.blockList.includes(userId)
   }
 
-  // 检查文件体积
   private readonly MiB = 1024 * 1024
+  /** 检查文件体积 */
   private checkFileSize(size: FilterOption['size']) {
     if (!settings.sizeSwitch || size === undefined) {
       return true
@@ -1091,16 +1211,10 @@ class Filter {
     return !blockTagsForSpecificUser.check(userId, tags)
   }
 
-  // 如果设置项的值不合法，则显示提示
+  /** 如果设置项的值不合法，显示提示 */
   private showWarning(msg: string) {
     EVT.fire('wrongSetting')
     msgBox.error(msg)
-  }
-
-  private bindEvents() {
-    window.addEventListener(EVT.list.crawlStart, () => {
-      this.showTip()
-    })
   }
 }
 

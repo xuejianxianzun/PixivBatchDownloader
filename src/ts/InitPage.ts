@@ -17,7 +17,7 @@ import { InitNewArtworkPage } from './crawlArtworkPage/InitNewArtworkPage'
 import { InitNovelPage } from './crawlNovelPage/InitNovelPage'
 import { InitNovelSeriesPage } from './crawlNovelPage/InitNovelSeriesPage'
 import { InitSearchNovelPage } from './crawlNovelPage/InitSearchNovelPage'
-import { InitRankingNovelPage } from './crawlNovelPage/InitRankingNovelPage'
+import { InitRankingNovelPageOld } from './crawlNovelPage/InitRankingNovelPageOld'
 import { InitRankingNovelPageNew } from './crawlNovelPage/InitRankingNovelPageNew'
 import { InitNewNovelPage } from './crawlNovelPage/InitNewNovelPage'
 import { InitArtworkSeriesPage } from './crawlArtworkPage/InitArtworkSeriesPage'
@@ -75,7 +75,9 @@ class InitPage {
       case pageType.list.NovelRanking:
         // 查找旧版小说排行榜的页码区域，判断页面是旧版还是新版
         const old = document.querySelector('.pager-container')
-        return old ? new InitRankingNovelPage() : new InitRankingNovelPageNew()
+        return old
+          ? new InitRankingNovelPageOld()
+          : new InitRankingNovelPageNew()
       case pageType.list.NewNovelBookmark:
         return new InitBookmarkNewPage()
       case pageType.list.NewNovel:

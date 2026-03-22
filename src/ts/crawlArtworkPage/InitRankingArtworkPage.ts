@@ -155,6 +155,7 @@ class InitRankingArtworkPage extends InitPageBase {
         id: work.illust_id,
         workType: parseInt(work.illust_type) as any,
         tags: work.tags,
+        title: work.title,
         pageCount: pageCount,
         bookmarkData: work.is_bookmarked,
         width: pageCount === 1 ? work.width : 0,
