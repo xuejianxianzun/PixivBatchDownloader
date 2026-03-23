@@ -735,6 +735,9 @@ export const formHtml = `
         <input type="checkbox" name="noSerialNoForMultiImg" id="setNoSerialNoForMultiImg" class="need_beautify checkbox_common" checked>
         <span class="beautify_checkbox" tabindex="0"></span>
         <label for="setNoSerialNoForMultiImg" data-xztext="_多图作品"></label>
+        <input type="checkbox" name="noSerialNoForUgoira" id="setNoSerialNoForUgoira" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="setNoSerialNoForUgoira" data-xztext="_动图"></label>
       </span>
     </p>
     <p class="option" data-no="46">

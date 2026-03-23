@@ -103,6 +103,7 @@ class FormSettings {
       'notFolderWhenOneFile',
       'noSerialNoForSingleImg',
       'noSerialNoForMultiImg',
+      'setNoSerialNoForUgoira',
       'removeAtFromUsername',
       'showPreviewWorkTip',
       'showLargerThumbnails',

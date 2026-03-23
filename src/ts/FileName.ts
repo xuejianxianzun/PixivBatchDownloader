@@ -410,11 +410,14 @@ class FileName {
         if (data.pageCount > 1 && settings.noSerialNoForMultiImg) {
           return ''
         }
+        if(data.type === 2 && settings.setNoSerialNoForUgoira) {
+          return ''
+        }
       }
 
       return this.zeroPadding(index)
     } else {
-      // 其他类型没有编号，返回空字符串
+      // 小说没有编号，返回空字符串
       return ''
     }
   }

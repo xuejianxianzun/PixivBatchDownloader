@@ -144,7 +144,6 @@ interface XzSetting {
   idRangeSwitch: boolean
   idRangeInput: number
   idRange: '>' | '<'
-  noSerialNo: boolean
   filterBlackWhite: boolean
   sizeSwitch: boolean
   sizeMin: number
@@ -234,8 +233,10 @@ interface XzSetting {
   whatIsNewFlag: string
   replaceSquareThumb: boolean
   notFolderWhenOneFile: boolean
+  noSerialNo: boolean
   noSerialNoForSingleImg: boolean
   noSerialNoForMultiImg: boolean
+  setNoSerialNoForUgoira: boolean
   setUserNameShow: boolean
   setUserNameList: {
     [uid: string]: string
@@ -618,7 +619,6 @@ class Settings {
     idRange: '>',
     needTagSwitch: false,
     notNeedTagSwitch: false,
-    noSerialNo: false,
     filterBlackWhite: false,
     sizeSwitch: false,
     sizeMin: 0,
@@ -728,8 +728,10 @@ class Settings {
     whatIsNewFlag: Config.whatIsNewFlagDefault,
     replaceSquareThumb: true,
     notFolderWhenOneFile: false,
-    noSerialNoForSingleImg: true,
-    noSerialNoForMultiImg: true,
+    noSerialNo: true,
+    noSerialNoForSingleImg: false,
+    noSerialNoForMultiImg: false,
+    setNoSerialNoForUgoira: true,
     setUserNameShow: true,
     setUserNameList: {},
     removeAtFromUsername: false,

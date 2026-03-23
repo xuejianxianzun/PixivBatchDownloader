@@ -4021,11 +4021,14 @@ class FileName {
                 if (data.pageCount > 1 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNoForMultiImg) {
                     return '';
                 }
+                if (data.type === 2 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.setNoSerialNoForUgoira) {
+                    return '';
+                }
             }
             return this.zeroPadding(index);
         }
         else {
-            // 其他类型没有编号，返回空字符串
+            // 小说没有编号，返回空字符串
             return '';
         }
     }
@@ -8451,7 +8454,7 @@ class RemoveBlockedUsersWork {
         });
         // 当页面内容变化时进行检查
         this.startMutationObserver();
-        // 当页面切换时进行检查
+        // 当页面切换时进行检查，因为只靠监视器的话，有些情况覆盖不到
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, () => {
             setTimeout(() => {
                 this.check();
@@ -39482,6 +39485,9 @@ const formHtml = `
         <input type="checkbox" name="noSerialNoForMultiImg" id="setNoSerialNoForMultiImg" class="need_beautify checkbox_common" checked>
         <span class="beautify_checkbox" tabindex="0"></span>
         <label for="setNoSerialNoForMultiImg" data-xztext="_多图作品"></label>
+        <input type="checkbox" name="noSerialNoForUgoira" id="setNoSerialNoForUgoira" class="need_beautify checkbox_common" checked>
+        <span class="beautify_checkbox" tabindex="0"></span>
+        <label for="setNoSerialNoForUgoira" data-xztext="_动图"></label>
       </span>
     </p>
     <p class="option" data-no="46">
@@ -40330,6 +40336,7 @@ class FormSettings {
             'notFolderWhenOneFile',
             'noSerialNoForSingleImg',
             'noSerialNoForMultiImg',
+            'setNoSerialNoForUgoira',
             'removeAtFromUsername',
             'showPreviewWorkTip',
             'showLargerThumbnails',
@@ -41508,7 +41515,6 @@ class Settings {
         idRange: '>',
         needTagSwitch: false,
         notNeedTagSwitch: false,
-        noSerialNo: false,
         filterBlackWhite: false,
         sizeSwitch: false,
         sizeMin: 0,
@@ -41614,8 +41620,10 @@ class Settings {
         whatIsNewFlag: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.whatIsNewFlagDefault,
         replaceSquareThumb: true,
         notFolderWhenOneFile: false,
-        noSerialNoForSingleImg: true,
-        noSerialNoForMultiImg: true,
+        noSerialNo: true,
+        noSerialNoForSingleImg: false,
+        noSerialNoForMultiImg: false,
+        setNoSerialNoForUgoira: true,
         setUserNameShow: true,
         setUserNameList: {},
         removeAtFromUsername: false,
