@@ -410,7 +410,7 @@ class FileName {
         if (data.pageCount > 1 && settings.noSerialNoForMultiImg) {
           return ''
         }
-        if(data.type === 2 && settings.setNoSerialNoForUgoira) {
+        if (data.type === 2 && settings.setNoSerialNoForUgoira) {
           return ''
         }
       }

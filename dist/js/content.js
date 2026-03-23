@@ -4497,7 +4497,7 @@ class FollowingList {
             if (res.body.users.length === 0) {
                 // 实际获取到的关注用户数量可能比 total 少，这是正常的
                 // 例如 toal 是 3522，实际上获取到的可能是 3483 个，再往后都是空数组了
-                _Log__WEBPACK_IMPORTED_MODULE_8__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_提示有些用户可能已经注销'), 1, false, 'tipUserMayDeactivated');
+                _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_提示有些用户可能已经注销'), 1, false, 'tipUserMayDeactivated');
                 break;
             }
             await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.slowCrawlDealy);
@@ -14790,7 +14790,7 @@ class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.I
                 _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(crawlAllTip);
             }
             else {
-                _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始下载x个', this.crawlNumber.toString()));
+                _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始抓取x个', this.crawlNumber.toString()));
             }
         }
         else {
@@ -14934,7 +14934,7 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     initAny() { }
     getWantPage() {
         this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_11__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_10__.pageType.type].value;
-        _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_从本页开始下载x页', this.crawlNumber.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
     }
     nextStep() {
         // 设置起始页码
@@ -15057,7 +15057,7 @@ class InitBookmarkDetailPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
     initAny() { }
     getWantPage() {
         this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_7__.pageType.type].value;
-        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始下载x个', this.crawlNumber.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始抓取x个', this.crawlNumber.toString()));
     }
     // 获取相似的作品列表
     async getIdList() {
@@ -15199,7 +15199,7 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
     initAny() { }
     getWantPage() {
         this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_11__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_12__.pageType.type].value;
-        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始下载x个', this.crawlNumber.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始抓取x个', this.crawlNumber.toString()));
     }
     nextStep() {
         this.setSlowCrawl();
@@ -15841,10 +15841,10 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     getWantPage() {
         this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_19__.pageType.type].value;
         if (this.crawlNumber === -1) {
-            _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载所有页面'));
+            _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取所有页面'));
         }
         else {
-            _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始下载x页', this.crawlNumber.toString()));
+            _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
         }
     }
     async nextStep() {
@@ -16873,7 +16873,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     initAny() { }
     getWantPage() {
         this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_11__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_12__.pageType.type].value;
-        _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始下载x页', this.crawlNumber.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
     }
     nextStep() {
         this.setSlowCrawl();
@@ -17092,10 +17092,10 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
     getWantPage() {
         this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_21__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_22__.pageType.type].value;
         if (this.crawlNumber === -1) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载所有页面'));
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_抓取所有页面'));
         }
         else {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_从本页开始下载x页', this.crawlNumber.toString()));
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
         }
     }
     addAnyElement() {
@@ -17571,10 +17571,10 @@ class InitContestPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.I
         if (this.scope === 'applications') {
             this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_6__.pageType.type].value;
             if (this.crawlNumber === -1) {
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下载所有页面'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取所有页面'));
             }
             else {
-                _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下载x页_每页最多含有50个作品', this.crawlNumber.toString()));
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_抓取x页_每页最多含有50个作品', this.crawlNumber.toString()));
             }
         }
     }
@@ -18150,10 +18150,10 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     getWantPage() {
         this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_11__.pageType.type].value;
         if (this.crawlNumber === -1) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载所有页面'));
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取所有页面'));
         }
         else {
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始下载x页', this.crawlNumber.toString()));
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
         }
     }
     nextStep() {
@@ -18221,6 +18221,9 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         const users = res.body.users;
         if (users.length === 0) {
             // 用户列表抓取完毕
+            if (this.userList.length < res.body.total) {
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示有些用户可能已经注销'));
+            }
             return this.getUserListComplete();
         }
         for (const userData of users) {
@@ -18752,10 +18755,10 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
     getWantPage() {
         this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_16__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_15__.pageType.type].value;
         if (this.crawlNumber === -1) {
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载所有页面'));
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取所有页面'));
         }
         else {
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始下载x页', this.crawlNumber.toString()));
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
         }
     }
     nextStep() {
@@ -19162,7 +19165,7 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
     initAny() { }
     getWantPage() {
         this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_10__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_11__.pageType.type].value;
-        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始下载x个', this.crawlNumber.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始抓取x个', this.crawlNumber.toString()));
     }
     nextStep() {
         this.setSlowCrawl();
@@ -19328,7 +19331,7 @@ class InitNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Ini
             _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(crawlAllTip);
         }
         else {
-            _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始下载x个', this.crawlNumber.toString()));
+            _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始抓取x个', this.crawlNumber.toString()));
         }
     }
     async getIdList() {
@@ -20070,10 +20073,10 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     getWantPage() {
         this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_18__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_19__.pageType.type].value;
         if (this.crawlNumber === -1) {
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载所有页面'));
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_抓取所有页面'));
         }
         else {
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始下载x页', this.crawlNumber.toString()));
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
         }
     }
     // 获取搜索页的数据。因为有多处使用，所以进行了封装
@@ -27897,6 +27900,14 @@ And so on.
         '모든 페이지 다운로드',
         'загрузить все страницы',
     ],
+    _抓取所有页面: [
+        `抓取所有页面`,
+        `抓取所有頁面`,
+        `Crawl all pages`,
+        `すべてのページをクロール`,
+        `모든 페이지 크롤링`,
+        `Скраулить все страницы`,
+    ],
     _下载x个相关作品: [
         '下载 {} 个相关作品',
         '下載 {} 個相關作品',
@@ -27945,13 +27956,21 @@ And so on.
         '이 페이지부터 {} 페이지 다운로드',
         'Начать загрузку с страниц этой {} страницы',
     ],
-    _下载x页_每页最多含有50个作品: [
-        `下载 {} 页（每页最多含有 50 个作品）`,
-        `下載 {} 頁（每頁最多含有 50 個作品）`,
-        `Download {} pages (up to 50 works per page)`,
-        `{} ページをダウンロード（1ページあたり最大50作品）`,
-        `{} 페이지 다운로드 (페이지당 최대 50개 작품)`,
-        `Скачать {} страниц (максимум 50 работ на страницу)`,
+    _从本页开始抓取x页: [
+        `从本页开始抓取 {} 页`,
+        `從本頁開始抓取 {} 頁`,
+        `Start crawling from this page for {} pages`,
+        `このページから {} ページをクロール開始`,
+        `이 페이지부터 {} 페이지 크롤링 시작`,
+        `Начиная с этой страницы, скраулить {} страниц`,
+    ],
+    _抓取x页_每页最多含有50个作品: [
+        `抓取 {} 页（每页最多含有 50 个作品）`,
+        `抓取 {} 頁（每頁最多含有 50 個作品）`,
+        `Crawl {} pages (up to 50 works per page)`,
+        `{} ページをクロール（1ページあたり最大50作品）`,
+        `{} 페이지 크롤링 (페이지당 최대 50개 작품)`,
+        `Скраулить {} страниц (максимум 50 работ на страницу)`,
     ],
     _从本页开始下载x个: [
         '从本页开始下载 {} 个作品',
@@ -27960,6 +27979,14 @@ And so on.
         'このページから {} 枚の作品をダウンロード。',
         '이 페이지부터 {}개의 작품 다운로드',
         'Загрузить {} работы с этой страницы.',
+    ],
+    _从本页开始抓取x个: [
+        `从本页开始抓取 {} 个作品`,
+        `從本頁開始抓取 {} 個作品`,
+        `Start crawling from this page for {} works`,
+        `このページから {} 件の作品をクロール開始`,
+        `이 페이지부터 {}개 작품 크롤링 시작`,
+        `Начиная с этой страницы, скраулить {} работ`,
     ],
     _任务开始: [
         '任务开始',
@@ -36944,11 +36971,11 @@ class ExportFollowingList {
     getWantPage() {
         this.crawlPageNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_2__.pageType.type].value;
         if (this.crawlPageNumber === -1) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载所有页面'));
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取所有页面'));
         }
         else {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_注意这个任务遵从抓取多少页面的设置'));
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_从本页开始下载x页', this.crawlPageNumber.toString()));
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_从本页开始抓取x页', this.crawlPageNumber.toString()));
         }
     }
     getPageType() {

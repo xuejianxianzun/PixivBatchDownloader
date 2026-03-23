@@ -35,7 +35,7 @@ class InitBookmarkDetailPage extends InitPageBase {
 
   protected getWantPage() {
     this.crawlNumber = settings.crawlNumber[pageType.type].value
-    log.warning(lang.transl('_从本页开始下载x个', this.crawlNumber.toString()))
+    log.warning(lang.transl('_从本页开始抓取x个', this.crawlNumber.toString()))
   }
 
   // 获取相似的作品列表

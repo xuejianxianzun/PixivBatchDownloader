@@ -66,7 +66,7 @@ class InitNovelPage extends InitPageBase {
       log.warning(crawlAllTip)
     } else {
       log.warning(
-        lang.transl('_从本页开始下载x个', this.crawlNumber.toString())
+        lang.transl('_从本页开始抓取x个', this.crawlNumber.toString())
       )
     }
   }

@@ -71,11 +71,11 @@ class InitContestPage extends InitPageBase {
     if (this.scope === 'applications') {
       this.crawlNumber = settings.crawlNumber[pageType.type].value
       if (this.crawlNumber === -1) {
-        log.warning(lang.transl('_下载所有页面'))
+        log.warning(lang.transl('_抓取所有页面'))
       } else {
         log.warning(
           lang.transl(
-            '_下载x页_每页最多含有50个作品',
+            '_抓取x页_每页最多含有50个作品',
             this.crawlNumber.toString()
           )
         )

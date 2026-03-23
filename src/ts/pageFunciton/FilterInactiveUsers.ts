@@ -82,11 +82,11 @@ class FilterInactiveUsers {
   protected getWantPage() {
     this.crawlPageNumber = settings.crawlNumber[pageType.type].value
     if (this.crawlPageNumber === -1) {
-      log.warning(lang.transl('_下载所有页面'))
+      log.warning(lang.transl('_抓取所有页面'))
     } else {
       log.warning(lang.transl('_注意这个任务遵从抓取多少页面的设置'))
       log.warning(
-        lang.transl('_从本页开始下载x页', this.crawlPageNumber.toString())
+        lang.transl('_从本页开始抓取x页', this.crawlPageNumber.toString())
       )
     }
   }

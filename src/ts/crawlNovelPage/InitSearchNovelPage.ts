@@ -233,10 +233,10 @@ class InitSearchNovelPage extends InitPageBase {
   protected getWantPage() {
     this.crawlNumber = settings.crawlNumber[pageType.type].value
     if (this.crawlNumber === -1) {
-      log.warning(lang.transl('_下载所有页面'))
+      log.warning(lang.transl('_抓取所有页面'))
     } else {
       log.warning(
-        lang.transl('_从本页开始下载x页', this.crawlNumber.toString())
+        lang.transl('_从本页开始抓取x页', this.crawlNumber.toString())
       )
     }
   }

@@ -119,10 +119,10 @@ class InitFollowingPage extends InitPageBase {
   protected getWantPage() {
     this.crawlNumber = settings.crawlNumber[pageType.type].value
     if (this.crawlNumber === -1) {
-      log.warning(lang.transl('_下载所有页面'))
+      log.warning(lang.transl('_抓取所有页面'))
     } else {
       log.warning(
-        lang.transl('_从本页开始下载x页', this.crawlNumber.toString())
+        lang.transl('_从本页开始抓取x页', this.crawlNumber.toString())
       )
     }
   }
@@ -204,6 +204,9 @@ class InitFollowingPage extends InitPageBase {
 
     if (users.length === 0) {
       // 用户列表抓取完毕
+      if (this.userList.length < res.body.total) {
+        log.warning(lang.transl('_提示有些用户可能已经注销'))
+      }
       return this.getUserListComplete()
     }
 

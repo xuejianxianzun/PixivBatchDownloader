@@ -173,7 +173,7 @@ class FollowingList {
       if (res.body.users.length === 0) {
         // 实际获取到的关注用户数量可能比 total 少，这是正常的
         // 例如 toal 是 3522，实际上获取到的可能是 3483 个，再往后都是空数组了
-        log.log(
+        log.warning(
           lang.transl('_提示有些用户可能已经注销'),
           1,
           false,
