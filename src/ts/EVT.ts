@@ -71,7 +71,7 @@ class EVENT {
     downloadSuccess: 'downloadSuccess',
     /** 下载队列里的所有文件都已经下载并保存完毕，并且没有出错的。如果有出错的，就不会触发这个事件 */
     downloadComplete: 'downloadComplete',
-    /** 页面切换 */
+    /** 页面切换，不论页面类型是否变化 */
     pageSwitch: 'pageSwitch',
     /** 页面切换，并且页面类型变化 */
     pageSwitchedTypeChange: 'pageSwitchedTypeChange',

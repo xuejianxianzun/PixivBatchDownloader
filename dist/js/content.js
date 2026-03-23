@@ -3506,7 +3506,7 @@ class EVENT {
         downloadSuccess: 'downloadSuccess',
         /** 下载队列里的所有文件都已经下载并保存完毕，并且没有出错的。如果有出错的，就不会触发这个事件 */
         downloadComplete: 'downloadComplete',
-        /** 页面切换 */
+        /** 页面切换，不论页面类型是否变化 */
         pageSwitch: 'pageSwitch',
         /** 页面切换，并且页面类型变化 */
         pageSwitchedTypeChange: 'pageSwitchedTypeChange',
@@ -8451,6 +8451,12 @@ class RemoveBlockedUsersWork {
         });
         // 当页面内容变化时进行检查
         this.startMutationObserver();
+        // 当页面切换时进行检查
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.pageSwitch, () => {
+            setTimeout(() => {
+                this.check();
+            }, 300);
+        });
     }
     startMutationObserver() {
         const observer = new MutationObserver((mutations) => {
@@ -8537,16 +8543,19 @@ class RemoveBlockedUsersWork {
     containerSelectors = [
         'li',
         'ul > div',
+        // 新版首页下半部分的单个作品大图区域
+        // 这里作者在上面，大图在下面，这个选择器是共同父元素
         'div[data-ga4-label="work_content"]',
+        // 在搜索页面里的图像分类页面里使用
+        // 第一个是下载器自己添加的 class，第二个是 Pixiv 原本的 class
+        // 当用户翻页时，下载器可能尚未添加自己的 class，此时就需要使用 Pixiv 原本的 class
+        // 但是 Pixiv 的 class 可能随时会变化，所以以后可能会需要修改
         '.worksUL > div',
+        'div.col-span-2',
+        // 在搜索页面里的小说分类页面里使用
+        'div[data-mouseover]',
+        'div.col-span-6',
     ];
-    // li
-    // 非常广泛
-    // ul>div
-    // 主要是首页里的元素，如 关注用户・好P友的作品 等。其他页面里也有一些地方是这个选择器
-    // div[data-ga4-label="work_content"]
-    // 新版首页下半部分的单个作品大图区域
-    // 这里作者在上面，大图在下面，这个选择器是共同父元素
     findContainerEl(link) {
         let container = null;
         // 在某些页面里使用特定的选择器
