@@ -1,12 +1,12 @@
 import { settings } from '../setting/Settings'
-import { langText } from '../langText'
+import { LangTextKey } from '../langText'
 
 type BtnConfig = {
   name: 'zoomBtnOnThumb' | 'downloadBtnOnThumb' | 'copyBtnOnThumb'
   order: number
   icon: string
   btn: HTMLButtonElement
-  title: keyof typeof langText
+  title: LangTextKey
   show: () => boolean
 }
 

@@ -40,6 +40,7 @@ import {
 import { IDData } from './store/StoreType'
 import { Config } from './Config'
 import { EVT } from './EVT'
+import { Utils } from './utils/Utils'
 
 /** 点击 like 按钮时返回的数据 */
 interface LikeResponse {
@@ -66,9 +67,6 @@ class API {
       credentials: 'same-origin',
     }
     return new Promise((resolve, reject) => {
-      // 虽然添加了重试次数参数，但实际上没有使用，因为现在只会对 429 错误重试，而且重试频率很低，所以我没有限制重试次数，会无限重试
-      // 之前的代码是使用 fetch.then().then().catch() 链的，在第一个 then 里调用 this.fetch() 来重试
-      // 现在改为使用一个内部函数来发送请求，并把请求从链式改为 async/await 形式，使用尾递归来重试，看起来更加清晰
       const attemptRequest = async (tryCount = 0) => {
         try {
           const response = await fetch(url, init)
@@ -83,16 +81,20 @@ class API {
               status: response.status,
               url: url,
             })
-            // 对于 429 状态码，自动重试，直到成功或者出现其他错误
-            // 所以在其他模块里调用 API 时，不需要自行处理 429 错误
+            // 对于 429 状态码，无限次重试，直到成功或者出现其他错误
+            // 在其他模块里调用 API 时，不需要自行处理 429 错误
             // 以前隔 200 秒重试经常可以成功，但现在时间似乎有所增加，而且不同的账号也不一样。
             // 有些账号需要重试 2、3 次，但有些账号（近期抓取和下载了大量文件）可能要重试 6 次（即等待 20 分钟）才能成功
             if (response.status === 429) {
               // 等待一段时间后，通过尾递归重试请求
               // console.log(`429 tryCount ${tryCount}`)
-              await new Promise((res) =>
-                window.setTimeout(res, Config.retryTime)
-              )
+              await Utils.sleep(Config.retryTime)
+              await attemptRequest(tryCount + 1)
+            } else if (response.status === 502 && tryCount < 3) {
+              // 502 错误重试最多 3 次
+              // 现在偶尔会遇到 502 错误，通常可以很快重试成功，所以等待 10 秒后重试
+              console.log(`502 tryCount ${tryCount}`)
+              await Utils.sleep(10000)
               await attemptRequest(tryCount + 1)
             } else {
               // 对于其他状态码，不会重试

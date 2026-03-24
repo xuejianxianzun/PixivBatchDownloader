@@ -23,7 +23,7 @@ class Options {
   ]
 
   // 90 天内添加的设置项，显示 new 角标
-  private readonly newRange = 1000 * 60 * 60 * 24 * 90
+  private readonly newRange = 7776000000
   private readonly newOptions: NewOption[] = [
     {
       // 复制按钮
@@ -66,6 +66,24 @@ class Options {
       id: 93,
       // 2026-02-28
       time: 1772287652821,
+    },
+    {
+      // 标题必须含有
+      id: 94,
+      // 2026-03-22
+      time: 1774137600000,
+    },
+    {
+      // 标题不能含有
+      id: 95,
+      // 2026-03-22
+      time: 1774137600000,
+    },
+    {
+      // 原创作品
+      id: 96,
+      // 2026-03-24
+      time: 1774310400000,
     },
   ]
 

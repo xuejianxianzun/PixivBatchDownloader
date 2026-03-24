@@ -72,6 +72,7 @@ class Store {
     aiType: 0,
     idNum: 0,
     id: '',
+    isOriginal: null,
     original: '',
     thumb: '',
     regular: '',

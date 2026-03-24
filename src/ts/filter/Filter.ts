@@ -9,6 +9,7 @@ import { blockTagsForSpecificUser } from './BlockTagsForSpecificUser'
 import { msgBox } from '../MsgBox'
 import { workPublishTime } from './WorkPublishTime'
 import { WorkTypeString } from '../store/StoreType'
+import { Config } from '../Config'
 
 /** 过滤选项，其中所有字段都是可选的 */
 export interface FilterOption {
@@ -39,25 +40,22 @@ export interface FilterOption {
   xRestrict?: 0 | 1 | 2
   title?: string
   seriesTitle?: string
+  isOriginal?: boolean | null
 }
 
 // 检查作品是否符合过滤条件
 class Filter {
-  constructor() {
-    this.bindEvents()
-  }
+  constructor() {}
 
-  private bindEvents() {
-    window.addEventListener(EVT.list.crawlStart, () => {
-      this.showTip()
-    })
-  }
+  private wrongSetting = false
 
-  /** 在日志里输出已启用的过滤选项 */
-  private showTip() {
+  /** 在日志里输出已启用的过滤选项。返回值表示是否有错误的设置，如果为 true，则不应该开始抓取 */
+  public showTip(): boolean {
+    this.wrongSetting = false
     this.getDownType()
     this.getDownTypeByAge()
     this.getAIWorkType()
+    this.getOriginalType()
     this.getDownTypeByImgCount()
     this.getDownTypeByColor()
     this.getDownTypeByBmked()
@@ -77,6 +75,8 @@ class Filter {
     if (states.debut) {
       log.warning(lang.transl('_抓取首次登场的作品Title'))
     }
+
+    return this.wrongSetting
   }
 
   /**检查作品是否符合过滤器的要求，返回值 false 表示不保留这个作品，true 表示保留这个作品 */
@@ -113,6 +113,10 @@ class Filter {
         false,
         'excludeWorkByAIType'
       )
+      return false
+    }
+
+    if (!this.checkOriginalType(option.isOriginal, option.tags)) {
       return false
     }
 
@@ -367,7 +371,9 @@ class Filter {
       !settings.downType2 &&
       !settings.downType3
     ) {
-      this.showWarning(lang.transl('_排除了所有作品类型'))
+      return this.error(
+        lang.transl('_排除了所有作品类型') + ': <br>' + lang.transl('_作品类型')
+      )
     }
 
     const tips = []
@@ -384,7 +390,9 @@ class Filter {
   private getDownTypeByAge() {
     // 如果全部排除则取消任务
     if (!settings.downAllAges && !settings.downR18 && !settings.downR18G) {
-      this.showWarning(lang.transl('_排除了所有作品类型'))
+      return this.error(
+        lang.transl('_排除了所有作品类型') + ': <br>' + lang.transl('_年龄限制')
+      )
     }
 
     const tips = []
@@ -398,6 +406,17 @@ class Filter {
   }
 
   private getAIWorkType() {
+    // 如果全部排除则取消任务
+    if (
+      !settings.AIGenerated &&
+      !settings.notAIGenerated &&
+      !settings.UnknownAI
+    ) {
+      return this.error(
+        lang.transl('_排除了所有作品类型') + ': <br>' + lang.transl('_AI作品')
+      )
+    }
+
     const tips = []
     !settings.AIGenerated && tips.push(lang.transl('_AI生成'))
     !settings.notAIGenerated && tips.push(lang.transl('_非AI生成'))
@@ -408,7 +427,31 @@ class Filter {
     }
   }
 
+  private getOriginalType() {
+    // 如果全部排除则取消任务
+    if (!settings.crawlOriginalWork && !settings.crawlNonOriginalWork) {
+      return this.error(
+        lang.transl('_排除了所有作品类型') + ': <br>' + lang.transl('_原创作品')
+      )
+    }
+
+    const tips = []
+    !settings.crawlOriginalWork && tips.push(lang.transl('_原创'))
+    !settings.crawlNonOriginalWork && tips.push(lang.transl('_非原创'))
+
+    if (tips.length > 0) {
+      log.warning(lang.transl('_排除作品类型') + tips.join(', '))
+    }
+  }
+
   private getDownTypeByImgCount() {
+    // 如果全部排除则取消任务
+    if (!settings.downSingleImg && !settings.downMultiImg) {
+      return this.error(
+        lang.transl('_排除了所有作品类型') + ': <br>' + lang.transl('_图片数量')
+      )
+    }
+
     const tips = []
     !settings.downSingleImg && tips.push(lang.transl('_单图作品'))
     !settings.downMultiImg && tips.push(lang.transl('_多图作品'))
@@ -422,7 +465,9 @@ class Filter {
   private getDownTypeByColor() {
     // 如果全部排除则取消任务
     if (!settings.downColorImg && !settings.downBlackWhiteImg) {
-      this.showWarning(lang.transl('_排除了所有作品类型'))
+      return this.error(
+        lang.transl('_排除了所有作品类型') + ': <br>' + lang.transl('_图片色彩')
+      )
     }
 
     const tips = []
@@ -438,7 +483,9 @@ class Filter {
   private getDownTypeByBmked() {
     // 如果全部排除则取消任务
     if (!settings.downNotBookmarked && !settings.downBookmarked) {
-      this.showWarning(lang.transl('_排除了所有作品类型'))
+      return this.error(
+        lang.transl('_排除了所有作品类型') + ': <br>' + lang.transl('_收藏状态')
+      )
     }
 
     const tips = []
@@ -611,8 +658,9 @@ class Filter {
     }
 
     if (isNaN(settings.postDateStart) || isNaN(settings.postDateStart)) {
-      const msg = lang.transl('_日期时间格式错误')
-      this.showWarning(msg)
+      this.error(
+        lang.transl('_日期时间格式错误') + ': <br>' + lang.transl('_投稿时间')
+      )
     } else {
       const start = new Date(settings.postDateStart).toLocaleString()
       const end = new Date(settings.postDateEnd).toLocaleString()
@@ -626,7 +674,9 @@ class Filter {
       return
     }
 
-    log.warning(`Size: ${settings.sizeMin}MiB - ${settings.sizeMax}MiB`)
+    log.warning(
+      `${lang.transl('_文件体积限制')}: ${settings.sizeMin}MiB - ${settings.sizeMax}MiB`
+    )
   }
 
   private getBlockList() {
@@ -636,7 +686,11 @@ class Filter {
 
     for (const uid of settings.blockList) {
       if (isNaN(Number.parseInt(uid))) {
-        return this.showWarning(lang.transl('_用户ID必须是数字'))
+        return this.error(
+          lang.transl('_用户ID必须是数字') +
+            ': <br>' +
+            lang.transl('_用户阻止名单')
+        )
       }
     }
 
@@ -758,6 +812,73 @@ class Filter {
       (result && settings.downBlackWhiteImg) ||
       (!result && settings.downColorImg)
     )
+  }
+
+  /** 检查原创作品条件 */
+  private checkOriginalType(
+    isOriginal: FilterOption['isOriginal'],
+    tags: FilterOption['tags']
+  ) {
+    // 如果没有传递 isOriginal，或者没有排除任何一个选项，则不检查
+    if (
+      isOriginal === undefined ||
+      (settings.crawlOriginalWork && settings.crawlNonOriginalWork)
+    ) {
+      return true
+    }
+
+    // 检查作品是否是原创作品
+    let _original: boolean | undefined = undefined
+
+    // 如果 isOriginal 是 true，则说明它是原创作品
+    if (isOriginal) {
+      _original = true
+    } else {
+      // isOriginal 不是 true
+      // 如果启用了宽松匹配，则从 tags 检查是否含有特定标签，如果有的话也认为它是原创作品
+      if (settings.looseMatchOriginal && tags) {
+        // 因为有些作品虽然没有被标记为原创作品，但在标签里会标记为原创，这些作品也应该算作原创作品。例如：
+        // https://www.pixiv.net/artworks/142565679
+        for (const tag of tags) {
+          if (Config.originalTags.includes(tag)) {
+            _original = true
+            break
+          }
+        }
+      } else {
+        // 如果没有启用宽松匹配
+        if (isOriginal === false) {
+          _original = false
+        } else {
+          // 如果是 null，则保留它，因为此时无法判断它是否是原创作品
+          return true
+        }
+      }
+    }
+
+    if (_original) {
+      if (!settings.crawlOriginalWork) {
+        log.warning(
+          lang.transl('_下载器排除了一些作品原因') +
+            lang.transl('_它是原创作品'),
+          1,
+          false,
+          'excludeWorkByOriginalType1'
+        )
+      }
+      return settings.crawlOriginalWork
+    } else {
+      if (!settings.crawlNonOriginalWork) {
+        log.warning(
+          lang.transl('_下载器排除了一些作品原因') +
+            lang.transl('_它是非原创作品'),
+          1,
+          false,
+          'excludeWorkByOriginalType2'
+        )
+      }
+      return settings.crawlNonOriginalWork
+    }
   }
 
   /** 检查作品是否符合已收藏、未收藏作品的设置 */
@@ -1212,9 +1333,12 @@ class Filter {
   }
 
   /** 如果设置项的值不合法，显示提示 */
-  private showWarning(msg: string) {
-    EVT.fire('wrongSetting')
-    msgBox.error(msg)
+  private error(msg: string) {
+    this.wrongSetting = true
+    log.error(msg.replace('<br>', ''))
+    msgBox.error(msg, {
+      title: lang.transl('_抓取条件不正确'),
+    })
   }
 }
 

@@ -52,6 +52,7 @@ class ImportResult {
       const check = await filter.check({
         aiType: result.aiType,
         id: result.idNum,
+        isOriginal: result.isOriginal,
         workType: result.type,
         pageCount: result.pageCount,
         tags: result.tagsWithTransl,

@@ -195,9 +195,8 @@ abstract class InitPageBase {
       return
     }
 
-    // 每次开始抓取时清空之前的日志
-    // 其实不清空通常也没有问题，但是考虑到定时抓取功能、以及其他一些行为可能会产生大量日志，
-    // 一直不清空的话会导致日志数量持续增加，占据的内存也会增加
+    // 清空日志
+    // 注意：很多方法都会输出日志，那些方法必须放在此事件之后，否则用户看不到对应的日志
     EVT.fire('clearLog')
 
     showOneTimeMsg.show(
@@ -209,6 +208,12 @@ abstract class InitPageBase {
     toast.show(lang.transl('_开始抓取'), {
       position: 'center',
     })
+
+    const wrongSetting = filter.showTip()
+    if (wrongSetting) {
+      log.error('❌' + lang.transl('_取消抓取因为某些抓取条件不正确'))
+      return
+    }
 
     EVT.fire('crawlStart')
 
@@ -271,6 +276,12 @@ abstract class InitPageBase {
       toast.show(lang.transl('_开始抓取'), {
         bgColor: Colors.bgBlue,
       })
+
+      const wrongSetting = filter.showTip()
+      if (wrongSetting) {
+        log.error('❌' + lang.transl('_取消抓取因为某些抓取条件不正确'))
+        return
+      }
 
       EVT.fire('crawlStart')
 

@@ -20,6 +20,8 @@ export interface ResultOptional {
   idNum?: number
   /**这个抓取结果的唯一标志，包含 id 和序号，如 44920385_p0 */
   id?: string
+  /** 是否为原创作品。旧版导出的抓取结果里没有此数据，在导入后会是 null */
+  isOriginal?: boolean | null
   /**原图的 URL */
   original?: string
   /**方形缩略图 (250px) 的 URL */

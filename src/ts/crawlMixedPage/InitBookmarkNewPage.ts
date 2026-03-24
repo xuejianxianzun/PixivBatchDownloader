@@ -134,6 +134,7 @@ class InitBookmarkNewPage extends InitPageBase {
         const filterOpt: FilterOption = {
           aiType: data.aiType,
           id: data.id,
+          isOriginal: data.isOriginal,
           width: data.pageCount === 1 ? data.width : 0,
           height: data.pageCount === 1 ? data.height : 0,
           pageCount: data.pageCount,
@@ -158,6 +159,7 @@ class InitBookmarkNewPage extends InitPageBase {
         const filterOpt: FilterOption = {
           aiType: data.aiType,
           id: data.id,
+          isOriginal: data.isOriginal,
           workType: 3,
           tags: data.tags,
           title: data.title,

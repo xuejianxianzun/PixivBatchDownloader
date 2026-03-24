@@ -153,6 +153,7 @@ class InitRankingArtworkPage extends InitPageBase {
       // 目前这个数据里并没有包含收藏数量，所以在这里没办法检查收藏数量要求
       const filterOpt: FilterOption = {
         id: work.illust_id,
+        isOriginal: work.attr === 'original',
         workType: parseInt(work.illust_type) as any,
         tags: work.tags,
         title: work.title,

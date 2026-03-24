@@ -548,6 +548,7 @@ class InitSearchArtworkPage extends InitPageBase {
         aiType: work.aiType,
         createDate: work.createDate,
         id: work.id,
+        isOriginal: work.isOriginal,
         width: work.pageCount === 1 ? work.width : 0,
         height: work.pageCount === 1 ? work.height : 0,
         pageCount: work.pageCount,
@@ -1008,6 +1009,7 @@ class InitSearchArtworkPage extends InitPageBase {
       const filterOpt: FilterOption = {
         aiType: data.aiType,
         id: data.id,
+        isOriginal: data.isOriginal,
         workType: data.type,
         pageCount: data.pageCount,
         tags: data.tags,

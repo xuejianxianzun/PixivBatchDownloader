@@ -12,6 +12,7 @@ import { options } from '../setting/Options'
 import { msgBox } from '../MsgBox'
 import { DateFormat } from '../utils/DateFormat'
 import { toast } from '../Toast'
+import { langText, LangTextKey } from '../langText'
 
 // 设置表单
 class Form {
@@ -254,91 +255,74 @@ class Form {
 
   /**点击一些按钮时，通过 msgBox 显示帮助 */
   private showMsgWhenClick() {
-    // 过滤搜索页面的作品的说明
-    this.form
-      .querySelector('#showPathLengthLimitTip')!
-      .addEventListener('click', () => {
-        msgBox.show(lang.transl('_文件名长度限制的说明'), {
-          title: lang.transl('_文件名长度限制'),
+    const config: {
+      selector: string
+      title: LangTextKey
+      content: LangTextKey
+    }[] = [
+      {
+        selector: '#showLooseMatchOriginalTip',
+        title: '_原创作品',
+        content: '_宽松匹配原创作品的说明',
+      },
+      {
+        selector: '#showPathLengthLimitTip',
+        title: '_文件名长度限制',
+        content: '_文件名长度限制的说明',
+      },
+      {
+        selector: '#showFilterSearchResultsTip',
+        title: '_过滤搜索页面的作品',
+        content: '_过滤搜索页面的作品的说明',
+      },
+      {
+        selector: '#showR18FolderNameTip',
+        title: '_把r18作品存入指定的文件夹里',
+        content: '_把r18作品存入指定的文件夹里可以使用命名标记替代的说明',
+      },
+      {
+        selector: '#showRememberTheLastSaveLocationTip',
+        title: '_把文件保存到用户上次选择的位置',
+        content: '_把文件保存到用户上次选择的位置的说明',
+      },
+      {
+        selector: '#showCopyWorkDataTip',
+        title: '_复制内容',
+        content: '_对复制的内容的说明',
+      },
+      {
+        selector: '#showRemoveBlockedUsersWorkTip',
+        title: '_用户阻止名单',
+        content: '_用户阻止名单的说明2',
+      },
+      {
+        selector: '#showSetWantWorkTip',
+        title: '_抓取多少作品',
+        content: '_抓取多少作品的提示',
+      },
+      {
+        selector: '#showSetWantPageTip',
+        title: '_抓取多少页面',
+        content: '_抓取多少页面的提示',
+      },
+      {
+        selector: '#deduplicationHelp',
+        title: '_不下载重复文件',
+        content: '_不下载重复文件的提示',
+      },
+    ]
+
+    config.forEach((item) => {
+      const el = this.form.querySelector(item.selector) as HTMLButtonElement
+      el?.addEventListener('click', () => {
+        msgBox.show(lang.transl(item.content), {
+          title: lang.transl(item.title),
         })
       })
 
-    // 过滤搜索页面的作品的说明
-    this.form
-      .querySelector('#showFilterSearchResultsTip')!
-      .addEventListener('click', () => {
-        msgBox.show(lang.transl('_过滤搜索页面的作品的说明'), {
-          title: lang.transl('_过滤搜索页面的作品'),
-        })
-      })
-
-    // 显示“把 R-18(G) 作品存入指定的文件夹里”可以用命名标记代替的说明
-    this.form
-      .querySelector('#showR18FolderNameTip')!
-      .addEventListener('click', () => {
-        msgBox.show(
-          lang.transl('_把r18作品存入指定的文件夹里可以使用命名标记替代的说明'),
-          {
-            title: lang.transl('_把r18作品存入指定的文件夹里'),
-          }
-        )
-      })
-
-    // 把文件保存到用户上次选择的位置的说明
-    this.form
-      .querySelector('#showRememberTheLastSaveLocationTip')!
-      .addEventListener('click', () => {
-        msgBox.show(lang.transl('_把文件保存到用户上次选择的位置的说明'), {
-          title: lang.transl('_把文件保存到用户上次选择的位置'),
-        })
-      })
-
-    // 显示复制按钮所复制的内容的提示
-    this.form
-      .querySelector('#showCopyWorkDataTip')!
-      .addEventListener('click', () => {
-        msgBox.show(lang.transl('_对复制的内容的说明'), {
-          title: lang.transl('_复制内容'),
-        })
-      })
-
-    // 显示用户阻止名单的提示
-    this.form
-      .querySelector('#showRemoveBlockedUsersWorkTip')!
-      .addEventListener('click', () => {
-        msgBox.show(lang.transl('_用户阻止名单的说明2'), {
-          title: lang.transl('_用户阻止名单'),
-        })
-      })
-
-    // 显示抓取多少作品的提示
-    const showSetWantWorkTipButton = this.form.querySelector(
-      '.showSetWantWorkTip'
-    ) as HTMLButtonElement
-    showSetWantWorkTipButton.addEventListener('click', () => {
-      msgBox.show(lang.transl('_抓取多少作品的提示'), {
-        title: lang.transl('_抓取多少作品'),
-      })
-    })
-
-    // 显示抓取多少页面的提示
-    const showSetWantPageTipButton = this.form.querySelector(
-      '.showSetWantPageTip'
-    ) as HTMLButtonElement
-    showSetWantPageTipButton.addEventListener('click', () => {
-      msgBox.show(lang.transl('_抓取多少页面的提示'), {
-        title: lang.transl('_抓取多少页面'),
-      })
-    })
-
-    // 显示不下载重复文件的提示
-    const deduplicationHelp = this.form.querySelector(
-      '#deduplicationHelp'
-    ) as HTMLButtonElement
-    deduplicationHelp.addEventListener('click', () => {
-      msgBox.show(lang.transl('_不下载重复文件的提示'), {
-        title: lang.transl('_不下载重复文件'),
-      })
+      if (!el) {
+        console.error(item)
+      }
     })
   }
 

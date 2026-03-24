@@ -175,4 +175,7 @@ export interface SettingsForm extends HTMLFormElement {
   titleExcludeSwitch: HTMLInputElement
   titleExcludeList: HTMLInputElement
   alsoCheckSeriesTitle: HTMLInputElement
+  crawlOriginalWork: HTMLInputElement
+  crawlNonOriginalWork: HTMLInputElement
+  looseMatchOriginal: HTMLInputElement
 }

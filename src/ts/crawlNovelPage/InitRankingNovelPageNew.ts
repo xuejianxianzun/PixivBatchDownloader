@@ -151,6 +151,7 @@ class InitRankingNovelPageNew extends InitPageBase {
 
         const filterOpt: FilterOption = {
           id: novel.id,
+          isOriginal: novel.is_original === '0' ? false : true,
           workType: 3,
           tags: novel.tag_a,
           title: novel.title,

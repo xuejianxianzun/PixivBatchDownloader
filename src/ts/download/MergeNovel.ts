@@ -515,6 +515,7 @@ class MergeNovel {
     for (const item of list) {
       const check = await filter.check({
         id: item.id,
+        isOriginal: item.isOriginal,
         aiType: item.aiType,
         xRestrict: item.xRestrict,
         tags: item.tags,

@@ -145,6 +145,9 @@ class FormSettings {
       'titleIncludeSwitch',
       'titleExcludeSwitch',
       'alsoCheckSeriesTitle',
+      'crawlOriginalWork',
+      'crawlNonOriginalWork',
+      'looseMatchOriginal',
     ],
     text: [
       'firstFewImages',

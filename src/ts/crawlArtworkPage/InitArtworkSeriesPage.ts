@@ -84,6 +84,7 @@ class InitArtworkSeriesPage extends InitPageBase {
       const filterOpt: FilterOption = {
         aiType: work.aiType,
         id: work.id,
+        isOriginal: work.isOriginal,
         tags: work.tags,
         title: work.title,
         bookmarkData: !!work.bookmarkData,

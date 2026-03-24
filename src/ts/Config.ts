@@ -38,6 +38,22 @@ class Config {
   /** 默认的命名规则 */
   static readonly defaultNameRule = 'pixiv/{user}-{user_id}/{id}-{title}'
   static readonly whatIsNewFlagDefault = 'xuejian&saber'
+  /** 如果作品含有这些标签，就认为它是原创作品 */
+  static readonly originalTags = [
+    '原创',
+    '原創',
+    '創作',
+    'オリジナル',
+    'Original',
+    'original',
+    'Creation',
+    'creation',
+    '창작',
+    '오리지널',
+    'Asli',
+    'ออริจินัล',
+    'Оригинал',
+  ]
 }
 
 export { Config }

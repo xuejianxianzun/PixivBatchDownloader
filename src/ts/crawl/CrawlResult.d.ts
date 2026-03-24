@@ -308,6 +308,7 @@ export interface ArtworkCommonData {
   id: string
   title: string
   illustType: 0 | 1 | 2
+  isOriginal: boolean
   xRestrict: 0 | 1 | 2
   restrict: 0 | 1 | 2
   sl: 0 | 2 | 4 | 6
@@ -693,7 +694,8 @@ export interface RankingImageWorkData {
       rating_count: number
       view_count: number
       illust_upload_timestamp: number
-      attr: string
+      /** 作品的一些属性。'original' 说明是原创作品；'violent drug' 说明作品包含暴力或药物元素；也可能是 ''。不知道是否还有其他属性 */
+      attr: 'original' | 'violent drug' | ''
       is_bookmarked: boolean
       bookmarkable: boolean
     },
@@ -789,8 +791,8 @@ export interface RankingNovelItem {
   restrict: '0' | '1'
   /**指示作品是全年龄的还是 R-18 */
   x_restrict: '0' | '1'
-  /**似乎总是 '0' */
-  is_original: '0'
+  /** 是否是原创作品。'0' 是非原创，'1' 是原创 */
+  is_original: '0' | '1'
   /**小说的语言，如 "zh-cn"、"ja" */
   language: string
   /**字数，就是在页面里显示的字数 */

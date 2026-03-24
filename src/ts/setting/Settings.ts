@@ -325,6 +325,9 @@ interface XzSetting {
   titleExcludeSwitch: boolean
   titleExcludeList: string[]
   alsoCheckSeriesTitle: boolean
+  crawlOriginalWork: boolean
+  crawlNonOriginalWork: boolean
+  looseMatchOriginal: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -808,6 +811,9 @@ class Settings {
     titleExcludeSwitch: false,
     titleExcludeList: [],
     alsoCheckSeriesTitle: false,
+    crawlOriginalWork: true,
+    crawlNonOriginalWork: true,
+    looseMatchOriginal: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

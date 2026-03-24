@@ -719,6 +719,7 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .settingForm p.option[data-no='39'] .subOptionWrap,
 .centerWrap .centerWrap_con .settingForm p.option[data-no='43'] .subOptionWrap,
 .centerWrap .centerWrap_con .settingForm p.option[data-no='80'] .subOptionWrap,
+.centerWrap .centerWrap_con .settingForm p.option[data-no='95'] .subOptionWrap,
 .centerWrap .centerWrap_con .settingForm p.option .setUserNameWrap,
 .centerWrap .centerWrap_con .settingForm p.option .DoNotDownloadLastFewImagesWarp {
   flex-basis: 100%;

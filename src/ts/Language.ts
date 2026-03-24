@@ -1,4 +1,4 @@
-import { langText } from './langText'
+import { langText, LangTextKey } from './langText'
 import { EVT } from './EVT'
 
 type LangTypes = 'zh-cn' | 'zh-tw' | 'en' | 'ja' | 'ko' | 'ru'
@@ -22,10 +22,10 @@ class Lang {
     this.bindEvents()
   }
 
-  // 用户在下载器设置里选择的语言
+  /**用户在下载器设置里选择的语言 */
   public type!: LangTypes
 
-  // 用户在 Pixiv 使用的显示语言。不会动态变化
+  /**用户在 Pixiv 使用的显示语言。不会动态变化 */
   public htmlLangType!: LangTypesPixiv
 
   public readonly langTypes = [
@@ -118,7 +118,7 @@ class Lang {
   }
 
   // translate
-  public transl(name: keyof typeof langText, ...args: string[]) {
+  public transl(name: LangTextKey, ...args: string[]) {
     // if(!langText[name]){
     //   console.log(`not found lang ${name}`)
     // }

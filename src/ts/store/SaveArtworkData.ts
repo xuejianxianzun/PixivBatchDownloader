@@ -53,6 +53,7 @@ class SaveArtworkData {
       aiType,
       createDate: body.createDate,
       id: body.id,
+      isOriginal: body.isOriginal,
       workType: body.illustType,
       tags: tagsWithTransl,
       title: body.title,
@@ -104,6 +105,7 @@ class SaveArtworkData {
           aiType,
           id: body.id,
           idNum: idNum,
+          isOriginal: body.isOriginal,
           // 对于插画和漫画的缩略图，当一个作品包含多个图片文件时，需要转换缩略图 url
           thumb:
             body.pageCount > 1
@@ -161,6 +163,7 @@ class SaveArtworkData {
           aiType,
           id: body.id,
           idNum: idNum,
+          isOriginal: body.isOriginal,
           // 动图的 body.urls 里的属性、图片尺寸与插画、漫画一致
           thumb: body.urls.thumb,
           pageCount: pageCount,

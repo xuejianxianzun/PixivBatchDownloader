@@ -495,6 +495,7 @@ One possible reason: You have been banned from Pixiv.`)
           const filterOpt: FilterOption = {
             aiType: workData.aiType,
             id: workData.id,
+            isOriginal: workData.isOriginal,
             tags: workData.tags,
             title: workData.title,
             bookmarkData: workData.bookmarkData,

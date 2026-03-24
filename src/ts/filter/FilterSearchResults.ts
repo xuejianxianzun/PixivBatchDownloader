@@ -84,6 +84,7 @@ class FilterSearchResults {
               option = {
                 aiType: work.aiType,
                 id: work.id,
+                isOriginal: work.isOriginal,
                 workType: work.illustType,
                 workTypeString: Tools.getWorkTypeString(work.illustType),
                 tags: work.tags,
@@ -102,6 +103,7 @@ class FilterSearchResults {
               option = {
                 aiType: work.aiType,
                 id: work.id,
+                isOriginal: work.isOriginal,
                 workType: 3,
                 workTypeString: 'novels',
                 tags: work.tags,

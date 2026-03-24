@@ -370,6 +370,7 @@ class InitSearchNovelPage extends InitPageBase {
         aiType: work.aiType,
         createDate: work.createDate || work.createDateTime,
         id: novelId,
+        isOriginal: novelId ? work.isOriginal : null,
         // 只检查单篇小说的收藏数据。系列小说本身没有收藏数据，所以不进行检查。
         // PS：此时系列小说也有 bookmarkData，但其数字不是每篇小说的收藏数量之和，我不清楚这个数字怎么来的
         bookmarkData: novelId ? work.bookmarkData : undefined,

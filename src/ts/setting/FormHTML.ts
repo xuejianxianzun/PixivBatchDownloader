@@ -1,7 +1,7 @@
 import { Config } from '../Config'
 import { wiki } from './Wiki'
 
-// 设置项编号从 0 开始，现在最大是 95
+// 设置项编号从 0 开始，现在最大是 96
 export const formHtml = `
 <form class="settingForm">
   <div class="tabsContnet">
@@ -13,7 +13,7 @@ export const formHtml = `
       <button class="textButton grayButton mr0" type="button" role="setMin"></button>
       <button class="textButton grayButton" type="button" role="setMax"></button>
       <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
-      <button class="gray1 showSetWantWorkTip textButton" type="button" data-xztext="_提示"></button>
+      <button class="gray1 textButton" id="showSetWantWorkTip" type="button" data-xztext="_帮助"></button>
     </p>
     <p class="option" data-no="1">
       <a href="${wiki.link(1)}" target="_blank" class="settingNameStyle">
@@ -23,7 +23,7 @@ export const formHtml = `
       <button class="textButton grayButton mr0" type="button" role="setMin"></button>
       <button class="textButton grayButton" type="button" role="setMax"></button>
       <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
-      <button class="gray1 showSetWantPageTip textButton" type="button" data-xztext="_提示"></button>
+      <button class="gray1 textButton" id="showSetWantPageTip" type="button" data-xztext="_帮助"></button>
     </p>
     <p class="option" data-no="2">
       <a href="${wiki.link(2)}" target="_blank" class="settingNameStyle">
@@ -69,6 +69,23 @@ export const formHtml = `
       <input type="checkbox" name="UnknownAI" id="UnknownAI" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="UnknownAI" data-xztext="_未知" class="has_tip" data-xztip="_AI未知作品的说明"></label>
+    </p>
+    <p class="option" data-no="96">
+      <a href="${wiki.link(96)}" target="_blank" class="settingNameStyle">
+        <span data-xztext="_原创作品"></span>
+      </a>
+      <input type="checkbox" name="crawlOriginalWork" id="setCrawlOriginalWork" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="setCrawlOriginalWork" data-xztext="_原创"></label>
+      <input type="checkbox" name="crawlNonOriginalWork" id="setCrawlNonOriginalWork" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="setCrawlNonOriginalWork" data-xztext="_非原创"></label>
+
+      <span class="verticalSplit"></span>
+      <input type="checkbox" name="looseMatchOriginal" id="looseMatchOriginal" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="looseMatchOriginal" data-xztext="_宽松匹配"></label>
+      <button class="gray1 textButton" id="showLooseMatchOriginalTip" type="button" data-xztext="_帮助"></button>
     </p>
     <p class="option" data-no="6">
       <a href="${wiki.link(6)}" target="_blank" class="settingNameStyle">
