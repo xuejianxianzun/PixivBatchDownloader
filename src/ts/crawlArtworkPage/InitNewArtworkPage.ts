@@ -137,7 +137,10 @@ class InitNewArtworkPage extends InitPageBase {
       }
     }
 
-    log.log(lang.transl('_新作品进度', this.fetchCount.toString()), 1, false)
+    log.log(
+      lang.transl('_新作品进度', this.fetchCount.toString()),
+      'initNewArtworkPageFetchProgress'
+    )
 
     // 抓取完毕
     if (

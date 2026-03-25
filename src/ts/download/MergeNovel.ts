@@ -115,8 +115,6 @@ class MergeNovel {
       // 如果用户选择的保存格式是 txt，显示提示。因为很多小说阅读器都无法识别 txt 里的章节标记
       log.warning(
         lang.transl('_合并小说时提示用户使用EPUB格式'),
-        1,
-        false,
         'mergeNovelRecommendEPUB'
       )
     }
@@ -559,8 +557,6 @@ class MergeNovel {
       count++
       log.log(
         lang.transl('_获取小说数据进度', `${count} / ${total}`),
-        1,
-        false,
         'getNovelDataProgress' + this.seriesId
       )
 

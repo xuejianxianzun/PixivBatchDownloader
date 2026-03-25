@@ -94,7 +94,9 @@ class BatchFollowUser {
       this.currentUserId = test[1]
     } else {
       const msg = `Get the user's own id failed`
-      log.error(msg, 2)
+      log.error(msg)
+      // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
+      log.log('')
       throw new Error(msg)
     }
 
@@ -136,8 +138,6 @@ class BatchFollowUser {
 
     log.log(
       lang.transl('_当前有x个用户', this.userList.length.toString()),
-      1,
-      false,
       'batchFollowGetUserListProgress'
     )
 
@@ -192,8 +192,6 @@ class BatchFollowUser {
   private logProgress(current: number, total: number, newAdded: number) {
     log.log(
       `${current} / ${total}, ${lang.transl('_新增x个', newAdded.toString())}`,
-      1,
-      false,
       'batchFollowUserProgress'
     )
   }

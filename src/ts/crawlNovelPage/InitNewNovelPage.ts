@@ -126,7 +126,10 @@ class InitNewNovelPage extends InitPageBase {
       }
     }
 
-    log.log(lang.transl('_新作品进度', this.fetchCount.toString()), 1, false)
+    log.log(
+      lang.transl('_新作品进度', this.fetchCount.toString()),
+      'initNewNovelPageFetchProgress'
+    )
 
     // 抓取完毕
     if (

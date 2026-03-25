@@ -149,7 +149,7 @@ class DownloadControl {
           lang.transl('_可能发生了错误请刷新页面重试') +
           '<br>' +
           lang.transl('_下载卡住的提示')
-        log.warning(msg, 1, false, 'mayError')
+        log.warning(msg, 'mayError')
       }, 300000)
     })
 
@@ -179,7 +179,7 @@ class DownloadControl {
 
       // UUID 的情况
       if (msg.data?.uuid) {
-        log.log(lang.transl('_uuid'), 1, false, 'filenameUUID')
+        log.log(lang.transl('_uuid'), 'filenameUUID')
         msgBox.once(this.msgFlag, lang.transl('_uuid'), 'show')
         this.pauseDownload()
       }
@@ -490,7 +490,9 @@ class DownloadControl {
       // 如果正在下载中
       if (states.busy) {
         this.pause = true
-        log.warning('⏸️' + lang.transl('_已暂停'), 2)
+        log.warning('⏸️' + lang.transl('_已暂停'))
+        // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
+        log.log('')
 
         EVT.fire('downloadPause')
       } else {
@@ -507,7 +509,9 @@ class DownloadControl {
     }
 
     this.stop = true
-    log.error('🛑' + lang.transl('_已停止'), 2)
+    log.error('🛑' + lang.transl('_已停止'))
+    // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
+    log.log('')
     this.pause = false
 
     EVT.fire('downloadStop')
@@ -531,7 +535,7 @@ class DownloadControl {
 
     // 显示下载进度
     const text = `${this.downloaded} / ${store.result.length}`
-    log.log('➡️' + text, 1, false, 'downloadProgress')
+    log.log('➡️' + text, 'downloadProgress')
 
     // 设置总下载进度条
     progressBar.setTotalProgress(this.downloaded)
@@ -540,7 +544,10 @@ class DownloadControl {
 
     // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
     if (this.downloaded === store.result.length) {
-      log.success('✅' + lang.transl('_下载完毕'), 2)
+      log.success('✅' + lang.transl('_下载完毕'))
+      // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
+      log.log('')
+
       window.setTimeout(() => {
         // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
         EVT.fire('downloadComplete')

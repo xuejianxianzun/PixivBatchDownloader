@@ -160,7 +160,9 @@ class InitFollowingPage extends InitPageBase {
       this.crawlUserID = test[1]
     } else {
       const msg = `Get the user's own id failed`
-      log.error(msg, 2)
+      log.error(msg)
+      // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
+      log.log('')
       throw new Error(msg)
     }
   }
@@ -221,8 +223,7 @@ class InitFollowingPage extends InitPageBase {
 
     log.log(
       lang.transl('_当前有x个用户', this.userList.length.toString()),
-      1,
-      false
+      'logUserListLength'
     )
 
     this.getUserListNo++
@@ -230,7 +231,10 @@ class InitFollowingPage extends InitPageBase {
   }
 
   private async getUserListComplete() {
-    log.log(lang.transl('_当前有x个用户', this.userList.length.toString()))
+    log.log(
+      lang.transl('_当前有x个用户', this.userList.length.toString()),
+      'logUserListLength'
+    )
 
     if (this.userList.length === 0) {
       return this.getIdListFinished()
@@ -271,8 +275,7 @@ class InitFollowingPage extends InitPageBase {
         '_当前作品个数',
         store.idList.length.toString()
       )}`,
-      1,
-      false
+      'logFollowingUserIdListLength'
     )
 
     if (this.index >= this.userList.length) {

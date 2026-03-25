@@ -141,7 +141,7 @@ class Bookmark {
             restrict: workData.bookmarkData?.private || false,
           })
         }
-        log.log(result.length.toString(), 1, false)
+        log.log(result.length.toString(), 'resutlCountWhenCrawlingBookmark')
 
         offset += onceOffset
         if (data.body.works.length === 0) {
@@ -151,7 +151,7 @@ class Bookmark {
         await Utils.sleep(settings.slowCrawlDealy)
       }
 
-      log.persistentRefresh()
+      log.persistentRefresh('resutlCountWhenCrawlingBookmark')
       resolve(result)
     })
   }
@@ -193,10 +193,10 @@ class Bookmark {
       if (skip > 0) {
         tip = tip + `, ${lang.transl('_跳过x个', skip.toString())}`
       }
-      log.log(tip, 1, false)
+      log.log(tip, 'bookmarkAddProgress')
     }
 
-    log.persistentRefresh()
+    log.persistentRefresh('bookmarkAddProgress')
     const msg = '♥️' + lang.transl('_收藏作品完毕')
     log.success(msg)
     toast.success(msg, {

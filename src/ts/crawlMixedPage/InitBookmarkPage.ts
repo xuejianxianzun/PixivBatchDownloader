@@ -244,7 +244,9 @@ class InitBookmarkPage extends InitPageBase {
     // 此时的 crawlMode 是 normal
     // 这会应用用户设置的抓取页数和过滤条件
     this.readyCrawl()
-    log.log(lang.transl('_导出收藏列表'), 2)
+    log.log(lang.transl('_导出收藏列表'))
+    // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
+    log.log('')
 
     // 绑定事件，在抓取完成后执行导出动作
     if (this.bindExportEvent === false) {
@@ -307,7 +309,9 @@ class InitBookmarkPage extends InitPageBase {
     log.success(tip)
     EVT.fire('closeCenterPanel')
 
-    log.log(lang.transl('_作品数量') + ` ${loadedJSON.length}`, 2)
+    log.log(lang.transl('_作品数量') + ` ${loadedJSON.length}`)
+    // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
+    log.log('')
 
     // 如果要收藏的作品数量较多，则先加载现有的收藏列表，以避免重复添加收藏，浪费时间
     // 如果要收藏的作品数量较少，则会直接进行收藏，而不先加载现有的收藏列表。
@@ -366,7 +370,9 @@ class InitBookmarkPage extends InitPageBase {
         oldList = oldList.concat(novelsPublic, novelsPrivate)
       }
 
-      log.log(lang.transl('_一共有x个', oldList.length.toString()), 2)
+      log.log(lang.transl('_一共有x个', oldList.length.toString()))
+      // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
+      log.log('')
     }
 
     // 开始批量添加收藏
@@ -538,7 +544,10 @@ One possible reason: You have been banned from Pixiv.`)
         this.crawlMode === 'normal'
           ? this.idList.length
           : this.bookmarkDataList.length
-      log.log(lang.transl('_当前作品个数', length.toString()), 1, false)
+      log.log(
+        lang.transl('_当前作品个数', length.toString()),
+        'initBookmarkPageCrawlCount'
+      )
 
       // 继续抓取
       if (states.slowCrawlMode) {

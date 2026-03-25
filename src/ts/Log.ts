@@ -152,26 +152,19 @@ class Log {
   添加一条日志
   @param str 日志文本
   @param level 日志等级。0: normal, 1: success, 2: warning, 3: error
-  @param br 换行标签的数量，默认值为 1
-  @param persistent 是否为持久日志。默认为 true，意思是这条日志的内容不会变化，添加后会持久化显示。false 则说明这条日志的内容会发生变化，所以这条日志的内容可以刷新显示。
-  @param key 当日志需要刷新显示时（即 persistent 为 false），可以为其设置一个特有的名称，这样可以同时存在多个具有不同名称的刷新区域（插槽）。如果不设置名称，则使用默认值 'default'。所有未设置名称的刷新日志会共用 default 区域（插槽）。
+  @param key 当日志需要刷新显示时（即在输出一次之后，依然可以改写里面的内容），可以为其设置一个特有的名称，这样它会具有一个专用的日志区域（插槽）。重复调用这个方法并传入同样的 key，就会刷新这个日志区域里的内容，而不是新建一条日志。
   */
-  private add(
-    str: string,
-    level: number,
-    br: number = 1,
-    persistent: boolean = true,
-    key: string = 'default'
-  ) {
+  private add(str: string, level: number, key: string = '') {
     this.createLogArea()
     let span = document.createElement('span')
-    if (!persistent) {
+    if (key) {
+      // 为需要刷新的日志创建插槽
       if (this.slots[key] === undefined) {
         this.slots[key] = span
       } else {
         span = this.slots[key]
       }
-      // 虽然刷新的日志不计入总数，但如果某个日志区域里的第一条日志就是刷新日志，那么此时必须把 count 加 1
+      // 虽然刷新的日志不计入总数，但如果某个日志区域里的第一条日志就是刷新日志，就必须把 count 加 1
       // 否则会因为 count 为 0 而导致这个日志区域被判断为没有内容，从而不会显示
       if (this.count === 0) {
         this.count++
@@ -191,64 +184,39 @@ class Log {
     }
 
     span.innerHTML = str
-
     span.style.color = this.levelColor[level]
-
-    while (br > 0) {
-      span.appendChild(document.createElement('br'))
-      br--
-    }
+    span.appendChild(document.createElement('br'))
 
     this.logContent.appendChild(span)
     this.toBottom = true // 需要把日志滚动到底部
 
     // 把持久日志保存到记录里
-    if (persistent) {
+    if (key === '') {
       this.record.push({ html: span.outerHTML, level })
     }
   }
 
-  public log(
-    str: string,
-    br: number = 1,
-    persistent: boolean = true,
-    key = 'default'
-  ) {
-    this.add(str, 0, br, persistent, key)
+  public log(str: string, key = '') {
+    this.add(str, 0, key)
   }
 
-  public success(
-    str: string,
-    br: number = 1,
-    persistent: boolean = true,
-    key = 'default'
-  ) {
-    this.add(str, 1, br, persistent, key)
+  public success(str: string, key = '') {
+    this.add(str, 1, key)
   }
 
-  public warning(
-    str: string,
-    br: number = 1,
-    persistent: boolean = true,
-    key = 'default'
-  ) {
-    this.add(str, 2, br, persistent, key)
+  public warning(str: string, key = '') {
+    this.add(str, 2, key)
   }
 
-  public error(
-    str: string,
-    br: number = 1,
-    persistent: boolean = true,
-    key = 'default'
-  ) {
-    this.add(str, 3, br, persistent, key)
+  public error(str: string, key = '') {
+    this.add(str, 3, key)
   }
 
   /**将一条刷新的日志元素持久化 */
   // 例如当某个进度显示到 10/10 的时候，就不会再变化了，此时应该将其持久化
   // 其实就是下载器解除了对它的引用，这样它的内容就不会再变化了
   // 并且下载器会为这个 key 生成一个新的 span 元素待用
-  public persistentRefresh(key: string = 'default') {
+  public persistentRefresh(key: string) {
     this.slots[key] = document.createElement('span')
   }
 
@@ -515,7 +483,7 @@ class Log {
       let num = 0
       while (num < total) {
         await Utils.sleep(100)
-        this.add('saber', 1, 1, true)
+        this.log('saber')
         num++
       }
     }, 1000)

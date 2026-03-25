@@ -204,7 +204,7 @@ class Resume {
     store.URLWhenCrawlStart = meta.URLWhenCrawlStart || ''
 
     // 恢复模式就绪
-    log.success(lang.transl('_已恢复抓取结果'), 1)
+    log.success(lang.transl('_已恢复抓取结果'))
     EVT.fire('resume')
   }
 
@@ -227,7 +227,7 @@ class Resume {
       return
     }
 
-    log.warning(lang.transl('_正在保存抓取结果'))
+    // log.warning(lang.transl('_正在保存抓取结果'))
     this.taskId = Date.now()
 
     this.part = []
@@ -253,7 +253,7 @@ class Resume {
 
     this.IDB.add(this.statesName, statesData)
 
-    log.success(lang.transl('_已保存抓取结果'), 1)
+    log.success(lang.transl('_已保存抓取结果'))
   }
 
   // 存储抓取结果

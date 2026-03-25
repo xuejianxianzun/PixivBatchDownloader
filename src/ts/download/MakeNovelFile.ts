@@ -27,8 +27,6 @@ class MakeNovelFile {
           '_下载小说的封面图片的提示',
           Tools.createWorkLink(id, title, 'novel')
         ),
-        1,
-        false,
         'downloadNovelCover' + id
       )
       await downloadInterval.wait()

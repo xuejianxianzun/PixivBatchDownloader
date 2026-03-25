@@ -290,8 +290,6 @@ class DownloadNovelEmbeddedImage {
         Tools.createWorkLink(id, title, 'novel'),
         `${current} / ${total}`
       ),
-      1,
-      false,
       'downloadNovelImage' + id
     )
   }

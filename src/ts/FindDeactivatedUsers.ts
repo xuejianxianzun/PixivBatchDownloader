@@ -114,7 +114,9 @@ class FindDeactivatedUsers {
         <span style="margin-right: 10px;">${user.id}</span>
         <span style="margin-right: 10px;">${user.name}</span>
         </a>`
-      log.log(html, 2)
+      log.log(html)
+      // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
+      log.log('')
     }
   }
 

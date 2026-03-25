@@ -139,8 +139,6 @@ class InitContestPage extends InitPageBase {
 
     log.log(
       '➡️' + lang.transl('_已抓取x页应募作品', this.page.toString()),
-      1,
-      false,
       'crawlApplicationWorkIdList'
     )
 

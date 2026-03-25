@@ -143,8 +143,7 @@ class InitRankingArtworkPage extends InitPageBase {
 
     log.log(
       '➡️' + lang.transl('_排行榜进度', this.listPageFinished.toString()),
-      1,
-      false
+      'crawlRankingPageProgress'
     )
 
     const contents = data.contents // 取出作品信息列表

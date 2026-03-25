@@ -181,8 +181,7 @@ class InitBookmarkNewPage extends InitPageBase {
 
     log.log(
       '➡️' + lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
-      1,
-      false
+      'crawlBookmarkNewPageProgress'
     )
 
     // 判断任务状态

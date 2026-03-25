@@ -241,9 +241,10 @@ class DeleteWorks {
     const selector = this.worksSelector
     log.success(
       lang.transl('_调整完毕', Utils.getVisibleEl(selector).length.toString()),
-      2,
-      false
+      'deleteWorkSuccess'
     )
+    // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
+    log.log('')
   }
 }
 

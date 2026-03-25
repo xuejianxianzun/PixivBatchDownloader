@@ -272,7 +272,7 @@ abstract class InitPageBase {
         lang.transl('_建议您关闭询问文件保存位置')
       )
 
-      log.success('🚀' + lang.transl('_开始抓取'))
+      log.success('🚀' + lang.transl('_开始抓取等待队列里的作品'))
       toast.show(lang.transl('_开始抓取'), {
         bgColor: Colors.bgBlue,
       })
@@ -359,7 +359,6 @@ abstract class InitPageBase {
       log.warning(lang.transl('_提示使用小号下载'))
     }
 
-    log.persistentRefresh()
     log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
 
     // 导出 ID 列表，并停止抓取
@@ -635,7 +634,9 @@ abstract class InitPageBase {
         store.result.length.toString()
       )
     )
-    log.success('✅' + lang.transl('_抓取完毕'), 2)
+    log.success('✅' + lang.transl('_抓取完毕'))
+    // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
+    log.log('')
 
     // 发出抓取完毕的信号
     EVT.fire('crawlComplete')
@@ -661,8 +662,6 @@ abstract class InitPageBase {
         '_共抓取到n个作品',
         store.resultMeta.length.toString()
       )}`,
-      1,
-      false,
       'getWorksProgress'
     )
   }
@@ -683,7 +682,9 @@ abstract class InitPageBase {
       msg +=
         '<br>' + lang.transl('_抓取结果为零并且启用了自动合并系列小说时的提示')
     }
-    log.error(msg, 2)
+    log.error(msg)
+    // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
+    log.log('')
     msgBox.error(msg)
   }
 

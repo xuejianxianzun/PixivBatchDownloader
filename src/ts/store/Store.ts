@@ -15,7 +15,10 @@ class Store {
 
   public idList: IDData[] = [] // 储存从列表中抓取到的作品的 id
 
-  public waitingIdList: IDData[] = [] // 下载器尚未完成本次下载时，如果有新的下载请求，则添加到这里，下载完成后再处理
+  /** 下载器尚未完成本次下载时，如果有新的下载请求，则添加到等待队列里
+   *
+   * 当下载器的抓取结果为空、以及下载完毕后，会开始抓取等待队列里的 id */
+  public waitingIdList: IDData[] = []
 
   public resultMeta: Result[] = []
   // 储存抓取结果的元数据，每个作品只会有一条数据

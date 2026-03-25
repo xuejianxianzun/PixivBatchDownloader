@@ -431,8 +431,6 @@ class InitSearchNovelPage extends InitPageBase {
           this.listPageFinished.toString(),
           this.needCrawlPageCount.toString()
         ),
-      1,
-      false,
       'crawlNovelSearchPageListPage'
     )
 

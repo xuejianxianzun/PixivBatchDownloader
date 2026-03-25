@@ -131,8 +131,7 @@ class InitRankingNovelPageOld extends InitPageBase {
 
     log.log(
       '➡️' + lang.transl('_排行榜进度', this.listPageFinished.toString()),
-      1,
-      false
+      'crawlRankingNovelPageProgress'
     )
 
     const rankingItem = dom.querySelectorAll(
@@ -183,8 +182,6 @@ class InitRankingNovelPageOld extends InitPageBase {
         log.warning(
           lang.transl('_下载器排除了一些作品原因') +
             lang.transl('_作品的语言不符合你选择的语言', this.selectLang),
-          1,
-          false,
           'excludeNovelByUserSelectLanguage'
         )
       }

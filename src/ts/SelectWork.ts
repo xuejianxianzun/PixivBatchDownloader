@@ -480,10 +480,6 @@ class SelectWork {
       return toast.warning(lang.transl('_没有数据可供使用'))
     }
 
-    if (states.busy) {
-      return toast.warning(lang.transl('_下载器正忙忽略本次操作'))
-    }
-
     this.pauseSelect()
 
     // 优先合并系列小说，因为系列小说不是单个作品，需要单独处理

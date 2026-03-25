@@ -42,7 +42,7 @@ class RemoveWorksTagsInBookmarks {
         // 但是也可能出现其他错误，比如因为请求太多而出现 429 错误。因为 429 错误需要等待几分钟后才能重试，这里偷懒不再重试
       }
       number++
-      log.log(`${number} / ${total}`, 1, false)
+      log.log(`${number} / ${total}`, 'removeWorksTagsProgress')
     }
 
     const msg =

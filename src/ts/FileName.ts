@@ -562,8 +562,6 @@ class FileName {
           settings.fullNameLengthLimit.toString(),
           fullName
         ),
-        1,
-        false,
         'tipFullNameTooLong'
       )
       return result
@@ -618,8 +616,6 @@ class FileName {
 
     log.warning(
       lang.transl('_下载器截断了一些文件名的提示', fullName),
-      1,
-      false,
       'tipTruncatedFullName'
     )
     // 如果处理过后依然超长，那就是极端情况了，暂不处理，因为我也没有更好的方法

@@ -37,7 +37,7 @@ class UnBookmarkWorks {
         // 不过这种作品无法被删除，执行完毕后还是会留在收藏里
       }
       progress++
-      log.log(`${progress} / ${total}`, 1, false)
+      log.log(`${progress} / ${total}`, 'unBookmarkWorksProgress')
     }
 
     const msg = lang.transl('_取消收藏作品') + ' ' + lang.transl('_完成')

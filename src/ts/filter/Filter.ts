@@ -89,8 +89,6 @@ class Filter {
     if (!this.checkDownType(option.workType)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_作品类型'),
-        1,
-        false,
         'excludeWorkByWorkType'
       )
       return false
@@ -99,8 +97,6 @@ class Filter {
     if (!this.checkDownTypeByAge(option.xRestrict)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_年龄限制'),
-        1,
-        false,
         'excludeWorkByAge'
       )
       return false
@@ -109,8 +105,6 @@ class Filter {
     if (!this.checkAIWorkType(option.aiType, option.tags)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_AI作品'),
-        1,
-        false,
         'excludeWorkByAIType'
       )
       return false
@@ -124,8 +118,6 @@ class Filter {
     if (!this.checkPageCount(option.workType, option.pageCount)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_图片数量'),
-        1,
-        false,
         'excludeWorkByPageCount'
       )
       return false
@@ -138,8 +130,6 @@ class Filter {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
           lang.transl('_多图作品的图片数量上限'),
-        1,
-        false,
         'excludeWorkByMultiImageWorkImageLimit'
       )
       return false
@@ -149,8 +139,6 @@ class Filter {
     if (!this.checkDownTypeByBmked(option.bookmarkData)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_收藏状态'),
-        1,
-        false,
         'excludeWorkByAge'
       )
       return false
@@ -160,8 +148,6 @@ class Filter {
     if (!this.checkBMK(option.bookmarkCount, option.createDate)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_收藏数量'),
-        1,
-        false,
         'excludeWorkByBookmarkCount'
       )
       return false
@@ -171,8 +157,6 @@ class Filter {
     if (!this.checkExcludeTag(option.tags)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_不能含有tag'),
-        1,
-        false,
         'excludeWorkByExcludeTag'
       )
       return false
@@ -182,8 +166,6 @@ class Filter {
     if (!this.checkIncludeTag(option.tags)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_必须含有tag'),
-        1,
-        false,
         'excludeWorkByIncludeTag'
       )
       return false
@@ -192,8 +174,6 @@ class Filter {
     if (!this.checkExcludeTitle(option.title)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_标题不能含有'),
-        1,
-        false,
         'excludeWorkByExcludeTitle'
       )
       return false
@@ -203,8 +183,6 @@ class Filter {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
           lang.transl('_系列标题不能含有'),
-        1,
-        false,
         'excludeWorkByExcludeSeriesTitle'
       )
       return false
@@ -213,8 +191,6 @@ class Filter {
     if (!this.checkIncludeTitle(option.title)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_标题必须含有'),
-        1,
-        false,
         'excludeWorkByIncludeTitle'
       )
       return false
@@ -224,8 +200,6 @@ class Filter {
     if (!this.checkWidthHeight(option.width, option.height)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_图片的宽高'),
-        1,
-        false,
         'excludeWorkByWidthHeight'
       )
       return false
@@ -236,8 +210,6 @@ class Filter {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
           lang.transl('_图片的宽高比例'),
-        1,
-        false,
         'excludeWorkByRatio'
       )
       return false
@@ -247,8 +219,6 @@ class Filter {
     if (!this.checkIdRange(option.id)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_id范围'),
-        1,
-        false,
         'excludeWorkByIdRange'
       )
       return false
@@ -259,8 +229,6 @@ class Filter {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
           lang.transl('_你屏蔽了这个用户'),
-        1,
-        false,
         'excludeWorkByMuteUser'
       )
       return false
@@ -270,8 +238,6 @@ class Filter {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
           lang.transl('_你屏蔽了它的标签'),
-        1,
-        false,
         'excludeWorkByMuteTag'
       )
       return false
@@ -281,8 +247,6 @@ class Filter {
     if (!this.checkBlockList(option.userId)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_用户阻止名单'),
-        1,
-        false,
         'excludeWorkByBlockList'
       )
       return false
@@ -293,8 +257,6 @@ class Filter {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
           lang.transl('_针对特定用户屏蔽tag'),
-        1,
-        false,
         'excludeWorkByBlockTagsForSpecificUser'
       )
       return false
@@ -304,8 +266,6 @@ class Filter {
     if (!this.checkPostDate(option.createDate)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_投稿时间'),
-        1,
-        false,
         'excludeWorkByPostDate'
       )
       return false
@@ -315,8 +275,6 @@ class Filter {
     if (!this.checkIdPublishTime(option.id, option.workTypeString)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_投稿时间'),
-        1,
-        false,
         'excludeWorkByPostDate'
       )
       return false
@@ -327,8 +285,6 @@ class Filter {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') +
           lang.transl('_它不是首次登场的作品'),
-        1,
-        false,
         'excludeWorkByDebut'
       )
       return false
@@ -338,8 +294,6 @@ class Filter {
     if (!this.checkFileSize(option.size)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_文件体积限制'),
-        1,
-        false,
         'excludeWorkByFileSize'
       )
       return false
@@ -350,8 +304,6 @@ class Filter {
     if (!(await this.checkBlackWhite(option.mini))) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_图片色彩'),
-        1,
-        false,
         'excludeWorkByBlackWhite'
       )
       return false
@@ -438,6 +390,7 @@ class Filter {
     const tips = []
     !settings.crawlOriginalWork && tips.push(lang.transl('_原创'))
     !settings.crawlNonOriginalWork && tips.push(lang.transl('_非原创'))
+    !settings.looseMatchOriginal && tips.push(lang.transl('_宽松匹配'))
 
     if (tips.length > 0) {
       log.warning(lang.transl('_排除作品类型') + tips.join(', '))
@@ -861,8 +814,6 @@ class Filter {
         log.warning(
           lang.transl('_下载器排除了一些作品原因') +
             lang.transl('_它是原创作品'),
-          1,
-          false,
           'excludeWorkByOriginalType1'
         )
       }
@@ -872,8 +823,6 @@ class Filter {
         log.warning(
           lang.transl('_下载器排除了一些作品原因') +
             lang.transl('_它是非原创作品'),
-          1,
-          false,
           'excludeWorkByOriginalType2'
         )
       }

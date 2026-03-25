@@ -309,7 +309,7 @@ class DownloadRecord {
       log.warning(lang.transl('_数据较多需要花费一些时间'))
     }
 
-    log.log(`${stored}/${total}`, 1, false)
+    log.log(`${stored}/${total}`, 'downloadRecordImportProgress')
 
     console.time('importRecord')
     // 依次处理每个存储库
@@ -334,7 +334,7 @@ class DownloadRecord {
         // console.timeEnd('restoreRecord' + (index + 1))
 
         stored += data.length
-        log.log(`${stored}/${total}`, 1, false)
+        log.log(`${stored}/${total}`, 'downloadRecordImportProgress')
       } catch (error) {
         const errorMsg = (error as any)?.target?.error
         const tip = errorMsg ? errorMsg : error

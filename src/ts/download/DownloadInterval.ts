@@ -47,7 +47,7 @@ class DownloadInterval {
           lang.transl('_下载间隔') +
           `: ${settings.downloadInterval} ` +
           lang.transl('_秒')
-        log.warning(msg, 1, false, 'downloadInterval')
+        log.warning(msg, 'downloadInterval')
       }
     })
   }

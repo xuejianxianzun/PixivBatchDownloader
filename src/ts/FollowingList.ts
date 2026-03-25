@@ -165,8 +165,6 @@ class FollowingList {
         rest === 'show' ? lang.transl('_公开') : lang.transl('_非公开')
       log.log(
         `${type} ${following.length} / ${total}`,
-        1,
-        false,
         `getFollowingList_${rest}`
       )
 
@@ -175,8 +173,6 @@ class FollowingList {
         // 例如 toal 是 3522，实际上获取到的可能是 3483 个，再往后都是空数组了
         log.warning(
           lang.transl('_提示有些用户可能已经注销'),
-          1,
-          false,
           'tipUserMayDeactivated'
         )
         break

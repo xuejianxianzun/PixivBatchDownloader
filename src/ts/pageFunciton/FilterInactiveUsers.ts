@@ -129,7 +129,9 @@ class FilterInactiveUsers {
       this.currentUserId = test[1]
     } else {
       const msg = `Get the user's own id failed`
-      log.error(msg, 2)
+      log.error(msg)
+      // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
+      log.log('')
       throw new Error(msg)
     }
 
@@ -180,8 +182,6 @@ class FilterInactiveUsers {
 
     log.log(
       lang.transl('_当前有x个符合条件的用户', this.total.toString()),
-      1,
-      false,
       'filterInactiveUsersProgress'
     )
 
@@ -194,7 +194,10 @@ class FilterInactiveUsers {
 
   private async getUserListComplete() {
     this.busy = false
-    log.log(lang.transl('_当前有x个符合条件的用户', this.total.toString()))
+    log.log(
+      lang.transl('_当前有x个符合条件的用户', this.total.toString()),
+      'filterInactiveUsersProgress'
+    )
 
     // 在批量关注用户时，抓取结果为 0 并不影响继续执行
     if (this.total === 0) {
