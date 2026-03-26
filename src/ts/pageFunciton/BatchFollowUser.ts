@@ -9,6 +9,7 @@ import { Tools } from '../Tools'
 import { store } from '../store/Store'
 import { token } from '../Token'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
+import { FollowingUserData } from '../crawl/CrawlResult'
 
 class BatchFollowUser {
   private busy = false
@@ -23,6 +24,7 @@ class BatchFollowUser {
   private readonly limit = 100 // 每次请求多少个用户
   private totalNeed = Number.MAX_SAFE_INTEGER
 
+  /** 在任务开始时，保存已关注用户的列表，以避免重复添加已关注的用户 */
   private userList: string[] = []
   private importFollowedUserIDs: string[] = []
 
@@ -51,7 +53,7 @@ class BatchFollowUser {
     this.sendReqNumber = 0
 
     // 显示提示
-    log.log(lang.transl('_批量关注用户'))
+    log.success('🚀' + lang.transl('_批量关注用户'))
     log.log(lang.transl('_正在加载关注用户列表'))
     // 总是慢速抓取
     log.warning(lang.transl('_慢速抓取'))
@@ -164,22 +166,27 @@ class BatchFollowUser {
     return new Promise(async (resolve) => {
       const loadedJSON = (await Utils.loadJSONFile().catch((err) => {
         return msgBox.error(err)
-      })) as string[]
+      })) as string[] | FollowingUserData[]
       if (!loadedJSON) {
         return resolve([])
       }
 
-      // 要求是数组并且为 string[]
-      if (
-        !Array.isArray(loadedJSON) ||
-        loadedJSON.length === 0 ||
-        typeof loadedJSON[0] !== 'string'
-      ) {
+      // 要求是数组
+      if (!Array.isArray(loadedJSON) || loadedJSON.length === 0) {
         toast.error(lang.transl('_格式错误'))
         return resolve([])
       }
 
-      return resolve(loadedJSON)
+      let userIDs: string[] = []
+      // 如果类型是 string[]，说明是以前导出的数据格式，可以直接使用
+      if (typeof loadedJSON[0] === 'string') {
+        userIDs = loadedJSON as string[]
+      } else {
+        // 现在导出的数据格式是 FollowingUserData[]，需要从中提取出 userId 字段
+        userIDs = (loadedJSON as FollowingUserData[]).map((user) => user.userId)
+      }
+
+      return resolve(userIDs)
     })
   }
 
@@ -205,6 +212,7 @@ class BatchFollowUser {
       log.success(taskName)
       log.warning(lang.transl('_慢速执行以避免引起429错误'))
       log.warning(lang.transl('_提示可以重新执行批量关注任务'))
+      log.warning(lang.transl('_提示下载器会跳过已关注的用户'))
 
       let followed = 0
       let number = 0

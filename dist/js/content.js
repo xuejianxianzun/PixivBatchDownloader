@@ -2182,12 +2182,11 @@ class Bookmark {
             // 如果这个作品已经被收藏过，就不会重复收藏它（这里没有检查 tag 列表）
             const find = oldList.find((old) => old.id === data.id && old.type === data.type);
             if (!find) {
-                await this.add(data.id, data.type, data.tags, undefined, undefined, true);
                 // 慢速收藏（添加等待时间）
+                await this.add(data.id, data.type, data.tags, undefined, undefined, true);
             }
             else {
                 skip++;
-                console.log('已收藏');
             }
             added++;
             tip = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品') + ` ${added}/${list.length}`;
@@ -2197,7 +2196,7 @@ class Bookmark {
             _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(tip, 'bookmarkAddProgress');
         }
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.persistentRefresh('bookmarkAddProgress');
-        const msg = '♥️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品完毕');
+        const msg = '✅' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品完毕');
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(msg);
         _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success(msg, {
             position: 'center',
@@ -17296,11 +17295,10 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         }
         const tip = _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_导入收藏列表');
         _Toast__WEBPACK_IMPORTED_MODULE_14__.toast.success(tip);
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(tip);
-        _EVT__WEBPACK_IMPORTED_MODULE_17__.EVT.fire('closeCenterPanel');
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('🚀' + tip);
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_作品数量') + ` ${loadedJSON.length}`);
-        // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_提示会跳过已收藏的作品'));
+        _EVT__WEBPACK_IMPORTED_MODULE_17__.EVT.fire('closeCenterPanel');
         // 如果要收藏的作品数量较多，则先加载现有的收藏列表，以避免重复添加收藏，浪费时间
         // 如果要收藏的作品数量较少，则会直接进行收藏，而不先加载现有的收藏列表。
         // 这是因为当已收藏的作品数量较多的话，加载列表所花费的时间可能就已经超过了添加收藏的时间
@@ -17330,7 +17328,6 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
                 oldList = oldList.concat(novelsPublic, novelsPrivate);
             }
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_一共有x个', oldList.length.toString()));
-            // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
         }
         // 开始批量添加收藏
@@ -30797,12 +30794,12 @@ Additional notes: <br>
         'После загрузки файла загрузчик автоматически делает закладку',
     ],
     _收藏设置: [
-        '下载器的<span class="key">收藏</span>功能 (✩)',
-        '下載器的<span class="key">收藏</span>功能 (✩)',
-        `Downloader' <span class="key">bookmark</span> function (✩)`,
-        'ダウンローダーの<span class="key">ブックマーク</span>機能 (✩)',
-        '다운로더의 <span class="key">북마크</span> 기능 (☆)',
-        'Функция <span class="key">закладки</span> загрузчика (✩)',
+        `下载器的<span class="key">收藏</span>功能 (✩)`,
+        `下載器的<span class="key">收藏</span>功能 (✩)`,
+        `Downloader's <span class="key">bookmark</span> function (✩)`,
+        `ダウンロードツールの<span class="key">ブックマーク</span>機能 (✩)`,
+        `다운로더의 <span class="key">북마크</span> 기능 (✩)`,
+        `Функция <span class="key">закладок</span> загрузчика (✩)`,
     ],
     _收藏设置的说明: [
         `有时你会看到下载器添加的收藏按钮 (✩)，点击这个按钮可以收藏作品。<br>
@@ -33296,6 +33293,14 @@ type может быть "illusts", "novels" или "novelSeries".`,
         '탭이 응답하지 않거나 팔로어를 놓친 경우 탭을 닫았다가 다시 열고 작업을 다시 실행하십시오.',
         'Если вкладка перестает отвечать на запросы или вы пропустили подписчика, закройте вкладку, снова откройте ее и повторите задачу.',
     ],
+    _提示下载器会跳过已关注的用户: [
+        `如果你已经关注了某个用户，下载器会跳过它，以减少不必要的请求。`,
+        `如果你已經關注了某個用戶，下載器會跳過它，以減少不必要的請求。`,
+        `If you have already followed a user, the downloader will skip it to reduce unnecessary requests.`,
+        `すでにユーザーをフォローしている場合、ダウンロードツールはそれをスキップして不要なリクエストを減らします。`,
+        `이미 특정 사용자를 팔로우하고 있다면 다운로더가 해당 사용자를 건너뛰어 불필요한 요청을 줄입니다.`,
+        `Если вы уже подписаны на пользователя, загрузчик пропустит его, чтобы уменьшить количество ненужных запросов.`,
+    ],
     _新增x个: [
         '新增 {} 个',
         '新增 {} 個',
@@ -33627,13 +33632,13 @@ When viewing the preview image, you can use the following shortcut keys:<br>
         '북마크 목록 가져오기(북마크 일괄 추가)',
         'Импортировать список закладок (добавлять закладки пакетно)',
     ],
-    _同步收藏列表的说明: [
-        '你可以导出自己或其他用户的收藏列表，然后批量添加收藏。<br>这可以用来拷贝其他用户的收藏列表。<br>另外，如果你有多个 Pixiv 账号，想要同步它们的收藏列表，可以先导出一个账号的收藏列表，然后使用其他账号导入收藏列表。<br><br>当你处于自己或其他人的书签页面里时，可以在下载器的“更多”分类里找到此功能。',
-        '你可以匯出自己或其他使用者的收藏列表，然後批次新增收藏。<br>這可以用來複製其他使用者的收藏列表。<br>另外，如果你有多個 Pixiv 賬號，想要同步它們的收藏列表，可以先匯出一個賬號的收藏列表，然後使用其他賬號匯入收藏列表。<br><br>當你處於自己或其他人的書籤頁面裡時，可以在下載器的“更多”分類裡找到此功能。',
-        `You can export your own or other users' bookmark lists and then add bookmarks in batches. <br>This can be used to copy another user's bookmark list. <br>In addition, if you have multiple Pixiv accounts and want to synchronize their bookmark lists, you can first export the bookmark list of one account, and then use other accounts to import the bookmark list.<br><br>This feature can be found in the "More" category of the downloader when you are on your own or someone else's bookmark page.`,
-        '自分や他のユーザーのブックマークリストをエクスポートして、一括でブックマークを追加できます。<br>他のユーザーのブックマークリストをコピーすることもできます。<br>また、複数のPixivアカウントを持っていて、ブックマークを同期したい場合にも使用できます。リストの場合、最初に 1 つのアカウントのブックマーク リストをエクスポートし、次に他のアカウントを使用してブックマーク リストをインポートできます。<br><br>この機能は、自分または他の人のブックマーク ページにいるときに、ダウンローダーの「その他」カテゴリにあります。',
-        '자신 또는 다른 사용자의 북마크 목록을 내보낸 후 일괄적으로 북마크를 추가할 수 있습니다.<br>이는 다른 사용자의 북마크 목록을 복사하는 데 사용할 수 있습니다.<br>또한 Pixiv 계정이 여러 개 있고 북마크를 동기화하려는 경우 목록의 경우 먼저 한 계정의 북마크 목록을 내보낸 다음 다른 계정을 사용하여 북마크 목록을 가져올 수 있습니다.<br><br>이 기능은 자신이나 다른 사람의 북마크 페이지에 있을 때 다운로더의 "더 보기" 카테고리에서 찾을 수 있습니다.',
-        'Вы можете экспортировать свои списки закладок или списки закладок других пользователей, а затем добавлять закладки в пакетном режиме. <br>Это можно использовать для копирования списка закладок другого пользователя. <br>Кроме того, если у вас есть несколько учетных записей Pixiv и вы хотите синхронизировать их закладки списки, вы можете сначала экспортировать список закладок одной учетной записи, а затем использовать другие учетные записи для импорта списка закладок.<br><br>Эту функцию можно найти в категории «Дополнительно» загрузчика, когда вы находитесь на своей или чужой странице закладок.',
+    _提示会跳过已收藏的作品: [
+        `如果一个作品已经被收藏，下载器会跳过它，以减少不必要的请求。`,
+        `如果一個作品已經被收藏，下載器會跳過它，以減少不必要的請求。`,
+        `If a work has already been bookmarked, the downloader will skip it to reduce unnecessary requests.`,
+        `作品がすでにブックマークされている場合、ダウンロードツールはそれをスキップして不要なリクエストを減らします。`,
+        `작품이 이미 북마크되어 있다면 다운로더가 해당 작품을 건너뛰어 불필요한 요청을 줄입니다.`,
+        `Если работа уже добавлена в закладки, загрузчик пропустит её, чтобы уменьшить количество ненужных запросов.`,
     ],
     _加载收藏列表: [
         '正在加载你的收藏列表，以避免重复添加收藏',
@@ -36071,6 +36076,7 @@ class BatchFollowUser {
     requestTimes = 0; // 获取用户列表时，记录请求的次数
     limit = 100; // 每次请求多少个用户
     totalNeed = Number.MAX_SAFE_INTEGER;
+    /** 在任务开始时，保存已关注用户的列表，以避免重复添加已关注的用户 */
     userList = [];
     importFollowedUserIDs = [];
     async start() {
@@ -36091,7 +36097,7 @@ class BatchFollowUser {
         this.stopAddFollow = false;
         this.sendReqNumber = 0;
         // 显示提示
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_批量关注用户'));
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_批量关注用户'));
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_正在加载关注用户列表'));
         // 总是慢速抓取
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
@@ -36186,14 +36192,21 @@ class BatchFollowUser {
             if (!loadedJSON) {
                 return resolve([]);
             }
-            // 要求是数组并且为 string[]
-            if (!Array.isArray(loadedJSON) ||
-                loadedJSON.length === 0 ||
-                typeof loadedJSON[0] !== 'string') {
+            // 要求是数组
+            if (!Array.isArray(loadedJSON) || loadedJSON.length === 0) {
                 _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_格式错误'));
                 return resolve([]);
             }
-            return resolve(loadedJSON);
+            let userIDs = [];
+            // 如果类型是 string[]，说明是以前导出的数据格式，可以直接使用
+            if (typeof loadedJSON[0] === 'string') {
+                userIDs = loadedJSON;
+            }
+            else {
+                // 现在导出的数据格式是 FollowingUserData[]，需要从中提取出 userId 字段
+                userIDs = loadedJSON.map((user) => user.userId);
+            }
+            return resolve(userIDs);
         });
     }
     stopAddFollow = false;
@@ -36213,6 +36226,7 @@ class BatchFollowUser {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(taskName);
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速执行以避免引起429错误'));
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示可以重新执行批量关注任务'));
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示下载器会跳过已关注的用户'));
             let followed = 0;
             let number = 0;
             const total = this.importFollowedUserIDs.length;
@@ -37209,9 +37223,9 @@ class ExportFollowingList {
     // csv 的内容更丰富，json 只包含用户 id 列表，所以默认导出 csv 格式
     format = 'csv';
     CSVData = []; // 储存用户列表，包含 id 和用户名
+    JSONData = [];
     // 用户主页的通用链接前缀
     homePrefix = 'https://www.pixiv.net/users/';
-    userList = [];
     start(format) {
         if (this.busy) {
             _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_有同类任务正在执行请等待之前的任务完成'));
@@ -37221,7 +37235,7 @@ class ExportFollowingList {
         this.format = format;
         // 显示提示
         const log1 = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl(format === 'csv' ? '_导出关注列表CSV' : '_导出关注列表JSON');
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log('🚀' + log1);
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success('🚀' + log1);
         const log2 = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取用户列表');
         _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(log2);
         _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.show(log2);
@@ -37312,7 +37326,6 @@ class ExportFollowingList {
             return this.getUserListComplete();
         }
         for (const userData of users) {
-            this.userList.push(userData.userId);
             if (this.format === 'csv') {
                 this.CSVData.push({
                     userId: userData.userId,
@@ -37322,22 +37335,25 @@ class ExportFollowingList {
                     profileImageUrl: userData.profileImageUrl,
                 });
             }
-            if (this.userList.length >= this.totalNeed) {
+            else {
+                this.JSONData.push(userData);
+            }
+            if (this.JSONData.length >= this.totalNeed) {
                 // 抓取到了指定数量的用户
                 return this.getUserListComplete();
             }
         }
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.userList.length.toString()), 'exportFollowingListProgress');
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.JSONData.length.toString()), 'exportFollowingListProgress');
         this.requestTimes++;
         // 获取下一批用户列表
         window.setTimeout(() => {
             this.getUserList();
         }, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.slowCrawlDealy);
     }
-    getUserListComplete() {
+    async getUserListComplete() {
         this.busy = false;
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.userList.length.toString()));
-        if (this.userList.length === 0) {
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个用户', this.JSONData.length.toString()));
+        if (this.JSONData.length === 0) {
             const msg = '✅' +
                 _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_用户数量为0') +
                 ', ' +
@@ -37346,22 +37362,21 @@ class ExportFollowingList {
             _MsgBox__WEBPACK_IMPORTED_MODULE_8__.msgBox.warning(msg);
         }
         else {
+            let msg = '';
             if (this.format === 'csv') {
-                this.exportCSV();
-                const msg = '✅' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出关注列表CSV');
-                _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(msg);
-                _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg);
+                await this.exportCSV();
+                msg = '✅' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出关注列表CSV');
             }
-            if (this.format === 'json') {
-                this.exportJSON();
-                const msg = '✅' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出关注列表JSON');
-                _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(msg);
-                _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg);
+            else {
+                await this.exportJSON();
+                msg = '✅' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出关注列表JSON');
             }
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg);
         }
         this.reset();
     }
-    exportCSV() {
+    async exportCSV() {
         // 添加用户信息
         const data = this.CSVData.map((item) => {
             return Object.values(item);
@@ -37373,14 +37388,37 @@ class ExportFollowingList {
         const csvName = _Tools__WEBPACK_IMPORTED_MODULE_9__.Tools.getPageTitle();
         _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(csvURL, _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(csvName) + '.csv');
     }
-    exportJSON() {
-        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.json2Blob(this.userList);
-        const url = URL.createObjectURL(blob);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(url, `following list-total ${this.userList.length}-from user ${_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLPathField(window.location.pathname, 'users')}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
-        URL.revokeObjectURL(url);
+    async exportJSON() {
+        // 在一次测试里我导出了 4514 个用户，JSON 文件的体积是 25.45 MiB（已格式化），平均每个用户的数据为 5912 B
+        // 当用户数量超过 80000 时，体积才会接近 500 MiB。保守估计这里限制为 50000
+        // 如果超出限制，会产生多个 json 文件，需要全部下载
+        const limit = this.JSONData.length > 50000;
+        let urls = [];
+        if (!limit) {
+            const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.json2Blob(this.JSONData);
+            const url = URL.createObjectURL(blob);
+            urls.push(url);
+        }
+        else {
+            const data = await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.json2BlobSafe(this.JSONData);
+            urls = data.map((item) => item.url);
+        }
+        let part = 1;
+        for (const url of urls) {
+            let partString = '';
+            if (limit) {
+                partString = `part ${part}-`;
+            }
+            // 文件名示例：
+            // following list-total 4514-from user 9460149-[part 1-]2026／3／26 20：58：54
+            const fileName = `following list-total ${this.JSONData.length}-from user ${_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLPathField(window.location.pathname, 'users')}-${partString}${_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`;
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(url, fileName);
+            URL.revokeObjectURL(url);
+            part++;
+        }
     }
     reset() {
-        this.userList = [];
+        this.JSONData = [];
         this.CSVData = [];
         this.requestTimes = 0;
     }

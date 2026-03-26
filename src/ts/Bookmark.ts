@@ -175,6 +175,7 @@ class Bookmark {
         (old) => old.id === data.id && old.type === data.type
       )
       if (!find) {
+        // 慢速收藏（添加等待时间）
         await this.add(
           data.id,
           data.type!,
@@ -183,10 +184,8 @@ class Bookmark {
           undefined,
           true
         )
-        // 慢速收藏（添加等待时间）
       } else {
         skip++
-        console.log('已收藏')
       }
       added++
       tip = lang.transl('_收藏作品') + ` ${added}/${list.length}`
@@ -197,7 +196,7 @@ class Bookmark {
     }
 
     log.persistentRefresh('bookmarkAddProgress')
-    const msg = '♥️' + lang.transl('_收藏作品完毕')
+    const msg = '✅' + lang.transl('_收藏作品完毕')
     log.success(msg)
     toast.success(msg, {
       position: 'center',

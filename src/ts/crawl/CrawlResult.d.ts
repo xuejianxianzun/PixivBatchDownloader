@@ -1458,27 +1458,29 @@ export interface NovelInsertIllusts {
   }
 }
 
+export interface FollowingUserData {
+  userId: string
+  userName: string
+  /** 170px 尺寸的头像 */
+  profileImageUrl: string
+  userComment: string
+  following: boolean
+  followed: boolean
+  isBlocking: boolean
+  isMypixiv: boolean
+  /**实际上我并没有检查这项数据是否完全符合 ArtworkCommonData，不过大致差不多  */
+  illusts: ArtworkCommonData[]
+  /**实际上我并没有检查这项数据是否完全符合 NovelCommonData，不过大致差不多  */
+  novels: NovelCommonData[]
+}
+
 // 获取关注列表时的返回数据
 // 每个用户数据里附带他最新的 4 个作品的数据。这里面的作品分类没有 manga，manga 作品会被放到 illusts 里
 export interface FollowingResponse {
   error: boolean
   message: string
   body: {
-    users: {
-      userId: string
-      userName: string
-      /** 170px 尺寸的头像 */
-      profileImageUrl: string
-      userComment: string
-      following: boolean
-      followed: boolean
-      isBlocking: boolean
-      isMypixiv: boolean
-      /**实际上我并没有检查这项数据是否完全符合 ArtworkCommonData，不过大致差不多  */
-      illusts: ArtworkCommonData[]
-      /**实际上我并没有检查这项数据是否完全符合 NovelCommonData，不过大致差不多  */
-      novels: NovelCommonData[]
-    }[]
+    users: FollowingUserData[]
     total: number
     followUserTags: string[]
     zoneConfig: {

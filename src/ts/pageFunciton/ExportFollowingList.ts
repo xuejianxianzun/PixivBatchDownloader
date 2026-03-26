@@ -5,10 +5,10 @@ import { settings } from '../setting/Settings'
 import { toast } from '../Toast'
 import { Utils } from '../utils/Utils'
 import { createCSV } from '../utils/CreateCSV'
-import { states } from '../store/States'
 import { API } from '../API'
 import { msgBox } from '../MsgBox'
 import { Tools } from '../Tools'
+import { FollowingUserData } from '../crawl/CrawlResult'
 
 interface UserData {
   userId: string
@@ -37,10 +37,10 @@ class ExportFollowingList {
   // csv 的内容更丰富，json 只包含用户 id 列表，所以默认导出 csv 格式
   private format: 'csv' | 'json' = 'csv'
   private CSVData: UserData[] = [] // 储存用户列表，包含 id 和用户名
+  private JSONData: FollowingUserData[] = []
 
   // 用户主页的通用链接前缀
   private readonly homePrefix = 'https://www.pixiv.net/users/'
-  private userList: string[] = []
 
   public start(format: 'csv' | 'json') {
     if (this.busy) {
@@ -55,7 +55,7 @@ class ExportFollowingList {
     const log1 = lang.transl(
       format === 'csv' ? '_导出关注列表CSV' : '_导出关注列表JSON'
     )
-    log.log('🚀' + log1)
+    log.success('🚀' + log1)
     const log2 = lang.transl('_开始抓取用户列表')
     log.log(log2)
     toast.show(log2)
@@ -159,8 +159,6 @@ class ExportFollowingList {
     }
 
     for (const userData of users) {
-      this.userList.push(userData.userId)
-
       if (this.format === 'csv') {
         this.CSVData.push({
           userId: userData.userId,
@@ -169,16 +167,18 @@ class ExportFollowingList {
           userComment: userData.userComment,
           profileImageUrl: userData.profileImageUrl,
         })
+      } else {
+        this.JSONData.push(userData)
       }
 
-      if (this.userList.length >= this.totalNeed) {
+      if (this.JSONData.length >= this.totalNeed) {
         // 抓取到了指定数量的用户
         return this.getUserListComplete()
       }
     }
 
     log.log(
-      lang.transl('_当前有x个用户', this.userList.length.toString()),
+      lang.transl('_当前有x个用户', this.JSONData.length.toString()),
       'exportFollowingListProgress'
     )
 
@@ -189,11 +189,11 @@ class ExportFollowingList {
     }, settings.slowCrawlDealy)
   }
 
-  private getUserListComplete() {
+  private async getUserListComplete() {
     this.busy = false
-    log.log(lang.transl('_当前有x个用户', this.userList.length.toString()))
+    log.log(lang.transl('_当前有x个用户', this.JSONData.length.toString()))
 
-    if (this.userList.length === 0) {
+    if (this.JSONData.length === 0) {
       const msg =
         '✅' +
         lang.transl('_用户数量为0') +
@@ -202,25 +202,23 @@ class ExportFollowingList {
       log.warning(msg)
       msgBox.warning(msg)
     } else {
+      let msg = ''
       if (this.format === 'csv') {
-        this.exportCSV()
-        const msg = '✅' + lang.transl('_导出关注列表CSV')
-        log.success(msg)
-        toast.success(msg)
+        await this.exportCSV()
+        msg = '✅' + lang.transl('_导出关注列表CSV')
+      } else {
+        await this.exportJSON()
+        msg = '✅' + lang.transl('_导出关注列表JSON')
       }
 
-      if (this.format === 'json') {
-        this.exportJSON()
-        const msg = '✅' + lang.transl('_导出关注列表JSON')
-        log.success(msg)
-        toast.success(msg)
-      }
+      log.success(msg)
+      toast.success(msg)
     }
 
     this.reset()
   }
 
-  private exportCSV() {
+  private async exportCSV() {
     // 添加用户信息
     const data: string[][] = this.CSVData.map((item) => {
       return Object.values(item)
@@ -237,23 +235,42 @@ class ExportFollowingList {
     Utils.downloadFile(csvURL, Utils.replaceUnsafeStr(csvName) + '.csv')
   }
 
-  private exportJSON() {
-    const blob = Utils.json2Blob(this.userList)
-    const url = URL.createObjectURL(blob)
-    Utils.downloadFile(
-      url,
-      `following list-total ${
-        this.userList.length
-      }-from user ${Utils.getURLPathField(
+  private async exportJSON() {
+    // 在一次测试里我导出了 4514 个用户，JSON 文件的体积是 25.45 MiB（已格式化），平均每个用户的数据为 5912 B
+    // 当用户数量超过 80000 时，体积才会接近 500 MiB。保守估计这里限制为 50000
+    // 如果超出限制，会产生多个 json 文件，需要全部下载
+    const limit = this.JSONData.length > 50000
+    let urls: string[] = []
+    if (!limit) {
+      const blob = Utils.json2Blob(this.JSONData)
+      const url = URL.createObjectURL(blob)
+      urls.push(url)
+    } else {
+      const data = await Utils.json2BlobSafe(this.JSONData)
+      urls = data.map((item) => item.url)
+    }
+
+    let part = 1
+    for (const url of urls) {
+      let partString = ''
+      if (limit) {
+        partString = `part ${part}-`
+      }
+
+      // 文件名示例：
+      // following list-total 4514-from user 9460149-[part 1-]2026／3／26 20：58：54
+      const fileName = `following list-total ${this.JSONData.length}-from user ${Utils.getURLPathField(
         window.location.pathname,
         'users'
-      )}-${Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`
-    )
-    URL.revokeObjectURL(url)
+      )}-${partString}${Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`
+      Utils.downloadFile(url, fileName)
+      URL.revokeObjectURL(url)
+      part++
+    }
   }
 
   private reset() {
-    this.userList = []
+    this.JSONData = []
     this.CSVData = []
     this.requestTimes = 0
   }

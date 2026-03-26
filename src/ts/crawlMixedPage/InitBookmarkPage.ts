@@ -306,12 +306,11 @@ class InitBookmarkPage extends InitPageBase {
 
     const tip = lang.transl('_导入收藏列表')
     toast.success(tip)
-    log.success(tip)
-    EVT.fire('closeCenterPanel')
-
+    log.success('🚀' + tip)
     log.log(lang.transl('_作品数量') + ` ${loadedJSON.length}`)
-    // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
-    log.log('')
+    log.warning(lang.transl('_提示会跳过已收藏的作品'))
+
+    EVT.fire('closeCenterPanel')
 
     // 如果要收藏的作品数量较多，则先加载现有的收藏列表，以避免重复添加收藏，浪费时间
     // 如果要收藏的作品数量较少，则会直接进行收藏，而不先加载现有的收藏列表。
@@ -371,8 +370,6 @@ class InitBookmarkPage extends InitPageBase {
       }
 
       log.log(lang.transl('_一共有x个', oldList.length.toString()))
-      // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
-      log.log('')
     }
 
     // 开始批量添加收藏
