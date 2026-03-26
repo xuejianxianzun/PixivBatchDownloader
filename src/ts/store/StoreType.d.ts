@@ -7,9 +7,14 @@ export type WorkTypeString =
   | 'novels'
   | 'unknown'
 
+export type IDTypeString = WorkTypeString | 'novelSeries'
+
 export interface IDData {
+  /** 可能是作品的 id，也可能是系列 id，取决于 type 是不是 novelSeries */
   id: string
-  type: WorkTypeString
+  type: IDTypeString
+  /** 作品或系列的标题，目前只有当 id 是系列 id 时，才可能有值。如果 id 是作品 id，则是 '' 或 undefined，因为我没有保存作品的标题 */
+  title?: string
 }
 
 /**添加 result 时的数据，所有属性都是可选的，并且没有 index 属性 */

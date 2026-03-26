@@ -66,6 +66,9 @@ class MergeNovel {
   private readonly CRLF2 = '\n\n'
   private readonly br2 = '<br/><br/>'
 
+  /** 调试用，如果为 true，则只抓取每个系列小说里的第一篇小说，并且会跳过获取设定资料的流程，以节省测试时间 */
+  private quickTestMode = false
+
   // 由于每个系列里都可能含有多个小说和图片，所以下载器可能会发送很多请求。为了避免触发 Pixiv 的警告，下载器在合并时总是会添加间隔时间，以降低发送请求的频率。
 
   /** 抓取时的间隔时间，最低为 2400 ms。这不会触发 429 错误 */
@@ -125,7 +128,7 @@ class MergeNovel {
       EVT.fire('closeCenterPanel')
     }
 
-    log.log(lang.transl('_获取小说列表'))
+    log.log(lang.transl('_获取小说列表'), 'getNovelList')
     // 只在第一个发送网络请求的步骤里使用 try catch 即可
     // 因为最常见的错误是 404, 如果遇到 404, 这一步就可以检查出来，不必向下执行了
     try {
@@ -153,8 +156,8 @@ class MergeNovel {
     await this.getAllNovelData()
 
     // 获取这个系列的设定资料
-    if (settings.saveNovelMeta) {
-      log.log(lang.transl('_获取设定资料'))
+    if (settings.saveNovelMeta && !this.quickTestMode) {
+      log.log(lang.transl('_获取设定资料'), 'getNovelGlossary' + seriesId)
       const data = await getNovelGlossarys.getGlossarys(
         this.seriesId,
         this.crawlInterval
@@ -551,7 +554,13 @@ class MergeNovel {
     const total = this.novelIdList.length
     let count = 0
 
-    for (const id of this.novelIdList) {
+    let idList = this.novelIdList
+    if (this.quickTestMode) {
+      log.warning('quickTestMode: On')
+      idList = [this.novelIdList[0]]
+    }
+
+    for (const id of idList) {
       // 自动合并系列小说时，可能会连续不断的合并多个系列，这些系列可能包含非常多的小说，所以需要添加等待时间，以减小出现 429 错误的概率
       // 另外获取设定资料时也有可能需要发送多个请求，但并不总是需要多次请求，所以获取设定资料时没有添加等待时间
       count++

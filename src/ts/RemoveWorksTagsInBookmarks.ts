@@ -18,7 +18,7 @@ class RemoveWorksTagsInBookmarks {
     states.busy = true
 
     const total = list.length.toString()
-    log.log(lang.transl('_当前作品个数', total))
+    log.log(lang.transl('_当前有x个作品', total))
 
     let number = 0
     for (const item of list) {

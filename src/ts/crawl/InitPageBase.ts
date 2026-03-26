@@ -32,26 +32,32 @@ import { cacheWorkData } from '../store/CacheWorkData'
 import { crawlLatestFewWorks } from './CrawlLatestFewWorks'
 import { autoMergeNovel } from '../download/AutoMergeNovel'
 import { showOneTimeMsg } from '../ShowOneTimeMsg'
+import { MergeNovel } from '../download/MergeNovel'
 
 abstract class InitPageBase {
-  protected crawlNumber = 0 // 要抓取的个数/页数
-
-  protected maxCount = 1000 // 当前页面类型最多有多少个页面/作品
-
-  protected startpageNo = 1 // 列表页开始抓取时的页码，只在 api 需要页码时使用
-
-  protected listPageFinished = 0 // 记录一共抓取了多少个列表页
-
-  protected readonly ajaxThreadsDefault = 3 // 抓取作品数据时的并发请求数量默认值，也是最大值
-
-  protected ajaxThread = this.ajaxThreadsDefault // 抓取时的并发请求数
-
-  protected finishedRequest = 0 // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
-
+  /**要抓取的个数/页数 */
+  protected crawlNumber = 0
+  /**当前页面类型最多有多少个页面/作品 */
+  protected maxCount = 1000
+  /**列表页开始抓取时的页码，只在 api 需要页码时使用 */
+  protected startpageNo = 1
+  /** 记录一共抓取了多少个列表页 */
+  protected listPageFinished = 0
+  /**抓取作品时的并发请求数量默认值，也是最大值 */
+  protected readonly ajaxThreadsDefault = 3
+  /**抓取作品时的并发请求数 */
+  protected ajaxThread = this.ajaxThreadsDefault
+  /**当所有作品都发送了抓取请求之后，开始统计有多少个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了 */
+  protected finishedRequest = 0
+  /** 如果 stopCrawl 标记为 true，则这个标记也会变成 true。通过检查这个标记，可以避免重复执行一些逻辑 */
   protected crawlFinishBecauseStopCrawl = false
+  /** 获取完 idList 之后，保存它的的长度 */
+  protected idListLength = 0
+  /** 抓取过程中，保存合并系列小说的数量。当抓取完成后，如果这个数量等于 idListLength，则说明所有作品都被合并为系列小说 */
+  protected mergedNovelCount = 0
 
-  // 子组件必须调用 init 方法，并且不可以修改 init 方法
-  protected init() {
+  // 该类的实现必须调用 init 方法，并且不可以修改 init 方法
+  protected readonly init = () => {
     this.addCrawlBtns()
     this.addAnyElement()
     this.initAny()
@@ -265,14 +271,12 @@ abstract class InitPageBase {
         return
       }
 
-      EVT.fire('clearLog')
-
       showOneTimeMsg.show(
         'tipCloseAskFileSaveLocationOnce',
         lang.transl('_建议您关闭询问文件保存位置')
       )
 
-      log.success('🚀' + lang.transl('_开始抓取等待队列里的作品'))
+      log.success('🚀' + lang.transl('_开始抓取'))
       toast.show(lang.transl('_开始抓取'), {
         bgColor: Colors.bgBlue,
       })
@@ -334,11 +338,16 @@ abstract class InitPageBase {
     // 但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
     const filteredIDList: IDData[] = []
     for (const idData of store.idList) {
-      const check = await filter.check({
-        id: idData.id,
-        workTypeString: idData.type,
-        workType: Tools.getWorkTypeVague(idData.type),
-      })
+      let check = true
+      // 不检查 novelSeries 类型，所以总是会添加它
+      if (idData.type !== 'novelSeries') {
+        check = await filter.check({
+          id: idData.id,
+          workTypeString: idData.type,
+          workType: Tools.getWorkTypeVague(idData.type),
+        })
+      }
+
       if (check) {
         filteredIDList.push(idData)
       }
@@ -359,7 +368,7 @@ abstract class InitPageBase {
       log.warning(lang.transl('_提示使用小号下载'))
     }
 
-    log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
+    log.log(lang.transl('_当前有x个作品', store.idList.length.toString()))
 
     // 导出 ID 列表，并停止抓取
     if ((settings.exportIDList || states.exportIDList) && Utils.isPixiv()) {
@@ -393,11 +402,15 @@ abstract class InitPageBase {
 
     log.log(lang.transl('_开始获取作品信息'))
 
+    this.idListLength = store.idList.length
+    this.mergedNovelCount = 0
+
+    // 设置抓取线程
     if (
       settings.slowCrawl &&
       store.idList.length > settings.slowCrawlOnWorksNumber
     ) {
-      // 慢速抓取
+      // 慢速抓取时限制为 1
       log.warning(lang.transl('_慢速抓取'))
       states.slowCrawlMode = true
       this.ajaxThread = 1
@@ -407,14 +420,16 @@ abstract class InitPageBase {
       this.ajaxThread = Math.min(this.ajaxThreadsDefault, store.idList.length)
     }
 
-    // 开始抓取作品数据
-
-    // 当快速下载单个作品时，优先从缓存读取
+    // 快速下载单个作品时，优先从缓存读取
     // 其实缓存数据里的某些值可能不是作品的最新值了，但是下载单个作品时，通常距离缓存时没过去多久
     // 所以就使用缓存了
     // 这通常是由 crawlIdList 触发的，比如：
     // 在作品页里快速下载这个作品；预览图片时按快捷键下载；点击缩略图右上角的下载按钮
-    if (states.quickCrawl && store.idList.length === 1) {
+    if (
+      states.quickCrawl &&
+      store.idList.length === 1 &&
+      store.idList[0].type !== 'novelSeries'
+    ) {
       const data = cacheWorkData.get(store.idList[0].id)
       if (data) {
         store.idList = []
@@ -424,7 +439,20 @@ abstract class InitPageBase {
     }
 
     // 如果没有缓存，或者要抓取多个作品，则进行真正的抓取
-    // getWorksData 里不使用缓存的数据，它始终会发送请求
+    this.startGetWorksData()
+  }
+
+  /** 并发调用 getWorksData 方法 */
+  protected startGetWorksData() {
+    // 如果 idList 里有系列小说，就把抓取线程设置为 1, 避免同时合并多个系列小说
+    // 这是因为合并每个系列小说时都需要发送多个请求，如果同时合并多个，容易触发 429 限制
+    if (store.idList.some((idData) => idData.type === 'novelSeries')) {
+      this.ajaxThread = 1
+      log.warning(lang.transl('_由于有系列小说所以抓取线程被限制为1'))
+    }
+    log.log(lang.transl('_抓取线程为x', this.ajaxThread.toString()))
+
+    // 开始并发抓取
     for (let i = 0; i < this.ajaxThread; i++) {
       window.setTimeout(() => {
         store.idList.length > 0 ? this.getWorksData() : this.afterGetWorksData()
@@ -460,13 +488,15 @@ abstract class InitPageBase {
     // 3. 区分图像作品和小说。
     // 注意：在某些情况下，下载器只能确定一个作品是图像还是小说，但不能区分它具体是图像里的哪一种类型（插画、漫画、动图）
     // 所以这里不能检查具体的图像类型，只能检查是图像还是小说
-    const check = await filter.check({
-      id,
-      workTypeString: idData.type,
-      workType: Tools.getWorkTypeVague(idData.type),
-    })
-    if (!check) {
-      return this.afterGetWorksData()
+    if (idData.type !== 'novelSeries') {
+      const check = await filter.check({
+        id,
+        workTypeString: idData.type,
+        workType: Tools.getWorkTypeVague(idData.type),
+      })
+      if (!check) {
+        return this.afterGetWorksData()
+      }
     }
 
     try {
@@ -486,6 +516,7 @@ abstract class InitPageBase {
         const canMerge = seriesId && settings.autoMergeNovel
         if (canMerge) {
           const seriseTitle = data.body.seriesNavData?.title
+          this.mergedNovelCount++
           await autoMergeNovel.merge(seriesId, seriseTitle)
         }
         // 如果这个小说不会被合并，或者即使合并也不跳过它，则保存到抓取结果里
@@ -493,6 +524,11 @@ abstract class InitPageBase {
           await saveNovelData.save(data)
         }
         this.afterGetWorksData(data)
+      } else if (idData.type === 'novelSeries') {
+        // 合并系列小说
+        this.mergedNovelCount++
+        await new MergeNovel().merge(id, idData.title, true)
+        this.afterGetWorksData()
       } else {
         // 获取图像作品时，不使用缓存的数据，因为目前在一次抓取里不会重复请求同一个图像作品
         const data = await API.getArtworkData(id, unlisted)
@@ -545,14 +581,16 @@ abstract class InitPageBase {
     // 这样可以加快抓取速度
     if (store.idList.length > 0) {
       const nextIDData = store.idList[0]
-      const check = await filter.check({
-        id: nextIDData.id,
-        workTypeString: nextIDData.type,
-        workType: Tools.getWorkTypeVague(nextIDData.type),
-      })
-      if (!check) {
-        store.idList.shift()
-        return this.getWorksData()
+      if (nextIDData.type !== 'novelSeries') {
+        const check = await filter.check({
+          id: nextIDData.id,
+          workTypeString: nextIDData.type,
+          workType: Tools.getWorkTypeVague(nextIDData.type),
+        })
+        if (!check) {
+          store.idList.shift()
+          return this.getWorksData()
+        }
       }
     }
 
@@ -598,6 +636,7 @@ abstract class InitPageBase {
     if (states.stopCrawl) {
       this.crawlFinishBecauseStopCrawl = true
     }
+
     if (store.result.length === 0) {
       return this.noResult()
     }
@@ -635,7 +674,6 @@ abstract class InitPageBase {
       )
     )
     log.success('✅' + lang.transl('_抓取完毕'))
-    // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
     log.log('')
 
     // 发出抓取完毕的信号
@@ -666,24 +704,29 @@ abstract class InitPageBase {
     )
   }
 
-  // 抓取结果为 0 时输出提示
+  /** 抓取结果为 0 时显示提示 */
   protected noResult() {
-    // 先触发 crawlComplete，后触发 crawlEmpty。这样便于其他组件处理 crawlEmpty 这个例外情况
+    // 先触发 crawlComplete，后触发 crawlEmpty。这样便于其他模块处理 crawlEmpty 这个例外情况
     // 如果触发顺序反过来，那么最后执行的都是 crawlComplete，可能会覆盖对 crawlEmpty 的处理
     EVT.fire('crawlComplete')
     EVT.fire('crawlEmpty')
 
-    let msg = lang.transl('_抓取结果为零')
-    if (settings.autoMergeNovel && settings.skipNovelsInSeriesWhenAutoMerge) {
-      // 当用户启用了自动合并系列小说，并且处于系列小说页面里时，不需要显示提示，因为所有小说都被合并了
-      if (pageType.type === pageType.list.NovelSeries) {
-        return
-      }
-      msg +=
-        '<br>' + lang.transl('_抓取结果为零并且启用了自动合并系列小说时的提示')
+    // 如果所有 id 都产生了合并的小说，抓取结果就会是 0。此时显示抓取完毕的提示
+    // 注意：这个条件需要判断 mergedNovelCount > 0，否则因为作品不符合过滤条件导致抓取结果为 0 时也符合这个判断条件
+    if (
+      this.mergedNovelCount > 0 &&
+      this.mergedNovelCount === this.idListLength
+    ) {
+      log.warning(
+        lang.transl('_抓取结果为零并且所有作品都产生了合并系列小说时的提示')
+      )
+      log.success('✅' + lang.transl('_抓取完毕'))
+      log.log('')
+      return
     }
+
+    const msg = lang.transl('_抓取结果为零请检查筛选条件')
     log.error(msg)
-    // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
     log.log('')
     msgBox.error(msg)
   }

@@ -22,7 +22,6 @@ import { settings } from '../setting/Settings'
 import { pageType } from '../PageType'
 import '../filter/FilterSearchResults'
 import { NovelSearchDataItem } from '../crawl/CrawlResult'
-import { MergeNovel } from '../download/MergeNovel'
 
 // 用于测试抓取的 URL：
 // https://www.pixiv.net/tags/%E5%8E%9F%E7%A5%9E/novels?order=date&mode=r18&scd=2025-02-10&ecd=2026-02-10&wlt=20000&wgt=79999&ai_type=1
@@ -180,7 +179,7 @@ class InitSearchNovelPage extends InitPageBase {
     this.initFetchURL()
 
     if (this.option.gs === '1') {
-      log.warning(lang.transl('_提示优先下载系列小说'))
+      log.warning(lang.transl('_启用了整合相同系列小说时的提示'))
     }
 
     // 计算应该抓取多少页
@@ -385,15 +384,19 @@ class InitSearchNovelPage extends InitPageBase {
       }
 
       if (await filter.check(filterOpt)) {
-        // 过滤通过后，如果这份数据是单篇小说，则保存它的 id
+        // 如果这份数据是单篇小说
         if (novelId) {
           store.idList.push({
             id: novelId,
             type: 'novels',
           })
         } else {
-          // 如果是系列小说，则合并它
-          await new MergeNovel().merge(work.id, work.title, true)
+          // 如果是系列小说
+          store.idList.push({
+            id: work.id,
+            type: 'novelSeries',
+            title: work.title,
+          })
         }
       }
     }

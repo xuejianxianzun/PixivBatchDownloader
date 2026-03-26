@@ -6016,7 +6016,9 @@ class Log {
     添加一条日志
     @param str 日志文本
     @param level 日志等级。0: normal, 1: success, 2: warning, 3: error
-    @param key 当日志需要刷新显示时（即在输出一次之后，依然可以改写里面的内容），可以为其设置一个特有的名称，这样它会具有一个专用的日志区域（插槽）。重复调用这个方法并传入同样的 key，就会刷新这个日志区域里的内容，而不是新建一条日志。
+    @param key 每个 key 对应一条专用的日志插槽。重复调用这个方法并传入同样的 key，就会刷新这个日志区域里的内容，而不是新建一条日志。
+    
+    需要设置 key 的情况：1. 显示进度，每当进度更新时，更新对应插槽里的内容。 2. 避免一些日志因为多次输出而产生多条相同内容。使用相同的 key 的日志始终只有一条，不会输出多条日志。
     */
     add(str, level, key = '') {
         this.createLogArea();
@@ -6069,10 +6071,9 @@ class Log {
     error(str, key = '') {
         this.add(str, 3, key);
     }
-    /**将一条刷新的日志元素持久化 */
-    // 例如当某个进度显示到 10/10 的时候，就不会再变化了，此时应该将其持久化
-    // 其实就是下载器解除了对它的引用，这样它的内容就不会再变化了
-    // 并且下载器会为这个 key 生成一个新的 span 元素待用
+    /**把特定日志插槽里的日志持久化显示。当以后再次输出相同 key 的日志时，会生成一个新的 span 元素使用；旧的日志插槽不再使用，所以内容会保持不变 */
+    // 常见的使用场景：当某个进度完成之后（例如显示到 10/10）就不会再变化了，此时可以将其持久化，这样下次从 0 输出进度时，会使用新的日志插槽，不会影响之前已完成了进度的日志
+    // 但也不是每个进度完成后都需要调用此方法。如果日志的 key 具有唯一性（例如携带了作品 id），就没有必要调用此方法。只有当 key 不具有唯一性，或者考虑到用户可能会重复抓取同一个作品时（此时即使携带了 id，也依然会重复输出日志），才有必要调用此方法。
     persistentRefresh(key) {
         this.slots[key] = document.createElement('span');
     }
@@ -8646,7 +8647,7 @@ class RemoveWorksTagsInBookmarks {
         }
         _store_States__WEBPACK_IMPORTED_MODULE_3__.states.busy = true;
         const total = list.length.toString();
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前作品个数', total));
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个作品', total));
         let number = 0;
         for (const item of list) {
             try {
@@ -8858,10 +8859,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Log */ "./src/ts/Log.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-
-
 
 
 
@@ -8946,7 +8943,8 @@ class SelectWork {
             this.clickThumbnail(el, id, ev, 'illusts');
         });
         _NovelThumbnail__WEBPACK_IMPORTED_MODULE_9__.novelThumbnail.onClick((el, id, ev, isSeries) => {
-            this.clickThumbnail(el, id, ev, 'novels', isSeries);
+            const type = isSeries ? 'novelSeries' : 'novels';
+            this.clickThumbnail(el, id, ev, type);
         });
         document.body.addEventListener(_Config__WEBPACK_IMPORTED_MODULE_12__.Config.mobile ? 'touchend' : 'click', (ev) => {
             this.clickElement(ev.target, ev);
@@ -9095,14 +9093,14 @@ class SelectWork {
             _Language__WEBPACK_IMPORTED_MODULE_2__.lang.updateText(this.crawlTextSpan, '_抓取选择的作品');
         }
     }
-    addId(el, id, type, isSeries = false) {
+    addId(el, id, type) {
         const index = this.idList.findIndex((item) => {
             return item.id === id && item.type === type;
         });
         if (index === -1) {
             // 如果是系列 id，则尝试从 A 标签里获取系列标题
             let seriesTitle = '';
-            if (isSeries) {
+            if (type === 'novelSeries') {
                 const aList = el.querySelectorAll(`a[href*="${id}"]`);
                 for (const a of aList) {
                     if (a.textContent) {
@@ -9115,7 +9113,6 @@ class SelectWork {
             this.idList.push({
                 id,
                 type,
-                isSeries,
                 title: seriesTitle,
             });
             this.crawled = false;
@@ -9128,7 +9125,7 @@ class SelectWork {
         }
         this.updateCrawlBtn();
     }
-    clickThumbnail(el, id, ev, type, isSeries = false) {
+    clickThumbnail(el, id, ev, type) {
         if (!this.canSelect()) {
             return;
         }
@@ -9148,7 +9145,7 @@ class SelectWork {
         // 阻止默认事件，否则会进入作品页面，导致无法在当前页面继续选择
         ev.preventDefault();
         ev.stopPropagation();
-        this.addId(el, id, type, isSeries);
+        this.addId(el, id, type);
     }
     clickElement(el, ev) {
         if (!this.canSelect()) {
@@ -9178,7 +9175,7 @@ class SelectWork {
         if (seriesId) {
             ev.preventDefault();
             ev.stopPropagation();
-            this.addId(el.parentElement, seriesId, 'novels', true);
+            this.addId(el.parentElement, seriesId, 'novelSeries');
             return;
         }
     }
@@ -9224,27 +9221,9 @@ class SelectWork {
             return _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_没有数据可供使用'));
         }
         this.pauseSelect();
-        // 优先合并系列小说，因为系列小说不是单个作品，需要单独处理
-        const novelSeries = this.idList.filter((item) => item.type === 'novels' && item.isSeries);
-        if (novelSeries.length > 0) {
-            _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_合并系列小说'), {
-                bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
-            });
-            _Log__WEBPACK_IMPORTED_MODULE_13__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示选择的作品里有一些系列小说'));
-            _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('closeCenterPanel');
-            this.crawled = false;
-            for (const series of novelSeries) {
-                await new _download_MergeNovel__WEBPACK_IMPORTED_MODULE_14__.MergeNovel().merge(series.id, series.title, true);
-            }
-            this.crawled = true;
-        }
-        // 然后抓取作品
-        const works = this.idList.filter((item) => item.isSeries !== true);
-        if (works.length > 0) {
-            _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('crawlIdList', works);
-            this.sendCrawl = true;
-            this.crawled = false;
-        }
+        _EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.fire('crawlIdList', this.idList);
+        this.sendCrawl = true;
+        this.crawled = false;
     }
     // 给这个作品添加标记
     addSelectedFlag(wrap, id) {
@@ -12159,7 +12138,7 @@ class UnBookmarkWorks {
         }
         _store_States__WEBPACK_IMPORTED_MODULE_5__.states.busy = true;
         const total = list.length;
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前作品个数', total.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前有x个作品', total.toString()));
         // 当操作的作品数量大于一页（48 个作品）时，使用慢速抓取
         const slowMode = total > 48;
         let progress = 0;
@@ -12943,12 +12922,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _ButtonsConfig__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ButtonsConfig */ "./src/ts/buttonsOnThumb/ButtonsConfig.ts");
-/* harmony import */ var _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../download/AutoMergeNovel */ "./src/ts/download/AutoMergeNovel.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
-
-
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 
 
 
@@ -13054,26 +13029,19 @@ class ButtonsOnNovelThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_5_
         }
         else {
             // 查找系列 id
-            const seriesId = _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.findSeriesIdFromElement(this.workEL, 'novels');
+            const seriesId = _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.findSeriesIdFromElement(this.workEL, 'novels');
             if (seriesId) {
-                // 对于系列小说，自动合并并下载
-                this.currentId = seriesId;
-                if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy) {
-                    _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下载器正忙忽略本次操作'));
-                    return;
-                }
-                _store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy = true;
-                await _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_6__.autoMergeNovel.merge(seriesId, '', true);
-                _store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy = false;
-                // 触发 crawlEmpty 事件，是为了让可能存在的排队中的任务（store.waitingIdList）可以开始执行
-                window.setTimeout(() => {
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlEmpty');
-                }, 0);
+                // 自动合并系列小说
+                const idData = {
+                    type: 'novelSeries',
+                    id: seriesId,
+                };
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
                 return;
             }
         }
         // 如果找不到小说 id，也找不到系列 id，则不下载
-        _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_没有找到可下载的作品'));
+        _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_没有找到可下载的作品'));
     }
     showAllBtn() {
         if (this.doNotShowBtn) {
@@ -13357,6 +13325,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
 /* harmony import */ var _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ../download/AutoMergeNovel */ "./src/ts/download/AutoMergeNovel.ts");
 /* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ../download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
 // 初始化所有页面抓取流程的基类
 
 
@@ -13389,17 +13358,30 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
 class InitPageBase {
-    crawlNumber = 0; // 要抓取的个数/页数
-    maxCount = 1000; // 当前页面类型最多有多少个页面/作品
-    startpageNo = 1; // 列表页开始抓取时的页码，只在 api 需要页码时使用
-    listPageFinished = 0; // 记录一共抓取了多少个列表页
-    ajaxThreadsDefault = 3; // 抓取作品数据时的并发请求数量默认值，也是最大值
-    ajaxThread = this.ajaxThreadsDefault; // 抓取时的并发请求数
-    finishedRequest = 0; // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
+    /**要抓取的个数/页数 */
+    crawlNumber = 0;
+    /**当前页面类型最多有多少个页面/作品 */
+    maxCount = 1000;
+    /**列表页开始抓取时的页码，只在 api 需要页码时使用 */
+    startpageNo = 1;
+    /** 记录一共抓取了多少个列表页 */
+    listPageFinished = 0;
+    /**抓取作品时的并发请求数量默认值，也是最大值 */
+    ajaxThreadsDefault = 3;
+    /**抓取作品时的并发请求数 */
+    ajaxThread = this.ajaxThreadsDefault;
+    /**当所有作品都发送了抓取请求之后，开始统计有多少个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了 */
+    finishedRequest = 0;
+    /** 如果 stopCrawl 标记为 true，则这个标记也会变成 true。通过检查这个标记，可以避免重复执行一些逻辑 */
     crawlFinishBecauseStopCrawl = false;
-    // 子组件必须调用 init 方法，并且不可以修改 init 方法
-    init() {
+    /** 获取完 idList 之后，保存它的的长度 */
+    idListLength = 0;
+    /** 抓取过程中，保存合并系列小说的数量。当抓取完成后，如果这个数量等于 idListLength，则说明所有作品都被合并为系列小说 */
+    mergedNovelCount = 0;
+    // 该类的实现必须调用 init 方法，并且不可以修改 init 方法
+    init = () => {
         this.addCrawlBtns();
         this.addAnyElement();
         this.initAny();
@@ -13441,7 +13423,7 @@ class InitPageBase {
             // 如果某个方法做不到这一点, 就不要在这里调用。
             // 基于此，在这里修改 this 上的属性是不合适的，因为每个新实例都会复制这个虚拟类上的属性，它们是独立的
         });
-    }
+    };
     // 添加抓取区域的默认按钮，可以被子类覆写
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_开始抓取', '_默认下载多页', 'startCrawling').addEventListener('click', () => {
@@ -13560,9 +13542,8 @@ class InitPageBase {
             if (!this.confirmRecrawl()) {
                 return;
             }
-            _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
             _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'));
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取等待队列里的作品'));
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
             _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
                 bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
             });
@@ -13609,11 +13590,15 @@ class InitPageBase {
         // 但不能区分它具体是图像里的哪一种类型（插画、漫画、动图），所以这里不能检查具体的图像类型，只能检查是图像还是小说
         const filteredIDList = [];
         for (const idData of _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList) {
-            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
-                id: idData.id,
-                workTypeString: idData.type,
-                workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
-            });
+            let check = true;
+            // 不检查 novelSeries 类型，所以总是会添加它
+            if (idData.type !== 'novelSeries') {
+                check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
+                    id: idData.id,
+                    workTypeString: idData.type,
+                    workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
+                });
+            }
             if (check) {
                 filteredIDList.push(idData);
             }
@@ -13630,7 +13615,7 @@ class InitPageBase {
         if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 6000) {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_提示使用小号下载'));
         }
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前作品个数', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length.toString()));
         // 导出 ID 列表，并停止抓取
         if ((_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.exportIDList || _store_States__WEBPACK_IMPORTED_MODULE_9__.states.exportIDList) && _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.isPixiv()) {
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy = false;
@@ -13650,9 +13635,12 @@ class InitPageBase {
         // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
         // return states.busy = false
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始获取作品信息'));
+        this.idListLength = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length;
+        this.mergedNovelCount = 0;
+        // 设置抓取线程
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawl &&
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlOnWorksNumber) {
-            // 慢速抓取
+            // 慢速抓取时限制为 1
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_慢速抓取'));
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = true;
             this.ajaxThread = 1;
@@ -13662,13 +13650,14 @@ class InitPageBase {
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = false;
             this.ajaxThread = Math.min(this.ajaxThreadsDefault, _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length);
         }
-        // 开始抓取作品数据
-        // 当快速下载单个作品时，优先从缓存读取
+        // 快速下载单个作品时，优先从缓存读取
         // 其实缓存数据里的某些值可能不是作品的最新值了，但是下载单个作品时，通常距离缓存时没过去多久
         // 所以就使用缓存了
         // 这通常是由 crawlIdList 触发的，比如：
         // 在作品页里快速下载这个作品；预览图片时按快捷键下载；点击缩略图右上角的下载按钮
-        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.quickCrawl && _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length === 1) {
+        if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.quickCrawl &&
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length === 1 &&
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].type !== 'novelSeries') {
             const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id);
             if (data) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = [];
@@ -13677,7 +13666,18 @@ class InitPageBase {
             }
         }
         // 如果没有缓存，或者要抓取多个作品，则进行真正的抓取
-        // getWorksData 里不使用缓存的数据，它始终会发送请求
+        this.startGetWorksData();
+    }
+    /** 并发调用 getWorksData 方法 */
+    startGetWorksData() {
+        // 如果 idList 里有系列小说，就把抓取线程设置为 1, 避免同时合并多个系列小说
+        // 这是因为合并每个系列小说时都需要发送多个请求，如果同时合并多个，容易触发 429 限制
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.some((idData) => idData.type === 'novelSeries')) {
+            this.ajaxThread = 1;
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_由于有系列小说所以抓取线程被限制为1'));
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取线程为x', this.ajaxThread.toString()));
+        // 开始并发抓取
         for (let i = 0; i < this.ajaxThread; i++) {
             window.setTimeout(() => {
                 _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0 ? this.getWorksData() : this.afterGetWorksData();
@@ -13708,13 +13708,15 @@ class InitPageBase {
         // 3. 区分图像作品和小说。
         // 注意：在某些情况下，下载器只能确定一个作品是图像还是小说，但不能区分它具体是图像里的哪一种类型（插画、漫画、动图）
         // 所以这里不能检查具体的图像类型，只能检查是图像还是小说
-        const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
-            id,
-            workTypeString: idData.type,
-            workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
-        });
-        if (!check) {
-            return this.afterGetWorksData();
+        if (idData.type !== 'novelSeries') {
+            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
+                id,
+                workTypeString: idData.type,
+                workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
+            });
+            if (!check) {
+                return this.afterGetWorksData();
+            }
         }
         try {
             const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.Unlisted;
@@ -13733,6 +13735,7 @@ class InitPageBase {
                 const canMerge = seriesId && _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.autoMergeNovel;
                 if (canMerge) {
                     const seriseTitle = data.body.seriesNavData?.title;
+                    this.mergedNovelCount++;
                     await _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_29__.autoMergeNovel.merge(seriesId, seriseTitle);
                 }
                 // 如果这个小说不会被合并，或者即使合并也不跳过它，则保存到抓取结果里
@@ -13740,6 +13743,12 @@ class InitPageBase {
                     await _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_11__.saveNovelData.save(data);
                 }
                 this.afterGetWorksData(data);
+            }
+            else if (idData.type === 'novelSeries') {
+                // 合并系列小说
+                this.mergedNovelCount++;
+                await new _download_MergeNovel__WEBPACK_IMPORTED_MODULE_31__.MergeNovel().merge(id, idData.title, true);
+                this.afterGetWorksData();
             }
             else {
                 // 获取图像作品时，不使用缓存的数据，因为目前在一次抓取里不会重复请求同一个图像作品
@@ -13788,14 +13797,16 @@ class InitPageBase {
         // 这样可以加快抓取速度
         if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0) {
             const nextIDData = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0];
-            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
-                id: nextIDData.id,
-                workTypeString: nextIDData.type,
-                workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(nextIDData.type),
-            });
-            if (!check) {
-                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
-                return this.getWorksData();
+            if (nextIDData.type !== 'novelSeries') {
+                const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
+                    id: nextIDData.id,
+                    workTypeString: nextIDData.type,
+                    workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(nextIDData.type),
+                });
+                if (!check) {
+                    _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
+                    return this.getWorksData();
+                }
             }
         }
         // 如果存在下一个作品，则继续抓取
@@ -13866,7 +13877,6 @@ class InitPageBase {
         }
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_共抓取到n个作品产生了n个抓取结果', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.resultMeta.length.toString(), _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length.toString()));
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('✅' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取完毕'));
-        // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
         // 发出抓取完毕的信号
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlComplete');
@@ -13885,23 +13895,23 @@ class InitPageBase {
     logResultNumber() {
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(`➡️${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_待处理')} ${_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length}, ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_共抓取到n个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.resultMeta.length.toString())}`, 'getWorksProgress');
     }
-    // 抓取结果为 0 时输出提示
+    /** 抓取结果为 0 时显示提示 */
     noResult() {
-        // 先触发 crawlComplete，后触发 crawlEmpty。这样便于其他组件处理 crawlEmpty 这个例外情况
+        // 先触发 crawlComplete，后触发 crawlEmpty。这样便于其他模块处理 crawlEmpty 这个例外情况
         // 如果触发顺序反过来，那么最后执行的都是 crawlComplete，可能会覆盖对 crawlEmpty 的处理
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlComplete');
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('crawlEmpty');
-        let msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取结果为零');
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.autoMergeNovel && _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.skipNovelsInSeriesWhenAutoMerge) {
-            // 当用户启用了自动合并系列小说，并且处于系列小说页面里时，不需要显示提示，因为所有小说都被合并了
-            if (_PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.NovelSeries) {
-                return;
-            }
-            msg +=
-                '<br>' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取结果为零并且启用了自动合并系列小说时的提示');
+        // 如果所有 id 都产生了合并的小说，抓取结果就会是 0。此时显示抓取完毕的提示
+        // 注意：这个条件需要判断 mergedNovelCount > 0，否则因为作品不符合过滤条件导致抓取结果为 0 时也符合这个判断条件
+        if (this.mergedNovelCount > 0 &&
+            this.mergedNovelCount === this.idListLength) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取结果为零并且所有作品都产生了合并系列小说时的提示'));
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('✅' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取完毕'));
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
+            return;
         }
+        const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取结果为零请检查筛选条件');
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg);
-        // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
         _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
     }
@@ -17460,7 +17470,7 @@ One possible reason: You have been banned from Pixiv.`);
             const length = this.crawlMode === 'normal'
                 ? this.idList.length
                 : this.bookmarkDataList.length;
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_当前作品个数', length.toString()), 'initBookmarkPageCrawlCount');
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_当前有x个作品', length.toString()), 'initBookmarkPageCrawlCount');
             // 继续抓取
             if (_store_States__WEBPACK_IMPORTED_MODULE_12__.states.slowCrawlMode) {
                 _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_13__.setTimeoutWorker.set(() => {
@@ -18312,7 +18322,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.concat(idList);
         this.index++;
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(`➡️${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已抓取x个用户', this.index.toString())}, ${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前作品个数', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length.toString())}`, 'logFollowingUserIdListLength');
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(`➡️${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已抓取x个用户', this.index.toString())}, ${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前有x个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length.toString())}`, 'logFollowingUserIdListLength');
         if (this.index >= this.userList.length) {
             return this.getIdListFinished();
         }
@@ -18588,24 +18598,25 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
                 return _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_格式错误'));
             }
         }
-        _Log__WEBPACK_IMPORTED_MODULE_11__.log.success('✅' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入ID列表'));
+        _Log__WEBPACK_IMPORTED_MODULE_11__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_导入ID列表'));
         _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.reset();
         this.finishedRequest = 0;
+        // 之前的帮助信息里写的是错误的 novel，但实际上应该是 novels，需要纠正这个错误
+        loadedJSON.forEach((item) => {
+            if (item.type === 'novel') {
+                item.type = 'novels';
+            }
+        });
         _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.idList = loadedJSON;
         this.crawlImportIDList();
     }
     crawlImportIDList() {
-        _Log__WEBPACK_IMPORTED_MODULE_11__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前作品个数', _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.idList.length.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_11__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前有x个作品', _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.idList.length.toString()));
         _Log__WEBPACK_IMPORTED_MODULE_11__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_开始获取作品信息'));
         if (_Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.checkUserLogin() === false) {
             // 如果未登录账号，则全速抓取
             _store_States__WEBPACK_IMPORTED_MODULE_12__.states.slowCrawlMode = false;
-            if (_store_Store__WEBPACK_IMPORTED_MODULE_10__.store.idList.length <= this.ajaxThreadsDefault) {
-                this.ajaxThread = _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.idList.length;
-            }
-            else {
-                this.ajaxThread = this.ajaxThreadsDefault;
-            }
+            this.ajaxThread = Math.min(this.ajaxThreadsDefault, _store_Store__WEBPACK_IMPORTED_MODULE_10__.store.idList.length);
         }
         else {
             // 登录账号后，可以使用慢速抓取
@@ -18616,9 +18627,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
                 this.ajaxThread = 1;
             }
         }
-        for (let i = 0; i < this.ajaxThread; i++) {
-            this.getWorksData();
-        }
+        this.startGetWorksData();
     }
     destroy() {
         _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.clearSlot('crawlBtns');
@@ -19099,7 +19108,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getNovelGlossarys: () => (/* binding */ getNovelGlossarys)
 /* harmony export */ });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
 
 
 class GetNovelGlossarys {
@@ -19108,18 +19121,23 @@ class GetNovelGlossarys {
         return new Promise(async (resolve, reject) => {
             // 先获取设定资料的分类、每条设定资料的简略数据
             // 注意此时每条设定资料缺少 detail 数据（此时为 null）
-            await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.sleep(interval);
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.sleep(interval);
             const glossaryData = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelSeriesGlossary(seriesId);
             const result = glossaryData.body.categories;
             if (result.length === 0) {
                 return resolve(result);
             }
             // 请求每条设定资料的详细数据
+            // 测试用例：这个系列销售有 40 条设定资料
+            // https://www.pixiv.net/novel/series/1446094/glossary
+            let total = 0;
             for (const categorie of result) {
                 for (const item of categorie.items) {
-                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.sleep(interval);
+                    await _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.sleep(interval);
                     const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelSeriesGlossaryItem(item.seriesId, item.id);
                     item.detail = data.body.item.detail;
+                    total++;
+                    _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_获取设定资料') + ' ' + total, 'getNovelGlossary' + seriesId);
                 }
             }
             return resolve(result);
@@ -19934,9 +19952,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _filter_FilterSearchResults__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../filter/FilterSearchResults */ "./src/ts/filter/FilterSearchResults.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
 // 初始化小说搜索页
-
 
 
 
@@ -20074,7 +20090,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         this.setSlowCrawl();
         this.initFetchURL();
         if (this.option.gs === '1') {
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示优先下载系列小说'));
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_启用了整合相同系列小说时的提示'));
         }
         // 计算应该抓取多少页
         const data = await this.getSearchData(1);
@@ -20253,7 +20269,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                 xRestrict: work.xRestrict,
             };
             if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_3__.filter.check(filterOpt)) {
-                // 过滤通过后，如果这份数据是单篇小说，则保存它的 id
+                // 如果这份数据是单篇小说
                 if (novelId) {
                     _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
                         id: novelId,
@@ -20261,8 +20277,12 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                     });
                 }
                 else {
-                    // 如果是系列小说，则合并它
-                    await new _download_MergeNovel__WEBPACK_IMPORTED_MODULE_21__.MergeNovel().merge(work.id, work.title, true);
+                    // 如果是系列小说
+                    _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.idList.push({
+                        id: work.id,
+                        type: 'novelSeries',
+                        title: work.title,
+                    });
                 }
             }
         }
@@ -23398,6 +23418,8 @@ class MergeNovel {
     CRLF = '\n'; // 小说的换行符
     CRLF2 = '\n\n';
     br2 = '<br/><br/>';
+    /** 调试用，如果为 true，则只抓取每个系列小说里的第一篇小说，并且会跳过获取设定资料的流程，以节省测试时间 */
+    quickTestMode = false;
     // 由于每个系列里都可能含有多个小说和图片，所以下载器可能会发送很多请求。为了避免触发 Pixiv 的警告，下载器在合并时总是会添加间隔时间，以降低发送请求的频率。
     /** 抓取时的间隔时间，最低为 2400 ms。这不会触发 429 错误 */
     // 我尝试过更低的延迟时间，例如 2000, 没有触发 429 错误，但依然被警告了，所以增加到 2400
@@ -23441,7 +23463,7 @@ class MergeNovel {
         if (_PageType__WEBPACK_IMPORTED_MODULE_13__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_13__.pageType.list.NovelSeries) {
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('closeCenterPanel');
         }
-        _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取小说列表'));
+        _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取小说列表'), 'getNovelList');
         // 只在第一个发送网络请求的步骤里使用 try catch 即可
         // 因为最常见的错误是 404, 如果遇到 404, 这一步就可以检查出来，不必向下执行了
         try {
@@ -23464,8 +23486,8 @@ class MergeNovel {
         }
         await this.getAllNovelData();
         // 获取这个系列的设定资料
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta) {
-            _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取设定资料'));
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta && !this.quickTestMode) {
+            _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取设定资料'), 'getNovelGlossary' + seriesId);
             const data = await _crawlNovelPage_GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_11__.getNovelGlossarys.getGlossarys(this.seriesId, this.crawlInterval);
             this.seriesGlossary = _crawlNovelPage_GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_11__.getNovelGlossarys.storeGlossaryText(data);
         }
@@ -23794,7 +23816,12 @@ class MergeNovel {
     async getAllNovelData() {
         const total = this.novelIdList.length;
         let count = 0;
-        for (const id of this.novelIdList) {
+        let idList = this.novelIdList;
+        if (this.quickTestMode) {
+            _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning('quickTestMode: On');
+            idList = [this.novelIdList[0]];
+        }
+        for (const id of idList) {
             // 自动合并系列小说时，可能会连续不断的合并多个系列，这些系列可能包含非常多的小说，所以需要添加等待时间，以减小出现 429 错误的概率
             // 另外获取设定资料时也有可能需要发送多个请求，但并不总是需要多次请求，所以获取设定资料时没有添加等待时间
             count++;
@@ -24430,7 +24457,7 @@ class Resume {
         if (!meta) {
             return;
         }
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_正在恢复抓取结果'));
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_正在恢复抓取结果'));
         this.taskId = meta.id;
         // 2 恢复抓取结果
         // 生成每批数据的 id 列表
@@ -24460,7 +24487,7 @@ class Resume {
         _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.crawlCompleteTime = meta.date;
         _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.URLWhenCrawlStart = meta.URLWhenCrawlStart || '';
         // 恢复模式就绪
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已恢复抓取结果'));
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已恢复抓取结果'), 'restoreCrawlResult');
         _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('resume');
     }
     async saveData() {
@@ -24494,7 +24521,7 @@ class Resume {
             states: _DownloadStates__WEBPACK_IMPORTED_MODULE_5__.downloadStates.states,
         };
         this.IDB.add(this.statesName, statesData);
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已保存抓取结果'));
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已保存抓取结果'), 'saveCrawlResult');
     }
     // 存储抓取结果
     async saveTaskData() {
@@ -28249,7 +28276,7 @@ Zip 파일이 원본 파일입니다.`,
         'Zip 파일',
         'Zip файл',
     ],
-    _当前作品个数: [
+    _当前有x个作品: [
         '当前有 {} 个作品',
         '目前有 {} 個作品',
         'There are now {} works',
@@ -28353,7 +28380,7 @@ Zip 파일이 원본 파일입니다.`,
         '목록 페이지 긁어오기 완료',
         'Список страниц просканирован',
     ],
-    _抓取结果为零: [
+    _抓取结果为零请检查筛选条件: [
         `抓取完毕，但没有找到符合筛选条件的作品。<br>请检查“抓取”相关的设置，并查看日志里显示的信息。`,
         `抓取完畢，但沒有找到符合篩選條件的作品。<br>請檢查「抓取」相關的設置，並查看日誌裡顯示的資訊。`,
         `Crawling completed, but no works matching the filter conditions were found.<br>Please check the "crawl"-related settings and view the information displayed in the log.`,
@@ -28361,13 +28388,13 @@ Zip 파일이 원본 파일입니다.`,
         `크롤링이 완료되었으나, 필터 조건에 맞는 작품을 찾을 수 없습니다.<br>"크롤" 관련 설정을 확인하고 로그에 표시된 정보를 확인하세요。`,
         `Кроулинг завершен, но работы, соответствующие условиям фильтрации, не найдены。<br>Проверьте настройки, связанные с "crawl", и просмотрите информацию, отображаемую в журнале。`,
     ],
-    _抓取结果为零并且启用了自动合并系列小说时的提示: [
-        `另外，当你启用了“自动合并系列小说”，并且抓取的作品全部属于系列小说时，没有单独的抓取结果可能是正常的。`,
-        `另外，當你啟用了「自動合併系列小說」，並且抓取的作品全部屬於系列小說時，沒有單獨的抓取結果可能是正常的。`,
-        `Additionally, when you enable "Automatically merge series novels" and all crawled works belong to series novels, having no separate crawl results may be normal.`,
-        `また、「自動的にシリーズ小説をマージ」を有効にし、クロールした作品がすべてシリーズ小説に属する場合、個別のクロール結果がないのは正常な可能性があります。`,
-        `또한, "시리즈 소설 자동 병합"을 활성화하고 크롤링한 작품이 모두 시리즈 소설에 속할 때, 개별 크롤링 결과가 없을 수 있습니다. 이는 정상입니다.`,
-        `Кроме того, когда вы включаете «Автоматическое объединение серий романов» и все краулленные работы принадлежат сериям романов, отсутствие отдельных результатов краулинга может быть нормальным.`,
+    _抓取结果为零并且所有作品都产生了合并系列小说时的提示: [
+        `本次抓取中的所有作品都是系列小说，没有单篇小说需要下载，所以抓取结果是 0。`,
+        `本次抓取中的所有作品都是系列小說，沒有單篇小說需要下載，所以抓取結果是 0。`,
+        `All works in this crawl are series novels, and there are no standalone novels to download, so the crawl result is 0.`,
+        `今回のクロール対象の作品はすべてシリーズ小説で、単発小説は存在しないため、クロール結果は 0 件です。`,
+        `이번 크롤링의 모든 작품이 시리즈 소설이며, 단편 소설은 없으므로 크롤링 결과는 0입니다.`,
+        `Все работы в этом краулинге являются сериями романов, отдельных романов для скачивания нет, поэтому результат краулинга — 0.`,
     ],
     _当前任务尚未完成: [
         '当前任务尚未完成',
@@ -33146,62 +33173,56 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
         `请选择一个 JSON 文件。它的代码格式如下：
 <pre>
 [
-  { "id": "130827095", "type": "illusts" },
-  { "id": "130816057", "type": "illusts" },
-  { "id": "130811075", "type": "novel" },
-  { "id": "130808918", "type": "novel" }
+  { "id": "142565679", "type": "illusts" },
+  { "id": "24769308", "type": "novels" },
+  { "id": "7671451", "type": "novelSeries" }
 ]
 </pre>
-type 可以是 "illusts" 或 "novel"。`,
+type 可以是 "illusts"、"novels" 或 "novelSeries"。`,
         `請選擇一個 JSON 檔案。它的程式碼格式如下：<pre>
 [
-  { "id": "130827095", "type": "illusts" },
-  { "id": "130816057", "type": "illusts" },
-  { "id": "130811075", "type": "novel" },
-  { "id": "130808918", "type": "novel" }
+  { "id": "142565679", "type": "illusts" },
+  { "id": "24769308", "type": "novels" },
+  { "id": "7671451", "type": "novelSeries" }
 ]
 </pre>
-type 可以是 "illusts" 或 "novel"。`,
+type 可以是 "illusts"、"novels" 或 "novelSeries"。`,
         `Please select a JSON file. Its code format is as follows:
 <pre>
 [
-  { "id": "130827095", "type": "illusts" },
-  { "id": "130816057", "type": "illusts" },
-  { "id": "130811075", "type": "novel" },
-  { "id": "130808918", "type": "novel" }
+  { "id": "142565679", "type": "illusts" },
+  { "id": "24769308", "type": "novels" },
+  { "id": "7671451", "type": "novelSeries" }
 ]
 </pre>
-type can be "illusts" or "novel".`,
+type can be "illusts", "novels" or "novelSeries".`,
         `JSONファイルを選択してください。コード形式は次のとおりです。
 <pre>
 [
-  { "id": "130827095", "type": "illusts" },
-  { "id": "130816057", "type": "illusts" },
-  { "id": "130811075", "type": "novel" },
-  { "id": "130808918", "type": "novel" }
+  { "id": "142565679", "type": "illusts" },
+  { "id": "24769308", "type": "novels" },
+  { "id": "7671451", "type": "novelSeries" }
 ]
 </pre>
-type は "illusts" または "novel" です。`,
+type は "illusts"、"novels" または "novelSeries" です。`,
         `JSON 파일을 선택하세요. 코드 형식은 다음과 같습니다.
 <pre>
 [
-  { "id": "130827095", "type": "illusts" },
-  { "id": "130816057", "type": "illusts" },
-  { "id": "130811075", "type": "novel" },
-  { "id": "130808918", "type": "novel" }
+  { "id": "142565679", "type": "illusts" },
+  { "id": "24769308", "type": "novels" },
+  { "id": "7671451", "type": "novelSeries" }
 ]
 </pre>
-type 은 "illusts" 또는 "novel"이 될 수 있습니다.`,
+type 은 "illusts", "novels" 또는 "novelSeries"가 될 수 있습니다.`,
         `Пожалуйста, выберите файл JSON. Формат его кода следующий:
 <pre>
 [
-  { "id": "130827095", "type": "illusts" },
-  { "id": "130816057", "type": "illusts" },
-  { "id": "130811075", "type": "novel" },
-  { "id": "130808918", "type": "novel" }
+  { "id": "142565679", "type": "illusts" },
+  { "id": "24769308", "type": "novels" },
+  { "id": "7671451", "type": "novelSeries" }
 ]
 </pre>
-type может быть "illusts" или "novel".`,
+type может быть "illusts", "novels" или "novelSeries".`,
     ],
     _导出ID列表: [
         '获取作品 ID 列表后导出 <span class="key">ID 列表</span>，并停止任务',
@@ -35366,24 +35387,30 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     Если в браузере слишком много записей о загрузках, при запуске браузер может зависнуть (стать неотзывчивым) на некоторое время. Чем больше записей о загрузках, тем дольше длится зависание.<br>
     Пользователи загрузчика часто скачивают много файлов с Pixiv, создавая большое количество записей о загрузках, что легко приводит к этой проблеме. Однако многие пользователи не знают причины, поэтому загрузчик каждые 24 часа проверяет количество записей о загрузках в браузере и показывает эту подсказку, когда количество превышает {}.`,
     ],
-    _提示优先下载系列小说: [
+    _启用了整合相同系列小说时的提示: [
         `提示：由于你启用了“整合系列作品”的搜索条件，所以该页面里有两种内容：系列小说和单篇完结小说。<br>
-下载器在抓取到系列小说时会立即下载它，单篇小说则保存到抓取结果里。<br>
+对于系列小说，下载器会在抓取时直接合并它，并且不会单独下载它里面的单篇小说。<br>
+对于单篇小说，下载器会保存到抓取结果里。<br>
 当抓取完成时，下载器已经下载了所有系列小说，只剩下单篇小说尚未下载。`,
         `提示：由於你啟用了「整合系列作品」的搜尋條件，所以該頁面裡有兩種內容：系列小說和單篇完結小說。<br>
-下載器在抓取到系列小說時會立即下載它，單篇小說則保存到抓取結果裡。<br>
+對於系列小說，下載器會在抓取時直接合併它，並且不會單獨下載它裡面的單篇小說。<br>
+對於單篇小說，下載器會保存到抓取結果裡。<br>
 當抓取完成時，下載器已經下載了所有系列小說，只剩下單篇小說尚未下載。`,
         `Tip: Since you have enabled the "Integrate Series Works" search condition, this page contains two types of content: series novels and standalone completed novels.<br>
-When the downloader encounters a series novel during crawling, it will download it immediately; standalone novels are saved to the crawl results.<br>
-By the time crawling is complete, the downloader has already downloaded all series novels, leaving only the standalone novels yet to be downloaded.`,
+For series novels, the downloader will merge them directly during crawling and will not download individual chapters inside them separately.<br>
+For standalone novels, the downloader will save them to the crawl results.<br>
+When crawling is complete, the downloader has already downloaded all series novels, leaving only the standalone novels yet to be downloaded.`,
         `ヒント：「シリーズ作品を統合する」検索条件を有効にしたため、このページには2種類のコンテンツがあります：シリーズ小説と単発完結小説。<br>
-ダウンロードツールはクロール中にシリーズ小説を取得するとすぐにダウンロードします。単発小説はクロール結果に保存されます。<br>
+シリーズ小説については、ダウンロードツールはクロール時に直接マージし、中の個別エピソードを単独でダウンロードしません。<br>
+単発小説については、ダウンロードツールはクロール結果に保存します。<br>
 クロール完了時には、すべてのシリーズ小説がすでにダウンロードされており、残っているのは単発小説のみです。`,
         `팁: "시리즈 작품 통합" 검색 조건을 활성화했기 때문에 이 페이지에는 두 가지 콘텐츠가 있습니다: 시리즈 소설과 단편 완결 소설.<br>
-다운로더는 크롤링 중 시리즈 소설을 발견하면 즉시 다운로드하며, 단편 소설은 크롤링 결과에 저장됩니다.<br>
+시리즈 소설의 경우 다운로더는 크롤링 시 직접 병합하며, 내부의 개별 편을 따로 다운로드하지 않습니다.<br>
+단편 소설의 경우 다운로더는 크롤링 결과에 저장합니다.<br>
 크롤링이 완료되면 모든 시리즈 소설은 이미 다운로드되었고, 남은 것은 단편 소설뿐입니다.`,
         `Подсказка: Поскольку вы включили условие поиска «Интегрировать серии работ», на этой странице присутствуют два типа контента: серии романов и отдельные завершённые романы.<br>
-Когда загрузчик во время краулинга находит серию романов, он сразу её скачивает; отдельные романы сохраняются в результаты краулинга.<br>
+Для серий романов загрузчик во время краулинга сразу объединит их и не будет скачивать отдельные главы внутри них по отдельности.<br>
+Для отдельных романов загрузчик сохранит их в результаты краулинга.<br>
 К моменту завершения краулинга загрузчик уже скачал все серии романов, и остались только отдельные романы, которые ещё не скачаны.`,
     ],
     _提示只会收藏单篇小说: [
@@ -35672,6 +35699,22 @@ ${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.originalTags.join(',')}`,
         `クロールをキャンセルしました。一部のクロール条件が正しくありません`,
         `크롤링 취소: 일부 크롤링 조건이 올바르지 않습니다`,
         `Краулинг отменён, поскольку некоторые условия краулинга некорректны`,
+    ],
+    _抓取线程为x: [
+        `抓取线程：{}`,
+        `抓取執行緒：{}`,
+        `Crawl threads: {}`,
+        `クロールスレッド数: {}`,
+        `크롤링 스레드: {}`,
+        `Потоков краулинга: {}`,
+    ],
+    _由于有系列小说所以抓取线程被限制为1: [
+        `由于这次抓取的内容里含有系列小说，所以抓取线程被限制为 1，以避免同时发送太多请求。`,
+        `由於這次抓取的內容裡含有系列小說，所以抓取執行緒被限制為 1，以避免同時發送太多請求。`,
+        `Because the content of this crawl contains novel series, the crawl threads have been limited to 1 to avoid sending too many requests at the same time.`,
+        `今回のクロール内容にシリーズ小説が含まれているため、同時リクエストが多すぎるのを避けるためクロールスレッドを1に制限しました。`,
+        `이번 크롤링 내용에 시리즈 소설이 포함되어 있어 동시에 너무 많은 요청을 보내지 않도록 크롤링 스레드가 1로 제한되었습니다.`,
+        `Поскольку содержимое этого краулинга включает серии романов, количество потоков краулинга было ограничено до 1, чтобы избежать отправки слишком большого количества запросов одновременно.`,
     ],
 };
 
@@ -36922,8 +36965,6 @@ class DeleteWorks {
     showWorksCount() {
         const selector = this.worksSelector;
         _Log__WEBPACK_IMPORTED_MODULE_0__.log.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_调整完毕', _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.getVisibleEl(selector).length.toString()), 'deleteWorkSuccess');
-        // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
-        _Log__WEBPACK_IMPORTED_MODULE_0__.log.log('');
     }
 }
 
@@ -42838,6 +42879,9 @@ class CacheWorkData {
         this.cache.push(data);
     }
     get(id, type = 'artwork') {
+        if (type === 'novelSeries') {
+            return undefined;
+        }
         return this.cache.find((val) => {
             const key = type === 'novel' ? 'content' : 'illustType';
             return val.body.id === id && key in val.body;

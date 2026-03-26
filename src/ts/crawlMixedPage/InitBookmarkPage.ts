@@ -545,7 +545,7 @@ One possible reason: You have been banned from Pixiv.`)
           ? this.idList.length
           : this.bookmarkDataList.length
       log.log(
-        lang.transl('_当前作品个数', length.toString()),
+        lang.transl('_当前有x个作品', length.toString()),
         'initBookmarkPageCrawlCount'
       )
 

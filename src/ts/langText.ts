@@ -767,7 +767,7 @@ Zip 파일이 원본 파일입니다.`,
     'Zip 파일',
     'Zip файл',
   ],
-  _当前作品个数: [
+  _当前有x个作品: [
     '当前有 {} 个作品',
     '目前有 {} 個作品',
     'There are now {} works',
@@ -871,7 +871,7 @@ Zip 파일이 원본 파일입니다.`,
     '목록 페이지 긁어오기 완료',
     'Список страниц просканирован',
   ],
-  _抓取结果为零: [
+  _抓取结果为零请检查筛选条件: [
     `抓取完毕，但没有找到符合筛选条件的作品。<br>请检查“抓取”相关的设置，并查看日志里显示的信息。`,
     `抓取完畢，但沒有找到符合篩選條件的作品。<br>請檢查「抓取」相關的設置，並查看日誌裡顯示的資訊。`,
     `Crawling completed, but no works matching the filter conditions were found.<br>Please check the "crawl"-related settings and view the information displayed in the log.`,
@@ -879,13 +879,13 @@ Zip 파일이 원본 파일입니다.`,
     `크롤링이 완료되었으나, 필터 조건에 맞는 작품을 찾을 수 없습니다.<br>"크롤" 관련 설정을 확인하고 로그에 표시된 정보를 확인하세요。`,
     `Кроулинг завершен, но работы, соответствующие условиям фильтрации, не найдены。<br>Проверьте настройки, связанные с "crawl", и просмотрите информацию, отображаемую в журнале。`,
   ],
-  _抓取结果为零并且启用了自动合并系列小说时的提示: [
-    `另外，当你启用了“自动合并系列小说”，并且抓取的作品全部属于系列小说时，没有单独的抓取结果可能是正常的。`,
-    `另外，當你啟用了「自動合併系列小說」，並且抓取的作品全部屬於系列小說時，沒有單獨的抓取結果可能是正常的。`,
-    `Additionally, when you enable "Automatically merge series novels" and all crawled works belong to series novels, having no separate crawl results may be normal.`,
-    `また、「自動的にシリーズ小説をマージ」を有効にし、クロールした作品がすべてシリーズ小説に属する場合、個別のクロール結果がないのは正常な可能性があります。`,
-    `또한, "시리즈 소설 자동 병합"을 활성화하고 크롤링한 작품이 모두 시리즈 소설에 속할 때, 개별 크롤링 결과가 없을 수 있습니다. 이는 정상입니다.`,
-    `Кроме того, когда вы включаете «Автоматическое объединение серий романов» и все краулленные работы принадлежат сериям романов, отсутствие отдельных результатов краулинга может быть нормальным.`,
+  _抓取结果为零并且所有作品都产生了合并系列小说时的提示: [
+    `本次抓取中的所有作品都是系列小说，没有单篇小说需要下载，所以抓取结果是 0。`,
+    `本次抓取中的所有作品都是系列小說，沒有單篇小說需要下載，所以抓取結果是 0。`,
+    `All works in this crawl are series novels, and there are no standalone novels to download, so the crawl result is 0.`,
+    `今回のクロール対象の作品はすべてシリーズ小説で、単発小説は存在しないため、クロール結果は 0 件です。`,
+    `이번 크롤링의 모든 작품이 시리즈 소설이며, 단편 소설은 없으므로 크롤링 결과는 0입니다.`,
+    `Все работы в этом краулинге являются сериями романов, отдельных романов для скачивания нет, поэтому результат краулинга — 0.`,
   ],
   _当前任务尚未完成: [
     '当前任务尚未完成',
@@ -5679,62 +5679,56 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
     `请选择一个 JSON 文件。它的代码格式如下：
 <pre>
 [
-  { "id": "130827095", "type": "illusts" },
-  { "id": "130816057", "type": "illusts" },
-  { "id": "130811075", "type": "novel" },
-  { "id": "130808918", "type": "novel" }
+  { "id": "142565679", "type": "illusts" },
+  { "id": "24769308", "type": "novels" },
+  { "id": "7671451", "type": "novelSeries" }
 ]
 </pre>
-type 可以是 "illusts" 或 "novel"。`,
+type 可以是 "illusts"、"novels" 或 "novelSeries"。`,
     `請選擇一個 JSON 檔案。它的程式碼格式如下：<pre>
 [
-  { "id": "130827095", "type": "illusts" },
-  { "id": "130816057", "type": "illusts" },
-  { "id": "130811075", "type": "novel" },
-  { "id": "130808918", "type": "novel" }
+  { "id": "142565679", "type": "illusts" },
+  { "id": "24769308", "type": "novels" },
+  { "id": "7671451", "type": "novelSeries" }
 ]
 </pre>
-type 可以是 "illusts" 或 "novel"。`,
+type 可以是 "illusts"、"novels" 或 "novelSeries"。`,
     `Please select a JSON file. Its code format is as follows:
 <pre>
 [
-  { "id": "130827095", "type": "illusts" },
-  { "id": "130816057", "type": "illusts" },
-  { "id": "130811075", "type": "novel" },
-  { "id": "130808918", "type": "novel" }
+  { "id": "142565679", "type": "illusts" },
+  { "id": "24769308", "type": "novels" },
+  { "id": "7671451", "type": "novelSeries" }
 ]
 </pre>
-type can be "illusts" or "novel".`,
+type can be "illusts", "novels" or "novelSeries".`,
     `JSONファイルを選択してください。コード形式は次のとおりです。
 <pre>
 [
-  { "id": "130827095", "type": "illusts" },
-  { "id": "130816057", "type": "illusts" },
-  { "id": "130811075", "type": "novel" },
-  { "id": "130808918", "type": "novel" }
+  { "id": "142565679", "type": "illusts" },
+  { "id": "24769308", "type": "novels" },
+  { "id": "7671451", "type": "novelSeries" }
 ]
 </pre>
-type は "illusts" または "novel" です。`,
+type は "illusts"、"novels" または "novelSeries" です。`,
     `JSON 파일을 선택하세요. 코드 형식은 다음과 같습니다.
 <pre>
 [
-  { "id": "130827095", "type": "illusts" },
-  { "id": "130816057", "type": "illusts" },
-  { "id": "130811075", "type": "novel" },
-  { "id": "130808918", "type": "novel" }
+  { "id": "142565679", "type": "illusts" },
+  { "id": "24769308", "type": "novels" },
+  { "id": "7671451", "type": "novelSeries" }
 ]
 </pre>
-type 은 "illusts" 또는 "novel"이 될 수 있습니다.`,
+type 은 "illusts", "novels" 또는 "novelSeries"가 될 수 있습니다.`,
     `Пожалуйста, выберите файл JSON. Формат его кода следующий:
 <pre>
 [
-  { "id": "130827095", "type": "illusts" },
-  { "id": "130816057", "type": "illusts" },
-  { "id": "130811075", "type": "novel" },
-  { "id": "130808918", "type": "novel" }
+  { "id": "142565679", "type": "illusts" },
+  { "id": "24769308", "type": "novels" },
+  { "id": "7671451", "type": "novelSeries" }
 ]
 </pre>
-type может быть "illusts" или "novel".`,
+type может быть "illusts", "novels" или "novelSeries".`,
   ],
   _导出ID列表: [
     '获取作品 ID 列表后导出 <span class="key">ID 列表</span>，并停止任务',
@@ -7899,24 +7893,30 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     Если в браузере слишком много записей о загрузках, при запуске браузер может зависнуть (стать неотзывчивым) на некоторое время. Чем больше записей о загрузках, тем дольше длится зависание.<br>
     Пользователи загрузчика часто скачивают много файлов с Pixiv, создавая большое количество записей о загрузках, что легко приводит к этой проблеме. Однако многие пользователи не знают причины, поэтому загрузчик каждые 24 часа проверяет количество записей о загрузках в браузере и показывает эту подсказку, когда количество превышает {}.`,
   ],
-  _提示优先下载系列小说: [
+  _启用了整合相同系列小说时的提示: [
     `提示：由于你启用了“整合系列作品”的搜索条件，所以该页面里有两种内容：系列小说和单篇完结小说。<br>
-下载器在抓取到系列小说时会立即下载它，单篇小说则保存到抓取结果里。<br>
+对于系列小说，下载器会在抓取时直接合并它，并且不会单独下载它里面的单篇小说。<br>
+对于单篇小说，下载器会保存到抓取结果里。<br>
 当抓取完成时，下载器已经下载了所有系列小说，只剩下单篇小说尚未下载。`,
     `提示：由於你啟用了「整合系列作品」的搜尋條件，所以該頁面裡有兩種內容：系列小說和單篇完結小說。<br>
-下載器在抓取到系列小說時會立即下載它，單篇小說則保存到抓取結果裡。<br>
+對於系列小說，下載器會在抓取時直接合併它，並且不會單獨下載它裡面的單篇小說。<br>
+對於單篇小說，下載器會保存到抓取結果裡。<br>
 當抓取完成時，下載器已經下載了所有系列小說，只剩下單篇小說尚未下載。`,
     `Tip: Since you have enabled the "Integrate Series Works" search condition, this page contains two types of content: series novels and standalone completed novels.<br>
-When the downloader encounters a series novel during crawling, it will download it immediately; standalone novels are saved to the crawl results.<br>
-By the time crawling is complete, the downloader has already downloaded all series novels, leaving only the standalone novels yet to be downloaded.`,
+For series novels, the downloader will merge them directly during crawling and will not download individual chapters inside them separately.<br>
+For standalone novels, the downloader will save them to the crawl results.<br>
+When crawling is complete, the downloader has already downloaded all series novels, leaving only the standalone novels yet to be downloaded.`,
     `ヒント：「シリーズ作品を統合する」検索条件を有効にしたため、このページには2種類のコンテンツがあります：シリーズ小説と単発完結小説。<br>
-ダウンロードツールはクロール中にシリーズ小説を取得するとすぐにダウンロードします。単発小説はクロール結果に保存されます。<br>
+シリーズ小説については、ダウンロードツールはクロール時に直接マージし、中の個別エピソードを単独でダウンロードしません。<br>
+単発小説については、ダウンロードツールはクロール結果に保存します。<br>
 クロール完了時には、すべてのシリーズ小説がすでにダウンロードされており、残っているのは単発小説のみです。`,
     `팁: "시리즈 작품 통합" 검색 조건을 활성화했기 때문에 이 페이지에는 두 가지 콘텐츠가 있습니다: 시리즈 소설과 단편 완결 소설.<br>
-다운로더는 크롤링 중 시리즈 소설을 발견하면 즉시 다운로드하며, 단편 소설은 크롤링 결과에 저장됩니다.<br>
+시리즈 소설의 경우 다운로더는 크롤링 시 직접 병합하며, 내부의 개별 편을 따로 다운로드하지 않습니다.<br>
+단편 소설의 경우 다운로더는 크롤링 결과에 저장합니다.<br>
 크롤링이 완료되면 모든 시리즈 소설은 이미 다운로드되었고, 남은 것은 단편 소설뿐입니다.`,
     `Подсказка: Поскольку вы включили условие поиска «Интегрировать серии работ», на этой странице присутствуют два типа контента: серии романов и отдельные завершённые романы.<br>
-Когда загрузчик во время краулинга находит серию романов, он сразу её скачивает; отдельные романы сохраняются в результаты краулинга.<br>
+Для серий романов загрузчик во время краулинга сразу объединит их и не будет скачивать отдельные главы внутри них по отдельности.<br>
+Для отдельных романов загрузчик сохранит их в результаты краулинга.<br>
 К моменту завершения краулинга загрузчик уже скачал все серии романов, и остались только отдельные романы, которые ещё не скачаны.`,
   ],
   _提示只会收藏单篇小说: [
@@ -8205,6 +8205,22 @@ ${Config.originalTags.join(',')}`,
     `クロールをキャンセルしました。一部のクロール条件が正しくありません`,
     `크롤링 취소: 일부 크롤링 조건이 올바르지 않습니다`,
     `Краулинг отменён, поскольку некоторые условия краулинга некорректны`,
+  ],
+  _抓取线程为x: [
+    `抓取线程：{}`,
+    `抓取執行緒：{}`,
+    `Crawl threads: {}`,
+    `クロールスレッド数: {}`,
+    `크롤링 스레드: {}`,
+    `Потоков краулинга: {}`,
+  ],
+  _由于有系列小说所以抓取线程被限制为1: [
+    `由于这次抓取的内容里含有系列小说，所以抓取线程被限制为 1，以避免同时发送太多请求。`,
+    `由於這次抓取的內容裡含有系列小說，所以抓取執行緒被限制為 1，以避免同時發送太多請求。`,
+    `Because the content of this crawl contains novel series, the crawl threads have been limited to 1 to avoid sending too many requests at the same time.`,
+    `今回のクロール内容にシリーズ小説が含まれているため、同時リクエストが多すぎるのを避けるためクロールスレッドを1に制限しました。`,
+    `이번 크롤링 내용에 시리즈 소설이 포함되어 있어 동시에 너무 많은 요청을 보내지 않도록 크롤링 스레드가 1로 제한되었습니다.`,
+    `Поскольку содержимое этого краулинга включает серии романов, количество потоков краулинга было ограничено до 1, чтобы избежать отправки слишком большого количества запросов одновременно.`,
   ],
 }
 

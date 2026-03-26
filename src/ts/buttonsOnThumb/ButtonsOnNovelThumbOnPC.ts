@@ -5,10 +5,8 @@ import { Config } from '../Config'
 import { IDData } from '../store/StoreType'
 import { lang } from '../Language'
 import { ButtonsConfig, BtnConfig } from './ButtonsConfig'
-import { autoMergeNovel } from '../download/AutoMergeNovel'
 import { Tools } from '../Tools'
 import { toast } from '../Toast'
-import { states } from '../store/States'
 
 // 在小说作品的缩略图上显示一些按钮
 // 目前它只管理在 PC 上生效的缩略图按钮
@@ -132,19 +130,12 @@ class ButtonsOnNovelThumbOnPC extends ButtonsConfig {
         'novels'
       )
       if (seriesId) {
-        // 对于系列小说，自动合并并下载
-        this.currentId = seriesId
-        if (states.busy) {
-          toast.error(lang.transl('_下载器正忙忽略本次操作'))
-          return
+        // 自动合并系列小说
+        const idData: IDData = {
+          type: 'novelSeries',
+          id: seriesId,
         }
-        states.busy = true
-        await autoMergeNovel.merge(seriesId, '', true)
-        states.busy = false
-        // 触发 crawlEmpty 事件，是为了让可能存在的排队中的任务（store.waitingIdList）可以开始执行
-        window.setTimeout(() => {
-          EVT.fire('crawlEmpty')
-        }, 0)
+        EVT.fire('crawlIdList', [idData])
         return
       }
     }

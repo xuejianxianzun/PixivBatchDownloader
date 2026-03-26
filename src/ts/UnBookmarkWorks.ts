@@ -20,7 +20,7 @@ class UnBookmarkWorks {
     states.busy = true
 
     const total = list.length
-    log.log(lang.transl('_当前作品个数', total.toString()))
+    log.log(lang.transl('_当前有x个作品', total.toString()))
 
     // 当操作的作品数量大于一页（48 个作品）时，使用慢速抓取
     const slowMode = total > 48

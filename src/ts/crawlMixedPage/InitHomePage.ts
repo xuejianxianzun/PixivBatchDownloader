@@ -287,30 +287,31 @@ class InitHomePage extends InitPageBase {
       }
     }
 
-    log.success('✅' + lang.transl('_导入ID列表'))
+    log.success('🚀' + lang.transl('_导入ID列表'))
 
     store.reset()
 
     this.finishedRequest = 0
 
+    // 之前的帮助信息里写的是错误的 novel，但实际上应该是 novels，需要纠正这个错误
+    loadedJSON.forEach((item) => {
+      if (item.type === ('novel' as any)) {
+        item.type = 'novels'
+      }
+    })
     store.idList = loadedJSON
 
     this.crawlImportIDList()
   }
 
-  protected crawlImportIDList() {
-    log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
+  private crawlImportIDList() {
+    log.log(lang.transl('_当前有x个作品', store.idList.length.toString()))
     log.log(lang.transl('_开始获取作品信息'))
 
     if (Tools.checkUserLogin() === false) {
       // 如果未登录账号，则全速抓取
       states.slowCrawlMode = false
-
-      if (store.idList.length <= this.ajaxThreadsDefault) {
-        this.ajaxThread = store.idList.length
-      } else {
-        this.ajaxThread = this.ajaxThreadsDefault
-      }
+      this.ajaxThread = Math.min(this.ajaxThreadsDefault, store.idList.length)
     } else {
       // 登录账号后，可以使用慢速抓取
       if (
@@ -323,9 +324,7 @@ class InitHomePage extends InitPageBase {
       }
     }
 
-    for (let i = 0; i < this.ajaxThread; i++) {
-      this.getWorksData()
-    }
+    this.startGetWorksData()
   }
 
   protected destroy() {

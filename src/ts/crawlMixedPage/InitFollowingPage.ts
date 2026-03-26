@@ -272,7 +272,7 @@ class InitFollowingPage extends InitPageBase {
 
     log.log(
       `➡️${lang.transl('_已抓取x个用户', this.index.toString())}, ${lang.transl(
-        '_当前作品个数',
+        '_当前有x个作品',
         store.idList.length.toString()
       )}`,
       'logFollowingUserIdListLength'

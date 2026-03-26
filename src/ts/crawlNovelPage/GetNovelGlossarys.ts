@@ -1,5 +1,7 @@
 import { API } from '../API'
 import { GlossaryItem, NovelSeriesGlossaryItem } from '../crawl/CrawlResult'
+import { lang } from '../Language'
+import { log } from '../Log'
 import { Utils } from '../utils/Utils'
 
 interface GlossaryResult {
@@ -27,6 +29,9 @@ class GetNovelGlossarys {
       }
 
       // 请求每条设定资料的详细数据
+      // 测试用例：这个系列销售有 40 条设定资料
+      // https://www.pixiv.net/novel/series/1446094/glossary
+      let total = 0
       for (const categorie of result) {
         for (const item of categorie.items) {
           await Utils.sleep(interval)
@@ -35,6 +40,12 @@ class GetNovelGlossarys {
             item.id
           )
           item.detail = data.body.item.detail
+
+          total++
+          log.log(
+            lang.transl('_获取设定资料') + ' ' + total,
+            'getNovelGlossary' + seriesId
+          )
         }
       }
 

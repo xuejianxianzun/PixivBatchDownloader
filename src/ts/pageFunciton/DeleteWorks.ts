@@ -243,8 +243,6 @@ class DeleteWorks {
       lang.transl('_调整完毕', Utils.getVisibleEl(selector).length.toString()),
       'deleteWorkSuccess'
     )
-    // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
-    log.log('')
   }
 }
 

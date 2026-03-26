@@ -29,7 +29,15 @@ class CacheWorkData {
   public get(id: string): ArtworkData | undefined
   public get(id: string, type: 'artwork'): ArtworkData | undefined
   public get(id: string, type: 'novel'): NovelData | undefined
-  public get(id: string, type: 'artwork' | 'novel' = 'artwork') {
+  public get(id: string, type: 'novelSeries'): undefined
+  public get(
+    id: string,
+    type: 'artwork' | 'novel' | 'novelSeries' = 'artwork'
+  ) {
+    if (type === 'novelSeries') {
+      return undefined
+    }
+
     return this.cache.find((val) => {
       const key: 'illustType' | 'content' =
         type === 'novel' ? 'content' : 'illustType'
