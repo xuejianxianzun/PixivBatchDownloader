@@ -13657,10 +13657,16 @@ class InitPageBase {
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.quickCrawl &&
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length === 1 &&
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].type !== 'novelSeries') {
-            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id);
+            const type = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].type === 'novels' ? 'novel' : 'artwork';
+            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id, type);
             if (data) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = [];
-                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__.saveArtworkData.save(data);
+                if (type === 'artwork') {
+                    await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__.saveArtworkData.save(data);
+                }
+                else {
+                    await _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_11__.saveNovelData.save(data);
+                }
                 return this.crawlFinished();
             }
         }
@@ -13690,7 +13696,7 @@ class InitPageBase {
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.stopCrawl) {
             return this.crawlFinished();
         }
-        idData = idData || _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
+        idData = idData ?? _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
         if (!idData) {
             return this.afterGetWorksData();
         }
@@ -13758,7 +13764,7 @@ class InitPageBase {
         }
         catch (error) {
             // 当 API 里的网络请求的状态码异常时，会 reject，被这里捕获
-            if (error.status) {
+            if (error?.status) {
                 // 请求成功，但状态码不正常
                 // 不重试
                 this.afterGetWorksData();
@@ -13924,7 +13930,8 @@ class InitPageBase {
     }
     /**取消定时抓取的按钮 */
     addCancelTimedCrawlBtn() {
-        const btn = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgWarning, '_取消定时抓取', '', 'cancelScheduledCrawling');
+        const id = 'cancelScheduledCrawling';
+        const btn = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgWarning, '_取消定时抓取', '', id);
         btn.style.display = 'none';
         btn.addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('cancelTimedCrawl');
@@ -13932,7 +13939,10 @@ class InitPageBase {
         });
         // 启动定时抓取之后，显示取消定时抓取的按钮
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.list.startTimedCrawl, () => {
-            btn.style.display = 'flex';
+            const btn = document.getElementById(id);
+            if (btn) {
+                btn.style.display = 'flex';
+            }
         });
     }
 }
@@ -17328,7 +17338,6 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
                 oldList = oldList.concat(novelsPublic, novelsPrivate);
             }
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_一共有x个', oldList.length.toString()));
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
         }
         // 开始批量添加收藏
         _Bookmark__WEBPACK_IMPORTED_MODULE_18__.bookmark.addBookmarksInBatchs(loadedJSON, oldList);
@@ -21756,7 +21765,7 @@ class DownloadCountWarning {
         });
     }
     tip(count) {
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示下载记录数量太多', count.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示下载记录数量太多', count.toString()), 'downloadCountWarning');
     }
 }
 new DownloadCountWarning();
@@ -41550,7 +41559,11 @@ __webpack_require__.r(__webpack_exports__);
 // setSetting(name, value)
 // 本模块会触发 3 个事件：
 // EVT.list.settingChange
-// 当任意一个设置项被赋值时触发（不会区分值是否发生了变化）。这是最常用的事件。
+// 当任意一个设置项被赋值时触发（不会区分值是否发生了变化）。这可能是由下载器触发的，也可能是用户触发的。例如：
+// - 每当用户打开或刷新一个标签页时，下载器会执行设置初始化，在此过程中每个设置项都会触发一次 settingChange 事件
+// - 重置设置时
+// - 导入设置时
+// - 用户修改任意一个设置时
 // 事件的参数里会传递这个设置项的名称和值，可以通过 ev.detail.data 获取，格式如：
 // {name: string, value: any}
 // 如果要监听特定的设置项，应该使用参数的 name 来判断触发事件的设置项是否是自己需要的设置项
@@ -41562,16 +41575,19 @@ __webpack_require__.r(__webpack_exports__);
 //   if (data.value) { }
 // })
 // EVT.list.settingInitialized
-// 当设置初始化完毕之后触发。此时所有设置项都已经恢复了之前储存的值（如果没有储存的设置，则使用默认设置）。
-// 在执行过程中，每个设置项都会触发一次 settingChange 事件
-// 最后会触发一次 settingInitialized 事件
-// 在前台脚本的生命周期里，这个事件只会触发一次
-// 注意：重置设置不会触发这个事件
-// 如果某个模块里需要使用多个设置项，建议绑定这个事件，以确保所有设置都已经恢复了储存的值
+// 每当用户打开或刷新一个标签页时，下载器会读取之前储存的设置，然后执行设置初始化。
+// 在此过程中每个设置项都会从默认值变成储存的值（如果没有储存的设置，则使用默认值），并触发一次 settingChange 事件
+// 当所有设置都初始化完毕后，触发一次 settingInitialized 事件
+// 在内容脚本的生命周期里，这个事件只会触发一次。可以理解为在一个标签页里只会触发一次，除非用户刷新了该标签页才会再次触发
+// PS：重置设置不会触发这个事件
+// 用途：
+// - 如果其他模块在初始化时依赖多个设置项，建议绑定这个事件，以确保所有设置都已经恢复了储存的值
+// - 想在设置初始化之后执行动作
 // EVT.list.resetSettingsEnd
-// 重置设置之后触发
-// 导入设置之后触发
-// 在执行过程中，每个设置项都会触发一次 settingChange 事件
+// 会被两种操作触发：
+// 1. 重置设置
+// 2. 导入设置
+// 在执行上面两种操作的过程中，每个设置项都会触发一次 settingChange 事件
 // 最后会触发一次 resetSettingsEnd 事件
 // 如果打开了多个标签页，每个页面的 settings 数据是相互独立的，在一个页面里修改设置不会影响另一个页面里的设置。
 // 但是持久化保存的数据只有一份：最后一次的设置变化是在哪个页面发生的，就保存哪个页面的 settings 数据。
@@ -42146,7 +42162,7 @@ class Settings {
                     restoreData = JSON.parse(savedSettings);
                 }
             }
-            // 当一些 key 为 PageName 的配置里增加了新配置时，由于已保存的设置里没有对应（新的页面类型）的配置，所以需要把新的配置添加到已保存的设置里
+            // 有些设置项的 key 是 PageName（页面类型）。当有新的页面类型之后，我会添加新的页面类型的配置，但旧的设置里缺少这些配置，所以需要添加到旧的设置里
             const keys = ['crawlNumber', 'nameRuleForEachPageType'];
             for (const key of keys) {
                 for (const [pageTypeNo, cfg] of Object.entries(this.defaultSettings[key])) {

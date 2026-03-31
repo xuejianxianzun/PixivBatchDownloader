@@ -430,10 +430,15 @@ abstract class InitPageBase {
       store.idList.length === 1 &&
       store.idList[0].type !== 'novelSeries'
     ) {
-      const data = cacheWorkData.get(store.idList[0].id)
+      const type = store.idList[0].type === 'novels' ? 'novel' : 'artwork'
+      const data = cacheWorkData.get(store.idList[0].id, type)
       if (data) {
         store.idList = []
-        await saveArtworkData.save(data)
+        if (type === 'artwork') {
+          await saveArtworkData.save(data as ArtworkData)
+        } else {
+          await saveNovelData.save(data as NovelData)
+        }
         return this.crawlFinished()
       }
     }
@@ -469,7 +474,7 @@ abstract class InitPageBase {
       return this.crawlFinished()
     }
 
-    idData = idData || (store.idList.shift()! as IDData)
+    idData = idData ?? store.idList.shift()
     if (!idData) {
       return this.afterGetWorksData()
     }
@@ -537,7 +542,7 @@ abstract class InitPageBase {
       }
     } catch (error: Error | any) {
       // 当 API 里的网络请求的状态码异常时，会 reject，被这里捕获
-      if (error.status) {
+      if (error?.status) {
         // 请求成功，但状态码不正常
         // 不重试
         this.afterGetWorksData()
@@ -749,12 +754,13 @@ abstract class InitPageBase {
 
   /**取消定时抓取的按钮 */
   protected addCancelTimedCrawlBtn() {
+    const id = 'cancelScheduledCrawling'
     const btn = Tools.addBtn(
       'crawlBtns',
       Colors.bgWarning,
       '_取消定时抓取',
       '',
-      'cancelScheduledCrawling'
+      id
     )
     btn.style.display = 'none'
 
@@ -765,7 +771,10 @@ abstract class InitPageBase {
 
     // 启动定时抓取之后，显示取消定时抓取的按钮
     window.addEventListener(EVT.list.startTimedCrawl, () => {
-      btn.style.display = 'flex'
+      const btn = document.getElementById(id)
+      if (btn) {
+        btn.style.display = 'flex'
+      }
     })
   }
 }

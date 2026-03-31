@@ -29,6 +29,10 @@ class CacheWorkData {
   public get(id: string): ArtworkData | undefined
   public get(id: string, type: 'artwork'): ArtworkData | undefined
   public get(id: string, type: 'novel'): NovelData | undefined
+  public get(
+    id: string,
+    type: 'artwork' | 'novel'
+  ): ArtworkData | NovelData | undefined
   public get(id: string, type: 'novelSeries'): undefined
   public get(
     id: string,

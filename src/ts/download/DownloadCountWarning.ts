@@ -16,7 +16,10 @@ class DownloadCountWarning {
   }
 
   private tip(count: number) {
-    log.warning(lang.transl('_提示下载记录数量太多', count.toString()))
+    log.warning(
+      lang.transl('_提示下载记录数量太多', count.toString()),
+      'downloadCountWarning'
+    )
   }
 }
 
