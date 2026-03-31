@@ -3175,6 +3175,74 @@ Additional notes: <br>
     `이미지 뷰어`,
     `Просмотрщик изображений`,
   ],
+  _图片查看器的帮助: [
+    `当你使用图片查看器时，可以使用这些快捷键：<br>
+<span class="blue">←</span> 上一张图片<br>
+<span class="blue">→</span> 下一张图片<br>
+<span class="blue">↑</span> 增加缩放比例<br>
+<span class="blue">↓</span> 减小缩放比例<br>
+<span class="blue">F</span> 切换显示比例：100% 或自适应缩放<br>
+<span class="blue">Esc</span> 退出图片查看器<br>
+<br>
+另外，使用鼠标滚轮也可以切换图片或控制缩放，这取决于鼠标指针是否位于图片上：<br>
+- 当鼠标滚轮在图片上滚动时，图片会放大或缩小；<br>
+- 当鼠标滚轮在图片外滚动时，会切换图片。`,
+    `當你使用圖片查看器時，可以使用這些快捷鍵：<br>
+<span class="blue">←</span> 上一張圖片<br>
+<span class="blue">→</span> 下一張圖片<br>
+<span class="blue">↑</span> 增加縮放比例<br>
+<span class="blue">↓</span> 減小縮放比例<br>
+<span class="blue">F</span> 切換顯示比例：100% 或自適應縮放<br>
+<span class="blue">Esc</span> 退出圖片查看器<br>
+<br>
+另外，使用滑鼠滾輪也可以切換圖片或控制縮放，這取決於滑鼠指標是否位於圖片上：<br>
+- 當滑鼠滾輪在圖片上滾動時，圖片會放大或縮小；<br>
+- 當滑鼠滾輪在圖片外滾動時，會切換圖片。`,
+    `When using the image viewer, you can use these keyboard shortcuts:<br>
+<span class="blue">←</span> Previous image<br>
+<span class="blue">→</span> Next image<br>
+<span class="blue">↑</span> Increase zoom level<br>
+<span class="blue">↓</span> Decrease zoom level<br>
+<span class="blue">F</span> Toggle display scale: 100% or fit to screen<br>
+<span class="blue">Esc</span> Exit image viewer<br>
+<br>
+Additionally, you can also use the mouse wheel to switch images or control zoom, depending on whether the mouse pointer is over the image:<br>
+- When scrolling the mouse wheel over the image, the image will zoom in or out;<br>
+- When scrolling the mouse wheel outside the image, it will switch to the next/previous image.`,
+    `画像ビューアを使用する際は、以下のショートカットキーが利用できます：<br>
+<span class="blue">←</span> 前の画像<br>
+<span class="blue">→</span> 次の画像<br>
+<span class="blue">↑</span> ズーム倍率を上げる<br>
+<span class="blue">↓</span> ズーム倍率を下げる<br>
+<span class="blue">F</span> 表示倍率の切り替え：100% または画面に合わせる<br>
+<span class="blue">Esc</span> 画像ビューアを終了<br>
+<br>
+また、マウスホイールでも画像の切り替えやズームの制御が可能です。これはマウスポインタが画像上にあるかどうかによって異なります：<br>
+- 画像上でホイールをスクロールすると、画像が拡大または縮小します；<br>
+- 画像外でホイールをスクロールすると、画像が切り替わります。`,
+    `이미지 뷰어를 사용할 때 다음 단축키를 사용할 수 있습니다:<br>
+<span class="blue">←</span> 이전 이미지<br>
+<span class="blue">→</span> 다음 이미지<br>
+<span class="blue">↑</span> 확대 비율 증가<br>
+<span class="blue">↓</span> 축소 비율 감소<br>
+<span class="blue">F</span> 표시 비율 전환: 100% 또는 화면에 맞춤<br>
+<span class="blue">Esc</span> 이미지 뷰어 종료<br>
+<br>
+또한 마우스 휠을 사용해 이미지를 전환하거나 확대/축소를 제어할 수도 있습니다. 이는 마우스 포인터가 이미지 위에 있는지에 따라 다릅니다:<br>
+- 이미지 위에서 마우스 휠을 스크롤하면 이미지가 확대 또는 축소됩니다;<br>
+- 이미지 밖에서 마우스 휠을 스크롤하면 이미지가 전환됩니다.`,
+    `При использовании просмотрщика изображений вы можете использовать следующие горячие клавиши:<br>
+<span class="blue">←</span> Предыдущее изображение<br>
+<span class="blue">→</span> Следующее изображение<br>
+<span class="blue">↑</span> Увеличить масштаб<br>
+<span class="blue">↓</span> Уменьшить масштаб<br>
+<span class="blue">F</span> Переключить масштаб отображения: 100% или по размеру экрана<br>
+<span class="blue">Esc</span> Выйти из просмотрщика изображений<br>
+<br>
+Кроме того, колёсико мыши также можно использовать для переключения изображений или управления масштабом, в зависимости от того, находится ли указатель мыши на изображении:<br>
+- При прокрутке колёсика мыши над изображением — изображение увеличивается или уменьшается;<br>
+- При прокрутке колёсика мыши вне изображения — происходит переключение изображений.`,
+  ],
   _原图: ['原图', '原圖', 'Original', 'Original', '원본', 'Оригинал'],
   _普通: ['普通', '普通', 'Regular', 'Regular', '레귤러', 'Обычный'],
   _小图: ['小图', '小圖', 'Small', 'Small', '스몰', 'Маленький'],

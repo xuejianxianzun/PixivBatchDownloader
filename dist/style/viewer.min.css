@@ -277,9 +277,6 @@
   transition: opacity 0.15s;
   white-space: nowrap;
 }
-.viewer-title:hover {
-  opacity: 1;
-}
 .viewer-button {
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 50%;

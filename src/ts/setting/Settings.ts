@@ -336,6 +336,7 @@ interface XzSetting {
   crawlOriginalWork: boolean
   crawlNonOriginalWork: boolean
   looseMatchOriginal: boolean
+  tipImageViewer: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -802,7 +803,7 @@ class Settings {
     copyFormatText: true,
     copyFormatHtml: true,
     tipCopyWorkInfoButton: true,
-    copyImageSize: 'regular',
+    copyImageSize: 'original',
     crawlLatestFewWorks: false,
     crawlLatestFewWorksNumber: 10,
     rememberTheLastSaveLocation: false,
@@ -822,6 +823,7 @@ class Settings {
     crawlOriginalWork: true,
     crawlNonOriginalWork: true,
     looseMatchOriginal: true,
+    tipImageViewer: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -988,6 +990,7 @@ class Settings {
     this.setSetting('tipPreviewWork', true)
     this.setSetting('tipHotkeysViewLargeImage', true)
     this.setSetting('tipAltSToSelectWork', true)
+    this.setSetting('tipImageViewer', true)
     this.setSetting('tipAltQToQuickDownload', true)
     this.setSetting('tipBookmarkButton', true)
     this.setSetting('tipBookmarkManage', true)

@@ -331,8 +331,8 @@ class PreviewWork {
         }
 
         // 预览作品时，可以使用快捷键 B 收藏这个作品
+        // 实际上 Alt + B 也会生效
         if (ev.code === 'KeyB') {
-          // 阻止 Pixiv 对按下 B 键的行为
           ev.preventDefault()
           ev.stopPropagation()
           this.addBookmark()

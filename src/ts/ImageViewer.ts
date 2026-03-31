@@ -1,3 +1,4 @@
+// https://github.com/fengyuanchen/viewerjs
 /// <reference path = "./ImageViewer.d.ts" />
 import { API } from './API'
 import { EVT } from './EVT'
@@ -13,6 +14,7 @@ import { downloadOnClickBookmark } from './download/DownloadOnClickBookmark'
 import { pageType } from './PageType'
 import { store } from './store/Store'
 import { copyWorkInfo } from './CopyWorkInfo'
+import { showOneTimeMsg } from './ShowOneTimeMsg'
 
 interface InitConfig {
   /** 作品 id，如果为空从会 url 中获取作品 id */
@@ -307,6 +309,12 @@ class ImageViewer {
     img.src = firstImageURL
 
     if (this.cfg.autoStart) {
+      // 启动图片查看器
+      showOneTimeMsg.show(
+        'tipImageViewer',
+        lang.transl('_图片查看器的帮助'),
+        lang.transl('_图片查看器')
+      )
       this.myViewer.show()
     }
   }

@@ -414,6 +414,8 @@ class MergeNovel {
         const novelId = data.id
 
         // 添加每篇小说的封面图片
+        // 这不需要调用 jepub.cover 方法，因为 jepub.cover 设置的是整个小说的唯一封面
+        // 每个章节的封面图是下载器调用 jepub.image 方法自行保存，然后通过 html 标签引用的
         let coverHtml = ''
         if (settings.downloadNovelCoverImage && data.coverUrl) {
           await this.sleep(this.downloadInterval)
