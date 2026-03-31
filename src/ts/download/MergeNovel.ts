@@ -17,7 +17,6 @@ import { cacheWorkData } from '../store/CacheWorkData'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { mergeNovelFileName } from './MergeNovelFileName'
 import { SendDownload } from './SendDownload'
-import { msgBox } from '../MsgBox'
 import { filter } from '../filter/Filter'
 
 declare const jEpub: any
@@ -180,15 +179,13 @@ class MergeNovel {
 
     // 进入合并流程
     this.novelName = mergeNovelFileName.getName(this.seriesData)
-    // msgBox.show(this.novelName +'<br>' + settings.seriesNovelNameRule)
-    // await Utils.sleep(3600000)
     if (settings.novelSaveAs === 'txt') {
       await this.mergeTXT()
     } else {
       await this.mergeEPUB(body)
     }
 
-    // 下载系列小说的封面图片，保存到单独的文件
+    // 下载系列小说的封面图片，保存为单独的图像文件
     const coverUrl = body.cover.urls.original
     if (settings.downloadNovelCoverImage && coverUrl) {
       this.logDownloadSeriesCover()
@@ -397,16 +394,28 @@ class MergeNovel {
       jepub.date(date)
 
       // 添加这个系列的封面图片到 EPUB 文件里
-      const coverUrl = body.cover.urls.original
-      if (settings.downloadNovelCoverImage && coverUrl) {
+      const seriesCoverUrl = body.cover.urls.original
+      if (settings.downloadNovelCoverImage && seriesCoverUrl) {
         await this.sleep(this.downloadInterval)
         this.logDownloadSeriesCover()
-        const cover = await downloadNovelCover.getCover(coverUrl, 'arrayBuffer')
+        const cover = await downloadNovelCover.getCover(
+          seriesCoverUrl,
+          'arrayBuffer'
+        )
         if (cover) {
           this.addSize(cover.byteLength)
           jepub.cover(Config.isFirefox ? Utils.copyArrayBuffer(cover) : cover)
         }
       }
+
+      // 记录每个章节的封面图片的 id 和原始 URL
+      // 在一个系列小说里，可能有多篇小说使用相同的封面图。它们的 URL 是相同的。
+      // 以前下载器会全部下载和保存它们，但这样浪费了网络请求，也使文件体积产生了不必要的增加。
+      // 所以使用这里的记录来避免重复加载、保存相同的封面图片
+      // 测试用例：
+      // https://www.pixiv.net/novel/series/15624511  有一个封面图重复多次
+      // https://www.pixiv.net/novel/series/15608417  有多个封面图重复多次
+      const episodeCovers: { id: string; url: string }[] = []
 
       // 循环添加小说内容
       for (; index < this.allNovelData.length; index++) {
@@ -415,30 +424,34 @@ class MergeNovel {
 
         // 添加每篇小说的封面图片
         // 这不需要调用 jepub.cover 方法，因为 jepub.cover 设置的是整个小说的唯一封面
-        // 每个章节的封面图是下载器调用 jepub.image 方法自行保存，然后通过 html 标签引用的
+        // 而且 jepub 不能为单个章节设置封面图片，所以每个章节的封面图是下载器调用 jepub.image 方法自行保存的，然后通过 html 标签引用
         let coverHtml = ''
-        if (settings.downloadNovelCoverImage && data.coverUrl) {
-          await this.sleep(this.downloadInterval)
-          log.log(
-            lang.transl(
-              '_下载小说的封面图片的提示',
-              Tools.createWorkLink(novelId, data.title, 'novel')
+        const coverUrl = data.coverUrl
+        if (settings.downloadNovelCoverImage && coverUrl) {
+          const link = Tools.createWorkLink(novelId, data.title, 'novel')
+          log.log(lang.transl('_下载小说的封面图片的提示', link))
+          // 先检查是否已经保存过这个章节的封面图
+          const find = episodeCovers.find((item) => item.url === coverUrl)
+          // 如果已经保存过，则直接引用它
+          if (find) {
+            coverHtml = `<p><img src="assets/${find.id}.jpg" /></p>`
+          } else {
+            // 没有保存过，下载并添加这个章节的封面图
+            await this.sleep(this.downloadInterval)
+            const cover = await downloadNovelCover.getCover(
+              coverUrl,
+              'arrayBuffer'
             )
-          )
-          // 下载器使用的 jepub.js 库只能为整个 EPUB 文件添加一个封面图片，不能为单个章节设置封面图片
-          // 所以需要手动添加图片，然后添加图片对应的 html 代码
-          const cover = await downloadNovelCover.getCover(
-            data.coverUrl,
-            'arrayBuffer'
-          )
-          if (cover) {
-            this.addSize(cover.byteLength)
-            const imageId = 'cover-' + novelId
-            jepub.image(
-              Config.isFirefox ? Utils.copyArrayBuffer(cover) : cover,
-              imageId
-            )
-            coverHtml = `<p><img src="assets/${imageId}.jpg" /></p>`
+            if (cover) {
+              this.addSize(cover.byteLength)
+              const imageId = 'cover-' + novelId
+              jepub.image(
+                Config.isFirefox ? Utils.copyArrayBuffer(cover) : cover,
+                imageId
+              )
+              coverHtml = `<p><img src="assets/${imageId}.jpg" /></p>`
+              episodeCovers.push({ id: imageId, url: coverUrl })
+            }
           }
         }
 

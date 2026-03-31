@@ -21920,11 +21920,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class DownloadNovelCover {
-    /**下载小说的封面图片
-     *
-     * 默认是正常下载小说的情况，可以设置为合并系列小说的情况
-     */
-    // 这个模块内部没有添加间隔时间，由调用者负责添加间隔时间
+    /**下载小说的封面图片 */
+    // 这个模块内部没有添加间隔时间
     async download(coverURL, novelName) {
         const blob = await this.getCover(coverURL, 'blob');
         if (blob === null) {
@@ -23540,15 +23537,13 @@ class MergeNovel {
         this.seriesUpdateDate = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__.DateFormat.format(body.updateDate);
         // 进入合并流程
         this.novelName = _MergeNovelFileName__WEBPACK_IMPORTED_MODULE_16__.mergeNovelFileName.getName(this.seriesData);
-        // msgBox.show(this.novelName +'<br>' + settings.seriesNovelNameRule)
-        // await Utils.sleep(3600000)
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.novelSaveAs === 'txt') {
             await this.mergeTXT();
         }
         else {
             await this.mergeEPUB(body);
         }
-        // 下载系列小说的封面图片，保存到单独的文件
+        // 下载系列小说的封面图片，保存为单独的图像文件
         const coverUrl = body.cover.urls.original;
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.downloadNovelCoverImage && coverUrl) {
             this.logDownloadSeriesCover();
@@ -23731,35 +23726,53 @@ class MergeNovel {
             jepub.uuid(link);
             jepub.date(date);
             // 添加这个系列的封面图片到 EPUB 文件里
-            const coverUrl = body.cover.urls.original;
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.downloadNovelCoverImage && coverUrl) {
+            const seriesCoverUrl = body.cover.urls.original;
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.downloadNovelCoverImage && seriesCoverUrl) {
                 await this.sleep(this.downloadInterval);
                 this.logDownloadSeriesCover();
-                const cover = await _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_5__.downloadNovelCover.getCover(coverUrl, 'arrayBuffer');
+                const cover = await _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_5__.downloadNovelCover.getCover(seriesCoverUrl, 'arrayBuffer');
                 if (cover) {
                     this.addSize(cover.byteLength);
                     jepub.cover(_Config__WEBPACK_IMPORTED_MODULE_9__.Config.isFirefox ? _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.copyArrayBuffer(cover) : cover);
                 }
             }
+            // 记录每个章节的封面图片的 id 和原始 URL
+            // 在一些系列小说里，可能有多篇小说使用相同的封面图。它们的 URL 是相同的。
+            // 以前下载器会全部下载和保存它们，但这样浪费了网络请求，也使文件体积产生了不必要的增加。
+            // 所以使用这里的记录来避免重复加载、保存相同的封面图片
+            // 测试用例：
+            // https://www.pixiv.net/novel/series/15624511  有一个封面图重复多次
+            // https://www.pixiv.net/novel/series/15608417  有多个封面图重复多次
+            const episodeCovers = [];
             // 循环添加小说内容
             for (; index < this.allNovelData.length; index++) {
                 const data = this.allNovelData[index];
                 const novelId = data.id;
                 // 添加每篇小说的封面图片
                 // 这不需要调用 jepub.cover 方法，因为 jepub.cover 设置的是整个小说的唯一封面
-                // 每个章节的封面图是下载器调用 jepub.image 方法自行保存，然后通过 html 标签引用的
+                // 而且 jepub 不能为单个章节设置封面图片，所以每个章节的封面图是下载器调用 jepub.image 方法自行保存的，然后通过 html 标签引用
                 let coverHtml = '';
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.downloadNovelCoverImage && data.coverUrl) {
-                    await this.sleep(this.downloadInterval);
-                    _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载小说的封面图片的提示', _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.createWorkLink(novelId, data.title, 'novel')));
-                    // 下载器使用的 jepub.js 库只能为整个 EPUB 文件添加一个封面图片，不能为单个章节设置封面图片
-                    // 所以需要手动添加图片，然后添加图片对应的 html 代码
-                    const cover = await _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_5__.downloadNovelCover.getCover(data.coverUrl, 'arrayBuffer');
-                    if (cover) {
-                        this.addSize(cover.byteLength);
-                        const imageId = 'cover-' + novelId;
-                        jepub.image(_Config__WEBPACK_IMPORTED_MODULE_9__.Config.isFirefox ? _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.copyArrayBuffer(cover) : cover, imageId);
-                        coverHtml = `<p><img src="assets/${imageId}.jpg" /></p>`;
+                const coverUrl = data.coverUrl;
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.downloadNovelCoverImage && coverUrl) {
+                    const link = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.createWorkLink(novelId, data.title, 'novel');
+                    _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载小说的封面图片的提示', link));
+                    // 先检查是否已经保存过这个章节的封面图
+                    const find = episodeCovers.find((item) => item.url === coverUrl);
+                    // 如果已经保存过，则直接引用它
+                    if (find) {
+                        coverHtml = `<p><img src="assets/${find.id}.jpg" /></p>`;
+                    }
+                    else {
+                        // 没有保存过，下载并添加这个章节的封面图
+                        await this.sleep(this.downloadInterval);
+                        const cover = await _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_5__.downloadNovelCover.getCover(coverUrl, 'arrayBuffer');
+                        if (cover) {
+                            this.addSize(cover.byteLength);
+                            const imageId = 'cover-' + novelId;
+                            jepub.image(_Config__WEBPACK_IMPORTED_MODULE_9__.Config.isFirefox ? _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.copyArrayBuffer(cover) : cover, imageId);
+                            coverHtml = `<p><img src="assets/${imageId}.jpg" /></p>`;
+                            episodeCovers.push({ id: imageId, url: coverUrl });
+                        }
                     }
                 }
                 // 添加每篇小说的元数据，内容包含：

@@ -1140,12 +1140,17 @@ export interface NovelData {
       }[]
       writable: boolean
     }
+    /** 包含系列的简单信息，当小说属于一个系列时有值，否则是 null */
     seriesNavData: null | {
-      seriesType: string
       seriesId: string
+      // 在小说数据里，seriesType 必定是 "novel"
+      seriesType: string
+      /** 系列标题 */
       title: string
+      /** 系列是否已完结 */
       isConcluded: boolean
       isReplaceable: boolean
+      /** 这篇小说在系列中的序号，从 1 开始 */
       order: number
       next: {
         title: string

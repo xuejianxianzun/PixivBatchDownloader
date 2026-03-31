@@ -4,11 +4,8 @@ import { lang } from '../Language'
 import { SendDownload } from './SendDownload'
 
 class DownloadNovelCover {
-  /**下载小说的封面图片
-   *
-   * 默认是正常下载小说的情况，可以设置为合并系列小说的情况
-   */
-  // 这个模块内部没有添加间隔时间，由调用者负责添加间隔时间
+  /**下载小说的封面图片 */
+  // 这个模块内部没有添加间隔时间
   public async download(coverURL: string, novelName: string) {
     const blob = await this.getCover(coverURL, 'blob')
     if (blob === null) {
