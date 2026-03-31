@@ -18,6 +18,8 @@ class InitContestPage extends InitPageBase {
     this.init()
   }
 
+  protected getIdListLogKey = 'crawlApplicationWorkIdList'
+
   /** applications: 抓取应募作品；winning: 抓取获奖作品 */
   private scope: 'applications' | 'winning' = 'applications'
   private type: 'illust' | 'novel' = 'illust'
@@ -139,7 +141,7 @@ class InitContestPage extends InitPageBase {
 
     log.log(
       '➡️' + lang.transl('_已抓取x页应募作品', this.page.toString()),
-      'crawlApplicationWorkIdList'
+      this.getIdListLogKey
     )
 
     // 判断是否抓取完毕

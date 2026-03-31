@@ -4,6 +4,7 @@ interface ListData {
   callback: Function | null
 }
 
+// 使用 worker 里的定时器而非 windows 上的定时器，因为当标签页处于后台时，windows 上的 setTimeout 和 setInterval 的回调函数会被大幅度地延迟，而 worker 里的定时器不会受到这个限制
 class SetTimeoutWorker {
   constructor() {
     this.createWorker()
@@ -22,18 +23,21 @@ class SetTimeoutWorker {
 
   private createWorker() {
     const blob = new Blob([this.workerCode])
-    this.worker = new Worker(URL.createObjectURL(blob))
+    const url = URL.createObjectURL(blob)
+    this.worker = new Worker(url)
+    URL.revokeObjectURL(url)
 
     this.worker.addEventListener('message', (ev) => {
       const id = ev.data.id as number
-      if (this.list[id].callback !== null) {
-        this.list[id].callback!()
+      const entry = this.list.get(id)
+      if (entry && entry.callback !== null) {
+        entry.callback()
         this.clear(id)
       }
     })
   }
 
-  private list: ListData[] = []
+  private list = new Map<number, ListData>()
 
   private timerId = 0
 
@@ -43,7 +47,7 @@ class SetTimeoutWorker {
       time,
       callback,
     }
-    this.list.push(data)
+    this.list.set(data.id, data)
     this.timerId++
 
     this.worker.postMessage({
@@ -55,7 +59,7 @@ class SetTimeoutWorker {
   }
 
   public clear(id: number) {
-    this.list[id].callback = null
+    this.list.delete(id)
   }
 }
 

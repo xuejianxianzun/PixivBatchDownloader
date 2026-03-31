@@ -17,6 +17,8 @@ class InitRankingNovelPageOld extends InitPageBase {
     this.init()
   }
 
+  protected getIdListLogKey = 'crawlRankingNovelPageProgress'
+
   private pageUrlList: string[] = []
 
   private page = 1
@@ -131,7 +133,7 @@ class InitRankingNovelPageOld extends InitPageBase {
 
     log.log(
       '➡️' + lang.transl('_排行榜进度', this.listPageFinished.toString()),
-      'crawlRankingNovelPageProgress'
+      this.getIdListLogKey
     )
 
     const rankingItem = dom.querySelectorAll(

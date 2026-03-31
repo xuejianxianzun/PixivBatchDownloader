@@ -43,6 +43,8 @@ abstract class InitPageBase {
   protected startpageNo = 1
   /** 记录一共抓取了多少个列表页 */
   protected listPageFinished = 0
+  /** 获取 id 列表时，如果要显示刷新的日志（显示进度信息），可以设置这个 key。获取 id 完毕后会将其持久化 */
+  protected getIdListLogKey = ''
   /**抓取作品时的并发请求数量默认值，也是最大值 */
   protected readonly ajaxThreadsDefault = 3
   /**抓取作品时的并发请求数 */
@@ -202,7 +204,7 @@ abstract class InitPageBase {
     }
 
     // 清空日志
-    // 注意：很多方法都会输出日志，那些方法必须放在此事件之后，否则用户看不到对应的日志
+    // 注意：抓取过程中，很多方法都会输出日志，它们必须在此事件之后执行，否则用户根本看不到那些日志
     EVT.fire('clearLog')
 
     showOneTimeMsg.show(
@@ -327,6 +329,7 @@ abstract class InitPageBase {
 
   // id 列表获取完毕，开始抓取作品内容页
   protected async getIdListFinished() {
+    log.persistentRefresh(this.getIdListLogKey)
     states.slowCrawlMode = false
     this.resetGetIdListStatus()
 
@@ -631,6 +634,7 @@ abstract class InitPageBase {
 
   // 抓取完毕
   protected crawlFinished() {
+    log.persistentRefresh('getWorksProgress')
     // 当下载器没有处于慢速抓取模式时，会使用并发请求（例如同时发送 3 个请求）
     // 此时如果第一个请求触发了停止抓取 states.stopCrawl，这些并发请求都会进入这里
     // 所以我设置了个一次性的标记，防止重复执行这里的代码

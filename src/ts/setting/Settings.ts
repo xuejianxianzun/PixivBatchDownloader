@@ -882,26 +882,29 @@ class Settings {
     const codes = ['onlyugoira', 'qw222']
     for (const code of codes) {
       secretSignal.register(code, () => {
-        // 如果只有动图被选中，则选择全部作品类型
-        // 反之，只选择动图
+        // 如果只有动图被选中，则改为选择全部作品类型
         if (
           this.settings.downType2 &&
           !this.settings.downType0 &&
           !this.settings.downType1 &&
           !this.settings.downType3
         ) {
-          this.settings.downType0 = true
-          this.settings.downType1 = true
-          this.settings.downType3 = true
-          // 多次修改只触发一次改变事件，提高效率
           this.setSetting('downType0', true)
+          this.setSetting('downType1', true)
+          this.setSetting('downType3', true)
           toast.warning('onlyUgoira off')
         } else {
-          this.settings.downType0 = false
-          this.settings.downType1 = false
-          this.settings.downType2 = true
-          this.settings.downType3 = false
+          // 对于其他情况，不管动图有没有被选中，都改为只选择动图
+          if (this.settings.downType0) {
+            this.setSetting('downType0', false)
+          }
+          if (this.settings.downType1) {
+            this.setSetting('downType1', false)
+          }
           this.setSetting('downType2', true)
+          if (this.settings.downType3) {
+            this.setSetting('downType3', false)
+          }
           toast.success('onlyUgoira on')
         }
       })
@@ -915,12 +918,6 @@ class Settings {
     browser.storage.local.get(Config.settingStoreName).then((result) => {
       if (result[Config.settingStoreName]) {
         restoreData = result[Config.settingStoreName] as XzSetting
-      } else {
-        // 如无数据则尝试从 localStorage 获取配置，因为旧版本的配置储存在 localStorage 中
-        const savedSettings = localStorage.getItem(Config.settingStoreName)
-        if (savedSettings) {
-          restoreData = JSON.parse(savedSettings)
-        }
       }
 
       // 有些设置项的 key 是 PageName（页面类型）。当有新的页面类型之后，我会添加新的页面类型的配置，但旧的设置里缺少这些配置，所以需要添加到旧的设置里
@@ -1046,6 +1043,9 @@ class Settings {
           } else {
             // 把日期字符串转换成时间戳
             const date = new Date(value as string)
+            if (isNaN(date.getTime())) {
+              return this.tipError(key)
+            }
             value = date.getTime()
           }
         }

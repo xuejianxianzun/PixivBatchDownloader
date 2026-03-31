@@ -1,16 +1,13 @@
 import { EVT } from './EVT'
 import { theme } from './Theme'
 import { Colors } from './Colors'
-import { bg } from './BG'
 import { lang } from './Language'
-import { store } from './store/Store'
 import { toast } from './Toast'
-import { Tools } from './Tools'
 import { Utils } from './utils/Utils'
 import { settings } from './setting/Settings'
-import { DateFormat } from './utils/DateFormat'
 import { Config } from './Config'
 import { pageType } from './PageType'
+import { exportLog } from './ExportLog'
 
 // 日志
 class Log {
@@ -27,28 +24,6 @@ class Log {
 
     window.addEventListener(EVT.list.clearLog, () => {
       this.removeAll()
-    })
-
-    const clearRecordEvents = [EVT.list.clearLog, EVT.list.downloadStop]
-    clearRecordEvents.forEach((evt) => {
-      window.addEventListener(evt, () => {
-        this.record = []
-      })
-    })
-
-    window.addEventListener(EVT.list.crawlComplete, () => {
-      if (settings.exportLog && settings.exportLogTiming === 'crawlComplete') {
-        this.export()
-      }
-    })
-
-    window.addEventListener(EVT.list.downloadComplete, () => {
-      if (
-        settings.exportLog &&
-        settings.exportLogTiming === 'downloadComplete'
-      ) {
-        this.export()
-      }
     })
   }
 
@@ -101,9 +76,6 @@ class Log {
       this.logBtn.classList.remove('show')
     }
   }
-
-  /** 保存日志历史。刷新的日志不会保存 */
-  private record: { html: string; level: number }[] = []
 
   /** 指示是否需要把日志滚动到底部 */
   // 当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false
@@ -192,10 +164,8 @@ class Log {
     this.logContent.appendChild(span)
     this.toBottom = true // 需要把日志滚动到底部
 
-    // 把持久日志保存到记录里
-    if (key === '') {
-      this.record.push({ html: span.outerHTML, level })
-    }
+    // 把这条日志保存到记录里
+    exportLog.push({ html: span.outerHTML, level, key })
   }
 
   public log(str: string, key = '') {
@@ -218,7 +188,10 @@ class Log {
   // 常见的使用场景：当某个进度完成之后（例如显示到 10/10）就不会再变化了，此时可以将其持久化，这样下次从 0 输出进度时，会使用新的日志插槽，不会影响之前已完成了进度的日志
   // 但也不是每个进度完成后都需要调用此方法。如果日志的 key 具有唯一性（例如携带了作品 id），就没有必要调用此方法。只有当 key 不具有唯一性，或者考虑到用户可能会重复抓取同一个作品时（此时即使携带了 id，也依然会重复输出日志），才有必要调用此方法。
   public persistentRefresh(key: string) {
-    this.slots[key] = document.createElement('span')
+    if (key) {
+      this.slots[key] = document.createElement('span')
+      exportLog.unsetKey(key)
+    }
   }
 
   /**在页面顶部创建一个“显示日志”按钮 */
@@ -411,69 +384,6 @@ class Log {
     allLogWrap.forEach(
       (wrap) => ((wrap as HTMLDListElement).style.display = 'none')
     )
-  }
-
-  private export() {
-    const data: string[] = []
-
-    for (const record of this.record) {
-      let html = ''
-      if (record.level !== 3 && settings.exportLogNormal) {
-        html = record.html
-      }
-      if (record.level === 3 && settings.exportLogError) {
-        html = record.html
-      }
-
-      // 检查排除的关键字
-      if (html && settings.exportLogExclude.length > 0) {
-        let checkStr = html
-        // 如果含有作品链接，则只检查链接后面的部分。这是为了避免因作品 id 中包含要排除的关键字而导致错误的排除
-        if (html.includes('<a href')) {
-          const array = html.split('</a>')
-          checkStr = array[array.length - 1]
-        }
-        const index = settings.exportLogExclude.findIndex((val) => {
-          return checkStr.includes(val)
-        })
-        if (index === -1) {
-          data.push(html)
-        }
-      }
-    }
-
-    if (data.length === 0) {
-      return
-    }
-
-    const fileName = `log-${Utils.replaceUnsafeStr(
-      Tools.getPageTitle()
-    )}-${Utils.replaceUnsafeStr(
-      DateFormat.format(store.crawlCompleteTime, settings.dateFormat)
-    )}.html`
-
-    const content = `<!DOCTYPE html>
-        <html>
-        <body>
-        <div id="logWrap">
-        ${data.join('\n')}
-        </div>
-        </body>
-        </html>`
-
-    const blob = new Blob([content], {
-      type: 'text/html',
-    })
-
-    const url = URL.createObjectURL(blob)
-
-    Utils.downloadFile(url, fileName)
-
-    const msg = '✅' + lang.transl('_导出日志成功')
-    log.success(msg)
-    toast.success(msg, {
-      position: 'topCenter',
-    })
   }
 
   /** 调试用：连续输出大量日志

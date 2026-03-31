@@ -37,6 +37,8 @@ class InitSearchNovelPage extends InitPageBase {
     crawlTagList.init()
   }
 
+  protected getIdListLogKey = 'crawlNovelSearchPageListPage'
+
   private option: SearchOption = {}
   private readonly worksNoPerPage = 30 // 每个页面有多少个作品
   private needCrawlPageCount = 0 // 一共有有多少个列表页面
@@ -434,7 +436,7 @@ class InitSearchNovelPage extends InitPageBase {
           this.listPageFinished.toString(),
           this.needCrawlPageCount.toString()
         ),
-      'crawlNovelSearchPageListPage'
+      this.getIdListLogKey
     )
 
     if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {

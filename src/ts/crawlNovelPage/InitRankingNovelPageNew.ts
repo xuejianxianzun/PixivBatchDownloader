@@ -62,6 +62,8 @@ class InitRankingNovelPageNew extends InitPageBase {
     }
   }
 
+  protected getIdListLogKey = 'crawlRankingNovelPageProgress'
+
   // 这 3 种排行榜只有全年龄，没有 R-18 分类：
   // 本月、新人、原创
   // 这 5 种排行榜有全年龄和 R-18 两种分类：
@@ -130,7 +132,7 @@ class InitRankingNovelPageNew extends InitPageBase {
 
       log.log(
         '➡️' + lang.transl('_排行榜进度', this.listPageFinished.toString()),
-        'crawlRankingNovelPageProgress'
+        this.getIdListLogKey
       )
 
       const display_a = json.body.display_a

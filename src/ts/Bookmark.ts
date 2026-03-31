@@ -74,8 +74,13 @@ class Bookmark {
         // 需要添加 tags
         if (tags === undefined) {
           // 如果未传递 tags，则请求作品数据来获取 tags
-          const data = await this.getWorkData(type, id)
-          tags = Tools.extractTags(data)
+          try {
+            const data = await this.getWorkData(type, id)
+            tags = Tools.extractTags(data)
+          } catch (error) {
+            // 请求失败的话使用空 tags。这不是致命问题
+            tags = []
+          }
         }
       } else {
         // 不需要添加 tags
@@ -103,15 +108,10 @@ class Bookmark {
   }
 
   private async waitCallMe(NO: number) {
-    return new Promise<number>(async (resolve) => {
-      if (this.nextTaskID === NO) {
-        return resolve(NO)
-      } else {
-        setTimeoutWorker.set(() => {
-          return resolve(this.waitCallMe(NO))
-        }, 300)
-      }
-    })
+    while (this.nextTaskID !== NO) {
+      await new Promise<void>((resolve) => setTimeoutWorker.set(resolve, 300))
+    }
+    return NO
   }
 
   /**获取指定用户的指定分类下的所有收藏列表，不限制页数或个数，全部抓取 */
@@ -224,7 +224,7 @@ class Bookmark {
           // 注意：其他模块调用本模块来添加收藏时，由本模块来显示下面的错误消息
           // 所以其他模块通常不需要自行显示错误消息，否则就重复了
           // 不过下面没有使用 msgBox 来显示（因为会打扰用户），所以如果其他模块想使用 msgBox 来显示的话可以自行处理
-          // 当发生 400 错误时重试
+          // 当发生 400 错误时会无限重试，因为重试不成功的话就无法添加收藏
           case 400:
             await token.reset()
             await Utils.sleep(3000)

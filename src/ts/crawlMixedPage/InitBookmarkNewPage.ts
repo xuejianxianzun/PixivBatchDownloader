@@ -23,6 +23,8 @@ class InitBookmarkNewPage extends InitPageBase {
     this.init()
   }
 
+  protected getIdListLogKey = 'crawlBookmarkNewPageProgress'
+
   protected workType: 'illust' | 'novel' = 'illust'
   /** bookmark 是关注的用户的新作品；mypixiv 是好P友的新作品 */
   protected pageType: 'bookmark' | 'mypixiv' = 'bookmark'
@@ -181,7 +183,7 @@ class InitBookmarkNewPage extends InitPageBase {
 
     log.log(
       '➡️' + lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
-      'crawlBookmarkNewPageProgress'
+      this.getIdListLogKey
     )
 
     // 判断任务状态

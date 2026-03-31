@@ -66,6 +66,8 @@ class InitRankingArtworkPage extends InitPageBase {
     }
   }
 
+  protected getIdListLogKey = 'crawlRankingPageProgress'
+
   private option: RankingOption = {
     mode: 'daily',
     p: 1,
@@ -143,7 +145,7 @@ class InitRankingArtworkPage extends InitPageBase {
 
     log.log(
       '➡️' + lang.transl('_排行榜进度', this.listPageFinished.toString()),
-      'crawlRankingPageProgress'
+      this.getIdListLogKey
     )
 
     const contents = data.contents // 取出作品信息列表

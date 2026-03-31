@@ -28,6 +28,7 @@ class InitFollowingPage extends InitPageBase {
     this.init()
   }
 
+  protected getIdListLogKey = 'logFollowingUserIdListLength'
   private baseOffset = 0 // 开始抓取时，记录初始的偏移量
   private readonly onceNumber = 24 // 每页 24 个画师
 
@@ -275,7 +276,7 @@ class InitFollowingPage extends InitPageBase {
         '_当前有x个作品',
         store.idList.length.toString()
       )}`,
-      'logFollowingUserIdListLength'
+      this.getIdListLogKey
     )
 
     if (this.index >= this.userList.length) {

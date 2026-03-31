@@ -47,6 +47,8 @@ class InitSearchArtworkPage extends InitPageBase {
     this.init()
   }
 
+  protected getIdListLogKey = 'crawlArtworkSearchPageListPage'
+
   private readonly workListWrapID = 'workListWrap'
   private readonly listClass = 'searchList'
   private readonly multipleClass = 'multiplePart'
@@ -605,7 +607,7 @@ class InitSearchArtworkPage extends InitPageBase {
           this.listPageFinished.toString(),
           this.needCrawlPageCount.toString()
         ),
-      'crawlArtworkSearchPageListPage'
+      this.getIdListLogKey
     )
 
     if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {

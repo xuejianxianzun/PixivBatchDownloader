@@ -18,6 +18,8 @@ class InitArtworkSeriesPage extends InitPageBase {
     this.init()
   }
 
+  protected getIdListLogKey = 'crawlSeriesPageIdListProgress'
+
   private seriesId = ''
 
   protected addCrawlBtns() {
@@ -120,7 +122,7 @@ class InitArtworkSeriesPage extends InitPageBase {
       // 继续抓取
       log.log(
         '➡️' + lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
-        'crawlSeriesPageIdListProgress'
+        this.getIdListLogKey
       )
 
       this.getIdList()

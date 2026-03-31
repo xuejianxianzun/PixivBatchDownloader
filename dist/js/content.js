@@ -1282,17 +1282,18 @@ class API {
                             // 等待一段时间后，通过尾递归重试请求
                             // console.log(`429 tryCount ${tryCount}`)
                             await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.sleep(_Config__WEBPACK_IMPORTED_MODULE_0__.Config.retryTime);
-                            await attemptRequest(tryCount + 1);
+                            return await attemptRequest(tryCount + 1);
                         }
                         else if (response.status === 502 && tryCount < 3) {
                             // 502 错误重试最多 3 次
                             // 现在偶尔会遇到 502 错误，通常可以很快重试成功，所以等待 10 秒后重试
                             console.log(`502 tryCount ${tryCount}`);
                             await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.sleep(10000);
-                            await attemptRequest(tryCount + 1);
+                            return await attemptRequest(tryCount + 1);
                         }
                         else {
-                            // 对于其他状态码，不会重试
+                            // 对于其他状态码，以及重试超出最大次数的，不再重试，而是通过 reject 抛出错误
+                            // LogErrorStatus 模块会在日志里输出错误信息
                             console.error(`Status Code: ${response.status}`);
                             return reject({
                                 status: response.status,
@@ -1302,7 +1303,7 @@ class API {
                     }
                 }
                 catch (error) {
-                    reject(error);
+                    return reject(error);
                 }
             };
             attemptRequest();
@@ -1405,6 +1406,7 @@ class API {
             }
         }
         catch (error) {
+            // 如果请求出错，会返回空数组，而不是抛出错误
             return result;
         }
         return result;
@@ -1586,9 +1588,9 @@ class API {
         return this.fetch(`https://www.pixiv.net/ajax/dashboard/works/${workType}/request_strategy`);
     }
     /**关注一个用户 */
-    // restrict: false 为公开关注，true 为非公开关注
+    // show: true 为公开关注，false 为非公开关注
     // recaptcha_enterprise_score_token 对于有些用户是不需要的。允许传递空值
-    static async addFollowingUser(userID, token, restrict = false, recaptcha_enterprise_score_token = '') {
+    static async addFollowingUser(userID, token, show = true, recaptcha_enterprise_score_token = '') {
         return new Promise(async (resolve) => {
             const url = `https://www.pixiv.net/bookmark_add.php`;
             const init = {
@@ -1599,7 +1601,7 @@ class API {
                     'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
                     'x-csrf-token': token,
                 },
-                body: `mode=add&type=user&user_id=${userID}&tag=&restrict=${restrict ? 0 : 1}&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
+                body: `mode=add&type=user&user_id=${userID}&tag=&restrict=${show ? 0 : 1}&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
             };
             try {
                 // 如果操作成功，则返回值是 []
@@ -2104,8 +2106,14 @@ class Bookmark {
                 // 需要添加 tags
                 if (tags === undefined) {
                     // 如果未传递 tags，则请求作品数据来获取 tags
-                    const data = await this.getWorkData(type, id);
-                    tags = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data);
+                    try {
+                        const data = await this.getWorkData(type, id);
+                        tags = _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.extractTags(data);
+                    }
+                    catch (error) {
+                        // 请求失败的话使用空 tags。这不是致命问题
+                        tags = [];
+                    }
                 }
             }
             else {
@@ -2129,16 +2137,10 @@ class Bookmark {
         });
     }
     async waitCallMe(NO) {
-        return new Promise(async (resolve) => {
-            if (this.nextTaskID === NO) {
-                return resolve(NO);
-            }
-            else {
-                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_4__.setTimeoutWorker.set(() => {
-                    return resolve(this.waitCallMe(NO));
-                }, 300);
-            }
-        });
+        while (this.nextTaskID !== NO) {
+            await new Promise((resolve) => _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_4__.setTimeoutWorker.set(resolve, 300));
+        }
+        return NO;
     }
     /**获取指定用户的指定分类下的所有收藏列表，不限制页数或个数，全部抓取 */
     async getAllBookmarkList(userID, type, tags, offsetStart = 0, hide) {
@@ -2215,7 +2217,7 @@ class Bookmark {
                     // 注意：其他模块调用本模块来添加收藏时，由本模块来显示下面的错误消息
                     // 所以其他模块通常不需要自行显示错误消息，否则就重复了
                     // 不过下面没有使用 msgBox 来显示（因为会打扰用户），所以如果其他模块想使用 msgBox 来显示的话可以自行处理
-                    // 当发生 400 错误时重试
+                    // 当发生 400 错误时会无限重试，因为重试不成功的话就无法添加收藏
                     case 400:
                         await _Token__WEBPACK_IMPORTED_MODULE_7__.token.reset();
                         await _utils_Utils__WEBPACK_IMPORTED_MODULE_9__.Utils.sleep(3000);
@@ -3647,6 +3649,138 @@ class EVENT {
     }
 }
 const EVT = new EVENT();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/ExportLog.ts":
+/*!*****************************!*\
+  !*** ./src/ts/ExportLog.ts ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   exportLog: () => (/* binding */ exportLog)
+/* harmony export */ });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+
+
+
+
+
+
+
+
+class ExportLog {
+    constructor() {
+        const clearRecordEvents = [_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.clearLog, _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop];
+        clearRecordEvents.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.record = [];
+            });
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, () => {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.exportLog && _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.exportLogTiming === 'crawlComplete') {
+                this.export();
+            }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadComplete, () => {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.exportLog &&
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.exportLogTiming === 'downloadComplete') {
+                this.export();
+            }
+        });
+    }
+    record = [];
+    push(data) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.exportLog) {
+            return;
+        }
+        // 对于持久的日志，直接添加到记录里
+        if (data.key === '') {
+            this.record.push(data);
+        }
+        else {
+            // 对于刷新的日志，如果已经存在相同 key 的记录，则更新它，因为一个 key 只对应一条日志插槽
+            const index = this.record.findIndex((item) => item.key === data.key);
+            if (index === -1) {
+                this.record.push(data);
+            }
+            else {
+                this.record[index] = data;
+            }
+        }
+    }
+    /** 当持久化一条日志时，在记录里找到对应的条目，将其 key 清空。这样之后可以再次添加相同 key 的日志 */
+    unsetKey(key) {
+        const index = this.record.findIndex((item) => item.key === key);
+        if (index !== -1) {
+            this.record[index].key = '';
+        }
+    }
+    export() {
+        const logs = [];
+        for (const record of this.record) {
+            let html = '';
+            if (record.level !== 3 && _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.exportLogNormal) {
+                html = record.html;
+            }
+            if (record.level === 3 && _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.exportLogError) {
+                html = record.html;
+            }
+            // 检查排除的关键字
+            if (html) {
+                let shouldExport = true;
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.exportLogExclude.length > 0) {
+                    let checkStr = html;
+                    // 如果含有作品链接，则只检查链接后面的部分。这是为了避免因作品 id 中包含要排除的关键字而导致错误的排除
+                    if (html.includes('<a href')) {
+                        const array = html.split('</a>');
+                        checkStr = array[array.length - 1];
+                    }
+                    const index = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.exportLogExclude.findIndex((val) => {
+                        return checkStr.includes(val);
+                    });
+                    shouldExport = index === -1;
+                }
+                if (shouldExport) {
+                    logs.push(html);
+                }
+            }
+        }
+        if (logs.length === 0) {
+            return;
+        }
+        const fileName = `log-${_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.getPageTitle())}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(_utils_DateFormat__WEBPACK_IMPORTED_MODULE_7__.DateFormat.format(_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.crawlCompleteTime, _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.dateFormat))}.html`;
+        const content = `<!DOCTYPE html>
+        <html>
+        <body>
+        <div id="logWrap">
+        ${logs.join('\n')}
+        </div>
+        </body>
+        </html>`;
+        const blob = new Blob([content], {
+            type: 'text/html',
+        });
+        const url = URL.createObjectURL(blob);
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(url, fileName);
+        _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出日志成功'), {
+            position: 'topCenter',
+        });
+    }
+}
+const exportLog = new ExportLog();
 
 
 
@@ -5911,16 +6045,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-
-
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _ExportLog__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ExportLog */ "./src/ts/ExportLog.ts");
 
 
 
@@ -5943,23 +6073,6 @@ class Log {
         }, 500);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.clearLog, () => {
             this.removeAll();
-        });
-        const clearRecordEvents = [_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.clearLog, _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop];
-        clearRecordEvents.forEach((evt) => {
-            window.addEventListener(evt, () => {
-                this.record = [];
-            });
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, () => {
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportLog && _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportLogTiming === 'crawlComplete') {
-                this.export();
-            }
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadComplete, () => {
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportLog &&
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportLogTiming === 'downloadComplete') {
-                this.export();
-            }
         });
     }
     /**每个日志区域显示多少条日志 */
@@ -5989,7 +6102,7 @@ class Log {
         // https://www.pixiv.net/artworks/130919451#1
         // 这是因为即使用户之前已经把页面滚动了一部分（按钮是隐藏的），但点击“阅读全部”后，按钮就会显示出来
         // 但实际上在阅读时不应该显示按钮，所以特殊处理一下
-        if (_PageType__WEBPACK_IMPORTED_MODULE_11__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_11__.pageType.list.Artwork &&
+        if (_PageType__WEBPACK_IMPORTED_MODULE_8__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_8__.pageType.list.Artwork &&
             /#\d/.test(window.location.hash) &&
             document.querySelector('a.gtm-expand-full-size-illust')) {
             this.logBtn.classList.remove('show');
@@ -6004,8 +6117,6 @@ class Log {
             this.logBtn.classList.remove('show');
         }
     }
-    /** 保存日志历史。刷新的日志不会保存 */
-    record = [];
     /** 指示是否需要把日志滚动到底部 */
     // 当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false
     toBottom = false;
@@ -6084,10 +6195,8 @@ class Log {
         span.appendChild(document.createElement('br'));
         this.logContent.appendChild(span);
         this.toBottom = true; // 需要把日志滚动到底部
-        // 把持久日志保存到记录里
-        if (key === '') {
-            this.record.push({ html: span.outerHTML, level });
-        }
+        // 把这条日志保存到记录里
+        _ExportLog__WEBPACK_IMPORTED_MODULE_9__.exportLog.push({ html: span.outerHTML, level, key });
     }
     log(str, key = '') {
         this.add(str, 0, key);
@@ -6105,7 +6214,10 @@ class Log {
     // 常见的使用场景：当某个进度完成之后（例如显示到 10/10）就不会再变化了，此时可以将其持久化，这样下次从 0 输出进度时，会使用新的日志插槽，不会影响之前已完成了进度的日志
     // 但也不是每个进度完成后都需要调用此方法。如果日志的 key 具有唯一性（例如携带了作品 id），就没有必要调用此方法。只有当 key 不具有唯一性，或者考虑到用户可能会重复抓取同一个作品时（此时即使携带了 id，也依然会重复输出日志），才有必要调用此方法。
     persistentRefresh(key) {
-        this.slots[key] = document.createElement('span');
+        if (key) {
+            this.slots[key] = document.createElement('span');
+            _ExportLog__WEBPACK_IMPORTED_MODULE_9__.exportLog.unsetKey(key);
+        }
     }
     /**在页面顶部创建一个“显示日志”按钮 */
     createToggleBtn() {
@@ -6131,7 +6243,7 @@ class Log {
             }
         }, 100);
         /**当页面滚动一定距离后，隐藏“显示日志”按钮 */
-        const hideLogBtn = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.debounce(() => {
+        const hideLogBtn = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.debounce(() => {
             if (window.scrollY > 10) {
                 this.logBtnShow = false;
             }
@@ -6154,7 +6266,7 @@ class Log {
             }
             ev.preventDefault();
             if (this.count === 0) {
-                _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_没有日志'), {
+                _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_没有日志'), {
                     position: 'mouse',
                 });
                 return;
@@ -6193,7 +6305,7 @@ class Log {
             logWrap.classList.add(this.logWrapClassName, this.logWrapFlag);
             const logContent = document.createElement('div');
             logContent.classList.add(this.logContentClassName, 'beautify_scrollbar');
-            if (_Config__WEBPACK_IMPORTED_MODULE_10__.Config.mobile) {
+            if (_Config__WEBPACK_IMPORTED_MODULE_7__.Config.mobile) {
                 logWrap.classList.add('mobile');
             }
             logWrap.append(logContent);
@@ -6220,16 +6332,16 @@ class Log {
             // bg.useBG(this.wrap, 0.9)
             // 如果这是第一个日志区域，则为其应用“日志区域的默认可见性”设置
             if (isFirst) {
-                this.show = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.logVisibleDefault === 'show';
+                this.show = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.logVisibleDefault === 'show';
             }
             else {
                 // 如果这不是第一个日志区域，则让它的显示状态与上一个日志区域保持一致
                 this.show = this.show;
             }
             // 监听新的日志区域的可见性
-            _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.observeElement(this.logWrap, (value) => {
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.observeElement(this.logWrap, (value) => {
                 this.isVisible = value;
-            }, _Config__WEBPACK_IMPORTED_MODULE_10__.Config.mobile ? 0 : 1);
+            }, _Config__WEBPACK_IMPORTED_MODULE_7__.Config.mobile ? 0 : 1);
         }
     }
     scrollToBottom(el) {
@@ -6261,55 +6373,6 @@ class Log {
         const allLogWrap = document.querySelectorAll(`.${this.logWrapFlag}`);
         allLogWrap.forEach((wrap) => (wrap.style.display = 'none'));
     }
-    export() {
-        const data = [];
-        for (const record of this.record) {
-            let html = '';
-            if (record.level !== 3 && _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportLogNormal) {
-                html = record.html;
-            }
-            if (record.level === 3 && _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportLogError) {
-                html = record.html;
-            }
-            // 检查排除的关键字
-            if (html && _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportLogExclude.length > 0) {
-                let checkStr = html;
-                // 如果含有作品链接，则只检查链接后面的部分。这是为了避免因作品 id 中包含要排除的关键字而导致错误的排除
-                if (html.includes('<a href')) {
-                    const array = html.split('</a>');
-                    checkStr = array[array.length - 1];
-                }
-                const index = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.exportLogExclude.findIndex((val) => {
-                    return checkStr.includes(val);
-                });
-                if (index === -1) {
-                    data.push(html);
-                }
-            }
-        }
-        if (data.length === 0) {
-            return;
-        }
-        const fileName = `log-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.getPageTitle())}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(_utils_DateFormat__WEBPACK_IMPORTED_MODULE_9__.DateFormat.format(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.crawlCompleteTime, _setting_Settings__WEBPACK_IMPORTED_MODULE_8__.settings.dateFormat))}.html`;
-        const content = `<!DOCTYPE html>
-        <html>
-        <body>
-        <div id="logWrap">
-        ${data.join('\n')}
-        </div>
-        </body>
-        </html>`;
-        const blob = new Blob([content], {
-            type: 'text/html',
-        });
-        const url = URL.createObjectURL(blob);
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.downloadFile(url, fileName);
-        const msg = '✅' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_导出日志成功');
-        log.success(msg);
-        _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(msg, {
-            position: 'topCenter',
-        });
-    }
     /** 调试用：连续输出大量日志
      * @param total 指定输出多少条日志。默认值为 1000
      */
@@ -6317,7 +6380,7 @@ class Log {
         window.setTimeout(async () => {
             let num = 0;
             while (num < total) {
-                await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.sleep(100);
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(100);
                 this.log('saber');
                 num++;
             }
@@ -9327,6 +9390,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   setTimeoutWorker: () => (/* binding */ setTimeoutWorker)
 /* harmony export */ });
+// 使用 worker 里的定时器而非 windows 上的定时器，因为当标签页处于后台时，windows 上的 setTimeout 和 setInterval 的回调函数会被大幅度地延迟，而 worker 里的定时器不会受到这个限制
 class SetTimeoutWorker {
     constructor() {
         this.createWorker();
@@ -9342,16 +9406,19 @@ class SetTimeoutWorker {
     worker;
     createWorker() {
         const blob = new Blob([this.workerCode]);
-        this.worker = new Worker(URL.createObjectURL(blob));
+        const url = URL.createObjectURL(blob);
+        this.worker = new Worker(url);
+        URL.revokeObjectURL(url);
         this.worker.addEventListener('message', (ev) => {
             const id = ev.data.id;
-            if (this.list[id].callback !== null) {
-                this.list[id].callback();
+            const entry = this.list.get(id);
+            if (entry && entry.callback !== null) {
+                entry.callback();
                 this.clear(id);
             }
         });
     }
-    list = [];
+    list = new Map();
     timerId = 0;
     set(callback, time) {
         const data = {
@@ -9359,7 +9426,7 @@ class SetTimeoutWorker {
             time,
             callback,
         };
-        this.list.push(data);
+        this.list.set(data.id, data);
         this.timerId++;
         this.worker.postMessage({
             id: data.id,
@@ -9368,7 +9435,7 @@ class SetTimeoutWorker {
         return data.id;
     }
     clear(id) {
-        this.list[id].callback = null;
+        this.list.delete(id);
     }
 }
 const setTimeoutWorker = new SetTimeoutWorker();
@@ -13398,6 +13465,8 @@ class InitPageBase {
     startpageNo = 1;
     /** 记录一共抓取了多少个列表页 */
     listPageFinished = 0;
+    /** 获取 id 列表时，如果要显示刷新的日志（显示进度信息），可以设置这个 key。获取 id 完毕后会将其持久化 */
+    getIdListLogKey = '';
     /**抓取作品时的并发请求数量默认值，也是最大值 */
     ajaxThreadsDefault = 3;
     /**抓取作品时的并发请求数 */
@@ -13521,7 +13590,7 @@ class InitPageBase {
             return;
         }
         // 清空日志
-        // 注意：很多方法都会输出日志，那些方法必须放在此事件之后，否则用户看不到对应的日志
+        // 注意：抓取过程中，很多方法都会输出日志，它们必须在此事件之后执行，否则用户根本看不到那些日志
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
         _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'));
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
@@ -13610,6 +13679,7 @@ class InitPageBase {
     }
     // id 列表获取完毕，开始抓取作品内容页
     async getIdListFinished() {
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.persistentRefresh(this.getIdListLogKey);
         _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = false;
         this.resetGetIdListStatus();
         // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则直接剔除它
@@ -13877,6 +13947,7 @@ class InitPageBase {
     }
     // 抓取完毕
     crawlFinished() {
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.persistentRefresh('getWorksProgress');
         // 当下载器没有处于慢速抓取模式时，会使用并发请求（例如同时发送 3 个请求）
         // 此时如果第一个请求触发了停止抓取 states.stopCrawl，这些并发请求都会进入这里
         // 所以我设置了个一次性的标记，防止重复执行这里的代码
@@ -15004,6 +15075,7 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         super();
         this.init();
     }
+    getIdListLogKey = 'crawlSeriesPageIdListProgress';
     seriesId = '';
     addCrawlBtns() {
         _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_开始抓取', '_默认下载多页', 'startCrawling').addEventListener('click', () => {
@@ -15081,7 +15153,7 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }
         else {
             // 继续抓取
-            _Log__WEBPACK_IMPORTED_MODULE_7__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_列表页抓取进度', this.listPageFinished.toString()), 'crawlSeriesPageIdListProgress');
+            _Log__WEBPACK_IMPORTED_MODULE_7__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_列表页抓取进度', this.listPageFinished.toString()), this.getIdListLogKey);
             this.getIdList();
         }
     }
@@ -15574,6 +15646,7 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
             _store_Store__WEBPACK_IMPORTED_MODULE_7__.store.resultMeta.sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_10__.Utils.sortByProperty('rank', 'asc'));
         }
     }
+    getIdListLogKey = 'crawlRankingPageProgress';
     option = {
         mode: 'daily',
         p: 1,
@@ -15639,7 +15712,7 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
             return this.getIdListFinished();
         }
         this.listPageFinished++;
-        _Log__WEBPACK_IMPORTED_MODULE_8__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_排行榜进度', this.listPageFinished.toString()), 'crawlRankingPageProgress');
+        _Log__WEBPACK_IMPORTED_MODULE_8__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_排行榜进度', this.listPageFinished.toString()), this.getIdListLogKey);
         const contents = data.contents; // 取出作品信息列表
         for (const work of contents) {
             const pageCount = parseInt(work.illust_page_count);
@@ -15758,6 +15831,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         super();
         this.init();
     }
+    getIdListLogKey = 'crawlArtworkSearchPageListPage';
     workListWrapID = 'workListWrap';
     listClass = 'searchList';
     multipleClass = 'multiplePart';
@@ -16196,7 +16270,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             }
         }
         _Log__WEBPACK_IMPORTED_MODULE_8__.log.log('➡️' +
-            _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取进度2', this.listPageFinished.toString(), this.needCrawlPageCount.toString()), 'crawlArtworkSearchPageListPage');
+            _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取进度2', this.listPageFinished.toString(), this.needCrawlPageCount.toString()), this.getIdListLogKey);
         if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
             // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
             if (_store_States__WEBPACK_IMPORTED_MODULE_13__.states.slowCrawlMode) {
@@ -16933,6 +17007,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         super();
         this.init();
     }
+    getIdListLogKey = 'crawlBookmarkNewPageProgress';
     workType = 'illust';
     /** bookmark 是关注的用户的新作品；mypixiv 是好P友的新作品 */
     pageType = 'bookmark';
@@ -17061,7 +17136,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             }
         }
         this.listPageFinished++;
-        _Log__WEBPACK_IMPORTED_MODULE_7__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取进度', this.listPageFinished.toString()), 'crawlBookmarkNewPageProgress');
+        _Log__WEBPACK_IMPORTED_MODULE_7__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取进度', this.listPageFinished.toString()), this.getIdListLogKey);
         // 判断任务状态
         // 如果抓取到了指定数量的作品，或者抓取到了最后一页，或者抓取完了指定的页面数量
         if (this.crawledWorksNumber >= this.crawlWorksMaxNumber ||
@@ -17625,6 +17700,7 @@ class InitContestPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.I
         super();
         this.init();
     }
+    getIdListLogKey = 'crawlApplicationWorkIdList';
     /** applications: 抓取应募作品；winning: 抓取获奖作品 */
     scope = 'applications';
     type = 'illust';
@@ -17712,7 +17788,7 @@ class InitContestPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.I
                 }
             }
         }
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_已抓取x页应募作品', this.page.toString()), 'crawlApplicationWorkIdList');
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_已抓取x页应募作品', this.page.toString()), this.getIdListLogKey);
         // 判断是否抓取完毕
         this.page += 1;
         if ((this.crawlNumber > -1 && this.page > this.crawlNumber) ||
@@ -18190,6 +18266,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         this.getPageType();
         this.init();
     }
+    getIdListLogKey = 'logFollowingUserIdListLength';
     baseOffset = 0; // 开始抓取时，记录初始的偏移量
     onceNumber = 24; // 每页 24 个画师
     pageType = 'following';
@@ -18359,7 +18436,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.concat(idList);
         this.index++;
-        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(`➡️${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已抓取x个用户', this.index.toString())}, ${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前有x个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length.toString())}`, 'logFollowingUserIdListLength');
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(`➡️${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已抓取x个用户', this.index.toString())}, ${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_当前有x个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length.toString())}`, this.getIdListLogKey);
         if (this.index >= this.userList.length) {
             return this.getIdListFinished();
         }
@@ -19631,6 +19708,7 @@ class InitRankingNovelPageNew extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODU
             this.crawlNumber = this.maxCount;
         }
     }
+    getIdListLogKey = 'crawlRankingNovelPageProgress';
     // 这 3 种排行榜只有全年龄，没有 R-18 分类：
     // 本月、新人、原创
     // 这 5 种排行榜有全年龄和 R-18 两种分类：
@@ -19684,7 +19762,7 @@ class InitRankingNovelPageNew extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODU
         try {
             const json = await _API__WEBPACK_IMPORTED_MODULE_9__.API.getRankingDataNovel(this.mode, this.date, this.page);
             this.listPageFinished++;
-            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_排行榜进度', this.listPageFinished.toString()), 'crawlRankingNovelPageProgress');
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_排行榜进度', this.listPageFinished.toString()), this.getIdListLogKey);
             const display_a = json.body.display_a;
             let list = display_a.rank_a;
             // list 可能是数组，也可能是有数字编号的对象，所以使用下标来取值
@@ -19795,6 +19873,7 @@ class InitRankingNovelPageOld extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODU
         super();
         this.init();
     }
+    getIdListLogKey = 'crawlRankingNovelPageProgress';
     pageUrlList = [];
     page = 1;
     /**在小说列表的右上角有个下拉菜单，可以选择小说的语言。
@@ -19886,7 +19965,7 @@ class InitRankingNovelPageOld extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODU
         }
         this.page++;
         this.listPageFinished++;
-        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_排行榜进度', this.listPageFinished.toString()), 'crawlRankingNovelPageProgress');
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('➡️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_排行榜进度', this.listPageFinished.toString()), this.getIdListLogKey);
         const rankingItem = dom.querySelectorAll('._ranking-items>div[id]');
         // 检查每个作品的信息
         for (const item of rankingItem) {
@@ -20023,6 +20102,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         new _pageFunciton_FastScreen__WEBPACK_IMPORTED_MODULE_7__.FastScreen();
         _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_13__.crawlTagList.init();
     }
+    getIdListLogKey = 'crawlNovelSearchPageListPage';
     option = {};
     worksNoPerPage = 30; // 每个页面有多少个作品
     needCrawlPageCount = 0; // 一共有有多少个列表页面
@@ -20348,7 +20428,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             }
         }
         _Log__WEBPACK_IMPORTED_MODULE_6__.log.log('➡️' +
-            _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取进度2', this.listPageFinished.toString(), this.needCrawlPageCount.toString()), 'crawlNovelSearchPageListPage');
+            _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_列表页抓取进度2', this.listPageFinished.toString(), this.needCrawlPageCount.toString()), this.getIdListLogKey);
         if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
             // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.slowCrawlMode) {
@@ -21633,6 +21713,7 @@ class DownloadControl {
         _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.remainingDownload = _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.length - this.downloaded;
         // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
         if (this.downloaded === _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.result.length) {
+            _Log__WEBPACK_IMPORTED_MODULE_4__.log.persistentRefresh('downloadProgress');
             _Log__WEBPACK_IMPORTED_MODULE_4__.log.success('✅' + _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_下载完毕'));
             // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
             _Log__WEBPACK_IMPORTED_MODULE_4__.log.log('');
@@ -23737,7 +23818,7 @@ class MergeNovel {
                 }
             }
             // 记录每个章节的封面图片的 id 和原始 URL
-            // 在一些系列小说里，可能有多篇小说使用相同的封面图。它们的 URL 是相同的。
+            // 在一个系列小说里，可能有多篇小说使用相同的封面图。它们的 URL 是相同的。
             // 以前下载器会全部下载和保存它们，但这样浪费了网络请求，也使文件体积产生了不必要的增加。
             // 所以使用这里的记录来避免重复加载、保存相同的封面图片
             // 测试用例：
@@ -42268,25 +42349,28 @@ class Settings {
         const codes = ['onlyugoira', 'qw222'];
         for (const code of codes) {
             _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_6__.secretSignal.register(code, () => {
-                // 如果只有动图被选中，则选择全部作品类型
-                // 反之，只选择动图
+                // 如果只有动图被选中，则改为选择全部作品类型
                 if (this.settings.downType2 &&
                     !this.settings.downType0 &&
                     !this.settings.downType1 &&
                     !this.settings.downType3) {
-                    this.settings.downType0 = true;
-                    this.settings.downType1 = true;
-                    this.settings.downType3 = true;
-                    // 多次修改只触发一次改变事件，提高效率
                     this.setSetting('downType0', true);
+                    this.setSetting('downType1', true);
+                    this.setSetting('downType3', true);
                     _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.warning('onlyUgoira off');
                 }
                 else {
-                    this.settings.downType0 = false;
-                    this.settings.downType1 = false;
-                    this.settings.downType2 = true;
-                    this.settings.downType3 = false;
+                    // 对于其他情况，不管动图有没有被选中，都改为只选择动图
+                    if (this.settings.downType0) {
+                        this.setSetting('downType0', false);
+                    }
+                    if (this.settings.downType1) {
+                        this.setSetting('downType1', false);
+                    }
                     this.setSetting('downType2', true);
+                    if (this.settings.downType3) {
+                        this.setSetting('downType3', false);
+                    }
                     _Toast__WEBPACK_IMPORTED_MODULE_7__.toast.success('onlyUgoira on');
                 }
             });
@@ -42299,13 +42383,6 @@ class Settings {
         webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().storage.local.get(_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName).then((result) => {
             if (result[_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName]) {
                 restoreData = result[_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName];
-            }
-            else {
-                // 如无数据则尝试从 localStorage 获取配置，因为旧版本的配置储存在 localStorage 中
-                const savedSettings = localStorage.getItem(_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName);
-                if (savedSettings) {
-                    restoreData = JSON.parse(savedSettings);
-                }
             }
             // 有些设置项的 key 是 PageName（页面类型）。当有新的页面类型之后，我会添加新的页面类型的配置，但旧的设置里缺少这些配置，所以需要添加到旧的设置里
             const keys = ['crawlNumber', 'nameRuleForEachPageType'];
@@ -42415,6 +42492,9 @@ class Settings {
                     else {
                         // 把日期字符串转换成时间戳
                         const date = new Date(value);
+                        if (isNaN(date.getTime())) {
+                            return this.tipError(key);
+                        }
                         value = date.getTime();
                     }
                 }

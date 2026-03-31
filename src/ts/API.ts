@@ -89,15 +89,16 @@ class API {
               // 等待一段时间后，通过尾递归重试请求
               // console.log(`429 tryCount ${tryCount}`)
               await Utils.sleep(Config.retryTime)
-              await attemptRequest(tryCount + 1)
+              return await attemptRequest(tryCount + 1)
             } else if (response.status === 502 && tryCount < 3) {
               // 502 错误重试最多 3 次
               // 现在偶尔会遇到 502 错误，通常可以很快重试成功，所以等待 10 秒后重试
               console.log(`502 tryCount ${tryCount}`)
               await Utils.sleep(10000)
-              await attemptRequest(tryCount + 1)
+              return await attemptRequest(tryCount + 1)
             } else {
-              // 对于其他状态码，不会重试
+              // 对于其他状态码，以及重试超出最大次数的，不再重试，而是通过 reject 抛出错误
+              // LogErrorStatus 模块会在日志里输出错误信息
               console.error(`Status Code: ${response.status}`)
               return reject({
                 status: response.status,
@@ -106,7 +107,7 @@ class API {
             }
           }
         } catch (error) {
-          reject(error)
+          return reject(error)
         }
       }
 
@@ -263,6 +264,7 @@ class API {
         }
       }
     } catch (error) {
+      // 如果请求出错，会返回空数组，而不是抛出错误
       return result
     }
 
@@ -562,12 +564,12 @@ class API {
   }
 
   /**关注一个用户 */
-  // restrict: false 为公开关注，true 为非公开关注
+  // show: true 为公开关注，false 为非公开关注
   // recaptcha_enterprise_score_token 对于有些用户是不需要的。允许传递空值
   static async addFollowingUser(
     userID: string,
     token: string,
-    restrict = false,
+    show = true,
     recaptcha_enterprise_score_token = ''
   ): Promise<number> {
     return new Promise(async (resolve) => {
@@ -580,7 +582,7 @@ class API {
           'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
           'x-csrf-token': token,
         },
-        body: `mode=add&type=user&user_id=${userID}&tag=&restrict=${restrict ? 0 : 1}&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
+        body: `mode=add&type=user&user_id=${userID}&tag=&restrict=${show ? 0 : 1}&format=json&recaptcha_enterprise_score_token=${recaptcha_enterprise_score_token}`,
       }
 
       try {

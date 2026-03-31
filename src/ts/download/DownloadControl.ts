@@ -544,6 +544,7 @@ class DownloadControl {
 
     // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
     if (this.downloaded === store.result.length) {
+      log.persistentRefresh('downloadProgress')
       log.success('✅' + lang.transl('_下载完毕'))
       // 输出空字符串，起到占据一个空行的效果，使得日志看起来更清晰
       log.log('')
