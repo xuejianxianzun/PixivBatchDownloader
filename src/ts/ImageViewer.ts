@@ -99,13 +99,16 @@ class ImageViewer {
         } else if (ev.code === 'KeyD') {
           // 按 D 下载这个作品
           this.download()
+        } else if (ev.code === 'KeyL') {
+          // 按 L 复制当前作品的链接
+          // 需要阻止冒泡，因为 L 也是查看日志的快捷键
+          ev.stopPropagation()
+          this.copyWorkLink()
         }
       } else {
         // 需要 Alt 的快捷键
         if (ev.code === 'KeyB') {
           // 按 Alt + B 收藏当前作品
-          // 因为 Pixiv 会在按下 B 键时收藏当前作品，所以下载器不能使用 B 键。尝试阻止 Pixiv 的事件但是没有成功
-          // 阻止冒泡，这主要是因为作品页面内，按 B 会触发作品内容下方的快速收藏按钮，需要避免
           ev.stopPropagation()
           this.addBookmark()
         } else if (ev.code === 'KeyC') {
@@ -206,6 +209,7 @@ class ImageViewer {
       this.show = true
       // 添加自定义的按钮
       this.addOneToOneBtn()
+      this.addCopyWorkLinkBtn()
       this.addBookmarkBtn()
       this.addCopyBtn()
       this.addDownloadCurrentImageBtn()
@@ -307,31 +311,6 @@ class ImageViewer {
     }
   }
 
-  // 设置原始尺寸显示
-  private setOriginalSize() {
-    if (this.isOriginalSize) {
-      // 1:1 显示图片
-      this.myViewer.zoomTo(1)
-      this.moveToTop()
-    } else {
-      // 缩小图片以适应可视区域
-      const w = this.myViewer.image.naturalWidth
-      const h = this.myViewer.image.naturalHeight
-      const vw = this.myViewer.viewerData.width * 0.9
-      const vh = this.myViewer.viewerData.height * 0.9
-      const wScale = vw / w
-      const hScale = vh / h
-      let scale = Math.min(wScale, hScale)
-      if (scale >= 1) {
-        return
-      }
-      this.myViewer.zoomTo(scale)
-
-      const nowTop = Number.parseInt(this.myViewer.image.style.marginTop)
-      this.myViewer.move(0, vh * 0.05 - nowTop)
-    }
-  }
-
   // 如果图片的高度超出可视区域高度，则从图片的顶部开始显示
   private moveToTop() {
     const img = this.myViewer.image as HTMLImageElement
@@ -384,6 +363,31 @@ class ImageViewer {
     })
   }
 
+  // 设置原始尺寸显示
+  private setOriginalSize() {
+    if (this.isOriginalSize) {
+      // 1:1 显示图片
+      this.myViewer.zoomTo(1)
+      this.moveToTop()
+    } else {
+      // 缩小图片以适应可视区域
+      const w = this.myViewer.image.naturalWidth
+      const h = this.myViewer.image.naturalHeight
+      const vw = this.myViewer.viewerData.width * 0.9
+      const vh = this.myViewer.viewerData.height * 0.9
+      const wScale = vw / w
+      const hScale = vh / h
+      let scale = Math.min(wScale, hScale)
+      if (scale >= 1) {
+        return
+      }
+      this.myViewer.zoomTo(scale)
+
+      const nowTop = Number.parseInt(this.myViewer.image.style.marginTop)
+      this.myViewer.move(0, vh * 0.05 - nowTop)
+    }
+  }
+
   // 添加下载这个作品的按钮
   private addDownloadBtn() {
     const li = document.createElement('li')
@@ -414,21 +418,55 @@ class ImageViewer {
     })
   }
 
-  private copy() {
-    copyWorkInfo.receive(
-      {
-        id: this.cfg.workId,
-        type: 'illusts',
-      },
-      this.index
-    )
+  /**下载当前查看的作品。如果传入参数 p，则只下载指定的这张图片 */
+  private download(p?: number) {
+    if (this.workData && this.workData.body.id === this.cfg.workId) {
+      if (p !== undefined) {
+        if (this.workData!.body.pageCount > 1) {
+          store.setDownloadOnlyPart(Number.parseInt(this.cfg.workId), [
+            this.index,
+          ])
+        }
+      }
+
+      EVT.fire('crawlIdList', [
+        {
+          id: this.cfg.workId,
+          type: 'illusts',
+        },
+      ])
+    }
+  }
+
+  // 添加复制链接按钮
+  private addCopyWorkLinkBtn() {
+    const li = document.createElement('li')
+    li.setAttribute('role', 'button')
+    li.setAttribute('title', lang.transl('_复制作品链接') + ' (L)')
+    li.classList.add(this.addBtnClass)
+    li.id = 'imageViewerCopyWorkLinkBtn'
+    li.innerHTML = `
+    <svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-link"></use>
+</svg>`
+    this.addBtn(li)
+
+    li.addEventListener('click', this.copyWorkLink.bind(this))
+  }
+
+  private async copyWorkLink() {
+    // 对于简体中文用户，复制的链接里路径使用 /i ，因为 /i 没有被 QQ 屏蔽，而 /artworks 被屏蔽了
+    const path = lang.type === 'zh-cn' ? 'i' : 'artworks'
+    const url = `https://www.pixiv.net/${path}/${this.cfg.workId}`
+    navigator.clipboard.writeText(url)
+    toast.success(lang.transl('_已复制作品链接'))
   }
 
   // 添加复制按钮
   private addCopyBtn() {
     const li = document.createElement('li')
     li.setAttribute('role', 'button')
-    li.setAttribute('title', lang.transl('_复制摘要数据'))
+    li.setAttribute('title', lang.transl('_复制摘要数据') + ' (Alt + C)')
     li.classList.add(this.addBtnClass)
     li.textContent = '↓'
     li.id = 'imageViewerCopyBtn'
@@ -439,6 +477,16 @@ class ImageViewer {
     this.addBtn(li)
 
     li.addEventListener('click', this.copy.bind(this))
+  }
+
+  private copy() {
+    copyWorkInfo.receive(
+      {
+        id: this.cfg.workId,
+        type: 'illusts',
+      },
+      this.index
+    )
   }
 
   // 添加收藏按钮
@@ -476,26 +524,6 @@ class ImageViewer {
 
     if (status === 200) {
       toast.success(lang.transl('_已收藏'))
-    }
-  }
-
-  /**下载当前查看的作品。如果传入参数 p，则只下载指定的这张图片 */
-  private download(p?: number) {
-    if (this.workData && this.workData.body.id === this.cfg.workId) {
-      if (p !== undefined) {
-        if (this.workData!.body.pageCount > 1) {
-          store.setDownloadOnlyPart(Number.parseInt(this.cfg.workId), [
-            this.index,
-          ])
-        }
-      }
-
-      EVT.fire('crawlIdList', [
-        {
-          id: this.cfg.workId,
-          type: 'illusts',
-        },
-      ])
     }
   }
 }

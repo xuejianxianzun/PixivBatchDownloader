@@ -4903,13 +4903,17 @@ class ImageViewer {
                     // 按 D 下载这个作品
                     this.download();
                 }
+                else if (ev.code === 'KeyL') {
+                    // 按 L 复制当前作品的链接
+                    // 需要阻止冒泡，因为 L 也是查看日志的快捷键
+                    ev.stopPropagation();
+                    this.copyWorkLink();
+                }
             }
             else {
                 // 需要 Alt 的快捷键
                 if (ev.code === 'KeyB') {
                     // 按 Alt + B 收藏当前作品
-                    // 因为 Pixiv 会在按下 B 键时收藏当前作品，所以下载器不能使用 B 键。尝试阻止 Pixiv 的事件但是没有成功
-                    // 阻止冒泡，这主要是因为作品页面内，按 B 会触发作品内容下方的快速收藏按钮，需要避免
                     ev.stopPropagation();
                     this.addBookmark();
                 }
@@ -4994,6 +4998,7 @@ class ImageViewer {
             this.show = true;
             // 添加自定义的按钮
             this.addOneToOneBtn();
+            this.addCopyWorkLinkBtn();
             this.addBookmarkBtn();
             this.addCopyBtn();
             this.addDownloadCurrentImageBtn();
@@ -5081,30 +5086,6 @@ class ImageViewer {
             this.myViewer.show();
         }
     }
-    // 设置原始尺寸显示
-    setOriginalSize() {
-        if (this.isOriginalSize) {
-            // 1:1 显示图片
-            this.myViewer.zoomTo(1);
-            this.moveToTop();
-        }
-        else {
-            // 缩小图片以适应可视区域
-            const w = this.myViewer.image.naturalWidth;
-            const h = this.myViewer.image.naturalHeight;
-            const vw = this.myViewer.viewerData.width * 0.9;
-            const vh = this.myViewer.viewerData.height * 0.9;
-            const wScale = vw / w;
-            const hScale = vh / h;
-            let scale = Math.min(wScale, hScale);
-            if (scale >= 1) {
-                return;
-            }
-            this.myViewer.zoomTo(scale);
-            const nowTop = Number.parseInt(this.myViewer.image.style.marginTop);
-            this.myViewer.move(0, vh * 0.05 - nowTop);
-        }
-    }
     // 如果图片的高度超出可视区域高度，则从图片的顶部开始显示
     moveToTop() {
         const img = this.myViewer.image;
@@ -5152,6 +5133,30 @@ class ImageViewer {
             this.setOriginalSize();
         });
     }
+    // 设置原始尺寸显示
+    setOriginalSize() {
+        if (this.isOriginalSize) {
+            // 1:1 显示图片
+            this.myViewer.zoomTo(1);
+            this.moveToTop();
+        }
+        else {
+            // 缩小图片以适应可视区域
+            const w = this.myViewer.image.naturalWidth;
+            const h = this.myViewer.image.naturalHeight;
+            const vw = this.myViewer.viewerData.width * 0.9;
+            const vh = this.myViewer.viewerData.height * 0.9;
+            const wScale = vw / w;
+            const hScale = vh / h;
+            let scale = Math.min(wScale, hScale);
+            if (scale >= 1) {
+                return;
+            }
+            this.myViewer.zoomTo(scale);
+            const nowTop = Number.parseInt(this.myViewer.image.style.marginTop);
+            this.myViewer.move(0, vh * 0.05 - nowTop);
+        }
+    }
     // 添加下载这个作品的按钮
     addDownloadBtn() {
         const li = document.createElement('li');
@@ -5178,17 +5183,50 @@ class ImageViewer {
             this.download(this.index);
         });
     }
-    copy() {
-        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_12__.copyWorkInfo.receive({
-            id: this.cfg.workId,
-            type: 'illusts',
-        }, this.index);
+    /**下载当前查看的作品。如果传入参数 p，则只下载指定的这张图片 */
+    download(p) {
+        if (this.workData && this.workData.body.id === this.cfg.workId) {
+            if (p !== undefined) {
+                if (this.workData.body.pageCount > 1) {
+                    _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.setDownloadOnlyPart(Number.parseInt(this.cfg.workId), [
+                        this.index,
+                    ]);
+                }
+            }
+            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [
+                {
+                    id: this.cfg.workId,
+                    type: 'illusts',
+                },
+            ]);
+        }
+    }
+    // 添加复制链接按钮
+    addCopyWorkLinkBtn() {
+        const li = document.createElement('li');
+        li.setAttribute('role', 'button');
+        li.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_复制作品链接') + ' (L)');
+        li.classList.add(this.addBtnClass);
+        li.id = 'imageViewerCopyWorkLinkBtn';
+        li.innerHTML = `
+    <svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-link"></use>
+</svg>`;
+        this.addBtn(li);
+        li.addEventListener('click', this.copyWorkLink.bind(this));
+    }
+    async copyWorkLink() {
+        // 对于简体中文用户，复制的链接里路径使用 /i ，因为 /i 没有被 QQ 屏蔽，而 /artworks 被屏蔽了
+        const path = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.type === 'zh-cn' ? 'i' : 'artworks';
+        const url = `https://www.pixiv.net/${path}/${this.cfg.workId}`;
+        navigator.clipboard.writeText(url);
+        _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已复制作品链接'));
     }
     // 添加复制按钮
     addCopyBtn() {
         const li = document.createElement('li');
         li.setAttribute('role', 'button');
-        li.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_复制摘要数据'));
+        li.setAttribute('title', _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_复制摘要数据') + ' (Alt + C)');
         li.classList.add(this.addBtnClass);
         li.textContent = '↓';
         li.id = 'imageViewerCopyBtn';
@@ -5198,6 +5236,12 @@ class ImageViewer {
 </svg>`;
         this.addBtn(li);
         li.addEventListener('click', this.copy.bind(this));
+    }
+    copy() {
+        _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_12__.copyWorkInfo.receive({
+            id: this.cfg.workId,
+            type: 'illusts',
+        }, this.index);
     }
     // 添加收藏按钮
     addBookmarkBtn() {
@@ -5225,24 +5269,6 @@ class ImageViewer {
         const status = await _Bookmark__WEBPACK_IMPORTED_MODULE_6__.bookmark.add(this.cfg.workId, 'illusts', _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.extractTags(this.workData));
         if (status === 200) {
             _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已收藏'));
-        }
-    }
-    /**下载当前查看的作品。如果传入参数 p，则只下载指定的这张图片 */
-    download(p) {
-        if (this.workData && this.workData.body.id === this.cfg.workId) {
-            if (p !== undefined) {
-                if (this.workData.body.pageCount > 1) {
-                    _store_Store__WEBPACK_IMPORTED_MODULE_11__.store.setDownloadOnlyPart(Number.parseInt(this.cfg.workId), [
-                        this.index,
-                    ]);
-                }
-            }
-            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('crawlIdList', [
-                {
-                    id: this.cfg.workId,
-                    type: 'illusts',
-                },
-            ]);
         }
     }
 }
@@ -34067,13 +34093,29 @@ Additionally, you can use these tags:`,
         `복사할 때 웹페이지가 포커스 상태여야 합니다.`,
         `При копировании веб-страница должна находиться в состоянии фокуса。`,
     ],
+    _复制作品链接: [
+        `复制作品链接`,
+        `複製作品連結`,
+        `Copy work link`,
+        `作品のリンクをコピー`,
+        `작품 링크 복사`,
+        `Скопировать ссылку на работу`,
+    ],
+    _已复制作品链接: [
+        `已复制作品链接`,
+        `已複製作品連結`,
+        `Copied work link`,
+        `作品のリンクをコピーしました`,
+        `작품 링크 복사됨`,
+        `Скопирована ссылка на работу`,
+    ],
     _复制摘要数据: [
-        `复制摘要数据 (ALt + C)`,
-        `複製摘要資料 (ALt + C)`,
-        `Copy summary data (ALt + C)`,
-        `要約データをコピー (ALt + C)`,
-        `요약 데이터 복사 (ALt + C)`,
-        `Копировать данные сводки (ALt + C)`,
+        `复制摘要数据`,
+        `複製摘要資料`,
+        `Copy summary data`,
+        `要約データをコピー`,
+        `요약 데이터 복사`,
+        `Копировать данные сводки`,
     ],
     _相关设置: [
         `相关设置`,
@@ -35404,28 +35446,34 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     _启用了整合相同系列小说时的提示: [
         `提示：由于你启用了“整合系列作品”的搜索条件，所以该页面里有两种内容：系列小说和单篇完结小说。<br>
 对于系列小说，下载器会在抓取时直接合并它，并且不会单独下载它里面的单篇小说。<br>
-对于单篇小说，下载器会保存到抓取结果里。<br>
-当抓取完成时，下载器已经下载了所有系列小说，只剩下单篇小说尚未下载。`,
+对于单篇小说，下载器不会在抓取时下载它们，而是会保存到抓取结果里。<br>
+因此，在抓取阶段，你可能会看到下载器只保存了系列小说，没有保存任何单篇小说。这是正常的，因为它们是分开处理的。<br>
+等到抓取完毕之后，正常开始下载即可保存单篇小说。`,
         `提示：由於你啟用了「整合系列作品」的搜尋條件，所以該頁面裡有兩種內容：系列小說和單篇完結小說。<br>
 對於系列小說，下載器會在抓取時直接合併它，並且不會單獨下載它裡面的單篇小說。<br>
-對於單篇小說，下載器會保存到抓取結果裡。<br>
-當抓取完成時，下載器已經下載了所有系列小說，只剩下單篇小說尚未下載。`,
+對於單篇小說，下載器不會在抓取時下載它們，而是會保存到抓取結果裡。<br>
+因此，在抓取階段，你可能會看到下載器只保存了系列小說，沒有保存任何單篇小說。這是正常的，因為它們是分開處理的。<br>
+等到抓取完畢之後，正常開始下載即可保存單篇小說。`,
         `Tip: Since you have enabled the "Integrate Series Works" search condition, this page contains two types of content: series novels and standalone completed novels.<br>
 For series novels, the downloader will merge them directly during crawling and will not download individual chapters inside them separately.<br>
-For standalone novels, the downloader will save them to the crawl results.<br>
-When crawling is complete, the downloader has already downloaded all series novels, leaving only the standalone novels yet to be downloaded.`,
+For standalone novels, the downloader will not download them during crawling, but will save them to the crawl results.<br>
+Therefore, during the crawling phase, you may see that the downloader only saved series novels and did not save any standalone novels. This is normal because they are handled separately.<br>
+After crawling is complete, you can start the normal download to save the standalone novels.`,
         `ヒント：「シリーズ作品を統合する」検索条件を有効にしたため、このページには2種類のコンテンツがあります：シリーズ小説と単発完結小説。<br>
 シリーズ小説については、ダウンロードツールはクロール時に直接マージし、中の個別エピソードを単独でダウンロードしません。<br>
-単発小説については、ダウンロードツールはクロール結果に保存します。<br>
-クロール完了時には、すべてのシリーズ小説がすでにダウンロードされており、残っているのは単発小説のみです。`,
+単発小説については、クロール時にダウンロードせず、クロール結果に保存します。<br>
+したがって、クロール段階ではダウンロードツールがシリーズ小説のみを保存し、単発小説を保存していないように見えることがあります。これは正常です。なぜなら別々に処理されるからです。<br>
+クロール完了後、通常のダウンロードを開始すれば単発小説が保存されます。`,
         `팁: "시리즈 작품 통합" 검색 조건을 활성화했기 때문에 이 페이지에는 두 가지 콘텐츠가 있습니다: 시리즈 소설과 단편 완결 소설.<br>
 시리즈 소설의 경우 다운로더는 크롤링 시 직접 병합하며, 내부의 개별 편을 따로 다운로드하지 않습니다.<br>
-단편 소설의 경우 다운로더는 크롤링 결과에 저장합니다.<br>
-크롤링이 완료되면 모든 시리즈 소설은 이미 다운로드되었고, 남은 것은 단편 소설뿐입니다.`,
+단편 소설의 경우 크롤링 시 다운로드하지 않고 크롤링 결과에 저장합니다.<br>
+따라서 크롤링 단계에서는 다운로더가 시리즈 소설만 저장하고 단편 소설은 저장하지 않은 것처럼 보일 수 있습니다. 이는 정상입니다. 왜냐하면 별도로 처리되기 때문입니다.<br>
+크롤링 완료 후 정상적인 다운로드를 시작하면 단편 소설이 저장됩니다.`,
         `Подсказка: Поскольку вы включили условие поиска «Интегрировать серии работ», на этой странице присутствуют два типа контента: серии романов и отдельные завершённые романы.<br>
 Для серий романов загрузчик во время краулинга сразу объединит их и не будет скачивать отдельные главы внутри них по отдельности.<br>
-Для отдельных романов загрузчик сохранит их в результаты краулинга.<br>
-К моменту завершения краулинга загрузчик уже скачал все серии романов, и остались только отдельные романы, которые ещё не скачаны.`,
+Для отдельных романов загрузчик не будет скачивать их во время краулинга, а сохранит в результаты краулинга.<br>
+Поэтому на этапе краулинга вы можете увидеть, что загрузчик сохранил только серии романов и не сохранил ни одного отдельного романа. Это нормально, поскольку они обрабатываются отдельно.<br>
+После завершения краулинга начните обычную загрузку — отдельные романы будут сохранены.`,
     ],
     _提示只会收藏单篇小说: [
         `这个页面里可能有系列小说。下载器会跳过系列小说，只收藏单篇小说。`,
@@ -37595,6 +37643,20 @@ class QuickBookmark {
         _WorkToolBar__WEBPACK_IMPORTED_MODULE_6__.workToolBar.register((toolbar, pixivBMKDiv, likeBtn) => {
             this.init(toolbar, pixivBMKDiv, likeBtn);
         });
+        // 使用快捷键 Alt + B 和 Ctrl + B 来点击快速收藏按钮
+        // 以前是 Ctrl + B，现在我改成了 Alt + B。为了保持用户的操作习惯，保留了 Ctrl + B
+        // PS: B 是 Pixiv 自身的收藏按钮的快捷键。快速收藏按钮的快捷键是 Alt + B，不会冲突
+        window.addEventListener('keydown', (ev) => {
+            // 防止影响其他页面，因为图片查看器的收藏按钮快捷键也是 Alt + B
+            if (!this.enablePageTypes.includes(_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type)) {
+                return;
+            }
+            if (ev.code === 'KeyB' && (ev.altKey || ev.ctrlKey) && this.btn) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                this.btn.click();
+            }
+        });
         _crawl_LogErrorStatus__WEBPACK_IMPORTED_MODULE_11__.logErrorStatus.listen((status, url) => {
             const id = this.workData?.body?.id;
             if (id && url.includes(id) && status === 429) {
@@ -37622,13 +37684,16 @@ class QuickBookmark {
     pixivBMKDiv;
     likeBtn;
     obPixivBMKDiv; // 监视心形收藏按钮变化
+    enablePageTypes = [
+        _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Artwork,
+        _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Novel,
+    ];
     async init(toolbar, pixivBMKDiv, likeBtn) {
         // 没有 token 就不能进行收藏
         if (!_Token__WEBPACK_IMPORTED_MODULE_3__.token.token) {
             return;
         }
-        if (_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Artwork &&
-            _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.list.Novel) {
+        if (!this.enablePageTypes.includes(_PageType__WEBPACK_IMPORTED_MODULE_4__.pageType.type)) {
             return;
         }
         this.pixivBMKDiv = pixivBMKDiv;
@@ -37689,15 +37754,6 @@ class QuickBookmark {
                 });
             }
         }
-        // 使用快捷键 Alt + B 和 Ctrl + B 来点击快速收藏按钮
-        // 以前是 Ctrl + B，现在我改成了 Alt + B。为了保持用户的操作习惯，所以保留了 Ctrl + B
-        window.addEventListener('keydown', (ev) => {
-            if (ev.code === 'KeyB' && (ev.altKey || ev.ctrlKey)) {
-                ev.preventDefault();
-                ev.stopPropagation();
-                this.btn && this.btn.click();
-            }
-        }, true);
     }
     //　创建快速收藏按钮
     createBtn() {

@@ -27,6 +27,22 @@ class QuickBookmark {
       }
     )
 
+    // 使用快捷键 Alt + B 和 Ctrl + B 来点击快速收藏按钮
+    // 以前是 Ctrl + B，现在我改成了 Alt + B。为了保持用户的操作习惯，保留了 Ctrl + B
+    // PS: B 是 Pixiv 自身的收藏按钮的快捷键。快速收藏按钮的快捷键是 Alt + B，不会冲突
+    window.addEventListener('keydown', (ev) => {
+      // 防止影响其他页面，因为图片查看器的收藏按钮快捷键也是 Alt + B
+      if (!this.enablePageTypes.includes(pageType.type)) {
+        return
+      }
+
+      if (ev.code === 'KeyB' && (ev.altKey || ev.ctrlKey) && this.btn) {
+        ev.preventDefault()
+        ev.stopPropagation()
+        this.btn.click()
+      }
+    })
+
     logErrorStatus.listen((status: number, url: string) => {
       const id = this.workData?.body?.id
       if (id && url.includes(id) && status === 429) {
@@ -56,6 +72,10 @@ class QuickBookmark {
   private pixivBMKDiv?: HTMLDivElement
   private likeBtn?: HTMLButtonElement
   private obPixivBMKDiv: MutationObserver | undefined // 监视心形收藏按钮变化
+  private readonly enablePageTypes = [
+    pageType.list.Artwork,
+    pageType.list.Novel,
+  ]
 
   private async init(
     toolbar: HTMLDivElement,
@@ -67,10 +87,7 @@ class QuickBookmark {
       return
     }
 
-    if (
-      pageType.type !== pageType.list.Artwork &&
-      pageType.type !== pageType.list.Novel
-    ) {
+    if (!this.enablePageTypes.includes(pageType.type)) {
       return
     }
 
@@ -135,20 +152,6 @@ class QuickBookmark {
         })
       }
     }
-
-    // 使用快捷键 Alt + B 和 Ctrl + B 来点击快速收藏按钮
-    // 以前是 Ctrl + B，现在我改成了 Alt + B。为了保持用户的操作习惯，所以保留了 Ctrl + B
-    window.addEventListener(
-      'keydown',
-      (ev) => {
-        if (ev.code === 'KeyB' && (ev.altKey || ev.ctrlKey)) {
-          ev.preventDefault()
-          ev.stopPropagation()
-          this.btn && this.btn.click()
-        }
-      },
-      true
-    )
   }
 
   //　创建快速收藏按钮

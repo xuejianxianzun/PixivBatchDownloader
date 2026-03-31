@@ -1,9 +1,10 @@
 import { langText, LangTextKey } from './langText'
 import { EVT } from './EVT'
 
+/** 下载器可以使用的显示语言 */
 type LangTypes = 'zh-cn' | 'zh-tw' | 'en' | 'ja' | 'ko' | 'ru'
 
-// Pixiv 网页的显示语言，比下载器的显示语言多了两个：泰语和马来语
+/**Pixiv 网页的显示语言，比下载器的显示语言多了两个：泰语 th 和马来语 ms */
 type LangTypesPixiv =
   | 'zh-cn'
   | 'zh-tw'

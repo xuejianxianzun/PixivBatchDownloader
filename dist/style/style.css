@@ -1897,10 +1897,15 @@ iframe[name='expandedFooter'] {
   width: 16px;
   height: 16px;
 }
-.viewer-backdrop .viewer-toolbar #imageViewerCopyBtn {
+.viewer-backdrop .viewer-toolbar #imageViewerCopyBtn,
+.viewer-backdrop .viewer-toolbar #imageViewerCopyWorkLinkBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+.viewer-backdrop .viewer-toolbar #imageViewerCopyWorkLinkBtn svg {
+  width: 14px;
+  height: 14px;
 }
 .viewer-backdrop .viewer-navbar {
   background: rgba(0, 0, 0, 0.3);
