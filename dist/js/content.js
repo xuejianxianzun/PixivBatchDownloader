@@ -2757,6 +2757,20 @@ class Config {
         'ออริจินัล',
         'Оригинал',
     ];
+    /** 如果作品含有这些标签，就认为它是 AI 生成的作品 */
+    static AITags = [
+        'AI生成',
+        'AI-generated',
+        'AIイラスト',
+        'AI生成作品',
+        'AI 画作',
+        'AI生成イラスト',
+        'AI 생성',
+        'сгенерированный ИИ',
+        'สร้างโดย AI',
+        'Janaan AI',
+    ];
+    static AITagsLower = Config.AITags.map((tag) => tag.toLowerCase());
 }
 
 
@@ -12092,6 +12106,15 @@ class Tools {
                 return undefined;
         }
     }
+    /** 检查标签列表中是否包含 AI 生成的标记 */
+    // 有些用户在上传 AI 作品时选择了非 AI 生成，但标签列表里可能有 AI 生成相关标签例如：
+    // https://www.pixiv.net/en/artworks/136175064
+    // 检查的字符是“AI生成”和“AI-Generated”
+    static checkAIFromTags(tags) {
+        return tags.some((tag) => {
+            return _Config__WEBPACK_IMPORTED_MODULE_0__.Config.AITagsLower.includes(tag.toLowerCase());
+        });
+    }
     /** 储存 Pixiv 每种显示语言里，“AI 生成”标记所使用的文字 */
     static AIMark = new Map([
         ['zh-cn', 'AI生成'],
@@ -12103,16 +12126,6 @@ class Tools {
         ['th', 'สร้างโดย AI'],
         ['ms', 'Janaan AI'],
     ]);
-    /** 检查标签列表中是否包含 AI 生成的标记 */
-    // 有些用户在上传 AI 作品时选择了非 AI 生成，但标签列表里可能有 AI 生成相关标签例如：
-    // https://www.pixiv.net/en/artworks/136175064
-    // 检查的字符是“AI生成”和“AI-Generated”
-    static checkAIFromTags(tags) {
-        return tags.some((tag) => {
-            const lowerTag = tag.toLowerCase();
-            return (lowerTag.startsWith('ai生成') || lowerTag.startsWith('ai-generated'));
-        });
-    }
     /**如果一个作品是 AI 生成的，则返回特定的字符串标记
      *
      * 这个标记就是作品页面里和标签列表显示在一起的字符串
@@ -14319,12 +14332,12 @@ class StopCrawl {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlStart, () => {
             this.show();
         });
-        const hiddenEvents = [_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlComplete, _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.stopCrawl];
-        hiddenEvents.forEach((evt) => {
-            window.addEventListener(evt, () => {
-                this.hide();
-                this.log();
-            });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlComplete, () => {
+            this.hide();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.stopCrawl, () => {
+            this.hide();
+            this.log();
         });
     }
     hide() {
@@ -21468,13 +21481,16 @@ class DownloadControl {
     // 最大值由 Config.downloadThreadMax 定义
     taskBatch = 0; // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
     taskList = {}; // 下载任务列表，使用下载的文件的 id 做 key，保存下载栏编号和它在下载状态列表中的索引
-    errorIdList = []; // 有任务下载失败时，保存 id
+    /** 有文件下载失败时，保存 id */
+    // 注意这个下载失败指的是 Download 模块里文件下载失败，原因是 XHR 请求失败、动图转换失败。
+    // 这不是 SW 让浏览器保存文件时的失败
+    errorIdList = [];
     downloaded = 0; // 已下载的任务数量
     stop = false; // 是否已经停止下载
     pause = false; // 是否已经暂停下载
     crawlIdListTimer = undefined;
     checkDownloadTimeoutTimer = undefined;
-    msgFlag = 'uuidTip';
+    uuidTip = 'uuidTip';
     // 类型守卫
     isDownloadedMsg(msg) {
         return !!msg.msg;
@@ -21547,7 +21563,7 @@ class DownloadControl {
             // UUID 的情况
             if (msg.data?.uuid) {
                 _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_uuid'), 'filenameUUID');
-                _MsgBox__WEBPACK_IMPORTED_MODULE_21__.msgBox.once(this.msgFlag, _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_uuid'), 'show');
+                _MsgBox__WEBPACK_IMPORTED_MODULE_21__.msgBox.once(this.uuidTip, _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_uuid'), 'show');
                 this.pauseDownload();
             }
             // 文件下载成功
@@ -21713,9 +21729,10 @@ class DownloadControl {
             _DownloadStates__WEBPACK_IMPORTED_MODULE_10__.downloadStates.init();
         }
         this.reset();
-        _MsgBox__WEBPACK_IMPORTED_MODULE_21__.msgBox.resetOnce(this.msgFlag);
-        this.setDownloaded();
         this.taskBatch = Date.now(); // 修改本批下载任务的标记
+        this.taskList = {}; // 重置下载任务列表
+        _MsgBox__WEBPACK_IMPORTED_MODULE_21__.msgBox.resetOnce(this.uuidTip);
+        this.setDownloaded();
         this.setDownloadThread();
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('downloadStart');
         // 建立并发下载线程
@@ -21821,10 +21838,11 @@ class DownloadControl {
         // 重设下载进度条
         _ProgressBar__WEBPACK_IMPORTED_MODULE_9__.progressBar.reset(this.thread, this.downloaded);
     }
-    saveFileError(data) {
+    async saveFileError(data) {
         if (this.pause || this.stop) {
             return false;
         }
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.sleep(3000);
         const task = this.taskList[data.id];
         // 复位这个任务的状态
         _DownloadStates__WEBPACK_IMPORTED_MODULE_10__.downloadStates.setState(task.index, -1);

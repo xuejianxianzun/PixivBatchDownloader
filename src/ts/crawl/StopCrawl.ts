@@ -34,12 +34,13 @@ class StopCrawl {
       this.show()
     })
 
-    const hiddenEvents = [EVT.list.crawlComplete, EVT.list.stopCrawl]
-    hiddenEvents.forEach((evt) => {
-      window.addEventListener(evt, () => {
-        this.hide()
-        this.log()
-      })
+    window.addEventListener(EVT.list.crawlComplete, () => {
+      this.hide()
+    })
+
+    window.addEventListener(EVT.list.stopCrawl, () => {
+      this.hide()
+      this.log()
     })
   }
 

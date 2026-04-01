@@ -54,6 +54,20 @@ class Config {
     'ออริจินัล',
     'Оригинал',
   ]
+  /** 如果作品含有这些标签，就认为它是 AI 生成的作品 */
+  static readonly AITags = [
+    'AI生成',
+    'AI-generated',
+    'AIイラスト',
+    'AI生成作品',
+    'AI 画作',
+    'AI生成イラスト',
+    'AI 생성',
+    'сгенерированный ИИ',
+    'สร้างโดย AI',
+    'Janaan AI',
+  ]
+  static readonly AITagsLower = Config.AITags.map((tag) => tag.toLowerCase())
 }
 
 export { Config }

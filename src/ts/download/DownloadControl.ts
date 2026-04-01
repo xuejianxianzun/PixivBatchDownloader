@@ -83,7 +83,10 @@ class DownloadControl {
 
   private taskList: TaskList = {} // 下载任务列表，使用下载的文件的 id 做 key，保存下载栏编号和它在下载状态列表中的索引
 
-  private errorIdList: string[] = [] // 有任务下载失败时，保存 id
+  /** 有文件下载失败时，保存 id */
+  // 注意这个下载失败指的是 Download 模块里文件下载失败，原因是 XHR 请求失败、动图转换失败。
+  // 这不是 SW 让浏览器保存文件时的失败
+  private errorIdList: string[] = []
 
   private downloaded = 0 // 已下载的任务数量
 
@@ -95,7 +98,7 @@ class DownloadControl {
 
   private checkDownloadTimeoutTimer: undefined | number = undefined
 
-  private readonly msgFlag = 'uuidTip'
+  private readonly uuidTip = 'uuidTip'
 
   // 类型守卫
   private isDownloadedMsg(msg: any): msg is DownloadedMsg {
@@ -180,7 +183,7 @@ class DownloadControl {
       // UUID 的情况
       if (msg.data?.uuid) {
         log.log(lang.transl('_uuid'), 'filenameUUID')
-        msgBox.once(this.msgFlag, lang.transl('_uuid'), 'show')
+        msgBox.once(this.uuidTip, lang.transl('_uuid'), 'show')
         this.pauseDownload()
       }
 
@@ -448,12 +451,12 @@ class DownloadControl {
     }
 
     this.reset()
+    this.taskBatch = Date.now() // 修改本批下载任务的标记
+    this.taskList = {} // 重置下载任务列表
 
-    msgBox.resetOnce(this.msgFlag)
+    msgBox.resetOnce(this.uuidTip)
 
     this.setDownloaded()
-
-    this.taskBatch = Date.now() // 修改本批下载任务的标记
 
     this.setDownloadThread()
 
@@ -583,10 +586,12 @@ class DownloadControl {
     progressBar.reset(this.thread, this.downloaded)
   }
 
-  private saveFileError(data: DonwloadSuccessData) {
+  private async saveFileError(data: DonwloadSuccessData) {
     if (this.pause || this.stop) {
       return false
     }
+
+    await Utils.sleep(3000)
     const task = this.taskList[data.id]
     // 复位这个任务的状态
     downloadStates.setState(task.index, -1)
