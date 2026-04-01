@@ -16,5 +16,5 @@ function injectScript() {
   })
 }
 
-// 在公开版本里不注入脚本
-// injectScript()
+// 在红叶的版本里启用此功能
+injectScript()

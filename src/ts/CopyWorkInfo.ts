@@ -203,6 +203,7 @@ class CopyWorkInfo {
   // - 忽略某些命名设置，例如第一张图不带序号、移除用户名中的 @ 符号、创建文件夹相关的设置等
   // - 额外添加了 {n} 和 {url} 标记
   // - 在每个标签前面加上 # 符号
+  // 红叶版本的区别：不会在每个标签前面加上 # 符号
   private convertTextFormat(
     data: ArtworkData | NovelData,
     format: 'text' | 'html' = 'text',
@@ -212,13 +213,9 @@ class CopyWorkInfo {
     const page_tag = Tools.getTagFromURL()
     const body = data.body
     const type = 'illustType' in body ? body.illustType : 3
-    const tags = Tools.extractTags(data).map((str) => '#' + str)
-    const tagsWithTransl = Tools.extractTags(data, 'both').map(
-      (str) => '#' + str
-    )
-    const tagsTranslOnly = Tools.extractTags(data, 'transl').map(
-      (str) => '#' + str
-    )
+    const tags = Tools.extractTags(data)
+    const tagsWithTransl = Tools.extractTags(data, 'both')
+    const tagsTranslOnly = Tools.extractTags(data, 'transl')
 
     // 判断是不是 AI 生成的作品
     const tagsWithTransl2 = Tools.extractTags(data, 'both')

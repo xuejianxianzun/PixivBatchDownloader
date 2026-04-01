@@ -295,6 +295,7 @@ interface XzSetting {
   tipAltQToQuickDownload: boolean
   tipBookmarkButton: boolean
   highlightFollowingUsers: boolean
+  coverImage: boolean
   exportIDList: boolean
   displayThumbnailListOnMultiImageWorkPage: boolean
   tipBookmarkManage: boolean
@@ -783,6 +784,7 @@ class Settings {
     tipAltQToQuickDownload: true,
     tipBookmarkButton: true,
     highlightFollowingUsers: true,
+    coverImage: false,
     exportIDList: false,
     displayThumbnailListOnMultiImageWorkPage: true,
     tipBookmarkManage: true,
@@ -797,8 +799,7 @@ class Settings {
     downloadInterval: 1,
     downloadIntervalOnWorksNumber: 150,
     tipOpenWikiLink: true,
-    copyWorkInfoFormat:
-      'id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}',
+    copyWorkInfoFormat: 'Title={title}{n}Tag={tags}{n}{url}{n}',
     showCopyBtnOnThumb: true,
     copyFormatImage: false,
     copyFormatText: true,

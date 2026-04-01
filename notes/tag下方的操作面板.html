@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tag 下方的操作面板</title>
+  </head>
+  <body>
+    <style>
+      .xzTagCheckPanelWrap {
+        border: 1px solid #fff;
+        border-radius: 8px;
+        background-color: #0096fa;
+        color: #fff;
+        padding: 6px 10px;
+        font-size: 14px;
+        display: flex;
+        flex-direction: column;
+        width: 200px;
+      }
+
+      .xzTagCheckPanelWrap p{
+        margin: 4px 0;
+      }
+
+      .xzTagCheckPanelWrap>div{
+        display: inline-flex;
+        flex-direction: column;
+      }
+
+      .xzTagCheckPanelWrap button {
+        padding: 0;
+        border: none;
+        background: none;
+        outline: none;
+        color: #fff;
+        cursor: pointer;
+        font-size: 14px;
+        flex-shrink: 0;
+      }
+
+      .xzTagCheckPanelWrap button:hover {
+        font-weight: bold;
+      }
+
+      .xzTagCheckPanelWrap .hr {
+        height: 1px;
+        background-color: #a1d9ff;
+        margin: 6px 0;
+      }
+
+      .xzTagCheckPanelWrap .renameTip ul {
+        margin: 0;
+        padding: 0;
+      }
+
+      .xzTagCheckPanelWrap .renameTip ul li {
+        list-style: none;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        padding-bottom: 6px;
+        flex-wrap: wrap;
+      }
+
+      .xzTagCheckPanelWrap .renameTip ul li .left {
+      }
+
+      .xzTagCheckPanelWrap .renameTip ul li .right {
+      }
+    </style>
+
+    <div class="xzTagCheckPanelWrap">
+      <div class="notNeedTip">
+        <p><button>屏蔽这个tag</button></p>
+        <p><button>取消屏蔽该tag</button></p>
+      </div>
+
+      <div class="renameTiphr hr"></div>
+
+      <div class="renameTip">
+        <p>已将该tag重命名为：</p>
+        <ul>
+          <li>
+            <span class="left">{id}_XXXX_XXXX_XXXX_XXXX</span>
+            <button class="right">移除</button>
+          </li>
+          <li>
+            <span class="left">{id}_XXXX</span>
+            <button class="right">移除</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>

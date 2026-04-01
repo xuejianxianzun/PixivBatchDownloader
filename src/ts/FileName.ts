@@ -621,7 +621,7 @@ class FileName {
     // 如果处理过后依然超长，那就是极端情况了，暂不处理，因为我也没有更好的方法
     // console.log(result.length)
 
-    return result
+    return Utils.removeEmojis(result)
   }
 }
 

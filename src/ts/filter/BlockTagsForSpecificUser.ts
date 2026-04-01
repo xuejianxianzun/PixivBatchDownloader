@@ -378,7 +378,17 @@ class BlockTagsForSpecificUser {
   }
 
   // 如果找到了符合的记录，则返回 true
-  public check(uid: string | number, tags: string[]) {
+  public check(
+    uid: string | number,
+    tags: string[]
+  ):
+    | {
+        result: false
+      }
+    | {
+        result: true
+        tag: string
+      } {
     if (typeof uid === 'string') {
       uid = Number.parseInt(uid)
     }
@@ -386,7 +396,9 @@ class BlockTagsForSpecificUser {
     // 查找有无记录
     const index = this.findIndex(uid)
     if (index === -1) {
-      return false
+      return {
+        result: false,
+      }
     }
 
     // 如果有记录则判断是否有相同的 tag，有任意一个就返回
@@ -394,12 +406,17 @@ class BlockTagsForSpecificUser {
     const tagsString = tags.toString().toLowerCase()
     for (const tag of rule.tags) {
       if (tagsString.includes(tag.toLowerCase())) {
-        return true
+        return {
+          result: true,
+          tag: tag,
+        }
       }
     }
 
     // 没有相同的 tag
-    return false
+    return {
+      result: false,
+    }
   }
 }
 

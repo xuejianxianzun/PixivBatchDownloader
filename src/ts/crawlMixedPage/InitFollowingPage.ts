@@ -95,16 +95,16 @@ class InitFollowingPage extends InitPageBase {
       batchFollowUser.start()
     })
 
-    // 在公开版本里隐藏此功能
-    // Tools.addBtn(
-    //   'crawlBtns',
-    //   Colors.bgWarning,
-    //   '_筛选不活跃的用户',
-    //   '',
-    //   'filterInactiveUsers'
-    // ).addEventListener('click', async () => {
-    //   filterInactiveUsers.start()
-    // })
+    // 在红叶版本里启用此功能
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgWarning,
+      '_筛选不活跃的用户',
+      '',
+      'filterInactiveUsers'
+    ).addEventListener('click', async () => {
+      filterInactiveUsers.start()
+    })
 
     Tools.addBtn(
       'crawlBtns',

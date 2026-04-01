@@ -798,6 +798,12 @@ https://www.pixiv.net/artworks/135895589
 
 下载器的有些快捷键如 `C` 之前没有排除 `Ctrl` 键，会在用户按 `Ctrl` + `C` 的时候误触发。现在对这种情况进行了修复。
 
+### 🐞修复了在新版首页里下半部分，屏蔽某个画师时，其作品区域没有被移除的问题
+
+因为以前做这个专属功能的时候没有新版首页，所以没有对应的作品区域的选择器。现在进行了修复。
+
+相关文件：`src\ts\RemoveBlockedUsersWork.ts`
+
 ### 🕑更新了作品发布时间数据
 
 ## 17.9.0 2025-10-03
@@ -1228,6 +1234,26 @@ https://groups.google.com/a/chromium.org/g/chromium-extensions/c/CMz8_t9YgL4
 https://www.pixiv.net/mypixiv_new_illust.php
 
 在这个页面里可以显示更大的缩略图、批量抓取等。
+
+### ✨定制功能：移除文件名里的 Emoji 字符
+
+用户名里有 Emoji 字符的示例：
+https://www.pixiv.net/users/12730026
+
+作品标题里有 Emoji 字符的示例：
+https://www.pixiv.net/artworks/129379675
+
+作品标签里有 Emoji 字符的示例：
+https://www.pixiv.net/artworks/128906209
+https://www.pixiv.net/tags/%E5%A4%A7%E6%AD%A3%F0%9F%87%AF%F0%9F%87%B5%C3%97%F0%9F%87%BA%F0%9F%87%B8%E3%81%95%E3%82%93%E3%81%AE%E3%82%AB%E3%83%97%E3%81%AA%E3%81%84%E3%81%8B%E3%81%AA/artworks
+
+这个标签里 `大正🇯🇵×🇺🇸さんのカプないかな` 里的 `🇯🇵` 和 `🇺🇸` 都是 Emoji 字符。
+
+上面的情况会导致很多命名标记的结果里含有 Emoji 字符，比如 `{user}`、`{title}`、`{page_title}`，以及与 tags 相关的各种标记。
+
+把文件名里有 Emoji 的文件分享到 QQ 里时，会被 QQ 把文件名变成只有一个横线 `-`。
+
+此功能会移除生成的文件名里的 Emoji 字符，以解决 QQ 修改文件名的问题。
 
 ### 🤖把 Tag 列表里含有“AI生成”的作品也视为 AI 作品
 

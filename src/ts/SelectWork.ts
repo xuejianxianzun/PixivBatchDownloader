@@ -22,7 +22,9 @@ class SelectWork {
       this.created = true
       this.selector = this.createSelectorEl()
       this.addBtn()
+      this.addRightBtn()
       this.bindEvents()
+      this.toggleRightBtn()
     }
   }
 
@@ -91,6 +93,36 @@ class SelectWork {
   private sendCrawl = false // 它用来判断抓取的是不是选择的作品。抓取选择的作品时激活此标记；当触发下一次的抓取完成事件时，表示已经抓取了选择的作品。
   private crawled = false // 是否已经抓取了选择的作品
 
+  // 定制：在一些页面类型上启用“全选”、“退出选择”功能
+  private selectAllPageType = [
+    pageType.list.UserHome,
+    pageType.list.NewNovelBookmark,
+    pageType.list.NewArtworkBookmark,
+  ]
+  private selectAllBtn!: HTMLButtonElement
+  private exitSelectBtn!: HTMLButtonElement
+
+  private addRightBtn() {
+    // 在右侧添加全选按钮
+    this.selectAllBtn = document.createElement('button')
+    this.selectAllBtn.classList.add('rightButton')
+    this.selectAllBtn.id = 'selectAllBtn'
+    this.selectAllBtn.setAttribute('title', '全选')
+    this.selectAllBtn.innerHTML = `<svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-quanxuan"></use>
+</svg>`
+    document.body.insertAdjacentElement('afterbegin', this.selectAllBtn)
+
+    // 在右侧添加退出选择按钮
+    this.exitSelectBtn = document.createElement('button')
+    this.exitSelectBtn.classList.add('rightButton')
+    this.exitSelectBtn.id = 'exitSelectBtn'
+    this.exitSelectBtn.setAttribute('title', '退出全选')
+    this.exitSelectBtn.innerHTML = `<svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-quxiao"></use>
+</svg>`
+    document.body.insertAdjacentElement('afterbegin', this.exitSelectBtn)
+  }
   private readonly svg = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-select"></use>
 </svg>`
@@ -143,6 +175,13 @@ class SelectWork {
       }
     })
 
+    // 定制：使用 Alt + A 快捷键来全选
+    window.addEventListener('keydown', (ev) => {
+      if (ev.altKey && ev.code === 'KeyA') {
+        this.selectAllBtn.click()
+      }
+    })
+
     // 鼠标移动时保存鼠标的坐标
     window.addEventListener(
       'mousemove',
@@ -188,6 +227,97 @@ class SelectWork {
         subtree: true,
       })
     })
+
+    window.addEventListener(EVT.list.pageSwitch, () => {
+      this.toggleRightBtn()
+    })
+
+    this.selectAllBtn.addEventListener('click', () => {
+      this.selectAll()
+    })
+
+    // 退出手动选择模式，并取消所有选择的作品
+    this.exitSelectBtn.addEventListener('click', () => {
+      this.clearIdList()
+      this.start = false
+    })
+  }
+
+  private toggleRightBtn() {
+    const enable = this.selectAllPageType.includes(pageType.type)
+    this.selectAllBtn.style.display = enable ? 'flex' : 'none'
+    this.exitSelectBtn.style.display = enable ? 'flex' : 'none'
+  }
+
+  // 选择当前页面上所有作品
+  private selectAll() {
+    if (!this.selectAllPageType.includes(pageType.type)) {
+      return msgBox.error('全选功能不支持当前页面类型')
+    }
+    // 根据页面类型，获取页面上所有作品的缩略图元素
+    let works: NodeListOf<HTMLElement> =
+      [] as unknown as NodeListOf<HTMLElement>
+    // 在画师主页里
+    if (pageType.type === pageType.list.UserHome) {
+      works = document.querySelectorAll('li[size="1"]')
+    }
+    // 在已关注用户的最新作品-插画里
+    if (pageType.type === pageType.list.NewArtworkBookmark) {
+      const newPage = !document.querySelector('h1')
+      const selector = newPage
+        ? 'li[size="1"]'
+        : '#js-mount-point-latest-following>div>div'
+      works = document.querySelectorAll(selector)
+    }
+    // 在已关注用户的最新作品-小说里
+    if (pageType.type === pageType.list.NewNovelBookmark) {
+      const newPage = !document.querySelector('h1')
+      const selector = newPage
+        ? 'li[size="1"]'
+        : '#js-mount-point-latest-following>div>div'
+      works = document.querySelectorAll(selector)
+    }
+    if (works.length === 0) {
+      return msgBox.error(
+        '没有找到作品，可能是没有作品，或者页面改版过，请联系开发人员。'
+      )
+    }
+
+    this.startSelect()
+    this.clearBtn.style.display = 'block'
+    // 查找每个作品的 id 数据
+    for (const el of works) {
+      const a = el.querySelector('a') as HTMLAnchorElement
+      if (!a || !a.href) {
+        continue
+      }
+
+      const idData: IDData = {
+        id: '',
+        type: 'illusts',
+      }
+      if (a.href.includes('/artworks/')) {
+        const id = Tools.getIllustId(a.href)
+        if (id) {
+          idData.id = id
+        }
+      }
+      if (a.href.includes('/novel/')) {
+        const id = Tools.getNovelId(a.href)
+        if (id) {
+          console.log(id)
+          idData.id = id
+          idData.type = 'novels'
+        }
+      }
+
+      if (!idData.id) {
+        continue
+      }
+
+      this.crawled = false
+      this.addId(el, idData.id, idData.type)
+    }
   }
 
   private clearIdList() {
@@ -273,7 +403,7 @@ class SelectWork {
           return
         }
 
-        this.startSelect(ev)
+        this.startSelect()
         this.clearBtn.style.display = 'flex'
         if (!Config.mobile) {
           showOneTimeMsg.show(
@@ -291,7 +421,7 @@ class SelectWork {
       } else {
         lang.updateText(this.controlTextSpan, '_继续选择')
         this.controlBtn.onclick = (ev) => {
-          this.startSelect(ev)
+          this.startSelect()
         }
       }
     }
@@ -434,7 +564,7 @@ class SelectWork {
   }
 
   // 开始或继续选择
-  private startSelect(ev: MouseEvent) {
+  private startSelect() {
     this.start = true
 
     if (this.pause) {

@@ -309,7 +309,6 @@ export const formHtml = `
         <input type="text" name="needTag" class="setinput_style1 blue setinput_tag" placeholder="tag1,tag2,tag3">
       </span>
     </p>
-
     <p class="option" data-no="12">
       <a href="${wiki.link(12)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_排除tag的提示文字">
         <span data-xztext="_不能含有tag"></span>
@@ -517,12 +516,11 @@ export const formHtml = `
       <input type="checkbox" name="notFolderWhenOneFile" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
     </p>
-
     <p class="option" data-no="16">
       <a href="${wiki.link(16)}" target="_blank" class="settingNameStyle">
         <span data-xztext="_下载线程"></span>
       </a>
-      <input type="text" name="downloadThread" class="has_tip setinput_style1 blue" data-xztip="_下载线程的说明" value="5">
+      <input type="text" name="downloadThread" class="has_tip setinput_style1 blue" data-xztip="_下载线程的说明" value="24">
     </p>
     <p class="option" data-no="17">
       <a href="${wiki.link(17)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动开始下载的提示">
@@ -1104,6 +1102,14 @@ export const formHtml = `
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </p>
+    
+    <p class="option" data-no="999">
+    <span class="settingNameStyle1">
+    <span>把图片显示为<span class="key">灰色</span></span>
+    <input type="checkbox" name="coverImage" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
     <p class="option" data-no="84">
       <a href="${wiki.link(84)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_高亮关注的用户的说明">
         <span data-xztext="_高亮关注的用户"></span>

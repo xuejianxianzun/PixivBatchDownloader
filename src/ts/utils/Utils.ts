@@ -481,9 +481,16 @@ class Utils {
     return array[array.length - 1]
   }
 
+  /**传入字符串，移除其中的所有 emoji 文字 */
+  static removeEmojis(str: string) {
+    return str.replace(
+      /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu,
+      ''
+    )
+  }
+
   /**检测元素在视口中是否可见
    * threshold 为 0 时，只要有部分可见就返回 true
-   *
    * threshold 为 1 时，需要全部可见才会返回 true
    */
   static observeElement(el: HTMLElement, callback: Function, threshold: 0 | 1) {

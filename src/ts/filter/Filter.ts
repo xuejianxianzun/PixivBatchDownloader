@@ -154,11 +154,7 @@ class Filter {
     }
 
     // 检查要排除的 tag
-    if (!this.checkExcludeTag(option.tags)) {
-      log.warning(
-        lang.transl('_下载器排除了一些作品原因') + lang.transl('_不能含有tag'),
-        'excludeWorkByExcludeTag'
-      )
+    if (!this.checkExcludeTag(option.tags, option.id)) {
       return false
     }
 
@@ -244,21 +240,14 @@ class Filter {
     }
 
     // 检查用户阻止名单
-    if (!this.checkBlockList(option.userId)) {
-      log.warning(
-        lang.transl('_下载器排除了一些作品原因') + lang.transl('_用户阻止名单'),
-        'excludeWorkByBlockList'
-      )
+    if (!this.checkBlockList(option.userId, option.id)) {
       return false
     }
 
     // 检查针对特定用户屏蔽的 tags
-    if (!this.checkBlockTagsForSpecificUser(option.userId, option.tags)) {
-      log.warning(
-        lang.transl('_下载器排除了一些作品原因') +
-          lang.transl('_针对特定用户屏蔽tag'),
-        'excludeWorkByBlockTagsForSpecificUser'
-      )
+    if (
+      !this.checkBlockTagsForSpecificUser(option.userId, option.tags, option.id)
+    ) {
       return false
     }
 
@@ -949,7 +938,7 @@ class Filter {
   }
 
   /** 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。 */
-  private checkExcludeTag(tags: FilterOption['tags']) {
+  private checkExcludeTag(tags: FilterOption['tags'], id?: FilterOption['id']) {
     if (
       !settings.notNeedTagSwitch ||
       settings.notNeedTag.length === 0 ||
@@ -974,10 +963,14 @@ class Filter {
             if (words.length > 1) {
               // 如果 tag 有空格，依次使用每个分词进行全词匹配。如果有任一一个 tag 被匹配到则排除这个作品
               if (words.some((word) => word.toLowerCase() === notNeed)) {
+                // 定制：显示被排除的原因
+                log.warning(`id ${id || '未知'} 被排除，因为排除了 tag：${tag}`)
                 return false
               }
             } else {
               // 如果 tag 没有空格，直接返回结果
+              // 定制：显示被排除的原因
+              log.warning(`id ${id || '未知'} 被排除，因为排除了 tag：${tag}`)
               return false
             }
           }
@@ -1221,17 +1214,28 @@ class Filter {
     return yes_rank === 0
   }
 
-  private checkBlockList(userId: FilterOption['userId']) {
+  private checkBlockList(
+    userId: FilterOption['userId'],
+    id?: FilterOption['id']
+  ) {
     if (!settings.userBlockList || userId === undefined) {
       return true
     }
 
     // 如果阻止名单里有这个用户 id，则返回 false 表示阻止这个作品
-    return !settings.blockList.includes(userId)
+    const result = settings.blockList.includes(userId)
+    // 定制：显示被排除的原因
+    if (result) {
+      log.warning(
+        `id ${id || '未知'} 被排除，因为用户阻止名单中排除了该用户：${userId}`
+      )
+    }
+
+    return !result
   }
 
+  // 检查文件体积
   private readonly MiB = 1024 * 1024
-  /** 检查文件体积 */
   private checkFileSize(size: FilterOption['size']) {
     if (!settings.sizeSwitch || size === undefined) {
       return true
@@ -1267,7 +1271,8 @@ class Filter {
 
   private checkBlockTagsForSpecificUser(
     userId: FilterOption['userId'],
-    tags: FilterOption['tags']
+    tags: FilterOption['tags'],
+    id?: FilterOption['id']
   ) {
     if (
       !settings.blockTagsForSpecificUser ||
@@ -1277,17 +1282,23 @@ class Filter {
       return true
     }
 
+    // 定制：显示被排除的原因
+    const checkResult = blockTagsForSpecificUser.check(userId, tags)
+    if (checkResult.result) {
+      log.warning(
+        `id ${id || '未知'} 被排除，因为屏蔽了用户 ${userId} 的 tag：${
+          checkResult.tag
+        }`
+      )
+    }
     // 对结果取反
-    return !blockTagsForSpecificUser.check(userId, tags)
+    return !checkResult.result
   }
 
-  /** 如果设置项的值不合法，显示提示 */
+  /** 如果设置项的值不合法，则显示提示 */
   private error(msg: string) {
-    this.wrongSetting = true
-    log.error(msg.replace('<br>', ''))
-    msgBox.error(msg, {
-      title: lang.transl('_抓取条件不正确'),
-    })
+    EVT.fire('wrongSetting')
+    msgBox.error(msg)
   }
 }
 

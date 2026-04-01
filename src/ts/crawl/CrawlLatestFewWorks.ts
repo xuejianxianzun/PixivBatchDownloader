@@ -37,12 +37,11 @@ class CrawlLatestFewWorks {
   }
 
   private hideOption() {
-    // 在公开版本里，这个设置项始终隐藏
-    // if (!this.enable) {
-    window.setTimeout(() => {
-      options.hideOption([15])
-    }, 0)
-    // }
+    if (!this.enable) {
+      window.setTimeout(() => {
+        options.hideOption([15])
+      }, 0)
+    }
   }
 
   public showLog() {
