@@ -185,7 +185,13 @@ class InitSearchNovelPage extends InitPageBase {
     }
 
     // 计算应该抓取多少页
-    const data = await this.getSearchData(1)
+    let data
+    try {
+      data = await this.getSearchData(1)
+    } catch {
+      EVT.fire('stopCrawl')
+      return
+    }
     // 计算总页数
     let pageCount = Math.ceil(data.total / this.worksNoPerPage)
     if (pageCount > 1000) {
@@ -242,10 +248,16 @@ class InitSearchNovelPage extends InitPageBase {
     }
   }
 
-  // 获取搜索页的数据。因为有多处使用，所以进行了封装
+  /** 获取某一页的数据 */
   private async getSearchData(p: number) {
     let data = await API.getSearchData(store.tag, 'novels', p, this.option)
-    return data.body.novel
+    const result = data.body.novel
+    if (!result) {
+      const msg = `No valid search data in API response for page ${p}`
+      log.error(msg)
+      throw new Error(msg)
+    }
+    return result
   }
 
   // 组织要请求的 url 中的参数
@@ -308,6 +320,7 @@ class InitSearchNovelPage extends InitPageBase {
   }
 
   private delayReTry(p: number) {
+    log.error(lang.transl('_下载器会在几分钟后重试'))
     window.setTimeout(() => {
       this.getIdList(p)
     }, Config.retryTime)
@@ -349,14 +362,13 @@ class InitSearchNovelPage extends InitPageBase {
     let data
     try {
       data = await this.getSearchData(p)
-
       if (data.total === 0) {
         console.log(`page ${p}: total 0`)
         this.tipEmptyResult()
         return this.delayReTry(p)
       }
     } catch {
-      return this.getIdList(p)
+      return this.delayReTry(p)
     }
 
     if (states.stopCrawl) {

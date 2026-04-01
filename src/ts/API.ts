@@ -98,8 +98,6 @@ class API {
               return await attemptRequest(tryCount + 1)
             } else {
               // 对于其他状态码，以及重试超出最大次数的，不再重试，而是通过 reject 抛出错误
-              // LogErrorStatus 模块会在日志里输出错误信息
-              console.error(`Status Code: ${response.status}`)
               return reject({
                 status: response.status,
                 statusText: response.statusText,

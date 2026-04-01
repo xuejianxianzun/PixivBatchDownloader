@@ -377,7 +377,6 @@ abstract class InitPageBase {
     if ((settings.exportIDList || states.exportIDList) && Utils.isPixiv()) {
       states.busy = false
       EVT.fire('stopCrawl')
-      log.warning(lang.transl('_已停止抓取'))
 
       if (settings.exportIDList) {
         const resultList = await Utils.json2BlobSafe(store.idList)

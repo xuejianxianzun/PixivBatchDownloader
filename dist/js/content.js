@@ -1293,8 +1293,6 @@ class API {
                         }
                         else {
                             // 对于其他状态码，以及重试超出最大次数的，不再重试，而是通过 reject 抛出错误
-                            // LogErrorStatus 模块会在日志里输出错误信息
-                            console.error(`Status Code: ${response.status}`);
                             return reject({
                                 status: response.status,
                                 statusText: response.statusText,
@@ -13755,7 +13753,6 @@ class InitPageBase {
         if ((_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.exportIDList || _store_States__WEBPACK_IMPORTED_MODULE_9__.states.exportIDList) && _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.isPixiv()) {
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy = false;
             _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('stopCrawl');
-            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_已停止抓取'));
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.exportIDList) {
                 const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList);
                 for (const result of resultList) {
@@ -14314,10 +14311,6 @@ class StopCrawl {
         this.btn = _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.addBtn('stopCrawl', _Colors__WEBPACK_IMPORTED_MODULE_0__.Colors.bgRed, '_停止抓取', '', 'stopCrawling');
         this.hide();
         this.btn.addEventListener('click', () => {
-            this.hide();
-            const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已停止抓取');
-            _Log__WEBPACK_IMPORTED_MODULE_3__.log.error('🛑' + msg);
-            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(msg);
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('stopCrawl');
             _store_States__WEBPACK_IMPORTED_MODULE_6__.states.stopCrawl = true;
         });
@@ -14330,6 +14323,7 @@ class StopCrawl {
         hiddenEvents.forEach((evt) => {
             window.addEventListener(evt, () => {
                 this.hide();
+                this.log();
             });
         });
     }
@@ -14338,6 +14332,11 @@ class StopCrawl {
     }
     show() {
         this.btn.style.display = 'flex';
+    }
+    log() {
+        const msg = _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已停止抓取');
+        _Log__WEBPACK_IMPORTED_MODULE_3__.log.error('🛑' + msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error(msg);
     }
 }
 new StopCrawl();
@@ -15945,6 +15944,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     resultMeta = []; // 每次“开始筛选”完成后，储存当时所有结果，以备“在结果中筛选”使用
     worksWrap = null;
     deleteId = 0; // 手动删除时，要删除的作品的 id
+    showPreviewIntervalId = 0; // showPreview 定时器的 id
+    removeBlockIntervalId = 0; // removeBlockOnHotBar 定时器的 id
     causeResultChange = ['firstFewImagesSwitch', 'firstFewImages']; // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
     crawlStartBySelf = false; // 这次抓取是否是由当前页面的“开始抓取”按钮发起的
     previewCount = 0; // 共显示了多少个作品的预览图
@@ -16012,7 +16013,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingChange, this.onSettingChange);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.crawlTag, this.crawlTag);
         // 定期将缓冲中的预览作品元素添加到页面上
-        window.setInterval(() => {
+        this.showPreviewIntervalId = window.setInterval(() => {
             this.showPreview();
         }, 1000);
     }
@@ -16028,6 +16029,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.crawlComplete, this.onCrawlFinish);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingChange, this.onSettingChange);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.crawlTag, this.crawlTag);
+        window.clearInterval(this.showPreviewIntervalId);
+        window.clearInterval(this.removeBlockIntervalId);
     }
     getWantPage() {
         this.crawlNumber = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.crawlNumber[_PageType__WEBPACK_IMPORTED_MODULE_19__.pageType.type].value;
@@ -16045,7 +16048,14 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.setSlowCrawl();
         this.initFetchURL();
         // 计算应该抓取多少页
-        const data = await this.getSearchData(1);
+        let data;
+        try {
+            data = await this.getSearchData(1);
+        }
+        catch {
+            _EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.fire('stopCrawl');
+            return;
+        }
         // 计算总页数
         let pageCount = Math.ceil(data.total / this.worksNoPerPage);
         if (pageCount > 1000) {
@@ -16207,12 +16217,21 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 return mode;
         }
     }
-    // 获取搜索页的数据。因为有多处使用，所以进行了封装
+    /** 获取某一页的数据 */
     async getSearchData(p) {
         let data = await _API__WEBPACK_IMPORTED_MODULE_6__.API.getSearchData(_store_Store__WEBPACK_IMPORTED_MODULE_7__.store.tag, this.APIPath, p, this.option);
-        return data.body.illust || data.body.illustManga || data.body.manga;
+        // 如果请求出错，由调用方自行 catch 错误信息
+        // 这里只检查请求成功后是否含有需要的数据
+        const result = data.body.illust || data.body.illustManga || data.body.manga;
+        if (!result) {
+            const msg = `No valid search data in API response for page ${p}`;
+            _Log__WEBPACK_IMPORTED_MODULE_8__.log.error(msg);
+            throw new Error(msg);
+        }
+        return result;
     }
     delayReTry(p) {
+        _Log__WEBPACK_IMPORTED_MODULE_8__.log.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器会在几分钟后重试'));
         window.setTimeout(() => {
             this.getIdList(p);
         }, _Config__WEBPACK_IMPORTED_MODULE_20__.Config.retryTime);
@@ -16244,7 +16263,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             }
         }
         catch {
-            return this.getIdList(p);
+            return this.delayReTry(p);
         }
         if (_store_States__WEBPACK_IMPORTED_MODULE_13__.states.stopCrawl) {
             return this.getIdListFinished();
@@ -16606,11 +16625,17 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         const resultMetaTemp = [];
         const resultMetaRemoved = [];
         for (const meta of this.resultMeta) {
-            if (await callback(meta)) {
-                resultMetaTemp.push(meta);
+            try {
+                if (await callback(meta)) {
+                    resultMetaTemp.push(meta);
+                }
+                else {
+                    resultMetaRemoved.push(meta);
+                }
             }
-            else {
-                resultMetaRemoved.push(meta);
+            catch (err) {
+                _Log__WEBPACK_IMPORTED_MODULE_8__.log.error(`filterResult error: ${err}`);
+                resultMetaTemp.push(meta); // 出错时保留该条目，避免误删
             }
         }
         this.resultMeta = resultMetaTemp;
@@ -16709,7 +16734,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     // 去除覆盖在热门作品上面的会员购买链接
     removeBlockOnHotBar() {
         // 需要重复执行，因为这个链接会生成不止一次
-        window.setInterval(() => {
+        // 清除可能存在的旧定时器，避免多个定时器叠加
+        window.clearInterval(this.removeBlockIntervalId);
+        this.removeBlockIntervalId = window.setInterval(() => {
             if (_PageType__WEBPACK_IMPORTED_MODULE_19__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_19__.pageType.list.ArtworkSearch) {
                 return;
             }
@@ -20245,7 +20272,14 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_启用了整合相同系列小说时的提示'));
         }
         // 计算应该抓取多少页
-        const data = await this.getSearchData(1);
+        let data;
+        try {
+            data = await this.getSearchData(1);
+        }
+        catch {
+            _EVT__WEBPACK_IMPORTED_MODULE_11__.EVT.fire('stopCrawl');
+            return;
+        }
         // 计算总页数
         let pageCount = Math.ceil(data.total / this.worksNoPerPage);
         if (pageCount > 1000) {
@@ -20294,10 +20328,16 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             _Log__WEBPACK_IMPORTED_MODULE_6__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_从本页开始抓取x页', this.crawlNumber.toString()));
         }
     }
-    // 获取搜索页的数据。因为有多处使用，所以进行了封装
+    /** 获取某一页的数据 */
     async getSearchData(p) {
         let data = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getSearchData(_store_Store__WEBPACK_IMPORTED_MODULE_5__.store.tag, 'novels', p, this.option);
-        return data.body.novel;
+        const result = data.body.novel;
+        if (!result) {
+            const msg = `No valid search data in API response for page ${p}`;
+            _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(msg);
+            throw new Error(msg);
+        }
+        return result;
     }
     // 组织要请求的 url 中的参数
     initFetchURL() {
@@ -20351,6 +20391,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         }
     }
     delayReTry(p) {
+        _Log__WEBPACK_IMPORTED_MODULE_6__.log.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载器会在几分钟后重试'));
         window.setTimeout(() => {
             this.getIdList(p);
         }, _Config__WEBPACK_IMPORTED_MODULE_15__.Config.retryTime);
@@ -20394,7 +20435,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             }
         }
         catch {
-            return this.getIdList(p);
+            return this.delayReTry(p);
         }
         if (_store_States__WEBPACK_IMPORTED_MODULE_14__.states.stopCrawl) {
             return this.getIdListFinished();

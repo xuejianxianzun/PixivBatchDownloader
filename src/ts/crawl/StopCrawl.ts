@@ -24,10 +24,6 @@ class StopCrawl {
     this.hide()
 
     this.btn.addEventListener('click', () => {
-      this.hide()
-      const msg = lang.transl('_已停止抓取')
-      log.error('🛑' + msg)
-      toast.error(msg)
       EVT.fire('stopCrawl')
       states.stopCrawl = true
     })
@@ -42,6 +38,7 @@ class StopCrawl {
     hiddenEvents.forEach((evt) => {
       window.addEventListener(evt, () => {
         this.hide()
+        this.log()
       })
     })
   }
@@ -52,6 +49,12 @@ class StopCrawl {
 
   private show() {
     this.btn.style.display = 'flex'
+  }
+
+  private log() {
+    const msg = lang.transl('_已停止抓取')
+    log.error('🛑' + msg)
+    toast.error(msg)
   }
 }
 

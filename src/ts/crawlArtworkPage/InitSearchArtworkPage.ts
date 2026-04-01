@@ -143,6 +143,9 @@ class InitSearchArtworkPage extends InitPageBase {
 
   private deleteId = 0 // 手动删除时，要删除的作品的 id
 
+  private showPreviewIntervalId = 0 // showPreview 定时器的 id
+  private removeBlockIntervalId = 0 // removeBlockOnHotBar 定时器的 id
+
   private causeResultChange = ['firstFewImagesSwitch', 'firstFewImages'] // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
 
   private crawlStartBySelf = false // 这次抓取是否是由当前页面的“开始抓取”按钮发起的
@@ -262,7 +265,7 @@ class InitSearchArtworkPage extends InitPageBase {
     window.addEventListener(EVT.list.crawlTag, this.crawlTag)
 
     // 定期将缓冲中的预览作品元素添加到页面上
-    window.setInterval(() => {
+    this.showPreviewIntervalId = window.setInterval(() => {
       this.showPreview()
     }, 1000)
   }
@@ -281,6 +284,9 @@ class InitSearchArtworkPage extends InitPageBase {
     window.removeEventListener(EVT.list.crawlComplete, this.onCrawlFinish)
     window.removeEventListener(EVT.list.settingChange, this.onSettingChange)
     window.removeEventListener(EVT.list.crawlTag, this.crawlTag)
+
+    window.clearInterval(this.showPreviewIntervalId)
+    window.clearInterval(this.removeBlockIntervalId)
   }
 
   protected getWantPage() {
@@ -305,7 +311,13 @@ class InitSearchArtworkPage extends InitPageBase {
     this.initFetchURL()
 
     // 计算应该抓取多少页
-    const data = await this.getSearchData(1)
+    let data
+    try {
+      data = await this.getSearchData(1)
+    } catch {
+      EVT.fire('stopCrawl')
+      return
+    }
     // 计算总页数
     let pageCount = Math.ceil(data.total / this.worksNoPerPage)
     if (pageCount > 1000) {
@@ -489,13 +501,22 @@ class InitSearchArtworkPage extends InitPageBase {
     }
   }
 
-  // 获取搜索页的数据。因为有多处使用，所以进行了封装
+  /** 获取某一页的数据 */
   private async getSearchData(p: number) {
     let data = await API.getSearchData(store.tag, this.APIPath, p, this.option)
-    return data.body.illust || data.body.illustManga || data.body.manga
+    // 如果请求出错，由调用方自行 catch 错误信息
+    // 这里只检查请求成功后是否含有需要的数据
+    const result = data.body.illust || data.body.illustManga || data.body.manga
+    if (!result) {
+      const msg = `No valid search data in API response for page ${p}`
+      log.error(msg)
+      throw new Error(msg)
+    }
+    return result
   }
 
   private delayReTry(p: number) {
+    log.error(lang.transl('_下载器会在几分钟后重试'))
     window.setTimeout(() => {
       this.getIdList(p)
     }, Config.retryTime)
@@ -524,14 +545,13 @@ class InitSearchArtworkPage extends InitPageBase {
     let data
     try {
       data = await this.getSearchData(p)
-
       if (data.total === 0) {
         console.log(`page ${p}: total 0`)
         this.tipEmptyResult()
         return this.delayReTry(p)
       }
     } catch {
-      return this.getIdList(p)
+      return this.delayReTry(p)
     }
 
     if (states.stopCrawl) {
@@ -956,10 +976,15 @@ class InitSearchArtworkPage extends InitPageBase {
     const resultMetaRemoved: Result[] = []
 
     for (const meta of this.resultMeta) {
-      if (await callback(meta)) {
-        resultMetaTemp.push(meta)
-      } else {
-        resultMetaRemoved.push(meta)
+      try {
+        if (await callback(meta)) {
+          resultMetaTemp.push(meta)
+        } else {
+          resultMetaRemoved.push(meta)
+        }
+      } catch (err) {
+        log.error(`filterResult error: ${err}`)
+        resultMetaTemp.push(meta) // 出错时保留该条目，避免误删
       }
     }
 
@@ -1079,7 +1104,9 @@ class InitSearchArtworkPage extends InitPageBase {
   // 去除覆盖在热门作品上面的会员购买链接
   private removeBlockOnHotBar() {
     // 需要重复执行，因为这个链接会生成不止一次
-    window.setInterval(() => {
+    // 清除可能存在的旧定时器，避免多个定时器叠加
+    window.clearInterval(this.removeBlockIntervalId)
+    this.removeBlockIntervalId = window.setInterval(() => {
       if (pageType.type !== pageType.list.ArtworkSearch) {
         return
       }
