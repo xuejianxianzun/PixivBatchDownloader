@@ -27608,16 +27608,20 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 每隔 10000 个作品，获取一次发布时间
+// 数据源是二维数组，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
+// [[20, 1189343647000], [10000, 1190285376000], [20006, 1190613767000]]
 class WorkPublishTime {
     constructor() {
         this.illustsLength = _store_WorkPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__.illustsData.length;
         this.novelsLength = _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__.novelsData.length;
-        this.bindEvents();
+        _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', async () => {
+            await this.crawlData('illusts');
+            await this.crawlData('novels');
+        });
     }
-    // 数据源是二维数组，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
-    // [[20, 1189343647000], [10000, 1190285376000], [20006, 1190613767000]]
-    /**每隔 10000 个作品采集一次数据 */
+    illustEnd = 143026633;
+    novelEnd = 27700753;
+    /**每隔 10000 个作品采集一次发布时间数据 */
     gap = 10000;
     illustsLength = 0;
     novelsLength = 0;
@@ -27653,20 +27657,12 @@ class WorkPublishTime {
             return [data[index - 1][1], record[1]];
         }
     }
-    bindEvents() {
-        // 获取图像作品的数据
-        _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', () => {
-            // 上次记录到 141710000
-            this.crawlData(141720000, 142574810);
-        });
-        // 获取小说作品的数据
-        _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask2', () => {
-            // 上次记录到 27400000
-            this.crawlData(27410000, 27595785, 'novels');
-        });
-    }
-    async crawlData(start, end, type = 'illusts') {
-        console.log(`start crawl ${type} time data`);
+    async crawlData(type = 'illusts') {
+        const data = type === 'illusts' ? _store_WorkPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__.illustsData : _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__.novelsData;
+        const lastItem = data[data.length - 1];
+        const start = lastItem[0] + this.gap;
+        const end = type === 'illusts' ? this.illustEnd : this.novelEnd;
+        console.log(`start crawl ${type} time data\nstart id: ${start}\nend id: ${end}`);
         const result = [];
         const min_illust = 20; // 最早的插画作品
         const min_novel = 129; // 最早的小说作品
@@ -27685,6 +27681,9 @@ class WorkPublishTime {
         }
         console.log(result);
         console.log('crawl time data complete');
+        if (result.length === 0) {
+            return result;
+        }
         const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.json2BlobSafe(result);
         for (const result of resultList) {
             _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.downloadFile(result.url, `workPublishTime-${type}-${start}-${end}.json`);
@@ -58250,6 +58249,51 @@ const illustsData = [
     [142550000, 1774035000000],
     [142560000, 1774064520000],
     [142570000, 1774085220000],
+    [142580000, 1774098600000],
+    [142590000, 1774112940000],
+    [142600000, 1774144680000],
+    [142610000, 1774165560000],
+    [142620000, 1774180140000],
+    [142630000, 1774191600000],
+    [142640000, 1774218120000],
+    [142650000, 1774250040000],
+    [142660000, 1774267800000],
+    [142670000, 1774280760000],
+    [142680000, 1774314000000],
+    [142690000, 1774342800000],
+    [142700000, 1774357320000],
+    [142710000, 1774372200000],
+    [142720000, 1774407600000],
+    [142730000, 1774432260000],
+    [142740000, 1774446060000],
+    [142750000, 1774464420000],
+    [142760001, 1774499340000],
+    [142770000, 1774522500000],
+    [142780000, 1774536180000],
+    [142790000, 1774562280000],
+    [142800000, 1774592880000],
+    [142810000, 1774611480000],
+    [142820000, 1774623660000],
+    [142830001, 1774650660000],
+    [142840000, 1774675860000],
+    [142850000, 1774694640000],
+    [142860000, 1774707180000],
+    [142870000, 1774727160000],
+    [142880000, 1774755360000],
+    [142890000, 1774775220000],
+    [142900000, 1774788240000],
+    [142910000, 1774800240000],
+    [142920000, 1774833240000],
+    [142930000, 1774861020000],
+    [142940000, 1774875420000],
+    [142950000, 1774889100000],
+    [142960000, 1774923660000],
+    [142970000, 1774947900000],
+    [142980000, 1774961760000],
+    [142990000, 1774972440000],
+    [143000000, 1775002920000],
+    [143010000, 1775029800000],
+    [143020000, 1775044860000],
 ];
 
 
@@ -61027,6 +61071,17 @@ const novelsData = [
     [27570001, 1773847952000],
     [27580000, 1773945037000],
     [27590001, 1774029416000],
+    [27600002, 1774112903000],
+    [27610000, 1774195207000],
+    [27620000, 1774295582000],
+    [27630000, 1774411201000],
+    [27640000, 1774514767000],
+    [27650000, 1774614602000],
+    [27660000, 1774702450000],
+    [27670001, 1774786068000],
+    [27680000, 1774875075000],
+    [27690000, 1774964770000],
+    [27700000, 1775049110000],
 ];
 
 

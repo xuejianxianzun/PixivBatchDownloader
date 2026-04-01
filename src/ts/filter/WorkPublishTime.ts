@@ -4,18 +4,24 @@ import { Utils } from '../utils/Utils'
 import { illustsData } from '../store/WorkPublishTimeIllusts'
 import { novelsData } from '../store/WorkPublishTimeNovels'
 
-// 每隔 10000 个作品，获取一次发布时间
+// 数据源是二维数组，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
+// [[20, 1189343647000], [10000, 1190285376000], [20006, 1190613767000]]
+
 class WorkPublishTime {
   constructor() {
     this.illustsLength = illustsData.length
     this.novelsLength = novelsData.length
-    this.bindEvents()
+
+    secretSignal.register('ppdtask1', async () => {
+      await this.crawlData('illusts')
+      await this.crawlData('novels')
+    })
   }
 
-  // 数据源是二维数组，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
-  // [[20, 1189343647000], [10000, 1190285376000], [20006, 1190613767000]]
+  private readonly illustEnd = 143026633
+  private readonly novelEnd = 27700753
 
-  /**每隔 10000 个作品采集一次数据 */
+  /**每隔 10000 个作品采集一次发布时间数据 */
   private readonly gap = 10000
 
   private illustsLength = 0
@@ -58,26 +64,16 @@ class WorkPublishTime {
     }
   }
 
-  private bindEvents() {
-    // 获取图像作品的数据
-    secretSignal.register('ppdtask1', () => {
-      // 上次记录到 141710000
-      this.crawlData(141720000, 142574810)
-    })
-
-    // 获取小说作品的数据
-    secretSignal.register('ppdtask2', () => {
-      // 上次记录到 27400000
-      this.crawlData(27410000, 27595785, 'novels')
-    })
-  }
-
   private async crawlData(
-    start: number,
-    end: number,
     type: 'illusts' | 'novels' = 'illusts'
   ): Promise<number[][]> {
-    console.log(`start crawl ${type} time data`)
+    const data = type === 'illusts' ? illustsData : novelsData
+    const lastItem = data[data.length - 1]
+    const start = lastItem[0] + this.gap
+    const end = type === 'illusts' ? this.illustEnd : this.novelEnd
+    console.log(
+      `start crawl ${type} time data\nstart id: ${start}\nend id: ${end}`
+    )
     const result: number[][] = []
 
     const min_illust = 20 // 最早的插画作品
@@ -100,6 +96,10 @@ class WorkPublishTime {
 
     console.log(result)
     console.log('crawl time data complete')
+
+    if (result.length === 0) {
+      return result
+    }
 
     const resultList = await Utils.json2BlobSafe(result)
     for (const result of resultList) {
