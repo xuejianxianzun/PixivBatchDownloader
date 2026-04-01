@@ -1,18 +1,22 @@
 import { EVT } from './EVT'
 import { theme } from './Theme'
 import { Colors } from './Colors'
-import { lang } from './Language'
-import { toast } from './Toast'
 import { Utils } from './utils/Utils'
 import { settings } from './setting/Settings'
 import { Config } from './Config'
-import { pageType } from './PageType'
 import { exportLog } from './ExportLog'
+import { logButton } from './LogButton'
 
-// 日志
 class Log {
   constructor() {
-    this.createToggleBtn()
+    logButton.init({
+      getShow: () => this._show,
+      setShow: (value: boolean) => {
+        this.show = value
+      },
+      getCount: () => this.count,
+      getIsVisible: () => this.isVisible,
+    })
 
     // this.test(300)
 
@@ -49,34 +53,6 @@ class Log {
     default: document.createElement('span'),
   }
 
-  /**页面顶部的“显示日志”按钮，点击之后会显示日志区域 */
-  private logBtn = document.createElement('div')
-
-  /**显示或隐藏顶部的“显示日志”按钮 */
-  // 它默认是 opacity: 0，即不可见
-  private set logBtnShow(value: boolean) {
-    // 在图像作品页面里，如果处于漫画页面里的阅读模式（检测特定的 a 元素），则不显示按钮。网址如：
-    // https://www.pixiv.net/artworks/130919451#1
-    // 这是因为即使用户之前已经把页面滚动了一部分（按钮是隐藏的），但点击“阅读全部”后，按钮就会显示出来
-    // 但实际上在阅读时不应该显示按钮，所以特殊处理一下
-    if (
-      pageType.type === pageType.list.Artwork &&
-      /#\d/.test(window.location.hash) &&
-      document.querySelector('a.gtm-expand-full-size-illust')
-    ) {
-      this.logBtn.classList.remove('show')
-      return
-    }
-
-    if (value) {
-      if (this.count > 0 && window.scrollY <= 10) {
-        this.logBtn.classList.add('show')
-      }
-    } else {
-      this.logBtn.classList.remove('show')
-    }
-  }
-
   /** 指示是否需要把日志滚动到底部 */
   // 当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false
   private toBottom = false
@@ -91,11 +67,11 @@ class Log {
     if (value) {
       // 显示所有日志区域
       this.showAll()
-      this.logBtnShow = false
+      logButton.setVisible(false)
     } else {
       // 隐藏当前日志区域。至于以前的区域，不需要处理
       this.hideAll()
-      this.logBtnShow = true
+      logButton.setVisible(true)
     }
 
     this._show = value
@@ -194,91 +170,7 @@ class Log {
     }
   }
 
-  /**在页面顶部创建一个“显示日志”按钮 */
-  private createToggleBtn() {
-    const html = `<div id="logBtn" class="logBtn"><span data-xztext="_显示日志"></span>&nbsp;<span>(L)</span></div>`
-    document.body.insertAdjacentHTML('beforebegin', html)
-    this.logBtn = document.getElementById('logBtn') as HTMLDivElement
-    const text = this.logBtn.firstElementChild as HTMLSpanElement
-    lang.register(text)
-
-    // 在“显示日志”按钮上触发这些事件时，显示日志区域
-    const showEvents = ['click', 'mouseover', 'touchstart']
-    showEvents.forEach((evt) => {
-      this.logBtn.addEventListener(
-        evt,
-        () => {
-          this.logBtnShow = false
-          this.show = true
-        },
-        {
-          passive: false,
-        }
-      )
-    })
-
-    // 定时检查是否应该显示“显示日志”按钮
-    window.setInterval(() => {
-      if (this.show === false) {
-        this.logBtnShow = true
-      }
-    }, 100)
-
-    /**当页面滚动一定距离后，隐藏“显示日志”按钮 */
-    const hideLogBtn = Utils.debounce(() => {
-      if (window.scrollY > 10) {
-        this.logBtnShow = false
-      }
-    }, 100)
-    window.addEventListener('scroll', () => {
-      hideLogBtn()
-    })
-
-    // 按快捷键 L 显示/隐藏日志区域
-    window.addEventListener('keydown', (ev) => {
-      if (ev.code !== 'KeyL' || ev.ctrlKey || ev.altKey || ev.metaKey) {
-        return
-      }
-
-      if (ev.target) {
-        const target = ev.target as HTMLElement
-        if (
-          target.tagName === 'INPUT' ||
-          target.tagName === 'TEXTAREA' ||
-          target.isContentEditable
-        ) {
-          return
-        }
-      }
-
-      ev.preventDefault()
-
-      if (this.count === 0) {
-        toast.warning(lang.transl('_没有日志'), {
-          position: 'mouse',
-        })
-        return
-      }
-
-      // 需要显示日志的情况：
-      // 日志是隐藏的，或者不完全可见，则跳转到页面顶部，并显示日志
-      // 这两个判断条件其实是等价的，因为当元素为 display: none 时，
-      // IntersectionObserver 的回调始终返回 isIntersecting: false
-      // 不过判断 this.show 更加直接一些
-      if (this.show === false || this.isVisible === false) {
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth',
-        })
-        this.show = true
-      } else {
-        // 如果日志完全可见，则隐藏日志区域
-        this.show = false
-      }
-    })
-  }
-
-  /**创建新的日志区域 */
+  /** 创建新的日志区域 */
   private createLogArea() {
     // 先检查是否存在日志区域
     let test = document.getElementById(this.activeLogWrapID)
@@ -359,7 +251,7 @@ class Log {
 
     this.count = 0
     this.show = false
-    this.logBtnShow = false
+    logButton.setVisible(false)
     this.isVisible = false
   }
 

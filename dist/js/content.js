@@ -3776,7 +3776,7 @@ class ExportLog {
         const url = URL.createObjectURL(blob);
         _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.downloadFile(url, fileName);
         _Toast__WEBPACK_IMPORTED_MODULE_3__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出日志成功'), {
-            position: 'topCenter',
+            position: 'center',
         });
     }
 }
@@ -6044,13 +6044,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Colors */ "./src/ts/Colors.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _ExportLog__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ExportLog */ "./src/ts/ExportLog.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
+/* harmony import */ var _ExportLog__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ExportLog */ "./src/ts/ExportLog.ts");
+/* harmony import */ var _LogButton__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./LogButton */ "./src/ts/LogButton.ts");
 
 
 
@@ -6059,12 +6057,16 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-
-// 日志
 class Log {
     constructor() {
-        this.createToggleBtn();
+        _LogButton__WEBPACK_IMPORTED_MODULE_7__.logButton.init({
+            getShow: () => this._show,
+            setShow: (value) => {
+                this.show = value;
+            },
+            getCount: () => this.count,
+            getIsVisible: () => this.isVisible,
+        });
         // this.test(300)
         // 日志区域限制了最大高度，可能会出现滚动条
         // 所以使用定时器，让日志滚动到底部
@@ -6093,30 +6095,6 @@ class Log {
     slots = {
         default: document.createElement('span'),
     };
-    /**页面顶部的“显示日志”按钮，点击之后会显示日志区域 */
-    logBtn = document.createElement('div');
-    /**显示或隐藏顶部的“显示日志”按钮 */
-    // 它默认是 opacity: 0，即不可见
-    set logBtnShow(value) {
-        // 在图像作品页面里，如果处于漫画页面里的阅读模式（检测特定的 a 元素），则不显示按钮。网址如：
-        // https://www.pixiv.net/artworks/130919451#1
-        // 这是因为即使用户之前已经把页面滚动了一部分（按钮是隐藏的），但点击“阅读全部”后，按钮就会显示出来
-        // 但实际上在阅读时不应该显示按钮，所以特殊处理一下
-        if (_PageType__WEBPACK_IMPORTED_MODULE_8__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_8__.pageType.list.Artwork &&
-            /#\d/.test(window.location.hash) &&
-            document.querySelector('a.gtm-expand-full-size-illust')) {
-            this.logBtn.classList.remove('show');
-            return;
-        }
-        if (value) {
-            if (this.count > 0 && window.scrollY <= 10) {
-                this.logBtn.classList.add('show');
-            }
-        }
-        else {
-            this.logBtn.classList.remove('show');
-        }
-    }
     /** 指示是否需要把日志滚动到底部 */
     // 当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false
     toBottom = false;
@@ -6128,12 +6106,12 @@ class Log {
         if (value) {
             // 显示所有日志区域
             this.showAll();
-            this.logBtnShow = false;
+            _LogButton__WEBPACK_IMPORTED_MODULE_7__.logButton.setVisible(false);
         }
         else {
             // 隐藏当前日志区域。至于以前的区域，不需要处理
             this.hideAll();
-            this.logBtnShow = true;
+            _LogButton__WEBPACK_IMPORTED_MODULE_7__.logButton.setVisible(true);
         }
         this._show = value;
     }
@@ -6196,7 +6174,7 @@ class Log {
         this.logContent.appendChild(span);
         this.toBottom = true; // 需要把日志滚动到底部
         // 把这条日志保存到记录里
-        _ExportLog__WEBPACK_IMPORTED_MODULE_9__.exportLog.push({ html: span.outerHTML, level, key });
+        _ExportLog__WEBPACK_IMPORTED_MODULE_6__.exportLog.push({ html: span.outerHTML, level, key });
     }
     log(str, key = '') {
         this.add(str, 0, key);
@@ -6216,80 +6194,10 @@ class Log {
     persistentRefresh(key) {
         if (key) {
             this.slots[key] = document.createElement('span');
-            _ExportLog__WEBPACK_IMPORTED_MODULE_9__.exportLog.unsetKey(key);
+            _ExportLog__WEBPACK_IMPORTED_MODULE_6__.exportLog.unsetKey(key);
         }
     }
-    /**在页面顶部创建一个“显示日志”按钮 */
-    createToggleBtn() {
-        const html = `<div id="logBtn" class="logBtn"><span data-xztext="_显示日志"></span>&nbsp;<span>(L)</span></div>`;
-        document.body.insertAdjacentHTML('beforebegin', html);
-        this.logBtn = document.getElementById('logBtn');
-        const text = this.logBtn.firstElementChild;
-        _Language__WEBPACK_IMPORTED_MODULE_3__.lang.register(text);
-        // 在“显示日志”按钮上触发这些事件时，显示日志区域
-        const showEvents = ['click', 'mouseover', 'touchstart'];
-        showEvents.forEach((evt) => {
-            this.logBtn.addEventListener(evt, () => {
-                this.logBtnShow = false;
-                this.show = true;
-            }, {
-                passive: false,
-            });
-        });
-        // 定时检查是否应该显示“显示日志”按钮
-        window.setInterval(() => {
-            if (this.show === false) {
-                this.logBtnShow = true;
-            }
-        }, 100);
-        /**当页面滚动一定距离后，隐藏“显示日志”按钮 */
-        const hideLogBtn = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.debounce(() => {
-            if (window.scrollY > 10) {
-                this.logBtnShow = false;
-            }
-        }, 100);
-        window.addEventListener('scroll', () => {
-            hideLogBtn();
-        });
-        // 按快捷键 L 显示/隐藏日志区域
-        window.addEventListener('keydown', (ev) => {
-            if (ev.code !== 'KeyL' || ev.ctrlKey || ev.altKey || ev.metaKey) {
-                return;
-            }
-            if (ev.target) {
-                const target = ev.target;
-                if (target.tagName === 'INPUT' ||
-                    target.tagName === 'TEXTAREA' ||
-                    target.isContentEditable) {
-                    return;
-                }
-            }
-            ev.preventDefault();
-            if (this.count === 0) {
-                _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_没有日志'), {
-                    position: 'mouse',
-                });
-                return;
-            }
-            // 需要显示日志的情况：
-            // 日志是隐藏的，或者不完全可见，则跳转到页面顶部，并显示日志
-            // 这两个判断条件其实是等价的，因为当元素为 display: none 时，
-            // IntersectionObserver 的回调始终返回 isIntersecting: false
-            // 不过判断 this.show 更加直接一些
-            if (this.show === false || this.isVisible === false) {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth',
-                });
-                this.show = true;
-            }
-            else {
-                // 如果日志完全可见，则隐藏日志区域
-                this.show = false;
-            }
-        });
-    }
-    /**创建新的日志区域 */
+    /** 创建新的日志区域 */
     createLogArea() {
         // 先检查是否存在日志区域
         let test = document.getElementById(this.activeLogWrapID);
@@ -6305,7 +6213,7 @@ class Log {
             logWrap.classList.add(this.logWrapClassName, this.logWrapFlag);
             const logContent = document.createElement('div');
             logContent.classList.add(this.logContentClassName, 'beautify_scrollbar');
-            if (_Config__WEBPACK_IMPORTED_MODULE_7__.Config.mobile) {
+            if (_Config__WEBPACK_IMPORTED_MODULE_5__.Config.mobile) {
                 logWrap.classList.add('mobile');
             }
             logWrap.append(logContent);
@@ -6332,16 +6240,16 @@ class Log {
             // bg.useBG(this.wrap, 0.9)
             // 如果这是第一个日志区域，则为其应用“日志区域的默认可见性”设置
             if (isFirst) {
-                this.show = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.logVisibleDefault === 'show';
+                this.show = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.logVisibleDefault === 'show';
             }
             else {
                 // 如果这不是第一个日志区域，则让它的显示状态与上一个日志区域保持一致
                 this.show = this.show;
             }
             // 监听新的日志区域的可见性
-            _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.observeElement(this.logWrap, (value) => {
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.observeElement(this.logWrap, (value) => {
                 this.isVisible = value;
-            }, _Config__WEBPACK_IMPORTED_MODULE_7__.Config.mobile ? 0 : 1);
+            }, _Config__WEBPACK_IMPORTED_MODULE_5__.Config.mobile ? 0 : 1);
         }
     }
     scrollToBottom(el) {
@@ -6355,7 +6263,7 @@ class Log {
         allLogWrap.forEach((wrap) => wrap.remove());
         this.count = 0;
         this.show = false;
-        this.logBtnShow = false;
+        _LogButton__WEBPACK_IMPORTED_MODULE_7__.logButton.setVisible(false);
         this.isVisible = false;
     }
     showAll() {
@@ -6380,7 +6288,7 @@ class Log {
         window.setTimeout(async () => {
             let num = 0;
             while (num < total) {
-                await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(100);
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.sleep(100);
                 this.log('saber');
                 num++;
             }
@@ -6388,6 +6296,133 @@ class Log {
     }
 }
 const log = new Log();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/LogButton.ts":
+/*!*****************************!*\
+  !*** ./src/ts/LogButton.ts ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   logButton: () => (/* binding */ logButton)
+/* harmony export */ });
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
+
+
+
+
+// 页面顶部的"显示日志"按钮
+class LogButton {
+    ctx;
+    logBtn;
+    init(ctx) {
+        this.ctx = ctx;
+        this.createBtn();
+        this.bindBtnEvents();
+        this.startBtnVisibilityTimer();
+        this.bindScrollHide();
+        this.bindKeydown();
+    }
+    createBtn() {
+        const html = `<div id="logBtn" class="logBtn"><span data-xztext="_显示日志"></span>&nbsp;<span>(L)</span></div>`;
+        document.body.insertAdjacentHTML('beforebegin', html);
+        this.logBtn = document.getElementById('logBtn');
+        const text = this.logBtn.firstElementChild;
+        _Language__WEBPACK_IMPORTED_MODULE_0__.lang.register(text);
+    }
+    /**显示或隐藏顶部的"显示日志"按钮 */
+    // 它默认是 opacity: 0，即不可见
+    setVisible(value) {
+        // 在图像作品页面里，如果处于漫画页面里的阅读模式（检测特定的 a 元素），则不显示按钮。网址如：
+        // https://www.pixiv.net/artworks/130919451#1
+        // 这是因为即使用户之前已经把页面滚动了一部分（按钮是隐藏的），但点击"阅读全部"后，按钮就会显示出来
+        // 但实际上在阅读时不应该显示按钮，所以特殊处理一下
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.Artwork &&
+            /#\d/.test(window.location.hash) &&
+            document.querySelector('a.gtm-expand-full-size-illust')) {
+            this.logBtn.classList.remove('show');
+            return;
+        }
+        if (value) {
+            if (this.ctx.getCount() > 0 && window.scrollY <= 10) {
+                this.logBtn.classList.add('show');
+            }
+        }
+        else {
+            this.logBtn.classList.remove('show');
+        }
+    }
+    bindBtnEvents() {
+        // 在"显示日志"按钮上触发这些事件时，显示日志区域
+        const showEvents = ['click', 'mouseover', 'touchstart'];
+        showEvents.forEach((evt) => {
+            this.logBtn.addEventListener(evt, () => {
+                this.setVisible(false);
+                this.ctx.setShow(true);
+            }, { passive: false });
+        });
+    }
+    /** 定时检查是否应该显示"显示日志"按钮 */
+    startBtnVisibilityTimer() {
+        window.setInterval(() => {
+            if (this.ctx.getShow() === false) {
+                this.setVisible(true);
+            }
+        }, 100);
+    }
+    bindScrollHide() {
+        // 当页面滚动一定距离后，隐藏"显示日志"按钮
+        const hideLogBtn = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.debounce(() => {
+            if (window.scrollY > 10) {
+                this.setVisible(false);
+            }
+        }, 100);
+        window.addEventListener('scroll', () => {
+            hideLogBtn();
+        });
+    }
+    bindKeydown() {
+        // 按快捷键 L 显示/隐藏日志区域
+        window.addEventListener('keydown', (ev) => {
+            if (ev.code !== 'KeyL' || ev.ctrlKey || ev.altKey || ev.metaKey) {
+                return;
+            }
+            if (ev.target) {
+                const target = ev.target;
+                if (target.tagName === 'INPUT' ||
+                    target.tagName === 'TEXTAREA' ||
+                    target.isContentEditable) {
+                    return;
+                }
+            }
+            ev.preventDefault();
+            if (this.ctx.getCount() === 0) {
+                _Toast__WEBPACK_IMPORTED_MODULE_1__.toast.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有日志'));
+                return;
+            }
+            // 需要显示日志的情况：
+            // 日志是隐藏的，或者不完全可见，则跳转到页面顶部，并显示日志
+            if (this.ctx.getShow() === false || this.ctx.getIsVisible() === false) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                this.ctx.setShow(true);
+            }
+            else {
+                // 如果日志完全可见，则隐藏日志区域
+                this.ctx.setShow(false);
+            }
+        });
+    }
+}
+const logButton = new LogButton();
 
 
 
@@ -61896,6 +61931,7 @@ class Utils {
     }
     /**检测元素在视口中是否可见
      * threshold 为 0 时，只要有部分可见就返回 true
+     *
      * threshold 为 1 时，需要全部可见才会返回 true
      */
     static observeElement(el, callback, threshold) {

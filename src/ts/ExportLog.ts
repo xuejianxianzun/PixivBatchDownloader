@@ -126,7 +126,7 @@ class ExportLog {
     Utils.downloadFile(url, fileName)
 
     toast.success(lang.transl('_导出日志成功'), {
-      position: 'topCenter',
+      position: 'center',
     })
   }
 }

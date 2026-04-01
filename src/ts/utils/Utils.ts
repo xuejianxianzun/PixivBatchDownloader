@@ -483,6 +483,7 @@ class Utils {
 
   /**检测元素在视口中是否可见
    * threshold 为 0 时，只要有部分可见就返回 true
+   *
    * threshold 为 1 时，需要全部可见才会返回 true
    */
   static observeElement(el: HTMLElement, callback: Function, threshold: 0 | 1) {
