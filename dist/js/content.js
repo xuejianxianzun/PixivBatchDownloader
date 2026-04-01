@@ -6846,7 +6846,7 @@ var PageName;
     PageName[PageName["Pixivision"] = 8] = "Pixivision";
     /** 收藏后的详情页面，现在基本不会用到 */
     PageName[PageName["BookmarkDetail"] = 9] = "BookmarkDetail";
-    /** 已关注用户的心作品 - 插画 */
+    /** 已关注用户的新作品 - 插画 */
     PageName[PageName["NewArtworkBookmark"] = 10] = "NewArtworkBookmark";
     /** 发现页面 */
     PageName[PageName["Discover"] = 11] = "Discover";
@@ -10033,6 +10033,28 @@ class ShowLargerThumbnails {
                 }
                 // 查找 UL 的父级 div（宽度为 1224px 的那个）
                 const li = document.querySelector('li[size="1"]');
+                if (li) {
+                    li.parentElement.classList.add('worksUL');
+                    const target = li.parentElement.parentElement;
+                    if (target.nodeName === 'DIV') {
+                        target.classList.add('worksWrapper');
+                        this.needFind = false;
+                    }
+                }
+            }
+        }
+        // 大家的新作
+        // https://www.pixiv.net/new_illust.php
+        if (_PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_3__.pageType.list.NewArtwork) {
+            if (window.location.pathname.includes('/novel') === false) {
+                // 查找每个作品列表区域的共同父元素
+                // 也就是 div>section 的 div，然后给它添加自定义 className
+                const sectionList = document.querySelectorAll('div>section');
+                if (sectionList.length > 0) {
+                    sectionList[0].parentElement.classList.add('sectionParentDiv');
+                }
+                // 查找 UL 的父级 div（宽度为 1224px 的那个）
+                const li = document.querySelector('div>section li');
                 if (li) {
                     li.parentElement.classList.add('worksUL');
                     const target = li.parentElement.parentElement;

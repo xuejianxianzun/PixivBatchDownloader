@@ -32,7 +32,7 @@ enum PageName {
   Pixivision,
   /** 收藏后的详情页面，现在基本不会用到 */
   BookmarkDetail,
-  /** 已关注用户的心作品 - 插画 */
+  /** 已关注用户的新作品 - 插画 */
   NewArtworkBookmark,
   /** 发现页面 */
   Discover,

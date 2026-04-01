@@ -895,6 +895,9 @@ body[data-page-type='11'] {
 // https://www.pixiv.net/new_illust.php
 body[data-page-type='12'] {
   // 解除列表容器的宽度限制
+  .sectionParentDiv,
+  .worksWrapper,
+  .worksUL,
   .ldgmym,
   .YXoqY,
   .hairtM {
@@ -904,6 +907,7 @@ body[data-page-type='12'] {
 
   // ul
   // 图片列表容器（通常是 UL）元素是 grid 布局，改为 flex
+  .worksUL,
   section ul {
     display: flex;
     flex-wrap: wrap;
@@ -913,12 +917,15 @@ body[data-page-type='12'] {
   // ul li
   // 解除作品项目的宽度限制
   // 这些元素原本设置了 width: 184px;
+  .worksUL > li,
   section ul > li,
+  .worksUL > li > div,
   section ul > li > div {
     width: auto !important;
   }
 
   /* img */
+  .worksUL > li > div a img,
   section ul > li > div a img {
     position: relative;
     width: auto !important;

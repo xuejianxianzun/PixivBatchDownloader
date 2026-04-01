@@ -333,6 +333,31 @@ class ShowLargerThumbnails {
       }
     }
 
+    // 大家的新作
+    // https://www.pixiv.net/new_illust.php
+    if (pageType.type === pageType.list.NewArtwork) {
+      if (window.location.pathname.includes('/novel') === false) {
+        // 查找每个作品列表区域的共同父元素
+        // 也就是 div>section 的 div，然后给它添加自定义 className
+        const sectionList = document.querySelectorAll('div>section')
+        if (sectionList.length > 0) {
+          sectionList[0].parentElement!.classList.add('sectionParentDiv')
+        }
+
+        // 查找 UL 的父级 div（宽度为 1224px 的那个）
+        const li = document.querySelector('div>section li')
+        if (li) {
+          li.parentElement!.classList.add('worksUL')
+
+          const target = li.parentElement!.parentElement!
+          if (target.nodeName === 'DIV') {
+            target.classList.add('worksWrapper')
+            this.needFind = false
+          }
+        }
+      }
+    }
+
     //  发现页面
     if (pageType.type === pageType.list.Discover) {
       // 查找作品列表的 UL 元素

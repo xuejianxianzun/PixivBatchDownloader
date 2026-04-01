@@ -606,21 +606,28 @@ body[data-page-type='11'] .worksUL li > div {
 body[data-page-type='12'] {
   /* img */
 }
+body[data-page-type='12'] .sectionParentDiv,
+body[data-page-type='12'] .worksWrapper,
+body[data-page-type='12'] .worksUL,
 body[data-page-type='12'] .ldgmym,
 body[data-page-type='12'] .YXoqY,
 body[data-page-type='12'] .hairtM {
   width: 92vw;
   max-width: 92vw;
 }
+body[data-page-type='12'] .worksUL,
 body[data-page-type='12'] section ul {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
 }
+body[data-page-type='12'] .worksUL > li,
 body[data-page-type='12'] section ul > li,
+body[data-page-type='12'] .worksUL > li > div,
 body[data-page-type='12'] section ul > li > div {
   width: auto !important;
 }
+body[data-page-type='12'] .worksUL > li > div a img,
 body[data-page-type='12'] section ul > li > div a img {
   position: relative;
   width: auto !important;

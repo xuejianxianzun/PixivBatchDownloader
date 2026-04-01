@@ -54,6 +54,8 @@
 
 ### 🐞修复了在搜索页面里，“移除被屏蔽的用户的作品”功能失效的问题
 
+### 🐞修复了在大家的新作页面里，显示更大的缩略图可能失效的问题
+
 ### 😊合并系列小说为 EPUB 文件时，不再保存重复的封面图片
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/597
