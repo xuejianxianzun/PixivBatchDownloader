@@ -23960,11 +23960,24 @@ class MergeNovel {
                         await this.sleep(this.downloadInterval);
                         const cover = await _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_5__.downloadNovelCover.getCover(coverUrl, 'arrayBuffer');
                         if (cover) {
-                            this.addSize(cover.byteLength);
-                            const imageId = 'cover-' + novelId;
-                            jepub.image(_Config__WEBPACK_IMPORTED_MODULE_9__.Config.isFirefox ? _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.copyArrayBuffer(cover) : cover, imageId);
-                            coverHtml = `<p><img src="assets/${imageId}.jpg" /></p>`;
-                            episodeCovers.push({ id: imageId, url: coverUrl });
+                            // 如果 URL 不同，那么在加载封面图片之后检查字节数是否相同。如果相同也认为是同一个文件
+                            // 这是因为有时即使封面图片是同一个文件，但 URL 是不同的（可能是因为作者每次都重新上传了封面图），这时就无法通过 URL 来判断是否已经保存过了
+                            // 示例：
+                            // https://www.pixiv.net/novel/series/1090654
+                            // 此时在下载封面图片后对比字节数，作为一种补充手段。如果相同的话就不保存，以减小文件体积
+                            const size = cover.byteLength;
+                            const findSize = episodeCovers.find((item) => item.size === size);
+                            if (findSize) {
+                                coverHtml = `<p><img src="assets/${findSize.id}.jpg" /></p>`;
+                            }
+                            else {
+                                // 如果 URL 和字节数都不同，才会把这个封面图片保存到 epub 里
+                                this.addSize(size);
+                                const imageId = 'cover-' + novelId;
+                                jepub.image(_Config__WEBPACK_IMPORTED_MODULE_9__.Config.isFirefox ? _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.copyArrayBuffer(cover) : cover, imageId);
+                                coverHtml = `<p><img src="assets/${imageId}.jpg" /></p>`;
+                                episodeCovers.push({ id: imageId, url: coverUrl, size: size });
+                            }
                         }
                     }
                 }
