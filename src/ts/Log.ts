@@ -144,18 +144,22 @@ class Log {
     exportLog.push({ html: span.outerHTML, level, key })
   }
 
+  /** 输出普通日志 */
   public log(str: string, key = '') {
     this.add(str, 0, key)
   }
 
+  /** 输出绿色日志，常用于任务开始、任务完成的提示 */
   public success(str: string, key = '') {
     this.add(str, 1, key)
   }
 
+  /** 输出黄色日志，常用于重要提醒、警告信息 */
   public warning(str: string, key = '') {
     this.add(str, 2, key)
   }
 
+  /** 输出红色日志，用于错误信息 */
   public error(str: string, key = '') {
     this.add(str, 3, key)
   }

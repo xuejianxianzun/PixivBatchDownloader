@@ -84,7 +84,7 @@ class InitNewNovelPage extends InitPageBase {
 
     let data: NewNovelData
     try {
-      data = await API.getNewNovleData(this.option)
+      data = await API.getNewNovelData(this.option)
     } catch (error) {
       this.getIdList()
       return

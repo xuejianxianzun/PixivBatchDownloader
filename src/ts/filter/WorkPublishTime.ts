@@ -3,6 +3,7 @@ import { secretSignal } from '../utils/SecretSignal'
 import { Utils } from '../utils/Utils'
 import { illustsData } from '../store/WorkPublishTimeIllusts'
 import { novelsData } from '../store/WorkPublishTimeNovels'
+import { log } from '../Log'
 
 // 数据源是二维数组，里面的每一项都是一个由作品 id 和作品发布时间组成的子数组。如：
 // [[20, 1189343647000], [10000, 1190285376000], [20006, 1190613767000]]
@@ -17,9 +18,6 @@ class WorkPublishTime {
       await this.crawlData('novels')
     })
   }
-
-  private readonly illustEnd = 143026633
-  private readonly novelEnd = 27700753
 
   /**每隔 10000 个作品采集一次发布时间数据 */
   private readonly gap = 10000
@@ -64,20 +62,42 @@ class WorkPublishTime {
     }
   }
 
+  /** 获取插画或小说分类里新增的数据 */
   private async crawlData(
     type: 'illusts' | 'novels' = 'illusts'
   ): Promise<number[][]> {
-    const data = type === 'illusts' ? illustsData : novelsData
-    const lastItem = data[data.length - 1]
-    const start = lastItem[0] + this.gap
-    const end = type === 'illusts' ? this.illustEnd : this.novelEnd
-    console.log(
-      `start crawl ${type} time data\nstart id: ${start}\nend id: ${end}`
-    )
-    const result: number[][] = []
+    // 从已保存的数据里获取开始抓取的 id
+    const historyData = type === 'illusts' ? illustsData : novelsData
+    const start = historyData[historyData.length - 1][0] + this.gap
+
+    // 通过 API 获取结束 id
+    const option = {
+      lastId: '0',
+      limit: '20',
+      type: '',
+      r18: 'false',
+    }
+    let end = 0
+    try {
+      if (type === 'illusts') {
+        option.type = 'illust'
+        const data = await API.getNewIllustData(option)
+        end = Number(data.body.illusts[0].id)
+      } else {
+        const data = await API.getNewNovelData(option)
+        end = Number(data.body.novels[0].id)
+      }
+    } catch (error) {
+      log.error('API error when get new data for crawl work publish time')
+      return []
+    }
+
+    log.success(`🚀start crawl ${type} time data`)
+    log.log(`start id: ${start}<br>end id: ${end}`)
 
     const min_illust = 20 // 最早的插画作品
     const min_novel = 129 // 最早的小说作品
+    const result: number[][] = []
 
     let id = start
     if (type === 'illusts' && start < min_illust) {
@@ -95,7 +115,9 @@ class WorkPublishTime {
     }
 
     console.log(result)
-    console.log('crawl time data complete')
+    log.success(`✅crawl time data complete`)
+    log.log(`total: ${result.length} records`)
+    log.log('')
 
     if (result.length === 0) {
       return result

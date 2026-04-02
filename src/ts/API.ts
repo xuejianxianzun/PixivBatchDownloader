@@ -54,8 +54,11 @@ interface LikeResponse {
 }
 
 class API {
-  // API 里的所有请求都从这里转发，以简化代码，并方便统一处理错误
-  // 如果状态码异常，429 状态码会自动重试，其他状态码会通过 reject 抛出 Error
+  /** API 里的所有请求都从这里转发，以简化代码，并方便统一处理错误。
+   *
+   * 429、502 错误会自动重试。
+   *
+   * 如果状态码异常并且重试失败，会通过 reject 抛出 Error */
   static fetch<T>(
     url: string,
     init?: RequestInit,
@@ -113,8 +116,8 @@ class API {
     })
   }
 
-  // 获取收藏数据
-  // 这个 api 返回的作品列表顺序是按收藏顺序由近期到早期排列的
+  /** 获取收藏数据
+   * 这个 api 返回的作品列表顺序是按收藏顺序由近期到早期排列的 */
   static async getBookmarkData(
     userID: string,
     type: 'illusts' | 'novels' = 'illusts',
@@ -129,7 +132,7 @@ class API {
     return this.fetch(url)
   }
 
-  // 添加收藏
+  /** 添加收藏 */
   static async addBookmark(
     id: string,
     type: 'illusts' | 'novels',
@@ -194,7 +197,7 @@ class API {
     return this.fetch(url, init)
   }
 
-  // 获取关注的用户列表
+  /** 获取关注的用户列表 */
   static getFollowingList(
     id: string,
     rest: 'show' | 'hide' = 'show',
@@ -207,7 +210,7 @@ class API {
     return this.fetch(url)
   }
 
-  // 获取好 P 友列表
+  /** 获取好 P 友列表 */
   static getMyPixivList(
     id: string,
     offset = 0,
@@ -218,7 +221,7 @@ class API {
     return this.fetch(url)
   }
 
-  // 获取粉丝列表
+  /** 获取粉丝列表 */
   static getFollowersList(
     id: string,
     offset = 0,
@@ -229,7 +232,7 @@ class API {
     return this.fetch(url)
   }
 
-  // 获取用户信息
+  /** 获取用户信息 */
   static getUserProfile(
     id: string,
     full: '0' | '1' = '1'
@@ -240,8 +243,8 @@ class API {
     return this.fetch(url)
   }
 
-  // 获取用户指定类型的作品列表
-  // 返回作品的 id 列表，不包含详细信息
+  /** 获取某个用户特定类型下的作品 id 列表
+   * 这个 API 里只包含了作品的部分数据，不是完整的数据 */
   static async getUserWorksByType(
     id: string,
     type: userWorksType[] = ['illusts', 'manga', 'novels']
@@ -269,9 +272,9 @@ class API {
     return result
   }
 
-  // 获取用户指定类型、并且指定 tag 的作品列表
-  // 返回整个请求的结果，里面包含作品的详细信息
-  // 必须带 tag 使用。不带 tag 虽然也能获得数据，但是获得的并不全，很奇怪。
+  /** 获取某个用户指定类型里，特定 tag 的作品列表
+   * 返回整个请求的结果，里面包含作品的详细信息
+   * 必须带 tag 使用。不带 tag 虽然也能获得数据，但是获得的并不全，很奇怪。 */
   static getUserWorksByTypeWithTag(
     id: string,
     type: tagPageFlag,
@@ -284,8 +287,8 @@ class API {
     return this.fetch(url)
   }
 
-  // 获取插画 漫画 动图 的详细信息
-  // 额外添加了时间戳，以避免在短时间内获取同一作品数据时，浏览器直接使用缓存的数据
+  /** 获取插画 漫画 动图 的详细信息
+   * 额外添加了时间戳，以避免在短时间内获取同一作品数据时，浏览器直接使用缓存的数据 */
   static getArtworkData(id: string, unlisted = false): Promise<ArtworkData> {
     const url = `https://www.pixiv.net/ajax/illust/${
       unlisted ? 'unlisted/' : ''
@@ -293,14 +296,14 @@ class API {
     return this.fetch(url)
   }
 
-  // 获取动图的元数据
+  /** 获取动图的元数据 */
   static getUgoiraMeta(id: string): Promise<UgoiraMetaData> {
     const url = `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`
     return this.fetch(url)
   }
 
-  // 获取小说的详细信息
-  // 额外添加了时间戳，以避免在短时间内获取同一作品数据时，浏览器直接使用缓存的数据
+  /** 获取小说的详细信息
+   * 额外添加了时间戳，以避免在短时间内获取同一作品数据时，浏览器直接使用缓存的数据 */
   static getNovelData(id: string, unlisted = false): Promise<NovelData> {
     const url = `https://www.pixiv.net/ajax/novel/${
       unlisted ? 'unlisted/' : ''
@@ -308,15 +311,15 @@ class API {
     return this.fetch(url)
   }
 
-  // 获取相关作品
+  /** 获取相关作品 */
   static getRelatedData(id: string): Promise<RecommendData> {
     // 最后的 18 是预加载首屏的多少个作品的信息，和下载并没有关系
     const url = `https://www.pixiv.net/ajax/illust/${id}/recommend/init?limit=18`
     return this.fetch(url)
   }
 
-  /**获取插画、漫画、动画排行榜数据 */
-  // 排行榜数据基本是一批 50 条作品信息
+  /** 获取插画、漫画、动画排行榜数据
+   * 排行榜数据基本是一批 50 条作品信息 */
   static getRankingDataImageWork(
     option: RankingOption
   ): Promise<RankingImageWorkData> {
@@ -361,8 +364,8 @@ class API {
     return this.fetch(url)
   }
 
-  // 获取收藏后的相似作品数据
-  // 需要传入作品 id 和要抓取的数量。但是实际获取到的数量会比指定的数量少一些
+  /** 获取收藏后的相似作品数据
+   * 需要传入作品 id 和要抓取的数量。但是实际获取到的数量会比指定的数量少一些 */
   static getRecommenderData(
     id: string,
     number: number
@@ -385,7 +388,7 @@ class API {
     option: SearchOption
   ): Promise<NovelSearchData>
 
-  // 获取搜索数据
+  /** 获取搜索页面里某一页的数据 */
   static getSearchData(
     word: string,
     path = 'artworks',
@@ -407,19 +410,19 @@ class API {
     return this.fetch(url)
   }
 
-  // 获取大家的新作品的数据
+  /** 获取大家的新作品的数据 */
   static getNewIllustData(option: NewIllustOption): Promise<NewIllustData> {
     const url = `https://www.pixiv.net/ajax/illust/new?lastId=${option.lastId}&limit=${option.limit}&type=${option.type}&r18=${option.r18}`
     return this.fetch(url)
   }
 
-  // 获取大家的新作小说的数据
-  static getNewNovleData(option: NewIllustOption): Promise<NewNovelData> {
+  /** 获取大家的新作小说的数据。不必设置参数里的 type */
+  static getNewNovelData(option: NewIllustOption): Promise<NewNovelData> {
     const url = `https://www.pixiv.net/ajax/novel/new?lastId=${option.lastId}&limit=${option.limit}&r18=${option.r18}`
     return this.fetch(url)
   }
 
-  // 获取关注的用户的新作品的数据
+  /** 获取关注的用户的新作品的数据 */
   static getBookmarkNewWorkData(
     type: 'illust' | 'novel',
     p: number,
@@ -451,8 +454,8 @@ class API {
     return this.fetch(url)
   }
 
-  /**获取小说系列作品里每个作品的详细数据（但是没有小说正文内容） */
-  // 这个 api 目前一批最多只能返回 30 个作品的数据，所以可能需要多次获取
+  /** 获取小说系列作品里每个作品的详细数据（但是没有小说正文内容）
+   * 这个 api 目前一批最多只能返回 30 个作品的数据，所以可能需要多次获取 */
   static getNovelSeriesContent(
     series_id: number | string,
     limit: number = 30,
@@ -463,9 +466,9 @@ class API {
     return this.fetch(url)
   }
 
-  // 获取系列信息
-  // 这个接口的数据结构里同时有 illust （包含漫画）和 novel 系列数据
-  // 恍惚记得有插画系列来着，但是没找到对应的网址，难道是记错了？
+  /** 获取系列信息
+   * 这个接口的数据结构里同时有 illust （包含漫画）和 novel 系列数据
+   * 恍惚记得有插画系列来着，但是没找到对应的网址，难道是记错了？ */
   static getSeriesData(
     series_id: number | string,
     pageNo: number
@@ -474,7 +477,7 @@ class API {
     return this.fetch(url)
   }
 
-  // 点赞
+  /** 点赞 */
   static async addLike(
     id: string,
     type: 'illusts' | 'novels',
@@ -509,9 +512,9 @@ class API {
     return this.fetch(`https://www.pixiv.net/ajax/mute/items?context=setting`)
   }
 
-  /**获取小说里引用的插画的数据，可以一次传递多个插画 id（需要带序号） */
-  // illustsIDs 形式例如：[70551567,99760571-1,99760571-130]
-  // 如果指定了序号，那么 Pixiv 会返回对应序号的图片 URL
+  /** 获取小说里引用的插画的数据，可以一次传递多个插画 id（需要带序号）
+   * illustsIDs 形式例如：[70551567,99760571-1,99760571-130]
+   * 如果指定了序号，那么 Pixiv 会返回对应序号的图片 URL */
   static async getNovelInsertIllustsData(
     novelID: string | number,
     illustsIDs: string[]
@@ -561,9 +564,9 @@ class API {
     )
   }
 
-  /**关注一个用户 */
-  // show: true 为公开关注，false 为非公开关注
-  // recaptcha_enterprise_score_token 对于有些用户是不需要的。允许传递空值
+  /** 关注一个用户
+   * show: true 为公开关注，false 为非公开关注
+   * recaptcha_enterprise_score_token 对于有些用户是不需要的。允许传递空值 */
   static async addFollowingUser(
     userID: string,
     token: string,

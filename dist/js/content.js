@@ -1250,8 +1250,11 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class API {
-    // API 里的所有请求都从这里转发，以简化代码，并方便统一处理错误
-    // 如果状态码异常，429 状态码会自动重试，其他状态码会通过 reject 抛出 Error
+    /** API 里的所有请求都从这里转发，以简化代码，并方便统一处理错误。
+     *
+     * 429、502 错误会自动重试。
+     *
+     * 如果状态码异常并且重试失败，会通过 reject 抛出 Error */
     static fetch(url, init, format = 'json') {
         // 默认发送 get 请求
         init = init || {
@@ -1307,13 +1310,13 @@ class API {
             attemptRequest();
         });
     }
-    // 获取收藏数据
-    // 这个 api 返回的作品列表顺序是按收藏顺序由近期到早期排列的
+    /** 获取收藏数据
+     * 这个 api 返回的作品列表顺序是按收藏顺序由近期到早期排列的 */
     static async getBookmarkData(userID, type = 'illusts', tag, offset, hide = false) {
         const url = `https://www.pixiv.net/ajax/user/${userID}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${hide ? 'hide' : 'show'}&rdm=${Math.random()}`;
         return this.fetch(url);
     }
-    // 添加收藏
+    /** 添加收藏 */
     static async addBookmark(id, type, tags, hide, token) {
         const restrict = hide ? 1 : 0;
         let body = {};
@@ -1363,30 +1366,30 @@ class API {
         };
         return this.fetch(url, init);
     }
-    // 获取关注的用户列表
+    /** 获取关注的用户列表 */
     static getFollowingList(id, rest = 'show', tag = '', offset = 0, limit = 100, lang = 'zh') {
         const url = `https://www.pixiv.net/ajax/user/${id}/following?offset=${offset}&limit=${limit}&rest=${rest}&tag=${tag}&lang=${lang}`;
         return this.fetch(url);
     }
-    // 获取好 P 友列表
+    /** 获取好 P 友列表 */
     static getMyPixivList(id, offset = 0, limit = 100, lang = 'zh') {
         const url = `https://www.pixiv.net/ajax/user/${id}/mypixiv?offset=${offset}&limit=${limit}&lang=${lang}`;
         return this.fetch(url);
     }
-    // 获取粉丝列表
+    /** 获取粉丝列表 */
     static getFollowersList(id, offset = 0, limit = 100, lang = 'zh') {
         const url = `https://www.pixiv.net/ajax/user/${id}/followers?offset=${offset}&limit=${limit}&lang=${lang}`;
         return this.fetch(url);
     }
-    // 获取用户信息
+    /** 获取用户信息 */
     static getUserProfile(id, full = '1') {
         // full=1 在画师的作品列表页使用，获取详细信息
         // full=0 在作品页内使用，只获取少量信息
         const url = `https://www.pixiv.net/ajax/user/${id}?full=${full}`;
         return this.fetch(url);
     }
-    // 获取用户指定类型的作品列表
-    // 返回作品的 id 列表，不包含详细信息
+    /** 获取某个用户特定类型下的作品 id 列表
+     * 这个 API 里只包含了作品的部分数据，不是完整的数据 */
     static async getUserWorksByType(id, type = ['illusts', 'manga', 'novels']) {
         let typeSet = new Set(type);
         let result = [];
@@ -1409,39 +1412,39 @@ class API {
         }
         return result;
     }
-    // 获取用户指定类型、并且指定 tag 的作品列表
-    // 返回整个请求的结果，里面包含作品的详细信息
-    // 必须带 tag 使用。不带 tag 虽然也能获得数据，但是获得的并不全，很奇怪。
+    /** 获取某个用户指定类型里，特定 tag 的作品列表
+     * 返回整个请求的结果，里面包含作品的详细信息
+     * 必须带 tag 使用。不带 tag 虽然也能获得数据，但是获得的并不全，很奇怪。 */
     static getUserWorksByTypeWithTag(id, type, tag, offset = 0, limit = 100) {
         // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=100
         const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${limit}`;
         return this.fetch(url);
     }
-    // 获取插画 漫画 动图 的详细信息
-    // 额外添加了时间戳，以避免在短时间内获取同一作品数据时，浏览器直接使用缓存的数据
+    /** 获取插画 漫画 动图 的详细信息
+     * 额外添加了时间戳，以避免在短时间内获取同一作品数据时，浏览器直接使用缓存的数据 */
     static getArtworkData(id, unlisted = false) {
         const url = `https://www.pixiv.net/ajax/illust/${unlisted ? 'unlisted/' : ''}${id}?time=${Date.now()}`;
         return this.fetch(url);
     }
-    // 获取动图的元数据
+    /** 获取动图的元数据 */
     static getUgoiraMeta(id) {
         const url = `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`;
         return this.fetch(url);
     }
-    // 获取小说的详细信息
-    // 额外添加了时间戳，以避免在短时间内获取同一作品数据时，浏览器直接使用缓存的数据
+    /** 获取小说的详细信息
+     * 额外添加了时间戳，以避免在短时间内获取同一作品数据时，浏览器直接使用缓存的数据 */
     static getNovelData(id, unlisted = false) {
         const url = `https://www.pixiv.net/ajax/novel/${unlisted ? 'unlisted/' : ''}${id}?time=${Date.now()}`;
         return this.fetch(url);
     }
-    // 获取相关作品
+    /** 获取相关作品 */
     static getRelatedData(id) {
         // 最后的 18 是预加载首屏的多少个作品的信息，和下载并没有关系
         const url = `https://www.pixiv.net/ajax/illust/${id}/recommend/init?limit=18`;
         return this.fetch(url);
     }
-    /**获取插画、漫画、动画排行榜数据 */
-    // 排行榜数据基本是一批 50 条作品信息
+    /** 获取插画、漫画、动画排行榜数据
+     * 排行榜数据基本是一批 50 条作品信息 */
     static getRankingDataImageWork(option) {
         let url = `https://www.pixiv.net/ranking.php?mode=${option.mode}&p=${option.p}&format=json`;
         // 把可选项添加到 url 里
@@ -1470,13 +1473,13 @@ class API {
         url += `&p=${p}&lang=zh`;
         return this.fetch(url);
     }
-    // 获取收藏后的相似作品数据
-    // 需要传入作品 id 和要抓取的数量。但是实际获取到的数量会比指定的数量少一些
+    /** 获取收藏后的相似作品数据
+     * 需要传入作品 id 和要抓取的数量。但是实际获取到的数量会比指定的数量少一些 */
     static getRecommenderData(id, number) {
         const url = `/rpc/recommender.php?type=illust&sample_illusts=${id}&num_recommendations=${number}`;
         return this.fetch(url);
     }
-    // 获取搜索数据
+    /** 获取搜索页面里某一页的数据 */
     static getSearchData(word, path = 'artworks', p = 1, option = {}) {
         word = encodeURIComponent(word);
         let url = `https://www.pixiv.net/ajax/search/${path}/${word}?q=${word}&p=${p}`;
@@ -1490,17 +1493,17 @@ class API {
         url = temp.toString();
         return this.fetch(url);
     }
-    // 获取大家的新作品的数据
+    /** 获取大家的新作品的数据 */
     static getNewIllustData(option) {
         const url = `https://www.pixiv.net/ajax/illust/new?lastId=${option.lastId}&limit=${option.limit}&type=${option.type}&r18=${option.r18}`;
         return this.fetch(url);
     }
-    // 获取大家的新作小说的数据
-    static getNewNovleData(option) {
+    /** 获取大家的新作小说的数据。不必设置参数里的 type */
+    static getNewNovelData(option) {
         const url = `https://www.pixiv.net/ajax/novel/new?lastId=${option.lastId}&limit=${option.limit}&r18=${option.r18}`;
         return this.fetch(url);
     }
-    // 获取关注的用户的新作品的数据
+    /** 获取关注的用户的新作品的数据 */
     static getBookmarkNewWorkData(type, p, tag = '', r18, lang = 'zh') {
         const url = `https://www.pixiv.net/ajax/follow_latest/${type}?p=${p}&tag=${tag}&mode=${r18 ? 'r18' : 'all'}&lang=${lang}`;
         return this.fetch(url);
@@ -1515,20 +1518,20 @@ class API {
         const url = `https://www.pixiv.net/ajax/novel/series/${series_id}`;
         return this.fetch(url);
     }
-    /**获取小说系列作品里每个作品的详细数据（但是没有小说正文内容） */
-    // 这个 api 目前一批最多只能返回 30 个作品的数据，所以可能需要多次获取
+    /** 获取小说系列作品里每个作品的详细数据（但是没有小说正文内容）
+     * 这个 api 目前一批最多只能返回 30 个作品的数据，所以可能需要多次获取 */
     static getNovelSeriesContent(series_id, limit = 30, last_order, order_by = 'asc') {
         const url = `https://www.pixiv.net/ajax/novel/series_content/${series_id}?limit=${limit}&last_order=${last_order}&order_by=${order_by}`;
         return this.fetch(url);
     }
-    // 获取系列信息
-    // 这个接口的数据结构里同时有 illust （包含漫画）和 novel 系列数据
-    // 恍惚记得有插画系列来着，但是没找到对应的网址，难道是记错了？
+    /** 获取系列信息
+     * 这个接口的数据结构里同时有 illust （包含漫画）和 novel 系列数据
+     * 恍惚记得有插画系列来着，但是没找到对应的网址，难道是记错了？ */
     static getSeriesData(series_id, pageNo) {
         const url = `https://www.pixiv.net/ajax/series/${series_id}?p=${pageNo}`;
         return this.fetch(url);
     }
-    // 点赞
+    /** 点赞 */
     static async addLike(id, type, token) {
         let data = {};
         if (type === 'illusts') {
@@ -1557,9 +1560,9 @@ class API {
     static async getMuteSettings() {
         return this.fetch(`https://www.pixiv.net/ajax/mute/items?context=setting`);
     }
-    /**获取小说里引用的插画的数据，可以一次传递多个插画 id（需要带序号） */
-    // illustsIDs 形式例如：[70551567,99760571-1,99760571-130]
-    // 如果指定了序号，那么 Pixiv 会返回对应序号的图片 URL
+    /** 获取小说里引用的插画的数据，可以一次传递多个插画 id（需要带序号）
+     * illustsIDs 形式例如：[70551567,99760571-1,99760571-130]
+     * 如果指定了序号，那么 Pixiv 会返回对应序号的图片 URL */
     static async getNovelInsertIllustsData(novelID, illustsIDs) {
         const parameters = [];
         illustsIDs.forEach((id) => parameters.push(`id%5B%5D=${id}`));
@@ -1585,9 +1588,9 @@ class API {
     static async getDashboardData(workType) {
         return this.fetch(`https://www.pixiv.net/ajax/dashboard/works/${workType}/request_strategy`);
     }
-    /**关注一个用户 */
-    // show: true 为公开关注，false 为非公开关注
-    // recaptcha_enterprise_score_token 对于有些用户是不需要的。允许传递空值
+    /** 关注一个用户
+     * show: true 为公开关注，false 为非公开关注
+     * recaptcha_enterprise_score_token 对于有些用户是不需要的。允许传递空值 */
     static async addFollowingUser(userID, token, show = true, recaptcha_enterprise_score_token = '') {
         return new Promise(async (resolve) => {
             const url = `https://www.pixiv.net/bookmark_add.php`;
@@ -6188,15 +6191,19 @@ class Log {
         // 把这条日志保存到记录里
         _ExportLog__WEBPACK_IMPORTED_MODULE_6__.exportLog.push({ html: span.outerHTML, level, key });
     }
+    /** 输出普通日志 */
     log(str, key = '') {
         this.add(str, 0, key);
     }
+    /** 输出绿色日志，常用于任务开始、任务完成的提示 */
     success(str, key = '') {
         this.add(str, 1, key);
     }
+    /** 输出黄色日志，常用于重要提醒、警告信息 */
     warning(str, key = '') {
         this.add(str, 2, key);
     }
+    /** 输出红色日志，用于错误信息 */
     error(str, key = '') {
         this.add(str, 3, key);
     }
@@ -19472,7 +19479,7 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
         }
         let data;
         try {
-            data = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getNewNovleData(this.option);
+            data = await _API__WEBPACK_IMPORTED_MODULE_4__.API.getNewNovelData(this.option);
         }
         catch (error) {
             this.getIdList();
@@ -27625,6 +27632,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _store_WorkPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/WorkPublishTimeIllusts */ "./src/ts/store/WorkPublishTimeIllusts.ts");
 /* harmony import */ var _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/WorkPublishTimeNovels */ "./src/ts/store/WorkPublishTimeNovels.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+
 
 
 
@@ -27641,8 +27650,6 @@ class WorkPublishTime {
             await this.crawlData('novels');
         });
     }
-    illustEnd = 143026633;
-    novelEnd = 27700753;
     /**每隔 10000 个作品采集一次发布时间数据 */
     gap = 10000;
     illustsLength = 0;
@@ -27679,15 +27686,39 @@ class WorkPublishTime {
             return [data[index - 1][1], record[1]];
         }
     }
+    /** 获取插画或小说分类里新增的数据 */
     async crawlData(type = 'illusts') {
-        const data = type === 'illusts' ? _store_WorkPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__.illustsData : _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__.novelsData;
-        const lastItem = data[data.length - 1];
-        const start = lastItem[0] + this.gap;
-        const end = type === 'illusts' ? this.illustEnd : this.novelEnd;
-        console.log(`start crawl ${type} time data\nstart id: ${start}\nend id: ${end}`);
-        const result = [];
+        // 从已保存的数据里获取开始抓取的 id
+        const historyData = type === 'illusts' ? _store_WorkPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__.illustsData : _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__.novelsData;
+        const start = historyData[historyData.length - 1][0] + this.gap;
+        // 通过 API 获取结束 id
+        const option = {
+            lastId: '0',
+            limit: '20',
+            type: '',
+            r18: 'false',
+        };
+        let end = 0;
+        try {
+            if (type === 'illusts') {
+                option.type = 'illust';
+                const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNewIllustData(option);
+                end = Number(data.body.illusts[0].id);
+            }
+            else {
+                const data = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNewNovelData(option);
+                end = Number(data.body.novels[0].id);
+            }
+        }
+        catch (error) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.error('API error when get new data for crawl work publish time');
+            return [];
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(`🚀start crawl ${type} time data`);
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(`start id: ${start}<br>end id: ${end}`);
         const min_illust = 20; // 最早的插画作品
         const min_novel = 129; // 最早的小说作品
+        const result = [];
         let id = start;
         if (type === 'illusts' && start < min_illust) {
             id = min_illust;
@@ -27702,7 +27733,9 @@ class WorkPublishTime {
             id = (Math.floor(data[0] / this.gap) + 1) * this.gap;
         }
         console.log(result);
-        console.log('crawl time data complete');
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.success(`✅crawl time data complete`);
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(`total: ${result.length} records`);
+        _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
         if (result.length === 0) {
             return result;
         }
@@ -42235,7 +42268,7 @@ class Settings {
         sizeSwitch: false,
         sizeMin: 0,
         sizeMax: 100,
-        novelSaveAs: 'txt',
+        novelSaveAs: 'epub',
         saveNovelMeta: true,
         deduplication: false,
         dupliStrategy: 'loose',
@@ -42322,8 +42355,8 @@ class Settings {
         showNotificationAfterDownloadComplete: false,
         boldKeywords: true,
         autoExportResult: false,
-        autoExportResultCSV: true,
-        autoExportResultJSON: false,
+        autoExportResultCSV: false,
+        autoExportResultJSON: true,
         autoExportResultNumber: 1,
         PreviewWork: true,
         showDownloadBtnOnThumb: true,
@@ -43108,7 +43141,9 @@ class Wiki {
     // - “更多”分类里的“显示高级设置”（57）放到了 More-Crawl 分类里
     // - 隐藏设置虽然有自己的分类，但是在 Wiki 里统一归纳到了“隐藏设置”页面里，所以它们的 ID 也放到了 More-Hidden 分类里
     groupConfig = {
-        Crawl: [0, 1, 2, 44, 81, 6, 23, 21, 51, 3, 47, 5, 7, 8, 9, 10, 11, 12],
+        Crawl: [
+            0, 1, 2, 44, 81, 6, 23, 21, 51, 3, 47, 5, 7, 8, 9, 10, 11, 12, 94, 95, 96,
+        ],
         Download: [13, 50, 64, 16, 17, 33, 20],
         'More-Crawl': [57, 59, 75, 69, 35, 39, 74, 54, 85],
         'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66],
@@ -58316,6 +58351,9 @@ const illustsData = [
     [143000000, 1775002920000],
     [143010000, 1775029800000],
     [143020000, 1775044860000],
+    [143030000, 1775055840000],
+    [143040000, 1775082420000],
+    [143050001, 1775112180000],
 ];
 
 
