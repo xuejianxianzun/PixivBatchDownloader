@@ -10711,46 +10711,35 @@ __webpack_require__.r(__webpack_exports__);
 // 显示版本更新说明
 class ShowWhatIsNew {
     constructor() {
-        this.bindEvents();
-    }
-    flag = '18.5.0';
-    bindEvents() {
+        // 在 settingInitialized 事件触发后显示消息。如果时间较早，文本可能会被翻译成错误的语言
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
-            // 在 settingInitialized 事件触发后生成消息，如果时间较早，可能会被翻译成错误的语言
-            let msg = `
+            this.show();
+        });
+    }
+    flag = '18.6.0';
+    msg = `
       <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_扩展程序升到x版本', this.flag)}</span>
       <br>
       <br>
-      <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_更新说明1850')}</span>
-      `;
-            // <strong><span>✨ ${lang.transl('_新增设置项')}:</span></strong>
-            // <strong><span>✨ ${lang.transl('_新增功能')}:</span></strong>
-            // <span class="blue">${lang.transl('_下载间隔')}</span>
-            // <span>${lang.transl('_该功能默认启用')}</span>
-            // <span>${lang.transl('_默认未启用')}</span>
-            // <span>${lang.transl('_修复bug')}</span>
-            // <span>${lang.transl('_优化用户体验')}</span>
-            // 在更新说明的底部添加赞助提示
-            msg += `
+      <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_更新说明1860')}</span>
       <br>
       <br>
       ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_赞助方式提示')}`;
-            this.show(msg);
-        });
-    }
-    show(msg) {
-        // 如果这个标记是初始值，说明这是用户首次安装这个扩展，或者重置了设置，此时不显示版本更新提示
+    show() {
+        // 如果这个标记是初始值，说明用户是首次安装这个扩展，或者重置了设置，此时不显示更新说明
+        // 这样做的目的：只有当用户是从以前的版本升级到新版本时，才会显示更新说明
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.whatIsNewFlag === _Config__WEBPACK_IMPORTED_MODULE_1__.Config.whatIsNewFlagDefault) {
             (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.setSetting)('whatIsNewFlag', this.flag);
             return;
         }
-        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.isPixiv() && _setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.whatIsNewFlag !== this.flag) {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.show(msg, {
-                title: _Config__WEBPACK_IMPORTED_MODULE_1__.Config.appName + ` ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_最近更新')}`,
-                btn: _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_我知道了'),
-            });
-            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.setSetting)('whatIsNewFlag', this.flag);
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.whatIsNewFlag === this.flag || !_utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.isPixiv()) {
+            return;
         }
+        _MsgBox__WEBPACK_IMPORTED_MODULE_2__.msgBox.show(this.msg, {
+            title: _Config__WEBPACK_IMPORTED_MODULE_1__.Config.appName + ` ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_最近更新')}`,
+            btn: _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_我知道了'),
+        });
+        (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.setSetting)('whatIsNewFlag', this.flag);
     }
 }
 new ShowWhatIsNew();
@@ -35808,74 +35797,6 @@ After crawling is complete, you can start the normal download to save the standa
         `선택한 작품 중 일부가 시리즈 소설입니다. 다운로더는 시리즈 소설을 우선적으로 병합합니다.`,
         `В выбранных вами работах есть серии романов, загрузчик будет в первую очередь объединять серии романов.`,
     ],
-    _更新说明1850: [
-        `<strong>🔧调整了“文件名长度限制”设置</strong><br>
-当文件名或文件夹的名字太长时，浏览器可能会显示另存为窗口让用户手动处理。为了减少这种情况，下载器对“文件名长度限制”设置进行了修改：<br>
-1. 该设置现在默认启用。文件的完整路径（包含文件夹和文件名）被限制在 210 个字符之内。<br>
-2. 之前该功能只会截断文件名，现在也可能会截断文件夹的名字（如果有必要）。<br>
-<br>
-<strong>✨适配了小说搜索页面的“整合相同系列”条件</strong><br>
-当用户启用了搜索条件“整合相同系列”时，下载器的抓取结果会与用户看到的内容保持一致。<br>
-<br>
-<strong>🐞修复了多个 Bug</strong><br>
-<br>
-<strong>😊优化用户体验</strong><br>`,
-        `<strong>🔧調整了「檔名長度限制」設定</strong><br>
-當檔名或資料夾的名稱太長時，瀏覽器可能會顯示另存為視窗讓使用者手動處理。為了減少這種情況，下載器對「檔名長度限制」設定進行了修改：<br>
-1. 該設定現在預設啟用。檔案的完整路徑（包含資料夾和檔名）被限制在 210 個字元以內。<br>
-2. 之前該功能只會截斷檔名，現在也可能會截斷資料夾的名稱（如果有必要的話）。<br>
-<br>
-<strong>✨適配了小說搜尋頁面的「整合相同系列」條件</strong><br>
-當使用者啟用了搜尋條件「整合相同系列」時，下載器的抓取結果會與使用者看到的內容保持一致。<br>
-<br>
-<strong>🐞修復了多個 Bug</strong><br>
-<br>
-<strong>😊優化使用者體驗</strong><br>`,
-        `<strong>🔧Adjusted the "Filename Length Limit" setting</strong><br>
-When filenames or folder names are too long, the browser may display a "Save As" dialog for manual handling. To reduce this occurrence, the downloader has modified the "Filename Length Limit" setting as follows:<br>
-1. This setting is now enabled by default. The full file path (including folders and filename) is limited to within 210 characters.<br>
-2. Previously this function only truncated filenames; now it may also truncate folder names if necessary.<br>
-<br>
-<strong>✨Adapted to the "Integrate Identical Series" condition on the novel search page</strong><br>
-When the user enables the search condition "Integrate Identical Series", the downloader's crawl results will be consistent with what the user sees on the page.<br>
-<br>
-<strong>🐞Fixed multiple bugs</strong><br>
-<br>
-<strong>😊Improved user experience</strong><br>`,
-        `<strong>🔧「ファイル名長さ制限」設定を調整しました</strong><br>
-ファイル名やフォルダー名が長すぎる場合、ブラウザが「名前を付けて保存」ダイアログを表示して手動処理を求めることがあります。この状況を減らすため、ダウンロードツールは「ファイル名長さ制限」設定を以下のように変更しました：<br>
-1. この設定はデフォルトで有効になりました。ファイルのフルパス（フォルダーとファイル名を含む）は210文字以内に制限されます。<br>
-2. 以前はこの機能がファイル名のみを切り詰めていましたが、必要に応じてフォルダー名も切り詰められるようになりました。<br>
-<br>
-<strong>✨小説検索ページの「同一シリーズを統合」条件に対応しました</strong><br>
-ユーザーが検索条件「同一シリーズを統合」を有効にした場合、ダウンロードツールのクロール結果はユーザーが見ている内容と一致するようになりました。<br>
-<br>
-<strong>🐞複数のバグを修正</strong><br>
-<br>
-<strong>😊ユーザー体験を最適化</strong><br>`,
-        `<strong>🔧"파일 이름 길이 제한" 설정 조정</strong><br>
-파일 이름이나 폴더 이름이 너무 길면 브라우저가 "다른 이름으로 저장" 창을 띄워 수동으로 처리하게 될 수 있습니다. 이런 상황을 줄이기 위해 다운로더는 "파일 이름 길이 제한" 설정을 다음과 같이 수정했습니다:<br>
-1. 이 설정이 이제 기본으로 활성화됩니다. 파일의 전체 경로(폴더와 파일명 포함)는 210자 이내로 제한됩니다.<br>
-2. 이전에는 파일명만 잘랐지만, 필요 시 폴더 이름도 잘라내도록 변경되었습니다.<br>
-<br>
-<strong>✨소설 검색 페이지의 "동일 시리즈 통합" 조건에 적응</strong><br>
-사용자가 "동일 시리즈 통합" 검색 조건을 활성화했을 때, 다운로더의 크롤링 결과가 사용자가 보는 내용과 일치하게 되었습니다.<br>
-<br>
-<strong>🐞여러 버그 수정</strong><br>
-<br>
-<strong>😊사용자 경험 최적화</strong><br>`,
-        `<strong>🔧Настроен параметр «Ограничение длины имени файла»</strong><br>
-Когда имя файла или папки слишком длинное, браузер может показывать окно «Сохранить как» для ручного сохранения. Чтобы уменьшить такие случаи, загрузчик изменил настройку «Ограничение длины имени файла» следующим образом:<br>
-1. Эта настройка теперь включена по умолчанию. Полный путь файла (включая папки и имя файла) ограничен 210 символами.<br>
-2. Ранее функция усечала только имя файла, теперь при необходимости усекаются и имена папок.<br>
-<br>
-<strong>✨Адаптировано к условию «Интегрировать одинаковые серии» на странице поиска романов</strong><br>
-Когда пользователь включает условие поиска «Интегрировать одинаковые серии», результаты краулинга загрузчика будут соответствовать тому, что видит пользователь на странице.<br>
-<br>
-<strong>🐞Исправлено несколько багов</strong><br>
-<br>
-<strong>😊Оптимизирован пользовательский опыт</strong><br>`,
-    ],
     _建议您关闭询问文件保存位置: [
         `强烈建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”，否则保存每个文件时都会显示另存为对话框。`,
         `強烈建議您在瀏覽器的下載設定中關閉「下載前詢問每個檔案的儲存位置」，否則儲存每個檔案時都會顯示另存為對話框。`,
@@ -36094,6 +36015,86 @@ ${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.originalTags.join(',')}`,
         `今回のクロール内容にシリーズ小説が含まれているため、同時リクエストが多すぎるのを避けるためクロールスレッドを1に制限しました。`,
         `이번 크롤링 내용에 시리즈 소설이 포함되어 있어 동시에 너무 많은 요청을 보내지 않도록 크롤링 스레드가 1로 제한되었습니다.`,
         `Поскольку содержимое этого краулинга включает серии романов, количество потоков краулинга было ограничено до 1, чтобы избежать отправки слишком большого количества запросов одновременно.`,
+    ],
+    _更新说明1860: [
+        `<strong>✨新增过滤器：原创作品</strong><br>
+下载器在抓取时可以过滤原创作品和非原创作品了。<br><br>
+<strong>✨新增过滤器：标题必须含有</strong><br><br>
+<strong>✨新增过滤器：标题不能含有</strong><br><br>
+<strong>✨动图的文件名里可以不带序号了</strong><br>
+如果你希望动图的文件名里不带序号“p0”，可以在“更多”-“命名”-“第一张图不带序号”设置里启用“动图”选项。<br><br>
+<strong>✨在图片查看器里添加了复制作品链接的按钮</strong><br><br>
+<strong>✨在图片查看器里可以使用鼠标滚轮切换图片了</strong><br>
+当鼠标指针在图片区域之外，滚动滚轮可以切换图片。<br><br>
+<strong>🔧导出关注的用户列表（JSON）时，会保存更多数据</strong><br><br>
+<strong>🐞修复了一些功能失效的问题</strong><br><br>
+<strong>😊添加了一些提示</strong><br><br>
+<strong>😊优化合并系列小说时的用户体验</strong>`,
+        `<strong>✨新增過濾器：原創作品</strong><br>
+下載器在抓取時可以過濾原創作品和非原創作品了。<br><br>
+<strong>✨新增過濾器：標題必須含有</strong><br><br>
+<strong>✨新增過濾器：標題不能含有</strong><br><br>
+<strong>✨動圖的檔名裡可以不帶序號了</strong><br>
+如果你希望動圖的檔名裡不帶序號「p0」，可以在「更多」-「命名」-「第一張圖不帶序號」設定裡啟用「動圖」選項。<br><br>
+<strong>✨在圖片查看器裡添加了複製作品連結的按鈕</strong><br><br>
+<strong>✨在圖片查看器裡可以使用滑鼠滾輪切換圖片了</strong><br>
+當滑鼠指標在圖片區域之外，滾動滾輪可以切換圖片。<br><br>
+<strong>🔧匯出關注的使用者列表（JSON）時，會保存更多資料</strong><br><br>
+<strong>🐞修復了一些功能失效的問題</strong><br><br>
+<strong>😊添加了一些提示</strong><br><br>
+<strong>😊優化合併系列小說時的使用者體驗</strong>`,
+        `<strong>✨New Filter: Original Works</strong><br>
+The downloader can now filter original works and non-original works during crawling.<br><br>
+<strong>✨New Filter: Title Must Contain</strong><br><br>
+<strong>✨New Filter: Title Must Not Contain</strong><br><br>
+<strong>✨Ugoira filenames can now omit the sequence number</strong><br>
+If you want Ugoira filenames to omit the sequence number “p0”, enable the “Ugoira” option in “More” - “Naming” - “First image without sequence number”.<br><br>
+<strong>✨Added a button to copy the work link in the image viewer</strong><br><br>
+<strong>✨Mouse wheel can now switch images in the image viewer</strong><br>
+When the mouse pointer is outside the image area, scrolling the wheel switches images.<br><br>
+<strong>🔧Exporting followed user list (JSON) now saves more data</strong><br><br>
+<strong>🐞Fixed several issues where features stopped working</strong><br><br>
+<strong>😊Added some tips</strong><br><br>
+<strong>😊Optimized user experience when merging novel series</strong>`,
+        `<strong>✨新フィルター：オリジナル作品</strong><br>
+ダウンロードツールはクロール時にオリジナル作品と非オリジナル作品をフィルタリングできるようになりました。<br><br>
+<strong>✨新フィルター：タイトルに必ず含む</strong><br><br>
+<strong>✨新フィルター：タイトルに含まない</strong><br><br>
+<strong>✨Ugoiraのファイル名から連番を省略可能に</strong><br>
+Ugoiraのファイル名から連番「p0」を省略したい場合は、「その他」-「命名」-「最初の画像に連番を付けない」設定で「Ugoira」オプションを有効にしてください。<br><br>
+<strong>✨画像ビューアーに作品リンクをコピーするボタンを追加</strong><br><br>
+<strong>✨画像ビューアーでマウスホイールによる画像切り替えが可能に</strong><br>
+マウスポインタが画像領域外にある場合、ホイールをスクロールすると画像が切り替わります。<br><br>
+<strong>🔧フォロー中のユーザーリスト（JSON）をエクスポートする際に、より多くのデータを保存</strong><br><br>
+<strong>🐞機能が動作しなくなっていた問題をいくつか修正</strong><br><br>
+<strong>😊いくつかのヒントを追加</strong><br><br>
+<strong>😊シリーズ小説のマージ時のユーザー体験を最適化</strong>`,
+        `<strong>✨새 필터: 오리지널 작품</strong><br>
+다운로더가 크롤링 시 오리지널 작품과 비오리지널 작품을 필터링할 수 있게 되었습니다.<br><br>
+<strong>✨새 필터: 제목 반드시 포함</strong><br><br>
+<strong>✨새 필터: 제목 포함하지 않음</strong><br><br>
+<strong>✨Ugoira 파일명에서 순번 생략 가능</strong><br>
+Ugoira 파일명에서 순번 “p0”을 생략하려면 “더보기”-“명명”-“첫 번째 이미지에 순번 없음” 설정에서 “Ugoira” 옵션을 활성화하세요.<br><br>
+<strong>✨이미지 뷰어에 작품 링크 복사 버튼 추가</strong><br><br>
+<strong>✨이미지 뷰어에서 마우스 휠로 이미지 전환 가능</strong><br>
+마우스 포인터가 이미지 영역 밖에 있을 때 휠을 스크롤하면 이미지가 전환됩니다.<br><br>
+<strong>🔧팔로우 사용자 목록(JSON) 내보내기 시 더 많은 데이터 저장</strong><br><br>
+<strong>🐞기능이 작동하지 않는 여러 문제 수정</strong><br><br>
+<strong>😊몇 가지 팁 추가</strong><br><br>
+<strong>😊시리즈 소설 병합 시 사용자 경험 최적화</strong>`,
+        `<strong>✨Новый фильтр: Оригинальные работы</strong><br>
+Загрузчик теперь может фильтровать оригинальные и неоригинальные работы во время краулинга.<br><br>
+<strong>✨Новый фильтр: Заголовок должен содержать</strong><br><br>
+<strong>✨Новый фильтр: Заголовок не должен содержать</strong><br><br>
+<strong>✨В именах файлов Ugoira теперь можно убирать порядковый номер</strong><br>
+Если вы хотите, чтобы в именах файлов Ugoira не было порядкового номера «p0», включите опцию «Ugoira» в «Больше» - «Именование» - «Первое изображение без порядкового номера».<br><br>
+<strong>✨В просмотрщике изображений добавлена кнопка копирования ссылки на работу</strong><br><br>
+<strong>✨В просмотрщике изображений теперь можно переключать изображения колёсиком мыши</strong><br>
+Когда указатель мыши находится вне области изображения, прокрутка колёсика переключает изображения.<br><br>
+<strong>🔧При экспорте списка подписанных пользователей (JSON) теперь сохраняется больше данных</strong><br><br>
+<strong>🐞Исправлены некоторые проблемы с неработающими функциями</strong><br><br>
+<strong>😊Добавлены подсказки</strong><br><br>
+<strong>😊Оптимизирован пользовательский опыт при объединении серий романов</strong>`,
     ],
 };
 
@@ -41710,7 +41711,7 @@ class Options {
                 23, 24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44,
                 46, 47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
                 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,
-                84, 85, 86, 87, 88, 89, 90, 91, 92,
+                84, 85, 86, 87, 88, 89, 90, 91, 92, 94, 95, 96,
             ]);
         }
     }
