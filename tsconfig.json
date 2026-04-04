@@ -4,8 +4,6 @@
     "module": "ESNext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "sourceMap": true,
-    "outDir": "./dist/js",
-    "downlevelIteration": true,
     "strict": true,
     "types": ["webextension-polyfill"],
     "allowSyntheticDefaultImports": true

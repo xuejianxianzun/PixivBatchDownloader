@@ -19452,8 +19452,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+/**获取系列小说的设定资料 */
 class GetNovelGlossarys {
-    /**获取系列小说的设定资料 */
     async getGlossarys(seriesId, interval = 0) {
         return new Promise(async (resolve, reject) => {
             // 先获取设定资料的分类、每条设定资料的简略数据
@@ -19465,7 +19465,7 @@ class GetNovelGlossarys {
                 return resolve(result);
             }
             // 请求每条设定资料的详细数据
-            // 测试用例：这个系列销售有 40 条设定资料
+            // 测试用例：这个系列小说有 40 条设定资料
             // https://www.pixiv.net/novel/series/1446094/glossary
             let total = 0;
             for (const categorie of result) {
@@ -27814,7 +27814,9 @@ class WorkPublishTime {
     async crawlData(type = 'illusts') {
         // 从已保存的数据里获取开始抓取的 id
         const historyData = type === 'illusts' ? _store_WorkPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__.illustsData : _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__.novelsData;
-        const start = historyData[historyData.length - 1][0] + this.gap;
+        let start = historyData[historyData.length - 1][0] + this.gap;
+        // 如果开始 id 的最后两位数字不是 0，就调整为 100 的倍数，保证末位是 0
+        start = Math.floor(start / 100) * 100;
         // 通过 API 获取结束 id
         const option = {
             lastId: '0',
@@ -35951,22 +35953,22 @@ After crawling is complete, you can start the normal download to save the standa
     _标题必须含有的说明: [
         `你可以要求作品的标题里必须含有特定字符。不区分大小写。<br>
 你可以设置多条字符，每条之间使用逗号(,)分割。<br>
-匹配模式是 “任一”，即只要标题里含有任意一条设置的字符，就可以通过检查。`,
+匹配模式是“任一”，即只要标题里含有任意一条设置的字符，下载器就会抓取它。`,
         `你可以要求作品的標題裡必須含有特定字元。不區分大小寫。<br>
 你可以設定多條字元，每條之間使用逗號(,)分割。<br>
-匹配模式是「任一」，即只要標題裡含有任意一條設定的字元，就可以通过檢查。`,
+匹配模式是「任一」，即只要標題裡含有任意一條設定的字元，下載器就會抓取它。`,
         `You can require that the work's title must contain specific characters. Case-insensitive.<br>
 You can set multiple strings, separated by commas (,).<br>
-The matching mode is "any one", meaning as long as the title contains any one of the specified strings, it will pass the check.`,
+The matching mode is "any one", meaning as long as the title contains any one of the specified strings, the downloader will crawl it.`,
         `作品のタイトルに特定の文字列を必ず含めるよう要求できます。大文字小文字は区別しません。<br>
 複数の文字列を設定でき、それぞれをカンマ(,)で区切ります。<br>
-マッチングモードは「いずれか」で、設定した文字列のいずれか一つでもタイトルに含まれていれば条件を満たします。`,
+マッチングモードは「いずれか」で、設定した文字列のいずれか一つでもタイトルに含まれていれば、ダウンロードツールはその作品をクロールします。`,
         `작품 제목에 특정 문자를 반드시 포함하도록 요구할 수 있습니다. 대소문자 구분 없음.<br>
 여러 문자열을 설정할 수 있으며, 각 문자열은 쉼표(,)로 구분합니다.<br>
-매칭 모드는 "하나라도"로, 제목에 설정한 문자열 중 하나라도 포함되어 있으면 조건을 통과합니다.`,
+매칭 모드는 "하나라도"로, 제목에 설정한 문자열 중 하나라도 포함되어 있으면 다운로더가 해당 작품을 크롤링합니다.`,
         `Вы можете потребовать, чтобы в названии работы обязательно содержались определённые символы. Без учёта регистра.<br>
 Можно задать несколько строк, разделяя их запятыми (,).<br>
-Режим соответствия — «любой», то есть достаточно, чтобы в названии присутствовала хотя бы одна из указанных строк, и проверка будет пройдена.`,
+Режим соответствия — «любой», то есть достаточно, чтобы в названии присутствовала хотя бы одна из указанных строк, и загрузчик будет краулить эту работу.`,
     ],
     _标题不能含有: [
         `<span class="key">标题</span>不能含有`,
@@ -35979,7 +35981,7 @@ The matching mode is "any one", meaning as long as the title contains any one of
     _标题不能含有的说明: [
         `你可以要求作品的标题里不能含有特定字符。不区分大小写。<br>
 你可以设置多条字符，每条之间使用逗号(,)分割。<br>
-匹配模式是 “任一”，即只要标题里含有任意一条设置的字符，下载器就不会抓取它。<br>
+匹配模式是“任一”，即只要标题里含有任意一条设置的字符，下载器就不会抓取它。<br>
 排除的优先级大于包含的优先级。`,
         `你可以要求作品的標題裡不能含有特定字元。不區分大小寫。<br>
 你可以設定多條字元，每條之間使用逗號(,)分割。<br>
@@ -40485,10 +40487,10 @@ const formHtml = `
         <span data-xztext="_小说保存格式"></span>
         <span class="gray1"> ? </span>
       </a>
-      <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt" checked>
+      <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="novelSaveAs1"> TXT </label>
-      <input type="radio" name="novelSaveAs" id="novelSaveAs2" class="need_beautify radio" value="epub">
+      <input type="radio" name="novelSaveAs" id="novelSaveAs2" class="need_beautify radio" value="epub" checked>
       <span class="beautify_radio" tabindex="0"></span>
       <label for="novelSaveAs2"> EPUB </label>
     </p>
@@ -58532,6 +58534,16 @@ const illustsData = [
     [143030000, 1775055840000],
     [143040000, 1775082420000],
     [143050001, 1775112180000],
+    [143060001, 1775130840000],
+    [143070000, 1775142960000],
+    [143080000, 1775172720000],
+    [143090000, 1775203020000],
+    [143100000, 1775218440000],
+    [143110000, 1775230560000],
+    [143120001, 1775260560000],
+    [143130000, 1775283780000],
+    [143140000, 1775300460000],
+    [143150000, 1775312880000],
 ];
 
 
@@ -61320,6 +61332,9 @@ const novelsData = [
     [27680000, 1774875075000],
     [27690000, 1774964770000],
     [27700000, 1775049110000],
+    [27710000, 1775142070000],
+    [27720003, 1775237405000],
+    [27730001, 1775322081000],
 ];
 
 

@@ -68,7 +68,9 @@ class WorkPublishTime {
   ): Promise<number[][]> {
     // 从已保存的数据里获取开始抓取的 id
     const historyData = type === 'illusts' ? illustsData : novelsData
-    const start = historyData[historyData.length - 1][0] + this.gap
+    let start = historyData[historyData.length - 1][0] + this.gap
+    // 如果开始 id 的最后两位数字不是 0，就调整为 100 的倍数，保证末位是 0
+    start = Math.floor(start / 100) * 100
 
     // 通过 API 获取结束 id
     const option = {

@@ -11,8 +11,8 @@ interface GlossaryResult {
   items: GlossaryItem[]
 }
 
+/**获取系列小说的设定资料 */
 class GetNovelGlossarys {
-  /**获取系列小说的设定资料 */
   public async getGlossarys(
     seriesId: string | number,
     interval = 0
@@ -29,7 +29,7 @@ class GetNovelGlossarys {
       }
 
       // 请求每条设定资料的详细数据
-      // 测试用例：这个系列销售有 40 条设定资料
+      // 测试用例：这个系列小说有 40 条设定资料
       // https://www.pixiv.net/novel/series/1446094/glossary
       let total = 0
       for (const categorie of result) {

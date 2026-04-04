@@ -871,10 +871,10 @@ export const formHtml = `
         <span data-xztext="_小说保存格式"></span>
         <span class="gray1"> ? </span>
       </a>
-      <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt" checked>
+      <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="novelSaveAs1"> TXT </label>
-      <input type="radio" name="novelSaveAs" id="novelSaveAs2" class="need_beautify radio" value="epub">
+      <input type="radio" name="novelSaveAs" id="novelSaveAs2" class="need_beautify radio" value="epub" checked>
       <span class="beautify_radio" tabindex="0"></span>
       <label for="novelSaveAs2"> EPUB </label>
     </p>
