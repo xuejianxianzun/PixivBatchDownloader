@@ -1,6 +1,6 @@
 import { EVT } from './EVT'
 import { setTimeoutWorker } from './SetTimeoutWorker'
-import { secretSignal } from './utils/SecretSignal'
+import { ppdTask } from './PPDTask'
 
 // 所有页面类型及对应的数字编号
 // 可以通过 pageType.list 使用
@@ -78,7 +78,7 @@ class PageType {
       this.checkTypeChange()
     })
 
-    secretSignal.register('ppdtask3', () => {
+    ppdTask.register(22, 'Open all test pages', () => {
       this.openAllTestPage()
     })
   }

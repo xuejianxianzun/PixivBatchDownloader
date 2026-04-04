@@ -29,17 +29,17 @@ class LogErrorStatus {
         // 如果是，则输出具体的日志
         // https://www.pixiv.net/ajax/illust/86583637
         // https://www.pixiv.net/ajax/novel/24482163
-        const matchIllust = url.match(/ajax\/illust\/(\d+)/)
-        if (matchIllust && matchIllust.length > 1) {
-          this.logErrorWithWorkLink(status, matchIllust[1], 'artwork')
-          specialHandle = true
-        }
+        // const matchIllust = url.match(/ajax\/illust\/(\d+)/)
+        // if (matchIllust && matchIllust.length > 1) {
+        //   this.logErrorWithWorkLink(status, matchIllust[1], 'artwork')
+        //   specialHandle = true
+        // }
 
-        const matchNovel = url.match(/ajax\/novel\/(\d+)/)
-        if (matchNovel && matchNovel.length > 1) {
-          this.logErrorWithWorkLink(status, matchNovel[1], 'novel')
-          specialHandle = true
-        }
+        // const matchNovel = url.match(/ajax\/novel\/(\d+)/)
+        // if (matchNovel && matchNovel.length > 1) {
+        //   this.logErrorWithWorkLink(status, matchNovel[1], 'novel')
+        //   specialHandle = true
+        // }
 
         // 判断是否是添加收藏的请求
         // https://www.pixiv.net/ajax/novels/bookmarks/add
@@ -75,10 +75,17 @@ class LogErrorStatus {
           log.error(msg)
         }
 
-        // 429 错误时，显示额外的提示
+        // 对一些错误显示特定的提示
         if (status === 429) {
           log.error(lang.transl('_下载器会等待几分钟然后重试'))
           this.tipSlowCrawl()
+        }
+
+        if (status === 502) {
+          log.log(
+            lang.transl('_对于某种错误下载器会重试一定次数', '502'),
+            'tip502ErrorWhillRetry'
+          )
         }
 
         this.listenerList.forEach((cb) => {
@@ -103,6 +110,7 @@ class LogErrorStatus {
     this.listenerList.push(cb)
   }
 
+  /** 输出带有作品链接的错误日志。但作品链接并不是实际请求的 API 网址，所以现在没有使用 */
   private logErrorWithWorkLink(
     status: number,
     id: string,

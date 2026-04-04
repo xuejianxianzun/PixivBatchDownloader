@@ -1,5 +1,5 @@
 import { API } from '../API'
-import { secretSignal } from '../utils/SecretSignal'
+import { ppdTask } from '../PPDTask'
 import { Utils } from '../utils/Utils'
 import { illustsData } from '../store/WorkPublishTimeIllusts'
 import { novelsData } from '../store/WorkPublishTimeNovels'
@@ -13,7 +13,7 @@ class WorkPublishTime {
     this.illustsLength = illustsData.length
     this.novelsLength = novelsData.length
 
-    secretSignal.register('ppdtask1', async () => {
+    ppdTask.register(11, 'Crawl work publish time data', async () => {
       await this.crawlData('illusts')
       await this.crawlData('novels')
     })

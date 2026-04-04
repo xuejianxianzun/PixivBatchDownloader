@@ -112,17 +112,11 @@ class AutoMergeNovel {
 
     this.workingId = await this.next()
     const seriesTitleLog = this.idTitleMap[this.workingId]
-
     const novelTotal = await new MergeNovel().merge(
       this.workingId,
       seriesTitleLog,
       true
     )
-
-    // 调试用：跳过合并过程，节省时间
-    // log.log(`skip merge ${this.workingId} ${seriesTitleLog}`)
-    // await Utils.sleep(1000)
-    // const novelTotal = 0
 
     if (this.stop) {
       // console.log('auto merge stopped')

@@ -644,6 +644,22 @@ class Tools {
     return `<a href="${href}" target="_blank">${title || id}</a>`
   }
 
+  /** 根据 IDData，返回作品链接或者系列小说的链接 */
+  static createWorkLinkByIDData(idData: IDData) {
+    if (
+      idData.type === 'illusts' ||
+      idData.type === 'manga' ||
+      idData.type === 'ugoira'
+    ) {
+      return this.createWorkLink(idData.id, idData.title, 'artwork')
+    } else if (idData.type === 'novels') {
+      return this.createWorkLink(idData.id, idData.title, 'novel')
+    } else {
+      const href = `https://www.pixiv.net/novel/series/${idData.id}`
+      return `<a href="${href}" target="_blank">${idData.title || idData.id}</a>`
+    }
+  }
+
   // 传入用户 id，生成用户页面的超链接
   /**
    *

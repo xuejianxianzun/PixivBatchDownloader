@@ -1,4 +1,5 @@
 import { EVT } from '../EVT'
+import { ppdTask } from '../PPDTask'
 
 // 储存下载器内部产生的、会变化的状态
 // 这里的状态不需要持久化保存
@@ -58,6 +59,9 @@ class States {
   // 因为这两个变量的值不应该随页面切换而改变，所以放在这里而非 initPageBase 里
   public crawlCompleteTime = 1
   public downloadCompleteTime = 0
+
+  /**是否在快速合并小说模式下。如果为 true，则只抓取每个系列小说里的第一篇小说，并且会跳过获取设定资料的流程，以节省时间 */
+  public quickMergeNovel = false
 
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
@@ -136,6 +140,10 @@ class States {
       if (data.name === 'slowCrawl' && data.value === false) {
         this.slowCrawlMode = false
       }
+    })
+
+    ppdTask.register(2, 'Quick merge novel series', async () => {
+      this.quickMergeNovel = true
     })
   }
 }

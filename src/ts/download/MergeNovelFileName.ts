@@ -107,11 +107,6 @@ class MergeNovelFileName {
       },
     }
 
-    // 输出调试信息
-    // Object.entries(cfg).forEach(([key, val]) => {
-    //   console.log(key, val.value)
-    // })
-
     // 有些标记可能是空字符串，移除它们
     const mayEmptyList: (keyof typeof cfg)[] = [
       '{part}',

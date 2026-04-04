@@ -18,6 +18,7 @@ import { setTimeoutWorker } from '../SetTimeoutWorker'
 import { mergeNovelFileName } from './MergeNovelFileName'
 import { SendDownload } from './SendDownload'
 import { filter } from '../filter/Filter'
+import { states } from '../store/States'
 
 declare const jEpub: any
 
@@ -64,9 +65,6 @@ class MergeNovel {
   private readonly CRLF = '\n' // 小说的换行符
   private readonly CRLF2 = '\n\n'
   private readonly br2 = '<br/><br/>'
-
-  /** 调试用，如果为 true，则只抓取每个系列小说里的第一篇小说，并且会跳过获取设定资料的流程，以节省测试时间 */
-  private quickTestMode = false
 
   // 由于每个系列里都可能含有多个小说和图片，所以下载器可能会发送很多请求。为了避免触发 Pixiv 的警告，下载器在合并时总是会添加间隔时间，以降低发送请求的频率。
 
@@ -155,7 +153,7 @@ class MergeNovel {
     await this.getAllNovelData()
 
     // 获取这个系列的设定资料
-    if (settings.saveNovelMeta && !this.quickTestMode) {
+    if (settings.saveNovelMeta && !states.quickMergeNovel) {
       log.log(lang.transl('_获取设定资料'), 'getNovelGlossary' + seriesId)
       const data = await getNovelGlossarys.getGlossarys(
         this.seriesId,
@@ -581,13 +579,7 @@ class MergeNovel {
     const total = this.novelIdList.length
     let count = 0
 
-    let idList = this.novelIdList
-    if (this.quickTestMode) {
-      log.warning('quickTestMode: On')
-      idList = [this.novelIdList[0]]
-    }
-
-    for (const id of idList) {
+    for (const id of this.novelIdList) {
       // 自动合并系列小说时，可能会连续不断的合并多个系列，这些系列可能包含非常多的小说，所以需要添加等待时间，以减小出现 429 错误的概率
       // 另外获取设定资料时也有可能需要发送多个请求，但并不总是需要多次请求，所以获取设定资料时没有添加等待时间
       count++
@@ -661,6 +653,12 @@ class MergeNovel {
         const order_title = `#${order} ${title}`
         const link = Tools.createWorkLink(novelId, order_title, 'novel')
         log.warning(lang.transl('_排除小说') + ': ' + link)
+      }
+
+      // 如果处于快速合并模式，则跳过剩余小说
+      if (states.quickMergeNovel) {
+        log.warning('quickMergeNovel: On，跳过剩余小说')
+        break
       }
     }
 

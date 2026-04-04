@@ -6,6 +6,7 @@ import { settings } from './setting/Settings'
 import { Config } from './Config'
 import { exportLog } from './ExportLog'
 import { logButton } from './LogButton'
+import { ppdTask } from './PPDTask'
 
 class Log {
   constructor() {
@@ -18,7 +19,9 @@ class Log {
       getIsVisible: () => this.isVisible,
     })
 
-    // this.test(300)
+    ppdTask.register(21, 'Test output logs', () => {
+      this.test(300)
+    })
 
     // 日志区域限制了最大高度，可能会出现滚动条
     // 所以使用定时器，让日志滚动到底部

@@ -1246,9 +1246,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./PPDTask */ "./src/ts/PPDTask.ts");
 
 
 
+
+let mockHttpStatus = null;
+_PPDTask__WEBPACK_IMPORTED_MODULE_3__.ppdTask.register(200, 'mock http status unset', () => {
+    mockHttpStatus = null;
+});
+_PPDTask__WEBPACK_IMPORTED_MODULE_3__.ppdTask.register(429, 'mock http status 429', () => {
+    mockHttpStatus = 429;
+});
+_PPDTask__WEBPACK_IMPORTED_MODULE_3__.ppdTask.register(502, 'mock http status 502', () => {
+    mockHttpStatus = 502;
+});
 class API {
     /** API 里的所有请求都从这里转发，以简化代码，并方便统一处理错误。
      *
@@ -1266,30 +1278,37 @@ class API {
                 try {
                     const response = await fetch(url, init);
                     // response.ok 的状态码范围是 200-299
-                    if (response.ok) {
+                    if (response.ok && !mockHttpStatus) {
                         // 请求成功，直接返回数据
                         const data = await response[format]();
                         return resolve(data);
                     }
                     else {
                         // 请求成功但状态码异常
+                        // 或者启用了 mockHttpStatus 模拟错误
+                        let status = response.status;
+                        if (mockHttpStatus) {
+                            status = mockHttpStatus;
+                            console.log(`Mocked http status ${status}`);
+                        }
+                        // 每次状态码异常（不管是否会重试）都会传递错误信息，显示在日志上
                         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('requestStatusError', {
-                            status: response.status,
-                            url: url,
+                            status,
+                            url,
                         });
                         // 对于 429 状态码，无限次重试，直到成功或者出现其他错误
                         // 在其他模块里调用 API 时，不需要自行处理 429 错误
                         // 以前隔 200 秒重试经常可以成功，但现在时间似乎有所增加，而且不同的账号也不一样。
                         // 有些账号需要重试 2、3 次，但有些账号（近期抓取和下载了大量文件）可能要重试 6 次（即等待 20 分钟）才能成功
-                        if (response.status === 429) {
+                        if (status === 429) {
                             // 等待一段时间后，通过尾递归重试请求
                             // console.log(`429 tryCount ${tryCount}`)
                             await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.sleep(_Config__WEBPACK_IMPORTED_MODULE_0__.Config.retryTime);
                             return await attemptRequest(tryCount + 1);
                         }
-                        else if (response.status === 502 && tryCount < 3) {
-                            // 502 错误重试最多 3 次
+                        else if (status === 502 && tryCount < 3) {
                             // 现在偶尔会遇到 502 错误，通常可以很快重试成功，所以等待 10 秒后重试
+                            // 最多重试 3 次，所以同一个 URL 最多会发送 4 次请求
                             console.log(`502 tryCount ${tryCount}`);
                             await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.sleep(10000);
                             return await attemptRequest(tryCount + 1);
@@ -1297,7 +1316,7 @@ class API {
                         else {
                             // 对于其他状态码，以及重试超出最大次数的，不再重试，而是通过 reject 抛出错误
                             return reject({
-                                status: response.status,
+                                status: status,
                                 statusText: response.statusText,
                             });
                         }
@@ -6064,6 +6083,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 /* harmony import */ var _ExportLog__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ExportLog */ "./src/ts/ExportLog.ts");
 /* harmony import */ var _LogButton__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./LogButton */ "./src/ts/LogButton.ts");
+/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./PPDTask */ "./src/ts/PPDTask.ts");
+
 
 
 
@@ -6082,7 +6103,9 @@ class Log {
             getCount: () => this.count,
             getIsVisible: () => this.isVisible,
         });
-        // this.test(300)
+        _PPDTask__WEBPACK_IMPORTED_MODULE_8__.ppdTask.register(21, 'Test output logs', () => {
+            this.test(300);
+        });
         // 日志区域限制了最大高度，可能会出现滚动条
         // 所以使用定时器，让日志滚动到底部
         window.setInterval(() => {
@@ -6804,6 +6827,74 @@ new OpenCenterPanel();
 
 /***/ }),
 
+/***/ "./src/ts/PPDTask.ts":
+/*!***************************!*\
+  !*** ./src/ts/PPDTask.ts ***!
+  \***************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ppdTask: () => (/* binding */ ppdTask)
+/* harmony export */ });
+/* harmony import */ var _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/SecretSignal */ "./src/ts/utils/SecretSignal.ts");
+
+// 把调试用的一些命令注册到这里，以便于管理和使用
+// 输入 ppdtask，就会弹出一个输入框，列出注册过的所有命令。输入编号即可执行对应的命令
+class PPDTask {
+    constructor() {
+        _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_0__.secretSignal.register('ppdtask', () => {
+            this.select();
+        });
+    }
+    // list 是一个稀疏数组
+    list = [];
+    /** 添加一个配置。由于使用了索引来存储配置，所以可以重复添加同一个配置，这样用起来比较方便 */
+    // index 的范围按照命令的作用来区分：
+    // 0 - 9: 用于设置抓取、下载流程里用于调试的 flag
+    // 10 - 19: 导出内容，例如抓取一些数据然后导出
+    // 20 - 29: 测试下载器的一些功能，例如连续输出日志。打开所有可用的标签页也属于此类
+    register(index, description, cb) {
+        // 为了防止不同命令的 index 冲突导致错误的覆盖，当这个 index 已经被注册时，检查 description 是否相同
+        // 如果相同，说明是同一个命令，直接覆盖
+        // 如果不同，说明是不同的命令，递归寻找下一个空闲的 index 进行注册
+        const old = this.list[index];
+        if (!old || old.description === description) {
+            this.list[index] = {
+                index,
+                description,
+                cb,
+            };
+        }
+        else {
+            return this.register(index + 1, description, cb);
+        }
+    }
+    select() {
+        const code = prompt(`Please enter a command:\n${this.list
+            .filter((item) => item !== undefined)
+            .map((item) => `${item.index}: ${item.description}`)
+            .join('\n')}`);
+        if (code === null) {
+            return;
+        }
+        const config = this.list.find((item) => item?.index === Number(code));
+        if (config) {
+            console.log(`⚠️Execute command: ${config.description}`);
+            config.cb();
+        }
+        else {
+            alert('Invalid command');
+        }
+    }
+}
+const ppdTask = new PPDTask();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/PageType.ts":
 /*!****************************!*\
   !*** ./src/ts/PageType.ts ***!
@@ -6818,7 +6909,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
-/* harmony import */ var _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/SecretSignal */ "./src/ts/utils/SecretSignal.ts");
+/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PPDTask */ "./src/ts/PPDTask.ts");
 
 
 
@@ -6896,7 +6987,7 @@ class PageType {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch, () => {
             this.checkTypeChange();
         });
-        _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_2__.secretSignal.register('ppdtask3', () => {
+        _PPDTask__WEBPACK_IMPORTED_MODULE_2__.ppdTask.register(22, 'Open all test pages', () => {
             this.openAllTestPage();
         });
     }
@@ -11829,6 +11920,21 @@ class Tools {
         const href = `https://www.pixiv.net/${type === 'artwork' ? 'i' : 'n'}/${idNum}${hasP ? `#${p}` : ''}`;
         return `<a href="${href}" target="_blank">${title || id}</a>`;
     }
+    /** 根据 IDData，返回作品链接或者系列小说的链接 */
+    static createWorkLinkByIDData(idData) {
+        if (idData.type === 'illusts' ||
+            idData.type === 'manga' ||
+            idData.type === 'ugoira') {
+            return this.createWorkLink(idData.id, idData.title, 'artwork');
+        }
+        else if (idData.type === 'novels') {
+            return this.createWorkLink(idData.id, idData.title, 'novel');
+        }
+        else {
+            const href = `https://www.pixiv.net/novel/series/${idData.id}`;
+            return `<a href="${href}" target="_blank">${idData.title || idData.id}</a>`;
+        }
+    }
     // 传入用户 id，生成用户页面的超链接
     /**
      *
@@ -13487,7 +13593,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ../download/AutoMergeNovel */ "./src/ts/download/AutoMergeNovel.ts");
 /* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
 /* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ../download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ../PPDTask */ "./src/ts/PPDTask.ts");
 // 初始化所有页面抓取流程的基类
+
 
 
 
@@ -13543,6 +13651,9 @@ class InitPageBase {
     idListLength = 0;
     /** 抓取过程中，保存合并系列小说的数量。当抓取完成后，如果这个数量等于 idListLength，则说明所有作品都被合并为系列小说 */
     mergedNovelCount = 0;
+    /** 调试用，如果为 true，则在 getIdListFinished 之后就停止抓取，便于重复测试抓取 idList 的流程 */
+    // 切换到不同页面类型后，会恢复成默认值 false
+    onlyCrawlIdList = false;
     // 该类的实现必须调用 init 方法，并且不可以修改 init 方法
     init = () => {
         this.addCrawlBtns();
@@ -13585,6 +13696,16 @@ class InitPageBase {
             // 也就是说即使页面类型变化并且生成了新的实例，调用旧实例上的这个方法也依然会正常运行
             // 如果某个方法做不到这一点, 就不要在这里调用。
             // 基于此，在这里修改 this 上的属性是不合适的，因为每个新实例都会复制这个虚拟类上的属性，它们是独立的
+        });
+        // 设置用于调试的 flag
+        _PPDTask__WEBPACK_IMPORTED_MODULE_32__.ppdTask.register(1, 'Only crawl IdList', () => {
+            this.onlyCrawlIdList = !this.onlyCrawlIdList;
+            if (this.onlyCrawlIdList) {
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning('onlyCrawlIdList: On');
+            }
+            else {
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('onlyCrawlIdList: Off');
+            }
         });
     };
     // 添加抓取区域的默认按钮，可以被子类覆写
@@ -13782,7 +13903,6 @@ class InitPageBase {
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_当前有x个作品', _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length.toString()));
         // 导出 ID 列表，并停止抓取
         if ((_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.exportIDList || _store_States__WEBPACK_IMPORTED_MODULE_9__.states.exportIDList) && _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.isPixiv()) {
-            _store_States__WEBPACK_IMPORTED_MODULE_9__.states.busy = false;
             _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('stopCrawl');
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.exportIDList) {
                 const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_19__.Utils.json2BlobSafe(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList);
@@ -13795,8 +13915,12 @@ class InitPageBase {
             }
             return;
         }
-        // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
-        // return states.busy = false
+        // 如果启用了这个标记，则重置任务状态，不继续抓取作品的详情了
+        if (this.onlyCrawlIdList) {
+            _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning('onlyCrawlIdList: On，停止抓取');
+            _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('stopCrawl');
+            return;
+        }
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始获取作品信息'));
         this.idListLength = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length;
         this.mergedNovelCount = 0;
@@ -13931,6 +14055,8 @@ class InitPageBase {
             if (error?.status) {
                 // 请求成功，但状态码不正常
                 // 不重试
+                const link = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.createWorkLinkByIDData(idData);
+                _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_因为网络错误跳过这个作品', link));
                 this.afterGetWorksData();
             }
             else {
@@ -14210,16 +14336,16 @@ class LogErrorStatus {
             // 如果是，则输出具体的日志
             // https://www.pixiv.net/ajax/illust/86583637
             // https://www.pixiv.net/ajax/novel/24482163
-            const matchIllust = url.match(/ajax\/illust\/(\d+)/);
-            if (matchIllust && matchIllust.length > 1) {
-                this.logErrorWithWorkLink(status, matchIllust[1], 'artwork');
-                specialHandle = true;
-            }
-            const matchNovel = url.match(/ajax\/novel\/(\d+)/);
-            if (matchNovel && matchNovel.length > 1) {
-                this.logErrorWithWorkLink(status, matchNovel[1], 'novel');
-                specialHandle = true;
-            }
+            // const matchIllust = url.match(/ajax\/illust\/(\d+)/)
+            // if (matchIllust && matchIllust.length > 1) {
+            //   this.logErrorWithWorkLink(status, matchIllust[1], 'artwork')
+            //   specialHandle = true
+            // }
+            // const matchNovel = url.match(/ajax\/novel\/(\d+)/)
+            // if (matchNovel && matchNovel.length > 1) {
+            //   this.logErrorWithWorkLink(status, matchNovel[1], 'novel')
+            //   specialHandle = true
+            // }
             // 判断是否是添加收藏的请求
             // https://www.pixiv.net/ajax/novels/bookmarks/add
             // 这里不显示日志，因为在 Bookmark 模块里会单独进行处理
@@ -14246,10 +14372,13 @@ class LogErrorStatus {
                 const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_网络错误状态码为x网址为y', status.toString(), link);
                 _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
             }
-            // 429 错误时，显示额外的提示
+            // 对一些错误显示特定的提示
             if (status === 429) {
                 _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器会等待几分钟然后重试'));
                 this.tipSlowCrawl();
+            }
+            if (status === 502) {
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_对于某种错误下载器会重试一定次数', '502'), 'tip502ErrorWhillRetry');
             }
             this.listenerList.forEach((cb) => {
                 cb(status, url);
@@ -14269,6 +14398,7 @@ class LogErrorStatus {
     listen(cb) {
         this.listenerList.push(cb);
     }
+    /** 输出带有作品链接的错误日志。但作品链接并不是实际请求的 API 网址，所以现在没有使用 */
     logErrorWithWorkLink(status, id, type = 'artwork') {
         const workLink = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.createWorkLink(id, '', type);
         switch (status) {
@@ -20690,10 +20820,6 @@ class AutoMergeNovel {
         this.workingId = await this.next();
         const seriesTitleLog = this.idTitleMap[this.workingId];
         const novelTotal = await new _MergeNovel__WEBPACK_IMPORTED_MODULE_6__.MergeNovel().merge(this.workingId, seriesTitleLog, true);
-        // 调试用：跳过合并过程，节省时间
-        // log.log(`skip merge ${this.workingId} ${seriesTitleLog}`)
-        // await Utils.sleep(1000)
-        // const novelTotal = 0
         if (this.stop) {
             // console.log('auto merge stopped')
             return;
@@ -23605,6 +23731,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MergeNovelFileName__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./MergeNovelFileName */ "./src/ts/download/MergeNovelFileName.ts");
 /* harmony import */ var _SendDownload__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./SendDownload */ "./src/ts/download/SendDownload.ts");
 /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+
 
 
 
@@ -23645,8 +23773,6 @@ class MergeNovel {
     CRLF = '\n'; // 小说的换行符
     CRLF2 = '\n\n';
     br2 = '<br/><br/>';
-    /** 调试用，如果为 true，则只抓取每个系列小说里的第一篇小说，并且会跳过获取设定资料的流程，以节省测试时间 */
-    quickTestMode = false;
     // 由于每个系列里都可能含有多个小说和图片，所以下载器可能会发送很多请求。为了避免触发 Pixiv 的警告，下载器在合并时总是会添加间隔时间，以降低发送请求的频率。
     /** 抓取时的间隔时间，最低为 2400 ms。这不会触发 429 错误 */
     // 我尝试过更低的延迟时间，例如 2000, 没有触发 429 错误，但依然被警告了，所以增加到 2400
@@ -23713,7 +23839,7 @@ class MergeNovel {
         }
         await this.getAllNovelData();
         // 获取这个系列的设定资料
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta && !this.quickTestMode) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta && !_store_States__WEBPACK_IMPORTED_MODULE_19__.states.quickMergeNovel) {
             _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取设定资料'), 'getNovelGlossary' + seriesId);
             const data = await _crawlNovelPage_GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_11__.getNovelGlossarys.getGlossarys(this.seriesId, this.crawlInterval);
             this.seriesGlossary = _crawlNovelPage_GetNovelGlossarys__WEBPACK_IMPORTED_MODULE_11__.getNovelGlossarys.storeGlossaryText(data);
@@ -24074,12 +24200,7 @@ class MergeNovel {
     async getAllNovelData() {
         const total = this.novelIdList.length;
         let count = 0;
-        let idList = this.novelIdList;
-        if (this.quickTestMode) {
-            _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning('quickTestMode: On');
-            idList = [this.novelIdList[0]];
-        }
-        for (const id of idList) {
+        for (const id of this.novelIdList) {
             // 自动合并系列小说时，可能会连续不断的合并多个系列，这些系列可能包含非常多的小说，所以需要添加等待时间，以减小出现 429 错误的概率
             // 另外获取设定资料时也有可能需要发送多个请求，但并不总是需要多次请求，所以获取设定资料时没有添加等待时间
             count++;
@@ -24144,6 +24265,11 @@ class MergeNovel {
                 const order_title = `#${order} ${title}`;
                 const link = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.createWorkLink(novelId, order_title, 'novel');
                 _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_排除小说') + ': ' + link);
+            }
+            // 如果处于快速合并模式，则跳过剩余小说
+            if (_store_States__WEBPACK_IMPORTED_MODULE_19__.states.quickMergeNovel) {
+                _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning('quickMergeNovel: On，跳过剩余小说');
+                break;
             }
         }
         // 获取了所有小说的数据
@@ -24381,10 +24507,6 @@ class MergeNovelFileName {
                 safe: false,
             },
         };
-        // 输出调试信息
-        // Object.entries(cfg).forEach(([key, val]) => {
-        //   console.log(key, val.value)
-        // })
         // 有些标记可能是空字符串，移除它们
         const mayEmptyList = [
             '{part}',
@@ -27630,7 +27752,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   workPublishTime: () => (/* binding */ workPublishTime)
 /* harmony export */ });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/SecretSignal */ "./src/ts/utils/SecretSignal.ts");
+/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../PPDTask */ "./src/ts/PPDTask.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _store_WorkPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/WorkPublishTimeIllusts */ "./src/ts/store/WorkPublishTimeIllusts.ts");
 /* harmony import */ var _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/WorkPublishTimeNovels */ "./src/ts/store/WorkPublishTimeNovels.ts");
@@ -27647,7 +27769,7 @@ class WorkPublishTime {
     constructor() {
         this.illustsLength = _store_WorkPublishTimeIllusts__WEBPACK_IMPORTED_MODULE_3__.illustsData.length;
         this.novelsLength = _store_WorkPublishTimeNovels__WEBPACK_IMPORTED_MODULE_4__.novelsData.length;
-        _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__.secretSignal.register('ppdtask1', async () => {
+        _PPDTask__WEBPACK_IMPORTED_MODULE_1__.ppdTask.register(11, 'Crawl work publish time data', async () => {
             await this.crawlData('illusts');
             await this.crawlData('novels');
         });
@@ -36109,6 +36231,30 @@ Ugoira 파일명에서 순번 “p0”을 생략하려면 “더보기”-“명
 <strong>😊Добавлены подсказки</strong><br><br>
 <strong>😊Оптимизирован пользовательский опыт при объединении серий романов</strong>`,
     ],
+    _对于某种错误下载器会重试一定次数: [
+        `对于 {} 错误，下载器会重试一定次数`,
+        `對於 {} 錯誤，下載器會重試一定次數`,
+        `For {} error, the downloader will retry a certain number of times`,
+        `{} エラーの場合、ダウンロードツールは一定回数再試行します`,
+        `{} 오류의 경우, 다운로더는 일정 횟수 재시도합니다`,
+        `Для ошибки {} загрузчик выполнит повторные попытки определённое количество раз`,
+    ],
+    _跳过这个作品: [
+        `跳过这个作品`,
+        `跳過這個作品`,
+        `Skip this work`,
+        `この作品をスキップ`,
+        `이 작품 건너뛰기`,
+        `Пропустить эту работу`,
+    ],
+    _因为网络错误跳过这个作品: [
+        `因为网络错误跳过这个作品: {}`,
+        `因為網路錯誤跳過這個作品: {}`,
+        `Skipped this work due to network error: {}`,
+        `ネットワークエラーのためこの作品をスキップしました: {}`,
+        `네트워크 오류로 인해 이 작품을 건너뛰었습니다: {}`,
+        `Пропущена эта работа из-за сетевой ошибки: {}`,
+    ],
 };
 
 
@@ -41939,6 +42085,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../PPDTask */ "./src/ts/PPDTask.ts");
 // settings 保存了下载器的所有设置项
 // 获取设置项的值：
 // settings[name]
@@ -41979,6 +42126,7 @@ __webpack_require__.r(__webpack_exports__);
 // 如果打开了多个标签页，每个页面的 settings 数据是相互独立的，在一个页面里修改设置不会影响另一个页面里的设置。
 // 但是持久化保存的数据只有一份：最后一次的设置变化是在哪个页面发生的，就保存哪个页面的 settings 数据。
 // 所以当页面刷新时，或者打开新的页面时，会加载设置最后一次发生变化的页面里的 settings 数据
+
 
 
 
@@ -42537,6 +42685,15 @@ class Settings {
                 }
             });
         }
+        _PPDTask__WEBPACK_IMPORTED_MODULE_10__.ppdTask.register(12, 'Export browser.storage.local data', () => {
+            webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().storage.local.get().then((result) => {
+                if (result) {
+                    const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.json2Blob(result);
+                    const url = URL.createObjectURL(blob);
+                    _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.downloadFile(url, _Config__WEBPACK_IMPORTED_MODULE_5__.Config.appName + ` browser.storage.local.json`);
+                }
+            });
+        });
     }
     // 读取恢复设置
     restore() {
@@ -43702,6 +43859,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   states: () => (/* binding */ states)
 /* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../PPDTask */ "./src/ts/PPDTask.ts");
+
 
 // 储存下载器内部产生的、会变化的状态
 // 这里的状态不需要持久化保存
@@ -43749,6 +43908,8 @@ class States {
     // 因为这两个变量的值不应该随页面切换而改变，所以放在这里而非 initPageBase 里
     crawlCompleteTime = 1;
     downloadCompleteTime = 0;
+    /**是否在快速合并小说模式下。如果为 true，则只抓取每个系列小说里的第一篇小说，并且会跳过获取设定资料的流程，以节省时间 */
+    quickMergeNovel = false;
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, () => {
             this.settingInitialized = true;
@@ -43815,6 +43976,9 @@ class States {
             if (data.name === 'slowCrawl' && data.value === false) {
                 this.slowCrawlMode = false;
             }
+        });
+        _PPDTask__WEBPACK_IMPORTED_MODULE_1__.ppdTask.register(2, 'Quick merge novel series', async () => {
+            this.quickMergeNovel = true;
         });
     }
 }

@@ -33,6 +33,7 @@ import { crawlLatestFewWorks } from './CrawlLatestFewWorks'
 import { autoMergeNovel } from '../download/AutoMergeNovel'
 import { showOneTimeMsg } from '../ShowOneTimeMsg'
 import { MergeNovel } from '../download/MergeNovel'
+import { ppdTask } from '../PPDTask'
 
 abstract class InitPageBase {
   /**要抓取的个数/页数 */
@@ -57,6 +58,9 @@ abstract class InitPageBase {
   protected idListLength = 0
   /** 抓取过程中，保存合并系列小说的数量。当抓取完成后，如果这个数量等于 idListLength，则说明所有作品都被合并为系列小说 */
   protected mergedNovelCount = 0
+  /** 调试用，如果为 true，则在 getIdListFinished 之后就停止抓取，便于重复测试抓取 idList 的流程 */
+  // 切换到不同页面类型后，会恢复成默认值 false
+  protected onlyCrawlIdList = false
 
   // 该类的实现必须调用 init 方法，并且不可以修改 init 方法
   protected readonly init = () => {
@@ -111,6 +115,16 @@ abstract class InitPageBase {
       // 也就是说即使页面类型变化并且生成了新的实例，调用旧实例上的这个方法也依然会正常运行
       // 如果某个方法做不到这一点, 就不要在这里调用。
       // 基于此，在这里修改 this 上的属性是不合适的，因为每个新实例都会复制这个虚拟类上的属性，它们是独立的
+    })
+
+    // 设置用于调试的 flag
+    ppdTask.register(1, 'Only crawl IdList', () => {
+      this.onlyCrawlIdList = !this.onlyCrawlIdList
+      if (this.onlyCrawlIdList) {
+        log.warning('onlyCrawlIdList: On')
+      } else {
+        log.success('onlyCrawlIdList: Off')
+      }
     })
   }
 
@@ -328,7 +342,7 @@ abstract class InitPageBase {
   }
 
   // id 列表获取完毕，开始抓取作品内容页
-  protected async getIdListFinished() {
+  protected async getIdListFinished(): Promise<void> {
     log.persistentRefresh(this.getIdListLogKey)
     states.slowCrawlMode = false
     this.resetGetIdListStatus()
@@ -375,7 +389,6 @@ abstract class InitPageBase {
 
     // 导出 ID 列表，并停止抓取
     if ((settings.exportIDList || states.exportIDList) && Utils.isPixiv()) {
-      states.busy = false
       EVT.fire('stopCrawl')
 
       if (settings.exportIDList) {
@@ -399,8 +412,12 @@ abstract class InitPageBase {
       return
     }
 
-    // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
-    // return states.busy = false
+    // 如果启用了这个标记，则重置任务状态，不继续抓取作品的详情了
+    if (this.onlyCrawlIdList) {
+      log.warning('onlyCrawlIdList: On，停止抓取')
+      EVT.fire('stopCrawl')
+      return
+    }
 
     log.log(lang.transl('_开始获取作品信息'))
 
@@ -547,6 +564,8 @@ abstract class InitPageBase {
       if (error?.status) {
         // 请求成功，但状态码不正常
         // 不重试
+        const link = Tools.createWorkLinkByIDData(idData)
+        log.error(lang.transl('_因为网络错误跳过这个作品', link))
         this.afterGetWorksData()
       } else {
         // 请求失败，一般是

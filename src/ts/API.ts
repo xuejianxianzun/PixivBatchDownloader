@@ -41,6 +41,7 @@ import { IDData } from './store/StoreType'
 import { Config } from './Config'
 import { EVT } from './EVT'
 import { Utils } from './utils/Utils'
+import { ppdTask } from './PPDTask'
 
 /** 点击 like 按钮时返回的数据 */
 interface LikeResponse {
@@ -52,6 +53,18 @@ interface LikeResponse {
         is_liked: boolean
       }
 }
+
+let mockHttpStatus = null as null | number
+
+ppdTask.register(200, 'mock http status unset', () => {
+  mockHttpStatus = null
+})
+ppdTask.register(429, 'mock http status 429', () => {
+  mockHttpStatus = 429
+})
+ppdTask.register(502, 'mock http status 502', () => {
+  mockHttpStatus = 502
+})
 
 class API {
   /** API 里的所有请求都从这里转发，以简化代码，并方便统一处理错误。
@@ -74,35 +87,44 @@ class API {
         try {
           const response = await fetch(url, init)
           // response.ok 的状态码范围是 200-299
-          if (response.ok) {
+          if (response.ok && !mockHttpStatus) {
             // 请求成功，直接返回数据
             const data = await response[format]()
             return resolve(data)
           } else {
             // 请求成功但状态码异常
+            // 或者启用了 mockHttpStatus 模拟错误
+            let status = response.status
+            if (mockHttpStatus) {
+              status = mockHttpStatus
+              console.log(`Mocked http status ${status}`)
+            }
+
+            // 每次状态码异常（不管是否会重试）都会传递错误信息，显示在日志上
             EVT.fire('requestStatusError', {
-              status: response.status,
-              url: url,
+              status,
+              url,
             })
+
             // 对于 429 状态码，无限次重试，直到成功或者出现其他错误
             // 在其他模块里调用 API 时，不需要自行处理 429 错误
             // 以前隔 200 秒重试经常可以成功，但现在时间似乎有所增加，而且不同的账号也不一样。
             // 有些账号需要重试 2、3 次，但有些账号（近期抓取和下载了大量文件）可能要重试 6 次（即等待 20 分钟）才能成功
-            if (response.status === 429) {
+            if (status === 429) {
               // 等待一段时间后，通过尾递归重试请求
               // console.log(`429 tryCount ${tryCount}`)
               await Utils.sleep(Config.retryTime)
               return await attemptRequest(tryCount + 1)
-            } else if (response.status === 502 && tryCount < 3) {
-              // 502 错误重试最多 3 次
+            } else if (status === 502 && tryCount < 3) {
               // 现在偶尔会遇到 502 错误，通常可以很快重试成功，所以等待 10 秒后重试
+              // 最多重试 3 次，所以同一个 URL 最多会发送 4 次请求
               console.log(`502 tryCount ${tryCount}`)
               await Utils.sleep(10000)
               return await attemptRequest(tryCount + 1)
             } else {
               // 对于其他状态码，以及重试超出最大次数的，不再重试，而是通过 reject 抛出错误
               return reject({
-                status: response.status,
+                status: status,
                 statusText: response.statusText,
               })
             }

@@ -56,6 +56,7 @@ import { secretSignal } from '../utils/SecretSignal'
 import { toast } from '../Toast'
 import { lang } from '../Language'
 import { PageName } from '../PageType'
+import { ppdTask } from '../PPDTask'
 
 export interface BlockTagsForSpecificUserItem {
   uid: number
@@ -96,7 +97,7 @@ type CrawlNumberConfig = {
 
 type PageEntry = [PageName, any]
 
-// 注意：设置里不能使用 Map，因为把设置保存在 chrome.storage 里时会序列化
+// 注意：设置里不能使用 Map，因为把设置保存在 storage 里时会序列化
 // 如果使用 Map，会被转换为 `Object {}`，导致错误
 interface XzSetting {
   crawlNumber: { [key in PageName]: CrawlNumberConfig }
@@ -909,6 +910,19 @@ class Settings {
         }
       })
     }
+
+    ppdTask.register(12, 'Export browser.storage.local data', () => {
+      browser.storage.local.get().then((result) => {
+        if (result) {
+          const blob = Utils.json2Blob(result)
+          const url = URL.createObjectURL(blob)
+          Utils.downloadFile(
+            url,
+            Config.appName + ` browser.storage.local.json`
+          )
+        }
+      })
+    })
   }
 
   // 读取恢复设置
