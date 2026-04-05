@@ -109,7 +109,7 @@ class SelectWork {
     this.selectAllBtn.id = 'selectAllBtn'
     this.selectAllBtn.setAttribute('title', '全选')
     this.selectAllBtn.innerHTML = `<svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-quanxuan"></use>
+  <use xlink:href="#icon-selectAll"></use>
 </svg>`
     document.body.insertAdjacentElement('afterbegin', this.selectAllBtn)
 
@@ -119,7 +119,7 @@ class SelectWork {
     this.exitSelectBtn.id = 'exitSelectBtn'
     this.exitSelectBtn.setAttribute('title', '退出全选')
     this.exitSelectBtn.innerHTML = `<svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-quxiao"></use>
+  <use xlink:href="#icon-cancel_selectAll"></use>
 </svg>`
     document.body.insertAdjacentElement('afterbegin', this.exitSelectBtn)
   }

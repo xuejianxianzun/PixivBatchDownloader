@@ -57,7 +57,7 @@ class CenterPanel {
       <div class="btns">
       <a class="has_tip centerWrap_top_btn update" data-xztip="_newver" data-xztitle="_newver" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
         <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-gengxin"></use>
+          <use xlink:href="#icon-refresh"></use>
         </svg>
       </a>
       <a class="has_tip centerWrap_top_btn github_icon" data-xztip="_github" data-xztitle="_github" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
@@ -70,14 +70,12 @@ class CenterPanel {
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
-        <button class="textButton ${
-          !Config.mobile && 'has_tip'
-        } centerWrap_top_btn centerWrap_close" ${
-          !Config.mobile &&
-          'data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板"'
-        }>
+        <button class="textButton ${!Config.mobile && 'has_tip'
+      } centerWrap_top_btn centerWrap_close" ${!Config.mobile &&
+      'data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板"'
+      }>
         <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-guanbi"></use>
+          <use xlink:href="#icon-shutdown"></use>
         </svg>
         </button>
       </div>

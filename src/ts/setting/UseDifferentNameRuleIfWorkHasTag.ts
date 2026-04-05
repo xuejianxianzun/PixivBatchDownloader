@@ -74,14 +74,14 @@ class UseDifferentNameRuleIfWorkHasTag {
         <div class="btns">
           <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-wanchengqueding"></use>
+              <use xlink:href="#icon-yes_submit"></use>
             </svg>
           </button>
 
           
           <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-guanbiquxiao"></use>
+              <use xlink:href="#icon-close"></use>
             </svg>
           </button>
         </div>
@@ -186,13 +186,13 @@ class UseDifferentNameRuleIfWorkHasTag {
       <div class="btns">
         <button type="button" class="textButton refresh" data-updateRule="${id}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-gengxin"></use>
+            <use xlink:href="#icon-refresh"></use>
           </svg>
         </button>
 
         <button type="button" class="textButton delete" data-deleteRule="${id}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-shanchu1"></use>
+            <use xlink:href="#icon-delete"></use>
           </svg>
         </button>
     </div>`
@@ -211,14 +211,14 @@ class UseDifferentNameRuleIfWorkHasTag {
       `input[data-ruleInput='${id}']`
     )! as HTMLInputElement
 
-    // 当输入框发生变化时，进行更新
-    ;[tagsInput, ruleInput].forEach((el) => {
-      el?.addEventListener('change', () => {
-        if (el.value) {
-          this.updateRule(id, tagsInput.value, ruleInput.value, false)
-        }
+      // 当输入框发生变化时，进行更新
+      ;[tagsInput, ruleInput].forEach((el) => {
+        el?.addEventListener('change', () => {
+          if (el.value) {
+            this.updateRule(id, tagsInput.value, ruleInput.value, false)
+          }
+        })
       })
-    })
 
     // 更新规则
     updateRule?.addEventListener('click', () => {
