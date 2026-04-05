@@ -75,14 +75,14 @@ class DoNotDownloadLastFewImages {
         <div class="btns">
           <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-wanchengqueding"></use>
+              <use xlink:href="#icon-yes_submit"></use>
             </svg>
           </button>
 
           
           <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-guanbiquxiao"></use>
+              <use xlink:href="#icon-close_cancel"></use>
             </svg>
           </button>
         </div>
@@ -187,13 +187,13 @@ class DoNotDownloadLastFewImages {
       <div class="btns">
         <button type="button" class="textButton refresh" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-gengxin"></use>
+            <use xlink:href="#icon-refresh"></use>
           </svg>
         </button>
 
         <button type="button" class="textButton delete" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-shanchu1"></use>
+            <use xlink:href="#icon-delete"></use>
           </svg>
         </button>
     </div>`

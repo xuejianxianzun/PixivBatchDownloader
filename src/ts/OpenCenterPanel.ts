@@ -17,7 +17,7 @@ class OpenCenterPanel {
     this.btn.id = 'openCenterPanelBtn'
     this.btn.setAttribute('data-xztitle', '_显示控制面板')
     this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-dakai"></use>
+  <use xlink:href="#icon-open"></use>
 </svg>`
     document.body.append(this.btn)
     lang.register(this.btn)

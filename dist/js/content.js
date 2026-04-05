@@ -2346,7 +2346,7 @@ class CenterPanel {
       <div class="btns">
       <a class="has_tip centerWrap_top_btn update" data-xztip="_newver" data-xztitle="_newver" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
         <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-gengxin"></use>
+          <use xlink:href="#icon-refresh"></use>
         </svg>
       </a>
       <a class="has_tip centerWrap_top_btn github_icon" data-xztip="_github" data-xztitle="_github" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
@@ -2362,7 +2362,7 @@ class CenterPanel {
         <button class="textButton ${!_Config__WEBPACK_IMPORTED_MODULE_5__.Config.mobile && 'has_tip'} centerWrap_top_btn centerWrap_close" ${!_Config__WEBPACK_IMPORTED_MODULE_5__.Config.mobile &&
             'data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板"'}>
         <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-guanbi"></use>
+          <use xlink:href="#icon-shutdown"></use>
         </svg>
         </button>
       </div>
@@ -6800,7 +6800,7 @@ class OpenCenterPanel {
         this.btn.id = 'openCenterPanelBtn';
         this.btn.setAttribute('data-xztitle', '_显示控制面板');
         this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-dakai"></use>
+  <use xlink:href="#icon-open"></use>
 </svg>`;
         document.body.append(this.btn);
         _Language__WEBPACK_IMPORTED_MODULE_1__.lang.register(this.btn);
@@ -9673,14 +9673,14 @@ class SetUserName {
         <div class="btns">
           <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-wanchengqueding"></use>
+              <use xlink:href="#icon-yes_submit"></use>
             </svg>
           </button>
 
           
           <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-guanbiquxiao"></use>
+              <use xlink:href="#icon-close_cancel"></use>
             </svg>
           </button>
         </div>
@@ -9760,13 +9760,13 @@ class SetUserName {
       <div class="btns">
         <button type="button" class="textButton refresh" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-gengxin"></use>
+            <use xlink:href="#icon-refresh"></use>
           </svg>
         </button>
 
         <button type="button" class="textButton delete" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-shanchu1"></use>
+            <use xlink:href="#icon-delete"></use>
           </svg>
         </button>
     </div>`;
@@ -26300,14 +26300,14 @@ class BlockTagsForSpecificUser {
         <div class="btns">
           <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-wanchengqueding"></use>
+              <use xlink:href="#icon-yes_submit"></use>
             </svg>
           </button>
 
           
           <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-guanbiquxiao"></use>
+              <use xlink:href="#icon-close_cancel"></use>
             </svg>
           </button>
         </div>
@@ -26404,13 +26404,13 @@ class BlockTagsForSpecificUser {
 
         <button type="button" class="textButton refresh" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-gengxin"></use>
+            <use xlink:href="#icon-refresh"></use>
           </svg>
         </button>
 
         <button type="button" class="textButton delete" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-shanchu1"></use>
+            <use xlink:href="#icon-delete"></use>
           </svg>
         </button>
       </div>
@@ -39044,14 +39044,14 @@ class DoNotDownloadLastFewImages {
         <div class="btns">
           <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-wanchengqueding"></use>
+              <use xlink:href="#icon-yes_submit"></use>
             </svg>
           </button>
 
           
           <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-guanbiquxiao"></use>
+              <use xlink:href="#icon-close_cancel"></use>
             </svg>
           </button>
         </div>
@@ -39136,13 +39136,13 @@ class DoNotDownloadLastFewImages {
       <div class="btns">
         <button type="button" class="textButton refresh" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-gengxin"></use>
+            <use xlink:href="#icon-refresh"></use>
           </svg>
         </button>
 
         <button type="button" class="textButton delete" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-shanchu1"></use>
+            <use xlink:href="#icon-delete"></use>
           </svg>
         </button>
     </div>`;
@@ -43048,14 +43048,14 @@ class UseDifferentNameRuleIfWorkHasTag {
         <div class="btns">
           <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-wanchengqueding"></use>
+              <use xlink:href="#icon-yes_submit"></use>
             </svg>
           </button>
 
           
           <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-guanbiquxiao"></use>
+              <use xlink:href="#icon-close_cancel"></use>
             </svg>
           </button>
         </div>
@@ -43140,13 +43140,13 @@ class UseDifferentNameRuleIfWorkHasTag {
       <div class="btns">
         <button type="button" class="textButton refresh" data-updateRule="${id}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-gengxin"></use>
+            <use xlink:href="#icon-refresh"></use>
           </svg>
         </button>
 
         <button type="button" class="textButton delete" data-deleteRule="${id}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-shanchu1"></use>
+            <use xlink:href="#icon-delete"></use>
           </svg>
         </button>
     </div>`;
