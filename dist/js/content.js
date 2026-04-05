@@ -2395,11 +2395,11 @@ class CenterPanel {
       <slot data-name="form"></slot>
 
       <div class="help_bar gray1"> 
-      <button class="textButton gray1" id="showDownTip" type="button" data-xztext="_常见问题"></button>
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank" data-xztext="_wiki"></a>
-      <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
+      <button class="textButton gray1" id="showFAQ" type="button" data-xztext="_常见问题"></button>
+      <button class="textButton gray1" id="showGetHelp" type="button" data-xztext="_获取帮助"></button>
       <button class="textButton gray1" id="xzFanboxDownloader" type="button" data-xztext="_fanboxDownloader"></button>
-      <button class="textButton gray1" id="showPatronTip" type="button" data-xztext="_赞助我"></button>
+      <button class="textButton gray1" id="showSponsorship" type="button" data-xztext="_赞助我"></button>
       <br>
       </div>
 
@@ -2475,7 +2475,7 @@ class CenterPanel {
         });
         // 显示常见问题
         this.centerPanel
-            .querySelector('#showDownTip')
+            .querySelector('#showFAQ')
             .addEventListener('click', () => {
             let msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_常见问题说明') + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_账户可能被封禁的警告');
             if (_Config__WEBPACK_IMPORTED_MODULE_5__.Config.mobile) {
@@ -2486,7 +2486,12 @@ class CenterPanel {
             });
         });
         this.centerPanel
-            .querySelector('#showPatronTip')
+            .querySelector('#showGetHelp')
+            .addEventListener('click', () => _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_获取帮助的提示'), {
+            title: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_获取帮助'),
+        }));
+        this.centerPanel
+            .querySelector('#showSponsorship')
             .addEventListener('click', () => _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_赞助方式提示'), {
             title: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_赞助我'),
         }));
@@ -2496,8 +2501,7 @@ class CenterPanel {
             title: 'Pixiv Fanbox Downloader',
         }));
         this.centerPanel.addEventListener('click', (e) => {
-            const ev = e || window.event;
-            ev.stopPropagation();
+            e.stopPropagation();
         });
         document.addEventListener('click', () => {
             if (getComputedStyle(this.centerPanel)['display'] !== 'none') {
@@ -6804,8 +6808,7 @@ class OpenCenterPanel {
     bindEvents() {
         // 这里阻止事件冒泡是为了配合 CenterPanel 的“点击页面其他部分隐藏 CenterPanel”的效果
         this.btn.addEventListener('click', (e) => {
-            const ev = e || window.event;
-            ev.stopPropagation();
+            e.stopPropagation();
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('openCenterPanel');
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.centerPanelClosed, () => {
@@ -11048,13 +11051,12 @@ class Tip {
         const tips = document.querySelectorAll('.has_tip');
         for (const el of tips) {
             for (const ev of ['mouseenter', 'mouseleave']) {
-                el.addEventListener(ev, (event) => {
-                    const e = (event || window.event);
+                el.addEventListener(ev, (e) => {
                     const text = el.dataset.tip;
                     this.showTip(text, {
                         type: ev === 'mouseenter' ? 1 : 0,
-                        x: e.clientX,
-                        y: e.clientY,
+                        x: e.clientX || 0,
+                        y: e.clientY || 0,
                     });
                 });
             }
@@ -29477,10 +29479,51 @@ Zip 파일이 원본 파일입니다.`,
     _常见问题: [
         '常见问题',
         '常見問題',
-        'Help',
+        'FAQ',
         'よくある質問',
         '도움말',
         'помощь',
+    ],
+    _获取帮助: [
+        `获取帮助`,
+        `獲取幫助`,
+        `Get Help`,
+        `ヘルプを表示`,
+        `도움 받기`,
+        `Получить помощь`,
+    ],
+    _获取帮助的提示: [
+        `你可以通过以下方式来交流、求助和反馈问题：<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+- 中文用户可以加下载器的 QQ 群：674991373<br>
+<br>
+提示：请不要在 Chrome Web Store 的评价里反馈问题，因为有些评价会被 Google 过滤掉，所以我可能无法回复你。`,
+        `你可以通过以下方式來交流、求助和反饋問題：<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+<br>
+提示：請不要在 Chrome Web Store 的評價裡反饋問題，因為有些評價會被 Google 過濾掉，所以我可能無法回覆你。`,
+        `You can communicate, ask for help, and report issues through the following ways:<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+<br>
+Tip: Please do not report issues in the Chrome Web Store reviews, as some reviews may be filtered by Google, so I may not be able to reply to you.`,
+        `以下の方法で交流、質問、問題の報告ができます：<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+<br>
+ヒント：Chrome Web Store のレビューで問題を報告しないでください。一部のレビューは Google によってフィルタリングされるため、返信できない場合があります。`,
+        `다음 방법으로 소통, 도움 요청, 문제 피드백을 할 수 있습니다:<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+<br>
+팁: Chrome Web Store 리뷰에 문제를 보고하지 마세요. 일부 리뷰는 Google에 의해 필터링될 수 있어 답변을 드리지 못할 수 있습니다.`,
+        `Вы можете общаться, обращаться за помощью и сообщать о проблемах следующими способами:<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+<br>
+Подсказка: Пожалуйста, не сообщайте о проблемах в отзывах Chrome Web Store, поскольку некоторые отзывы могут быть отфильтрованы Google, и я могу не смочь вам ответить.`,
     ],
     _uuid: [
         `下载器检测到下载后的文件名可能异常。如果文件名是一串随机的字母和数字，或者没有使用下载器设置里的命名规则，就表示发生了此问题。<br>
@@ -29618,10 +29661,6 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     你也可以查看我写的使用体验：<a href="https://saber.love/?p=12736" title="魔法喵使用体验" target="_blank">魔法喵使用体验</a>
     <br>
     我的邀请码：GYjQWDob
-    <br><br>
-    下载器的 QQ 群：674991373
-    <br>
-    如果你有一些问题想要问我，可以加群后直接私聊我。发在群里有时我不能及时看到。
     <br><br>`,
         `下載的文件保存在瀏覽器的下載目錄裡。如果您想保存到其他位置，需要修改瀏覽器的下載目錄。
     <br><br>
@@ -36304,8 +36343,7 @@ class OutputPanel {
             this.close();
         });
         this.outputPanel.addEventListener('click', (e) => {
-            const ev = e || window.event;
-            ev.stopPropagation();
+            e.stopPropagation();
         });
         document.addEventListener('click', () => {
             if (this.outputPanel.style.display !== 'none') {

@@ -26,8 +26,7 @@ class OpenCenterPanel {
   private bindEvents() {
     // 这里阻止事件冒泡是为了配合 CenterPanel 的“点击页面其他部分隐藏 CenterPanel”的效果
     this.btn.addEventListener('click', (e) => {
-      const ev = e || window.event
-      ev.stopPropagation()
+      e.stopPropagation()
       EVT.fire('openCenterPanel')
     })
 

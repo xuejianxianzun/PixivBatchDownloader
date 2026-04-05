@@ -110,11 +110,11 @@ class CenterPanel {
       <slot data-name="form"></slot>
 
       <div class="help_bar gray1"> 
-      <button class="textButton gray1" id="showDownTip" type="button" data-xztext="_常见问题"></button>
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank" data-xztext="_wiki"></a>
-      <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
+      <button class="textButton gray1" id="showFAQ" type="button" data-xztext="_常见问题"></button>
+      <button class="textButton gray1" id="showGetHelp" type="button" data-xztext="_获取帮助"></button>
       <button class="textButton gray1" id="xzFanboxDownloader" type="button" data-xztext="_fanboxDownloader"></button>
-      <button class="textButton gray1" id="showPatronTip" type="button" data-xztext="_赞助我"></button>
+      <button class="textButton gray1" id="showSponsorship" type="button" data-xztext="_赞助我"></button>
       <br>
       </div>
 
@@ -220,7 +220,7 @@ class CenterPanel {
 
     // 显示常见问题
     this.centerPanel
-      .querySelector('#showDownTip')!
+      .querySelector('#showFAQ')!
       .addEventListener('click', () => {
         let msg =
           lang.transl('_常见问题说明') + lang.transl('_账户可能被封禁的警告')
@@ -233,7 +233,15 @@ class CenterPanel {
       })
 
     this.centerPanel
-      .querySelector('#showPatronTip')!
+      .querySelector('#showGetHelp')!
+      .addEventListener('click', () =>
+        msgBox.show(lang.transl('_获取帮助的提示'), {
+          title: lang.transl('_获取帮助'),
+        })
+      )
+
+    this.centerPanel
+      .querySelector('#showSponsorship')!
       .addEventListener('click', () =>
         msgBox.show(lang.transl('_赞助方式提示'), {
           title: lang.transl('_赞助我'),
@@ -249,8 +257,7 @@ class CenterPanel {
       )
 
     this.centerPanel.addEventListener('click', (e) => {
-      const ev = e || window.event
-      ev.stopPropagation()
+      e.stopPropagation()
     })
 
     document.addEventListener('click', () => {
@@ -334,18 +341,18 @@ class CenterPanel {
   }
 
   // 显示中间区域
-  public show() {
+  private show() {
     this.centerPanel.style.display = 'block'
     EVT.fire('centerPanelOpened')
   }
 
   // 隐藏中间区域
-  public close() {
+  private close() {
     this.centerPanel.style.display = 'none'
     EVT.fire('centerPanelClosed')
   }
 
-  public toggle() {
+  private toggle() {
     const nowDisplay = this.centerPanel.style.display
     nowDisplay === 'block' ? this.close() : this.show()
     if (nowDisplay === 'block') {

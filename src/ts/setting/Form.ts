@@ -7,12 +7,12 @@ import { SaveNamingRule } from './SaveNamingRule'
 import { theme } from '../Theme'
 import { FormSettings } from './FormSettings'
 import { Utils } from '../utils/Utils'
-import { settings, setSetting, SettingKeys } from '../setting/Settings'
+import { setSetting, SettingKeys } from '../setting/Settings'
 import { options } from '../setting/Options'
 import { msgBox } from '../MsgBox'
 import { DateFormat } from '../utils/DateFormat'
 import { toast } from '../Toast'
-import { langText, LangTextKey } from '../langText'
+import { LangTextKey } from '../langText'
 
 // 设置表单
 class Form {

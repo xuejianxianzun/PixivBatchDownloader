@@ -25,13 +25,12 @@ class Tip {
     ) as NodeListOf<HTMLElement>
     for (const el of tips) {
       for (const ev of ['mouseenter', 'mouseleave']) {
-        el.addEventListener(ev, (event) => {
-          const e = (event || window.event) as MouseEvent
+        el.addEventListener(ev, (e: MouseEventInit) => {
           const text = el.dataset.tip
           this.showTip(text, {
             type: ev === 'mouseenter' ? 1 : 0,
-            x: e.clientX,
-            y: e.clientY,
+            x: e.clientX || 0,
+            y: e.clientY || 0,
           })
         })
       }
