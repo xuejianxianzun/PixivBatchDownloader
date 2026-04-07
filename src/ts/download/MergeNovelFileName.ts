@@ -61,7 +61,9 @@ class MergeNovelFileName {
         safe: true,
       },
       '{char_count}': {
-        value: body.publishedTotalCharacterCount,
+        value: body.useWordCount
+          ? body.publishedTotalWordCount
+          : body.publishedTotalCharacterCount,
         safe: true,
       },
       '{create_date}': {

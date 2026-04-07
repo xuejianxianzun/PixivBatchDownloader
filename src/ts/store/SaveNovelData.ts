@@ -73,6 +73,8 @@ class SaveNovelData {
       // 这个 description 是保存到抓取结果里的，尽量保持原样，所以保留了 html 标签
       const description = Utils.htmlDecode(body.description)
 
+      const charCount = body.useWordCount ? body.wordCount : body.characterCount
+
       // descriptionNoHtmlTag 保存在 novelMeta.description 里
       // 它会在生成的小说里显示，供读者阅读，所以移除了 html 标签，只保留纯文本
       // 处理后，换行标记是 \n 而不是 <br/>
@@ -121,8 +123,9 @@ class SaveNovelData {
           createDate: body.createDate,
           uploadDate: body.uploadDate,
           userName: body.userName,
-          embeddedImages: embeddedImages,
-          tags: tags,
+          embeddedImages,
+          tags,
+          charCount,
         },
         xRestrict: body.xRestrict,
       })

@@ -128,6 +128,12 @@ class FileName {
             : '',
         safe: true,
       },
+      '{char_count}': {
+        value: !allNameRule.includes('{char_count}')
+          ? null
+          : this.getCharCount(data),
+        safe: true,
+      },
       '{tags}': {
         value: !allNameRule.includes('{tags}')
           ? null
@@ -448,6 +454,19 @@ class FileName {
       // 1000 以上，以 1000 为单位
       const str = bmk.toString()
       return str.slice(0, str.length - 3) + '000+'
+    }
+  }
+
+  /** 获取小说的字数 */
+  private getCharCount(data: Result): string {
+    if (data.type !== 3) {
+      return ''
+    }
+    if (data.novelMeta?.charCount) {
+      return data.novelMeta.charCount.toString()
+    } else {
+      // 早期版本里没有 charCount 这个字段，所以不可用
+      return ''
     }
   }
 

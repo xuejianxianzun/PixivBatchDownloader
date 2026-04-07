@@ -2,6 +2,16 @@
 
 ## next
 
+### ✨新增命名标记 {char_count}
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/586
+
+`{char_count}`：小说的字数或单词数（取决于小说的语言），是数字。当作品不是小说时会被忽略。
+
+--------
+
+细节：每片小说和系列小说的原始数据里都同时保存了 `characterCount`（字数）和 `wordCount`（单词数），由 `useWordCount` 决定使用哪个数字。下载器只会保存使用的那个数字。
+
 ### 😊解决了合并系列小说时，导出日志功能可能不生效的问题
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/601

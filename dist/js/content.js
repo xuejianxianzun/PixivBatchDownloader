@@ -3167,6 +3167,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+// 复制作品的信息，目前只在图像作品上使用，没有对小说使用
 class CopyWorkInfo {
     /**接收作品 ID 数据，可选参数 p 用于指定复制哪一张图片  */
     async receive(idData, p) {
@@ -3970,6 +3971,12 @@ class FileName {
                         : '',
                 safe: true,
             },
+            '{char_count}': {
+                value: !allNameRule.includes('{char_count}')
+                    ? null
+                    : this.getCharCount(data),
+                safe: true,
+            },
             '{tags}': {
                 value: !allNameRule.includes('{tags}')
                     ? null
@@ -4259,6 +4266,19 @@ class FileName {
             // 1000 以上，以 1000 为单位
             const str = bmk.toString();
             return str.slice(0, str.length - 3) + '000+';
+        }
+    }
+    /** 获取小说的字数 */
+    getCharCount(data) {
+        if (data.type !== 3) {
+            return '';
+        }
+        if (data.novelMeta?.charCount) {
+            return data.novelMeta.charCount.toString();
+        }
+        else {
+            // 早期版本里没有 charCount 这个字段，所以不可用
+            return '';
         }
     }
     // 在文件名前面添加一层文件夹
@@ -24479,7 +24499,9 @@ class MergeNovelFileName {
                 safe: true,
             },
             '{char_count}': {
-                value: body.publishedTotalCharacterCount,
+                value: body.useWordCount
+                    ? body.publishedTotalWordCount
+                    : body.publishedTotalCharacterCount,
                 safe: true,
             },
             '{create_date}': {
@@ -29187,6 +29209,14 @@ Zip 파일이 원본 파일입니다.`,
         '幅と高さ。例：<span class="blue">600x900</span>。小説作品にはこの属性がなく、ダウンロードツールはそれを無視します。',
         '너비와 높이. 예: <span class="blue">600x900</span>. 소설 작품에는 이 속성이 없으며, 다운로더는 이를 무시합니다.',
         'Ширина и высота, напр. <span class="blue">600x900</span>. У романов нет этого свойства, и загрузчик игнорирует его.',
+    ],
+    _命名标记char_count: [
+        `小说的字数或单词数（取决于小说的语言），是数字。当作品不是小说时会被忽略。`,
+        `小說的字數或單詞數（取決於小說的語言），是數字。當作品不是小說時會被忽略。`,
+        `The number of characters or words in the novel (depending on the language of the novel), it is a number. It will be ignored when the work is not a novel.`,
+        `小説の文字数または単語数（小説の言語による）、数値です。作品が小説でない場合は無視されます。`,
+        `소설의 글자 수 또는 단어 수 (소설의 언어에 따라), 숫자입니다. 작품이 소설이 아닌 경우 무시됩니다.`,
+        `Количество символов или слов в романе (зависит от языка романа), это число. Игнорируется, если работа не является романом.`,
     ],
     _命名标记bmk: [
         'Bookmark count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
@@ -40063,6 +40093,7 @@ const formHtml = `
         <option value="{upload_date}">{upload_date}</option>
         <option value="{task_date}">{task_date}</option>
         <option value="{px}">{px}</option>
+        <option value="{char_count}">{char_count}</option>
         <option value="{series_title}">{series_title}</option>
         <option value="{series_order}">{series_order}</option>
         <option value="{series_id}">{series_id}</option>
@@ -40151,6 +40182,9 @@ const formHtml = `
       <br>
       * <span class="blue name">{px}</span>
       <span data-xztext="_命名标记px"></span>
+      <br>
+      * <span class="blue name">{char_count}</span>
+      <span data-xztext="_命名标记char_count"></span>
       <br>
       * <span class="blue name">{series_title}</span>
       <span data-xztext="_命名标记seriesTitle"></span>
@@ -43841,6 +43875,7 @@ class SaveNovelData {
             const seriesOrder = body.seriesNavData?.order || null;
             // 这个 description 是保存到抓取结果里的，尽量保持原样，所以保留了 html 标签
             const description = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlDecode(body.description);
+            const charCount = body.useWordCount ? body.wordCount : body.characterCount;
             // descriptionNoHtmlTag 保存在 novelMeta.description 里
             // 它会在生成的小说里显示，供读者阅读，所以移除了 html 标签，只保留纯文本
             // 处理后，换行标记是 \n 而不是 <br/>
@@ -43885,8 +43920,9 @@ class SaveNovelData {
                     createDate: body.createDate,
                     uploadDate: body.uploadDate,
                     userName: body.userName,
-                    embeddedImages: embeddedImages,
-                    tags: tags,
+                    embeddedImages,
+                    tags,
+                    charCount,
                 },
                 xRestrict: body.xRestrict,
             });

@@ -11,6 +11,7 @@ import { toast } from './Toast'
 import { Tools } from './Tools'
 import { DateFormat } from './utils/DateFormat'
 
+// 复制作品的信息，目前只在图像作品上使用，没有对小说使用
 class CopyWorkInfo {
   /**接收作品 ID 数据，可选参数 p 用于指定复制哪一张图片  */
   public async receive(idData: IDData, p?: number) {

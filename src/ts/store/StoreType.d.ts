@@ -126,6 +126,8 @@ export interface NovelMeta {
   createDate: string
   uploadDate: string
   userName: string
+  /** 小说的字数或单词数（取决于小说的语言） */
+  charCount?: number
   /**嵌入的图片 id 以及其原图 URL。例如：
    *
    * "12136542": "https://i.pximg.net/novel-cover-original/img/2022/07/20/00/09/34/tei441171884625_be457733c2b6806cee908f7a39498c9f.png"
