@@ -4,6 +4,11 @@ import { Tools } from '../Tools'
 import { DateFormat } from '../utils/DateFormat'
 import { fileName } from '../FileName'
 
+interface NamingSchema {
+  [key: string]: { value: string; safe: boolean }
+}
+;[]
+
 class MergeNovelFileName {
   /**参数 part 只有在这个系列小说分割成多个文件时才需要传递。如果值为 0 不会生效，大于 0 才会生效 */
   public getName(seriesData: NovelSeriesData, part = 0): string {
@@ -13,7 +18,7 @@ class MergeNovelFileName {
 
     const body = seriesData.body
     // 生成所有命名标记的值
-    const cfg = {
+    const schema: NamingSchema = {
       '{series_title}': {
         value: body.title,
         safe: false,
@@ -57,13 +62,11 @@ class MergeNovelFileName {
         safe: true,
       },
       '{total}': {
-        value: body.displaySeriesContentCount,
+        value: body.displaySeriesContentCount.toString(),
         safe: true,
       },
       '{char_count}': {
-        value: body.useWordCount
-          ? body.publishedTotalWordCount
-          : body.publishedTotalCharacterCount,
+        value: this.getCharCount(body),
         safe: true,
       },
       '{create_date}': {
@@ -109,41 +112,34 @@ class MergeNovelFileName {
       },
     }
 
-    // 有些标记可能是空字符串，移除它们
-    const mayEmptyList: (keyof typeof cfg)[] = [
-      '{part}',
-      '{page_tag}',
-      '{AI}',
-      '{age_r}',
-      '{tags}',
-    ]
-    mayEmptyList.forEach((tag) => {
-      if (cfg[tag].value === '') {
-        rule = fileName.removeEmptyTag(rule, tag)
-      }
-    })
-
     // 如果 {part} 不为空，但命名规则里没有 {part}，则在末尾添加 '-{part}'
-    if (cfg['{part}'].value && !rule.includes('{part}')) {
+    if (schema['{part}'].value && !rule.includes('{part}')) {
       const name = rule.split('.{ext}')[0]
       rule = name + '-{part}.{ext}'
     }
 
     // 生成文件名
-    let name = fileName.generateFileName(rule, cfg)
+    let name = fileName.generateFileName(rule, schema)
 
     // 处理一些边界情况
     name = fileName.handleEdgeCases(name)
 
     // 处理文件名长度限制
-    const extResult = '.' + cfg['{ext}'].value
+    const extResult = '.' + schema['{ext}'].value
     // 截断文件名的时候移除后缀名部分，然后再添加回来，以避免发生截断后缀名的情况
     let part1 = name.split(extResult)[0]
-    part1 = fileName.lengthLimit(part1, extResult, cfg['{series_id}'].value)
+    part1 = fileName.lengthLimit(part1, extResult, schema['{series_id}'].value)
     name = part1 + extResult
 
     // 返回结果
     return name
+  }
+
+  private getCharCount(body: NovelSeriesData['body']): string {
+    const count = body.useWordCount
+      ? body.publishedTotalWordCount
+      : body.publishedTotalCharacterCount
+    return (count ?? '').toString()
   }
 }
 

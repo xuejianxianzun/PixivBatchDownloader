@@ -338,6 +338,7 @@ interface XzSetting {
   crawlNonOriginalWork: boolean
   looseMatchOriginal: boolean
   tipImageViewer: boolean
+  removeEmoji: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -825,6 +826,7 @@ class Settings {
     crawlNonOriginalWork: true,
     looseMatchOriginal: true,
     tipImageViewer: true,
+    removeEmoji: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

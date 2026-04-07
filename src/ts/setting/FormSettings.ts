@@ -184,6 +184,7 @@ class FormSettings {
       'copyWorkInfoFormat',
       'crawlLatestFewWorksNumber',
       'fullNameLengthLimit',
+      'removeEmoji',
     ],
     radio: [
       'ugoiraSaveAs',

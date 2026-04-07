@@ -3865,6 +3865,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+;
+[];
 // 生成文件名
 class FileName {
     // 下载器所有的动图格式后缀名
@@ -3906,13 +3908,13 @@ class FileName {
         let createFolderForEachWork = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.workDir &&
             _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.downloadCount[data.idNum] > _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.workDirFileNumber;
         let r18FolderName = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.r18Folder ? _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.r18FolderName : '';
-        const allNameRule = userSetName +
+        const allRule = userSetName +
             (createFolderForEachWork ? _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.workDirNameRule : '') +
             r18FolderName;
         // 1 生成所有命名标记的值
         // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
         const p_num = this.createPNum(data);
-        const cfg = {
+        const schema = {
             '{p_title}': {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.title,
                 safe: false,
@@ -3934,17 +3936,15 @@ class FileName {
                 safe: true,
             },
             '{id_num}': {
-                value: data.idNum || parseInt(data.id),
+                value: (data.idNum || parseInt(data.id)).toString(),
                 safe: true,
             },
             '{p_num}': {
-                value: !allNameRule.includes('{p_num}') ? null : p_num,
+                value: !allRule.includes('{p_num}') ? '' : p_num,
                 safe: true,
             },
             '{rank}': {
-                value: !allNameRule.includes('{rank}')
-                    ? null
-                    : this.createRank(data.rank),
+                value: !allRule.includes('{rank}') ? '' : this.createRank(data.rank),
                 safe: true,
             },
             '{title}': {
@@ -3964,47 +3964,45 @@ class FileName {
                 safe: true,
             },
             '{px}': {
-                value: !allNameRule.includes('{px}')
-                    ? null
+                value: !allRule.includes('{px}')
+                    ? ''
                     : data.fullWidth
                         ? data.fullWidth + 'x' + data.fullHeight
                         : '',
                 safe: true,
             },
             '{char_count}': {
-                value: !allNameRule.includes('{char_count}')
-                    ? null
-                    : this.getCharCount(data),
+                value: !allRule.includes('{char_count}') ? '' : this.getCharCount(data),
                 safe: true,
             },
             '{tags}': {
-                value: !allNameRule.includes('{tags}')
-                    ? null
+                value: !allRule.includes('{tags}')
+                    ? ''
                     : data.tags.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagsSeparator),
                 safe: false,
             },
             '{tags_translate}': {
-                value: !allNameRule.includes('{tags_translate}')
-                    ? null
+                value: !allRule.includes('{tags_translate}')
+                    ? ''
                     : data.tagsWithTransl.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagsSeparator),
                 safe: false,
             },
             '{tags_transl_only}': {
-                value: !allNameRule.includes('{tags_transl_only}')
-                    ? null
+                value: !allRule.includes('{tags_transl_only}')
+                    ? ''
                     : data.tagsTranslOnly.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagsSeparator),
                 safe: false,
             },
             '{bmk}': {
-                value: data.bmk,
+                value: data.bmk.toString(),
                 safe: true,
             },
             '{bmk_id}': {
-                value: data.bmkId || '',
+                value: (data.bmkId || '').toString(),
                 safe: true,
             },
             '{bmk_1000}': {
-                value: this.getBKM1000(data.bmk),
+                value: this.getBKM1000(data.bmk).toString(),
                 safe: true,
             },
             '{age}': {
@@ -4016,28 +4014,28 @@ class FileName {
                 safe: true,
             },
             '{like}': {
-                value: data.likeCount,
+                value: data.likeCount.toString(),
                 safe: true,
             },
             '{view}': {
-                value: data.viewCount,
+                value: data.viewCount.toString(),
                 safe: true,
             },
             '{date}': {
-                value: !allNameRule.includes('{date}')
-                    ? null
+                value: !allRule.includes('{date}')
+                    ? ''
                     : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__.DateFormat.format(data.date, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
                 safe: false,
             },
             '{upload_date}': {
-                value: !allNameRule.includes('{upload_date}')
-                    ? null
+                value: !allRule.includes('{upload_date}')
+                    ? ''
                     : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__.DateFormat.format(data.uploadDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
                 safe: false,
             },
             '{task_date}': {
-                value: !allNameRule.includes('{task_date}')
-                    ? null
+                value: !allRule.includes('{task_date}')
+                    ? ''
                     : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__.DateFormat.format(_store_Store__WEBPACK_IMPORTED_MODULE_3__.store.crawlCompleteTime, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
                 safe: false,
             },
@@ -4058,37 +4056,16 @@ class FileName {
                 safe: true,
             },
             '{series_id}': {
-                value: data.seriesId,
+                value: (data.seriesId ?? '').toString(),
                 safe: true,
             },
             '{sl}': {
-                value: data.sl ?? 0,
+                value: (data.sl ?? 0).toString(),
                 safe: true,
             },
         };
-        let rule = userSetName;
-        // 有些标记可能是空字符串，移除它们前面的分割符号
-        const mayEmptyList = [
-            '{p_num}',
-            '{page_tag}',
-            '{AI}',
-            '{age_r}',
-            '{tags}',
-            '{tags_translate}',
-            '{tags_transl_only}',
-            '{rank}',
-            '{px}',
-            '{series_title}',
-            '{series_order}',
-            '{series_id}',
-        ];
-        mayEmptyList.forEach((tag) => {
-            if (cfg[tag].value === '') {
-                rule = this.removeEmptyTag(rule, tag);
-            }
-        });
         // 2 生成文件名
-        let result = this.generateFileName(rule, cfg);
+        let result = this.generateFileName(userSetName, schema);
         // 3 根据某些设置向结果中添加新的文件夹
         // 注意：添加文件夹的顺序会影响文件夹的层级，所以不可随意更改顺序
         // 根据作品类型自动创建对应的文件夹
@@ -4107,7 +4084,7 @@ class FileName {
         }
         // 根据 sl 创建文件夹
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderBySl && data.sl !== null) {
-            const folder = 'sl' + data.sl.toString();
+            const folder = 'sl' + schema['{sl}'].value;
             result = this.appendFolder(result, folder);
         }
         // 根据第一个匹配的 tag 建立文件夹
@@ -4130,11 +4107,11 @@ class FileName {
         }
         // 把 R18(G) 作品存入指定目录里
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.r18Folder && (data.xRestrict === 1 || data.xRestrict === 2)) {
-            result = this.appendFolder(result, this.generateFileName(r18FolderName, cfg));
+            result = this.appendFolder(result, this.generateFileName(r18FolderName, schema));
         }
         // 为每个作品创建单独的文件夹
         if (createFolderForEachWork) {
-            const workDirName = this.generateFileName(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.workDirNameRule, cfg);
+            const workDirName = this.generateFileName(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.workDirNameRule, schema);
             // 生成文件名。由于用户可能会添加斜线来建立多层路径，所以需要循环添加每个路径
             const allPath = workDirName.split('/');
             for (const path of allPath) {
@@ -4166,30 +4143,34 @@ class FileName {
             result = result.split('/').pop();
         }
         // 7 处理文件名长度限制
-        result = this.lengthLimit(result, extResult, cfg['{id}'].value);
+        result = this.lengthLimit(result, extResult, schema['{id}'].value);
         // 8 添加后缀名
         result += extResult;
         // 9 返回结果
         return result;
     }
     /** 传入命名规则和所有标记的配置，生成文件名 */
-    generateFileName(rule, cfg) {
+    generateFileName(rule, schema) {
         let result = rule;
         // 把命名规则里的标记替换成实际值
-        for (const [key, val] of Object.entries(cfg)) {
-            if (rule.includes(key)) {
-                // 空值替换成空字符串
-                let temp = val.value ?? '';
-                // 如果这个值不是字符串类型则转换为字符串
-                if (typeof temp !== 'string') {
-                    temp = temp.toString();
-                }
+        for (const [tag, obj] of Object.entries(schema)) {
+            if (rule.includes(tag)) {
+                // 把空值替换成空字符串
+                let temp = obj.value ?? '';
                 // 替换不可以作为文件名的特殊字符
-                if (!val.safe) {
+                if (!obj.safe) {
                     temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.replaceUnsafeStr(temp);
                 }
+                // 移除 Emoji。这可能导致一些标记的值变成空字符串，所以需要放在前面，以便后续处理空字符串的情况
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.removeEmoji) {
+                    temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.removeEmojis(temp);
+                }
+                // 有些标记可能是空字符串，移除它们前面的分割符号
+                if (temp === '') {
+                    result = this.removeEmptyTag(result, tag);
+                }
                 // 将标记替换成结果，如果有重复的标记，全部替换
-                result = result.replace(new RegExp(key, 'g'), temp);
+                result = result.replace(new RegExp(tag, 'g'), temp);
             }
         }
         // 移除文件名开头的不可用的特殊字符
@@ -4215,7 +4196,7 @@ class FileName {
         if (typeof rank === 'string') {
             return rank;
         }
-        // 其他的情况则应该是期望的值（数字类型）
+        // 其他的情况则应该是期望的 number 类型
         return '#' + rank;
     }
     // 生成 {p_num} 标记的值
@@ -4326,13 +4307,12 @@ class FileName {
     /** 如果某个标记的值是空字符串，则检查它前面是否有分割字符，有的话就把它和分隔符一起去掉。返回修改后的 rule */
     // 例如：如果 {part} 是空字符串，那么 `-{part}` 会留下一个横线 `-`
     // 这里的处理是为了去掉横线。除了 `-` 还检测了其他一些常用的分割字符
-    // 但如果用户在前面添加了自定义文字，是无法去掉自定义文字的，例如 `part:{part}` 会留下 `part`
+    // 但如果用户在前面添加了自定义文字，是无法去掉自定义文字的，例如 `part:{part}` 会留下 `part:`
     removeEmptyTag(rule, tag) {
         const symbols = ['-', '_', ' ', ',', '&', '#'];
         for (const symbol of symbols) {
             rule = rule.replaceAll(symbol + tag, '');
         }
-        // 不需要替换这个标记本身，因为在后续步骤里它会被替换成它的值（空字符串）
         return rule;
     }
     /** 处理一些边界情况 */
@@ -24444,6 +24424,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+;
+[];
 class MergeNovelFileName {
     /**参数 part 只有在这个系列小说分割成多个文件时才需要传递。如果值为 0 不会生效，大于 0 才会生效 */
     getName(seriesData, part = 0) {
@@ -24452,7 +24434,7 @@ class MergeNovelFileName {
         // {series_title}-{series_id}-{user}-{user_id}-{part}-{age}-{age_r}-{AI}-{lang}-{total}-{char_count}-{create_date}-{last_date}-{task_date}-{first_id}-{latest_id}-{tags}-{page_tag}-{page_title}.{ext}
         const body = seriesData.body;
         // 生成所有命名标记的值
-        const cfg = {
+        const schema = {
             '{series_title}': {
                 value: body.title,
                 safe: false,
@@ -24495,13 +24477,11 @@ class MergeNovelFileName {
                 safe: true,
             },
             '{total}': {
-                value: body.displaySeriesContentCount,
+                value: body.displaySeriesContentCount.toString(),
                 safe: true,
             },
             '{char_count}': {
-                value: body.useWordCount
-                    ? body.publishedTotalWordCount
-                    : body.publishedTotalCharacterCount,
+                value: this.getCharCount(body),
                 safe: true,
             },
             '{create_date}': {
@@ -24543,36 +24523,29 @@ class MergeNovelFileName {
                 safe: false,
             },
         };
-        // 有些标记可能是空字符串，移除它们
-        const mayEmptyList = [
-            '{part}',
-            '{page_tag}',
-            '{AI}',
-            '{age_r}',
-            '{tags}',
-        ];
-        mayEmptyList.forEach((tag) => {
-            if (cfg[tag].value === '') {
-                rule = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.removeEmptyTag(rule, tag);
-            }
-        });
         // 如果 {part} 不为空，但命名规则里没有 {part}，则在末尾添加 '-{part}'
-        if (cfg['{part}'].value && !rule.includes('{part}')) {
+        if (schema['{part}'].value && !rule.includes('{part}')) {
             const name = rule.split('.{ext}')[0];
             rule = name + '-{part}.{ext}';
         }
         // 生成文件名
-        let name = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.generateFileName(rule, cfg);
+        let name = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.generateFileName(rule, schema);
         // 处理一些边界情况
         name = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.handleEdgeCases(name);
         // 处理文件名长度限制
-        const extResult = '.' + cfg['{ext}'].value;
+        const extResult = '.' + schema['{ext}'].value;
         // 截断文件名的时候移除后缀名部分，然后再添加回来，以避免发生截断后缀名的情况
         let part1 = name.split(extResult)[0];
-        part1 = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.lengthLimit(part1, extResult, cfg['{series_id}'].value);
+        part1 = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.lengthLimit(part1, extResult, schema['{series_id}'].value);
         name = part1 + extResult;
         // 返回结果
         return name;
+    }
+    getCharCount(body) {
+        const count = body.useWordCount
+            ? body.publishedTotalWordCount
+            : body.publishedTotalCharacterCount;
+        return (count ?? '').toString();
     }
 }
 const mergeNovelFileName = new MergeNovelFileName();
@@ -36338,6 +36311,14 @@ Ugoira 파일명에서 순번 “p0”을 생략하려면 “더보기”-“명
         `네트워크 오류로 인해 이 작품을 건너뛰었습니다: {}`,
         `Пропущена эта работа из-за сетевой ошибки: {}`,
     ],
+    _移除文件名里的emoji: [
+        `移除文件名里的 <span class="key">Emoji</span>`,
+        `移除檔名裡的 <span class="key">Emoji</span>`,
+        `Remove <span class="key">Emoji</span> from filename`,
+        `ファイル名から <span class="key">Emoji</span> を削除`,
+        `파일 이름에서 <span class="key">Emoji</span> 제거`,
+        `Удалить <span class="key">Emoji</span> из имени файла`,
+    ],
 };
 
 
@@ -39697,7 +39678,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Wiki__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Wiki */ "./src/ts/setting/Wiki.ts");
 
 
-// 设置项编号从 0 开始，现在最大是 96
+// 设置项编号从 0 开始，现在最大是 97
 const formHtml = `
 <form class="settingForm">
   <div class="tabsContnet">
@@ -40489,6 +40470,15 @@ const formHtml = `
     <p class="tip" id="tagsSeparatorTip">
       <span data-xztext="_标签分隔符号提示"></span>
     </p>
+    
+    <p class="option" data-no="97">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(97)}" target="_blank" class="settingNameStyle">
+        <span data-xztext="_移除文件名里的emoji"></span>
+      </a>
+      <input type="checkbox" name="removeEmoji" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
     <p class="option" data-no="67">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(67)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_移除用户名中的at和后续字符的说明">
         <span data-xztext="_移除用户名中的at和后续字符"></span>
@@ -41384,6 +41374,7 @@ class FormSettings {
             'copyWorkInfoFormat',
             'crawlLatestFewWorksNumber',
             'fullNameLengthLimit',
+            'removeEmoji',
         ],
         radio: [
             'ugoiraSaveAs',
@@ -41840,42 +41831,6 @@ class Options {
     newRange = 7776000000;
     newOptions = [
         {
-            // 复制按钮
-            id: 14,
-            // 2025-10-22
-            time: 1761091200000,
-        },
-        {
-            // 抓取每个用户最新的几个作品
-            id: 15,
-            // 2025-11-04
-            time: 1762214400000,
-        },
-        {
-            // 把文件保存到用户上次选择的位置
-            id: 20,
-            // 2025-11-04
-            time: 1762214400000,
-        },
-        {
-            // 自动合并系列小说
-            id: 73,
-            // 2025-11-17
-            time: 1763337600000,
-        },
-        {
-            // 合并系列小说时的命名规则
-            id: 91,
-            // 2025-11-24
-            time: 1763942400000,
-        },
-        {
-            // 过滤搜索页面的作品
-            id: 92,
-            // 2025-12-19
-            time: 1766102400000,
-        },
-        {
             // 日志区域的默认可见性
             id: 93,
             // 2026-02-28
@@ -41898,6 +41853,12 @@ class Options {
             id: 96,
             // 2026-03-24
             time: 1774310400000,
+        },
+        {
+            // 移除文件名里的 Emoji
+            id: 97,
+            // 2026-04-08
+            time: 1775579018462,
         },
     ];
     bindEvents() {
@@ -42699,6 +42660,7 @@ class Settings {
         crawlNonOriginalWork: true,
         looseMatchOriginal: true,
         tipImageViewer: true,
+        removeEmoji: false,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的选项
@@ -43403,7 +43365,7 @@ class Wiki {
         ],
         Download: [13, 50, 64, 16, 17, 33, 20],
         'More-Crawl': [57, 59, 75, 69, 35, 39, 74, 54, 85],
-        'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66],
+        'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66, 97],
         'More-Download': [
             58, 52, 90, 91, 76, 77, 4, 24, 26, 27, 70, 72, 73, 49, 89, 30, 25, 82, 28,
         ],
@@ -62458,6 +62420,10 @@ class Utils {
             }
         }
         return array.reverse().join('');
+    }
+    /** 移除字符串里的 emoji */
+    static removeEmojis(str) {
+        return str.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '');
     }
 }
 

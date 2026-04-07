@@ -2,6 +2,10 @@
 
 ## next
 
+### ✨新增设置：移除文件名里的 Emoji
+
+它在“更多”-“命名”分类里。
+
 ### ✨新增命名标记 {char_count}
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/586

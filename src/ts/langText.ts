@@ -8401,6 +8401,14 @@ Ugoira 파일명에서 순번 “p0”을 생략하려면 “더보기”-“명
     `네트워크 오류로 인해 이 작품을 건너뛰었습니다: {}`,
     `Пропущена эта работа из-за сетевой ошибки: {}`,
   ],
+  _移除文件名里的emoji: [
+    `移除文件名里的 <span class="key">Emoji</span>`,
+    `移除檔名裡的 <span class="key">Emoji</span>`,
+    `Remove <span class="key">Emoji</span> from filename`,
+    `ファイル名から <span class="key">Emoji</span> を削除`,
+    `파일 이름에서 <span class="key">Emoji</span> 제거`,
+    `Удалить <span class="key">Emoji</span> из имени файла`,
+  ],
 }
 
 export type LangTextKey = keyof typeof langText

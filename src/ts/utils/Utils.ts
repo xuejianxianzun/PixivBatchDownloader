@@ -566,6 +566,14 @@ class Utils {
     }
     return array.reverse().join('')
   }
+
+  /** 移除字符串里的 emoji */
+  static removeEmojis(str: string) {
+    return str.replace(
+      /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu,
+      ''
+    )
+  }
 }
 
 export { Utils }
