@@ -140,13 +140,13 @@ class AutoMergeNovel {
         window.setTimeout(() => {
           const completed = this.completedQueue.length
           if (completed > 0) {
-            log.log(
-              lang.transl(
-                '_本次抓取一共合并了x个系列小说包含y篇小说',
-                completed.toString(),
-                this.novelTotal.toString()
-              )
+            const msg = lang.transl(
+              '_本次抓取一共合并了x个系列小说包含y篇小说',
+              completed.toString(),
+              this.novelTotal.toString()
             )
+            log.log(msg)
+            log.log('')
           }
 
           if (evt === EVT.list.stopCrawl && this.workingId) {

@@ -22,6 +22,14 @@ class ExportLog {
       })
     })
 
+    // 虽然导出日志的时机设置可以选择“抓取完毕”或者“下载完毕”其中之一，但有些任务可能不会触发对应的事件，或者与用户的预期不符。所以在必要时，可以触发此事件来导出日志，它不会判断导出时机的设置。
+    // 目前这个事件是为了处理合并系列小说的任务。合并系列小说有时只会触发抓取完毕的事件，有时甚至不会触发这个事件。有些用户以为合并完成就算是下载完毕，所以选择了“下载完毕”的时机，结果没有导出日志。所以我针对性处理一下。
+    window.addEventListener(EVT.list.exportLog, () => {
+      if (settings.exportLog) {
+        this.export()
+      }
+    })
+
     window.addEventListener(EVT.list.crawlComplete, () => {
       if (settings.exportLog && settings.exportLogTiming === 'crawlComplete') {
         this.export()

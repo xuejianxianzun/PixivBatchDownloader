@@ -2,6 +2,12 @@
 
 ## next
 
+### 😊解决了合并系列小说时，导出日志功能可能不生效的问题
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/601
+
+这个不是 bug，不过为了减少用户的困惑，进行了针对性优化，以确保导出日志的时机为“下载完毕”时，可以导出合并系列小说的日志。
+
 ### 😊在下载器左下角添加了“获取帮助”按钮
 
 我把之前的 Discord 按钮换成了“获取帮助”按钮，点击之后会显示提示，里面包含了 Discord 和 GitHub issues 的链接。
