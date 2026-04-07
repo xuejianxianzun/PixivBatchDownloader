@@ -182,6 +182,8 @@ class EVENT {
     followingUsersChange: 'followingUsersChange',
     /**网络请求错误，并且有状态码 */
     requestStatusError: 'requestStatusError',
+    /** 触发导出日志的事件 */
+    exportLog: 'exportLog',
   }
 
   /** 触发自定义事件，大部分事件都不需要携带数据
@@ -249,6 +251,7 @@ class EVENT {
       | 'sendBrowserDownload'
       | 'previewEnd'
       | 'followingUsersChange'
+      | 'exportLog'
   ): void
 
   // 对于需要携带数据的事件进行重载

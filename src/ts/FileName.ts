@@ -10,6 +10,11 @@ import { Tools } from './Tools'
 import { log } from './Log'
 import { lang } from './Language'
 
+interface NamingSchema {
+  [key: string]: { value: string; safe: boolean }
+}
+;[]
+
 // 生成文件名
 class FileName {
   // 下载器所有的动图格式后缀名
@@ -59,7 +64,7 @@ class FileName {
 
     let r18FolderName = settings.r18Folder ? settings.r18FolderName : ''
 
-    const allNameRule =
+    const allRule =
       userSetName +
       (createFolderForEachWork ? settings.workDirNameRule : '') +
       r18FolderName
@@ -67,7 +72,7 @@ class FileName {
     // 1 生成所有命名标记的值
     // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
     const p_num = this.createPNum(data)
-    const cfg = {
+    const schema: NamingSchema = {
       '{p_title}': {
         value: store.title,
         safe: false,
@@ -89,17 +94,15 @@ class FileName {
         safe: true,
       },
       '{id_num}': {
-        value: data.idNum || parseInt(data.id),
+        value: (data.idNum || parseInt(data.id)).toString(),
         safe: true,
       },
       '{p_num}': {
-        value: !allNameRule.includes('{p_num}') ? null : p_num,
+        value: !allRule.includes('{p_num}') ? '' : p_num,
         safe: true,
       },
       '{rank}': {
-        value: !allNameRule.includes('{rank}')
-          ? null
-          : this.createRank(data.rank),
+        value: !allRule.includes('{rank}') ? '' : this.createRank(data.rank),
         safe: true,
       },
       '{title}': {
@@ -121,41 +124,45 @@ class FileName {
         safe: true,
       },
       '{px}': {
-        value: !allNameRule.includes('{px}')
-          ? null
+        value: !allRule.includes('{px}')
+          ? ''
           : data.fullWidth
             ? data.fullWidth + 'x' + data.fullHeight
             : '',
         safe: true,
       },
+      '{char_count}': {
+        value: !allRule.includes('{char_count}') ? '' : this.getCharCount(data),
+        safe: true,
+      },
       '{tags}': {
-        value: !allNameRule.includes('{tags}')
-          ? null
+        value: !allRule.includes('{tags}')
+          ? ''
           : data.tags.join(settings.tagsSeparator),
         safe: false,
       },
       '{tags_translate}': {
-        value: !allNameRule.includes('{tags_translate}')
-          ? null
+        value: !allRule.includes('{tags_translate}')
+          ? ''
           : data.tagsWithTransl.join(settings.tagsSeparator),
         safe: false,
       },
       '{tags_transl_only}': {
-        value: !allNameRule.includes('{tags_transl_only}')
-          ? null
+        value: !allRule.includes('{tags_transl_only}')
+          ? ''
           : data.tagsTranslOnly.join(settings.tagsSeparator),
         safe: false,
       },
       '{bmk}': {
-        value: data.bmk,
+        value: data.bmk.toString(),
         safe: true,
       },
       '{bmk_id}': {
-        value: data.bmkId || '',
+        value: (data.bmkId || '').toString(),
         safe: true,
       },
       '{bmk_1000}': {
-        value: this.getBKM1000(data.bmk),
+        value: this.getBKM1000(data.bmk).toString(),
         safe: true,
       },
       '{age}': {
@@ -167,28 +174,28 @@ class FileName {
         safe: true,
       },
       '{like}': {
-        value: data.likeCount,
+        value: data.likeCount.toString(),
         safe: true,
       },
       '{view}': {
-        value: data.viewCount,
+        value: data.viewCount.toString(),
         safe: true,
       },
       '{date}': {
-        value: !allNameRule.includes('{date}')
-          ? null
+        value: !allRule.includes('{date}')
+          ? ''
           : DateFormat.format(data.date, settings.dateFormat),
         safe: false,
       },
       '{upload_date}': {
-        value: !allNameRule.includes('{upload_date}')
-          ? null
+        value: !allRule.includes('{upload_date}')
+          ? ''
           : DateFormat.format(data.uploadDate, settings.dateFormat),
         safe: false,
       },
       '{task_date}': {
-        value: !allNameRule.includes('{task_date}')
-          ? null
+        value: !allRule.includes('{task_date}')
+          ? ''
           : DateFormat.format(store.crawlCompleteTime, settings.dateFormat),
         safe: false,
       },
@@ -209,40 +216,17 @@ class FileName {
         safe: true,
       },
       '{series_id}': {
-        value: data.seriesId,
+        value: (data.seriesId ?? '').toString(),
         safe: true,
       },
       '{sl}': {
-        value: data.sl ?? 0,
+        value: (data.sl ?? 0).toString(),
         safe: true,
       },
     }
 
-    let rule = userSetName
-
-    // 有些标记可能是空字符串，移除它们前面的分割符号
-    const mayEmptyList: (keyof typeof cfg)[] = [
-      '{p_num}',
-      '{page_tag}',
-      '{AI}',
-      '{age_r}',
-      '{tags}',
-      '{tags_translate}',
-      '{tags_transl_only}',
-      '{rank}',
-      '{px}',
-      '{series_title}',
-      '{series_order}',
-      '{series_id}',
-    ]
-    mayEmptyList.forEach((tag) => {
-      if (cfg[tag].value === '') {
-        rule = this.removeEmptyTag(rule, tag)
-      }
-    })
-
     // 2 生成文件名
-    let result = this.generateFileName(rule, cfg)
+    let result = this.generateFileName(userSetName, schema)
 
     // 3 根据某些设置向结果中添加新的文件夹
     // 注意：添加文件夹的顺序会影响文件夹的层级，所以不可随意更改顺序
@@ -264,7 +248,7 @@ class FileName {
 
     // 根据 sl 创建文件夹
     if (settings.createFolderBySl && data.sl !== null) {
-      const folder = 'sl' + data.sl.toString()
+      const folder = 'sl' + schema['{sl}'].value
       result = this.appendFolder(result, folder)
     }
 
@@ -292,13 +276,16 @@ class FileName {
     if (settings.r18Folder && (data.xRestrict === 1 || data.xRestrict === 2)) {
       result = this.appendFolder(
         result,
-        this.generateFileName(r18FolderName, cfg)
+        this.generateFileName(r18FolderName, schema)
       )
     }
 
     // 为每个作品创建单独的文件夹
     if (createFolderForEachWork) {
-      const workDirName = this.generateFileName(settings.workDirNameRule, cfg)
+      const workDirName = this.generateFileName(
+        settings.workDirNameRule,
+        schema
+      )
       // 生成文件名。由于用户可能会添加斜线来建立多层路径，所以需要循环添加每个路径
       const allPath = workDirName.split('/')
       for (const path of allPath) {
@@ -334,7 +321,7 @@ class FileName {
     }
 
     // 7 处理文件名长度限制
-    result = this.lengthLimit(result, extResult, cfg['{id}'].value)
+    result = this.lengthLimit(result, extResult, (schema['{id}'] as any).value)
 
     // 8 添加后缀名
     result += extResult
@@ -344,26 +331,31 @@ class FileName {
   }
 
   /** 传入命名规则和所有标记的配置，生成文件名 */
-  public generateFileName(rule: string, cfg: Object) {
+  public generateFileName(rule: string, schema: NamingSchema): string {
     let result = rule
     // 把命名规则里的标记替换成实际值
-    for (const [key, val] of Object.entries(cfg)) {
-      if (rule.includes(key)) {
-        // 空值替换成空字符串
-        let temp = val.value ?? ''
-
-        // 如果这个值不是字符串类型则转换为字符串
-        if (typeof temp !== 'string') {
-          temp = temp.toString()
-        }
+    for (const [tag, obj] of Object.entries(schema)) {
+      if (rule.includes(tag)) {
+        // 把空值替换成空字符串
+        let temp = obj.value ?? ''
 
         // 替换不可以作为文件名的特殊字符
-        if (!val.safe) {
+        if (!obj.safe) {
           temp = Utils.replaceUnsafeStr(temp)
         }
 
+        // 移除 Emoji。这可能导致一些标记的值变成空字符串，所以需要放在前面，以便后续处理空字符串的情况
+        if (settings.removeEmoji) {
+          temp = Utils.removeEmojis(temp)
+        }
+
+        // 有些标记可能是空字符串，移除它们前面的分割符号
+        if (temp === '') {
+          result = this.removeEmptyTag(result, tag)
+        }
+
         // 将标记替换成结果，如果有重复的标记，全部替换
-        result = result.replace(new RegExp(key, 'g'), temp)
+        result = result.replace(new RegExp(tag, 'g'), temp)
       }
     }
 
@@ -394,7 +386,7 @@ class FileName {
     if (typeof rank === 'string') {
       return rank
     }
-    // 其他的情况则应该是期望的值（数字类型）
+    // 其他情况应该是期望的 number 类型
     return '#' + rank
   }
 
@@ -451,6 +443,19 @@ class FileName {
     }
   }
 
+  /** 获取小说的字数 */
+  private getCharCount(data: Result): string {
+    if (data.type !== 3) {
+      return ''
+    }
+    if (data.novelMeta?.charCount) {
+      return data.novelMeta.charCount.toString()
+    } else {
+      // 早期版本里没有 charCount 这个字段，所以不可用
+      return ''
+    }
+  }
+
   // 在文件名前面添加一层文件夹
   // appendFolder 方法会对非法字符进行处理（包括处理路径分隔符 / 这主要是因为 tags 可能含有斜线 /，需要替换）
   private appendFolder(fullPath: string, folderName: string): string {
@@ -502,13 +507,12 @@ class FileName {
   /** 如果某个标记的值是空字符串，则检查它前面是否有分割字符，有的话就把它和分隔符一起去掉。返回修改后的 rule */
   // 例如：如果 {part} 是空字符串，那么 `-{part}` 会留下一个横线 `-`
   // 这里的处理是为了去掉横线。除了 `-` 还检测了其他一些常用的分割字符
-  // 但如果用户在前面添加了自定义文字，是无法去掉自定义文字的，例如 `part:{part}` 会留下 `part`
-  public removeEmptyTag(rule: string, tag: string): string {
+  // 但如果用户在前面添加了自定义文字，是无法去掉自定义文字的，例如 `part:{part}` 会留下 `part:`
+  private removeEmptyTag(rule: string, tag: string): string {
     const symbols = ['-', '_', ' ', ',', '&', '#']
     for (const symbol of symbols) {
       rule = rule.replaceAll(symbol + tag, '')
     }
-    // 不需要替换这个标记本身，因为在后续步骤里它会被替换成它的值（空字符串）
 
     return rule
   }
@@ -621,7 +625,7 @@ class FileName {
     // 如果处理过后依然超长，那就是极端情况了，暂不处理，因为我也没有更好的方法
     // console.log(result.length)
 
-    return Utils.removeEmojis(result)
+    return result
   }
 }
 

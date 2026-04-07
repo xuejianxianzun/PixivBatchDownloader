@@ -39,8 +39,7 @@ class OutputPanel {
     })
 
     this.outputPanel.addEventListener('click', (e) => {
-      const ev = e || window.event
-      ev.stopPropagation()
+      e.stopPropagation()
     })
 
     document.addEventListener('click', () => {

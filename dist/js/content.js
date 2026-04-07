@@ -2346,7 +2346,7 @@ class CenterPanel {
       <div class="btns">
       <a class="has_tip centerWrap_top_btn update" data-xztip="_newver" data-xztitle="_newver" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
         <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-gengxin"></use>
+          <use xlink:href="#icon-refresh"></use>
         </svg>
       </a>
       <a class="has_tip centerWrap_top_btn github_icon" data-xztip="_github" data-xztitle="_github" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
@@ -2362,7 +2362,7 @@ class CenterPanel {
         <button class="textButton ${!_Config__WEBPACK_IMPORTED_MODULE_5__.Config.mobile && 'has_tip'} centerWrap_top_btn centerWrap_close" ${!_Config__WEBPACK_IMPORTED_MODULE_5__.Config.mobile &&
             'data-xztip="_隐藏控制面板" data-xztitle="_隐藏控制面板"'}>
         <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-guanbi"></use>
+          <use xlink:href="#icon-shutdown"></use>
         </svg>
         </button>
       </div>
@@ -2395,11 +2395,11 @@ class CenterPanel {
       <slot data-name="form"></slot>
 
       <div class="help_bar gray1"> 
-      <button class="textButton gray1" id="showDownTip" type="button" data-xztext="_常见问题"></button>
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank" data-xztext="_wiki"></a>
-      <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
+      <button class="textButton gray1" id="showFAQ" type="button" data-xztext="_常见问题"></button>
+      <button class="textButton gray1" id="showGetHelp" type="button" data-xztext="_获取帮助"></button>
       <button class="textButton gray1" id="xzFanboxDownloader" type="button" data-xztext="_fanboxDownloader"></button>
-      <button class="textButton gray1" id="showPatronTip" type="button" data-xztext="_赞助我"></button>
+      <button class="textButton gray1" id="showSponsorship" type="button" data-xztext="_赞助我"></button>
       <br>
       </div>
 
@@ -2475,7 +2475,7 @@ class CenterPanel {
         });
         // 显示常见问题
         this.centerPanel
-            .querySelector('#showDownTip')
+            .querySelector('#showFAQ')
             .addEventListener('click', () => {
             let msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_常见问题说明') + _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_账户可能被封禁的警告');
             if (_Config__WEBPACK_IMPORTED_MODULE_5__.Config.mobile) {
@@ -2486,7 +2486,12 @@ class CenterPanel {
             });
         });
         this.centerPanel
-            .querySelector('#showPatronTip')
+            .querySelector('#showGetHelp')
+            .addEventListener('click', () => _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_获取帮助的提示'), {
+            title: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_获取帮助'),
+        }));
+        this.centerPanel
+            .querySelector('#showSponsorship')
             .addEventListener('click', () => _MsgBox__WEBPACK_IMPORTED_MODULE_6__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_赞助方式提示'), {
             title: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_赞助我'),
         }));
@@ -2496,8 +2501,7 @@ class CenterPanel {
             title: 'Pixiv Fanbox Downloader',
         }));
         this.centerPanel.addEventListener('click', (e) => {
-            const ev = e || window.event;
-            ev.stopPropagation();
+            e.stopPropagation();
         });
         document.addEventListener('click', () => {
             if (getComputedStyle(this.centerPanel)['display'] !== 'none') {
@@ -3163,6 +3167,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+// 复制作品的信息，目前只在图像作品上使用，没有对小说使用
 class CopyWorkInfo {
     /**接收作品 ID 数据，可选参数 p 用于指定复制哪一张图片  */
     async receive(idData, p) {
@@ -3674,6 +3679,8 @@ class EVENT {
         followingUsersChange: 'followingUsersChange',
         /**网络请求错误，并且有状态码 */
         requestStatusError: 'requestStatusError',
+        /** 触发导出日志的事件 */
+        exportLog: 'exportLog',
     };
     fire(type, data) {
         const event = new CustomEvent(type, {
@@ -3722,6 +3729,13 @@ class ExportLog {
             window.addEventListener(evt, () => {
                 this.record = [];
             });
+        });
+        // 虽然导出日志的时机设置可以选择“抓取完毕”或者“下载完毕”其中之一，但有些任务可能不会触发对应的事件，或者与用户的预期不符。所以在必要时，可以触发此事件来导出日志，它不会判断导出时机的设置。
+        // 目前这个事件是为了处理合并系列小说的任务。合并系列小说有时只会触发抓取完毕的事件，有时甚至不会触发这个事件。有些用户以为合并完成就算是下载完毕，所以选择了“下载完毕”的时机，结果没有导出日志。所以我针对性处理一下。
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.exportLog, () => {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.exportLog) {
+                this.export();
+            }
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, () => {
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.exportLog && _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.exportLogTiming === 'crawlComplete') {
@@ -3851,6 +3865,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+;
+[];
 // 生成文件名
 class FileName {
     // 下载器所有的动图格式后缀名
@@ -3892,13 +3908,13 @@ class FileName {
         let createFolderForEachWork = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.workDir &&
             _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.downloadCount[data.idNum] > _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.workDirFileNumber;
         let r18FolderName = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.r18Folder ? _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.r18FolderName : '';
-        const allNameRule = userSetName +
+        const allRule = userSetName +
             (createFolderForEachWork ? _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.workDirNameRule : '') +
             r18FolderName;
         // 1 生成所有命名标记的值
         // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
         const p_num = this.createPNum(data);
-        const cfg = {
+        const schema = {
             '{p_title}': {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.title,
                 safe: false,
@@ -3920,17 +3936,15 @@ class FileName {
                 safe: true,
             },
             '{id_num}': {
-                value: data.idNum || parseInt(data.id),
+                value: (data.idNum || parseInt(data.id)).toString(),
                 safe: true,
             },
             '{p_num}': {
-                value: !allNameRule.includes('{p_num}') ? null : p_num,
+                value: !allRule.includes('{p_num}') ? '' : p_num,
                 safe: true,
             },
             '{rank}': {
-                value: !allNameRule.includes('{rank}')
-                    ? null
-                    : this.createRank(data.rank),
+                value: !allRule.includes('{rank}') ? '' : this.createRank(data.rank),
                 safe: true,
             },
             '{title}': {
@@ -3950,41 +3964,45 @@ class FileName {
                 safe: true,
             },
             '{px}': {
-                value: !allNameRule.includes('{px}')
-                    ? null
+                value: !allRule.includes('{px}')
+                    ? ''
                     : data.fullWidth
                         ? data.fullWidth + 'x' + data.fullHeight
                         : '',
                 safe: true,
             },
+            '{char_count}': {
+                value: !allRule.includes('{char_count}') ? '' : this.getCharCount(data),
+                safe: true,
+            },
             '{tags}': {
-                value: !allNameRule.includes('{tags}')
-                    ? null
+                value: !allRule.includes('{tags}')
+                    ? ''
                     : data.tags.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagsSeparator),
                 safe: false,
             },
             '{tags_translate}': {
-                value: !allNameRule.includes('{tags_translate}')
-                    ? null
+                value: !allRule.includes('{tags_translate}')
+                    ? ''
                     : data.tagsWithTransl.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagsSeparator),
                 safe: false,
             },
             '{tags_transl_only}': {
-                value: !allNameRule.includes('{tags_transl_only}')
-                    ? null
+                value: !allRule.includes('{tags_transl_only}')
+                    ? ''
                     : data.tagsTranslOnly.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagsSeparator),
                 safe: false,
             },
             '{bmk}': {
-                value: data.bmk,
+                value: data.bmk.toString(),
                 safe: true,
             },
             '{bmk_id}': {
-                value: data.bmkId || '',
+                value: (data.bmkId || '').toString(),
                 safe: true,
             },
             '{bmk_1000}': {
-                value: this.getBKM1000(data.bmk),
+                value: this.getBKM1000(data.bmk).toString(),
                 safe: true,
             },
             '{age}': {
@@ -3996,28 +4014,28 @@ class FileName {
                 safe: true,
             },
             '{like}': {
-                value: data.likeCount,
+                value: data.likeCount.toString(),
                 safe: true,
             },
             '{view}': {
-                value: data.viewCount,
+                value: data.viewCount.toString(),
                 safe: true,
             },
             '{date}': {
-                value: !allNameRule.includes('{date}')
-                    ? null
+                value: !allRule.includes('{date}')
+                    ? ''
                     : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__.DateFormat.format(data.date, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
                 safe: false,
             },
             '{upload_date}': {
-                value: !allNameRule.includes('{upload_date}')
-                    ? null
+                value: !allRule.includes('{upload_date}')
+                    ? ''
                     : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__.DateFormat.format(data.uploadDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
                 safe: false,
             },
             '{task_date}': {
-                value: !allNameRule.includes('{task_date}')
-                    ? null
+                value: !allRule.includes('{task_date}')
+                    ? ''
                     : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__.DateFormat.format(_store_Store__WEBPACK_IMPORTED_MODULE_3__.store.crawlCompleteTime, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat),
                 safe: false,
             },
@@ -4038,37 +4056,16 @@ class FileName {
                 safe: true,
             },
             '{series_id}': {
-                value: data.seriesId,
+                value: (data.seriesId ?? '').toString(),
                 safe: true,
             },
             '{sl}': {
-                value: data.sl ?? 0,
+                value: (data.sl ?? 0).toString(),
                 safe: true,
             },
         };
-        let rule = userSetName;
-        // 有些标记可能是空字符串，移除它们前面的分割符号
-        const mayEmptyList = [
-            '{p_num}',
-            '{page_tag}',
-            '{AI}',
-            '{age_r}',
-            '{tags}',
-            '{tags_translate}',
-            '{tags_transl_only}',
-            '{rank}',
-            '{px}',
-            '{series_title}',
-            '{series_order}',
-            '{series_id}',
-        ];
-        mayEmptyList.forEach((tag) => {
-            if (cfg[tag].value === '') {
-                rule = this.removeEmptyTag(rule, tag);
-            }
-        });
         // 2 生成文件名
-        let result = this.generateFileName(rule, cfg);
+        let result = this.generateFileName(userSetName, schema);
         // 3 根据某些设置向结果中添加新的文件夹
         // 注意：添加文件夹的顺序会影响文件夹的层级，所以不可随意更改顺序
         // 根据作品类型自动创建对应的文件夹
@@ -4087,7 +4084,7 @@ class FileName {
         }
         // 根据 sl 创建文件夹
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.createFolderBySl && data.sl !== null) {
-            const folder = 'sl' + data.sl.toString();
+            const folder = 'sl' + schema['{sl}'].value;
             result = this.appendFolder(result, folder);
         }
         // 根据第一个匹配的 tag 建立文件夹
@@ -4110,11 +4107,11 @@ class FileName {
         }
         // 把 R18(G) 作品存入指定目录里
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.r18Folder && (data.xRestrict === 1 || data.xRestrict === 2)) {
-            result = this.appendFolder(result, this.generateFileName(r18FolderName, cfg));
+            result = this.appendFolder(result, this.generateFileName(r18FolderName, schema));
         }
         // 为每个作品创建单独的文件夹
         if (createFolderForEachWork) {
-            const workDirName = this.generateFileName(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.workDirNameRule, cfg);
+            const workDirName = this.generateFileName(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.workDirNameRule, schema);
             // 生成文件名。由于用户可能会添加斜线来建立多层路径，所以需要循环添加每个路径
             const allPath = workDirName.split('/');
             for (const path of allPath) {
@@ -4146,30 +4143,34 @@ class FileName {
             result = result.split('/').pop();
         }
         // 7 处理文件名长度限制
-        result = this.lengthLimit(result, extResult, cfg['{id}'].value);
+        result = this.lengthLimit(result, extResult, schema['{id}'].value);
         // 8 添加后缀名
         result += extResult;
         // 9 返回结果
         return result;
     }
     /** 传入命名规则和所有标记的配置，生成文件名 */
-    generateFileName(rule, cfg) {
+    generateFileName(rule, schema) {
         let result = rule;
         // 把命名规则里的标记替换成实际值
-        for (const [key, val] of Object.entries(cfg)) {
-            if (rule.includes(key)) {
-                // 空值替换成空字符串
-                let temp = val.value ?? '';
-                // 如果这个值不是字符串类型则转换为字符串
-                if (typeof temp !== 'string') {
-                    temp = temp.toString();
-                }
+        for (const [tag, obj] of Object.entries(schema)) {
+            if (rule.includes(tag)) {
+                // 把空值替换成空字符串
+                let temp = obj.value ?? '';
                 // 替换不可以作为文件名的特殊字符
-                if (!val.safe) {
+                if (!obj.safe) {
                     temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.replaceUnsafeStr(temp);
                 }
+                // 移除 Emoji。这可能导致一些标记的值变成空字符串，所以需要放在前面，以便后续处理空字符串的情况
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.removeEmoji) {
+                    temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.removeEmojis(temp);
+                }
+                // 有些标记可能是空字符串，移除它们前面的分割符号
+                if (temp === '') {
+                    result = this.removeEmptyTag(result, tag);
+                }
                 // 将标记替换成结果，如果有重复的标记，全部替换
-                result = result.replace(new RegExp(key, 'g'), temp);
+                result = result.replace(new RegExp(tag, 'g'), temp);
             }
         }
         // 移除文件名开头的不可用的特殊字符
@@ -4195,7 +4196,7 @@ class FileName {
         if (typeof rank === 'string') {
             return rank;
         }
-        // 其他的情况则应该是期望的值（数字类型）
+        // 其他的情况则应该是期望的 number 类型
         return '#' + rank;
     }
     // 生成 {p_num} 标记的值
@@ -4248,6 +4249,19 @@ class FileName {
             return str.slice(0, str.length - 3) + '000+';
         }
     }
+    /** 获取小说的字数 */
+    getCharCount(data) {
+        if (data.type !== 3) {
+            return '';
+        }
+        if (data.novelMeta?.charCount) {
+            return data.novelMeta.charCount.toString();
+        }
+        else {
+            // 早期版本里没有 charCount 这个字段，所以不可用
+            return '';
+        }
+    }
     // 在文件名前面添加一层文件夹
     // appendFolder 方法会对非法字符进行处理（包括处理路径分隔符 / 这主要是因为 tags 可能含有斜线 /，需要替换）
     appendFolder(fullPath, folderName) {
@@ -4293,13 +4307,12 @@ class FileName {
     /** 如果某个标记的值是空字符串，则检查它前面是否有分割字符，有的话就把它和分隔符一起去掉。返回修改后的 rule */
     // 例如：如果 {part} 是空字符串，那么 `-{part}` 会留下一个横线 `-`
     // 这里的处理是为了去掉横线。除了 `-` 还检测了其他一些常用的分割字符
-    // 但如果用户在前面添加了自定义文字，是无法去掉自定义文字的，例如 `part:{part}` 会留下 `part`
+    // 但如果用户在前面添加了自定义文字，是无法去掉自定义文字的，例如 `part:{part}` 会留下 `part:`
     removeEmptyTag(rule, tag) {
         const symbols = ['-', '_', ' ', ',', '&', '#'];
         for (const symbol of symbols) {
             rule = rule.replaceAll(symbol + tag, '');
         }
-        // 不需要替换这个标记本身，因为在后续步骤里它会被替换成它的值（空字符串）
         return rule;
     }
     /** 处理一些边界情况 */
@@ -6796,7 +6809,7 @@ class OpenCenterPanel {
         this.btn.id = 'openCenterPanelBtn';
         this.btn.setAttribute('data-xztitle', '_显示控制面板');
         this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-dakai"></use>
+  <use xlink:href="#icon-open"></use>
 </svg>`;
         document.body.append(this.btn);
         _Language__WEBPACK_IMPORTED_MODULE_1__.lang.register(this.btn);
@@ -6804,8 +6817,7 @@ class OpenCenterPanel {
     bindEvents() {
         // 这里阻止事件冒泡是为了配合 CenterPanel 的“点击页面其他部分隐藏 CenterPanel”的效果
         this.btn.addEventListener('click', (e) => {
-            const ev = e || window.event;
-            ev.stopPropagation();
+            e.stopPropagation();
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('openCenterPanel');
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.centerPanelClosed, () => {
@@ -9670,14 +9682,14 @@ class SetUserName {
         <div class="btns">
           <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-wanchengqueding"></use>
+              <use xlink:href="#icon-yes_submit"></use>
             </svg>
           </button>
 
           
           <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-guanbiquxiao"></use>
+              <use xlink:href="#icon-close_cancel"></use>
             </svg>
           </button>
         </div>
@@ -9757,13 +9769,13 @@ class SetUserName {
       <div class="btns">
         <button type="button" class="textButton refresh" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-gengxin"></use>
+            <use xlink:href="#icon-refresh"></use>
           </svg>
         </button>
 
         <button type="button" class="textButton delete" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-shanchu1"></use>
+            <use xlink:href="#icon-delete"></use>
           </svg>
         </button>
     </div>`;
@@ -11048,13 +11060,12 @@ class Tip {
         const tips = document.querySelectorAll('.has_tip');
         for (const el of tips) {
             for (const ev of ['mouseenter', 'mouseleave']) {
-                el.addEventListener(ev, (event) => {
-                    const e = (event || window.event);
+                el.addEventListener(ev, (e) => {
                     const text = el.dataset.tip;
                     this.showTip(text, {
                         type: ev === 'mouseenter' ? 1 : 0,
-                        x: e.clientX,
-                        y: e.clientY,
+                        x: e.clientX || 0,
+                        y: e.clientY || 0,
                     });
                 });
             }
@@ -13937,28 +13948,22 @@ class InitPageBase {
             _store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode = false;
             this.ajaxThread = Math.min(this.ajaxThreadsDefault, _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length);
         }
-        // 快速下载单个作品时，优先从缓存读取
-        // 其实缓存数据里的某些值可能不是作品的最新值了，但是下载单个作品时，通常距离缓存时没过去多久
-        // 所以就使用缓存了
-        // 这通常是由 crawlIdList 触发的，比如：
+        // 快速下载单个作品的情况。这通常是由 crawlIdList 触发的，比如：
         // 在作品页里快速下载这个作品；预览图片时按快捷键下载；点击缩略图右上角的下载按钮
+        // 对于图像作品，优先从缓存读取。其实缓存数据里的某些值可能不是作品的最新值了，但是下载单个作品时，通常距离缓存时没过去多久，所以就使用缓存了
+        // 不检查 novelSeries 类型的作品，因为目前不会缓存系列小说的数据
+        // 也不检查 novels 类型的作品，因为小说可能属于系列小说，可能需要自动合并系列小说，所以必须走正常抓取流程处理，不能在这里跳过抓取流程
         if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.quickCrawl &&
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length === 1 &&
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].type !== 'novelSeries') {
-            const type = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].type === 'novels' ? 'novel' : 'artwork';
-            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id, type);
+            ['illusts', 'manga', 'ugoira'].includes(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].type)) {
+            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id, 'artwork');
             if (data) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = [];
-                if (type === 'artwork') {
-                    await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__.saveArtworkData.save(data);
-                }
-                else {
-                    await _store_SaveNovelData__WEBPACK_IMPORTED_MODULE_11__.saveNovelData.save(data);
-                }
+                await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__.saveArtworkData.save(data);
                 return this.crawlFinished();
             }
         }
-        // 如果没有缓存，或者要抓取多个作品，则进行真正的抓取
+        // 进入抓取流程
         this.startGetWorksData();
     }
     /** 并发调用 getWorksData 方法 */
@@ -14204,6 +14209,12 @@ class InitPageBase {
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取结果为零并且所有作品都产生了合并系列小说时的提示'));
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('✅' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取完毕'));
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
+            // 在这里触发 exportLog 属于特殊处理。因为合并系列小说是抓取阶段的任务，如果用户选择的导出日志的时机是“下载完毕”，就不会导出任何日志，这会让用户感到困惑。所以在这里触发事件来导出日志
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.exportLogTiming === 'downloadComplete') {
+                setTimeout(() => {
+                    _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('exportLog');
+                }, 0);
+            }
             return;
         }
         const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取结果为零请检查筛选条件');
@@ -19815,7 +19826,7 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         });
     }
     addAnyElement() {
-        _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_合并系列小说', '', 'mergeSeriesNovel').addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue, '_合并系列小说', '', 'mergeSeriesNovel').addEventListener('click', async () => {
             _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('closeCenterPanel');
             const seriesId = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLPathField(window.location.pathname, 'series');
             let seriseTitle = '';
@@ -19824,7 +19835,8 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             if (meta) {
                 seriseTitle = meta.getAttribute('content') || '';
             }
-            new _download_MergeNovel__WEBPACK_IMPORTED_MODULE_6__.MergeNovel().merge(seriesId, seriseTitle);
+            await new _download_MergeNovel__WEBPACK_IMPORTED_MODULE_6__.MergeNovel().merge(seriesId, seriseTitle);
+            _EVT__WEBPACK_IMPORTED_MODULE_7__.EVT.fire('exportLog');
         });
     }
     async nextStep() {
@@ -20840,7 +20852,9 @@ class AutoMergeNovel {
                 window.setTimeout(() => {
                     const completed = this.completedQueue.length;
                     if (completed > 0) {
-                        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_本次抓取一共合并了x个系列小说包含y篇小说', completed.toString(), this.novelTotal.toString()));
+                        const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_本次抓取一共合并了x个系列小说包含y篇小说', completed.toString(), this.novelTotal.toString());
+                        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(msg);
+                        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log('');
                     }
                     if (evt === _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.stopCrawl && this.workingId) {
                         _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_提示有一个系列正在合并中'));
@@ -24410,6 +24424,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+;
+[];
 class MergeNovelFileName {
     /**参数 part 只有在这个系列小说分割成多个文件时才需要传递。如果值为 0 不会生效，大于 0 才会生效 */
     getName(seriesData, part = 0) {
@@ -24418,7 +24434,7 @@ class MergeNovelFileName {
         // {series_title}-{series_id}-{user}-{user_id}-{part}-{age}-{age_r}-{AI}-{lang}-{total}-{char_count}-{create_date}-{last_date}-{task_date}-{first_id}-{latest_id}-{tags}-{page_tag}-{page_title}.{ext}
         const body = seriesData.body;
         // 生成所有命名标记的值
-        const cfg = {
+        const schema = {
             '{series_title}': {
                 value: body.title,
                 safe: false,
@@ -24461,11 +24477,11 @@ class MergeNovelFileName {
                 safe: true,
             },
             '{total}': {
-                value: body.displaySeriesContentCount,
+                value: body.displaySeriesContentCount.toString(),
                 safe: true,
             },
             '{char_count}': {
-                value: body.publishedTotalCharacterCount,
+                value: this.getCharCount(body),
                 safe: true,
             },
             '{create_date}': {
@@ -24507,36 +24523,29 @@ class MergeNovelFileName {
                 safe: false,
             },
         };
-        // 有些标记可能是空字符串，移除它们
-        const mayEmptyList = [
-            '{part}',
-            '{page_tag}',
-            '{AI}',
-            '{age_r}',
-            '{tags}',
-        ];
-        mayEmptyList.forEach((tag) => {
-            if (cfg[tag].value === '') {
-                rule = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.removeEmptyTag(rule, tag);
-            }
-        });
         // 如果 {part} 不为空，但命名规则里没有 {part}，则在末尾添加 '-{part}'
-        if (cfg['{part}'].value && !rule.includes('{part}')) {
+        if (schema['{part}'].value && !rule.includes('{part}')) {
             const name = rule.split('.{ext}')[0];
             rule = name + '-{part}.{ext}';
         }
         // 生成文件名
-        let name = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.generateFileName(rule, cfg);
+        let name = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.generateFileName(rule, schema);
         // 处理一些边界情况
         name = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.handleEdgeCases(name);
         // 处理文件名长度限制
-        const extResult = '.' + cfg['{ext}'].value;
+        const extResult = '.' + schema['{ext}'].value;
         // 截断文件名的时候移除后缀名部分，然后再添加回来，以避免发生截断后缀名的情况
         let part1 = name.split(extResult)[0];
-        part1 = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.lengthLimit(part1, extResult, cfg['{series_id}'].value);
+        part1 = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.lengthLimit(part1, extResult, schema['{series_id}'].value);
         name = part1 + extResult;
         // 返回结果
         return name;
+    }
+    getCharCount(body) {
+        const count = body.useWordCount
+            ? body.publishedTotalWordCount
+            : body.publishedTotalCharacterCount;
+        return (count ?? '').toString();
     }
 }
 const mergeNovelFileName = new MergeNovelFileName();
@@ -26298,14 +26307,14 @@ class BlockTagsForSpecificUser {
         <div class="btns">
           <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-wanchengqueding"></use>
+              <use xlink:href="#icon-yes_submit"></use>
             </svg>
           </button>
 
           
           <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-guanbiquxiao"></use>
+              <use xlink:href="#icon-close_cancel"></use>
             </svg>
           </button>
         </div>
@@ -26402,13 +26411,13 @@ class BlockTagsForSpecificUser {
 
         <button type="button" class="textButton refresh" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-gengxin"></use>
+            <use xlink:href="#icon-refresh"></use>
           </svg>
         </button>
 
         <button type="button" class="textButton delete" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-shanchu1"></use>
+            <use xlink:href="#icon-delete"></use>
           </svg>
         </button>
       </div>
@@ -29174,6 +29183,14 @@ Zip 파일이 원본 파일입니다.`,
         '너비와 높이. 예: <span class="blue">600x900</span>. 소설 작품에는 이 속성이 없으며, 다운로더는 이를 무시합니다.',
         'Ширина и высота, напр. <span class="blue">600x900</span>. У романов нет этого свойства, и загрузчик игнорирует его.',
     ],
+    _命名标记char_count: [
+        `小说的字数或单词数（取决于小说的语言），是数字。当作品不是小说时会被忽略。`,
+        `小說的字數或單詞數（取決於小說的語言），是數字。當作品不是小說時會被忽略。`,
+        `The number of characters or words in the novel (depending on the language of the novel), it is a number. It will be ignored when the work is not a novel.`,
+        `小説の文字数または単語数（小説の言語による）、数値です。作品が小説でない場合は無視されます。`,
+        `소설의 글자 수 또는 단어 수 (소설의 언어에 따라), 숫자입니다. 작품이 소설이 아닌 경우 무시됩니다.`,
+        `Количество символов или слов в романе (зависит от языка романа), это число. Игнорируется, если работа не является романом.`,
+    ],
     _命名标记bmk: [
         'Bookmark count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
         'Bookmark count，作品的收藏數。將它放在最前面可以讓檔案依收藏數排序。',
@@ -29477,10 +29494,51 @@ Zip 파일이 원본 파일입니다.`,
     _常见问题: [
         '常见问题',
         '常見問題',
-        'Help',
+        'FAQ',
         'よくある質問',
         '도움말',
         'помощь',
+    ],
+    _获取帮助: [
+        `获取帮助`,
+        `獲取幫助`,
+        `Get Help`,
+        `ヘルプを表示`,
+        `도움 받기`,
+        `Получить помощь`,
+    ],
+    _获取帮助的提示: [
+        `你可以通过以下方式来交流、求助和反馈问题：<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+- 中文用户可以加下载器的 QQ 群：674991373<br>
+<br>
+提示：请不要在 Chrome Web Store 的评价里反馈问题，因为有些评价会被 Google 过滤掉，所以我可能无法回复你。`,
+        `你可以通过以下方式來交流、求助和反饋問題：<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+<br>
+提示：請不要在 Chrome Web Store 的評價裡反饋問題，因為有些評價會被 Google 過濾掉，所以我可能無法回覆你。`,
+        `You can communicate, ask for help, and report issues through the following ways:<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+<br>
+Tip: Please do not report issues in the Chrome Web Store reviews, as some reviews may be filtered by Google, so I may not be able to reply to you.`,
+        `以下の方法で交流、質問、問題の報告ができます：<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+<br>
+ヒント：Chrome Web Store のレビューで問題を報告しないでください。一部のレビューは Google によってフィルタリングされるため、返信できない場合があります。`,
+        `다음 방법으로 소통, 도움 요청, 문제 피드백을 할 수 있습니다:<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+<br>
+팁: Chrome Web Store 리뷰에 문제를 보고하지 마세요. 일부 리뷰는 Google에 의해 필터링될 수 있어 답변을 드리지 못할 수 있습니다.`,
+        `Вы можете общаться, обращаться за помощью и сообщать о проблемах следующими способами:<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+<br>
+Подсказка: Пожалуйста, не сообщайте о проблемах в отзывах Chrome Web Store, поскольку некоторые отзывы могут быть отфильтрованы Google, и я могу не смочь вам ответить.`,
     ],
     _uuid: [
         `下载器检测到下载后的文件名可能异常。如果文件名是一串随机的字母和数字，或者没有使用下载器设置里的命名规则，就表示发生了此问题。<br>
@@ -29618,10 +29676,6 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     你也可以查看我写的使用体验：<a href="https://saber.love/?p=12736" title="魔法喵使用体验" target="_blank">魔法喵使用体验</a>
     <br>
     我的邀请码：GYjQWDob
-    <br><br>
-    下载器的 QQ 群：674991373
-    <br>
-    如果你有一些问题想要问我，可以加群后直接私聊我。发在群里有时我不能及时看到。
     <br><br>`,
         `下載的文件保存在瀏覽器的下載目錄裡。如果您想保存到其他位置，需要修改瀏覽器的下載目錄。
     <br><br>
@@ -36257,6 +36311,14 @@ Ugoira 파일명에서 순번 “p0”을 생략하려면 “더보기”-“명
         `네트워크 오류로 인해 이 작품을 건너뛰었습니다: {}`,
         `Пропущена эта работа из-за сетевой ошибки: {}`,
     ],
+    _移除文件名里的emoji: [
+        `移除文件名里的 <span class="key">Emoji</span>`,
+        `移除檔名裡的 <span class="key">Emoji</span>`,
+        `Remove <span class="key">Emoji</span> from filename`,
+        `ファイル名から <span class="key">Emoji</span> を削除`,
+        `파일 이름에서 <span class="key">Emoji</span> 제거`,
+        `Удалить <span class="key">Emoji</span> из имени файла`,
+    ],
 };
 
 
@@ -36304,8 +36366,7 @@ class OutputPanel {
             this.close();
         });
         this.outputPanel.addEventListener('click', (e) => {
-            const ev = e || window.event;
-            ev.stopPropagation();
+            e.stopPropagation();
         });
         document.addEventListener('click', () => {
             if (this.outputPanel.style.display !== 'none') {
@@ -39006,14 +39067,14 @@ class DoNotDownloadLastFewImages {
         <div class="btns">
           <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-wanchengqueding"></use>
+              <use xlink:href="#icon-yes_submit"></use>
             </svg>
           </button>
 
           
           <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-guanbiquxiao"></use>
+              <use xlink:href="#icon-close_cancel"></use>
             </svg>
           </button>
         </div>
@@ -39098,13 +39159,13 @@ class DoNotDownloadLastFewImages {
       <div class="btns">
         <button type="button" class="textButton refresh" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-gengxin"></use>
+            <use xlink:href="#icon-refresh"></use>
           </svg>
         </button>
 
         <button type="button" class="textButton delete" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-shanchu1"></use>
+            <use xlink:href="#icon-delete"></use>
           </svg>
         </button>
     </div>`;
@@ -39617,7 +39678,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Wiki__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Wiki */ "./src/ts/setting/Wiki.ts");
 
 
-// 设置项编号从 0 开始，现在最大是 96
+// 设置项编号从 0 开始，现在最大是 97
 const formHtml = `
 <form class="settingForm">
   <div class="tabsContnet">
@@ -40013,6 +40074,7 @@ const formHtml = `
         <option value="{upload_date}">{upload_date}</option>
         <option value="{task_date}">{task_date}</option>
         <option value="{px}">{px}</option>
+        <option value="{char_count}">{char_count}</option>
         <option value="{series_title}">{series_title}</option>
         <option value="{series_order}">{series_order}</option>
         <option value="{series_id}">{series_id}</option>
@@ -40101,6 +40163,9 @@ const formHtml = `
       <br>
       * <span class="blue name">{px}</span>
       <span data-xztext="_命名标记px"></span>
+      <br>
+      * <span class="blue name">{char_count}</span>
+      <span data-xztext="_命名标记char_count"></span>
       <br>
       * <span class="blue name">{series_title}</span>
       <span data-xztext="_命名标记seriesTitle"></span>
@@ -40405,6 +40470,15 @@ const formHtml = `
     <p class="tip" id="tagsSeparatorTip">
       <span data-xztext="_标签分隔符号提示"></span>
     </p>
+    
+    <p class="option" data-no="97">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(97)}" target="_blank" class="settingNameStyle">
+        <span data-xztext="_移除文件名里的emoji"></span>
+      </a>
+      <input type="checkbox" name="removeEmoji" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+    </p>
+
     <p class="option" data-no="67">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(67)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_移除用户名中的at和后续字符的说明">
         <span data-xztext="_移除用户名中的at和后续字符"></span>
@@ -41300,6 +41374,7 @@ class FormSettings {
             'copyWorkInfoFormat',
             'crawlLatestFewWorksNumber',
             'fullNameLengthLimit',
+            'removeEmoji',
         ],
         radio: [
             'ugoiraSaveAs',
@@ -41756,42 +41831,6 @@ class Options {
     newRange = 7776000000;
     newOptions = [
         {
-            // 复制按钮
-            id: 14,
-            // 2025-10-22
-            time: 1761091200000,
-        },
-        {
-            // 抓取每个用户最新的几个作品
-            id: 15,
-            // 2025-11-04
-            time: 1762214400000,
-        },
-        {
-            // 把文件保存到用户上次选择的位置
-            id: 20,
-            // 2025-11-04
-            time: 1762214400000,
-        },
-        {
-            // 自动合并系列小说
-            id: 73,
-            // 2025-11-17
-            time: 1763337600000,
-        },
-        {
-            // 合并系列小说时的命名规则
-            id: 91,
-            // 2025-11-24
-            time: 1763942400000,
-        },
-        {
-            // 过滤搜索页面的作品
-            id: 92,
-            // 2025-12-19
-            time: 1766102400000,
-        },
-        {
             // 日志区域的默认可见性
             id: 93,
             // 2026-02-28
@@ -41814,6 +41853,12 @@ class Options {
             id: 96,
             // 2026-03-24
             time: 1774310400000,
+        },
+        {
+            // 移除文件名里的 Emoji
+            id: 97,
+            // 2026-04-08
+            time: 1775579018462,
         },
     ];
     bindEvents() {
@@ -42615,6 +42660,7 @@ class Settings {
         crawlNonOriginalWork: true,
         looseMatchOriginal: true,
         tipImageViewer: true,
+        removeEmoji: false,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的选项
@@ -43010,14 +43056,14 @@ class UseDifferentNameRuleIfWorkHasTag {
         <div class="btns">
           <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-wanchengqueding"></use>
+              <use xlink:href="#icon-yes_submit"></use>
             </svg>
           </button>
 
           
           <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-guanbiquxiao"></use>
+              <use xlink:href="#icon-close_cancel"></use>
             </svg>
           </button>
         </div>
@@ -43102,13 +43148,13 @@ class UseDifferentNameRuleIfWorkHasTag {
       <div class="btns">
         <button type="button" class="textButton refresh" data-updateRule="${id}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-gengxin"></use>
+            <use xlink:href="#icon-refresh"></use>
           </svg>
         </button>
 
         <button type="button" class="textButton delete" data-deleteRule="${id}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-shanchu1"></use>
+            <use xlink:href="#icon-delete"></use>
           </svg>
         </button>
     </div>`;
@@ -43319,7 +43365,7 @@ class Wiki {
         ],
         Download: [13, 50, 64, 16, 17, 33, 20],
         'More-Crawl': [57, 59, 75, 69, 35, 39, 74, 54, 85],
-        'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66],
+        'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66, 97],
         'More-Download': [
             58, 52, 90, 91, 76, 77, 4, 24, 26, 27, 70, 72, 73, 49, 89, 30, 25, 82, 28,
         ],
@@ -43791,6 +43837,7 @@ class SaveNovelData {
             const seriesOrder = body.seriesNavData?.order || null;
             // 这个 description 是保存到抓取结果里的，尽量保持原样，所以保留了 html 标签
             const description = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlDecode(body.description);
+            const charCount = body.useWordCount ? body.wordCount : body.characterCount;
             // descriptionNoHtmlTag 保存在 novelMeta.description 里
             // 它会在生成的小说里显示，供读者阅读，所以移除了 html 标签，只保留纯文本
             // 处理后，换行标记是 \n 而不是 <br/>
@@ -43835,8 +43882,9 @@ class SaveNovelData {
                     createDate: body.createDate,
                     uploadDate: body.uploadDate,
                     userName: body.userName,
-                    embeddedImages: embeddedImages,
-                    tags: tags,
+                    embeddedImages,
+                    tags,
+                    charCount,
                 },
                 xRestrict: body.xRestrict,
             });
@@ -62372,6 +62420,10 @@ class Utils {
             }
         }
         return array.reverse().join('');
+    }
+    /** 移除字符串里的 emoji */
+    static removeEmojis(str) {
+        return str.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '');
     }
 }
 

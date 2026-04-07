@@ -1097,6 +1097,13 @@ export interface NovelData {
       id: string
       private: boolean
     }
+    /** 字符数量。CJK 文本使用这个值 */
+    characterCount: number
+    /** 单词数量。非 CJK 文本使用这个值 */
+    wordCount: number
+    /** 是否使用单词计数 */
+    useWordCount: boolean
+    readingTime: number
     commentCount: number
     markerCount: number
     createDate: string
@@ -1271,13 +1278,14 @@ export interface NovelSeriesData {
     tags: string[]
     /** 系列里的小说总数量 */
     publishedContentCount: number
-    /** 所有小说的总字数 */
+    /** 所有小说的总字数（适用于 CJK 文本） */
     publishedTotalCharacterCount: number
-    /** 所有小说的总词数 */
+    /** 所有小说的总单词数（适用于非 CJK 文本） */
     publishedTotalWordCount: number
+    /** 是否使用单词数 */
+    useWordCount: boolean
     /** 所有小说的估计阅读总时间（每篇小说的阅读时间加起来）。页面上显示的阅读时间是分钟数，这个字段是秒数 */
     publishedReadingTime: number
-    useWordCount: boolean
     /** 系列小说里最新一篇小说的发布时间（时间戳，没有毫秒部分） */
     lastPublishedContentTimestamp: number
     /** 系列小说的创建时间（时间戳，没有毫秒部分） */

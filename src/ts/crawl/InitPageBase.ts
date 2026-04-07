@@ -439,30 +439,25 @@ abstract class InitPageBase {
       this.ajaxThread = Math.min(this.ajaxThreadsDefault, store.idList.length)
     }
 
-    // 快速下载单个作品时，优先从缓存读取
-    // 其实缓存数据里的某些值可能不是作品的最新值了，但是下载单个作品时，通常距离缓存时没过去多久
-    // 所以就使用缓存了
-    // 这通常是由 crawlIdList 触发的，比如：
+    // 快速下载单个作品的情况。这通常是由 crawlIdList 触发的，比如：
     // 在作品页里快速下载这个作品；预览图片时按快捷键下载；点击缩略图右上角的下载按钮
+    // 对于图像作品，优先从缓存读取。其实缓存数据里的某些值可能不是作品的最新值了，但是下载单个作品时，通常距离缓存时没过去多久，所以就使用缓存了
+    // 不检查 novelSeries 类型的作品，因为目前不会缓存系列小说的数据
+    // 也不检查 novels 类型的作品，因为小说可能属于系列小说，可能需要自动合并系列小说，所以必须走正常抓取流程处理，不能在这里跳过抓取流程
     if (
       states.quickCrawl &&
       store.idList.length === 1 &&
-      store.idList[0].type !== 'novelSeries'
+      ['illusts', 'manga', 'ugoira'].includes(store.idList[0].type)
     ) {
-      const type = store.idList[0].type === 'novels' ? 'novel' : 'artwork'
-      const data = cacheWorkData.get(store.idList[0].id, type)
+      const data = cacheWorkData.get(store.idList[0].id, 'artwork')
       if (data) {
         store.idList = []
-        if (type === 'artwork') {
-          await saveArtworkData.save(data as ArtworkData)
-        } else {
-          await saveNovelData.save(data as NovelData)
-        }
+        await saveArtworkData.save(data)
         return this.crawlFinished()
       }
     }
 
-    // 如果没有缓存，或者要抓取多个作品，则进行真正的抓取
+    // 进入抓取流程
     this.startGetWorksData()
   }
 
@@ -749,6 +744,13 @@ abstract class InitPageBase {
       )
       log.success('✅' + lang.transl('_抓取完毕'))
       log.log('')
+
+      // 在这里触发 exportLog 属于特殊处理。因为合并系列小说是抓取阶段的任务，如果用户选择的导出日志的时机是“下载完毕”，就不会导出任何日志，这会让用户感到困惑。所以在这里触发事件来导出日志
+      if (settings.exportLogTiming === 'downloadComplete') {
+        setTimeout(() => {
+          EVT.fire('exportLog')
+        }, 0)
+      }
       return
     }
 

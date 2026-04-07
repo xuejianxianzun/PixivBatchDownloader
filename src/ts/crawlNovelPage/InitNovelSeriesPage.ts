@@ -36,7 +36,7 @@ class InitNovelSeriesPage extends InitPageBase {
       '_合并系列小说',
       '',
       'mergeSeriesNovel'
-    ).addEventListener('click', () => {
+    ).addEventListener('click', async () => {
       EVT.fire('closeCenterPanel')
       const seriesId = Utils.getURLPathField(window.location.pathname, 'series')
       let seriseTitle = ''
@@ -45,7 +45,8 @@ class InitNovelSeriesPage extends InitPageBase {
       if (meta) {
         seriseTitle = meta.getAttribute('content') || ''
       }
-      new MergeNovel().merge(seriesId, seriseTitle)
+      await new MergeNovel().merge(seriesId, seriseTitle)
+      EVT.fire('exportLog')
     })
   }
 

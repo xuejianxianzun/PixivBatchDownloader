@@ -1258,6 +1258,14 @@ Zip 파일이 원본 파일입니다.`,
     '너비와 높이. 예: <span class="blue">600x900</span>. 소설 작품에는 이 속성이 없으며, 다운로더는 이를 무시합니다.',
     'Ширина и высота, напр. <span class="blue">600x900</span>. У романов нет этого свойства, и загрузчик игнорирует его.',
   ],
+  _命名标记char_count: [
+    `小说的字数或单词数（取决于小说的语言），是数字。当作品不是小说时会被忽略。`,
+    `小說的字數或單詞數（取決於小說的語言），是數字。當作品不是小說時會被忽略。`,
+    `The number of characters or words in the novel (depending on the language of the novel), it is a number. It will be ignored when the work is not a novel.`,
+    `小説の文字数または単語数（小説の言語による）、数値です。作品が小説でない場合は無視されます。`,
+    `소설의 글자 수 또는 단어 수 (소설의 언어에 따라), 숫자입니다. 작품이 소설이 아닌 경우 무시됩니다.`,
+    `Количество символов или слов в романе (зависит от языка романа), это число. Игнорируется, если работа не является романом.`,
+  ],
   _命名标记bmk: [
     'Bookmark count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
     'Bookmark count，作品的收藏數。將它放在最前面可以讓檔案依收藏數排序。',
@@ -1561,10 +1569,51 @@ Zip 파일이 원본 파일입니다.`,
   _常见问题: [
     '常见问题',
     '常見問題',
-    'Help',
+    'FAQ',
     'よくある質問',
     '도움말',
     'помощь',
+  ],
+  _获取帮助: [
+    `获取帮助`,
+    `獲取幫助`,
+    `Get Help`,
+    `ヘルプを表示`,
+    `도움 받기`,
+    `Получить помощь`,
+  ],
+  _获取帮助的提示: [
+    `你可以通过以下方式来交流、求助和反馈问题：<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+- 中文用户可以加下载器的 QQ 群：674991373<br>
+<br>
+提示：请不要在 Chrome Web Store 的评价里反馈问题，因为有些评价会被 Google 过滤掉，所以我可能无法回复你。`,
+    `你可以通过以下方式來交流、求助和反饋問題：<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+<br>
+提示：請不要在 Chrome Web Store 的評價裡反饋問題，因為有些評價會被 Google 過濾掉，所以我可能無法回覆你。`,
+    `You can communicate, ask for help, and report issues through the following ways:<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+<br>
+Tip: Please do not report issues in the Chrome Web Store reviews, as some reviews may be filtered by Google, so I may not be able to reply to you.`,
+    `以下の方法で交流、質問、問題の報告ができます：<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+<br>
+ヒント：Chrome Web Store のレビューで問題を報告しないでください。一部のレビューは Google によってフィルタリングされるため、返信できない場合があります。`,
+    `다음 방법으로 소통, 도움 요청, 문제 피드백을 할 수 있습니다:<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+<br>
+팁: Chrome Web Store 리뷰에 문제를 보고하지 마세요. 일부 리뷰는 Google에 의해 필터링될 수 있어 답변을 드리지 못할 수 있습니다.`,
+    `Вы можете общаться, обращаться за помощью и сообщать о проблемах следующими способами:<br>
+- <a href="https://discord.gg/eW9JtTK" target="_blank">Discord</a><br>
+- <a href="https://github.com/xuejianxianzun/PixivBatchDownloader/issues" target="_blank">Github issues</a><br>
+<br>
+Подсказка: Пожалуйста, не сообщайте о проблемах в отзывах Chrome Web Store, поскольку некоторые отзывы могут быть отфильтрованы Google, и я могу не смочь вам ответить.`,
   ],
   _uuid: [
     `下载器检测到下载后的文件名可能异常。如果文件名是一串随机的字母和数字，或者没有使用下载器设置里的命名规则，就表示发生了此问题。<br>
@@ -1707,10 +1756,6 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     你也可以查看我写的使用体验：<a href="https://saber.love/?p=12736" title="魔法喵使用体验" target="_blank">魔法喵使用体验</a>
     <br>
     我的邀请码：GYjQWDob
-    <br><br>
-    下载器的 QQ 群：674991373
-    <br>
-    如果你有一些问题想要问我，可以加群后直接私聊我。发在群里有时我不能及时看到。
     <br><br>`,
 
     `下載的文件保存在瀏覽器的下載目錄裡。如果您想保存到其他位置，需要修改瀏覽器的下載目錄。
@@ -8355,6 +8400,14 @@ Ugoira 파일명에서 순번 “p0”을 생략하려면 “더보기”-“명
     `ネットワークエラーのためこの作品をスキップしました: {}`,
     `네트워크 오류로 인해 이 작품을 건너뛰었습니다: {}`,
     `Пропущена эта работа из-за сетевой ошибки: {}`,
+  ],
+  _移除文件名里的emoji: [
+    `移除文件名里的 <span class="key">Emoji</span>`,
+    `移除檔名裡的 <span class="key">Emoji</span>`,
+    `Remove <span class="key">Emoji</span> from filename`,
+    `ファイル名から <span class="key">Emoji</span> を削除`,
+    `파일 이름에서 <span class="key">Emoji</span> 제거`,
+    `Удалить <span class="key">Emoji</span> из имени файла`,
   ],
 }
 
