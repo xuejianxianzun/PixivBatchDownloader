@@ -16,6 +16,7 @@ interface NamingSchema {
 ;[]
 
 // 生成文件名
+// 没有必要保存缓存，因为每次生成文件名的耗时小于 1 ms，不需要用空间换时间
 class FileName {
   // 下载器所有的动图格式后缀名
   private readonly ugoiraExt = ['zip', 'webm', 'gif', 'apng']

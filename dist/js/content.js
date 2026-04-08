@@ -3868,6 +3868,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 [];
 // 生成文件名
+// 没有必要保存缓存，因为每次生成文件名的耗时小于 1 ms，不需要用空间换时间
 class FileName {
     // 下载器所有的动图格式后缀名
     ugoiraExt = ['zip', 'webm', 'gif', 'apng'];
@@ -21335,7 +21336,7 @@ class Download {
     // 下载文件
     async download(arg) {
         // 获取文件名
-        const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_4__.fileName.createFileName(arg.result);
+        let _fileName = _FileName__WEBPACK_IMPORTED_MODULE_4__.fileName.createFileName(arg.result);
         // 重设当前下载栏的信息
         this.setProgressBar(_fileName, 0, 0);
         // 下载文件
@@ -21468,6 +21469,27 @@ class Download {
                         id: arg.id,
                         reason: 'color',
                     }, _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_不保存图片因为颜色', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(arg.id)));
+                }
+            }
+            // 从第二张图片开始，检查图片的实际宽高，如果宽高与抓取结果里的不同，则重新生成文件名
+            // 这是因为每张图片的宽高可能都不一样，示例：
+            // https://www.pixiv.net/artworks/142726174
+            // 但是 Pixiv 的作品信息 API 里只有第一张图片的宽高，所以下载器在生成抓取结果时，会把每张图片的宽高都设置成第一张图片的宽高。但这可能不适用于从第二张开始的图片
+            // 所以需要重新生成 {px} 标记
+            if (arg.result.index > 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize === 'original') {
+                const size = await _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.getImageSize(blobURL);
+                if (size.width &&
+                    size.height &&
+                    arg.result.fullWidth !== size.width &&
+                    arg.result.fullHeight !== size.height) {
+                    // 重新生成文件名
+                    arg.result.fullWidth = size.width;
+                    arg.result.fullHeight = size.height;
+                    const newFileName = _FileName__WEBPACK_IMPORTED_MODULE_4__.fileName.createFileName(arg.result);
+                    if (newFileName !== _fileName) {
+                        _fileName = newFileName;
+                        this.setProgressBar(newFileName, file.size, file.size);
+                    }
                 }
             }
             // 向浏览器发送下载任务
@@ -24832,7 +24854,7 @@ class Resume {
         const clearDataEv = [_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadComplete, _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop];
         for (const ev of clearDataEv) {
             window.addEventListener(ev, async () => {
-                this.clearData();
+                this.clearData(ev);
             });
         }
         // 清空已保存的抓取结果
@@ -24982,7 +25004,7 @@ class Resume {
             }
         }, this.putStatesTime);
     }
-    async clearData() {
+    async clearData(ev) {
         if (!this.taskId) {
             return;
         }
@@ -24995,6 +25017,10 @@ class Resume {
         const dataIdList = this.createIdList(this.taskId, meta.part);
         for (const id of dataIdList) {
             this.IDB.delete(this.dataName, id);
+        }
+        // 当因为停止下载而清除保存的抓取结果时，显示提示，让用户知道这个机制
+        if (ev === _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadStop) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已清除这个URL里保存的抓取结果'));
         }
     }
     // 清除过期的数据
@@ -29181,12 +29207,12 @@ Zip 파일이 원본 파일입니다.`,
         'ID Юзера (Число)',
     ],
     _命名标记px: [
-        '宽度和高度。例如：<span class="blue">600x900</span>。小说作品没有这个属性，下载器会忽略它。',
-        '寬度和高度。例如：<span class="blue">600x900</span>。小說作品沒有這個屬性，下載器會忽略它。',
-        'Width and height, e.g. <span class="blue">600x900</span>. Novel works do not have this property, and the downloader will ignore it.',
-        '幅と高さ。例：<span class="blue">600x900</span>。小説作品にはこの属性がなく、ダウンロードツールはそれを無視します。',
-        '너비와 높이. 예: <span class="blue">600x900</span>. 소설 작품에는 이 속성이 없으며, 다운로더는 이를 무시합니다.',
-        'Ширина и высота, напр. <span class="blue">600x900</span>. У романов нет этого свойства, и загрузчик игнорирует его.',
+        `原图的宽度和高度。例如：<span class="blue">600x900</span>。小说作品没有这个属性，下载器会忽略它。`,
+        `原圖的寬度和高度。例如：<span class="blue">600x900</span>。小說作品沒有這個屬性，下載器會忽略它。`,
+        `The width and height of the original image. For example: <span class="blue">600x900</span>. Novel works do not have this property, and the downloader will ignore it.`,
+        `原画像の幅と高さ。例：<span class="blue">600x900</span>。小説作品にはこの属性がなく、ダウンロードツールはそれを無視します。`,
+        `원본 이미지의 너비와 높이. 예: <span class="blue">600x900</span>. 소설 작품에는 이 속성이 없으며, 다운로더는 이를 무시합니다.`,
+        `Ширина и высота оригинального изображения. Например: <span class="blue">600x900</span>. Романы не имеют этого свойства, и загрузчик будет игнорировать его。`,
     ],
     _命名标记char_count: [
         `小说的字数或单词数（取决于小说的语言），是数字。当作品不是小说时会被忽略。`,
@@ -30941,6 +30967,14 @@ Additional notes: <br>
         'クリアされたデータ',
         '데이터가 비워졌습니다',
         'Данные очищены',
+    ],
+    _已清除这个URL里保存的抓取结果: [
+        `已清除这个 URL 里保存的抓取结果`,
+        `已清除這個 URL 裡保存的抓取結果`,
+        `Cleared the crawl results saved for this URL`,
+        `この URL に保存されたクロール結果をクリアしました`,
+        `이 URL에 저장된 크롤링 결과가 지워졌습니다`,
+        `Очищены результаты краулинга, сохранённые для этого URL`,
     ],
     _已跳过n个文件: [
         '已跳过 {} 个文件',

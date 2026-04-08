@@ -22,6 +22,12 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/586
 
 细节：每片小说和系列小说的原始数据里都同时保存了 `characterCount`（字数）和 `wordCount`（单词数），由 `useWordCount` 决定使用哪个数字。下载器只会保存使用的那个数字。
 
+### 🔧{px} 标记会使用图片的实际宽高
+
+在多图作品里，每张图片的宽高可能都不一样。之前 `{px}` 标记总是会使用第一张图片的宽高，现在进行了优化：
+
+如果下载的图片尺寸是“原图”（默认就是原图），那么 `{px}` 标记会使用图片的实际宽高。
+
 ### 😊解决了合并系列小说时，导出日志功能可能不生效的问题
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/601

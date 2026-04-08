@@ -182,7 +182,7 @@ class Download {
   // 下载文件
   private async download(arg: downloadArgument) {
     // 获取文件名
-    const _fileName = fileName.createFileName(arg.result)
+    let _fileName = fileName.createFileName(arg.result)
 
     // 重设当前下载栏的信息
     this.setProgressBar(_fileName, 0, 0)
@@ -355,6 +355,30 @@ class Download {
             },
             lang.transl('_不保存图片因为颜色', Tools.createWorkLink(arg.id))
           )
+        }
+      }
+
+      // 从第二张图片开始，检查图片的实际宽高，如果宽高与抓取结果里的不同，则重新生成文件名
+      // 这是因为每张图片的宽高可能都不一样，示例：
+      // https://www.pixiv.net/artworks/142726174
+      // 但是 Pixiv 的作品信息 API 里只有第一张图片的宽高，所以下载器在生成抓取结果时，会把每张图片的宽高都设置成第一张图片的宽高。但这可能不适用于从第二张开始的图片
+      // 所以在下载图片时需要重新检查其宽高，如有必要就重新生成文件名。本质上，这是为了重新生成 {px} 标记的结果
+      if (arg.result.index > 0 && settings.imageSize === 'original') {
+        const size = await Utils.getImageSize(blobURL)
+        if (
+          size.width &&
+          size.height &&
+          arg.result.fullWidth !== size.width &&
+          arg.result.fullHeight !== size.height
+        ) {
+          // 重新生成文件名
+          arg.result.fullWidth = size.width
+          arg.result.fullHeight = size.height
+          const newFileName = fileName.createFileName(arg.result)
+          if (newFileName !== _fileName) {
+            _fileName = newFileName
+            this.setProgressBar(newFileName, file.size, file.size)
+          }
         }
       }
 
