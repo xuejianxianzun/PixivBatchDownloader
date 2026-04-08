@@ -213,6 +213,7 @@ class FormSettings {
       'downloadOrderSortBy',
       'copyImageSize',
       'logVisibleDefault',
+      'serialNoStart',
     ],
     textarea: [
       'notNeedTag',

@@ -1,7 +1,7 @@
 import { Config } from '../Config'
 import { wiki } from './Wiki'
 
-// 设置项编号从 0 开始，现在最大是 97
+// 设置项编号从 0 开始，现在最大是 98
 export const formHtml = `
 <form class="settingForm">
   <div class="tabsContnet">
@@ -740,6 +740,19 @@ export const formHtml = `
         <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
         <button type="button" class="gray1 textButton" id="showR18FolderNameTip" data-xztext="_提示"></button>
       </span>
+    </p>
+
+    <p class="option" data-no="98">
+      <a href="${wiki.link(98)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_序号起始值的说明">
+        <span data-xztext="_序号起始值"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="radio" name="serialNoStart" id="serialNoStart0" class="need_beautify radio" value="0" checked>
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="serialNoStart0"> 0 </label>
+      <input type="radio" name="serialNoStart" id="serialNoStart1" class="need_beautify radio" value="1">
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="serialNoStart1"> 1 </label>
     </p>
     
     <p class="option" data-no="22">

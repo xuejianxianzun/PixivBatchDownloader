@@ -339,6 +339,7 @@ interface XzSetting {
   looseMatchOriginal: boolean
   tipImageViewer: boolean
   removeEmoji: boolean
+  serialNoStart: 0 | 1
 }
 
 type SettingKeys = keyof XzSetting
@@ -827,11 +828,12 @@ class Settings {
     looseMatchOriginal: true,
     tipImageViewer: true,
     removeEmoji: false,
+    serialNoStart: 0,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
 
-  // 值为浮点数的选项
+  // 值为浮点数的设置
   private floatNumberKey = [
     'userRatio',
     'sizeMin',
@@ -839,12 +841,12 @@ class Settings {
     'downloadInterval',
   ]
 
-  // 值为整数的选项不必单独列出
+  // 值为整数的设置不必单独列出
 
-  // 值为 number[] 的选项（目前没有）
+  // 值为 number[] 的设置（目前没有）
   private numberArrayKeys = []
 
-  // 值为字符串数组的选项
+  // 值为字符串数组的设置
   private stringArrayKeys = [
     'namingRuleList',
     'blockList',

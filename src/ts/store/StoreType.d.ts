@@ -112,7 +112,8 @@ export interface ResultOptional {
  * 所有属性都是必须的，并且添加了 index 属性。 */
 export type Result = Required<
   {
-    /**这个文件在作品中的索引，从 0 开始 */
+    /**这个文件在作品中的索引，总是从 0 开始 */
+    // 即使用户设置了序号的起始值从 1 开始，也不会影响 index
     index: number
   } & ResultOptional
 >

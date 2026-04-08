@@ -8409,6 +8409,22 @@ Ugoira 파일명에서 순번 “p0”을 생략하려면 “더보기”-“명
     `파일 이름에서 <span class="key">Emoji</span> 제거`,
     `Удалить <span class="key">Emoji</span> из имени файла`,
   ],
+  _序号起始值: [
+    `<span class="key">序号</span>的起始值`,
+    `<span class="key">序號</span>的起始值`,
+    `<span class="key">Serial number</span> starting value`,
+    `<span class="key">番号</span>の開始値`,
+    `<span class="key">일련번호</span> 시작값`,
+    `<span class="key">Серийный номер</span> начальное значение`,
+  ],
+  _序号起始值的说明: [
+    `设置图片的序号从 0 开始还是从 1 开始`,
+    `設定圖片的序號從 0 開始還是從 1 開始`,
+    `Set whether the image serial number starts from 0 or from 1`,
+    `画像の連番を 0 から開始するか 1 から開始するかを設定`,
+    `이미지 일련번호를 0부터 시작할지 1부터 시작할지 설정`,
+    `Установить начальное значение порядкового номера изображения — с 0 или с 1`,
+  ],
 }
 
 export type LangTextKey = keyof typeof langText

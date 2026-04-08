@@ -4196,13 +4196,13 @@ class FileName {
         if (typeof rank === 'string') {
             return rank;
         }
-        // 其他的情况则应该是期望的 number 类型
+        // 其他情况应该是期望的 number 类型
         return '#' + rank;
     }
     // 生成 {p_num} 标记的值
     createPNum(data) {
         if (data.type === 0 || data.type === 1 || data.type === 2) {
-            const index = data.index ?? _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getResultIndex(data);
+            let index = data.index ?? _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getResultIndex(data);
             // 处理第一张图不带序号的情况
             if (index === 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNo) {
                 if (data.pageCount === 1 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNoForSingleImg) {
@@ -4215,6 +4215,11 @@ class FileName {
                     return '';
                 }
             }
+            // 处理序号的起始值
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.serialNoStart === 1) {
+                index = index + 1;
+            }
+            // 处理在序号前面填充 0 的情况
             return this.zeroPadding(index);
         }
         else {
@@ -4222,7 +4227,7 @@ class FileName {
             return '';
         }
     }
-    /** 处理在前面填充 0 的情况 */
+    /** 在序号前面填充 0 */
     zeroPadding(number) {
         const p = number.toString();
         return _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.zeroPadding
@@ -36319,6 +36324,22 @@ Ugoira 파일명에서 순번 “p0”을 생략하려면 “더보기”-“명
         `파일 이름에서 <span class="key">Emoji</span> 제거`,
         `Удалить <span class="key">Emoji</span> из имени файла`,
     ],
+    _序号起始值: [
+        `<span class="key">序号</span>的起始值`,
+        `<span class="key">序號</span>的起始值`,
+        `<span class="key">Serial number</span> starting value`,
+        `<span class="key">番号</span>の開始値`,
+        `<span class="key">일련번호</span> 시작값`,
+        `<span class="key">Серийный номер</span> начальное значение`,
+    ],
+    _序号起始值的说明: [
+        `设置图片的序号从 0 开始还是从 1 开始`,
+        `設定圖片的序號從 0 開始還是從 1 開始`,
+        `Set whether the image serial number starts from 0 or from 1`,
+        `画像の連番を 0 から開始するか 1 から開始するかを設定`,
+        `이미지 일련번호를 0부터 시작할지 1부터 시작할지 설정`,
+        `Установить начальное значение порядкового номера изображения — с 0 или с 1`,
+    ],
 };
 
 
@@ -39678,7 +39699,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Wiki__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Wiki */ "./src/ts/setting/Wiki.ts");
 
 
-// 设置项编号从 0 开始，现在最大是 97
+// 设置项编号从 0 开始，现在最大是 98
 const formHtml = `
 <form class="settingForm">
   <div class="tabsContnet">
@@ -40417,6 +40438,19 @@ const formHtml = `
         <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
         <button type="button" class="gray1 textButton" id="showR18FolderNameTip" data-xztext="_提示"></button>
       </span>
+    </p>
+
+    <p class="option" data-no="98">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(98)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_序号起始值的说明">
+        <span data-xztext="_序号起始值"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="radio" name="serialNoStart" id="serialNoStart0" class="need_beautify radio" value="0" checked>
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="serialNoStart0"> 0 </label>
+      <input type="radio" name="serialNoStart" id="serialNoStart1" class="need_beautify radio" value="1">
+      <span class="beautify_radio" tabindex="0"></span>
+      <label for="serialNoStart1"> 1 </label>
     </p>
     
     <p class="option" data-no="22">
@@ -41403,6 +41437,7 @@ class FormSettings {
             'downloadOrderSortBy',
             'copyImageSize',
             'logVisibleDefault',
+            'serialNoStart',
         ],
         textarea: [
             'notNeedTag',
@@ -41860,6 +41895,12 @@ class Options {
             // 2026-04-08
             time: 1775579018462,
         },
+        {
+            // 序号起始值
+            id: 98,
+            // 2026-04-08
+            time: 1775633245633,
+        },
     ];
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
@@ -41917,7 +41958,7 @@ class Options {
                 23, 24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44,
                 46, 47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
                 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,
-                84, 85, 86, 87, 88, 89, 90, 91, 92, 94, 95, 96,
+                84, 85, 86, 87, 88, 89, 90, 91, 92, 94, 95, 96, 98,
             ]);
         }
     }
@@ -42661,19 +42702,20 @@ class Settings {
         looseMatchOriginal: true,
         tipImageViewer: true,
         removeEmoji: false,
+        serialNoStart: 0,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
-    // 值为浮点数的选项
+    // 值为浮点数的设置
     floatNumberKey = [
         'userRatio',
         'sizeMin',
         'sizeMax',
         'downloadInterval',
     ];
-    // 值为整数的选项不必单独列出
-    // 值为 number[] 的选项（目前没有）
+    // 值为整数的设置不必单独列出
+    // 值为 number[] 的设置（目前没有）
     numberArrayKeys = [];
-    // 值为字符串数组的选项
+    // 值为字符串数组的设置
     stringArrayKeys = [
         'namingRuleList',
         'blockList',

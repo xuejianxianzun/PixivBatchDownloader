@@ -393,7 +393,7 @@ class FileName {
   // 生成 {p_num} 标记的值
   private createPNum(data: Result) {
     if (data.type === 0 || data.type === 1 || data.type === 2) {
-      const index = data.index ?? Tools.getResultIndex(data)
+      let index = data.index ?? Tools.getResultIndex(data)
       // 处理第一张图不带序号的情况
       if (index === 0 && settings.noSerialNo) {
         if (data.pageCount === 1 && settings.noSerialNoForSingleImg) {
@@ -407,6 +407,12 @@ class FileName {
         }
       }
 
+      // 处理序号的起始值
+      if (settings.serialNoStart === 1) {
+        index = index + 1
+      }
+
+      // 处理在序号前面填充 0 的情况
       return this.zeroPadding(index)
     } else {
       // 小说没有编号，返回空字符串
@@ -414,7 +420,7 @@ class FileName {
     }
   }
 
-  /** 处理在前面填充 0 的情况 */
+  /** 在序号前面填充 0 */
   public zeroPadding(number: number) {
     const p = number.toString()
     return settings.zeroPadding
