@@ -20,8 +20,12 @@ export interface SettingsForm extends HTMLFormElement {
   downBookmarked: HTMLInputElement
   setWHSwitch: HTMLInputElement
   setWidth: HTMLInputElement
-  idRange: RadioNodeList
-  idRangeInput: HTMLInputElement
+  idRangeComparisonForImageWorks: RadioNodeList
+  idRangeComparisonForNovelWorks: RadioNodeList
+  idRangeComparisonForNovelSeries: RadioNodeList
+  idRangeValueForImageWorks: HTMLInputElement
+  idRangeValueForNovelWorks: HTMLInputElement
+  idRangeValueForNovelSeries: HTMLInputElement
   setWidthAndOr: RadioNodeList
   setHeight: HTMLInputElement
   ratio: RadioNodeList

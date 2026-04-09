@@ -2275,12 +2275,12 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     '<span class="key">ID</span> диапазон',
   ],
   _设置id范围提示: [
-    '您可以输入一个作品 id，抓取比它新或者比它旧的作品',
-    '可以輸入一個作品 id，擷取比它新或者比它舊的作品。',
-    'You can type a work id and crawl works that are newer or older than it',
-    '1 つの作品 id を入力することで、それより新しいあるいは古い作品をクロールことができます',
-    '작품 ID를 입력하여, 그보다 새로운 혹은 오래된 작품을 긁어올 수 있습니다.',
-    'Вы можете ввести идентификатор работы и просмотреть работы, которые новее или старше его',
+    `您可以输入一个作品 ID，抓取 ID 比它大的作品（新作品）或者比它小的作品（旧作品）`,
+    `您可以輸入一個作品 ID，抓取 ID 比它大的作品（新作品）或者比它小的作品（舊作品）`,
+    `You can enter a work ID to crawl works with IDs larger than it (new works) or smaller than it (old works)`,
+    `作品 ID を入力すると、その ID より大きい作品（新しい作品）または小さい作品（古い作品）をクロールできます`,
+    `작품 ID를 입력하면 해당 ID보다 큰 작품(신작) 또는 작은 작품(구작)을 크롤링할 수 있습니다`,
+    `Вы можете ввести ID работы, чтобы скраулить работы с ID больше него (новые работы) или меньше него (старые работы)`,
   ],
   _大于: ['大于', '大於', 'Bigger than', 'より大きい', '보다 큼', 'Больше чем'],
   _小于: ['小于', '小於', 'Less than', 'より小さい', '보다 작음', 'Меньше чем'],
@@ -8434,18 +8434,35 @@ Ugoira 파일명에서 순번 “p0”을 생략하려면 “더보기”-“명
     `Установить начальное значение порядкового номера изображения — с 0 или с 1`,
   ],
   _提示扩展名为jfif的问题: [
-    `提示：下载器检测到下载的文件名以 .jfif 结尾。这其实是 .jpg 文件，但由于 Windows 在注册表里把 .jpg 文件的扩展名设置为了 .jfif，所以浏览器也会使用 .jfif 作为扩展名。<br>
+    `提示：下载器检测到下载的文件名以 .jfif 结尾。这其实是 .jpg 文件，但由于 Windows 在注册表里把 jpeg 文件的扩展名设置为了 .jfif，所以浏览器也会使用 .jfif 作为扩展名。<br>
 如果你想解决这个问题，可以按 <span class="blue">Win</span> + <span class="blue">R</span> 键打开运行窗口，输入 <span class="blue">regedit</span> 并回车打开注册表编辑器，定位到 <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>，把右侧的 <span class="blue">Extension</span> 的值从 <span class="blue">.jfif</span> 改成 <span class="blue">.jpg</span>，然后重启浏览器。`,
-    `提示：下載器檢測到下載的檔名以 .jfif 結尾。這其實是 .jpg 檔案，但由於 Windows 在登錄檔裡把 .jpg 檔案的擴展名設定為了 .jfif，所以瀏覽器也會使用 .jfif 作為擴展名。<br>
+    `提示：下載器檢測到下載的檔名以 .jfif 結尾。這其實是 .jpg 檔案，但由於 Windows 在登錄檔裡把 jpeg 檔案的擴展名設定為了 .jfif，所以瀏覽器也會使用 .jfif 作為擴展名。<br>
 如果你想解決這個問題，可以按 <span class="blue">Win</span> + <span class="blue">R</span> 鍵打開執行視窗，輸入 <span class="blue">regedit</span> 並按 Enter 打開登錄編輯器，定位到 <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>，把右側的 <span class="blue">Extension</span> 的值從 <span class="blue">.jfif</span> 改成 <span class="blue">.jpg</span>，然後重新啟動瀏覽器。`,
-    `Tip: The downloader detected that the downloaded filename ends with .jfif. This is actually a .jpg file, but because Windows has set the extension for .jpg files to .jfif in the registry, the browser also uses .jfif as the extension.<br>
+    `Tip: The downloader detected that the downloaded filename ends with .jfif. This is actually a .jpg file, but because Windows has set the extension for jpeg files to .jfif in the registry, the browser also uses .jfif as the extension.<br>
 If you want to solve this problem, press <span class="blue">Win</span> + <span class="blue">R</span> to open the Run window, enter <span class="blue">regedit</span> and press Enter to open the Registry Editor, navigate to <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>, change the value of <span class="blue">Extension</span> on the right from <span class="blue">.jfif</span> to <span class="blue">.jpg</span>, then restart the browser.`,
-    `ヒント：ダウンロードツールがダウンロードされたファイル名が .jfif で終わることを検出しました。これは実際には .jpg ファイルですが、Windows がレジストリで .jpg ファイルの拡張子を .jfif に設定しているため、ブラウザも .jfif を拡張子として使用します。<br>
+    `ヒント：ダウンロードツールがダウンロードされたファイル名が .jfif で終わることを検出しました。これは実際には .jpg ファイルですが、Windows がレジストリで jpeg ファイルの拡張子を .jfif に設定しているため、ブラウザも .jfif を拡張子として使用します。<br>
 この問題を解決したい場合は、<span class="blue">Win</span> + <span class="blue">R</span> キーを押して「実行」ウィンドウを開き、<span class="blue">regedit</span> と入力して Enter を押し、レジストリエディタを開きます。<span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span> に移動し、右側の <span class="blue">Extension</span> の値を <span class="blue">.jfif</span> から <span class="blue">.jpg</span> に変更してから、ブラウザを再起動してください。`,
-    `팁: 다운로더가 다운로드된 파일 이름이 .jfif로 끝나는 것을 감지했습니다. 이는 실제로 .jpg 파일이지만, Windows가 레지스트리에서 .jpg 파일의 확장자를 .jfif로 설정했기 때문에 브라우저도 .jfif를 확장자로 사용합니다.<br>
+    `팁: 다운로더가 다운로드된 파일 이름이 .jfif로 끝나는 것을 감지했습니다. 이는 실제로 .jpg 파일이지만, Windows가 레지스트리에서 jpeg 파일의 확장자를 .jfif로 설정했기 때문에 브라우저도 .jfif를 확장자로 사용합니다.<br>
 이 문제를 해결하려면 <span class="blue">Win</span> + <span class="blue">R</span> 키를 눌러 실행 창을 열고 <span class="blue">regedit</span>를 입력한 후 Enter를 눌러 레지스트리 편집기를 엽니다. <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>로 이동하여 오른쪽의 <span class="blue">Extension</span> 값을 <span class="blue">.jfif</span>에서 <span class="blue">.jpg</span>로 변경한 다음 브라우저를 다시 시작하세요.`,
-    `Подсказка: Загрузчик обнаружил, что имя загруженного файла заканчивается на .jfif. На самом деле это файл .jpg, но поскольку Windows в реестре установил расширение для файлов .jpg как .jfif, браузер также использует .jfif в качестве расширения.<br>
+    `Подсказка: Загрузчик обнаружил, что имя загруженного файла заканчивается на .jfif. На самом деле это файл .jpg, но поскольку Windows в реестре установил расширение для файлов jpeg как .jfif, браузер также использует .jfif в качестве расширения.<br>
 Если вы хотите решить эту проблему, нажмите <span class="blue">Win</span> + <span class="blue">R</span>, чтобы открыть окно «Выполнить», введите <span class="blue">regedit</span> и нажмите Enter, чтобы открыть редактор реестра, перейдите к <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>, измените значение <span class="blue">Extension</span> справа с <span class="blue">.jfif</span> на <span class="blue">.jpg</span>, затем перезапустите браузер.`,
+  ],
+  _图像作品: [
+    `图像作品`,
+    `圖像作品`,
+    `Image works`,
+    `画像作品`,
+    `이미지 작품`,
+    `Работы с изображениями`,
+  ],
+  _范围: [`范围`, `範圍`, `Range`, `範囲`, `범위`, `Диапазон`],
+  _系列小说: [
+    `系列小说`,
+    `系列小說`,
+    `Novel series`,
+    `シリーズ小説`,
+    `시리즈 소설`,
+    `Серия романов`,
   ],
 }
 

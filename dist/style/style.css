@@ -770,6 +770,21 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1:hover {
   border-bottom: 1px solid #0096fa !important;
 }
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w50 {
+  width: 50px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w60 {
+  width: 60px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w70 {
+  width: 70px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w80 {
+  width: 80px;
+}
+.centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w90 {
+  width: 90px;
+}
 .centerWrap .centerWrap_con .settingForm p.option .setinput_style1.w100 {
   width: 100px;
 }

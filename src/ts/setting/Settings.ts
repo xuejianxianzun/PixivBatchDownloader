@@ -150,8 +150,12 @@ interface XzSetting {
   userRatio: number
   userRatioLimit: '>=' | '=' | '<='
   idRangeSwitch: boolean
-  idRangeInput: number
-  idRange: '>' | '<'
+  idRangeComparisonForImageWorks: '>' | '<'
+  idRangeComparisonForNovelWorks: '>' | '<'
+  idRangeComparisonForNovelSeries: '>' | '<'
+  idRangeValueForImageWorks: number
+  idRangeValueForNovelWorks: number
+  idRangeValueForNovelSeries: number
   filterBlackWhite: boolean
   sizeSwitch: boolean
   sizeMin: number
@@ -630,8 +634,12 @@ class Settings {
     userRatio: 1.4,
     userRatioLimit: '>=',
     idRangeSwitch: false,
-    idRangeInput: 0,
-    idRange: '>',
+    idRangeComparisonForImageWorks: '>',
+    idRangeComparisonForNovelWorks: '>',
+    idRangeComparisonForNovelSeries: '>',
+    idRangeValueForImageWorks: 0,
+    idRangeValueForNovelWorks: 0,
+    idRangeValueForNovelSeries: 0,
     needTagSwitch: false,
     notNeedTagSwitch: false,
     filterBlackWhite: false,

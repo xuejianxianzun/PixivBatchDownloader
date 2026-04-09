@@ -15,10 +15,6 @@ class ConvertOldSettings {
       '2': 'vertical',
       '3': 'userSet',
     },
-    idRange: {
-      '1': '>',
-      '2': '<',
-    },
     widthTag: {
       '1': 'yes',
       '-1': 'no',

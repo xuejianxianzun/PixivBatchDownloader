@@ -1,6 +1,6 @@
 # CHANGLOG
 
-jfif 的提示
+移除会员购买链接
 
 ## next
 
@@ -23,6 +23,10 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/586
 --------
 
 细节：每片小说和系列小说的原始数据里都同时保存了 `characterCount`（字数）和 `wordCount`（单词数），由 `useWordCount` 决定使用哪个数字。下载器只会保存使用的那个数字。
+
+### 🔧在“ID 范围”设置里，你可以为图像作品和小说分别设置 ID 了
+
+之前设置的 ID 不会区分作品类型，现在可以区分了。
 
 ### 🔧{px} 标记会使用图片的实际宽高
 

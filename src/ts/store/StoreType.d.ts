@@ -7,6 +7,7 @@ export type WorkTypeString =
   | 'novels'
   | 'unknown'
 
+// IDTypeString 比 WorkTypeString 多了一个 'novelSeries'，用来表示系列小说。因为系列小说不是单个作品，所以目前我没有把它放到 WorkTypeString 里
 export type IDTypeString = WorkTypeString | 'novelSeries'
 
 export interface IDData {

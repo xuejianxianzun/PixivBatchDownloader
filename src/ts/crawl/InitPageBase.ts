@@ -356,14 +356,11 @@ abstract class InitPageBase {
     const filteredIDList: IDData[] = []
     for (const idData of store.idList) {
       let check = true
-      // 不检查 novelSeries 类型，所以总是会添加它
-      if (idData.type !== 'novelSeries') {
-        check = await filter.check({
-          id: idData.id,
-          workTypeString: idData.type,
-          workType: Tools.getWorkTypeVague(idData.type),
-        })
-      }
+      check = await filter.check({
+        id: idData.id,
+        IDTypeString: idData.type,
+        workType: Tools.getWorkTypeVague(idData.type),
+      })
 
       if (check) {
         filteredIDList.push(idData)
@@ -501,21 +498,13 @@ abstract class InitPageBase {
     }
 
     // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则跳过它
-    // 现在这里能够检查这些过滤条件：
-    // 1. 检查 id 是否符合 id 范围条件
-    // 2. 检查 id 的发布时间是否符合时间范围条件
-    // 3. 区分图像作品和小说。
-    // 注意：在某些情况下，下载器只能确定一个作品是图像还是小说，但不能区分它具体是图像里的哪一种类型（插画、漫画、动图）
-    // 所以这里不能检查具体的图像类型，只能检查是图像还是小说
-    if (idData.type !== 'novelSeries') {
-      const check = await filter.check({
-        id,
-        workTypeString: idData.type,
-        workType: Tools.getWorkTypeVague(idData.type),
-      })
-      if (!check) {
-        return this.afterGetWorksData()
-      }
+    const check = await filter.check({
+      id,
+      IDTypeString: idData.type,
+      workType: Tools.getWorkTypeVague(idData.type),
+    })
+    if (!check) {
+      return this.afterGetWorksData()
     }
 
     try {
@@ -602,16 +591,14 @@ abstract class InitPageBase {
     // 这样可以加快抓取速度
     if (store.idList.length > 0) {
       const nextIDData = store.idList[0]
-      if (nextIDData.type !== 'novelSeries') {
-        const check = await filter.check({
-          id: nextIDData.id,
-          workTypeString: nextIDData.type,
-          workType: Tools.getWorkTypeVague(nextIDData.type),
-        })
-        if (!check) {
-          store.idList.shift()
-          return this.getWorksData()
-        }
+      const check = await filter.check({
+        id: nextIDData.id,
+        IDTypeString: nextIDData.type,
+        workType: Tools.getWorkTypeVague(nextIDData.type),
+      })
+      if (!check) {
+        store.idList.shift()
+        return this.getWorksData()
       }
     }
 

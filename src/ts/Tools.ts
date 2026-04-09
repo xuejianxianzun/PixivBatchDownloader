@@ -3,7 +3,7 @@ import { ArtworkData, NovelData } from './crawl/CrawlResult'
 import { lang } from './Language'
 import { pageType } from './PageType'
 import { wiki } from './setting/Wiki'
-import { WorkTypeString, Result, IDData } from './store/StoreType'
+import { WorkTypeString, Result, IDData, IDTypeString } from './store/StoreType'
 import { Utils } from './utils/Utils'
 
 type artworkDataTagsItem = {
@@ -997,8 +997,8 @@ class Tools {
   /**根据作品类型字符串，返回对应的数字。但是这里把插画、漫画、动图均返回 -1。
    * 这是因为某些时候无法确定一个图像作品到底属于哪一类型，所以用 -1 笼统的概括
    */
-  static getWorkTypeVague(workTypeString: WorkTypeString): -1 | 3 | undefined {
-    switch (workTypeString) {
+  static getWorkTypeVague(IDTypeString: IDTypeString): -1 | 3 | undefined {
+    switch (IDTypeString) {
       case 'illusts':
       case 'manga':
       case 'ugoira':
@@ -1006,6 +1006,7 @@ class Tools {
       case 'novels':
         return 3
       default:
+        // 未知类型和 novelSeries 会返回 undefined
         return undefined
     }
   }

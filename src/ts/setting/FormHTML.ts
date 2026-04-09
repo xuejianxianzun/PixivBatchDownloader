@@ -266,13 +266,33 @@ export const formHtml = `
       <input type="checkbox" name="idRangeSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="idRangeSwitch">
-        <input type="radio" name="idRange" id="idRange1" class="need_beautify radio" value=">" checked>
+
+        <span data-xztext="_图像作品"></span>
+        <input type="radio" name="idRangeComparisonForImageWorks" id="idRangeComparisonForImageWorks1" class="need_beautify radio" value=">" checked>
         <span class="beautify_radio" tabindex="0"></span>
-        <label for="idRange1">&gt;</label>
-        <input type="radio" name="idRange" id="idRange2" class="need_beautify radio" value="<">
+        <label for="idRangeComparisonForImageWorks1">&gt;</label>
+        <input type="radio" name="idRangeComparisonForImageWorks" id="idRangeComparisonForImageWorks2" class="need_beautify radio" value="<">
         <span class="beautify_radio" tabindex="0"></span>
-        <label for="idRange2">&lt;</label>
-        <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="" placeholder="100000000">
+        <label for="idRangeComparisonForImageWorks2">&lt;</label>
+        <input type="text" name="idRangeValueForImageWorks" class="setinput_style1 w80 blue" value="0" placeholder="0">
+
+        <span data-xztext="_小说"></span>
+        <input type="radio" name="idRangeComparisonForNovelWorks" id="idRangeComparisonForNovelWorks1" class="need_beautify radio" value=">" checked>
+        <span class="beautify_radio" tabindex="0"></span>
+        <label for="idRangeComparisonForNovelWorks1">&gt;</label>
+        <input type="radio" name="idRangeComparisonForNovelWorks" id="idRangeComparisonForNovelWorks2" class="need_beautify radio" value="<">
+        <span class="beautify_radio" tabindex="0"></span>
+        <label for="idRangeComparisonForNovelWorks2">&lt;</label>
+        <input type="text" name="idRangeValueForNovelWorks" class="setinput_style1 w80 blue" value="0" placeholder="0">
+
+        <span data-xztext="_系列小说"></span>
+        <input type="radio" name="idRangeComparisonForNovelSeries" id="idRangeComparisonForNovelSeries1" class="need_beautify radio" value=">" checked>
+        <span class="beautify_radio" tabindex="0"></span>
+        <label for="idRangeComparisonForNovelSeries1">&gt;</label>
+        <input type="radio" name="idRangeComparisonForNovelSeries" id="idRangeComparisonForNovelSeries2" class="need_beautify radio" value="<">
+        <span class="beautify_radio" tabindex="0"></span>
+        <label for="idRangeComparisonForNovelSeries2">&lt;</label>
+        <input type="text" name="idRangeValueForNovelSeries" class="setinput_style1 w80 blue" value="0" placeholder="0">
       </span>
     </p>
     <p class="option" data-no="10">

@@ -1,6 +1,5 @@
 import { lang } from '../Language'
 import { log } from '../Log'
-import { EVT } from '../EVT'
 import { states } from '../store/States'
 import { settings } from '../setting/Settings'
 import { blackAndWhiteImage } from './BlackandWhiteImage'
@@ -8,7 +7,7 @@ import { mute } from './Mute'
 import { blockTagsForSpecificUser } from './BlockTagsForSpecificUser'
 import { msgBox } from '../MsgBox'
 import { workPublishTime } from './WorkPublishTime'
-import { WorkTypeString } from '../store/StoreType'
+import { IDTypeString } from '../store/StoreType'
 import { Config } from '../Config'
 
 /** 过滤选项，其中所有字段都是可选的 */
@@ -17,14 +16,18 @@ export interface FilterOption {
   aiType?: 0 | 1 | 2
   id?: number | string
   /**作品类型
+   *
    * -1 插画、漫画、动图的合集。也就是只知道是图像作品，但是不能确定是哪种具体的类型
+   *
    * 0 插画
    * 1 漫画
    * 2 动图
    * 3 小说
+   * undefined 不能确定其类型，或者是系列小说这样不属于单个作品的类型
    */
   workType?: -1 | 0 | 1 | 2 | 3
-  workTypeString?: WorkTypeString
+  /** ID 类型。注意有可能是 novelSeries，一些过滤器不会检查这个类型 */
+  IDTypeString?: IDTypeString
   pageCount?: number
   tags?: string[]
   bookmarkCount?: number
@@ -216,7 +219,7 @@ class Filter {
     }
 
     // 检查 id 范围设置
-    if (!this.checkIdRange(option.id)) {
+    if (!this.checkIdRange(option.id, option.IDTypeString)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_id范围'),
         'excludeWorkByIdRange'
@@ -272,7 +275,7 @@ class Filter {
     }
 
     // 检查投稿时间设置
-    if (!this.checkIdPublishTime(option.id, option.workTypeString)) {
+    if (!this.checkIdPublishTime(option.id, option.IDTypeString)) {
       log.warning(
         lang.transl('_下载器排除了一些作品原因') + lang.transl('_投稿时间'),
         'excludeWorkByPostDate'
@@ -601,7 +604,32 @@ class Filter {
       return
     }
 
-    log.warning(`id ${settings.idRange} ${settings.idRangeInput}`)
+    const array: string[] = []
+    array.push(lang.transl('_id范围') + ': ')
+    array.push(
+      lang.transl('_图像作品') +
+        ' ' +
+        settings.idRangeComparisonForImageWorks +
+        ' ' +
+        settings.idRangeValueForImageWorks +
+        ','
+    )
+    array.push(
+      lang.transl('_小说') +
+        ' ' +
+        settings.idRangeComparisonForNovelWorks +
+        ' ' +
+        settings.idRangeValueForNovelWorks +
+        ','
+    )
+    array.push(
+      lang.transl('_系列小说') +
+        ' ' +
+        settings.idRangeComparisonForNovelSeries +
+        ' ' +
+        settings.idRangeValueForNovelSeries
+    )
+    log.warning(array.join(' '))
   }
 
   /** 提示投稿时间设置 */
@@ -718,11 +746,14 @@ class Filter {
       settings.multiImageWorkImageLimit < 1 ||
       pageCount === undefined ||
       pageCount < 2 ||
-      (workType !== 0 && workType !== 1)
+      workType === undefined ||
+      workType === 2 ||
+      workType === 3
     ) {
       return true
     }
 
+    // 如果作品类型是 0 1 -1 中的一个，并且图片数量大于等于 2，则检查图片数量是否在设置的限制范围内
     return pageCount <= settings.multiImageWorkImageLimit
   }
 
@@ -1133,25 +1164,36 @@ class Filter {
   }
 
   /** 检查 id 范围设置 */
-  private checkIdRange(id: FilterOption['id']) {
-    if (id === undefined || !settings.idRangeSwitch) {
+  private checkIdRange(
+    id: FilterOption['id'],
+    type: FilterOption['IDTypeString']
+  ) {
+    if (!settings.idRangeSwitch || id === undefined || !type) {
       return true
     }
 
-    const setId = settings.idRangeInput
-    let nowId: number
-
-    if (typeof id !== 'number') {
-      nowId = parseInt(id)
-    } else {
-      nowId = id
+    id = Number(id)
+    if (type === 'illusts' || type === 'manga' || type === 'ugoira') {
+      if (settings.idRangeComparisonForImageWorks === '>') {
+        return id > settings.idRangeValueForImageWorks
+      } else {
+        return id < settings.idRangeValueForImageWorks
+      }
+    } else if (type === 'novels') {
+      if (settings.idRangeComparisonForNovelWorks === '>') {
+        return id > settings.idRangeValueForNovelWorks
+      } else {
+        return id < settings.idRangeValueForNovelWorks
+      }
+    } else if (type === 'novelSeries') {
+      if (settings.idRangeComparisonForNovelSeries === '>') {
+        return id > settings.idRangeValueForNovelSeries
+      } else {
+        return id < settings.idRangeValueForNovelSeries
+      }
     }
 
-    if (settings.idRange === '>') {
-      return nowId > setId
-    } else {
-      return nowId < setId
-    }
+    return true
   }
 
   /** 检查投稿时间设置 */
@@ -1166,9 +1208,14 @@ class Filter {
 
   private checkIdPublishTime(
     id: FilterOption['id'],
-    type: FilterOption['workTypeString']
+    type: FilterOption['IDTypeString']
   ) {
-    if (id === undefined || !settings.postDate || !type) {
+    if (
+      id === undefined ||
+      !settings.postDate ||
+      !type ||
+      type === 'novelSeries'
+    ) {
       return true
     }
 

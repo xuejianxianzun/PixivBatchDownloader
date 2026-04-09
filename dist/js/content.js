@@ -12235,8 +12235,8 @@ class Tools {
     /**根据作品类型字符串，返回对应的数字。但是这里把插画、漫画、动图均返回 -1。
      * 这是因为某些时候无法确定一个图像作品到底属于哪一类型，所以用 -1 笼统的概括
      */
-    static getWorkTypeVague(workTypeString) {
-        switch (workTypeString) {
+    static getWorkTypeVague(IDTypeString) {
+        switch (IDTypeString) {
             case 'illusts':
             case 'manga':
             case 'ugoira':
@@ -12244,6 +12244,7 @@ class Tools {
             case 'novels':
                 return 3;
             default:
+                // 未知类型和 novelSeries 会返回 undefined
                 return undefined;
         }
     }
@@ -13893,14 +13894,11 @@ class InitPageBase {
         const filteredIDList = [];
         for (const idData of _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList) {
             let check = true;
-            // 不检查 novelSeries 类型，所以总是会添加它
-            if (idData.type !== 'novelSeries') {
-                check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
-                    id: idData.id,
-                    workTypeString: idData.type,
-                    workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
-                });
-            }
+            check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
+                id: idData.id,
+                IDTypeString: idData.type,
+                workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
+            });
             if (check) {
                 filteredIDList.push(idData);
             }
@@ -14006,21 +14004,13 @@ class InitPageBase {
             throw new Error(msg);
         }
         // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则跳过它
-        // 现在这里能够检查这些过滤条件：
-        // 1. 检查 id 是否符合 id 范围条件
-        // 2. 检查 id 的发布时间是否符合时间范围条件
-        // 3. 区分图像作品和小说。
-        // 注意：在某些情况下，下载器只能确定一个作品是图像还是小说，但不能区分它具体是图像里的哪一种类型（插画、漫画、动图）
-        // 所以这里不能检查具体的图像类型，只能检查是图像还是小说
-        if (idData.type !== 'novelSeries') {
-            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
-                id,
-                workTypeString: idData.type,
-                workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
-            });
-            if (!check) {
-                return this.afterGetWorksData();
-            }
+        const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
+            id,
+            IDTypeString: idData.type,
+            workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(idData.type),
+        });
+        if (!check) {
+            return this.afterGetWorksData();
         }
         try {
             const unlisted = _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_20__.pageType.list.Unlisted;
@@ -14103,16 +14093,14 @@ class InitPageBase {
         // 这样可以加快抓取速度
         if (_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length > 0) {
             const nextIDData = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0];
-            if (nextIDData.type !== 'novelSeries') {
-                const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
-                    id: nextIDData.id,
-                    workTypeString: nextIDData.type,
-                    workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(nextIDData.type),
-                });
-                if (!check) {
-                    _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
-                    return this.getWorksData();
-                }
+            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
+                id: nextIDData.id,
+                IDTypeString: nextIDData.type,
+                workType: _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getWorkTypeVague(nextIDData.type),
+            });
+            if (!check) {
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.shift();
+                return this.getWorksData();
             }
         }
         // 如果存在下一个作品，则继续抓取
@@ -21363,7 +21351,7 @@ class Download {
             // 如果设置了图片尺寸就使用指定的 url，否则使用原图 url
             url = arg.result[_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize] || arg.result.original;
             // 检查 url 的扩展名，如果与文件名里的扩展名不同，则重设文件名
-            // 通常这发生在下载的图片尺寸不是原图时。常见的情况是：原图的扩展名是 .png，但其他尺寸的扩展名是 .jpg。此时修改文件名不是必须的，但是看起来更正确，也能减少用户的困惑
+            // 常见的情况是：一些图片的原图的扩展名是 .png，但其他尺寸的扩展名是 .jpg。如果用户下载的图片尺寸不是原图，就在这里把扩展名从 .png 改成 .jpg。虽然这个操作不是必须的，但更符合实际情况，也可以减少用户的困惑
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize !== 'original') {
                 _fileName = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.replaceExtension(_fileName, url);
                 this.setProgressBar(_fileName, 0, 0);
@@ -21478,7 +21466,7 @@ class Download {
                     }, _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_不保存图片因为颜色', _Tools__WEBPACK_IMPORTED_MODULE_15__.Tools.createWorkLink(arg.id)));
                 }
             }
-            // 从第二张图片开始，检查图片的实际宽高，如果宽高与抓取结果里的不同，则重新生成文件名
+            // 从第二张图片开始，检查原图的实际宽高。如果宽高与抓取结果里的不同，则重新生成文件名
             // 这是因为每张图片的宽高可能都不一样，示例：
             // https://www.pixiv.net/artworks/142726174
             // 但是 Pixiv 的作品信息 API 里只有第一张图片的宽高，所以下载器在生成抓取结果时，会把每张图片的宽高都设置成第一张图片的宽高。但这可能不适用于从第二张开始的图片
@@ -21763,7 +21751,7 @@ class DownloadControl {
                 _MsgBox__WEBPACK_IMPORTED_MODULE_21__.msgBox.once(this.uuidTip, _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_uuid'), 'show');
                 this.pauseDownload();
             }
-            // 扩展名是 jfif 的情况
+            // 检测扩展名是 .jfif 的情况
             if (msg.data?.browserSetFilename?.endsWith('.jfif')) {
                 _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_提示扩展名为jfif的问题'), 'filenameJFIF');
             }
@@ -22827,7 +22815,7 @@ class DownloadRecord {
                 return;
             }
             // 所以下载器在保存和判断重复文件时，使用的都是 filename.createFileName() 生成的文件名
-            // 如果文件名在实际下载流程中被修改，不会影响这里保存的文件名，所以也不会影响检测重复文件的功能。
+            // 即使文件名在实际下载流程中被修改，也不会影响这里保存的文件名，所以不会影响检测重复文件的功能。
             const result = _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.findResult(successData.id);
             result && this.addRecord(result);
         });
@@ -26762,7 +26750,7 @@ class Filter {
             return false;
         }
         // 检查 id 范围设置
-        if (!this.checkIdRange(option.id)) {
+        if (!this.checkIdRange(option.id, option.IDTypeString)) {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_id范围'), 'excludeWorkByIdRange');
             return false;
         }
@@ -26794,7 +26782,7 @@ class Filter {
             return false;
         }
         // 检查投稿时间设置
-        if (!this.checkIdPublishTime(option.id, option.workTypeString)) {
+        if (!this.checkIdPublishTime(option.id, option.IDTypeString)) {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_投稿时间'), 'excludeWorkByPostDate');
             return false;
         }
@@ -27024,7 +27012,26 @@ class Filter {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeSwitch) {
             return;
         }
-        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(`id ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRange} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeInput}`);
+        const array = [];
+        array.push(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_id范围') + ': ');
+        array.push(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_图像作品') +
+            ' ' +
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeComparisonForImageWorks +
+            ' ' +
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeValueForImageWorks +
+            ',');
+        array.push(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_小说') +
+            ' ' +
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeComparisonForNovelWorks +
+            ' ' +
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeValueForNovelWorks +
+            ',');
+        array.push(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_系列小说') +
+            ' ' +
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeComparisonForNovelSeries +
+            ' ' +
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeValueForNovelSeries);
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(array.join(' '));
     }
     /** 提示投稿时间设置 */
     getPostDate() {
@@ -27114,9 +27121,12 @@ class Filter {
             _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.multiImageWorkImageLimit < 1 ||
             pageCount === undefined ||
             pageCount < 2 ||
-            (workType !== 0 && workType !== 1)) {
+            workType === undefined ||
+            workType === 2 ||
+            workType === 3) {
             return true;
         }
+        // 如果作品类型是 0 1 -1 中的一个，并且图片数量大于等于 2，则检查图片数量是否在设置的限制范围内
         return pageCount <= _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.multiImageWorkImageLimit;
     }
     /** 依据图片数量，检查下载的作品类型 */
@@ -27451,24 +27461,36 @@ class Filter {
         }
     }
     /** 检查 id 范围设置 */
-    checkIdRange(id) {
-        if (id === undefined || !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeSwitch) {
+    checkIdRange(id, type) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeSwitch || id === undefined || !type) {
             return true;
         }
-        const setId = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeInput;
-        let nowId;
-        if (typeof id !== 'number') {
-            nowId = parseInt(id);
+        id = Number(id);
+        if (type === 'illusts' || type === 'manga' || type === 'ugoira') {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeComparisonForImageWorks === '>') {
+                return id > _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeValueForImageWorks;
+            }
+            else {
+                return id < _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeValueForImageWorks;
+            }
         }
-        else {
-            nowId = id;
+        else if (type === 'novels') {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeComparisonForNovelWorks === '>') {
+                return id > _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeValueForNovelWorks;
+            }
+            else {
+                return id < _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeValueForNovelWorks;
+            }
         }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRange === '>') {
-            return nowId > setId;
+        else if (type === 'novelSeries') {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeComparisonForNovelSeries === '>') {
+                return id > _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeValueForNovelSeries;
+            }
+            else {
+                return id < _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeValueForNovelSeries;
+            }
         }
-        else {
-            return nowId < setId;
-        }
+        return true;
     }
     /** 检查投稿时间设置 */
     checkPostDate(date) {
@@ -27479,7 +27501,10 @@ class Filter {
         return time >= _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.postDateStart && time <= _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.postDateEnd;
     }
     checkIdPublishTime(id, type) {
-        if (id === undefined || !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.postDate || !type) {
+        if (id === undefined ||
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.postDate ||
+            !type ||
+            type === 'novelSeries') {
             return true;
         }
         const _id = Number.parseInt(id);
@@ -27648,7 +27673,7 @@ class FilterSearchResults {
                             id: work.id,
                             isOriginal: work.isOriginal,
                             workType: work.illustType,
-                            workTypeString: _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getWorkTypeString(work.illustType),
+                            IDTypeString: _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getWorkTypeString(work.illustType),
                             tags: work.tags,
                             title: work.title,
                             bookmarkData: work.bookmarkData,
@@ -27668,7 +27693,7 @@ class FilterSearchResults {
                             id: work.id,
                             isOriginal: work.isOriginal,
                             workType: 3,
-                            workTypeString: 'novels',
+                            IDTypeString: 'novels',
                             tags: work.tags,
                             title: work.title,
                             bookmarkData: work.bookmarkData,
@@ -30247,12 +30272,12 @@ So the file name set by the Downloader is lost, and the file name becomes the la
         '<span class="key">ID</span> диапазон',
     ],
     _设置id范围提示: [
-        '您可以输入一个作品 id，抓取比它新或者比它旧的作品',
-        '可以輸入一個作品 id，擷取比它新或者比它舊的作品。',
-        'You can type a work id and crawl works that are newer or older than it',
-        '1 つの作品 id を入力することで、それより新しいあるいは古い作品をクロールことができます',
-        '작품 ID를 입력하여, 그보다 새로운 혹은 오래된 작품을 긁어올 수 있습니다.',
-        'Вы можете ввести идентификатор работы и просмотреть работы, которые новее или старше его',
+        `您可以输入一个作品 ID，抓取 ID 比它大的作品（新作品）或者比它小的作品（旧作品）`,
+        `您可以輸入一個作品 ID，抓取 ID 比它大的作品（新作品）或者比它小的作品（舊作品）`,
+        `You can enter a work ID to crawl works with IDs larger than it (new works) or smaller than it (old works)`,
+        `作品 ID を入力すると、その ID より大きい作品（新しい作品）または小さい作品（古い作品）をクロールできます`,
+        `작품 ID를 입력하면 해당 ID보다 큰 작품(신작) 또는 작은 작품(구작)을 크롤링할 수 있습니다`,
+        `Вы можете ввести ID работы, чтобы скраулить работы с ID больше него (новые работы) или меньше него (старые работы)`,
     ],
     _大于: ['大于', '大於', 'Bigger than', 'より大きい', '보다 큼', 'Больше чем'],
     _小于: ['小于', '小於', 'Less than', 'より小さい', '보다 작음', 'Меньше чем'],
@@ -36401,18 +36426,35 @@ Ugoira 파일명에서 순번 “p0”을 생략하려면 “더보기”-“명
         `Установить начальное значение порядкового номера изображения — с 0 или с 1`,
     ],
     _提示扩展名为jfif的问题: [
-        `提示：下载器检测到下载的文件名以 .jfif 结尾。这其实是 .jpg 文件，但由于 Windows 在注册表里把 .jpg 文件的扩展名设置为了 .jfif，所以浏览器也会使用 .jfif 作为扩展名。<br>
+        `提示：下载器检测到下载的文件名以 .jfif 结尾。这其实是 .jpg 文件，但由于 Windows 在注册表里把 jpeg 文件的扩展名设置为了 .jfif，所以浏览器也会使用 .jfif 作为扩展名。<br>
 如果你想解决这个问题，可以按 <span class="blue">Win</span> + <span class="blue">R</span> 键打开运行窗口，输入 <span class="blue">regedit</span> 并回车打开注册表编辑器，定位到 <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>，把右侧的 <span class="blue">Extension</span> 的值从 <span class="blue">.jfif</span> 改成 <span class="blue">.jpg</span>，然后重启浏览器。`,
-        `提示：下載器檢測到下載的檔名以 .jfif 結尾。這其實是 .jpg 檔案，但由於 Windows 在登錄檔裡把 .jpg 檔案的擴展名設定為了 .jfif，所以瀏覽器也會使用 .jfif 作為擴展名。<br>
+        `提示：下載器檢測到下載的檔名以 .jfif 結尾。這其實是 .jpg 檔案，但由於 Windows 在登錄檔裡把 jpeg 檔案的擴展名設定為了 .jfif，所以瀏覽器也會使用 .jfif 作為擴展名。<br>
 如果你想解決這個問題，可以按 <span class="blue">Win</span> + <span class="blue">R</span> 鍵打開執行視窗，輸入 <span class="blue">regedit</span> 並按 Enter 打開登錄編輯器，定位到 <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>，把右側的 <span class="blue">Extension</span> 的值從 <span class="blue">.jfif</span> 改成 <span class="blue">.jpg</span>，然後重新啟動瀏覽器。`,
-        `Tip: The downloader detected that the downloaded filename ends with .jfif. This is actually a .jpg file, but because Windows has set the extension for .jpg files to .jfif in the registry, the browser also uses .jfif as the extension.<br>
+        `Tip: The downloader detected that the downloaded filename ends with .jfif. This is actually a .jpg file, but because Windows has set the extension for jpeg files to .jfif in the registry, the browser also uses .jfif as the extension.<br>
 If you want to solve this problem, press <span class="blue">Win</span> + <span class="blue">R</span> to open the Run window, enter <span class="blue">regedit</span> and press Enter to open the Registry Editor, navigate to <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>, change the value of <span class="blue">Extension</span> on the right from <span class="blue">.jfif</span> to <span class="blue">.jpg</span>, then restart the browser.`,
-        `ヒント：ダウンロードツールがダウンロードされたファイル名が .jfif で終わることを検出しました。これは実際には .jpg ファイルですが、Windows がレジストリで .jpg ファイルの拡張子を .jfif に設定しているため、ブラウザも .jfif を拡張子として使用します。<br>
+        `ヒント：ダウンロードツールがダウンロードされたファイル名が .jfif で終わることを検出しました。これは実際には .jpg ファイルですが、Windows がレジストリで jpeg ファイルの拡張子を .jfif に設定しているため、ブラウザも .jfif を拡張子として使用します。<br>
 この問題を解決したい場合は、<span class="blue">Win</span> + <span class="blue">R</span> キーを押して「実行」ウィンドウを開き、<span class="blue">regedit</span> と入力して Enter を押し、レジストリエディタを開きます。<span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span> に移動し、右側の <span class="blue">Extension</span> の値を <span class="blue">.jfif</span> から <span class="blue">.jpg</span> に変更してから、ブラウザを再起動してください。`,
-        `팁: 다운로더가 다운로드된 파일 이름이 .jfif로 끝나는 것을 감지했습니다. 이는 실제로 .jpg 파일이지만, Windows가 레지스트리에서 .jpg 파일의 확장자를 .jfif로 설정했기 때문에 브라우저도 .jfif를 확장자로 사용합니다.<br>
+        `팁: 다운로더가 다운로드된 파일 이름이 .jfif로 끝나는 것을 감지했습니다. 이는 실제로 .jpg 파일이지만, Windows가 레지스트리에서 jpeg 파일의 확장자를 .jfif로 설정했기 때문에 브라우저도 .jfif를 확장자로 사용합니다.<br>
 이 문제를 해결하려면 <span class="blue">Win</span> + <span class="blue">R</span> 키를 눌러 실행 창을 열고 <span class="blue">regedit</span>를 입력한 후 Enter를 눌러 레지스트리 편집기를 엽니다. <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>로 이동하여 오른쪽의 <span class="blue">Extension</span> 값을 <span class="blue">.jfif</span>에서 <span class="blue">.jpg</span>로 변경한 다음 브라우저를 다시 시작하세요.`,
-        `Подсказка: Загрузчик обнаружил, что имя загруженного файла заканчивается на .jfif. На самом деле это файл .jpg, но поскольку Windows в реестре установил расширение для файлов .jpg как .jfif, браузер также использует .jfif в качестве расширения.<br>
+        `Подсказка: Загрузчик обнаружил, что имя загруженного файла заканчивается на .jfif. На самом деле это файл .jpg, но поскольку Windows в реестре установил расширение для файлов jpeg как .jfif, браузер также использует .jfif в качестве расширения.<br>
 Если вы хотите решить эту проблему, нажмите <span class="blue">Win</span> + <span class="blue">R</span>, чтобы открыть окно «Выполнить», введите <span class="blue">regedit</span> и нажмите Enter, чтобы открыть редактор реестра, перейдите к <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>, измените значение <span class="blue">Extension</span> справа с <span class="blue">.jfif</span> на <span class="blue">.jpg</span>, затем перезапустите браузер.`,
+    ],
+    _图像作品: [
+        `图像作品`,
+        `圖像作品`,
+        `Image works`,
+        `画像作品`,
+        `이미지 작품`,
+        `Работы с изображениями`,
+    ],
+    _范围: [`范围`, `範圍`, `Range`, `範囲`, `범위`, `Диапазон`],
+    _系列小说: [
+        `系列小说`,
+        `系列小說`,
+        `Novel series`,
+        `シリーズ小説`,
+        `시리즈 소설`,
+        `Серия романов`,
     ],
 };
 
@@ -38847,10 +38889,6 @@ class ConvertOldSettings {
             '2': 'vertical',
             '3': 'userSet',
         },
-        idRange: {
-            '1': '>',
-            '2': '<',
-        },
         widthTag: {
             '1': 'yes',
             '-1': 'no',
@@ -40038,13 +40076,33 @@ const formHtml = `
       <input type="checkbox" name="idRangeSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="idRangeSwitch">
-        <input type="radio" name="idRange" id="idRange1" class="need_beautify radio" value=">" checked>
+
+        <span data-xztext="_图像作品"></span>
+        <input type="radio" name="idRangeComparisonForImageWorks" id="idRangeComparisonForImageWorks1" class="need_beautify radio" value=">" checked>
         <span class="beautify_radio" tabindex="0"></span>
-        <label for="idRange1">&gt;</label>
-        <input type="radio" name="idRange" id="idRange2" class="need_beautify radio" value="<">
+        <label for="idRangeComparisonForImageWorks1">&gt;</label>
+        <input type="radio" name="idRangeComparisonForImageWorks" id="idRangeComparisonForImageWorks2" class="need_beautify radio" value="<">
         <span class="beautify_radio" tabindex="0"></span>
-        <label for="idRange2">&lt;</label>
-        <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="" placeholder="100000000">
+        <label for="idRangeComparisonForImageWorks2">&lt;</label>
+        <input type="text" name="idRangeValueForImageWorks" class="setinput_style1 w80 blue" value="0" placeholder="0">
+
+        <span data-xztext="_小说"></span>
+        <input type="radio" name="idRangeComparisonForNovelWorks" id="idRangeComparisonForNovelWorks1" class="need_beautify radio" value=">" checked>
+        <span class="beautify_radio" tabindex="0"></span>
+        <label for="idRangeComparisonForNovelWorks1">&gt;</label>
+        <input type="radio" name="idRangeComparisonForNovelWorks" id="idRangeComparisonForNovelWorks2" class="need_beautify radio" value="<">
+        <span class="beautify_radio" tabindex="0"></span>
+        <label for="idRangeComparisonForNovelWorks2">&lt;</label>
+        <input type="text" name="idRangeValueForNovelWorks" class="setinput_style1 w80 blue" value="0" placeholder="0">
+
+        <span data-xztext="_系列小说"></span>
+        <input type="radio" name="idRangeComparisonForNovelSeries" id="idRangeComparisonForNovelSeries1" class="need_beautify radio" value=">" checked>
+        <span class="beautify_radio" tabindex="0"></span>
+        <label for="idRangeComparisonForNovelSeries1">&gt;</label>
+        <input type="radio" name="idRangeComparisonForNovelSeries" id="idRangeComparisonForNovelSeries2" class="need_beautify radio" value="<">
+        <span class="beautify_radio" tabindex="0"></span>
+        <label for="idRangeComparisonForNovelSeries2">&lt;</label>
+        <input type="text" name="idRangeValueForNovelSeries" class="setinput_style1 w80 blue" value="0" placeholder="0">
       </span>
     </p>
     <p class="option" data-no="10">
@@ -41460,7 +41518,9 @@ class FormSettings {
             'setWidth',
             'setHeight',
             'userRatio',
-            'idRangeInput',
+            'idRangeValueForImageWorks',
+            'idRangeValueForNovelWorks',
+            'idRangeValueForNovelSeries',
             'needTag',
             'workDirFileNumber',
             'r18FolderName',
@@ -41494,7 +41554,9 @@ class FormSettings {
             'userRatioLimit',
             'setWidthAndOr',
             'ratio',
-            'idRange',
+            'idRangeComparisonForImageWorks',
+            'idRangeComparisonForNovelWorks',
+            'idRangeComparisonForNovelSeries',
             'magnifierSize',
             'magnifierPosition',
             'dupliStrategy',
@@ -42587,8 +42649,12 @@ class Settings {
         userRatio: 1.4,
         userRatioLimit: '>=',
         idRangeSwitch: false,
-        idRangeInput: 0,
-        idRange: '>',
+        idRangeComparisonForImageWorks: '>',
+        idRangeComparisonForNovelWorks: '>',
+        idRangeComparisonForNovelSeries: '>',
+        idRangeValueForImageWorks: 0,
+        idRangeValueForNovelWorks: 0,
+        idRangeValueForNovelSeries: 0,
         needTagSwitch: false,
         notNeedTagSwitch: false,
         filterBlackWhite: false,
@@ -43482,11 +43548,12 @@ class Wiki {
         Crawl: [
             0, 1, 2, 44, 81, 6, 23, 21, 51, 3, 47, 5, 7, 8, 9, 10, 11, 12, 94, 95, 96,
         ],
-        Download: [13, 50, 64, 16, 17, 33, 20],
+        Download: [13, 50, 64, 16, 17, 33],
         'More-Crawl': [57, 59, 75, 69, 35, 39, 74, 54, 85],
         'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66, 97],
         'More-Download': [
-            58, 52, 90, 91, 76, 77, 4, 24, 26, 27, 70, 72, 73, 49, 89, 30, 25, 82, 28,
+            58, 52, 90, 91, 76, 77, 4, 24, 26, 27, 70, 72, 73, 49, 89, 30, 25, 82, 20,
+            28,
         ],
         'More-Enhance': [
             60, 84, 87, 68, 63, 55, 71, 62, 40, 56, 86, 48, 88, 18, 34, 14,
