@@ -222,6 +222,8 @@ browser.downloads.onChanged.addListener(async function (detail) {
         // 文件名是 UUID
         _dlData.uuid = true
       }
+
+      _dlData.browserSetFilename = changedName
     }
 
     if (detail.state && detail.state.current === 'complete') {

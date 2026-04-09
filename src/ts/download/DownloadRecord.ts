@@ -78,6 +78,8 @@ class DownloadRecord {
         return
       }
 
+      // 所以下载器在保存和判断重复文件时，使用的都是 filename.createFileName() 生成的文件名
+      // 即使文件名在实际下载流程中被修改，也不会影响这里保存的文件名，所以不会影响检测重复文件的功能。
       const result = store.findResult(successData.id)
       result && this.addRecord(result)
     })

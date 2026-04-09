@@ -1958,6 +1958,7 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_2___default().downloads.onChanged
                 // 文件名是 UUID
                 _dlData.uuid = true;
             }
+            _dlData.browserSetFilename = changedName;
         }
         if (detail.state && detail.state.current === 'complete') {
             msg = 'downloaded';

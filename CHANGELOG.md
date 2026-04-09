@@ -52,6 +52,10 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/601
 
 我把之前的 Discord 按钮换成了“获取帮助”按钮，点击之后会显示提示，里面包含了 Discord 和 GitHub issues 的链接。
 
+### 😊当浏览器把 .jpg 保存为 .jfif 时，显示提示
+
+时不时有人会遇到这个问题，所以下载器现在会检查这个问题，并在日志里显示提示。
+
 ## 18.6.0 2026-04-04
 
 ### ✨新增过滤器：原创作品

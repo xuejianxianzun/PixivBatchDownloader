@@ -21359,8 +21359,15 @@ class Download {
             }
         }
         else {
-            // 对于图像作品，如果设置了图片尺寸就使用指定的 url，否则使用原图 url
+            // 图像作品
+            // 如果设置了图片尺寸就使用指定的 url，否则使用原图 url
             url = arg.result[_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize] || arg.result.original;
+            // 检查 url 的扩展名，如果与文件名里的扩展名不同，则重设文件名
+            // 通常这发生在下载的图片尺寸不是原图时。常见的情况是：原图的扩展名是 .png，但其他尺寸的扩展名是 .jpg。此时修改文件名不是必须的，但是看起来更正确，也能减少用户的困惑
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize !== 'original') {
+                _fileName = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.replaceExtension(_fileName, url);
+                this.setProgressBar(_fileName, 0, 0);
+            }
             await _DownloadInterval__WEBPACK_IMPORTED_MODULE_18__.downloadInterval.wait();
         }
         let xhr = new XMLHttpRequest();
@@ -21482,10 +21489,14 @@ class Download {
                     size.height &&
                     arg.result.fullWidth !== size.width &&
                     arg.result.fullHeight !== size.height) {
-                    // 重新生成文件名
-                    arg.result.fullWidth = size.width;
-                    arg.result.fullHeight = size.height;
-                    const newFileName = _FileName__WEBPACK_IMPORTED_MODULE_4__.fileName.createFileName(arg.result);
+                    // 修改宽高数据，并重新生成文件名
+                    // 使用一个临时对象，不修改原本的抓取结果
+                    // 如果修改原本的抓取结果会带来副作用：下载前生成的文件名与下载后生成的文件名不同（因为 {px} 标记的结果变了），这会让这个文件始终被判断为不是重复文件，每次都会重新下载
+                    // 使用对象展开进行浅拷贝。由于这里只需要修改两个基础值，所以浅拷贝就够了，不会影响原本的抓取结果
+                    const tempResult = { ...arg.result };
+                    tempResult.fullWidth = size.width;
+                    tempResult.fullHeight = size.height;
+                    const newFileName = _FileName__WEBPACK_IMPORTED_MODULE_4__.fileName.createFileName(tempResult);
                     if (newFileName !== _fileName) {
                         _fileName = newFileName;
                         this.setProgressBar(newFileName, file.size, file.size);
@@ -21751,6 +21762,10 @@ class DownloadControl {
                 _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_uuid'), 'filenameUUID');
                 _MsgBox__WEBPACK_IMPORTED_MODULE_21__.msgBox.once(this.uuidTip, _Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_uuid'), 'show');
                 this.pauseDownload();
+            }
+            // 扩展名是 jfif 的情况
+            if (msg.data?.browserSetFilename?.endsWith('.jfif')) {
+                _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_5__.lang.transl('_提示扩展名为jfif的问题'), 'filenameJFIF');
             }
             // 文件下载成功
             if (msg.msg === 'downloaded') {
@@ -22296,7 +22311,7 @@ class DownloadNovelCover {
         if (blob === null) {
             return;
         }
-        let coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceSuffix(novelName, coverURL);
+        let coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceExtension(novelName, coverURL);
         _SendDownload__WEBPACK_IMPORTED_MODULE_3__.SendDownload.noReply(blob, coverName);
     }
     /**最多重试一定次数，避免无限重试 */
@@ -22387,7 +22402,7 @@ class DownloadNovelEmbeddedImage {
             if (blob === null) {
                 continue;
             }
-            let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceSuffix(novelName, image.url);
+            let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceExtension(novelName, image.url);
             // 之前是在文件名的末尾添加图片的 id，但是当文件名很长时，图片 id 甚至更前面的字符可能会被截断，从而产生重名文件
             // 现在改为添加到 {id} 之后，这样减少了图片 id 被截断的可能性，因为 {id} 通常位于文件名的开头，不容易被截断
             // 如果 {id} 位于文件名的结尾部分，依然可能会被截断。但这种情况比较少
@@ -22450,7 +22465,7 @@ class DownloadNovelEmbeddedImage {
             // 也就是说不能是 src="./assets/17995414.png"
             // 因为某些在线阅读器(https://epub-reader.online/)会读取图片内容，生成 blob URL，然后替换原 src 里的值。
             // 当 src 前面有 ./ 的时候，blob URL 会跟在 ./ 后面，导致图片路径错误，无法显示
-            const ext = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLExt(image.url);
+            const ext = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getExtension(image.url);
             // 在图片前后添加换行，因为有时图片和文字挨在一起，或者多张图片挨在一起。
             // 不添加换行的话，在某些阅读器里这些内容会并排，影响阅读体验
             const imgTag = `<br/><img src="assets/${imageID}.${ext}" /><br/>`;
@@ -22811,6 +22826,8 @@ class DownloadRecord {
             if (successData.uuid) {
                 return;
             }
+            // 所以下载器在保存和判断重复文件时，使用的都是 filename.createFileName() 生成的文件名
+            // 如果文件名在实际下载流程中被修改，不会影响这里保存的文件名，所以也不会影响检测重复文件的功能。
             const result = _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.findResult(successData.id);
             result && this.addRecord(result);
         });
@@ -36382,6 +36399,20 @@ Ugoira 파일명에서 순번 “p0”을 생략하려면 “더보기”-“명
         `画像の連番を 0 から開始するか 1 から開始するかを設定`,
         `이미지 일련번호를 0부터 시작할지 1부터 시작할지 설정`,
         `Установить начальное значение порядкового номера изображения — с 0 или с 1`,
+    ],
+    _提示扩展名为jfif的问题: [
+        `提示：下载器检测到下载的文件名以 .jfif 结尾。这其实是 .jpg 文件，但由于 Windows 在注册表里把 .jpg 文件的扩展名设置为了 .jfif，所以浏览器也会使用 .jfif 作为扩展名。<br>
+如果你想解决这个问题，可以按 <span class="blue">Win</span> + <span class="blue">R</span> 键打开运行窗口，输入 <span class="blue">regedit</span> 并回车打开注册表编辑器，定位到 <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>，把右侧的 <span class="blue">Extension</span> 的值从 <span class="blue">.jfif</span> 改成 <span class="blue">.jpg</span>，然后重启浏览器。`,
+        `提示：下載器檢測到下載的檔名以 .jfif 結尾。這其實是 .jpg 檔案，但由於 Windows 在登錄檔裡把 .jpg 檔案的擴展名設定為了 .jfif，所以瀏覽器也會使用 .jfif 作為擴展名。<br>
+如果你想解決這個問題，可以按 <span class="blue">Win</span> + <span class="blue">R</span> 鍵打開執行視窗，輸入 <span class="blue">regedit</span> 並按 Enter 打開登錄編輯器，定位到 <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>，把右側的 <span class="blue">Extension</span> 的值從 <span class="blue">.jfif</span> 改成 <span class="blue">.jpg</span>，然後重新啟動瀏覽器。`,
+        `Tip: The downloader detected that the downloaded filename ends with .jfif. This is actually a .jpg file, but because Windows has set the extension for .jpg files to .jfif in the registry, the browser also uses .jfif as the extension.<br>
+If you want to solve this problem, press <span class="blue">Win</span> + <span class="blue">R</span> to open the Run window, enter <span class="blue">regedit</span> and press Enter to open the Registry Editor, navigate to <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>, change the value of <span class="blue">Extension</span> on the right from <span class="blue">.jfif</span> to <span class="blue">.jpg</span>, then restart the browser.`,
+        `ヒント：ダウンロードツールがダウンロードされたファイル名が .jfif で終わることを検出しました。これは実際には .jpg ファイルですが、Windows がレジストリで .jpg ファイルの拡張子を .jfif に設定しているため、ブラウザも .jfif を拡張子として使用します。<br>
+この問題を解決したい場合は、<span class="blue">Win</span> + <span class="blue">R</span> キーを押して「実行」ウィンドウを開き、<span class="blue">regedit</span> と入力して Enter を押し、レジストリエディタを開きます。<span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span> に移動し、右側の <span class="blue">Extension</span> の値を <span class="blue">.jfif</span> から <span class="blue">.jpg</span> に変更してから、ブラウザを再起動してください。`,
+        `팁: 다운로더가 다운로드된 파일 이름이 .jfif로 끝나는 것을 감지했습니다. 이는 실제로 .jpg 파일이지만, Windows가 레지스트리에서 .jpg 파일의 확장자를 .jfif로 설정했기 때문에 브라우저도 .jfif를 확장자로 사용합니다.<br>
+이 문제를 해결하려면 <span class="blue">Win</span> + <span class="blue">R</span> 키를 눌러 실행 창을 열고 <span class="blue">regedit</span>를 입력한 후 Enter를 눌러 레지스트리 편집기를 엽니다. <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>로 이동하여 오른쪽의 <span class="blue">Extension</span> 값을 <span class="blue">.jfif</span>에서 <span class="blue">.jpg</span>로 변경한 다음 브라우저를 다시 시작하세요.`,
+        `Подсказка: Загрузчик обнаружил, что имя загруженного файла заканчивается на .jfif. На самом деле это файл .jpg, но поскольку Windows в реестре установил расширение для файлов .jpg как .jfif, браузер также использует .jfif в качестве расширения.<br>
+Если вы хотите решить эту проблему, нажмите <span class="blue">Win</span> + <span class="blue">R</span>, чтобы открыть окно «Выполнить», введите <span class="blue">regedit</span> и нажмите Enter, чтобы открыть редактор реестра, перейдите к <span class="blue">HKEY_CLASSES_ROOT\\MIME\\Database\\Content Type\\image/jpeg</span>, измените значение <span class="blue">Extension</span> справа с <span class="blue">.jfif</span> на <span class="blue">.jpg</span>, затем перезапустите браузер.`,
     ],
 };
 
@@ -62372,22 +62403,28 @@ class Utils {
             }
         };
     }
-    /**用 URL 里的后缀名替换 originName 的后缀名
+    /**用第二个字符串里的扩展名替换 originName 里的扩展名。
      *
      * 例如传入参数 123.txt, https://.../123.jpg
      *
      * 返回 123.jpg
      */
-    static replaceSuffix(originName, url) {
-        const nameArray = originName.split('.');
-        const urlArray = url.split('.');
-        nameArray[nameArray.length - 1] = urlArray[urlArray.length - 1];
-        return nameArray.join('.');
+    static replaceExtension(originName, str) {
+        const originArray = originName.split('.');
+        const originExt = originArray.at(-1) || '';
+        const urlExt = str.split('?')[0].split('.').at(-1) || '';
+        // 如果扩展名相同，就不修改原文件名
+        if (originExt === urlExt) {
+            return originName;
+        }
+        // 如果扩展名不同，就替换原文件名的扩展名
+        originArray[originArray.length - 1] = urlExt;
+        return originArray.join('.');
     }
-    /**获取后缀名 */
-    static getSuffix(name) {
-        const nameArray = name.split('.');
-        return nameArray[nameArray.length - 1];
+    /**获取字符串里的文件扩展名。字符串可能是文件名或 URL */
+    static getExtension(str) {
+        // 移除可能存在的查询字符串，并获取扩展名
+        return str.split('?')[0].split('.').at(-1) || '';
     }
     /**替换换行标签，并移除 html 标签 */
     static htmlToText(str) {
@@ -62427,12 +62464,6 @@ class Utils {
     }
     static sleep(time) {
         return new Promise((res) => window.setTimeout(res, time));
-    }
-    /**传入一个文件的 URL，返回它的文件扩展名 */
-    static getURLExt(url) {
-        url = url.split('?')[0]; // 移除可能存在的查询字符串
-        const array = url.split('.');
-        return array[array.length - 1];
     }
     /**检测元素在视口中是否可见
      * threshold 为 0 时，只要有部分可见就返回 true

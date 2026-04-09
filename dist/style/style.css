@@ -1609,6 +1609,9 @@ body.mobile #quickCrawlBtn {
   font-size: 14px;
   padding: 10px 30px;
 }
+.logContent .blue {
+  color: #0ea8ef;
+}
 .logContent span {
   line-height: 1.4;
   word-break: break-word;
