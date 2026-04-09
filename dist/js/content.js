@@ -16907,10 +16907,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 return;
             }
             // 移除覆盖在整个热门作品区域上的超链接
-            const hotWorksLink = document.querySelector('section a[href^="/premium"]');
-            if (hotWorksLink) {
-                hotWorksLink.remove();
-            }
+            const hotWorksLink = document.querySelectorAll('a[href^="/premium/lead"]');
+            hotWorksLink.forEach((link) => link.remove());
             // 移除热门作品列表右侧的提示购买会员的文字
             const workSpanList = document.querySelectorAll('aside ul span[data-gtm-value]');
             if (workSpanList.length > 0) {

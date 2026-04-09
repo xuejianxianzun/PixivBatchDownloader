@@ -1110,11 +1110,11 @@ class InitSearchArtworkPage extends InitPageBase {
       if (pageType.type !== pageType.list.ArtworkSearch) {
         return
       }
-      // 移除覆盖在整个热门作品区域上的超链接
-      const hotWorksLink = document.querySelector('section a[href^="/premium"]')
-      if (hotWorksLink) {
-        hotWorksLink.remove()
-      }
+
+      // 移除覆盖在整个热门作品区域上的会员购买链接
+      const hotWorksLink = document.querySelectorAll('a[href^="/premium/lead"]')
+      hotWorksLink.forEach((link) => link.remove())
+
       // 移除热门作品列表右侧的提示购买会员的文字
       const workSpanList = document.querySelectorAll(
         'aside ul span[data-gtm-value]'
