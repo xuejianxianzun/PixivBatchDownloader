@@ -21475,7 +21475,7 @@ class Download {
             // 这是因为每张图片的宽高可能都不一样，示例：
             // https://www.pixiv.net/artworks/142726174
             // 但是 Pixiv 的作品信息 API 里只有第一张图片的宽高，所以下载器在生成抓取结果时，会把每张图片的宽高都设置成第一张图片的宽高。但这可能不适用于从第二张开始的图片
-            // 所以需要重新生成 {px} 标记
+            // 所以在下载图片时需要重新检查其宽高，如有必要就重新生成文件名。本质上，这是为了重新生成 {px} 标记的结果
             if (arg.result.index > 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.imageSize === 'original') {
                 const size = await _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.getImageSize(blobURL);
                 if (size.width &&
@@ -21492,11 +21492,11 @@ class Download {
                     }
                 }
             }
-            // 向浏览器发送下载任务
+            // 发送下载任务
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.setFileDownloadOrder) {
                 await this.waitPreviousFileDownload();
             }
-            this.browserDownload(file, blobURL, _fileName, arg.id, arg.taskBatch);
+            this.sendDownload(file, blobURL, _fileName, arg.id, arg.taskBatch);
             xhr = null;
             file = null;
         });
@@ -21522,9 +21522,8 @@ class Download {
             }
         });
     }
-    // 向浏览器发送下载任务
-    async browserDownload(blob, blobURL, fileName, id, taskBatch) {
-        // 如果任务已停止，不会向浏览器发送下载任务
+    async sendDownload(blob, blobURL, fileName, id, taskBatch) {
+        // 如果任务已停止，就不再下载这个文件
         if (this.cancel) {
             // 释放 blob URL
             URL.revokeObjectURL(blobURL);
@@ -21552,10 +21551,12 @@ class Download {
             // 所以我只保留了文件名部分
             const lastName = fileName.split('/').pop();
             _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.downloadFile(blobURL, lastName);
+            // 向 SW 传递消息，使其返回下载成功的消息（但实际上没有使用浏览器的 downloads API 来下载这个文件）
             sendData.msg = 'save_work_file_a_download';
             webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
             return;
         }
+        // 发送给浏览器下载
         try {
             webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
             _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('sendBrowserDownload');
@@ -22233,10 +22234,18 @@ class DownloadInterval {
     }
     wait() {
         return new Promise(async (resolve) => {
-            // 首先检查此设置不应该生效的情况，立即放行
+            // 首先检查此设置不应该生效的情况
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadInterval === 0 ||
                 _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.result.length <= _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.downloadIntervalOnWorksNumber) {
-                return resolve(true);
+                // 如果用户启用了“把文件保存到用户上次选择的位置”，则强制添加 200 ms 的延迟
+                // 因为启用此设置时，下载器会使用 a 标签的 download 属性来下载文件。如果不添加延迟时间，那么在极端情况下，1  秒内可能会下载几十个文件，这会造成部分文件丢失（浏览器实际上没有下载部分文件）
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.rememberTheLastSaveLocation) {
+                    await new Promise((resolve) => setTimeout(resolve, 200));
+                }
+                else {
+                    // 否则立即放行
+                    return resolve(true);
+                }
             }
             // 可以立即开始下载
             if (Date.now() >= this.allowDownloadTime) {
@@ -40268,15 +40277,7 @@ const formHtml = `
       <input type="checkbox" name="autoStartDownload" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
     </p>
-    <p class="option" data-no="20">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(20)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用前请先查看提示">
-        <span data-xztext="_把文件保存到用户上次选择的位置"></span>
-        <span class="gray1"> ? </span>
-      </a>
-      <input type="checkbox" name="rememberTheLastSaveLocation" class="need_beautify checkbox_switch" checked>
-      <span class="beautify_switch" tabindex="0"></span>
-      <button type="button" class="gray1 textButton" id="showRememberTheLastSaveLocationTip" data-xztext="_提示"></button>
-    </p>
+
     <p class="option" data-no="33">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(33)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载之后收藏作品的提示">
         <span data-xztext="_下载之后收藏作品"></span>
@@ -40841,6 +40842,17 @@ const formHtml = `
         <label for="downloadOrder2" data-xztext="_升序"></label>
       </span>
     </p>
+    
+    <p class="option" data-no="20">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(20)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用前请先查看提示">
+        <span data-xztext="_把文件保存到用户上次选择的位置"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="rememberTheLastSaveLocation" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch" tabindex="0"></span>
+      <button type="button" class="gray1 textButton" id="showRememberTheLastSaveLocationTip" data-xztext="_提示"></button>
+    </p>
+    
     <p class="option" data-no="28">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(28)}" target="_blank" class="settingNameStyle" data-xztext="_不下载重复文件"></a>
       <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
@@ -62160,7 +62172,9 @@ class Utils {
         a.download = fileName;
         a.click();
         if (url.startsWith('blob')) {
-            URL.revokeObjectURL(url);
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+            }, 200);
         }
     }
     // 判断当前页面是否属于 pixiv.net

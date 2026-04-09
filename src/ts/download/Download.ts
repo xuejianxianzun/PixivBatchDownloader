@@ -382,11 +382,11 @@ class Download {
         }
       }
 
-      // 向浏览器发送下载任务
+      // 发送下载任务
       if (settings.setFileDownloadOrder) {
         await this.waitPreviousFileDownload()
       }
-      this.browserDownload(file, blobURL, _fileName, arg.id, arg.taskBatch)
+      this.sendDownload(file, blobURL, _fileName, arg.id, arg.taskBatch)
       xhr = null as any
       file = null as any
     })
@@ -417,15 +417,14 @@ class Download {
     })
   }
 
-  // 向浏览器发送下载任务
-  private async browserDownload(
+  private async sendDownload(
     blob: Blob,
     blobURL: string,
     fileName: string,
     id: string,
     taskBatch: number
   ) {
-    // 如果任务已停止，不会向浏览器发送下载任务
+    // 如果任务已停止，就不再下载这个文件
     if (this.cancel) {
       // 释放 blob URL
       URL.revokeObjectURL(blobURL)
@@ -456,11 +455,13 @@ class Download {
       // 所以我只保留了文件名部分
       const lastName = fileName.split('/').pop()
       Utils.downloadFile(blobURL, lastName!)
+      // 向 SW 传递消息，使其返回下载成功的消息（但实际上没有使用浏览器的 downloads API 来下载这个文件）
       sendData.msg = 'save_work_file_a_download'
       browser.runtime.sendMessage(sendData)
       return
     }
 
+    // 发送给浏览器下载
     try {
       browser.runtime.sendMessage(sendData)
       EVT.fire('sendBrowserDownload')

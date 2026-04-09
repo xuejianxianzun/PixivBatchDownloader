@@ -536,15 +536,7 @@ export const formHtml = `
       <input type="checkbox" name="autoStartDownload" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
     </p>
-    <p class="option" data-no="20">
-      <a href="${wiki.link(20)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用前请先查看提示">
-        <span data-xztext="_把文件保存到用户上次选择的位置"></span>
-        <span class="gray1"> ? </span>
-      </a>
-      <input type="checkbox" name="rememberTheLastSaveLocation" class="need_beautify checkbox_switch" checked>
-      <span class="beautify_switch" tabindex="0"></span>
-      <button type="button" class="gray1 textButton" id="showRememberTheLastSaveLocationTip" data-xztext="_提示"></button>
-    </p>
+
     <p class="option" data-no="33">
       <a href="${wiki.link(33)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载之后收藏作品的提示">
         <span data-xztext="_下载之后收藏作品"></span>
@@ -1109,6 +1101,17 @@ export const formHtml = `
         <label for="downloadOrder2" data-xztext="_升序"></label>
       </span>
     </p>
+    
+    <p class="option" data-no="20">
+      <a href="${wiki.link(20)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用前请先查看提示">
+        <span data-xztext="_把文件保存到用户上次选择的位置"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="rememberTheLastSaveLocation" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch" tabindex="0"></span>
+      <button type="button" class="gray1 textButton" id="showRememberTheLastSaveLocationTip" data-xztext="_提示"></button>
+    </p>
+    
     <p class="option" data-no="28">
       <a href="${wiki.link(28)}" target="_blank" class="settingNameStyle" data-xztext="_不下载重复文件"></a>
       <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">

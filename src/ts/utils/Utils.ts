@@ -175,7 +175,9 @@ class Utils {
     a.click()
 
     if (url.startsWith('blob')) {
-      URL.revokeObjectURL(url)
+      setTimeout(() => {
+        URL.revokeObjectURL(url)
+      }, 200)
     }
   }
 
