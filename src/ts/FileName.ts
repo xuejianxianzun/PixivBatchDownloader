@@ -18,8 +18,6 @@ interface NamingSchema {
 // 生成文件名
 // 没有必要保存缓存，因为每次生成文件名的耗时小于 1 ms，不需要用空间换时间
 class FileName {
-  // 下载器所有的动图格式后缀名
-  private readonly ugoiraExt = ['zip', 'webm', 'gif', 'apng']
   private readonly addStr = '[downloader_add]'
 
   /**传入一个抓取结果，生成其文件名 */
@@ -301,7 +299,7 @@ class FileName {
 
     // 5 生成后缀名
     // 如果是动图，那么此时
-    if (this.ugoiraExt.includes(data.ext) && data.ugoiraInfo) {
+    if (Config.ugoiraExtensions.includes(data.ext) && data.ugoiraInfo) {
       // 如果需要转换动图，则把后缀名设置为用户选择的动图保存格式
       if (settings.imageSize !== 'thumb') {
         data.ext = settings.ugoiraSaveAs

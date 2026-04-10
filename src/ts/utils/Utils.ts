@@ -418,10 +418,10 @@ class Utils {
    */
   static replaceExtension(originName: string, str: string) {
     const originArray = originName.split('.')
-    const originExt = originArray.at(-1) || ''
-    const urlExt = str.split('?')[0].split('.').at(-1) || ''
-    // 如果扩展名相同，就不修改原文件名
-    if (originExt === urlExt) {
+    const originExt = Utils.getExtension(originName)
+    const urlExt = Utils.getExtension(str)
+    // 如果任意一方没有扩展名，或者扩展名相同，就不修改原文件名
+    if (!originExt || !urlExt || originExt === urlExt) {
       return originName
     }
     // 如果扩展名不同，就替换原文件名的扩展名
@@ -432,7 +432,12 @@ class Utils {
   /**获取字符串里的文件扩展名。字符串可能是文件名或 URL */
   static getExtension(str: string) {
     // 移除可能存在的查询字符串，并获取扩展名
-    return str.split('?')[0].split('.').at(-1) || ''
+    const array = str.split('?')[0].split('.')
+    // 如果只有一项，说明字符串里没有包含点 . ，所以也就没有扩展名
+    if (array.length === 1) {
+      return ''
+    }
+    return array.at(-1) || ''
   }
 
   /**替换换行标签，并移除 html 标签 */

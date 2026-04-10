@@ -344,6 +344,7 @@ interface XzSetting {
   tipImageViewer: boolean
   removeEmoji: boolean
   serialNoStart: 0 | 1
+  DonotCrawlAlreadyDownloadedWorks: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -837,6 +838,7 @@ class Settings {
     tipImageViewer: true,
     removeEmoji: false,
     serialNoStart: 0,
+    DonotCrawlAlreadyDownloadedWorks: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

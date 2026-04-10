@@ -148,6 +148,7 @@ class FormSettings {
       'crawlOriginalWork',
       'crawlNonOriginalWork',
       'looseMatchOriginal',
+      'DonotCrawlAlreadyDownloadedWorks',
     ],
     text: [
       'firstFewImages',

@@ -184,4 +184,5 @@ export interface SettingsForm extends HTMLFormElement {
   looseMatchOriginal: HTMLInputElement
   removeEmoji: HTMLInputElement
   serialNoStart: HTMLInputElement
+  DonotCrawlAlreadyDownloadedWorks: HTMLInputElement
 }

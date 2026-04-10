@@ -39,7 +39,7 @@ class Form {
     this.bindFunctionBtn()
     this.displayTipArea()
     this.toggleHelpArea()
-    this.showMsgWhenClick()
+    this.showMsgWhenClickBtn()
 
     // 输入框获得焦点时自动选择文本（命名规则的输入框例外）
     const centerInputs: NodeListOf<HTMLInputElement> =
@@ -254,7 +254,7 @@ class Form {
   }
 
   /**点击一些按钮时，通过 msgBox 显示帮助 */
-  private showMsgWhenClick() {
+  private showMsgWhenClickBtn() {
     const config: {
       selector: string
       title: LangTextKey
@@ -309,6 +309,11 @@ class Form {
         selector: '#deduplicationHelp',
         title: '_不下载重复文件',
         content: '_不下载重复文件的提示',
+      },
+      {
+        selector: '#showDonotCrawlAlreadyDownloadedWorksTip',
+        title: '_不抓取下载过的作品',
+        content: '_不抓取下载过的作品的帮助信息',
       },
     ]
 

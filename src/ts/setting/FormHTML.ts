@@ -1,7 +1,7 @@
 import { Config } from '../Config'
 import { wiki } from './Wiki'
 
-// 设置项编号从 0 开始，现在最大是 98
+// 设置项编号从 0 开始，现在最大是 99
 export const formHtml = `
 <form class="settingForm">
   <div class="tabsContnet">
@@ -128,6 +128,17 @@ export const formHtml = `
       <input type="checkbox" name="showAdvancedSettings" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
     </p>
+
+    <p class="option" data-no="99">
+      <a href="${wiki.link(99)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_不抓取下载过的作品的说明">
+        <span data-xztext="_不抓取下载过的作品"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="DonotCrawlAlreadyDownloadedWorks" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <button class="gray1 textButton" id="showDonotCrawlAlreadyDownloadedWorksTip" type="button" data-xztext="_帮助"></button>
+    </p>
+
     <p class="option" data-no="15">
       <a href="${wiki.link(15)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
         <span data-xztext="_抓取每个用户最新的几个作品"></span>
@@ -137,29 +148,6 @@ export const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="crawlLatestFewWorks">
         <input type="text" name="crawlLatestFewWorksNumber" class="setinput_style1 blue" value="10">
-      </span>
-    </p>
-    <p class="option" data-no="3">
-      <a href="${wiki.link(3)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
-        <span data-xztext="_多图作品只下载前几张图片"></span>
-        <span class="gray1"> ? </span>
-      </a>
-      <input type="checkbox" name="firstFewImagesSwitch" class="need_beautify checkbox_switch">
-      <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="firstFewImagesSwitch">
-        <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
-      </span>
-    </p>
-    <p class="option" data-no="47">
-      <a href="${wiki.link(47)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品的图片数量上限提示">
-        <span data-xztext="_多图作品的图片数量上限"></span>
-        <span class="gray1"> ? </span>
-      </a>
-      <input type="checkbox" name="multiImageWorkImageLimitSwitch" class="need_beautify checkbox_switch">
-      <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="multiImageWorkImageLimitSwitch">
-        &lt;=&nbsp;
-        <input type="text" name="multiImageWorkImageLimit" class="setinput_style1 blue" value="1">
       </span>
     </p>
     <p class="option" data-no="5">
@@ -602,11 +590,38 @@ export const formHtml = `
         <input type="text" name="slowCrawlDealy" class="setinput_style1 blue" value="1600" placeholder="1600"> ms
       </span>
     </p>
+    
+    <p class="option" data-no="3">
+      <a href="${wiki.link(3)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
+        <span data-xztext="_多图作品只下载前几张图片"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="firstFewImagesSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="firstFewImagesSwitch">
+        <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
+      </span>
+    </p>
+
     <p class="option" data-no="69">
       <a href="${wiki.link(69)}" target="_blank" class="settingNameStyle" data-xztext="_不抓取多图作品的最后一张图片"></a>
       <input type="checkbox" name="doNotDownloadLastImageOfMultiImageWork" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
     </p>
+
+    <p class="option" data-no="47">
+      <a href="${wiki.link(47)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品的图片数量上限提示">
+        <span data-xztext="_多图作品的图片数量上限"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="multiImageWorkImageLimitSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="multiImageWorkImageLimitSwitch">
+        &lt;=&nbsp;
+        <input type="text" name="multiImageWorkImageLimit" class="setinput_style1 blue" value="1">
+      </span>
+    </p>
+
     <p class="option" data-no="79">
       <a href="${wiki.link(79)}" target="_blank" class="settingNameStyle">
         <span data-xztext="_特定用户的多图作品不下载最后几张图片"></span>
@@ -1136,7 +1151,7 @@ export const formHtml = `
       <a href="${wiki.link(28)}" target="_blank" class="settingNameStyle" data-xztext="_不下载重复文件"></a>
       <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="deduplication">
+      <span class="subOptionWrap" data-show="deduplication" style="flex-grow: 0;">
         &nbsp; <span data-xztext="_策略"></span>
         <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
         <span class="beautify_radio" tabindex="0"></span>
@@ -1144,11 +1159,11 @@ export const formHtml = `
         <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
         <span class="beautify_radio" tabindex="0"></span>
         <label class="has_tip" for="dupliStrategy2" data-xztip="_宽松模式说明" data-xztext="_宽松"></label>
-        <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
-        <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
-        <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
-        <button class="textButton gray1" type="button" id="deduplicationHelp" data-xztext="_提示"></button>
       </span>
+      <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
+      <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
+      <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
+      <button class="textButton gray1" type="button" id="deduplicationHelp" data-xztext="_帮助"></button>
     </p>
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>

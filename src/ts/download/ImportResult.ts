@@ -7,6 +7,7 @@ import { store } from '../store/Store'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
 import { filter } from '../filter/Filter'
+import { Tools } from '../Tools'
 
 class ImportResult {
   constructor() {
@@ -54,6 +55,7 @@ class ImportResult {
         id: result.idNum,
         isOriginal: result.isOriginal,
         workType: result.type,
+        IDTypeString: Tools.getWorkTypeString(result.type),
         pageCount: result.pageCount,
         tags: result.tagsWithTransl,
         title: result.title,

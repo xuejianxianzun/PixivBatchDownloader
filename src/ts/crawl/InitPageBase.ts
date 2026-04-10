@@ -497,7 +497,7 @@ abstract class InitPageBase {
       throw new Error(msg)
     }
 
-    // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则跳过它
+    // 在抓取作品详细数据之前对 id 进行检查，如果不符合要求就跳过它
     const check = await filter.check({
       id,
       IDTypeString: idData.type,

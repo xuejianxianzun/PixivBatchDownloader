@@ -365,10 +365,9 @@ class BatchFollowUser {
         button.click()
         console.log(userID + ' click')
       } else {
-        const msg = lang.transl(
-          '_没有找到关注按钮的提示',
-          Tools.createUserLink(userID)
-        )
+        const msg =
+          '⏩' +
+          lang.transl('_没有找到关注按钮的提示', Tools.createUserLink(userID))
         log.error(msg)
 
         return resolve(iframe)

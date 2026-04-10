@@ -19,6 +19,7 @@ import { mergeNovelFileName } from './MergeNovelFileName'
 import { SendDownload } from './SendDownload'
 import { filter } from '../filter/Filter'
 import { states } from '../store/States'
+import { downloadRecord, DownloadRecordType } from './DownloadRecord'
 
 declare const jEpub: any
 
@@ -32,7 +33,10 @@ interface NovelSummary {
   // 小说数据里的 order 确实是 9 和 10，下载器以小说数据里的为准
   no: number
   title: string
+  /** 发布时间，完整的字符串，例如 "2026-03-31T03:16:29+00:00" */
   updateDate: string
+  /** 较短的发布时间，使用“日期和时间格式”格式化后的字符串，默认只有年月日，没有 T 后面的部分 */
+  updateDateShort: string
   tags: string[]
   description: string
   content: string
@@ -111,8 +115,13 @@ class MergeNovel {
 
     log.log(`📚${lang.transl('_合并系列小说')} ${link}`)
 
+    log.warning(
+      lang.transl('_提示合并系列小说时可以跳过已合并的小说'),
+      'tipMergeNovelSkipMergedNovels'
+    )
+
+    // 如果用户选择的保存格式是 txt，则提示使用 EPUB 格式。这是因为很多小说阅读器都无法识别 txt 里的章节标记，所以使用 EPUB 格式是更好的选择
     if (settings.novelSaveAs === 'txt') {
-      // 如果用户选择的保存格式是 txt，显示提示。因为很多小说阅读器都无法识别 txt 里的章节标记
       log.warning(
         lang.transl('_合并小说时提示用户使用EPUB格式'),
         'mergeNovelRecommendEPUB'
@@ -201,6 +210,21 @@ class MergeNovel {
     // 在系列小说页面里执行时，由于只有一个系列，所以合并后显示轻提示
     if (pageType.type === pageType.list.NovelSeries) {
       toast.success(`${lang.transl('_已合并系列小说')}`)
+    }
+
+    // 为每一篇小说生成下载记录，这样以后抓取和下载时，如果启用了“不抓取下载过的作品”、“不下载重复文件”，就不会再次抓取和保存这些小说，避免了重复下载
+    // PS: 在合并系列小说时，会检查“不抓取下载过的作品”来跳过存在记录的小说。但不会检查“不下载重复文件”
+    // 这份记录里，小说的文件名 n 不是使用命名规则生成的，所以很可能与实际下载它时的文件名不同。这样的影响是：
+    // 当用户下载单篇小说，并启用了“不下载重复文件”时，使用宽松策略可以排除它（不再下载），使用严格策略则会再次下载它（因为文件名不同）。这是符合预期的。
+    // 如果用户以后单独下载了它，下载记录里的 n 会被覆盖为实际的名字
+    for (const data of this.allNovelData) {
+      const record: DownloadRecordType = {
+        id: data.id,
+        n: `${data.id}-${data.title}.${settings.novelSaveAs}`,
+        d: data.updateDate,
+      }
+      // console.log('add download record',data.no, record)
+      await downloadRecord.addRecordFromRecord(record)
     }
 
     // 清除数据以减少内存占用
@@ -295,7 +319,7 @@ class MergeNovel {
         const url = `https://www.pixiv.net/novel/show.php?id=${data.id}`
         text.push(url)
         text.push(this.CRLF2)
-        text.push(lang.transl('_更新日期') + ': ' + data.updateDate)
+        text.push(lang.transl('_更新日期') + ': ' + data.updateDateShort)
         text.push(this.CRLF2)
         const tags = `${data.tags.map((tag) => `#${tag}`).join(this.CRLF)}`
         text.push(tags)
@@ -317,7 +341,7 @@ class MergeNovel {
     const blob = new Blob(text, {
       type: 'text/plain',
     })
-    await SendDownload.noReply(blob, this.novelName)
+    await SendDownload.noReply(blob, this.novelName, 'uniquify')
   }
 
   // 生成的 EPUB 文件在这个方法里自行保存
@@ -474,7 +498,7 @@ class MergeNovel {
         if (settings.saveNovelMeta) {
           const url = `https://www.pixiv.net/novel/show.php?id=${data.id}`
           const link = `<p><a href="${url}" target="_blank">${url}</a></p>`
-          const date = `<p>${lang.transl('_更新日期') + ': ' + data.updateDate}</p>`
+          const date = `<p>${lang.transl('_更新日期') + ': ' + data.updateDateShort}</p>`
           const tags = `<p>${data.tags.map((tag) => `#${tag}`).join('<br/>')}</p>`
 
           const meta = `${link}${date}${tags}${Tools.replaceEPUBText(data.description)}`
@@ -551,13 +575,14 @@ class MergeNovel {
         bookmarkData: item.bookmarkData,
         bookmarkCount: item.bookmarkCount,
         createDate: item.createDate,
+        IDTypeString: 'novels',
       })
       if (check) {
         this.novelIdList.push(item.id)
       } else {
         const order_title = `#${item.series.contentOrder} ${item.title}`
         const link = Tools.createWorkLink(item.id, order_title, 'novel')
-        log.warning(lang.transl('_排除小说') + ': ' + link)
+        log.warning('🚫' + lang.transl('_排除小说') + ': ' + link)
       }
     }
 
@@ -598,7 +623,7 @@ class MergeNovel {
           cacheWorkData.set(data)
         } catch (error: Error | any) {
           // 请求小说的数据出错时跳过它，不重试（通常是 404 错误，没有必要重试）
-          log.error(lang.transl('_跳过这个小说'))
+          log.error('⏩' + lang.transl('_跳过这个小说'))
           continue
         }
       }
@@ -638,7 +663,8 @@ class MergeNovel {
         const novelData: NovelSummary = {
           id: novelId,
           no: order,
-          updateDate: DateFormat.format(data.body.uploadDate),
+          updateDate: data.body.uploadDate,
+          updateDateShort: DateFormat.format(data.body.uploadDate),
           title: Utils.replaceUnsafeStr(title),
           tags,
           description: Utils.htmlToText(
@@ -652,12 +678,12 @@ class MergeNovel {
       } else {
         const order_title = `#${order} ${title}`
         const link = Tools.createWorkLink(novelId, order_title, 'novel')
-        log.warning(lang.transl('_排除小说') + ': ' + link)
+        log.warning('🚫' + lang.transl('_排除小说') + ': ' + link)
       }
 
       // 如果处于快速合并模式，则跳过剩余小说
       if (states.quickMergeNovel) {
-        log.warning('quickMergeNovel: On，跳过剩余小说')
+        log.warning('⏩quickMergeNovel: On，跳过剩余小说')
         break
       }
     }
@@ -745,15 +771,10 @@ class MergeNovel {
       name = mergeNovelFileName.getName(this.seriesData!, part + 1)
     }
 
-    // 保存文件
-    // 如果这个小说需要分割成多个文件，那么把文件名冲突时的处理方式改为由浏览器自动添加编号
-    // 这是因为当文件名太长而被截断时，如果 {part} 位于文件名末尾部分，可能会被截断
-    // 这可能会导致出现重名文件。此时把冲突方式改为 uniquify，以免覆盖同名文件
-    let conflictAction: 'uniquify' | undefined = addPartFlag
-      ? 'uniquify'
-      : undefined
+    // 保存合并的系列小说的文件时，如果已存在同名文件，不覆盖它而是添加序号。
+    // 这是因为系列小说有更新的需要，例如第一次下载时，这个系列里有 10 篇小说；过段时间再次下载时，由于作者又更新了 10 篇小说，所以里面保存的可能是第 1 - 20 篇小说，也可能是第 11 - 20 篇小说（如果用户启用了“不抓取下载过的作品”）。所以这两次下载的文件的内容是不同的，不应该直接覆盖
     const blob = await jepub.generate('blob', (metadata: any) => {})
-    await SendDownload.noReply(blob, name, conflictAction)
+    await SendDownload.noReply(blob, name, 'uniquify')
 
     // 当这个系列里的所有小说都下载完毕后，如果它被分割成了多个文件，则显示提示日志
     if (complete && this.sizeLog.length > 1) {

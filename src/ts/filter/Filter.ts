@@ -9,6 +9,8 @@ import { msgBox } from '../MsgBox'
 import { workPublishTime } from './WorkPublishTime'
 import { IDTypeString } from '../store/StoreType'
 import { Config } from '../Config'
+import { downloadRecord, DownloadRecordType } from '../download/DownloadRecord'
+import { Utils } from '../utils/Utils'
 
 /** 过滤选项，其中所有字段都是可选的 */
 export interface FilterOption {
@@ -63,6 +65,7 @@ class Filter {
     this.getDownTypeByColor()
     this.getDownTypeByBmked()
     this.getMultiImageWorkImageLimit()
+    this.getDownloadedWorks()
     this.getBMKNum()
     this.getSetWh()
     this.getRatio()
@@ -289,6 +292,16 @@ class Filter {
         lang.transl('_下载器排除了一些作品原因') +
           lang.transl('_它不是首次登场的作品'),
         'excludeWorkByDebut'
+      )
+      return false
+    }
+
+    // 检查这个作品是否下载过
+    if (!(await this.checkDownloadedWorks(option.id, option.IDTypeString))) {
+      log.warning(
+        lang.transl('_下载器排除了一些作品原因') +
+          lang.transl('_不抓取下载过的作品'),
+        'excludeWorkByDownloadedWorks'
       )
       return false
     }
@@ -541,6 +554,15 @@ class Filter {
       }`
       log.warning(text)
     }
+  }
+
+  /** 提示不抓取下载过的作品 */
+  private getDownloadedWorks() {
+    if (!settings.DonotCrawlAlreadyDownloadedWorks) {
+      return
+    }
+
+    log.warning(lang.transl('_不抓取下载过的作品'))
   }
 
   /** 提示输入的收藏数 */
@@ -1172,7 +1194,10 @@ class Filter {
       return true
     }
 
-    id = Number(id)
+    if (typeof id === 'string') {
+      id = Number.parseInt(id)
+    }
+
     if (type === 'illusts' || type === 'manga' || type === 'ugoira') {
       if (settings.idRangeComparisonForImageWorks === '>') {
         return id > settings.idRangeValueForImageWorks
@@ -1326,6 +1351,66 @@ class Filter {
 
     // 对结果取反
     return !blockTagsForSpecificUser.check(userId, tags)
+  }
+
+  /** 检查这个作品是否存在下载记录，并决定是否要跳过它 */
+  // 不会检查系列小说，因为下载器没有保存系列小说的下载记录
+  // 注意：这个检查只应该在抓取阶段进行；在抓取之后保存作品数据和下载阶段不应该检查它。因为在下载时检查它的话就相当于启用了“不下载重复文件”。目前后续阶段调用过滤器时没有传递 IDTypeString 选项，所以没有影响。
+  private async checkDownloadedWorks(
+    id: FilterOption['id'],
+    type: FilterOption['IDTypeString']
+  ): Promise<boolean> {
+    if (
+      !settings.DonotCrawlAlreadyDownloadedWorks ||
+      !id ||
+      !type ||
+      type === 'novelSeries'
+    ) {
+      return true
+    }
+
+    // 插画、漫画需要在 id 后面添加 _p0 来查询下载记录。动图、小说直接使用 id 查询即可
+    // 但实际上在抓取图像作品时，这里接收到的类型往往不是精确的分类，而是笼统的 illusts，所以无法准确判断
+    // 例如：动图在这里传递的类型通常是 illusts，此时不应该添加 _p0
+    let record: DownloadRecordType | null
+    if (type === 'ugoira' || type === 'novels') {
+      // 动图和小说使用 id 查询
+      record = await downloadRecord.getRecord(id.toString())
+    } else {
+      // 其他情况，可能是插画、漫画、动图
+      // 先添加 _p0 查询，这符合大部分情况
+      record = await downloadRecord.getRecord(id + '_p0')
+      if (record === null) {
+        // 如果查询不到，则使用 id 再查询一次
+        record = await downloadRecord.getRecord(id.toString())
+      }
+    }
+    // console.log(id, type)
+    // console.log('download record', record)
+    // 如果没有记录，则抓取这个作品
+    if (record === null) {
+      return true
+    }
+
+    // 虽然下载记录里没有区分小说和图像作品，但可以通过扩展名判断是不是小说文件
+    // 如果没有文件名，就无法判断作品类型，此时不抓取它
+    if (!record.n) {
+      return false
+    }
+
+    const ext = Utils.getExtension(record.n)
+    // 没有扩展名时，无法判断作品类型
+    if (!ext) {
+      return false
+    }
+
+    if (Config.novelExtensions.includes(ext)) {
+      // 这是小说的记录，如果传入的类型也是小说，则是完全匹配
+      return !(type === 'novels')
+    } else {
+      // 这是图像作品的记录，如果传入的类型不是小说，则是完全匹配
+      return !(type !== 'novels')
+    }
   }
 
   /** 如果设置项的值不合法，显示提示 */

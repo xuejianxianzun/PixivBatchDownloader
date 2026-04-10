@@ -2218,7 +2218,7 @@ class Bookmark {
             _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(tip, 'bookmarkAddProgress');
         }
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.persistentRefresh('bookmarkAddProgress');
-        const msg = '✅' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品完毕');
+        const msg = '♥️' + _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_收藏作品完毕');
         _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(msg);
         _Toast__WEBPACK_IMPORTED_MODULE_6__.toast.success(msg, {
             position: 'center',
@@ -2733,6 +2733,10 @@ __webpack_require__.r(__webpack_exports__);
 // 定义一些常量
 // 用户不可以修改这里的配置
 class Config {
+    /**程序名 */
+    static appName = 'Powerful Pixiv Downloader';
+    /**下载器储存设置时使用的 key name */
+    static settingStoreName = 'xzSetting';
     /**使用输出面板显示内容时，如果文件数量大于这个值，就不再显示内容，而是保存到 txt 文件 */
     static outputMax = 5000;
     /**同时下载的文件数量的最大值 */
@@ -2741,10 +2745,10 @@ class Config {
     static retryMax = 10;
     /**作品类型所对应的字符串名称 */
     static worksTypeName = ['Illustration', 'Manga', 'Ugoira', 'Novel'];
-    /**程序名 */
-    static appName = 'Powerful Pixiv Downloader';
-    /**下载器储存设置时使用的 key name */
-    static settingStoreName = 'xzSetting';
+    /**下载器所有动图格式的后缀名 */
+    static ugoiraExtensions = ['zip', 'webm', 'gif', 'apng'];
+    /**下载器所有小说格式的后缀名 */
+    static novelExtensions = ['txt', 'epub'];
     /**按收藏数量过滤作品时，预设的最大收藏数量 */
     static BookmarkCountLimit = 9999999;
     /**Pixiv 作品总数量上限 */
@@ -3870,8 +3874,6 @@ __webpack_require__.r(__webpack_exports__);
 // 生成文件名
 // 没有必要保存缓存，因为每次生成文件名的耗时小于 1 ms，不需要用空间换时间
 class FileName {
-    // 下载器所有的动图格式后缀名
-    ugoiraExt = ['zip', 'webm', 'gif', 'apng'];
     addStr = '[downloader_add]';
     /**传入一个抓取结果，生成其文件名 */
     createFileName(data) {
@@ -4125,7 +4127,7 @@ class FileName {
         result = this.handleEdgeCases(result);
         // 5 生成后缀名
         // 如果是动图，那么此时
-        if (this.ugoiraExt.includes(data.ext) && data.ugoiraInfo) {
+        if (_Config__WEBPACK_IMPORTED_MODULE_4__.Config.ugoiraExtensions.includes(data.ext) && data.ugoiraInfo) {
             // 如果需要转换动图，则把后缀名设置为用户选择的动图保存格式
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.imageSize !== 'thumb') {
                 data.ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.ugoiraSaveAs;
@@ -14003,7 +14005,7 @@ class InitPageBase {
             _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
             throw new Error(msg);
         }
-        // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则跳过它
+        // 在抓取作品详细数据之前对 id 进行检查，如果不符合要求就跳过它
         const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
             id,
             IDTypeString: idData.type,
@@ -16906,7 +16908,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             if (_PageType__WEBPACK_IMPORTED_MODULE_19__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_19__.pageType.list.ArtworkSearch) {
                 return;
             }
-            // 移除覆盖在整个热门作品区域上的超链接
+            // 移除覆盖在整个热门作品区域上的会员购买链接
             const hotWorksLink = document.querySelectorAll('a[href^="/premium/lead"]');
             hotWorksLink.forEach((link) => link.remove());
             // 移除热门作品列表右侧的提示购买会员的文字
@@ -22815,7 +22817,7 @@ class DownloadRecord {
             // 所以下载器在保存和判断重复文件时，使用的都是 filename.createFileName() 生成的文件名
             // 即使文件名在实际下载流程中被修改，也不会影响这里保存的文件名，所以不会影响检测重复文件的功能。
             const result = _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.findResult(successData.id);
-            result && this.addRecord(result);
+            result && this.addRecordFromResult(result);
         });
         // 导入含有 id 列表的 txt 文件
         _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_10__.secretSignal.register('recordtxt', () => {
@@ -22902,8 +22904,8 @@ class DownloadRecord {
             return result.uploadDate;
         }
     }
-    // 添加一条下载记录
-    async addRecord(result) {
+    /** 传入一个 Result 对象，添加它的下载记录 */
+    async addRecordFromResult(result) {
         const storeName = this.getStoreName(result.id);
         const record = this.createRecord(result);
         if (this.existedIdList.includes(result.id)) {
@@ -22911,9 +22913,30 @@ class DownloadRecord {
         }
         else {
             // 先查询有没有这个记录
-            const result = await this.IDB.get(storeName, record.id);
-            this.IDB[result ? 'put' : 'add'](storeName, record);
+            const exists = await this.IDB.get(storeName, record.id);
+            this.IDB[exists ? 'put' : 'add'](storeName, record);
         }
+    }
+    /** 传入一个构造好的 Record 对象，添加它的下载记录 */
+    async addRecordFromRecord(record) {
+        const storeName = this.getStoreName(record.id);
+        if (this.existedIdList.includes(record.id)) {
+            this.IDB.put(storeName, record);
+        }
+        else {
+            // 先查询有没有这个记录
+            const exists = await this.IDB.get(storeName, record.id);
+            this.IDB[exists ? 'put' : 'add'](storeName, record);
+        }
+    }
+    async getRecord(id) {
+        const storeName = this.getStoreName(id);
+        const record = (await this.IDB.get(storeName, id));
+        if (record) {
+            this.existedIdList.push(record.id);
+        }
+        // console.log('getRecord', id, record)
+        return record;
     }
     /** 检查一个作品是否是重复下载
      *
@@ -22930,6 +22953,8 @@ class DownloadRecord {
             }
             // 在数据库进行查找
             const storeName = this.getStoreName(result.id);
+            // 在有 10,000 条下载记录时，我下载了 100 个文件进行测试，get 查询的平均耗时为 6.45 ms。
+            // 现代浏览器的 IndexedDB 实现通常基于 B-tree 或类似平衡树来维护主键索引，其单点查找时间复杂度是 O(log N)，即对数级别。即使有 1,000,000 条记录，单次查询的时间也不会大幅增加，可能平均值在 10 ms 左右。
             const data = (await this.IDB.get(storeName, result.id));
             if (data === null) {
                 return resolve(false);
@@ -22944,7 +22969,7 @@ class DownloadRecord {
             // 如果之前的下载记录里没有日期，说明是早期的下载记录，那么就不检查日期
             // 同时，更新这个作品的下载记录，为其添加日期
             if (data.d === undefined) {
-                this.addRecord(result);
+                this.addRecordFromResult(result);
             }
             // 如果日期字符串没有变化，再根据策略进行判断
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.dupliStrategy === 'loose') {
@@ -23505,6 +23530,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+
 
 
 
@@ -23553,6 +23580,7 @@ class ImportResult {
                 id: result.idNum,
                 isOriginal: result.isOriginal,
                 workType: result.type,
+                IDTypeString: _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.getWorkTypeString(result.type),
                 pageCount: result.pageCount,
                 tags: result.tagsWithTransl,
                 title: result.title,
@@ -23785,6 +23813,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _SendDownload__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./SendDownload */ "./src/ts/download/SendDownload.ts");
 /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _DownloadRecord__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./DownloadRecord */ "./src/ts/download/DownloadRecord.ts");
+
 
 
 
@@ -23860,8 +23890,9 @@ class MergeNovel {
             }
         }
         _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(`📚${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_合并系列小说')} ${link}`);
+        _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_提示合并系列小说时可以跳过已合并的小说'), 'tipMergeNovelSkipMergedNovels');
+        // 如果用户选择的保存格式是 txt，则提示使用 EPUB 格式。这是因为很多小说阅读器都无法识别 txt 里的章节标记，所以使用 EPUB 格式是更好的选择
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.novelSaveAs === 'txt') {
-            // 如果用户选择的保存格式是 txt，显示提示。因为很多小说阅读器都无法识别 txt 里的章节标记
             _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_合并小说时提示用户使用EPUB格式'), 'mergeNovelRecommendEPUB');
         }
         // 在系列小说页面里执行时，关闭设置面板
@@ -23931,6 +23962,20 @@ class MergeNovel {
         // 在系列小说页面里执行时，由于只有一个系列，所以合并后显示轻提示
         if (_PageType__WEBPACK_IMPORTED_MODULE_13__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_13__.pageType.list.NovelSeries) {
             _Toast__WEBPACK_IMPORTED_MODULE_10__.toast.success(`${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已合并系列小说')}`);
+        }
+        // 为每一篇小说生成下载记录，这样以后抓取和下载时，如果启用了“不抓取下载过的作品”、“不下载重复文件”，就不会再次抓取和保存这些小说，避免了重复下载
+        // PS: 在合并系列小说时，会检查“不抓取下载过的作品”来跳过存在记录的小说。但不会检查“不下载重复文件”
+        // 这份记录里，小说的文件名 n 不是使用命名规则生成的，所以很可能与实际下载它时的文件名不同。这样的影响是：
+        // 当用户下载单篇小说，并启用了“不下载重复文件”时，使用宽松策略可以排除它（不再下载），使用严格策略则会再次下载它（因为文件名不同）。这是符合预期的。
+        // 如果用户以后单独下载了它，下载记录里的 n 会被覆盖为实际的名字
+        for (const data of this.allNovelData) {
+            const record = {
+                id: data.id,
+                n: `${data.id}-${data.title}.${_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.novelSaveAs}`,
+                d: data.updateDate,
+            };
+            // console.log('add download record',data.no, record)
+            await _DownloadRecord__WEBPACK_IMPORTED_MODULE_20__.downloadRecord.addRecordFromRecord(record);
         }
         // 清除数据以减少内存占用
         window.setTimeout(() => {
@@ -24011,7 +24056,7 @@ class MergeNovel {
                 const url = `https://www.pixiv.net/novel/show.php?id=${data.id}`;
                 text.push(url);
                 text.push(this.CRLF2);
-                text.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_更新日期') + ': ' + data.updateDate);
+                text.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_更新日期') + ': ' + data.updateDateShort);
                 text.push(this.CRLF2);
                 const tags = `${data.tags.map((tag) => `#${tag}`).join(this.CRLF)}`;
                 text.push(tags);
@@ -24030,7 +24075,7 @@ class MergeNovel {
         const blob = new Blob(text, {
             type: 'text/plain',
         });
-        await _SendDownload__WEBPACK_IMPORTED_MODULE_17__.SendDownload.noReply(blob, this.novelName);
+        await _SendDownload__WEBPACK_IMPORTED_MODULE_17__.SendDownload.noReply(blob, this.novelName, 'uniquify');
     }
     // 生成的 EPUB 文件在这个方法里自行保存
     async mergeEPUB(body) {
@@ -24169,7 +24214,7 @@ class MergeNovel {
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta) {
                     const url = `https://www.pixiv.net/novel/show.php?id=${data.id}`;
                     const link = `<p><a href="${url}" target="_blank">${url}</a></p>`;
-                    const date = `<p>${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_更新日期') + ': ' + data.updateDate}</p>`;
+                    const date = `<p>${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_更新日期') + ': ' + data.updateDateShort}</p>`;
                     const tags = `<p>${data.tags.map((tag) => `#${tag}`).join('<br/>')}</p>`;
                     const meta = `${link}${date}${tags}${_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.replaceEPUBText(data.description)}`;
                     metaHtml =
@@ -24227,6 +24272,7 @@ class MergeNovel {
                 bookmarkData: item.bookmarkData,
                 bookmarkCount: item.bookmarkCount,
                 createDate: item.createDate,
+                IDTypeString: 'novels',
             });
             if (check) {
                 this.novelIdList.push(item.id);
@@ -24234,7 +24280,7 @@ class MergeNovel {
             else {
                 const order_title = `#${item.series.contentOrder} ${item.title}`;
                 const link = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.createWorkLink(item.id, order_title, 'novel');
-                _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_排除小说') + ': ' + link);
+                _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning('🚫' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_排除小说') + ': ' + link);
             }
         }
         this.last += list.length;
@@ -24269,7 +24315,7 @@ class MergeNovel {
                 }
                 catch (error) {
                     // 请求小说的数据出错时跳过它，不重试（通常是 404 错误，没有必要重试）
-                    _Log__WEBPACK_IMPORTED_MODULE_7__.log.error(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_跳过这个小说'));
+                    _Log__WEBPACK_IMPORTED_MODULE_7__.log.error('⏩' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_跳过这个小说'));
                     continue;
                 }
             }
@@ -24304,7 +24350,8 @@ class MergeNovel {
                 const novelData = {
                     id: novelId,
                     no: order,
-                    updateDate: _utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__.DateFormat.format(data.body.uploadDate),
+                    updateDate: data.body.uploadDate,
+                    updateDateShort: _utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__.DateFormat.format(data.body.uploadDate),
                     title: _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceUnsafeStr(title),
                     tags,
                     description: _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlDecode(data.body.description)),
@@ -24317,11 +24364,11 @@ class MergeNovel {
             else {
                 const order_title = `#${order} ${title}`;
                 const link = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.createWorkLink(novelId, order_title, 'novel');
-                _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_排除小说') + ': ' + link);
+                _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning('🚫' + _Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_排除小说') + ': ' + link);
             }
             // 如果处于快速合并模式，则跳过剩余小说
             if (_store_States__WEBPACK_IMPORTED_MODULE_19__.states.quickMergeNovel) {
-                _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning('quickMergeNovel: On，跳过剩余小说');
+                _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning('⏩quickMergeNovel: On，跳过剩余小说');
                 break;
             }
         }
@@ -24391,15 +24438,10 @@ class MergeNovel {
             // 为这个分割的文件生成新的文件名（添加了 part 编号）
             name = _MergeNovelFileName__WEBPACK_IMPORTED_MODULE_16__.mergeNovelFileName.getName(this.seriesData, part + 1);
         }
-        // 保存文件
-        // 如果这个小说需要分割成多个文件，那么把文件名冲突时的处理方式改为由浏览器自动添加编号
-        // 这是因为当文件名太长而被截断时，如果 {part} 位于文件名末尾部分，可能会被截断
-        // 这可能会导致出现重名文件。此时把冲突方式改为 uniquify，以免覆盖同名文件
-        let conflictAction = addPartFlag
-            ? 'uniquify'
-            : undefined;
+        // 保存合并的系列小说的文件时，如果已存在同名文件，不覆盖它而是添加序号。
+        // 这是因为系列小说有更新的需要，例如第一次下载时，这个系列里有 10 篇小说；过段时间再次下载时，由于作者又更新了 10 篇小说，所以里面保存的可能是第 1 - 20 篇小说，也可能是第 11 - 20 篇小说（如果用户启用了“不抓取下载过的作品”）。所以这两次下载的文件的内容是不同的，不应该直接覆盖
         const blob = await jepub.generate('blob', (metadata) => { });
-        await _SendDownload__WEBPACK_IMPORTED_MODULE_17__.SendDownload.noReply(blob, name, conflictAction);
+        await _SendDownload__WEBPACK_IMPORTED_MODULE_17__.SendDownload.noReply(blob, name, 'uniquify');
         // 当这个系列里的所有小说都下载完毕后，如果它被分割成了多个文件，则显示提示日志
         if (complete && this.sizeLog.length > 1) {
             _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_由于这个系列小说里的图片体积很大所以分割成了x个文件', this.sizeLog.length.toString()));
@@ -26629,6 +26671,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _WorkPublishTime__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./WorkPublishTime */ "./src/ts/filter/WorkPublishTime.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _download_DownloadRecord__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../download/DownloadRecord */ "./src/ts/download/DownloadRecord.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
 
 
 
@@ -26654,6 +26700,7 @@ class Filter {
         this.getDownTypeByColor();
         this.getDownTypeByBmked();
         this.getMultiImageWorkImageLimit();
+        this.getDownloadedWorks();
         this.getBMKNum();
         this.getSetWh();
         this.getRatio();
@@ -26788,6 +26835,12 @@ class Filter {
         if (!this.checkDebut(option.yes_rank)) {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') +
                 _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_它不是首次登场的作品'), 'excludeWorkByDebut');
+            return false;
+        }
+        // 检查这个作品是否下载过
+        if (!(await this.checkDownloadedWorks(option.id, option.IDTypeString))) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了一些作品原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_不抓取下载过的作品'), 'excludeWorkByDownloadedWorks');
             return false;
         }
         // 检查文件体积设置
@@ -26964,6 +27017,13 @@ class Filter {
             const text = `${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_宽度')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.widthHeightLimit} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setWidth} ${andOr} ${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_高度')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.widthHeightLimit} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.setHeight}`;
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(text);
         }
+    }
+    /** 提示不抓取下载过的作品 */
+    getDownloadedWorks() {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.DonotCrawlAlreadyDownloadedWorks) {
+            return;
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_不抓取下载过的作品'));
     }
     /** 提示输入的收藏数 */
     getBMKNum() {
@@ -27463,7 +27523,9 @@ class Filter {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeSwitch || id === undefined || !type) {
             return true;
         }
-        id = Number(id);
+        if (typeof id === 'string') {
+            id = Number.parseInt(id);
+        }
         if (type === 'illusts' || type === 'manga' || type === 'ugoira') {
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeComparisonForImageWorks === '>') {
                 return id > _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.idRangeValueForImageWorks;
@@ -27583,6 +27645,58 @@ class Filter {
         }
         // 对结果取反
         return !_BlockTagsForSpecificUser__WEBPACK_IMPORTED_MODULE_6__.blockTagsForSpecificUser.check(userId, tags);
+    }
+    /** 检查这个作品是否存在下载记录，并决定是否要跳过它 */
+    // 不会检查系列小说，因为下载器没有保存系列小说的下载记录
+    // 注意：这个检查只应该在抓取阶段进行；在抓取之后保存作品数据和下载阶段不应该检查它。因为在下载时检查它的话就相当于启用了“不下载重复文件”。目前后续阶段调用过滤器时没有传递 IDTypeString 选项，所以没有影响。
+    async checkDownloadedWorks(id, type) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.DonotCrawlAlreadyDownloadedWorks ||
+            !id ||
+            !type ||
+            type === 'novelSeries') {
+            return true;
+        }
+        // 插画、漫画需要在 id 后面添加 _p0 来查询下载记录。动图、小说直接使用 id 查询即可
+        // 但实际上在抓取图像作品时，这里接收到的类型往往不是精确的分类，而是笼统的 illusts，所以无法准确判断
+        // 例如：动图在这里传递的类型通常是 illusts，此时不应该添加 _p0
+        let record;
+        if (type === 'ugoira' || type === 'novels') {
+            // 动图和小说使用 id 查询
+            record = await _download_DownloadRecord__WEBPACK_IMPORTED_MODULE_10__.downloadRecord.getRecord(id.toString());
+        }
+        else {
+            // 其他情况，可能是插画、漫画、动图
+            // 先添加 _p0 查询，这符合大部分情况
+            record = await _download_DownloadRecord__WEBPACK_IMPORTED_MODULE_10__.downloadRecord.getRecord(id + '_p0');
+            if (record === null) {
+                // 如果查询不到，则使用 id 再查询一次
+                record = await _download_DownloadRecord__WEBPACK_IMPORTED_MODULE_10__.downloadRecord.getRecord(id.toString());
+            }
+        }
+        // console.log(id, type)
+        // console.log('download record', record)
+        // 如果没有记录，则抓取这个作品
+        if (record === null) {
+            return true;
+        }
+        // 虽然下载记录里没有区分小说和图像作品，但可以通过扩展名判断是不是小说文件
+        // 如果没有文件名，就无法判断作品类型，此时不抓取它
+        if (!record.n) {
+            return false;
+        }
+        const ext = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__.Utils.getExtension(record.n);
+        // 没有扩展名时，无法判断作品类型
+        if (!ext) {
+            return false;
+        }
+        if (_Config__WEBPACK_IMPORTED_MODULE_9__.Config.novelExtensions.includes(ext)) {
+            // 这是小说的记录，如果传入的类型也是小说，则是完全匹配
+            return !(type === 'novels');
+        }
+        else {
+            // 这是图像作品的记录，如果传入的类型不是小说，则是完全匹配
+            return !(type !== 'novels');
+        }
     }
     /** 如果设置项的值不合法，显示提示 */
     error(msg) {
@@ -30944,14 +31058,6 @@ Additional notes: <br>
         '重複ファイル {} をスキップ',
         '파일 {}이(가) 이미 다운로드되어 있어, 다운로드를 건너뜁니다',
         'Пропустить загрузку дубликатов файлов {}',
-    ],
-    _跳过下载因为: [
-        '跳过 {} 因为：',
-        '跳過 {} 因為：',
-        'Skipping {} because: ',
-        '{} をスキップします。理由: ',
-        '{}를 건너뜁니다. 이유: ',
-        'Пропустить {}, потому что: ',
     ],
     _保存用户头像为图标: [
         '保存用户头像为图标',
@@ -34342,12 +34448,12 @@ When viewing the preview image, you can use the following shortcut keys:<br>
         'Свести в один файл',
     ],
     _后续作品低于最低收藏数量要求跳过后续作品: [
-        '检测到后续作品的收藏数量低于用户设置的数字，跳过后续作品',
-        '檢測到後續作品的收藏數量低於使用者設定的數字，跳過後續作品',
-        'It is detected that the number of bookmarks of subsequent works is lower than the number set by the user, and subsequent works are skipped.',
-        '以降の作品のブックマーク数がユーザーが設定した数よりも少ないことを検出し、以降の作品をスキップする。',
-        '후속 작품의 북마크 수가 사용자가 설정한 수보다 적은 것으로 감지되어 후속 작품을 건너뜁니다.',
-        'Обнаружено, что количество закладок последующих произведений меньше количества, установленного пользователем, и последующие произведения пропускаются.',
+        '⏩检测到后续作品的收藏数量低于用户设置的数字，跳过后续作品',
+        '⏩檢測到後續作品的收藏數量低於使用者設定的數字，跳過後續作品',
+        '⏩It is detected that the number of bookmarks of subsequent works is lower than the number set by the user, and subsequent works are skipped.',
+        '⏩以降の作品のブックマーク数がユーザーが設定した数よりも少ないことを検出し、以降の作品をスキップする。',
+        '⏩후속 작품의 북마크 수가 사용자가 설정한 수보다 적은 것으로 감지되어 후속 작품을 건너뜁니다.',
+        '⏩Обнаружено, что количество закладок последующих произведений меньше количества, установленного пользователем, и последующие произведения пропускаются.',
     ],
     _间隔时间: [
         '间隔时间：',
@@ -35300,12 +35406,12 @@ If you want to use this feature, please note:
 <br>`,
     ],
     _下载器排除了一些作品原因: [
-        `下载器排除了一些作品，原因：`,
-        `下載器排除了一些作品，原因：`,
-        `The downloader excluded some works, reason:`,
-        `ダウンロードツールがいくつかの作品を除外しました、理由：`,
-        `다운로더가 일부 작품을 제외했습니다, 이유:`,
-        `Загрузчик исключил некоторые работы, причина:`,
+        `🚫下载器排除了一些作品，原因：`,
+        `🚫下載器排除了一些作品，原因：`,
+        `🚫The downloader excluded some works, reason:`,
+        `🚫ダウンロードツールがいくつかの作品を除外しました、理由：`,
+        `🚫다운로더가 일부 작품을 제외했습니다, 이유:`,
+        `🚫Загрузчик исключил некоторые работы, причина:`,
     ],
     _作品的语言不符合你选择的语言: [
         `作品的语言不符合你选择的语言 {}`,
@@ -36392,12 +36498,12 @@ Ugoira 파일명에서 순번 “p0”을 생략하려면 “더보기”-“명
         `Пропустить эту работу`,
     ],
     _因为网络错误跳过这个作品: [
-        `因为网络错误跳过这个作品: {}`,
-        `因為網路錯誤跳過這個作品: {}`,
-        `Skipped this work due to network error: {}`,
-        `ネットワークエラーのためこの作品をスキップしました: {}`,
-        `네트워크 오류로 인해 이 작품을 건너뛰었습니다: {}`,
-        `Пропущена эта работа из-за сетевой ошибки: {}`,
+        `⏩因为网络错误跳过这个作品: {}`,
+        `⏩因為網路錯誤跳過這個作品: {}`,
+        `⏩Skipped this work due to network error: {}`,
+        `⏩ネットワークエラーのためこの作品をスキップしました: {}`,
+        `⏩네트워크 오류로 인해 이 작품을 건너뛰었습니다: {}`,
+        `⏩Пропущена эта работа из-за сетевой ошибки: {}`,
     ],
     _移除文件名里的emoji: [
         `移除文件名里的 <span class="key">Emoji</span>`,
@@ -36453,6 +36559,38 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `シリーズ小説`,
         `시리즈 소설`,
         `Серия романов`,
+    ],
+    _不抓取下载过的作品: [
+        `不抓取<span class="key">下载过</span>的作品`,
+        `不抓取<span class="key">下載過</span>的作品`,
+        `Do not crawl <span class="key">already downloaded</span> works`,
+        `<span class="key">ダウンロード済み</span>の作品をクロールしない`,
+        `<span class="key">이미 다운로드한</span> 작품 크롤링 안 함`,
+        `Не краулить <span class="key">уже скачанные</span> работы`,
+    ],
+    _不抓取下载过的作品的说明: [
+        `如果下载器里有这个作品的下载记录，就不会抓取它。`,
+        `如果下載器裡有這個作品的下載記錄，就不會抓取它。`,
+        `If the downloader has a download record for this work, it will not be crawled.`,
+        `ダウンロードツールにこの作品のダウンロード記録がある場合、クロールしません。`,
+        `다운로더에 이 작품의 다운로드 기록이 있으면 크롤링하지 않습니다.`,
+        `Если в загрузчике есть запись о скачивании этой работы, она не будет скраулена.`,
+    ],
+    _不抓取下载过的作品的帮助信息: [
+        `如果你启用了这个设置，那么下载器在抓取每个作品前会先检查它是否有下载记录，如果有就不抓取它。<br>这样可以减少不必要的抓取，节约时间。这个功能也有助于增量更新，因为你可以只抓取没有下载过的作品。<br>另外，在合并系列小说时，启用该设置可以跳过有下载记录的小说，只合并系列里新增的小说。不过需要注意的是，以前下载器在合并系列小说时不会保存每篇小说的下载记录，所以它们可能依然会被下载一次，之后就可以不再重复下载了。<br><br>注意：该功能依赖下载器保存的下载记录，所以不是完全准确的。<br>首先，如果你清除了浏览器的“Cookie 及其他网站数据”，会导致下载记录被清空。<br>另一个问题是下载器没有权限读取硬盘上的文件，所以即使你删除了下载过的文件，下载器也不知道。当下载器因为一个作品有下载记录而跳过它时，有两种情况：<br>1. 它可能存在于硬盘上，此时没有问题；<br>2. 它可能已经被你删除了，此时跳过它可能不符合预期（因为你也许想重新下载它）。<br><br>你可以根据自己的需要来决定是否启用这个设置。`,
+        `如果你啟用了這個設定，那麼下載器在抓取每個作品前會先檢查它是否有下載記錄，如果有就不抓取它。<br>這樣可以減少不必要的抓取，節約時間。這個功能也有助於增量更新，因為你可以只抓取沒有下載過的作品。<br>另外，在合併系列小說時，啟用該設定可以跳過有下載記錄的小說，只合併系列裡新增的小說。不過需要注意的是，以前下載器在合併系列小說時不會保存每篇小說的下載記錄，所以它們可能依然會被下載一次，之後就可以不再重複下載了。<br><br>注意：該功能依賴下載器保存的下載記錄，所以不是完全準確的。<br>首先，如果你清除了瀏覽器的「Cookie 及其他網站數據」，會導致下載記錄被清空。<br>另一個問題是下載器沒有權限讀取硬碟上的檔案，所以即使你刪除了下載過的檔案，下載器也不知道。當下載器因為一個作品有下載記錄而跳過它時，有兩種情況：<br>1. 它可能存在於硬碟上，此時沒有問題；<br>2. 它可能已經被你刪除了，此時跳過它可能不符合預期（因為你也許想重新下載它）。<br><br>你可以根據自己的需要來決定是否啟用這個設定。`,
+        `If you enable this setting, the downloader will first check whether each work has a download record before crawling it. If it does, it will not crawl it.<br>This can reduce unnecessary crawling and save time. This feature also helps with incremental updates, as you can crawl only works that have not been downloaded before.<br>Additionally, when merging series novels, enabling this setting allows skipping novels that have download records and only merging newly added novels in the series. However, note that previously the downloader did not save download records for each individual novel when merging series novels, so they may still be downloaded once, after which they will no longer be repeatedly downloaded.<br><br>Note: This feature relies on the download records saved by the downloader, so it is not completely accurate.<br>First, if you clear the browser's "Cookies and other site data", the download records will be cleared.<br>Another issue is that the downloader does not have permission to read files on the hard drive, so even if you delete downloaded files, the downloader will not know. When the downloader skips a work because it has a download record, there are two situations:<br>1. It may still exist on the hard drive, in which case there is no problem;<br>2. It may have been deleted by you, in which case skipping it may not meet expectations (because you may want to download it again).<br><br>You can decide whether to enable this setting according to your own needs.`,
+        `この設定を有効にすると、ダウンローダーは各作品をクロールする前に、ダウンロード記録があるかどうかを最初に確認し、記録があればクロールしません。<br>これにより不要なクローリングを減らし、時間を節約できます。この機能は増分更新にも役立ちます。ダウンロードされていない作品のみをクロールできるためです。<br>また、シリーズ小説をマージする際、この設定を有効にすると、ダウンロード記録のある小説をスキップし、シリーズ内の新規追加された小説のみをマージできます。ただし、以前はダウンローダーがシリーズ小説をマージする際に各小説のダウンロード記録を保存していなかったため、それらが一度ダウンロードされる可能性があり、その後は繰り返しダウンロードされなくなります。<br><br>注意: この機能はダウンローダーが保存したダウンロード記録に依存するため、完全に正確ではありません。<br>まず、ブラウザの「Cookie およびその他のサイトデータ」をクリアすると、ダウンロード記録が消去されます。<br>もう一つの問題は、ダウンローダーがハードディスク上のファイルを読み取る権限を持っていないため、ダウンロード済みのファイルを削除してもダウンローダーは認識しない点です。ダウンロード記録があるためダウンローダーが作品をスキップする場合、2つの状況があります：<br>1. ハードディスク上にまだ存在する場合、この場合は問題ありません；<br>2. あなたによって削除されている場合、この場合はスキップされることが期待と一致しない可能性があります（再ダウンロードしたい場合など）。<br><br>この設定を有効にするかどうかは、ご自身の必要に応じて決定してください。`,
+        `이 설정을 활성화하면 다운로더는 각 작품을 크롤링하기 전에 먼저 다운로드 기록이 있는지 확인하고, 기록이 있으면 크롤링하지 않습니다.<br>이렇게 하면 불필요한 크롤링을 줄이고 시간을 절약할 수 있습니다. 이 기능은 증분 업데이트에도 도움이 되며, 다운로드되지 않은 작품만 크롤링할 수 있기 때문입니다.<br>또한 시리즈 소설을 병합할 때 이 설정을 활성화하면 다운로드 기록이 있는 소설을 건너뛰고 시리즈에 새로 추가된 소설만 병합할 수 있습니다. 다만 이전에는 다운로더가 시리즈 소설을 병합할 때 각 소설의 다운로드 기록을 저장하지 않았기 때문에, 한 번 다운로드될 수 있으며 그 후에는 반복 다운로드되지 않습니다.<br><br>주의: 이 기능은 다운로더가 저장한 다운로드 기록에 의존하므로 완전히 정확하지 않습니다.<br>먼저 브라우저의 "쿠키 및 기타 사이트 데이터"를 지우면 다운로드 기록이 지워집니다.<br>또 다른 문제는 다운로더가 하드 디스크의 파일을 읽을 권한이 없기 때문에, 다운로드한 파일을 삭제해도 다운로더는 알지 못한다는 점입니다. 작품에 다운로드 기록이 있어 다운로더가 건너뛸 때 두 가지 상황이 있습니다:<br>1. 하드 디스크에 여전히 존재하는 경우, 이 경우 문제없습니다;<br>2. 사용자가 삭제한 경우, 이 경우 건너뛰는 것이 예상과 맞지 않을 수 있습니다 (다시 다운로드하고 싶을 수 있음).<br><br>이 설정을 활성화할지 여부는 자신의 필요에 따라 결정할 수 있습니다.`,
+        `Если вы включите эту настройку, то перед краулингом каждого произведения загрузчик сначала проверит, есть ли у него запись о загрузке, и если есть — не будет его краулить.<br>Это позволяет уменьшить ненужный краулинг и сэкономить время. Эта функция также помогает с инкрементными обновлениями, поскольку вы можете краулить только те произведения, которые ещё не были загружены.<br>Кроме того, при объединении серийных новелл включение этой настройки позволяет пропускать новеллы с записями о загрузке и объединять только новые добавленные новеллы в серии. Однако следует отметить, что раньше загрузчик при объединении серийных новелл не сохранял записи о загрузке для каждой отдельной новеллы, поэтому они всё равно могут быть загружены один раз, после чего больше не будут повторно загружаться.<br><br>Примечание: Эта функция зависит от записей о загрузке, сохранённых загрузчиком, поэтому она не полностью точна.<br>Во-первых, если вы очистите в браузере «Cookies и другие данные сайтов», записи о загрузке будут удалены.<br>Ещё одна проблема заключается в том, что у загрузчика нет разрешения на чтение файлов на жёстком диске, поэтому даже если вы удалили загруженные файлы, загрузчик об этом не узнает. Когда загрузчик пропускает произведение из-за наличия записи о загрузке, возможны два случая:<br>1. Оно может всё ещё находиться на жёстком диске — в этом случае проблем нет;<br>2. Оно могло быть удалено вами — в этом случае пропуск может не соответствовать ожиданиям (потому что вы, возможно, хотите скачать его заново).<br><br>Вы можете решить, включать эту настройку или нет, в зависимости от своих нужд.`,
+    ],
+    _提示合并系列小说时可以跳过已合并的小说: [
+        `提示：在合并系列小说时，如果你启用了“不抓取下载过的作品”，下载器会跳过有下载记录的小说，只合并没有下载记录的小说。<br>从 18.7.0 版本（2026 年 4 月）开始，当你合并系列小说时，下载器会为里面的每篇小说都生成下载记录（就像你单独下载过它们一样）。所以当你再次合并同一个系列时，如果启用了“不抓取下载过的作品”，下载器就可以跳过以前合并过的小说，只合并新增的小说。`,
+        `提示：在合併系列小說時，如果你啟用了「不抓取下載過的作品」，下載器會跳過有下載記錄的小說，只合並沒有下載記錄的小說。<br>從 18.7.0 版本（2026 年 4 月）開始，當你合併系列小說時，下載器會為裡面的每篇小說都生成下載記錄（就像你單獨下載過它們一樣）。所以當你再次合併同一個系列時，如果啟用了「不抓取下載過的作品」，下載器就可以跳過以前合併過的小說，只合併新增的小說。`,
+        `Tip: When merging series novels, if you have enabled "Do not crawl downloaded works", the downloader will skip novels that have download records and only merge novels that do not have download records.<br>Starting from version 18.7.0 (April 2026), when you merge series novels, the downloader will generate download records for every novel inside (as if you had downloaded them individually). So when you merge the same series again, if "Do not crawl downloaded works" is enabled, the downloader can skip previously merged novels and only merge newly added novels.`,
+        `ヒント: シリーズ小説をマージする際、「ダウンロード済みの作品をクロールしない」を有効にしている場合、ダウンローダーはダウンロード記録のある小説をスキップし、ダウンロード記録のない小説のみをマージします。<br>バージョン 18.7.0（2026年4月）以降、シリーズ小説をマージする際、ダウンローダーは内部の各小説に対してダウンロード記録を生成します（個別にダウンロードしたかのように）。したがって、同じシリーズを再度マージする際、「ダウンロード済みの作品をクロールしない」が有効であれば、以前にマージした小説をスキップし、新しく追加された小説のみをマージできます。`,
+        `팁: 시리즈 소설을 병합할 때 "다운로드된 작품을 크롤링하지 않음"을 활성화한 경우, 다운로더는 다운로드 기록이 있는 소설을 건너뛰고 다운로드 기록이 없는 소설만 병합합니다.<br>18.7.0 버전(2026년 4월)부터 시리즈 소설을 병합할 때 다운로더는 내부의 모든 소설에 대해 다운로드 기록을 생성합니다(개별적으로 다운로드한 것처럼). 따라서 동일한 시리즈를 다시 병합할 때 "다운로드된 작품을 크롤링하지 않음"이 활성화되어 있으면 이전에 병합한 소설을 건너뛰고 새로 추가된 소설만 병합할 수 있습니다.`,
+        `Подсказка: При объединении серийных новелл, если вы включили «Не краулить загруженные работы», загрузчик пропустит новеллы с записями о загрузке и объединит только новеллы без записей о загрузке.<br>Начиная с версии 18.7.0 (апрель 2026), при объединении серийных новелл загрузчик будет генерировать запись о загрузке для каждой новеллы внутри (как будто вы скачали их по отдельности). Поэтому при повторном объединении той же серии, если включено «Не краулить загруженные работы», загрузчик сможет пропустить ранее объединённые новеллы и объединить только новые добавленные новеллы.`,
     ],
 };
 
@@ -37077,7 +37215,8 @@ class BatchFollowUser {
                 console.log(userID + ' click');
             }
             else {
-                const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有找到关注按钮的提示', _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID));
+                const msg = '⏩' +
+                    _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有找到关注按钮的提示', _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createUserLink(userID));
                 _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(msg);
                 return resolve(iframe);
             }
@@ -39480,7 +39619,7 @@ class Form {
         this.bindFunctionBtn();
         this.displayTipArea();
         this.toggleHelpArea();
-        this.showMsgWhenClick();
+        this.showMsgWhenClickBtn();
         // 输入框获得焦点时自动选择文本（命名规则的输入框例外）
         const centerInputs = this.form.querySelectorAll('input[type=text]');
         for (const el of centerInputs) {
@@ -39628,7 +39767,7 @@ class Form {
             .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#previewWorkShortcutTip')));
     }
     /**点击一些按钮时，通过 msgBox 显示帮助 */
-    showMsgWhenClick() {
+    showMsgWhenClickBtn() {
         const config = [
             {
                 selector: '#showLooseMatchOriginalTip',
@@ -39679,6 +39818,11 @@ class Form {
                 selector: '#deduplicationHelp',
                 title: '_不下载重复文件',
                 content: '_不下载重复文件的提示',
+            },
+            {
+                selector: '#showDonotCrawlAlreadyDownloadedWorksTip',
+                title: '_不抓取下载过的作品',
+                content: '_不抓取下载过的作品的帮助信息',
             },
         ];
         config.forEach((item) => {
@@ -39809,7 +39953,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Wiki__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Wiki */ "./src/ts/setting/Wiki.ts");
 
 
-// 设置项编号从 0 开始，现在最大是 98
+// 设置项编号从 0 开始，现在最大是 99
 const formHtml = `
 <form class="settingForm">
   <div class="tabsContnet">
@@ -39936,6 +40080,17 @@ const formHtml = `
       <input type="checkbox" name="showAdvancedSettings" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
     </p>
+
+    <p class="option" data-no="99">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(99)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_不抓取下载过的作品的说明">
+        <span data-xztext="_不抓取下载过的作品"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="DonotCrawlAlreadyDownloadedWorks" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <button class="gray1 textButton" id="showDonotCrawlAlreadyDownloadedWorksTip" type="button" data-xztext="_帮助"></button>
+    </p>
+
     <p class="option" data-no="15">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(15)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
         <span data-xztext="_抓取每个用户最新的几个作品"></span>
@@ -39945,29 +40100,6 @@ const formHtml = `
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="crawlLatestFewWorks">
         <input type="text" name="crawlLatestFewWorksNumber" class="setinput_style1 blue" value="10">
-      </span>
-    </p>
-    <p class="option" data-no="3">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(3)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
-        <span data-xztext="_多图作品只下载前几张图片"></span>
-        <span class="gray1"> ? </span>
-      </a>
-      <input type="checkbox" name="firstFewImagesSwitch" class="need_beautify checkbox_switch">
-      <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="firstFewImagesSwitch">
-        <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
-      </span>
-    </p>
-    <p class="option" data-no="47">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(47)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品的图片数量上限提示">
-        <span data-xztext="_多图作品的图片数量上限"></span>
-        <span class="gray1"> ? </span>
-      </a>
-      <input type="checkbox" name="multiImageWorkImageLimitSwitch" class="need_beautify checkbox_switch">
-      <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="multiImageWorkImageLimitSwitch">
-        &lt;=&nbsp;
-        <input type="text" name="multiImageWorkImageLimit" class="setinput_style1 blue" value="1">
       </span>
     </p>
     <p class="option" data-no="5">
@@ -40410,11 +40542,38 @@ const formHtml = `
         <input type="text" name="slowCrawlDealy" class="setinput_style1 blue" value="1600" placeholder="1600"> ms
       </span>
     </p>
+    
+    <p class="option" data-no="3">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(3)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
+        <span data-xztext="_多图作品只下载前几张图片"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="firstFewImagesSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="firstFewImagesSwitch">
+        <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
+      </span>
+    </p>
+
     <p class="option" data-no="69">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(69)}" target="_blank" class="settingNameStyle" data-xztext="_不抓取多图作品的最后一张图片"></a>
       <input type="checkbox" name="doNotDownloadLastImageOfMultiImageWork" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
     </p>
+
+    <p class="option" data-no="47">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(47)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品的图片数量上限提示">
+        <span data-xztext="_多图作品的图片数量上限"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="multiImageWorkImageLimitSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="multiImageWorkImageLimitSwitch">
+        &lt;=&nbsp;
+        <input type="text" name="multiImageWorkImageLimit" class="setinput_style1 blue" value="1">
+      </span>
+    </p>
+
     <p class="option" data-no="79">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(79)}" target="_blank" class="settingNameStyle">
         <span data-xztext="_特定用户的多图作品不下载最后几张图片"></span>
@@ -40944,7 +41103,7 @@ const formHtml = `
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(28)}" target="_blank" class="settingNameStyle" data-xztext="_不下载重复文件"></a>
       <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="deduplication">
+      <span class="subOptionWrap" data-show="deduplication" style="flex-grow: 0;">
         &nbsp; <span data-xztext="_策略"></span>
         <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
         <span class="beautify_radio" tabindex="0"></span>
@@ -40952,11 +41111,11 @@ const formHtml = `
         <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
         <span class="beautify_radio" tabindex="0"></span>
         <label class="has_tip" for="dupliStrategy2" data-xztip="_宽松模式说明" data-xztext="_宽松"></label>
-        <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
-        <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
-        <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
-        <button class="textButton gray1" type="button" id="deduplicationHelp" data-xztext="_提示"></button>
       </span>
+      <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
+      <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
+      <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
+      <button class="textButton gray1" type="button" id="deduplicationHelp" data-xztext="_帮助"></button>
     </p>
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
@@ -41505,6 +41664,7 @@ class FormSettings {
             'crawlOriginalWork',
             'crawlNonOriginalWork',
             'looseMatchOriginal',
+            'DonotCrawlAlreadyDownloadedWorks',
         ],
         text: [
             'firstFewImages',
@@ -42037,6 +42197,12 @@ class Options {
             id: 98,
             // 2026-04-08
             time: 1775633245633,
+        },
+        {
+            // 不抓取下载过的作品
+            id: 99,
+            // 2026-04-10
+            time: 1775755273036,
         },
     ];
     bindEvents() {
@@ -42844,6 +43010,7 @@ class Settings {
         tipImageViewer: true,
         removeEmoji: false,
         serialNoStart: 0,
+        DonotCrawlAlreadyDownloadedWorks: false,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的设置
@@ -43544,11 +43711,11 @@ class Wiki {
     // - 隐藏设置虽然有自己的分类，但是在 Wiki 里统一归纳到了“隐藏设置”页面里，所以它们的 ID 也放到了 More-Hidden 分类里
     groupConfig = {
         Crawl: [
-            0, 1, 2, 44, 81, 6, 23, 21, 51, 3, 47, 5, 7, 8, 9, 10, 11, 12, 94, 95, 96,
+            0, 1, 2, 44, 81, 6, 23, 21, 51, 5, 7, 8, 9, 10, 11, 12, 94, 95, 96, 99,
         ],
         Download: [13, 50, 64, 16, 17, 33],
-        'More-Crawl': [57, 59, 75, 69, 35, 39, 74, 54, 85],
-        'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66, 97],
+        'More-Crawl': [57, 59, 75, 3, 47, 69, 35, 39, 74, 54, 85],
+        'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66, 97, 98],
         'More-Download': [
             58, 52, 90, 91, 76, 77, 4, 24, 26, 27, 70, 72, 73, 49, 89, 30, 25, 82, 20,
             28,
@@ -62476,10 +62643,10 @@ class Utils {
      */
     static replaceExtension(originName, str) {
         const originArray = originName.split('.');
-        const originExt = originArray.at(-1) || '';
-        const urlExt = str.split('?')[0].split('.').at(-1) || '';
-        // 如果扩展名相同，就不修改原文件名
-        if (originExt === urlExt) {
+        const originExt = Utils.getExtension(originName);
+        const urlExt = Utils.getExtension(str);
+        // 如果任意一方没有扩展名，或者扩展名相同，就不修改原文件名
+        if (!originExt || !urlExt || originExt === urlExt) {
             return originName;
         }
         // 如果扩展名不同，就替换原文件名的扩展名
@@ -62489,7 +62656,12 @@ class Utils {
     /**获取字符串里的文件扩展名。字符串可能是文件名或 URL */
     static getExtension(str) {
         // 移除可能存在的查询字符串，并获取扩展名
-        return str.split('?')[0].split('.').at(-1) || '';
+        const array = str.split('?')[0].split('.');
+        // 如果只有一项，说明字符串里没有包含点 . ，所以也就没有扩展名
+        if (array.length === 1) {
+            return '';
+        }
+        return array.at(-1) || '';
     }
     /**替换换行标签，并移除 html 标签 */
     static htmlToText(str) {

@@ -12,7 +12,7 @@ import { msgBox } from '../MsgBox'
 import { secretSignal } from '../utils/SecretSignal'
 import { Result } from '../store/StoreType'
 
-interface Record {
+export interface DownloadRecordType {
   id: string
   n: string
   /**文件 URL 里的作品的日期。可能为 undefined，因为旧版本没有这个数据，小说也没有这个数据 */
@@ -81,7 +81,7 @@ class DownloadRecord {
       // 所以下载器在保存和判断重复文件时，使用的都是 filename.createFileName() 生成的文件名
       // 即使文件名在实际下载流程中被修改，也不会影响这里保存的文件名，所以不会影响检测重复文件的功能。
       const result = store.findResult(successData.id)
-      result && this.addRecord(result)
+      result && this.addRecordFromResult(result)
     })
 
     // 导入含有 id 列表的 txt 文件
@@ -143,7 +143,7 @@ class DownloadRecord {
   }
 
   // 生成一个下载记录
-  private createRecord(data: Result | string): Record {
+  private createRecord(data: Result | string): DownloadRecordType {
     let result: Result | undefined = undefined
     if (typeof data === 'string') {
       result = store.findResult(data)
@@ -178,8 +178,8 @@ class DownloadRecord {
     }
   }
 
-  // 添加一条下载记录
-  private async addRecord(result: Result) {
+  /** 传入一个 Result 对象，添加它的下载记录 */
+  private async addRecordFromResult(result: Result) {
     const storeName = this.getStoreName(result.id)
     const record = this.createRecord(result)
 
@@ -187,9 +187,34 @@ class DownloadRecord {
       this.IDB.put(storeName, record)
     } else {
       // 先查询有没有这个记录
-      const result = await this.IDB.get(storeName, record.id)
-      this.IDB[result ? 'put' : 'add'](storeName, record)
+      const exists = await this.IDB.get(storeName, record.id)
+      this.IDB[exists ? 'put' : 'add'](storeName, record)
     }
+  }
+
+  /** 传入一个构造好的 Record 对象，添加它的下载记录 */
+  public async addRecordFromRecord(record: DownloadRecordType) {
+    const storeName = this.getStoreName(record.id)
+    if (this.existedIdList.includes(record.id)) {
+      this.IDB.put(storeName, record)
+    } else {
+      // 先查询有没有这个记录
+      const exists = await this.IDB.get(storeName, record.id)
+      this.IDB[exists ? 'put' : 'add'](storeName, record)
+    }
+  }
+
+  public async getRecord(id: string) {
+    const storeName = this.getStoreName(id)
+    const record = (await this.IDB.get(
+      storeName,
+      id
+    )) as DownloadRecordType | null
+    if (record) {
+      this.existedIdList.push(record.id)
+    }
+    // console.log('getRecord', id, record)
+    return record
   }
 
   /** 检查一个作品是否是重复下载
@@ -208,7 +233,12 @@ class DownloadRecord {
       }
       // 在数据库进行查找
       const storeName = this.getStoreName(result.id)
-      const data = (await this.IDB.get(storeName, result.id)) as Record | null
+      // 在有 10,000 条下载记录时，我下载了 100 个文件进行测试，get 查询的平均耗时为 6.45 ms。
+      // 现代浏览器的 IndexedDB 实现通常基于 B-tree 或类似平衡树来维护主键索引，其单点查找时间复杂度是 O(log N)，即对数级别。即使有 1,000,000 条记录，单次查询的时间也不会大幅增加，可能平均值在 10 ms 左右。
+      const data = (await this.IDB.get(
+        storeName,
+        result.id
+      )) as DownloadRecordType | null
       if (data === null) {
         return resolve(false)
       }
@@ -224,7 +254,7 @@ class DownloadRecord {
       // 如果之前的下载记录里没有日期，说明是早期的下载记录，那么就不检查日期
       // 同时，更新这个作品的下载记录，为其添加日期
       if (data.d === undefined) {
-        this.addRecord(result)
+        this.addRecordFromResult(result)
       }
       // 如果日期字符串没有变化，再根据策略进行判断
       if (settings.dupliStrategy === 'loose') {
@@ -269,11 +299,11 @@ class DownloadRecord {
     let total = this.storeNameList.length
     let num = 0
 
-    let record: Record[] = []
+    let record: DownloadRecordType[] = []
     for (const name of this.storeNameList) {
       log.log(`${lang.transl('_任务进度')} ${num}/${total}`)
       num++
-      const r = (await this.IDB.getAll(name)) as Record[]
+      const r = (await this.IDB.getAll(name)) as DownloadRecordType[]
       record = record.concat(r)
     }
     log.log(`${lang.transl('_任务进度')} ${num}/${total}`)
@@ -300,7 +330,7 @@ class DownloadRecord {
   }
 
   // 导入下载记录
-  private async importRecord(record: Record[]) {
+  private async importRecord(record: DownloadRecordType[]) {
     log.log(lang.transl('_导入下载记录'))
 
     // 显示导入进度
@@ -317,7 +347,7 @@ class DownloadRecord {
     // 依次处理每个存储库
     for (let index = 0; index < this.storeNameList.length; index++) {
       // 提取出要存入这个存储库的数据
-      const data: Record[] = []
+      const data: DownloadRecordType[] = []
       for (const r of record) {
         if (parseInt(r.id[0]) - 1 === index) {
           data.push(r)
@@ -365,7 +395,7 @@ class DownloadRecord {
     const record = (await Utils.loadJSONFile().catch((err) => {
       msgBox.error(err)
       return
-    })) as Record[]
+    })) as DownloadRecordType[]
 
     if (!record) {
       return
@@ -397,7 +427,7 @@ class DownloadRecord {
     const arr = text.split(split)
 
     // 把每一行视为一个 id，进行导入
-    const record: Record[] = []
+    const record: DownloadRecordType[] = []
     for (const str of arr) {
       if (str) {
         record.push({
