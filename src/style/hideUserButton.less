@@ -1,0 +1,33 @@
+.hideUserBtn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-left: 6px;
+  vertical-align: middle;
+  white-space: nowrap;
+  line-height: 1.5;
+  transition:
+    color 0.2s,
+    border-color 0.2s,
+    background 0.2s;
+
+  &:hover {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &.blocked {
+    color: #ff6b6b;
+    border-color: rgba(255, 107, 107, 0.5);
+
+    &:hover {
+      background: rgba(255, 107, 107, 0.1);
+      border-color: #ff6b6b;
+    }
+  }
+}

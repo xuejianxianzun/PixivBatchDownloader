@@ -86,10 +86,7 @@ class CopyButtonOnWorkPage {
   private createBtn() {
     const btn = document.createElement('button')
     btn.id = this.btnId
-    btn.innerHTML = `
-    <svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-copy"></use>
-</svg>`
+    btn.innerHTML = `<svg class="icon" aria-hidden="true"><use xlink:href="#icon-copy"></use></svg>`
     btn.dataset.xztitle = '_复制摘要数据'
     return btn
   }

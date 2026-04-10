@@ -5,11 +5,12 @@ import { pageType } from '../PageType'
 import { store } from '../store/Store'
 import { IDData } from '../store/StoreType'
 import { cacheWorkData } from '../store/CacheWorkData'
-import { settings } from '../setting/Settings'
+import { settings, setSetting, updateBlockList } from '../setting/Settings'
 import { ButtonsConfig, BtnConfig } from './ButtonsConfig'
 import { lang } from '../Language'
 import { ImageViewer } from '../ImageViewer'
 import { copyWorkInfo } from '../CopyWorkInfo'
+import { toast } from '../Toast'
 
 /** 在插画、漫画作品的详情页面里，在每张大图的旁边显示一些按钮 */
 // 对于单图作品，下载器会直接显示按钮
@@ -27,6 +28,9 @@ class ButtonsOnArtworkPage extends ButtonsConfig {
 
   private readonly btnFlag = 'buttonsOnArtworkPage'
 
+  private confirmingBtn: HTMLButtonElement | null = null // 正在等待二次确认的按钮
+  private confirmTimer = 0 // 重置二次确认状态的定时器
+
   private bindEvents() {
     window.setInterval(() => {
       this.check()
@@ -39,6 +43,11 @@ class ButtonsOnArtworkPage extends ButtonsConfig {
         const allBtn = document.querySelectorAll(`.${this.btnFlag}`)
         allBtn.forEach((btn) => btn.remove())
         this.check()
+      }
+
+      // 屏蔽列表变化时，更新所有隐藏按钮的状态
+      if (data.name === 'blockList') {
+        this.updateAllHideUserBtnState()
       }
     })
   }
@@ -74,14 +83,24 @@ class ButtonsOnArtworkPage extends ButtonsConfig {
     a.style.position = 'relative'
     a.parentElement!.style.overflow = 'unset'
 
-    // 记录有几个按钮需要显示，用于设置按钮的 top 值
-    let order = 0
+    // 记录有几个按钮需要显示在右边和左边，用于设置按钮的 top 值
+    let rightOrder = 0
+    let leftOrder = 0
+
     // 添加按钮
     this.btnsConfig.forEach((config) => {
       if (config.show()) {
+        const isHideBtn = config.name === 'hideUserBtnOnThumb'
+        const order = isHideBtn ? leftOrder : rightOrder
         config.btn = this.createBtn(config, order)
         a.appendChild(config.btn)
-        order++
+
+        if (isHideBtn) {
+          leftOrder++
+          this.updateHideUserBtnState(config.btn)
+        } else {
+          rightOrder++
+        }
 
         config.btn.addEventListener(
           'click',
@@ -90,6 +109,25 @@ class ButtonsOnArtworkPage extends ButtonsConfig {
             // 所以需要阻止按钮的冒泡，否则会触发 a 的事件，导致大图显示
             ev.stopPropagation()
             ev.preventDefault()
+
+            // 隐藏用户按钮需要二次确认
+            if (isHideBtn) {
+              if (this.confirmingBtn !== config.btn) {
+                // 第一次点击，进入确认状态
+                this.resetConfirmState()
+                this.confirmingBtn = config.btn
+                config.btn.classList.add('confirming')
+                window.clearTimeout(this.confirmTimer)
+                this.confirmTimer = window.setTimeout(() => {
+                  this.resetConfirmState()
+                }, 3000)
+                return
+              } else {
+                // 第二次点击，重置状态并继续执行
+                this.resetConfirmState()
+              }
+            }
+
             this.clickBtn(config, a)
           },
           {
@@ -101,31 +139,63 @@ class ButtonsOnArtworkPage extends ButtonsConfig {
     })
   }
 
+  private resetConfirmState() {
+    this.confirmingBtn = null
+    const allBtn = document.querySelectorAll(`.${this.btnFlag}`)
+    allBtn.forEach((btn) => btn.classList.remove('confirming'))
+  }
+
   private createBtn(config: BtnConfig, order = 0) {
     const btn = document.createElement('button')
+    btn.id = config.name
     btn.classList.add(this.btnFlag, 'btnOnThumb')
-    // 这些按钮复用了 btnOnThumb 的样式，但需要覆写一些样式
+    // 按钮复用了 btnOnThumb 的样式，但需要覆写一些样式
     btn.style.display = 'flex'
-    // 根据“在作品缩略图上显示放大按钮”的位置设置，将按钮显示在左侧或右侧
-    if (settings.magnifierPosition === 'left') {
-      btn.style.left = `-${this.btnSize}px`
+
+    const isHideBtn = config.name === 'hideUserBtnOnThumb'
+
+    // 隐藏按钮放左边
+    if (isHideBtn) {
+      btn.style.left = '0px'
       btn.style.right = 'unset'
     } else {
-      btn.style.left = 'unset'
-      btn.style.right = `-${this.btnSize}px`
+      if (settings.magnifierPosition === 'left') {
+        btn.style.left = `-${this.btnSize}px`
+        btn.style.right = 'unset'
+      } else {
+        btn.style.left = 'unset'
+        btn.style.right = `-${this.btnSize}px`
+      }
     }
+
     // 计算按钮的 top 值
     const top = (this.btnSize + this.margin) * order
     btn.style.top = top + 'px'
 
-    btn.innerHTML = `
-    <svg class="icon" aria-hidden="true">
-  <use xlink:href="#${config.icon}"></use>
-</svg>`
+    btn.innerHTML = `<svg class="icon" aria-hidden="true"><use xlink:href="#${config.icon}"></use></svg>`
     btn.dataset.xztitle = config.title
     lang.register(btn)
 
     return btn
+  }
+
+  private updateHideUserBtnState(btn: HTMLButtonElement) {
+    const userId = Tools.getCurrentPageUserID()
+    if (!userId) {
+      return
+    }
+
+    const blocked = settings.blockList.includes(userId)
+    btn.dataset.xztitle = blocked ? '_取消阻止' : '_阻止'
+    btn.classList.toggle('blocked', !!blocked)
+    lang.register(btn)
+  }
+
+  private updateAllHideUserBtnState() {
+    const btns = document.querySelectorAll(
+      `#hideUserBtnOnThumb.${this.btnFlag}`
+    ) as NodeListOf<HTMLButtonElement>
+    btns.forEach((btn) => this.updateHideUserBtnState(btn))
   }
 
   private clickBtn(config: BtnConfig, a: HTMLAnchorElement) {
@@ -156,6 +226,19 @@ class ButtonsOnArtworkPage extends ButtonsConfig {
     } else if (config.name === 'downloadBtnOnThumb') {
       store.setDownloadOnlyPart(Number.parseInt(id), [index])
       EVT.fire('crawlIdList', [idData])
+    } else if (config.name === 'hideUserBtnOnThumb') {
+      const userId = Tools.getCurrentPageUserID()
+      if (!userId) {
+        return
+      }
+
+      if (settings.blockList.includes(userId)) {
+        updateBlockList(userId, 'remove')
+        toast.success(lang.transl('_已从阻止名单移除'))
+      } else {
+        updateBlockList(userId, 'add')
+        toast.success(lang.transl('_已添加到阻止名单'))
+      }
     }
   }
 

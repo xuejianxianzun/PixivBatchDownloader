@@ -1,5 +1,5 @@
 import { EVT } from '../EVT'
-import { settings } from '../setting/Settings'
+import { settings, setSetting, updateBlockList } from '../setting/Settings'
 import { artworkThumbnail } from '../ArtworkThumbnail'
 import { Config } from '../Config'
 import { ImageViewer } from '../ImageViewer'
@@ -9,6 +9,8 @@ import { copyWorkInfo } from '../CopyWorkInfo'
 import { displayThumbnailListOnMultiImageWorkPage } from '../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage'
 import { lang } from '../Language'
 import { ButtonsConfig, BtnConfig } from './ButtonsConfig'
+import { Tools } from '../Tools'
+import { toast } from '../Toast'
 
 // 在图片作品的缩略图上显示一些按钮
 // 目前它只管理在 PC 上生效的缩略图按钮
@@ -24,6 +26,7 @@ class ButtonsOnArtworkThumbOnPC extends ButtonsConfig {
   }
 
   private currentWorkId = '' // 保存触发事件的缩略图的作品 id
+  private currentUserId = '' // 保存触发事件的缩略图对应的用户 id
   private workEL?: HTMLElement // 保存触发事件的缩略图的作品元素
 
   private hiddenBtnTimer = 0 // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
@@ -31,15 +34,29 @@ class ButtonsOnArtworkThumbOnPC extends ButtonsConfig {
   private doNotShowBtn = false // 当点击了按钮后，进入此状态，此状态中不会显示按钮
   // 此状态是为了解决这个问题：点击了按钮之后，按钮会被隐藏，隐藏之后，鼠标下方就是图片缩略图区域，这会触发缩略图的鼠标事件，导致按钮马上就又显示了出来。所以点击按钮之后设置这个状态，在其为 true 的期间不会显示按钮。过一段时间再把它复位。复位所需的时间很短，因为只要能覆盖这段时间就可以了：从隐藏按钮开始算起，到缩略图触发鼠标事件结束。
 
+  private confirmingBtnName = '' // 正在等待二次确认的按钮名
+  private confirmTimer = 0 // 重置二次确认状态的定时器
+
   private bindEvents() {
     artworkThumbnail.onEnter((el: HTMLElement, id: string) => {
       this.currentWorkId = id
+      this.currentUserId = this.getUserId(el)
       this.workEL = el
       this.showAllBtn()
     })
 
     artworkThumbnail.onLeave(() => {
       this.hiddenBtnDelay()
+    })
+
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      const data = ev.detail.data as { name?: string }
+      if (data.name === 'blockList') {
+        this.updateHideUserBtnState()
+      }
+      if (data.name === 'hideUserButton' && !settings.hideUserButton) {
+        this.hiddenHideUserBtn()
+      }
     })
 
     // 页面切换时，隐藏所有按钮
@@ -69,14 +86,39 @@ class ButtonsOnArtworkThumbOnPC extends ButtonsConfig {
 
       // 点击按钮时
       config.btn.addEventListener('click', (ev) => {
-        this.hiddenBtnNow()
-        EVT.fire('clickBtnOnThumb')
         if (!this.currentWorkId) {
           return
         }
+
+        // 隐藏用户按钮需要二次确认
+        if (config.name === 'hideUserBtnOnThumb') {
+          if (this.confirmingBtnName !== config.name) {
+            // 第一次点击，进入确认状态
+            this.confirmingBtnName = config.name
+            config.btn.classList.add('confirming')
+            window.clearTimeout(this.confirmTimer)
+            this.confirmTimer = window.setTimeout(() => {
+              this.resetConfirmState()
+            }, 3000)
+            return
+          } else {
+            // 第二次点击，重置状态并继续执行
+            this.resetConfirmState()
+          }
+        }
+
+        this.hiddenBtnNow()
+        EVT.fire('clickBtnOnThumb')
         // 定义点击每个按钮时的具体逻辑
         this.clickBtn(config)
       })
+    })
+  }
+
+  private resetConfirmState() {
+    this.confirmingBtnName = ''
+    this.btnsConfig.forEach((config) => {
+      config.btn.classList.remove('confirming')
     })
   }
 
@@ -84,10 +126,7 @@ class ButtonsOnArtworkThumbOnPC extends ButtonsConfig {
     const btn = document.createElement('button')
     btn.id = config.name
     btn.classList.add('btnOnThumb')
-    btn.innerHTML = `
-    <svg class="icon" aria-hidden="true">
-  <use xlink:href="#${config.icon}"></use>
-</svg>`
+    btn.innerHTML = `<svg class="icon" aria-hidden="true"><use xlink:href="#${config.icon}"></use></svg>`
     btn.dataset.xztitle = config.title
     lang.register(btn)
     document.body.appendChild(btn)
@@ -126,7 +165,52 @@ class ButtonsOnArtworkThumbOnPC extends ButtonsConfig {
       }
 
       EVT.fire('crawlIdList', [idData])
+    } else if (config.name === 'hideUserBtnOnThumb') {
+      if (!this.currentUserId) {
+        return
+      }
+
+      if (settings.blockList.includes(this.currentUserId)) {
+        updateBlockList(this.currentUserId, 'remove')
+        toast.success(lang.transl('_已从阻止名单移除'))
+      } else {
+        updateBlockList(this.currentUserId, 'add')
+        toast.success(lang.transl('_已添加到阻止名单'))
+      }
     }
+  }
+
+  private getUserId(el: HTMLElement) {
+    const userLink = el.querySelector(
+      'a[href*="/users/"]'
+    ) as HTMLAnchorElement | null
+    if (userLink) {
+      return Tools.getUserID(userLink.href)
+    }
+
+    const userIdEl = el.querySelector(
+      '[data-gtm-user-id]'
+    ) as HTMLElement | null
+    if (userIdEl && userIdEl.dataset.gtmUserId) {
+      return userIdEl.dataset.gtmUserId
+    }
+
+    return ''
+  }
+
+  private updateHideUserBtnState() {
+    const config = this.btnsConfig.find(
+      (item) => item.name === 'hideUserBtnOnThumb'
+    )
+    if (!config) {
+      return
+    }
+
+    const blocked =
+      this.currentUserId && settings.blockList.includes(this.currentUserId)
+    config.btn.dataset.xztitle = blocked ? '_取消阻止' : '_阻止'
+    config.btn.classList.toggle('blocked', !!blocked)
+    lang.register(config.btn)
   }
 
   private showAllBtn() {
@@ -135,8 +219,8 @@ class ButtonsOnArtworkThumbOnPC extends ButtonsConfig {
     }
 
     window.clearTimeout(this.hiddenBtnTimer)
-    // 记录有几个按钮需要显示，用于设置按钮的位置（top 值）
-    let order = 0
+    let rightOrder = 0
+    let leftOrder = 0
     const rect = this.workEL!.getBoundingClientRect()
     const imageViewerLI = displayThumbnailListOnMultiImageWorkPage.checkLI(
       this.workEL
@@ -148,14 +232,24 @@ class ButtonsOnArtworkThumbOnPC extends ButtonsConfig {
         continue
       }
 
+      if (config.name === 'hideUserBtnOnThumb' && !this.currentUserId) {
+        continue
+      }
+
       if (config.show()) {
-        this.showBtn(config.btn, rect, order)
-        order++
+        if (config.name === 'hideUserBtnOnThumb') {
+          this.updateHideUserBtnState()
+          this.showBtnOnLeft(config.btn, rect, leftOrder)
+          leftOrder++
+        } else {
+          this.showBtnOnRight(config.btn, rect, rightOrder)
+          rightOrder++
+        }
       }
     }
   }
 
-  private showBtn(btn: HTMLButtonElement, rect: DOMRect, order: number) {
+  private showBtnOnRight(btn: HTMLButtonElement, rect: DOMRect, order: number) {
     btn.style.left =
       window.scrollX +
       rect.left +
@@ -168,7 +262,27 @@ class ButtonsOnArtworkThumbOnPC extends ButtonsConfig {
     btn.style.display = 'flex'
   }
 
+  private showBtnOnLeft(btn: HTMLButtonElement, rect: DOMRect, order: number) {
+    btn.style.left = window.scrollX + rect.left + 'px'
+
+    const size = this.btnSize + this.margin
+    const top = window.scrollY + rect.top + size * order
+    btn.style.top = top + 'px'
+    btn.style.display = 'flex'
+  }
+
+  private hiddenHideUserBtn() {
+    const config = this.btnsConfig.find(
+      (item) => item.name === 'hideUserBtnOnThumb'
+    )
+    if (!config) {
+      return
+    }
+    config.btn.style.display = 'none'
+  }
+
   private hiddenAllBtn() {
+    this.resetConfirmState()
     this.btnsConfig.forEach((config) => {
       config.btn.style.display = 'none'
     })

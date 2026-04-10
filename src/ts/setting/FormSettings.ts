@@ -73,6 +73,7 @@ class FormSettings {
       'deduplication',
       'bmkAfterDL',
       'userBlockList',
+      'hideUserButton',
       'removeBlockedUsersWork',
       'blockTagsForSpecificUser',
       'bgDisplay',

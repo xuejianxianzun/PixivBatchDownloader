@@ -1,1242 +1,11 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./node_modules/webextension-polyfill/dist/browser-polyfill.js":
-/*!*********************************************************************!*\
-  !*** ./node_modules/webextension-polyfill/dist/browser-polyfill.js ***!
-  \*********************************************************************/
-/***/ (function(module, exports) {
-
-var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (global, factory) {
-  if (true) {
-    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [module], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
-		__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
-		(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
-		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-  } else // removed by dead control flow
-{ var mod; }
-})(typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : this, function (module) {
-  /* webextension-polyfill - v0.12.0 - Tue May 14 2024 18:01:29 */
-  /* -*- Mode: indent-tabs-mode: nil; js-indent-level: 2 -*- */
-  /* vim: set sts=2 sw=2 et tw=80: */
-  /* This Source Code Form is subject to the terms of the Mozilla Public
-   * License, v. 2.0. If a copy of the MPL was not distributed with this
-   * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-  "use strict";
-
-  if (!(globalThis.chrome && globalThis.chrome.runtime && globalThis.chrome.runtime.id)) {
-    throw new Error("This script should only be loaded in a browser extension.");
-  }
-  if (!(globalThis.browser && globalThis.browser.runtime && globalThis.browser.runtime.id)) {
-    const CHROME_SEND_MESSAGE_CALLBACK_NO_RESPONSE_MESSAGE = "The message port closed before a response was received.";
-
-    // Wrapping the bulk of this polyfill in a one-time-use function is a minor
-    // optimization for Firefox. Since Spidermonkey does not fully parse the
-    // contents of a function until the first time it's called, and since it will
-    // never actually need to be called, this allows the polyfill to be included
-    // in Firefox nearly for free.
-    const wrapAPIs = extensionAPIs => {
-      // NOTE: apiMetadata is associated to the content of the api-metadata.json file
-      // at build time by replacing the following "include" with the content of the
-      // JSON file.
-      const apiMetadata = {
-        "alarms": {
-          "clear": {
-            "minArgs": 0,
-            "maxArgs": 1
-          },
-          "clearAll": {
-            "minArgs": 0,
-            "maxArgs": 0
-          },
-          "get": {
-            "minArgs": 0,
-            "maxArgs": 1
-          },
-          "getAll": {
-            "minArgs": 0,
-            "maxArgs": 0
-          }
-        },
-        "bookmarks": {
-          "create": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "get": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "getChildren": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "getRecent": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "getSubTree": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "getTree": {
-            "minArgs": 0,
-            "maxArgs": 0
-          },
-          "move": {
-            "minArgs": 2,
-            "maxArgs": 2
-          },
-          "remove": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "removeTree": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "search": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "update": {
-            "minArgs": 2,
-            "maxArgs": 2
-          }
-        },
-        "browserAction": {
-          "disable": {
-            "minArgs": 0,
-            "maxArgs": 1,
-            "fallbackToNoCallback": true
-          },
-          "enable": {
-            "minArgs": 0,
-            "maxArgs": 1,
-            "fallbackToNoCallback": true
-          },
-          "getBadgeBackgroundColor": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "getBadgeText": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "getPopup": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "getTitle": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "openPopup": {
-            "minArgs": 0,
-            "maxArgs": 0
-          },
-          "setBadgeBackgroundColor": {
-            "minArgs": 1,
-            "maxArgs": 1,
-            "fallbackToNoCallback": true
-          },
-          "setBadgeText": {
-            "minArgs": 1,
-            "maxArgs": 1,
-            "fallbackToNoCallback": true
-          },
-          "setIcon": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "setPopup": {
-            "minArgs": 1,
-            "maxArgs": 1,
-            "fallbackToNoCallback": true
-          },
-          "setTitle": {
-            "minArgs": 1,
-            "maxArgs": 1,
-            "fallbackToNoCallback": true
-          }
-        },
-        "browsingData": {
-          "remove": {
-            "minArgs": 2,
-            "maxArgs": 2
-          },
-          "removeCache": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "removeCookies": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "removeDownloads": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "removeFormData": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "removeHistory": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "removeLocalStorage": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "removePasswords": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "removePluginData": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "settings": {
-            "minArgs": 0,
-            "maxArgs": 0
-          }
-        },
-        "commands": {
-          "getAll": {
-            "minArgs": 0,
-            "maxArgs": 0
-          }
-        },
-        "contextMenus": {
-          "remove": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "removeAll": {
-            "minArgs": 0,
-            "maxArgs": 0
-          },
-          "update": {
-            "minArgs": 2,
-            "maxArgs": 2
-          }
-        },
-        "cookies": {
-          "get": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "getAll": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "getAllCookieStores": {
-            "minArgs": 0,
-            "maxArgs": 0
-          },
-          "remove": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "set": {
-            "minArgs": 1,
-            "maxArgs": 1
-          }
-        },
-        "devtools": {
-          "inspectedWindow": {
-            "eval": {
-              "minArgs": 1,
-              "maxArgs": 2,
-              "singleCallbackArg": false
-            }
-          },
-          "panels": {
-            "create": {
-              "minArgs": 3,
-              "maxArgs": 3,
-              "singleCallbackArg": true
-            },
-            "elements": {
-              "createSidebarPane": {
-                "minArgs": 1,
-                "maxArgs": 1
-              }
-            }
-          }
-        },
-        "downloads": {
-          "cancel": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "download": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "erase": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "getFileIcon": {
-            "minArgs": 1,
-            "maxArgs": 2
-          },
-          "open": {
-            "minArgs": 1,
-            "maxArgs": 1,
-            "fallbackToNoCallback": true
-          },
-          "pause": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "removeFile": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "resume": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "search": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "show": {
-            "minArgs": 1,
-            "maxArgs": 1,
-            "fallbackToNoCallback": true
-          }
-        },
-        "extension": {
-          "isAllowedFileSchemeAccess": {
-            "minArgs": 0,
-            "maxArgs": 0
-          },
-          "isAllowedIncognitoAccess": {
-            "minArgs": 0,
-            "maxArgs": 0
-          }
-        },
-        "history": {
-          "addUrl": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "deleteAll": {
-            "minArgs": 0,
-            "maxArgs": 0
-          },
-          "deleteRange": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "deleteUrl": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "getVisits": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "search": {
-            "minArgs": 1,
-            "maxArgs": 1
-          }
-        },
-        "i18n": {
-          "detectLanguage": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "getAcceptLanguages": {
-            "minArgs": 0,
-            "maxArgs": 0
-          }
-        },
-        "identity": {
-          "launchWebAuthFlow": {
-            "minArgs": 1,
-            "maxArgs": 1
-          }
-        },
-        "idle": {
-          "queryState": {
-            "minArgs": 1,
-            "maxArgs": 1
-          }
-        },
-        "management": {
-          "get": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "getAll": {
-            "minArgs": 0,
-            "maxArgs": 0
-          },
-          "getSelf": {
-            "minArgs": 0,
-            "maxArgs": 0
-          },
-          "setEnabled": {
-            "minArgs": 2,
-            "maxArgs": 2
-          },
-          "uninstallSelf": {
-            "minArgs": 0,
-            "maxArgs": 1
-          }
-        },
-        "notifications": {
-          "clear": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "create": {
-            "minArgs": 1,
-            "maxArgs": 2
-          },
-          "getAll": {
-            "minArgs": 0,
-            "maxArgs": 0
-          },
-          "getPermissionLevel": {
-            "minArgs": 0,
-            "maxArgs": 0
-          },
-          "update": {
-            "minArgs": 2,
-            "maxArgs": 2
-          }
-        },
-        "pageAction": {
-          "getPopup": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "getTitle": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "hide": {
-            "minArgs": 1,
-            "maxArgs": 1,
-            "fallbackToNoCallback": true
-          },
-          "setIcon": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "setPopup": {
-            "minArgs": 1,
-            "maxArgs": 1,
-            "fallbackToNoCallback": true
-          },
-          "setTitle": {
-            "minArgs": 1,
-            "maxArgs": 1,
-            "fallbackToNoCallback": true
-          },
-          "show": {
-            "minArgs": 1,
-            "maxArgs": 1,
-            "fallbackToNoCallback": true
-          }
-        },
-        "permissions": {
-          "contains": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "getAll": {
-            "minArgs": 0,
-            "maxArgs": 0
-          },
-          "remove": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "request": {
-            "minArgs": 1,
-            "maxArgs": 1
-          }
-        },
-        "runtime": {
-          "getBackgroundPage": {
-            "minArgs": 0,
-            "maxArgs": 0
-          },
-          "getPlatformInfo": {
-            "minArgs": 0,
-            "maxArgs": 0
-          },
-          "openOptionsPage": {
-            "minArgs": 0,
-            "maxArgs": 0
-          },
-          "requestUpdateCheck": {
-            "minArgs": 0,
-            "maxArgs": 0
-          },
-          "sendMessage": {
-            "minArgs": 1,
-            "maxArgs": 3
-          },
-          "sendNativeMessage": {
-            "minArgs": 2,
-            "maxArgs": 2
-          },
-          "setUninstallURL": {
-            "minArgs": 1,
-            "maxArgs": 1
-          }
-        },
-        "sessions": {
-          "getDevices": {
-            "minArgs": 0,
-            "maxArgs": 1
-          },
-          "getRecentlyClosed": {
-            "minArgs": 0,
-            "maxArgs": 1
-          },
-          "restore": {
-            "minArgs": 0,
-            "maxArgs": 1
-          }
-        },
-        "storage": {
-          "local": {
-            "clear": {
-              "minArgs": 0,
-              "maxArgs": 0
-            },
-            "get": {
-              "minArgs": 0,
-              "maxArgs": 1
-            },
-            "getBytesInUse": {
-              "minArgs": 0,
-              "maxArgs": 1
-            },
-            "remove": {
-              "minArgs": 1,
-              "maxArgs": 1
-            },
-            "set": {
-              "minArgs": 1,
-              "maxArgs": 1
-            }
-          },
-          "managed": {
-            "get": {
-              "minArgs": 0,
-              "maxArgs": 1
-            },
-            "getBytesInUse": {
-              "minArgs": 0,
-              "maxArgs": 1
-            }
-          },
-          "sync": {
-            "clear": {
-              "minArgs": 0,
-              "maxArgs": 0
-            },
-            "get": {
-              "minArgs": 0,
-              "maxArgs": 1
-            },
-            "getBytesInUse": {
-              "minArgs": 0,
-              "maxArgs": 1
-            },
-            "remove": {
-              "minArgs": 1,
-              "maxArgs": 1
-            },
-            "set": {
-              "minArgs": 1,
-              "maxArgs": 1
-            }
-          }
-        },
-        "tabs": {
-          "captureVisibleTab": {
-            "minArgs": 0,
-            "maxArgs": 2
-          },
-          "create": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "detectLanguage": {
-            "minArgs": 0,
-            "maxArgs": 1
-          },
-          "discard": {
-            "minArgs": 0,
-            "maxArgs": 1
-          },
-          "duplicate": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "executeScript": {
-            "minArgs": 1,
-            "maxArgs": 2
-          },
-          "get": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "getCurrent": {
-            "minArgs": 0,
-            "maxArgs": 0
-          },
-          "getZoom": {
-            "minArgs": 0,
-            "maxArgs": 1
-          },
-          "getZoomSettings": {
-            "minArgs": 0,
-            "maxArgs": 1
-          },
-          "goBack": {
-            "minArgs": 0,
-            "maxArgs": 1
-          },
-          "goForward": {
-            "minArgs": 0,
-            "maxArgs": 1
-          },
-          "highlight": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "insertCSS": {
-            "minArgs": 1,
-            "maxArgs": 2
-          },
-          "move": {
-            "minArgs": 2,
-            "maxArgs": 2
-          },
-          "query": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "reload": {
-            "minArgs": 0,
-            "maxArgs": 2
-          },
-          "remove": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "removeCSS": {
-            "minArgs": 1,
-            "maxArgs": 2
-          },
-          "sendMessage": {
-            "minArgs": 2,
-            "maxArgs": 3
-          },
-          "setZoom": {
-            "minArgs": 1,
-            "maxArgs": 2
-          },
-          "setZoomSettings": {
-            "minArgs": 1,
-            "maxArgs": 2
-          },
-          "update": {
-            "minArgs": 1,
-            "maxArgs": 2
-          }
-        },
-        "topSites": {
-          "get": {
-            "minArgs": 0,
-            "maxArgs": 0
-          }
-        },
-        "webNavigation": {
-          "getAllFrames": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "getFrame": {
-            "minArgs": 1,
-            "maxArgs": 1
-          }
-        },
-        "webRequest": {
-          "handlerBehaviorChanged": {
-            "minArgs": 0,
-            "maxArgs": 0
-          }
-        },
-        "windows": {
-          "create": {
-            "minArgs": 0,
-            "maxArgs": 1
-          },
-          "get": {
-            "minArgs": 1,
-            "maxArgs": 2
-          },
-          "getAll": {
-            "minArgs": 0,
-            "maxArgs": 1
-          },
-          "getCurrent": {
-            "minArgs": 0,
-            "maxArgs": 1
-          },
-          "getLastFocused": {
-            "minArgs": 0,
-            "maxArgs": 1
-          },
-          "remove": {
-            "minArgs": 1,
-            "maxArgs": 1
-          },
-          "update": {
-            "minArgs": 2,
-            "maxArgs": 2
-          }
-        }
-      };
-      if (Object.keys(apiMetadata).length === 0) {
-        throw new Error("api-metadata.json has not been included in browser-polyfill");
-      }
-
-      /**
-       * A WeakMap subclass which creates and stores a value for any key which does
-       * not exist when accessed, but behaves exactly as an ordinary WeakMap
-       * otherwise.
-       *
-       * @param {function} createItem
-       *        A function which will be called in order to create the value for any
-       *        key which does not exist, the first time it is accessed. The
-       *        function receives, as its only argument, the key being created.
-       */
-      class DefaultWeakMap extends WeakMap {
-        constructor(createItem, items = undefined) {
-          super(items);
-          this.createItem = createItem;
-        }
-        get(key) {
-          if (!this.has(key)) {
-            this.set(key, this.createItem(key));
-          }
-          return super.get(key);
-        }
-      }
-
-      /**
-       * Returns true if the given object is an object with a `then` method, and can
-       * therefore be assumed to behave as a Promise.
-       *
-       * @param {*} value The value to test.
-       * @returns {boolean} True if the value is thenable.
-       */
-      const isThenable = value => {
-        return value && typeof value === "object" && typeof value.then === "function";
-      };
-
-      /**
-       * Creates and returns a function which, when called, will resolve or reject
-       * the given promise based on how it is called:
-       *
-       * - If, when called, `chrome.runtime.lastError` contains a non-null object,
-       *   the promise is rejected with that value.
-       * - If the function is called with exactly one argument, the promise is
-       *   resolved to that value.
-       * - Otherwise, the promise is resolved to an array containing all of the
-       *   function's arguments.
-       *
-       * @param {object} promise
-       *        An object containing the resolution and rejection functions of a
-       *        promise.
-       * @param {function} promise.resolve
-       *        The promise's resolution function.
-       * @param {function} promise.reject
-       *        The promise's rejection function.
-       * @param {object} metadata
-       *        Metadata about the wrapped method which has created the callback.
-       * @param {boolean} metadata.singleCallbackArg
-       *        Whether or not the promise is resolved with only the first
-       *        argument of the callback, alternatively an array of all the
-       *        callback arguments is resolved. By default, if the callback
-       *        function is invoked with only a single argument, that will be
-       *        resolved to the promise, while all arguments will be resolved as
-       *        an array if multiple are given.
-       *
-       * @returns {function}
-       *        The generated callback function.
-       */
-      const makeCallback = (promise, metadata) => {
-        return (...callbackArgs) => {
-          if (extensionAPIs.runtime.lastError) {
-            promise.reject(new Error(extensionAPIs.runtime.lastError.message));
-          } else if (metadata.singleCallbackArg || callbackArgs.length <= 1 && metadata.singleCallbackArg !== false) {
-            promise.resolve(callbackArgs[0]);
-          } else {
-            promise.resolve(callbackArgs);
-          }
-        };
-      };
-      const pluralizeArguments = numArgs => numArgs == 1 ? "argument" : "arguments";
-
-      /**
-       * Creates a wrapper function for a method with the given name and metadata.
-       *
-       * @param {string} name
-       *        The name of the method which is being wrapped.
-       * @param {object} metadata
-       *        Metadata about the method being wrapped.
-       * @param {integer} metadata.minArgs
-       *        The minimum number of arguments which must be passed to the
-       *        function. If called with fewer than this number of arguments, the
-       *        wrapper will raise an exception.
-       * @param {integer} metadata.maxArgs
-       *        The maximum number of arguments which may be passed to the
-       *        function. If called with more than this number of arguments, the
-       *        wrapper will raise an exception.
-       * @param {boolean} metadata.singleCallbackArg
-       *        Whether or not the promise is resolved with only the first
-       *        argument of the callback, alternatively an array of all the
-       *        callback arguments is resolved. By default, if the callback
-       *        function is invoked with only a single argument, that will be
-       *        resolved to the promise, while all arguments will be resolved as
-       *        an array if multiple are given.
-       *
-       * @returns {function(object, ...*)}
-       *       The generated wrapper function.
-       */
-      const wrapAsyncFunction = (name, metadata) => {
-        return function asyncFunctionWrapper(target, ...args) {
-          if (args.length < metadata.minArgs) {
-            throw new Error(`Expected at least ${metadata.minArgs} ${pluralizeArguments(metadata.minArgs)} for ${name}(), got ${args.length}`);
-          }
-          if (args.length > metadata.maxArgs) {
-            throw new Error(`Expected at most ${metadata.maxArgs} ${pluralizeArguments(metadata.maxArgs)} for ${name}(), got ${args.length}`);
-          }
-          return new Promise((resolve, reject) => {
-            if (metadata.fallbackToNoCallback) {
-              // This API method has currently no callback on Chrome, but it return a promise on Firefox,
-              // and so the polyfill will try to call it with a callback first, and it will fallback
-              // to not passing the callback if the first call fails.
-              try {
-                target[name](...args, makeCallback({
-                  resolve,
-                  reject
-                }, metadata));
-              } catch (cbError) {
-                console.warn(`${name} API method doesn't seem to support the callback parameter, ` + "falling back to call it without a callback: ", cbError);
-                target[name](...args);
-
-                // Update the API method metadata, so that the next API calls will not try to
-                // use the unsupported callback anymore.
-                metadata.fallbackToNoCallback = false;
-                metadata.noCallback = true;
-                resolve();
-              }
-            } else if (metadata.noCallback) {
-              target[name](...args);
-              resolve();
-            } else {
-              target[name](...args, makeCallback({
-                resolve,
-                reject
-              }, metadata));
-            }
-          });
-        };
-      };
-
-      /**
-       * Wraps an existing method of the target object, so that calls to it are
-       * intercepted by the given wrapper function. The wrapper function receives,
-       * as its first argument, the original `target` object, followed by each of
-       * the arguments passed to the original method.
-       *
-       * @param {object} target
-       *        The original target object that the wrapped method belongs to.
-       * @param {function} method
-       *        The method being wrapped. This is used as the target of the Proxy
-       *        object which is created to wrap the method.
-       * @param {function} wrapper
-       *        The wrapper function which is called in place of a direct invocation
-       *        of the wrapped method.
-       *
-       * @returns {Proxy<function>}
-       *        A Proxy object for the given method, which invokes the given wrapper
-       *        method in its place.
-       */
-      const wrapMethod = (target, method, wrapper) => {
-        return new Proxy(method, {
-          apply(targetMethod, thisObj, args) {
-            return wrapper.call(thisObj, target, ...args);
-          }
-        });
-      };
-      let hasOwnProperty = Function.call.bind(Object.prototype.hasOwnProperty);
-
-      /**
-       * Wraps an object in a Proxy which intercepts and wraps certain methods
-       * based on the given `wrappers` and `metadata` objects.
-       *
-       * @param {object} target
-       *        The target object to wrap.
-       *
-       * @param {object} [wrappers = {}]
-       *        An object tree containing wrapper functions for special cases. Any
-       *        function present in this object tree is called in place of the
-       *        method in the same location in the `target` object tree. These
-       *        wrapper methods are invoked as described in {@see wrapMethod}.
-       *
-       * @param {object} [metadata = {}]
-       *        An object tree containing metadata used to automatically generate
-       *        Promise-based wrapper functions for asynchronous. Any function in
-       *        the `target` object tree which has a corresponding metadata object
-       *        in the same location in the `metadata` tree is replaced with an
-       *        automatically-generated wrapper function, as described in
-       *        {@see wrapAsyncFunction}
-       *
-       * @returns {Proxy<object>}
-       */
-      const wrapObject = (target, wrappers = {}, metadata = {}) => {
-        let cache = Object.create(null);
-        let handlers = {
-          has(proxyTarget, prop) {
-            return prop in target || prop in cache;
-          },
-          get(proxyTarget, prop, receiver) {
-            if (prop in cache) {
-              return cache[prop];
-            }
-            if (!(prop in target)) {
-              return undefined;
-            }
-            let value = target[prop];
-            if (typeof value === "function") {
-              // This is a method on the underlying object. Check if we need to do
-              // any wrapping.
-
-              if (typeof wrappers[prop] === "function") {
-                // We have a special-case wrapper for this method.
-                value = wrapMethod(target, target[prop], wrappers[prop]);
-              } else if (hasOwnProperty(metadata, prop)) {
-                // This is an async method that we have metadata for. Create a
-                // Promise wrapper for it.
-                let wrapper = wrapAsyncFunction(prop, metadata[prop]);
-                value = wrapMethod(target, target[prop], wrapper);
-              } else {
-                // This is a method that we don't know or care about. Return the
-                // original method, bound to the underlying object.
-                value = value.bind(target);
-              }
-            } else if (typeof value === "object" && value !== null && (hasOwnProperty(wrappers, prop) || hasOwnProperty(metadata, prop))) {
-              // This is an object that we need to do some wrapping for the children
-              // of. Create a sub-object wrapper for it with the appropriate child
-              // metadata.
-              value = wrapObject(value, wrappers[prop], metadata[prop]);
-            } else if (hasOwnProperty(metadata, "*")) {
-              // Wrap all properties in * namespace.
-              value = wrapObject(value, wrappers[prop], metadata["*"]);
-            } else {
-              // We don't need to do any wrapping for this property,
-              // so just forward all access to the underlying object.
-              Object.defineProperty(cache, prop, {
-                configurable: true,
-                enumerable: true,
-                get() {
-                  return target[prop];
-                },
-                set(value) {
-                  target[prop] = value;
-                }
-              });
-              return value;
-            }
-            cache[prop] = value;
-            return value;
-          },
-          set(proxyTarget, prop, value, receiver) {
-            if (prop in cache) {
-              cache[prop] = value;
-            } else {
-              target[prop] = value;
-            }
-            return true;
-          },
-          defineProperty(proxyTarget, prop, desc) {
-            return Reflect.defineProperty(cache, prop, desc);
-          },
-          deleteProperty(proxyTarget, prop) {
-            return Reflect.deleteProperty(cache, prop);
-          }
-        };
-
-        // Per contract of the Proxy API, the "get" proxy handler must return the
-        // original value of the target if that value is declared read-only and
-        // non-configurable. For this reason, we create an object with the
-        // prototype set to `target` instead of using `target` directly.
-        // Otherwise we cannot return a custom object for APIs that
-        // are declared read-only and non-configurable, such as `chrome.devtools`.
-        //
-        // The proxy handlers themselves will still use the original `target`
-        // instead of the `proxyTarget`, so that the methods and properties are
-        // dereferenced via the original targets.
-        let proxyTarget = Object.create(target);
-        return new Proxy(proxyTarget, handlers);
-      };
-
-      /**
-       * Creates a set of wrapper functions for an event object, which handles
-       * wrapping of listener functions that those messages are passed.
-       *
-       * A single wrapper is created for each listener function, and stored in a
-       * map. Subsequent calls to `addListener`, `hasListener`, or `removeListener`
-       * retrieve the original wrapper, so that  attempts to remove a
-       * previously-added listener work as expected.
-       *
-       * @param {DefaultWeakMap<function, function>} wrapperMap
-       *        A DefaultWeakMap object which will create the appropriate wrapper
-       *        for a given listener function when one does not exist, and retrieve
-       *        an existing one when it does.
-       *
-       * @returns {object}
-       */
-      const wrapEvent = wrapperMap => ({
-        addListener(target, listener, ...args) {
-          target.addListener(wrapperMap.get(listener), ...args);
-        },
-        hasListener(target, listener) {
-          return target.hasListener(wrapperMap.get(listener));
-        },
-        removeListener(target, listener) {
-          target.removeListener(wrapperMap.get(listener));
-        }
-      });
-      const onRequestFinishedWrappers = new DefaultWeakMap(listener => {
-        if (typeof listener !== "function") {
-          return listener;
-        }
-
-        /**
-         * Wraps an onRequestFinished listener function so that it will return a
-         * `getContent()` property which returns a `Promise` rather than using a
-         * callback API.
-         *
-         * @param {object} req
-         *        The HAR entry object representing the network request.
-         */
-        return function onRequestFinished(req) {
-          const wrappedReq = wrapObject(req, {} /* wrappers */, {
-            getContent: {
-              minArgs: 0,
-              maxArgs: 0
-            }
-          });
-          listener(wrappedReq);
-        };
-      });
-      const onMessageWrappers = new DefaultWeakMap(listener => {
-        if (typeof listener !== "function") {
-          return listener;
-        }
-
-        /**
-         * Wraps a message listener function so that it may send responses based on
-         * its return value, rather than by returning a sentinel value and calling a
-         * callback. If the listener function returns a Promise, the response is
-         * sent when the promise either resolves or rejects.
-         *
-         * @param {*} message
-         *        The message sent by the other end of the channel.
-         * @param {object} sender
-         *        Details about the sender of the message.
-         * @param {function(*)} sendResponse
-         *        A callback which, when called with an arbitrary argument, sends
-         *        that value as a response.
-         * @returns {boolean}
-         *        True if the wrapped listener returned a Promise, which will later
-         *        yield a response. False otherwise.
-         */
-        return function onMessage(message, sender, sendResponse) {
-          let didCallSendResponse = false;
-          let wrappedSendResponse;
-          let sendResponsePromise = new Promise(resolve => {
-            wrappedSendResponse = function (response) {
-              didCallSendResponse = true;
-              resolve(response);
-            };
-          });
-          let result;
-          try {
-            result = listener(message, sender, wrappedSendResponse);
-          } catch (err) {
-            result = Promise.reject(err);
-          }
-          const isResultThenable = result !== true && isThenable(result);
-
-          // If the listener didn't returned true or a Promise, or called
-          // wrappedSendResponse synchronously, we can exit earlier
-          // because there will be no response sent from this listener.
-          if (result !== true && !isResultThenable && !didCallSendResponse) {
-            return false;
-          }
-
-          // A small helper to send the message if the promise resolves
-          // and an error if the promise rejects (a wrapped sendMessage has
-          // to translate the message into a resolved promise or a rejected
-          // promise).
-          const sendPromisedResult = promise => {
-            promise.then(msg => {
-              // send the message value.
-              sendResponse(msg);
-            }, error => {
-              // Send a JSON representation of the error if the rejected value
-              // is an instance of error, or the object itself otherwise.
-              let message;
-              if (error && (error instanceof Error || typeof error.message === "string")) {
-                message = error.message;
-              } else {
-                message = "An unexpected error occurred";
-              }
-              sendResponse({
-                __mozWebExtensionPolyfillReject__: true,
-                message
-              });
-            }).catch(err => {
-              // Print an error on the console if unable to send the response.
-              console.error("Failed to send onMessage rejected reply", err);
-            });
-          };
-
-          // If the listener returned a Promise, send the resolved value as a
-          // result, otherwise wait the promise related to the wrappedSendResponse
-          // callback to resolve and send it as a response.
-          if (isResultThenable) {
-            sendPromisedResult(result);
-          } else {
-            sendPromisedResult(sendResponsePromise);
-          }
-
-          // Let Chrome know that the listener is replying.
-          return true;
-        };
-      });
-      const wrappedSendMessageCallback = ({
-        reject,
-        resolve
-      }, reply) => {
-        if (extensionAPIs.runtime.lastError) {
-          // Detect when none of the listeners replied to the sendMessage call and resolve
-          // the promise to undefined as in Firefox.
-          // See https://github.com/mozilla/webextension-polyfill/issues/130
-          if (extensionAPIs.runtime.lastError.message === CHROME_SEND_MESSAGE_CALLBACK_NO_RESPONSE_MESSAGE) {
-            resolve();
-          } else {
-            reject(new Error(extensionAPIs.runtime.lastError.message));
-          }
-        } else if (reply && reply.__mozWebExtensionPolyfillReject__) {
-          // Convert back the JSON representation of the error into
-          // an Error instance.
-          reject(new Error(reply.message));
-        } else {
-          resolve(reply);
-        }
-      };
-      const wrappedSendMessage = (name, metadata, apiNamespaceObj, ...args) => {
-        if (args.length < metadata.minArgs) {
-          throw new Error(`Expected at least ${metadata.minArgs} ${pluralizeArguments(metadata.minArgs)} for ${name}(), got ${args.length}`);
-        }
-        if (args.length > metadata.maxArgs) {
-          throw new Error(`Expected at most ${metadata.maxArgs} ${pluralizeArguments(metadata.maxArgs)} for ${name}(), got ${args.length}`);
-        }
-        return new Promise((resolve, reject) => {
-          const wrappedCb = wrappedSendMessageCallback.bind(null, {
-            resolve,
-            reject
-          });
-          args.push(wrappedCb);
-          apiNamespaceObj.sendMessage(...args);
-        });
-      };
-      const staticWrappers = {
-        devtools: {
-          network: {
-            onRequestFinished: wrapEvent(onRequestFinishedWrappers)
-          }
-        },
-        runtime: {
-          onMessage: wrapEvent(onMessageWrappers),
-          onMessageExternal: wrapEvent(onMessageWrappers),
-          sendMessage: wrappedSendMessage.bind(null, "sendMessage", {
-            minArgs: 1,
-            maxArgs: 3
-          })
-        },
-        tabs: {
-          sendMessage: wrappedSendMessage.bind(null, "sendMessage", {
-            minArgs: 2,
-            maxArgs: 3
-          })
-        }
-      };
-      const settingMetadata = {
-        clear: {
-          minArgs: 1,
-          maxArgs: 1
-        },
-        get: {
-          minArgs: 1,
-          maxArgs: 1
-        },
-        set: {
-          minArgs: 1,
-          maxArgs: 1
-        }
-      };
-      apiMetadata.privacy = {
-        network: {
-          "*": settingMetadata
-        },
-        services: {
-          "*": settingMetadata
-        },
-        websites: {
-          "*": settingMetadata
-        }
-      };
-      return wrapObject(extensionAPIs, staticWrappers, apiMetadata);
-    };
-
-    // The build process adds a UMD wrapper around this file, which makes the
-    // `module` variable available.
-    module.exports = wrapAPIs(chrome);
-  } else {
-    module.exports = globalThis.browser;
-  }
-});
-//# sourceMappingURL=browser-polyfill.js.map
-
-
-/***/ }),
-
-/***/ "./src/ts/API.ts":
+/***/ "./src/ts/API.ts"
 /*!***********************!*\
   !*** ./src/ts/API.ts ***!
   \***********************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -1649,13 +418,13 @@ class API {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/ArtworkThumbnail.ts":
+/***/ "./src/ts/ArtworkThumbnail.ts"
 /*!************************************!*\
   !*** ./src/ts/ArtworkThumbnail.ts ***!
   \************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -1833,13 +602,13 @@ const artworkThumbnail = new ArtworkThumbnail();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/BG.ts":
+/***/ "./src/ts/BG.ts"
 /*!**********************!*\
   !*** ./src/ts/BG.ts ***!
   \**********************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -2009,13 +778,13 @@ const bg = new BG();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/BoldKeywords.ts":
+/***/ "./src/ts/BoldKeywords.ts"
 /*!********************************!*\
   !*** ./src/ts/BoldKeywords.ts ***!
   \********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -2049,13 +818,13 @@ class BoldKeywords {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/Bookmark.ts":
+/***/ "./src/ts/Bookmark.ts"
 /*!****************************!*\
   !*** ./src/ts/Bookmark.ts ***!
   \****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -2271,17 +1040,17 @@ const bookmark = new Bookmark();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/CenterPanel.ts":
+/***/ "./src/ts/CenterPanel.ts"
 /*!*******************************!*\
   !*** ./src/ts/CenterPanel.ts ***!
   \*******************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/.store/webextension-polyfill@0.12.0/node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
@@ -2590,13 +1359,13 @@ class CenterPanel {
 new CenterPanel();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/CheckUnsupportBrowser.ts":
+/***/ "./src/ts/CheckUnsupportBrowser.ts"
 /*!*****************************************!*\
   !*** ./src/ts/CheckUnsupportBrowser.ts ***!
   \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -2670,13 +1439,13 @@ class CheckUnsupportBrowser {
 new CheckUnsupportBrowser();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/Colors.ts":
+/***/ "./src/ts/Colors.ts"
 /*!**************************!*\
   !*** ./src/ts/Colors.ts ***!
   \**************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -2710,20 +1479,20 @@ var Colors;
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/Config.ts":
+/***/ "./src/ts/Config.ts"
 /*!**************************!*\
   !*** ./src/ts/Config.ts ***!
   \**************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Config: () => (/* binding */ Config)
 /* harmony export */ });
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/.store/webextension-polyfill@0.12.0/node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
 
 // 定义一些常量
@@ -2797,13 +1566,13 @@ class Config {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/ConvertUgoira/ConvertUgoira.ts":
+/***/ "./src/ts/ConvertUgoira/ConvertUgoira.ts"
 /*!***********************************************!*\
   !*** ./src/ts/ConvertUgoira/ConvertUgoira.ts ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -2931,13 +1700,13 @@ const convertUgoira = new ConvertUgoira();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/ConvertUgoira/ToAPNG.ts":
+/***/ "./src/ts/ConvertUgoira/ToAPNG.ts"
 /*!****************************************!*\
   !*** ./src/ts/ConvertUgoira/ToAPNG.ts ***!
   \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -2982,20 +1751,20 @@ const toAPNG = new ToAPNG();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/ConvertUgoira/ToGIF.ts":
+/***/ "./src/ts/ConvertUgoira/ToGIF.ts"
 /*!***************************************!*\
   !*** ./src/ts/ConvertUgoira/ToGIF.ts ***!
   \***************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   toGIF: () => (/* binding */ toGIF)
 /* harmony export */ });
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/.store/webextension-polyfill@0.12.0/node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 
@@ -3079,13 +1848,13 @@ const toGIF = new ToGIF();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/ConvertUgoira/ToWebM.ts":
+/***/ "./src/ts/ConvertUgoira/ToWebM.ts"
 /*!****************************************!*\
   !*** ./src/ts/ConvertUgoira/ToWebM.ts ***!
   \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -3130,13 +1899,13 @@ const toWebM = new ToWebM();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/CopyWorkInfo.ts":
+/***/ "./src/ts/CopyWorkInfo.ts"
 /*!********************************!*\
   !*** ./src/ts/CopyWorkInfo.ts ***!
   \********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -3488,13 +2257,13 @@ const copyWorkInfo = new CopyWorkInfo();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/EVT.ts":
+/***/ "./src/ts/EVT.ts"
 /*!***********************!*\
   !*** ./src/ts/EVT.ts ***!
   \***********************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -3686,13 +2455,13 @@ const EVT = new EVENT();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/ExportLog.ts":
+/***/ "./src/ts/ExportLog.ts"
 /*!*****************************!*\
   !*** ./src/ts/ExportLog.ts ***!
   \*****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -3818,13 +2587,13 @@ const exportLog = new ExportLog();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/FileName.ts":
+/***/ "./src/ts/FileName.ts"
 /*!****************************!*\
   !*** ./src/ts/FileName.ts ***!
   \****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -4395,13 +3164,13 @@ const fileName = new FileName();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/FindDeactivatedUsers.ts":
+/***/ "./src/ts/FindDeactivatedUsers.ts"
 /*!****************************************!*\
   !*** ./src/ts/FindDeactivatedUsers.ts ***!
   \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -4540,20 +3309,20 @@ const findDeactivatedUsers = new FindDeactivatedUsers();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/FollowingList.ts":
+/***/ "./src/ts/FollowingList.ts"
 /*!*********************************!*\
   !*** ./src/ts/FollowingList.ts ***!
   \*********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   followingList: () => (/* binding */ followingList)
 /* harmony export */ });
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/.store/webextension-polyfill@0.12.0/node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
@@ -4773,13 +3542,13 @@ const followingList = new FollowingList();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/HighlightFollowingUsers.ts":
+/***/ "./src/ts/HighlightFollowingUsers.ts"
 /*!*******************************************!*\
   !*** ./src/ts/HighlightFollowingUsers.ts ***!
   \*******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -4973,13 +3742,13 @@ class HighlightFollowingUsers {
 new HighlightFollowingUsers();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/ImageViewer.ts":
+/***/ "./src/ts/ImageViewer.ts"
 /*!*******************************!*\
   !*** ./src/ts/ImageViewer.ts ***!
   \*******************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -5448,13 +4217,13 @@ class ImageViewer {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/InitPage.ts":
+/***/ "./src/ts/InitPage.ts"
 /*!****************************!*\
   !*** ./src/ts/InitPage.ts ***!
   \****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -5587,13 +4356,13 @@ class InitPage {
 new InitPage();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/Input.ts":
+/***/ "./src/ts/Input.ts"
 /*!*************************!*\
   !*** ./src/ts/Input.ts ***!
   \*************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -5740,13 +4509,13 @@ class Input {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/Language.ts":
+/***/ "./src/ts/Language.ts"
 /*!****************************!*\
   !*** ./src/ts/Language.ts ***!
   \****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -5936,17 +4705,17 @@ const lang = new Lang();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/ListenPageSwitch.ts":
+/***/ "./src/ts/ListenPageSwitch.ts"
 /*!************************************!*\
   !*** ./src/ts/ListenPageSwitch.ts ***!
   \************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/.store/webextension-polyfill@0.12.0/node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 
@@ -6002,13 +4771,13 @@ class ListenPageSwitch {
 new ListenPageSwitch();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/Loading.ts":
+/***/ "./src/ts/Loading.ts"
 /*!***************************!*\
   !*** ./src/ts/Loading.ts ***!
   \***************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -6062,13 +4831,13 @@ const loading = new Loading();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/Log.ts":
+/***/ "./src/ts/Log.ts"
 /*!***********************!*\
   !*** ./src/ts/Log.ts ***!
   \***********************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -6341,13 +5110,13 @@ const log = new Log();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/LogButton.ts":
+/***/ "./src/ts/LogButton.ts"
 /*!*****************************!*\
   !*** ./src/ts/LogButton.ts ***!
   \*****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -6468,13 +5237,13 @@ const logButton = new LogButton();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/MsgBox.ts":
+/***/ "./src/ts/MsgBox.ts"
 /*!**************************!*\
   !*** ./src/ts/MsgBox.ts ***!
   \**************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -6603,13 +5372,13 @@ const msgBox = new MsgBox();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/NovelThumbnail.ts":
+/***/ "./src/ts/NovelThumbnail.ts"
 /*!**********************************!*\
   !*** ./src/ts/NovelThumbnail.ts ***!
   \**********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -6768,13 +5537,13 @@ const novelThumbnail = new NovelThumbnail();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/OpenCenterPanel.ts":
+/***/ "./src/ts/OpenCenterPanel.ts"
 /*!***********************************!*\
   !*** ./src/ts/OpenCenterPanel.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -6825,13 +5594,13 @@ class OpenCenterPanel {
 new OpenCenterPanel();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/PPDTask.ts":
+/***/ "./src/ts/PPDTask.ts"
 /*!***************************!*\
   !*** ./src/ts/PPDTask.ts ***!
   \***************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -6893,13 +5662,13 @@ const ppdTask = new PPDTask();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/PageType.ts":
+/***/ "./src/ts/PageType.ts"
 /*!****************************!*\
   !*** ./src/ts/PageType.ts ***!
   \****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -7270,13 +6039,13 @@ const pageType = new PageType();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/PreviewUgoira.ts":
+/***/ "./src/ts/PreviewUgoira.ts"
 /*!*********************************!*\
   !*** ./src/ts/PreviewUgoira.ts ***!
   \*********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -7590,13 +6359,13 @@ class PreviewUgoira {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/PreviewWork.ts":
+/***/ "./src/ts/PreviewWork.ts"
 /*!*******************************!*\
   !*** ./src/ts/PreviewWork.ts ***!
   \*******************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -8383,13 +7152,13 @@ class PreviewWork {
 new PreviewWork();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/PreviewWorkDetailInfo.ts":
+/***/ "./src/ts/PreviewWorkDetailInfo.ts"
 /*!*****************************************!*\
   !*** ./src/ts/PreviewWorkDetailInfo.ts ***!
   \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -8663,13 +7432,13 @@ const previewWorkDetailInfo = new PreviewWorkDetailInfo();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/RemoveBlockedUsersWork.ts":
+/***/ "./src/ts/RemoveBlockedUsersWork.ts"
 /*!******************************************!*\
   !*** ./src/ts/RemoveBlockedUsersWork.ts ***!
   \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -8848,13 +7617,13 @@ class RemoveBlockedUsersWork {
 new RemoveBlockedUsersWork();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/RemoveWorksTagsInBookmarks.ts":
+/***/ "./src/ts/RemoveWorksTagsInBookmarks.ts"
 /*!**********************************************!*\
   !*** ./src/ts/RemoveWorksTagsInBookmarks.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -8915,13 +7684,13 @@ const removeWorksTagsInBookmarks = new RemoveWorksTagsInBookmarks();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/ReplaceSquareThumb.ts":
+/***/ "./src/ts/ReplaceSquareThumb.ts"
 /*!**************************************!*\
   !*** ./src/ts/ReplaceSquareThumb.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -9029,13 +7798,13 @@ class ReplaceSquareThumb {
 new ReplaceSquareThumb();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/RequestSponsorship.ts":
+/***/ "./src/ts/RequestSponsorship.ts"
 /*!**************************************!*\
   !*** ./src/ts/RequestSponsorship.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -9074,13 +7843,13 @@ class RequestSponsorship {
 new RequestSponsorship();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/SelectWork.ts":
+/***/ "./src/ts/SelectWork.ts"
 /*!******************************!*\
   !*** ./src/ts/SelectWork.ts ***!
   \******************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -9522,13 +8291,13 @@ class SelectWork {
 new SelectWork();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/SetTimeoutWorker.ts":
+/***/ "./src/ts/SetTimeoutWorker.ts"
 /*!************************************!*\
   !*** ./src/ts/SetTimeoutWorker.ts ***!
   \************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -9587,13 +8356,13 @@ const setTimeoutWorker = new SetTimeoutWorker();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/SetUserName.ts":
+/***/ "./src/ts/SetUserName.ts"
 /*!*******************************!*\
   !*** ./src/ts/SetUserName.ts ***!
   \*******************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -9848,17 +8617,17 @@ class SetUserName {
 new SetUserName();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/ShowLargerThumbnails.ts":
+/***/ "./src/ts/ShowLargerThumbnails.ts"
 /*!****************************************!*\
   !*** ./src/ts/ShowLargerThumbnails.ts ***!
   \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/.store/webextension-polyfill@0.12.0/node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
@@ -10267,17 +9036,17 @@ class ShowLargerThumbnails {
 new ShowLargerThumbnails();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/ShowNotification.ts":
+/***/ "./src/ts/ShowNotification.ts"
 /*!************************************!*\
   !*** ./src/ts/ShowNotification.ts ***!
   \************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/.store/webextension-polyfill@0.12.0/node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Language */ "./src/ts/Language.ts");
@@ -10338,13 +9107,13 @@ class ShowNotification {
 new ShowNotification();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/ShowOneTimeMsg.ts":
+/***/ "./src/ts/ShowOneTimeMsg.ts"
 /*!**********************************!*\
   !*** ./src/ts/ShowOneTimeMsg.ts ***!
   \**********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -10375,13 +9144,13 @@ const showOneTimeMsg = new ShowOneTimeMsg();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/ShowOriginSizeImage.ts":
+/***/ "./src/ts/ShowOriginSizeImage.ts"
 /*!***************************************!*\
   !*** ./src/ts/ShowOriginSizeImage.ts ***!
   \***************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -10777,13 +9546,13 @@ const showOriginSizeImage = new ShowOriginSizeImage();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/ShowWhatIsNew.ts":
+/***/ "./src/ts/ShowWhatIsNew.ts"
 /*!*********************************!*\
   !*** ./src/ts/ShowWhatIsNew.ts ***!
   \*********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -10836,13 +9605,13 @@ class ShowWhatIsNew {
 new ShowWhatIsNew();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/Theme.ts":
+/***/ "./src/ts/Theme.ts"
 /*!*************************!*\
   !*** ./src/ts/Theme.ts ***!
   \*************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -11021,13 +9790,13 @@ const theme = new Theme();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/Tip.ts":
+/***/ "./src/ts/Tip.ts"
 /*!***********************!*\
   !*** ./src/ts/Tip.ts ***!
   \***********************/
-/***/ (() => {
+() {
 
 "use strict";
 
@@ -11079,13 +9848,13 @@ class Tip {
 new Tip();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/Toast.ts":
+/***/ "./src/ts/Toast.ts"
 /*!*************************!*\
   !*** ./src/ts/Toast.ts ***!
   \*************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -11275,13 +10044,13 @@ const toast = new Toast();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/Token.ts":
+/***/ "./src/ts/Token.ts"
 /*!*************************!*\
   !*** ./src/ts/Token.ts ***!
   \*************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -11374,13 +10143,13 @@ const token = new Token();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/Tools.ts":
+/***/ "./src/ts/Tools.ts"
 /*!*************************!*\
   !*** ./src/ts/Tools.ts ***!
   \*************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -12366,13 +11135,13 @@ class Tools {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/UnBookmarkWorks.ts":
+/***/ "./src/ts/UnBookmarkWorks.ts"
 /*!***********************************!*\
   !*** ./src/ts/UnBookmarkWorks.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -12446,13 +11215,13 @@ const unBookmarkWorks = new UnBookmarkWorks();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/WorkThumbnail.ts":
+/***/ "./src/ts/WorkThumbnail.ts"
 /*!*********************************!*\
   !*** ./src/ts/WorkThumbnail.ts ***!
   \*********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -12623,13 +11392,13 @@ class WorkThumbnail {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/WorkToolBar.ts":
+/***/ "./src/ts/WorkToolBar.ts"
 /*!*******************************!*\
   !*** ./src/ts/WorkToolBar.ts ***!
   \*******************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -12752,13 +11521,13 @@ const workToolBar = new WorkToolBar();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/buttonsOnThumb/ButtonsConfig.ts":
+/***/ "./src/ts/buttonsOnThumb/ButtonsConfig.ts"
 /*!************************************************!*\
   !*** ./src/ts/buttonsOnThumb/ButtonsConfig.ts ***!
   \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -12790,8 +11559,16 @@ class ButtonsConfig {
             order: 3,
             icon: 'icon-download',
             btn: document.createElement('button'),
-            title: '_下载',
+            title: '_下载这个作品',
             show: () => _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.showDownloadBtnOnThumb,
+        },
+        {
+            name: 'hideUserBtnOnThumb',
+            order: 4,
+            icon: 'icon-shanchu1',
+            btn: document.createElement('button'),
+            title: '_阻止',
+            show: () => _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.hideUserButton,
         },
     ];
     btnSize = 32;
@@ -12800,13 +11577,13 @@ class ButtonsConfig {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/buttonsOnThumb/ButtonsOnArtworkPage.ts":
+/***/ "./src/ts/buttonsOnThumb/ButtonsOnArtworkPage.ts"
 /*!*******************************************************!*\
   !*** ./src/ts/buttonsOnThumb/ButtonsOnArtworkPage.ts ***!
   \*******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -12821,6 +11598,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _ImageViewer__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../ImageViewer */ "./src/ts/ImageViewer.ts");
 /* harmony import */ var _CopyWorkInfo__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../CopyWorkInfo */ "./src/ts/CopyWorkInfo.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+
 
 
 
@@ -12845,6 +11624,8 @@ class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.B
         this.bindEvents();
     }
     btnFlag = 'buttonsOnArtworkPage';
+    confirmingBtn = null; // 正在等待二次确认的按钮
+    confirmTimer = 0; // 重置二次确认状态的定时器
     bindEvents() {
         window.setInterval(() => {
             this.check();
@@ -12856,6 +11637,10 @@ class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.B
                 const allBtn = document.querySelectorAll(`.${this.btnFlag}`);
                 allBtn.forEach((btn) => btn.remove());
                 this.check();
+            }
+            // 屏蔽列表变化时，更新所有隐藏按钮的状态
+            if (data.name === 'blockList') {
+                this.updateAllHideUserBtnState();
             }
         });
     }
@@ -12884,19 +11669,46 @@ class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.B
         // 设置 a 标签的样式
         a.style.position = 'relative';
         a.parentElement.style.overflow = 'unset';
-        // 记录有几个按钮需要显示，用于设置按钮的 top 值
-        let order = 0;
+        // 记录有几个按钮需要显示在右边和左边，用于设置按钮的 top 值
+        let rightOrder = 0;
+        let leftOrder = 0;
         // 添加按钮
         this.btnsConfig.forEach((config) => {
             if (config.show()) {
+                const isHideBtn = config.name === 'hideUserBtnOnThumb';
+                const order = isHideBtn ? leftOrder : rightOrder;
                 config.btn = this.createBtn(config, order);
                 a.appendChild(config.btn);
-                order++;
+                if (isHideBtn) {
+                    leftOrder++;
+                    this.updateHideUserBtnState(config.btn);
+                }
+                else {
+                    rightOrder++;
+                }
                 config.btn.addEventListener('click', (ev) => {
                     // 因为 a 被 Pixiv 绑定了事件，点击它会显示大图
                     // 所以需要阻止按钮的冒泡，否则会触发 a 的事件，导致大图显示
                     ev.stopPropagation();
                     ev.preventDefault();
+                    // 隐藏用户按钮需要二次确认
+                    if (isHideBtn) {
+                        if (this.confirmingBtn !== config.btn) {
+                            // 第一次点击，进入确认状态
+                            this.resetConfirmState();
+                            this.confirmingBtn = config.btn;
+                            config.btn.classList.add('confirming');
+                            window.clearTimeout(this.confirmTimer);
+                            this.confirmTimer = window.setTimeout(() => {
+                                this.resetConfirmState();
+                            }, 3000);
+                            return;
+                        }
+                        else {
+                            // 第二次点击，重置状态并继续执行
+                            this.resetConfirmState();
+                        }
+                    }
                     this.clickBtn(config, a);
                 }, {
                     capture: true,
@@ -12905,30 +11717,54 @@ class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.B
             }
         });
     }
+    resetConfirmState() {
+        this.confirmingBtn = null;
+        const allBtn = document.querySelectorAll(`.${this.btnFlag}`);
+        allBtn.forEach((btn) => btn.classList.remove('confirming'));
+    }
     createBtn(config, order = 0) {
         const btn = document.createElement('button');
+        btn.id = config.name;
         btn.classList.add(this.btnFlag, 'btnOnThumb');
-        // 这些按钮复用了 btnOnThumb 的样式，但需要覆写一些样式
+        // 按钮复用了 btnOnThumb 的样式，但需要覆写一些样式
         btn.style.display = 'flex';
-        // 根据“在作品缩略图上显示放大按钮”的位置设置，将按钮显示在左侧或右侧
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.magnifierPosition === 'left') {
-            btn.style.left = `-${this.btnSize}px`;
+        const isHideBtn = config.name === 'hideUserBtnOnThumb';
+        // 隐藏按钮放左边
+        if (isHideBtn) {
+            btn.style.left = '0px';
             btn.style.right = 'unset';
         }
         else {
-            btn.style.left = 'unset';
-            btn.style.right = `-${this.btnSize}px`;
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.magnifierPosition === 'left') {
+                btn.style.left = `-${this.btnSize}px`;
+                btn.style.right = 'unset';
+            }
+            else {
+                btn.style.left = 'unset';
+                btn.style.right = `-${this.btnSize}px`;
+            }
         }
         // 计算按钮的 top 值
         const top = (this.btnSize + this.margin) * order;
         btn.style.top = top + 'px';
-        btn.innerHTML = `
-    <svg class="icon" aria-hidden="true">
-  <use xlink:href="#${config.icon}"></use>
-</svg>`;
+        btn.innerHTML = `<svg class="icon" aria-hidden="true"><use xlink:href="#${config.icon}"></use></svg>`;
         btn.dataset.xztitle = config.title;
         _Language__WEBPACK_IMPORTED_MODULE_8__.lang.register(btn);
         return btn;
+    }
+    updateHideUserBtnState(btn) {
+        const userId = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getCurrentPageUserID();
+        if (!userId) {
+            return;
+        }
+        const blocked = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockList.includes(userId);
+        btn.dataset.xztitle = blocked ? '_取消阻止' : '_阻止';
+        btn.classList.toggle('blocked', !!blocked);
+        _Language__WEBPACK_IMPORTED_MODULE_8__.lang.register(btn);
+    }
+    updateAllHideUserBtnState() {
+        const btns = document.querySelectorAll(`#hideUserBtnOnThumb.${this.btnFlag}`);
+        btns.forEach((btn) => this.updateHideUserBtnState(btn));
     }
     clickBtn(config, a) {
         // 获取作品 id
@@ -12959,6 +11795,20 @@ class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.B
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.setDownloadOnlyPart(Number.parseInt(id), [index]);
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
         }
+        else if (config.name === 'hideUserBtnOnThumb') {
+            const userId = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getCurrentPageUserID();
+            if (!userId) {
+                return;
+            }
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.blockList.includes(userId)) {
+                (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.updateBlockList)(userId, 'remove');
+                _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_已从阻止名单移除'));
+            }
+            else {
+                (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.updateBlockList)(userId, 'add');
+                _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_已添加到阻止名单'));
+            }
+        }
     }
     /**判断按钮是否应该下移一定距离，避免挡住图片编号。返回值是 top 的数值 */
     // 由于现在按钮会显示在图片外侧，很少会挡住图片编号了，所以这个方法现在没有使用了
@@ -12986,13 +11836,13 @@ class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.B
 new ButtonsOnArtworkPage();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/buttonsOnThumb/ButtonsOnArtworkThumbOnPC.ts":
+/***/ "./src/ts/buttonsOnThumb/ButtonsOnArtworkThumbOnPC.ts"
 /*!************************************************************!*\
   !*** ./src/ts/buttonsOnThumb/ButtonsOnArtworkThumbOnPC.ts ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -13006,6 +11856,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
 /* harmony import */ var _ButtonsConfig__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ButtonsConfig */ "./src/ts/buttonsOnThumb/ButtonsConfig.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+
+
 
 
 
@@ -13028,19 +11882,32 @@ class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_
         this.createAllBtn();
     }
     currentWorkId = ''; // 保存触发事件的缩略图的作品 id
+    currentUserId = ''; // 保存触发事件的缩略图对应的用户 id
     workEL; // 保存触发事件的缩略图的作品元素
     hiddenBtnTimer = 0; // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
     delay = 100;
     doNotShowBtn = false; // 当点击了按钮后，进入此状态，此状态中不会显示按钮
     // 此状态是为了解决这个问题：点击了按钮之后，按钮会被隐藏，隐藏之后，鼠标下方就是图片缩略图区域，这会触发缩略图的鼠标事件，导致按钮马上就又显示了出来。所以点击按钮之后设置这个状态，在其为 true 的期间不会显示按钮。过一段时间再把它复位。复位所需的时间很短，因为只要能覆盖这段时间就可以了：从隐藏按钮开始算起，到缩略图触发鼠标事件结束。
+    confirmingBtnName = ''; // 正在等待二次确认的按钮名
+    confirmTimer = 0; // 重置二次确认状态的定时器
     bindEvents() {
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__.artworkThumbnail.onEnter((el, id) => {
             this.currentWorkId = id;
+            this.currentUserId = this.getUserId(el);
             this.workEL = el;
             this.showAllBtn();
         });
         _ArtworkThumbnail__WEBPACK_IMPORTED_MODULE_2__.artworkThumbnail.onLeave(() => {
             this.hiddenBtnDelay();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'blockList') {
+                this.updateHideUserBtnState();
+            }
+            if (data.name === 'hideUserButton' && !_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.hideUserButton) {
+                this.hiddenHideUserBtn();
+            }
         });
         // 页面切换时，隐藏所有按钮
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.pageSwitch, () => {
@@ -13064,24 +11931,44 @@ class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_
             });
             // 点击按钮时
             config.btn.addEventListener('click', (ev) => {
-                this.hiddenBtnNow();
-                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('clickBtnOnThumb');
                 if (!this.currentWorkId) {
                     return;
                 }
+                // 隐藏用户按钮需要二次确认
+                if (config.name === 'hideUserBtnOnThumb') {
+                    if (this.confirmingBtnName !== config.name) {
+                        // 第一次点击，进入确认状态
+                        this.confirmingBtnName = config.name;
+                        config.btn.classList.add('confirming');
+                        window.clearTimeout(this.confirmTimer);
+                        this.confirmTimer = window.setTimeout(() => {
+                            this.resetConfirmState();
+                        }, 3000); // 3 秒内没点第二次就重置
+                        return;
+                    }
+                    else {
+                        // 第二次点击，重置状态并继续执行
+                        this.resetConfirmState();
+                    }
+                }
+                this.hiddenBtnNow();
+                _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('clickBtnOnThumb');
                 // 定义点击每个按钮时的具体逻辑
                 this.clickBtn(config);
             });
+        });
+    }
+    resetConfirmState() {
+        this.confirmingBtnName = '';
+        this.btnsConfig.forEach((config) => {
+            config.btn.classList.remove('confirming');
         });
     }
     createBtn(config) {
         const btn = document.createElement('button');
         btn.id = config.name;
         btn.classList.add('btnOnThumb');
-        btn.innerHTML = `
-    <svg class="icon" aria-hidden="true">
-  <use xlink:href="#${config.icon}"></use>
-</svg>`;
+        btn.innerHTML = `<svg class="icon" aria-hidden="true"><use xlink:href="#${config.icon}"></use></svg>`;
         btn.dataset.xztitle = config.title;
         _Language__WEBPACK_IMPORTED_MODULE_8__.lang.register(btn);
         document.body.appendChild(btn);
@@ -13116,14 +12003,48 @@ class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_
             }
             _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('crawlIdList', [idData]);
         }
+        else if (config.name === 'hideUserBtnOnThumb') {
+            if (!this.currentUserId) {
+                return;
+            }
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.blockList.includes(this.currentUserId)) {
+                (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.updateBlockList)(this.currentUserId, 'remove');
+                _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_已从阻止名单移除'));
+            }
+            else {
+                (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.updateBlockList)(this.currentUserId, 'add');
+                _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_已添加到阻止名单'));
+            }
+        }
+    }
+    getUserId(el) {
+        const userLink = el.querySelector('a[href*="/users/"]');
+        if (userLink) {
+            return _Tools__WEBPACK_IMPORTED_MODULE_10__.Tools.getUserID(userLink.href);
+        }
+        const userIdEl = el.querySelector('[data-gtm-user-id]');
+        if (userIdEl && userIdEl.dataset.gtmUserId) {
+            return userIdEl.dataset.gtmUserId;
+        }
+        return '';
+    }
+    updateHideUserBtnState() {
+        const config = this.btnsConfig.find((item) => item.name === 'hideUserBtnOnThumb');
+        if (!config) {
+            return;
+        }
+        const blocked = this.currentUserId && _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.blockList.includes(this.currentUserId);
+        config.btn.dataset.xztitle = blocked ? '_取消阻止' : '_阻止';
+        config.btn.classList.toggle('blocked', !!blocked);
+        _Language__WEBPACK_IMPORTED_MODULE_8__.lang.register(config.btn);
     }
     showAllBtn() {
         if (this.doNotShowBtn) {
             return;
         }
         window.clearTimeout(this.hiddenBtnTimer);
-        // 记录有几个按钮需要显示，用于设置按钮的位置（top 值）
-        let order = 0;
+        let rightOrder = 0;
+        let leftOrder = 0;
         const rect = this.workEL.getBoundingClientRect();
         const imageViewerLI = _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_7__.displayThumbnailListOnMultiImageWorkPage.checkLI(this.workEL);
         for (const config of this.btnsConfig) {
@@ -13131,13 +12052,23 @@ class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_
             if (imageViewerLI && config.name === 'zoomBtnOnThumb') {
                 continue;
             }
+            if (config.name === 'hideUserBtnOnThumb' && !this.currentUserId) {
+                continue;
+            }
             if (config.show()) {
-                this.showBtn(config.btn, rect, order);
-                order++;
+                if (config.name === 'hideUserBtnOnThumb') {
+                    this.updateHideUserBtnState();
+                    this.showBtnOnLeft(config.btn, rect, leftOrder);
+                    leftOrder++;
+                }
+                else {
+                    this.showBtnOnRight(config.btn, rect, rightOrder);
+                    rightOrder++;
+                }
             }
         }
     }
-    showBtn(btn, rect, order) {
+    showBtnOnRight(btn, rect, order) {
         btn.style.left =
             window.scrollX +
                 rect.left +
@@ -13148,7 +12079,22 @@ class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_
         btn.style.top = top + 'px';
         btn.style.display = 'flex';
     }
+    showBtnOnLeft(btn, rect, order) {
+        btn.style.left = window.scrollX + rect.left + 'px';
+        const size = this.btnSize + this.margin;
+        const top = window.scrollY + rect.top + size * order;
+        btn.style.top = top + 'px';
+        btn.style.display = 'flex';
+    }
+    hiddenHideUserBtn() {
+        const config = this.btnsConfig.find((item) => item.name === 'hideUserBtnOnThumb');
+        if (!config) {
+            return;
+        }
+        config.btn.style.display = 'none';
+    }
     hiddenAllBtn() {
+        this.resetConfirmState();
         this.btnsConfig.forEach((config) => {
             config.btn.style.display = 'none';
         });
@@ -13173,13 +12119,13 @@ class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_
 new ButtonsOnArtworkThumbOnPC();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/buttonsOnThumb/ButtonsOnNovelThumbOnPC.ts":
+/***/ "./src/ts/buttonsOnThumb/ButtonsOnNovelThumbOnPC.ts"
 /*!**********************************************************!*\
   !*** ./src/ts/buttonsOnThumb/ButtonsOnNovelThumbOnPC.ts ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -13266,10 +12212,7 @@ class ButtonsOnNovelThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_5_
         const btn = document.createElement('button');
         btn.id = config.name;
         btn.classList.add('btnOnThumb');
-        btn.innerHTML = `
-    <svg class="icon" aria-hidden="true">
-  <use xlink:href="#${config.icon}"></use>
-</svg>`;
+        btn.innerHTML = `<svg class="icon" aria-hidden="true"><use xlink:href="#${config.icon}"></use></svg>`;
         btn.dataset.xztitle = config.title;
         _Language__WEBPACK_IMPORTED_MODULE_4__.lang.register(btn);
         document.body.appendChild(btn);
@@ -13361,13 +12304,13 @@ class ButtonsOnNovelThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_5_
 new ButtonsOnNovelThumbOnPC();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/buttonsOnThumb/DownloadBtnOnThumbOnMobile.ts":
+/***/ "./src/ts/buttonsOnThumb/DownloadBtnOnThumbOnMobile.ts"
 /*!*************************************************************!*\
   !*** ./src/ts/buttonsOnThumb/DownloadBtnOnThumbOnMobile.ts ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -13436,10 +12379,7 @@ class DownloadBtnOnThumbOnMobile {
         const btn = document.createElement('button');
         btn.id = this.btnId;
         btn.classList.add('btnOnThumb');
-        btn.innerHTML = `
-    <svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-download"></use>
-</svg>`;
+        btn.innerHTML = `<svg class="icon" aria-hidden="true"><use xlink:href="#icon-download"></use></svg>`;
         btn.style.left = 'auto';
         btn.style.right = '0px';
         btn.style.top = '0px';
@@ -13470,13 +12410,13 @@ class DownloadBtnOnThumbOnMobile {
 new DownloadBtnOnThumbOnMobile();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawl/CrawlLatestFewWorks.ts":
+/***/ "./src/ts/crawl/CrawlLatestFewWorks.ts"
 /*!*********************************************!*\
   !*** ./src/ts/crawl/CrawlLatestFewWorks.ts ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -13548,13 +12488,13 @@ const crawlLatestFewWorks = new CrawlLatestFewWorks();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawl/InitPageBase.ts":
+/***/ "./src/ts/crawl/InitPageBase.ts"
 /*!**************************************!*\
   !*** ./src/ts/crawl/InitPageBase.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -13586,15 +12526,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TimedCrawl__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
 /* harmony import */ var _pageFunciton_QuickBookmark__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../pageFunciton/QuickBookmark */ "./src/ts/pageFunciton/QuickBookmark.ts");
 /* harmony import */ var _pageFunciton_CopyButtonOnWorkPage__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../pageFunciton/CopyButtonOnWorkPage */ "./src/ts/pageFunciton/CopyButtonOnWorkPage.ts");
-/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
-/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
-/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
-/* harmony import */ var _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
-/* harmony import */ var _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ../download/AutoMergeNovel */ "./src/ts/download/AutoMergeNovel.ts");
-/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ../download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ../PPDTask */ "./src/ts/PPDTask.ts");
+/* harmony import */ var _pageFunciton_BlockButtonOnWorkPage__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../pageFunciton/BlockButtonOnWorkPage */ "./src/ts/pageFunciton/BlockButtonOnWorkPage.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
+/* harmony import */ var _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ../download/AutoMergeNovel */ "./src/ts/download/AutoMergeNovel.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ../download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ../PPDTask */ "./src/ts/PPDTask.ts");
 // 初始化所有页面抓取流程的基类
+
 
 
 
@@ -13698,7 +12640,7 @@ class InitPageBase {
             // 基于此，在这里修改 this 上的属性是不合适的，因为每个新实例都会复制这个虚拟类上的属性，它们是独立的
         });
         // 设置用于调试的 flag
-        _PPDTask__WEBPACK_IMPORTED_MODULE_32__.ppdTask.register(1, 'Only crawl IdList', () => {
+        _PPDTask__WEBPACK_IMPORTED_MODULE_33__.ppdTask.register(1, 'Only crawl IdList', () => {
             this.onlyCrawlIdList = !this.onlyCrawlIdList;
             if (this.onlyCrawlIdList) {
                 _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning('onlyCrawlIdList: On');
@@ -13777,7 +12719,7 @@ class InitPageBase {
         // 清空日志
         // 注意：抓取过程中，很多方法都会输出日志，它们必须在此事件之后执行，否则用户根本看不到那些日志
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
-        _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'));
+        _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_31__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'));
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
         _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
             position: 'center',
@@ -13792,7 +12734,7 @@ class InitPageBase {
             await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__.mute.getMuteSettings();
         }
         this.getWantPage();
-        _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_28__.crawlLatestFewWorks.showLog();
+        _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_29__.crawlLatestFewWorks.showLog();
         this.getMultipleSetting();
         this.showTip();
         this.finishedRequest = 0;
@@ -13826,7 +12768,7 @@ class InitPageBase {
             if (!this.confirmRecrawl()) {
                 return;
             }
-            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'));
+            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_31__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'));
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
             _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
                 bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
@@ -13946,7 +12888,7 @@ class InitPageBase {
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length === 1 &&
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].type !== 'novelSeries') {
             const type = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].type === 'novels' ? 'novel' : 'artwork';
-            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id, type);
+            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id, type);
             if (data) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = [];
                 if (type === 'artwork') {
@@ -14018,10 +12960,10 @@ class InitPageBase {
                 // 如果不使用缓存，则必定会导致一个小说发送两次请求
                 // 使用缓存有负面影响：作品的某些数据（如收藏数量）在它被缓存之后可能已经发生变化
                 // 但通常问题不大
-                let data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(id, 'novel');
+                let data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__.cacheWorkData.get(id, 'novel');
                 if (!data) {
                     data = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getNovelData(id, unlisted);
-                    _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.set(data);
+                    _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__.cacheWorkData.set(data);
                 }
                 // 自动合并系列小说
                 const seriesId = data.body.seriesNavData?.seriesId;
@@ -14029,7 +12971,7 @@ class InitPageBase {
                 if (canMerge) {
                     const seriseTitle = data.body.seriesNavData?.title;
                     this.mergedNovelCount++;
-                    await _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_29__.autoMergeNovel.merge(seriesId, seriseTitle);
+                    await _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_30__.autoMergeNovel.merge(seriesId, seriseTitle);
                 }
                 // 如果这个小说不会被合并，或者即使合并也不跳过它，则保存到抓取结果里
                 if (!canMerge || !_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.skipNovelsInSeriesWhenAutoMerge) {
@@ -14040,7 +12982,7 @@ class InitPageBase {
             else if (idData.type === 'novelSeries') {
                 // 合并系列小说
                 this.mergedNovelCount++;
-                await new _download_MergeNovel__WEBPACK_IMPORTED_MODULE_31__.MergeNovel().merge(id, idData.title, true);
+                await new _download_MergeNovel__WEBPACK_IMPORTED_MODULE_32__.MergeNovel().merge(id, idData.title, true);
                 this.afterGetWorksData();
             }
             else {
@@ -14110,14 +13052,14 @@ class InitPageBase {
             // 如果有缓存数据就不需要添加间隔时间，因为小说会使用缓存的数据，不必发送请求
             const nextIDData = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0];
             if (nextIDData && nextIDData.type === 'novels') {
-                const cache = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(nextIDData.id, 'novel');
+                const cache = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__.cacheWorkData.get(nextIDData.id, 'novel');
                 if (cache) {
                     return this.getWorksData();
                 }
             }
             // 如果要实际发送请求，则根据慢速抓取设置，决定是否添加间隔时间
             if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode) {
-                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__.setTimeoutWorker.set(() => {
+                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_27__.setTimeoutWorker.set(() => {
                     this.getWorksData();
                 }, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
             }
@@ -14240,13 +13182,13 @@ class InitPageBase {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawl/InitRequestPage.ts":
+/***/ "./src/ts/crawl/InitRequestPage.ts"
 /*!*****************************************!*\
   !*** ./src/ts/crawl/InitRequestPage.ts ***!
   \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -14267,13 +13209,13 @@ class InitRequestPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__.InitPag
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawl/InitUnsupportedPage.ts":
+/***/ "./src/ts/crawl/InitUnsupportedPage.ts"
 /*!*********************************************!*\
   !*** ./src/ts/crawl/InitUnsupportedPage.ts ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -14295,13 +13237,13 @@ class InitUnsupportedPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Ini
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawl/LogErrorStatus.ts":
+/***/ "./src/ts/crawl/LogErrorStatus.ts"
 /*!****************************************!*\
   !*** ./src/ts/crawl/LogErrorStatus.ts ***!
   \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -14438,13 +13380,13 @@ const logErrorStatus = new LogErrorStatus();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawl/StopCrawl.ts":
+/***/ "./src/ts/crawl/StopCrawl.ts"
 /*!***********************************!*\
   !*** ./src/ts/crawl/StopCrawl.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -14503,13 +13445,13 @@ class StopCrawl {
 new StopCrawl();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawl/TimedCrawl.ts":
+/***/ "./src/ts/crawl/TimedCrawl.ts"
 /*!************************************!*\
   !*** ./src/ts/crawl/TimedCrawl.ts ***!
   \************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -14661,13 +13603,13 @@ const timedCrawl = new TimedCrawl();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawl/VipSearchOptimize.ts":
+/***/ "./src/ts/crawl/VipSearchOptimize.ts"
 /*!*******************************************!*\
   !*** ./src/ts/crawl/VipSearchOptimize.ts ***!
   \*******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -14816,13 +13758,13 @@ const vipSearchOptimize = new VipSearchOptimize();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlArtworkPage/CrawlRecommendWorks.ts":
+/***/ "./src/ts/crawlArtworkPage/CrawlRecommendWorks.ts"
 /*!********************************************************!*\
   !*** ./src/ts/crawlArtworkPage/CrawlRecommendWorks.ts ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -14934,13 +13876,13 @@ class CrawlRecommendWorks {
 new CrawlRecommendWorks();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlArtworkPage/InitAreaRankingPage.ts":
+/***/ "./src/ts/crawlArtworkPage/InitAreaRankingPage.ts"
 /*!********************************************************!*\
   !*** ./src/ts/crawlArtworkPage/InitAreaRankingPage.ts ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -15025,13 +13967,13 @@ class InitAreaRankingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlArtworkPage/InitArtworkPage.ts":
+/***/ "./src/ts/crawlArtworkPage/InitArtworkPage.ts"
 /*!****************************************************!*\
   !*** ./src/ts/crawlArtworkPage/InitArtworkPage.ts ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -15227,13 +14169,13 @@ class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.I
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlArtworkPage/InitArtworkSeriesPage.ts":
+/***/ "./src/ts/crawlArtworkPage/InitArtworkSeriesPage.ts"
 /*!**********************************************************!*\
   !*** ./src/ts/crawlArtworkPage/InitArtworkSeriesPage.ts ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -15359,13 +14301,13 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlArtworkPage/InitBookmarkDetailPage.ts":
+/***/ "./src/ts/crawlArtworkPage/InitBookmarkDetailPage.ts"
 /*!***********************************************************!*\
   !*** ./src/ts/crawlArtworkPage/InitBookmarkDetailPage.ts ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -15421,13 +14363,13 @@ class InitBookmarkDetailPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlArtworkPage/InitDiscoverPage.ts":
+/***/ "./src/ts/crawlArtworkPage/InitDiscoverPage.ts"
 /*!*****************************************************!*\
   !*** ./src/ts/crawlArtworkPage/InitDiscoverPage.ts ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -15488,13 +14430,13 @@ class InitDiscoverPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlArtworkPage/InitNewArtworkPage.ts":
+/***/ "./src/ts/crawlArtworkPage/InitNewArtworkPage.ts"
 /*!*******************************************************!*\
   !*** ./src/ts/crawlArtworkPage/InitNewArtworkPage.ts ***!
   \*******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -15652,13 +14594,13 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlArtworkPage/InitPixivisionPage.ts":
+/***/ "./src/ts/crawlArtworkPage/InitPixivisionPage.ts"
 /*!*******************************************************!*\
   !*** ./src/ts/crawlArtworkPage/InitPixivisionPage.ts ***!
   \*******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -15768,13 +14710,13 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlArtworkPage/InitRankingArtworkPage.ts":
+/***/ "./src/ts/crawlArtworkPage/InitRankingArtworkPage.ts"
 /*!***********************************************************!*\
   !*** ./src/ts/crawlArtworkPage/InitRankingArtworkPage.ts ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -15955,13 +14897,13 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlArtworkPage/InitSearchArtworkPage.ts":
+/***/ "./src/ts/crawlArtworkPage/InitSearchArtworkPage.ts"
 /*!**********************************************************!*\
   !*** ./src/ts/crawlArtworkPage/InitSearchArtworkPage.ts ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -16953,13 +15895,13 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlMixedPage/CrawlTagList.ts":
+/***/ "./src/ts/crawlMixedPage/CrawlTagList.ts"
 /*!***********************************************!*\
   !*** ./src/ts/crawlMixedPage/CrawlTagList.ts ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -17185,13 +16127,13 @@ const crawlTagList = new CrawlTagList();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlMixedPage/InitBookmarkNewPage.ts":
+/***/ "./src/ts/crawlMixedPage/InitBookmarkNewPage.ts"
 /*!******************************************************!*\
   !*** ./src/ts/crawlMixedPage/InitBookmarkNewPage.ts ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -17390,13 +16332,13 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlMixedPage/InitBookmarkPage.ts":
+/***/ "./src/ts/crawlMixedPage/InitBookmarkPage.ts"
 /*!***************************************************!*\
   !*** ./src/ts/crawlMixedPage/InitBookmarkPage.ts ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -17880,13 +16822,13 @@ One possible reason: You have been banned from Pixiv.`);
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlMixedPage/InitContestPage.ts":
+/***/ "./src/ts/crawlMixedPage/InitContestPage.ts"
 /*!**************************************************!*\
   !*** ./src/ts/crawlMixedPage/InitContestPage.ts ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -18074,13 +17016,13 @@ class InitContestPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.I
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlMixedPage/InitDashboardPage.ts":
+/***/ "./src/ts/crawlMixedPage/InitDashboardPage.ts"
 /*!****************************************************!*\
   !*** ./src/ts/crawlMixedPage/InitDashboardPage.ts ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -18437,13 +17379,13 @@ class InitDashboardPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlMixedPage/InitFollowingPage.ts":
+/***/ "./src/ts/crawlMixedPage/InitFollowingPage.ts"
 /*!****************************************************!*\
   !*** ./src/ts/crawlMixedPage/InitFollowingPage.ts ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -18685,13 +17627,13 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlMixedPage/InitHomePage.ts":
+/***/ "./src/ts/crawlMixedPage/InitHomePage.ts"
 /*!***********************************************!*\
   !*** ./src/ts/crawlMixedPage/InitHomePage.ts ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -18974,13 +17916,13 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlMixedPage/InitUnlistedPage.ts":
+/***/ "./src/ts/crawlMixedPage/InitUnlistedPage.ts"
 /*!***************************************************!*\
   !*** ./src/ts/crawlMixedPage/InitUnlistedPage.ts ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -19029,13 +17971,13 @@ class InitUnlistedPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlMixedPage/InitUserPage.ts":
+/***/ "./src/ts/crawlMixedPage/InitUserPage.ts"
 /*!***********************************************!*\
   !*** ./src/ts/crawlMixedPage/InitUserPage.ts ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -19338,13 +18280,13 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Init
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlMixedPage/QuickCrawl.ts":
+/***/ "./src/ts/crawlMixedPage/QuickCrawl.ts"
 /*!*********************************************!*\
   !*** ./src/ts/crawlMixedPage/QuickCrawl.ts ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -19431,13 +18373,13 @@ class QuickCrawl {
 new QuickCrawl();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlNovelPage/GetNovelGlossarys.ts":
+/***/ "./src/ts/crawlNovelPage/GetNovelGlossarys.ts"
 /*!****************************************************!*\
   !*** ./src/ts/crawlNovelPage/GetNovelGlossarys.ts ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -19509,13 +18451,13 @@ const getNovelGlossarys = new GetNovelGlossarys();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlNovelPage/InitNewNovelPage.ts":
+/***/ "./src/ts/crawlNovelPage/InitNewNovelPage.ts"
 /*!***************************************************!*\
   !*** ./src/ts/crawlNovelPage/InitNewNovelPage.ts ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -19662,13 +18604,13 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlNovelPage/InitNovelPage.ts":
+/***/ "./src/ts/crawlNovelPage/InitNovelPage.ts"
 /*!************************************************!*\
   !*** ./src/ts/crawlNovelPage/InitNovelPage.ts ***!
   \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -19772,13 +18714,13 @@ class InitNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__.Ini
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlNovelPage/InitNovelSeriesPage.ts":
+/***/ "./src/ts/crawlNovelPage/InitNovelSeriesPage.ts"
 /*!******************************************************!*\
   !*** ./src/ts/crawlNovelPage/InitNovelSeriesPage.ts ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -19856,13 +18798,13 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlNovelPage/InitRankingNovelPageNew.ts":
+/***/ "./src/ts/crawlNovelPage/InitRankingNovelPageNew.ts"
 /*!**********************************************************!*\
   !*** ./src/ts/crawlNovelPage/InitRankingNovelPageNew.ts ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -20055,13 +18997,13 @@ class InitRankingNovelPageNew extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODU
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlNovelPage/InitRankingNovelPageOld.ts":
+/***/ "./src/ts/crawlNovelPage/InitRankingNovelPageOld.ts"
 /*!**********************************************************!*\
   !*** ./src/ts/crawlNovelPage/InitRankingNovelPageOld.ts ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -20257,13 +19199,13 @@ class InitRankingNovelPageOld extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODU
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/crawlNovelPage/InitSearchNovelPage.ts":
+/***/ "./src/ts/crawlNovelPage/InitSearchNovelPage.ts"
 /*!******************************************************!*\
   !*** ./src/ts/crawlNovelPage/InitSearchNovelPage.ts ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -20705,13 +19647,13 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/AutoMergeNovel.ts":
+/***/ "./src/ts/download/AutoMergeNovel.ts"
 /*!*******************************************!*\
   !*** ./src/ts/download/AutoMergeNovel.ts ***!
   \*******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -20886,13 +19828,13 @@ const autoMergeNovel = new AutoMergeNovel();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/BookmarkAfterDL.ts":
+/***/ "./src/ts/download/BookmarkAfterDL.ts"
 /*!********************************************!*\
   !*** ./src/ts/download/BookmarkAfterDL.ts ***!
   \********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -21051,13 +19993,13 @@ class BookmarkAfterDL {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/CheckWarningMessage.ts":
+/***/ "./src/ts/download/CheckWarningMessage.ts"
 /*!************************************************!*\
   !*** ./src/ts/download/CheckWarningMessage.ts ***!
   \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -21139,20 +20081,20 @@ class CheckWarningMessage {
 new CheckWarningMessage();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/Download.ts":
+/***/ "./src/ts/download/Download.ts"
 /*!*************************************!*\
   !*** ./src/ts/download/Download.ts ***!
   \*************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Download: () => (/* binding */ Download)
 /* harmony export */ });
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/.store/webextension-polyfill@0.12.0/node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
@@ -21537,17 +20479,17 @@ class Download {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/DownloadControl.ts":
+/***/ "./src/ts/download/DownloadControl.ts"
 /*!********************************************!*\
   !*** ./src/ts/download/DownloadControl.ts ***!
   \********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/.store/webextension-polyfill@0.12.0/node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
@@ -22086,17 +21028,17 @@ class DownloadControl {
 new DownloadControl();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/DownloadCountWarning.ts":
+/***/ "./src/ts/download/DownloadCountWarning.ts"
 /*!*************************************************!*\
   !*** ./src/ts/download/DownloadCountWarning.ts ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/.store/webextension-polyfill@0.12.0/node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
@@ -22121,13 +21063,13 @@ class DownloadCountWarning {
 new DownloadCountWarning();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/DownloadInterval.ts":
+/***/ "./src/ts/download/DownloadInterval.ts"
 /*!*********************************************!*\
   !*** ./src/ts/download/DownloadInterval.ts ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -22217,13 +21159,13 @@ const downloadInterval = new DownloadInterval();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/DownloadNovelCover.ts":
+/***/ "./src/ts/download/DownloadNovelCover.ts"
 /*!***********************************************!*\
   !*** ./src/ts/download/DownloadNovelCover.ts ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -22278,13 +21220,13 @@ const downloadNovelCover = new DownloadNovelCover();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/DownloadNovelEmbeddedImage.ts":
+/***/ "./src/ts/download/DownloadNovelEmbeddedImage.ts"
 /*!*******************************************************!*\
   !*** ./src/ts/download/DownloadNovelEmbeddedImage.ts ***!
   \*******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -22542,13 +21484,13 @@ const downloadNovelEmbeddedImage = new DownloadNovelEmbeddedImage();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/DownloadOnClickBookmark.ts":
+/***/ "./src/ts/download/DownloadOnClickBookmark.ts"
 /*!****************************************************!*\
   !*** ./src/ts/download/DownloadOnClickBookmark.ts ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -22620,13 +21562,13 @@ const downloadOnClickBookmark = new DownloadOnClickBookmark();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/DownloadOnClickLike.ts":
+/***/ "./src/ts/download/DownloadOnClickLike.ts"
 /*!************************************************!*\
   !*** ./src/ts/download/DownloadOnClickLike.ts ***!
   \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -22675,13 +21617,13 @@ class DownloadOnClickLike {
 new DownloadOnClickLike();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/DownloadRecord.ts":
+/***/ "./src/ts/download/DownloadRecord.ts"
 /*!*******************************************!*\
   !*** ./src/ts/download/DownloadRecord.ts ***!
   \*******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -23045,13 +21987,13 @@ const downloadRecord = new DownloadRecord();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/DownloadStates.ts":
+/***/ "./src/ts/download/DownloadStates.ts"
 /*!*******************************************!*\
   !*** ./src/ts/download/DownloadStates.ts ***!
   \*******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -23130,13 +22072,13 @@ const downloadStates = new DownloadStates();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/ExportLST.ts":
+/***/ "./src/ts/download/ExportLST.ts"
 /*!**************************************!*\
   !*** ./src/ts/download/ExportLST.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -23185,13 +22127,13 @@ class ExportLST {
 new ExportLST();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/ExportResult.ts":
+/***/ "./src/ts/download/ExportResult.ts"
 /*!*****************************************!*\
   !*** ./src/ts/download/ExportResult.ts ***!
   \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -23235,13 +22177,13 @@ class ExportResult {
 new ExportResult();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/ExportResult2CSV.ts":
+/***/ "./src/ts/download/ExportResult2CSV.ts"
 /*!*********************************************!*\
   !*** ./src/ts/download/ExportResult2CSV.ts ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -23434,13 +22376,13 @@ class ExportResult2CSV {
 new ExportResult2CSV();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/ImportResult.ts":
+/***/ "./src/ts/download/ImportResult.ts"
 /*!*****************************************!*\
   !*** ./src/ts/download/ImportResult.ts ***!
   \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -23534,13 +22476,13 @@ class ImportResult {
 new ImportResult();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/MakeNovelFile.ts":
+/***/ "./src/ts/download/MakeNovelFile.ts"
 /*!******************************************!*\
   !*** ./src/ts/download/MakeNovelFile.ts ***!
   \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -23699,13 +22641,13 @@ const makeNovelFile = new MakeNovelFile();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/MergeNovel.ts":
+/***/ "./src/ts/download/MergeNovel.ts"
 /*!***************************************!*\
   !*** ./src/ts/download/MergeNovel.ts ***!
   \***************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -24389,13 +23331,13 @@ class MergeNovel {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/MergeNovelFileName.ts":
+/***/ "./src/ts/download/MergeNovelFileName.ts"
 /*!***********************************************!*\
   !*** ./src/ts/download/MergeNovelFileName.ts ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -24543,13 +23485,13 @@ const mergeNovelFileName = new MergeNovelFileName();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/ProgressBar.ts":
+/***/ "./src/ts/download/ProgressBar.ts"
 /*!****************************************!*\
   !*** ./src/ts/download/ProgressBar.ts ***!
   \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -24700,13 +23642,13 @@ const progressBar = new ProgressBar();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/Resume.ts":
+/***/ "./src/ts/download/Resume.ts"
 /*!***********************************!*\
   !*** ./src/ts/download/Resume.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -25062,13 +24004,13 @@ class Resume {
 new Resume();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/SaveWorkDescription.ts":
+/***/ "./src/ts/download/SaveWorkDescription.ts"
 /*!************************************************!*\
   !*** ./src/ts/download/SaveWorkDescription.ts ***!
   \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -25276,13 +24218,13 @@ class SaveWorkDescription {
 new SaveWorkDescription();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/SaveWorkMeta.ts":
+/***/ "./src/ts/download/SaveWorkMeta.ts"
 /*!*****************************************!*\
   !*** ./src/ts/download/SaveWorkMeta.ts ***!
   \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -25430,20 +24372,20 @@ class SaveWorkMeta {
 new SaveWorkMeta();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/SendDownload.ts":
+/***/ "./src/ts/download/SendDownload.ts"
 /*!*****************************************!*\
   !*** ./src/ts/download/SendDownload.ts ***!
   \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   SendDownload: () => (/* binding */ SendDownload)
 /* harmony export */ });
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/.store/webextension-polyfill@0.12.0/node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
@@ -25486,13 +24428,13 @@ class SendDownload {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/ShowConvertCount.ts":
+/***/ "./src/ts/download/ShowConvertCount.ts"
 /*!*********************************************!*\
   !*** ./src/ts/download/ShowConvertCount.ts ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -25527,13 +24469,13 @@ class ShowConvertCount {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/ShowDownloadStates.ts":
+/***/ "./src/ts/download/ShowDownloadStates.ts"
 /*!***********************************************!*\
   !*** ./src/ts/download/ShowDownloadStates.ts ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -25584,13 +24526,13 @@ class ShowDownloadStates {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/ShowDuplicateLog.ts":
+/***/ "./src/ts/download/ShowDuplicateLog.ts"
 /*!*********************************************!*\
   !*** ./src/ts/download/ShowDuplicateLog.ts ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -25660,13 +24602,13 @@ class ShowDuplicateLog {
 new ShowDuplicateLog();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/ShowRemainingDownloadOnTitle.ts":
+/***/ "./src/ts/download/ShowRemainingDownloadOnTitle.ts"
 /*!*********************************************************!*\
   !*** ./src/ts/download/ShowRemainingDownloadOnTitle.ts ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -25737,13 +24679,13 @@ class ShowRemainingDownloadOnTitle {
 new ShowRemainingDownloadOnTitle();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/ShowSkipCount.ts":
+/***/ "./src/ts/download/ShowSkipCount.ts"
 /*!******************************************!*\
   !*** ./src/ts/download/ShowSkipCount.ts ***!
   \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -25799,13 +24741,13 @@ class ShowSkipCount {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/ShowTotalResultOnTitle.ts":
+/***/ "./src/ts/download/ShowTotalResultOnTitle.ts"
 /*!***************************************************!*\
   !*** ./src/ts/download/ShowTotalResultOnTitle.ts ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -25886,13 +24828,13 @@ class ShowTotalResultOnTitle {
 new ShowTotalResultOnTitle();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/download/showStatusOnTitle.ts":
+/***/ "./src/ts/download/showStatusOnTitle.ts"
 /*!**********************************************!*\
   !*** ./src/ts/download/showStatusOnTitle.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -26086,13 +25028,13 @@ class ShowStatusOnTitle {
 new ShowStatusOnTitle();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/filter/BlackandWhiteImage.ts":
+/***/ "./src/ts/filter/BlackandWhiteImage.ts"
 /*!*********************************************!*\
   !*** ./src/ts/filter/BlackandWhiteImage.ts ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -26212,13 +25154,13 @@ const blackAndWhiteImage = new BlackAndWhiteImage();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/filter/BlockTagsForSpecificUser.ts":
+/***/ "./src/ts/filter/BlockTagsForSpecificUser.ts"
 /*!***************************************************!*\
   !*** ./src/ts/filter/BlockTagsForSpecificUser.ts ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -26554,13 +25496,13 @@ const blockTagsForSpecificUser = new BlockTagsForSpecificUser();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/filter/Filter.ts":
+/***/ "./src/ts/filter/Filter.ts"
 /*!*********************************!*\
   !*** ./src/ts/filter/Filter.ts ***!
   \*********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -27508,13 +26450,13 @@ const filter = new Filter();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/filter/FilterSearchResults.ts":
+/***/ "./src/ts/filter/FilterSearchResults.ts"
 /*!**********************************************!*\
   !*** ./src/ts/filter/FilterSearchResults.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -27641,13 +26583,13 @@ class FilterSearchResults {
 new FilterSearchResults();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/filter/Mute.ts":
+/***/ "./src/ts/filter/Mute.ts"
 /*!*******************************!*\
   !*** ./src/ts/filter/Mute.ts ***!
   \*******************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -27738,13 +26680,13 @@ const mute = new Mute();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/filter/WorkPublishTime.ts":
+/***/ "./src/ts/filter/WorkPublishTime.ts"
 /*!******************************************!*\
   !*** ./src/ts/filter/WorkPublishTime.ts ***!
   \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -27902,13 +26844,13 @@ const workPublishTime = new WorkPublishTime();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/langText.ts":
+/***/ "./src/ts/langText.ts"
 /*!****************************!*\
   !*** ./src/ts/langText.ts ***!
   \****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -31344,6 +30286,47 @@ This setting is also used when you use the Downloader to bookmark works in batch
     여러 유저 ID가 있는 경우 쉼표(,)로 구분합니다.`,
         `Работы этих пользователей не будут загружаться. Необходимо ввести идентификатор пользователя.<br>
     Если имеется несколько идентификаторов пользователя, используйте разделение запятыми (,).`,
+    ],
+    _用户阻止按钮: [
+        '用户<span class="key">阻止</span>按钮',
+        '使用者<span class="key">阻止</span>按鈕',
+        'User <span class="key">block</span> button',
+        '<span class="key">ユーザー</span>ブロックボタン',
+        '유저 <span class="key">차단</span> 버튼',
+        '<span class="key">Блок</span> кнопку пользователя',
+    ],
+    _用户阻止按钮的说明: [
+        `在页面上显示“阻止”按钮，点击后自动将该用户添加到阻止名单。再次点击可从阻止名单移除。`,
+        `在頁面上顯示「阻止」按鈕，點擊後自動將該使用者添加到阻止名單。再次點擊可從阻止名單移除。`,
+        `Show a "Block" button on the page. Clicking it automatically adds the user to the blocklist. Click again to unblock.`,
+        `ページに「ブロック」ボタンを表示します。クリックでブロックリストに自動追加。再度クリックするとブロックを解除します。`,
+        `페이지에 "차단" 버튼을 표시합니다. 클릭하면 자동으로 차단 목록에 추가됩니다. 다시 클릭하면 차단을 해제합니다.`,
+        `Показывать кнопку "Блок" на страницах. Нажатие автоматически добавляет пользователя в блоклист. Повторное нажатие отменяет блокировку.`,
+    ],
+    _阻止: ['阻止', '阻止', 'Block', 'ブロック', '차단', 'Блок'],
+    _取消阻止: [
+        '取消阻止',
+        '取消阻止',
+        'Unblock',
+        'ブロック解除',
+        '차단 해제',
+        'Разблокировать',
+    ],
+    _已添加到阻止名单: [
+        '已添加到阻止名单',
+        '已添加到阻擋名單',
+        'Added to blocklist',
+        'ブロックリストに追加しました',
+        '차단 목록에 추가됨',
+        'Добавлен в блоклист',
+    ],
+    _已从阻止名单移除: [
+        '已从阻止名单移除',
+        '已從阻擋名單移除',
+        'Removed from blocklist',
+        'ブロックリストから削除しました',
+        '차단 목록에서 제거됨',
+        'Удален из блоклиста',
     ],
     _全部: ['全部', '全部', 'All', 'すべて', '전부', 'Все'],
     _任一: ['任一', '任一', 'One', '何れか', '하나만', 'Один'],
@@ -36260,13 +35243,13 @@ Ugoira 파일명에서 순번 “p0”을 생략하려면 “더보기”-“명
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/output/OutputPanel.ts":
+/***/ "./src/ts/output/OutputPanel.ts"
 /*!**************************************!*\
   !*** ./src/ts/output/OutputPanel.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -36390,13 +35373,13 @@ class OutputPanel {
 new OutputPanel();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/output/PreviewFileName.ts":
+/***/ "./src/ts/output/PreviewFileName.ts"
 /*!******************************************!*\
   !*** ./src/ts/output/PreviewFileName.ts ***!
   \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -36506,13 +35489,13 @@ class PreviewFileName {
 new PreviewFileName();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/output/ShowURLs.ts":
+/***/ "./src/ts/output/ShowURLs.ts"
 /*!***********************************!*\
   !*** ./src/ts/output/ShowURLs.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -36567,13 +35550,13 @@ class ShowURLs {
 new ShowURLs();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/pageFunciton/BatchFollowUser.ts":
+/***/ "./src/ts/pageFunciton/BatchFollowUser.ts"
 /*!************************************************!*\
   !*** ./src/ts/pageFunciton/BatchFollowUser.ts ***!
   \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -36911,13 +35894,135 @@ const batchFollowUser = new BatchFollowUser();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/pageFunciton/BookmarkAllWorks.ts":
+/***/ "./src/ts/pageFunciton/BlockButtonOnWorkPage.ts"
+/*!******************************************************!*\
+  !*** ./src/ts/pageFunciton/BlockButtonOnWorkPage.ts ***!
+  \******************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+
+
+
+
+
+
+/** 在作品、小说详情页面的工具栏上添加一个“阻止用户”按钮，实现快速拉黑 */
+class BlockButtonOnWorkPage {
+    constructor() {
+        _WorkToolBar__WEBPACK_IMPORTED_MODULE_2__.workToolBar.register((toolbar, pixivBMKDiv, likeBtn) => {
+            window.setTimeout(() => {
+                this.init(likeBtn);
+            }, 0);
+        });
+    }
+    btnId = 'blockBtnOnWorkPage';
+    btn = null;
+    confirming = false;
+    confirmTimer = 0;
+    async init(likeBtn) {
+        // 删除可能存在的旧按钮
+        const oldBtn = document.body.querySelector('#' + this.btnId);
+        if (oldBtn) {
+            oldBtn.remove();
+        }
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.hideUserButton) {
+            return;
+        }
+        this.btn = this.createBtn();
+        this.updateState();
+        _Language__WEBPACK_IMPORTED_MODULE_1__.lang.register(this.btn);
+        // 在 PC 端页面里，添加到点赞按钮的前面
+        likeBtn.parentElement.insertAdjacentElement('beforebegin', this.btn);
+        this.btn.addEventListener('click', () => {
+            const userId = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getCurrentPageUserID();
+            if (!userId) {
+                return;
+            }
+            if (!this.confirming) {
+                // 第一次点击，进入确认状态
+                this.confirming = true;
+                this.btn?.classList.add('confirming');
+                window.clearTimeout(this.confirmTimer);
+                this.confirmTimer = window.setTimeout(() => {
+                    this.resetConfirmState();
+                }, 3000);
+                return;
+            }
+            // 第二次点击，执行操作
+            this.resetConfirmState();
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.blockList.includes(userId)) {
+                (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.updateBlockList)(userId, 'remove');
+                _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_已从阻止名单移除'));
+            }
+            else {
+                (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.updateBlockList)(userId, 'add');
+                _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_已添加到阻止名单'));
+            }
+        });
+        // 监听设置变化，同步按钮状态
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'blockList') {
+                this.updateState();
+            }
+            if (data.name === 'hideUserButton') {
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.hideUserButton) {
+                    this.init(likeBtn);
+                }
+                else {
+                    this.btn?.remove();
+                }
+            }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.pageSwitch, () => {
+            this.btn = null;
+            this.confirming = false;
+        });
+    }
+    resetConfirmState() {
+        this.confirming = false;
+        this.btn?.classList.remove('confirming');
+    }
+    createBtn() {
+        const btn = document.createElement('button');
+        btn.id = this.btnId;
+        // 复用 btnOnThumb 的部分基础样式（通过 ID 匹配）
+        btn.classList.add('btnOnWorkPageToolbar');
+        btn.innerHTML = `<svg class="icon" aria-hidden="true"><use xlink:href="#icon-shanchu1"></use></svg>`;
+        return btn;
+    }
+    updateState() {
+        if (!this.btn)
+            return;
+        const userId = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getCurrentPageUserID();
+        if (!userId)
+            return;
+        const blocked = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.blockList.includes(userId);
+        this.btn.dataset.xztitle = blocked ? '_取消阻止' : '_阻止';
+        this.btn.classList.toggle('blocked', !!blocked);
+        _Language__WEBPACK_IMPORTED_MODULE_1__.lang.register(this.btn);
+    }
+}
+new BlockButtonOnWorkPage();
+
+
+/***/ },
+
+/***/ "./src/ts/pageFunciton/BookmarkAllWorks.ts"
 /*!*************************************************!*\
   !*** ./src/ts/pageFunciton/BookmarkAllWorks.ts ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -37082,13 +36187,13 @@ class BookmarkAllWorks {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/pageFunciton/BookmarksAddTag.ts":
+/***/ "./src/ts/pageFunciton/BookmarksAddTag.ts"
 /*!************************************************!*\
   !*** ./src/ts/pageFunciton/BookmarksAddTag.ts ***!
   \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -37223,13 +36328,13 @@ class BookmarksAddTag {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/pageFunciton/CopyButtonOnWorkPage.ts":
+/***/ "./src/ts/pageFunciton/CopyButtonOnWorkPage.ts"
 /*!*****************************************************!*\
   !*** ./src/ts/pageFunciton/CopyButtonOnWorkPage.ts ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -37308,24 +36413,22 @@ class CopyButtonOnWorkPage {
     createBtn() {
         const btn = document.createElement('button');
         btn.id = this.btnId;
-        btn.innerHTML = `
-    <svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-copy"></use>
-</svg>`;
-        btn.dataset.xztitle = '_复制摘要数据';
+        btn.classList.add('btnOnWorkPageToolbar');
+        btn.innerHTML = `<svg class="icon" aria-hidden="true"><use xlink:href="#icon-copy"></use></svg>`;
+        btn.dataset.xztitle = '_复制图片和摘要';
         return btn;
     }
 }
 new CopyButtonOnWorkPage();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/pageFunciton/DeleteWorks.ts":
+/***/ "./src/ts/pageFunciton/DeleteWorks.ts"
 /*!********************************************!*\
   !*** ./src/ts/pageFunciton/DeleteWorks.ts ***!
   \********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -37520,13 +36623,13 @@ class DeleteWorks {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/pageFunciton/DestroyManager.ts":
+/***/ "./src/ts/pageFunciton/DestroyManager.ts"
 /*!***********************************************!*\
   !*** ./src/ts/pageFunciton/DestroyManager.ts ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -37561,13 +36664,13 @@ const destroyManager = new DestroyManager();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts":
+/***/ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts"
 /*!*************************************************************************!*\
   !*** ./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts ***!
   \*************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -37710,13 +36813,13 @@ const displayThumbnailListOnMultiImageWorkPage = new DisplayThumbnailListOnMulti
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/pageFunciton/ExportFollowingList.ts":
+/***/ "./src/ts/pageFunciton/ExportFollowingList.ts"
 /*!****************************************************!*\
   !*** ./src/ts/pageFunciton/ExportFollowingList.ts ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -37963,13 +37066,13 @@ const exportFollowingList = new ExportFollowingList();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/pageFunciton/FastScreen.ts":
+/***/ "./src/ts/pageFunciton/FastScreen.ts"
 /*!*******************************************!*\
   !*** ./src/ts/pageFunciton/FastScreen.ts ***!
   \*******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -38082,13 +37185,13 @@ class FastScreen {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/pageFunciton/QuickBookmark.ts":
+/***/ "./src/ts/pageFunciton/QuickBookmark.ts"
 /*!**********************************************!*\
   !*** ./src/ts/pageFunciton/QuickBookmark.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -38345,13 +37448,13 @@ class QuickBookmark {
 new QuickBookmark();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/pageFunciton/RemoveWorksOfFollowedUsersOnSearchPage.ts":
+/***/ "./src/ts/pageFunciton/RemoveWorksOfFollowedUsersOnSearchPage.ts"
 /*!***********************************************************************!*\
   !*** ./src/ts/pageFunciton/RemoveWorksOfFollowedUsersOnSearchPage.ts ***!
   \***********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -38480,13 +37583,13 @@ const removeWorksOfFollowedUsersOnSearchPage = new RemoveWorksOfFollowedUsersOnS
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/pageFunciton/SaveAvatarIcon.ts":
+/***/ "./src/ts/pageFunciton/SaveAvatarIcon.ts"
 /*!***********************************************!*\
   !*** ./src/ts/pageFunciton/SaveAvatarIcon.ts ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -38542,13 +37645,13 @@ class SaveAvatarIcon {
 new SaveAvatarIcon();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/pageFunciton/SaveAvatarImage.ts":
+/***/ "./src/ts/pageFunciton/SaveAvatarImage.ts"
 /*!************************************************!*\
   !*** ./src/ts/pageFunciton/SaveAvatarImage.ts ***!
   \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -38603,13 +37706,13 @@ class SaveAvatarImage {
 new SaveAvatarImage();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/pageFunciton/SaveUserCover.ts":
+/***/ "./src/ts/pageFunciton/SaveUserCover.ts"
 /*!**********************************************!*\
   !*** ./src/ts/pageFunciton/SaveUserCover.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -38667,13 +37770,13 @@ class SaveUserCover {
 new SaveUserCover();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/setting/ConvertOldSettings.ts":
+/***/ "./src/ts/setting/ConvertOldSettings.ts"
 /*!**********************************************!*\
   !*** ./src/ts/setting/ConvertOldSettings.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -38734,13 +37837,13 @@ const convertOldSettings = new ConvertOldSettings();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/setting/CrawlNumber.ts":
+/***/ "./src/ts/setting/CrawlNumber.ts"
 /*!***************************************!*\
   !*** ./src/ts/setting/CrawlNumber.ts ***!
   \***************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -38919,13 +38022,13 @@ class CrawlNumber {
 new CrawlNumber();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/setting/DoNotDownloadLastFewImages.ts":
+/***/ "./src/ts/setting/DoNotDownloadLastFewImages.ts"
 /*!******************************************************!*\
   !*** ./src/ts/setting/DoNotDownloadLastFewImages.ts ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -39234,13 +38337,13 @@ class DoNotDownloadLastFewImages {
 new DoNotDownloadLastFewImages();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/setting/Form.ts":
+/***/ "./src/ts/setting/Form.ts"
 /*!********************************!*\
   !*** ./src/ts/setting/Form.ts ***!
   \********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -39600,13 +38703,13 @@ class Form {
 new Form();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/setting/FormHTML.ts":
+/***/ "./src/ts/setting/FormHTML.ts"
 /*!************************************!*\
   !*** ./src/ts/setting/FormHTML.ts ***!
   \************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -40213,6 +39316,14 @@ const formHtml = `
         <span class="gray1"> ? </span>
       </a>
       <slot data-name="DoNotDownloadLastFewImagesSlot"></slot>
+    </p>
+    <p class="option" data-no="97">
+      <a class="has_tip settingNameStyle" data-xztip="_用户阻止按钮的说明">
+        <span data-xztext="_用户阻止按钮"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="hideUserButton" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
     </p>
     <p class="option" data-no="35">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(35)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_用户阻止名单的说明">
@@ -41116,13 +40227,13 @@ const formHtml = `
 </form>`;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/setting/FormSettings.ts":
+/***/ "./src/ts/setting/FormSettings.ts"
 /*!****************************************!*\
   !*** ./src/ts/setting/FormSettings.ts ***!
   \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -41189,6 +40300,7 @@ class FormSettings {
             'deduplication',
             'bmkAfterDL',
             'userBlockList',
+            'hideUserButton',
             'removeBlockedUsersWork',
             'blockTagsForSpecificUser',
             'bgDisplay',
@@ -41485,13 +40597,13 @@ class FormSettings {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/setting/InvisibleSettings.ts":
+/***/ "./src/ts/setting/InvisibleSettings.ts"
 /*!*********************************************!*\
   !*** ./src/ts/setting/InvisibleSettings.ts ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -41547,13 +40659,13 @@ class InvisibleSettings {
 new InvisibleSettings();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/setting/NameRuleManager.ts":
+/***/ "./src/ts/setting/NameRuleManager.ts"
 /*!*******************************************!*\
   !*** ./src/ts/setting/NameRuleManager.ts ***!
   \*******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -41720,13 +40832,13 @@ const nameRuleManager = new NameRuleManager();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/setting/Options.ts":
+/***/ "./src/ts/setting/Options.ts"
 /*!***********************************!*\
   !*** ./src/ts/setting/Options.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -41925,13 +41037,13 @@ const options = new Options();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/setting/SaveNamingRule.ts":
+/***/ "./src/ts/setting/SaveNamingRule.ts"
 /*!******************************************!*\
   !*** ./src/ts/setting/SaveNamingRule.ts ***!
   \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -42062,21 +41174,22 @@ class SaveNamingRule {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/setting/Settings.ts":
+/***/ "./src/ts/setting/Settings.ts"
 /*!************************************!*\
   !*** ./src/ts/setting/Settings.ts ***!
   \************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   setSetting: () => (/* binding */ setSetting),
-/* harmony export */   settings: () => (/* binding */ settings)
+/* harmony export */   settings: () => (/* binding */ settings),
+/* harmony export */   updateBlockList: () => (/* binding */ updateBlockList)
 /* harmony export */ });
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/.store/webextension-polyfill@0.12.0/node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
@@ -42140,6 +41253,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class Settings {
+    initialized = false;
     constructor() {
         this.restore();
         this.bindEvents();
@@ -42448,6 +41562,7 @@ class Settings {
         restrict: 'no',
         widthTagBoolean: true,
         restrictBoolean: false,
+        hideUserButton: false,
         userBlockList: false,
         removeBlockedUsersWork: true,
         blockList: [],
@@ -42642,8 +41757,22 @@ class Settings {
     settings = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.deepCopy(this.defaultSettings);
     bindEvents() {
         // 当设置发生变化时进行本地存储
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            // 如果变化来自外部同步，则不需要再次保存到 storage，否则会造成死循环
+            if (data.isExternal) {
+                return;
+            }
             this.store();
+        });
+        // 同步不同标签页之间的设置
+        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().storage.onChanged.addListener((changes, areaName) => {
+            if (areaName === 'local' && changes[_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName]) {
+                const newValue = changes[_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName].newValue;
+                if (newValue) {
+                    this.syncSettings(newValue);
+                }
+            }
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.resetSettings, () => {
             this.reset();
@@ -42698,40 +41827,60 @@ class Settings {
         });
     }
     // 读取恢复设置
-    restore() {
+    async restore() {
         let restoreData = this.defaultSettings;
         // 首先从 browser.storage 获取配置
-        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().storage.local.get(_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName).then((result) => {
-            if (result[_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName]) {
-                restoreData = result[_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName];
-            }
-            // 有些设置项的 key 是 PageName（页面类型）。当有新的页面类型之后，我会添加新的页面类型的配置，但旧的设置里缺少这些配置，所以需要添加到旧的设置里
-            const keys = ['crawlNumber', 'nameRuleForEachPageType'];
-            for (const key of keys) {
-                for (const [pageTypeNo, cfg] of Object.entries(this.defaultSettings[key])) {
-                    if (restoreData[key][pageTypeNo] === undefined) {
-                        restoreData[key][pageTypeNo] = cfg;
-                    }
+        const result = await webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().storage.local.get(_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName);
+        if (result[_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName]) {
+            restoreData = result[_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName];
+        }
+        // 有些设置项的 key 是 PageName（页面类型）。当有新的页面类型之后，我会添加新的页面类型的配置，但旧的设置里缺少这些配置，所以需要添加到旧的设置里
+        const keys = ['crawlNumber', 'nameRuleForEachPageType'];
+        for (const key of keys) {
+            for (const [pageTypeNo, cfg] of Object.entries(this.defaultSettings[key])) {
+                if (restoreData[key][pageTypeNo] === undefined) {
+                    restoreData[key][pageTypeNo] = cfg;
                 }
             }
-            this.assignSettings(restoreData);
-            _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('settingInitialized');
-        });
+        }
+        this.assignSettings(restoreData, true); // 初始化时设为 isExternal=true，防止触发 store()
+        this.initialized = true;
+        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('settingInitialized');
     }
     store = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.debounce(() => {
+        // 只有在初始化完成之后才允许保存，防止初始化过程中误触发保存导致数据被默认值覆盖
+        if (!this.initialized) {
+            return;
+        }
         // browser.storage.local 的储存上限是 5 MiB（5242880 Byte）
         webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().storage.local.set({
             [_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName]: this.settings,
         });
     }, 50);
+    syncSettings(data) {
+        for (const [key, value] of Object.entries(data)) {
+            const k = key;
+            // 这里进行简易的深比较
+            if (JSON.stringify(this.settings[k]) !== JSON.stringify(value)) {
+                ;
+                this.settings[k] = value;
+                // 触发设置变化的事件，并标记为外部同步
+                _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('settingChange', {
+                    name: k,
+                    value: value,
+                    isExternal: true,
+                });
+            }
+        }
+    }
     // 接收整个设置项，通过循环将其更新到 settings 上
     // 循环设置而不是整个替换的原因：
     // 1. 进行类型转换，如某些设置项是 number，但是数据来源里是 string，setSetting 可以把它们转换到正确的类型
     // 2. 某些选项在旧版本里没有，所以不能用旧的设置覆盖新的设置
-    assignSettings(data) {
+    assignSettings(data, isExternal = false) {
         const origin = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.deepCopy(data);
         for (const [key, value] of Object.entries(origin)) {
-            this.setSetting(key, value);
+            this.setSetting(key, value, isExternal);
         }
     }
     exportSettings() {
@@ -42788,7 +41937,7 @@ class Settings {
     // 这里面有一些类型转换的代码，主要目的：
     // 1. 兼容旧版本的设置。读取旧版本的设置时，将其转换成新版本的设置。例如某个设置在旧版本里是 string 类型，值为 'a,b,c'。新版本里是 string[] 类型，这里会自动将其转换成 ['a','b','c']
     // 2. 减少额外操作。例如某个设置的类型为 string[]，其他模块可以传入 string 类型的值如 'a,b,c'，而不必先把它转换成 string[]
-    setSetting(key, value) {
+    setSetting(key, value, isExternal = false) {
         if (!this.allSettingKeys.includes(key)) {
             return;
         }
@@ -42916,22 +42065,40 @@ class Settings {
             this.settings.userSetChecked = value === 'userSet';
         }
         // 触发设置变化的事件
-        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('settingChange', { name: key, value: value });
+        _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('settingChange', { name: key, value: value, isExternal });
+    }
+    /** 专门用于更新黑名单。它会先从存储中读取最新的黑名单，然后再进行更新，以防止多个标签页同时操作时发生覆盖。 */
+    async updateBlockList(userId, action) {
+        const result = await webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().storage.local.get(_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName);
+        const latestSettings = result[_Config__WEBPACK_IMPORTED_MODULE_5__.Config.settingStoreName];
+        // 如果存储中没有设置，则使用当前内存中的设置作为基础
+        const baseSettings = latestSettings || this.settings;
+        let list = baseSettings.blockList || [];
+        if (action === 'add') {
+            if (!list.includes(userId)) {
+                list.push(userId);
+            }
+        }
+        else {
+            list = list.filter((id) => id !== userId);
+        }
+        this.setSetting('blockList', list);
     }
 }
 const self = new Settings();
 const settings = self.settings;
 const setSetting = self.setSetting.bind(self);
+const updateBlockList = self.updateBlockList.bind(self);
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/setting/UseDifferentNameRuleIfWorkHasTag.ts":
+/***/ "./src/ts/setting/UseDifferentNameRuleIfWorkHasTag.ts"
 /*!************************************************************!*\
   !*** ./src/ts/setting/UseDifferentNameRuleIfWorkHasTag.ts ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -43210,13 +42377,13 @@ class UseDifferentNameRuleIfWorkHasTag {
 new UseDifferentNameRuleIfWorkHasTag();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/setting/Wiki.ts":
+/***/ "./src/ts/setting/Wiki.ts"
 /*!********************************!*\
   !*** ./src/ts/setting/Wiki.ts ***!
   \********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -43447,13 +42614,13 @@ const wiki = new Wiki();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/store/CacheWorkData.ts":
+/***/ "./src/ts/store/CacheWorkData.ts"
 /*!***************************************!*\
   !*** ./src/ts/store/CacheWorkData.ts ***!
   \***************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -43498,13 +42665,13 @@ const cacheWorkData = new CacheWorkData();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/store/SaveArtworkData.ts":
+/***/ "./src/ts/store/SaveArtworkData.ts"
 /*!*****************************************!*\
   !*** ./src/ts/store/SaveArtworkData.ts ***!
   \*****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -43711,13 +42878,13 @@ const saveArtworkData = new SaveArtworkData();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/store/SaveNovelData.ts":
+/***/ "./src/ts/store/SaveNovelData.ts"
 /*!***************************************!*\
   !*** ./src/ts/store/SaveNovelData.ts ***!
   \***************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -43847,13 +43014,13 @@ const saveNovelData = new SaveNovelData();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/store/States.ts":
+/***/ "./src/ts/store/States.ts"
 /*!********************************!*\
   !*** ./src/ts/store/States.ts ***!
   \********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -43988,13 +43155,13 @@ const states = new States();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/store/Store.ts":
+/***/ "./src/ts/store/Store.ts"
 /*!*******************************!*\
   !*** ./src/ts/store/Store.ts ***!
   \*******************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -44214,13 +43381,13 @@ const store = new Store();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/store/WorkPublishTimeIllusts.ts":
+/***/ "./src/ts/store/WorkPublishTimeIllusts.ts"
 /*!************************************************!*\
   !*** ./src/ts/store/WorkPublishTimeIllusts.ts ***!
   \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -58547,13 +57714,13 @@ const illustsData = [
 ];
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/store/WorkPublishTimeNovels.ts":
+/***/ "./src/ts/store/WorkPublishTimeNovels.ts"
 /*!***********************************************!*\
   !*** ./src/ts/store/WorkPublishTimeNovels.ts ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -61338,13 +60505,13 @@ const novelsData = [
 ];
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/utils/CreateCSV.ts":
+/***/ "./src/ts/utils/CreateCSV.ts"
 /*!***********************************!*\
   !*** ./src/ts/utils/CreateCSV.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -61452,13 +60619,13 @@ const createCSV = new CreateCSV();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/utils/DateFormat.ts":
+/***/ "./src/ts/utils/DateFormat.ts"
 /*!************************************!*\
   !*** ./src/ts/utils/DateFormat.ts ***!
   \************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -61540,13 +60707,13 @@ class DateFormat {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/utils/IndexedDB.ts":
+/***/ "./src/ts/utils/IndexedDB.ts"
 /*!***********************************!*\
   !*** ./src/ts/utils/IndexedDB.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -61796,13 +60963,13 @@ class IndexedDB {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/utils/SecretSignal.ts":
+/***/ "./src/ts/utils/SecretSignal.ts"
 /*!**************************************!*\
   !*** ./src/ts/utils/SecretSignal.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -61865,13 +61032,13 @@ const secretSignal = new SecretSignal();
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/utils/Utils.ts":
+/***/ "./src/ts/utils/Utils.ts"
 /*!*******************************!*\
   !*** ./src/ts/utils/Utils.ts ***!
   \*******************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -62377,13 +61544,13 @@ class Utils {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ts/utils/imageToIcon.ts":
+/***/ "./src/ts/utils/imageToIcon.ts"
 /*!*************************************!*\
   !*** ./src/ts/utils/imageToIcon.ts ***!
   \*************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -62593,7 +61760,1238 @@ const img2ico = new ImageToIcon();
 
 
 
-/***/ })
+/***/ },
+
+/***/ "./node_modules/.store/webextension-polyfill@0.12.0/node_modules/webextension-polyfill/dist/browser-polyfill.js"
+/*!**********************************************************************************************************************!*\
+  !*** ./node_modules/.store/webextension-polyfill@0.12.0/node_modules/webextension-polyfill/dist/browser-polyfill.js ***!
+  \**********************************************************************************************************************/
+(module, exports) {
+
+var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (global, factory) {
+  if (true) {
+    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [module], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
+		__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+		(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
+		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+  } else // removed by dead control flow
+{ var mod; }
+})(typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : this, function (module) {
+  /* webextension-polyfill - v0.12.0 - Tue May 14 2024 18:01:29 */
+  /* -*- Mode: indent-tabs-mode: nil; js-indent-level: 2 -*- */
+  /* vim: set sts=2 sw=2 et tw=80: */
+  /* This Source Code Form is subject to the terms of the Mozilla Public
+   * License, v. 2.0. If a copy of the MPL was not distributed with this
+   * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+  "use strict";
+
+  if (!(globalThis.chrome && globalThis.chrome.runtime && globalThis.chrome.runtime.id)) {
+    throw new Error("This script should only be loaded in a browser extension.");
+  }
+  if (!(globalThis.browser && globalThis.browser.runtime && globalThis.browser.runtime.id)) {
+    const CHROME_SEND_MESSAGE_CALLBACK_NO_RESPONSE_MESSAGE = "The message port closed before a response was received.";
+
+    // Wrapping the bulk of this polyfill in a one-time-use function is a minor
+    // optimization for Firefox. Since Spidermonkey does not fully parse the
+    // contents of a function until the first time it's called, and since it will
+    // never actually need to be called, this allows the polyfill to be included
+    // in Firefox nearly for free.
+    const wrapAPIs = extensionAPIs => {
+      // NOTE: apiMetadata is associated to the content of the api-metadata.json file
+      // at build time by replacing the following "include" with the content of the
+      // JSON file.
+      const apiMetadata = {
+        "alarms": {
+          "clear": {
+            "minArgs": 0,
+            "maxArgs": 1
+          },
+          "clearAll": {
+            "minArgs": 0,
+            "maxArgs": 0
+          },
+          "get": {
+            "minArgs": 0,
+            "maxArgs": 1
+          },
+          "getAll": {
+            "minArgs": 0,
+            "maxArgs": 0
+          }
+        },
+        "bookmarks": {
+          "create": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "get": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "getChildren": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "getRecent": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "getSubTree": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "getTree": {
+            "minArgs": 0,
+            "maxArgs": 0
+          },
+          "move": {
+            "minArgs": 2,
+            "maxArgs": 2
+          },
+          "remove": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "removeTree": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "search": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "update": {
+            "minArgs": 2,
+            "maxArgs": 2
+          }
+        },
+        "browserAction": {
+          "disable": {
+            "minArgs": 0,
+            "maxArgs": 1,
+            "fallbackToNoCallback": true
+          },
+          "enable": {
+            "minArgs": 0,
+            "maxArgs": 1,
+            "fallbackToNoCallback": true
+          },
+          "getBadgeBackgroundColor": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "getBadgeText": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "getPopup": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "getTitle": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "openPopup": {
+            "minArgs": 0,
+            "maxArgs": 0
+          },
+          "setBadgeBackgroundColor": {
+            "minArgs": 1,
+            "maxArgs": 1,
+            "fallbackToNoCallback": true
+          },
+          "setBadgeText": {
+            "minArgs": 1,
+            "maxArgs": 1,
+            "fallbackToNoCallback": true
+          },
+          "setIcon": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "setPopup": {
+            "minArgs": 1,
+            "maxArgs": 1,
+            "fallbackToNoCallback": true
+          },
+          "setTitle": {
+            "minArgs": 1,
+            "maxArgs": 1,
+            "fallbackToNoCallback": true
+          }
+        },
+        "browsingData": {
+          "remove": {
+            "minArgs": 2,
+            "maxArgs": 2
+          },
+          "removeCache": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "removeCookies": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "removeDownloads": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "removeFormData": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "removeHistory": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "removeLocalStorage": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "removePasswords": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "removePluginData": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "settings": {
+            "minArgs": 0,
+            "maxArgs": 0
+          }
+        },
+        "commands": {
+          "getAll": {
+            "minArgs": 0,
+            "maxArgs": 0
+          }
+        },
+        "contextMenus": {
+          "remove": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "removeAll": {
+            "minArgs": 0,
+            "maxArgs": 0
+          },
+          "update": {
+            "minArgs": 2,
+            "maxArgs": 2
+          }
+        },
+        "cookies": {
+          "get": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "getAll": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "getAllCookieStores": {
+            "minArgs": 0,
+            "maxArgs": 0
+          },
+          "remove": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "set": {
+            "minArgs": 1,
+            "maxArgs": 1
+          }
+        },
+        "devtools": {
+          "inspectedWindow": {
+            "eval": {
+              "minArgs": 1,
+              "maxArgs": 2,
+              "singleCallbackArg": false
+            }
+          },
+          "panels": {
+            "create": {
+              "minArgs": 3,
+              "maxArgs": 3,
+              "singleCallbackArg": true
+            },
+            "elements": {
+              "createSidebarPane": {
+                "minArgs": 1,
+                "maxArgs": 1
+              }
+            }
+          }
+        },
+        "downloads": {
+          "cancel": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "download": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "erase": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "getFileIcon": {
+            "minArgs": 1,
+            "maxArgs": 2
+          },
+          "open": {
+            "minArgs": 1,
+            "maxArgs": 1,
+            "fallbackToNoCallback": true
+          },
+          "pause": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "removeFile": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "resume": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "search": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "show": {
+            "minArgs": 1,
+            "maxArgs": 1,
+            "fallbackToNoCallback": true
+          }
+        },
+        "extension": {
+          "isAllowedFileSchemeAccess": {
+            "minArgs": 0,
+            "maxArgs": 0
+          },
+          "isAllowedIncognitoAccess": {
+            "minArgs": 0,
+            "maxArgs": 0
+          }
+        },
+        "history": {
+          "addUrl": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "deleteAll": {
+            "minArgs": 0,
+            "maxArgs": 0
+          },
+          "deleteRange": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "deleteUrl": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "getVisits": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "search": {
+            "minArgs": 1,
+            "maxArgs": 1
+          }
+        },
+        "i18n": {
+          "detectLanguage": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "getAcceptLanguages": {
+            "minArgs": 0,
+            "maxArgs": 0
+          }
+        },
+        "identity": {
+          "launchWebAuthFlow": {
+            "minArgs": 1,
+            "maxArgs": 1
+          }
+        },
+        "idle": {
+          "queryState": {
+            "minArgs": 1,
+            "maxArgs": 1
+          }
+        },
+        "management": {
+          "get": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "getAll": {
+            "minArgs": 0,
+            "maxArgs": 0
+          },
+          "getSelf": {
+            "minArgs": 0,
+            "maxArgs": 0
+          },
+          "setEnabled": {
+            "minArgs": 2,
+            "maxArgs": 2
+          },
+          "uninstallSelf": {
+            "minArgs": 0,
+            "maxArgs": 1
+          }
+        },
+        "notifications": {
+          "clear": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "create": {
+            "minArgs": 1,
+            "maxArgs": 2
+          },
+          "getAll": {
+            "minArgs": 0,
+            "maxArgs": 0
+          },
+          "getPermissionLevel": {
+            "minArgs": 0,
+            "maxArgs": 0
+          },
+          "update": {
+            "minArgs": 2,
+            "maxArgs": 2
+          }
+        },
+        "pageAction": {
+          "getPopup": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "getTitle": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "hide": {
+            "minArgs": 1,
+            "maxArgs": 1,
+            "fallbackToNoCallback": true
+          },
+          "setIcon": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "setPopup": {
+            "minArgs": 1,
+            "maxArgs": 1,
+            "fallbackToNoCallback": true
+          },
+          "setTitle": {
+            "minArgs": 1,
+            "maxArgs": 1,
+            "fallbackToNoCallback": true
+          },
+          "show": {
+            "minArgs": 1,
+            "maxArgs": 1,
+            "fallbackToNoCallback": true
+          }
+        },
+        "permissions": {
+          "contains": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "getAll": {
+            "minArgs": 0,
+            "maxArgs": 0
+          },
+          "remove": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "request": {
+            "minArgs": 1,
+            "maxArgs": 1
+          }
+        },
+        "runtime": {
+          "getBackgroundPage": {
+            "minArgs": 0,
+            "maxArgs": 0
+          },
+          "getPlatformInfo": {
+            "minArgs": 0,
+            "maxArgs": 0
+          },
+          "openOptionsPage": {
+            "minArgs": 0,
+            "maxArgs": 0
+          },
+          "requestUpdateCheck": {
+            "minArgs": 0,
+            "maxArgs": 0
+          },
+          "sendMessage": {
+            "minArgs": 1,
+            "maxArgs": 3
+          },
+          "sendNativeMessage": {
+            "minArgs": 2,
+            "maxArgs": 2
+          },
+          "setUninstallURL": {
+            "minArgs": 1,
+            "maxArgs": 1
+          }
+        },
+        "sessions": {
+          "getDevices": {
+            "minArgs": 0,
+            "maxArgs": 1
+          },
+          "getRecentlyClosed": {
+            "minArgs": 0,
+            "maxArgs": 1
+          },
+          "restore": {
+            "minArgs": 0,
+            "maxArgs": 1
+          }
+        },
+        "storage": {
+          "local": {
+            "clear": {
+              "minArgs": 0,
+              "maxArgs": 0
+            },
+            "get": {
+              "minArgs": 0,
+              "maxArgs": 1
+            },
+            "getBytesInUse": {
+              "minArgs": 0,
+              "maxArgs": 1
+            },
+            "remove": {
+              "minArgs": 1,
+              "maxArgs": 1
+            },
+            "set": {
+              "minArgs": 1,
+              "maxArgs": 1
+            }
+          },
+          "managed": {
+            "get": {
+              "minArgs": 0,
+              "maxArgs": 1
+            },
+            "getBytesInUse": {
+              "minArgs": 0,
+              "maxArgs": 1
+            }
+          },
+          "sync": {
+            "clear": {
+              "minArgs": 0,
+              "maxArgs": 0
+            },
+            "get": {
+              "minArgs": 0,
+              "maxArgs": 1
+            },
+            "getBytesInUse": {
+              "minArgs": 0,
+              "maxArgs": 1
+            },
+            "remove": {
+              "minArgs": 1,
+              "maxArgs": 1
+            },
+            "set": {
+              "minArgs": 1,
+              "maxArgs": 1
+            }
+          }
+        },
+        "tabs": {
+          "captureVisibleTab": {
+            "minArgs": 0,
+            "maxArgs": 2
+          },
+          "create": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "detectLanguage": {
+            "minArgs": 0,
+            "maxArgs": 1
+          },
+          "discard": {
+            "minArgs": 0,
+            "maxArgs": 1
+          },
+          "duplicate": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "executeScript": {
+            "minArgs": 1,
+            "maxArgs": 2
+          },
+          "get": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "getCurrent": {
+            "minArgs": 0,
+            "maxArgs": 0
+          },
+          "getZoom": {
+            "minArgs": 0,
+            "maxArgs": 1
+          },
+          "getZoomSettings": {
+            "minArgs": 0,
+            "maxArgs": 1
+          },
+          "goBack": {
+            "minArgs": 0,
+            "maxArgs": 1
+          },
+          "goForward": {
+            "minArgs": 0,
+            "maxArgs": 1
+          },
+          "highlight": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "insertCSS": {
+            "minArgs": 1,
+            "maxArgs": 2
+          },
+          "move": {
+            "minArgs": 2,
+            "maxArgs": 2
+          },
+          "query": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "reload": {
+            "minArgs": 0,
+            "maxArgs": 2
+          },
+          "remove": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "removeCSS": {
+            "minArgs": 1,
+            "maxArgs": 2
+          },
+          "sendMessage": {
+            "minArgs": 2,
+            "maxArgs": 3
+          },
+          "setZoom": {
+            "minArgs": 1,
+            "maxArgs": 2
+          },
+          "setZoomSettings": {
+            "minArgs": 1,
+            "maxArgs": 2
+          },
+          "update": {
+            "minArgs": 1,
+            "maxArgs": 2
+          }
+        },
+        "topSites": {
+          "get": {
+            "minArgs": 0,
+            "maxArgs": 0
+          }
+        },
+        "webNavigation": {
+          "getAllFrames": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "getFrame": {
+            "minArgs": 1,
+            "maxArgs": 1
+          }
+        },
+        "webRequest": {
+          "handlerBehaviorChanged": {
+            "minArgs": 0,
+            "maxArgs": 0
+          }
+        },
+        "windows": {
+          "create": {
+            "minArgs": 0,
+            "maxArgs": 1
+          },
+          "get": {
+            "minArgs": 1,
+            "maxArgs": 2
+          },
+          "getAll": {
+            "minArgs": 0,
+            "maxArgs": 1
+          },
+          "getCurrent": {
+            "minArgs": 0,
+            "maxArgs": 1
+          },
+          "getLastFocused": {
+            "minArgs": 0,
+            "maxArgs": 1
+          },
+          "remove": {
+            "minArgs": 1,
+            "maxArgs": 1
+          },
+          "update": {
+            "minArgs": 2,
+            "maxArgs": 2
+          }
+        }
+      };
+      if (Object.keys(apiMetadata).length === 0) {
+        throw new Error("api-metadata.json has not been included in browser-polyfill");
+      }
+
+      /**
+       * A WeakMap subclass which creates and stores a value for any key which does
+       * not exist when accessed, but behaves exactly as an ordinary WeakMap
+       * otherwise.
+       *
+       * @param {function} createItem
+       *        A function which will be called in order to create the value for any
+       *        key which does not exist, the first time it is accessed. The
+       *        function receives, as its only argument, the key being created.
+       */
+      class DefaultWeakMap extends WeakMap {
+        constructor(createItem, items = undefined) {
+          super(items);
+          this.createItem = createItem;
+        }
+        get(key) {
+          if (!this.has(key)) {
+            this.set(key, this.createItem(key));
+          }
+          return super.get(key);
+        }
+      }
+
+      /**
+       * Returns true if the given object is an object with a `then` method, and can
+       * therefore be assumed to behave as a Promise.
+       *
+       * @param {*} value The value to test.
+       * @returns {boolean} True if the value is thenable.
+       */
+      const isThenable = value => {
+        return value && typeof value === "object" && typeof value.then === "function";
+      };
+
+      /**
+       * Creates and returns a function which, when called, will resolve or reject
+       * the given promise based on how it is called:
+       *
+       * - If, when called, `chrome.runtime.lastError` contains a non-null object,
+       *   the promise is rejected with that value.
+       * - If the function is called with exactly one argument, the promise is
+       *   resolved to that value.
+       * - Otherwise, the promise is resolved to an array containing all of the
+       *   function's arguments.
+       *
+       * @param {object} promise
+       *        An object containing the resolution and rejection functions of a
+       *        promise.
+       * @param {function} promise.resolve
+       *        The promise's resolution function.
+       * @param {function} promise.reject
+       *        The promise's rejection function.
+       * @param {object} metadata
+       *        Metadata about the wrapped method which has created the callback.
+       * @param {boolean} metadata.singleCallbackArg
+       *        Whether or not the promise is resolved with only the first
+       *        argument of the callback, alternatively an array of all the
+       *        callback arguments is resolved. By default, if the callback
+       *        function is invoked with only a single argument, that will be
+       *        resolved to the promise, while all arguments will be resolved as
+       *        an array if multiple are given.
+       *
+       * @returns {function}
+       *        The generated callback function.
+       */
+      const makeCallback = (promise, metadata) => {
+        return (...callbackArgs) => {
+          if (extensionAPIs.runtime.lastError) {
+            promise.reject(new Error(extensionAPIs.runtime.lastError.message));
+          } else if (metadata.singleCallbackArg || callbackArgs.length <= 1 && metadata.singleCallbackArg !== false) {
+            promise.resolve(callbackArgs[0]);
+          } else {
+            promise.resolve(callbackArgs);
+          }
+        };
+      };
+      const pluralizeArguments = numArgs => numArgs == 1 ? "argument" : "arguments";
+
+      /**
+       * Creates a wrapper function for a method with the given name and metadata.
+       *
+       * @param {string} name
+       *        The name of the method which is being wrapped.
+       * @param {object} metadata
+       *        Metadata about the method being wrapped.
+       * @param {integer} metadata.minArgs
+       *        The minimum number of arguments which must be passed to the
+       *        function. If called with fewer than this number of arguments, the
+       *        wrapper will raise an exception.
+       * @param {integer} metadata.maxArgs
+       *        The maximum number of arguments which may be passed to the
+       *        function. If called with more than this number of arguments, the
+       *        wrapper will raise an exception.
+       * @param {boolean} metadata.singleCallbackArg
+       *        Whether or not the promise is resolved with only the first
+       *        argument of the callback, alternatively an array of all the
+       *        callback arguments is resolved. By default, if the callback
+       *        function is invoked with only a single argument, that will be
+       *        resolved to the promise, while all arguments will be resolved as
+       *        an array if multiple are given.
+       *
+       * @returns {function(object, ...*)}
+       *       The generated wrapper function.
+       */
+      const wrapAsyncFunction = (name, metadata) => {
+        return function asyncFunctionWrapper(target, ...args) {
+          if (args.length < metadata.minArgs) {
+            throw new Error(`Expected at least ${metadata.minArgs} ${pluralizeArguments(metadata.minArgs)} for ${name}(), got ${args.length}`);
+          }
+          if (args.length > metadata.maxArgs) {
+            throw new Error(`Expected at most ${metadata.maxArgs} ${pluralizeArguments(metadata.maxArgs)} for ${name}(), got ${args.length}`);
+          }
+          return new Promise((resolve, reject) => {
+            if (metadata.fallbackToNoCallback) {
+              // This API method has currently no callback on Chrome, but it return a promise on Firefox,
+              // and so the polyfill will try to call it with a callback first, and it will fallback
+              // to not passing the callback if the first call fails.
+              try {
+                target[name](...args, makeCallback({
+                  resolve,
+                  reject
+                }, metadata));
+              } catch (cbError) {
+                console.warn(`${name} API method doesn't seem to support the callback parameter, ` + "falling back to call it without a callback: ", cbError);
+                target[name](...args);
+
+                // Update the API method metadata, so that the next API calls will not try to
+                // use the unsupported callback anymore.
+                metadata.fallbackToNoCallback = false;
+                metadata.noCallback = true;
+                resolve();
+              }
+            } else if (metadata.noCallback) {
+              target[name](...args);
+              resolve();
+            } else {
+              target[name](...args, makeCallback({
+                resolve,
+                reject
+              }, metadata));
+            }
+          });
+        };
+      };
+
+      /**
+       * Wraps an existing method of the target object, so that calls to it are
+       * intercepted by the given wrapper function. The wrapper function receives,
+       * as its first argument, the original `target` object, followed by each of
+       * the arguments passed to the original method.
+       *
+       * @param {object} target
+       *        The original target object that the wrapped method belongs to.
+       * @param {function} method
+       *        The method being wrapped. This is used as the target of the Proxy
+       *        object which is created to wrap the method.
+       * @param {function} wrapper
+       *        The wrapper function which is called in place of a direct invocation
+       *        of the wrapped method.
+       *
+       * @returns {Proxy<function>}
+       *        A Proxy object for the given method, which invokes the given wrapper
+       *        method in its place.
+       */
+      const wrapMethod = (target, method, wrapper) => {
+        return new Proxy(method, {
+          apply(targetMethod, thisObj, args) {
+            return wrapper.call(thisObj, target, ...args);
+          }
+        });
+      };
+      let hasOwnProperty = Function.call.bind(Object.prototype.hasOwnProperty);
+
+      /**
+       * Wraps an object in a Proxy which intercepts and wraps certain methods
+       * based on the given `wrappers` and `metadata` objects.
+       *
+       * @param {object} target
+       *        The target object to wrap.
+       *
+       * @param {object} [wrappers = {}]
+       *        An object tree containing wrapper functions for special cases. Any
+       *        function present in this object tree is called in place of the
+       *        method in the same location in the `target` object tree. These
+       *        wrapper methods are invoked as described in {@see wrapMethod}.
+       *
+       * @param {object} [metadata = {}]
+       *        An object tree containing metadata used to automatically generate
+       *        Promise-based wrapper functions for asynchronous. Any function in
+       *        the `target` object tree which has a corresponding metadata object
+       *        in the same location in the `metadata` tree is replaced with an
+       *        automatically-generated wrapper function, as described in
+       *        {@see wrapAsyncFunction}
+       *
+       * @returns {Proxy<object>}
+       */
+      const wrapObject = (target, wrappers = {}, metadata = {}) => {
+        let cache = Object.create(null);
+        let handlers = {
+          has(proxyTarget, prop) {
+            return prop in target || prop in cache;
+          },
+          get(proxyTarget, prop, receiver) {
+            if (prop in cache) {
+              return cache[prop];
+            }
+            if (!(prop in target)) {
+              return undefined;
+            }
+            let value = target[prop];
+            if (typeof value === "function") {
+              // This is a method on the underlying object. Check if we need to do
+              // any wrapping.
+
+              if (typeof wrappers[prop] === "function") {
+                // We have a special-case wrapper for this method.
+                value = wrapMethod(target, target[prop], wrappers[prop]);
+              } else if (hasOwnProperty(metadata, prop)) {
+                // This is an async method that we have metadata for. Create a
+                // Promise wrapper for it.
+                let wrapper = wrapAsyncFunction(prop, metadata[prop]);
+                value = wrapMethod(target, target[prop], wrapper);
+              } else {
+                // This is a method that we don't know or care about. Return the
+                // original method, bound to the underlying object.
+                value = value.bind(target);
+              }
+            } else if (typeof value === "object" && value !== null && (hasOwnProperty(wrappers, prop) || hasOwnProperty(metadata, prop))) {
+              // This is an object that we need to do some wrapping for the children
+              // of. Create a sub-object wrapper for it with the appropriate child
+              // metadata.
+              value = wrapObject(value, wrappers[prop], metadata[prop]);
+            } else if (hasOwnProperty(metadata, "*")) {
+              // Wrap all properties in * namespace.
+              value = wrapObject(value, wrappers[prop], metadata["*"]);
+            } else {
+              // We don't need to do any wrapping for this property,
+              // so just forward all access to the underlying object.
+              Object.defineProperty(cache, prop, {
+                configurable: true,
+                enumerable: true,
+                get() {
+                  return target[prop];
+                },
+                set(value) {
+                  target[prop] = value;
+                }
+              });
+              return value;
+            }
+            cache[prop] = value;
+            return value;
+          },
+          set(proxyTarget, prop, value, receiver) {
+            if (prop in cache) {
+              cache[prop] = value;
+            } else {
+              target[prop] = value;
+            }
+            return true;
+          },
+          defineProperty(proxyTarget, prop, desc) {
+            return Reflect.defineProperty(cache, prop, desc);
+          },
+          deleteProperty(proxyTarget, prop) {
+            return Reflect.deleteProperty(cache, prop);
+          }
+        };
+
+        // Per contract of the Proxy API, the "get" proxy handler must return the
+        // original value of the target if that value is declared read-only and
+        // non-configurable. For this reason, we create an object with the
+        // prototype set to `target` instead of using `target` directly.
+        // Otherwise we cannot return a custom object for APIs that
+        // are declared read-only and non-configurable, such as `chrome.devtools`.
+        //
+        // The proxy handlers themselves will still use the original `target`
+        // instead of the `proxyTarget`, so that the methods and properties are
+        // dereferenced via the original targets.
+        let proxyTarget = Object.create(target);
+        return new Proxy(proxyTarget, handlers);
+      };
+
+      /**
+       * Creates a set of wrapper functions for an event object, which handles
+       * wrapping of listener functions that those messages are passed.
+       *
+       * A single wrapper is created for each listener function, and stored in a
+       * map. Subsequent calls to `addListener`, `hasListener`, or `removeListener`
+       * retrieve the original wrapper, so that  attempts to remove a
+       * previously-added listener work as expected.
+       *
+       * @param {DefaultWeakMap<function, function>} wrapperMap
+       *        A DefaultWeakMap object which will create the appropriate wrapper
+       *        for a given listener function when one does not exist, and retrieve
+       *        an existing one when it does.
+       *
+       * @returns {object}
+       */
+      const wrapEvent = wrapperMap => ({
+        addListener(target, listener, ...args) {
+          target.addListener(wrapperMap.get(listener), ...args);
+        },
+        hasListener(target, listener) {
+          return target.hasListener(wrapperMap.get(listener));
+        },
+        removeListener(target, listener) {
+          target.removeListener(wrapperMap.get(listener));
+        }
+      });
+      const onRequestFinishedWrappers = new DefaultWeakMap(listener => {
+        if (typeof listener !== "function") {
+          return listener;
+        }
+
+        /**
+         * Wraps an onRequestFinished listener function so that it will return a
+         * `getContent()` property which returns a `Promise` rather than using a
+         * callback API.
+         *
+         * @param {object} req
+         *        The HAR entry object representing the network request.
+         */
+        return function onRequestFinished(req) {
+          const wrappedReq = wrapObject(req, {} /* wrappers */, {
+            getContent: {
+              minArgs: 0,
+              maxArgs: 0
+            }
+          });
+          listener(wrappedReq);
+        };
+      });
+      const onMessageWrappers = new DefaultWeakMap(listener => {
+        if (typeof listener !== "function") {
+          return listener;
+        }
+
+        /**
+         * Wraps a message listener function so that it may send responses based on
+         * its return value, rather than by returning a sentinel value and calling a
+         * callback. If the listener function returns a Promise, the response is
+         * sent when the promise either resolves or rejects.
+         *
+         * @param {*} message
+         *        The message sent by the other end of the channel.
+         * @param {object} sender
+         *        Details about the sender of the message.
+         * @param {function(*)} sendResponse
+         *        A callback which, when called with an arbitrary argument, sends
+         *        that value as a response.
+         * @returns {boolean}
+         *        True if the wrapped listener returned a Promise, which will later
+         *        yield a response. False otherwise.
+         */
+        return function onMessage(message, sender, sendResponse) {
+          let didCallSendResponse = false;
+          let wrappedSendResponse;
+          let sendResponsePromise = new Promise(resolve => {
+            wrappedSendResponse = function (response) {
+              didCallSendResponse = true;
+              resolve(response);
+            };
+          });
+          let result;
+          try {
+            result = listener(message, sender, wrappedSendResponse);
+          } catch (err) {
+            result = Promise.reject(err);
+          }
+          const isResultThenable = result !== true && isThenable(result);
+
+          // If the listener didn't returned true or a Promise, or called
+          // wrappedSendResponse synchronously, we can exit earlier
+          // because there will be no response sent from this listener.
+          if (result !== true && !isResultThenable && !didCallSendResponse) {
+            return false;
+          }
+
+          // A small helper to send the message if the promise resolves
+          // and an error if the promise rejects (a wrapped sendMessage has
+          // to translate the message into a resolved promise or a rejected
+          // promise).
+          const sendPromisedResult = promise => {
+            promise.then(msg => {
+              // send the message value.
+              sendResponse(msg);
+            }, error => {
+              // Send a JSON representation of the error if the rejected value
+              // is an instance of error, or the object itself otherwise.
+              let message;
+              if (error && (error instanceof Error || typeof error.message === "string")) {
+                message = error.message;
+              } else {
+                message = "An unexpected error occurred";
+              }
+              sendResponse({
+                __mozWebExtensionPolyfillReject__: true,
+                message
+              });
+            }).catch(err => {
+              // Print an error on the console if unable to send the response.
+              console.error("Failed to send onMessage rejected reply", err);
+            });
+          };
+
+          // If the listener returned a Promise, send the resolved value as a
+          // result, otherwise wait the promise related to the wrappedSendResponse
+          // callback to resolve and send it as a response.
+          if (isResultThenable) {
+            sendPromisedResult(result);
+          } else {
+            sendPromisedResult(sendResponsePromise);
+          }
+
+          // Let Chrome know that the listener is replying.
+          return true;
+        };
+      });
+      const wrappedSendMessageCallback = ({
+        reject,
+        resolve
+      }, reply) => {
+        if (extensionAPIs.runtime.lastError) {
+          // Detect when none of the listeners replied to the sendMessage call and resolve
+          // the promise to undefined as in Firefox.
+          // See https://github.com/mozilla/webextension-polyfill/issues/130
+          if (extensionAPIs.runtime.lastError.message === CHROME_SEND_MESSAGE_CALLBACK_NO_RESPONSE_MESSAGE) {
+            resolve();
+          } else {
+            reject(new Error(extensionAPIs.runtime.lastError.message));
+          }
+        } else if (reply && reply.__mozWebExtensionPolyfillReject__) {
+          // Convert back the JSON representation of the error into
+          // an Error instance.
+          reject(new Error(reply.message));
+        } else {
+          resolve(reply);
+        }
+      };
+      const wrappedSendMessage = (name, metadata, apiNamespaceObj, ...args) => {
+        if (args.length < metadata.minArgs) {
+          throw new Error(`Expected at least ${metadata.minArgs} ${pluralizeArguments(metadata.minArgs)} for ${name}(), got ${args.length}`);
+        }
+        if (args.length > metadata.maxArgs) {
+          throw new Error(`Expected at most ${metadata.maxArgs} ${pluralizeArguments(metadata.maxArgs)} for ${name}(), got ${args.length}`);
+        }
+        return new Promise((resolve, reject) => {
+          const wrappedCb = wrappedSendMessageCallback.bind(null, {
+            resolve,
+            reject
+          });
+          args.push(wrappedCb);
+          apiNamespaceObj.sendMessage(...args);
+        });
+      };
+      const staticWrappers = {
+        devtools: {
+          network: {
+            onRequestFinished: wrapEvent(onRequestFinishedWrappers)
+          }
+        },
+        runtime: {
+          onMessage: wrapEvent(onMessageWrappers),
+          onMessageExternal: wrapEvent(onMessageWrappers),
+          sendMessage: wrappedSendMessage.bind(null, "sendMessage", {
+            minArgs: 1,
+            maxArgs: 3
+          })
+        },
+        tabs: {
+          sendMessage: wrappedSendMessage.bind(null, "sendMessage", {
+            minArgs: 2,
+            maxArgs: 3
+          })
+        }
+      };
+      const settingMetadata = {
+        clear: {
+          minArgs: 1,
+          maxArgs: 1
+        },
+        get: {
+          minArgs: 1,
+          maxArgs: 1
+        },
+        set: {
+          minArgs: 1,
+          maxArgs: 1
+        }
+      };
+      apiMetadata.privacy = {
+        network: {
+          "*": settingMetadata
+        },
+        services: {
+          "*": settingMetadata
+        },
+        websites: {
+          "*": settingMetadata
+        }
+      };
+      return wrapObject(extensionAPIs, staticWrappers, apiMetadata);
+    };
+
+    // The build process adds a UMD wrapper around this file, which makes the
+    // `module` variable available.
+    module.exports = wrapAPIs(chrome);
+  } else {
+    module.exports = globalThis.browser;
+  }
+});
+//# sourceMappingURL=browser-polyfill.js.map
+
+
+/***/ }
 
 /******/ 	});
 /************************************************************************/
@@ -62615,6 +63013,12 @@ const img2ico = new ImageToIcon();
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
+/******/ 		if (!(moduleId in __webpack_modules__)) {
+/******/ 			delete __webpack_module_cache__[moduleId];
+/******/ 			var e = new Error("Cannot find module '" + moduleId + "'");
+/******/ 			e.code = 'MODULE_NOT_FOUND';
+/******/ 			throw e;
+/******/ 		}
 /******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
 /******/ 	
 /******/ 		// Return the exports of the module
@@ -62692,26 +63096,27 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
 /* harmony import */ var _buttonsOnThumb_ButtonsOnArtworkThumbOnPC__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./buttonsOnThumb/ButtonsOnArtworkThumbOnPC */ "./src/ts/buttonsOnThumb/ButtonsOnArtworkThumbOnPC.ts");
 /* harmony import */ var _buttonsOnThumb_ButtonsOnNovelThumbOnPC__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./buttonsOnThumb/ButtonsOnNovelThumbOnPC */ "./src/ts/buttonsOnThumb/ButtonsOnNovelThumbOnPC.ts");
-/* harmony import */ var _buttonsOnThumb_DownloadBtnOnThumbOnMobile__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./buttonsOnThumb/DownloadBtnOnThumbOnMobile */ "./src/ts/buttonsOnThumb/DownloadBtnOnThumbOnMobile.ts");
-/* harmony import */ var _RemoveBlockedUsersWork__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./RemoveBlockedUsersWork */ "./src/ts/RemoveBlockedUsersWork.ts");
-/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
-/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
-/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
-/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
-/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
-/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
-/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
-/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _download_SaveWorkDescription__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/SaveWorkDescription */ "./src/ts/download/SaveWorkDescription.ts");
-/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
-/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
-/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
-/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
-/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
-/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
+/* harmony import */ var _buttonsOnThumb_ButtonsOnArtworkPage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./buttonsOnThumb/ButtonsOnArtworkPage */ "./src/ts/buttonsOnThumb/ButtonsOnArtworkPage.ts");
+/* harmony import */ var _buttonsOnThumb_DownloadBtnOnThumbOnMobile__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./buttonsOnThumb/DownloadBtnOnThumbOnMobile */ "./src/ts/buttonsOnThumb/DownloadBtnOnThumbOnMobile.ts");
+/* harmony import */ var _RemoveBlockedUsersWork__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./RemoveBlockedUsersWork */ "./src/ts/RemoveBlockedUsersWork.ts");
+/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
+/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
+/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
+/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
+/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
+/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
+/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
+/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
+/* harmony import */ var _download_SaveWorkDescription__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./download/SaveWorkDescription */ "./src/ts/download/SaveWorkDescription.ts");
+/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
+/* harmony import */ var _download_ShowTotalResultOnTitle__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./download/ShowTotalResultOnTitle */ "./src/ts/download/ShowTotalResultOnTitle.ts");
+/* harmony import */ var _download_ShowRemainingDownloadOnTitle__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./download/ShowRemainingDownloadOnTitle */ "./src/ts/download/ShowRemainingDownloadOnTitle.ts");
+/* harmony import */ var _download_DownloadOnClickLike__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./download/DownloadOnClickLike */ "./src/ts/download/DownloadOnClickLike.ts");
+/* harmony import */ var _HighlightFollowingUsers__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./HighlightFollowingUsers */ "./src/ts/HighlightFollowingUsers.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _RequestSponsorship__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./RequestSponsorship */ "./src/ts/RequestSponsorship.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -62722,6 +63127,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 

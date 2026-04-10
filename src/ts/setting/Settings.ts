@@ -78,6 +78,8 @@ type SettingValue =
 export interface SettingChangeData {
   name: SettingKeys
   value: SettingValue
+  /** 标记这个变化是否来自外部同步（其他标签页），如果是则不应该再次保存到 storage */
+  isExternal?: boolean
 }
 
 type CrawlNumberConfig = {
@@ -179,6 +181,7 @@ interface XzSetting {
   // 根据表单中的值转换为实际使用的值
   restrictBoolean: boolean
 
+  hideUserButton: boolean
   userBlockList: boolean
   blockList: string[]
   removeBlockedUsersWork: boolean
@@ -343,6 +346,8 @@ interface XzSetting {
 type SettingKeys = keyof XzSetting
 
 class Settings {
+  private initialized = false
+
   constructor() {
     this.restore()
     this.bindEvents()
@@ -652,6 +657,7 @@ class Settings {
     restrict: 'no',
     widthTagBoolean: true,
     restrictBoolean: false,
+    hideUserButton: false,
     userBlockList: false,
     removeBlockedUsersWork: true,
     blockList: [],
@@ -859,8 +865,23 @@ class Settings {
 
   private bindEvents() {
     // 当设置发生变化时进行本地存储
-    window.addEventListener(EVT.list.settingChange, () => {
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      const data = ev.detail.data as SettingChangeData
+      // 如果变化来自外部同步，则不需要再次保存到 storage，否则会造成死循环
+      if (data.isExternal) {
+        return
+      }
       this.store()
+    })
+
+    // 同步不同标签页之间的设置
+    browser.storage.onChanged.addListener((changes, areaName) => {
+      if (areaName === 'local' && changes[Config.settingStoreName]) {
+        const newValue = changes[Config.settingStoreName].newValue as XzSetting
+        if (newValue) {
+          this.syncSettings(newValue)
+        }
+      }
     })
 
     window.addEventListener(EVT.list.resetSettings, () => {
@@ -926,46 +947,66 @@ class Settings {
   }
 
   // 读取恢复设置
-  private restore() {
+  private async restore() {
     let restoreData = this.defaultSettings
     // 首先从 browser.storage 获取配置
-    browser.storage.local.get(Config.settingStoreName).then((result) => {
-      if (result[Config.settingStoreName]) {
-        restoreData = result[Config.settingStoreName] as XzSetting
-      }
+    const result = await browser.storage.local.get(Config.settingStoreName)
+    if (result[Config.settingStoreName]) {
+      restoreData = result[Config.settingStoreName] as XzSetting
+    }
 
-      // 有些设置项的 key 是 PageName（页面类型）。当有新的页面类型之后，我会添加新的页面类型的配置，但旧的设置里缺少这些配置，所以需要添加到旧的设置里
-      const keys = ['crawlNumber', 'nameRuleForEachPageType'] as const
-      for (const key of keys) {
-        for (const [pageTypeNo, cfg] of Object.entries(
-          this.defaultSettings[key]
-        ) as unknown as PageEntry[]) {
-          if (restoreData[key][pageTypeNo] === undefined) {
-            restoreData[key][pageTypeNo] = cfg
-          }
+    // 有些设置项的 key 是 PageName（页面类型）。当有新的页面类型之后，我会添加新的页面类型的配置，但旧的设置里缺少这些配置，所以需要添加到旧的设置里
+    const keys = ['crawlNumber', 'nameRuleForEachPageType'] as const
+    for (const key of keys) {
+      for (const [pageTypeNo, cfg] of Object.entries(
+        this.defaultSettings[key]
+      ) as unknown as PageEntry[]) {
+        if (restoreData[key][pageTypeNo] === undefined) {
+          restoreData[key][pageTypeNo] = cfg
         }
       }
+    }
 
-      this.assignSettings(restoreData)
-      EVT.fire('settingInitialized')
-    })
+    this.assignSettings(restoreData, true) // 初始化时设为 isExternal=true，防止触发 store()
+    this.initialized = true
+    EVT.fire('settingInitialized')
   }
 
   private store = Utils.debounce(() => {
+    // 只有在初始化完成之后才允许保存，防止初始化过程中误触发保存导致数据被默认值覆盖
+    if (!this.initialized) {
+      return
+    }
     // browser.storage.local 的储存上限是 5 MiB（5242880 Byte）
     browser.storage.local.set({
       [Config.settingStoreName]: this.settings,
     })
   }, 50)
 
+  private syncSettings(data: XzSetting) {
+    for (const [key, value] of Object.entries(data)) {
+      const k = key as SettingKeys
+      // 这里进行简易的深比较
+      if (JSON.stringify(this.settings[k]) !== JSON.stringify(value)) {
+        ;(this.settings as any)[k] = value
+        // 触发设置变化的事件，并标记为外部同步
+        EVT.fire('settingChange', {
+          name: k,
+          value: value as any,
+          isExternal: true,
+        })
+      }
+    }
+  }
+
   // 接收整个设置项，通过循环将其更新到 settings 上
   // 循环设置而不是整个替换的原因：
   // 1. 进行类型转换，如某些设置项是 number，但是数据来源里是 string，setSetting 可以把它们转换到正确的类型
   // 2. 某些选项在旧版本里没有，所以不能用旧的设置覆盖新的设置
-  private assignSettings(data: XzSetting) {
+  private assignSettings(data: XzSetting, isExternal: boolean = false) {
     const origin = Utils.deepCopy(data)
     for (const [key, value] of Object.entries(origin)) {
-      this.setSetting(key as SettingKeys, value)
+      this.setSetting(key as SettingKeys, value, isExternal)
     }
   }
 
@@ -1029,7 +1070,11 @@ class Settings {
   // 这里面有一些类型转换的代码，主要目的：
   // 1. 兼容旧版本的设置。读取旧版本的设置时，将其转换成新版本的设置。例如某个设置在旧版本里是 string 类型，值为 'a,b,c'。新版本里是 string[] 类型，这里会自动将其转换成 ['a','b','c']
   // 2. 减少额外操作。例如某个设置的类型为 string[]，其他模块可以传入 string 类型的值如 'a,b,c'，而不必先把它转换成 string[]
-  public setSetting(key: SettingKeys, value: SettingValue) {
+  public setSetting(
+    key: SettingKeys,
+    value: SettingValue,
+    isExternal: boolean = false
+  ) {
     if (!this.allSettingKeys.includes(key)) {
       return
     }
@@ -1176,12 +1221,32 @@ class Settings {
     }
 
     // 触发设置变化的事件
-    EVT.fire('settingChange', { name: key, value: value })
+    EVT.fire('settingChange', { name: key, value: value, isExternal })
+  }
+
+  /** 专门用于更新黑名单。它会先从存储中读取最新的黑名单，然后再进行更新，以防止多个标签页同时操作时发生覆盖。 */
+  public async updateBlockList(userId: string, action: 'add' | 'remove') {
+    const result = await browser.storage.local.get(Config.settingStoreName)
+    const latestSettings = result[Config.settingStoreName] as XzSetting
+    // 如果存储中没有设置，则使用当前内存中的设置作为基础
+    const baseSettings = latestSettings || this.settings
+    let list = baseSettings.blockList || []
+
+    if (action === 'add') {
+      if (!list.includes(userId)) {
+        list.push(userId)
+      }
+    } else {
+      list = list.filter((id) => id !== userId)
+    }
+
+    this.setSetting('blockList', list)
   }
 }
 
 const self = new Settings()
 const settings = self.settings
 const setSetting = self.setSetting.bind(self)
+const updateBlockList = self.updateBlockList.bind(self)
 
-export { settings, setSetting, SettingKeys }
+export { settings, setSetting, updateBlockList, SettingKeys }

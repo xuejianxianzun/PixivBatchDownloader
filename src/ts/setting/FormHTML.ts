@@ -598,6 +598,14 @@ export const formHtml = `
       </a>
       <slot data-name="DoNotDownloadLastFewImagesSlot"></slot>
     </p>
+    <p class="option" data-no="97">
+      <a class="has_tip settingNameStyle" data-xztip="_用户阻止按钮的说明">
+        <span data-xztext="_用户阻止按钮"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="hideUserButton" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+    </p>
     <p class="option" data-no="35">
       <a href="${wiki.link(35)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_用户阻止名单的说明">
         <span data-xztext="_用户阻止名单"></span>

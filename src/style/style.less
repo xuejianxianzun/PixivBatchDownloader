@@ -16,6 +16,7 @@
 @import './UseDifferentNameRuleIfWorkHasTagWarp.less';
 @import './input.less';
 @import './previewWorkDetailPanel.less';
+@import './hideUserButton.less';
 // @import './showLargerThumbnails.less';
 
 :root {
@@ -41,7 +42,7 @@
 .icon {
   width: 1em;
   height: 1em;
-  vertical-align: initial;
+  display: block;
   fill: currentColor;
   overflow: hidden;
 }
@@ -366,12 +367,12 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   background-color: @beautifyBlue;
   border-radius: 4px;
   color: #fff;
-  display: none;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   overflow: hidden;
   font-size: 22px;
+  line-height: 0;
 
   &:hover {
     opacity: 0.8;
@@ -379,6 +380,16 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
 
   &#zoomBtnOnThumb {
     z-index: 99998;
+  }
+
+  &#hideUserBtnOnThumb {
+    background-color: @colorR18 !important;
+
+    &.confirming {
+      background-color: #ff5e7a !important; // 稍微亮一点的红色表示正在确认
+      // 可以增加一个小动画或者阴影
+      box-shadow: 0 0 10px rgba(255, 94, 122, 0.5) !important;
+    }
   }
 }
 

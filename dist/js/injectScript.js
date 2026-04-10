@@ -1,11 +1,11 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./node_modules/webextension-polyfill/dist/browser-polyfill.js":
-/*!*********************************************************************!*\
-  !*** ./node_modules/webextension-polyfill/dist/browser-polyfill.js ***!
-  \*********************************************************************/
-/***/ (function(module, exports) {
+/***/ "./node_modules/.store/webextension-polyfill@0.12.0/node_modules/webextension-polyfill/dist/browser-polyfill.js"
+/*!**********************************************************************************************************************!*\
+  !*** ./node_modules/.store/webextension-polyfill@0.12.0/node_modules/webextension-polyfill/dist/browser-polyfill.js ***!
+  \**********************************************************************************************************************/
+(module, exports) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (global, factory) {
   if (true) {
@@ -1230,7 +1230,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 //# sourceMappingURL=browser-polyfill.js.map
 
 
-/***/ })
+/***/ }
 
 /******/ 	});
 /************************************************************************/
@@ -1252,6 +1252,12 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
+/******/ 		if (!(moduleId in __webpack_modules__)) {
+/******/ 			delete __webpack_module_cache__[moduleId];
+/******/ 			var e = new Error("Cannot find module '" + moduleId + "'");
+/******/ 			e.code = 'MODULE_NOT_FOUND';
+/******/ 			throw e;
+/******/ 		}
 /******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
 /******/ 	
 /******/ 		// Return the exports of the module
@@ -1308,7 +1314,7 @@ var __webpack_exports__ = {};
   !*** ./src/ts/injectScript.ts ***!
   \********************************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/.store/webextension-polyfill@0.12.0/node_modules/webextension-polyfill/dist/browser-polyfill.js");
 /* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
 
 // 注入脚本到页面的上下文中

@@ -65,10 +65,7 @@ class DownloadBtnOnThumbOnMobile {
     const btn = document.createElement('button')
     btn.id = this.btnId
     btn.classList.add('btnOnThumb')
-    btn.innerHTML = `
-    <svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-download"></use>
-</svg>`
+    btn.innerHTML = `<svg class="icon" aria-hidden="true"><use xlink:href="#icon-download"></use></svg>`
 
     btn.style.left = 'auto'
     btn.style.right = '0px'

@@ -92,10 +92,7 @@ class ButtonsOnNovelThumbOnPC extends ButtonsConfig {
     const btn = document.createElement('button')
     btn.id = config.name
     btn.classList.add('btnOnThumb')
-    btn.innerHTML = `
-    <svg class="icon" aria-hidden="true">
-  <use xlink:href="#${config.icon}"></use>
-</svg>`
+    btn.innerHTML = `<svg class="icon" aria-hidden="true"><use xlink:href="#${config.icon}"></use></svg>`
     btn.dataset.xztitle = config.title
     lang.register(btn)
     document.body.appendChild(btn)

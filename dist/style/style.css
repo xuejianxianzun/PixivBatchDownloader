@@ -2596,6 +2596,33 @@ iframe[name='expandedFooter'] {
 .theme-dark.xz_PreviewWorkDetailPanel .content .date {
   color: #ccc;
 }
+.hideUserBtn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-left: 6px;
+  vertical-align: middle;
+  white-space: nowrap;
+  line-height: 1.5;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.hideUserBtn:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+}
+.hideUserBtn.blocked {
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.5);
+}
+.hideUserBtn.blocked:hover {
+  background: rgba(255, 107, 107, 0.1);
+  border-color: #ff6b6b;
+}
 :root {
   --box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
 }
@@ -2611,7 +2638,7 @@ iframe[name='expandedFooter'] {
 .icon {
   width: 1em;
   height: 1em;
-  vertical-align: initial;
+  display: block;
   fill: currentColor;
   overflow: hidden;
 }
@@ -2650,6 +2677,35 @@ main section nav[style]::-webkit-scrollbar-thumb {
   text-decoration: none;
   display: block;
 }
+.btnOnWorkPageToolbar {
+  padding: 0;
+  padding-top: 3px;
+  margin-right: 16px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+.btnOnWorkPageToolbar:hover,
+.btnOnWorkPageToolbar:active {
+  color: #0ea8ef;
+}
+.btnOnWorkPageToolbar svg {
+  width: 1.6em;
+  height: 1.6em;
+}
+.btnOnWorkPageToolbar#blockBtnOnWorkPage:hover,
+.btnOnWorkPageToolbar#blockBtnOnWorkPage:active {
+  color: #f63d5b;
+}
+.btnOnWorkPageToolbar#blockBtnOnWorkPage.blocked {
+  color: #f63d5b;
+}
+.btnOnWorkPageToolbar#blockBtnOnWorkPage.confirming {
+  color: #ff5e7a;
+  filter: drop-shadow(0 0 5px rgba(255, 94, 122, 0.5));
+}
 #copyBtnOnWorkPage {
   padding: 0;
   padding-top: 3px;
@@ -2668,25 +2724,31 @@ main section nav[style]::-webkit-scrollbar-thumb {
   width: 1.6em;
   height: 1.6em;
 }
-body.mobile #copyBtnOnWorkPage {
+#copyBtnOnWorkPage#blockBtnOnWorkPage:hover,
+#copyBtnOnWorkPage#blockBtnOnWorkPage:active {
+  color: #f63d5b;
+}
+#copyBtnOnWorkPage#blockBtnOnWorkPage.blocked {
+  color: #f63d5b;
+}
+#copyBtnOnWorkPage#blockBtnOnWorkPage.confirming {
+  color: #ff5e7a;
+  filter: drop-shadow(0 0 5px rgba(255, 94, 122, 0.5));
+}
+body.mobile .btnOnWorkPageToolbar {
   padding: 0;
   margin: 6px 4px 4px;
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
 }
-body.mobile #copyBtnOnWorkPage:hover,
-body.mobile #copyBtnOnWorkPage:active {
-  color: #0ea8ef;
-}
-body.mobile #copyBtnOnWorkPage svg {
+body.mobile .btnOnWorkPageToolbar svg {
   width: 2.1em;
   height: 2.1em;
 }
-html[data-xzpagetheme='white'] #quickBookmarkEl {
+html[data-xzpagetheme='white'] #quickBookmarkEl,
+html[data-xzpagetheme='white'] .btnOnWorkPageToolbar {
   color: #1f1f1f;
 }
-html[data-xzpagetheme='dark'] #quickBookmarkEl {
+html[data-xzpagetheme='dark'] #quickBookmarkEl,
+html[data-xzpagetheme='dark'] .btnOnWorkPageToolbar {
   color: #fff;
 }
 .bookmarkedColor {
@@ -2855,6 +2917,7 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
 .btnOnThumb {
   position: absolute;
   z-index: 99999;
+  display: none;
   left: 0px;
   top: 0px;
   width: 32px;
@@ -2865,18 +2928,25 @@ html[data-xzpagetheme='dark'] #quickBookmarkEl {
   background-color: #29b3f3;
   border-radius: 4px;
   color: #fff;
-  display: none;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   overflow: hidden;
   font-size: 22px;
+  line-height: 0;
 }
 .btnOnThumb:hover {
   opacity: 0.8;
 }
 .btnOnThumb#zoomBtnOnThumb {
   z-index: 99998;
+}
+.btnOnThumb#hideUserBtnOnThumb {
+  background-color: #f63d5b !important;
+}
+.btnOnThumb#hideUserBtnOnThumb.confirming {
+  background-color: #ff5e7a !important;
+  box-shadow: 0 0 10px rgba(255, 94, 122, 0.5) !important;
 }
 .xzBGLayer {
   position: absolute;
