@@ -11565,7 +11565,7 @@ class ButtonsConfig {
         {
             name: 'hideUserBtnOnThumb',
             order: 4,
-            icon: 'icon-shanchu1',
+            icon: 'icon-block-user',
             btn: document.createElement('button'),
             title: '_阻止',
             show: () => _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.hideUserButton,
@@ -11676,11 +11676,17 @@ class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.B
         this.btnsConfig.forEach((config) => {
             if (config.show()) {
                 const isHideBtn = config.name === 'hideUserBtnOnThumb';
-                const order = isHideBtn ? leftOrder : rightOrder;
+                // 阻止按钮在放大按钮的对侧；magnifierPosition=left 时对侧为右，否则为左
+                const hideBtnOnRight = isHideBtn && _setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.magnifierPosition === 'left';
+                const order = isHideBtn && !hideBtnOnRight ? leftOrder : rightOrder;
                 config.btn = this.createBtn(config, order);
                 a.appendChild(config.btn);
-                if (isHideBtn) {
+                if (isHideBtn && !hideBtnOnRight) {
                     leftOrder++;
+                    this.updateHideUserBtnState(config.btn);
+                }
+                else if (hideBtnOnRight) {
+                    rightOrder++;
                     this.updateHideUserBtnState(config.btn);
                 }
                 else {
@@ -11729,10 +11735,16 @@ class ButtonsOnArtworkPage extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_7__.B
         // 按钮复用了 btnOnThumb 的样式，但需要覆写一些样式
         btn.style.display = 'flex';
         const isHideBtn = config.name === 'hideUserBtnOnThumb';
-        // 隐藏按钮放左边
+        // 阻止按钮显示在与放大按钮相反的一侧
         if (isHideBtn) {
-            btn.style.left = '0px';
-            btn.style.right = 'unset';
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.magnifierPosition === 'left') {
+                btn.style.left = 'unset';
+                btn.style.right = `-${this.btnSize}px`;
+            }
+            else {
+                btn.style.left = '0px';
+                btn.style.right = 'unset';
+            }
         }
         else {
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.magnifierPosition === 'left') {
@@ -11943,7 +11955,7 @@ class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_
                         window.clearTimeout(this.confirmTimer);
                         this.confirmTimer = window.setTimeout(() => {
                             this.resetConfirmState();
-                        }, 3000); // 3 秒内没点第二次就重置
+                        }, 3000);
                         return;
                     }
                     else {
@@ -12058,7 +12070,8 @@ class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_
             if (config.show()) {
                 if (config.name === 'hideUserBtnOnThumb') {
                     this.updateHideUserBtnState();
-                    this.showBtnOnLeft(config.btn, rect, leftOrder);
+                    // 阻止按钮始终显示在与放大按钮相反的一侧，避免与放大按钮重叠
+                    this.showBtnOnOppositeLeft(config.btn, rect, leftOrder);
                     leftOrder++;
                 }
                 else {
@@ -12079,8 +12092,13 @@ class ButtonsOnArtworkThumbOnPC extends _ButtonsConfig__WEBPACK_IMPORTED_MODULE_
         btn.style.top = top + 'px';
         btn.style.display = 'flex';
     }
-    showBtnOnLeft(btn, rect, order) {
-        btn.style.left = window.scrollX + rect.left + 'px';
+    // 显示在与放大按钮相反的一侧
+    showBtnOnOppositeLeft(btn, rect, order) {
+        btn.style.left =
+            window.scrollX +
+                rect.left +
+                (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.magnifierPosition === 'left' ? rect.width - this.btnSize : 0) +
+                'px';
         const size = this.btnSize + this.margin;
         const top = window.scrollY + rect.top + size * order;
         btn.style.top = top + 'px';
@@ -12526,17 +12544,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TimedCrawl__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./TimedCrawl */ "./src/ts/crawl/TimedCrawl.ts");
 /* harmony import */ var _pageFunciton_QuickBookmark__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../pageFunciton/QuickBookmark */ "./src/ts/pageFunciton/QuickBookmark.ts");
 /* harmony import */ var _pageFunciton_CopyButtonOnWorkPage__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../pageFunciton/CopyButtonOnWorkPage */ "./src/ts/pageFunciton/CopyButtonOnWorkPage.ts");
-/* harmony import */ var _pageFunciton_BlockButtonOnWorkPage__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../pageFunciton/BlockButtonOnWorkPage */ "./src/ts/pageFunciton/BlockButtonOnWorkPage.ts");
-/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
-/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
-/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
-/* harmony import */ var _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
-/* harmony import */ var _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ../download/AutoMergeNovel */ "./src/ts/download/AutoMergeNovel.ts");
-/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ../download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ../PPDTask */ "./src/ts/PPDTask.ts");
+/* harmony import */ var _pageFunciton_DisplayThumbnailListOnMultiImageWorkPage__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../pageFunciton/DisplayThumbnailListOnMultiImageWorkPage */ "./src/ts/pageFunciton/DisplayThumbnailListOnMultiImageWorkPage.ts");
+/* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./CrawlLatestFewWorks */ "./src/ts/crawl/CrawlLatestFewWorks.ts");
+/* harmony import */ var _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ../download/AutoMergeNovel */ "./src/ts/download/AutoMergeNovel.ts");
+/* harmony import */ var _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ../ShowOneTimeMsg */ "./src/ts/ShowOneTimeMsg.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ../download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ../PPDTask */ "./src/ts/PPDTask.ts");
 // 初始化所有页面抓取流程的基类
-
 
 
 
@@ -12640,7 +12656,7 @@ class InitPageBase {
             // 基于此，在这里修改 this 上的属性是不合适的，因为每个新实例都会复制这个虚拟类上的属性，它们是独立的
         });
         // 设置用于调试的 flag
-        _PPDTask__WEBPACK_IMPORTED_MODULE_33__.ppdTask.register(1, 'Only crawl IdList', () => {
+        _PPDTask__WEBPACK_IMPORTED_MODULE_32__.ppdTask.register(1, 'Only crawl IdList', () => {
             this.onlyCrawlIdList = !this.onlyCrawlIdList;
             if (this.onlyCrawlIdList) {
                 _Log__WEBPACK_IMPORTED_MODULE_5__.log.warning('onlyCrawlIdList: On');
@@ -12719,7 +12735,7 @@ class InitPageBase {
         // 清空日志
         // 注意：抓取过程中，很多方法都会输出日志，它们必须在此事件之后执行，否则用户根本看不到那些日志
         _EVT__WEBPACK_IMPORTED_MODULE_6__.EVT.fire('clearLog');
-        _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_31__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'));
+        _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'));
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
         _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
             position: 'center',
@@ -12734,7 +12750,7 @@ class InitPageBase {
             await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__.mute.getMuteSettings();
         }
         this.getWantPage();
-        _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_29__.crawlLatestFewWorks.showLog();
+        _CrawlLatestFewWorks__WEBPACK_IMPORTED_MODULE_28__.crawlLatestFewWorks.showLog();
         this.getMultipleSetting();
         this.showTip();
         this.finishedRequest = 0;
@@ -12768,7 +12784,7 @@ class InitPageBase {
             if (!this.confirmRecrawl()) {
                 return;
             }
-            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_31__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'));
+            _ShowOneTimeMsg__WEBPACK_IMPORTED_MODULE_30__.showOneTimeMsg.show('tipCloseAskFileSaveLocationOnce', _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_建议您关闭询问文件保存位置'));
             _Log__WEBPACK_IMPORTED_MODULE_5__.log.success('🚀' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'));
             _Toast__WEBPACK_IMPORTED_MODULE_17__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_开始抓取'), {
                 bgColor: _Colors__WEBPACK_IMPORTED_MODULE_1__.Colors.bgBlue,
@@ -12888,7 +12904,7 @@ class InitPageBase {
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList.length === 1 &&
             _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].type !== 'novelSeries') {
             const type = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].type === 'novels' ? 'novel' : 'artwork';
-            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id, type);
+            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(_store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0].id, type);
             if (data) {
                 _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList = [];
                 if (type === 'artwork') {
@@ -12960,10 +12976,10 @@ class InitPageBase {
                 // 如果不使用缓存，则必定会导致一个小说发送两次请求
                 // 使用缓存有负面影响：作品的某些数据（如收藏数量）在它被缓存之后可能已经发生变化
                 // 但通常问题不大
-                let data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__.cacheWorkData.get(id, 'novel');
+                let data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(id, 'novel');
                 if (!data) {
                     data = await _API__WEBPACK_IMPORTED_MODULE_3__.API.getNovelData(id, unlisted);
-                    _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__.cacheWorkData.set(data);
+                    _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.set(data);
                 }
                 // 自动合并系列小说
                 const seriesId = data.body.seriesNavData?.seriesId;
@@ -12971,7 +12987,7 @@ class InitPageBase {
                 if (canMerge) {
                     const seriseTitle = data.body.seriesNavData?.title;
                     this.mergedNovelCount++;
-                    await _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_30__.autoMergeNovel.merge(seriesId, seriseTitle);
+                    await _download_AutoMergeNovel__WEBPACK_IMPORTED_MODULE_29__.autoMergeNovel.merge(seriesId, seriseTitle);
                 }
                 // 如果这个小说不会被合并，或者即使合并也不跳过它，则保存到抓取结果里
                 if (!canMerge || !_setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.skipNovelsInSeriesWhenAutoMerge) {
@@ -12982,7 +12998,7 @@ class InitPageBase {
             else if (idData.type === 'novelSeries') {
                 // 合并系列小说
                 this.mergedNovelCount++;
-                await new _download_MergeNovel__WEBPACK_IMPORTED_MODULE_32__.MergeNovel().merge(id, idData.title, true);
+                await new _download_MergeNovel__WEBPACK_IMPORTED_MODULE_31__.MergeNovel().merge(id, idData.title, true);
                 this.afterGetWorksData();
             }
             else {
@@ -13052,14 +13068,14 @@ class InitPageBase {
             // 如果有缓存数据就不需要添加间隔时间，因为小说会使用缓存的数据，不必发送请求
             const nextIDData = _store_Store__WEBPACK_IMPORTED_MODULE_4__.store.idList[0];
             if (nextIDData && nextIDData.type === 'novels') {
-                const cache = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_28__.cacheWorkData.get(nextIDData.id, 'novel');
+                const cache = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_27__.cacheWorkData.get(nextIDData.id, 'novel');
                 if (cache) {
                     return this.getWorksData();
                 }
             }
             // 如果要实际发送请求，则根据慢速抓取设置，决定是否添加间隔时间
             if (_store_States__WEBPACK_IMPORTED_MODULE_9__.states.slowCrawlMode) {
-                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_27__.setTimeoutWorker.set(() => {
+                _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_26__.setTimeoutWorker.set(() => {
                     this.getWorksData();
                 }, _setting_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.slowCrawlDealy);
             }
@@ -35896,128 +35912,6 @@ const batchFollowUser = new BatchFollowUser();
 
 /***/ },
 
-/***/ "./src/ts/pageFunciton/BlockButtonOnWorkPage.ts"
-/*!******************************************************!*\
-  !*** ./src/ts/pageFunciton/BlockButtonOnWorkPage.ts ***!
-  \******************************************************/
-(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _WorkToolBar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../WorkToolBar */ "./src/ts/WorkToolBar.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-
-
-
-
-
-
-/** 在作品、小说详情页面的工具栏上添加一个“阻止用户”按钮，实现快速拉黑 */
-class BlockButtonOnWorkPage {
-    constructor() {
-        _WorkToolBar__WEBPACK_IMPORTED_MODULE_2__.workToolBar.register((toolbar, pixivBMKDiv, likeBtn) => {
-            window.setTimeout(() => {
-                this.init(likeBtn);
-            }, 0);
-        });
-    }
-    btnId = 'blockBtnOnWorkPage';
-    btn = null;
-    confirming = false;
-    confirmTimer = 0;
-    async init(likeBtn) {
-        // 删除可能存在的旧按钮
-        const oldBtn = document.body.querySelector('#' + this.btnId);
-        if (oldBtn) {
-            oldBtn.remove();
-        }
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.hideUserButton) {
-            return;
-        }
-        this.btn = this.createBtn();
-        this.updateState();
-        _Language__WEBPACK_IMPORTED_MODULE_1__.lang.register(this.btn);
-        // 在 PC 端页面里，添加到点赞按钮的前面
-        likeBtn.parentElement.insertAdjacentElement('beforebegin', this.btn);
-        this.btn.addEventListener('click', () => {
-            const userId = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getCurrentPageUserID();
-            if (!userId) {
-                return;
-            }
-            if (!this.confirming) {
-                // 第一次点击，进入确认状态
-                this.confirming = true;
-                this.btn?.classList.add('confirming');
-                window.clearTimeout(this.confirmTimer);
-                this.confirmTimer = window.setTimeout(() => {
-                    this.resetConfirmState();
-                }, 3000);
-                return;
-            }
-            // 第二次点击，执行操作
-            this.resetConfirmState();
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.blockList.includes(userId)) {
-                (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.updateBlockList)(userId, 'remove');
-                _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_已从阻止名单移除'));
-            }
-            else {
-                (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.updateBlockList)(userId, 'add');
-                _Toast__WEBPACK_IMPORTED_MODULE_5__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_已添加到阻止名单'));
-            }
-        });
-        // 监听设置变化，同步按钮状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.settingChange, (ev) => {
-            const data = ev.detail.data;
-            if (data.name === 'blockList') {
-                this.updateState();
-            }
-            if (data.name === 'hideUserButton') {
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.hideUserButton) {
-                    this.init(likeBtn);
-                }
-                else {
-                    this.btn?.remove();
-                }
-            }
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__.EVT.list.pageSwitch, () => {
-            this.btn = null;
-            this.confirming = false;
-        });
-    }
-    resetConfirmState() {
-        this.confirming = false;
-        this.btn?.classList.remove('confirming');
-    }
-    createBtn() {
-        const btn = document.createElement('button');
-        btn.id = this.btnId;
-        // 复用 btnOnThumb 的部分基础样式（通过 ID 匹配）
-        btn.classList.add('btnOnWorkPageToolbar');
-        btn.innerHTML = `<svg class="icon" aria-hidden="true"><use xlink:href="#icon-shanchu1"></use></svg>`;
-        return btn;
-    }
-    updateState() {
-        if (!this.btn)
-            return;
-        const userId = _Tools__WEBPACK_IMPORTED_MODULE_0__.Tools.getCurrentPageUserID();
-        if (!userId)
-            return;
-        const blocked = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.blockList.includes(userId);
-        this.btn.dataset.xztitle = blocked ? '_取消阻止' : '_阻止';
-        this.btn.classList.toggle('blocked', !!blocked);
-        _Language__WEBPACK_IMPORTED_MODULE_1__.lang.register(this.btn);
-    }
-}
-new BlockButtonOnWorkPage();
-
-
-/***/ },
-
 /***/ "./src/ts/pageFunciton/BookmarkAllWorks.ts"
 /*!*************************************************!*\
   !*** ./src/ts/pageFunciton/BookmarkAllWorks.ts ***!
@@ -36413,9 +36307,8 @@ class CopyButtonOnWorkPage {
     createBtn() {
         const btn = document.createElement('button');
         btn.id = this.btnId;
-        btn.classList.add('btnOnWorkPageToolbar');
         btn.innerHTML = `<svg class="icon" aria-hidden="true"><use xlink:href="#icon-copy"></use></svg>`;
-        btn.dataset.xztitle = '_复制图片和摘要';
+        btn.dataset.xztitle = '_复制摘要数据';
         return btn;
     }
 }

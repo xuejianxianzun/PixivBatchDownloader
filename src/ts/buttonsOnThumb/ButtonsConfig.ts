@@ -45,7 +45,7 @@ class ButtonsConfig {
     {
       name: 'hideUserBtnOnThumb',
       order: 4,
-      icon: 'icon-shanchu1',
+      icon: 'icon-block-user',
       btn: document.createElement('button'),
       title: '_阻止',
       show: () => settings.hideUserButton,

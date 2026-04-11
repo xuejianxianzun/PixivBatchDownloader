@@ -2677,35 +2677,6 @@ main section nav[style]::-webkit-scrollbar-thumb {
   text-decoration: none;
   display: block;
 }
-.btnOnWorkPageToolbar {
-  padding: 0;
-  padding-top: 3px;
-  margin-right: 16px;
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-  background: none;
-  border: none;
-}
-.btnOnWorkPageToolbar:hover,
-.btnOnWorkPageToolbar:active {
-  color: #0ea8ef;
-}
-.btnOnWorkPageToolbar svg {
-  width: 1.6em;
-  height: 1.6em;
-}
-.btnOnWorkPageToolbar#blockBtnOnWorkPage:hover,
-.btnOnWorkPageToolbar#blockBtnOnWorkPage:active {
-  color: #f63d5b;
-}
-.btnOnWorkPageToolbar#blockBtnOnWorkPage.blocked {
-  color: #f63d5b;
-}
-.btnOnWorkPageToolbar#blockBtnOnWorkPage.confirming {
-  color: #ff5e7a;
-  filter: drop-shadow(0 0 5px rgba(255, 94, 122, 0.5));
-}
 #copyBtnOnWorkPage {
   padding: 0;
   padding-top: 3px;
@@ -2724,31 +2695,25 @@ main section nav[style]::-webkit-scrollbar-thumb {
   width: 1.6em;
   height: 1.6em;
 }
-#copyBtnOnWorkPage#blockBtnOnWorkPage:hover,
-#copyBtnOnWorkPage#blockBtnOnWorkPage:active {
-  color: #f63d5b;
-}
-#copyBtnOnWorkPage#blockBtnOnWorkPage.blocked {
-  color: #f63d5b;
-}
-#copyBtnOnWorkPage#blockBtnOnWorkPage.confirming {
-  color: #ff5e7a;
-  filter: drop-shadow(0 0 5px rgba(255, 94, 122, 0.5));
-}
-body.mobile .btnOnWorkPageToolbar {
+body.mobile #copyBtnOnWorkPage {
   padding: 0;
   margin: 6px 4px 4px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
 }
-body.mobile .btnOnWorkPageToolbar svg {
+body.mobile #copyBtnOnWorkPage:hover,
+body.mobile #copyBtnOnWorkPage:active {
+  color: #0ea8ef;
+}
+body.mobile #copyBtnOnWorkPage svg {
   width: 2.1em;
   height: 2.1em;
 }
-html[data-xzpagetheme='white'] #quickBookmarkEl,
-html[data-xzpagetheme='white'] .btnOnWorkPageToolbar {
+html[data-xzpagetheme='white'] #quickBookmarkEl {
   color: #1f1f1f;
 }
-html[data-xzpagetheme='dark'] #quickBookmarkEl,
-html[data-xzpagetheme='dark'] .btnOnWorkPageToolbar {
+html[data-xzpagetheme='dark'] #quickBookmarkEl {
   color: #fff;
 }
 .bookmarkedColor {

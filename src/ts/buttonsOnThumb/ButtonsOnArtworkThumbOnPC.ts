@@ -239,7 +239,8 @@ class ButtonsOnArtworkThumbOnPC extends ButtonsConfig {
       if (config.show()) {
         if (config.name === 'hideUserBtnOnThumb') {
           this.updateHideUserBtnState()
-          this.showBtnOnLeft(config.btn, rect, leftOrder)
+          // 阻止按钮始终显示在与放大按钮相反的一侧，避免与放大按钮重叠
+          this.showBtnOnOppositeLeft(config.btn, rect, leftOrder)
           leftOrder++
         } else {
           this.showBtnOnRight(config.btn, rect, rightOrder)
@@ -262,8 +263,17 @@ class ButtonsOnArtworkThumbOnPC extends ButtonsConfig {
     btn.style.display = 'flex'
   }
 
-  private showBtnOnLeft(btn: HTMLButtonElement, rect: DOMRect, order: number) {
-    btn.style.left = window.scrollX + rect.left + 'px'
+  // 显示在与放大按钮相反的一侧
+  private showBtnOnOppositeLeft(
+    btn: HTMLButtonElement,
+    rect: DOMRect,
+    order: number
+  ) {
+    btn.style.left =
+      window.scrollX +
+      rect.left +
+      (settings.magnifierPosition === 'left' ? rect.width - this.btnSize : 0) +
+      'px'
 
     const size = this.btnSize + this.margin
     const top = window.scrollY + rect.top + size * order

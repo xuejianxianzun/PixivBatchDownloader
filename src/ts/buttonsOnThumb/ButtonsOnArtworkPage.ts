@@ -91,12 +91,18 @@ class ButtonsOnArtworkPage extends ButtonsConfig {
     this.btnsConfig.forEach((config) => {
       if (config.show()) {
         const isHideBtn = config.name === 'hideUserBtnOnThumb'
-        const order = isHideBtn ? leftOrder : rightOrder
+        // 阻止按钮在放大按钮的对侧；magnifierPosition=left 时对侧为右，否则为左
+        const hideBtnOnRight =
+          isHideBtn && settings.magnifierPosition === 'left'
+        const order = isHideBtn && !hideBtnOnRight ? leftOrder : rightOrder
         config.btn = this.createBtn(config, order)
         a.appendChild(config.btn)
 
-        if (isHideBtn) {
+        if (isHideBtn && !hideBtnOnRight) {
           leftOrder++
+          this.updateHideUserBtnState(config.btn)
+        } else if (hideBtnOnRight) {
+          rightOrder++
           this.updateHideUserBtnState(config.btn)
         } else {
           rightOrder++
@@ -154,10 +160,15 @@ class ButtonsOnArtworkPage extends ButtonsConfig {
 
     const isHideBtn = config.name === 'hideUserBtnOnThumb'
 
-    // 隐藏按钮放左边
+    // 阻止按钮显示在与放大按钮相反的一侧
     if (isHideBtn) {
-      btn.style.left = '0px'
-      btn.style.right = 'unset'
+      if (settings.magnifierPosition === 'left') {
+        btn.style.left = 'unset'
+        btn.style.right = `-${this.btnSize}px`
+      } else {
+        btn.style.left = '0px'
+        btn.style.right = 'unset'
+      }
     } else {
       if (settings.magnifierPosition === 'left') {
         btn.style.left = `-${this.btnSize}px`
