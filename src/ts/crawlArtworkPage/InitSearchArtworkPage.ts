@@ -1028,8 +1028,6 @@ class InitSearchArtworkPage extends InitPageBase {
       return
     }
 
-    this.getMultipleSetting()
-
     this.filterResult((data) => {
       const filterOpt: FilterOption = {
         aiType: data.aiType,

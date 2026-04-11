@@ -34,7 +34,7 @@ class ShowNotification {
           !states.crawlTagList &&
           store.waitingIdList.length === 0
         ) {
-          this.show(lang.transl('_下载完毕2'), Tools.getPageTitle())
+          this.show(lang.transl('_下载完毕'), Tools.getPageTitle())
         }
       }, 0)
     })

@@ -55,7 +55,7 @@ class Download {
   private skipDownload(data: DonwloadSkipData, msg?: string) {
     this.skip = true
     if (msg) {
-      log.warning(msg)
+      log.warning('🚫' + msg)
     }
     if (states.downloading) {
       EVT.fire('skipDownload', data)

@@ -1458,7 +1458,7 @@ export const formHtml = `
         <label for="exportLogTiming1" data-xztext="_抓取完毕2"></label>
         <input type="radio" name="exportLogTiming" id="exportLogTiming2" class="need_beautify radio" value="downloadComplete" checked>
         <span class="beautify_radio" tabindex="0"></span>
-        <label for="exportLogTiming2" data-xztext="_下载完毕2"></label>
+        <label for="exportLogTiming2" data-xztext="_下载完毕"></label>
         <span class="verticalSplit"></span>
         <span class="settingNameStyle" data-xztext="_日志类型"></span>
         <input type="checkbox" name="exportLogNormal" id="exportLogNormal" class="need_beautify checkbox_common" checked>

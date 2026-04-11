@@ -158,16 +158,6 @@ abstract class InitPageBase {
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
   protected getWantPage() {}
 
-  // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
-  protected getMultipleSetting() {
-    // 获取作品张数设置
-    if (settings.firstFewImagesSwitch) {
-      log.warning(
-        `${lang.transl('_多图作品只下载前几张图片')}: ${settings.firstFewImages}`
-      )
-    }
-  }
-
   /**在日志上显示任意提示 */
   protected showTip() {
     if (
@@ -233,7 +223,8 @@ abstract class InitPageBase {
 
     const wrongSetting = filter.showTip()
     if (wrongSetting) {
-      log.error('❌' + lang.transl('_取消抓取因为某些抓取条件不正确'))
+      log.error(lang.transl('_取消抓取因为某些抓取条件不正确'))
+      log.log('')
       return
     }
 
@@ -246,8 +237,6 @@ abstract class InitPageBase {
     this.getWantPage()
 
     crawlLatestFewWorks.showLog()
-
-    this.getMultipleSetting()
 
     this.showTip()
 
@@ -299,7 +288,8 @@ abstract class InitPageBase {
 
       const wrongSetting = filter.showTip()
       if (wrongSetting) {
-        log.error('❌' + lang.transl('_取消抓取因为某些抓取条件不正确'))
+        log.error(lang.transl('_取消抓取因为某些抓取条件不正确'))
+        log.log('')
         return
       }
 
@@ -308,8 +298,6 @@ abstract class InitPageBase {
       if (Utils.isPixiv()) {
         await mute.getMuteSettings()
       }
-
-      this.getMultipleSetting()
 
       this.finishedRequest = 0
 

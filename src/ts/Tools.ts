@@ -1,9 +1,16 @@
 import { Config } from './Config'
 import { ArtworkData, NovelData } from './crawl/CrawlResult'
+import { LangTextKey } from './langText'
 import { lang } from './Language'
 import { pageType } from './PageType'
 import { wiki } from './setting/Wiki'
-import { WorkTypeString, Result, IDData, IDTypeString } from './store/StoreType'
+import {
+  WorkTypeString,
+  Result,
+  IDData,
+  IDTypeString,
+  WorkType,
+} from './store/StoreType'
 import { Utils } from './utils/Utils'
 
 type artworkDataTagsItem = {
@@ -1134,10 +1141,38 @@ class Tools {
     return this.xRestrictMap.get(number)
   }
 
-  static readonly AIType = ['Unknown', 'No', 'Yes']
+  static readonly AITypeEnglish = ['Unknown', 'No', 'Yes']
 
-  static getAITypeText(number: number) {
-    return this.AIType[number]
+  static getAITypeTextEnglish(number: number) {
+    return this.AITypeEnglish[number]
+  }
+
+  static getAITypeText(number?: number) {
+    switch (number) {
+      case 1:
+        return lang.transl('_非AI生成')
+      case 2:
+        return lang.transl('_AI生成')
+      default:
+        return lang.transl('_AI作品') + ' ' + lang.transl('_未知')
+    }
+  }
+
+  static getWorkTypeText(workType: WorkType) {
+    switch (workType) {
+      case -1:
+        return lang.transl('_图像作品')
+      case 0:
+        return lang.transl('_插画')
+      case 1:
+        return lang.transl('_漫画')
+      case 2:
+        return lang.transl('_动图')
+      case 3:
+        return lang.transl('_小说')
+      default:
+        return lang.transl('_未知')
+    }
   }
 
   /**移除 Pixiv 高级会员的广告横幅元素 */
@@ -1156,10 +1191,21 @@ class Tools {
   }
 
   /** 把 xRestrict 的值转换为对应的字符串 */
-  static getAgeLimit(xRestrict: 0 | 1 | 2, handleAll = true) {
+  static getAgeLimit(xRestrict: 0 | 1 | 2, handleAllAges = true) {
     switch (xRestrict) {
       case 0:
-        return handleAll ? 'All Ages' : ''
+        return handleAllAges ? 'All Ages' : ''
+      case 1:
+        return 'R-18'
+      case 2:
+        return 'R-18G'
+    }
+  }
+
+  static getAgeLimitText(xRestrict: 0 | 1 | 2, handleAllAges = true) {
+    switch (xRestrict) {
+      case 0:
+        return handleAllAges ? lang.transl('_全年龄') : ''
       case 1:
         return 'R-18'
       case 2:

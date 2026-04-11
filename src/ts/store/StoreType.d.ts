@@ -1,5 +1,17 @@
 import { UgoiraInfo } from '../crawl/CrawlResult'
 
+/**作品类型的数字表示。
+ *
+ * -1 插画、漫画、动图的合集。也就是只知道是图像作品，但是不能确定是哪种具体的类型
+ *
+ * 0 插画
+ * 1 漫画
+ * 2 动图
+ * 3 小说
+ * undefined 不能确定其类型，或者是系列小说这样不属于单个作品的类型
+ */
+export type WorkType = -1 | 0 | 1 | 2 | 3 | undefined
+
 export type WorkTypeString =
   | 'illusts'
   | 'manga'

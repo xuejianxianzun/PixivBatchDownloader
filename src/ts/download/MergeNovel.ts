@@ -582,7 +582,7 @@ class MergeNovel {
       } else {
         const order_title = `#${item.series.contentOrder} ${item.title}`
         const link = Tools.createWorkLink(item.id, order_title, 'novel')
-        log.warning('🚫' + lang.transl('_排除小说') + ': ' + link)
+        log.warning(lang.transl('_排除小说') + ': ' + link)
       }
     }
 
@@ -678,7 +678,7 @@ class MergeNovel {
       } else {
         const order_title = `#${order} ${title}`
         const link = Tools.createWorkLink(novelId, order_title, 'novel')
-        log.warning('🚫' + lang.transl('_排除小说') + ': ' + link)
+        log.warning(lang.transl('_排除小说') + ': ' + link)
       }
 
       // 如果处于快速合并模式，则跳过剩余小说
