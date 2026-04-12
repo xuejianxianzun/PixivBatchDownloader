@@ -1,7 +1,7 @@
 import { Config } from '../Config'
 import { wiki } from './Wiki'
 
-// 设置项编号从 0 开始，现在最大是 99
+// 设置项编号从 0 开始，现在最大是 100
 export const formHtml = `
 <form class="settingForm">
   <div class="tabsContnet">
@@ -857,17 +857,72 @@ export const formHtml = `
       </a>
       <slot data-name="setUserNameSlot"></slot>
     </p>
+    
+    <p class="option" data-no="31">
+      <a href="${wiki.link(31)}" target="_blank" class="settingNameStyle" data-xztext="_日期格式"></a>
+      <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
+      <button type="button" class="gray1 textButton" id="showDateTip" data-xztext="_提示"></button>
+    </p>
+    <p class="tip" id="dateFormatTip">
+      <span data-xztext="_日期格式提示"></span>
+      <br>
+      <span class="blue">YYYY</span> <span>2021</span>
+      <br>
+      <span class="blue">YY</span> <span>21</span>
+      <br>
+      <span class="blue">MM</span> <span>04</span>
+      <br>
+      <span class="blue">MMM</span> <span>Apr</span>
+      <br>
+      <span class="blue">MMMM</span> <span>April</span>
+      <br>
+      <span class="blue">DD</span> <span>30</span>
+      <br>
+      <span class="blue">hh</span> <span>06</span>
+      <br>
+      <span class="blue">mm</span> <span>40</span>
+      <br>
+      <span class="blue">ss</span> <span>08</span>
+      <br>
+    </p>
+    
     <p class="option settingCategoryName" data-no="58">
       <span data-xztext="_下载"></span>
     </p>
-    <p class="option" data-no="52">
-      <a href="${wiki.link(52)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载完成后显示通知的说明">
-        <span data-xztext="_下载完成后显示通知"></span>
-        <span class="gray1"> ? </span>
-      </a>
-      <input type="checkbox" name="showNotificationAfterDownloadComplete" class="need_beautify checkbox_switch">
+    
+    <p class="option" data-no="28">
+      <a href="${wiki.link(28)}" target="_blank" class="settingNameStyle" data-xztext="_不下载重复文件"></a>
+      <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="deduplication" style="flex-grow: 0;">
+        <span data-xztext="_策略"></span>
+        <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
+        <span class="beautify_radio" tabindex="0"></span>
+        <label class="has_tip" for="dupliStrategy1" data-xztip="_严格模式说明" data-xztext="_严格"></label>
+        <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
+        <span class="beautify_radio" tabindex="0"></span>
+        <label class="has_tip" for="dupliStrategy2" data-xztip="_宽松模式说明" data-xztext="_宽松"></label>
+      </span>
+      <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
+      <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
+      <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
+      <button class="textButton gray1" type="button" id="deduplicationHelp" data-xztext="_帮助"></button>
     </p>
+
+    <p class="option" data-no="100">
+      <a href="${wiki.link(100)}" target="_blank" class="settingNameStyle" data-xztext="_在已下载的作品上显示边框"></a>
+      <input type="checkbox" name="showBorderOnDownloadedWorks" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="showBorderOnDownloadedWorks" style="flex-grow: 0;">
+        <span data-xztext="_宽度"></span>
+        <input type="text" name="borderWidth" class="setinput_style1 blue w20" value="3">
+        px
+        <span class="verticalSplit"></span>
+        <span data-xztext="_颜色"></span> (Hex)
+        <input type="text" name="borderColor" class="setinput_style1 blue w80" id="borderColor" value="#ff4060">
+      </span>
+    </p>
+
     <p class="option" data-no="90">
       <a href="${wiki.link(90)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载间隔的说明">
         <span data-xztext="_下载间隔"></span>
@@ -1147,27 +1202,19 @@ export const formHtml = `
       <button type="button" class="gray1 textButton" id="showRememberTheLastSaveLocationTip" data-xztext="_提示"></button>
     </p>
     
-    <p class="option" data-no="28">
-      <a href="${wiki.link(28)}" target="_blank" class="settingNameStyle" data-xztext="_不下载重复文件"></a>
-      <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
+    <p class="option" data-no="52">
+      <a href="${wiki.link(52)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载完成后显示通知的说明">
+        <span data-xztext="_下载完成后显示通知"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="showNotificationAfterDownloadComplete" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="deduplication" style="flex-grow: 0;">
-        &nbsp; <span data-xztext="_策略"></span>
-        <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
-        <span class="beautify_radio" tabindex="0"></span>
-        <label class="has_tip" for="dupliStrategy1" data-xztip="_严格模式说明" data-xztext="_严格"></label>
-        <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
-        <span class="beautify_radio" tabindex="0"></span>
-        <label class="has_tip" for="dupliStrategy2" data-xztip="_宽松模式说明" data-xztext="_宽松"></label>
-      </span>
-      <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
-      <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
-      <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
-      <button class="textButton gray1" type="button" id="deduplicationHelp" data-xztext="_帮助"></button>
     </p>
+    
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </p>
+
     <p class="option" data-no="84">
       <a href="${wiki.link(84)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_高亮关注的用户的说明">
         <span data-xztext="_高亮关注的用户"></span>
@@ -1406,34 +1453,7 @@ export const formHtml = `
     <p class="option settingCategoryName" data-no="61">
       <span data-xztext="_其他"></span>
     </p>
-    <p class="option" data-no="31">
-      <a href="${wiki.link(31)}" target="_blank" class="settingNameStyle" data-xztext="_日期格式"></a>
-      <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
-      <button type="button" class="gray1 textButton" id="showDateTip" data-xztext="_提示"></button>
-    </p>
-    <p class="tip" id="dateFormatTip">
-      <span data-xztext="_日期格式提示"></span>
-      <br>
-      <span class="blue">YYYY</span> <span>2021</span>
-      <br>
-      <span class="blue">YY</span> <span>21</span>
-      <br>
-      <span class="blue">MM</span> <span>04</span>
-      <br>
-      <span class="blue">MMM</span> <span>Apr</span>
-      <br>
-      <span class="blue">MMMM</span> <span>April</span>
-      <br>
-      <span class="blue">DD</span> <span>30</span>
-      <br>
-      <span class="blue">hh</span> <span>06</span>
-      <br>
-      <span class="blue">mm</span> <span>40</span>
-      <br>
-      <span class="blue">ss</span> <span>08</span>
-      <br>
-    </p>
-    
+
     <p class="option" data-no="93">
       <a href="${wiki.link(93)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_日志区域的默认可见性的说明">
         <span data-xztext="_日志区域的默认可见性"></span>

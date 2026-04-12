@@ -1,7 +1,19 @@
 import { Config } from './Config'
+import { ppdTask } from './PPDTask'
 
 // 查找作品的缩略图，当鼠标进入、移出时等动作触发时执行回调函数
 abstract class WorkThumbnail {
+  constructor() {
+    setTimeout(() => {
+      this.cacheFound = false
+      this.foundElements = []
+    }, 1000)
+
+    ppdTask.register(20, 'showBorderOnWorkThumbnail', () => {
+      console.log('尚未实现')
+    })
+  }
+
   /**作品缩略图的选择器 */
   // 选择器的元素必须含有作品的超链接（超链接可以在这个元素上，也可以在这个元素的子元素上）
   protected selectors: string[] = []
@@ -11,6 +23,12 @@ abstract class WorkThumbnail {
   protected leaveCallback: Function[] = []
   protected clickCallback: Function[] = []
   protected bookmarkBtnCallback: Function[] = []
+
+  /** 缓存所有已找到的缩略图元素及其参数，用于新注册的回调补充执行 */
+  private foundElements: { el: HTMLElement; id: string; isSeries: boolean }[] =
+    []
+  /** 在初始化 1 秒钟之后，停止缓存已找到的缩略图元素。这是因为其他模块注册 OnFound 回调的时机应该不会晚于 1 秒钟，所以之后就不需要再缓存了，以避免内存增加和泄露的风险 */
+  protected cacheFound = true
 
   /**查找作品缩略图 */
   protected abstract findThumbnail(parent: HTMLElement): void
@@ -37,11 +55,16 @@ abstract class WorkThumbnail {
   // 因为小说的系列经常和单篇小说混在同一个列表里，所以为小说的系列添加了这个标记。
   // 但实际上效果不太好，因为缩略图元素被添加到页面上之后可能会变化，导致 isSeries 状态可能不再准确
   // 所以如果需要判断 isSeries 的话，最好在执行回调时再判断一次
-  protected bindEvents(el: HTMLElement, id: string | '', isSeries = false) {
+  protected bindEvents(
+    el: HTMLElement,
+    id: string | '',
+    type: 'illusts' | 'novels',
+    isSeries = false
+  ) {
     // 如果这个缩略图元素、或者它的直接父元素、或者它的直接子元素已经有标记，就跳过它
     // mouseover 这个标记名称不可以修改，因为它在 Pixiv Previewer 里硬编码了
     // https://github.com/xuejianxianzun/PixivBatchDownloader/issues/212
-    if ((el as HTMLElement).dataset.mouseover) {
+    if (el.dataset.mouseover) {
       return
     }
 
@@ -56,10 +79,17 @@ abstract class WorkThumbnail {
       return
     }
 
-    // 当对一个缩略图元素绑定事件时，在它上面添加标记
-    // 添加标记的目的是为了减少事件重复绑定的情况发生
-    ;(el as HTMLElement).dataset.mouseover = '1'
+    // 当对一个缩略图元素绑定事件时，在它上面添加标记 data-mouseover="1"，以避免重复绑定事件
+    el.dataset.mouseover = '1'
+    // 对于非系列作品（即单个作品）的缩略图，添加更多自定义数据属性
+    if (!isSeries) {
+      el.dataset.workid = id
+      el.dataset.worktype = type
+    }
 
+    if (this.cacheFound) {
+      this.foundElements.push({ el, id, isSeries })
+    }
     this.foundCallback.forEach((cb) => cb(el, id, isSeries))
 
     el.addEventListener('mouseenter', (ev) => {
@@ -79,7 +109,7 @@ abstract class WorkThumbnail {
     )
 
     // 查找作品缩略图右下角的收藏按钮
-    const bmkBtn = this.findBookmarkBtn(el as HTMLElement)
+    const bmkBtn = this.findBookmarkBtn(el)
     if (!!bmkBtn) {
       bmkBtn.addEventListener(Config.mobile ? 'touchend' : 'click', (ev) => {
         this.bookmarkBtnCallback.forEach((cb) => cb(el, id, bmkBtn, ev))
@@ -118,6 +148,8 @@ abstract class WorkThumbnail {
    */
   public onFound(cb: Function) {
     this.foundCallback.push(cb)
+    // 对已找到的元素立即执行一次回调，避免因注册时机晚而遗漏
+    this.foundElements.forEach(({ el, id, isSeries }) => cb(el, id, isSeries))
   }
 
   /**添加鼠标进入作品缩略图时的回调。

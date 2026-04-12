@@ -1011,7 +1011,7 @@ class Filter {
       // 先添加 _p0 查询，这符合大部分情况
       record = await downloadRecord.getRecord(id + '_p0')
       if (record === null) {
-        // 如果查询不到，则使用 id 再查询一次
+        // 如果查询不到，则使用 id 再查询一次，因为动图是只使用 id 的
         record = await downloadRecord.getRecord(id.toString())
       }
     }

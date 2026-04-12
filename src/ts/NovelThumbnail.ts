@@ -4,6 +4,7 @@ import { Tools } from './Tools'
 import { Config } from './Config'
 
 // 查找小说作品的缩略图，当鼠标进入、移出时等动作触发时执行回调函数
+// 这个功能是始终启用的，没有开关的选项
 class NovelThumbnail extends WorkThumbnail {
   constructor() {
     super()
@@ -158,7 +159,7 @@ class NovelThumbnail extends WorkThumbnail {
         // 在移动端页面里，此时获取的可能是 '0'
         // 依然绑定
         if (Config.mobile) {
-          this.bindEvents(el as HTMLElement, id)
+          this.bindEvents(el as HTMLElement, id, 'novels')
         } else {
           // 在桌面版页面里，只有查找到 id 时才会执行回调函数
           // 分为两种情况：单篇小说 和 系列小说
@@ -166,7 +167,7 @@ class NovelThumbnail extends WorkThumbnail {
           // 优先查找单篇小说的链接，因为很多时候是在展示单篇小说，至于它的系列页面链接只是附带的
           if (id) {
             // 单篇小说
-            this.bindEvents(el as HTMLElement, id)
+            this.bindEvents(el as HTMLElement, id, 'novels')
           } else {
             // 如果找不到作品 id，可能这个元素是系列小说，此时尝试查找系列 id
             const seriesId = Tools.findSeriesIdFromElement(
@@ -174,7 +175,7 @@ class NovelThumbnail extends WorkThumbnail {
               'novels'
             )
             if (seriesId) {
-              this.bindEvents(el as HTMLElement, seriesId, true)
+              this.bindEvents(el as HTMLElement, seriesId, 'novels', true)
             }
           }
         }

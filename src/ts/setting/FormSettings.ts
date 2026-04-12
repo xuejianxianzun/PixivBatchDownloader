@@ -149,6 +149,7 @@ class FormSettings {
       'crawlNonOriginalWork',
       'looseMatchOriginal',
       'DonotCrawlAlreadyDownloadedWorks',
+      'showBorderOnDownloadedWorks',
     ],
     text: [
       'firstFewImages',
@@ -188,6 +189,8 @@ class FormSettings {
       'crawlLatestFewWorksNumber',
       'fullNameLengthLimit',
       'removeEmoji',
+      'borderColor',
+      'borderWidth',
     ],
     radio: [
       'ugoiraSaveAs',

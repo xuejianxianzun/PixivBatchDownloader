@@ -1,6 +1,14 @@
 # CHANGLOG
 
+-doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -content_script.js -_app- -_app. 
+
 ## next
+
+### ✨新增设置：在已下载的作品上显示边框
+
+该设置位于“更多”-“下载”分类里。
+
+如果你启用了该设置，下载器会在已下载的作品上显示边框，这样你就可以方便的知道哪些作品下载过了。另外，在作品列表页面里（例如你的收藏页面），你也可以更容易的知道上次下载到了哪里，这有助于增量更新。
 
 ### ✨新增设置：不抓取下载过的作品
 
@@ -65,6 +73,8 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/604
 ### ⚙️“多图作品的图片数量上限”移动到了“更多”-“抓取”里
 
 因为这个设置可能不太常用，所以我把它移到“更多”里了。
+
+### ⚙️调整了部分设置的位置顺序
 
 ### 😊解决了合并系列小说时，导出日志功能可能不生效的问题
 

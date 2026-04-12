@@ -185,4 +185,7 @@ export interface SettingsForm extends HTMLFormElement {
   removeEmoji: HTMLInputElement
   serialNoStart: HTMLInputElement
   DonotCrawlAlreadyDownloadedWorks: HTMLInputElement
+  showBorderOnDownloadedWorks: HTMLInputElement
+  borderColor: HTMLInputElement
+  borderWidth: HTMLInputElement
 }

@@ -1,6 +1,5 @@
 import { Config } from './Config'
 import { ArtworkData, NovelData } from './crawl/CrawlResult'
-import { LangTextKey } from './langText'
 import { lang } from './Language'
 import { pageType } from './PageType'
 import { wiki } from './setting/Wiki'

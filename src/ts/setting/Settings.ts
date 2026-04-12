@@ -345,6 +345,9 @@ interface XzSetting {
   removeEmoji: boolean
   serialNoStart: 0 | 1
   DonotCrawlAlreadyDownloadedWorks: boolean
+  showBorderOnDownloadedWorks: boolean
+  borderColor: string
+  borderWidth: number
 }
 
 type SettingKeys = keyof XzSetting
@@ -839,6 +842,9 @@ class Settings {
     removeEmoji: false,
     serialNoStart: 0,
     DonotCrawlAlreadyDownloadedWorks: false,
+    showBorderOnDownloadedWorks: false,
+    borderColor: '#ff4060',
+    borderWidth: 3,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -1167,6 +1173,16 @@ class Settings {
 
     if (key === 'workDirNameRule') {
       value = (value as string).replace('{id}', '{id_num}')
+    }
+
+    if (key === 'borderColor') {
+      if (value === '' || (value as string).startsWith('#') === false) {
+        value = this.defaultSettings[key]
+      }
+    }
+
+    if (key === 'borderWidth' && (value as number) < 1) {
+      value = this.defaultSettings[key]
     }
 
     // namingRuleList 之前默认是空数组，后来默认包含了默认的命名规则，所以这里做个兼容处理

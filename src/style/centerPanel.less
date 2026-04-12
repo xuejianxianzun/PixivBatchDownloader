@@ -6,6 +6,11 @@
 @formContentWidth: 650px;
 
 .centerWrap {
+  ::selection {
+    background: @themeBlue;
+    color: #fff;
+  }
+
   background-color: #fff;
   box-shadow: #36a2e1 0px 0px 25px;
   box-sizing: border-box;
@@ -360,8 +365,24 @@
             border-bottom: 1px solid #0096fa !important;
           }
 
+          &.w20 {
+            width: 20px;
+            min-width: 20px;
+          }
+
+          &.w30 {
+            width: 30px;
+            min-width: 30px;
+          }
+
+          &.w40 {
+            width: 40px;
+            min-width: 40px;
+          }
+
           &.w50 {
             width: 50px;
+            min-width: 50px;
           }
 
           &.w60 {

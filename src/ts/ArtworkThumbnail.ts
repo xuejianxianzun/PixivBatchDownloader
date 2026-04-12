@@ -4,6 +4,7 @@ import { Tools } from './Tools'
 import { Config } from './Config'
 
 // 查找图像作品的缩略图，当鼠标进入、移出时等动作触发时执行回调函数
+// 这个功能是始终启用的，没有开关的选项
 class ArtworkThumbnail extends WorkThumbnail {
   constructor() {
     super()
@@ -31,7 +32,7 @@ class ArtworkThumbnail extends WorkThumbnail {
         // 这是搜索框下拉内容里的作品缩略图
         'div[type="illust"][size="118"]',
         'li>div>div:first-child',
-        'li>div>div:first-child>div',
+        'li>div>div:first-child>div:first-child',
         'li>div>div>div:first-child',
         '.worksUL li>div>div:first-child',
         'div[data-ga4-entity-id^="illust"]>div:nth-child(2)',
@@ -134,7 +135,7 @@ class ArtworkThumbnail extends WorkThumbnail {
       // 只在 约稿 页面里使用
       // .worksUL li>div>div:first-child 是在“已完成的约稿”里使用的
       if (
-        (selector === 'li>div>div:first-child>div' ||
+        (selector === 'li>div>div:first-child>div:first-child' ||
           selector === '.worksUL li>div>div:first-child') &&
         pageType.type !== pageType.list.Request
       ) {
@@ -186,11 +187,11 @@ class ArtworkThumbnail extends WorkThumbnail {
           // 而之后下载器只会监听新添加的缩略图容器，不会监听内部添加 A 标签的事件，
           // 所以以后也不会监听到它。那么只能先为它绑定事件，
           // 等到点击下载按钮时再尝试获取 id
-          this.bindEvents(el as HTMLElement, id)
+          this.bindEvents(el as HTMLElement, id, 'illusts')
         } else {
           // 在桌面版页面里，只有查找到作品 id 时才会执行回调函数
           if (id) {
-            this.bindEvents(el as HTMLElement, id)
+            this.bindEvents(el as HTMLElement, id, 'illusts')
           }
         }
       }

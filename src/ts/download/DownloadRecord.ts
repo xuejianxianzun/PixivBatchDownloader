@@ -15,7 +15,7 @@ import { Result } from '../store/StoreType'
 export interface DownloadRecordType {
   id: string
   n: string
-  /**文件 URL 里的作品的日期。可能为 undefined，因为旧版本没有这个数据，小说也没有这个数据 */
+  /** 作品的发布时间。可能为 undefined，因为旧版本没有这个数据 */
   d?: string
 }
 
@@ -39,7 +39,7 @@ class DownloadRecord {
     'record7',
     'record8',
     'record9',
-  ] // 表名的列表
+  ]
 
   private existedIdList: string[] = [] // 检查文件是否重复时，会查询数据库。查询到的数据的 id 会保存到这个列表里。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
 
