@@ -1681,6 +1681,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
         }
         else {
             this.selectors = [
+                // 下面是通用的选择器
                 '#viewerWarpper li',
                 'div[width="136"]',
                 'div[width="131"]',
@@ -1696,6 +1697,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 '._work',
                 '._work.item',
                 'div[type="illust"]',
+                // 下面是在某些页面里使用的选择器
                 // 这是搜索框下拉内容里的作品缩略图
                 'div[type="illust"][size="118"]',
                 'li>div>div:first-child',
@@ -1715,8 +1717,8 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 // 首页-插画-瞩目的企划目录里的作品
                 'li[size="1"]',
                 // 新版首页里的推荐作品，很奇怪，直接打开首页时是第一种选择器，切换到其他分类再切换回来是第二种选择器
-                'div[style="width:184px"]',
-                'div[style="width: 184px;"]',
+                'div[style="width:184px"]>div:first-child',
+                'div[style="width: 184px;"]>div:first-child',
             ];
             // div[data-ga4-entity-id^="illust"]>div:nth-child(2) 匹配新版首页的插画作品区域
             // 即显示在页面左半边的作品缩略图。它们的元素里含有此类特征：
@@ -1747,7 +1749,7 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
         // 遍历所有的选择器，为找到的元素绑定事件
         // 注意：有时候一个节点里会含有多种尺寸的缩略图，为了全部查找到它们，必须遍历所有的选择器。
         // 如果在查找到某个选择器之后，不再查找剩余的选择器，就可能会遗漏一部分缩略图。
-        // 但是，这有可能会导致事件的重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
+        // 但是这有可能会导致事件重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
         for (const selector of this.selectors) {
             // #viewerWarpper li 是下载器在多图作品页面里添加的缩略图列表
             if (selector === '#viewerWarpper li' &&
@@ -1787,17 +1789,26 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                 continue;
             }
             // 这些选择器只在新版首页使用
-            if ((selector === 'li>div>div>div:first-child' ||
-                selector === 'div[style="width:184px"]' ||
-                selector === 'div[style="width: 184px;"]' ||
-                selector === 'div[data-ga4-entity-id^="illust"]>div:nth-child(2)' ||
-                selector === 'div[data-ga4-entity-id^="manga"]>div:nth-child(2)') &&
-                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Home) {
+            if (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Home &&
+                (selector === 'li>div>div>div:first-child' ||
+                    selector === 'div[style="width:184px"]>div:first-child' ||
+                    selector === 'div[style="width: 184px;"]>div:first-child' ||
+                    selector === 'div[data-ga4-entity-id^="illust"]>div:nth-child(2)' ||
+                    selector === 'div[data-ga4-entity-id^="manga"]>div:nth-child(2)')) {
                 continue;
             }
+            // 在首页的“插画”、“漫画”分类里不使用这个选择器，因为它会连带插画封面下方的用户名区域也一起选择
+            if (selector === 'li[size="1"]' && _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Home) {
+                if (location.pathname.endsWith('/illustration') ||
+                    location.pathname.endsWith('/manga')) {
+                    continue;
+                }
+            }
+            // 在一些页面里不使用这个选择器，因为它会连带插画封面下方的标题、用户区域也一起选择
             if (selector === 'li[size="1"]' &&
-                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Home &&
-                !window.location.pathname.includes('/illustration')) {
+                (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.UserHome ||
+                    _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type == _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NewArtworkBookmark ||
+                    _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Bookmark)) {
                 continue;
             }
             if (selector === 'li[id]>div:nth-child(2)' &&
@@ -1819,11 +1830,13 @@ class ArtworkThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkT
                     // 所以以后也不会监听到它。那么只能先为它绑定事件，
                     // 等到点击下载按钮时再尝试获取 id
                     this.bindEvents(el, id, 'illusts');
+                    this.addSelectorData(el, selector);
                 }
                 else {
                     // 在桌面版页面里，只有查找到作品 id 时才会执行回调函数
                     if (id) {
                         this.bindEvents(el, id, 'illusts');
+                        this.addSelectorData(el, selector);
                     }
                 }
             }
@@ -6658,7 +6671,6 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
         else {
             this.selectors = [
                 'li[size="1"]>div',
-                'section li>div',
                 'nav>div>div',
                 'div.gtm-novel-work-recommend-link',
                 'section ul>div',
@@ -6666,6 +6678,9 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
                 'div._ranking-item',
                 'div[size="496"]',
                 'div[size="392"]',
+                // 新版首页里的推荐作品，很奇怪，直接打开首页时是第一种选择器，切换到其他分类再切换回来是第二种选择器
+                'div[style="width:184px"]>div:first-child',
+                'div[style="width: 184px;"]>div:first-child',
                 'div[data-ga4-entity-id^="novel"]>div:nth-child(2)',
                 // 在搜索页面里，小说的选择器可能是这个
                 'div[data-ga4-label="works_content"]>div>div',
@@ -6676,7 +6691,9 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
                 '.image-container',
                 // 在用户主页的“小说”分类的“精选”部分使用
                 'ul ul li>div',
-                'ol li[id]',
+                'section li>div',
+                // 在小说排行榜页面里使用
+                'li[id]',
                 '.gtm-illust-recommend-zone li',
                 'li',
             ];
@@ -6706,7 +6723,7 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
                 // 在小说排行榜里只使用
                 if (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelRanking &&
                     selector !== 'div._ranking-item' &&
-                    selector !== 'ol li[id]') {
+                    selector !== 'li[id]') {
                     continue;
                 }
                 // 在小说系列页面里只使用 section ul>li
@@ -6726,6 +6743,20 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
                 if (selector === 'div[data-ga4-entity-id^="novel"]>div:nth-child(2)' &&
                     _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Home) {
                     continue;
+                }
+                // 在首页的首页分类里，不使用这些选择器，因为它会连带小说封面下方的作者区域也一起选择
+                if ((selector === 'section li>div' || selector === 'section ul>li') &&
+                    _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Home) {
+                    if (location.pathname === '/' || location.pathname === '/en/') {
+                        continue;
+                    }
+                }
+                // 在首页的小说分类里不使用这个选择器
+                if (selector === 'section ul>div' &&
+                    _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.Home) {
+                    if (location.pathname === '/novel') {
+                        continue;
+                    }
                 }
                 if (selector === 'div[data-ga4-label="works_content"]>div>div' &&
                     _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type !== _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelSearch) {
@@ -6750,16 +6781,13 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
             let elements = parent.querySelectorAll(selector);
             // 处理特殊的动态添加的元素
             // 有些动态添加的元素不能被选择器选中
-            // 小说系列页面里动态添加的就是 li 元素，并且这个 li 元素必须整个使用，不能再细分
-            if (_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelSeries &&
+            // 在一些小说页面里，动态添加的元素就是 li 元素，直接使用它
+            if ((_PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelSeries ||
+                _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.type === _PageType__WEBPACK_IMPORTED_MODULE_1__.pageType.list.NovelRanking) &&
                 parent.nodeName === 'LI') {
                 elements = [parent];
             }
             for (const el of elements) {
-                // if (selector === 'li') {
-                //   console.log('li')
-                //   console.log(el)
-                // }
                 const id = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.findWorkIdFromElement(el, 'novels');
                 // 在移动端页面里，此时获取的可能是 '0'
                 // 依然绑定
@@ -6774,12 +6802,14 @@ class NovelThumbnail extends _WorkThumbnail__WEBPACK_IMPORTED_MODULE_0__.WorkThu
                     if (id) {
                         // 单篇小说
                         this.bindEvents(el, id, 'novels');
+                        this.addSelectorData(el, selector);
                     }
                     else {
                         // 如果找不到作品 id，可能这个元素是系列小说，此时尝试查找系列 id
                         const seriesId = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.findSeriesIdFromElement(el, 'novels');
                         if (seriesId) {
                             this.bindEvents(el, seriesId, 'novels', true);
+                            this.addSelectorData(el, selector);
                         }
                     }
                 }
@@ -10046,25 +10076,25 @@ class ShowBorderOnDownloadedWorks {
         this.latestWidth = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.borderWidth;
         const cssText = `
     .${this.className} {
-  position: relative;           /* 必须 */
-  border-radius: 4px;
-  overflow: visible !important; /* 尽量让伪元素可见 */
-  z-index: 1;
-}
+      position: relative;           /* 必须 */
+      border-radius: 8px;           /* 有些元素本来就有 8px 的圆角，有些没有。这里统一设置为 8px */
+      overflow: visible !important; /* 尽量让伪元素可见 */
+      z-index: 1;
+    }
 
-.${this.className}::after {
-  content: '';
-  position: absolute;
-  inset: 0px;                  /* 与缩略图元素的区域重叠 */
-  /* border 显示在缩略图内，不能显示在外面，否则会因为父级元素的 overflow: hidden 被裁剪，或者因为相邻元素之间没有缝隙，导致交界处的 border 被遮挡 */
-  border: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.borderWidth}px solid ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.borderColor};
-  border-radius: 8px;
-  pointer-events: none;         /* 不阻挡点击 */
-  z-index: 0;                  /* 层级需要大于 -1, 否则容易被图片遮挡 */
-}
+    .${this.className}::after {
+      content: '';
+      position: absolute;
+      inset: 0px;                  /* 与缩略图元素的区域重叠 */
+      /* border 显示在缩略图内，不能显示在外面，否则会因为父级元素的 overflow: hidden 被裁剪，或者因为相邻元素之间没有缝隙，导致交界处的 border 被遮挡 */
+      border: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.borderWidth}px solid ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.borderColor};
+      border-radius: 8px;
+      pointer-events: none;         /* 不阻挡点击 */
+      z-index: 0;                  /* 层级需要大于 -1, 否则容易被图片遮挡 */
+    }
 
     /* 使设置边框颜色的 input 里的文字也变成对应的颜色，起到预览的作用 */
-    #borderColor{
+    #borderColor {
       color: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.borderColor} !important;
     }
   `;
@@ -12737,7 +12767,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   WorkThumbnail: () => (/* binding */ WorkThumbnail)
 /* harmony export */ });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/Config.ts");
-/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PPDTask */ "./src/ts/PPDTask.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PPDTask */ "./src/ts/PPDTask.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
+
+
 
 
 // 查找作品的缩略图，当鼠标进入、移出时等动作触发时执行回调函数
@@ -12747,8 +12785,13 @@ class WorkThumbnail {
             this.cacheFound = false;
             this.foundElements = [];
         }, 1000);
-        _PPDTask__WEBPACK_IMPORTED_MODULE_1__.ppdTask.register(20, 'showBorderOnWorkThumbnail', () => {
-            console.log('尚未实现');
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingInitialized, () => {
+            this.addBorderCSS();
+        });
+        _PPDTask__WEBPACK_IMPORTED_MODULE_2__.ppdTask.register(20, 'debugForWorkThumbnail', () => {
+            (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.setSetting)('debugForWorkThumbnail', !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.debugForWorkThumbnail);
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.show(`debugForWorkThumbnail ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.debugForWorkThumbnail ? 'On' : 'Off'}`);
+            this.addBorderCSS();
         });
     }
     /**作品缩略图的选择器 */
@@ -12763,6 +12806,7 @@ class WorkThumbnail {
     foundElements = [];
     /** 在初始化 1 秒钟之后，停止缓存已找到的缩略图元素。这是因为其他模块注册 OnFound 回调的时机应该不会晚于 1 秒钟，所以之后就不需要再缓存了，以避免内存增加和泄露的风险 */
     cacheFound = true;
+    className = 'ppd-workThumbnail';
     /**查找缩略图右下角的收藏按钮 */
     findBookmarkBtn(el) {
         if (_Config__WEBPACK_IMPORTED_MODULE_0__.Config.mobile) {
@@ -12800,10 +12844,12 @@ class WorkThumbnail {
         }
         // 当对一个缩略图元素绑定事件时，在它上面添加标记 data-mouseover="1"，以避免重复绑定事件
         el.dataset.mouseover = '1';
+        // 对于非系列作品（即单个作品）的缩略图，添加更多自定义数据属性
         if (!isSeries) {
             el.dataset.workid = id;
             el.dataset.worktype = type;
         }
+        el.classList.add(this.className);
         if (this.cacheFound) {
             this.foundElements.push({ el, id, isSeries });
         }
@@ -12917,6 +12963,46 @@ class WorkThumbnail {
      */
     onClickBookmarkBtn(cb) {
         this.bookmarkBtnCallback.push(cb);
+    }
+    styleElement = null;
+    /** 为作品缩略图显示边框，以便于调试 */
+    // 这里的样式是复用的 ShowBorderOnDownloadedWorks 里的样式
+    addBorderCSS() {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.debugForWorkThumbnail) {
+            if (this.styleElement) {
+                this.styleElement.remove();
+                this.styleElement = null;
+            }
+            return;
+        }
+        if (this.styleElement) {
+            return;
+        }
+        const cssText = `
+    .${this.className} {
+      position: relative;           /* 必须 */
+      overflow: visible !important; /* 尽量让伪元素可见 */
+      z-index: 1;
+    }
+
+    .${this.className}::after {
+      content: '';
+      position: absolute;
+      inset: 0px;                  /* 与缩略图元素的区域重叠 */
+      /* border 显示在缩略图内，不能显示在外面，否则会因为父级元素的 overflow: hidden 被裁剪，或者因为相邻元素之间没有缝隙，导致交界处的 border 被遮挡 */
+      border: 3px solid #07edde;
+      pointer-events: none;         /* 不阻挡点击 */
+      z-index: 0;                  /* 层级需要大于 -1, 否则容易被图片遮挡 */
+    }
+`;
+        this.styleElement = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.addStyle(cssText);
+    }
+    /** 在 debug 模式下，为作品缩略图添加选择器数据 */
+    // 但由于查找缩略图的时机早于设置初始化，所以最开始找到的一些缩略图可能不会添加选择器。可以切换到其他页面再切换回来解决
+    addSelectorData(el, selector) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.debugForWorkThumbnail) {
+            el.dataset.selector = selector;
+        }
     }
 }
 
@@ -23012,16 +23098,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   downloadRecord: () => (/* binding */ downloadRecord)
 /* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/IndexedDB */ "./src/ts/utils/IndexedDB.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../FileName */ "./src/ts/FileName.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/SecretSignal */ "./src/ts/utils/SecretSignal.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/IndexedDB */ "./src/ts/utils/IndexedDB.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../FileName */ "./src/ts/FileName.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _DownloadRecordManager__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./DownloadRecordManager */ "./src/ts/download/DownloadRecordManager.ts");
 
 
 
@@ -23029,17 +23111,16 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-
-
-
-// 保存下载记录，用来判断重复下载的文件
+/** 添加和查询下载记录 */
 class DownloadRecord {
     constructor() {
-        this.IDB = new _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_4__.IndexedDB();
-        this.init();
+        this.IDB = new _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__.IndexedDB();
+        new _DownloadRecordManager__WEBPACK_IMPORTED_MODULE_6__.DownloadRecordManager(this.IDB, this.storeNameList);
+        this.dbReady = this.init();
     }
     IDB;
+    /** 等待数据库初始化完成的 Promise，用于防止在 DB 就绪前查询 */
+    dbReady;
     DBName = 'DLRecord';
     DBVer = 1;
     storeNameList = [
@@ -23071,9 +23152,7 @@ class DownloadRecord {
                 }
             }
         };
-        return new Promise(async (resolve, reject) => {
-            resolve(await this.IDB.open(this.DBName, this.DBVer, onUpdate));
-        });
+        return this.IDB.open(this.DBName, this.DBVer, onUpdate);
     }
     bindEvents() {
         // 当有文件下载完成时，存储这个任务的记录
@@ -23086,51 +23165,11 @@ class DownloadRecord {
             }
             // 所以下载器在保存和判断重复文件时，使用的都是 filename.createFileName() 生成的文件名
             // 即使文件名在实际下载流程中被修改，也不会影响这里保存的文件名，所以不会影响检测重复文件的功能。
-            const result = _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.findResult(successData.id);
+            const result = _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.findResult(successData.id);
             result && this.addRecordFromResult(result);
         });
-        // 导入含有 id 列表的 txt 文件
-        _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_10__.secretSignal.register('recordtxt', () => {
-            this.importRecordFromTxt();
-        });
-        // 导入下载记录的按钮
-        {
-            const btn = document.querySelector('#importDownloadRecord');
-            if (btn) {
-                btn.addEventListener('click', () => {
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('importDownloadRecord');
-                });
-            }
-        }
-        // 监听导入下载记录的事件
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.importDownloadRecord, () => {
-            this.importRecordFromJSON();
-        });
-        // 导出下载记录的按钮
-        {
-            const btn = document.querySelector('#exportDownloadRecord');
-            if (btn) {
-                btn.addEventListener('click', () => {
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('exportDownloadRecord');
-                });
-            }
-        }
-        // 监听导出下载记录的事件
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.exportDownloadRecord, () => {
-            this.exportRecord();
-        });
-        // 清空下载记录的按钮
-        {
-            const btn = document.querySelector('#clearDownloadRecord');
-            if (btn) {
-                btn.addEventListener('click', () => {
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('clearDownloadRecord');
-                });
-            }
-        }
         // 监听清空下载记录的事件
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.clearDownloadRecord, () => {
-            this.clearRecords();
             this.existedIdList = [];
         });
     }
@@ -23138,24 +23177,6 @@ class DownloadRecord {
     getStoreName(id) {
         const firstNum = parseInt(id[0]);
         return this.storeNameList[firstNum - 1];
-    }
-    // 生成一个下载记录
-    createRecord(data) {
-        let result = undefined;
-        if (typeof data === 'string') {
-            result = _store_Store__WEBPACK_IMPORTED_MODULE_5__.store.findResult(data);
-        }
-        else {
-            result = data;
-        }
-        if (result === undefined) {
-            throw new Error('createRecord failed');
-        }
-        return {
-            id: result.id,
-            n: _FileName__WEBPACK_IMPORTED_MODULE_6__.fileName.createFileName(result),
-            d: this.getDateString(result),
-        };
     }
     /**返回作品的修改日期字符串 */
     getDateString(result) {
@@ -23174,18 +23195,28 @@ class DownloadRecord {
             return result.uploadDate;
         }
     }
-    /** 传入一个 Result 对象，添加它的下载记录 */
-    async addRecordFromResult(result) {
-        const storeName = this.getStoreName(result.id);
-        const record = this.createRecord(result);
-        if (this.existedIdList.includes(result.id)) {
-            this.IDB.put(storeName, record);
+    // 生成一个下载记录
+    createRecord(data) {
+        let result = undefined;
+        if (typeof data === 'string') {
+            result = _store_Store__WEBPACK_IMPORTED_MODULE_3__.store.findResult(data);
         }
         else {
-            // 先查询有没有这个记录
-            const exists = await this.IDB.get(storeName, record.id);
-            this.IDB[exists ? 'put' : 'add'](storeName, record);
+            result = data;
         }
+        if (result === undefined) {
+            throw new Error('createRecord failed');
+        }
+        return {
+            id: result.id,
+            n: _FileName__WEBPACK_IMPORTED_MODULE_4__.fileName.createFileName(result),
+            d: this.getDateString(result),
+        };
+    }
+    /** 传入一个 Result 对象，添加它的下载记录 */
+    async addRecordFromResult(result) {
+        const record = this.createRecord(result);
+        this.addRecordFromRecord(record);
     }
     /** 传入一个构造好的 Record 对象，添加它的下载记录 */
     async addRecordFromRecord(record) {
@@ -23195,11 +23226,14 @@ class DownloadRecord {
         }
         else {
             // 先查询有没有这个记录
-            const exists = await this.IDB.get(storeName, record.id);
+            const exists = await this.getRecord(record.id);
             this.IDB[exists ? 'put' : 'add'](storeName, record);
         }
     }
+    // 在有 10,000 条下载记录时，我下载了 100 个文件进行测试，get 查询的平均耗时为 6.45 ms。
+    // 现代浏览器的 IndexedDB 实现通常基于 B-tree 或类似平衡树来维护主键索引，其单点查找时间复杂度是 O(log N)，即对数级别。即使有 1,000,000 条记录，单次查询的时间也不会大幅增加，可能平均值在 10 ms 左右。
     async getRecord(id) {
+        await this.dbReady;
         const storeName = this.getStoreName(id);
         const record = (await this.IDB.get(storeName, id));
         if (record) {
@@ -23213,101 +23247,180 @@ class DownloadRecord {
      * 返回值 true 表示重复，false 表示不重复
      */
     async checkDeduplication(result) {
-        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.isPixiv()) {
+        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.isPixiv()) {
             return false;
         }
-        return new Promise(async (resolve, reject) => {
-            // 如果未启用去重，直接返回不重复
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.deduplication) {
-                return resolve(false);
+        // 如果未启用去重，直接返回不重复
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.deduplication) {
+            return false;
+        }
+        const record = await this.getRecord(result.id);
+        if (record === null) {
+            return false;
+        }
+        // 有记录，说明这个文件下载过
+        // 首先检查日期字符串是否发生了变化
+        // 如果日期字符串变化了，则不视为重复文件
+        if (record.d !== undefined && record.d !== this.getDateString(result)) {
+            return false;
+        }
+        // 如果之前的下载记录里没有日期，说明是早期的下载记录，那么就不检查日期
+        // 同时，更新这个作品的下载记录，为其添加日期
+        if (record.d === undefined) {
+            this.addRecordFromResult(result);
+        }
+        // 如果日期字符串没有变化，再根据策略进行判断
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.dupliStrategy === 'loose') {
+            // 如果是宽松策略（不比较文件名）
+            return true;
+        }
+        else {
+            // 如果是严格策略（比较文件名）
+            const name = _FileName__WEBPACK_IMPORTED_MODULE_4__.fileName.createFileName(result);
+            return name === record.n;
+        }
+    }
+}
+const downloadRecord = new DownloadRecord();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/download/DownloadRecordManager.ts":
+/*!**************************************************!*\
+  !*** ./src/ts/download/DownloadRecordManager.ts ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   DownloadRecordManager: () => (/* binding */ DownloadRecordManager)
+/* harmony export */ });
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/SecretSignal */ "./src/ts/utils/SecretSignal.ts");
+
+
+
+
+
+
+
+/** 导入、导出、清空下载记录 */
+class DownloadRecordManager {
+    constructor(IDB, storeNameList) {
+        this.IDB = IDB;
+        this.storeNameList = storeNameList;
+        this.bindEvents();
+    }
+    IDB;
+    storeNameList;
+    bindEvents() {
+        // 导入含有 id 列表的 txt 文件
+        _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_6__.secretSignal.register('recordtxt', () => {
+            this.importRecordFromTxt();
+        });
+        // 导入下载记录的按钮
+        {
+            const btn = document.querySelector('#importDownloadRecord');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('importDownloadRecord');
+                });
             }
-            // 在数据库进行查找
-            const storeName = this.getStoreName(result.id);
-            // 在有 10,000 条下载记录时，我下载了 100 个文件进行测试，get 查询的平均耗时为 6.45 ms。
-            // 现代浏览器的 IndexedDB 实现通常基于 B-tree 或类似平衡树来维护主键索引，其单点查找时间复杂度是 O(log N)，即对数级别。即使有 1,000,000 条记录，单次查询的时间也不会大幅增加，可能平均值在 10 ms 左右。
-            const data = (await this.IDB.get(storeName, result.id));
-            if (data === null) {
-                return resolve(false);
+        }
+        // 监听导入下载记录的事件
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.importDownloadRecord, () => {
+            this.importRecordFromJSON();
+        });
+        // 导出下载记录的按钮
+        {
+            const btn = document.querySelector('#exportDownloadRecord');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('exportDownloadRecord');
+                });
             }
-            // 有记录，说明这个文件下载过
-            this.existedIdList.push(data.id);
-            // 首先检查日期字符串是否发生了变化
-            // 如果日期字符串变化了，则不视为重复文件
-            if (data.d !== undefined && data.d !== this.getDateString(result)) {
-                return resolve(false);
+        }
+        // 监听导出下载记录的事件
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.exportDownloadRecord, () => {
+            this.exportRecord();
+        });
+        // 清空下载记录的按钮
+        {
+            const btn = document.querySelector('#clearDownloadRecord');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    _EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.fire('clearDownloadRecord');
+                });
             }
-            // 如果之前的下载记录里没有日期，说明是早期的下载记录，那么就不检查日期
-            // 同时，更新这个作品的下载记录，为其添加日期
-            if (data.d === undefined) {
-                this.addRecordFromResult(result);
-            }
-            // 如果日期字符串没有变化，再根据策略进行判断
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.dupliStrategy === 'loose') {
-                // 如果是宽松策略（不比较文件名）
-                return resolve(true);
-            }
-            else {
-                // 如果是严格策略（考虑文件名）
-                const name = _FileName__WEBPACK_IMPORTED_MODULE_6__.fileName.createFileName(result);
-                return resolve(name === data.n);
-            }
+        }
+        // 监听清空下载记录的事件
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__.EVT.list.clearDownloadRecord, () => {
+            this.clearRecords();
         });
     }
     // 清空下载记录
     async clearRecords() {
-        if (window.confirm(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('确定要清除下载记录吗')) === false) {
+        if (window.confirm(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('确定要清除下载记录吗')) === false) {
             return;
         }
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_清除下载记录'));
-        _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_清除下载记录'));
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_清除下载记录'));
+        _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_清除下载记录'));
         let total = this.storeNameList.length;
         let num = 0;
         for (const name of this.storeNameList) {
-            _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_任务进度')} ${num}/${total}`);
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务进度')} ${num}/${total}`);
             num++;
             await this.IDB.clear(name);
         }
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_任务进度')} ${num}/${total}`);
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_下载记录已清除'));
-        _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_下载记录已清除'));
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务进度')} ${num}/${total}`);
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载记录已清除'));
+        _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载记录已清除'));
     }
     // 导出下载记录
     async exportRecord() {
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出下载记录'));
-        _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出下载记录'));
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出下载记录'));
+        _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.show(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出下载记录'));
         let total = this.storeNameList.length;
         let num = 0;
         let record = [];
         for (const name of this.storeNameList) {
-            _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_任务进度')} ${num}/${total}`);
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务进度')} ${num}/${total}`);
             num++;
             const r = (await this.IDB.getAll(name));
             record = record.concat(r);
         }
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_任务进度')} ${num}/${total}`);
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_任务进度')} ${num}/${total}`);
         if (record.length === 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有数据可供使用'));
-            _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_没有数据可供使用'));
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有数据可供使用'));
+            _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_没有数据可供使用'));
             return;
         }
-        const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.json2BlobSafe(record);
+        const resultList = await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.json2BlobSafe(record);
         for (const result of resultList) {
-            _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.downloadFile(result.url, `record-total ${result.total}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.downloadFile(result.url, `record-total ${result.total}-${_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`);
         }
-        const msg = _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导出成功');
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(msg);
-        _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.success(msg);
+        const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导出成功');
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.success(msg);
     }
     // 导入下载记录
     async importRecord(record) {
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入下载记录'));
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入下载记录'));
         // 显示导入进度
         let stored = 0;
         let total = record.length;
         if (total > 10000) {
-            _Log__WEBPACK_IMPORTED_MODULE_2__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_数据较多需要花费一些时间'));
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_数据较多需要花费一些时间'));
         }
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${stored}/${total}`, 'downloadRecordImportProgress');
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${stored}/${total}`, 'downloadRecordImportProgress');
         console.time('importRecord');
         // 依次处理每个存储库
         for (let index = 0; index < this.storeNameList.length; index++) {
@@ -23322,36 +23435,36 @@ class DownloadRecord {
                 continue;
             }
             // 添加数据
-            _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_待处理')} ${data.length}`);
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_待处理')} ${data.length}`);
             try {
                 // console.time('restoreRecord' + (index + 1))
                 await this.IDB.batchAddData(this.storeNameList[index], data, 'id');
                 // console.timeEnd('restoreRecord' + (index + 1))
                 stored += data.length;
-                _Log__WEBPACK_IMPORTED_MODULE_2__.log.log(`${stored}/${total}`, 'downloadRecordImportProgress');
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.log(`${stored}/${total}`, 'downloadRecordImportProgress');
             }
             catch (error) {
                 const errorMsg = error?.target?.error;
                 const tip = errorMsg ? errorMsg : error;
-                _Log__WEBPACK_IMPORTED_MODULE_2__.log.error(tip);
-                _MsgBox__WEBPACK_IMPORTED_MODULE_9__.msgBox.error(tip);
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(tip);
+                _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.error(tip);
             }
         }
         console.timeEnd('importRecord');
         if (stored < total) {
             return;
         }
-        _Log__WEBPACK_IMPORTED_MODULE_2__.log.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入成功'));
-        _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入成功'));
-        _MsgBox__WEBPACK_IMPORTED_MODULE_9__.msgBox.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入成功'), {
-            title: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_导入下载记录'),
+        _Log__WEBPACK_IMPORTED_MODULE_1__.log.success(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入成功'));
+        _Toast__WEBPACK_IMPORTED_MODULE_2__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入成功'));
+        _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.success(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入成功'), {
+            title: _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_导入下载记录'),
         });
         // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。
     }
     // 从 json 文件导入
     async importRecordFromJSON() {
-        const record = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.loadJSONFile().catch((err) => {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_9__.msgBox.error(err);
+        const record = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.loadJSONFile().catch((err) => {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.error(err);
             return;
         }));
         if (!record) {
@@ -23361,14 +23474,14 @@ class DownloadRecord {
         if (Array.isArray(record) === false ||
             record[0].id === undefined ||
             record[0].n === undefined) {
-            return _MsgBox__WEBPACK_IMPORTED_MODULE_9__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_格式错误'));
+            return _MsgBox__WEBPACK_IMPORTED_MODULE_3__.msgBox.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_格式错误'));
         }
         this.importRecord(record);
     }
     // 从 txt 文件导入
     // 每行一个文件 id（带序号），以换行分割
     async importRecordFromTxt() {
-        const file = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.selectFile('.txt'))[0];
+        const file = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.selectFile('.txt'))[0];
         const text = await file.text();
         // 以换行分割
         let split = '\r\n';
@@ -23389,7 +23502,6 @@ class DownloadRecord {
         this.importRecord(record);
     }
 }
-const downloadRecord = new DownloadRecord();
 
 
 
@@ -25148,9 +25260,7 @@ class Resume {
             }
         };
         // 打开数据库
-        return new Promise(async (resolve, reject) => {
-            resolve(await this.IDB.open(this.DBName, this.DBVer, onUpdate));
-        });
+        return this.IDB.open(this.DBName, this.DBVer, onUpdate);
     }
     bindEvents() {
         // 切换页面时，重新检查恢复数据
@@ -42678,7 +42788,7 @@ class Options {
                 23, 24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44,
                 46, 47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
                 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,
-                84, 85, 86, 87, 88, 89, 90, 91, 92, 94, 95, 96, 98, 100,
+                84, 85, 86, 87, 88, 89, 90, 91, 92, 94, 95, 96, 98, 99, 100,
             ]);
         }
     }
@@ -43431,6 +43541,7 @@ class Settings {
         showBorderOnDownloadedWorks: false,
         borderColor: '#ff4060',
         borderWidth: 3,
+        debugForWorkThumbnail: false,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的设置
@@ -44146,10 +44257,10 @@ class Wiki {
         'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66, 97, 98],
         'More-Download': [
             58, 52, 90, 91, 76, 77, 4, 24, 26, 27, 70, 72, 73, 49, 89, 30, 25, 82, 20,
-            28,
+            28, 100,
         ],
         'More-Enhance': [
-            60, 84, 87, 68, 63, 55, 71, 62, 40, 56, 86, 48, 88, 18, 34, 14, 100,
+            60, 84, 87, 68, 63, 55, 71, 62, 40, 56, 86, 48, 88, 18, 34, 14,
         ],
         'More-Others': [61, 31, 78, 36, 41, 45, 53, 32, 37, 93],
         'More-Hidden': [79, 80, 14, 15],

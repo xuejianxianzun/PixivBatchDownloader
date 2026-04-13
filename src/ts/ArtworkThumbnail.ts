@@ -14,6 +14,7 @@ class ArtworkThumbnail extends WorkThumbnail {
       this.selectors = ['.works-item-illust']
     } else {
       this.selectors = [
+        // 下面是通用的选择器
         '#viewerWarpper li',
         'div[width="136"]',
         'div[width="131"]',
@@ -29,6 +30,7 @@ class ArtworkThumbnail extends WorkThumbnail {
         '._work',
         '._work.item',
         'div[type="illust"]',
+        // 下面是在某些页面里使用的选择器
         // 这是搜索框下拉内容里的作品缩略图
         'div[type="illust"][size="118"]',
         'li>div>div:first-child',
@@ -48,8 +50,8 @@ class ArtworkThumbnail extends WorkThumbnail {
         // 首页-插画-瞩目的企划目录里的作品
         'li[size="1"]',
         // 新版首页里的推荐作品，很奇怪，直接打开首页时是第一种选择器，切换到其他分类再切换回来是第二种选择器
-        'div[style="width:184px"]',
-        'div[style="width: 184px;"]',
+        'div[style="width:184px"]>div:first-child',
+        'div[style="width: 184px;"]>div:first-child',
       ]
       // div[data-ga4-entity-id^="illust"]>div:nth-child(2) 匹配新版首页的插画作品区域
       // 即显示在页面左半边的作品缩略图。它们的元素里含有此类特征：
@@ -82,10 +84,11 @@ class ArtworkThumbnail extends WorkThumbnail {
     if (!parent.querySelectorAll) {
       return
     }
+
     // 遍历所有的选择器，为找到的元素绑定事件
     // 注意：有时候一个节点里会含有多种尺寸的缩略图，为了全部查找到它们，必须遍历所有的选择器。
     // 如果在查找到某个选择器之后，不再查找剩余的选择器，就可能会遗漏一部分缩略图。
-    // 但是，这有可能会导致事件的重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
+    // 但是这有可能会导致事件重复绑定，所以下载器添加了 dataset.mouseover 标记以减少重复绑定
     for (const selector of this.selectors) {
       // #viewerWarpper li 是下载器在多图作品页面里添加的缩略图列表
       if (
@@ -144,20 +147,32 @@ class ArtworkThumbnail extends WorkThumbnail {
 
       // 这些选择器只在新版首页使用
       if (
+        pageType.type !== pageType.list.Home &&
         (selector === 'li>div>div>div:first-child' ||
-          selector === 'div[style="width:184px"]' ||
-          selector === 'div[style="width: 184px;"]' ||
+          selector === 'div[style="width:184px"]>div:first-child' ||
+          selector === 'div[style="width: 184px;"]>div:first-child' ||
           selector === 'div[data-ga4-entity-id^="illust"]>div:nth-child(2)' ||
-          selector === 'div[data-ga4-entity-id^="manga"]>div:nth-child(2)') &&
-        pageType.type !== pageType.list.Home
+          selector === 'div[data-ga4-entity-id^="manga"]>div:nth-child(2)')
       ) {
         continue
       }
 
+      // 在首页的“插画”、“漫画”分类里不使用这个选择器，因为它会连带插画封面下方的用户名区域也一起选择
+      if (selector === 'li[size="1"]' && pageType.type === pageType.list.Home) {
+        if (
+          location.pathname.endsWith('/illustration') ||
+          location.pathname.endsWith('/manga')
+        ) {
+          continue
+        }
+      }
+
+      // 在一些页面里不使用这个选择器，因为它会连带插画封面下方的标题、用户区域也一起选择
       if (
         selector === 'li[size="1"]' &&
-        pageType.type !== pageType.list.Home &&
-        !window.location.pathname.includes('/illustration')
+        (pageType.type === pageType.list.UserHome ||
+          pageType.type == pageType.list.NewArtworkBookmark ||
+          pageType.type === pageType.list.Bookmark)
       ) {
         continue
       }
@@ -188,10 +203,12 @@ class ArtworkThumbnail extends WorkThumbnail {
           // 所以以后也不会监听到它。那么只能先为它绑定事件，
           // 等到点击下载按钮时再尝试获取 id
           this.bindEvents(el as HTMLElement, id, 'illusts')
+          this.addSelectorData(el as HTMLElement, selector)
         } else {
           // 在桌面版页面里，只有查找到作品 id 时才会执行回调函数
           if (id) {
             this.bindEvents(el as HTMLElement, id, 'illusts')
+            this.addSelectorData(el as HTMLElement, selector)
           }
         }
       }

@@ -201,25 +201,25 @@ class ShowBorderOnDownloadedWorks {
 
     const cssText = `
     .${this.className} {
-  position: relative;           /* 必须 */
-  border-radius: 4px;
-  overflow: visible !important; /* 尽量让伪元素可见 */
-  z-index: 1;
-}
+      position: relative;           /* 必须 */
+      border-radius: 8px;           /* 有些元素本来就有 8px 的圆角，有些没有。这里统一设置为 8px */
+      overflow: visible !important; /* 尽量让伪元素可见 */
+      z-index: 1;
+    }
 
-.${this.className}::after {
-  content: '';
-  position: absolute;
-  inset: 0px;                  /* 与缩略图元素的区域重叠 */
-  /* border 显示在缩略图内，不能显示在外面，否则会因为父级元素的 overflow: hidden 被裁剪，或者因为相邻元素之间没有缝隙，导致交界处的 border 被遮挡 */
-  border: ${settings.borderWidth}px solid ${settings.borderColor};
-  border-radius: 8px;
-  pointer-events: none;         /* 不阻挡点击 */
-  z-index: 0;                  /* 层级需要大于 -1, 否则容易被图片遮挡 */
-}
+    .${this.className}::after {
+      content: '';
+      position: absolute;
+      inset: 0px;                  /* 与缩略图元素的区域重叠 */
+      /* border 显示在缩略图内，不能显示在外面，否则会因为父级元素的 overflow: hidden 被裁剪，或者因为相邻元素之间没有缝隙，导致交界处的 border 被遮挡 */
+      border: ${settings.borderWidth}px solid ${settings.borderColor};
+      border-radius: 8px;
+      pointer-events: none;         /* 不阻挡点击 */
+      z-index: 0;                  /* 层级需要大于 -1, 否则容易被图片遮挡 */
+    }
 
     /* 使设置边框颜色的 input 里的文字也变成对应的颜色，起到预览的作用 */
-    #borderColor{
+    #borderColor {
       color: ${settings.borderColor} !important;
     }
   `

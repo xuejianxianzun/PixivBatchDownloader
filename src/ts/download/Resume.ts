@@ -101,9 +101,7 @@ class Resume {
     }
 
     // 打开数据库
-    return new Promise<IDBDatabase>(async (resolve, reject) => {
-      resolve(await this.IDB.open(this.DBName, this.DBVer, onUpdate))
-    })
+    return this.IDB.open(this.DBName, this.DBVer, onUpdate)
   }
 
   private bindEvents() {

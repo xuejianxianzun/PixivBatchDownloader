@@ -1,5 +1,9 @@
 import { Config } from './Config'
+import { EVT } from './EVT'
 import { ppdTask } from './PPDTask'
+import { setSetting, settings } from './setting/Settings'
+import { toast } from './Toast'
+import { Utils } from './utils/Utils'
 
 // 查找作品的缩略图，当鼠标进入、移出时等动作触发时执行回调函数
 abstract class WorkThumbnail {
@@ -9,8 +13,16 @@ abstract class WorkThumbnail {
       this.foundElements = []
     }, 1000)
 
-    ppdTask.register(20, 'showBorderOnWorkThumbnail', () => {
-      console.log('尚未实现')
+    window.addEventListener(EVT.list.settingInitialized, () => {
+      this.addBorderCSS()
+    })
+
+    ppdTask.register(20, 'debugForWorkThumbnail', () => {
+      setSetting('debugForWorkThumbnail', !settings.debugForWorkThumbnail)
+      toast.show(
+        `debugForWorkThumbnail ${settings.debugForWorkThumbnail ? 'On' : 'Off'}`
+      )
+      this.addBorderCSS()
     })
   }
 
@@ -29,6 +41,8 @@ abstract class WorkThumbnail {
     []
   /** 在初始化 1 秒钟之后，停止缓存已找到的缩略图元素。这是因为其他模块注册 OnFound 回调的时机应该不会晚于 1 秒钟，所以之后就不需要再缓存了，以避免内存增加和泄露的风险 */
   protected cacheFound = true
+
+  private className = 'ppd-workThumbnail'
 
   /**查找作品缩略图 */
   protected abstract findThumbnail(parent: HTMLElement): void
@@ -86,6 +100,7 @@ abstract class WorkThumbnail {
       el.dataset.workid = id
       el.dataset.worktype = type
     }
+    el.classList.add(this.className)
 
     if (this.cacheFound) {
       this.foundElements.push({ el, id, isSeries })
@@ -214,6 +229,50 @@ abstract class WorkThumbnail {
    */
   public onClickBookmarkBtn(cb: Function) {
     this.bookmarkBtnCallback.push(cb)
+  }
+
+  private styleElement: HTMLStyleElement | null = null
+  /** 为作品缩略图显示边框，以便于调试 */
+  // 这里的样式是复用的 ShowBorderOnDownloadedWorks 里的样式
+  private addBorderCSS() {
+    if (!settings.debugForWorkThumbnail) {
+      if (this.styleElement) {
+        this.styleElement.remove()
+        this.styleElement = null
+      }
+      return
+    }
+
+    if (this.styleElement) {
+      return
+    }
+
+    const cssText = `
+    .${this.className} {
+      position: relative;           /* 必须 */
+      overflow: visible !important; /* 尽量让伪元素可见 */
+      z-index: 1;
+    }
+
+    .${this.className}::after {
+      content: '';
+      position: absolute;
+      inset: 0px;                  /* 与缩略图元素的区域重叠 */
+      /* border 显示在缩略图内，不能显示在外面，否则会因为父级元素的 overflow: hidden 被裁剪，或者因为相邻元素之间没有缝隙，导致交界处的 border 被遮挡 */
+      border: 3px solid #07edde;
+      pointer-events: none;         /* 不阻挡点击 */
+      z-index: 0;                  /* 层级需要大于 -1, 否则容易被图片遮挡 */
+    }
+`
+    this.styleElement = Utils.addStyle(cssText)
+  }
+
+  /** 在 debug 模式下，为作品缩略图添加选择器数据 */
+  // 但由于查找缩略图的时机早于设置初始化，所以最开始找到的一些缩略图可能不会添加选择器。可以切换到其他页面再切换回来解决
+  protected addSelectorData(el: HTMLElement, selector: string) {
+    if (settings.debugForWorkThumbnail) {
+      el.dataset.selector = selector
+    }
   }
 }
 

@@ -348,6 +348,7 @@ interface XzSetting {
   showBorderOnDownloadedWorks: boolean
   borderColor: string
   borderWidth: number
+  debugForWorkThumbnail: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -845,6 +846,7 @@ class Settings {
     showBorderOnDownloadedWorks: false,
     borderColor: '#ff4060',
     borderWidth: 3,
+    debugForWorkThumbnail: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

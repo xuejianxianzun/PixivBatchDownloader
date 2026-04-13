@@ -15,7 +15,6 @@ class NovelThumbnail extends WorkThumbnail {
     } else {
       this.selectors = [
         'li[size="1"]>div',
-        'section li>div',
         'nav>div>div',
         'div.gtm-novel-work-recommend-link',
         'section ul>div',
@@ -23,6 +22,9 @@ class NovelThumbnail extends WorkThumbnail {
         'div._ranking-item',
         'div[size="496"]',
         'div[size="392"]',
+        // 新版首页里的推荐作品，很奇怪，直接打开首页时是第一种选择器，切换到其他分类再切换回来是第二种选择器
+        'div[style="width:184px"]>div:first-child',
+        'div[style="width: 184px;"]>div:first-child',
         'div[data-ga4-entity-id^="novel"]>div:nth-child(2)',
         // 在搜索页面里，小说的选择器可能是这个
         'div[data-ga4-label="works_content"]>div>div',
@@ -33,7 +35,9 @@ class NovelThumbnail extends WorkThumbnail {
         '.image-container',
         // 在用户主页的“小说”分类的“精选”部分使用
         'ul ul li>div',
-        'ol li[id]',
+        'section li>div',
+        // 在小说排行榜页面里使用
+        'li[id]',
         '.gtm-illust-recommend-zone li',
         'li',
       ]
@@ -49,6 +53,7 @@ class NovelThumbnail extends WorkThumbnail {
     if (!parent.querySelectorAll) {
       return
     }
+
     // 遍历所有的选择器，为找到的元素绑定事件
     // 注意：有时候一个节点里会含有多种尺寸的缩略图，为了全部查找到它们，必须遍历所有的选择器。
     // 如果在查找到某个选择器之后，不再查找剩余的选择器，就可能会遗漏一部分缩略图。
@@ -70,7 +75,7 @@ class NovelThumbnail extends WorkThumbnail {
         if (
           pageType.type === pageType.list.NovelRanking &&
           selector !== 'div._ranking-item' &&
-          selector !== 'ol li[id]'
+          selector !== 'li[id]'
         ) {
           continue
         }
@@ -103,6 +108,26 @@ class NovelThumbnail extends WorkThumbnail {
           pageType.type !== pageType.list.Home
         ) {
           continue
+        }
+
+        // 在首页的首页分类里，不使用这些选择器，因为它会连带小说封面下方的作者区域也一起选择
+        if (
+          (selector === 'section li>div' || selector === 'section ul>li') &&
+          pageType.type === pageType.list.Home
+        ) {
+          if (location.pathname === '/' || location.pathname === '/en/') {
+            continue
+          }
+        }
+
+        // 在首页的小说分类里不使用这个选择器
+        if (
+          selector === 'section ul>div' &&
+          pageType.type === pageType.list.Home
+        ) {
+          if (location.pathname === '/novel') {
+            continue
+          }
         }
 
         if (
@@ -141,20 +166,16 @@ class NovelThumbnail extends WorkThumbnail {
       // 处理特殊的动态添加的元素
       // 有些动态添加的元素不能被选择器选中
 
-      // 小说系列页面里动态添加的就是 li 元素，并且这个 li 元素必须整个使用，不能再细分
+      // 在一些小说页面里，动态添加的元素就是 li 元素，直接使用它
       if (
-        pageType.type === pageType.list.NovelSeries &&
+        (pageType.type === pageType.list.NovelSeries ||
+          pageType.type === pageType.list.NovelRanking) &&
         parent.nodeName === 'LI'
       ) {
         elements = [parent]
       }
 
       for (const el of elements) {
-        // if (selector === 'li') {
-        //   console.log('li')
-        //   console.log(el)
-        // }
-
         const id = Tools.findWorkIdFromElement(el as HTMLElement, 'novels')
         // 在移动端页面里，此时获取的可能是 '0'
         // 依然绑定
@@ -168,6 +189,7 @@ class NovelThumbnail extends WorkThumbnail {
           if (id) {
             // 单篇小说
             this.bindEvents(el as HTMLElement, id, 'novels')
+            this.addSelectorData(el as HTMLElement, selector)
           } else {
             // 如果找不到作品 id，可能这个元素是系列小说，此时尝试查找系列 id
             const seriesId = Tools.findSeriesIdFromElement(
@@ -176,6 +198,7 @@ class NovelThumbnail extends WorkThumbnail {
             )
             if (seriesId) {
               this.bindEvents(el as HTMLElement, seriesId, 'novels', true)
+              this.addSelectorData(el as HTMLElement, selector)
             }
           }
         }
