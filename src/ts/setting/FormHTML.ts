@@ -1,7 +1,10 @@
 import { Config } from '../Config'
 import { wiki } from './Wiki'
 
-// 设置项编号从 0 开始，现在最大是 100
+// 设置项编号从 0 开始，现在最大是 101
+// 帮助按钮上的文字有两种：
+// - 如果帮助文字使用 MsgBox 显示，则使用“_帮助”
+// - 如果帮助文字直接在设置面板上显示，则使用“_提示”
 export const formHtml = `
 <form class="settingForm">
   <div class="tabsContnet">
@@ -642,7 +645,7 @@ export const formHtml = `
         <input type="checkbox" name="removeBlockedUsersWork" id="setRemoveBlockedUsersWork" class="need_beautify checkbox_common" checked>
         <span class="beautify_checkbox" tabindex="0"></span>
         <label for="setRemoveBlockedUsersWork" data-xztext="_从页面上移除他们的作品"></label>
-        <button type="button" class="gray1 textButton" id="showRemoveBlockedUsersWorkTip" data-xztext="_提示"></button>
+        <button type="button" class="gray1 textButton" id="showRemoveBlockedUsersWorkTip" data-xztext="_帮助"></button>
       </span>
     </p>
     <p class="option" data-no="39">
@@ -765,7 +768,7 @@ export const formHtml = `
       <span class="subOptionWrap" data-show="r18Folder">
         <span data-xztext="_目录名"></span>
         <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
-        <button type="button" class="gray1 textButton" id="showR18FolderNameTip" data-xztext="_提示"></button>
+        <button type="button" class="gray1 textButton" id="showR18FolderNameTip" data-xztext="_帮助"></button>
       </span>
     </p>
 
@@ -890,22 +893,27 @@ export const formHtml = `
       <span data-xztext="_下载"></span>
     </p>
     
+    <p class="option" data-no="101">
+      <a href="${wiki.link(101)}" target="_blank" class="settingNameStyle" data-xztext="_管理下载记录"></a>
+      <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
+      <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
+      <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
+      <button class="textButton gray1" type="button" id="downloadRecordHelp" data-xztext="_帮助"></button>
+    </p>
+
     <p class="option" data-no="28">
       <a href="${wiki.link(28)}" target="_blank" class="settingNameStyle" data-xztext="_不下载重复文件"></a>
       <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="deduplication" style="flex-grow: 0;">
         <span data-xztext="_策略"></span>
-        <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
-        <span class="beautify_radio" tabindex="0"></span>
-        <label class="has_tip" for="dupliStrategy1" data-xztip="_严格模式说明" data-xztext="_严格"></label>
         <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
         <span class="beautify_radio" tabindex="0"></span>
         <label class="has_tip" for="dupliStrategy2" data-xztip="_宽松模式说明" data-xztext="_宽松"></label>
+        <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
+        <span class="beautify_radio" tabindex="0"></span>
+        <label class="has_tip" for="dupliStrategy1" data-xztip="_严格模式说明" data-xztext="_严格"></label>
       </span>
-      <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
-      <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
-      <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
       <button class="textButton gray1" type="button" id="deduplicationHelp" data-xztext="_帮助"></button>
     </p>
 
@@ -1199,7 +1207,7 @@ export const formHtml = `
       </a>
       <input type="checkbox" name="rememberTheLastSaveLocation" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-      <button type="button" class="gray1 textButton" id="showRememberTheLastSaveLocationTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton" id="showRememberTheLastSaveLocationTip" data-xztext="_帮助"></button>
     </p>
     
     <p class="option" data-no="52">

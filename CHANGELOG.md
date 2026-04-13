@@ -1,5 +1,6 @@
 # CHANGLOG
 
+在 Pixiv 的 console 里隐藏这些消息：
 -doubleclick.net -admanmedia.com -frame -popin -bpoadfkcbjbfhfodiogcnhhhpibjhbnh -content_script.js -_app- -_app. 
 
 ## next
@@ -15,6 +16,12 @@
 如果你启用了这个设置，那么下载器在抓取每个作品前会先检查它是否有下载记录，如果有就不抓取它。
 
 这有助于增量更新，并减少不必要的抓取。
+
+### ✨新增设置：管理下载记录
+
+之前导出、导入、清除下载记录的按钮是放在“不下载重复文件”里的，但这次新增了 2 个依赖下载记录的功能，所以需要把管理下载的功能独立出来，这样条理更清晰。
+
+另外还修改了相关功能的帮助文本。
 
 ### ✨合并系列小说时，可以跳过之前已下载的部分
 

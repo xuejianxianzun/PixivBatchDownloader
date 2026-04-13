@@ -311,6 +311,11 @@ class Form {
         content: '_不下载重复文件的提示',
       },
       {
+        selector: '#downloadRecordHelp',
+        title: '_管理下载记录',
+        content: '_管理下载记录的提示',
+      },
+      {
         selector: '#showDonotCrawlAlreadyDownloadedWorksTip',
         title: '_不抓取下载过的作品',
         content: '_不抓取下载过的作品的帮助信息',
