@@ -1,7 +1,7 @@
 import { Config } from '../Config'
 import { wiki } from './Wiki'
 
-// 设置项编号从 0 开始，现在最大是 102
+// 设置项编号从 0 开始，现在最大是 104
 // 帮助按钮上的文字有两种：
 // - 如果帮助文字使用 MsgBox 显示，则使用“_帮助”
 // - 如果帮助文字直接在设置面板上显示，则使用“_提示”
@@ -616,24 +616,6 @@ export const formHtml = `
       </span>
     </p>
 
-    <p class="option" data-no="3">
-      <a href="${wiki.link(3)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
-        <span data-xztext="_多图作品只下载前几张图片"></span>
-        <span class="gray1"> ? </span>
-      </a>
-      <input type="checkbox" name="firstFewImagesSwitch" class="need_beautify checkbox_switch">
-      <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="firstFewImagesSwitch">
-        <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
-      </span>
-    </p>
-
-    <p class="option" data-no="69">
-      <a href="${wiki.link(69)}" target="_blank" class="settingNameStyle" data-xztext="_不抓取多图作品的最后一张图片"></a>
-      <input type="checkbox" name="doNotDownloadLastImageOfMultiImageWork" class="need_beautify checkbox_switch">
-      <span class="beautify_switch" tabindex="0"></span>
-    </p>
-
     <p class="option" data-no="47">
       <a href="${wiki.link(47)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品的图片数量上限提示">
         <span data-xztext="_多图作品的图片数量上限"></span>
@@ -644,6 +626,54 @@ export const formHtml = `
       <span class="subOptionWrap" data-show="multiImageWorkImageLimitSwitch">
         &lt;=&nbsp;
         <input type="text" name="multiImageWorkImageLimit" class="setinput_style1 blue" value="1">
+      </span>
+    </p>
+
+    <p class="option" data-no="3">
+      <a href="${wiki.link(3)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品只抓取前几张图片的说明">
+        <span data-xztext="_多图作品只抓取前几张图片"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="onlyCrawlFirstFewImagesSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="onlyCrawlFirstFewImagesSwitch">
+        <input type="text" name="onlyCrawlFirstFewImagesCount" class="setinput_style1 blue" value="1">
+      </span>
+    </p>
+
+    <p class="option" data-no="104">
+      <a href="${wiki.link(104)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品只抓取后几张图片的说明">
+        <span data-xztext="_多图作品只抓取后几张图片"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="onlyCrawlLastFewImagesSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="onlyCrawlLastFewImagesSwitch">
+        <input type="text" name="onlyCrawlLastFewImagesCount" class="setinput_style1 blue" value="1">
+      </span>
+    </p>
+    
+    <p class="option" data-no="103">
+      <a href="${wiki.link(103)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品不抓取前几张图片的说明">
+        <span data-xztext="_多图作品不抓取前几张图片"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="doNotCrawlFirstImagesSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="doNotCrawlFirstImagesSwitch">
+        <input type="text" name="doNotCrawlFirstImagesCount" class="setinput_style1 blue" value="1">
+      </span>
+    </p>
+
+    <p class="option" data-no="69">      
+      <a href="${wiki.link(69)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品不抓取后几张图片的说明">
+        <span data-xztext="_多图作品不抓取后几张图片"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="doNotCrawlLastImagesSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="doNotCrawlLastImagesSwitch">
+        <input type="text" name="doNotCrawlLastImagesCount" class="setinput_style1 blue" value="1">
       </span>
     </p>
 

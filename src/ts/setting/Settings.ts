@@ -101,8 +101,8 @@ type PageEntry = [PageName, any]
 // 如果使用 Map，会被转换为 `Object {}`，导致错误
 interface XzSetting {
   crawlNumber: { [key in PageName]: CrawlNumberConfig }
-  firstFewImagesSwitch: boolean
-  firstFewImages: number
+  onlyCrawlFirstFewImagesSwitch: boolean
+  onlyCrawlFirstFewImagesCount: number
   multiImageWorkImageLimitSwitch: boolean
   multiImageWorkImageLimit: number
   downType0: boolean
@@ -258,7 +258,8 @@ interface XzSetting {
   wheelScrollSwitchImageOnPreviewWork: boolean
   swicthImageByKeyboard: boolean
   /**不抓取多图作品的最后一张图片 */
-  doNotDownloadLastImageOfMultiImageWork: boolean
+  doNotCrawlLastImagesSwitch: boolean
+  doNotCrawlLastImagesCount: number
   downloadNovelCoverImage: boolean
   downloadNovelEmbeddedImage: boolean
   previewUgoira: boolean
@@ -349,6 +350,10 @@ interface XzSetting {
   borderColor: string
   borderWidth: number
   debugForWorkThumbnail: boolean
+  onlyCrawlLastFewImagesSwitch: boolean
+  onlyCrawlLastFewImagesCount: number
+  doNotCrawlFirstImagesSwitch: boolean
+  doNotCrawlFirstImagesCount: number
 }
 
 type SettingKeys = keyof XzSetting
@@ -587,8 +592,8 @@ class Settings {
         tip: '',
       },
     },
-    firstFewImagesSwitch: false,
-    firstFewImages: 1,
+    onlyCrawlFirstFewImagesSwitch: false,
+    onlyCrawlFirstFewImagesCount: 1,
     multiImageWorkImageLimitSwitch: false,
     multiImageWorkImageLimit: 10,
     downType0: true,
@@ -766,7 +771,8 @@ class Settings {
     showLargerThumbnails: false,
     wheelScrollSwitchImageOnPreviewWork: true,
     swicthImageByKeyboard: true,
-    doNotDownloadLastImageOfMultiImageWork: false,
+    doNotCrawlLastImagesSwitch: false,
+    doNotCrawlLastImagesCount: 1,
     downloadNovelCoverImage: true,
     downloadNovelEmbeddedImage: true,
     previewUgoira: true,
@@ -847,6 +853,10 @@ class Settings {
     borderColor: '#ff4060',
     borderWidth: 3,
     debugForWorkThumbnail: false,
+    onlyCrawlLastFewImagesSwitch: false,
+    onlyCrawlLastFewImagesCount: 1,
+    doNotCrawlFirstImagesSwitch: false,
+    doNotCrawlFirstImagesCount: 1,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -1042,10 +1052,6 @@ class Settings {
     EVT.fire('resetSettingsEnd')
   }
 
-  private tipError(key: string) {
-    msgBox.error(`${key}: Invalid value`)
-  }
-
   // 更改设置项
   // 其他模块应该通过这个方法更改设置
   // 这里面有一些类型转换的代码，主要目的：
@@ -1080,7 +1086,8 @@ class Settings {
             // 把日期字符串转换成时间戳
             const date = new Date(value as string)
             if (isNaN(date.getTime())) {
-              return this.tipError(key)
+              const msg = lang.transl('_日期和时间的值不正确') + ' ' + key
+              return msgBox.error(msg)
             }
             value = date.getTime()
           }
@@ -1095,7 +1102,8 @@ class Settings {
       }
 
       if (isNaN(value as number)) {
-        return this.tipError(key)
+        const msg = lang.transl('_设置的值不正确需要是数字') + ' ' + key
+        return msgBox.error(msg)
       }
     }
 
@@ -1146,7 +1154,7 @@ class Settings {
       value = 0
     }
 
-    if (key === 'firstFewImages' && (value as number) < 1) {
+    if (key === 'onlyCrawlFirstFewImagesCount' && (value as number) < 1) {
       value = this.defaultSettings[key]
     }
 
@@ -1161,16 +1169,27 @@ class Settings {
       }
     }
 
-    if (key === 'crawlLatestFewWorksNumber' && (value as number) < 1) {
-      value = 1
-    }
-
-    if (key === 'setWidthAndOr' && value === '') {
-      value = this.defaultSettings[key]
+    if (
+      key === 'onlyCrawlFirstFewImagesCount' ||
+      key === 'onlyCrawlLastFewImagesCount' ||
+      key === 'doNotCrawlFirstImagesCount' ||
+      key === 'doNotCrawlLastImagesCount'
+    ) {
+      if ((value as number) < 1 || isNaN(value as number)) {
+        value = 1
+      }
     }
 
     if (key === 'previewResultLimit' && (value as number) < 0) {
       value = 999999
+    }
+
+    if (key === 'borderWidth' && (value as number) < 1) {
+      value = this.defaultSettings[key]
+    }
+
+    if (key === 'setWidthAndOr' && value === '') {
+      value = this.defaultSettings[key]
     }
 
     if (key === 'workDirNameRule') {
@@ -1181,10 +1200,6 @@ class Settings {
       if (value === '' || (value as string).startsWith('#') === false) {
         value = this.defaultSettings[key]
       }
-    }
-
-    if (key === 'borderWidth' && (value as number) < 1) {
-      value = this.defaultSettings[key]
     }
 
     // namingRuleList 之前默认是空数组，后来默认包含了默认的命名规则，所以这里做个兼容处理

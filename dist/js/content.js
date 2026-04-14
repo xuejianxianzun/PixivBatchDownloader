@@ -6904,9 +6904,9 @@ class PPDTask {
     list = [];
     /** 添加一个配置。由于使用了索引来存储配置，所以可以重复添加同一个配置，这样用起来比较方便 */
     // index 的范围按照命令的作用来区分：
-    // 0 - 9: 用于设置抓取、下载流程里用于调试的 flag
+    // 0 - 9: 设置抓取、下载流程里用于调试的 flag
     // 10 - 19: 导出内容，例如抓取一些数据然后导出
-    // 20 - 29: 测试下载器的一些功能，例如连续输出日志。打开所有可用的标签页也属于此类
+    // 20 - 29: 测试下载器的一些功能，例如输出 Tools 里一些方法的结果、测试连续输出日志、打开所有测试用的标签页
     register(index, description, cb) {
         // 为了防止不同命令的 index 冲突导致错误的覆盖，当这个 index 已经被注册时，检查 description 是否相同
         // 如果相同，说明是同一个命令，直接覆盖
@@ -11662,6 +11662,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _setting_Wiki__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Wiki */ "./src/ts/setting/Wiki.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PPDTask */ "./src/ts/PPDTask.ts");
+
 
 
 
@@ -12671,6 +12673,22 @@ class Tools {
     }
 }
 
+// 测试 Tools 里的一些功能是否正常
+_PPDTask__WEBPACK_IMPORTED_MODULE_5__.ppdTask.register(23, 'Tools.checkUserLogin', () => {
+    alert(Tools.checkUserLogin());
+});
+_PPDTask__WEBPACK_IMPORTED_MODULE_5__.ppdTask.register(24, 'Tools.getLoggedUserID', () => {
+    alert(Tools.getLoggedUserID());
+});
+_PPDTask__WEBPACK_IMPORTED_MODULE_5__.ppdTask.register(25, 'Tools.getCurrentPageUserID', () => {
+    alert(Tools.getCurrentPageUserID());
+});
+_PPDTask__WEBPACK_IMPORTED_MODULE_5__.ppdTask.register(26, 'Tools.isPremium', () => {
+    alert(Tools.isPremium());
+});
+_PPDTask__WEBPACK_IMPORTED_MODULE_5__.ppdTask.register(27, 'Tools.getTagFromURL', () => {
+    alert(Tools.getTagFromURL());
+});
 
 
 /***/ }),
@@ -16472,7 +16490,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     deleteId = 0; // 手动删除时，要删除的作品的 id
     showPreviewIntervalId = 0; // showPreview 定时器的 id
     removeBlockIntervalId = 0; // removeBlockOnHotBar 定时器的 id
-    causeResultChange = ['firstFewImagesSwitch', 'firstFewImages']; // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
+    causeResultChange = ['onlyCrawlFirstFewImagesSwitch', 'onlyCrawlFirstFewImagesCount']; // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
     crawlStartBySelf = false; // 这次抓取是否是由当前页面的“开始抓取”按钮发起的
     previewCount = 0; // 共显示了多少个作品的预览图
     showPreviewLimitTip = false; // 当预览数量达到上限时显示一次提示
@@ -27031,6 +27049,134 @@ const blockTagsForSpecificUser = new BlockTagsForSpecificUser();
 
 /***/ }),
 
+/***/ "./src/ts/filter/CheckIndexForMultiImageWork.ts":
+/*!******************************************************!*\
+  !*** ./src/ts/filter/CheckIndexForMultiImageWork.ts ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   checkIndexForMultiImageWork: () => (/* binding */ checkIndexForMultiImageWork)
+/* harmony export */ });
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
+
+/** 检查多图作品里的某一张图片是否应该保留 */
+// 这个过滤器是在 Store 里使用的，所以独立出来了，没有放在 Filter 里
+class CheckIndexForMultiImageWork {
+    /** 检查多图作品只下载前几张图片 */
+    onlyCrawlFirstFewImages(index) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlFirstFewImagesSwitch) {
+            return true;
+        }
+        return index < _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlFirstFewImagesCount;
+    }
+    /** 多图作品只抓取后几张图片 */
+    onlyCrawlLastFewImages(index, pageCount) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlLastFewImagesSwitch) {
+            return true;
+        }
+        return index >= pageCount - _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlLastFewImagesCount;
+    }
+    /** 多图作品不抓取前几张图片 */
+    doNotCrawlFirstImages(index, pageCount) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.doNotCrawlFirstImagesSwitch) {
+            return true;
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.doNotCrawlFirstImagesCount >= pageCount) {
+            return index === pageCount - 1;
+        }
+        return index >= _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.doNotCrawlFirstImagesCount;
+    }
+    /** 多图作品不抓取后几张图片 */
+    doNotCrawlLastImages(index, pageCount) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.doNotCrawlLastImagesSwitch) {
+            return true;
+        }
+        // 如果设置的数字大于作品里的图片数量，那么下载器会保留第一张图片，而非排除整个作品。
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.doNotCrawlLastImagesCount >= pageCount) {
+            return index === 0;
+        }
+        return index < pageCount - _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.doNotCrawlLastImagesCount;
+    }
+    /** 特定用户的多图作品不下载最后几张图片 */
+    forSpecialUser(index, pageCount, userId) {
+        const removeLastFew = _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.DoNotDownloadLastFewImagesList.find((item) => item.uid === Number.parseInt(userId));
+        if (!removeLastFew) {
+            return true;
+        }
+        // 如果设置的数字大于作品里的图片数量，那么只排除最后一张
+        // 这个规则与前面的不同，这是特意为之的，因为这是一个定制功能
+        if (removeLastFew.value >= pageCount) {
+            return index < pageCount - 1;
+        }
+        return index < pageCount - removeLastFew.value;
+    }
+    check(index, pageCount, userId) {
+        // 每个过滤器的 true 都表示保留这个图片，false 表示排除这个图片
+        // 排除的优先级高于保留的优先级，也就是说先检查排除的规则，满足任意一个排除规则就直接排除，不再继续检查保留的规则
+        // 先检查不抓取特定图片的规则，满足任意一个规则就直接排除，不再继续检查
+        const notCrawlFirst = this.doNotCrawlFirstImages(index, pageCount);
+        if (!notCrawlFirst) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了多图作品里的部分图片原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品不抓取前几张图片'), 'checkDoNotCrawlFirstImages');
+            return false;
+        }
+        const notCrawlLast = this.doNotCrawlLastImages(index, pageCount);
+        if (!notCrawlLast) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了多图作品里的部分图片原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品不抓取后几张图片'), 'checkDoNotCrawlLastImages');
+            return false;
+        }
+        const forSpecialUser = this.forSpecialUser(index, pageCount, userId);
+        if (!forSpecialUser) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了多图作品里的部分图片原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_特定用户的多图作品不下载最后几张图片'), 'checkDoNotDownloadLastFewImagesForSpecialUser');
+            return false;
+        }
+        // 如果图片没有被“不抓取”规则排除，才会检查“只抓取”的规则
+        // 如果没有启用任何只抓取规则，就保留这个图片
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlFirstFewImagesSwitch && !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlLastFewImagesSwitch) {
+            return true;
+        }
+        let and = false;
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlFirstFewImagesSwitch && _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlLastFewImagesSwitch) {
+            // 如果同时启用了两个只抓取规则，则使用 OR（只要满足任意一个只抓取规则就保留）
+            // 这意味这用户可以设置同时抓取第一张和最后一张图片，跳过中间的图片
+            and = false;
+        }
+        else {
+            // 如果只启用了一个只抓取规则，那么就用 AND，即必须满足两个只抓取条件才保留，这样才能达到只启用一个规则时的预期效果
+            and = true;
+        }
+        let reason = '';
+        let logKey = '';
+        const crawlFirst = this.onlyCrawlFirstFewImages(index);
+        if (!crawlFirst) {
+            // 如果不满足只抓取的规则，不会立刻排除它，而是继续检查其他的只抓取规则
+            reason = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品只抓取前几张图片');
+            logKey = 'checkOnlyCrawlFirstFewImages';
+        }
+        const crawlLast = this.onlyCrawlLastFewImages(index, pageCount);
+        if (!crawlLast) {
+            reason = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品只抓取后几张图片');
+            logKey = 'checkOnlyCrawlLastFewImages';
+        }
+        const shouldCrawl = and ? crawlFirst && crawlLast : crawlFirst || crawlLast;
+        if (!shouldCrawl) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了多图作品里的部分图片原因') + reason, logKey);
+        }
+        return shouldCrawl;
+    }
+}
+const checkIndexForMultiImageWork = new CheckIndexForMultiImageWork();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/filter/Filter.ts":
 /*!*********************************!*\
   !*** ./src/ts/filter/Filter.ts ***!
@@ -28111,6 +28257,8 @@ class ShowEnabledFilter {
         this.getDoNotCrawlDownloadedWorks();
         this.getMultiImageWorkImageLimit();
         this.getCrawlFirstFewImages();
+        this.getCrawlLastFewImages();
+        this.getDoNotCrawlFirstImage();
         this.getDoNotCrawlLastImage();
         this.getBMKNum();
         this.getSetWh();
@@ -28225,21 +28373,6 @@ class ShowEnabledFilter {
             _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_排除作品类型') + tips.join(', '));
         }
     }
-    /** 提示多图作品只下载前几张图片 */
-    // 这个设置项会在这里显示提示，但不会在这里进行检查，因为它是在生成抓取结果时生效的
-    getCrawlFirstFewImages() {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.firstFewImagesSwitch) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning('🛸' +
-                `${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品只下载前几张图片')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.firstFewImages}`);
-        }
-    }
-    /** 提示不抓取多图作品的最后一张图片 */
-    // 这个设置项会在这里显示提示，但不会在这里进行检查，因为它是在生成抓取结果时生效的
-    getDoNotCrawlLastImage() {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.doNotDownloadLastImageOfMultiImageWork) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning('🛸' + `${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_不抓取多图作品的最后一张图片')}`);
-        }
-    }
     /** 提示多图作品的图片数量限制 */
     getMultiImageWorkImageLimit() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.multiImageWorkImageLimitSwitch) {
@@ -28250,6 +28383,33 @@ class ShowEnabledFilter {
                 _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品的图片数量上限') +
                 '：' +
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.multiImageWorkImageLimit);
+        }
+    }
+    /** 提示多图作品只抓取前几张图片 */
+    getCrawlFirstFewImages() {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.onlyCrawlFirstFewImagesSwitch) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning('🛸' +
+                `${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品只抓取前几张图片')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.onlyCrawlFirstFewImagesCount}`);
+        }
+    }
+    /** 提示多图作品只抓取后几张图片 */
+    getCrawlLastFewImages() {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.onlyCrawlLastFewImagesSwitch) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning('🛸' +
+                `${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品只抓取后几张图片')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.onlyCrawlLastFewImagesCount}`);
+        }
+    }
+    /** 提示多图作品不抓取前几张图片 */
+    getDoNotCrawlFirstImage() {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.doNotCrawlFirstImagesSwitch) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning('🛸' +
+                `${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品不抓取前几张图片')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.doNotCrawlFirstImagesCount}`);
+        }
+    }
+    /** 提示多图作品不抓取后几张图片 */
+    getDoNotCrawlLastImage() {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.doNotCrawlLastImagesSwitch) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning('🛸' + `${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品不抓取后几张图片')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.doNotCrawlLastImagesCount}`);
         }
     }
     /** 提示必须包含的tag */
@@ -32690,14 +32850,6 @@ Novel folder name: Novel`,
     _位置: ['位置', '位置', 'Position', '位置', '위치', 'Позиция'],
     _左: ['左', '左', 'Left', '左', '왼쪽', 'Слева'],
     _右: ['右', '右', 'Right', '右', '오른쪽', 'Справа'],
-    _多图作品只下载前几张图片: [
-        `多图作品只抓取<span class="key">前几张</span>图片`,
-        `多圖作品只抓取<span class="key">前幾張</span>圖片`,
-        `Multi-image works only crawl the <span class="key">first few</span> images`,
-        `マルチ画像作品は<span class="key">最初の数枚</span>の画像のみクロールします`,
-        `멀티 이미지 작품은 <span class="key">처음 몇 장</span> 이미지만 크롤링합니다`,
-        `Многоизображные работы загружают только <span class="key">первые несколько</span> изображений`,
-    ],
     _多图作品的图片数量上限: [
         '多图作品的图片<span class="key">数量</span>上限',
         '多圖作品的圖片<span class="key">數量</span>上限',
@@ -35817,6 +35969,14 @@ If you want to use this feature, please note:
         `🚫다운로더가 일부 작품을 제외했습니다, 이유: `,
         `🚫Загрузчик исключил некоторые работы, причина: `,
     ],
+    _下载器排除了多图作品里的部分图片原因: [
+        `🚫下载器排除了多图作品里的部分图片，原因: `,
+        `🚫下載器排除了多圖作品裡的部分圖片，原因: `,
+        `🚫 The downloader excluded some images from the multi-image work. Reason: `,
+        `🚫ダウンローダーは複数画像作品内のいくつかの画像を除外しました。理由：`,
+        `🚫 다운로더가 다중 이미지 작품의 일부 이미지를 제외했습니다. 이유: `,
+        `🚫 Загрузчик исключил некоторые изображения из многоизображной работы. Причина: `,
+    ],
     _作品的语言不符合你选择的语言: [
         `作品的语言不符合你选择的语言 {}`,
         `作品的語言不符合你選擇的語言 {}`,
@@ -37045,21 +37205,87 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `다운로더는 작품 썸네일에 일부 버튼을 표시하며, 썸네일의 왼쪽 또는 오른쪽에 표시되도록 설정할 수 있습니다.`,
         `Загрузчик будет отображать некоторые кнопки на миниатюрах произведений. Вы можете настроить, будут ли они отображаться слева или справа от миниатюры.`,
     ],
-    _左侧: [
-        `左侧`,
-        `左側`,
-        `Left`,
-        `左側`,
-        `왼쪽`,
-        `Левая сторона`,
+    _左侧: [`左侧`, `左側`, `Left`, `左側`, `왼쪽`, `Левая сторона`],
+    _右侧: [`右侧`, `右側`, `Right`, `右側`, `오른쪽`, `Правая сторона`],
+    _多图作品不抓取后几张图片: [
+        `多图作品不抓取<span class="key">后几张</span>图片`,
+        `多圖作品不抓取<span class="key">後幾張</span>圖片`,
+        `Do not crawl the <span class="key">last few</span> images of multi-image works`,
+        `複数画像作品で<span class="key">後ろの数枚</span>の画像をクロールしない`,
+        `다중 이미지 작품에서 <span class="key">뒤의 몇 장</span> 이미지를 크롤링하지 않음`,
+        `Не краулить <span class="key">последние несколько</span> изображений в многоизображных работах`,
     ],
-    _右侧: [
-        `右侧`,
-        `右側`,
-        `Right`,
-        `右側`,
-        `오른쪽`,
-        `Правая сторона`,
+    _多图作品不抓取后几张图片的说明: [
+        `常见的使用场景：有些画师的作品的最后一张或几张图片是宣传图，或者是有马赛克的图片。你可以启用这个设置来排除最后一张或多张图片。<br>注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留第一张图片，而非排除整个作品。<br>“只抓取”和“不抓取”的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
+        `常見的使用場景：有些畫師的作品的最後一張或幾張圖片是宣傳圖，或者是有馬賽克的圖片。你可以啟用這個設定來排除最後一張或多張圖片。<br>注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留第一張圖片，而非排除整個作品。<br>「只抓取」和「不抓取」的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時滿足兩種條件，下載器不會抓取它。`,
+        `Common usage scenarios: Some artists' works have the last one or several images as promotional images, or images with mosaics. You can enable this setting to exclude the last one or more images.<br>Note: If the number you set is greater than the number of images in the work, the downloader will keep the first image instead of excluding the entire work.<br>The "Only crawl" and "Do not crawl" conditions can be used simultaneously. "Do not crawl" has higher priority: if an image meets both conditions, the downloader will not crawl it.`,
+        `よくある使用シーン：一部の作家の作品では最後の1枚または数枚の画像が宣伝画像である場合、またはモザイクのかかった画像である場合があります。この設定を有効にすると、最後の1枚または複数枚の画像を除外できます。<br>注意：設定した数字が作品内の画像数より多い場合、ダウンローダーは最初の画像を保持し、作品全体を除外しません。<br>「のみクロール」と「クロールしない」条件を同時に使用できます。「クロールしない」の優先度がより高く、画像が両方の条件を満たす場合、ダウンローダーはその画像をクロールしません。`,
+        `일반적인 사용 시나리오: 일부 화가의 작품에서 마지막 한 장 또는 여러 장의 이미지가 홍보 이미지이거나 모자이크가 있는 이미지인 경우가 있습니다. 이 설정을 활성화하면 마지막 한 장 또는 여러 장의 이미지를 제외할 수 있습니다.<br>주의: 설정한 숫자가 작품 내 이미지 수보다 크면 다운로더는 첫 번째 이미지를 유지하고 전체 작품을 제외하지 않습니다.<br>"오직 크롤링"과 "크롤링하지 않음" 조건을 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다: 한 이미지가 두 조건을 모두 만족하면 다운로더는 해당 이미지를 크롤링하지 않습니다.`,
+        `Распространённые сценарии использования: У некоторых художников последняя одна или несколько картинок в работе являются рекламными изображениями или изображениями с мозаикой. Вы можете включить эту настройку, чтобы исключить последнюю одну или несколько картинок.<br>Примечание: Если заданное вами число превышает количество изображений в работе, загрузчик сохранит первое изображение вместо того, чтобы исключить всю работу.<br>Условия «Краулить только» и «Не краулить» можно использовать одновременно. Приоритет выше у «Не краулить»: если изображение удовлетворяет обоим условиям, загрузчик не будет его краулить.`,
+    ],
+    _多图作品不抓取前几张图片: [
+        `多图作品不抓取<span class="key">前几张</span>图片`,
+        `多圖作品不抓取<span class="key">前幾張</span>圖片`,
+        `Do not crawl the <span class="key">first few</span> images of multi-image works`,
+        `複数画像作品で<span class="key">最初の数枚</span>の画像をクロールしない`,
+        `다중 이미지 작품에서 <span class="key">앞의 몇 장</span> 이미지를 크롤링하지 않음`,
+        `Не краулить <span class="key">первые несколько</span> изображений в многоизображных работах`,
+    ],
+    _多图作品不抓取前几张图片的说明: [
+        `常见的使用场景：有些画师的作品的第一张图片有文字，第二张没有文字；或者第一张是全年龄的，第二张是 R-18 的。你可以启用这个设置来排除第一张或前几张图片。<br>注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留最后一张图片，而非排除整个作品。<br>“只抓取”和“不抓取”的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
+        `常見的使用場景：有些畫師的作品的第一張圖片有文字，第二張沒有文字；或者第一張是全齡的，第二張是 R-18 的。你可以啟用這個設定來排除第一張或前幾張圖片。<br>注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留最後一張圖片，而非排除整個作品。<br>「只抓取」和「不抓取」的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時滿足兩種條件，下載器不會抓取它。`,
+        `Common usage scenarios: Some artists' works have text on the first image and no text on the second; or the first image is all-ages and the second is R-18. You can enable this setting to exclude the first one or the first few images.<br>Note: If the number you set is greater than the number of images in the work, the downloader will keep the last image instead of excluding the entire work.<br>The "Only crawl" and "Do not crawl" conditions can be used simultaneously. "Do not crawl" has higher priority: if an image meets both conditions, the downloader will not crawl it.`,
+        `よくある使用シーン：一部の作家の作品では最初の画像に文字が入っており、2枚目には文字がない場合、または最初の画像が全年齢向けで2枚目がR-18の場合があります。この設定を有効にすると、最初の1枚または最初の数枚の画像を除外できます。<br>注意：設定した数字が作品内の画像数より多い場合、ダウンローダーは最後の画像を保持し、作品全体を除外しません。<br>「のみクロール」と「クロールしない」条件を同時に使用できます。「クロールしない」の優先度がより高く、画像が両方の条件を満たす場合、ダウンローダーはその画像をクロールしません。`,
+        `일반적인 사용 시나리오: 일부 화가의 작품에서 첫 번째 이미지는 텍스트가 있고 두 번째 이미지는 텍스트가 없거나, 첫 번째 이미지는 전체 연령대용이고 두 번째 이미지는 R-18인 경우가 있습니다. 이 설정을 활성화하면 첫 번째 한 장 또는 앞의 몇 장의 이미지를 제외할 수 있습니다.<br>주의: 설정한 숫자가 작품 내 이미지 수보다 크면 다운로더는 마지막 이미지를 유지하고 전체 작품을 제외하지 않습니다.<br>"오직 크롤링"과 "크롤링하지 않음" 조건을 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다: 한 이미지가 두 조건을 모두 만족하면 다운로더는 해당 이미지를 크롤링하지 않습니다.`,
+        `Распространённые сценарии использования: У некоторых художников первая картинка в работе содержит текст, а вторая — нет; или первая картинка является общедоступной (all-ages), а вторая — R-18. Вы можете включить эту настройку, чтобы исключить первую одну или первые несколько картинок.<br>Примечание: Если заданное вами число превышает количество изображений в работе, загрузчик сохранит последнюю картинку вместо того, чтобы исключить всю работу.<br>Условия «Краулить только» и «Не краулить» можно использовать одновременно. Приоритет выше у «Не краулить»: если изображение удовлетворяет обоим условиям, загрузчик не будет его краулить.`,
+    ],
+    _多图作品只抓取前几张图片: [
+        `多图作品只抓取<span class="key">前几张</span>图片`,
+        `多圖作品只抓取<span class="key">前幾張</span>圖片`,
+        `Multi-image works only crawl the <span class="key">first few</span> images`,
+        `マルチ画像作品は<span class="key">最初の数枚</span>の画像のみクロールします`,
+        `멀티 이미지 작품은 <span class="key">처음 몇 장</span> 이미지만 크롤링합니다`,
+        `Многоизображные работы загружают только <span class="key">первые несколько</span> изображений`,
+    ],
+    _多图作品只抓取前几张图片的说明: [
+        `常见的使用场景：如果你不想从多图作品里下载太多图片，或者你觉得第一张图片最有价值，就可以启用这个设置。<br>提示：两个“只抓取”条件可以同时使用，此时图片只要满足其中一个条件就会保留。这样你可以跳过中间的图片，只下载首尾的图片。`,
+        `常見的使用場景：如果你不想從多圖作品裡下載太多圖片，或者你覺得第一張圖片最有價值，就可以啟用這個設定。<br>提示：兩個「只抓取」條件可以同時使用，此時圖片只要滿足其中一個條件就會保留。這樣你可以跳過中間的圖片，只下載首尾的圖片。`,
+        `Common usage scenarios: If you don't want to download too many images from multi-image works, or if you think the first image is the most valuable, you can enable this setting.<br>Tip: The two "Only crawl" conditions can be used simultaneously. In this case, an image will be kept as long as it meets either condition. This allows you to skip the middle images and only download the first and last images.`,
+        `よくある使用シーン：多画像作品からあまり多くの画像をダウンロードしたくない場合、または最初の画像が最も価値があると思う場合は、この設定を有効にできます。<br>ヒント：2つの「のみクロール」条件を同時に使用できます。この場合、画像はいずれかの条件を満たしていれば保持されます。これにより、中間の画像をスキップして、最初と最後の画像のみをダウンロードできます。`,
+        `일반적인 사용 시나리오: 다중 이미지 작품에서 너무 많은 이미지를 다운로드하고 싶지 않거나 첫 번째 이미지가 가장 가치 있다고 생각한다면 이 설정을 활성화할 수 있습니다.<br>팁: 두 "오직 크롤링" 조건을 동시에 사용할 수 있습니다. 이 경우 이미지는 어느 한 조건을 만족하면 유지됩니다. 이렇게 하면 중간 이미지를 건너뛰고 처음과 마지막 이미지만 다운로드할 수 있습니다.`,
+        `Распространённые сценарии использования: Если вы не хотите скачивать слишком много изображений из многоизображных работ или считаете, что первая картинка наиболее ценная, вы можете включить эту настройку.<br>Подсказка: Два условия «Краулить только» можно использовать одновременно. В этом случае изображение будет сохранено, если оно удовлетворяет хотя бы одному из условий. Таким образом вы можете пропустить средние изображения и скачать только первые и последние.`,
+    ],
+    _多图作品只抓取后几张图片: [
+        `多图作品只抓取<span class="key">后几张</span>图片`,
+        `多圖作品只抓取<span class="key">後幾張</span>圖片`,
+        `Only crawl the <span class="key">last few</span> images of multi-image works`,
+        `複数画像作品で<span class="key">後ろの数枚</span>の画像のみをクロール`,
+        `다중 이미지 작품에서 <span class="key">뒤의 몇 장</span> 이미지만 크롤링`,
+        `Краулить только <span class="key">последние несколько</span> изображений в многоизображных работах`,
+    ],
+    _多图作品只抓取后几张图片的说明: [
+        `常见的使用场景：一些用户在发布恋活（Koikatu）等游戏的人物卡或场景卡时，前面的图片都是截图展示，最后一张才是包含数据的卡片。你可以启用这个设置只抓取最后一张或多张图片。<br>提示：两个“只抓取”条件可以同时使用，此时图片只要满足其中一个条件就会保留。这样你可以跳过中间的图片，只下载首尾的图片。`,
+        `常見的使用場景：一些用戶在發佈戀活（Koikatu）等遊戲的人物卡或場景卡時，前面的圖片都是截圖展示，最後一張才是包含數據的卡片。你可以啟用這個設定只抓取最後一張或多張圖片。<br>提示：兩個「只抓取」條件可以同時使用，此時圖片只要滿足其中一個條件就會保留。這樣你可以跳過中間的圖片，只下載首尾的圖片。`,
+        `Common usage scenarios: When some users post character cards or scene cards for games such as Koikatu, the preceding images are all screenshots for display, and only the last image contains the actual data card. You can enable this setting to crawl only the last one or more images.<br>Tip: The two "Only crawl" conditions can be used simultaneously. In this case, an image will be kept as long as it meets either condition. This allows you to skip the middle images and only download the first and last images.`,
+        `よくある使用シーン：一部のユーザーがKoikatuなどのゲームのキャラクタカードやシーンのカードを投稿する際、前の画像はすべてスクリーンショットによる展示で、最後の1枚だけがデータを含むカードです。この設定を有効にすると、最後の1枚または複数枚の画像のみをクロールできます。<br>ヒント：2つの「のみクロール」条件を同時に使用できます。この場合、画像はいずれかの条件を満たしていれば保持されます。これにより、中間の画像をスキップして、最初と最後の画像のみをダウンロードできます。`,
+        `일반적인 사용 시나리오: 일부 사용자가 Koikatu 등의 게임 캐릭터 카드나 장면 카드를 게시할 때 앞의 이미지는 모두 스크린샷 전시이고 마지막 한 장만이 데이터를 포함한 카드입니다. 이 설정을 활성화하면 마지막 한 장 또는 여러 장의 이미지만 크롤링할 수 있습니다.<br>팁: 두 "오직 크롤링" 조건을 동시에 사용할 수 있습니다. 이 경우 이미지는 어느 한 조건을 만족하면 유지됩니다. 이렇게 하면 중간 이미지를 건너뛰고 처음과 마지막 이미지만 다운로드할 수 있습니다.`,
+        `Распространённые сценарии использования: Когда некоторые пользователи публикуют карточки персонажей или сцен для игр вроде Koikatu, предыдущие изображения — это все скриншоты для демонстрации, а только последняя картинка содержит саму карточку с данными. Вы можете включить эту настройку, чтобы краулить только последнюю одну или несколько картинок.<br>Подсказка: Два условия «Краулить только» можно использовать одновременно. В этом случае изображение будет сохранено, если оно удовлетворяет хотя бы одному из условий. Таким образом вы можете пропустить средние изображения и скачать только первые и последние.`,
+    ],
+    _设置的值不正确需要是数字: [
+        `设置的值不正确，需要是数字：`,
+        `設定的值不正確，需要是數字：`,
+        `The setting value is incorrect, it must be a number:`,
+        `設定値が正しくありません。数字である必要があります：`,
+        `설정 값이 올바르지 않습니다. 숫자여야 합니다:`,
+        `Значение настройки неверно, оно должно быть числом:`,
+    ],
+    _日期和时间的值不正确: [
+        `日期和时间的值不正确：`,
+        `日期和時間的值不正確：`,
+        `The date and time value is incorrect:`,
+        `日付と時刻の値が正しくありません：`,
+        `날짜와 시간 값이 올바르지 않습니다:`,
+        `Значение даты и времени неверно:`,
     ],
 };
 
@@ -40427,7 +40653,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Wiki__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Wiki */ "./src/ts/setting/Wiki.ts");
 
 
-// 设置项编号从 0 开始，现在最大是 102
+// 设置项编号从 0 开始，现在最大是 103
 // 帮助按钮上的文字有两种：
 // - 如果帮助文字使用 MsgBox 显示，则使用“_帮助”
 // - 如果帮助文字直接在设置面板上显示，则使用“_提示”
@@ -41042,24 +41268,6 @@ const formHtml = `
       </span>
     </p>
 
-    <p class="option" data-no="3">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(3)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
-        <span data-xztext="_多图作品只下载前几张图片"></span>
-        <span class="gray1"> ? </span>
-      </a>
-      <input type="checkbox" name="firstFewImagesSwitch" class="need_beautify checkbox_switch">
-      <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="firstFewImagesSwitch">
-        <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
-      </span>
-    </p>
-
-    <p class="option" data-no="69">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(69)}" target="_blank" class="settingNameStyle" data-xztext="_不抓取多图作品的最后一张图片"></a>
-      <input type="checkbox" name="doNotDownloadLastImageOfMultiImageWork" class="need_beautify checkbox_switch">
-      <span class="beautify_switch" tabindex="0"></span>
-    </p>
-
     <p class="option" data-no="47">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(47)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品的图片数量上限提示">
         <span data-xztext="_多图作品的图片数量上限"></span>
@@ -41070,6 +41278,54 @@ const formHtml = `
       <span class="subOptionWrap" data-show="multiImageWorkImageLimitSwitch">
         &lt;=&nbsp;
         <input type="text" name="multiImageWorkImageLimit" class="setinput_style1 blue" value="1">
+      </span>
+    </p>
+
+    <p class="option" data-no="3">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(3)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品只抓取前几张图片的说明">
+        <span data-xztext="_多图作品只抓取前几张图片"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="onlyCrawlFirstFewImagesSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="onlyCrawlFirstFewImagesSwitch">
+        <input type="text" name="onlyCrawlFirstFewImagesCount" class="setinput_style1 blue" value="1">
+      </span>
+    </p>
+
+    <p class="option" data-no="104">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(104)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品只抓取后几张图片的说明">
+        <span data-xztext="_多图作品只抓取后几张图片"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="onlyCrawlLastFewImagesSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="onlyCrawlLastFewImagesSwitch">
+        <input type="text" name="onlyCrawlLastFewImagesCount" class="setinput_style1 blue" value="1">
+      </span>
+    </p>
+    
+    <p class="option" data-no="103">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(103)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品不抓取前几张图片的说明">
+        <span data-xztext="_多图作品不抓取前几张图片"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="doNotCrawlFirstImagesSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="doNotCrawlFirstImagesSwitch">
+        <input type="text" name="doNotCrawlFirstImagesCount" class="setinput_style1 blue" value="1">
+      </span>
+    </p>
+
+    <p class="option" data-no="69">      
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(69)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品不抓取后几张图片的说明">
+        <span data-xztext="_多图作品不抓取后几张图片"></span>
+        <span class="gray1"> ? </span>
+      </a>
+      <input type="checkbox" name="doNotCrawlLastImagesSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <span class="subOptionWrap" data-show="doNotCrawlLastImagesSwitch">
+        <input type="text" name="doNotCrawlLastImagesCount" class="setinput_style1 blue" value="1">
       </span>
     </p>
 
@@ -42154,7 +42410,7 @@ class FormSettings {
             'downBlackWhiteImg',
             'downNotBookmarked',
             'downBookmarked',
-            'firstFewImagesSwitch',
+            'onlyCrawlFirstFewImagesSwitch',
             'multiImageWorkImageLimitSwitch',
             'saveNovelMeta',
             'BMKNumSwitch',
@@ -42213,7 +42469,7 @@ class FormSettings {
             'showLargerThumbnails',
             'wheelScrollSwitchImageOnPreviewWork',
             'swicthImageByKeyboard',
-            'doNotDownloadLastImageOfMultiImageWork',
+            'doNotCrawlLastImagesSwitch',
             'downloadNovelCoverImage',
             'downloadNovelEmbeddedImage',
             'previewUgoira',
@@ -42254,9 +42510,12 @@ class FormSettings {
             'looseMatchOriginal',
             'DonotCrawlAlreadyDownloadedWorks',
             'showBorderOnDownloadedWorks',
+            'removeEmoji',
+            'onlyCrawlLastFewImagesSwitch',
+            'doNotCrawlFirstImagesSwitch',
         ],
         text: [
-            'firstFewImages',
+            'onlyCrawlFirstFewImagesCount',
             'multiImageWorkImageLimit',
             'convertUgoiraThread',
             'BMKNumMin',
@@ -42292,9 +42551,11 @@ class FormSettings {
             'copyWorkInfoFormat',
             'crawlLatestFewWorksNumber',
             'fullNameLengthLimit',
-            'removeEmoji',
             'borderColor',
             'borderWidth',
+            'doNotCrawlLastImagesCount',
+            'onlyCrawlLastFewImagesCount',
+            'doNotCrawlFirstImagesCount',
         ],
         radio: [
             'ugoiraSaveAs',
@@ -42813,6 +43074,24 @@ class Options {
             // 2026-04-14
             time: 1776098259792,
         },
+        {
+            // 多图作品不抓取后几张图片
+            id: 69,
+            // 2026-04-14
+            time: 1776147641055,
+        },
+        {
+            // 多图作品不抓取前几张图片
+            id: 103,
+            // 2026-04-14
+            time: 1776147641055,
+        },
+        {
+            // 多图作品只抓取后几张图片
+            id: 104,
+            // 2026-04-14
+            time: 1776147641055,
+        },
     ];
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
@@ -42870,7 +43149,7 @@ class Options {
                 23, 24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44,
                 46, 47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
                 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,
-                84, 85, 86, 87, 88, 89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101,
+                84, 85, 86, 87, 88, 89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104,
             ]);
         }
     }
@@ -43370,8 +43649,8 @@ class Settings {
                 tip: '',
             },
         },
-        firstFewImagesSwitch: false,
-        firstFewImages: 1,
+        onlyCrawlFirstFewImagesSwitch: false,
+        onlyCrawlFirstFewImagesCount: 1,
         multiImageWorkImageLimitSwitch: false,
         multiImageWorkImageLimit: 10,
         downType0: true,
@@ -43545,7 +43824,8 @@ class Settings {
         showLargerThumbnails: false,
         wheelScrollSwitchImageOnPreviewWork: true,
         swicthImageByKeyboard: true,
-        doNotDownloadLastImageOfMultiImageWork: false,
+        doNotCrawlLastImagesSwitch: false,
+        doNotCrawlLastImagesCount: 1,
         downloadNovelCoverImage: true,
         downloadNovelEmbeddedImage: true,
         previewUgoira: true,
@@ -43624,6 +43904,10 @@ class Settings {
         borderColor: '#ff4060',
         borderWidth: 3,
         debugForWorkThumbnail: false,
+        onlyCrawlLastFewImagesSwitch: false,
+        onlyCrawlLastFewImagesCount: 1,
+        doNotCrawlFirstImagesSwitch: false,
+        doNotCrawlFirstImagesCount: 1,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的设置
@@ -43789,9 +44073,6 @@ class Settings {
         this.assignSettings(data ? data : this.defaultSettings);
         _EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.fire('resetSettingsEnd');
     }
-    tipError(key) {
-        _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(`${key}: Invalid value`);
-    }
     // 更改设置项
     // 其他模块应该通过这个方法更改设置
     // 这里面有一些类型转换的代码，主要目的：
@@ -43823,7 +44104,8 @@ class Settings {
                         // 把日期字符串转换成时间戳
                         const date = new Date(value);
                         if (isNaN(date.getTime())) {
-                            return this.tipError(key);
+                            const msg = _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_日期和时间的值不正确') + ' ' + key;
+                            return _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(msg);
                         }
                         value = date.getTime();
                     }
@@ -43839,7 +44121,8 @@ class Settings {
                 }
             }
             if (isNaN(value)) {
-                return this.tipError(key);
+                const msg = _Language__WEBPACK_IMPORTED_MODULE_8__.lang.transl('_设置的值不正确需要是数字') + ' ' + key;
+                return _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.error(msg);
             }
         }
         if (keyType === 'boolean' && valueType !== 'boolean') {
@@ -43882,7 +44165,7 @@ class Settings {
         if (key === 'downloadIntervalOnWorksNumber' && value < 0) {
             value = 0;
         }
-        if (key === 'firstFewImages' && value < 1) {
+        if (key === 'onlyCrawlFirstFewImagesCount' && value < 1) {
             value = this.defaultSettings[key];
         }
         if (key === 'fullNameLengthLimit') {
@@ -43895,14 +44178,22 @@ class Settings {
                 value = 250;
             }
         }
-        if (key === 'crawlLatestFewWorksNumber' && value < 1) {
-            value = 1;
-        }
-        if (key === 'setWidthAndOr' && value === '') {
-            value = this.defaultSettings[key];
+        if ((key === 'onlyCrawlFirstFewImagesCount' ||
+            key === 'onlyCrawlLastFewImagesCount' ||
+            key === 'doNotCrawlFirstImagesCount' ||
+            key === 'doNotCrawlLastImagesCount')) {
+            if (value < 1 || isNaN(value)) {
+                value = 1;
+            }
         }
         if (key === 'previewResultLimit' && value < 0) {
             value = 999999;
+        }
+        if (key === 'borderWidth' && value < 1) {
+            value = this.defaultSettings[key];
+        }
+        if (key === 'setWidthAndOr' && value === '') {
+            value = this.defaultSettings[key];
         }
         if (key === 'workDirNameRule') {
             value = value.replace('{id}', '{id_num}');
@@ -43911,9 +44202,6 @@ class Settings {
             if (value === '' || value.startsWith('#') === false) {
                 value = this.defaultSettings[key];
             }
-        }
-        if (key === 'borderWidth' && value < 1) {
-            value = this.defaultSettings[key];
         }
         // namingRuleList 之前默认是空数组，后来默认包含了默认的命名规则，所以这里做个兼容处理
         if (key === 'namingRuleList' && value.length === 0) {
@@ -45022,32 +45310,36 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   store: () => (/* binding */ store)
 /* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _filter_CheckIndexForMultiImageWork__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../filter/CheckIndexForMultiImageWork */ "./src/ts/filter/CheckIndexForMultiImageWork.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 
 
 
-// 保存抓取结果和其他一些公用数据
+/** 保存抓取结果和一些公用数据 */
 class Store {
     constructor() {
         this.loggedUserID = _Tools__WEBPACK_IMPORTED_MODULE_2__.Tools.getLoggedUserID();
         this.bindEvents();
     }
-    /** 在某些页面类型里，可能没有获取到用户 ID，所以有可能是空字符串 */
+    /** 保存当前登录的用户的 ID。在某些页面类型里，可能没有获取到用户 ID，所以有可能是空字符串 */
     loggedUserID = '';
-    idList = []; // 储存从列表中抓取到的作品的 id
-    /** 下载器尚未完成本次下载时，如果有新的下载请求，则添加到等待队列里
+    /** 储存从列表中抓取到的作品的 id */
+    idList = [];
+    /** 下载器忙碌时，如果有新的抓取请求，则添加到等待队列里
      *
      * 当下载器的抓取结果为空、以及下载完毕后，会开始抓取等待队列里的 id */
     waitingIdList = [];
+    /** 储存抓取结果的元数据。每个作品只会有一条数据 */
+    // 抓取图片作品时，会根据此数据生成每一张图片的数据（result）
     resultMeta = [];
-    // 储存抓取结果的元数据，每个作品只会有一条数据
-    // 抓取图片作品时，根据此数据生成每一张图片的数据，也就是生成多个 result
     // 有一种情况下没有 resultMeta 数据：Resume 也就是恢复未完成的下载时，只恢复了 result，没有生成 resultMeta
-    result = []; // 储存抓取结果
-    artworkIDList = []; // 储存抓取到的图片作品的 id 列表，用来避免重复添加
-    novelIDList = []; // 储存抓取到的小说作品的 id 列表，用来避免重复添加
-    /**记录从每个作品里下载多少个文件 */
+    /** 储存抓取结果 */
+    result = [];
+    /** 储存抓取到的图片作品的 id 列表，用来避免重复添加 */
+    artworkIDList = [];
+    /** 储存抓取到的小说作品的 id 列表，用来避免重复添加 */
+    novelIDList = [];
+    /** 记录从每个作品里下载多少个文件 */
     downloadCount = {};
     // 恢复未完成的下载之后，生成 downloadCount 数据
     // 因为保存的任务数据里没有 downloadCount，并且恢复数据时也没有生成 downloadCount
@@ -45057,13 +45349,19 @@ class Store {
             this.downloadCount[r.idNum] = (this.downloadCount[r.idNum] || 0) + 1;
         }
     }
-    remainingDownload = 0; // 剩余多少个等待下载和保存的文件
-    rankList = {}; // 储存作品在排行榜中的排名
-    tag = ''; // 开始抓取时，储存页面此时的 tag
-    title = ''; // 开始抓取时，储存页面此时的 title
-    URLWhenCrawlStart = ''; // 开始抓取时，储存页面此时的 URL
+    /** 有多少个文件尚未下载完成 */
+    remainingDownload = 0;
+    /** 储存作品在排行榜中的排名 */
+    rankList = {};
+    /** 开始抓取时，储存页面此时的 tag */
+    tag = '';
+    /** 开始抓取时，储存页面此时的 title */
+    title = '';
+    /** 开始抓取时，储存页面此时的 URL */
+    URLWhenCrawlStart = '';
+    /** 抓取完成的时间 */
     crawlCompleteTime = new Date();
-    /**只下载作品里的一部分图片 */
+    /** 只下载作品里的一部分图片 */
     downloadOnlyPart = {};
     setDownloadOnlyPart(workID, indexList) {
         if (this.downloadOnlyPart[workID]) {
@@ -45116,81 +45414,66 @@ class Store {
     // 如果一个作品有多张图片，只需要传递第一张图片的数据。后面的数据会根据设置自动生成
     addResult(data) {
         // 检查该作品 id 是否已存在，已存在则不添加
-        const useList = data.type === 3 ? this.novelIDList : this.artworkIDList;
         if (data.idNum !== undefined) {
+            const useList = data.type === 3 ? this.novelIDList : this.artworkIDList;
             if (useList.includes(data.idNum)) {
                 return;
             }
             useList.push(data.idNum);
         }
-        // 添加该作品的元数据
-        const workData = Object.assign({}, this.resultDefault, data);
-        if (workData.type === 0 || workData.type === 1) {
-            workData.id = workData.idNum + `_p0`;
+        // 生成该作品的元数据
+        const meta = Object.assign({}, this.resultDefault, data);
+        if (meta.type === 0 || meta.type === 1) {
+            meta.id = meta.idNum + `_p0`;
         }
         else {
-            workData.id = workData.idNum.toString();
+            meta.id = meta.idNum.toString();
         }
-        this.resultMeta.push(workData);
-        _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('addResult', workData);
-        // 保存这个作品里每个文件的数据
-        if (workData.type === 2 || workData.type === 3) {
-            // 动图和小说作品直接添加
-            this.result.push(workData);
-            this.downloadCount[workData.idNum] = 1;
+        this.resultMeta.push(meta);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.fire('addResult', meta);
+        // 添加作品里每个文件的数据
+        if (meta.type === 2 || meta.type === 3) {
+            // 动图和小说作品只有一个文件，直接使用元数据
+            this.result.push(meta);
+            this.downloadCount[meta.idNum] = 1;
         }
         else {
-            // 插画和漫画
+            // 插画和漫画可能有多个文件，需要确定保存哪些文件
             // 储存需要下载的图片的索引
-            let fileIndexList = [];
-            // 只下载部分图片
-            if (this.downloadOnlyPart[workData.idNum]) {
-                fileIndexList = this.downloadOnlyPart[workData.idNum];
-                delete this.downloadOnlyPart[workData.idNum];
+            let indexList = [];
+            // 如果已经指定了只下载部分图片
+            if (this.downloadOnlyPart[meta.idNum]) {
+                indexList = this.downloadOnlyPart[meta.idNum];
+                delete this.downloadOnlyPart[meta.idNum];
             }
             else {
-                // 下载全部图片
-                let total = workData.pageCount;
-                // 如果下载全部图片，则检查一些过滤器
-                // 只下载部分图片时，用户已经手动指定了要下载的图片，所以不要检查这些过滤器
-                // 多图作品只下载前几张图片
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.firstFewImagesSwitch) {
-                    total = Math.min(workData.pageCount, _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.firstFewImages);
+                // 如果没有指定要下载的图片，则从全部图片里取出要下载的部分
+                const pageCount = meta.pageCount;
+                const allIndex = [...Array(pageCount).keys()];
+                // 单图作品在这里不需要应用过滤器，保存所有图片（其实也就一个）
+                if (pageCount === 1) {
+                    indexList = allIndex;
                 }
-                // 不抓取多图作品的最后一张图片
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.doNotDownloadLastImageOfMultiImageWork &&
-                    workData.pageCount > 1) {
-                    total = Math.min(total, workData.pageCount - 1);
-                }
-                // 特定用户的多图作品不下载最后几张图片
-                if (workData.pageCount > 1) {
-                    const removeLastFew = _setting_Settings__WEBPACK_IMPORTED_MODULE_1__.settings.DoNotDownloadLastFewImagesList.find((item) => item.uid === Number.parseInt(workData.userId));
-                    if (removeLastFew && removeLastFew.value > 0) {
-                        let number = workData.pageCount - removeLastFew.value;
-                        if (number < 1) {
-                            // 用户设置的值有可能把这个作品的图片全部排除了，此时只跳过最后一张
-                            number = workData.pageCount - 1;
-                        }
-                        total = Math.min(total, number);
-                    }
-                }
-                for (let i = 0; i < total; i++) {
-                    fileIndexList.push(i);
+                else {
+                    // 对多图作品应用过滤器，来决定最终保留哪些图片
+                    // 每个过滤器都可能会删除一些图片，只保留部分图片
+                    // 这些过滤器的执行顺序不重要，取它们的交集来确定最终保留哪些图片（在所有过滤器里都为 true 的项）
+                    indexList = allIndex.filter((index) => _filter_CheckIndexForMultiImageWork__WEBPACK_IMPORTED_MODULE_1__.checkIndexForMultiImageWork.check(index, pageCount, meta.userId));
                 }
             }
-            this.downloadCount[workData.idNum] = fileIndexList.length;
-            // 生成每个图片的数据
+            this.downloadCount[meta.idNum] = indexList.length;
+            // 添加插画、漫画作品里每个文件的数据
             const p0 = 'p0';
-            for (const i of fileIndexList) {
-                const fileData = Object.assign({}, workData);
+            for (const i of indexList) {
+                const result = Object.assign({}, meta);
                 const pi = 'p' + i;
-                fileData.index = i;
-                fileData.id = fileData.id.replace(p0, pi);
-                fileData.original = fileData.original.replace(p0, pi);
-                fileData.regular = fileData.regular.replace(p0, pi);
-                fileData.small = fileData.small.replace(p0, pi);
-                fileData.thumb = fileData.thumb.replace(p0, pi);
-                this.result.push(fileData);
+                result.index = i;
+                result.id = meta.id.replace(p0, pi);
+                result.original = meta.original.replace(p0, pi);
+                result.regular = meta.regular.replace(p0, pi);
+                result.small = meta.small.replace(p0, pi);
+                result.thumb = meta.thumb.replace(p0, pi);
+                this.result.push(result);
             }
         }
     }

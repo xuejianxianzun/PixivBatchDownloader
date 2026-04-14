@@ -11,6 +11,7 @@ import {
   WorkType,
 } from './store/StoreType'
 import { Utils } from './utils/Utils'
+import { ppdTask } from './PPDTask'
 
 type artworkDataTagsItem = {
   tag: string
@@ -1214,3 +1215,20 @@ class Tools {
 }
 
 export { Tools }
+
+// 测试 Tools 里的一些功能是否正常
+ppdTask.register(23, 'Tools.checkUserLogin', () => {
+  alert(Tools.checkUserLogin())
+})
+ppdTask.register(24, 'Tools.getLoggedUserID', () => {
+  alert(Tools.getLoggedUserID())
+})
+ppdTask.register(25, 'Tools.getCurrentPageUserID', () => {
+  alert(Tools.getCurrentPageUserID())
+})
+ppdTask.register(26, 'Tools.isPremium', () => {
+  alert(Tools.isPremium())
+})
+ppdTask.register(27, 'Tools.getTagFromURL', () => {
+  alert(Tools.getTagFromURL())
+})

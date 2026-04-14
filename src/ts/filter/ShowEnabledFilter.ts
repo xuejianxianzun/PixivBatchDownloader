@@ -30,6 +30,8 @@ class ShowEnabledFilter {
     this.getDoNotCrawlDownloadedWorks()
     this.getMultiImageWorkImageLimit()
     this.getCrawlFirstFewImages()
+    this.getCrawlLastFewImages()
+    this.getDoNotCrawlFirstImage()
     this.getDoNotCrawlLastImage()
     this.getBMKNum()
     this.getSetWh()
@@ -186,25 +188,6 @@ class ShowEnabledFilter {
     }
   }
 
-  /** 提示多图作品只下载前几张图片 */
-  // 这个设置项会在这里显示提示，但不会在这里进行检查，因为它是在生成抓取结果时生效的
-  private getCrawlFirstFewImages() {
-    if (settings.firstFewImagesSwitch) {
-      log.warning(
-        '🛸' +
-          `${lang.transl('_多图作品只下载前几张图片')}: ${settings.firstFewImages}`
-      )
-    }
-  }
-
-  /** 提示不抓取多图作品的最后一张图片 */
-  // 这个设置项会在这里显示提示，但不会在这里进行检查，因为它是在生成抓取结果时生效的
-  private getDoNotCrawlLastImage() {
-    if (settings.doNotDownloadLastImageOfMultiImageWork) {
-      log.warning('🛸' + `${lang.transl('_不抓取多图作品的最后一张图片')}`)
-    }
-  }
-
   /** 提示多图作品的图片数量限制 */
   private getMultiImageWorkImageLimit() {
     if (!settings.multiImageWorkImageLimitSwitch) {
@@ -217,6 +200,46 @@ class ShowEnabledFilter {
           lang.transl('_多图作品的图片数量上限') +
           '：' +
           settings.multiImageWorkImageLimit
+      )
+    }
+  }
+
+  /** 提示多图作品只抓取前几张图片 */
+  private getCrawlFirstFewImages() {
+    if (settings.onlyCrawlFirstFewImagesSwitch) {
+      log.warning(
+        '🛸' +
+          `${lang.transl('_多图作品只抓取前几张图片')}: ${settings.onlyCrawlFirstFewImagesCount}`
+      )
+    }
+  }
+
+  /** 提示多图作品只抓取后几张图片 */
+  private getCrawlLastFewImages() {
+    if (settings.onlyCrawlLastFewImagesSwitch) {
+      log.warning(
+        '🛸' +
+          `${lang.transl('_多图作品只抓取后几张图片')}: ${settings.onlyCrawlLastFewImagesCount}`
+      )
+    }
+  }
+
+  /** 提示多图作品不抓取前几张图片 */
+  private getDoNotCrawlFirstImage() {
+    if (settings.doNotCrawlFirstImagesSwitch) {
+      log.warning(
+        '🛸' +
+          `${lang.transl('_多图作品不抓取前几张图片')}: ${settings.doNotCrawlFirstImagesCount}`
+      )
+    }
+  }
+
+  /** 提示多图作品不抓取后几张图片 */
+  private getDoNotCrawlLastImage() {
+    if (settings.doNotCrawlLastImagesSwitch) {
+      log.warning(
+        '🛸' +
+          `${lang.transl('_多图作品不抓取后几张图片')}: ${settings.doNotCrawlLastImagesCount}`
       )
     }
   }

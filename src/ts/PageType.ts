@@ -358,5 +358,4 @@ class PageType {
 }
 
 const pageType = new PageType()
-
 export { pageType, PageName }

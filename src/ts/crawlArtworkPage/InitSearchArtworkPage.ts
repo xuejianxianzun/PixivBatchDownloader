@@ -146,7 +146,10 @@ class InitSearchArtworkPage extends InitPageBase {
   private showPreviewIntervalId = 0 // showPreview 定时器的 id
   private removeBlockIntervalId = 0 // removeBlockOnHotBar 定时器的 id
 
-  private causeResultChange = ['firstFewImagesSwitch', 'firstFewImages'] // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
+  private causeResultChange = [
+    'onlyCrawlFirstFewImagesSwitch',
+    'onlyCrawlFirstFewImagesCount',
+  ] // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
 
   private crawlStartBySelf = false // 这次抓取是否是由当前页面的“开始抓取”按钮发起的
 
