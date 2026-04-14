@@ -55,7 +55,7 @@ class Download {
   private skipDownload(data: DonwloadSkipData, msg?: string) {
     this.skip = true
     if (msg) {
-      log.warning(msg)
+      log.warning('🚫' + msg)
     }
     if (states.downloading) {
       EVT.fire('skipDownload', data)
@@ -182,7 +182,7 @@ class Download {
   // 下载文件
   private async download(arg: downloadArgument) {
     // 获取文件名
-    const _fileName = fileName.createFileName(arg.result)
+    let _fileName = fileName.createFileName(arg.result)
 
     // 重设当前下载栏的信息
     this.setProgressBar(_fileName, 0, 0)
@@ -210,8 +210,17 @@ class Download {
         throw new Error('Not found novelMeta')
       }
     } else {
-      // 对于图像作品，如果设置了图片尺寸就使用指定的 url，否则使用原图 url
+      // 图像作品
+      // 如果设置了图片尺寸就使用指定的 url，否则使用原图 url
       url = arg.result[settings.imageSize] || arg.result.original
+
+      // 检查 url 的扩展名，如果与文件名里的扩展名不同，则重设文件名
+      // 常见的情况是：一些图片的原图的扩展名是 .png，但其他尺寸的扩展名是 .jpg。如果用户下载的图片尺寸不是原图，就在这里把扩展名从 .png 改成 .jpg。虽然这个操作不是必须的，但更符合实际情况，也可以减少用户的困惑
+      if (settings.imageSize !== 'original') {
+        _fileName = Utils.replaceExtension(_fileName, url)
+        this.setProgressBar(_fileName, 0, 0)
+      }
+
       await downloadInterval.wait()
     }
 
@@ -358,11 +367,39 @@ class Download {
         }
       }
 
-      // 向浏览器发送下载任务
+      // 从第二张图片开始，检查原图的实际宽高。如果宽高与抓取结果里的不同，则重新生成文件名
+      // 这是因为每张图片的宽高可能都不一样，示例：
+      // https://www.pixiv.net/artworks/142726174
+      // 但是 Pixiv 的作品信息 API 里只有第一张图片的宽高，所以下载器在生成抓取结果时，会把每张图片的宽高都设置成第一张图片的宽高。但这可能不适用于从第二张开始的图片
+      // 所以在下载图片时需要重新检查其宽高，如有必要就重新生成文件名。本质上，这是为了重新生成 {px} 标记的结果
+      if (arg.result.index > 0 && settings.imageSize === 'original') {
+        const size = await Utils.getImageSize(blobURL)
+        if (
+          size.width &&
+          size.height &&
+          arg.result.fullWidth !== size.width &&
+          arg.result.fullHeight !== size.height
+        ) {
+          // 修改宽高数据，并重新生成文件名
+          // 使用一个临时对象，不修改原本的抓取结果
+          // 如果修改原本的抓取结果会带来副作用：下载前生成的文件名与下载后生成的文件名不同（因为 {px} 标记的结果变了），这会让这个文件始终被判断为不是重复文件，每次都会重新下载
+          // 使用对象展开进行浅拷贝。由于这里只需要修改两个基础值，所以浅拷贝就够了，不会影响原本的抓取结果
+          const tempResult = { ...arg.result }
+          tempResult.fullWidth = size.width
+          tempResult.fullHeight = size.height
+          const newFileName = fileName.createFileName(tempResult)
+          if (newFileName !== _fileName) {
+            _fileName = newFileName
+            this.setProgressBar(newFileName, file.size, file.size)
+          }
+        }
+      }
+
+      // 发送下载任务
       if (settings.setFileDownloadOrder) {
         await this.waitPreviousFileDownload()
       }
-      this.browserDownload(file, blobURL, _fileName, arg.id, arg.taskBatch)
+      this.sendDownload(file, blobURL, _fileName, arg.id, arg.taskBatch)
       xhr = null as any
       file = null as any
     })
@@ -393,15 +430,14 @@ class Download {
     })
   }
 
-  // 向浏览器发送下载任务
-  private async browserDownload(
+  private async sendDownload(
     blob: Blob,
     blobURL: string,
     fileName: string,
     id: string,
     taskBatch: number
   ) {
-    // 如果任务已停止，不会向浏览器发送下载任务
+    // 如果任务已停止，就不再下载这个文件
     if (this.cancel) {
       // 释放 blob URL
       URL.revokeObjectURL(blobURL)
@@ -432,11 +468,13 @@ class Download {
       // 所以我只保留了文件名部分
       const lastName = fileName.split('/').pop()
       Utils.downloadFile(blobURL, lastName!)
+      // 向 SW 传递消息，使其返回下载成功的消息（但实际上没有使用浏览器的 downloads API 来下载这个文件）
       sendData.msg = 'save_work_file_a_download'
       browser.runtime.sendMessage(sendData)
       return
     }
 
+    // 发送给浏览器下载
     try {
       browser.runtime.sendMessage(sendData)
       EVT.fire('sendBrowserDownload')

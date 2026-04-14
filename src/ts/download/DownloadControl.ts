@@ -187,6 +187,11 @@ class DownloadControl {
         this.pauseDownload()
       }
 
+      // 检测扩展名是 .jfif 的情况
+      if (msg.data?.browserSetFilename?.endsWith('.jfif')) {
+        log.warning(lang.transl('_提示扩展名为jfif的问题'), 'filenameJFIF')
+      }
+
       // 文件下载成功
       if (msg.msg === 'downloaded') {
         URL.revokeObjectURL(msg.data.blobURLFront)
@@ -243,7 +248,7 @@ class DownloadControl {
       window.addEventListener(evt, () => {
         // 如果有等待中的下载任务，则开始下载等待中的任务
         if (store.waitingIdList.length === 0) {
-          toast.success(lang.transl('_下载完毕2'), {
+          toast.success(lang.transl('_下载完毕'), {
             position: 'center',
           })
 
@@ -470,8 +475,7 @@ class DownloadControl {
     }
 
     toast.show(lang.transl('_开始下载'))
-    // 这条日志前面不添加 emoji
-    log.success(lang.transl('_正在下载中'))
+    log.log(lang.transl('_正在下载中'))
 
     if (Config.mobile) {
       log.warning(lang.transl('_移动端浏览器可能不会建立文件夹的说明'))

@@ -146,7 +146,10 @@ class InitSearchArtworkPage extends InitPageBase {
   private showPreviewIntervalId = 0 // showPreview 定时器的 id
   private removeBlockIntervalId = 0 // removeBlockOnHotBar 定时器的 id
 
-  private causeResultChange = ['firstFewImagesSwitch', 'firstFewImages'] // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
+  private causeResultChange = [
+    'onlyCrawlFirstFewImagesSwitch',
+    'onlyCrawlFirstFewImagesCount',
+  ] // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
 
   private crawlStartBySelf = false // 这次抓取是否是由当前页面的“开始抓取”按钮发起的
 
@@ -1028,8 +1031,6 @@ class InitSearchArtworkPage extends InitPageBase {
       return
     }
 
-    this.getMultipleSetting()
-
     this.filterResult((data) => {
       const filterOpt: FilterOption = {
         aiType: data.aiType,
@@ -1110,11 +1111,11 @@ class InitSearchArtworkPage extends InitPageBase {
       if (pageType.type !== pageType.list.ArtworkSearch) {
         return
       }
-      // 移除覆盖在整个热门作品区域上的超链接
-      const hotWorksLink = document.querySelector('section a[href^="/premium"]')
-      if (hotWorksLink) {
-        hotWorksLink.remove()
-      }
+
+      // 移除覆盖在整个热门作品区域上的会员购买链接
+      const hotWorksLink = document.querySelectorAll('a[href^="/premium/lead"]')
+      hotWorksLink.forEach((link) => link.remove())
+
       // 移除热门作品列表右侧的提示购买会员的文字
       const workSpanList = document.querySelectorAll(
         'aside ul span[data-gtm-value]'

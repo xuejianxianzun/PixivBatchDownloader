@@ -62,12 +62,19 @@ class DownloadInterval {
 
   public wait() {
     return new Promise(async (resolve) => {
-      // 首先检查此设置不应该生效的情况，立即放行
+      // 首先检查此设置不应该生效的情况
       if (
         settings.downloadInterval === 0 ||
         store.result.length <= settings.downloadIntervalOnWorksNumber
       ) {
-        return resolve(true)
+        // 如果用户启用了“把文件保存到用户上次选择的位置”，则强制添加 200 ms 的延迟
+        // 因为启用此设置时，下载器会使用 a 标签的 download 属性来下载文件。如果不添加延迟时间，那么在极端情况下，1  秒内可能会下载几十个文件，这会造成部分文件丢失（浏览器实际上没有下载部分文件）
+        if (settings.rememberTheLastSaveLocation) {
+          await new Promise((resolve) => setTimeout(resolve, 200))
+        } else {
+          // 否则立即放行
+          return resolve(true)
+        }
       }
 
       // 可以立即开始下载

@@ -1,5 +1,4 @@
 import { EVT } from '../EVT'
-import { pageType } from '../PageType'
 import { settings, setSetting, SettingKeys } from './Settings'
 import { SettingsForm } from './SettingsForm'
 import { DateFormat } from '../utils/DateFormat'
@@ -50,7 +49,7 @@ class FormSettings {
       'downBlackWhiteImg',
       'downNotBookmarked',
       'downBookmarked',
-      'firstFewImagesSwitch',
+      'onlyCrawlFirstFewImagesSwitch',
       'multiImageWorkImageLimitSwitch',
       'saveNovelMeta',
       'BMKNumSwitch',
@@ -109,7 +108,7 @@ class FormSettings {
       'showLargerThumbnails',
       'wheelScrollSwitchImageOnPreviewWork',
       'swicthImageByKeyboard',
-      'doNotDownloadLastImageOfMultiImageWork',
+      'doNotCrawlLastImagesSwitch',
       'downloadNovelCoverImage',
       'downloadNovelEmbeddedImage',
       'previewUgoira',
@@ -149,9 +148,14 @@ class FormSettings {
       'crawlOriginalWork',
       'crawlNonOriginalWork',
       'looseMatchOriginal',
+      'DonotCrawlAlreadyDownloadedWorks',
+      'showBorderOnDownloadedWorks',
+      'removeEmoji',
+      'onlyCrawlLastFewImagesSwitch',
+      'doNotCrawlFirstImagesSwitch',
     ],
     text: [
-      'firstFewImages',
+      'onlyCrawlFirstFewImagesCount',
       'multiImageWorkImageLimit',
       'convertUgoiraThread',
       'BMKNumMin',
@@ -160,7 +164,9 @@ class FormSettings {
       'setWidth',
       'setHeight',
       'userRatio',
-      'idRangeInput',
+      'idRangeValueForImageWorks',
+      'idRangeValueForNovelWorks',
+      'idRangeValueForNovelSeries',
       'needTag',
       'workDirFileNumber',
       'r18FolderName',
@@ -185,7 +191,11 @@ class FormSettings {
       'copyWorkInfoFormat',
       'crawlLatestFewWorksNumber',
       'fullNameLengthLimit',
-      'removeEmoji',
+      'borderColor',
+      'borderWidth',
+      'doNotCrawlLastImagesCount',
+      'onlyCrawlLastFewImagesCount',
+      'doNotCrawlFirstImagesCount',
     ],
     radio: [
       'ugoiraSaveAs',
@@ -194,7 +204,9 @@ class FormSettings {
       'userRatioLimit',
       'setWidthAndOr',
       'ratio',
-      'idRange',
+      'idRangeComparisonForImageWorks',
+      'idRangeComparisonForNovelWorks',
+      'idRangeComparisonForNovelSeries',
       'magnifierSize',
       'magnifierPosition',
       'dupliStrategy',
@@ -214,6 +226,7 @@ class FormSettings {
       'downloadOrderSortBy',
       'copyImageSize',
       'logVisibleDefault',
+      'serialNoStart',
     ],
     textarea: [
       'notNeedTag',

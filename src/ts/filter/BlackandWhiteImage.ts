@@ -6,6 +6,7 @@ import { Utils } from '../utils/Utils'
 class BlackAndWhiteImage {
   private readonly latitude = 1 // 宽容度
 
+  /** 检查图片是否为黑白图片。返回值 true 表示它是黑白图片，false 是彩色图片 */
   public async check(imgUrl: string): Promise<boolean> {
     // 加载图片
     let img: HTMLImageElement

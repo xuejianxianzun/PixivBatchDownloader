@@ -16,9 +16,8 @@ interface NamingSchema {
 ;[]
 
 // 生成文件名
+// 没有必要保存缓存，因为每次生成文件名的耗时小于 1 ms，不需要用空间换时间
 class FileName {
-  // 下载器所有的动图格式后缀名
-  private readonly ugoiraExt = ['zip', 'webm', 'gif', 'apng']
   private readonly addStr = '[downloader_add]'
 
   /**传入一个抓取结果，生成其文件名 */
@@ -300,7 +299,7 @@ class FileName {
 
     // 5 生成后缀名
     // 如果是动图，那么此时
-    if (this.ugoiraExt.includes(data.ext) && data.ugoiraInfo) {
+    if (Config.ugoiraExtensions.includes(data.ext) && data.ugoiraInfo) {
       // 如果需要转换动图，则把后缀名设置为用户选择的动图保存格式
       if (settings.imageSize !== 'thumb') {
         data.ext = settings.ugoiraSaveAs
@@ -393,7 +392,7 @@ class FileName {
   // 生成 {p_num} 标记的值
   private createPNum(data: Result) {
     if (data.type === 0 || data.type === 1 || data.type === 2) {
-      const index = data.index ?? Tools.getResultIndex(data)
+      let index = data.index ?? Tools.getResultIndex(data)
       // 处理第一张图不带序号的情况
       if (index === 0 && settings.noSerialNo) {
         if (data.pageCount === 1 && settings.noSerialNoForSingleImg) {
@@ -407,6 +406,12 @@ class FileName {
         }
       }
 
+      // 处理序号的起始值
+      if (settings.serialNoStart === 1) {
+        index = index + 1
+      }
+
+      // 处理在序号前面填充 0 的情况
       return this.zeroPadding(index)
     } else {
       // 小说没有编号，返回空字符串
@@ -414,7 +419,7 @@ class FileName {
     }
   }
 
-  /** 处理在前面填充 0 的情况 */
+  /** 在序号前面填充 0 */
   public zeroPadding(number: number) {
     const p = number.toString()
     return settings.zeroPadding

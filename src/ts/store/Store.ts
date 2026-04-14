@@ -1,36 +1,40 @@
 import { EVT } from '../EVT'
-import { settings } from '../setting/Settings'
+import { checkIndexForMultiImageWork } from '../filter/CheckIndexForMultiImageWork'
 import { Tools } from '../Tools'
 import { Result, ResultOptional, RankList, IDData } from './StoreType'
 
-// 保存抓取结果和其他一些公用数据
+/** 保存抓取结果和一些公用数据 */
 class Store {
   constructor() {
     this.loggedUserID = Tools.getLoggedUserID()
     this.bindEvents()
   }
 
-  /** 在某些页面类型里，可能没有获取到用户 ID，所以有可能是空字符串 */
+  /** 保存当前登录的用户的 ID。在某些页面类型里，可能没有获取到用户 ID，所以有可能是空字符串 */
   public loggedUserID = ''
 
-  public idList: IDData[] = [] // 储存从列表中抓取到的作品的 id
+  /** 储存从列表中抓取到的作品的 id */
+  public idList: IDData[] = []
 
-  /** 下载器尚未完成本次下载时，如果有新的下载请求，则添加到等待队列里
+  /** 下载器忙碌时，如果有新的抓取请求，则添加到等待队列里
    *
    * 当下载器的抓取结果为空、以及下载完毕后，会开始抓取等待队列里的 id */
   public waitingIdList: IDData[] = []
 
+  /** 储存抓取结果的元数据。每个作品只会有一条数据 */
+  // 抓取图片作品时，会根据此数据生成每一张图片的数据（result）
   public resultMeta: Result[] = []
-  // 储存抓取结果的元数据，每个作品只会有一条数据
-  // 抓取图片作品时，根据此数据生成每一张图片的数据，也就是生成多个 result
   // 有一种情况下没有 resultMeta 数据：Resume 也就是恢复未完成的下载时，只恢复了 result，没有生成 resultMeta
 
-  public result: Result[] = [] // 储存抓取结果
+  /** 储存抓取结果 */
+  public result: Result[] = []
 
-  private artworkIDList: number[] = [] // 储存抓取到的图片作品的 id 列表，用来避免重复添加
-  private novelIDList: number[] = [] // 储存抓取到的小说作品的 id 列表，用来避免重复添加
+  /** 储存抓取到的图片作品的 id 列表，用来避免重复添加 */
+  private artworkIDList: number[] = []
+  /** 储存抓取到的小说作品的 id 列表，用来避免重复添加 */
+  private novelIDList: number[] = []
 
-  /**记录从每个作品里下载多少个文件 */
+  /** 记录从每个作品里下载多少个文件 */
   public downloadCount: {
     [workID: string]: number
   } = {}
@@ -44,19 +48,20 @@ class Store {
     }
   }
 
-  public remainingDownload = 0 // 剩余多少个等待下载和保存的文件
-
-  private rankList: RankList = {} // 储存作品在排行榜中的排名
-
-  public tag = '' // 开始抓取时，储存页面此时的 tag
-
-  public title = '' // 开始抓取时，储存页面此时的 title
-
-  public URLWhenCrawlStart = '' // 开始抓取时，储存页面此时的 URL
-
+  /** 有多少个文件尚未下载完成 */
+  public remainingDownload = 0
+  /** 储存作品在排行榜中的排名 */
+  private rankList: RankList = {}
+  /** 开始抓取时，储存页面此时的 tag */
+  public tag = ''
+  /** 开始抓取时，储存页面此时的 title */
+  public title = ''
+  /** 开始抓取时，储存页面此时的 URL */
+  public URLWhenCrawlStart = ''
+  /** 抓取完成的时间 */
   public crawlCompleteTime: Date = new Date()
 
-  /**只下载作品里的一部分图片 */
+  /** 只下载作品里的一部分图片 */
   private downloadOnlyPart: {
     [workID: string]: number[]
   } = {}
@@ -115,98 +120,67 @@ class Store {
   // 如果一个作品有多张图片，只需要传递第一张图片的数据。后面的数据会根据设置自动生成
   public addResult(data: ResultOptional) {
     // 检查该作品 id 是否已存在，已存在则不添加
-    const useList = data.type === 3 ? this.novelIDList : this.artworkIDList
     if (data.idNum !== undefined) {
+      const useList = data.type === 3 ? this.novelIDList : this.artworkIDList
       if (useList.includes(data.idNum)) {
         return
       }
       useList.push(data.idNum)
     }
 
-    // 添加该作品的元数据
-    const workData = Object.assign({}, this.resultDefault, data)
-
-    if (workData.type === 0 || workData.type === 1) {
-      workData.id = workData.idNum + `_p0`
+    // 生成该作品的元数据
+    const meta = Object.assign({}, this.resultDefault, data)
+    if (meta.type === 0 || meta.type === 1) {
+      meta.id = meta.idNum + `_p0`
     } else {
-      workData.id = workData.idNum.toString()
+      meta.id = meta.idNum.toString()
     }
+    this.resultMeta.push(meta)
+    EVT.fire('addResult', meta)
 
-    this.resultMeta.push(workData)
-
-    EVT.fire('addResult', workData)
-
-    // 保存这个作品里每个文件的数据
-    if (workData.type === 2 || workData.type === 3) {
-      // 动图和小说作品直接添加
-      this.result.push(workData)
-
-      this.downloadCount[workData.idNum] = 1
+    // 添加作品里每个文件的数据
+    if (meta.type === 2 || meta.type === 3) {
+      // 动图和小说作品只有一个文件，直接使用元数据
+      this.result.push(meta)
+      this.downloadCount[meta.idNum] = 1
     } else {
-      // 插画和漫画
-
+      // 插画和漫画可能有多个文件，需要确定保存哪些文件
       // 储存需要下载的图片的索引
-      let fileIndexList: number[] = []
-
-      // 只下载部分图片
-      if (this.downloadOnlyPart[workData.idNum]) {
-        fileIndexList = this.downloadOnlyPart[workData.idNum]
-        delete this.downloadOnlyPart[workData.idNum]
+      let indexList: number[] = []
+      // 如果已经指定了只下载部分图片
+      if (this.downloadOnlyPart[meta.idNum]) {
+        indexList = this.downloadOnlyPart[meta.idNum]
+        delete this.downloadOnlyPart[meta.idNum]
       } else {
-        // 下载全部图片
-        let total = workData.pageCount
-
-        // 如果下载全部图片，则检查一些过滤器
-        // 只下载部分图片时，用户已经手动指定了要下载的图片，所以不要检查这些过滤器
-
-        // 多图作品只下载前几张图片
-        if (settings.firstFewImagesSwitch) {
-          total = Math.min(workData.pageCount, settings.firstFewImages)
-        }
-
-        // 不抓取多图作品的最后一张图片
-        if (
-          settings.doNotDownloadLastImageOfMultiImageWork &&
-          workData.pageCount > 1
-        ) {
-          total = Math.min(total, workData.pageCount - 1)
-        }
-
-        // 特定用户的多图作品不下载最后几张图片
-        if (workData.pageCount > 1) {
-          const removeLastFew = settings.DoNotDownloadLastFewImagesList.find(
-            (item) => item.uid === Number.parseInt(workData.userId)
+        // 如果没有指定要下载的图片，则从全部图片里取出要下载的部分
+        const pageCount = meta.pageCount
+        const allIndex = [...Array(pageCount).keys()]
+        // 单图作品在这里不需要应用过滤器，保存所有图片（其实也就一个）
+        if (pageCount === 1) {
+          indexList = allIndex
+        } else {
+          // 对多图作品应用过滤器，来决定最终保留哪些图片
+          // 每个过滤器都可能会删除一些图片，只保留部分图片
+          // 这些过滤器的执行顺序不重要，取它们的交集来确定最终保留哪些图片（在所有过滤器里都为 true 的项）
+          indexList = allIndex.filter((index) =>
+            checkIndexForMultiImageWork.check(index, pageCount, meta.userId)
           )
-
-          if (removeLastFew && removeLastFew.value > 0) {
-            let number = workData.pageCount - removeLastFew.value
-            if (number < 1) {
-              // 用户设置的值有可能把这个作品的图片全部排除了，此时只跳过最后一张
-              number = workData.pageCount - 1
-            }
-            total = Math.min(total, number)
-          }
-        }
-
-        for (let i = 0; i < total; i++) {
-          fileIndexList.push(i)
         }
       }
+      this.downloadCount[meta.idNum] = indexList.length
 
-      this.downloadCount[workData.idNum] = fileIndexList.length
-
-      // 生成每个图片的数据
+      // 添加插画、漫画作品里每个文件的数据
       const p0 = 'p0'
-      for (const i of fileIndexList) {
-        const fileData = Object.assign({}, workData)
+      for (const i of indexList) {
+        const result = Object.assign({}, meta)
         const pi = 'p' + i
-        fileData.index = i
-        fileData.id = fileData.id.replace(p0, pi)
-        fileData.original = fileData.original.replace(p0, pi)
-        fileData.regular = fileData.regular.replace(p0, pi)
-        fileData.small = fileData.small.replace(p0, pi)
-        fileData.thumb = fileData.thumb.replace(p0, pi)
-        this.result.push(fileData)
+        result.index = i
+        result.id = meta.id.replace(p0, pi)
+        result.original = meta.original.replace(p0, pi)
+        result.regular = meta.regular.replace(p0, pi)
+        result.small = meta.small.replace(p0, pi)
+        result.thumb = meta.thumb.replace(p0, pi)
+        this.result.push(result)
       }
     }
   }

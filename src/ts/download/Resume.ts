@@ -101,9 +101,7 @@ class Resume {
     }
 
     // 打开数据库
-    return new Promise<IDBDatabase>(async (resolve, reject) => {
-      resolve(await this.IDB.open(this.DBName, this.DBVer, onUpdate))
-    })
+    return this.IDB.open(this.DBName, this.DBVer, onUpdate)
   }
 
   private bindEvents() {
@@ -135,7 +133,7 @@ class Resume {
     const clearDataEv = [EVT.list.downloadComplete, EVT.list.downloadStop]
     for (const ev of clearDataEv) {
       window.addEventListener(ev, async () => {
-        this.clearData()
+        this.clearData(ev)
       })
     }
 
@@ -325,7 +323,7 @@ class Resume {
     }, this.putStatesTime)
   }
 
-  private async clearData() {
+  private async clearData(ev: string) {
     if (!this.taskId) {
       return
     }
@@ -341,6 +339,11 @@ class Resume {
     const dataIdList = this.createIdList(this.taskId, meta.part)
     for (const id of dataIdList) {
       this.IDB.delete(this.dataName, id)
+    }
+
+    // 当因为停止下载而清除保存的抓取结果时，显示提示，让用户知道这个机制
+    if (ev === EVT.list.downloadStop) {
+      log.warning(lang.transl('_已清除这个URL里保存的抓取结果'))
     }
   }
 

@@ -278,7 +278,7 @@ class PreviewWorkDetailInfo {
     array.push(`URL\nhttps://www.pixiv.net/artworks/${body.id}`)
     array.push(`Original\n${body.urls?.original}`)
     array.push(`xRestrict\n${Tools.getXRestrictText(body.xRestrict)}`)
-    array.push(`AI\n${Tools.getAITypeText(aiType)}`)
+    array.push(`AI\n${Tools.getAITypeTextEnglish(aiType)}`)
     array.push(`User\n${body.userName}`)
     array.push(`UserID\n${body.userId}`)
     array.push(`Title\n${body.title}`)

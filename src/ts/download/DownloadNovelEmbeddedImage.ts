@@ -69,7 +69,7 @@ class DownloadNovelEmbeddedImage {
         continue
       }
 
-      let imageName = Utils.replaceSuffix(novelName, image.url!)
+      let imageName = Utils.replaceExtension(novelName, image.url!)
       // 之前是在文件名的末尾添加图片的 id，但是当文件名很长时，图片 id 甚至更前面的字符可能会被截断，从而产生重名文件
       // 现在改为添加到 {id} 之后，这样减少了图片 id 被截断的可能性，因为 {id} 通常位于文件名的开头，不容易被截断
       // 如果 {id} 位于文件名的结尾部分，依然可能会被截断。但这种情况比较少
@@ -150,7 +150,7 @@ class DownloadNovelEmbeddedImage {
       // 也就是说不能是 src="./assets/17995414.png"
       // 因为某些在线阅读器(https://epub-reader.online/)会读取图片内容，生成 blob URL，然后替换原 src 里的值。
       // 当 src 前面有 ./ 的时候，blob URL 会跟在 ./ 后面，导致图片路径错误，无法显示
-      const ext = Utils.getURLExt(image.url)
+      const ext = Utils.getExtension(image.url)
       // 在图片前后添加换行，因为有时图片和文字挨在一起，或者多张图片挨在一起。
       // 不添加换行的话，在某些阅读器里这些内容会并排，影响阅读体验
       const imgTag = `<br/><img src="assets/${imageID}.${ext}" /><br/>`

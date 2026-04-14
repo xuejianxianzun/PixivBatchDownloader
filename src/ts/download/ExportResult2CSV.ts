@@ -179,7 +179,7 @@ class ExportResult2CSV {
 
           if (field.name === 'AI') {
             const checkAITag = d.tags.includes('AI生成')
-            result = Tools.getAITypeText(checkAITag ? 2 : d.aiType || 0)
+            result = Tools.getAITypeTextEnglish(checkAITag ? 2 : d.aiType || 0)
           }
 
           bodyItem.push(result)

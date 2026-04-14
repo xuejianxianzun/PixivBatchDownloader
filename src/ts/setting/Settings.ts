@@ -101,8 +101,8 @@ type PageEntry = [PageName, any]
 // 如果使用 Map，会被转换为 `Object {}`，导致错误
 interface XzSetting {
   crawlNumber: { [key in PageName]: CrawlNumberConfig }
-  firstFewImagesSwitch: boolean
-  firstFewImages: number
+  onlyCrawlFirstFewImagesSwitch: boolean
+  onlyCrawlFirstFewImagesCount: number
   multiImageWorkImageLimitSwitch: boolean
   multiImageWorkImageLimit: number
   downType0: boolean
@@ -150,8 +150,12 @@ interface XzSetting {
   userRatio: number
   userRatioLimit: '>=' | '=' | '<='
   idRangeSwitch: boolean
-  idRangeInput: number
-  idRange: '>' | '<'
+  idRangeComparisonForImageWorks: '>' | '<'
+  idRangeComparisonForNovelWorks: '>' | '<'
+  idRangeComparisonForNovelSeries: '>' | '<'
+  idRangeValueForImageWorks: number
+  idRangeValueForNovelWorks: number
+  idRangeValueForNovelSeries: number
   filterBlackWhite: boolean
   sizeSwitch: boolean
   sizeMin: number
@@ -254,7 +258,8 @@ interface XzSetting {
   wheelScrollSwitchImageOnPreviewWork: boolean
   swicthImageByKeyboard: boolean
   /**不抓取多图作品的最后一张图片 */
-  doNotDownloadLastImageOfMultiImageWork: boolean
+  doNotCrawlLastImagesSwitch: boolean
+  doNotCrawlLastImagesCount: number
   downloadNovelCoverImage: boolean
   downloadNovelEmbeddedImage: boolean
   previewUgoira: boolean
@@ -340,6 +345,16 @@ interface XzSetting {
   looseMatchOriginal: boolean
   tipImageViewer: boolean
   removeEmoji: boolean
+  serialNoStart: 0 | 1
+  DonotCrawlAlreadyDownloadedWorks: boolean
+  showBorderOnDownloadedWorks: boolean
+  borderColor: string
+  borderWidth: number
+  debugForWorkThumbnail: boolean
+  onlyCrawlLastFewImagesSwitch: boolean
+  onlyCrawlLastFewImagesCount: number
+  doNotCrawlFirstImagesSwitch: boolean
+  doNotCrawlFirstImagesCount: number
 }
 
 type SettingKeys = keyof XzSetting
@@ -578,8 +593,8 @@ class Settings {
         tip: '',
       },
     },
-    firstFewImagesSwitch: false,
-    firstFewImages: 1,
+    onlyCrawlFirstFewImagesSwitch: false,
+    onlyCrawlFirstFewImagesCount: 1,
     multiImageWorkImageLimitSwitch: false,
     multiImageWorkImageLimit: 10,
     downType0: true,
@@ -630,8 +645,12 @@ class Settings {
     userRatio: 1.4,
     userRatioLimit: '>=',
     idRangeSwitch: false,
-    idRangeInput: 0,
-    idRange: '>',
+    idRangeComparisonForImageWorks: '>',
+    idRangeComparisonForNovelWorks: '>',
+    idRangeComparisonForNovelSeries: '>',
+    idRangeValueForImageWorks: 0,
+    idRangeValueForNovelWorks: 0,
+    idRangeValueForNovelSeries: 0,
     needTagSwitch: false,
     notNeedTagSwitch: false,
     filterBlackWhite: false,
@@ -753,7 +772,8 @@ class Settings {
     showLargerThumbnails: false,
     wheelScrollSwitchImageOnPreviewWork: true,
     swicthImageByKeyboard: true,
-    doNotDownloadLastImageOfMultiImageWork: false,
+    doNotCrawlLastImagesSwitch: false,
+    doNotCrawlLastImagesCount: 1,
     downloadNovelCoverImage: true,
     downloadNovelEmbeddedImage: true,
     previewUgoira: true,
@@ -828,11 +848,21 @@ class Settings {
     looseMatchOriginal: true,
     tipImageViewer: true,
     removeEmoji: true,
+    serialNoStart: 0,
+    DonotCrawlAlreadyDownloadedWorks: false,
+    showBorderOnDownloadedWorks: false,
+    borderColor: '#ff4060',
+    borderWidth: 3,
+    debugForWorkThumbnail: false,
+    onlyCrawlLastFewImagesSwitch: false,
+    onlyCrawlLastFewImagesCount: 1,
+    doNotCrawlFirstImagesSwitch: false,
+    doNotCrawlFirstImagesCount: 1,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
 
-  // 值为浮点数的选项
+  // 值为浮点数的设置
   private floatNumberKey = [
     'userRatio',
     'sizeMin',
@@ -840,12 +870,12 @@ class Settings {
     'downloadInterval',
   ]
 
-  // 值为整数的选项不必单独列出
+  // 值为整数的设置不必单独列出
 
-  // 值为 number[] 的选项（目前没有）
+  // 值为 number[] 的设置（目前没有）
   private numberArrayKeys = []
 
-  // 值为字符串数组的选项
+  // 值为字符串数组的设置
   private stringArrayKeys = [
     'namingRuleList',
     'blockList',
@@ -1023,10 +1053,6 @@ class Settings {
     EVT.fire('resetSettingsEnd')
   }
 
-  private tipError(key: string) {
-    msgBox.error(`${key}: Invalid value`)
-  }
-
   // 更改设置项
   // 其他模块应该通过这个方法更改设置
   // 这里面有一些类型转换的代码，主要目的：
@@ -1061,7 +1087,8 @@ class Settings {
             // 把日期字符串转换成时间戳
             const date = new Date(value as string)
             if (isNaN(date.getTime())) {
-              return this.tipError(key)
+              const msg = lang.transl('_日期和时间的值不正确') + ' ' + key
+              return msgBox.error(msg)
             }
             value = date.getTime()
           }
@@ -1076,7 +1103,8 @@ class Settings {
       }
 
       if (isNaN(value as number)) {
-        return this.tipError(key)
+        const msg = lang.transl('_设置的值不正确需要是数字') + ' ' + key
+        return msgBox.error(msg)
       }
     }
 
@@ -1127,7 +1155,7 @@ class Settings {
       value = 0
     }
 
-    if (key === 'firstFewImages' && (value as number) < 1) {
+    if (key === 'onlyCrawlFirstFewImagesCount' && (value as number) < 1) {
       value = this.defaultSettings[key]
     }
 
@@ -1142,20 +1170,37 @@ class Settings {
       }
     }
 
-    if (key === 'crawlLatestFewWorksNumber' && (value as number) < 1) {
-      value = 1
-    }
-
-    if (key === 'setWidthAndOr' && value === '') {
-      value = this.defaultSettings[key]
+    if (
+      key === 'onlyCrawlFirstFewImagesCount' ||
+      key === 'onlyCrawlLastFewImagesCount' ||
+      key === 'doNotCrawlFirstImagesCount' ||
+      key === 'doNotCrawlLastImagesCount'
+    ) {
+      if ((value as number) < 1 || isNaN(value as number)) {
+        value = 1
+      }
     }
 
     if (key === 'previewResultLimit' && (value as number) < 0) {
       value = 999999
     }
 
+    if (key === 'borderWidth' && (value as number) < 1) {
+      value = this.defaultSettings[key]
+    }
+
+    if (key === 'setWidthAndOr' && value === '') {
+      value = this.defaultSettings[key]
+    }
+
     if (key === 'workDirNameRule') {
       value = (value as string).replace('{id}', '{id_num}')
+    }
+
+    if (key === 'borderColor') {
+      if (value === '' || (value as string).startsWith('#') === false) {
+        value = this.defaultSettings[key]
+      }
     }
 
     // namingRuleList 之前默认是空数组，后来默认包含了默认的命名规则，所以这里做个兼容处理

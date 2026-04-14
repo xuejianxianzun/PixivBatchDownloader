@@ -12,7 +12,7 @@ class DownloadNovelCover {
       return
     }
 
-    let coverName = Utils.replaceSuffix(novelName, coverURL)
+    let coverName = Utils.replaceExtension(novelName, coverURL)
     SendDownload.noReply(blob, coverName)
   }
 

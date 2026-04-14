@@ -1,5 +1,17 @@
 import { UgoiraInfo } from '../crawl/CrawlResult'
 
+/**作品类型的数字表示。
+ *
+ * -1 插画、漫画、动图的合集。也就是只知道是图像作品，但是不能确定是哪种具体的类型
+ *
+ * 0 插画
+ * 1 漫画
+ * 2 动图
+ * 3 小说
+ * undefined 不能确定其类型，或者是系列小说这样不属于单个作品的类型
+ */
+export type WorkType = -1 | 0 | 1 | 2 | 3 | undefined
+
 export type WorkTypeString =
   | 'illusts'
   | 'manga'
@@ -7,6 +19,7 @@ export type WorkTypeString =
   | 'novels'
   | 'unknown'
 
+// IDTypeString 比 WorkTypeString 多了一个 'novelSeries'，用来表示系列小说。因为系列小说不是单个作品，所以目前我没有把它放到 WorkTypeString 里
 export type IDTypeString = WorkTypeString | 'novelSeries'
 
 export interface IDData {
@@ -112,7 +125,8 @@ export interface ResultOptional {
  * 所有属性都是必须的，并且添加了 index 属性。 */
 export type Result = Required<
   {
-    /**这个文件在作品中的索引，从 0 开始 */
+    /**这个文件在作品中的索引，总是从 0 开始 */
+    // 即使用户设置了序号的起始值从 1 开始，也不会影响 index
     index: number
   } & ResultOptional
 >

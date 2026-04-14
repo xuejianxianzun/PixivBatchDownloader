@@ -1,12 +1,12 @@
 export interface SettingsForm extends HTMLFormElement {
-  firstFewImages: HTMLInputElement
+  onlyCrawlFirstFewImagesCount: HTMLInputElement
   downType0: HTMLInputElement
   downType1: HTMLInputElement
   downType2: HTMLInputElement
   downType3: HTMLInputElement
   downSingleImg: HTMLInputElement
   downMultiImg: HTMLInputElement
-  firstFewImagesSwitch: HTMLInputElement
+  onlyCrawlFirstFewImagesSwitch: HTMLInputElement
   multiImageWorkImageLimitSwitch: HTMLInputElement
   multiImageWorkImageLimit: HTMLInputElement
   downColorImg: HTMLInputElement
@@ -20,8 +20,12 @@ export interface SettingsForm extends HTMLFormElement {
   downBookmarked: HTMLInputElement
   setWHSwitch: HTMLInputElement
   setWidth: HTMLInputElement
-  idRange: RadioNodeList
-  idRangeInput: HTMLInputElement
+  idRangeComparisonForImageWorks: RadioNodeList
+  idRangeComparisonForNovelWorks: RadioNodeList
+  idRangeComparisonForNovelSeries: RadioNodeList
+  idRangeValueForImageWorks: HTMLInputElement
+  idRangeValueForNovelWorks: HTMLInputElement
+  idRangeValueForNovelSeries: HTMLInputElement
   setWidthAndOr: RadioNodeList
   setHeight: HTMLInputElement
   ratio: RadioNodeList
@@ -126,7 +130,8 @@ export interface SettingsForm extends HTMLFormElement {
   showLargerThumbnails: HTMLInputElement
   wheelScrollSwitchImageOnPreviewWork: HTMLInputElement
   swicthImageByKeyboard: HTMLInputElement
-  doNotDownloadLastImageOfMultiImageWork: HTMLInputElement
+  doNotCrawlLastImagesSwitch: HTMLInputElement
+  doNotCrawlLastImagesCount: HTMLInputElement
   downloadNovelCoverImage: HTMLInputElement
   downloadNovelEmbeddedImage: HTMLInputElement
   previewUgoira: HTMLInputElement
@@ -180,4 +185,13 @@ export interface SettingsForm extends HTMLFormElement {
   crawlNonOriginalWork: HTMLInputElement
   looseMatchOriginal: HTMLInputElement
   removeEmoji: HTMLInputElement
+  serialNoStart: HTMLInputElement
+  DonotCrawlAlreadyDownloadedWorks: HTMLInputElement
+  showBorderOnDownloadedWorks: HTMLInputElement
+  borderColor: HTMLInputElement
+  borderWidth: HTMLInputElement
+  onlyCrawlLastFewImagesSwitch: HTMLInputElement
+  onlyCrawlLastFewImagesCount: HTMLInputElement
+  doNotCrawlFirstImagesSwitch: HTMLInputElement
+  doNotCrawlFirstImagesCount: HTMLInputElement
 }

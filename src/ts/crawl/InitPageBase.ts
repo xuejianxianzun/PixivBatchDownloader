@@ -158,16 +158,6 @@ abstract class InitPageBase {
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
   protected getWantPage() {}
 
-  // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
-  protected getMultipleSetting() {
-    // 获取作品张数设置
-    if (settings.firstFewImagesSwitch) {
-      log.warning(
-        `${lang.transl('_多图作品只下载前几张图片')}: ${settings.firstFewImages}`
-      )
-    }
-  }
-
   /**在日志上显示任意提示 */
   protected showTip() {
     if (
@@ -233,7 +223,8 @@ abstract class InitPageBase {
 
     const wrongSetting = filter.showTip()
     if (wrongSetting) {
-      log.error('❌' + lang.transl('_取消抓取因为某些抓取条件不正确'))
+      log.error(lang.transl('_取消抓取因为某些抓取条件不正确'))
+      log.log('')
       return
     }
 
@@ -246,8 +237,6 @@ abstract class InitPageBase {
     this.getWantPage()
 
     crawlLatestFewWorks.showLog()
-
-    this.getMultipleSetting()
 
     this.showTip()
 
@@ -299,7 +288,8 @@ abstract class InitPageBase {
 
       const wrongSetting = filter.showTip()
       if (wrongSetting) {
-        log.error('❌' + lang.transl('_取消抓取因为某些抓取条件不正确'))
+        log.error(lang.transl('_取消抓取因为某些抓取条件不正确'))
+        log.log('')
         return
       }
 
@@ -308,8 +298,6 @@ abstract class InitPageBase {
       if (Utils.isPixiv()) {
         await mute.getMuteSettings()
       }
-
-      this.getMultipleSetting()
 
       this.finishedRequest = 0
 
@@ -356,14 +344,11 @@ abstract class InitPageBase {
     const filteredIDList: IDData[] = []
     for (const idData of store.idList) {
       let check = true
-      // 不检查 novelSeries 类型，所以总是会添加它
-      if (idData.type !== 'novelSeries') {
-        check = await filter.check({
-          id: idData.id,
-          workTypeString: idData.type,
-          workType: Tools.getWorkTypeVague(idData.type),
-        })
-      }
+      check = await filter.check({
+        id: idData.id,
+        IDTypeString: idData.type,
+        workType: Tools.getWorkTypeVague(idData.type),
+      })
 
       if (check) {
         filteredIDList.push(idData)
@@ -500,22 +485,14 @@ abstract class InitPageBase {
       throw new Error(msg)
     }
 
-    // 在抓取作品详细数据之前，预先对 id 进行检查，如果不符合要求则跳过它
-    // 现在这里能够检查这些过滤条件：
-    // 1. 检查 id 是否符合 id 范围条件
-    // 2. 检查 id 的发布时间是否符合时间范围条件
-    // 3. 区分图像作品和小说。
-    // 注意：在某些情况下，下载器只能确定一个作品是图像还是小说，但不能区分它具体是图像里的哪一种类型（插画、漫画、动图）
-    // 所以这里不能检查具体的图像类型，只能检查是图像还是小说
-    if (idData.type !== 'novelSeries') {
-      const check = await filter.check({
-        id,
-        workTypeString: idData.type,
-        workType: Tools.getWorkTypeVague(idData.type),
-      })
-      if (!check) {
-        return this.afterGetWorksData()
-      }
+    // 在抓取作品详细数据之前对 id 进行检查，如果不符合要求就跳过它
+    const check = await filter.check({
+      id,
+      IDTypeString: idData.type,
+      workType: Tools.getWorkTypeVague(idData.type),
+    })
+    if (!check) {
+      return this.afterGetWorksData()
     }
 
     try {
@@ -602,16 +579,14 @@ abstract class InitPageBase {
     // 这样可以加快抓取速度
     if (store.idList.length > 0) {
       const nextIDData = store.idList[0]
-      if (nextIDData.type !== 'novelSeries') {
-        const check = await filter.check({
-          id: nextIDData.id,
-          workTypeString: nextIDData.type,
-          workType: Tools.getWorkTypeVague(nextIDData.type),
-        })
-        if (!check) {
-          store.idList.shift()
-          return this.getWorksData()
-        }
+      const check = await filter.check({
+        id: nextIDData.id,
+        IDTypeString: nextIDData.type,
+        workType: Tools.getWorkTypeVague(nextIDData.type),
+      })
+      if (!check) {
+        store.idList.shift()
+        return this.getWorksData()
       }
     }
 

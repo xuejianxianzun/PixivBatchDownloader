@@ -1,32 +1,31 @@
 import { EVT } from '../EVT'
-import { lang } from '../Language'
-import { log } from '../Log'
 import { settings } from '../setting/Settings'
 import { DonwloadSuccessData } from './DownloadType'
 import { IndexedDB } from '../utils/IndexedDB'
 import { store } from '../store/Store'
 import { fileName } from '../FileName'
 import { Utils } from '../utils/Utils'
-import { toast } from '../Toast'
-import { msgBox } from '../MsgBox'
-import { secretSignal } from '../utils/SecretSignal'
 import { Result } from '../store/StoreType'
+import { DownloadRecordManager } from './DownloadRecordManager'
 
-interface Record {
+export interface DownloadRecordType {
   id: string
   n: string
-  /**文件 URL 里的作品的日期。可能为 undefined，因为旧版本没有这个数据，小说也没有这个数据 */
+  /** 作品的发布/修改时间。可能为 undefined，因为旧版本没有这个数据 */
   d?: string
 }
 
-// 保存下载记录，用来判断重复下载的文件
+/** 添加和查询下载记录 */
 class DownloadRecord {
   constructor() {
     this.IDB = new IndexedDB()
-    this.init()
+    new DownloadRecordManager(this.IDB, this.storeNameList)
+    this.dbReady = this.init()
   }
 
   private IDB: IndexedDB
+  /** 等待数据库初始化完成的 Promise，用于防止在 DB 就绪前查询 */
+  private dbReady: Promise<void>
   private readonly DBName = 'DLRecord'
   private readonly DBVer = 1
   private readonly storeNameList: string[] = [
@@ -39,7 +38,7 @@ class DownloadRecord {
     'record7',
     'record8',
     'record9',
-  ] // 表名的列表
+  ]
 
   private existedIdList: string[] = [] // 检查文件是否重复时，会查询数据库。查询到的数据的 id 会保存到这个列表里。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
 
@@ -63,9 +62,7 @@ class DownloadRecord {
       }
     }
 
-    return new Promise<IDBDatabase>(async (resolve, reject) => {
-      resolve(await this.IDB.open(this.DBName, this.DBVer, onUpdate))
-    })
+    return this.IDB.open(this.DBName, this.DBVer, onUpdate)
   }
 
   private bindEvents() {
@@ -78,58 +75,14 @@ class DownloadRecord {
         return
       }
 
+      // 所以下载器在保存和判断重复文件时，使用的都是 filename.createFileName() 生成的文件名
+      // 即使文件名在实际下载流程中被修改，也不会影响这里保存的文件名，所以不会影响检测重复文件的功能。
       const result = store.findResult(successData.id)
-      result && this.addRecord(result)
+      result && this.addRecordFromResult(result)
     })
-
-    // 导入含有 id 列表的 txt 文件
-    secretSignal.register('recordtxt', () => {
-      this.importRecordFromTxt()
-    })
-
-    // 导入下载记录的按钮
-    {
-      const btn = document.querySelector('#importDownloadRecord')
-      if (btn) {
-        btn.addEventListener('click', () => {
-          EVT.fire('importDownloadRecord')
-        })
-      }
-    }
-
-    // 监听导入下载记录的事件
-    window.addEventListener(EVT.list.importDownloadRecord, () => {
-      this.importRecordFromJSON()
-    })
-
-    // 导出下载记录的按钮
-    {
-      const btn = document.querySelector('#exportDownloadRecord')
-      if (btn) {
-        btn.addEventListener('click', () => {
-          EVT.fire('exportDownloadRecord')
-        })
-      }
-    }
-
-    // 监听导出下载记录的事件
-    window.addEventListener(EVT.list.exportDownloadRecord, () => {
-      this.exportRecord()
-    })
-
-    // 清空下载记录的按钮
-    {
-      const btn = document.querySelector('#clearDownloadRecord')
-      if (btn) {
-        btn.addEventListener('click', () => {
-          EVT.fire('clearDownloadRecord')
-        })
-      }
-    }
 
     // 监听清空下载记录的事件
     window.addEventListener(EVT.list.clearDownloadRecord, () => {
-      this.clearRecords()
       this.existedIdList = []
     })
   }
@@ -138,25 +91,6 @@ class DownloadRecord {
   private getStoreName(id: string) {
     const firstNum = parseInt(id[0])
     return this.storeNameList[firstNum - 1]
-  }
-
-  // 生成一个下载记录
-  private createRecord(data: Result | string): Record {
-    let result: Result | undefined = undefined
-    if (typeof data === 'string') {
-      result = store.findResult(data)
-    } else {
-      result = data
-    }
-    if (result === undefined) {
-      throw new Error('createRecord failed')
-    }
-
-    return {
-      id: result.id,
-      n: fileName.createFileName(result),
-      d: this.getDateString(result),
-    }
   }
 
   /**返回作品的修改日期字符串 */
@@ -176,18 +110,57 @@ class DownloadRecord {
     }
   }
 
-  // 添加一条下载记录
-  private async addRecord(result: Result) {
-    const storeName = this.getStoreName(result.id)
-    const record = this.createRecord(result)
+  // 生成一个下载记录
+  private createRecord(data: Result | string): DownloadRecordType {
+    let result: Result | undefined = undefined
+    if (typeof data === 'string') {
+      result = store.findResult(data)
+    } else {
+      result = data
+    }
+    if (result === undefined) {
+      throw new Error('createRecord failed')
+    }
 
-    if (this.existedIdList.includes(result.id)) {
+    return {
+      id: result.id,
+      n: fileName.createFileName(result),
+      d: this.getDateString(result),
+    }
+  }
+
+  /** 传入一个 Result 对象，添加它的下载记录 */
+  private async addRecordFromResult(result: Result) {
+    const record = this.createRecord(result)
+    this.addRecordFromRecord(record)
+  }
+
+  /** 传入一个构造好的 Record 对象，添加它的下载记录 */
+  public async addRecordFromRecord(record: DownloadRecordType) {
+    const storeName = this.getStoreName(record.id)
+    if (this.existedIdList.includes(record.id)) {
       this.IDB.put(storeName, record)
     } else {
       // 先查询有没有这个记录
-      const result = await this.IDB.get(storeName, record.id)
-      this.IDB[result ? 'put' : 'add'](storeName, record)
+      const exists = await this.getRecord(record.id)
+      this.IDB[exists ? 'put' : 'add'](storeName, record)
     }
+  }
+
+  // 在有 10,000 条下载记录时，我下载了 100 个文件进行测试，get 查询的平均耗时为 6.45 ms。
+  // 现代浏览器的 IndexedDB 实现通常基于 B-tree 或类似平衡树来维护主键索引，其单点查找时间复杂度是 O(log N)，即对数级别。即使有 1,000,000 条记录，单次查询的时间也不会大幅增加，可能平均值在 10 ms 左右。
+  public async getRecord(id: string) {
+    await this.dbReady
+    const storeName = this.getStoreName(id)
+    const record = (await this.IDB.get(
+      storeName,
+      id
+    )) as DownloadRecordType | null
+    if (record) {
+      this.existedIdList.push(record.id)
+    }
+    // console.log('getRecord', id, record)
+    return record
   }
 
   /** 检查一个作品是否是重复下载
@@ -199,212 +172,37 @@ class DownloadRecord {
       return false
     }
 
-    return new Promise<boolean>(async (resolve, reject) => {
-      // 如果未启用去重，直接返回不重复
-      if (!settings.deduplication) {
-        return resolve(false)
-      }
-      // 在数据库进行查找
-      const storeName = this.getStoreName(result.id)
-      const data = (await this.IDB.get(storeName, result.id)) as Record | null
-      if (data === null) {
-        return resolve(false)
-      }
-
-      // 有记录，说明这个文件下载过
-      this.existedIdList.push(data.id)
-
-      // 首先检查日期字符串是否发生了变化
-      // 如果日期字符串变化了，则不视为重复文件
-      if (data.d !== undefined && data.d !== this.getDateString(result)) {
-        return resolve(false)
-      }
-      // 如果之前的下载记录里没有日期，说明是早期的下载记录，那么就不检查日期
-      // 同时，更新这个作品的下载记录，为其添加日期
-      if (data.d === undefined) {
-        this.addRecord(result)
-      }
-      // 如果日期字符串没有变化，再根据策略进行判断
-      if (settings.dupliStrategy === 'loose') {
-        // 如果是宽松策略（不比较文件名）
-        return resolve(true)
-      } else {
-        // 如果是严格策略（考虑文件名）
-        const name = fileName.createFileName(result)
-        return resolve(name === data.n)
-      }
-    })
-  }
-
-  // 清空下载记录
-  private async clearRecords() {
-    if (window.confirm(lang.transl('确定要清除下载记录吗')) === false) {
-      return
+    // 如果未启用去重，直接返回不重复
+    if (!settings.deduplication) {
+      return false
     }
 
-    log.log(lang.transl('_清除下载记录'))
-    toast.show(lang.transl('_清除下载记录'))
-
-    let total = this.storeNameList.length
-    let num = 0
-
-    for (const name of this.storeNameList) {
-      log.log(`${lang.transl('_任务进度')} ${num}/${total}`)
-      num++
-      await this.IDB.clear(name)
-    }
-    log.log(`${lang.transl('_任务进度')} ${num}/${total}`)
-
-    log.success(lang.transl('_下载记录已清除'))
-    toast.success(lang.transl('_下载记录已清除'))
-  }
-
-  // 导出下载记录
-  private async exportRecord() {
-    log.log(lang.transl('_导出下载记录'))
-    toast.show(lang.transl('_导出下载记录'))
-
-    let total = this.storeNameList.length
-    let num = 0
-
-    let record: Record[] = []
-    for (const name of this.storeNameList) {
-      log.log(`${lang.transl('_任务进度')} ${num}/${total}`)
-      num++
-      const r = (await this.IDB.getAll(name)) as Record[]
-      record = record.concat(r)
-    }
-    log.log(`${lang.transl('_任务进度')} ${num}/${total}`)
-
-    if (record.length === 0) {
-      log.error(lang.transl('_没有数据可供使用'))
-      toast.error(lang.transl('_没有数据可供使用'))
-      return
+    const record = await this.getRecord(result.id)
+    if (record === null) {
+      return false
     }
 
-    const resultList = await Utils.json2BlobSafe(record)
-    for (const result of resultList) {
-      Utils.downloadFile(
-        result.url,
-        `record-total ${result.total}-${Utils.replaceUnsafeStr(
-          new Date().toLocaleString()
-        )}.json`
-      )
+    // 有记录，说明这个文件下载过
+
+    // 首先检查日期字符串是否发生了变化
+    // 如果日期字符串变化了，则不视为重复文件
+    if (record.d !== undefined && record.d !== this.getDateString(result)) {
+      return false
     }
-
-    const msg = lang.transl('_导出成功')
-    log.success(msg)
-    toast.success(msg)
-  }
-
-  // 导入下载记录
-  private async importRecord(record: Record[]) {
-    log.log(lang.transl('_导入下载记录'))
-
-    // 显示导入进度
-    let stored = 0
-    let total = record.length
-
-    if (total > 10000) {
-      log.warning(lang.transl('_数据较多需要花费一些时间'))
+    // 如果之前的下载记录里没有日期，说明是早期的下载记录，那么就不检查日期
+    // 同时，更新这个作品的下载记录，为其添加日期
+    if (record.d === undefined) {
+      this.addRecordFromResult(result)
     }
-
-    log.log(`${stored}/${total}`, 'downloadRecordImportProgress')
-
-    console.time('importRecord')
-    // 依次处理每个存储库
-    for (let index = 0; index < this.storeNameList.length; index++) {
-      // 提取出要存入这个存储库的数据
-      const data: Record[] = []
-      for (const r of record) {
-        if (parseInt(r.id[0]) - 1 === index) {
-          data.push(r)
-        }
-      }
-
-      if (data.length === 0) {
-        continue
-      }
-
-      // 添加数据
-      log.log(`${lang.transl('_待处理')} ${data.length}`)
-      try {
-        // console.time('restoreRecord' + (index + 1))
-        await this.IDB.batchAddData(this.storeNameList[index], data, 'id')
-        // console.timeEnd('restoreRecord' + (index + 1))
-
-        stored += data.length
-        log.log(`${stored}/${total}`, 'downloadRecordImportProgress')
-      } catch (error) {
-        const errorMsg = (error as any)?.target?.error
-        const tip = errorMsg ? errorMsg : error
-        log.error(tip)
-        msgBox.error(tip)
-      }
+    // 如果日期字符串没有变化，再根据策略进行判断
+    if (settings.dupliStrategy === 'loose') {
+      // 如果是宽松策略（不比较文件名）
+      return true
+    } else {
+      // 如果是严格策略（比较文件名）
+      const name = fileName.createFileName(result)
+      return name === record.n
     }
-    console.timeEnd('importRecord')
-
-    if (stored < total) {
-      return
-    }
-
-    log.success(lang.transl('_导入成功'))
-    toast.success(lang.transl('_导入成功'))
-
-    msgBox.success(lang.transl('_导入成功'), {
-      title: lang.transl('_导入下载记录'),
-    })
-
-    // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。
-  }
-
-  // 从 json 文件导入
-  private async importRecordFromJSON() {
-    const record = (await Utils.loadJSONFile().catch((err) => {
-      msgBox.error(err)
-      return
-    })) as Record[]
-
-    if (!record) {
-      return
-    }
-
-    // 判断格式是否符合要求
-    if (
-      Array.isArray(record) === false ||
-      record[0].id === undefined ||
-      record[0].n === undefined
-    ) {
-      return msgBox.error(lang.transl('_格式错误'))
-    }
-
-    this.importRecord(record)
-  }
-
-  // 从 txt 文件导入
-  // 每行一个文件 id（带序号），以换行分割
-  private async importRecordFromTxt() {
-    const file = (await Utils.selectFile('.txt'))[0]
-    const text = await file.text()
-
-    // 以换行分割
-    let split = '\r\n'
-    if (!text.includes(split)) {
-      split = '\n'
-    }
-    const arr = text.split(split)
-
-    // 把每一行视为一个 id，进行导入
-    const record: Record[] = []
-    for (const str of arr) {
-      if (str) {
-        record.push({
-          id: str,
-          n: str,
-        })
-      }
-    }
-    this.importRecord(record)
   }
 }
 

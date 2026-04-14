@@ -175,7 +175,9 @@ class Utils {
     a.click()
 
     if (url.startsWith('blob')) {
-      URL.revokeObjectURL(url)
+      setTimeout(() => {
+        URL.revokeObjectURL(url)
+      }, 200)
     }
   }
 
@@ -408,23 +410,34 @@ class Utils {
     }
   }
 
-  /**用 URL 里的后缀名替换 originName 的后缀名
+  /**用第二个字符串里的扩展名替换 originName 里的扩展名。
    *
    * 例如传入参数 123.txt, https://.../123.jpg
    *
    * 返回 123.jpg
    */
-  static replaceSuffix(originName: string, url: string) {
-    const nameArray = originName.split('.')
-    const urlArray = url.split('.')
-    nameArray[nameArray.length - 1] = urlArray[urlArray.length - 1]
-    return nameArray.join('.')
+  static replaceExtension(originName: string, str: string) {
+    const originArray = originName.split('.')
+    const originExt = Utils.getExtension(originName)
+    const urlExt = Utils.getExtension(str)
+    // 如果任意一方没有扩展名，或者扩展名相同，就不修改原文件名
+    if (!originExt || !urlExt || originExt === urlExt) {
+      return originName
+    }
+    // 如果扩展名不同，就替换原文件名的扩展名
+    originArray[originArray.length - 1] = urlExt
+    return originArray.join('.')
   }
 
-  /**获取后缀名 */
-  static getSuffix(name: string) {
-    const nameArray = name.split('.')
-    return nameArray[nameArray.length - 1]
+  /**获取字符串里的文件扩展名。字符串可能是文件名或 URL */
+  static getExtension(str: string) {
+    // 移除可能存在的查询字符串，并获取扩展名
+    const array = str.split('?')[0].split('.')
+    // 如果只有一项，说明字符串里没有包含点 . ，所以也就没有扩展名
+    if (array.length === 1) {
+      return ''
+    }
+    return array.at(-1) || ''
   }
 
   /**替换换行标签，并移除 html 标签 */
@@ -472,21 +485,6 @@ class Utils {
 
   static sleep(time: number) {
     return new Promise((res) => window.setTimeout(res, time))
-  }
-
-  /**传入一个文件的 URL，返回它的文件扩展名 */
-  static getURLExt(url: string) {
-    url = url.split('?')[0] // 移除可能存在的查询字符串
-    const array = url.split('.')
-    return array[array.length - 1]
-  }
-
-  /**传入字符串，移除其中的所有 emoji 文字 */
-  static removeEmojis(str: string) {
-    return str.replace(
-      /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu,
-      ''
-    )
   }
 
   /**检测元素在视口中是否可见

@@ -135,7 +135,10 @@ class SaveWorkMeta {
 
     const checkAITag = data.tags.includes('AI生成')
     fileContent.push(
-      this.addMeta('AI', Tools.getAITypeText(checkAITag ? 2 : data.aiType || 0))
+      this.addMeta(
+        'AI',
+        Tools.getAITypeTextEnglish(checkAITag ? 2 : data.aiType || 0)
+      )
     )
     fileContent.push(this.addMeta('User', data.user))
     fileContent.push(this.addMeta('UserID', data.userId))
