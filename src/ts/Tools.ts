@@ -1212,6 +1212,16 @@ class Tools {
         return 'R-18G'
     }
   }
+
+  /** 获取指定编号的选项元素 */
+  static getOption(allOption: NodeListOf<HTMLElement>, no: number) {
+    for (const option of allOption) {
+      if (option.dataset.no === no.toString()) {
+        return option
+      }
+    }
+    throw `Not found this option: ${no}`
+  }
 }
 
 export { Tools }

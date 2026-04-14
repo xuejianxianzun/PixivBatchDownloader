@@ -1,5 +1,6 @@
 import { EVT } from '../EVT'
 import { lang } from '../Language'
+import { Utils } from '../utils/Utils'
 
 /**Wiki 上已经实装的语言 */
 type AvailableLanguages = 'zh-cn' | 'en'
@@ -119,7 +120,7 @@ class Wiki {
       0, 1, 2, 44, 81, 6, 23, 21, 51, 5, 7, 8, 9, 10, 11, 12, 94, 95, 96, 99,
     ],
     Download: [13, 50, 64, 16, 17, 33],
-    'More-Crawl': [57, 59, 75, 3, 47, 69, 35, 39, 74, 54, 85],
+    'More-Crawl': [57, 59, 75, 3, 47, 69, 35, 39, 74, 54, 85, 103, 104],
     'More-Naming': [65, 19, 42, 43, 38, 22, 46, 29, 83, 67, 66, 97, 98],
     'More-Download': [
       58, 52, 90, 91, 76, 77, 4, 24, 26, 27, 70, 72, 73, 49, 89, 30, 25, 82, 20,
@@ -205,31 +206,9 @@ class Wiki {
     })
   }
 
-  /**在 btn 上长按鼠标左键，或长按屏幕时，如果持续时间超过 500 ms 还未松开，则打开链接 */
   public registerBtn(btn: HTMLButtonElement) {
-    let timer: number
-    btn.addEventListener('mousedown', (ev) => {
-      if (ev.button === 0) {
-        timer = window.setTimeout(() => {
-          this.openLink(btn.id)
-        }, 500)
-      }
-    })
-    btn.addEventListener('mouseup', (ev) => {
-      if (ev.button === 0) {
-        window.clearTimeout(timer)
-      }
-    })
-    btn.addEventListener('touchstart', (ev) => {
-      timer = window.setTimeout(() => {
-        this.openLink(btn.id)
-      }, 500)
-    })
-    btn.addEventListener('touchend', (ev) => {
-      window.clearTimeout(timer)
-    })
-    btn.addEventListener('touchcancel', (ev) => {
-      window.clearTimeout(timer)
+    Utils.longPress(btn, () => {
+      this.openLink(btn.id)
     })
   }
 

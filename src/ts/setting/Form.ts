@@ -154,6 +154,10 @@ class Form {
   /** 有些提示区域是默认显示的，用户点击“我知道了”按钮之后改为隐藏 */
   private readonly tipAreaConfig: { key: SettingKeys; selector: string }[] = [
     {
+      key: 'tipPinOption',
+      selector: 'p#tipPinOption',
+    },
+    {
       key: 'tipCloseAskFileSaveLocation',
       selector: 'p#tipCloseAskFileSaveLocation',
     },

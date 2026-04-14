@@ -2,6 +2,9 @@ import { Config } from '../Config'
 import { EVT } from '../EVT'
 import { pageType } from '../PageType'
 import { settings } from './Settings'
+import { pinOption } from './PinOptions'
+import { Tools } from '../Tools'
+import { states } from '../store/States'
 
 type NewOption = {
   id: number
@@ -13,14 +16,11 @@ class Options {
   public init(allOption: NodeListOf<HTMLElement>) {
     this.allOption = allOption
     this.bindEvents()
+
+    pinOption.init(allOption)
   }
 
   private allOption!: NodeListOf<HTMLElement>
-
-  /**始终保持显示的选项 */
-  private readonly whiteList: number[] = [
-    2, 4, 13, 17, 20, 26, 32, 44, 50, 51, 57, 64, 37,
-  ]
 
   // 90 天内添加的设置项，显示 new 角标
   private readonly newRange = 7776000000
@@ -110,6 +110,10 @@ class Options {
       const data = ev.detail.data as any
       if (data.name === 'showAdvancedSettings') {
         this.display()
+        // 在设置初始化之前不在这里执行 displayPinOption，以避免短时间内不必要的重复执行
+        if (states.settingInitialized) {
+          pinOption.displayPinOption()
+        }
       }
     })
 
@@ -138,7 +142,7 @@ class Options {
       // 如果需要隐藏高级设置
       if (!settings.showAdvancedSettings) {
         // 然后判断是否在白名单里
-        if (this.whiteList.includes(no)) {
+        if (Config.optionWhiteList.includes(no)) {
           this.showOption([no])
         } else {
           this.hideOption([no])
@@ -178,20 +182,10 @@ class Options {
     const now = Date.now()
     this.newOptions.forEach((option) => {
       if (now - option.time <= this.newRange) {
-        const el = this.getOption(option.id)
+        const el = Tools.getOption(this.allOption, option.id)
         el.classList.add('new')
       }
     })
-  }
-
-  // 使用编号获取指定选项的元素
-  private getOption(no: number) {
-    for (const option of this.allOption) {
-      if (option.dataset.no === no.toString()) {
-        return option
-      }
-    }
-    throw `Not found this option: ${no}`
   }
 
   // 显示或隐藏指定的选项
@@ -201,7 +195,7 @@ class Options {
       if (number === 0 || number === 1) {
         continue
       }
-      this.getOption(number).style.display = display
+      Tools.getOption(this.allOption, number).style.display = display
     }
   }
 
