@@ -16490,7 +16490,10 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     deleteId = 0; // 手动删除时，要删除的作品的 id
     showPreviewIntervalId = 0; // showPreview 定时器的 id
     removeBlockIntervalId = 0; // removeBlockOnHotBar 定时器的 id
-    causeResultChange = ['onlyCrawlFirstFewImagesSwitch', 'onlyCrawlFirstFewImagesCount']; // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
+    causeResultChange = [
+        'onlyCrawlFirstFewImagesSwitch',
+        'onlyCrawlFirstFewImagesCount',
+    ]; // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
     crawlStartBySelf = false; // 这次抓取是否是由当前页面的“开始抓取”按钮发起的
     previewCount = 0; // 共显示了多少个作品的预览图
     showPreviewLimitTip = false; // 当预览数量达到上限时显示一次提示
@@ -27123,26 +27126,31 @@ class CheckIndexForMultiImageWork {
         // 先检查不抓取特定图片的规则，满足任意一个规则就直接排除，不再继续检查
         const notCrawlFirst = this.doNotCrawlFirstImages(index, pageCount);
         if (!notCrawlFirst) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了多图作品里的部分图片原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品不抓取前几张图片'), 'checkDoNotCrawlFirstImages');
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了多图作品里的部分图片原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品不抓取前几张图片'), 'checkDoNotCrawlFirstImages');
             return false;
         }
         const notCrawlLast = this.doNotCrawlLastImages(index, pageCount);
         if (!notCrawlLast) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了多图作品里的部分图片原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品不抓取后几张图片'), 'checkDoNotCrawlLastImages');
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了多图作品里的部分图片原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品不抓取后几张图片'), 'checkDoNotCrawlLastImages');
             return false;
         }
         const forSpecialUser = this.forSpecialUser(index, pageCount, userId);
         if (!forSpecialUser) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了多图作品里的部分图片原因') + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_特定用户的多图作品不下载最后几张图片'), 'checkDoNotDownloadLastFewImagesForSpecialUser');
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_下载器排除了多图作品里的部分图片原因') +
+                _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_特定用户的多图作品不下载最后几张图片'), 'checkDoNotDownloadLastFewImagesForSpecialUser');
             return false;
         }
         // 如果图片没有被“不抓取”规则排除，才会检查“只抓取”的规则
         // 如果没有启用任何只抓取规则，就保留这个图片
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlFirstFewImagesSwitch && !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlLastFewImagesSwitch) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlFirstFewImagesSwitch &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlLastFewImagesSwitch) {
             return true;
         }
         let and = false;
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlFirstFewImagesSwitch && _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlLastFewImagesSwitch) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlFirstFewImagesSwitch &&
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.onlyCrawlLastFewImagesSwitch) {
             // 如果同时启用了两个只抓取规则，则使用 OR（只要满足任意一个只抓取规则就保留）
             // 这意味这用户可以设置同时抓取第一张和最后一张图片，跳过中间的图片
             and = false;
@@ -28409,7 +28417,8 @@ class ShowEnabledFilter {
     /** 提示多图作品不抓取后几张图片 */
     getDoNotCrawlLastImage() {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.doNotCrawlLastImagesSwitch) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning('🛸' + `${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品不抓取后几张图片')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.doNotCrawlLastImagesCount}`);
+            _Log__WEBPACK_IMPORTED_MODULE_1__.log.warning('🛸' +
+                `${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_多图作品不抓取后几张图片')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.doNotCrawlLastImagesCount}`);
         }
     }
     /** 提示必须包含的tag */
@@ -37216,12 +37225,24 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `Не краулить <span class="key">последние несколько</span> изображений в многоизображных работах`,
     ],
     _多图作品不抓取后几张图片的说明: [
-        `常见的使用场景：有些画师的作品的最后一张或几张图片是宣传图，或者是有马赛克的图片。你可以启用这个设置来排除最后一张或多张图片。<br>注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留第一张图片，而非排除整个作品。<br>“只抓取”和“不抓取”的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
-        `常見的使用場景：有些畫師的作品的最後一張或幾張圖片是宣傳圖，或者是有馬賽克的圖片。你可以啟用這個設定來排除最後一張或多張圖片。<br>注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留第一張圖片，而非排除整個作品。<br>「只抓取」和「不抓取」的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時滿足兩種條件，下載器不會抓取它。`,
-        `Common usage scenarios: Some artists' works have the last one or several images as promotional images, or images with mosaics. You can enable this setting to exclude the last one or more images.<br>Note: If the number you set is greater than the number of images in the work, the downloader will keep the first image instead of excluding the entire work.<br>The "Only crawl" and "Do not crawl" conditions can be used simultaneously. "Do not crawl" has higher priority: if an image meets both conditions, the downloader will not crawl it.`,
-        `よくある使用シーン：一部の作家の作品では最後の1枚または数枚の画像が宣伝画像である場合、またはモザイクのかかった画像である場合があります。この設定を有効にすると、最後の1枚または複数枚の画像を除外できます。<br>注意：設定した数字が作品内の画像数より多い場合、ダウンローダーは最初の画像を保持し、作品全体を除外しません。<br>「のみクロール」と「クロールしない」条件を同時に使用できます。「クロールしない」の優先度がより高く、画像が両方の条件を満たす場合、ダウンローダーはその画像をクロールしません。`,
-        `일반적인 사용 시나리오: 일부 화가의 작품에서 마지막 한 장 또는 여러 장의 이미지가 홍보 이미지이거나 모자이크가 있는 이미지인 경우가 있습니다. 이 설정을 활성화하면 마지막 한 장 또는 여러 장의 이미지를 제외할 수 있습니다.<br>주의: 설정한 숫자가 작품 내 이미지 수보다 크면 다운로더는 첫 번째 이미지를 유지하고 전체 작품을 제외하지 않습니다.<br>"오직 크롤링"과 "크롤링하지 않음" 조건을 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다: 한 이미지가 두 조건을 모두 만족하면 다운로더는 해당 이미지를 크롤링하지 않습니다.`,
-        `Распространённые сценарии использования: У некоторых художников последняя одна или несколько картинок в работе являются рекламными изображениями или изображениями с мозаикой. Вы можете включить эту настройку, чтобы исключить последнюю одну или несколько картинок.<br>Примечание: Если заданное вами число превышает количество изображений в работе, загрузчик сохранит первое изображение вместо того, чтобы исключить всю работу.<br>Условия «Краулить только» и «Не краулить» можно использовать одновременно. Приоритет выше у «Не краулить»: если изображение удовлетворяет обоим условиям, загрузчик не будет его краулить.`,
+        `常见的使用场景：有些画师的作品的最后一张或几张图片是宣传图，或者是有马赛克的图片。你可以启用这个设置来排除最后一张或多张图片。<br><br>
+    注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留第一张图片，而非排除整个作品。<br><br>
+    “只抓取”和“不抓取”的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
+        `常見的使用場景：有些畫師的作品的最後一張或幾張圖片是宣傳圖，或者是有馬賽克的圖片。你可以啟用這個設定來排除最後一張或多張圖片。<br><br>
+    注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留第一張圖片，而非排除整個作品。<br><br>
+    「只抓取」和「不抓取」的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時滿足兩種條件，下載器不會抓取它。`,
+        `Common usage scenarios: Some artists' works have the last one or several images as promotional images, or images with mosaics. You can enable this setting to exclude the last one or more images.<br><br>
+    Note: If the number you set is greater than the number of images in the work, the downloader will keep the first image instead of excluding the entire work.<br><br>
+    The "Only crawl" and "Do not crawl" conditions can be used simultaneously. "Do not crawl" has higher priority: if an image meets both conditions, the downloader will not crawl it.`,
+        `よくある使用シーン：一部の作家の作品では最後の1枚または数枚の画像が宣伝画像である場合、またはモザイクのかかった画像である場合があります。この設定を有効にすると、最後の1枚または複数枚の画像を除外できます。<br><br>
+    注意：設定した数字が作品内の画像数より多い場合、ダウンローダーは最初の画像を保持し、作品全体を除外しません。<br><br>
+    「のみクロール」と「クロールしない」条件を同時に使用できます。「クロールしない」の優先度がより高く、画像が両方の条件を満たす場合、ダウンローダーはその画像をクロールしません。`,
+        `일반적인 사용 시나리오: 일부 화가의 작품에서 마지막 한 장 또는 여러 장의 이미지가 홍보 이미지이거나 모자이크가 있는 이미지인 경우가 있습니다. 이 설정을 활성화하면 마지막 한 장 또는 여러 장의 이미지를 제외할 수 있습니다.<br><br>
+    주의: 설정한 숫자가 작품 내 이미지 수보다 크면 다운로더는 첫 번째 이미지를 유지하고 전체 작품을 제외하지 않습니다.<br><br>
+    "오직 크롤링"과 "크롤링하지 않음" 조건을 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다: 한 이미지가 두 조건을 모두 만족하면 다운로더는 해당 이미지를 크롤링하지 않습니다.`,
+        `Распространённые сценарии использования: У некоторых художников последняя одна или несколько картинок в работе являются рекламными изображениями или изображениями с мозаикой. Вы можете включить эту настройку, чтобы исключить последнюю одну или несколько картинок.<br><br>
+    Примечание: Если заданное вами число превышает количество изображений в работе, загрузчик сохранит первое изображение вместо того, чтобы исключить всю работу.<br><br>
+    Условия «Краулить только» и «Не краулить» можно использовать одновременно. Приоритет выше у «Не краулить»: если изображение удовлетворяет обоим условиям, загрузчик не будет его краулить.`,
     ],
     _多图作品不抓取前几张图片: [
         `多图作品不抓取<span class="key">前几张</span>图片`,
@@ -37232,12 +37253,24 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `Не краулить <span class="key">первые несколько</span> изображений в многоизображных работах`,
     ],
     _多图作品不抓取前几张图片的说明: [
-        `常见的使用场景：有些画师的作品的第一张图片有文字，第二张没有文字；或者第一张是全年龄的，第二张是 R-18 的。你可以启用这个设置来排除第一张或前几张图片。<br>注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留最后一张图片，而非排除整个作品。<br>“只抓取”和“不抓取”的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
-        `常見的使用場景：有些畫師的作品的第一張圖片有文字，第二張沒有文字；或者第一張是全齡的，第二張是 R-18 的。你可以啟用這個設定來排除第一張或前幾張圖片。<br>注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留最後一張圖片，而非排除整個作品。<br>「只抓取」和「不抓取」的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時滿足兩種條件，下載器不會抓取它。`,
-        `Common usage scenarios: Some artists' works have text on the first image and no text on the second; or the first image is all-ages and the second is R-18. You can enable this setting to exclude the first one or the first few images.<br>Note: If the number you set is greater than the number of images in the work, the downloader will keep the last image instead of excluding the entire work.<br>The "Only crawl" and "Do not crawl" conditions can be used simultaneously. "Do not crawl" has higher priority: if an image meets both conditions, the downloader will not crawl it.`,
-        `よくある使用シーン：一部の作家の作品では最初の画像に文字が入っており、2枚目には文字がない場合、または最初の画像が全年齢向けで2枚目がR-18の場合があります。この設定を有効にすると、最初の1枚または最初の数枚の画像を除外できます。<br>注意：設定した数字が作品内の画像数より多い場合、ダウンローダーは最後の画像を保持し、作品全体を除外しません。<br>「のみクロール」と「クロールしない」条件を同時に使用できます。「クロールしない」の優先度がより高く、画像が両方の条件を満たす場合、ダウンローダーはその画像をクロールしません。`,
-        `일반적인 사용 시나리오: 일부 화가의 작품에서 첫 번째 이미지는 텍스트가 있고 두 번째 이미지는 텍스트가 없거나, 첫 번째 이미지는 전체 연령대용이고 두 번째 이미지는 R-18인 경우가 있습니다. 이 설정을 활성화하면 첫 번째 한 장 또는 앞의 몇 장의 이미지를 제외할 수 있습니다.<br>주의: 설정한 숫자가 작품 내 이미지 수보다 크면 다운로더는 마지막 이미지를 유지하고 전체 작품을 제외하지 않습니다.<br>"오직 크롤링"과 "크롤링하지 않음" 조건을 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다: 한 이미지가 두 조건을 모두 만족하면 다운로더는 해당 이미지를 크롤링하지 않습니다.`,
-        `Распространённые сценарии использования: У некоторых художников первая картинка в работе содержит текст, а вторая — нет; или первая картинка является общедоступной (all-ages), а вторая — R-18. Вы можете включить эту настройку, чтобы исключить первую одну или первые несколько картинок.<br>Примечание: Если заданное вами число превышает количество изображений в работе, загрузчик сохранит последнюю картинку вместо того, чтобы исключить всю работу.<br>Условия «Краулить только» и «Не краулить» можно использовать одновременно. Приоритет выше у «Не краулить»: если изображение удовлетворяет обоим условиям, загрузчик не будет его краулить.`,
+        `常见的使用场景：有些画师的作品的第一张图片有文字，第二张没有文字；或者第一张是全年龄的，第二张是 R-18 的。你可以启用这个设置来排除第一张或前几张图片。<br><br>
+    注意：如果你设置的数字大于作品里的图片数量，那么下载器会保留最后一张图片，而非排除整个作品。<br><br>
+    “只抓取”和“不抓取”的条件可以同时使用。不抓取的优先级更高：如果一张图片同时满足两种条件，下载器不会抓取它。`,
+        `常見的使用場景：有些畫師的作品的第一張圖片有文字，第二張沒有文字；或者第一張是全齡的，第二張是 R-18 的。你可以啟用這個設定來排除第一張或前幾張圖片。<br><br>
+    注意：如果你設定的數字大於作品裡的圖片數量，那麼下載器會保留最後一張圖片，而非排除整個作品。<br><br>
+    「只抓取」和「不抓取」的條件可以同時使用。不抓取的優先級更高：如果一張圖片同時滿足兩種條件，下載器不會抓取它。`,
+        `Common usage scenarios: Some artists' works have text on the first image and no text on the second; or the first image is all-ages and the second is R-18. You can enable this setting to exclude the first one or the first few images.<br><br>
+    Note: If the number you set is greater than the number of images in the work, the downloader will keep the last image instead of excluding the entire work.<br><br>
+    The "Only crawl" and "Do not crawl" conditions can be used simultaneously. "Do not crawl" has higher priority: if an image meets both conditions, the downloader will not crawl it.`,
+        `よくある使用シーン：一部の作家の作品では最初の画像に文字が入っており、2枚目には文字がない場合、または最初の画像が全年齢向けで2枚目がR-18の場合があります。この設定を有効にすると、最初の1枚または最初の数枚の画像を除外できます。<br><br>
+    注意：設定した数字が作品内の画像数より多い場合、ダウンローダーは最後の画像を保持し、作品全体を除外しません。<br><br>
+    「のみクロール」と「クロールしない」条件を同時に使用できます。「クロールしない」の優先度がより高く、画像が両方の条件を満たす場合、ダウンローダーはその画像をクロールしません。`,
+        `일반적인 사용 시나리오: 일부 화가의 작품에서 첫 번째 이미지는 텍스트가 있고 두 번째 이미지는 텍스트가 없거나, 첫 번째 이미지는 전체 연령대용이고 두 번째 이미지는 R-18인 경우가 있습니다. 이 설정을 활성화하면 첫 번째 한 장 또는 앞의 몇 장의 이미지를 제외할 수 있습니다.<br><br>
+    주의: 설정한 숫자가 작품 내 이미지 수보다 크면 다운로더는 마지막 이미지를 유지하고 전체 작품을 제외하지 않습니다.<br><br>
+    "오직 크롤링"과 "크롤링하지 않음" 조건을 동시에 사용할 수 있습니다. "크롤링하지 않음"의 우선순위가 더 높습니다: 한 이미지가 두 조건을 모두 만족하면 다운로더는 해당 이미지를 크롤링하지 않습니다.`,
+        `Распространённые сценарии использования: У некоторых художников первая картинка в работе содержит текст, а вторая — нет; или первая картинка является общедоступной (all-ages), а вторая — R-18. Вы можете включить эту настройку, чтобы исключить первую одну или первые несколько картинок.<br><br>
+    Примечание: Если заданное вами число превышает количество изображений в работе, загрузчик сохранит последнюю картинку вместо того, чтобы исключить всю работу.<br><br>
+    Условия «Краулить только» и «Не краулить» можно использовать одновременно. Приоритет выше у «Не краулить»: если изображение удовлетворяет обоим условиям, загрузчик не будет его краулить.`,
     ],
     _多图作品只抓取前几张图片: [
         `多图作品只抓取<span class="key">前几张</span>图片`,
@@ -37248,12 +37281,18 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `Многоизображные работы загружают только <span class="key">первые несколько</span> изображений`,
     ],
     _多图作品只抓取前几张图片的说明: [
-        `常见的使用场景：如果你不想从多图作品里下载太多图片，或者你觉得第一张图片最有价值，就可以启用这个设置。<br>提示：两个“只抓取”条件可以同时使用，此时图片只要满足其中一个条件就会保留。这样你可以跳过中间的图片，只下载首尾的图片。`,
-        `常見的使用場景：如果你不想從多圖作品裡下載太多圖片，或者你覺得第一張圖片最有價值，就可以啟用這個設定。<br>提示：兩個「只抓取」條件可以同時使用，此時圖片只要滿足其中一個條件就會保留。這樣你可以跳過中間的圖片，只下載首尾的圖片。`,
-        `Common usage scenarios: If you don't want to download too many images from multi-image works, or if you think the first image is the most valuable, you can enable this setting.<br>Tip: The two "Only crawl" conditions can be used simultaneously. In this case, an image will be kept as long as it meets either condition. This allows you to skip the middle images and only download the first and last images.`,
-        `よくある使用シーン：多画像作品からあまり多くの画像をダウンロードしたくない場合、または最初の画像が最も価値があると思う場合は、この設定を有効にできます。<br>ヒント：2つの「のみクロール」条件を同時に使用できます。この場合、画像はいずれかの条件を満たしていれば保持されます。これにより、中間の画像をスキップして、最初と最後の画像のみをダウンロードできます。`,
-        `일반적인 사용 시나리오: 다중 이미지 작품에서 너무 많은 이미지를 다운로드하고 싶지 않거나 첫 번째 이미지가 가장 가치 있다고 생각한다면 이 설정을 활성화할 수 있습니다.<br>팁: 두 "오직 크롤링" 조건을 동시에 사용할 수 있습니다. 이 경우 이미지는 어느 한 조건을 만족하면 유지됩니다. 이렇게 하면 중간 이미지를 건너뛰고 처음과 마지막 이미지만 다운로드할 수 있습니다.`,
-        `Распространённые сценарии использования: Если вы не хотите скачивать слишком много изображений из многоизображных работ или считаете, что первая картинка наиболее ценная, вы можете включить эту настройку.<br>Подсказка: Два условия «Краулить только» можно использовать одновременно. В этом случае изображение будет сохранено, если оно удовлетворяет хотя бы одному из условий. Таким образом вы можете пропустить средние изображения и скачать только первые и последние.`,
+        `常见的使用场景：如果你不想从多图作品里下载太多图片，或者你觉得第一张图片最有价值，就可以启用这个设置。<br><br>
+    提示：两个“只抓取”条件可以同时使用，此时图片只要满足其中一个条件就会保留。这样你可以跳过中间的图片，只下载首尾的图片。`,
+        `常見的使用場景：如果你不想從多圖作品裡下載太多圖片，或者你覺得第一張圖片最有價值，就可以啟用這個設定。<br><br>
+    提示：兩個「只抓取」條件可以同時使用，此時圖片只要滿足其中一個條件就會保留。這樣你可以跳過中間的圖片，只下載首尾的圖片。`,
+        `Common usage scenarios: If you don't want to download too many images from multi-image works, or if you think the first image is the most valuable, you can enable this setting.<br><br>
+    Tip: The two "Only crawl" conditions can be used simultaneously. In this case, an image will be kept as long as it meets either condition. This allows you to skip the middle images and only download the first and last images.`,
+        `よくある使用シーン：多画像作品からあまり多くの画像をダウンロードしたくない場合、または最初の画像が最も価値があると思う場合は、この設定を有効にできます。<br><br>
+    ヒント：2つの「のみクロール」条件を同時に使用できます。この場合、画像はいずれかの条件を満たしていれば保持されます。これにより、中間の画像をスキップして、最初と最後の画像のみをダウンロードできます。`,
+        `일반적인 사용 시나리오: 다중 이미지 작품에서 너무 많은 이미지를 다운로드하고 싶지 않거나 첫 번째 이미지가 가장 가치 있다고 생각한다면 이 설정을 활성화할 수 있습니다.<br><br>
+    팁: 두 "오직 크롤링" 조건을 동시에 사용할 수 있습니다. 이 경우 이미지는 어느 한 조건을 만족하면 유지됩니다. 이렇게 하면 중간 이미지를 건너뛰고 처음과 마지막 이미지만 다운로드할 수 있습니다.`,
+        `Распространённые сценарии использования: Если вы не хотите скачивать слишком много изображений из многоизображных работ или считаете, что первая картинка наиболее ценная, вы можете включить эту настройку.<br><br>
+    Подсказка: Два условия «Краулить только» можно использовать одновременно. В этом случае изображение будет сохранено, если оно удовлетворяет хотя бы одному из условий. Таким образом вы можете пропустить средние изображения и скачать только первые и последние.`,
     ],
     _多图作品只抓取后几张图片: [
         `多图作品只抓取<span class="key">后几张</span>图片`,
@@ -37264,12 +37303,18 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `Краулить только <span class="key">последние несколько</span> изображений в многоизображных работах`,
     ],
     _多图作品只抓取后几张图片的说明: [
-        `常见的使用场景：一些用户在发布恋活（Koikatu）等游戏的人物卡或场景卡时，前面的图片都是截图展示，最后一张才是包含数据的卡片。你可以启用这个设置只抓取最后一张或多张图片。<br>提示：两个“只抓取”条件可以同时使用，此时图片只要满足其中一个条件就会保留。这样你可以跳过中间的图片，只下载首尾的图片。`,
-        `常見的使用場景：一些用戶在發佈戀活（Koikatu）等遊戲的人物卡或場景卡時，前面的圖片都是截圖展示，最後一張才是包含數據的卡片。你可以啟用這個設定只抓取最後一張或多張圖片。<br>提示：兩個「只抓取」條件可以同時使用，此時圖片只要滿足其中一個條件就會保留。這樣你可以跳過中間的圖片，只下載首尾的圖片。`,
-        `Common usage scenarios: When some users post character cards or scene cards for games such as Koikatu, the preceding images are all screenshots for display, and only the last image contains the actual data card. You can enable this setting to crawl only the last one or more images.<br>Tip: The two "Only crawl" conditions can be used simultaneously. In this case, an image will be kept as long as it meets either condition. This allows you to skip the middle images and only download the first and last images.`,
-        `よくある使用シーン：一部のユーザーがKoikatuなどのゲームのキャラクタカードやシーンのカードを投稿する際、前の画像はすべてスクリーンショットによる展示で、最後の1枚だけがデータを含むカードです。この設定を有効にすると、最後の1枚または複数枚の画像のみをクロールできます。<br>ヒント：2つの「のみクロール」条件を同時に使用できます。この場合、画像はいずれかの条件を満たしていれば保持されます。これにより、中間の画像をスキップして、最初と最後の画像のみをダウンロードできます。`,
-        `일반적인 사용 시나리오: 일부 사용자가 Koikatu 등의 게임 캐릭터 카드나 장면 카드를 게시할 때 앞의 이미지는 모두 스크린샷 전시이고 마지막 한 장만이 데이터를 포함한 카드입니다. 이 설정을 활성화하면 마지막 한 장 또는 여러 장의 이미지만 크롤링할 수 있습니다.<br>팁: 두 "오직 크롤링" 조건을 동시에 사용할 수 있습니다. 이 경우 이미지는 어느 한 조건을 만족하면 유지됩니다. 이렇게 하면 중간 이미지를 건너뛰고 처음과 마지막 이미지만 다운로드할 수 있습니다.`,
-        `Распространённые сценарии использования: Когда некоторые пользователи публикуют карточки персонажей или сцен для игр вроде Koikatu, предыдущие изображения — это все скриншоты для демонстрации, а только последняя картинка содержит саму карточку с данными. Вы можете включить эту настройку, чтобы краулить только последнюю одну или несколько картинок.<br>Подсказка: Два условия «Краулить только» можно использовать одновременно. В этом случае изображение будет сохранено, если оно удовлетворяет хотя бы одному из условий. Таким образом вы можете пропустить средние изображения и скачать только первые и последние.`,
+        `常见的使用场景：一些用户在发布恋活（Koikatsu）等游戏的人物卡或场景卡时，前面的图片都是截图展示，最后一张才是包含数据的卡片。你可以启用这个设置只抓取最后一张或多张图片。<br><br>
+    提示：两个“只抓取”条件可以同时使用，此时图片只要满足其中一个条件就会保留。这样你可以跳过中间的图片，只下载首尾的图片。`,
+        `常見的使用場景：一些用戶在發佈戀活（Koikatsu）等遊戲的人物卡或場景卡時，前面的圖片都是截圖展示，最後一張才是包含數據的卡片。你可以啟用這個設定只抓取最後一張或多張圖片。<br><br>
+    提示：兩個「只抓取」條件可以同時使用，此時圖片只要滿足其中一個條件就會保留。這樣你可以跳過中間的圖片，只下載首尾的圖片。`,
+        `Common usage scenarios: When some users post character cards or scene cards for games such as Koikatsu, the preceding images are all screenshots for display, and only the last image contains the actual data card. You can enable this setting to crawl only the last one or more images.<br><br>
+    Tip: The two "Only crawl" conditions can be used simultaneously. In this case, an image will be kept as long as it meets either condition. This allows you to skip the middle images and only download the first and last images.`,
+        `よくある使用シーン：一部のユーザーがKoikatsuなどのゲームのキャラクタカードやシーンのカードを投稿する際、前の画像はすべてスクリーンショットによる展示で、最後の1枚だけがデータを含むカードです。この設定を有効にすると、最後の1枚または複数枚の画像のみをクロールできます。<br><br>
+    ヒント：2つの「のみクロール」条件を同時に使用できます。この場合、画像はいずれかの条件を満たしていれば保持されます。これにより、中間の画像をスキップして、最初と最後の画像のみをダウンロードできます。`,
+        `일반적인 사용 시나리오: 일부 사용자가 Koikatsu 등의 게임 캐릭터 카드나 장면 카드를 게시할 때 앞의 이미지는 모두 스크린샷 전시이고 마지막 한 장만이 데이터를 포함한 카드입니다. 이 설정을 활성화하면 마지막 한 장 또는 여러 장의 이미지만 크롤링할 수 있습니다.<br><br>
+    팁: 두 "오직 크롤링" 조건을 동시에 사용할 수 있습니다. 이 경우 이미지는 어느 한 조건을 만족하면 유지됩니다. 이렇게 하면 중간 이미지를 건너뛰고 처음과 마지막 이미지만 다운로드할 수 있습니다.`,
+        `Распространённые сценарии использования: Когда некоторые пользователи публикуют карточки персонажей или сцен для игр вроде Koikatsu, предыдущие изображения — это все скриншоты для демонстрации, а только последняя картинка содержит саму карточку с данными. Вы можете включить эту настройку, чтобы краулить только последнюю одну или несколько картинок.<br><br>
+    Подсказка: Два условия «Краулить только» можно использовать одновременно. В этом случае изображение будет сохранено, если оно удовлетворяет хотя бы одному из условий. Таким образом вы можете пропустить средние изображения и скачать только первые и последние.`,
     ],
     _设置的值不正确需要是数字: [
         `设置的值不正确，需要是数字：`,
@@ -40432,109 +40477,26 @@ class Form {
     }
     /**点击一些按钮时，切换显示对应的帮助区域 */
     toggleHelpArea() {
-        // 显示系列小说的命名规则的提示
-        this.form
-            .querySelector('#showSeriesNovelNameTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#seriesNovelNameTip')));
-        // 显示命名字段提示
-        this.form
-            .querySelector('#showFileNameTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#fileNameTip')));
-        // 显示复制内容的格式的提示
-        this.form
-            .querySelector('#showCopyWorkInfoFormatTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#copyWorkInfoFormatTip')));
-        // 显示日期格式提示
-        this.form
-            .querySelector('#showDateTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#dateFormatTip')));
-        // 显示标签分隔提示
-        this.form
-            .querySelector('#showTagsSeparatorTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#tagsSeparatorTip')));
-        // 显示长按鼠标右键查看大图时的快捷键列表
-        this.form
-            .querySelector('#showShowOriginImageShortcutTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#showOriginImageShortcutTip')));
-        // 显示预览作品的快捷键列表
-        this.form
-            .querySelector('#showPreviewWorkShortcutTip')
-            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#previewWorkShortcutTip')));
+        const btns = this.form.querySelectorAll('.toggleArea');
+        btns.forEach((btn) => {
+            const targetSelector = btn.dataset.toggleTarget;
+            const target = document.querySelector(targetSelector);
+            btn.addEventListener('click', () => {
+                _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(target);
+            });
+        });
     }
     /**点击一些按钮时，通过 msgBox 显示帮助 */
     showMsgWhenClickBtn() {
-        const config = [
-            {
-                selector: '#showLooseMatchOriginalTip',
-                title: '_原创作品',
-                content: '_宽松匹配原创作品的说明',
-            },
-            {
-                selector: '#showPathLengthLimitTip',
-                title: '_文件名长度限制',
-                content: '_文件名长度限制的说明',
-            },
-            {
-                selector: '#showFilterSearchResultsTip',
-                title: '_过滤搜索页面的作品',
-                content: '_过滤搜索页面的作品的说明',
-            },
-            {
-                selector: '#showR18FolderNameTip',
-                title: '_把r18作品存入指定的文件夹里',
-                content: '_把r18作品存入指定的文件夹里可以使用命名标记替代的说明',
-            },
-            {
-                selector: '#showRememberTheLastSaveLocationTip',
-                title: '_把文件保存到用户上次选择的位置',
-                content: '_把文件保存到用户上次选择的位置的说明',
-            },
-            {
-                selector: '#showCopyWorkDataTip',
-                title: '_复制内容',
-                content: '_对复制的内容的说明',
-            },
-            {
-                selector: '#showRemoveBlockedUsersWorkTip',
-                title: '_用户阻止名单',
-                content: '_用户阻止名单的说明2',
-            },
-            {
-                selector: '#showSetWantWorkTip',
-                title: '_抓取多少作品',
-                content: '_抓取多少作品的提示',
-            },
-            {
-                selector: '#showSetWantPageTip',
-                title: '_抓取多少页面',
-                content: '_抓取多少页面的提示',
-            },
-            {
-                selector: '#deduplicationHelp',
-                title: '_不下载重复文件',
-                content: '_不下载重复文件的提示',
-            },
-            {
-                selector: '#downloadRecordHelp',
-                title: '_管理下载记录',
-                content: '_管理下载记录的提示',
-            },
-            {
-                selector: '#showDonotCrawlAlreadyDownloadedWorksTip',
-                title: '_不抓取下载过的作品',
-                content: '_不抓取下载过的作品的帮助信息',
-            },
-        ];
-        config.forEach((item) => {
-            const el = this.form.querySelector(item.selector);
-            el?.addEventListener('click', () => {
-                _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl(item.content), {
-                    title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl(item.title),
+        const btns = this.form.querySelectorAll('.showMsgBtn');
+        btns.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const title = btn.dataset.title;
+                const msg = btn.dataset.msg;
+                _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl(msg), {
+                    title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl(title),
                 });
             });
-            if (!el) {
-                console.error(item);
-            }
         });
     }
     /**绑定功能按钮，点击按钮后会执行特定操作 */
@@ -40653,7 +40615,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Wiki__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Wiki */ "./src/ts/setting/Wiki.ts");
 
 
-// 设置项编号从 0 开始，现在最大是 103
+// 设置项编号从 0 开始，现在最大是 104
 // 帮助按钮上的文字有两种：
 // - 如果帮助文字使用 MsgBox 显示，则使用“_帮助”
 // - 如果帮助文字直接在设置面板上显示，则使用“_提示”
@@ -40668,7 +40630,7 @@ const formHtml = `
       <button class="textButton grayButton mr0" type="button" role="setMin"></button>
       <button class="textButton grayButton" type="button" role="setMax"></button>
       <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
-      <button class="gray1 textButton" id="showSetWantWorkTip" type="button" data-xztext="_帮助"></button>
+      <button class="gray1 textButton showMsgBtn" data-title="_抓取多少作品" data-msg="_抓取多少作品的提示" type="button" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="1">
@@ -40679,7 +40641,7 @@ const formHtml = `
       <button class="textButton grayButton mr0" type="button" role="setMin"></button>
       <button class="textButton grayButton" type="button" role="setMax"></button>
       <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
-      <button class="gray1 textButton" id="showSetWantPageTip" type="button" data-xztext="_帮助"></button>
+      <button class="gray1 textButton showMsgBtn" data-title="_抓取多少页面" data-msg="_抓取多少页面的提示"" type="button" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="2">
@@ -40745,7 +40707,7 @@ const formHtml = `
       <input type="checkbox" name="looseMatchOriginal" id="looseMatchOriginal" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="looseMatchOriginal" data-xztext="_宽松匹配"></label>
-      <button class="gray1 textButton" id="showLooseMatchOriginalTip" type="button" data-xztext="_帮助"></button>
+      <button class="gray1 textButton showMsgBtn" data-title="_原创作品" data-msg="_宽松匹配原创作品的说明" type="button" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="6">
@@ -40800,7 +40762,7 @@ const formHtml = `
       </a>
       <input type="checkbox" name="DonotCrawlAlreadyDownloadedWorks" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <button class="gray1 textButton" id="showDonotCrawlAlreadyDownloadedWorksTip" type="button" data-xztext="_帮助"></button>
+      <button class="gray1 textButton showMsgBtn" data-title="_不抓取下载过的作品" data-msg="_不抓取下载过的作品的帮助信息" type="button" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="15">
@@ -41084,7 +41046,7 @@ const formHtml = `
       </select>
       &nbsp;
       <slot data-name="saveNamingRule"></slot>
-      <button class="showFileNameTip textButton" id="showFileNameTip" type="button" data-xztext="_提示"></button>
+      <button class="showFileNameTip textButton toggleArea" data-toggle-Target="#fileNameTip" type="button" data-xztext="_提示"></button>
     </p>
 
     <p class="fileNameTip tip namingTipArea" id="fileNameTip">
@@ -41282,57 +41244,56 @@ const formHtml = `
     </p>
 
     <p class="option" data-no="3">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(3)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品只抓取前几张图片的说明">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(3)}" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品只抓取前几张图片"></span>
-        <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="onlyCrawlFirstFewImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="onlyCrawlFirstFewImagesSwitch">
+      <span class="subOptionWrap noGrow" data-show="onlyCrawlFirstFewImagesSwitch">
         <input type="text" name="onlyCrawlFirstFewImagesCount" class="setinput_style1 blue" value="1">
       </span>
+      <button class="gray1 textButton showMsgBtn" data-title="_多图作品只抓取前几张图片" data-msg="_多图作品只抓取前几张图片的说明" type="button" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="104">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(104)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品只抓取后几张图片的说明">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(104)}" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品只抓取后几张图片"></span>
-        <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="onlyCrawlLastFewImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="onlyCrawlLastFewImagesSwitch">
+      <span class="subOptionWrap noGrow" data-show="onlyCrawlLastFewImagesSwitch">
         <input type="text" name="onlyCrawlLastFewImagesCount" class="setinput_style1 blue" value="1">
       </span>
+      <button class="gray1 textButton showMsgBtn" data-title="_多图作品只抓取后几张图片" data-msg="_多图作品只抓取后几张图片的说明" type="button" data-xztext="_帮助"></button>
     </p>
     
     <p class="option" data-no="103">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(103)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品不抓取前几张图片的说明">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(103)}" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品不抓取前几张图片"></span>
-        <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="doNotCrawlFirstImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="doNotCrawlFirstImagesSwitch">
+      <span class="subOptionWrap noGrow" data-show="doNotCrawlFirstImagesSwitch">
         <input type="text" name="doNotCrawlFirstImagesCount" class="setinput_style1 blue" value="1">
       </span>
+      <button class="gray1 textButton showMsgBtn" data-title="_多图作品不抓取前几张图片" data-msg="_多图作品不抓取前几张图片的说明" type="button" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="69">      
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(69)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品不抓取后几张图片的说明">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(69)}" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品不抓取后几张图片"></span>
-        <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="doNotCrawlLastImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="doNotCrawlLastImagesSwitch">
+      <span class="subOptionWrap noGrow" data-show="doNotCrawlLastImagesSwitch">
         <input type="text" name="doNotCrawlLastImagesCount" class="setinput_style1 blue" value="1">
       </span>
+      <button class="gray1 textButton showMsgBtn" data-title="_多图作品不抓取后几张图片" data-msg="_多图作品不抓取后几张图片的说明" type="button" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="79">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(79)}" target="_blank" class="settingNameStyle">
         <span data-xztext="_特定用户的多图作品不下载最后几张图片"></span>
-        <span class="gray1"> ? </span>
       </a>
       <slot data-name="DoNotDownloadLastFewImagesSlot"></slot>
     </p>
@@ -41350,7 +41311,7 @@ const formHtml = `
         <input type="checkbox" name="removeBlockedUsersWork" id="setRemoveBlockedUsersWork" class="need_beautify checkbox_common" checked>
         <span class="beautify_checkbox" tabindex="0"></span>
         <label for="setRemoveBlockedUsersWork" data-xztext="_从页面上移除他们的作品"></label>
-        <button type="button" class="gray1 textButton" id="showRemoveBlockedUsersWorkTip" data-xztext="_帮助"></button>
+        <button type="button" class="gray1 textButton showMsgBtn" data-title="_用户阻止名单" data-msg="_用户阻止名单的说明2" data-xztext="_帮助"></button>
       </span>
     </p>
 
@@ -41482,7 +41443,7 @@ const formHtml = `
       <span class="subOptionWrap" data-show="r18Folder">
         <span data-xztext="_目录名"></span>
         <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
-        <button type="button" class="gray1 textButton" id="showR18FolderNameTip" data-xztext="_帮助"></button>
+        <button type="button" class="gray1 textButton showMsgBtn" data-title="_把r18作品存入指定的文件夹里" data-msg="_把r18作品存入指定的文件夹里可以使用命名标记替代的说明" data-xztext="_帮助"></button>
       </span>
     </p>
 
@@ -41541,14 +41502,14 @@ const formHtml = `
 
       <span class="subOptionWrap" data-show="fullNameLengthLimitSwitch">
         <input type="text" name="fullNameLengthLimit" class="setinput_style1 blue" value="210">
-      <button type="button" class="gray1 textButton" id="showPathLengthLimitTip" data-xztext="_帮助"></button>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_文件名长度限制" data-msg="_文件名长度限制的说明" data-xztext="_帮助"></button>
       </span>
     </p>
 
     <p class="option" data-no="83">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(83)}" target="_blank" class="settingNameStyle" data-xztext="_标签分隔符号"></a>
       <input type="text" name="tagsSeparator" class="setinput_style1 blue" value=",">
-      <button type="button" class="gray1 textButton" id="showTagsSeparatorTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#tagsSeparatorTip" data-xztext="_提示"></button>
     </p>
 
     <p class="tip" id="tagsSeparatorTip">
@@ -41583,7 +41544,7 @@ const formHtml = `
     <p class="option" data-no="31">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(31)}" target="_blank" class="settingNameStyle" data-xztext="_日期格式"></a>
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
-      <button type="button" class="gray1 textButton" id="showDateTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#dateFormatTip" data-xztext="_提示"></button>
     </p>
 
     <p class="tip" id="dateFormatTip">
@@ -41618,14 +41579,14 @@ const formHtml = `
       <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
       <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
       <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
-      <button class="textButton gray1" type="button" id="downloadRecordHelp" data-xztext="_帮助"></button>
+      <button class="textButton gray1 showMsgBtn" type="button" data-title="_管理下载记录" data-msg="_管理下载记录的提示" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="28">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(28)}" target="_blank" class="settingNameStyle" data-xztext="_不下载重复文件"></a>
       <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="deduplication" style="flex-grow: 0;">
+      <span class="subOptionWrap noGrow" data-show="deduplication">
         <span data-xztext="_策略"></span>
         <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
         <span class="beautify_radio" tabindex="0"></span>
@@ -41634,14 +41595,14 @@ const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label class="has_tip" for="dupliStrategy1" data-xztip="_严格模式说明" data-xztext="_严格"></label>
       </span>
-      <button class="textButton gray1" type="button" id="deduplicationHelp" data-xztext="_帮助"></button>
+      <button class="textButton gray1 showMsgBtn" type="button" data-title="_不下载重复文件" data-msg="_不下载重复文件的提示" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="100">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(100)}" target="_blank" class="settingNameStyle" data-xztext="_在已下载的作品上显示边框"></a>
       <input type="checkbox" name="showBorderOnDownloadedWorks" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="showBorderOnDownloadedWorks" style="flex-grow: 0;">
+      <span class="subOptionWrap noGrow" data-show="showBorderOnDownloadedWorks">
         <span data-xztext="_宽度"></span>
         <input type="text" name="borderWidth" class="setinput_style1 blue w20" value="3">
         px
@@ -41739,7 +41700,7 @@ const formHtml = `
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(91)}" target="_blank" class="settingNameStyle" data-xztext="_合并系列小说时的命名规则"></a>
       <span class="rowWrap">
         <textarea class="centerPanelTextArea beautify_scrollbar" name="seriesNovelNameRule" rows="1"></textarea>
-        <button class="showFileNameTip textButton" id="showSeriesNovelNameTip" type="button" data-xztext="_提示"></button>
+        <button class="showFileNameTip textButton toggleArea" data-toggle-Target="#seriesNovelNameTip" type="button" data-xztext="_提示"></button>
       </span>
     </p>
 
@@ -41944,7 +41905,7 @@ const formHtml = `
       </a>
       <input type="checkbox" name="rememberTheLastSaveLocation" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-      <button type="button" class="gray1 textButton" id="showRememberTheLastSaveLocationTip" data-xztext="_帮助"></button>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_把文件保存到用户上次选择的位置" data-msg="_把文件保存到用户上次选择的位置的说明" data-xztext="_帮助"></button>
     </p>
     
     <p class="option" data-no="52">
@@ -42019,7 +41980,7 @@ const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label for="prevWorkSize2" data-xztext="_普通"></label>
         <span class="verticalSplit"></span>
-        <button type="button" class="gray1 textButton" id="showPreviewWorkShortcutTip" data-xztext="_快捷键列表"></button>
+        <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#previewWorkShortcutTip" data-xztext="_快捷键列表"></button>
       </span>
     </p>
 
@@ -42046,7 +42007,7 @@ const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label for="showOriginImageSize2" data-xztext="_普通"></label>
         <span class="verticalSplit"></span>
-        <button type="button" class="gray1 textButton" id="showShowOriginImageShortcutTip" data-xztext="_快捷键列表"></button>
+        <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#showOriginImageShortcutTip" data-xztext="_快捷键列表"></button>
       </span>
     </p>
 
@@ -42108,7 +42069,7 @@ const formHtml = `
       <input type="checkbox" name="copyFormatHtml" id="setCopyFormatHtml" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setCopyFormatHtml">text/html</label>
-      <button type="button" class="gray1 textButton" id="showCopyWorkDataTip" data-xztext="_帮助"></button>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_复制内容" data-msg="_对复制的内容的说明" data-xztext="_帮助"></button>
       <span class="verticalSplit"></span>
 
       <span class="settingNameStyle" data-xztext="_图片尺寸2"></span>
@@ -42122,7 +42083,7 @@ const formHtml = `
       
       <span data-xztext="_文本格式"></span>:&nbsp;
       <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:100%;max-width:350px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
-      <button type="button" class="gray1 textButton" id="showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#copyWorkInfoFormatTip" data-xztext="_提示"></button>
     </p>
 
     <p class="tip namingTipArea" id="copyWorkInfoFormatTip">
@@ -42174,7 +42135,7 @@ const formHtml = `
       </a>
       <input type="checkbox" name="filterSearchResults" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <button type="button" class="gray1 textButton" id="showFilterSearchResultsTip" data-xztext="_帮助"></button>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_过滤搜索页面的作品" data-msg="_过滤搜索页面的作品的说明" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="88">
@@ -43149,7 +43110,8 @@ class Options {
                 23, 24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44,
                 46, 47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
                 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,
-                84, 85, 86, 87, 88, 89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102, 103, 104,
+                84, 85, 86, 87, 88, 89, 90, 91, 92, 94, 95, 96, 98, 99, 100, 101, 102,
+                103, 104,
             ]);
         }
     }
@@ -44178,10 +44140,10 @@ class Settings {
                 value = 250;
             }
         }
-        if ((key === 'onlyCrawlFirstFewImagesCount' ||
+        if (key === 'onlyCrawlFirstFewImagesCount' ||
             key === 'onlyCrawlLastFewImagesCount' ||
             key === 'doNotCrawlFirstImagesCount' ||
-            key === 'doNotCrawlLastImagesCount')) {
+            key === 'doNotCrawlLastImagesCount') {
             if (value < 1 || isNaN(value)) {
                 value = 1;
             }

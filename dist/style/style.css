@@ -718,6 +718,9 @@ body.mobile #quickCrawlBtn {
 .centerWrap .centerWrap_con .settingForm p.option .subOptionWrap > * {
   line-height: 26px;
 }
+.centerWrap .centerWrap_con .settingForm p.option .subOptionWrap.noGrow {
+  flex-grow: 0;
+}
 .centerWrap .centerWrap_con .settingForm p.option[data-no='12'] .subOptionWrap,
 .centerWrap .centerWrap_con .settingForm p.option[data-no='35'] .subOptionWrap,
 .centerWrap .centerWrap_con .settingForm p.option[data-no='39'] .subOptionWrap,

@@ -16,7 +16,7 @@ export const formHtml = `
       <button class="textButton grayButton mr0" type="button" role="setMin"></button>
       <button class="textButton grayButton" type="button" role="setMax"></button>
       <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
-      <button class="gray1 textButton" id="showSetWantWorkTip" type="button" data-xztext="_帮助"></button>
+      <button class="gray1 textButton showMsgBtn" data-title="_抓取多少作品" data-msg="_抓取多少作品的提示" type="button" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="1">
@@ -27,7 +27,7 @@ export const formHtml = `
       <button class="textButton grayButton mr0" type="button" role="setMin"></button>
       <button class="textButton grayButton" type="button" role="setMax"></button>
       <span class="gray1" data-xztext="_负1或者大于0" role="tip"></span>
-      <button class="gray1 textButton" id="showSetWantPageTip" type="button" data-xztext="_帮助"></button>
+      <button class="gray1 textButton showMsgBtn" data-title="_抓取多少页面" data-msg="_抓取多少页面的提示"" type="button" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="2">
@@ -93,7 +93,7 @@ export const formHtml = `
       <input type="checkbox" name="looseMatchOriginal" id="looseMatchOriginal" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="looseMatchOriginal" data-xztext="_宽松匹配"></label>
-      <button class="gray1 textButton" id="showLooseMatchOriginalTip" type="button" data-xztext="_帮助"></button>
+      <button class="gray1 textButton showMsgBtn" data-title="_原创作品" data-msg="_宽松匹配原创作品的说明" type="button" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="6">
@@ -148,7 +148,7 @@ export const formHtml = `
       </a>
       <input type="checkbox" name="DonotCrawlAlreadyDownloadedWorks" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <button class="gray1 textButton" id="showDonotCrawlAlreadyDownloadedWorksTip" type="button" data-xztext="_帮助"></button>
+      <button class="gray1 textButton showMsgBtn" data-title="_不抓取下载过的作品" data-msg="_不抓取下载过的作品的帮助信息" type="button" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="15">
@@ -432,7 +432,7 @@ export const formHtml = `
       </select>
       &nbsp;
       <slot data-name="saveNamingRule"></slot>
-      <button class="showFileNameTip textButton" id="showFileNameTip" type="button" data-xztext="_提示"></button>
+      <button class="showFileNameTip textButton toggleArea" data-toggle-Target="#fileNameTip" type="button" data-xztext="_提示"></button>
     </p>
 
     <p class="fileNameTip tip namingTipArea" id="fileNameTip">
@@ -630,57 +630,56 @@ export const formHtml = `
     </p>
 
     <p class="option" data-no="3">
-      <a href="${wiki.link(3)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品只抓取前几张图片的说明">
+      <a href="${wiki.link(3)}" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品只抓取前几张图片"></span>
-        <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="onlyCrawlFirstFewImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="onlyCrawlFirstFewImagesSwitch">
+      <span class="subOptionWrap noGrow" data-show="onlyCrawlFirstFewImagesSwitch">
         <input type="text" name="onlyCrawlFirstFewImagesCount" class="setinput_style1 blue" value="1">
       </span>
+      <button class="gray1 textButton showMsgBtn" data-title="_多图作品只抓取前几张图片" data-msg="_多图作品只抓取前几张图片的说明" type="button" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="104">
-      <a href="${wiki.link(104)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品只抓取后几张图片的说明">
+      <a href="${wiki.link(104)}" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品只抓取后几张图片"></span>
-        <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="onlyCrawlLastFewImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="onlyCrawlLastFewImagesSwitch">
+      <span class="subOptionWrap noGrow" data-show="onlyCrawlLastFewImagesSwitch">
         <input type="text" name="onlyCrawlLastFewImagesCount" class="setinput_style1 blue" value="1">
       </span>
+      <button class="gray1 textButton showMsgBtn" data-title="_多图作品只抓取后几张图片" data-msg="_多图作品只抓取后几张图片的说明" type="button" data-xztext="_帮助"></button>
     </p>
     
     <p class="option" data-no="103">
-      <a href="${wiki.link(103)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品不抓取前几张图片的说明">
+      <a href="${wiki.link(103)}" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品不抓取前几张图片"></span>
-        <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="doNotCrawlFirstImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="doNotCrawlFirstImagesSwitch">
+      <span class="subOptionWrap noGrow" data-show="doNotCrawlFirstImagesSwitch">
         <input type="text" name="doNotCrawlFirstImagesCount" class="setinput_style1 blue" value="1">
       </span>
+      <button class="gray1 textButton showMsgBtn" data-title="_多图作品不抓取前几张图片" data-msg="_多图作品不抓取前几张图片的说明" type="button" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="69">      
-      <a href="${wiki.link(69)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品不抓取后几张图片的说明">
+      <a href="${wiki.link(69)}" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品不抓取后几张图片"></span>
-        <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="doNotCrawlLastImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="doNotCrawlLastImagesSwitch">
+      <span class="subOptionWrap noGrow" data-show="doNotCrawlLastImagesSwitch">
         <input type="text" name="doNotCrawlLastImagesCount" class="setinput_style1 blue" value="1">
       </span>
+      <button class="gray1 textButton showMsgBtn" data-title="_多图作品不抓取后几张图片" data-msg="_多图作品不抓取后几张图片的说明" type="button" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="79">
       <a href="${wiki.link(79)}" target="_blank" class="settingNameStyle">
         <span data-xztext="_特定用户的多图作品不下载最后几张图片"></span>
-        <span class="gray1"> ? </span>
       </a>
       <slot data-name="DoNotDownloadLastFewImagesSlot"></slot>
     </p>
@@ -698,7 +697,7 @@ export const formHtml = `
         <input type="checkbox" name="removeBlockedUsersWork" id="setRemoveBlockedUsersWork" class="need_beautify checkbox_common" checked>
         <span class="beautify_checkbox" tabindex="0"></span>
         <label for="setRemoveBlockedUsersWork" data-xztext="_从页面上移除他们的作品"></label>
-        <button type="button" class="gray1 textButton" id="showRemoveBlockedUsersWorkTip" data-xztext="_帮助"></button>
+        <button type="button" class="gray1 textButton showMsgBtn" data-title="_用户阻止名单" data-msg="_用户阻止名单的说明2" data-xztext="_帮助"></button>
       </span>
     </p>
 
@@ -830,7 +829,7 @@ export const formHtml = `
       <span class="subOptionWrap" data-show="r18Folder">
         <span data-xztext="_目录名"></span>
         <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
-        <button type="button" class="gray1 textButton" id="showR18FolderNameTip" data-xztext="_帮助"></button>
+        <button type="button" class="gray1 textButton showMsgBtn" data-title="_把r18作品存入指定的文件夹里" data-msg="_把r18作品存入指定的文件夹里可以使用命名标记替代的说明" data-xztext="_帮助"></button>
       </span>
     </p>
 
@@ -889,14 +888,14 @@ export const formHtml = `
 
       <span class="subOptionWrap" data-show="fullNameLengthLimitSwitch">
         <input type="text" name="fullNameLengthLimit" class="setinput_style1 blue" value="210">
-      <button type="button" class="gray1 textButton" id="showPathLengthLimitTip" data-xztext="_帮助"></button>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_文件名长度限制" data-msg="_文件名长度限制的说明" data-xztext="_帮助"></button>
       </span>
     </p>
 
     <p class="option" data-no="83">
       <a href="${wiki.link(83)}" target="_blank" class="settingNameStyle" data-xztext="_标签分隔符号"></a>
       <input type="text" name="tagsSeparator" class="setinput_style1 blue" value=",">
-      <button type="button" class="gray1 textButton" id="showTagsSeparatorTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#tagsSeparatorTip" data-xztext="_提示"></button>
     </p>
 
     <p class="tip" id="tagsSeparatorTip">
@@ -931,7 +930,7 @@ export const formHtml = `
     <p class="option" data-no="31">
       <a href="${wiki.link(31)}" target="_blank" class="settingNameStyle" data-xztext="_日期格式"></a>
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
-      <button type="button" class="gray1 textButton" id="showDateTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#dateFormatTip" data-xztext="_提示"></button>
     </p>
 
     <p class="tip" id="dateFormatTip">
@@ -966,14 +965,14 @@ export const formHtml = `
       <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
       <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
       <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
-      <button class="textButton gray1" type="button" id="downloadRecordHelp" data-xztext="_帮助"></button>
+      <button class="textButton gray1 showMsgBtn" type="button" data-title="_管理下载记录" data-msg="_管理下载记录的提示" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="28">
       <a href="${wiki.link(28)}" target="_blank" class="settingNameStyle" data-xztext="_不下载重复文件"></a>
       <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="deduplication" style="flex-grow: 0;">
+      <span class="subOptionWrap noGrow" data-show="deduplication">
         <span data-xztext="_策略"></span>
         <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
         <span class="beautify_radio" tabindex="0"></span>
@@ -982,14 +981,14 @@ export const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label class="has_tip" for="dupliStrategy1" data-xztip="_严格模式说明" data-xztext="_严格"></label>
       </span>
-      <button class="textButton gray1" type="button" id="deduplicationHelp" data-xztext="_帮助"></button>
+      <button class="textButton gray1 showMsgBtn" type="button" data-title="_不下载重复文件" data-msg="_不下载重复文件的提示" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="100">
       <a href="${wiki.link(100)}" target="_blank" class="settingNameStyle" data-xztext="_在已下载的作品上显示边框"></a>
       <input type="checkbox" name="showBorderOnDownloadedWorks" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <span class="subOptionWrap" data-show="showBorderOnDownloadedWorks" style="flex-grow: 0;">
+      <span class="subOptionWrap noGrow" data-show="showBorderOnDownloadedWorks">
         <span data-xztext="_宽度"></span>
         <input type="text" name="borderWidth" class="setinput_style1 blue w20" value="3">
         px
@@ -1087,7 +1086,7 @@ export const formHtml = `
       <a href="${wiki.link(91)}" target="_blank" class="settingNameStyle" data-xztext="_合并系列小说时的命名规则"></a>
       <span class="rowWrap">
         <textarea class="centerPanelTextArea beautify_scrollbar" name="seriesNovelNameRule" rows="1"></textarea>
-        <button class="showFileNameTip textButton" id="showSeriesNovelNameTip" type="button" data-xztext="_提示"></button>
+        <button class="showFileNameTip textButton toggleArea" data-toggle-Target="#seriesNovelNameTip" type="button" data-xztext="_提示"></button>
       </span>
     </p>
 
@@ -1292,7 +1291,7 @@ export const formHtml = `
       </a>
       <input type="checkbox" name="rememberTheLastSaveLocation" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
-      <button type="button" class="gray1 textButton" id="showRememberTheLastSaveLocationTip" data-xztext="_帮助"></button>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_把文件保存到用户上次选择的位置" data-msg="_把文件保存到用户上次选择的位置的说明" data-xztext="_帮助"></button>
     </p>
     
     <p class="option" data-no="52">
@@ -1367,7 +1366,7 @@ export const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label for="prevWorkSize2" data-xztext="_普通"></label>
         <span class="verticalSplit"></span>
-        <button type="button" class="gray1 textButton" id="showPreviewWorkShortcutTip" data-xztext="_快捷键列表"></button>
+        <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#previewWorkShortcutTip" data-xztext="_快捷键列表"></button>
       </span>
     </p>
 
@@ -1394,7 +1393,7 @@ export const formHtml = `
         <span class="beautify_radio" tabindex="0"></span>
         <label for="showOriginImageSize2" data-xztext="_普通"></label>
         <span class="verticalSplit"></span>
-        <button type="button" class="gray1 textButton" id="showShowOriginImageShortcutTip" data-xztext="_快捷键列表"></button>
+        <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#showOriginImageShortcutTip" data-xztext="_快捷键列表"></button>
       </span>
     </p>
 
@@ -1456,7 +1455,7 @@ export const formHtml = `
       <input type="checkbox" name="copyFormatHtml" id="setCopyFormatHtml" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setCopyFormatHtml">text/html</label>
-      <button type="button" class="gray1 textButton" id="showCopyWorkDataTip" data-xztext="_帮助"></button>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_复制内容" data-msg="_对复制的内容的说明" data-xztext="_帮助"></button>
       <span class="verticalSplit"></span>
 
       <span class="settingNameStyle" data-xztext="_图片尺寸2"></span>
@@ -1470,7 +1469,7 @@ export const formHtml = `
       
       <span data-xztext="_文本格式"></span>:&nbsp;
       <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:100%;max-width:350px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
-      <button type="button" class="gray1 textButton" id="showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
+      <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#copyWorkInfoFormatTip" data-xztext="_提示"></button>
     </p>
 
     <p class="tip namingTipArea" id="copyWorkInfoFormatTip">
@@ -1522,7 +1521,7 @@ export const formHtml = `
       </a>
       <input type="checkbox" name="filterSearchResults" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
-      <button type="button" class="gray1 textButton" id="showFilterSearchResultsTip" data-xztext="_帮助"></button>
+      <button type="button" class="gray1 textButton showMsgBtn" data-title="_过滤搜索页面的作品" data-msg="_过滤搜索页面的作品的说明" data-xztext="_帮助"></button>
     </p>
 
     <p class="option" data-no="88">

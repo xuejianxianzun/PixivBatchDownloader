@@ -184,6 +184,18 @@ https://github.com/xuejianxianzun/PixivBatchDownloader/issues/601
 - DownloadRecord 负责添加和查询下载记录
 - DownloadRecordManager 负责导入、导出、清空下载记录
 
+### ♻️简化了帮助按钮的配置
+
+之前每个帮助按钮都要在 Form.ts 里配置它的 id、title、msg，每添加一个按钮就要在 Form 里添加一份配置。
+
+现在改为在按钮上附带配置信息，这样 Form 里不需要单独保存配置了，降低了维护压力：
+
+```html
+<button type="button" class="gray1 textButton showMsgBtn" data-title="_抓取多少作品" data-msg="_抓取多少作品的提示" data-xztext="_帮助"></button>
+```
+
+提示按钮（点击后会显示帮助区域）也做了同样的优化。
+
 ## 18.6.0 2026-04-04
 
 ### ✨新增过滤器：原创作品
