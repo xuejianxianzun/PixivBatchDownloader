@@ -1,6 +1,10 @@
 import { EVT } from '../EVT'
 import { lang } from '../Language'
+import { ppdTask } from '../PPDTask'
+import { states } from '../store/States'
+import { toast } from '../Toast'
 import { Utils } from '../utils/Utils'
+import { setSetting, settings } from './Settings'
 
 /**Wiki 上已经实装的语言 */
 type AvailableLanguages = 'zh-cn' | 'en'
@@ -28,7 +32,29 @@ type GroupName =
 
 class Wiki {
   constructor() {
-    this.bindEvnents()
+    this.bindEvents()
+  }
+
+  private bindEvents() {
+    window.addEventListener(EVT.list.settingInitialized, () => {
+      this.setOptionLink()
+    })
+
+    // 当用户修改了语言时，重设每个设置项的链接
+    window.addEventListener(EVT.list.langChange, () => {
+      if (states.settingInitialized) {
+        this.setOptionLink()
+      }
+    })
+
+    // 切换 Wiki 网址为本地调试的网址或者线上网址
+    ppdTask.register(3, 'Switch Wiki Home', () => {
+      setSetting('debugForWiki', !settings.debugForWiki)
+      const msg = `debugForWiki: ${settings.debugForWiki}`
+      console.log(msg)
+      toast.success(msg)
+      this.setOptionLink()
+    })
   }
 
   // 由于 Wiki 现在只有简体中文和英语，所以只返回这两种语言
@@ -39,46 +65,22 @@ class Wiki {
     return 'en'
   }
 
-  private nowLang = this.useLang()
+  /** 储存每种语言的 Wiki 首页路径 */
+  private home: { [key in AvailableLanguages]: string } = {
+    'zh-cn': '',
+    en: '',
+  }
 
-  /**传入设置项或按钮的 ID，查找它在 Wiki 上处于哪个页面里，并构造出 URL */
-  // 返回的 URL 只定位到分类页面，不会定位到具体的条目，但是会传递该设置的 flag，例如：
-  // https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/设置-抓取?flag=0
-  // 之后由 Wiki 页面上的代码定位到具体的设置项
-  // 如果传入的 ID 没有找到对应的分类，则返回 Wiki 首页
-  public link(id: number | string): string {
-    if (id === undefined) {
-      console.error('link id is undefined')
-      console.trace()
-      return ''
+  private resetHomeConfig() {
+    let HomePrefix = 'https://xuejianxianzun.github.io/PBDWiki/'
+    if (settings.debugForWiki) {
+      HomePrefix = 'http://localhost:3000/'
     }
-
-    const lang = this.nowLang
-    for (const group in this.groupConfig) {
-      const groupName = group as GroupName
-      if (this.groupConfig[groupName].includes(id)) {
-        const home = this.home[lang]
-        const page = this.groupPage[lang][groupName]
-        return `${home}${page}?flag=${id}`
-      }
-    }
-    return `https://xuejianxianzun.github.io/PBDWiki/`
+    this.home['zh-cn'] = HomePrefix + '#/zh-cn/'
+    this.home['en'] = HomePrefix + '#/en/'
   }
 
-  public openLink(id: number | string) {
-    const link = this.link(id)
-    window.open(link, '_blank')
-  }
-
-  // 每种语言对应的 Wiki 首页路径
-  private readonly home: { [key in AvailableLanguages]: string } = {
-    'zh-cn': 'https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/',
-    en: 'https://xuejianxianzun.github.io/PBDWiki/#/en/',
-    // 'zh-cn': 'http://localhost:3000/#/zh-cn/',
-    // en: 'http://localhost:3000/#/en/',
-  }
-
-  /**储存每个分类对应的页面 */
+  /**储存每个分类在 Wiki 里的哪个页面上 */
   private readonly groupPage: {
     [key in AvailableLanguages]: { [key in GroupName]: string }
   } = {
@@ -193,38 +195,62 @@ class Wiki {
     ],
   }
 
-  private bindEvnents() {
-    // 当语言变化时（用户在设置里修改了语言），修改 FormHTML 里的 URL 为对应的语言
-    window.addEventListener(EVT.list.langChange, () => {
-      const newLang = this.useLang()
-      if (newLang !== this.nowLang) {
-        this.nowLang = newLang
-        window.setTimeout(() => {
-          this.resetWikiLink()
-        }, 100)
-      }
-    })
-  }
-
-  public registerBtn(btn: HTMLButtonElement) {
-    Utils.longPress(btn, () => {
-      this.openLink(btn.id)
-    })
-  }
-
-  /**当下载器的语言变化时，重设每个设置项的 href 属性 */
-  private resetWikiLink() {
+  /** 设置每个设置项名称上的 href 属性 */
+  private setOptionLink() {
+    this.resetHomeConfig()
     // 查找所有 a.settingNameStyle 元素，并把它们的 href 属性修改为对应语言的 URL
-    const allLinks = document.querySelectorAll('a.settingNameStyle')
-    allLinks.forEach((el) => {
+    const allLinks = document.querySelectorAll(
+      '.centerWrap_con a.settingNameStyle'
+    )
+    allLinks.forEach(async (el) => {
       // 查找其父元素，如 <p class='option' data-no='0'>
       const p = el.parentElement
       if (p!.dataset.no) {
         const id = Number(p!.dataset.no)
-        const link = this.link(id)
+        const link = await this.link(id)
         el.setAttribute('href', link)
       }
     })
+  }
+
+  /** 为每个功能按钮绑定事件，长按时生成 Wiki 链接并打开 */
+  public registerBtn(btn: HTMLButtonElement) {
+    Utils.longPress(btn, async () => {
+      const link = await this.link(btn.id)
+      window.open(link, '_blank')
+    })
+  }
+
+  /**传入设置项或按钮的 ID，查找它在 Wiki 上处于哪个页面里，并构造出 URL */
+  // 返回的 URL 只定位到分类页面，不会定位到具体的条目，但是会传递该设置的 flag，例如：
+  // https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/设置-抓取?flag=0
+  // 之后由 Wiki 页面上的代码定位到具体的设置项
+  // 如果传入的 ID 没有找到对应的分类，则返回 Wiki 首页
+  public async link(id: number | string): Promise<string> {
+    if (id === undefined) {
+      console.error('link id is undefined')
+      console.trace()
+      return ''
+    }
+
+    while (true) {
+      if (states.settingInitialized) {
+        break
+      } else {
+        await Utils.sleep(50)
+      }
+    }
+
+    const lang = this.useLang()
+    for (const group in this.groupConfig) {
+      const groupName = group as GroupName
+      if (this.groupConfig[groupName].includes(id)) {
+        const home = this.home[lang]
+        const page = this.groupPage[lang][groupName]
+        return `${home}${page}?flag=${id}`
+      }
+    }
+    return ''
   }
 }
 

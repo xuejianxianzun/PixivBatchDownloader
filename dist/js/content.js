@@ -6913,8 +6913,8 @@ class PPDTask {
     list = [];
     /** 添加一个配置。由于使用了索引来存储配置，所以可以重复添加同一个配置，这样用起来比较方便 */
     // index 的范围按照命令的作用来区分：
-    // 0 - 9: 设置抓取、下载流程里用于调试的 flag
-    // 10 - 19: 导出内容，例如抓取一些数据然后导出
+    // 0 - 9: 设置一些用于调试的 flag，以便在不修改代码的情况下开启或关闭一些调试功能
+    // 10 - 19: 导出内容，例如抓取作品发布时间的数据然后导出、或者导出下载器在 browser.storage.local 里的数据
     // 20 - 29: 测试下载器的一些功能，例如输出 Tools 里一些方法的结果、测试连续输出日志、打开所有测试用的标签页
     register(index, description, cb) {
         // 为了防止不同命令的 index 冲突导致错误的覆盖，当这个 index 已经被注册时，检查 description 是否相同
@@ -40667,8 +40667,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   formHtml: () => (/* binding */ formHtml)
 /* harmony export */ });
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _Wiki__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Wiki */ "./src/ts/setting/Wiki.ts");
-
 
 // 设置项编号从 0 开始，现在最大是 104
 // 帮助按钮上的文字有两种：
@@ -40682,7 +40680,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="0" aria-hidden="true"></span>
     <p class="option" data-no="0">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(0)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span class="textTip" data-xztext="_抓取多少作品"></span>
       </a>
       <input type="text" name="setWantWork" class="setinput_style1 blue" value="-1">
@@ -40694,7 +40692,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="1" aria-hidden="true"></span>
     <p class="option" data-no="1">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(1)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span class="textTip" data-xztext="_抓取多少页面"></span>
       </a>
       <input type="text" name="setWantPage" class="setinput_style1 blue" value="-1">
@@ -40706,7 +40704,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="2" aria-hidden="true"></span>
     <p class="option" data-no="2">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(2)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_作品类型"></span>
       </a>
       <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
@@ -40725,7 +40723,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="44" aria-hidden="true"></span>
     <p class="option" data-no="44">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(44)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_年龄限制"></span>
       </a>
       <input type="checkbox" name="downAllAges" id="downAllAges" class="need_beautify checkbox_common" checked>
@@ -40741,7 +40739,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="81" aria-hidden="true"></span>
     <p class="option" data-no="81">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(81)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_AI作品"></span>
       </a>
       <input type="checkbox" name="AIGenerated" id="AIGenerated" class="need_beautify checkbox_common" checked>
@@ -40757,7 +40755,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="96" aria-hidden="true"></span>
     <p class="option" data-no="96">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(96)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_原创作品"></span>
       </a>
       <input type="checkbox" name="crawlOriginalWork" id="setCrawlOriginalWork" class="need_beautify checkbox_common" checked>
@@ -40776,7 +40774,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="6" aria-hidden="true"></span>
     <p class="option" data-no="6">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(6)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_收藏状态"></span>
       </a>
       <input type="checkbox" name="downNotBookmarked" id="setDownNotBookmarked" class="need_beautify checkbox_common" checked>
@@ -40789,7 +40787,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="23" aria-hidden="true"></span>
     <p class="option" data-no="23">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(23)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_图片色彩"></span>
       </a>
       <input type="checkbox" name="downColorImg" id="setDownColorImg" class="need_beautify checkbox_common" checked>
@@ -40802,7 +40800,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="21" aria-hidden="true"></span>
     <p class="option" data-no="21">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(21)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_图片数量"></span>
       </a>
       <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
@@ -40815,7 +40813,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="51" aria-hidden="true"></span>
     <p class="option" data-no="51">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(51)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示高级设置说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示高级设置说明">
         <span data-xztext="_显示高级设置"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -40825,7 +40823,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="99" aria-hidden="true"></span>
     <p class="option" data-no="99">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(99)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_不抓取下载过的作品的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_不抓取下载过的作品的说明">
         <span data-xztext="_不抓取下载过的作品"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -40836,7 +40834,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="15" aria-hidden="true"></span>
     <p class="option" data-no="15">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(15)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须大于0">
         <span data-xztext="_抓取每个用户最新的几个作品"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -40849,7 +40847,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="5" aria-hidden="true"></span>
     <p class="option" data-no="5">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(5)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置收藏数量的提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置收藏数量的提示">
         <span data-xztext="_收藏数量"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -40877,7 +40875,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="7" aria-hidden="true"></span>
     <p class="option" data-no="7">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(7)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_筛选宽高的提示文字">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_筛选宽高的提示文字">
         <span data-xztext="_图片的宽高"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -40909,7 +40907,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="8" aria-hidden="true"></span>
     <p class="option" data-no="8">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(8)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置宽高比例Title">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置宽高比例Title">
         <span data-xztext="_图片的宽高比例"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -40951,7 +40949,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="9" aria-hidden="true"></span>
     <p class="option" data-no="9">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(9)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置id范围提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置id范围提示">
         <span data-xztext="_id范围"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -40990,7 +40988,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="10" aria-hidden="true"></span>
     <p class="option" data-no="10">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(10)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置投稿时间提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_设置投稿时间提示">
         <span data-xztext="_投稿时间"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41009,7 +41007,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="11" aria-hidden="true"></span>
     <p class="option" data-no="11">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(11)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须tag的提示文字">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_必须tag的提示文字">
         <span data-xztext="_必须含有tag"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41028,7 +41026,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="12" aria-hidden="true"></span>
     <p class="option" data-no="12">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(12)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_排除tag的提示文字">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_排除tag的提示文字">
         <span data-xztext="_不能含有tag"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41049,7 +41047,7 @@ const formHtml = `
     
     <span class="optionAnchor" data-for-no="94" aria-hidden="true"></span>
     <p class="option" data-no="94">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(94)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_标题必须含有的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_标题必须含有的说明">
         <span data-xztext="_标题必须含有"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41063,7 +41061,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="95" aria-hidden="true"></span>
     <p class="option" data-no="95">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(95)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_标题不能含有的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_标题不能含有的说明">
         <span data-xztext="_标题不能含有"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41092,7 +41090,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="13" aria-hidden="true"></span>
     <p class="option" data-no="13">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(13)}" target="_blank" class="settingNameStyle" data-xztext="_命名规则"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_命名规则"></a>
       <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="${_Config__WEBPACK_IMPORTED_MODULE_0__.Config.defaultNameRule}">
       &nbsp;
       <select name="fileNameSelect" class="beautify_scrollbar">
@@ -41235,14 +41233,14 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="50" aria-hidden="true"></span>
     <p class="option" data-no="50">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(50)}" target="_blank" class="settingNameStyle" data-xztext="_在不同的页面类型中使用不同的命名规则"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_在不同的页面类型中使用不同的命名规则"></a>
       <input type="checkbox" name="setNameRuleForEachPageType" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="64" aria-hidden="true"></span>
     <p class="option" data-no="64">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(64)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_只有一个抓取结果时不建立文件夹的提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_只有一个抓取结果时不建立文件夹的提示">
         <span data-xztext="_只有一个抓取结果时不建立文件夹"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41252,7 +41250,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="16" aria-hidden="true"></span>
     <p class="option" data-no="16">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(16)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_下载线程"></span>
       </a>
       <input type="text" name="downloadThread" class="has_tip setinput_style1 blue" data-xztip="_下载线程的说明" value="5">
@@ -41260,7 +41258,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="17" aria-hidden="true"></span>
     <p class="option" data-no="17">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(17)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动开始下载的提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动开始下载的提示">
         <span data-xztext="_自动开始下载"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41270,7 +41268,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="33" aria-hidden="true"></span>
     <p class="option" data-no="33">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(33)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载之后收藏作品的提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载之后收藏作品的提示">
         <span data-xztext="_下载之后收藏作品"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41294,7 +41292,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="57" aria-hidden="true"></span>
     <p class="option" data-no="57">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(57)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示高级设置说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示高级设置说明">
         <span data-xztext="_显示高级设置"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41308,7 +41306,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="75" aria-hidden="true"></span>
     <p class="option" data-no="75">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(75)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_减慢抓取速度的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_减慢抓取速度的说明">
         <span data-xztext="_减慢抓取速度"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41325,7 +41323,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="47" aria-hidden="true"></span>
     <p class="option" data-no="47">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(47)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品的图片数量上限提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_多图作品的图片数量上限提示">
         <span data-xztext="_多图作品的图片数量上限"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41339,7 +41337,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="3" aria-hidden="true"></span>
     <p class="option" data-no="3">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(3)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品只抓取前几张图片"></span>
       </a>
       <input type="checkbox" name="onlyCrawlFirstFewImagesSwitch" class="need_beautify checkbox_switch">
@@ -41352,7 +41350,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="104" aria-hidden="true"></span>
     <p class="option" data-no="104">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(104)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品只抓取后几张图片"></span>
       </a>
       <input type="checkbox" name="onlyCrawlLastFewImagesSwitch" class="need_beautify checkbox_switch">
@@ -41365,7 +41363,7 @@ const formHtml = `
     
     <span class="optionAnchor" data-for-no="103" aria-hidden="true"></span>
     <p class="option" data-no="103">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(103)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品不抓取前几张图片"></span>
       </a>
       <input type="checkbox" name="doNotCrawlFirstImagesSwitch" class="need_beautify checkbox_switch">
@@ -41378,7 +41376,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="69" aria-hidden="true"></span>
     <p class="option" data-no="69">      
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(69)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_多图作品不抓取后几张图片"></span>
       </a>
       <input type="checkbox" name="doNotCrawlLastImagesSwitch" class="need_beautify checkbox_switch">
@@ -41391,7 +41389,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="79" aria-hidden="true"></span>
     <p class="option" data-no="79">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(79)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_特定用户的多图作品不下载最后几张图片"></span>
       </a>
       <slot data-name="DoNotDownloadLastFewImagesSlot"></slot>
@@ -41399,7 +41397,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="35" aria-hidden="true"></span>
     <p class="option" data-no="35">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(35)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_用户阻止名单的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_用户阻止名单的说明">
         <span data-xztext="_用户阻止名单"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41417,7 +41415,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="39" aria-hidden="true"></span>
     <p class="option" data-no="39">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(39)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_针对特定用户屏蔽tag的提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_针对特定用户屏蔽tag的提示">
         <span data-xztext="_针对特定用户屏蔽tag"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41430,7 +41428,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="74" aria-hidden="true"></span>
     <p class="option" data-no="74">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(74)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_定时抓取的间隔时间的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_定时抓取的间隔时间的说明">
         <span data-xztext="_定时抓取的间隔时间"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41440,7 +41438,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="54" aria-hidden="true"></span>
     <p class="option" data-no="54">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(54)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动导出抓取结果的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动导出抓取结果的说明">
         <span data-xztext="_自动导出抓取结果"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41463,7 +41461,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="85" aria-hidden="true"></span>
     <p class="option" data-no="85">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(85)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_导出ID列表的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_导出ID列表的说明">
         <span data-xztext="_导出ID列表"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41477,7 +41475,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="19" aria-hidden="true"></span>
     <p class="option" data-no="19">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(19)}" target="_blank" class="settingNameStyle" data-xztext="_为作品建立单独的文件夹"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_为作品建立单独的文件夹"></a>
       <input type="checkbox" name="workDir" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="workDir">
@@ -41491,7 +41489,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="42" aria-hidden="true"></span>
     <p class="option" data-no="42">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(42)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_根据作品类型自动建立文件夹的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_根据作品类型自动建立文件夹的说明">
         <span data-xztext="_根据作品类型自动建立文件夹"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41523,7 +41521,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="43" aria-hidden="true"></span>
     <p class="option" data-no="43">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(43)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用匹配的tag建立文件夹的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用匹配的tag建立文件夹的说明">
         <span data-xztext="_使用第一个匹配的tag建立文件夹"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41536,7 +41534,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="80" aria-hidden="true"></span>
     <p class="option" data-no="80">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(80)}" target="_blank" class="settingNameStyle" data-xztext="_如果作品含有某些标签则对这个作品使用另一种命名规则"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_如果作品含有某些标签则对这个作品使用另一种命名规则"></a>
       <input type="checkbox" name="UseDifferentNameRuleIfWorkHasTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="UseDifferentNameRuleIfWorkHasTagSwitch">
@@ -41546,7 +41544,7 @@ const formHtml = `
     
     <span class="optionAnchor" data-for-no="38" aria-hidden="true"></span>
     <p class="option" data-no="38">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(38)}" target="_blank" class="settingNameStyle" data-xztext="_把r18作品存入指定的文件夹里"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_把r18作品存入指定的文件夹里"></a>
       <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="r18Folder">
@@ -41558,7 +41556,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="98" aria-hidden="true"></span>
     <p class="option" data-no="98">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(98)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_序号起始值的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_序号起始值的说明">
         <span data-xztext="_序号起始值"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41572,7 +41570,7 @@ const formHtml = `
     
     <span class="optionAnchor" data-for-no="22" aria-hidden="true"></span>
     <p class="option" data-no="22">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(22)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_第一张图不带序号说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_第一张图不带序号说明">
         <span data-xztext="_第一张图不带序号"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41593,7 +41591,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="46" aria-hidden="true"></span>
     <p class="option" data-no="46">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(46)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在序号前面填充0的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在序号前面填充0的说明">
         <span data-xztext="_在序号前面填充0"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41607,7 +41605,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="29" aria-hidden="true"></span>
     <p class="option" data-no="29">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(29)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_文件名长度限制"></span>
       </a>
       <input type="checkbox" name="fullNameLengthLimitSwitch" class="need_beautify checkbox_switch" checked>
@@ -41621,7 +41619,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="83" aria-hidden="true"></span>
     <p class="option" data-no="83">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(83)}" target="_blank" class="settingNameStyle" data-xztext="_标签分隔符号"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_标签分隔符号"></a>
       <input type="text" name="tagsSeparator" class="setinput_style1 blue" value=",">
       <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#tagsSeparatorTip" data-xztext="_提示"></button>
     </p>
@@ -41632,7 +41630,7 @@ const formHtml = `
     
     <span class="optionAnchor" data-for-no="97" aria-hidden="true"></span>
     <p class="option" data-no="97">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(97)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_移除文件名里的emoji"></span>
       </a>
       <input type="checkbox" name="removeEmoji" class="need_beautify checkbox_switch">
@@ -41641,7 +41639,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="67" aria-hidden="true"></span>
     <p class="option" data-no="67">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(67)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_移除用户名中的at和后续字符的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_移除用户名中的at和后续字符的说明">
         <span data-xztext="_移除用户名中的at和后续字符"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41651,7 +41649,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="66" aria-hidden="true"></span>
     <p class="option" data-no="66">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(66)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_自定义用户名的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_自定义用户名的说明">
         <span data-xztext="_自定义用户名"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41660,7 +41658,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="31" aria-hidden="true"></span>
     <p class="option" data-no="31">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(31)}" target="_blank" class="settingNameStyle" data-xztext="_日期格式"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_日期格式"></a>
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
       <button type="button" class="gray1 textButton toggleArea" data-toggle-Target="#dateFormatTip" data-xztext="_提示"></button>
     </p>
@@ -41694,7 +41692,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="101" aria-hidden="true"></span>
     <p class="option" data-no="101">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(101)}" target="_blank" class="settingNameStyle" data-xztext="_管理下载记录"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_管理下载记录"></a>
       <button type="button" class="textButton gray1" id="exportDownloadRecord" data-xztext="_导出"></button>
       <button type="button" class="textButton gray1" id="importDownloadRecord" data-xztext="_导入"></button>
       <button type="button" class="textButton gray1" id="clearDownloadRecord" data-xztext="_清除"></button>
@@ -41703,7 +41701,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="28" aria-hidden="true"></span>
     <p class="option" data-no="28">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(28)}" target="_blank" class="settingNameStyle" data-xztext="_不下载重复文件"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_不下载重复文件"></a>
       <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap noGrow" data-show="deduplication">
@@ -41720,7 +41718,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="100" aria-hidden="true"></span>
     <p class="option" data-no="100">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(100)}" target="_blank" class="settingNameStyle" data-xztext="_在已下载的作品上显示边框"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_在已下载的作品上显示边框"></a>
       <input type="checkbox" name="showBorderOnDownloadedWorks" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap noGrow" data-show="showBorderOnDownloadedWorks">
@@ -41735,7 +41733,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="90" aria-hidden="true"></span>
     <p class="option" data-no="90">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(90)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载间隔的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载间隔的说明">
         <span data-xztext="_下载间隔"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41749,7 +41747,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="76" aria-hidden="true"></span>
     <p class="option" data-no="76">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(76)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_点击收藏按钮时下载作品"></span>
       </a>
       <input type="checkbox" name="downloadOnClickBookmark" class="need_beautify checkbox_switch">
@@ -41758,7 +41756,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="77" aria-hidden="true"></span>
     <p class="option" data-no="77">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(77)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_点击点赞按钮时下载作品"></span>
       </a>
       <input type="checkbox" name="downloadOnClickLike" class="need_beautify checkbox_switch">
@@ -41767,7 +41765,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="4" aria-hidden="true"></span>
     <p class="option" data-no="4">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(4)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_动图保存格式的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_动图保存格式的说明">
         <span data-xztext="_动图保存格式"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41787,7 +41785,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="24" aria-hidden="true"></span>
     <p class="option" data-no="24">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(24)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_同时转换多少个动图的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_同时转换多少个动图的说明">
         <span data-xztext="_同时转换多少个动图"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41796,7 +41794,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="26" aria-hidden="true"></span>
     <p class="option" data-no="26">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(26)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_小说保存格式的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_小说保存格式的说明">
         <span data-xztext="_小说保存格式"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41810,7 +41808,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="73" aria-hidden="true"></span>
     <p class="option" data-no="73">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(73)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动合并系列小说的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_自动合并系列小说的说明">
         <span data-xztext="_自动合并系列小说"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41826,7 +41824,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="91" aria-hidden="true"></span>
     <p class="option" data-no="91">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(91)}" target="_blank" class="settingNameStyle" data-xztext="_合并系列小说时的命名规则"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_合并系列小说时的命名规则"></a>
       <span class="rowWrap">
         <textarea class="centerPanelTextArea beautify_scrollbar" name="seriesNovelNameRule" rows="1"></textarea>
         <button type="button" class="showFileNameTip textButton toggleArea" data-toggle-Target="#seriesNovelNameTip" data-xztext="_提示"></button>
@@ -41903,7 +41901,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="27" aria-hidden="true"></span>
     <p class="option" data-no="27">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(27)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在小说里保存元数据提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在小说里保存元数据提示">
         <span data-xztext="_在小说里保存元数据"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41913,21 +41911,21 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="70" aria-hidden="true"></span>
     <p class="option" data-no="70">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(70)}" target="_blank" class="settingNameStyle" data-xztext="_下载小说的封面图片"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_下载小说的封面图片"></a>
       <input type="checkbox" name="downloadNovelCoverImage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="72" aria-hidden="true"></span>
     <p class="option" data-no="72">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(72)}" target="_blank" class="settingNameStyle" data-xztext="_下载小说里的内嵌图片"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_下载小说里的内嵌图片"></a>
       <input type="checkbox" name="downloadNovelEmbeddedImage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="49" aria-hidden="true"></span>
     <p class="option" data-no="49">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(49)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_保存作品的元数据说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_保存作品的元数据说明">
         <span data-xztext="_保存作品的元数据"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41955,7 +41953,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="89" aria-hidden="true"></span>
     <p class="option" data-no="89">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(89)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_保存作品简介的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_保存作品简介的说明">
         <span data-xztext="_保存作品的简介"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -41975,7 +41973,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="30" aria-hidden="true"></span>
     <p class="option" data-no="30">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(30)}" target="_blank" class="settingNameStyle" data-xztext="_图片尺寸"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_图片尺寸"></a>
       <input type="radio" name="imageSize" id="imageSize1" class="need_beautify radio" value="original" checked>
       <span class="beautify_radio" tabindex="0"></span>
       <label for="imageSize1" data-xztext="_原图"></label>
@@ -41995,7 +41993,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="25" aria-hidden="true"></span>
     <p class="option" data-no="25">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(25)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_文件体积限制的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_文件体积限制的说明">
         <span data-xztext="_文件体积限制"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42010,7 +42008,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="82" aria-hidden="true"></span>
     <p class="option" data-no="82">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(82)}" target="_blank" class="settingNameStyle" data-xztext="_文件下载顺序"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_文件下载顺序"></a>
       <input type="checkbox" name="setFileDownloadOrder" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="setFileDownloadOrder">
@@ -42037,7 +42035,7 @@ const formHtml = `
     
     <span class="optionAnchor" data-for-no="20" aria-hidden="true"></span>
     <p class="option" data-no="20">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(20)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用前请先查看提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_使用前请先查看提示">
         <span data-xztext="_把文件保存到用户上次选择的位置"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42048,7 +42046,7 @@ const formHtml = `
     
     <span class="optionAnchor" data-for-no="52" aria-hidden="true"></span>
     <p class="option" data-no="52">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(52)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载完成后显示通知的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_下载完成后显示通知的说明">
         <span data-xztext="_下载完成后显示通知"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42062,7 +42060,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="84" aria-hidden="true"></span>
     <p class="option" data-no="84">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(84)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_高亮关注的用户的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_高亮关注的用户的说明">
         <span data-xztext="_高亮关注的用户"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42072,7 +42070,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="68" aria-hidden="true"></span>
     <p class="option" data-no="68">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(68)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示更大的缩略图的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示更大的缩略图的说明">
         <span data-xztext="_显示更大的缩略图"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42082,7 +42080,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="63" aria-hidden="true"></span>
     <p class="option" data-no="63">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(63)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_替换方形缩略图以显示图片比例的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_替换方形缩略图以显示图片比例的说明">
         <span data-xztext="_替换方形缩略图以显示图片比例"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42092,7 +42090,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="55" aria-hidden="true"></span>
     <p class="option" data-no="55">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(55)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览作品的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览作品的说明">
         <span data-xztext="_预览作品"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42133,14 +42131,14 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="71" aria-hidden="true"></span>
     <p class="option" data-no="71">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(71)}" target="_blank" class="settingNameStyle" data-xztext="_预览动图"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_预览动图"></a>
       <input type="checkbox" name="previewUgoira" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="62" aria-hidden="true"></span>
     <p class="option" data-no="62">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(62)}" target="_blank" class="settingNameStyle" data-xztext="_长按右键显示大图"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_长按右键显示大图"></a>
       <input type="checkbox" name="showOriginImage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="showOriginImage">
@@ -42162,7 +42160,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="102" aria-hidden="true"></span>
     <p class="option" data-no="102">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(102)}" target="_blank" class="settingNameStyle has_tip" data-xztip="_缩略图上按钮的位置的说明">
+      <a href="" target="_blank" class="settingNameStyle has_tip" data-xztip="_缩略图上按钮的位置的说明">
         <span data-xztext="_缩略图上按钮的位置"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42176,7 +42174,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="40" aria-hidden="true"></span>
     <p class="option" data-no="40">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(40)}" target="_blank" class="settingNameStyle" data-xztext="_在作品缩略图上显示放大按钮"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_在作品缩略图上显示放大按钮"></a>
       <input type="checkbox" name="magnifier" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="magnifier">
@@ -42192,14 +42190,14 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="56" aria-hidden="true"></span>
     <p class="option" data-no="56">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(56)}" target="_blank" class="settingNameStyle" data-xztext="_在作品缩略图上显示下载按钮"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_在作品缩略图上显示下载按钮"></a>
       <input type="checkbox" name="showDownloadBtnOnThumb" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
     </p>
 
     <span class="optionAnchor" data-for-no="14" aria-hidden="true"></span>
     <p class="option" data-no="14">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(14)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示复制按钮的提示">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_显示复制按钮的提示">
         <span data-xztext="_复制按钮"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42248,7 +42246,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="86" aria-hidden="true"></span>
     <p class="option" data-no="86">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(86)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在多图作品页面里显示缩略图列表的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在多图作品页面里显示缩略图列表的说明">
         <span data-xztext="_在多图作品页面里显示缩略图列表"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42258,7 +42256,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="87" aria-hidden="true"></span>
     <p class="option" data-no="87">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(87)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览作品的详细信息的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览作品的详细信息的说明">
         <span data-xztext="_预览作品的详细信息"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42273,7 +42271,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="48" aria-hidden="true"></span>
     <p class="option" data-no="48">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(48)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在搜索页面添加快捷搜索区域的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在搜索页面添加快捷搜索区域的说明">
         <span data-xztext="_在搜索页面添加快捷搜索区域"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42283,7 +42281,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="92" aria-hidden="true"></span>
     <p class="option" data-no="92">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(92)}" target="_blank" class="settingNameStyle">
+      <a href="" target="_blank" class="settingNameStyle">
         <span data-xztext="_过滤搜索页面的作品"></span>
       </a>
       <input type="checkbox" name="filterSearchResults" class="need_beautify checkbox_switch">
@@ -42293,7 +42291,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="88" aria-hidden="true"></span>
     <p class="option" data-no="88">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(88)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在搜索页面里移除已关注用户的作品的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_在搜索页面里移除已关注用户的作品的说明">
         <span data-xztext="_在搜索页面里移除已关注用户的作品"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42303,7 +42301,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="18" aria-hidden="true"></span>
     <p class="option" data-no="18">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(18)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览搜索结果说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_预览搜索结果说明">
         <span data-xztext="_预览搜索结果"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42317,7 +42315,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="34" aria-hidden="true"></span>
     <p class="option" data-no="34">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(34)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_收藏设置的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_收藏设置的说明">
         <span data-xztext="_收藏设置"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42342,7 +42340,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="93" aria-hidden="true"></span>
     <p class="option" data-no="93">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(93)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_日志区域的默认可见性的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_日志区域的默认可见性的说明">
         <span data-xztext="_日志区域的默认可见性"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42356,7 +42354,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="78" aria-hidden="true"></span>
     <p class="option" data-no="78">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(78)}" target="_blank" class="settingNameStyle" data-xztext="_导出日志"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_导出日志"></a>
       <input type="checkbox" name="exportLog" class="need_beautify checkbox_switch">
       <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="exportLog">
@@ -42383,7 +42381,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="36" aria-hidden="true"></span>
     <p class="option" data-no="36">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(36)}" target="_blank" class="settingNameStyle" data-xztext="_颜色主题"></a>
+      <a href="" target="_blank" class="settingNameStyle" data-xztext="_颜色主题"></a>
       <input type="radio" name="theme" id="theme1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio" tabindex="0"></span>
       <label for="theme1" data-xztext="_自动检测"></label>
@@ -42397,7 +42395,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="41" aria-hidden="true"></span>
     <p class="option" data-no="41">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(41)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_背景图片的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_背景图片的说明">
         <span data-xztext="_背景图片"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42421,7 +42419,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="45" aria-hidden="true"></span>
     <p class="option" data-no="45">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(45)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_选项卡切换方式的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_选项卡切换方式的说明">
         <span data-xztext="_选项卡切换方式"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42435,7 +42433,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="53" aria-hidden="true"></span>
     <p class="option" data-no="53">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(53)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_高亮显示关键字的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_高亮显示关键字的说明">
         <span data-xztext="_高亮显示关键字"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -42445,7 +42443,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="32" aria-hidden="true"></span>
     <p class="option" data-no="32">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(32)}" target="_blank" class="settingNameStyle"><span class="key">Language</span></a>
+      <a href="" target="_blank" class="settingNameStyle"><span class="key">Language</span></a>
       <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio" tabindex="0"></span>
       <label for="userSetLang1" data-xztext="_自动检测"></label>
@@ -42471,7 +42469,7 @@ const formHtml = `
 
     <span class="optionAnchor" data-for-no="37" aria-hidden="true"></span>
     <p class="option" data-no="37">
-      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(37)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_管理设置的说明">
+      <a href="" target="_blank" class="has_tip settingNameStyle" data-xztip="_管理设置的说明">
         <span data-xztext="_管理设置"></span>
         <span class="gray1"> ? </span>
       </a>
@@ -44207,6 +44205,7 @@ class Settings {
         doNotCrawlFirstImagesSwitch: false,
         doNotCrawlFirstImagesCount: 1,
         pinnedOptions: [],
+        debugForWiki: false,
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的设置
@@ -44833,7 +44832,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _PPDTask__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../PPDTask */ "./src/ts/PPDTask.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+
+
+
+
 
 
 
@@ -44846,7 +44853,26 @@ __webpack_require__.r(__webpack_exports__);
 // 2. 如果把一个设置从一个分类移动到另一个分类，需要修改它在 groupConfig 里所属的分类
 class Wiki {
     constructor() {
-        this.bindEvnents();
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, () => {
+            this.setOptionLink();
+        });
+        // 当用户修改了语言时，重设每个设置项的链接
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.langChange, () => {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_3__.states.settingInitialized) {
+                this.setOptionLink();
+            }
+        });
+        // 把 wiki 的 url 切换到本地调试的网址或者线上网址
+        _PPDTask__WEBPACK_IMPORTED_MODULE_2__.ppdTask.register(3, 'Switch Wiki Home', () => {
+            (0,_Settings__WEBPACK_IMPORTED_MODULE_6__.setSetting)('debugForWiki', !_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.debugForWiki);
+            const msg = `debugForWiki: ${_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.debugForWiki}`;
+            console.log(msg);
+            _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.success(msg);
+            this.setOptionLink();
+        });
     }
     // 由于 Wiki 现在只有简体中文和英语，所以只返回这两种语言
     useLang() {
@@ -44855,41 +44881,20 @@ class Wiki {
         }
         return 'en';
     }
-    nowLang = this.useLang();
-    /**传入设置项或按钮的 ID，查找它在 Wiki 上处于哪个页面里，并构造出 URL */
-    // 返回的 URL 只定位到分类页面，不会定位到具体的条目，但是会传递该设置的 flag，例如：
-    // https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/设置-抓取?flag=0
-    // 之后由 Wiki 页面上的代码定位到具体的设置项
-    // 如果传入的 ID 没有找到对应的分类，则返回 Wiki 首页
-    link(id) {
-        if (id === undefined) {
-            console.error('link id is undefined');
-            console.trace();
-            return '';
-        }
-        const lang = this.nowLang;
-        for (const group in this.groupConfig) {
-            const groupName = group;
-            if (this.groupConfig[groupName].includes(id)) {
-                const home = this.home[lang];
-                const page = this.groupPage[lang][groupName];
-                return `${home}${page}?flag=${id}`;
-            }
-        }
-        return `https://xuejianxianzun.github.io/PBDWiki/`;
-    }
-    openLink(id) {
-        const link = this.link(id);
-        window.open(link, '_blank');
-    }
-    // 每种语言对应的 Wiki 首页路径
+    /** 储存每种语言的 Wiki 首页路径 */
     home = {
-        'zh-cn': 'https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/',
-        en: 'https://xuejianxianzun.github.io/PBDWiki/#/en/',
-        // 'zh-cn': 'http://localhost:3000/#/zh-cn/',
-        // en: 'http://localhost:3000/#/en/',
+        'zh-cn': '',
+        en: '',
     };
-    /**储存每个分类对应的页面 */
+    resetHomeConfig() {
+        let HomePrefix = 'https://xuejianxianzun.github.io/PBDWiki/';
+        if (_Settings__WEBPACK_IMPORTED_MODULE_6__.settings.debugForWiki) {
+            HomePrefix = 'http://localhost:3000/';
+        }
+        this.home['zh-cn'] = HomePrefix + '#/zh-cn/';
+        this.home['en'] = HomePrefix + '#/en/';
+    }
+    /**储存每个分类在 Wiki 里的哪个页面上 */
     groupPage = {
         'zh-cn': {
             Crawl: '设置-抓取',
@@ -45000,36 +45005,57 @@ class Wiki {
             'saveUserCoverImage',
         ],
     };
-    bindEvnents() {
-        // 当语言变化时（用户在设置里修改了语言），修改 FormHTML 里的 URL 为对应的语言
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.langChange, () => {
-            const newLang = this.useLang();
-            if (newLang !== this.nowLang) {
-                this.nowLang = newLang;
-                window.setTimeout(() => {
-                    this.resetWikiLink();
-                }, 100);
-            }
-        });
-    }
-    registerBtn(btn) {
-        _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.longPress(btn, () => {
-            this.openLink(btn.id);
-        });
-    }
-    /**当下载器的语言变化时，重设每个设置项的 href 属性 */
-    resetWikiLink() {
+    /** 设置每个设置项名称上的 href 属性 */
+    setOptionLink() {
+        this.resetHomeConfig();
         // 查找所有 a.settingNameStyle 元素，并把它们的 href 属性修改为对应语言的 URL
-        const allLinks = document.querySelectorAll('a.settingNameStyle');
-        allLinks.forEach((el) => {
+        const allLinks = document.querySelectorAll('.centerWrap_con a.settingNameStyle');
+        allLinks.forEach(async (el) => {
             // 查找其父元素，如 <p class='option' data-no='0'>
             const p = el.parentElement;
             if (p.dataset.no) {
                 const id = Number(p.dataset.no);
-                const link = this.link(id);
+                const link = await this.link(id);
                 el.setAttribute('href', link);
             }
         });
+    }
+    /** 为每个功能按钮绑定事件，长按时生成 Wiki 链接并打开 */
+    registerBtn(btn) {
+        _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.longPress(btn, async () => {
+            const link = await this.link(btn.id);
+            window.open(link, '_blank');
+        });
+    }
+    /**传入设置项或按钮的 ID，查找它在 Wiki 上处于哪个页面里，并构造出 URL */
+    // 返回的 URL 只定位到分类页面，不会定位到具体的条目，但是会传递该设置的 flag，例如：
+    // https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/设置-抓取?flag=0
+    // 之后由 Wiki 页面上的代码定位到具体的设置项
+    // 如果传入的 ID 没有找到对应的分类，则返回 Wiki 首页
+    async link(id) {
+        if (id === undefined) {
+            console.error('link id is undefined');
+            console.trace();
+            return '';
+        }
+        while (true) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_3__.states.settingInitialized) {
+                break;
+            }
+            else {
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(50);
+            }
+        }
+        const lang = this.useLang();
+        for (const group in this.groupConfig) {
+            const groupName = group;
+            if (this.groupConfig[groupName].includes(id)) {
+                const home = this.home[lang];
+                const page = this.groupPage[lang][groupName];
+                return `${home}${page}?flag=${id}`;
+            }
+        }
+        return '';
     }
 }
 const wiki = new Wiki();

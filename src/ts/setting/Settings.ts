@@ -356,6 +356,7 @@ interface XzSetting {
   doNotCrawlFirstImagesSwitch: boolean
   doNotCrawlFirstImagesCount: number
   pinnedOptions: number[]
+  debugForWiki: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -861,6 +862,7 @@ class Settings {
     doNotCrawlFirstImagesSwitch: false,
     doNotCrawlFirstImagesCount: 1,
     pinnedOptions: [],
+    debugForWiki: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

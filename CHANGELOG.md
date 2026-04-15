@@ -5,7 +5,7 @@
 
 ## next
 
-重构 option、form，并在 wiki 里添加 ppdtask，把网址前缀切换到本地的 url
+重构 option、form
 
 ### ✨新功能：把选项置顶显示
 
