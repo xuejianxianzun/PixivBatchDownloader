@@ -125,9 +125,8 @@ interface XzSetting {
   downloadThread: number
   userSetName: string
   namingRuleList: string[]
-  workDir: boolean
-  workDirFileNumber: number
-  workDirNameRule: string
+  folderForMultiImageWorksSwitch: boolean
+  folderForMultiImageWorksRule: string
   showOptions: boolean
   postDate: boolean
   postDateStart: number
@@ -206,7 +205,6 @@ interface XzSetting {
   createFolderByTypeNovel: boolean
   createFolderByTag: boolean
   createFolderTagList: string[]
-  createFolderBySl: boolean
   downloadUgoiraFirst: boolean
   downAllAges: boolean
   downR18: boolean
@@ -620,9 +618,8 @@ class Settings {
     downloadThread: 3,
     userSetName: Config.defaultNameRule,
     namingRuleList: [Config.defaultNameRule],
-    workDir: false,
-    workDirFileNumber: 1,
-    workDirNameRule: '{id_num}',
+    folderForMultiImageWorksSwitch: false,
+    folderForMultiImageWorksRule: '{id_num}',
     showOptions: true,
     postDate: false,
     // 2009 年 1 月 1 日
@@ -698,7 +695,6 @@ class Settings {
     createFolderByTypeNovel: false,
     createFolderByTag: false,
     createFolderTagList: [],
-    createFolderBySl: false,
     downloadUgoiraFirst: false,
     switchTabBar: 'over',
     zeroPadding: false,
@@ -1200,7 +1196,7 @@ class Settings {
       value = this.defaultSettings[key]
     }
 
-    if (key === 'workDirNameRule') {
+    if (key === 'folderForMultiImageWorksRule') {
       value = (value as string).replace('{id}', '{id_num}')
     }
 

@@ -4,6 +4,7 @@ import { msgBox } from './MsgBox'
 import { Utils } from './utils/Utils'
 import { EVT } from './EVT'
 import { setSetting, settings } from './setting/Settings'
+import { ppdTask } from './PPDTask'
 
 // 显示版本更新说明
 class ShowWhatIsNew {
@@ -12,11 +13,18 @@ class ShowWhatIsNew {
     window.addEventListener(EVT.list.settingInitialized, () => {
       this.show()
     })
+
+    // 版本更新说明只会显示一次，如果需要调试它，可以使用这个命令直接显示
+    ppdTask.register(4, 'Show What Is New', () => {
+      this.showMsg()
+    })
   }
 
   private flag = '18.6.0'
   private msg = `
       <span>${lang.transl('_扩展程序升到x版本', this.flag)}</span>
+      <br>
+      <span>${lang.transl('_提示可以在release页面查看更新日志')}</span>
       <br>
       <br>
       <span>${lang.transl('_更新说明1860')}</span>
@@ -36,11 +44,15 @@ class ShowWhatIsNew {
       return
     }
 
+    this.showMsg()
+    setSetting('whatIsNewFlag', this.flag)
+  }
+
+  private showMsg() {
     msgBox.show(this.msg, {
       title: Config.appName + ` ${lang.transl('_最近更新')}`,
       btn: lang.transl('_我知道了'),
     })
-    setSetting('whatIsNewFlag', this.flag)
   }
 }
 

@@ -40,9 +40,8 @@ export interface SettingsForm extends HTMLFormElement {
   userSetName: HTMLInputElement
   fileNameSelect: HTMLSelectElement
   noSerialNo: HTMLInputElement
-  workDir: HTMLInputElement
-  workDirFileNumber: HTMLInputElement
-  workDirNameRule: HTMLInputElement
+  folderForMultiImageWorksSwitch: HTMLInputElement
+  folderForMultiImageWorksRule: HTMLInputElement
   previewResult: HTMLInputElement
   previewResultLimit: HTMLInputElement
   BMKNumSwitch: HTMLInputElement

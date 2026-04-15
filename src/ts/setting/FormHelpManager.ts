@@ -62,16 +62,28 @@ class FormHelpManager {
     })
   }
 
-  /**点击一些按钮时，切换显示对应的帮助区域 */
+  /**点击一些按钮时，切换显示对应的提示区域 */
   private toggleHelpArea() {
     const btns = this.form.querySelectorAll(
       '.toggleArea'
     ) as NodeListOf<HTMLButtonElement>
     btns.forEach((btn) => {
       const targetSelector = btn.dataset.toggleTarget!
-      const target = document.querySelector(targetSelector) as HTMLElement
+      const tipEl = document.querySelector(targetSelector) as HTMLElement
       btn.addEventListener('click', () => {
-        Utils.toggleEl(target)
+        // 切换显示提示区域
+        Utils.toggleEl(tipEl)
+        // 选项可能被置顶，从而脱离了原来的位置，与提示区域不挨在一起了
+        // 所以这里还需要查找这个提示区域对应的选项，然后把提示区域移动到选项之后，让它们挨在一起
+        const no = btn.dataset.forNo
+        if (no) {
+          const option = this.form.querySelector(
+            `p.option[data-no="${no}"]`
+          ) as HTMLElement
+          if (option) {
+            option.insertAdjacentElement('afterend', tipEl)
+          }
+        }
       })
     })
   }

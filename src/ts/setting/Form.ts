@@ -36,15 +36,15 @@ class Form {
 
   private bindFormEvents() {
     // 输入框获得焦点时自动选择文本（命名规则的输入框例外）
-    const centerInputs: NodeListOf<HTMLInputElement> =
-      this.form.querySelectorAll('input[type=text]')
-    for (const el of centerInputs) {
-      if (el.name !== 'userSetName') {
-        el.addEventListener('focus', function () {
-          this.select()
-        })
-      }
-    }
+    // const centerInputs: NodeListOf<HTMLInputElement> =
+    //   this.form.querySelectorAll('input[type=text]')
+    // for (const el of centerInputs) {
+    //   if (el.name !== 'userSetName') {
+    //     el.addEventListener('focus', function () {
+    //       this.select()
+    //     })
+    //   }
+    // }
 
     // 把下拉框的选择项插入到文本框里
     const from = this.form.fileNameSelect

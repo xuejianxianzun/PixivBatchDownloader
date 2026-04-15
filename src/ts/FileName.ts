@@ -13,7 +13,6 @@ import { lang } from './Language'
 interface NamingSchema {
   [key: string]: { value: string; safe: boolean }
 }
-;[]
 
 // 生成文件名
 // 没有必要保存缓存，因为每次生成文件名的耗时小于 1 ms，不需要用空间换时间
@@ -22,11 +21,26 @@ class FileName {
 
   /**传入一个抓取结果，生成其文件名 */
   public createFileName(data: Result) {
-    // 命名规则
+    // 确定要使用的命名规则
     let userSetName = nameRuleManager.rule
 
-    // 检查是否要使用特定的其他命名规则
-    // 这是一个定制功能，所以这里设置的规则只会修改原有的文件名，而不会涉及到文件夹部分
+    // 把特定标记替换成它所代表的设置的值
+
+    // 为多图作品建立单独的文件夹
+    if (userSetName.includes('{multi_image_folder}')) {
+      // 如果满足条件，就把它替换为目标规则，否则替换为空字符串
+      if (settings.folderForMultiImageWorksSwitch && data.pageCount > 1) {
+        userSetName = userSetName.replace(
+          '{multi_image_folder}',
+          settings.folderForMultiImageWorksRule
+        )
+      } else {
+        userSetName = userSetName.replace('{multi_image_folder}', '')
+      }
+    }
+
+    // 处理一个定制功能：如果作品含有某些标签，则对这个作品使用另一种命名规则
+    // 此规则只会修改文件名，不会修改文件夹
     // 如果一个作品符合多条规则，则把多条规则合并。例如：
     // 包含[原神]，命名规则{id}_genshin
     // 包含[Loli]，命名规则{id}_loli
@@ -46,7 +60,6 @@ class FileName {
         }
       }
     }
-
     if (diffNames.length > 0) {
       let fileName = diffNames.join('').replace(/{id}/g, '')
       fileName = '{id}' + fileName
@@ -56,17 +69,9 @@ class FileName {
       userSetName = names.join('/')
     }
 
-    // 判断是否要为每个作品创建单独的文件夹
-    let createFolderForEachWork =
-      settings.workDir &&
-      store.downloadCount[data.idNum] > settings.workDirFileNumber
-
     let r18FolderName = settings.r18Folder ? settings.r18FolderName : ''
 
-    const allRule =
-      userSetName +
-      (createFolderForEachWork ? settings.workDirNameRule : '') +
-      r18FolderName
+    const allRule = userSetName + r18FolderName
 
     // 1 生成所有命名标记的值
     // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
@@ -219,7 +224,7 @@ class FileName {
         safe: true,
       },
       '{sl}': {
-        value: (data.sl ?? 0).toString(),
+        value: (data.sl ?? '').toString(),
         safe: true,
       },
     }
@@ -243,12 +248,6 @@ class FileName {
         const folder = Config.worksTypeName[data.type]
         result = this.appendFolder(result, folder)
       }
-    }
-
-    // 根据 sl 创建文件夹
-    if (settings.createFolderBySl && data.sl !== null) {
-      const folder = 'sl' + schema['{sl}'].value
-      result = this.appendFolder(result, folder)
     }
 
     // 根据第一个匹配的 tag 建立文件夹
@@ -280,19 +279,6 @@ class FileName {
     }
 
     // 为每个作品创建单独的文件夹
-    if (createFolderForEachWork) {
-      const workDirName = this.generateFileName(
-        settings.workDirNameRule,
-        schema
-      )
-      // 生成文件名。由于用户可能会添加斜线来建立多层路径，所以需要循环添加每个路径
-      const allPath = workDirName.split('/')
-      for (const path of allPath) {
-        if (path.length > 0) {
-          result = this.appendFolder(result, path)
-        }
-      }
-    }
 
     // 4 文件夹部分和文件名已经全部生成完毕，处理一些边界情况
     result = this.handleEdgeCases(result)
