@@ -7,40 +7,34 @@ import { SaveNamingRule } from './SaveNamingRule'
 import { theme } from '../Theme'
 import { FormSettings } from './FormSettings'
 import { Utils } from '../utils/Utils'
-import { setSetting, SettingKeys } from '../setting/Settings'
+import { setSetting } from '../setting/Settings'
 import { options } from '../setting/Options'
-import { msgBox } from '../MsgBox'
 import { DateFormat } from '../utils/DateFormat'
 import { toast } from '../Toast'
-import { LangTextKey } from '../langText'
+import { FormHelpManager } from './FormHelpManager'
+import { FormBeautify } from './FormBeautify'
 
 // 设置表单
 class Form {
   constructor() {
     this.form = Tools.useSlot('form', formHtml) as SettingsForm
+    const allOptions = this.form.querySelectorAll('.option')
 
     theme.register(this.form)
     lang.register(this.form)
-
-    const allOptions = this.form.querySelectorAll('.option')
     options.init(allOptions as NodeListOf<HTMLElement>)
-
     new SaveNamingRule(this.form.userSetName)
-
     new FormSettings(this.form)
+    new FormHelpManager(this.form)
+    new FormBeautify(this.form)
 
-    this.bindEvents()
+    this.bindFormEvents()
+    this.bindFunctionBtn()
   }
 
-  public form: SettingsForm
+  private form: SettingsForm
 
-  private bindEvents() {
-    this.bindBeautifyInput()
-    this.bindFunctionBtn()
-    this.displayTipArea()
-    this.toggleHelpArea()
-    this.showMsgWhenClickBtn()
-
+  private bindFormEvents() {
     // 输入框获得焦点时自动选择文本（命名规则的输入框例外）
     const centerInputs: NodeListOf<HTMLInputElement> =
       this.form.querySelectorAll('input[type=text]')
@@ -68,167 +62,9 @@ class Form {
         to.focus()
       }
     })
-  }
 
-  /**所有的美化表单元素 */
-  // 每个美化的 input 控件后面必定有一个 span 元素
-  // label 和子选项区域可能有，也可能没有
-  private allBeautifyInput: {
-    input: HTMLInputElement
-    span: HTMLSpanElement
-    label: HTMLLabelElement | null
-    subOption: HTMLSpanElement | null
-  }[] = []
-
-  /**查找所有需要美化的表单控件，并绑定事件 */
-  private bindBeautifyInput() {
-    const allCheckBox = this.form.querySelectorAll(
-      'input[type="checkbox"]'
-    ) as NodeListOf<HTMLInputElement>
-    const allRadio = this.form.querySelectorAll(
-      'input[type="radio"]'
-    ) as NodeListOf<HTMLInputElement>
-    const checkboxAndRadio = [allCheckBox, allRadio]
-    for (const arr of checkboxAndRadio) {
-      arr.forEach((input) => {
-        let subOption = null
-        if (input.classList.contains('checkbox_switch')) {
-          subOption = this.form.querySelector(
-            `.subOptionWrap[data-show="${input.name}"]`
-          ) as HTMLSpanElement
-        }
-        const span = input.nextElementSibling! as HTMLSpanElement
-
-        // 点击美化元素时，点击真实的 input 控件
-        span.addEventListener('click', () => {
-          input.click()
-        })
-
-        // 当美化元素获得焦点，并且用户按下了回车或空格键时，点击真实的 input 控件
-        span.addEventListener('keydown', (event) => {
-          if (
-            (event.code === 'Enter' || event.code === 'Space') &&
-            event.target === span
-          ) {
-            event.stopPropagation()
-            event.preventDefault()
-            input.click()
-          }
-        })
-
-        this.allBeautifyInput.push({
-          input,
-          span,
-          label: this.form.querySelector(`label[for="${input.id}"]`),
-          subOption,
-        })
-      })
-    }
-
-    // 设置变化或者重置时，重新设置美化状态
-    window.addEventListener(
-      EVT.list.settingChange,
-      Utils.debounce(() => {
-        this.initBeautifyInput()
-      }, 50)
-    )
-  }
-
-  // 设置表单里的美化元素的状态
-  private initBeautifyInput() {
-    for (const item of this.allBeautifyInput) {
-      const { input, span, label, subOption } = item
-      // 重设 label 的高亮状态
-      if (label) {
-        const method = input.checked ? 'add' : 'remove'
-        label.classList[method]('active')
-      }
-
-      // 重设子选项区域的显示/隐藏状态
-      if (subOption) {
-        subOption.style.display = input.checked ? 'inline-flex' : 'none'
-      }
-    }
-  }
-
-  /** 有些提示区域是默认显示的，用户点击“我知道了”按钮之后改为隐藏 */
-  private readonly tipAreaConfig: { key: SettingKeys; selector: string }[] = [
-    {
-      key: 'tipPinOption',
-      selector: 'p#tipPinOption',
-    },
-    {
-      key: 'tipCloseAskFileSaveLocation',
-      selector: 'p#tipCloseAskFileSaveLocation',
-    },
-    {
-      key: 'tipOpenWikiLink',
-      selector: 'p#tipOpenWikiLinkWrap',
-    },
-  ]
-
-  /** 根据设置来显示或隐藏一些提示 */
-  private displayTipArea() {
-    this.tipAreaConfig.forEach((item) => {
-      const el: HTMLElement = document.querySelector(
-        item.selector
-      ) as HTMLElement
-      if (el) {
-        // 点击“我知道了”按钮之后隐藏提示区域
-        const btn = el.querySelector('button')
-        btn!.addEventListener('click', () => {
-          setSetting(item.key, false)
-          el.style.display = 'none'
-        })
-
-        // 监听设置变化
-        window.addEventListener(
-          EVT.list.settingChange,
-          (ev: CustomEventInit) => {
-            const data = ev.detail.data as any
-            if (data.name === item.key) {
-              el.style.display = data.value ? 'block' : 'none'
-            }
-          }
-        )
-      }
-    })
-  }
-
-  /**点击一些按钮时，切换显示对应的帮助区域 */
-  private toggleHelpArea() {
-    const btns = this.form.querySelectorAll(
-      '.toggleArea'
-    ) as NodeListOf<HTMLButtonElement>
-    btns.forEach((btn) => {
-      const targetSelector = btn.dataset.toggleTarget!
-      const target = document.querySelector(targetSelector) as HTMLElement
-      btn.addEventListener('click', () => {
-        Utils.toggleEl(target)
-      })
-    })
-  }
-
-  /**点击一些按钮时，通过 msgBox 显示帮助 */
-  private showMsgWhenClickBtn() {
-    const btns = this.form.querySelectorAll(
-      '.showMsgBtn'
-    ) as NodeListOf<HTMLButtonElement>
-    btns.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const title = btn.dataset.title! as LangTextKey
-        const msg = btn.dataset.msg! as LangTextKey
-        msgBox.show(lang.transl(msg), {
-          title: lang.transl(title),
-        })
-      })
-    })
-  }
-
-  /**绑定功能按钮，点击按钮后会执行特定操作 */
-  private bindFunctionBtn() {
     // 点击命名规则帮助区域里的标记名字时，复制到剪贴板
-    const allName = document.querySelectorAll('.namingTipArea .name')
+    const allName = this.form.querySelectorAll('.namingTipArea .name')
     allName.forEach((el) => {
       el.addEventListener('click', async () => {
         const text = el.textContent
@@ -266,7 +102,10 @@ class Form {
         }
       })
     }
+  }
 
+  /** 为表单上的一些功能按钮绑定事件 */
+  private bindFunctionBtn() {
     // 选择背景图片
     {
       const el = this.form.querySelector('#selectBG')

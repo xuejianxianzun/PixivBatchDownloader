@@ -37,7 +37,6 @@ class PinOptions {
       if (!states.settingInitialized) {
         return
       }
-
       const data = ev.detail.data as any
       if (data.name === 'pinnedOptions') {
         // 对比新旧列表，找出有哪些选项被取消了置顶

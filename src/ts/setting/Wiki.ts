@@ -47,6 +47,16 @@ class Wiki {
       }
     })
 
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      if (!states.settingInitialized) {
+        return
+      }
+      const data = ev.detail.data as any
+      if (data.name === 'debugForWiki') {
+        this.setOptionLink()
+      }
+    })
+
     // 切换 Wiki 网址为本地调试的网址或者线上网址
     ppdTask.register(3, 'Switch Wiki Home', () => {
       setSetting('debugForWiki', !settings.debugForWiki)

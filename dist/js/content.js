@@ -40375,9 +40375,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _FormHelpManager__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./FormHelpManager */ "./src/ts/setting/FormHelpManager.ts");
+/* harmony import */ var _FormBeautify__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./FormBeautify */ "./src/ts/setting/FormBeautify.ts");
+
 
 
 
@@ -40395,21 +40397,19 @@ __webpack_require__.r(__webpack_exports__);
 class Form {
     constructor() {
         this.form = _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_3__.formHtml);
+        const allOptions = this.form.querySelectorAll('.option');
         _Theme__WEBPACK_IMPORTED_MODULE_5__.theme.register(this.form);
         _Language__WEBPACK_IMPORTED_MODULE_2__.lang.register(this.form);
-        const allOptions = this.form.querySelectorAll('.option');
         _setting_Options__WEBPACK_IMPORTED_MODULE_9__.options.init(allOptions);
         new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_4__.SaveNamingRule(this.form.userSetName);
         new _FormSettings__WEBPACK_IMPORTED_MODULE_6__.FormSettings(this.form);
-        this.bindEvents();
+        new _FormHelpManager__WEBPACK_IMPORTED_MODULE_12__.FormHelpManager(this.form);
+        new _FormBeautify__WEBPACK_IMPORTED_MODULE_13__.FormBeautify(this.form);
+        this.bindFormEvents();
+        this.bindFunctionBtn();
     }
     form;
-    bindEvents() {
-        this.bindBeautifyInput();
-        this.bindFunctionBtn();
-        this.displayTipArea();
-        this.toggleHelpArea();
-        this.showMsgWhenClickBtn();
+    bindFormEvents() {
         // 输入框获得焦点时自动选择文本（命名规则的输入框例外）
         const centerInputs = this.form.querySelectorAll('input[type=text]');
         for (const el of centerInputs) {
@@ -40435,138 +40435,18 @@ class Form {
                 to.focus();
             }
         });
-    }
-    /**所有的美化表单元素 */
-    // 每个美化的 input 控件后面必定有一个 span 元素
-    // label 和子选项区域可能有，也可能没有
-    allBeautifyInput = [];
-    /**查找所有需要美化的表单控件，并绑定事件 */
-    bindBeautifyInput() {
-        const allCheckBox = this.form.querySelectorAll('input[type="checkbox"]');
-        const allRadio = this.form.querySelectorAll('input[type="radio"]');
-        const checkboxAndRadio = [allCheckBox, allRadio];
-        for (const arr of checkboxAndRadio) {
-            arr.forEach((input) => {
-                let subOption = null;
-                if (input.classList.contains('checkbox_switch')) {
-                    subOption = this.form.querySelector(`.subOptionWrap[data-show="${input.name}"]`);
-                }
-                const span = input.nextElementSibling;
-                // 点击美化元素时，点击真实的 input 控件
-                span.addEventListener('click', () => {
-                    input.click();
-                });
-                // 当美化元素获得焦点，并且用户按下了回车或空格键时，点击真实的 input 控件
-                span.addEventListener('keydown', (event) => {
-                    if ((event.code === 'Enter' || event.code === 'Space') &&
-                        event.target === span) {
-                        event.stopPropagation();
-                        event.preventDefault();
-                        input.click();
-                    }
-                });
-                this.allBeautifyInput.push({
-                    input,
-                    span,
-                    label: this.form.querySelector(`label[for="${input.id}"]`),
-                    subOption,
-                });
-            });
-        }
-        // 设置变化或者重置时，重新设置美化状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.debounce(() => {
-            this.initBeautifyInput();
-        }, 50));
-    }
-    // 设置表单里的美化元素的状态
-    initBeautifyInput() {
-        for (const item of this.allBeautifyInput) {
-            const { input, span, label, subOption } = item;
-            // 重设 label 的高亮状态
-            if (label) {
-                const method = input.checked ? 'add' : 'remove';
-                label.classList[method]('active');
-            }
-            // 重设子选项区域的显示/隐藏状态
-            if (subOption) {
-                subOption.style.display = input.checked ? 'inline-flex' : 'none';
-            }
-        }
-    }
-    /** 有些提示区域是默认显示的，用户点击“我知道了”按钮之后改为隐藏 */
-    tipAreaConfig = [
-        {
-            key: 'tipPinOption',
-            selector: 'p#tipPinOption',
-        },
-        {
-            key: 'tipCloseAskFileSaveLocation',
-            selector: 'p#tipCloseAskFileSaveLocation',
-        },
-        {
-            key: 'tipOpenWikiLink',
-            selector: 'p#tipOpenWikiLinkWrap',
-        },
-    ];
-    /** 根据设置来显示或隐藏一些提示 */
-    displayTipArea() {
-        this.tipAreaConfig.forEach((item) => {
-            const el = document.querySelector(item.selector);
-            if (el) {
-                // 点击“我知道了”按钮之后隐藏提示区域
-                const btn = el.querySelector('button');
-                btn.addEventListener('click', () => {
-                    (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.setSetting)(item.key, false);
-                    el.style.display = 'none';
-                });
-                // 监听设置变化
-                window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
-                    const data = ev.detail.data;
-                    if (data.name === item.key) {
-                        el.style.display = data.value ? 'block' : 'none';
-                    }
-                });
-            }
-        });
-    }
-    /**点击一些按钮时，切换显示对应的帮助区域 */
-    toggleHelpArea() {
-        const btns = this.form.querySelectorAll('.toggleArea');
-        btns.forEach((btn) => {
-            const targetSelector = btn.dataset.toggleTarget;
-            const target = document.querySelector(targetSelector);
-            btn.addEventListener('click', () => {
-                _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(target);
-            });
-        });
-    }
-    /**点击一些按钮时，通过 msgBox 显示帮助 */
-    showMsgWhenClickBtn() {
-        const btns = this.form.querySelectorAll('.showMsgBtn');
-        btns.forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const title = btn.dataset.title;
-                const msg = btn.dataset.msg;
-                _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl(msg), {
-                    title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl(title),
-                });
-            });
-        });
-    }
-    /**绑定功能按钮，点击按钮后会执行特定操作 */
-    bindFunctionBtn() {
         // 点击命名规则帮助区域里的标记名字时，复制到剪贴板
-        const allName = document.querySelectorAll('.namingTipArea .name');
+        const allName = this.form.querySelectorAll('.namingTipArea .name');
         allName.forEach((el) => {
             el.addEventListener('click', async () => {
                 const text = el.textContent;
                 if (text) {
                     const copied = await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.writeClipboardText(text);
                     if (copied) {
-                        _Toast__WEBPACK_IMPORTED_MODULE_12__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已复制'));
+                        _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.success(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_已复制'));
                     }
                     else {
-                        _Toast__WEBPACK_IMPORTED_MODULE_12__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_复制失败'));
+                        _Toast__WEBPACK_IMPORTED_MODULE_11__.toast.error(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_复制失败'));
                     }
                 }
             });
@@ -40583,13 +40463,16 @@ class Form {
                     const flag = btn.dataset.value;
                     let value = flag;
                     if (flag === 'now') {
-                        value = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_11__.DateFormat.format(new Date(), 'YYYY-MM-DDThh:mm');
+                        value = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_10__.DateFormat.format(new Date(), 'YYYY-MM-DDThh:mm');
                     }
                     input.value = value;
                     (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_8__.setSetting)(name, value);
                 }
             });
         }
+    }
+    /** 为表单上的一些功能按钮绑定事件 */
+    bindFunctionBtn() {
         // 选择背景图片
         {
             const el = this.form.querySelector('#selectBG');
@@ -40650,6 +40533,90 @@ class Form {
     }
 }
 new Form();
+
+
+/***/ }),
+
+/***/ "./src/ts/setting/FormBeautify.ts":
+/*!****************************************!*\
+  !*** ./src/ts/setting/FormBeautify.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   FormBeautify: () => (/* binding */ FormBeautify)
+/* harmony export */ });
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+
+
+class FormBeautify {
+    constructor(form) {
+        this.form = form;
+        this.bindBeautifyInput();
+    }
+    form;
+    /** 储存表单上所有美化元素 */
+    // 每个美化的 input 控件后面必定有一个 span 元素
+    // label 和子选项区域可能有，也可能没有
+    allBeautifyInput = [];
+    /**查找所有需要美化的表单控件，并绑定事件 */
+    bindBeautifyInput() {
+        const allCheckBox = this.form.querySelectorAll('input[type="checkbox"]');
+        const allRadio = this.form.querySelectorAll('input[type="radio"]');
+        const checkboxAndRadio = [allCheckBox, allRadio];
+        for (const arr of checkboxAndRadio) {
+            arr.forEach((input) => {
+                let subOption = null;
+                if (input.classList.contains('checkbox_switch')) {
+                    subOption = this.form.querySelector(`.subOptionWrap[data-show="${input.name}"]`);
+                }
+                const span = input.nextElementSibling;
+                // 点击美化元素时，点击真实的 input 控件
+                span.addEventListener('click', () => {
+                    input.click();
+                });
+                // 当美化元素获得焦点，并且用户按下了回车或空格键时，点击真实的 input 控件
+                span.addEventListener('keydown', (event) => {
+                    if ((event.code === 'Enter' || event.code === 'Space') &&
+                        event.target === span) {
+                        event.stopPropagation();
+                        event.preventDefault();
+                        input.click();
+                    }
+                });
+                this.allBeautifyInput.push({
+                    input,
+                    span,
+                    label: this.form.querySelector(`label[for="${input.id}"]`),
+                    subOption,
+                });
+            });
+        }
+        // 设置变化或者重置时，重新设置美化状态
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, _utils_Utils__WEBPACK_IMPORTED_MODULE_0__.Utils.debounce(() => {
+            this.initBeautifyInput();
+        }, 50));
+    }
+    // 设置表单里的美化元素的状态
+    initBeautifyInput() {
+        for (const item of this.allBeautifyInput) {
+            const { input, span, label, subOption } = item;
+            // 重设 label 的高亮状态
+            if (label) {
+                const method = input.checked ? 'add' : 'remove';
+                label.classList[method]('active');
+            }
+            // 重设子选项区域的显示/隐藏状态
+            if (subOption) {
+                subOption.style.display = input.checked ? 'inline-flex' : 'none';
+            }
+        }
+    }
+}
+
 
 
 /***/ }),
@@ -42480,6 +42447,102 @@ const formHtml = `
 
   </div>
 </form>`;
+
+
+/***/ }),
+
+/***/ "./src/ts/setting/FormHelpManager.ts":
+/*!*******************************************!*\
+  !*** ./src/ts/setting/FormHelpManager.ts ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   FormHelpManager: () => (/* binding */ FormHelpManager)
+/* harmony export */ });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+
+
+
+
+
+/** 管理表单里的帮助信息 */
+class FormHelpManager {
+    constructor(form) {
+        this.form = form;
+        this.displayTipArea();
+        this.toggleHelpArea();
+        this.showMsgWhenClickBtn();
+    }
+    form;
+    /** 有些提示区域是默认显示的，用户点击“我知道了”按钮之后改为隐藏 */
+    tipAreaConfig = [
+        {
+            key: 'tipPinOption',
+            selector: 'p#tipPinOption',
+        },
+        {
+            key: 'tipCloseAskFileSaveLocation',
+            selector: 'p#tipCloseAskFileSaveLocation',
+        },
+        {
+            key: 'tipOpenWikiLink',
+            selector: 'p#tipOpenWikiLinkWrap',
+        },
+    ];
+    /** 根据设置来显示或隐藏一些提示 */
+    displayTipArea() {
+        this.tipAreaConfig.forEach((item) => {
+            const el = document.querySelector(item.selector);
+            if (el) {
+                // 点击“我知道了”按钮之后隐藏提示区域
+                const btn = el.querySelector('button');
+                btn.addEventListener('click', () => {
+                    (0,_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.setSetting)(item.key, false);
+                    el.style.display = 'none';
+                });
+                // 监听设置变化
+                window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
+                    const data = ev.detail.data;
+                    if (data.name === item.key) {
+                        el.style.display = data.value ? 'block' : 'none';
+                    }
+                });
+            }
+        });
+    }
+    /**点击一些按钮时，切换显示对应的帮助区域 */
+    toggleHelpArea() {
+        const btns = this.form.querySelectorAll('.toggleArea');
+        btns.forEach((btn) => {
+            const targetSelector = btn.dataset.toggleTarget;
+            const target = document.querySelector(targetSelector);
+            btn.addEventListener('click', () => {
+                _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.toggleEl(target);
+            });
+        });
+    }
+    /**点击一些按钮时，通过 msgBox 显示帮助 */
+    showMsgWhenClickBtn() {
+        const btns = this.form.querySelectorAll('.showMsgBtn');
+        btns.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const title = btn.dataset.title;
+                const msg = btn.dataset.msg;
+                _MsgBox__WEBPACK_IMPORTED_MODULE_4__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl(msg), {
+                    title: _Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl(title),
+                });
+            });
+        });
+    }
+}
+
 
 
 /***/ }),
@@ -44915,6 +44978,15 @@ class Wiki {
         // 当用户修改了语言时，重设每个设置项的链接
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.langChange, () => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_3__.states.settingInitialized) {
+                this.setOptionLink();
+            }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingChange, (ev) => {
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_3__.states.settingInitialized) {
+                return;
+            }
+            const data = ev.detail.data;
+            if (data.name === 'debugForWiki') {
                 this.setOptionLink();
             }
         });

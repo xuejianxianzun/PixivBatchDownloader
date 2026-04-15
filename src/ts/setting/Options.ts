@@ -45,7 +45,6 @@ class Options {
       if (!states.settingInitialized) {
         return
       }
-
       const data = ev.detail.data as any
       if (data.name === 'showAdvancedSettings') {
         this.display()
