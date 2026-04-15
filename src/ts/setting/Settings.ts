@@ -780,7 +780,7 @@ class Settings {
     previewUgoira: true,
     tipPreviewWork: true,
     tipHotkeysViewLargeImage: true,
-    timedCrawlInterval: 120,
+    timedCrawlInterval: 30,
     slowCrawl: true,
     slowCrawlOnWorksNumber: 100,
     downloadOnClickBookmark: false,

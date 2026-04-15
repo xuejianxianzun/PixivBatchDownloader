@@ -19,8 +19,6 @@ class TimedCrawl {
   // https://developer.mozilla.org/zh-CN/docs/Web/API/setTimeout#%E6%9C%80%E5%A4%A7%E5%BB%B6%E6%97%B6%E5%80%BC
   // max: 2147483647 / 60 / 1000
   private readonly timeMinuteMax = 35791
-  /**这次抓取是否是由本模块发起的 */
-  private crawlBySelf = false
 
   /**启动定时抓取任务。
    *
@@ -85,7 +83,7 @@ class TimedCrawl {
       if (!this.callback) {
         return
       }
-      this.crawlBySelf = true
+      states.timedCrawlMode = true
       states.quickCrawl = true
       this.callback()
 
@@ -96,7 +94,7 @@ class TimedCrawl {
   private reset() {
     this.callback = undefined
     window.clearTimeout(this.timer)
-    this.crawlBySelf = false
+    states.timedCrawlMode = false
     states.quickCrawl = false
   }
 
@@ -114,14 +112,14 @@ class TimedCrawl {
       window.addEventListener(ev, () => {
         window.setTimeout(() => {
           // 需要延迟执行，在日志提示显示之后再复位状态
-          this.crawlBySelf = false
+          states.timedCrawlMode = false
         }, 50)
       })
     }
 
     // 显示一些提示
     window.addEventListener(EVT.list.crawlStart, () => {
-      if (!this.crawlBySelf) {
+      if (!states.timedCrawlMode) {
         return
       }
       log.success(lang.transl('_开始定时抓取'))
@@ -133,7 +131,7 @@ class TimedCrawl {
     for (const ev of tipWaitNextCrawl) {
       window.addEventListener(ev, () => {
         window.setTimeout(() => {
-          if (this.crawlBySelf) {
+          if (states.timedCrawlMode) {
             log.log(lang.transl('_当前时间') + new Date().toLocaleString())
             log.success(lang.transl('_等待下一次定时抓取'))
           }

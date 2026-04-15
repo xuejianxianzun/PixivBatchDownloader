@@ -2822,7 +2822,7 @@ class Config {
     static AITagsLower = Config.AITags.map((tag) => tag.toLowerCase());
     /**始终保持显示的选项 */
     static optionWhiteList = [
-        2, 4, 13, 17, 26, 32, 44, 50, 51, 57, 64, 37, 101,
+        2, 4, 13, 17, 26, 28, 32, 44, 50, 51, 57, 64, 37, 99, 100, 101,
     ];
 }
 
@@ -14610,7 +14610,9 @@ class InitPageBase {
         const msg = _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_抓取结果为零请检查筛选条件');
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.error(msg);
         _Log__WEBPACK_IMPORTED_MODULE_5__.log.log('');
-        _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
+        if (!_store_States__WEBPACK_IMPORTED_MODULE_9__.states.timedCrawlMode) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_18__.msgBox.error(msg);
+        }
     }
     // 抓取完成后，对结果进行排序
     sortResult() { }
@@ -14944,8 +14946,6 @@ class TimedCrawl {
     // https://developer.mozilla.org/zh-CN/docs/Web/API/setTimeout#%E6%9C%80%E5%A4%A7%E5%BB%B6%E6%97%B6%E5%80%BC
     // max: 2147483647 / 60 / 1000
     timeMinuteMax = 35791;
-    /**这次抓取是否是由本模块发起的 */
-    crawlBySelf = false;
     /**启动定时抓取任务。
      *
      * 只能有 1 个定时抓取任务，如果重复调用此方法，后传递的回调函数会覆盖之前的回调函数。
@@ -14993,7 +14993,7 @@ class TimedCrawl {
             if (!this.callback) {
                 return;
             }
-            this.crawlBySelf = true;
+            _store_States__WEBPACK_IMPORTED_MODULE_5__.states.timedCrawlMode = true;
             _store_States__WEBPACK_IMPORTED_MODULE_5__.states.quickCrawl = true;
             this.callback();
             this.execute();
@@ -15002,7 +15002,7 @@ class TimedCrawl {
     reset() {
         this.callback = undefined;
         window.clearTimeout(this.timer);
-        this.crawlBySelf = false;
+        _store_States__WEBPACK_IMPORTED_MODULE_5__.states.timedCrawlMode = false;
         _store_States__WEBPACK_IMPORTED_MODULE_5__.states.quickCrawl = false;
     }
     bindEvents() {
@@ -15018,13 +15018,13 @@ class TimedCrawl {
             window.addEventListener(ev, () => {
                 window.setTimeout(() => {
                     // 需要延迟执行，在日志提示显示之后再复位状态
-                    this.crawlBySelf = false;
+                    _store_States__WEBPACK_IMPORTED_MODULE_5__.states.timedCrawlMode = false;
                 }, 50);
             });
         }
         // 显示一些提示
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.crawlStart, () => {
-            if (!this.crawlBySelf) {
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_5__.states.timedCrawlMode) {
                 return;
             }
             _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_开始定时抓取'));
@@ -15034,7 +15034,7 @@ class TimedCrawl {
         for (const ev of tipWaitNextCrawl) {
             window.addEventListener(ev, () => {
                 window.setTimeout(() => {
-                    if (this.crawlBySelf) {
+                    if (_store_States__WEBPACK_IMPORTED_MODULE_5__.states.timedCrawlMode) {
                         _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_当前时间') + new Date().toLocaleString());
                         _Log__WEBPACK_IMPORTED_MODULE_3__.log.success(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_等待下一次定时抓取'));
                     }
@@ -16607,7 +16607,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }
     }
     async nextStep() {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.previewResult) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__.settings.previewResult && !_store_States__WEBPACK_IMPORTED_MODULE_13__.states.timedCrawlMode) {
             _Log__WEBPACK_IMPORTED_MODULE_8__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_提示启用预览搜索页面的筛选结果时不会自动开始下载'));
         }
         this.setSlowCrawl();
@@ -33747,12 +33747,12 @@ If the number of works shown on the page is greater than 0, it may be that Pixiv
         'Таймер сканирования запущен, интервал: {} минут.<br>Если вы хотите изменить интервал времени, вы можете изменить настройки на вкладке «Дополнительно»: Интервальное время сканирования с таймером.',
     ],
     _定时抓取的推荐用法: [
-        '推荐用法：增量抓取新作品。例如在关注的用户的新作品页面里，设置抓取页数为 2，然后启动定时抓取。这样下载器可以自动下载新作品。<br>建议启用“不下载重复文件”功能，以避免下载重复的文件。',
-        '推薦用法：增量抓取新作品。例如在關注的使用者的新作品頁面裡，設定抓取頁數為 2，然後啟動定時抓取。這樣下載器可以自動下載新作品。<br>建議啟用“不下載重複檔案”功能，以避免下載重複的檔案。',
-        'Recommended usage: Fetch new work incrementally. For example, in the new work page of the user you follow, set the number of crawled pages to 2, and then start timing crawling. This way the downloader can automatically download new works.<br>It is recommended to enable the "Do not download duplicate files" feature to avoid downloading duplicate files.',
-        '推奨される使用法: 新しい作業を段階的にフェッチします。 たとえば、フォローしているユーザーの新しい作品ページで、クロールされたページの数を 2 に設定し、クロールのタイミングを開始します。 このようにして、ダウンローダーは新しい作品を自動的にダウンロードできます。<br>重複ファイルのダウンロードを避けるために、「重複ファイルをダウンロードしない」機能を有効にすることをお勧めします。',
-        '권장 사용법: 새 작업을 점진적으로 가져옵니다. 예를 들어 팔로우하는 사용자의 새 작업 페이지에서 크롤링 페이지 수를 2로 설정한 다음 타이밍 크롤링을 시작합니다. 이렇게 하면 다운로더가 자동으로 새 작품을 다운로드할 수 있습니다.<br>중복 파일 다운로드를 방지하기 위해 "중복 파일 다운로드 금지" 기능을 활성화하는 것이 좋습니다.',
-        'Рекомендуемое использование: получать новую работу постепенно. Например, на новой рабочей странице пользователя, за которым вы следите, установите количество просканированных страниц равным 2, а затем запустите сканирование по времени. Таким образом, загрузчик может автоматически загружать новые работы.<br>Рекомендуется включить функцию "Не загружать дубликаты файлов", чтобы избежать загрузки дубликатов файлов.',
+        `推荐用法：增量抓取新作品。例如在关注的用户的新作品页面里，或者搜索页面里，设置抓取页数为 2，然后启动定时抓取。这样下载器可以自动下载新作品。<br>建议启用“不抓取下载过的作品”和“不下载重复文件”功能，以提高效率。`,
+        `推薦用法：增量抓取新作品。例如在關注用戶的新作品頁面裡，或者搜索頁面裡，設定抓取頁數為 2，然後啟動定時抓取。這樣下載器可以自動下載新作品。<br>建議啟用「不抓取下載過的作品」和「不下載重複檔案」功能，以提高效率。`,
+        `Recommended usage: Incrementally crawl new works. For example, on the new works page of followed users, or on the search page, set the number of crawl pages to 2, then start timed crawling. This way the downloader can automatically download new works.<br>It is recommended to enable the "Do not crawl downloaded works" and "Do not download duplicate files" features to improve efficiency.`,
+        `おすすめの使い方：新作を増分クロールします。例えばフォローしているユーザーの新作ページや検索ページで、クロールページ数を2に設定し、定時クロールを開始します。これによりダウンローダーが新作を自動的にダウンロードできます。<br>効率を高めるため、「ダウンロード済みの作品をクロールしない」と「重複ファイルをダウンロードしない」機能を有効にすることをおすすめします。`,
+        `추천 사용법: 증분으로 새 작품을 크롤링합니다. 예를 들어 팔로우한 사용자의 새 작품 페이지나 검색 페이지에서 크롤링 페이지 수를 2로 설정한 후 정기 크롤링을 시작하세요. 이렇게 하면 다운로더가 새 작품을 자동으로 다운로드할 수 있습니다.<br>효율성을 높이기 위해 "다운로드된 작품을 크롤링하지 않음"과 "중복 파일 다운로드하지 않음" 기능을 활성화하는 것을 권장합니다.`,
+        `Рекомендуемый способ использования: Инкрементный краулинг новых работ. Например, на странице новых работ отслеживаемых пользователей или на странице поиска установите количество страниц для краулинга равным 2, а затем запустите периодический краулинг. Таким образом загрузчик сможет автоматически скачивать новые работы.<br>Рекомендуется включить функции «Не краулить загруженные работы» и «Не загружать повторяющиеся файлы» для повышения эффективности.`,
     ],
     _定时抓取已启动的提示2: [
         '在定时抓取时，将这个标签页静置即可。不要改变这个标签页的 URL，否则抓取结果可能不符合预期。<br><br>如果这个扩展程序自动更新了，那么这个页面将不能正常下载文件（需要刷新页面来恢复正常）。 如果你想长期执行定时抓取任务，建议安装下载器的离线版本，以免因为自动更新而导致问题。<br>你可以在这里下载离线安装包：<a href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases" target="_blank">Releases page</a>',
@@ -37367,12 +37367,12 @@ If you want to solve this problem, press <span class="blue">Win</span> + <span c
         `Закрепить сверху`,
     ],
     _提示可以置顶选项: [
-        `置顶选项：你可以把自己常用的选项置顶显示来提高效率。方法 1: 把鼠标指针放到选项上，然后点击左侧的置顶图标。方法 2: 长按选项名称 0.5 秒。`,
-        `置頂選項：你可以把自己常用的選項置頂顯示來提高效率。方法 1: 把滑鼠指標放到選項上，然後點擊左側的置頂圖示。方法 2: 長按選項名稱 0.5 秒。`,
-        `Pin options: You can pin your frequently used options to the top to improve efficiency. Method 1: Hover the mouse pointer over the option, then click the pin icon on the left. Method 2: Long press the option name for 0.5 seconds.`,
-        `オプションの固定：よく使うオプションをトップに固定表示して効率を上げることができます。方法 1: マウスカーソルをオプションに合わせ、左側のピンアイコンをクリックします。方法 2: オプションの名前を0.5秒長押しします。`,
-        `상단 고정 옵션: 자주 사용하는 옵션을 상단에 고정하여 효율성을 높일 수 있습니다. 방법 1: 마우스 포인터를 옵션 위에 올린 후 왼쪽의 고정 아이콘을 클릭하세요. 방법 2: 옵션 이름을 0.5초 동안 길게 누르세요.`,
-        `Закрепление параметров: Вы можете закрепить часто используемые параметры сверху для повышения эффективности. Способ 1: Наведите указатель мыши на параметр, затем нажмите на иконку закрепления слева. Способ 2: Долгое нажатие на название параметра в течение 0.5 секунды.`,
+        `你可以置顶自己常用的选项，它们会显示在选项卡的顶部，并且即使未启用“显示高级设置”也会始终显示。方法 1: 把鼠标指针放到选项上，然后点击左侧的置顶图标。方法 2: 长按选项名称 0.5 秒。`,
+        `你可以置頂自己常用的選項，它們會顯示在選項卡的頂部，並且即使未啟用「顯示高級設定」也會始終顯示。方法 1: 把滑鼠指標放到選項上，然後點擊左側的置頂圖示。方法 2: 長按選項名稱 0.5 秒。`,
+        `You can pin your frequently used options to the top. They will appear at the top of the options tab and will always be displayed even if "Show advanced settings" is not enabled. Method 1: Hover the mouse pointer over the option, then click the pin icon on the left. Method 2: Long press the option name for 0.5 seconds.`,
+        `よく使うオプションをトップに固定できます。これらは設定タブの最上部に表示され、「高度な設定を表示」が有効になっていなくても常に表示されます。方法 1: マウスカーソルをオプションに合わせ、左側のピンアイコンをクリックします。方法 2: オプション名を0.5秒長押しします。`,
+        `자주 사용하는 옵션을 상단에 고정할 수 있습니다. 이 옵션들은 옵션 탭의 맨 위에 표시되며, "고급 설정 표시"가 활성화되지 않았더라도 항상 표시됩니다. 방법 1: 마우스 포인터를 옵션 위에 올린 후 왼쪽의 고정 아이콘을 클릭하세요. 방법 2: 옵션 이름을 0.5초 동안 길게 누르세요.`,
+        `Вы можете закрепить часто используемые параметры сверху. Они будут отображаться в верхней части вкладки параметров и всегда будут видны, даже если «Показывать расширенные настройки» не включено. Способ 1: Наведите указатель мыши на параметр, затем нажмите на иконку закрепления слева. Способ 2: Долгое нажатие на название параметра в течение 0.5 секунды.`,
     ],
     _已置顶: [`已置顶`, `已置頂`, `Pinned`, `固定済み`, `고정됨`, `Закреплено`],
     _取消置顶: [
@@ -41434,7 +41434,7 @@ const formHtml = `
         <span data-xztext="_定时抓取的间隔时间"></span>
         <span class="gray1"> ? </span>
       </a>
-      <input type="text" name="timedCrawlInterval" class="setinput_style1 blue" value="120">
+      <input type="text" name="timedCrawlInterval" class="setinput_style1 blue" value="30">
       <span class="settingNameStyle" data-xztext="_分钟"></span>
     </p>
 
@@ -41740,7 +41740,7 @@ const formHtml = `
         <span class="gray1"> ? </span>
       </a>
       <span data-xztext="_当文件数量大于"></span>
-      <input type="text" name="downloadIntervalOnWorksNumber" class="setinput_style1 blue" value="120">
+      <input type="text" name="downloadIntervalOnWorksNumber" class="setinput_style1 blue" value="150">
       <span class="verticalSplit"></span>
       <span data-xztext="_间隔时间"></span>
       <input type="text" name="downloadInterval" class="setinput_style1 blue" value="0">
@@ -43482,7 +43482,8 @@ class PinOptions {
                 // 移除类名
                 option.classList.remove(this.pinnedClassName);
                 // 如果它不在始终显示的选项里，并且未启用“显示高级设置”，则隐藏它
-                if (!_Config__WEBPACK_IMPORTED_MODULE_0__.Config.optionWhiteList.includes(no) && !_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.showAdvancedSettings) {
+                if (!_Config__WEBPACK_IMPORTED_MODULE_0__.Config.optionWhiteList.includes(no) &&
+                    !_Settings__WEBPACK_IMPORTED_MODULE_7__.settings.showAdvancedSettings) {
                     option.style.display = 'none';
                 }
                 // 查找锚点，并把它移动回原来的位置
@@ -44127,7 +44128,7 @@ class Settings {
         previewUgoira: true,
         tipPreviewWork: true,
         tipHotkeysViewLargeImage: true,
-        timedCrawlInterval: 120,
+        timedCrawlInterval: 30,
         slowCrawl: true,
         slowCrawlOnWorksNumber: 100,
         downloadOnClickBookmark: false,
@@ -45502,6 +45503,9 @@ class States {
     downloadCompleteTime = 0;
     /**是否在快速合并小说模式下。如果为 true，则只抓取每个系列小说里的第一篇小说，并且会跳过获取设定资料的流程，以节省时间 */
     quickMergeNovel = false;
+    /** 是否在定时抓取模式下 */
+    // 在定时抓取模式下，不显示一些提示
+    timedCrawlMode = false;
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.settingInitialized, () => {
             this.settingInitialized = true;

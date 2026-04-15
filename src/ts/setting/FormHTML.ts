@@ -765,7 +765,7 @@ export const formHtml = `
         <span data-xztext="_定时抓取的间隔时间"></span>
         <span class="gray1"> ? </span>
       </a>
-      <input type="text" name="timedCrawlInterval" class="setinput_style1 blue" value="120">
+      <input type="text" name="timedCrawlInterval" class="setinput_style1 blue" value="30">
       <span class="settingNameStyle" data-xztext="_分钟"></span>
     </p>
 
@@ -1071,7 +1071,7 @@ export const formHtml = `
         <span class="gray1"> ? </span>
       </a>
       <span data-xztext="_当文件数量大于"></span>
-      <input type="text" name="downloadIntervalOnWorksNumber" class="setinput_style1 blue" value="120">
+      <input type="text" name="downloadIntervalOnWorksNumber" class="setinput_style1 blue" value="150">
       <span class="verticalSplit"></span>
       <span data-xztext="_间隔时间"></span>
       <input type="text" name="downloadInterval" class="setinput_style1 blue" value="0">

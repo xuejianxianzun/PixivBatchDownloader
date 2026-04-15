@@ -63,6 +63,10 @@ class States {
   /**是否在快速合并小说模式下。如果为 true，则只抓取每个系列小说里的第一篇小说，并且会跳过获取设定资料的流程，以节省时间 */
   public quickMergeNovel = false
 
+  /** 是否在定时抓取模式下 */
+  // 在定时抓取模式下，不显示一些提示
+  public timedCrawlMode = false
+
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
       this.settingInitialized = true
