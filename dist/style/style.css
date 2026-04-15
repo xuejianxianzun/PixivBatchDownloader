@@ -674,6 +674,10 @@ body.mobile #quickCrawlBtn {
   align-items: flex-start;
   column-gap: 4px;
   margin: 2px 0;
+  border-radius: 6px;
+}
+.centerWrap .centerWrap_con .settingForm p.option:hover {
+  background-color: rgba(99, 205, 247, 0.1);
 }
 .centerWrap .centerWrap_con .settingForm p.option .pinButton {
   position: absolute;
@@ -770,6 +774,9 @@ body.mobile #quickCrawlBtn {
   font-weight: bold;
   background-color: #fff;
   border-radius: 4px;
+}
+.centerWrap .centerWrap_con .settingForm p.option.settingCategoryName:hover {
+  background-color: transparent;
 }
 .centerWrap .centerWrap_con .settingForm p.option.settingCategoryName::after {
   display: block;
@@ -1314,6 +1321,9 @@ body.mobile #quickCrawlBtn {
 .centerWrap.theme-dark p.option.new::before {
   color: #fff !important;
 }
+.centerWrap.theme-dark p.option:hover {
+  background-color: rgba(204, 240, 254, 0.3);
+}
 .centerWrap.theme-dark button,
 .centerWrap.theme-dark .tip {
   color: #fff;
@@ -1382,6 +1392,9 @@ body.mobile #quickCrawlBtn {
 }
 .centerWrap.xzBG p.option.new::before {
   color: #fff !important;
+}
+.centerWrap.xzBG p.option:hover {
+  background-color: rgba(209, 239, 251, 0.2) !important;
 }
 .centerWrap.xzBG button,
 .centerWrap.xzBG .tip {

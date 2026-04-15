@@ -246,6 +246,11 @@
         align-items: flex-start;
         column-gap: 4px;
         margin: 2px 0;
+        border-radius: 6px;
+
+        &:hover {
+          background-color: rgba(99, 205, 247, 0.1);
+        }
 
         // 在选项左侧显示置顶按钮
         .pinButton {
@@ -366,6 +371,10 @@
             font-weight: bold;
             background-color: #fff;
             border-radius: 4px;
+          }
+
+          &:hover {
+            background-color: transparent;
           }
 
           &::after {
@@ -1057,6 +1066,10 @@
     color: #fff !important;
   }
 
+  p.option:hover {
+    background-color: rgba(204, 240, 254, 0.3);
+  }
+
   button,
   .tip {
     color: #fff;
@@ -1147,6 +1160,10 @@
 
   p.option.new::before {
     color: #fff !important;
+  }
+
+  p.option:hover {
+    background-color: rgb(209 239 251 / 20%) !important;
   }
 
   button,
